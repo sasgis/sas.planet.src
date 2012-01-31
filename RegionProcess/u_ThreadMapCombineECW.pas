@@ -27,14 +27,16 @@ type
   P256rgb = ^T256rgb;
   T256rgb = array[0..255] of PRow;
 
-  TThreadMapCombineECW = class(TThreadMapCombineBaseWithByLyne)
+  TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
     Rarr: P256rgb;
     Garr: P256rgb;
     Barr: P256rgb;
     FQuality: Integer;
+    sx, ex, sy, ey: integer;
+    btmm: TCustomBitmap32;
 
-    function ReadLine(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): Boolean; reintroduce;
+    function ReadLine(ALine: cardinal; var LineR, LineG, LineB: PLineRGB): Boolean;
   protected
     procedure SaveRect; override;
   public
@@ -98,25 +100,26 @@ function TThreadMapCombineECW.ReadLine(ALine: cardinal; var LineR, LineG,
   LineB: PLineRGB): boolean;
 var
   i, j, rarri, lrarri, p_x, p_y, Asx, Asy, Aex, Aey, starttile: integer;
-  line: Integer;
+  VLine: Integer;
   p: PColor32array;
   VConverter: ILocalCoordConverter;
+  VTileRect: TDoubleRect;
 begin
   Result := True;
-  line := ALine;
-  if line < (256 - sy) then begin
-    starttile := sy + line;
+  VLine := ALine;
+  if VLine < (256 - sy) then begin
+    starttile := sy + VLine;
   end else begin
-    starttile := (line - (256 - sy)) mod 256;
+    starttile := (VLine - (256 - sy)) mod 256;
   end;
-  if (starttile = 0) or (line = 0) then begin
-    FTilesProcessed := Line;
+  if (starttile = 0) or (VLine = 0) then begin
+    FTilesProcessed := VLine;
     ProgressFormUpdateOnProgress;
-    p_y := (CurrentPieceRect.Top + line) - ((CurrentPieceRect.Top + line) mod 256);
+    p_y := (CurrentPieceRect.Top + VLine) - ((CurrentPieceRect.Top + VLine) mod 256);
     p_x := CurrentPieceRect.Left - (CurrentPieceRect.Left mod 256);
     lrarri := 0;
     rarri := 0;
-    if line > (255 - sy) then begin
+    if VLine > (255 - sy) then begin
       Asy := 0;
     end else begin
       Asy := sy;
@@ -131,7 +134,8 @@ begin
     while p_x <= CurrentPieceRect.Right do begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       FLastTile := Point(p_x shr 8, p_y shr 8);
-      if not (RgnAndRgn(@FPoly[0], Length(FPoly), p_x + 128, p_y + 128, false)) then begin
+      VTileRect := MainGeoConverter.TilePos2PixelRectFloat(FLastTile, Zoom);
+      if not Line.IsRectIntersectPolygon(VTileRect) then begin
         btmm.Clear(BackGroundColor);
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
