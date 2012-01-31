@@ -65,7 +65,6 @@ type
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
   function GetDwnlNum(var ARect: TRect; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64; overload;
-  function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
   function RgnAndRgn(APoints: PPointArray; ACount: Integer; x, y: integer; prefalse: boolean):boolean; // Переделать использующий ее код в ближайшее время
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
   function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
@@ -102,35 +101,6 @@ begin
            (Pt.X-iPt.X<((jPt.X-iPt.X)*(Pt.Y-iPt.Y)/(jPt.Y-iPt.Y))));
    jPt:=iPt;
    Inc(iPt);
-  end;
-end;
-
-function RgnAndRect(APoints: PPointArray; ACount: Integer; ARect: TRect):boolean;
-var
-  i: integer;
-begin
-  if PtInPolygon(ARect.TopLeft, APoints, ACount) then begin
-    result:=true;
-  end else begin
-    if PtInPolygon(Point(ARect.Right, ARect.Top), APoints, ACount) then begin
-      result:=true;
-    end else begin
-      if PtInPolygon(ARect.BottomRight, APoints, ACount) then begin
-        result:=true;
-      end else begin
-        if PtInPolygon(Point(ARect.Left,ARect.Bottom), APoints, ACount) then begin
-          result:=true;
-        end else begin
-          result:=false;
-          for i:=0 to ACount-2 do begin
-            if PtInRect(ARect, APoints[i]) then begin
-              result:=true;
-              Break;
-            end;
-          end;
-        end;
-      end;
-    end;
   end;
 end;
 
