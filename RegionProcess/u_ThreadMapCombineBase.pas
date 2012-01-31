@@ -52,38 +52,41 @@ type
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FTempBitmap: TCustomBitmap32;
     FMainGeoConverter: ICoordConverter;
-  protected
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
-    FZoom: byte;
-    FPoly: TArrayOfPoint;
     FPolyProjected: IProjectedPolygon;
     FLine: IProjectedPolygonLine;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
-
     FFileName: string;
     FFilePath: string;
     FFileExt: string;
-    FCurrentFileName: string;
     FMapRect: TRect;
     FMapSize: TPoint;
-    FMapPieceSize: TPoint;
-    FCurrentPieceRect: TRect;
-    FLastTile: TPoint;
     FMarksImageProvider: IBitmapLayerProvider;
-
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FBackGroundColor: TColor32;
+    FZoom: byte;
+  protected
+    FPoly: TArrayOfPoint;
+
+    FCurrentFileName: string;
+    FMapPieceSize: TPoint;
+    FCurrentPieceRect: TRect;
+    FLastTile: TPoint;
+
 
     FArray256BGR: P256ArrayBGR;
     FArray256ABGR: P256ArrayABGR;
     sx, ex, sy, ey: integer;
     btmm: TCustomBitmap32;
 
+    property Zoom: byte read FZoom;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
     property MainGeoConverter: ICoordConverter read FMainGeoConverter;
+    property Line: IProjectedPolygonLine read FLine;
+    property BackGroundColor: TColor32 read FBackGroundColor;
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
     procedure PrepareTileBitmap(
       ATargetBitmap: TCustomBitmap32;

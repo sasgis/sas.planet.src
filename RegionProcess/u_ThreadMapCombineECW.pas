@@ -132,7 +132,7 @@ begin
       // запомнием координаты обрабатываемого тайла для случая если произойдет ошибка
       FLastTile := Point(p_x shr 8, p_y shr 8);
       if not (RgnAndRgn(@FPoly[0], Length(FPoly), p_x + 128, p_y + 128, false)) then begin
-        btmm.Clear(FBackGroundColor);
+        btmm.Clear(BackGroundColor);
       end else begin
         FLastTile := Point(p_x shr 8, p_y shr 8);
         VConverter := CreateConverterForTileImage(FLastTile);
@@ -184,24 +184,24 @@ begin
       btmm.Height := 256;
       getmem(Rarr, 256 * sizeof(PRow));
       for k := 0 to 255 do begin
-        getmem(Rarr[k], (FMapSize.X + 1) * sizeof(byte));
+        getmem(Rarr[k], (FMapPieceSize.X + 1) * sizeof(byte));
       end;
       getmem(Garr, 256 * sizeof(PRow));
       for k := 0 to 255 do begin
-        getmem(Garr[k], (FMapSize.X + 1) * sizeof(byte));
+        getmem(Garr[k], (FMapPieceSize.X + 1) * sizeof(byte));
       end;
       getmem(Barr, 256 * sizeof(PRow));
       for k := 0 to 255 do begin
-        getmem(Barr[k], (FMapSize.X + 1) * sizeof(byte));
+        getmem(Barr[k], (FMapPieceSize.X + 1) * sizeof(byte));
       end;
       try
-        Datum := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.Datum.EPSG);
-        Proj := 'EPSG:' + IntToStr(FTypeMap.GeoConvert.GetProjectionEPSG);
-        Units := FTypeMap.GeoConvert.GetCellSizeUnits;
+        Datum := 'EPSG:' + IntToStr(MainGeoConverter.Datum.EPSG);
+        Proj := 'EPSG:' + IntToStr(MainGeoConverter.GetProjectionEPSG);
+        Units := MainGeoConverter.GetCellSizeUnits;
         CalculateWFileParams(
-          FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.TopLeft, FZoom),
-          FTypeMap.GeoConvert.PixelPos2LonLat(FCurrentPieceRect.BottomRight, FZoom),
-          FMapPieceSize.X, FMapPieceSize.Y, FTypeMap.GeoConvert,
+          MainGeoConverter.PixelPos2LonLat(FCurrentPieceRect.TopLeft, Zoom),
+          MainGeoConverter.PixelPos2LonLat(FCurrentPieceRect.BottomRight, Zoom),
+          FMapPieceSize.X, FMapPieceSize.Y, MainGeoConverter,
           CellIncrementX, CellIncrementY, OriginX, OriginY
           );
         errecw :=

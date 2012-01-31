@@ -98,12 +98,12 @@ procedure TThreadMapCombineKMZ.SaveRect;
 var
   iWidth, iHeight: integer;
   i, j: integer;
-  FileName: string;
+  VFileName: string;
 
   kmlm, jpgm: TMemoryStream;
   VLLRect: TDoubleRect;
   str: UTF8String;
-  VFileName: String;
+  VNameInKmz: String;
   nim: TPoint;
 
   Zip: TKaZip;
@@ -113,6 +113,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VLocalRect: TRect;
   JPGSaver: IBitmapTileSaver;
+  VKmzFileNameOnly: string;
 begin
   nim.X := ((FMapPieceSize.X-1) div 1024) + 1;
   nim.Y := ((FMapPieceSize.Y-1) div 1024) + 1;
@@ -123,16 +124,17 @@ begin
 
   JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(FQuality);
 
+  VKmzFileNameOnly := ExtractFileName(FCurrentFileName);
   Zip := TKaZip.Create(nil);
   try
-    Zip.FileName := ChangeFileExt(FCurrentFileName, '.kmz');
-    Zip.CreateZip(ChangeFileExt(FCurrentFileName, '.kmz'));
+    Zip.FileName := FCurrentFileName;
+    Zip.CreateZip(FCurrentFileName);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
 
     kmlm := TMemoryStream.Create;
     try
-      str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + ExtractFileName(FCurrentFileName) + '</name>' + #13#10);
+      str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
       VBmp := TCustomBitmap32.Create;
       try
         VBmp.SetSize(iWidth, iHeight);
@@ -151,20 +153,21 @@ begin
               VPixelRect.Right := FCurrentPieceRect.Left + iWidth * i;
               VPixelRect.Top := FCurrentPieceRect.Top + iHeight * (j - 1);
               VPixelRect.Bottom := FCurrentPieceRect.Top + iHeight * j;
-              if FLine.IsRectIntersectPolygon(DoubleRect(VPixelRect)) then begin
-                VLocalConverter := ConverterFactory.CreateConverter(VLocalRect, FZoom, MainGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
+              if Line.IsRectIntersectPolygon(DoubleRect(VPixelRect)) then begin
+                VLocalConverter := ConverterFactory.CreateConverter(VLocalRect, Zoom, MainGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
 
+                VBmp.Clear(BackGroundColor);
                 PrepareTileBitmap(VBmp, VLocalConverter);
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
                   break;
                 end;
                 JPGSaver.SaveToStream(VBmp, jpgm);
 
-                FileName := ChangeFileExt(FCurrentFileName, inttostr(i) + inttostr(j) + '.jpg');
-                VFileName := 'files/' + ExtractFileName(FileName);
-                str := str + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + ExtractFileName(FileName) + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
-                str := str + ansiToUTF8('<Icon><href>' + VFileName + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
-                VLLRect := MainGeoConverter.PixelRect2LonLatRect(VPixelRect, FZoom);
+                VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
+                VNameInKmz := 'files/' + VFileName;
+                str := str + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
+                str := str + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
+                VLLRect := MainGeoConverter.PixelRect2LonLatRect(VPixelRect, Zoom);
                 str := str + ansiToUTF8('<LatLonBox>' + #13#10);
                 str := str + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
                 str := str + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
@@ -172,7 +175,7 @@ begin
                 str := str + ansiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
                 str := str + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
                 jpgm.Position := 0;
-                Zip.AddStream(VFileName, jpgm);
+                Zip.AddStream(VNameInKmz, jpgm);
               end;
             finally
               jpgm.Free;
