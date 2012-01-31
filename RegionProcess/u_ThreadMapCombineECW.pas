@@ -47,7 +47,6 @@ type
       APolygon: ILonLatPolygon;
       AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
       AusedReColor: Boolean;
@@ -72,7 +71,6 @@ constructor TThreadMapCombineECW.Create(
   APolygon: ILonLatPolygon;
   AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Azoom: byte;
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
@@ -88,7 +86,6 @@ begin
     APolygon,
     AProjectedPolygon,
     ASplitCount,
-    Azoom,
     Atypemap,
     AHtypemap,
     AusedReColor,
@@ -173,7 +170,6 @@ var
   Units: TCellSizeUnits;
   CellIncrementX, CellIncrementY, OriginX, OriginY: Double;
   errecw: integer;
-  Path: string;
   VECWWriter: TECWWrite;
 begin
   sx := (FCurrentPieceRect.Left mod 256);
@@ -227,8 +223,7 @@ begin
             OriginY
           );
         if (errecw > 0) and (errecw <> 52) then begin
-          path := FTypeMap.GetTileShowName(FLastTile, FZoom);
-          ShowMessageSync(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw) + #13#10 + path);
+          raise Exception.Create(SAS_ERR_Save + ' ' + SAS_ERR_Code + inttostr(errecw));
         end;
       finally
         for k := 0 to 255 do begin

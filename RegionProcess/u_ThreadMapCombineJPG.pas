@@ -34,7 +34,6 @@ type
       APolygon: ILonLatPolygon;
       AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
       AusedReColor: Boolean;
@@ -73,7 +72,6 @@ constructor TThreadMapCombineJPG.Create(
   APolygon: ILonLatPolygon;
   AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Azoom: byte;
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
@@ -89,7 +87,6 @@ begin
     APolygon,
     AProjectedPolygon,
     ASplitCount,
-    Azoom,
     Atypemap,
     AHtypemap,
     AusedReColor,

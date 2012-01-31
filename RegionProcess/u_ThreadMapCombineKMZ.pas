@@ -36,7 +36,6 @@ type
       APolygon: ILonLatPolygon;
       AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
       AusedReColor: Boolean;
@@ -61,12 +60,13 @@ constructor TThreadMapCombineKMZ.Create(
   APolygon: ILonLatPolygon;
   AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Azoom: byte;
   Atypemap, AHtypemap: TMapType;
   AusedReColor: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AQuality: Integer
 );
+var
+  nim: TPoint;
 begin
   inherited Create(
     AViewConfig,
@@ -77,13 +77,17 @@ begin
     APolygon,
     AProjectedPolygon,
     ASplitCount,
-    Azoom,
     Atypemap,
     AHtypemap,
     AusedReColor,
     ARecolorConfig
   );
   FQuality := AQuality;
+  nim.X := ((FMapPieceSize.X-1) div 1024) + 1;
+  nim.Y := ((FMapPieceSize.Y-1) div 1024) + 1;
+  if ((nim.X * nim.Y) > 100) then begin
+    ShowMessageSync(SAS_MSG_GarminMax1Mp);
+  end;
 end;
 
 procedure TThreadMapCombineKMZ.SaveRect;
@@ -116,9 +120,6 @@ begin
 
   FMapPieceSize.y := iHeight;
 
-  if ((nim.X * nim.Y) > 100) and (FNumImgsSaved = 0) then begin
-    ShowMessageSync(SAS_MSG_GarminMax1Mp);
-  end;
   BufRect := FCurrentPieceRect;
 
   Zip := TKaZip.Create(nil);
@@ -222,7 +223,6 @@ begin
   Zip.Close;
   Zip.Free;
   kmlm.Free;
-  inc(FNumImgsSaved);
 end;
 
 end.

@@ -13,6 +13,7 @@ uses
   i_BitmapPostProcessingConfig,
   i_VectorItemLonLat,
   i_VectorItemProjected,
+  i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
@@ -50,13 +51,14 @@ type
     FRecolorConfig: IBitmapPostProcessingConfigStatic;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FTempBitmap: TCustomBitmap32;
-    FMainTypeMap: TMapType;
+    FMainGeoConverter: ICoordConverter;
   protected
     FTypeMap: TMapType;
     FHTypeMap: TMapType;
     FZoom: byte;
     FPoly: TArrayOfPoint;
     FPolyProjected: IProjectedPolygon;
+    FLine: IProjectedPolygonLine;
     FMapCalibrationList: IInterfaceList;
     FSplitCount: TPoint;
 
@@ -70,9 +72,6 @@ type
     FCurrentPieceRect: TRect;
     FLastTile: TPoint;
     FMarksImageProvider: IBitmapLayerProvider;
-
-    FNumImgs: integer;
-    FNumImgsSaved: integer;
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
@@ -111,7 +110,6 @@ type
       APolygon: ILonLatPolygon;
       AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Azoom: byte;
       Atypemap: TMapType;
       AHtypemap: TMapType;
       AusedReColor: Boolean;
@@ -141,7 +139,6 @@ constructor TThreadMapCombineBase.Create(
   APolygon: ILonLatPolygon;
   AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Azoom: byte;
   Atypemap: TMapType;
   AHtypemap: TMapType;
   AusedReColor: Boolean;
@@ -149,21 +146,18 @@ constructor TThreadMapCombineBase.Create(
 );
 begin
   inherited Create(APolygon);
-  FZoom := Azoom;
   FSplitCount := ASplitCount;
   FFilePath := ExtractFilePath(AFileName);
   FFileExt := ExtractFileExt(AFileName);
   FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
   FTypeMap := Atypemap;
   FHTypeMap := AHtypemap;
-  if FTypeMap <> nil then begin
-    FMainTypeMap := FTypeMap;
-  end else begin
-    FMainTypeMap := FHTypeMap;
-  end;
-  if FMainTypeMap = nil then begin
+  FMainGeoConverter := nil;
+
+  if (FTypeMap = nil) and (FHTypeMap = nil) then begin
     raise Exception.Create( _('No one Map or Layer are selected!') );
   end;
+
   FUsedReColor := AusedReColor;
   FRecolorConfig := ARecolorConfig;
   FMarksImageProvider := AMarksImageProvider;
@@ -174,6 +168,19 @@ begin
   FUsePrevZoomAtLayer := AViewConfig.UsePrevZoomAtLayer;
   FBackGroundColor := Color32(AViewConfig.BackGroundColor);
   FPolyProjected := AProjectedPolygon;
+  FZoom := FPolyProjected.Projection.Zoom;
+  FMainGeoConverter := FPolyProjected.Projection.GeoConverter;
+
+  FLine := FPolyProjected.Item[0];
+  FMapRect := FMainGeoConverter.PixelRectFloat2PixelRect(FLine.Bounds, FZoom);
+
+  FMapSize.X := FMapRect.Right - FMapRect.Left;
+  FMapSize.Y := FMapRect.Bottom - FMapRect.Top;
+  FMapPieceSize.X := FMapSize.X div FSplitCount.X;
+  FMapPieceSize.Y := FMapSize.Y div FSplitCount.Y;
+
+  FTilesToProcess := FMapPieceSize.Y;
+  FTilesProcessed := 0;
 end;
 
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress;
@@ -190,16 +197,8 @@ end;
 
 function TThreadMapCombineBase.CreateConverterForTileImage(
   ATile: TPoint): ILocalCoordConverter;
-var
-  VTileRect: TRect;
-  VBitmapTileRect: TRect;
 begin
-  VTileRect := FMainTypeMap.GeoConvert.TilePos2PixelRect(ATile, FZoom);
-  VBitmapTileRect.Left := 0;
-  VBitmapTileRect.Top := 0;
-  VBitmapTileRect.Right := VTileRect.Right - VTileRect.Left;
-  VBitmapTileRect.Bottom := VTileRect.Bottom - VTileRect.Top;
-  Result := FConverterFactory.CreateConverter(VBitmapTileRect, FZoom, FMainTypeMap.GeoConvert, DoublePoint(1, 1), DoublePoint(VTileRect.TopLeft));
+  Result := FConverterFactory.CreateForTile(ATile, FZoom, FMainGeoConverter);
 end;
 
 destructor TThreadMapCombineBase.Destroy;
@@ -248,34 +247,24 @@ var
   i, j, pti: integer;
   VProcessTiles: Int64;
   VLen: Integer;
-  VLine: IProjectedPolygonLine;
   VEnum: IEnumProjectedPoint;
   VPoint: TDoublePoint;
+  VTileRect: TRect;
+  VPath: string;
 begin
   inherited;
-  VLine := FPolyProjected.Item[0];
-  VLen := VLine.Count + 1;
+  VLen := FLine.Count + 1;
   SetLength(FPoly, VLen);
-  VEnum := VLine.GetEnum;
+  VEnum := FLine.GetEnum;
   i := 0;
   while VEnum.Next(VPoint) do begin
     FPoly[i] := Point(Trunc(VPoint.X), Trunc(VPoint.Y));
     Inc(i);
   end;
 
-  VProcessTiles := GetDwnlNum(FMapRect, @FPoly[0], VLen, true);
-  FMapRect := VLine.Projection.GeoConverter.PixelRectFloat2PixelRect(VLine.Bounds, VLine.Projection.Zoom);
-
-  FMapSize.X := FMapRect.Right - FMapRect.Left;
-  FMapSize.Y := FMapRect.Bottom - FMapRect.Top;
-  FMapPieceSize.X := FMapSize.X div FSplitCount.X;
-  FMapPieceSize.Y := FMapSize.Y div FSplitCount.Y;
-
-  FTilesToProcess := FMapPieceSize.Y;
-  FTilesProcessed := 0;
-
-  FNumImgs := FSplitCount.X * FSplitCount.Y;
-  FNumImgsSaved := 0;
+  VTileRect := FMainGeoConverter.PixelRect2TileRect(FMapRect, FZoom);
+  VProcessTiles := VTileRect.Right - VTileRect.Left;
+  VProcessTiles := VProcessTiles * (VTileRect.Bottom - VTileRect.Top);
 
   ProgressFormUpdateCaption(
     Format(
@@ -284,7 +273,7 @@ begin
     ),
     Format(
       SAS_STR_MapCombineProgressCaption,
-      [FMapSize.X, FMapSize.Y, FNumImgs]
+      [FMapSize.X, FMapSize.Y, FSplitCount.X * FSplitCount.Y]
     )
   );
 
@@ -310,7 +299,16 @@ begin
           //TODO: ƒобавить сюда нормальную обработку ошибок.
         end;
       end;
-      saveRECT;
+      try
+        saveRECT;
+      except
+        on E: Exception do begin
+          VPath := FTypeMap.GetTileShowName(FLastTile, FZoom);
+          raise Exception.Create(
+            E.message + #13#10 + VPath
+          );
+        end;
+      end;
     end;
   end;
 end;
