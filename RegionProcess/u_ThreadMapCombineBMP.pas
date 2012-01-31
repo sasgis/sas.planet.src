@@ -11,7 +11,7 @@ uses
   LibBMP;
 
 type
-  TThreadMapCombineBMP = class(TThreadMapCombineBase)
+  TThreadMapCombineBMP = class(TThreadMapCombineBaseWithByLyne)
   protected
     procedure SaveRect; override;
   end;

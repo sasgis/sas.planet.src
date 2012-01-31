@@ -72,14 +72,7 @@ type
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
   protected
-    FPoly: TArrayOfPoint;
     FLastTile: TPoint;
-
-    FArray256BGR: P256ArrayBGR;
-    FArray256ABGR: P256ArrayABGR;
-    sx, ex, sy, ey: integer;
-    btmm: TCustomBitmap32;
-
     property CurrentPieceRect: TRect read FCurrentPieceRect;
     property MapPieceSize: TPoint read FMapPieceSize;
     property CurrentFileName: string read FCurrentFileName;
@@ -100,12 +93,6 @@ type
     procedure ProcessRegion; override;
     procedure ProcessRecolor(Bitmap: TCustomBitmap32);
 
-    function ReadLine(
-      ALineNumber: Integer;
-      APLine: Pointer;
-      APArray256Buffer: Pointer;
-      AReadWithAlphaChannel: Boolean = False
-    ): Boolean; virtual;
   public
     constructor Create(
       AViewConfig: IGlobalViewMainConfig;
@@ -125,7 +112,21 @@ type
   end;
 
   TThreadMapCombineBaseWithByLyne = class(TThreadMapCombineBase)
+  protected
+    FPoly: TArrayOfPoint;
 
+    FArray256BGR: P256ArrayBGR;
+    FArray256ABGR: P256ArrayABGR;
+    sx, ex, sy, ey: integer;
+    btmm: TCustomBitmap32;
+
+    function ReadLine(
+      ALineNumber: Integer;
+      APLine: Pointer;
+      APArray256Buffer: Pointer;
+      AReadWithAlphaChannel: Boolean = False
+    ): Boolean; virtual;
+    procedure ProcessRegion; override;
   end;
 
 implementation
@@ -256,22 +257,10 @@ procedure TThreadMapCombineBase.ProcessRegion;
 var
   i, j, pti: integer;
   VProcessTiles: Int64;
-  VLen: Integer;
-  VEnum: IEnumProjectedPoint;
-  VPoint: TDoublePoint;
   VTileRect: TRect;
   VPath: string;
 begin
   inherited;
-  VLen := FLine.Count + 1;
-  SetLength(FPoly, VLen);
-  VEnum := FLine.GetEnum;
-  i := 0;
-  while VEnum.Next(VPoint) do begin
-    FPoly[i] := Point(Trunc(VPoint.X), Trunc(VPoint.Y));
-    Inc(i);
-  end;
-
   VTileRect := FMainGeoConverter.PixelRect2TileRect(FMapRect, FZoom);
   VProcessTiles := VTileRect.Right - VTileRect.Left;
   VProcessTiles := VProcessTiles * (VTileRect.Bottom - VTileRect.Top);
@@ -323,7 +312,27 @@ begin
   end;
 end;
 
-function TThreadMapCombineBase.ReadLine(
+{ TThreadMapCombineBaseWithByLyne }
+
+procedure TThreadMapCombineBaseWithByLyne.ProcessRegion;
+var
+  VLen: Integer;
+  VEnum: IEnumProjectedPoint;
+  VPoint: TDoublePoint;
+  i: Integer;
+begin
+  VLen := FLine.Count + 1;
+  SetLength(FPoly, VLen);
+  VEnum := FLine.GetEnum;
+  i := 0;
+  while VEnum.Next(VPoint) do begin
+    FPoly[i] := Point(Trunc(VPoint.X), Trunc(VPoint.Y));
+    Inc(i);
+  end;
+  inherited;
+end;
+
+function TThreadMapCombineBaseWithByLyne.ReadLine(
   ALineNumber: Integer;
   APLine: Pointer;
   APArray256Buffer: Pointer;

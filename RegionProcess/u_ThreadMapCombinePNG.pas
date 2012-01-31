@@ -20,7 +20,7 @@ uses
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombinePNG = class(TThreadMapCombineBase)
+  TThreadMapCombinePNG = class(TThreadMapCombineBaseWithByLyne)
   private
     FWithAlpha: Boolean;
     function AllocateArray255(AWidth: Cardinal): Pointer;

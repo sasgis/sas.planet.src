@@ -27,7 +27,7 @@ type
   P256rgb = ^T256rgb;
   T256rgb = array[0..255] of PRow;
 
-  TThreadMapCombineECW = class(TThreadMapCombineBase)
+  TThreadMapCombineECW = class(TThreadMapCombineBaseWithByLyne)
   private
     Rarr: P256rgb;
     Garr: P256rgb;

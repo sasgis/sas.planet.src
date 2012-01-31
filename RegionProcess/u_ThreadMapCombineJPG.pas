@@ -19,7 +19,7 @@ uses
   libJPEG;
 
 type
-  TThreadMapCombineJPG = class(TThreadMapCombineBase)
+  TThreadMapCombineJPG = class(TThreadMapCombineBaseWithByLyne)
   private
     FQuality: Integer;
   protected
