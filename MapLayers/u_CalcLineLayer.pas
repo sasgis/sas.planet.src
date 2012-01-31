@@ -178,6 +178,7 @@ begin
     finally
       FConfig.UnlockRead;
     end;
+    SetNeedRedraw;
   finally
     ViewUpdateUnlock;
   end;
@@ -262,22 +263,24 @@ begin
     VLocalRect := ALocalConverter.GetLocalRect;
     VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
     VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
-    for i := 0 to VPoints.Count - 2 do begin
-      VText := VDistStrings[i];
-      VTextSize.cx := VTextSizeArray[i].X;
-      VTextSize.cy := VTextSizeArray[i].Y;
-      VPosOnMap := VPoints.Points[i];
-      VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
-      DrawPointText(
-        ABuffer,
-        VBitmapSize,
-        VText,
-        VTextSize,
-        VPosOnBitmap,
-        7,
-        FTextBGColor,
-        FTextColor
-      );
+    if FLenShow then begin
+      for i := 0 to VPoints.Count - 2 do begin
+        VText := VDistStrings[i];
+        VTextSize.cx := VTextSizeArray[i].X;
+        VTextSize.cy := VTextSizeArray[i].Y;
+        VPosOnMap := VPoints.Points[i];
+        VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
+        DrawPointText(
+          ABuffer,
+          VBitmapSize,
+          VText,
+          VTextSize,
+          VPosOnBitmap,
+          7,
+          FTextBGColor,
+          FTextColor
+        );
+      end;
     end;
     i := VPoints.Count - 1;
     VText := VDistStrings[i];
@@ -310,6 +313,7 @@ var
   VConverter: ICoordConverter;
   VDatum: IDatum;
   VZoom: Byte;
+
   VCurrLonLat: TDoublePoint;
   VCurrIsEmpty: Boolean;
   VCurrProjected: TDoublePoint;
@@ -317,6 +321,7 @@ var
   VPrevLonLat: TDoublePoint;
   VPrevIsEmpty: Boolean;
   VPrevProjected: TDoublePoint;
+
   VDist: Double;
   VTotalDist: Double;
   VLonLat: TDoublePoint;
@@ -337,6 +342,7 @@ begin
     AProjectedPoints := TDoublePointsAggregator.Create;
     VEnum := VLine.GetEnum;
     if VEnum.Next(VPrevLonLat) then begin
+      VSkipPoint := False;
       VPrevIsEmpty := False;
       VLonLat := VPrevLonLat;
       VConverter.CheckLonLatPos(VLonLat);
@@ -353,11 +359,10 @@ begin
           VLonLat := VCurrLonLat;
           VConverter.CheckLonLatPos(VLonLat);
           VCurrProjected := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
-          VSkipPoint := False;
           VSkipPoint :=
-            VSkipPoint or (
-              (abs(VPrevProjected.X - VCurrProjected.X) < 30) and
-              (abs(VPrevProjected.X - VCurrProjected.X) < 10)
+            (
+              (abs(VPrevProjected.X - VCurrProjected.X) < 60) and
+              (abs(VPrevProjected.Y - VCurrProjected.Y) < 15)
             );
           if not VSkipPoint then begin
             AProjectedPoints.Add(VCurrProjected);
@@ -369,10 +374,23 @@ begin
             VTextSize := FTempBitmap.TextExtent(VText);
             ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
             ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
+            VPrevProjected := VCurrProjected;
           end;
         end;
         VPrevLonLat := VCurrLonLat;
         VPrevIsEmpty := VCurrIsEmpty;
+      end;
+      if VSkipPoint then begin
+        AProjectedPoints.Add(VCurrProjected);
+        VText := FValueConverter.DistConvert(VTotalDist);
+        ADistStrings.Add(VText);
+        if Length(ATextSizeArray) < AProjectedPoints.Count then begin
+          SetLength(ATextSizeArray, AProjectedPoints.Count);
+        end;
+        VTextSize := FTempBitmap.TextExtent(VText);
+        ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;
+        ATextSizeArray[AProjectedPoints.Count - 1].Y := VTextSize.cy;
+        VPrevProjected := VCurrProjected;
       end;
     end;
     if AProjectedPoints.Count > 0 then begin
