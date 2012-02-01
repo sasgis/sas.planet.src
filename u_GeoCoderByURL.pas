@@ -157,6 +157,27 @@ begin
   end;
 end;
 
+function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
+var
+  VRegExpr: TRegExpr;
+begin
+    VRegExpr  := TRegExpr.Create;
+  try
+    VRegExpr.Expression := AMatchExpr;
+    if VRegExpr.Exec(AStr) then
+    begin
+      if (AMatchID <= VRegExpr.SubExprMatchCount) and (AMatchID >= 0) then
+        Result := VRegExpr.Match[AMatchID]
+      else
+        Result := '';
+    end
+    else
+      Result := '';
+  finally
+    FreeAndNil(VRegExpr);
+  end;
+end;
+
 
 function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
 var
@@ -982,7 +1003,8 @@ begin
   sfulldesc := Vlink;
  end else
   // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
- if PosEx('maps.yandex.ru/?ll=', Vlink, 1) > 0 then begin
+  // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
+  if RegExprGetMatchSubStr(vlink,'.yandex.*/\?ll=',0)<>'' then begin
   sname := 'Yandex';
   i := PosEx('ll', Vlink, 1);
   j := PosEx(',', Vlink, i);
@@ -1137,7 +1159,7 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
- if (PosEx('maps.yandex.ru/-/', Vlink, 1) > 0 )or
+ if (RegExprGetMatchSubStr(vlink,'.yandex.*/-/',0)<>'' ) or
     (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 ) then begin
   Vlink := ReplaceStr(astr,'''','');
   sname := 'yandex';
@@ -1286,14 +1308,14 @@ function TGeoCoderByURL.PrepareURL(ASearch: WideString): string;
 begin
   VlocalLink := true;
   if (PosEx('http://g.co/', ASearch, 1) > 0 )or
-     (PosEx('maps.yandex.ru/-/', ASearch, 1) > 0)or
      (PosEx('yandex.ru/?oid=', ASearch, 1) > 0 )or
      (PosEx('binged.it', ASearch, 1) > 0 )or
      (PosEx('osm.org', ASearch, 1) > 0 )or
      (PosEx('permalink.html', ASearch, 1) > 0 )or
      (PosEx('api/index.html?permalink=', ASearch, 1) > 0 ) or
      (PosEx('rambler.ru/?', ASearch, 1) > 0 ) or
-     (PosEx('yandex.ru/?um=', ASearch, 1) > 0 )
+     (PosEx('yandex.ru/?um=', ASearch, 1) > 0 ) or
+     (RegExprGetMatchSubStr(vlink,'.yandex.*/-/',0)<>'' )
    then begin
    VlocalLink := false;
    Result := ASearch;
@@ -1319,6 +1341,7 @@ end.
 // http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
 // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
 // http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
+//http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
 
 // Короткие
 // http://g.co/maps/7anbg
@@ -1331,3 +1354,5 @@ end.
 // http://go.2gis.ru/1hox
 // http://maps.rambler.ru/?6rJJy58
 // http://maps.yandex.ru/?um=m4VoZPqVSEwQ3YdT5Lmley6KrBsHb2oh&l=sat
+// http://harita.yandex.com.tr/-/CFXxAO3m
+
