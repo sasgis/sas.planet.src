@@ -1315,7 +1315,7 @@ begin
      (PosEx('api/index.html?permalink=', ASearch, 1) > 0 ) or
      (PosEx('rambler.ru/?', ASearch, 1) > 0 ) or
      (PosEx('yandex.ru/?um=', ASearch, 1) > 0 ) or
-     (RegExprGetMatchSubStr(vlink,'.yandex.*/-/',0)<>'' )
+     (RegExprGetMatchSubStr(ASearch,'.yandex.*/-/',0)<>'' )
    then begin
    VlocalLink := false;
    Result := ASearch;
