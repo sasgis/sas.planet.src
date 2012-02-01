@@ -126,6 +126,9 @@ var
   VVersionInfo: IMapVersionInfo;
   VTileExists: Boolean;
   VSDBFileExists: Boolean;
+  VLoadDate: TDateTime;
+  VVersionStr: PWideChar;
+  VContenetTypeStr: PWideChar;
 begin
   Result := False;
   VExportSDBFile :=
@@ -145,14 +148,29 @@ begin
     VVersionInfo := nil; // TODO: ??
     if AMapType.TileStorage.LoadTile(AXY, AZoom, VVersionInfo, FStream, VTileInfo) then begin
       if VSDBFileExists or AHelper.CreateDirIfNotExists(VExportSDBFile) then begin
+        if VTileInfo <> nil then begin
+          VLoadDate := VTileInfo.LoadDate;
+        end else begin
+          VLoadDate := Now;
+        end;
+        if (VTileInfo <> nil) and (VTileInfo.VersionInfo <> nil) then begin
+          VVersionStr := PWideChar(VarToWideStrDef(VTileInfo.VersionInfo.Version, ''));
+        end else begin
+          VVersionStr := '';
+        end;
+        if (VTileInfo <> nil) and (VTileInfo.ContentType <> nil) then begin
+          VContenetTypeStr := PWideChar(VTileInfo.ContentType.GetContentType);
+        end else begin
+          VContenetTypeStr := PWideChar(AMapType.TileStorage.GetMainContentType.GetContentType);
+        end; 
         FStream.Position := 0;
         Result := AHelper.SaveTile(
           VExportSDBFile,
           AXY,
           AZoom,
-          VTileInfo.LoadDate,
-          PWideChar(VarToWideStrDef(VTileInfo.VersionInfo.Version, '')),
-          PWideChar(VTileInfo.ContentType.GetContentType),
+          VLoadDate,
+          VVersionStr,
+          VContenetTypeStr,
           FStream
         );
       end;
