@@ -1004,7 +1004,7 @@ begin
  end else
   // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
   // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
-  if RegExprGetMatchSubStr(vlink,'.yandex.*/\?ll=',0)<>'' then begin
+  if RegExprGetMatchSubStr(vlink,'\.yandex\..+/\?ll=',0)<>'' then begin
   sname := 'Yandex';
   i := PosEx('ll', Vlink, 1);
   j := PosEx(',', Vlink, i);
@@ -1159,7 +1159,7 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else
- if (RegExprGetMatchSubStr(vlink,'.yandex.*/-/',0)<>'' ) or
+ if (RegExprGetMatchSubStr(vlink,'\.yandex\..+/-/',0)<>'' ) or
     (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 ) then begin
   Vlink := ReplaceStr(astr,'''','');
   sname := 'yandex';
@@ -1315,7 +1315,7 @@ begin
      (PosEx('api/index.html?permalink=', ASearch, 1) > 0 ) or
      (PosEx('rambler.ru/?', ASearch, 1) > 0 ) or
      (PosEx('yandex.ru/?um=', ASearch, 1) > 0 ) or
-     (RegExprGetMatchSubStr(ASearch,'.yandex.*/-/',0)<>'' )
+     (RegExprGetMatchSubStr(ASearch,'\.yandex\..+/-/',0)<>'' )
    then begin
    VlocalLink := false;
    Result := ASearch;
