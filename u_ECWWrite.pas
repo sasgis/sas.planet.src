@@ -32,7 +32,7 @@ type
   TlineRGB = array[0..0] of single;
   PlineRGB = ^TlineRGB;
 
-  TEcwRead = function(Line:cardinal; var lineR,LineG,LineB:PLineRGB):boolean of object;
+  TEcwRead = function(Line: Integer; var lineR,LineG,LineB:PLineRGB):boolean of object;
 
 type
   TECWWrite = class

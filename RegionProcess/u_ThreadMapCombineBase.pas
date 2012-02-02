@@ -71,8 +71,10 @@ type
     FCurrentFileName: string;
     FMapPieceSize: TPoint;
     FCurrentPieceRect: TRect;
+    FCurrentPieceConverter: ILocalCoordConverter;
   protected
     FLastTile: TPoint;
+    property CurrentPieceConverter: ILocalCoordConverter read FCurrentPieceConverter;
     property CurrentPieceRect: TRect read FCurrentPieceRect;
     property MapPieceSize: TPoint read FMapPieceSize;
     property CurrentFileName: string read FCurrentFileName;
@@ -82,10 +84,10 @@ type
     property Line: IProjectedPolygonLine read FLine;
     property BackGroundColor: TColor32 read FBackGroundColor;
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
-    procedure PrepareTileBitmap(
+    function PrepareTileBitmap(
       ATargetBitmap: TCustomBitmap32;
       AConverter: ILocalCoordConverter
-    );
+    ): Boolean;
     procedure ProgressFormUpdateOnProgress; virtual;
 
     procedure SaveRect; virtual; abstract;
@@ -218,31 +220,44 @@ begin
   inherited;
 end;
 
-procedure TThreadMapCombineBase.PrepareTileBitmap(
+function TThreadMapCombineBase.PrepareTileBitmap(
   ATargetBitmap: TCustomBitmap32;
   AConverter: ILocalCoordConverter
-);
+): Boolean;
 var
   VLoadResult: Boolean;
+  VTileSize: TPoint;
 begin
-  if FTypeMap <> nil then begin
-    VLoadResult := FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+  VTileSize := AConverter.GetLocalRectSize;
+  FTempBitmap.SetSize(VTileSize.X, VTileSize.Y);
+  Result := False;
+  if FLine.IsRectIntersectPolygon(AConverter.GetRectInMapPixelFloat) then begin
+    VLoadResult := False;
+    if FTypeMap <> nil then begin
+      VLoadResult := FTypeMap.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+    end;
     if not VLoadResult then begin
       ATargetBitmap.Clear(FBackGroundColor);
+    end else begin
+      Result := True;
+    end;
+    if FHTypeMap <> nil then begin
+      VLoadResult := FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
+      if VLoadResult then begin
+        FTempBitmap.DrawMode := dmBlend;
+        ATargetBitmap.Draw(0, 0, FTempBitmap);
+        Result := True;
+      end;
+    end;
+    if Result then begin
+      ProcessRecolor(ATargetBitmap);
+    end;
+    if FMarksImageProvider <> nil then begin
+      FMarksImageProvider.GetBitmapRect(OperationID, CancelNotifier, ATargetBitmap, AConverter);
+      Result := True;
     end;
   end else begin
-    ATargetBitmap.Clear(0);
-  end;
-  if FHTypeMap <> nil then begin
-    VLoadResult := FHTypeMap.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
-    if VLoadResult then begin
-      FTempBitmap.DrawMode := dmBlend;
-      ATargetBitmap.Draw(0, 0, FTempBitmap);
-    end;
-  end;
-  ProcessRecolor(ATargetBitmap);
-  if FMarksImageProvider <> nil then begin
-    FMarksImageProvider.GetBitmapRect(OperationID, CancelNotifier, ATargetBitmap, AConverter);
+    ATargetBitmap.Clear(FBackGroundColor);
   end;
 end;
 
@@ -284,7 +299,14 @@ begin
       FCurrentPieceRect.Right := FMapRect.Left + FMapPieceSize.X * i;
       FCurrentPieceRect.Top := FMapRect.Top + FMapPieceSize.Y * (j - 1);
       FCurrentPieceRect.Bottom := FMapRect.Top + FMapPieceSize.Y * j;
-
+      FCurrentPieceConverter :=
+        FConverterFactory.CreateConverter(
+          Rect(0, 0, FMapPieceSize.X, FMapPieceSize.Y),
+          FZoom,
+          FMainGeoConverter,
+          DoublePoint(1, 1),
+          DoublePoint(FCurrentPieceRect.TopLeft)
+        );
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         FCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;
       end else begin
@@ -375,13 +397,9 @@ begin
     Asx := sx;
     Aex := 255;
     while p_x <= FCurrentPieceRect.Right do begin
-      if not (RgnAndRgn(@FPoly[0], Length(FPoly), p_x + 128, p_y + 128, false)) then begin
-        btmm.Clear(FBackGroundColor);
-      end else begin
-        FLastTile := Point(p_x shr 8, p_y shr 8);
-        VConverter := CreateConverterForTileImage(FLastTile);
-        PrepareTileBitmap(btmm, VConverter);
-      end;
+      FLastTile := Point(p_x shr 8, p_y shr 8);
+      VConverter := CreateConverterForTileImage(FLastTile);
+      PrepareTileBitmap(btmm, VConverter);
       if (p_x + 256) > FCurrentPieceRect.Right then begin
         Aex := ex;
       end;

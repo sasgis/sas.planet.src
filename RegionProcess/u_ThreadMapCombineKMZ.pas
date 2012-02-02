@@ -153,11 +153,8 @@ begin
               VPixelRect.Right := CurrentPieceRect.Left + iWidth * i;
               VPixelRect.Top := CurrentPieceRect.Top + iHeight * (j - 1);
               VPixelRect.Bottom := CurrentPieceRect.Top + iHeight * j;
-              if Line.IsRectIntersectPolygon(DoubleRect(VPixelRect)) then begin
-                VLocalConverter := ConverterFactory.CreateConverter(VLocalRect, Zoom, MainGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
-
-                VBmp.Clear(BackGroundColor);
-                PrepareTileBitmap(VBmp, VLocalConverter);
+              VLocalConverter := ConverterFactory.CreateConverter(VLocalRect, Zoom, MainGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
+              if PrepareTileBitmap(VBmp, VLocalConverter) then begin
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
                   break;
                 end;
