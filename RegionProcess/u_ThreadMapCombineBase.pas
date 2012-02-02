@@ -81,8 +81,6 @@ type
     property Zoom: byte read FZoom;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
     property MainGeoConverter: ICoordConverter read FMainGeoConverter;
-    property Line: IProjectedPolygonLine read FLine;
-    property BackGroundColor: TColor32 read FBackGroundColor;
     function CreateConverterForTileImage(ATile: TPoint): ILocalCoordConverter;
     function PrepareTileBitmap(
       ATargetBitmap: TCustomBitmap32;

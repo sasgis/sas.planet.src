@@ -172,7 +172,6 @@ var
   VTile: TPoint;
   i, j: Integer;
   VTileConverter: ILocalCoordConverter;
-  VTileSize: TPoint;
   VRectOfTile: TRect;
 begin
   PrepareBufferMem(AConverter.GetLocalRect);
@@ -182,7 +181,6 @@ begin
     for j := VRectOfTile.Left to VRectOfTile.Right - 1 do begin
       VTile.X := j;
       VTileConverter := CreateConverterForTileImage(VTile);
-      VTileSize := VTileConverter.GetLocalRectSize;
       PrepareTileBitmap(FTempBitmap, VTileConverter);
       AddTile(FTempBitmap, VTileConverter);
     end;
