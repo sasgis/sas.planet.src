@@ -672,7 +672,7 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
   end else
   if i=0 then begin // 0 пробелов - путь к тайлу?
    if ((copy(V2Search,1,1)>='A')and(copy(V2Search,1,1)<='Z')and(copy(V2Search,2,1)=':') )
-     or (copy(V2Search,1,2)='\\')or (copy(V2Search,1,1)='.') then
+     or (copy(V2Search,1,2)='\\')or (copy(V2Search,1,1)='.') or (copy(V2Search,1,4)='HTTP') then
       begin
        i := PosEx('\Z', V2Search, 1);
        j := PosEx('\', V2Search, i+1);
@@ -715,7 +715,23 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
          Vilon := strtoint(slat);
          inc(VZoom); // в GMT зум отличается на 1
          VcoordError := false;
-       end;
+       end else // http://a.tile.openstreetmap.org/15/19928/11707.png | http://otile4.mqcdn.com/tiles/1.0.0/osm/14/12358/5285.png
+        if RegExprGetMatchSubStr(V2Search,'HTTP://.+(\.(OPENSTREETMAP|OPENCYCLEMAP)\.|OSM).+(/[0-9]+)+\.',0)<>''  then begin
+         i := PosEx(RegExprGetMatchSubStr(V2Search,'/[0-9][0-9]/',0), V2Search, 1); // Z значение
+         j := PosEx('/', V2Search, i+1);
+         VZoom := (strtoint(Copy(V2Search, i + 1, j - (i + 1))));
+         inc(VZoom); 
+         i:= j;
+         j := PosEx('/', V2Search, i+1);
+         slon := Copy(V2Search, i + 1, j - (i + 1));
+         Vilon := strtoint(slon);
+         i:= j;
+         j := PosEx('.', V2Search, i+1);
+         slat := Copy(V2Search, i + 1, j - (i + 1));
+         Vilat := strtoint(slat);
+         VcoordError := false;
+        end;
+
 
        if VcoordError then begin // C:\.bin\cache_old\sat\13\trtqsstrrqqtq.jpg
          ViLat := 0;
@@ -969,7 +985,6 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
   end ;
 end;
 
-
 function TGeoCoderByURL.ParseStringToPlacemarksList(
   AStr: string; ASearch: WideString): IInterfaceList;
 var
@@ -1054,7 +1069,7 @@ begin
   sfulldesc := Vlink;
  end  else
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
- if PosEx('openstreetmap.', Vlink, 1) > 0 then begin
+ if  RegExprGetMatchSubStr(Vlink,'\.openstreetmap\..+lat',0)<>'' then begin
   sname := 'OpenStreetMap';
   i := PosEx('lat=', Vlink, 1);
   j := PosEx('&', Vlink, i);
@@ -1341,7 +1356,10 @@ end.
 // http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
 // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
 // http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
-//http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
+// http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
+
+// тайловые ссылки
+// http://a.tile.openstreetmap.org/15/19928/11707.png
 
 // Короткие
 // http://g.co/maps/7anbg
