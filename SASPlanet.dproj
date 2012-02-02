@@ -220,6 +220,7 @@
     <DCCReference Include="i_GUIDListStatic.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
     <DCCReference Include="i_IdCacheSimple.pas" />
+    <DCCReference Include="i_ImageLineProvider.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImportConfig.pas" />
@@ -624,6 +625,7 @@
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolRegistration.pas" />
+    <DCCReference Include="u_ImageLineProvider.pas" />
     <DCCReference Include="u_ImageResamplerConfig.pas" />
     <DCCReference Include="u_ImageResamplerFactory.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />

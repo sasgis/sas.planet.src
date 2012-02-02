@@ -93,6 +93,8 @@ uses
   i_TileDownloadResultSaver in 'i_TileDownloadResultSaver.pas',
   u_TileDownloadResultSaverStuped in 'u_TileDownloadResultSaverStuped.pas',
   u_DownloadCheckerStuped in 'u_DownloadCheckerStuped.pas',
+  i_ImageLineProvider in 'i_ImageLineProvider.pas',
+  u_ImageLineProvider in 'u_ImageLineProvider.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'RegionProcess\u_ThreadMapCombineBase.pas',
   u_ThreadMapCombineBMP in 'RegionProcess\u_ThreadMapCombineBMP.pas',
