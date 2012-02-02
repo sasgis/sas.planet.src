@@ -110,6 +110,9 @@ type
 
 implementation
 
+uses
+  u_BerkeleyDBEnv;
+
 { TBerkeleyDB }
 
 constructor TBerkeleyDB.Create;
@@ -146,7 +149,9 @@ function TBerkeleyDB.Open(
 
   function TryOpen(AFileExists: Boolean): Boolean;
   var
-    VFlags: Cardinal;
+    VEnvHome: string;
+    VEnvHomePtr: PAnsiChar;
+    VRelativeFileName: string;
   begin
     if FENV = nil then begin
       raise EBerkeleyDBExeption.Create(
@@ -154,17 +159,37 @@ function TBerkeleyDB.Open(
       );
     end;
 
+    VEnvHomePtr := '';
+    CheckBDB((FENV.get_home(FENV, @VEnvHomePtr)));
+    VEnvHome := StringReplace(
+      VEnvHomePtr,
+      IncludeTrailingPathDelimiter(CEnvSubDir),
+      '',
+      [rfIgnoreCase]
+    );
+    VRelativeFileName := StringReplace(FFileName, VEnvHome, '', [rfIgnoreCase]);
+
     CheckBDB(db_create(FDB, FENV, 0));
     try
-      VFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
-
       FDB.set_errpfx(FDB, CBerkeleyDBErrPfx);
 
       if not AFileExists then begin
         CheckBDB(FDB.set_pagesize(FDB, APageSize));
       end;
 
-      CheckBDB(FDB.open(FDB, nil, PAnsiChar(FFileName), '', ADBType, VFlags, 0));
+      CheckBDB(
+        FDB.open(
+          FDB,
+          nil,
+          PAnsiChar(VRelativeFileName),
+          '',
+          ADBType,
+          DB_CREATE_ or
+          DB_AUTO_COMMIT or
+          DB_THREAD,
+          0
+        )
+      );
 
       Result := True;
     except

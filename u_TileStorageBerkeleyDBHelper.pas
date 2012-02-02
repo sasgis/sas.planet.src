@@ -131,7 +131,7 @@ end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
-  FPool := nil;
+  GlobalFreeEnvironment(FEnv);
   inherited Destroy;
 end;
 

@@ -56,6 +56,11 @@ type
   end;
 
 function GlobalAllocateEnvironment(const AEnvRootPath: string; ASingleMode: Boolean): TBerkeleyDBEnv;
+function GlobalFreeEnvironment(AEnv: TBerkeleyDBEnv): Boolean;
+
+const
+  CEnvSubDir = 'env';
+  CBerkeleyDBEnvErrPfx = 'BerkeleyDB (Env)';
 
 implementation
 
@@ -64,10 +69,6 @@ uses
   Contnrs,
   SysUtils,
   u_BerkeleyDB;
-
-const
-  CEnvSubDir = 'env';
-  CBerkeleyDBEnvErrPfx = 'BerkeleyDB (Env)';
 
 var
   GEnvList: TObjectList = nil;
@@ -98,6 +99,33 @@ begin
       VEnv := TBerkeleyDBEnv.Create(AEnvRootPath, ASingleMode);
       GEnvList.Add(VEnv);
       Result := VEnv;
+    end;
+  finally
+    GCS.Release;
+  end;
+end;
+
+function GlobalFreeEnvironment(AEnv: TBerkeleyDBEnv): Boolean;
+var
+  I: Integer;
+  VEnv: TBerkeleyDBEnv;
+begin
+  Result := False;
+  GCS.Acquire;
+  try
+    for I := 0 to GEnvList.Count - 1 do begin
+      VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
+      if Assigned(VEnv) then begin
+        if VEnv = AEnv then begin
+          VEnv.ClientsCount := VEnv.ClientsCount - 1;
+          if VEnv.ClientsCount <= 0 then begin
+            GEnvList.Remove(VEnv);
+            GEnvList.Pack;
+            Result := True;
+          end;
+          Break;
+        end;
+      end;
     end;
   finally
     GCS.Release;
