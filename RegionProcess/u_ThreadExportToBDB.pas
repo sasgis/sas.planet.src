@@ -46,6 +46,7 @@ type
     FIsMove: boolean;
     FIsReplace: boolean;
     FPathExport: string;
+    function GetFullPathName(const ARelativePathName: string): string;
     function TileExportToRemoteBDB(
       AHelper: TTileStorageBerkeleyDBHelper;
       AMapType: TMapType;
@@ -96,7 +97,10 @@ begin
   inherited Create(APolygon, Azoomarr);
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
-  FPathExport := APath;
+  FPathExport := GetFullPathName(APath);
+  if FPathExport = '' then begin
+    raise Exception.Create('Can''t ExpandFileName: ' + APath);
+  end;
   FIsMove := AMove;
   FTileNameGen := TTileFileNameBDB.Create;
   FIsReplace := AReplace;
@@ -111,6 +115,21 @@ destructor TThreadExportToBDB.Destroy;
 begin
   FreeAndNil(FStream);
   inherited Destroy;
+end;
+
+function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): string;
+var
+  VAppCurrentDir: string;
+begin
+  Result := '';
+  VAppCurrentDir := GetCurrentDir;
+  try
+    if SetCurrentDir(ExtractFilePath(ParamStr(0))) then begin
+      Result := ExpandFileName(ARelativePathName);
+    end;
+  finally
+    SetCurrentDir(VAppCurrentDir);
+  end;
 end;
 
 function TThreadExportToBDB.TileExportToRemoteBDB(
