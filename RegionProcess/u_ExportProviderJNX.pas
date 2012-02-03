@@ -47,7 +47,8 @@ uses
   SysUtils,
   u_ThreadExportToJNX,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  StrUtils;
 
 { TExportProviderJNX }
 
@@ -153,8 +154,13 @@ begin
       VJNXVersion := 4;
       VZorder := FFrame.EZorder.Value;
   end;
-  VProductID := FFrame.EProductID.ItemIndex + 1;
-  if VProductID = 1 then VProductID := 0;
+  try
+   i:= posex(FFrame.EProductID.text,' ',0);
+   if i = 0 then  i:= length(FFrame.EProductID.text);
+   VProductID := StrToInt(Copy(FFrame.EProductID.text, 1, i));
+  except
+   VProductID := 0;
+  end;
 
 
 

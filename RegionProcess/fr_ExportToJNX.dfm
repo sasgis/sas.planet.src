@@ -210,7 +210,6 @@ object frExportToJNX: TfrExportToJNX
         Width = 283
         Height = 21
         AutoDropDown = True
-        Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
         TabOrder = 7
