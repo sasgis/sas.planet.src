@@ -3,6 +3,7 @@ unit i_ImageLineProvider;
 interface
 
 uses
+  i_OperationNotifier,
   i_LocalCoordConverter;
 
 type
@@ -14,7 +15,11 @@ type
     function GetBytesPerPixel: Integer;
     property BytesPerPixel: Integer read GetBytesPerPixel;
 
-    function GetLine(ALine: Integer): Pointer;
+    function GetLine(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      ALine: Integer
+    ): Pointer;
   end;
 
 implementation

@@ -18,23 +18,13 @@ uses
 type
   TImageLineProviderAbstract = class(TInterfacedObject, IImageLineProvider)
   private
-    FCancelNotifier: IOperationNotifier;
-    FOperationID: Integer;
-    FRecolorConfig: IBitmapPostProcessingConfigStatic;
+    FImageProvider: IBitmapLayerProvider;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FLocalConverter: ILocalCoordConverter;
     FBytesPerPixel: Integer;
-    FMapTypeMain: TMapType;
-    FMapTypeHybr: TMapType;
-    FPolyProjected: IProjectedPolygon;
-    FMarksImageProvider: IBitmapLayerProvider;
-    FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
-    FBackGroundColor: TColor32;
 
     FZoom: byte;
     FMainGeoConverter: ICoordConverter;
-    FLine: IProjectedPolygonLine;
     FTempBitmap: TCustomBitmap32;
     FPreparedData: array of Pointer;
     FPreparedConverter: ILocalCoordConverter;
@@ -46,31 +36,32 @@ type
       AConverter: ILocalCoordConverter
     );
     function PrepareTileBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       ATargetBitmap: TCustomBitmap32;
       AConverter: ILocalCoordConverter
     ): Boolean;
     procedure PrepareBufferMem(ARect: TRect);
     procedure ClearBuffer;
-    procedure PrepareBufferData(AConverter: ILocalCoordConverter);
+    procedure PrepareBufferData(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      AConverter: ILocalCoordConverter
+    );
   protected
     procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); virtual; abstract;
   private
     function GetLocalConverter: ILocalCoordConverter;
     function GetBytesPerPixel: Integer;
-    function GetLine(ALine: Integer): Pointer;
+    function GetLine(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      ALine: Integer
+    ): Pointer;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer;
+      AImageProvider: IBitmapLayerProvider;
       ALocalConverter: ILocalCoordConverter;
-      APolyProjected: IProjectedPolygon;
-      AMapTypeMain: TMapType;
-      AMapTypeHybr: TMapType;
-      AMarksImageProvider: IBitmapLayerProvider;
-      AUsePrevZoomAtMap: Boolean;
-      AUsePrevZoomAtLayer: Boolean;
-      ABackGroundColor: TColor32;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       ABytesPerPixel: Integer
     );
@@ -80,17 +71,8 @@ type
   TImageLineProviderNoAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer;
+      AImageProvider: IBitmapLayerProvider;
       ALocalConverter: ILocalCoordConverter;
-      APolyProjected: IProjectedPolygon;
-      AMapTypeMain: TMapType;
-      AMapTypeHybr: TMapType;
-      AMarksImageProvider: IBitmapLayerProvider;
-      AUsePrevZoomAtMap: Boolean;
-      AUsePrevZoomAtLayer: Boolean;
-      ABackGroundColor: TColor32;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
@@ -98,17 +80,8 @@ type
   TImageLineProviderWithAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
-      AOperationID: Integer;
+      AImageProvider: IBitmapLayerProvider;
       ALocalConverter: ILocalCoordConverter;
-      APolyProjected: IProjectedPolygon;
-      AMapTypeMain: TMapType;
-      AMapTypeHybr: TMapType;
-      AMarksImageProvider: IBitmapLayerProvider;
-      AUsePrevZoomAtMap: Boolean;
-      AUsePrevZoomAtLayer: Boolean;
-      ABackGroundColor: TColor32;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
@@ -142,36 +115,19 @@ uses
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
-  ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer;
+  AImageProvider: IBitmapLayerProvider;
   ALocalConverter: ILocalCoordConverter;
-  APolyProjected: IProjectedPolygon;
-  AMapTypeMain, AMapTypeHybr: TMapType;
-  AMarksImageProvider: IBitmapLayerProvider;
-  AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean;
-  ABackGroundColor: TColor32;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   ABytesPerPixel: Integer
 );
 begin
-  FCancelNotifier := ACancelNotifier;
-  FOperationID := AOperationID;
+  FImageProvider := AImageProvider;
   FLocalConverter := ALocalConverter;
-  FPolyProjected := APolyProjected;
-  FMapTypeMain := AMapTypeMain;
-  FMapTypeHybr := AMapTypeHybr;
-  FMarksImageProvider := AMarksImageProvider;
-  FUsePrevZoomAtMap := AUsePrevZoomAtMap;
-  FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
-  FBackGroundColor := ABackGroundColor;
-  FRecolorConfig := ARecolorConfig;
   FConverterFactory := AConverterFactory;
   FBytesPerPixel := ABytesPerPixel;
 
   FZoom := FLocalConverter.Zoom;
   FMainGeoConverter := FLocalConverter.GeoConverter;
-  FLine := FPolyProjected.Item[0];
   FTempBitmap := TCustomBitmap32.Create;
 end;
 
@@ -208,9 +164,9 @@ begin
   VIntersectionAtBitmap := AConverter.MapRect2LocalRect(VBitmapRect);
   for i := 0 to (VBitmapRect.Bottom - VBitmapRect.Top - 1) do begin
     PreparePixleLine(
-      ATargetBitmap.PixelPtr[i, VIntersectionAtBitmap.Left],
-      Pointer(Integer(FPreparedData[i]) + VIntersectionAtPrepared.Left),
-      VBitmapRect.Right - VBitmapRect.Right
+      ATargetBitmap.PixelPtr[VIntersectionAtBitmap.Left, i],
+      Pointer(Integer(FPreparedData[i]) + VIntersectionAtPrepared.Left*FBytesPerPixel),
+      VBitmapRect.Right - VBitmapRect.Left
     );
   end;
 end;
@@ -233,7 +189,11 @@ begin
   Result := FBytesPerPixel;
 end;
 
-function TImageLineProviderAbstract.GetLine(ALine: Integer): Pointer;
+function TImageLineProviderAbstract.GetLine(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  ALine: Integer
+): Pointer;
 var
   VRect: TRect;
 begin
@@ -246,7 +206,7 @@ begin
 
   if FPreparedConverter =  nil then begin
     FPreparedConverter := PrepareConverterForLocalLine(ALine);
-    PrepareBufferData(FPreparedConverter);
+    PrepareBufferData(AOperationID, ACancelNotifier, FPreparedConverter);
   end;
   Result := GetLocalLine(ALine);
 end;
@@ -267,7 +227,10 @@ begin
 end;
 
 procedure TImageLineProviderAbstract.PrepareBufferData(
-  AConverter: ILocalCoordConverter);
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  AConverter: ILocalCoordConverter
+);
 var
   VTile: TPoint;
   i, j: Integer;
@@ -281,7 +244,7 @@ begin
     for j := VRectOfTile.Left to VRectOfTile.Right - 1 do begin
       VTile.X := j;
       VTileConverter := FConverterFactory.CreateForTile(VTile, FZoom, FMainGeoConverter);
-      PrepareTileBitmap(FTempBitmap, VTileConverter);
+      PrepareTileBitmap(AOperationID, ACancelNotifier, FTempBitmap, VTileConverter);
       AddTile(FTempBitmap, VTileConverter);
     end;
   end;
@@ -347,71 +310,30 @@ begin
 end;
 
 function TImageLineProviderAbstract.PrepareTileBitmap(
-  ATargetBitmap: TCustomBitmap32; AConverter: ILocalCoordConverter): Boolean;
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  ATargetBitmap: TCustomBitmap32;
+  AConverter: ILocalCoordConverter
+): Boolean;
 var
-  VLoadResult: Boolean;
   VTileSize: TPoint;
 begin
   VTileSize := AConverter.GetLocalRectSize;
   FTempBitmap.SetSize(VTileSize.X, VTileSize.Y);
-  Result := False;
-  if FLine.IsRectIntersectPolygon(AConverter.GetRectInMapPixelFloat) then begin
-    VLoadResult := False;
-    if FMapTypeMain <> nil then begin
-      VLoadResult := FMapTypeMain.LoadBtimapUni(ATargetBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
-    end;
-    if not VLoadResult then begin
-      ATargetBitmap.Clear(FBackGroundColor);
-    end else begin
-      Result := True;
-    end;
-    if FMapTypeHybr <> nil then begin
-      VLoadResult := FMapTypeHybr.LoadBtimapUni(FTempBitmap, AConverter.GetRectInMapPixel, AConverter.GetZoom, AConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
-      if VLoadResult then begin
-        FTempBitmap.DrawMode := dmBlend;
-        ATargetBitmap.Draw(0, 0, FTempBitmap);
-        Result := True;
-      end;
-    end;
-    if Result then begin
-      if FRecolorConfig <> nil then begin
-        FRecolorConfig.ProcessBitmap(ATargetBitmap);
-      end;
-    end;
-    if FMarksImageProvider <> nil then begin
-      FMarksImageProvider.GetBitmapRect(FOperationID, FCancelNotifier, ATargetBitmap, AConverter);
-      Result := True;
-    end;
-  end else begin
-    ATargetBitmap.Clear(FBackGroundColor);
-  end;
+  Result := FImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ATargetBitmap, AConverter);
 end;
 
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
-  ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer;
+  AImageProvider: IBitmapLayerProvider;
   ALocalConverter: ILocalCoordConverter;
-  APolyProjected: IProjectedPolygon;
-  AMapTypeMain, AMapTypeHybr: TMapType;
-  AMarksImageProvider: IBitmapLayerProvider;
-  AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean;
-  ABackGroundColor: TColor32;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
+    AImageProvider,
     ALocalConverter,
-    APolyProjected,
-    AMapTypeMain, AMapTypeHybr,
-    AMarksImageProvider,
-    AUsePrevZoomAtMap, AUsePrevZoomAtLayer,
-    ABackGroundColor,
-    ARecolorConfig,
     AConverterFactory,
     3
   );
@@ -420,30 +342,16 @@ end;
 { TImageLineProviderWithAlfa }
 
 constructor TImageLineProviderWithAlfa.Create(
-  ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer;
+  AImageProvider: IBitmapLayerProvider;
   ALocalConverter: ILocalCoordConverter;
-  APolyProjected: IProjectedPolygon;
-  AMapTypeMain, AMapTypeHybr: TMapType;
-  AMarksImageProvider: IBitmapLayerProvider;
-  AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean;
-  ABackGroundColor: TColor32;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
+    AImageProvider,
     ALocalConverter,
-    APolyProjected,
-    AMapTypeMain, AMapTypeHybr,
-    AMarksImageProvider,
-    AUsePrevZoomAtMap, AUsePrevZoomAtLayer,
-    ABackGroundColor,
-    ARecolorConfig,
     AConverterFactory,
-    3
+    4
   );
 end;
 
@@ -461,10 +369,10 @@ type
   end;
 
   TRGBA = packed record
-    A: Byte;
     R: Byte;
     G: Byte;
     B: Byte;
+    A: Byte;
   end;
 
 
