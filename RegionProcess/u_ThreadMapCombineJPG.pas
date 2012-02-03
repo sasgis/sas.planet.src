@@ -7,10 +7,12 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_OperationNotifier,
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
   i_VectorItemProjected,
+  i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   u_MapType,
   i_BitmapPostProcessingConfig,
@@ -19,25 +21,27 @@ uses
   libJPEG;
 
 type
-  TThreadMapCombineJPG = class(TThreadMapCombineBaseWithByLyne)
+  TThreadMapCombineJPG = class(TThreadMapCombineBase)
   private
     FQuality: Integer;
   protected
-    procedure SaveRect; override;
+    procedure SaveRect(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      AFileName: string;
+      AImageProvider: IBitmapLayerProvider;
+      ALocalConverter: ILocalCoordConverter;
+      AConverterFactory: ILocalCoordConverterFactorySimpe
+    ); override;
   public
     constructor Create(
-      AViewConfig: IGlobalViewMainConfig;
-      AMarksImageProvider: IBitmapLayerProvider;
+      APolygon: ILonLatPolygon;
+      ATargetConverter: ILocalCoordConverter;
+      AImageProvider: IBitmapLayerProvider;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: ILonLatPolygon;
-      AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Atypemap: TMapType;
-      AHtypemap: TMapType;
-      AusedReColor: Boolean;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AQuality: Integer
     );
   end;
@@ -45,7 +49,10 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  i_CoordConverter,
+  i_ImageLineProvider,
+  u_ImageLineProvider;
 
 type
   my_dest_mgr_ptr = ^my_dest_mgr;
@@ -64,68 +71,69 @@ procedure term_destination(cinfo: j_compress_ptr); cdecl; forward;
 { TThreadMapCombineJPG }
 
 constructor TThreadMapCombineJPG.Create(
-  AViewConfig: IGlobalViewMainConfig;
-  AMarksImageProvider: IBitmapLayerProvider;
+  APolygon: ILonLatPolygon;
+  ATargetConverter: ILocalCoordConverter;
+  AImageProvider: IBitmapLayerProvider;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: ILonLatPolygon;
-  AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Atypemap, AHtypemap: TMapType;
-  AusedReColor: Boolean;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AQuality: Integer
 );
 begin
   inherited Create(
-    AViewConfig,
-    AMarksImageProvider,
+    APolygon,
+    ATargetConverter,
+    AImageProvider,
     ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
-    APolygon,
-    AProjectedPolygon,
-    ASplitCount,
-    Atypemap,
-    AHtypemap,
-    AusedReColor,
-    ARecolorConfig
+    ASplitCount
   );
   FQuality := AQuality;
 end;
 
-procedure TThreadMapCombineJPG.SaveRect;
+procedure TThreadMapCombineJPG.SaveRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  AFileName: string;
+  AImageProvider: IBitmapLayerProvider;
+  ALocalConverter: ILocalCoordConverter;
+  AConverterFactory: ILocalCoordConverterFactorySimpe
+);
 const
   JPG_MAX_HEIGHT = 65536;
   JPG_MAX_WIDTH = 65536;
 var
-  iWidth, iHeight: integer;
-  i,j: integer;
+  i: integer;
   jpeg: jpeg_compress_struct;
   jpeg_err: jpeg_error_mgr;
-  prow: JSAMPROW;
   VComment: string;
   VStream: TFileStream;
-  SwapBuf: Byte;
+  VCurrentPieceRect: TRect;
+  VGeoConverter: ICoordConverter;
+  VMapPieceSize: TPoint;
+  VLineProvider: IImageLineProvider;
+  VLineRGB: Pointer;
 begin
-  sx := (CurrentPieceRect.Left mod 256);
-  sy := (CurrentPieceRect.Top mod 256);
-  ex := (CurrentPieceRect.Right mod 256);
-  ey := (CurrentPieceRect.Bottom mod 256);
-
-  iWidth := MapPieceSize.X;
-  iHeight := MapPieceSize.y;
-
-  if (iWidth >= JPG_MAX_WIDTH) or (iHeight >= JPG_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', iWidth, JPG_MAX_WIDTH, iHeight, JPG_MAX_HEIGHT, 'JPG']);
+  VGeoConverter := ALocalConverter.GeoConverter;
+  VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
+  VMapPieceSize := ALocalConverter.GetLocalRectSize;
+  VLineProvider :=
+    TImageLineProviderRGB.Create(
+      AImageProvider,
+      ALocalConverter,
+      AConverterFactory
+    );
+  if (VMapPieceSize.X >= JPG_MAX_WIDTH) or (VMapPieceSize.Y >= JPG_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', VMapPieceSize.X, JPG_MAX_WIDTH, VMapPieceSize.Y, JPG_MAX_HEIGHT, 'JPG']);
   end;
 
   if not init_libJPEG then begin
     raise Exception.Create( _('Initialization of LibJPEG failed.') );
   end;
 
-  VStream := TFileStream.Create(CurrentFileName, fmCreate);
+  VStream := TFileStream.Create(AFileName, fmCreate);
 
   try
     FillChar(jpeg, SizeOf(jpeg_compress_struct), $00);
@@ -160,8 +168,8 @@ begin
       // very important state
       jpeg.global_state := CSTATE_START;
 
-      jpeg.image_width := iWidth;
-      jpeg.image_height := iHeight;
+      jpeg.image_width := VMapPieceSize.X;
+      jpeg.image_height := VMapPieceSize.Y;
       jpeg.input_components := 3;
       jpeg.in_color_space := JCS_RGB;
 
@@ -178,52 +186,18 @@ begin
       VComment := 'Created with SAS.Planet and libjpeg-turbo' + #0;
       jpeg_write_marker(@jpeg, JPEG_COM, @VComment[1], length(VComment));
 
-      // allocate row
-      GetMem(prow, jpeg.image_width * 3);
-
-      GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-      for i := 0 to 255 do begin
-        GetMem(FArray256BGR[i], (iWidth + 1) * 3);
-      end;
-      try
-        btmm := TCustomBitmap32.Create;
-        try
-          btmm.Width := 256;
-          btmm.Height := 256;
-
-          for i := 0 to jpeg.image_height - 1 do begin
-
-            if jpeg.global_state = 0 then begin
-              Break;
-            end;
-
-            ReadLine(i, prow, FArray256BGR);
-
-            // BGR to RGB swap
-            for j := 0 to jpeg.image_width - 1 do begin
-              SwapBuf := PByte(Integer(prow) + j*3)^;
-              PByte(Integer(prow) + j*3)^ := PByte(Integer(prow) + j*3 + 2)^;
-              PByte(Integer(prow) + j*3 + 2)^ := SwapBuf;
-            end;
-
-            // write row
-            jpeg_write_scanlines(@jpeg, @prow, 1);
-
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              Break;
-            end;
-          end;
-        finally
-          btmm.Free;
+      for i := 0 to jpeg.image_height - 1 do begin
+        if jpeg.global_state = 0 then begin
+          Break;
         end;
-      finally
-        for i := 0 to 255 do begin
-          freemem(FArray256BGR[i], (iWidth + 1) * 3);
+        VLineRGB := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
+        if VLineRGB <> nil then begin
+          // write row
+          jpeg_write_scanlines(@jpeg, @VLineRGB, 1);
         end;
-        freemem(FArray256BGR, 256 * ((iWidth + 1) * 3));
-
-        // freeing row
-        FreeMem(prow);
+        if CancelNotifier.IsOperationCanceled(OperationID) then begin
+          Break;
+        end;
       end;
     finally
       if jpeg.global_state <> 0 then begin

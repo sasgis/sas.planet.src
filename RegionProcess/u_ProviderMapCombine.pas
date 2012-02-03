@@ -71,6 +71,7 @@ uses
   gnugettext,
   i_MarksSimple,
   i_CoordConverter,
+  i_LocalCoordConverter,
   i_VectorItemProjected,
   i_BitmapLayerProvider,
   i_ProjectionInfo,
@@ -78,6 +79,9 @@ uses
   u_GeoFun,
   u_IdCacheSimpleThreadSafe,
   u_MapMarksBitmapLayerProviderByMarksSubset,
+  u_BitmapLayerProviderSimpleForCombine,
+  u_BitmapLayerProviderInPolygon,
+  u_BitmapLayerProviderWithBGColor,
   u_ThreadMapCombineBMP,
   u_ThreadMapCombineECW,
   u_ThreadMapCombineJPG,
@@ -194,6 +198,9 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VMapRect: TDoubleRect;
   VLineClipRect: TDoubleRect;
+  VTargetConverter: ILocalCoordConverter;
+  VImageProvider: IBitmapLayerProvider;
+  VRecolorConfig: IBitmapPostProcessingConfigStatic;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -227,6 +234,15 @@ begin
       APolygon
     );
   VMapRect := VProjectedPolygon.Bounds;
+
+  VTargetConverter :=
+    FLocalConverterFactory.CreateConverter(
+      Rect(0, 0, Trunc(VMapRect.Right - VMapRect.Left), Trunc(VMapRect.Bottom - VMapRect.Top)),
+      VZoom,
+      VGeoConverter,
+      DoublePoint(1, 1),
+      VMapRect.TopLeft
+    );
 
   VPrTypes := TInterfaceList.Create;
   for i:=0 to FFrame.chklstPrTypes.Items.Count-1 do begin
@@ -274,78 +290,78 @@ begin
         VMarksSubset
       );
   end;
+
+  VRecolorConfig := nil;
+  if FFrame.chkUseRecolor.Checked then begin
+    VRecolorConfig := FBitmapPostProcessingConfig.GetStatic;
+  end;
+  VImageProvider :=
+    TBitmapLayerProviderWithBGColor.Create(
+      FViewConfig.BackGroundColor,
+      TBitmapLayerProviderInPolygon.Create(
+        VProjectedPolygon,
+        TBitmapLayerProviderSimpleForCombine.Create(
+          VRecolorConfig,
+          Amt,
+          Hmt,
+          VMarksImageProvider,
+          FViewConfig.UsePrevZoomAtMap,
+          FViewConfig.UsePrevZoomAtLayer
+        )
+      )
+    );
   if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
     TThreadMapCombineECW.Create(
-      FViewConfig,
-      VMarksImageProvider,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
-      VProjectedPolygon,
       VSplitCount,
-      Amt,Hmt,
-      FFrame.chkUseRecolor.Checked,
-      FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.BMP') then begin
     TThreadMapCombineBMP.Create(
-      FViewConfig,
-      VMarksImageProvider,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
-      VProjectedPolygon,
-      VSplitCount,
-      Amt,Hmt,
-      FFrame.chkUseRecolor.Checked,
-      FBitmapPostProcessingConfig.GetStatic
+      VSplitCount
     );
   end else if (VFileExt='.KMZ') then begin
     TThreadMapCombineKMZ.Create(
-      FViewConfig,
-      VMarksImageProvider,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
-      VProjectedPolygon,
       VSplitCount,
-      Amt,Hmt,
-      FFrame.chkUseRecolor.Checked,
-      FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.JPG') then begin
     TThreadMapCombineJPG.Create(
-      FViewConfig,
-      VMarksImageProvider,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
-      VProjectedPolygon,
       VSplitCount,
-      Amt,Hmt,
-      FFrame.chkUseRecolor.Checked,
-      FBitmapPostProcessingConfig.GetStatic,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt='.PNG') then begin
     TThreadMapCombinePNG.Create(
-      FViewConfig,
-      VMarksImageProvider,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
       FLocalConverterFactory,
       VPrTypes,
       VFileName,
-      APolygon,
-      VProjectedPolygon,
       VSplitCount,
-      Amt,Hmt,
-      FFrame.chkUseRecolor.Checked,
-      FBitmapPostProcessingConfig.GetStatic,
       FFrame.chkPngWithAlpha.Checked
     );
   end;

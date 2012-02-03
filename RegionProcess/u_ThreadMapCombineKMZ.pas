@@ -6,6 +6,8 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_LocalCoordConverter,
+  i_OperationNotifier,
   i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
@@ -25,21 +27,23 @@ type
   private
     FQuality: Integer;
   protected
-    procedure SaveRect; override;
+    procedure SaveRect(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      AFileName: string;
+      AImageProvider: IBitmapLayerProvider;
+      ALocalConverter: ILocalCoordConverter;
+      AConverterFactory: ILocalCoordConverterFactorySimpe
+    ); override;
   public
     constructor Create(
-      AViewConfig: IGlobalViewMainConfig;
-      AMarksImageProvider: IBitmapLayerProvider;
+      APolygon: ILonLatPolygon;
+      ATargetConverter: ILocalCoordConverter;
+      AImageProvider: IBitmapLayerProvider;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: ILonLatPolygon;
-      AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Atypemap: TMapType;
-      AHtypemap: TMapType;
-      AusedReColor: Boolean;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AQuality: Integer
     );
   end;
@@ -49,52 +53,54 @@ implementation
 uses
   KAZip,
   i_CoordConverter,
-  i_LocalCoordConverter,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
   u_GeoFun,
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
-  AViewConfig: IGlobalViewMainConfig;
-  AMarksImageProvider: IBitmapLayerProvider;
+  APolygon: ILonLatPolygon;
+  ATargetConverter: ILocalCoordConverter;
+  AImageProvider: IBitmapLayerProvider;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: ILonLatPolygon;
-  AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Atypemap, AHtypemap: TMapType;
-  AusedReColor: Boolean;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AQuality: Integer
 );
 var
   nim: TPoint;
+  VMapSize: TPoint;
+  VMapPieceSize: TPoint;
 begin
   inherited Create(
-    AViewConfig,
-    AMarksImageProvider,
+    APolygon,
+    ATargetConverter,
+    AImageProvider,
     ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
-    APolygon,
-    AProjectedPolygon,
-    ASplitCount,
-    Atypemap,
-    AHtypemap,
-    AusedReColor,
-    ARecolorConfig
+    ASplitCount
   );
   FQuality := AQuality;
-  nim.X := ((MapPieceSize.X-1) div 1024) + 1;
-  nim.Y := ((MapPieceSize.Y-1) div 1024) + 1;
+  VMapSize := ATargetConverter.GetLocalRectSize;
+  VMapPieceSize.X := VMapSize.X div ASplitCount.X;
+  VMapPieceSize.Y := VMapSize.Y div ASplitCount.Y;
+  nim.X := ((VMapPieceSize.X-1) div 1024) + 1;
+  nim.Y := ((VMapPieceSize.Y-1) div 1024) + 1;
   if ((nim.X * nim.Y) > 100) then begin
     ShowMessageSync(SAS_MSG_GarminMax1Mp);
   end;
 end;
 
-procedure TThreadMapCombineKMZ.SaveRect;
+procedure TThreadMapCombineKMZ.SaveRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  AFileName: string;
+  AImageProvider: IBitmapLayerProvider;
+  ALocalConverter: ILocalCoordConverter;
+  AConverterFactory: ILocalCoordConverterFactorySimpe
+);
 var
   iWidth, iHeight: integer;
   i, j: integer;
@@ -114,21 +120,27 @@ var
   VLocalRect: TRect;
   JPGSaver: IBitmapTileSaver;
   VKmzFileNameOnly: string;
+  VCurrentPieceRect: TRect;
+  VGeoConverter: ICoordConverter;
+  VMapPieceSize: TPoint;
 begin
-  nim.X := ((MapPieceSize.X-1) div 1024) + 1;
-  nim.Y := ((MapPieceSize.Y-1) div 1024) + 1;
+  VGeoConverter := ALocalConverter.GeoConverter;
+  VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
+  VMapPieceSize := ALocalConverter.GetLocalRectSize;
+  nim.X := ((VMapPieceSize.X-1) div 1024) + 1;
+  nim.Y := ((VMapPieceSize.Y-1) div 1024) + 1;
   FTilesProcessed := 0;
   FTilesToProcess := nim.X * nim.Y;
-  iWidth := MapPieceSize.X div (nim.X);
-  iHeight := MapPieceSize.y div (nim.Y);
+  iWidth := VMapPieceSize.X div (nim.X);
+  iHeight := VMapPieceSize.y div (nim.Y);
 
   JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(FQuality);
 
-  VKmzFileNameOnly := ExtractFileName(CurrentFileName);
+  VKmzFileNameOnly := ExtractFileName(AFileName);
   Zip := TKaZip.Create(nil);
   try
-    Zip.FileName := CurrentFileName;
-    Zip.CreateZip(CurrentFileName);
+    Zip.FileName := AFileName;
+    Zip.CreateZip(AFileName);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
 
@@ -149,12 +161,19 @@ begin
               if CancelNotifier.IsOperationCanceled(OperationID) then begin
                 break;
               end;
-              VPixelRect.Left := CurrentPieceRect.Left + iWidth * (i - 1);
-              VPixelRect.Right := CurrentPieceRect.Left + iWidth * i;
-              VPixelRect.Top := CurrentPieceRect.Top + iHeight * (j - 1);
-              VPixelRect.Bottom := CurrentPieceRect.Top + iHeight * j;
-              VLocalConverter := ConverterFactory.CreateConverter(VLocalRect, Zoom, MainGeoConverter, DoublePoint(1, 1), DoublePoint(VPixelRect.TopLeft));
-              if PrepareTileBitmap(VBmp, VLocalConverter) then begin
+              VPixelRect.Left := VCurrentPieceRect.Left + iWidth * (i - 1);
+              VPixelRect.Right := VCurrentPieceRect.Left + iWidth * i;
+              VPixelRect.Top := VCurrentPieceRect.Top + iHeight * (j - 1);
+              VPixelRect.Bottom := VCurrentPieceRect.Top + iHeight * j;
+              VLocalConverter :=
+                AConverterFactory.CreateConverter(
+                  VLocalRect,
+                  ALocalConverter.Zoom,
+                  VGeoConverter,
+                  DoublePoint(1, 1),
+                  DoublePoint(VPixelRect.TopLeft)
+                );
+              if AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VBmp, VLocalConverter) then begin
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
                   break;
                 end;
@@ -164,7 +183,7 @@ begin
                 VNameInKmz := 'files/' + VFileName;
                 str := str + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
                 str := str + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
-                VLLRect := MainGeoConverter.PixelRect2LonLatRect(VPixelRect, Zoom);
+                VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, ALocalConverter.Zoom);
                 str := str + ansiToUTF8('<LatLonBox>' + #13#10);
                 str := str + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
                 str := str + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);

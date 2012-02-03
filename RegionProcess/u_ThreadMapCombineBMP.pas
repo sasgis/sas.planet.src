@@ -6,82 +6,80 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_OperationNotifier,
+  i_BitmapLayerProvider,
+  i_LocalCoordConverter,
+  i_LocalCoordConverterFactorySimpe,
   u_ResStrings,
   u_ThreadMapCombineBase,
   LibBMP;
 
 type
-  TThreadMapCombineBMP = class(TThreadMapCombineBaseWithByLyne)
+  TThreadMapCombineBMP = class(TThreadMapCombineBase)
   protected
-    procedure SaveRect; override;
+    procedure SaveRect(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      AFileName: string;
+      AImageProvider: IBitmapLayerProvider;
+      ALocalConverter: ILocalCoordConverter;
+      AConverterFactory: ILocalCoordConverterFactorySimpe
+    ); override;
   end;
 
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  i_ImageLineProvider,
+  u_ImageLineProvider;
 
-procedure TThreadMapCombineBMP.SaveRect;
+procedure TThreadMapCombineBMP.SaveRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  AFileName: string;
+  AImageProvider: IBitmapLayerProvider;
+  ALocalConverter: ILocalCoordConverter;
+  AConverterFactory: ILocalCoordConverterFactorySimpe
+);
 const
   BMP_MAX_WIDTH = 32768;
   BMP_MAX_HEIGHT = 32768;
 var
-  iWidth, iHeight: integer;
   i: Integer;
   VBMP: TBitmapFile;
-  VLineBGR: PArrayBGR;
+  VLineBGR: Pointer;
+  VSize: TPoint;
+  VLineProvider: IImageLineProvider;
 begin
-  sx := (CurrentPieceRect.Left mod 256);
-  sy := (CurrentPieceRect.Top mod 256);
-  ex := (CurrentPieceRect.Right mod 256);
-  ey := (CurrentPieceRect.Bottom mod 256);
+  VSize := ALocalConverter.GetLocalRectSize;
 
-  iWidth := MapPieceSize.X;
-  iHeight := MapPieceSize.y;
-
-  if (iWidth >= BMP_MAX_WIDTH) or (iHeight >= BMP_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', iWidth, BMP_MAX_WIDTH, iHeight, BMP_MAX_HEIGHT, 'BMP']);
+  if (VSize.X >= BMP_MAX_WIDTH) or (VSize.Y >= BMP_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', VSize.X, BMP_MAX_WIDTH, VSize.Y, BMP_MAX_HEIGHT, 'BMP']);
   end;
 
-  VBMP := TBitmapFile.Create(CurrentFileName, iWidth, iHeight);
+
+  VBMP := TBitmapFile.Create(AFileName, VSize.X, VSize.Y);
   try
-    GetMem(VLineBGR, iWidth * 3);
-
-    GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-    for i := 0 to 255 do begin
-      GetMem(FArray256BGR[i], (iWidth + 1) * 3);
-    end;
-    try
-      btmm := TCustomBitmap32.Create;
-      try
-        btmm.Width := 256;
-        btmm.Height := 256;
-
-        for i := 0 to iHeight - 1 do begin
-
-          if ReadLine(i, VLineBGR, FArray256BGR) then begin
-
-            if not VBMP.WriteLine(i, VLineBGR) then begin
-              raise Exception.Create( _('BMP: Line write failure!') );
-            end;
-
-          end else begin
-            raise Exception.Create( _('BMP: Fill line failure!') );
-          end;
-
-          if CancelNotifier.IsOperationCanceled(OperationID) then begin
-            Break;
-          end;
+    VLineProvider :=
+      TImageLineProviderBGR.Create(
+        AImageProvider,
+        ALocalConverter,
+        AConverterFactory
+      );
+    for i := 0 to VSize.Y - 1 do begin
+      VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
+      if VLineBGR <> nil then begin
+        if not VBMP.WriteLine(i, VLineBGR) then begin
+          raise Exception.Create( _('BMP: Line write failure!') );
         end;
-      finally
-        btmm.Free;
+      end else begin
+        raise Exception.Create( _('BMP: Fill line failure!') );
       end;
-    finally
-      for i := 0 to 255 do begin
-        FreeMem(FArray256BGR[i]);
+
+      if CancelNotifier.IsOperationCanceled(OperationID) then begin
+        Break;
       end;
-      FreeMem(FArray256BGR);
-      FreeMem(VLineBGR);
     end;
   finally
     VBMP.Free;

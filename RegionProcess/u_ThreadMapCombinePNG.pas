@@ -9,8 +9,10 @@ uses
   Classes,
   GR32,
   LibPNG,
-  i_GlobalViewMainConfig,
+  i_OperationNotifier,
   i_BitmapLayerProvider,
+  i_LocalCoordConverter,
+  i_GlobalViewMainConfig,
   i_VectorItemLonLat,
   i_VectorItemProjected,
   i_LocalCoordConverterFactorySimpe,
@@ -20,27 +22,27 @@ uses
   u_ThreadMapCombineBase;
 
 type
-  TThreadMapCombinePNG = class(TThreadMapCombineBaseWithByLyne)
+  TThreadMapCombinePNG = class(TThreadMapCombineBase)
   private
     FWithAlpha: Boolean;
-    function AllocateArray255(AWidth: Cardinal): Pointer;
-    procedure FreeArray255(APArray: Pointer);
   protected
-    procedure SaveRect; override;
+    procedure SaveRect(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      AFileName: string;
+      AImageProvider: IBitmapLayerProvider;
+      ALocalConverter: ILocalCoordConverter;
+      AConverterFactory: ILocalCoordConverterFactorySimpe
+    ); override;
   public
     constructor Create(
-      AViewConfig: IGlobalViewMainConfig;
-      AMarksImageProvider: IBitmapLayerProvider;
+      APolygon: ILonLatPolygon;
+      ATargetConverter: ILocalCoordConverter;
+      AImageProvider: IBitmapLayerProvider;
       ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapCalibrationList: IInterfaceList;
       AFileName: string;
-      APolygon: ILonLatPolygon;
-      AProjectedPolygon: IProjectedPolygon;
       ASplitCount: TPoint;
-      Atypemap: TMapType;
-      AHtypemap: TMapType;
-      AusedReColor: Boolean;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AWithAlpha: Boolean
     );
   end;
@@ -48,7 +50,10 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  i_CoordConverter,
+  i_ImageLineProvider,
+  u_ImageLineProvider;
 
 type
   sas_png_rw_io_ptr = ^sas_png_rw_io;
@@ -89,115 +94,81 @@ end;
 { TThreadMapCombinePNG }
 
 constructor TThreadMapCombinePNG.Create(
-  AViewConfig: IGlobalViewMainConfig;
-  AMarksImageProvider: IBitmapLayerProvider;
+  APolygon: ILonLatPolygon;
+  ATargetConverter: ILocalCoordConverter;
+  AImageProvider: IBitmapLayerProvider;
   ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapCalibrationList: IInterfaceList;
   AFileName: string;
-  APolygon: ILonLatPolygon;
-  AProjectedPolygon: IProjectedPolygon;
   ASplitCount: TPoint;
-  Atypemap: TMapType;
-  AHtypemap: TMapType;
-  AusedReColor: Boolean;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AWithAlpha: Boolean
 );
 begin
   inherited Create(
-    AViewConfig,
-    AMarksImageProvider,
+    APolygon,
+    ATargetConverter,
+    AImageProvider,
     ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
-    APolygon,
-    AProjectedPolygon,
-    ASplitCount,
-    Atypemap,
-    AHtypemap,
-    AusedReColor,
-    ARecolorConfig
+    ASplitCount
   );
   FWithAlpha := AWithAlpha;
 end;
 
-function TThreadMapCombinePNG.AllocateArray255(AWidth: Cardinal): Pointer;
-var
-  i: Integer;
-begin
-  if FWithAlpha then begin
-    GetMem(FArray256ABGR, 256 * sizeof(P256ArrayABGR));
-    for i := 0 to 255 do begin
-      GetMem(FArray256ABGR[i], (AWidth + 1) * 4);
-    end;
-    Result := FArray256ABGR;
-  end else begin
-    GetMem(FArray256BGR, 256 * sizeof(P256ArrayBGR));
-    for i := 0 to 255 do begin
-      GetMem(FArray256BGR[i], (AWidth + 1) * 3);
-    end;
-    Result := FArray256BGR;
-  end;
-end;
-
-procedure TThreadMapCombinePNG.FreeArray255(APArray: Pointer);
-var
-  i: Integer;
-begin
-  if FWithAlpha then begin
-    for i := 0 to 255 do begin
-      FreeMem(FArray256ABGR[i]);
-    end;
-    FreeMem(FArray256ABGR);
-  end else begin
-    for i := 0 to 255 do begin
-      FreeMem(FArray256BGR[i]);
-    end;
-    FreeMem(FArray256BGR);
-  end;
-end;
-
-procedure TThreadMapCombinePNG.SaveRect;
+procedure TThreadMapCombinePNG.SaveRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  AFileName: string;
+  AImageProvider: IBitmapLayerProvider;
+  ALocalConverter: ILocalCoordConverter;
+  AConverterFactory: ILocalCoordConverterFactorySimpe
+);
 const
   PNG_MAX_HEIGHT = 65536;
   PNG_MAX_WIDTH = 65536;
 var
-  iWidth, iHeight: integer;
-  i,j: integer;
+  i: integer;
   png_ptr: png_structp;
   info_ptr: png_infop;
-  prow: png_bytep;
   rw_io: sas_png_rw_io;
-  SwapBuf: Byte;
-  VImgBuf: Pointer;
-  VBytesRead: Byte;
   VPngColorType: Integer;
+  VCurrentPieceRect: TRect;
+  VGeoConverter: ICoordConverter;
+  VMapPieceSize: TPoint;
+  VLineProvider: IImageLineProvider;
+  VLineRGB: Pointer;
 begin
+  VGeoConverter := ALocalConverter.GeoConverter;
+  VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
+  VMapPieceSize := ALocalConverter.GetLocalRectSize;
   if FWithAlpha then begin
-    VBytesRead := 4;
     VPngColorType := PNG_COLOR_TYPE_RGB_ALPHA;
+    VLineProvider :=
+      TImageLineProviderRGBA.Create(
+        AImageProvider,
+        ALocalConverter,
+        AConverterFactory
+      );
   end else begin
-    VBytesRead := 3;
     VPngColorType := PNG_COLOR_TYPE_RGB;
+    VLineProvider :=
+      TImageLineProviderRGB.Create(
+        AImageProvider,
+        ALocalConverter,
+        AConverterFactory
+      );
   end;
 
-  sx := (CurrentPieceRect.Left mod 256);
-  sy := (CurrentPieceRect.Top mod 256);
-  ex := (CurrentPieceRect.Right mod 256);
-  ey := (CurrentPieceRect.Bottom mod 256);
-
-  iWidth := MapPieceSize.X;
-  iHeight := MapPieceSize.y;
-
-  if (iWidth >= PNG_MAX_WIDTH) or (iHeight >= PNG_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['PNG', iWidth, PNG_MAX_WIDTH, iHeight, PNG_MAX_HEIGHT, 'PNG']);
+  if (VMapPieceSize.X >= PNG_MAX_WIDTH) or (VMapPieceSize.Y >= PNG_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['PNG', VMapPieceSize.X, PNG_MAX_WIDTH, VMapPieceSize.Y, PNG_MAX_HEIGHT, 'PNG']);
   end;
 
   if not Init_LibPNG then begin
     raise Exception.Create( _('Initialization of LibPNG failed.') );
   end;
 
-  rw_io.DestStream := TFileStream.Create(CurrentFileName, fmCreate);
+  rw_io.DestStream := TFileStream.Create(AFileName, fmCreate);
   rw_io.DestBufferSize := 64*1024; // 64k
   GetMem(rw_io.DestBuffer, rw_io.DestBufferSize);
   rw_io.BufferedDataSize := 0;
@@ -213,53 +184,29 @@ begin
         png_set_write_fn(png_ptr, @rw_io, @sas_png_write_data, nil);
 
         // Write header (8 bit colour depth)
-        png_set_IHDR(png_ptr, info_ptr, iWidth, iHeight, 8, VPngColorType,
+        png_set_IHDR(png_ptr, info_ptr, VMapPieceSize.X, VMapPieceSize.Y, 8, VPngColorType,
           PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
         png_write_info(png_ptr, info_ptr);
-
-        // allocate row
-        GetMem(prow, info_ptr.width * VBytesRead);
-
-        VImgBuf := AllocateArray255(info_ptr.width);
         try
-          btmm := TCustomBitmap32.Create;
-          try
-            btmm.Width := 256;
-            btmm.Height := 256;
-
-            for i := 0 to info_ptr.height - 1 do begin
-              ReadLine(i, prow, VImgBuf, FWithAlpha);
-
-              // BGR to RGB swap
-              for j := 0 to info_ptr.width - 1 do begin
-                SwapBuf := PByte(Integer(prow) + j*VBytesRead)^;
-                PByte(Integer(prow) + j*VBytesRead)^ := PByte(Integer(prow) + j*VBytesRead + 2)^;
-                PByte(Integer(prow) + j*VBytesRead + 2)^ := SwapBuf;
-              end;
-
+          for i := 0 to info_ptr.height - 1 do begin
+            VLineRGB := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
+            if VLineRGB <> nil then begin
               // write row
-              png_write_row(png_ptr, prow);
-
-              if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                Break;
-              end;
+              png_write_row(png_ptr, VLineRGB);
             end;
-          finally
-            btmm.Free;
+
+            if CancelNotifier.IsOperationCanceled(OperationID) then begin
+              Break;
+            end;
           end;
         finally
-          FreeArray255(VImgBuf);
-
-          // freeing row
-          FreeMem(prow);
-
           // End write
           png_write_end(png_ptr, info_ptr);
         end;
       finally
         png_free_data(png_ptr, info_ptr, PNG_FREE_ALL);
-        
+
         png_destroy_write_struct(@png_ptr, @info_ptr);
       end;
     end;
