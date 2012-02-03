@@ -38,6 +38,12 @@ type
       AMapScale: TDoublePoint;
       ALocalTopLeftAtMap: TDoublePoint
     ): ILocalCoordConverter;
+    function CreateConverterNoScale(
+      ALocalRect: TRect;
+      AZoom: Byte;
+      AGeoConverter: ICoordConverter;
+      ALocalTopLeftAtMap: TDoublePoint
+    ): ILocalCoordConverter;
     function CreateForTile(
       ATile: TPoint;
       AZoom: Byte;

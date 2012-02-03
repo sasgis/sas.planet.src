@@ -42,6 +42,12 @@ type
       AMapScale: TDoublePoint;
       ALocalTopLeftAtMap: TDoublePoint
     ): ILocalCoordConverter;
+    function CreateConverterNoScale(
+      ALocalRect: TRect;
+      AZoom: Byte;
+      AGeoConverter: ICoordConverter;
+      ALocalTopLeftAtMap: TDoublePoint
+    ): ILocalCoordConverter;
     function CreateForTile(
       ATile: TPoint;
       AZoom: Byte;
@@ -190,6 +196,20 @@ begin
       AMapScale,
       ALocalTopLeftAtMap
     );
+end;
+
+function TLocalCoordConverterFactorySimpe.CreateConverterNoScale(
+  ALocalRect: TRect;
+  AZoom: Byte;
+  AGeoConverter: ICoordConverter;
+  ALocalTopLeftAtMap: TDoublePoint
+): ILocalCoordConverter;
+begin
+  Result := TLocalCoordConverterNoScale.Create(
+    ALocalRect,
+    FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
+    ALocalTopLeftAtMap
+  );
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateForTile(ATile: TPoint;

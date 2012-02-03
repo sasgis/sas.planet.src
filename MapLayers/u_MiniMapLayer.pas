@@ -287,11 +287,10 @@ begin
   VLocalTopLeftAtMap.Y := Trunc(VVisualMapCenterInLayerMap.Y - (VLayerSize.Y / 2));
 
 
-  Result := FCoordConverterFactory.CreateConverter(
+  Result := FCoordConverterFactory.CreateConverterNoScale(
     Rect(0, 0, VLayerSize.X, VLayerSize.Y),
     VZoom,
     VConverter,
-    DoublePoint(1, 1),
     VLocalTopLeftAtMap
   );
 end;

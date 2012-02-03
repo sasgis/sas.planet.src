@@ -300,11 +300,10 @@ begin
 
   VPreparedLocalRect := FLocalConverter.MapRect2LocalRect(VPreparedMapRect);
   Result :=
-    FConverterFactory.CreateConverter(
+    FConverterFactory.CreateConverterNoScale(
       VPreparedLocalRect,
       FZoom,
       FMainGeoConverter,
-      DoublePoint(1, 1),
       DoublePoint(VCurrentPieceMapRect.TopLeft)
     );
 end;

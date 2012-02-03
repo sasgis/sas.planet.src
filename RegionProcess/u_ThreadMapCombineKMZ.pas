@@ -166,11 +166,10 @@ begin
               VPixelRect.Top := VCurrentPieceRect.Top + iHeight * (j - 1);
               VPixelRect.Bottom := VCurrentPieceRect.Top + iHeight * j;
               VLocalConverter :=
-                AConverterFactory.CreateConverter(
+                AConverterFactory.CreateConverterNoScale(
                   VLocalRect,
                   ALocalConverter.Zoom,
                   VGeoConverter,
-                  DoublePoint(1, 1),
                   DoublePoint(VPixelRect.TopLeft)
                 );
               if AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VBmp, VLocalConverter) then begin

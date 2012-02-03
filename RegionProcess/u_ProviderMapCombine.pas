@@ -233,14 +233,14 @@ begin
       VProjection,
       APolygon
     );
-  VMapRect := VProjectedPolygon.Bounds;
+
+  VMapRect := DoubleRect(VGeoConverter.PixelRectFloat2PixelRect(VProjectedPolygon.Bounds, VZoom));;
 
   VTargetConverter :=
-    FLocalConverterFactory.CreateConverter(
+    FLocalConverterFactory.CreateConverterNoScale(
       Rect(0, 0, Trunc(VMapRect.Right - VMapRect.Left), Trunc(VMapRect.Bottom - VMapRect.Top)),
       VZoom,
       VGeoConverter,
-      DoublePoint(1, 1),
       VMapRect.TopLeft
     );
 

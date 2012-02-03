@@ -157,11 +157,10 @@ begin
       VCurrentPieceRect.Bottom := VMapRect.Top + VMapPieceSize.Y * j;
 
       VCurrentPieceConverter :=
-        FConverterFactory.CreateConverter(
+        FConverterFactory.CreateConverterNoScale(
           Rect(0, 0, VMapPieceSize.X, VMapPieceSize.Y),
           FTargetConverter.Zoom,
           FTargetConverter.GeoConverter,
-          DoublePoint(1, 1),
           DoublePoint(VCurrentPieceRect.TopLeft)
         );
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
