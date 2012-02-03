@@ -25,6 +25,7 @@ interface
 uses
   Types,
   Classes,
+  SyncObjs,
   u_BerkeleyDB,
   u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
@@ -36,17 +37,23 @@ type
     FEnv: TBerkeleyDBEnv;
     FPool: TBerkeleyDBPool;
     FSingleMode: Boolean;
+    FStorageRootPath: string;
     FStorageEPSG: Integer;
+    FEvent: TEvent;
 
     function OnBDBObjCreate(const AFileName: string): TBerkeleyDB;
     procedure OnBDBFileCreate(Sender: TObject);
     procedure OnBDBFileFirstOpen(Sender: TObject);
+
+    procedure CreateEnvironment(const APath: string);
   public
     constructor Create(
       const AStorageRootPath: string;
       AStorageEPSG: Integer
     ); 
     destructor Destroy; override;
+
+    procedure ChangeRootPath(const AStorageNewRootPath: string);
 
     function CreateDirIfNotExists(APath: string): Boolean;
 
@@ -99,6 +106,7 @@ type
 implementation
 
 uses
+  Windows,
   SysUtils;
 
 const
@@ -113,26 +121,52 @@ constructor TTileStorageBerkeleyDBHelper.Create(
 );
 begin
   inherited Create;
-
-  // create in-memory environment (for single process access only)
-  FSingleMode := False;
-
+  FStorageRootPath := AStorageRootPath;
   FStorageEPSG := AStorageEPSG;
-  FEnv := GlobalAllocateEnvironment(AStorageRootPath, FSingleMode);
-  if Assigned(FEnv) then begin
-    FPool := FEnv.Pool;
-    FPool.OnObjCreate := Self.OnBDBObjCreate;
-  end else begin
-    raise EBerkeleyDBExeption.Create(
-      'Error [BerkeleyDB]: Can''t allocate environment: ' + AStorageRootPath
-    );
-  end;
+  FEvent := TEvent.Create;
+  FEvent.SetEvent;
+
+  CreateEnvironment(AStorageRootPath);
 end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
   GlobalFreeEnvironment(FEnv);
   inherited Destroy;
+end;
+
+procedure TTileStorageBerkeleyDBHelper.CreateEnvironment(const APath: string);
+begin
+  // create in-memory environment (for single process access only)
+  FSingleMode := False;
+
+  FEnv := GlobalAllocateEnvironment(APath, FSingleMode);
+  if Assigned(FEnv) then begin
+    FPool := FEnv.Pool;
+    FPool.OnObjCreate := Self.OnBDBObjCreate;
+  end else begin
+    raise EBerkeleyDBExeption.Create(
+      'Error [BerkeleyDB]: Can''t allocate environment: ' + APath
+    );
+  end;
+end;
+
+procedure TTileStorageBerkeleyDBHelper.ChangeRootPath(
+  const AStorageNewRootPath: string
+);
+begin
+  if FStorageRootPath <> AStorageNewRootPath then begin
+    FEvent.ResetEvent;
+    try
+      if Assigned(FEnv) then begin
+        GlobalFreeEnvironment(FEnv);
+      end;
+      FStorageRootPath := AStorageNewRootPath;
+      CreateEnvironment(AStorageNewRootPath);
+    finally
+      FEvent.SetEvent;
+    end;
+  end;
 end;
 
 function TTileStorageBerkeleyDBHelper.OnBDBObjCreate(
@@ -267,6 +301,7 @@ var
   VMemStream: TMemoryStream;
 begin
   Result := False;
+  FEvent.WaitFor(INFINITE);
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
@@ -329,6 +364,7 @@ var
   VBDB: TBerkeleyDB;
 begin
   Result := False;
+  FEvent.WaitFor(INFINITE);
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
@@ -356,6 +392,7 @@ var
   VRawDataSize: Cardinal;
 begin
   Result := False;
+  FEvent.WaitFor(INFINITE);
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
@@ -392,6 +429,7 @@ var
   VBDB: TBerkeleyDB;
 begin
   Result := False;
+  FEvent.WaitFor(INFINITE);
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
@@ -418,6 +456,7 @@ var
   VRawDataSize: Cardinal;
 begin
   Result := False;
+  FEvent.WaitFor(INFINITE);
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
@@ -439,6 +478,7 @@ end;
 
 procedure TTileStorageBerkeleyDBHelper.Sync(Sender: TObject);
 begin
+  FEvent.WaitFor(INFINITE);
   if Assigned(FEnv) then begin
     if Assigned(FPool) then begin
       FPool.Sync();

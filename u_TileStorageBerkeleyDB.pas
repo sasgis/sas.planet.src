@@ -48,6 +48,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
     FTTLListener: ITTLCheckListener;
+    procedure OnMapSettingsEdit(Sender: TObject);
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -139,16 +140,13 @@ begin
   FCacheConfig := TMapTypeCacheConfigBerkeleyDB.Create(
     AConfig,
     TTileFileNameBDB.Create,
-    AGlobalCacheConfig
+    AGlobalCacheConfig,
+    Self.OnMapSettingsEdit
   );
   FContentTypeManager := AContentTypeManager;
   FMainContentType := FContentTypeManager.GetInfoByExt(Config.TileFileExt);
   FHelper := TTileStorageBerkeleyDBHelper.Create(
-    IncludeTrailingPathDelimiter(
-      AGlobalCacheConfig.CacheGlobalPath +
-      AGlobalCacheConfig.BDBCachepath +
-      AConfig.NameInCache
-    ),
+    FCacheConfig.BasePath,
     AConfig.CoordConverter.Datum.EPSG
   );
   FTTLListener := TTTLCheckListener.Create(
@@ -170,6 +168,20 @@ begin
   FTileNotExistsTileInfo := nil;
   FGCList := nil;
   inherited;
+end;
+
+procedure TTileStorageBerkeleyDB.OnMapSettingsEdit(Sender: TObject);
+var
+  VCacheConfig: TMapTypeCacheConfigBerkeleyDB;
+begin
+  if Assigned(FHelper) then begin
+    if Sender is TMapTypeCacheConfigBerkeleyDB then begin
+      VCacheConfig := Sender as TMapTypeCacheConfigBerkeleyDB;
+      if Assigned(VCacheConfig) then begin
+        FHelper.ChangeRootPath(VCacheConfig.BasePath);
+      end;
+    end;
+  end;
 end;
 
 function TTileStorageBerkeleyDB.GetAllowDifferentContentTypes: Boolean;
