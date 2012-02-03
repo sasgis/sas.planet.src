@@ -74,6 +74,7 @@ implementation
 
 uses
   Variants,
+  ShLwApi,
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,
@@ -118,18 +119,10 @@ begin
 end;
 
 function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): string;
-var
-  VAppCurrentDir: string;
 begin
-  Result := '';
-  VAppCurrentDir := GetCurrentDir;
-  try
-    if SetCurrentDir(ExtractFilePath(ParamStr(0))) then begin
-      Result := ExpandFileName(ARelativePathName);
-    end;
-  finally
-    SetCurrentDir(VAppCurrentDir);
-  end;
+  SetLength(Result, MAX_PATH);
+  PathCombine(@Result[1], PChar(ExtractFilePath(ParamStr(0))), PChar(ARelativePathName));
+  SetLength(Result, StrLen(@Result[1]));
 end;
 
 function TThreadExportToBDB.TileExportToRemoteBDB(
