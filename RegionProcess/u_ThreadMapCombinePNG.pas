@@ -12,13 +12,8 @@ uses
   i_OperationNotifier,
   i_BitmapLayerProvider,
   i_LocalCoordConverter,
-  i_GlobalViewMainConfig,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
   i_LocalCoordConverterFactorySimpe,
-  u_MapType,
-  i_BitmapPostProcessingConfig,
-  u_ResStrings,
   u_ThreadMapCombineBase;
 
 type
@@ -53,7 +48,8 @@ uses
   gnugettext,
   i_CoordConverter,
   i_ImageLineProvider,
-  u_ImageLineProvider;
+  u_ImageLineProvider,
+  u_ResStrings;
 
 type
   sas_png_rw_io_ptr = ^sas_png_rw_io;

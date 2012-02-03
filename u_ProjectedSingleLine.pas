@@ -67,7 +67,6 @@ implementation
 
 uses
   u_GeoFun,
-  u_EnumDoublePointWithClip,
   u_EnumDoublePointBySingleLine;
 
 { TProjectedLineBase }

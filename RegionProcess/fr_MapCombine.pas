@@ -93,7 +93,6 @@ implementation
 uses
   i_GUIDListStatic,
   i_VectorItemProjected,
-  u_GeoFun,
   u_ResStrings,
   u_MapType;
 

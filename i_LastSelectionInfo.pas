@@ -23,7 +23,6 @@ unit i_LastSelectionInfo;
 interface
 
 uses
-  t_GeoTypes,
   i_VectorItemLonLat,
   i_ConfigDataElement;
 

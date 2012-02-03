@@ -33,8 +33,8 @@ function str2r(inp:string):Double;
 implementation
 
 uses
-  vsagps_public_base,
-  SysUtils;
+  SysUtils,
+  vsagps_public_base;
 
 var
   GFormatSettings : TFormatSettings;

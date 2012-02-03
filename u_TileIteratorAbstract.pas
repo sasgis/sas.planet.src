@@ -24,8 +24,6 @@ interface
 
 uses
   Types,
-  i_CoordConverter,
-  i_VectorItemLonLat,
   i_VectorItemProjected,
   i_TileIterator;
 

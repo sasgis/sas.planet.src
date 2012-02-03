@@ -7,18 +7,14 @@ uses
   SysUtils,
   Classes,
   GR32,
+  libJPEG,
   i_OperationNotifier,
-  i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  u_MapType,
-  i_BitmapPostProcessingConfig,
   u_ResStrings,
-  u_ThreadMapCombineBase,
-  libJPEG;
+  u_ThreadMapCombineBase;
 
 type
   TThreadMapCombineJPG = class(TThreadMapCombineBase)

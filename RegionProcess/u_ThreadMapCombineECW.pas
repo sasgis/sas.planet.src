@@ -8,18 +8,14 @@ uses
   Classes,
   GR32,
   i_OperationNotifier,
-  i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_LocalCoordConverter,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
   i_ImageLineProvider,
   i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
-  u_MapType,
   u_GeoFun,
   t_GeoTypes,
-  i_BitmapPostProcessingConfig,
   u_ResStrings,
   u_ThreadMapCombineBase;
 

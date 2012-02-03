@@ -8,19 +8,12 @@ uses
   GR32,
   i_LocalCoordConverter,
   i_OperationNotifier,
-  i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
   i_LocalCoordConverterFactorySimpe,
-  u_MapType,
   t_GeoTypes,
-  i_BitmapPostProcessingConfig,
   u_ResStrings,
-  u_ThreadMapCombineBase,
-  Imaging,
-  ImagingTypes,
-  ImagingJpeg;
+  u_ThreadMapCombineBase;
 
 type
   TThreadMapCombineKMZ = class(TThreadMapCombineBase)

@@ -3,21 +3,15 @@ unit u_ThreadMapCombineBase;
 interface
 
 uses
-  Windows,
   Classes,
   Types,
   GR32,
-  t_GeoTypes,
   i_OperationNotifier,
-  i_GlobalViewMainConfig,
   i_BitmapLayerProvider,
-  i_BitmapPostProcessingConfig,
   i_VectorItemLonLat,
-  i_VectorItemProjected,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  u_MapType,
   u_ThreadRegionProcessAbstract;
 
 type
@@ -60,8 +54,6 @@ implementation
 
 uses
   SysUtils,
-  gnugettext,
-  i_EnumDoublePoint,
   i_MapCalibration,
   u_ResStrings,
   u_GeoFun;

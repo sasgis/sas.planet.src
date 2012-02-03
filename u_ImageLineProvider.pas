@@ -10,10 +10,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageLineProvider,
-  i_BitmapPostProcessingConfig,
-  i_VectorItemProjected,
-  i_BitmapLayerProvider,
-  u_MapType;
+  i_BitmapLayerProvider;
 
 type
   TImageLineProviderAbstract = class(TInterfacedObject, IImageLineProvider)

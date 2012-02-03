@@ -26,7 +26,6 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  i_VectorItemLonLat,
   i_VectorItemProjected,
   u_TileIteratorAbstract;
 
@@ -50,10 +49,6 @@ type
   end;
 
 implementation
-
-uses
-  i_EnumDoublePoint,
-  u_GeoFun;
 
 { TTileIteratorByPolygon }
 

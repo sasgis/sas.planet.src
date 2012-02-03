@@ -11,7 +11,6 @@ uses
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_MapType,
-  u_GeoFun,
   u_ResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;
@@ -45,7 +44,6 @@ type
 implementation
 
 uses
-  Math,
   u_GeoToStr,
   i_TileIterator,
   u_TileIteratorByPolygon,

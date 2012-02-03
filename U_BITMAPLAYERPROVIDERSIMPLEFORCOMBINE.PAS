@@ -6,7 +6,6 @@ uses
   GR32,
   i_OperationNotifier,
   i_LocalCoordConverter,
-  i_VectorItemProjected,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
   u_MapType;
