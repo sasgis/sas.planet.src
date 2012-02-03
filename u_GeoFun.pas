@@ -64,8 +64,6 @@ type
 
   procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
             var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
-  function GetDwnlNum(var ARect: TRect; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64; overload;
-  function RgnAndRgn(APoints: PPointArray; ACount: Integer; x, y: integer; prefalse: boolean):boolean; // Переделать использующий ее код в ближайшее время
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
   function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
   function PointIsEmpty(APoint: TDoublePoint): Boolean;
@@ -86,117 +84,6 @@ begin
   end else if Result < -180.0 then begin
     Result := Result + 360.0;
   end;
-end;
-
-function PtInPolygon(const Pt: TPoint; const APoints: PPointArray; ACount: Integer): Boolean;
-var I:Integer;
-    iPt,jPt:PPoint;
-begin
-  Result:=False;
-  iPt:=@APoints[0];
-  jPt:=@APoints[ACount - 1];
-  for I:=0 to ACount - 1 do
-  begin
-   Result:=Result xor (((Pt.Y>=iPt.Y)xor(Pt.Y>=jPt.Y))and
-           (Pt.X-iPt.X<((jPt.X-iPt.X)*(Pt.Y-iPt.Y)/(jPt.Y-iPt.Y))));
-   jPt:=iPt;
-   Inc(iPt);
-  end;
-end;
-
-function RgnAndRgn(APoints: PPointArray; ACount: Integer;x,y:integer;prefalse:boolean):boolean;
-var i,xm128,ym128,xp128,yp128:integer;
-begin
-  xm128:=x-128;
-  ym128:=y-128;
-  if (not prefalse)and(PtInPolygon(Point(xm128,ym128), APoints, ACount)) then begin
-    result:=true;
-  end else begin
-    xp128:=x+128;
-    if (not prefalse)and(PtInPolygon(Point(xp128,ym128), APoints, ACount)) then begin
-      result:=true;
-    end else begin
-      yp128:=y+128;
-      if PtInPolygon(Point(xp128,yp128), APoints, ACount) then begin
-        result:=true;
-      end else begin
-        if PtInPolygon(Point(xm128,yp128), APoints, ACount) then begin
-          result:=true;
-        end else begin
-          result:=false;
-          for i:=0 to ACount-2 do begin
-            if (APoints[i].x<xp128)and(APoints[i].x>xm128)and(APoints[i].y<yp128)and(APoints[i].y>ym128) then begin
-              result:=true;
-              Break;
-            end;
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
-
-Procedure GetMinMax(var ARect: TRect; APoints: PPointArray; ACount: Integer; round_:boolean);
-var i:integer;
-begin
- ARect.TopLeft:=APoints[0];
- ARect.BottomRight:=APoints[0];
- for i:=1 to ACount - 1 do
-  begin
-   if ARect.Left>APoints[i].x then ARect.Left:=APoints[i].x;
-   if ARect.Top>APoints[i].y then ARect.Top:=APoints[i].y;
-   if ARect.Right<APoints[i].x then ARect.Right:=APoints[i].x;
-   if ARect.Bottom<APoints[i].y then ARect.Bottom:=APoints[i].y;
-  end;
- if round_ then
-  begin
-   Dec(ARect.Right);
-   Dec(ARect.Bottom);
-   Inc(ARect.Left);
-   Inc(ARect.Top);
-   ARect.Left:=ARect.Left-(ARect.Left mod 256)+128;
-   ARect.Right:=ARect.Right-(ARect.Right mod 256)+128;
-   ARect.Top:=ARect.Top-(ARect.Top mod 256)+128;
-   ARect.Bottom:=ARect.Bottom-(ARect.Bottom mod 256)+128;
-  end;
-end;
-
-function GetDwnlNum(var ARect: TRect; APoints: PPointArray; ACount: Integer; getNum:boolean):Int64;
-type
-  P5PointArray = ^T5PointArray;
-  T5PointArray = array [0..4] of TPoint;
-var
-  i,j:integer;
-  prefalse:boolean;
-begin
- GetMinMax(ARect,APoints, ACount,true);
- result:=0;
- if getNum then
-    if (ACount = 5)and
-      (P5PointArray(APoints)[0].x = P5PointArray(APoints)[3].x)and
-      (P5PointArray(APoints)[1].x = P5PointArray(APoints)[2].x)and
-      (P5PointArray(APoints)[0].y = P5PointArray(APoints)[1].y)and
-      (P5PointArray(APoints)[2].y = P5PointArray(APoints)[3].y)
-    then begin
-          result:=int64((ARect.Right-ARect.Left) div 256+1)*int64((ARect.Bottom-ARect.Top) div 256+1);
-         end
-    else begin
-          i:=ARect.Left;
-          while i<=ARect.Right do
-          begin
-           j:=ARect.Top;
-           prefalse:=false;
-           while j<=ARect.Bottom do
-            begin
-             prefalse:=not(RgnAndRgn(APoints, ACount, i,j,prefalse));
-             if not(prefalse) then inc(result);
-             inc(j,256);
-            end;
-           inc(i,256);
-          end;
-         end;
- Inc(ARect.Right);
- Inc(ARect.Bottom);
 end;
 
 procedure CalculateWFileParams(
