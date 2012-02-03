@@ -142,6 +142,8 @@ begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
+  FTilesProcessed := 0;
+  FTilesToProcess := VMapPieceSize.Y;
   if FWithAlpha then begin
     VPngColorType := PNG_COLOR_TYPE_RGB_ALPHA;
     VLineProvider :=
@@ -198,6 +200,10 @@ begin
 
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               Break;
+            end;
+            if i mod 256 = 0 then begin
+              FTilesProcessed := i;
+              ProgressFormUpdateOnProgress;
             end;
           end;
         finally

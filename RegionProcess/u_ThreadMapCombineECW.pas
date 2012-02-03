@@ -103,6 +103,10 @@ begin
     LineG[i] := VRGB[i].G;
     LineB[i] := VRGB[i].B;
   end;
+  if ALine mod 256 = 0 then begin
+    FTilesProcessed := ALine;
+    ProgressFormUpdateOnProgress;
+  end;
   Result := True;
 end;
 
@@ -135,6 +139,8 @@ begin
     VGeoConverter := ALocalConverter.GeoConverter;
     VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
     VMapPieceSize := ALocalConverter.GetLocalRectSize;
+    FTilesProcessed := 0;
+    FTilesToProcess := VMapPieceSize.Y;
     Datum := 'EPSG:' + IntToStr(VGeoConverter.Datum.EPSG);
     Proj := 'EPSG:' + IntToStr(VGeoConverter.GetProjectionEPSG);
     Units := VGeoConverter.GetCellSizeUnits;

@@ -119,6 +119,8 @@ begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
+  FTilesProcessed := 0;
+  FTilesToProcess := VMapPieceSize.Y;
   VLineProvider :=
     TImageLineProviderRGB.Create(
       AImageProvider,
@@ -197,6 +199,10 @@ begin
         end;
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
           Break;
+        end;
+        if i mod 256 = 0 then begin
+          FTilesProcessed := i;
+          ProgressFormUpdateOnProgress;
         end;
       end;
     finally

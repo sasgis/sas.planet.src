@@ -58,6 +58,8 @@ begin
     raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['BMP', VSize.X, BMP_MAX_WIDTH, VSize.Y, BMP_MAX_HEIGHT, 'BMP']);
   end;
 
+  FTilesProcessed := 0;
+  FTilesToProcess := VSize.Y;
 
   VBMP := TBitmapFile.Create(AFileName, VSize.X, VSize.Y);
   try
@@ -79,6 +81,10 @@ begin
 
       if CancelNotifier.IsOperationCanceled(OperationID) then begin
         Break;
+      end;
+      if i mod 256 = 0 then begin
+        FTilesProcessed := i;
+        ProgressFormUpdateOnProgress;
       end;
     end;
   finally
