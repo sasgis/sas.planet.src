@@ -206,7 +206,7 @@ begin
     CheckBDB(
       FEnv.open(
         FEnv,
-        PAnsiChar(VPath),
+        Pointer(AnsiToUtf8(VPath)),
         DB_CREATE_ or
         DB_RECOVER or
         DB_INIT_LOCK or

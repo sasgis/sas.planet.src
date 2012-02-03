@@ -181,7 +181,7 @@ function TBerkeleyDB.Open(
         FDB.open(
           FDB,
           nil,
-          PAnsiChar(VRelativeFileName),
+          Pointer(AnsiToUtf8(VRelativeFileName)),
           '',
           ADBType,
           DB_CREATE_ or
