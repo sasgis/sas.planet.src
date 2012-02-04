@@ -118,7 +118,6 @@ uses
 constructor TBerkeleyDB.Create;
 begin
   inherited Create;
-  InitBerkeleyDB;
   FCS := TCriticalSection.Create;
   FFileName := '';
   FDB := nil;
