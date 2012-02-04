@@ -2711,7 +2711,7 @@ var
 
 // TRANSLATION: ROUTINES
 
-procedure InitBerkeleyDB; // INITIALIZE DELPHI LIBRARY (dynamic binding)
+function InitBerkeleyDB: Boolean; // INITIALIZE DELPHI LIBRARY (dynamic binding)
 
 procedure CheckBDB            (resultCode: integer);                   // check result from api functions and raise exception if error
 function  CheckAndFoundBDB    (resultCode: integer): boolean;          // check result, return true if ok, return false if not found, raise exception if error
@@ -2728,12 +2728,13 @@ uses Windows, SysUtils, SyncObjs;
 
 var
   DllHandle: THandle = 0;
+  DllInitError: Boolean = False;
   LibInitCS: TCriticalSection = nil;
 
 const
   DllName = 'libdb51.dll';
 
-procedure InitBerkeleyDB;
+function InitBerkeleyDB: Boolean;
   procedure LoadProc(var proc; procName: string);
   begin
     pointer(proc) := GetProcAddress(DllHandle, pchar(procName));
@@ -2743,44 +2744,52 @@ procedure InitBerkeleyDB;
 begin
   LibInitCS.Acquire;
   try
-    if DllHandle<>0 then
-      exit;
+    Result := DllHandle <> 0;
 
-    DllHandle := LoadLibrary(DllName);
-    if DllHandle=0 then
-      raise Exception.Create('Berkeley DB not found ('+DllName+')'+#13#10+SysErrorMessage(GetLastError));
+    if (DllHandle = 0) and not DllInitError then begin
 
-    LoadProc(db_create              , 'db_create'              );
-    LoadProc(db_strerror            , 'db_strerror'            );
-    LoadProc(db_env_create          , 'db_env_create'          );
-    LoadProc(db_version             , 'db_version'             );
-    LoadProc(db_full_version        , 'db_full_version'        );
-    LoadProc(log_compare            , 'log_compare'            );
-    LoadProc(db_sequence_create     , 'db_sequence_create'     );
+      DllHandle := LoadLibrary(DllName);
 
-    LoadProc(db_env_set_func_free   , 'db_env_set_func_free'   );
-    LoadProc(db_env_set_func_malloc , 'db_env_set_func_malloc' );
-    LoadProc(db_env_set_func_realloc, 'db_env_set_func_realloc');
+      if DllHandle = 0 then begin
+        DllInitError := True;
+        raise Exception.Create('Berkeley DB not found ('+DllName+')' + #13#10 +
+          SysErrorMessage(GetLastError));
+      end;
 
-    //NOT AVAILABLE IN BERKELEY DB FOR WINDOWS:
-    //LoadProc(db_env_set_func_close     , 'db_env_set_func_close'     );
-    //LoadProc(db_env_set_func_dirfree   , 'db_env_set_func_dirfree'   );
-    //LoadProc(db_env_set_func_dirlist   , 'db_env_set_func_dirlist'   );
-    //LoadProc(db_env_set_func_exists    , 'db_env_set_func_exists'    );
-    //LoadProc(db_env_set_func_fsync     , 'db_env_set_func_fsync'     );
-    //LoadProc(db_env_set_func_ftruncate , 'db_env_set_func_ftruncate' );
-    //LoadProc(db_env_set_func_ioinfo    , 'db_env_set_func_ioinfo'    );
-    //LoadProc(db_env_set_func_file_map  , 'db_env_set_func_file_map'  );
-    //LoadProc(db_env_set_func_region_map, 'db_env_set_func_region_map');
-    //LoadProc(db_env_set_func_pread     , 'db_env_set_func_pread'     );
-    //LoadProc(db_env_set_func_pwrite    , 'db_env_set_func_pwrite'    );
-    //LoadProc(db_env_set_func_open      , 'db_env_set_func_open'      );
-    //LoadProc(db_env_set_func_read      , 'db_env_set_func_read'      );
-    //LoadProc(db_env_set_func_rename    , 'db_env_set_func_rename'    );
-    //LoadProc(db_env_set_func_seek      , 'db_env_set_func_seek'      );
-    //LoadProc(db_env_set_func_unlink    , 'db_env_set_func_unlink'    );
-    //LoadProc(db_env_set_func_write     , 'db_env_set_func_write'     );
-    //LoadProc(db_env_set_func_yield     , 'db_env_set_func_yield'     );
+      LoadProc(db_create              , 'db_create'              );
+      LoadProc(db_strerror            , 'db_strerror'            );
+      LoadProc(db_env_create          , 'db_env_create'          );
+      LoadProc(db_version             , 'db_version'             );
+      LoadProc(db_full_version        , 'db_full_version'        );
+      LoadProc(log_compare            , 'log_compare'            );
+      LoadProc(db_sequence_create     , 'db_sequence_create'     );
+
+      LoadProc(db_env_set_func_free   , 'db_env_set_func_free'   );
+      LoadProc(db_env_set_func_malloc , 'db_env_set_func_malloc' );
+      LoadProc(db_env_set_func_realloc, 'db_env_set_func_realloc');
+
+      //NOT AVAILABLE IN BERKELEY DB FOR WINDOWS:
+      //LoadProc(db_env_set_func_close     , 'db_env_set_func_close'     );
+      //LoadProc(db_env_set_func_dirfree   , 'db_env_set_func_dirfree'   );
+      //LoadProc(db_env_set_func_dirlist   , 'db_env_set_func_dirlist'   );
+      //LoadProc(db_env_set_func_exists    , 'db_env_set_func_exists'    );
+      //LoadProc(db_env_set_func_fsync     , 'db_env_set_func_fsync'     );
+      //LoadProc(db_env_set_func_ftruncate , 'db_env_set_func_ftruncate' );
+      //LoadProc(db_env_set_func_ioinfo    , 'db_env_set_func_ioinfo'    );
+      //LoadProc(db_env_set_func_file_map  , 'db_env_set_func_file_map'  );
+      //LoadProc(db_env_set_func_region_map, 'db_env_set_func_region_map');
+      //LoadProc(db_env_set_func_pread     , 'db_env_set_func_pread'     );
+      //LoadProc(db_env_set_func_pwrite    , 'db_env_set_func_pwrite'    );
+      //LoadProc(db_env_set_func_open      , 'db_env_set_func_open'      );
+      //LoadProc(db_env_set_func_read      , 'db_env_set_func_read'      );
+      //LoadProc(db_env_set_func_rename    , 'db_env_set_func_rename'    );
+      //LoadProc(db_env_set_func_seek      , 'db_env_set_func_seek'      );
+      //LoadProc(db_env_set_func_unlink    , 'db_env_set_func_unlink'    );
+      //LoadProc(db_env_set_func_write     , 'db_env_set_func_write'     );
+      //LoadProc(db_env_set_func_yield     , 'db_env_set_func_yield'     );
+
+      Result := True;
+    end;
   finally
     LibInitCS.Release;
   end;

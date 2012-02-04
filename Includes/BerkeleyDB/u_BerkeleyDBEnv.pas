@@ -33,6 +33,7 @@ type
     FEnv: PDB_ENV;
     FPool: TBerkeleyDBPool;
     FActive: Boolean;
+    FLibInitOk: Boolean;
     FLastRemoveLogTime: Cardinal;
     FLastCheckPointTime: Cardinal;
     FEnvRootPath: string;
@@ -153,7 +154,7 @@ begin
   FSingleMode := ASingleMode;
   FClientsCount := 1;
   FPool := TBerkeleyDBPool.Create;
-  InitBerkeleyDB;
+  FLibInitOk := InitBerkeleyDB;
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
@@ -174,7 +175,7 @@ var
   VPath: string;
   VSingleModFlag: Cardinal;
 begin
-  if not FActive then begin
+  if not FActive and FLibInitOk then begin
     CheckBDB(db_env_create(FEnv, 0));
     FEnv.set_errpfx(FEnv, CBerkeleyDBEnvErrPfx);
     FEnv.set_errcall(FEnv,ErrCall);
@@ -220,14 +221,14 @@ begin
     );
     FActive := True;
   end;
-  Result := FActive;
+  Result := FActive and FLibInitOk;
 end;
 
 procedure TBerkeleyDBEnv.RemoveUnUsedLogs;
 begin
   FCS.Acquire;
   try
-    if FActive and (GetTickCount - FLastRemoveLogTime > 30000) then begin
+    if FActive and FLibInitOk and (GetTickCount - FLastRemoveLogTime > 30000) then begin
       FLastRemoveLogTime := GetTickCount;
       CheckBDB(FEnv.log_archive(FEnv, nil, DB_ARCH_REMOVE));
     end;
@@ -240,7 +241,7 @@ procedure TBerkeleyDBEnv.CheckPoint(Sender: TObject);
 begin
   FCS.Acquire;
   try
-    if FActive and (GetTickCount - FLastCheckPointTime > 30000) then begin
+    if FActive and FLibInitOk and (GetTickCount - FLastCheckPointTime > 30000) then begin
       FLastCheckPointTime := GetTickCount;
       CheckBDB(FEnv.txn_checkpoint(FEnv, 0, 0, DB_FORCE));
     end;

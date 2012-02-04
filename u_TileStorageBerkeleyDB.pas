@@ -135,7 +135,6 @@ const
   CBDBSyncCheckInterval = 60000; // 60 sec
 begin
   inherited Create(TTileStorageTypeAbilitiesBerkeleyDB.Create, AConfig);
-  FGCList := AGCList;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FCacheConfig := TMapTypeCacheConfigBerkeleyDB.Create(
     AConfig,
@@ -154,19 +153,22 @@ begin
     CBDBSync,
     CBDBSyncCheckInterval
   );
+  FGCList := AGCList;
   FGCList.Add(FTTLListener);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
-  FGCList.Remove(FTTLListener);
+  if Assigned(FGCList) then begin
+    FGCList.Remove(FTTLListener);
+    FGCList := nil;
+  end;
   FTTLListener := nil;
   FreeAndNil(FHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FreeAndNil(FCacheConfig);
   FTileNotExistsTileInfo := nil;
-  FGCList := nil;
   inherited;
 end;
 

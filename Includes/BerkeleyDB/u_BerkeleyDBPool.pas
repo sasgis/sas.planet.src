@@ -96,32 +96,33 @@ var
   PRec: PBDBPoolRec;
   VFound: Boolean;
 begin
-  Assert(Assigned(AObj), 'Warning [BerkeleyDB]: Object to release is not assigned!');
-  FCS.Acquire;
-  try
-    VFound := False;
-    for I := 0 to FObjList.Count - 1 do begin
-      PRec := FObjList.Items[I];
-      if PRec <> nil then begin
-        VFound := (PRec.Obj = AObj);
-        if VFound then begin
-          Dec(FUsageCount);
-          PRec.ReleaseTime := GetTickCount;
-          Dec(PRec.ActiveCount);
-          Break;
+  if Assigned(AObj) then begin
+    FCS.Acquire;
+    try
+      VFound := False;
+      for I := 0 to FObjList.Count - 1 do begin
+        PRec := FObjList.Items[I];
+        if PRec <> nil then begin
+          VFound := (PRec.Obj = AObj);
+          if VFound then begin
+            Dec(FUsageCount);
+            PRec.ReleaseTime := GetTickCount;
+            Dec(PRec.ActiveCount);
+            Break;
+          end;
         end;
       end;
+      if not VFound then begin
+        raise EBerkeleyDBExeption.Create(
+          'Error [BerkeleyDB]: Can''t release an object that is not in the pool!'
+        );
+      end;
+      if not FActive and (FUsageCount <= 0) then begin
+        FFinishEvent.SetEvent;
+      end;
+    finally
+      FCS.Release;
     end;
-    if not VFound then begin
-      raise EBerkeleyDBExeption.Create(
-        'Error [BerkeleyDB]: Can''t release an object that is not in the pool!'
-      );
-    end;
-    if not FActive and (FUsageCount <= 0) then begin
-      FFinishEvent.SetEvent;
-    end;
-  finally
-    FCS.Release;
   end;
 end;
 
