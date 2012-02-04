@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  SyncObjs,
   i_JclNotify,
   i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
@@ -53,7 +54,7 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig
     );
     destructor Destroy; override;
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string; virtual;
 
     property ConfigChangeNotifier: IJclNotifier read FConfigChangeNotifier;
   end;
@@ -84,6 +85,8 @@ type
   end;
 
   TMapTypeCacheConfigBerkeleyDB = class(TMapTypeCacheConfigAbstract)
+  private
+    FCS: TCriticalSection;
   protected
     FOnSettingsEdit: TOnAfterMapSettingsEdit;
     procedure OnSettingsEdit; override;
@@ -94,7 +97,8 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       AOnSettingsEdit: TOnAfterMapSettingsEdit
     );
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; reintroduce;
+    destructor Destroy; override;
+    function GetTileFileName(AXY: TPoint; Azoom: byte): string; override;
     property BasePath: string read FBasePath;
   end;
 
@@ -264,38 +268,61 @@ constructor TMapTypeCacheConfigBerkeleyDB.Create(
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
+  FCS := TCriticalSection.Create;
   FFileNameGenerator := AFileNameGenerator;
   FOnSettingsEdit := AOnSettingsEdit;
   OnSettingsEdit;
 end;
 
+destructor TMapTypeCacheConfigBerkeleyDB.Destroy;
+begin
+  FCS.Free;
+  inherited Destroy;
+end;
+
 procedure TMapTypeCacheConfigBerkeleyDB.OnSettingsEdit;
+
+  function RelativeToAbsolutePath(const ABasePath, ARelativePath: string): string;
+  begin
+    SetLength(Result, MAX_PATH);
+    PathCombine(@Result[1], PChar(ABasePath), PChar(ARelativePath));
+    SetLength(Result, StrLen(@Result[1]));
+  end;
+
 var
   VBasePath: string;
-  VAbsolutePath: string;
+  VCachePath: string;
 begin
-  VBasePath := FConfig.GetStatic.NameInCache;
-  if PathIsRelative(PAnsiChar(VBasePath)) then begin
-    SetLength(VAbsolutePath, MAX_PATH);
-    PathCombine(
-      @VAbsolutePath[1],
-      PChar(
-        IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) +
-        IncludeTrailingPathDelimiter(FGlobalCacheConfig.BDBCachepath)
-      ),
-      PChar(VBasePath));
-    SetLength(VAbsolutePath, StrLen(@VAbsolutePath[1]));
-    VBasePath := VAbsolutePath;
-  end;
-  FBasePath := IncludeTrailingPathDelimiter(VBasePath);
-  if Addr(FOnSettingsEdit) <> nil then begin
-    FOnSettingsEdit(Self);
+  FCS.Acquire;
+  try
+    VBasePath := FConfig.GetStatic.NameInCache;
+    if PathIsRelative(PAnsiChar(VBasePath)) then begin
+      VCachePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.BDBCachepath);
+      if PathIsRelative(PAnsiChar(VCachePath)) then begin
+        VCachePath := RelativeToAbsolutePath(
+          IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath),
+          VCachePath
+        );
+      end;
+      VBasePath := RelativeToAbsolutePath(VCachePath, VBasePath);
+    end;
+    FBasePath := IncludeTrailingPathDelimiter(VBasePath);
+    if Addr(FOnSettingsEdit) <> nil then begin
+      FOnSettingsEdit(Self);
+    end;
+  finally
+    FCS.Release;
   end;
 end;
 
 function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
 begin
-  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.sdb';
+  FCS.Acquire;
+  try
+    Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.sdb';
+  finally
+    FCS.Release;
+  end;
 end;
 
 { TMapTypeCacheConfigDBMS }

@@ -132,6 +132,7 @@ end;
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
   GlobalFreeEnvironment(FEnv);
+  FEvent.Free;
   inherited Destroy;
 end;
 
