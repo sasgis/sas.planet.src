@@ -312,7 +312,7 @@ begin
   FProjectionFactory := VCoordConverterFactorySimple;
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
 
-  FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create;
+  FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create(FVectorItmesFactory);
 
   FCacheConfig := TGlobalCahceConfig.Create(ProgramPath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);

@@ -5,130 +5,59 @@ interface
 uses
   Classes,
   t_GeoTypes,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
+  i_DoublePointsAggregator,
   i_TimeZoneList,
   i_TimeZoneDiffByLonLat;
 
 type
-  ITimeZoneAreaPointCheck = interface(ITimeZoneArea)
-    ['{07F85664-36E3-4240-840F-64CF9E9A0FB6}']
-    function IsPointFromThis(ALonLat: TDoublePoint): Boolean;
-  end;
-
-  TTimeZoneArea = class(TInterfacedObject, ITimeZoneArea, ITimeZoneAreaPointCheck)
-  private
-    FCount: Integer;
-    FPolygon: TArrayOfDoublePoint;
-  protected
-    function GetCount: Integer;
-    procedure GetPoints(APoints: PDoublePointArray);
-  protected
-    function IsPointFromThis(ALonLat: TDoublePoint): Boolean;
-  public
-    constructor Create(ASmallIntPolygon: Pointer; ALength: Integer);
-  end;
-
-
   ITimeZonePointCheck = interface(ITimeZone)
     ['{8C51B27B-1257-4A55-AA03-C8041027A090}']
     function IsPointFromThis(ALonLat: TDoublePoint): Boolean;
   end;
 
-  TTimeZone = class(TInterfacedObject, ITimeZone, ITimeZoneAreaList, ITimeZonePointCheck)
+  TTimeZone = class(TInterfacedObject, ITimeZone, ITimeZonePointCheck)
   private
     FDiff: TDateTime;
-    FCount: Integer;
-    FAreaList: IInterfaceList;
+    FPolygon: ILonLatPolygon;
+    function IsPointFromPolygonLine(ALine: ILonLatPolygonLine; ALonLat: TDoublePoint): Boolean;
   protected
     function GetDiff: TDateTime;
-    function GetAreaList: ITimeZoneAreaList;
-  protected
-    function GetCount: Integer;
-    function GetItem(AIndex: Integer): ITimeZoneArea;
+    function GetPolygon: ILonLatPolygon;
   protected
     function IsPointFromThis(ALonLat: TDoublePoint): Boolean;
   public
-    constructor Create(ADiffInHour: Double; AAreaList: IInterfaceList);
+    constructor Create(ADiffInHour: Double; APolygon: ILonLatPolygon);
   end;
 
   TTimeZoneDiffByLonLatStuped = class(TInterfacedObject, ITimeZoneList, ITimeZoneDiffByLonLat)
   private
     FTimeZoneList: IInterfaceList;
+    procedure AddFromSmallIntArray(AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer; ALength: Integer);
   protected
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ITimeZone;
   protected
     function GetTimeDiff(ALonLat: TDoublePoint): TDateTime;
   public
-    constructor Create;
+    constructor Create(AVectorFactory: IVectorItmesFactory);
   end;
 
 implementation
 
 uses
-  c_TimeZones;
-
-{ TTimeZoneArea }
-
-constructor TTimeZoneArea.Create(ASmallIntPolygon: Pointer; ALength: Integer);
-var
-  i: Integer;
-begin
-  FCount := ALength;
-  SetLength(FPolygon, FCount);
-  for i := 0 to FCount - 1 do begin
-    FPolygon[i].X := SmallInt(Pointer(Integer(ASmallIntPolygon)+SizeOf(SmallInt)*2*i+SizeOf(SmallInt)*0)^)/100;
-    FPolygon[i].Y := SmallInt(Pointer(Integer(ASmallIntPolygon)+SizeOf(SmallInt)*2*i+SizeOf(SmallInt)*1)^)/100;
-  end;
-end;
-
-function TTimeZoneArea.GetCount: Integer;
-begin
-  Result := FCount;
-end;
-
-procedure TTimeZoneArea.GetPoints(APoints: PDoublePointArray);
-begin
-  Move(FPolygon[0], APoints^, FCount * SizeOf(TDoublePoint));
-end;
-
-function TTimeZoneArea.IsPointFromThis(ALonLat: TDoublePoint): Boolean;
-var
-  i: Integer;
-  VPi, Vpj: TDoublePoint;
-begin
-  Result := False;
-  for i:=0 to FCount - 1 do begin
-    if i=0 then begin
-      Vpj := FPolygon[FCount - 1];
-    end else begin
-      Vpj := VPi;
-    end;
-    VPi := FPolygon[i];
-    if ((((VPi.Y<=ALonLat.y)and(ALonLat.y<VPj.Y))or((VPj.Y<=ALonLat.y)and(ALonLat.y<VPi.Y)))and
-      (ALonLat.x>(VPj.X-VPi.X)*(ALonLat.y-VPi.Y)/(VPj.Y-VPi.Y)+VPi.X))
-    then begin
-      Result := not(Result);
-    end;
-  end;
-end;
+  c_TimeZones,
+  i_EnumDoublePoint,
+  u_GeoFun,
+  u_DoublePointsAggregator;
 
 { TTimeZone }
 
-constructor TTimeZone.Create(ADiffInHour: Double; AAreaList: IInterfaceList);
+constructor TTimeZone.Create(ADiffInHour: Double; APolygon: ILonLatPolygon);
 begin
   FDiff := ADiffInHour / 24;
-  FAreaList := AAreaList;
-  FCount := FAreaList.Count;
-end;
-
-function TTimeZone.GetAreaList: ITimeZoneAreaList;
-begin
-  Result := Self;
-end;
-
-function TTimeZone.GetCount: Integer;
-begin
-  Result := FCount;
+  FPolygon := APolygon;
 end;
 
 function TTimeZone.GetDiff: TDateTime;
@@ -136,366 +65,408 @@ begin
   Result := FDiff;
 end;
 
-function TTimeZone.GetItem(AIndex: Integer): ITimeZoneArea;
+function TTimeZone.GetPolygon: ILonLatPolygon;
 begin
-  Result := ITimeZoneArea(FAreaList.Items[AIndex]);
+  Result := FPolygon;
 end;
+
+function TTimeZone.IsPointFromPolygonLine(ALine: ILonLatPolygonLine;
+  ALonLat: TDoublePoint): Boolean;
+var
+  VEnum: IEnumDoublePoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+begin
+  result:=false;
+  if LonLatPointInRect(ALonLat,  ALine.Bounds) then begin
+    VEnum := ALine.GetEnum;
+    if VEnum.Next(VPrevPoint) then begin
+      while VEnum.Next(VCurrPoint) do begin
+        if
+          (((VCurrPoint.y <= ALonLat.y) and (ALonLat.y < VPrevPoint.y))or
+          ((VPrevPoint.y <= ALonLat.y) and (ALonLat.y < VCurrPoint.y)))and
+          (ALonLat.x > (VPrevPoint.x - VCurrPoint.x) * (ALonLat.y - VCurrPoint.y) / (VPrevPoint.y - VCurrPoint.y) + VCurrPoint.x)
+        then begin
+          Result := not(Result);
+        end;
+        VPrevPoint := VCurrPoint;
+      end;
+    end;
+  end;
+end;
+
 
 function TTimeZone.IsPointFromThis(ALonLat: TDoublePoint): Boolean;
 var
   i: Integer;
-  VArea: ITimeZoneAreaPointCheck;
+  VArea: ILonLatPolygonLine;
 begin
   Result := False;
-  for i := 0 to FAreaList.Count - 1 do begin
-    VArea := ITimeZoneAreaPointCheck(FAreaList.Items[i]);
-    if VArea.IsPointFromThis(ALonLat) then begin
-      Result := True;
-      Break;
+  if LonLatPointInRect(ALonLat, FPolygon.Bounds) then begin
+    for i := 0 to FPolygon.Count - 1 do begin
+      VArea := FPolygon.Item[i];
+      if IsPointFromPolygonLine(VArea, ALonLat) then begin
+        Result := True;
+        Break;
+      end;
     end;
   end;
 end;
 
 { TTimeZoneDiffByLonLatStuped }
 
-constructor TTimeZoneDiffByLonLatStuped.Create;
+constructor TTimeZoneDiffByLonLatStuped.Create(AVectorFactory: IVectorItmesFactory);
 var
   VZone: ITimeZonePointCheck;
-  VArea: ITimeZoneAreaPointCheck;
-  VAreaList: IInterfaceList;
+  VAggregator: IDoublePointsAggregator;
+  VPolygon: ILonLatPolygon;
 begin
   FTimeZoneList := TInterfaceList.Create;
+  VAggregator := TDoublePointsAggregator.Create;
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m12, length(timezone_m12));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m12_1, length(timezone_m12_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-12, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m12, length(timezone_m12));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m12_1, length(timezone_m12_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-12, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m11, length(timezone_m11));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m11_1, length(timezone_m11_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m11_2, length(timezone_m11_2));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-11, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m11, length(timezone_m11));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m11_1, length(timezone_m11_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m11_2, length(timezone_m11_2));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-11, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m10, length(timezone_m10));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m10_1, length(timezone_m10_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m10_2, length(timezone_m10_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m10_3, length(timezone_m10_3));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-10, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m10, length(timezone_m10));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m10_1, length(timezone_m10_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m10_2, length(timezone_m10_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m10_3, length(timezone_m10_3));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-10, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m9d5, length(timezone_m9d5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-9.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m9d5, length(timezone_m9d5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-9.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m9, length(timezone_m9));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m9_1, length(timezone_m9_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-9, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m9, length(timezone_m9));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m9_1, length(timezone_m9_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-9, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m8d5, length(timezone_m8d5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-8.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m8d5, length(timezone_m8d5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-8.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m8, length(timezone_m8));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m8_1, length(timezone_m8_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-8, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m8, length(timezone_m8));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m8_1, length(timezone_m8_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-8, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m7, length(timezone_m7));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-7, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m7, length(timezone_m7));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-7, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m6, length(timezone_m6));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-6, VAreaList);
-  FTimeZoneList.Add(VZone);
-  VAreaList := TInterfaceList.Create;
-
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m5, length(timezone_m5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m6, length(timezone_m6));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-6, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m3d5, length(timezone_m3d5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-3.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m5, length(timezone_m5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m3, length(timezone_m3));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m3_1, length(timezone_m3_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-3, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m3d5, length(timezone_m3d5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-3.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m4, length(timezone_m4));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m4_1, length(timezone_m4_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-4, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m3, length(timezone_m3));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m3_1, length(timezone_m3_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-3, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m2, length(timezone_m2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m2_1, length(timezone_m2_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-2, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m4, length(timezone_m4));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m4_1, length(timezone_m4_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-4, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_m1, length(timezone_m1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m1_1, length(timezone_m1_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_m1_2, length(timezone_m1_2));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(-1, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m2, length(timezone_m2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m2_1, length(timezone_m2_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-2, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_0, length(timezone_0));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_0_1, length(timezone_0_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_0_2, length(timezone_0_2));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(0, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_m1, length(timezone_m1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m1_1, length(timezone_m1_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_m1_2, length(timezone_m1_2));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(-1, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_1, length(timezone_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(1, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_0, length(timezone_0));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_0_1, length(timezone_0_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_0_2, length(timezone_0_2));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(0, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_2, length(timezone_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_2_1, length(timezone_2_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(2, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_1, length(timezone_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(1, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_3, length(timezone_3));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_3_1, length(timezone_3_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(3, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_2, length(timezone_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_2_1, length(timezone_2_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(2, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_3d5, length(timezone_3d5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(3.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_3, length(timezone_3));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_3_1, length(timezone_3_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(3, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_4, length(timezone_4));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_4_1, length(timezone_4_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_4_2, length(timezone_4_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_4_3, length(timezone_4_3));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_4_4, length(timezone_4_4));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(4, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_3d5, length(timezone_3d5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(3.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_4d5, length(timezone_4d5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(4.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_4, length(timezone_4));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_4_1, length(timezone_4_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_4_2, length(timezone_4_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_4_3, length(timezone_4_3));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_4_4, length(timezone_4_4));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(4, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_6, length(timezone_6));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_6_1, length(timezone_6_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_6_2, length(timezone_6_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_6_3, length(timezone_6_3));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_6_4, length(timezone_6_4));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(6, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_4d5, length(timezone_4d5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(4.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_5, length(timezone_5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_5_1, length(timezone_5_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_6, length(timezone_6));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_6_1, length(timezone_6_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_6_2, length(timezone_6_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_6_3, length(timezone_6_3));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_6_4, length(timezone_6_4));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(6, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_5d5, length(timezone_5d5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_5d5_1, length(timezone_5d5_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_5d5_2, length(timezone_5d5_2));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(5.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_5, length(timezone_5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_5_1, length(timezone_5_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_5d75, length(timezone_5d75));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(5.75, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_5d5, length(timezone_5d5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_5d5_1, length(timezone_5d5_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_5d5_2, length(timezone_5d5_2));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(5.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_6d5, length(timezone_6d5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_6d5_1, length(timezone_6d5_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(6.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_5d75, length(timezone_5d75));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(5.75, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_7, length(timezone_7));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_7_1, length(timezone_7_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(7, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_6d5, length(timezone_6d5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_6d5_1, length(timezone_6d5_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(6.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_8, length(timezone_8));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_8_1, length(timezone_8_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(8, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_7, length(timezone_7));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_7_1, length(timezone_7_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(7, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_9, length(timezone_9));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_9_1, length(timezone_9_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_9_2, length(timezone_9_2));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(9, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_8, length(timezone_8));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_8_1, length(timezone_8_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(8, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_9d5, length(timezone_9d5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_9d5_1, length(timezone_9d5_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(9.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_9, length(timezone_9));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_9_1, length(timezone_9_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_9_2, length(timezone_9_2));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(9, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_10, length(timezone_10));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_10_1, length(timezone_10_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_10_2, length(timezone_10_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_10_3, length(timezone_10_3));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_10_4, length(timezone_10_4));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_10_5, length(timezone_10_5));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(10, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_9d5, length(timezone_9d5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_9d5_1, length(timezone_9d5_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(9.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_10d5, length(timezone_10d5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_10d5_1, length(timezone_10d5_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(10.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_10, length(timezone_10));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_10_1, length(timezone_10_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_10_2, length(timezone_10_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_10_3, length(timezone_10_3));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_10_4, length(timezone_10_4));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_10_5, length(timezone_10_5));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(10, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_11, length(timezone_11));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_11_1, length(timezone_11_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_11_2, length(timezone_11_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_11_3, length(timezone_11_3));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(11, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_10d5, length(timezone_10d5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_10d5_1, length(timezone_10d5_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(10.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_11d5, length(timezone_11d5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_11d5_1, length(timezone_11d5_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(11.5, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_11, length(timezone_11));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_11_1, length(timezone_11_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_11_2, length(timezone_11_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_11_3, length(timezone_11_3));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(11, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_12, length(timezone_12));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12_1, length(timezone_12_1));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12_2, length(timezone_12_2));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12_3, length(timezone_12_3));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12_4, length(timezone_12_4));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12_5, length(timezone_12_5));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12_6, length(timezone_12_6));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(12, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_11d5, length(timezone_11d5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_11d5_1, length(timezone_11d5_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(11.5, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_12d75, length(timezone_12d75));
-  VAreaList.Add(VArea);
-  VArea := TTimeZoneArea.Create(@timezone_12d75_1, length(timezone_12d75_1));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(12.75, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_12, length(timezone_12));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12_1, length(timezone_12_1));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12_2, length(timezone_12_2));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12_3, length(timezone_12_3));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12_4, length(timezone_12_4));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12_5, length(timezone_12_5));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12_6, length(timezone_12_6));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(12, VPolygon);
   FTimeZoneList.Add(VZone);
 
-  VAreaList := TInterfaceList.Create;
-  VArea := TTimeZoneArea.Create(@timezone_13, length(timezone_13));
-  VAreaList.Add(VArea);
-  VZone := TTimeZone.Create(13, VAreaList);
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_12d75, length(timezone_12d75));
+  VAggregator.Add(CEmptyDoublePoint);
+  AddFromSmallIntArray(VAggregator, @timezone_12d75_1, length(timezone_12d75_1));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(12.75, VPolygon);
   FTimeZoneList.Add(VZone);
+
+  VAggregator.Clear;
+  AddFromSmallIntArray(VAggregator, @timezone_13, length(timezone_13));
+  VPolygon := AVectorFactory.CreateLonLatPolygon(VAggregator.Points, VAggregator.Count);
+  VZone := TTimeZone.Create(13, VPolygon);
+  FTimeZoneList.Add(VZone);
+end;
+
+procedure TTimeZoneDiffByLonLatStuped.AddFromSmallIntArray(
+  AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer;
+  ALength: Integer);
+var
+  i: Integer;
+  VPoint: TDoublePoint;
+begin
+  for i := 0 to ALength - 1 do begin
+    VPoint.X := SmallInt(Pointer(Integer(ASmallIntPolygon)+SizeOf(SmallInt)*2*i+SizeOf(SmallInt)*0)^)/100;
+    VPoint.Y := SmallInt(Pointer(Integer(ASmallIntPolygon)+SizeOf(SmallInt)*2*i+SizeOf(SmallInt)*1)^)/100;
+    AAggregator.Add(VPoint);
+  end;
 end;
 
 function TTimeZoneDiffByLonLatStuped.GetCount: Integer;
