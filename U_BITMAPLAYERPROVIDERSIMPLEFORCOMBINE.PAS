@@ -71,8 +71,13 @@ begin
 end;
 
 function TBitmapLayerProviderSimpleForCombine.GetBitmapRect(
-  AOperationID: Integer; ACancelNotifier: IOperationNotifier;
-  ATargetBmp: TCustomBitmap32; ALocalConverter: ILocalCoordConverter): Boolean;
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  ATargetBmp: TCustomBitmap32;
+  ALocalConverter: ILocalCoordConverter
+): Boolean;
+var
+  VSize: TPoint;
 begin
   Result := False;
   if FMapTypeMain <> nil then begin
@@ -96,9 +101,13 @@ begin
   end;
   if FMarksImageProvider <> nil then begin
     if Result then begin
+      VSize := ALocalConverter.GetLocalRectSize;
+      FTempBitmap.SetSize(VSize.X, VSize.Y);
+      FTempBitmap.Clear(0);
       Result := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, FTempBitmap, ALocalConverter);
       if Result then begin
         FTempBitmap.DrawMode := dmBlend;
+        FTempBitmap.CombineMode := cmMerge;
         ATargetBmp.Draw(0, 0, FTempBitmap);
       end;
     end else begin
