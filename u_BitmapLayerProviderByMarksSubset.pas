@@ -175,7 +175,6 @@ var
   VPolygon: TPolygon32;
   i: Integer;
   VPointsProcessedCount: Integer;
-  VIndex: Integer;
   VEnum: IEnumDoublePoint;
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
@@ -183,6 +182,8 @@ var
   VProjected: IProjectedPath;
   VIntersectRect: TDoubleRect;
   VMapRect: TDoubleRect;
+  VLineIndex: Integer;
+  VLine: IProjectedPathLine;
 begin
   Result := False;
   VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
@@ -195,61 +196,62 @@ begin
         VRectWithDelta.Top := VLocalRect.Top - 10;
         VRectWithDelta.Right := VLocalRect.Right + 10;
         VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        VEnum :=
-          TEnumLocalPointFilterEqual.Create(
-            TEnumLocalPointClipByRect.Create(
-              False,
-              VRectWithDelta,
-              TEnumDoublePointMapPixelToLocalPixel.Create(
-                ALocalConverter,
-                VProjected.GetEnum
-              )
-            )
-          );
-        FPreparedPointsAggreagtor.Clear;
-        while VEnum.Next(VPoint) do begin
-          FPreparedPointsAggreagtor.Add(VPoint);
-        end;
+        VPolygon := nil;
         try
-          VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
-          if VPointsProcessedCount > 0 then begin
-            VPolygon := TPolygon32.Create;
-            try
-              VPolygon.Antialiased := true;
-              VPolygon.AntialiasMode := am4times;
-              VPolygon.Closed := False;
-              if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-                SetLength(FPathFixedPoints, VPointsProcessedCount);
+          for VLineIndex := 0 to VProjected.Count - 1 do begin
+            VLine := VProjected.Item[VLineIndex];
+            if IntersecProjectedRect(VIntersectRect, VMapRect, VLine.Bounds) then begin
+              FPreparedPointsAggreagtor.Clear;
+              VEnum :=
+                TEnumLocalPointFilterEqual.Create(
+                  TEnumLocalPointClipByRect.Create(
+                    False,
+                    VRectWithDelta,
+                    TEnumDoublePointMapPixelToLocalPixel.Create(
+                      ALocalConverter,
+                      VProjected.GetEnum
+                    )
+                  )
+                );
+              while VEnum.Next(VPoint) do begin
+                FPreparedPointsAggreagtor.Add(VPoint);
               end;
-              VIndex := 0;
-              for i := 0 to VPointsProcessedCount - 1 do begin
-                VPoint := FPreparedPointsAggreagtor.Points[i];
-                if PointIsEmpty(VPoint) then begin
-                  VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
-                  VPolygon.NewLine;
-                  VIndex := 0;
+              VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
+              if VPointsProcessedCount > 0 then begin
+                if VPolygon = nil then begin
+                  VPolygon := TPolygon32.Create;
+                  VPolygon.Antialiased := true;
+                  VPolygon.AntialiasMode := am4times;
+                  VPolygon.Closed := False;
                 end else begin
-                  FPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
-                  Inc(VIndex);
+                  VPolygon.NewLine;
                 end;
+                if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+                  SetLength(FPathFixedPoints, VPointsProcessedCount);
+                end;
+                for i := 0 to VPointsProcessedCount - 1 do begin
+                  VPoint := FPreparedPointsAggreagtor.Points[i];
+                  FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
+                end;
+                VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
               end;
-              VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
-              with VPolygon.Outline do try
-                with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
-                  FillMode := pfWinding;
-                  DrawFill(ATargetBmp, AMarkLine.LineColor);
-                finally
-                  free;
-                end;
+            end;
+          end;
+          if VPolygon <> nil then begin
+            with VPolygon.Outline do try
+              with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, AMarkLine.LineColor);
               finally
                 free;
               end;
             finally
-              VPolygon.Free;
+              free;
             end;
             Result := True;
           end;
-        except
+        finally
+          VPolygon.Free;
         end;
       end;
     end;
@@ -272,6 +274,8 @@ var
   VProjected: IProjectedPolygon;
   VIntersectRect: TDoubleRect;
   VMapRect: TDoubleRect;
+  VLineIndex: Integer;
+  VLine: IProjectedPolygonLine;
 begin
   Result := False;
   VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
@@ -284,31 +288,38 @@ begin
         VRectWithDelta.Top := VLocalRect.Top - 10;
         VRectWithDelta.Right := VLocalRect.Right + 10;
         VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        VEnum :=
-          TEnumDoublePointClosePoly.Create(
-            TEnumLocalPointFilterEqual.Create(
-              TEnumLocalPointClipByRect.Create(
-                True,
-                VRectWithDelta,
-                TEnumDoublePointMapPixelToLocalPixel.Create(
-                  ALocalConverter,
-                  VProjected.GetEnum
-                )
-              )
-            )
-          );
-        FPreparedPointsAggreagtor.Clear;
-        while VEnum.Next(VPoint) do begin
-          FPreparedPointsAggreagtor.Add(VPoint);
-        end;
+        VPolygon := nil;
         try
-          VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
-          if VPointsProcessedCount > 0 then begin
-            VPolygon := TPolygon32.Create;
-            try
-              VPolygon.Antialiased := true;
-              VPolygon.AntialiasMode := am4times;
-              VPolygon.Closed := True;
+          for VLineIndex := 0 to VProjected.Count - 1 do begin
+            VLine := VProjected.Item[VLineIndex];
+            if IntersecProjectedRect(VIntersectRect, VMapRect, VLine.Bounds) then begin
+              FPreparedPointsAggreagtor.Clear;
+              VEnum :=
+                TEnumDoublePointClosePoly.Create(
+                  TEnumLocalPointFilterEqual.Create(
+                    TEnumLocalPointClipByRect.Create(
+                      True,
+                      VRectWithDelta,
+                      TEnumDoublePointMapPixelToLocalPixel.Create(
+                        ALocalConverter,
+                        VLine.GetEnum
+                      )
+                    )
+                  )
+                );
+              while VEnum.Next(VPoint) do begin
+                FPreparedPointsAggreagtor.Add(VPoint);
+              end;
+              VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
+              if VPointsProcessedCount > 0 then begin
+                if VPolygon = nil then begin
+                  VPolygon := TPolygon32.Create;
+                  VPolygon.Antialiased := true;
+                  VPolygon.AntialiasMode := am4times;
+                  VPolygon.Closed := True;
+                end else begin
+                  VPolygon.NewLine;
+                end;
                 if Length(FPathFixedPoints) < VPointsProcessedCount then begin
                   SetLength(FPathFixedPoints, VPointsProcessedCount);
                 end;
@@ -317,23 +328,25 @@ begin
                   FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
                 end;
                 VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
-                VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
-                with VPolygon.Outline do try
-                  with Grow(GR32.Fixed(AMarkPoly.LineWidth / 2), 0.5) do try
-                    FillMode := pfWinding;
-                    DrawFill(ATargetBmp, AMarkPoly.BorderColor);
-                  finally
-                    free;
-                  end;
-                finally
-                  free;
-                end;
+              end;
+            end;
+          end;
+          if VPolygon <> nil then begin
+            VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
+            with VPolygon.Outline do try
+              with Grow(GR32.Fixed(AMarkPoly.LineWidth / 2), 0.5) do try
+                FillMode := pfWinding;
+                DrawFill(ATargetBmp, AMarkPoly.BorderColor);
+              finally
+                free;
+              end;
             finally
-              VPolygon.Free;
+              free;
             end;
             Result := True;
           end;
-        except
+        finally
+          VPolygon.Free;
         end;
       end;
     end;
