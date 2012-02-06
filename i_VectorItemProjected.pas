@@ -19,6 +19,7 @@ type
     property Bounds: TDoubleRect read GetBounds;
 
     function IsPointOnPath(const APoint: TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -60,6 +61,7 @@ type
     property Bounds: TDoubleRect read GetBounds;
 
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -80,6 +82,7 @@ type
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
 
     function GetCount: Integer;

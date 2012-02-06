@@ -31,6 +31,7 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   end;
 
@@ -39,6 +40,7 @@ type
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
@@ -51,6 +53,7 @@ type
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   public
@@ -69,6 +72,7 @@ type
     function GetBounds: TDoubleRect;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   public
@@ -97,12 +101,14 @@ type
   private
     function GetItem(AIndex: Integer): IProjectedPathLine;
     function IsPointOnPath(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   end;
 
   TProjectedPolygonEmpty = class(TProjectedLineSetEmpty, IProjectedPolygon)
   private
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(APoint:TDoublePoint; ADist: Double): Boolean;
+    function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
@@ -172,6 +178,24 @@ begin
   end;
 end;
 
+function TProjectedPath.IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPathLine;
+  VIntersectRect: TDoubleRect;
+begin
+  Result := False;
+  if IntersecProjectedRect(VIntersectRect, ARect, FBounds) then begin
+    for i := 0 to FList.Count - 1 do begin
+      VLine := GetItem(i);
+      if VLine.IsRectIntersectPath(ARect) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
 { TProjectedPolygon }
 
 function TProjectedPolygon.CalcArea: Double;
@@ -230,6 +254,25 @@ begin
   end;
 end;
 
+function TProjectedPolygon.IsRectIntersectPolygon(
+  const ARect: TDoubleRect): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPolygonLine;
+  VIntersectRect: TDoubleRect;
+begin
+  Result := False;
+  if IntersecProjectedRect(VIntersectRect, ARect, FBounds) then begin
+    for i := 0 to FList.Count - 1 do begin
+      VLine := GetItem(i);
+      if VLine.IsRectIntersectPolygon(ARect) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
 { TProjectedPathOneLine }
 
 constructor TProjectedPathOneLine.Create(ALine: IProjectedPathLine);
@@ -270,6 +313,12 @@ function TProjectedPathOneLine.IsPointOnPath(APoint: TDoublePoint;
   ADist: Double): Boolean;
 begin
   Result := FLine.IsPointOnPath(APoint, ADist);
+end;
+
+function TProjectedPathOneLine.IsRectIntersectPath(
+  const ARect: TDoubleRect): Boolean;
+begin
+  Result := FLine.IsRectIntersectPath(ARect);
 end;
 
 { TProjectedPolygonOneLine }
@@ -326,6 +375,12 @@ begin
   Result := FLine.IsPointOnBorder(APoint, ADist);
 end;
 
+function TProjectedPolygonOneLine.IsRectIntersectPolygon(
+  const ARect: TDoubleRect): Boolean;
+begin
+  Result := FLine.IsRectIntersectPolygon(ARect);
+end;
+
 { TProjectedLineSetEmpty }
 
 constructor TProjectedLineSetEmpty.Create(AProjection: IProjectionInfo);
@@ -372,6 +427,12 @@ begin
   Result := False;
 end;
 
+function TProjectedPathEmpty.IsRectIntersectPath(
+  const ARect: TDoubleRect): Boolean;
+begin
+  Result := False;
+end;
+
 { TLocalPolygonEmpty }
 
 function TProjectedPolygonEmpty.CalcArea: Double;
@@ -392,6 +453,12 @@ end;
 
 function TProjectedPolygonEmpty.IsPointOnBorder(APoint: TDoublePoint;
   ADist: Double): Boolean;
+begin
+  Result := False;
+end;
+
+function TProjectedPolygonEmpty.IsRectIntersectPolygon(
+  const ARect: TDoubleRect): Boolean;
 begin
   Result := False;
 end;
