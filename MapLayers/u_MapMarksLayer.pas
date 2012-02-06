@@ -104,7 +104,7 @@ uses
   i_BitmapLayerProvider,
   u_IdCacheSimpleThreadSafe,
   u_DoublePointsAggregator,
-  u_MapMarksBitmapLayerProviderByMarksSubset,
+  u_BitmapLayerProviderByMarksSubset,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect;
 

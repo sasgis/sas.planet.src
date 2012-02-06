@@ -78,7 +78,7 @@ uses
   u_ProjectionInfo,
   u_GeoFun,
   u_IdCacheSimpleThreadSafe,
-  u_MapMarksBitmapLayerProviderByMarksSubset,
+  u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderInPolygon,
   u_BitmapLayerProviderWithBGColor,

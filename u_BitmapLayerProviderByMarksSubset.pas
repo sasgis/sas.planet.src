@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MapMarksBitmapLayerProviderByMarksSubset;
+unit u_BitmapLayerProviderByMarksSubset;
 
 interface
 
