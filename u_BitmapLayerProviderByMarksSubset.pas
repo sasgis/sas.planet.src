@@ -70,21 +70,21 @@ type
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
     ): Boolean;
-    procedure DrawPath(
+    function DrawPath(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AMarkLine: IMarkLine
-    );
-    procedure DrawPoly(
+    ): Boolean;
+    function DrawPoly(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AMarkPoly: IMarkPoly
-    );
-    procedure DrawPoint(
+    ): Boolean;
+    function DrawPoint(
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AMarkPoint: IMarkPoint
-    );
+    ): Boolean;
   protected
     function GetBitmapRect(
       AOperationID: Integer;
@@ -166,11 +166,11 @@ begin
   inherited;
 end;
 
-procedure TBitmapLayerProviderByMarksSubset.DrawPath(
+function TBitmapLayerProviderByMarksSubset.DrawPath(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkLine: IMarkLine
-);
+): Boolean;
 var
   VPolygon: TPolygon32;
   i: Integer;
@@ -185,6 +185,7 @@ var
   VPoint: TDoublePoint;
   VProjected: IProjectedPath;
 begin
+  Result := False;
   VScale1 := AMarkLine.LineWidth;
   VTestArrLenLonLatRect := AMarkLine.LLRect;
   ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
@@ -252,20 +253,21 @@ begin
         end;
       except
       end;
+      Result := True;
     end;
   end;
 end;
 
-procedure TBitmapLayerProviderByMarksSubset.DrawPoly(
+function TBitmapLayerProviderByMarksSubset.DrawPoly(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkPoly: IMarkPoly
-);
+): Boolean;
 var
   VPolygon: TPolygon32;
   i: Integer;
   VPointsProcessedCount: Integer;
-  VScale1: Integer;
+  VLineWidth: Integer;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
   VEnum: IEnumDoublePoint;
@@ -274,11 +276,12 @@ var
   VPoint: TDoublePoint;
   VProjected: IProjectedPolygon;
 begin
-  VScale1 := AMarkPoly.LineWidth;
+  Result := False;
+  VLineWidth := AMarkPoly.LineWidth;
   VTestArrLenLonLatRect := AMarkPoly.LLRect;
   ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
   VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
-  if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
+  if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VLineWidth + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2) then begin
     VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
     if VProjected <> nil then begin
       VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
@@ -336,17 +339,19 @@ begin
         end;
       except
       end;
+      Result := True;
     end;
   end;
 end;
 
-procedure TBitmapLayerProviderByMarksSubset.DrawPoint(
+function TBitmapLayerProviderByMarksSubset.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkPoint: IMarkPoint
-);
+): Boolean;
 var
-  xy: Tpoint;
+  VLocalPoint: TDoublePoint;
+  VLonLat: TDoublePoint;
   VDstRect: TRect;
   VSrcRect: TRect;
   VTextSize: TSize;
@@ -357,11 +362,13 @@ var
 begin
   VMarkSize := AMarkPoint.MarkerSize;
   VFontSize := AMarkPoint.FontSize;
-  xy := ALocalConverter.LonLat2LocalPixel(AMarkPoint.Point);
+  VLonLat := AMarkPoint.Point;
+  ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
+  VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
   if (AMarkPoint.Pic <> nil) then begin
     VMarker := AMarkPoint.Pic.GetMarkerBySize(VMarkSize);
-    VTargetPoint.X := xy.X - VMarker.AnchorPoint.X;
-    VTargetPoint.Y := xy.Y - VMarker.AnchorPoint.Y;
+    VTargetPoint.X := VLocalPoint.X - VMarker.AnchorPoint.X;
+    VTargetPoint.Y := VLocalPoint.Y - VMarker.AnchorPoint.Y;
     ATargetBmp.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
   end;
   if FConfig.ShowPointCaption then begin
@@ -372,8 +379,8 @@ begin
       VTextSize.cx:=VTextSize.cx+2;
       VTextSize.cy:=VTextSize.cy+2;
       FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
-      VDstRect.Left := xy.x + (VMarkSize div 2);
-      VDstRect.Top := xy.y - (VMarkSize div 2) - VTextSize.cy div 2;
+      VDstRect.Left := Trunc(VLocalPoint.x + (VMarkSize / 2));
+      VDstRect.Top := Trunc(VLocalPoint.y - (VMarkSize / 2) - VTextSize.cy / 2);
       VDstRect.Right := VDstRect.Left + VTextSize.cx;
       VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
       VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
@@ -383,6 +390,7 @@ begin
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
     end;
   end;
+  Result := True;
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawSubset(
@@ -401,6 +409,7 @@ var
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
 begin
+  Result := False;
   VOldClipRect := ATargetBmp.ClipRect;
   ATargetBmp.ClipRect := ALocalConverter.GetLocalRect;
   try
@@ -411,23 +420,17 @@ begin
           Break;
         end;
         if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-          DrawPoint(
-            ATargetBmp,
-            ALocalConverter,
-            VMarkPoint
-          );
+          if DrawPoint(ATargetBmp, ALocalConverter, VMarkPoint) then begin
+            Result := True;
+          end;
         end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-          drawPath(
-            ATargetBmp,
-            ALocalConverter,
-            VMarkLine
-          );
+          if DrawPath(ATargetBmp, ALocalConverter, VMarkLine) then begin
+            Result := True;
+          end;
         end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-          DrawPoly(
-            ATargetBmp,
-            ALocalConverter,
-            VMarkPoly
-          );
+          if DrawPoly(ATargetBmp, ALocalConverter, VMarkPoly) then begin
+            Result := True;
+          end;
         end;
       end;
     end else begin
@@ -436,11 +439,9 @@ begin
           Break;
         end;
         if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-          DrawPoly(
-            ATargetBmp,
-            ALocalConverter,
-            VMarkPoly
-          );
+          if DrawPoly(ATargetBmp, ALocalConverter, VMarkPoly) then begin
+            Result := True;
+          end;
         end;
       end;
       VEnumMarks.Reset;
@@ -449,11 +450,9 @@ begin
           Break;
         end;
         if Supports(VMark, IMarkLine, VMarkLine) then begin
-          drawPath(
-            ATargetBmp,
-            ALocalConverter,
-            VMarkLine
-          );
+          if DrawPath(ATargetBmp, ALocalConverter, VMarkLine) then begin
+            Result := True;
+          end;
         end;
       end;
       VEnumMarks.Reset;
@@ -462,18 +461,15 @@ begin
           Break;
         end;
         if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-          DrawPoint(
-            ATargetBmp,
-            ALocalConverter,
-            VMarkPoint
-          );
+          if DrawPoint(ATargetBmp, ALocalConverter, VMarkPoint) then begin
+            Result := True;
+          end;
         end;
       end;
     end;
   finally
     ATargetBmp.ClipRect := VOldClipRect;
   end;
-  Result := True;
 end;
 
 function TBitmapLayerProviderByMarksSubset.GetBitmapRect(
