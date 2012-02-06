@@ -41,7 +41,7 @@ uses
   i_BitmapLayerProvider;
 
 type
-  TMapMarksBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
   private
     FConfig: IMarksDrawConfigStatic;
     FVectorItmesFactory: IVectorItmesFactory;
@@ -126,7 +126,7 @@ const
 
 { TMapMarksBitmapLayerProviderByMarksSubset }
 
-constructor TMapMarksBitmapLayerProviderByMarksSubset.Create(
+constructor TBitmapLayerProviderByMarksSubset.Create(
   AConfig: IMarksDrawConfigStatic;
   AVectorItmesFactory: IVectorItmesFactory;
   AProjectionInfo: IProjectionInfo;
@@ -158,7 +158,7 @@ begin
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
-destructor TMapMarksBitmapLayerProviderByMarksSubset.Destroy;
+destructor TBitmapLayerProviderByMarksSubset.Destroy;
 begin
   FPreparedPointsAggreagtor := nil;
   FreeAndNil(FTempBmp);
@@ -166,7 +166,7 @@ begin
   inherited;
 end;
 
-procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPath(
+procedure TBitmapLayerProviderByMarksSubset.DrawPath(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkLine: IMarkLine
@@ -256,7 +256,7 @@ begin
   end;
 end;
 
-procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPoly(
+procedure TBitmapLayerProviderByMarksSubset.DrawPoly(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkPoly: IMarkPoly
@@ -340,7 +340,7 @@ begin
   end;
 end;
 
-procedure TMapMarksBitmapLayerProviderByMarksSubset.DrawPoint(
+procedure TBitmapLayerProviderByMarksSubset.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkPoint: IMarkPoint
@@ -385,7 +385,7 @@ begin
   end;
 end;
 
-function TMapMarksBitmapLayerProviderByMarksSubset.DrawSubset(
+function TBitmapLayerProviderByMarksSubset.DrawSubset(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
   AMarksSubset: IMarksSubset;
@@ -476,7 +476,7 @@ begin
   Result := True;
 end;
 
-function TMapMarksBitmapLayerProviderByMarksSubset.GetBitmapRect(
+function TBitmapLayerProviderByMarksSubset.GetBitmapRect(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
   ATargetBmp: TCustomBitmap32;
@@ -508,7 +508,7 @@ begin
   Result := DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, ATargetBmp, ALocalConverter);
 end;
 
-function TMapMarksBitmapLayerProviderByMarksSubset.GetProjectedPath(
+function TBitmapLayerProviderByMarksSubset.GetProjectedPath(
   AMarkPath: IMarkLine;
   AProjectionInfo: IProjectionInfo
 ): IProjectedPath;
@@ -528,7 +528,7 @@ begin
   end;
 end;
 
-function TMapMarksBitmapLayerProviderByMarksSubset.GetProjectedPolygon(
+function TBitmapLayerProviderByMarksSubset.GetProjectedPolygon(
   AMarkPoly: IMarkPoly;
   AProjectionInfo: IProjectionInfo
 ): IProjectedPolygon;

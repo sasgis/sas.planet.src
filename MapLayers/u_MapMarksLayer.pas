@@ -201,7 +201,7 @@ begin
       FLinesClipRect.Right := VMapRect.Right + 10;
       FLinesClipRect.Bottom := VMapRect.Bottom + 10;
       VProv :=
-        TMapMarksBitmapLayerProviderByMarksSubset.Create(
+        TBitmapLayerProviderByMarksSubset.Create(
           FDrawConfigStatic,
           FVectorItmesFactory,
           VBitmapConverter.ProjectionInfo,

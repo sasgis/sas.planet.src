@@ -281,7 +281,7 @@ begin
     VLineClipRect.Right := VMapRect.Right + 10;
     VLineClipRect.Bottom := VMapRect.Bottom + 10;
     VMarksImageProvider :=
-      TMapMarksBitmapLayerProviderByMarksSubset.Create(
+      TBitmapLayerProviderByMarksSubset.Create(
         FMarksDrawConfig.GetStatic,
         FVectorItmesFactory,
         VProjection,
