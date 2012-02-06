@@ -268,28 +268,31 @@ begin
           FLastHeading := pPos^.Heading;
           FLastSpeed := pPos^.Speed_KMH;
 
-          if pPos^.AllowCalcStats then begin
-            // speed may be unavailable
-            if (not NoData_Float64(pPos^.Speed_KMH)) then begin
-              // max speen
-              if (pPos^.Speed_KMH > FMaxSpeed) then
-                FMaxSpeed := pPos^.Speed_KMH;
-              // avg speed
-              FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
-              VAlfa := 1 / FAvgSpeedTickCount;
-              VBeta := 1 - VAlfa;
-              FAvgSpeed := VAlfa * pPos^.Speed_KMH + VBeta * FAvgSpeed;
-            end;
+          // allow calc max and avg speed even if no stats
+          // check AllowCalcStats only for permanent (overall) stats
 
-            // if prev position available too - calc distance
-            if FLastPositionOK then begin
-              VPointPrev.X := FTrack[FPointsCount - 1].Point.X; // lon
-              VPointPrev.Y := FTrack[FPointsCount - 1].Point.Y; // lat
-              VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
-              FDist := FDist + VDistToPrev;
-              FOdometer1 := FOdometer1 + VDistToPrev;
-              FOdometer2 := FOdometer2 + VDistToPrev;
-            end;
+          // speed may be unavailable
+          if (not NoData_Float64(pPos^.Speed_KMH)) then begin
+            // max speen
+            if (pPos^.Speed_KMH > FMaxSpeed) then
+              FMaxSpeed := pPos^.Speed_KMH;
+            // avg speed
+            FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
+            VAlfa := 1 / FAvgSpeedTickCount;
+            VBeta := 1 - VAlfa;
+            FAvgSpeed := VAlfa * pPos^.Speed_KMH + VBeta * FAvgSpeed;
+          end;
+
+          // if prev position available too - calc distance
+          // no recalc if AllowCalcStats disabled
+          if pPos^.AllowCalcStats then
+          if FLastPositionOK then begin
+            VPointPrev.X := FTrack[FPointsCount - 1].Point.X; // lon
+            VPointPrev.Y := FTrack[FPointsCount - 1].Point.Y; // lat
+            VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
+            FDist := FDist + VDistToPrev;
+            FOdometer1 := FOdometer1 + VDistToPrev;
+            FOdometer2 := FOdometer2 + VDistToPrev;
           end;
         end;
 
