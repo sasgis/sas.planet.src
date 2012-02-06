@@ -176,84 +176,82 @@ var
   i: Integer;
   VPointsProcessedCount: Integer;
   VIndex: Integer;
-  VScale1: Integer;
-  VTestArrLenLonLatRect: TDoubleRect;
-  VTestArrLenPixelRect: TDoubleRect;
   VEnum: IEnumDoublePoint;
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
   VProjected: IProjectedPath;
+  VIntersectRect: TDoubleRect;
+  VMapRect: TDoubleRect;
 begin
   Result := False;
-  VScale1 := AMarkLine.LineWidth;
-  VTestArrLenLonLatRect := AMarkLine.LLRect;
-  ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
-  VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
-  if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VScale1 + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VScale1 + 2) then begin
-    VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
-    if VProjected <> nil then begin
-      VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-      VRectWithDelta.Left := VLocalRect.Left - 10;
-      VRectWithDelta.Top := VLocalRect.Top - 10;
-      VRectWithDelta.Right := VLocalRect.Right + 10;
-      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-      VEnum :=
-        TEnumLocalPointFilterEqual.Create(
-          TEnumLocalPointClipByRect.Create(
-            False,
-            VRectWithDelta,
-            TEnumDoublePointMapPixelToLocalPixel.Create(
-              ALocalConverter,
-              VProjected.GetEnum
+  VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
+  if VProjected <> nil then begin
+    if VProjected.Count > 0 then begin
+      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+      if IntersecProjectedRect(VIntersectRect, VMapRect, VProjected.Bounds) then begin
+        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+        VRectWithDelta.Left := VLocalRect.Left - 10;
+        VRectWithDelta.Top := VLocalRect.Top - 10;
+        VRectWithDelta.Right := VLocalRect.Right + 10;
+        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+        VEnum :=
+          TEnumLocalPointFilterEqual.Create(
+            TEnumLocalPointClipByRect.Create(
+              False,
+              VRectWithDelta,
+              TEnumDoublePointMapPixelToLocalPixel.Create(
+                ALocalConverter,
+                VProjected.GetEnum
+              )
             )
-          )
-        );
-      FPreparedPointsAggreagtor.Clear;
-      while VEnum.Next(VPoint) do begin
-        FPreparedPointsAggreagtor.Add(VPoint);
-      end;
-      try
-        VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
-        if VPointsProcessedCount > 0 then begin
-          VPolygon := TPolygon32.Create;
-          try
-            VPolygon.Antialiased := true;
-            VPolygon.AntialiasMode := am4times;
-            VPolygon.Closed := False;
-            if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-              SetLength(FPathFixedPoints, VPointsProcessedCount);
-            end;
-            VIndex := 0;
-            for i := 0 to VPointsProcessedCount - 1 do begin
-              VPoint := FPreparedPointsAggreagtor.Points[i];
-              if PointIsEmpty(VPoint) then begin
-                VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
-                VPolygon.NewLine;
-                VIndex := 0;
-              end else begin
-                FPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
-                Inc(VIndex);
+          );
+        FPreparedPointsAggreagtor.Clear;
+        while VEnum.Next(VPoint) do begin
+          FPreparedPointsAggreagtor.Add(VPoint);
+        end;
+        try
+          VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
+          if VPointsProcessedCount > 0 then begin
+            VPolygon := TPolygon32.Create;
+            try
+              VPolygon.Antialiased := true;
+              VPolygon.AntialiasMode := am4times;
+              VPolygon.Closed := False;
+              if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+                SetLength(FPathFixedPoints, VPointsProcessedCount);
               end;
-            end;
-            VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
-            with VPolygon.Outline do try
-              with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
-                FillMode := pfWinding;
-                DrawFill(ATargetBmp, AMarkLine.LineColor);
+              VIndex := 0;
+              for i := 0 to VPointsProcessedCount - 1 do begin
+                VPoint := FPreparedPointsAggreagtor.Points[i];
+                if PointIsEmpty(VPoint) then begin
+                  VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+                  VPolygon.NewLine;
+                  VIndex := 0;
+                end else begin
+                  FPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
+                  Inc(VIndex);
+                end;
+              end;
+              VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+              with VPolygon.Outline do try
+                with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
+                  FillMode := pfWinding;
+                  DrawFill(ATargetBmp, AMarkLine.LineColor);
+                finally
+                  free;
+                end;
               finally
                 free;
               end;
             finally
-              free;
+              VPolygon.Free;
             end;
-          finally
-            VPolygon.Free;
+            Result := True;
           end;
+        except
         end;
-      except
       end;
-      Result := True;
     end;
   end;
 end;
@@ -267,79 +265,77 @@ var
   VPolygon: TPolygon32;
   i: Integer;
   VPointsProcessedCount: Integer;
-  VLineWidth: Integer;
-  VTestArrLenLonLatRect: TDoubleRect;
-  VTestArrLenPixelRect: TDoubleRect;
   VEnum: IEnumDoublePoint;
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
   VProjected: IProjectedPolygon;
+  VIntersectRect: TDoubleRect;
+  VMapRect: TDoubleRect;
 begin
   Result := False;
-  VLineWidth := AMarkPoly.LineWidth;
-  VTestArrLenLonLatRect := AMarkPoly.LLRect;
-  ALocalConverter.GetGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
-  VTestArrLenPixelRect := ALocalConverter.LonLatRect2LocalRectFloat(VTestArrLenLonLatRect);
-  if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VLineWidth + 2) or (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2) then begin
-    VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
-    if VProjected <> nil then begin
-      VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-      VRectWithDelta.Left := VLocalRect.Left - 10;
-      VRectWithDelta.Top := VLocalRect.Top - 10;
-      VRectWithDelta.Right := VLocalRect.Right + 10;
-      VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-      VEnum :=
-        TEnumDoublePointClosePoly.Create(
-          TEnumLocalPointFilterEqual.Create(
-            TEnumLocalPointClipByRect.Create(
-              True,
-              VRectWithDelta,
-              TEnumDoublePointMapPixelToLocalPixel.Create(
-                ALocalConverter,
-                VProjected.GetEnum
+  VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
+  if VProjected <> nil then begin
+    if VProjected.Count > 0 then begin
+      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+      if IntersecProjectedRect(VIntersectRect, VMapRect, VProjected.Bounds) then begin
+        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+        VRectWithDelta.Left := VLocalRect.Left - 10;
+        VRectWithDelta.Top := VLocalRect.Top - 10;
+        VRectWithDelta.Right := VLocalRect.Right + 10;
+        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+        VEnum :=
+          TEnumDoublePointClosePoly.Create(
+            TEnumLocalPointFilterEqual.Create(
+              TEnumLocalPointClipByRect.Create(
+                True,
+                VRectWithDelta,
+                TEnumDoublePointMapPixelToLocalPixel.Create(
+                  ALocalConverter,
+                  VProjected.GetEnum
+                )
               )
             )
-          )
-        );
-      FPreparedPointsAggreagtor.Clear;
-      while VEnum.Next(VPoint) do begin
-        FPreparedPointsAggreagtor.Add(VPoint);
-      end;
-      try
-        VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
-        if VPointsProcessedCount > 0 then begin
-          VPolygon := TPolygon32.Create;
-          try
-            VPolygon.Antialiased := true;
-            VPolygon.AntialiasMode := am4times;
-            VPolygon.Closed := True;
-              if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-                SetLength(FPathFixedPoints, VPointsProcessedCount);
-              end;
-              for i := 0 to VPointsProcessedCount - 1 do begin
-                VPoint := FPreparedPointsAggreagtor.Points[i];
-                FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
-              end;
-              VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
-              VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
-              with VPolygon.Outline do try
-                with Grow(GR32.Fixed(AMarkPoly.LineWidth / 2), 0.5) do try
-                  FillMode := pfWinding;
-                  DrawFill(ATargetBmp, AMarkPoly.BorderColor);
+          );
+        FPreparedPointsAggreagtor.Clear;
+        while VEnum.Next(VPoint) do begin
+          FPreparedPointsAggreagtor.Add(VPoint);
+        end;
+        try
+          VPointsProcessedCount := FPreparedPointsAggreagtor.Count;
+          if VPointsProcessedCount > 0 then begin
+            VPolygon := TPolygon32.Create;
+            try
+              VPolygon.Antialiased := true;
+              VPolygon.AntialiasMode := am4times;
+              VPolygon.Closed := True;
+                if Length(FPathFixedPoints) < VPointsProcessedCount then begin
+                  SetLength(FPathFixedPoints, VPointsProcessedCount);
+                end;
+                for i := 0 to VPointsProcessedCount - 1 do begin
+                  VPoint := FPreparedPointsAggreagtor.Points[i];
+                  FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
+                end;
+                VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
+                VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
+                with VPolygon.Outline do try
+                  with Grow(GR32.Fixed(AMarkPoly.LineWidth / 2), 0.5) do try
+                    FillMode := pfWinding;
+                    DrawFill(ATargetBmp, AMarkPoly.BorderColor);
+                  finally
+                    free;
+                  end;
                 finally
                   free;
                 end;
-              finally
-                free;
-              end;
-          finally
-            VPolygon.Free;
+            finally
+              VPolygon.Free;
+            end;
+            Result := True;
           end;
+        except
         end;
-      except
       end;
-      Result := True;
     end;
   end;
 end;
@@ -510,16 +506,37 @@ function TBitmapLayerProviderByMarksSubset.GetProjectedPath(
 ): IProjectedPath;
 var
   VID: Integer;
+  VLineWidth: Integer;
+  VTestArrLenLonLatRect: TDoubleRect;
+  VTestArrLenPixelRect: TDoubleRect;
+  VGeoConverter: ICoordConverter;
 begin
   VID := Integer(AMarkPath);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    Result :=
-      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
-        AProjectionInfo,
-        AMarkPath.Line,
-        FLinesClipRect,
-        FPreparedPointsAggreagtor
-      );
+    VLineWidth := AMarkPath.LineWidth;
+    VTestArrLenLonLatRect := AMarkPath.LLRect;
+    VGeoConverter := AProjectionInfo.GeoConverter;
+    VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
+    VTestArrLenPixelRect := VGeoConverter.LonLatRect2PixelRectFloat(VTestArrLenLonLatRect, AProjectionInfo.Zoom);
+    if
+      (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VLineWidth + 2) or
+      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2)
+    then begin
+      Result :=
+        FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
+          AProjectionInfo,
+          AMarkPath.Line,
+          FLinesClipRect,
+          FPreparedPointsAggreagtor
+        );
+    end else begin
+      Result :=
+        FVectorItmesFactory.CreateProjectedPath(
+          AProjectionInfo,
+          nil,
+          0
+        );
+    end;
     FProjectedCache.Add(VID, Result);
   end;
 end;
@@ -530,16 +547,37 @@ function TBitmapLayerProviderByMarksSubset.GetProjectedPolygon(
 ): IProjectedPolygon;
 var
   VID: Integer;
+  VLineWidth: Integer;
+  VTestArrLenLonLatRect: TDoubleRect;
+  VTestArrLenPixelRect: TDoubleRect;
+  VGeoConverter: ICoordConverter;
 begin
   VID := Integer(AMarkPoly);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    Result :=
-      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
-        AProjectionInfo,
-        AMarkPoly.Line,
-        FLinesClipRect,
-        FPreparedPointsAggreagtor
-      );
+    VLineWidth := AMarkPoly.LineWidth;
+    VTestArrLenLonLatRect := AMarkPoly.LLRect;
+    VGeoConverter := AProjectionInfo.GeoConverter;
+    VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
+    VTestArrLenPixelRect := VGeoConverter.LonLatRect2PixelRectFloat(VTestArrLenLonLatRect, AProjectionInfo.Zoom);
+    if
+      (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VLineWidth + 2) or
+      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2)
+    then begin
+      Result :=
+        FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+          AProjectionInfo,
+          AMarkPoly.Line,
+          FLinesClipRect,
+          FPreparedPointsAggreagtor
+        );
+    end else begin
+      Result :=
+        FVectorItmesFactory.CreateProjectedPolygon(
+          AProjectionInfo,
+          nil,
+          0
+        );
+    end;
     FProjectedCache.Add(VID, Result);
   end;
 end;
