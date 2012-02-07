@@ -1069,7 +1069,7 @@ begin
   sfulldesc := Vlink;
  end  else
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
- if  RegExprGetMatchSubStr(Vlink,'\.openstreetmap\..+lat',0)<>'' then begin
+ if  RegExprGetMatchSubStr(Vlink,'openstreetmap\..+lat',0)<>'' then begin
   sname := 'OpenStreetMap';
   i := PosEx('lat=', Vlink, 1);
   j := PosEx('&', Vlink, i);
