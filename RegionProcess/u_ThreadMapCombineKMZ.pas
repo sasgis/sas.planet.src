@@ -61,10 +61,6 @@ constructor TThreadMapCombineKMZ.Create(
   ASplitCount: TPoint;
   AQuality: Integer
 );
-var
-  nim: TPoint;
-  VMapSize: TPoint;
-  VMapPieceSize: TPoint;
 begin
   inherited Create(
     APolygon,
@@ -76,14 +72,6 @@ begin
     ASplitCount
   );
   FQuality := AQuality;
-  VMapSize := ATargetConverter.GetLocalRectSize;
-  VMapPieceSize.X := VMapSize.X div ASplitCount.X;
-  VMapPieceSize.Y := VMapSize.Y div ASplitCount.Y;
-  nim.X := ((VMapPieceSize.X-1) div 1024) + 1;
-  nim.Y := ((VMapPieceSize.Y-1) div 1024) + 1;
-  if ((nim.X * nim.Y) > 100) then begin
-    ShowMessageSync(SAS_MSG_GarminMax1Mp);
-  end;
 end;
 
 procedure TThreadMapCombineKMZ.SaveRect(

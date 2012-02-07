@@ -67,6 +67,7 @@ implementation
 
 uses
   Classes,
+  Dialogs,
   SysUtils,
   gnugettext,
   i_MarksSimple,
@@ -196,11 +197,14 @@ var
   VGeoConverter: ICoordConverter;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IProjectedPolygon;
-  VMapRect: TDoubleRect;
+  VMapRect: TRect;
   VLineClipRect: TDoubleRect;
   VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
+  VMapSize: TPoint;
+  VMapPieceSize: TPoint;
+  VKmzImgesCount: TPoint;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -234,14 +238,16 @@ begin
       APolygon
     );
 
-  VMapRect := DoubleRect(VGeoConverter.PixelRectFloat2PixelRect(VProjectedPolygon.Bounds, VZoom));;
+  VMapRect := VGeoConverter.PixelRectFloat2PixelRect(VProjectedPolygon.Bounds, VZoom);;
+  VMapSize.X := VMapRect.Right - VMapRect.Left;
+  VMapSize.Y := VMapRect.Bottom - VMapRect.Top;
 
   VTargetConverter :=
     FLocalConverterFactory.CreateConverterNoScale(
-      Rect(0, 0, Trunc(VMapRect.Right - VMapRect.Left), Trunc(VMapRect.Bottom - VMapRect.Top)),
+      Rect(0, 0, VMapSize.X, VMapSize.Y),
       VZoom,
       VGeoConverter,
-      VMapRect.TopLeft
+      DoublePoint(VMapRect.TopLeft)
     );
 
   VPrTypes := TInterfaceList.Create;
@@ -332,6 +338,14 @@ begin
       VSplitCount
     );
   end else if (VFileExt='.KMZ') then begin
+    VMapPieceSize.X := VMapSize.X div VSplitCount.X;
+    VMapPieceSize.Y := VMapSize.Y div VSplitCount.Y;
+    VKmzImgesCount.X := ((VMapPieceSize.X-1) div 1024) + 1;
+    VKmzImgesCount.Y := ((VMapPieceSize.Y-1) div 1024) + 1;
+    if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
+      ShowMessage(SAS_MSG_GarminMax1Mp);
+    end;
+
     TThreadMapCombineKMZ.Create(
       APolygon,
       VTargetConverter,
