@@ -86,6 +86,7 @@ begin
       Result := FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
       if Result then begin
         FTempBitmap.DrawMode := dmBlend;
+        FTempBitmap.CombineMode := cmMerge;
         ATargetBmp.Draw(0, 0, FTempBitmap);
       end;
     end else begin
