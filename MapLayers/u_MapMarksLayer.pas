@@ -99,6 +99,7 @@ uses
   Types,
   Classes,
   SysUtils,
+  GR32_Resamplers,
   i_TileIterator,
   i_EnumDoublePoint,
   i_BitmapLayerProvider,
@@ -175,14 +176,14 @@ var
   VTile: TPoint;
   { Прямоугольник пикслов текущего тайла в кооординатах основного конвертера }
   VCurrTilePixelRect: TRect;
-  { Прямоугольник тайла подлежащий отображению на текущий растр }
-  VTilePixelsToDraw: TRect;
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
   VProv: IBitmapLayerProvider;
   VMarksSubset: IMarksSubset;
   VMapRect: TDoubleRect;
   VCounterContext: TInternalPerformanceCounterContext;
+  VTileConverter: ILocalCoordConverter;
+  VResult: Boolean;
 begin
   VBitmapConverter := LayerCoordConverter;
   if VBitmapConverter <> nil then begin
@@ -226,34 +227,49 @@ begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
-            VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+            VTileConverter := ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
 
-            VTilePixelsToDraw.TopLeft := Point(0, 0);
-            VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-            VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
+            VCurrTilePixelRect := VTileConverter.GetRectInMapPixel;
+            VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
-            VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-            VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
-
-            VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
-            VTileToDrawBmp.Clear(0);
-            VProv.GetBitmapRect(
-              AOperationID,
-              ACancelNotifier,
-              VTileToDrawBmp,
-              ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-            );
+            VResult :=
+              VProv.GetBitmapRect(
+                AOperationID,
+                ACancelNotifier,
+                VTileToDrawBmp,
+                VTileConverter
+              );
             Layer.Bitmap.Lock;
             try
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 break;
               end;
-              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+              if VResult then begin
+                VTileToDrawBmp.CombineMode := cmMerge;
+                BlockTransfer(
+                  Layer.Bitmap,
+                  VCurrTileOnBitmapRect.Left,
+                  VCurrTileOnBitmapRect.Top,
+                  Layer.Bitmap.ClipRect,
+                  VTileToDrawBmp,
+                  VTileToDrawBmp.BoundsRect,
+                  dmOpaque,
+                  nil
+                );
+              end else begin
+                Layer.Bitmap.FillRect(
+                  VCurrTileOnBitmapRect.Left,
+                  VCurrTileOnBitmapRect.Top,
+                  VCurrTileOnBitmapRect.Right,
+                  VCurrTileOnBitmapRect.Bottom,
+                  0
+                );
+              end;
               SetBitmapChanged;
             finally
               Layer.Bitmap.UnLock;
             end;
-        end;
+          end;
         end;
       finally
         VTileToDrawBmp.Free;

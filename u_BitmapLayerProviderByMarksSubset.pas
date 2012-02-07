@@ -71,20 +71,27 @@ type
       ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPath(
+      var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AMarkLine: IMarkLine
     ): Boolean;
     function DrawPoly(
+      var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AMarkPoly: IMarkPoly
     ): Boolean;
     function DrawPoint(
+      var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter;
       AMarkPoint: IMarkPoint
     ): Boolean;
+    procedure InitBitmap(
+      ATargetBmp: TCustomBitmap32;
+      ALocalConverter: ILocalCoordConverter
+    );
   protected
     function GetBitmapRect(
       AOperationID: Integer;
@@ -167,6 +174,7 @@ begin
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawPath(
+  var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkLine: IMarkLine
@@ -238,6 +246,11 @@ begin
             end;
           end;
           if VPolygon <> nil then begin
+            if not ABitmapInited then begin
+              InitBitmap(ATargetBmp, ALocalConverter);
+              ABitmapInited := True;
+            end;
+
             with VPolygon.Outline do try
               with Grow(GR32.Fixed(AMarkLine.LineWidth / 2), 0.5) do try
                 FillMode := pfWinding;
@@ -259,6 +272,7 @@ begin
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawPoly(
+  var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkPoly: IMarkPoly
@@ -332,6 +346,10 @@ begin
             end;
           end;
           if VPolygon <> nil then begin
+            if not ABitmapInited then begin
+              InitBitmap(ATargetBmp, ALocalConverter);
+              ABitmapInited := True;
+            end;
             VPolygon.DrawFill(ATargetBmp, AMarkPoly.FillColor);
             with VPolygon.Outline do try
               with Grow(GR32.Fixed(AMarkPoly.LineWidth / 2), 0.5) do try
@@ -354,6 +372,7 @@ begin
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawPoint(
+  var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter;
   AMarkPoint: IMarkPoint
@@ -369,19 +388,29 @@ var
   VMarker: IBitmapMarker;
   VTargetPoint: TDoublePoint;
 begin
+  Result := False;
   VMarkSize := AMarkPoint.MarkerSize;
   VFontSize := AMarkPoint.FontSize;
   VLonLat := AMarkPoint.Point;
   ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
   VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
   if (AMarkPoint.Pic <> nil) then begin
+    if not ABitmapInited then begin
+      InitBitmap(ATargetBmp, ALocalConverter);
+      ABitmapInited := True;
+    end;
     VMarker := AMarkPoint.Pic.GetMarkerBySize(VMarkSize);
     VTargetPoint.X := VLocalPoint.X - VMarker.AnchorPoint.X;
     VTargetPoint.Y := VLocalPoint.Y - VMarker.AnchorPoint.Y;
     ATargetBmp.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+    Result := True;
   end;
   if FConfig.ShowPointCaption then begin
     if VFontSize > 0 then begin
+      if not ABitmapInited then begin
+        InitBitmap(ATargetBmp, ALocalConverter);
+        ABitmapInited := True;
+      end;
       FBitmapWithText.MasterAlpha:=AlphaComponent(AMarkPoint.TextColor);
       FBitmapWithText.Font.Size := VFontSize;
       VTextSize := FBitmapWithText.TextExtent(AMarkPoint.Name);
@@ -397,9 +426,9 @@ begin
       FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextBgColor,255));
       FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
+      Result := True;
     end;
   end;
-  Result := True;
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawSubset(
@@ -413,71 +442,66 @@ var
   VEnumMarks: IEnumUnknown;
   VMark: IMark;
   i: Cardinal;
-  VOldClipRect: TRect;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
+  VBitmapInited: Boolean;
 begin
   Result := False;
-  VOldClipRect := ATargetBmp.ClipRect;
-  ATargetBmp.ClipRect := ALocalConverter.GetLocalRect;
-  try
-    VEnumMarks := AMarksSubset.GetEnum;
-    if FConfig.UseSimpleDrawOrder then begin
-      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
-        end;
-        if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-          if DrawPoint(ATargetBmp, ALocalConverter, VMarkPoint) then begin
-            Result := True;
-          end;
-        end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-          if DrawPath(ATargetBmp, ALocalConverter, VMarkLine) then begin
-            Result := True;
-          end;
-        end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-          if DrawPoly(ATargetBmp, ALocalConverter, VMarkPoly) then begin
-            Result := True;
-          end;
-        end;
+  VBitmapInited := False;
+  VEnumMarks := AMarksSubset.GetEnum;
+  if FConfig.UseSimpleDrawOrder then begin
+    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Break;
       end;
-    end else begin
-      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
+      if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+        if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoint) then begin
+          Result := True;
         end;
-        if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-          if DrawPoly(ATargetBmp, ALocalConverter, VMarkPoly) then begin
-            Result := True;
-          end;
+      end else if Supports(VMark, IMarkLine, VMarkLine) then begin
+        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMarkLine) then begin
+          Result := True;
         end;
-      end;
-      VEnumMarks.Reset;
-      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
-        end;
-        if Supports(VMark, IMarkLine, VMarkLine) then begin
-          if DrawPath(ATargetBmp, ALocalConverter, VMarkLine) then begin
-            Result := True;
-          end;
-        end;
-      end;
-      VEnumMarks.Reset;
-      while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
-        end;
-        if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-          if DrawPoint(ATargetBmp, ALocalConverter, VMarkPoint) then begin
-            Result := True;
-          end;
+      end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoly) then begin
+          Result := True;
         end;
       end;
     end;
-  finally
-    ATargetBmp.ClipRect := VOldClipRect;
+  end else begin
+    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Break;
+      end;
+      if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoly) then begin
+          Result := True;
+        end;
+      end;
+    end;
+    VEnumMarks.Reset;
+    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Break;
+      end;
+      if Supports(VMark, IMarkLine, VMarkLine) then begin
+        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMarkLine) then begin
+          Result := True;
+        end;
+      end;
+    end;
+    VEnumMarks.Reset;
+    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Break;
+      end;
+      if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+        if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoint) then begin
+          Result := True;
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -593,6 +617,18 @@ begin
     end;
     FProjectedCache.Add(VID, Result);
   end;
+end;
+
+procedure TBitmapLayerProviderByMarksSubset.InitBitmap(
+  ATargetBmp: TCustomBitmap32;
+  ALocalConverter: ILocalCoordConverter
+);
+var
+  VSize: TPoint;
+begin
+  VSize := ALocalConverter.GetLocalRectSize;
+  ATargetBmp.SetSize(VSize.X, VSize.Y);
+  ATargetBmp.Clear(0);
 end;
 
 end.
