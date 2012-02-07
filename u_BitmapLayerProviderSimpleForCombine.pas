@@ -43,7 +43,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  GR32_Resamplers;
 
 { TBitmapLayerProviderSimpleForCombine }
 
@@ -85,9 +86,17 @@ begin
     if Result then begin
       Result := FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
       if Result then begin
-        FTempBitmap.DrawMode := dmBlend;
         FTempBitmap.CombineMode := cmMerge;
-        ATargetBmp.Draw(0, 0, FTempBitmap);
+        BlockTransfer(
+          ATargetBmp,
+          0,
+          0,
+          ATargetBmp.ClipRect,
+          FTempBitmap,
+          FTempBitmap.BoundsRect,
+          dmBlend,
+          nil
+        );
       end;
     end else begin
       Result := FMapTypeHybr.LoadBtimapUni(ATargetBmp, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
@@ -102,9 +111,17 @@ begin
     if Result then begin
       Result := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, FTempBitmap, ALocalConverter);
       if Result then begin
-        FTempBitmap.DrawMode := dmBlend;
         FTempBitmap.CombineMode := cmMerge;
-        ATargetBmp.Draw(0, 0, FTempBitmap);
+        BlockTransfer(
+          ATargetBmp,
+          0,
+          0,
+          ATargetBmp.ClipRect,
+          FTempBitmap,
+          FTempBitmap.BoundsRect,
+          dmBlend,
+          nil
+        );
       end;
     end else begin
       Result := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ATargetBmp, ALocalConverter);
