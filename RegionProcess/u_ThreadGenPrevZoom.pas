@@ -6,6 +6,8 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
@@ -33,9 +35,12 @@ type
     FBackGroundColor: TColor32;
   protected
     procedure ProcessRegion; override;
-    procedure ProgressFormUpdateOnProgress;
+    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       Azoom: byte;
@@ -61,6 +66,9 @@ uses
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   Azoom: byte;
@@ -75,7 +83,12 @@ constructor TThreadGenPrevZoom.Create(
   AResamplerFactory: IImageResamplerFactory
 );
 begin
-  inherited Create(APolygLL);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygLL
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FIsReplace := AReplace;
@@ -111,9 +124,11 @@ var
   VSubTileInTargetBounds: TRect;
   VSubTileIterator: ITileIterator;
   VProjectedPolygon: IProjectedPolygon;
+  VTilesToProcess: Int64;
+  VTilesProcessed: Int64;
 begin
   inherited;
-  FTilesToProcess := 0;
+  VTilesToProcess := 0;
   VGeoConvert := FMapType.GeoConvert;
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
@@ -133,13 +148,11 @@ begin
     end else begin
       VZoomDelta := FZooms[i - 1] - FZooms[i];
     end;
-    FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal * (1 shl (2*VZoomDelta));
+    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * (1 shl (2*VZoomDelta));
   end;
   try
-    ProgressFormUpdateCaption(
-      '',
-      SAS_STR_ProcessedNoMore + ': ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files
-      );
+    ProgressInfo.Caption :=
+      SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files;
 
     bmp_ex := TCustomBitmap32.Create;
     bmp := TCustomBitmap32.Create;
@@ -147,7 +160,7 @@ begin
       bmp.Resampler := FResamplerFactory.CreateResampler;
 
       FTileInProc := 0;
-      FTilesProcessed := 0;
+      VTilesProcessed := 0;
       for i := 0 to length(FZooms) - 1 do begin
         if (not FGenFormPrevZoom) or (i = 0) then begin
           VZoomPrev := FSourceZoom;
@@ -210,9 +223,9 @@ begin
                 bmp.DrawTo(bmp_ex, VSubTileInTargetBounds, VSubTileBounds);
                 inc(VSubTilesSavedCount);
               end;
-              inc(FTilesProcessed);
-              if (FTilesProcessed mod 30 = 0) then begin
-                ProgressFormUpdateOnProgress;
+              inc(VTilesProcessed);
+              if (VTilesProcessed mod 30 = 0) then begin
+                ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
               end;
             end;
           finally
@@ -236,13 +249,10 @@ begin
   end;
 end;
 
-procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress;
+procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressFormUpdateProgressLine0AndLine1(
-    round((FTilesProcessed / FTilesToProcess) * 100),
-    SAS_STR_Saves + ': ' + inttostr(FTileInProc) + ' ' + SAS_STR_files,
-    SAS_STR_Processed + ' ' + inttostr(FTilesProcessed)
-  );
+  ProgressInfo.Processed := AProcessed/AToProcess;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)
 end;
 
 end.

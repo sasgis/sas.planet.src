@@ -9,6 +9,7 @@ uses
   GR32,
   libJPEG,
   i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
   i_LocalCoordConverter,
@@ -31,6 +32,9 @@ type
     ); override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       ATargetConverter: ILocalCoordConverter;
       AImageProvider: IBitmapLayerProvider;
@@ -67,6 +71,9 @@ procedure term_destination(cinfo: j_compress_ptr); cdecl; forward;
 { TThreadMapCombineJPG }
 
 constructor TThreadMapCombineJPG.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   ATargetConverter: ILocalCoordConverter;
   AImageProvider: IBitmapLayerProvider;
@@ -78,6 +85,9 @@ constructor TThreadMapCombineJPG.Create(
 );
 begin
   inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
     APolygon,
     ATargetConverter,
     AImageProvider,
@@ -115,8 +125,6 @@ begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
-  FTilesProcessed := 0;
-  FTilesToProcess := VMapPieceSize.Y;
   VLineProvider :=
     TImageLineProviderRGB.Create(
       AImageProvider,
@@ -197,8 +205,7 @@ begin
           Break;
         end;
         if i mod 256 = 0 then begin
-          FTilesProcessed := i;
-          ProgressFormUpdateOnProgress;
+          ProgressFormUpdateOnProgress(i/jpeg.image_height);
         end;
       end;
     finally

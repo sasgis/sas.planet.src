@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -20,10 +21,14 @@ type
     FFrame: TfrExportAUX;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -43,23 +48,36 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   i_VectorItemProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TExportProviderKml }
 
-constructor TExportProviderAUX.Create(AParent: TWinControl;
-  ALanguageManager: ILanguageManager; AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet; AGUIConfigList: IMapTypeGUIConfigList;
+constructor TExportProviderAUX.Create(
+  AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
   AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory);
+  AVectorItmesFactory: IVectorItmesFactory
+);
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TExportProviderAUX.Destroy;
@@ -122,6 +140,9 @@ var
   VMapType: TMapType;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -139,7 +160,23 @@ begin
       ),
       APolygon
     );
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
+
   TThreadExportToAUX.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     APolygon,
     VProjectedPolygon,
     VZoom,

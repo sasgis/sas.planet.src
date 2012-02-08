@@ -751,6 +751,7 @@ begin
     TfrmRegionProcess.Create(
       GState.LanguageManager,
       GState.AppClosingNotifier,
+      GState.GUISyncronizedTimerNotifier,
       GState.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.MapType.FullMapsSet,

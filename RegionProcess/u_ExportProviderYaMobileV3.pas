@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -21,10 +22,14 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -45,16 +50,23 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV3,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TExportProviderYaMobileV3 }
 
 constructor TExportProviderYaMobileV3.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -73,6 +85,8 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TExportProviderYaMobileV3.Destroy;
@@ -138,6 +152,9 @@ var
   typemaparr:array of TMapType;
   comprSat,comprMap:byte;
   Replace:boolean;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
   for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
@@ -149,8 +166,23 @@ begin
   comprMap:=FFrame.seMapCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkReplaseTiles.Checked;
-  Assert(APolygon.Count = 1);
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
+
   TThreadExportYaMobileV3.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,

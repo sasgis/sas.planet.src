@@ -31,29 +31,59 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
+  i_JclNotify,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
   u_CommonFormAndFrameParents;
 
 type
   TfrmProgressSimple = class(TCommonFormParent)
     MemoInfo: TMemo;
     pnlProgress: TPanel;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoInfoChange(Sender: TObject);
   private
+    FCancelNotifier: IOperationNotifierInternal;
+    FProgressInfo: IRegionProcessProgressInfo;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
+
     FRarProgress: TRarProgress;
-  protected
+    FAppClosingListener: IJclListener;
+    FTimerListener: IJclListener;
+    procedure OnTimer;
+    procedure OnClose;
+    procedure CancelOperation;
   public
-    constructor Create(AOwner : TComponent); override;
-    property ProgressBar1: TRarProgress read FRarProgress;
+    constructor Create(
+      AOwner : TComponent;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
+      ACancelNotifier: IOperationNotifierInternal;
+      AProgressInfo: IRegionProcessProgressInfo
+    ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
 
+uses
+  u_NotifyEventListener;
+
 {$R *.dfm}
 
-constructor TfrmProgressSimple.Create(AOwner: TComponent);
+constructor TfrmProgressSimple.Create(
+  AOwner : TComponent;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
+  ACancelNotifier: IOperationNotifierInternal;
+  AProgressInfo: IRegionProcessProgressInfo
+);
 begin
-  inherited;
+  inherited Create(AOwner);
   FRarProgress := TRarProgress.Create(Self);
   with FRarProgress do begin
     Left := 6;
@@ -79,6 +109,59 @@ begin
   end;
   FRarProgress.Parent := pnlProgress;
   FRarProgress.Align := alClient;
+  FRarProgress.Min := 0;
+  FRarProgress.Max := 100;
+  FRarProgress.Progress1 := 0;
+  FRarProgress.Visible := True;
+
+  FCancelNotifier := ACancelNotifier;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
+  FProgressInfo := AProgressInfo;
+
+  FTimerListener := TNotifyNoMmgEventListener.Create(Self.OnTimer);
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClose);
+
+  FTimerNoifier.Add(FTimerListener);
+  FAppClosingNotifier.Add(FAppClosingListener);
+end;
+
+procedure TfrmProgressSimple.FormCreate(Sender: TObject);
+begin
+  Show;
+end;
+
+destructor TfrmProgressSimple.Destroy;
+var
+  VNotifier: IJclNotifier;
+begin
+  VNotifier := FAppClosingNotifier;
+  if VNotifier <> nil then begin
+    VNotifier.Remove(FAppClosingListener);
+    FAppClosingNotifier := nil;
+    FAppClosingListener := nil;
+  end;
+  VNotifier := FTimerNoifier;
+  if VNotifier <> nil then begin
+    VNotifier.Remove(FTimerListener);
+    FTimerNoifier := nil;
+    FTimerListener := nil;
+  end;
+  inherited;
+end;
+
+procedure TfrmProgressSimple.CancelOperation;
+begin
+  if FCancelNotifier <> nil then begin
+    FCancelNotifier.NextOperation;
+  end;
+end;
+
+procedure TfrmProgressSimple.FormClose(Sender: TObject; var Action:
+    TCloseAction);
+begin
+  CancelOperation;
+  Action := caFree;
 end;
 
 procedure TfrmProgressSimple.FormKeyUp(Sender: TObject; var Key: Word;
@@ -90,6 +173,24 @@ end;
 procedure TfrmProgressSimple.MemoInfoChange(Sender: TObject);
 begin
   HideCaret(MemoInfo.Handle);
+end;
+
+procedure TfrmProgressSimple.OnClose;
+begin
+  Close;
+end;
+
+procedure TfrmProgressSimple.OnTimer;
+begin
+  if FProgressInfo <> nil then begin
+    Self.Caption := FProgressInfo.Caption;
+    MemoInfo.Lines[0] := FProgressInfo.FirstLine;
+    MemoInfo.Lines[1] := FProgressInfo.SecondLine;
+    FRarProgress.Progress1 := Trunc(FProgressInfo.Processed * 100);
+    if FProgressInfo.Finished then begin
+      Close;
+    end;
+  end;
 end;
 
 end.

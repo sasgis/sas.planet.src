@@ -8,6 +8,8 @@ uses
   LibTar,
   GR32,
   i_TileFileNameGenerator,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
@@ -29,6 +31,9 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       ATargetFile: string;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
@@ -50,6 +55,9 @@ uses
   u_TileStorageAbstract;
 
 constructor TThreadExportToTar.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   ATargetFile: string;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
@@ -58,7 +66,13 @@ constructor TThreadExportToTar.Create(
   AMapType: TMapType;
   ATileNameGen: ITileFileNameGenerator);
 begin
-  inherited Create(APolygon, Azoomarr);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon,
+    Azoomarr
+  );
   FTargetFile := ATargetFile;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
@@ -87,9 +101,11 @@ var
   VFileTime: TDateTime;
   VTileInfo: ITileInfoBasic;
   VProjectedPolygon: IProjectedPolygon;
+  VTilesToProcess: Int64;
+  VTilesProcessed: Int64;
 begin
   inherited;
-  FTilesToProcess := 0;
+  VTilesToProcess := 0;
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
@@ -102,18 +118,16 @@ begin
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-    FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
   end;
   try
-    ProgressFormUpdateCaption(
-      SAS_STR_ExportTiles,
-      SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-    );
+    ProgressInfo.Caption := SAS_STR_ExportTiles;
+    ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
     VMemStream := TMemoryStream.Create;
     try
       VTileStorage := FMapType.TileStorage;
-      FTilesProcessed := 0;
-      ProgressFormUpdateOnProgress;
+      VTilesProcessed := 0;
+      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
         VExt := FMapType.StorageConfig.TileFileExt;
@@ -134,9 +148,9 @@ begin
               VFileTime
             );
           end;
-          inc(FTilesProcessed);
-          if FTilesProcessed mod 100 = 0 then begin
-            ProgressFormUpdateOnProgress;
+          inc(VTilesProcessed);
+          if VTilesProcessed mod 100 = 0 then begin
+              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
         end;
       end;
@@ -149,7 +163,6 @@ begin
     end;
     VTileIterators := nil;
   end;
-  ProgressFormUpdateOnProgress;
   FTileNameGen := nil;
 end;
 

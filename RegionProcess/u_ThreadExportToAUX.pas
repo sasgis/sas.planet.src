@@ -6,6 +6,8 @@ uses
   Windows,
   SysUtils,
   u_MapType,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_VectorItemProjected,
   u_ThreadRegionProcessAbstract;
@@ -19,9 +21,12 @@ type
     FZoom: Byte;
   protected
     procedure ProcessRegion; override;
-    procedure ProgressFormUpdateOnProgress; virtual;
+    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
@@ -41,6 +46,9 @@ uses
 { TThreadExportToAUX }
 
 constructor TThreadExportToAUX.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
@@ -48,7 +56,12 @@ constructor TThreadExportToAUX.Create(
   AFileName: string
 );
 begin
-  inherited Create(APolygon);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon
+  );
   FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;
   FMapType := AMapType;
@@ -66,18 +79,18 @@ var
   VFileName: string;
   VOutString: string;
   VOutPos: TPoint;
+  VTilesToProcess: Int64;
+  VTilesProcessed: Int64;
 begin
   inherited;
   VGeoConvert := FMapType.GeoConvert;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   try
-    FTilesToProcess := VTileIterator.TilesTotal;
-    ProgressFormUpdateCaption(
-      SAS_STR_ExportTiles,
-      SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-    );
-    FTilesProcessed := 0;
-    ProgressFormUpdateOnProgress;
+    VTilesToProcess := VTileIterator.TilesTotal;
+    ProgressInfo.Caption := SAS_STR_ExportTiles;
+    ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+    VTilesProcessed := 0;
+    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
     VPixelRect := VGeoConvert.TileRect2PixelRect(VTileIterator.TilesRect, FZoom);
     VFileStream := TFileStream.Create(FFileName, fmCreate);
     try
@@ -93,9 +106,9 @@ begin
           VOutString := '"' + VFileName + '" ' + IntToStr(VOutPos.X) + ' ' + IntToStr(VOutPos.Y) + #13#10;
           VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
         end;
-        inc(FTilesProcessed);
-        if FTilesProcessed mod 100 = 0 then begin
-          ProgressFormUpdateOnProgress;
+        inc(VTilesProcessed);
+        if VTilesProcessed mod 100 = 0 then begin
+          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         end;
       end;
     finally
@@ -104,15 +117,12 @@ begin
   finally
     VTileIterator := nil;
   end;
-  ProgressFormUpdateOnProgress;
 end;
 
-procedure TThreadExportToAUX.ProgressFormUpdateOnProgress;
+procedure TThreadExportToAUX.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressFormUpdateProgressAndLine1(
-    round((FTilesProcessed / FTilesToProcess) * 100),
-    SAS_STR_Processed + ' ' + inttostr(FTilesProcessed)
-  );
+  ProgressInfo.Processed := AProcessed/AToProcess;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)
 end;
 
 end.

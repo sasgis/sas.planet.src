@@ -11,6 +11,8 @@ object frmProgressSimple: TfrmProgressSimple
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
+  OnClose = FormClose
+  OnCreate = FormCreate
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13
@@ -27,10 +29,6 @@ object frmProgressSimple: TfrmProgressSimple
     ReadOnly = True
     TabOrder = 0
     OnChange = MemoInfoChange
-    ExplicitLeft = 8
-    ExplicitTop = 1
-    ExplicitWidth = 313
-    ExplicitHeight = 30
   end
   object pnlProgress: TPanel
     Left = 0
@@ -40,8 +38,5 @@ object frmProgressSimple: TfrmProgressSimple
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 1
-    ExplicitTop = 32
-    ExplicitWidth = 326
   end
 end

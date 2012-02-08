@@ -6,6 +6,7 @@ uses
   Windows,
   Controls,
   t_GeoTypes,
+  i_JclNotify,
   i_LanguageManager,
   i_CoordConverterFactory,
   i_VectorItemLonLat,
@@ -28,6 +29,8 @@ type
   private
     FFrame: TfrMapCombine;
     FViewConfig: IGlobalViewMainConfig;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FMarksDB: TMarksSystem;
@@ -44,6 +47,8 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       AViewConfig: IGlobalViewMainConfig;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       AMarksShowConfig: IUsedMarksConfig;
@@ -66,6 +71,7 @@ type
 implementation
 
 uses
+  Forms,
   Classes,
   Dialogs,
   SysUtils,
@@ -73,6 +79,8 @@ uses
   i_MarksSimple,
   i_CoordConverter,
   i_LocalCoordConverter,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_VectorItemProjected,
   i_BitmapLayerProvider,
   i_ProjectionInfo,
@@ -88,8 +96,11 @@ uses
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
   u_ThreadMapCombinePNG,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TProviderTilesDelete }
 
@@ -100,6 +111,8 @@ constructor TProviderMapCombine.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   AViewConfig: IGlobalViewMainConfig;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   AMarksShowConfig: IUsedMarksConfig;
@@ -113,6 +126,8 @@ begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
   FMarksShowConfig := AMarksShowConfig;
   FMarksDrawConfig := AMarksDrawConfig;
   FMarksDB := AMarksDB;
@@ -205,6 +220,10 @@ var
   VMapSize: TPoint;
   VMapPieceSize: TPoint;
   VKmzImgesCount: TPoint;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
+  VForm: TfrmProgressSimple;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -297,6 +316,19 @@ begin
       );
   end;
 
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  VForm :=
+    TfrmProgressSimple.Create(
+      Application,
+      FAppClosingNotifier,
+      FTimerNoifier,
+      VCancelNotifierInternal,
+      VProgressInfo
+    );
+
   VRecolorConfig := nil;
   if FFrame.chkUseRecolor.Checked then begin
     VRecolorConfig := FBitmapPostProcessingConfig.GetStatic;
@@ -318,6 +350,9 @@ begin
     );
   if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
     TThreadMapCombineECW.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
@@ -329,6 +364,9 @@ begin
     );
   end else if (VFileExt='.BMP') then begin
     TThreadMapCombineBMP.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
@@ -347,6 +385,9 @@ begin
     end;
 
     TThreadMapCombineKMZ.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
@@ -358,6 +399,9 @@ begin
     );
   end else if (VFileExt='.JPG') then begin
     TThreadMapCombineJPG.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
@@ -369,6 +413,9 @@ begin
     );
   end else if (VFileExt='.PNG') then begin
     TThreadMapCombinePNG.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,

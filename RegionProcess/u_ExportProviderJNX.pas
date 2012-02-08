@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
@@ -21,10 +22,14 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -44,17 +49,24 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  StrUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
-  StrUtils;
+  frm_ProgressSimple;
 
 { TExportProviderJNX }
 
 constructor TExportProviderJNX.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -67,6 +79,8 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TExportProviderJNX.Destroy;
@@ -137,6 +151,9 @@ var
   VZorder : integer;
   VProductID : integer;
   VJpgQuality : byte;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
   for i:=0 to 23 do begin
@@ -162,10 +179,22 @@ begin
    VProductID := 0;
   end;
 
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
 
-
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
 
   TThreadExportToJNX.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,

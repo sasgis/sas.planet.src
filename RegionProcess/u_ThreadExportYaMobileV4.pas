@@ -10,6 +10,8 @@ uses
   GR32,
   YaMobileCache,
   i_VectorItemLonLat,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   u_MapType,
@@ -44,6 +46,9 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       ACoordConverterFactory: ICoordConverterFactory;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
@@ -72,6 +77,9 @@ uses
 { TThreadExportYaMobileV4 }
 
 constructor TThreadExportYaMobileV4.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   ACoordConverterFactory: ICoordConverterFactory;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
@@ -85,7 +93,13 @@ constructor TThreadExportYaMobileV4.Create(
 var
   i: integer;
 begin
-  inherited Create(APolygon, Azoomarr);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon,
+    Azoomarr
+  );
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
@@ -229,6 +243,8 @@ var
   VTileIterators: array of ITileIterator;
   VMapID: Integer;
   VProjectedPolygon: IProjectedPolygon;
+  VTilesToProcess: Int64;
+  VTilesProcessed: Int64;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -250,7 +266,7 @@ begin
         bmp32crop.Width := sizeim;
         bmp32crop.Height := sizeim;
         VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-        FTilesToProcess := 0;
+        VTilesToProcess := 0;
         SetLength(VTileIterators,Length(FZooms));
 
         for i := 0 to Length(FZooms) - 1 do begin
@@ -266,15 +282,16 @@ begin
           VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
           for j := 0 to 2 do begin
             if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-              FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+              VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
             end;
           end;
         end;
         try
-          FTilesProcessed := 0;
+          VTilesProcessed := 0;
 
-          ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
-          ProgressFormUpdateOnProgress;
+          ProgressInfo.Caption := SAS_STR_ExportTiles;
+          ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
           tc := GetTickCount;
           try
@@ -321,10 +338,10 @@ begin
                           end;
                         end;
                       end;
-                      inc(FTilesProcessed);
+                      inc(VTilesProcessed);
                       if (GetTickCount - tc > 1000) then begin
                         tc := GetTickCount;
-                        ProgressFormUpdateOnProgress;
+                        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
                       end;
                     end;
                   end;
@@ -339,7 +356,7 @@ begin
             VTileIterators[i] := nil;
           end;
         end;
-        ProgressFormUpdateOnProgress
+        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
       finally
         bmp32crop.Free;
       end;

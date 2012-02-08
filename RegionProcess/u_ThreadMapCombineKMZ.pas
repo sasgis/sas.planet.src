@@ -8,6 +8,7 @@ uses
   GR32,
   i_LocalCoordConverter,
   i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_VectorItemLonLat,
   i_LocalCoordConverterFactorySimpe,
@@ -30,6 +31,9 @@ type
     ); override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       ATargetConverter: ILocalCoordConverter;
       AImageProvider: IBitmapLayerProvider;
@@ -52,6 +56,9 @@ uses
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   ATargetConverter: ILocalCoordConverter;
   AImageProvider: IBitmapLayerProvider;
@@ -63,6 +70,9 @@ constructor TThreadMapCombineKMZ.Create(
 );
 begin
   inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
     APolygon,
     ATargetConverter,
     AImageProvider,
@@ -104,14 +114,16 @@ var
   VCurrentPieceRect: TRect;
   VGeoConverter: ICoordConverter;
   VMapPieceSize: TPoint;
+  VTilesProcessed: Integer;
+  VTilesToProcess: Integer;
 begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
   nim.X := ((VMapPieceSize.X-1) div 1024) + 1;
   nim.Y := ((VMapPieceSize.Y-1) div 1024) + 1;
-  FTilesProcessed := 0;
-  FTilesToProcess := nim.X * nim.Y;
+  VTilesProcessed := 0;
+  VTilesToProcess := nim.X * nim.Y;
   iWidth := VMapPieceSize.X div (nim.X);
   iHeight := VMapPieceSize.y div (nim.Y);
 
@@ -176,8 +188,7 @@ begin
             finally
               jpgm.Free;
             end;
-            Inc(FTilesProcessed);
-            ProgressFormUpdateOnProgress;
+            ProgressFormUpdateOnProgress(VTilesProcessed/VTilesToProcess);
           end;
         end;
       finally

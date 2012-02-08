@@ -8,6 +8,8 @@ uses
   JNXlib,
   GR32,
   t_GeoTypes,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
@@ -33,6 +35,9 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       ACoordConverterFactory: ICoordConverterFactory;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
@@ -62,6 +67,9 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   ACoordConverterFactory: ICoordConverterFactory;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
@@ -77,7 +85,13 @@ constructor TThreadExportToJnx.Create(
   AJpgQuality : byte
 );
 begin
-  inherited Create(APolygon, Azoomarr);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon,
+    Azoomarr
+  );
   FTargetFile := ATargetFile;
   FMapType := AMapType;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -108,9 +122,11 @@ var
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
   VProjectedPolygon: IProjectedPolygon;
+  VTilesToProcess: Int64;
+  VTilesProcessed: Int64;
 begin
   inherited;
-  FTilesToProcess := 0;
+  VTilesToProcess := 0;
   VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpgQuality);
   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   SetLength(VTileIterators, Length(FZooms));
@@ -125,7 +141,7 @@ begin
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-    FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
   end;
 
   VWriter := TJNXWriter.Create(FTargetFile);
@@ -146,16 +162,14 @@ begin
     end;
 
     try
-      ProgressFormUpdateCaption(
-        SAS_STR_ExportTiles,
-        SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
-      );
+      ProgressInfo.Caption := SAS_STR_ExportTiles;
+      ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
       VMemStream := TMemoryStream.Create;
       VStringStream := TStringStream.Create('');
       VBmp := TCustomBitmap32.Create;
       try
-        FTilesProcessed := 0;
-        ProgressFormUpdateOnProgress;
+        VTilesProcessed := 0;
+        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[i];
           VTileIterator := VTileIterators[i];
@@ -192,9 +206,9 @@ begin
               );
 
             end;
-            inc(FTilesProcessed);
-            if FTilesProcessed mod 100 = 0 then begin
-              ProgressFormUpdateOnProgress;
+            inc(VTilesProcessed);
+            if VTilesProcessed mod 100 = 0 then begin
+              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
             end;
           end;
         end;
@@ -209,7 +223,6 @@ begin
       end;
       VTileIterators := nil;
     end;
-    ProgressFormUpdateOnProgress;
   finally
     VWriter.Free;
   end;

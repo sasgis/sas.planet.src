@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -22,10 +23,14 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FNewFormat: Boolean;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -47,16 +52,23 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadExportIPhone,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TExportProviderIPhone }
 
 constructor TExportProviderIPhone.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -71,6 +83,8 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FNewFormat := ANewFormat;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TExportProviderIPhone.Destroy;
@@ -140,6 +154,10 @@ var
   comprSat,comprMap,comprHyb:byte;
   Replace:boolean;
   VActiveMapIndex: Integer;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
+  VForm: TfrmProgressSimple;
 begin
   inherited;
   for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
@@ -168,7 +186,24 @@ begin
   comprHyb:=FFrame.seHybrCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkAppendTilse.Checked;
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  VForm :=
+    TfrmProgressSimple.Create(
+      Application,
+      FAppClosingNotifier,
+      FTimerNoifier,
+      VCancelNotifierInternal,
+      VProgressInfo
+    );
+
   TThreadExportIPhone.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,

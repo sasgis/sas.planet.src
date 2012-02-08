@@ -7,6 +7,8 @@ uses
   SysUtils,
   Classes,
   GR32,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
@@ -25,11 +27,16 @@ type
     FPathExport: string;
     RelativePath: boolean;
     KMLFile: TextFile;
+    FTilesToProcess: Int64;
+    FTilesProcessed: Int64;
     procedure KmlFileWrite(ATile: TPoint; AZoom, level: byte);
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APath: string;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
@@ -51,6 +58,9 @@ uses
   i_CoordConverter;
 
 constructor TThreadExportKML.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APath: string;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
@@ -61,7 +71,13 @@ constructor TThreadExportKML.Create(
   ARelativePath: boolean
 );
 begin
-  inherited Create(APolygon, Azoomarr);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon,
+    Azoomarr
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FPathExport := APath;
@@ -110,7 +126,7 @@ begin
   Write(KMLFile, ToFile);
   inc(FTilesProcessed);
   if FTilesProcessed mod 100 = 0 then begin
-    ProgressFormUpdateOnProgress;
+    ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
   end;
   if level < Length(FZooms) then begin
     VZoom := FZooms[level];
@@ -164,8 +180,9 @@ begin
     end;
   end;
   FTilesProcessed := 0;
-  ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files);
-  ProgressFormUpdateOnProgress;
+  ProgressInfo.Caption := SAS_STR_ExportTiles;
+  ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files;
+  ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
   try
     AssignFile(KMLFile, FPathExport);
     Rewrite(KMLFile);
@@ -183,7 +200,7 @@ begin
     Write(KMLFile, ToFile);
     CloseFile(KMLFile);
   finally
-    ProgressFormUpdateOnProgress;
+    ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
   end;
 end;
 

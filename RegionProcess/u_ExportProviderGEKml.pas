@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_LanguageManager,
@@ -20,10 +21,14 @@ type
     FFrame: TfrExportGEKml;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -43,16 +48,23 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadExportKML,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TExportProviderKml }
 
 constructor TExportProviderGEKml.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -63,6 +75,8 @@ begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TExportProviderGEKml.Destroy;
@@ -127,6 +141,10 @@ var
   VMapType: TMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
+  VForm: TfrmProgressSimple;
 begin
   inherited;
   for i:=0 to 23 do ZoomArr[i]:=FFrame.chklstZooms.Checked[i];
@@ -134,7 +152,24 @@ begin
   path:=FFrame.edtTargetFile.Text;
   RelativePath:=FFrame.chkUseRelativePath.Checked;
   NotSaveNotExists:=FFrame.chkNotSaveNotExists.Checked;
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  VForm :=
+    TfrmProgressSimple.Create(
+      Application,
+      FAppClosingNotifier,
+      FTimerNoifier,
+      VCancelNotifierInternal,
+      VProgressInfo
+    );
+
   TThreadExportKML.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     path,
     FProjectionFactory,
     FVectorItmesFactory,

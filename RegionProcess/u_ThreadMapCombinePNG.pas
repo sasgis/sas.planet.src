@@ -10,6 +10,7 @@ uses
   GR32,
   LibPNG,
   i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_LocalCoordConverter,
   i_VectorItemLonLat,
@@ -31,6 +32,9 @@ type
     ); override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       ATargetConverter: ILocalCoordConverter;
       AImageProvider: IBitmapLayerProvider;
@@ -90,6 +94,9 @@ end;
 { TThreadMapCombinePNG }
 
 constructor TThreadMapCombinePNG.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   ATargetConverter: ILocalCoordConverter;
   AImageProvider: IBitmapLayerProvider;
@@ -101,6 +108,9 @@ constructor TThreadMapCombinePNG.Create(
 );
 begin
   inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
     APolygon,
     ATargetConverter,
     AImageProvider,
@@ -138,8 +148,6 @@ begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
-  FTilesProcessed := 0;
-  FTilesToProcess := VMapPieceSize.Y;
   if FWithAlpha then begin
     VPngColorType := PNG_COLOR_TYPE_RGB_ALPHA;
     VLineProvider :=
@@ -198,8 +206,7 @@ begin
               Break;
             end;
             if i mod 256 = 0 then begin
-              FTilesProcessed := i;
-              ProgressFormUpdateOnProgress;
+              ProgressFormUpdateOnProgress(i/info_ptr.height);
             end;
           end;
         finally
