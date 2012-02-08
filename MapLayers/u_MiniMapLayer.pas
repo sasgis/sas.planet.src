@@ -272,7 +272,7 @@ var
   VConverter: ICoordConverter;
   VVisualMapCenterInRelative: TDoublePoint;
   VVisualMapCenterInLayerMap: TDoublePoint;
-  VLocalTopLeftAtMap: TDoublePoint;
+  VLocalTopLeftAtMap: TPoint;
   VLayerSize: TPoint;
 begin
   VVisualMapCenter := ANewVisualCoordConverter.GetCenterMapPixelFloat;

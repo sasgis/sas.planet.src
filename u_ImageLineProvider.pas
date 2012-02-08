@@ -301,7 +301,7 @@ begin
       VPreparedLocalRect,
       FZoom,
       FMainGeoConverter,
-      DoublePoint(VCurrentPieceMapRect.TopLeft)
+      VCurrentPieceMapRect.TopLeft
     );
 end;
 

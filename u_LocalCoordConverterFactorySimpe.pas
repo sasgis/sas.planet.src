@@ -46,7 +46,7 @@ type
       ALocalRect: TRect;
       AZoom: Byte;
       AGeoConverter: ICoordConverter;
-      ALocalTopLeftAtMap: TDoublePoint
+      ALocalTopLeftAtMap: TPoint
     ): ILocalCoordConverter;
     function CreateForTile(
       ATile: TPoint;
@@ -123,7 +123,7 @@ begin
   Result := TLocalCoordConverterNoScale.Create(
     Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
     ASource.ProjectionInfo,
-    DoublePoint(VResultPixelRect.TopLeft)
+    VResultPixelRect.TopLeft
   );
 end;
 
@@ -177,7 +177,7 @@ begin
   Result := TLocalCoordConverterNoScale.Create(
     Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
     FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
-    DoublePoint(VResultPixelRect.TopLeft)
+    VResultPixelRect.TopLeft
   );
 end;
 
@@ -202,7 +202,7 @@ function TLocalCoordConverterFactorySimpe.CreateConverterNoScale(
   ALocalRect: TRect;
   AZoom: Byte;
   AGeoConverter: ICoordConverter;
-  ALocalTopLeftAtMap: TDoublePoint
+  ALocalTopLeftAtMap: TPoint
 ): ILocalCoordConverter;
 begin
   Result := TLocalCoordConverterNoScale.Create(
@@ -226,7 +226,7 @@ begin
   Result := TLocalCoordConverterNoScale.Create(
     VBitmapTileRect,
     FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
-    DoublePoint(VPixelRect.TopLeft)
+    VPixelRect.TopLeft
   );
 end;
 

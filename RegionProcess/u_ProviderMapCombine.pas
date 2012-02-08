@@ -265,7 +265,7 @@ begin
       Rect(0, 0, VMapSize.X, VMapSize.Y),
       VZoom,
       VGeoConverter,
-      DoublePoint(VMapRect.TopLeft)
+      VMapRect.TopLeft
     );
 
   VPrTypes := TInterfaceList.Create;

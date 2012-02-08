@@ -42,7 +42,7 @@ type
       ALocalRect: TRect;
       AZoom: Byte;
       AGeoConverter: ICoordConverter;
-      ALocalTopLeftAtMap: TDoublePoint
+      ALocalTopLeftAtMap: TPoint
     ): ILocalCoordConverter;
     function CreateForTile(
       ATile: TPoint;

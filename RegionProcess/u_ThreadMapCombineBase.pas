@@ -151,7 +151,7 @@ begin
           Rect(0, 0, VMapPieceSize.X, VMapPieceSize.Y),
           FTargetConverter.Zoom,
           FTargetConverter.GeoConverter,
-          DoublePoint(VCurrentPieceRect.TopLeft)
+          VCurrentPieceRect.TopLeft
         );
       if (FSplitCount.X > 1) or (FSplitCount.Y > 1) then begin
         VCurrentFileName := FFilePath + FFileName + '_' + inttostr(i) + '-' + inttostr(j) + FFileExt;

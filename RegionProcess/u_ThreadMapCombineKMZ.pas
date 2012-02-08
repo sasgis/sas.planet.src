@@ -162,7 +162,7 @@ begin
                   VLocalRect,
                   ALocalConverter.Zoom,
                   VGeoConverter,
-                  DoublePoint(VPixelRect.TopLeft)
+                  VPixelRect.TopLeft
                 );
               if AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VBmp, VLocalConverter) then begin
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
