@@ -147,7 +147,6 @@ var
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
-  VForm: TfrmProgressSimple;
 begin
   inherited;
   for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
@@ -163,14 +162,13 @@ begin
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 
-  VForm :=
-    TfrmProgressSimple.Create(
-      Application,
-      FAppClosingNotifier,
-      FTimerNoifier,
-      VCancelNotifierInternal,
-      VProgressInfo
-    );
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
 
   TThreadExportYaMobileV4.Create(
     VCancelNotifierInternal,

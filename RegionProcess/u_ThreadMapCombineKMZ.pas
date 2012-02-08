@@ -13,7 +13,6 @@ uses
   i_VectorItemLonLat,
   i_LocalCoordConverterFactorySimpe,
   t_GeoTypes,
-  u_ResStrings,
   u_ThreadMapCombineBase;
 
 type

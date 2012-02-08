@@ -7,7 +7,6 @@ uses
   i_OperationNotifier,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
-  i_BitmapPostProcessingConfig,
   u_MapType;
 
 type

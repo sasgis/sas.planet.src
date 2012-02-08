@@ -272,7 +272,6 @@ begin
     Vbmp32crop.Width := sizeim;
     Vbmp32crop.Height := sizeim;
     VTilesToProcess := 0;
-    VTilesProcessed := 0;
     SetLength(VTileIterators, Length(FZooms));
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];

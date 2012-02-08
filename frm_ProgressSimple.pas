@@ -32,7 +32,6 @@ uses
   ExtCtrls,
   RarProgress,
   i_JclNotify,
-  i_OperationNotifier,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
   u_CommonFormAndFrameParents;

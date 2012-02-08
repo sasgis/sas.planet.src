@@ -79,7 +79,7 @@ uses
   i_MarksSimple,
   i_CoordConverter,
   i_LocalCoordConverter,
-  i_OperationNotifier,
+  
   i_RegionProcessProgressInfo,
   i_VectorItemProjected,
   i_BitmapLayerProvider,
@@ -223,7 +223,6 @@ var
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
-  VForm: TfrmProgressSimple;
 begin
   Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
@@ -320,14 +319,13 @@ begin
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 
-  VForm :=
-    TfrmProgressSimple.Create(
-      Application,
-      FAppClosingNotifier,
-      FTimerNoifier,
-      VCancelNotifierInternal,
-      VProgressInfo
-    );
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
 
   VRecolorConfig := nil;
   if FFrame.chkUseRecolor.Checked then begin

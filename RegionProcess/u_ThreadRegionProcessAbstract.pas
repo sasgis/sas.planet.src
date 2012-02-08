@@ -8,8 +8,7 @@ uses
   i_JclNotify,
   i_VectorItemLonLat,
   i_OperationNotifier,
-  i_RegionProcessProgressInfo,
-  frm_ProgressSimple;
+  i_RegionProcessProgressInfo;
 
 type
   TThreadRegionProcessAbstract = class(TThread)
