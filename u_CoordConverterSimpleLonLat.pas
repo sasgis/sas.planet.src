@@ -31,6 +31,7 @@ type
   protected
     FExct: Double;
     function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
+    function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
@@ -41,6 +42,7 @@ implementation
 
 uses
   Math,
+  u_CoordConverterRoutines,
   u_Datum;
 
 { TCoordConverterSimpleLonLat }
@@ -56,21 +58,8 @@ begin
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
-var
-  VLL: TDoublePoint;
-  b, bs: extended;
 begin
-  VLL := ALL;
-  Vll.x := Vll.x * (Pi / 180);
-  Vll.y := Vll.y * (Pi / 180);
-  result.x := Datum.GetSpheroidRadiusA * Vll.x;
-
-  bs := FExct * sin(VLl.y);
-  b := Tan((Vll.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (FExct / 2));
-  if b <= 0 then begin
-    b := 0.00000000000001;
-  end;
-  result.y := Datum.GetSpheroidRadiusA * Ln(b);
+  Result:=Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALl);
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(
@@ -78,6 +67,11 @@ function TCoordConverterSimpleLonLat.LonLat2RelativeInternal(
 begin
   Result.x := (0.5 + XY.x / 360);
   Result.y := (0.5 - XY.y / 360);
+end;
+
+function TCoordConverterSimpleLonLat.Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint;
+begin
+  Result:=Ellipsoid_Metr2LonLat(Datum.GetSpheroidRadiusA, FExct, AMm);
 end;
 
 function TCoordConverterSimpleLonLat.Relative2LonLatInternal(
