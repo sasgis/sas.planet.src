@@ -192,6 +192,7 @@ var
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
   VLine: IProjectedPathLine;
+  VIndex: Integer;
 begin
   Result := False;
   VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
@@ -217,7 +218,7 @@ begin
                     VRectWithDelta,
                     TEnumDoublePointMapPixelToLocalPixel.Create(
                       ALocalConverter,
-                      VProjected.GetEnum
+                      VLine.GetEnum
                     )
                   )
                 );
@@ -237,11 +238,19 @@ begin
                 if Length(FPathFixedPoints) < VPointsProcessedCount then begin
                   SetLength(FPathFixedPoints, VPointsProcessedCount);
                 end;
+                VIndex := 0;
                 for i := 0 to VPointsProcessedCount - 1 do begin
                   VPoint := FPreparedPointsAggreagtor.Points[i];
-                  FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
+                  if PointIsEmpty(VPoint) then begin
+                    VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+                    VPolygon.NewLine;
+                    VIndex := 0;
+                  end else begin
+                    FPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
+                    Inc(VIndex);
+                  end;
                 end;
-                VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
+                VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
               end;
             end;
           end;
