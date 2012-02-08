@@ -841,8 +841,8 @@ end;
 function TCoordConverterBasic.PixelPosFloat2PixelPosInternal(
   const XY: TDoublePoint; Azoom: byte): TPoint;
 begin
-  Result.X := Trunc(RoundTo(XY.X, -2));
-  Result.Y := Trunc(RoundTo(XY.Y, -2));
+  Result.X := Trunc(XY.X + 0.005);
+  Result.Y := Trunc(XY.Y + 0.005);
 end;
 
 function TCoordConverterBasic.PixelPosFloat2RelativeInternal(
@@ -918,11 +918,11 @@ end;
 function TCoordConverterBasic.PixelRectFloat2PixelRectInternal(
   const XY: TDoubleRect; AZoom: byte): TRect;
 begin
-  Result.Left := Trunc(RoundTo(XY.Left, -2));
-  Result.Top := Trunc(RoundTo(XY.Top, -2));
+  Result.Left := Trunc(XY.Left + 0.005);
+  Result.Top := Trunc(XY.Top + 0.005);
 
-  Result.Right := Ceil(RoundTo(XY.Right, -2));
-  Result.Bottom := Ceil(RoundTo(XY.Bottom, -2));
+  Result.Right := Trunc(XY.Right + 0.005);
+  Result.Bottom := Trunc(XY.Bottom + 0.005);
 end;
 
 function TCoordConverterBasic.PixelRectFloat2RelativeRectInternal(
@@ -949,11 +949,11 @@ end;
 function TCoordConverterBasic.PixelRectFloat2TileRectInternal(
   const XY: TDoubleRect; AZoom: byte): TRect;
 begin
-  Result.Left := Trunc(RoundTo(XY.Left / 256, -2));
-  Result.Top := Trunc(RoundTo(XY.Top / 256, -2));
+  Result.Left := Trunc(XY.Left / 256 + 0.005);
+  Result.Top := Trunc(XY.Top / 256 + 0.005);
 
-  Result.Right := Ceil(RoundTo(XY.Right / 256, -2));
-  Result.Bottom := Ceil(RoundTo(XY.Bottom / 256, -2));
+  Result.Right := Ceil(XY.Right / 256 + 0.005);
+  Result.Bottom := Ceil(XY.Bottom / 256 + 0.005);
 end;
 
 //------------------------------------------------------------------------------
@@ -1057,8 +1057,8 @@ end;
 function TCoordConverterBasic.TilePosFloat2TilePosInternal(
   const XY: TDoublePoint; Azoom: byte): TPoint;
 begin
-  Result.X := Trunc(RoundTo(XY.X, -2));
-  Result.Y := Trunc(RoundTo(XY.Y, -2));
+  Result.X := Trunc(XY.X + 0.005);
+  Result.Y := Trunc(XY.Y + 0.005);
 end;
 
 //------------------------------------------------------------------------------
@@ -1134,11 +1134,11 @@ end;
 function TCoordConverterBasic.TileRectFloat2TileRectInternal(
   const XY: TDoubleRect; AZoom: byte): TRect;
 begin
-  Result.Left := Trunc(RoundTo(XY.Left / 256, -2));
-  Result.Top := Trunc(RoundTo(XY.Top / 256, -2));
+  Result.Left := Trunc(XY.Left / 256 + 0.005);
+  Result.Top := Trunc(XY.Top / 256 + 0.005);
 
-  Result.Right := Ceil(RoundTo(XY.Right / 256, -2));
-  Result.Bottom := Ceil(RoundTo(XY.Bottom / 256, -2));
+  Result.Right := Trunc(XY.Right / 256 + 0.005);
+  Result.Bottom := Trunc(XY.Bottom / 256 + 0.005);
 end;
 
 //------------------------------------------------------------------------------
@@ -1149,8 +1149,8 @@ var
   VPixelsAtZoom: Double;
 begin
   VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
-  Result.X := Trunc(RoundTo(XY.X * VPixelsAtZoom, -2));
-  Result.Y := Trunc(RoundTo(XY.Y * VPixelsAtZoom, -2));
+  Result.X := Trunc(XY.X * VPixelsAtZoom + 0.005);
+  Result.Y := Trunc(XY.Y * VPixelsAtZoom + 0.005);
 end;
 
 function TCoordConverterBasic.Relative2PixelPosFloatInternal(
@@ -1169,8 +1169,8 @@ var
   VTilesAtZoom: Double;
 begin
   VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
-  Result.X := Trunc(RoundTo(XY.X * VTilesAtZoom, -2));
-  Result.Y := Trunc(RoundTo(XY.Y * VTilesAtZoom, -2));
+  Result.X := Trunc(XY.X * VTilesAtZoom + 0.005);
+  Result.Y := Trunc(XY.Y * VTilesAtZoom + 0.005);
 end;
 
 function TCoordConverterBasic.Relative2TilePosFloatInternal(
@@ -1202,8 +1202,8 @@ begin
   Result.Left := Trunc(XY.Left * VPixelsAtZoom);
   Result.Top := Trunc(XY.Top * VPixelsAtZoom);
 
-  Result.Right := Ceil(XY.Right * VPixelsAtZoom);
-  Result.Bottom := Ceil(XY.Bottom * VPixelsAtZoom);
+  Result.Right := Trunc(XY.Right * VPixelsAtZoom);
+  Result.Bottom := Trunc(XY.Bottom * VPixelsAtZoom);
 end;
 
 function TCoordConverterBasic.RelativeRect2PixelRectFloatInternal(
@@ -1230,8 +1230,8 @@ begin
   Result.Left := Trunc((XY.Left) * VTilesAtZoom);
   Result.Top := Trunc((XY.Top) * VTilesAtZoom);
 
-  Result.Right := Ceil((XY.Right) * VTilesAtZoom);
-  Result.Bottom := Ceil((XY.Bottom) * VTilesAtZoom);
+  Result.Right := Trunc((XY.Right) * VTilesAtZoom);
+  Result.Bottom := Trunc((XY.Bottom) * VTilesAtZoom);
 end;
 
 function TCoordConverterBasic.RelativeRect2TileRectFloatInternal(
