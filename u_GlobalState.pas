@@ -291,7 +291,14 @@ var
   VFilesIterator: IFileNameIterator;
   VCoordConverterFactorySimple: TCoordConverterFactorySimple;
 begin
-  FProgramPath := ExtractFilePath(ParamStr(0));
+  if ModuleIsLib then begin
+    // run as DLL or PACKAGE
+    FProgramPath := GetModuleName(HInstance);
+    FProgramPath := ExtractFilePath(FProgramPath);
+  end else begin
+    // run as EXE
+    FProgramPath := ExtractFilePath(ParamStr(0));
+  end;
   FAppClosingNotifier := TJclBaseNotifier.Create;
   FMainConfigProvider := TSASMainConfigProvider.Create(FProgramPath, ExtractFileName(ParamStr(0)), HInstance);
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
@@ -351,8 +358,10 @@ begin
       FPerfCounterList
     );
 
-  FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
-  FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
+  if (not ModuleIsLib) then begin
+    FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
+    FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
+  end;
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
@@ -597,13 +606,16 @@ begin
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
-  FMainFormConfig.ReadConfig(MainConfigProvider);
-  FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
-  FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
-  FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
-  FMarkPictureList.ReadConfig(MainConfigProvider);
-  FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
-  FMarksDb.ReadConfig(MainConfigProvider);
+
+  if (not ModuleIsLib) then begin
+    FMainFormConfig.ReadConfig(MainConfigProvider);
+    FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
+    FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+    FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+    FMarkPictureList.ReadConfig(MainConfigProvider);
+    FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
+    FMarksDb.ReadConfig(MainConfigProvider);
+  end;
 end;
 
 procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);
@@ -616,6 +628,9 @@ var
   Ini: TMeminifile;
   VLocalMapsConfig: IConfigDataWriteProvider;
 begin
+  if ModuleIsLib then
+    Exit;
+
   Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
