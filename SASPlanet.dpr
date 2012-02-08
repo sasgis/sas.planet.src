@@ -254,6 +254,7 @@ uses
   u_TileDownloaderSimple in 'u_TileDownloaderSimple.pas',
   u_DownloaderHttpWithTTL in 'u_DownloaderHttpWithTTL.pas',
   i_CoordConverter in 'i_CoordConverter.pas',
+  u_CoordConverterRoutines in 'u_CoordConverterRoutines.pas',
   u_CoordConverterAbstract in 'u_CoordConverterAbstract.pas',
   u_CoordConverterBasic in 'u_CoordConverterBasic.pas',
   u_CoordConverterMercatorOnEllipsoid in 'u_CoordConverterMercatorOnEllipsoid.pas',

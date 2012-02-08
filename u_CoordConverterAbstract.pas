@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -56,6 +56,7 @@ type
     procedure CheckLonLatRectInternal(var XY: TDoubleRect); virtual; stdcall; abstract;
 
     function LonLat2MetrInternal(const Ll: TDoublePoint): TDoublePoint; virtual; stdcall; abstract;
+    function Metr2LonLatInternal(const Mm: TDoublePoint): TDoublePoint; virtual; stdcall; abstract;
 
     function TileRectAtZoomInternal(const AZoom: byte): TRect; virtual; stdcall; abstract;
     function PixelRectAtZoomInternal(const AZoom: byte): TRect; virtual; stdcall; abstract;
@@ -244,6 +245,7 @@ type
     function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
     function GetTileSplitCode: Integer; virtual; stdcall; abstract;
     function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
+    function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
   private
     function GetProjectionEPSG: Integer; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
@@ -996,6 +998,15 @@ begin
   CheckLonLatRectInternal(VXY);
   CheckZoomInternal(VZoom);
   Result := LonLatRect2TileRectFloatInternal(VXY, Vzoom);
+end;
+
+function TCoordConverterAbstract.Metr2LonLat(const AXY: TDoublePoint): TDoublePoint;
+var
+  VXY: TDoublePoint;
+begin
+  VXY := AXY;
+  //CheckMetrPosInternal(VXY);
+  Result := Metr2LonLatInternal(VXY);
 end;
 
 function TCoordConverterAbstract.LonLatRect2PixelRect(const AXY: TDoubleRect;

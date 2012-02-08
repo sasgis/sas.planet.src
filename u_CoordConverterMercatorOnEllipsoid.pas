@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -31,6 +31,7 @@ type
   protected
     FExct: Double;
     function LonLat2MetrInternal(const ALL: TDoublePoint): TDoublePoint; override;
+    function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
@@ -41,6 +42,7 @@ implementation
 
 uses
   Math,
+  u_CoordConverterRoutines,
   u_Datum;
 
 const
@@ -60,18 +62,8 @@ begin
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
-var
-  VLL: TDoublePoint;
-  b, bs: extended;
 begin
-  VLL := ALL;
-  Vll.x := Vll.x * (Pi / 180);
-  Vll.y := Vll.y * (Pi / 180);
-  result.x := Datum.GetSpheroidRadiusA * Vll.x;
-
-  bs := FExct * sin(VLl.y);
-  b := Tan((Vll.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (FExct / 2));
-  result.y := Datum.GetSpheroidRadiusA * Ln(b);
+  Result:=Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALl);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(
@@ -85,6 +77,11 @@ begin
   z := sin(VLl.y * Pi / 180);
   c := (1 / (2 * Pi));
   Result.y := (0.5 - c * (ArcTanh(z) - FExct * ArcTanh(FExct * z)));
+end;
+
+function TCoordConverterMercatorOnEllipsoid.Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint;
+begin
+  Result:=Ellipsoid_Metr2LonLat(Datum.GetSpheroidRadiusA, FExct, AMm);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.Relative2LonLatInternal(
