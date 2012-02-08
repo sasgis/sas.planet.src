@@ -5,6 +5,8 @@ interface
 uses
   Classes,
   i_VectorItemLonLat,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
 
@@ -12,10 +14,13 @@ type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)
   protected
     FZooms: array of Byte;
-    procedure ProgressFormUpdateOnProgress; virtual;
+    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       Azoomarr: array of boolean
     );
@@ -28,6 +33,9 @@ uses
   SysUtils;
 
 constructor TThreadExportAbstract.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   Azoomarr: array of boolean
 );
@@ -35,7 +43,12 @@ var
   i: Integer;
   VZoomCount: Integer;
 begin
-  inherited Create(APolygon);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon
+  );
   SetLength(FZooms, 24);
   VZoomCount := 0;
   for i := 0 to 23 do begin
@@ -60,12 +73,10 @@ begin
     raise Exception.Create('Не выбрано ни одного зума');
 end;
 
-procedure TThreadExportAbstract.ProgressFormUpdateOnProgress;
+procedure TThreadExportAbstract.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressFormUpdateProgressAndLine1(
-    round((FTilesProcessed / FTilesToProcess) * 100),
-    SAS_STR_Processed + ' ' + inttostr(FTilesProcessed)
-  );
+  ProgressInfo.Processed := AProcessed/AToProcess;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)
 end;
 
 end.

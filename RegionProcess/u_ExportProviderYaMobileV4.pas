@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -21,10 +22,14 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -45,16 +50,23 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV4,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TExportProviderYaMaps }
 
 constructor TExportProviderYaMobileV4.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -67,6 +79,8 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TExportProviderYaMobileV4.Destroy;
@@ -130,6 +144,10 @@ var
   Zoomarr:array [0..23] of boolean;
   typemaparr:array of TMapType;
   comprSat,comprMap:byte;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
+  VForm: TfrmProgressSimple;
 begin
   inherited;
   for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
@@ -140,7 +158,24 @@ begin
   comprSat:=FFrame.seSatCompress.Value;
   comprMap:=FFrame.seMapCompress.Value;
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  VForm :=
+    TfrmProgressSimple.Create(
+      Application,
+      FAppClosingNotifier,
+      FTimerNoifier,
+      VCancelNotifierInternal,
+      VProgressInfo
+    );
+
   TThreadExportYaMobileV4.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,

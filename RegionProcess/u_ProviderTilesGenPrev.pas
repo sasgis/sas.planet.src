@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -24,10 +25,14 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -49,18 +54,25 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
   GR32,
   i_ImageResamplerFactory,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadGenPrevZoom,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TProviderTilesGenPrev }
 
 constructor TProviderTilesGenPrev.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -70,11 +82,19 @@ constructor TProviderTilesGenPrev.Create(
   AImageResamplerConfig: IImageResamplerConfig
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    AParent,
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TProviderTilesGenPrev.Destroy;
@@ -140,6 +160,9 @@ var
   VZoomsCount: Integer;
   VFromZoom: Byte;
   VResampler: IImageResamplerFactory;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -164,7 +187,23 @@ begin
     VResampler := FImageResamplerConfig.GetActiveFactory;
   end;
 
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
+
   TThreadGenPrevZoom.Create(
+    VCancelNotifierInternal,
+    VOperationID,
+    VProgressInfo,
     FProjectionFactory,
     FVectorItmesFactory,
     VFromZoom,

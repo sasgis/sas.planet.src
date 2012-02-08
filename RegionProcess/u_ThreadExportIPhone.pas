@@ -9,6 +9,8 @@ uses
   Classes,
   AlSqlite3Wrapper,
   GR32,
+  i_OperationNotifier,
+  i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_CoordConverter,
@@ -45,6 +47,9 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       ACoordConverterFactory: ICoordConverterFactory;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
@@ -74,6 +79,9 @@ uses
   u_BitmapTileVampyreSaver;
 
 constructor TThreadExportIPhone.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   ACoordConverterFactory: ICoordConverterFactory;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
@@ -88,7 +96,13 @@ constructor TThreadExportIPhone.Create(
 var
   i: integer;
 begin
-  inherited Create(APolygon, Azoomarr);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon,
+    Azoomarr
+  );
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
@@ -217,6 +231,8 @@ var
   VTileIterator: ITileIterator;
   VDatabaseName: string;
   VProjectedPolygon: IProjectedPolygon;
+  VTilesToProcess: Int64;
+  VTilesProcessed: Int64;
 begin
   inherited;
   if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
@@ -255,8 +271,8 @@ begin
 
     Vbmp32crop.Width := sizeim;
     Vbmp32crop.Height := sizeim;
-    FTilesToProcess := 0;
-    FTilesProcessed := 0;
+    VTilesToProcess := 0;
+    VTilesProcessed := 0;
     SetLength(VTileIterators, Length(FZooms));
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
@@ -269,11 +285,13 @@ begin
           PolygLL
         );
       VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-      FTilesToProcess := FTilesToProcess + VTileIterators[i].TilesTotal;
+      VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
     end;
     try
-      ProgressFormUpdateCaption(SAS_STR_ExportTiles, SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_files);
-      ProgressFormUpdateOnProgress;
+      ProgressInfo.Caption := SAS_STR_ExportTiles;
+      ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+      VTilesProcessed := 0;
+      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
       FSqlite3 := nil;
       FSQLite3Lib := TALSqlite3Library.Create;
@@ -374,12 +392,12 @@ begin
                         end;
                       end;
                     end;
-                    inc(FTilesProcessed);
-                    if ((FTilesToProcess < 100) and (FTilesProcessed mod 5 = 0)) or
-                      ((FTilesToProcess >= 100) and (FTilesProcessed mod 50 = 0)) then begin
-                      ProgressFormUpdateOnProgress;
+                    inc(VTilesProcessed);
+                    if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
+                      ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
+                      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
                     end;
-                    if (FTilesProcessed mod 500 = 0) then begin
+                    if (VTilesProcessed mod 500 = 0) then begin
                       SQLiteWriteString('COMMIT TRANSACTION');
                       SQLiteWriteString('BEGIN TRANSACTION');
                     end;
@@ -390,7 +408,7 @@ begin
           finally
             SQLiteWriteString('COMMIT TRANSACTION');
           end;
-          ProgressFormUpdateOnProgress;
+          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         finally
           FSQLite3Lib.sqlite3_close(FSqlite3);
           FSqlite3 := nil;

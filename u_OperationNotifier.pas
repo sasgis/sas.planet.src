@@ -28,7 +28,7 @@ uses
   i_OperationNotifier;
 
 type
-  IOperationNotifierInternal = interface
+  IOperationNotifierInternal = interface(IOperationNotifier)
     procedure NextOperation;
   end;
 

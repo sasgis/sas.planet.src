@@ -9,6 +9,7 @@ uses
   GR32,
   i_OperationNotifier,
   i_BitmapLayerProvider,
+  i_RegionProcessProgressInfo,
   i_LocalCoordConverter,
   i_VectorItemLonLat,
   i_ImageLineProvider,
@@ -23,6 +24,7 @@ type
   TThreadMapCombineECW = class(TThreadMapCombineBase)
   private
     FImageLineProvider: IImageLineProvider;
+    FLinesCount: Integer;
     FQuality: Integer;
     function ReadLine(ALine: Integer; var LineR, LineG, LineB: PLineRGB): Boolean;
   protected
@@ -36,6 +38,9 @@ type
     ); override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       ATargetConverter: ILocalCoordConverter;
       AImageProvider: IBitmapLayerProvider;
@@ -55,6 +60,9 @@ uses
   u_ImageLineProvider;
 
 constructor TThreadMapCombineECW.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   ATargetConverter: ILocalCoordConverter;
   AImageProvider: IBitmapLayerProvider;
@@ -66,6 +74,9 @@ constructor TThreadMapCombineECW.Create(
 );
 begin
   inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
     APolygon,
     ATargetConverter,
     AImageProvider,
@@ -100,8 +111,7 @@ begin
     LineB[i] := VRGB[i].B;
   end;
   if ALine mod 256 = 0 then begin
-    FTilesProcessed := ALine;
-    ProgressFormUpdateOnProgress;
+    ProgressFormUpdateOnProgress(ALine/FLinesCount);
   end;
   Result := True;
 end;
@@ -135,8 +145,7 @@ begin
     VGeoConverter := ALocalConverter.GeoConverter;
     VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
     VMapPieceSize := ALocalConverter.GetLocalRectSize;
-    FTilesProcessed := 0;
-    FTilesToProcess := VMapPieceSize.Y;
+    FLinesCount := VMapPieceSize.Y;
     Datum := 'EPSG:' + IntToStr(VGeoConverter.Datum.EPSG);
     Proj := 'EPSG:' + IntToStr(VGeoConverter.GetProjectionEPSG);
     Units := VGeoConverter.GetCellSizeUnits;

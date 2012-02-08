@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -21,10 +22,14 @@ type
     FFrame: TfrTilesDelete;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -44,23 +49,36 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   i_VectorItemProjected,
   u_ThreadDeleteTiles,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TProviderTilesDelete }
 
-constructor TProviderTilesDelete.Create(AParent: TWinControl;
-  ALanguageManager: ILanguageManager; AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet; AGUIConfigList: IMapTypeGUIConfigList;
+constructor TProviderTilesDelete.Create(
+  AParent: TWinControl;
+  ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
+  AMainMapsConfig: IMainMapsConfig;
+  AFullMapsSet: IMapTypeSet;
+  AGUIConfigList: IMapTypeGUIConfigList;
   AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory);
+  AVectorItmesFactory: IVectorItmesFactory
+);
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TProviderTilesDelete.Destroy;
@@ -124,6 +142,9 @@ var
   VDelSize: Cardinal;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
   if (MessageBox(FFrame.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES) then begin
@@ -146,7 +167,23 @@ begin
         ),
         APolygon
       );
+
+    VCancelNotifierInternal := TOperationNotifier.Create;
+    VOperationID := VCancelNotifierInternal.CurrentOperation;
+    VProgressInfo := TRegionProcessProgressInfo.Create;
+
+    TfrmProgressSimple.Create(
+      Application,
+      FAppClosingNotifier,
+      FTimerNoifier,
+      VCancelNotifierInternal,
+      VProgressInfo
+    );
+
     TThreadDeleteTiles.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       APolygon,
       VProjectedPolygon,
       FFrame.cbbZoom.ItemIndex,

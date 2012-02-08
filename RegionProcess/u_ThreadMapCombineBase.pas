@@ -8,6 +8,7 @@ uses
   GR32,
   i_OperationNotifier,
   i_BitmapLayerProvider,
+  i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_CoordConverter,
   i_LocalCoordConverter,
@@ -26,7 +27,7 @@ type
     FFilePath: string;
     FFileExt: string;
   protected
-    procedure ProgressFormUpdateOnProgress; virtual;
+    procedure ProgressFormUpdateOnProgress(AProgress: Double);
     procedure SaveRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -39,6 +40,9 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      AProgressInfo: IRegionProcessProgressInfo;
       APolygon: ILonLatPolygon;
       ATargetConverter: ILocalCoordConverter;
       AImageProvider: IBitmapLayerProvider;
@@ -47,7 +51,6 @@ type
       AFileName: string;
       ASplitCount: TPoint
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -61,6 +64,9 @@ uses
 { TMapCombineThreadBase }
 
 constructor TThreadMapCombineBase.Create(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  AProgressInfo: IRegionProcessProgressInfo;
   APolygon: ILonLatPolygon;
   ATargetConverter: ILocalCoordConverter;
   AImageProvider: IBitmapLayerProvider;
@@ -70,7 +76,12 @@ constructor TThreadMapCombineBase.Create(
   ASplitCount: TPoint
 );
 begin
-  inherited Create(APolygon);
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon
+  );
   FTargetConverter := ATargetConverter;
   FImageProvider := AImageProvider;
   FSplitCount := ASplitCount;
@@ -79,27 +90,14 @@ begin
   FFileName := ChangeFileExt(ExtractFileName(AFileName), '');
   FMapCalibrationList := AMapCalibrationList;
   FConverterFactory := ALocalConverterFactory;
-
-  FTilesToProcess := 1;
-  FTilesProcessed := 0;
 end;
 
-procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress;
-var
-  VProcessed: Integer;
+procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress(AProgress: Double);
 begin
-  VProcessed := round((FTilesProcessed / FTilesToProcess) * 100);
-  ProgressFormUpdateProgressAndLine1(
-    VProcessed,
-    SAS_STR_Processed + ': ' + inttostr(VProcessed) + '%'
-  );
+  ProgressInfo.Processed := AProgress;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%'
 end;
 
-
-destructor TThreadMapCombineBase.Destroy;
-begin
-  inherited;
-end;
 
 procedure TThreadMapCombineBase.ProcessRegion;
 var
@@ -127,17 +125,17 @@ begin
   VProcessTiles := VSizeInTile.X;
   VProcessTiles := VProcessTiles * VSizeInTile.Y;
 
-  ProgressFormUpdateCaption(
-    Format(
-      SAS_STR_MapCombineProgressLine0,
-      [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
-    ),
+  ProgressInfo.Caption :=
     Format(
       SAS_STR_MapCombineProgressCaption,
       [VMapSize.X, VMapSize.Y, FSplitCount.X * FSplitCount.Y]
-    )
-  );
-  ProgressFormUpdateOnProgress;
+    );
+  ProgressInfo.FirstLine :=
+    Format(
+      SAS_STR_MapCombineProgressLine0,
+      [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
+    );
+  ProgressFormUpdateOnProgress(0);
   VMapPieceSize.X := VMapSize.X div FSplitCount.X;
   VMapPieceSize.Y := VMapSize.Y div FSplitCount.Y;
 

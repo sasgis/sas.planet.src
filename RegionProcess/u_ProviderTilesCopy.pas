@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -22,10 +23,14 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
+    FAppClosingNotifier: IJclNotifier;
+    FTimerNoifier: IJclNotifier;
   public
     constructor Create(
       AParent: TWinControl;
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -46,17 +51,24 @@ type
 implementation
 
 uses
+  Forms,
   SysUtils,
+  i_RegionProcessProgressInfo,
+  u_OperationNotifier,
+  u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
   u_ThreadExportToBDB,
   u_ResStrings,
-  u_MapType;
+  u_MapType,
+  frm_ProgressSimple;
 
 { TProviderTilesDelete }
 
 constructor TProviderTilesCopy.Create(
   AParent: TWinControl;
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -69,6 +81,8 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGenerator := ATileNameGenerator;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FTimerNoifier := ATimerNoifier;
 end;
 
 destructor TProviderTilesCopy.Destroy;
@@ -132,6 +146,9 @@ var
   Zoomarr:array [0..23] of boolean;
   typemaparr:array of TMapType;
   Replace:boolean;
+  VCancelNotifierInternal: IOperationNotifierInternal;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
 begin
   for i:=0 to 23 do begin
     ZoomArr[i]:=FFrame.chklstZooms.Checked[i];
@@ -145,8 +162,24 @@ begin
   path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace:=FFrame.chkReplaseTarget.Checked;
 
+
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    VProgressInfo
+  );
+
   if FFrame.cbbNamesType.ItemIndex = 4 then begin
     TThreadExportToBDB.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       path,
       FProjectionFactory,
       FVectorItmesFactory,
@@ -158,6 +191,9 @@ begin
     )
   end else begin
     TThreadExportToFileSystem.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
       path,
       FProjectionFactory,
       FVectorItmesFactory,

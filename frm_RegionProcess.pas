@@ -103,6 +103,8 @@ type
     procedure ExportREG(APolyLL: ILonLatPolygon);
     procedure InitExportsList(
       ALanguageManager: ILanguageManager;
+      AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
@@ -115,6 +117,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AAppClosingNotifier: IJclNotifier;
+      ATimerNoifier: IJclNotifier;
       ALastSelectionInfo: ILastSelectionInfo;
       AMainMapsConfig: IMainMapsConfig;
       AFullMapsSet: IMapTypeSet;
@@ -167,6 +170,7 @@ uses
 constructor TfrmRegionProcess.Create(
   ALanguageManager: ILanguageManager;
   AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   ALastSelectionInfo: ILastSelectionInfo;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
@@ -194,6 +198,8 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   InitExportsList(
     ALanguageManager,
+    AAppClosingNotifier,
+    ATimerNoifier,
     AMainMapsConfig,
     AFullMapsSet,
     AGUIConfigList,
@@ -207,6 +213,8 @@ begin
     TProviderTilesDelete.Create(
       TabSheet4,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -217,6 +225,8 @@ begin
     TProviderTilesGenPrev.Create(
       TabSheet3,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -229,6 +239,8 @@ begin
     TProviderTilesCopy.Create(
       TabSheet6,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -258,6 +270,8 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AViewConfig,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AProjectionFactory,
       AVectorItmesFactory,
       AMarksShowConfig,
@@ -371,6 +385,8 @@ end;
 
 procedure TfrmRegionProcess.InitExportsList(
   ALanguageManager: ILanguageManager;
+  AAppClosingNotifier: IJclNotifier;
+  ATimerNoifier: IJclNotifier;
   AMainMapsConfig: IMainMapsConfig;
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
@@ -386,6 +402,8 @@ begin
     TExportProviderIPhone.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -400,6 +418,8 @@ begin
     TExportProviderIPhone.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -414,6 +434,8 @@ begin
     TExportProviderGEKml.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -426,6 +448,8 @@ begin
     TExportProviderYaMobileV3.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -439,6 +463,8 @@ begin
     TExportProviderYaMobileV4.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -452,6 +478,8 @@ begin
     TExportProviderAUX.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -464,6 +492,8 @@ begin
     TExportProviderZip.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -477,6 +507,8 @@ begin
     TExportProviderTar.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -490,6 +522,8 @@ begin
     TExportProviderJNX.Create(
       pnlExport,
       ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
