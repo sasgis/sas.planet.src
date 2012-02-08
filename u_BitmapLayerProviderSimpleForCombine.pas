@@ -84,8 +84,9 @@ begin
   end;
   if FMapTypeHybr <> nil then begin
     if Result then begin
-      Result := FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
-      if Result then begin
+      if
+        FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True)
+      then begin
         FTempBitmap.CombineMode := cmMerge;
         BlockTransfer(
           ATargetBmp,
@@ -109,8 +110,9 @@ begin
   end;
   if FMarksImageProvider <> nil then begin
     if Result then begin
-      Result := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, FTempBitmap, ALocalConverter);
-      if Result then begin
+      if
+        FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, FTempBitmap, ALocalConverter)
+      then begin
         FTempBitmap.CombineMode := cmMerge;
         BlockTransfer(
           ATargetBmp,
