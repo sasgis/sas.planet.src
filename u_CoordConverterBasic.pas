@@ -162,7 +162,6 @@ implementation
 
 uses
   SysUtils,
-  Math,
   c_CoordConverter,
   u_GeoFun;
 

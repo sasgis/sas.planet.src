@@ -58,8 +58,7 @@ implementation
 uses
   SysUtils,
   i_MapCalibration,
-  u_ResStrings,
-  u_GeoFun;
+  u_ResStrings;
 
 { TMapCombineThreadBase }
 

@@ -70,7 +70,6 @@ type
 implementation
 
 uses
-  u_GeoFun,
   u_LocalCoordConverter;
 
 { TLocalCoordConverterFactorySimpe }

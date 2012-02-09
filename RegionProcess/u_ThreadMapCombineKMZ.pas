@@ -51,7 +51,6 @@ uses
   i_CoordConverter,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
-  u_GeoFun,
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(

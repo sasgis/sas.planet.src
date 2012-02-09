@@ -50,6 +50,7 @@ type
 implementation
 
 uses
+  Types,
   Math,
   SysUtils,
   i_JclNotify,

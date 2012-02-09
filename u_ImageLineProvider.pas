@@ -106,8 +106,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_GeoFun;
+  SysUtils;
 
 { TImageLineProviderAbstract }
 

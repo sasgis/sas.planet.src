@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  Forms,
   i_JclNotify,
   i_VectorItemLonLat,
   i_OperationNotifier,

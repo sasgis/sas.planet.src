@@ -41,7 +41,6 @@ type
 implementation
 
 uses
-  Math,
   u_CoordConverterRoutines,
   u_Datum;
 
