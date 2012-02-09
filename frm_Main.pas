@@ -1090,6 +1090,7 @@ begin
         GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
         GState.ClearStrategyFactory,
+        FTileErrorLogger,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.KmlLayerConfig,
         FConfig.MainMapsConfig.GetActiveKmlLayersSet

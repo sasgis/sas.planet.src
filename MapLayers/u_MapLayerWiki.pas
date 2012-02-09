@@ -27,6 +27,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_LayerBitmapClearStrategy,
   i_InternalPerformanceCounter,
+  i_TileError,
   i_ViewPortState,
   i_VectorDataItemSimple,
   u_MapLayerWithThreadDraw;
@@ -37,6 +38,7 @@ type
     FConfig: IKmlLayerConfig;
     FVectorItmesFactory: IVectorItmesFactory;
     FLayersSet: IActiveMapsSet;
+    FErrorLogger: ITileErrorLogger;
 
     FVectorMapsSet: IMapTypeSet;
     FElments: IInterfaceList;
@@ -148,6 +150,7 @@ type
       AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      AErrorLogger: ITileErrorLogger;
       ATimerNoifier: IJclNotifier;
       AConfig: IKmlLayerConfig;
       ALayersSet: IActiveMapsSet
@@ -170,6 +173,8 @@ uses
   i_TileRectUpdateNotifier,
   u_NotifyEventListener,
   u_TileIteratorByRect,
+  u_TileErrorInfo,
+  u_ResStrings,
   u_DoublePointsAggregator,
   u_IdCacheSimpleThreadSafe,
   u_TileIteratorSpiralByRect;
@@ -185,6 +190,7 @@ constructor TWikiLayer.Create(
   AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  AErrorLogger: ITileErrorLogger;
   ATimerNoifier: IJclNotifier;
   AConfig: IKmlLayerConfig;
   ALayersSet: IActiveMapsSet
@@ -204,6 +210,7 @@ begin
   FConfig := AConfig;
   FLayersSet := ALayersSet;
   FVectorItmesFactory := AVectorItmesFactory;
+  FErrorLogger := AErrorLogger;
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FPointsAgregatorThread := TDoublePointsAggregator.Create;
@@ -284,6 +291,7 @@ var
   VSourceLonLatRect: TDoubleRect;
   VTileSourceRect: TRect;
   VTile: TPoint;
+  VErrorString: string;
 begin
   VZoom := ALocalConverter.GetZoom;
   VSourceGeoConvert := Alayer.GeoConvert;
@@ -297,14 +305,33 @@ begin
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
-    if Alayer.LoadTile(kml, VTile, Vzoom, True, Alayer.CacheVector) then begin
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
-      end else begin
-        for ii := 0 to KML.Count - 1 do begin
-          AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
+    VErrorString := '';
+    try
+      if Alayer.LoadTile(kml, VTile, Vzoom, False, Alayer.CacheVector) then begin
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Break;
+        end else begin
+          for ii := 0 to KML.Count - 1 do begin
+            AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
+          end;
         end;
       end;
+    except
+      on E: Exception do begin
+        VErrorString := E.Message;
+      end;
+    else
+      VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+    end;
+    if VErrorString <> '' then begin
+      FErrorLogger.LogError(
+        TTileErrorInfo.Create(
+          Alayer,
+          VZoom,
+          VTile,
+          VErrorString
+        )
+      );
     end;
     kml := nil;
   end;
