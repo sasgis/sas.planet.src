@@ -57,6 +57,7 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   u_GeoFun,
   i_GPS,
@@ -152,16 +153,22 @@ end;
 
 procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
-  VTargetPoint: TDoublePoint;
   VMarker: IBitmapMarker;
+  VFixedOnView: TDoublePoint;
+  VTargetPoint: TPoint;
 begin
   VMarker := FMarker;
   if VMarker <> nil then begin
-    VTargetPoint := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-    VTargetPoint.X := VTargetPoint.X - VMarker.AnchorPoint.X;
-    VTargetPoint.Y := VTargetPoint.Y - VMarker.AnchorPoint.Y;
-    if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
-      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
+    VTargetPoint :=
+      PointFromDoublePoint(
+        DoublePoint(
+          VFixedOnView.X - VMarker.AnchorPoint.X,
+          VFixedOnView.Y - VMarker.AnchorPoint.Y
+        )
+      );
+    if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
+      ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     end;
   end;
 end;

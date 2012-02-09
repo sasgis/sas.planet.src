@@ -152,7 +152,7 @@ var
   VMarker: IBitmapMarker;
   VGotoLonLat: TDoublePoint;
   VFixedOnView: TDoublePoint;
-  VTargetPoint: TDoublePoint;
+  VTargetPoint: TPoint;
 begin
   inherited;
   VGotoPos := FGotoPos;
@@ -162,10 +162,15 @@ begin
     VConverter := VVisualConverter.GetGeoConverter;
     VMarker := FMarker;
     VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(VGotoLonLat);
-    VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
-    VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
-    if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
-      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+    VTargetPoint :=
+      PointFromDoublePoint(
+        DoublePoint(
+          VFixedOnView.X - VMarker.AnchorPoint.X,
+          VFixedOnView.Y - VMarker.AnchorPoint.Y
+        )
+      );
+    if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
+      ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     end;
   end;
 end;

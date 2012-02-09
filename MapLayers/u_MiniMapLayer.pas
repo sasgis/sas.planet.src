@@ -283,9 +283,13 @@ begin
   VZoom := GetActualZoom(ANewVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
   VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VLocalTopLeftAtMap.X := Trunc(VVisualMapCenterInLayerMap.X - (VLayerSize.X / 2));
-  VLocalTopLeftAtMap.Y := Trunc(VVisualMapCenterInLayerMap.Y - (VLayerSize.Y / 2));
-
+  VLocalTopLeftAtMap :=
+    PointFromDoublePoint(
+      DoublePoint(
+        VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
+        VVisualMapCenterInLayerMap.Y - VLayerSize.Y / 2
+      )
+    );
 
   Result := FCoordConverterFactory.CreateConverterNoScale(
     Rect(0, 0, VLayerSize.X, VLayerSize.Y),
@@ -531,8 +535,7 @@ begin
         VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
         VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
 
-        VCurrTileOnBitmapRect.TopLeft := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-        VCurrTileOnBitmapRect.BottomRight := VBitmapConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+        VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;

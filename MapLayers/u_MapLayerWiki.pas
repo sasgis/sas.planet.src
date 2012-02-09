@@ -399,8 +399,7 @@ begin
           VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
           VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
 
-          VCurrTileOnBitmapRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-          VCurrTileOnBitmapRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+          VCurrTileOnBitmapRect:= ALocalConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);

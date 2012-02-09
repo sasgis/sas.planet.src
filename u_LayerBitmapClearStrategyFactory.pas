@@ -66,6 +66,7 @@ implementation
 uses
   t_GeoTypes,
   i_CoordConverter,
+  u_GeoFun,
   u_LayerBitmapClearStrategy;
 
 { TLayerBitmapClearStrategyFactory }
@@ -94,8 +95,8 @@ function TLayerBitmapClearStrategyFactory.GetStrategeForSameZoom(
 var
   VLocalSizeSource: TPoint;
   VLocalSizeTarget: TPoint;
-  VMapCenterSource: TDoublePoint;
-  VMapCenterTarget: TDoublePoint;
+  VMapCenterSource: TPoint;
+  VMapCenterTarget: TPoint;
   VMapRectSource: TRect;
   VMapRectTarget: TRect;
   VTargetRectInSource: TRect;
@@ -110,10 +111,10 @@ begin
   then begin
     VCounterContext := FMoveImageCreateCounter.StartOperation;
     try
-      VMapCenterSource := ASourceConverter.GetCenterMapPixelFloat;
-      VMapCenterTarget := ATargetConverter.GetCenterMapPixelFloat;
-      VDelta.X := Trunc(VMapCenterSource.X - VMapCenterTarget.X);
-      VDelta.Y := Trunc(VMapCenterSource.Y - VMapCenterTarget.Y);
+      VMapCenterSource := PointFromDoublePoint(ASourceConverter.GetCenterMapPixelFloat);
+      VMapCenterTarget := PointFromDoublePoint(ATargetConverter.GetCenterMapPixelFloat);
+      VDelta.X := VMapCenterSource.X - VMapCenterTarget.X;
+      VDelta.Y := VMapCenterSource.Y - VMapCenterTarget.Y;
       Result := TLayerBitmapClearStrategyMoveImage.Create(FMoveImageCounter, VDelta);
     finally
       FMoveImageCreateCounter.FinishOperation(VCounterContext);

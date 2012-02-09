@@ -67,6 +67,7 @@ implementation
 uses
   i_GUIDListStatic,
   i_VectorItemProjected,
+  u_GeoFun,
   u_ResStrings,
   u_MapType;
 
@@ -103,7 +104,7 @@ begin
       if VProjected.Count > 0 then begin
         VLine := VProjected.Item[0];
         VBounds := VLine.Bounds;
-        VPixelRect := Vmt.GeoConvert.PixelRectFloat2PixelRect(VBounds, VZoom);
+        VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
         VTileRect := Vmt.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
         numd := (VTileRect.Right - VTileRect.Left);
         numd := numd * (VTileRect.Bottom - VTileRect.Top);

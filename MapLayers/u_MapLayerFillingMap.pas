@@ -208,8 +208,7 @@ begin
             VCurrTilePixelRect := VGeoConvert.LonLatRect2PixelRect(VLonLatRect, VZoom);
           end;
 
-          VCurrTilePixelRectAtBitmap.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-          VCurrTilePixelRectAtBitmap.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+          VCurrTilePixelRectAtBitmap := VLocalConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;

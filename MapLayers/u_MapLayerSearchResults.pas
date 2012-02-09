@@ -48,7 +48,8 @@ implementation
 
 uses
   i_CoordConverter,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_GeoFun;
 
 { TSearchResultsLayer }
 
@@ -110,7 +111,7 @@ var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
   VVisualConverter: ILocalCoordConverter;
-  VTargetPoint: TDoublePoint;
+  VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
   VMarker: IBitmapMarker;
   i:integer;
@@ -124,9 +125,14 @@ begin
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
-      VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
-      VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
-      ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+      VTargetPoint :=
+        PointFromDoublePoint(
+          DoublePoint(
+            VFixedOnView.X - VMarker.AnchorPoint.X,
+            VFixedOnView.Y - VMarker.AnchorPoint.Y
+          )
+        );
+      ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     end;
   end;
 end;

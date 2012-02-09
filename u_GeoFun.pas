@@ -36,9 +36,12 @@ type
    name:String;
    descr:String;
   end;
+  TRectRounding = (rrClosest, rrOutside, rrInside);
 
   function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
 
+  function PointFromDoublePoint(APoint: TDoublePoint): TPoint;
+  function RectFromDoubleRect(ARect: TDoubleRect; Rounding: TRectRounding): TRect;
   function DoublePoint(APoint: TPoint): TDoublePoint; overload;
   function DoublePoint(X, Y: Double): TDoublePoint; overload;
   function DoubleRect(ARect: TRect): TDoubleRect; overload;
@@ -72,6 +75,43 @@ const
   CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
 
 implementation
+
+function PointFromDoublePoint(APoint: TDoublePoint): TPoint;
+begin
+  Result.X := Trunc(APoint.X + 0.005);
+  Result.Y := Trunc(APoint.Y + 0.005);
+end;
+
+function RectFromDoubleRect(ARect: TDoubleRect; Rounding: TRectRounding): TRect;
+begin
+  case Rounding of
+    rrClosest:
+      begin
+        Result.Left := Round(ARect.Left);
+        Result.Top := Round(ARect.Top);
+        Result.Right := Round(ARect.Right);
+        Result.Bottom := Round(ARect.Bottom);
+      end;
+
+    rrInside:
+      begin
+        Result.Left := Ceil(ARect.Left - 0.005);
+        Result.Top := Ceil(ARect.Top - 0.005);
+        Result.Right := Floor(ARect.Right + 0.005);
+        Result.Bottom := Floor(ARect.Bottom + 0.005);
+        if Result.Right < Result.Left then Result.Right := Result.Left;
+        if Result.Bottom < Result.Top then Result.Bottom := Result.Top;
+      end;
+
+    rrOutside:
+      begin
+        Result.Left := Floor(ARect.Left + 0.005);
+        Result.Top := Floor(ARect.Top + 0.005);
+        Result.Right := Ceil(ARect.Right - 0.005);
+        Result.Bottom := Ceil(ARect.Bottom - 0.005);
+      end;
+  end;
+end;
 
 function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
 begin

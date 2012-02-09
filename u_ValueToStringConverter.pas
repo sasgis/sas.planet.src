@@ -70,6 +70,7 @@ implementation
 
 uses
   SysUtils,
+  Math,
   u_ResStrings;
 
 { TValueToStringConverter }
@@ -125,29 +126,33 @@ end;
 function TValueToStringConverter.DegrToStr(ADegr: Double): string;
 var
   VDegr: Double;
-  VMinute: Integer;
+  VInt: Integer;
 begin
   VDegr := abs(ADegr);
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
-      result := IntToStr(Trunc(VDegr)) + '°';
-      VDegr := Frac(VDegr+0.0000000001) * 60;
-      VMinute := Trunc(VDegr);
-      if VMinute < 10 then begin
-        result := result + '0' + IntToStr(VMinute) + '''';
+      VDegr := RoundTo(VDegr, -10);
+      VInt := Trunc(VDegr);
+      result := IntToStr(VInt) + '°';
+      VDegr := (VDegr - VInt)* 60;
+      VInt := Trunc(VDegr);
+      if VInt < 10 then begin
+        Result := result + '0' + IntToStr(VInt) + '''';
       end else begin
-        result := result + IntToStr(VMinute) + '''';
+        Result := result + IntToStr(VInt) + '''';
       end;
-      VDegr := Frac(VDegr) * 60;
+      VDegr := (VDegr - VInt) * 60;
       Result := Result + FormatFloat('00.00', VDegr) + '"';
     end;
     dshCharDegrMin, dshSignDegrMin: begin
-      result := IntToStr(Trunc(VDegr))+'°';
-      VDegr := Frac(VDegr) * 60;
-      result := result + FormatFloat('00.0000', VDegr) + '''';
+      VDegr := RoundTo(VDegr, -10);
+      VInt := Trunc(VDegr);
+      Result := IntToStr(VInt)+'°';
+      VDegr := (VDegr - VInt)* 60;
+      Result := Result + FormatFloat('00.0000', VDegr) + '''';
     end;
     dshCharDegr, dshSignDegr: begin
-      result := FormatFloat('0.000000', VDegr) + '°';
+      Result := FormatFloat('0.000000', VDegr) + '°';
     end;
   end;
 end;

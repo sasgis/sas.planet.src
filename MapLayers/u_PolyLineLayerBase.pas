@@ -236,6 +236,7 @@ uses
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
   u_NotifyEventListener,
+  u_GeoFun,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual;
@@ -773,8 +774,13 @@ begin
     (APosOnBitmap.y < ABitmapSize.Y)
   then begin
     VHalfSize := ASize / 2;
-    VRect.Left := Trunc(APosOnBitmap.X - VHalfSize);
-    VRect.Top := Trunc(APosOnBitmap.Y - VHalfSize);
+    VRect.TopLeft :=
+      PointFromDoublePoint(
+        DoublePoint(
+          APosOnBitmap.X - VHalfSize,
+          APosOnBitmap.Y - VHalfSize
+        )
+      );
     VRect.Right := VRect.Left + ASize;
     VRect.Bottom := VRect.Top + ASize;
     ABuffer.FillRectTS(VRect, ARectColor);

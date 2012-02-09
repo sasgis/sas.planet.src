@@ -118,6 +118,9 @@ type
 
 implementation
 
+uses
+  u_GeoFun;
+
 constructor TLocalCoordConverterBase.Create(
   ALocalRect: TRect;
   AProjection: IProjectionInfo
@@ -232,7 +235,7 @@ var
   VResultPoint: TDoublePoint;
 begin
   VResultPoint := LonLat2LocalPixelFloat(APoint);
-  Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
+  Result := PointFromDoublePoint(VResultPoint);
 end;
 
 function TLocalCoordConverterBase.LonLat2LocalPixelFloat(
@@ -290,7 +293,7 @@ var
   VResultPoint: TDoublePoint;
 begin
   VResultPoint := LocalPixel2MapPixelFloat(APoint);
-  Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
+  Result := PointFromDoublePoint(VResultPoint);
 end;
 
 function TLocalCoordConverter.LocalPixel2MapPixelFloat(
@@ -315,7 +318,7 @@ var
   VResultPoint: TDoublePoint;
 begin
   VResultPoint := MapPixel2LocalPixelFloat(APoint);
-  Result := Point(Trunc(VResultPoint.X), Trunc(VResultPoint.Y));
+  Result := PointFromDoublePoint(VResultPoint);
 end;
 
 function TLocalCoordConverter.MapPixel2LocalPixelFloat(

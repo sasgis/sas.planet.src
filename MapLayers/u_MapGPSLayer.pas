@@ -201,8 +201,7 @@ begin
             VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
             VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
 
-            VCurrTileOnBitmapRect.TopLeft := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.TopLeft);
-            VCurrTileOnBitmapRect.BottomRight := VLocalConverter.MapPixel2LocalPixel(VCurrTilePixelRect.BottomRight);
+            VCurrTileOnBitmapRect := VLocalConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
             VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
             VTileToDrawBmp.Clear(0);

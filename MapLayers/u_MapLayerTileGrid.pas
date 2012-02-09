@@ -147,8 +147,7 @@ begin
 
       VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
       VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
+      VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
       VTileScreenRect.Left := VLocalRect.Left;
       VTileScreenRect.Right := VLocalRect.Right;
@@ -175,8 +174,7 @@ begin
 
       VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
       VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
-      VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
+      VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
       VTileScreenRect.Top := VLocalRect.Top;
       VTileScreenRect.Bottom := VLocalRect.Bottom;

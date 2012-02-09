@@ -395,7 +395,7 @@ var
   VMarkSize: Integer;
   VFontSize: Integer;
   VMarker: IBitmapMarker;
-  VTargetPoint: TDoublePoint;
+  VTargetPoint: TPoint;
 begin
   Result := False;
   VMarkSize := AMarkPoint.MarkerSize;
@@ -409,9 +409,14 @@ begin
       ABitmapInited := True;
     end;
     VMarker := AMarkPoint.Pic.GetMarkerBySize(VMarkSize);
-    VTargetPoint.X := VLocalPoint.X - VMarker.AnchorPoint.X;
-    VTargetPoint.Y := VLocalPoint.Y - VMarker.AnchorPoint.Y;
-    ATargetBmp.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+    VTargetPoint :=
+      PointFromDoublePoint(
+        DoublePoint(
+          VLocalPoint.X - VMarker.AnchorPoint.X,
+          VLocalPoint.Y - VMarker.AnchorPoint.Y
+        )
+      );
+    ATargetBmp.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     Result := True;
   end;
   if FConfig.ShowPointCaption then begin
@@ -426,8 +431,13 @@ begin
       VTextSize.cx:=VTextSize.cx+2;
       VTextSize.cy:=VTextSize.cy+2;
       FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
-      VDstRect.Left := Trunc(VLocalPoint.x + (VMarkSize / 2));
-      VDstRect.Top := Trunc(VLocalPoint.y - (VMarkSize / 2) - VTextSize.cy / 2);
+      VDstRect.TopLeft :=
+        PointFromDoublePoint(
+          DoublePoint(
+            VLocalPoint.x + VMarkSize / 2,
+            VLocalPoint.y - VMarkSize / 2 - VTextSize.cy / 2
+          )
+        );
       VDstRect.Right := VDstRect.Left + VTextSize.cx;
       VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
       VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);

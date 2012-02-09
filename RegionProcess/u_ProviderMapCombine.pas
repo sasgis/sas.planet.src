@@ -256,7 +256,7 @@ begin
       APolygon
     );
 
-  VMapRect := VGeoConverter.PixelRectFloat2PixelRect(VProjectedPolygon.Bounds, VZoom);;
+  VMapRect := RectFromDoubleRect(VProjectedPolygon.Bounds, rrOutside);
   VMapSize.X := VMapRect.Right - VMapRect.Left;
   VMapSize.Y := VMapRect.Bottom - VMapRect.Top;
 

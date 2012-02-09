@@ -3,6 +3,7 @@ unit u_MapLayerNavToMark;
 interface
 
 uses
+  Types,
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -130,7 +131,7 @@ var
   VDistInPixel: Double;
   VAngle: Double;
   VVisualConverter: ILocalCoordConverter;
-  VTargetPoint: TDoublePoint;
+  VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
   VMarker: IBitmapMarker;
   VMarkerProvider: IBitmapMarkerProvider;
@@ -165,10 +166,15 @@ begin
       VMarker := VMarkerProvider.GetMarker;
     end;
   end;
-  VTargetPoint.X := VFixedOnView.X - VMarker.AnchorPoint.X;
-  VTargetPoint.Y := VFixedOnView.Y - VMarker.AnchorPoint.Y;
-  if PixelPointInRect(VTargetPoint, DoubleRect(ALocalConverter.GetLocalRect)) then begin
-    ABuffer.Draw(Trunc(VTargetPoint.X), Trunc(VTargetPoint.Y), VMarker.Bitmap);
+  VTargetPoint :=
+    PointFromDoublePoint(
+      DoublePoint(
+        VFixedOnView.X - VMarker.AnchorPoint.X,
+        VFixedOnView.Y - VMarker.AnchorPoint.Y
+      )
+    );
+  if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
+    ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
   end;
 end;
 

@@ -635,7 +635,7 @@ begin
       try
         for i := Azoom - 1 downto VMinZoom do begin
           VParentZoom := i;
-          VTileParent := FCoordConverter.Relative2Tile(VRelative, i);
+          VTileParent := FCoordConverter.Relative2TilePos(VRelative, i);
           if LoadTile(VBmp, VTileParent, VParentZoom, IgnoreError, ACache)then begin
             VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
             VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
