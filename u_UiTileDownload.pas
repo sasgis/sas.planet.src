@@ -329,6 +329,7 @@ var
   VDownloadResultOk: IDownloadResultOk;
   VResultDownloadError: IDownloadResultError;
   VResultNotNecessary: IDownloadResultNotNecessary;
+  VResultDataNotExists: IDownloadResultDataNotExists;
   VErrorString: string;
 begin
   VResult := AMsg as ITileRequestResult;
@@ -340,6 +341,8 @@ begin
       if FDownloadInfo <> nil then begin
         FDownloadInfo.Add(1, VDownloadResultOk.Size);
       end;
+    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists, VResultDataNotExists) then begin
+      VErrorString := VResultDataNotExists.ReasonText;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
       VErrorString := VResultDownloadError.ErrorText;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
