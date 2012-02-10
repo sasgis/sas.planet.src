@@ -127,29 +127,33 @@ function TValueToStringConverter.DegrToStr(ADegr: Double): string;
 var
   VDegr: Double;
   VInt: Integer;
+  VValue: Integer;
 begin
   VDegr := abs(ADegr);
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
-      VDegr := RoundTo(VDegr, -10);
-      VInt := Trunc(VDegr);
+      VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
+      VInt := Trunc(VValue / (60 * 60 * 100));
+      VValue := VValue - VInt * (60 * 60 * 100);
       result := IntToStr(VInt) + '°';
-      VDegr := (VDegr - VInt)* 60;
-      VInt := Trunc(VDegr);
+
+      VInt := Trunc(VValue / (60 * 100));
+      VValue := VValue - VInt * (60 * 100);
+
       if VInt < 10 then begin
         Result := result + '0' + IntToStr(VInt) + '''';
       end else begin
         Result := result + IntToStr(VInt) + '''';
       end;
-      VDegr := (VDegr - VInt) * 60;
-      Result := Result + FormatFloat('00.00', VDegr) + '"';
+
+      Result := Result + FormatFloat('00.00', VValue / 100) + '"';
     end;
     dshCharDegrMin, dshSignDegrMin: begin
-      VDegr := RoundTo(VDegr, -10);
-      VInt := Trunc(VDegr);
+      VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
+      VInt := Trunc(VValue / (60 * 10000));
+      VValue := VValue - VInt * (60 * 10000);
       Result := IntToStr(VInt)+'°';
-      VDegr := (VDegr - VInt)* 60;
-      Result := Result + FormatFloat('00.0000', VDegr) + '''';
+      Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
     end;
     dshCharDegr, dshSignDegr: begin
       Result := FormatFloat('0.000000', VDegr) + '°';
