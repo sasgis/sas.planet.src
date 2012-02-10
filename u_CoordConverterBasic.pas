@@ -928,7 +928,7 @@ end;
 function TCoordConverterBasic.PixelRectFloat2TileRectInternal(
   const XY: TDoubleRect; AZoom: byte): TRect;
 begin
-  Result := TileRect2PixelRectInternal(RectFromDoubleRect(XY, rrOutside), AZoom);
+  Result := PixelRect2TileRectInternal(RectFromDoubleRect(XY, rrOutside), AZoom);
 end;
 
 //------------------------------------------------------------------------------
