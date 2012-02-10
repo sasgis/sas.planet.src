@@ -58,7 +58,9 @@ uses
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
-  frm_ProgressSimple;
+  frm_ProgressSimple,
+  RegExpr;
+
 
 { TExportProviderJNX }
 
@@ -139,6 +141,27 @@ begin
   end;
 end;
 
+function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
+var
+  VRegExpr: TRegExpr;
+begin
+    VRegExpr  := TRegExpr.Create;
+  try
+    VRegExpr.Expression := AMatchExpr;
+    if VRegExpr.Exec(AStr) then
+    begin
+      if (AMatchID <= VRegExpr.SubExprMatchCount) and (AMatchID >= 0) then
+        Result := VRegExpr.Match[AMatchID]
+      else
+        Result := '';
+    end
+    else
+      Result := '';
+  finally
+    FreeAndNil(VRegExpr);
+  end;
+end;
+
 procedure TExportProviderJNX.StartProcess(APolygon: ILonLatPolygon);
 var
   i:integer;
@@ -172,9 +195,9 @@ begin
       VZorder := FFrame.EZorder.Value;
   end;
   try
-   i:= posex(FFrame.EProductID.text,' ',0);
-   if i = 0 then  i:= length(FFrame.EProductID.text);
-   VProductID := StrToInt(Copy(FFrame.EProductID.text, 1, i));
+  if (RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0)<>'' ) then
+   VProductID := StrToInt(RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0));
+   else VProductID := 0;
   except
    VProductID := 0;
   end;
