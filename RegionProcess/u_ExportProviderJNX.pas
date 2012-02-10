@@ -52,14 +52,14 @@ uses
   Forms,
   SysUtils,
   StrUtils,
+  RegExpr,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
-  frm_ProgressSimple,
-  RegExpr;
+  frm_ProgressSimple;
 
 
 { TExportProviderJNX }
