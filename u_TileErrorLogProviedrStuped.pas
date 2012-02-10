@@ -40,7 +40,7 @@ type
   protected
     procedure LogError(AValue: ITileErrorInfo);
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -54,8 +54,15 @@ uses
 
 constructor TTileErrorLogProviedrStuped.Create;
 begin
-  FCS := TCriticalSection;
+  FCS := TCriticalSection.Create;
   FNotifier := TJclBaseNotifier.Create;
+end;
+
+destructor TTileErrorLogProviedrStuped.Destroy;
+begin
+  FNotifier:=nil;
+  FreeAndNil(FCS);
+  inherited;
 end;
 
 function TTileErrorLogProviedrStuped.GetLastErrorInfo: ITileErrorInfo;
