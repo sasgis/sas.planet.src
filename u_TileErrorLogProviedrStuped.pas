@@ -23,6 +23,7 @@ unit u_TileErrorLogProviedrStuped;
 interface
 
 uses
+  SyncObjs,
   i_JclNotify,
   i_TileError,
   i_TileErrorLogProviedrStuped;
@@ -32,6 +33,7 @@ type
   private
     FLastErrorInfo: ITileErrorInfo;
     FNotifier: IJclNotifier;
+    FCS: TCriticalSection;
   protected
     function GetLastErrorInfo: ITileErrorInfo;
     function GetNotifier: IJclNotifier;
@@ -39,23 +41,31 @@ type
     procedure LogError(AValue: ITileErrorInfo);
   public
     constructor Create();
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   u_JclNotify;
 
 { TTileErrorLogProviedrStuped }
 
 constructor TTileErrorLogProviedrStuped.Create;
 begin
+  FCS := TCriticalSection;
   FNotifier := TJclBaseNotifier.Create;
 end;
 
 function TTileErrorLogProviedrStuped.GetLastErrorInfo: ITileErrorInfo;
 begin
-  Result := FLastErrorInfo;
+  FCS.Acquire;
+  try
+    Result := FLastErrorInfo;
+  finally
+    FCS.Release;
+  end;
 end;
 
 function TTileErrorLogProviedrStuped.GetNotifier: IJclNotifier;
@@ -65,7 +75,12 @@ end;
 
 procedure TTileErrorLogProviedrStuped.LogError(AValue: ITileErrorInfo);
 begin
-  FLastErrorInfo := AValue;
+  FCS.Acquire;
+  try
+    FLastErrorInfo := AValue;
+  finally
+    FCS.Release;
+  end;
   FNotifier.Notify(nil);
 end;
 

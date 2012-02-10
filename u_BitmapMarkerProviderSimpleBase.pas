@@ -23,6 +23,7 @@ unit u_BitmapMarkerProviderSimpleBase;
 interface
 
 uses
+  SyncObjs,
   i_JclNotify,
   i_BitmapMarker,
   i_BitmapMarkerProviderSimpleConfig;
@@ -76,6 +77,7 @@ type
 
     FConfigChangeListener: IJclListener;
     FChangeNotifier: IJclNotifier;
+    FCS: TCriticalSection;
     procedure OnConfigChange;
   protected
     function GetStatic: IBitmapMarkerProvider;
@@ -92,6 +94,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_JclNotify,
   u_NotifyEventListener,
   u_GeoFun;
@@ -185,6 +188,7 @@ begin
   FProviderClass := AProviderClass;
   FConfig := AConfig;
 
+  FCS := TCriticalSection.Create;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigChangeListener);
 
@@ -197,6 +201,7 @@ begin
   FConfig.GetChangeNotifier.Remove(FConfigChangeListener);
   FConfigChangeListener := nil;
 
+  FreeAndNil(FCS);
   inherited;
 end;
 
@@ -207,12 +212,25 @@ end;
 
 function TBitmapMarkerProviderChangeableWithConfig.GetStatic: IBitmapMarkerProvider;
 begin
-  Result := FProviderStatic;
+  FCS.Acquire;
+  try
+    Result := FProviderStatic;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TBitmapMarkerProviderChangeableWithConfig.OnConfigChange;
+var
+  VProviderStatic: IBitmapMarkerProvider;
 begin
-  FProviderStatic := FProviderClass.CreateProvider(FConfig.GetStatic);
+  VProviderStatic := FProviderClass.CreateProvider(FConfig.GetStatic);
+  FCS.Acquire;
+  try
+    FProviderStatic := VProviderStatic;
+  finally
+    FCS.Release;
+  end;
   FChangeNotifier.Notify(nil);
 end;
 

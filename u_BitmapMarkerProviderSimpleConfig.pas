@@ -149,7 +149,12 @@ end;
 
 function TBitmapMarkerProviderSimpleConfig.GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TBitmapMarkerProviderSimpleConfig.SetBorderColor(AValue: TColor32);
