@@ -196,7 +196,7 @@ begin
   end;
   try
   if (RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0)<>'' ) then
-   VProductID := StrToInt(RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0));
+   VProductID := StrToInt(RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0))
    else VProductID := 0;
   except
    VProductID := 0;
