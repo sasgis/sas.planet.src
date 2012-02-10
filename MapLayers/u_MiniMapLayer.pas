@@ -288,7 +288,8 @@ begin
       DoublePoint(
         VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
         VVisualMapCenterInLayerMap.Y - VLayerSize.Y / 2
-      )
+      ),
+      prToTopLeft
     );
 
   Result := FCoordConverterFactory.CreateConverterNoScale(

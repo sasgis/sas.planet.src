@@ -414,7 +414,8 @@ begin
         DoublePoint(
           VLocalPoint.X - VMarker.AnchorPoint.X,
           VLocalPoint.Y - VMarker.AnchorPoint.Y
-        )
+        ),
+        prToTopLeft
       );
     ATargetBmp.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     Result := True;
@@ -436,7 +437,8 @@ begin
           DoublePoint(
             VLocalPoint.x + VMarkSize / 2,
             VLocalPoint.y - VMarkSize / 2 - VTextSize.cy / 2
-          )
+          ),
+          prToTopLeft
         );
       VDstRect.Right := VDstRect.Left + VTextSize.cx;
       VDstRect.Bottom := VDstRect.Top + VTextSize.cy;

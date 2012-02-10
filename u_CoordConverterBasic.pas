@@ -856,7 +856,7 @@ function TCoordConverterBasic.PixelPosFloat2TilePosInternal(
 var
   VPixelPos: TPoint;
 begin
-  VPixelPos := PointFromDoublePoint(XY);
+  VPixelPos := PointFromDoublePoint(XY, prToTopLeft);
   Result := PixelPos2TilePosInternal(VPixelPos, Azoom);
 end;
 
@@ -928,7 +928,7 @@ end;
 function TCoordConverterBasic.PixelRectFloat2TileRectInternal(
   const XY: TDoubleRect; AZoom: byte): TRect;
 begin
-  Result := PixelRect2TileRectInternal(RectFromDoubleRect(XY, rrOutside), AZoom);
+  Result := PixelRect2TileRectInternal(RectFromDoubleRect(XY, rrToTopLeft), AZoom);
 end;
 
 //------------------------------------------------------------------------------
@@ -1016,7 +1016,7 @@ var
   VPixelPos: TDoublePoint;
 begin
   VPixelPos := TilePosFloat2PixelPosFloatInternal(XY, Azoom);
-  Result := PointFromDoublePoint(VPixelPos);
+  Result := PointFromDoublePoint(VPixelPos, prToTopLeft);
 end;
 
 function TCoordConverterBasic.TilePosFloat2RelativeInternal(
@@ -1084,7 +1084,7 @@ var
   VPixelRect: TDoubleRect;
 begin
   VPixelRect := TileRectFloat2PixelRectFloatInternal(XY, AZoom);
-  Result := RectFromDoubleRect(VPixelRect, rrClosest);
+  Result := RectFromDoubleRect(VPixelRect, rrToTopLeft);
 end;
 
 function TCoordConverterBasic.TileRectFloat2RelativeRectInternal(
@@ -1104,7 +1104,7 @@ end;
 function TCoordConverterBasic.Relative2PixelPosInternal(const XY: TDoublePoint;
   Azoom: byte): TPoint;
 begin
-  Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(XY, Azoom));
+  Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(XY, Azoom), prToTopLeft);
 end;
 
 function TCoordConverterBasic.Relative2PixelPosFloatInternal(
@@ -1120,7 +1120,7 @@ end;
 function TCoordConverterBasic.Relative2TilePosInternal(const XY: TDoublePoint;
   Azoom: byte): TPoint;
 begin
-  Result := PointFromDoublePoint(Relative2TilePosFloatInternal(XY, Azoom));
+  Result := PointFromDoublePoint(Relative2TilePosFloatInternal(XY, Azoom), prToTopLeft);
 end;
 
 function TCoordConverterBasic.Relative2TilePosFloatInternal(
@@ -1145,7 +1145,7 @@ end;
 function TCoordConverterBasic.RelativeRect2PixelRectInternal(const XY: TDoubleRect;
   Azoom: byte): TRect;
 begin
-  Result := RectFromDoubleRect(RelativeRect2PixelRectFloatInternal(XY, Azoom), rrClosest);
+  Result := RectFromDoubleRect(RelativeRect2PixelRectFloatInternal(XY, Azoom), rrToTopLeft);
 end;
 
 function TCoordConverterBasic.RelativeRect2PixelRectFloatInternal(
@@ -1165,7 +1165,7 @@ end;
 function TCoordConverterBasic.RelativeRect2TileRectInternal(const XY: TDoubleRect;
   Azoom: byte): TRect;
 begin
-  Result := RectFromDoubleRect(RelativeRect2TileRectFloatInternal(XY, Azoom), rrOutside);
+  Result := RectFromDoubleRect(RelativeRect2TileRectFloatInternal(XY, Azoom), rrToTopLeft);
 end;
 
 function TCoordConverterBasic.RelativeRect2TileRectFloatInternal(

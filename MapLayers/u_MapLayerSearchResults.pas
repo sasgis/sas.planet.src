@@ -130,7 +130,8 @@ begin
           DoublePoint(
             VFixedOnView.X - VMarker.AnchorPoint.X,
             VFixedOnView.Y - VMarker.AnchorPoint.Y
-          )
+          ),
+          prToTopLeft
         );
       ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     end;

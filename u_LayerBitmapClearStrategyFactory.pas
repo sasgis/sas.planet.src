@@ -111,8 +111,8 @@ begin
   then begin
     VCounterContext := FMoveImageCreateCounter.StartOperation;
     try
-      VMapCenterSource := PointFromDoublePoint(ASourceConverter.GetCenterMapPixelFloat);
-      VMapCenterTarget := PointFromDoublePoint(ATargetConverter.GetCenterMapPixelFloat);
+      VMapCenterSource := PointFromDoublePoint(ASourceConverter.GetCenterMapPixelFloat, prToTopLeft);
+      VMapCenterTarget := PointFromDoublePoint(ATargetConverter.GetCenterMapPixelFloat, prToTopLeft);
       VDelta.X := VMapCenterSource.X - VMapCenterTarget.X;
       VDelta.Y := VMapCenterSource.Y - VMapCenterTarget.Y;
       Result := TLayerBitmapClearStrategyMoveImage.Create(FMoveImageCounter, VDelta);

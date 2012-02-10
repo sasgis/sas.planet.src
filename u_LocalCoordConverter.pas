@@ -235,7 +235,7 @@ var
   VResultPoint: TDoublePoint;
 begin
   VResultPoint := LonLat2LocalPixelFloat(APoint);
-  Result := PointFromDoublePoint(VResultPoint);
+  Result := PointFromDoublePoint(VResultPoint, prToTopLeft);
 end;
 
 function TLocalCoordConverterBase.LonLat2LocalPixelFloat(
@@ -293,7 +293,7 @@ var
   VResultPoint: TDoublePoint;
 begin
   VResultPoint := LocalPixel2MapPixelFloat(APoint);
-  Result := PointFromDoublePoint(VResultPoint);
+  Result := PointFromDoublePoint(VResultPoint, prToTopLeft);
 end;
 
 function TLocalCoordConverter.LocalPixel2MapPixelFloat(
@@ -318,7 +318,7 @@ var
   VResultPoint: TDoublePoint;
 begin
   VResultPoint := MapPixel2LocalPixelFloat(APoint);
-  Result := PointFromDoublePoint(VResultPoint);
+  Result := PointFromDoublePoint(VResultPoint, prToTopLeft);
 end;
 
 function TLocalCoordConverter.MapPixel2LocalPixelFloat(

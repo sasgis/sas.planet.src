@@ -27,6 +27,9 @@ uses
   Types;
 
 type
+  TPointRounding = (prClosest, prToTopLeft, prToBottomRight);
+  TRectRounding = (rrClosest, rrOutside, rrInside, rrToTopLeft);
+
   TDoublePoint = vsagps_public_point.TDoublePoint;
 
   TDoubleRect = packed record

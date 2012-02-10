@@ -779,7 +779,8 @@ begin
         DoublePoint(
           APosOnBitmap.X - VHalfSize,
           APosOnBitmap.Y - VHalfSize
-        )
+        ),
+        prToTopLeft
       );
     VRect.Right := VRect.Left + ASize;
     VRect.Bottom := VRect.Top + ASize;
