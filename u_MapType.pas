@@ -838,15 +838,7 @@ var
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
-  i, j: Integer;
-  VTile: TPoint;
   VSpr:TCustomBitmap32;
-  VLoadResult: Boolean;
-  VPixelRectCurTileInSource:  TRect;
-  VLonLatRectCurTile:  TDoubleRect;
-  VPixelRectCurTileInTarget:  TRect;
-  VSourceBounds: TRect;
-  VTargetBounds: TRect;
   VTargetImageSize: TPoint;
 begin
   Result := False;
@@ -868,75 +860,14 @@ begin
 
     VSpr := TCustomBitmap32.Create;
     try
-      for i := VTileRectInSource.Top to VTileRectInSource.Bottom - 1 do begin
-        VTile.Y := i;
-        for j := VTileRectInSource.Left to VTileRectInSource.Right - 1 do begin
-          VTile.X := j;
-          VSpr.Clear;
-          VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, IgnoreError, AUsePre, ACache);
-          if VLoadResult then begin
-            VPixelRectCurTileInSource := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
-            VLonLatRectCurTile := FCoordConverter.PixelRect2LonLatRect(VPixelRectCurTileInSource, Azoom);
-            ACoordConverterTarget.CheckLonLatRect(VLonLatRectCurTile);
-            VPixelRectCurTileInTarget := ACoordConverterTarget.LonLatRect2PixelRect(VLonLatRectCurTile, Azoom);
-
-            if VPixelRectCurTileInSource.Top < VPixelRectOfTargetPixelRectInSource.Top then begin
-              VSourceBounds.Top := VPixelRectOfTargetPixelRectInSource.Top - VPixelRectCurTileInSource.Top;
-            end else begin
-              VSourceBounds.Top := 0;
-            end;
-
-            if VPixelRectCurTileInSource.Left < VPixelRectOfTargetPixelRectInSource.Left then begin
-              VSourceBounds.Left := VPixelRectOfTargetPixelRectInSource.Left - VPixelRectCurTileInSource.Left;
-            end else begin
-              VSourceBounds.Left := 0;
-            end;
-
-            if VPixelRectCurTileInSource.Bottom < VPixelRectOfTargetPixelRectInSource.Bottom then begin
-              VSourceBounds.Bottom := VPixelRectCurTileInSource.Bottom - VPixelRectCurTileInSource.Top;
-            end else begin
-              VSourceBounds.Bottom := VPixelRectOfTargetPixelRectInSource.Bottom - VPixelRectCurTileInSource.Top;
-            end;
-
-            if VPixelRectCurTileInSource.Right < VPixelRectOfTargetPixelRectInSource.Right then begin
-              VSourceBounds.Right := VPixelRectCurTileInSource.Right - VPixelRectCurTileInSource.Left;
-            end else begin
-              VSourceBounds.Right := VPixelRectOfTargetPixelRectInSource.Right - VPixelRectCurTileInSource.Left;
-            end;
-
-            if VPixelRectCurTileInTarget.Top < APixelRectTarget.Top then begin
-              VTargetBounds.Top := 0;
-            end else begin
-              VTargetBounds.Top := VPixelRectCurTileInTarget.Top - APixelRectTarget.Top;
-            end;
-
-            if VPixelRectCurTileInTarget.Left < APixelRectTarget.Left then begin
-              VTargetBounds.Left := 0;
-            end else begin
-              VTargetBounds.Left := VPixelRectCurTileInTarget.Left - APixelRectTarget.Left;
-            end;
-
-            if VPixelRectCurTileInTarget.Bottom < APixelRectTarget.Bottom then begin
-              VTargetBounds.Bottom := VPixelRectCurTileInTarget.Bottom - APixelRectTarget.Top;
-            end else begin
-              VTargetBounds.Bottom := APixelRectTarget.Bottom - APixelRectTarget.Top;
-            end;
-
-            if VPixelRectCurTileInTarget.Right < APixelRectTarget.Right then begin
-              VTargetBounds.Right := VPixelRectCurTileInTarget.Right - APixelRectTarget.Left;
-            end else begin
-              VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
-            end;
-
-            spr.Draw(VTargetBounds, VSourceBounds, VSpr);
-          end else begin
-            if not AAllowPartial then begin
-              Exit;
-            end;
-          end;
-        end;
+      if LoadBtimap(VSpr, VPixelRectOfTargetPixelRectInSource, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache) then begin
+        VSpr.DrawTo(
+          spr,
+          spr.ClipRect,
+          VSpr.ClipRect
+        );
+        Result := True;
       end;
-      Result := True;
     finally
       VSpr.Free;
     end;
