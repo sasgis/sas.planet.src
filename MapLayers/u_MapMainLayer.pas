@@ -184,6 +184,8 @@ var
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
   VTileIsEmpty: Boolean;
+  // draw mode - very first item is opaque, others - as dmBlend
+  VDrawMode: TDrawMode; 
 begin
   VRecolorConfig := FPostProcessingConfig.GetStatic;
 
@@ -214,9 +216,11 @@ begin
 
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;
+        VDrawMode := dmOpaque;
         if FMainMap <> nil then begin
-          if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
+          if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
+            VDrawMode := dmBlend;
           end else begin
             VTileToDrawBmp.Clear(0);
           end;
@@ -232,8 +236,9 @@ begin
             VItem := VLayersSet.GetMapTypeByGUID(VGUID);
             VMapType := VItem.GetMapType;
             if VMapType.IsBitmapTiles then begin
-              if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
+              if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtLayer, VRecolorConfig) then begin
                 VTileIsEmpty := False;
+                VDrawMode := dmBlend;
               end;
             end;
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
