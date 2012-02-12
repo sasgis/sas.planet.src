@@ -156,6 +156,7 @@ var
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
+  VMatchSubStr: string;
 begin
   inherited;
   for i:=0 to 23 do begin
@@ -174,11 +175,10 @@ begin
       VZorder := FFrame.EZorder.Value;
   end;
   try
-  if (RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0)<>'' ) then
-   VProductID := StrToInt(RegExprGetMatchSubStr(FFrame.EProductID.text,'[0-9]+',0))
-   else VProductID := 0;
+    VMatchSubStr := RegExprGetMatchSubStr(FFrame.EProductID.Text, '[0-9]+', 0);
+    VProductID := StrToIntDef(VMatchSubStr, 0);
   except
-   VProductID := 0;
+    VProductID := 0;
   end;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
