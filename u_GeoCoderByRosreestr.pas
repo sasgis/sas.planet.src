@@ -40,7 +40,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  RegExpr,
+  RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
@@ -156,24 +156,6 @@ begin
   end;
   Result := VList;
 end;
-
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-      Result := VRegExpr.Replace(AStr, AReplace, True)
-    else
-      Result := AStr;
-  finally
-    FreeAndNil(VRegExpr);
-  end;
-end;
-
-
 
 function TGeoCoderByRosreestr.PrepareURL(ASearch: WideString): string;
 var

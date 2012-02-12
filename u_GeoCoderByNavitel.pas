@@ -51,7 +51,7 @@ uses
   i_InetConfig,
   i_ProxySettings,
   u_GlobalState,
-  RegExpr;
+  RegExprUtils;
 
 { TGeoCoderByNavitel }
 
@@ -573,22 +573,6 @@ case t of
   426: Result := 'Автодорога '
   else  Result := '';
  end;
-end;
-
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-      Result := VRegExpr.Replace(AStr, AReplace, True)
-    else
-      Result := AStr;
-  finally
-    FreeAndNil(VRegExpr);
-  end;
 end;
 
 function TGeoCoderByNavitel.ParseStringToPlacemarksList(

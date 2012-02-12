@@ -29,8 +29,6 @@ function GetAfter(SubStr, Str: string): string;
 function GetBefore(SubStr, Str: string): string;
 function GetBetween(Str, After, Before: string): string;
 function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
-function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
 function SetHeaderValue(AHeaders, AName, AValue: string): string;
 function GetHeaderValue(AHeaders, AName: string): string;
 function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
@@ -131,43 +129,6 @@ asm
  @@3: POP EBX
       POP ESI
       POP EDI
-end;
-
-function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-    begin
-      if (AMatchID <= VRegExpr.SubExprMatchCount) and (AMatchID >= 0) then
-        Result := VRegExpr.Match[AMatchID]
-      else
-        Result := '';
-    end
-    else
-      Result := '';
-  finally
-    FreeAndNil(VRegExpr);
-  end;
-end;
-
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-      Result := VRegExpr.Replace(AStr, AReplace, True)
-    else
-      Result := AStr;
-  finally
-    FreeAndNil(VRegExpr);
-  end;
 end;
 
 function SetHeaderValue(AHeaders, AName, AValue: string): string;

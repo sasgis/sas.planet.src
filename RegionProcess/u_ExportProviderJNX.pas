@@ -52,7 +52,7 @@ uses
   Forms,
   SysUtils,
   StrUtils,
-  RegExpr,
+  RegExprUtils,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
@@ -138,27 +138,6 @@ begin
     if not FFrame.Visible then begin
       FFrame.Show;
     end;
-  end;
-end;
-
-function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-    begin
-      if (AMatchID <= VRegExpr.SubExprMatchCount) and (AMatchID >= 0) then
-        Result := VRegExpr.Match[AMatchID]
-      else
-        Result := '';
-    end
-    else
-      Result := '';
-  finally
-    FreeAndNil(VRegExpr);
   end;
 end;
 

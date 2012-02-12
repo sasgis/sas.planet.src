@@ -108,6 +108,7 @@ implementation
 uses
   Math,
   Variants,
+  RegExprUtils,
   u_NotifyEventListener,
   t_GeoTypes,
   u_GeoToStr,

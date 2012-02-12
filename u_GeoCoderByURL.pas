@@ -25,8 +25,7 @@ interface
 uses
   Classes,
   u_GeoCoderBasic,
-  i_GeoCoder,
-  RegExpr;
+  i_GeoCoder;
 
 
 type
@@ -42,6 +41,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  RegExprUtils,
   t_GeoTypes,
   u_ResStrings,
   u_GeoCodePlacemark,
@@ -154,44 +154,6 @@ begin
       AResponseHeader := '';
       AResponseData := E.Message;
     end;
-  end;
-end;
-
-function RegExprGetMatchSubStr(const AStr, AMatchExpr: string; AMatchID: Integer): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-    begin
-      if (AMatchID <= VRegExpr.SubExprMatchCount) and (AMatchID >= 0) then
-        Result := VRegExpr.Match[AMatchID]
-      else
-        Result := '';
-    end
-    else
-      Result := '';
-  finally
-    FreeAndNil(VRegExpr);
-  end;
-end;
-
-
-function RegExprReplaceMatchSubStr(const AStr, AMatchExpr, AReplace: string): string;
-var
-  VRegExpr: TRegExpr;
-begin
-    VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := AMatchExpr;
-    if VRegExpr.Exec(AStr) then
-      Result := VRegExpr.Replace(AStr, AReplace, True)
-    else
-      Result := AStr;
-  finally
-    FreeAndNil(VRegExpr);
   end;
 end;
 
