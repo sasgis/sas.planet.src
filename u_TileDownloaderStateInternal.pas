@@ -133,7 +133,12 @@ end;
 
 function TTileDownloaderStateInternal.GetStatic: ITileDownloaderStateStatic;
 begin
-  Result := FStatic
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 end.

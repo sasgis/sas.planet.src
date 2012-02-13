@@ -186,7 +186,12 @@ end;
 
 function TProxyConfig.GetStatic: IProxyConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TProxyConfig.GetUseIESettings: Boolean;

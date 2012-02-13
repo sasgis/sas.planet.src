@@ -231,7 +231,12 @@ end;
 
 function TSimpleTileStorageConfig.GetStatic: ISimpleTileStorageConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TSimpleTileStorageConfig.GetTileFileExt: string;

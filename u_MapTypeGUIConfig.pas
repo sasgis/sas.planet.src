@@ -267,7 +267,12 @@ end;
 
 function TMapTypeGUIConfig.GetStatic: IMapTypeGUIConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TMapTypeGUIConfig.SetEnabled(const AValue: Boolean);

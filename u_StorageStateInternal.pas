@@ -171,7 +171,12 @@ end;
 
 function TStorageStateInternal.GetStatic: IStorageStateStatic;
 begin
-  Result := FStatic
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TStorageStateInternal.SetAddAccess(AValue: TAccesState);

@@ -23,6 +23,7 @@ unit u_TreeChangeableBase;
 interface
 
 uses
+  SyncObjs,
   i_JclNotify,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
@@ -32,10 +33,12 @@ type
   TTreeChangeableBase = class(TInterfacedObject, ITreeChangeable)
   private
     FStaticTreeBuilder: IStaticTreeBuilder;
-    FStaticTree: IStaticTreeItem;
     FConfigChangeListener: IJclListener;
     FConfigChangeNotifier: IJclNotifier;
     FChangeNotifier: IJclNotifier;
+    FCS: TCriticalSection;
+
+    FStatic: IStaticTreeItem;
     procedure OnConfigChange;
   protected
     function CreateStatic: IStaticTreeItem;
@@ -54,6 +57,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_JclNotify,
   u_NotifyEventListener;
 
@@ -67,6 +71,7 @@ begin
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
   FChangeNotifier := TJclBaseNotifier.Create;
+  FCS := TCriticalSection.Create;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);
   OnConfigChange;
@@ -77,6 +82,8 @@ begin
   FConfigChangeNotifier.Remove(FConfigChangeListener);
   FConfigChangeListener := nil;
   FConfigChangeNotifier := nil;
+
+  FreeAndNil(FCS);
 
   inherited;
 end;
@@ -93,12 +100,25 @@ end;
 
 function TTreeChangeableBase.GetStatic: IStaticTreeItem;
 begin
-  Result := FStaticTree;
+  FCS.Acquire;
+  try
+    Result := FStatic;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TTreeChangeableBase.OnConfigChange;
+var
+  VStatic: IStaticTreeItem;
 begin
-  FStaticTree := CreateStatic;
+  VStatic := CreateStatic;
+  FCS.Acquire;
+  try
+    FStatic := VStatic;
+  finally
+    FCS.Release;
+  end;
   FChangeNotifier.Notify(nil);
 end;
 

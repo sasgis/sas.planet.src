@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   i_JclNotify,
   i_TileDownloaderConfig,
   i_TileDownloader,
@@ -27,9 +28,10 @@ type
 
     FChangeCounter: Integer;
     FChangeNotifier: IJclNotifier;
-    FStatic: ITileDownloaderListStatic;
     FConfigListener: IJclListener;
+    FCS: TCriticalSection;
 
+    FStatic: ITileDownloaderListStatic;
     procedure OnConfigChange;
     function CreateDownloader: ITileDownloader;
   protected
@@ -51,6 +53,7 @@ type
 implementation
 
 uses
+  SysUtils,
   i_Downloader,
   u_JclNotify,
   u_NotifyEventListener,
@@ -81,6 +84,7 @@ begin
   FRequestBuilderFactory := ARequestBuilderFactory;
 
   FChangeNotifier := TJclBaseNotifier.Create;
+  FCS := TCriticalSection.Create;
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
@@ -100,6 +104,7 @@ begin
   FRequestBuilderFactory := nil;
   FDownloadSystemState := nil;
 
+  FreeAndNil(FCS);
   inherited;
 end;
 
@@ -133,7 +138,12 @@ end;
 
 function TTileDownloaderList.GetStatic: ITileDownloaderListStatic;
 begin
-  Result := FStatic;
+  FCS.Acquire;
+  try
+    Result := FStatic;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure TTileDownloaderList.OnConfigChange;
@@ -148,7 +158,7 @@ var
   VCounter: Integer;
 begin
   VCounter := InterlockedIncrement(FChangeCounter);
-  VStatic := FStatic;
+  VStatic := GetStatic;
   VCount := FTileDownloaderConfig.MaxConnectToServerCount;
   VState := FDownloadSystemState.GetStatic;
   if not VState.Enabled then begin
@@ -178,14 +188,29 @@ begin
         Exit;
       end;
     end;
-    FStatic := TTileDownloaderListStatic.Create(VList);
-    FChangeNotifier.Notify(nil);
-  end else if FStatic = nil then begin
-    SetLength(VList, 0);
+    VStatic := TTileDownloaderListStatic.Create(VList);
     if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
       Exit;
     end;
-    FStatic := TTileDownloaderListStatic.Create(VList);
+    FCS.Acquire;
+    try
+      FStatic := VStatic;
+    finally
+      FCS.Release;
+    end;
+    FChangeNotifier.Notify(nil);
+  end else if VStatic = nil then begin
+    SetLength(VList, 0);
+    VStatic := TTileDownloaderListStatic.Create(VList);
+    if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
+      Exit;
+    end;
+    FCS.Acquire;
+    try
+      FStatic := VStatic;
+    finally
+      FCS.Release;
+    end;
   end;
 end;
 
