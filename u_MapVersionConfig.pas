@@ -103,7 +103,12 @@ end;
 
 function TMapVersionConfig.GetStatic: IMapVersionInfo;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMapVersionConfig.GetVersion: Variant;

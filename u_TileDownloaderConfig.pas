@@ -231,7 +231,12 @@ end;
 
 function TTileDownloaderConfig.GetStatic: ITileDownloaderConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TTileDownloaderConfig.GetWaitInterval: Cardinal;

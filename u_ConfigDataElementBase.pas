@@ -28,23 +28,18 @@ uses
   i_JclNotify,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  u_ChangeableBase;
 
 type
-  TConfigDataElementBase = class(TInterfacedObject, IConfigDataElement)
+  TConfigDataElementBase = class(TChangeableBase, IConfigDataElement)
   private
-    FBeforeChangeNotifier: IJclNotifier;
-    FChangeNotifier: IJclNotifier;
-    FAfterChangeNotifier: IJclNotifier;
     FLock: TMultiReadExclusiveWriteSynchronizer;
     FStopNotifyCounter: Longint;
     FNeedNotify: Longint;
   protected
     procedure SetChanged;
     function CheckIsChangedAndReset: Boolean;
-    procedure DoBeforeChangeNotify; virtual;
-    procedure DoChangeNotify; virtual;
-    procedure DoAfterChangeNotify; virtual;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); virtual; abstract;
   protected
@@ -56,9 +51,6 @@ type
     procedure WriteConfig(AConfigData: IConfigDataWriteProvider); virtual;
     procedure StopNotify; virtual;
     procedure StartNotify; virtual;
-    function GetBeforeChangeNotifier: IJclNotifier;
-    function GetChangeNotifier: IJclNotifier;
-    function GetAfterChangeNotifier: IJclNotifier;
   public
     constructor Create();
     destructor Destroy; override;
@@ -81,59 +73,18 @@ uses
 constructor TConfigDataElementBase.Create;
 begin
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
-  FBeforeChangeNotifier := TJclBaseNotifier.Create;
-  FChangeNotifier := TJclBaseNotifier.Create;
-  FAfterChangeNotifier := TJclBaseNotifier.Create;
   FStopNotifyCounter := 0;
 end;
 
 destructor TConfigDataElementBase.Destroy;
 begin
   FreeAndNil(FLock);
-  FBeforeChangeNotifier := nil;
-  FChangeNotifier := nil;
-  FAfterChangeNotifier := nil;
   inherited;
 end;
 
 function TConfigDataElementBase.CheckIsChangedAndReset: Boolean;
 begin
   Result := InterlockedExchange(FNeedNotify, 0) <> 0;
-end;
-
-procedure TConfigDataElementBase.DoAfterChangeNotify;
-begin
-  FAfterChangeNotifier.Notify(nil);
-end;
-
-procedure TConfigDataElementBase.DoBeforeChangeNotify;
-begin
-  FBeforeChangeNotifier.Notify(nil);
-end;
-
-procedure TConfigDataElementBase.DoChangeNotify;
-begin
-  DoBeforeChangeNotify;
-  try
-    FChangeNotifier.Notify(nil);
-  finally
-    DoAfterChangeNotify;
-  end;
-end;
-
-function TConfigDataElementBase.GetAfterChangeNotifier: IJclNotifier;
-begin
-  Result := FAfterChangeNotifier;
-end;
-
-function TConfigDataElementBase.GetBeforeChangeNotifier: IJclNotifier;
-begin
-  Result := FBeforeChangeNotifier;
-end;
-
-function TConfigDataElementBase.GetChangeNotifier: IJclNotifier;
-begin
-  Result := FChangeNotifier;
 end;
 
 procedure TConfigDataElementBase.LockRead;

@@ -158,7 +158,12 @@ end;
 
 function TInetConfig.GetStatic: IInetConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TInetConfig.GetTimeOut: Cardinal;

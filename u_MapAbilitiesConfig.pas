@@ -233,7 +233,12 @@ end;
 
 function TMapAbilitiesConfig.GetStatic: IMapAbilitiesConfigStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TMapAbilitiesConfig.SetIsShowOnSmMap(AValue: Boolean);

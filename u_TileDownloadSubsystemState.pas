@@ -96,7 +96,12 @@ end;
 
 function TTileDownloadSubsystemState.GetStatic: ITileDownloaderStateStatic;
 begin
-  Result := FStatic;
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 end.
