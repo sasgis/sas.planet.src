@@ -555,6 +555,7 @@
     <DCCReference Include="u_CoordConverterFactorySimple.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
+    <DCCReference Include="u_CoordConverterRoutines.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
