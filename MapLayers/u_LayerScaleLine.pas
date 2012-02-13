@@ -64,25 +64,27 @@ begin
   );
 
   FLayer.Bitmap.Font.Name := 'arial';
-  FLayer.Bitmap.Font.Size := 10;
-  VSize.X := 128;
-  VSize.Y := 15;
+  FLayer.Bitmap.Font.Size := 8;
+  VSize.X := 400;
+  VSize.Y := 40;
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   DoUpdateLayerSize(VSize);
 end;
 
 procedure TLayerScaleLine.DoRedraw;
 var
-  rnum, len_p, textstrt, textwidth: integer;
-  s, se: string;
+  rnum: integer;
+  se: string;
   LL: TDoublePoint;
-  temp, num: real;
+  num: real;
   VBitmapSize: TPoint;
   VRad: Extended;
   VConverter: ICoordConverter;
   VPixelsAtZoom: Double;
   VZoom: Byte;
   VVisualCoordConverter: ILocalCoordConverter;
+  I: Integer;
+  VStartX, VStartY: Integer;
 begin
   inherited;
   VVisualCoordConverter := LayerCoordConverter;
@@ -93,7 +95,9 @@ begin
 
   VRad := VConverter.Datum.GetSpheroidRadiusA;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
-  num := 106 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(LL.y * D2R)));
+
+  num := 300 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(LL.y * D2R)));
+
   if num > 10000 then begin
     num := num / 1000;
     se := ' ' + SAS_UNITS_km + ' ';
@@ -104,31 +108,33 @@ begin
     se := ' ' + SAS_UNITS_m + ' ';
   end;
   rnum := round(num);
-  temp := power(5, (length(inttostr(rnum)) - 1));
-  if ((rnum / temp) < 1.25) then begin
-    rnum := round(temp);
-  end else if ((rnum / temp) >= 3.75) then begin
-    rnum := 5 * round(temp);
-  end else begin
-    rnum := round(2.5 * temp);
-  end;
-  len_p := round(106 / (num / rnum));
-  s := inttostr(rnum) + se;
-  textwidth := FLayer.bitmap.TextWidth(s);
-  while (len_p < textwidth + 15) and (not (len_p = 0)) do begin
-    rnum := rnum * 2;
-    len_p := round(106 / (num / rnum));
-  end;
-  s := inttostr(rnum) + se;
-  len_p := round(106 / (num / rnum));
-  textwidth := FLayer.bitmap.TextWidth(s);
 
   FLayer.Bitmap.Clear(SetAlpha(clWhite32, 0));
-  FLayer.Bitmap.FillRectS(Rect(0, 0, len_p, VBitmapSize.Y - 1), SetAlpha(clWhite32, 135));
-  FLayer.bitmap.LineS(0, 0, 0, VBitmapSize.Y - 1, SetAlpha(clBlack32, 256));
-  FLayer.bitmap.LineS(len_p - 1, 0, len_p - 1, VBitmapSize.Y - 1, SetAlpha(clBlack32, 256));
-  textstrt := (len_p div 2) - (textwidth div 2);
-  FLayer.bitmap.RenderText(textstrt, 0, s, 2, clBlack32);
+  // длинная горизонталь снизу
+  FLayer.Bitmap.Line(0, VBitmapSize.Y - 1, 300, VBitmapSize.Y - 1, SetAlpha(clBlack32, 90));
+  FLayer.Bitmap.Line(0, VBitmapSize.Y - 2, 300, VBitmapSize.Y - 2, SetAlpha(clWhite32, 255));
+  FLayer.Bitmap.Line(0, VBitmapSize.Y - 3, 300, VBitmapSize.Y - 3, SetAlpha(clBlack32, 90));
+  // заборчик: длинная/короткая вертикали
+  for I := 0 to 4 do begin
+    VStartX := 1 + I*75;
+    if (I = 1) or (I = 3) then begin
+      VStartY := VBitmapSize.Y - 10; // короткая вертикаль
+    end else begin
+      VStartY := VBitmapSize.Y - 20; // длинная вертикаль
+    end;
+    // вертикаль
+    FLayer.Bitmap.Line(VStartX - 1, VStartY, VStartX - 1, VBitmapSize.Y - 1, SetAlpha(clBlack32, 90));
+    FLayer.Bitmap.Line(VStartX,     VStartY, VStartX,     VBitmapSize.Y - 1, SetAlpha(clWhite32, 255));
+    FLayer.Bitmap.Line(VStartX + 1, VStartY, VStartX + 1, VBitmapSize.Y - 1, SetAlpha(clBlack32, 90));
+    // "шапка"
+    FLayer.Bitmap.Line(VStartX - 1, VStartY, VStartX + 1, VStartY, SetAlpha(clBlack32, 90));
+  end;
+  FLayer.Bitmap.Line(0, VBitmapSize.Y - 1, 302, VBitmapSize.Y - 1, SetAlpha(clBlack32, 90));
+  FLayer.Bitmap.Line(1, VBitmapSize.Y - 2, 301, VBitmapSize.Y - 2, SetAlpha(clWhite32, 255));
+
+  FLayer.bitmap.RenderText(0, 5, '0 ' + se, 0, SetAlpha(clWhite32, 255));
+  FLayer.bitmap.RenderText(150, 5, IntToStr(rnum div 2) + ' ' + se, 0, SetAlpha(clWhite32, 255));
+  FLayer.bitmap.RenderText(300, 5, IntToStr(rnum) + ' ' + se, 0, SetAlpha(clWhite32, 255));
 end;
 
 function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
