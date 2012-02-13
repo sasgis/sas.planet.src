@@ -72,6 +72,7 @@ uses
 
 constructor TConfigDataElementBase.Create;
 begin
+  inherited;
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FStopNotifyCounter := 0;
 end;
