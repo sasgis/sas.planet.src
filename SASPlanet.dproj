@@ -672,6 +672,7 @@
     <DCCReference Include="u_LayerBitmapClearStrategyFactory.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
+    <DCCReference Include="u_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LocalSingleLine.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />

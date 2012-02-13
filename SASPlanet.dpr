@@ -235,6 +235,7 @@ uses
   i_LocalCoordConverter in 'i_LocalCoordConverter.pas',
   u_LocalCoordConverter in 'u_LocalCoordConverter.pas',
   i_LocalCoordConverterChangeable in 'i_LocalCoordConverterChangeable.pas',
+  u_LocalCoordConverterChangeable in 'u_LocalCoordConverterChangeable.pas',
   i_LocalCoordConverterFactorySimpe in 'i_LocalCoordConverterFactorySimpe.pas',
   u_LocalCoordConverterFactorySimpe in 'u_LocalCoordConverterFactorySimpe.pas',
   i_TileRequestQueue in 'i_TileRequestQueue.pas',
