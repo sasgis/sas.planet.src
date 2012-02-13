@@ -489,7 +489,7 @@ object frmMain: TfrmMain
             Images = MenusImageList
             ShortCut = 32845
             OnClick = ShowMiniMapClick
-            Caption = 'Minimap'
+            Caption = 'Overview Map'
             Hint = ''
           end
           object ShowLine: TTBXItem
@@ -497,7 +497,7 @@ object frmMain: TfrmMain
             Images = MenusImageList
             ShortCut = 32844
             OnClick = ShowLineClick
-            Caption = 'Ruler'
+            Caption = 'Scale Legend'
             Hint = ''
           end
         end
