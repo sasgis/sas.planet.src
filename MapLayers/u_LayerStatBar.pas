@@ -66,6 +66,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  Graphics,
   i_CoordConverter,
   u_NotifyEventListener,
   u_ResStrings,
@@ -134,6 +135,17 @@ begin
 end;
 
 procedure TLayerStatBar.OnConfigChange;
+
+  procedure SetValidFontSize(AFont: TFont; ASize: Integer; AMaxHeight: Integer);
+  begin
+    if abs(AFont.Height) < AMaxHeight then begin
+      AFont.Size := ASize;
+    end;
+    while abs(AFont.Height) >= AMaxHeight do begin
+      AFont.Size := AFont.Size - 1;
+    end;
+  end;
+
 var
   VVisible: Boolean;
 begin
@@ -142,7 +154,7 @@ begin
     FConfig.LockRead;
     try
       FLayer.Bitmap.Font.Name := FConfig.FontName;
-      FLayer.Bitmap.Font.Size := FConfig.FontSize;
+      SetValidFontSize(FLayer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2) );
       FCoordsMaxWidth := FLayer.Bitmap.TextWidth('N99"99"99.99" W99"99"99.99"') + 10;
 
       FMinUpdate := FConfig.MinUpdateTickCount;
