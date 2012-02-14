@@ -2,7 +2,7 @@ unit u_MapLayerFillingMap;
 
 interface
 
-uses  
+uses
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -20,7 +20,6 @@ type
   TMapLayerFillingMap = class(TMapLayerWithThreadDraw)
   private
     FConfig: IFillingMapLayerConfig;
-    FConfigStatic: IFillingMapLayerConfigStatic;
     procedure OnConfigChange;
   protected
     procedure DrawBitmap(
@@ -152,7 +151,7 @@ var
 begin
   inherited;
 
-  VConfig := FConfigStatic;
+  VConfig := FConfig.GetStatic;
   VLocalConverter := LayerCoordConverter;
   if (VConfig <> nil) and (VLocalConverter <> nil) then begin
     VBmp := TCustomBitmap32.Create;
@@ -238,7 +237,7 @@ var
   VConfig: IFillingMapLayerConfigStatic;
 begin
   Result := False;
-  VConfig := FConfigStatic;
+  VConfig := FConfig.GetStatic;
   if VConfig <> nil then begin
     Result := VConfig.Visible;
     if Result then begin
@@ -252,7 +251,6 @@ begin
   ViewUpdateLock;
   try
     SetNeedRedraw;
-    FConfigStatic := FConfig.GetStatic;
     SetVisible(GetVisibleForNewPos(ViewCoordConverter));
   finally
     ViewUpdateUnlock;
