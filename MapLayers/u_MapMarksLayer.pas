@@ -3,6 +3,7 @@ unit u_MapMarksLayer;
 interface
 
 uses
+  SyncObjs,
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -35,14 +36,16 @@ type
     FDrawConfigStatic: IMarksDrawConfigStatic;
     FVectorItmesFactory: IVectorItmesFactory;
     FMarkDB: TMarksSystem;
-    FMarksSubset: IMarksSubset;
+
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
-
     FProjectedCache: IIdCacheSimple;
     FPointsAgregator: IDoublePointsAggregator;
-    FLinesClipRect: TDoubleRect;
 
+    FMarksSubset: IMarksSubset;
+    FMarksSubsetCS: TCriticalSection;
+    FLinesClipRect: TDoubleRect;
+    
     function GetProjectedPath(
       AMarkPath: IMarkLine;
       AProjectionInfo: IProjectionInfo
@@ -75,6 +78,8 @@ type
       AConfig: IMarksLayerConfig;
       AMarkDB: TMarksSystem
     );
+    destructor Destroy; override;
+
     procedure MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
     procedure MouseOnReg(xy: TPoint; out AMark: IMark); overload;
 
@@ -136,6 +141,7 @@ begin
     ATimerNoifier,
     tpLower
   );
+  FMarksSubsetCS := TCriticalSection.Create;
   FVectorItmesFactory := AVectorItmesFactory;
   FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
   FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');
@@ -154,6 +160,12 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.MarksDrawConfig.GetChangeNotifier
   );
+end;
+
+destructor TMapMarksLayer.Destroy;
+begin
+  FreeAndNil(FMarksSubsetCS);
+  inherited;
 end;
 
 procedure TMapMarksLayer.DrawBitmap(
@@ -190,7 +202,12 @@ begin
     VCounterContext := FGetMarksCounter.StartOperation;
     try
       VMarksSubset := GetMarksSubset(VBitmapConverter);
-      FMarksSubset := VMarksSubset;
+      FMarksSubsetCS.Acquire;
+      try
+        FMarksSubset := VMarksSubset;
+      finally
+        FMarksSubsetCS.Release;
+      end;
     finally
       FGetMarksCounter.FinishOperation(VCounterContext);
     end;
@@ -314,7 +331,12 @@ begin
   try
     AMark := nil;
     AMarkS := 0;
-    VMarksSubset := FMarksSubset;
+    FMarksSubsetCS.Acquire;
+    try
+      VMarksSubset := FMarksSubset;
+    finally
+      FMarksSubsetCS.Release;
+    end;
     if VMarksSubset <> nil then begin
       if not VMarksSubset.IsEmpty then begin
         VRect.Left := xy.X - 8;
