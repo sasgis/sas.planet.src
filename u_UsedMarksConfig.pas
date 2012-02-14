@@ -29,15 +29,14 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TUsedMarksConfig = class(TConfigDataElementBase, IUsedMarksConfig)
+  TUsedMarksConfig = class(TConfigDataElementWithStaticBase, IUsedMarksConfig)
   private
     FIsUseMarks: Boolean;
     FIgnoreMarksVisible: Boolean;
     FIgnoreCategoriesVisible: Boolean;
-    FStatic: IUsedMarksConfigStatic;
-    function CreateStatic: IUsedMarksConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -68,28 +67,19 @@ begin
   FIsUseMarks := True;
   FIgnoreMarksVisible := False;
   FIgnoreCategoriesVisible := False;
-  FStatic := CreateStatic;
 end;
 
-function TUsedMarksConfig.CreateStatic: IUsedMarksConfigStatic;
+function TUsedMarksConfig.CreateStatic: IInterface;
+var
+  VStatic: IUsedMarksConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TUsedMarksConfigStatic.Create(
       FIsUseMarks,
       FIgnoreMarksVisible,
       FIgnoreCategoriesVisible
     );
-end;
-
-procedure TUsedMarksConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TUsedMarksConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -143,12 +133,7 @@ end;
 
 function TUsedMarksConfig.GetStatic: IUsedMarksConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IUsedMarksConfigStatic(GetStaticInternal);
 end;
 
 procedure TUsedMarksConfig.SetIgnoreCategoriesVisible(AValue: Boolean);

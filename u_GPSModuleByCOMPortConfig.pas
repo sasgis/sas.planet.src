@@ -31,7 +31,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TGPSModuleByCOMPortConfig = class(TConfigDataElementBase, IGPSModuleByCOMPortConfig)
+  TGPSModuleByCOMPortConfig = class(TConfigDataElementWithStaticBase, IGPSModuleByCOMPortConfig)
   private
     FPort: DWORD;
     FBaudRate: DWORD;
@@ -42,10 +42,9 @@ type
     FUSBGarmin: Boolean;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
-    FStatic: IGPSModuleByCOMPortSettings;
-    function CreateStatic: IGPSModuleByCOMPortSettings;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -99,12 +98,13 @@ begin
   FUSBGarmin := FALSE;
   FAutodetectCOMOnConnect := FALSE;
   FAutodetectCOMFlags := 0;
-  FStatic := CreateStatic;
 end;
 
-function TGPSModuleByCOMPortConfig.CreateStatic: IGPSModuleByCOMPortSettings;
+function TGPSModuleByCOMPortConfig.CreateStatic: IInterface;
+var
+  VStatic: IGPSModuleByCOMPortSettings;
 begin
-  Result :=
+  VStatic :=
     TGPSModuleByCOMPortSettings.Create(
       FPort,
       FBaudRate,
@@ -116,17 +116,7 @@ begin
       FAutodetectCOMOnConnect,
       FAutodetectCOMFlags
     );
-end;
-
-procedure TGPSModuleByCOMPortConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TGPSModuleByCOMPortConfig.DoReadConfig(
@@ -240,12 +230,7 @@ end;
 
 function TGPSModuleByCOMPortConfig.GetStatic: IGPSModuleByCOMPortSettings;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IGPSModuleByCOMPortSettings(GetStaticInternal);
 end;
 
 function TGPSModuleByCOMPortConfig.GetUSBGarmin: Boolean;

@@ -30,14 +30,13 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMapVersionConfig = class(TConfigDataElementBase, IMapVersionConfig)
+  TMapVersionConfig = class(TConfigDataElementWithStaticBase, IMapVersionConfig)
   private
     FDefConfig: IMapVersionInfo;
     FVersion: Variant;
-    FStatic: IMapVersionInfo;
-    function CreateStatic: IMapVersionInfo;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -62,23 +61,14 @@ begin
   inherited Create;
   FDefConfig := ADefConfig;
   FVersion := FDefConfig.Version;
-  FStatic := CreateStatic;
 end;
 
-function TMapVersionConfig.CreateStatic: IMapVersionInfo;
+function TMapVersionConfig.CreateStatic: IInterface;
+var
+  VStatic: IMapVersionInfo;
 begin
-  Result := TMapVersionInfo.Create(FVersion);
-end;
-
-procedure TMapVersionConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  VStatic := TMapVersionInfo.Create(FVersion);
+  Result := VStatic;
 end;
 
 procedure TMapVersionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -103,12 +93,7 @@ end;
 
 function TMapVersionConfig.GetStatic: IMapVersionInfo;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IMapVersionInfo(GetStaticInternal);
 end;
 
 function TMapVersionConfig.GetVersion: Variant;

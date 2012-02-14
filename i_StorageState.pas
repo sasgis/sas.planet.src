@@ -4,7 +4,8 @@ interface
 
 uses
   t_CommonTypes,
-  i_JclNotify;
+  i_JclNotify,
+  i_Changeable;
 
 type
   IStorageStateStatic = interface
@@ -25,18 +26,9 @@ type
     property ReplaceAccess: TAccesState read GetReplaceAccess;
   end;
 
-  IStorageStateChangeble = interface
+  IStorageStateChangeble = interface(IChangeable)
     ['{6202AB73-00A2-4711-87F4-D195CEFD9C3F}']
     function GetStatic: IStorageStateStatic;
-
-    function GetBeforeChangeNotifier: IJclNotifier;
-    property BeforeChangeNotifier: IJclNotifier read GetBeforeChangeNotifier;
-
-    function GetChangeNotifier: IJclNotifier;
-    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
-
-    function GetAfterChangeNotifier: IJclNotifier;
-    property AfterChangeNotifier: IJclNotifier read GetAfterChangeNotifier;
   end;
 
 implementation

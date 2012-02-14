@@ -35,7 +35,7 @@ uses
   u_ConfigDataElementComplexBase;
 
 type
-  TFillingMapLayerConfig = class(TConfigDataElementComplexBase, IFillingMapLayerConfig)
+  TFillingMapLayerConfig = class(TConfigDataElementComplexWithStaticBase, IFillingMapLayerConfig)
   private
     FVisible: Boolean;
     FUseRelativeZoom: Boolean;
@@ -44,14 +44,13 @@ type
     FShowTNE: Boolean;
     FTNEColor: TColor32;
     FSourceMap: IFillingMapMapsConfig;
-    FStatic: IFillingMapLayerConfigStatic;
     FFillMode: TFillMode;
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
-    function CreateStatic: IFillingMapLayerConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -117,12 +116,13 @@ begin
   FFillLastDay := DateOf(Now);
   FSourceMap := TFillingMapMapsConfig.Create(AMapsConfig);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
-  FStatic := CreateStatic;
 end;
 
-function TFillingMapLayerConfig.CreateStatic: IFillingMapLayerConfigStatic;
+function TFillingMapLayerConfig.CreateStatic: IInterface;
+var
+  VStatic: IFillingMapLayerConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TFillingMapLayerConfigStatic.Create(
       FVisible,
       FSourceMap.GetActualMap,
@@ -136,17 +136,7 @@ begin
       FFillFirstDay,
       FFillLastDay
     );
-end;
-
-procedure TFillingMapLayerConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TFillingMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -239,12 +229,7 @@ end;
 
 function TFillingMapLayerConfig.GetStatic: IFillingMapLayerConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IFillingMapLayerConfigStatic(GetStaticInternal);
 end;
 
 function TFillingMapLayerConfig.GetTNEColor: TColor32;

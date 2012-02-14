@@ -10,7 +10,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TStorageStateInternal = class(TConfigDataElementBaseEmptySaveLoad, IStorageStateInternal, IStorageStateChangeble)
+  TStorageStateInternal = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IStorageStateInternal, IStorageStateChangeble)
   private
     FStorageTypeAbilities: IStorageTypeAbilities;
 
@@ -19,11 +19,8 @@ type
     FDeleteAccess: TAccesState;
     FAddAccess: TAccesState;
     FReplaceAccess: TAccesState;
-
-    FStatic: IStorageStateStatic;
-    function CreateStatic: IStorageStateStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
   protected
     function GetReadAccess: TAccesState;
     procedure SetReadAccess(AValue: TAccesState);
@@ -60,7 +57,6 @@ constructor TStorageStateInternal.Create(
 begin
   inherited Create;
   FStorageTypeAbilities := AStorageTypeAbilities;
-  
   FReadAccess := asUnknown;
   FWriteAccess := asUnknown;
   FDeleteAccess := asUnknown;
@@ -93,12 +89,13 @@ begin
       FWriteAccess := asDisabled;
     end;
   end;
-  FStatic := CreateStatic;
 end;
 
-function TStorageStateInternal.CreateStatic: IStorageStateStatic;
+function TStorageStateInternal.CreateStatic: IInterface;
+var
+  VStatic: IStorageStateStatic;
 begin
-  Result :=
+  VStatic :=
     TStorageStateStatic.Create(
       FReadAccess,
       FWriteAccess,
@@ -106,17 +103,7 @@ begin
       FAddAccess,
       FReplaceAccess
     );
-end;
-
-procedure TStorageStateInternal.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 function TStorageStateInternal.GetAddAccess: TAccesState;
@@ -171,12 +158,7 @@ end;
 
 function TStorageStateInternal.GetStatic: IStorageStateStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IStorageStateStatic(GetStaticInternal);
 end;
 
 procedure TStorageStateInternal.SetAddAccess(AValue: TAccesState);

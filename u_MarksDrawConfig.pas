@@ -30,17 +30,15 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMarksDrawConfig = class(TConfigDataElementBase, IMarksDrawConfig)
+  TMarksDrawConfig = class(TConfigDataElementWithStaticBase, IMarksDrawConfig)
   private
     FShowPointCaption: Boolean;
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
     FMagnetDraw: Boolean;
-
-    FStatic: IMarksDrawConfigStatic;
-    function CreateStatic: IMarksDrawConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -75,30 +73,20 @@ begin
   FShowPointCaption := True;
   FUseSimpleDrawOrder := false;
   FOverSizeRect := Rect(256, 128, 64, 128);
-
-  FStatic := CreateStatic;
 end;
 
-function TMarksDrawConfig.CreateStatic: IMarksDrawConfigStatic;
+function TMarksDrawConfig.CreateStatic: IInterface;
+var
+  VStatic: IMarksDrawConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TMarksDrawConfigStatic.Create(
       FShowPointCaption,
       FUseSimpleDrawOrder,
       FMagnetDraw,
       FOverSizeRect
     );
-end;
-
-procedure TMarksDrawConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TMarksDrawConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -170,12 +158,7 @@ end;
 
 function TMarksDrawConfig.GetStatic: IMarksDrawConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IMarksDrawConfigStatic(GetStaticInternal);
 end;
 
 procedure TMarksDrawConfig.SetOverSizeRect(AValue: TRect);

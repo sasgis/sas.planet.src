@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   SysUtils,
   i_JclNotify,
   i_ConfigDataProvider,
@@ -52,12 +53,37 @@ type
     procedure StopNotify; virtual;
     procedure StartNotify; virtual;
   public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+  public
+    constructor Create();
+    destructor Destroy; override;
+  end;
+
+  TConfigDataElementWithStaticBase = class(TConfigDataElementBase)
+  private
+    FStatic: IInterface;
+    FStaticCS: TCriticalSection;
+  protected
+    function CreateStatic: IInterface; virtual; abstract;
+  protected
+    procedure DoBeforeChangeNotify; override;
+    function GetStaticInternal: IInterface; virtual;
+  public
+    procedure AfterConstruction; override;
+  public
     constructor Create();
     destructor Destroy; override;
   end;
 
 type
   TConfigDataElementBaseEmptySaveLoad = class(TConfigDataElementBase)
+  protected
+    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+  end;
+
+  TConfigDataElementWithStaticBaseEmptySaveLoad = class(TConfigDataElementWithStaticBase)
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -81,6 +107,18 @@ destructor TConfigDataElementBase.Destroy;
 begin
   FreeAndNil(FLock);
   inherited;
+end;
+
+procedure TConfigDataElementBase.AfterConstruction;
+begin
+  inherited;
+  FNeedNotify := 0;
+end;
+
+procedure TConfigDataElementBase.BeforeDestruction;
+begin
+  inherited;
+  StopNotify;
 end;
 
 function TConfigDataElementBase.CheckIsChangedAndReset: Boolean;
@@ -153,6 +191,56 @@ begin
   end;
 end;
 
+{ TConfigDataElementWithStaticBase }
+
+procedure TConfigDataElementWithStaticBase.AfterConstruction;
+begin
+  inherited;
+  FStatic := CreateStatic;
+end;
+
+constructor TConfigDataElementWithStaticBase.Create;
+begin
+  inherited;
+  FStaticCS := TCriticalSection.Create;
+end;
+
+destructor TConfigDataElementWithStaticBase.Destroy;
+begin
+  FreeAndNil(FStaticCS);
+  FStatic := nil;
+  inherited;
+end;
+
+procedure TConfigDataElementWithStaticBase.DoBeforeChangeNotify;
+var
+  VStatic: IInterface;
+begin
+  inherited;
+  LockWrite;
+  try
+    VStatic := CreateStatic;
+    FStaticCS.Acquire;
+    try
+      FStatic := VStatic;
+    finally
+      FStaticCS.Release;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TConfigDataElementWithStaticBase.GetStaticInternal: IInterface;
+begin
+  FStaticCS.Acquire;
+  try
+    Result := FStatic;
+  finally
+    FStaticCS.Release;
+  end;
+end;
+
 { TConfigDataElementBaseEmptySaveLoad }
 
 procedure TConfigDataElementBaseEmptySaveLoad.DoReadConfig(
@@ -161,6 +249,18 @@ begin
 end;
 
 procedure TConfigDataElementBaseEmptySaveLoad.DoWriteConfig(
+  AConfigData: IConfigDataWriteProvider);
+begin
+end;
+
+{ TConfigDataElementWithStaticBaseEmptySaveLoad }
+
+procedure TConfigDataElementWithStaticBaseEmptySaveLoad.DoReadConfig(
+  AConfigData: IConfigDataProvider);
+begin
+end;
+
+procedure TConfigDataElementWithStaticBaseEmptySaveLoad.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 begin
 end;

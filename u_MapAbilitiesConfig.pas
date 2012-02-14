@@ -31,7 +31,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMapAbilitiesConfig = class(TConfigDataElementBase, IMapAbilitiesConfig)
+  TMapAbilitiesConfig = class(TConfigDataElementWithStaticBase, IMapAbilitiesConfig)
   private
     FDefConfig: IMapAbilitiesConfigStatic;
     FStorageConfig: ISimpleTileStorageConfig;
@@ -42,11 +42,10 @@ type
     FIsUseGenPrevious: Boolean;
     FUseDownload: Boolean;
 
-    FStatic: IMapAbilitiesConfigStatic;
-    function CreateStatic: IMapAbilitiesConfigStatic;
     procedure OnStorageConfigChange;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -97,7 +96,6 @@ begin
 
   FStorageConfigListener := TNotifyNoMmgEventListener.Create(Self.OnStorageConfigChange);
   FStorageConfig.GetChangeNotifier.Add(FStorageConfigListener);
-  FStatic := CreateStatic;
 end;
 
 destructor TMapAbilitiesConfig.Destroy;
@@ -109,9 +107,11 @@ begin
   inherited;
 end;
 
-function TMapAbilitiesConfig.CreateStatic: IMapAbilitiesConfigStatic;
+function TMapAbilitiesConfig.CreateStatic: IInterface;
+var
+  VStatic: IMapAbilitiesConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TMapAbilitiesConfigStatic.Create(
       FDefConfig.IsLayer,
       FIsShowOnSmMap,
@@ -119,17 +119,7 @@ begin
       FIsUseGenPrevious,
       FUseDownload
     );
-end;
-
-procedure TMapAbilitiesConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TMapAbilitiesConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -233,12 +223,7 @@ end;
 
 function TMapAbilitiesConfig.GetStatic: IMapAbilitiesConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IMapAbilitiesConfigStatic(GetStaticInternal);
 end;
 
 procedure TMapAbilitiesConfig.SetIsShowOnSmMap(AValue: Boolean);

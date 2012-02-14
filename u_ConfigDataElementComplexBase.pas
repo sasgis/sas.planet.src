@@ -23,6 +23,7 @@ unit u_ConfigDataElementComplexBase;
 interface
 
 uses
+  SyncObjs,
   Contnrs,
   i_JclNotify,
   i_Changeable,
@@ -61,6 +62,22 @@ type
     procedure UnlockWrite; override;
     procedure LockRead; override;
     procedure UnlockRead; override;
+  public
+    constructor Create();
+    destructor Destroy; override;
+  end;
+
+  TConfigDataElementComplexWithStaticBase = class(TConfigDataElementComplexBase)
+  private
+    FStatic: IInterface;
+    FStaticCS: TCriticalSection;
+  protected
+    function CreateStatic: IInterface; virtual; abstract;
+  protected
+    procedure DoBeforeChangeNotify; override;
+    function GetStaticInternal: IInterface; virtual;
+  public
+    procedure AfterConstruction; override;
   public
     constructor Create();
     destructor Destroy; override;
@@ -376,6 +393,56 @@ begin
     end;
   end;
   inherited;
+end;
+
+{ TConfigDataElementComplexWithStaticBase }
+
+procedure TConfigDataElementComplexWithStaticBase.AfterConstruction;
+begin
+  inherited;
+  FStatic := CreateStatic;
+end;
+
+constructor TConfigDataElementComplexWithStaticBase.Create;
+begin
+  inherited;
+  FStaticCS := TCriticalSection.Create;
+end;
+
+destructor TConfigDataElementComplexWithStaticBase.Destroy;
+begin
+  FreeAndNil(FStaticCS);
+  FStatic := nil;
+  inherited;
+end;
+
+procedure TConfigDataElementComplexWithStaticBase.DoBeforeChangeNotify;
+var
+  VStatic: IInterface;
+begin
+  inherited;
+  LockWrite;
+  try
+    VStatic := CreateStatic;
+    FStaticCS.Acquire;
+    try
+      FStatic := VStatic;
+    finally
+      FStaticCS.Release;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TConfigDataElementComplexWithStaticBase.GetStaticInternal: IInterface;
+begin
+  FStaticCS.Acquire;
+  try
+    Result := FStatic;
+  finally
+    FStaticCS.Release;
+  end;
 end;
 
 end.

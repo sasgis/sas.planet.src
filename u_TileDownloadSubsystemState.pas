@@ -8,17 +8,14 @@ uses
   u_ConfigDataElementComplexBase;
 
 type
-  TTileDownloadSubsystemState = class(TConfigDataElementComplexBase, ITileDownloaderStateChangeble)
+  TTileDownloadSubsystemState = class(TConfigDataElementComplexWithStaticBase, ITileDownloaderStateChangeble)
   private
     FZmpDownloadEnabled: Boolean;
     FSaverState: ITileDownloaderStateChangeble;
     FRequestBuilderState: ITileDownloaderStateChangeble;
     FMapAbilitiesConfig: IMapAbilitiesConfig;
-    FStatic: ITileDownloaderStateStatic;
-
-    function CreateStatic: ITileDownloaderStateStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
   protected
     function GetStatic: ITileDownloaderStateStatic;
   public
@@ -56,52 +53,41 @@ begin
     FMapAbilitiesConfig := AMapAbilitiesConfig;
     Add(FMapAbilitiesConfig);
   end;
-  FStatic := CreateStatic;
 end;
 
-function TTileDownloadSubsystemState.CreateStatic: ITileDownloaderStateStatic;
+function TTileDownloadSubsystemState.CreateStatic: IInterface;
 var
+  VStatic: ITileDownloaderStateStatic;
   VState: ITileDownloaderStateStatic;
 begin
+  VStatic := ITileDownloaderStateStatic(GetStaticInternal);
   if not FZmpDownloadEnabled then begin
-    if FStatic = nil then begin
-      Result := TTileDownloaderStateStatic.Create(False, 'Disabled by Zmp');
-    end else begin
-      Result := FStatic;
+    if VStatic = nil then begin
+      VStatic := TTileDownloaderStateStatic.Create(False, 'Disabled by Zmp');
     end;
   end else begin
     if not FMapAbilitiesConfig.UseDownload then begin
-      Result := TTileDownloaderStateStatic.Create(False, 'Disabled by map params');
+      VStatic := TTileDownloaderStateStatic.Create(False, 'Disabled by map params');
     end else begin
       VState := FRequestBuilderState.GetStatic;
       if not VState.Enabled then begin
-        Result := TTileDownloaderStateStatic.Create(False, VState.DisableReason);
+        VStatic := TTileDownloaderStateStatic.Create(False, VState.DisableReason);
       end else begin
         VState := FSaverState.GetStatic;
         if not VState.Enabled then begin
-          Result := TTileDownloaderStateStatic.Create(False, VState.DisableReason);
+          VStatic := TTileDownloaderStateStatic.Create(False, VState.DisableReason);
         end else begin
-          Result := TTileDownloaderStateStatic.Create(True, '');
+          VStatic := TTileDownloaderStateStatic.Create(True, '');
         end;
       end;
     end;
   end;
-end;
-
-procedure TTileDownloadSubsystemState.DoBeforeChangeNotify;
-begin
-  inherited;
-  FStatic := CreateStatic;
+  Result := VStatic;
 end;
 
 function TTileDownloadSubsystemState.GetStatic: ITileDownloaderStateStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := ITileDownloaderStateStatic(GetStaticInternal);
 end;
 
 end.

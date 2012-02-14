@@ -57,14 +57,13 @@ type
     constructor Create(AList: IInterfaceList);
   end;
 
-  TTrackColorerConfig = class(TConfigDataElementBase, ITrackColorerConfig)
+  TTrackColorerConfig = class(TConfigDataElementComplexWithStaticBase, ITrackColorerConfig)
   private
-    FStatic: ITrackColorerStatic;
     FList: IInterfaceList;
-    function CreateStatic: ITrackColorerStatic;
     procedure CreateDefault;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -143,7 +142,6 @@ begin
   inherited Create;
   FList := TInterfaceList.Create;
   CreateDefault;
-  FStatic := CreateStatic;
 end;
 
 procedure TTrackColorerConfig.CreateDefault;
@@ -161,20 +159,12 @@ begin
   FList.Add(VItem);
 end;
 
-function TTrackColorerConfig.CreateStatic: ITrackColorerStatic;
+function TTrackColorerConfig.CreateStatic: IInterface;
+var
+  VStatic: ITrackColorerStatic;
 begin
-  Result := TTrackColorerStatic.Create(FList);
-end;
-
-procedure TTrackColorerConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  VStatic := TTrackColorerStatic.Create(FList);
+  Result := VStatic;
 end;
 
 procedure TTrackColorerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -283,7 +273,6 @@ begin
   LockWrite;
   try
     FList.Clear;
-    FStatic := CreateStatic;
     SetChanged;
   finally
     UnlockWrite;
@@ -313,12 +302,7 @@ end;
 
 function TTrackColorerConfig.GetStatic: ITrackColorerStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := ITrackColorerStatic(GetStaticInternal);
 end;
 
 { TTrackColorerStatic }

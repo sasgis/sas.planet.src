@@ -29,15 +29,14 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TBitmapPostProcessingConfig = class(TConfigDataElementBase, IBitmapPostProcessingConfig)
+  TBitmapPostProcessingConfig = class(TConfigDataElementWithStaticBase, IBitmapPostProcessingConfig)
   private
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
-    FStatic: IBitmapPostProcessingConfigStatic;
-    function CreateStatic: IBitmapPostProcessingConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -65,28 +64,19 @@ begin
   FInvertColor := False;
   FContrastN := 0;
   FGammaN := 50;
-  FStatic := CreateStatic;
 end;
 
-function TBitmapPostProcessingConfig.CreateStatic: IBitmapPostProcessingConfigStatic;
+function TBitmapPostProcessingConfig.CreateStatic: IInterface;
+var
+  VStatic: IBitmapPostProcessingConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TBitmapPostProcessingConfigStatic.Create(
       FInvertColor,
       FGammaN,
       FContrastN
     );
-end;
-
-procedure TBitmapPostProcessingConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TBitmapPostProcessingConfig.DoReadConfig(
@@ -142,12 +132,7 @@ end;
 
 function TBitmapPostProcessingConfig.GetStatic: IBitmapPostProcessingConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IBitmapPostProcessingConfigStatic(GetStaticInternal);
 end;
 
 procedure TBitmapPostProcessingConfig.SetContrastN(const AValue: Integer);

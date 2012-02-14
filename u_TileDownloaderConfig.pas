@@ -31,7 +31,7 @@ uses
   u_ConfigDataElementComplexBase;
 
 type
-  TTileDownloaderConfig = class(TConfigDataElementComplexBase, ITileDownloaderConfig)
+  TTileDownloaderConfig = class(TConfigDataElementComplexWithStaticBase, ITileDownloaderConfig)
   private
     FDefConfig: ITileDownloaderConfigStatic;
     FIntetConfig: IInetConfig;
@@ -42,11 +42,9 @@ type
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
     FIteratorSubRectSize: TPoint;
-
-    FStatic: ITileDownloaderConfigStatic;
-    function CreateStatic: ITileDownloaderConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -99,15 +97,13 @@ begin
   FIteratorSubRectSize := FDefConfig.IteratorSubRectSize;
 
   Add(FIntetConfig, nil, False, False, False, True);
-
-  FStatic := CreateStatic;
 end;
 
-function TTileDownloaderConfig.CreateStatic: ITileDownloaderConfigStatic;
+function TTileDownloaderConfig.CreateStatic: IInterface;
+var
+  VStatic: ITileDownloaderConfigStatic;
 begin
-  FIntetConfig.LockRead;
-  try
-  Result :=
+  VStatic :=
     TTileDownloaderConfigStatic.Create(
       FIntetConfig.GetStatic,
       FEnabled,
@@ -118,20 +114,7 @@ begin
       FDefaultMIMEType,
       FIteratorSubRectSize
     );
-  finally
-    FIntetConfig.UnlockRead;
-  end;
-end;
-
-procedure TTileDownloaderConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TTileDownloaderConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -231,12 +214,7 @@ end;
 
 function TTileDownloaderConfig.GetStatic: ITileDownloaderConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := ITileDownloaderConfigStatic(GetStaticInternal);
 end;
 
 function TTileDownloaderConfig.GetWaitInterval: Cardinal;

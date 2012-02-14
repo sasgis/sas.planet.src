@@ -34,7 +34,7 @@ uses
   u_ConfigDataElementComplexBase;
 
 type
-  TMapTypeGUIConfig = class(TConfigDataElementComplexBase, IMapTypeGUIConfig)
+  TMapTypeGUIConfig = class(TConfigDataElementComplexWithStaticBase, IMapTypeGUIConfig)
   private
     FDefConfig: IZmpInfoGUI;
     FName: IStringConfigDataElement;
@@ -44,11 +44,8 @@ type
     FParentSubMenu: IStringConfigDataElement;
     FEnabled: Boolean;
     FInfoUrl: IStringConfigDataElement;
-
-    FStatic: IMapTypeGUIConfigStatic;
-    function CreateStatic: IMapTypeGUIConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -106,12 +103,7 @@ begin
       True
     );
   Add(FName, TConfigSaveLoadStrategyBasicUseProvider.Create);
-  FSortIndex := FDefConfig.SortIndex;
-  if FSortIndex < 0 then begin
-    FSortIndex := 1000;
-  end;
-  FHotKey := FDefConfig.HotKey;
-  FSeparator := FDefConfig.Separator;
+
   FParentSubMenu :=
     TStringConfigDataElementWithLanguage.Create(
       ALanguageManager,
@@ -121,7 +113,7 @@ begin
       False
     );
   Add(FParentSubMenu, TConfigSaveLoadStrategyBasicUseProvider.Create);
-  FEnabled := FDefConfig.Enabled;
+
   FInfoUrl :=
     TStringConfigDataElementWithLanguage.Create(
       ALanguageManager,
@@ -132,12 +124,20 @@ begin
     );
   Add(FInfoUrl, nil);
 
-  FStatic := CreateStatic;
+  FSortIndex := FDefConfig.SortIndex;
+  if FSortIndex < 0 then begin
+    FSortIndex := 1000;
+  end;
+  FHotKey := FDefConfig.HotKey;
+  FSeparator := FDefConfig.Separator;
+  FEnabled := FDefConfig.Enabled;
 end;
 
-function TMapTypeGUIConfig.CreateStatic: IMapTypeGUIConfigStatic;
+function TMapTypeGUIConfig.CreateStatic: IInterface;
+var
+  VStatic: IMapTypeGUIConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TMapTypeGUIConfigStatic.Create(
       FName.Value,
       FSortIndex,
@@ -149,17 +149,7 @@ begin
       FDefConfig.Bmp18,
       FDefConfig.Bmp24
     );
-end;
-
-procedure TMapTypeGUIConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TMapTypeGUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -267,12 +257,7 @@ end;
 
 function TMapTypeGUIConfig.GetStatic: IMapTypeGUIConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IMapTypeGUIConfigStatic(GetStaticInternal);
 end;
 
 procedure TMapTypeGUIConfig.SetEnabled(const AValue: Boolean);

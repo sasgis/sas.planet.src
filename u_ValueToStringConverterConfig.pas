@@ -32,7 +32,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TValueToStringConverterConfig = class(TConfigDataElementBase, IValueToStringConverterConfig)
+  TValueToStringConverterConfig = class(TConfigDataElementWithStaticBase, IValueToStringConverterConfig)
   private
     FDependentOnElement: IConfigDataElement;
     FDependentOnElementListener: IJclListener;
@@ -40,11 +40,10 @@ type
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
-    FStatic: IValueToStringConverter;
     procedure OnDependentOnElementChange;
-    function CreateStatic: IValueToStringConverter;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -81,8 +80,6 @@ begin
   FDependentOnElement := ADependentOnElement;
   FDependentOnElementListener := TNotifyNoMmgEventListener.Create(Self.OnDependentOnElementChange);
   FDependentOnElement.GetChangeNotifier.Add(FDependentOnElementListener);
-
-  FStatic := CreateStatic;
 end;
 
 destructor TValueToStringConverterConfig.Destroy;
@@ -93,25 +90,17 @@ begin
   inherited;
 end;
 
-function TValueToStringConverterConfig.CreateStatic: IValueToStringConverter;
+function TValueToStringConverterConfig.CreateStatic: IInterface;
+var
+  VStatic: IValueToStringConverter;
 begin
-  Result :=
+  VStatic :=
     TValueToStringConverter.Create(
       FDistStrFormat,
       FIsLatitudeFirst,
       FDegrShowFormat
     );
-end;
-
-procedure TValueToStringConverterConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TValueToStringConverterConfig.DoReadConfig(
@@ -167,12 +156,7 @@ end;
 
 function TValueToStringConverterConfig.GetStatic: IValueToStringConverter;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IValueToStringConverter(GetStaticInternal);
 end;
 
 procedure TValueToStringConverterConfig.OnDependentOnElementChange;

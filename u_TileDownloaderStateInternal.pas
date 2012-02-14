@@ -23,15 +23,12 @@ type
   end;
 
 type
-  TTileDownloaderStateInternal = class(TConfigDataElementBaseEmptySaveLoad, ITileDownloaderStateInternal, ITileDownloaderStateChangeble)
+  TTileDownloaderStateInternal = class(TConfigDataElementWithStaticBaseEmptySaveLoad, ITileDownloaderStateInternal, ITileDownloaderStateChangeble)
   private
     FEnabled: Boolean;
     FReason: string;
-
-    FStatic: ITileDownloaderStateStatic;
-    function CreateStatic: ITileDownloaderStateStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
   protected
     function GetEnabled: Boolean;
     function GetDisableReason: string;
@@ -56,16 +53,18 @@ constructor TTileDownloaderStateInternal.Create;
 begin
   inherited;
   FEnabled := True;
-  FStatic := CreateStatic;
 end;
 
-function TTileDownloaderStateInternal.CreateStatic: ITileDownloaderStateStatic;
+function TTileDownloaderStateInternal.CreateStatic: IInterface;
+var
+  VStatic: ITileDownloaderStateStatic;
 begin
-  Result :=
+  VStatic :=
     TTileDownloaderStateStatic.Create(
       FEnabled,
       FReason
     );
+  Result := VStatic;
 end;
 
 procedure TTileDownloaderStateInternal.Disable(AReason: string);
@@ -79,17 +78,6 @@ begin
     end;
   finally
     UnlockWrite
-  end;
-end;
-
-procedure TTileDownloaderStateInternal.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
   end;
 end;
 
@@ -133,12 +121,7 @@ end;
 
 function TTileDownloaderStateInternal.GetStatic: ITileDownloaderStateStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := ITileDownloaderStateStatic(GetStaticInternal);
 end;
 
 end.

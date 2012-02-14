@@ -30,7 +30,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TSimpleTileStorageConfig = class(TConfigDataElementBase, ISimpleTileStorageConfig)
+  TSimpleTileStorageConfig = class(TConfigDataElementWithStaticBase, ISimpleTileStorageConfig)
   private
     FDefConfig: ISimpleTileStorageConfigStatic;
 
@@ -40,11 +40,9 @@ type
     FAllowDelete: boolean;
     FAllowAdd: boolean;
     FAllowReplace: boolean;
-
-    FStatic: ISimpleTileStorageConfigStatic;
-    function CreateStatic: ISimpleTileStorageConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -96,12 +94,13 @@ begin
   FAllowDelete := FDefConfig.AllowDelete;
   FAllowAdd := FDefConfig.AllowAdd;
   FAllowReplace := FDefConfig.AllowReplace;
-  FStatic := CreateStatic;
 end;
 
-function TSimpleTileStorageConfig.CreateStatic: ISimpleTileStorageConfigStatic;
+function TSimpleTileStorageConfig.CreateStatic: IInterface;
+var
+  VStatic: ISimpleTileStorageConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TSimpleTileStorageConfigStatic.Create(
       FDefConfig.CoordConverter,
       FCacheTypeCode,
@@ -113,17 +112,7 @@ begin
       FAllowAdd,
       FAllowReplace
     );
-end;
-
-procedure TSimpleTileStorageConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TSimpleTileStorageConfig.DoReadConfig(
@@ -231,12 +220,7 @@ end;
 
 function TSimpleTileStorageConfig.GetStatic: ISimpleTileStorageConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := ISimpleTileStorageConfigStatic(GetStaticInternal);
 end;
 
 function TSimpleTileStorageConfig.GetTileFileExt: string;

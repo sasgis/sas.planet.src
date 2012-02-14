@@ -55,7 +55,7 @@ type
     );
   end;
 
-  TProxyConfig = class(TConfigDataElementBase, IProxyConfig, IProxySettings)
+  TProxyConfig = class(TConfigDataElementWithStaticBase, IProxyConfig, IProxySettings)
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
@@ -63,10 +63,9 @@ type
     FUseLogin: boolean;
     FLogin: WideString;
     FPassword: WideString;
-    FStatic: IProxyConfigStatic;
-    function CreateStatic: IProxyConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -102,12 +101,13 @@ begin
   FHost := '';
   FLogin := '';
   FPassword := '';
-  FStatic := CreateStatic;
 end;
 
-function TProxyConfig.CreateStatic: IProxyConfigStatic;
+function TProxyConfig.CreateStatic: IInterface;
+var
+  VStatic: IProxyConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TProxyConfigStatic.Create(
       FUseIESettings,
       FUseProxy,
@@ -116,17 +116,7 @@ begin
       FLogin,
       FPassword
     );
-end;
-
-procedure TProxyConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TProxyConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -186,12 +176,7 @@ end;
 
 function TProxyConfig.GetStatic: IProxyConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IProxyConfigStatic(GetStaticInternal);
 end;
 
 function TProxyConfig.GetUseIESettings: Boolean;

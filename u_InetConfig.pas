@@ -30,18 +30,16 @@ uses
   u_ConfigDataElementComplexBase;
 
 type
-  TInetConfig = class(TConfigDataElementComplexBase, IInetConfig)
+  TInetConfig = class(TConfigDataElementComplexWithStaticBase, IInetConfig)
   private
     FUserAgentString: string;
     FTimeOut: Cardinal;
     FProxyConfig: IProxyConfig;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
-
-    FStatic: IInetConfigStatic;
-    function CreateStatic: IInetConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -80,16 +78,16 @@ begin
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;
   FDownloadTryCount := 2;
-  
+
   FProxyConfig := TProxyConfig.Create;
   Add(FProxyConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Proxy'));
-
-  FStatic := CreateStatic;
 end;
 
-function TInetConfig.CreateStatic: IInetConfigStatic;
+function TInetConfig.CreateStatic: IInterface;
+var
+  VStatic: IInetConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TInetConfigStatic.Create(
       FProxyConfig.GetStatic,
       FUserAgentString,
@@ -97,17 +95,7 @@ begin
       FSleepOnResetConnection,
       FDownloadTryCount
     );
-end;
-
-procedure TInetConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TInetConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -158,12 +146,7 @@ end;
 
 function TInetConfig.GetStatic: IInetConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IInetConfigStatic(GetStaticInternal);
 end;
 
 function TInetConfig.GetTimeOut: Cardinal;

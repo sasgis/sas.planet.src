@@ -30,15 +30,14 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TBitmapMarkerProviderSimpleConfig = class(TConfigDataElementBase, IBitmapMarkerProviderSimpleConfig)
+  TBitmapMarkerProviderSimpleConfig = class(TConfigDataElementWithStaticBase, IBitmapMarkerProviderSimpleConfig)
   private
     FMarkerSize: Integer;
     FMarkerColor: TColor32;
     FBorderColor: TColor32;
-    FStatic: IBitmapMarkerProviderSimpleConfigStatic;
-    function CreateStatic: IBitmapMarkerProviderSimpleConfigStatic;
   protected
-    procedure DoBeforeChangeNotify; override;
+    function CreateStatic: IInterface; override;
+  protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
@@ -71,29 +70,19 @@ begin
   FMarkerSize := ADefault.MarkerSize;
   FMarkerColor := ADefault.MarkerColor;
   FBorderColor := ADefault.BorderColor;
-
-  FStatic := CreateStatic;
 end;
 
-function TBitmapMarkerProviderSimpleConfig.CreateStatic: IBitmapMarkerProviderSimpleConfigStatic;
+function TBitmapMarkerProviderSimpleConfig.CreateStatic: IInterface;
+var
+  VStatic: IBitmapMarkerProviderSimpleConfigStatic;
 begin
-  Result :=
+  VStatic :=
     TBitmapMarkerProviderSimpleConfigStatic.Create(
       FMarkerSize,
       FMarkerColor,
       FBorderColor
     );
-end;
-
-procedure TBitmapMarkerProviderSimpleConfig.DoBeforeChangeNotify;
-begin
-  inherited;
-  LockWrite;
-  try
-    FStatic := CreateStatic;
-  finally
-    UnlockWrite;
-  end;
+  Result := VStatic;
 end;
 
 procedure TBitmapMarkerProviderSimpleConfig.DoReadConfig(
@@ -149,12 +138,7 @@ end;
 
 function TBitmapMarkerProviderSimpleConfig.GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FStatic;
-  finally
-    UnlockRead;
-  end;
+  Result := IBitmapMarkerProviderSimpleConfigStatic(GetStaticInternal);
 end;
 
 procedure TBitmapMarkerProviderSimpleConfig.SetBorderColor(AValue: TColor32);
