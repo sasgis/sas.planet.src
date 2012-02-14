@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -30,13 +31,16 @@ type
     FMapsConfig: IMainMapsConfig;
     FPostProcessingConfig:IBitmapPostProcessingConfig;
     FViewConfig: IGlobalViewMainConfig;
+    FTileChangeListener: IJclListener;
+
     FMainMap: IMapType;
+    FMainMapCS: TCriticalSection;
     FLayersSet: IMapTypeSet;
+    FLayersSetCS: TCriticalSection;
+
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-
     FTileUpdateCounter: Integer;
-    FTileChangeListener: IJclListener;
     procedure OnTileChange;
     procedure OnTimer;
 
@@ -74,6 +78,7 @@ type
       AErrorLogger: ITileErrorLogger;
       ATimerNoifier: IJclNotifier
     );
+    destructor Destroy; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
   end;
@@ -125,6 +130,9 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FViewConfig := AViewConfig;
 
+  FMainMapCS := TCriticalSection.Create;
+  FLayersSetCS := TCriticalSection.Create;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
     FMapsConfig.GetActiveMap.GetChangeNotifier
@@ -150,6 +158,13 @@ begin
   );
   FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
   FTileUpdateCounter := 0;
+end;
+
+destructor TMapMainLayer.Destroy;
+begin
+  FreeAndNil(FMainMapCS);
+  FreeAndNil(FLayersSetCS);
+  inherited;
 end;
 
 procedure TMapMainLayer.DrawBitmap(
@@ -185,7 +200,8 @@ var
   VCurrTileOnBitmapRect: TRect;
   VTileIsEmpty: Boolean;
   // draw mode - very first item is opaque, others - as dmBlend
-  VDrawMode: TDrawMode; 
+  VDrawMode: TDrawMode;
+  VMainMap: IMapType;
 begin
   VRecolorConfig := FPostProcessingConfig.GetStatic;
 
@@ -217,8 +233,14 @@ begin
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;
         VDrawMode := dmOpaque;
-        if FMainMap <> nil then begin
-          if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
+        FMainMapCS.Acquire;
+        try
+          VMainMap := FMainMap;
+        finally
+          FMainMapCS.Release;
+        end;
+        if VMainMap <> nil then begin
+          if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
             VDrawMode := dmBlend;
           end else begin
@@ -229,7 +251,12 @@ begin
           break;
         end;
 
-        VLayersSet := FLayersSet;
+        FLayersSetCS.Acquire;
+        try
+          VLayersSet := FLayersSet;
+        finally
+          FLayersSetCS.Release;
+        end;
         if VLayersSet <> nil then begin
           VEnum := VLayersSet.GetIterator;
           while VEnum.Next(1, VGUID, i) = S_OK do begin
@@ -353,9 +380,14 @@ var
 begin
   ViewUpdateLock;
   try
-    VOldLayersSet := FLayersSet;
     VNewLayersSet := FMapsConfig.GetActiveBitmapLayersSet.GetSelectedMapsSet;
-    FLayersSet := VNewLayersSet;
+    FLayersSetCS.Acquire;
+    try
+      VOldLayersSet := FLayersSet;
+      FLayersSet := VNewLayersSet;
+    finally
+      FLayersSetCS.Release;
+    end;
     VLocalConverter := LayerCoordConverter;
     if VLocalConverter <> nil then begin
       VZoom := VLocalConverter.GetZoom;
@@ -414,9 +446,14 @@ var
 begin
   ViewUpdateLock;
   try
-    VOldMainMap := FMainMap;
     VNewMainMap := FMapsConfig.GetSelectedMapType;
-    FMainMap := VNewMainMap;
+    FMainMapCS.Acquire;
+    try
+      VOldMainMap := FMainMap;
+      FMainMap := VNewMainMap;
+    finally
+      FMainMapCS.Release;
+    end;
     if VOldMainMap <> VNewMainMap then begin
       VLocalConverter := LayerCoordConverter;
       VZoom := VLocalConverter.GetZoom;
@@ -476,14 +513,24 @@ begin
   inherited;
   if LayerCoordConverter <> nil then begin
     VZoom := LayerCoordConverter.GetZoom;
-    VMap := FMainMap;
+    FMainMapCS.Acquire;
+    try
+      VMap := FMainMap;
+    finally
+      FMainMapCS.Release;
+    end;
     if VMap <> nil then begin
       VNotifier := VMap.MapType.NotifierByZoom[VZoom];
       if VNotifier <> nil then begin
         VNotifier.Remove(FTileChangeListener);
       end;
     end;
-    VLayersSet := FLayersSet;
+    FLayersSetCS.Acquire;
+    try
+      VLayersSet := FLayersSet;
+    finally
+      FLayersSetCS.Release;
+    end;
     if VLayersSet <> nil then begin
       VEnum := VLayersSet.GetIterator;
       while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -521,14 +568,24 @@ begin
   VZoom := AValue.GetZoom;
   if VZoom <> VOldZoom then begin
     if VOldZoom <> 255 then begin
-      VMap := FMainMap;
+      FMainMapCS.Acquire;
+      try
+        VMap := FMainMap;
+      finally
+        FMainMapCS.Release;
+      end;
       if VMap <> nil then begin
         VNotifier := VMap.MapType.NotifierByZoom[VOldZoom];
         if VNotifier <> nil then begin
           VNotifier.Remove(FTileChangeListener);
         end;
       end;
-      VLayersSet := FLayersSet;
+      FLayersSetCS.Acquire;
+      try
+        VLayersSet := FLayersSet;
+      finally
+        FLayersSetCS.Release;
+      end;
       if VLayersSet <> nil then begin
         VEnum := VLayersSet.GetIterator;
         while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -546,7 +603,13 @@ begin
   VMapPixelRect := AValue.GetRectInMapPixelFloat;
   AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
   VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-  VMap := FMainMap;
+
+  FMainMapCS.Acquire;
+  try
+    VMap := FMainMap;
+  finally
+    FMainMapCS.Release;
+  end;
   if VMap <> nil then begin
     VNotifier := VMap.MapType.NotifierByZoom[VZoom];
     if VNotifier <> nil then begin
@@ -555,7 +618,12 @@ begin
       VNotifier.Add(FTileChangeListener, VTileRect);
     end;
   end;
-  VLayersSet := FLayersSet;
+  FLayersSetCS.Acquire;
+  try
+    VLayersSet := FLayersSet;
+  finally
+    FLayersSetCS.Release;
+  end;
   if VLayersSet <> nil then begin
     VEnum := VLayersSet.GetIterator;
     while VEnum.Next(1, VGUID, cnt) = S_OK do begin
