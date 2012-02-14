@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   Classes,
   Controls,
   TBX,
@@ -39,6 +40,7 @@ type
     FParentMap: TImage32;
     FCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FPostProcessingConfig: IBitmapPostProcessingConfig;
 
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -58,8 +60,9 @@ type
     FUsePrevZoomAtLayer: Boolean;
 
     FMainMap: IMapType;
+    FMainMapCS: TCriticalSection;
     FLayersSet: IMapTypeSet;
-    FPostProcessingConfig:IBitmapPostProcessingConfig;
+    FLayersSetCS: TCriticalSection;
 
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
@@ -168,21 +171,6 @@ uses
 
 { TMapMainLayer }
 
-procedure TMiniMapLayer.ClearLayerBitmap;
-begin
-  if Visible then begin
-    FLayer.Bitmap.Lock;
-    try
-      if FClearStrategy <> nil then begin
-        FClearStrategy.Clear(FLayer.Bitmap);
-        FClearStrategy := nil;
-      end;
-    finally
-      FLayer.Bitmap.UnLock;
-    end;
-  end;
-end;
-
 constructor TMiniMapLayer.Create(
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
@@ -208,6 +196,9 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FParentMap := AParentMap;
   FIconsList := AIconsList;
+
+  FMainMapCS := TCriticalSection.Create;
+  FLayersSetCS := TCriticalSection.Create;
 
   FViewRectMoveDelta := DoublePoint(0, 0);
 
@@ -258,9 +249,27 @@ end;
 
 destructor TMiniMapLayer.Destroy;
 begin
+  FreeAndNil(FMainMapCS);
+  FreeAndNil(FLayersSetCS);
+  
   FCoordConverterFactory := nil;
   FDrawTask := nil;
   inherited;
+end;
+
+procedure TMiniMapLayer.ClearLayerBitmap;
+begin
+  if Visible then begin
+    FLayer.Bitmap.Lock;
+    try
+      if FClearStrategy <> nil then begin
+        FClearStrategy.Clear(FLayer.Bitmap);
+        FClearStrategy := nil;
+      end;
+    finally
+      FLayer.Bitmap.UnLock;
+    end;
+  end;
 end;
 
 function TMiniMapLayer.GetLayerCoordConverterByViewConverter(
@@ -510,6 +519,7 @@ var
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
   VTileIsEmpty: Boolean;
+  VMainMap: IMapType;
 begin
   VRecolorConfig := FPostProcessingConfig.GetStatic;
 
@@ -540,8 +550,14 @@ begin
 
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;
-        if FMainMap <> nil then begin
-          if DrawMap(VTileToDrawBmp, FMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
+        FMainMapCS.Acquire;
+        try
+          VMainMap := FMainMap;
+        finally
+          FMainMapCS.Release;
+        end;
+        if VMainMap <> nil then begin
+          if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
           end else begin
             VTileToDrawBmp.Clear(0);
@@ -551,7 +567,12 @@ begin
           break;
         end;
 
-        VLayersSet := FLayersSet;
+        FLayersSetCS.Acquire;
+        try
+          VLayersSet := FLayersSet;
+        finally
+          FLayersSetCS.Release;
+        end;
         if VLayersSet <> nil then begin
           VEnum := VLayersSet.GetIterator;
           while VEnum.Next(1, VGUID, i) = S_OK do begin
@@ -931,10 +952,18 @@ begin
 end;
 
 procedure TMiniMapLayer.OnLayerSetChange;
+var
+  VNewLayersSet: IMapTypeSet;
 begin
   ViewUpdateLock;
   try
-    FLayersSet := FConfig.MapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
+    VNewLayersSet := FConfig.MapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
+    FLayersSetCS.Acquire;
+    try
+      FLayersSet := VNewLayersSet;
+    finally
+      FLayersSetCS.Release;
+    end;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -943,10 +972,18 @@ begin
 end;
 
 procedure TMiniMapLayer.OnMainMapChange;
+var
+  VNewMainMap: IMapType;
 begin
   ViewUpdateLock;
   try
-    FMainMap := FConfig.MapsConfig.GetActiveMiniMap;
+    VNewMainMap := FConfig.MapsConfig.GetActiveMiniMap;
+    FMainMapCS.Acquire;
+    try
+      FMainMap := VNewMainMap;
+    finally
+      FMainMapCS.Release;
+    end;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
