@@ -19,9 +19,13 @@ type
     FViewUpdateLock: Integer;
     FViewPortState: IViewPortState;
     FViewCoordConverter: ILocalCoordConverter;
+    FViewCoordConverterCS: TCriticalSection;
     FLayerCoordConverter: ILocalCoordConverter;
+    FLayerCoordConverterCS: TCriticalSection;
     procedure OnViewPortPosChange;
     procedure OnViewPortScaleChange;
+    function GetLayerCoordConverter: ILocalCoordConverter;
+    function GetViewCoordConverter: ILocalCoordConverter;
   protected
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); virtual;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); virtual;
@@ -40,8 +44,8 @@ type
     procedure DoViewUpdate; virtual;
 
     property ViewPortState: IViewPortState read FViewPortState;
-    property ViewCoordConverter: ILocalCoordConverter read FViewCoordConverter;
-    property LayerCoordConverter: ILocalCoordConverter read FLayerCoordConverter;
+    property ViewCoordConverter: ILocalCoordConverter read GetViewCoordConverter;
+    property LayerCoordConverter: ILocalCoordConverter read GetLayerCoordConverter;
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
@@ -52,7 +56,6 @@ type
 
     procedure StartThreads; override;
   end;
-
 
   TWindowLayerBasic = class(TWindowLayerWithPosBase)
   private
@@ -148,6 +151,9 @@ begin
   FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
+  FViewCoordConverterCS := TCriticalSection.Create;
+  FLayerCoordConverterCS := TCriticalSection.Create;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
     FViewPortState.GetChangeNotifier
@@ -162,6 +168,8 @@ end;
 
 destructor TWindowLayerWithPosBase.Destroy;
 begin
+  FreeAndNil(FViewCoordConverterCS);
+  FreeAndNil(FLayerCoordConverterCS);
   FViewCoordConverter := nil;
   FLayerCoordConverter := nil;
   FViewPortState := nil;
@@ -215,10 +223,30 @@ begin
   SetViewCoordConverter(ANewVisualCoordConverter);
 end;
 
+function TWindowLayerWithPosBase.GetLayerCoordConverter: ILocalCoordConverter;
+begin
+  FLayerCoordConverterCS.Acquire;
+  try
+    Result := FLayerCoordConverter;
+  finally
+    FLayerCoordConverterCS.Release;
+  end;
+end;
+
 function TWindowLayerWithPosBase.GetLayerCoordConverterByViewConverter(
   ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
 begin
   Result := ANewViewCoordConverter;
+end;
+
+function TWindowLayerWithPosBase.GetViewCoordConverter: ILocalCoordConverter;
+begin
+  FViewCoordConverterCS.Acquire;
+  try
+    Result := FViewCoordConverter;
+  finally
+    FViewCoordConverterCS.Release;
+  end;
 end;
 
 procedure TWindowLayerWithPosBase.DoViewUpdate;
@@ -228,13 +256,23 @@ end;
 procedure TWindowLayerWithPosBase.SetLayerCoordConverter(
   AValue: ILocalCoordConverter);
 begin
-  FLayerCoordConverter := AValue;
+  FLayerCoordConverterCS.Acquire;
+  try
+    FLayerCoordConverter := AValue;
+  finally
+    FLayerCoordConverterCS.Release;
+  end;
 end;
 
 procedure TWindowLayerWithPosBase.SetViewCoordConverter(
   AValue: ILocalCoordConverter);
 begin
-  FViewCoordConverter := AValue;
+  FViewCoordConverterCS.Acquire;
+  try
+    FViewCoordConverter := AValue;
+  finally
+    FViewCoordConverterCS.Release;
+  end;
 end;
 
 procedure TWindowLayerWithPosBase.StartThreads;
