@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SyncObjs,
   Types,
   Classes,
   GR32,
@@ -40,19 +41,19 @@ type
     FLayersSet: IActiveMapsSet;
     FErrorLogger: ITileErrorLogger;
 
-    FVectorMapsSet: IMapTypeSet;
-    FElments: IInterfaceList;
-    FLinesClipRect: TDoubleRect;
-
-    FPolygon: TPolygon32;
-
     FProjectedCache: IIdCacheSimple;
+    FPolygon: TPolygon32;
     FPointsAgregatorThread: IDoublePointsAggregator;
     FPointsAgregatorGUI: IDoublePointsAggregator;
-    FFixedPointArray: TArrayOfFixedPoint;
-
-    FTileUpdateCounter: Integer;
     FTileChangeListener: IJclListener;
+    FElments: IInterfaceList;
+
+    FVectorMapsSet: IMapTypeSet;
+    FVectorMapsSetCS: TCriticalSection;
+    FLinesClipRect: TDoubleRect;
+
+    FFixedPointArray: TArrayOfFixedPoint;
+    FTileUpdateCounter: Integer;
     procedure OnTileChange;
     procedure OnTimer;
 
@@ -211,6 +212,7 @@ begin
   FLayersSet := ALayersSet;
   FVectorItmesFactory := AVectorItmesFactory;
   FErrorLogger := AErrorLogger;
+  FVectorMapsSetCS := TCriticalSection.Create;
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FPointsAgregatorThread := TDoublePointsAggregator.Create;
@@ -243,6 +245,7 @@ destructor TWikiLayer.Destroy;
 begin
   FElments := nil;
   FreeAndNil(FPolygon);
+  FreeAndNil(FVectorMapsSetCS);
   inherited;
 end;
 
@@ -351,7 +354,12 @@ var
   VItem: IMapType;
   VMapType: TMapType;
 begin
-  VVectorMapsSet := FVectorMapsSet;
+  FVectorMapsSetCS.Acquire;
+  try
+    VVectorMapsSet := FVectorMapsSet;
+  finally
+    FVectorMapsSetCS.Release;
+  end;
   if VVectorMapsSet <> nil then begin
     VEnum := VVectorMapsSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
@@ -483,10 +491,14 @@ var
 begin
   ViewUpdateLock;
   try
-    FVectorMapsSet := FLayersSet.GetSelectedMapsSet;
-    VOldLayersSet := FVectorMapsSet;
     VNewLayersSet := FLayersSet.GetSelectedMapsSet;
-    FVectorMapsSet := VNewLayersSet;
+    FVectorMapsSetCS.Acquire;
+    try
+      VOldLayersSet := FVectorMapsSet;
+      FVectorMapsSet := VNewLayersSet;
+    finally
+      FVectorMapsSetCS.Release;
+    end;
     VLocalConverter := LayerCoordConverter;
     if VLocalConverter <> nil then begin
       VZoom := VLocalConverter.GetZoom;
@@ -526,7 +538,7 @@ begin
       end;
     end;
     SetNeedRedraw;
-    SetVisible(FVectorMapsSet.GetIterator.Next(1, VGUID, cnt) = S_OK);
+    SetVisible(VNewLayersSet.GetIterator.Next(1, VGUID, cnt) = S_OK);
   finally
     ViewUpdateUnlock;
   end;
@@ -564,7 +576,12 @@ begin
   inherited;
   if LayerCoordConverter <> nil then begin
     VZoom := LayerCoordConverter.GetZoom;
-    VLayersSet := FVectorMapsSet;
+    FVectorMapsSetCS.Acquire;
+    try
+      VLayersSet := FVectorMapsSet;
+    finally
+      FVectorMapsSetCS.Release;
+    end;
     if VLayersSet <> nil then begin
       VEnum := VLayersSet.GetIterator;
       while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -602,7 +619,12 @@ begin
   VZoom := AValue.GetZoom;
   if VZoom <> VOldZoom then begin
     if VOldZoom <> 255 then begin
-      VLayersSet := FVectorMapsSet;
+      FVectorMapsSetCS.Acquire;
+      try
+        VLayersSet := FVectorMapsSet;
+      finally
+        FVectorMapsSetCS.Release;
+      end;
       if VLayersSet <> nil then begin
         VEnum := VLayersSet.GetIterator;
         while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -620,7 +642,12 @@ begin
   VMapPixelRect := AValue.GetRectInMapPixelFloat;
   AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
   VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-  VLayersSet := FVectorMapsSet;
+  FVectorMapsSetCS.Acquire;
+  try
+    VLayersSet := FVectorMapsSet;
+  finally
+    FVectorMapsSetCS.Release;
+  end;
   if VLayersSet <> nil then begin
     VEnum := VLayersSet.GetIterator;
     while VEnum.Next(1, VGUID, cnt) = S_OK do begin
