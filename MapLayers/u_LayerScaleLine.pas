@@ -16,6 +16,7 @@ type
   TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
   private
     FConfig: IScaleLineConfig;
+    FTmpBitmap: TBitmap32;
     procedure OnConfigChange;
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
@@ -30,6 +31,7 @@ type
       AViewPortState: IViewPortState;
       AConfig: IScaleLineConfig
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -37,6 +39,7 @@ implementation
 uses
   Math,
   SysUtils,
+  GR32_Backends,
   i_CoordConverter,
   u_NotifyEventListener,
   u_ResStrings,
@@ -65,13 +68,63 @@ begin
 
   FLayer.Bitmap.Font.Name := 'arial';
   FLayer.Bitmap.Font.Size := 8;
+
+  FTmpBitmap := TBitmap32.Create;
+  FTmpBitmap.Font := FLayer.Bitmap.Font;
+  FTmpBitmap.Font.Size := FLayer.Bitmap.Font.Size;
+
   VSize.X := 400;
   VSize.Y := 40;
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   DoUpdateLayerSize(VSize);
 end;
 
+destructor TLayerScaleLine.Destroy;
+begin
+  FTmpBitmap.Free;
+  inherited Destroy;
+end;
+
 procedure TLayerScaleLine.DoRedraw;
+
+  procedure DrawOutlinedText(X, Y: Integer; Text: string);
+  var
+    I, J: Integer;
+    VTextColor: Cardinal;
+    VOutLineColor: Cardinal;
+    VSourceRect, VDestRect: TRect;
+  begin
+    VTextColor := SetAlpha(clWhite32, 255);
+    VOutLineColor := SetAlpha(clBlack32, 90);
+
+    FTmpBitmap.SetSize(FLayer.bitmap.TextWidth(Text) + 4, FLayer.bitmap.TextHeight(Text) + 4);
+    FTmpBitmap.Clear(0);
+    FTmpBitmap.DrawMode := dmOpaque;
+    FTmpBitmap.RenderText(2, 2, Text, 0, VTextColor);
+    for I := 1 to FTmpBitmap.Width - 2 do begin
+      for J := 1 to FTmpBitmap.Height - 2 do begin
+        if (FTmpBitmap.Pixel[I, J] <> VTextColor) and (FTmpBitmap.Pixel[I, J] <> VOutLineColor) then begin
+          if
+            (FTmpBitmap.Pixel[I + 1, J] = VTextColor) or
+            (FTmpBitmap.Pixel[I - 1, J] = VTextColor) or
+            (FTmpBitmap.Pixel[I, J + 1] = VTextColor) or
+            (FTmpBitmap.Pixel[I, J - 1] = VTextColor) or
+            (FTmpBitmap.Pixel[I + 1, J + 1] = VTextColor) or
+            (FTmpBitmap.Pixel[I - 1, J + 1] = VTextColor) or
+            (FTmpBitmap.Pixel[I + 1, J - 1] = VTextColor) or
+            (FTmpBitmap.Pixel[I - 1, J - 1] = VTextColor)
+          then begin
+            FTmpBitmap.Pixel[I, J] := VOutLineColor;
+          end;
+        end;
+      end;
+    end;
+
+    VSourceRect := Rect(0, 0, FTmpBitmap.Width, FTmpBitmap.Height);
+    VDestRect := Rect(X, Y, X + FTmpBitmap.Width, Y + FTmpBitmap.Height);
+    FLayer.bitmap.Canvas.CopyRect(VDestRect, FTmpBitmap.Canvas, VSourceRect);
+  end;
+
 var
   rnum: integer;
   se: string;
@@ -107,9 +160,14 @@ begin
   end else begin
     se := ' ' + SAS_UNITS_m + ' ';
   end;
-  rnum := round(num);
+  rnum := round(num/2);
 
   FLayer.Bitmap.Clear(SetAlpha(clWhite32, 0));
+
+  DrawOutlinedText(0, 4, '0 ' + se);
+  DrawOutlinedText(150, 4, IntToStr(rnum) + ' ' + se);
+  DrawOutlinedText(300, 4, IntToStr(rnum*2) + ' ' + se);
+
   // длинная горизонталь снизу
   FLayer.Bitmap.Line(0, VBitmapSize.Y - 1, 300, VBitmapSize.Y - 1, SetAlpha(clBlack32, 90));
   FLayer.Bitmap.Line(0, VBitmapSize.Y - 2, 300, VBitmapSize.Y - 2, SetAlpha(clWhite32, 255));
@@ -131,10 +189,6 @@ begin
   end;
   FLayer.Bitmap.Line(0, VBitmapSize.Y - 1, 302, VBitmapSize.Y - 1, SetAlpha(clBlack32, 90));
   FLayer.Bitmap.Line(1, VBitmapSize.Y - 2, 301, VBitmapSize.Y - 2, SetAlpha(clWhite32, 255));
-
-  FLayer.bitmap.RenderText(0, 5, '0 ' + se, 0, SetAlpha(clWhite32, 255));
-  FLayer.bitmap.RenderText(150, 5, IntToStr(rnum div 2) + ' ' + se, 0, SetAlpha(clWhite32, 255));
-  FLayer.bitmap.RenderText(300, 5, IntToStr(rnum) + ' ' + se, 0, SetAlpha(clWhite32, 255));
 end;
 
 function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
