@@ -655,6 +655,8 @@ type
     procedure OnMainMapChange;
     procedure OnFillingMapChange;
 
+    procedure SafeCreateDGAvailablePic;
+
     procedure PaintZSlider(zoom:integer);
     procedure SetToolbarsLock(AValue: Boolean);
 
@@ -743,6 +745,8 @@ var
 begin
   inherited;
 
+  FfrmDGAvailablePic := nil;
+
   VMouseState := TMouseState.Create;
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
@@ -779,12 +783,6 @@ begin
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState,
       GState.ValueToStringConverterConfig
-    );
-
-  FfrmDGAvailablePic :=
-    TfrmDGAvailablePic.Create(
-      GState.LanguageManager,
-      GState.InetConfig
     );
 
   FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
@@ -1890,6 +1888,7 @@ end;
 
 destructor TfrmMain.Destroy;
 begin
+  FreeAndNil(FfrmDGAvailablePic);
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
@@ -1904,7 +1903,6 @@ begin
   FreeAndNil(FRuller);
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FfrmGoTo);
-  FreeAndNil(FfrmDGAvailablePic);
   FreeAndNil(FfrmSettings);
   FreeAndNil(FfrmMarksExplorer);
   inherited;
@@ -3666,11 +3664,9 @@ begin
 end;
 
 procedure TfrmMain.DigitalGlobe1Click(Sender: TObject);
-var
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  FfrmDGAvailablePic.ShowInfo(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  SafeCreateDGAvailablePic;
+  FfrmDGAvailablePic.ShowInfo(FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
@@ -4017,7 +4013,8 @@ begin
         end;
       end;
       if HiWord(GetKeyState(VK_F6))<>0 then begin
-        FfrmDGAvailablePic.ShowInfo(VLocalConverter, Point(X, Y));
+        SafeCreateDGAvailablePic;
+        FfrmDGAvailablePic.ShowInfo(Point(X, Y));
         Exit;
       end;
     end;
@@ -4595,6 +4592,16 @@ end;
 procedure TfrmMain.NAnimateMoveClick(Sender: TObject);
 begin
   FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
+end;
+
+procedure TfrmMain.SafeCreateDGAvailablePic;
+begin
+  if (nil=FfrmDGAvailablePic) then
+    FfrmDGAvailablePic:=TfrmDGAvailablePic.Create(
+      GState.LanguageManager,
+      GState.InetConfig,
+      FConfig.ViewPortState.GetVisualCoordConverter
+    );
 end;
 
 procedure TfrmMain.SaveConfig(Sender: TObject);

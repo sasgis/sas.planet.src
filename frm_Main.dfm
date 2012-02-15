@@ -3404,7 +3404,7 @@ object frmMain: TfrmMain
       end
       object DigitalGlobe1: TTBXItem
         OnClick = DigitalGlobe1Click
-        Caption = 'DigitalGlobe Availability'
+        Caption = 'Images available'
         Hint = ''
       end
       object N27: TTBXSeparatorItem

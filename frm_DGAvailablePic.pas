@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -38,48 +38,83 @@ uses
   i_LanguageManager,
   i_InetConfig,
   i_LocalCoordConverter,
-  t_GeoTypes;
+  u_AvailPicsAbstract,
+  u_AvailPicsDG,
+  u_AvailPicsBing,
+  u_AvailPicsNMC,
+  t_GeoTypes, Grids, ValEdit;
 
 type
   TfrmDGAvailablePic = class(TFormWitghLanguageManager)
     GroupBox1: TGroupBox;
-    LabelDate: TLabel;
-    LabelResolution: TLabel;
-    LabelColor: TLabel;
-    LabelProv: TLabel;
     GroupBox3: TGroupBox;
     TreeView1: TTreeView;
     Button1: TButton;
     Button2: TButton;
-    Label2: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
     GroupBox4: TGroupBox;
-    ComboBox2: TComboBox;
+    cbDGstacks: TComboBox;
     Button3: TButton;
     pnlRight: TPanel;
+    chkBing: TCheckBox;
+    chkNMC: TCheckBox;
+    chkDG: TCheckBox;
+    btnRefresh: TButton;
+    ValueListEditor1: TValueListEditor;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure TreeView1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure ComboBox2Change(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure btnRefreshClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure TreeView1Deletion(Sender: TObject; Node: TTreeNode);
+    procedure TreeView1Click(Sender: TObject);
+    procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
   private
+    FBing: TAvailPicsBing;
+    FNMC: TAvailPicsNMC;
+    FDGStacks: TAvailPicsDGs;
+    FAvailPicsTileInfo: TAvailPicsTileInfo;
+    FCallIndex: DWORD;
+  private
+    procedure MakePicsVendors;
+    procedure KillPicsVendors;
+
+    // cleanup info
+    procedure ClearAvailableImages;
+
+    // update information about selected node
+    procedure ClearInfoByNode;
+    procedure UpdateInfoByNode(const ANode: TTreeNode);
+
+    // run working thread
+    procedure RunImageThread(const AChkBox: TCheckBox;
+                             const AImgVendor: TAvailPicsAbstract);
+
+    // get (find and create if not exists) node
+    function GetImagesNode(const AParentNode: TTreeNode;
+                           const AText: String;
+                           var AResultNode: TTreeNode): Boolean;
+
+    // add item to images
+    function AddAvailImageItem(Sender: TObject;
+                               const ADate: String;
+                               const AId: String;
+                               var AParams: TStrings): Boolean;
+
+    // get tid list (for DG only)
+    function Get_DG_tid_List: String;
+  private
+    FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
-    FLonLat:TDoublePoint;
-    tids,ls:string;
-    mpp:extended;
-    hi,wi:integer;
-    procedure FormTidList;
     procedure CopyStringToClipboard(s: Widestring);
   public
-    constructor Create(
-      ALanguageManager: ILanguageManager;
-      AInetConfig: IInetConfig
-    ); reintroduce;
-    procedure ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+    constructor Create(ALanguageManager: ILanguageManager;
+                       const AInetConfig: IInetConfig;
+                       const ALocalConverter: ILocalCoordConverter); reintroduce;
+    
+    procedure ShowInfo(const AVisualPoint: TPoint);
   end;
 
 implementation
@@ -87,176 +122,75 @@ implementation
 uses
   i_CoordConverter,
   i_ProxySettings,
-  u_ResStrings,
-  u_GeoToStr;
-
-var
-  Stacks : array [0..13,0..3] of string =
-            (
-             ('227400001','1','GlobeXplorer Premium Stack','020100S'),
-             ('227400001','2','USGS 1:24k Topo Stack','020100S'),
-             ('2133000801','4','GlobeXplorer Premium Portal Stack','060100W'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','6','APUSA Stack','020100S'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','7','DigitalGlobe Stack','020100S'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','11','CitiPix by GlobeXplorer ODI stack','020100S'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','13','DOQQ Stack','020100S'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','14','I-cubed Image Stack','020100S'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','18','CitiPix by GlobeXplorer ODI plus RDI stack','020100S'),
-             ('227400001','19','WMS Premium','020100S'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','20','National Map Data Stack','020100S'),
-             ('227400001','27','NAIP Stack','020100S'),
-             ('2133000801','32','Current Events Stack','060100W'),
-//             ('4844000213','33', 'GlobeXplorer Deluxe Stack','030603A'),
-//             ('4844000213','34', 'GlobeXplorer Deluxe Portal Stack','030603A'),
-             ('dfe278a2-8c6e-494f-927e-8937470893fc','49','Country Coverage','020100S')
-             );
-{ Stacks : array [0..32,0..3] of string =
-            (
-             ('227400001','1','GlobeXplorer Premium Stack','020100S'),
-             ('227400001','2','USGS 1:24k Topo Stack','020100S'),
-             ('227400001','3','GlobeXplorer Basic Stack','020100S'),
-             ('2133000801','4','GlobeXplorer Premium Portal Stack','060100W'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','6','APUSA Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','7','DigitalGlobe Stack','020100S'),
-             ('7327000291','10', 'GlobeXplorer Standard Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','11','CitiPix by GlobeXplorer ODI stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','13','DOQQ Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','14','I-cubed Image Stack','020100S'),
-             ('7327000291','15', 'I-cubed Map Stack','020100S'),
-             ('7327000291','16', 'STDB Demo Stack','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','18','CitiPix by GlobeXplorer ODI plus RDI stack','020100S'),
-             ('227400001','19','WMS Premium','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','20','National Map Data Stack','020100S'),
-             ('7327000291','21', 'NavTech Accuracy Data Stack','020100S'),
-             ('7327000291','22', 'NavTech Propietary Data Stack','020100S'),
-             ('7327000291','26', 'GlobeXplorer Premium 3D Data Stack','020100S'),
-             ('227400001','27','NAIP Stack','020100S'),
-             ('7327000291','28', 'EarthSat Stack','020100S'),
-             ('2133000801','32','Current Events Stack','060100W'),
-             ('7327000291','33', 'GlobeXplorer Deluxe Stack','020100S'),
-             ('7327000291','34', 'GlobeXplorer Deluxe Portal Stack','020100S'),
-             ('7327000291','38','GlobeXplorer Premium Portal Data NB Stack','020100S'),
-             ('7327000291','41','DigitalGlobe owned','020100S'),
-             ('7327000291','47','DIBU Data','020100S'),
-             ('7327000291','48','Oil and Gas NB','020100S'),
-             ('ca4046dd-bba5-425c-8966-0a553e0deb3a','49','Country Coverage','020100S'),
-             ('7327000291','51','WorldView-01','020100S'),
-             ('7327000291','52','DigitalGlobe CitySphere','020100S'),
-             ('7327000291','53','Country Coverage2','020100S'),
-             ('7327000291','54','DigitalGlobe GeoCells','020100S'),
-             ('7327000291','55','DigitalGlobe NGA Ortho Imagery','020100S')
-             );  }
-
-
-function EncodeDG(S: string): string;
-var i: integer;
-begin
- result:=S;
- for i:=1 to length(s) do
-  if ord(s[i]) mod 2 = 0 then result[i]:=chr(ord(s[i])+1)
-                         else result[i]:=chr(ord(s[i])-1);
-end;
-
-function Encode64(S: string): string;
-const Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-var i,a,x,b: Integer;
-begin
- Result:='';
- a:=0;
- b:=0;
- for i := 1 to Length(s) do
-  begin
-   x:=Ord(s[i]);
-   b:=b*256+x;
-   a:=a+8;
-   while a >= 6 do
-    begin
-     a := a-6;
-     x := b div (1 shl a);
-     b := b mod (1 shl a);
-     Result := Result + Codes64[x + 1];
-    end;
-  end;
- if a>0 then Result:=Result+Codes64[(b shl (6-a))+1];
-end;
+  u_ResStrings;
 
 type
-  TDGPicture = class
-   tid:string;
-   date:string;
-   provider:string;
-   color:string;
-   resolution:string;
-  end;
-
   TGetList = class(TThread)
-    Link:string;
-    ErrCode:integer;
+  public
+    FLinkToService: String;
+    FContentType: String;
+    FErrCode: Integer;
   private
     FInetConfig: IInetConfig;
     FForm: TfrmDGAvailablePic;
-    list:TStringList;
-    function GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
+    FAvailPicsSrc: TAvailPicsAbstract;
+    FCallIndex: DWORD;
+    FMemoryStream: TMemoryStream;
+    function CallIndexActual: Boolean;
+    function GetStreamFromURL1:integer;
   protected
     procedure Execute; override;
     procedure ShowList;
     procedure ShowError;
   public
     constructor Create(
-      AInetConfig: IInetConfig;
-      ALink:string;
-      AForm: TfrmDGAvailablePic
+      const AInetConfig: IInetConfig;
+      const AAvailPicsSrc: TAvailPicsAbstract;
+      const AForm: TfrmDGAvailablePic
     );
+
+    destructor Destroy; override;
   end;
-
-const
-  maxReqSize = 3000;
-const
-  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
-
-
-var
-  GetListThId:THandle;
 
 {$R *.dfm}
-function GetWord(Str, Smb: string; WordNmbr: Byte): string;
-var SWord: string;
-    StrLen, N: Byte;
+
+function TGetList.CallIndexActual: Boolean;
 begin
-  StrLen := SizeOf(Str);
-  N := 1;
-  while ((WordNmbr >= N) and (StrLen <> 0)) do
-  begin
-    StrLen := System.Pos(Smb, str);
-    if StrLen <> 0 then
-    begin
-      SWord := Copy(Str, 1, StrLen - 1);
-      Delete(Str, 1, StrLen);
-      Inc(N);
-    end
-    else SWord := Str;
+  try
+    Result := (FCallIndex = FForm.FCallIndex);
+  except
+    Result := FALSE;
   end;
-  if WordNmbr <= N then Result := SWord
-                   else Result := '';
 end;
 
 constructor TGetList.Create(
-  AInetConfig: IInetConfig;
-  ALink:string;
-  AForm: TfrmDGAvailablePic
+      const AInetConfig: IInetConfig;
+      const AAvailPicsSrc: TAvailPicsAbstract;
+      const AForm: TfrmDGAvailablePic
 );
 begin
   inherited Create(True);
   FInetConfig := AInetConfig;
   FreeOnTerminate:=true;
   Priority:=tpLower;
-  Link:=ALink;
+  FAvailPicsSrc:=AAvailPicsSrc;
+  FLinkToService:=AAvailPicsSrc.LinkToImages;
+  FContentType:=AAvailPicsSrc.ContentType;
   FForm := AForm;
+  FCallIndex := AForm.FCallIndex;
+  FMemoryStream := TMemoryStream.Create;
+end;
+
+destructor TGetList.Destroy;
+begin
+  FInetConfig:=nil;
+  FreeAndNil(FMemoryStream);
+  inherited;
 end;
 
 procedure TGetList.ShowError;
 begin
-  case ErrCode of
+  case FErrCode of
   -3: ShowMessage(SAS_ERR_Authorization);
   -1: ShowMessage(SAS_ERR_TileNotExists);
    0: ShowMessage(SAS_ERR_Noconnectionstointernet);
@@ -264,7 +198,7 @@ begin
  end;
 end;
 
-function TGetList.GetStreamFromURL1(var ms:TMemoryStream;url:string;conttype:string):integer;
+function TGetList.GetStreamFromURL1:integer;
 var par,ty:string;
     err:boolean;
     Buffer:array [1..64535] of char;
@@ -290,7 +224,7 @@ begin
   hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
   if Assigned(hSession) then
   try
-    hFile:=InternetOpenURL(hSession,PChar(URL),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
+    hFile:=InternetOpenURL(hSession,PChar(FLinkToService),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
     if Assigned(hFile)then
     try
       dwcodelen:=150; dwReserv:=0; dwindex:=0;
@@ -319,15 +253,17 @@ begin
       fillchar(dwtype,sizeof(dwtype),0);
       if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
        then ty:=PChar(@dwtype);
-      if (System.Pos(conttype,ty)>0) then
+
+      if (System.Pos(FContentType,ty)>0) then
       repeat
        err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-       ms.Write(Buffer,BufferLen);
+       FMemoryStream.Write(Buffer,BufferLen);
       until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
-      else result:=-1;
+      else
+        result:=-1; // no such content type
     finally
       InternetCloseHandle(hFile);
-      ms.Position:=0;
+      FMemoryStream.Position:=0;
     end;
   finally
     InternetCloseHandle(hSession);
@@ -335,95 +271,129 @@ begin
 end;
 
 procedure TGetList.ShowList;
-var datesat:string;
-    i,j:integer;
-    added:boolean;
-    node:TTreeNode;
 begin
- node := nil;
- if ThreadID=GetListThId then
- begin
- for i:=0 to list.Count-1 do
+  if not CallIndexActual then
+    Exit;
+
+  if (0<FAvailPicsSrc.ParseResponse(FMemoryStream)) then
   try
-   datesat:=GetWord(list[i], ',', 2);
-   datesat[5]:=DateSeparator;
-   datesat[8]:=DateSeparator;
-   added:=false;
-   for j:=0 to FForm.TreeView1.Items.Count-1 do
-    if FForm.TreeView1.Items.Item[j].Text=datesat then
-     begin
-      node:=FForm.TreeView1.Items.AddChild(FForm.TreeView1.Items.Item[j],GetWord(list[i], ',', 1));
-      added:=true;
-      break;
-     end;
-   if not(added) then
-    node:=FForm.TreeView1.Items.AddChild(FForm.TreeView1.Items.Add(nil,datesat),GetWord(List[i], ',', 1));
-   node.Data:=TDGPicture.Create;
-   with TDGPicture(node.Data) do
-    begin
-     tid:=GetWord(list[i], ',', 1);
-     date:=GetWord(list[i], ',', 2);
-     provider:=GetWord(list[i], ',', 3);
-     color:=GetWord(list[i], ',', 6);
-     resolution:=GetWord(list[i], ',', 5);
-    end;
+    FForm.TreeView1.AlphaSort;
   except
   end;
-  FForm.TreeView1.AlphaSort();
- end;
 end;
 
 procedure TGetList.Execute;
-var
-  VStream: TMemoryStream;
 begin
-  List := TStringList.Create;
-  VStream := TMemoryStream.Create;
   try
-    ErrCode := GetStreamFromURL1(VStream, Link, 'text/plain');
-    if ErrCode = 0 then begin
-      List.LoadFromStream(VStream);
-      if not(Terminated) then begin
+    FErrCode := GetStreamFromURL1;
+
+    if (0=FErrCode) then begin
+      // ok
+      if not(Terminated) then
         Synchronize(ShowList);
-      end;
     end else begin
-      if not(Terminated) then begin
+      if not(Terminated) then
         Synchronize(ShowError);
-      end;
     end;
   finally
-    VStream.Free;
-    List.Free;
+    FreeAndNil(FMemoryStream);
   end;
 end;
 
-procedure TfrmDGAvailablePic.ShowInfo(ALocalConverter: ILocalCoordConverter; AVisualPoint: TPoint);
+procedure TfrmDGAvailablePic.ShowInfo(const AVisualPoint: TPoint);
+const
+  maxReqSize = 3000;
+const
+  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
 var
   VSize: TPoint;
   VRad: Extended;
   VPixelsAtZoom: Double;
   VConverter: ICoordConverter;
-  VZoom: Byte;
   VMapPixel: TDoublePoint;
 begin
+  Inc(FCallIndex);
+
   Show;
-  VSize := ALocalConverter.GetLocalRectSize;
-  VConverter := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
-  VMapPixel := ALocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
-  VConverter.CheckPixelPosFloatStrict(VMapPixel, VZoom, True);
-  FLonLat := VConverter.PixelPosFloat2LonLat(VMapPixel, VZoom);
+
+  // update position info
+  VSize := FLocalConverter.GetLocalRectSize;
+  VConverter := FLocalConverter.GetGeoConverter;
+  FAvailPicsTileInfo.Zoom := FLocalConverter.GetZoom;
+  VMapPixel := FLocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
+  VConverter.CheckPixelPosFloatStrict(VMapPixel, FAvailPicsTileInfo.Zoom, True);
+  FAvailPicsTileInfo.LonLat := VConverter.PixelPosFloat2LonLat(VMapPixel, FAvailPicsTileInfo.Zoom);
+
   VRad := VConverter.Datum.GetSpheroidRadiusA;
-  VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
- mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FLonLat.y*D2R)));
- hi:=round(mpp*15);
- wi:=round(mpp*15);
- if hi>maxReqSize then hi:=maxReqSize;
- if wi>maxReqSize then wi:=maxReqSize;
- if hi<VSize.Y then hi:=256;
- if wi<VSize.X then wi:=256;
- if mpp>8 then mpp:=8;
- ComboBox2Change(nil);
+  VPixelsAtZoom := VConverter.PixelsAtZoomFloat(FAvailPicsTileInfo.Zoom);
+
+  FAvailPicsTileInfo.mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FAvailPicsTileInfo.LonLat.y*D2R)));
+  FAvailPicsTileInfo.hi:=round(FAvailPicsTileInfo.mpp*15);
+  FAvailPicsTileInfo.wi:=round(FAvailPicsTileInfo.mpp*15);
+
+  if FAvailPicsTileInfo.hi>maxReqSize then
+    FAvailPicsTileInfo.hi:=maxReqSize;
+  if FAvailPicsTileInfo.wi>maxReqSize then
+    FAvailPicsTileInfo.wi:=maxReqSize;
+  if FAvailPicsTileInfo.hi<VSize.Y then
+    FAvailPicsTileInfo.hi:=256;
+  if FAvailPicsTileInfo.wi<VSize.X then
+    FAvailPicsTileInfo.wi:=256;
+  if FAvailPicsTileInfo.mpp>8 then
+    FAvailPicsTileInfo.mpp:=8;
+
+  // refresh
+  btnRefreshClick(nil);
+end;
+
+function TfrmDGAvailablePic.AddAvailImageItem(Sender: TObject;
+                                              const ADate, AId: String;
+                                              var AParams: TStrings): Boolean;
+var
+  //VImageService: String;
+  // VVendorNode: TTreeNode;
+  VDateNode, VItemNode: TTreeNode;
+begin
+  Result:=FALSE;
+
+  (*
+  // IF need for subnodes for different services
+  // TODO: get image service by sender without this "simplicity"
+  if (Sender=FBing) then
+    VImageService:=chkBing.Caption
+  else if (Sender=FNMC) then
+    VImageService:=chkNMC.Caption
+  else
+    VImageService:=chkDG.Caption;
+  *)
+  
+  // lookup for node as "2011/12/30" -> "DG" -> NODE (TID + PARAMS)
+  if GetImagesNode(nil, ADate, VDateNode) then
+  //if GetImagesNode(VDateNode, VImageService, VVendorNode) then
+  begin
+    VItemNode := TreeView1.Items.AddChild(VDateNode, AId); // for subnides - replace with VVendorNode
+    VItemNode.Data := AParams;
+    AParams := nil; // own object
+    Inc(Result);
+  end;
+end;
+
+procedure TfrmDGAvailablePic.btnRefreshClick(Sender: TObject);
+var
+  VDGstack: TAvailPicsDG;
+begin
+  // clear
+  ClearAvailableImages;
+
+  // run thread for every image source
+  RunImageThread(chkBing, FBing);
+  RunImageThread(chkNMC, FNMC);
+
+  // for DG - for current stack
+  VDGstack:=nil;
+  if (0<cbDGstacks.Items.Count) and (0<=cbDGstacks.ItemIndex) and (cbDGstacks.ItemIndex<cbDGstacks.Items.Count) then
+    VDGstack:=FDGStacks[cbDGstacks.ItemIndex];
+  RunImageThread(chkDG, VDGstack);
 end;
 
 procedure TfrmDGAvailablePic.Button1Click(Sender: TObject);
@@ -454,82 +424,200 @@ begin
    else TreeView1.Selected.MoveTo(TreeView1.Selected.GetNext,naAdd)
 end;
 
-procedure TfrmDGAvailablePic.FormTidList;
+function TfrmDGAvailablePic.GetImagesNode(const AParentNode: TTreeNode;
+                                          const AText: String;
+                                          var AResultNode: TTreeNode): Boolean;
 var
-    i:integer;
-    added:boolean;
+  i,k: Integer;
 begin
- tids:='';
- added:=false;
- for i:=0 to TreeView1.Items.Count-1 do
-  begin
-    if not(TreeView1.Items.Item[i].HasChildren) then
-     if TreeView1.Items.Item[i].StateIndex=2 then
-      if added then tids:=tids+','+TDGPicture(TreeView1.Items.Item[i].Data).tid
-               else begin
-                     added:=true;
-                     tids:=tids+TDGPicture(TreeView1.Items.Item[i].Data).tid;
-                    end;
+  Result:=FALSE;
+  AResultNode:=nil;
+
+  if (nil=AParentNode) then
+    k:=TreeView1.Items.Count
+  else
+    k:=AParentNode.Count;
+
+  if (0<k) then
+  for i := 0 to k-1 do begin
+    // get item
+    if (nil=AParentNode) then
+      AResultNode:=TreeView1.Items.Item[i]
+    else
+      AResultNode:=AParentNode.Item[i];
+
+    // check text
+    if (nil<>AResultNode) then
+    if SameText(AResultNode.Text, AText) then begin
+      // found
+      Inc(Result);
+      Exit;
+    end;
+  end;
+
+  // not found - should create
+  if (nil=AParentNode) then begin
+    AResultNode := TreeView1.Items.Add(nil, AText);
+    Result := TRUE;
+  end else begin
+    AResultNode := TreeView1.Items.AddChild(AParentNode, AText);
+    Result := TRUE;
   end;
 end;
 
+function TfrmDGAvailablePic.Get_DG_tid_List: String;
+var
+  i,k: Integer;
+  single_tid: String;
+begin
+  Result := '';
+  k := TreeView1.Items.Count;
+  if (0<k) then
+  for i := 0 to k-1 do
+  if (nil<>TreeView1.Items.Item[i].Data) then
+  if (2=TreeView1.Items.Item[i].StateIndex) then
+  try
+    // get tid for DG items
+    single_tid := TStrings(TreeView1.Items.Item[i].Data).Values['tid'];
+    if (0<Length(single_tid)) then begin
+      if (0<Length(Result)) then
+        Result:=Result+',';
+      Result:=Result+single_tid;
+    end;
+  except
+  end;
+end;
+
+procedure TfrmDGAvailablePic.KillPicsVendors;
+var i,k: Integer;
+begin
+  // simple
+  FreeAndNil(FBing);
+  FreeAndNil(FNMC);
+  // list
+  k:=Length(FDGStacks);
+  if (0<k) then begin
+    for i := 0 to k-1 do begin
+      FreeAndNil(FDGStacks[k]);
+    end;
+    setLength(FDGStacks, 0);
+  end;
+end;
+
+procedure TfrmDGAvailablePic.MakePicsVendors;
+var i,k: Integer;
+begin
+  // make for bing
+  if (nil=FBing) then
+    FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo, FLocalConverter);
+
+  // make for nokia map creator
+  if (nil=FNMC) then
+    FNMC := TAvailPicsNMC.Create(@FAvailPicsTileInfo, FLocalConverter);
+
+  // make for digital globe
+  if (0=Length(FDGStacks)) then
+    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo, FLocalConverter);
+
+  // fill cbDGstacks
+  cbDGstacks.Items.Clear;
+  k:=Length(FDGStacks);
+  if (0<k) then
+  for i := 0 to k-1 do begin
+    cbDGstacks.Items.Add(FDGStacks[i].GUI_Name);
+  end;
+
+  // select last item
+  if (0<cbDGstacks.Items.Count) and (0>cbDGstacks.ItemIndex) then
+    cbDGstacks.ItemIndex:=(cbDGstacks.Items.Count-1);
+end;
+
+procedure TfrmDGAvailablePic.RunImageThread(const AChkBox: TCheckBox;
+                                            const AImgVendor: TAvailPicsAbstract);
+begin
+  if Assigned(AImgVendor) then
+  if AChkBox.Checked then
+  with TGetList.Create(FInetConfig,
+                       AImgVendor,
+                       Self) do
+  begin
+    Resume;
+  end;
+end;
+
+procedure TfrmDGAvailablePic.TreeView1Change(Sender: TObject; Node: TTreeNode);
+begin
+  UpdateInfoByNode(Node);
+end;
+
+procedure TfrmDGAvailablePic.TreeView1Click(Sender: TObject);
+begin
+  UpdateInfoByNode(TreeView1.Selected);
+end;
+
+procedure TfrmDGAvailablePic.TreeView1Deletion(Sender: TObject; Node: TTreeNode);
+var obj: TObject;
+begin
+  try
+    if (nil<>Node) then
+    if (nil<>Node.Data) then begin
+      obj := TObject(Node.Data);
+      FreeAndNil(obj);
+      Node.Data:=nil;
+    end;
+  except
+  end;
+end;
 
 procedure TfrmDGAvailablePic.TreeView1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var MH:THitTests;
-    Node:TTreeNode;
-    i:integer;
+var
+  MH:THitTests;
+  VNode:TTreeNode;
+  i:integer;
 begin
- MH:= TreeView1.GetHitTestInfoAt(X,Y);
- if (htOnStateIcon in MH)
-  then
-   begin
-    Node:= TreeView1.GetNodeAt(X,Y);
-    if(Node.StateIndex <> 2)
-     then Node.StateIndex := 2
-     else Node.StateIndex := 1;
-     for i:=0 to node.Count-1 do node.Item[i].StateIndex:=Node.StateIndex;
-    FormTidList;
-   end;
-  if (htOnLabel in MH) then
-   begin
-    Node:= TreeView1.GetNodeAt(X,Y);
-    if node.Data<>nil then
-    with TDGPicture(node.Data) do
-     begin
-      LabelDate.Caption:=date;
-      LabelProv.Caption:=provider;
-      LabelColor.Caption:=color;
-      LabelResolution.Caption:=resolution;
-     end
+  MH:= TreeView1.GetHitTestInfoAt(X,Y);
+
+  if (htOnStateIcon in MH) then begin
+    VNode:= TreeView1.GetNodeAt(X,Y);
+
+    if (nil=VNode) then
+      Exit;
+      
+    if(VNode.StateIndex <> 2) then
+      VNode.StateIndex := 2
     else
-     begin
-      LabelDate.Caption:='-';
-      LabelProv.Caption:='-';
-      LabelColor.Caption:='-';
-      LabelResolution.Caption:='-';
-     end;
-   end;
+      VNode.StateIndex := 1;
+
+    for i:=0 to VNode.Count-1 do
+      VNode.Item[i].StateIndex:=VNode.StateIndex;
+  end;
+  
+  if (htOnLabel in MH) then begin
+    UpdateInfoByNode(TreeView1.GetNodeAt(X,Y));
+  end;
 end;
 
-procedure TfrmDGAvailablePic.ComboBox2Change(Sender: TObject);
-var
-    encrypt:string;
+procedure TfrmDGAvailablePic.UpdateInfoByNode(const ANode: TTreeNode);
 begin
- TIDs:='';
- LabelDate.Caption:='-';
- LabelProv.Caption:='-';
- LabelColor.Caption:='-';
- LabelResolution.Caption:='-';
- TreeView1.Items.Clear;
- ls:=stacks[ComboBox2.ItemIndex,1];
- GetWord(ComboBox2.Text, ',', 1);
- encrypt:= Encode64(EncodeDG('cmd=info&id='+stacks[ComboBox2.ItemIndex,0]+'&appid='+stacks[ComboBox2.ItemIndex,3]+'&ls='+ls+'&xc='+R2StrPoint(FLonLat.x)+'&yc='+R2StrPoint(FLonLat.y)+'&mpp='+R2StrPoint(mpp)+'&iw='+inttostr(wi)+'&ih='+inttostr(hi)+'&extentset=all'));
-
- with TGetList.Create(FInetConfig, 'http://image.globexplorer.com/gexservlets/gex?encrypt='+encrypt, Self) do
-  begin
-   GetListThId:=ThreadID;
-   Resume;
+  if (nil=ANode) then
+    ClearInfoByNode
+  else if (nil=ANode.Data) then
+    ClearInfoByNode
+  else begin
+    // update info
+    ValueListEditor1.Strings.Assign(TStrings(ANode.Data));
   end;
+end;
+
+procedure TfrmDGAvailablePic.ClearAvailableImages;
+begin
+  TreeView1.Items.Clear;
+  ClearInfoByNode;
+end;
+
+procedure TfrmDGAvailablePic.ClearInfoByNode;
+begin
+  ValueListEditor1.Strings.Clear;
 end;
 
 procedure TfrmDGAvailablePic.CopyStringToClipboard(s: Widestring);
@@ -560,24 +648,45 @@ begin
 end;
 
 constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
-  AInetConfig: IInetConfig);
+                                      const AInetConfig: IInetConfig;
+                                      const ALocalConverter: ILocalCoordConverter);
 begin
+  FCallIndex:=0;
+  FBing:=nil;
+  FNMC:=nil;
+  SetLength(FDGStacks, 0);
+
+  ZeroMemory(@FAvailPicsTileInfo, sizeof(FAvailPicsTileInfo));
+  FAvailPicsTileInfo.AddImageProc := AddAvailImageItem;
+
   inherited Create(ALanguageManager);
+
+  FLocalConverter := ALocalConverter;
   FInetConfig := AInetConfig;
 end;
 
 procedure TfrmDGAvailablePic.Button3Click(Sender: TObject);
 begin
-  CopyStringToClipboard(TIDs);
+  CopyStringToClipboard(Get_DG_tid_List);
 end;
 
 procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);
-var i:integer;
 begin
- SetWindowLong(TreeView1.Handle,GWL_STYLE,GetWindowLong(TreeView1.Handle,GWL_STYLE) or TVS_CHECKBOXES);
- for i:=0 to length(Stacks)-1 do
-   ComboBox2.Items.Add(Stacks[i,1]+', '+Stacks[i,2]);
- ComboBox2.ItemIndex:=ComboBox2.Items.Count-1;
+  // make checkboxes in list
+  SetWindowLong(TreeView1.Handle,GWL_STYLE,GetWindowLong(TreeView1.Handle,GWL_STYLE) or TVS_CHECKBOXES);
+  // make vendors and fill list of dg stacks
+  MakePicsVendors;
+end;
+
+procedure TfrmDGAvailablePic.FormDestroy(Sender: TObject);
+begin
+  // kill vendors objects
+  KillPicsVendors;
+  // interfaces
+  FInetConfig:=nil;
+  FLocalConverter:=nil;
+  // base
+  inherited;
 end;
 
 end.
