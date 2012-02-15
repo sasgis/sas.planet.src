@@ -80,6 +80,8 @@ type
   private
     procedure MakePicsVendors;
     procedure KillPicsVendors;
+    
+    procedure PropagateLocalConverter;
 
     // cleanup info
     procedure ClearAvailableImages;
@@ -111,10 +113,10 @@ type
     procedure CopyStringToClipboard(s: Widestring);
   public
     constructor Create(ALanguageManager: ILanguageManager;
-                       const AInetConfig: IInetConfig;
-                       const ALocalConverter: ILocalCoordConverter); reintroduce;
+                       const AInetConfig: IInetConfig); reintroduce;
     
-    procedure ShowInfo(const AVisualPoint: TPoint);
+    procedure ShowInfo(const AVisualPoint: TPoint;
+                       const ALocalConverter: ILocalCoordConverter);
   end;
 
 implementation
@@ -300,7 +302,8 @@ begin
   end;
 end;
 
-procedure TfrmDGAvailablePic.ShowInfo(const AVisualPoint: TPoint);
+procedure TfrmDGAvailablePic.ShowInfo(const AVisualPoint: TPoint;
+                                      const ALocalConverter: ILocalCoordConverter);
 const
   maxReqSize = 3000;
 const
@@ -313,6 +316,10 @@ var
   VMapPixel: TDoublePoint;
 begin
   Inc(FCallIndex);
+
+  FLocalConverter := ALocalConverter;
+
+  PropagateLocalConverter;
 
   Show;
 
@@ -509,15 +516,15 @@ var i,k: Integer;
 begin
   // make for bing
   if (nil=FBing) then
-    FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo, FLocalConverter);
+    FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo);
 
   // make for nokia map creator
   if (nil=FNMC) then
-    FNMC := TAvailPicsNMC.Create(@FAvailPicsTileInfo, FLocalConverter);
+    FNMC := TAvailPicsNMC.Create(@FAvailPicsTileInfo);
 
   // make for digital globe
   if (0=Length(FDGStacks)) then
-    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo, FLocalConverter);
+    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo);
 
   // fill cbDGstacks
   cbDGstacks.Items.Clear;
@@ -530,6 +537,22 @@ begin
   // select last item
   if (0<cbDGstacks.Items.Count) and (0>cbDGstacks.ItemIndex) then
     cbDGstacks.ItemIndex:=(cbDGstacks.Items.Count-1);
+end;
+
+procedure TfrmDGAvailablePic.PropagateLocalConverter;
+var i,k: Integer;
+begin
+  if (nil<>FBing) then
+    FBing.SetLocalConverter(FLocalConverter);
+
+  if (nil<>FNMC) then
+    FNMC.SetLocalConverter(FLocalConverter);
+
+  k:=Length(FDGStacks);
+  if (0<k) then
+  for i := 0 to k-1 do begin
+    FDGStacks[i].SetLocalConverter(FLocalConverter);
+  end;
 end;
 
 procedure TfrmDGAvailablePic.RunImageThread(const AChkBox: TCheckBox;
@@ -648,8 +671,7 @@ begin
 end;
 
 constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
-                                      const AInetConfig: IInetConfig;
-                                      const ALocalConverter: ILocalCoordConverter);
+                                      const AInetConfig: IInetConfig);
 begin
   FCallIndex:=0;
   FBing:=nil;
@@ -661,7 +683,7 @@ begin
 
   inherited Create(ALanguageManager);
 
-  FLocalConverter := ALocalConverter;
+  FLocalConverter := nil;
   FInetConfig := AInetConfig;
 end;
 

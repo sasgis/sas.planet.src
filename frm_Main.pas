@@ -655,7 +655,7 @@ type
     procedure OnMainMapChange;
     procedure OnFillingMapChange;
 
-    procedure SafeCreateDGAvailablePic;
+    procedure SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 
     procedure PaintZSlider(zoom:integer);
     procedure SetToolbarsLock(AValue: Boolean);
@@ -3665,8 +3665,8 @@ end;
 
 procedure TfrmMain.DigitalGlobe1Click(Sender: TObject);
 begin
-  SafeCreateDGAvailablePic;
-  FfrmDGAvailablePic.ShowInfo(FMouseState.GetLastDownPos(mbRight));
+  // MainPopupMenu.PopupPoint
+  SafeCreateDGAvailablePic(FMouseState.GetLastDownPos(mbRight));
 end;
 
 procedure TfrmMain.mapMouseLeave(Sender: TObject);
@@ -4013,8 +4013,7 @@ begin
         end;
       end;
       if HiWord(GetKeyState(VK_F6))<>0 then begin
-        SafeCreateDGAvailablePic;
-        FfrmDGAvailablePic.ShowInfo(Point(X, Y));
+        SafeCreateDGAvailablePic(Point(X, Y));
         Exit;
       end;
     end;
@@ -4594,14 +4593,15 @@ begin
   FConfig.MapMovingConfig.AnimateMove := (Sender as TTBXItem).Checked;
 end;
 
-procedure TfrmMain.SafeCreateDGAvailablePic;
+procedure TfrmMain.SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 begin
+  // create
   if (nil=FfrmDGAvailablePic) then
     FfrmDGAvailablePic:=TfrmDGAvailablePic.Create(
       GState.LanguageManager,
-      GState.InetConfig,
-      FConfig.ViewPortState.GetVisualCoordConverter
-    );
+      GState.InetConfig);
+  // link to position    
+  FfrmDGAvailablePic.ShowInfo(AVisualPoint, FConfig.ViewPortState.GetVisualCoordConverter);
 end;
 
 procedure TfrmMain.SaveConfig(Sender: TObject);

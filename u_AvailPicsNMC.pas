@@ -46,6 +46,8 @@ type
 implementation
 
 uses
+  t_GeoTypes,
+  u_GeoToStr,
   t_ETS_Tiles,
   u_ETS_Tiles,
   xmldom,
@@ -121,10 +123,12 @@ const
   cdgprefix = 'digitalglobe';
 
   function _NodeHasDGName(const ANode: IDOMNode;
-                          out ANodeNameTail: String): Boolean;
+                          out ANodeNameTail: String;
+                          out AIsGeometry: Boolean): Boolean;
   var VName: String;
   begin
     Result:=FALSE;
+    AIsGeometry:=FALSE;
     VName:=ANode.nodeName;
     if SameText(System.Copy(VName,1,Length(cdgprefix)),cdgprefix) then begin
       Inc(Result);
@@ -132,8 +136,10 @@ const
       ANodeNameTail:=System.Copy(VName, Length(cdgprefix)+2, Length(VName));
       if (0=Length(ANodeNameTail)) then
         Result:=FALSE // skip errors
-      else if SameText(ANodeNameTail,'geometry') then
+      else if SameText(ANodeNameTail,'geometry') then begin
+        Inc(AIsGeometry);
         Result:=FALSE; // skip 'digitalglobe:geometry'
+      end;
     end;
   end;
 
@@ -146,11 +152,128 @@ const
     end;
   end;
 
+  procedure _ParsePosList(const SL_Common: TStrings;
+                          const AValueName: String;
+                          const ANode: IDOMNode;
+                          var ANeedGeometry: Boolean);
+  var
+    VCoords: String;
+    VSLCoords: TStringList;
+    i: Integer;
+    // pair
+    Vc1,Vc2: String;
+    VMM: TDoublePoint;
+    VLonLat: TDoublePoint;
+  begin
+    VCoords := VSAGPS_XML_DOMNodeValue(ANode);
+    if (0<Length(VCoords)) then begin
+      // parse coords (string with metrical values) like:
+      // 6247045.446821287 8487567.61960449
+      // 6247045.446821287 8492459.589414064
+      // 6251937.41663086 8492459.589414064
+      // 6251937.41663086 8487567.61960449
+      // 6247045.446821287 8487567.61960449
+      VSLCoords:=TStringList.Create;
+      try
+        Vc1:='';
+        Vc2:='';
+
+        // fetch coordinates
+        while (0<Length(VCoords)) do begin
+          // get x and y
+          i:=System.Pos(' ', VCoords);
+          if (i<=1) then
+            break;
+          Vc1:=System.Copy(VCoords, 1, i-1);
+          System.Delete(VCoords, 1, i);
+          if (0=Length(VCoords)) then
+            break;
+          i:=System.Pos(' ', VCoords);
+          if (i<=1) then begin
+            Vc2:=VCoords;
+            VCoords:='';
+          end else begin
+            Vc2:=System.Copy(VCoords, 1, i-1);
+            System.Delete(VCoords, 1, i);
+          end;
+
+          // parse and convert
+          try
+            if (DecimalSeparator<>'.') then begin
+              Vc1:=StringReplace(Vc1,'.',DecimalSeparator,[]);
+              Vc2:=StringReplace(Vc2,'.',DecimalSeparator,[]);
+            end;
+
+            // TODO: check EPSG from
+            // <digitalglobe:tileMatrix>EPSG:3857:13</digitalglobe:tileMatrix>
+
+            // convert to lonlat
+            VMM.X:=StrToFloat(Vc1);
+            VMM.Y:=StrToFloat(Vc2);
+            VLonLat:=FLocalConverter.GeoConverter.Metr2LonLat(VMM);
+
+            // add to list
+            VSLCoords.Append(RoundEx(VLonLat.X, 8)+','+RoundEx(VLonLat.Y, 8));
+            Vc1:='';
+            Vc2:='';
+          except
+            // epic fail
+            Exit;
+          end;
+        end;
+
+        // check coordinates
+        if (2<VSLCoords.Count) then
+        if (0=Length(VCoords)) then
+        if (0=Length(Vc1)) then
+        if (0=Length(Vc2)) then
+        if SameText(VSLCoords[0],VSLCoords[VSLCoords.Count-1]) then begin
+          // ok - add to result params
+          VSLCoords.Delimiter := ' ';
+          VCoords := VSLCoords.DelimitedText;
+          SL_Common.Values[AValueName]:=VCoords;
+          ANeedGeometry:=FALSE; // fetch only first geometry
+        end;
+      finally
+        VSLCoords.Free;
+      end;
+    end;
+  end;
+
+  // recursive!
+  procedure _ParseGeometry(const SL_Common: TStrings;
+                           const AValueName: String;
+                           const ANode: IDOMNode;
+                           var ANeedGeometry: Boolean);
+  var
+    VSubItem: IDOMNode;
+  begin
+    VSubItem:=ANode.firstChild;
+    while Assigned(VSubItem) do begin
+      // parse
+      if SameText(VSubItem.nodeName,'gml:posList') then begin
+        // parse positions
+        _ParsePosList(SL_Common, AValueName, VSubItem, ANeedGeometry);
+      end else if VSubItem.hasChildNodes then begin
+        // dive in tag
+        _ParseGeometry(SL_Common, AValueName, VSubItem, ANeedGeometry);
+      end;
+      
+      // check geometry found
+      if (not ANeedGeometry) then
+        Exit;
+      
+      // next
+      VSubItem:=VSubItem.nextSibling;
+    end;
+  end;
+
   procedure _ParseFinishedFeature(const SL_Common: TStrings; const AFinishedFeature: IDOMNode);
   var
     VItem: IDOMNode;
     VTail, VDate: String;
     VSLParams: TStrings;
+    VIsGeometry: Boolean;
   begin
     VSLParams:=TStringList.Create;
     try
@@ -158,8 +281,11 @@ const
       VItem:=AFinishedFeature.firstChild;
       while Assigned(VItem) do begin
         // parse
-        if _NodeHasDGName(VItem,VTail) then begin
+        if _NodeHasDGName(VItem,VTail,VIsGeometry) then begin
           _AddToSL(VSLParams, VTail, VItem);
+        end else if VIsGeometry then begin
+          // parse geometry
+          _ParseGeometry(VSLParams, VTail, VItem, VIsGeometry);
         end;
         // next
         VItem:=VItem.nextSibling;
@@ -189,11 +315,12 @@ const
   var
     VFinishedFeature: IDOMNode;
     VTail: String;
+    VIsGeometry: Boolean;
   begin
     VFinishedFeature:=Afeatures.firstChild;
     while Assigned(VFinishedFeature) do begin
       // parse
-      if _NodeHasDGName(VFinishedFeature,VTail) then
+      if _NodeHasDGName(VFinishedFeature,VTail,VIsGeometry) then
       if SameText(VTail,'FinishedFeature') then begin
         _ParseFinishedFeature(SL_Common, VFinishedFeature);
       end;
@@ -210,7 +337,7 @@ var
   VDOMDocument: IDOMDocument;
   VSLCommon: TStrings;
   VNodeNameTail: String;
-  VFound: Boolean;
+  VFound, VIsGeometry: Boolean;
 begin
   Result:=0;
   VTileNode:=nil;
@@ -234,7 +361,7 @@ begin
       VTileMatrixFeature := VfeatureMember.lastChild;
       while Assigned(VTileMatrixFeature) do begin
         // check
-        if _NodeHasDGName(VTileMatrixFeature,VNodeNameTail) then begin
+        if _NodeHasDGName(VTileMatrixFeature,VNodeNameTail,VIsGeometry) then begin
           VFound:=TRUE;
           break;
         end;
@@ -249,7 +376,7 @@ begin
           VTileNode := VTileMatrixFeature.firstChild;
           while Assigned(VTileNode) do begin
             // parse node
-            if _NodeHasDGName(VTileNode, VNodeNameTail) then begin
+            if _NodeHasDGName(VTileNode, VNodeNameTail, VIsGeometry) then begin
               if SameText(VNodeNameTail,'features') then begin
                 // dive in features
                 _ParseFeatures(VSLCommon, VTileNode);

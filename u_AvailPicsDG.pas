@@ -50,8 +50,7 @@ type
   TAvailPicsDGs = array of TAvailPicsDG;
 
 procedure GenerateAvailPicsDG(var ADGs: TAvailPicsDGs;
-                              const ATileInfoPtr: PAvailPicsTileInfo;
-                              const ALocalConverter: ILocalCoordConverter);
+                              const ATileInfoPtr: PAvailPicsTileInfo);
 
 implementation
 
@@ -169,8 +168,7 @@ var
 
 
 procedure GenerateAvailPicsDG(var ADGs: TAvailPicsDGs;
-                              const ATileInfoPtr: PAvailPicsTileInfo;
-                              const ALocalConverter: ILocalCoordConverter);
+                              const ATileInfoPtr: PAvailPicsTileInfo);
 var i,k: Integer;
 begin
   k := length(Stacks);
@@ -180,7 +178,7 @@ begin
 
   // create objects
   for i:=0 to k-1 do begin
-    ADGs[i] := TAvailPicsDG.Create(ATileInfoPtr, ALocalConverter);
+    ADGs[i] := TAvailPicsDG.Create(ATileInfoPtr);
     ADGs[i].FStack_Key      := Stacks[i,0];
     ADGs[i].FStack_Number   := Stacks[i,1];
     ADGs[i].FStack_Descript := Stacks[i,2];

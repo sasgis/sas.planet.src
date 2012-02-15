@@ -30,19 +30,6 @@ uses
   t_GeoTypes;
 
 type
-  // for node
-  //TAvailImageItemParams = class(TStringList)
-  //public
-    // only base params - others as items
-    //Image_Date: String;
-    //Image_Id: String;
-    //tid:string;
-    //date:string;
-    //provider:string;
-    //color:string;
-    //resolution:string;
-  //end;
-
   // to add items to form
   TAddAvailImageItemProc = function (Sender: TObject;
                                      const ADate: String;
@@ -55,8 +42,6 @@ type
     AddImageProc: TAddAvailImageItemProc;
     LonLat: TDoublePoint;
     Zoom: Byte;
-    // for NMC
-    TilePos: TPoint;
     // for DG
     mpp: Extended;
     hi,wi: Integer;
@@ -67,9 +52,10 @@ type
     FTileInfoPtr: PAvailPicsTileInfo;
     FLocalConverter: ILocalCoordConverter;
   public
-    constructor Create(const ATileInfoPtr: PAvailPicsTileInfo;
-                       const ALocalConverter: ILocalCoordConverter);
+    constructor Create(const ATileInfoPtr: PAvailPicsTileInfo);
     destructor Destroy; override;
+
+    procedure SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
 
     function ContentType: String; virtual; abstract;
 
@@ -90,17 +76,21 @@ implementation
 
 { TAvailPicsAbstract }
 
-constructor TAvailPicsAbstract.Create(const ATileInfoPtr: PAvailPicsTileInfo;
-                                      const ALocalConverter: ILocalCoordConverter);
+constructor TAvailPicsAbstract.Create(const ATileInfoPtr: PAvailPicsTileInfo);
 begin
   FTileInfoPtr := ATileInfoPtr;
-  FLocalConverter := ALocalConverter;
+  FLocalConverter := nil;
 end;
 
 destructor TAvailPicsAbstract.Destroy;
 begin
   FLocalConverter:=nil;
   inherited;
+end;
+
+procedure TAvailPicsAbstract.SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
+begin
+  FLocalConverter := ALocalConverter;
 end;
 
 end.
