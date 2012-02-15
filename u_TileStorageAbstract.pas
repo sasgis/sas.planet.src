@@ -25,6 +25,7 @@ interface
 uses
   Types,
   Classes,
+  SyncObjs,
   GR32,
   i_JclNotify,
   i_FillingMapColorer,
@@ -51,6 +52,7 @@ type
     FStorageState: IStorageStateChangeble;
     FStorageStateListener: IJclListener;
     FStorageStateStatic: IStorageStateStatic;
+    FStorageStateStaticCS: TCriticalSection;
     FStorageStateInternal: IStorageStateInternal;
     FNotifierByZoomInternal: array of ITileRectUpdateNotifierInternal;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
@@ -58,8 +60,9 @@ type
       AZoom: Byte): ITileRectUpdateNotifierInternal;
     procedure OnStateChange;
     procedure OnConfigChange;
+    function GetStorageStateStatic: IStorageStateStatic;
   protected
-    property StorageStateStatic: IStorageStateStatic read FStorageStateStatic;
+    property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
     property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
@@ -131,6 +134,7 @@ type
 implementation
 
 uses
+  SysUtils,
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
@@ -152,6 +156,7 @@ var
   VState: TStorageStateInternal;
 begin
   FConfig := AConfig;
+  FStorageStateStaticCS := TCriticalSection.Create;
 
   VState := TStorageStateInternal.Create(AStorageTypeAbilities);
   FStorageStateInternal := VState;
@@ -194,6 +199,7 @@ begin
   for i := 0 to Length(FNotifierByZoomInternal) - 1 do begin
     FNotifierByZoomInternal[i] := nil;
   end;
+  FreeAndNil(FStorageStateStaticCS);
   inherited;
 end;
 
@@ -211,6 +217,16 @@ function TTileStorageAbstract.GetNotifierByZoomInternal(
   AZoom: Byte): ITileRectUpdateNotifierInternal;
 begin
   Result := FNotifierByZoomInternal[AZoom - FMinValidZoom];
+end;
+
+function TTileStorageAbstract.GetStorageStateStatic: IStorageStateStatic;
+begin
+  FStorageStateStaticCS.Acquire;
+  try
+    Result := FStorageStateStatic;
+  finally
+    FStorageStateStaticCS.Release;
+  end;
 end;
 
 function TTileStorageAbstract.LoadFillingMap(
@@ -338,7 +354,12 @@ end;
 
 procedure TTileStorageAbstract.OnStateChange;
 begin
-  FStorageStateStatic := FStorageState.GetStatic;
+  FStorageStateStaticCS.Acquire;
+  try
+    FStorageStateStatic := FStorageState.GetStatic;
+  finally
+    FStorageStateStaticCS.Release;
+  end;
 end;
 
 end.

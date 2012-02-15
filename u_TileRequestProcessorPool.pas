@@ -24,11 +24,12 @@ type
     FAppClosingNotifier: IJclNotifier;
     FTileRequestQueue: ITileRequestQueue;
 
-    FDownloaderListStatic: ITileDownloaderListStatic;
-    FThreadArray: TArrayOfThread;
     FTTLListener: ITTLCheckListener;
     FDownloadersListListener: IJclListener;
     FCS: TCriticalSection;
+
+    FThreadArray: TArrayOfThread;
+    FThreadArrayCS: TCriticalSection;
 
     procedure OnTTLTrim(Sender: TObject);
     procedure OnDownloadersListChange;
@@ -69,6 +70,7 @@ begin
   FTileRequestQueue := ATileRequestQueue;
 
   FCS := TCriticalSection.Create;
+  FThreadArrayCS := TCriticalSection.Create;
 
   FDownloaderList := ADownloaderList;
 
@@ -90,9 +92,9 @@ begin
   FGCList := nil;
   FDownloadersListListener := nil;
   FDownloaderList := nil;
-  FDownloaderListStatic := nil;
 
   FreeAndNil(FCS);
+  FreeAndNil(FThreadArrayCS);
   inherited;
 end;
 
@@ -104,11 +106,23 @@ var
   VTileDownloaderSync: ITileDownloader;
 begin
   FTTLListener.UpdateUseTime;
-  if FThreadArray = nil then begin
+  FThreadArrayCS.Acquire;
+  try
+    VThreadArray := FThreadArray;
+  finally
+    FThreadArrayCS.Release;
+  end;
+  if VThreadArray = nil then begin
     FCS.Acquire;
     try
-      if FThreadArray = nil then begin
-        VDownloaderList := FDownloaderListStatic;
+      FThreadArrayCS.Acquire;
+      try
+        VThreadArray := FThreadArray;
+      finally
+        FThreadArrayCS.Release;
+      end;
+      if VThreadArray = nil then begin
+        VDownloaderList := FDownloaderList.GetStatic;
         if VDownloaderList <> nil then begin
           SetLength(VThreadArray, VDownloaderList.Count);
           for i := 0 to VDownloaderList.Count - 1 do begin
@@ -126,7 +140,12 @@ begin
               VThreadArray[i] := nil;
             end;
           end;
-          FThreadArray := VThreadArray;
+          FThreadArrayCS.Acquire;
+          try
+            FThreadArray := VThreadArray;
+          finally
+            FThreadArrayCS.Release;
+          end;
         end;
       end;
     finally
@@ -137,7 +156,6 @@ end;
 
 procedure TTileRequestProcessorPool.OnDownloadersListChange;
 begin
-  FDownloaderListStatic := FDownloaderList.GetStatic;
   OnTTLTrim(nil);
 end;
 
@@ -147,14 +165,12 @@ var
   i: Integer;
   VItem: IThread;
 begin
-  if FThreadArray <> nil then begin
-    FCS.Acquire;
-    try
-      VThreadArray := FThreadArray;
-      FThreadArray := nil;
-    finally
-      FCS.Release;
-    end;
+  FThreadArrayCS.Acquire;
+  try
+    VThreadArray := FThreadArray;
+    FThreadArray := nil;
+  finally
+    FThreadArrayCS.Release
   end;
   if VThreadArray <> nil then begin
     for i := 0 to Length(VThreadArray) - 1 do begin

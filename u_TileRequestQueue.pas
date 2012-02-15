@@ -20,16 +20,19 @@ type
     FGCList: ITTLCheckNotifier;
     FAppClosingNotifier: IJclNotifier;
 
-    FSize: Integer;
-    FHeadIndex: Integer;
-    FTailIndex: Integer;
-    FRequestArray: TArrayOfITileRequest;
     FTTLListener: ITTLCheckListener;
     FAppClosingListener: IJclListener;
     FCS: TCriticalSection;
     FCapasitySemaphore: THandle;
     FReadyRequestSemaphore: THandle;
     FStopThreadEvent: TEvent;
+
+    FSize: Integer;
+    FHeadIndex: Integer;
+    FTailIndex: Integer;
+
+    FRequestArray: TArrayOfITileRequest;
+    FRequestArrayCS: TCriticalSection;
 
     procedure OnTTLTrim(Sender: TObject);
     function GetOrInitArray: TArrayOfITileRequest;
@@ -72,6 +75,7 @@ begin
   FCapasitySemaphore := CreateSemaphore(nil, ACapacity, ACapacity, nil);
   FReadyRequestSemaphore := CreateSemaphore(nil, 0, ACapacity, nil);
   FStopThreadEvent := TEvent.Create;
+  FRequestArrayCS := TCriticalSection.Create;
 
   FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 100000, 1000);
   FGCList.Add(FTTLListener);
@@ -91,6 +95,7 @@ begin
   FAppClosingListener := nil;
   FAppClosingNotifier := nil;
 
+  FreeAndNil(FRequestArrayCS);
   FreeAndNil(FCS);
 
   FreeAndNil(FStopThreadEvent);
@@ -101,14 +106,30 @@ end;
 
 function TTileRequestQueue.GetOrInitArray: TArrayOfITileRequest;
 begin
-  Result := FRequestArray;
-  if Length(Result) = 0 then begin
+  FRequestArrayCS.Acquire;
+  try
+    Result := FRequestArray;
+  finally
+    FRequestArrayCS.Release;
+  end;
+  if Result = nil then begin
     FCS.Acquire;
     try
-      if Length(Result) = 0 then begin
-        SetLength(FRequestArray, FCapacity);
+      FRequestArrayCS.Acquire;
+      try
+        Result := FRequestArray;
+      finally
+        FRequestArrayCS.Release;
       end;
-      Result := FRequestArray;
+      if Result = nil then begin
+        SetLength(Result, FCapacity);
+        FRequestArrayCS.Acquire;
+        try
+          FRequestArray := Result;
+        finally
+          FRequestArrayCS.Release;
+        end;
+      end;
     finally
       FCS.Release;
     end;
@@ -124,18 +145,26 @@ procedure TTileRequestQueue.OnTTLTrim(Sender: TObject);
 var
   VSize: Integer;
   i: Integer;
+  VRequestArray: TArrayOfITileRequest;
 begin
-  FCS.Acquire;
-  try
-    VSize := InterlockedCompareExchange(FSize, 0, 0);
-    if VSize > 0 then begin
-      for i := 0 to FCapacity - 1 do begin
-        FRequestArray[i] := nil;
+  VSize := InterlockedCompareExchange(FSize, 0, 0);
+  if VSize > 0 then begin
+    FCS.Acquire;
+    try
+      FRequestArrayCS.Acquire;
+      try
+        VRequestArray := FRequestArray;
+        FRequestArray := nil;
+      finally
+        FRequestArrayCS.Release;
       end;
+    finally
+      FCS.Release;
     end;
-    FRequestArray := nil;
-  finally
-    FCS.Release;
+    for i := 0 to Length(VRequestArray) - 1 do begin
+      VRequestArray[i] := nil;
+    end;
+    VRequestArray := nil;
   end;
 end;
 
