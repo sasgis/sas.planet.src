@@ -50,6 +50,7 @@ type
     FCancelListener: IJclListener;
     FMapActive: Boolean;
     FVisualCoordConverter: ILocalCoordConverter;
+    FVisualCoordConverterCS: TCriticalSection;
 
     procedure OnTTLTrim(Sender: TObject);
     procedure OnPosChange;
@@ -121,6 +122,8 @@ begin
   FDownloadInfo := ADownloadInfo;
   FErrorLogger := AErrorLogger;
 
+  FVisualCoordConverterCS := TCriticalSection.Create;
+
   FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
 
   FRequestCount := 4;
@@ -185,6 +188,7 @@ begin
   CloseHandle(FSemaphore);
   FreeAndNil(FCancelEvent);
   FreeAndNil(FCS);
+  FreeAndNil(FVisualCoordConverterCS);
   inherited;
 end;
 
@@ -224,14 +228,24 @@ end;
 procedure TUiTileDownload.OnPosChange;
 var
   VConverter: ILocalCoordConverter;
+  VNeedRestart: Boolean;
 begin
   VConverter :=
     FConverterFactory.CreateBySourceWithStableTileRectAndOtherGeo(
       FViewPortState.GetVisualCoordConverter,
       FMapTypeActive.GetMapType.MapType.GeoConvert
     );
-  if (FVisualCoordConverter = nil) or not VConverter.GetIsSameConverter(FVisualCoordConverter) then begin
-    FVisualCoordConverter := VConverter;
+  VNeedRestart := False;
+  FVisualCoordConverterCS.Acquire;
+  try
+    if (FVisualCoordConverter = nil) or not VConverter.GetIsSameConverter(FVisualCoordConverter) then begin
+      FVisualCoordConverter := VConverter;
+      VNeedRestart := True;
+    end;
+  finally
+    FVisualCoordConverterCS.Release
+  end;
+  if VNeedRestart then begin
     RetartDownloadIfNeed;
   end;
 end;
@@ -259,7 +273,12 @@ var
 begin
   FTTLListener.UpdateUseTime;
   VMapType := FMapTypeActive.GetMapType.MapType;
-  VLocalConverter := FVisualCoordConverter;
+  FVisualCoordConverterCS.Acquire;
+  try
+    VLocalConverter := FVisualCoordConverter;
+  finally
+    FVisualCoordConverterCS.Release;
+  end;
   if VLocalConverter <> nil then begin
     FCancelEvent.ResetEvent;
     ACancelNotifier.AddListener(FCancelListener);
@@ -387,6 +406,7 @@ end;
 procedure TUiTileDownload.RetartDownloadIfNeed;
 var
   VDownloadTask: IBackgroundTask;
+  VVisualCoordConverter: ILocalCoordConverter;
 begin
   FCS.Acquire;
   try
@@ -394,7 +414,13 @@ begin
     if VDownloadTask <> nil then begin
       VDownloadTask.StopExecute;
     end;
-    if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive and (FVisualCoordConverter <> nil) then begin
+    FVisualCoordConverterCS.Acquire;
+    try
+      VVisualCoordConverter := FVisualCoordConverter;
+    finally
+      FVisualCoordConverterCS.Release;
+    end;
+    if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive and (VVisualCoordConverter <> nil) then begin
       if VDownloadTask = nil then begin
         VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, DoProcessDownloadRequests, tpLowest);
         VDownloadTask.Start;
