@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,6 +23,7 @@ unit u_ScaleLineConfig;
 interface
 
 uses
+  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ScaleLineConfig,
@@ -32,6 +33,13 @@ type
   TScaleLineConfig = class(TConfigDataElementBase, IScaleLineConfig)
   private
     FVisible: Boolean;
+    FExtended: Boolean;
+    FWidth: Integer;
+    FColor: TColor32;
+    FOutLineColor: TColor32;
+    FFontName: string;
+    FFontSize: Integer;
+    FNumbersFormat: TScaleLegendNumbersFormat;
     FBottomMargin: Integer;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -39,6 +47,27 @@ type
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+
+    function GetExtended: Boolean;
+    procedure SetExtended(AValue: Boolean);
+
+    function GetWidth: Integer;
+    procedure SetWidth(AValue: Integer);
+
+    function GetColor: TColor32;
+    procedure SetColor(AValue: TColor32);
+
+    function GetOutLineColor: TColor32;
+    procedure SetOutLineColor(AValue: TColor32);
+
+    function GetFontName: string;
+    procedure SetFontName(AValue: string);
+
+    function GetFontSize: Integer;
+    procedure SetFontSize(AValue: Integer);
+
+    function GetNumbersFormat: TScaleLegendNumbersFormat;
+    procedure SetNumbersFormat(AValue: TScaleLegendNumbersFormat);
 
     function GetBottomMargin: Integer;
     procedure SetBottomMargin(AValue: Integer);
@@ -48,12 +77,25 @@ type
 
 implementation
 
+uses
+  u_ConfigProviderHelpers;
+
+const
+  CDefaultNumbersFormat: TScaleLegendNumbersFormat = slnfScience;
+
 { TScaleLineConfig }
 
 constructor TScaleLineConfig.Create;
 begin
   inherited;
   FVisible := True;
+  FExtended := True;
+  FWidth := 256;
+  FColor := SetAlpha(clWhite32, 255);
+  FOutLineColor := SetAlpha(clBlack32, 90);
+  FFontName := 'Arial';
+  FFontSize := 8;
+  FNumbersFormat := CDefaultNumbersFormat;
   FBottomMargin := 0;
 end;
 
@@ -62,6 +104,19 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
+    FExtended := AConfigData.ReadBool('Extended', FExtended);
+    FWidth := AConfigData.ReadInteger('Width', FWidth);
+    FColor := ReadColor32(AConfigData, 'Color', FColor);
+    FOutLineColor := ReadColor32(AConfigData, 'OutLineColor', FOutLineColor);
+    FFontName := AConfigData.ReadString('FontName', FFontName);
+    FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
+    try
+      FNumbersFormat := TScaleLegendNumbersFormat(
+        AConfigData.ReadInteger('FNumbersFormat', Integer(FNumbersFormat))
+      );
+    except
+      FNumbersFormat := CDefaultNumbersFormat;
+    end;
     SetChanged;
   end;
 end;
@@ -70,6 +125,95 @@ procedure TScaleLineConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);
+  AConfigData.WriteBool('Extended', FExtended);
+  AConfigData.WriteInteger('Width', FWidth);
+  WriteColor32(AConfigData, 'Color', FColor);
+  WriteColor32(AConfigData, 'OutLineColor', FOutLineColor);
+  AConfigData.WriteString('FontName', FFontName);
+  AConfigData.WriteInteger('FontSize', FFontSize);
+  AConfigData.WriteInteger('NumbersFormat', Integer(FNumbersFormat));
+end;
+
+{$REGION 'GET Property Value Methods'}
+
+function TScaleLineConfig.GetVisible: Boolean;
+begin
+  LockRead;
+  try
+    Result := FVisible;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetExtended: Boolean;
+begin
+  LockRead;
+  try
+    Result := FExtended;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetWidth: Integer;
+begin
+  LockRead;
+  try
+    Result := FWidth;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetOutLineColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FOutLineColor;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetFontName: string;
+begin
+  LockRead;
+  try
+    Result := FFontName;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetFontSize: Integer;
+begin
+  LockRead;
+  try
+    Result := FFontSize;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TScaleLineConfig.GetNumbersFormat: TScaleLegendNumbersFormat;
+begin
+  LockRead;
+  try
+    Result := FNumbersFormat;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TScaleLineConfig.GetBottomMargin: Integer;
@@ -82,13 +226,111 @@ begin
   end;
 end;
 
-function TScaleLineConfig.GetVisible: Boolean;
+{$ENDREGION} //GET Property Value Methods
+
+{$REGION 'SET Property Value Methods'}
+
+procedure TScaleLineConfig.SetVisible(AValue: Boolean);
 begin
-  LockRead;
+  LockWrite;
   try
-    Result := FVisible;
+    if FVisible <> AValue then begin
+      FVisible := AValue;
+      SetChanged;
+    end;
   finally
-    UnlockRead;
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetExtended(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FExtended <> AValue then begin
+      FExtended := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetWidth(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FWidth <> AValue then begin
+      FWidth := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetColor(AValue: TColor32);
+begin
+  LockWrite;
+  try
+    if FColor <> AValue then begin
+      FColor := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetOutLineColor(AValue: TColor32);
+begin
+  LockWrite;
+  try
+    if FOutLineColor <> AValue then begin
+      FOutLineColor := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetFontName(AValue: string);
+begin
+  LockWrite;
+  try
+    if FFontName <> AValue then begin
+      FFontName := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetFontSize(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FFontSize <> AValue then begin
+      FFontSize := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TScaleLineConfig.SetNumbersFormat(AValue: TScaleLegendNumbersFormat);
+begin
+  LockWrite;
+  try
+    if FNumbersFormat <> AValue then begin
+      FNumbersFormat := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
@@ -105,17 +347,6 @@ begin
   end;
 end;
 
-procedure TScaleLineConfig.SetVisible(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FVisible <> AValue then begin
-      FVisible := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
+{$ENDREGION} //SET Property Value Methods
 
 end.
