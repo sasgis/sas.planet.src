@@ -14,7 +14,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Position = poMainFormCenter
   ShowHint = True
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object gbImageParams: TGroupBox
@@ -26,7 +25,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Align = alBottom
     Caption = 'Description:'
     TabOrder = 0
-    ExplicitTop = 239
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
@@ -37,8 +35,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       TitleCaptions.Strings = (
         'Parameter'
         'Value')
-      ExplicitTop = 14
-      ExplicitHeight = 129
       ColWidths = (
         120
         120)
@@ -53,8 +49,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Align = alClient
     Caption = 'Images available'
     TabOrder = 1
-    ExplicitLeft = 8
-    ExplicitHeight = 240
     object tvFound: TTreeView
       AlignWithMargins = True
       Left = 5
@@ -73,8 +67,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnClick = tvFoundClick
       OnDeletion = tvFoundDeletion
       OnMouseDown = tvFoundMouseDown
-      ExplicitLeft = 13
-      ExplicitTop = 20
     end
     object pnlRight: TPanel
       Left = 167
@@ -84,8 +76,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 216
-      ExplicitHeight = 170
       object btnUp: TButton
         AlignWithMargins = True
         Left = 3
@@ -96,7 +86,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'Up'
         TabOrder = 1
         OnClick = btnUpClick
-        ExplicitTop = 43
       end
       object btnDown: TButton
         AlignWithMargins = True
@@ -108,7 +97,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'Down'
         TabOrder = 2
         OnClick = btnDownClick
-        ExplicitTop = 35
       end
       object btnCopy: TButton
         AlignWithMargins = True
@@ -123,7 +111,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         ShowHint = True
         TabOrder = 3
         OnClick = btnCopyClick
-        ExplicitTop = 97
       end
       object btnRefresh: TButton
         AlignWithMargins = True
@@ -135,7 +122,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'Refresh'
         TabOrder = 0
         OnClick = btnRefreshClick
-        ExplicitTop = 0
       end
     end
   end
@@ -148,7 +134,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Align = alTop
     Caption = 'Image services'
     TabOrder = 2
-    ExplicitLeft = -2
+    ExplicitLeft = 8
     DesignSize = (
       250
       78)

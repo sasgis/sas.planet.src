@@ -298,7 +298,7 @@ end;
 function TAvailPicsDG.ParseResponse(const AStream: TMemoryStream): Integer;
 var
   i: Integer;
-  VShowItem, VAddResult: Boolean;
+  VAddResult: Boolean;
   VList: TStringList;
   VLine: String;
   VDate, VId: String;
@@ -348,17 +348,7 @@ begin
       // 0.6
       VResolution := GetWord(VLine, ',', 5);
 
-      // check resolution
-      VShowItem := TRUE;
-      try
-        if DecimalSeparator<>'.' then
-          VResolution:=StringReplace(VResolution,'.',DecimalSeparator,[]);
-        if StrToFloat(VResolution)>14 then
-          VShowItem:=FALSE; // do not show "landsat" with 15 and 25 meters
-      except
-      end;
-
-      if VShowItem then begin
+      if CheckHiResResolution(VResolution) then begin
         // make params
         VParams:=TStringList.Create;
         VParams.Values['tid']:=VId;

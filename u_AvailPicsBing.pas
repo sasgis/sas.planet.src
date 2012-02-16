@@ -48,21 +48,6 @@ uses
   vsagps_public_xml_dom,
   vsagps_public_xml_parser;
   
-(*
-function _NodeVal(const ANode: IDOMNode): String;
-var VChld: IDOMNode;
-begin
-  if Assigned(ANode) then begin
-    VChld := ANode.firstChild;
-    if Assigned(VChld) then
-      Result := VChld.nodeValue
-    else
-      Result := ANode.nodeValue;
-  end else
-    Result := '';
-end;
-*)  
-
 { TAvailPicsBing }
 
 procedure TAvailPicsBing.AfterConstruction;
@@ -166,7 +151,7 @@ begin
         VVintageEnd[8]:=DateSeparator;
 
         // add
-        if FTileInfoPtr.AddImageProc(Self, VVintageStart+' - '+VVintageEnd, 'Tile', VSLParams) then
+        if FTileInfoPtr.AddImageProc(Self, VVintageStart+' - '+VVintageEnd, 'Bing', VSLParams) then
           Inc(Result);
       end;
 
@@ -189,98 +174,6 @@ begin
     VResponse:=nil;
     VDOMDocument:=nil;
   end;
-
-
-(*
-hi-res (3 images in single tile)
-  <?xml version="1.0" encoding="utf-8" ?> 
-- <Response xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/search/local/ws/rest/v1">
-  <Copyright>Copyright © 2012 Microsoft and its suppliers. All rights reserved. This API cannot be accessed and the content and any results may not be used, reproduced or transmitted in any manner without express written permission from Microsoft Corporation.</Copyright> 
-  <BrandLogoUri>http://dev.virtualearth.net/Branding/logo_powered_by.png</BrandLogoUri> 
-  <StatusCode>200</StatusCode> 
-  <StatusDescription>OK</StatusDescription> 
-  <AuthenticationResultCode>ValidCredentials</AuthenticationResultCode> 
-  <TraceId>3c1c320b8c8c4433a068283787096a50|AMSM001402|02.00.83.500|</TraceId> 
-- <ResourceSets>
-- <ResourceSet>
-  <EstimatedTotal>1</EstimatedTotal> 
-- <Resources>
-- <ImageryMetadata>
-
-  <ImageUrl>http://ecn.t1.tiles.virtualearth.net/tiles/a12101203321231.jpeg?g=863</ImageUrl>
-  <ImageWidth>256</ImageWidth>
-  <ImageHeight>256</ImageHeight>
-  <ZoomMin>14</ZoomMin>
-  <ZoomMax>14</ZoomMax>
-  <VintageStart>2010-05-13</VintageStart>
-  <VintageEnd>2011-05-25</VintageEnd>
-
-  </ImageryMetadata>
-  </Resources>
-  </ResourceSet>
-  </ResourceSets>
-  </Response>
-
-landsat
-  <?xml version="1.0" encoding="utf-8" ?> 
-- <Response xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/search/local/ws/rest/v1">
-  <Copyright>Copyright © 2012 Microsoft and its suppliers. All rights reserved. This API cannot be accessed and the content and any results may not be used, reproduced or transmitted in any manner without express written permission from Microsoft Corporation.</Copyright> 
-  <BrandLogoUri>http://dev.virtualearth.net/Branding/logo_powered_by.png</BrandLogoUri> 
-  <StatusCode>200</StatusCode>
-  <StatusDescription>OK</StatusDescription> 
-  <AuthenticationResultCode>ValidCredentials</AuthenticationResultCode> 
-  <TraceId>083ffbe19bf142aab3e2bed99eee5d15|AMSM001104|02.00.83.500|</TraceId>
-
-- <ResourceSets>
-- <ResourceSet>
-  <EstimatedTotal>1</EstimatedTotal>
-- <Resources>
-
-- <ImageryMetadata>
-  <ImageUrl>http://ecn.t0.tiles.virtualearth.net/tiles/a1210300200300.jpeg?g=863</ImageUrl>
-  <ImageWidth>256</ImageWidth>
-  <ImageHeight>256</ImageHeight>
-  <ZoomMin>13</ZoomMin>
-  <ZoomMax>13</ZoomMax>
-  <VintageStart>2001-03-01</VintageStart>
-  <VintageEnd>2001-03-01</VintageEnd>
-  </ImageryMetadata>
-
-  </Resources>
-  </ResourceSet>
-  </ResourceSets>
-
-  </Response>
-
-
-deeper
-  <?xml version="1.0" encoding="utf-8" ?> 
-- <Response xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/search/local/ws/rest/v1">
-  <Copyright>Copyright © 2012 Microsoft and its suppliers. All rights reserved. This API cannot be accessed and the content and any results may not be used, reproduced or transmitted in any manner without express written permission from Microsoft Corporation.</Copyright> 
-  <BrandLogoUri>http://dev.virtualearth.net/Branding/logo_powered_by.png</BrandLogoUri> 
-  <StatusCode>200</StatusCode> 
-  <StatusDescription>OK</StatusDescription> 
-  <AuthenticationResultCode>ValidCredentials</AuthenticationResultCode> 
-  <TraceId>d7743ea653894672853c26a464f6a3b5|AMSM001104|02.00.83.500|</TraceId> 
-- <ResourceSets>
-- <ResourceSet>
-  <EstimatedTotal>1</EstimatedTotal> 
-- <Resources>
-- <ImageryMetadata>
-  <ImageUrl>http://ecn.t2.tiles.virtualearth.net/tiles/a121030020030022.jpeg?g=863</ImageUrl> 
-  <ImageWidth>256</ImageWidth> 
-  <ImageHeight>256</ImageHeight> 
-  <ZoomMin>15</ZoomMin> 
-  <ZoomMax>15</ZoomMax> 
-  <VintageStart>2011-06-05</VintageStart> 
-  <VintageEnd>2011-06-05</VintageEnd> 
-  </ImageryMetadata>
-  </Resources>
-  </ResourceSet>
-  </ResourceSets>
-  </Response>
-
-*)
 end;
 
 end.

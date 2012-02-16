@@ -28,8 +28,6 @@ uses
   Classes,
   Controls,
   Forms,
-  wininet,
-  Dialogs,
   StdCtrls,
   ComCtrls,
   CommCtrl,
@@ -42,7 +40,20 @@ uses
   u_AvailPicsDG,
   u_AvailPicsBing,
   u_AvailPicsNMC,
-  t_GeoTypes, Grids, ValEdit;
+  i_OperationNotifier,
+  u_OperationNotifier,
+  i_DownloadRequest,
+  u_DownloadRequest,
+  i_DownloadResult,
+  i_DownloadResultFactory,
+  u_DownloadResultFactory,
+  i_DownloadResultTextProvider,
+  u_DownloadResultTextProvider,
+  i_Downloader,
+  u_DownloaderHttp,
+  t_GeoTypes,
+  Grids,
+  ValEdit;
 
 type
   TfrmDGAvailablePic = class(TFormWitghLanguageManager)
@@ -68,7 +79,6 @@ type
     procedure btnCopyClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure tvFoundDeletion(Sender: TObject; Node: TTreeNode);
     procedure tvFoundClick(Sender: TObject);
     procedure tvFoundChange(Sender: TObject; Node: TTreeNode);
@@ -112,10 +122,13 @@ type
   private
     FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
+    FDownloadResultTextProvider: IDownloadResultTextProvider;
+    FResultFactory: IDownloadResultFactory;
     procedure CopyStringToClipboard(s: Widestring);
   public
     constructor Create(ALanguageManager: ILanguageManager;
                        const AInetConfig: IInetConfig); reintroduce;
+    destructor Destroy; override;
     
     procedure ShowInfo(const AVisualPoint: TPoint;
                        const ALocalConverter: ILocalCoordConverter);
@@ -133,7 +146,8 @@ type
   public
     FLinkToService: String;
     FContentType: String;
-    FErrCode: Integer;
+    FHttpErrorCode: Cardinal;
+    FHttpErrorText: String;
   private
     FInetConfig: IInetConfig;
     FForm: TfrmDGAvailablePic;
@@ -141,7 +155,7 @@ type
     FCallIndex: DWORD;
     FMemoryStream: TMemoryStream;
     function CallIndexActual: Boolean;
-    function GetStreamFromURL1:integer;
+    function GetStreamFromURL1: Boolean;
   protected
     procedure Execute; override;
     procedure ShowList;
@@ -174,6 +188,8 @@ constructor TGetList.Create(
 );
 begin
   inherited Create(True);
+  FHttpErrorCode:=0;
+  FHttpErrorText:='';
   FInetConfig := AInetConfig;
   FreeOnTerminate:=true;
   Priority:=tpLower;
@@ -193,84 +209,61 @@ begin
 end;
 
 procedure TGetList.ShowError;
+var s1: String;
 begin
-  case FErrCode of
-  -3: ShowMessage(SAS_ERR_Authorization);
-  -1: ShowMessage(SAS_ERR_TileNotExists);
-   0: ShowMessage(SAS_ERR_Noconnectionstointernet);
-   else ShowMessage(SAS_ERR_Noconnectionstointernet);
- end;
+  if (0=FHttpErrorCode) then
+    s1:='ERROR'
+  else
+    s1:=IntToStr(FHttpErrorCode);
+  // add to params
+  FForm.veImageParams.Strings.Add(s1+'='+FHttpErrorText);
 end;
 
-function TGetList.GetStreamFromURL1:integer;
-var par,ty:string;
-    err:boolean;
-    Buffer:array [1..64535] of char;
-    BufferLen:LongWord;
-    hSession,hFile:Pointer;
-    dwtype: array [1..20] of char;
-    dwindex, dwcodelen,dwReserv: dword;
-  VProxyConfig: IProxyConfig;
-  VUselogin: Boolean;
-  VLogin: string;
-  VPassword: string;
+function TGetList.GetStreamFromURL1: Boolean;
+var
+  VDownloaderHttp: IDownloader; // TDownloaderHttp;
+  VRequest: IDownloadRequest; // TDownloadRequest
+  VResult: IDownloadResult;
+  VResultWithRespond: IDownloadResultWithServerRespond;
+  VDownloadResultError: IDownloadResultError;
+  VDownloadResultDataNotExists: IDownloadResultDataNotExists;
+  VResultOk: IDownloadResultOk;
+  VCancelNotifier: IOperationNotifier;
 begin
-  Result := 0;
-  VProxyConfig := FInetConfig.ProxyConfig;
-  VProxyConfig.LockRead;
+  Result:=FALSE;
   try
-    VUselogin := (not VProxyConfig.GetUseIESettings) and VProxyConfig.GetUseProxy and VProxyConfig.GetUseLogin;
-    VLogin := VProxyConfig.GetLogin;
-    VPassword := VProxyConfig.GetPassword;
-  finally
-    VProxyConfig.UnlockRead;
-  end;
-  hSession:=InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'),INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
-  if Assigned(hSession) then
-  try
-    hFile:=InternetOpenURL(hSession,PChar(FLinkToService),PChar(par),length(par),INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD,0);
-    if Assigned(hFile)then
-    try
-      dwcodelen:=150; dwReserv:=0; dwindex:=0;
-      if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-       then dwindex:=strtoint(pchar(@dwtype));
-      if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then
-       begin
-        if VUselogin then
-         begin
-          InternetSetOption (hFile, INTERNET_OPTION_PROXY_USERNAME,PChar(VLogin), length(VLogin));
-          InternetSetOption (hFile, INTERNET_OPTION_PROXY_PASSWORD,PChar(VPassword), length(VPassword));
-          HttpSendRequest(hFile, nil, 0,Nil, 0);
-         end;
-        dwcodelen:=150; dwReserv:=0; dwindex:=0;
-        if HttpQueryInfo(hFile,HTTP_QUERY_STATUS_CODE,@dwtype, dwcodelen, dwReserv)
-         then dwindex:=strtoint(pchar(@dwtype));
-        if (dwindex=HTTP_STATUS_PROXY_AUTH_REQ) then //Неверные пароль логин
-         begin
-          result:=-3;
-          InternetCloseHandle(hFile);
-          InternetCloseHandle(hSession);
-          exit;
-         end;
-       end;
-      dwindex:=0; dwcodelen:=150; ty:='';
-      fillchar(dwtype,sizeof(dwtype),0);
-      if HttpQueryInfo(hfile,HTTP_QUERY_CONTENT_TYPE, @dwtype,dwcodelen,dwindex)
-       then ty:=PChar(@dwtype);
+    VDownloaderHttp:=TDownloaderHttp.Create(FForm.FResultFactory);
+    VRequest:=TDownloadRequest.Create(FLinkToService, '', FInetConfig.GetStatic);
+    VCancelNotifier:=TOperationNotifier.Create;
 
-      if (System.Pos(FContentType,ty)>0) then
-      repeat
-       err:=not(internetReadFile(hFile,@Buffer,SizeOf(Buffer),BufferLen));
-       FMemoryStream.Write(Buffer,BufferLen);
-      until (BufferLen=0)and(BufferLen<SizeOf(Buffer))and(err=false)
-      else
-        result:=-1; // no such content type
-    finally
-      InternetCloseHandle(hFile);
-      FMemoryStream.Position:=0;
+    // download
+    VResult:=VDownloaderHttp.DoRequest(VRequest, VCancelNotifier, VCancelNotifier.CurrentOperation);
+
+    // check result
+    if not Assigned(VResult) then begin
+      // fail
+      FHttpErrorText:='No result';
+    end else if Supports(VResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
+      // obtain result
+      FHttpErrorCode := VResultWithRespond.StatusCode;
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+        // save to stream
+        FMemoryStream.Position:=0;
+        FMemoryStream.SetSize(VResultOk.Size);
+        CopyMemory(FMemoryStream.Memory, VResultOk.Buffer, VResultOk.Size);
+        Result:=TRUE;
+      end;
+    end else if Supports(VResult, IDownloadResultError, VDownloadResultError) then begin
+      // error
+      FHttpErrorText:=VDownloadResultError.ErrorText;
+    end else if Supports(VResult, IDownloadResultDataNotExists, VDownloadResultDataNotExists) then begin
+      // no data
+      FHttpErrorText:=VDownloadResultDataNotExists.ReasonText;
     end;
   finally
-    InternetCloseHandle(hSession);
+    VRequest:=nil;
+    VDownloaderHttp:=nil;
+    VCancelNotifier:=nil;
   end;
 end;
 
@@ -289,13 +282,12 @@ end;
 procedure TGetList.Execute;
 begin
   try
-    FErrCode := GetStreamFromURL1;
-
-    if (0=FErrCode) then begin
+    if GetStreamFromURL1 then begin
       // ok
       if not(Terminated) then
         Synchronize(ShowList);
     end else begin
+      // failed
       if not(Terminated) then
         Synchronize(ShowError);
     end;
@@ -705,6 +697,20 @@ begin
 
   FLocalConverter := nil;
   FInetConfig := AInetConfig;
+  FDownloadResultTextProvider := TDownloadResultTextProvider.Create(ALanguageManager);
+  FResultFactory := TDownloadResultFactory.Create(FDownloadResultTextProvider);
+end;
+
+destructor TfrmDGAvailablePic.Destroy;
+begin
+  // kill vendors objects
+  KillPicsVendors;
+  // interfaces
+  FResultFactory:=nil;
+  FDownloadResultTextProvider:=nil;
+  FInetConfig:=nil;
+  FLocalConverter:=nil;
+  inherited;
 end;
 
 procedure TfrmDGAvailablePic.btnCopyClick(Sender: TObject);
@@ -718,17 +724,6 @@ begin
   SetWindowLong(tvFound.Handle,GWL_STYLE,GetWindowLong(tvFound.Handle,GWL_STYLE) or TVS_CHECKBOXES);
   // make vendors and fill list of dg stacks
   MakePicsVendors;
-end;
-
-procedure TfrmDGAvailablePic.FormDestroy(Sender: TObject);
-begin
-  // kill vendors objects
-  KillPicsVendors;
-  // interfaces
-  FInetConfig:=nil;
-  FLocalConverter:=nil;
-  // base
-  inherited;
 end;
 
 end.

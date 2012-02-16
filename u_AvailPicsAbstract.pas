@@ -73,6 +73,7 @@ type
   end;
 
 procedure AdjustMinimalHiResZoom(var VActualZoom: Byte);
+function CheckHiResResolution(const AStrResolution: String): Boolean;
 
 implementation
 
@@ -81,6 +82,26 @@ begin
   //  do not check for small zooms
   if (VActualZoom<14) then
     VActualZoom:=14;
+end;
+
+function CheckHiResResolution(const AStrResolution: String): Boolean;
+var VRes: String;
+begin
+  if (0=Length(AStrResolution)) then begin
+    // if no resolution info - show image
+    Result:=TRUE;
+  end else begin
+    // try co check landsat
+    VRes:=AStrResolution;
+    try
+      if DecimalSeparator<>'.' then
+        VRes:=StringReplace(VRes,'.',DecimalSeparator,[]);
+      // do not show "landsat" with 15 and 25 meters
+      Result:=(StrToFloat(VRes)<=14);
+    except
+      Result:=TRUE;
+    end;
+  end;
 end;
 
 { TAvailPicsAbstract }

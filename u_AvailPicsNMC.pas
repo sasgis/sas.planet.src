@@ -290,19 +290,21 @@ const
       end;
 
       // check some critical values
-      VTail := VSLParams.Values['featureId'];
-      VDate := VSLParams.Values['acquisitionDate'];
-      if (0<Length(VDate)) and (0<Length(VTail)) then begin
-        // subst date separators
-        try
-          VDate[5]:=DateSeparator;
-          VDate[8]:=DateSeparator;
-        except
+      if CheckHiResResolution(VSLParams.Values['groundSampleDistance']) then begin
+        VTail := VSLParams.Values['featureId'];
+        VDate := VSLParams.Values['acquisitionDate'];
+        if (0<Length(VDate)) and (0<Length(VTail)) then begin
+          // subst date separators
+          try
+            VDate[5]:=DateSeparator;
+            VDate[8]:=DateSeparator;
+          except
+          end;
+          // add params from common
+          //VSLParams.AddStrings(SL_Common);
+          // add item
+          FTileInfoPtr.AddImageProc(Self, VDate, VTail, VSLParams);
         end;
-        // add params from common
-        //VSLParams.AddStrings(SL_Common);
-        // add item
-        FTileInfoPtr.AddImageProc(Self, VDate, VTail, VSLParams);
       end;
     finally
       FreeAndNil(VSLParams);
