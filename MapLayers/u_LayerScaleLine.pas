@@ -92,7 +92,6 @@ procedure TLayerScaleLine.DoRedraw;
     I, J: Integer;
     VTextColor: Cardinal;
     VOutLineColor: Cardinal;
-    VSourceRect, VDestRect: TRect;
   begin
     VTextColor := SetAlpha(clWhite32, 255);
     VOutLineColor := SetAlpha(clBlack32, 90);
@@ -119,10 +118,7 @@ procedure TLayerScaleLine.DoRedraw;
         end;
       end;
     end;
-
-    VSourceRect := Rect(0, 0, FTmpBitmap.Width, FTmpBitmap.Height);
-    VDestRect := Rect(X, Y, X + FTmpBitmap.Width, Y + FTmpBitmap.Height);
-    FLayer.bitmap.Canvas.CopyRect(VDestRect, FTmpBitmap.Canvas, VSourceRect);
+    FTmpBitmap.DrawTo(FLayer.Bitmap, X, Y);
   end;
 
 var
