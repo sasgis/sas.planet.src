@@ -47,7 +47,8 @@ implementation
 uses
   SysUtils,
   i_CoordConverter,
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_GeoFun;
 
 { TSelectionRectLayer }
 
@@ -113,11 +114,13 @@ end;
 procedure TSelectionRectLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
 var
   jj: integer;
-  xy1, xy2: TPoint;
-  VSelectedPixels: TRect;
+  VDrawRect: TRect;
+  VSelectedLonLat: TDoubleRect;
+  VSelectedPixels: TDoubleRect;
   VZoomDelta: Byte;
   VColor: TColor32;
   VSelectedRelative: TDoubleRect;
+  VSelectedTilesFloat: TDoubleRect;
   VSelectedTiles: TRect;
   VMaxZoomDelta: Integer;
   VGeoConvert: ICoordConverter;
@@ -125,41 +128,67 @@ var
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
-  VSelectedPixels := VGeoConvert.LonLatRect2PixelRect(FSelectedLonLat, VZoom);
-
-  xy1 := ALocalConverter.LonLat2LocalPixel(FSelectedLonLat.TopLeft);
-  xy2 := ALocalConverter.LonLat2LocalPixel(FSelectedLonLat.BottomRight);
-
-  ABuffer.FillRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FFillColor);
-  ABuffer.FrameRectTS(xy1.x, xy1.y, xy2.x, xy2.y, FBorderColor);
-  ABuffer.FrameRectTS(xy1.x - 1, xy1.y - 1, xy2.x + 1, xy2.y + 1, FBorderColor);
-
-  VSelectedRelative := VGeoConvert.PixelRect2RelativeRect(VSelectedPixels, VZoom);
+  VSelectedLonLat := FSelectedLonLat;
+  VGeoConvert.CheckLonLatRect(VSelectedLonLat);
+  VSelectedRelative := VGeoConvert.LonLatRect2RelativeRect(VSelectedLonLat);
+  VSelectedPixels := VGeoConvert.RelativeRect2PixelRectFloat(VSelectedRelative, VZoom);
+  VDrawRect :=
+    RectFromDoubleRect(
+      ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
+      rrToTopLeft
+    );
+  ABuffer.FillRectTS(
+    VDrawRect.Left,
+    VDrawRect.Top,
+    VDrawRect.Right,
+    VDrawRect.Bottom,
+    FFillColor
+  );
+  ABuffer.FrameRectTS(
+    VDrawRect.Left,
+    VDrawRect.Top,
+    VDrawRect.Right,
+    VDrawRect.Bottom,
+    FBorderColor
+  );
+  ABuffer.FrameRectTS(
+    VDrawRect.Left - 1,
+    VDrawRect.Top - 1,
+    VDrawRect.Right + 1,
+    VDrawRect.Bottom + 1,
+    FBorderColor
+  );
 
   jj := VZoom;
   VZoomDelta := 0;
   VMaxZoomDelta := Length(FZoomDeltaColors) - 1;
   while (VZoomDelta <= VMaxZoomDelta) and (jj < 24) do begin
-    VSelectedTiles := VGeoConvert.RelativeRect2TileRect(VSelectedRelative, jj);
-    VSelectedPixels := VGeoConvert.RelativeRect2PixelRect(
-      VGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj), VZoom
-    );
-
-    xy1 := ALocalConverter.MapPixel2LocalPixel(VSelectedPixels.TopLeft);
-    xy2 := ALocalConverter.MapPixel2LocalPixel(VSelectedPixels.BottomRight);
-
+    VSelectedTilesFloat := VGeoConvert.RelativeRect2TileRectFloat(VSelectedRelative, jj);
+    VSelectedTiles := RectFromDoubleRect(VSelectedTilesFloat, rrOutside);
+    VSelectedPixels :=
+      VGeoConvert.RelativeRect2PixelRectFloat(
+        VGeoConvert.TileRect2RelativeRect(VSelectedTiles, jj),
+        VZoom
+      );
+    VDrawRect :=
+      RectFromDoubleRect(
+        ALocalConverter.MapRectFloat2LocalRectFloat(VSelectedPixels),
+        rrToTopLeft
+      );
     VColor := FZoomDeltaColors[VZoomDelta];
 
     ABuffer.FrameRectTS(
-      xy1.X - (VZoomDelta + 1), xy1.Y - (VZoomDelta + 1),
-      xy2.X + (VZoomDelta + 1), xy2.Y + (VZoomDelta + 1),
+      VDrawRect.Left - (VZoomDelta + 1),
+      VDrawRect.Top - (VZoomDelta + 1),
+      VDrawRect.Right + (VZoomDelta + 1),
+      VDrawRect.Bottom + (VZoomDelta + 1),
       VColor
     );
 
     ABuffer.Font.Size := FFontSize;
     ABuffer.RenderText(
-      xy2.x - ((xy2.x - xy1.x) div 2) - 42 + VZoomDelta * 26,
-      xy2.y - ((xy2.y - xy1.y) div 2) - 6,
+      VDrawRect.Right - ((VDrawRect.Right - VDrawRect.Left) div 2) - 42 + VZoomDelta * 26,
+      VDrawRect.Bottom - ((VDrawRect.Bottom - VDrawRect.Top) div 2) - 6,
       'z' + inttostr(jj + 1), 3, VColor
     );
     Inc(jj);
