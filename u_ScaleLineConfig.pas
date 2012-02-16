@@ -112,7 +112,7 @@ begin
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
     try
       FNumbersFormat := TScaleLegendNumbersFormat(
-        AConfigData.ReadInteger('FNumbersFormat', Integer(FNumbersFormat))
+        AConfigData.ReadInteger('NumbersFormat', Integer(FNumbersFormat))
       );
     except
       FNumbersFormat := CDefaultNumbersFormat;
