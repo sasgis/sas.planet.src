@@ -79,11 +79,12 @@ end;
 function TAvailPicsBing.LinkToImages: String;
 var VZoom: Byte;
 begin
-  VZoom := FTileInfoPtr.Zoom-1;
-  if (VZoom<14) then
-    VZoom:=14;
+  VZoom := FTileInfoPtr.Zoom;
+  AdjustMinimalHiResZoom(VZoom);
+
+  // use decremented zoom here!
     
-  // http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/63.011796,58.619231?zl=15&o=xml&key=AvuPoJ5DwFK0Htv75MetMjEN1QjQHiB8UIkTP0XZGHUQn-y2-r464Mjg27vyQ8Z1
+  // http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/63.011796,58.619231?zl=14&o=xml&key=AvuPoJ5DwFK0Htv75MetMjEN1QjQHiB8UIkTP0XZGHUQn-y2-r464Mjg27vyQ8Z1
   Result := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
             RoundEx(FTileInfoPtr.LonLat.Y, 6)+','+RoundEx(FTileInfoPtr.LonLat.X, 6)+
             '?zl='+IntToStr(VZoom)+'&o=xml&key='+FDefaultKey;

@@ -60,6 +60,7 @@ type
     chkDG: TCheckBox;
     btnRefresh: TButton;
     veImageParams: TValueListEditor;
+    lbZoom: TLabel;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -81,6 +82,7 @@ type
     procedure MakePicsVendors;
     procedure KillPicsVendors;
     
+    procedure UpdateZoomLabel;
     procedure PropagateLocalConverter;
 
     // cleanup info
@@ -319,6 +321,7 @@ begin
 
   FLocalConverter := ALocalConverter;
 
+  UpdateZoomLabel;
   PropagateLocalConverter;
 
   Show;
@@ -502,10 +505,11 @@ begin
   FreeAndNil(FBing);
   FreeAndNil(FNMC);
   // list
+  cbDGstacks.Items.Clear;
   k:=Length(FDGStacks);
   if (0<k) then begin
-    for i := 0 to k-1 do begin
-      FreeAndNil(FDGStacks[k]);
+    for i := k-1 downto 0 do begin
+      FreeAndNil(FDGStacks[i]);
     end;
     setLength(FDGStacks, 0);
   end;
@@ -630,6 +634,22 @@ begin
     // update info
     veImageParams.Strings.Assign(TStrings(ANode.Data));
   end;
+end;
+
+procedure TfrmDGAvailablePic.UpdateZoomLabel;
+var
+  VActualZoom: Byte;
+  VZoomStr: String;
+begin
+  if Assigned(FLocalConverter) then begin
+    VActualZoom:=FLocalConverter.Zoom;
+    AdjustMinimalHiResZoom(VActualZoom);
+    Inc(VActualZoom);
+    VZoomStr:=IntToStr(VActualZoom);
+  end else begin
+    VZoomStr:='-';
+  end;
+  lbZoom.Caption:=StringReplace(lbZoom.Hint,'%',VZoomStr,[]);
 end;
 
 procedure TfrmDGAvailablePic.ClearAvailableImages;

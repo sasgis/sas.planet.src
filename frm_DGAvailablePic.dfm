@@ -73,8 +73,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnClick = tvFoundClick
       OnDeletion = tvFoundDeletion
       OnMouseDown = tvFoundMouseDown
+      ExplicitLeft = 13
       ExplicitTop = 20
-      ExplicitHeight = 123
     end
     object pnlRight: TPanel
       Left = 167
@@ -148,10 +148,20 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Align = alTop
     Caption = 'Image services'
     TabOrder = 2
-    ExplicitWidth = 260
+    ExplicitLeft = -2
     DesignSize = (
       250
       78)
+    object lbZoom: TLabel
+      Left = 186
+      Top = 22
+      Width = 47
+      Height = 13
+      Hint = '(zoom %)'
+      Caption = '(zoom %)'
+      ParentShowHint = False
+      ShowHint = False
+    end
     object cbDGstacks: TComboBox
       AlignWithMargins = True
       Left = 71

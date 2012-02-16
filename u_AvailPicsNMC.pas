@@ -96,18 +96,15 @@ var
   VXYZ: TTILE_ID_XYZ;
   VTilePos: Tpoint;
 begin
-  // get quadkey for zoom>=14 (decremented here!)
-  // workaround for MOSAICs - EXIF only from 15th zoom
   VXYZ.z := FTileInfoPtr.Zoom;
-  if (VXYZ.z<14) then
-    VXYZ.z:=14;
+  AdjustMinimalHiResZoom(VXYZ.z);
 
-  // get tile coords
+  // get tile coords (use decremented zoom)
   VTilePos := FLocalConverter.GeoConverter.LonLat2TilePos(FTileInfoPtr.LonLat, VXYZ.z);
   VXYZ.x := VTilePos.X; // 5372
   VXYZ.y := VTilePos.Y; // 2359
 
-  // to quadkey
+  // to quadkey (use real zoom)
   Inc(VXYZ.z);
   Result:=Convert_XYZ_to_0123(@VXYZ); // 1210211331322
 end;
