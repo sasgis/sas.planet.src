@@ -1,11 +1,13 @@
 object frmDGAvailablePic: TfrmDGAvailablePic
   Left = 730
   Top = 247
-  BorderStyle = bsDialog
+  BorderStyle = bsSizeToolWin
   Caption = 'Images available'
   ClientHeight = 396
-  ClientWidth = 305
+  ClientWidth = 256
   Color = clBtnFace
+  Constraints.MinHeight = 420
+  Constraints.MinWidth = 264
   ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
@@ -15,48 +17,50 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object gbImageParams: TGroupBox
     AlignWithMargins = True
     Left = 3
-    Top = 288
-    Width = 299
-    Height = 105
+    Top = 237
+    Width = 250
+    Height = 156
     Align = alBottom
     Caption = 'Description:'
     TabOrder = 0
-    object ValueListEditor1: TValueListEditor
+    ExplicitTop = 239
+    object veImageParams: TValueListEditor
       Left = 2
       Top = 15
-      Width = 295
-      Height = 88
+      Width = 246
+      Height = 139
       Align = alClient
-      DisplayOptions = [doColumnTitles, doKeyColFixed]
       TabOrder = 0
       TitleCaptions.Strings = (
         'Parameter'
         'Value')
-      ExplicitHeight = 68
+      ExplicitTop = 14
+      ExplicitHeight = 129
       ColWidths = (
-        76
-        193)
+        120
+        120)
     end
   end
-  object GroupBox3: TGroupBox
+  object gbAvailImages: TGroupBox
     AlignWithMargins = True
     Left = 3
-    Top = 95
-    Width = 299
-    Height = 187
+    Top = 87
+    Width = 250
+    Height = 144
     Align = alClient
     Caption = 'Images available'
     TabOrder = 1
-    ExplicitHeight = 180
-    object TreeView1: TTreeView
+    ExplicitLeft = 8
+    ExplicitHeight = 240
+    object tvFound: TTreeView
       AlignWithMargins = True
       Left = 5
       Top = 18
-      Width = 208
-      Height = 164
+      Width = 159
+      Height = 121
       Align = alClient
       HideSelection = False
       HotTrack = True
@@ -65,47 +69,51 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       ShowHint = True
       SortType = stText
       TabOrder = 0
-      OnChange = TreeView1Change
-      OnClick = TreeView1Click
-      OnDeletion = TreeView1Deletion
-      OnMouseDown = TreeView1MouseDown
-      ExplicitHeight = 157
+      OnChange = tvFoundChange
+      OnClick = tvFoundClick
+      OnDeletion = tvFoundDeletion
+      OnMouseDown = tvFoundMouseDown
+      ExplicitTop = 20
+      ExplicitHeight = 123
     end
     object pnlRight: TPanel
-      Left = 216
+      Left = 167
       Top = 15
       Width = 81
-      Height = 170
+      Height = 127
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 163
-      object Button1: TButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 75
-        Height = 25
-        Align = alTop
-        Caption = 'Up'
-        TabOrder = 0
-        OnClick = Button1Click
-      end
-      object Button2: TButton
+      ExplicitLeft = 216
+      ExplicitHeight = 170
+      object btnUp: TButton
         AlignWithMargins = True
         Left = 3
         Top = 34
         Width = 75
         Height = 25
         Align = alTop
-        Caption = 'Down'
+        Caption = 'Up'
         TabOrder = 1
-        OnClick = Button2Click
+        OnClick = btnUpClick
+        ExplicitTop = 43
       end
-      object Button3: TButton
+      object btnDown: TButton
         AlignWithMargins = True
         Left = 3
         Top = 65
+        Width = 75
+        Height = 25
+        Align = alTop
+        Caption = 'Down'
+        TabOrder = 2
+        OnClick = btnDownClick
+        ExplicitTop = 35
+      end
+      object btnCopy: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 96
         Width = 75
         Height = 25
         Hint = 'Copy TID'#39's to clipboard'
@@ -113,61 +121,74 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'Copy'
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 2
-        OnClick = Button3Click
+        TabOrder = 3
+        OnClick = btnCopyClick
+        ExplicitTop = 97
+      end
+      object btnRefresh: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 75
+        Height = 25
+        Align = alTop
+        Caption = 'Refresh'
+        TabOrder = 0
+        OnClick = btnRefreshClick
+        ExplicitTop = 0
       end
     end
   end
-  object GroupBox4: TGroupBox
+  object gbImagesSource: TGroupBox
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 299
-    Height = 86
+    Width = 250
+    Height = 78
     Align = alTop
     Caption = 'Image services'
     TabOrder = 2
+    ExplicitWidth = 260
+    DesignSize = (
+      250
+      78)
     object cbDGstacks: TComboBox
+      AlignWithMargins = True
       Left = 71
-      Top = 52
-      Width = 222
+      Top = 44
+      Width = 174
       Height = 21
       Style = csDropDownList
-      ItemHeight = 0
-      TabOrder = 3
-    end
-    object chkBing: TCheckBox
-      Left = 13
-      Top = 21
-      Width = 52
-      Height = 17
-      Caption = 'Bing'
-      TabOrder = 0
+      Anchors = [akLeft, akTop, akRight]
+      ItemHeight = 13
+      TabOrder = 2
     end
     object chkNMC: TCheckBox
+      AlignWithMargins = True
       Left = 71
       Top = 21
       Width = 109
       Height = 17
       Caption = 'Nokia map creator'
-      TabOrder = 1
+      TabOrder = 0
     end
     object chkDG: TCheckBox
+      AlignWithMargins = True
       Left = 13
-      Top = 54
+      Top = 44
       Width = 41
       Height = 17
       Caption = 'DG'
-      TabOrder = 2
+      TabOrder = 1
     end
-    object btnRefresh: TButton
-      Left = 216
+    object chkBing: TCheckBox
+      AlignWithMargins = True
+      Left = 13
       Top = 21
-      Width = 75
-      Height = 25
-      Caption = 'Refresh'
-      TabOrder = 4
-      OnClick = btnRefreshClick
+      Width = 52
+      Height = 17
+      Caption = 'Bing'
+      TabOrder = 3
     end
   end
 end

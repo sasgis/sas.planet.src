@@ -97,9 +97,10 @@ var
   VTilePos: Tpoint;
 begin
   // get quadkey for zoom>=14 (decremented here!)
+  // workaround for MOSAICs - EXIF only from 15th zoom
   VXYZ.z := FTileInfoPtr.Zoom;
-  if (VXYZ.z<13) then
-    VXYZ.z:=13;
+  if (VXYZ.z<14) then
+    VXYZ.z:=14;
 
   // get tile coords
   VTilePos := FLocalConverter.GeoConverter.LonLat2TilePos(FTileInfoPtr.LonLat, VXYZ.z);

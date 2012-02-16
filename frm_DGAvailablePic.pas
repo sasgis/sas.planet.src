@@ -46,31 +46,31 @@ uses
 
 type
   TfrmDGAvailablePic = class(TFormWitghLanguageManager)
-    GroupBox1: TGroupBox;
-    GroupBox3: TGroupBox;
-    TreeView1: TTreeView;
-    Button1: TButton;
-    Button2: TButton;
-    GroupBox4: TGroupBox;
+    gbImageParams: TGroupBox;
+    gbAvailImages: TGroupBox;
+    tvFound: TTreeView;
+    btnUp: TButton;
+    btnDown: TButton;
+    gbImagesSource: TGroupBox;
     cbDGstacks: TComboBox;
-    Button3: TButton;
+    btnCopy: TButton;
     pnlRight: TPanel;
     chkBing: TCheckBox;
     chkNMC: TCheckBox;
     chkDG: TCheckBox;
     btnRefresh: TButton;
-    ValueListEditor1: TValueListEditor;
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure TreeView1MouseDown(Sender: TObject; Button: TMouseButton;
+    veImageParams: TValueListEditor;
+    procedure btnUpClick(Sender: TObject);
+    procedure btnDownClick(Sender: TObject);
+    procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure Button3Click(Sender: TObject);
+    procedure btnCopyClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure TreeView1Deletion(Sender: TObject; Node: TTreeNode);
-    procedure TreeView1Click(Sender: TObject);
-    procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
+    procedure tvFoundDeletion(Sender: TObject; Node: TTreeNode);
+    procedure tvFoundClick(Sender: TObject);
+    procedure tvFoundChange(Sender: TObject; Node: TTreeNode);
   private
     FBing: TAvailPicsBing;
     FNMC: TAvailPicsNMC;
@@ -279,7 +279,7 @@ begin
 
   if (0<FAvailPicsSrc.ParseResponse(FMemoryStream)) then
   try
-    FForm.TreeView1.AlphaSort;
+    FForm.tvFound.AlphaSort;
   except
   end;
 end;
@@ -378,7 +378,7 @@ begin
   if GetImagesNode(nil, ADate, VDateNode) then
   //if GetImagesNode(VDateNode, VImageService, VVendorNode) then
   begin
-    VItemNode := TreeView1.Items.AddChild(VDateNode, AId); // for subnides - replace with VVendorNode
+    VItemNode := tvFound.Items.AddChild(VDateNode, AId); // for subnides - replace with VVendorNode
     VItemNode.Data := AParams;
     AParams := nil; // own object
     Inc(Result);
@@ -403,32 +403,32 @@ begin
   RunImageThread(chkDG, VDGstack);
 end;
 
-procedure TfrmDGAvailablePic.Button1Click(Sender: TObject);
+procedure TfrmDGAvailablePic.btnUpClick(Sender: TObject);
 begin
- if TreeView1.Selected<>nil then
- if TreeView1.Selected.HasChildren
-  then if TreeView1.Selected.GetPrev<>nil
-        then TreeView1.Selected.MoveTo(TreeView1.Selected.getPrevSibling,naInsert)
+ if tvFound.Selected<>nil then
+ if tvFound.Selected.HasChildren
+  then if tvFound.Selected.GetPrev<>nil
+        then tvFound.Selected.MoveTo(tvFound.Selected.getPrevSibling,naInsert)
         else
-  else if TreeView1.Selected.Parent<>TreeView1.Selected.GetPrev
-        then TreeView1.Selected.MoveTo(TreeView1.Selected.GetPrev,naInsert)
+  else if tvFound.Selected.Parent<>tvFound.Selected.GetPrev
+        then tvFound.Selected.MoveTo(tvFound.Selected.GetPrev,naInsert)
 end;
 
-procedure TfrmDGAvailablePic.Button2Click(Sender: TObject);
+procedure TfrmDGAvailablePic.btnDownClick(Sender: TObject);
 begin
- if TreeView1.Selected<>nil then
- if TreeView1.Selected.HasChildren
+ if tvFound.Selected<>nil then
+ if tvFound.Selected.HasChildren
  then
- if TreeView1.Selected.GetNextSibling<>nil then
-  if TreeView1.Selected.GetNextSibling.GetNextSibling<>nil
-   then TreeView1.Selected.MoveTo(TreeView1.Selected.GetNextSibling.GetNextSibling,naInsert)
-   else TreeView1.Selected.MoveTo(TreeView1.Selected.GetNextSibling,naAdd)
+ if tvFound.Selected.GetNextSibling<>nil then
+  if tvFound.Selected.GetNextSibling.GetNextSibling<>nil
+   then tvFound.Selected.MoveTo(tvFound.Selected.GetNextSibling.GetNextSibling,naInsert)
+   else tvFound.Selected.MoveTo(tvFound.Selected.GetNextSibling,naAdd)
   else
  else
- if TreeView1.Selected.Parent.GetLastChild<>TreeView1.Selected then
-  if TreeView1.Selected.GetNext<>TreeView1.Selected.Parent.GetLastChild
-   then TreeView1.Selected.MoveTo(TreeView1.Selected.GetNext.GetNext,naInsert)
-   else TreeView1.Selected.MoveTo(TreeView1.Selected.GetNext,naAdd)
+ if tvFound.Selected.Parent.GetLastChild<>tvFound.Selected then
+  if tvFound.Selected.GetNext<>tvFound.Selected.Parent.GetLastChild
+   then tvFound.Selected.MoveTo(tvFound.Selected.GetNext.GetNext,naInsert)
+   else tvFound.Selected.MoveTo(tvFound.Selected.GetNext,naAdd)
 end;
 
 function TfrmDGAvailablePic.GetImagesNode(const AParentNode: TTreeNode;
@@ -441,7 +441,7 @@ begin
   AResultNode:=nil;
 
   if (nil=AParentNode) then
-    k:=TreeView1.Items.Count
+    k:=tvFound.Items.Count
   else
     k:=AParentNode.Count;
 
@@ -449,7 +449,7 @@ begin
   for i := 0 to k-1 do begin
     // get item
     if (nil=AParentNode) then
-      AResultNode:=TreeView1.Items.Item[i]
+      AResultNode:=tvFound.Items.Item[i]
     else
       AResultNode:=AParentNode.Item[i];
 
@@ -464,10 +464,10 @@ begin
 
   // not found - should create
   if (nil=AParentNode) then begin
-    AResultNode := TreeView1.Items.Add(nil, AText);
+    AResultNode := tvFound.Items.Add(nil, AText);
     Result := TRUE;
   end else begin
-    AResultNode := TreeView1.Items.AddChild(AParentNode, AText);
+    AResultNode := tvFound.Items.AddChild(AParentNode, AText);
     Result := TRUE;
   end;
 end;
@@ -478,14 +478,14 @@ var
   single_tid: String;
 begin
   Result := '';
-  k := TreeView1.Items.Count;
+  k := tvFound.Items.Count;
   if (0<k) then
   for i := 0 to k-1 do
-  if (nil<>TreeView1.Items.Item[i].Data) then
-  if (2=TreeView1.Items.Item[i].StateIndex) then
+  if (nil<>tvFound.Items.Item[i].Data) then
+  if (2=tvFound.Items.Item[i].StateIndex) then
   try
     // get tid for DG items
-    single_tid := TStrings(TreeView1.Items.Item[i].Data).Values['tid'];
+    single_tid := TStrings(tvFound.Items.Item[i].Data).Values['tid'];
     if (0<Length(single_tid)) then begin
       if (0<Length(Result)) then
         Result:=Result+',';
@@ -568,17 +568,17 @@ begin
   end;
 end;
 
-procedure TfrmDGAvailablePic.TreeView1Change(Sender: TObject; Node: TTreeNode);
+procedure TfrmDGAvailablePic.tvFoundChange(Sender: TObject; Node: TTreeNode);
 begin
   UpdateInfoByNode(Node);
 end;
 
-procedure TfrmDGAvailablePic.TreeView1Click(Sender: TObject);
+procedure TfrmDGAvailablePic.tvFoundClick(Sender: TObject);
 begin
-  UpdateInfoByNode(TreeView1.Selected);
+  UpdateInfoByNode(tvFound.Selected);
 end;
 
-procedure TfrmDGAvailablePic.TreeView1Deletion(Sender: TObject; Node: TTreeNode);
+procedure TfrmDGAvailablePic.tvFoundDeletion(Sender: TObject; Node: TTreeNode);
 var obj: TObject;
 begin
   try
@@ -592,16 +592,16 @@ begin
   end;
 end;
 
-procedure TfrmDGAvailablePic.TreeView1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrmDGAvailablePic.tvFoundMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   MH:THitTests;
   VNode:TTreeNode;
   i:integer;
 begin
-  MH:= TreeView1.GetHitTestInfoAt(X,Y);
+  MH:= tvFound.GetHitTestInfoAt(X,Y);
 
   if (htOnStateIcon in MH) then begin
-    VNode:= TreeView1.GetNodeAt(X,Y);
+    VNode:= tvFound.GetNodeAt(X,Y);
 
     if (nil=VNode) then
       Exit;
@@ -616,7 +616,7 @@ begin
   end;
   
   if (htOnLabel in MH) then begin
-    UpdateInfoByNode(TreeView1.GetNodeAt(X,Y));
+    UpdateInfoByNode(tvFound.GetNodeAt(X,Y));
   end;
 end;
 
@@ -628,19 +628,19 @@ begin
     ClearInfoByNode
   else begin
     // update info
-    ValueListEditor1.Strings.Assign(TStrings(ANode.Data));
+    veImageParams.Strings.Assign(TStrings(ANode.Data));
   end;
 end;
 
 procedure TfrmDGAvailablePic.ClearAvailableImages;
 begin
-  TreeView1.Items.Clear;
+  tvFound.Items.Clear;
   ClearInfoByNode;
 end;
 
 procedure TfrmDGAvailablePic.ClearInfoByNode;
 begin
-  ValueListEditor1.Strings.Clear;
+  veImageParams.Strings.Clear;
 end;
 
 procedure TfrmDGAvailablePic.CopyStringToClipboard(s: Widestring);
@@ -687,7 +687,7 @@ begin
   FInetConfig := AInetConfig;
 end;
 
-procedure TfrmDGAvailablePic.Button3Click(Sender: TObject);
+procedure TfrmDGAvailablePic.btnCopyClick(Sender: TObject);
 begin
   CopyStringToClipboard(Get_DG_tid_List);
 end;
@@ -695,7 +695,7 @@ end;
 procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);
 begin
   // make checkboxes in list
-  SetWindowLong(TreeView1.Handle,GWL_STYLE,GetWindowLong(TreeView1.Handle,GWL_STYLE) or TVS_CHECKBOXES);
+  SetWindowLong(tvFound.Handle,GWL_STYLE,GetWindowLong(tvFound.Handle,GWL_STYLE) or TVS_CHECKBOXES);
   // make vendors and fill list of dg stacks
   MakePicsVendors;
 end;
