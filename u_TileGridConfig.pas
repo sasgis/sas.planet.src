@@ -55,7 +55,8 @@ type
 implementation
 
 uses
-  i_CoordConverter;
+  i_CoordConverter,
+  u_GeoFun;
 
 { TTileGridConfig }
 
@@ -112,6 +113,7 @@ function TTileGridConfig.GetRectStickToGrid(
 var
   VZoom: Byte;
   VZoomCurr: Byte;
+  VSelectedTilesFloat: TDoubleRect;
   VSelectedTiles: TRect;
   VConverter: ICoordConverter;
 begin
@@ -127,7 +129,8 @@ begin
   finally
     UnlockRead;
   end;
-  VSelectedTiles := VConverter.LonLatRect2TileRect(ASourceRect, VZoom);
+  VSelectedTilesFloat := VConverter.LonLatRect2TileRectFloat(ASourceRect, VZoom);
+  VSelectedTiles := RectFromDoubleRect(VSelectedTilesFloat, rrOutside);
   Result := VConverter.TileRect2LonLatRect(VSelectedTiles, VZoom);
 end;
 
