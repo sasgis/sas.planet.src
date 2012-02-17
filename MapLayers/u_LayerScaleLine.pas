@@ -618,14 +618,14 @@ begin
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(
-    Point(VCenterPixelXY.X + (ALineHeight div 2), VCenterPixelXY.Y),
+    Point(VCenterPixelXY.X, VCenterPixelXY.Y + (ALineHeight div 2)),
     VZoom
   );
   AHalfLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(
-    Point(VCenterPixelXY.X + ALineHeight, VCenterPixelXY.Y),
+    Point(VCenterPixelXY.X, VCenterPixelXY.Y + ALineHeight),
     VZoom
   );
   AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
