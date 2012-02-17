@@ -38,13 +38,29 @@ type
     FConfig: IScaleLineConfig;
     FTmpBitmap: TBitmap32;
     procedure OnConfigChange;
-    procedure DrawOutLinedText(X, Y: Integer; Text: string;
-      TextColor: TColor32; OutLineColor: TColor32; TargetBitmap: TBitmap32);
+    procedure DrawOutLinedText(
+      X, Y: Integer;
+      Text: string;
+      TextColor: TColor32;
+      OutLineColor: TColor32;
+      TargetBitmap: TBitmap32
+    );
     function GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
     procedure DrawExtendedScaleLegend(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
+      ATextColor: TColor32;
       AScaleLegendWidth: Integer;
+      AHalfValue, AFullValue: string;
+      ATargetBitmap: TBitmap32
+    );
+    procedure ModifyLenAndWidth(var ALen: Double; var AWidth: Integer);
+    procedure DrawScaleMarks(
+      ALineColor: TColor32;
+      AOutLineColor: TColor32;
+      ATextColor: TColor32;
+      AText: string;
+      AScalePos: Integer;
       ATargetBitmap: TBitmap32
     );
   protected
@@ -147,7 +163,7 @@ end;
 procedure TLayerScaleLine.DoRedraw;
 var
   VUnitsString: string;
-  num: real;
+  num: Double;
   rnum, rnum_nice: Integer;
   VColor: TColor32;
   VOutLineColor: TColor32;
@@ -162,6 +178,8 @@ begin
   VValidLegendWidth := (FConfig.Width div 4) * 4;
 
   num := GetMetersPerGorizontalLine(VValidLegendWidth);
+
+  ModifyLenAndWidth(Num, VValidLegendWidth);
 
   if num > 10000 then begin
     num := num / 1000;
@@ -198,39 +216,13 @@ begin
     end;
   end;
 
-  FLayer.Bitmap.Clear(SetAlpha(clWhite32, 0));
-
-  DrawOutlinedText(
-    0,
-    4,
-    '0' + VUnitsString,
-    VColor,
-    VOutLineColor,
-    FLayer.Bitmap
-  );
-
-  DrawOutlinedText(
-    VValidLegendWidth div 2,
-    4,
-    VHalfValue,
-    VColor,
-    VOutLineColor,
-    FLayer.Bitmap
-  );
-
-  DrawOutlinedText(
-    VValidLegendWidth,
-    4,
-    VFullValue,
-    VColor,
-    VOutLineColor,
-    FLayer.Bitmap
-  );
-
   DrawExtendedScaleLegend(
     VColor,
     VOutLineColor,
+    VColor,
     VValidLegendWidth,
+    VHalfValue,
+    VFullValue,
     FLayer.Bitmap
   );
 end;
@@ -238,15 +230,19 @@ end;
 procedure TLayerScaleLine.DrawExtendedScaleLegend(
   ALineColor: TColor32;
   AOutLineColor: TColor32;
+  ATextColor: TColor32;
   AScaleLegendWidth: Integer;
+  AHalfValue, AFullValue: string;
   ATargetBitmap: TBitmap32
 );
 var
   I: Integer;
   VWidth: Integer;
   VBitmapSize: TPoint;
-  VStartX, VStartY: Integer;
+  VStartX: Integer;
+  VText: string;
 begin
+  ATargetBitmap.Clear(0);
   VWidth := (AScaleLegendWidth div 4) * 4;
 
   VBitmapSize := Point(ATargetBitmap.Width, ATargetBitmap.Height);
@@ -255,24 +251,71 @@ begin
   ATargetBitmap.Line(0, VBitmapSize.Y - 3, VWidth + 2, VBitmapSize.Y - 3, AOutLineColor);
 
   // заборчик: длинная/короткая вертикали
-  for I := 0 to 4 do begin
+  DrawScaleMarks(
+    ALineColor,
+    AOutLineColor,
+    ATextColor,
+    '0',
+    1,
+    ATargetBitmap
+  );
+
+  for I := 1 to 4 do begin
     VStartX := 1 + I * (VWidth div 4);
-    if (I = 1) or (I = 3) then begin
-      VStartY := VBitmapSize.Y - 10; // короткая вертикаль
+    if (I = 2) then begin
+      VText := AHalfValue;
+    end else if I = 4 then begin
+      VText := AFullValue;
     end else begin
-      VStartY := VBitmapSize.Y - 20; // длинная вертикаль
+      VText := '';
     end;
-    // вертикаль
-    ATargetBitmap.Line(VStartX - 1, VStartY, VStartX - 1, VBitmapSize.Y - 1, AOutLineColor);
-    ATargetBitmap.Line(VStartX,     VStartY, VStartX,     VBitmapSize.Y - 1, ALineColor);
-    ATargetBitmap.Line(VStartX + 1, VStartY, VStartX + 1, VBitmapSize.Y - 1, AOutLineColor);
-    // "шапка"
-    ATargetBitmap.Line(VStartX - 1, VStartY, VStartX + 1, VStartY, AOutLineColor);
+    DrawScaleMarks(
+      ALineColor,
+      AOutLineColor,
+      ATextColor,
+      VText,
+      VStartX,
+      ATargetBitmap
+    );
   end;
 
   // дорисовываем горизонталь снизу
   ATargetBitmap.Line(1, VBitmapSize.Y - 2, VWidth + 2, VBitmapSize.Y - 2, ALineColor);
   ATargetBitmap.Line(0, VBitmapSize.Y - 1, VWidth + 2, VBitmapSize.Y - 1, AOutLineColor);
+end;
+
+procedure TLayerScaleLine.DrawScaleMarks(
+  ALineColor, AOutLineColor, ATextColor: TColor32;
+  AText: string;
+  AScalePos: Integer;
+  ATargetBitmap: TBitmap32
+);
+var
+  VStartY: Integer;
+  VHeight: Integer;
+begin
+  VHeight := ATargetBitmap.Height;
+  if Length(AText) = 0 then begin
+    VStartY := VHeight - 10; // короткая вертикаль
+  end else begin
+    VStartY := VHeight - 20; // длинная вертикаль
+  end;
+  // вертикаль
+  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos - 1, VHeight - 1, AOutLineColor);
+  ATargetBitmap.Line(AScalePos,     VStartY, AScalePos,     VHeight - 1, ALineColor);
+  ATargetBitmap.Line(AScalePos + 1, VStartY, AScalePos + 1, VHeight - 1, AOutLineColor);
+  // "шапка"
+  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
+  if Length(AText) > 0 then begin
+    DrawOutlinedText(
+      AScalePos,
+      4,
+      AText,
+      ATextColor,
+      AOutLineColor,
+      ATargetBitmap
+    );
+  end;
 end;
 
 function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
@@ -360,6 +403,92 @@ begin
   VRad := VConverter.Datum.GetSpheroidRadiusA;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
   Result := ALineWidth / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLat * CDegreeToRadians)));
+end;
+
+procedure TLayerScaleLine.ModifyLenAndWidth(
+  var ALen: Double;
+  var AWidth: Integer
+);
+  function GetNiceLen(ALen: Double): Double;
+  const
+    CNiceValues: array [0..54] of Double =
+      (
+        40000000,
+        30000000,
+        20000000,
+        15000000,
+        10000000,
+         8000000,
+         5000000,
+         4000000,
+         3000000,
+         2000000,
+         1500000,
+         1000000,
+          800000,
+          500000,
+          400000,
+          300000,
+          200000,
+          150000,
+          100000,
+           80000,
+           50000,
+           40000,
+           30000,
+           20000,
+           15000,
+           10000,
+            8000,
+            5000,
+            4000,
+            3000,
+            2000,
+            1500,
+            1000,
+             800,
+             500,
+             400,
+             300,
+             200,
+             150,
+             100,
+              80,
+              50,
+              40,
+              30,
+              20,
+              15,
+              10,
+               8,
+               6,
+               4,
+               3,
+               2,
+               1.5,
+               1,
+               0.5
+      );
+  var
+    i: Integer;
+  begin
+    for i := 0 to Length(CNiceValues) - 1 do begin
+      Result := CNiceValues[i];
+      if ALen > Result then begin
+        Break;
+      end;
+    end;
+  end;
+var
+  VNewLen: Double;
+  VNewWidth: Integer;
+begin
+  if ALen > 0 then begin
+    VNewLen := GetNiceLen(ALen);
+    VNewWidth := Trunc(AWidth * VNewLen / ALen);
+    ALen := VNewLen;
+    AWidth := VNewWidth;
+  end;
 end;
 
 end.
