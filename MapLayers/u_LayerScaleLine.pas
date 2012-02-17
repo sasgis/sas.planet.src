@@ -362,24 +362,29 @@ begin
 end;
 
 function TLayerScaleLine.GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
-const
-  //  онстанта дл€ преобразовани€ градусов в радианы
-  CDegreeToRadians: Double = 0.017453292519943295769236907684886;
 var
-  VRad: Double;
-  VLat: Double;
+  VStartLonLat, VFinishLonLat: TDoublePoint;
+  VCenterPixelXY: TPoint;
   VConverter: ICoordConverter;
-  VPixelsAtZoom: Double;
   VZoom: Byte;
   VVisualCoordConverter: ILocalCoordConverter;
 begin
   VVisualCoordConverter := LayerCoordConverter;
   VZoom := VVisualCoordConverter.GetZoom;
-  VLat := VVisualCoordConverter.GetCenterLonLat.Y;
   VConverter := VVisualCoordConverter.GetGeoConverter;
-  VRad := VConverter.Datum.GetSpheroidRadiusA;
-  VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoom);
-  Result := ALineWidth / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLat * CDegreeToRadians)));
+
+  VCenterPixelXY := VVisualCoordConverter.LocalPixel2MapPixel(
+    VVisualCoordConverter.LonLat2LocalPixel(
+      VVisualCoordConverter.GetCenterLonLat
+    )
+  );
+
+  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
+  VFinishLonLat := VConverter.PixelPos2LonLat(
+    Point(VCenterPixelXY.X, VCenterPixelXY.Y + ALineWidth),
+    VZoom
+  );
+  Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
 end;
 
 procedure TLayerScaleLine.ModifyLenAndWidth(
