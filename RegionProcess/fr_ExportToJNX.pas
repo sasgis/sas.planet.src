@@ -14,7 +14,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  u_CommonFormAndFrameParents, Spin;
+  u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
   TfrExportToJNX = class(TFrame)
@@ -43,10 +43,12 @@ type
     EJpgQuality: TSpinEdit;
     lblCompress: TLabel;
     EProductID: TComboBox;
+    TreeView1: TTreeView;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure versionselect(Sender: TObject);
     procedure cbbMapChange(Sender: TObject);
+    procedure chklstZoomsClickCheck(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -81,6 +83,7 @@ end;
 
 procedure TfrExportToJNX.cbbMapChange(Sender: TObject);
 begin
+  EProductName.text := 'SAS Palnet & '+cbbMap.text;
   EMapName.text := cbbMap.text;
 end;
 
@@ -88,9 +91,49 @@ procedure TfrExportToJNX.chkAllZoomsClick(Sender: TObject);
 var
   i: byte;
 begin
-  for i:=0 to chklstZooms.Count-1 do begin
+  for i:=0 to chklstZooms.items.Count-1 do begin
     chklstZooms.Checked[i] := TCheckBox(sender).Checked;
   end;
+end;
+
+procedure TfrExportToJNX.chklstZoomsClickCheck(Sender: TObject);
+var VCurrZoom:integer;
+ i : integer;
+ cnt, total : integer;
+ VItemNode, VParentNode : TTreeNode;
+
+begin
+cnt := 0;
+Total :=0;
+VCurrZoom := chklstZooms.ItemIndex ;
+
+for I := 0 to chklstZooms.items.Count - 1 do begin
+    if (i<VCurrZoom) and (chklstZooms.Checked[i]) then inc(cnt);
+    if chklstZooms.Checked[i] then inc(Total);
+end;
+if Total >5 then begin
+  ChklstZooms.Checked[VCurrZoom] := false;
+  Exit;
+end;                                           
+
+if chklstZooms.Checked[VCurrZoom] then
+ begin // add items
+  if (TreeView1.Items.count >cnt*3) and (cnt<>0) then begin
+    VItemNode := TreeView1.Items[(cnt)*3];
+    VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(VCurrZoom+1));
+   end else
+   begin
+    if cnt=0 then
+     VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(VCurrZoom+1)) else
+     VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(VCurrZoom+1));
+   end;
+    TreeView1.Items.AddChild(VParentNode, EMapName.text);
+    TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
+ end else
+ begin//delete items
+  VItemNode := TreeView1.Items[cnt*3];
+  TreeView1.Items.delete(VItemNode);
+ end;
 end;
 
 constructor TfrExportToJNX.CreateForFileType(
@@ -119,7 +162,9 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
-  chklstZooms.Items.Clear;
+//  chklstZooms.Items.Clear;
+//  TreeView1.Items.Clear;
+  if chklstZooms.Items.count=0 then
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
@@ -141,6 +186,7 @@ begin
     cbbMap.ItemIndex := 0;
   end;
   EMapName.text := cbbMap.text;
+  EProductName.text := 'SAS Planet & '+cbbMap.text;
   if v4.checked then EZorder.enabled := true else EZorder.Enabled := false;
   EProductID.ItemIndex :=0;
 end;

@@ -52,6 +52,7 @@ uses
   Forms,
   SysUtils,
   StrUtils,
+  Classes,
   RegExprUtils,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
@@ -157,11 +158,18 @@ var
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
   VMatchSubStr: string;
+  VLevelsDesc : TStringList;
 begin
   inherited;
+  VLevelsDesc := TStringList.Create;
+  for i:=0 to FFrame.TreeView1.Items.count-1 do begin
+    VLevelsDesc.add(FFrame.TreeView1.Items[i].text);
+  end;
+
+
   for i:=0 to 23 do begin
     ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
-  end;
+  end;                      
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
   VProductName := FFrame.EProductName.Text;
@@ -209,7 +217,8 @@ begin
     VJNXVersion,
     VZorder,
     VProductID,
-    VJpgQuality
+    VJpgQuality,
+    VLevelsDesc
   );
 end;
 
