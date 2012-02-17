@@ -45,8 +45,9 @@ type
       OutLineColor: TColor32;
       TargetBitmap: TBitmap32
     );
-    function GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
-    procedure DrawExtendedScaleLegend(
+    // gorizontal
+    procedure RedrawGorizontalScaleLegend;
+    procedure DrawGorizontalScaleLegend(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
       ATextColor: TColor32;
@@ -54,14 +55,36 @@ type
       AHalfValue, AFullValue: string;
       ATargetBitmap: TBitmap32
     );
-    procedure ModifyLenAndWidth(var ALen: Double; var AWidth: Integer);
-    procedure DrawScaleMarks(
+    procedure DrawGorizontalScaleMarks(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
       ATextColor: TColor32;
       AText: string;
       AScalePos: Integer;
       ATargetBitmap: TBitmap32
+    );
+    function GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
+    procedure ModifyLenAndWidth(var ALen: Double; var AWidth: Integer);
+    // vertical
+    procedure RedrawVerticalScaleLegend;
+    procedure DrawVerticalScaleLegend(
+      ALineColor: TColor32;
+      AOutLineColor: TColor32;
+      ATextColor: TColor32;
+      AScaleLegendHeight: Integer;
+      AHalfValue, AFullValue: string;
+      ATargetBitmap: TBitmap32
+    );
+    procedure DrawVerticalScaleMarks(
+      ALineColor, AOutLineColor, ATextColor: TColor32;
+      AText: string;
+      AScalePos: Integer;
+      ATargetBitmap: TBitmap32
+    );
+    procedure GetMetersPerVerticalLine(
+      ALineHeight: Integer;
+      out AHalfLen: Double;
+      out AFullLen: Double
     );
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
@@ -89,39 +112,6 @@ uses
   u_ResStrings,
   t_GeoTypes;
 
-function RoundTo(Value, N: Integer): Integer;
-{=========================================================
-  «Округление» до ближайшего кратного.
-
-  Функция возвращает ближайшее к Value число, которoе без
-  остатка делится на N. Если Value находится посередине
-  между двумя кратными, функция вернёт большее значение.
-=========================================================}
-asm
-   push ebx
-   mov ebx, eax
-   mov ecx, edx
-   cdq
-   idiv ecx
-   imul ecx
-
-   add ecx, eax
-   mov edx, ebx
-   sub ebx, eax
-   jg @@10
-   neg ebx
-@@10:
-   sub edx, ecx
-   jg @@20
-   neg edx
-@@20:
-   cmp ebx, edx
-   jl @@30
-   mov eax, ecx
-@@30:
-   pop ebx
-end;
-
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(
@@ -148,7 +138,7 @@ begin
   FTmpBitmap.Font.Size := FLayer.Bitmap.Font.Size;
 
   VSize.X := 400;
-  VSize.Y := 40;
+  VSize.Y := 400;
 
   FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
   DoUpdateLayerSize(VSize);
@@ -158,165 +148,6 @@ destructor TLayerScaleLine.Destroy;
 begin
   FTmpBitmap.Free;
   inherited Destroy;
-end;
-
-procedure TLayerScaleLine.DoRedraw;
-var
-  VUnitsString: string;
-  num: Double;
-  rnum, rnum_nice: Integer;
-  VColor: TColor32;
-  VOutLineColor: TColor32;
-  VValidLegendWidth: Integer;
-  VHalfValue, VFullValue: string;
-begin
-  inherited;
-
-  VColor := FConfig.Color;
-  VOutLineColor := FConfig.OutLineColor;
-
-  VValidLegendWidth := (FConfig.Width div 4) * 4;
-
-  num := GetMetersPerGorizontalLine(VValidLegendWidth);
-  if FConfig.NumbersFormat = slnfNice then begin
-    ModifyLenAndWidth(Num, VValidLegendWidth);
-  end;
-
-  if num > 10000 then begin
-    num := num / 1000;
-    VUnitsString := ' ' + SAS_UNITS_km + ' ';
-  end else if num < 10 then begin
-    num := num * 100;
-    VUnitsString := ' ' + SAS_UNITS_sm + ' ';
-  end else begin
-    VUnitsString := ' ' + SAS_UNITS_m + ' ';
-  end;
-
-  case FConfig.NumbersFormat of
-    slnfNice:
-      begin
-        rnum := Round(num/2);
-        if rnum > 1000 then begin
-          rnum_nice := RoundTo(rnum, 10);
-        end else begin
-          rnum_nice := RoundTo(rnum, 5);
-        end;
-        VHalfValue := IntToStr(rnum_nice) + VUnitsString;
-        VFullValue := IntToStr(rnum_nice*2) + VUnitsString;
-      end;
-    slnfScienceRound:
-      begin
-        rnum := Round(num/2);
-        VHalfValue := IntToStr(rnum) + VUnitsString;
-        VFullValue := IntToStr(rnum*2) + VUnitsString;
-      end
-  else
-    begin
-      VHalfValue := FloatToStrF(num/2, ffFixed, 10, 2) + VUnitsString;
-      VFullValue := FloatToStrF(num, ffFixed, 10, 2) + VUnitsString;
-    end;
-  end;
-
-  DrawExtendedScaleLegend(
-    VColor,
-    VOutLineColor,
-    VColor,
-    VValidLegendWidth,
-    VHalfValue,
-    VFullValue,
-    FLayer.Bitmap
-  );
-end;
-
-procedure TLayerScaleLine.DrawExtendedScaleLegend(
-  ALineColor: TColor32;
-  AOutLineColor: TColor32;
-  ATextColor: TColor32;
-  AScaleLegendWidth: Integer;
-  AHalfValue, AFullValue: string;
-  ATargetBitmap: TBitmap32
-);
-var
-  I: Integer;
-  VWidth: Integer;
-  VBitmapSize: TPoint;
-  VStartX: Integer;
-  VText: string;
-begin
-  ATargetBitmap.Clear(0);
-  VWidth := (AScaleLegendWidth div 4) * 4;
-
-  VBitmapSize := Point(ATargetBitmap.Width, ATargetBitmap.Height);
-
-  // длинная горизонталь снизу
-  ATargetBitmap.Line(0, VBitmapSize.Y - 3, VWidth + 2, VBitmapSize.Y - 3, AOutLineColor);
-
-  // заборчик: длинная/короткая вертикали
-  DrawScaleMarks(
-    ALineColor,
-    AOutLineColor,
-    ATextColor,
-    '0',
-    1,
-    ATargetBitmap
-  );
-
-  for I := 1 to 4 do begin
-    VStartX := 1 + I * (VWidth div 4);
-    if (I = 2) then begin
-      VText := AHalfValue;
-    end else if I = 4 then begin
-      VText := AFullValue;
-    end else begin
-      VText := '';
-    end;
-    DrawScaleMarks(
-      ALineColor,
-      AOutLineColor,
-      ATextColor,
-      VText,
-      VStartX,
-      ATargetBitmap
-    );
-  end;
-
-  // дорисовываем горизонталь снизу
-  ATargetBitmap.Line(1, VBitmapSize.Y - 2, VWidth + 2, VBitmapSize.Y - 2, ALineColor);
-  ATargetBitmap.Line(0, VBitmapSize.Y - 1, VWidth + 2, VBitmapSize.Y - 1, AOutLineColor);
-end;
-
-procedure TLayerScaleLine.DrawScaleMarks(
-  ALineColor, AOutLineColor, ATextColor: TColor32;
-  AText: string;
-  AScalePos: Integer;
-  ATargetBitmap: TBitmap32
-);
-var
-  VStartY: Integer;
-  VHeight: Integer;
-begin
-  VHeight := ATargetBitmap.Height;
-  if Length(AText) = 0 then begin
-    VStartY := VHeight - 10; // короткая вертикаль
-  end else begin
-    VStartY := VHeight - 20; // длинная вертикаль
-  end;
-  // вертикаль
-  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos - 1, VHeight - 1, AOutLineColor);
-  ATargetBitmap.Line(AScalePos,     VStartY, AScalePos,     VHeight - 1, ALineColor);
-  ATargetBitmap.Line(AScalePos + 1, VStartY, AScalePos + 1, VHeight - 1, AOutLineColor);
-  // "шапка"
-  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
-  if Length(AText) > 0 then begin
-    DrawOutlinedText(
-      AScalePos,
-      4,
-      AText,
-      ATextColor,
-      AOutLineColor,
-      ATargetBitmap
-    );
-  end;
 end;
 
 function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
@@ -383,6 +214,151 @@ begin
     end;
   end;
   FTmpBitmap.DrawTo(TargetBitmap, X, Y);
+end;
+
+procedure TLayerScaleLine.DoRedraw;
+begin
+  inherited;
+  FLayer.Bitmap.Clear(0);
+  RedrawGorizontalScaleLegend;
+  if FConfig.Extended then begin
+    RedrawVerticalScaleLegend;
+  end;
+end;
+
+{$REGION 'Gorizontal Scale Legend'}
+
+procedure TLayerScaleLine.RedrawGorizontalScaleLegend;
+var
+  VUnitsString: string;
+  num: Double;
+  rnum: Integer;
+  VColor: TColor32;
+  VOutLineColor: TColor32;
+  VValidLegendWidth: Integer;
+  VHalfValue, VFullValue: string;
+begin
+  VColor := FConfig.Color;
+  VOutLineColor := FConfig.OutLineColor;
+
+  VValidLegendWidth := (FConfig.Width div 4) * 4;
+
+  num := GetMetersPerGorizontalLine(VValidLegendWidth);
+
+  if FConfig.NumbersFormat = slnfNice then begin
+    ModifyLenAndWidth(Num, VValidLegendWidth);
+  end;
+
+  if num > 10000 then begin
+    num := num / 1000;
+    VUnitsString := ' ' + SAS_UNITS_km + ' ';
+  end else if num < 10 then begin
+    num := num * 100;
+    VUnitsString := ' ' + SAS_UNITS_sm + ' ';
+  end else begin
+    VUnitsString := ' ' + SAS_UNITS_m + ' ';
+  end;
+
+  case FConfig.NumbersFormat of
+    slnfNice:
+      begin
+        VHalfValue := IntToStr(Round(num/2)) + VUnitsString;
+        VFullValue := IntToStr(Round(num)) + VUnitsString;
+      end;
+    slnfScienceRound:
+      begin
+        rnum := Round(num/2);
+        VHalfValue := IntToStr(rnum) + VUnitsString;
+        VFullValue := IntToStr(rnum*2) + VUnitsString;
+      end
+  else
+    begin
+      VHalfValue := FloatToStrF(num/2, ffFixed, 10, 2) + VUnitsString;
+      VFullValue := FloatToStrF(num, ffFixed, 10, 2) + VUnitsString;
+    end;
+  end;
+
+  DrawGorizontalScaleLegend(
+    VColor,
+    VOutLineColor,
+    VColor,
+    VValidLegendWidth,
+    VHalfValue,
+    VFullValue,
+    FLayer.Bitmap
+  );
+end;
+
+procedure TLayerScaleLine.DrawGorizontalScaleLegend(
+  ALineColor: TColor32;
+  AOutLineColor: TColor32;
+  ATextColor: TColor32;
+  AScaleLegendWidth: Integer;
+  AHalfValue, AFullValue: string;
+  ATargetBitmap: TBitmap32
+);
+var
+  I: Integer;
+  VWidth: Integer;
+  VBitmapSize: TPoint;
+  VStartX: Integer;
+  VText: string;
+begin
+  VWidth := (AScaleLegendWidth div 4) * 4;
+  VBitmapSize := Point(ATargetBitmap.Width, ATargetBitmap.Height);
+  ATargetBitmap.Line(0, VBitmapSize.Y - 3, VWidth + 2, VBitmapSize.Y - 3, AOutLineColor);
+  for I := 0 to 4 do begin
+    VStartX := I * (VWidth div 4);
+    case I of
+      0:  if not FConfig.Extended then VText := '0' else VText := '';
+      2:  VText := AHalfValue;
+      4:  VText := AFullValue;
+    else
+      VText := '';
+    end;
+    DrawGorizontalScaleMarks(
+      ALineColor,
+      AOutLineColor,
+      ATextColor,
+      VText,
+      VStartX + 1,
+      ATargetBitmap
+    );
+  end;
+  ATargetBitmap.Line(1, VBitmapSize.Y - 2, VWidth + 2, VBitmapSize.Y - 2, ALineColor);
+  ATargetBitmap.Line(0, VBitmapSize.Y - 1, VWidth + 2, VBitmapSize.Y - 1, AOutLineColor);
+end;
+
+procedure TLayerScaleLine.DrawGorizontalScaleMarks(
+  ALineColor, AOutLineColor, ATextColor: TColor32;
+  AText: string;
+  AScalePos: Integer;
+  ATargetBitmap: TBitmap32
+);
+var
+  VStartY: Integer;
+  VHeight: Integer;
+begin
+  if Length(AText) > 0 then begin
+    DrawOutlinedText(
+      AScalePos,
+      ATargetBitmap.Height - 36,
+      AText,
+      ATextColor,
+      AOutLineColor,
+      ATargetBitmap
+    );
+  end;
+  VHeight := ATargetBitmap.Height;
+  if Length(AText) = 0 then begin
+    VStartY := VHeight - 10;
+  end else begin
+    VStartY := VHeight - 20;
+  end;
+  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos - 1, VHeight - 1, AOutLineColor);
+  ATargetBitmap.Line(AScalePos,     VStartY, AScalePos,     VHeight - 1, ALineColor);
+  ATargetBitmap.Line(AScalePos + 1, VStartY, AScalePos + 1, VHeight - 1, AOutLineColor);
+  ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
 end;
 
 function TLayerScaleLine.GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
@@ -491,5 +467,170 @@ begin
     AWidth := VNewWidth;
   end;
 end;
+
+{$ENDREGION} // Gorizontal Scale Legend
+
+{$REGION 'Vertical Scale Legend'}
+
+procedure TLayerScaleLine.RedrawVerticalScaleLegend;
+var
+  VUnitsString: string;
+  VFullLenght, VHalfLenght: Double;
+  VColor: TColor32;
+  VOutLineColor: TColor32;
+  VValidLegendWidth: Integer;
+  VHalfValue, VFullValue: string;
+begin
+  VColor := FConfig.Color;
+  VOutLineColor := FConfig.OutLineColor;
+
+  VValidLegendWidth := (FConfig.Width div 4) * 4;
+
+  GetMetersPerVerticalLine(VValidLegendWidth, VHalfLenght, VFullLenght);
+
+  if VFullLenght > 10000 then begin
+    VFullLenght := VFullLenght / 1000;
+    VHalfLenght := VHalfLenght / 1000;
+    VUnitsString := ' ' + SAS_UNITS_km + ' ';
+  end else if VFullLenght < 10 then begin
+    VFullLenght := VFullLenght * 100;
+    VHalfLenght := VHalfLenght * 100;
+    VUnitsString := ' ' + SAS_UNITS_sm + ' ';
+  end else begin
+    VUnitsString := ' ' + SAS_UNITS_m + ' ';
+  end;
+
+  case FConfig.NumbersFormat of
+
+   // slnfNice: // TODO
+
+    slnfScienceRound:
+      begin
+        VHalfValue := IntToStr(Round(VHalfLenght)) + VUnitsString;
+        VFullValue := IntToStr(Round(VFullLenght)) + VUnitsString;
+      end
+  else
+    begin
+      VHalfValue := FloatToStrF(VHalfLenght, ffFixed, 10, 2) + VUnitsString;
+      VFullValue := FloatToStrF(VFullLenght, ffFixed, 10, 2) + VUnitsString;
+    end;
+  end;
+
+  DrawVerticalScaleLegend(
+    VColor,
+    VOutLineColor,
+    VColor,
+    VValidLegendWidth,
+    VHalfValue,
+    VFullValue,
+    FLayer.Bitmap
+  );
+end;
+
+procedure TLayerScaleLine.DrawVerticalScaleLegend(
+  ALineColor: TColor32;
+  AOutLineColor: TColor32;
+  ATextColor: TColor32;
+  AScaleLegendHeight: Integer;
+  AHalfValue, AFullValue: string;
+  ATargetBitmap: TBitmap32
+);
+var
+  I: Integer;
+  VHeight: Integer;
+  VBitmapSize: TPoint;
+  VStartY: Integer;
+  VText: string;
+begin
+  VHeight := (AScaleLegendHeight div 4) * 4;
+  VBitmapSize := Point(ATargetBitmap.Width, ATargetBitmap.Height);
+  if VBitmapSize.Y > VHeight then begin
+    ATargetBitmap.VertLineS(2, VBitmapSize.Y - 3, VBitmapSize.Y - VHeight - 3, AOutLineColor);
+    for I := 1 to 4 do begin
+      VStartY := (VBitmapSize.Y - 3) - I * (VHeight div 4);
+      case I of
+        2:  VText := AHalfValue;
+        4:  VText := AFullValue;
+      else
+        VText := '';
+      end;
+      DrawVerticalScaleMarks(
+        ALineColor,
+        AOutLineColor,
+        ATextColor,
+        VText,
+        VStartY + 1,
+        ATargetBitmap
+      );
+    end;
+    ATargetBitmap.VertLineS(1, VBitmapSize.Y - 3, VBitmapSize.Y - VHeight - 2, ALineColor);
+    ATargetBitmap.VertLineS(0, VBitmapSize.Y - 3, VBitmapSize.Y - VHeight - 3, AOutLineColor);
+  end;
+end;
+
+procedure TLayerScaleLine.DrawVerticalScaleMarks(
+  ALineColor, AOutLineColor, ATextColor: TColor32;
+  AText: string;
+  AScalePos: Integer;
+  ATargetBitmap: TBitmap32
+);
+var
+  VStartX: Integer;
+begin
+  if Length(AText) > 0 then begin
+    DrawOutlinedText(
+      26,
+      AScalePos,
+      AText,
+      ATextColor,
+      AOutLineColor,
+      ATargetBitmap
+    );
+  end;
+  if Length(AText) = 0 then begin
+    VStartX := 10;
+  end else begin
+    VStartX := 20;
+  end;
+  ATargetBitmap.HorzLineS(VStartX, AScalePos - 1, 0,             AOutLineColor);
+  ATargetBitmap.HorzLineS(VStartX, AScalePos,     0,             ALineColor);
+  ATargetBitmap.HorzLineS(VStartX, AScalePos + 1, 0,             AOutLineColor);
+  ATargetBitmap.VertLineS(VStartX, AScalePos - 1, AScalePos + 1, AOutLineColor);
+end;
+
+procedure TLayerScaleLine.GetMetersPerVerticalLine(ALineHeight: Integer; out AHalfLen, AFullLen: Double);
+var
+  VStartLonLat, VFinishLonLat: TDoublePoint;
+  VCenterPixelXY: TPoint;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VVisualCoordConverter: ILocalCoordConverter;
+begin
+  VVisualCoordConverter := LayerCoordConverter;
+  VZoom := VVisualCoordConverter.GetZoom;
+  VConverter := VVisualCoordConverter.GetGeoConverter;
+
+  VCenterPixelXY := VVisualCoordConverter.LocalPixel2MapPixel(
+    VVisualCoordConverter.LonLat2LocalPixel(
+      VVisualCoordConverter.GetCenterLonLat
+    )
+  );
+
+  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
+  VFinishLonLat := VConverter.PixelPos2LonLat(
+    Point(VCenterPixelXY.X + (ALineHeight div 2), VCenterPixelXY.Y),
+    VZoom
+  );
+  AHalfLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+
+  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
+  VFinishLonLat := VConverter.PixelPos2LonLat(
+    Point(VCenterPixelXY.X + ALineHeight, VCenterPixelXY.Y),
+    VZoom
+  );
+  AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+end;
+
+{$ENDREGION} // Vertical Scale Legend
 
 end.

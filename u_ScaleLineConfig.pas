@@ -89,10 +89,10 @@ constructor TScaleLineConfig.Create;
 begin
   inherited;
   FVisible := True;
-  FExtended := True;
+  FExtended := False;
   FWidth := 256;
   FColor := SetAlpha(clWhite32, 255);
-  FOutLineColor := SetAlpha(clBlack32, 90);
+  FOutLineColor := SetAlpha(clBlack32, 170);
   FFontName := 'Arial';
   FFontSize := 8;
   FNumbersFormat := CDefaultNumbersFormat;
