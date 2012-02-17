@@ -81,7 +81,7 @@ uses
   u_ConfigProviderHelpers;
 
 const
-  CDefaultNumbersFormat: TScaleLegendNumbersFormat = slnfScience;
+  CDefaultNumbersFormat: TScaleLegendNumbersFormat = slnfNice;
 
 { TScaleLineConfig }
 
@@ -110,12 +110,11 @@ begin
     FOutLineColor := ReadColor32(AConfigData, 'OutLineColor', FOutLineColor);
     FFontName := AConfigData.ReadString('FontName', FFontName);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
-    try
-      FNumbersFormat := TScaleLegendNumbersFormat(
-        AConfigData.ReadInteger('NumbersFormat', Integer(FNumbersFormat))
-      );
-    except
-      FNumbersFormat := CDefaultNumbersFormat;
+    case AConfigData.ReadInteger('NumbersFormat', Integer(FNumbersFormat)) of
+      Integer(slnfScienceRound): FNumbersFormat := slnfScienceRound;
+      Integer(slnfScience): FNumbersFormat := slnfScience;
+    else
+      FNumbersFormat := slnfNice;
     end;
     SetChanged;
   end;

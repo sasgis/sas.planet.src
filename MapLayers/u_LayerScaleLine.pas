@@ -178,8 +178,9 @@ begin
   VValidLegendWidth := (FConfig.Width div 4) * 4;
 
   num := GetMetersPerGorizontalLine(VValidLegendWidth);
-
-  ModifyLenAndWidth(Num, VValidLegendWidth);
+  if FConfig.NumbersFormat = slnfNice then begin
+    ModifyLenAndWidth(Num, VValidLegendWidth);
+  end;
 
   if num > 10000 then begin
     num := num / 1000;

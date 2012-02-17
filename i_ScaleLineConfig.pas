@@ -27,7 +27,7 @@ uses
   i_ConfigDataElement;
 
 type
-  TScaleLegendNumbersFormat = (slnfNice, slnfScienceRound, slnfScience);
+  TScaleLegendNumbersFormat = (slnfNice = 0, slnfScienceRound = 1, slnfScience = 2);
 
   IScaleLineConfig = interface(IConfigDataElement)
     ['{C8AAEDF7-D20D-4ECA-919A-76EF8E60EAE8}']
