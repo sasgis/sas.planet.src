@@ -3,33 +3,46 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Top = 247
   BorderStyle = bsSizeToolWin
   Caption = 'Images available'
-  ClientHeight = 396
+  ClientHeight = 359
   ClientWidth = 256
   Color = clBtnFace
-  Constraints.MinHeight = 420
+  Constraints.MinHeight = 332
   Constraints.MinWidth = 264
   ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
+  OnCanResize = FormCanResize
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object spltDesc: TSplitter
+    Left = 0
+    Top = 240
+    Width = 256
+    Height = 3
+    Cursor = crVSplit
+    Align = alBottom
+    OnCanResize = spltDescCanResize
+    ExplicitTop = 238
+    ExplicitWidth = 270
+  end
   object gbImageParams: TGroupBox
-    AlignWithMargins = True
-    Left = 3
-    Top = 237
-    Width = 250
-    Height = 156
+    Left = 0
+    Top = 243
+    Width = 256
+    Height = 116
     Align = alBottom
     Caption = 'Description:'
+    Constraints.MinHeight = 80
     TabOrder = 0
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
-      Width = 246
-      Height = 139
+      Width = 252
+      Height = 99
       Align = alClient
       TabOrder = 0
       TitleCaptions.Strings = (
@@ -37,24 +50,24 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         'Value')
       ColWidths = (
         120
-        120)
+        126)
     end
   end
   object gbAvailImages: TGroupBox
-    AlignWithMargins = True
-    Left = 3
-    Top = 87
-    Width = 250
-    Height = 144
+    Left = 0
+    Top = 78
+    Width = 256
+    Height = 162
     Align = alClient
     Caption = 'Images available'
+    Constraints.MinHeight = 144
     TabOrder = 1
     object tvFound: TTreeView
       AlignWithMargins = True
       Left = 5
       Top = 18
-      Width = 159
-      Height = 121
+      Width = 165
+      Height = 139
       Align = alClient
       HideSelection = False
       HotTrack = True
@@ -69,10 +82,10 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnMouseDown = tvFoundMouseDown
     end
     object pnlRight: TPanel
-      Left = 167
+      Left = 173
       Top = 15
       Width = 81
-      Height = 127
+      Height = 145
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
@@ -126,17 +139,15 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     end
   end
   object gbImagesSource: TGroupBox
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 250
+    Left = 0
+    Top = 0
+    Width = 256
     Height = 78
     Align = alTop
     Caption = 'Image services'
     TabOrder = 2
-    ExplicitLeft = 8
     DesignSize = (
-      250
+      256
       78)
     object lbZoom: TLabel
       Left = 186
@@ -152,7 +163,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       AlignWithMargins = True
       Left = 71
       Top = 44
-      Width = 174
+      Width = 180
       Height = 21
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]

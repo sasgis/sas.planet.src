@@ -72,6 +72,7 @@ type
     btnRefresh: TButton;
     veImageParams: TValueListEditor;
     lbZoom: TLabel;
+    spltDesc: TSplitter;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -82,12 +83,16 @@ type
     procedure tvFoundDeletion(Sender: TObject; Node: TTreeNode);
     procedure tvFoundClick(Sender: TObject);
     procedure tvFoundChange(Sender: TObject; Node: TTreeNode);
+    procedure spltDescCanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
+    procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
+    procedure FormShow(Sender: TObject);
   private
     FBing: TAvailPicsBing;
     FNMC: TAvailPicsNMC;
     FDGStacks: TAvailPicsDGs;
     FAvailPicsTileInfo: TAvailPicsTileInfo;
     FCallIndex: DWORD;
+    FVertResizeFactor: Integer;
   private
     procedure MakePicsVendors;
     procedure KillPicsVendors;
@@ -346,6 +351,14 @@ begin
 
   // refresh
   btnRefreshClick(nil);
+end;
+
+procedure TfrmDGAvailablePic.spltDescCanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
+begin
+  if (NewSize<gbImageParams.Constraints.MinHeight) then
+    Accept:=FALSE
+  else if (NewSize>ClientHeight-gbAvailImages.Top-gbAvailImages.Constraints.MinHeight-spltDesc.Height) then
+    Accept:=FALSE;
 end;
 
 function TfrmDGAvailablePic.AddAvailImageItem(Sender: TObject;
@@ -685,6 +698,7 @@ end;
 constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
                                       const AInetConfig: IInetConfig);
 begin
+  FVertResizeFactor:=0;
   FCallIndex:=0;
   FBing:=nil;
   FNMC:=nil;
@@ -718,12 +732,25 @@ begin
   CopyStringToClipboard(Get_DG_tid_List);
 end;
 
+procedure TfrmDGAvailablePic.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
+var VMinNewHeight: Integer;
+begin
+  VMinNewHeight:=(gbAvailImages.Top+gbAvailImages.Constraints.MinHeight+spltDesc.Height+gbImageParams.Height+FVertResizeFactor);
+  if (NewHeight<VMinNewHeight) then
+    NewHeight:=VMinNewHeight;
+end;
+
 procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);
 begin
   // make checkboxes in list
   SetWindowLong(tvFound.Handle,GWL_STYLE,GetWindowLong(tvFound.Handle,GWL_STYLE) or TVS_CHECKBOXES);
   // make vendors and fill list of dg stacks
   MakePicsVendors;
+end;
+
+procedure TfrmDGAvailablePic.FormShow(Sender: TObject);
+begin
+  FVertResizeFactor:=Height-gbAvailImages.Top-gbAvailImages.Height-spltDesc.Height-gbImageParams.Height;
 end;
 
 end.
