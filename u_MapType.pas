@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -50,6 +50,9 @@ uses
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_MapAbilitiesConfig,
+  t_MapAttachments,
+  i_MapAttachmentsInfo,
+  i_MapAttachmentsFactory,
   i_SimpleTileStorageConfig,
   i_ZmpInfo,
   i_InvisibleBrowser,
@@ -61,6 +64,7 @@ uses
   i_VectorDataItemSimple,
   i_TileDownloadSubsystem,
   u_GlobalCahceConfig,
+  u_BaseTileDownloaderThread,
   u_TileStorageAbstract;
 
 type
@@ -88,6 +92,7 @@ type
     FGlobalDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
+    FMapAttachmentsFactory: IMapAttachmentsFactory;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
 
@@ -157,6 +162,14 @@ type
       ACache: ITileObjCacheBitmap = nil
     ): boolean;
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
+    function DeleteAttachments(const AXY: TPoint;
+                               const Azoom: byte;
+                               const ADelBytes: Boolean;
+                               const ADelBytesNum: Integer): Integer;
+    function DownloadAttachments(const AXY: TPoint;
+                                 const Azoom: byte;
+                                 const ACountersPtr: PMapAttachmentsCounters;
+                                 const AThread: TBaseTileDownloaderThread): Boolean;
     procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
     function TileSize(AXY: TPoint; Azoom: byte): integer;
@@ -172,6 +185,10 @@ type
       AColorer: IFillingMapColorer
     ): boolean;
     function GetShortFolderName: string;
+
+    function GetLanguageManager: ILanguageManager;
+    // parse vector object description
+    procedure MapAttachmentsInfoParser(Sender: TObject; var ADescr: String; var AOnlyCheckAllowRunImmediately: Boolean);
 
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
@@ -221,9 +238,11 @@ uses
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
+  u_TileRequestBuilderHelpers,
   u_MemTileCache,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
+  u_MapAttachmentsPascalScript,
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
@@ -258,6 +277,7 @@ begin
       ALanguageManager,
       FZmp.GUI
     );
+  FMapAttachmentsFactory := nil;
   FLanguageManager := ALanguageManager;
   FImageResamplerConfig := AImageResamplerConfig;
   FGlobalDownloadConfig := ADownloadConfig;
@@ -358,11 +378,105 @@ begin
   FContentTypeManager := nil;
   FGlobalDownloadConfig := nil;
   FGUIConfig := nil;
+  FMapAttachmentsFactory := nil;
   FAbilitiesConfig := nil;
   FStorageConfig := nil;
 
   FreeAndNil(FStorage);
   inherited;
+end;
+
+function TMapType.DownloadAttachments(const AXY: TPoint;
+                                      const Azoom: byte;
+                                      const ACountersPtr: PMapAttachmentsCounters;
+                                      const AThread: TBaseTileDownloaderThread): Boolean;
+var
+  VKml: IVectorDataItemList;
+  VSimpleAttach: IVectorDataItemSimple;
+  VMapAttachmentsInfo: IMapAttachmentsInfo;
+  VDesc,VNumber,VSubCache,VFullPath,VFullUrl: String;
+  i,j,VSize,VMaxSubIndex: Integer;
+
+  function _Thread_Terminated: Boolean;
+  begin
+    Result := FALSE;
+    if (AThread<>nil) then
+    if AThread.Terminated or AThread.PausedByUser then begin
+      Result := TRUE;
+      // calc cancelled objects
+      if (nil<>ACountersPtr) then
+        ACountersPtr^.ac_Cancelled := (VKml.Count - i);
+    end;
+  end;
+begin
+  // init
+  Result := FALSE;
+  if (nil<>ACountersPtr) then
+    FillChar(ACountersPtr^, sizeof(ACountersPtr^), 0);
+
+  // attachments
+  VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
+  if (not Assigned(VMapAttachmentsInfo)) then
+    Exit;
+  VMaxSubIndex := VMapAttachmentsInfo.MaxSubIndex;
+
+  // foreach tile
+  if Self.LoadKmlTileFromStorage(AXY, Azoom, VKml) then
+  if Assigned(VKml) then
+  if (0<VKml.Count) then
+  for i := 0 to VKml.Count-1 do begin
+    // check terminated
+    if _Thread_Terminated then
+      Exit;
+
+    // get item description (full text)
+    VSimpleAttach:=VKml.GetItem(i);
+    if Assigned(VSimpleAttach) then begin
+      VDesc:=VSimpleAttach.Desc;
+
+      if (Length(VDesc)>0) then begin
+        // parse description
+        VNumber:=GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
+        if (Length(VNumber)>0) then begin
+          VSubCache := GetDiv3Path(VNumber);
+
+          // 0 just for default values - starts from 1
+          for j := 1 to VMaxSubIndex do
+          if VMapAttachmentsInfo.GetEnabled(j) then begin
+            // check terminated or paused
+            if _Thread_Terminated then
+              Exit;
+            
+            // foreach url and cache item for single attachment
+            VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
+            
+            // if attachment exists - skip downloading
+            if (FileExists(VFullPath)) then begin
+              // skip existing attachments
+              if (nil<>ACountersPtr) then
+                Inc(ACountersPtr^.ac_Skipped);
+            end else begin
+              // make full source url
+              VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j)+VNumber+VMapAttachmentsInfo.GetExt(j);
+              VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
+              if (VSize>0) then begin
+                // downloaded ok
+                if (nil<>ACountersPtr) then
+                  Inc(ACountersPtr^.ac_Downloaded);
+                if (nil<>ACountersPtr) then
+                  Inc(ACountersPtr^.ac_Size,VSize);
+                Result:=TRUE;
+              end else begin
+                // error
+                if (nil<>ACountersPtr) then
+                  Inc(ACountersPtr^.ac_Failed);
+              end;
+            end;
+          end;
+        end;
+     end;
+    end;
+  end;
 end;
 
 function TMapType.GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
@@ -381,6 +495,50 @@ var
 begin
   VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
   Result := VTileInfo.GetIsExists;
+end;
+
+function TMapType.DeleteAttachments(const AXY: TPoint;
+                                    const Azoom: byte;
+                                    const ADelBytes: Boolean;
+                                    const ADelBytesNum: Integer): Integer;
+var
+  VKml: IVectorDataItemList;
+  VSimpleAttach: IVectorDataItemSimple;
+  VMapAttachmentsInfo: IMapAttachmentsInfo;
+  VDesc,VNumber,VSubCache,VFullPath: String;
+  i,j: Integer;
+begin
+  Result:=0;
+  // get file from storage
+  // FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
+  if Self.LoadKmlTileFromStorage(AXY, Azoom, VKml) then
+  if Assigned(VKml) then
+  if (VKml.Count>0) then
+  for i := 0 to VKml.Count-1 do begin
+    // get item description (full text)
+    VSimpleAttach:=VKml.GetItem(i);
+    if Assigned(VSimpleAttach) then begin
+      VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
+      VDesc:=VSimpleAttach.Desc;
+      if (Length(VDesc)>0) and Assigned(VMapAttachmentsInfo) then begin
+        // parse description
+        VNumber:=GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
+        if (Length(VNumber)>0) then begin
+          VSubCache := GetDiv3Path(VNumber);
+          // 0 just for default values - starts from 1
+          for j := 1 to VMapAttachmentsInfo.MaxSubIndex do
+          if VMapAttachmentsInfo.GetEnabled(j) then begin
+            // foreach cache item for single attachment
+            VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
+            // delete attached file (what about ADelBytesNum?)
+            if FileExists(VFullPath) then
+              if DeleteFile(VFullPath) then
+                Inc(Result);
+          end;
+        end;
+     end;
+    end;
+  end;
 end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
@@ -549,6 +707,11 @@ end;
 function TMapType.GetIsKmlTiles: Boolean;
 begin
   Result := FKmlLoaderFromStorage <> nil;
+end;
+
+function TMapType.GetLanguageManager: ILanguageManager;
+begin
+  Result := FLanguageManager;
 end;
 
 function TMapType.GetIsHybridLayer: Boolean;
@@ -887,6 +1050,77 @@ var
 begin
   VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, Azoom);
   Result := LoadBtimapUni(spr, VPixelRect, Azoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
+end;
+
+procedure TMapType.MapAttachmentsInfoParser(Sender: TObject;
+                                            var ADescr: String;
+                                            var AOnlyCheckAllowRunImmediately: Boolean);
+var
+  VMapAttachmentsInfo: IMapAttachmentsInfo;
+  VParseAttachmentScript: String;
+
+  function _SenderTerminated: Boolean;
+  begin
+    Result := (Sender<>nil) and (Sender is TBaseTileDownloaderThread) and TBaseTileDownloaderThread(Sender).Terminated;
+  end;
+
+  function _CheckForeachAttachment(const ADownload: Boolean): Boolean;
+  var
+    j: Integer;
+    VNumber, VSubCache, VFullPath, VFullUrl: String;
+  begin
+    Result := TRUE;
+    VNumber := GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, ADescr);
+    VSubCache := GetDiv3Path(VNumber);
+    for j := 1 to VMapAttachmentsInfo.MaxSubIndex do
+    if VMapAttachmentsInfo.GetEnabled(j) then begin
+      // check terminated
+      if _SenderTerminated then begin
+        Result := FALSE;
+        Exit;
+      end;
+
+      // full local path
+      VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
+      // if file exists - nothing to do
+      if (not FileExists(VFullPath)) then begin
+        if ADownload then begin
+          // download now
+          VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j)+VNumber+VMapAttachmentsInfo.GetExt(j);
+          DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
+        end else begin
+          // cannot show immediately
+          Result := FALSE;
+          Exit;
+        end;
+      end;
+    end;
+  end;
+
+begin
+  VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
+  if not Assigned(VMapAttachmentsInfo) then
+    Exit;
+
+  // real kml layer with attachments
+  if AOnlyCheckAllowRunImmediately then begin
+    // check attachments (for all enabled items)
+    AOnlyCheckAllowRunImmediately := _CheckForeachAttachment(FALSE);
+    if (not AOnlyCheckAllowRunImmediately) then
+      Exit;
+  end
+  else begin
+    // we can donload all attachments
+    AOnlyCheckAllowRunImmediately := _CheckForeachAttachment(TRUE);
+    if _SenderTerminated then
+      Exit;
+  end;
+
+  // full description parser
+  VParseAttachmentScript := Self.Zmp.DataProvider.ReadString('ParseAttachmentScript.txt', '');
+  if (0<Length(VParseAttachmentScript)) then begin
+    RunParseAttachmentScript(FMapAttachmentsFactory, VMapAttachmentsInfo, VParseAttachmentScript, ADescr);
+  end;
 end;
 
 end.

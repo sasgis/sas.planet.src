@@ -32,6 +32,16 @@ function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
 function SetHeaderValue(AHeaders, AName, AValue: string): string;
 function GetHeaderValue(AHeaders, AName: string): string;
 function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
+function GetNumberAfter(const ASubStr, AText: String): String;
+function GetDiv3Path(const ASource: String): String;
+function DownloadFileToLocal(const AFullRemoteUrl, AFullLocalFilename, AContType: String): Integer;
+
+// auxillary
+function DoHttpRequestEx(const ARequestUrl, ARequestHeader, APostData: string;
+                         out AResponseHeader, AResponseData: string;
+                         const ASaveToLocal: Boolean;
+                         const ALocalFileName: String;
+                         const AContentType: String): Cardinal;
 
 implementation
 
@@ -173,7 +183,11 @@ begin
     Result := '';
 end;
 
-function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
+function DoHttpRequestEx(const ARequestUrl, ARequestHeader, APostData: string;
+                         out AResponseHeader, AResponseData: string;
+                         const ASaveToLocal: Boolean;
+                         const ALocalFileName: String;
+                         const AContentType: String): Cardinal;
 var
   VHttpClient: TALWinInetHTTPClient;
   VHttpResponseHeader: TALHTTPResponseHeader;
@@ -182,6 +196,7 @@ var
   VInetConfig: IInetConfigStatic;
   VProxyConfig: IProxyConfigStatic;
   VTmp:TStringList;
+  VPath: String;
 begin
   try
     VHttpClient := TALWinInetHTTPClient.Create(nil);
@@ -244,6 +259,15 @@ begin
               VTmp.Clear;
               VTmp.LoadFromStream(VHttpResponseBody);
               AResponseData := VTmp.Text;
+              // to file
+              if ASaveToLocal then
+              if (0=Length(AContentType)) or (System.Pos(AContentType,AResponseHeader)>0) then begin
+                VPath:=ExtractFilePath(ALocalFileName);
+                if (not DirectoryExists(VPath)) then
+                  ForceDirectories(VPath);
+                VHttpResponseBody.Position:=0;
+                VHttpResponseBody.SaveToFile(ALocalFileName);
+              end;
             end;
           finally
             VTmp.Free;
@@ -269,6 +293,56 @@ begin
       AResponseData := E.Message;
     end;
   end;
+end;
+
+function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
+begin
+  Result := DoHttpRequestEx(ARequestUrl, ARequestHeader, APostData,
+                            AResponseHeader, AResponseData,
+                            FALSE, '', '');
+end;
+
+function GetNumberAfter(const ASubStr, AText: String): String;
+var VPos: Integer;
+begin
+  Result := '';
+  VPos:=SYstem.Pos(ASubStr,AText);
+  if (VPos>0) then begin
+    VPos := VPos + Length(ASubStr);
+    while ((VPos<=System.Length(AText)) and (AText[VPos] in ['0','1'..'9'])) do begin
+      Result := Result + AText[VPos];
+      Inc(VPos);
+    end;
+  end;
+end;
+
+function GetDiv3Path(const ASource: String): String;
+var i: Integer;
+begin
+  Result:='';
+
+  if (0<Length(ASource)) then
+  for i := Length(ASource) downto 1 do begin
+    if (0 = ((Length(ASource)-i) mod 3)) then
+      Result := '\' + Result;
+    Result := ASource[i] + Result;
+  end;
+
+  if (Length(Result)>0) then
+    if ('\'=Result[1]) then
+      System.Delete(Result,1,1);
+
+  i := System.Pos('\',Result);
+  if (i<4) then
+    System.Delete(Result, 1, i);
+end;
+
+function DownloadFileToLocal(const AFullRemoteUrl, AFullLocalFilename, AContType: String): Integer;
+var VResponseHeader, VResponseData: string;
+begin
+  Result := DoHttpRequestEx(AFullRemoteUrl, '', '',
+                            VResponseHeader, VResponseData,
+                            TRUE, AFullLocalFilename, AContType);
 end;
 
 end.

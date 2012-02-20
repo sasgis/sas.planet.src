@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -39,11 +39,10 @@ uses
   i_LastResponseInfo,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
+  u_BasePascalCompiler,
   u_TileDownloadRequestBuilder;
 
 type
-  EPascalScriptRunError = class(Exception);
-
   TTileDownloadRequestBuilderPascalScript = class(TTileDownloadRequestBuilder)
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -57,7 +56,7 @@ type
     FLangListener: IJclListener;
     FLangChangeCount: Integer;
 
-    FExec: TPSExec;
+    FPSExec: TBasePascalScriptExec;
     FpResultUrl: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
     FpRequestHead: PPSVariantAString;
@@ -77,7 +76,9 @@ type
     FpGetTMetr: PPSVariantDouble;
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
-    procedure PreparePascalScript(ACompiledData: TbtString);
+    procedure PrepareCompiledScript(const ACompiledData: TbtString);
+    procedure RegisterAppVars;
+    procedure RegisterAppRoutines;
     procedure SetVar(
       ALastResponseInfo: ILastResponseInfo;
       ADownloaderConfig: ITileDownloaderConfigStatic;
@@ -93,7 +94,7 @@ type
     ): ITileDownloadRequest; override;
   public
     constructor Create(
-      ACompiledData: TbtString;
+      const ACompiledData: TbtString;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ADownloader: IDownloader;
@@ -119,7 +120,7 @@ uses
 { TTileRequestBuilderPascalScript }
 
 constructor TTileDownloadRequestBuilderPascalScript.Create(
-  ACompiledData: TbtString;
+  const ACompiledData: TbtString;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ADownloader: IDownloader;
@@ -128,6 +129,7 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
 );
 begin
   inherited Create(AConfig);
+  FPSExec := nil;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLangManager := ALangManager;
   FDownloader := ADownloader;
@@ -137,7 +139,7 @@ begin
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
   FCoordConverter := FConfig.GeoCoder as ICoordConverterSimple;
-  PreparePascalScript(ACompiledData);
+  PrepareCompiledScript(ACompiledData);
 
   OnLangChange;
 end;
@@ -148,7 +150,7 @@ begin
   FLangManager := nil;
   FLangListener := nil;
 
-  FreeAndNil(FExec);
+  FreeAndNil(FPSExec);
   FCoordConverter := nil;
   FDownloader := nil;
 
@@ -181,7 +183,7 @@ begin
           ASource
         );
         try
-          FExec.RunScript;
+          FPSExec.RunScript;
         except on E: Exception do
           raise EPascalScriptRunError.Create(E.Message);
         end;
@@ -203,59 +205,63 @@ begin
   end;
 end;
 
-procedure TTileDownloadRequestBuilderPascalScript.PreparePascalScript(ACompiledData: TbtString);
+procedure TTileDownloadRequestBuilderPascalScript.PrepareCompiledScript(const ACompiledData: TbtString);
 begin
+  // TODO: compare with TBasePascalScriptCompiled
   FScriptBuffer := '';
 
-  FExec := TPSExec.Create;
-  RegisterDLLRuntime(FExec);
+  // create
+  FPSExec := TBasePascalScriptExec.Create;
 
-  FExec.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
-  FExec.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
-  FExec.RegisterDelphiFunction(@Rand, 'Random', cdRegister);
-  FExec.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
-  FExec.RegisterDelphiFunction(@StrLength, 'Length', cdRegister);
-  FExec.RegisterDelphiFunction(@GetAfter, 'GetAfter', cdRegister);
-  FExec.RegisterDelphiFunction(@GetBefore, 'GetBefore', cdRegister);
-  FExec.RegisterDelphiFunction(@GetBetween, 'GetBetween', cdRegister);
-  FExec.RegisterDelphiFunction(@SubStrPos, 'SubStrPos', cdRegister);
-  FExec.RegisterDelphiFunction(@RegExprGetMatchSubStr, 'RegExprGetMatchSubStr', cdRegister);
-  FExec.RegisterDelphiFunction(@RegExprReplaceMatchSubStr, 'RegExprReplaceMatchSubStr', cdRegister);
-  FExec.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
-  FExec.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
-  FExec.RegisterDelphiFunction(@DoHttpRequest, 'DoHttpRequest', cdRegister);
+  // init by common
+  FPSExec.RegisterAppCommonRoutines;
 
-  if not FExec.LoadData(ACompiledData) then begin
+  // init by self
+  Self.RegisterAppRoutines;
+
+  // load
+  if not FPSExec.LoadData(ACompiledData) then begin
     raise Exception.Create(
       SAS_ERR_UrlScriptByteCodeLoad + #13#10 +
-      TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString)
+      TIFErrorToString(FPSExec.ExceptionCode, FPSExec.ExceptionString)
     );
   end;
 
-  FpResultUrl := PPSVariantAString(FExec.GetVar2('ResultURL'));
-  FpGetURLBase := PPSVariantAString(FExec.GetVar2('GetURLBase'));
+  // loaded - add variables
+  Self.RegisterAppVars;
+end;
+
+procedure TTileDownloadRequestBuilderPascalScript.RegisterAppRoutines;
+begin
+  // empty
+end;
+
+procedure TTileDownloadRequestBuilderPascalScript.RegisterAppVars;
+begin
+  FpResultUrl := PPSVariantAString(FPSExec.GetVar2('ResultURL'));
+  FpGetURLBase := PPSVariantAString(FPSExec.GetVar2('GetURLBase'));
   FpGetURLBase.Data := '';
-  FpRequestHead := PPSVariantAString(FExec.GetVar2('RequestHead'));
+  FpRequestHead := PPSVariantAString(FPSExec.GetVar2('RequestHead'));
   FpRequestHead.Data := '';
-  FpResponseHead := PPSVariantAString(FExec.GetVar2('ResponseHead'));
+  FpResponseHead := PPSVariantAString(FPSExec.GetVar2('ResponseHead'));
   FpResponseHead.Data := '';
-  FpVersion := PPSVariantAString(FExec.GetVar2('Version'));
+  FpVersion := PPSVariantAString(FPSExec.GetVar2('Version'));
   FpVersion.Data := '';
-  FpLang := PPSVariantAString(FExec.GetVar2('Lang'));
+  FpLang := PPSVariantAString(FPSExec.GetVar2('Lang'));
   FpLang.Data := '';
-  FpScriptBuffer := PPSVariantAString(FExec.GetVar2('ScriptBuffer'));
-  FpGetX := PPSVariantS32(FExec.GetVar2('GetX'));
-  FpGetY := PPSVariantS32(FExec.GetVar2('GetY'));
-  FpGetZ := PPSVariantS32(FExec.GetVar2('GetZ'));
-  FpGetLlon := PPSVariantDouble(FExec.GetVar2('GetLlon'));
-  FpGetTLat := PPSVariantDouble(FExec.GetVar2('GetTLat'));
-  FpGetBLat := PPSVariantDouble(FExec.GetVar2('GetBLat'));
-  FpGetRLon := PPSVariantDouble(FExec.GetVar2('GetRLon'));
-  FpGetLmetr := PPSVariantDouble(FExec.GetVar2('GetLmetr'));
-  FpGetTmetr := PPSVariantDouble(FExec.GetVar2('GetTmetr'));
-  FpGetBmetr := PPSVariantDouble(FExec.GetVar2('GetBmetr'));
-  FpGetRmetr := PPSVariantDouble(FExec.GetVar2('GetRmetr'));
-  FpConverter := PPSVariantInterface(FExec.GetVar2('Converter'));
+  FpScriptBuffer := PPSVariantAString(FPSExec.GetVar2('ScriptBuffer'));
+  FpGetX := PPSVariantS32(FPSExec.GetVar2('GetX'));
+  FpGetY := PPSVariantS32(FPSExec.GetVar2('GetY'));
+  FpGetZ := PPSVariantS32(FPSExec.GetVar2('GetZ'));
+  FpGetLlon := PPSVariantDouble(FPSExec.GetVar2('GetLlon'));
+  FpGetTLat := PPSVariantDouble(FPSExec.GetVar2('GetTLat'));
+  FpGetBLat := PPSVariantDouble(FPSExec.GetVar2('GetBLat'));
+  FpGetRLon := PPSVariantDouble(FPSExec.GetVar2('GetRLon'));
+  FpGetLmetr := PPSVariantDouble(FPSExec.GetVar2('GetLmetr'));
+  FpGetTmetr := PPSVariantDouble(FPSExec.GetVar2('GetTmetr'));
+  FpGetBmetr := PPSVariantDouble(FPSExec.GetVar2('GetBmetr'));
+  FpGetRmetr := PPSVariantDouble(FPSExec.GetVar2('GetRmetr'));
+  FpConverter := PPSVariantInterface(FPSExec.GetVar2('Converter'));
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.SetVar(

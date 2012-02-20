@@ -35,12 +35,11 @@ uses
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloadRequestBuilder,
   i_TileDownloadRequestBuilderFactory,
+  u_BasePascalCompiler,
   u_TileDownloaderStateInternal;
 
 type
-  EPascalScriptCompileError = class(Exception);
-
-  TTileDownloadRequestBuilderFactoryPascalScript = class(TInterfacedObject, ITileDownloadRequestBuilderFactory)
+  TTileDownloadRequestBuilderFactoryPascalScript = class(TBaseFactoryPascalScript, ITileDownloadRequestBuilderFactory)
   private
     FState: ITileDownloaderStateChangeble;
     FStateInternal: ITileDownloaderStateInternal;
@@ -48,17 +47,16 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
-    FScriptText: string;
-    FCompiledData: TbtString;
     FCS: TCriticalSection;
     FScriptInited: Boolean;
-    procedure PreparePascalScript(APascalScript: string);
+  protected
+    function DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean; override;
   protected
     function GetState: ITileDownloaderStateChangeble;
     function BuildRequestBuilder(ADownloader: IDownloader): ITileDownloadRequestBuilder;
   public
     constructor Create(
-      AScriptText: string;
+      const AScriptText: string;
       AConfig: ITileDownloadRequestBuilderConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ACheker: IDownloadChecker;
@@ -78,7 +76,7 @@ uses
 { TTileDownloadRequestBuilderFactoryPascalScript }
 
 constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
-  AScriptText: string;
+  const AScriptText: string;
   AConfig: ITileDownloadRequestBuilderConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ACheker: IDownloadChecker;
@@ -87,6 +85,8 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
 var
   VState: TTileDownloaderStateInternal;
 begin
+  inherited Create(AScriptText);
+  
   FConfig := AConfig;
   FCheker := ACheker;
   FLangManager := ALangManager;
@@ -108,6 +108,45 @@ destructor TTileDownloadRequestBuilderFactoryPascalScript.Destroy;
 begin
   FreeAndNil(FCS);
   inherited;
+end;
+
+function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler;
+                                                                            const AName: string): Boolean;
+var
+  T: TPSType;
+begin
+  if SameText('SYSTEM', AName) then begin
+    T := ACompiler.FindType('ICoordConverter');
+    ACompiler.AddUsedVariable('Converter', t);
+
+    T := ACompiler.FindType('string');
+    ACompiler.AddUsedVariable('ResultURL', t);
+    ACompiler.AddUsedVariable('GetURLBase', t);
+    ACompiler.AddUsedVariable('RequestHead', t);
+    ACompiler.AddUsedVariable('ResponseHead', t);
+    ACompiler.AddUsedVariable('ScriptBuffer', t);
+    ACompiler.AddUsedVariable('Version', t);
+    ACompiler.AddUsedVariable('Lang', t);
+
+    T := ACompiler.FindType('integer');
+    ACompiler.AddUsedVariable('GetX', t);
+    ACompiler.AddUsedVariable('GetY', t);
+    ACompiler.AddUsedVariable('GetZ', t);
+
+    T := ACompiler.FindType('Double');
+    ACompiler.AddUsedVariable('GetLlon', t);
+    ACompiler.AddUsedVariable('GetTLat', t);
+    ACompiler.AddUsedVariable('GetBLat', t);
+    ACompiler.AddUsedVariable('GetRLon', t);
+    ACompiler.AddUsedVariable('GetLMetr', t);
+    ACompiler.AddUsedVariable('GetRMetr', t);
+    ACompiler.AddUsedVariable('GetTMetr', t);
+    ACompiler.AddUsedVariable('GetBMetr', t);
+
+    Result := True;
+  end else begin
+    Result := False;
+  end;
 end;
 
 function TTileDownloadRequestBuilderFactoryPascalScript.GetState: ITileDownloaderStateChangeble;
@@ -158,117 +197,6 @@ begin
         FStateInternal.Disable('Request builder create error: ' + E.Message);
       end;
     end;
-  end;
-end;
-
-function ScriptOnUses(Sender: TPSPascalCompiler; const Name: string): Boolean;
-var
-  T: TPSType;
-  RecT: TPSRecordType;
-begin
-  if Name = 'SYSTEM' then begin
-    T := Sender.FindType('integer');
-    RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'x';
-      aType := t;
-    end;
-
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'y';
-      aType := t;
-    end;
-
-    T := Sender.FindType('Double');
-    RecT := TPSRecordType(Sender.AddType('TDoublePoint', btRecord));
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'x';
-      aType := t;
-    end;
-
-    with RecT.AddRecVal do begin
-      FieldOrgName := 'y';
-      aType := t;
-    end;
-
-    with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverterSimple, 'ICoordConverter') do begin
-      RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TDoublePoint', cdStdCall);
-      RegisterMethod('function LonLat2Pos(Ll : TDoublePoint; Azoom : byte) : Tpoint', cdStdCall);
-      RegisterMethod('function LonLat2Metr(Ll : TDoublePoint) : TDoublePoint', cdStdCall);
-      RegisterMethod('function Metr2LonLat(Mm : TDoublePoint) : TDoublePoint', cdStdCall);
-
-      RegisterMethod('function TilesAtZoom(AZoom: byte): Longint', cdStdCall);
-      RegisterMethod('function PixelsAtZoom(AZoom: byte): Longint', cdStdCall);
-
-      RegisterMethod('function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint', cdStdCall);
-      RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
-    end;
-    T := Sender.FindType('ICoordConverter');
-    Sender.AddUsedVariable('Converter', t);
-
-    T := Sender.FindType('string');
-    Sender.AddUsedVariable('ResultURL', t);
-    Sender.AddUsedVariable('GetURLBase', t);
-    Sender.AddUsedVariable('RequestHead', t);
-    Sender.AddUsedVariable('ResponseHead', t);
-    Sender.AddUsedVariable('ScriptBuffer', t);
-    Sender.AddUsedVariable('Version', t);
-    Sender.AddUsedVariable('Lang', t);
-    T := Sender.FindType('integer');
-    Sender.AddUsedVariable('GetX', t);
-    Sender.AddUsedVariable('GetY', t);
-    Sender.AddUsedVariable('GetZ', t);
-    T := Sender.FindType('Double');
-    Sender.AddUsedVariable('GetLlon', t);
-    Sender.AddUsedVariable('GetTLat', t);
-    Sender.AddUsedVariable('GetBLat', t);
-    Sender.AddUsedVariable('GetRLon', t);
-    Sender.AddUsedVariable('GetLMetr', t);
-    Sender.AddUsedVariable('GetRMetr', t);
-    Sender.AddUsedVariable('GetTMetr', t);
-    Sender.AddUsedVariable('GetBMetr', t);
-    Sender.AddDelphiFunction('function Random(x:integer):integer');
-    Sender.AddDelphiFunction('function GetUnixTime:int64');
-    Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): string');
-    Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
-    Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): string');
-    Sender.AddDelphiFunction('function Length(Str: string): integer');
-    Sender.AddDelphiFunction('function GetAfter(SubStr, Str: string): string');
-    Sender.AddDelphiFunction('function GetBefore(SubStr, Str: string): string');
-    Sender.AddDelphiFunction('function GetBetween(Str, After, Before: string): string');
-    Sender.AddDelphiFunction('function SubStrPos(const Str, SubStr: String; FromPos: integer): integer');
-    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: string; AMatchID: Integer): string');
-    Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: string): string');
-    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: string): string');
-    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: string): string');
-    Sender.AddDelphiFunction('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal');
-    Result := True;
-  end else begin
-    Result := False;
-  end;
-end;
-
-procedure TTileDownloadRequestBuilderFactoryPascalScript.PreparePascalScript(
-  APascalScript: string);
-var
-  i: integer;
-  VCompilerMsg: string;
-  VCompiler: TPSPascalCompiler;
-begin
-  VCompiler := TPSPascalCompiler.Create;
-  try
-    VCompiler.OnExternalProc := DllExternalProc;
-    VCompiler.OnUses := ScriptOnUses;
-    if not VCompiler.Compile(APascalScript) then
-    begin
-      VCompilerMsg := '';
-      for i := 0 to VCompiler.MsgCount - 1 do
-        VCompilerMsg := VCompilerMsg + VCompiler.Msg[i].MessageToString + #13#10;
-      raise EPascalScriptCompileError.CreateFmt(SAS_ERR_UrlScriptCompileError, [VCompilerMsg]);
-    end;
-    VCompiler.GetOutput(FCompiledData);
-  finally
-    VCompiler.Free;
   end;
 end;
 

@@ -21,10 +21,11 @@ uses
   i_DownloadInfoSimple,
   i_MapTypes,
   u_MapType,
+  u_BaseTileDownloaderThread,
   u_OperationNotifier;
 
 type
-  TThreadDownloadTiles = class(TThread)
+  TThreadDownloadTiles = class(TBaseTileDownloaderThread)
   private
     FAppClosingNotifier: IJclNotifier;
     FMapType: TMapType;
@@ -47,7 +48,7 @@ type
     FStartTime: TDateTime;
 
     FLog: ILogSimple;
-    FDownloadPause: Boolean;
+    //FDownloadPause: Boolean;
     FFinished: Boolean;
     FZoom: Byte;
     FGotoNextTile: Boolean;
@@ -505,7 +506,7 @@ begin
     ASLSSection.WriteFloat('LLPointY_'+inttostr(i), VPoint.y);
     Inc(i);
   end;
-  if (FDownloadPause) then begin
+  if (FPausedByUser) then begin
     VElapsedTime := FElapsedTime;
   end else begin
     VElapsedTime := FElapsedTime + (Now - FStartTime);
@@ -558,10 +559,10 @@ begin
         FGoToNextTile := false;
         while not FGoToNextTile do begin
           FFinishEvent.ResetEvent;
-          if (FDownloadPause) then begin
+          if (FPausedByUser) then begin
             FElapsedTime := FElapsedTime + (Now - FStartTime);
             FLog.WriteText(FRES_UserStop, 10);
-            While (FDownloadPause)and (not Terminated) do SleepCancelable(FPausedSleepTime);
+            While (FPausedByUser)and (not Terminated) do SleepCancelable(FPausedSleepTime);
             FStartTime := now;
           end;
 
@@ -640,12 +641,12 @@ end;
 
 procedure TThreadDownloadTiles.DownloadPause;
 begin
-  FDownloadPause := True;
+  FPausedByUser := True;
 end;
 
 procedure TThreadDownloadTiles.DownloadResume;
 begin
-  FDownloadPause := False;
+  FPausedByUser := False;
 end;
 
 function TThreadDownloadTiles.GetDownloaded: Int64;
@@ -660,7 +661,7 @@ end;
 
 function TThreadDownloadTiles.GetElapsedTime: TDateTime;
 begin
-  if FFinished or FDownloadPause then begin
+  if FFinished or FPausedByUser then begin
     Result := FElapsedTime;
   end else begin
     Result := FElapsedTime + (Now - FStartTime);

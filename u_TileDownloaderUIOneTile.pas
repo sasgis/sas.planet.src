@@ -33,10 +33,11 @@ uses
   i_OperationNotifier,
   i_DownloadInfoSimple,
   u_OperationNotifier,
+  u_BaseTileDownloaderThread,
   u_MapType;
 
 type
-  TTileDownloaderUIOneTile = class(TThread)
+  TTileDownloaderUIOneTile = class(TBaseTileDownloaderThread)
   private
     FAppClosingNotifier: IJclNotifier;
     FErrorLogger: ITileErrorLogger;
@@ -91,6 +92,7 @@ var
   VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(False);
+  FPausedByUser := FALSE;
   FDownloadInfo := ADownloadInfo;
   FErrorLogger := AErrorLogger;
   FAppClosingNotifier := AAppClosingNotifier;
