@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -32,6 +32,7 @@ uses
   i_TilePostDownloadCropConfig,
   i_SimpleTileStorageConfig,
   i_MapAbilitiesConfig,
+  i_MapAttachmentsInfo,
   i_StringByLanguage,
   i_MapVersionInfo,
   i_TileDownloadRequestBuilderConfig;
@@ -107,6 +108,9 @@ type
 
     function GetDataProvider: IConfigDataProvider;
     property DataProvider: IConfigDataProvider read GetDataProvider;
+
+    function GetMapAttachmentsInfo: IMapAttachmentsInfo;
+    property MapAttachmentsInfo: IMapAttachmentsInfo read GetMapAttachmentsInfo;
   end;
 
 implementation

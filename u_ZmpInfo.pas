@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -38,6 +38,7 @@ uses
   i_StringByLanguage,
   i_CoordConverterFactory,
   i_MapAbilitiesConfig,
+  i_MapAttachmentsInfo,
   i_SimpleTileStorageConfig,
   i_ZmpConfig,
   i_ZmpInfo;
@@ -113,6 +114,7 @@ type
     FViewGeoConvert: ICoordConverter;
     FGUI: IZmpInfoGUI;
     FAbilities: IMapAbilitiesConfigStatic;
+    FMapAttachmentsInfo: IMapAttachmentsInfo;
     FStorageConfig: ISimpleTileStorageConfigStatic;
 
     FZmpConfig: IZmpConfig;
@@ -121,13 +123,15 @@ type
     FConfigIniParams: IConfigDataProvider;
   private
     procedure LoadConfig(
-      ACoordConverterFactory: ICoordConverterFactory
+      ACoordConverterFactory: ICoordConverterFactory;
+      ALanguageManager: ILanguageManager
     );
     procedure LoadCropConfig(AConfig : IConfigDataProvider);
     procedure LoadAbilities(AConfig : IConfigDataProvider);
     procedure LoadStorageConfig(AConfig : IConfigDataProvider);
     function LoadGUID(AConfig : IConfigDataProvider): TGUID;
     procedure LoadVersion(AConfig : IConfigDataProvider);
+    procedure LoadAttachmentsInfo(AConfig: IConfigDataProvider; ALanguageManager: ILanguageManager);
     procedure LoadProjectionInfo(
       AConfig : IConfigDataProvider;
       ACoordConverterFactory: ICoordConverterFactory
@@ -138,6 +142,7 @@ type
     );
     procedure LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
   protected
+    { IZmpInfo }
     function GetGUID: TGUID;
     function GetGUI: IZmpInfoGUI;
     function GetFileName: string;
@@ -151,6 +156,7 @@ type
     function GetAbilities: IMapAbilitiesConfigStatic;
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
     function GetDataProvider: IConfigDataProvider;
+    function GetMapAttachmentsInfo: IMapAttachmentsInfo;
   public
     constructor Create(
       AZmpConfig: IZmpConfig;
@@ -180,8 +186,50 @@ uses
   u_MapAbilitiesConfigStatic,
   u_SimpleTileStorageConfigStatic,
   u_MapVersionInfo,
+  u_MapAttachmentsInfo,
   u_ResStrings;
 
+// common subroutine
+function InternalMakeStringListByLanguage(ALangList: ILanguageListStatic;
+                                          AConfig: IConfigDataProvider;
+                                          const AParamName: String;
+                                          const ADefValue: String): TStringList;
+var
+  VDefValue: string;
+  i: Integer;
+  VLanguageCode: string;
+  VValue: string;
+begin
+  VDefValue := AConfig.ReadString(AParamName, ADefValue);
+  Result := TStringList.Create;
+  try
+    for i := 0 to ALangList.Count - 1 do begin
+      VValue := VDefValue;
+      VLanguageCode := ALangList.Code[i];
+      VValue := AConfig.ReadString(AParamName+'_' + VLanguageCode, VDefValue);
+      Result.Add(VValue);
+    end;
+  except
+    FreeAndNil(Result);
+    raise;
+  end;
+end;
+
+function InternalMakeStringByLanguage(ALangList: ILanguageListStatic;
+                                      AConfig: IConfigDataProvider;
+                                      const AParamName: String;
+                                      const ADefValue: String): TStringByLanguageWithStaticList;
+var
+  VValueList: TStringList;
+begin
+  VValueList := InternalMakeStringListByLanguage(ALangList, AConfig, AParamName, ADefValue);
+  try
+    Result := TStringByLanguageWithStaticList.Create(VValueList);
+  finally
+    VValueList.Free;
+  end;
+end;
+  
 { TZmpInfoGUI }
 
 constructor TZmpInfoGUI.Create(
@@ -375,42 +423,10 @@ procedure TZmpInfoGUI.LoadUIParams(
   AConfig: IConfigDataProvider;
   Apnum: Integer
 );
-var
-  VDefValue: string;
-  i: Integer;
-  VLanguageCode: string;
-  VValueList: TStringList;
-  VValue: string;
 begin
-  VDefValue := 'map#'+inttostr(Apnum);
-  VDefValue := AConfig.ReadString('name', VDefValue);
-  VValueList := TStringList.Create;
-  try
-    for i := 0 to ALangList.Count - 1 do begin
-      VValue := VDefValue;
-      VLanguageCode := ALangList.Code[i];
-      VValue := AConfig.ReadString('name_' + VLanguageCode, VDefValue);
-      VValueList.Add(VValue);
-    end;
-    FName := TStringByLanguageWithStaticList.Create(VValueList);
-  finally
-    VValueList.Free;
-  end;
-
-  VDefValue := '';
-  VDefValue := AConfig.ReadString('ParentSubMenu', VDefValue);
-  VValueList := TStringList.Create;
-  try
-    for i := 0 to ALangList.Count - 1 do begin
-      VValue := VDefValue;
-      VLanguageCode := ALangList.Code[i];
-      VValue := AConfig.ReadString('ParentSubMenu_' + VLanguageCode, VDefValue);
-      VValueList.Add(VValue);
-    end;
-    FParentSubMenu := TStringByLanguageWithStaticList.Create(VValueList);
-  finally
-    VValueList.Free;
-  end;
+  // multilanguage params
+  FName := InternalMakeStringByLanguage(ALangList, AConfig, 'name', 'map#'+inttostr(Apnum));
+  FParentSubMenu := InternalMakeStringByLanguage(ALangList, AConfig, 'ParentSubMenu', '');
 
   FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
   FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
@@ -441,7 +457,7 @@ begin
   if FConfigIniParams = nil then begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
-  LoadConfig(ACoordConverterFactory);
+  LoadConfig(ACoordConverterFactory, ALanguageManager);
   FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
 end;
 
@@ -478,6 +494,11 @@ end;
 function TZmpInfo.GetGUID: TGUID;
 begin
   Result := FGUID;
+end;
+
+function TZmpInfo.GetMapAttachmentsInfo: IMapAttachmentsInfo;
+begin
+  Result := FMapAttachmentsInfo;
 end;
 
 function TZmpInfo.GetStorageConfig: ISimpleTileStorageConfigStatic;
@@ -534,7 +555,91 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory);
+procedure TZmpInfo.LoadAttachmentsInfo(AConfig: IConfigDataProvider;
+                                       ALanguageManager: ILanguageManager);
+var
+  VParams: IConfigDataProvider;
+  VGUID: TGUID;
+  VSL_Names: TStringList;
+  i,VMaxSubIndex: Integer;
+  VParseNumberAfter: String;
+  VSL_NameInCache, VSL_Ext, VSL_DefUrlBase, VSL_ContentType: TStringList;
+  VStrVal,VNameInCacheDefault: String;
+  VEnabled, VUseDwn, VUseDel: Boolean;
+begin
+  // params in special section
+  VParams := AConfig.GetSubItem('AttachmentsInfo');
+
+  if not Assigned(VParams) then begin
+    FMapAttachmentsInfo:=nil;
+    Exit;
+  end;
+  
+  // gui params
+  VGUID := LoadGUID(VParams);
+  VSL_Names := InternalMakeStringListByLanguage(ALanguageManager.LanguageList, VParams, 'name', '');
+
+  // count of sub-items for single attachment
+  VMaxSubIndex := VParams.ReadInteger('MaxSubIndex',0);
+  VParseNumberAfter := VParams.ReadString('ParseNumberAfter','');
+  VUseDwn := VParams.ReadBool('UseDwn',FALSE);
+  VUseDel := VParams.ReadBool('UseDel',FALSE);
+
+  // noway
+  VSL_NameInCache:=nil;
+  VSL_Ext:=nil;
+  VSL_DefUrlBase:=nil;
+  VSL_ContentType:=nil;
+
+  if (VMaxSubIndex>=0) and (System.Length(VParseNumberAfter)>0) then begin
+    // make containers and obtain default values
+    VSL_NameInCache := TStringList.Create;
+    VNameInCacheDefault := VParams.ReadString('NameInCache', '');
+    if (System.Length(VNameInCacheDefault)>0) then
+      VNameInCacheDefault:=ExpandFileName(VNameInCacheDefault);
+    VSL_NameInCache.AddObject(VNameInCacheDefault, TObject(Pointer(Ord(VParams.ReadBool('Enabled',FALSE)))));
+
+    VSL_Ext := TStringList.Create;
+    VSL_Ext.Add(LowerCase(VParams.ReadString('Ext', '')));
+
+    VSL_DefUrlBase := TStringList.Create;
+    VSL_DefUrlBase.Add(VParams.ReadString('DefUrlBase', ''));
+
+    VSL_ContentType := TStringList.Create;
+    VSL_ContentType.Add(VParams.ReadString('ContentType', ''));
+
+    // other values (by index)
+    if VMaxSubIndex>0 then
+    for i := 1 to VMaxSubIndex do begin
+      VStrVal := ExpandFileName(VParams.ReadString('NameInCache'+IntToStr(i), VNameInCacheDefault));
+      VEnabled := VParams.ReadBool('Enabled'+IntToStr(i),(VSL_NameInCache.Objects[0]<>nil));
+      VSL_NameInCache.AddObject(VStrVal, TObject(Pointer(Ord(VEnabled))));
+
+      VStrVal := LowerCase(VParams.ReadString('Ext'+IntToStr(i), VSL_Ext[0]));
+      VSL_Ext.Add(VStrVal);
+
+      VStrVal := VParams.ReadString('DefUrlBase'+IntToStr(i), VSL_DefUrlBase[0]);
+      VSL_DefUrlBase.Add(VStrVal);
+
+      VStrVal := VParams.ReadString('ContentType'+IntToStr(i), VSL_ContentType[0]);
+      VSL_ContentType.Add(VStrVal);
+    end;
+  end;
+
+  // make object (VSL_* will be destroyed in object's destructor)
+  FMapAttachmentsInfo := TMapAttachmentsInfo.Create(VGUID,
+                                                    VMaxSubIndex,
+                                                    VParseNumberAfter,
+                                                    VSL_NameInCache,
+                                                    VSL_Ext,
+                                                    VSL_Names,
+                                                    VSL_DefUrlBase,
+                                                    VSL_ContentType,
+                                                    VUseDwn, VUseDel);
+end;
+
+procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory;
+                              ALanguageManager: ILanguageManager);
 begin
   FGUID := LoadGUID(FConfigIniParams);
   LoadVersion(FConfigIniParams);
@@ -544,6 +649,7 @@ begin
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
+  LoadAttachmentsInfo(FConfigIni,ALanguageManager);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
