@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -136,6 +136,11 @@ ResourceString
   SAS_STR_LoadProcess = 'Downloading';
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
   SAS_STR_ProcessedFile = 'Processing tile: %0:s ...';
+  SAS_STR_LoadAttachmentsBegin = 'Downloading attachments...';
+  SAS_STR_LoadAttachmentsEnd_Skipped = 'Skipped';
+  SAS_STR_LoadAttachmentsEnd_Failed = 'Failed';
+  SAS_STR_LoadAttachmentsEnd_Cancelled = 'Cancelled';
+  SAS_STR_LoadAttachmentsEnd_Nothing = 'No attachments';
   SAS_STR_Wite = 'Wait';
   SAS_STR_S = 'Area';
   SAS_STR_L = 'Length';
