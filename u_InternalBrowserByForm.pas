@@ -6,6 +6,7 @@ uses
   i_ProxySettings,
   i_InternalBrowser,
   i_LanguageManager,
+  i_MapAttachmentsInfo,
   frm_IntrnalBrowser;
 
 type
@@ -14,9 +15,14 @@ type
     FLanguageManager: ILanguageManager;
     FProxyConfig: IProxyConfig;
     FfrmInternalBrowser: TfrmIntrnalBrowser;
+  private
+    procedure SafeCreateInternal;
   protected
-    procedure ShowMessage(ACaption, AText: string);
-    procedure Navigate(ACaption, AUrl: string);
+    { IInternalBrowser }
+    procedure ShowMessage(const ACaption, AText: string);
+    procedure Navigate(const ACaption, AUrl: string);
+    procedure ShowHTMLDescrWithParser(const ACaption, AText: string;
+                                      const AParserProc: TMapAttachmentsInfoParserProc);
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
@@ -49,20 +55,30 @@ begin
   inherited;
 end;
 
-procedure TInternalBrowserByForm.Navigate(ACaption, AUrl: string);
+procedure TInternalBrowserByForm.Navigate(const ACaption, AUrl: string);
 begin
-  if FfrmInternalBrowser = nil then begin
-    FfrmInternalBrowser := TfrmIntrnalBrowser.Create(FLanguageManager, FProxyConfig);
-  end;
+  SafeCreateInternal;
   FfrmInternalBrowser.Navigate(ACaption, AUrl);
 end;
 
-procedure TInternalBrowserByForm.ShowMessage(ACaption, AText: string);
+procedure TInternalBrowserByForm.SafeCreateInternal;
 begin
   if FfrmInternalBrowser = nil then begin
     FfrmInternalBrowser := TfrmIntrnalBrowser.Create(FLanguageManager, FProxyConfig);
   end;
-  FfrmInternalBrowser.showmessage(ACaption, AText);
+end;
+
+procedure TInternalBrowserByForm.ShowHTMLDescrWithParser(const ACaption, AText: string;
+                                                         const AParserProc: TMapAttachmentsInfoParserProc);
+begin
+  SafeCreateInternal;
+  FfrmInternalBrowser.ShowHTMLDescrWithParser(ACaption, AText, AParserProc);
+end;
+
+procedure TInternalBrowserByForm.ShowMessage(const ACaption, AText: string);
+begin
+  SafeCreateInternal;
+  FfrmInternalBrowser.ShowHTMLDescrWithParser(ACaption, AText, nil);
 end;
 
 end.

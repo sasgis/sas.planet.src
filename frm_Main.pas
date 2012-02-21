@@ -698,6 +698,7 @@ uses
   i_ValueToStringConverter,
   i_GUIDListStatic,
   i_ActiveMapsConfig,
+  i_MapAttachmentsInfo,
   i_LanguageManager,
   i_VectorDataItemSimple,
   i_SensorViewListGenerator,
@@ -3942,7 +3943,6 @@ procedure TfrmMain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
   VPWL:TResObj;
-  stw:String;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
@@ -3962,6 +3962,24 @@ var
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
   VPrevTick, VCurrTick, VFr: int64;
+  VWikiLayerGUID: TGUID;
+
+  procedure _ShowInternalBrowser;
+  var
+    Vdescr: String;
+    VMapType: IMapType;
+    VDescrParserProc: TMapAttachmentsInfoParserProc;
+  begin
+    VDescrParserProc := nil;
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VWikiLayerGUID);
+    if Assigned(VMapType) then
+    if Assigned(VMapType.MapType) then
+    if Assigned(VMapType.MapType.Zmp.MapAttachmentsInfo) then
+      VDescrParserProc := VMapType.MapType.MapAttachmentsInfoParser ; // only for maps with attachments
+    // show
+    Vdescr:=VPWL.descr;
+    GState.InternalBrowser.ShowHTMLDescrWithParser(VPWL.name, Vdescr, VDescrParserProc);
+  end;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -4070,8 +4088,10 @@ begin
       VPWL.descr := '';
       VPWL.S := 0;
 
+      VWikiLayerGUID:=GUID_NULL;
+
       VWikiItem := nil;
-      FWikiLayer.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
+      FWikiLayer.MouseOnRegWithGUID(Point(x,y), VWikiItem, VMarkS, VWikiLayerGUID);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
@@ -4092,6 +4112,7 @@ begin
       if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
         FLayerMapMarks.MouseOnReg(Point(x,y), VMark, VMarkS);
       end;
+
       if VMark <> nil then begin
         if (not VPWL.find) or (not Supports(VMark, IMarkPoly)) or (VPWL.S >= VMarkS) then begin
           VPWL.find := True;
@@ -4100,10 +4121,10 @@ begin
           VPWL.S := VMarkS;
         end;
       end;
+
       if VPWL.find  then begin
         if VPWL.descr <> '' then begin
-          stw:=VPWL.descr;
-          GState.InternalBrowser.showmessage(VPWL.name,stw);
+          _ShowInternalBrowser;
         end;
       end;
     end;

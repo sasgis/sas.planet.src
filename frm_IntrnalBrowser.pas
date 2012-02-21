@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  Messages,
   Forms,
   Classes,
   Controls,
@@ -33,8 +34,13 @@ uses
   EmbeddedWB,
   SHDocVw_EWB,
   u_CommonFormAndFrameParents,
+  u_BaseTileDownloaderThread,
+  i_MapAttachmentsInfo,
   i_LanguageManager,
   i_ProxySettings;
+
+const
+  WM_PARSER_THREAD_FINISHED = WM_USER + $200;
 
 type
   TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
@@ -47,21 +53,42 @@ type
       ScanCode: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
   private
+    FParserThread: TBaseTileDownloaderThread;
+    procedure KillParserThread;
+    procedure WMPARSER_THREAD_FINISHED(var m: TMessage); message WM_PARSER_THREAD_FINISHED;
+  private
     FProxyConfig: IProxyConfig;
     procedure SetGoodCaption(const ACaption: String);
   public
     constructor Create(ALanguageManager: ILanguageManager; AProxyConfig: IProxyConfig); reintroduce;
-    procedure showmessage(ACaption, AText: string);
-    procedure Navigate(ACaption, AUrl: string);
+
+    procedure showmessage(const ACaption, AText: string);
+    procedure Navigate(const ACaption, AUrl: string);
+
+    procedure ShowHTMLDescrWithParser(const ACaption, AText: string;
+                                      const AParserProc: TMapAttachmentsInfoParserProc);
   end;
 
 implementation
 
 uses
+  u_HtmlToHintTextConverterStuped,
   u_ResStrings;
 
 {$R *.dfm}
 
+type
+  TMapAttachmentsInfoParserThread = class(TBaseTileDownloaderThread)
+  private
+    FParserSourceText: String;
+    FParserProc: TMapAttachmentsInfoParserProc;
+    FForm: TfrmIntrnalBrowser;
+  protected
+    procedure Execute; override;
+  end;
+
+{ TfrmIntrnalBrowser }
+ 
 constructor TfrmIntrnalBrowser.Create(ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig);
 begin
@@ -85,6 +112,7 @@ end;
 procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   EmbeddedWB1.Stop;
+  KillParserThread;
 end;
 
 procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
@@ -92,7 +120,15 @@ begin
   EmbeddedWB1.Navigate('about:blank');
 end;
 
-procedure TfrmIntrnalBrowser.Navigate(ACaption, AUrl: string);
+procedure TfrmIntrnalBrowser.KillParserThread;
+begin
+  if (FParserThread<>nil) then begin
+    FParserThread.Terminate;
+    FreeAndNil(FParserThread);
+  end;
+end;
+
+procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
 begin
   EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
@@ -101,11 +137,67 @@ begin
 end;
 
 procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
+var VCaption: String;
 begin
-  Caption:=StringReplace(StringReplace(ACaption,'&quot;','"',[rfReplaceAll,rfIgnoreCase]),#13#10,', ',[rfReplaceAll]);
+  VCaption := StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
+  Caption := StupedHtmlToTextConverter(VCaption);
 end;
 
-procedure TfrmIntrnalBrowser.showmessage(ACaption,AText: string);
+procedure TfrmIntrnalBrowser.ShowHTMLDescrWithParser(const ACaption, AText: string;
+                                                     const AParserProc: TMapAttachmentsInfoParserProc);
+var
+  VText: String;
+  VOnlyCheckAllowRunImmediately: Boolean;
+  VError: Boolean;
+begin
+  // kill prev call
+  KillParserThread;
+
+  EmbeddedWB1.GoAboutBlank;
+  Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
+
+  VError:=FALSE;
+  
+  if Assigned(AParserProc) then begin
+    // if in cache - show immediately
+    VOnlyCheckAllowRunImmediately := TRUE;
+    try
+      VText := AText;
+      AParserProc(Self, VText, VOnlyCheckAllowRunImmediately);
+      if (not VOnlyCheckAllowRunImmediately) then begin
+        // cannot wait for download - show stub
+        VText := SAS_STR_WiteLoad;
+      end;
+    except
+      // on except
+      on E: Exception do begin
+        VText := E.ClassName + ': ' + E.Message;
+        VError := TRUE;
+      end;
+    end;
+  end else
+    VText := AText;
+
+  EmbeddedWB1.HTMLCode.Text := VText;
+  Application.ProcessMessages;
+  SetGoodCaption(ACaption);
+  Self.Show;
+
+  // parse after show in thread
+  if (not VError) then
+  if Assigned(AParserProc) then begin
+    FParserThread := TMapAttachmentsInfoParserThread.Create(TRUE);
+    with TMapAttachmentsInfoParserThread(FParserThread) do begin
+      FParserSourceText := AText;
+      FParserProc := AParserProc;
+      FForm := Self;
+    end;
+    FParserThread.FreeOnTerminate:=FALSE;
+    FParserThread.Resume;
+  end;
+end;
+
+procedure TfrmIntrnalBrowser.showmessage(const ACaption,AText: string);
 begin
   EmbeddedWB1.GoAboutBlank;
   Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
@@ -114,12 +206,44 @@ begin
   show;
 end;
 
+procedure TfrmIntrnalBrowser.WMPARSER_THREAD_FINISHED(var m: TMessage);
+begin
+ if (FParserThread<>nil) then begin
+    if (not FParserThread.Terminated) then
+      EmbeddedWB1.HTMLCode.Text := TMapAttachmentsInfoParserThread(FParserThread).FParserSourceText;
+    KillParserThread;
+  end;
+end;
+
 procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
   ScanCode: Word; Shift: TShiftState);
 begin
   if Key = VK_ESCAPE then begin
     close;
   end;
+end;
+
+{ TMapAttachmentsInfoParserThread }
+
+procedure TMapAttachmentsInfoParserThread.Execute;
+var VOnlyCheckAllowRunImmediately: Boolean;
+begin
+  //inherited;
+
+  // download and parse
+  if (Self<>nil) and (not Self.Terminated) then
+  try
+    // full download
+    VOnlyCheckAllowRunImmediately := FALSE;
+    FParserProc(Self, FParserSourceText, VOnlyCheckAllowRunImmediately);
+  except
+    on E: Exception do
+      FParserSourceText := E.Classname + ': ' + E.Message;
+  end;
+
+  // notify form (show page)
+  if (Self<>nil) and (not Self.Terminated) then
+    PostMessage(FForm.Handle, WM_PARSER_THREAD_FINISHED, 0, 0);
 end;
 
 end.
