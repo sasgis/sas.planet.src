@@ -1,8 +1,29 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ProviderTilesDownload;
 
 interface
 
 uses
+  Windows, // for inline AnsiSameText
   Controls,
   i_JclNotify,
   i_MapTypes,
@@ -194,8 +215,10 @@ var
   VThreadLog: ILogForTaskThread;
   VThread: TThreadDownloadTiles;
   VProjectedPolygon: IProjectedPolygon;
+  VForAttachments: Boolean;
 begin
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  VForAttachments:=(not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex],VMapType.GUIConfig.Name.Value));
   VZoom := FFrame.cbbZoom.ItemIndex;
 
   VProjectedPolygon :=
@@ -222,7 +245,8 @@ begin
     FFrame.chkTryLoadIfTNE.Checked,
     VZoom,
     VMapType,
-    FFrame.dtpReplaceOlderDate.DateTime
+    FFrame.dtpReplaceOlderDate.DateTime,
+    VForAttachments
   );
   TfrmProgressDownload.Create(
     Self.LanguageManager,

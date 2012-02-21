@@ -18,6 +18,7 @@ uses
   i_VectorItmesFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_MapAttachmentsInfo,
   u_CommonFormAndFrameParents;
 
 type
@@ -161,6 +162,8 @@ var
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
+  VMapAttachmentsInfo: IMapAttachmentsInfo;
+  VMapAttachmentsName: String;
 begin
   FPolygLL := APolygLL;
   cbbZoom.Items.Clear;
@@ -177,8 +180,19 @@ begin
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.TileDownloadSubsystem.State.GetStatic.Enabled)and(VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
+
+      // select current map by default
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
+      end;
+
+      // check attachments for map (with another name!)
+      VMapAttachmentsInfo:=VMapType.Zmp.MapAttachmentsInfo;
+      if Assigned(VMapAttachmentsInfo) then
+      if VMapAttachmentsInfo.GetUseDwn then begin // no direct downloading by default
+        VMapAttachmentsName := VMapAttachmentsInfo.GetString(VMapType.GetLanguageManager.CurrentLanguageIndex);
+        if (not AnsiSameText(VMapType.GUIConfig.Name.Value, VMapAttachmentsName)) then
+          cbbMap.Items.AddObject(VMapAttachmentsName, VMapType);
       end;
     end;
   end;

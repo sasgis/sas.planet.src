@@ -1,8 +1,29 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit fr_TilesDelete;
 
 interface
 
 uses
+  Windows, // for inline AnsiSameText
   SysUtils,
   Classes,
   Controls,
@@ -13,6 +34,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_MapAttachmentsInfo,
   u_CommonFormAndFrameParents;
 
 type
@@ -72,6 +94,8 @@ var
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
+  VMapAttachmentsInfo: IMapAttachmentsInfo;
+  VMapAttachmentsName: String;
 begin
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
@@ -87,8 +111,19 @@ begin
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     if (VMapType.StorageConfig.AllowDelete)and(VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
+
+      // select current map by default
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
+      end;
+
+      // check attachments for map (with another name!)
+      VMapAttachmentsInfo:=VMapType.Zmp.MapAttachmentsInfo;
+      if Assigned(VMapAttachmentsInfo) then
+      if VMapAttachmentsInfo.GetUseDel then begin // no direct deleting by default
+        VMapAttachmentsName := VMapAttachmentsInfo.GetString(VMapType.GetLanguageManager.CurrentLanguageIndex);
+        if (not AnsiSameText(VMapType.GUIConfig.Name.Value, VMapAttachmentsName)) then
+          cbbMap.Items.AddObject(VMapAttachmentsName, VMapType);
       end;
     end;
   end;

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ThreadDeleteTiles;
 
 interface
@@ -22,6 +42,7 @@ type
     FPolyProjected: IProjectedPolygon;
     DelBytes: boolean;
     DelBytesNum: integer;
+    FForAttachments: Boolean;
   protected
     procedure ProcessRegion; override;
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess, ADeleted: Int64);
@@ -35,7 +56,8 @@ type
       Azoom: byte;
       Atypemap: TMapType;
       ADelByte: boolean;
-      ADelBytesNum: integer
+      ADelBytesNum: integer;
+      AForAttachments: Boolean
     );
   end;
 
@@ -54,7 +76,8 @@ constructor TThreadDeleteTiles.Create(
   Azoom: byte;
   Atypemap: TMapType;
   ADelByte: boolean;
-  ADelBytesNum: integer
+  ADelBytesNum: integer;
+  AForAttachments: Boolean
 );
 begin
   inherited Create(
@@ -68,6 +91,7 @@ begin
   FMapType := Atypemap;
   DelBytes := ADelByte;
   DelBytesNum := ADelBytesNum;
+  FForAttachments := AForAttachments;
 end;
 
 procedure TThreadDeleteTiles.ProcessRegion;
@@ -87,12 +111,19 @@ begin
     VTilesProcessed := 0;
     VDeletedCount := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
+
+    // foreach selected tile
     while VTileIterator.Next(VTile) do begin
       if CancelNotifier.IsOperationCanceled(OperationID) then begin
         exit;
       end;
-      if (not DelBytes or (DelBytesNum = FMapType.TileSize(VTile, FZoom))) then begin
-        if FMapType.DeleteTile(VTile, FZoom) then begin
+      // try to delete
+      if (FForAttachments or (not DelBytes) or (DelBytesNum = FMapType.TileSize(VTile, FZoom))) then begin
+        // for attachments - may delete many files
+        if FForAttachments then
+          VDeletedCount := VDeletedCount + FMapType.DeleteAttachments(VTile, FZoom, DelBytes, DelBytesNum)
+        else if FMapType.DeleteTile(VTile, FZoom) then begin
+          // for map - delete single file
           inc(VDeletedCount);
         end;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);

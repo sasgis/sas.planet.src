@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ThreadDownloadTiles;
 
 interface
@@ -56,11 +76,18 @@ type
     FBanSleepTime: Cardinal;
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
+    FForAttachments: Boolean;
 
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
     FRES_LoadProcessRepl: string;
     FRES_LoadProcess: string;
+    FRES_LoadAttachmentsBegin: string;
+    FRES_LoadAttachmentsEnd_Downloaded: string;
+    FRES_LoadAttachmentsEnd_Skipped: string;
+    FRES_LoadAttachmentsEnd_Failed: string;
+    FRES_LoadAttachmentsEnd_Cancelled: string;
+    FRES_LoadAttachmentsEnd_Nothing: string;
     FRES_FileBeCreateTime: string;
     FRES_FileBeCreateLen: string;
     FRES_Authorization: string;
@@ -108,9 +135,11 @@ type
       ASecondLoadTNE: Boolean;
       ALastProcessedPoint: TPoint;
       AProcessed: Int64;
-      AElapsedTime: TDateTime
+      AElapsedTime: TDateTime;
+      const AForAttachments: Boolean
     );
   protected
+    function Exec_Download_Attachments(const ATile: TPoint): Boolean;
     procedure Execute; override;
   public
     constructor Create(
@@ -126,7 +155,8 @@ type
       ASecondLoadTNE: boolean;
       AZoom: byte;
       Atypemap: TMapType;
-      AReplaceOlderDate: TDateTime
+      AReplaceOlderDate: TDateTime;
+      const AForAttachments: Boolean
     );
     constructor CreateFromSls(
       AAppClosingNotifier: IJclNotifier;
@@ -159,6 +189,7 @@ implementation
 uses
   SysUtils,
   Types,
+  t_MapAttachments,
   i_DownloadResult,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
@@ -184,7 +215,8 @@ constructor TThreadDownloadTiles.CreateInternal(
   AReplaceOlderDate: TDateTime; ASecondLoadTNE: Boolean;
   ALastProcessedPoint: TPoint;
   AProcessed: Int64;
-  AElapsedTime: TDateTime
+  AElapsedTime: TDateTime;
+  const AForAttachments: Boolean
 );
 var
   VOperationNotifier: TOperationNotifier;
@@ -207,6 +239,7 @@ begin
   Fzoom := AZoom;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
+  FForAttachments := AForAttachments;
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
@@ -285,7 +318,8 @@ constructor TThreadDownloadTiles.Create(
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
   Atypemap: TMapType;
-  AReplaceOlderDate: TDateTime
+  AReplaceOlderDate: TDateTime;
+  const AForAttachments: Boolean
 );
 begin
   CreateInternal(
@@ -304,7 +338,8 @@ begin
     ASecondLoadTNE,
     Point(-1,-1),
     0,
-    0
+    0,
+    AForAttachments
   );
 end;
 
@@ -447,7 +482,8 @@ begin
       VSecondLoadTNE,
       VLastProcessedPoint,
       VProcessed,
-      VElapsedTime
+      VElapsedTime,
+      FALSE
     );
   end;
 end;
@@ -566,9 +602,13 @@ begin
             FStartTime := now;
           end;
 
+          // notify about current tile
           FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, Fzoom)]), 0);
           VTileExists := FMapType.TileExists(VTile, Fzoom);
+
+          // for attachments need base tile - but even for existing tile some attachments may not exist
           if (FReplaceExistTiles) or not(VTileExists) then begin
+            // what to do
             if VTileExists then begin
               FLog.WriteText(FRES_LoadProcessRepl, 0);
             end else begin
@@ -578,18 +618,31 @@ begin
               and (VTileExists)
               and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then
             begin
-              FLog.WriteText(FRES_FileBeCreateTime, 0);
-              FLastSuccessfulPoint := VTile;
-              FLastProcessedPoint := VTile;
-              FGoToNextTile := True;
+              // skip existing newer tile (but download attachments)
+              if (FLog<>nil) then
+                FLog.WriteText(FRES_FileBeCreateTime, 0);
+              if (not FForAttachments) then begin
+                FLastSuccessfulPoint := VTile;
+                FLastProcessedPoint := VTile;
+                FGoToNextTile := True;
+              end else if Exec_Download_Attachments(VTile) then begin
+                FLastSuccessfulPoint := VTile;
+                FLastProcessedPoint := VTile;
+                FGoToNextTile := True;
+              end;
             end else begin
               try
-                if (not(FSecondLoadTNE))and(FMapType.TileNotExistsOnServer(VTile, Fzoom))and(FDownloadConfig.IsSaveTileNotExists) then begin
-                  FLog.WriteText('(tne exists)', 0);
+                if (not(FSecondLoadTNE)) and
+                   (FMapType.TileNotExistsOnServer(VTile, Fzoom)) and
+                   (FDownloadConfig.IsSaveTileNotExists) then begin
+                  // tne found - skip downloading tile
+                  if (FLog<>nil) then
+                    FLog.WriteText('(tne exists)', 0);
                   FLastProcessedPoint := VTile;
                   FLastSuccessfulPoint := VTile;
                   FGoToNextTile := True;
                 end else begin
+                  // download tile
                   VOperationID := FCancelNotifier.CurrentOperation;
                   VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
                   VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
@@ -616,7 +669,11 @@ begin
             end;
           end else begin
             FLog.WriteText(FRES_FileExistsShort, 0);
-            FGoToNextTile := True;
+            if (not FForAttachments) then begin
+              FGoToNextTile := True;
+            end else if Exec_Download_Attachments(VTile) then begin
+              FGotoNextTile := True;
+            end;
           end;
           if FGoToNextTile then begin
             inc(FProcessed);
@@ -636,6 +693,52 @@ begin
   if not Terminated then begin
     FLog.WriteText(FRES_ProcessFilesComplete, 0);
     FFinished := true;
+  end;
+end;
+
+function TThreadDownloadTiles.Exec_Download_Attachments(const ATile: TPoint): Boolean;
+var
+  VMapAttachmentsCounters: TMapAttachmentsCounters;
+  VAttachmentsResultInfo: String;
+
+  procedure _Add_Info_If_Positive(const APrefix: String; const AValue: UInt64);
+  begin
+    if (AValue>0) then begin
+      if (Length(VAttachmentsResultInfo)>0) then
+        VAttachmentsResultInfo := VAttachmentsResultInfo + ', ';
+      VAttachmentsResultInfo := VAttachmentsResultInfo + APrefix + ': ' + IntToStr(AValue);
+    end;
+  end;
+begin
+  Result := TRUE;
+  
+  if (not FForAttachments) then
+    Exit;
+
+  if (FLog<>nil) then
+    FLog.WriteText(FRES_LoadAttachmentsBegin, 0);
+  try
+    // if true - at least one attachment has been downloaded
+    if FMapType.DownloadAttachments(ATile, Fzoom, @VMapAttachmentsCounters, Self) then
+      FDownloadInfo.Add(0, VMapAttachmentsCounters.ac_Size);
+
+    // if any of attachment has been cancelled - don't step to the next tile
+    if (VMapAttachmentsCounters.ac_Cancelled>0) then
+      Result := FALSE;
+  finally
+    VAttachmentsResultInfo := '';
+
+    // add parts to info
+    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Downloaded, VMapAttachmentsCounters.ac_Downloaded);
+    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Skipped, VMapAttachmentsCounters.ac_Skipped);
+    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Failed, VMapAttachmentsCounters.ac_Failed);
+    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Cancelled, VMapAttachmentsCounters.ac_Cancelled);
+
+    if (0=Length(VAttachmentsResultInfo)) then
+      VAttachmentsResultInfo := FRES_LoadAttachmentsEnd_Nothing; // no attachments at all
+
+    if (FLog<>nil) then
+      FLog.WriteText(VAttachmentsResultInfo, 0);
   end;
 end;
 
@@ -690,6 +793,12 @@ begin
   FRES_ProcessedFile := SAS_STR_ProcessedFile;
   FRES_LoadProcessRepl := SAS_STR_LoadProcessRepl;
   FRES_LoadProcess := SAS_STR_LoadProcess;
+  FRES_LoadAttachmentsBegin := SAS_STR_LoadAttachmentsBegin;
+  FRES_LoadAttachmentsEnd_Downloaded := SAS_STR_load;
+  FRES_LoadAttachmentsEnd_Skipped := SAS_STR_LoadAttachmentsEnd_Skipped;
+  FRES_LoadAttachmentsEnd_Failed := SAS_STR_LoadAttachmentsEnd_Failed;
+  FRES_LoadAttachmentsEnd_Cancelled := SAS_STR_LoadAttachmentsEnd_Cancelled;
+  FRES_LoadAttachmentsEnd_Nothing := SAS_STR_LoadAttachmentsEnd_Nothing;
   FRES_FileBeCreateTime := SAS_MSG_FileBeCreateTime;
   FRES_FileBeCreateLen := SAS_MSG_FileBeCreateLen;
   FRES_Authorization := SAS_ERR_Authorization;
@@ -712,16 +821,36 @@ begin
   if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
     FFinishEvent.ResetEvent;
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VResultOk) then begin
-      FLastSuccessfulPoint := AResult.Request.Tile;
-      if FDownloadInfo <> nil then begin
-        FDownloadInfo.Add(1, VResultOk.Size);
+      // tile downloaded successfully (try to download attachments)
+      if (FLog<>nil) then
+        FLog.WriteText('(Ok!)', 0);
+      if (not FForAttachments) then begin
+        // common behaviour
+        FLastSuccessfulPoint := AResult.Request.Tile;
+        FGoToNextTile := True;
+        if FDownloadInfo <> nil then
+          FDownloadInfo.Add(1, VResultOk.Size);
+      end else if Exec_Download_Attachments(AResult.Request.Tile) then begin
+        // attachments downloaded
+        FLastSuccessfulPoint := AResult.Request.Tile;
+        FGoToNextTile := True;
+        if FDownloadInfo <> nil then
+          FDownloadInfo.Add(1, VResultOk.Size);
+      end else begin
+        // wait on current tile - just sum size
+        FDownloadInfo.Add(0, VResultOk.Size);
       end;
-      FGoToNextTile := True;
-      FLog.WriteText('(Ok!)', 0);
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
-      FLastSuccessfulPoint := AResult.Request.Tile;
-      FLog.WriteText(FRES_FileBeCreateLen, 0);
-      FGoToNextTile := True;
+      // same file size - assuming file the same (but download attachments)
+      if (FLog<>nil) then
+        FLog.WriteText(FRES_FileBeCreateLen, 0);
+      if (not FForAttachments) then begin
+        FLastSuccessfulPoint := AResult.Request.Tile;
+        FGoToNextTile := True;
+      end else if Exec_Download_Attachments(AResult.Request.Tile) then begin
+        FLastSuccessfulPoint := AResult.Request.Tile;
+        FGotoNextTile := True;
+      end;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
       FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
       SleepCancelable(FProxyAuthErrorSleepTime);
