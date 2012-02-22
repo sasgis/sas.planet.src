@@ -4153,6 +4153,24 @@ var
   VMarkPoint: IMarkPoint;
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
+
+  function _AllowShowHint: Boolean;
+  var
+    hf: HWND;
+    dwProcessId: DWORD;
+  begin
+    // do not capture focus on mouse hovering
+    hf:=GetForegroundWindow;
+    if (Self.HandleAllocated and (Self.Handle=hf)) then begin
+      // foreground
+      Result:=TRUE
+    end else begin
+      // we have foreground window
+      GetWindowThreadProcessId(hf,dwProcessId);
+      Result:=(dwProcessId=GetCurrentProcessId);
+    end;
+  end;
+  
 begin
   if ProgramClose then begin
     exit;
@@ -4203,7 +4221,8 @@ begin
       FSelectionRect.UnlockWrite;
     end;
   end;
- if FWinPosition.GetIsFullScreen then begin
+
+  if FWinPosition.GetIsFullScreen then begin
                        if VMousePos.y<10 then begin
                                      TBDock.Parent:=map;
                                      TBDock.Visible:=true;
@@ -4236,22 +4255,29 @@ begin
                                      TBDockRight.Visible:=false;
                                      TBDockRight.Parent:=Self;
                                     end;
- end;
- if FMapZoomAnimtion then exit;
- if FMapMoving then begin
+  end;
+
+  if FMapZoomAnimtion then exit;
+
+  if FMapMoving then begin
     VMouseDownPos := FMouseState.GetLastDownPos(FMapMovingButton);
     VMouseMoveDelta := Point(VMouseDownPos.X-VMousePos.X, VMouseDownPos.Y-VMousePos.Y);
     FConfig.ViewPortState.MoveTo(VMouseMoveDelta);
- end;
+  end;
 
- if (not FShowActivHint) then begin
-   if (FHintWindow<>nil) then begin
+  if (not FShowActivHint) then begin
+    if (FHintWindow<>nil) then begin
      FHintWindow.ReleaseHandle;
      FreeAndNil(FHintWindow);
     end;
- end;
- FShowActivHint:=false;
- if (not FMapMoveAnimtion)and(not FMapMoving)and((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y))and(FConfig.MainConfig.ShowHintOnMarks) then begin
+  end;
+  FShowActivHint:=false;
+  if (not FMapMoveAnimtion) and
+     (not FMapMoving) and
+     ((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y)) and
+     (FConfig.MainConfig.ShowHintOnMarks)and
+     _AllowShowHint then begin
+    // show hint
     VItemFound := False;
     VItemS := 0;
     VWikiItem := nil;
@@ -4279,7 +4305,8 @@ begin
         VItemHint := VMark.GetHintText;
       end;
     end;
-   if (VItemFound) then begin
+
+    if (VItemFound) then begin
      if map.Cursor = crDefault then begin
        map.Cursor := crHandPoint;
      end;
