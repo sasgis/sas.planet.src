@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -40,6 +40,10 @@ type
     function GetTilesOut: Integer;
     procedure SetTilesOut(const AValue: Integer);
     property TilesOut: Integer read GetTilesOut write SetTilesOut;
+
+    function GetMapUiRequestCount: Integer;
+    procedure SetMapUiRequestCount(const AValue: Integer);
+    property MapUiRequestCount: Integer read GetMapUiRequestCount write SetMapUiRequestCount;
   end;
 
 

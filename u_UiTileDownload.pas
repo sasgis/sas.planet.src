@@ -99,8 +99,6 @@ uses
   u_MapType,
   u_TileErrorInfo;
 
-const
-  CMaximumRequestCount = 32;
 { TUiTileDownload }
 
 constructor TUiTileDownload.Create(
@@ -127,9 +125,9 @@ begin
 
   FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
 
-  FRequestCount := 4;
+  FRequestCount := FConfig.MapUiRequestCount;
 
-  FSemaphore := CreateSemaphore(nil, FRequestCount, CMaximumRequestCount, nil);
+  FSemaphore := CreateSemaphore(nil, FRequestCount, FRequestCount, nil);
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
 

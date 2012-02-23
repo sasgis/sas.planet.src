@@ -35,6 +35,7 @@ type
     FUseDownload: TTileSource;
     FTilesOut: Integer;
     FTileMaxAgeInInternet: TDateTime;
+    FRequestCount: Integer;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -47,6 +48,9 @@ type
 
     function GetTilesOut: Integer;
     procedure SetTilesOut(const AValue: Integer);
+
+    function GetMapUiRequestCount: Integer;
+    procedure SetMapUiRequestCount(const AValue: Integer);
   public
     constructor Create;
   end;
@@ -60,6 +64,7 @@ begin
   FUseDownload := tsCacheInternet;
   FTilesOut := 0;
   FTileMaxAgeInInternet := 1/24/60;
+  FRequestCount := 32;
 end;
 
 procedure TDownloadUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -75,6 +80,7 @@ begin
     end;
     FTileMaxAgeInInternet := AConfigData.ReadTime('TileMaxAgeInInternet', FTileMaxAgeInInternet);
     FTilesOut := AConfigData.ReadInteger('TilesOut', FTilesOut);
+    FRequestCount := AConfigData.ReadInteger('QueueRequestCount', FRequestCount);
     SetChanged;
   end;
 end;
@@ -90,6 +96,7 @@ begin
   end;
   AConfigData.WriteTime('TileMaxAgeInInternet', FTileMaxAgeInInternet);
   AConfigData.WriteInteger('TilesOut', FTilesOut);
+  AConfigData.WriteInteger('QueueRequestCount', FRequestCount);
 end;
 
 function TDownloadUIConfig.GetTileMaxAgeInInternet: TDateTime;
@@ -117,6 +124,16 @@ begin
   LockRead;
   try
     Result := FUseDownload;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TDownloadUIConfig.GetMapUiRequestCount: Integer;
+begin
+  LockRead;
+  try
+    Result := FRequestCount;
   finally
     UnlockRead;
   end;
@@ -154,6 +171,19 @@ begin
   try
     if FUseDownload <> AValue then begin
       FUseDownload := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TDownloadUIConfig.SetMapUiRequestCount(const AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FRequestCount <> AValue then begin
+      FRequestCount := AValue;
       SetChanged;
     end;
   finally
