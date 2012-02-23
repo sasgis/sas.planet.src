@@ -611,6 +611,7 @@
     <DCCReference Include="u_GlobalAppConfig.pas" />
     <DCCReference Include="u_GlobalCahceConfig.pas" />
     <DCCReference Include="u_GlobalDownloadConfig.pas" />
+    <DCCReference Include="u_GlobalInternetState.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
     <DCCReference Include="u_GotoLayerConfig.pas" />

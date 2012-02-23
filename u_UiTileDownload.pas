@@ -90,6 +90,7 @@ uses
   i_TileRequestResult,
   i_DownloadResult,
   i_CoordConverter,
+  u_GlobalInternetState,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   u_TTLCheckListener,
@@ -330,6 +331,7 @@ begin
               end;
               VRequest := VMapType.TileDownloadSubsystem.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
               VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
+              GInternetState.IncTaskCount;
               VMapType.TileDownloadSubsystem.Download(VRequest);
             end;
           end;
@@ -351,6 +353,8 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VErrorString: string;
 begin
+  GInternetState.DecTaskCount;
+
   VResult := AMsg as ITileRequestResult;
 
   ReleaseSemaphore(FSemaphore, 1, nil);

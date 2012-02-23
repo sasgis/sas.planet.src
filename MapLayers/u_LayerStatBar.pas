@@ -67,6 +67,7 @@ uses
   StrUtils,
   Graphics,
   i_CoordConverter,
+  u_GlobalInternetState,
   u_NotifyEventListener,
   u_ResStrings,
   u_MapType;
@@ -274,6 +275,11 @@ begin
     VString := SAS_STR_load + ' ' +
       inttostr(FDownloadInfo.TileCount) +
       ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size/1024) + ')';
+    RenderText(VOffset, VString);
+
+    // internet queue
+    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+    VString := 'Queue ' + IntToStr(GInternetState.TaskCount);
     RenderText(VOffset, VString);
 
     // file name

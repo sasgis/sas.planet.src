@@ -77,6 +77,7 @@ uses
   SysUtils,
   i_TileRequest,
   i_DownloadResult,
+  u_GlobalInternetState,
   u_NotifyEventListener,
   u_TileErrorInfo;
 
@@ -135,6 +136,7 @@ begin
     VOperationID := FCancelNotifier.CurrentOperation;
     VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, FTile, FZoom, False);
     VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
+    GInternetState.IncTaskCount;
     FMapType.TileDownloadSubsystem.Download(VRequest);
     FFinishEvent.WaitFor(INFINITE);
     ProcessResult(FResult);
@@ -165,6 +167,7 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VErrorString: string;
 begin
+  GInternetState.DecTaskCount;
   if AResult <> nil then begin
     VErrorString := '';
     if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin

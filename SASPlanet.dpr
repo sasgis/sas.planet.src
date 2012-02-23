@@ -203,6 +203,7 @@ uses
   u_DoublePointsAggregator in 'u_DoublePointsAggregator.pas',
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',
+  u_GlobalInternetState in 'u_GlobalInternetState.pas',
   u_GPSState in 'u_GPSState.pas',
   i_LastSelectionInfo in 'i_LastSelectionInfo.pas',
   u_LastSelectionInfo in 'u_LastSelectionInfo.pas',
