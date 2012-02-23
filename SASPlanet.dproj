@@ -253,6 +253,8 @@
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MainWindowPosition.pas" />
     <DCCReference Include="i_MapAbilitiesConfig.pas" />
+    <DCCReference Include="i_MapAttachmentsFactory.pas" />
+    <DCCReference Include="i_MapAttachmentsInfo.pas" />
     <DCCReference Include="i_MapCalibration.pas" />
     <DCCReference Include="i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="i_MapLayerGPSTrackConfig.pas" />
@@ -376,10 +378,12 @@
     <DCCReference Include="i_ZmpConfig.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="i_ZmpInfoSet.pas" />
+    <DCCReference Include="MapLayers\i_MapElementsGuidedList.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
+    <DCCReference Include="MapLayers\u_MapElementsGuidedList.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />
@@ -490,6 +494,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
+    <DCCReference Include="t_MapAttachments.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
@@ -497,9 +502,15 @@
     <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_ARGBToPaletteConverter.pas" />
+    <DCCReference Include="u_AvailPicsAbstract.pas" />
+    <DCCReference Include="u_AvailPicsBing.pas" />
+    <DCCReference Include="u_AvailPicsDG.pas" />
+    <DCCReference Include="u_AvailPicsNMC.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
+    <DCCReference Include="u_BasePascalCompiler.pas" />
+    <DCCReference Include="u_BaseTileDownloaderThread.pas" />
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderInPolygon.pas" />
     <DCCReference Include="u_BitmapLayerProviderMapWithLayer.pas" />
@@ -690,6 +701,8 @@
     <DCCReference Include="u_MainWindowToolbarsLock.pas" />
     <DCCReference Include="u_MapAbilitiesConfig.pas" />
     <DCCReference Include="u_MapAbilitiesConfigStatic.pas" />
+    <DCCReference Include="u_MapAttachmentsInfo.pas" />
+    <DCCReference Include="u_MapAttachmentsPascalScript.pas" />
     <DCCReference Include="u_MapCalibrationDat.pas" />
     <DCCReference Include="u_MapCalibrationKml.pas" />
     <DCCReference Include="u_MapCalibrationListBasic.pas" />
