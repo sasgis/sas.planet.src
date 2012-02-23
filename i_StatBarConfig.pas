@@ -56,8 +56,36 @@ type
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
     property FontSize: Integer read GetFontSize write SetFontSize;
+
+    function GetViewZoomInfo: Boolean;
+    procedure SetViewZoomInfo(AValue: Boolean);
+    property ViewZoomInfo: Boolean read GetViewZoomInfo write SetViewZoomInfo;
+
+    function GetViewLonLatInfo: Boolean;
+    procedure SetViewLonLatInfo(AValue: Boolean);
+    property ViewLonLatInfo: Boolean read GetViewLonLatInfo write SetViewLonLatInfo;
+
+    function GetViewMetrPerPixInfo: Boolean;
+    procedure SetViewMetrPerPixInfo(AValue: Boolean);
+    property ViewMetrPerPixInfo: Boolean read GetViewMetrPerPixInfo write SetViewMetrPerPixInfo;
+
+    function GetViewTimeZoneTimeInfo: Boolean;
+    procedure SetViewTimeZoneTimeInfo(AValue: Boolean);
+    property ViewTimeZoneTimeInfo: Boolean read GetViewTimeZoneTimeInfo write SetViewTimeZoneTimeInfo;
+
+    function GetViewDownloadedInfo: Boolean;
+    procedure SetViewDownloadedInfo(AValue: Boolean);
+    property ViewDownloadedInfo: Boolean read GetViewDownloadedInfo write SetViewDownloadedInfo;
+
+    function GetViewHttpQueueInfo: Boolean;
+    procedure SetViewHttpQueueInfo(AValue: Boolean);
+    property ViewHttpQueueInfo: Boolean read GetViewHttpQueueInfo write SetViewHttpQueueInfo;
+
+    function GetViewTilePathInfo: Boolean;
+    procedure SetViewTilePathInfo(AValue: Boolean);
+    property ViewTilePathInfo: Boolean read GetViewTilePathInfo write SetViewTilePathInfo;
   end;
-  
+
 implementation
 
 end.

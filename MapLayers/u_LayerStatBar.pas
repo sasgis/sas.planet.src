@@ -221,6 +221,7 @@ var
   VShortTileName: string;
   VTileNameWidth: Integer;
   VTileNameWidthAviable: Integer;
+  VNeedSeparator: Boolean;
 begin
   inherited;
   VCurrentTick := GetTickCount;
@@ -245,65 +246,81 @@ begin
     FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
 
     VOffset.Y := 1;
+    VOffset.X := -10;
+    VString := '';
+    VNeedSeparator := False;
 
-    // zoom
-    VOffset.X := 10;
-    VString := 'z' + inttostr(VZoomCurr + 1);
-    RenderText(VOffset, VString, False);
+    if FConfig.ViewZoomInfo then begin
+      VOffset.X := VOffset.X + 20;
+      VString := 'z' + inttostr(VZoomCurr + 1);
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
 
-    // degrees
-    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-    VString := VValueConverter.LonLatConvert(VLonLat);
-    RenderText(VOffset, VString);
+    if FConfig.ViewLonLatInfo then begin
+      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VString := VValueConverter.LonLatConvert(VLonLat);
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
 
-    // meters per degree
-    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-    VRad := VConverter.Datum.GetSpheroidRadiusA;
-    VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
-    VString := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLonLat.y * D2R))));
-    RenderText(VOffset, VString);
+    if FConfig.ViewMetrPerPixInfo then begin
+      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VRad := VConverter.Datum.GetSpheroidRadiusA;
+      VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
+      VString := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLonLat.y * D2R))));
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
 
-    // time
-    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-    VTimeTZ := GetTimeInLonLat(VLonLat);
-    VString := TimeToStr(VTimeTZ);
-    RenderText(VOffset, VString);
+    if FConfig.ViewTimeZoneTimeInfo then begin
+      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VTimeTZ := GetTimeInLonLat(VLonLat);
+      VString := TimeToStr(VTimeTZ);
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
 
-    // downloaded
-    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-    VTileName := VMap.GetTileShowName(VTile, VZoomCurr);
-    VString := SAS_STR_load + ' ' +
-      inttostr(FDownloadInfo.TileCount) +
-      ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size/1024) + ')';
-    RenderText(VOffset, VString);
+    if FConfig.ViewDownloadedInfo then begin
+      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VTileName := VMap.GetTileShowName(VTile, VZoomCurr);
+      VString := SAS_STR_load + ' ' +
+        inttostr(FDownloadInfo.TileCount) +
+        ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size/1024) + ')';
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
 
-    // internet queue
-    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-    VString := 'Queue ' + IntToStr(GInternetState.TaskCount);
-    RenderText(VOffset, VString);
+    if FConfig.ViewHttpQueueInfo then begin
+      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VString := 'Queue ' + IntToStr(GInternetState.TaskCount);
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
 
-    // file name
-    VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-    VTileNameWidthAviable := FLayer.Bitmap.Width - VOffset.X;
-    if Length(VTileName) > 0 then begin
-      if VTileNameWidthAviable > 30 then begin
-        VTileNameWidth := FLayer.Bitmap.TextWidth(VTileName);
-        if VTileNameWidthAviable < VTileNameWidth + 40 then begin
-          SetLength(VShortTileName, 6);
-          StrLCopy(PAnsiChar(VShortTileName), PAnsiChar(VTileName), 6);
-          VShortTileName := VShortTileName + '...' +
-            RightStr(
-              VTileName,
-              Trunc(
-                (Length(VTileName)/VTileNameWidth) * (VTileNameWidthAviable - FLayer.Bitmap.TextWidth(VShortTileName) - 40 )
-              )
-            );
-          VTileName := VShortTileName;
+    if FConfig.ViewTilePathInfo then begin
+      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VTileNameWidthAviable := FLayer.Bitmap.Width - VOffset.X;
+      if Length(VTileName) > 0 then begin
+        if VTileNameWidthAviable > 30 then begin
+          VTileNameWidth := FLayer.Bitmap.TextWidth(VTileName);
+          if VTileNameWidthAviable < VTileNameWidth + 40 then begin
+            SetLength(VShortTileName, 6);
+            StrLCopy(PAnsiChar(VShortTileName), PAnsiChar(VTileName), 6);
+            VShortTileName := VShortTileName + '...' +
+              RightStr(
+                VTileName,
+                Trunc(
+                  (Length(VTileName)/VTileNameWidth) * (VTileNameWidthAviable - FLayer.Bitmap.TextWidth(VShortTileName) - 40 )
+                )
+              );
+            VTileName := VShortTileName;
+          end;
         end;
       end;
+      VString := SAS_STR_file + ' ' + VTileName;
+      RenderText(VOffset, VString, VNeedSeparator);
     end;
-    VString := SAS_STR_file + ' ' + VTileName;
-    RenderText(VOffset, VString);
 
     FLastUpdateTick := GetTickCount;
   end;

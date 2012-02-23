@@ -39,6 +39,14 @@ type
     FTextColor: TColor32;
     FFontName: string;
     FFontSize: Integer;
+
+    FZoomInfo: Boolean;
+    FLonLatInfo: Boolean;
+    FMetrPerPixInfo: Boolean;
+    FTimeZoneTimeInfo: Boolean;
+    FDownloadInfo: Boolean;
+    FHttpQueueInfo: Boolean;
+    FTilePathInfo: Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -63,6 +71,27 @@ type
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
+
+    function GetViewZoomInfo: Boolean;
+    procedure SetViewZoomInfo(AValue: Boolean);
+
+    function GetViewLonLatInfo: Boolean;
+    procedure SetViewLonLatInfo(AValue: Boolean);
+
+    function GetViewMetrPerPixInfo: Boolean;
+    procedure SetViewMetrPerPixInfo(AValue: Boolean);
+
+    function GetViewTimeZoneTimeInfo: Boolean;
+    procedure SetViewTimeZoneTimeInfo(AValue: Boolean);
+
+    function GetViewDownloadedInfo: Boolean;
+    procedure SetViewDownloadedInfo(AValue: Boolean);
+
+    function GetViewHttpQueueInfo: Boolean;
+    procedure SetViewHttpQueueInfo(AValue: Boolean);
+
+    function GetViewTilePathInfo: Boolean;
+    procedure SetViewTilePathInfo(AValue: Boolean);
   public
     constructor Create;
   end;
@@ -84,6 +113,14 @@ begin
   FTextColor := SetAlpha(clWhite32, $FF);
   FFontName := 'Arial';
   FFontSize := 10;
+
+  FZoomInfo := True;
+  FLonLatInfo := True;
+  FMetrPerPixInfo := True;
+  FTimeZoneTimeInfo := True;
+  FDownloadInfo := True;
+  FHttpQueueInfo := True;
+  FTilePathInfo := True;
 end;
 
 procedure TStatBarConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -97,6 +134,14 @@ begin
     FTextColor := ReadColor32(AConfigData, 'TextColor', FTextColor);
     FFontName := AConfigData.ReadString('FontName', FFontName);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
+
+    FZoomInfo := AConfigData.ReadBool('ZoomInfo', FZoomInfo);
+    FLonLatInfo := AConfigData.ReadBool('LonLatInfo', FLonLatInfo);
+    FMetrPerPixInfo := AConfigData.ReadBool('MetrPerPixInfo', FMetrPerPixInfo);
+    FTimeZoneTimeInfo := AConfigData.ReadBool('TimeZoneTimeInfo', FTimeZoneTimeInfo);
+    FDownloadInfo := AConfigData.ReadBool('DownloadInfo', FDownloadInfo);
+    FHttpQueueInfo := AConfigData.ReadBool('HttpQueueInfo', FHttpQueueInfo);
+    FTilePathInfo := AConfigData.ReadBool('TilePathInfo', FTilePathInfo);
     SetChanged;
   end;
 end;
@@ -111,7 +156,15 @@ begin
   WriteColor32(AConfigData, 'BackgroundColor', FBgColor);
   WriteColor32(AConfigData, 'TextColor', FTextColor);
   AConfigData.WriteString('FontName', FFontName);
-  AConfigData.WriteInteger('FontSize', FFontSize)
+  AConfigData.WriteInteger('FontSize', FFontSize);
+
+  AConfigData.WriteBool('ZoomInfo', FZoomInfo);
+  AConfigData.WriteBool('LonLatInfo', FLonLatInfo);
+  AConfigData.WriteBool('MetrPerPixInfo', FMetrPerPixInfo);
+  AConfigData.WriteBool('TimeZoneTimeInfo', FTimeZoneTimeInfo);
+  AConfigData.WriteBool('DownloadInfo', FDownloadInfo);
+  AConfigData.WriteBool('HttpQueueInfo', FHttpQueueInfo);
+  AConfigData.WriteBool('TilePathInfo', FTilePathInfo);
 end;
 
 function TStatBarConfig.GetBgColor: TColor32;
@@ -179,6 +232,76 @@ begin
   LockRead;
   try
     Result := FVisible;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewZoomInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FZoomInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewLonLatInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FLonLatInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewMetrPerPixInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FMetrPerPixInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewTimeZoneTimeInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FTimeZoneTimeInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewDownloadedInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FDownloadInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewHttpQueueInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FHttpQueueInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetViewTilePathInfo: Boolean;
+begin
+  LockRead;
+  try
+    Result := FTilePathInfo;
   finally
     UnlockRead;
   end;
@@ -268,6 +391,97 @@ begin
   try
     if FVisible <> AValue then begin
       FVisible := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewZoomInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FZoomInfo <> AValue then begin
+      FZoomInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewLonLatInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FLonLatInfo <> AValue then begin
+      FLonLatInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewMetrPerPixInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FMetrPerPixInfo <> AValue then begin
+      FMetrPerPixInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewTimeZoneTimeInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FTimeZoneTimeInfo <> AValue then begin
+      FTimeZoneTimeInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewDownloadedInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FDownloadInfo <> AValue then begin
+      FDownloadInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewHttpQueueInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FHttpQueueInfo <> AValue then begin
+      FHttpQueueInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetViewTilePathInfo(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FTilePathInfo <> AValue then begin
+      FTilePathInfo := AValue;
       SetChanged;
     end;
   finally
