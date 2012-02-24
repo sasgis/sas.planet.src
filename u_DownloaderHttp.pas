@@ -40,6 +40,18 @@ uses
   i_DownloadChecker;
 
 type
+  THttpClientConfigRec = record
+    HttpTimeOut: Cardinal;
+    HeaderUserAgent: string;
+    HeaderRawText: string;
+    ProxyUseIESettings: Boolean;
+    ProxyUseCustomSettings: Boolean;
+    ProxyHost: WideString;
+    ProxyUseLogin: Boolean;
+    ProxyUserName: WideString;
+    ProxyPassword: WideString;
+  end;
+
   TDownloaderHttp = class(TInterfacedObject, IDownloader)
   private
     FCS: TCriticalSection;
@@ -47,6 +59,7 @@ type
     FHttpClient: TALWinInetHTTPClient;
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
+    FHttpClientLastConfig: THttpClientConfigRec;
     FResultFactory: IDownloadResultFactory;
     function OnBeforeRequest(
       ARequest: IDownloadRequest;
@@ -107,6 +120,16 @@ begin
   FHttpResponseBody := TMemoryStream.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FResultFactory := AResultFactory;
+
+  FHttpClientLastConfig.HttpTimeOut := 0;
+  FHttpClientLastConfig.HeaderUserAgent := '';
+  FHttpClientLastConfig.HeaderRawText := '';
+  FHttpClientLastConfig.ProxyUseIESettings := True;
+  FHttpClientLastConfig.ProxyUseCustomSettings := False;
+  FHttpClientLastConfig.ProxyHost := '';
+  FHttpClientLastConfig.ProxyUseLogin := False;
+  FHttpClientLastConfig.ProxyUserName := '';
+  FHttpClientLastConfig.ProxyPassword := '';
 end;
 
 destructor TDownloaderHttp.Destroy;
@@ -255,12 +278,14 @@ begin
     VRequestWithChecker.Checker.BeforeRequest(AResultFactory, ARequest);
   end;
 
-  if Result = nil then begin
+  if ARequest <> nil then begin
     PreConfigHttpClient(
       ARequest.RequestHeader,
       ARequest.InetConfig
     );
   end;
+
+  Result := nil; // successful
 end;
 
 procedure TDownloaderHttp.OnCancelEvent;
@@ -366,19 +391,25 @@ procedure TDownloaderHttp.PreConfigHttpClient(
 var
   VProxyConfig: IProxyConfigStatic;
 begin
-  FHttpClient.RequestHeader.Clear;
-  if ARawHttpRequestHeader <> '' then begin
-    FHttpClient.RequestHeader.RawHeaderText := ARawHttpRequestHeader;
+  if (ARawHttpRequestHeader <> '') and
+     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader)
+  then begin
+    FHttpClientLastConfig.HeaderRawText := ARawHttpRequestHeader;
+    FHttpClient.RequestHeader.RawHeaderText := FHttpClientLastConfig.HeaderRawText;
   end;
-  if FHttpClient.RequestHeader.UserAgent = '' then begin
-    FHttpClient.RequestHeader.UserAgent := AInetConfig.UserAgentString;
+  if FHttpClientLastConfig.HeaderUserAgent <> AInetConfig.UserAgentString then begin
+    FHttpClientLastConfig.HeaderUserAgent := AInetConfig.UserAgentString;
+    FHttpClient.RequestHeader.UserAgent := FHttpClientLastConfig.HeaderUserAgent;
   end;
   if FHttpClient.RequestHeader.Accept = '' then begin
     FHttpClient.RequestHeader.Accept := '*/*';
   end;   
-  FHttpClient.ConnectTimeout := AInetConfig.TimeOut;
-  FHttpClient.SendTimeout := AInetConfig.TimeOut;
-  FHttpClient.ReceiveTimeout := AInetConfig.TimeOut;
+  if FHttpClientLastConfig.HttpTimeOut <> AInetConfig.TimeOut then begin
+    FHttpClientLastConfig.HttpTimeOut := AInetConfig.TimeOut;
+    FHttpClient.ConnectTimeout := FHttpClientLastConfig.HttpTimeOut;
+    FHttpClient.SendTimeout := FHttpClientLastConfig.HttpTimeOut;
+    FHttpClient.ReceiveTimeout := FHttpClientLastConfig.HttpTimeOut;
+  end;
   FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
                                     wHttpIo_Pragma_nocache,
                                     wHttpIo_No_cookies,
@@ -386,20 +417,34 @@ begin
                                  ];
   VProxyConfig := AInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then begin
-    if VProxyConfig.UseIESettings then begin
-      FHttpClient.AccessType := wHttpAt_Preconfig
-    end else if VProxyConfig.UseProxy then begin
-      FHttpClient.AccessType := wHttpAt_Proxy;
-      FHttpClient.ProxyParams.ProxyServer :=
-        Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host) - 1);
-      FHttpClient.ProxyParams.ProxyPort :=
-        StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
-      if VProxyConfig.UseLogin then begin
-        FHttpClient.ProxyParams.ProxyUserName := VProxyConfig.Login;
-        FHttpClient.ProxyParams.ProxyPassword := VProxyConfig.Password;
+    if (FHttpClientLastConfig.ProxyUseIESettings <> VProxyConfig.UseIESettings) or
+       (FHttpClientLastConfig.ProxyUseCustomSettings <> VProxyConfig.UseProxy) or
+       (FHttpClientLastConfig.ProxyUseLogin <> VProxyConfig.UseLogin) or
+       (FHttpClientLastConfig.ProxyHost <> VProxyConfig.Host) or
+       (FHttpClientLastConfig.ProxyUserName <> VProxyConfig.Login) or
+       (FHttpClientLastConfig.ProxyPassword <> VProxyConfig.Password)
+    then begin
+      FHttpClientLastConfig.ProxyUseIESettings := VProxyConfig.UseIESettings;
+      FHttpClientLastConfig.ProxyUseCustomSettings := VProxyConfig.UseProxy;
+      FHttpClientLastConfig.ProxyUseLogin := VProxyConfig.UseLogin;
+      FHttpClientLastConfig.ProxyHost := VProxyConfig.Host;
+      FHttpClientLastConfig.ProxyUserName := VProxyConfig.Login;
+      FHttpClientLastConfig.ProxyPassword := VProxyConfig.Password; 
+      if FHttpClientLastConfig.ProxyUseIESettings then begin
+        FHttpClient.AccessType := wHttpAt_Preconfig
+      end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
+        FHttpClient.AccessType := wHttpAt_Proxy;
+        FHttpClient.ProxyParams.ProxyServer :=
+          Copy(FHttpClientLastConfig.ProxyHost, 0, Pos(':', FHttpClientLastConfig.ProxyHost) - 1);
+        FHttpClient.ProxyParams.ProxyPort :=
+          StrToInt(Copy(FHttpClientLastConfig.ProxyHost, Pos(':', FHttpClientLastConfig.ProxyHost) + 1));
+        if FHttpClientLastConfig.ProxyUseLogin then begin
+          FHttpClient.ProxyParams.ProxyUserName := FHttpClientLastConfig.ProxyUserName;
+          FHttpClient.ProxyParams.ProxyPassword := FHttpClientLastConfig.ProxyPassword;
+        end;
+      end else begin
+        FHttpClient.AccessType := wHttpAt_Direct;
       end;
-    end else begin
-      FHttpClient.AccessType := wHttpAt_Direct;
     end;
   end;
 end;
