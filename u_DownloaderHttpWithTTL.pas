@@ -47,11 +47,18 @@ constructor TDownloaderHttpWithTTL.Create(
   AGCList: ITTLCheckNotifier;
   AResultFactory: IDownloadResultFactory
 );
+const
+  CHttpClientTTL = 300000; // 5 min
+  CHttpClientTTLCheckInterval = 30000; // 30 sec
 begin
   FResultFactory := AResultFactory;
   FGCList := AGCList;
 
-  FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 10000, 1000);
+  FTTLListener := TTTLCheckListener.Create(
+    Self.OnTTLTrim,
+    CHttpClientTTL,
+    CHttpClientTTLCheckInterval
+  );
   FGCList.Add(FTTLListener);
 end;
 
