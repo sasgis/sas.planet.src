@@ -168,6 +168,7 @@
     <DCCReference Include="i_AntiBan.pas" />
     <DCCReference Include="i_ARGBToPaletteConverter.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
+    <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapMarkerProviderSimpleConfig.pas" />
