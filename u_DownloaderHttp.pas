@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,9 +23,11 @@ unit u_DownloaderHttp;
 interface
 
 uses
+  Windows,
   Classes,
   SyncObjs,
   SysUtils,
+  WinInet,
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
@@ -61,6 +63,9 @@ type
     FHttpResponseBody: TMemoryStream;
     FHttpClientLastConfig: THttpClientConfigRec;
     FResultFactory: IDownloadResultFactory;
+    FDisconnectByServer: Byte;
+    FDisconnectByUser: Byte;
+    FOpeningHandle: HINTERNET;
     function OnBeforeRequest(
       ARequest: IDownloadRequest;
       AResultFactory: IDownloadResultFactory
@@ -89,6 +94,11 @@ type
     procedure DoHeadRequest(ARequest: IDownloadHeadRequest);
     procedure DoPostRequest(ARequest: IDownloadPostRequest);
   protected
+    procedure CheckGraceOff(Sender: Tobject);
+    procedure DoOnALStatusChange(sender: Tobject;
+                                 InternetStatus: DWord;
+                                 StatusInformation: Pointer;
+                                 StatusInformationLength: DWord);
     function DoRequest(
       ARequest: IDownloadRequest;
       ACancelNotifier: IOperationNotifier;
@@ -104,18 +114,32 @@ type
 implementation
 
 uses
-  WinInet,
   u_NotifyEventListener;
 
 { TDownloaderHttp }
+
+procedure TDownloaderHttp.CheckGraceOff(Sender: Tobject);
+begin
+  if (0<>FDisconnectByServer) then
+  try
+    //FDisconnectByServer:=0;
+    Disconnect;
+  finally
+    FDisconnectByServer:=0;
+  end;
+end;
 
 constructor TDownloaderHttp.Create(
   AResultFactory: IDownloadResultFactory
 );
 begin
   inherited Create;
+  FOpeningHandle := nil;
+  FDisconnectByUser := 0;
+  FDisconnectByServer := 0;
   FCS := TCriticalSection.Create;
   FHttpClient := TALWinInetHTTPClient.Create(nil);
+  FHttpClient.OnStatusChange := DoOnALStatusChange;
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
@@ -161,6 +185,63 @@ begin
   );
 end;
 
+procedure TDownloaderHttp.DoOnALStatusChange(sender: Tobject;
+  InternetStatus: DWord; StatusInformation: Pointer;
+  StatusInformationLength: DWord);
+begin
+  if (0=FDisconnectByUser) then begin
+    // if disconnected - raise flag
+    case InternetStatus of
+      (*
+      INTERNET_STATUS_HANDLE_CREATED: begin // 60
+        FOpeningHandle:=PHINTERNET(StatusInformation)^;
+      end;
+      INTERNET_STATUS_RESOLVING_NAME: begin // 10
+      end;
+      INTERNET_STATUS_NAME_RESOLVED: begin // 11
+      end;
+      INTERNET_STATUS_CONNECTING_TO_SERVER: begin // 20
+        FOpeningHandle:=nil;
+      end;
+      INTERNET_STATUS_CONNECTED_TO_SERVER: begin // 21
+        FOpeningHandle:=nil;
+      end;
+      INTERNET_STATUS_SENDING_REQUEST: begin // 30
+      end;
+      INTERNET_STATUS_REQUEST_SENT: begin // 31
+      end;
+      INTERNET_STATUS_RECEIVING_RESPONSE: begin // 40
+      end;
+      INTERNET_STATUS_RESPONSE_RECEIVED: begin // 41
+      end;
+      INTERNET_STATUS_HANDLE_CLOSING: begin // 70
+        FOpeningHandle:=nil;
+      end;
+      *)
+      INTERNET_STATUS_CLOSING_CONNECTION: begin // 50
+        if (0=FDisconnectByServer) then
+          Inc(FDisconnectByServer);
+        (*
+        if (nil<>FOpeningHandle) then begin
+          InternetCloseHandle(FOpeningHandle);
+          FOpeningHandle:=nil;
+        end;
+        *)
+      end;
+      INTERNET_STATUS_CONNECTION_CLOSED: begin // 51
+        if (0=FDisconnectByServer) then
+          Inc(FDisconnectByServer);
+        (*
+        if (nil<>FOpeningHandle) then begin
+          InternetCloseHandle(FOpeningHandle);
+          FOpeningHandle:=nil;
+        end;
+        *)
+      end;
+    end;
+  end;
+end;
+
 procedure TDownloaderHttp.DoPostRequest(ARequest: IDownloadPostRequest);
 var
   VStream: TMemoryStream;
@@ -200,6 +281,9 @@ begin
   Result := nil;
   FCS.Acquire;
   try
+    // check gracefully off
+    CheckGraceOff(nil);
+
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := FResultFactory.BuildCanceled(ARequest);
     end;
@@ -249,6 +333,7 @@ begin
           );
         end;
       finally
+        FOpeningHandle := nil;
         ACancelNotifier.RemoveListener(FCancelListener);
       end;
     end;
@@ -260,7 +345,12 @@ end;
 procedure TDownloaderHttp.Disconnect;
 begin
   if Assigned(FHttpClient) then begin
-    FHttpClient.Disconnect;
+    Inc(FDisconnectByUser);
+    try
+      FHttpClient.Disconnect;
+    finally
+      Dec(FDisconnectByUser);
+    end;
   end;
 end;
 
