@@ -55,9 +55,8 @@ begin
       VCleanTime := FLastUseTime + FTTL;
       if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
         FOnTrimByTTL(nil);
+        FLastUseTime := 0;
       end;
-    end else begin
-      FLastUseTime := ANow;
     end;
   end;
   Result := ANow + FCheckInterval;
