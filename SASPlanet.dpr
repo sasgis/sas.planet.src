@@ -655,6 +655,8 @@ uses
   u_InternalDomainInfoProviderByMapTypeList in 'u_InternalDomainInfoProviderByMapTypeList.pas',
   i_SimpleHttpDownloader in 'i_SimpleHttpDownloader.pas',
   u_SimpleHttpDownloader in 'u_SimpleHttpDownloader.pas',
+  i_BitmapGeo in 'i_BitmapGeo.pas',
+  u_BitmapGeo in 'u_BitmapGeo.pas',
   i_BitmapMarker in 'i_BitmapMarker.pas',
   u_BitmapMarker in 'u_BitmapMarker.pas',
   u_BitmapMarkerProviderStaticFromDataProvider in 'u_BitmapMarkerProviderStaticFromDataProvider.pas',
