@@ -644,6 +644,7 @@ uses
   u_StartUpLogoConfig in 'u_StartUpLogoConfig.pas',
   i_GlobalDownloadConfig in 'i_GlobalDownloadConfig.pas',
   u_GlobalDownloadConfig in 'u_GlobalDownloadConfig.pas',
+  i_GlobalInternetState in 'i_GlobalInternetState.pas',
   i_GlobalViewMainConfig in 'i_GlobalViewMainConfig.pas',
   u_GlobalViewMainConfig in 'u_GlobalViewMainConfig.pas',
   u_IeEmbeddedProtocolRegistration in 'u_IeEmbeddedProtocolRegistration.pas',

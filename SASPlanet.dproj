@@ -205,6 +205,7 @@
     <DCCReference Include="i_GeoCoderList.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
     <DCCReference Include="i_GlobalDownloadConfig.pas" />
+    <DCCReference Include="i_GlobalInternetState.pas" />
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
     <DCCReference Include="i_GotoLayerConfig.pas" />
     <DCCReference Include="i_GPS.pas" />

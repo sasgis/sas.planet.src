@@ -18,79 +18,20 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GlobalInternetState;
+unit i_GlobalInternetState;
 
 interface
 
-uses
-  SyncObjs,
-  i_GlobalInternetState;
-
 type
-  TGlobalInternetState = class (TInterfacedObject, IGlobalInternetState)
-  private
-    FCS: TCriticalSection;
-    FQueueCount: Integer;
-    function GetQueueCount(): Integer;
-  public
-    constructor Create;
-    destructor Destroy; override;
+  IGlobalInternetState = interface
+    ['{CF520637-4E51-488D-BB1D-55030CC30DB4}']
     procedure IncQueueCount;
     procedure DecQueueCount;
+
+    function GetQueueCount(): Integer;
     property QueueCount: Integer read GetQueueCount;
   end;
 
-var
-  GInternetState: TGlobalInternetState = nil;
-
 implementation
-
-{ TGlobalInternetState }
-
-constructor TGlobalInternetState.Create;
-begin
-  inherited;
-  FCS := TCriticalSection.Create;
-  FQueueCount := 0;
-end;
-
-destructor TGlobalInternetState.Destroy;
-begin
-  FCS.Free;
-  inherited Destroy;
-end;
-
-procedure TGlobalInternetState.IncQueueCount;
-begin
-  FCS.Acquire;
-  try
-    Inc(FQueueCount);
-  finally
-    FCS.Release;
-  end;
-end;
-
-procedure TGlobalInternetState.DecQueueCount;
-begin
-  FCS.Acquire;
-  try
-    Dec(FQueueCount);
-    if FQueueCount < 0 then begin
-      FQueueCount := 0;
-    end;
-  finally
-    FCS.Release;
-  end;
-end;
-
-function TGlobalInternetState.GetQueueCount(): Integer;
-begin
-  FCS.Acquire;
-  try
-    Result := FQueueCount;
-  finally
-    FCS.Release;
-  end;
-end;
 
 end.

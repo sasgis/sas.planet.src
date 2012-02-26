@@ -18,6 +18,7 @@ uses
   i_ActiveMapsConfig,
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
+  i_GlobalInternetState,
   u_WindowLayerWithPos;
 
 type
@@ -26,6 +27,7 @@ type
     FConfig: IStatBarConfig;
     FMainMapsConfig: IMainMapsConfig;
     FDownloadInfo: IDownloadInfoSimple;
+    FGlobalInternetState: IGlobalInternetState;
     FMouseState: IMouseState;
     FTimeZoneDiff: ITimeZoneDiffByLonLat;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -56,6 +58,7 @@ type
       ATimerNoifier: IJclNotifier;
       ATimeZoneDiff: ITimeZoneDiffByLonLat;
       ADownloadInfo: IDownloadInfoSimple;
+      AGlobalInternetState: IGlobalInternetState;
       AMainMapsConfig: IMainMapsConfig
     );
   end;
@@ -67,7 +70,6 @@ uses
   StrUtils,
   Graphics,
   i_CoordConverter,
-  u_GlobalInternetState,
   u_NotifyEventListener,
   u_ResStrings,
   u_MapType;
@@ -87,11 +89,13 @@ constructor TLayerStatBar.Create(
   ATimerNoifier: IJclNotifier;
   ATimeZoneDiff: ITimeZoneDiffByLonLat;
   ADownloadInfo: IDownloadInfoSimple;
+  AGlobalInternetState: IGlobalInternetState;
   AMainMapsConfig: IMainMapsConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
+  FGlobalInternetState := AGlobalInternetState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FTimeZoneDiff := ATimeZoneDiff;
   FDownloadInfo := ADownloadInfo;
@@ -293,7 +297,7 @@ begin
 
     if FConfig.ViewHttpQueueInfo then begin
       VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-      VString := 'Queue ' + IntToStr(GInternetState.TaskCount);
+      VString := 'Queue ' + IntToStr(FGlobalInternetState.QueueCount);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;

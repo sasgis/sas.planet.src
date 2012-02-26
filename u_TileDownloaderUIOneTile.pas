@@ -32,6 +32,7 @@ uses
   i_TileRequestResult,
   i_OperationNotifier,
   i_DownloadInfoSimple,
+  i_GlobalInternetState,
   u_OperationNotifier,
   u_BaseTileDownloaderThread,
   u_MapType;
@@ -42,6 +43,7 @@ type
     FAppClosingNotifier: IJclNotifier;
     FErrorLogger: ITileErrorLogger;
     FDownloadInfo: IDownloadInfoSimple;
+    FGlobalInternetState: IGlobalInternetState;
     FMapType: TMapType;
     FTile: TPoint;
     FZoom: Byte;
@@ -66,6 +68,7 @@ type
       AZoom: byte;
       AMapType: TMapType;
       ADownloadInfo: IDownloadInfoSimple;
+      AGlobalInternetState: IGlobalInternetState;
       AErrorLogger: ITileErrorLogger
     ); overload;
     destructor Destroy; override;
@@ -77,7 +80,6 @@ uses
   SysUtils,
   i_TileRequest,
   i_DownloadResult,
-  u_GlobalInternetState,
   u_NotifyEventListener,
   u_TileErrorInfo;
 
@@ -87,6 +89,7 @@ constructor TTileDownloaderUIOneTile.Create(
   AZoom: byte;
   AMapType: TMapType;
   ADownloadInfo: IDownloadInfoSimple;
+  AGlobalInternetState: IGlobalInternetState;
   AErrorLogger: ITileErrorLogger
 );
 var
@@ -95,6 +98,7 @@ begin
   inherited Create(False);
   FPausedByUser := FALSE;
   FDownloadInfo := ADownloadInfo;
+  FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
   FAppClosingNotifier := AAppClosingNotifier;
   FTile := AXY;
@@ -136,7 +140,7 @@ begin
     VOperationID := FCancelNotifier.CurrentOperation;
     VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, FTile, FZoom, False);
     VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-    GInternetState.IncTaskCount;
+    FGlobalInternetState.IncQueueCount;
     FMapType.TileDownloadSubsystem.Download(VRequest);
     FFinishEvent.WaitFor(INFINITE);
     ProcessResult(FResult);
@@ -167,7 +171,7 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VErrorString: string;
 begin
-  GInternetState.DecTaskCount;
+  FGlobalInternetState.DecQueueCount;
   if AResult <> nil then begin
     VErrorString := '';
     if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin

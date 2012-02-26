@@ -79,6 +79,7 @@ uses
   i_InvisibleBrowser,
   i_InternalBrowser,
   i_DebugInfoWindow,
+  i_GlobalInternetState,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -113,6 +114,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FDownloadConfig: IGlobalDownloadConfig;
+    FGlobalInternetState: IGlobalInternetState;
     FProgramPath: string;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
@@ -168,6 +170,7 @@ type
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
+    property GlobalInternetState: IGlobalInternetState read FGlobalInternetState;
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
@@ -274,6 +277,7 @@ uses
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
+  u_GlobalInternetState,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -313,6 +317,7 @@ begin
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
+  FGlobalInternetState := TGlobalInternetState.Create;
 
   VCoordConverterFactorySimple := TCoordConverterFactorySimple.Create;
   FCoordConverterFactory := VCoordConverterFactorySimple;
@@ -492,6 +497,7 @@ begin
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
   FMainConfigProvider := nil;
+  FGlobalInternetState := nil;
   inherited;
 end;
 

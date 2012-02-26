@@ -692,6 +692,7 @@ uses
   u_NotifyEventListener,
   i_MapTypes,
   i_GeoCoderList,
+  i_GlobalInternetState,
   i_CoordConverter,
   i_VectorItemLonLat,
   i_LocalCoordConverter,
@@ -1381,6 +1382,7 @@ begin
         GState.GUISyncronizedTimerNotifier,
         GState.TimeZoneDiffByLonLat,
         GState.DownloadInfo,
+        GState.GlobalInternetState,
         FConfig.MainMapsConfig
       )
     );
@@ -1629,6 +1631,7 @@ begin
         FConfig.ViewPortState,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
         GState.DownloadInfo,
+        GState.GlobalInternetState,
         FTileErrorLogger
       );
 
@@ -2954,6 +2957,7 @@ begin
           VZoomCurr,
           VMapType,
           GState.DownloadInfo,
+          GState.GlobalInternetState,
           FTileErrorLogger
         );
       end;
@@ -4025,6 +4029,7 @@ begin
             VZoomCurr,
             VMapType,
             GState.DownloadInfo,
+            GState.GlobalInternetState,
             FTileErrorLogger
           );
           Exit;

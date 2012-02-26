@@ -11,6 +11,7 @@ uses
   i_TTLCheckNotifier,
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
+  i_GlobalInternetState,
   i_TileError;
 
 type
@@ -26,6 +27,7 @@ type
       AViewPortState: IViewPortState;
       AMapsSet: IActiveMapsSet;
       ADownloadInfo: IDownloadInfoSimple;
+      AGlobalInternetState: IGlobalInternetState;
       AErrorLogger: ITileErrorLogger
     );
   end;
@@ -46,6 +48,7 @@ constructor TUITileDownloadList.Create(
   AViewPortState: IViewPortState;
   AMapsSet: IActiveMapsSet;
   ADownloadInfo: IDownloadInfoSimple;
+  AGlobalInternetState: IGlobalInternetState;
   AErrorLogger: ITileErrorLogger
 );
 var
@@ -69,6 +72,7 @@ begin
           AViewPortState,
           VMapTypeActive,
           ADownloadInfo,
+          AGlobalInternetState,
           AErrorLogger
         );
       FList.Add(VDownload)

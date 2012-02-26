@@ -16,6 +16,7 @@ uses
   i_TileError,
   i_LocalCoordConverterFactorySimpe,
   i_TileDownloaderState,
+  i_GlobalInternetState,
   i_ViewPortState,
   i_JclListenerNotifierLinksList,
   i_ActiveMapsConfig,
@@ -31,6 +32,7 @@ type
     FViewPortState: IViewPortState;
     FMapTypeActive: IActiveMapSingle;
     FDownloadInfo: IDownloadInfoSimple;
+    FGlobalInternetState: IGlobalInternetState;
     FErrorLogger: ITileErrorLogger;
 
     FCS: TCriticalSection;
@@ -73,6 +75,7 @@ type
       AViewPortState: IViewPortState;
       AMapTypeActive: IActiveMapSingle;
       ADownloadInfo: IDownloadInfoSimple;
+      AGlobalInternetState: IGlobalInternetState;
       AErrorLogger: ITileErrorLogger
     );
     destructor Destroy; override;
@@ -90,7 +93,6 @@ uses
   i_TileRequestResult,
   i_DownloadResult,
   i_CoordConverter,
-  u_GlobalInternetState,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   u_TTLCheckListener,
@@ -109,6 +111,7 @@ constructor TUiTileDownload.Create(
   AViewPortState: IViewPortState;
   AMapTypeActive: IActiveMapSingle;
   ADownloadInfo: IDownloadInfoSimple;
+  AGlobalInternetState: IGlobalInternetState;
   AErrorLogger: ITileErrorLogger
 );
 begin
@@ -119,6 +122,7 @@ begin
   FViewPortState := AViewPortState;
   FMapTypeActive := AMapTypeActive;
   FDownloadInfo := ADownloadInfo;
+  FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
 
   FVisualCoordConverterCS := TCriticalSection.Create;
@@ -329,7 +333,7 @@ begin
               end;
               VRequest := VMapType.TileDownloadSubsystem.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
               VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-              GInternetState.IncTaskCount;
+              FGlobalInternetState.IncQueueCount;
               VMapType.TileDownloadSubsystem.Download(VRequest);
             end;
           end;
@@ -351,7 +355,7 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VErrorString: string;
 begin
-  GInternetState.DecTaskCount;
+  FGlobalInternetState.DecQueueCount;
 
   VResult := AMsg as ITileRequestResult;
 
