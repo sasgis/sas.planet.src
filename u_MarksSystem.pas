@@ -56,7 +56,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      ABasePath: string;
+      const ABasePath: string;
       AMarkPictureList: IMarkPictureList;
       AVectorItmesFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
@@ -171,7 +171,7 @@ end;
 
 constructor TMarksSystem.Create(
   ALanguageManager: ILanguageManager;
-  ABasePath: string;
+  const ABasePath: string;
   AMarkPictureList: IMarkPictureList;
   AVectorItmesFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;

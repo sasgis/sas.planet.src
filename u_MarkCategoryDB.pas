@@ -71,7 +71,7 @@ type
     function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
-      ABasePath: string;
+      const ABasePath: string;
       AFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -87,7 +87,7 @@ uses
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
-  ABasePath: string;
+  const ABasePath: string;
   AFactoryConfig: IMarkCategoryFactoryConfig
 );
 var

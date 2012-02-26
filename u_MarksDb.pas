@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -95,7 +95,7 @@ type
     function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
   public
     constructor Create(
-      ABasePath: string;
+      const ABasePath: string;
       ACategoryDB: IMarkCategoryDBSmlInternal;
       AVectorItmesFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
@@ -249,7 +249,7 @@ begin
 end;
 
 constructor TMarksDb.Create(
-  ABasePath: string;
+  const ABasePath: string;
   ACategoryDB: IMarkCategoryDBSmlInternal;
   AVectorItmesFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
@@ -1027,11 +1027,13 @@ end;
 function TMarksDb.SaveMarks2File: boolean;
 var
   VStream: TFileStream;
-  XML: string;
+  XML, VFileName: string;
 begin
   result := true;
   try
-    VStream := TFileStream.Create(GetMarksFileName, fmCreate);;
+    VFileName := GetMarksFileName;
+    ForceDirectories(ExtractFilePath(VFileName));
+    VStream := TFileStream.Create(VFileName, fmCreate);;
     try
       LockRead;
       try

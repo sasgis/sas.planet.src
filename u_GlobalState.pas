@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -142,14 +142,16 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
+    function InternalGetPrimaryPath(const ASection: String; out APrimaryPathValue: String): Boolean;
     function GetMarkIconsPath: string;
     function GetMapsPath: string;
     function GetTrackLogPath: string;
+    function GetMarksSystemPath: String;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
     // Путь к папке с картами
-    property MapsPath: string read GetMapsPath;
+    //property MapsPath: string read GetMapsPath;
   public
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
@@ -421,14 +423,14 @@ begin
   FMarksDB :=
     TMarksSystem.Create(
       FLanguageManager,
-      FProgramPath,
+      GetMarksSystemPath,
       FMarkPictureList,
       FVectorItmesFactory,
       THtmlToHintTextConverterStuped.Create,
       FMarksCategoryFactoryConfig
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
-  VFilesIterator := VFilesIteratorFactory.CreateIterator(MapsPath, '');
+  VFilesIterator := VFilesIteratorFactory.CreateIterator(GetMapsPath, '');
   FZmpConfig := TZmpConfig.Create;
   FZmpConfig.ReadConfig(FMainConfigProvider.GetSubItem('ZmpDefaultParams'));
   FZmpInfoSet :=
@@ -549,23 +551,54 @@ begin
   Result := FProgramPath + 'marksicons' + PathDelim;
 end;
 
+function TGlobalState.GetMarksSystemPath: String;
+begin
+  if not InternalGetPrimaryPath('PATHtoMARKS', Result) then
+    Result := FProgramPath;
+end;
+
 function TGlobalState.GetMapsPath: string;
 begin
-  Result := FProgramPath + 'Maps' + PathDelim;
+  if not InternalGetPrimaryPath('PATHtoMAPS', Result) then
+    Result := FProgramPath + 'Maps' + PathDelim;
 end;
 
 function TGlobalState.GetTrackLogPath: string;
 begin
-  Result := FProgramPath + 'TrackLog' + PathDelim;
+  if not InternalGetPrimaryPath('PATHtoTRACKS', Result) then
+    Result := FProgramPath + 'TrackLog' + PathDelim;
+end;
+
+function TGlobalState.InternalGetPrimaryPath(const ASection: String; out APrimaryPathValue: String): Boolean;
+var
+  VConfig: IConfigDataProvider;
+  VValue: String;
+begin
+  Result:=FALSE;
+  APrimaryPathValue:='';
+  VConfig:=FMainConfigProvider.GetSubItem(ASection);
+  if Assigned(VConfig) then begin
+    VValue:=VConfig.ReadString('PrimaryPath', '');
+    if (0<Length(VValue)) then begin
+      APrimaryPathValue:=ExpandFileName(VValue);
+      if (0<Length(APrimaryPathValue)) then begin
+        if (PathDelim<>APrimaryPathValue[Length(APrimaryPathValue)]) then
+          APrimaryPathValue:=APrimaryPathValue+PathDelim;
+        Inc(Result);
+      end;
+    end;
+  end;
 end;
 
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
   Ini: TMeminifile;
+  VMapsPath: String;
 begin
-  CreateDir(MapsPath);
-  Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
+  VMapsPath:=GetMapsPath;
+  ForceDirectories(VMapsPath);
+  Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
@@ -637,7 +670,7 @@ begin
   if ModuleIsLib then
     Exit;
 
-  Ini := TMeminiFile.Create(MapsPath + 'Maps.ini');
+  Ini := TMeminiFile.Create(GetMapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
 
