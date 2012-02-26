@@ -40,9 +40,6 @@ type
     property QueueCount: Integer read GetQueueCount;
   end;
 
-var
-  GInternetState: TGlobalInternetState = nil;
-
 implementation
 
 { TGlobalInternetState }
