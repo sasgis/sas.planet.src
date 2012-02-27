@@ -241,12 +241,10 @@ constructor TZmpInfoGUI.Create(
   Apnum: Integer
 );
 var
-  VCurrentLanguageCode: string;
   VLangList: ILanguageListStatic;
 begin
   FGUID := AGUID;
   VLangList := ALanguageManager.LanguageList;
-  VCurrentLanguageCode := ALanguageManager.GetCurrentLanguageCode;
   LoadConfig(VLangList, AConfig, AConfigIni, AConfigIniParams, Apnum);
 end;
 
