@@ -443,9 +443,14 @@ begin
       VDstRect.Right := VDstRect.Left + VTextSize.cx;
       VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
       VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
-      FBitmapWithText.Clear(0);
-      FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextBgColor,255));
-      FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
+      if FConfig.UseSolidCaptionBackground then begin
+        FBitmapWithText.Clear(AMarkPoint.TextBgColor);
+        FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
+      end else begin
+        FBitmapWithText.Clear(0);
+        FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextBgColor,255));
+        FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
+      end;
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
       Result := True;
     end;

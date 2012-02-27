@@ -30,17 +30,20 @@ type
   TMarksDrawConfigStatic = class(TInterfacedObject, IMarksDrawConfigStatic)
   private
     FShowPointCaption: Boolean;
+    FUseSolidCaptionBackground: Boolean;
     FUseSimpleDrawOrder: Boolean;
     FMagnetDraw: Boolean;
     FOverSizeRect: TRect;
   protected
     function GetShowPointCaption: Boolean;
+    function GetUseSolidCaptionBackground: Boolean;
     function GetUseSimpleDrawOrder: Boolean;
     function GetOverSizeRect: TRect;
     function GerMagnetDraw: Boolean;
   public
     constructor Create(
       AShowPointCaption: Boolean;
+      AUseSolidCaptionBackground: Boolean;
       AUseSimpleDrawOrder: Boolean;
       AMagnetDraw: Boolean;
       AOverSizeRect: TRect
@@ -51,10 +54,16 @@ implementation
 
 { TMarksDrawConfigStatic }
 
-constructor TMarksDrawConfigStatic.Create(AShowPointCaption,
-  AUseSimpleDrawOrder: Boolean; AMagnetDraw: Boolean; AOverSizeRect: TRect);
+constructor TMarksDrawConfigStatic.Create(
+  AShowPointCaption: Boolean;
+  AUseSolidCaptionBackground: Boolean;
+  AUseSimpleDrawOrder: Boolean;
+  AMagnetDraw: Boolean;
+  AOverSizeRect: TRect
+);
 begin
   FShowPointCaption := AShowPointCaption;
+  FUseSolidCaptionBackground := AUseSolidCaptionBackground;
   FUseSimpleDrawOrder := AUseSimpleDrawOrder;
   FOverSizeRect := AOverSizeRect;
   FMagnetDraw := AMagnetDraw;
@@ -73,6 +82,11 @@ end;
 function TMarksDrawConfigStatic.GetUseSimpleDrawOrder: Boolean;
 begin
   Result := FUseSimpleDrawOrder;
+end;
+
+function TMarksDrawConfigStatic.GetUseSolidCaptionBackground: Boolean;
+begin
+  Result := FUseSolidCaptionBackground;
 end;
 
 function TMarksDrawConfigStatic.GerMagnetDraw: Boolean;

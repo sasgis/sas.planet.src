@@ -33,6 +33,7 @@ type
   TMarksDrawConfig = class(TConfigDataElementWithStaticBase, IMarksDrawConfig)
   private
     FShowPointCaption: Boolean;
+    FUseSolidCaptionBackground: Boolean;
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
     FMagnetDraw: Boolean;
@@ -44,6 +45,9 @@ type
   protected
     function GetShowPointCaption: Boolean;
     procedure SetShowPointCaption(AValue: Boolean);
+
+    function GetUseSolidCaptionBackground: Boolean;
+    procedure SetUseSolidCaptionBackground(AValue: Boolean);
 
     function GetUseSimpleDrawOrder: Boolean;
     procedure SetUseSimpleDrawOrder(AValue: Boolean);
@@ -72,6 +76,7 @@ begin
 
   FShowPointCaption := True;
   FUseSimpleDrawOrder := false;
+  FUseSolidCaptionBackground := False;
   FOverSizeRect := Rect(256, 128, 64, 128);
 end;
 
@@ -82,6 +87,7 @@ begin
   VStatic :=
     TMarksDrawConfigStatic.Create(
       FShowPointCaption,
+      FUseSolidCaptionBackground,
       FUseSimpleDrawOrder,
       FMagnetDraw,
       FOverSizeRect
@@ -94,6 +100,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FShowPointCaption := AConfigData.ReadBool('ShowPointCaption', FShowPointCaption);
+    FUseSolidCaptionBackground := AConfigData.ReadBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
     FUseSimpleDrawOrder := AConfigData.ReadBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
     FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
     FOverSizeRect.Left := AConfigData.ReadInteger('OverSizeRect.Left', FOverSizeRect.Left);
@@ -108,6 +115,7 @@ procedure TMarksDrawConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);
+  AConfigData.WriteBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
   AConfigData.WriteBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
   AConfigData.WriteBool('MagnetDraw', FMagnetDraw);
   AConfigData.WriteInteger('OverSizeRect.Left', FOverSizeRect.Left);
@@ -141,6 +149,16 @@ begin
   LockRead;
   try
     Result := FUseSimpleDrawOrder;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMarksDrawConfig.GetUseSolidCaptionBackground: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUseSolidCaptionBackground;
   finally
     UnlockRead;
   end;
@@ -193,6 +211,19 @@ begin
   try
     if FUseSimpleDrawOrder <> AValue then begin
       FUseSimpleDrawOrder := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMarksDrawConfig.SetUseSolidCaptionBackground(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FUseSolidCaptionBackground <> AValue then begin
+      FUseSolidCaptionBackground := AValue;
       SetChanged;
     end;
   finally

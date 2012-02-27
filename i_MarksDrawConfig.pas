@@ -32,6 +32,9 @@ type
     function GetShowPointCaption: Boolean;
     property ShowPointCaption: Boolean read GetShowPointCaption;
 
+    function GetUseSolidCaptionBackground: Boolean;
+    property UseSolidCaptionBackground: Boolean read GetUseSolidCaptionBackground;
+
     function GetUseSimpleDrawOrder: Boolean;
     property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder;
 
@@ -44,6 +47,10 @@ type
     function GetShowPointCaption: Boolean;
     procedure SetShowPointCaption(AValue: Boolean);
     property ShowPointCaption: Boolean read GetShowPointCaption write SetShowPointCaption;
+
+    function GetUseSolidCaptionBackground: Boolean;
+    procedure SetUseSolidCaptionBackground(AValue: Boolean);
+    property UseSolidCaptionBackground: Boolean read GetUseSolidCaptionBackground write SetUseSolidCaptionBackground;
 
     function GetUseSimpleDrawOrder: Boolean;
     procedure SetUseSimpleDrawOrder(AValue: Boolean);
