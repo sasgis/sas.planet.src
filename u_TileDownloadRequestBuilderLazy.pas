@@ -3,6 +3,7 @@ unit u_TileDownloadRequestBuilderLazy;
 interface
 
 uses
+  SyncObjs,
   i_OperationNotifier,
   i_TileRequest,
   i_Downloader,
@@ -17,6 +18,7 @@ type
     FFactory: ITileDownloadRequestBuilderFactory;
     FDownloader: IDownloader;
     FBuilder: ITileDownloadRequestBuilder;
+    FBuilderCS: TCriticalSection;
   protected
     function BuildRequest(
       ASource: ITileRequest;
@@ -29,9 +31,13 @@ type
       ADownloader: IDownloader;
       AFactory: ITileDownloadRequestBuilderFactory
     );
+    destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TTileDownloadRequestBuilderLazy }
 
@@ -40,8 +46,15 @@ constructor TTileDownloadRequestBuilderLazy.Create(
   AFactory: ITileDownloadRequestBuilderFactory
 );
 begin
+  FBuilderCS := TCriticalSection.Create;
   FDownloader := ADownloader;
   FFactory := AFactory;
+end;
+
+destructor TTileDownloadRequestBuilderLazy.Destroy;
+begin
+  FreeAndNil(FBuilderCS);
+  inherited;
 end;
 
 function TTileDownloadRequestBuilderLazy.BuildRequest(
@@ -50,15 +63,28 @@ function TTileDownloadRequestBuilderLazy.BuildRequest(
   ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 ): ITileDownloadRequest;
+var
+  VBuilder: ITileDownloadRequestBuilder;
 begin
   Result := nil;
   if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
     if FFactory.State.GetStatic.Enabled then begin
-      if FBuilder = nil then begin
-        FBuilder := FFactory.BuildRequestBuilder(FDownloader);
+      FBuilderCS.Acquire;
+      try
+        VBuilder := FBuilder;
+        if VBuilder = nil then begin
+          if FFactory.State.GetStatic.Enabled then begin
+            VBuilder := FFactory.BuildRequestBuilder(FDownloader);
+            if VBuilder <> nil then begin
+              FBuilder := VBuilder;
+            end;
+          end;
+        end;
+      finally
+        FBuilderCS.Release;
       end;
-      if FBuilder <> nil then begin
-        Result := FBuilder.BuildRequest(ASource, ALastResponseInfo, ACancelNotifier, AOperationID);
+      if VBuilder <> nil then begin
+        Result := VBuilder.BuildRequest(ASource, ALastResponseInfo, ACancelNotifier, AOperationID);
       end;
     end;
   end;
