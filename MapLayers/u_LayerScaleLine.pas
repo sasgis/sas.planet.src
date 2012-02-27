@@ -110,6 +110,7 @@ uses
   i_CoordConverter,
   u_NotifyEventListener,
   u_ResStrings,
+  u_GeoFun,
   t_GeoTypes;
 
 { TLayerScaleLine }
@@ -364,7 +365,7 @@ end;
 function TLayerScaleLine.GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
-  VCenterPixelXY: TPoint;
+  VStartPixel, VFinishPixel: TPoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
   VVisualCoordConverter: ILocalCoordConverter;
@@ -372,19 +373,11 @@ begin
   VVisualCoordConverter := LayerCoordConverter;
   VZoom := VVisualCoordConverter.GetZoom;
   VConverter := VVisualCoordConverter.GetGeoConverter;
-
-  VCenterPixelXY := VVisualCoordConverter.LocalPixel2MapPixel(
-    VVisualCoordConverter.LonLat2LocalPixel(
-      VVisualCoordConverter.GetCenterLonLat
-    )
-  );
-
-  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
-  VFinishLonLat := VConverter.PixelPos2LonLat(
-    Point(VCenterPixelXY.X + ALineWidth, VCenterPixelXY.Y),
-    VZoom
-  );
-  Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+  VStartPixel := PointFromDoublePoint(VVisualCoordConverter.GetCenterMapPixelFloat, prToTopLeft);
+  VFinishPixel := Point(VStartPixel.X + 1, VStartPixel.Y);
+  VStartLonLat := VConverter.PixelPos2LonLat(VStartPixel, VZoom);
+  VFinishLonLat := VConverter.PixelPos2LonLat(VFinishPixel, VZoom);
+  Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
 end;
 
 procedure TLayerScaleLine.ModifyLenAndWidth(
