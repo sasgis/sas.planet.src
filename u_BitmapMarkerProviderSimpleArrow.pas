@@ -79,8 +79,8 @@ begin
         VPolygon.Antialiased := true;
         VPolygon.AntialiasMode := am32times;
         VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X, 0)));
-        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X - VSize.X / 3, VSize.Y - 1)));
-        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X + VSize.X / 3, VSize.Y - 1)));
+        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X - VSize.X / 3, VSize.Y - 3)));
+        VPolygon.Add(VTransform.Transform(FixedPoint(VCenterPoint.X + VSize.X / 3, VSize.Y - 3)));
 
         VPolygon.DrawFill(VMarkerBitmap, VConfig.MarkerColor);
         VPolygon.DrawEdge(VMarkerBitmap, VConfig.BorderColor);
@@ -93,7 +93,7 @@ begin
     Result :=
       TBitmapMarkerWithDirection.Create(
         VMarkerBitmap,
-        DoublePoint(VCenterPoint.X, 0),
+        VCenterPoint,
         ADirection
       );
   finally
