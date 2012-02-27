@@ -520,6 +520,8 @@ var
   VCurrTileOnBitmapRect: TRect;
   VTileIsEmpty: Boolean;
   VMainMap: IMapType;
+  // draw mode - very first item is opaque, others - as dmBlend
+  VDrawMode: TDrawMode;
 begin
   VRecolorConfig := FPostProcessingConfig.GetStatic;
 
@@ -550,6 +552,7 @@ begin
 
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;
+        VDrawMode := dmOpaque;
         FMainMapCS.Acquire;
         try
           VMainMap := FMainMap;
@@ -557,10 +560,9 @@ begin
           FMainMapCS.Release;
         end;
         if VMainMap <> nil then begin
-          if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, dmOpaque, FUsePrevZoomAtMap, VRecolorConfig) then begin
+          if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
-          end else begin
-            VTileToDrawBmp.Clear(0);
+            VDrawMode := dmBlend;
           end;
         end;
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -579,8 +581,9 @@ begin
             VItem := VLayersSet.GetMapTypeByGUID(VGUID);
             VMapType := VItem.GetMapType;
             if VMapType.IsBitmapTiles then begin
-              if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, dmBlend, FUsePrevZoomAtLayer, VRecolorConfig) then begin
+              if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtLayer, VRecolorConfig) then begin
                 VTileIsEmpty := False;
+                VDrawMode := dmBlend;
               end;
             end;
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -594,6 +597,8 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
+        end else begin
+          VTileToDrawBmp.Clear(0);
         end;
 
         FLayer.Bitmap.Lock;
@@ -625,6 +630,7 @@ begin
   try
     if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, True, AMapType.CacheBitmap) then begin
       VBmp.DrawMode := ADrawMode;
+      VBmp.CombineMode := cmMerge;
       VBmp.DrawTo(ATargetBmp);
       Result := True;
     end;

@@ -243,8 +243,6 @@ begin
           if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
             VDrawMode := dmBlend;
-          end else begin
-            VTileToDrawBmp.Clear(0);
           end;
         end;
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -279,6 +277,8 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
+        end else begin
+          VTileToDrawBmp.Clear(0);
         end;
 
         Layer.Bitmap.Lock;
@@ -319,6 +319,7 @@ begin
     try
       if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.CacheBitmap) then begin
         VBmp.DrawMode := ADrawMode;
+        VBmp.CombineMode := cmMerge;
         VBmp.DrawTo(ATargetBmp);
         Result := True;
       end;
