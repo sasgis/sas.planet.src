@@ -353,6 +353,7 @@ var
   VResultDownloadError: IDownloadResultError;
   VResultNotNecessary: IDownloadResultNotNecessary;
   VResultDataNotExists: IDownloadResultDataNotExists;
+  VRequestError: ITileRequestResultError;
   VErrorString: string;
 begin
   FGlobalInternetState.DecQueueCount;
@@ -374,6 +375,10 @@ begin
       VErrorString := VResultNotNecessary.ReasonText;
     end else begin
       VErrorString := 'Unexpected error';
+    end;
+  end else begin
+    if Supports(VResult, ITileRequestResultError, VRequestError) then begin
+      VErrorString := VRequestError.ErrorText;
     end;
   end;
 
