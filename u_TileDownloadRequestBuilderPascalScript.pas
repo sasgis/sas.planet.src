@@ -183,9 +183,12 @@ begin
           ASource
         );
         try
-          FPSExec.RunScript;
-        except on E: Exception do
-          raise EPascalScriptRunError.Create(E.Message);
+          if not FPSExec.RunScript then begin
+            FPSExec.RaiseCurrentException;
+          end;
+        except
+          FPSExec.Stop;
+          raise;
         end;
         if FpResultUrl.Data <> '' then begin
           Result :=
