@@ -162,6 +162,8 @@ var
   VinstalledLanguages: TStringList;
   i: Integer;
   id : LCID;
+  VCurrentCode: string;
+  VCurrentIndex: Integer;
 begin
   VCodes := TStringList.Create;
   try
@@ -185,12 +187,19 @@ begin
       finally
         VinstalledLanguages.Free;
       end;
+      FList := TLanguageListStatic.Create(VCodes);
+
+      VCurrentCode := DefaultInstance.GetCurrentLanguage;
+      if not FList.FindCode(GetCurrentLanguage, VCurrentIndex) then begin
+        id := VLanguagesEx.GNUGetTextID[VCurrentCode];
+        VCurrentCode := VLanguagesEx.GNUGetTextName[id];
+        DefaultInstance.UseLanguage(VCurrentCode);
+      end;
     finally
       VLanguagesEx.Free;
     end;
-    FList := TLanguageListStatic.Create(VCodes);
-  finally
-    VCodes.Free;
+  finally
+    VCodes.Free;
   end;
 end;
 
