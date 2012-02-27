@@ -97,6 +97,11 @@ begin
   fRho := (a * (1 - e2)) / Power(fTemp, 1.5);
   fNu := a / (Sqrt(1 - e2 * (fSinPhimean * fSinPhimean)));
   fAlpha := Cos(VFinish.Y) * Sin(fdLambda) * 1 / Sin(fz);
+  if fAlpha > 1 then begin
+    fAlpha := 1;
+  end else if fAlpha < -1 then begin
+    fAlpha := -1;
+  end;
   fAlpha := ArcSin(fAlpha);
   fR := (fRho * fNu) / ((fRho * intPower(Sin(fAlpha), 2)) + (fNu * intPower(Cos(fAlpha), 2)));
 
