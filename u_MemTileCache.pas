@@ -3,11 +3,12 @@ unit u_MemTileCache;
 interface
 
 uses
+  Types,
   Classes,
   SysUtils,
-  GR32,
   i_JclNotify,
   i_MainMemCacheConfig,
+  i_Bitmap32Static,
   i_VectorDataItemSimple,
   i_TTLCheckListener,
   i_TTLCheckNotifier,
@@ -33,11 +34,13 @@ type
     function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
     procedure OnTTLTrim(Sender: TObject);
   protected
-    procedure ItemFree(AIndex: Integer); virtual; abstract;
+    procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
   protected
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
+    procedure AddObjectToCache(AObj: IInterface; AXY: TPoint; AZoom: Byte);
+    function TryLoadObjectFromCache(AXY: TPoint; AZoom: Byte): IInterface;
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -50,18 +53,14 @@ type
 
   TMemTileCacheVector = class(TMemTileCacheBase, ITileObjCacheVector)
   protected
-    procedure ItemFree(AIndex: Integer); override;
-  protected
     procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean;
+    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IVectorDataItemList;
   end;
 
   TMemTileCacheBitmap = class(TMemTileCacheBase, ITileObjCacheBitmap)
   protected
-    procedure ItemFree(AIndex: Integer); override;
-  protected
-    procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
+    procedure AddTileToCache(AObj: IBitmap32Static; AXY: TPoint; AZoom: Byte);
+    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IBitmap32Static;
   end;
 
 implementation
@@ -136,6 +135,32 @@ begin
   inherited;
 end;
 
+procedure TMemTileCacheBase.AddObjectToCache(
+  AObj: IInterface;
+  AXY: TPoint;
+  AZoom: Byte
+);
+var
+  VKey: string;
+  i: integer;
+begin
+  VKey := GetMemCacheKey(AXY, AZoom);
+  FSync.BeginWrite;
+  try
+    i := FCacheList.IndexOf(VKey);
+    if (i < 0)and(FCacheList.Capacity>0) then begin
+      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
+        ItemFree(0);
+        FCacheList.Delete(0);
+      end;
+      AObj._AddRef;
+      FCacheList.AddObject(VKey, Pointer(AObj));
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
 procedure TMemTileCacheBase.Clear;
 var
   i: integer;
@@ -179,6 +204,11 @@ begin
   FTTLListener.UpdateUseTime;
 end;
 
+procedure TMemTileCacheBase.ItemFree(AIndex: Integer);
+begin
+  IInterface(Pointer(FCacheList.Objects[AIndex]))._Release;
+end;
+
 procedure TMemTileCacheBase.OnChangeConfig;
 var
   VNewSize: Integer;
@@ -211,6 +241,30 @@ begin
   Clear;
 end;
 
+function TMemTileCacheBase.TryLoadObjectFromCache(
+  AXY: TPoint;
+  AZoom: Byte
+): IInterface;
+var
+  i: integer;
+  VKey: string;
+begin
+  Result := nil;
+  VKey := GetMemCacheKey(AXY, AZoom);
+  FSync.BeginRead;
+  try
+    i := FCacheList.IndexOf(VKey);
+    if i >= 0 then begin
+      Result := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
+    end;
+  finally
+    FSync.EndRead;
+  end;
+  if Result <> nil then begin
+    IncUpdateCounter;
+  end;
+end;
+
 { TMemTileCacheVector }
 
 procedure TMemTileCacheVector.AddTileToCache(AObj: IVectorDataItemList;
@@ -236,86 +290,40 @@ begin
   end;
 end;
 
-procedure TMemTileCacheVector.ItemFree(AIndex: Integer);
-begin
-  IInterface(Pointer(FCacheList.Objects[AIndex]))._Release;
-end;
-
-function TMemTileCacheVector.TryLoadTileFromCache(var AObj: IVectorDataItemList;
-  AXY: TPoint; AZoom: Byte): boolean;
+function TMemTileCacheVector.TryLoadTileFromCache(
+  AXY: TPoint;
+  AZoom: Byte
+): IVectorDataItemList;
 var
-  i: integer;
-  VKey: string;
+  VObj: IInterface;
 begin
-  Result := false;
-  VKey := GetMemCacheKey(AXY, AZoom);
-  FSync.BeginRead;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if i >= 0 then begin
-      AObj := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
-      Result := true;
-    end;
-  finally
-    FSync.EndRead;
-  end;
-  if Result then begin
-    IncUpdateCounter;
+  VObj := TryLoadObjectFromCache(AXY, AZoom);
+  if not Supports(VObj, IVectorDataItemList, Result) then begin
+    Result := nil;
   end;
 end;
 
 { TMemTileCacheBitmap }
 
-procedure TMemTileCacheBitmap.AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint;
-  AZoom: Byte);
-var
-  btmcache: TCustomBitmap32;
-  VKey: string;
-  i: integer;
+procedure TMemTileCacheBitmap.AddTileToCache(
+  AObj: IBitmap32Static;
+  AXY: TPoint;
+  AZoom: Byte
+);
 begin
-  VKey := GetMemCacheKey(AXY, AZoom);
-  FSync.BeginWrite;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if (i < 0)and(FCacheList.Capacity>0) then begin
-      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
-        ItemFree(0);
-        FCacheList.Delete(0);
-      end;
-      btmcache := TCustomBitmap32.Create;
-      btmcache.Assign(AObj);
-      FCacheList.AddObject(VKey, btmcache);
-    end;
-  finally
-    FSync.EndWrite;
-  end;
+  AddObjectToCache(AObj, AXY, AZoom);
 end;
 
-procedure TMemTileCacheBitmap.ItemFree(AIndex: Integer);
-begin
-  FCacheList.Objects[AIndex].Free;
-end;
-
-function TMemTileCacheBitmap.TryLoadTileFromCache(AObj: TCustomBitmap32;
-  AXY: TPoint; AZoom: Byte): boolean;
+function TMemTileCacheBitmap.TryLoadTileFromCache(
+  AXY: TPoint;
+  AZoom: Byte
+): IBitmap32Static;
 var
-  i: integer;
-  VKey: string;
+  VObj: IInterface;
 begin
-  Result := false;
-  VKey := GetMemCacheKey(AXY, AZoom);
-  FSync.BeginRead;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if i >= 0 then begin
-      AObj.Assign(TCustomBitmap32(FCacheList.Objects[i]));
-      result := true;
-    end;
-  finally
-    FSync.EndRead;
-  end;
-  if Result then begin
-    IncUpdateCounter;
+  VObj := TryLoadObjectFromCache(AXY, AZoom);
+  if not Supports(VObj, IBitmap32Static, Result) then begin
+    Result := nil;
   end;
 end;
 

@@ -234,7 +234,9 @@ implementation
 
 uses
   Types,
+  i_Bitmap32Static,
   i_TileInfoBasic,
+  u_Bitmap32Static,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
@@ -726,13 +728,24 @@ function TMapType.LoadTile(
   IgnoreError: Boolean;
   ACache: ITileObjCacheBitmap
 ): boolean;
+var
+  VBitmap: IBitmap32Static;
 begin
   try
-    if (ACache = nil) or (not ACache.TryLoadTileFromCache(btm, AXY, Azoom)) then begin
-      result:=LoadBitmapTileFromStorage(AXY, Azoom, btm);
-      if ((result)and(ACache <> nil)) then ACache.AddTileToCache(btm, AXY, Azoom);
+    if ACache = nil then begin
+      Result := LoadBitmapTileFromStorage(AXY, Azoom, btm);
     end else begin
-      result:=true;
+      VBitmap := ACache.TryLoadTileFromCache(AXY, Azoom);
+      if VBitmap <> nil then begin
+        btm.Assign(VBitmap.Bitmap);
+        Result := True;
+      end else begin
+        Result := LoadBitmapTileFromStorage(AXY, Azoom, btm);
+        if Result then begin
+          VBitmap := TBitmap32Static.CreateWithCopy(btm);
+          ACache.AddTileToCache(VBitmap, AXY, Azoom);
+        end;
+      end;
     end;
   except
     if not IgnoreError then begin
@@ -752,11 +765,18 @@ function TMapType.LoadTile(
 ): boolean;
 begin
   try
-    if (ACache = nil) or (not ACache.TryLoadTileFromCache(AKml, AXY, Azoom)) then begin
-      result:=LoadKmlTileFromStorage(AXY, Azoom, AKml);
-      if ((result)and(ACache <> nil)) then ACache.AddTileToCache(AKml, AXY, Azoom);
+    if ACache = nil then begin
+      Result := LoadKmlTileFromStorage(AXY, Azoom, AKml);
     end else begin
-      result:=true;
+      AKml := ACache.TryLoadTileFromCache(AXY, Azoom);
+      if AKml <> nil then begin
+        Result := True;
+      end else begin
+        Result := LoadKmlTileFromStorage(AXY, Azoom, AKml);
+        if Result then begin
+          ACache.AddTileToCache(AKml, AXY, Azoom);
+        end;
+      end;
     end;
   except
     if not IgnoreError then begin

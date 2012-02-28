@@ -23,7 +23,8 @@ unit i_TileObjCache;
 interface
 
 uses
-  GR32,
+  Types,
+  i_Bitmap32Static,
   i_VectorDataItemSimple;
 
 type
@@ -32,19 +33,17 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
     procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(var AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte): boolean;
+    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IVectorDataItemList;
   end;
 
   ITileObjCacheBitmap = interface
     ['{B52B38D1-C57C-424C-B85B-AC623A54E7B5}']
     procedure Clear;
     procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
-    procedure AddTileToCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(AObj: TCustomBitmap32; AXY: TPoint; AZoom: Byte): boolean;
+    procedure AddTileToCache(AObj: IBitmap32Static; AXY: TPoint; AZoom: Byte);
+    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IBitmap32Static;
   end;
-
 
 implementation
 
 end.
- 
