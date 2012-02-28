@@ -3453,6 +3453,15 @@ object frmMain: TfrmMain
       Caption = 'Layer Info'
       Hint = ''
     end
+    object tbpmiVersions: TTBXSubmenuItem
+      OnPopup = tbpmiVersionsPopup
+      Caption = 'Versions'
+      Hint = ''
+      object tbpmiClearVersion: TTBXItem
+        Caption = 'Clear'
+        Hint = ''
+      end
+    end
   end
   object TrayIcon: TTrayIcon
     PopupMenu = TrayPopupMenu

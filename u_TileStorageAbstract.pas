@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -117,6 +117,10 @@ type
       AVersionInfo: IMapVersionInfo
     ); virtual; abstract;
 
+    function GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
+                                   const AAllowFromCache: Boolean;
+                                   AListOfVersions: TStrings): Boolean; virtual;
+
     function LoadFillingMap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -201,6 +205,13 @@ begin
   end;
   FreeAndNil(FStorageStateStaticCS);
   inherited;
+end;
+
+function TTileStorageAbstract.GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
+                                                    const AAllowFromCache: Boolean;
+                                                    AListOfVersions: TStrings): Boolean;
+begin
+  Result := FALSE;
 end;
 
 function TTileStorageAbstract.GetNotifierByZoom(

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -25,6 +25,7 @@ interface
 uses
   Types,
   SysUtils,
+  Classes,
   i_JclNotify,
   i_StorageStateInternal,
   i_MapVersionInfo,
@@ -35,7 +36,7 @@ type
     Magic  : LongWord;  // число-идентификатор =  D5 BF 93 75
     Ver    : Word;      // версия тайла
     TileID : Byte;      // тип тайла
-    Res1   : Byte;      // ?
+    Res1   : Byte;      // индекс снимка?
     Zoom   : Byte;      // уровень зума
     Res2   : Byte;      // ?
     Layer  : Word;      // номер слоя (только для слоя, иначе = 0)
@@ -73,14 +74,15 @@ type
       AZoom: Byte;
       var AVersionInfo: IMapVersionInfo;
       out AOffset: Integer;
-      out ASize: Integer
+      out ASize: Integer;
+      AVersions: TStrings
     ): Boolean;
   end;
 
 implementation
 
 uses
-  Classes,
+  Variants,
   t_CommonTypes,
   u_NotifyEventListener,
   u_MapVersionInfo;
@@ -147,7 +149,8 @@ function TGEIndexFile.FindTileInfo(
   APoint: TPoint;
   AZoom: Byte;
   var AVersionInfo: IMapVersionInfo;
-  out AOffset, ASize: Integer
+  out AOffset, ASize: Integer;
+  AVersions: TStrings
 ): Boolean;
 var
   VNameLo: LongWord;
@@ -155,10 +158,25 @@ var
   i: Integer;
   VProcessed: Boolean;
   VVersion: Word;
+  VAskVersion: Byte;
+  VText: String;
 begin
   Result := False;
   AOffset := 0;
   ASize := 0;
+  
+  VAskVersion:=0;
+  try
+    if Assigned(AVersionInfo) then begin
+      VText:=VarToStrDef(AVersionInfo.Version,'');
+      if (0<Length(VText)) then begin
+        if TryStrToInt(Trim(VText), i) then
+          if (i>0) and (i<=$FF) then
+            VAskVersion := i;
+      end;
+    end;
+  except
+  end;
 
   AVersionInfo := nil;
   VProcessed := False;
@@ -184,12 +202,22 @@ begin
                 if FIndexInfo[i].ServID = FServerID then begin
                   if FIndexInfo[i].Zoom = AZoom then begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
-                      AOffset := FIndexInfo[i].Offset;
-                      ASize := FIndexInfo[i].Size;
-                      VVersion := FIndexInfo[i].Ver;
-                      AVersionInfo := TMapVersionInfo.Create(VVersion);
-                      Result := True;
-                      Break;
+                      // found
+                      if (not Result) and ((0=VAskVersion) or (VAskVersion=FIndexInfo[i].Res1)) then begin
+                        // second entrance will fail because of Result
+                        AOffset := FIndexInfo[i].Offset;
+                        ASize := FIndexInfo[i].Size;
+                        VVersion := FIndexInfo[i].Res1; // FIndexInfo[i].Ver;
+                        AVersionInfo := TMapVersionInfo.Create(VVersion);
+                        Inc(Result);
+                        //Break;
+                      end;
+                      // ok without collecting versions
+                      if Result and (nil=AVersions) then
+                        break;
+                      // collecting versions (SORTED and DUP IGNORED!)
+                      if (nil<>AVersions) then
+                        AVersions.Add(IntToStr(FIndexInfo[i].Res1));
                     end;
                   end;
                 end;

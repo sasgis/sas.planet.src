@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -26,6 +26,7 @@ uses
   Types,
   Classes,
   i_SimpleTileStorageConfig,
+  //i_TileObjCache,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,
@@ -41,11 +42,18 @@ type
     FCacheConfig: TMapTypeCacheConfigGE;
     FIndex: TGEIndexFile;
     FMainContentType: IContentTypeInfoBasic;
+    //FTileVersionsCacher: ITileObjCacheStrings;
+  private
+    function ListOfVersions_Make: TStrings;
+    function ListOfVersions_NeedToCollect(const AXY: TPoint; const AZoom: Byte): Boolean;
+    procedure ListOfVersions_SaveToCache(const AXY: TPoint; const AZoom: Byte;
+                                         var AListOfVersions: TStrings);
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager
+      AContentTypeManager: IContentTypeManager//;
+      //ATileVersionsCacher: ITileObjCacheStrings
     );
     destructor Destroy; override;
 
@@ -96,6 +104,10 @@ type
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ); override;
+
+    function GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
+                                   const AAllowFromCache: Boolean;
+                                   AListOfVersions: TStrings): Boolean; override;
   end;
 
 implementation
@@ -112,10 +124,12 @@ uses
 constructor TTileStorageGE.Create(
   AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager
+  AContentTypeManager: IContentTypeManager//;
+  //ATileVersionsCacher: ITileObjCacheStrings
 );
 begin
   inherited Create(TTileStorageTypeAbilitiesGE.Create, AConfig);
+  //FTileVersionsCacher := ATileVersionsCacher;
   FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig);
   FIndex := TGEIndexFile.Create(StorageStateInternal, FCacheConfig);
   FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
@@ -123,6 +137,7 @@ end;
 
 destructor TTileStorageGE.Destroy;
 begin
+  //FTileVersionsCacher:=nil;
   FreeAndNil(FIndex);
   FreeAndNil(FCacheConfig);
   inherited;
@@ -149,6 +164,26 @@ end;
 function TTileStorageGE.GetAllowDifferentContentTypes: Boolean;
 begin
   Result := True;
+end;
+
+function TTileStorageGE.GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
+                                              const AAllowFromCache: Boolean;
+                                              AListOfVersions: TStrings): Boolean;
+var
+  VVersionInfo: IMapVersionInfo;
+  VOffset: Integer;
+  VSize: Integer;
+begin
+  Result:=FALSE;
+  {if AAllowFromCache and Assigned(FTileVersionsCacher) then begin
+    // allow from cache
+    if FTileVersionsCacher.TryLoadTileFromCache(AInfo, AXY, Azoom, nil) then
+      Inc(Result);
+  end else begin}
+    // from storage
+    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize, AListOfVersions) then
+      Inc(Result);
+  {end;}
 end;
 
 function TTileStorageGE.GetCacheConfig: TMapTypeCacheConfigAbstract;
@@ -179,11 +214,20 @@ var
   VOffset: Integer;
   VSize: Integer;
   VVersionInfo: IMapVersionInfo;
+  VListOfVersions: TStrings;
 begin
   Result := nil;
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
+  VListOfVersions := nil;
+  if StorageStateStatic.ReadAccess <> asDisabled then
+  try
     VVersionInfo := AVersionInfo;
-    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
+
+    // if need to collect versions
+    if ListOfVersions_NeedToCollect(AXY, Azoom) then
+      VListOfVersions:=ListOfVersions_Make;
+
+    // do it
+    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize, VListOfVersions) then begin
       Result := TTileInfoBasicExists.Create(
         0,
         VSize,
@@ -193,7 +237,43 @@ begin
     end else begin
       Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
     end;
+
+    // cache versions
+    if (nil<>VListOfVersions) then
+      ListOfVersions_SaveToCache(AXY, Azoom, VListOfVersions);
+  finally
+    FreeAndNil(VListOfVersions);
   end;
+end;
+
+function TTileStorageGE.ListOfVersions_Make: TStrings;
+begin
+  {if Assigned(FTileVersionsCacher) then begin
+    Result := TStringList.Create;
+    with TStringList(Result) do begin
+      Sorted:=TRUE;
+      Duplicates:=dupIgnore;
+    end;
+  end else}
+    Result := nil;
+end;
+
+function TTileStorageGE.ListOfVersions_NeedToCollect(const AXY: TPoint; const AZoom: Byte): Boolean;
+begin
+  Result := FALSE; // not need to cache
+  {if Assigned(FTileVersionsCacher) then begin
+    // versioninfo always NIL
+    if not FTileVersionsCacher.TryLoadTileFromCache(nil, AXY, AZoom, nil) then
+      Inc(Result); // not in cache and need to cache
+  end;}
+end;
+
+procedure TTileStorageGE.ListOfVersions_SaveToCache(const AXY: TPoint;
+                                                    const AZoom: Byte;
+                                                    var AListOfVersions: TStrings);
+begin
+  {if Assigned(FTileVersionsCacher) then
+    FTileVersionsCacher.AddTileToCache(AListOfVersions, AXY, AZoom, nil);}
 end;
 
 function TTileStorageGE.LoadTile(
@@ -211,11 +291,20 @@ var
   VMemStream: TMemoryStream;
   VTileStart: LongWord;
   VVersionInfo: IMapVersionInfo;
+  VListOfVersions: TStrings;
 begin
   Result := False;
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
+  VListOfVersions := nil;
+  if StorageStateStatic.ReadAccess <> asDisabled then
+  try
     VVersionInfo := AVersionInfo;
-    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize) then begin
+
+    // if need to collect versions
+    if ListOfVersions_NeedToCollect(AXY, Azoom) then
+      VListOfVersions:=ListOfVersions_Make;
+    
+    // do it
+    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize, VListOfVersions) then begin
       VFileName := FCacheConfig.GetDataFileName;
       if FileExists(VFileName) then begin
         VFileStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
@@ -261,6 +350,12 @@ begin
     end else begin
       ATileInfo := TTileInfoBasicNotExists.Create(0, VVersionInfo);
     end;
+
+    // cache versions
+    if (nil<>VListOfVersions) then
+      ListOfVersions_SaveToCache(AXY, Azoom, VListOfVersions);
+  finally
+    FreeAndNil(VListOfVersions);
   end;
 end;
 

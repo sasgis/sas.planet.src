@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -407,6 +407,8 @@ type
     TBSeparatorItem2: TTBSeparatorItem;
     NDegScaleAuto: TTBXItem;
     nokiamapcreator1: TTBXItem;
+    tbpmiVersions: TTBXSubmenuItem;
+    tbpmiClearVersion: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -545,6 +547,7 @@ type
     procedure NDegValueAcceptText(Sender: TObject; var NewText: string;
       var Accept: Boolean);
     procedure nokiamapcreator1Click(Sender: TObject);
+    procedure tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -665,6 +668,7 @@ type
     procedure OnBeforeViewChange;
     procedure OnAfterViewChange;
     procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    procedure DoSelectSpecialVersion(Sender: TObject);
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw(Sender: TObject);
@@ -2387,6 +2391,36 @@ begin
   end;
 end;
 
+procedure TfrmMain.DoSelectSpecialVersion(Sender: TObject);
+var
+  VVersion: String;
+  VChecked: Boolean;
+  VMapType: TMapType;
+begin
+  if (nil<>Sender) and (Sender is TTBXItem) then begin
+    VVersion := TTBXItem(Sender).Caption;
+    VChecked := TTBXItem(Sender).Checked;
+
+    // for current map
+    VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+
+    // what to do
+    if VChecked then begin
+      // clear (uncheck) version
+      VMapType.VersionConfig.Version := '';
+    end else begin
+      // apply this version
+      VMapType.VersionConfig.Version := VVersion;
+    end;
+
+    // clear cache
+    VMapType.CacheBitmap.Clear;
+
+    // TODO: notify to repaint map
+    // FConfig.ViewPortState.
+  end;
+end;
+
 procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
   VShortCut: TShortCut;
@@ -2715,6 +2749,68 @@ end;
 procedure TfrmMain.TBmoveClick(Sender: TObject);
 begin
  setalloperationfalse(ao_movemap);
+end;
+
+procedure TfrmMain.tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
+var
+  VMapType: TMapType;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoomCurr: Byte;
+  VMousePos: TPoint;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat: TDoublePoint;
+  VMapTile: Tpoint;
+  VListOfVersions: TStringList;
+  i: Integer;
+  VMenuItem: TTBXItem;
+  VCurrentVersion, VFoundVersion: String;
+begin
+  // remove all versions
+  while (tbpmiVersions.Count>1) do
+    tbpmiVersions.Delete(1);
+
+  // and add view items
+  VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+  if VMapType.AllowListOfTileVersions then begin
+    // to lonlat
+    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VConverter := VLocalConverter.GetGeoConverter;
+    VZoomCurr := VLocalConverter.GetZoom;
+    VMousePos := MainPopupMenu.PopupPoint;
+    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
+    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
+    VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+
+    // to map
+    VMapTile := VMapType.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
+
+    // get current version
+    VCurrentVersion := VarToStrDef(VMapType.VersionConfig.Version,'');
+
+    // get text
+    VListOfVersions:=TStringList.Create;
+    try
+      VListOfVersions.Sorted:=TRUE;
+      VListOfVersions.Duplicates:=dupIgnore;
+      if VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr, FALSE, VListOfVersions) then
+      if (0<VListOfVersions.Count) then begin
+        // make items
+        for i := 0 to VListOfVersions.Count-1 do
+        try
+          VFoundVersion := VListOfVersions[i];
+          VMenuItem := TTBXItem.Create(tbpmiVersions);
+          VMenuItem.Caption := VFoundVersion;
+          VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion=VFoundVersion));
+          VMenuItem.OnClick := DoSelectSpecialVersion;
+          tbpmiVersions.Add(VMenuItem);
+        except
+        end;
+      end;
+    finally
+      VListOfVersions.Free;
+    end;
+  end;
 end;
 
 procedure TfrmMain.TBZoom_outClick(Sender: TObject);
@@ -5071,8 +5167,13 @@ begin
       end
     end;
   end;
+  // current map
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+  // allow to view map info
   NMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
+  // allow to clear or select versions
+  tbpmiClearVersion.Visible := (0<Length(VarToStrDef(VMapType.VersionConfig.Version,'')));
+  tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible;
 end;
 
 procedure TfrmMain.NGoToForumClick(Sender: TObject);

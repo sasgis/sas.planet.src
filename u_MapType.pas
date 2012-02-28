@@ -119,6 +119,7 @@ type
     ): boolean;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
+    function AllowListOfTileVersions: Boolean;
     procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
     function GetTileFileName(AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(AXY: TPoint; Azoom: byte): string;
@@ -489,6 +490,12 @@ end;
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
+end;
+
+function TMapType.AllowListOfTileVersions: Boolean;
+begin
+  // only for GE
+  Result := (FStorageConfig.CacheTypeCode = 5);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
