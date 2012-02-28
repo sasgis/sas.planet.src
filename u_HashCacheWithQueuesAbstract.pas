@@ -134,9 +134,9 @@ type
     procedure MoveItemFromFirstInToFirstOut;
     procedure FreeItemFromQueueMulti;
   protected
-    procedure CreateByKey(AKey: UInt64; out Item: IInterface); virtual; abstract;
+    procedure CreateByKey(AKey: UInt64; AData: Pointer; out Item: IInterface); virtual; abstract;
     function GetIndexByKey(AKey: UInt64): THashIndex; virtual; abstract;
-    procedure GetOrCreateItem(AKey: UInt64; out AItem: IInterface);
+    procedure GetOrCreateItem(AKey: UInt64; AData: Pointer; out AItem: IInterface);
   public
     constructor Create(
       AHashSizeInBit: Byte;
@@ -619,7 +619,9 @@ begin
   FFreeItems.Push(VIndex, VItem);
 end;
 
-procedure THashCacheWithQueuesAbstract.GetOrCreateItem(AKey: UInt64;
+procedure THashCacheWithQueuesAbstract.GetOrCreateItem(
+  AKey: UInt64;
+  AData: Pointer;
   out AItem: IInterface);
 var
   VHashIndex: THashIndex;
@@ -659,7 +661,7 @@ begin
     FCS.Release;
   end;
   if AItem = nil then begin
-    CreateByKey(AKey, AItem);
+    CreateByKey(AKey, AData, AItem);
     FCS.Acquire;
     try
       VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
