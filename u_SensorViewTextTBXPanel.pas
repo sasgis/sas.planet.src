@@ -36,38 +36,32 @@ uses
   i_Sensor;
 
 type
-  TSensorViewTextTBXPanel = class(TInterfacedObject, ISensorView)
+  TSensorViewTBXPanelBase = class(TInterfacedObject, ISensorView)
   private
     FListEntity: ISensorListEntity;
-    FSensor: ISensorText;
+    FSensor: ISensor;
     FConfig: ISensorViewConfig;
-
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
-
     FLinksList: IJclListenerNotifierLinksList;
 
     FBar: TTBXToolWindow;
     FpnlTop: TTBXAlignmentPanel;
     FlblCaption: TTBXLabel;
     FbtnReset: TTBXButton;
-    FlblValue: TTBXLabel;
 
     FResetItem: TTBXItem;
     FVisibleItem: TTBXCustomItem;
     FVisibleItemWithReset: TTBXSubmenuItem;
 
-    FTextChangeId: Integer;
-    FTextShowId: Integer;
-    FLastText: string;
+    FValueChangeId: Integer;
+    FValueShowId: Integer;
 
     function GuidToComponentName(APrefix: string; AGUID: TGUID): string;
-    procedure CreatePanel;
     procedure CreateMenu;
-
     procedure UpdateControls;
 
     procedure OnBarVisibleChanged(Sender: TObject);
@@ -77,6 +71,9 @@ type
     procedure OnConfigChange;
     procedure OnSensorChange;
     procedure OnSensorDataUpdate;
+  protected
+    procedure CreatePanel; virtual;
+    procedure UpdateDataView; virtual; abstract;
   protected
     function GetConfig: ISensorViewConfig;
     function GetSensor: ISensor;
@@ -94,6 +91,28 @@ type
     destructor Destroy; override;
   end;
 
+  TSensorViewTextTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FSensor: ISensorText;
+    FlblValue: TTBXLabel;
+    FLastText: string;
+
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      AListEntity: ISensorListEntity;
+      AConfig: ISensorViewConfig;
+      ATimerNoifier: IJclNotifier;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
 implementation
 
 uses
@@ -104,25 +123,19 @@ uses
   u_NotifyEventListener,
   u_ResStrings;
 
-constructor TSensorViewTextTBXPanel.Create(
-  AListEntity: ISensorListEntity;
-  AConfig: ISensorViewConfig;
-  ATimerNoifier: IJclNotifier;
-  AOwner: TComponent;
-  ADefaultDoc: TTBDock;
-  AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList;
-  AImageIndexReset: TImageIndex
-);
+{ TSensorViewTBXPanelBase }
+
+constructor TSensorViewTBXPanelBase.Create(AListEntity: ISensorListEntity;
+  AConfig: ISensorViewConfig; ATimerNoifier: IJclNotifier; AOwner: TComponent;
+  ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem; AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex);
 begin
   FListEntity := AListEntity;
-  if not Supports(FListEntity.GetSensor, ISensorText, FSensor) then begin
-    raise Exception.Create('Неподдерживаемый тип сенсора');
-  end;
+  FSensor := FListEntity.GetSensor;
   FConfig := AConfig;
   FOwner := AOwner;
-  FTextChangeId := 0;
-  FTextShowId := 0;
+  FValueChangeId := 0;
+  FValueShowId := 0;
   Assert(FOwner is TWinControl);
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;
@@ -160,7 +173,7 @@ begin
   OnSensorDataUpdate;
 end;
 
-destructor TSensorViewTextTBXPanel.Destroy;
+destructor TSensorViewTBXPanelBase.Destroy;
 begin
   FLinksList.DeactivateLinks;
   FLinksList := nil;
@@ -170,7 +183,7 @@ begin
   inherited;
 end;
 
-procedure TSensorViewTextTBXPanel.CreateMenu;
+procedure TSensorViewTBXPanelBase.CreateMenu;
 begin
   if FSensor.CanReset then begin
     FVisibleItemWithReset := TTBXSubmenuItem.Create(FBar);
@@ -195,10 +208,9 @@ begin
   FParentMenu.Add(FVisibleItem);
 end;
 
-procedure TSensorViewTextTBXPanel.CreatePanel;
+procedure TSensorViewTBXPanelBase.CreatePanel;
 begin
   FBar := TTBXToolWindow.Create(FOwner);
-  FlblValue := TTBXLabel.Create(FBar);
   FpnlTop := TTBXAlignmentPanel.Create(FBar);
   FlblCaption := TTBXLabel.Create(FBar);
 
@@ -240,7 +252,6 @@ begin
     FbtnReset.OnClick := Self.OnResetClick;
   end;
 
-//  FlblCaption.Name := '';
   FlblCaption.Parent := FpnlTop;
   FlblCaption.Left := 0;
   FlblCaption.Top := 0;
@@ -248,8 +259,119 @@ begin
   FlblCaption.Height := 18;
   FlblCaption.Align := alClient;
   FlblCaption.Wrapping := twEndEllipsis;
+end;
 
-//  FlblValue.Name := '';
+function TSensorViewTBXPanelBase.GetConfig: ISensorViewConfig;
+begin
+  Result := FConfig;
+end;
+
+function TSensorViewTBXPanelBase.GetSensor: ISensor;
+begin
+  Result := FSensor;
+end;
+
+function TSensorViewTBXPanelBase.GuidToComponentName(
+  APrefix: string;
+  AGUID: TGUID
+): string;
+var
+  VGUIDStr: string;
+begin
+  VGUIDStr := GUIDToString(AGUID);
+  VGUIDStr := StringReplace(VGUIDStr, '{', '', [rfReplaceAll]);
+  VGUIDStr := StringReplace(VGUIDStr, '}', '', [rfReplaceAll]);
+  VGUIDStr := StringReplace(VGUIDStr, '-', '_', [rfReplaceAll]);
+  Result := APrefix + VGUIDStr;
+end;
+
+procedure TSensorViewTBXPanelBase.OnBarVisibleChanged(Sender: TObject);
+begin
+  FConfig.Visible := FBar.Visible;
+end;
+
+procedure TSensorViewTBXPanelBase.OnConfigChange;
+var
+  VVisible: Boolean;
+begin
+  VVisible := FConfig.Visible;
+  FBar.Visible := VVisible;
+  FVisibleItem.Checked := VVisible;
+end;
+
+procedure TSensorViewTBXPanelBase.OnResetClick(Sender: TObject);
+begin
+  if FSensor.CanReset then begin
+    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
+      FSensor.Reset;
+      OnTimer;
+    end;
+  end;
+end;
+
+procedure TSensorViewTBXPanelBase.OnSensorChange;
+begin
+  UpdateControls;
+end;
+
+procedure TSensorViewTBXPanelBase.OnSensorDataUpdate;
+begin
+  InterlockedIncrement(FValueChangeId);
+end;
+
+procedure TSensorViewTBXPanelBase.OnTimer;
+begin
+  if FConfig.Visible then begin
+    if FValueChangeId <> FValueShowId then begin
+      UpdateDataView;
+      FValueShowId := FValueChangeId;
+    end;
+  end;
+end;
+
+procedure TSensorViewTBXPanelBase.OnVisibleItemClick(Sender: TObject);
+begin
+  FConfig.Visible := FVisibleItem.Checked;
+end;
+
+procedure TSensorViewTBXPanelBase.UpdateControls;
+begin
+  FVisibleItem.Caption := FListEntity.GetMenuItemName;
+  FBar.Caption := FListEntity.GetCaption;
+  FBar.Hint := FListEntity.GetDescription;
+  FlblCaption.Caption := FListEntity.GetCaption;
+  if FResetItem <> nil then begin
+    FResetItem.Caption := SAS_STR_SensorReset;
+  end;
+  if FbtnReset <> nil then begin
+    FbtnReset.Hint := SAS_STR_SensorReset;
+  end;
+end;
+
+{ TSensorViewTextTBXPanel }
+
+constructor TSensorViewTextTBXPanel.Create(
+  AListEntity: ISensorListEntity;
+  AConfig: ISensorViewConfig;
+  ATimerNoifier: IJclNotifier;
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
+begin
+  inherited;
+  if not Supports(FListEntity.GetSensor, ISensorText, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewTextTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
   FlblValue.Parent := FBar;
   FlblValue.AutoSize := True;
   FlblValue.Left := 0;
@@ -267,96 +389,14 @@ begin
   FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
 end;
 
-{ TSensorViewTextTBXPanel }
-
-procedure TSensorViewTextTBXPanel.OnBarVisibleChanged;
-begin
-  FConfig.Visible := FBar.Visible;
-end;
-
-procedure TSensorViewTextTBXPanel.OnConfigChange;
-var
-  VVisible: Boolean;
-begin
-  VVisible := FConfig.Visible;
-  FBar.Visible := VVisible;
-  FVisibleItem.Checked := VVisible;
-end;
-
-function TSensorViewTextTBXPanel.GetConfig: ISensorViewConfig;
-begin
-  Result := FConfig;
-end;
-
-function TSensorViewTextTBXPanel.GetSensor: ISensor;
-begin
-  Result := FSensor;
-end;
-
-function TSensorViewTextTBXPanel.GuidToComponentName(APrefix: string;
-  AGUID: TGUID): string;
-var
-  VGUIDStr: string;
-begin
-  VGUIDStr := GUIDToString(AGUID);
-  VGUIDStr := StringReplace(VGUIDStr, '{', '', [rfReplaceAll]);
-  VGUIDStr := StringReplace(VGUIDStr, '}', '', [rfReplaceAll]);
-  VGUIDStr := StringReplace(VGUIDStr, '-', '_', [rfReplaceAll]);
-  Result := APrefix + VGUIDStr;
-end;
-
-procedure TSensorViewTextTBXPanel.OnResetClick(Sender: TObject);
-begin
-  if FSensor.CanReset then begin
-    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
-      FSensor.Reset;
-      OnTimer;
-    end;
-  end;
-end;
-
-procedure TSensorViewTextTBXPanel.OnSensorChange;
-begin
-  UpdateControls;
-end;
-
-procedure TSensorViewTextTBXPanel.OnSensorDataUpdate;
-begin
-  InterlockedIncrement(FTextChangeId);
-end;
-
-procedure TSensorViewTextTBXPanel.OnTimer;
+procedure TSensorViewTextTBXPanel.UpdateDataView;
 var
   VText: string;
 begin
-  if FConfig.Visible then begin
-    if FTextChangeId <> FTextShowId then begin
-      VText := FSensor.GetText;
-      if FLastText <> VText then begin
-        FLastText := VText;
-        FlblValue.Caption := FLastText;
-      end;
-      FTextShowId := FTextChangeId;
-    end;
-  end;
-end;
-
-procedure TSensorViewTextTBXPanel.OnVisibleItemClick(Sender: TObject);
-begin
-  FConfig.Visible := FVisibleItem.Checked;
-end;
-
-procedure TSensorViewTextTBXPanel.UpdateControls;
-begin
-  FVisibleItem.Caption := FListEntity.GetMenuItemName;
-  FBar.Caption := FListEntity.GetCaption;
-  FBar.Hint := FListEntity.GetDescription;
-  FlblCaption.Caption := FListEntity.GetCaption;
-  if FResetItem <> nil then begin
-    FResetItem.Caption := SAS_STR_SensorReset;
-  end;
-  if FbtnReset <> nil then begin
-    FbtnReset.Hint := SAS_STR_SensorReset;
+  VText := FSensor.GetText;
+  if FLastText <> VText then begin
+    FLastText := VText;
+    FlblValue.Caption := FLastText;
   end;
 end;
 

@@ -23,8 +23,8 @@ unit i_Sensor;
 interface
 
 uses
-  GR32,
   i_JclNotify,
+  i_Bitmap32Static,
   i_ConfigDataElement;
 
 type
@@ -42,7 +42,8 @@ type
 
   ISensorBitmap = interface(ISensor)
   ['{6A1BB26A-13DE-4533-BA3F-188769BF71D6}']
-    procedure GetBitmap(ATarget: TCustomBitmap32);
+    function GetBitmap: IBitmap32Static;
+    property Bitmap: IBitmap32Static read GetBitmap;
   end;
 
   ISensorViewConfig = interface(IConfigDataElement)
