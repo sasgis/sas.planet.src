@@ -23,7 +23,7 @@ unit u_StartUpLogoConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ContentTypeManager,
@@ -38,7 +38,7 @@ type
     FIsShowLogo: Boolean;
 
     FLogoFileName: string;
-    FLogo: TCustomBitmap32;
+    FLogo: IBitmap32Static;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -46,12 +46,11 @@ type
     function GetIsShowLogo: Boolean;
     procedure SetIsShowLogo(AValue: Boolean);
 
-    function GetLogo: TCustomBitmap32;
+    function GetLogo: IBitmap32Static;
   public
     constructor Create(
       AContentTypeManager: IContentTypeManager
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -70,14 +69,8 @@ begin
   FContentTypeManager := AContentTypeManager;
 
   FIsShowLogo := True;
-  FLogo := TCustomBitmap32.Create;
+  FLogo := nil;
   FLogoFileName := 'sas:\Resource\LOGOI.jpg';
-end;
-
-destructor TStartUpLogoConfig.Destroy;
-begin
-  FreeAndNil(FLogo);
-  inherited;
 end;
 
 procedure TStartUpLogoConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -86,7 +79,7 @@ begin
   if AConfigData <> nil then begin
     FIsShowLogo := AConfigData.ReadBool('ShowLogo', FIsShowLogo);
 
-    ReadBitmapByFileRef(AConfigData, FLogoFileName, FContentTypeManager, FLogo);
+    FLogo := ReadBitmapByFileRef(AConfigData, FLogoFileName, FContentTypeManager, FLogo);
 
     SetChanged;
   end;
@@ -108,7 +101,7 @@ begin
   end;
 end;
 
-function TStartUpLogoConfig.GetLogo: TCustomBitmap32;
+function TStartUpLogoConfig.GetLogo: IBitmap32Static;
 begin
   LockRead;
   try

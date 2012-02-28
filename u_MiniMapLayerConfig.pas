@@ -23,7 +23,7 @@ unit u_MiniMapLayerConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ContentTypeManager,
@@ -43,9 +43,9 @@ type
     FBottomMargin: Integer;
 
     FPlusButtonFileName: string;
-    FPlusButton: TCustomBitmap32;
+    FPlusButton: IBitmap32Static;
     FMinusButtonFileName: string;
-    FMinusButton: TCustomBitmap32;
+    FMinusButton: IBitmap32Static;
     FMapsConfig: IMiniMapMapsConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -66,8 +66,8 @@ type
     function GetBottomMargin: Integer;
     procedure SetBottomMargin(AValue: Integer);
 
-    function GetPlusButton: TCustomBitmap32;
-    function GetMinusButton: TCustomBitmap32;
+    function GetPlusButton: IBitmap32Static;
+    function GetMinusButton: IBitmap32Static;
 
     function GetMapsConfig: IMiniMapMapsConfig;
   public
@@ -75,7 +75,6 @@ type
       AContentTypeManager: IContentTypeManager;
       AMapsConfig: IMainMapsConfig
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -99,21 +98,14 @@ begin
   FZoomDelta := 4;
   FMasterAlpha := 150;
   FVisible := True;
-  FPlusButton := TCustomBitmap32.Create;
-  FMinusButton := TCustomBitmap32.Create;
+  FPlusButton := nil;
+  FMinusButton := nil;
 
   FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
 
   FPlusButtonFileName := 'sas:\Resource\ICONI.png';
   FMinusButtonFileName := 'sas:\Resource\ICONII.png';
-end;
-
-destructor TMiniMapLayerConfig.Destroy;
-begin
-  FreeAndNil(FPlusButton);
-  FreeAndNil(FMinusButton);
-  inherited;
 end;
 
 procedure TMiniMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -125,8 +117,8 @@ begin
     SetMasterAlpha(AConfigData.ReadInteger('Alpha', FMasterAlpha));
     SetVisible(AConfigData.ReadBool('Visible', FVisible));
 
-    ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
-    ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);
+    FPlusButton := ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
+    FMinusButton := ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);
     SetChanged;
   end;
 end;
@@ -166,7 +158,7 @@ begin
   end;
 end;
 
-function TMiniMapLayerConfig.GetMinusButton: TCustomBitmap32;
+function TMiniMapLayerConfig.GetMinusButton: IBitmap32Static;
 begin
   LockRead;
   try
@@ -176,7 +168,7 @@ begin
   end;
 end;
 
-function TMiniMapLayerConfig.GetPlusButton: TCustomBitmap32;
+function TMiniMapLayerConfig.GetPlusButton: IBitmap32Static;
 begin
   LockRead;
   try

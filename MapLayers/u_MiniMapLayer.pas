@@ -164,6 +164,7 @@ uses
   u_GeoFun,
   u_ResStrings,
   i_TileIterator,
+  i_Bitmap32Static,
   u_NotifyEventListener,
   u_BackgroundTaskLayerDrawBase,
   u_TileIteratorSpiralByRect,
@@ -902,6 +903,8 @@ begin
 end;
 
 procedure TMiniMapLayer.OnConfigChange;
+var
+  VBitmapStatic: IBitmap32Static;
 begin
   ViewUpdateLock;
   try
@@ -914,9 +917,20 @@ begin
     end;
     FConfig.LockRead;
     try
-      FPlusButton.Bitmap.Assign(FConfig.PlusButton);
+      VBitmapStatic := FConfig.PlusButton;
+      if VBitmapStatic <> nil then begin
+        FPlusButton.Bitmap.Assign(VBitmapStatic.Bitmap);
+      end else begin
+        FPlusButton.Bitmap.Delete;
+      end;
       FPlusButton.Bitmap.DrawMode := dmTransparent;
-      FMinusButton.Bitmap.Assign(FConfig.MinusButton);
+
+      VBitmapStatic := FConfig.MinusButton;
+      if VBitmapStatic <> nil then begin
+        FMinusButton.Bitmap.Assign(VBitmapStatic.Bitmap);
+      end else begin
+        FMinusButton.Bitmap.Delete;
+      end;
       FMinusButton.Bitmap.DrawMode := dmTransparent;
 
       FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;

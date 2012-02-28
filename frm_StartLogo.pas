@@ -58,7 +58,8 @@ implementation
 
 uses
   Types,
-  c_SasVersion;
+  c_SasVersion,
+  i_Bitmap32Static;
 
 var
   frmStartLogo: TfrmStartLogo;
@@ -86,8 +87,12 @@ end;
 procedure TfrmStartLogo.FormShow(Sender: TObject);
 var
   VBitmapSize: TPoint;
+  VBitmapStatic: IBitmap32Static;
 begin
-  imgLogo.Bitmap.Assign(FConfig.Logo);
+  VBitmapStatic := FConfig.Logo;
+  if VBitmapStatic <> nil then begin
+    imgLogo.Bitmap.Assign(VBitmapStatic.Bitmap);
+  end;
   VBitmapSize.X := imgLogo.Bitmap.Width;
   VBitmapSize.Y := imgLogo.Bitmap.Height;
 

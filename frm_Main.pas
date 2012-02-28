@@ -690,6 +690,7 @@ uses
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_NotifyEventListener,
+  i_Bitmap32Static,
   i_MapTypes,
   i_GeoCoderList,
   i_GlobalInternetState,
@@ -744,6 +745,7 @@ var
   VLogger: TTileErrorLogProviedrStuped;
   VMouseState: TMouseState;
   VLineOnMapEditChangeListener: IJclListener;
+  VBitmapStatic: IBitmap32Static;
 begin
   inherited;
 
@@ -876,8 +878,14 @@ begin
 
   FRuller:=TBitmap32.Create;
   FTumbler:=TBitmap32.Create;
-  FRuller.Assign(FConfig.MainConfig.Ruller);
-  FTumbler.Assign(FConfig.MainConfig.Tumbler);
+  VBitmapStatic := FConfig.MainConfig.Ruller;
+  if VBitmapStatic <> nil then begin
+    FRuller.Assign(VBitmapStatic.Bitmap);
+  end;
+  VBitmapStatic := FConfig.MainConfig.Tumbler;
+  if VBitmapStatic <> nil then begin
+    FTumbler.Assign(VBitmapStatic.Bitmap);
+  end;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);

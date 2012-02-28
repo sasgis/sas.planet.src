@@ -23,7 +23,7 @@ unit u_MainFormMainConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ContentTypeManager,
@@ -39,9 +39,9 @@ type
     FShowHintOnMarks: Boolean;
 
     FRullerFileName: string;
-    FRuller: TCustomBitmap32;
+    FRuller: IBitmap32Static;
     FTumblerFileName: string;
-    FTumbler: TCustomBitmap32;
+    FTumbler: IBitmap32Static;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -55,13 +55,12 @@ type
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
 
-    function GetRuller: TCustomBitmap32;
-    function GetTumbler: TCustomBitmap32;
+    function GetRuller: IBitmap32Static;
+    function GetTumbler: IBitmap32Static;
   public
     constructor Create(
       AContentTypeManager: IContentTypeManager
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -81,18 +80,11 @@ begin
   FShowMapName := True;
   FMouseScrollInvert := False;
   FShowHintOnMarks := True;
-  FRuller := TCustomBitmap32.Create;
-  FTumbler := TCustomBitmap32.Create;
+  FRuller := nil;
+  FTumbler := nil;
 
   FRullerFileName := 'sas:\Resource\VRULLER.png';
   FTumblerFileName := 'sas:\Resource\VTUMBLER.png';
-end;
-
-destructor TMainFormMainConfig.Destroy;
-begin
-  FreeAndNil(FRuller);
-  FreeAndNil(FTumbler);
-  inherited;
 end;
 
 procedure TMainFormMainConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -103,8 +95,8 @@ begin
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
 
-    ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
-    ReadBitmapByFileRef(AConfigData, FTumblerFileName, FContentTypeManager, FTumbler);
+    FRuller := ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
+    FTumbler := ReadBitmapByFileRef(AConfigData, FTumblerFileName, FContentTypeManager, FTumbler);
 
     SetChanged;
   end;
@@ -129,7 +121,7 @@ begin
   end;
 end;
 
-function TMainFormMainConfig.GetRuller: TCustomBitmap32;
+function TMainFormMainConfig.GetRuller: IBitmap32Static;
 begin
   LockRead;
   try
@@ -159,7 +151,7 @@ begin
   end;
 end;
 
-function TMainFormMainConfig.GetTumbler: TCustomBitmap32;
+function TMainFormMainConfig.GetTumbler: IBitmap32Static;
 begin
   LockRead;
   try

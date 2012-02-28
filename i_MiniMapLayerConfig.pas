@@ -23,7 +23,7 @@ unit i_MiniMapLayerConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
@@ -56,11 +56,11 @@ type
     procedure SetBottomMargin(AValue: Integer);
     property BottomMargin: Integer read GetBottomMargin write SetBottomMargin;
 
-    function GetPlusButton: TCustomBitmap32;
-    property PlusButton: TCustomBitmap32 read GetPlusButton;
+    function GetPlusButton: IBitmap32Static;
+    property PlusButton: IBitmap32Static read GetPlusButton;
 
-    function GetMinusButton: TCustomBitmap32;
-    property MinusButton: TCustomBitmap32 read GetMinusButton;
+    function GetMinusButton: IBitmap32Static;
+    property MinusButton: IBitmap32Static read GetMinusButton;
 
     function GetMapsConfig: IMiniMapMapsConfig;
     property MapsConfig: IMiniMapMapsConfig read GetMapsConfig;

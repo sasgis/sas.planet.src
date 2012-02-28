@@ -23,7 +23,7 @@ unit i_StartUpLogoConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_ConfigDataElement;
 
 type
@@ -34,8 +34,8 @@ type
     procedure SetIsShowLogo(AValue: Boolean);
     property IsShowLogo: Boolean read GetIsShowLogo write SetIsShowLogo;
 
-    function GetLogo: TCustomBitmap32;
-    property Logo: TCustomBitmap32 read GetLogo;
+    function GetLogo: IBitmap32Static;
+    property Logo: IBitmap32Static read GetLogo;
   end;
 
 implementation

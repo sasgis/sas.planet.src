@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   i_ContentTypeManager,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 
@@ -39,12 +40,12 @@ function ReadColor32(
   ADefault: TColor32
 ): TColor32;
 
-procedure ReadBitmapByFileRef(
+function ReadBitmapByFileRef(
   AConfigProvider: IConfigDataProvider;
   AFullFileName: string;
   AContentTypeManager: IContentTypeManager;
-  ABitmap: TCustomBitmap32
-);
+  ADefault: IBitmap32Static
+): IBitmap32Static;
 
 implementation
 
@@ -52,7 +53,8 @@ uses
   Classes,
   SysUtils,
   Graphics,
-  i_ContentTypeInfo;
+  i_ContentTypeInfo,
+  u_Bitmap32Static;
 
 function ReadColor32(
   AConfigProvider: IConfigDataProvider;
@@ -91,12 +93,12 @@ begin
   AConfigProvider.WriteString(AIdent + 'Hex', HexDisplayPrefix + IntToHex(AValue, 8));
 end;
 
-procedure ReadBitmapByFileRef(
+function ReadBitmapByFileRef(
   AConfigProvider: IConfigDataProvider;
   AFullFileName: string;
   AContentTypeManager: IContentTypeManager;
-  ABitmap: TCustomBitmap32
-);
+  ADefault: IBitmap32Static
+): IBitmap32Static;
 var
   VFilePath: string;
   VFileName: string;
@@ -105,7 +107,9 @@ var
   VStream: TMemoryStream;
   VInfoBasic: IContentTypeInfoBasic;
   VBitmapContntType: IContentTypeInfoBitmap;
+  VBitmap: TCustomBitmap32;
 begin
+  Result := ADefault;
   VFilePath := ExcludeTrailingPathDelimiter(ExtractFilePath(AFullFileName));
   VFileName := ExtractFileName(AFullFileName);
   VFileExt := ExtractFileExt(VFileName);
@@ -125,7 +129,14 @@ begin
           if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
             VStream.Position := 0;
             try
-              VBitmapContntType.GetLoader.LoadFromStream(VStream, ABitmap);
+              VBitmap := TCustomBitmap32.Create;
+              try
+                VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
+              except
+                FreeAndNil(VBitmap);
+                raise;
+              end;
+              Result := TBitmap32Static.CreateWithOwn(VBitmap);
             except
               Assert(False, 'Ошибка при загрузке картинки ' + AFullFileName);
             end;
