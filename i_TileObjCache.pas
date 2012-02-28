@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -25,23 +25,30 @@ interface
 uses
   Types,
   i_Bitmap32Static,
+  i_MapVersionInfo,
   i_VectorDataItemSimple;
 
 type
   ITileObjCacheVector = interface
     ['{B52B38D1-C57C-424C-B85B-AC623A54E7B5}']
     procedure Clear;
-    procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
-    procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IVectorDataItemList;
+    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo);
+    procedure AddTileToCache(AObj: IVectorDataItemList; const AXY: TPoint; const AZoom: Byte;
+                             const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo): IVectorDataItemList;
   end;
 
   ITileObjCacheBitmap = interface
     ['{B52B38D1-C57C-424C-B85B-AC623A54E7B5}']
     procedure Clear;
-    procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
-    procedure AddTileToCache(AObj: IBitmap32Static; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IBitmap32Static;
+    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo);
+    procedure AddTileToCache(AObj: IBitmap32Static; const AXY: TPoint; const AZoom: Byte;
+                             const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo): IBitmap32Static;
   end;
 
 implementation

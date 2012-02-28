@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MemTileCache;
 
 interface
@@ -9,6 +29,7 @@ uses
   i_JclNotify,
   i_MainMemCacheConfig,
   i_Bitmap32Static,
+  i_MapVersionInfo,
   i_VectorDataItemSimple,
   i_TTLCheckListener,
   i_TTLCheckNotifier,
@@ -31,16 +52,20 @@ type
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure OnChangeConfig;
     procedure OnTileStorageChange;
-    function GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+    function GetMemCacheKey(const AXY: TPoint; const Azoom: byte;
+                            const AMapVersionInfo: IMapVersionInfo): string;
     procedure OnTTLTrim(Sender: TObject);
   protected
     procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
   protected
     procedure Clear;
-    procedure DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
-    procedure AddObjectToCache(AObj: IInterface; AXY: TPoint; AZoom: Byte);
-    function TryLoadObjectFromCache(AXY: TPoint; AZoom: Byte): IInterface;
+    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo);
+    procedure AddObjectToCache(AObj: IInterface; const AXY: TPoint; const AZoom: Byte;
+                               const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadObjectFromCache(const AXY: TPoint; const AZoom: Byte;
+                                    const AMapVersionInfo: IMapVersionInfo): IInterface;
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -53,19 +78,24 @@ type
 
   TMemTileCacheVector = class(TMemTileCacheBase, ITileObjCacheVector)
   protected
-    procedure AddTileToCache(AObj: IVectorDataItemList; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IVectorDataItemList;
+    procedure AddTileToCache(AObj: IVectorDataItemList; const AXY: TPoint; const AZoom: Byte;
+                             const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo): IVectorDataItemList;
   end;
 
   TMemTileCacheBitmap = class(TMemTileCacheBase, ITileObjCacheBitmap)
   protected
-    procedure AddTileToCache(AObj: IBitmap32Static; AXY: TPoint; AZoom: Byte);
-    function TryLoadTileFromCache(AXY: TPoint; AZoom: Byte): IBitmap32Static;
+    procedure AddTileToCache(AObj: IBitmap32Static; const AXY: TPoint; const AZoom: Byte;
+                             const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo): IBitmap32Static;
   end;
 
 implementation
 
 uses
+  Variants,
   i_TileRectUpdateNotifier,
   u_TTLCheckListener,
   u_NotifyEventListener;
@@ -137,14 +167,15 @@ end;
 
 procedure TMemTileCacheBase.AddObjectToCache(
   AObj: IInterface;
-  AXY: TPoint;
-  AZoom: Byte
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
 );
 var
   VKey: string;
   i: integer;
 begin
-  VKey := GetMemCacheKey(AXY, AZoom);
+  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
   FSync.BeginWrite;
   try
     i := FCacheList.IndexOf(VKey);
@@ -176,12 +207,13 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.DeleteTileFromCache(AXY: TPoint; AZoom: Byte);
+procedure TMemTileCacheBase.DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                                const AMapVersionInfo: IMapVersionInfo);
 var
   i: Integer;
   VKey: string;
 begin
-  VKey := GetMemCacheKey(AXY, AZoom);
+  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
   FSync.BeginWrite;
   try
     i := FCacheList.IndexOf(VKey);
@@ -194,9 +226,17 @@ begin
   end;
 end;
 
-function TMemTileCacheBase.GetMemCacheKey(AXY: TPoint; Azoom: byte): string;
+function TMemTileCacheBase.GetMemCacheKey(const AXY: TPoint; const Azoom: byte;
+                                          const AMapVersionInfo: IMapVersionInfo): string;
+var VVer: String;
 begin
-  Result := inttostr(Azoom) + '-' + inttostr(AXY.X) + '-' + inttostr(AXY.Y);
+  Result := inttostr(Azoom) + '_' + inttostr(AXY.X) + '_' + inttostr(AXY.Y);
+  if Assigned(AMapVersionInfo) then begin
+    VVer := VarToStrDef(AMapVersionInfo.Version,'');
+    if (0<Length(VVer)) then begin
+      Result := Result + '_' + VVer;
+    end;
+  end;
 end;
 
 procedure TMemTileCacheBase.IncUpdateCounter;
@@ -242,15 +282,16 @@ begin
 end;
 
 function TMemTileCacheBase.TryLoadObjectFromCache(
-  AXY: TPoint;
-  AZoom: Byte
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
 ): IInterface;
 var
   i: integer;
   VKey: string;
 begin
   Result := nil;
-  VKey := GetMemCacheKey(AXY, AZoom);
+  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
   FSync.BeginRead;
   try
     i := FCacheList.IndexOf(VKey);
@@ -268,12 +309,13 @@ end;
 { TMemTileCacheVector }
 
 procedure TMemTileCacheVector.AddTileToCache(AObj: IVectorDataItemList;
-  AXY: TPoint; AZoom: Byte);
+                                             const AXY: TPoint; const AZoom: Byte;
+                                             const AMapVersionInfo: IMapVersionInfo);
 var
   VKey: string;
   i: integer;
 begin
-  VKey := GetMemCacheKey(AXY, AZoom);
+  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
   FSync.BeginWrite;
   try
     i := FCacheList.IndexOf(VKey);
@@ -291,13 +333,14 @@ begin
 end;
 
 function TMemTileCacheVector.TryLoadTileFromCache(
-  AXY: TPoint;
-  AZoom: Byte
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
 ): IVectorDataItemList;
 var
   VObj: IInterface;
 begin
-  VObj := TryLoadObjectFromCache(AXY, AZoom);
+  VObj := TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo);
   if not Supports(VObj, IVectorDataItemList, Result) then begin
     Result := nil;
   end;
@@ -307,21 +350,23 @@ end;
 
 procedure TMemTileCacheBitmap.AddTileToCache(
   AObj: IBitmap32Static;
-  AXY: TPoint;
-  AZoom: Byte
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
 );
 begin
-  AddObjectToCache(AObj, AXY, AZoom);
+  AddObjectToCache(AObj, AXY, AZoom, AMapVersionInfo);
 end;
 
 function TMemTileCacheBitmap.TryLoadTileFromCache(
-  AXY: TPoint;
-  AZoom: Byte
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
 ): IBitmap32Static;
 var
   VObj: IInterface;
 begin
-  VObj := TryLoadObjectFromCache(AXY, AZoom);
+  VObj := TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo);
   if not Supports(VObj, IBitmap32Static, Result) then begin
     Result := nil;
   end;
