@@ -23,7 +23,7 @@ unit u_CenterScaleConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_CenterScaleConfig,
@@ -33,7 +33,7 @@ type
   TCenterScaleConfig = class(TConfigDataElementBase, ICenterScaleConfig)
   private
     FVisible: Boolean;
-    FBitmap: TCustomBitmap32;
+    FBitmap: IBitmap32Static;
     procedure CreateBitmap;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -42,18 +42,19 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(const AValue: Boolean);
 
-    function GetBitmap: TCustomBitmap32;
-    procedure SetBitmap(AValue: TCustomBitmap32);
+    function GetBitmap: IBitmap32Static;
+    procedure SetBitmap(AValue: IBitmap32Static);
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
   Types,
-  SysUtils;
+  SysUtils,
+  GR32,
+  u_Bitmap32Static;
 
 { TCenterScaleConfig }
 
@@ -61,7 +62,6 @@ constructor TCenterScaleConfig.Create;
 begin
   inherited;
   FVisible := False;
-  FBitmap := TCustomBitmap32.Create;
   CreateBitmap;
 end;
 
@@ -116,16 +116,10 @@ begin
       end;
       inc(i, 5);
     end;
-    FBitmap.Assign(VBitmap);
+    FBitmap := TBitmap32Static.CreateWithCopy(VBitmap);
   finally
     VBitmap.Free;
   end;
-end;
-
-destructor TCenterScaleConfig.Destroy;
-begin
-  FreeAndNil(FBitmap);
-  inherited;
 end;
 
 procedure TCenterScaleConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -145,12 +139,11 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
-function TCenterScaleConfig.GetBitmap: TCustomBitmap32;
+function TCenterScaleConfig.GetBitmap: IBitmap32Static;
 begin
   LockRead;
   try
-    Result := TCustomBitmap32.Create;
-    Result.Assign(FBitmap);
+    Result := FBitmap;
   finally
     UnlockRead;
   end;
@@ -166,12 +159,14 @@ begin
   end;
 end;
 
-procedure TCenterScaleConfig.SetBitmap(AValue: TCustomBitmap32);
+procedure TCenterScaleConfig.SetBitmap(AValue: IBitmap32Static);
 begin
   LockWrite;
   try
-    FBitmap.Assign(AValue);
-    SetChanged;
+    if FBitmap <> AValue then begin
+      FBitmap := AValue;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;

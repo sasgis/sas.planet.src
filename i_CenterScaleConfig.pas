@@ -23,7 +23,7 @@ unit i_CenterScaleConfig;
 interface
 
 uses
-  GR32,
+  i_Bitmap32Static,
   i_ConfigDataElement;
 
 type
@@ -33,9 +33,9 @@ type
     procedure SetVisible(const AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
 
-    function GetBitmap: TCustomBitmap32;
-    procedure SetBitmap(AValue: TCustomBitmap32);
-    property Bitmap: TCustomBitmap32 read GetBitmap write SetBitmap;
+    function GetBitmap: IBitmap32Static;
+    procedure SetBitmap(AValue: IBitmap32Static);
+    property Bitmap: IBitmap32Static read GetBitmap write SetBitmap;
  end;
 
 implementation

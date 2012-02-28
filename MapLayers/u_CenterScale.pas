@@ -34,6 +34,7 @@ type
 implementation
 
 uses
+  i_Bitmap32Static,
   u_NotifyEventListener;
 
 { TCenterScale }
@@ -68,18 +69,18 @@ end;
 
 procedure TCenterScale.OnConfigChange;
 var
-  VBitmap: TCustomBitmap32;
+  VBitmap: IBitmap32Static;
 begin
   ViewUpdateLock;
   try
     if FConfig.Visible then begin
       VBitmap := FConfig.Bitmap;
-      try
-        FLayer.Bitmap.Assign(VBitmap);
-        FLayer.Bitmap.DrawMode := dmBlend;
-      finally
-        VBitmap.Free;
+      if VBitmap <> nil then begin
+        FLayer.Bitmap.Assign(VBitmap.Bitmap);
+      end else begin
+        FLayer.Bitmap.Delete;
       end;
+      FLayer.Bitmap.DrawMode := dmBlend;
       SetNeedRedraw;
     end;
     SetVisible(FConfig.Visible);
