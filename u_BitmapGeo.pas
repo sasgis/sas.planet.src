@@ -3,28 +3,24 @@ unit u_BitmapGeo;
 interface
 
 uses
-  GR32,
+  Types,
+  i_Bitmap32Static,
   i_LocalCoordConverter,
   i_BitmapGeo;
 
 type
   TBitmapGeo = class(TInterfacedObject, IBitmapGeo)
   private
-    FBitmap: TCustomBitmap32;
+    FBitmap: IBitmap32Static;
     FConverter: ILocalCoordConverter;
   private
-    function GetBitmap: TCustomBitmap32;
+    function GetBitmap: IBitmap32Static;
     function GetConverter: ILocalCoordConverter;
   public
     constructor Create(
-      ABitmap: TCustomBitmap32;
+      ABitmap: IBitmap32Static;
       AConverter: ILocalCoordConverter
     );
-    constructor CreateWithOwn(
-      ABitmap: TCustomBitmap32;
-      AConverter: ILocalCoordConverter
-    );
-    destructor Destroy; override;
   end;
 
   TBitmapGeoTile = class(TBitmapGeo, IBitmapGeoTile)
@@ -35,12 +31,7 @@ type
   public
     constructor Create(
       ATile: TPoint;
-      ABitmap: TCustomBitmap32;
-      AConverter: ILocalCoordConverter
-    );
-    constructor CreateWithOwn(
-      ATile: TPoint;
-      ABitmap: TCustomBitmap32;
+      ABitmap: IBitmap32Static;
       AConverter: ILocalCoordConverter
     );
   end;
@@ -53,31 +44,15 @@ uses
 { TBitmapGeo }
 
 constructor TBitmapGeo.Create(
-  ABitmap: TCustomBitmap32;
+  ABitmap: IBitmap32Static;
   AConverter: ILocalCoordConverter
 );
-var
-  VBitmap: TCustomBitmap32;
-begin
-  VBitmap := TCustomBitmap32.Create;
-  VBitmap.Assign(ABitmap);
-  CreateWithOwn(VBitmap, AConverter);
-end;
-
-constructor TBitmapGeo.CreateWithOwn(ABitmap: TCustomBitmap32;
-  AConverter: ILocalCoordConverter);
 begin
   FBitmap := ABitmap;
   FConverter := AConverter;
 end;
 
-destructor TBitmapGeo.Destroy;
-begin
-  FreeAndNil(FBitmap);
-  inherited;
-end;
-
-function TBitmapGeo.GetBitmap: TCustomBitmap32;
+function TBitmapGeo.GetBitmap: IBitmap32Static;
 begin
   Result := FBitmap;
 end;
@@ -89,17 +64,10 @@ end;
 
 { TBitmapGeoTile }
 
-constructor TBitmapGeoTile.Create(ATile: TPoint; ABitmap: TCustomBitmap32;
+constructor TBitmapGeoTile.Create(ATile: TPoint; ABitmap: IBitmap32Static;
   AConverter: ILocalCoordConverter);
 begin
   inherited Create(ABitmap, AConverter);
-  FTile := ATile;
-end;
-
-constructor TBitmapGeoTile.CreateWithOwn(ATile: TPoint;
-  ABitmap: TCustomBitmap32; AConverter: ILocalCoordConverter);
-begin
-  inherited CreateWithOwn(ABitmap, AConverter);
   FTile := ATile;
 end;
 
