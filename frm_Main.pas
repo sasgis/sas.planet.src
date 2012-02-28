@@ -548,6 +548,7 @@ type
       var Accept: Boolean);
     procedure nokiamapcreator1Click(Sender: TObject);
     procedure tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
+    procedure tbpmiClearVersionClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2394,31 +2395,29 @@ end;
 procedure TfrmMain.DoSelectSpecialVersion(Sender: TObject);
 var
   VVersion: String;
-  VChecked: Boolean;
   VMapType: TMapType;
 begin
   if (nil<>Sender) and (Sender is TTBXItem) then begin
-    VVersion := TTBXItem(Sender).Caption;
-    VChecked := TTBXItem(Sender).Checked;
-
-    // for current map
-    VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-
-    // what to do
-    if VChecked then begin
-      // clear (uncheck) version
-      VMapType.VersionConfig.Version := '';
-    end else begin
-      // apply this version
-      VMapType.VersionConfig.Version := VVersion;
-    end;
-
-    // clear cache
-    VMapType.CacheBitmap.Clear;
-
-    // TODO: notify to repaint map
-    // FConfig.ViewPortState.
+    if TTBXItem(Sender).Checked then
+      VVersion := ''
+    else
+      VVersion := TTBXItem(Sender).Caption;
+  end else begin
+    // clear
+    VVersion := '';
   end;
+
+  // for current map
+  VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
+
+  // apply this version or clear (uncheck) version
+  VMapType.VersionConfig.Version := VVersion;
+
+  // clear cache
+  VMapType.CacheBitmap.Clear;
+
+  // TODO: notify to repaint map
+  // FConfig.ViewPortState.
 end;
 
 procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
@@ -2749,6 +2748,11 @@ end;
 procedure TfrmMain.TBmoveClick(Sender: TObject);
 begin
  setalloperationfalse(ao_movemap);
+end;
+
+procedure TfrmMain.tbpmiClearVersionClick(Sender: TObject);
+begin
+  DoSelectSpecialVersion(nil);
 end;
 
 procedure TfrmMain.tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);

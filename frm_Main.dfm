@@ -3458,6 +3458,7 @@ object frmMain: TfrmMain
       Caption = 'Versions'
       Hint = ''
       object tbpmiClearVersion: TTBXItem
+        OnClick = tbpmiClearVersionClick
         Caption = 'Clear'
         Hint = ''
       end
