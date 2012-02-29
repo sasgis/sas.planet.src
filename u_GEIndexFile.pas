@@ -195,6 +195,11 @@ begin
     if Assigned(AVersionInfo) then begin
       VText:=VarToStrDef(AVersionInfo.Version,'');
       if (0<Length(VText)) then begin
+        // if has '=' - remove it (for raw 'yyyy:mm:dd=15\134' support)
+        i:=System.Pos('=',VText);
+        if (i>0) then
+          System.Delete(VText, 1, i);
+        // parse
         i:=System.Pos('\',VText);
         if (i>0) then begin
           // Res1\Ver
