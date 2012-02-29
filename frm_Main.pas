@@ -4947,7 +4947,7 @@ begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
   VText := Trim(NewText);
-  VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter);
+  VResult := VItem.GetGeoCoder.GetLocations(nil, 0, VText, VLocalConverter);
   FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
   FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
 end;
@@ -4966,7 +4966,7 @@ begin
     if VItem <> nil then begin
       VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
       VText := Trim(NewText);
-      VResult := VItem.GetGeoCoder.GetLocations(VText, VLocalConverter);
+      VResult := VItem.GetGeoCoder.GetLocations(nil, 0, VText, VLocalConverter);
       FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
     end;

@@ -25,6 +25,7 @@ interface
 uses
   ActiveX,
   t_GeoTypes,
+  i_OperationNotifier,
   i_LocalCoordConverter;
 
 type
@@ -48,7 +49,12 @@ type
 
   IGeoCoder = interface
     ['{D9293293-080A-44B7-92F8-3093D35A551B}']
-    function GetLocations(const ASearch: WideString; const ALocalConverter: ILocalCoordConverter): IGeoCodeResult; safecall;
+    function GetLocations(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IGeoCodeResult; safecall;
   end;
 
 implementation

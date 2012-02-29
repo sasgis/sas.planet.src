@@ -201,7 +201,7 @@ begin
       VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
     end;
     if VGeoCoderItem <> nil then begin
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(textsrch, VLocalConverter);
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(nil, 0, textsrch, VLocalConverter);
       FMainGeoCoderConfig.SearchHistory.AddItem(textsrch);
       FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
       ModalResult := mrOk;
