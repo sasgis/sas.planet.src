@@ -166,11 +166,6 @@ var
 begin
   Result := False;
 
-        // if has '=' - remove it (for raw 'yyyy:mm:dd=15\134' support)
-        i:=System.Pos('=',VText);
-        if (i>0) then
-          System.Delete(VText, 1, i);
-        // parse
   VProcessed := False;
   while not VProcessed do begin
     if not FFileInited then begin

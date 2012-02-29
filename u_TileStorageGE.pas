@@ -186,7 +186,9 @@ var
 begin
   VListOfOffsets := TList.Create;
   try
-    if FIndex.FindTileInfo(AXY, Azoom, 0, 0, VRec, VListOfOffsets) then begin
+    // do not check result!
+    FIndex.FindTileInfo(AXY, Azoom, 0, 0, VRec, VListOfOffsets);
+    if (VListOfOffsets.Count > 0) then begin
       Result := InternalCreateAndProcessGEOffsets(VListOfOffsets);
     end;
   finally
@@ -346,6 +348,8 @@ begin
           SetString(VExifValue, PChar(VExifOffset), VExifSize);
           SetLength(VExifValue, StrLen(PChar(VExifValue)));
           VExifValue:=Trim(VExifValue);
+          if not _ExtractDate(VExifValue) then
+            VExifValue:='';
         end;
       end;
       VVersion := FMapVersionFactoryGE.CreateByGE(VRec.Ver, VRec.Res1, VExifValue);

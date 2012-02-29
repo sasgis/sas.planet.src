@@ -64,9 +64,11 @@ begin
     Result := '';
   end else begin
     if FDate <> '' then begin
-      Result := FDate + '('+ IntToStr(FRes1) + '\' + IntToStr(FVer) + ')';
+      Result := FDate + ' ('+ IntToStr(FRes1) + '\' + IntToStr(FVer) + ')';
     end else begin
-      Result :=  IntToStr(FRes1) + '\' + IntToStr(FVer);
+      Result := IntToStr(FRes1);
+      if (FVer <> 0) then
+        Result := Result + '\' + IntToStr(FVer);
     end;
   end;
 end;
