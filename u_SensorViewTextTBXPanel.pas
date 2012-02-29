@@ -26,12 +26,14 @@ uses
   Windows,
   Classes,
   ImgList,
+  GR32_Image,
   TB2Item,
   TB2Dock,
   TBX,
   TBXControls,
   i_JclNotify,
   i_JclListenerNotifierLinksList,
+  i_Bitmap32Static,
   i_SensorList,
   i_Sensor;
 
@@ -97,6 +99,27 @@ type
     FlblValue: TTBXLabel;
     FLastText: string;
 
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      AListEntity: ISensorListEntity;
+      AConfig: ISensorViewConfig;
+      ATimerNoifier: IJclNotifier;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
+  TSensorViewBitmapTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FSensor: ISensorBitmap;
+    FImage: TImage32;
+    FBitmap: IBitmap32Static;
   protected
     procedure CreatePanel; override;
     procedure UpdateDataView; override;
@@ -397,6 +420,46 @@ begin
   if FLastText <> VText then begin
     FLastText := VText;
     FlblValue.Caption := FLastText;
+  end;
+end;
+
+{ TSensorViewBitmapTBXPanel }
+
+constructor TSensorViewBitmapTBXPanel.Create(AListEntity: ISensorListEntity;
+  AConfig: ISensorViewConfig; ATimerNoifier: IJclNotifier; AOwner: TComponent;
+  ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem; AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex);
+begin
+  inherited;
+  if not Supports(FListEntity.GetSensor, ISensorBitmap, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewBitmapTBXPanel.CreatePanel;
+begin
+  inherited;
+  FImage := TImage32.Create(FBar);
+
+  FImage.Parent := FBar;
+  FImage.AutoSize := True;
+  FImage.Left := 0;
+  FImage.Top := 17;
+  FImage.Width := 150;
+  FImage.Height := 15;
+  FImage.Align := alTop;
+
+  FBar.ClientAreaHeight := FImage.Top + FImage.Height + 2;
+end;
+
+procedure TSensorViewBitmapTBXPanel.UpdateDataView;
+var
+  VBitmap: IBitmap32Static;
+begin
+  VBitmap := FSensor.Bitmap;
+  if FBitmap <> VBitmap then begin
+    FBitmap := VBitmap;
+    FImage.Bitmap.Assign(VBitmap.Bitmap);
   end;
 end;
 
