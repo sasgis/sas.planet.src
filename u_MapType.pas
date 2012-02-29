@@ -315,7 +315,12 @@ begin
   if FStorageConfig.CacheTypeCode = 6 then begin
     FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if FStorageConfig.CacheTypeCode = 5  then begin
-    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager,
+                                      // without cache with dates and versions
+                                      NIL
+                                      // with cache (dates and versions)
+                                      //TMemTileCachePersistent.Create(AGCList, nil, FStorageConfig.CoordConverter, AMainMemCacheConfig)
+                                      );
   end else begin
     FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
   end;

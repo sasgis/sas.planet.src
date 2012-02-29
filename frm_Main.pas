@@ -2396,12 +2396,20 @@ procedure TfrmMain.DoSelectSpecialVersion(Sender: TObject);
 var
   VVersion: String;
   VMapType: TMapType;
+  j: Integer;
 begin
   if (nil<>Sender) and (Sender is TTBXItem) then begin
     if TTBXItem(Sender).Checked then
       VVersion := ''
-    else
+    else begin
       VVersion := TTBXItem(Sender).Caption;
+      // check date and version
+      j := System.Pos('(',VVersion);
+      if (j>0) then begin
+        System.Delete(VVersion, 1, j);
+        SetLength(VVersion, Length(VVersion)-1);
+      end;
+    end;
   end else begin
     // clear
     VVersion := '';
@@ -2765,10 +2773,10 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
   VMapTile: Tpoint;
-  VListOfVersions: TStringList;
-  i: Integer;
+  VListOfVersions, VListOfRes1: TStringList;
+  i,j: Integer;
   VMenuItem: TTBXItem;
-  VCurrentVersion, VFoundVersion: String;
+  VCurrentVersion, VFoundVersion, VFoundDate: String;
 begin
   // remove all versions
   while (tbpmiVersions.Count>1) do
@@ -2794,6 +2802,7 @@ begin
 
     // get text
     VListOfVersions:=TStringList.Create;
+    VListOfRes1:=TStringList.Create;
     try
       VListOfVersions.Sorted:=TRUE;
       VListOfVersions.Duplicates:=dupIgnore;
@@ -2803,8 +2812,42 @@ begin
         for i := 0 to VListOfVersions.Count-1 do
         try
           VFoundVersion := VListOfVersions[i];
+
+          j:=System.Pos('=',VFoundVersion);
+          if (j>0) then begin
+            // date and version
+            VFoundDate := System.Copy(VFoundVersion, 1, (j-1));
+            System.Delete(VFoundVersion, 1, j);
+          end else begin
+            // no date
+            VFoundDate := '';
+          end;
+
           VMenuItem := TTBXItem.Create(tbpmiVersions);
-          VMenuItem.Caption := VFoundVersion;
+          VMenuItem.Caption := VFoundDate + ' (' + VFoundVersion + ')';
+          VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion=VFoundVersion));
+          VMenuItem.OnClick := DoSelectSpecialVersion;
+          tbpmiVersions.Add(VMenuItem);
+
+          // extract Res1 from Res1\Ver
+          j:=System.Pos('\',VFoundVersion);
+          if (j>0) then
+            SetLength(VFoundVersion, (j-1));
+          if (0<Length(VFoundVersion)) then begin
+            j := VListOfRes1.IndexOf(VFoundVersion);
+            if (j<0) then
+              VListOfRes1.Add(VFoundVersion);
+          end;
+        except
+        end;
+
+        // make general items (with unique Res1 only)
+        if (0<VListOfRes1.Count) then
+        for i := 0 to VListOfRes1.Count-1 do
+        try
+          VFoundVersion := VListOfRes1[i];
+          VMenuItem := TTBXItem.Create(tbpmiVersions);
+          VMenuItem.Caption := ' (' + VFoundVersion + ')';
           VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion=VFoundVersion));
           VMenuItem.OnClick := DoSelectSpecialVersion;
           tbpmiVersions.Add(VMenuItem);
@@ -2813,6 +2856,7 @@ begin
       end;
     finally
       VListOfVersions.Free;
+      VListOfRes1.Free;
     end;
   end;
 end;

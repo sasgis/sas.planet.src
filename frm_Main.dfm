@@ -40,6 +40,8 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
+    ExplicitLeft = 241
+    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -3412,6 +3414,16 @@ object frmMain: TfrmMain
         Hint = ''
       end
     end
+    object tbpmiVersions: TTBXSubmenuItem
+      OnPopup = tbpmiVersionsPopup
+      Caption = 'Version'
+      Hint = ''
+      object tbpmiClearVersion: TTBXItem
+        OnClick = tbpmiClearVersionClick
+        Caption = 'Reset'
+        Hint = ''
+      end
+    end
     object N24: TTBXSeparatorItem
       Caption = ''
       Hint = ''
@@ -3452,16 +3464,6 @@ object frmMain: TfrmMain
       ImageIndex = 27
       Caption = 'Layer Info'
       Hint = ''
-    end
-    object tbpmiVersions: TTBXSubmenuItem
-      OnPopup = tbpmiVersionsPopup
-      Caption = 'Versions'
-      Hint = ''
-      object tbpmiClearVersion: TTBXItem
-        OnClick = tbpmiClearVersionClick
-        Caption = 'Clear'
-        Hint = ''
-      end
     end
   end
   object TrayIcon: TTrayIcon

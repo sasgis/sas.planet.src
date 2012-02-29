@@ -69,14 +69,18 @@ type
       ACacheConfig: TMapTypeCacheConfigGE
     );
     destructor Destroy; override;
+
+    // obtain info about single tile
     function FindTileInfo(
-      APoint: TPoint;
-      AZoom: Byte;
+      const APoint: TPoint;
+      const AZoom: Byte;
       var AVersionInfo: IMapVersionInfo;
-      out AOffset: Integer;
-      out ASize: Integer;
-      AVersions: TStrings
+      out AOffset, ASize: LongWord;
+      AListOfOffsets: TStrings
     ): Boolean;
+
+    // get single index item
+    function GetIndexRecByIndex(i: Integer; var ARec: TIndexRec): Boolean;
   end;
 
 implementation
@@ -146,33 +150,64 @@ begin
 end;
 
 function TGEIndexFile.FindTileInfo(
-  APoint: TPoint;
-  AZoom: Byte;
+  const APoint: TPoint;
+  const AZoom: Byte;
   var AVersionInfo: IMapVersionInfo;
-  out AOffset, ASize: Integer;
-  AVersions: TStrings
+  out AOffset, ASize: LongWord;
+  AListOfOffsets: TStrings
 ): Boolean;
+
+  procedure _StrToWord(const ASrc: String; var w: Word);
+  var v: Integer;
+  begin
+    if (0<Length(ASrc)) then
+    if TryStrToInt(Trim(ASrc), v) then
+    if (v>0) and (v<=$FFFF) then
+      w := v;
+  end;
+
+  procedure _StrToByte(const ASrc: String; var b: Byte);
+  var v: Integer;
+  begin
+    if (0<Length(ASrc)) then
+    if TryStrToInt(Trim(ASrc), v) then
+    if (v>0) and (v<=$FF) then
+      b := v;
+  end;
+
 var
   VNameLo: LongWord;
   VNameHi: LongWord;
   i: Integer;
   VProcessed: Boolean;
-  VVersion: Word;
-  VAskVersion: Byte;
+  VVersionStr: String;
+  VAskVer: Word;
+  VAskRes1: Byte;
   VText: String;
 begin
   Result := False;
   AOffset := 0;
   ASize := 0;
   
-  VAskVersion:=0;
+  VAskVer:=0;
+  VAskRes1:=0;
   try
     if Assigned(AVersionInfo) then begin
       VText:=VarToStrDef(AVersionInfo.Version,'');
       if (0<Length(VText)) then begin
-        if TryStrToInt(Trim(VText), i) then
-          if (i>0) and (i<=$FF) then
-            VAskVersion := i;
+        i:=System.Pos('\',VText);
+        if (i>0) then begin
+          // Res1\Ver
+          _StrToByte(System.Copy(VText, 1, (i-1)), VAskRes1);
+          System.Delete(VText, 1, i);
+          if (0<Length(VText)) then begin
+            // get Ver
+            _StrToWord(VText, VAskVer);
+          end;
+        end else begin
+          // only Res1
+          _StrToByte(VText, VAskRes1);
+        end;
       end;
     end;
   except
@@ -203,21 +238,26 @@ begin
                   if FIndexInfo[i].Zoom = AZoom then begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       // found
-                      if (not Result) and ((0=VAskVersion) or (VAskVersion=FIndexInfo[i].Res1)) then begin
+                      if (not Result) and
+                         ((0=VAskRes1) or (VAskRes1=FIndexInfo[i].Res1)) and
+                         ((0=VAskVer) or (VAskVer=FIndexInfo[i].Ver)) then begin
                         // second entrance will fail because of Result
                         AOffset := FIndexInfo[i].Offset;
                         ASize := FIndexInfo[i].Size;
-                        VVersion := FIndexInfo[i].Res1; // FIndexInfo[i].Ver;
-                        AVersionInfo := TMapVersionInfo.Create(VVersion);
+                        VVersionStr := IntToStr(FIndexInfo[i].Res1) + '\' + IntToStr(FIndexInfo[i].Ver);
+                        AVersionInfo := TMapVersionInfo.Create(VVersionStr);
                         Inc(Result);
                         //Break;
                       end;
                       // ok without collecting versions
-                      if Result and (nil=AVersions) then
+                      if Result and (nil=AListOfOffsets) then
                         break;
                       // collecting versions (SORTED and DUP IGNORED!)
-                      if (nil<>AVersions) then
-                        AVersions.Add(IntToStr(FIndexInfo[i].Res1));
+                      //if (nil<>AListOfVersions) then
+                        //AListOfVersions.Add(IntToStr(FIndexInfo[i].Res1));
+                      // collecting offsets for complete list of tiles
+                      if (nil<>AListOfOffsets) then
+                        AListOfOffsets.Add(IntToStr(i));
                     end;
                   end;
                 end;
@@ -230,6 +270,18 @@ begin
     finally
       FSync.EndRead;
     end;
+  end;
+end;
+
+function TGEIndexFile.GetIndexRecByIndex(i: Integer; var ARec: TIndexRec): Boolean;
+begin
+  Result := FALSE;
+  if FFileInited then
+  if Length(FIndexInfo) > 0 then
+  if (i >= 0) then
+  if (i < Length(FIndexInfo)) then begin
+    Move(FIndexInfo[i], ARec, sizeof(ARec));
+    Inc(Result);
   end;
 end;
 

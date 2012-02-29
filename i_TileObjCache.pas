@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  Classes,
   i_Bitmap32Static,
   i_MapVersionInfo,
   i_VectorDataItemSimple;
@@ -51,6 +52,19 @@ type
                                   const AMapVersionInfo: IMapVersionInfo): IBitmap32Static;
   end;
 
+  ITileObjCachePersistent = interface
+    ['{7245DF11-BE36-4A50-B429-8AD2472B0FFB}']
+    procedure Clear;
+    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo);
+    procedure AddTileToCache(var AObj: TPersistent; // will own this object and set NIL (if ok)
+                             const AXY: TPoint; const AZoom: Byte;
+                             const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadTileFromCache(AObj: TPersistent; // use Assign, if NIL - just check if exists in cache
+                                  const AXY: TPoint; const AZoom: Byte;
+                                  const AMapVersionInfo: IMapVersionInfo): Boolean;
+  end;
+  
 implementation
 
 end.
