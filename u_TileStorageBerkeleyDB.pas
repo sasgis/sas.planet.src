@@ -115,7 +115,7 @@ implementation
 uses
   Variants,
   t_CommonTypes,
-  u_MapVersionInfo,
+  u_MapVersionFactorySimpleString,
   u_TTLCheckListener,
   u_TileFileNameBDB,
   u_TileStorageBerkeleyDBRecParser,
@@ -134,7 +134,11 @@ const
   CBDBSync = 300000; // 5 min
   CBDBSyncCheckInterval = 60000; // 60 sec
 begin
-  inherited Create(TTileStorageTypeAbilitiesBerkeleyDB.Create, AConfig);
+  inherited Create(
+    TTileStorageTypeAbilitiesBerkeleyDB.Create,
+    TMapVersionFactorySimpleString.Create,
+    AConfig
+  );
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FCacheConfig := TMapTypeCacheConfigBerkeleyDB.Create(
     AConfig,
@@ -222,18 +226,11 @@ var
   VResult: Boolean;
   VData: TBDBData;
   VStream: TMemoryStream;
-  VVersionStr: PWideChar;
 begin
   Result := FTileNotExistsTileInfo;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
 
     VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-
-    if AVersionInfo <> nil then begin
-      VVersionStr := PWideChar(VarToWideStrDef(AVersionInfo.Version, ''));
-    end else begin
-      VVersionStr := '';
-    end;
 
     VResult := False;
 
@@ -244,7 +241,7 @@ begin
           VPath,
           AXY,
           AZoom,
-          VVersionStr,
+          AVersionInfo,
           VStream,
           VData
         );
@@ -254,7 +251,7 @@ begin
             VData.TileDate,
             VStream.Memory,
             VData.TileSize,
-            TMapVersionInfo.Create(WideString(VData.TileVer)),
+            MapVersionFactory.CreateByStoreString(WideString(VData.TileVer)),
             FContentTypeManager.GetInfo(WideString(VData.TileMIME))
           );
         end;
@@ -270,7 +267,7 @@ begin
           VPath,
           AXY,
           AZoom,
-          VVersionStr,
+          AVersionInfo,
           VData
         );
         if VResult then begin
@@ -331,7 +328,7 @@ begin
         AXY,
         AZoom,
         Now,
-        PWideChar(VarToWideStrDef(AVersionInfo.Version, '')),
+        AVersionInfo,
         PWideChar(FMainContentType.GetContentType),
         AStream
       );
@@ -360,7 +357,7 @@ begin
         AXY,
         AZoom,
         Now,
-        PWideChar(VarToWideStrDef(AVersionInfo.Version, '')),
+        AVersionInfo,
         PWideChar(FMainContentType.GetContentType),
         nil
       );
@@ -388,7 +385,7 @@ begin
           VPath,
           AXY,
           AZoom,
-          PWideChar(VarToWideStrDef(AVersionInfo.Version, ''))
+          AVersionInfo
         );
       end;
       if not Result then begin
@@ -421,7 +418,7 @@ begin
           VPath,
           AXY,
           AZoom,
-          PWideChar(VarToWideStrDef(AVersionInfo.Version, ''))
+          AVersionInfo
         );
       end;
     except

@@ -34,6 +34,7 @@ uses
   i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
   i_MapVersionInfo,
+  i_MapVersionConfig,
   i_StorageTypeAbilities,
   i_StorageState,
   i_StorageStateInternal,
@@ -45,6 +46,7 @@ type
   TTileStorageAbstract = class
   private
     FConfig: ISimpleTileStorageConfig;
+    FMapVersionFactory: IMapVersionFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FNotifierByZoom: array of ITileRectUpdateNotifier;
@@ -69,6 +71,7 @@ type
   public
     constructor Create(
       AStorageTypeAbilities: IStorageTypeAbilities;
+      AMapVersionFactory: IMapVersionFactory;
       AConfig: ISimpleTileStorageConfig
     );
     destructor Destroy; override;
@@ -117,9 +120,10 @@ type
       AVersionInfo: IMapVersionInfo
     ); virtual; abstract;
 
-    function GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
-                                   const AAllowFromCache: Boolean;
-                                   AListOfVersions: TStrings): Boolean; virtual;
+    function GetListOfTileVersions(
+      const AXY: TPoint;
+      const Azoom: byte
+    ): IMapVersionListStatic; virtual;
 
     function LoadFillingMap(
       AOperationID: Integer;
@@ -132,6 +136,7 @@ type
       AColorer: IFillingMapColorer
     ): boolean; virtual;
     property State: IStorageStateChangeble read FStorageState;
+    property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
     property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
   end;
 
@@ -151,6 +156,7 @@ uses
 
 constructor TTileStorageAbstract.Create(
   AStorageTypeAbilities: IStorageTypeAbilities;
+  AMapVersionFactory: IMapVersionFactory;
   AConfig: ISimpleTileStorageConfig
 );
 var
@@ -160,6 +166,7 @@ var
   VState: TStorageStateInternal;
 begin
   FConfig := AConfig;
+  FMapVersionFactory := AMapVersionFactory;
   FStorageStateStaticCS := TCriticalSection.Create;
 
   VState := TStorageStateInternal.Create(AStorageTypeAbilities);
@@ -207,11 +214,12 @@ begin
   inherited;
 end;
 
-function TTileStorageAbstract.GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
-                                                    const AAllowFromCache: Boolean;
-                                                    AListOfVersions: TStrings): Boolean;
+function TTileStorageAbstract.GetListOfTileVersions(
+  const AXY: TPoint;
+  const Azoom: byte
+): IMapVersionListStatic;
 begin
-  Result := FALSE;
+  Result := nil;
 end;
 
 function TTileStorageAbstract.GetNotifierByZoom(

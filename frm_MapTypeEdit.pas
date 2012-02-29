@@ -152,14 +152,14 @@ begin
   finally
     FmapType.StorageConfig.UnlockWrite;
   end;
-  FMapType.VersionConfig.Version := edtVersion.Text;
+  FMapType.VersionConfig.Version := FMapType.VersionConfig.VersionFactory.CreateByStoreString(edtVersion.Text);
 
   ModalResult := mrOk;
 end;
 
 procedure TfrmMapTypeEdit.btnResetVersionClick(Sender: TObject);
 begin
-  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
+  edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
 end;
 
 procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -186,7 +186,7 @@ begin
   EditParSubMenu.Text:=FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
   CheckBox1.Checked:=FmapType.Zmp.GUI.Separator;
   CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
-  edtVersion.Text := FMapType.Zmp.VersionConfig.Version;
+  edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
 end;
 
 procedure TfrmMapTypeEdit.btnResetUrlClick(Sender: TObject);
@@ -266,7 +266,7 @@ begin
   end;
   CheckBox1.Checked:=FMapType.GUIConfig.separator;
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
-  edtVersion.Text := FMapType.VersionConfig.Version;
+  edtVersion.Text := FMapType.VersionConfig.Version.StoreString;
   pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
   if VDownloadState.Enabled then begin

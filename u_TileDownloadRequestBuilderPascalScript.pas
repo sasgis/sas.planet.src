@@ -327,7 +327,7 @@ begin
   end;
   FpScriptBuffer.Data := FScriptBuffer;
   if ASource.VersionInfo <> nil then begin
-    FpVersion.Data := VarToStrDef(ASource.VersionInfo.Version, '');
+    FpVersion.Data := ASource.VersionInfo.UrlString;
   end else begin
     FpVersion.Data := '';
   end;

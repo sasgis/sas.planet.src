@@ -27,13 +27,21 @@ uses
   i_MapVersionInfo;
   
 type
+  IMapVersionFactory = interface
+    ['{4E03F54E-C11D-443C-BF0E-D9A2B0D1299C}']
+    function CreateByStoreString(AValue: string): IMapVersionInfo;
+    function CreateByMapVersion(AValue: IMapVersionInfo): IMapVersionInfo;
+  end;
+
   IMapVersionConfig = interface(IConfigDataElement)
     ['{0D710534-C49F-43BC-8092-A0F5ABB5E107}']
-    function GetVersion: Variant;
-    procedure SetVersion(const AValue: Variant);
-    property Version: Variant read GetVersion write SetVersion;
+    function GetVersionFactory: IMapVersionFactory;
+    procedure SetVersionFactory(AValue: IMapVersionFactory);
+    property VersionFactory: IMapVersionFactory read GetVersionFactory write SetVersionFactory;
 
-    function GetStatic: IMapVersionInfo;
+    function GetVersion: IMapVersionInfo;
+    procedure SetVersion(const AValue: IMapVersionInfo);
+    property Version: IMapVersionInfo read GetVersion write SetVersion;
   end;
 
 implementation

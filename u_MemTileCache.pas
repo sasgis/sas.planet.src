@@ -56,12 +56,16 @@ type
                             const AMapVersionInfo: IMapVersionInfo): string;
     procedure OnTTLTrim(Sender: TObject);
   protected
-    procedure ItemFree(AIndex: Integer); virtual; abstract;
+    procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
   protected
     procedure Clear;
     procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
                                   const AMapVersionInfo: IMapVersionInfo);
+    procedure AddObjectToCache(AObj: IInterface; const AXY: TPoint; const AZoom: Byte;
+                               const AMapVersionInfo: IMapVersionInfo);
+    function TryLoadObjectFromCache(const AXY: TPoint; const AZoom: Byte;
+                                    const AMapVersionInfo: IMapVersionInfo): IInterface;
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
@@ -72,17 +76,7 @@ type
     destructor Destroy; override;
   end;
 
-  TMemTileCacheWithInterfaces = class(TMemTileCacheBase)
-  protected
-    procedure ItemFree(AIndex: Integer); override;
-  protected
-    procedure AddObjectToCache(AObj: IInterface; const AXY: TPoint; const AZoom: Byte;
-                               const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadObjectFromCache(const AXY: TPoint; const AZoom: Byte;
-                                    const AMapVersionInfo: IMapVersionInfo): IInterface;
-  end;
-
-  TMemTileCacheVector = class(TMemTileCacheWithInterfaces, ITileObjCacheVector)
+  TMemTileCacheVector = class(TMemTileCacheBase, ITileObjCacheVector)
   protected
     procedure AddTileToCache(AObj: IVectorDataItemList; const AXY: TPoint; const AZoom: Byte;
                              const AMapVersionInfo: IMapVersionInfo);
@@ -90,7 +84,7 @@ type
                                   const AMapVersionInfo: IMapVersionInfo): IVectorDataItemList;
   end;
 
-  TMemTileCacheBitmap = class(TMemTileCacheWithInterfaces, ITileObjCacheBitmap)
+  TMemTileCacheBitmap = class(TMemTileCacheBase, ITileObjCacheBitmap)
   protected
     procedure AddTileToCache(AObj: IBitmap32Static; const AXY: TPoint; const AZoom: Byte;
                              const AMapVersionInfo: IMapVersionInfo);
@@ -98,22 +92,6 @@ type
                                   const AMapVersionInfo: IMapVersionInfo): IBitmap32Static;
   end;
 
-  TMemTileCacheWithObjects = class(TMemTileCacheBase)
-  protected
-    procedure ItemFree(AIndex: Integer); override;
-  end;
-
-  TMemTileCachePersistent = class(TMemTileCacheWithInterfaces, ITileObjCachePersistent)
-  protected
-    procedure AddTileToCache(var AObj: TPersistent;
-                             const AXY: TPoint; const AZoom: Byte;
-                             const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadTileFromCache(AObj: TPersistent;
-                                  const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo): Boolean;
-  end;
-  
-  
 implementation
 
 uses
@@ -171,7 +149,6 @@ begin
   FTTLListener := nil;
   FGCList := nil;
 
-  if Assigned(FTileStorage) then
   for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
     VNotifier := FTileStorage.NotifierByZoom[i];
     if VNotifier <> nil then begin
@@ -186,6 +163,33 @@ begin
   FreeAndNil(FSync);
   FreeAndNil(FCacheList);
   inherited;
+end;
+
+procedure TMemTileCacheBase.AddObjectToCache(
+  AObj: IInterface;
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
+);
+var
+  VKey: string;
+  i: integer;
+begin
+  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
+  FSync.BeginWrite;
+  try
+    i := FCacheList.IndexOf(VKey);
+    if (i < 0)and(FCacheList.Capacity>0) then begin
+      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
+        ItemFree(0);
+        FCacheList.Delete(0);
+      end;
+      AObj._AddRef;
+      FCacheList.AddObject(VKey, Pointer(AObj));
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 procedure TMemTileCacheBase.Clear;
@@ -228,7 +232,7 @@ var VVer: String;
 begin
   Result := inttostr(Azoom) + '_' + inttostr(AXY.X) + '_' + inttostr(AXY.Y);
   if Assigned(AMapVersionInfo) then begin
-    VVer := VarToStrDef(AMapVersionInfo.Version,'');
+    VVer := AMapVersionInfo.StoreString;
     if (0<Length(VVer)) then begin
       Result := Result + '_' + VVer;
     end;
@@ -238,6 +242,11 @@ end;
 procedure TMemTileCacheBase.IncUpdateCounter;
 begin
   FTTLListener.UpdateUseTime;
+end;
+
+procedure TMemTileCacheBase.ItemFree(AIndex: Integer);
+begin
+  IInterface(Pointer(FCacheList.Objects[AIndex]))._Release;
 end;
 
 procedure TMemTileCacheBase.OnChangeConfig;
@@ -270,6 +279,31 @@ end;
 procedure TMemTileCacheBase.OnTTLTrim(Sender: TObject);
 begin
   Clear;
+end;
+
+function TMemTileCacheBase.TryLoadObjectFromCache(
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
+): IInterface;
+var
+  i: integer;
+  VKey: string;
+begin
+  Result := nil;
+  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
+  FSync.BeginRead;
+  try
+    i := FCacheList.IndexOf(VKey);
+    if i >= 0 then begin
+      Result := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
+    end;
+  finally
+    FSync.EndRead;
+  end;
+  if Result <> nil then begin
+    IncUpdateCounter;
+  end;
 end;
 
 { TMemTileCacheVector }
@@ -335,123 +369,6 @@ begin
   VObj := TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo);
   if not Supports(VObj, IBitmap32Static, Result) then begin
     Result := nil;
-  end;
-end;
-
-{ TMemTileCacheWithInterfaces }
-
-procedure TMemTileCacheWithInterfaces.AddObjectToCache(
-  AObj: IInterface;
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
-  );
-var
-  VKey: string;
-  i: integer;
-begin
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginWrite;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if (i < 0)and(FCacheList.Capacity>0) then begin
-      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
-        ItemFree(0);
-        FCacheList.Delete(0);
-      end;
-      AObj._AddRef;
-      FCacheList.AddObject(VKey, Pointer(AObj));
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-procedure TMemTileCacheWithInterfaces.ItemFree(AIndex: Integer);
-begin
-  IInterface(Pointer(FCacheList.Objects[AIndex]))._Release;
-end;
-
-function TMemTileCacheWithInterfaces.TryLoadObjectFromCache(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
-  ): IInterface;
-var
-  i: integer;
-  VKey: string;
-begin
-  Result := nil;
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginRead;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if i >= 0 then begin
-      Result := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
-    end;
-  finally
-    FSync.EndRead;
-  end;
-  if Result <> nil then begin
-    IncUpdateCounter;
-  end;
-end;
-
-{ TMemTileCacheWithObjects }
-
-procedure TMemTileCacheWithObjects.ItemFree(AIndex: Integer);
-begin
-  FCacheList.Objects[AIndex].Free;
-end;
-
-{ TMemTileCachePersistent }
-
-procedure TMemTileCachePersistent.AddTileToCache(var AObj: TPersistent;
-                                                 const AXY: TPoint; const AZoom: Byte;
-                                                 const AMapVersionInfo: IMapVersionInfo);
-var
-  VKey: string;
-  i: integer;
-begin
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginWrite;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if (i < 0)and(FCacheList.Capacity>0) then begin
-      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
-        ItemFree(0);
-        FCacheList.Delete(0);
-      end;
-      FCacheList.AddObject(VKey, AObj);
-      AObj := nil;
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-function TMemTileCachePersistent.TryLoadTileFromCache(AObj: TPersistent;
-                                                      const AXY: TPoint; const AZoom: Byte;
-                                                      const AMapVersionInfo: IMapVersionInfo): Boolean;
-var
-  i: integer;
-  VKey: string;
-begin
-  Result := FALSE;
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginRead;
-  try
-    i := FCacheList.IndexOf(VKey);
-    if i >= 0 then begin
-      if (nil<>AObj) then
-        AObj.Assign(TPersistent(FCacheList.Objects[i]));
-      Inc(Result);
-    end;
-  finally
-    FSync.EndRead;
-  end;
-  if Result then begin
-    IncUpdateCounter;
   end;
 end;
 

@@ -28,7 +28,7 @@ uses
   Classes,
   i_JclNotify,
   i_StorageStateInternal,
-  i_MapVersionInfo,
+  i_MapVersionInfoGE,
   u_MapTypeCacheConfig;
 
 type
@@ -74,9 +74,10 @@ type
     function FindTileInfo(
       const APoint: TPoint;
       const AZoom: Byte;
-      var AVersionInfo: IMapVersionInfo;
-      out AOffset, ASize: LongWord;
-      AListOfOffsets: TStrings
+      const AAskVer: Word;
+      const AAskRes1: Byte;
+      var ARec: TIndexRec;
+      AListOfOffsets: TList
     ): Boolean;
 
     // get single index item
@@ -89,7 +90,7 @@ uses
   Variants,
   t_CommonTypes,
   u_NotifyEventListener,
-  u_MapVersionInfo;
+  u_MapVersionFactoryGE;
 
 { TGEIndexFile }
 
@@ -152,73 +153,24 @@ end;
 function TGEIndexFile.FindTileInfo(
   const APoint: TPoint;
   const AZoom: Byte;
-  var AVersionInfo: IMapVersionInfo;
-  out AOffset, ASize: LongWord;
-  AListOfOffsets: TStrings
+  const AAskVer: Word;
+  const AAskRes1: Byte;
+  var ARec: TIndexRec;
+  AListOfOffsets: TList
 ): Boolean;
-
-  procedure _StrToWord(const ASrc: String; var w: Word);
-  var v: Integer;
-  begin
-    if (0<Length(ASrc)) then
-    if TryStrToInt(Trim(ASrc), v) then
-    if (v>0) and (v<=$FFFF) then
-      w := v;
-  end;
-
-  procedure _StrToByte(const ASrc: String; var b: Byte);
-  var v: Integer;
-  begin
-    if (0<Length(ASrc)) then
-    if TryStrToInt(Trim(ASrc), v) then
-    if (v>0) and (v<=$FF) then
-      b := v;
-  end;
-
 var
   VNameLo: LongWord;
   VNameHi: LongWord;
   i: Integer;
   VProcessed: Boolean;
-  VVersionStr: String;
-  VAskVer: Word;
-  VAskRes1: Byte;
-  VText: String;
 begin
   Result := False;
-  AOffset := 0;
-  ASize := 0;
-  
-  VAskVer:=0;
-  VAskRes1:=0;
-  try
-    if Assigned(AVersionInfo) then begin
-      VText:=VarToStrDef(AVersionInfo.Version,'');
-      if (0<Length(VText)) then begin
+
         // if has '=' - remove it (for raw 'yyyy:mm:dd=15\134' support)
         i:=System.Pos('=',VText);
         if (i>0) then
           System.Delete(VText, 1, i);
         // parse
-        i:=System.Pos('\',VText);
-        if (i>0) then begin
-          // Res1\Ver
-          _StrToByte(System.Copy(VText, 1, (i-1)), VAskRes1);
-          System.Delete(VText, 1, i);
-          if (0<Length(VText)) then begin
-            // get Ver
-            _StrToWord(VText, VAskVer);
-          end;
-        end else begin
-          // only Res1
-          _StrToByte(VText, VAskRes1);
-        end;
-      end;
-    end;
-  except
-  end;
-
-  AVersionInfo := nil;
   VProcessed := False;
   while not VProcessed do begin
     if not FFileInited then begin
@@ -244,25 +196,20 @@ begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       // found
                       if (not Result) and
-                         ((0=VAskRes1) or (VAskRes1=FIndexInfo[i].Res1)) and
-                         ((0=VAskVer) or (VAskVer=FIndexInfo[i].Ver)) then begin
+                         ((0=AAskRes1) or (AAskRes1=FIndexInfo[i].Res1)) and
+                         ((0=AAskVer) or (AAskVer=FIndexInfo[i].Ver)) then begin
                         // second entrance will fail because of Result
-                        AOffset := FIndexInfo[i].Offset;
-                        ASize := FIndexInfo[i].Size;
-                        VVersionStr := IntToStr(FIndexInfo[i].Res1) + '\' + IntToStr(FIndexInfo[i].Ver);
-                        AVersionInfo := TMapVersionInfo.Create(VVersionStr);
-                        Inc(Result);
-                        //Break;
+                        ARec := FIndexInfo[i];
+                        Result := True;
                       end;
-                      // ok without collecting versions
-                      if Result and (nil=AListOfOffsets) then
-                        break;
-                      // collecting versions (SORTED and DUP IGNORED!)
-                      //if (nil<>AListOfVersions) then
-                        //AListOfVersions.Add(IntToStr(FIndexInfo[i].Res1));
                       // collecting offsets for complete list of tiles
-                      if (nil<>AListOfOffsets) then
-                        AListOfOffsets.Add(IntToStr(i));
+                      if (AListOfOffsets <> nil) then begin
+                        AListOfOffsets.Add(Pointer(i));
+                      end else begin
+                        if Result then begin
+                          Break;
+                        end;
+                      end;
                     end;
                   end;
                 end;

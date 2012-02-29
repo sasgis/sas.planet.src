@@ -26,6 +26,7 @@ uses
   Windows,
   SysUtils,
   Classes,
+  i_OperationNotifier,
   i_ProxySettings,
   i_GeoCoder,
   i_LocalCoordConverter;
@@ -40,7 +41,12 @@ type
     function GetDataFromInet(ASearch: WideString): string; virtual;
     function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; virtual; abstract;
   protected
-    function GetLocations(const ASearch: WideString; const ALocalConverter: ILocalCoordConverter): IGeoCodeResult; virtual; safecall;
+    function GetLocations(
+      ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IGeoCodeResult; virtual; safecall;
   public
     constructor Create(AInetSettings: IProxySettings);
     destructor Destroy; override;
@@ -147,6 +153,8 @@ begin
 end;
 
 function TGeoCoderBasic.GetLocations(
+  ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;

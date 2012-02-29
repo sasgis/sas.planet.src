@@ -70,6 +70,7 @@ uses
   i_ConfigDataWriteProvider,
   i_TileError,
   i_TileErrorLogProviedrStuped,
+  i_MapVersionInfo,
   u_GeoToStr,
   t_CommonTypes,
   i_GPS,
@@ -569,6 +570,7 @@ type
 
     ProgramStart: Boolean;
     ProgramClose: Boolean;
+    FMapVersionList: IMapVersionListStatic;
 
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
@@ -2394,25 +2396,18 @@ end;
 
 procedure TfrmMain.DoSelectSpecialVersion(Sender: TObject);
 var
-  VVersion: String;
+  VVersion: IMapVersionInfo;
   VMapType: TMapType;
-  j: Integer;
 begin
   if (nil<>Sender) and (Sender is TTBXItem) then begin
-    if TTBXItem(Sender).Checked then
-      VVersion := ''
-    else begin
-      VVersion := TTBXItem(Sender).Caption;
-      // check date and version
-      j := System.Pos('(',VVersion);
-      if (j>0) then begin
-        System.Delete(VVersion, 1, j);
-        SetLength(VVersion, Length(VVersion)-1);
-      end;
+    if TTBXItem(Sender).Checked then begin
+      VVersion := nil;
+    end else begin
+      VVersion := IMapVersionInfo(Pointer(TTBXItem(Sender).Tag));
     end;
   end else begin
     // clear
-    VVersion := '';
+    VVersion := nil;
   end;
 
   // for current map
@@ -2420,12 +2415,6 @@ begin
 
   // apply this version or clear (uncheck) version
   VMapType.VersionConfig.Version := VVersion;
-
-  // clear cache
-  VMapType.CacheBitmap.Clear;
-
-  // TODO: notify to repaint map
-  // FConfig.ViewPortState.
 end;
 
 procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
@@ -2773,14 +2762,17 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
   VMapTile: Tpoint;
-  VListOfVersions, VListOfRes1: TStringList;
-  i,j: Integer;
+  i: Integer;
   VMenuItem: TTBXItem;
-  VCurrentVersion, VFoundVersion, VFoundDate: String;
+  VCurrentVersion: String;
+  VList: IMapVersionListStatic;
+  VVersion: IMapVersionInfo;
 begin
   // remove all versions
-  while (tbpmiVersions.Count>1) do
+  while (tbpmiVersions.Count>1) do begin
     tbpmiVersions.Delete(1);
+  end;
+  FMapVersionList := nil;
 
   // and add view items
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
@@ -2798,66 +2790,18 @@ begin
     VMapTile := VMapType.GeoConvert.LonLat2TilePos(VLonLat, VZoomCurr);
 
     // get current version
-    VCurrentVersion := VarToStrDef(VMapType.VersionConfig.Version,'');
-
-    // get text
-    VListOfVersions:=TStringList.Create;
-    VListOfRes1:=TStringList.Create;
-    try
-      VListOfVersions.Sorted:=TRUE;
-      VListOfVersions.Duplicates:=dupIgnore;
-      if VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr, FALSE, VListOfVersions) then
-      if (0<VListOfVersions.Count) then begin
-        // make items
-        for i := 0 to VListOfVersions.Count-1 do
-        try
-          VFoundVersion := VListOfVersions[i];
-
-          j:=System.Pos('=',VFoundVersion);
-          if (j>0) then begin
-            // date and version
-            VFoundDate := System.Copy(VFoundVersion, 1, (j-1));
-            System.Delete(VFoundVersion, 1, j);
-          end else begin
-            // no date
-            VFoundDate := '';
-          end;
-
-          VMenuItem := TTBXItem.Create(tbpmiVersions);
-          VMenuItem.Caption := VFoundDate + ' (' + VFoundVersion + ')';
-          VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion=VFoundVersion));
-          VMenuItem.OnClick := DoSelectSpecialVersion;
-          tbpmiVersions.Add(VMenuItem);
-
-          // extract Res1 from Res1\Ver
-          j:=System.Pos('\',VFoundVersion);
-          if (j>0) then
-            SetLength(VFoundVersion, (j-1));
-          if (0<Length(VFoundVersion)) then begin
-            j := VListOfRes1.IndexOf(VFoundVersion);
-            if (j<0) then
-              VListOfRes1.Add(VFoundVersion);
-          end;
-        except
-        end;
-
-        // make general items (with unique Res1 only)
-        if (0<VListOfRes1.Count) then
-        for i := 0 to VListOfRes1.Count-1 do
-        try
-          VFoundVersion := VListOfRes1[i];
-          VMenuItem := TTBXItem.Create(tbpmiVersions);
-          VMenuItem.Caption := ' (' + VFoundVersion + ')';
-          VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion=VFoundVersion));
-          VMenuItem.OnClick := DoSelectSpecialVersion;
-          tbpmiVersions.Add(VMenuItem);
-        except
-        end;
-      end;
-    finally
-      VListOfVersions.Free;
-      VListOfRes1.Free;
+    VCurrentVersion := VMapType.VersionConfig.Version.StoreString;
+    VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr);
+    for i := 0 to VList.Count-1 do begin
+      VVersion := VList.Item[i];
+      VMenuItem := TTBXItem.Create(tbpmiVersions);
+      VMenuItem.Caption := VVersion.Caption;
+      VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion = VVersion.StoreString));
+      VMenuItem.OnClick := DoSelectSpecialVersion;
+      VMenuItem.Tag := Integer(VVersion);
+      tbpmiVersions.Add(VMenuItem);
     end;
+    FMapVersionList := VList;
   end;
 end;
 
@@ -5220,7 +5164,7 @@ begin
   // allow to view map info
   NMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
   // allow to clear or select versions
-  tbpmiClearVersion.Visible := (0<Length(VarToStrDef(VMapType.VersionConfig.Version,'')));
+  tbpmiClearVersion.Visible := (0<Length(VMapType.VersionConfig.Version.StoreString));
   tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible;
 end;
 

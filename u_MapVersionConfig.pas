@@ -30,20 +30,20 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMapVersionConfig = class(TConfigDataElementWithStaticBase, IMapVersionConfig)
+  TMapVersionConfig = class(TConfigDataElementBase, IMapVersionConfig)
   private
     FDefConfig: IMapVersionInfo;
-    FVersion: Variant;
-  protected
-    function CreateStatic: IInterface; override;
+    FVersionFactory: IMapVersionFactory;
+    FVersion: IMapVersionInfo;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
-    function GetVersion: Variant;
-    procedure SetVersion(const AValue: Variant);
+    function GetVersionFactory: IMapVersionFactory;
+    procedure SetVersionFactory(AValue: IMapVersionFactory);
 
-    function GetStatic: IMapVersionInfo;
+    function GetVersion: IMapVersionInfo;
+    procedure SetVersion(const AValue: IMapVersionInfo);
   public
     constructor Create(ADefConfig: IMapVersionInfo);
   end;
@@ -52,7 +52,7 @@ type
 implementation
 
 uses
-  u_MapVersionInfo;
+  u_MapVersionFactorySimpleString;
 
 { TMapVersionConfig }
 
@@ -60,43 +60,38 @@ constructor TMapVersionConfig.Create(ADefConfig: IMapVersionInfo);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
-  FVersion := FDefConfig.Version;
-end;
-
-function TMapVersionConfig.CreateStatic: IInterface;
-var
-  VStatic: IMapVersionInfo;
-begin
-  VStatic := TMapVersionInfo.Create(FVersion);
-  Result := VStatic;
+  FVersionFactory := TMapVersionFactorySimpleString.Create;
+  FVersion := FVersionFactory.CreateByMapVersion(FDefConfig);
 end;
 
 procedure TMapVersionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+var
+  VStoreString: string;
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetVersion(AConfigData.ReadString('Version', FVersion));
-    SetChanged;
+    VStoreString := AConfigData.ReadString('Version', FVersion.StoreString);
+    if VStoreString <> FVersion.StoreString then begin
+      SetVersion(FVersionFactory.CreateByStoreString(VStoreString));
+    end;
   end;
 end;
 
 procedure TMapVersionConfig.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
+var
+  VStoreString: string;
 begin
   inherited;
-  if FVersion <> FDefConfig.Version then begin
-    AConfigData.WriteString('Version', FVersion);
+  VStoreString := FVersion.StoreString;
+  if VStoreString <> FDefConfig.StoreString then begin
+    AConfigData.WriteString('Version', VStoreString);
   end else begin
     AConfigData.DeleteValue('Version');
   end;
 end;
 
-function TMapVersionConfig.GetStatic: IMapVersionInfo;
-begin
-  Result := IMapVersionInfo(GetStaticInternal);
-end;
-
-function TMapVersionConfig.GetVersion: Variant;
+function TMapVersionConfig.GetVersion: IMapVersionInfo;
 begin
   LockRead;
   try
@@ -106,12 +101,41 @@ begin
   end;
 end;
 
-procedure TMapVersionConfig.SetVersion(const AValue: Variant);
+function TMapVersionConfig.GetVersionFactory: IMapVersionFactory;
+begin
+  LockRead;
+  try
+    Result := FVersionFactory;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TMapVersionConfig.SetVersion(const AValue: IMapVersionInfo);
+var
+  VValue: IMapVersionInfo;
 begin
   LockWrite;
   try
     if FVersion <> AValue then begin
-      FVersion := AValue;
+      VValue := FVersionFactory.CreateByMapVersion(AValue);
+      if FVersion <> VValue then begin
+        FVersion := VValue;
+        SetChanged;
+      end;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapVersionConfig.SetVersionFactory(AValue: IMapVersionFactory);
+begin
+  LockWrite;
+  try
+    if FVersionFactory <> AValue then begin
+      FVersionFactory := AValue;
+      FVersion := FVersionFactory.CreateByMapVersion(FVersion);
       SetChanged;
     end;
   finally

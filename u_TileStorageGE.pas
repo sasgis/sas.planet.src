@@ -27,6 +27,7 @@ uses
   Windows,
   Classes,
   i_SimpleTileStorageConfig,
+  u_MapVersionFactoryGE,
   i_TileObjCache,
   i_ContentTypeInfo,
   i_MapVersionInfo,
@@ -41,30 +42,26 @@ type
   TTileStorageGE = class(TTileStorageAbstract)
   private
     FCacheConfig: TMapTypeCacheConfigGE;
+    FMapVersionFactoryGE: IMapVersionFactoryGEInternal;
     FIndex: TGEIndexFile;
     FMainContentType: IContentTypeInfoBasic;
-    FTileVersionsCacher: ITileObjCachePersistent;
-  private
-    function ListOfVersions_Make: TStrings;
-    function ListOfVersions_NeedToCollect(const AXY: TPoint; const AZoom: Byte): Boolean;
-    procedure ListOfVersions_SaveToCache(const AXY: TPoint; const AZoom: Byte;
-                                         var AListOfVersions: TStrings);
   private
     function InternalCreateGEStream(out AGEStream: TFileStream): Boolean;
     function InternalExtractFromGEStream(const AGEStream: TFileStream;
                                          const AOffset, ASize: LongWord;
                                          AResultStream: TMemoryStream): Boolean;
-    function InternalProcessGEOffsets(const AGEStream: TFileStream;
-                                      const AListOfOffsets: TStrings;
-                                      AListOfVersions: TStrings): Byte;
-    function InternalCreateAndProcessGEOffsets(const AListOfOffsets: TStrings;
-                                               AListOfVersions: TStrings): Byte;
+    function InternalProcessGEOffsets(
+      const AGEStream: TFileStream;
+      const AListOfOffsets: TList
+    ): IMapVersionListStatic;
+    function InternalCreateAndProcessGEOffsets(
+      const AListOfOffsets: TList
+    ): IMapVersionListStatic;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager;
-      ATileVersionsCacher: ITileObjCachePersistent
+      AContentTypeManager: IContentTypeManager
     );
     destructor Destroy; override;
 
@@ -116,9 +113,10 @@ type
       AVersionInfo: IMapVersionInfo
     ); override;
 
-    function GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
-                                   const AAllowFromCache: Boolean;
-                                   AListOfVersions: TStrings): Boolean; override;
+    function GetListOfTileVersions(
+      const AXY: TPoint;
+      const Azoom: byte
+    ): IMapVersionListStatic; override;
   end;
 
 implementation
@@ -126,6 +124,8 @@ implementation
 uses
   SysUtils,
   t_CommonTypes,
+  i_MapVersionInfoGE,
+  u_MapVersionListStatic,
   u_AvailPicsNMC,
   u_TileInfoBasic,
   u_TileStorageTypeAbilities,
@@ -136,12 +136,11 @@ uses
 constructor TTileStorageGE.Create(
   AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager;
-  ATileVersionsCacher: ITileObjCachePersistent
+  AContentTypeManager: IContentTypeManager
 );
 begin
-  inherited Create(TTileStorageTypeAbilitiesGE.Create, AConfig);
-  FTileVersionsCacher := ATileVersionsCacher;
+  FMapVersionFactoryGE := TMapVersionFactoryGE.Create;
+  inherited Create(TTileStorageTypeAbilitiesGE.Create, FMapVersionFactoryGE, AConfig);
   FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig);
   FIndex := TGEIndexFile.Create(StorageStateInternal, FCacheConfig);
   FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
@@ -149,7 +148,6 @@ end;
 
 destructor TTileStorageGE.Destroy;
 begin
-  FTileVersionsCacher:=nil;
   FreeAndNil(FIndex);
   FreeAndNil(FCacheConfig);
   inherited;
@@ -178,41 +176,21 @@ begin
   Result := True;
 end;
 
-function TTileStorageGE.GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
-                                              const AAllowFromCache: Boolean;
-                                              AListOfVersions: TStrings): Boolean;
+function TTileStorageGE.GetListOfTileVersions(
+  const AXY: TPoint;
+  const Azoom: byte
+): IMapVersionListStatic;
 var
-  VVersionInfo: IMapVersionInfo;
-  VOffset, VSize: LongWord;
-  VListOfOffsets: TStrings;
+  VListOfOffsets: TList;
+  VRec: TIndexRec;
 begin
-  Result:=FALSE;
-
-  if AAllowFromCache and Assigned(FTileVersionsCacher) then begin
-    // allow from cache
-    if FTileVersionsCacher.TryLoadTileFromCache(AListOfVersions, AXY, Azoom, nil) then begin
-      Inc(Result);
-      Exit;
-    end;
-  end;
-
-  // from storage
-  VListOfOffsets:=ListOfVersions_Make;
+  VListOfOffsets := TList.Create;
   try
-    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize, VListOfOffsets) then begin
-      // parse
-      if (InternalCreateAndProcessGEOffsets(VListOfOffsets, AListOfVersions) > 0) then begin
-        // to cache
-        if Assigned(FTileVersionsCacher) then begin
-          VListOfOffsets.Assign(AListOfVersions);
-          ListOfVersions_SaveToCache(AXY, Azoom, VListOfOffsets);
-        end;
-        // done 
-        Inc(Result);
-      end;
+    if FIndex.FindTileInfo(AXY, Azoom, 0, 0, VRec, VListOfOffsets) then begin
+      Result := InternalCreateAndProcessGEOffsets(VListOfOffsets);
     end;
   finally
-    FreeAndNil(VListOfOffsets);
+    VListOfOffsets.Free;
   end;
 end;
 
@@ -244,17 +222,18 @@ begin
   LoadTile(AXY, Azoom, AVersionInfo, nil, Result);
 end;
 
-function TTileStorageGE.InternalCreateAndProcessGEOffsets(const AListOfOffsets: TStrings;
-                                                          AListOfVersions: TStrings): Byte;
+function TTileStorageGE.InternalCreateAndProcessGEOffsets(
+  const AListOfOffsets: TList
+): IMapVersionListStatic;
 var
   VFileStream: TFileStream;
 begin
-  Result := 0;
-  if (nil<>AListOfOffsets) and (0<AListOfOffsets.Count) then begin
+  Result := nil;
+  if (AListOfOffsets <> nil) and (AListOfOffsets.Count > 0) then begin
     // no stream - create it
     if InternalCreateGEStream(VFileStream) then
     try
-      Result := InternalProcessGEOffsets(VFileStream, AListOfOffsets, AListOfVersions);
+      Result := InternalProcessGEOffsets(VFileStream, AListOfOffsets);
     finally
       VFileStream.Free;
     end;
@@ -307,9 +286,10 @@ begin
   end;
 end;
 
-function TTileStorageGE.InternalProcessGEOffsets(const AGEStream: TFileStream;
-                                                 const AListOfOffsets: TStrings;
-                                                 AListOfVersions: TStrings): Byte;
+function TTileStorageGE.InternalProcessGEOffsets(
+  const AGEStream: TFileStream;
+  const AListOfOffsets: TList
+): IMapVersionListStatic;
 
   function _ExtractDate(var ADate: String): Boolean;
   var
@@ -338,31 +318,27 @@ function TTileStorageGE.InternalProcessGEOffsets(const AGEStream: TFileStream;
     end;
   end;
 
-
 var
   i: Integer;
-  VIndex: Integer;
   VRec: TIndexRec;
   VMemStream: TMemoryStream;
   VExifOffset: PByte;
   VExifSize: DWORD;
   VExifValue: String;
+  VList: IInterfaceList;
+  VVersion: IMapVersionInfo;
 begin
-  Result:=0;
-  if (nil=AListOfOffsets) then
-    Exit;
-  if (0=AListOfOffsets.Count) then
-    Exit;
-
+  VList := TInterfaceList.Create;
+  Result := TMapVersionListStatic.Create(VList);
   VMemStream:=TMemoryStream.Create;
   try
     for i := 0 to AListOfOffsets.Count-1 do
-    if TryStrToInt(AListOfOffsets[i], VIndex) then
-    if FIndex.GetIndexRecByIndex(VIndex, VRec) then begin
+    if FIndex.GetIndexRecByIndex(Integer(AListOfOffsets[i]), VRec) then begin
       // prepare
       VMemStream.Position:=0;
       VMemStream.Size:=0;
 
+      VExifValue := '';
       // process single index item
       if InternalExtractFromGEStream(AGEStream, VRec.Offset, VRec.Size, VMemStream) then begin
         // get exif from streamed image
@@ -370,46 +346,14 @@ begin
           SetString(VExifValue, PChar(VExifOffset), VExifSize);
           SetLength(VExifValue, StrLen(PChar(VExifValue)));
           VExifValue:=Trim(VExifValue);
-          if (0<Length(VExifValue)) then
-          if _ExtractDate(VExifValue) then begin
-            // date in VExifValue (as yyyy:mm:dd)
-            VExifValue := VExifValue + '=' + IntToStr(VRec.Res1)+'\'+IntToStr(VRec.Ver);
-            AListOfVersions.Add(VExifValue);
-            Inc(Result);
-          end;
         end;
       end;
+      VVersion := FMapVersionFactoryGE.CreateByGE(VRec.Ver, VRec.Res1, VExifValue);
+      VList.Add(VVersion);
     end;
   finally
     VMemStream.Free;
   end;
-end;
-
-function TTileStorageGE.ListOfVersions_Make: TStrings;
-begin
-  Result := TStringList.Create;
-  with TStringList(Result) do begin
-    Sorted:=TRUE;
-    Duplicates:=dupIgnore;
-  end;
-end;
-
-function TTileStorageGE.ListOfVersions_NeedToCollect(const AXY: TPoint; const AZoom: Byte): Boolean;
-begin
-  Result := FALSE; // not need to cache
-  if Assigned(FTileVersionsCacher) then begin
-    // versioninfo always NIL
-    if not FTileVersionsCacher.TryLoadTileFromCache(nil, AXY, AZoom, nil) then
-      Inc(Result); // not in cache and need to cache
-  end;
-end;
-
-procedure TTileStorageGE.ListOfVersions_SaveToCache(const AXY: TPoint;
-                                                    const AZoom: Byte;
-                                                    var AListOfVersions: TStrings);
-begin
-  if Assigned(FTileVersionsCacher) then
-    FTileVersionsCacher.AddTileToCache(TPersistent(AListOfVersions), AXY, AZoom, nil);
 end;
 
 function TTileStorageGE.LoadTile(
@@ -421,49 +365,38 @@ function TTileStorageGE.LoadTile(
 ): Boolean;
 var
   VFileStream: TFileStream;
-  VOffset, VSize: LongWord;
   VMemStream: TMemoryStream;
-  VVersionInfo: IMapVersionInfo;
-  VListOfVersions, VListOfOffsets: TStrings;
+  VVersionInfo: IMapVersionInfoGE;
+  VAskVer: Word;
+  VAskRes1: Byte;
+  VRec: TIndexRec;
 begin
   Result := False;
-  VListOfOffsets := nil;
-  VListOfVersions := nil;
-  if StorageStateStatic.ReadAccess <> asDisabled then
-  try
-    VVersionInfo := AVersionInfo;
-
-    // if need to collect versions
-    if ListOfVersions_NeedToCollect(AXY, Azoom) then begin
-      VListOfOffsets:=ListOfVersions_Make;
-      VListOfVersions:=ListOfVersions_Make;
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VAskVer := 0;
+    VAskRes1 := 0;
+    if Supports(AVersionInfo, IMapVersionInfoGE, VVersionInfo) then begin
+      VAskVer := VVersionInfo.Ver;
+      VAskRes1 := VVersionInfo.Res1;
     end;
-    
     // do it
-    if FIndex.FindTileInfo(AXY, Azoom, VVersionInfo, VOffset, VSize, VListOfOffsets) then begin
+    if FIndex.FindTileInfo(AXY, Azoom, VAskVer, VAskRes1, VRec, nil) then begin
       if InternalCreateGEStream(VFileStream) then
         try
           VMemStream := TMemoryStream.Create;
           try
             // extract tile from GE
-            Result := InternalExtractFromGEStream(VFileStream, VOffset, VSize, VMemStream);
-            
+            Result := InternalExtractFromGEStream(VFileStream, VRec.Offset, VRec.Size, VMemStream);
+
             if Result then begin
               VMemStream.SaveToStream(AStream);
             end;
-            
             ATileInfo := TTileInfoBasicExists.Create(
               0,
-              VSize,
-              VVersionInfo,
+              VRec.Size,
+              FMapVersionFactoryGE.CreateByGE(VRec.Ver, VRec.Res1, ''),
               FMainContentType
             );
-
-            // additional info from collected tiles
-            if (nil<>VListOfOffsets) then begin
-              // stream created - just process
-              InternalProcessGEOffsets(VFileStream, VListOfOffsets, VListOfVersions);
-            end;
           finally
             VMemStream.Free;
           end;
@@ -472,18 +405,8 @@ begin
         end;
     end else begin
       // no tile
-      ATileInfo := TTileInfoBasicNotExists.Create(0, VVersionInfo);
-
-      // check additional info
-      InternalCreateAndProcessGEOffsets(VListOfOffsets, VListOfVersions);
+      ATileInfo := TTileInfoBasicNotExists.Create(0, AVersionInfo);
     end;
-
-    // cache versions
-    if (nil<>VListOfVersions) then
-      ListOfVersions_SaveToCache(AXY, Azoom, VListOfVersions);
-  finally
-    FreeAndNil(VListOfVersions);
-    FreeAndNil(VListOfOffsets);
   end;
 end;
 

@@ -122,7 +122,7 @@ uses
   Variants,
   t_CommonTypes,
   u_ContentTypeInfo,
-  u_MapVersionInfo,
+  u_MapVersionFactorySimpleString,
   u_TTLCheckListener,
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
@@ -139,7 +139,11 @@ const
   CBDBSync = 300000; // 5 min
   CBDBSyncCheckInterval = 60000; // 60 sec
 begin
-  inherited Create(TTileStorageTypeAbilitiesDBMS.Create, AConfig);
+  inherited Create(
+    TTileStorageTypeAbilitiesDBMS.Create,
+    TMapVersionFactorySimpleString.Create,
+    AConfig
+  );
 
   FAutoExecDDL:=FALSE;
   
@@ -274,7 +278,7 @@ begin
   // TODO: add AVersionInfo to underlaying call GetTileFileName
   Result := FCacheConfig.GetTileFileName(AXY, Azoom);
   if Assigned(AVersionInfo) then begin
-    VVer:=VarToStrDef(AVersionInfo.Version,'');
+    VVer:=AVersionInfo.StoreString;
     if (0<=Length(VVer)) then
       Result:=Result +'['+VVer+']';
   end;

@@ -315,12 +315,7 @@ begin
   if FStorageConfig.CacheTypeCode = 6 then begin
     FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if FStorageConfig.CacheTypeCode = 5  then begin
-    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager,
-                                      // without cache with dates and versions
-                                      NIL
-                                      // with cache (dates and versions)
-                                      //TMemTileCachePersistent.Create(AGCList, nil, FStorageConfig.CoordConverter, AMainMemCacheConfig)
-                                      );
+    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
     FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
   end;
@@ -333,6 +328,7 @@ begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
     FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
   end;
+  FVersionConfig.VersionFactory := FStorage.MapVersionFactory;
 
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := FZmp.ViewGeoConvert;
@@ -496,7 +492,7 @@ end;
 
 function TMapType.GetTileFileName(AXY: TPoint; Azoom: byte): string;
 begin
-  Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
+  Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.Version);
 end;
 
 function TMapType.AllowListOfTileVersions: Boolean;
@@ -509,7 +505,7 @@ function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.Version);
   Result := VTileInfo.GetIsExists;
 end;
 
@@ -559,14 +555,14 @@ end;
 
 function TMapType.DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
 begin
-  Result := FStorage.DeleteTile(AXY, Azoom, FVersionConfig.GetStatic);
+  Result := FStorage.DeleteTile(AXY, Azoom, FVersionConfig.Version);
 end;
 
 function TMapType.TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.Version);
   Result := VTileInfo.GetIsExistsTNE;
 end;
 
@@ -578,7 +574,7 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-    FStorage.SaveTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream);
+    FStorage.SaveTile(AXY, Azoom, FVersionConfig.Version, VMemStream);
   finally
     VMemStream.Free;
   end;
@@ -621,7 +617,7 @@ var
 begin
   VMemStream := TMemoryStream.Create;
   try
-    Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.GetStatic, VMemStream, VTileInfo);
+    Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.Version, VMemStream, VTileInfo);
     if Result then  begin
       FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
       Result := AKml <> nil;
@@ -635,7 +631,7 @@ function TMapType.TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.Version);
   Result := VTileInfo.GetLoadDate;
 end;
 
@@ -643,7 +639,7 @@ function TMapType.TileSize(AXY: TPoint; Azoom: byte): integer;
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.GetStatic);
+  VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.Version);
   Result := VTileInfo.GetSize;
 end;
 
@@ -672,7 +668,7 @@ begin
     end;
     VFileStream := TFileStream.Create(AFileName, fmCreate);
     try
-      Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.GetStatic, VFileStream, VTileInfo);
+      Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.Version, VFileStream, VTileInfo);
       if Result then begin
         FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       end;
@@ -699,7 +695,7 @@ begin
       AXY,
       Azoom,
       ASourceZoom,
-      FVersionConfig.GetStatic,
+      FVersionConfig.Version,
       AColorer
     );
 end;
@@ -712,7 +708,7 @@ end;
 function TMapType.GetTileShowName(AXY: TPoint; Azoom: byte): string;
 begin
   if FStorageConfig.IsStoreFileCache then begin
-    Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic)
+    Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.Version)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
   end;
@@ -750,7 +746,7 @@ var
   VVersionInfo: IMapVersionInfo;
 begin
   try
-    VVersionInfo:=FVersionConfig.GetStatic;
+    VVersionInfo:=FVersionConfig.Version;
     if ACache = nil then begin
       Result := LoadBitmapTileFromStorage(AXY, Azoom, btm, VVersionInfo);
     end else begin

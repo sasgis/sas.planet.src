@@ -128,6 +128,7 @@ uses
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
+  u_MapVersionFactorySimpleString,
   u_TileStorageTypeAbilities,
   u_TileIteratorByRect,
   u_TileInfoBasic;
@@ -141,7 +142,11 @@ constructor TTileStorageFileSystem.Create(
   AContentTypeManager: IContentTypeManager
 );
 begin
-  inherited Create(TTileStorageTypeAbilitiesFileFolder.Create, AConfig);
+  inherited Create(
+    TTileStorageTypeAbilitiesFileFolder.Create,
+    TMapVersionFactorySimpleString.Create,
+    AConfig
+  );
   FFormatSettings.DecimalSeparator := '.';
   FFormatSettings.DateSeparator := '-';
   FFormatSettings.ShortDateFormat := 'yyyy-MM-dd';

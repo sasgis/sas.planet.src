@@ -272,6 +272,7 @@
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionInfo.pas" />
+    <DCCReference Include="i_MapVersionInfoGE.pas" />
     <DCCReference Include="i_MapViewGoto.pas" />
     <DCCReference Include="i_MapZoomingConfig.pas" />
     <DCCReference Include="i_MarkCategory.pas" />
@@ -732,7 +733,10 @@
     <DCCReference Include="u_MapTypeSet.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
+    <DCCReference Include="u_MapVersionFactoryGE.pas" />
+    <DCCReference Include="u_MapVersionFactorySimpleString.pas" />
     <DCCReference Include="u_MapVersionInfo.pas" />
+    <DCCReference Include="u_MapVersionListStatic.pas" />
     <DCCReference Include="u_MapViewGoto.pas" />
     <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MapZoomingConfig.pas" />

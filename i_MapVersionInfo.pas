@@ -25,8 +25,23 @@ interface
 type
   IMapVersionInfo = interface
     ['{CC157D46-11DA-4035-963B-2F0BEAEA265A}']
-    function GetVersion: Variant;
-    property Version: Variant read GetVersion;
+    function GetUrlString: string;
+    property UrlString: string read GetUrlString;
+
+    function GetStoreString: string;
+    property StoreString: string read GetStoreString;
+
+    function GetCaption: string;
+    property Caption: string read GetCaption;
+  end;
+
+  IMapVersionListStatic = interface
+    ['{6F7FA14E-6DC8-43B8-86FA-10541B204D77}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetItem(AIndex: Integer): IMapVersionInfo;
+    property Item[AIndex: Integer]: IMapVersionInfo read GetItem;
   end;
 
 implementation

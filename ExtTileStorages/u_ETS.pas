@@ -716,11 +716,11 @@ begin
   try
     if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Delete_W) then begin
       // use unicode version
-      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionW:=AVersionInfo.StoreString;
       Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Delete_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), ADeleteOptions);
     end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Delete_A) then begin
       // use ansi version
-      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      VVersionA:=AVersionInfo.StoreString;
       Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Delete_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), ADeleteOptions);
     end else begin
       // not supported
@@ -764,7 +764,7 @@ begin
     if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Ddl_Exec_W) then begin
       // use unicode version
       if Assigned(AVersionInfo) then begin
-        VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+        VVersionW:=AVersionInfo.StoreString;
         VVersionBufW.szVersion:=PWideChar(VVersionW);
         VVerPtr:=@VVersionBufW;
       end;
@@ -772,7 +772,7 @@ begin
     end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Ddl_Exec_A) then begin
       // use ansi version
       if Assigned(AVersionInfo) then begin
-        VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+        VVersionA:=AVersionInfo.StoreString;
         TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
         VVerPtr:=@VVersionBufW;
       end;
@@ -910,14 +910,14 @@ begin
 
     if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Insert_W) then begin
       // use unicode version
-      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionW:=AVersionInfo.StoreString;
       VVersionBufW.szVersion:=PWideChar(VVersionW);
       VContentTypeW:=FContentTypeBasic.GetContentType;
       VVersionBufW.szContentType:=PWideChar(VContentTypeW);
       Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Insert_W(FLinkHandle, nil, AXYZ, @VTileBuf, @VVersionBufW);
     end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Insert_A) then begin
       // use ansi version
-      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      VVersionA:=AVersionInfo.StoreString;
       TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
       VContentTypeA:=FContentTypeBasic.GetContentType;
       TETS_TILE_VERSION_A(VVersionBufW).szContentType:=PAnsiChar(VContentTypeA);
@@ -955,12 +955,12 @@ begin
 
     if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tne_Create_W) then begin
       // use unicode version
-      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionW:=AVersionInfo.StoreString;
       VVersionBufW.szVersion:=PWideChar(VVersionW);
       Result:=FETS_LQI_TILE_ROUTINES_W.p_Tne_Create_W(FLinkHandle, nil, AXYZ, @VVersionBufW);
     end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tne_Create_A) then begin
       // use ansi version
-      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      VVersionA:=AVersionInfo.StoreString;
       TETS_TILE_VERSION_A(VVersionBufW).szVersion:=PAnsiChar(VVersionA);
       Result:=FETS_LQI_TILE_ROUTINES_A.p_Tne_Create_A(FLinkHandle, nil, AXYZ, PETS_TILE_VERSION_A(@VVersionBufW));
     end else begin
@@ -1421,7 +1421,7 @@ begin
 
     if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Query_W) then begin
       // use unicode version
-      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionW:=AVersionInfo.StoreString;
       Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Query_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), @VTileBuf, @VVersionBufW);
       try
         if (ETSR_OK=Result) then begin
@@ -1434,7 +1434,7 @@ begin
       end;
     end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Query_A) then begin
       // use ansi version
-      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      VVersionA:=AVersionInfo.StoreString;
       Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Query_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), @VTileBuf, @VVersionBufW);
       try
         if (ETSR_OK=Result) then begin
@@ -1499,7 +1499,7 @@ begin
 
     if Assigned(FETS_LQI_TILE_ROUTINES_W.p_Tile_Select_W) then begin
       // use unicode version
-      VVersionW:=VarToWideStrDef(AVersionInfo.Version,'');
+      VVersionW:=AVersionInfo.StoreString;
       Result:=FETS_LQI_TILE_ROUTINES_W.p_Tile_Select_W(FLinkHandle, nil, AXYZ, PWideChar(VVersionW), @VTileBuf, @VVersionBufW);
       try
         if (ETSR_OK=Result) then begin
@@ -1512,7 +1512,7 @@ begin
       end;
     end else if Assigned(FETS_LQI_TILE_ROUTINES_A.p_Tile_Select_A) then begin
       // use ansi version
-      VVersionA:=VarToStrDef(AVersionInfo.Version,'');
+      VVersionA:=AVersionInfo.StoreString;
       Result:=FETS_LQI_TILE_ROUTINES_A.p_Tile_Select_A(FLinkHandle, nil, AXYZ, PAnsiChar(VVersionA), @VTileBuf, @VVersionBufW);
       try
         if (ETSR_OK=Result) then begin

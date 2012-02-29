@@ -26,6 +26,7 @@ uses
   Types,
   Classes,
   SyncObjs,
+  i_MapVersionInfo,
   u_BerkeleyDB,
   u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
@@ -64,7 +65,7 @@ type
       ATileXY: TPoint;
       ATileZoom: Byte;
       ATileDate: TDateTime;
-      ATileVersion: PWideChar;
+      AVersionInfo: IMapVersionInfo;
       ATileContetType: PWideChar;
       ATileStream: TStream
     ): Boolean;
@@ -73,14 +74,14 @@ type
       const ADataBase: string;
       ATileXY: TPoint;
       ATileZoom: Byte;
-      ATileVersion: PWideChar
+      AVersionInfo: IMapVersionInfo
     ): Boolean;
 
     function LoadTile(
       const ADataBase: string;
       ATileXY: TPoint;
       ATileZoom: Byte;
-      ATileVersion: PWideChar;
+      AVersionInfo: IMapVersionInfo;
       out ATileStream: TMemoryStream;
       out ABDBData: TBDBData
     ): Boolean;
@@ -89,14 +90,14 @@ type
       const ADataBase: string;
       ATileXY: TPoint;
       ATileZoom: Byte;
-      ATileVersion: PWideChar
+      AVersionInfo: IMapVersionInfo
     ): Boolean;
 
     function IsTNEFound(
       const ADataBase: string;
       ATileXY: TPoint;
       ATileZoom: Byte;
-      ATileVersion: PWideChar;
+      AVersionInfo: IMapVersionInfo;
       out ABDBData: TBDBData
     ): Boolean;
 
@@ -291,7 +292,7 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   ATileXY: TPoint;
   ATileZoom: Byte;
   ATileDate: TDateTime;
-  ATileVersion: PWideChar;
+  AVersionInfo: IMapVersionInfo;
   ATileContetType: PWideChar;
   ATileStream: TStream
 ): Boolean;
@@ -300,6 +301,7 @@ var
   VData: TBDBData;
   VBDB: TBerkeleyDB;
   VMemStream: TMemoryStream;
+  VVersionString: WideString;
 begin
   Result := False;
   FEvent.WaitFor(INFINITE);
@@ -311,8 +313,9 @@ begin
 
       VMemStream := TMemoryStream.Create;
       try
+        VVersionString := AVersionInfo.StoreString;
         VData.TileDate := ATileDate;
-        VData.TileVer  := ATileVersion;
+        VData.TileVer  := PWideChar(VVersionString);
         VData.TileMIME := ATileContetType;
 
         if Assigned(ATileStream) then begin
@@ -358,7 +361,7 @@ function TTileStorageBerkeleyDBHelper.DeleteTile(
   const ADataBase: string;
   ATileXY: TPoint;
   ATileZoom: Byte;
-  ATileVersion: PWideChar
+  AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VKey: TBDBKey;
@@ -382,7 +385,7 @@ function TTileStorageBerkeleyDBHelper.LoadTile(
   const ADataBase: string;
   ATileXY: TPoint;
   ATileZoom: Byte;
-  ATileVersion: PWideChar;
+  AVersionInfo: IMapVersionInfo;
   out ATileStream: TMemoryStream;
   out ABDBData: TBDBData
 ): Boolean;
@@ -423,7 +426,7 @@ function TTileStorageBerkeleyDBHelper.TileExists(
   const ADataBase: string;
   ATileXY: TPoint;
   ATileZoom: Byte;
-  ATileVersion: PWideChar
+  AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VKey: TBDBKey;
@@ -447,7 +450,7 @@ function TTileStorageBerkeleyDBHelper.IsTNEFound(
   const ADataBase: string;
   ATileXY: TPoint;
   ATileZoom: Byte;
-  ATileVersion: PWideChar;
+  AVersionInfo: IMapVersionInfo;
   out ABDBData: TBDBData
 ): Boolean;
 var

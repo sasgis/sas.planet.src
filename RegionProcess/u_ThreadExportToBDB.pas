@@ -26,6 +26,7 @@ uses
   Windows,
   SysUtils,
   Classes,
+  i_MapVersionInfo,
   i_VectorItemLonLat,
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
@@ -54,6 +55,7 @@ type
       AMapType: TMapType;
       AXY: TPoint;
       AZoom: Byte;
+      AVersionInfo: IMapVersionInfo;
       ARemotePath: string
     ): Boolean;
   protected
@@ -84,7 +86,6 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
-  i_MapVersionInfo,
   u_TileFileNameBDB,
   u_TileIteratorByPolygon;
 
@@ -144,16 +145,15 @@ function TThreadExportToBDB.TileExportToRemoteBDB(
   AMapType: TMapType;
   AXY: TPoint;
   AZoom: Byte;
+  AVersionInfo: IMapVersionInfo;
   ARemotePath: string
 ): Boolean;
 var
   VExportSDBFile: string;
   VTileInfo: ITileInfoBasic;
-  VVersionInfo: IMapVersionInfo;
   VTileExists: Boolean;
   VSDBFileExists: Boolean;
   VLoadDate: TDateTime;
-  VVersionStr: PWideChar;
   VContenetTypeStr: PWideChar;
 begin
   Result := False;
@@ -164,38 +164,32 @@ begin
     '.sdb';
   VSDBFileExists := FileExists(VExportSDBFile);
   if VSDBFileExists then begin
-    VTileExists := AHelper.TileExists(VExportSDBFile, AXY, AZoom, '');
+    VTileExists := AHelper.TileExists(VExportSDBFile, AXY, AZoom, AVersionInfo);
   end else begin
     VTileExists := False;
   end;
   if not VTileExists or (VTileExists and FIsReplace) then begin
     FStream.Clear;
     VTileInfo := nil;
-    VVersionInfo := nil; // TODO: ??
-    if AMapType.TileStorage.LoadTile(AXY, AZoom, VVersionInfo, FStream, VTileInfo) then begin
+    if AMapType.TileStorage.LoadTile(AXY, AZoom, AVersionInfo, FStream, VTileInfo) then begin
       if VSDBFileExists or AHelper.CreateDirIfNotExists(VExportSDBFile) then begin
         if VTileInfo <> nil then begin
           VLoadDate := VTileInfo.LoadDate;
         end else begin
           VLoadDate := Now;
         end;
-        if (VTileInfo <> nil) and (VTileInfo.VersionInfo <> nil) then begin
-          VVersionStr := PWideChar(VarToWideStrDef(VTileInfo.VersionInfo.Version, ''));
-        end else begin
-          VVersionStr := '';
-        end;
         if (VTileInfo <> nil) and (VTileInfo.ContentType <> nil) then begin
           VContenetTypeStr := PWideChar(VTileInfo.ContentType.GetContentType);
         end else begin
           VContenetTypeStr := PWideChar(AMapType.TileStorage.GetMainContentType.GetContentType);
-        end; 
+        end;
         FStream.Position := 0;
         Result := AHelper.SaveTile(
           VExportSDBFile,
           AXY,
           AZoom,
           VLoadDate,
-          VVersionStr,
+          VTileInfo.VersionInfo,
           VContenetTypeStr,
           FStream
         );
@@ -218,6 +212,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VVersionInfo: IMapVersionInfo;
 begin
   inherited;
   SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
@@ -245,6 +240,7 @@ begin
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
     for i := 0 to length(FMapTypeArr) - 1 do begin
       VMapType := FMapTypeArr[i];
+      VVersionInfo := VMapType.VersionConfig.Version;
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
       VHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.Datum.EPSG);
@@ -256,7 +252,7 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            if TileExportToRemoteBDB(VHelper, VMapType, VTile, VZoom, VPath) then begin
+            if TileExportToRemoteBDB(VHelper, VMapType, VTile, VZoom, VVersionInfo, VPath) then begin
               if FIsMove then begin
                 VMapType.DeleteTile(VTile, VZoom);
               end;

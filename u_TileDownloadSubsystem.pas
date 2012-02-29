@@ -285,7 +285,7 @@ begin
           TTileRequestWithSizeCheck.Create(
             AXY,
             Azoom,
-            FVersionConfig.GetStatic,
+            FVersionConfig.Version,
             ACancelNotifier,
             AOperationID
           );
@@ -294,7 +294,7 @@ begin
           TTileRequest.Create(
             AXY,
             Azoom,
-            FVersionConfig.GetStatic,
+            FVersionConfig.Version,
             ACancelNotifier,
             AOperationID
           );

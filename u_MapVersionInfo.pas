@@ -28,12 +28,14 @@ uses
 type
   TMapVersionInfo = class(TInterfacedObject, IMapVersionInfo)
   private
-    FVersion: Variant;
+    FVersion: string;
   protected
-    function GetVersion: Variant;
+    function GetUrlString: string;
+    function GetStoreString: string;
+    function GetCaption: string;
   public
     constructor Create(
-      AVersion: Variant
+      AVersion: string
     );
   end;
 
@@ -41,12 +43,22 @@ implementation
 
 { TMapVersionInfo }
 
-constructor TMapVersionInfo.Create(AVersion: Variant);
+constructor TMapVersionInfo.Create(AVersion: string);
 begin
   FVersion := AVersion;
 end;
 
-function TMapVersionInfo.GetVersion: Variant;
+function TMapVersionInfo.GetCaption: string;
+begin
+  Result := FVersion;
+end;
+
+function TMapVersionInfo.GetStoreString: string;
+begin
+  Result := FVersion;
+end;
+
+function TMapVersionInfo.GetUrlString: string;
 begin
   Result := FVersion;
 end;
