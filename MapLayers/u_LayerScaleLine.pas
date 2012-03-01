@@ -105,7 +105,6 @@ type
 implementation
 
 uses
-  Math,
   SysUtils,
   i_CoordConverter,
   u_NotifyEventListener,

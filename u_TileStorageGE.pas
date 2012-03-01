@@ -28,7 +28,6 @@ uses
   Classes,
   i_SimpleTileStorageConfig,
   u_MapVersionFactoryGE,
-  i_TileObjCache,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic,

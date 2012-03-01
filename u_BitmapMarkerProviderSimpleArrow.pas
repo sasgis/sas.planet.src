@@ -44,7 +44,6 @@ uses
   GR32_Polygons,
   GR32_Transforms,
   t_GeoTypes,
-  u_GeoFun,
   u_BitmapMarker;
 
 { TBitmapMarkerProviderSimpleArrow }

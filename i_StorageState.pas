@@ -4,7 +4,6 @@ interface
 
 uses
   t_CommonTypes,
-  i_JclNotify,
   i_Changeable;
 
 type

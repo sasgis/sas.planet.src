@@ -26,7 +26,6 @@ uses
   Windows,
   SyncObjs,
   SysUtils,
-  i_JclNotify,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
@@ -90,9 +89,6 @@ type
   end;
 
 implementation
-
-uses
-  u_JclNotify;
 
 { TConfigDataElementBase }
 

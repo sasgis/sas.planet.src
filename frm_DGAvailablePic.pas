@@ -142,9 +142,7 @@ type
 implementation
 
 uses
-  i_CoordConverter,
-  i_ProxySettings,
-  u_ResStrings;
+  i_CoordConverter;
 
 type
   TGetList = class(TThread)

@@ -51,7 +51,6 @@ implementation
 uses
   Forms,
   SysUtils,
-  StrUtils,
   Classes,
   RegExprUtils,
   i_RegionProcessProgressInfo,

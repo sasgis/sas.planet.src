@@ -70,7 +70,6 @@ implementation
 
 uses
   SysUtils,
-  Math,
   u_ResStrings;
 
 { TValueToStringConverter }

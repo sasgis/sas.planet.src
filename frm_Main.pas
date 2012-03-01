@@ -700,7 +700,6 @@ uses
   i_Bitmap32Static,
   i_MapTypes,
   i_GeoCoderList,
-  i_GlobalInternetState,
   i_CoordConverter,
   i_VectorItemLonLat,
   i_LocalCoordConverter,

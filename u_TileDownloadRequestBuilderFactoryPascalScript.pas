@@ -25,8 +25,6 @@ interface
 uses
   SyncObjs,
   SysUtils,
-  uPSUtils,
-  i_CoordConverter,
   i_LanguageManager,
   i_Downloader,
   i_DownloadChecker,
@@ -68,9 +66,7 @@ type
 implementation
 
 uses
-  uPSC_dll,
   uPSCompiler,
-  u_ResStrings,
   u_TileDownloadRequestBuilderPascalScript;
 
 { TTileDownloadRequestBuilderFactoryPascalScript }

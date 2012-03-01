@@ -28,7 +28,6 @@ uses
   Classes,
   i_JclNotify,
   i_StorageStateInternal,
-  i_MapVersionInfoGE,
   u_MapTypeCacheConfig;
 
 type
@@ -87,10 +86,8 @@ type
 implementation
 
 uses
-  Variants,
   t_CommonTypes,
-  u_NotifyEventListener,
-  u_MapVersionFactoryGE;
+  u_NotifyEventListener;
 
 { TGEIndexFile }
 
