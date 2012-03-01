@@ -9,7 +9,6 @@ uses
 type
   TMapVersionListStatic = class(TInterfacedObject, IMapVersionListStatic)
   private
-    FCount: Integer;
     FList: IInterfaceList;
   private
     function GetCount: Integer;
@@ -27,23 +26,22 @@ implementation
 constructor TMapVersionListStatic.Create(AList: IInterfaceList);
 begin
   FList := AList;
-  if FList <>  nil then begin
-    FCount := FList.Count;
-  end else begin
-    FCount := 0;
-  end;
 end;
 
 function TMapVersionListStatic.GetCount: Integer;
 begin
-  Result := FCount;
+  if not Assigned(FList) then
+    Result := 0
+  else
+    Result := FList.Count;
 end;
 
 function TMapVersionListStatic.GetItem(AIndex: Integer): IMapVersionInfo;
 begin
-  if FCount > 0 then begin
+  if not Assigned(FList) then
+    Result := nil
+  else
     Result := IMapVersionInfo(FList.Items[AIndex]);
-  end;
 end;
 
 end.

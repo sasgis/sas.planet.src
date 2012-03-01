@@ -31,14 +31,63 @@ uses
   u_MapTypeCacheConfig;
 
 type
+  TServerRec = record        // запись о сервере
+    LastAuth : LongWord;     // время последней авторизации на сервере
+    Unk      : Word;         // всегда = $0000
+    Name     : Char;         // url сервера (иногда в Punycode)
+  end;
+
+  {
+  TAuthRec = packed record       // запись о авторизации
+    Magic    : LongWord;         // идентификатор = $C39AC6B0
+    ANumber  : LongWord;         // номер данной записи авторизации
+    Unk      : LongWord;         // всегда = $00001000
+    ATime    : LongWord;         // время данной авторизации
+  end;
+
+  TCache_Head = record             // заголовок
+    Magic  : LongWord;             // идентификатор = $D5E1C1CA
+    MaxSz  : LongWord;             // максимальный размер файла кэша
+    ACount : LongWord;             // число записей авторизации
+    SCount : LongWord;             // число массива серверов
+    Server : array of TServerRec;  // массив серверов
+    Auth   : array of TAuthRec;    // массив авторизаций
+  end;
+  }
+
+  TCache_Head = record             // заголовок
+    Magic  : LongWord;             // идентификатор = $D5E1C1CA
+    MaxSz  : LongWord;             // максимальный размер файла кэша
+    ACount : LongWord;             // число записей авторизации
+    SCount : LongWord;             // число массива серверов
+  end;
+
+  TTileRec = packed record // Описание тайла, размер структуры 36 байт
+    Magic   : LongWord;    // идентификатор = $853662F7
+    RecSz   : LongWord;    // полный размер pазмер блока: описание + тайл + nil
+    Ver     : Word;        // версия тайла
+    TileID  : Byte;        // тип тайла
+    RX01    : Byte;        // использ. только для истор. снимка: 1-я часть даты
+    Zoom    : Byte;        // зум
+    Unk1    : Byte;        // ? не использ. или $20 - для истор. снимка (? 0 для исторического снимка)
+    Layer   : Word;        // номер слоя или 2-я часть даты для истор. снимка
+    NameLo  : LongWord;    // первая часть имени
+    NameHi  : LongWord;    // вторая часть имени
+    Server  : Word;        // номер сервера из заголовка кэша (первый байт)
+    Unk2    : Word;        // ? наличие поля зависит от ОС (в Win - есть, в Linux - нет)
+    Size    : LongWord;    // размер тайла
+    CRC     : LongWord;    // контрольная сумма тайла
+  end;
+  PTileRec = ^TTileRec;
+
   TIndexRec = packed record
     Magic  : LongWord;  // число-идентификатор =  D5 BF 93 75
     Ver    : Word;      // версия тайла
     TileID : Byte;      // тип тайла
-    Res1   : Byte;      // индекс снимка?
+    RX01   : Byte;      // ? использ. только для истор. снимка: 1-я часть даты
     Zoom   : Byte;      // уровень зума
     Res2   : Byte;      // ?
-    Layer  : Word;      // номер слоя (только для слоя, иначе = 0)
+    Layer  : Word;      // номер слоя (только для слоя, иначе = 0) ? или 2-я часть даты для истор. снимка
     NameLo : LongWord;  // первая часть имени
     NameHi : LongWord;  // вторая часть имени
     ServID : Word;      // номер сервера из списка в dbCache.dat
@@ -54,14 +103,10 @@ type
     FStorageStateInternal: IStorageStateInternal;
     FIndexFileName: string;
     FIndexInfo: array of TIndexRec;
-    FServerID: Word;
-    FConfigChangeListener: IJclListener;
+    //FConfigChangeListener: IJclListener;
     FFileInited: Boolean;
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
     procedure _UpdateIndexInfo;
-    procedure OnConfigChange;
-    function getServID:word;
-  protected
   public
     constructor Create(
       AStorageStateInternal: IStorageStateInternal;
@@ -73,21 +118,43 @@ type
     function FindTileInfo(
       const APoint: TPoint;
       const AZoom: Byte;
+      const ACheckServerID: Boolean;
+      const AServerID: Word;
       const AAskVer: Word;
-      const AAskRes1: Byte;
+      const AAskTileDate: String;
       var ARec: TIndexRec;
       AListOfOffsets: TList
     ): Boolean;
 
     // get single index item
     function GetIndexRecByIndex(i: Integer; var ARec: TIndexRec): Boolean;
+
+    procedure OnConfigChange(Sender: TObject);
   end;
+
+function MakeGEDateToStr(const ARX01: Byte; const ALayer: Word): String;
 
 implementation
 
 uses
   t_CommonTypes,
   u_NotifyEventListener;
+
+function MakeGEDateToStr(const ARX01: Byte; const ALayer: Word): String;
+var
+  VYear, VMonth, VDay: Word;
+  VTileDate: TDateTime;
+begin
+  Result := '';
+  try
+    VDay := ARX01 div 8;
+    VMonth := (ALayer and $F);
+    VYear := (ALayer shr 4);
+    if TryEncodeDate(VYear, VMonth, VDay, VTileDate) then
+      Result := FormatDateTime('yyyy:mm:dd', VTileDate);
+  except
+  end;
+end;
 
 { TGEIndexFile }
 
@@ -100,14 +167,14 @@ begin
   FCacheConfig := ACacheConfig;
   FStorageStateInternal := AStorageStateInternal;
   FFileInited := False;
-  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
-  FCacheConfig.ConfigChangeNotifier.Add(FConfigChangeListener);
+  //FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  //FCacheConfig.ConfigChangeNotifier.Add(FConfigChangeListener);
 end;
 
 destructor TGEIndexFile.Destroy;
 begin
-  FCacheConfig.ConfigChangeNotifier.Remove(FConfigChangeListener);
-  FConfigChangeListener := nil;
+  //FCacheConfig.ConfigChangeNotifier.Remove(FConfigChangeListener);
+  //FConfigChangeListener := nil;
   FreeAndNil(FSync);
   FIndexInfo := nil;
   inherited;
@@ -150,8 +217,10 @@ end;
 function TGEIndexFile.FindTileInfo(
   const APoint: TPoint;
   const AZoom: Byte;
+  const ACheckServerID: Boolean;
+  const AServerID: Word;
   const AAskVer: Word;
-  const AAskRes1: Byte;
+  const AAskTileDate: String;
   var ARec: TIndexRec;
   AListOfOffsets: TList
 ): Boolean;
@@ -160,6 +229,28 @@ var
   VNameHi: LongWord;
   i: Integer;
   VProcessed: Boolean;
+
+  function _FilterOK(const ARX01: Byte;
+                     const ALayer: Word;
+                     const AVer: Word): Boolean;
+  var VCurTileDate: String;
+  begin
+    Result:=((0=AAskVer) or (AAskVer=AVer));
+
+    if (not Result) then
+      Exit;
+
+    // if no TileDate filter - check version
+    if (0=Length(AAskTileDate)) then
+      Exit;
+
+    VCurTileDate := MakeGEDateToStr(FIndexInfo[i].RX01, FIndexInfo[i].Layer);
+    if (0=Length(VCurTileDate)) then
+      Exit;
+
+    // if tile info with date information
+    Result := SameText(AAskTileDate, VCurTileDate);
+  end;
 begin
   Result := False;
 
@@ -183,13 +274,12 @@ begin
           for i := Length(FIndexInfo) - 1 downto 0 do begin
             if FIndexInfo[i].Magic = $7593BFD5 then begin
               if FIndexInfo[i].TileID = 130 then begin
-                if FIndexInfo[i].ServID = FServerID then begin
+                if (not ACheckServerID) or (AServerID = FIndexInfo[i].ServID) then begin
                   if FIndexInfo[i].Zoom = AZoom then begin
                     if (FIndexInfo[i].NameLo = VNameLo) and (FIndexInfo[i].NameHi = VNameHi) then begin
                       // found
                       if (not Result) and
-                         ((0=AAskRes1) or (AAskRes1=FIndexInfo[i].Res1)) and
-                         ((0=AAskVer) or (AAskVer=FIndexInfo[i].Ver)) then begin
+                         _FilterOK(FIndexInfo[i].RX01, FIndexInfo[i].Layer, FIndexInfo[i].Ver) then begin
                         // second entrance will fail because of Result
                         ARec := FIndexInfo[i];
                         Result := True;
@@ -229,36 +319,13 @@ begin
   end;
 end;
 
-procedure TGEIndexFile.OnConfigChange;
+procedure TGEIndexFile.OnConfigChange(Sender: TObject);
 begin
   FSync.BeginWrite;
   try
     FFileInited := False;
   finally
     FSync.EndWrite;
-  end;
-end;
-
-function TGEIndexFile.getServID:word;
-var
-  VCode:  Integer;
-  VNameInCache: string;
-begin
-  VNameInCache := FCacheConfig.GetNameInCache;
-  if VNameInCache = '' then begin
-    Result := 0;
-  end else if VNameInCache = '1' then begin
-    Result := 1;
-  end else if VNameInCache = '2' then begin
-    Result := 2;
-  end else if VNameInCache = '3' then begin
-    Result := 3;
-  end else begin
-    if TryStrToInt(VNameInCache, VCode) then begin
-      Result := VCode;
-    end else begin
-      Result := 0;
-    end;
   end;
 end;
 
@@ -278,7 +345,6 @@ begin
         VCount := VFileStream.Size div SizeOf(FIndexInfo[0]);
         SetLength(FIndexInfo, VCount );
         VFileStream.ReadBuffer(FIndexInfo[0], VCount * SizeOf(FIndexInfo[0]));
-        FServerID := getServID;
         FStorageStateInternal.ReadAccess := asEnabled;
       finally
         FreeAndNil(VFileStream);

@@ -43,19 +43,28 @@ type
     FCacheConfig: TMapTypeCacheConfigGE;
     FMapVersionFactoryGE: IMapVersionFactoryGEInternal;
     FIndex: TGEIndexFile;
+    FUserDefinedGEPath: String;
+    FUserDefinedGEServer: String;
+    FServerID: Word;
     FMainContentType: IContentTypeInfoBasic;
   private
+    function InternalGetServerID(const AUserDefinedGEServer: String): Word;
     function InternalCreateGEStream(out AGEStream: TFileStream): Boolean;
     function InternalExtractFromGEStream(const AGEStream: TFileStream;
                                          const AOffset, ASize: LongWord;
-                                         AResultStream: TMemoryStream): Boolean;
+                                         AResultStream: TMemoryStream;
+                                         out ATileDateStr: String): Boolean;
     function InternalProcessGEOffsets(
       const AGEStream: TFileStream;
-      const AListOfOffsets: TList
+      const AListOfOffsets: TList;
+      const AGEServer: String
     ): IInterfaceList;
     function InternalCreateAndProcessGEOffsets(
-      const AListOfOffsets: TList
+      const AListOfOffsets: TList;
+      const AGEServer: String
     ): IInterfaceList;
+
+    procedure DoOnMapSettingsEdit(Sender: TObject);
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
@@ -114,7 +123,8 @@ type
 
     function GetListOfTileVersions(
       const AXY: TPoint;
-      const Azoom: byte
+      const Azoom: byte;
+      AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; override;
   end;
 
@@ -140,7 +150,11 @@ constructor TTileStorageGE.Create(
 begin
   FMapVersionFactoryGE := TMapVersionFactoryGE.Create;
   inherited Create(TTileStorageTypeAbilitiesGE.Create, FMapVersionFactoryGE, AConfig);
-  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig);
+  // for caching ServerID
+  FServerID := 0;
+  FUserDefinedGEPath := '';
+  FUserDefinedGEServer := '';
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
   FIndex := TGEIndexFile.Create(StorageStateInternal, FCacheConfig);
   FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
 end;
@@ -150,6 +164,12 @@ begin
   FreeAndNil(FIndex);
   FreeAndNil(FCacheConfig);
   inherited;
+end;
+
+procedure TTileStorageGE.DoOnMapSettingsEdit(Sender: TObject);
+begin
+  if Assigned(FIndex) then
+    FIndex.OnConfigChange(Sender);
 end;
 
 function TTileStorageGE.DeleteTile(
@@ -177,20 +197,32 @@ end;
 
 function TTileStorageGE.GetListOfTileVersions(
   const AXY: TPoint;
-  const Azoom: byte
+  const Azoom: byte;
+  AVersionInfo: IMapVersionInfo
 ): IMapVersionListStatic;
 var
   VListOfOffsets: TList;
   VRec: TIndexRec;
+  VVersionInfo: IMapVersionInfoGE;
+  VUserDefinedGEServer: String;
   VList: IInterfaceList;
 begin
   VListOfOffsets := TList.Create;
   try
-    VList := nil;
+    // get ServerID from version (and skip other params)
+    if Supports(AVersionInfo, IMapVersionInfoGE, VVersionInfo) then
+      VUserDefinedGEServer := VVersionInfo.GEServer
+    else
+      VUserDefinedGEServer := '';
+    
     // do not check result!
-    FIndex.FindTileInfo(AXY, Azoom, 0, 0, VRec, VListOfOffsets);
+    FIndex.FindTileInfo(AXY, Azoom, (0<Length(VUserDefinedGEServer)), InternalGetServerID(VUserDefinedGEServer), 0, '', VRec, VListOfOffsets);
+
+    // make list with original(!) GEServer
+    // if user asks about [tm] or [sky] - do not replace it with 2 or 3
+    VList := nil;
     if (VListOfOffsets.Count > 0) then begin
-      VList := InternalCreateAndProcessGEOffsets(VListOfOffsets);
+      VList := InternalCreateAndProcessGEOffsets(VListOfOffsets, VUserDefinedGEServer);
     end;
     Result := TMapVersionListStatic.Create(VList);
   finally
@@ -227,7 +259,8 @@ begin
 end;
 
 function TTileStorageGE.InternalCreateAndProcessGEOffsets(
-  const AListOfOffsets: TList
+  const AListOfOffsets: TList;
+  const AGEServer: String
 ): IInterfaceList;
 var
   VFileStream: TFileStream;
@@ -237,7 +270,7 @@ begin
     // no stream - create it
     if InternalCreateGEStream(VFileStream) then
     try
-      Result := InternalProcessGEOffsets(VFileStream, AListOfOffsets);
+      Result := InternalProcessGEOffsets(VFileStream, AListOfOffsets, AGEServer);
     finally
       VFileStream.Free;
     end;
@@ -257,12 +290,22 @@ end;
 
 function TTileStorageGE.InternalExtractFromGEStream(const AGEStream: TFileStream;
                                                     const AOffset, ASize: LongWord;
-                                                    AResultStream: TMemoryStream): Boolean;
+                                                    AResultStream: TMemoryStream;
+                                                    out ATileDateStr: String): Boolean;
 var
   VTileStart: LongWord;
+  VTileRec: TTileRec;
 begin
   Result := FALSE;
-  
+
+  // get tile info
+  AGEStream.Position := AOffset;
+  AGEStream.ReadBuffer(VTileRec, SizeOf(VTileRec));
+  // date
+  with VTileRec do begin
+    ATileDateStr := MakeGEDateToStr(RX01, Layer);
+  end;
+
   // copy part to result atream
   AGEStream.Position := AOffset + 36;
   AResultStream.CopyFrom(AGEStream, ASize);
@@ -290,9 +333,65 @@ begin
   end;
 end;
 
+function TTileStorageGE.InternalGetServerID(const AUserDefinedGEServer: String): Word;
+var
+  VCode: Integer;
+  VFileStream: TFileStream;
+  VCache_Head: TCache_Head;
+  VServerRec: TServerRec;
+  VServerName: String;
+  VUserDefinedGEPath: String;
+begin
+  // allow to use some values without checking the cache
+  if (0=Length(AUserDefinedGEServer)) then
+    Result := 0
+  else if TryStrToInt(AUserDefinedGEServer, VCode) then
+    Result := VCode
+  else begin
+    VUserDefinedGEPath := FCacheConfig.GetNameInCache;
+    if SameText(AUserDefinedGEServer, FUserDefinedGEServer) and AnsiSameText(VUserDefinedGEPath, FUserDefinedGEPath) then begin
+      // cached ok
+      Result := FServerID;
+    end else begin
+      // should check cache header
+      Result := 0;
+      if InternalCreateGEStream(VFileStream) then
+      try
+        // try to get server id from file
+        VFileStream.Position := 0;
+        VFileStream.ReadBuffer(VCache_Head, SizeOf(VCache_Head));
+        // loop
+        if (VCache_Head.SCount <= $FF) then
+        for VCode := 0 to VCache_Head.SCount - 1 do begin
+          // read single item
+          VFileStream.ReadBuffer(VServerRec, SizeOf(VServerRec));
+          // get server name
+          VServerName:='';
+          while VServerRec.Name<>#0 do begin
+            VServerName:=VServerName+VServerRec.Name;
+            VFileStream.ReadBuffer(VServerRec.Name, SizeOf(VServerRec.Name));
+          end;
+          // check server name
+          if System.Pos(AUserDefinedGEServer, VServerName) > 0 then begin
+            // found
+            Result := VCode;
+            FServerID := VCode;
+            FUserDefinedGEServer := AUserDefinedGEServer;
+            FUserDefinedGEPath := VUserDefinedGEPath;
+            Exit;
+          end;
+        end;
+      finally
+        VFileStream.Free;
+      end;
+    end;
+  end;
+end;
+
 function TTileStorageGE.InternalProcessGEOffsets(
   const AGEStream: TFileStream;
-  const AListOfOffsets: TList
+  const AListOfOffsets: TList;
+  const AGEServer: String
 ): IInterfaceList;
 
   function _ExtractDate(var ADate: String): Boolean;
@@ -328,31 +427,47 @@ var
   VMemStream: TMemoryStream;
   VExifOffset: PByte;
   VExifSize: DWORD;
-  VExifValue: String;
+  VGEServer: String;
+  VTileDate: String;
   VVersion: IMapVersionInfo;
 begin
+  VGEServer := AGEServer;
   Result := TInterfaceList.Create;
   VMemStream:=TMemoryStream.Create;
   try
     for i := 0 to AListOfOffsets.Count-1 do
     if FIndex.GetIndexRecByIndex(Integer(AListOfOffsets[i]), VRec) then begin
-      // prepare
-      VMemStream.Position:=0;
-      VMemStream.Size:=0;
+      // try to make date from index
+      with VRec do begin
+        VTileDate := MakeGEDateToStr(VRec.RX01, VRec.Layer);
+      end;
 
-      VExifValue := '';
-      // process single index item
-      if InternalExtractFromGEStream(AGEStream, VRec.Offset, VRec.Size, VMemStream) then begin
-        // get exif from streamed image
-        if FindExifInJpeg(VMemStream, TRUE, $0000, VExifOffset, VExifSize) then begin
-          SetString(VExifValue, PChar(VExifOffset), VExifSize);
-          SetLength(VExifValue, StrLen(PChar(VExifValue)));
-          VExifValue:=Trim(VExifValue);
-          if not _ExtractDate(VExifValue) then
-            VExifValue:='';
+      // if no date - get it from tile
+      if (0=Length(VTileDate)) then begin
+        // prepare
+        VMemStream.Position:=0;
+        VMemStream.Size:=0;
+
+        // process single index item
+        if InternalExtractFromGEStream(AGEStream, VRec.Offset, VRec.Size, VMemStream, VTileDate) then begin
+          // may be tile found without date? so get exif from streamed image
+          if (0=Length(VTileDate)) then
+          if FindExifInJpeg(VMemStream, TRUE, $0000, VExifOffset, VExifSize) then begin
+            SetString(VTileDate, PChar(VExifOffset), VExifSize);
+            SetLength(VTileDate, StrLen(PChar(VTileDate)));
+            VTileDate:=Trim(VTileDate);
+            if not _ExtractDate(VTileDate) then
+              VTileDate:='';
+          end;
         end;
       end;
-      VVersion := FMapVersionFactoryGE.CreateByGE(VRec.Ver, VRec.Res1, VExifValue);
+
+      // try to keep user-defined GEServer
+      if (0=Length(AGEServer)) then
+        VGEServer := IntToStr(VRec.ServID);
+
+      // make version
+      VVersion := FMapVersionFactoryGE.CreateByGE(VRec.Ver, VGEServer, VTileDate);
       Result.Add(VVersion);
     end;
   finally
@@ -372,25 +487,38 @@ var
   VMemStream: TMemoryStream;
   VVersionInfo: IMapVersionInfoGE;
   VAskVer: Word;
-  VAskRes1: Byte;
+  VAskGEServer: String;
+  VAskTileDate: String;
   VRec: TIndexRec;
+
+  function _GetUserGEServer: String;
+  begin
+    // keep user defined GEServer
+    Result := VAskGEServer;
+    if (0=Length(Result)) then
+      Result := IntToStr(VRec.ServID);
+  end;
 begin
   Result := False;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
+    // get filter
     VAskVer := 0;
-    VAskRes1 := 0;
+    VAskTileDate := '';
+    VAskGEServer := '';
     if Supports(AVersionInfo, IMapVersionInfoGE, VVersionInfo) then begin
       VAskVer := VVersionInfo.Ver;
-      VAskRes1 := VVersionInfo.Res1;
+      VAskGEServer := VVersionInfo.GEServer;
+      VAskTileDate := VVersionInfo.TileDate;
     end;
-    // do it
-    if FIndex.FindTileInfo(AXY, Azoom, VAskVer, VAskRes1, VRec, nil) then begin
+    
+    // do it (on load tiles do not mix different ServerIDs)
+    if FIndex.FindTileInfo(AXY, Azoom, TRUE, InternalGetServerID(VAskGEServer), VAskVer, VAskTileDate, VRec, nil) then begin
       if InternalCreateGEStream(VFileStream) then
         try
           VMemStream := TMemoryStream.Create;
           try
             // extract tile from GE
-            Result := InternalExtractFromGEStream(VFileStream, VRec.Offset, VRec.Size, VMemStream);
+            Result := InternalExtractFromGEStream(VFileStream, VRec.Offset, VRec.Size, VMemStream, VAskTileDate);
 
             if Result then begin
               VMemStream.SaveToStream(AStream);
@@ -398,7 +526,7 @@ begin
             ATileInfo := TTileInfoBasicExists.Create(
               0,
               VRec.Size,
-              FMapVersionFactoryGE.CreateByGE(VRec.Ver, VRec.Res1, ''),
+              FMapVersionFactoryGE.CreateByGE(VRec.Ver, _GetUserGEServer, VAskTileDate),
               FMainContentType
             );
           finally

@@ -122,7 +122,8 @@ type
 
     function GetListOfTileVersions(
       const AXY: TPoint;
-      const Azoom: byte
+      const Azoom: byte;
+      AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; virtual;
 
     function LoadFillingMap(
@@ -216,7 +217,8 @@ end;
 
 function TTileStorageAbstract.GetListOfTileVersions(
   const AXY: TPoint;
-  const Azoom: byte
+  const Azoom: byte;
+  AVersionInfo: IMapVersionInfo
 ): IMapVersionListStatic;
 begin
   Result := nil;

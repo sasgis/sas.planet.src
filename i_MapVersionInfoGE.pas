@@ -11,8 +11,11 @@ type
     function GetVer: Word;
     property Ver: Word read GetVer;
 
-    function GetRes1: Byte;
-    property Res1: Byte read GetRes1;
+    function GetGEServer: String;
+    property GEServer: String read GetGEServer;
+
+    function GetTileDate: String;
+    property TileDate: String read GetTileDate;
   end;
 
 implementation

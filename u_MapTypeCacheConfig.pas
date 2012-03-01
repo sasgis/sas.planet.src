@@ -72,13 +72,20 @@ type
   end;
 
   TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
+  private
+    FCS: TCriticalSection;
+    FNameInCache: String;
+    FOnSettingsEdit: TOnAfterMapSettingsEdit;
   protected
     procedure OnSettingsEdit; override;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      AOnSettingsEdit: TOnAfterMapSettingsEdit
     );
+    destructor Destroy; override;
+
     function GetIndexFileName: string;
     function GetDataFileName: string;
     function GetNameInCache: string;
@@ -223,10 +230,13 @@ end;
 
 constructor TMapTypeCacheConfigGE.Create(
   AConfig: ISimpleTileStorageConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  AOnSettingsEdit: TOnAfterMapSettingsEdit
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
+  FCS := TCriticalSection.Create;
+  FOnSettingsEdit := AOnSettingsEdit;
   OnSettingsEdit;
 end;
 
@@ -234,28 +244,57 @@ procedure TMapTypeCacheConfigGE.OnSettingsEdit;
 var
   VBasePath: string;
 begin
-  VBasePath:=FGlobalCacheConfig.GECachepath;
-  //TODO: — этим бардаком нужно что-то будет сделать
-  if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
-    VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;
+  FCS.Acquire;
+  try
+    // current GE cache path
+    FNameInCache := FConfig.GetStatic.NameInCache;
+    if (Length(FNameInCache) > 0) then
+      if (FNameInCache[Length(FNameInCache)] <> PathDelim) then
+        FNameInCache := FNameInCache + PathDelim;
+
+    // global GE cache path
+    VBasePath:=FGlobalCacheConfig.GECachepath;
+    //TODO: — этим бардаком нужно что-то будет сделать
+    if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
+      VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;
+    end;
+    VBasePath := IncludeTrailingPathDelimiter(VBasePath);
+    FBasePath := VBasePath;
+
+    if Assigned(FOnSettingsEdit) then begin
+      FOnSettingsEdit(Self);
+    end;
+  finally
+    FCS.Release;
   end;
-  VBasePath := IncludeTrailingPathDelimiter(VBasePath);
-  FBasePath := VBasePath;
+end;
+
+destructor TMapTypeCacheConfigGE.Destroy;
+begin
+  FreeAndNil(FCS);
+  inherited Destroy;
 end;
 
 function TMapTypeCacheConfigGE.GetDataFileName: string;
 begin
-  Result := FBasePath + 'dbCache.dat';
+  Result := GetNameInCache + 'dbCache.dat';
 end;
 
 function TMapTypeCacheConfigGE.GetIndexFileName: string;
 begin
-  Result := FBasePath + 'dbCache.dat.index';
+  Result := GetNameInCache + 'dbCache.dat.index';
 end;
 
 function TMapTypeCacheConfigGE.GetNameInCache: string;
 begin
-  Result := FConfig.GetStatic.NameInCache;
+  FCS.Acquire;
+  try
+    Result := FNameInCache;
+    if (0=Length(Result)) then
+      Result := FBasePath;
+  finally
+    FCS.Release;
+  end;
 end;
 
 { TMapTypeCacheConfigBerkeleyDB }
