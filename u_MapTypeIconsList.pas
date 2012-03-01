@@ -51,6 +51,7 @@ implementation
 
 uses
   SysUtils,
+  GR32_Resamplers,
   u_GUIDObjectSet;
 
 { TMapTypeIconsList }
@@ -60,14 +61,36 @@ var
   VIndex: Integer;
   VDib32: TDIB32;
   VPixelData32: TPixelData32;
+  VSourceBitmap: TCustomBitmap32;
+  VValidBitmap: TCustomBitmap32;
 begin
   VDib32 := TDIB32.Create;
   try
-    VDib32.SetSize(ABmp.Bitmap.Width, ABmp.Bitmap.Height);
-    VPixelData32.Bits := PRGBQuad(ABmp.Bitmap.Bits);
-    VPixelData32.ContentRect := ABmp.Bitmap.BoundsRect;
-    VPixelData32.RowStride := ABmp.Bitmap.Width;
-    VDib32.CopyFrom(VPixelData32, 0, 0, ABmp.Bitmap.BoundsRect);
+    VValidBitmap := TCustomBitmap32.Create;
+    try
+      if (ABmp.Bitmap.Width = FImageList.Width) and (ABmp.Bitmap.Height = FImageList.Height) then begin
+        VValidBitmap.Assign(ABmp.Bitmap);
+      end else begin
+        VSourceBitmap := TCustomBitmap32.Create;
+        try
+          VSourceBitmap.Assign(ABmp.Bitmap);
+          VSourceBitmap.DrawMode := dmOpaque;
+          VSourceBitmap.Resampler := TLinearResampler.Create;
+          VValidBitmap.SetSize(FImageList.Width, FImageList.Height);
+          VSourceBitmap.DrawTo(VValidBitmap, VValidBitmap.BoundsRect, VSourceBitmap.BoundsRect);
+        finally
+          VSourceBitmap.Free;
+        end;
+      end;
+
+      VDib32.SetSize(VValidBitmap.Width, VValidBitmap.Height);
+      VPixelData32.Bits := PRGBQuad(VValidBitmap.Bits);
+      VPixelData32.ContentRect := VValidBitmap.BoundsRect;
+      VPixelData32.RowStride := VValidBitmap.Width;
+      VDib32.CopyFrom(VPixelData32, 0, 0, VValidBitmap.BoundsRect);
+    finally
+      VValidBitmap.Free;
+    end;
     VIndex := GetIconIndexByGUID(AGUID);
     if VIndex < 0 then begin
       VIndex := FImageList.Add(VDib32);
