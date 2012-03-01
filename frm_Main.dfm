@@ -1558,6 +1558,8 @@ object frmMain: TfrmMain
             DockRow = 10
             Stretch = True
             TabOrder = 0
+            ExplicitWidth = 32
+            ExplicitHeight = 32
             DesignSize = (
               150
               32)

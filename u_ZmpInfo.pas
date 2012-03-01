@@ -24,7 +24,6 @@ interface
 
 uses
   SysUtils,
-  Graphics,
   Classes,
   i_Bitmap32Static,
   i_CoordConverter,
@@ -67,8 +66,12 @@ type
       AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
+    function CreateDefaultIcon(
+      Apnum: Integer
+    ): IBitmap32Static;
     procedure LoadIcons(
       AConfig : IConfigDataProvider;
+      AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
     procedure LoadUIParams(
@@ -250,6 +253,28 @@ begin
   LoadConfig(VLangList, AConfig, AConfigIni, AConfigIniParams, Apnum);
 end;
 
+function TZmpInfoGUI.CreateDefaultIcon(Apnum: Integer): IBitmap32Static;
+var
+  VBitmap: TBitmap32;
+  VNameDef: string;
+  VTextSize: TSize;
+  VPos: TPoint;
+begin
+  VBitmap := TBitmap32.Create;
+  try
+    VNameDef :=  copy(IntToStr(Apnum), 1, 2);
+    VBitmap.SetSize(32, 32);
+    VBitmap.Clear(clLightGray32);
+    VTextSize := VBitmap.TextExtent(VNameDef);
+    VPos.X := (VBitmap.Width - VTextSize.cx) div 2;
+    VPos.Y := (VBitmap.Height - VTextSize.cy) div 2;
+    VBitmap.RenderText(VPos.X, VPos.Y, VNameDef, 2, clBlack32);
+    Result := TBitmap32Static.CreateWithCopy(VBitmap);
+  finally
+    VBitmap.Free;
+  end;
+end;
+
 function TZmpInfoGUI.GetBmp18: IBitmap32Static;
 begin
   Result := FBmp18;
@@ -304,12 +329,13 @@ procedure TZmpInfoGUI.LoadConfig(
 );
 begin
   LoadUIParams(ALangList, AConfigIniParams, Apnum);
-  LoadIcons(AConfig, Apnum);
+  LoadIcons(AConfig, AConfigIniParams, Apnum);
   LoadInfo(ALangList, AConfig);
 end;
 
 procedure TZmpInfoGUI.LoadIcons(
   AConfig: IConfigDataProvider;
+  AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
 procedure UpdateBMPTransp(ABitmap: TCustomBitmap32);
@@ -331,69 +357,59 @@ begin
 end;
 var
   VStream: TMemoryStream;
-  VNameDef: string;
-  VNeedIcon: Boolean;
-  VBitmap: TBitmap32;
+  VBitmap: TCustomBitmap32;
+  VImageName: string;
 begin
   VStream:=TMemoryStream.Create;
   try
-    VBitmap := TBitmap32.Create;
+    VBitmap := TCustomBitmap32.Create;
     try
-      VNeedIcon := False;
       try
-        AConfig.ReadBinaryStream('24.bmp', VStream);
+        VImageName := '24.bmp';
+        VImageName := AConfigIniParams.ReadString('BigIconName', VImageName);
+        AConfig.ReadBinaryStream(VImageName, VStream);
         if VStream.Size > 0 then begin
           VStream.Position:=0;
           VBitmap.LoadFromStream(VStream);
           UpdateBMPTransp(VBitmap);
-        end else begin
-          VNeedIcon := True;
+          Fbmp24 := TBitmap32Static.CreateWithCopy(VBitmap);
         end;
       except
-        VNeedIcon := True;
       end;
-      if VNeedIcon then begin
-        VNameDef:=inttostr(Apnum);
-        VBitmap.SetSize(24, 24);
-        VBitmap.Clear(clLightGray32);
-        VBitmap.RenderText(7,3,copy(VNameDef,1,2), 2, clBlack32);
-      end;
-      Fbmp24 := TBitmap32Static.CreateWithCopy(VBitmap);
     finally
       VBitmap.Free;
     end;
   finally
     FreeAndNil(VStream);
   end;
+  if FBmp24 = nil then begin
+    FBmp24 := CreateDefaultIcon(Apnum);
+  end;
+
   VStream:=TMemoryStream.Create;
   try
-    VBitmap := TBitmap32.Create;
+    VBitmap := TCustomBitmap32.Create;
     try
-      VNeedIcon := False;
       try
-        AConfig.ReadBinaryStream('18.bmp', VStream);
+        VImageName := '18.bmp';
+        VImageName := AConfigIniParams.ReadString('SmallIconName', VImageName);
+        AConfig.ReadBinaryStream(VImageName, VStream);
         if VStream.Size > 0 then begin
           VStream.Position:=0;
           VBitmap.LoadFromStream(VStream);
           UpdateBMPTransp(VBitmap);
-        end else begin
-          VNeedIcon := True;
+          FBmp18 := TBitmap32Static.CreateWithCopy(VBitmap);
         end;
       except
-        VNeedIcon := True;
       end;
-      if VNeedIcon then begin
-        VNameDef:=inttostr(Apnum);
-        VBitmap.SetSize(18, 18);
-        VBitmap.Clear(clLightGray32);
-        VBitmap.RenderText(3,2,copy(VNameDef,1,2), 2, clBlack32);
-      end;
-      FBmp18 := TBitmap32Static.CreateWithCopy(VBitmap);
     finally
       VBitmap.Free;
     end;
   finally
     FreeAndNil(VStream);
+  end;
+  if FBmp18 = nil then begin
+    FBmp18 := FBmp24;
   end;
 end;
 
