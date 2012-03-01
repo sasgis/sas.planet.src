@@ -2202,12 +2202,12 @@ begin
     if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
       VPath := VPathOnMapEdit.Path;
       if VPath.Count > 0 then begin
-        VSaveAviable := (VPath.Item[0].Count > 1);
+        VSaveAviable := (VPath.Item[0].Count > 1) or (VPath.Count > 1);
       end;
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
       VPoly := VPolygonOnMapEdit.Polygon;
       if VPoly.Count > 0 then begin
-        VSaveAviable := (VPoly.Item[0].Count > 2);
+        VSaveAviable := (VPoly.Item[0].Count > 2) or (VPath.Count > 1);
       end;
     end;
     TBEditPath.Visible := VSaveAviable;
