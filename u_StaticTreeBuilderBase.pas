@@ -84,7 +84,7 @@ constructor TTempTreeItem.Create;
 begin
   FSubList := TStringList.Create;
   FSubList.Sorted := True;
-  FSubList.Duplicates := dupError;
+  FSubList.Duplicates := dupAccept;
 end;
 
 destructor TTempTreeItem.Destroy;
@@ -119,6 +119,10 @@ begin
   GetGroupAndVisibleName(VCurLevelName, VGroupName, VVisibleName);
   if AList.Find(VGroupName, VIndex) then begin
     VTempItem := TTempTreeItem(AList.Objects[VIndex]);
+    if not VTrailExists and (VTempItem.FData <> nil) then begin
+      VTempItem := TTempTreeItem.Create;
+      AList.AddObject(VGroupName, VTempItem);
+    end;
   end else begin
     VTempItem := TTempTreeItem.Create;
     AList.AddObject(VGroupName, VTempItem);
