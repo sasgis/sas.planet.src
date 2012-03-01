@@ -233,8 +233,11 @@ end;
 procedure TfrmMarksExplorer.UpdateMarksList;
 var
   VCategory: IMarkCategory;
+  VMarkId: IMarkID;
   i: Integer;
+  VSelectedIndex: Integer;
 begin
+  VSelectedIndex := MarksListBox.ItemIndex;
   MarksListBox.Clear;
   FMarksList := nil;
   VCategory := GetSelectedCategory;
@@ -244,7 +247,13 @@ begin
     try
       FMarkDBGUI.MarksListToStrings(FMarksList, MarksListBox.Items);
       for i:=0 to MarksListBox.Count-1 do begin
-        MarksListBox.Checked[i] := FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(IMarkId(Pointer(MarksListBox.Items.Objects[i])));
+        VMarkId := IMarkId(Pointer(MarksListBox.Items.Objects[i]));
+        MarksListBox.Checked[i] := FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMarkId);
+      end;
+      if VSelectedIndex > 0 then begin
+        if VSelectedIndex < MarksListBox.Count then begin
+          MarksListBox.ItemIndex := VSelectedIndex;
+        end;
       end;
       lblMarksCount.Caption:='('+inttostr(MarksListBox.Count)+')';
     finally
@@ -402,7 +411,7 @@ begin
   VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
     if FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle) then begin
-      MarksListBox.DeleteSelected;
+      UpdateMarksList;
     end;
   end;
 end;
