@@ -53,10 +53,10 @@ type
     function InternalProcessGEOffsets(
       const AGEStream: TFileStream;
       const AListOfOffsets: TList
-    ): IMapVersionListStatic;
+    ): IInterfaceList;
     function InternalCreateAndProcessGEOffsets(
       const AListOfOffsets: TList
-    ): IMapVersionListStatic;
+    ): IInterfaceList;
   public
     constructor Create(
       AConfig: ISimpleTileStorageConfig;
@@ -183,14 +183,17 @@ function TTileStorageGE.GetListOfTileVersions(
 var
   VListOfOffsets: TList;
   VRec: TIndexRec;
+  VList: IInterfaceList;
 begin
   VListOfOffsets := TList.Create;
   try
+    VList := nil;
     // do not check result!
     FIndex.FindTileInfo(AXY, Azoom, 0, 0, VRec, VListOfOffsets);
     if (VListOfOffsets.Count > 0) then begin
-      Result := InternalCreateAndProcessGEOffsets(VListOfOffsets);
+      VList := InternalCreateAndProcessGEOffsets(VListOfOffsets);
     end;
+    Result := TMapVersionListStatic.Create(VList);
   finally
     VListOfOffsets.Free;
   end;
@@ -226,7 +229,7 @@ end;
 
 function TTileStorageGE.InternalCreateAndProcessGEOffsets(
   const AListOfOffsets: TList
-): IMapVersionListStatic;
+): IInterfaceList;
 var
   VFileStream: TFileStream;
 begin
@@ -291,7 +294,7 @@ end;
 function TTileStorageGE.InternalProcessGEOffsets(
   const AGEStream: TFileStream;
   const AListOfOffsets: TList
-): IMapVersionListStatic;
+): IInterfaceList;
 
   function _ExtractDate(var ADate: String): Boolean;
   var
@@ -327,11 +330,9 @@ var
   VExifOffset: PByte;
   VExifSize: DWORD;
   VExifValue: String;
-  VList: IInterfaceList;
   VVersion: IMapVersionInfo;
 begin
-  VList := TInterfaceList.Create;
-  Result := TMapVersionListStatic.Create(VList);
+  Result := TInterfaceList.Create;
   VMemStream:=TMemoryStream.Create;
   try
     for i := 0 to AListOfOffsets.Count-1 do
@@ -353,7 +354,7 @@ begin
         end;
       end;
       VVersion := FMapVersionFactoryGE.CreateByGE(VRec.Ver, VRec.Res1, VExifValue);
-      VList.Add(VVersion);
+      Result.Add(VVersion);
     end;
   finally
     VMemStream.Free;
