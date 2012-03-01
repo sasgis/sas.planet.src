@@ -25,6 +25,7 @@ interface
 uses
   Graphics,
   Classes,
+  i_Bitmap32Static,
   i_StringConfigDataElement,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -67,8 +68,8 @@ type
 
     function GetInfoUrl: IStringConfigDataElement;
 
-    function GetBmp18: TBitmap;
-    function GetBmp24: TBitmap;
+    function GetBmp18: IBitmap32Static;
+    function GetBmp24: IBitmap32Static;
 
     function GetStatic: IMapTypeGUIConfigStatic;
   public
@@ -190,12 +191,12 @@ begin
   end;
 end;
 
-function TMapTypeGUIConfig.GetBmp18: TBitmap;
+function TMapTypeGUIConfig.GetBmp18: IBitmap32Static;
 begin
   Result := FDefConfig.Bmp18;
 end;
 
-function TMapTypeGUIConfig.GetBmp24: TBitmap;
+function TMapTypeGUIConfig.GetBmp24: IBitmap32Static;
 begin
   Result := FDefConfig.Bmp24;
 end;

@@ -27,6 +27,9 @@ uses
   ActiveX,
   Graphics,
   ImgList,
+  TBXGraphics,
+  GR32,
+  i_Bitmap32Static,
   i_GUIDSet,
   i_MapTypeIconsList;
 
@@ -34,12 +37,12 @@ type
   TMapTypeIconsList = class(TInterfacedObject, IMapTypeIconsList)
   private
     FList: IGUIDObjectSet;
-    FImageList: TCustomImageList;
+    FImageList: TTBXImageList;
     function GetImageList: TCustomImageList;
     function GetIconIndexByGUID(AGUID: TGUID): Integer;
     function GetIterator: IEnumGUID;
   public
-    procedure Add(AGUID: TGUID; ABmp: TBitmap);
+    procedure Add(AGUID: TGUID; ABmp: IBitmap32Static);
     constructor Create(AWidth, AHeight: Integer);
     destructor Destroy; override;
   end;
@@ -52,24 +55,34 @@ uses
 
 { TMapTypeIconsList }
 
-procedure TMapTypeIconsList.Add(AGUID: TGUID; ABmp: TBitmap);
+procedure TMapTypeIconsList.Add(AGUID: TGUID; ABmp: IBitmap32Static);
 var
   VIndex: Integer;
+  VDib32: TDIB32;
+  VPixelData32: TPixelData32;
 begin
-  VIndex := GetIconIndexByGUID(AGUID);
-  if VIndex < 0 then begin
-    VIndex := FImageList.AddMasked(Abmp, RGB(255, 0, 255));
-    FList.Add(AGUID, Pointer(VIndex + 1));
-  end else begin
-    FImageList.ReplaceMasked(VIndex, ABmp, RGB(255, 0, 255));
+  VDib32 := TDIB32.Create;
+  try
+    VDib32.SetSize(ABmp.Bitmap.Width, ABmp.Bitmap.Height);
+    VPixelData32.Bits := PRGBQuad(ABmp.Bitmap.Bits);
+    VPixelData32.ContentRect := ABmp.Bitmap.BoundsRect;
+    VPixelData32.RowStride := ABmp.Bitmap.Width;
+    VDib32.CopyFrom(VPixelData32, 0, 0, ABmp.Bitmap.BoundsRect);
+    VIndex := GetIconIndexByGUID(AGUID);
+    if VIndex < 0 then begin
+      VIndex := FImageList.Add(VDib32);
+      FList.Add(AGUID, Pointer(VIndex + 1));
+    end;
+  finally
+    VDib32.Free;
   end;
 end;
 
 constructor TMapTypeIconsList.Create(AWidth, AHeight: Integer);
 begin
-  FImageList := TCustomImageList.Create(nil);
-  FImageList.Height := AHeight;
+  FImageList := TTBXImageList.Create(nil);
   FImageList.Width := AWidth;
+  FImageList.Height := AHeight;
   FList := TGUIDObjectSet.Create(True);
 end;
 

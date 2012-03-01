@@ -25,6 +25,7 @@ interface
 uses
   Graphics,
   Classes,
+  i_Bitmap32Static,
   i_StringConfigDataElement,
   i_ConfigDataElement;
 
@@ -52,11 +53,11 @@ type
     function GetInfoUrl: string;
     property InfoUrl: string read GetInfoUrl;
 
-    function GetBmp18: TBitmap;
-    property Bmp18: TBitmap read GetBmp18;
+    function GetBmp18: IBitmap32Static;
+    property Bmp18: IBitmap32Static read GetBmp18;
 
-    function GetBmp24: TBitmap;
-    property Bmp24: TBitmap read GetBmp24;
+    function GetBmp24: IBitmap32Static;
+    property Bmp24: IBitmap32Static read GetBmp24;
   end;
 
   IMapTypeGUIConfig = interface(IConfigDataElement)
@@ -86,11 +87,11 @@ type
     function GetInfoUrl: IStringConfigDataElement;
     property InfoUrl: IStringConfigDataElement read GetInfoUrl;
 
-    function GetBmp18: TBitmap;
-    property Bmp18: TBitmap read GetBmp18;
+    function GetBmp18: IBitmap32Static;
+    property Bmp18: IBitmap32Static read GetBmp18;
 
-    function GetBmp24: TBitmap;
-    property Bmp24: TBitmap read GetBmp24;
+    function GetBmp24: IBitmap32Static;
+    property Bmp24: IBitmap32Static read GetBmp24;
 
     function GetStatic: IMapTypeGUIConfigStatic;
   end;

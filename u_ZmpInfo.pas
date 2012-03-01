@@ -26,6 +26,7 @@ uses
   SysUtils,
   Graphics,
   Classes,
+  i_Bitmap32Static,
   i_CoordConverter,
   i_ConfigDataProvider,
   i_LanguageListStatic,
@@ -53,8 +54,8 @@ type
     FInfoUrl: IStringByLanguage;
 
     FSortIndex: Integer;
-    FBmp18: TBitmap;
-    FBmp24: TBitmap;
+    FBmp18: IBitmap32Static;
+    FBmp24: IBitmap32Static;
     FHotKey: TShortCut;
     FSeparator: Boolean;
     FEnabled: Boolean;
@@ -83,8 +84,8 @@ type
     function GetName: IStringByLanguage;
     function GetSortIndex: Integer;
     function GetInfoUrl: IStringByLanguage;
-    function GetBmp18: TBitmap;
-    function GetBmp24: TBitmap;
+    function GetBmp18: IBitmap32Static;
+    function GetBmp24: IBitmap32Static;
     function GetHotKey: TShortCut;
     function GetSeparator: Boolean;
     function GetParentSubMenu: IStringByLanguage;
@@ -98,7 +99,6 @@ type
       AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
-    destructor Destroy; override;
   end;
 
   TZmpInfo = class(TInterfacedObject, IZmpInfo)
@@ -177,7 +177,9 @@ implementation
 
 uses
   Types,
+  GR32,
   gnugettext,
+  u_Bitmap32Static,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
@@ -248,19 +250,12 @@ begin
   LoadConfig(VLangList, AConfig, AConfigIni, AConfigIniParams, Apnum);
 end;
 
-destructor TZmpInfoGUI.Destroy;
-begin
-  FreeAndNil(FBmp18);
-  FreeAndNil(FBmp24);
-  inherited;
-end;
-
-function TZmpInfoGUI.GetBmp18: TBitmap;
+function TZmpInfoGUI.GetBmp18: IBitmap32Static;
 begin
   Result := FBmp18;
 end;
 
-function TZmpInfoGUI.GetBmp24: TBitmap;
+function TZmpInfoGUI.GetBmp24: IBitmap32Static;
 begin
   Result := FBmp24;
 end;
@@ -317,57 +312,85 @@ procedure TZmpInfoGUI.LoadIcons(
   AConfig: IConfigDataProvider;
   Apnum: Integer
 );
+procedure UpdateBMPTransp(ABitmap: TCustomBitmap32);
+var
+  VTranspColor: TColor32;
+  VLine: PColor32Array;
+  i: Integer;
+  j: Integer;
+begin
+  VTranspColor := Color32(255, 0, 255, 255);
+  for i := 0 to ABitmap.Height - 1 do begin
+    VLine := ABitmap.ScanLine[i];
+    for j := 0 to ABitmap.Width - 1 do begin
+      if VLine[j] = VTranspColor then begin
+        VLine[j] := 0;
+      end;
+    end;
+  end;
+end;
 var
   VStream: TMemoryStream;
   VNameDef: string;
   VNeedIcon: Boolean;
+  VBitmap: TBitmap32;
 begin
-  Fbmp24:=TBitmap.create;
   VStream:=TMemoryStream.Create;
   try
-    VNeedIcon := False;
+    VBitmap := TBitmap32.Create;
     try
-      AConfig.ReadBinaryStream('24.bmp', VStream);
-      if VStream.Size > 0 then begin
-        VStream.Position:=0;
-        Fbmp24.LoadFromStream(VStream);
-      end else begin
+      VNeedIcon := False;
+      try
+        AConfig.ReadBinaryStream('24.bmp', VStream);
+        if VStream.Size > 0 then begin
+          VStream.Position:=0;
+          VBitmap.LoadFromStream(VStream);
+          UpdateBMPTransp(VBitmap);
+        end else begin
+          VNeedIcon := True;
+        end;
+      except
         VNeedIcon := True;
       end;
-    except
-      VNeedIcon := True;
-    end;
-    if VNeedIcon then begin
-      VNameDef:=inttostr(Apnum);
-      Fbmp24.Canvas.FillRect(Fbmp24.Canvas.ClipRect);
-      Fbmp24.Width:=24;
-      Fbmp24.Height:=24;
-      Fbmp24.Canvas.TextOut(7,3,copy(VNameDef,1,1));
+      if VNeedIcon then begin
+        VNameDef:=inttostr(Apnum);
+        VBitmap.SetSize(24, 24);
+        VBitmap.Clear(clLightGray32);
+        VBitmap.RenderText(7,3,copy(VNameDef,1,2), 2, clBlack32);
+      end;
+      Fbmp24 := TBitmap32Static.CreateWithCopy(VBitmap);
+    finally
+      VBitmap.Free;
     end;
   finally
     FreeAndNil(VStream);
   end;
-  Fbmp18:=TBitmap.create;
   VStream:=TMemoryStream.Create;
   try
-    VNeedIcon := False;
+    VBitmap := TBitmap32.Create;
     try
-      AConfig.ReadBinaryStream('18.bmp', VStream);
-      if VStream.Size > 0 then begin
-        VStream.Position:=0;
-        Fbmp18.LoadFromStream(VStream);
-      end else begin
+      VNeedIcon := False;
+      try
+        AConfig.ReadBinaryStream('18.bmp', VStream);
+        if VStream.Size > 0 then begin
+          VStream.Position:=0;
+          VBitmap.LoadFromStream(VStream);
+          UpdateBMPTransp(VBitmap);
+        end else begin
+          VNeedIcon := True;
+        end;
+      except
         VNeedIcon := True;
       end;
-    except
-      VNeedIcon := True;
-    end;
-    if VNeedIcon then begin
-      VNameDef:=inttostr(Apnum);
-      Fbmp18.Canvas.FillRect(Fbmp18.Canvas.ClipRect);
-      Fbmp18.Width:=18;
-      Fbmp18.Height:=18;
-      Fbmp18.Canvas.TextOut(3,2,copy(VNameDef,1,1));
+      if VNeedIcon then begin
+        VNameDef:=inttostr(Apnum);
+        VBitmap.SetSize(18, 18);
+        VBitmap.Clear(clLightGray32);
+        VBitmap.RenderText(3,2,copy(VNameDef,1,2), 2, clBlack32);
+      end;
+      FBmp18 := TBitmap32Static.CreateWithCopy(VBitmap);
+    finally
+      VBitmap.Free;
     end;
   finally
     FreeAndNil(VStream);

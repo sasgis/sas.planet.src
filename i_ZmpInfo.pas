@@ -25,6 +25,7 @@ interface
 uses
   Graphics,
   Classes,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_CoordConverter,
   i_ContentTypeSubst,
@@ -61,11 +62,11 @@ type
     function GetInfoUrl: IStringByLanguage;
     property InfoUrl: IStringByLanguage read GetInfoUrl;
 
-    function GetBmp18: TBitmap;
-    property Bmp18: TBitmap read GetBmp18;
+    function GetBmp18: IBitmap32Static;
+    property Bmp18: IBitmap32Static read GetBmp18;
 
-    function GetBmp24: TBitmap;
-    property Bmp24: TBitmap read GetBmp24;
+    function GetBmp24: IBitmap32Static;
+    property Bmp24: IBitmap32Static read GetBmp24;
   end;
 
   IZmpInfo = interface
