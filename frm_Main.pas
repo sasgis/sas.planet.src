@@ -169,7 +169,7 @@ type
     tbsbmGPS: TTBXSubmenuItem;
     NParams: TTBXSubmenuItem;
     NLayerParams: TTBXSubmenuItem;
-    NHelp: TTBXSubmenuItem;
+    tbsbmHelp: TTBXSubmenuItem;
     NSRCic: TTBXItem;
     NSRCinet: TTBXItem;
     NSRCesh: TTBXItem;
@@ -216,10 +216,10 @@ type
     NGShScale50000: TTBXItem;
     NGShScale25000: TTBXItem;
     NGShScale10000: TTBXItem;
-    N29: TTBXItem;
-    N16: TTBXItem;
-    NGoToSite: TTBXItem;
-    NGoToForum: TTBXItem;
+    tbitmOnlineHelp: TTBXItem;
+    tbitmAbout: TTBXItem;
+    tbitmOnlineHome: TTBXItem;
+    tbitmOnlineForum: TTBXItem;
     NMapParams: TTBXItem;
     N8: TTBXItem;
     TBLang: TTBXSubmenuItem;
@@ -252,7 +252,7 @@ type
     TBXSeparatorItem11: TTBXSeparatorItem;
     tbsprtGPS1: TTBXSeparatorItem;
     TBXSeparatorItem14: TTBXSeparatorItem;
-    TBXSeparatorItem15: TTBXSeparatorItem;
+    tbsprtHelp01: TTBXSeparatorItem;
     TBXSensorsBar: TTBXToolWindow;
     ScrollBox1: TScrollBox;
     TBXDock1: TTBXDock;
@@ -436,12 +436,12 @@ type
     procedure NShowGranClick(Sender: TObject);
     procedure NFillMapClick(Sender: TObject);
     procedure NSRCinetClick(Sender: TObject);
-    procedure N16Click(Sender: TObject);
+    procedure tbitmAboutClick(Sender: TObject);
     procedure TBRECTClick(Sender: TObject);
     procedure TBRectSaveClick(Sender: TObject);
     procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
-    procedure N29Click(Sender: TObject);
+    procedure tbitmOnlineHelpClick(Sender: TObject);
     procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBSubmenuItem1Click(Sender: TObject);
     procedure N000Click(Sender: TObject);
@@ -484,8 +484,8 @@ type
     procedure TBEditPathLabelClick(Sender: TObject);
     procedure TBEditPathSaveClick(Sender: TObject);
     procedure TBEditPathClose(Sender: TObject);
-    procedure NGoToForumClick(Sender: TObject);
-    procedure NGoToSiteClick(Sender: TObject);
+    procedure tbitmOnlineForumClick(Sender: TObject);
+    procedure tbitmOnlineHomeClick(Sender: TObject);
     procedure TBItem6Click(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
@@ -3206,7 +3206,7 @@ begin
   FConfig.DownloadUIConfig.UseDownload := TTileSource(TTBXItem(Sender).Tag);
 end;
 
-procedure TfrmMain.N16Click(Sender: TObject);
+procedure TfrmMain.tbitmAboutClick(Sender: TObject);
 begin
   frmAbout.ShowModal;
 end;
@@ -3436,7 +3436,7 @@ begin
   setalloperationfalse(ao_calc_line);
 end;
 
-procedure TfrmMain.N29Click(Sender: TObject);
+procedure TfrmMain.tbitmOnlineHelpClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/wikisasiya/');
 end;
@@ -5167,12 +5167,12 @@ begin
   tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible;
 end;
 
-procedure TfrmMain.NGoToForumClick(Sender: TObject);
+procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/forum');
 end;
 
-procedure TfrmMain.NGoToSiteClick(Sender: TObject);
+procedure TfrmMain.tbitmOnlineHomeClick(Sender: TObject);
 begin
   OpenUrlInBrowser('http://sasgis.ru/');
 end;

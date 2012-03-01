@@ -40,8 +40,6 @@ object frmMain: TfrmMain
     OnMouseUp = mapMouseUp
     OnMouseLeave = mapMouseLeave
     OnResize = mapResize
-    ExplicitLeft = 241
-    ExplicitTop = 60
   end
   object TBDock: TTBXDock
     Left = 0
@@ -1156,31 +1154,31 @@ object frmMain: TfrmMain
           Hint = ''
         end
       end
-      object NHelp: TTBXSubmenuItem
+      object tbsbmHelp: TTBXSubmenuItem
         Caption = '&Help'
         Hint = ''
-        object N29: TTBXItem
+        object tbitmOnlineHelp: TTBXItem
           ImageIndex = 26
           Images = MenusImageList
           ShortCut = 112
-          OnClick = N29Click
+          OnClick = tbitmOnlineHelpClick
           Caption = 'Online Help (http://sasgis.ru/wikisasiya)'
           Hint = ''
         end
-        object N16: TTBXItem
+        object tbitmAbout: TTBXItem
           ImageIndex = 27
           Images = MenusImageList
-          OnClick = N16Click
+          OnClick = tbitmAboutClick
           Caption = 'About'
           Hint = ''
         end
-        object TBXSeparatorItem15: TTBXSeparatorItem
+        object tbsprtHelp01: TTBXSeparatorItem
           Caption = ''
           Hint = ''
         end
-        object NGoToSite: TTBXItem
+        object tbitmOnlineHome: TTBXItem
           Images = MenusImageList
-          OnClick = NGoToSiteClick
+          OnClick = tbitmOnlineHomeClick
           Caption = 'Web Site (http://www.sasgis.ru)'
           Hint = ''
         end
@@ -1190,9 +1188,9 @@ object frmMain: TfrmMain
           Caption = 'Issue Tracker (http://sasgis.ru/mantis)'
           Hint = ''
         end
-        object NGoToForum: TTBXItem
+        object tbitmOnlineForum: TTBXItem
           Images = MenusImageList
-          OnClick = NGoToForumClick
+          OnClick = tbitmOnlineForumClick
           Caption = 'Community  (http://www.sasgis.ru/forum)'
           Hint = ''
         end
