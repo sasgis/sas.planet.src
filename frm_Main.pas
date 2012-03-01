@@ -199,15 +199,15 @@ type
     Nbackload: TTBXItem;
     NbackloadLayer: TTBXItem;
     Nanimate: TTBXItem;
-    N32: TTBXItem;
+    tbitmGauge: TTBXItem;
     Ninvertcolor: TTBXItem;
     NPanels: TTBXSubmenuItem;
-    N31: TTBXSubmenuItem;
+    tbsbmInterface: TTBXSubmenuItem;
     NFillMap: TTBXSubmenuItem;
     TBFillingTypeMap: TTBXSubmenuItem;
     TBXToolPalette1: TTBXToolPalette;
     NShowGran: TTBXSubmenuItem;
-    N40: TTBXSubmenuItem;
+    tbsbmGenShtabScale: TTBXSubmenuItem;
     NGShScale0: TTBXItem;
     NGShScale1000000: TTBXItem;
     NGShScale500000: TTBXItem;
@@ -454,7 +454,7 @@ type
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
     procedure ShowLineClick(Sender: TObject);
-    procedure N32Click(Sender: TObject);
+    procedure tbitmGaugeClick(Sender: TObject);
     procedure Google1Click(Sender: TObject);
     procedure mapResize(Sender: TObject);
     procedure TBLoadSelFromFileClick(Sender: TObject);
@@ -1941,7 +1941,7 @@ begin
   ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.Visible;
   ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
   NShowSelection.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
-  N32.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
+  tbitmGauge.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
 
   TBGPSPath.Checked := FConfig.LayersConfig.GPSTrackConfig.Visible;
   tbitmGPSTrackShow.Checked := TBGPSPath.Checked;
@@ -3582,7 +3582,7 @@ begin
   FConfig.LayersConfig.ScaleLineConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TfrmMain.N32Click(Sender: TObject);
+procedure TfrmMain.tbitmGaugeClick(Sender: TObject);
 begin
   FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
 end;

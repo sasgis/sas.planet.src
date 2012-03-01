@@ -472,7 +472,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
         end
-        object N31: TTBXSubmenuItem
+        object tbsbmInterface: TTBXSubmenuItem
           Images = MenusImageList
           Caption = 'Interface'
           Hint = ''
@@ -649,7 +649,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
         end
-        object N40: TTBXSubmenuItem
+        object tbsbmGenShtabScale: TTBXSubmenuItem
           Images = MenusImageList
           Caption = 'GenShtab Maps Boundaries'
           Hint = ''
@@ -893,10 +893,10 @@ object frmMain: TfrmMain
           Caption = 'Inertial Movement'
           Hint = ''
         end
-        object N32: TTBXItem
+        object tbitmGauge: TTBXItem
           AutoCheck = True
           Images = MenusImageList
-          OnClick = N32Click
+          OnClick = tbitmGaugeClick
           Caption = 'Gauge'
           Hint = ''
         end
