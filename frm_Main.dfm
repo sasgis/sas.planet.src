@@ -262,16 +262,16 @@ object frmMain: TfrmMain
       object NOperations: TTBXSubmenuItem
         Caption = '&Operations'
         Hint = ''
-        object N35: TTBXItem
+        object tbitmCreateShortcut: TTBXItem
           Images = MenusImageList
-          OnClick = N35Click
+          OnClick = tbitmCreateShortcutClick
           Caption = 'Create Shortcut'
           Hint = ''
         end
-        object TBXItem6: TTBXItem
+        object tbitmOpenFile: TTBXItem
           ImageIndex = 34
           Images = MenusImageList
-          OnClick = TBXItem6Click
+          OnClick = tbitmOpenFileClick
           Caption = 'Open...'
           Hint = ''
         end
@@ -299,7 +299,7 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object N14: TTBXItem
+        object tbitmGoToModal: TTBXItem
           ImageIndex = 11
           Images = MenusImageList
           ShortCut = 16455
@@ -383,10 +383,10 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object N6: TTBXItem
+        object tbitmQuit: TTBXItem
           ImageIndex = 29
           Images = MenusImageList
-          OnClick = N6Click
+          OnClick = tbitmQuitClick
           Caption = 'Quit'
           Hint = ''
         end
@@ -1011,11 +1011,11 @@ object frmMain: TfrmMain
             Caption = ''
             Hint = ''
           end
-          object TBItem6: TTBXItem
+          object tbitmPlacemarkManager: TTBXItem
             ImageIndex = 18
             Images = PanelsImageList
             Options = [tboShowHint]
-            OnClick = TBItem6Click
+            OnClick = tbitmPlacemarkManagerClick
             Caption = 'Placemark Manager'
             Hint = 'Placemark manager'
           end
@@ -1141,10 +1141,10 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object N8: TTBXItem
+        object tbitmOptions: TTBXItem
           ImageIndex = 20
           Images = MenusImageList
-          OnClick = N8Click
+          OnClick = tbitmOptionsClick
           Caption = 'Options'
           Hint = ''
         end

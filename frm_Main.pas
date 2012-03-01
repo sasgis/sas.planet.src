@@ -186,12 +186,12 @@ type
     TBGoTo: TTBXSubmenuItem;
     TBZoomIn: TTBXItem;
     TBZoom_out: TTBXItem;
-    N35: TTBXItem;
+    tbitmCreateShortcut: TTBXItem;
     NZoomIn: TTBXItem;
     NZoomOut: TTBXItem;
-    N14: TTBXItem;
+    tbitmGoToModal: TTBXItem;
     NCalcRast: TTBXItem;
-    N6: TTBXItem;
+    tbitmQuit: TTBXItem;
     TBItem5: TTBXItem;
     TBItemDelTrack: TTBXItem;
     NFoolSize: TTBXItem;
@@ -221,7 +221,7 @@ type
     tbitmOnlineHome: TTBXItem;
     tbitmOnlineForum: TTBXItem;
     NMapParams: TTBXItem;
-    N8: TTBXItem;
+    tbitmOptions: TTBXItem;
     TBLang: TTBXSubmenuItem;
     tbitmGPSConnect: TTBXItem;
     tbitmGPSTrackShow: TTBXItem;
@@ -265,7 +265,7 @@ type
     TBXSelectSrchType: TTBXSubmenuItem;
     tbsprtGPS2: TTBXSeparatorItem;
     tbitmPositionByGSM: TTBXItem;
-    TBXItem6: TTBXItem;
+    tbitmOpenFile: TTBXItem;
     OpenSessionDialog: TOpenDialog;
     NShowSelection: TTBXItem;
     TBRECT: TTBXItem;
@@ -374,7 +374,7 @@ type
     TBAdd_Line: TTBXItem;
     TBAdd_Poly: TTBXItem;
     TBXSeparatorItem12: TTBXSeparatorItem;
-    TBItem6: TTBXItem;
+    tbitmPlacemarkManager: TTBXItem;
     TBHideMarks: TTBXItem;
     osmorg1: TTBXItem;
     TBXSeparatorItem20: TTBXSeparatorItem;
@@ -421,9 +421,9 @@ type
     procedure TBmoveClick(Sender: TObject);
     procedure TBFullSizeClick(Sender: TObject);
     procedure NCalcRastClick(Sender: TObject);
-    procedure N6Click(Sender: TObject);
+    procedure tbitmQuitClick(Sender: TObject);
     procedure ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
-    procedure N8Click(Sender: TObject);
+    procedure tbitmOptionsClick(Sender: TObject);
     procedure NbackloadClick(Sender: TObject);
     procedure NaddPointClick(Sender: TObject);
     procedure N20Click(Sender: TObject);
@@ -477,7 +477,7 @@ type
     procedure mapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
-    procedure N35Click(Sender: TObject);
+    procedure tbitmCreateShortcutClick(Sender: TObject);
     procedure TBItemDelTrackClick(Sender: TObject);
     procedure NGShScale01Click(Sender: TObject);
     procedure TBEditPathDelClick(Sender: TObject);
@@ -486,7 +486,7 @@ type
     procedure TBEditPathClose(Sender: TObject);
     procedure tbitmOnlineForumClick(Sender: TObject);
     procedure tbitmOnlineHomeClick(Sender: TObject);
-    procedure TBItem6Click(Sender: TObject);
+    procedure tbitmPlacemarkManagerClick(Sender: TObject);
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
     procedure NMarkNavClick(Sender: TObject);
@@ -507,7 +507,7 @@ type
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
     procedure tbitmPositionByGSMClick(Sender: TObject);
-    procedure TBXItem6Click(Sender: TObject);
+    procedure tbitmOpenFileClick(Sender: TObject);
     procedure NShowSelectionClick(Sender: TObject);
     procedure NGoToCurClick(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
@@ -2883,12 +2883,12 @@ begin
  TBCalcRasClick(self);
 end;
 
-procedure TfrmMain.N6Click(Sender: TObject);
+procedure TfrmMain.tbitmQuitClick(Sender: TObject);
 begin
  close;
 end;
 
-procedure TfrmMain.N8Click(Sender: TObject);
+procedure TfrmMain.tbitmOptionsClick(Sender: TObject);
 begin
   FfrmSettings.ShowModal;
 end;
@@ -4447,7 +4447,7 @@ begin
   PFile.Save(PWChar(WideString(PathLink)), FALSE);
 end;
 
-procedure TfrmMain.N35Click(Sender: TObject);
+procedure TfrmMain.tbitmCreateShortcutClick(Sender: TObject);
 var
   VLonLat:TDoublePoint;
   param:string;
@@ -4561,7 +4561,7 @@ begin
  setalloperationfalse(ao_movemap);
 end;
 
-procedure TfrmMain.TBItem6Click(Sender: TObject);
+procedure TfrmMain.tbitmPlacemarkManagerClick(Sender: TObject);
 begin
   FfrmMarksExplorer.EditMarks;
 end;
@@ -4851,7 +4851,7 @@ begin
 end;
 
 
-procedure TfrmMain.TBXItem6Click(Sender: TObject);
+procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
 var
   VFileName: string;
   VImportConfig: IImportConfig;
