@@ -24,6 +24,7 @@ interface
 
 uses
   i_StorageTypeAbilities,
+  i_MapVersionConfig,
   i_TileStorageTypeConfig,
   i_TileStorage;
 
@@ -38,6 +39,9 @@ type
 
     function GetConfig: ITileStorageTypeConfig;
     property Config: ITileStorageTypeConfig read GetConfig;
+
+    function GetMapVersionFactory: IMapVersionFactory;
+    property MapVersionFactory: IMapVersionFactory read GetMapVersionFactory;
 
     function GetCaption: string;
     property Caption: string read GetCaption;

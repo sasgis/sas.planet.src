@@ -25,7 +25,10 @@ interface
 uses
   Classes,
   GR32,
+  i_OperationNotifier,
+  i_MapVersionInfo,
   i_TileInfoBasic,
+  i_FillingMapColorer,
   i_TileStorageInfo;
 
 type
@@ -33,22 +36,55 @@ type
     ['{80A0246E-68E0-4EA0-9B0F-3338472FDB3C}']
     function GetInfo: ITileStorageInfo;
 
-    function GetTileFileName(AXY: TPoint; Azoom: byte; AVersion: Variant): string;
-    function GetTileInfo(AXY: TPoint; Azoom: byte; AVersion: Variant): ITileInfoBasic;
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo
+    ): string;
+    function GetTileInfo(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo
+    ): ITileInfoBasic;
 
-    function LoadTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream; out ATileInfo: ITileInfoBasic): Boolean;
-    function DeleteTile(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
-    function DeleteTNE(AXY: TPoint; Azoom: byte; AVersion: Variant): Boolean;
-    procedure SaveTile(AXY: TPoint; Azoom: byte; AVersion: Variant; AStream: TStream);
-    procedure SaveTNE(AXY: TPoint; Azoom: byte; AVersion: Variant);
+    function LoadTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo;
+      AStream: TStream;
+      out ATileInfo: ITileInfoBasic
+    ): Boolean;
+    function DeleteTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo
+    ): Boolean;
+    function DeleteTNE(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo
+    ): Boolean;
+    procedure SaveTile(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo;
+      AStream: TStream
+    );
+    procedure SaveTNE(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersion: IMapVersionInfo
+    );
 
     function LoadFillingMap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AVersion: Variant;
-      IsStop: PBoolean
+      AVersion: IMapVersionInfo;
+      AColorer: IFillingMapColorer
     ): boolean;
   end;
 

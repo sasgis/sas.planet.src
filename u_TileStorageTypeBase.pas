@@ -24,6 +24,7 @@ interface
 
 uses
   i_StorageTypeAbilities,
+  i_MapVersionConfig,
   i_TileStorageTypeConfig,
   i_TileStorage,
   i_TileStorageType;
@@ -34,11 +35,13 @@ type
     FGUID: TGUID;
     FCaption: string;
     FInfo: IStorageTypeAbilities;
+    FMapVersionFactory: IMapVersionFactory;
     FConfig: ITileStorageTypeConfig;
   protected
     function GetGUID: TGUID;
     function GetInfo: IStorageTypeAbilities;
     function GetConfig: ITileStorageTypeConfig;
+    function GetMapVersionFactory: IMapVersionFactory;
     function BuildStorage(APath: string): ITileStorage; virtual; abstract;
     function GetCaption: string;
   public
@@ -46,6 +49,7 @@ type
       AGUID: TGUID;
       ACaption: string;
       AInfo: IStorageTypeAbilities;
+      AMapVersionFactory: IMapVersionFactory;
       AConfig: ITileStorageTypeConfig
     );
   end;
@@ -58,12 +62,14 @@ constructor TTileStorageTypeBase.Create(
   AGUID: TGUID;
   ACaption: string;
   AInfo: IStorageTypeAbilities;
+  AMapVersionFactory: IMapVersionFactory;
   AConfig: ITileStorageTypeConfig
 );
 begin
   FGUID := AGUID;
   FCaption := ACaption;
   FInfo := AInfo;
+  FMapVersionFactory := AMapVersionFactory;
   FConfig := AConfig;
 end;
 
@@ -85,6 +91,11 @@ end;
 function TTileStorageTypeBase.GetInfo: IStorageTypeAbilities;
 begin
   Result := FInfo;
+end;
+
+function TTileStorageTypeBase.GetMapVersionFactory: IMapVersionFactory;
+begin
+  Result := FMapVersionFactory;
 end;
 
 end.
