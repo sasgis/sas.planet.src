@@ -2213,7 +2213,7 @@ begin
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
       VPoly := VPolygonOnMapEdit.Polygon;
       if VPoly.Count > 0 then begin
-        VSaveAviable := (VPoly.Item[0].Count > 2) or (VPath.Count > 1);
+        VSaveAviable := (VPoly.Item[0].Count > 2) or (VPoly.Count > 1);
       end;
     end;
     TBEditPath.Visible := VSaveAviable;
