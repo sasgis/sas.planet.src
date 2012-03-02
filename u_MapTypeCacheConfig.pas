@@ -181,13 +181,13 @@ var
 begin
   VConfig := FConfig.GetStatic;
   VCacheType := VConfig.CacheTypeCode;
-  if VCacheType = 0 then begin
+  if VCacheType = c_File_Cache_Id_DEFAULT then begin
     VCacheType := FGlobalCacheConfig.DefCache;
   end;
   FEffectiveCacheType := VCacheType;
   FFileNameGenerator := FTileNameGeneratorList.GetGenerator(FEffectiveCacheType);
 
-  if (7=FEffectiveCacheType) then begin
+  if (c_File_Cache_Id_DBMS=FEffectiveCacheType) then begin
     // very special
     FBasePath:=ETS_TilePath_Single(FGlobalCacheConfig.DBMSCachepath, VConfig.NameInCache);
     Exit;
@@ -198,22 +198,22 @@ begin
   //TODO: — этим бардаком нужно что-то будет сделать
   if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
     case FEffectiveCacheType of
-      1: begin
+      c_File_Cache_Id_GMV: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.OldCpath) + VBasePath;
       end;
-      2: begin
+      c_File_Cache_Id_SAS: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.NewCpath)+VBasePath;
       end;
-      3: begin
+      c_File_Cache_Id_ES: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.ESCpath)+VBasePath;
       end;
-      4,41: begin
+      c_File_Cache_Id_GM,c_File_Cache_Id_GM_Aux: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.GMTilespath)+VBasePath;
       end;
-      5: begin
+      c_File_Cache_Id_GE: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.GECachepath)+VBasePath;
       end;
-      6: begin
+      c_File_Cache_Id_BDB: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.BDBCachepath)+VBasePath;
       end;
     end;

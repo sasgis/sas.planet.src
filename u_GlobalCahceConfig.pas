@@ -78,6 +78,17 @@ type
     property CacheChangeNotifier: IJclNotifier read FCacheChangeNotifier;
   end;
 
+const
+  c_File_Cache_Id_DEFAULT = 0; // subst only
+  c_File_Cache_Id_GMV    = 1;  // old
+  c_File_Cache_Id_SAS    = 2;  // new
+  c_File_Cache_Id_ES     = 3;
+  c_File_Cache_Id_GM     = 4;
+  c_File_Cache_Id_GM_Aux = 41; // auxillary
+  c_File_Cache_Id_GE     = 5;
+  c_File_Cache_Id_BDB    = 6;
+  c_File_Cache_Id_DBMS   = 7;
+
 implementation
 
 uses
@@ -91,7 +102,7 @@ constructor TGlobalCahceConfig.Create(
 );
 begin
   FCacheGlobalPath := ACacheGlobalPath;
-  FDefCache := 2;
+  FDefCache := c_File_Cache_Id_SAS;
   FCacheChangeNotifier := TJclBaseNotifier.Create;
   FOldCpath := 'cache_old' + PathDelim;
   FNewCpath := 'cache' + PathDelim;
@@ -159,7 +170,12 @@ end;
 
 procedure TGlobalCahceConfig.SetDefCache(const Value: byte);
 begin
-  if Value in [1, 2, 3, 4, 41, 6, 7] then begin
+  if Value in [c_File_Cache_Id_GMV,
+               c_File_Cache_Id_SAS,
+               c_File_Cache_Id_ES,
+               c_File_Cache_Id_GM,
+               c_File_Cache_Id_GM_Aux,
+               c_File_Cache_Id_BDB] then begin
     if FDefCache <> Value then begin
       FDefCache := Value;
       FCacheChangeNotifier.Notify(nil);

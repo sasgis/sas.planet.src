@@ -308,13 +308,13 @@ begin
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
-  if FStorageConfig.CacheTypeCode = 0 then begin
+  if FStorageConfig.CacheTypeCode = c_File_Cache_Id_DEFAULT then begin
     FStorageConfig.CacheTypeCode := AGlobalCacheConfig.DefCache;
   end;
 
-  if FStorageConfig.CacheTypeCode = 6 then begin
+  if FStorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
     FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else if FStorageConfig.CacheTypeCode = 5  then begin
+  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
     FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
@@ -498,7 +498,7 @@ end;
 function TMapType.AllowListOfTileVersions: Boolean;
 begin
   // only for GE
-  Result := (FStorageConfig.CacheTypeCode = 5);
+  Result := (FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;

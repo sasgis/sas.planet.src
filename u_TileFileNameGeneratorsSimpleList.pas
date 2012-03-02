@@ -87,28 +87,28 @@ begin
     VCacheType := CacheType;
   end;
   case VCacheType of
-    1:
+    c_File_Cache_Id_GMV:
     begin
       Result := FItems[0];
     end;
-    2:
+    c_File_Cache_Id_SAS:
     begin
       Result := FItems[1];
     end;
-    3:
+    c_File_Cache_Id_ES:
     begin
       Result := FItems[2];
     end;
-    4:
+    c_File_Cache_Id_GM:
     begin
       Result := FItems[3];
     end;
-    41:
+    c_File_Cache_Id_GM_Aux:
     begin
       Result := FItems[4];
     end;
   else begin
-    Result := FItems[3];
+    Result := FItems[3]; // as for GM
   end;
   end;
 end;
