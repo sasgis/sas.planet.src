@@ -26,7 +26,9 @@ uses
   Classes,
   GR32,
   i_OperationNotifier,
+  i_TileRectUpdateNotifier,
   i_MapVersionInfo,
+  i_StorageState,
   i_TileInfoBasic,
   i_FillingMapColorer,
   i_TileStorageInfo;
@@ -35,6 +37,13 @@ type
   ITileStorage = interface
     ['{80A0246E-68E0-4EA0-9B0F-3338472FDB3C}']
     function GetInfo: ITileStorageInfo;
+    property Info: ITileStorageInfo read GetInfo;
+
+    function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
+    property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
+
+    function GetState: IStorageStateChangeble;
+    property State: IStorageStateChangeble read GetState;
 
     function GetTileFileName(
       AXY: TPoint;
