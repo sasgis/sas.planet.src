@@ -350,6 +350,7 @@
     <DCCReference Include="i_TileFileNameGeneratorsList.pas" />
     <DCCReference Include="i_TileInfoBasic.pas" />
     <DCCReference Include="i_TileIterator.pas" />
+    <DCCReference Include="i_TileKey.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
     <DCCReference Include="i_TileRectUpdateNotifier.pas" />
@@ -862,6 +863,7 @@
     <DCCReference Include="u_TileIteratorByPolygon.pas" />
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
+    <DCCReference Include="u_TileKey.pas" />
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
     <DCCReference Include="u_TileRectUpdateNotifier.pas" />
     <DCCReference Include="u_TileRequest.pas" />

@@ -74,6 +74,8 @@ uses
   i_SimpleFactory in 'i_SimpleFactory.pas',
   i_TTLCheckNotifier in 'i_TTLCheckNotifier.pas',
   i_TTLCheckListener in 'i_TTLCheckListener.pas',
+  i_TileKey in 'i_TileKey.pas',
+  u_TileKey in 'u_TileKey.pas',
   i_IdCacheSimple in 'i_IdCacheSimple.pas',
   u_IdCacheSimpleThreadSafe in 'u_IdCacheSimpleThreadSafe.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
