@@ -42,6 +42,8 @@ type
     function GetVer: Word;
     function GetGEServer: String;
     function GetTileDate: String;
+
+    function IsSame(AValue: IMapVersionInfo): Boolean;
   public
     constructor Create(
       const AVer: Word;
@@ -104,6 +106,28 @@ end;
 function TMapVersionInfoGE.GetVer: Word;
 begin
   Result := FVer;
+end;
+
+function TMapVersionInfoGE.IsSame(AValue: IMapVersionInfo): Boolean;
+var
+  VVersionGE: IMapVersionInfoGE;
+begin
+  if AValue = nil then begin
+    Result := False;
+  end else begin
+    if (AValue = IMapVersionInfo(Self)) or (AValue = IMapVersionInfoGE(Self)) then begin
+      Result := True;
+    end else begin
+      if Supports(AValue, IMapVersionInfoGE, VVersionGE) then begin
+        Result :=
+          (FGEServer = VVersionGE.GEServer) and
+          (FVer = VVersionGE.Ver) and
+          (FTileDate = VVersionGE.TileDate);
+      end else begin
+        Result := AValue.StoreString = GetStoreString;
+      end;
+    end;
+  end;
 end;
 
 { TMapVersionFactoryGE }

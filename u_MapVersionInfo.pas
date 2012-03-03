@@ -33,6 +33,8 @@ type
     function GetUrlString: string;
     function GetStoreString: string;
     function GetCaption: string;
+
+    function IsSame(AValue: IMapVersionInfo): Boolean;
   public
     constructor Create(
       AVersion: string
@@ -61,6 +63,19 @@ end;
 function TMapVersionInfo.GetUrlString: string;
 begin
   Result := FVersion;
+end;
+
+function TMapVersionInfo.IsSame(AValue: IMapVersionInfo): Boolean;
+begin
+  if AValue = nil then begin
+    Result := False;
+  end else begin
+    if AValue = IMapVersionInfo(Self) then begin
+      Result := True;
+    end else begin
+      Result := AValue.StoreString = FVersion;
+    end;
+  end;
 end;
 
 end.
