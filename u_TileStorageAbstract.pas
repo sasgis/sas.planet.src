@@ -64,6 +64,7 @@ type
     procedure OnConfigChange;
     function GetStorageStateStatic: IStorageStateStatic;
   protected
+    procedure NotifyTileUpdate(ATile: TPoint; AZoom: Byte; AVersion: IMapVersionInfo);
     property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
@@ -149,6 +150,8 @@ uses
   t_GeoTypes,
   i_TileIterator,
   u_NotifyEventListener,
+  i_TileKey,
+  u_TileKey,
   u_TileRectUpdateNotifier,
   u_StorageStateInternal,
   u_TileIteratorByRect;
@@ -338,6 +341,22 @@ begin
     end;
   end else begin
     Result := False;
+  end;
+end;
+
+procedure TTileStorageAbstract.NotifyTileUpdate(
+  ATile: TPoint;
+  AZoom: Byte;
+  AVersion: IMapVersionInfo
+);
+var
+  VKey: ITileKey;
+  VNotifier: ITileRectUpdateNotifierInternal;
+begin
+  VNotifier := NotifierByZoomInternal[AZoom];
+  if VNotifier <> nil then begin
+    VKey := TTileKey.Create(ATile, AZoom, AVersion);
+    VNotifier.TileUpdateNotify(VKey);
   end;
 end;
 

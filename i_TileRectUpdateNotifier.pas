@@ -5,6 +5,7 @@ interface
 uses
   Types,
   i_JclNotify,
+  i_TileKey,
   i_CoordConverter;
 
 type
@@ -21,8 +22,7 @@ type
   end;
   ITileRectUpdateNotifierInternal = interface
     ['{86C0C887-1DD8-43B8-9B5A-0504B4BFA809}']
-    procedure TileUpdateNotify(ATile: TPoint); stdcall;
-//    procedure TileRectUpdateNotify(ARect: TRect); stdcall;
+    procedure TileUpdateNotify(ATileKey: ITileKey); stdcall;
   end;
 
 implementation

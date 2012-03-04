@@ -58,17 +58,22 @@ begin
 end;
 
 function TTileKey.IsSame(AValue: ITileKey): Boolean;
+var
+  VTile: TPoint;
 begin
   if AValue = nil then begin
     Result := False;
   end else begin
-    if (FTile <> AValue.Tile) or (FZoom <> AValue.Zoom) then begin
+    VTile := AValue.Tile;
+    if (FTile.X <> VTile.X) or (FTile.Y <> VTile.Y) or (FZoom <> AValue.Zoom) then begin
       Result := False;
     end else begin
       if FVersionInfo = AValue.VersionInfo then begin
         Result := True;
       end else if FVersionInfo <> nil then begin
         Result := FVersionInfo.IsSame(AValue.VersionInfo);
+      end else begin
+        Result := False;
       end;
     end;
   end;

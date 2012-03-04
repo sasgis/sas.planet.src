@@ -333,7 +333,7 @@ begin
         AStream
       );
       if VResult then begin
-        NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
       end;
     end;
   end;
@@ -362,7 +362,7 @@ begin
         nil
       );
       if VResult then begin
-        NotifierByZoomInternal[AZoom].TileUpdateNotify(AXY);
+        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
       end;
     end;
   end;
@@ -395,7 +395,7 @@ begin
       Result := False;
     end;
     if Result then begin
-      NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+      NotifyTileUpdate(AXY, Azoom, AVersionInfo);
     end;
   end;
 end;

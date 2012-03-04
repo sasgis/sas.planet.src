@@ -203,7 +203,7 @@ begin
       Result := false;
     end;
     if Result then begin
-      NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+      NotifyTileUpdate(AXY, Azoom, AVersionInfo);
     end;
   end;
 end;
@@ -505,7 +505,7 @@ begin
     finally
       FLock.EndWrite;
     end;
-    NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+    NotifyTileUpdate(AXY, Azoom, AVersionInfo);
   end;
 end;
 

@@ -6,6 +6,7 @@ uses
   Types,
   SysUtils,
   i_JclNotify,
+  i_TileKey,
   i_CoordConverter,
   i_TileRectUpdateNotifier;
 
@@ -30,7 +31,7 @@ type
     procedure Add(AListener: IJclListener; ATileRect: TRect); stdcall;
     procedure Remove(AListener: IJclListener); stdcall;
 
-    procedure TileUpdateNotify(ATile: TPoint); stdcall;
+    procedure TileUpdateNotify(ATileKey: ITileKey); stdcall;
   public
     constructor Create(
       AZoom: Byte;
@@ -146,15 +147,17 @@ begin
   end;
 end;
 
-procedure TTileRectUpdateNotifier.TileUpdateNotify(ATile: TPoint);
+procedure TTileRectUpdateNotifier.TileUpdateNotify(ATileKey: ITileKey);
 var
   i: Integer;
+  VTile: TPoint;
 begin
   FSynchronizer.BeginRead;
   try
+    VTile := ATileKey.Tile;
     for i := 0 to FCount - 1 do begin
-      if PtInRect(FList[i].Rect, ATile) then begin
-        FList[i].Listener.Notification(nil);
+      if PtInRect(FList[i].Rect, VTile) then begin
+        FList[i].Listener.Notification(ATileKey);
       end;
     end;
   finally

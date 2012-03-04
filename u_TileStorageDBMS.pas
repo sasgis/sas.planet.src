@@ -219,7 +219,7 @@ begin
         Result := False;
       end;
       if Result then begin
-        NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
       end;
     end;
   end;
@@ -423,7 +423,7 @@ begin
         FreeAndNil(VMemStream);
       end;
 
-      NotifierByZoomInternal[Azoom].TileUpdateNotify(AXY);
+      NotifyTileUpdate(AXY, Azoom, AVersionInfo);
     end;
   end;
 end;
