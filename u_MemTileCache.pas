@@ -51,7 +51,7 @@ type
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure OnChangeConfig;
-    procedure OnTileStorageChange;
+    procedure OnTileStorageChange(AMsg: IInterface);
     function GetMemCacheKey(const AXY: TPoint; const Azoom: byte;
                             const AMapVersionInfo: IMapVersionInfo): string;
     procedure OnTTLTrim(Sender: TObject);
@@ -96,6 +96,7 @@ implementation
 
 uses
   Variants,
+  i_TileKey,
   i_TileRectUpdateNotifier,
   u_TTLCheckListener,
   u_NotifyEventListener;
@@ -120,7 +121,7 @@ begin
   if ATileStorage <> nil then begin
     FTileStorage := ATileStorage;
     FCoordConverter := ACoordConverter;
-    FStorageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileStorageChange);
+    FStorageChangeListener := TNotifyEventListener.Create(Self.OnTileStorageChange);
     for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
       VNotifier := FTileStorage.NotifierByZoom[i];
       if VNotifier <> nil then begin
@@ -271,9 +272,13 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.OnTileStorageChange;
+procedure TMemTileCacheBase.OnTileStorageChange(AMsg: IInterface);
+var
+  VTileKey: ITileKey;
 begin
-  Clear;
+  if Supports(AMsg, ITileKey, VTileKey) then begin
+    DeleteTileFromCache(VTileKey.Tile, VTileKey.Zoom, VTileKey.VersionInfo);
+  end;
 end;
 
 procedure TMemTileCacheBase.OnTTLTrim(Sender: TObject);

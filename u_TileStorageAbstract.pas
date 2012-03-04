@@ -63,12 +63,12 @@ type
     procedure OnStateChange;
     procedure OnConfigChange;
     function GetStorageStateStatic: IStorageStateStatic;
+    property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   protected
     procedure NotifyTileUpdate(ATile: TPoint; AZoom: Byte; AVersion: IMapVersionInfo);
     property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
-    property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   public
     constructor Create(
       AStorageTypeAbilities: IStorageTypeAbilities;
