@@ -17,6 +17,8 @@ type
 
     function GetVersionInfo: IMapVersionInfo;
     property VersionInfo: IMapVersionInfo read GetVersionInfo;
+
+    function IsSame(AValue: ITileKey): Boolean;
   end;
 
 implementation

@@ -17,6 +17,8 @@ type
     function GetTile: TPoint;
     function GetZoom: Byte;
     function GetVersionInfo: IMapVersionInfo;
+
+    function IsSame(AValue: ITileKey): Boolean;
   public
     constructor Create(
       ATile: TPoint;
@@ -53,6 +55,23 @@ end;
 function TTileKey.GetZoom: Byte;
 begin
   Result := FZoom;
+end;
+
+function TTileKey.IsSame(AValue: ITileKey): Boolean;
+begin
+  if AValue = nil then begin
+    Result := False;
+  end else begin
+    if (FTile <> AValue.Tile) or (FZoom <> AValue.Zoom) then begin
+      Result := False;
+    end else begin
+      if FVersionInfo = AValue.VersionInfo then begin
+        Result := True;
+      end else if FVersionInfo <> nil then begin
+        Result := FVersionInfo.IsSame(AValue.VersionInfo);
+      end;
+    end;
+  end;
 end;
 
 end.
