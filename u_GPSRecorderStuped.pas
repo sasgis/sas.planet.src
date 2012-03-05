@@ -122,6 +122,44 @@ uses
   i_EnumDoublePoint,
   u_GeoFun;
 
+{ TEnumDoublePointsByArray }
+
+type
+  TEnumTrackPointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  private
+    FPoints: PTrackPointArray;
+    FCount: Integer;
+    FIndex: Integer;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      APoints: PTrackPointArray;
+      ACount: Integer
+    );
+  end;
+
+constructor TEnumTrackPointsByArray.Create(APoints: PTrackPointArray;
+  ACount: Integer);
+begin
+  FPoints := APoints;
+  FCount := ACount;
+  FIndex := 0;
+end;
+
+function TEnumTrackPointsByArray.Next(out APoint: TDoublePoint): Boolean;
+begin
+  if FIndex < FCount then begin
+    APoint := FPoints[FIndex].Point;
+    Inc(FIndex);
+    Result := True;
+  end else begin
+    APoint := CEmptyDoublePoint;
+    Result := False;
+  end;
+end;
+
+
 { TGPSRecorderStuped }
 
 constructor TGPSRecorderStuped.Create(
@@ -327,44 +365,6 @@ begin
   else
     Result:='';
 end;
-
-{ TEnumDoublePointsByArray }
-
-type
-  TEnumTrackPointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
-  private
-    FPoints: PTrackPointArray;
-    FCount: Integer;
-    FIndex: Integer;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
-  public
-    constructor Create(
-      APoints: PTrackPointArray;
-      ACount: Integer
-    );
-  end;
-
-constructor TEnumTrackPointsByArray.Create(APoints: PTrackPointArray;
-  ACount: Integer);
-begin
-  FPoints := APoints;
-  FCount := ACount;
-  FIndex := 0;
-end;
-
-function TEnumTrackPointsByArray.Next(out APoint: TDoublePoint): Boolean;
-begin
-  if FIndex < FCount then begin
-    APoint := FPoints[FIndex].Point;
-    Inc(FIndex);
-    Result := True;
-  end else begin
-    APoint := CEmptyDoublePoint;
-    Result := False;
-  end;
-end;
-
 
 function TGPSRecorderStuped.GetAllPoints: ILonLatPath;
 begin
