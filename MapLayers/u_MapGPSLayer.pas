@@ -26,6 +26,7 @@ type
     FConfig: IMapLayerGPSTrackConfig;
     FGPSRecorder: IGPSRecorder;
 
+    FGetTrackCounter: IInternalPerformanceCounter;
     FGpsPosChangeCounter: Integer;
     FPoints: TGPSTrackPointArray;
     FPolygon: TPolygon32;
@@ -110,6 +111,9 @@ begin
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
+
+  FGetTrackCounter := PerfList.CreateAndAddNewCounter('GetTrack');
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
@@ -164,6 +168,7 @@ var
   VTilePixelsToDraw: TRect;
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   inherited;
   FConfig.LockRead;
@@ -177,7 +182,12 @@ begin
 
   if (VPointsCount > 1) then begin
     VLocalConverter := LayerCoordConverter;
-    VPointsCount := FGPSRecorder.LastPoints(VPointsCount, FPoints);
+    VCounterContext := FGetTrackCounter.StartOperation;
+    try
+      VPointsCount := FGPSRecorder.LastPoints(VPointsCount, FPoints);
+    finally
+      FGetTrackCounter.FinishOperation(VCounterContext);
+    end;
     if (VPointsCount > 1) then begin
       if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         VTileToDrawBmp := TCustomBitmap32.Create;
