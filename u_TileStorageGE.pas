@@ -25,10 +25,14 @@ interface
 uses
   Types,
   Windows,
+  SysUtils,
   Classes,
+  u_GECrypt,
+  t_CommonTypes,
   i_SimpleTileStorageConfig,
   u_MapVersionFactoryGE,
   i_ContentTypeInfo,
+  i_MapVersionConfig,
   i_MapVersionInfo,
   i_TileInfoBasic,
   i_ContentTypeManager,
@@ -38,52 +42,42 @@ uses
   u_TileStorageAbstract;
 
 type
-  TTileStorageGE = class(TTileStorageAbstract)
-  private
-    FCacheConfig: TMapTypeCacheConfigGE;
-    FMapVersionFactoryGE: IMapVersionFactoryGEInternal;
-    FIndex: TGEIndexFile;
-    FUserDefinedGEPath: String;
-    FUserDefinedGEServer: String;
-    FServerID: Word;
+  TTileStorageDLL = class(TTileStorageAbstract)
+  protected
+    FCacheConfig: TMapTypeCacheConfigDLL;
     FMainContentType: IContentTypeInfoBasic;
-  private
-    function InternalGetServerID(const AUserDefinedGEServer: String): Word;
-    function InternalCreateGEStream(out AGEStream: TFileStream): Boolean;
-    function InternalExtractFromGEStream(const AGEStream: TFileStream;
-                                         const AOffset, ASize: LongWord;
-                                         AResultStream: TMemoryStream;
-                                         out ATileDateStr: String): Boolean;
-    function InternalProcessGEOffsets(
-      const AGEStream: TFileStream;
-      const AListOfOffsets: TList;
-      const AGEServer: String
-    ): IInterfaceList;
-    function InternalCreateAndProcessGEOffsets(
-      const AListOfOffsets: TList;
-      const AGEServer: String
-    ): IInterfaceList;
-
+    // access
+    FSync: TMultiReadExclusiveWriteSynchronizer;
+    FDLLHandle: THandle;
+    FDLLCacheHandle: TDLLCacheHandle;
+    // routines
+    FDLLCache_EnumTileVersions: Pointer;
+    FDLLCache_QueryTile: Pointer;
+    // cached values
+    FCachedNameInCache: AnsiString;
+  protected
+    // Lib routines
+    function InternalLib_CleanupProc: Boolean; virtual;
+    function InternalLib_Initialize: Boolean; virtual;
+    function InternalLib_CheckInitialized: Boolean; virtual;
+    function InternalLib_Unload: Boolean; virtual;
+    function InternalLib_NotifyStateChanged(const AEnabled: Boolean): Boolean;
+    function InternalLib_SetPath(const APath: PAnsiChar): Boolean;
+    function InternalLib_GetTileVersions(const AEnumInfo: PEnumTileVersionsInfo): Boolean;
+    function InternalLib_QueryTile(const ATileInfo: PQueryTileInfo): Boolean;
+  protected
     procedure DoOnMapSettingsEdit(Sender: TObject);
   public
-    constructor Create(
-      AConfig: ISimpleTileStorageConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager
-    );
+    constructor Create(AConfig: ISimpleTileStorageConfig;
+                       AContentTypeManager: IContentTypeManager);
     destructor Destroy; override;
 
+    // auxillary tile storage routines
     function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
-
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
-    function GetTileFileName(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
-    ): string; override;
-
+    // common tile storage interface
     function GetTileInfo(
       AXY: TPoint;
       Azoom: byte;
@@ -98,11 +92,18 @@ type
       out ATileInfo: ITileInfoBasic
     ): Boolean; override;
 
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte;
+      AVersionInfo: IMapVersionInfo
+    ): string; override;
+
     function DeleteTile(
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): Boolean; override;
+
     function DeleteTNE(
       AXY: TPoint;
       Azoom: byte;
@@ -115,450 +116,507 @@ type
       AVersionInfo: IMapVersionInfo;
       AStream: TStream
     ); override;
+
     procedure SaveTNE(
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ); override;
-
+    
     function GetListOfTileVersions(
       const AXY: TPoint;
       const Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; override;
+
   end;
 
+  TTileStorageGE = class(TTileStorageDLL)
+  protected
+    function InternalLib_Initialize: Boolean; override;
+    function InternalLib_CheckInitialized: Boolean; override;
+  public
+    constructor Create(
+      AConfig: ISimpleTileStorageConfig;
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      AContentTypeManager: IContentTypeManager
+    );
+  end;
+
+  TTileStorageGC = class(TTileStorageDLL)
+  protected
+    function InternalLib_Initialize: Boolean; override;
+    function InternalLib_CheckInitialized: Boolean; override;
+  public
+    constructor Create(
+      AConfig: ISimpleTileStorageConfig;
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      AContentTypeManager: IContentTypeManager
+    );
+  end;
+  
 implementation
 
 uses
-  SysUtils,
-  t_CommonTypes,
   i_MapVersionInfoGE,
   u_MapVersionListStatic,
   u_AvailPicsNMC,
   u_TileInfoBasic,
-  u_TileStorageTypeAbilities,
-  u_GECrypt;
+  u_TileStorageTypeAbilities;
 
-{ TTileStorageGEStuped }
-
-constructor TTileStorageGE.Create(
-  AConfig: ISimpleTileStorageConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager
-);
-begin
-  FMapVersionFactoryGE := TMapVersionFactoryGE.Create;
-  inherited Create(TTileStorageTypeAbilitiesGE.Create, FMapVersionFactoryGE, AConfig);
-  // for caching ServerID
-  FServerID := 0;
-  FUserDefinedGEPath := '';
-  FUserDefinedGEServer := '';
-  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
-  FIndex := TGEIndexFile.Create(StorageStateInternal, FCacheConfig);
-  FMainContentType := AContentTypeManager.GetInfo('application/vnd.google-earth.tile-image');
-end;
-
-destructor TTileStorageGE.Destroy;
-begin
-  FreeAndNil(FIndex);
-  FreeAndNil(FCacheConfig);
-  inherited;
-end;
-
-procedure TTileStorageGE.DoOnMapSettingsEdit(Sender: TObject);
-begin
-  if Assigned(FIndex) then
-    FIndex.OnConfigChange(Sender);
-end;
-
-function TTileStorageGE.DeleteTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-): Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGE.DeleteTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-): Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGE.GetAllowDifferentContentTypes: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageGE.GetListOfTileVersions(
-  const AXY: TPoint;
-  const Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-): IMapVersionListStatic;
+function DLLCache_EnumTileVersions_Callback(const AContext: Pointer;
+                                            const AEnumInfo: PEnumTileVersionsInfo;
+                                            const AVersionString: PAnsiChar): Boolean; stdcall;
 var
-  VListOfOffsets: TList;
-  VRec: TIndexRec;
-  VVersionInfo: IMapVersionInfoGE;
-  VUserDefinedGEServer: String;
-  VList: IInterfaceList;
+  VVersionString: String;
 begin
-  VListOfOffsets := TList.Create;
-  try
-    // get ServerID from version (and skip other params)
-    if Supports(AVersionInfo, IMapVersionInfoGE, VVersionInfo) then
-      VUserDefinedGEServer := VVersionInfo.GEServer
-    else
-      VUserDefinedGEServer := '';
-    
-    // do not check result!
-    FIndex.FindTileInfo(AXY, Azoom, (0<Length(VUserDefinedGEServer)), InternalGetServerID(VUserDefinedGEServer), 0, '', VRec, VListOfOffsets);
-
-    // make list with original(!) GEServer
-    // if user asks about [tm] or [sky] - do not replace it with 2 or 3
-    VList := nil;
-    if (VListOfOffsets.Count > 0) then begin
-      VList := InternalCreateAndProcessGEOffsets(VListOfOffsets, VUserDefinedGEServer);
+  Result := FALSE;
+  // if AVersionString is NULL - it means NO VERSION aka CLEAR - do not enum it
+  if (nil<>AEnumInfo) and (nil<>AVersionString) then begin
+    // make list
+    if (nil=AEnumInfo^.ListOfVersions) then begin
+      AEnumInfo^.ListOfVersions := TStringList.Create;
+      AEnumInfo^.ListOfVersions.Sorted := TRUE;
+      AEnumInfo^.ListOfVersions.Duplicates := dupIgnore;
     end;
-    Result := TMapVersionListStatic.Create(VList);
-  finally
-    VListOfOffsets.Free;
+    // make version string
+    SetString(VVersionString, AVersionString, StrLen(AVersionString));
+    // add if not found
+    AEnumInfo^.ListOfVersions.Add(VVersionString);
+    Inc(Result);
   end;
 end;
 
-function TTileStorageGE.GetCacheConfig: TMapTypeCacheConfigAbstract;
+function DLLCache_QueryTile_Callback(const AContext: Pointer;
+                                     const ATileInfo: PQueryTileInfo;
+                                     const ATileBuffer: Pointer;
+                                     const AVersionString: PAnsiChar): Boolean; stdcall;
+var
+  VVersionStoreString: String;
+begin
+  Result := FALSE;
+  if (nil<>ATileInfo) then begin
+    // tile body
+    if (nil<>ATileBuffer) and (ATileInfo^.TileSize>0) and (nil<>ATileInfo^.TileStream) then begin
+      ATileInfo^.TileStream.WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
+      ATileInfo^.TileStream.Position:=0;
+      // do smth
+      if (not Result) then
+        Inc(Result);
+    end;
+    // tile version
+    if (nil<>AVersionString) and (nil<>AContext) then begin
+      // make as string
+      SetString(VVersionStoreString, AVersionString, StrLen(AVersionString));
+      // make and set version
+      ATileInfo^.VersionOut := TTileStorageDLL(AContext).MapVersionFactory.CreateByStoreString(VVersionStoreString);
+      // do smth
+      if (not Result) then
+        Inc(Result);
+    end;
+  end;
+end;
+
+function HostExifReaderProc(const AContext: Pointer;
+                            const ABuffer: Pointer;
+                            const ASize: Cardinal;
+                            const AExifBufPtr: PPointer;
+                            const AExifSizPtr: PCardinal): Boolean; stdcall;
+var
+  VExifOffset: PByte;
+  VExifSize: Cardinal;
+begin
+  Result := FindExifInJpeg(ABuffer, ASize, TRUE, $0000, VExifOffset, VExifSize);
+  if Result then begin
+    AExifBufPtr^ := VExifOffset;
+    AExifSizPtr^ := VExifSize;
+  end;
+end;
+
+function HostStateChangedProc(const AContext: Pointer;
+                              const AEnabled: Boolean): Boolean; stdcall;
+begin
+  Result := FALSE;
+  if (nil<>AContext) then begin
+    if TTileStorageDLL(AContext).InternalLib_NotifyStateChanged(AEnabled) then
+      Inc(Result);
+  end;
+end;
+
+{ TTileStorageDLL }
+
+constructor TTileStorageDLL.Create(AConfig: ISimpleTileStorageConfig;
+                                   AContentTypeManager: IContentTypeManager);
+begin
+  inherited Create(TTileStorageTypeAbilitiesGE.Create, TMapVersionFactoryGE.Create, AConfig);
+  FSync := TMultiReadExclusiveWriteSynchronizer.Create;
+  FDLLHandle := 0;
+  FDLLCacheHandle := nil;
+  InternalLib_CleanupProc;
+  FCachedNameInCache := '';
+  FMainContentType := AContentTypeManager.GetInfo('image/jpeg'); // ('application/vnd.google-earth.tile-image'); // wtf?
+end;
+
+function TTileStorageDLL.DeleteTile(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): Boolean;
+begin
+  Result := FALSE;
+end;
+
+function TTileStorageDLL.DeleteTNE(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): Boolean;
+begin
+  Result := FALSE;
+end;
+
+destructor TTileStorageDLL.Destroy;
+begin
+  InternalLib_Unload;
+  FreeAndNil(FCacheConfig);
+  FreeAndNil(FSync);
+  inherited Destroy;
+end;
+
+procedure TTileStorageDLL.DoOnMapSettingsEdit(Sender: TObject);
+var
+  VNameInCache: AnsiString;
+begin
+  if (nil=FCacheConfig) then
+    Exit;
+  VNameInCache := FCacheConfig.GetNameInCache;
+  if not SameText(VNameInCache, FCachedNameInCache) then begin
+    // change path
+    FSync.BeginWrite;
+    try
+      StorageStateInternal.ReadAccess := asUnknown;
+      FCachedNameInCache := VNameInCache;
+      InternalLib_SetPath(PChar(FCachedNameInCache));
+    finally
+      FSync.EndWrite;
+    end;
+  end;
+end;
+
+function TTileStorageDLL.GetAllowDifferentContentTypes: Boolean;
+begin
+  Result := TRUE;
+end;
+
+function TTileStorageDLL.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
 end;
 
-function TTileStorageGE.GetMainContentType: IContentTypeInfoBasic;
+function TTileStorageDLL.GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
+                                               AVersionInfo: IMapVersionInfo): IMapVersionListStatic;
+var
+  VEnumInfo: TEnumTileVersionsInfo;
+  VVersionStoreString: AnsiString;
+  VList: IInterfaceList;
+  VVersion: IMapVersionInfo;
+  i: Integer;
+begin
+  VList := nil;
+    
+  FSync.BeginRead;
+  try
+    if StorageStateStatic.ReadAccess <> asDisabled then begin
+      VVersionStoreString := AVersionInfo.StoreString;
+      // init
+      FillChar(VEnumInfo, sizeof(VEnumInfo), #0);
+      VEnumInfo.Size := SizeOf(VEnumInfo);
+      VEnumInfo.Zoom := Azoom;
+      VEnumInfo.XY := AXY;
+      VEnumInfo.VersionInp := PAnsiChar(VVersionStoreString);
+      // call
+      if InternalLib_GetTileVersions(@VEnumInfo) then
+      if (nil<>VEnumInfo.ListOfVersions) then
+      try
+        // make version for each item
+        if (VEnumInfo.ListOfVersions.Count>0) then begin
+          VList := TInterfaceList.Create;
+          for i := 0 to VEnumInfo.ListOfVersions.Count-1 do begin
+            VVersion := MapVersionFactory.CreateByStoreString(VEnumInfo.ListOfVersions[i]);
+            VList.Add(VVersion);
+          end;
+        end;
+      finally
+        FreeAndNil(VEnumInfo.ListOfVersions);
+      end;
+    end;
+  finally
+    FSync.EndRead;
+  end;
+
+  Result := TMapVersionListStatic.Create(VList);
+end;
+
+function TTileStorageDLL.GetMainContentType: IContentTypeInfoBasic;
 begin
   Result := FMainContentType;
 end;
 
-function TTileStorageGE.GetTileFileName(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-): string;
+function TTileStorageDLL.GetTileFileName(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): string;
 begin
   Abort;
 end;
 
-function TTileStorageGE.GetTileInfo(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-): ITileInfoBasic;
+function TTileStorageDLL.GetTileInfo(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): ITileInfoBasic;
 begin
   LoadTile(AXY, Azoom, AVersionInfo, nil, Result);
 end;
 
-function TTileStorageGE.InternalCreateAndProcessGEOffsets(
-  const AListOfOffsets: TList;
-  const AGEServer: String
-): IInterfaceList;
-var
-  VFileStream: TFileStream;
+function TTileStorageDLL.InternalLib_CheckInitialized: Boolean;
 begin
-  Result := nil;
-  if (AListOfOffsets <> nil) and (AListOfOffsets.Count > 0) then begin
-    // no stream - create it
-    if InternalCreateGEStream(VFileStream) then
-    try
-      Result := InternalProcessGEOffsets(VFileStream, AListOfOffsets, AGEServer);
-    finally
-      VFileStream.Free;
-    end;
-  end;
+  Result := (0<>FDLLHandle) and
+            (nil<>FDLLCacheHandle) and
+            (nil<>FDLLCache_EnumTileVersions) and
+            (nil<>FDLLCache_QueryTile);
 end;
 
-function TTileStorageGE.InternalCreateGEStream(out AGEStream: TFileStream): Boolean;
-var
-  VFileName: string;
-begin
-  AGEStream := nil;
-  VFileName := FCacheConfig.GetDataFileName;
-  Result := FileExists(VFileName);
-  if Result then
-    AGEStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
-end;
-
-function TTileStorageGE.InternalExtractFromGEStream(const AGEStream: TFileStream;
-                                                    const AOffset, ASize: LongWord;
-                                                    AResultStream: TMemoryStream;
-                                                    out ATileDateStr: String): Boolean;
-var
-  VTileStart: LongWord;
-  VTileRec: TTileRec;
+function TTileStorageDLL.InternalLib_CleanupProc: Boolean;
 begin
   Result := FALSE;
+  FDLLCache_EnumTileVersions := nil;
+  FDLLCache_QueryTile := nil;
+end;
 
-  // get tile info
-  AGEStream.Position := AOffset;
-  AGEStream.ReadBuffer(VTileRec, SizeOf(VTileRec));
-  // date
-  with VTileRec do begin
-    ATileDateStr := MakeGEDateToStr(RX01, Layer);
+function TTileStorageDLL.InternalLib_GetTileVersions(const AEnumInfo: PEnumTileVersionsInfo): Boolean;
+begin
+  Result := FALSE;
+  if (nil<>FDLLCache_EnumTileVersions) then begin
+    Result := TDLLCache_EnumTileVersions(FDLLCache_EnumTileVersions)(@FDLLCacheHandle, AEnumInfo, DLLCache_EnumTileVersions_Callback);
   end;
+end;
 
-  // copy part to result atream
-  AGEStream.Position := AOffset + 36;
-  AResultStream.CopyFrom(AGEStream, ASize);
+function TTileStorageDLL.InternalLib_Initialize: Boolean;
+var p: Pointer;
+begin
+  Result := FALSE;
+  if (0<>FDLLHandle) then begin
+    // get init proc
+    p := GetProcAddress(FDLLHandle, 'DLLCache_Init');
+    if (nil<>p) then
+      Result := TDLLCache_Init(p)(@FDLLCacheHandle, 0, Self);
 
-  // check tag
-  AResultStream.Position := 0;
-  AResultStream.ReadBuffer(VTileStart, SizeOf(VTileStart));
+    if Result then begin
+      // set exif reader
+      p := GetProcAddress(FDLLHandle, 'DLLCache_SetInformation');
+      if (nil<>p) then begin
+        TDLLCache_SetInformation(p)(@FDLLCacheHandle, DLLCACHE_SIC_STATE_CHANGED, 0, @HostStateChangedProc);
+        TDLLCache_SetInformation(p)(@FDLLCacheHandle, DLLCACHE_SIC_EXIF_READER, 0, @HostExifReaderProc);
+      end;
 
-  // switch by tag
-  case VTileStart of
-    CRYPTED_JPEG: begin
-      GEcrypt(AResultStream.Memory, AResultStream.Size);
-      Result := TRUE;
-    end;
-    DECRYPTED_JPEG: begin
-      Result := TRUE;
-    end;
-    CRYPTED_DXT1: begin
-      GEcrypt(AResultStream.Memory, AResultStream.Size);
-      Result := TRUE;
-    end;
-    DECRYPTED_DXT1: begin
-      Result := TRUE;
+      // initialized - get other functions
+      FDLLCache_EnumTileVersions := GetProcAddress(FDLLHandle, 'DLLCache_EnumTileVersions');
+      FDLLCache_QueryTile := GetProcAddress(FDLLHandle, 'DLLCache_QueryTile');
     end;
   end;
 end;
 
-function TTileStorageGE.InternalGetServerID(const AUserDefinedGEServer: String): Word;
-var
-  VCode: Integer;
-  VFileStream: TFileStream;
-  VCache_Head: TCache_Head;
-  VServerRec: TServerRec;
-  VServerName: String;
-  VUserDefinedGEPath: String;
+function TTileStorageDLL.InternalLib_NotifyStateChanged(const AEnabled: Boolean): Boolean;
+var VReadAccess: TAccesState;
 begin
-  // allow to use some values without checking the cache
-  if (0=Length(AUserDefinedGEServer)) then
-    Result := 0
-  else if TryStrToInt(AUserDefinedGEServer, VCode) then
-    Result := VCode
-  else begin
-    VUserDefinedGEPath := FCacheConfig.GetNameInCache;
-    if SameText(AUserDefinedGEServer, FUserDefinedGEServer) and AnsiSameText(VUserDefinedGEPath, FUserDefinedGEPath) then begin
-      // cached ok
-      Result := FServerID;
-    end else begin
-      // should check cache header
-      Result := 0;
-      if InternalCreateGEStream(VFileStream) then
+  Result := FALSE;
+  
+  if AEnabled then
+    VReadAccess := asEnabled
+  else
+    VReadAccess := asDisabled;
+
+  StorageStateInternal.ReadAccess := VReadAccess;
+end;
+
+function TTileStorageDLL.InternalLib_QueryTile(const ATileInfo: PQueryTileInfo): Boolean;
+begin
+  Result := FALSE;
+  if (nil<>FDLLCache_QueryTile) then begin
+    Result := TDLLCache_QueryTile(FDLLCache_QueryTile)(@FDLLCacheHandle, ATileInfo, DLLCache_QueryTile_Callback);
+  end;
+end;
+
+function TTileStorageDLL.InternalLib_SetPath(const APath: PAnsiChar): Boolean;
+var
+  p: Pointer;
+begin
+  Result := FALSE;
+  try
+    if (0=FDLLHandle) then
+      InternalLib_Initialize;
+    if InternalLib_CheckInitialized then begin
+      p := GetProcAddress(FDLLHandle, 'DLLCache_SetPath');
+      if (nil<>p) then
+        Result := TDLLCache_SetPath(p)(@FDLLCacheHandle, APath);
+    end;
+  finally
+    InternalLib_NotifyStateChanged(Result);
+  end;
+end;
+
+function TTileStorageDLL.InternalLib_Unload: Boolean;
+var p: Pointer;
+begin
+  Result := FALSE;
+  if (0<>FDLLHandle) then begin
+    // uninit
+    p := GetProcAddress(FDLLHandle, 'DLLCache_Uninit');
+    if (nil<>p) then
+      TDLLCache_Uninit(p)(@FDLLCacheHandle);
+    // finishing
+    Inc(Result);
+    FreeLibrary(FDLLHandle);
+    FDLLHandle := 0;
+    InternalLib_CleanupProc;
+    InternalLib_NotifyStateChanged(FALSE);
+  end;
+end;
+
+function TTileStorageDLL.LoadTile(AXY: TPoint; Azoom: byte;
+                                  AVersionInfo: IMapVersionInfo; AStream: TStream;
+                                  out ATileInfo: ITileInfoBasic): Boolean;
+var
+  VVersionStoreString: AnsiString;
+  VQTInfo: TQueryTileInfo;
+begin
+  Result := FALSE;
+  ATileInfo := nil;
+
+  FSync.BeginRead;
+  try
+    if StorageStateStatic.ReadAccess <> asDisabled then begin
+      VVersionStoreString := AVersionInfo.StoreString;
+      // init
+      FillChar(VQTInfo, SizeOf(VQTInfo), #0);
+      VQTInfo.Size := SizeOf(VQTInfo);
+      VQTInfo.Zoom := Azoom;
+      VQTInfo.XY := AXY;
+      VQTInfo.VersionInp := PAnsiChar(VVersionStoreString);
+
+      // load tile body or not
+      if (nil<>AStream) then begin
+        VQTInfo.FlagsInp := DLLCACHE_QTI_LOAD_TILE;
+        VQTInfo.TileStream := AStream;
+      end;
+      
       try
-        // try to get server id from file
-        VFileStream.Position := 0;
-        VFileStream.ReadBuffer(VCache_Head, SizeOf(VCache_Head));
-        // loop
-        if (VCache_Head.SCount <= $FF) then
-        for VCode := 0 to VCache_Head.SCount - 1 do begin
-          // read single item
-          VFileStream.ReadBuffer(VServerRec, SizeOf(VServerRec));
-          // get server name
-          VServerName:='';
-          while VServerRec.Name<>#0 do begin
-            VServerName:=VServerName+VServerRec.Name;
-            VFileStream.ReadBuffer(VServerRec.Name, SizeOf(VServerRec.Name));
+        // call
+        if InternalLib_QueryTile(@VQTInfo) then begin
+          // check version
+          if not Assigned(VQTInfo.VersionOut) then begin
+            // no output version - may be _the_same_ version
+            if (0 <> (VQTInfo.FlagsOut and DLLCACHE_QTO_SAME_VERSION)) then
+              VQTInfo.VersionOut := AVersionInfo;
           end;
-          // check server name
-          if System.Pos(AUserDefinedGEServer, VServerName) > 0 then begin
-            // found
-            Result := VCode;
-            FServerID := VCode;
-            FUserDefinedGEServer := AUserDefinedGEServer;
-            FUserDefinedGEPath := VUserDefinedGEPath;
-            Exit;
+
+          // check size
+          if (VQTInfo.TileSize > 0) then begin
+            // tile exists
+            ATileInfo := TTileInfoBasicExists.Create(
+              VQTInfo.DateOut,
+              VQTInfo.TileSize,
+              VQTInfo.VersionOut,
+              FMainContentType
+            );
+            Inc(Result);
+          end else if (0 <> (VQTInfo.FlagsOut and DLLCACHE_QTO_TNE_EXISTS)) then begin
+            // tne found
+            ATileInfo := TTileInfoBasicTNE.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
+          end else begin
+            // nothing
+            ATileInfo := TTileInfoBasicNotExists.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
           end;
         end;
       finally
-        VFileStream.Free;
+        VQTInfo.VersionOut := nil;
       end;
-    end;
-  end;
-end;
-
-function TTileStorageGE.InternalProcessGEOffsets(
-  const AGEStream: TFileStream;
-  const AListOfOffsets: TList;
-  const AGEServer: String
-): IInterfaceList;
-
-  function _ExtractDate(var ADate: String): Boolean;
-  var
-    p: Integer;
-  begin
-    // *#G0#*0*AD*2010:03:13*#0G#*
-    // get between * from start - date has at least 8 chars (yyyymmdd)
-    Result:=FALSE;
-    while (0<Length(ADate)) do begin
-      p := System.Pos('*',ADate);
-      if (p>0) then begin
-        // found
-        if (p<=8) then begin
-          // too short - remove it
-          System.Delete(ADate, 1, p);
-        end else begin
-          // ok - set length and exit
-          SetLength(ADate, (p-1));
-          Inc(Result);
-          Exit;
-        end;
-      end else begin
-        // not found - exit
-        Exit;
-      end;
-    end;
-  end;
-
-var
-  i: Integer;
-  VRec: TIndexRec;
-  VMemStream: TMemoryStream;
-  VExifOffset: PByte;
-  VExifSize: DWORD;
-  VGEServer: String;
-  VTileDate: String;
-  VVersion: IMapVersionInfo;
-begin
-  VGEServer := AGEServer;
-  Result := TInterfaceList.Create;
-  VMemStream:=TMemoryStream.Create;
-  try
-    for i := 0 to AListOfOffsets.Count-1 do
-    if FIndex.GetIndexRecByIndex(Integer(AListOfOffsets[i]), VRec) then begin
-      // try to make date from index
-      with VRec do begin
-        VTileDate := MakeGEDateToStr(VRec.RX01, VRec.Layer);
-      end;
-
-      // if no date - get it from tile
-      if (0=Length(VTileDate)) then begin
-        // prepare
-        VMemStream.Position:=0;
-        VMemStream.Size:=0;
-
-        // process single index item
-        if InternalExtractFromGEStream(AGEStream, VRec.Offset, VRec.Size, VMemStream, VTileDate) then begin
-          // may be tile found without date? so get exif from streamed image
-          if (0=Length(VTileDate)) then
-          if FindExifInJpeg(VMemStream, TRUE, $0000, VExifOffset, VExifSize) then begin
-            SetString(VTileDate, PChar(VExifOffset), VExifSize);
-            SetLength(VTileDate, StrLen(PChar(VTileDate)));
-            VTileDate:=Trim(VTileDate);
-            if not _ExtractDate(VTileDate) then
-              VTileDate:='';
-          end;
-        end;
-      end;
-
-      // try to keep user-defined GEServer
-      if (0=Length(AGEServer)) then
-        VGEServer := IntToStr(VRec.ServID);
-
-      // make version
-      VVersion := FMapVersionFactoryGE.CreateByGE(VRec.Ver, VGEServer, VTileDate);
-      Result.Add(VVersion);
     end;
   finally
-    VMemStream.Free;
+    FSync.EndRead;
   end;
 end;
 
-function TTileStorageGE.LoadTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AStream: TStream;
-  out ATileInfo: ITileInfoBasic
-): Boolean;
-var
-  VFileStream: TFileStream;
-  VMemStream: TMemoryStream;
-  VVersionInfo: IMapVersionInfoGE;
-  VAskVer: Word;
-  VAskGEServer: String;
-  VAskTileDate: String;
-  VRec: TIndexRec;
-
-  function _GetUserGEServer: String;
-  begin
-    // keep user defined GEServer
-    Result := VAskGEServer;
-    if (0=Length(Result)) then
-      Result := IntToStr(VRec.ServID);
-  end;
+procedure TTileStorageDLL.SaveTile(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo; AStream: TStream);
 begin
-  Result := False;
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
-    // get filter
-    VAskVer := 0;
-    VAskTileDate := '';
-    VAskGEServer := '';
-    if Supports(AVersionInfo, IMapVersionInfoGE, VVersionInfo) then begin
-      VAskVer := VVersionInfo.Ver;
-      VAskGEServer := VVersionInfo.GEServer;
-      VAskTileDate := VVersionInfo.TileDate;
-    end;
+  Abort;
+end;
+
+procedure TTileStorageDLL.SaveTNE(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo);
+begin
+  Abort;
+end;
+
+{ TTileStorageGE }
+
+constructor TTileStorageGE.Create(
+  AConfig: ISimpleTileStorageConfig;
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  AContentTypeManager: IContentTypeManager);
+begin
+  inherited Create(AConfig, AContentTypeManager);
+  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
+  InternalLib_Initialize;
+  DoOnMapSettingsEdit(nil);
+end;
+
+function TTileStorageGE.InternalLib_CheckInitialized: Boolean;
+begin
+  // common checks
+  Result := inherited InternalLib_CheckInitialized;
+  (*
+  if Result then begin
+    // special checks
+  end;
+  *)
+end;
+
+function TTileStorageGE.InternalLib_Initialize: Boolean;
+begin
+  if (0=FDLLHandle) then
+    FDLLHandle := LoadLibrary('TileStorage_GE.dll');
     
-    // do it (on load tiles do not mix different ServerIDs)
-    if FIndex.FindTileInfo(AXY, Azoom, TRUE, InternalGetServerID(VAskGEServer), VAskVer, VAskTileDate, VRec, nil) then begin
-      if InternalCreateGEStream(VFileStream) then
-        try
-          VMemStream := TMemoryStream.Create;
-          try
-            // extract tile from GE
-            Result := InternalExtractFromGEStream(VFileStream, VRec.Offset, VRec.Size, VMemStream, VAskTileDate);
-
-            if Result then begin
-              VMemStream.SaveToStream(AStream);
-            end;
-            ATileInfo := TTileInfoBasicExists.Create(
-              0,
-              VRec.Size,
-              FMapVersionFactoryGE.CreateByGE(VRec.Ver, _GetUserGEServer, VAskTileDate),
-              FMainContentType
-            );
-          finally
-            VMemStream.Free;
-          end;
-        finally
-          VFileStream.Free;
-        end;
-    end else begin
-      // no tile
-      ATileInfo := TTileInfoBasicNotExists.Create(0, AVersionInfo);
-    end;
+  // common routines
+  Result := inherited InternalLib_Initialize;
+  (*
+  if Result then begin
+    // special routines
   end;
+  *)
 end;
 
-procedure TTileStorageGE.SaveTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AStream: TStream
-);
+{ TTileStorageGC }
+
+constructor TTileStorageGC.Create(
+  AConfig: ISimpleTileStorageConfig;
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  AContentTypeManager: IContentTypeManager);
 begin
-  Abort;
+  inherited Create(AConfig, AContentTypeManager);
+  FCacheConfig := TMapTypeCacheConfigGC.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
+  InternalLib_Initialize;
+  DoOnMapSettingsEdit(nil);
 end;
 
-procedure TTileStorageGE.SaveTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
-);
+function TTileStorageGC.InternalLib_CheckInitialized: Boolean;
 begin
-  Abort;
+  // common checks
+  Result := inherited InternalLib_CheckInitialized;
+  (*
+  if Result then begin
+    // special checks
+  end;
+  *)
+end;
+
+function TTileStorageGC.InternalLib_Initialize: Boolean;
+begin
+  if (0=FDLLHandle) then
+    FDLLHandle := LoadLibrary('TileStorage_GC.dll');
+    
+  // common routines
+  Result := inherited InternalLib_Initialize;
+  (*
+  if Result then begin
+    // special routines
+  end;
+  *)
 end;
 
 end.

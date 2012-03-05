@@ -43,7 +43,8 @@ type
     function LinkToImages: String; override;
   end;
 
-function FindExifInJpeg(const AStream: TMemoryStream;
+function FindExifInJpeg(const AJpegBuffer: Pointer;
+                        const AJpegSize: Cardinal;
                         const AForGE: Boolean;
                         const AExifTag: Word;
                         out AOffset: PByte;
@@ -84,7 +85,8 @@ type
   TPointedMemoryStream = class(TMemoryStream)
   end;
 
-function FindExifInJpeg(const AStream: TMemoryStream;
+function FindExifInJpeg(const AJpegBuffer: Pointer;
+                        const AJpegSize: Cardinal;
                         const AForGE: Boolean;
                         const AExifTag: Word;
                         out AOffset: PByte;
@@ -169,16 +171,16 @@ begin
   AOffset:=nil;
   ASize:=0;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=AJpegBuffer) or (0=AJpegSize) then
     Exit;
 
   // test stream - get SOI section
-  if (AStream.Size>=c_SOI_Size) then
+  if (AJpegSize>=c_SOI_Size) then
     VChkLen:=c_SOI_Size
   else
-    VChkLen:=AStream.Size;
+    VChkLen:=AJpegSize;
 
-  if not _FindSection(AStream.Memory, $FF, $D8, VChkLen, VSOIPtr) then
+  if not _FindSection(AJpegBuffer, $FF, $D8, VChkLen, VSOIPtr) then
     Exit;
 
   // get JFIF as $FF $E0
@@ -698,7 +700,7 @@ begin
     Exit;
 
   // get item for $9286 (UserComment)
-  if not FindExifInJpeg(AStream, FALSE, $9286, VExifAttr, VLen) then
+  if not FindExifInJpeg(AStream.Memory, AStream.Size, FALSE, $9286, VExifAttr, VLen) then
     Exit;
 
   // parse xml

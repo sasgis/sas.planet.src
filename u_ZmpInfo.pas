@@ -744,7 +744,7 @@ var
 begin
   VNameInCache := AConfig.ReadString('NameInCache', '');
   VCacheTypeCode := AConfig.ReadInteger('CacheType', 0);
-  if VCacheTypeCode = 5  then begin
+  if (VCacheTypeCode = 5) or (VCacheTypeCode = 8) then begin
     VTileFileExt := '.ge_image';
     VIsStoreFileCache := False;
     VIsReadOnly := True;

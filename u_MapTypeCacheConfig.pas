@@ -71,12 +71,13 @@ type
     );
   end;
 
-  TMapTypeCacheConfigGE = class(TMapTypeCacheConfigAbstract)
+  TMapTypeCacheConfigDLL = class(TMapTypeCacheConfigAbstract)
   private
     FCS: TCriticalSection;
     FNameInCache: String;
     FOnSettingsEdit: TOnAfterMapSettingsEdit;
   protected
+    function GetGlobalCacheParameter: String; virtual; abstract;
     procedure OnSettingsEdit; override;
   public
     constructor Create(
@@ -86,9 +87,17 @@ type
     );
     destructor Destroy; override;
 
-    function GetIndexFileName: string;
-    function GetDataFileName: string;
     function GetNameInCache: string;
+  end;
+
+  TMapTypeCacheConfigGC = class(TMapTypeCacheConfigDLL)
+  protected
+    function GetGlobalCacheParameter: String; override;
+  end;
+
+  TMapTypeCacheConfigGE = class(TMapTypeCacheConfigDLL)
+  protected
+    function GetGlobalCacheParameter: String; override;
   end;
 
   TMapTypeCacheConfigBerkeleyDB = class(TMapTypeCacheConfigAbstract)
@@ -216,6 +225,9 @@ begin
       c_File_Cache_Id_BDB: begin
         VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.BDBCachepath)+VBasePath;
       end;
+      c_File_Cache_Id_GC: begin
+        VBasePath:=IncludeTrailingPathDelimiter(FGlobalCacheConfig.GCCachepath)+VBasePath;
+      end;
     end;
   end;
   //TODO: — этим бардаком нужно что-то будет сделать
@@ -226,9 +238,9 @@ begin
   FBasePath := VBasePath;
 end;
 
-{ TMapTypeCacheConfigGE }
+{ TMapTypeCacheConfigDLL }
 
-constructor TMapTypeCacheConfigGE.Create(
+constructor TMapTypeCacheConfigDLL.Create(
   AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   AOnSettingsEdit: TOnAfterMapSettingsEdit
@@ -240,7 +252,7 @@ begin
   OnSettingsEdit;
 end;
 
-procedure TMapTypeCacheConfigGE.OnSettingsEdit;
+procedure TMapTypeCacheConfigDLL.OnSettingsEdit;
 var
   VBasePath: string;
 begin
@@ -253,7 +265,7 @@ begin
         FNameInCache := FNameInCache + PathDelim;
 
     // global GE cache path
-    VBasePath:=FGlobalCacheConfig.GECachepath;
+    VBasePath:=GetGlobalCacheParameter;
     //TODO: — этим бардаком нужно что-то будет сделать
     if (length(VBasePath) < 2) or ((VBasePath[2] <> '\') and (system.pos(':', VBasePath) = 0)) then begin
       VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath) + VBasePath;
@@ -269,23 +281,13 @@ begin
   end;
 end;
 
-destructor TMapTypeCacheConfigGE.Destroy;
+destructor TMapTypeCacheConfigDLL.Destroy;
 begin
   FreeAndNil(FCS);
   inherited Destroy;
 end;
 
-function TMapTypeCacheConfigGE.GetDataFileName: string;
-begin
-  Result := GetNameInCache + 'dbCache.dat';
-end;
-
-function TMapTypeCacheConfigGE.GetIndexFileName: string;
-begin
-  Result := GetNameInCache + 'dbCache.dat.index';
-end;
-
-function TMapTypeCacheConfigGE.GetNameInCache: string;
+function TMapTypeCacheConfigDLL.GetNameInCache: string;
 begin
   FCS.Acquire;
   try
@@ -371,6 +373,20 @@ begin
   FGlobalStorageIdentifier := FGlobalCacheConfig.DBMSCachepath;
   FServiceName := FConfig.GetStatic.NameInCache;
   FBasePath := ETS_TilePath_Single(FGlobalStorageIdentifier, FServiceName);
+end;
+
+{ TMapTypeCacheConfigGC }
+
+function TMapTypeCacheConfigGC.GetGlobalCacheParameter: String;
+begin
+  Result := FGlobalCacheConfig.GCCachepath;
+end;
+
+{ TMapTypeCacheConfigGE }
+
+function TMapTypeCacheConfigGE.GetGlobalCacheParameter: String;
+begin
+  Result := FGlobalCacheConfig.GECachepath;
 end;
 
 end.

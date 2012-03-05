@@ -2,12 +2,15 @@ unit u_BitmapTileGEDXTextureLoader;
 
 interface
 
+(*
 uses
   Classes,
   GR32,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad;
+*)
 
+(*
 type
   TBitmapTileGEDXTextureLoader = class(TInterfacedObject, IBitmapTileLoader)
   private
@@ -20,9 +23,11 @@ type
       APerfCounterList: IInternalPerformanceCounterList
     );
   end;
+*)
 
 implementation
 
+(*
 uses
   SysUtils;
 
@@ -48,9 +53,11 @@ type
     GE_HEAD : TGE_HEAD;
     DXT1    : array [0..63, 0..63] of TDXT1;
   end;
+*)
 
 { TBitmapTileGEDXTextureLoader }
 
+(*
 constructor TBitmapTileGEDXTextureLoader.Create(
   APerfCounterList: IInternalPerformanceCounterList);
 var
@@ -83,10 +90,14 @@ begin
     FLoadStreamCounter.FinishOperation(VCounterContext);
   end;
 end;
+*)
 
+(*
 type
   TSampleColors = array [0..3] of TColor32Entry;
+*)
 
+(*
 //Определение опорных цветов
 procedure GetColors (Color0,Color1:word; var AMainColors: TSampleColors);
 
@@ -167,5 +178,7 @@ begin
     end;
   end;
 end;
+
+*)
 
 end.
