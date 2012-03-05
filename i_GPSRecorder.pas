@@ -37,6 +37,11 @@ type
   PTrackPointArray = ^TTrackPointArray;
   TTrackPointArray = array [0..0] of TGPSTrackPoint;
 
+  IEnumGPSTrackPoint = interface
+  ['{9BD74D0A-BB44-4A63-A689-748F082CC3A1}']
+    function Next(out APoint: TGPSTrackPoint): Boolean;
+  end;
+
   TGPSTrackPointArray = array of TGPSTrackPoint;
 
   IGPSRecorder = interface(IConfigDataElement)
@@ -47,7 +52,6 @@ type
     function IsEmpty: Boolean;
     function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
     function GetAllPoints: ILonLatPath;
-    function GetAllTracPoints: TGPSTrackPointArray;
 
     function GetOdometer1: Double;
     property Odometer1: Double read GetOdometer1;

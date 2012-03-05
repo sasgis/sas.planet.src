@@ -83,7 +83,6 @@ type
     function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
 
     function GetAllPoints: ILonLatPath;
-    function GetAllTracPoints: TGPSTrackPointArray;
 
     function GetOdometer1: Double;
     procedure ResetOdometer1;
@@ -332,7 +331,7 @@ end;
 { TEnumDoublePointsByArray }
 
 type
-  TEnumDoublePointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  TEnumTrackPointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
   private
     FPoints: PTrackPointArray;
     FCount: Integer;
@@ -346,7 +345,7 @@ type
     );
   end;
 
-constructor TEnumDoublePointsByArray.Create(APoints: PTrackPointArray;
+constructor TEnumTrackPointsByArray.Create(APoints: PTrackPointArray;
   ACount: Integer);
 begin
   FPoints := APoints;
@@ -354,7 +353,7 @@ begin
   FIndex := 0;
 end;
 
-function TEnumDoublePointsByArray.Next(out APoint: TDoublePoint): Boolean;
+function TEnumTrackPointsByArray.Next(out APoint: TDoublePoint): Boolean;
 begin
   if FIndex < FCount then begin
     APoint := FPoints[FIndex].Point;
@@ -373,18 +372,8 @@ begin
   try
     Result :=
       FVectorItmesFactory.CreateLonLatPathByEnum(
-        TEnumDoublePointsByArray.Create(@FTrack[0], FPointsCount)
+        TEnumTrackPointsByArray.Create(@FTrack[0], FPointsCount)
       );
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TGPSRecorderStuped.GetAllTracPoints: TGPSTrackPointArray;
-begin
-  LockRead;
-  try
-    Result := Copy(FTrack, 0, FPointsCount);
   finally
     UnlockRead;
   end;
