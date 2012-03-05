@@ -24,6 +24,7 @@ type
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
     FBgDrawCounter: IInternalPerformanceCounter;
+    FDelicateRedrawCounter: Integer;
     procedure OnDrawBitmap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
@@ -37,6 +38,7 @@ type
     procedure SetBitmapChanged;
     property DrawTask: IBackgroundTask read FDrawTask;
   protected
+    procedure DelicateRedraw;
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
@@ -101,6 +103,7 @@ begin
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnDrawBitmap, APriority);
   FUpdateCounter := 0;
+  FDelicateRedrawCounter := 0;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
@@ -129,12 +132,19 @@ procedure TMapLayerWithThreadDraw.OnDrawBitmap(
 );
 var
   VCounterContext: TInternalPerformanceCounterContext;
+  VDelicateRedrawCounter: Integer;
 begin
-  VCounterContext := FBgDrawCounter.StartOperation;
-  try
-    DrawBitmap(AOperationID, ACancelNotifier);
-  finally
-    FBgDrawCounter.FinishOperation(VCounterContext);
+  InterlockedExchange(FDelicateRedrawCounter, 0);
+  VDelicateRedrawCounter := 1;
+  while VDelicateRedrawCounter > 0 do begin
+    VCounterContext := FBgDrawCounter.StartOperation;
+    try
+      DrawBitmap(AOperationID, ACancelNotifier);
+    finally
+      FBgDrawCounter.FinishOperation(VCounterContext);
+    end;
+
+    VDelicateRedrawCounter := InterlockedExchange(FDelicateRedrawCounter, 0);
   end;
 end;
 
@@ -154,6 +164,12 @@ end;
 procedure TMapLayerWithThreadDraw.SetBitmapChanged;
 begin
   InterlockedIncrement(FUpdateCounter);
+end;
+
+procedure TMapLayerWithThreadDraw.DelicateRedraw;
+begin
+  InterlockedIncrement(FDelicateRedrawCounter);
+  FDrawTask.StartExecute;
 end;
 
 procedure TMapLayerWithThreadDraw.SetNeedRedraw;

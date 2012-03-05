@@ -491,13 +491,7 @@ end;
 procedure TMapMainLayer.OnTimer;
 begin
   if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
-    ViewUpdateLock;
-    try
-      SetNeedRedraw;
-    finally
-      ViewUpdateUnlock;
-    end;
-    ViewUpdate;
+    DelicateRedraw;
   end;
 end;
 
