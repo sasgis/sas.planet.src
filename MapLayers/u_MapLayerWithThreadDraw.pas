@@ -98,7 +98,7 @@ constructor TMapLayerWithThreadDraw.Create(
 begin
   inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
-//  Layer.Bitmap.BeginUpdate;
+  Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnDrawBitmap, APriority);
   FUpdateCounter := 0;
 
