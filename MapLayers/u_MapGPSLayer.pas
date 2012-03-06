@@ -28,7 +28,7 @@ type
 
     FGetTrackCounter: IInternalPerformanceCounter;
     FGpsPosChangeCounter: Integer;
-    FPoints: TGPSTrackPointArray;
+    FPoints: array of TGPSTrackPoint;
     FPolygon: TPolygon32;
     procedure OnConfigChange;
     procedure OnGPSRecorderChange;
@@ -301,11 +301,9 @@ var
   VPointCurrLocal: TDoublePoint;
 
   VGeoConvert: ICoordConverter;
-  VZoom: Byte;
   VMapPixelRect: TDoubleRect;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
   VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
 
   VPointCurrCode := 0;

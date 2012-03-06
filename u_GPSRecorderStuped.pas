@@ -43,7 +43,7 @@ type
     FGPSPositionFactory: IGPSPositionFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FDatum: IDatum;
-    FTrack: TGPSTrackPointArray;
+    FTrack: array of TGPSTrackPoint;
     FPointsCount: Integer;
     FAllocatedPoints: Integer;
 
