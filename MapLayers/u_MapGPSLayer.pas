@@ -303,27 +303,24 @@ var
   VGeoConvert: ICoordConverter;
   VZoom: Byte;
   VMapPixelRect: TDoubleRect;
-  VLLRect: TDoubleRect;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VMapPixelRect, VZoom);
-  VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
   VPointCurrCode := 0;
   VPointPrevCode := 0;
   VPointPrev := FPoints[APointsCount - 1].Point;
   VPointPrevIsEmpty := PointIsEmpty(VPointPrev);
   if not VPointPrevIsEmpty then begin
-    VPointPrevCode := GetCode(VLLRect, VPointPrev);
+    VPointPrevCode := GetCode(VMapPixelRect, VPointPrev);
     VPointPrevLocal := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPointPrev);
   end;
   for i := APointsCount - 2 downto 0 do begin
     VPointCurr := FPoints[i].Point;
     VPointCurrIsEmpty := PointIsEmpty(VPointCurr);
     if not VPointCurrIsEmpty then begin
-      VPointCurrCode := GetCode(VLLRect, VPointCurr);
+      VPointCurrCode := GetCode(VMapPixelRect, VPointCurr);
       VPointCurrLocal := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPointCurr);
       if not VPointPrevIsEmpty then begin
         if (VPointPrevCode and VPointCurrCode) = 0 then begin
@@ -458,8 +455,8 @@ begin
         VPrevPoint := VCurrPoint;
       end else begin
         if
-          (abs(VPrevPoint.X - VCurrPoint.X) < 2) and
-          (abs(VPrevPoint.Y - VCurrPoint.Y) < 2)
+          (abs(VPrevPoint.X - VCurrPoint.X) > 2) or
+          (abs(VPrevPoint.Y - VCurrPoint.Y) > 2)
         then begin
           FPoints[VIndex] := VPoint;
           Inc(VIndex);
