@@ -28,18 +28,26 @@ uses
   i_MapVersionInfo;
 
 const
+  // Init - FlagsInp
+  DLLCACHE_IFI_IMG_FORCE_PRI_FORMAT = $00000001; // convert any images to primary format
+
   // QueryTile - Input
   DLLCACHE_QTI_LOAD_TILE  = $00000001;
 
   // QueryTile - Output
   DLLCACHE_QTO_SAME_VERSION = $00000001;
   DLLCACHE_QTO_TNE_EXISTS   = $00000002;
-  DLLCACHE_QTO_ERR_FORMAT   = $00000004; // invalid result tile format (but tile exists)
+  DLLCACHE_QTO_ERR_FORMAT   = $00000004; // invalid result tile format (but tile exists, time to say wtf?)
+  DLLCACHE_QTO_SEC_FORMAT   = $00000008; // secondary format (can convert to primary)
   
   // set callback for storage state notifications
   DLLCACHE_SIC_STATE_CHANGED = $00000001;
   // set exif reader proc by SetInformation
   DLLCACHE_SIC_EXIF_READER   = $00000002;
+
+  // output formats
+  DLLCACHE_IMG_PRIMARY  = 0;
+  DLLCACHE_IMG_SEC_DXT1 = 1;
 
 type
   THostExifReaderProc = function (const AContext: Pointer;
@@ -106,6 +114,13 @@ type
   end;
   PQueryTileInfo = ^TQueryTileInfo;
 
+  // use it only if need for original data
+  TQueryTileInfo_V2 = packed record
+    V1: TQueryTileInfo;
+    FormatOut: Cardinal; // format identifier (allow 0 for primary format)
+  end;
+  PQueryTileInfo_V2 = ^TQueryTileInfo_V2;
+
   TDLLCache_QueryTile_Callback = function(const AContext: Pointer;
                                           const ATileInfo: PQueryTileInfo;
                                           const ATileBuffer: Pointer;
@@ -115,6 +130,21 @@ type
   TDLLCache_QueryTile = function(const ADLLCacheHandle: PDLLCacheHandle;
                                  const ATileInfo: PQueryTileInfo;
                                  const AQueryTile_Callback: TDLLCache_QueryTile_Callback): Boolean; stdcall;
+
+
+  TDLLCache_ConvertImage_Callback = function(const AConvertImage_Context: Pointer;
+                                             const AFormatOut: Cardinal;
+                                             const AOutputBuffer: Pointer;
+                                             const AOutputSize: Cardinal): Boolean; stdcall;
+
+
+  // DLLCache_ConvertImage - convert image (from secondary format to primary format)
+  TDLLCache_ConvertImage = function (const AConvertImage_Context: Pointer;
+                                     const ABuffer: Pointer;
+                                     const ASize: Cardinal;
+                                     const AFormatInp: Cardinal;
+                                     const AFormatOut: Cardinal;
+                                     const AConvertImage_Callback: TDLLCache_ConvertImage_Callback): Boolean; stdcall;
 
 
   // DLLCache_SetInformation - set information (params, functions,...)

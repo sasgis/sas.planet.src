@@ -53,6 +53,7 @@ type
     // routines
     FDLLCache_EnumTileVersions: Pointer;
     FDLLCache_QueryTile: Pointer;
+    FDLLCache_ConvertImage: Pointer;
     // cached values
     FCachedNameInCache: AnsiString;
   protected
@@ -65,6 +66,9 @@ type
     function InternalLib_SetPath(const APath: PAnsiChar): Boolean;
     function InternalLib_GetTileVersions(const AEnumInfo: PEnumTileVersionsInfo): Boolean;
     function InternalLib_QueryTile(const ATileInfo: PQueryTileInfo): Boolean;
+    function InternalLib_ConvertImage(const AConvertImage_Context: Pointer;
+                                      const ABuffer: Pointer;
+                                      const ASize: Cardinal): Boolean;
   protected
     procedure DoOnMapSettingsEdit(Sender: TObject);
   public
@@ -164,6 +168,20 @@ uses
   u_TileInfoBasic,
   u_TileStorageTypeAbilities;
 
+function DLLCache_ConvertImage_Callback(const AConvertImage_Context: Pointer;
+                                        const AFormatOut: Cardinal;
+                                        const AOutputBuffer: Pointer;
+                                        const AOutputSize: Cardinal): Boolean; stdcall;
+begin
+  Result := FALSE;
+  // called from DLLCache_QueryTile_Callback - AConvertImage_Context is ATileInfo: PQueryTileInfo
+  if (DLLCACHE_IMG_PRIMARY=AFormatOut) and (AConvertImage_Context<>nil) and (AOutputBuffer<>nil) and (AOutputSize>0) then begin
+    PQueryTileInfo(AConvertImage_Context)^.TileStream.WriteBuffer(AOutputBuffer^, AOutputSize);
+    PQueryTileInfo(AConvertImage_Context)^.TileStream.Position:=0;
+    Inc(Result);
+  end;
+end;
+
 function DLLCache_EnumTileVersions_Callback(const AContext: Pointer;
                                             const AEnumInfo: PEnumTileVersionsInfo;
                                             const AVersionString: PAnsiChar): Boolean; stdcall;
@@ -198,12 +216,31 @@ begin
   if (nil<>ATileInfo) then begin
     // tile body
     if (nil<>ATileBuffer) and (ATileInfo^.TileSize>0) and (nil<>ATileInfo^.TileStream) then begin
-      ATileInfo^.TileStream.WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
-      ATileInfo^.TileStream.Position:=0;
-      // do smth
-      if (not Result) then
-        Inc(Result);
+      if (ATileInfo^.Size >= SizeOf(TQueryTileInfo_V2)) then begin
+        // MULTIPLE TYPES! check image type
+        case PQueryTileInfo_V2(ATileInfo)^.FormatOut of
+          DLLCACHE_IMG_PRIMARY: begin
+            // JPEG
+            ATileInfo^.TileStream.WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
+            ATileInfo^.TileStream.Position:=0;
+            if (not Result) then
+              Inc(Result);
+          end;
+          DLLCACHE_IMG_SEC_DXT1: begin
+            // call DLL to CONVERT to JPEG
+            Result := TTileStorageDLL(AContext).InternalLib_ConvertImage(ATileInfo, ATileBuffer, ATileInfo^.TileSize);
+          end;
+        end;
+      end else begin
+        // ONLY PRIMARY! always convert to primary image format at DLL
+        ATileInfo^.TileStream.WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
+        ATileInfo^.TileStream.Position:=0;
+        // do smth
+        if (not Result) then
+          Inc(Result);
+      end;
     end;
+    
     // tile version
     if (nil<>AVersionString) and (nil<>AContext) then begin
       // make as string
@@ -370,6 +407,7 @@ begin
             (nil<>FDLLCacheHandle) and
             (nil<>FDLLCache_EnumTileVersions) and
             (nil<>FDLLCache_QueryTile);
+  // FDLLCache_ConvertImage can be NULL
 end;
 
 function TTileStorageDLL.InternalLib_CleanupProc: Boolean;
@@ -377,6 +415,20 @@ begin
   Result := FALSE;
   FDLLCache_EnumTileVersions := nil;
   FDLLCache_QueryTile := nil;
+  FDLLCache_ConvertImage := nil;
+end;
+
+function TTileStorageDLL.InternalLib_ConvertImage(const AConvertImage_Context: Pointer;
+                                                  const ABuffer: Pointer;
+                                                  const ASize: Cardinal): Boolean;
+begin
+  Result := FALSE;
+  if (nil<>FDLLCache_ConvertImage) then begin
+    Result := TDLLCache_ConvertImage(FDLLCache_ConvertImage)(AConvertImage_Context, ABuffer, ASize,
+                                                             DLLCACHE_IMG_SEC_DXT1,
+                                                             DLLCACHE_IMG_PRIMARY,
+                                                             DLLCache_ConvertImage_Callback);
+  end;
 end;
 
 function TTileStorageDLL.InternalLib_GetTileVersions(const AEnumInfo: PEnumTileVersionsInfo): Boolean;
@@ -408,6 +460,7 @@ begin
       // initialized - get other functions
       FDLLCache_EnumTileVersions := GetProcAddress(FDLLHandle, 'DLLCache_EnumTileVersions');
       FDLLCache_QueryTile := GetProcAddress(FDLLHandle, 'DLLCache_QueryTile');
+      FDLLCache_ConvertImage := GetProcAddress(FDLLHandle, 'DLLCache_ConvertImage');
     end;
   end;
 end;
