@@ -42,15 +42,13 @@ type
     function Next(out APoint: TGPSTrackPoint): Boolean;
   end;
 
-  TGPSTrackPointArray = array of TGPSTrackPoint;
-
   IGPSRecorder = interface(IConfigDataElement)
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
     procedure AddPoint(APosition: IGPSPosition);
     procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
+    function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
     function GetAllPoints: ILonLatPath;
 
     function GetOdometer1: Double;

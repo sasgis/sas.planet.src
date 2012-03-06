@@ -28,7 +28,7 @@ type
 
     FGetTrackCounter: IInternalPerformanceCounter;
     FGpsPosChangeCounter: Integer;
-    FPoints: TGPSTrackPointArray;
+    FPoints: array of TGPSTrackPoint;
     FPolygon: TPolygon32;
     procedure OnConfigChange;
     procedure OnGPSRecorderChange;
@@ -42,6 +42,11 @@ type
       ALineWidth: Double;
       APointsCount: Integer
     );
+    function PrepareProjectedPointsByEnum(
+      AMaxPointsCount: Integer;
+      ALocalConverter: ILocalCoordConverter;
+      AEnum: IEnumGPSTrackPoint
+    ): Integer;
     procedure DrawSection(
       ATargetBmp: TCustomBitmap32;
       ATrackColorer: ITrackColorerStatic;
@@ -169,6 +174,7 @@ var
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
   VCounterContext: TInternalPerformanceCounterContext;
+  VEnum: IEnumGPSTrackPoint;
 begin
   inherited;
   FConfig.LockRead;
@@ -184,7 +190,13 @@ begin
     VLocalConverter := LayerCoordConverter;
     VCounterContext := FGetTrackCounter.StartOperation;
     try
-      VPointsCount := FGPSRecorder.LastPoints(VPointsCount, FPoints);
+      VEnum := FGPSRecorder.LastPoints(VPointsCount);
+      VPointsCount :=
+        PrepareProjectedPointsByEnum(
+          VPointsCount,
+          VLocalConverter,
+          VEnum
+        );
     finally
       FGetTrackCounter.FinishOperation(VCounterContext);
     end;
@@ -253,7 +265,7 @@ procedure TMapGPSLayer.DrawPath(
   ALineWidth: Double;
   APointsCount: Integer
 );
-  function GetCode(ALLRect: TDoubleRect; ALL: TDoublePoint): Byte;
+  function GetCode(const AMapRect: TDoubleRect; const APoint: TDoublePoint): Byte;
   //  Смысл разрядов кода:
   //
   // 1 рр = 1 - точка над верхним краем окна;
@@ -265,81 +277,61 @@ procedure TMapGPSLayer.DrawPath(
   // 4 рр = 1 - точка слева от левого края окна.
   begin
     Result := 0;
-    if ALLRect.Top < ALL.Y then begin
+    if AMapRect.Top > APoint.Y then begin
       Result := 1;
-    end else if ALLRect.Bottom > ALL.Y then begin
+    end else if AMapRect.Bottom < APoint.Y then begin
       Result := 2
     end;
 
-    if ALLRect.Left > ALL.X then begin
+    if AMapRect.Left > APoint.X then begin
       Result := Result or 8;
-    end else if ALLRect.Right < ALL.X then begin
+    end else if AMapRect.Right < APoint.X then begin
       Result := Result or 4
     end;
-
   end;
 var
-  VPointPrevLL: TDoublePoint;
-  VPointPrevIsEmpty: Boolean;
-  VPointPrevLLCode: Byte;
   VPointPrev: TDoublePoint;
+  VPointPrevIsEmpty: Boolean;
+  VPointPrevCode: Byte;
+  VPointPrevLocal: TDoublePoint;
   i: Integer;
-  VPointCurrLL: TDoublePoint;
-  VPointCurrIsEmpty: Boolean;
-  VPointCurrLLCode: Byte;
   VPointCurr: TDoublePoint;
-  VIsChangePrevPoint: Boolean;
+  VPointCurrIsEmpty: Boolean;
+  VPointCurrCode: Byte;
+  VPointCurrLocal: TDoublePoint;
 
   VGeoConvert: ICoordConverter;
-  VZoom: Byte;
   VMapPixelRect: TDoubleRect;
-  VLLRect: TDoubleRect;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
-  VZoom := ALocalConverter.GetZoom;
   VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VMapPixelRect, VZoom);
-  VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
-  VPointCurrLLCode := 0;
-  VPointPrevLLCode := 0;
-  VPointPrevLL := FPoints[APointsCount - 1].Point;
-  VPointPrevIsEmpty := PointIsEmpty(VPointPrevLL);
+  VPointCurrCode := 0;
+  VPointPrevCode := 0;
+  VPointPrev := FPoints[APointsCount - 1].Point;
+  VPointPrevIsEmpty := PointIsEmpty(VPointPrev);
   if not VPointPrevIsEmpty then begin
-    VPointPrevLLCode := GetCode(VLLRect, VPointPrevLL);
-    VPointPrev := ALocalConverter.LonLat2LocalPixelFloat(VPointPrevLL);
+    VPointPrevCode := GetCode(VMapPixelRect, VPointPrev);
+    VPointPrevLocal := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPointPrev);
   end;
   for i := APointsCount - 2 downto 0 do begin
-    VPointCurrLL := FPoints[i].Point;
-    VPointCurrIsEmpty := PointIsEmpty(VPointCurrLL);
+    VPointCurr := FPoints[i].Point;
+    VPointCurrIsEmpty := PointIsEmpty(VPointCurr);
     if not VPointCurrIsEmpty then begin
-      VPointCurrLLCode := GetCode(VLLRect, VPointCurrLL);
-      VPointCurr := ALocalConverter.LonLat2LocalPixelFloat(VPointCurrLL);
+      VPointCurrCode := GetCode(VMapPixelRect, VPointCurr);
+      VPointCurrLocal := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPointCurr);
       if not VPointPrevIsEmpty then begin
-        if (VPointPrevLLCode and VPointCurrLLCode) = 0 then begin
-          if (abs(VPointPrev.X - VPointCurr.X) > 1) or (Abs(VPointPrev.Y - VPointCurr.Y) > 1) then begin
-            if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-              DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrev, VPointCurr,  FPoints[i].Speed);
-            end;
-            VIsChangePrevPoint := True;
-          end else begin
-            VIsChangePrevPoint := False;
+        if (VPointPrevCode and VPointCurrCode) = 0 then begin
+          if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal,  FPoints[i].Speed);
           end;
-        end else begin
-          VIsChangePrevPoint := True;
         end;
-      end else begin
-        VIsChangePrevPoint := True;
       end;
-    end else begin
-      VIsChangePrevPoint := True;
     end;
-    if VIsChangePrevPoint then begin
-      VPointPrevLL := VPointCurrLL;
-      VPointPrev := VPointCurr;
-      VPointPrevIsEmpty := VPointCurrIsEmpty;
-      VPointPrevLLCode := VPointCurrLLCode;
-    end;
+    VPointPrev := VPointCurr;
+    VPointPrevLocal := VPointCurrLocal;
+    VPointPrevIsEmpty := VPointCurrIsEmpty;
+    VPointPrevCode := VPointCurrCode;
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Break;
     end;
@@ -406,6 +398,74 @@ begin
     end;
     ViewUpdate;
   end;
+end;
+
+function TMapGPSLayer.PrepareProjectedPointsByEnum(
+  AMaxPointsCount: Integer;
+  ALocalConverter: ILocalCoordConverter;
+  AEnum: IEnumGPSTrackPoint
+): Integer;
+var
+  i: Integer;
+  VIndex: Integer;
+  VPoint: TGPSTrackPoint;
+  VGeoConverter: ICoordConverter;
+  VZoom: Byte;
+  VMapRect: TDoubleRect;
+  VCurrPointIsEmpty: Boolean;
+  VPrevPointIsEmpty: Boolean;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+begin
+  if Length(FPoints) < AMaxPointsCount then begin
+    SetLength(FPoints, AMaxPointsCount);
+  end;
+  VGeoConverter := ALocalConverter.GeoConverter;
+  VZoom := ALocalConverter.Zoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+  i := 0;
+  VIndex := 0;
+  VPrevPointIsEmpty := True;
+  while (i < AMaxPointsCount) and AEnum.Next(VPoint) do begin
+    VCurrPointIsEmpty := PointIsEmpty(VPoint.Point);
+    if not VCurrPointIsEmpty then begin
+      VGeoConverter.CheckLonLatPos(VPoint.Point);
+      VPoint.Point := VGeoConverter.LonLat2PixelPosFloat(VPoint.Point, VZoom);
+      if not PixelPointInRect(VPoint.Point, VMapRect) then begin
+        VPoint.Point := CEmptyDoublePoint;
+        VCurrPointIsEmpty := True;
+      end;
+    end;
+
+    VCurrPoint := VPoint.Point;
+    if VCurrPointIsEmpty then begin
+      if not VPrevPointIsEmpty then begin
+        FPoints[VIndex] := VPoint;
+        Inc(VIndex);
+        VPrevPointIsEmpty := VCurrPointIsEmpty;
+        VPrevPoint := VCurrPoint;
+      end;
+    end else begin
+      if VPrevPointIsEmpty then begin
+        FPoints[VIndex] := VPoint;
+        Inc(VIndex);
+        VPrevPointIsEmpty := VCurrPointIsEmpty;
+        VPrevPoint := VCurrPoint;
+      end else begin
+        if
+          (abs(VPrevPoint.X - VCurrPoint.X) > 2) or
+          (abs(VPrevPoint.Y - VCurrPoint.Y) > 2)
+        then begin
+          FPoints[VIndex] := VPoint;
+          Inc(VIndex);
+          VPrevPointIsEmpty := VCurrPointIsEmpty;
+          VPrevPoint := VCurrPoint;
+        end;
+      end;
+    end;
+    Inc(i);
+  end;
+  Result := VIndex;
 end;
 
 procedure TMapGPSLayer.StartThreads;

@@ -301,7 +301,7 @@ begin
   try
     i := FCacheList.IndexOf(VKey);
     if i >= 0 then begin
-      Result := IVectorDataItemList(Pointer(FCacheList.Objects[i]));
+      Result := IInterface(Pointer(FCacheList.Objects[i]));
     end;
   finally
     FSync.EndRead;

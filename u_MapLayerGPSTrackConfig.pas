@@ -174,20 +174,26 @@ var
   VColorMax: TColor32;
   i: Integer;
   VSufix: string;
+  VCleared: Boolean;
 begin
   inherited;
   if AConfigData <> nil then begin
-    ClearItems;
     i := 0;
+    VCleared := False;
     while True do begin
       VSufix := IntToStr(i);
       VSpeed := AConfigData.ReadFloat('Speed_'+VSufix, -1);
       if VSpeed < 0 then begin
         Break;
+      end else begin
+        if not VCleared then begin
+          ClearItems;
+          VCleared := True;
+        end;
+        VColorMin := ReadColor32(AConfigData, 'MinColor_' + VSufix, clBlack32);
+        VColorMax := ReadColor32(AConfigData, 'MaxColor_' + VSufix, clBlack32);
+        AddSpeedRangeItem(VSpeed, VColorMin, VColorMax);
       end;
-      VColorMin := ReadColor32(AConfigData, 'MinColor_' + VSufix, clBlack32);
-      VColorMax := ReadColor32(AConfigData, 'MaxColor_' + VSufix, clBlack32);
-      AddSpeedRangeItem(VSpeed, VColorMin, VColorMax);
       Inc(i);
     end;
   end;
