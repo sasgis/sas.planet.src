@@ -50,7 +50,7 @@ type
     procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
+    function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
     function GetAllPoints: ILonLatPath;
 
     function GetOdometer1: Double;

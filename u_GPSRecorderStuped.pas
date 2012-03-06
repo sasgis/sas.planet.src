@@ -80,7 +80,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     
-    function LastPoints(const AMaxCount: Integer; var APoints: TGPSTrackPointArray): Integer;
+    function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
 
     function GetAllPoints: ILonLatPath;
 
@@ -125,29 +125,59 @@ uses
 { TEnumDoublePointsByArray }
 
 type
-  TEnumTrackPointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  TEnumTrackPointsByArray = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint, IEnumGPSTrackPoint)
   private
     FPoints: PTrackPointArray;
     FCount: Integer;
+    FCopyPoints: Boolean;
     FIndex: Integer;
+    function NextEnumDouble(out APoint: TDoublePoint): Boolean;
+    function NextEnumTrack(out APoint: TGPSTrackPoint): Boolean;
   private
-    function Next(out APoint: TDoublePoint): Boolean;
+    function IEnumDoublePoint.Next = NextEnumDouble;
+    function IEnumLonLatPoint.Next = NextEnumDouble;
+    function IEnumGPSTrackPoint.Next = NextEnumTrack;
   public
     constructor Create(
+      ACopyPoints: Boolean;
       APoints: PTrackPointArray;
       ACount: Integer
     );
+    destructor Destroy; override;
   end;
 
-constructor TEnumTrackPointsByArray.Create(APoints: PTrackPointArray;
-  ACount: Integer);
+constructor TEnumTrackPointsByArray.Create(
+  ACopyPoints: Boolean;
+  APoints: PTrackPointArray;
+  ACount: Integer
+);
 begin
-  FPoints := APoints;
+  FCopyPoints := ACopyPoints;
   FCount := ACount;
+  if FCopyPoints then begin
+    if FCount > 0 then begin
+      FPoints := GetMemory(FCount * SizeOf(TGPSTrackPoint));
+      Move(APoints^, FPoints^, FCount * SizeOf(TGPSTrackPoint));
+    end;
+  end else begin
+    FPoints := APoints;
+  end;
   FIndex := 0;
 end;
 
-function TEnumTrackPointsByArray.Next(out APoint: TDoublePoint): Boolean;
+destructor TEnumTrackPointsByArray.Destroy;
+begin
+  if FCopyPoints then begin
+    if FCount > 0 then begin
+      FreeMemory(FPoints);
+    end;
+    FPoints := nil;
+    FCopyPoints := False;
+  end;
+  inherited;
+end;
+
+function TEnumTrackPointsByArray.NextEnumDouble(out APoint: TDoublePoint): Boolean;
 begin
   if FIndex < FCount then begin
     APoint := FPoints[FIndex].Point;
@@ -159,6 +189,21 @@ begin
   end;
 end;
 
+
+function TEnumTrackPointsByArray.NextEnumTrack(
+  out APoint: TGPSTrackPoint): Boolean;
+begin
+  if FIndex < FCount then begin
+    APoint := FPoints[FIndex];
+    Inc(FIndex);
+    Result := True;
+  end else begin
+    APoint.Point := CEmptyDoublePoint;
+    APoint.Speed := NaN;
+    APoint.Time := NaN;
+    Result := False;
+  end;
+end;
 
 { TGPSRecorderStuped }
 
@@ -372,7 +417,7 @@ begin
   try
     Result :=
       FVectorItmesFactory.CreateLonLatPathByEnum(
-        TEnumTrackPointsByArray.Create(@FTrack[0], FPointsCount)
+        TEnumTrackPointsByArray.Create(False, @FTrack[0], FPointsCount)
       );
   finally
     UnlockRead;
@@ -512,28 +557,27 @@ begin
 end;
 
 function TGPSRecorderStuped.LastPoints(
-  const AMaxCount: Integer;
-  var APoints: TGPSTrackPointArray
-): Integer;
+  const AMaxCount: Integer
+): IEnumGPSTrackPoint;
 var
   VStartIndex: Integer;
+  VCount: Integer;
 begin
   LockRead;
   try
-    Result := AMaxCount;
-    if FPointsCount <= Result then begin
-      Result := FPointsCount;
+    VCount := AMaxCount;
+    if FPointsCount <= VCount then begin
+      VCount := FPointsCount;
       VStartIndex := 0;
     end else begin
-      VStartIndex :=FPointsCount - Result;
+      VStartIndex :=FPointsCount - VCount;
     end;
-    if Result > 0 then begin
-      if Length(APoints) < Result then begin
-        SetLength(APoints, Result);
-      end;
-      System.Move(FTrack[VStartIndex], APoints[0],
-        (Result) * SizeOf(TGPSTrackPoint));
-    end;
+    Result :=
+      TEnumTrackPointsByArray.Create(
+        True,
+        @FTrack[VStartIndex],
+        VCount
+      );
   finally
     UnlockRead;
   end;
