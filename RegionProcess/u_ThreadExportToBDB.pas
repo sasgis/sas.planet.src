@@ -86,6 +86,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
+  u_BinaryDataByMemStream,
   u_TileFileNameBDB,
   u_TileIteratorByPolygon;
 
@@ -191,7 +192,7 @@ begin
           VLoadDate,
           VTileInfo.VersionInfo,
           VContenetTypeStr,
-          FStream
+          TBinaryDataByMemStream.CreateFromStream(FStream)
         );
       end;
     end;

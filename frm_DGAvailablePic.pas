@@ -252,8 +252,8 @@ begin
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         // save to stream
         FMemoryStream.Position:=0;
-        FMemoryStream.SetSize(VResultOk.Size);
-        CopyMemory(FMemoryStream.Memory, VResultOk.Buffer, VResultOk.Size);
+        FMemoryStream.SetSize(VResultOk.Data.Size);
+        CopyMemory(FMemoryStream.Memory, VResultOk.Data.Buffer, VResultOk.Data.Size);
         Result:=TRUE;
       end;
     end else if Supports(VResult, IDownloadResultError, VDownloadResultError) then begin

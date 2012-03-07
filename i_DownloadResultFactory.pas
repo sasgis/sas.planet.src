@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult;
 
@@ -36,8 +37,7 @@ type
       const AStatusCode: Cardinal;
       const ARawResponseHeader: string;
       const AContentType: string;
-      const ASize: Integer;
-      const ABuffer: Pointer
+      AData: IBinaryData
     ): IDownloadResultOk;
     function BuildUnexpectedProxyAuth(ARequest: IDownloadRequest): IDownloadResultProxyError;
     function BuildBadProxyAuth(ARequest: IDownloadRequest): IDownloadResultProxyError;

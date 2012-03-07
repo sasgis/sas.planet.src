@@ -26,6 +26,7 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_BinaryData,
   i_SimpleTileStorageConfig,
   i_MapVersionInfo,
   i_ContentTypeInfo,
@@ -105,7 +106,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream
+      AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
@@ -366,7 +367,7 @@ procedure TTileStorageDBMS.SaveTile(
   AXY: TPoint;
   Azoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AStream: TStream
+  AData: IBinaryData
 );
 var
   Vtid: TTILE_ID_XYZ;
@@ -375,7 +376,7 @@ var
   VMemStream: TMemoryStream;
   VResult: LongInt;
 begin
-  if Assigned(AStream) then
+  if Assigned(AData) then
   if StorageStateStatic.WriteAccess <> asDisabled then begin
     InternalCreateStorageLink;
     if (nil<>FExtLink) then
@@ -387,18 +388,8 @@ begin
         Vtid.y:=AXY.Y;
         Vtid.z:=AZoom;
 
-        // create buffer (or use it from TMemoryStream)
-        if (AStream is TCustomMemoryStream) then begin
-          VTileBuffer:=TCustomMemoryStream(AStream).Memory;
-          VTileSize:=TCustomMemoryStream(AStream).Size;
-        end else begin
-          // another stream - convert to memory
-          AStream.Position:=0;
-          VMemStream:=TMemoryStream.Create;
-          VMemStream.CopyFrom(AStream, AStream.Size);
-          VTileBuffer:=VMemStream.Memory;
-          VTileSize:=VMemStream.Size;
-        end;
+        VTileBuffer := AData.Buffer;
+        VTileSize := AData.Size;
 
         // execute
         // TODO: get date (UTC) from caller

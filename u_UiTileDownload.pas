@@ -365,7 +365,7 @@ begin
   if Supports(VResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
       if FDownloadInfo <> nil then begin
-        FDownloadInfo.Add(1, VDownloadResultOk.Size);
+        FDownloadInfo.Add(1, VDownloadResultOk.Data.Size);
       end;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists, VResultDataNotExists) then begin
       VErrorString := VResultDataNotExists.ReasonText;

@@ -7,6 +7,7 @@ uses
   Types,
   GR32,
   i_JclNotify,
+  i_BinaryData,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_ContentTypeSubst,
@@ -42,7 +43,7 @@ type
       AXY: TPoint;
       AZoom: byte;
       AVersionInfo: IMapVersionInfo;
-      ATileStream: TCustomMemoryStream;
+      AData: IBinaryData;
       AContenType: string
     );
     procedure CropOnDownload(
@@ -71,11 +72,13 @@ uses
   SysUtils,
   GR32_Resamplers,
   t_CommonTypes,
+  i_Bitmap32Static,
   i_ContentConverter,
   i_BitmapTileSaveLoad,
   i_TileRequest,
   i_TileDownloadRequest,
   u_NotifyEventListener,
+  u_Bitmap32Static,
   u_ResStrings;
 
 { TTileDownloadResultSaverStuped }
@@ -158,10 +161,10 @@ begin
 end;
 
 procedure TTileDownloadResultSaverStuped.SaveDownloadResult(
-  AResult: IDownloadResult);
+  AResult: IDownloadResult
+);
 var
   VResultOk: IDownloadResultOk;
-  VResultStream: TMemoryStream;
   VContentType: string;
   VTileDownloadRequest: ITileDownloadRequest;
   VTileRequest: ITileRequest;
@@ -170,15 +173,9 @@ begin
     if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
       VTileRequest := VTileDownloadRequest.Source;
       if Supports(AResult, IDownloadResultOk, VResultOk) then begin
-        VResultStream := TMemoryStream.Create;
-        try
-          VResultStream.WriteBuffer(VResultOk.Buffer^, VResultOk.Size);
-          VContentType := VResultOk.ContentType;
-          VContentType := FContentTypeSubst.GetContentType(VContentType);
-          SaveTileDownload(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VResultStream, VContentType);
-        finally
-          VResultStream.Free;
-        end;
+        VContentType := VResultOk.ContentType;
+        VContentType := FContentTypeSubst.GetContentType(VContentType);
+        SaveTileDownload(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VResultOk.Data, VContentType);
       end else if Supports(AResult, IDownloadResultDataNotExists) then begin
         if FDownloadConfig.IsSaveTileNotExists then begin
           FStorage.SaveTNE(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo);
@@ -192,7 +189,7 @@ procedure TTileDownloadResultSaverStuped.SaveTileDownload(
   AXY: TPoint;
   AZoom: byte;
   AVersionInfo: IMapVersionInfo;
-  ATileStream: TCustomMemoryStream;
+  AData: IBinaryData;
   AContenType: string
 );
 var
@@ -201,8 +198,9 @@ var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
   VLoader: IBitmapTileLoader;
-  VMemStream: TMemoryStream;
   VTargetContentTypeBitmap: IContentTypeInfoBitmap;
+  VBitmapStatic: IBitmap32Static;
+  VData: IBinaryData;
 begin
   if FStorageConfig.AllowAdd then begin
     if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and FTilePostDownloadCropConfig.IsCropOnDownload then begin
@@ -211,25 +209,22 @@ begin
         if Supports(VContentTypeInfo, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
           VLoader := VContentTypeBitmap.GetLoader;
           if VLoader <> nil then begin
+            VBitmapStatic := VLoader.Load(AData);
             btmsrc := TCustomBitmap32.Create;
             try
-              ATileStream.Position := 0;
-              VLoader.LoadFromStream(ATileStream, btmSrc);
+              btmSrc.Assign(VBitmapStatic.Bitmap);
               CropOnDownload(
                 btmSrc,
                 FTilePostDownloadCropConfig.CropRect,
                 FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom)
               );
-              VMemStream := TMemoryStream.Create;
-              try
-                VTargetContentTypeBitmap.GetSaver.SaveToStream(btmSrc, VMemStream);
-                FStorage.SaveTile(AXY, Azoom, AVersionInfo, VMemStream);
-              finally
-                VMemStream.Free;
-              end;
-            finally
+            except
               FreeAndNil(btmSrc);
+              raise;
             end;
+            VBitmapStatic := TBitmap32Static.CreateWithOwn(btmSrc);
+            VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
+            FStorage.SaveTile(AXY, Azoom, AVersionInfo, VData);
           end else begin
             raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
           end;
@@ -242,18 +237,7 @@ begin
     end else begin
       VConverter := FContentTypeManager.GetConverter(AContenType, FContentType.GetContentType);
       if VConverter <> nil then begin
-        if VConverter.GetIsSimpleCopy then begin
-          FStorage.SaveTile(AXY, Azoom, AVersionInfo, ATileStream);
-        end else begin
-          VMemStream := TMemoryStream.Create;
-          try
-            ATileStream.Position := 0;
-            VConverter.ConvertStream(ATileStream, VMemStream);
-            FStorage.SaveTile(AXY, Azoom, AVersionInfo, VMemStream);
-          finally
-            VMemStream.Free;
-          end;
-        end;
+        FStorage.SaveTile(AXY, Azoom, AVersionInfo, VConverter.Convert(AData));
       end else begin
         raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
       end;

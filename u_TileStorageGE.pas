@@ -26,6 +26,7 @@ uses
   Types,
   Windows,
   Classes,
+  i_BinaryData,
   i_SimpleTileStorageConfig,
   u_MapVersionFactoryGE,
   i_ContentTypeInfo,
@@ -113,7 +114,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream
+      AData: IBinaryData
     ); override;
     procedure SaveTNE(
       AXY: TPoint;
@@ -546,7 +547,7 @@ procedure TTileStorageGE.SaveTile(
   AXY: TPoint;
   Azoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AStream: TStream
+  AData: IBinaryData
 );
 begin
   Abort;

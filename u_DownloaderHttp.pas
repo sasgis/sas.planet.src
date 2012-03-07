@@ -114,7 +114,8 @@ type
 implementation
 
 uses
-  u_NotifyEventListener;
+  u_NotifyEventListener,
+  u_BinaryDataByMemStream;
 
 { TDownloaderHttp }
 
@@ -449,8 +450,10 @@ begin
             VStatusCode,
             VRawHeaderText,
             VContentType,
-            FHttpResponseBody.Size,
-            FHttpResponseBody.Memory
+            TBinaryDataByMemStream.CreateFromMem(
+              FHttpResponseBody.Size,
+              FHttpResponseBody.Memory
+            )
           );
         end;
       end;

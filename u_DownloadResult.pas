@@ -25,6 +25,7 @@ interface
 uses
   Types,
   Classes,
+  i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult;
 
@@ -51,25 +52,22 @@ type
     FStatusCode: Cardinal;
     FRawResponseHeader: string;
     FContentType: string;
-    FBuffer: TMemoryStream;
+    FData: IBinaryData;
   protected
     function GetIsServerExists: Boolean; override;
   protected
     function GetStatusCode: Cardinal;
     function GetRawResponseHeader: string;
     function GetContentType: string;
-    function GetSize: Integer;
-    function GetBuffer: Pointer;
+    function GetData: IBinaryData;
   public
     constructor Create(
       ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
       ARawResponseHeader: string;
       AContentType: string;
-      ASize: Integer;
-      ABuffer: Pointer
+      AData: IBinaryData
     );
-    destructor Destroy; override;
   end;
 
   TDownloadResultError = class(TDownloadResult, IDownloadResultError)
@@ -257,32 +255,24 @@ end;
 constructor TDownloadResultOk.Create(
   ARequest: IDownloadRequest;
   AStatusCode: Cardinal; ARawResponseHeader, AContentType: string;
-  ASize: Integer;
-  ABuffer: Pointer
+  AData: IBinaryData
 );
 begin
   inherited Create(ARequest);
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
   FContentType := AContentType;
-  FBuffer := TMemoryStream.Create;
-  FBuffer.WriteBuffer(ABuffer^, ASize);
-end;
-
-destructor TDownloadResultOk.Destroy;
-begin
-  FreeAndNil(FBuffer);
-  inherited;
-end;
-
-function TDownloadResultOk.GetBuffer: Pointer;
-begin
-  Result := FBuffer.Memory;
+  FData := AData;
 end;
 
 function TDownloadResultOk.GetContentType: string;
 begin
   Result := FContentType;
+end;
+
+function TDownloadResultOk.GetData: IBinaryData;
+begin
+  Result := FData;
 end;
 
 function TDownloadResultOk.GetIsServerExists: Boolean;
@@ -293,11 +283,6 @@ end;
 function TDownloadResultOk.GetRawResponseHeader: string;
 begin
   Result := FRawResponseHeader;
-end;
-
-function TDownloadResultOk.GetSize: Integer;
-begin
-  Result := FBuffer.Size;
 end;
 
 function TDownloadResultOk.GetStatusCode: Cardinal;

@@ -237,9 +237,11 @@ implementation
 
 uses
   Types,
+  i_BinaryData,
   i_Bitmap32Static,
   i_TileInfoBasic,
   u_Bitmap32Static,
+  u_BinaryDataByMemStream,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
@@ -570,14 +572,17 @@ procedure TMapType.SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte;
   btm: TCustomBitmap32);
 var
   VMemStream: TMemoryStream;
+  VData: IBinaryData;
 begin
   VMemStream := TMemoryStream.Create;
   try
     FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-    FStorage.SaveTile(AXY, Azoom, FVersionConfig.Version, VMemStream);
-  finally
+  except
     VMemStream.Free;
+    raise;
   end;
+  VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+  FStorage.SaveTile(AXY, Azoom, FVersionConfig.Version, VData);
 end;
 
 procedure TMapType.SaveConfig(ALocalConfig: IConfigDataWriteProvider);

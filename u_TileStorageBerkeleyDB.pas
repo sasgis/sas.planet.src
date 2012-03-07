@@ -26,6 +26,7 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_BinaryData,
   i_SimpleTileStorageConfig,
   i_MapVersionInfo,
   i_ContentTypeInfo,
@@ -99,7 +100,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream
+      AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
@@ -314,7 +315,7 @@ procedure TTileStorageBerkeleyDB.SaveTile(
   AXY: TPoint;
   AZoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AStream: TStream
+  AData: IBinaryData
 );
 var
   VPath: string;
@@ -330,7 +331,7 @@ begin
         Now,
         AVersionInfo,
         PWideChar(FMainContentType.GetContentType),
-        AStream
+        AData
       );
       if VResult then begin
         NotifyTileUpdate(AXY, Azoom, AVersionInfo);

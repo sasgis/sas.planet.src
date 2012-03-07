@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_BinaryData,
   i_DownloadResult,
   i_DownloadRequest,
   i_DownloadResultTextProvider,
@@ -40,8 +41,7 @@ type
       const AStatusCode: Cardinal;
       const ARawResponseHeader: string;
       const AContentType: string;
-      const ASize: Integer;
-      const ABuffer: Pointer
+      AData: IBinaryData
     ): IDownloadResultOk;
     function BuildUnexpectedProxyAuth(ARequest: IDownloadRequest): IDownloadResultProxyError;
     function BuildBadProxyAuth(ARequest: IDownloadRequest): IDownloadResultProxyError;
@@ -216,12 +216,15 @@ begin
   Result := TDownloadResultNotNecessary.Create(ARequest, AReasonText, AStatusCode, ARawResponseHeader);
 end;
 
-function TDownloadResultFactory.BuildOk(ARequest: IDownloadRequest; const
-    AStatusCode: Cardinal; const ARawResponseHeader: string; const
-    AContentType: string; const ASize: Integer; const ABuffer: Pointer):
-    IDownloadResultOk;
+function TDownloadResultFactory.BuildOk(
+  ARequest: IDownloadRequest; const
+  AStatusCode: Cardinal;
+  const ARawResponseHeader: string;
+  const AContentType: string;
+  AData: IBinaryData
+): IDownloadResultOk;
 begin
-  Result := TDownloadResultOk.Create(ARequest, AStatusCode, ARawResponseHeader, AContentType, ASize, ABuffer);
+  Result := TDownloadResultOk.Create(ARequest, AStatusCode, ARawResponseHeader, AContentType, AData);
 end;
 
 function TDownloadResultFactory.BuildUnexpectedProxyAuth(ARequest:

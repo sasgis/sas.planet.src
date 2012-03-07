@@ -87,8 +87,8 @@ begin
         Result := VResultWithRespond.StatusCode;
         if Supports(VResult, IDownloadResultOk, VResultOk) then begin
           AResponseHeader := VResultOk.RawResponseHeader;
-          SetLength(AResponseData, VResultOk.Size);
-          Move(VResultOk.Buffer^, AResponseData[1], VResultOk.Size);
+          SetLength(AResponseData, VResultOk.Data.Size);
+          Move(VResultOk.Data.Buffer^, AResponseData[1], VResultOk.Data.Size);
         end;
       end;
     end;

@@ -23,6 +23,7 @@ unit i_DownloadResult;
 interface
 
 uses
+  i_BinaryData,
   i_DownloadRequest;
 
 type
@@ -59,11 +60,8 @@ type
     function GetContentType: string;
     property ContentType: string read GetContentType;
 
-    function GetSize: Integer;
-    property Size: Integer read GetSize;
-
-    function GetBuffer: Pointer;
-    property Buffer: Pointer read GetBuffer;
+    function GetData: IBinaryData;
+    property Data: IBinaryData read GetData;
   end;
 
   IDownloadResultError = interface(IDownloadResult)

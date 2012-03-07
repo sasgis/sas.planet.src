@@ -829,16 +829,16 @@ begin
         FLastSuccessfulPoint := AResult.Request.Tile;
         FGoToNextTile := True;
         if FDownloadInfo <> nil then
-          FDownloadInfo.Add(1, VResultOk.Size);
+          FDownloadInfo.Add(1, VResultOk.Data.Size);
       end else if Exec_Download_Attachments(AResult.Request.Tile) then begin
         // attachments downloaded
         FLastSuccessfulPoint := AResult.Request.Tile;
         FGoToNextTile := True;
         if FDownloadInfo <> nil then
-          FDownloadInfo.Add(1, VResultOk.Size);
+          FDownloadInfo.Add(1, VResultOk.Data.Size);
       end else begin
         // wait on current tile - just sum size
-        FDownloadInfo.Add(0, VResultOk.Size);
+        FDownloadInfo.Add(0, VResultOk.Data.Size);
       end;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
       // same file size - assuming file the same (but download attachments)

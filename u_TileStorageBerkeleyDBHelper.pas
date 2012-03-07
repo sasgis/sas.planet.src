@@ -27,6 +27,7 @@ uses
   Classes,
   SyncObjs,
   i_MapVersionInfo,
+  i_BinaryData,
   u_BerkeleyDB,
   u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
@@ -67,7 +68,7 @@ type
       ATileDate: TDateTime;
       AVersionInfo: IMapVersionInfo;
       ATileContetType: PWideChar;
-      ATileStream: TStream
+      AData: IBinaryData
     ): Boolean;
 
     function DeleteTile(
@@ -294,7 +295,7 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   ATileDate: TDateTime;
   AVersionInfo: IMapVersionInfo;
   ATileContetType: PWideChar;
-  ATileStream: TStream
+  AData: IBinaryData
 ): Boolean;
 var
   VKey: TBDBKey;
@@ -318,21 +319,10 @@ begin
         VData.TileVer  := PWideChar(VVersionString);
         VData.TileMIME := ATileContetType;
 
-        if Assigned(ATileStream) then begin
-          VData.TileSize := ATileStream.Size;
-          ATileStream.Position := 0;
-          if ATileStream is TMemoryStream then begin
-            VData.TileBody := TMemoryStream(ATileStream).Memory;
-            PBDBDataToMemStream(@VData, VMemStream);
-          end else begin
-            GetMem(VData.TileBody, VData.TileSize);
-            try
-              ATileStream.ReadBuffer(VData.TileBody^, VData.TileSize);
-              PBDBDataToMemStream(@VData, VMemStream);
-            finally
-              FreeMem(VData.TileBody);
-            end;
-          end;
+        if AData <> nil then begin
+          VData.TileSize := AData.Size;
+          VData.TileBody := AData.Buffer;
+          PBDBDataToMemStream(@VData, VMemStream);
         end else begin
           VData.TileSize := 0;
           VData.TileBody := nil;
