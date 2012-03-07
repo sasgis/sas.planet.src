@@ -97,9 +97,8 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream;
       out ATileInfo: ITileInfoBasic
-    ): Boolean; virtual; abstract;
+    ): IBinaryData; virtual; abstract;
     function DeleteTile(
       AXY: TPoint;
       Azoom: byte;

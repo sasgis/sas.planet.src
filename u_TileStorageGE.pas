@@ -95,9 +95,8 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream;
       out ATileInfo: ITileInfoBasic
-    ): Boolean; override;
+    ): IBinaryData; override;
 
     function DeleteTile(
       AXY: TPoint;
@@ -135,6 +134,7 @@ uses
   SysUtils,
   t_CommonTypes,
   i_MapVersionInfoGE,
+  u_BinaryDataByMemStream,
   u_MapVersionListStatic,
   u_AvailPicsNMC,
   u_TileInfoBasic,
@@ -256,7 +256,7 @@ function TTileStorageGE.GetTileInfo(
   AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 begin
-  LoadTile(AXY, Azoom, AVersionInfo, nil, Result);
+  LoadTile(AXY, Azoom, AVersionInfo, Result);
 end;
 
 function TTileStorageGE.InternalCreateAndProcessGEOffsets(
@@ -480,9 +480,8 @@ function TTileStorageGE.LoadTile(
   AXY: TPoint;
   Azoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AStream: TStream;
   out ATileInfo: ITileInfoBasic
-): Boolean;
+): IBinaryData;
 var
   VFileStream: TFileStream;
   VMemStream: TMemoryStream;
@@ -491,6 +490,7 @@ var
   VAskGEServer: String;
   VAskTileDate: String;
   VRec: TIndexRec;
+  VResult: Boolean;
 
   function _GetUserGEServer: String;
   begin
@@ -500,7 +500,8 @@ var
       Result := IntToStr(VRec.ServID);
   end;
 begin
-  Result := False;
+  VResult := False;
+  Result := nil;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     // get filter
     VAskVer := 0;
@@ -519,20 +520,21 @@ begin
           VMemStream := TMemoryStream.Create;
           try
             // extract tile from GE
-            Result := InternalExtractFromGEStream(VFileStream, VRec.Offset, VRec.Size, VMemStream, VAskTileDate);
-
-            if Result then begin
-              VMemStream.SaveToStream(AStream);
-            end;
-            ATileInfo := TTileInfoBasicExists.Create(
-              0,
-              VRec.Size,
-              FMapVersionFactoryGE.CreateByGE(VRec.Ver, _GetUserGEServer, VAskTileDate),
-              FMainContentType
-            );
-          finally
+            VResult := InternalExtractFromGEStream(VFileStream, VRec.Offset, VRec.Size, VMemStream, VAskTileDate);
+          except
             VMemStream.Free;
           end;
+          if VResult then begin
+            Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+          end else begin
+            VMemStream.Free;
+          end;
+          ATileInfo := TTileInfoBasicExists.Create(
+            0,
+            VRec.Size,
+            FMapVersionFactoryGE.CreateByGE(VRec.Ver, _GetUserGEServer, VAskTileDate),
+            FMainContentType
+          );
         finally
           VFileStream.Free;
         end;

@@ -84,9 +84,8 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream;
       out ATileInfo: ITileInfoBasic
-    ): Boolean; override;
+    ): IBinaryData; override;
 
     function DeleteTile(
       AXY: TPoint;
@@ -129,6 +128,7 @@ uses
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
+  u_BinaryDataByMemStream,
   u_MapVersionFactorySimpleString,
   u_TileStorageTypeAbilities,
   u_TileIteratorByRect,
@@ -423,41 +423,30 @@ function TTileStorageFileSystem.LoadTile(
   AXY: TPoint;
   Azoom: byte;
   AVersionInfo: IMapVersionInfo;
-  AStream: TStream;
   out ATileInfo: ITileInfoBasic
-): Boolean;
+): IBinaryData;
 var
   VPath: String;
   VMemStream: TMemoryStream;
 begin
+  Result := nil;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
     if ATileInfo.GetIsExists then begin
       FLock.BeginRead;
       try
-        if AStream is TMemoryStream then begin
-          VMemStream := TMemoryStream(AStream);
+        VMemStream := TMemoryStream.Create;
+        try
           VMemStream.LoadFromFile(VPath);
-          Result := True;
-        end else begin
-          VMemStream := TMemoryStream.Create;
-          try
-            VMemStream.LoadFromFile(VPath);
-            VMemStream.SaveToStream(AStream);
-            Result := True;
-          finally
-            VMemStream.Free;
-          end;
+        except
+          VMemStream.Free;
         end;
+        Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
       finally
         FLock.EndRead;
       end;
-    end else begin
-      Result := False;
     end;
-  end else begin
-    Result := False;
   end;
 end;
 

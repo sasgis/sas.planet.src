@@ -48,6 +48,7 @@ type
 implementation
 
 uses
+  i_BinaryData,
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
@@ -103,6 +104,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VData: IBinaryData;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -142,11 +144,11 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            VMemStream.Position := 0;
-            VTileInfo := VTileStorage.GetTileInfo(VTile, VZoom, nil);
-            if VTileStorage.LoadTile(VTile, VZoom, nil, VMemStream, VTileInfo) then begin
+            VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
+            if VData <> nil then begin
               VFileTime := VTileInfo.GetLoadDate;
-              VMemStream.Position := 0;
+              VMemStream.SetSize(0);
+              VMemStream.WriteBuffer(VData.Buffer^, VData.Size);
               {$WARN SYMBOL_PLATFORM OFF}
               FZip.AddStream(
                 FTileNameGen.GetTileFileName(VTile, VZoom)+ VExt,

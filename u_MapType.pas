@@ -29,6 +29,7 @@ uses
   GR32,
   t_GeoTypes,
   i_JclNotify,
+  i_Bitmap32Static,
   i_FillingMapColorer,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
@@ -101,9 +102,16 @@ type
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
     procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
-    function LoadBitmapTileFromStorage(const AXY: TPoint; const Azoom: Byte; btm: TCustomBitmap32;
-                                       var AVersionInfo: IMapVersionInfo): Boolean;
-    function LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte; var AKml: IVectorDataItemList): boolean;
+    function LoadBitmapTileFromStorage(
+      const AXY: TPoint;
+      const Azoom: Byte;
+      var AVersionInfo: IMapVersionInfo
+    ): IBitmap32Static;
+    function LoadKmlTileFromStorage(
+      AXY: TPoint;
+      Azoom: byte;
+      var AVersionInfo: IMapVersionInfo
+    ): IVectorDataItemList;
     function LoadTileFromPreZ(
       spr: TCustomBitmap32;
       AXY: TPoint;
@@ -238,7 +246,6 @@ implementation
 uses
   Types,
   i_BinaryData,
-  i_Bitmap32Static,
   i_TileInfoBasic,
   u_Bitmap32Static,
   u_BinaryDataByMemStream,
@@ -403,6 +410,7 @@ var
   VSimpleAttach: IVectorDataItemSimple;
   VMapAttachmentsInfo: IMapAttachmentsInfo;
   VDesc,VNumber,VSubCache,VFullPath,VFullUrl: String;
+  VVersion: IMapVersionInfo;
   i,j,VSize,VMaxSubIndex: Integer;
 
   function _Thread_Terminated: Boolean;
@@ -429,7 +437,7 @@ begin
   VMaxSubIndex := VMapAttachmentsInfo.MaxSubIndex;
 
   // foreach tile
-  if Self.LoadKmlTileFromStorage(AXY, Azoom, VKml) then
+  VKml := Self.LoadKmlTileFromStorage(AXY, Azoom, VVersion);
   if Assigned(VKml) then
   if (0<VKml.Count) then
   for i := 0 to VKml.Count-1 do begin
@@ -521,11 +529,12 @@ var
   VMapAttachmentsInfo: IMapAttachmentsInfo;
   VDesc,VNumber,VSubCache,VFullPath: String;
   i,j: Integer;
+  VVersion: IMapVersionInfo;
 begin
   Result:=0;
   // get file from storage
   // FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
-  if Self.LoadKmlTileFromStorage(AXY, Azoom, VKml) then
+  VKml := Self.LoadKmlTileFromStorage(AXY, Azoom, VVersion);
   if Assigned(VKml) then
   if (VKml.Count>0) then
   for i := 0 to VKml.Count-1 do begin
@@ -594,41 +603,39 @@ begin
   FStorageConfig.WriteConfig(ALocalConfig);
 end;
 
-function TMapType.LoadBitmapTileFromStorage(const AXY: TPoint; const Azoom: Byte;
-  btm: TCustomBitmap32;
-  var AVersionInfo: IMapVersionInfo): Boolean;
+function TMapType.LoadBitmapTileFromStorage(
+  const AXY: TPoint;
+  const Azoom: Byte;
+  var AVersionInfo: IMapVersionInfo
+): IBitmap32Static;
 var
   VTileInfo: ITileInfoBasic;
   VMemStream: TMemoryStream;
+  VData: IBinaryData;
 begin
-  VMemStream := TMemoryStream.Create;
-  try
-    Result := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VMemStream, VTileInfo);
-    if Result then begin
-      FBitmapLoaderFromStorage.LoadFromStream(VMemStream, btm);
-      if Assigned(VTileInfo) then
-        AVersionInfo := VTileInfo.VersionInfo;
-    end;
-  finally
-    VMemStream.Free;
+  Result := nil;
+  VData := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VTileInfo);
+  if VData <> nil then begin
+    Result := FBitmapLoaderFromStorage.Load(VData);
+    if Assigned(VTileInfo) then
+      AVersionInfo := VTileInfo.VersionInfo;
   end;
 end;
 
-function TMapType.LoadKmlTileFromStorage(AXY: TPoint; Azoom: byte;
-  var AKml: IVectorDataItemList): boolean;
+function TMapType.LoadKmlTileFromStorage(
+  AXY: TPoint;
+  Azoom: byte;
+  var AVersionInfo: IMapVersionInfo
+): IVectorDataItemList;
 var
   VTileInfo: ITileInfoBasic;
   VMemStream: TMemoryStream;
+  VData: IBinaryData;
 begin
-  VMemStream := TMemoryStream.Create;
-  try
-    Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.Version, VMemStream, VTileInfo);
-    if Result then  begin
-      FKmlLoaderFromStorage.LoadFromStream(VMemStream, AKml);
-      Result := AKml <> nil;
-    end;
-  finally
-    VMemStream.Free;
+  Result := nil;
+  VData := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VTileInfo);
+  if VData <> nil then  begin
+    Result := FKmlLoaderFromStorage.Load(VData);
   end;
 end;
 
@@ -660,25 +667,30 @@ var
   VFileExists: Boolean;
   VExportPath: string;
   VTileInfo: ITileInfoBasic;
+  VData: IBinaryData;
 begin
   VFileExists := FileExists(AFileName);
   if VFileExists and not OverWrite then begin
     Result := False;
   end else begin
-    if VFileExists then begin
-      DeleteFile(AFileName);
-    end else begin
-      VExportPath := ExtractFilePath(AFileName);
-      ForceDirectories(VExportPath);
-    end;
-    VFileStream := TFileStream.Create(AFileName, fmCreate);
-    try
-      Result := FStorage.LoadTile(AXY, Azoom, FVersionConfig.Version, VFileStream, VTileInfo);
-      if Result then begin
-        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
+    VData := FStorage.LoadTile(AXY, Azoom, FVersionConfig.Version, VTileInfo);
+    if VData <> nil then begin
+      if VFileExists then begin
+        DeleteFile(AFileName);
+      end else begin
+        VExportPath := ExtractFilePath(AFileName);
+        ForceDirectories(VExportPath);
       end;
-    finally
-      VFileStream.Free;
+
+      VFileStream := TFileStream.Create(AFileName, fmCreate);
+      try
+        VFileStream.WriteBuffer(VData.Buffer^, VData.Size);
+        if Result then begin
+          FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
+        end;
+      finally
+        VFileStream.Free;
+      end;
     end;
   end;
 end;
@@ -751,21 +763,22 @@ var
   VVersionInfo: IMapVersionInfo;
 begin
   try
-    VVersionInfo:=FVersionConfig.Version;
+    Result := False;
+    VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
-      Result := LoadBitmapTileFromStorage(AXY, Azoom, btm, VVersionInfo);
+      VBitmap := LoadBitmapTileFromStorage(AXY, Azoom, VVersionInfo);
     end else begin
       VBitmap := ACache.TryLoadTileFromCache(AXY, Azoom, VVersionInfo);
-      if VBitmap <> nil then begin
-        btm.Assign(VBitmap.Bitmap);
-        Result := True;
-      end else begin
-        Result := LoadBitmapTileFromStorage(AXY, Azoom, btm, VVersionInfo);
-        if Result then begin
-          VBitmap := TBitmap32Static.CreateWithCopy(btm);
+      if VBitmap = nil then begin
+        VBitmap := LoadBitmapTileFromStorage(AXY, Azoom, VVersionInfo);
+        if VBitmap <> nil then begin
           ACache.AddTileToCache(VBitmap, AXY, Azoom, VVersionInfo);
         end;
       end;
+    end;
+    if VBitmap <> nil then begin
+      btm.Assign(VBitmap.Bitmap);
+      Result := True;
     end;
   except
     if not IgnoreError then begin
@@ -783,21 +796,24 @@ function TMapType.LoadTile(
   IgnoreError: Boolean;
   ACache: ITileObjCacheVector
 ): boolean;
+var
+  VVersionInfo: IMapVersionInfo;
 begin
   try
+    Result := False;
+    VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
-      Result := LoadKmlTileFromStorage(AXY, Azoom, AKml);
+      AKml := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);
     end else begin
-      AKml := ACache.TryLoadTileFromCache(AXY, Azoom, nil); // no versions for kml
-      if AKml <> nil then begin
-        Result := True;
-      end else begin
-        Result := LoadKmlTileFromStorage(AXY, Azoom, AKml);
-        if Result then begin
-          ACache.AddTileToCache(AKml, AXY, Azoom, nil);
+      AKml := ACache.TryLoadTileFromCache(AXY, Azoom, VVersionInfo); // no versions for kml
+      if AKml = nil then begin
+        AKml := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);
+        if AKml <> nil then begin
+          ACache.AddTileToCache(AKml, AXY, Azoom, VVersionInfo);
         end;
       end;
     end;
+    Result := AKml <> nil;
   except
     if not IgnoreError then begin
       raise;

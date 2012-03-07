@@ -45,7 +45,6 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGen: ITileFileNameGenerator;
-    FStream: TMemoryStream;
     FIsMove: boolean;
     FIsReplace: boolean;
     FPathExport: string;
@@ -74,7 +73,6 @@ type
       Amove: boolean;
       Areplace: boolean
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -82,6 +80,7 @@ implementation
 uses
   Variants,
   ShLwApi,
+  i_BinaryData,
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,
@@ -125,13 +124,6 @@ begin
   for i := 0 to length(Atypemaparr) - 1 do begin
     FMapTypeArr[i] := Atypemaparr[i];
   end;
-  FStream := TMemoryStream.Create;
-end;
-
-destructor TThreadExportToBDB.Destroy;
-begin
-  FreeAndNil(FStream);
-  inherited Destroy;
 end;
 
 function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): string;
@@ -156,6 +148,7 @@ var
   VSDBFileExists: Boolean;
   VLoadDate: TDateTime;
   VContenetTypeStr: PWideChar;
+  VData: IBinaryData;
 begin
   Result := False;
   VExportSDBFile :=
@@ -170,9 +163,9 @@ begin
     VTileExists := False;
   end;
   if not VTileExists or (VTileExists and FIsReplace) then begin
-    FStream.Clear;
     VTileInfo := nil;
-    if AMapType.TileStorage.LoadTile(AXY, AZoom, AVersionInfo, FStream, VTileInfo) then begin
+    VData := AMapType.TileStorage.LoadTile(AXY, AZoom, AVersionInfo, VTileInfo);
+    if VData <> nil then begin
       if VSDBFileExists or AHelper.CreateDirIfNotExists(VExportSDBFile) then begin
         if VTileInfo <> nil then begin
           VLoadDate := VTileInfo.LoadDate;
@@ -184,7 +177,6 @@ begin
         end else begin
           VContenetTypeStr := PWideChar(AMapType.TileStorage.GetMainContentType.GetContentType);
         end;
-        FStream.Position := 0;
         Result := AHelper.SaveTile(
           VExportSDBFile,
           AXY,
@@ -192,7 +184,7 @@ begin
           VLoadDate,
           VTileInfo.VersionInfo,
           VContenetTypeStr,
-          TBinaryDataByMemStream.CreateFromStream(FStream)
+          VData
         );
       end;
     end;

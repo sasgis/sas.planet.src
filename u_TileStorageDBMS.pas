@@ -86,9 +86,8 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersionInfo: IMapVersionInfo;
-      AStream: TStream;
       out ATileInfo: ITileInfoBasic
-    ): Boolean; override;
+    ): IBinaryData; override;
 
     function DeleteTile(
       AXY: TPoint;
@@ -122,6 +121,7 @@ implementation
 uses
   Variants,
   t_CommonTypes,
+  u_BinaryDataByMemStream,
   u_ContentTypeInfo,
   u_MapVersionFactorySimpleString,
   u_TTLCheckListener,
@@ -329,16 +329,15 @@ function TTileStorageDBMS.LoadTile(
   AXY: TPoint;
   AZoom: Byte;
   AVersionInfo: IMapVersionInfo;
-  AStream: TStream;
   out ATileInfo: ITileInfoBasic
-): Boolean;
+): IBinaryData;
 var
   Vtid: TTILE_ID_XYZ;
   VResult: LongInt;
+  VMemStream: TMemoryStream;
 begin
-  Result := False;
+  Result := nil;
   ATileInfo := nil;
-  AStream.Size := 0;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     InternalCreateStorageLink;
     if (nil<>FExtLink) then
@@ -349,15 +348,19 @@ begin
         Vtid.y:=AXY.Y;
         Vtid.z:=AZoom;
         // execute
-        VResult:=FExtLink.Select_Tile(@Vtid, AVersionInfo, ATileInfo, AStream);
-        if (ETSR_OK<>VResult) then
-          SysUtils.Abort // if no table or other DDL errors - treat as no tile
-        else
-          Result:=TRUE;
+        VMemStream := TMemoryStream.Create;
+        try
+          VResult:=FExtLink.Select_Tile(@Vtid, AVersionInfo, ATileInfo, VMemStream);
+          if (ETSR_OK<>VResult) then
+            SysUtils.Abort // if no table or other DDL errors - treat as no tile
+        except
+          VMemStream.Free;
+          raise;
+        end;
+        Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
       except
-        AStream.Size := 0;
         ATileInfo:=nil;
-        Result:=FALSE;
+        Result:=nil;
       end;
     end;
   end;
