@@ -666,10 +666,9 @@ var
   VTileInfo: ITileInfoBasic;
   VData: IBinaryData;
 begin
+  Result := False;
   VFileExists := FileExists(AFileName);
-  if VFileExists and not OverWrite then begin
-    Result := False;
-  end else begin
+  if not VFileExists or OverWrite then begin
     VData := FStorage.LoadTile(AXY, Azoom, FVersionConfig.Version, VTileInfo);
     if VData <> nil then begin
       if VFileExists then begin
