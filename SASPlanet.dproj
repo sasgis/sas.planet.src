@@ -828,6 +828,7 @@
     <DCCReference Include="u_StaticTreeItem.pas" />
     <DCCReference Include="u_StorageStateInternal.pas" />
     <DCCReference Include="u_StorageStateStatic.pas" />
+    <DCCReference Include="u_StreamReadOnlyByBinaryData.pas" />
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
     <DCCReference Include="u_StringConfigDataElementWithDefByStringRec.pas" />
     <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
