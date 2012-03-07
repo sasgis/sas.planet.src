@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   IniFiles,
+  i_BinaryData,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFile;
 
@@ -35,7 +36,7 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinaryStream(const AIdent: string; AValue: TStream);
+    procedure WriteBinary(const AIdent: string; AValue: IBinaryData);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
     procedure WriteBool(const AIdent: string; const AValue: Boolean);
@@ -85,8 +86,7 @@ begin
   Result := TConfigDataWriteProviderByIniFileSection.Create(FIniFile, AIdent, Self);
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteBinaryStream(
-  const AIdent: string; AValue: TStream);
+procedure TConfigDataWriteProviderByIniFile.WriteBinary(const AIdent: string; AValue: IBinaryData);
 begin
   raise Exception.Create('Not expected');
 end;

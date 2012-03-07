@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   IniFiles,
+  i_BinaryData,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFileSection;
 
@@ -35,7 +36,7 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinaryStream(const AIdent: string; AValue: TStream);
+    procedure WriteBinary(const AIdent: string; AValue: IBinaryData);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
     procedure WriteBool(const AIdent: string; const AValue: Boolean);
@@ -48,7 +49,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_StreamReadOnlyByBinaryData;
 
 { TConfigDataWriteProviderByIniFileSection }
 
@@ -79,10 +81,19 @@ begin
   );
 end;
 
-procedure TConfigDataWriteProviderByIniFileSection.WriteBinaryStream(
-  const AIdent: string; AValue: TStream);
+procedure TConfigDataWriteProviderByIniFileSection.WriteBinary(
+  const AIdent: string;
+  AValue: IBinaryData
+);
+var
+  VStream: TStream;
 begin
-  FIniFile.WriteBinaryStream(FSection, AIdent, AValue);
+  VStream := TStreamReadOnlyByBinaryData.Create(AValue);
+  try
+    FIniFile.WriteBinaryStream(FSection, AIdent, VStream);
+  finally
+    VStream.Free;
+  end;
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteBool(

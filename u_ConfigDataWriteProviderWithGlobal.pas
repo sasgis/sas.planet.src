@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderWithGlobal;
@@ -37,7 +38,7 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinaryStream(const AIdent: string; AValue: TStream);
+    procedure WriteBinary(const AIdent: string; AValue: IBinaryData);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
     procedure WriteBool(const AIdent: string; const AValue: Boolean);
@@ -124,8 +125,7 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteBinaryStream(
-  const AIdent: string; AValue: TStream);
+procedure TConfigDataWriteProviderWithGlobal.WriteBinary(const AIdent: string; AValue: IBinaryData);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -133,7 +133,7 @@ begin
   VIdent := PrepareIdent(AIdent, VUseMain);
   if VUseMain then begin
     if FProviderMain <> nil then begin
-      FProviderMain.WriteBinaryStream(VIdent, AValue);
+      FProviderMain.WriteBinary(VIdent, AValue);
     end;
   end else begin
     raise Exception.Create('Not expected');
