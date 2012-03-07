@@ -42,6 +42,7 @@ begin
     VStream.WriteBuffer(ABuffer^, ASize);
   except
     FreeAndNil(VStream);
+    raise;
   end;
   CreateWithOwn(VStream);
 end;
@@ -55,6 +56,7 @@ begin
     VStream.LoadFromStream(AStream);
   except
     FreeAndNil(VStream);
+    raise;
   end;
   CreateWithOwn(VStream);
 end;
