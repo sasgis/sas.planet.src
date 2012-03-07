@@ -29,6 +29,8 @@ uses
   i_TimeZoneDiffByLonLat in 'i_TimeZoneDiffByLonLat.pas',
   u_TimeZoneDiffByLonLatStuped in 'u_TimeZoneDiffByLonLatStuped.pas',
   c_TimeZones in 'c_TimeZones.pas',
+  i_BinaryData in 'i_BinaryData.pas',
+  u_BinaryDataByMemStream in 'u_BinaryDataByMemStream.pas',
   u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',

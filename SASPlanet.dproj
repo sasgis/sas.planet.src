@@ -168,6 +168,7 @@
     <DCCReference Include="i_AntiBan.pas" />
     <DCCReference Include="i_ARGBToPaletteConverter.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
+    <DCCReference Include="i_BinaryData.pas" />
     <DCCReference Include="i_Bitmap32Static.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
@@ -516,6 +517,7 @@
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BaseTileDownloaderThread.pas" />
+    <DCCReference Include="u_BinaryDataByMemStream.pas" />
     <DCCReference Include="u_Bitmap32Static.pas" />
     <DCCReference Include="u_BitmapGeo.pas" />
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
