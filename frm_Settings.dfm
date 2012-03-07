@@ -128,12 +128,13 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 190
+        Top = 220
         Width = 644
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitTop = 190
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -159,7 +160,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 650
-        Height = 187
+        Height = 217
         Align = alTop
         BevelOuter = bvNone
         ColumnCollection = <
@@ -302,14 +303,38 @@ object frmSettings: TfrmSettings
           item
             Column = 0
             Control = Label37
-            Row = 6
+            Row = 7
           end
           item
             Column = 1
             Control = CBCacheType
+            Row = 7
+          end
+          item
+            Column = 0
+            Control = lbGCCachePath
+            Row = 6
+          end
+          item
+            Column = 1
+            Control = edtGCCachePath
+            Row = 6
+          end
+          item
+            Column = 2
+            Control = btnSetDefGCCachePath
+            Row = 6
+          end
+          item
+            Column = 3
+            Control = btnSetGCCachePath
             Row = 6
           end>
         RowCollection = <
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
           item
             SizeStyle = ssAbsolute
             Value = 27.000000000000000000
@@ -340,7 +365,7 @@ object frmSettings: TfrmSettings
         TabOrder = 1
         DesignSize = (
           650
-          187)
+          217)
         object Label15: TLabel
           AlignWithMargins = True
           Left = 3
@@ -532,7 +557,7 @@ object frmSettings: TfrmSettings
           Width = 404
           Height = 21
           Align = alClient
-          TabOrder = 16
+          TabOrder = 12
         end
         object Button10: TButton
           Tag = 5
@@ -542,7 +567,7 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '<>'
-          TabOrder = 17
+          TabOrder = 13
           OnClick = Button4Click
         end
         object Button17: TButton
@@ -553,7 +578,7 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '...'
-          TabOrder = 18
+          TabOrder = 14
           OnClick = Button5Click
         end
         object lblBDBCachePath: TLabel
@@ -575,7 +600,7 @@ object frmSettings: TfrmSettings
           Width = 404
           Height = 21
           Align = alClient
-          TabOrder = 12
+          TabOrder = 15
         end
         object btnSetDefBDBCachePath: TButton
           Tag = 6
@@ -585,8 +610,10 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '<>'
-          TabOrder = 13
+          TabOrder = 16
           OnClick = Button4Click
+          ExplicitLeft = 613
+          ExplicitTop = 137
         end
         object btnSetBDBCachePath: TButton
           Tag = 6
@@ -596,32 +623,33 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '...'
-          TabOrder = 14
+          TabOrder = 17
           OnClick = Button5Click
         end
         object Label37: TLabel
           AlignWithMargins = True
           Left = 3
-          Top = 165
+          Top = 192
           Width = 194
-          Height = 19
+          Height = 22
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
+          ExplicitTop = 165
           ExplicitWidth = 91
           ExplicitHeight = 13
         end
         object CBCacheType: TComboBox
           AlignWithMargins = True
           Left = 203
-          Top = 165
+          Top = 192
           Width = 404
           Height = 21
           Align = alClient
           Style = csDropDownList
           ItemHeight = 13
           ItemIndex = 1
-          TabOrder = 15
+          TabOrder = 21
           Text = 'SAS.Planet'
           Items.Strings = (
             'GoogleMV'
@@ -629,6 +657,54 @@ object frmSettings: TfrmSettings
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'BerkeleyDB')
+          ExplicitTop = 165
+        end
+        object lbGCCachePath: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 165
+          Width = 194
+          Height = 21
+          Align = alClient
+          Caption = 'GeoCacher root folder:'
+          Layout = tlCenter
+          ExplicitWidth = 111
+          ExplicitHeight = 13
+        end
+        object edtGCCachePath: TEdit
+          AlignWithMargins = True
+          Left = 203
+          Top = 165
+          Width = 404
+          Height = 21
+          Align = alClient
+          TabOrder = 18
+          ExplicitLeft = 344
+          ExplicitWidth = 121
+        end
+        object btnSetDefGCCachePath: TButton
+          Tag = 7
+          Left = 610
+          Top = 163
+          Width = 20
+          Height = 25
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 19
+          OnClick = Button4Click
+          ExplicitLeft = 613
+          ExplicitTop = 161
+        end
+        object btnSetGCCachePath: TButton
+          Tag = 7
+          Left = 630
+          Top = 163
+          Width = 20
+          Height = 25
+          Anchors = []
+          Caption = '...'
+          TabOrder = 20
+          OnClick = Button5Click
         end
       end
     end
@@ -1112,8 +1188,8 @@ object frmSettings: TfrmSettings
           end
           object pnlImageProcess: TPanel
             Left = 3
-            Top = 282
-            Width = 317
+            Top = 223
+            Width = 319
             Height = 105
             Align = alTop
             AutoSize = True
@@ -1123,7 +1199,7 @@ object frmSettings: TfrmSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 3
-              Width = 311
+              Width = 313
               Height = 13
               Align = alTop
               Caption = '_'
@@ -1132,7 +1208,7 @@ object frmSettings: TfrmSettings
             object LabelContrast: TLabel
               Left = 3
               Top = 41
-              Width = 311
+              Width = 313
               Height = 13
               Align = alTop
               Caption = '_'
@@ -1141,7 +1217,7 @@ object frmSettings: TfrmSettings
             object TrBarGamma: TTrackBar
               Left = 3
               Top = 16
-              Width = 311
+              Width = 313
               Height = 25
               Align = alTop
               Max = 100
@@ -1158,7 +1234,7 @@ object frmSettings: TfrmSettings
             object TrBarContrast: TTrackBar
               Left = 3
               Top = 54
-              Width = 311
+              Width = 313
               Height = 25
               Align = alTop
               Max = 100
@@ -1173,7 +1249,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 82
-              Width = 305
+              Width = 307
               Height = 17
               Align = alTop
               Caption = 'Night mode (color inversion)'
@@ -1380,7 +1456,7 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = 'Tile borders:'
-              ExplicitWidth = 70
+              ExplicitWidth = 60
             end
             object flwpnlTileBorders: TFlowPanel
               Left = 3
@@ -1439,88 +1515,88 @@ object frmSettings: TfrmSettings
               end
             end
           end
-         object pnlGenshtabBorders: TPanel
-           Left = 3
-           Top = 214
-           Width = 317
-           Height = 68
-           Align = alTop
-           AutoSize = True
-           BevelEdges = [beBottom]
-           BevelKind = bkTile
-           BevelOuter = bvNone
-           BorderWidth = 3
-           TabOrder = 4
-           object LabelGsh1: TLabel
-             Left = 3
-             Top = 3
-             Width = 311
-             Height = 13
-             Align = alTop
-             Caption = 'Genshtab Map boundaries:'
-             ExplicitWidth = 119
-           end
-           object flwpnlGenshtabBorders: TFlowPanel
-             Left = 3
-             Top = 16
-             Width = 311
-             Height = 25
-             Align = alTop
-             AutoSize = True
-             BevelEdges = [beBottom]
-             BevelOuter = bvNone
-             Padding.Top = 3
-             TabOrder = 0
-             object LabelGsh2: TLabel
-               AlignWithMargins = True
-               Left = 3
-               Top = 6
-               Width = 25
-               Height = 13
-               Caption = 'Color'
-             end
-             object GenshtabBoxBorder: TColorBox
-               Left = 31
-               Top = 3
-               Width = 78
-               Height = 22
-               Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-               ItemHeight = 16
-               TabOrder = 0
-             end
-             object LabelGsh3: TLabel
-               AlignWithMargins = True
-               Left = 112
-               Top = 6
-               Width = 37
-               Height = 13
-               Caption = 'Opacity'
-             end
-             object SpinEditGenshtabBorderAlpha: TSpinEdit
-               Left = 152
-               Top = 3
-               Width = 41
-               Height = 22
-               MaxValue = 255
-               MinValue = 0
-               TabOrder = 1
-               Value = 255
-             end
-           end
-           object CBGenshtabBorderText: TCheckBox
-             AlignWithMargins = True
-             Left = 6
-             Top = 44
-             Width = 300
-             Height = 16
-             Align = alLeft
-             Caption = 'Genshtab Map names'
-             TabOrder = 1
-           end
-         end
-          object pnlDegreeBorders: TPanel
+          object pnlGenshtabBorders: TPanel
             Left = 3
             Top = 214
+            Width = 317
+            Height = 68
+            Align = alTop
+            AutoSize = True
+            BevelEdges = [beBottom]
+            BevelKind = bkTile
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 5
+            object LabelGsh1: TLabel
+              Left = 3
+              Top = 3
+              Width = 311
+              Height = 13
+              Align = alTop
+              Caption = 'Genshtab Map boundaries:'
+              ExplicitWidth = 129
+            end
+            object flwpnlGenshtabBorders: TFlowPanel
+              Left = 3
+              Top = 16
+              Width = 311
+              Height = 25
+              Align = alTop
+              AutoSize = True
+              BevelEdges = [beBottom]
+              BevelOuter = bvNone
+              Padding.Top = 3
+              TabOrder = 0
+              object LabelGsh2: TLabel
+                AlignWithMargins = True
+                Left = 3
+                Top = 6
+                Width = 25
+                Height = 13
+                Caption = 'Color'
+              end
+              object GenshtabBoxBorder: TColorBox
+                Left = 31
+                Top = 3
+                Width = 78
+                Height = 22
+                Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+                ItemHeight = 16
+                TabOrder = 0
+              end
+              object LabelGsh3: TLabel
+                AlignWithMargins = True
+                Left = 112
+                Top = 6
+                Width = 37
+                Height = 13
+                Caption = 'Opacity'
+              end
+              object SpinEditGenshtabBorderAlpha: TSpinEdit
+                Left = 152
+                Top = 3
+                Width = 41
+                Height = 22
+                MaxValue = 255
+                MinValue = 0
+                TabOrder = 1
+                Value = 255
+              end
+            end
+            object CBGenshtabBorderText: TCheckBox
+              AlignWithMargins = True
+              Left = 6
+              Top = 44
+              Width = 300
+              Height = 16
+              Align = alLeft
+              Caption = 'Genshtab Map names'
+              TabOrder = 1
+            end
+          end
+          object pnlDegreeBorders: TPanel
+            Left = 3
+            Top = 282
             Width = 317
             Height = 68
             Align = alTop
@@ -1537,7 +1613,7 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = 'Lat/Lon grid:'
-              ExplicitWidth = 119
+              ExplicitWidth = 61
             end
             object flwpnlDegreeBorders: TFlowPanel
               Left = 3
@@ -1597,8 +1673,6 @@ object frmSettings: TfrmSettings
               TabOrder = 1
             end
           end
-
-
         end
       end
     end
@@ -1933,7 +2007,6 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 3
-          ExplicitTop = 359
           object CBSensorsBarAutoShow: TCheckBox
             AlignWithMargins = True
             Left = 6
