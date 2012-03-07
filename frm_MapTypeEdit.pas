@@ -105,6 +105,7 @@ implementation
 
 uses
   i_TileDownloaderState,
+  u_GlobalCahceConfig,
   u_GlobalState;
 
 {$R *.dfm}
@@ -138,15 +139,18 @@ begin
   FmapType.StorageConfig.LockWrite;
   try
     FmapType.StorageConfig.NameInCache := EditNameinCache.Text;
-    if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
+    // do not change cache types for GE and GC
+    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
+      // common cache types
       if CBCacheType.ItemIndex > 0 then begin
         if CBCacheType.ItemIndex = 5 then begin
+          // BDB
           FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 1;
         end else begin
           FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex;
         end;
       end else begin
-        FMapType.StorageConfig.CacheTypeCode := 0;
+        FMapType.StorageConfig.CacheTypeCode := c_File_Cache_Id_DEFAULT;
       end;
     end;
   finally
@@ -175,8 +179,10 @@ begin
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
   SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
   EditHotKey.HotKey:=FmapType.Zmp.GUI.HotKey;
-  if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
-    if FmapType.Zmp.StorageConfig.CacheTypeCode = 6 then begin
+
+  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
+    if FmapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
+      // BDB
       CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode - 1;
     end else begin
       CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
@@ -216,8 +222,9 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
-  if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
-    if FmapType.Zmp.StorageConfig.CacheTypeCode = 6 then begin
+  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
+    if (FmapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB) then begin
+      // BDB
       CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode - 1;
     end else begin
       CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
@@ -249,15 +256,17 @@ begin
   FMapType.StorageConfig.LockRead;
   try
     EditNameinCache.Text := FMapType.StorageConfig.NameInCache;
-    if FMapType.StorageConfig.CacheTypeCode <> 5 then begin
+
+    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      if FMapType.StorageConfig.CacheTypeCode = 6 then begin
+      if (FMapType.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB) then begin
         CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode - 1;
       end else begin
         CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode;
       end;
     end else begin
+      // GE or GC
       pnlCacheType.Visible := False;
       pnlCacheType.Enabled := False;
     end;
