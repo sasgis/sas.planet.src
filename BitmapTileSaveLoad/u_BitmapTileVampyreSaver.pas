@@ -7,6 +7,8 @@ uses
   Imaging,
   ImagingTypes,
   GR32,
+  i_BinaryData,
+  i_Bitmap32Static,
   i_ARGBToPaletteConverter,
   i_BitmapTileSaveLoad;
 
@@ -18,6 +20,7 @@ type
     procedure PrepareData(var AImage: TImageData); virtual;
   protected
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
+    function Save(ABitmap: IBitmap32Static): IBinaryData;
   public
     constructor Create(AFormat: TImageFileFormat);
     destructor Destroy; override;
@@ -69,7 +72,8 @@ uses
   ImagingNetworkGraphics,
   ImagingJpeg,
   ImagingGif,
-  ImagingBitmap;
+  ImagingBitmap,
+  u_BinaryDataByMemStream;
 
 { TVampyreBasicBitmapTileSaver }
 
@@ -86,6 +90,44 @@ end;
 
 procedure TVampyreBasicBitmapTileSaver.PrepareData(var AImage: TImageData);
 begin
+end;
+
+function TVampyreBasicBitmapTileSaver.Save(
+  ABitmap: IBitmap32Static
+): IBinaryData;
+var
+  VFormat: TImageFileFormat;
+  VImage: TImageData;
+  IArray: TDynImageDataArray;
+  VMemStream: TMemoryStream;
+begin
+  if FFormat <> nil then begin
+    VFormat := FFormat;
+  end else begin
+    VFormat := FindImageFileFormatByExt('.bmp');
+  end;
+  if VFormat = nil then begin
+    raise Exception.Create('Неизвестный формат файла');
+  end;
+  InitImage(VImage);
+  try
+    ConvertBitmap32ToImageData(ABitmap.Bitmap, VImage);
+    PrepareData(VImage);
+    SetLength(IArray, 1);
+    IArray[0] := VImage;
+    VMemStream := TMemoryStream.Create;
+    try
+      if not VFormat.SaveToStream(VMemStream, IArray, True) then begin
+        raise Exception.Create('Ошибка записи файла');
+      end;
+    except
+      FreeAndNil(VMemStream);
+      raise;
+    end;
+    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+  finally
+    FreeImage(VImage);
+  end;
 end;
 
 procedure TVampyreBasicBitmapTileSaver.SaveToStream(ABtm: TCustomBitmap32;

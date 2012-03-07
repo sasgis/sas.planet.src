@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ContentTypeInfo;
 
 type
@@ -33,6 +34,7 @@ type
     function GetTarget: IContentTypeInfoBasic;
     function GetIsSimpleCopy: Boolean;
     procedure ConvertStream(ASource, ATarget: TStream);
+    function Convert(AData: IBinaryData): IBinaryData;
   end;
 
 implementation

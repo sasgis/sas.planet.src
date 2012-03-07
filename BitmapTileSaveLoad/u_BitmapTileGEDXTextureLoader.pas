@@ -5,6 +5,8 @@ interface
 uses
   Classes,
   GR32,
+  i_BinaryData,
+  i_Bitmap32Static,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad;
 
@@ -12,9 +14,10 @@ type
   TBitmapTileGEDXTextureLoader = class(TInterfacedObject, IBitmapTileLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
-    procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
+    procedure LoadFromMem(ABuffer: Pointer; ASize: Integer; ABtm: TCustomBitmap32);
   protected
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+    function Load(AData: IBinaryData): IBitmap32Static;
   public
     constructor Create(
       APerfCounterList: IInternalPerformanceCounterList
@@ -24,7 +27,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_Bitmap32Static;
 
 const DXT_FILE_SIZE = 32792;
 
@@ -68,13 +72,14 @@ var
 begin
   VCounterContext := FLoadStreamCounter.StartOperation;
   try
-    if AStream is TCustomMemoryStream then begin
-      LoadFromMemStream(TCustomMemoryStream(AStream), ABtm);
+    if AStream is TMemoryStream then begin
+      VMemStream := TMemoryStream(AStream);
+      LoadFromMem(VMemStream.Memory, VMemStream.Size, ABtm);
     end else begin
       VMemStream := TMemoryStream.Create;
       try
         VMemStream.LoadFromStream(AStream);
-        LoadFromMemStream(VMemStream, ABtm);
+        LoadFromMem(VMemStream.Memory, VMemStream.Size, ABtm);
       finally
         VMemStream.Free;
       end;
@@ -135,7 +140,29 @@ begin
   Result := (Mask shr (2*Pixel)) and $03;
 end;
 
-procedure TBitmapTileGEDXTextureLoader.LoadFromMemStream(AStream: TCustomMemoryStream;
+function TBitmapTileGEDXTextureLoader.Load(AData: IBinaryData): IBitmap32Static;
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+  VBtm: TCustomBitmap32;
+begin
+  VCounterContext := FLoadStreamCounter.StartOperation;
+  try
+    VBtm := TCustomBitmap32.Create;
+    try
+      LoadFromMem(AData.Buffer, AData.Size, VBtm);
+    except
+      FreeAndNil(VBtm);
+      raise;
+    end;
+    Result := TBitmap32Static.CreateWithOwn(VBtm);
+  finally
+    FLoadStreamCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+procedure TBitmapTileGEDXTextureLoader.LoadFromMem(
+  ABuffer: Pointer;
+  ASize: Integer;
   ABtm: TCustomBitmap32);
 var
   VSize: TPoint;
@@ -146,15 +173,15 @@ var
   pix : byte;
   VPosition: Integer;
 begin
-  if AStream.Size <> DXT_FILE_SIZE then begin
+  if ASize <> DXT_FILE_SIZE then begin
     raise Exception.Create('Ошибочный размер DXT тайла.');
   end;
-  VSize.X := PGETexture(AStream.Memory).GE_HEAD.Xrez div 4;
-  VSize.Y := PGETexture(AStream.Memory).GE_HEAD.Yrez div 4;
+  VSize.X := PGETexture(ABuffer).GE_HEAD.Xrez div 4;
+  VSize.Y := PGETexture(ABuffer).GE_HEAD.Yrez div 4;
   ABtm.SetSize(VSize.X * 4, VSize.Y * 4);
   for i := 0 to VSize.Y - 1 do begin
     for j := 0 to VSize.X - 1 do begin
-      VDXT1 := PGETexture(AStream.Memory).DXT1[i, j];
+      VDXT1 := PGETexture(ABuffer).DXT1[i, j];
       GetColors(VDXT1.Color0, VDXT1.Color1, VColors);
       pix := 0;
       for k := 0 to 3 do begin

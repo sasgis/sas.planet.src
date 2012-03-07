@@ -5,6 +5,8 @@ interface
 uses
   Classes,
   GR32,
+  i_BinaryData,
+  i_Bitmap32Static,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad;
 
@@ -16,6 +18,7 @@ type
     procedure LoadFromMemStream(AStream: TCustomMemoryStream; ABtm: TCustomBitmap32);
   protected
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+    function Load(AData: IBinaryData): IBitmap32Static;
   public
     constructor Create(
       APerfCounterList: IInternalPerformanceCounterList
@@ -26,6 +29,8 @@ type
 implementation
 
 uses
+  SysUtils,
+  u_BinaryDataByMemStream,
   u_BitmapTileVampyreLoader,
   u_BitmapTileGEDXTextureLoader,
   u_GECrypt;
@@ -65,6 +70,56 @@ begin
     finally
       VMemStream.Free;
     end;
+  end;
+end;
+
+function TBitmapTileGELoader.Load(AData: IBinaryData): IBitmap32Static;
+var
+  VTileStart: LongWord;
+  VMemStream: TMemoryStream;
+  VData: IBinaryData;
+  VLoader: IBitmapTileLoader;
+begin
+  if AData.Size < SizeOf(VTileStart) then begin
+    raise Exception.Create('No source data');
+  end;
+  VTileStart := PLongWord(AData.Buffer)^;
+  case VTileStart of
+    CRYPTED_JPEG: begin
+      VMemStream := TMemoryStream.Create;
+      try
+        VMemStream.WriteBuffer(AData.Buffer^, AData.Size);
+        GEcrypt(VMemStream.Memory, VMemStream.Size);
+      except
+        FreeAndNil(VMemStream);
+        raise;
+      end;
+      VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VLoader := FJpegLoader;
+    end;
+    DECRYPTED_JPEG: begin
+      VData := AData;
+      VLoader := FJpegLoader;
+    end;
+    CRYPTED_DXT1: begin
+      VMemStream := TMemoryStream.Create;
+      try
+        VMemStream.WriteBuffer(AData.Buffer^, AData.Size);
+        GEcrypt(VMemStream.Memory, VMemStream.Size);
+      except
+        FreeAndNil(VMemStream);
+        raise;
+      end;
+      VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VLoader := FDXTextureLoader;
+    end;
+    DECRYPTED_DXT1: begin
+      VData := AData;
+      VLoader := FDXTextureLoader;
+    end;
+  end;
+  if VLoader <> nil then begin
+    Result := VLoader.Load(VData);
   end;
 end;
 

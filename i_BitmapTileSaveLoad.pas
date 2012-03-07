@@ -24,7 +24,9 @@ interface
 
 uses
   Classes,
-  GR32;
+  GR32,
+  i_BinaryData,
+  i_Bitmap32Static;
 
 type
 
@@ -33,11 +35,13 @@ type
     ['{07D84005-DD59-4750-BCCE-A02330734539}']
     ///	<summary>Загрузка растра из стрима</summary>
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+    function Load(AData: IBinaryData): IBitmap32Static;
   end;
 
   IBitmapTileSaver = interface
     ['{00853113-0F3E-441D-974E-CCBC2F5C6E10}']
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
+    function Save(ABitmap: IBitmap32Static): IBinaryData;
   end;
 
 implementation

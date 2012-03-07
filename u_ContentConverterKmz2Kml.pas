@@ -24,20 +24,51 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   u_ContentConverterBase;
 
 type
   TContentConverterKmz2Kml = class(TContentConverterBase)
   protected
     procedure ConvertStream(ASource, ATarget: TStream); override;
+    function Convert(AData: IBinaryData): IBinaryData; override;
   end;
 
 implementation
 
 uses
-  KAZip;
+  KAZip,
+  u_BinaryDataByMemStream,
+  u_StreamReadOnlyByBinaryData;
 
 { TContentConverterKmz2Kml }
+
+function TContentConverterKmz2Kml.Convert(AData: IBinaryData): IBinaryData;
+var
+  UnZip:TKAZip;
+  VMemStream: TCustomMemoryStream;
+  VResultStream: TMemoryStream;
+begin
+  VMemStream := TStreamReadOnlyByBinaryData.Create(AData);
+  try
+    UnZip:=TKAZip.Create(nil);
+    try
+      UnZip.Open(VMemStream);
+      VResultStream := TMemoryStream.Create;
+      try
+        UnZip.Entries.Items[0].ExtractToStream(VResultStream);
+      except
+        VResultStream.Free;
+        raise;
+      end;
+      Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
+    finally
+      UnZip.Free;
+    end;
+  finally
+    VMemStream.Free;
+  end;
+end;
 
 procedure TContentConverterKmz2Kml.ConvertStream(ASource, ATarget: TStream);
 var

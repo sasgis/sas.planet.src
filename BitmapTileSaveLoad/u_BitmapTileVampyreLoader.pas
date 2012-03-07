@@ -8,6 +8,8 @@ uses
   Imaging,
   GR32,
   i_InternalPerformanceCounter,
+  i_BinaryData,
+  i_Bitmap32Static,
   i_BitmapTileSaveLoad;
 
 type
@@ -24,6 +26,7 @@ type
     );
     destructor Destroy; override;
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+    function Load(AData: IBinaryData): IBitmap32Static;
   end;
 
   TVampyreBasicBitmapTileLoaderPNG = class(TVampyreBasicBitmapTileLoader)
@@ -63,7 +66,8 @@ uses
   ImagingJpeg,
   ImagingNetworkGraphics,
   ImagingGif,
-  ImagingBitmap;
+  ImagingBitmap,
+  u_Bitmap32Static;
 
 { TVampyreBasicBitmapTileLoader }
 
@@ -84,6 +88,51 @@ begin
   FreeAndNil(FFormat);
   FreeAndNil(FMetadata);
   inherited;
+end;
+
+function TVampyreBasicBitmapTileLoader.Load(
+  AData: IBinaryData
+): IBitmap32Static;
+var
+  VImage: TImageData;
+  IArray: TDynImageDataArray;
+  I: LongInt;
+  VCounterContext: TInternalPerformanceCounterContext;
+  VBtm: TCustomBitmap32;
+begin
+  VCounterContext := FLoadStreamCounter.StartOperation;
+  try
+    InitImage(VImage);
+    try
+      FCS.Acquire;
+      try
+        if not FFormat.LoadFromMemory(AData.Buffer, AData.Size, IArray, True) then begin
+          raise Exception.Create('Ошибка загрузки файла');
+        end;
+        if Length(IArray) = 0 then begin
+          raise Exception.Create('В файле не найдено изображений');
+        end;
+        VImage := IArray[0];
+        for I := 1 to Length(IArray) - 1 do begin
+          FreeImage(IArray[I]);
+        end;
+        VBtm := TCustomBitmap32.Create;
+        try
+          ConvertImageDataToBitmap32(VImage, VBtm);
+        except
+          FreeAndNil(VBtm);
+          raise;
+        end;
+        Result := TBitmap32Static.CreateWithOwn(VBtm);
+      finally
+        FCS.Release;
+      end;
+    finally
+      FreeImage(VImage);
+    end;
+  finally
+    FLoadStreamCounter.FinishOperation(VCounterContext);
+  end;
 end;
 
 procedure TVampyreBasicBitmapTileLoader.LoadFromStream(AStream: TStream;

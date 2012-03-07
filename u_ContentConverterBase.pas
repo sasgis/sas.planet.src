@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ContentTypeInfo,
   i_ContentConverter;
 
@@ -38,6 +39,7 @@ type
     function GetTarget: IContentTypeInfoBasic;
     function GetIsSimpleCopy: Boolean; virtual; abstract;
     procedure ConvertStream(ASource, ATarget: TStream); virtual; abstract;
+    function Convert(AData: IBinaryData): IBinaryData; virtual; abstract;
   public
     constructor Create(
       ASource: IContentTypeInfoBasic;
@@ -55,6 +57,7 @@ type
   protected
     function GetIsSimpleCopy: Boolean; override;
     procedure ConvertStream(ASource, ATarget: TStream); override;
+    function Convert(AData: IBinaryData): IBinaryData; override;
   end;
 
 implementation
@@ -93,6 +96,11 @@ begin
 end;
 
 { TContentConverterSimpleCopy }
+
+function TContentConverterSimpleCopy.Convert(AData: IBinaryData): IBinaryData;
+begin
+  Result := AData;
+end;
 
 procedure TContentConverterSimpleCopy.ConvertStream(ASource, ATarget: TStream);
 begin

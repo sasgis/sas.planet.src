@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ContentTypeInfo,
   i_BitmapTileSaveLoad,
   u_ContentConverterBase;
@@ -35,6 +36,7 @@ type
     FTargetSaver: IBitmapTileSaver;
   protected
     procedure ConvertStream(ASource, ATarget: TStream); override;
+    function Convert(AData: IBinaryData): IBinaryData; override;
   public
     constructor Create(
       ASource: IContentTypeInfoBasic;
@@ -77,6 +79,11 @@ begin
   FSourceLoader := nil;
   FTargetSaver := nil;
   inherited;
+end;
+
+function TContentConverterBitmap.Convert(AData: IBinaryData): IBinaryData;
+begin
+  Result := FTargetSaver.Save(FSourceLoader.Load(AData));
 end;
 
 procedure TContentConverterBitmap.ConvertStream(ASource, ATarget: TStream);
