@@ -24,12 +24,14 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_VectorDataItemSimple;
 
 type
   IVectorDataLoader = interface
     ['{F9986E7D-897C-4BD3-8A92-A9798BFB32FA}']
     procedure LoadFromStream(AStream: TStream;  out AItems: IVectorDataItemList);
+    function Load(AData: IBinaryData): IVectorDataItemList;
   end;
 
 implementation

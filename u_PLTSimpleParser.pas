@@ -26,6 +26,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  i_BinaryData,
   i_VectorItmesFactory,
   i_VectorDataLoader,
   i_DoublePointsAggregator,
@@ -43,6 +44,7 @@ type
     function GetWord(Str, Smb: string; WordNmbr: Byte): string;
   protected
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList);
+    function Load(AData: IBinaryData): IVectorDataItemList; virtual;
   public
     constructor Create(
       AFactory: IVectorItmesFactory;
@@ -54,6 +56,7 @@ type
 implementation
 
 uses
+  u_StreamReadOnlyByBinaryData,
   u_VectorDataItemList,
   u_VectorDataItemPolygon,
   u_DoublePointsAggregator,
@@ -69,6 +72,19 @@ begin
   FFactory := AFactory;
   FHintConverter := AHintConverter;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
+end;
+
+function TPLTSimpleParser.Load(AData: IBinaryData): IVectorDataItemList;
+var
+  VStream: TStreamReadOnlyByBinaryData;
+begin
+  Result := nil;
+  VStream := TStreamReadOnlyByBinaryData.Create(AData);
+  try
+    LoadFromStream(VStream, Result);
+  finally
+    VStream.Free;
+  end;
 end;
 
 procedure TPLTSimpleParser.LoadFromStream(AStream: TStream;

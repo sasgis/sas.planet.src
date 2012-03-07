@@ -26,6 +26,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  i_BinaryData,
   i_HtmlToHintTextConverter,
   i_VectorItmesFactory,
   i_VectorDataItemSimple,
@@ -62,6 +63,7 @@ type
     function BuildItem(AName, ADesc: string; APointsAggregator: IDoublePointsAggregator): IVectorDataItemSimple;
   protected
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
+    function Load(AData: IBinaryData): IVectorDataItemList; virtual;
   public
     constructor Create(
       AFactory: IVectorItmesFactory;
@@ -77,6 +79,7 @@ implementation
 uses
   StrUtils,
   cUnicodeCodecs,
+  u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon,
@@ -152,6 +155,19 @@ begin
   FreeAndNil(FBMSrchCoord);
   FreeAndNil(FBMSrchCoordE);
   inherited;
+end;
+
+function TKmlInfoSimpleParser.Load(AData: IBinaryData): IVectorDataItemList;
+var
+  VStream: TStreamReadOnlyByBinaryData;
+begin
+  Result := nil;
+  VStream := TStreamReadOnlyByBinaryData.Create(AData);
+  try
+    LoadFromStream(VStream, Result);
+  finally
+    VStream.Free;
+  end;
 end;
 
 procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;

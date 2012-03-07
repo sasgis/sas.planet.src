@@ -27,6 +27,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  i_BinaryData,
   i_HtmlToHintTextConverter,
   i_VectorItmesFactory,
   i_VectorDataItemSimple,
@@ -50,6 +51,7 @@ type
                                          const pPX_State: Pvsagps_XML_ParserState);
   protected
     procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
+    function Load(AData: IBinaryData): IVectorDataItemList; virtual;
   public
     constructor Create(
       AFactory: IVectorItmesFactory;
@@ -63,6 +65,7 @@ type
 implementation
 
 uses
+  u_StreamReadOnlyByBinaryData,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon,
   u_VectorDataItemList,
@@ -344,6 +347,19 @@ begin
   end;
 end;
 
+function TXmlInfoSimpleParser.Load(AData: IBinaryData): IVectorDataItemList;
+var
+  VStream: TStreamReadOnlyByBinaryData;
+begin
+  Result := nil;
+  VStream := TStreamReadOnlyByBinaryData.Create(AData);
+  try
+    LoadFromStream(VStream, Result);
+  finally
+    VStream.Free;
+  end;
+end;
+
 procedure TXmlInfoSimpleParser.LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList);
 var
   tAux: TParseXML_Aux;
@@ -356,7 +372,7 @@ begin
     ZeroMemory(@tAux, sizeof(tAux));
     // for wpt and trk
     Inc(tAux.opt.gpx_options.bParse_trk);
-    Inc(tAux.opt.gpx_options.bParse_wpt);    
+    Inc(tAux.opt.gpx_options.bParse_wpt);
     // parse
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
     // output result
