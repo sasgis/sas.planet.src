@@ -137,6 +137,8 @@ type
     procedure CreateByKey(AKey: UInt64; AData: Pointer; out Item: IInterface); virtual; abstract;
     function GetIndexByKey(AKey: UInt64): THashIndex; virtual; abstract;
     procedure GetOrCreateItem(AKey: UInt64; AData: Pointer; out AItem: IInterface);
+    procedure  DeleteItem(AKey: UInt64);
+    procedure Clear;
   public
     constructor Create(
       AHashSizeInBit: Byte;
@@ -607,6 +609,73 @@ begin
   FreeAndNil(FItems);
 
   inherited;
+end;
+
+procedure THashCacheWithQueuesAbstract.Clear;
+var
+  VItem: PCacheItem;
+  VIndex: TItemIndex;
+begin
+  FCS.Acquire;
+  try
+    while FQueueMulti.Count > 0 do begin
+      VItem := FQueueMulti.PopItemFromTail(VIndex);
+      FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
+      FFreeItems.Push(VIndex, VItem);
+    end;
+    while FQueueFirstIn.Count > 0 do begin
+      VItem := FQueueFirstIn.PopItemFromTail(VIndex);
+      FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
+      FFreeItems.Push(VIndex, VItem);
+    end;
+    while FQueueFirstOut.Count > 0 do begin
+      VItem := FQueueFirstOut.PopItemFromTail(VIndex);
+      FHash.RemoveItem(GetIndexByKey(VItem.Key), VIndex, VItem);
+      FFreeItems.Push(VIndex, VItem);
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure THashCacheWithQueuesAbstract.DeleteItem(AKey: UInt64);
+var
+  VHashIndex: THashIndex;
+  VCurrIndex: TItemIndex;
+  VCurrItem: PCacheItem;
+begin
+  VHashIndex := GetIndexByKey(AKey);
+  Assert(VHashIndex >= 0);
+  Assert(VHashIndex < FHashSize);
+
+  FCS.Acquire;
+  try
+    VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
+    if VCurrItem <> nil then begin
+      Assert(VCurrItem.Key = AKey);
+      Assert(VCurrItem.QueueType in [qtMulti, qtFirstIn, qtFirstOut]);
+      Assert(FItems.GetItemByIndex(VCurrIndex) = VCurrItem);
+      case VCurrItem.QueueType of
+        qtMulti: begin
+          FQueueMulti.ExcludeItem(VCurrIndex, VCurrItem);
+          FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
+          FFreeItems.Push(VCurrIndex, VCurrItem);
+        end;
+        qtFirstIn: begin
+          FQueueFirstIn.ExcludeItem(VCurrIndex, VCurrItem);
+          FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
+          FFreeItems.Push(VCurrIndex, VCurrItem);
+        end;
+        qtFirstOut: begin
+          FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
+          FHash.RemoveItem(VHashIndex, VCurrIndex, VCurrItem);
+          FFreeItems.Push(VCurrIndex, VCurrItem);
+        end;
+      end;
+    end;
+  finally
+    FCS.Release;
+  end;
 end;
 
 procedure THashCacheWithQueuesAbstract.FreeItemFromQueueMulti;
