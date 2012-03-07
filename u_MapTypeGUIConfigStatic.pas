@@ -23,9 +23,7 @@ unit u_MapTypeGUIConfigStatic;
 interface
 
 uses
-  Graphics,
   Classes,
-  GR32,
   i_Bitmap32Static,
   i_MapTypeGUIConfig;
 

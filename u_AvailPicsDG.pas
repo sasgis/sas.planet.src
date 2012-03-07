@@ -26,7 +26,6 @@ uses
   Windows,
   SysUtils,
   Classes,
-  i_LocalCoordConverter,
   u_AvailPicsAbstract;
 
 type

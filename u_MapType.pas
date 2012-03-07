@@ -247,7 +247,6 @@ uses
   Types,
   i_BinaryData,
   i_TileInfoBasic,
-  u_Bitmap32Static,
   u_BinaryDataByMemStream,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
@@ -610,7 +609,6 @@ function TMapType.LoadBitmapTileFromStorage(
 ): IBitmap32Static;
 var
   VTileInfo: ITileInfoBasic;
-  VMemStream: TMemoryStream;
   VData: IBinaryData;
 begin
   Result := nil;
@@ -629,7 +627,6 @@ function TMapType.LoadKmlTileFromStorage(
 ): IVectorDataItemList;
 var
   VTileInfo: ITileInfoBasic;
-  VMemStream: TMemoryStream;
   VData: IBinaryData;
 begin
   Result := nil;
@@ -685,12 +682,11 @@ begin
       VFileStream := TFileStream.Create(AFileName, fmCreate);
       try
         VFileStream.WriteBuffer(VData.Buffer^, VData.Size);
-        if Result then begin
-          FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
-        end;
+        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
       finally
         VFileStream.Free;
       end;
+      Result := True;
     end;
   end;
 end;
@@ -800,7 +796,6 @@ var
   VVersionInfo: IMapVersionInfo;
 begin
   try
-    Result := False;
     VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
       AKml := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);

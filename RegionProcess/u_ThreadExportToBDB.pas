@@ -78,14 +78,12 @@ type
 implementation
 
 uses
-  Variants,
   ShLwApi,
   i_BinaryData,
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
-  u_BinaryDataByMemStream,
   u_TileFileNameBDB,
   u_TileIteratorByPolygon;
 

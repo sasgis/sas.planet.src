@@ -26,7 +26,6 @@ uses
   Types,
   SysUtils,
   Classes,
-  i_JclNotify,
   i_StorageStateInternal,
   u_MapTypeCacheConfig;
 
@@ -137,8 +136,7 @@ function MakeGEDateToStr(const ARX01: Byte; const ALayer: Word): String;
 implementation
 
 uses
-  t_CommonTypes,
-  u_NotifyEventListener;
+  t_CommonTypes;
 
 function MakeGEDateToStr(const ARX01: Byte; const ALayer: Word): String;
 var

@@ -23,9 +23,7 @@ unit u_MapTypeIconsList;
 interface
 
 uses
-  Windows,
   ActiveX,
-  Graphics,
   ImgList,
   TBXGraphics,
   GR32,

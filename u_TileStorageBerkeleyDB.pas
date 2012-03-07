@@ -113,7 +113,6 @@ type
 implementation
 
 uses
-  Variants,
   t_CommonTypes,
   u_BinaryDataByMemStream,
   u_MapVersionFactorySimpleString,

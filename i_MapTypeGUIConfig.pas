@@ -23,7 +23,6 @@ unit i_MapTypeGUIConfig;
 interface
 
 uses
-  Graphics,
   Classes,
   i_Bitmap32Static,
   i_StringConfigDataElement,

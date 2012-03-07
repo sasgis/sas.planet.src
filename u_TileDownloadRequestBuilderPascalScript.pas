@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  uPSR_dll,
   uPSRuntime,
   uPSUtils,
   i_JclNotify,
@@ -107,12 +106,8 @@ type
 implementation
 
 uses
-  Math,
-  Variants,
-  RegExprUtils,
-  u_NotifyEventListener,
   t_GeoTypes,
-  u_GeoToStr,
+  u_NotifyEventListener,
   u_TileDownloadRequest,
   u_TileRequestBuilderHelpers,
   u_ResStrings;

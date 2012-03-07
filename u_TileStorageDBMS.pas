@@ -119,10 +119,8 @@ type
 implementation
 
 uses
-  Variants,
   t_CommonTypes,
   u_BinaryDataByMemStream,
-  u_ContentTypeInfo,
   u_MapVersionFactorySimpleString,
   u_TTLCheckListener,
   u_TileStorageTypeAbilities,

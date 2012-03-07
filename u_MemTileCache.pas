@@ -95,7 +95,6 @@ type
 implementation
 
 uses
-  Variants,
   i_TileKey,
   i_TileRectUpdateNotifier,
   u_TTLCheckListener,
