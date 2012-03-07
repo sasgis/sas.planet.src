@@ -30,6 +30,8 @@ uses
 const
   // Init - FlagsInp
   DLLCACHE_IFI_IMG_FORCE_PRI_FORMAT = $00000001; // convert any images to primary format
+  DLLCACHE_IFI_IMG_FORCE_NO_INDEX   = $00000002; // do not use index for showing images
+  DLLCACHE_IFI_VER_FORCE_NO_INDEX   = $00000004; // do not use index for enumerating versions
 
   // QueryTile - Input
   DLLCACHE_QTI_LOAD_TILE  = $00000001;
