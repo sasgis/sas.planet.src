@@ -35,7 +35,6 @@ type
     FSourceLoader: IBitmapTileLoader;
     FTargetSaver: IBitmapTileSaver;
   protected
-    procedure ConvertStream(ASource, ATarget: TStream); override;
     function Convert(AData: IBinaryData): IBinaryData; override;
   public
     constructor Create(
@@ -84,20 +83,6 @@ end;
 function TContentConverterBitmap.Convert(AData: IBinaryData): IBinaryData;
 begin
   Result := FTargetSaver.Save(FSourceLoader.Load(AData));
-end;
-
-procedure TContentConverterBitmap.ConvertStream(ASource, ATarget: TStream);
-var
-  VBitmap: TCustomBitmap32;
-begin
-  inherited;
-  VBitmap := TCustomBitmap32.Create;
-  try
-    FSourceLoader.LoadFromStream(ASource, VBitmap);
-    FTargetSaver.SaveToStream(VBitmap, ATarget);
-  finally
-    VBitmap.Free;
-  end;
 end;
 
 end.

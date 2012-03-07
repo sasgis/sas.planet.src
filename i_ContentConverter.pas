@@ -33,7 +33,6 @@ type
     function GetSource: IContentTypeInfoBasic;
     function GetTarget: IContentTypeInfoBasic;
     function GetIsSimpleCopy: Boolean;
-    procedure ConvertStream(ASource, ATarget: TStream);
     function Convert(AData: IBinaryData): IBinaryData;
   end;
 

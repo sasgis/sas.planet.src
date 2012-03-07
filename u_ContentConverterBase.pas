@@ -38,7 +38,6 @@ type
     function GetSource: IContentTypeInfoBasic;
     function GetTarget: IContentTypeInfoBasic;
     function GetIsSimpleCopy: Boolean; virtual; abstract;
-    procedure ConvertStream(ASource, ATarget: TStream); virtual; abstract;
     function Convert(AData: IBinaryData): IBinaryData; virtual; abstract;
   public
     constructor Create(
@@ -56,7 +55,6 @@ type
   TContentConverterSimpleCopy = class(TContentConverterAbstract)
   protected
     function GetIsSimpleCopy: Boolean; override;
-    procedure ConvertStream(ASource, ATarget: TStream); override;
     function Convert(AData: IBinaryData): IBinaryData; override;
   end;
 
@@ -100,11 +98,6 @@ end;
 function TContentConverterSimpleCopy.Convert(AData: IBinaryData): IBinaryData;
 begin
   Result := AData;
-end;
-
-procedure TContentConverterSimpleCopy.ConvertStream(ASource, ATarget: TStream);
-begin
-  ATarget.CopyFrom(ASource, ASource.Size);
 end;
 
 function TContentConverterSimpleCopy.GetIsSimpleCopy: Boolean;

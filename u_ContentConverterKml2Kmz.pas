@@ -30,7 +30,6 @@ uses
 type
   TContentConverterKml2Kmz = class(TContentConverterBase)
   protected
-    procedure ConvertStream(ASource, ATarget: TStream); override;
     function Convert(AData: IBinaryData): IBinaryData; override;
   end;
 
@@ -69,22 +68,6 @@ begin
     end;
   finally
     VMemStream.Free;
-  end;
-end;
-
-procedure TContentConverterKml2Kmz.ConvertStream(ASource, ATarget: TStream);
-var
-  VZip:TKAZip;
-begin
-  inherited;
-  VZip:=TKAZip.Create(nil);
-  try
-    VZip.CreateZip(ATarget);
-    VZip.Open(ATarget);
-    VZip.CompressionType := ctNormal;
-    VZip.AddStream('doc.kml', ASource);
-  finally
-    VZip.Free;
   end;
 end;
 
