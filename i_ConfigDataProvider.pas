@@ -23,13 +23,14 @@ unit i_ConfigDataProvider;
 interface
 
 uses
-  Classes;
+  Classes,
+  i_BinaryData;
 
 type
   IConfigDataProvider = interface
     ['{FB657238-6D8F-463D-B56F-3FB4C74EE352}']
     function GetSubItem(const AIdent: string): IConfigDataProvider;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer;
+    function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(const AIdent: string; const ADefault: string): string;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;

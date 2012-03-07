@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -34,7 +35,7 @@ type
     function PrepareIdent(const AIdent: string; out AUseMain, AUseLocal: Boolean): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -138,20 +139,19 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadBinaryStream(const AIdent: string;
-  AValue: TStream): Integer;
+function TConfigDataProviderWithLocal.ReadBinary(const AIdent: string): IBinaryData;
 var
   VIdent: string;
   VUseLocal: Boolean;
   VUseMain: Boolean;
 begin
   VIdent := PrepareIdent(AIdent, VUseMain, VUseLocal);
-  Result := 0;
+  Result := nil;
   if VUseLocal and (FProviderLocal <> nil) then begin
-    Result := FProviderLocal.ReadBinaryStream(VIdent, AValue);
+    Result := FProviderLocal.ReadBinary(VIdent);
   end;
-  if (Result = 0) and VUseMain and (FProviderMain <> nil) then begin
-    Result := FProviderMain.ReadBinaryStream(VIdent, AValue);
+  if (Result = nil) and VUseMain and (FProviderMain <> nil) then begin
+    Result := FProviderMain.ReadBinary(VIdent);
   end;
 end;
 

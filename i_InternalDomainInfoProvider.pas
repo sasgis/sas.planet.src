@@ -23,12 +23,12 @@ unit i_InternalDomainInfoProvider;
 interface
 
 uses
-  Classes;
+  i_BinaryData;
 
 type
   IInternalDomainInfoProvider = interface
     ['{CD84B08E-E84B-4688-9D9A-A9A34F29139D}']
-    function LoadStreamByFilePath(AFilePath: string; AStream: TStream; out AContentType: string): Boolean;
+    function LoadBinaryByFilePath(AFilePath: string; out AContentType: string): IBinaryData;
   end;
 
   IInternalDomainInfoProviderList = interface

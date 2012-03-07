@@ -182,7 +182,9 @@ uses
   Types,
   GR32,
   gnugettext,
+  i_BinaryData,
   u_Bitmap32Static,
+  u_StreamReadOnlyByBinaryData,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
@@ -356,57 +358,56 @@ begin
   end;
 end;
 var
-  VStream: TMemoryStream;
+  VStream: TStream;
   VBitmap: TCustomBitmap32;
   VImageName: string;
+  VData: IBinaryData;
 begin
-  VStream:=TMemoryStream.Create;
+  VBitmap := TCustomBitmap32.Create;
   try
-    VBitmap := TCustomBitmap32.Create;
     try
-      try
-        VImageName := '24.bmp';
-        VImageName := AConfigIniParams.ReadString('BigIconName', VImageName);
-        AConfig.ReadBinaryStream(VImageName, VStream);
-        if VStream.Size > 0 then begin
-          VStream.Position:=0;
+      VImageName := '24.bmp';
+      VImageName := AConfigIniParams.ReadString('BigIconName', VImageName);
+      VData := AConfig.ReadBinary(VImageName);
+      if VData <> nil then begin
+        VStream := TStreamReadOnlyByBinaryData.Create(VData);
+        try
           VBitmap.LoadFromStream(VStream);
           UpdateBMPTransp(VBitmap);
           Fbmp24 := TBitmap32Static.CreateWithCopy(VBitmap);
+        finally
+          VStream.Free;
         end;
-      except
       end;
-    finally
-      VBitmap.Free;
+    except
     end;
   finally
-    FreeAndNil(VStream);
+    VBitmap.Free;
   end;
   if FBmp24 = nil then begin
     FBmp24 := CreateDefaultIcon(Apnum);
   end;
 
-  VStream:=TMemoryStream.Create;
+  VBitmap := TCustomBitmap32.Create;
   try
-    VBitmap := TCustomBitmap32.Create;
     try
-      try
-        VImageName := '18.bmp';
-        VImageName := AConfigIniParams.ReadString('SmallIconName', VImageName);
-        AConfig.ReadBinaryStream(VImageName, VStream);
-        if VStream.Size > 0 then begin
-          VStream.Position:=0;
+      VImageName := '18.bmp';
+      VImageName := AConfigIniParams.ReadString('SmallIconName', VImageName);
+      VData := AConfig.ReadBinary(VImageName);
+      if VData <> nil then begin
+        VStream := TStreamReadOnlyByBinaryData.Create(VData);
+        try
           VBitmap.LoadFromStream(VStream);
           UpdateBMPTransp(VBitmap);
           FBmp18 := TBitmap32Static.CreateWithCopy(VBitmap);
+        finally
+          VStream.Free;
         end;
-      except
       end;
-    finally
-      VBitmap.Free;
+    except
     end;
   finally
-    FreeAndNil(VStream);
+    VBitmap.Free;
   end;
   if FBmp18 = nil then begin
     FBmp18 := FBmp24;

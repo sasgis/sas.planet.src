@@ -25,6 +25,7 @@ interface
 uses
   Types,
   Classes,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -33,7 +34,7 @@ type
     FInstance: THandle;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -51,7 +52,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_BinaryDataByMemStream;
 
 { TConfigDataProviderByResources }
 
@@ -66,21 +68,27 @@ begin
   Result := nil;
 end;
 
-function TConfigDataProviderByResources.ReadBinaryStream(const AIdent: string;
-  AValue: TStream): Integer;
+function TConfigDataProviderByResources.ReadBinary(const AIdent: string): IBinaryData;
 var
   VResStream: TResourceStream;
+  VMemStream: TMemoryStream;
 begin
   try
     VResStream := TResourceStream.Create(HInstance, ChangeFileExt(AIdent, ''), RT_RCDATA);
     try
-      VResStream.SaveToStream(AValue);
-      Result := VResStream.Size;
+      VMemStream := TMemoryStream.Create;
+      try
+        VResStream.SaveToStream(VMemStream);
+      except
+        VMemStream.Free;
+        raise;
+      end;
+      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     finally
       VResStream.Free;
     end;
   except
-    Result := 0;
+    Result := nil;
   end;
 end;
 

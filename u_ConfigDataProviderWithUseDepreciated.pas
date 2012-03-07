@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -34,7 +35,7 @@ type
     function GetDepreciatedName(AIdent: string): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -87,16 +88,15 @@ begin
   Result := FSource.GetSubItem(AIdent);
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadBinaryStream(
-  const AIdent: string; AValue: TStream): Integer;
+function TConfigDataProviderWithUseDepreciated.ReadBinary(const AIdent: string): IBinaryData;
 var
   VIdent: string;
 begin
-  Result := FSource.ReadBinaryStream(AIdent, AValue);
-  if Result <= 0 then begin
+  Result := FSource.ReadBinary(AIdent);
+  if Result = nil then begin
     VIdent := GetDepreciatedName(AIdent);
     if VIdent <> '' then begin
-      Result := FSource.ReadBinaryStream(VIdent, AValue);
+      Result := FSource.ReadBinary(VIdent);
     end;
   end;
 end;

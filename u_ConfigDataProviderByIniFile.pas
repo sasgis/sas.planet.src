@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   IniFiles,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -33,7 +34,7 @@ type
     FIniFile: TCustomIniFile;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -78,10 +79,9 @@ begin
   end;
 end;
 
-function TConfigDataProviderByIniFile.ReadBinaryStream(const AIdent: string;
-  AValue: TStream): Integer;
+function TConfigDataProviderByIniFile.ReadBinary(const AIdent: string): IBinaryData;
 begin
-  Result := 0;
+  Result := nil;
 end;
 
 function TConfigDataProviderByIniFile.ReadBool(const AIdent: string;

@@ -83,7 +83,9 @@ implementation
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint;
+  i_BinaryData,
+  i_EnumDoublePoint,
+  u_StreamReadOnlyByBinaryData;
 
 constructor TExportMarks2KML.Create;
 var child:iXMLNode;
@@ -384,26 +386,29 @@ var
   VTargetPath: string;
   VTargetFullName: string;
   VPicName: string;
-  VMemStream: TMemoryStream;
+  VStream: TCustomMemoryStream;
+  VData: IBinaryData;
 begin
   Result := '';
   if Mark.Pic <> nil then begin
-    VMemStream := TMemoryStream.Create;
-    try
-      Mark.Pic.ExportToStream(VMemStream);
-      VPicName := Mark.Pic.GetName;
-      VTargetPath := 'files' + PathDelim;
-      Result := VTargetPath  + VPicName;
-      if inKMZ then begin
-        Zip.AddStream(Result, VMemStream);
-      end else begin
-        VTargetPath := ExtractFilePath(filename) + VTargetPath;
-        VTargetFullName := VTargetPath + VPicName;
-        CreateDir(VTargetPath);
-        VMemStream.SaveToFile(VTargetFullName);
+    VData := Mark.Pic.Source;
+    if VData <> nil then begin
+      VStream := TStreamReadOnlyByBinaryData.Create(VData);
+      try
+        VPicName := Mark.Pic.GetName;
+        VTargetPath := 'files' + PathDelim;
+        Result := VTargetPath  + VPicName;
+        if inKMZ then begin
+          Zip.AddStream(Result, VStream);
+        end else begin
+          VTargetPath := ExtractFilePath(filename) + VTargetPath;
+          VTargetFullName := VTargetPath + VPicName;
+          CreateDir(VTargetPath);
+          VStream.SaveToFile(VTargetFullName);
+        end;
+      finally
+        VStream.Free;
       end;
-    finally
-      VMemStream.Free;
     end;
   end;
 end;

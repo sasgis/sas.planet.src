@@ -81,6 +81,8 @@ uses
   GR32_Rasterizers,
   GR32_Resamplers,
   GR32_Transforms,
+  i_BinaryData,
+  i_Bitmap32Static,
   i_ContentTypeInfo,
   u_GeoFun,
   u_BitmapMarker;
@@ -194,40 +196,31 @@ var
   VFileExt: string;
   VInfoBasic: IContentTypeInfoBasic;
   VBitmapContntType: IContentTypeInfoBitmap;
-  VBitmap: TCustomBitmap32;
-  VStream: TMemoryStream;
+  VBitmap: IBitmap32Static;
+  VData: IBinaryData;
 begin
   VFileName := ExtractFileName(AResourceName);
   VFileExt := ExtractFileExt(VFileName);
-  VBitmap := TCustomBitmap32.Create;
-  try
-    VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
-    if VInfoBasic <> nil then begin
-      if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
-        VStream := TMemoryStream.Create;
+  VBitmap := nil;
+  VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
+  if VInfoBasic <> nil then begin
+    if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
+      VData := AResourceDataProvider.ReadBinary(VFileName);
+      if VData <> nil then begin
         try
-          if AResourceDataProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
-            VStream.Position := 0;
-            try
-              VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
-            except
-              Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
-            end;
-          end;
-        finally
-          VStream.Free;
+          VBitmap := VBitmapContntType.GetLoader.Load(VData);
+        except
+          Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
         end;
       end;
     end;
-    inherited Create(
-      TBitmapMarker.Create(
-        VBitmap,
-        AAnchorPoint
-      )
-    );
-  finally
-    VBitmap.Free;
   end;
+  inherited Create(
+    TBitmapMarker.Create(
+      VBitmap.Bitmap,
+      AAnchorPoint
+    )
+  );
 end;
 
 { TBitmapMarkerWithDirectionProviderStaticFromDataProvider }
@@ -241,41 +234,32 @@ var
   VFileExt: string;
   VInfoBasic: IContentTypeInfoBasic;
   VBitmapContntType: IContentTypeInfoBitmap;
-  VBitmap: TCustomBitmap32;
-  VStream: TMemoryStream;
+  VBitmap: IBitmap32Static;
+  VData: IBinaryData;
 begin
   VFileName := ExtractFileName(AResourceName);
   VFileExt := ExtractFileExt(VFileName);
-  VBitmap := TCustomBitmap32.Create;
-  try
-    VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
-    if VInfoBasic <> nil then begin
-      if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
-        VStream := TMemoryStream.Create;
+  VBitmap := nil;
+  VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
+  if VInfoBasic <> nil then begin
+    if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
+      VData := AResourceDataProvider.ReadBinary(VFileName);
+      if VData <> nil then begin
         try
-          if AResourceDataProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
-            VStream.Position := 0;
-            try
-              VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
-            except
-              Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
-            end;
-          end;
-        finally
-          VStream.Free;
+          VBitmap := VBitmapContntType.GetLoader.Load(VData);
+        except
+          Assert(False, 'Ошибка при загрузке картинки ' + AResourceName);
         end;
       end;
     end;
-
-    FMarker :=
-      TBitmapMarkerWithDirection.Create(
-        VBitmap,
-        AAnchorPoint,
-        ADefaultDirection
-      );
-  finally
-    VBitmap.Free;
   end;
+
+  FMarker :=
+    TBitmapMarkerWithDirection.Create(
+      VBitmap.Bitmap,
+      AAnchorPoint,
+      ADefaultDirection
+    );
 end;
 
 function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarker: IBitmapMarker;

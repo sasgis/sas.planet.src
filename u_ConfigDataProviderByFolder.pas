@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -32,7 +33,7 @@ type
     FSourceFolderName: string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -52,6 +53,7 @@ implementation
 uses
   SysUtils,
   IniFiles,
+  u_BinaryDataByMemStream,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByFolder }
@@ -96,25 +98,22 @@ begin
   end;
 end;
 
-function TConfigDataProviderByFolder.ReadBinaryStream(const AIdent: string;
-  AValue: TStream): Integer;
+function TConfigDataProviderByFolder.ReadBinary(const AIdent: string): IBinaryData;
 var
   VStream: TMemoryStream;
   VFileName: string;
 begin
+  Result := nil;
   VFileName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
   if FileExists(VFileName) then begin
     VStream := TMemoryStream.Create;
     try
       VStream.LoadFromFile(VFileName);
-      VStream.Position := 0;
-      VStream.SaveToStream(AValue);
-      Result := VStream.Size;
-    finally
+    except
       VStream.Free;
+      raise;
     end;
-  end else begin
-    Result := 0;
+    Result := TBinaryDataByMemStream.CreateWithOwn(VStream);
   end;
 end;
 

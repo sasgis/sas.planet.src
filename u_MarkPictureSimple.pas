@@ -27,6 +27,7 @@ uses
   SyncObjs,
   Classes,
   GR32,
+  i_BinaryData,
   i_BitmapMarker,
   i_BitmapTileSaveLoad,
   i_MarkPicture;
@@ -39,6 +40,7 @@ type
 
     FCS: TCriticalSection;
     FSimpleMarkerProvider: IBitmapMarkerProvider;
+    FSource: IBinaryData;
 
     FInited: Integer;
     procedure InitPic;
@@ -47,7 +49,7 @@ type
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
   protected
     function GetName: string;
-    procedure ExportToStream(AStream: TStream);
+    function GetSource: IBinaryData;
 
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
@@ -61,7 +63,9 @@ implementation
 uses
   SysUtils,
   t_GeoTypes,
+  i_Bitmap32Static,
   u_BitmapMarker,
+  u_BinaryDataByMemStream,
   u_BitmapMarkerProviderStaticFromDataProvider;
 
 { TMarkPictureSimple }
@@ -81,31 +85,6 @@ begin
   inherited;
 end;
 
-procedure TMarkPictureSimple.ExportToStream(AStream: TStream);
-var
-  VMemStream: TMemoryStream;
-  VOwnStream: Boolean;
-begin
-  InitPic;
-  if AStream is TMemoryStream then begin
-    VMemStream := TMemoryStream(AStream);
-    VOwnStream := False;
-  end else begin
-    VMemStream := TMemoryStream.Create;
-    VOwnStream := True;
-  end;
-  try
-    VMemStream.LoadFromFile(FFullFileName);
-    if VOwnStream then begin
-      VMemStream.SaveToStream(AStream);
-    end;
-  finally
-    if VOwnStream then begin
-      VMemStream.Free;
-    end;
-  end;
-end;
-
 function TMarkPictureSimple.GetTextAlignment: TAlignment;
 begin
   Result := taRightJustify;
@@ -119,7 +98,7 @@ end;
 procedure TMarkPictureSimple.InitPic;
 var
   VMemStream: TMemoryStream;
-  VBitmap: TCustomBitmap32;
+  VBitmap:  IBitmap32Static;
   VAnchor: TDoublePoint;
   VBaseMarker: IBitmapMarker;
 begin
@@ -127,21 +106,19 @@ begin
     FCS.Acquire;
     try
       if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
-        VBitmap := TCustomBitmap32.Create;
+        VMemStream := TMemoryStream.Create;
         try
-          VMemStream := TMemoryStream.Create;
-          try
-            VMemStream.LoadFromFile(FFullFileName);
-            FLoader.LoadFromStream(VMemStream, VBitmap);
-          finally
-            VMemStream.Free;
-          end;
+          VMemStream.LoadFromFile(FFullFileName);
         except
-          VBitmap.SetSize(0, 0);
+          VMemStream.Free;
+          raise;
         end;
-        VAnchor.X := VBitmap.Width / 2;
-        VAnchor.Y := VBitmap.Height;
-        VBaseMarker := TBitmapMarker.CreateTakeBitmapOwn(VBitmap, VAnchor);
+        FSource := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+        VBitmap := FLoader.Load(FSource);
+
+        VAnchor.X := VBitmap.Bitmap.Width / 2;
+        VAnchor.Y := VBitmap.Bitmap.Height;
+        VBaseMarker := TBitmapMarker.Create(VBitmap.Bitmap, VAnchor);
         FSimpleMarkerProvider := TBitmapMarkerProviderStatic.Create(VBaseMarker);
         InterlockedIncrement(FInited);
       end;
@@ -166,6 +143,12 @@ end;
 function TMarkPictureSimple.GetName: string;
 begin
   Result := FName;
+end;
+
+function TMarkPictureSimple.GetSource: IBinaryData;
+begin
+  InitPic;
+  Result := FSource;
 end;
 
 end.

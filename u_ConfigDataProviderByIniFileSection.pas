@@ -26,6 +26,7 @@ uses
   Classes,
   SysUtils,
   IniFiles,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -38,7 +39,7 @@ type
     function GetSubItemSectionName(const AIdent: string): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -56,6 +57,9 @@ type
 
 
 implementation
+
+uses
+  u_BinaryDataByMemStream;
 
 { TConfigDataProviderByIniFileSection }
 
@@ -101,10 +105,18 @@ begin
   end;
 end;
 
-function TConfigDataProviderByIniFileSection.ReadBinaryStream(
-  const AIdent: string; AValue: TStream): Integer;
+function TConfigDataProviderByIniFileSection.ReadBinary(const AIdent: string): IBinaryData;
+var
+  VMemStream: TMemoryStream;
 begin
-  Result := FIniFile.ReadBinaryStream(FSection, AIdent, AValue);
+  VMemStream := TMemoryStream.Create;
+  try
+    FIniFile.ReadBinaryStream(FSection, AIdent, VMemStream);
+  except
+    VMemStream.Free;
+    raise;
+  end;
+  Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadBool(const AIdent: string;

@@ -24,13 +24,16 @@ interface
 
 uses
   Classes,
+  i_BinaryData,
   i_BitmapMarker,
   i_ConfigDataElement;
 
 type
   IMarkPicture = interface(IBitmapMarkerProvider)
     ['{4F70C829-D49A-4019-AAF6-3AA9BCD2CCAE}']
-    procedure ExportToStream(AStream: TStream);
+    function GetSource: IBinaryData;
+    property Source: IBinaryData read GetSource;
+
     function GetName: string;
 
     function GetTextAlignment: TAlignment;

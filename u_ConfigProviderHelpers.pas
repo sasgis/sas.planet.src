@@ -53,6 +53,7 @@ uses
   Classes,
   SysUtils,
   Graphics,
+  i_BinaryData,
   i_ContentTypeInfo,
   u_Bitmap32Static;
 
@@ -104,10 +105,9 @@ var
   VFileName: string;
   VFileExt: string;
   VResourceProvider: IConfigDataProvider;
-  VStream: TMemoryStream;
   VInfoBasic: IContentTypeInfoBasic;
   VBitmapContntType: IContentTypeInfoBitmap;
-  VBitmap: TCustomBitmap32;
+  VData: IBinaryData;
 begin
   Result := ADefault;
   VFilePath := ExcludeTrailingPathDelimiter(ExtractFilePath(AFullFileName));
@@ -121,30 +121,18 @@ begin
   end;
 
   if VResourceProvider <> nil then begin
-    VStream := TMemoryStream.Create;
-    try
-      if VResourceProvider.ReadBinaryStream(VFileName, VStream) > 0 then begin
-        VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
-        if VInfoBasic <> nil then begin
-          if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
-            VStream.Position := 0;
-            try
-              VBitmap := TCustomBitmap32.Create;
-              try
-                VBitmapContntType.GetLoader.LoadFromStream(VStream, VBitmap);
-              except
-                FreeAndNil(VBitmap);
-                raise;
-              end;
-              Result := TBitmap32Static.CreateWithOwn(VBitmap);
-            except
-              Assert(False, 'Ошибка при загрузке картинки ' + AFullFileName);
-            end;
+    VData := VResourceProvider.ReadBinary(VFileName);
+    if VData <> nil then begin
+      VInfoBasic := AContentTypeManager.GetInfoByExt(VFileExt);
+      if VInfoBasic <> nil then begin
+        if Supports(VInfoBasic, IContentTypeInfoBitmap, VBitmapContntType) then begin
+          try
+            Result := VBitmapContntType.GetLoader.Load(VData);
+          except
+            Assert(False, 'Ошибка при загрузке картинки ' + AFullFileName);
           end;
         end;
       end;
-    finally
-      VStream.Free;
     end;
   end;
 end;

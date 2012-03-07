@@ -60,7 +60,8 @@ implementation
 
 uses
   StrUtils,
-  SysUtils;
+  SysUtils,
+  i_BinaryData;
 
 { TIeEmbeddedProtocol }
 
@@ -94,6 +95,7 @@ var
   VFilePath: string;
   VDomain: IInternalDomainInfoProvider;
   VContentType: string;
+  VData: IBinaryData;
 begin
   Result := ParseUrl(AUrl, VDomainName, VFilePath);
   if Result then begin
@@ -102,7 +104,12 @@ begin
       if FDomainList <> nil then begin
         VDomain := FDomainList.GetByName(VDomainName);
         if VDomain <> nil then begin
-          Result := VDomain.LoadStreamByFilePath(VFilePath, FStream, VContentType);
+          VData := VDomain.LoadBinaryByFilePath(VFilePath, VContentType);
+          FStream.SetSize(0);
+          Result := VData <> nil;
+          if Result then begin
+            FStream.WriteBuffer(VData.Buffer^, VData.Size);
+          end;
           FProtocolSink.ReportProgress(BINDSTATUS_MIMETYPEAVAILABLE, PWideChar(WideString(VContentType)));
         end;
         FStream.Position := 0;

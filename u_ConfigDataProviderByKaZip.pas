@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   KAZip,
+  i_BinaryData,
   i_ConfigDataProvider;
 
 type
@@ -34,7 +35,7 @@ type
     FUnZip: TKAZip;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinaryStream(const AIdent: string; AValue: TStream): Integer; virtual;
+    function ReadBinary(const AIdent: string): IBinaryData; virtual;
     function ReadString(const AIdent: string; const ADefault: string): string; virtual;
     function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
     function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
@@ -56,6 +57,7 @@ uses
   SysUtils,
   IniFiles,
   u_ResStrings,
+  u_BinaryDataByMemStream,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByKaZip }
@@ -113,16 +115,23 @@ begin
   end;
 end;
 
-function TConfigDataProviderByKaZip.ReadBinaryStream(const AIdent: string;
-  AValue: TStream): Integer;
+function TConfigDataProviderByKaZip.ReadBinary(
+  const AIdent: string): IBinaryData;
 var
   VIndex: Integer;
+  VMemStream: TMemoryStream;
 begin
-  Result := 0;
+  Result := nil;
   VIndex := FUnZip.Entries.IndexOf(AIdent);
   if VIndex >= 0 then begin
-    FUnZip.Entries.Items[VIndex].ExtractToStream(AValue);
-    Result := AValue.Size;
+    VMemStream := TMemoryStream.Create;
+    try
+      FUnZip.Entries.Items[VIndex].ExtractToStream(VMemStream);
+    except
+      VMemStream.Free;
+      raise;
+    end;
+    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
   end;
 end;
 
