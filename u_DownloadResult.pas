@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  Classes,
   i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult;

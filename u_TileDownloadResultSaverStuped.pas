@@ -3,7 +3,6 @@ unit u_TileDownloadResultSaverStuped;
 interface
 
 uses
-  Classes,
   Types,
   GR32,
   i_JclNotify,

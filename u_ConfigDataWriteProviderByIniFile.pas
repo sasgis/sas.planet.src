@@ -23,7 +23,6 @@ unit u_ConfigDataWriteProviderByIniFile;
 interface
 
 uses
-  Classes,
   IniFiles,
   i_BinaryData,
   i_ConfigDataWriteProvider,

@@ -23,13 +23,11 @@ unit u_ContentConverterBase;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_ContentTypeInfo,
   i_ContentConverter;
 
 type
-
   TContentConverterAbstract = class(TInterfacedObject, IContentConverter)
   private
     FSource: IContentTypeInfoBasic;

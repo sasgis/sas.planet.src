@@ -50,12 +50,10 @@ function ReadBitmapByFileRef(
 implementation
 
 uses
-  Classes,
   SysUtils,
   Graphics,
   i_BinaryData,
-  i_ContentTypeInfo,
-  u_Bitmap32Static;
+  i_ContentTypeInfo;
 
 function ReadColor32(
   AConfigProvider: IConfigDataProvider;

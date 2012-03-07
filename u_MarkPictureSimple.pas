@@ -26,7 +26,6 @@ uses
   Windows,
   SyncObjs,
   Classes,
-  GR32,
   i_BinaryData,
   i_BitmapMarker,
   i_BitmapTileSaveLoad,

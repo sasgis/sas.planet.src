@@ -23,7 +23,6 @@ unit u_ContentConverterBitmap;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_ContentTypeInfo,
   i_BitmapTileSaveLoad,
@@ -48,7 +47,6 @@ implementation
 
 uses
   SysUtils,
-  GR32,
   u_ResStrings;
 
 { TContentConverterBitmap }

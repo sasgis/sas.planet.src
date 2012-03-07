@@ -23,7 +23,6 @@ unit i_ConfigDataWriteProvider;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_ConfigDataProvider;
 

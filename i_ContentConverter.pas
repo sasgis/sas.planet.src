@@ -23,7 +23,6 @@ unit i_ContentConverter;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_ContentTypeInfo;
 

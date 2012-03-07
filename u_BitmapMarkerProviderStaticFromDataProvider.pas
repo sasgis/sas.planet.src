@@ -75,7 +75,6 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   GR32_Blend,
   GR32_Rasterizers,

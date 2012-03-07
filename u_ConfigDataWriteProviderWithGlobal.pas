@@ -23,7 +23,6 @@ unit u_ConfigDataWriteProviderWithGlobal;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

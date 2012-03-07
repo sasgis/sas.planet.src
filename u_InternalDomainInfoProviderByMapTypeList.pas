@@ -23,7 +23,6 @@ unit u_InternalDomainInfoProviderByMapTypeList;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_ConfigDataProvider,
   i_ZmpInfo,
