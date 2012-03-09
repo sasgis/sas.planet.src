@@ -6,6 +6,7 @@ uses
   Types,
   GR32,
   GR32_Image,
+  i_BitmapMarker,
   i_LocalCoordConverter,
   i_ViewPortState,
   i_InternalPerformanceCounter,
@@ -16,6 +17,7 @@ type
   TCenterScale = class(TWindowLayerFixedSizeWithBitmap)
   private
     FConfig: ICenterScaleConfig;
+    FMarker: IBitmapMarker;
     procedure OnConfigChange;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
@@ -34,7 +36,6 @@ type
 implementation
 
 uses
-  i_Bitmap32Static,
   u_NotifyEventListener;
 
 { TCenterScale }
@@ -58,23 +59,33 @@ function TCenterScale.GetMapLayerLocationRect: TFloatRect;
 var
   VSize: TPoint;
   VViewSize: TPoint;
+  VBitmap: IBitmapMarker;
 begin
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VViewSize := ViewCoordConverter.GetLocalRectSize;
-  Result.Left := VViewSize.X / 2 - VSize.X / 2;
-  Result.Top := VViewSize.Y / 2 - VSize.Y / 2;
-  Result.Right := Result.Left + VSize.X;
-  Result.Bottom := Result.Top + VSize.Y;
+  VBitmap := FMarker;
+  if VBitmap <> nil then begin
+    VSize := VBitmap.BitmapSize;
+    VViewSize := ViewCoordConverter.GetLocalRectSize;
+    Result.Left := VViewSize.X / 2 - VBitmap.AnchorPoint.X;
+    Result.Top := VViewSize.Y / 2 - VBitmap.AnchorPoint.Y;
+    Result.Right := Result.Left + VSize.X;
+    Result.Bottom := Result.Top + VSize.Y;
+  end else begin
+    Result.Left := 0;
+    Result.Top := 0;
+    Result.Right := 0;
+    Result.Bottom := 0;
+  end;
 end;
 
 procedure TCenterScale.OnConfigChange;
 var
-  VBitmap: IBitmap32Static;
+  VBitmap: IBitmapMarker;
 begin
   ViewUpdateLock;
   try
     if FConfig.Visible then begin
       VBitmap := FConfig.Bitmap;
+      FMarker := VBitmap;
       if VBitmap <> nil then begin
         FLayer.Bitmap.Assign(VBitmap.Bitmap);
       end else begin
