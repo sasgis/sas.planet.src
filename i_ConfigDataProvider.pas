@@ -23,7 +23,7 @@ unit i_ConfigDataProvider;
 interface
 
 uses
-  Classes,
+  i_StringListStatic,
   i_BinaryData;
 
 type
@@ -39,8 +39,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
 
-    procedure ReadSubItemsList(AList: TStrings);
-    procedure ReadValuesList(AList: TStrings);
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   end;
 
 implementation

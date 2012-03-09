@@ -10,6 +10,8 @@ type
 
     function GetItem(AIndex: Integer): string;
     property Items[AIndex: Integer]: string read GetItem;
+
+    function IndexOf(const S: string): Integer;
   end;
 
 implementation

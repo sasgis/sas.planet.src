@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -44,8 +45,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(
       AProviderMain: IConfigDataProvider;
@@ -60,7 +61,8 @@ implementation
 
 uses
   StrUtils,
-  SysUtils;
+  SysUtils,
+  u_StringListStatic;
 
 { TConfigDataProviderWithLocal }
 
@@ -257,25 +259,33 @@ begin
   end;
 end;
 
-procedure TConfigDataProviderWithLocal.ReadSubItemsList(AList: TStrings);
+function TConfigDataProviderWithLocal.ReadSubItemsList: IStringListStatic;
 var
-  VList: TStrings;
+  VList: TStringList;
+  VListStatic: IStringListStatic;
+  i: Integer;
 begin
   VList := TStringList.Create;
   try
+    VList.Sorted := True;
+    VList.Duplicates := dupIgnore;
     if (FProviderMain <> nil) then begin
-      VList.Clear;
-      FProviderMain.ReadSubItemsList(VList);
-      AList.AddStrings(VList);
+      VListStatic := FProviderMain.ReadSubItemsList;
+      for i := 0 to VListStatic.Count - 1 do begin
+        VList.Add(VListStatic.Items[i]);
+      end;
     end;
     if (FProviderLocal <> nil) then begin
-      VList.Clear;
-      FProviderLocal.ReadSubItemsList(VList);
-      AList.AddStrings(VList);
+      VListStatic := FProviderLocal.ReadSubItemsList;
+      for i := 0 to VListStatic.Count - 1 do begin
+        VList.Add(VListStatic.Items[i]);
+      end;
     end;
-  finally
+  except
     VList.Free;
+    raise;
   end;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderWithLocal.ReadTime(const AIdent: string;
@@ -295,25 +305,33 @@ begin
   end;
 end;
 
-procedure TConfigDataProviderWithLocal.ReadValuesList(AList: TStrings);
+function TConfigDataProviderWithLocal.ReadValuesList: IStringListStatic;
 var
-  VList: TStrings;
+  VList: TStringList;
+  VListStatic: IStringListStatic;
+  i: Integer;
 begin
   VList := TStringList.Create;
   try
+    VList.Sorted := True;
+    VList.Duplicates := dupIgnore;
     if (FProviderMain <> nil) then begin
-      VList.Clear;
-      FProviderMain.ReadValuesList(VList);
-      AList.AddStrings(VList);
+      VListStatic := FProviderMain.ReadValuesList;
+      for i := 0 to VListStatic.Count - 1 do begin
+        VList.Add(VListStatic.Items[i]);
+      end;
     end;
     if (FProviderLocal <> nil) then begin
-      VList.Clear;
-      FProviderLocal.ReadValuesList(VList);
-      AList.AddStrings(VList);
+      VListStatic := FProviderLocal.ReadValuesList;
+      for i := 0 to VListStatic.Count - 1 do begin
+        VList.Add(VListStatic.Items[i]);
+      end;
     end;
-  finally
+  except
     VList.Free;
+    raise;
   end;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

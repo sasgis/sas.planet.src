@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -44,8 +45,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(
       ASource: IConfigDataProvider;
@@ -179,9 +180,9 @@ begin
   Result := FSource.ReadString(AIdent, Result);
 end;
 
-procedure TConfigDataProviderWithUseDepreciated.ReadSubItemsList(AList: TStrings);
+function TConfigDataProviderWithUseDepreciated.ReadSubItemsList: IStringListStatic;
 begin
-  FSource.ReadSubItemsList(AList);
+  Result := FSource.ReadSubItemsList;
 end;
 
 function TConfigDataProviderWithUseDepreciated.ReadTime(const AIdent: string;
@@ -197,9 +198,9 @@ begin
   Result := FSource.ReadTime(AIdent, Result);
 end;
 
-procedure TConfigDataProviderWithUseDepreciated.ReadValuesList(AList: TStrings);
+function TConfigDataProviderWithUseDepreciated.ReadValuesList: IStringListStatic;
 begin
-  FSource.ReadValuesList(AList);
+  Result := FSource.ReadValuesList;
 end;
 
 end.

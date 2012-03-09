@@ -13,6 +13,7 @@ type
   private
     function GetCount: Integer;
     function GetItem(AIndex: Integer): string;
+    function IndexOf(const S: string): Integer;
   public
     constructor CreateByStrings(AList: TStrings);
     constructor CreateWithOwn(AList: TStringList);
@@ -54,6 +55,11 @@ end;
 function TStringListStatic.GetItem(AIndex: Integer): string;
 begin
   Result := FList.Strings[AIndex];
+end;
+
+function TStringListStatic.IndexOf(const S: string): Integer;
+begin
+  Result := FList.IndexOf(S);
 end;
 
 end.
