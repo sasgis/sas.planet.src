@@ -24,11 +24,17 @@ interface
 
 uses
   Types,
+  GR32,
   i_JclNotify,
   t_GeoTypes,
   i_Bitmap32Static;
 
 type
+  IMarkerDrawable = interface
+    ['{91E8968F-8563-4ED0-8774-AF844F8CA8B9}']
+    procedure DrawToBitmap(ABitmap: TCustomBitmap32; APosition: TDoublePoint);
+  end;
+
   IBitmapMarker = interface(IBitmap32Static)
     ['{03AB4233-EEEA-4AD6-A194-EFD32345056D}']
     function GetBitmapSize: TPoint;
@@ -42,6 +48,26 @@ type
     ['{A27674DB-F074-4E54-8BBA-DF29972191BF}']
     function GetDirection: Double;
     property Direction: Double read GetDirection;
+  end;
+
+  IMarkerDrawableProvider = interface
+    ['{E4DEDD31-B1E3-4776-98DC-C0E3B99537FB}']
+    function GetMarker: IMarkerDrawable;
+  end;
+
+  IMarkerDrawableProviderBySize = interface
+    ['{4B34C9BF-3F37-4782-9B3E-CB8BDFEE82B1}']
+    function GetMarker(ASize: Integer): IMarkerDrawable;
+  end;
+
+  IMarkerDrawableProviderByDirection = interface
+    ['{A38DF7EA-58A3-4893-9E9D-BDD651F7BD96}']
+    function GetMarker(AAngle: Double): IMarkerDrawable;
+  end;
+
+  IMarkerDrawableProviderBySizeAbdDirection = interface
+    ['{FF051FA9-D992-4383-8321-DC5CC2DBB6F1}']
+    function GetMarker(AAngle: Double;  ASize: Integer): IMarkerDrawable;
   end;
 
   IBitmapMarkerProvider = interface
