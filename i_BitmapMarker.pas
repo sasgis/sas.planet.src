@@ -23,18 +23,16 @@ unit i_BitmapMarker;
 interface
 
 uses
-  GR32,
+  Types,
   i_JclNotify,
-  t_GeoTypes;
+  t_GeoTypes,
+  i_Bitmap32Static;
 
 type
-  IBitmapMarker = interface
+  IBitmapMarker = interface(IBitmap32Static)
     ['{03AB4233-EEEA-4AD6-A194-EFD32345056D}']
     function GetBitmapSize: TPoint;
     property BitmapSize: TPoint read GetBitmapSize;
-
-    function GetBitmap: TCustomBitmap32;
-    property Bitmap: TCustomBitmap32 read GetBitmap;
 
     function GetAnchorPoint: TDoublePoint;
     property AnchorPoint: TDoublePoint read GetAnchorPoint;

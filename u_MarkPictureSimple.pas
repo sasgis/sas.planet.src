@@ -118,7 +118,7 @@ begin
 
         VAnchor.X := VBitmap.Bitmap.Width / 2;
         VAnchor.Y := VBitmap.Bitmap.Height;
-        VBaseMarker := TBitmapMarker.Create(VBitmap.Bitmap, VAnchor);
+        VBaseMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FSimpleMarkerProvider := TBitmapMarkerProviderStatic.Create(VBaseMarker);
         InterlockedIncrement(FInited);
       end;

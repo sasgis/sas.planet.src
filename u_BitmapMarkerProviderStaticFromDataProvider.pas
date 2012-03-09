@@ -85,6 +85,7 @@ uses
   i_Bitmap32Static,
   i_ContentTypeInfo,
   u_GeoFun,
+  u_Bitmap32Static,
   u_BitmapMarker;
 
 const
@@ -129,6 +130,7 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
+  VBitmapStatic: IBitmap32Static;
 begin
   VTransform := TAffineTransformation.Create;
   try
@@ -170,14 +172,16 @@ begin
 
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
 
-      Result :=
-        TBitmapMarker.Create(
-          VBitmap,
-          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y)
-        );
-    finally
+    except
       VBitmap.Free;
+      raise;
     end;
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    Result :=
+      TBitmapMarker.Create(
+        VBitmapStatic,
+        DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y)
+      );
   finally
     VTransform.Free;
   end;
@@ -217,7 +221,7 @@ begin
   end;
   inherited Create(
     TBitmapMarker.Create(
-      VBitmap.Bitmap,
+      VBitmap,
       AAnchorPoint
     )
   );
@@ -256,7 +260,7 @@ begin
 
   FMarker :=
     TBitmapMarkerWithDirection.Create(
-      VBitmap.Bitmap,
+      VBitmap,
       AAnchorPoint,
       ADefaultDirection
     );
@@ -328,6 +332,7 @@ var
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
   VMarkerWithDirection: IBitmapMarkerWithDirection;
+  VBitmapStatic: IBitmap32Static;
 begin
   VTransform := TAffineTransformation.Create;
   try
@@ -368,16 +373,17 @@ begin
       end;
 
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-
-      Result :=
-        TBitmapMarkerWithDirection.Create(
-          VBitmap,
-          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          VMarkerWithDirection.Direction
-        );
-    finally
+    except
       VBitmap.Free;
+      raise;
     end;
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    Result :=
+      TBitmapMarkerWithDirection.Create(
+        VBitmapStatic,
+        DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+        VMarkerWithDirection.Direction
+      );
   finally
     VTransform.Free;
   end;
@@ -397,6 +403,7 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
+  VBitmapStatic: IBitmap32Static;
 begin
   VTransform := TAffineTransformation.Create;
   try
@@ -434,15 +441,17 @@ begin
         VRasterizer.Free;
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-      Result :=
-        TBitmapMarkerWithDirection.Create(
-          VBitmap,
-          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          AAngle
-        );
-    finally
+    except
       VBitmap.Free;
+      raise;
     end;
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    Result :=
+      TBitmapMarkerWithDirection.Create(
+        VBitmapStatic,
+        DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+        AAngle
+      );
   finally
     VTransform.Free;
   end;
@@ -463,6 +472,7 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
+  VBitmapStatic: IBitmap32Static;
 begin
   VTransform := TAffineTransformation.Create;
   try
@@ -502,15 +512,17 @@ begin
         VRasterizer.Free;
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-      Result :=
-        TBitmapMarkerWithDirection.Create(
-          VBitmap,
-          DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-          AAngle
-        );
-    finally
+    except
       VBitmap.Free;
+      raise;
     end;
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    Result :=
+      TBitmapMarkerWithDirection.Create(
+        VBitmapStatic,
+        DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
+        AAngle
+      );
   finally
     VTransform.Free;
   end;

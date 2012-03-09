@@ -39,6 +39,8 @@ implementation
 
 uses
   t_GeoTypes,
+  i_Bitmap32Static,
+  u_Bitmap32Static,
   u_BitmapMarker;
 
 { TBitmapMarkerProviderSimpleSquare }
@@ -50,6 +52,7 @@ var
   VSize: TPoint;
   VCenterPoint: TDoublePoint;
   VMarkRect: TRect;
+  VBitmapStatic: IBitmap32Static;
 begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
@@ -64,15 +67,16 @@ begin
 
     VMarkRect := VMarkerBitmap.BoundsRect;
     VMarkerBitmap.FrameRectTS(VMarkRect, VConfig.BorderColor);
-
-    Result :=
-      TBitmapMarker.Create(
-        VMarkerBitmap,
-        VCenterPoint
-      );
-  finally
+  except
     VMarkerBitmap.Free;
+    raise;
   end;
+  VBitmapStatic := TBitmap32Static.CreateWithOwn(VMarkerBitmap);
+  Result :=
+    TBitmapMarker.Create(
+      VBitmapStatic,
+      VCenterPoint
+    );
 end;
 
 end.

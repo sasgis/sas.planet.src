@@ -44,6 +44,8 @@ uses
   GR32_Polygons,
   GR32_Transforms,
   t_GeoTypes,
+  i_Bitmap32Static,
+  u_Bitmap32Static,
   u_BitmapMarker;
 
 { TBitmapMarkerProviderSimpleArrow }
@@ -59,6 +61,7 @@ var
   VPolygon: TPolygon32;
   VCenterPoint: TDoublePoint;
   VTransform: TAffineTransformation;
+  VBitmapStatic: IBitmap32Static;
 begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
@@ -89,15 +92,17 @@ begin
     finally
       VTransform.Free;
     end;
-    Result :=
-      TBitmapMarkerWithDirection.Create(
-        VMarkerBitmap,
-        VCenterPoint,
-        ADirection
-      );
-  finally
+  except
     VMarkerBitmap.Free;
+    raise;
   end;
+  VBitmapStatic := TBitmap32Static.CreateWithOwn(VMarkerBitmap);
+  Result :=
+    TBitmapMarkerWithDirection.Create(
+      VBitmapStatic,
+      VCenterPoint,
+      ADirection
+    );
 end;
 
 end.
