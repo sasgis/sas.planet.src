@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   IniFiles,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -43,8 +44,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(AIniFile: TCustomIniFile);
     destructor Destroy; override;
@@ -55,6 +56,7 @@ implementation
 
 uses
   SysUtils,
+  u_StringListStatic,
   u_ConfigDataProviderByIniFileSection;
 
 { TConfigDataProviderByIniFile }
@@ -120,9 +122,18 @@ begin
   Result := ADefault;
 end;
 
-procedure TConfigDataProviderByIniFile.ReadSubItemsList(AList: TStrings);
+function TConfigDataProviderByIniFile.ReadSubItemsList: IStringListStatic;
+var
+  VList: TStringList;
 begin
-  FIniFile.ReadSections(AList);
+  VList := TStringList.Create;
+  try
+    FIniFile.ReadSections(VList);
+  except
+    VList.Free;
+    raise;
+  end;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByIniFile.ReadTime(const AIdent: string;
@@ -131,9 +142,12 @@ begin
   Result := ADefault;
 end;
 
-procedure TConfigDataProviderByIniFile.ReadValuesList(AList: TStrings);
+function TConfigDataProviderByIniFile.ReadValuesList: IStringListStatic;
+var
+  VList: TStringList;
 begin
-  AList.Clear;
+  VList := TStringList.Create;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

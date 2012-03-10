@@ -67,6 +67,7 @@ uses
   SysUtils,
   ActiveX,
   c_ZeroGUID,
+  i_StringListStatic,
   u_GUIDInterfaceSet,
   u_MapTypeSet,
   u_ActiveMapSingleAbstract,
@@ -150,7 +151,7 @@ end;
 
 procedure TActivMapWithLayers.DoReadConfig(AConfigData: IConfigDataProvider);
 var
-  VList: TStringList;
+  VList: IStringListStatic;
   i: Integer;
   VKeyName: string;
   VGUIDString: string;
@@ -159,32 +160,27 @@ var
 begin
   inherited;
   if AConfigData <> nil then begin
-    VList := TStringList.Create;
-    try
-      AConfigData.ReadValuesList(VList);
-      for i := 0 to VList.Count - 1 do begin
-        VKeyName := VList.Strings[i];
-        if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
-          VGUIDString := AConfigData.ReadString(VKeyName, '');
-          if VGUIDString <> '' then begin
-            try
-              VGUID := StringToGUID(VGUIDString);
-            except
-              VGUID := CGUID_Zero;
-            end;
-          end else begin
+    VList := AConfigData.ReadValuesList;
+    for i := 0 to VList.Count - 1 do begin
+      VKeyName := VList.Items[i];
+      if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
+        VGUIDString := AConfigData.ReadString(VKeyName, '');
+        if VGUIDString <> '' then begin
+          try
+            VGUID := StringToGUID(VGUIDString);
+          except
             VGUID := CGUID_Zero;
           end;
-          if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-            VMap := FActiveLayersSet.GetMapsSet.GetMapTypeByGUID(VGUID);
-            if VMap <> nil then begin
-              SelectLayerByGUID(VGUID)
-            end;
+        end else begin
+          VGUID := CGUID_Zero;
+        end;
+        if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+          VMap := FActiveLayersSet.GetMapsSet.GetMapTypeByGUID(VGUID);
+          if VMap <> nil then begin
+            SelectLayerByGUID(VGUID)
           end;
         end;
       end;
-    finally
-      VList.Free;
     end;
   end;
 end;
@@ -192,7 +188,7 @@ end;
 procedure TActivMapWithLayers.DoWriteConfig(
   AConfigData: IConfigDataWriteProvider);
 var
-  VList: TStringList;
+  VList: IStringListStatic;
   i: Cardinal;
   VKeyName: string;
   VGUIDString: string;
@@ -201,17 +197,12 @@ var
   VEnum: IEnumGUID;
 begin
   inherited;
-  VList := TStringList.Create;
-  try
-    AConfigData.ReadValuesList(VList);
-    for i := 0 to VList.Count - 1 do begin
-      VKeyName := VList.Strings[i];
-      if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
-        AConfigData.DeleteValue(VKeyName);
-      end;
+  VList := AConfigData.ReadValuesList;
+  for i := 0 to VList.Count - 1 do begin
+    VKeyName := VList.Items[i];
+    if SameText(LeftStr(VKeyName, length(CKeyNameLayer)), CKeyNameLayer) then begin
+      AConfigData.DeleteValue(VKeyName);
     end;
-  finally
-    VList.Free;
   end;
 
   VIndex := 0;

@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   KAZip,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -44,8 +45,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(AFileName: string);
     destructor Destroy; override;
@@ -57,6 +58,7 @@ uses
   SysUtils,
   IniFiles,
   u_ResStrings,
+  u_StringListStatic,
   u_BinaryDataByMemStream,
   u_ConfigDataProviderByIniFile;
 
@@ -196,20 +198,27 @@ begin
   end;
 end;
 
-procedure TConfigDataProviderByKaZip.ReadSubItemsList(AList: TStrings);
+function TConfigDataProviderByKaZip.ReadSubItemsList: IStringListStatic;
 var
+  VList: TStringList;
   i: Integer;
   VExt: string;
   VFileName: string;
 begin
-  AList.Clear;
-  for i := 0 to FUnZip.Entries.Count - 1 do begin
-    VFileName := FUnZip.Entries.Items[i].FileName;
-    VExt := UpperCase(ExtractFileExt(VFileName));
-    if (VExt = '.INI') or (VExt = '.TXT') then begin
-      AList.Add(VFileName);
+  VList := TStringList.Create;
+  try
+    for i := 0 to FUnZip.Entries.Count - 1 do begin
+      VFileName := FUnZip.Entries.Items[i].FileName;
+      VExt := UpperCase(ExtractFileExt(VFileName));
+      if (VExt = '.INI') or (VExt = '.TXT') then begin
+        VList.Add(VFileName);
+      end;
     end;
+  except
+    VList.Free;
+    raise;
   end;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByKaZip.ReadTime(const AIdent: string;
@@ -218,20 +227,27 @@ begin
   Result := ADefault;
 end;
 
-procedure TConfigDataProviderByKaZip.ReadValuesList(AList: TStrings);
+function TConfigDataProviderByKaZip.ReadValuesList: IStringListStatic;
 var
+  VList: TStringList;
   i: Integer;
   VExt: string;
   VFileName: string;
 begin
-  AList.Clear;
-  for i := 0 to FUnZip.Entries.Count - 1 do begin
-    VFileName := FUnZip.Entries.Items[i].FileName;
-    VExt := UpperCase(ExtractFileExt(VFileName));
-    if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
-      AList.Add(VFileName);
+  VList := TStringList.Create;
+  try
+    for i := 0 to FUnZip.Entries.Count - 1 do begin
+      VFileName := FUnZip.Entries.Items[i].FileName;
+      VExt := UpperCase(ExtractFileExt(VFileName));
+      if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
+        VList.Add(VFileName);
+      end;
     end;
+  except
+    VList.Free;
+    raise;
   end;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

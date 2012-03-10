@@ -67,24 +67,16 @@ begin
         6,
         VIgnoredFodlerMasks
       );
-    try
-      VFilesInFolderIteratorFactory :=
-        TFileNameIteratorInFolderByMaskListFactory.Create(
-          VProcessFileMasks,
-          False
-        );
-      try
-        FFactory :=
-          TFileNameIteratorFolderWithSubfoldersFactory.Create(
-            VFoldersIteratorFactory,
-            VFilesInFolderIteratorFactory
-          );
-      finally
-        VFilesInFolderIteratorFactory := nil;
-      end;
-    finally
-      VFoldersIteratorFactory := nil;
-    end;
+    VFilesInFolderIteratorFactory :=
+      TFileNameIteratorInFolderByMaskListFactory.Create(
+        VProcessFileMasks,
+        False
+      );
+    FFactory :=
+      TFileNameIteratorFolderWithSubfoldersFactory.Create(
+        VFoldersIteratorFactory,
+        VFilesInFolderIteratorFactory
+      );
   finally
     FreeAndNil(VIgnoredFodlerMasks);
     FreeAndNil(VProcessFileMasks);

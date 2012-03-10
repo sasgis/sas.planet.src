@@ -40,6 +40,8 @@ implementation
 uses
   GR32_Polygons,
   t_GeoTypes,
+  i_Bitmap32Static,
+  u_Bitmap32Static,
   u_BitmapMarker;
 
 { TBitmapMarkerProviderSimpleCross }
@@ -52,6 +54,7 @@ var
   VPolygon: TPolygon32;
   VCenterPoint: TDoublePoint;
   VCrossHalfWidth: Double;
+  VBitmapStatic: IBitmap32Static;
 begin
   VMarkerBitmap := TCustomBitmap32.Create;
   try
@@ -87,14 +90,16 @@ begin
     finally
       VPolygon.Free;
     end;
-    Result :=
-      TBitmapMarker.Create(
-        VMarkerBitmap,
-        VCenterPoint
-      );
-  finally
+  except
     VMarkerBitmap.Free;
+    raise;
   end;
+  VBitmapStatic := TBitmap32Static.CreateWithOwn(VMarkerBitmap);
+  Result :=
+    TBitmapMarker.Create(
+      VBitmapStatic,
+      VCenterPoint
+    );
 end;
 
 end.

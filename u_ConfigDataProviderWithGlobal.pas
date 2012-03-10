@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -49,8 +50,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(
       AProviderMain: IConfigDataProvider;
@@ -65,7 +66,8 @@ type
 implementation
 
 uses
-  StrUtils;
+  StrUtils,
+  u_StringListStatic;
 
 { TConfigDataProviderWithGlobal }
 
@@ -239,12 +241,15 @@ begin
   end;
 end;
 
-procedure TConfigDataProviderWithGlobal.ReadSubItemsList(AList: TStrings);
+function TConfigDataProviderWithGlobal.ReadSubItemsList: IStringListStatic;
+var
+  VList: TStringList;
 begin
   if FProviderMain <> nil then begin
-    FProviderMain.ReadSubItemsList(AList);
+    Result := FProviderMain.ReadSubItemsList;
   end else begin
-    AList.Clear;
+    VList := TStringList.Create;
+    Result := TStringListStatic.CreateWithOwn(VList);
   end;
 end;
 
@@ -265,12 +270,15 @@ begin
   end;
 end;
 
-procedure TConfigDataProviderWithGlobal.ReadValuesList(AList: TStrings);
+function TConfigDataProviderWithGlobal.ReadValuesList: IStringListStatic;
+var
+  VList: TStringList;
 begin
   if (FProviderMain <> nil) then begin
-    FProviderMain.ReadValuesList(AList);
+    Result := FProviderMain.ReadValuesList;
   end else begin
-    AList.Clear;
+    VList := TStringList.Create;
+    Result := TStringListStatic.CreateWithOwn(VList);
   end;
 end;
 

@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -44,8 +45,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(
       ASource: IConfigDataProvider;
@@ -56,6 +57,9 @@ type
   end;
 
 implementation
+
+uses
+  u_StringListStatic;
 
 { TConfigDataProviderWithReplacedSubItem }
 
@@ -128,20 +132,43 @@ begin
   Result := FSource.ReadString(AIdent, ADefault);
 end;
 
-procedure TConfigDataProviderWithReplacedSubItem.ReadSubItemsList(
-  AList: TStrings);
+function TConfigDataProviderWithReplacedSubItem.ReadSubItemsList: IStringListStatic;
 var
   VIndex: Integer;
+  VList: TStringList;
+  i: Integer;
 begin
-  FSource.ReadSubItemsList(AList);
-  VIndex := AList.IndexOf(FSubItemName);
+  Result := FSource.ReadSubItemsList;
+  VIndex := Result.IndexOf(FSubItemName);
   if VIndex < 0 then begin
     if FSubItem <> nil then begin
-      AList.Add(FSubItemName);
+      VList := TStringList.Create;
+      try
+        for i := 0 to Result.Count - 1 do begin
+          VList.Add(Result.Items[i]);
+        end;
+        VList.Add(FSubItemName);
+      except
+        VList.Free;
+        raise;
+      end;
+      Result := TStringListStatic.CreateWithOwn(VList);
     end;
   end else begin
     if FSubItem = nil then begin
-      AList.Delete(VIndex);
+      VList := TStringList.Create;
+      try
+        for i := 0 to Result.Count - 1 do begin
+          if i <> VIndex then begin
+            VList.Add(Result.Items[i]);
+          end;
+        end;
+        VList.Add(FSubItemName);
+      except
+        VList.Free;
+        raise;
+      end;
+      Result := TStringListStatic.CreateWithOwn(VList);
     end;
   end;
 end;
@@ -152,10 +179,9 @@ begin
   Result := FSource.ReadTime(AIdent, ADefault);
 end;
 
-procedure TConfigDataProviderWithReplacedSubItem.ReadValuesList(
-  AList: TStrings);
+function TConfigDataProviderWithReplacedSubItem.ReadValuesList: IStringListStatic;
 begin
-  FSource.ReadValuesList(AList);
+  Result := FSource.ReadValuesList;
 end;
 
 end.

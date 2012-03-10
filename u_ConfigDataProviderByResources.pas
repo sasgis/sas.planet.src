@@ -25,6 +25,7 @@ interface
 uses
   Types,
   Classes,
+  i_StringListStatic,
   i_BinaryData,
   i_ConfigDataProvider;
 
@@ -43,8 +44,8 @@ type
     function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
     function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
 
-    procedure ReadSubItemsList(AList: TStrings); virtual;
-    procedure ReadValuesList(AList: TStrings); virtual;
+    function ReadSubItemsList: IStringListStatic;
+    function ReadValuesList: IStringListStatic;
   public
     constructor Create(AInstance: THandle);
   end;
@@ -53,6 +54,7 @@ implementation
 
 uses
   SysUtils,
+  u_StringListStatic,
   u_BinaryDataByMemStream;
 
 { TConfigDataProviderByResources }
@@ -128,9 +130,12 @@ begin
   Result := ADefault;
 end;
 
-procedure TConfigDataProviderByResources.ReadSubItemsList(AList: TStrings);
+function TConfigDataProviderByResources.ReadSubItemsList: IStringListStatic;
+var
+  VList: TStringList;
 begin
-  AList.Clear;
+  VList := TStringList.Create;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByResources.ReadTime(const AIdent: string;
@@ -139,9 +144,12 @@ begin
   Result := ADefault;
 end;
 
-procedure TConfigDataProviderByResources.ReadValuesList(AList: TStrings);
+function TConfigDataProviderByResources.ReadValuesList: IStringListStatic;
+var
+  VList: TStringList;
 begin
-  AList.Clear;
+  VList := TStringList.Create;
+  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

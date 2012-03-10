@@ -24,6 +24,8 @@ uses
   u_GUIDListStatic in 'u_GUIDListStatic.pas',
   u_HashCacheWithQueuesAbstract in 'u_HashCacheWithQueuesAbstract.pas',
   u_StreamReadOnlyByBinaryData in 'u_StreamReadOnlyByBinaryData.pas',
+  i_StringListStatic in 'i_StringListStatic.pas',
+  u_StringListStatic in 'u_StringListStatic.pas',
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
   i_TimeZoneList in 'i_TimeZoneList.pas',

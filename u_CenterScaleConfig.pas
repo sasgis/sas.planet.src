@@ -23,7 +23,7 @@ unit u_CenterScaleConfig;
 interface
 
 uses
-  i_Bitmap32Static,
+  i_BitmapMarker,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_CenterScaleConfig,
@@ -33,7 +33,7 @@ type
   TCenterScaleConfig = class(TConfigDataElementBase, ICenterScaleConfig)
   private
     FVisible: Boolean;
-    FBitmap: IBitmap32Static;
+    FBitmap: IBitmapMarker;
     procedure CreateBitmap;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -42,8 +42,8 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(const AValue: Boolean);
 
-    function GetBitmap: IBitmap32Static;
-    procedure SetBitmap(AValue: IBitmap32Static);
+    function GetBitmap: IBitmapMarker;
+    procedure SetBitmap(AValue: IBitmapMarker);
   public
     constructor Create;
   end;
@@ -54,6 +54,9 @@ uses
   Types,
   SysUtils,
   GR32,
+  i_Bitmap32Static,
+  u_GeoFun,
+  u_BitmapMarker,
   u_Bitmap32Static;
 
 { TCenterScaleConfig }
@@ -77,6 +80,7 @@ var
   VRadius: Integer;
   VFontSize: Integer;
   VDigitsOffset: Integer;
+  VBitmapStatic: IBitmap32Static;
 begin
   VBitmap := TBitmap32.Create;
   try
@@ -116,7 +120,8 @@ begin
       end;
       inc(i, 5);
     end;
-    FBitmap := TBitmap32Static.CreateWithCopy(VBitmap);
+    VBitmapStatic := TBitmap32Static.CreateWithCopy(VBitmap);
+    FBitmap := TBitmapMarker.Create(VBitmapStatic, DoublePoint(VHalfSize));
   finally
     VBitmap.Free;
   end;
@@ -139,7 +144,7 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
-function TCenterScaleConfig.GetBitmap: IBitmap32Static;
+function TCenterScaleConfig.GetBitmap: IBitmapMarker;
 begin
   LockRead;
   try
@@ -159,7 +164,7 @@ begin
   end;
 end;
 
-procedure TCenterScaleConfig.SetBitmap(AValue: IBitmap32Static);
+procedure TCenterScaleConfig.SetBitmap(AValue: IBitmapMarker);
 begin
   LockWrite;
   try

@@ -334,6 +334,7 @@
     <DCCReference Include="i_StringByLanguage.pas" />
     <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
+    <DCCReference Include="i_StringListStatic.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
@@ -833,6 +834,7 @@
     <DCCReference Include="u_StringConfigDataElementWithDefByStringRec.pas" />
     <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="u_StringHistory.pas" />
+    <DCCReference Include="u_StringListStatic.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />

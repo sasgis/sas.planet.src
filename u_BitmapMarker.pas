@@ -26,13 +26,14 @@ uses
   Types,
   GR32,
   t_GeoTypes,
+  i_Bitmap32Static,
   i_BitmapMarker;
 
 type
-  TBitmapMarker = class(TInterfacedObject, IBitmapMarker)
+  TBitmapMarker = class(TInterfacedObject, IBitmapMarker, IBitmap32Static)
   private
+    FBitmap: IBitmap32Static;
     FBitmapSize: TPoint;
-    FBitmap: TCustomBitmap32;
     FAnchorPoint: TDoublePoint;
   protected
     function GetBitmapSize: TPoint;
@@ -40,14 +41,9 @@ type
     function GetAnchorPoint: TDoublePoint;
   public
     constructor Create(
-      ABitmap: TCustomBitmap32;
+      ABitmap: IBitmap32Static;
       AAnchorPoint: TDoublePoint
     );
-    constructor CreateTakeBitmapOwn(
-      ABitmap: TCustomBitmap32;
-      AAnchorPoint: TDoublePoint
-    );
-    destructor Destroy; override;
   end;
 
   TBitmapMarkerWithDirection = class(TBitmapMarker, IBitmapMarkerWithDirection)
@@ -57,7 +53,7 @@ type
     function GetDirection: Double;
   public
     constructor Create(
-      ABitmap: TCustomBitmap32;
+      ABitmap: IBitmap32Static;
       AAnchorPoint: TDoublePoint;
       ADirection: Double
     );
@@ -72,31 +68,18 @@ uses
 { TBitmapMarker }
 
 constructor TBitmapMarker.Create(
-  ABitmap: TCustomBitmap32;
+  ABitmap: IBitmap32Static;
   AAnchorPoint: TDoublePoint
 );
 var
   VBitmap: TCustomBitmap32;
 begin
-  VBitmap := TCustomBitmap32.Create;
-  VBitmap.Assign(ABitmap);
-  CreateTakeBitmapOwn(VBitmap, AAnchorPoint);
-end;
-
-constructor TBitmapMarker.CreateTakeBitmapOwn(ABitmap: TCustomBitmap32;
-  AAnchorPoint: TDoublePoint);
-begin
   FAnchorPoint := AAnchorPoint;
   FBitmap := ABitmap;
-  FBitmap.DrawMode := dmBlend;
-  FBitmap.CombineMode := cmBlend;
-  FBitmapSize := Point(FBitmap.Width, FBitmap.Height);
-end;
-
-destructor TBitmapMarker.Destroy;
-begin
-  FreeAndNil(FBitmap);
-  inherited;
+  VBitmap := FBitmap.Bitmap;
+  VBitmap.DrawMode := dmBlend;
+  VBitmap.CombineMode := cmBlend;
+  FBitmapSize := Point(VBitmap.Width, VBitmap.Height);
 end;
 
 function TBitmapMarker.GetAnchorPoint: TDoublePoint;
@@ -106,7 +89,7 @@ end;
 
 function TBitmapMarker.GetBitmap: TCustomBitmap32;
 begin
-  Result := FBitmap;
+  Result := FBitmap.Bitmap;
 end;
 
 function TBitmapMarker.GetBitmapSize: TPoint;
@@ -117,7 +100,7 @@ end;
 { TBitmapMarkerWithDirection }
 
 constructor TBitmapMarkerWithDirection.Create(
-  ABitmap: TCustomBitmap32;
+  ABitmap: IBitmap32Static;
   AAnchorPoint: TDoublePoint;
   ADirection: Double
 );
