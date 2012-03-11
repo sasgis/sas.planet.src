@@ -401,6 +401,7 @@ uses
   u_BitmapLayerProviderSimpleForCombine in 'u_BitmapLayerProviderSimpleForCombine.pas',
   u_BitmapLayerProviderWithBgColor in 'u_BitmapLayerProviderWithBgColor.pas',
   u_BitmapLayerProviderByMarksSubset in 'u_BitmapLayerProviderByMarksSubset.pas',
+  u_BitmapLayerProviderByVectorSubset in 'u_BitmapLayerProviderByVectorSubset.pas',
   u_BitmapLayerProviderMapWithLayer in 'u_BitmapLayerProviderMapWithLayer.pas',
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',
   u_WindowLayerWithPos in 'MapLayers\u_WindowLayerWithPos.pas',
