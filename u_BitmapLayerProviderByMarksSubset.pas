@@ -53,7 +53,7 @@ type
     FTempBmp: TCustomBitmap32;
     FBitmapWithText: TBitmap32;
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
-    FPathFixedPoints: TArrayOfFixedPoint;
+    FFixedPointArray: TArrayOfFixedPoint;
     function GetProjectedPath(
       AMarkPath: IMarkLine;
       AProjectionInfo: IProjectionInfo
@@ -235,22 +235,22 @@ begin
                 end else begin
                   VPolygon.NewLine;
                 end;
-                if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-                  SetLength(FPathFixedPoints, VPointsProcessedCount);
+                if Length(FFixedPointArray) < VPointsProcessedCount then begin
+                  SetLength(FFixedPointArray, VPointsProcessedCount);
                 end;
                 VIndex := 0;
                 for i := 0 to VPointsProcessedCount - 1 do begin
                   VPoint := FPreparedPointsAggreagtor.Points[i];
                   if PointIsEmpty(VPoint) then begin
-                    VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+                    VPolygon.AddPoints(FFixedPointArray[0], VIndex);
                     VPolygon.NewLine;
                     VIndex := 0;
                   end else begin
-                    FPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
+                    FFixedPointArray[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
                     Inc(VIndex);
                   end;
                 end;
-                VPolygon.AddPoints(FPathFixedPoints[0], VIndex);
+                VPolygon.AddPoints(FFixedPointArray[0], VIndex);
               end;
             end;
           end;
@@ -343,14 +343,14 @@ begin
                 end else begin
                   VPolygon.NewLine;
                 end;
-                if Length(FPathFixedPoints) < VPointsProcessedCount then begin
-                  SetLength(FPathFixedPoints, VPointsProcessedCount);
+                if Length(FFixedPointArray) < VPointsProcessedCount then begin
+                  SetLength(FFixedPointArray, VPointsProcessedCount);
                 end;
                 for i := 0 to VPointsProcessedCount - 1 do begin
                   VPoint := FPreparedPointsAggreagtor.Points[i];
-                  FPathFixedPoints[i] := FixedPoint(VPoint.X, VPoint.Y);
+                  FFixedPointArray[i] := FixedPoint(VPoint.X, VPoint.Y);
                 end;
-                VPolygon.AddPoints(FPathFixedPoints[0], VPointsProcessedCount);
+                VPolygon.AddPoints(FFixedPointArray[0], VPointsProcessedCount);
               end;
             end;
           end;
