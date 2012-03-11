@@ -24,20 +24,33 @@ interface
 
 uses
   Classes,
+  i_VectorDataFactory,
   i_ImportFile,
   i_ImportConfig;
 
 type
   TMarksImportBase = class(TInterfacedObject, IImportFile)
+  private
+    FVectorDataFactory: IVectorDataFactory;
   protected
+    property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; virtual; abstract;
   protected
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+  public
+    constructor Create(
+      AVectorDataFactory: IVectorDataFactory
+    );
   end;
-  
+
 implementation
 
 { TMarksImportBase }
+
+constructor TMarksImportBase.Create(AVectorDataFactory: IVectorDataFactory);
+begin
+  FVectorDataFactory := AVectorDataFactory;
+end;
 
 function TMarksImportBase.ProcessImport(AFileName: string;
   AConfig: IImportConfig): Boolean;

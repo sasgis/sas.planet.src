@@ -27,6 +27,7 @@ uses
   i_VectorDataLoader,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
+  i_VectorDataFactory,
   i_LanguageManager,
   i_ProxySettings,
   u_PathDetalizeProviderListEntity;
@@ -35,6 +36,7 @@ type
   TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
   private
     FFactory: IVectorItmesFactory;
+    FVectorDataFactory: IVectorDataFactory;
     FBaseUrl: string;
     FProxyConfig: IProxyConfig;
     FKmlLoader: IVectorDataLoader;
@@ -45,6 +47,7 @@ type
       AGUID: TGUID;
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader;
       ABaseUrl: string
@@ -61,6 +64,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
@@ -76,6 +80,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
@@ -91,6 +96,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
@@ -106,6 +112,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
@@ -131,6 +138,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   AGUID: TGUID;
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader;
   ABaseUrl: string
@@ -139,6 +147,7 @@ begin
   inherited Create(AGUID, ALanguageManager);
   FBaseUrl := ABaseUrl;
   FProxyConfig := AProxyConfig;
+  FVectorDataFactory := AVectorDataFactory;
   FFactory := AFactory;
   FKmlLoader := AKmlLoader;
 end;
@@ -155,6 +164,7 @@ var
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
   VLine: ILonLatPathLine;
+  VFactory: IVectorDataFactory;
 begin
   AComment := '';
   ms:=TMemoryStream.Create;
@@ -169,7 +179,7 @@ begin
         url:=url+'&flat='+R2StrPoint(VPrevPoint.y)+'&flon='+R2StrPoint(VPrevPoint.x)+
             '&tlat='+R2StrPoint(VCurrPoint.y)+'&tlon='+R2StrPoint(VCurrPoint.x);
         if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
-          kml := FKmlLoader.LoadFromStream(ms);
+          kml := FKmlLoader.LoadFromStream(ms, FVectorDataFactory);
           if kml <> nil then begin
             ms.SetSize(0);
             if kml.Count > 0 then begin
@@ -202,6 +212,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
@@ -210,6 +221,7 @@ begin
     CPathDetalizeProviderYourNavigationFastestByCar,
     ALanguageManager,
     AProxyConfig,
+    AVectorDataFactory,
     AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
@@ -236,6 +248,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
@@ -244,6 +257,7 @@ begin
     CPathDetalizeProviderYourNavigationShortestByCar,
     ALanguageManager,
     AProxyConfig,
+    AVectorDataFactory,
     AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
@@ -270,6 +284,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
@@ -278,6 +293,7 @@ begin
     CPathDetalizeProviderYourNavigationFastestByBicycle,
     ALanguageManager,
     AProxyConfig,
+    AVectorDataFactory,
     AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
@@ -304,6 +320,7 @@ end;
 constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
@@ -312,6 +329,7 @@ begin
     CPathDetalizeProviderYourNavigationShortestByBicycle,
     ALanguageManager,
     AProxyConfig,
+    AVectorDataFactory,
     AFactory,
     AKmlLoader,
     'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'

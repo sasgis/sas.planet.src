@@ -28,6 +28,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_BinaryData,
+  i_VectorDataFactory,
   i_HtmlToHintTextConverter,
   i_VectorItmesFactory,
   i_VectorDataItemSimple,
@@ -43,19 +44,19 @@ type
   private
     FFactory: IVectorItmesFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
-    FHintConverter: IHtmlToHintTextConverter;
     FFormat: TFormatSettings;
   protected
-    procedure Internal_ParseXML_UserProc(const pUserAuxPointer: Pointer;
-                                         const pPX_Result: Pvsagps_XML_ParserResult;
-                                         const pPX_State: Pvsagps_XML_ParserState);
+    procedure Internal_ParseXML_UserProc(
+      const pUserAuxPointer: Pointer;
+      const pPX_Result: Pvsagps_XML_ParserResult;
+      const pPX_State: Pvsagps_XML_ParserState
+    );
   protected
-    function LoadFromStream(AStream: TStream): IVectorDataItemList; virtual;
-    function Load(AData: IBinaryData): IVectorDataItemList; virtual;
+    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
+    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
   public
     constructor Create(
       AFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -74,6 +75,7 @@ uses
 type
   TParseXML_Aux = record
     opt: Tvsagps_XML_ParserOptions;
+    Factory: IVectorDataFactory;
     list: IInterfaceList;
     segment_counter: Integer;
     array_count: Integer;
@@ -92,25 +94,25 @@ begin
   end;
 end;
 
-procedure rTVSAGPS_ParseXML_UserProc(const pUserObjPointer: Pointer;
-                                     const pUserAuxPointer: Pointer;
-                                     const pPX_Options: Pvsagps_XML_ParserOptions;
-                                     const pPX_Result: Pvsagps_XML_ParserResult;
-                                     const pPX_State: Pvsagps_XML_ParserState); stdcall;
+procedure rTVSAGPS_ParseXML_UserProc(
+  const pUserObjPointer: Pointer;
+  const pUserAuxPointer: Pointer;
+  const pPX_Options: Pvsagps_XML_ParserOptions;
+  const pPX_Result: Pvsagps_XML_ParserResult;
+  const pPX_State: Pvsagps_XML_ParserState
+); stdcall;
 begin
   TXmlInfoSimpleParser(pUserObjPointer).Internal_ParseXML_UserProc(pUserAuxPointer, pPX_Result, pPX_State);
-end;  
+end;
 
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
   AFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FFactory := AFactory;
-  FHintConverter := AHintConverter;
   FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadXmlStream');
   VSAGPS_PrepareFormatSettings(FFormat);
 end;
@@ -124,7 +126,8 @@ end;
 procedure TXmlInfoSimpleParser.Internal_ParseXML_UserProc(
   const pUserAuxPointer: Pointer;
   const pPX_Result: Pvsagps_XML_ParserResult;
-  const pPX_State: Pvsagps_XML_ParserState);
+  const pPX_State: Pvsagps_XML_ParserState
+);
 
 var
   VWSName, VWSDesc: WideString;
@@ -176,7 +179,7 @@ var
     if not Assigned(PParseXML_Aux(pUserAuxPointer)^.list) then
       PParseXML_Aux(pUserAuxPointer)^.list:=TInterfaceList.Create;
     // create object
-    wpt_iface:=TVectorDataItemPoint.Create(FHintConverter, VWSName, VWSDesc, wpt_point);
+    wpt_iface:=PParseXML_Aux(pUserAuxPointer)^.Factory.BuildPoint('', VWSName, VWSDesc, wpt_point);
     // add object to list
     PParseXML_Aux(pUserAuxPointer)^.list.Add(wpt_iface);
   end;
@@ -199,12 +202,12 @@ var
     if (0<array_count) then begin
       if (1=array_count) then begin
         // single point in track segment - make as point
-        trk_obj:=TVectorDataItemPoint.Create(FHintConverter, VWSName, VWSDesc, array_points[0]);
+        trk_obj:=PParseXML_Aux(pUserAuxPointer)^.Factory.BuildPoint('', VWSName, VWSDesc, array_points[0]);
       end else if DoublePointsEqual(array_points[0], array_points[array_count-1]) then begin
         // polygon
         trk_obj :=
-          TVectorDataItemPoly.Create(
-            FHintConverter,
+          PParseXML_Aux(pUserAuxPointer)^.Factory.BuildPoly(
+            '',
             VWSName,
             VWSDesc,
             FFactory.CreateLonLatPolygon(@array_points[0], array_count)
@@ -212,8 +215,8 @@ var
       end else begin
         // polyline
         trk_obj :=
-          TVectorDataItemPath.Create(
-            FHintConverter,
+          PParseXML_Aux(pUserAuxPointer)^.Factory.BuildPath(
+            '',
             VWSName,
             VWSDesc,
             FFactory.CreateLonLatPath(@array_points[0], array_count)
@@ -347,20 +350,20 @@ begin
   end;
 end;
 
-function TXmlInfoSimpleParser.Load(AData: IBinaryData): IVectorDataItemList;
+function TXmlInfoSimpleParser.Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream);
+    Result := LoadFromStream(VStream, AFactory);
   finally
     VStream.Free;
   end;
 end;
 
-function TXmlInfoSimpleParser.LoadFromStream(AStream: TStream): IVectorDataItemList;
+function TXmlInfoSimpleParser.LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
 var
   tAux: TParseXML_Aux;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -373,6 +376,7 @@ begin
     // for wpt and trk
     Inc(tAux.opt.gpx_options.bParse_trk);
     Inc(tAux.opt.gpx_options.bParse_wpt);
+    tAux.Factory := AFactory;
     // parse
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
     // output result
@@ -380,6 +384,7 @@ begin
       Result := TVectorDataItemList.Create(tAux.list);
       tAux.list := nil;
     end;
+    tAux.Factory := nil;
   finally
     FLoadXmlStreamCounter.FinishOperation(VCounterContext);
   end;

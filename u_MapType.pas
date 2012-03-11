@@ -64,6 +64,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileRectUpdateNotifier,
   i_VectorDataItemSimple,
+  i_VectorDataFactory,
   i_TileDownloadSubsystem,
   u_GlobalCahceConfig,
   u_BaseTileDownloaderThread,
@@ -80,6 +81,7 @@ type
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
+    FVectorDataFactory: IVectorDataFactory;
     FCoordConverter : ICoordConverter;
     FViewCoordConverter : ICoordConverter;
     FLoadPrevMaxZoomDelta: Integer;
@@ -256,6 +258,8 @@ uses
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
   u_MapAttachmentsPascalScript,
+  u_VectorDataFactorySimple,
+  u_HtmlToHintTextConverterStuped,
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
@@ -335,6 +339,7 @@ begin
   end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
     FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+    FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
   end;
   FVersionConfig.VersionFactory := FStorage.MapVersionFactory;
 
@@ -632,7 +637,7 @@ begin
   Result := nil;
   VData := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VTileInfo);
   if VData <> nil then  begin
-    Result := FKmlLoaderFromStorage.Load(VData);
+    Result := FKmlLoaderFromStorage.Load(VData, FVectorDataFactory);
   end;
 end;
 

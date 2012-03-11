@@ -27,6 +27,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_BinaryData,
+  i_VectorDataFactory,
   i_VectorItmesFactory,
   i_VectorDataLoader,
   i_DoublePointsAggregator,
@@ -39,16 +40,14 @@ type
   private
     FFactory: IVectorItmesFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
-    FHintConverter: IHtmlToHintTextConverter;
     procedure ParseStringList(AStringList: TStringList; APointsAggregator: IDoublePointsAggregator);
     function GetWord(Str, Smb: string; WordNmbr: Byte): string;
   protected
-    function LoadFromStream(AStream: TStream): IVectorDataItemList;
-    function Load(AData: IBinaryData): IVectorDataItemList; virtual;
+    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
+    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
   public
     constructor Create(
       AFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
       APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -65,29 +64,27 @@ uses
 
 constructor TPLTSimpleParser.Create(
   AFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FFactory := AFactory;
-  FHintConverter := AHintConverter;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
 end;
 
-function TPLTSimpleParser.Load(AData: IBinaryData): IVectorDataItemList;
+function TPLTSimpleParser.Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream);
+    Result := LoadFromStream(VStream, AFactory);
   finally
     VStream.Free;
   end;
 end;
 
-function TPLTSimpleParser.LoadFromStream(AStream: TStream): IVectorDataItemList;
+function TPLTSimpleParser.LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
 var
   pltstr: TStringList;
   trackname: string;
@@ -105,8 +102,8 @@ begin
       if VPointsAggregator.Count > 0 then begin
         trackname:=GetWord(pltstr[4], ',', 4);
         VItem :=
-          TVectorDataItemPath.Create(
-            FHintConverter,
+          AFactory.BuildPath(
+            '',
             trackname,
             '',
             FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count)

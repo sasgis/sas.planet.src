@@ -67,7 +67,7 @@ begin
   Result := TInterfaceList.Create;
   VStream := TFileStream.Create(AFileName, fmOpenRead);
   try
-    KML := FKmlLoader.LoadFromStream(VStream);
+    KML := FKmlLoader.LoadFromStream(VStream, VectorDataFactory);
     if Assigned(KML) then
     if (0<KML.Count) then
     for i:=0 to KML.Count-1 do begin

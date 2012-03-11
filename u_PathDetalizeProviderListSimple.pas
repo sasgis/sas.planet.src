@@ -25,6 +25,7 @@ interface
 uses
   i_LanguageManager,
   i_ProxySettings,
+  i_VectorDataFactory,
   i_VectorItmesFactory,
   i_VectorDataLoader,
   u_PathDetalizeProviderListBase;
@@ -35,6 +36,7 @@ type
     constructor Create(
       ALanguageManager: ILanguageManager;
       AProxyConfig: IProxyConfig;
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AKmlLoader: IVectorDataLoader
     );
@@ -53,6 +55,7 @@ uses
 constructor TPathDetalizeProviderListSimple.Create(
   ALanguageManager: ILanguageManager;
   AProxyConfig: IProxyConfig;
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AKmlLoader: IVectorDataLoader
 );
@@ -66,13 +69,13 @@ begin
   Add(VEntity);
   VEntity := TPathDetalizeProviderMailRuFastestWithTraffic.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationFastestByCar.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationFastestByCar.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationShortestByCar.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationShortestByCar.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory, AKmlLoader);
+  VEntity := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
   Add(VEntity);
   VEntity := TPathDetalizeProviderCloudMadeFastestByCar.Create(ALanguageManager, AProxyConfig, AFactory);
   Add(VEntity);

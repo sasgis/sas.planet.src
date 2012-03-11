@@ -278,6 +278,7 @@ uses
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
   u_VectorItmesFactorySimple,
+  u_VectorDataFactorySimple,
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
@@ -380,19 +381,16 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItmesFactory,
-      THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       FVectorItmesFactory,
-      THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
       FVectorItmesFactory,
-      THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     );
 
@@ -401,7 +399,6 @@ begin
     VXmlLoader,
     TPLTSimpleParser.Create(
       FVectorItmesFactory,
-      THtmlToHintTextConverterStuped.Create,
       VMarksKmlLoadCounterList
     ),
     VKmlLoader,
@@ -446,7 +443,14 @@ begin
   FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet);
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
-  FPathDetalizeList := TPathDetalizeProviderListSimple.Create(FLanguageManager, FInetConfig.ProxyConfig, FVectorItmesFactory, VKmlLoader);
+  FPathDetalizeList :=
+    TPathDetalizeProviderListSimple.Create(
+      FLanguageManager,
+      FInetConfig.ProxyConfig,
+      TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
+      FVectorItmesFactory,
+      VKmlLoader
+    );
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
   VInternalDomainInfoProviderList.Add(
     'ZmpInfo',

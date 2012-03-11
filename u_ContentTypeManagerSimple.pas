@@ -151,7 +151,6 @@ begin
     '.kml',
     TKmlInfoSimpleParser.Create(
       AFactory,
-      AHintConverter,
       APerfCounterList
     )
   );
@@ -163,7 +162,6 @@ begin
     '.kmz',
     TKmzInfoSimpleParser.Create(
       AFactory,
-      AHintConverter,
       APerfCounterList
     )
   );
