@@ -28,7 +28,6 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataFactory,
-  i_HtmlToHintTextConverter,
   i_VectorItmesFactory,
   i_VectorDataItemSimple,
   i_DoublePointsAggregator,
@@ -80,7 +79,6 @@ type
     destructor Destroy; override;
   end;
 
-
 implementation
 
 uses
@@ -88,8 +86,6 @@ uses
   cUnicodeCodecs,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
-  u_VectorDataItemPoint,
-  u_VectorDataItemPolygon,
   u_VectorDataItemList,
   u_GeoFun;
 

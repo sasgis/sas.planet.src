@@ -29,7 +29,6 @@ uses
   i_VectorDataItemSimple,
   i_VectorItmesFactory,
   i_InternalPerformanceCounter,
-  i_HtmlToHintTextConverter,
   u_KmlInfoSimpleParser;
 
 type

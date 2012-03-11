@@ -29,7 +29,6 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataFactory,
-  i_HtmlToHintTextConverter,
   i_VectorItmesFactory,
   i_VectorDataItemSimple,
   i_InternalPerformanceCounter,
@@ -62,13 +61,10 @@ type
     destructor Destroy; override;
   end;
 
-
 implementation
 
 uses
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemPoint,
-  u_VectorDataItemPolygon,
   u_VectorDataItemList,
   u_GeoFun;
 

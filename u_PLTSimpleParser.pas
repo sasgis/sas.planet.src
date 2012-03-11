@@ -31,7 +31,6 @@ uses
   i_VectorItmesFactory,
   i_VectorDataLoader,
   i_DoublePointsAggregator,
-  i_HtmlToHintTextConverter,
   i_InternalPerformanceCounter,
   i_VectorDataItemSimple;
 
@@ -57,7 +56,7 @@ implementation
 uses
   u_StreamReadOnlyByBinaryData,
   u_VectorDataItemList,
-  u_VectorDataItemPolygon,
+  
   u_DoublePointsAggregator,
   u_GeoFun,
   u_GeoToStr;

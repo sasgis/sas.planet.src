@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderByVectorSubset;
 interface
 
 uses
-  Graphics,
   Classes,
   Types,
   GR32,
@@ -14,9 +13,6 @@ uses
   i_IdCacheSimple,
   i_LocalCoordConverter,
   i_OperationNotifier,
-  i_MarksDrawConfig,
-  i_MarkPicture,
-  i_MarksSimple,
   i_VectorItemProjected,
   i_VectorItmesFactory,
   i_DoublePointsAggregator,
@@ -108,11 +104,8 @@ type
 implementation
 
 uses
-  ActiveX,
   SysUtils,
-  GR32_Resamplers,
   GR32_Polygons,
-  i_BitmapMarker,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
