@@ -672,6 +672,7 @@
     <DCCReference Include="u_InetFunc.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
     <DCCReference Include="u_InternalBrowserByForm.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderByDataProvider.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="u_InternalPerformanceCounter.pas" />

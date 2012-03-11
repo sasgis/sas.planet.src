@@ -668,6 +668,7 @@ uses
   u_InternalDomainInfoProviderList in 'u_InternalDomainInfoProviderList.pas',
   i_InternalDomainInfoProvider in 'i_InternalDomainInfoProvider.pas',
   u_InternalDomainInfoProviderByMapTypeList in 'u_InternalDomainInfoProviderByMapTypeList.pas',
+  u_InternalDomainInfoProviderByDataProvider in 'u_InternalDomainInfoProviderByDataProvider.pas',
   i_SimpleHttpDownloader in 'i_SimpleHttpDownloader.pas',
   u_SimpleHttpDownloader in 'u_SimpleHttpDownloader.pas',
   i_Bitmap32Static in 'i_Bitmap32Static.pas',

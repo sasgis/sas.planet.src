@@ -147,6 +147,7 @@ type
     function GetMapsPath: string;
     function GetTrackLogPath: string;
     function GetMarksSystemPath: String;
+    function GetMediaDataPath: string;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(Sender: TObject; E: Exception);
     {$ENDIF SasDebugWithJcl}
@@ -227,6 +228,7 @@ uses
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
+  u_ConfigDataProviderByFolder,
   i_TTLCheckNotifier,
   u_TTLCheckNotifier,
   i_FileNameIterator,
@@ -279,6 +281,7 @@ uses
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
+  u_InternalDomainInfoProviderByDataProvider,
   u_GlobalInternetState,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -449,6 +452,15 @@ begin
     'ZmpInfo',
     TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
   );
+  VInternalDomainInfoProviderList.Add(
+    'MediaData',
+    TInternalDomainInfoProviderByDataProvider.Create(
+      TConfigDataProviderByFolder.Create(GetMediaDataPath),
+      FContentTypeManager
+    )
+  );
+
+
   FProtocol := TIeEmbeddedProtocolRegistration.Create('sas', TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(
@@ -555,6 +567,12 @@ function TGlobalState.GetMarksSystemPath: String;
 begin
   if not InternalGetPrimaryPath('PATHtoMARKS', Result) then
     Result := FProgramPath;
+end;
+
+function TGlobalState.GetMediaDataPath: string;
+begin
+  if not InternalGetPrimaryPath('PATHtoMediaData', Result) then
+    Result := FProgramPath + 'MediaData' + PathDelim;
 end;
 
 function TGlobalState.GetMapsPath: string;
