@@ -62,7 +62,7 @@ type
     procedure parseDescription(var Description: AnsiString);
     function BuildItem(AName, ADesc: string; APointsAggregator: IDoublePointsAggregator): IVectorDataItemSimple;
   protected
-    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
+    function LoadFromStream(AStream: TStream): IVectorDataItemList; virtual;
     function Load(AData: IBinaryData): IVectorDataItemList; virtual;
   public
     constructor Create(
@@ -164,14 +164,13 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    LoadFromStream(VStream, Result);
+    Result := LoadFromStream(VStream);
   finally
     VStream.Free;
   end;
 end;
 
-procedure TKmlInfoSimpleParser.LoadFromStream(AStream: TStream;
-   out AItems: IVectorDataItemList);
+function TKmlInfoSimpleParser.LoadFromStream(AStream: TStream): IVectorDataItemList;
 
   function GetAnsiString(AStream: TStream): AnsiString;
   var
@@ -214,13 +213,13 @@ var
 begin
   VCounterContext := FLoadKmlStreamCounter.StartOperation;
   try
-    AItems := nil;
+    Result := nil;
     if AStream.Size > 0 then begin
       VKml := GetAnsiString(AStream);
       if VKml <> '' then begin
         VList := TInterfaceList.Create;
         parse(VKml, VList);
-        AItems := TVectorDataItemList.Create(VList);
+        Result := TVectorDataItemList.Create(VList);
       end else
         Assert(False, 'KML data reader - Unknown error');
     end;

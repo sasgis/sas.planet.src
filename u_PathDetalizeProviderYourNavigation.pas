@@ -169,7 +169,7 @@ begin
         url:=url+'&flat='+R2StrPoint(VPrevPoint.y)+'&flon='+R2StrPoint(VPrevPoint.x)+
             '&tlat='+R2StrPoint(VCurrPoint.y)+'&tlon='+R2StrPoint(VCurrPoint.x);
         if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
-          FKmlLoader.LoadFromStream(ms, kml);
+          kml := FKmlLoader.LoadFromStream(ms);
           if kml <> nil then begin
             ms.SetSize(0);
             if kml.Count > 0 then begin

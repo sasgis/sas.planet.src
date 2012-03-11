@@ -50,7 +50,7 @@ type
                                          const pPX_Result: Pvsagps_XML_ParserResult;
                                          const pPX_State: Pvsagps_XML_ParserState);
   protected
-    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); virtual;
+    function LoadFromStream(AStream: TStream): IVectorDataItemList; virtual;
     function Load(AData: IBinaryData): IVectorDataItemList; virtual;
   public
     constructor Create(
@@ -354,20 +354,20 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    LoadFromStream(VStream, Result);
+    Result := LoadFromStream(VStream);
   finally
     VStream.Free;
   end;
 end;
 
-procedure TXmlInfoSimpleParser.LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList);
+function TXmlInfoSimpleParser.LoadFromStream(AStream: TStream): IVectorDataItemList;
 var
   tAux: TParseXML_Aux;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
+  Result := nil;
   VCounterContext := FLoadXmlStreamCounter.StartOperation;
   try
-    AItems := nil;
     // init
     ZeroMemory(@tAux, sizeof(tAux));
     // for wpt and trk
@@ -377,7 +377,7 @@ begin
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
     // output result
     if Assigned(tAux.list) then begin
-      AItems := TVectorDataItemList.Create(tAux.list);
+      Result := TVectorDataItemList.Create(tAux.list);
       tAux.list := nil;
     end;
   finally

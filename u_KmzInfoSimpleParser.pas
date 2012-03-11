@@ -36,7 +36,7 @@ type
   private
     FLoadKmzStreamCounter: IInternalPerformanceCounter;
   protected
-    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList); override;
+    function LoadFromStream(AStream: TStream): IVectorDataItemList; override;
     function Load(AData: IBinaryData): IVectorDataItemList; override;
   public
     constructor Create(
@@ -74,14 +74,13 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    LoadFromStream(VStream, Result);
+    Result := LoadFromStream(VStream);
   finally
     VStream.Free;
   end;
 end;
 
-procedure TKmzInfoSimpleParser.LoadFromStream(AStream: TStream;
-  out AItems: IVectorDataItemList);
+function TKmzInfoSimpleParser.LoadFromStream(AStream: TStream): IVectorDataItemList;
 var
   i: Integer;
   UnZip: TKAZip;
@@ -90,6 +89,7 @@ var
   VIndex: Integer;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
+  Result := nil;
   VCounterContext := FLoadKmzStreamCounter.StartOperation;
   try
     UnZip := TKAZip.Create(nil);
@@ -114,7 +114,7 @@ begin
               VIndex := 0;
             end;
             UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
-            inherited LoadFromStream(VStreamKml, AItems);
+            Result := inherited LoadFromStream(VStreamKml);
           finally
             VStreamKml.Free;
           end;

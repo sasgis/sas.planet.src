@@ -43,7 +43,7 @@ type
     procedure ParseStringList(AStringList: TStringList; APointsAggregator: IDoublePointsAggregator);
     function GetWord(Str, Smb: string; WordNmbr: Byte): string;
   protected
-    procedure LoadFromStream(AStream: TStream; out AItems: IVectorDataItemList);
+    function LoadFromStream(AStream: TStream): IVectorDataItemList;
     function Load(AData: IBinaryData): IVectorDataItemList; virtual;
   public
     constructor Create(
@@ -81,14 +81,13 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    LoadFromStream(VStream, Result);
+    Result := LoadFromStream(VStream);
   finally
     VStream.Free;
   end;
 end;
 
-procedure TPLTSimpleParser.LoadFromStream(AStream: TStream;
-  out AItems: IVectorDataItemList);
+function TPLTSimpleParser.LoadFromStream(AStream: TStream): IVectorDataItemList;
 var
   pltstr: TStringList;
   trackname: string;
@@ -96,7 +95,7 @@ var
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
 begin
-  AItems := nil;
+  Result := nil;
   pltstr:=TStringList.Create;
   try
     pltstr.LoadFromStream(AStream);
@@ -114,7 +113,7 @@ begin
           );
         VList := TInterfaceList.Create;
         VList.Add(VItem);
-        AItems := TVectorDataItemList.Create(VList);
+        Result := TVectorDataItemList.Create(VList);
       end;
     end;
   finally
