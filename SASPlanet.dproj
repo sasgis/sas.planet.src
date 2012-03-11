@@ -375,6 +375,7 @@
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
+    <DCCReference Include="i_VectorDataFactory.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_VectorDataLoader.pas" />
     <DCCReference Include="i_VectorItemLocal.pas" />

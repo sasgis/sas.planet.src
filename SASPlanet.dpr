@@ -87,6 +87,7 @@ uses
   u_MemTileCache in 'u_MemTileCache.pas',
   i_VectorItemLonLat in 'i_VectorItemLonLat.pas',
   i_VectorItmesFactory in 'i_VectorItmesFactory.pas',
+  i_VectorDataFactory in 'i_VectorDataFactory.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',
   u_HtmlToHintTextConverterStuped in 'u_HtmlToHintTextConverterStuped.pas',
   i_ContentTypeSubst in 'i_ContentTypeSubst.pas',
