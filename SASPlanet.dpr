@@ -88,6 +88,7 @@ uses
   i_VectorItemLonLat in 'i_VectorItemLonLat.pas',
   i_VectorItmesFactory in 'i_VectorItmesFactory.pas',
   i_VectorDataFactory in 'i_VectorDataFactory.pas',
+  u_VectorDataFactorySimple in 'u_VectorDataFactorySimple.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',
   u_HtmlToHintTextConverterStuped in 'u_HtmlToHintTextConverterStuped.pas',
   i_ContentTypeSubst in 'i_ContentTypeSubst.pas',
