@@ -164,7 +164,6 @@ var
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
   VLine: ILonLatPathLine;
-  VFactory: IVectorDataFactory;
 begin
   AComment := '';
   ms:=TMemoryStream.Create;
