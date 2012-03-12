@@ -121,7 +121,7 @@ var
   VMemStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
   VStringStream: TStringStream;
-  VWriter: TJNXWriter;
+  VWriter: TMultiVolumeJNXWriter;
   VTileBounds: TJNXRect;
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
@@ -148,7 +148,7 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
   end;
 
-  VWriter := TJNXWriter.Create(FTargetFile);
+  VWriter := TMultiVolumeJNXWriter.Create(FTargetFile);
   try
     VWriter.Levels := Length(FZooms);
     for i := 0 to Length(FZooms) - 1 do begin
