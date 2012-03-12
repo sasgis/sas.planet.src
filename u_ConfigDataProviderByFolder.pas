@@ -69,34 +69,42 @@ function TConfigDataProviderByFolder.GetSubItem(
   const AIdent: string): IConfigDataProvider;
 var
   VExt: string;
+  VFullName: string;
   VIniFile: TMemIniFile;
   VIniStrings: TStringList;
   VIniStream: TMemoryStream;
 begin
   Result := nil;
-  VExt := UpperCase(ExtractFileExt(AIdent));
-  if (VExt = '.INI') or (VExt = '.TXT') then begin
-    VIniFile := TMemIniFile.Create('');
-    try
-      VIniStream := TMemoryStream.Create;
-      try
-        VIniStream.LoadFromFile(IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent);
-        VIniStream.Position := 0;
-        VIniStrings := TStringList.Create;
+  VFullName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
+  if DirectoryExists(VFullName) then begin
+      Result := TConfigDataProviderByFolder.Create(VFullName);
+  end else begin
+    VExt := UpperCase(ExtractFileExt(AIdent));
+    if (VExt = '.INI') or (VExt = '.TXT') then begin
+      if FileExists(VFullName) then begin
+        VIniFile := TMemIniFile.Create('');
         try
-          VIniStrings.LoadFromStream(VIniStream);
-          VIniFile.SetStrings(VIniStrings);
-        finally
-          VIniStrings.Free;
+          VIniStream := TMemoryStream.Create;
+          try
+            VIniStream.LoadFromFile(VFullName);
+            VIniStream.Position := 0;
+            VIniStrings := TStringList.Create;
+            try
+              VIniStrings.LoadFromStream(VIniStream);
+              VIniFile.SetStrings(VIniStrings);
+            finally
+              VIniStrings.Free;
+            end;
+          finally
+            VIniStream.Free;
+          end;
+        except
+          VIniFile.Free;
+          raise;
         end;
-      finally
-        VIniStream.Free;
+        Result := TConfigDataProviderByIniFile.Create(VIniFile);
       end;
-    except
-      VIniFile.Free;
-      raise;
     end;
-    Result := TConfigDataProviderByIniFile.Create(VIniFile);
   end;
 end;
 
