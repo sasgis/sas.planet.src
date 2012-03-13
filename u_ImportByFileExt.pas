@@ -25,6 +25,7 @@ interface
 uses
   i_ImportFile,
   i_VectorItmesFactory,
+  i_VectorDataFactory,
   i_VectorDataLoader,
   i_ImportConfig;
 
@@ -41,6 +42,7 @@ type
     function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
   public
     constructor Create(
+      AVectorDataFactory: IVectorDataFactory;
       AFactory: IVectorItmesFactory;
       AXmlLoader: IVectorDataLoader;
       APltLoader: IVectorDataLoader;
@@ -60,6 +62,7 @@ uses
 { TImportByFileExt }
 
 constructor TImportByFileExt.Create(
+  AVectorDataFactory: IVectorDataFactory;
   AFactory: IVectorItmesFactory;
   AXmlLoader: IVectorDataLoader;
   APltLoader: IVectorDataLoader;
@@ -67,12 +70,12 @@ constructor TImportByFileExt.Create(
   AKmzLoader: IVectorDataLoader
 );
 begin
-  FImportXML := TImportKML.Create(AXmlLoader);
-  FImportPLT := TImportKML.Create(APltLoader);
+  FImportXML := TImportKML.Create(AVectorDataFactory, AXmlLoader);
+  FImportPLT := TImportKML.Create(AVectorDataFactory, APltLoader);
   FImportHLG := TImportHLG.Create(AFactory);
   FImportMP := TImportMpSimple.Create(AFactory);
-  FImportKML := TImportKML.Create(AKmlLoader);
-  FImportKMZ := TImportKML.Create(AKmzLoader);
+  FImportKML := TImportKML.Create(AVectorDataFactory, AKmlLoader);
+  FImportKMZ := TImportKML.Create(AVectorDataFactory, AKmzLoader);
 end;
 
 function TImportByFileExt.ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;

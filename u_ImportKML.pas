@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   i_VectorDataLoader,
+  i_VectorDataFactory,
   i_ImportConfig,
   u_MarksImportBase;
 
@@ -35,7 +36,10 @@ type
   protected
     function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; override;
   public
-    constructor Create(AKmlLoader: IVectorDataLoader);
+    constructor Create(
+      AVectorDataFactory: IVectorDataFactory;
+      AKmlLoader: IVectorDataLoader
+    );
   end;
 
 implementation
@@ -47,8 +51,12 @@ uses
 
 { TImportKML }
 
-constructor TImportKML.Create(AKmlLoader: IVectorDataLoader);
+constructor TImportKML.Create(
+  AVectorDataFactory: IVectorDataFactory;
+  AKmlLoader: IVectorDataLoader
+);
 begin
+  inherited Create(AVectorDataFactory);
   FKmlLoader := AKmlLoader;
 end;
 

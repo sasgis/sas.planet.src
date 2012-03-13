@@ -395,6 +395,7 @@ begin
     );
 
   FImportFileByExt := TImportByFileExt.Create(
+    TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
     FVectorItmesFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
