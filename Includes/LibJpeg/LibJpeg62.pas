@@ -1,4 +1,4 @@
-unit libJPEG;
+unit LibJpeg62;
 {
 libJPEG Header conversion by Steffen Xonna. (21-03-2008)
 
@@ -21,6 +21,8 @@ Below you find an copy from the original libJPEG header.
 }
 interface
 
+{$INCLUDE LibJpeg.inc}
+
 {$IFDEF FPC}
   {$MODE Delphi}
 
@@ -38,7 +40,12 @@ interface
 {$ALIGN 8}
 {$MINENUMSIZE 4}
 
-
+const
+  {$ifdef win32}
+    LIB_JPEG_NAME = 'jpeg62.dll';
+  {$else}
+    LIB_JPEG_NAME = 'libjpeg.so.62';
+  {$endif}
 
 type
   UINT8 = byte;
@@ -858,6 +865,31 @@ type
   Need not pass marker code since it is stored in cinfo->unread_marker. }
   jpeg_marker_parser_method = function(cinfo: j_decompress_ptr): boolean; cdecl;
 
+const
+{ Return value is one of: }
+  JPEG_SUSPENDED    = 0;  { Suspended due to lack of input data }
+  JPEG_HEADER_OK    = 1;  { Found valid image datastream }
+  JPEG_HEADER_TABLES_ONLY = 2;  { Found valid table-specs-only datastream }
+{ If you pass require_image = TRUE (normal case), you need not check for
+  a TABLES_ONLY return code; an abbreviated file will cause an error exit.
+  JPEG_SUSPENDED is only possible if you use a data source module that can
+  give a suspension return (the stdio source module doesn't).  }
+
+{ Return value is one of: }
+{ #define JPEG_SUSPENDED	0    Suspended due to lack of input data }
+  JPEG_REACHED_SOS  = 1; { Reached start of new scan }
+  JPEG_REACHED_EOI  = 2; { Reached end of image }
+  JPEG_ROW_COMPLETED  = 3; { Completed one iMCU row }
+  JPEG_SCAN_COMPLETED = 4; { Completed last iMCU row of a scan }
+
+{ These marker codes are exported since applications and data source modules
+  are likely to want to use them. }
+  JPEG_RST0 = $D0;  { RST0 marker code }
+  JPEG_EOI  = $D9;  { EOI marker code }
+  JPEG_APP0 = $E0;  { APP0 marker code }
+  JPEG_COM  = $FE;  { COM marker code }
+
+{$IFNDEF LIB_JPEG_62_STATIC_LINK}
 var
 { Default error-management setup }
   jpeg_std_error: function(err: jpeg_error_mgr_ptr): jpeg_error_mgr_ptr; cdecl;
@@ -882,7 +914,7 @@ var
 
 { Default parameter setup for compression }
   jpeg_set_defaults: procedure(cinfo: j_compress_ptr); cdecl;
-  
+
 { Compression parameter setup aids }
   jpeg_set_colorspace: procedure(cinfo: j_common_ptr; colorspace: J_COLOR_SPACE); cdecl;
   jpeg_default_colorspace: procedure(cinfo: j_common_ptr); cdecl;
@@ -915,17 +947,6 @@ var
 { Decompression startup: read start of JPEG datastream to see what's there }
   jpeg_read_header: function(cinfo: j_decompress_ptr; require_image: boolean): integer; cdecl;
 
-const
-{ Return value is one of: }
-  JPEG_SUSPENDED    = 0;  { Suspended due to lack of input data }
-  JPEG_HEADER_OK    = 1;  { Found valid image datastream }
-  JPEG_HEADER_TABLES_ONLY = 2;  { Found valid table-specs-only datastream }
-{ If you pass require_image = TRUE (normal case), you need not check for
-  a TABLES_ONLY return code; an abbreviated file will cause an error exit.
-  JPEG_SUSPENDED is only possible if you use a data source module that can
-  give a suspension return (the stdio source module doesn't).  }
-
-var
 { Main entry points for decompression }
   jpeg_start_decompress: function(cinfo: j_decompress_ptr): boolean; cdecl;
   jpeg_read_scanlines: function(cinfo: j_decompress_ptr; scanlines: JSAMPARRAY; max_lines: JDIMENSION): JDIMENSION; cdecl;
@@ -941,16 +962,7 @@ var
   jpeg_input_complete: function(cinfo: j_decompress_ptr): boolean; cdecl;
   jpeg_new_colormap: procedure(cinfo: j_decompress_ptr); cdecl;
   jpeg_consume_input: function(cinfo: j_decompress_ptr): integer; cdecl;
- 
-const
-{ Return value is one of: }
-{ #define JPEG_SUSPENDED	0    Suspended due to lack of input data }
-  JPEG_REACHED_SOS  = 1; { Reached start of new scan }
-  JPEG_REACHED_EOI  = 2; { Reached end of image }
-  JPEG_ROW_COMPLETED  = 3; { Completed one iMCU row }
-  JPEG_SCAN_COMPLETED = 4; { Completed last iMCU row of a scan }
 
-var
 { Precalculate output dimensions for current decompression parameters. }
   jpeg_calc_output_dimensions: procedure(cinfo: j_decompress_ptr); cdecl;
 
@@ -980,34 +992,66 @@ var
 
 { Default restart-marker-resync procedure for use by data source modules }
   jpeg_resync_to_restart: function(cinfo: j_decompress_ptr; desired: integer): boolean; cdecl;
-
-
-{ These marker codes are exported since applications and data source modules
-  are likely to want to use them. }
-
-const
-  JPEG_RST0 = $D0;  { RST0 marker code }
-  JPEG_EOI  = $D9;  { EOI marker code }
-  JPEG_APP0 = $E0;  { APP0 marker code }
-  JPEG_COM  = $FE;  { COM marker code }
-
-
-const
-  {$ifdef win32}
-    LIB_JPEG_NAME = 'jpeg62.dll';
-  {$else}
-    LIB_JPEG_NAME = 'libjpeg.so.62';
-  {$endif}
-
-  function init_libJPEG(const libJPEG_Name: AnsiString = LIB_JPEG_NAME): boolean;
-  procedure quit_libJPEG;
+{$ELSE}
+  function jpeg_std_error(err: jpeg_error_mgr_ptr): jpeg_error_mgr_ptr; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_CreateCompress(cinfo: j_compress_ptr; version: integer; structsize: cardinal); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_CreateDecompress(cinfo: j_decompress_ptr; version: integer; structsize: cardinal); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_destroy_compress(cinfo: j_compress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_destroy_decompress(cinfo: j_decompress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_set_defaults(cinfo: j_compress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_set_colorspace(cinfo: j_common_ptr; colorspace: J_COLOR_SPACE); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_default_colorspace(cinfo: j_common_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_set_quality(cinfo: j_common_ptr; quality: integer; force_baseline: boolean); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_set_linear_quality(cinfo: j_common_ptr; scale_factor: integer; force_baseline: boolean); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_add_quant_table(cinfo: j_common_ptr; which_tbl: integer; const basic_table: pcardinal; scale_factor: integer; force_baseline: boolean); cdecl; external LIB_JPEG_NAME;
+  function jpeg_quality_scaling(quality: integer): integer; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_simple_progression(cinfo: j_common_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_suppress_tables(cinfo: j_common_ptr; suppress: boolean); cdecl; external LIB_JPEG_NAME;
+  function jpeg_alloc_quant_table(cinfo: j_common_ptr): JQUANT_TBL_ptr; cdecl; external LIB_JPEG_NAME;
+  function jpeg_alloc_huff_table(cinfo: j_common_ptr): JHUFF_TBL_ptr; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_start_compress(cinfo: j_compress_ptr; write_all_tables: boolean); cdecl; external LIB_JPEG_NAME;
+  function jpeg_write_scanlines(cinfo: j_compress_ptr; scanlines: JSAMPARRAY; num_lines: JDIMENSION): JDIMENSION; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_finish_compress(cinfo: j_compress_ptr); cdecl; external LIB_JPEG_NAME;
+  function jpeg_write_raw_data(cinfo: j_compress_ptr; data: JSAMPIMAGE; num_lines: JDIMENSION): JDIMENSION; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_write_marker(cinfo: j_compress_ptr; marker: integer; const dataptr: JOCTET_ptr; datalen: cardinal); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_write_m_header(cinfo: j_compress_ptr; marker: integer; datalen: cardinal); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_write_m_byte(cinfo: j_compress_ptr; val: integer); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_write_tables(cinfo: j_compress_ptr); cdecl; external LIB_JPEG_NAME;
+  function jpeg_read_header(cinfo: j_decompress_ptr; require_image: boolean): integer; cdecl; external LIB_JPEG_NAME;
+  function jpeg_start_decompress(cinfo: j_decompress_ptr): boolean; cdecl; external LIB_JPEG_NAME;
+  function jpeg_read_scanlines(cinfo: j_decompress_ptr; scanlines: JSAMPARRAY; max_lines: JDIMENSION): JDIMENSION; cdecl; external LIB_JPEG_NAME;
+  function jpeg_finish_decompress(cinfo: j_decompress_ptr): boolean; cdecl; external LIB_JPEG_NAME;
+  function jpeg_read_raw_data(cinfo: j_decompress_ptr; data: JSAMPIMAGE; max_lines: JDIMENSION): JDIMENSION; cdecl; external LIB_JPEG_NAME;
+  function jpeg_has_multiple_scans(cinfo: j_decompress_ptr): boolean; cdecl; external LIB_JPEG_NAME;
+  function jpeg_start_output(cinfo: j_decompress_ptr; scan_number: integer): boolean; cdecl; external LIB_JPEG_NAME;
+  function jpeg_finish_output(cinfo: j_decompress_ptr): boolean; cdecl; external LIB_JPEG_NAME;
+  function jpeg_input_complete(cinfo: j_decompress_ptr): boolean; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_new_colormap(cinfo: j_decompress_ptr); cdecl; external LIB_JPEG_NAME;
+  function jpeg_consume_input(cinfo: j_decompress_ptr): integer; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_calc_output_dimensions(cinfo: j_decompress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_save_markers(cinfo: j_decompress_ptr; marker_code: integer; length_limit: cardinal); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_set_marker_processor(cinfo: j_decompress_ptr; marker_code: integer; routine: jpeg_marker_parser_method); cdecl; external LIB_JPEG_NAME;
+  function jpeg_read_coefficients(cinfo: j_decompress_ptr): jvirt_barray_ptr_ptr; cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_write_coefficients(cinfo: j_compress_ptr; coef_arrays: jvirt_barray_ptr_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_copy_critical_parameters(srcinfo: j_decompress_ptr; dstinfo: j_compress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_abort_compress(cinfo: j_compress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_abort_decompress(cinfo: j_decompress_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_abort(cinfo: j_common_ptr); cdecl; external LIB_JPEG_NAME;
+  procedure jpeg_destroy(cinfo: j_common_ptr); cdecl; external LIB_JPEG_NAME;
+  function jpeg_resync_to_restart(cinfo: j_decompress_ptr; desired: integer): boolean; cdecl; external LIB_JPEG_NAME;
+{$ENDIF}
 
   procedure jpeg_create_compress(cinfo: j_compress_ptr);
   procedure jpeg_create_decompress(cinfo: j_decompress_ptr);
 
+{$IFNDEF LIB_JPEG_62_STATIC_LINK}
+  function InitLibJpeg62(const LibName: AnsiString = LIB_JPEG_NAME): boolean;
+  procedure QuitLibJpeg62;
+{$ENDIF}
+
 implementation
 
-
+{$IFNDEF LIB_JPEG_62_STATIC_LINK}
 var
   libJPEG_RefCount: Integer;
 
@@ -1045,7 +1089,7 @@ begin
     GetProcAddr := dlsym(libJPEG_Handle, Name);
   {$endif}
 end;
-
+{$ENDIF}
 
 procedure jpeg_create_compress(cinfo: j_compress_ptr);
 begin
@@ -1058,17 +1102,17 @@ begin
   jpeg_CreateDecompress(cinfo, JPEG_LIB_VERSION, sizeof(jpeg_decompress_struct));
 end;
 
-
-function init_libJPEG(const libJPEG_Name: AnsiString): boolean;
+{$IFNDEF LIB_JPEG_62_STATIC_LINK}
+function InitLibJpeg62(const LibName: AnsiString = LIB_JPEG_NAME): Boolean;
 var
   Temp: Boolean;
 begin
   if (libJPEG_RefCount = 0) or (libJPEG_Handle = {$ifdef win32} 0 {$else} nil {$endif}) then begin
     if libJPEG_Handle = {$ifdef win32} 0 {$else} nil {$endif} then
       {$ifdef win32}
-        libJPEG_Handle := LoadLibrary(pAnsiChar(libJPEG_Name));
+        libJPEG_Handle := LoadLibrary(pAnsiChar(LibName));
       {$else}
-        libJPEG_Handle := dlopen(pAnsiChar(libJPEG_Name), RTLD_LAZY);
+        libJPEG_Handle := dlopen(pAnsiChar(LibName), RTLD_LAZY);
       {$endif}
 
     if libJPEG_Handle <> {$ifdef win32} 0 {$else} nil {$endif} then begin
@@ -1175,8 +1219,7 @@ begin
   Result := Temp;
 end;
 
-
-procedure quit_libJPEG;
+procedure QuitLibJpeg62;
 begin
   Dec(libJPEG_RefCount);
   
@@ -1239,6 +1282,6 @@ begin
     jpeg_resync_to_restart := nil;
   end;
 end;
-
+{$ENDIF}
 
 end.
