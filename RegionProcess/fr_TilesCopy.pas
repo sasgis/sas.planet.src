@@ -139,6 +139,7 @@ begin
       VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         chklstMaps.ItemIndex := VAddedIndex;
+        chklstMaps.Checked[VAddedIndex] := True;
       end;
     end;
   end;
