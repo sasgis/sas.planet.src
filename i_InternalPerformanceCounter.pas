@@ -70,8 +70,8 @@ type
 
     function GetStaticDataList: IIDInterfaceList;
     function GetEunm: IEnumUnknown;
-    function CreateAndAddNewCounter(AName: string): IInternalPerformanceCounter;
-    function CreateAndAddNewSubList(AName: string): IInternalPerformanceCounterList;
+    function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
   end;
 
 implementation

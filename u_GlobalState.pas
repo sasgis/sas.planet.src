@@ -346,7 +346,11 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
+{$if defined(RELEASE)}
+  FPerfCounterList := TInternalPerformanceCounterFake.Create('');
+{$else}
   FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
+{$ifend}
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
 

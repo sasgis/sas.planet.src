@@ -40,10 +40,23 @@ type
 
     function GetStaticDataList: IIDInterfaceList;
     function GetEunm: IEnumUnknown;
-    function CreateAndAddNewCounter(AName: string): IInternalPerformanceCounter;
-    function CreateAndAddNewSubList(AName: string): IInternalPerformanceCounterList;
+    function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
   public
-    constructor Create(AName: string);
+    constructor Create(const AName: string);
+  end;
+
+  TInternalPerformanceCounterFake = class(TInterfacedObject, IInternalPerformanceCounterList)
+  private
+    FFakeCounter: IInternalPerformanceCounter;
+  protected
+    function GetName: string;
+    function GetStaticDataList: IIDInterfaceList;
+    function GetEunm: IEnumUnknown;
+    function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
+    function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
+  public
+    constructor Create(const AName: string);
   end;
 
 implementation
@@ -75,21 +88,21 @@ begin
   end;
 end;
 
-constructor TInternalPerformanceCounterList.Create(AName: string);
+constructor TInternalPerformanceCounterList.Create(const AName: string);
 begin
   FList := TInterfaceList.Create;
   FName := AName;
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewCounter(
-  AName: string): IInternalPerformanceCounter;
+  const AName: string): IInternalPerformanceCounter;
 begin
   Result := TInternalPerformanceCounter.Create(AName);
   FList.Add(Result);
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewSubList(
-  AName: string): IInternalPerformanceCounterList;
+  const AName: string): IInternalPerformanceCounterList;
 begin
   Result := TInternalPerformanceCounterList.Create(AName);
   FList.Add(Result);
@@ -109,6 +122,38 @@ function TInternalPerformanceCounterList.GetStaticDataList: IIDInterfaceList;
 begin
   Result := TIDInterfaceList.Create;
   AppendStaticListByCounterList(Result, Self);
+end;
+
+{ TInternalPerformanceCounterFake }
+
+constructor TInternalPerformanceCounterFake.Create(const AName: string);
+begin
+  FFakeCounter := TInternalPerformanceCounter.Create('');
+end;
+
+function TInternalPerformanceCounterFake.CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
+begin
+  Result := FFakeCounter;
+end;
+
+function TInternalPerformanceCounterFake.CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
+begin
+  Result := Self;
+end;
+
+function TInternalPerformanceCounterFake.GetEunm: IEnumUnknown;
+begin
+  Result := nil;
+end;
+
+function TInternalPerformanceCounterFake.GetName: string;
+begin
+  Result := '';
+end;
+
+function TInternalPerformanceCounterFake.GetStaticDataList: IIDInterfaceList;
+begin
+  Result := nil;
 end;
 
 end.
