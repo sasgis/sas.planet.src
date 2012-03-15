@@ -3,7 +3,7 @@ unit u_HashCacheWithQueuesAbstract;
 interface
 
 uses
-  SyncObjs;
+  SysUtils;
 
 type
   TQueueType = (qtEmpty = 0, qtMulti = 1, qtFirstIn = 2, qtFirstOut = 3, qtUnknown = 4);
@@ -108,7 +108,7 @@ type
 
   THashCacheWithQueuesAbstract = class(TInterfacedObject)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FItems: TItemsArray;
     FItemsCount: Integer;
     FHash: THashTable;
@@ -152,7 +152,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TItemsArray }
 
@@ -539,7 +539,8 @@ begin
 
   Assert(AMultiUseCount + AFirstUseCount + AFirstOutCount < High(TItemIndex));
 
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
+  
   if AHashSizeInBit < 6 then begin
     AHashSizeInBit := 6;
   end;
@@ -600,14 +601,13 @@ end;
 
 destructor THashCacheWithQueuesAbstract.Destroy;
 begin
-  FreeAndNil(FCS);
   FreeAndNil(FFreeItems);
   FreeAndNil(FQueueMulti);
   FreeAndNil(FQueueFirstIn);
   FreeAndNil(FQueueFirstOut);
   FreeAndNil(FHash);
   FreeAndNil(FItems);
-
+  FCS := nil;
   inherited;
 end;
 
@@ -616,7 +616,7 @@ var
   VItem: PCacheItem;
   VIndex: TItemIndex;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     while FQueueMulti.Count > 0 do begin
       VItem := FQueueMulti.PopItemFromTail(VIndex);
@@ -634,7 +634,7 @@ begin
       FFreeItems.Push(VIndex, VItem);
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -648,7 +648,7 @@ begin
   Assert(VHashIndex >= 0);
   Assert(VHashIndex < FHashSize);
 
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
     if VCurrItem <> nil then begin
@@ -674,7 +674,7 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -701,7 +701,7 @@ begin
   VHashIndex := GetIndexByKey(AKey);
   Assert(VHashIndex >= 0);
   Assert(VHashIndex < FHashSize);
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
     if VCurrItem <> nil then begin
@@ -727,11 +727,12 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
+  
   if AItem = nil then begin
     CreateByKey(AKey, AData, AItem);
-    FCS.Acquire;
+    FCS.BeginWrite;
     try
       VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
       if VCurrItem <> nil then begin
@@ -801,7 +802,7 @@ begin
         FHash.AddItem(VHashIndex, VCurrIndex, VCurrItem);
       end;
     finally
-      FCS.Release;
+      FCS.EndWrite;
     end;
   end;
 end;

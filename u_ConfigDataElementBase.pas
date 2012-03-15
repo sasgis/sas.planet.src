@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  SyncObjs,
   SysUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -62,7 +61,7 @@ type
   TConfigDataElementWithStaticBase = class(TConfigDataElementBase)
   private
     FStatic: IInterface;
-    FStaticCS: TCriticalSection;
+    FStaticCS: IReadWriteSync;
   protected
     function CreateStatic: IInterface; virtual; abstract;
   protected
@@ -89,6 +88,9 @@ type
   end;
 
 implementation
+
+uses
+  u_Synchronizer;
 
 { TConfigDataElementBase }
 
@@ -198,12 +200,12 @@ end;
 constructor TConfigDataElementWithStaticBase.Create;
 begin
   inherited;
-  FStaticCS := TCriticalSection.Create;
+  FStaticCS := MakeSyncMulti(Self);
 end;
 
 destructor TConfigDataElementWithStaticBase.Destroy;
 begin
-  FreeAndNil(FStaticCS);
+  FStaticCS := nil;
   FStatic := nil;
   inherited;
 end;
@@ -216,11 +218,11 @@ begin
   LockWrite;
   try
     VStatic := CreateStatic;
-    FStaticCS.Acquire;
+    FStaticCS.BeginWrite;
     try
       FStatic := VStatic;
     finally
-      FStaticCS.Release;
+      FStaticCS.EndWrite;
     end;
   finally
     UnlockWrite;
@@ -229,11 +231,11 @@ end;
 
 function TConfigDataElementWithStaticBase.GetStaticInternal: IInterface;
 begin
-  FStaticCS.Acquire;
+  FStaticCS.BeginRead;
   try
     Result := FStatic;
   finally
-    FStaticCS.Release;
+    FStaticCS.EndRead;
   end;
 end;
 

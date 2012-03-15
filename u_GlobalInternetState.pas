@@ -23,13 +23,13 @@ unit u_GlobalInternetState;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_GlobalInternetState;
 
 type
   TGlobalInternetState = class (TInterfacedObject, IGlobalInternetState)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FQueueCount: Integer;
     function GetQueueCount(): Integer;
   public
@@ -42,51 +42,54 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TGlobalInternetState }
 
 constructor TGlobalInternetState.Create;
 begin
   inherited;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FQueueCount := 0;
 end;
 
 destructor TGlobalInternetState.Destroy;
 begin
-  FCS.Free;
+  FCS := nil;
   inherited Destroy;
 end;
 
 procedure TGlobalInternetState.IncQueueCount;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     Inc(FQueueCount);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TGlobalInternetState.DecQueueCount;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     Dec(FQueueCount);
     if FQueueCount < 0 then begin
       FQueueCount := 0;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 function TGlobalInternetState.GetQueueCount(): Integer;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FQueueCount;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 

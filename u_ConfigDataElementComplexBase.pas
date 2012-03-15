@@ -23,7 +23,7 @@ unit u_ConfigDataElementComplexBase;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   Contnrs,
   i_JclNotify,
   i_Changeable,
@@ -70,7 +70,7 @@ type
   TConfigDataElementComplexWithStaticBase = class(TConfigDataElementComplexBase)
   private
     FStatic: IInterface;
-    FStaticCS: TCriticalSection;
+    FStaticCS: IReadWriteSync;
   protected
     function CreateStatic: IInterface; virtual; abstract;
   protected
@@ -86,7 +86,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   u_NotifyEventListener;
 
 type
@@ -406,12 +406,12 @@ end;
 constructor TConfigDataElementComplexWithStaticBase.Create;
 begin
   inherited;
-  FStaticCS := TCriticalSection.Create;
+  FStaticCS := MakeSyncMulti(Self);
 end;
 
 destructor TConfigDataElementComplexWithStaticBase.Destroy;
 begin
-  FreeAndNil(FStaticCS);
+  FStaticCS := nil;
   FStatic := nil;
   inherited;
 end;
@@ -424,11 +424,11 @@ begin
   LockWrite;
   try
     VStatic := CreateStatic;
-    FStaticCS.Acquire;
+    FStaticCS.BeginWrite;
     try
       FStatic := VStatic;
     finally
-      FStaticCS.Release;
+      FStaticCS.EndWrite;
     end;
   finally
     UnlockWrite;
@@ -437,11 +437,11 @@ end;
 
 function TConfigDataElementComplexWithStaticBase.GetStaticInternal: IInterface;
 begin
-  FStaticCS.Acquire;
+  FStaticCS.BeginRead;
   try
     Result := FStatic;
   finally
-    FStaticCS.Release;
+    FStaticCS.EndRead;
   end;
 end;
 
