@@ -50,9 +50,9 @@ type
     ClrImportant: LongInt;           // Число основных цветов
   end;
 
-  TBitmapFile = class
-  private
-    FStream: TFileStream;
+  TBitmapStream = class(TObject)
+  protected
+    FStream: TStream;
     FBitmapSize: Int64;
     FWidth: Cardinal;
     FHeight: Cardinal;
@@ -61,12 +61,21 @@ type
     function WriteHeader(AWidth: Cardinal; AHeight: Cardinal): Boolean;
   public
     constructor Create(
+      AOutPutStream: TStream;
+      AWidth: Cardinal;
+      AHeight: Cardinal
+    );
+    function WriteLine(ALineNumber: Integer; APLine: Pointer): Boolean;
+  end;
+
+  TBitmapFile = class(TBitmapStream)
+  public
+    constructor Create(
       const AFileName: string;
       AWidth: Cardinal;
       AHeight: Cardinal
     );
     destructor Destroy; override;
-    function WriteLine(ALineNumber: Integer; APLine: Pointer): Boolean;
   end;
 
 implementation
@@ -82,17 +91,35 @@ constructor TBitmapFile.Create(
   AWidth: Cardinal;
   AHeight: Cardinal
 );
+begin
+  inherited Create(TFileStream.Create(AFileName, fmCreate), AWidth, AHeight);
+end;
+
+destructor TBitmapFile.Destroy;
+begin
+  if Assigned(FStream) then begin
+    FreeAndNil(FStream);
+  end;
+  inherited Destroy;
+end;
+
+{ TBitmapStream }
+
+constructor TBitmapStream.Create(
+  AOutPutStream: TStream;
+  AWidth: Cardinal;
+  AHeight: Cardinal
+);
 const
   BMP_ERR_MSG = 'Output image size is too big!'#13#10'Maximum size = %d Mb (output size = %d Mb)';
 begin
   inherited Create;
   FEnabled := False;
-  FStream := nil;
+  FStream := AOutPutStream;
   FWidth := AWidth;
   FHeight := AHeight;
   FBitmapSize := FWidth * FHeight * 3 + (FWidth mod 4) * FHeight;
   if FBitmapSize < BMP_SIZE_LIMIT then begin
-    FStream := TFileStream.Create(AFileName, fmCreate);
     FStream.Size := SizeOf(TBitmapFileHeader) + SizeOf(TBitmapInfoHeader) + FBitmapSize;
     FEnabled := WriteHeader(AWidth, AHeight);
     if FEnabled then begin
@@ -104,15 +131,7 @@ begin
   end;
 end;
 
-destructor TBitmapFile.Destroy;
-begin
-  if Assigned(FStream) then begin
-    FreeAndNil(FStream);
-  end;
-  inherited Destroy;    
-end;
-
-function TBitmapFile.WriteHeader(AWidth: Cardinal; AHeight: Cardinal): Boolean;
+function TBitmapStream.WriteHeader(AWidth: Cardinal; AHeight: Cardinal): Boolean;
 var
   VFileHeader: TBitmapFileHeader;
   VInfoHeader: TBitmapInfoHeader;
@@ -140,7 +159,7 @@ begin
   end;
 end;
 
-function TBitmapFile.WriteLine(ALineNumber: Integer; APLine: Pointer): Boolean;
+function TBitmapStream.WriteLine(ALineNumber: Integer; APLine: Pointer): Boolean;
 begin
   Result := False;
   if FEnabled then begin
