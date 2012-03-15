@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   GR32,
   i_JclNotify,
   i_BinaryData,
@@ -65,10 +66,11 @@ type
     destructor Destroy; override;
   end;
 
+  ESaveTileDownloadError = class(Exception);
+
 implementation
 
 uses
-  SysUtils,
   GR32_Resamplers,
   t_CommonTypes,
   i_Bitmap32Static,
@@ -225,24 +227,24 @@ begin
             VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
             FStorage.SaveTile(AXY, Azoom, AVersionInfo, VData);
           end else begin
-            raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+            raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
           end;
         end else begin
-          raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+          raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
         end;
       end else begin
-        raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+        raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
       end;
     end else begin
       VConverter := FContentTypeManager.GetConverter(AContenType, FContentType.GetContentType);
       if VConverter <> nil then begin
         FStorage.SaveTile(AXY, Azoom, AVersionInfo, VConverter.Convert(AData));
       end else begin
-        raise Exception.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+        raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
       end;
     end;
   end else begin
-    raise Exception.Create('Для этой карты запрещено добавление тайлов.');
+    raise ESaveTileDownloadError.Create('Для этой карты запрещено добавление тайлов.');
   end;
 end;
 
