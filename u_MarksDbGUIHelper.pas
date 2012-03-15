@@ -26,6 +26,7 @@ uses
   Windows,
   Classes,
   t_GeoTypes,
+  i_PathConfig,
   i_LanguageManager,
   i_CoordConverter,
   i_ProjectionInfo,
@@ -80,6 +81,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AMediaPath: IPathConfig;
       AMarksDB: TMarksSystem;
       AViewPortState: IViewPortState;
       AVectorItmesFactory: IVectorItmesFactory;
@@ -102,6 +104,7 @@ uses
 
 constructor TMarksDbGUIHelper.Create(
   ALanguageManager: ILanguageManager;
+  AMediaPath: IPathConfig;
   AMarksDB: TMarksSystem;
   AViewPortState: IViewPortState;
   AVectorItmesFactory: IVectorItmesFactory;
@@ -116,6 +119,7 @@ begin
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
       ALanguageManager,
+      AMediaPath,
       FMarksDB.CategoryDB,
       FMarksDB.MarksDb,
       AViewPortState,
@@ -124,12 +128,14 @@ begin
   FfrmMarkEditPath :=
     TfrmMarkEditPath.Create(
       ALanguageManager,
+      AMediaPath,
       FMarksDB.CategoryDB,
       FMarksDB.MarksDb
     );
   FfrmMarkEditPoly :=
     TfrmMarkEditPoly.Create(
       ALanguageManager,
+      AMediaPath,
       FMarksDB.CategoryDB,
       FMarksDB.MarksDb
     );

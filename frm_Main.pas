@@ -938,6 +938,7 @@ begin
   FMarkDBGUI :=
     TMarksDbGUIHelper.Create(
       GState.LanguageManager,
+      GState.MediaDataPath,
       GState.MarksDB,
       FConfig.ViewPortState,
       GState.VectorItmesFactory,
