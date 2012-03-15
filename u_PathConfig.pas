@@ -31,6 +31,7 @@ type
   private
     function GetDefaultPath: string;
     function GetBasePathConfig: IPathConfig;
+    procedure SetBasePathConfig(AValue : IPathConfig);
     function GetPath: string;
     procedure SetPath(AValue: string);
     function GetIsRelative: Boolean;
@@ -105,7 +106,12 @@ end;
 
 function TPathConfig.GetBasePathConfig: IPathConfig;
 begin
-  Result := FBasePathConfig;
+  LockRead;
+  try
+    Result := FBasePathConfig;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TPathConfig.GetDefaultPath: string;
@@ -158,6 +164,27 @@ begin
   end;
 end;
 
+procedure TPathConfig.SetBasePathConfig(AValue: IPathConfig);
+begin
+  LockWrite;
+  try
+    if FIsRelative then begin
+      if FBasePathConfig <> nil then begin
+        FBasePathConfig.ChangeNotifier.Remove(FBasePathListener);
+      end;
+    end;
+    FBasePathConfig := AValue;
+    _UpdateFullPath;
+    if FIsRelative then begin
+      if FBasePathConfig <> nil then begin
+        FBasePathConfig.ChangeNotifier.Add(FBasePathListener);
+      end;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TPathConfig.SetPath(AValue: string);
 var
   VNewIsRelative: Boolean;
@@ -177,7 +204,7 @@ begin
       FPath := AValue;
       _UpdateFullPath;
     end;
-    
+
     if not VOldIsRelative and VNewIsRelative then begin
       if FBasePathConfig <> nil then begin
         FBasePathConfig.ChangeNotifier.Add(FBasePathListener);
