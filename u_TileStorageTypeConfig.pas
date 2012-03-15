@@ -23,72 +23,47 @@ unit u_TileStorageTypeConfig;
 interface
 
 uses
+  i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_TileStorageTypeConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TTileStorageTypeConfig = class(TConfigDataElementBase, ITileStorageTypeConfig)
+  TTileStorageTypeConfig = class(TConfigDataElementComplexBase, ITileStorageTypeConfig)
   private
-    FBasePath: string;
+    FPath: IPathConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
-  protected
-    function GetBasePath: string;
-    procedure SetBasePath(AValue: string);
+    function GetBasePath: IPathConfig;
   public
-    constructor Create(ABasePath: string);
+    constructor Create(ABasePath: IPathConfig; ADefaultPath: string);
   end;
 
 implementation
 
+uses
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_PathConfig;
+
 { TTileStorageTypeConfig }
 
-constructor TTileStorageTypeConfig.Create(ABasePath: string);
+constructor TTileStorageTypeConfig.Create(
+  ABasePath: IPathConfig;
+  ADefaultPath: string
+);
 begin
   inherited Create;
-  FBasePath := ABasePath;
+  FPath := TPathConfig.Create('Path', ADefaultPath, ABasePath);
+  Add(FPath, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
-procedure TTileStorageTypeConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
-begin
-  inherited;
-  if AConfigData <> nil then begin
-    FBasePath := AConfigData.ReadString('Path', FBasePath);
-    SetChanged;
-  end;
-end;
-
-procedure TTileStorageTypeConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
-begin
-  inherited;
-  AConfigData.WriteString('Path', FBasePath);
-end;
-
-function TTileStorageTypeConfig.GetBasePath: string;
+function TTileStorageTypeConfig.GetBasePath: IPathConfig;
 begin
   LockRead;
   try
-    Result := FBasePath;
+    Result := FPath;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TTileStorageTypeConfig.SetBasePath(AValue: string);
-begin
-  LockWrite;
-  try
-    if FBasePath <> AValue then begin
-      FBasePath := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
   end;
 end;
 

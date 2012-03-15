@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   GR32,
+  i_BinaryData,
   i_OperationNotifier,
   i_TileRectUpdateNotifier,
   i_MapVersionInfo,
@@ -59,10 +60,9 @@ type
     function LoadTile(
       AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo;
-      AStream: TStream;
+      AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
-    ): Boolean;
+    ): IBinaryData;
     function DeleteTile(
       AXY: TPoint;
       Azoom: byte;
@@ -77,7 +77,7 @@ type
       AXY: TPoint;
       Azoom: byte;
       AVersion: IMapVersionInfo;
-      AStream: TStream
+      AData: IBinaryData
     );
     procedure SaveTNE(
       AXY: TPoint;
