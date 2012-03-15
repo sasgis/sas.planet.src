@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  Messages,
   SysUtils,
   Classes,
   Controls,
@@ -40,10 +41,14 @@ type
     pnlBottom: TPanel;
     btnRefresh: TButton;
     btnReset: TButton;
+    btnSaveToFile: TButton;
+    btnCopyToClipboard: TButton;
     procedure btnRefreshClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnResetClick(Sender: TObject);
+    procedure btnSaveToFileClick(Sender: TObject);
+    procedure btnCopyToClipboardClick(Sender: TObject);
   private
     FPerfCounterList: IInternalPerformanceCounterList;
     FPrevStateList: IIDInterfaceList;
@@ -51,6 +56,7 @@ type
     function AddRowsFromList(AParentName: string; AStartRaw: Integer; AList: IInternalPerformanceCounterList): Integer;
     procedure PrepareGridHeader;
     procedure RefreshData;
+    function GetGridLinesText(const ATop, ABottom: Integer): String;
   public
     constructor Create(AOwner: TComponent; APerfCounterList: IInternalPerformanceCounterList); reintroduce;
   end;
@@ -58,6 +64,8 @@ type
 implementation
 
 uses
+  Dialogs,
+  u_Clipboard,
   ActiveX;
 
 {$R *.dfm}
@@ -124,6 +132,14 @@ begin
   end;
 end;
 
+procedure TfrmDebugInfo.btnCopyToClipboardClick(Sender: TObject);
+var
+  VText: String;
+begin
+  VText := GetGridLinesText(sgrdDebugInfo.Selection.Top, sgrdDebugInfo.Selection.Bottom);
+  CopyStringToClipboard(Handle, VText);
+end;
+
 procedure TfrmDebugInfo.btnRefreshClick(Sender: TObject);
 begin
   RefreshData;
@@ -133,6 +149,33 @@ procedure TfrmDebugInfo.btnResetClick(Sender: TObject);
 begin
   FPrevStateList := FPerfCounterList.GetStaticDataList;
   RefreshData;
+end;
+
+procedure TfrmDebugInfo.btnSaveToFileClick(Sender: TObject);
+var
+  VText, VFileName: String;
+  VSL: TStringList;
+begin
+  VFileName := '';
+  VText := GetGridLinesText(0, sgrdDebugInfo.RowCount-1);
+
+  with TSaveDialog.Create(Self) do
+  try
+    if Execute(Handle) then
+      VFileName := FileName;
+  finally
+    Free;
+  end;
+
+  if (0<Length(VFileName)) then begin
+    VSL:=TStringList.Create;
+    try
+      VSL.Text := VText;
+      VSL.SaveToFile(VFileName);
+    finally
+      VSL.Free;
+    end;
+  end;  
 end;
 
 constructor TfrmDebugInfo.Create(AOwner: TComponent;
@@ -152,6 +195,39 @@ end;
 procedure TfrmDebugInfo.FormShow(Sender: TObject);
 begin
   RefreshData;;
+end;
+
+function TfrmDebugInfo.GetGridLinesText(const ATop, ABottom: Integer): String;
+
+  procedure _AddLine(const AIndex: Integer);
+  var S: String;
+  begin
+    if (0<Length(Result)) then
+      Result := Result + #13#10;
+
+    S := sgrdDebugInfo.Rows[AIndex].Text;
+    S := StringReplace(S, #13, Chr(VK_TAB), [rfReplaceAll]);
+    S := StringReplace(S, #10, Chr(VK_TAB), [rfReplaceAll]);
+    Result := Result + S;
+  end;
+
+var
+  i: Integer;
+  VAddCurrent: Boolean;
+
+begin
+  VAddCurrent := TRUE;
+  Result := '';
+
+  for i := ATop to ABottom do begin
+    if (i=sgrdDebugInfo.Row) then
+      VAddCurrent:=FALSE;
+
+    _AddLine(i);
+  end;
+
+  if VAddCurrent then
+    _AddLine(sgrdDebugInfo.Row);
 end;
 
 procedure TfrmDebugInfo.PrepareGridHeader;

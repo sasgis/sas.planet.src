@@ -129,7 +129,6 @@ type
     FInetConfig: IInetConfig;
     FDownloadResultTextProvider: IDownloadResultTextProvider;
     FResultFactory: IDownloadResultFactory;
-    procedure CopyStringToClipboard(s: Widestring);
   public
     constructor Create(ALanguageManager: ILanguageManager;
                        const AInetConfig: IInetConfig); reintroduce;
@@ -142,6 +141,7 @@ type
 implementation
 
 uses
+  u_Clipboard,
   i_CoordConverter;
 
 type
@@ -666,33 +666,6 @@ begin
   veImageParams.Strings.Clear;
 end;
 
-procedure TfrmDGAvailablePic.CopyStringToClipboard(s: Widestring);
-var hg: THandle;
-    P: PChar;
-begin
-  if OpenClipboard(Handle) then
-  begin
-    try
-      EmptyClipBoard;
-      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, Length(S)+1);
-      try
-        P:=GlobalLock(hg);
-        try
-          StrPCopy(P, s);
-          SetClipboardData(CF_TEXT, hg);
-        finally
-          GlobalUnlock(hg);
-        end;
-      except
-        GlobalFree(hg);
-        raise
-      end;
-    finally
-      CloseClipboard;
-    end;
-  end
-end;
-
 constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
                                       const AInetConfig: IInetConfig);
 begin
@@ -727,7 +700,7 @@ end;
 
 procedure TfrmDGAvailablePic.btnCopyClick(Sender: TObject);
 begin
-  CopyStringToClipboard(Get_DG_tid_List);
+  CopyStringToClipboard(Handle, Get_DG_tid_List);
 end;
 
 procedure TfrmDGAvailablePic.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
