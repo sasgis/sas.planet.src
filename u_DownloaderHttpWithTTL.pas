@@ -3,7 +3,7 @@ unit u_DownloaderHttpWithTTL;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_OperationNotifier,
   i_TTLCheckListener,
   i_TTLCheckNotifier,
@@ -20,7 +20,7 @@ type
     FGCList: ITTLCheckNotifier;
 
     FTTLListener: ITTLCheckListener;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FDownloader: IDownloader;
     procedure OnTTLTrim(Sender: TObject);
   protected
@@ -40,6 +40,7 @@ type
 implementation
 
 uses
+  u_Synchronizer,
   u_TTLCheckListener;
 
 { TDownloaderHttpWithTTL }
@@ -54,7 +55,7 @@ const
 begin
   FResultFactory := AResultFactory;
   FGCList := AGCList;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, FALSE);
   FTTLListener := TTTLCheckListener.Create(
     Self.OnTTLTrim,
     CHttpClientTTL,
@@ -68,7 +69,7 @@ begin
   FGCList.Remove(FTTLListener);
   FTTLListener := nil;
   FGCList := nil;
-  FCS.Free;
+  FCS := nil;
   inherited;
 end;
 
@@ -80,7 +81,7 @@ function TDownloaderHttpWithTTL.DoRequest(
 var
   VDownloader: IDownloader;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FTTLListener.UpdateUseTime;
     VDownloader := FDownloader;
@@ -91,17 +92,17 @@ begin
     Result := VDownloader.DoRequest(ARequest, ACancelNotifier, AOperationID);
     FTTLListener.UpdateUseTime;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TDownloaderHttpWithTTL.OnTTLTrim(Sender: TObject);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FDownloader := nil;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

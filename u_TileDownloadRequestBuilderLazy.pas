@@ -3,7 +3,7 @@ unit u_TileDownloadRequestBuilderLazy;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_OperationNotifier,
   i_TileRequest,
   i_Downloader,
@@ -18,7 +18,7 @@ type
     FFactory: ITileDownloadRequestBuilderFactory;
     FDownloader: IDownloader;
     FBuilder: ITileDownloadRequestBuilder;
-    FBuilderCS: TCriticalSection;
+    FBuilderCS: IReadWriteSync;
   protected
     function BuildRequest(
       ASource: ITileRequest;
@@ -37,7 +37,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TTileDownloadRequestBuilderLazy }
 
@@ -46,14 +46,14 @@ constructor TTileDownloadRequestBuilderLazy.Create(
   AFactory: ITileDownloadRequestBuilderFactory
 );
 begin
-  FBuilderCS := TCriticalSection.Create;
+  FBuilderCS := MakeSyncObj(Self, TRUE);
   FDownloader := ADownloader;
   FFactory := AFactory;
 end;
 
 destructor TTileDownloadRequestBuilderLazy.Destroy;
 begin
-  FreeAndNil(FBuilderCS);
+  FBuilderCS := nil;
   inherited;
 end;
 
@@ -69,7 +69,8 @@ begin
   Result := nil;
   if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
     if FFactory.State.GetStatic.Enabled then begin
-      FBuilderCS.Acquire;
+      // allow build
+      FBuilderCS.BeginWrite;
       try
         VBuilder := FBuilder;
         if VBuilder = nil then begin
@@ -81,8 +82,9 @@ begin
           end;
         end;
       finally
-        FBuilderCS.Release;
+        FBuilderCS.EndWrite;
       end;
+
       if VBuilder <> nil then begin
         Result := VBuilder.BuildRequest(ASource, ALastResponseInfo, ACancelNotifier, AOperationID);
       end;

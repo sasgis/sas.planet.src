@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   i_TileDownloaderConfig,
   i_TileDownloader,
@@ -29,7 +29,7 @@ type
     FChangeCounter: Integer;
     FChangeNotifier: IJclNotifier;
     FConfigListener: IJclListener;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
 
     FStatic: ITileDownloaderListStatic;
     procedure OnConfigChange;
@@ -53,7 +53,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   i_Downloader,
   u_JclNotify,
   u_NotifyEventListener,
@@ -84,7 +84,7 @@ begin
   FRequestBuilderFactory := ARequestBuilderFactory;
 
   FChangeNotifier := TJclBaseNotifier.Create;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
@@ -104,7 +104,7 @@ begin
   FRequestBuilderFactory := nil;
   FDownloadSystemState := nil;
 
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
@@ -138,11 +138,11 @@ end;
 
 function TTileDownloaderList.GetStatic: ITileDownloaderListStatic;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FStatic;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
@@ -192,11 +192,11 @@ begin
     if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
       Exit;
     end;
-    FCS.Acquire;
+    FCS.BeginWrite;
     try
       FStatic := VStatic;
     finally
-      FCS.Release;
+      FCS.EndWrite;
     end;
     FChangeNotifier.Notify(nil);
   end else if VStatic = nil then begin
@@ -205,11 +205,11 @@ begin
     if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
       Exit;
     end;
-    FCS.Acquire;
+    FCS.BeginWrite;
     try
       FStatic := VStatic;
     finally
-      FCS.Release;
+      FCS.EndWrite;
     end;
   end;
 end;

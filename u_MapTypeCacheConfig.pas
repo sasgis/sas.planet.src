@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
@@ -73,7 +73,7 @@ type
 
   TMapTypeCacheConfigDLL = class(TMapTypeCacheConfigAbstract)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FNameInCache: String;
     FOnSettingsEdit: TOnAfterMapSettingsEdit;
   protected
@@ -102,7 +102,7 @@ type
 
   TMapTypeCacheConfigBerkeleyDB = class(TMapTypeCacheConfigAbstract)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
   protected
     FOnSettingsEdit: TOnAfterMapSettingsEdit;
     procedure OnSettingsEdit; override;
@@ -133,7 +133,7 @@ implementation
 
 uses
   Windows,
-  SysUtils,
+  u_Synchronizer,
   ShLwApi,
   u_JclNotify,
   u_NotifyEventListener;
@@ -247,7 +247,7 @@ constructor TMapTypeCacheConfigDLL.Create(
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE); // called only 1 tile - not need to use multisync
   FOnSettingsEdit := AOnSettingsEdit;
   OnSettingsEdit;
 end;
@@ -256,7 +256,7 @@ procedure TMapTypeCacheConfigDLL.OnSettingsEdit;
 var
   VBasePath: string;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     // current GE cache path
     FNameInCache := FConfig.GetStatic.NameInCache;
@@ -277,25 +277,25 @@ begin
       FOnSettingsEdit(Self);
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 destructor TMapTypeCacheConfigDLL.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited Destroy;
 end;
 
 function TMapTypeCacheConfigDLL.GetNameInCache: string;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FNameInCache;
     if (0=Length(Result)) then
       Result := FBasePath;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
@@ -309,7 +309,7 @@ constructor TMapTypeCacheConfigBerkeleyDB.Create(
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FFileNameGenerator := AFileNameGenerator;
   FOnSettingsEdit := AOnSettingsEdit;
   OnSettingsEdit;
@@ -317,7 +317,7 @@ end;
 
 destructor TMapTypeCacheConfigBerkeleyDB.Destroy;
 begin
-  FCS.Free;
+  FCS := nil;
   inherited Destroy;
 end;
 
@@ -334,7 +334,7 @@ var
   VBasePath: string;
   VCachePath: string;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VBasePath := FConfig.GetStatic.NameInCache;
     if PathIsRelative(PAnsiChar(VBasePath)) then begin
@@ -352,17 +352,17 @@ begin
       FOnSettingsEdit(Self);
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + '.sdb';
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 

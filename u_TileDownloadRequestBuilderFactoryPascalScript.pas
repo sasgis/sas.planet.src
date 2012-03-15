@@ -23,7 +23,6 @@ unit u_TileDownloadRequestBuilderFactoryPascalScript;
 interface
 
 uses
-  SyncObjs,
   SysUtils,
   i_LanguageManager,
   i_Downloader,
@@ -45,7 +44,7 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FScriptInited: Boolean;
   protected
     function DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean; override;
@@ -67,6 +66,7 @@ implementation
 
 uses
   uPSCompiler,
+  u_Synchronizer,
   u_TileDownloadRequestBuilderPascalScript;
 
 { TTileDownloadRequestBuilderFactoryPascalScript }
@@ -89,7 +89,7 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FScriptText := AScriptText;
 
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
   VState := TTileDownloaderStateInternal.Create;
   FStateInternal := VState;
   FState := VState;
@@ -102,7 +102,7 @@ end;
 
 destructor TTileDownloadRequestBuilderFactoryPascalScript.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
@@ -158,7 +158,7 @@ begin
   if FStateInternal.Enabled then begin
     try
       if not FScriptInited then begin
-        FCS.Acquire;
+        FCS.BeginWrite;
         try
           if not FScriptInited then begin
             try
@@ -176,7 +176,7 @@ begin
             end;
           end;
         finally
-          FCS.Release;
+          FCS.EndWrite;
         end;
       end;
       Result :=

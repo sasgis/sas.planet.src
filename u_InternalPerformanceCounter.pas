@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  SyncObjs,
   i_InternalPerformanceCounter;
 
 type

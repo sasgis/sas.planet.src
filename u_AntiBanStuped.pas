@@ -24,7 +24,7 @@ interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   i_ConfigDataProvider,
   i_AntiBan,
   i_DownloadRequest,
@@ -40,7 +40,7 @@ type
     FPreloadPage: string;
     FDownloadTilesCount: Longint;
     FBanFlag: Boolean;
-    FBanCS: TCriticalSection;
+    FBanCS: IReadWriteSync;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan();
     procedure ExecOnBan(ALastUrl: String);
@@ -69,7 +69,7 @@ implementation
 
 uses
   Classes,
-  SysUtils,
+  u_Synchronizer,
   u_InetFunc;
 
 type
@@ -116,7 +116,7 @@ var
   VParams: IConfigDataProvider;
 begin
   FInvisibleBrowser := AInvisibleBrowser;
-  FBanCS := TCriticalSection.Create;
+  FBanCS := MakeSyncObj(Self, TRUE);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
   FPreloadPage := VParams.ReadString('PreloadPage', '');
@@ -124,25 +124,25 @@ end;
 
 destructor TAntiBanStuped.Destroy;
 begin
-  FreeAndNil(FBanCS);
+  FBanCS := nil;
   inherited;
 end;
 
 procedure TAntiBanStuped.ExecOnBan(ALastUrl: String);
 begin
-  FBanCS.Acquire;
+  FBanCS.BeginWrite;
   if FBanFlag then begin
     FBanFlag := false;
-    FBanCS.Release;
+    FBanCS.EndWrite;
+
     with TExecOnBan.Create do try
       Exec(ALastUrl);
     finally
       Free;
     end;
   end else begin
-    FBanCS.Release;
+    FBanCS.EndWrite;
   end;
-
 end;
 
 procedure TAntiBanStuped.IncDownloadedAndCheckAntiBan;
@@ -180,9 +180,12 @@ begin
   if Supports(Result, IDownloadResultBanned) then begin
     ExecOnBan(ARequest.Url);
   end else if Supports(Result, IDownloadResultOk) then begin
-    FBanCS.Acquire;
-    FBanFlag := True;
-    FBanCS.Release;
+    FBanCS.BeginWrite;
+    try
+      FBanFlag := True;
+    finally
+      FBanCS.EndWrite;
+    end;
   end;
 end;
 

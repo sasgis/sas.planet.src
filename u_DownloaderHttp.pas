@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   Classes,
-  SyncObjs,
   SysUtils,
   WinInet,
   ALHTTPCommon,
@@ -56,7 +55,7 @@ type
 
   TDownloaderHttp = class(TInterfacedObject, IDownloader)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FCancelListener: IJclListener;
     FHttpClient: TALWinInetHTTPClient;
     FHttpResponseHeader: TALHTTPResponseHeader;
@@ -115,6 +114,7 @@ implementation
 
 uses
   u_NotifyEventListener,
+  u_Synchronizer,
   u_BinaryDataByMemStream;
 
 { TDownloaderHttp }
@@ -138,7 +138,7 @@ begin
   FOpeningHandle := nil;
   FDisconnectByUser := 0;
   FDisconnectByServer := 0;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, FALSE);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpClient.OnStatusChange := DoOnALStatusChange;
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
@@ -160,11 +160,11 @@ end;
 destructor TDownloaderHttp.Destroy;
 begin
   Disconnect;
-  FreeAndNil(FCS);
   FreeAndNil(FHttpResponseHeader);
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
   FResultFactory := nil;
+  FCS := nil;
   inherited;
 end;
 
@@ -280,7 +280,7 @@ var
   VHeadRequest: IDownloadHeadRequest;
 begin
   Result := nil;
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     // check gracefully off
     CheckGraceOff(nil);
@@ -339,7 +339,7 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

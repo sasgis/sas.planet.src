@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SysUtils,
   SyncObjs,
   i_JclNotify,
   i_OperationNotifier,
@@ -31,7 +32,7 @@ type
     FDestroyOperationID: Integer;
 
     FAppClosingListener: IJclListener;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FCancelListener: IJclListener;
     FConfigChangeListener: IJclListener;
     FCancelEvent: TEvent;
@@ -65,7 +66,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   i_InetConfig,
   i_DownloadResult,
   i_TileDownloadRequest,
@@ -102,7 +103,7 @@ begin
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
 
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, FALSE);
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
@@ -121,7 +122,7 @@ begin
   FConfigChangeListener := nil;
   FTileDownloaderConfig := nil;
 
-  FreeAndNil(FCS);
+  FCS := nil;
   FreeAndNil(FCancelEvent);
   inherited;
 end;
@@ -140,7 +141,7 @@ begin
   ATileRequest.StartNotifier.Notify(ATileRequest);
   try
     if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-      FCS.Acquire;
+      FCS.BeginWrite;
       try
         if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
           FCancelEvent.ResetEvent;
@@ -225,7 +226,7 @@ begin
           VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
         end;
       finally
-        FCS.Release;
+        FCS.EndWrite;
       end;
     end else begin
       VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);

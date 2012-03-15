@@ -23,7 +23,6 @@ unit u_TileDownloadRequestBuilder;
 interface
 
 uses
-  SyncObjs,
   SysUtils,
   i_OperationNotifier,
   i_TileRequest,
@@ -35,7 +34,7 @@ uses
 type
   TTileDownloadRequestBuilder = class(TInterfacedObject, ITileDownloadRequestBuilder)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
   protected
     FConfig: ITileDownloadRequestBuilderConfig;
     procedure Lock;
@@ -54,29 +53,32 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TTileDownloadRequestBuilder }
 
 constructor TTileDownloadRequestBuilder.Create(AConfig: ITileDownloadRequestBuilderConfig);
 begin
   inherited Create;
   FConfig := AConfig;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
 end;
 
 destructor TTileDownloadRequestBuilder.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited Destroy;
 end;
 
 procedure TTileDownloadRequestBuilder.Lock;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
 end;
 
 procedure TTileDownloadRequestBuilder.Unlock;
 begin
-  FCS.Release;
+  FCS.EndWrite;
 end;
 
 end.
