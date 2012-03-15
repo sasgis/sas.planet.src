@@ -1,9 +1,29 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapMarksLayer;
 
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -43,7 +63,7 @@ type
     FPointsAgregator: IDoublePointsAggregator;
 
     FMarksSubset: IMarksSubset;
-    FMarksSubsetCS: TCriticalSection;
+    FMarksSubsetCS: IReadWriteSync;
     FLinesClipRect: TDoubleRect;
     
     function GetProjectedPath(
@@ -103,7 +123,7 @@ uses
   ActiveX,
   Types,
   Classes,
-  SysUtils,
+  u_Synchronizer,
   GR32_Resamplers,
   i_TileIterator,
   i_EnumDoublePoint,
@@ -141,7 +161,7 @@ begin
     ATimerNoifier,
     tpLower
   );
-  FMarksSubsetCS := TCriticalSection.Create;
+  FMarksSubsetCS := MakeSyncMulti(Self);
   FVectorItmesFactory := AVectorItmesFactory;
   FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
   FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');
@@ -164,7 +184,7 @@ end;
 
 destructor TMapMarksLayer.Destroy;
 begin
-  FreeAndNil(FMarksSubsetCS);
+  FMarksSubsetCS := nil;
   inherited;
 end;
 
@@ -202,11 +222,11 @@ begin
     VCounterContext := FGetMarksCounter.StartOperation;
     try
       VMarksSubset := GetMarksSubset(VBitmapConverter);
-      FMarksSubsetCS.Acquire;
+      FMarksSubsetCS.BeginWrite;
       try
         FMarksSubset := VMarksSubset;
       finally
-        FMarksSubsetCS.Release;
+        FMarksSubsetCS.EndWrite;
       end;
     finally
       FGetMarksCounter.FinishOperation(VCounterContext);
@@ -331,12 +351,14 @@ begin
   try
     AMark := nil;
     AMarkS := 0;
-    FMarksSubsetCS.Acquire;
+    
+    FMarksSubsetCS.BeginRead;
     try
       VMarksSubset := FMarksSubset;
     finally
-      FMarksSubsetCS.Release;
+      FMarksSubsetCS.EndRead;
     end;
+
     if VMarksSubset <> nil then begin
       if not VMarksSubset.IsEmpty then begin
         VRect.Left := xy.X - 8;

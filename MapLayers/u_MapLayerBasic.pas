@@ -3,7 +3,7 @@ unit u_MapLayerBasic;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   GR32,
   GR32_Layers,
   GR32_Image,
@@ -72,7 +72,7 @@ type
   private
     FLayer: TBitmapLayer;
     FNeedUpdateLayerSize: Boolean;
-    FNeedUpdateLayerSizeCS: TCriticalSection;
+    FNeedUpdateLayerSizeCS: IReadWriteSync;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     procedure SetNeedUpdateLayerSize; virtual;
@@ -106,7 +106,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   Types;
 
 { TMapLayerBase }
@@ -238,7 +238,7 @@ begin
   inherited Create(APerfList, FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
 //  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
-  FNeedUpdateLayerSizeCS := TCriticalSection.Create;
+  FNeedUpdateLayerSizeCS := MakeSyncFake(Self);
 end;
 
 procedure TMapLayerBasic.DoViewUpdate;
@@ -283,17 +283,17 @@ end;
 
 procedure TMapLayerBasic.SetNeedUpdateLayerSize;
 begin
-  FNeedUpdateLayerSizeCS.Acquire;
+  FNeedUpdateLayerSizeCS.BeginWrite;
   try
     FNeedUpdateLayerSize := True;
   finally
-    FNeedUpdateLayerSizeCS.Release;
+    FNeedUpdateLayerSizeCS.EndWrite;
   end;
 end;
 
 destructor TMapLayerBasic.Destroy;
 begin
-  FreeAndNil(FNeedUpdateLayerSizeCS);
+  FNeedUpdateLayerSizeCS := nil;
   inherited;
 end;
 
@@ -332,11 +332,11 @@ end;
 
 procedure TMapLayerBasic.UpdateLayerSize;
 begin
-  FNeedUpdateLayerSizeCS.Acquire;
+  FNeedUpdateLayerSizeCS.BeginWrite;
   try
     FNeedUpdateLayerSize := False;
   finally
-    FNeedUpdateLayerSizeCS.Release;
+    FNeedUpdateLayerSizeCS.EndWrite;
   end;
   DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
 end;
@@ -346,14 +346,14 @@ var
   VNeed: Boolean;
 begin
   VNeed := False;
-  FNeedUpdateLayerSizeCS.Acquire;
+  FNeedUpdateLayerSizeCS.BeginWrite;
   try
     if FNeedUpdateLayerSize then begin
       FNeedUpdateLayerSize := False;
       VNeed := True;
     end;
   finally
-    FNeedUpdateLayerSizeCS.Release;
+    FNeedUpdateLayerSizeCS.EndWrite;
   end;
   if VNeed then begin
     UpdateLayerSize;

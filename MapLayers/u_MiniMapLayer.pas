@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MiniMapLayer;
 
 interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   Classes,
   Controls,
   TBX,
@@ -60,9 +80,9 @@ type
     FUsePrevZoomAtLayer: Boolean;
 
     FMainMap: IMapType;
-    FMainMapCS: TCriticalSection;
+    FMainMapCS: IReadWriteSync;
     FLayersSet: IMapTypeSet;
-    FLayersSetCS: TCriticalSection;
+    FLayersSetCS: IReadWriteSync;
 
     FDrawTask: IBackgroundTask;
     FUpdateCounter: Integer;
@@ -157,7 +177,7 @@ implementation
 
 uses
   ActiveX,
-  SysUtils,
+  u_Synchronizer,
   Types,
   GR32_Polygons,
   c_ZeroGUID,
@@ -198,8 +218,8 @@ begin
   FParentMap := AParentMap;
   FIconsList := AIconsList;
 
-  FMainMapCS := TCriticalSection.Create;
-  FLayersSetCS := TCriticalSection.Create;
+  FMainMapCS := MakeSyncMulti(Self);
+  FLayersSetCS := MakeSyncMulti(Self);
 
   FViewRectMoveDelta := DoublePoint(0, 0);
 
@@ -250,8 +270,8 @@ end;
 
 destructor TMiniMapLayer.Destroy;
 begin
-  FreeAndNil(FMainMapCS);
-  FreeAndNil(FLayersSetCS);
+  FMainMapCS := nil;
+  FLayersSetCS := nil;
   
   FCoordConverterFactory := nil;
   FDrawTask := nil;
@@ -554,12 +574,14 @@ begin
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;
         VDrawMode := dmOpaque;
-        FMainMapCS.Acquire;
+
+        FMainMapCS.BeginRead;
         try
           VMainMap := FMainMap;
         finally
-          FMainMapCS.Release;
+          FMainMapCS.EndRead;
         end;
+
         if VMainMap <> nil then begin
           if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
@@ -570,12 +592,13 @@ begin
           break;
         end;
 
-        FLayersSetCS.Acquire;
+        FLayersSetCS.BeginRead;
         try
           VLayersSet := FLayersSet;
         finally
-          FLayersSetCS.Release;
+          FLayersSetCS.EndRead;
         end;
+
         if VLayersSet <> nil then begin
           VEnum := VLayersSet.GetIterator;
           while VEnum.Next(1, VGUID, i) = S_OK do begin
@@ -978,11 +1001,11 @@ begin
   ViewUpdateLock;
   try
     VNewLayersSet := FConfig.MapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
-    FLayersSetCS.Acquire;
+    FLayersSetCS.BeginWrite;
     try
       FLayersSet := VNewLayersSet;
     finally
-      FLayersSetCS.Release;
+      FLayersSetCS.EndWrite;
     end;
     SetNeedRedraw;
   finally
@@ -998,11 +1021,11 @@ begin
   ViewUpdateLock;
   try
     VNewMainMap := FConfig.MapsConfig.GetActiveMiniMap;
-    FMainMapCS.Acquire;
+    FMainMapCS.BeginWrite;
     try
       FMainMap := VNewMainMap;
     finally
-      FMainMapCS.Release;
+      FMainMapCS.EndWrite;
     end;
     SetNeedRedraw;
   finally

@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapLayerWiki;
 
 interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   Types,
   Classes,
   GR32,
@@ -51,7 +71,7 @@ type
     FAllElements: IMapElementsGuidedList;
 
     FVectorMapsSet: IMapTypeSet;
-    FVectorMapsSetCS: TCriticalSection;
+    FVectorMapsSetCS: IReadWriteSync;
     FLinesClipRect: TDoubleRect;
 
     FFixedPointArray: TArrayOfFixedPoint;
@@ -184,7 +204,7 @@ implementation
 
 uses
   ActiveX,
-  SysUtils,
+  u_Synchronizer,
   i_CoordConverter,
   i_TileIterator,
   i_EnumDoublePoint,
@@ -229,7 +249,7 @@ begin
   FLayersSet := ALayersSet;
   FVectorItmesFactory := AVectorItmesFactory;
   FErrorLogger := AErrorLogger;
-  FVectorMapsSetCS := TCriticalSection.Create;
+  FVectorMapsSetCS := MakeSyncMulti(Self);
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FPointsAgregatorThread := TDoublePointsAggregator.Create;
@@ -262,7 +282,7 @@ destructor TWikiLayer.Destroy;
 begin
   FAllElements := nil;
   FreeAndNil(FPolygon);
-  FreeAndNil(FVectorMapsSetCS);
+  FVectorMapsSetCS := nil;
   inherited;
 end;
 
@@ -371,12 +391,13 @@ var
   VMapType: TMapType;
   VElements: IInterfaceList;
 begin
-  FVectorMapsSetCS.Acquire;
+  FVectorMapsSetCS.BeginRead;
   try
     VVectorMapsSet := FVectorMapsSet;
   finally
-    FVectorMapsSetCS.Release;
+    FVectorMapsSetCS.EndRead;
   end;
+  
   if VVectorMapsSet <> nil then begin
     VEnum := VVectorMapsSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
@@ -510,13 +531,15 @@ begin
   ViewUpdateLock;
   try
     VNewLayersSet := FLayersSet.GetSelectedMapsSet;
-    FVectorMapsSetCS.Acquire;
+
+    FVectorMapsSetCS.BeginWrite;
     try
       VOldLayersSet := FVectorMapsSet;
       FVectorMapsSet := VNewLayersSet;
     finally
-      FVectorMapsSetCS.Release;
+      FVectorMapsSetCS.EndWrite;
     end;
+    
     VLocalConverter := LayerCoordConverter;
     if VLocalConverter <> nil then begin
       VZoom := VLocalConverter.GetZoom;
@@ -594,12 +617,14 @@ begin
   inherited;
   if LayerCoordConverter <> nil then begin
     VZoom := LayerCoordConverter.GetZoom;
-    FVectorMapsSetCS.Acquire;
+
+    FVectorMapsSetCS.BeginRead;
     try
       VLayersSet := FVectorMapsSet;
     finally
-      FVectorMapsSetCS.Release;
+      FVectorMapsSetCS.EndRead;
     end;
+
     if VLayersSet <> nil then begin
       VEnum := VLayersSet.GetIterator;
       while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -637,12 +662,13 @@ begin
   VZoom := AValue.GetZoom;
   if VZoom <> VOldZoom then begin
     if VOldZoom <> 255 then begin
-      FVectorMapsSetCS.Acquire;
+      FVectorMapsSetCS.BeginRead;
       try
         VLayersSet := FVectorMapsSet;
       finally
-        FVectorMapsSetCS.Release;
+        FVectorMapsSetCS.EndRead;
       end;
+      
       if VLayersSet <> nil then begin
         VEnum := VLayersSet.GetIterator;
         while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -660,12 +686,14 @@ begin
   VMapPixelRect := AValue.GetRectInMapPixelFloat;
   AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
   VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-  FVectorMapsSetCS.Acquire;
+
+  FVectorMapsSetCS.BeginRead;
   try
     VLayersSet := FVectorMapsSet;
   finally
-    FVectorMapsSetCS.Release;
+    FVectorMapsSetCS.EndRead;
   end;
+  
   if VLayersSet <> nil then begin
     VEnum := VLayersSet.GetIterator;
     while VEnum.Next(1, VGUID, cnt) = S_OK do begin

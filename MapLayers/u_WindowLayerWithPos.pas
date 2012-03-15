@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_WindowLayerWithPos;
 
 interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   GR32,
   GR32_Layers,
   GR32_Image,
@@ -19,9 +39,9 @@ type
     FViewUpdateLock: Integer;
     FViewPortState: IViewPortState;
     FViewCoordConverter: ILocalCoordConverter;
-    FViewCoordConverterCS: TCriticalSection;
+    FViewCoordConverterCS: IReadWriteSync;
     FLayerCoordConverter: ILocalCoordConverter;
-    FLayerCoordConverterCS: TCriticalSection;
+    FLayerCoordConverterCS: IReadWriteSync;
     procedure OnViewPortPosChange;
     procedure OnViewPortScaleChange;
     function GetLayerCoordConverter: ILocalCoordConverter;
@@ -64,7 +84,7 @@ type
 
     FNeedRedraw: Boolean;
     FNeedUpdateLocation: Boolean;
-    FNeedRedrawCS: TCriticalSection;
+    FNeedRedrawCS: IReadWriteSync;
     FRedrawCounter: IInternalPerformanceCounter;
   protected
     function GetVisible: Boolean; virtual;
@@ -136,7 +156,7 @@ implementation
 
 uses
   Types,
-  SysUtils,
+  u_Synchronizer,
   u_NotifyEventListener;
 
 { TWindowLayerWithPosBase }
@@ -151,8 +171,8 @@ begin
   FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
-  FViewCoordConverterCS := TCriticalSection.Create;
-  FLayerCoordConverterCS := TCriticalSection.Create;
+  FViewCoordConverterCS := MakeSyncMulti(Self);
+  FLayerCoordConverterCS := MakeSyncMulti(Self);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
@@ -168,8 +188,8 @@ end;
 
 destructor TWindowLayerWithPosBase.Destroy;
 begin
-  FreeAndNil(FViewCoordConverterCS);
-  FreeAndNil(FLayerCoordConverterCS);
+  FViewCoordConverterCS := nil;
+  FLayerCoordConverterCS := nil;
   FViewCoordConverter := nil;
   FLayerCoordConverter := nil;
   FViewPortState := nil;
@@ -225,11 +245,11 @@ end;
 
 function TWindowLayerWithPosBase.GetLayerCoordConverter: ILocalCoordConverter;
 begin
-  FLayerCoordConverterCS.Acquire;
+  FLayerCoordConverterCS.BeginRead;
   try
     Result := FLayerCoordConverter;
   finally
-    FLayerCoordConverterCS.Release;
+    FLayerCoordConverterCS.EndRead;
   end;
 end;
 
@@ -241,11 +261,11 @@ end;
 
 function TWindowLayerWithPosBase.GetViewCoordConverter: ILocalCoordConverter;
 begin
-  FViewCoordConverterCS.Acquire;
+  FViewCoordConverterCS.BeginRead;
   try
     Result := FViewCoordConverter;
   finally
-    FViewCoordConverterCS.Release;
+    FViewCoordConverterCS.EndRead;
   end;
 end;
 
@@ -256,22 +276,22 @@ end;
 procedure TWindowLayerWithPosBase.SetLayerCoordConverter(
   AValue: ILocalCoordConverter);
 begin
-  FLayerCoordConverterCS.Acquire;
+  FLayerCoordConverterCS.BeginWrite;
   try
     FLayerCoordConverter := AValue;
   finally
-    FLayerCoordConverterCS.Release;
+    FLayerCoordConverterCS.EndWrite;
   end;
 end;
 
 procedure TWindowLayerWithPosBase.SetViewCoordConverter(
   AValue: ILocalCoordConverter);
 begin
-  FViewCoordConverterCS.Acquire;
+  FViewCoordConverterCS.BeginWrite;
   try
     FViewCoordConverter := AValue;
   finally
-    FViewCoordConverterCS.Release;
+    FViewCoordConverterCS.EndWrite;
   end;
 end;
 
@@ -324,12 +344,12 @@ begin
   FLayer.Visible := false;
   FVisible := False;
   FNeedRedraw := True;
-  FNeedRedrawCS := TCriticalSection.Create;
+  FNeedRedrawCS := MakeSyncFake(Self);
 end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
-  FreeAndNil(FNeedRedrawCS);
+  FNeedRedrawCS := nil;
   FLayer := nil;
   inherited;
 end;
@@ -402,11 +422,11 @@ end;
 procedure TWindowLayerBasic.UpdateLayerLocation;
 begin
   if FVisible then begin
-    FNeedRedrawCS.Acquire;
+    FNeedRedrawCS.BeginWrite;
     try
       FNeedUpdateLocation := False;
     finally
-      FNeedRedrawCS.Release;
+      FNeedRedrawCS.EndWrite;
     end;
     DoUpdateLayerLocation(GetMapLayerLocationRect);
   end;
@@ -417,14 +437,14 @@ var
   VNeed: Boolean;
 begin
   VNeed := False;
-  FNeedRedrawCS.Acquire;
+  FNeedRedrawCS.BeginWrite;
   try
     if FNeedUpdateLocation then begin
       FNeedUpdateLocation := False;
       VNeed := True;
     end;
   finally
-    FNeedRedrawCS.Release;
+    FNeedRedrawCS.EndWrite;
   end;
   if VNeed then begin
     UpdateLayerLocation;
@@ -436,11 +456,11 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   if FVisible then begin
-    FNeedRedrawCS.Acquire;
+    FNeedRedrawCS.BeginWrite;
     try
       FNeedRedraw := False;
     finally
-      FNeedRedrawCS.Release;
+      FNeedRedrawCS.EndWrite;
     end;
     VCounterContext := FRedrawCounter.StartOperation;
     try
@@ -456,14 +476,14 @@ var
   VNeed: Boolean;
 begin
   VNeed := False;
-  FNeedRedrawCS.Acquire;
+  FNeedRedrawCS.BeginWrite;
   try
     if FNeedRedraw then begin
       FNeedRedraw := False;
       VNeed := True;
     end;
   finally
-    FNeedRedrawCS.Release;
+    FNeedRedrawCS.EndWrite;
   end;
   if VNeed then begin
     Redraw;
@@ -479,22 +499,22 @@ end;
 
 procedure TWindowLayerBasic.SetNeedRedraw;
 begin
-  FNeedRedrawCS.Acquire;
+  FNeedRedrawCS.BeginWrite;
   try
     FNeedRedraw := True;
   finally
-    FNeedRedrawCS.Release;
+    FNeedRedrawCS.EndWrite;
   end;
   SetNeedUpdateLocation;
 end;
 
 procedure TWindowLayerBasic.SetNeedUpdateLocation;
 begin
-  FNeedRedrawCS.Acquire;
+  FNeedRedrawCS.BeginWrite;
   try
     FNeedUpdateLocation := True;
   finally
-    FNeedRedrawCS.Release;
+    FNeedRedrawCS.EndWrite;
   end;
 end;
 
@@ -556,22 +576,22 @@ end;
 
 procedure TWindowLayerWithBitmap.SetNeedUpdateLayerSize;
 begin
-  FNeedRedrawCS.Acquire;
+  FNeedRedrawCS.BeginWrite;
   try
     FNeedUpdateLayerSize := True;
   finally
-    FNeedRedrawCS.Release;
+    FNeedRedrawCS.EndWrite;
   end;
 end;
 
 procedure TWindowLayerWithBitmap.UpdateLayerSize;
 begin
   if FVisible then begin
-    FNeedRedrawCS.Acquire;
+    FNeedRedrawCS.BeginWrite;
     try
       FNeedUpdateLayerSize := False;
     finally
-      FNeedRedrawCS.Release;
+      FNeedRedrawCS.EndWrite;
     end;
     DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
   end;
@@ -582,14 +602,14 @@ var
   VNeed: Boolean;
 begin
   VNeed := False;
-  FNeedRedrawCS.Acquire;
+  FNeedRedrawCS.BeginWrite;
   try
     if FNeedUpdateLayerSize then begin
       FNeedUpdateLayerSize := False;
       VNeed := True;
     end;
   finally
-    FNeedRedrawCS.Release;
+    FNeedRedrawCS.EndWrite;
   end;
   if VNeed then begin
     UpdateLayerSize;
