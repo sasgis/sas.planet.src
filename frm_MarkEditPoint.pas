@@ -40,6 +40,7 @@ uses
   u_CommonFormAndFrameParents,
   u_ResStrings,
   i_LanguageManager,
+  i_PathConfig,
   i_ViewPortState,
   i_ValueToStringConverter,
   i_MarkPicture,
@@ -111,6 +112,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AMediaPath: IPathConfig;
       ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb;
       AViewPortState: IViewPortState;
@@ -130,6 +132,7 @@ uses
 
 constructor TfrmMarkEditPoint.Create(
   ALanguageManager: ILanguageManager;
+  AMediaPath: IPathConfig;
   ACategoryDB: IMarkCategoryDB;
   AMarksDb: IMarksDb;
   AViewPortState: IViewPortState;
@@ -140,7 +143,7 @@ begin
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 
-  frMarkDescription := TfrMarkDescription.Create(nil);
+  frMarkDescription := TfrMarkDescription.Create(AMediaPath);
   frLonLatPoint :=
     TfrLonLat.Create(
       nil,

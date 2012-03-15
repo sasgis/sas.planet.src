@@ -33,10 +33,11 @@ uses
   ExtDlgs,
   TBX,
   TBXGraphics,
-  ImgList, 
-  TB2Item, 
-  TB2Dock, 
+  ImgList,
+  TB2Item,
+  TB2Dock,
   TB2Toolbar,
+  i_PathConfig,
   u_CommonFormAndFrameParents;
 
 type
@@ -61,18 +62,33 @@ type
     procedure EditCommentKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
+    FMediaPath: IPathConfig;
+    
     function GetDescription: string;
     procedure SetDescription(const Value: string);
   public
     property Description: string read GetDescription write SetDescription;
+  public
+    constructor Create(AMediaPath: IPathConfig); reintroduce;
   end;
 
 implementation
+
+uses
+  StrUtils,
+  SysUtils,
+  c_InternalBrowser;
 
 {$R *.dfm}
 
 type
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg, ebUrl);
+
+constructor TfrMarkDescription.Create(AMediaPath: IPathConfig);
+begin
+  inherited Create(nil);
+  FMediaPath := AMediaPath;
+end;
 
 procedure TfrMarkDescription.EditCommentKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -114,6 +130,9 @@ var
   VSelectedText: string;
   VTextBeforeSelection: string;
   VTextAfterSelection: string;
+  VImageUrl: string;
+  VMediaPath: string;
+  VFileName: string;
 begin
   s := EditComment.Text;
   VSelStart := EditComment.SelStart;
@@ -145,7 +164,16 @@ begin
        end;
   ebImg:
        if (OpenPictureDialog.Execute)and(OpenPictureDialog.FileName<>'') then begin
-          VTextBeforeSelection := '<img src="'+OpenPictureDialog.FileName+'"/>';
+          VImageUrl := OpenPictureDialog.FileName;
+          VMediaPath := IncludeTrailingPathDelimiter(FMediaPath.FullPath);
+          if LeftStr(VImageUrl, Length(VMediaPath)) = VMediaPath then begin
+            VFileName := MidStr(VImageUrl, Length(VMediaPath) + 1, Length(VImageUrl) - Length(VMediaPath));
+            if PathDelim <> '/' then begin
+              VFileName := ReplaceStr(VFileName, PathDelim, '/');
+            end;
+            VImageUrl := CMediaDataInternalURL + VFileName;
+          end;
+          VTextBeforeSelection := '<img src="' + VImageUrl + '"/>';
           VTextAfterSelection := '';
        end;
   ebCenter:

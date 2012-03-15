@@ -170,6 +170,7 @@ type
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
     property AppClosingNotifier: IJclNotifier read FAppClosingNotifier;
+    property MediaDataPath: IPathConfig read FMediaDataPath;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;

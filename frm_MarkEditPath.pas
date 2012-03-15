@@ -34,6 +34,7 @@ uses
   ExtCtrls,
   GR32,
   u_CommonFormAndFrameParents,
+  i_PathConfig,
   i_LanguageManager,
   u_ResStrings,
   i_MarksSimple,
@@ -74,6 +75,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
+      AMediaPath: IPathConfig;
       ACategoryDB: IMarkCategoryDB;
       AMarksDb: IMarksDb
     ); reintroduce;
@@ -88,6 +90,7 @@ implementation
 
 constructor TfrmMarkEditPath.Create(
   ALanguageManager: ILanguageManager;
+  AMediaPath: IPathConfig;
   ACategoryDB: IMarkCategoryDB;
   AMarksDb: IMarksDb
 );
@@ -96,7 +99,7 @@ begin
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 
-  frMarkDescription := TfrMarkDescription.Create(nil);
+  frMarkDescription := TfrMarkDescription.Create(AMediaPath);
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
       nil,
