@@ -347,7 +347,7 @@ begin
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
 {$if defined(RELEASE)}
-  FPerfCounterList := TInternalPerformanceCounterFake.Create('');
+  FPerfCounterList := TInternalPerformanceCounterFake.Create;
 {$else}
   FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
 {$ifend}

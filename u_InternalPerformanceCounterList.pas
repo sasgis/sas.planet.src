@@ -46,17 +46,21 @@ type
     constructor Create(const AName: string);
   end;
 
-  TInternalPerformanceCounterFake = class(TInterfacedObject, IInternalPerformanceCounterList)
-  private
-    FFakeCounter: IInternalPerformanceCounter;
+  TInternalPerformanceCounterFake = class(TInterfacedObject, IInternalPerformanceCounterList, IInternalPerformanceCounter)
   protected
+    { IInternalPerformanceCounterList }
     function GetName: string;
     function GetStaticDataList: IIDInterfaceList;
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
-  public
-    constructor Create(const AName: string);
+    { IInternalPerformanceCounter }
+    function GetId: Integer;
+    function StartOperation: TInternalPerformanceCounterContext;
+    procedure FinishOperation(const AContext: TInternalPerformanceCounterContext);
+    function GetCounter: Cardinal;
+    function GetTotalTime: TDateTime;
+    function GetStaticData: IInternalPerformanceCounterStaticData;
   end;
 
 implementation
@@ -126,14 +130,9 @@ end;
 
 { TInternalPerformanceCounterFake }
 
-constructor TInternalPerformanceCounterFake.Create(const AName: string);
-begin
-  FFakeCounter := TInternalPerformanceCounter.Create('');
-end;
-
 function TInternalPerformanceCounterFake.CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
 begin
-  Result := FFakeCounter;
+  Result := Self;
 end;
 
 function TInternalPerformanceCounterFake.CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
@@ -141,9 +140,24 @@ begin
   Result := Self;
 end;
 
+procedure TInternalPerformanceCounterFake.FinishOperation(const AContext: TInternalPerformanceCounterContext);
+begin
+  // empty
+end;
+
+function TInternalPerformanceCounterFake.GetCounter: Cardinal;
+begin
+  Result := 0;
+end;
+
 function TInternalPerformanceCounterFake.GetEunm: IEnumUnknown;
 begin
   Result := nil;
+end;
+
+function TInternalPerformanceCounterFake.GetId: Integer;
+begin
+  Result := Integer(Pointer(Self));
 end;
 
 function TInternalPerformanceCounterFake.GetName: string;
@@ -151,9 +165,24 @@ begin
   Result := '';
 end;
 
+function TInternalPerformanceCounterFake.GetStaticData: IInternalPerformanceCounterStaticData;
+begin
+  Result := nil;
+end;
+
 function TInternalPerformanceCounterFake.GetStaticDataList: IIDInterfaceList;
 begin
   Result := nil;
+end;
+
+function TInternalPerformanceCounterFake.GetTotalTime: TDateTime;
+begin
+  Result := 0;
+end;
+
+function TInternalPerformanceCounterFake.StartOperation: TInternalPerformanceCounterContext;
+begin
+  Result := 0;
 end;
 
 end.
