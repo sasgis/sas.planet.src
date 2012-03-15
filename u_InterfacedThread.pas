@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,14 +24,14 @@ interface
 
 uses
   Classes,
-  SyncObjs,
+  SysUtils,
   i_Thread;
 
 type
   TInterfacedThread = class(TInterfacedObject, IThread)
   private
     FThread: TThread;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FTerminated: Boolean;
     FStarted: Boolean;
     FFinished: Boolean;
@@ -50,7 +50,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 type
   TThread4InterfacedThread = class(TThread)
@@ -75,7 +75,7 @@ begin
   FTerminated := False;
   FStarted := False;
   FFinished := False;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
 end;
 
 destructor TInterfacedThread.Destroy;
@@ -83,35 +83,39 @@ var
   VNeedResume: Boolean;
 begin
   VNeedResume := False;
-  FCS.Acquire;
+  
+  FCS.BeginWrite;
   try
     if not FStarted then begin
       FThread.OnTerminate := nil;
       VNeedResume := True;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
-  FreeAndNil(FCS);
+
+  FCS := nil;
+
   if VNeedResume then begin
     FThread.Resume;
   end;
+  
   inherited;
 end;
 
 procedure TInterfacedThread.OnTerminate(Sender: TObject);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FFinished := True
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TInterfacedThread.Start;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     if not FStarted then begin
       if not FTerminated then begin
@@ -120,13 +124,13 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TInterfacedThread.Terminate;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     if not FTerminated then begin
       FTerminated := True;
@@ -135,7 +139,7 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

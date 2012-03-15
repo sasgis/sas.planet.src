@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,14 +24,14 @@ interface
 
 uses
   Classes,
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   i_JclListenerNotifierLinksList;
 
 type
   TJclListenerNotifierLinksList = class(TInterfacedObject, IJclListenerNotifierLinksList)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FLinksActive: Boolean;
     FListenerList: IInterfaceList;
     FNotifierList: IInterfaceList;
@@ -52,13 +52,13 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TJclListenerNotifierLinksList }
 
 constructor TJclListenerNotifierLinksList.Create;
 begin
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FListenerList := TInterfaceList.Create;
   FNotifierList := TInterfaceList.Create;
   FLinksActive := False;
@@ -66,7 +66,7 @@ end;
 
 destructor TJclListenerNotifierLinksList.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   FListenerList := nil;
   FNotifierList := nil;
   inherited;
@@ -116,11 +116,11 @@ end;
 
 procedure TJclListenerNotifierLinksList.ActivateLinks;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     DoActivateLinks;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
@@ -130,7 +130,7 @@ var
   VListenerIndex: Integer;
   VNotifierIndex: Integer;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VListenerIndex := FListenerList.Add(AListener);
     VNotifierIndex := FNotifierList.Add(ANotifier);
@@ -139,7 +139,7 @@ begin
       ActivateLink(VListenerIndex);
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -157,11 +157,11 @@ end;
 
 procedure TJclListenerNotifierLinksList.DeactivateLinks;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     DoDeactivateLinks;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 

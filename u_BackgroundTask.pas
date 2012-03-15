@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  SyncObjs,
   Classes,
   i_JclNotify,
   i_OperationNotifier,
@@ -38,9 +37,8 @@ type
     FAppClosingNotifier: IJclNotifier;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FCancelNotifier: IOperationNotifier;
-    FStopThread: TEvent;
-    FAllowExecute: TEvent;
-    FCS: TCriticalSection;
+    FStopThreadHandle: THandle;
+    FAllowExecuteHandle: THandle;
     FAppClosingListener: IJclListener;
     procedure OnAppClosing;
   protected
@@ -78,9 +76,8 @@ var
 begin
   inherited Create(APriority);
   FAppClosingNotifier := AAppClosingNotifier;
-  FStopThread := TEvent.Create;
-  FAllowExecute := TEvent.Create(nil, True, False, '');
-  FCS := TCriticalSection.Create;
+  FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
+  FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);
   VOperationNotifier := TOperationNotifier.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
@@ -96,9 +93,8 @@ begin
   FAppClosingNotifier := nil;
 
   Terminate;
-  FreeAndNil(FStopThread);
-  FreeAndNil(FAllowExecute);
-  FreeAndNil(FCS);
+  CloseHandle(FStopThreadHandle);
+  CloseHandle(FAllowExecuteHandle);
   FCancelNotifierInternal := nil;
   FCancelNotifier := nil;
 
@@ -112,27 +108,19 @@ var
   VOperatonID: Integer;
 begin
   inherited;
-  VHandles[0] := FAllowExecute.Handle;
-  VHandles[1] := FStopThread.Handle;
+  VHandles[0] := FAllowExecuteHandle;
+  VHandles[1] := FStopThreadHandle;
   while not Terminated do begin
     VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
     case VWaitResult of
       WAIT_OBJECT_0:
       begin
-        FCS.Acquire;
-        try
-          VOperatonID := FCancelNotifier.CurrentOperation;
-        finally
-          FCS.Release;
-        end;
+        VOperatonID := FCancelNotifier.CurrentOperation;
+
         ExecuteTask(VOperatonID, FCancelNotifier);
-        FCS.Acquire;
-        try
-          if not FCancelNotifier.IsOperationCanceled(VOperatonID) then begin
-            FAllowExecute.ResetEvent;
-          end;
-        finally
-          FCS.Release;
+
+        if not FCancelNotifier.IsOperationCanceled(VOperatonID) then begin
+          ResetEvent(FAllowExecuteHandle);
         end;
       end;
     end;
@@ -146,30 +134,20 @@ end;
 
 procedure TBackgroundTask.StartExecute;
 begin
-  FCS.Acquire;
-  try
-    FAllowExecute.SetEvent;
-  finally
-    FCS.Release;
-  end;
+  SetEvent(FAllowExecuteHandle);
 end;
 
 procedure TBackgroundTask.StopExecute;
 begin
-  FCS.Acquire;
-  try
-    FCancelNotifierInternal.NextOperation;
-    FAllowExecute.ResetEvent;
-  finally
-    FCS.Release;
-  end;
+  FCancelNotifierInternal.NextOperation;
+  ResetEvent(FAllowExecuteHandle);
 end;
 
 procedure TBackgroundTask.Terminate;
 begin
   StopExecute;
   inherited Terminate;
-  FStopThread.SetEvent;
+  SetEvent(FStopThreadHandle);
 end;
 
 end.

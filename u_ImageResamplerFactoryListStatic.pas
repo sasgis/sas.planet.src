@@ -23,7 +23,7 @@ unit u_ImageResamplerFactoryListStatic;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   Classes,
   i_ImageResamplerFactory;
 
@@ -31,7 +31,7 @@ type
   TImageResamplerFactoryListStatic = class(TInterfacedObject, IImageResamplerFactoryList)
   private
     FList: TStringList;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
   protected
     procedure Add(AFactory: IImageResamplerFactory; ACaption: string);
   protected
@@ -46,14 +46,14 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TImageResamplerFactoryListStatic }
 
 constructor TImageResamplerFactoryListStatic.Create;
 begin
   inherited;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FList := TStringList.Create;
 end;
 
@@ -70,50 +70,50 @@ begin
     end;
   end;
   FreeAndNil(FList);
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
 procedure TImageResamplerFactoryListStatic.Add(AFactory: IImageResamplerFactory;
   ACaption: string);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FList.AddObject(ACaption, TObject(Pointer(AFactory)));
     AFactory._AddRef;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 function TImageResamplerFactoryListStatic.Count: Integer;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FList.Count;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TImageResamplerFactoryListStatic.Get(
   AIndex: Integer): IImageResamplerFactory;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := IImageResamplerFactory(Pointer(FList.Objects[AIndex]));
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TImageResamplerFactoryListStatic.GetCaption(AIndex: Integer): string;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FList.Strings[AIndex];
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
