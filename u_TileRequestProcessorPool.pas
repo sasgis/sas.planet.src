@@ -3,7 +3,7 @@ unit u_TileRequestProcessorPool;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   Classes,
   i_JclNotify,
   i_Thread,
@@ -26,10 +26,9 @@ type
 
     FTTLListener: ITTLCheckListener;
     FDownloadersListListener: IJclListener;
-    FCS: TCriticalSection;
 
     FThreadArray: TArrayOfThread;
-    FThreadArrayCS: TCriticalSection;
+    FThreadArrayCS: IReadWriteSync;
 
     procedure OnTTLTrim(Sender: TObject);
     procedure OnDownloadersListChange;
@@ -48,7 +47,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   i_TileDownloader,
   u_NotifyEventListener,
   u_TTLCheckListener,
@@ -69,8 +68,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
 
-  FCS := TCriticalSection.Create;
-  FThreadArrayCS := TCriticalSection.Create;
+  FThreadArrayCS := MakeSyncMulti(Self);
 
   FDownloaderList := ADownloaderList;
 
@@ -93,8 +91,7 @@ begin
   FDownloadersListListener := nil;
   FDownloaderList := nil;
 
-  FreeAndNil(FCS);
-  FreeAndNil(FThreadArrayCS);
+  FThreadArrayCS := nil;
   inherited;
 end;
 
@@ -106,21 +103,19 @@ var
   VTileDownloaderSync: ITileDownloader;
 begin
   FTTLListener.UpdateUseTime;
-  FThreadArrayCS.Acquire;
+  
+  FThreadArrayCS.BeginRead;
   try
     VThreadArray := FThreadArray;
   finally
-    FThreadArrayCS.Release;
+    FThreadArrayCS.EndRead;
   end;
+  
   if VThreadArray = nil then begin
-    FCS.Acquire;
+    FThreadArrayCS.BeginWrite;
     try
-      FThreadArrayCS.Acquire;
-      try
-        VThreadArray := FThreadArray;
-      finally
-        FThreadArrayCS.Release;
-      end;
+      VThreadArray := FThreadArray;
+
       if VThreadArray = nil then begin
         VDownloaderList := FDownloaderList.GetStatic;
         if VDownloaderList <> nil then begin
@@ -140,16 +135,12 @@ begin
               VThreadArray[i] := nil;
             end;
           end;
-          FThreadArrayCS.Acquire;
-          try
-            FThreadArray := VThreadArray;
-          finally
-            FThreadArrayCS.Release;
-          end;
+
+          FThreadArray := VThreadArray;
         end;
       end;
     finally
-      FCS.Release;
+      FThreadArrayCS.EndWrite;
     end;
   end;
 end;
@@ -165,13 +156,14 @@ var
   i: Integer;
   VItem: IThread;
 begin
-  FThreadArrayCS.Acquire;
+  FThreadArrayCS.BeginWrite;
   try
     VThreadArray := FThreadArray;
     FThreadArray := nil;
   finally
-    FThreadArrayCS.Release
+    FThreadArrayCS.EndWrite;
   end;
+  
   if VThreadArray <> nil then begin
     for i := 0 to Length(VThreadArray) - 1 do begin
       VItem := VThreadArray[i];

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   i_TileRequest,
   i_TileRequestQueue,
@@ -22,17 +22,17 @@ type
 
     FTTLListener: ITTLCheckListener;
     FAppClosingListener: IJclListener;
-    FCS: TCriticalSection;
+
     FCapasitySemaphore: THandle;
     FReadyRequestSemaphore: THandle;
-    FStopThreadEvent: TEvent;
+    FStopThreadEventHandle: THandle;
 
     FSize: Integer;
     FHeadIndex: Integer;
     FTailIndex: Integer;
 
     FRequestArray: TArrayOfITileRequest;
-    FRequestArrayCS: TCriticalSection;
+    FRequestArrayCS: IReadWriteSync;
 
     procedure OnTTLTrim(Sender: TObject);
     function GetOrInitArray: TArrayOfITileRequest;
@@ -52,7 +52,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   u_NotifyEventListener,
   u_TTLCheckListener;
 
@@ -67,15 +67,15 @@ begin
   FGCList := AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
   FCapacity := ACapacity;
-  FCS := TCriticalSection.Create;
+
   FSize := 0;
   FHeadIndex := 0;
   FTailIndex := 0;
 
   FCapasitySemaphore := CreateSemaphore(nil, ACapacity, ACapacity, nil);
   FReadyRequestSemaphore := CreateSemaphore(nil, 0, ACapacity, nil);
-  FStopThreadEvent := TEvent.Create;
-  FRequestArrayCS := TCriticalSection.Create;
+  FStopThreadEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
+  FRequestArrayCS := MakeSyncMulti(Self);
 
   FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 100000, 1000);
   FGCList.Add(FTTLListener);
@@ -95,10 +95,9 @@ begin
   FAppClosingListener := nil;
   FAppClosingNotifier := nil;
 
-  FreeAndNil(FRequestArrayCS);
-  FreeAndNil(FCS);
+  FRequestArrayCS := nil;
 
-  FreeAndNil(FStopThreadEvent);
+  CloseHandle(FStopThreadEventHandle);
   CloseHandle(FCapasitySemaphore);
   CloseHandle(FReadyRequestSemaphore);
   inherited;
@@ -106,39 +105,31 @@ end;
 
 function TTileRequestQueue.GetOrInitArray: TArrayOfITileRequest;
 begin
-  FRequestArrayCS.Acquire;
+  FRequestArrayCS.BeginRead;
   try
     Result := FRequestArray;
   finally
-    FRequestArrayCS.Release;
+    FRequestArrayCS.EndRead;
   end;
+  
   if Result = nil then begin
-    FCS.Acquire;
+    FRequestArrayCS.BeginWrite;
     try
-      FRequestArrayCS.Acquire;
-      try
-        Result := FRequestArray;
-      finally
-        FRequestArrayCS.Release;
-      end;
+      Result := FRequestArray;
+
       if Result = nil then begin
         SetLength(Result, FCapacity);
-        FRequestArrayCS.Acquire;
-        try
-          FRequestArray := Result;
-        finally
-          FRequestArrayCS.Release;
-        end;
+        FRequestArray := Result;
       end;
     finally
-      FCS.Release;
+      FRequestArrayCS.EndWrite;
     end;
   end;
 end;
 
 procedure TTileRequestQueue.OnClosing;
 begin
-  FStopThreadEvent.SetEvent;
+  SetEvent(FStopThreadEventHandle);
 end;
 
 procedure TTileRequestQueue.OnTTLTrim(Sender: TObject);
@@ -149,18 +140,14 @@ var
 begin
   VSize := InterlockedCompareExchange(FSize, 0, 0);
   if VSize > 0 then begin
-    FCS.Acquire;
+    FRequestArrayCS.BeginWrite;
     try
-      FRequestArrayCS.Acquire;
-      try
-        VRequestArray := FRequestArray;
-        FRequestArray := nil;
-      finally
-        FRequestArrayCS.Release;
-      end;
+      VRequestArray := FRequestArray;
+      FRequestArray := nil;
     finally
-      FCS.Release;
+      FRequestArrayCS.EndWrite;
     end;
+
     for i := 0 to Length(VRequestArray) - 1 do begin
       VRequestArray[i] := nil;
     end;
@@ -178,7 +165,7 @@ var
 begin
   Result := nil;
   VHandles[0] := FReadyRequestSemaphore;
-  VHandles[1] := FStopThreadEvent.Handle;
+  VHandles[1] := FStopThreadEventHandle;
   VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, 1000);
   case VWaitResult of
     WAIT_OBJECT_0: begin
@@ -207,7 +194,7 @@ var
   VWaitResult: DWORD;
 begin
   VHandles[0] := FCapasitySemaphore;
-  VHandles[1] := FStopThreadEvent.Handle;
+  VHandles[1] := FStopThreadEventHandle;
   VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
   case VWaitResult of
     WAIT_OBJECT_0: begin

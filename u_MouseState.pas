@@ -25,7 +25,7 @@ interface
 uses
   Windows,
   Types,
-  SyncObjs,
+  SysUtils,
   Classes,
   Controls,
   t_GeoTypes,
@@ -38,7 +38,7 @@ const
 type
   TMouseState = class(TInterfacedObject, IMouseState, IMouseHandler)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FMinTime: Double;
     FMaxTime: Double;
     FUsedTime: Double;
@@ -92,13 +92,13 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TMouseState }
 
 constructor TMouseState.Create;
 begin
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FCurentTime := 0;
   FMinTime := 0.001;
   FMaxTime := 3;
@@ -108,77 +108,77 @@ end;
 
 destructor TMouseState.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
 function TMouseState.GetCurentPos: TPoint;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FCurentPos;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TMouseState.GetCurentSpeed: TDoublePoint;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FCurrentSpeed;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TMouseState.GetCurrentShift: TShiftState;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FCurrentShift;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TMouseState.GetLastDownPos(AButton: TMouseButton): TPoint;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FLastDownPos[AButton];
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TMouseState.GetLastDownShift(AButton: TMouseButton): TShiftState;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FLastDownShift[AButton];
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TMouseState.GetLastUpPos(AButton: TMouseButton): TPoint;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FLastUpPos[AButton];
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TMouseState.GetLastUpShift(AButton: TMouseButton): TShiftState;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FLastUpShift[AButton];
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
@@ -188,7 +188,7 @@ procedure TMouseState.OnMouseDown(
   const APosition: TPoint
 );
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     SetCurrentPos(APosition);
     FCurrentShift := AShift;
@@ -197,7 +197,7 @@ begin
     FLastUpPos[AButton] := APosition;
     FLastUpShift[AButton] := AShift;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -206,12 +206,12 @@ procedure TMouseState.OnMouseMove(
   const APosition: TPoint
 );
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     SetCurrentPos(APosition);
     FCurrentShift := AShift;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -221,14 +221,14 @@ procedure TMouseState.OnMouseUp(
   const APosition: TPoint
 );
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     SetCurrentPos(APosition);
     FCurrentShift := AShift;
     FLastUpPos[AButton] := APosition;
     FLastUpShift[AButton] := AShift;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   t_CommonTypes,
   i_OperationNotifier,
@@ -35,7 +35,7 @@ type
     FGlobalInternetState: IGlobalInternetState;
     FErrorLogger: ITileErrorLogger;
 
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FLinksList: IJclListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
     FTTLListener: ITTLCheckListener;
@@ -48,11 +48,11 @@ type
     FRequestCount: Integer;
 
     FSemaphore: THandle;
-    FCancelEvent: TEvent;
+    FCancelEventHandle: THandle;
     FCancelListener: IJclListener;
     FMapActive: Boolean;
     FVisualCoordConverter: ILocalCoordConverter;
-    FVisualCoordConverterCS: TCriticalSection;
+    FVisualCoordConverterCS: IReadWriteSync;
 
     procedure OnTTLTrim(Sender: TObject);
     procedure OnPosChange;
@@ -86,7 +86,7 @@ implementation
 uses
   Types,
   Classes,
-  SysUtils,
+  u_Synchronizer,
   t_GeoTypes,
   i_TileIterator,
   i_TileRequest,
@@ -125,17 +125,17 @@ begin
   FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
 
-  FVisualCoordConverterCS := TCriticalSection.Create;
+  FVisualCoordConverterCS := MakeSyncMulti(Self);
 
   FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
 
   FRequestCount := FConfig.MapUiRequestCount;
 
   FSemaphore := CreateSemaphore(nil, FRequestCount, FRequestCount, nil);
-  FCancelEvent := TEvent.Create;
+  FCancelEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
 
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
 
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -179,19 +179,23 @@ begin
   FGCList := nil;
 
   FLinksList.DeactivateLinks;
-  FCS.Acquire;
+
+  FCS.BeginWrite;
   try
     if FDownloadTask <> nil then begin
       FDownloadTask.Terminate;
       FDownloadTask := nil;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
+  
   CloseHandle(FSemaphore);
-  FreeAndNil(FCancelEvent);
-  FreeAndNil(FCS);
-  FreeAndNil(FVisualCoordConverterCS);
+  CloseHandle(FCancelEventHandle);
+  
+  FCS := nil;
+  FVisualCoordConverterCS := nil;
+  
   inherited;
 end;
 
@@ -202,7 +206,7 @@ end;
 
 procedure TUiTileDownload.OnCancel;
 begin
-  FCancelEvent.SetEvent;
+  SetEvent(FCancelEventHandle);
 end;
 
 procedure TUiTileDownload.OnConfigChange;
@@ -239,15 +243,17 @@ begin
       FMapTypeActive.GetMapType.MapType.GeoConvert
     );
   VNeedRestart := False;
-  FVisualCoordConverterCS.Acquire;
+  
+  FVisualCoordConverterCS.BeginWrite;
   try
     if (FVisualCoordConverter = nil) or not VConverter.GetIsSameConverter(FVisualCoordConverter) then begin
       FVisualCoordConverter := VConverter;
       VNeedRestart := True;
     end;
   finally
-    FVisualCoordConverterCS.Release
+    FVisualCoordConverterCS.EndWrite;
   end;
+
   if VNeedRestart then begin
     RetartDownloadIfNeed;
   end;
@@ -276,17 +282,19 @@ var
 begin
   FTTLListener.UpdateUseTime;
   VMapType := FMapTypeActive.GetMapType.MapType;
-  FVisualCoordConverterCS.Acquire;
+
+  FVisualCoordConverterCS.BeginRead;
   try
     VLocalConverter := FVisualCoordConverter;
   finally
-    FVisualCoordConverterCS.Release;
+    FVisualCoordConverterCS.EndRead;
   end;
+
   if VLocalConverter <> nil then begin
-    FCancelEvent.ResetEvent;
+    ResetEvent(FCancelEventHandle);
     ACancelNotifier.AddListener(FCancelListener);
     try
-      VHandles[0] := FCancelEvent.Handle;
+      VHandles[0] := FCancelEventHandle;
       VHandles[1] := FSemaphore;
       VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
       VZoom := VLocalConverter.GetZoom;
@@ -401,7 +409,7 @@ procedure TUiTileDownload.OnTTLTrim(Sender: TObject);
 var
   VDownloadTask: IBackgroundTask;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VDownloadTask := FDownloadTask;
     if VDownloadTask <> nil then begin
@@ -410,7 +418,7 @@ begin
       VDownloadTask.Terminate;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -419,28 +427,33 @@ var
   VDownloadTask: IBackgroundTask;
   VVisualCoordConverter: ILocalCoordConverter;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VDownloadTask := FDownloadTask;
     if VDownloadTask <> nil then begin
       VDownloadTask.StopExecute;
     end;
-    FVisualCoordConverterCS.Acquire;
-    try
-      VVisualCoordConverter := FVisualCoordConverter;
-    finally
-      FVisualCoordConverterCS.Release;
-    end;
-    if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive and (VVisualCoordConverter <> nil) then begin
-      if VDownloadTask = nil then begin
-        VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, DoProcessDownloadRequests, tpLowest);
-        VDownloadTask.Start;
-        FDownloadTask := VDownloadTask;
+
+    if (FUseDownload in [tsInternet, tsCacheInternet]) and FMapActive then begin
+      // allow download
+      FVisualCoordConverterCS.BeginRead;
+      try
+        VVisualCoordConverter := FVisualCoordConverter;
+      finally
+        FVisualCoordConverterCS.EndRead;
       end;
-      VDownloadTask.StartExecute;
+
+      if (VVisualCoordConverter <> nil) then begin
+        if VDownloadTask = nil then begin
+          VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, DoProcessDownloadRequests, tpLowest);
+          VDownloadTask.Start;
+          FDownloadTask := VDownloadTask;
+        end;
+        VDownloadTask.StartExecute;
+      end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

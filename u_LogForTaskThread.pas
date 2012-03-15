@@ -23,7 +23,7 @@ unit u_LogForTaskThread;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   WideStrings,
   i_LogSimple,
   i_LogForTaskThread;
@@ -34,7 +34,7 @@ type
     FMinLogLevel: Integer;
     FNextId: Cardinal;
     FMaxRowsCount: Cardinal;
-    FLock: TCriticalSection;
+    FLock: IReadWriteSync;
     FList: TWideStringList;
     FLinesSeparator: WideString;
   public
@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TLogForTaskThread }
 
@@ -58,7 +58,7 @@ var
 begin
   FMinLogLevel := AMinLogLevel;
   FMaxRowsCount := AMaxLinesCount;
-  FLock := TCriticalSection.Create;
+  FLock := MakeSyncObj(Self, TRUE);
   FList := TWideStringList.Create;
   FList.Capacity := FMaxRowsCount;
   for i := 0 to FMaxRowsCount - 1 do begin
@@ -69,7 +69,7 @@ end;
 
 destructor TLogForTaskThread.Destroy;
 begin
-  FreeAndNil(FLock);
+  FLock:=nil;
   FreeAndNil(FList);
   inherited;
 end;
@@ -83,7 +83,7 @@ var
 begin
   Result := '';
   if ALastId < FNextId then begin
-    FLock.Acquire;
+    FLock.BeginWrite;
     try
       VNewRowsCount := FNextId - ALastId;
       if VNewRowsCount > AMaxRowsCount then begin
@@ -104,7 +104,7 @@ begin
       AcntLines := VNewRowsCount;
       ALastId := FNextId;
     finally
-      FLock.Release;
+      FLock.EndWrite;
     end;
   end else begin
     AcntLines := 0;
@@ -118,13 +118,13 @@ var
   VIndex: Cardinal;
 begin
   if ALogLevel >= FMinLogLevel then begin
-    FLock.Acquire;
+    FLock.BeginWrite;
     try
       VIndex := FNextId mod FMaxRowsCount;
       FList.Strings[VIndex] := AMessage;
       Inc(FNextId);
     finally
-      FLock.Release;
+      FLock.EndWrite;
     end;
   end;
 end;

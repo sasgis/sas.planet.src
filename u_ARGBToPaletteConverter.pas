@@ -23,7 +23,7 @@ unit u_ARGBToPaletteConverter;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   ImagingTypes,
   i_ARGBToPaletteConverter;
 
@@ -58,7 +58,7 @@ type
 type
   TARGBToPaletteConverter = class(TInterfacedObject, IARGBToPaletteConverter)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     Table: THashTable;
     Box: array[0..MaxPossibleColors - 1] of TColorBox;
     Boxes: LongInt;
@@ -99,6 +99,7 @@ type
 implementation
 
 uses
+  u_Synchronizer,
   Imaging,
   ImagingFormats,
   ImagingUtility;
@@ -124,12 +125,12 @@ begin
   GetMem(NewPal, DstInfo.PaletteEntries * SizeOf(TColor32Rec));
   FillChar(NewPal^, DstInfo.PaletteEntries * SizeOf(TColor32Rec), 0);
 
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     ReduceColorsMedianCut(NumPixels, AImage.Bits, NewData, @SrcInfo, @DstInfo, DstInfo.PaletteEntries,
       GetOption(ImagingColorReductionMask), NewPal);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 
   FreeMemNil(AImage.Bits);
@@ -142,12 +143,12 @@ end;
 
 constructor TARGBToPaletteConverter.Create;
 begin
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
 end;
 
 destructor TARGBToPaletteConverter.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
