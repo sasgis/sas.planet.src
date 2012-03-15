@@ -40,6 +40,7 @@ uses
   i_ImageResamplerConfig,
   i_GlobalViewMainConfig,
   i_BitmapPostProcessingConfig,
+  i_ConfigDataProvider,
   i_TileError,
   u_MapType,
   u_MapLayerWithThreadDraw;
@@ -85,6 +86,7 @@ type
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
   public
     constructor Create(
+      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -115,11 +117,13 @@ uses
   u_ResStrings,
   u_TileErrorInfo,
   u_NotifyEventListener,
+  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TMapMainLayer }
 
 constructor TMapMainLayer.Create(
+  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
@@ -143,7 +147,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    tpLower
+    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
   );
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;

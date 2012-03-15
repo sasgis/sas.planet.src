@@ -43,6 +43,7 @@ uses
   i_IdCacheSimple,
   i_DoublePointsAggregator,
   i_KmlLayerConfig,
+  i_ConfigDataProvider,
   i_ImageResamplerConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -168,6 +169,7 @@ type
     procedure DoHide; override;
   public
     constructor Create(
+      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -215,11 +217,13 @@ uses
   u_ResStrings,
   u_DoublePointsAggregator,
   u_IdCacheSimpleThreadSafe,
+  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TWikiLayer }
 
 constructor TWikiLayer.Create(
+  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
@@ -243,7 +247,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    tpLower
+    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
   );
   FConfig := AConfig;
   FLayersSet := ALayersSet;

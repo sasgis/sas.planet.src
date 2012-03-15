@@ -45,6 +45,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
+  i_ConfigDataProvider,
   u_MarksSystem,
   u_MapLayerWithThreadDraw;
 
@@ -86,6 +87,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -132,11 +134,13 @@ uses
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByMarksSubset,
   u_NotifyEventListener,
+  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TMapMarksLayer }
 
 constructor TMapMarksLayer.Create(
+  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
@@ -159,7 +163,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    tpLower
+    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
   );
   FMarksSubsetCS := MakeSyncMulti(Self);
   FVectorItmesFactory := AVectorItmesFactory;

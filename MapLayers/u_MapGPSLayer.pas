@@ -17,6 +17,7 @@ uses
   i_ImageResamplerConfig,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
+  i_ConfigDataProvider,
   i_ViewPortState,
   u_MapLayerWithThreadDraw;
 
@@ -63,6 +64,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -86,11 +88,13 @@ uses
   i_TileIterator,
   u_GeoFun,
   u_NotifyEventListener,
+  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TMapGPSLayer }
 
 constructor TMapGPSLayer.Create(
+  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
@@ -112,7 +116,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    tpLower
+    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;

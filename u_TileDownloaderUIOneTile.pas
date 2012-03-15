@@ -33,6 +33,7 @@ uses
   i_OperationNotifier,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
+  i_ConfigDataProvider,
   u_OperationNotifier,
   u_BaseTileDownloaderThread,
   u_MapType;
@@ -63,6 +64,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
+      AThreadPriorityByClass: IConfigDataProvider;
       AAppClosingNotifier: IJclNotifier;
       AXY: TPoint;
       AZoom: byte;
@@ -81,9 +83,11 @@ uses
   i_TileRequest,
   i_DownloadResult,
   u_NotifyEventListener,
+  u_ThreadPriorityByClass,
   u_TileErrorInfo;
 
 constructor TTileDownloaderUIOneTile.Create(
+  AThreadPriorityByClass: IConfigDataProvider;
   AAppClosingNotifier: IJclNotifier;
   AXY: TPoint;
   AZoom: byte;
@@ -104,7 +108,7 @@ begin
   FTile := AXY;
   FZoom := AZoom;
   FMapType := AMapType;
-  Priority := tpLower;
+  Priority := GetThreadPriorityByClass(AThreadPriorityByClass, Self);
   FreeOnTerminate := True;
 
   VOperationNotifier := TOperationNotifier.Create;

@@ -150,6 +150,7 @@ type
     FAppClosingNotifier: IJclNotifier;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
+    FThreadPriorityByClass: IConfigDataProvider;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
@@ -205,6 +206,7 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
+    property ThreadPriorityByClass: IConfigDataProvider read FThreadPriorityByClass;
 
     constructor Create;
     destructor Destroy; override;
@@ -306,6 +308,7 @@ var
   VFilesIterator: IFileNameIterator;
   VCoordConverterFactorySimple: TCoordConverterFactorySimple;
   VProgramPath: string;
+  VSleepByClass: IConfigDataProvider;
 begin
   if ModuleIsLib then begin
     // run as DLL or PACKAGE
@@ -332,11 +335,15 @@ begin
       ExtractFileName(ParamStr(0)),
       HInstance
     );
+
+  FThreadPriorityByClass := FMainConfigProvider.GetSubItem('ThreadPriorityByClass');
+  VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
+
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorItmesFactory := TVectorItmesFactorySimple.Create;
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
-  FGUISyncronizedTimer.Interval := 500;
+  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
   FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
@@ -427,7 +434,7 @@ begin
     VKmzLoader
   );
   VList := TTTLCheckNotifier.Create;
-  FGCThread := TGarbageCollectorThread.Create(VList, 1000);
+  FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGPSpar :=
@@ -536,6 +543,7 @@ begin
   FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
+  FThreadPriorityByClass := nil;
   FMainConfigProvider := nil;
   FGlobalInternetState := nil;
   inherited;

@@ -48,6 +48,7 @@ uses
   i_ViewPortState,
   i_MapTypeGUIConfigList,
   i_MiniMapLayerConfig,
+  i_ConfigDataProvider,
   i_BitmapPostProcessingConfig,
   u_MapType,
   u_WindowLayerWithPos;
@@ -157,6 +158,7 @@ type
     procedure SendTerminateToThreads; override;
   public
     constructor Create(
+      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -188,11 +190,13 @@ uses
   u_NotifyEventListener,
   u_BackgroundTaskLayerDrawBase,
   u_TileIteratorSpiralByRect,
+  u_ThreadPriorityByClass,
   u_MapTypeMenuItemsGeneratorBasic;
 
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(
+  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
@@ -234,7 +238,7 @@ begin
     TBackgroundTaskLayerDrawBase.Create(
       AAppClosingNotifier,
       OnDrawBitmap,
-      tpLower
+      GetThreadPriorityByClass(AThreadPriorityByClass, Self)
     );
   FUpdateCounter := 0;
 

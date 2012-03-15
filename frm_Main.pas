@@ -1069,6 +1069,7 @@ begin
 
     FLayersList.Add(
       TMapMainLayer.Create(
+        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1104,6 +1105,7 @@ begin
     );
     FWikiLayer :=
       TWikiLayer.Create(
+        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1132,6 +1134,7 @@ begin
     );
     FLayerMapMarks:=
       TMapMarksLayer.Create(
+        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1147,6 +1150,7 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayersList.Add(
       TMapGPSLayer.Create(
+        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1410,6 +1414,7 @@ begin
     );
     FLayersList.Add(
       TMiniMapLayer.Create(
+        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -3072,6 +3077,7 @@ begin
           (MessageBox(handle,pchar(Format(SAS_MSG_FileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
       then begin
         TTileDownloaderUIOneTile.Create(
+          GState.ThreadPriorityByClass,
           GState.AppClosingNotifier,
           VTile,
           VZoomCurr,
@@ -4144,6 +4150,7 @@ begin
         end;
         if HiWord(GetKeyState(VK_INSERT))<>0 then begin
           TTileDownloaderUIOneTile.Create(
+            GState.ThreadPriorityByClass,
             GState.AppClosingNotifier,
             VTile,
             VZoomCurr,
