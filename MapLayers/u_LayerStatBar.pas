@@ -297,7 +297,7 @@ begin
 
     if FConfig.ViewHttpQueueInfo then begin
       VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-      VString := 'Queue ' + IntToStr(FGlobalInternetState.QueueCount);
+      VString := SAS_STR_queue+ ' ' + IntToStr(FGlobalInternetState.QueueCount);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;

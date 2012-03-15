@@ -95,6 +95,7 @@ ResourceString
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
   SAS_STR_load = 'Downloaded';
+  SAS_STR_queue = 'Queue';
   SAS_STR_filesnum = 'Number of tiles';
   SAS_STR_activescale = 'Current zoom';
   SAS_STR_for = 'For';
