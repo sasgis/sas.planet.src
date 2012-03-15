@@ -3,7 +3,7 @@ unit u_InvisibleBrowserByFormSynchronize;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_InvisibleBrowser,
   i_LanguageManager,
   i_ProxySettings,
@@ -12,7 +12,7 @@ uses
 type
   TInvisibleBrowserByFormSynchronize = class(TInterfacedObject, IInvisibleBrowser)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FProxyConfig: IProxyConfig;
     FLanguageManager: ILanguageManager;
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
@@ -30,7 +30,7 @@ implementation
 
 uses
   Classes,
-  SysUtils;
+  u_Synchronizer;
 
 type
   TSyncNavigate = class
@@ -69,17 +69,17 @@ constructor TInvisibleBrowserByFormSynchronize.Create(
   AProxyConfig: IProxyConfig
 );
 begin
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, FALSE);
   FProxyConfig := AProxyConfig;
   FLanguageManager := ALanguageManager;
 end;
 
 destructor TInvisibleBrowserByFormSynchronize.Destroy;
 begin
-  FreeAndNil(FCS);
   if FfrmInvisibleBrowser <> nil then begin
     FreeAndNil(FfrmInvisibleBrowser);
   end;
+  FCS := nil;
   inherited;
 end;
 
@@ -87,14 +87,15 @@ procedure TInvisibleBrowserByFormSynchronize.NavigateAndWait(AUrl: WideString);
 var
   VSyncNav: TSyncNavigate;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     if FfrmInvisibleBrowser = nil then begin
       FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FProxyConfig);
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
+  
   VSyncNav :=  TSyncNavigate.Create(AUrl, FfrmInvisibleBrowser);
   try
     VSyncNav.Navigate;

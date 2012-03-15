@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  SyncObjs,
   Classes,
   Controls,
   Forms,
@@ -43,7 +42,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FProxyConfig: IProxyConfig;
   public
     constructor Create(
@@ -56,6 +55,9 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 {$R *.dfm}
 
 constructor TfrmInvisibleBrowser.Create(
@@ -65,12 +67,12 @@ constructor TfrmInvisibleBrowser.Create(
 begin
   inherited Create(ALanguageManager);
   FProxyConfig := AProxyConfig;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, FALSE);
 end;
 
 destructor TfrmInvisibleBrowser.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
@@ -83,11 +85,11 @@ end;
 
 procedure TfrmInvisibleBrowser.NavigateAndWait(AUrl: WideString);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     WebBrowser1.NavigateWait(AUrl, 10000);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

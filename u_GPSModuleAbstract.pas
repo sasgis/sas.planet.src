@@ -26,6 +26,7 @@ uses
   Windows,
   ActiveX,
   Classes,
+  SysUtils,
   i_JclNotify,
   t_GeoTypes,
   i_GPS,
@@ -58,7 +59,7 @@ type
   private
     FGPSPositionFactory: IGPSPositionFactory;
     FLastStaticPosition: IGPSPosition;
-    FCS_GPSData: TRTLCriticalSection;
+    FCSGPSData: IReadWriteSync;
 
     FNotifiedTicks: DWORD;
     FGPSPosChanged: Boolean;
@@ -199,7 +200,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   vsagps_public_sats_info,
   u_JclNotify;
 
@@ -209,8 +210,7 @@ constructor TGPSModuleAbstract.Create(APositionFactory: IGPSPositionFactory);
 begin
   FGPSPositionFactory := APositionFactory;
 
-  InitializeCriticalSection(FCS_GPSData);
-  //FCS := TCriticalSection.Create;
+  FCSGPSData := MakeSyncObj(Self);
 
   FNotifiedTicks := 0;
   FGPSPosChanged := FALSE;
@@ -252,7 +252,7 @@ begin
   FDataReciveNotifier := nil;
   FTimeOutNotifier := nil;
 
-  DeleteCriticalSection(FCS_GPSData);
+  FCSGPSData := nil;
   
   inherited;
 end;
@@ -346,8 +346,7 @@ end;
 
 procedure TGPSModuleAbstract.LockGPSData;
 begin
-  //FCS.Acquire;
-  EnterCriticalSection(FCS_GPSData);
+  FCSGPSData.BeginWrite;
 end;
 
 function TGPSModuleAbstract.SerializeSatsInfo: String;
@@ -411,10 +410,14 @@ begin
   VGPSSatChanged := FGPSSatChanged;
 
   // save to log (add point to tracks)
-  if VGPSPosChanged and ANotifyPosChanged then
-    DoAddPointToLogWriter(AUnitIndex);
+  try
+    if VGPSPosChanged and ANotifyPosChanged then
+      DoAddPointToLogWriter(AUnitIndex);
+  except
+  end;
 
-  LeaveCriticalSection(FCS_GPSData);
+  // unlock
+  FCSGPSData.EndWrite;
 
   // notify GUI
   if (ANotifyPosChanged and VGPSPosChanged) then begin

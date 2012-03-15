@@ -23,7 +23,7 @@ unit u_GeoCoderListBase;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   ActiveX,
   i_JclNotify,
   i_GeoCoderList,
@@ -33,7 +33,7 @@ type
   TGeoCoderListBase = class(TInterfacedObject, IGeoCoderList)
   private
     FList: IGUIDInterfaceSet;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FAddNotifier: IJclNotifier;
   protected
     procedure Add(AItem: IGeoCoderListEntity);
@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   u_JclNotify,
   u_GUIDInterfaceSet;
 
@@ -57,36 +57,36 @@ uses
 
 constructor TGeoCoderListBase.Create;
 begin
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FList := TGUIDInterfaceSet.Create(False);
   FAddNotifier := TJclBaseNotifier.Create;
 end;
 
 destructor TGeoCoderListBase.Destroy;
 begin
-  FreeAndNil(FCS);
   FList := nil;
+  FCS := nil;
   inherited;
 end;
 
 procedure TGeoCoderListBase.Add(AItem: IGeoCoderListEntity);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FList.Add(AItem.GetGUID, AItem);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
   FAddNotifier.Notify(nil);
 end;
 
 function TGeoCoderListBase.Get(AGUID: TGUID): IGeoCoderListEntity;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := IGeoCoderListEntity(FList.GetByGUID(AGUID));
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
@@ -97,11 +97,11 @@ end;
 
 function TGeoCoderListBase.GetGUIDEnum: IEnumGUID;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FList.GetGUIDEnum;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 

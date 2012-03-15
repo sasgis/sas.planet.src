@@ -23,14 +23,14 @@ unit u_DownloadInfoSimple;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_DownloadInfoSimple;
 
 type
   TDownloadInfoSimple = class(TInterfacedObject, IDownloadInfoSimple)
   private
     FParentInfo: IDownloadInfoSimple;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FTileCount: UInt64;
     FSize: UInt64;
   protected
@@ -51,7 +51,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  u_Synchronizer;
 
 { TDownloadInfoSimple }
 
@@ -63,26 +63,26 @@ constructor TDownloadInfoSimple.Create(
 begin
   inherited Create;
   FParentInfo := AParent;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FTileCount := ATileCount;
   FSize := ASize;
 end;
 
 destructor TDownloadInfoSimple.Destroy;
 begin
-  FreeAndNil(FCS);
   FParentInfo := nil;
+  FCS := nil;
   inherited;
 end;
 
 procedure TDownloadInfoSimple.Add(ACount, ASize: UInt64);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     Inc(FTileCount, ACount);
     Inc(FSize, ASize);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
   if FParentInfo <> nil then begin
     FParentInfo.Add(ACount, ASize);
@@ -91,32 +91,32 @@ end;
 
 function TDownloadInfoSimple.GetSize: UInt64;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FSize;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TDownloadInfoSimple.GetTileCount: UInt64;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FTileCount;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 procedure TDownloadInfoSimple.Reset;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FSize := 0;
     FTileCount := 0;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 

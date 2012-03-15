@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  SyncObjs,
   i_JclNotify,
   i_JclListenerNotifierLinksList,
   i_GPSRecorder,
@@ -47,7 +46,7 @@ type
     FGPSModuleFactory: IGPSModuleByCOMFactory;
     FGPSModuleByCOM: IGPSModuleByCOM;
 
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FLinksList: IJclListenerNotifierLinksList;
     FDataReciveNotifier: IJclNotifier;
     FConnectingNotifier: IJclNotifier;
@@ -103,6 +102,7 @@ uses
   i_GPS,
   u_JclNotify,
   u_JclListenerNotifierLinksList,
+  u_Synchronizer,
   u_NotifyEventListener;
 
 constructor TGPSpar.Create(
@@ -119,7 +119,7 @@ begin
 
   FDataReceiveCounter := APerfCounterList.CreateAndAddNewCounter('GPS_Process');
   FLinksList := TJclListenerNotifierLinksList.Create;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
   FModuleState := msDisconnected;
   FWasError := False;
   FWasTimeOut := False;
@@ -150,10 +150,10 @@ end;
 
 destructor TGPSpar.Destroy;
 begin
-  FreeAndNil(FCS);
   FLinksList := nil;
   FGPSRecorder := nil;
   FGPSModuleByCOM := nil;
+  FCS := nil;
   inherited;
 end;
 
@@ -216,32 +216,32 @@ begin
   finally
     FGPSRecorder.UnlockWrite;
   end;
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FModuleState := msConnected;
     FLastDataReceiveTick := GetTickCount;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TGPSpar.OnGpsConnectError;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FWasError := True;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TGPSpar.OnGpsConnecting;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FModuleState := msConnecting;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -254,12 +254,12 @@ begin
   try
     VPosition := FGPSModuleByCOM.Position;
     FGPSRecorder.AddPoint(VPosition);
-    FCS.Acquire;
+    FCS.BeginWrite;
     try
       FDataRecived := True;
       FLastDataReceiveTick := GetTickCount;
     finally
-      FCS.Release;
+      FCS.EndWrite;
     end;
   finally
     FDataReceiveCounter.FinishOperation(VCounterContext);
@@ -270,31 +270,31 @@ procedure TGPSpar.OnGpsDisconnected;
 begin
   FConfig.GPSEnabled := False;
   FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FModuleState := msDisconnected;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TGPSpar.OnGpsDisconnecting;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FModuleState := msDisconnecting;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TGPSpar.OnGpsTimeout;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FWasTimeOut := True;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -314,7 +314,7 @@ begin
   repeat
     VDataRecived := False;
     VCurrTick := GetTickCount;
-    FCS.Acquire;
+    FCS.BeginWrite;
     try
       if FWasError then begin
         if FInternalState = isDisconnected then begin
@@ -401,7 +401,7 @@ begin
         FDataRecived := False;
       end;
     finally
-      FCS.Release;
+      FCS.EndWrite;
     end;
     if VNeedNotify then begin
       case VInternalStateNew of

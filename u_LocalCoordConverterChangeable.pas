@@ -3,7 +3,7 @@ unit u_LocalCoordConverterChangeable;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   i_CoordConverter,
   i_LocalCoordConverter,
@@ -19,7 +19,7 @@ type
     FConverterFactory: ILocalCoordConverterFactorySimpe;
 
     FSourceChangeListener: IJclListener;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FStatic: ILocalCoordConverter;
 
     procedure OnSourceChange;
@@ -37,7 +37,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   u_NotifyEventListener;
 
 { TLocalCoordConverterChangeable }
@@ -50,7 +50,7 @@ begin
   FTargetGeoConverter := ATargetGeoConverter;
   FConverterFactory := AConverterFactory;
 
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
 
   FSourceChangeListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
   FSource.ChangeNotifier.Add(FSourceChangeListener);
@@ -64,17 +64,17 @@ begin
     FSourceChangeListener := nil;
   end;
 
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
 function TLocalCoordConverterChangeable.GetStatic: ILocalCoordConverter;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   Try
     Result := FStatic;
   Finally
-    FCS.Release;
+    FCS.EndRead;
   End;
 end;
 
@@ -102,7 +102,8 @@ begin
     VConverter := nil;
   end;
   VNeedNotify := False;
-  FCS.Acquire;
+  
+  FCS.BeginWrite;
   try
     if FStatic = nil then begin
       if VConverter <> nil then begin
@@ -116,8 +117,9 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
+  
   if VNeedNotify then begin
     DoChangeNotify;
   end;
