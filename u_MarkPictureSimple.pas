@@ -24,7 +24,7 @@ interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   Classes,
   i_BinaryData,
   i_BitmapMarker,
@@ -37,7 +37,7 @@ type
     FName: string;
     FLoader: IBitmapTileLoader;
 
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FSimpleMarkerProvider: IBitmapMarkerProvider;
     FSource: IBinaryData;
 
@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   t_GeoTypes,
   i_Bitmap32Static,
   u_BitmapMarker,
@@ -74,13 +74,13 @@ begin
   FName := AName;
   FLoader := ALoader;
 
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
   FInited := 0;
 end;
 
 destructor TMarkPictureSimple.Destroy;
 begin
-  FreeAndNil(FCS);
+  FCS := nil;
   inherited;
 end;
 
@@ -102,7 +102,7 @@ var
   VBaseMarker: IBitmapMarker;
 begin
   if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
-    FCS.Acquire;
+    FCS.BeginWrite;
     try
       if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
         VMemStream := TMemoryStream.Create;
@@ -122,7 +122,7 @@ begin
         InterlockedIncrement(FInited);
       end;
     finally
-      FCS.Release;
+      FCS.EndWrite;
     end;
   end;
 end;

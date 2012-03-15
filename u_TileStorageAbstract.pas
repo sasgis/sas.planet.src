@@ -25,7 +25,7 @@ interface
 uses
   Types,
   Classes,
-  SyncObjs,
+  SysUtils,
   GR32,
   i_JclNotify,
   i_BinaryData,
@@ -55,7 +55,7 @@ type
     FStorageState: IStorageStateChangeble;
     FStorageStateListener: IJclListener;
     FStorageStateStatic: IStorageStateStatic;
-    FStorageStateStaticCS: TCriticalSection;
+    FStorageStateStaticCS: IReadWriteSync;
     FStorageStateInternal: IStorageStateInternal;
     FNotifierByZoomInternal: array of ITileRectUpdateNotifierInternal;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
@@ -145,7 +145,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
@@ -171,7 +171,7 @@ var
 begin
   FConfig := AConfig;
   FMapVersionFactory := AMapVersionFactory;
-  FStorageStateStaticCS := TCriticalSection.Create;
+  FStorageStateStaticCS := MakeSyncMulti(Self);
 
   VState := TStorageStateInternal.Create(AStorageTypeAbilities);
   FStorageStateInternal := VState;
@@ -214,7 +214,7 @@ begin
   for i := 0 to Length(FNotifierByZoomInternal) - 1 do begin
     FNotifierByZoomInternal[i] := nil;
   end;
-  FreeAndNil(FStorageStateStaticCS);
+  FStorageStateStaticCS := nil;
   inherited;
 end;
 
@@ -245,11 +245,11 @@ end;
 
 function TTileStorageAbstract.GetStorageStateStatic: IStorageStateStatic;
 begin
-  FStorageStateStaticCS.Acquire;
+  FStorageStateStaticCS.BeginRead;
   try
     Result := FStorageStateStatic;
   finally
-    FStorageStateStaticCS.Release;
+    FStorageStateStaticCS.EndRead;
   end;
 end;
 
@@ -394,11 +394,11 @@ end;
 
 procedure TTileStorageAbstract.OnStateChange;
 begin
-  FStorageStateStaticCS.Acquire;
+  FStorageStateStaticCS.BeginWrite;
   try
     FStorageStateStatic := FStorageState.GetStatic;
   finally
-    FStorageStateStaticCS.Release;
+    FStorageStateStaticCS.EndWrite;
   end;
 end;
 
