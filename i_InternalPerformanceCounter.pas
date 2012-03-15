@@ -60,9 +60,6 @@ type
     function GetTotalTime: TDateTime;
     property TotalTime: TDateTime read GetTotalTime;
 
-    function GetLastTimeInSeconds: Double;
-    property LastTimeInSeconds: Double read GetLastTimeInSeconds;
-
     function GetStaticData: IInternalPerformanceCounterStaticData;
   end;
 

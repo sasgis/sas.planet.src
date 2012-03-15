@@ -45,7 +45,6 @@ type
 
     function GetCounter: Cardinal;
     function GetTotalTime: TDateTime;
-    function GetLastTimeInSeconds: Double;
     function GetStaticData: IInternalPerformanceCounterStaticData;
   public
     constructor Create(const AName: string);
@@ -71,13 +70,16 @@ type
     );
   end;
 
-  PLARGE_INTEGER = ^Int64;
-  TNtQueryPerformanceCounter = function (PerformanceCounter: PLARGE_INTEGER; PerformanceFrequency: PLARGE_INTEGER): LongInt; stdcall;
-
 implementation
 
 uses
   SysUtils;
+
+{$if not defined(RELEASE)}
+type
+  PLARGE_INTEGER = ^Int64;
+  TNtQueryPerformanceCounter = function (PerformanceCounter: PLARGE_INTEGER; PerformanceFrequency: PLARGE_INTEGER): LongInt; stdcall;
+{$ifend}
 
 { TInternalPerformanceCounter }
 
@@ -86,19 +88,29 @@ var FDummy: Int64;
 begin
   FId := Integer(Self);
   FName := AName;
+
+{$if defined(RELEASE)}
+  FQueryPerfCntrFunc := nil;
+{$else}
   FQueryPerfCntrFunc := GetProcAddress(GetModuleHandle('ntdll.dll'), 'NtQueryPerformanceCounter');
+{$ifend}
 
   FCounter := 0;
   FTotal := 0;
-  
+
+{$if not defined(RELEASE)}
   if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@FDummy, @FFreq)) then
+{$ifend}
     FFreq := 0;
 end;
 
 procedure TInternalPerformanceCounter.FinishOperation(const AContext: TInternalPerformanceCounterContext);
+{$if not defined(RELEASE)}
 var
   VCounter, VFreq: Int64;
+{$ifend}
 begin
+{$if not defined(RELEASE)}
   if AContext <> 0 then
   if (0 = TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VCounter, @VFreq)) then begin
     // check
@@ -107,6 +119,7 @@ begin
     Inc(FCounter);
     FTotal := FTotal + (VCounter-AContext);
   end;
+{$ifend}
 end;
 
 function TInternalPerformanceCounter.GetCounter: Cardinal;
@@ -117,11 +130,6 @@ end;
 function TInternalPerformanceCounter.GetId: Integer;
 begin
   Result := FId;
-end;
-
-function TInternalPerformanceCounter.GetLastTimeInSeconds: Double;
-begin
-  Result := 0; //FLastTimeInSeconds;
 end;
 
 function TInternalPerformanceCounter.GetTotalTime: TDateTime;
@@ -150,7 +158,9 @@ end;
 
 function TInternalPerformanceCounter.StartOperation: TInternalPerformanceCounterContext;
 begin
+{$if not defined(RELEASE)}
   if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@Result, nil)) then
+{$ifend}
     Result := 0;
 end;
 
