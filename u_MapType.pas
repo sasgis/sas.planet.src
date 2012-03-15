@@ -328,6 +328,8 @@ begin
     FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GC  then begin
+    FStorage := TTileStorageGC.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
     FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
   end;
@@ -511,8 +513,8 @@ end;
 
 function TMapType.AllowListOfTileVersions: Boolean;
 begin
-  // only for GE
-  Result := (FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE);
+  // only for GE and GC
+  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]);
 end;
 
 function TMapType.TileExists(AXY: TPoint; Azoom: byte): Boolean;

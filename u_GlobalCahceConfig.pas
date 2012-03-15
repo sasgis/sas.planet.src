@@ -42,6 +42,7 @@ type
     FESCpath: string;
     FGMTilespath: string;
     FGECachepath: string;
+    FGCCachepath: string;
     FBDBCachepath: string;
     FDBMSCachepath: string;
 
@@ -55,6 +56,7 @@ type
     procedure SetNewCPath(const Value: string);
     procedure SetOldCPath(const Value: string);
     function GetCacheGlobalPath: string;
+    procedure SetGCCachepath(const Value: string);
   public
     constructor Create(
       ACacheGlobalPath: IPathConfig
@@ -73,6 +75,7 @@ type
     property ESCpath: string read FESCpath write SetESCpath;
     property GMTilespath: string read FGMTilespath write SetGMTilespath;
     property GECachepath: string read FGECachepath write SetGECachepath;
+    property GCCachepath: string read FGCCachepath write SetGCCachepath;
     property BDBCachepath: string read FBDBCachepath write SetBDBCachepath;
     property DBMSCachepath: string read FDBMSCachepath write SetDBMSCachepath;
 
@@ -87,9 +90,10 @@ const
   c_File_Cache_Id_ES     = 3;
   c_File_Cache_Id_GM     = 4;
   c_File_Cache_Id_GM_Aux = 41; // auxillary
-  c_File_Cache_Id_GE     = 5;
+  c_File_Cache_Id_GE     = 5;  // GE cache direct access
   c_File_Cache_Id_BDB    = 6;
   c_File_Cache_Id_DBMS   = 7;
+  c_File_Cache_Id_GC     = 8;  // GeoCacher.LOCAL direct access
 
 implementation
 
@@ -111,6 +115,7 @@ begin
   FESCpath := 'cache_ES' + PathDelim;
   FGMTilesPath := 'cache_gmt' + PathDelim;
   FGECachePath := 'cache_GE' + PathDelim;
+  FGCCachePath := 'cache_GC' + PathDelim;
   FBDBCachePath := 'cache_db' + PathDelim;
   FDBMSCachepath := 'cache_sasgis' + PathDelim + 'cache_sasgis'; // it is global DBMS identifier: SERVER\DATABASE
 end;
@@ -143,6 +148,7 @@ begin
     ESCpath := VPathConfig.ReadString('ESC', ESCpath);
     GMTilesPath := VPathConfig.ReadString('GMTiles', GMTilesPath);
     GECachePath := VPathConfig.ReadString('GECache', GECachePath);
+    GCCachePath := VPathConfig.ReadString('GCCache', GCCachePath);
     BDBCachePath := VPathConfig.ReadString('BDBCache', BDBCachePath);
     DBMSCachePath := VPathConfig.ReadString('DBMSCache', DBMSCachePath);
   end;
@@ -163,6 +169,7 @@ begin
   VPathConfig.WriteString('ESC', ESCpath);
   VPathConfig.WriteString('GMTiles', GMTilesPath);
   VPathConfig.WriteString('GECache', GECachePath);
+  VPathConfig.WriteString('GCCache', GCCachePath);
   VPathConfig.WriteString('BDBCache', BDBCachePath);
   VPathConfig.WriteString('DBMSCache', DBMSCachePath);
 end;
@@ -194,6 +201,14 @@ procedure TGlobalCahceConfig.SetESCpath(const Value: string);
 begin
   if FESCpath <> Value then begin
     FESCpath := Value;
+    FCacheChangeNotifier.Notify(nil);
+  end;
+end;
+
+procedure TGlobalCahceConfig.SetGCCachepath(const Value: string);
+begin
+  if FGCCachepath <> Value then begin
+    FGCCachepath := Value;
     FCacheChangeNotifier.Notify(nil);
   end;
 end;

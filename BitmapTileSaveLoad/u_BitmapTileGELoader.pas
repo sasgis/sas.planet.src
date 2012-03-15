@@ -2,6 +2,7 @@ unit u_BitmapTileGELoader;
 
 interface
 
+(*
 uses
   Classes,
   GR32,
@@ -9,7 +10,9 @@ uses
   i_Bitmap32Static,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoad;
+*)
 
+(*
 type
   TBitmapTileGELoader = class(TInterfacedObject, IBitmapTileLoader)
   private
@@ -25,18 +28,22 @@ type
     );
     destructor Destroy; override;
   end;
+*)
 
 implementation
 
+(*
 uses
   SysUtils,
   u_BinaryDataByMemStream,
   u_BitmapTileVampyreLoader,
   u_BitmapTileGEDXTextureLoader,
   u_GECrypt;
+*)
 
 { TBitmapTileGELoader }
 
+(*
 constructor TBitmapTileGELoader.Create(
   APerfCounterList: IInternalPerformanceCounterList
 );
@@ -149,4 +156,5 @@ begin
   end;
 end;
 
+*)
 end.

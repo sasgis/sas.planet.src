@@ -22,19 +22,24 @@ unit u_GEIndexFile;
 
 interface
 
+(*
 uses
   Types,
   SysUtils,
   Classes,
+  i_MapVersionInfo,
   i_StorageStateInternal,
   u_MapTypeCacheConfig;
+*)
 
+(*
 type
   TServerRec = record        // запись о сервере
     LastAuth : LongWord;     // время последней авторизации на сервере
     Unk      : Word;         // всегда = $0000
     Name     : Char;         // url сервера (иногда в Punycode)
   end;
+*)
 
   {
   TAuthRec = packed record       // запись о авторизации
@@ -54,6 +59,7 @@ type
   end;
   }
 
+(*
   TCache_Head = record             // заголовок
     Magic  : LongWord;             // идентификатор = $D5E1C1CA
     MaxSz  : LongWord;             // максимальный размер файла кэша
@@ -94,7 +100,21 @@ type
     Offset : LongWord;  // позиция тайла в кэше dbCache.dat
     Size   : LongWord;  // размер тайла
   end;
+*)
 
+(*
+  TGenericTileInfo = packed record
+    Ver    : Word;
+    ServID : Word;
+    Offset : LongWord;
+    Size   : LongWord;
+    Layer  : Word;
+    RX01   : Byte;
+  end;
+  PGenericTileInfo = ^TGenericTileInfo;
+*)
+
+(*
   TGEIndexFile = class
   private
     FSync: TMultiReadExclusiveWriteSynchronizer;
@@ -106,6 +126,7 @@ type
     FFileInited: Boolean;
     procedure GEXYZtoHexTileName(APoint: TPoint; AZoom: Byte; out ANameHi, ANameLo: LongWord);
     procedure _UpdateIndexInfo;
+    procedure CopyToGeneric(const AIndexRec: TIndexRec; var AGeneric: TGenericTileInfo);
   public
     constructor Create(
       AStorageStateInternal: IStorageStateInternal;
@@ -121,23 +142,30 @@ type
       const AServerID: Word;
       const AAskVer: Word;
       const AAskTileDate: String;
-      var ARec: TIndexRec;
+      var ARec: TGenericTileInfo;
       AListOfOffsets: TList
     ): Boolean;
 
     // get single index item
-    function GetIndexRecByIndex(i: Integer; var ARec: TIndexRec): Boolean;
+    function GetIndexRecByIndex(i: Integer; var ARec: TGenericTileInfo): Boolean;
 
-    procedure OnConfigChange(Sender: TObject);
+    procedure OnConfigChange;
   end;
+*)
 
+(*
 function MakeGEDateToStr(const ARX01: Byte; const ALayer: Word): String;
+function TileDateToHexDate(const ATileDate: String): String;
+*)
 
 implementation
 
+(*
 uses
   t_CommonTypes;
+*)
 
+(*
 function MakeGEDateToStr(const ARX01: Byte; const ALayer: Word): String;
 var
   VYear, VMonth, VDay: Word;
@@ -154,7 +182,35 @@ begin
   end;
 end;
 
+function TileDateToHexDate(const ATileDate: String): String;
+var
+  y,m,d: Integer;
+begin
+  // or yyyymmdd
+  Result := '';
+  // yyyy:mm:dd
+  if (10=Length(ATileDate)) then begin
+    if TryStrToInt(System.Copy(ATileDate,1,4), y) then
+    if TryStrToInt(System.Copy(ATileDate,6,2), m) then
+    if TryStrToInt(System.Copy(ATileDate,9,2), d) then begin
+      Result := IntToHex((y*512) + (m*32) + d, 5); // like 'fb29a'
+    end;
+  end;
+end;
+*)
+
 { TGEIndexFile }
+
+(*
+procedure TGEIndexFile.CopyToGeneric(const AIndexRec: TIndexRec; var AGeneric: TGenericTileInfo);
+begin
+  AGeneric.Ver := AIndexRec.Ver;
+  AGeneric.ServID := AIndexRec.ServID;
+  AGeneric.Offset := AIndexRec.Offset;
+  AGeneric.Size := AIndexRec.Size;
+  AGeneric.Layer := AIndexRec.Layer;
+  AGeneric.RX01 := AIndexRec.RX01;
+end;
 
 constructor TGEIndexFile.Create(
   AStorageStateInternal: IStorageStateInternal;
@@ -219,7 +275,7 @@ function TGEIndexFile.FindTileInfo(
   const AServerID: Word;
   const AAskVer: Word;
   const AAskTileDate: String;
-  var ARec: TIndexRec;
+  var ARec: TGenericTileInfo;
   AListOfOffsets: TList
 ): Boolean;
 var
@@ -279,7 +335,7 @@ begin
                       if (not Result) and
                          _FilterOK(FIndexInfo[i].RX01, FIndexInfo[i].Layer, FIndexInfo[i].Ver) then begin
                         // second entrance will fail because of Result
-                        ARec := FIndexInfo[i];
+                        CopyToGeneric(FIndexInfo[i], ARec);
                         Result := True;
                       end;
                       // collecting offsets for complete list of tiles
@@ -305,7 +361,7 @@ begin
   end;
 end;
 
-function TGEIndexFile.GetIndexRecByIndex(i: Integer; var ARec: TIndexRec): Boolean;
+function TGEIndexFile.GetIndexRecByIndex(i: Integer; var ARec: TGenericTileInfo): Boolean;
 begin
   Result := FALSE;
   if FFileInited then
@@ -317,7 +373,7 @@ begin
   end;
 end;
 
-procedure TGEIndexFile.OnConfigChange(Sender: TObject);
+procedure TGEIndexFile.OnConfigChange;
 begin
   FSync.BeginWrite;
   try
@@ -333,7 +389,7 @@ var
   VFileStream: TFileStream;
   VCount: Cardinal;
 begin
-  VFileName := FCacheConfig.GetIndexFileName;
+  VFileName := FCacheConfig.GetNameInCache + 'dbCache.dat.index';
   if VFileName <> FIndexFileName then begin
     FIndexInfo := nil;
     FIndexFileName := VFileName;
@@ -353,5 +409,7 @@ begin
   end;
   FFileInited := True;
 end;
+
+*)
 
 end.

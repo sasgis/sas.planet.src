@@ -22,93 +22,139 @@ unit u_GECrypt;
 
 interface
 
-procedure GEcrypt (Tile:PByte; Size:integer);
-
-const CRYPTED_JPEG   = $A6EF9107; //$0791EFA6;
-const CRYPTED_DXT1   = $77B3CBB7; //$B7CBB377;
-const DECRYPTED_JPEG = $E0FFD8FF; //$FFD8FFE0;
-const DECRYPTED_DXT1 = $31A3824F; //$4F82A331;
+uses
+  Types,
+  Classes,
+  i_MapVersionInfo;
 
 const
- key: array[0..1023] of byte = (
-	$94, $64, $87, $4E, $66, $00, $00, $42, $45, $F4, $BD, $0B, $79, $E2, $6A, $45,
-	$22, $05, $92, $2C, $17, $CD, $06, $71, $F8, $49, $10, $46, $67, $51, $00, $42,
-	$25, $C6, $E8, $61, $2C, $66, $29, $08, $C6, $34, $DC, $6A, $62, $25, $79, $0A,
-	$77, $1D, $6D, $69, $D6, $F0, $9C, $6B, $93, $A1, $BD, $4E, $75, $E0, $41, $04,
-	$5B, $DF, $40, $56, $0C, $D9, $BB, $72, $9B, $81, $7C, $10, $33, $53, $EE, $4F,
-	$6C, $D4, $71, $05, $B0, $7B, $C0, $7F, $45, $03, $56, $5A, $AD, $77, $55, $65,
-	$0B, $33, $92, $2A, $AC, $19, $6C, $35, $14, $C5, $1D, $30, $73, $F8, $33, $3E,
-	$6D, $46, $38, $4A, $B4, $DD, $F0, $2E, $DD, $17, $75, $16, $DA, $8C, $44, $74,
-	$22, $06, $FA, $61, $22, $0C, $33, $22, $53, $6F, $AF, $39, $44, $0B, $8C, $0E,
-	$39, $D9, $39, $13, $4C, $B9, $BF, $7F, $AB, $5C, $8C, $50, $5F, $9F, $22, $75,
-	$78, $1F, $E9, $07, $71, $91, $68, $3B, $C1, $C4, $9B, $7F, $F0, $3C, $56, $71,
-	$48, $82, $05, $27, $55, $66, $59, $4E, $65, $1D, $98, $75, $A3, $61, $46, $7D,
-	$61, $3F, $15, $41, $00, $9F, $14, $06, $D7, $B4, $34, $4D, $CE, $13, $87, $46,
-	$B0, $1A, $D5, $05, $1C, $B8, $8A, $27, $7B, $8B, $DC, $2B, $BB, $4D, $67, $30,
-	$C8, $D1, $F6, $5C, $8F, $50, $FA, $5B, $2F, $46, $9B, $6E, $35, $18, $2F, $27,
-	$43, $2E, $EB, $0A, $0C, $5E, $10, $05, $10, $A5, $73, $1B, $65, $34, $E5, $6C,
-	$2E, $6A, $43, $27, $63, $14, $23, $55, $A9, $3F, $71, $7B, $67, $43, $7D, $3A,
-	$AF, $CD, $E2, $54, $55, $9C, $FD, $4B, $C6, $E2, $9F, $2F, $28, $ED, $CB, $5C,
-	$C6, $2D, $66, $07, $88, $A7, $3B, $2F, $18, $2A, $22, $4E, $0E, $B0, $6B, $2E,
-	$DD, $0D, $95, $7D, $7D, $47, $BA, $43, $B2, $11, $B2, $2B, $3E, $4D, $AA, $3E,
-	$7D, $E6, $CE, $49, $89, $C6, $E6, $78, $0C, $61, $31, $05, $2D, $01, $A4, $4F,
-	$A5, $7E, $71, $20, $88, $EC, $0D, $31, $E8, $4E, $0B, $00, $6E, $50, $68, $7D,
-	$17, $3D, $08, $0D, $17, $95, $A6, $6E, $A3, $68, $97, $24, $5B, $6B, $F3, $17,
-	$23, $F3, $B6, $73, $B3, $0D, $0B, $40, $C0, $9F, $D8, $04, $51, $5D, $FA, $1A,
-	$17, $22, $2E, $15, $6A, $DF, $49, $00, $B9, $A0, $77, $55, $C6, $EF, $10, $6A,
-	$BF, $7B, $47, $4C, $7F, $83, $17, $05, $EE, $DC, $DC, $46, $85, $A9, $AD, $53,
-	$07, $2B, $53, $34, $06, $07, $FF, $14, $94, $59, $19, $02, $E4, $38, $E8, $31, 
-	$83, $4E, $B9, $58, $46, $6B, $CB, $2D, $23, $86, $92, $70, $00, $35, $88, $22,
-	$CF, $31, $B2, $26, $2F, $E7, $C3, $75, $2D, $36, $2C, $72, $74, $B0, $23, $47,
-	$B7, $D3, $D1, $26, $16, $85, $37, $72, $E2, $00, $8C, $44, $CF, $10, $DA, $33,
-	$2D, $1A, $DE, $60, $86, $69, $23, $69, $2A, $7C, $CD, $4B, $51, $0D, $95, $54,
-	$39, $77, $2E, $29, $EA, $1B, $A6, $50, $A2, $6A, $8F, $6F, $50, $99, $5C, $3E, 
-	$54, $FB, $EF, $50, $5B, $0B, $07, $45, $17, $89, $6D, $28, $13, $77, $37, $1D,
-	$DB, $8E, $1E, $4A, $05, $66, $4A, $6F, $99, $20, $E5, $70, $E2, $B9, $71, $7E, 
-	$0C, $6D, $49, $04, $2D, $7A, $FE, $72, $C7, $F2, $59, $30, $8F, $BB, $02, $5D, 
-	$73, $E5, $C9, $20, $EA, $78, $EC, $20, $90, $F0, $8A, $7F, $42, $17, $7C, $47,
-	$19, $60, $B0, $16, $BD, $26, $B7, $71, $B6, $C7, $9F, $0E, $D1, $33, $82, $3D,
-	$D3, $AB, $EE, $63, $99, $C8, $2B, $53, $A0, $44, $5C, $71, $01, $C6, $CC, $44, 
-	$1F, $32, $4F, $3C, $CA, $C0, $29, $3D, $52, $D3, $61, $19, $58, $A9, $7D, $65, 
-	$B4, $DC, $CF, $0D, $F4, $3D, $F1, $08, $A9, $42, $DA, $23, $09, $D8, $BF, $5E, 
-	$50, $49, $F8, $4D, $C0, $CB, $47, $4C, $1C, $4F, $F7, $7B, $2B, $D8, $16, $18,
-	$C5, $31, $92, $3B, $B5, $6F, $DC, $6C, $0D, $92, $88, $16, $D1, $9E, $DB, $3F, 
-	$E2, $E9, $DA, $5F, $D4, $84, $E2, $46, $61, $5A, $DE, $1C, $55, $CF, $A4, $00, 
-	$BE, $FD, $CE, $67, $F1, $4A, $69, $1C, $97, $E6, $20, $48, $D8, $5D, $7F, $7E, 
-	$AE, $71, $20, $0E, $4E, $AE, $C0, $56, $A9, $91, $01, $3C, $82, $1D, $0F, $72,
-	$E7, $76, $EC, $29, $49, $D6, $5D, $2D, $83, $E3, $DB, $36, $06, $A9, $3B, $66,
-	$13, $97, $87, $6A, $D5, $B6, $3D, $50, $5E, $52, $B9, $4B, $C7, $73, $57, $78, 
-	$C9, $F4, $2E, $59, $07, $95, $93, $6F, $D0, $4B, $17, $57, $19, $3E, $27, $27, 
-	$C7, $60, $DB, $3B, $ED, $9A, $0E, $53, $44, $16, $3E, $3F, $8D, $92, $6D, $77,
-	$A2, $0A, $EB, $3F, $52, $A8, $C6, $55, $5E, $31, $49, $37, $85, $F4, $C5, $1F, 
-	$26, $2D, $A9, $1C, $BF, $8B, $27, $54, $DA, $C3, $6A, $20, $E5, $2A, $78, $04,
-	$B0, $D6, $90, $70, $72, $AA, $8B, $68, $BD, $88, $F7, $02, $5F, $48, $B1, $7E, 
-	$C0, $58, $4C, $3F, $66, $1A, $F9, $3E, $E1, $65, $C0, $70, $A7, $CF, $38, $69,
-	$AF, $F0, $56, $6C, $64, $49, $9C, $27, $AD, $78, $74, $4F, $C2, $87, $DE, $56, 
-	$39, $00, $DA, $77, $0B, $CB, $2D, $1B, $89, $FB, $35, $4F, $02, $F5, $08, $51,
-	$13, $60, $C1, $0A, $5A, $47, $4D, $26, $1C, $33, $30, $78, $DA, $C0, $9C, $46,
-	$47, $E2, $5B, $79, $60, $49, $6E, $37, $67, $53, $0A, $3E, $E9, $EC, $46, $39,
-	$B2, $F1, $34, $0D, $C6, $84, $53, $75, $6E, $E1, $0C, $59, $D9, $1E, $DE, $29,
-	$85, $10, $7B, $49, $49, $A5, $77, $79, $BE, $49, $56, $2E, $36, $E7, $0B, $3A,
-	$BB, $4F, $03, $62, $7B, $D2, $4D, $31, $95, $2F, $BD, $38, $7B, $A8, $4F, $21,
-	$E1, $EC, $46, $70, $76, $95, $7D, $29, $22, $78, $88, $0A, $90, $DD, $9D, $5C,
-	$DA, $DE, $19, $51, $CF, $F0, $FC, $59, $52, $65, $7C, $33, $13, $DF, $F3, $48,
-	$DA, $BB, $2A, $75, $DB, $60, $B2, $02, $15, $D4, $FC, $19, $ED, $1B, $EC, $7F,
-	$35, $A8, $FF, $28, $31, $07, $2D, $12, $C8, $DC, $88, $46, $7C, $8A, $5B, $22);
+  // Init - FlagsInp
+  DLLCACHE_IFI_IMG_FORCE_PRI_FORMAT = $00000001; // convert any images to primary format
+  DLLCACHE_IFI_IMG_FORCE_NO_INDEX   = $00000002; // do not use index for showing images
+  DLLCACHE_IFI_VER_FORCE_NO_INDEX   = $00000004; // do not use index for enumerating versions
+
+  // QueryTile - Input
+  DLLCACHE_QTI_LOAD_TILE  = $00000001;
+
+  // QueryTile - Output
+  DLLCACHE_QTO_SAME_VERSION = $00000001;
+  DLLCACHE_QTO_TNE_EXISTS   = $00000002;
+  DLLCACHE_QTO_ERR_FORMAT   = $00000004; // invalid result tile format (but tile exists, time to say wtf?)
+  DLLCACHE_QTO_SEC_FORMAT   = $00000008; // secondary format (can convert to primary)
+  
+  // set callback for storage state notifications
+  DLLCACHE_SIC_STATE_CHANGED = $00000001;
+  // set exif reader proc by SetInformation
+  DLLCACHE_SIC_EXIF_READER   = $00000002;
+
+  // output formats
+  DLLCACHE_IMG_PRIMARY  = 0;
+  DLLCACHE_IMG_SEC_DXT1 = 1;
+
+type
+  THostExifReaderProc = function (const AContext: Pointer;
+                                  const ABuffer: Pointer;
+                                  const ASize: Cardinal;
+                                  const AExifBufPtr: PPointer;
+                                  const AExifSizPtr: PCardinal): Boolean; stdcall;
+  
+  THostStateChangedProc = function (const AContext: Pointer;
+                                    const AEnabled: Boolean): Boolean; stdcall;
+  
+  TDLLCacheHandle = Pointer;
+  PDLLCacheHandle = ^TDLLCacheHandle;
+
+  // DLLCache_Init - initialize
+  TDLLCache_Init = function(const ADLLCacheHandle: PDLLCacheHandle;
+                            const AFlagsInp: Cardinal;
+                            const AContext: Pointer): Boolean; stdcall;
+
+  // DLLCache_Uninit - uninitialize
+  TDLLCache_Uninit = function(const ADLLCacheHandle: PDLLCacheHandle): Boolean; stdcall;
+  
+  // DLLCache_SetPath - set path
+  TDLLCache_SetPath = function (const ADLLCacheHandle: PDLLCacheHandle; const APath: PAnsiChar): Boolean; stdcall;
+
+  TEnumTileVersionsInfo = packed record
+    // common params
+    Size: SmallInt;
+    Cancelled: Byte;
+    Zoom: Byte;
+    XY: TPoint;
+    VersionInp: PAnsiChar; // original version
+    FlagsInp: Cardinal;
+    FlagsOut: Cardinal;
+    // enum params
+    Counter: Cardinal; // incremented by DLL (based on result of callback)
+    ListOfVersions: TStringList; // opaque for DLL
+  end;
+  PEnumTileVersionsInfo = ^TEnumTileVersionsInfo;
+
+  TDLLCache_EnumTileVersions_Callback = function (const AContext: Pointer;
+                                                  const AEnumInfo: PEnumTileVersionsInfo;
+                                                  const AVersionString: PAnsiChar): Boolean; stdcall;
+
+  // DLLCache_EnumTileVersions - get list of tile versions
+  TDLLCache_EnumTileVersions = function(const ADLLCacheHandle: PDLLCacheHandle;
+                                        const AEnumInfo: PEnumTileVersionsInfo;
+                                        const AEnumCallback: TDLLCache_EnumTileVersions_Callback): Boolean; stdcall;
+
+  TQueryTileInfo = packed record
+    // common params
+    Size: SmallInt;
+    Cancelled: Byte;
+    Zoom: Byte;
+    XY: TPoint;
+    VersionInp: PAnsiChar; // original version
+    FlagsInp: Cardinal; // DLLCACHE_QTI_* constants
+    FlagsOut: Cardinal; // DLLCACHE_QTO_* constants
+    // result params
+    TileSize: Cardinal;
+    TileStream: TStream; // opaque for DLL
+    VersionOut: IMapVersionInfo; // opaque for DLL - returned version (or NIL)
+    DateOut: TDateTime; // returned tile date
+  end;
+  PQueryTileInfo = ^TQueryTileInfo;
+
+  // use it only if need for original data
+  TQueryTileInfo_V2 = packed record
+    V1: TQueryTileInfo;
+    FormatOut: Cardinal; // format identifier (allow 0 for primary format)
+  end;
+  PQueryTileInfo_V2 = ^TQueryTileInfo_V2;
+
+  TDLLCache_QueryTile_Callback = function(const AContext: Pointer;
+                                          const ATileInfo: PQueryTileInfo;
+                                          const ATileBuffer: Pointer;
+                                          const AVersionString: PAnsiChar): Boolean; stdcall;
+
+  // DLLCache_QueryTile - get tile information (with or without loading tile)
+  TDLLCache_QueryTile = function(const ADLLCacheHandle: PDLLCacheHandle;
+                                 const ATileInfo: PQueryTileInfo;
+                                 const AQueryTile_Callback: TDLLCache_QueryTile_Callback): Boolean; stdcall;
+
+
+  TDLLCache_ConvertImage_Callback = function(const AConvertImage_Context: Pointer;
+                                             const AFormatOut: Cardinal;
+                                             const AOutputBuffer: Pointer;
+                                             const AOutputSize: Cardinal): Boolean; stdcall;
+
+
+  // DLLCache_ConvertImage - convert image (from secondary format to primary format)
+  TDLLCache_ConvertImage = function (const AConvertImage_Context: Pointer;
+                                     const ABuffer: Pointer;
+                                     const ASize: Cardinal;
+                                     const AFormatInp: Cardinal;
+                                     const AFormatOut: Cardinal;
+                                     const AConvertImage_Callback: TDLLCache_ConvertImage_Callback): Boolean; stdcall;
+
+
+  // DLLCache_SetInformation - set information (params, functions,...)
+  TDLLCache_SetInformation = function(const ADLLCacheHandle: PDLLCacheHandle;
+                                      const ASetInfoClass: Byte;
+                                      const ASetInfoSize: Cardinal;
+                                      const ASetInfoData: Pointer): Boolean; stdcall;
 
 implementation
-
-procedure GEcrypt(Tile:PByte; Size:integer);
-var  i,j: integer;
-begin
-  j:=16;
-  for i:=0 to Size-1 do begin
-   Tile^ := Tile^ xor key[j+8];
-   inc(j);
-   if (j mod 8) = 0 then inc(j,16);
-   if j >= 1016 then j := (j+8) Mod 24;
-   inc(Tile);
-  end;
-end;
 
 end.

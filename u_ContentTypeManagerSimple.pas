@@ -136,6 +136,7 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
+(*
   VContentType := TContentTypeInfoBitmap.Create(
     'application/vnd.google-earth.tile-image',
     '.ge_image',
@@ -144,7 +145,7 @@ begin
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
-
+*)
 
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kml+xml',
