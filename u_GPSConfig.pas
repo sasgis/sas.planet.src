@@ -23,6 +23,7 @@ unit u_GPSConfig;
 interface
 
 uses
+  i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_GPSModuleByCOMPortConfig,
@@ -36,7 +37,7 @@ type
     FGPSEnabled: Boolean;
     FNoDataTimeOut: Integer;
     FWriteLogs: array [TVSAGPS_TrackType] of Boolean;
-    FLogPath: WideString;
+    FLogPath: IPathConfig;
     FModuleConfig: IGPSModuleByCOMPortConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
@@ -61,7 +62,7 @@ type
     function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
     procedure AbortWriteLog(const ATrackTypes: TVSAGPS_TrackTypes);
   public
-    constructor Create(ALogPath: string);
+    constructor Create(ALogPath: IPathConfig);
   end;
 
 implementation
@@ -93,7 +94,7 @@ begin
   end;
 end;
 
-constructor TGPSConfig.Create(ALogPath: string);
+constructor TGPSConfig.Create(ALogPath: IPathConfig);
 begin
   inherited Create;
   FLogPath := ALogPath;
@@ -135,7 +136,7 @@ end;
 
 function TGPSConfig.GetLogPath: WideString;
 begin
-  Result := FLogPath;
+  Result := FLogPath.FullPath;
 end;
 
 function TGPSConfig.GetModuleConfig: IGPSModuleByCOMPortConfig;

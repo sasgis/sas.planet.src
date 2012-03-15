@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_GPSModuleByCOMPortSettings,
@@ -38,7 +39,7 @@ type
     FConnectionTimeout: DWORD;
     FDelay: DWORD;
     FNMEALog: Boolean;
-    FLogPath: WideString;
+    FLogPath: IPathConfig;
     FUSBGarmin: Boolean;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
@@ -76,7 +77,7 @@ type
     function GetAutodetectCOMFlags: DWORD;
     procedure SetAutodetectCOMFlags(const AValue: DWORD);
   public
-    constructor Create(ALogPath: string);
+    constructor Create(ALogPath: IPathConfig);
   end;
 
 implementation
@@ -86,7 +87,7 @@ uses
 
 { TGPSModuleByCOMPortConfig }
 
-constructor TGPSModuleByCOMPortConfig.Create(ALogPath: string);
+constructor TGPSModuleByCOMPortConfig.Create(ALogPath: IPathConfig);
 begin
   inherited Create;
   FLogPath := ALogPath;
@@ -111,7 +112,7 @@ begin
       FConnectionTimeout,
       FDelay,
       FNMEALog,
-      FLogPath,
+      FLogPath.FullPath,
       FUSBGarmin,
       FAutodetectCOMOnConnect,
       FAutodetectCOMFlags
@@ -200,12 +201,7 @@ end;
 
 function TGPSModuleByCOMPortConfig.GetLogPath: WideString;
 begin
-  LockRead;
-  try
-    Result := FLogPath;
-  finally
-    UnlockRead;
-  end;
+  Result := FLogPath.FullPath;
 end;
 
 function TGPSModuleByCOMPortConfig.GetNMEALog: Boolean;

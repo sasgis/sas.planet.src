@@ -57,6 +57,7 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="c_CoordConverter.pas" />
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
+    <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
@@ -302,6 +303,7 @@
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_OperationNotifier.pas" />
+    <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
@@ -549,6 +551,7 @@
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
     <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
+    <DCCReference Include="u_ConfigDataProviderByPathConfig.pas" />
     <DCCReference Include="u_ConfigDataProviderByResources.pas" />
     <DCCReference Include="u_ConfigDataProviderVirtualWithSubItem.pas" />
     <DCCReference Include="u_ConfigDataProviderWithGlobal.pas" />
@@ -786,6 +789,7 @@
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_OperationNotifier.pas" />
+    <DCCReference Include="u_PathConfig.pas" />
     <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
     <DCCReference Include="u_PathDetalizeProviderListBase.pas" />
     <DCCReference Include="u_PathDetalizeProviderListEntity.pas" />

@@ -24,13 +24,14 @@ interface
 
 uses
   i_JclNotify,
+  i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 
 type
   TGlobalCahceConfig = class
   private
-    FCacheGlobalPath: string;
+    FCacheGlobalPath: IPathConfig;
 
     //Способ храения кэша по-умолчанию.
     FDefCache: byte;
@@ -53,9 +54,10 @@ type
     procedure SetGMTilespath(const Value: string);
     procedure SetNewCPath(const Value: string);
     procedure SetOldCPath(const Value: string);
+    function GetCacheGlobalPath: string;
   public
     constructor Create(
-      ACacheGlobalPath: string
+      ACacheGlobalPath: IPathConfig
     );
     destructor Destroy; override;
 
@@ -74,7 +76,7 @@ type
     property BDBCachepath: string read FBDBCachepath write SetBDBCachepath;
     property DBMSCachepath: string read FDBMSCachepath write SetDBMSCachepath;
 
-    property  CacheGlobalPath: string read FCacheGlobalPath;
+    property  CacheGlobalPath: string read GetCacheGlobalPath;
     property CacheChangeNotifier: IJclNotifier read FCacheChangeNotifier;
   end;
 
@@ -98,7 +100,7 @@ uses
 { TGlobalCahceConfig }
 
 constructor TGlobalCahceConfig.Create(
-  ACacheGlobalPath: string
+  ACacheGlobalPath: IPathConfig
 );
 begin
   FCacheGlobalPath := ACacheGlobalPath;
@@ -117,6 +119,11 @@ destructor TGlobalCahceConfig.Destroy;
 begin
   FCacheChangeNotifier := nil;
   inherited;
+end;
+
+function TGlobalCahceConfig.GetCacheGlobalPath: string;
+begin
+  Result := FCacheGlobalPath.FullPath;
 end;
 
 procedure TGlobalCahceConfig.LoadConfig(AConfigProvider: IConfigDataProvider);

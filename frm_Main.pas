@@ -694,6 +694,7 @@ uses
   frm_LonLatRectEdit,
   c_ZeroGUID,
   c_SasVersion,
+  c_InternalBrowser,
   u_JclListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_NotifyEventListener,
@@ -4749,7 +4750,7 @@ begin
   end;
   VUrl := VMapType.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
-    VUrl := 'sas://ZmpInfo/' + GUIDToString(VMapType.Zmp.GUID) + VUrl;
+    VUrl := CZmpInfoInternalURL + GUIDToString(VMapType.Zmp.GUID) + VUrl;
     GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
   end;
 end;

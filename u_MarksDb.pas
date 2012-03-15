@@ -29,6 +29,7 @@ uses
   Classes,
   t_GeoTypes,
   i_IDList,
+  i_PathConfig,
   i_VectorItmesFactory,
   i_MarksFactoryConfig,
   i_HtmlToHintTextConverter,
@@ -44,7 +45,7 @@ type
   TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
   private
     FSync: IReadWriteSync;
-    FBasePath: string;
+    FBasePath: IPathConfig;
     FCdsMarks: TClientDataSet;
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FFactory: IMarkFactory;
@@ -95,7 +96,7 @@ type
     function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
   public
     constructor Create(
-      const ABasePath: string;
+      ABasePath: IPathConfig;
       ACategoryDB: IMarkCategoryDBSmlInternal;
       AVectorItmesFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
@@ -249,7 +250,7 @@ begin
 end;
 
 constructor TMarksDb.Create(
-  const ABasePath: string;
+  ABasePath: IPathConfig;
   ACategoryDB: IMarkCategoryDBSmlInternal;
   AVectorItmesFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
@@ -967,12 +968,12 @@ end;
 
 function TMarksDb.GetMarksBackUpFileName: string;
 begin
-  Result := FBasePath + 'marks.~sml';
+  Result := IncludeTrailingPathDelimiter(FBasePath.FullPath) + 'marks.~sml';
 end;
 
 function TMarksDb.GetMarksFileName: string;
 begin
-  Result := FBasePath + 'marks.sml';
+  Result := IncludeTrailingPathDelimiter(FBasePath.FullPath) + 'marks.sml';
 end;
 
 procedure TMarksDb.LoadMarksFromFile;

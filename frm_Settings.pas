@@ -308,6 +308,7 @@ implementation
 uses
   Types,
   Menus,
+  c_InternalBrowser,
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
@@ -1050,7 +1051,7 @@ begin
   VMap := TMapType(MapList.Selected.Data);
   VUrl := VMap.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
-    VUrl := 'sas://ZmpInfo/' + GUIDToString(VMap.Zmp.GUID) + VUrl;
+    VUrl := CZmpInfoInternalURL + GUIDToString(VMap.Zmp.GUID) + VUrl;
     GState.InternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
   end;
 end;

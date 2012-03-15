@@ -28,6 +28,7 @@ uses
   SysUtils,
   DBClient,
   i_IDList,
+  i_PathConfig,
   i_MarkCategory,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
@@ -40,7 +41,7 @@ type
   private
     FSync: IReadWriteSync;
     FDbCode: Integer;
-    FBasePath: string;
+    FBasePath: IPathConfig;
     FCdsKategory: TClientDataSet;
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
@@ -71,7 +72,7 @@ type
     function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
-      const ABasePath: string;
+      ABasePath: IPathConfig;
       AFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -87,7 +88,7 @@ uses
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
-  const ABasePath: string;
+  ABasePath: IPathConfig;
   AFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
@@ -345,12 +346,12 @@ end;
 
 function TMarkCategoryDB.GetMarksCategoryBackUpFileName: string;
 begin
-  Result := FBasePath + 'Categorymarks.~sml';
+  Result := IncludeTrailingPathDelimiter(FBasePath.FullPath) + 'Categorymarks.~sml';
 end;
 
 function TMarkCategoryDB.GetMarksCategoryFileName: string;
 begin
-  Result := FBasePath + 'Categorymarks.sml';
+  Result := IncludeTrailingPathDelimiter(FBasePath.FullPath) + 'Categorymarks.sml';
 end;
 
 procedure TMarkCategoryDB.LoadCategoriesFromFile;

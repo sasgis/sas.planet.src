@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ContentTypeManager,
@@ -34,7 +35,7 @@ type
   TMarkPictureListSimple = class(TConfigDataElementBase, IMarkPictureList)
   private
     FList: TStringList;
-    FBasePath: string;
+    FBasePath: IPathConfig;
     FContentTypeManager: IContentTypeManager;
     procedure Clear;
   protected
@@ -50,7 +51,7 @@ type
     function GetDefaultPicture: IMarkPicture;
   public
     constructor Create(
-      ABasePath: string;
+      ABasePath: IPathConfig;
       AContentTypeManager: IContentTypeManager
     );
     destructor Destroy; override;
@@ -67,7 +68,7 @@ uses
 { TMarkPictureListSimple }
 
 constructor TMarkPictureListSimple.Create(
-  ABasePath: string;
+  ABasePath: IPathConfig;
   AContentTypeManager: IContentTypeManager
 );
 begin
@@ -102,6 +103,7 @@ var
   VFullName: string;
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
+  VPath: string;
 begin
   inherited;
   Clear;
@@ -111,11 +113,12 @@ begin
       VLoader := VContentTypeBitmap.GetLoader;
     end;
   end;
-  if FindFirst(FBasePath + '*.png', faAnyFile, SearchRec) = 0 then begin
+  VPath := IncludeTrailingPathDelimiter(FBasePath.FullPath);
+  if FindFirst(VPath + '*.png', faAnyFile, SearchRec) = 0 then begin
     try
       repeat
         if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-          VFullName := FBasePath + SearchRec.Name;
+          VFullName := VPath + SearchRec.Name;
           VPicture := TMarkPictureSimple.Create(VFullName, SearchRec.Name, VLoader);
           VPicture._AddRef;
           FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));

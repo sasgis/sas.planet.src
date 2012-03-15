@@ -39,6 +39,7 @@ type
 implementation
 
 uses
+  SysUtils,
   StrUtils,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -75,7 +76,7 @@ var
   VPos: Integer;
 begin
   VPos := Pos('.', AExeFileName);
-  Result := ABasePath + LeftStr(AExeFileName, VPos - 1) + '.ini';
+  Result := IncludeTrailingPathDelimiter(ABasePath) + LeftStr(AExeFileName, VPos - 1) + '.ini';
 end;
 
 end.

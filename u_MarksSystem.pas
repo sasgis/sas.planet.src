@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Classes,
+  i_PathConfig,
   i_LanguageManager,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -45,7 +46,7 @@ uses
 type
   TMarksSystem = class
   private
-    FBasePath: string;
+    FBasePath: IPathConfig;
     FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksDb: IMarksDb;
     FMarksDbInternal: IMarksDbSmlInternal;
@@ -56,7 +57,7 @@ type
   public
     constructor Create(
       ALanguageManager: ILanguageManager;
-      const ABasePath: string;
+      ABasePath: IPathConfig;
       AMarkPictureList: IMarkPictureList;
       AVectorItmesFactory: IVectorItmesFactory;
       AHintConverter: IHtmlToHintTextConverter;
@@ -171,7 +172,7 @@ end;
 
 constructor TMarksSystem.Create(
   ALanguageManager: ILanguageManager;
-  const ABasePath: string;
+  ABasePath: IPathConfig;
   AMarkPictureList: IMarkPictureList;
   AVectorItmesFactory: IVectorItmesFactory;
   AHintConverter: IHtmlToHintTextConverter;
