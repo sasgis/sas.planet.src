@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -30,27 +30,26 @@ uses
 type
   TInternalPerformanceCounter = class(TInterfacedObject, IInternalPerformanceCounter)
   private
-    FCS: TCriticalSection;
+    FQueryPerfCntrFunc: Pointer;
 
     FId: Integer;
     FName: string;
     FCounter: Cardinal;
-    FTotalTime: TDateTime;
-    FLastTimeInSeconds: Double;
+    FTotal: Int64;
+    FFreq: Int64;
   protected
     function GetId: Integer;
     function GetName: string;
 
     function StartOperation: TInternalPerformanceCounterContext;
-    procedure FinishOperation(AContext: TInternalPerformanceCounterContext);
+    procedure FinishOperation(const AContext: TInternalPerformanceCounterContext);
 
     function GetCounter: Cardinal;
     function GetTotalTime: TDateTime;
     function GetLastTimeInSeconds: Double;
     function GetStaticData: IInternalPerformanceCounterStaticData;
   public
-    constructor Create(AName: string);
-    destructor Destroy; override;
+    constructor Create(const AName: string);
   end;
 
   TInternalPerformanceCounterStaticData = class(TInterfacedObject, IInternalPerformanceCounterStaticData)
@@ -73,6 +72,9 @@ type
     );
   end;
 
+  PLARGE_INTEGER = ^Int64;
+  TNtQueryPerformanceCounter = function (PerformanceCounter: PLARGE_INTEGER; PerformanceFrequency: PLARGE_INTEGER): LongInt; stdcall;
+
 implementation
 
 uses
@@ -80,40 +82,31 @@ uses
 
 { TInternalPerformanceCounter }
 
-constructor TInternalPerformanceCounter.Create(AName: string);
+constructor TInternalPerformanceCounter.Create(const AName: string);
+var FDummy: Int64;
 begin
   FId := Integer(Self);
   FName := AName;
-  FCS := TCriticalSection.Create;
+  FQueryPerfCntrFunc := GetProcAddress(GetModuleHandle('ntdll.dll'), 'NtQueryPerformanceCounter');
+
+  FCounter := 0;
+  FTotal := 0;
+  
+  if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@FDummy, @FFreq)) then
+    FFreq := 0;
 end;
 
-destructor TInternalPerformanceCounter.Destroy;
-begin
-  FreeAndNil(FCS);
-  inherited;
-end;
-
-procedure TInternalPerformanceCounter.FinishOperation(
-  AContext: TInternalPerformanceCounterContext);
+procedure TInternalPerformanceCounter.FinishOperation(const AContext: TInternalPerformanceCounterContext);
 var
-  VPerformanceCounterEnd: Int64;
-  VPerformanceCounterFr: Int64;
-  VUpdateTimeInSeconds: Double;
-  VUpdateTime: TDateTime;
+  VCounter, VFreq: Int64;
 begin
-  if AContext <> 0 then begin
-    QueryPerformanceCounter(VPerformanceCounterEnd);
-    QueryPerformanceFrequency(VPerformanceCounterFr);
-    VUpdateTimeInSeconds := (VPerformanceCounterEnd - AContext) / VPerformanceCounterFr;
-    VUpdateTime := VUpdateTimeInSeconds/24/60/60;
-    FCS.Acquire;
-    try
-      Inc(FCounter);
-      FTotalTime := FTotalTime + VUpdateTime;
-      FLastTimeInSeconds := VUpdateTimeInSeconds;
-    finally
-      FCS.Release;
-    end;
+  if AContext <> 0 then
+  if (0 = TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VCounter, @VFreq)) then begin
+    // check
+    Assert(VFreq=FFreq);
+    // accumulate
+    Inc(FCounter);
+    FTotal := FTotal + (VCounter-AContext);
   end;
 end;
 
@@ -129,12 +122,15 @@ end;
 
 function TInternalPerformanceCounter.GetLastTimeInSeconds: Double;
 begin
-  Result := FLastTimeInSeconds;
+  Result := 0; //FLastTimeInSeconds;
 end;
 
 function TInternalPerformanceCounter.GetTotalTime: TDateTime;
 begin
-  Result := FTotalTime;
+  if (0=FFreq) then
+    Result := 0
+  else
+    Result := FTotal / FFreq / 24 / 60 / 60;
 end;
 
 function TInternalPerformanceCounter.GetName: string;
@@ -149,15 +145,14 @@ begin
       FId,
       FName,
       FCounter,
-      FTotalTime
+      GetTotalTime
     );
 end;
 
 function TInternalPerformanceCounter.StartOperation: TInternalPerformanceCounterContext;
 begin
-  if not QueryPerformanceCounter(Result) then begin
+  if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@Result, nil)) then
     Result := 0;
-  end;
 end;
 
 { TInternalPerformanceCounterStaticData }

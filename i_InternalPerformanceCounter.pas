@@ -52,7 +52,7 @@ type
     property Name: string read GetName;
 
     function StartOperation: TInternalPerformanceCounterContext;
-    procedure FinishOperation(AContext: TInternalPerformanceCounterContext);
+    procedure FinishOperation(const AContext: TInternalPerformanceCounterContext);
 
     function GetCounter: Cardinal;
     property Counter: Cardinal  read GetCounter;

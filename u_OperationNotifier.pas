@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,7 +23,7 @@ unit u_OperationNotifier;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_JclNotify,
   i_OperationNotifier;
 
@@ -36,7 +36,7 @@ type
   private
     FNotifier: IJclNotifier;
     FCurrentOperationID: Integer;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
   protected
     procedure NextOperation;
   protected
@@ -53,6 +53,7 @@ type
 implementation
 
 uses
+  u_Synchronizer,
   u_JclNotify;
 
 { TOperationNotifier }
@@ -60,65 +61,67 @@ uses
 constructor TOperationNotifier.Create;
 begin
   inherited Create;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncMulti(Self);
   FNotifier := TJclBaseNotifier.Create;
   FCurrentOperationID := 0;
 end;
 
 destructor TOperationNotifier.Destroy;
 begin
-  FCS.Free;
+  FCS := nil;
   inherited Destroy;
 end;
 
 procedure TOperationNotifier.AddListener(AListener: IJclListener);
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
+    // sync internally
     FNotifier.Add(AListener);
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TOperationNotifier.IsOperationCanceled(AID: Integer): Boolean;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FCurrentOperationID <> AID;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 function TOperationNotifier.GetCurrentOperation: Integer;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FCurrentOperationID;
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 
 procedure TOperationNotifier.NextOperation;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     Inc(FCurrentOperationID);
     FNotifier.Notify(nil);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
 procedure TOperationNotifier.RemoveListener(AListener: IJclListener);
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
+    // sync internally
     FNotifier.Remove(AListener);
   finally
-    FCS.Release;
+    FCS.EndRead;
   end;
 end;
 

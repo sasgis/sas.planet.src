@@ -1,10 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_MapMainLayer;
 
 interface
 
 uses
   Windows,
-  SyncObjs,
+  SysUtils,
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -34,9 +54,9 @@ type
     FTileChangeListener: IJclListener;
 
     FMainMap: IMapType;
-    FMainMapCS: TCriticalSection;
+    FMainMapCS: IReadWriteSync;
     FLayersSet: IMapTypeSet;
-    FLayersSetCS: TCriticalSection;
+    FLayersSetCS: IReadWriteSync;
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
@@ -88,7 +108,7 @@ implementation
 uses
   ActiveX,
   Classes,
-  SysUtils,
+  u_Synchronizer,
   t_GeoTypes,
   i_TileIterator,
   i_TileRectUpdateNotifier,
@@ -130,8 +150,8 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FViewConfig := AViewConfig;
 
-  FMainMapCS := TCriticalSection.Create;
-  FLayersSetCS := TCriticalSection.Create;
+  FMainMapCS := MakeSyncMulti(Self);
+  FLayersSetCS := MakeSyncMulti(Self);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
@@ -162,8 +182,8 @@ end;
 
 destructor TMapMainLayer.Destroy;
 begin
-  FreeAndNil(FMainMapCS);
-  FreeAndNil(FLayersSetCS);
+  FMainMapCS := nil;
+  FLayersSetCS := nil;
   inherited;
 end;
 
@@ -233,12 +253,14 @@ begin
         VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
         VTileIsEmpty := True;
         VDrawMode := dmOpaque;
-        FMainMapCS.Acquire;
+        
+        FMainMapCS.BeginRead;
         try
           VMainMap := FMainMap;
         finally
-          FMainMapCS.Release;
+          FMainMapCS.EndRead;
         end;
+        
         if VMainMap <> nil then begin
           if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
             VTileIsEmpty := False;
@@ -249,11 +271,11 @@ begin
           break;
         end;
 
-        FLayersSetCS.Acquire;
+        FLayersSetCS.BeginRead;
         try
           VLayersSet := FLayersSet;
         finally
-          FLayersSetCS.Release;
+          FLayersSetCS.EndRead;
         end;
         if VLayersSet <> nil then begin
           VEnum := VLayersSet.GetIterator;
@@ -382,13 +404,15 @@ begin
   ViewUpdateLock;
   try
     VNewLayersSet := FMapsConfig.GetActiveBitmapLayersSet.GetSelectedMapsSet;
-    FLayersSetCS.Acquire;
+
+    FLayersSetCS.BeginWrite;
     try
       VOldLayersSet := FLayersSet;
       FLayersSet := VNewLayersSet;
     finally
-      FLayersSetCS.Release;
+      FLayersSetCS.EndWrite;
     end;
+
     VLocalConverter := LayerCoordConverter;
     if VLocalConverter <> nil then begin
       VZoom := VLocalConverter.GetZoom;
@@ -448,13 +472,15 @@ begin
   ViewUpdateLock;
   try
     VNewMainMap := FMapsConfig.GetSelectedMapType;
-    FMainMapCS.Acquire;
+
+    FMainMapCS.BeginWrite;
     try
       VOldMainMap := FMainMap;
       FMainMap := VNewMainMap;
     finally
-      FMainMapCS.Release;
+      FMainMapCS.EndWrite;
     end;
+    
     if VOldMainMap <> VNewMainMap then begin
       VLocalConverter := LayerCoordConverter;
       VZoom := VLocalConverter.GetZoom;
@@ -508,24 +534,28 @@ begin
   inherited;
   if LayerCoordConverter <> nil then begin
     VZoom := LayerCoordConverter.GetZoom;
-    FMainMapCS.Acquire;
+
+    FMainMapCS.BeginRead;
     try
       VMap := FMainMap;
     finally
-      FMainMapCS.Release;
+      FMainMapCS.EndRead;
     end;
+
     if VMap <> nil then begin
       VNotifier := VMap.MapType.NotifierByZoom[VZoom];
       if VNotifier <> nil then begin
         VNotifier.Remove(FTileChangeListener);
       end;
     end;
-    FLayersSetCS.Acquire;
+
+    FLayersSetCS.BeginRead;
     try
       VLayersSet := FLayersSet;
     finally
-      FLayersSetCS.Release;
+      FLayersSetCS.EndRead;
     end;
+
     if VLayersSet <> nil then begin
       VEnum := VLayersSet.GetIterator;
       while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -563,24 +593,27 @@ begin
   VZoom := AValue.GetZoom;
   if VZoom <> VOldZoom then begin
     if VOldZoom <> 255 then begin
-      FMainMapCS.Acquire;
+      FMainMapCS.BeginRead;
       try
         VMap := FMainMap;
       finally
-        FMainMapCS.Release;
+        FMainMapCS.EndRead;
       end;
+
       if VMap <> nil then begin
         VNotifier := VMap.MapType.NotifierByZoom[VOldZoom];
         if VNotifier <> nil then begin
           VNotifier.Remove(FTileChangeListener);
         end;
       end;
-      FLayersSetCS.Acquire;
+
+      FLayersSetCS.BeginRead;
       try
         VLayersSet := FLayersSet;
       finally
-        FLayersSetCS.Release;
+        FLayersSetCS.EndRead;
       end;
+      
       if VLayersSet <> nil then begin
         VEnum := VLayersSet.GetIterator;
         while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -599,12 +632,13 @@ begin
   AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
   VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
-  FMainMapCS.Acquire;
+  FMainMapCS.BeginRead;
   try
     VMap := FMainMap;
   finally
-    FMainMapCS.Release;
+    FMainMapCS.EndRead;
   end;
+  
   if VMap <> nil then begin
     VNotifier := VMap.MapType.NotifierByZoom[VZoom];
     if VNotifier <> nil then begin
@@ -613,12 +647,14 @@ begin
       VNotifier.Add(FTileChangeListener, VTileRect);
     end;
   end;
-  FLayersSetCS.Acquire;
+
+  FLayersSetCS.BeginRead;
   try
     VLayersSet := FLayersSet;
   finally
-    FLayersSetCS.Release;
+    FLayersSetCS.EndRead;
   end;
+  
   if VLayersSet <> nil then begin
     VEnum := VLayersSet.GetIterator;
     while VEnum.Next(1, VGUID, cnt) = S_OK do begin

@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  SyncObjs,
+  SysUtils,
   Imaging,
   GR32,
   i_InternalPerformanceCounter,
@@ -15,7 +15,7 @@ uses
 type
   TVampyreBasicBitmapTileLoader = class(TInterfacedObject, IBitmapTileLoader)
   private
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FMetadata: TMetadata;
     FFormat: TImageFileFormat;
     FLoadStreamCounter: IInternalPerformanceCounter;
@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  u_Synchronizer,
   ImagingTypes,
   ImagingGraphics32,
   ImagingJpeg,
@@ -76,7 +76,7 @@ constructor TVampyreBasicBitmapTileLoader.Create(
   APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncObj(Self, TRUE);
   FMetadata := TMetadata.Create;
   FFormat := AFormatClass.Create(FMetadata);
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadStream');
@@ -84,9 +84,9 @@ end;
 
 destructor TVampyreBasicBitmapTileLoader.Destroy;
 begin
-  FreeAndNil(FCS);
   FreeAndNil(FFormat);
   FreeAndNil(FMetadata);
+  FCS := nil;
   inherited;
 end;
 
@@ -104,29 +104,33 @@ begin
   try
     InitImage(VImage);
     try
-      FCS.Acquire;
+      FCS.BeginWrite;
       try
         if not FFormat.LoadFromMemory(AData.Buffer, AData.Size, IArray, True) then begin
           raise Exception.Create('Ошибка загрузки файла');
         end;
-        if Length(IArray) = 0 then begin
-          raise Exception.Create('В файле не найдено изображений');
-        end;
-        VImage := IArray[0];
-        for I := 1 to Length(IArray) - 1 do begin
-          FreeImage(IArray[I]);
-        end;
-        VBtm := TCustomBitmap32.Create;
-        try
-          ConvertImageDataToBitmap32(VImage, VBtm);
-        except
-          FreeAndNil(VBtm);
-          raise;
-        end;
-        Result := TBitmap32Static.CreateWithOwn(VBtm);
       finally
-        FCS.Release;
+        FCS.EndWrite;
       end;
+
+      if Length(IArray) = 0 then begin
+        raise Exception.Create('В файле не найдено изображений');
+      end;
+
+      VImage := IArray[0];
+      for I := 1 to Length(IArray) - 1 do begin
+        FreeImage(IArray[I]);
+      end;
+
+      VBtm := TCustomBitmap32.Create;
+      try
+        ConvertImageDataToBitmap32(VImage, VBtm);
+      except
+        FreeAndNil(VBtm);
+        raise;
+      end;
+
+      Result := TBitmap32Static.CreateWithOwn(VBtm);
     finally
       FreeImage(VImage);
     end;
@@ -147,22 +151,25 @@ begin
   try
     InitImage(VImage);
     try
-      FCS.Acquire;
+      FCS.BeginWrite;
       try
         if not FFormat.LoadFromStream(AStream, IArray, True) then begin
           raise Exception.Create('Ошибка загрузки файла');
         end;
-        if Length(IArray) = 0 then begin
-          raise Exception.Create('В файле не найдено изображений');
-        end;
-        VImage := IArray[0];
-        for I := 1 to Length(IArray) - 1 do begin
-          FreeImage(IArray[I]);
-        end;
-        ConvertImageDataToBitmap32(VImage, ABtm);
       finally
-        FCS.Release;
+        FCS.EndWrite;
       end;
+
+      if Length(IArray) = 0 then begin
+        raise Exception.Create('В файле не найдено изображений');
+      end;
+
+      VImage := IArray[0];
+      for I := 1 to Length(IArray) - 1 do begin
+        FreeImage(IArray[I]);
+      end;
+
+      ConvertImageDataToBitmap32(VImage, ABtm);
     finally
       FreeImage(VImage);
     end;
