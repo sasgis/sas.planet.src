@@ -23,8 +23,6 @@ uses
   t_FillingMapModes in 't_FillingMapModes.pas',
   i_GUIDListStatic in 'i_GUIDListStatic.pas',
   u_GUIDListStatic in 'u_GUIDListStatic.pas',
-  u_Synchronizer in 'Includes\u_Synchronizer.pas',
-  u_Clipboard in 'Includes\u_Clipboard.pas',
   u_HashCacheWithQueuesAbstract in 'u_HashCacheWithQueuesAbstract.pas',
   u_StreamReadOnlyByBinaryData in 'u_StreamReadOnlyByBinaryData.pas',
   i_StringListStatic in 'i_StringListStatic.pas',
