@@ -22,8 +22,8 @@ uses
   LibJpegInOutDataManager;
 
 type
-  TReadScanLineCallBack = function(ALineRGB: Pointer; ASize: Cardinal;
-    ALineNumber: Integer): Boolean of object;
+  TReadScanLineCallBack = function(Sender: TObject; ALine: PByte;
+    ALineSize: Cardinal; ALineNumber: Integer): Boolean of object;
 
   TJpegMarker = record
     ID: Byte;           // $FE: COM; $E0..$EF: APP0..APP15
@@ -43,6 +43,7 @@ type
     FMarkersList: TJpegMarkersList;
     FComMarker: AnsiString;
     FExifMarker: TMemoryStream;
+    FAppData: Pointer;
     {$IFDEF LIB_JPEG_62_SUPPORT}
     jpeg62: LibJpeg62.jpeg_decompress_struct;
     jpeg62_err: LibJpeg62.jpeg_error_mgr;
@@ -65,16 +66,21 @@ type
       AOutStream: TStream = nil
     ): Boolean;
     {$ENDIF}
+    function GetWidth(): Integer;
+    function GetHeight(): Integer;
   public
     constructor Create(AJpegSource: TStream; AUseLibJpeg8: Boolean = False);
     destructor Destroy; override;
     function ReadHeader(): Boolean;
     function Decompress(AReadCallBack: TReadScanLineCallBack): Boolean; overload;
     function Decompress(AOutStream: TStream): Boolean; overload;
+    property Width: Integer read GetWidth;
+    property Height: Integer read GetHeight;
     property SaveMarkers: Boolean read FSaveMarkers write FSaveMarkers;
     property MarkersList: TJpegMarkersList read FMarkersList;
     property CommentMarker: AnsiString read FComMarker;
     property ExifMarker: TMemoryStream read FExifMarker;
+    property AppData: Pointer read FAppData write FAppData;
   end;
 
   TJpegReaderExtended = class(TJpegReader)
@@ -101,6 +107,7 @@ begin
   SetLength(FMarkersList, 0);
   FComMarker := '';
   FExifMarker := nil;
+  FAppData := nil;
   if not FUseLibJpeg8 then begin
     {$IFDEF LIB_JPEG_62_SUPPORT}
     FLibInitilized := InitDecomp62();
@@ -264,6 +271,48 @@ begin
   Result := FJpegHeaderParsed;
 end;
 
+function TJpegReader.GetWidth(): Integer;
+begin
+  Result := -1;
+  if FLibInitilized then begin
+    if not FJpegHeaderParsed then begin
+      ReadHeader();
+    end;
+    if FJpegHeaderParsed then begin
+      if not FUseLibJpeg8 then begin
+      {$IFDEF LIB_JPEG_62_SUPPORT}
+        Result := jpeg62.image_width;
+      {$ENDIF}
+      end else begin
+      {$IFDEF LIB_JPEG_8_SUPPORT}
+        Result := jpeg8.image_width;
+      {$ENDIF}
+      end;
+    end;
+  end;
+end;
+
+function TJpegReader.GetHeight(): Integer;
+begin
+  Result := -1;
+  if FLibInitilized then begin
+    if not FJpegHeaderParsed then begin
+      ReadHeader();
+    end;
+    if FJpegHeaderParsed then begin
+      if not FUseLibJpeg8 then begin
+      {$IFDEF LIB_JPEG_62_SUPPORT}
+        Result := jpeg62.image_height;
+      {$ENDIF}
+      end else begin
+      {$IFDEF LIB_JPEG_8_SUPPORT}
+        Result := jpeg8.image_height;
+      {$ENDIF}
+      end;
+    end;
+  end;
+end;
+
 {$IFDEF LIB_JPEG_62_SUPPORT}
 function TJpegReader.InitDecomp62():Boolean;
 begin
@@ -324,7 +373,7 @@ begin
           end;
           LibJpeg62.jpeg_read_scanlines(@jpeg62, @VLine, 1);
           if Addr(AReadCallBack) <> nil then begin
-            if not AReadCallBack(VLine, VSize, I) then begin
+            if not AReadCallBack(Self, VLine, VSize, I) then begin
               VAborted := True;
               Break; // abort by user
             end;
@@ -406,7 +455,7 @@ begin
           end;
           LibJpeg8.jpeg_read_scanlines(@jpeg8, @VLine, 1);
           if Addr(AReadCallBack) <> nil then begin
-            if not AReadCallBack(VLine, VSize, I) then begin
+            if not AReadCallBack(Self, VLine, VSize, I) then begin
               VAborted := True;
               Break; // abort by user
             end;

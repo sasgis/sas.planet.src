@@ -53,6 +53,7 @@
     </DelphiCompile>
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileGEDXTextureLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileGELoader.pas" />
+    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="c_CoordConverter.pas" />

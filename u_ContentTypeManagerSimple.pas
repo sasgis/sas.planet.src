@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -56,6 +56,8 @@ type
 
 implementation
 
+{.$DEFINE NATIVE_JPEG_LOADER}
+
 uses
   Classes,
   u_ContentTypeInfo,
@@ -64,6 +66,9 @@ uses
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
   u_BitmapTileGELoader,
+  {$IFDEF NATIVE_JPEG_LOADER}
+  u_BitmapTileLibJpeg,
+  {$ENDIF}
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_ContentConverterBase,
@@ -96,7 +101,11 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
+    {$IFNDEF NATIVE_JPEG_LOADER}
     TVampyreBasicBitmapTileLoaderJPEG.Create(APerfCounterList),
+    {$ELSE}
+    TLibJpegTileLoader.Create(APerfCounterList),
+    {$ENDIF}
     TVampyreBasicBitmapTileSaverJPG.Create(85)
   );
   AddByType(VContentType, VContentType.GetContentType);
