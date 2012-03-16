@@ -200,7 +200,7 @@ procedure TLayerStatBar.DoRedraw;
   begin
     FLayer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
     if ADrawLine then begin
-      FLayer.Bitmap.Line(AOffset.X - 10, 0, AOffset.X - 10, FLayer.Bitmap.Height, SetAlpha(clBlack32, 125));
+      FLayer.Bitmap.LineS(AOffset.X - 10, 0, AOffset.X - 10, FLayer.Bitmap.Height, SetAlpha(clBlack32, 125));
     end;
   end;
 
@@ -247,7 +247,7 @@ begin
     VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoomCurr);
 
     FLayer.Bitmap.Clear(FBgColor);
-    FLayer.Bitmap.Line(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
+    FLayer.Bitmap.LineS(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
 
     VOffset.Y := 1;
     VOffset.X := -10;
