@@ -13,6 +13,7 @@ uses
   i_ContentTypeSubst,
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
+  i_ImageResamplerConfig,
   i_TilePostDownloadCropConfig,
   i_DownloadResult,
   i_TileDownloaderState,
@@ -25,6 +26,7 @@ type
   TTileDownloadResultSaverStuped = class(TInterfacedObject, ITileDownloadResultSaver)
   private
     FDownloadConfig: IGlobalDownloadConfig;
+    FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeSubst: IContentTypeSubst;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FStorage: TTileStorageAbstract;
@@ -57,6 +59,7 @@ type
   public
     constructor Create(
       ADownloadConfig: IGlobalDownloadConfig;
+      AImageResamplerConfig: IImageResamplerConfig;
       AContentTypeManager: IContentTypeManager;
       AContentTypeSubst: IContentTypeSubst;
       ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
@@ -86,6 +89,7 @@ uses
 
 constructor TTileDownloadResultSaverStuped.Create(
   ADownloadConfig: IGlobalDownloadConfig;
+  AImageResamplerConfig: IImageResamplerConfig;
   AContentTypeManager: IContentTypeManager;
   AContentTypeSubst: IContentTypeSubst;
   ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
@@ -96,6 +100,7 @@ var
   VState: TTileDownloaderStateInternal;
 begin
   FDownloadConfig := ADownloadConfig;
+  FImageResamplerConfig := AImageResamplerConfig;
   FContentTypeManager := AContentTypeManager;
   FContentTypeSubst := AContentTypeSubst;
   FTilePostDownloadCropConfig := ATilePostDownloadCropConfig;
@@ -132,23 +137,29 @@ procedure TTileDownloadResultSaverStuped.CropOnDownload(
   ATileSize: TPoint
 );
 var
-  VBtmSrc: TCustomBitmap32;
   VBtmDest: TCustomBitmap32;
+  VResampler: TCustomResampler;
 begin
-  VBtmSrc := TCustomBitmap32.Create;
+  VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
   try
-    VBtmSrc.Assign(ABtm);
-    VBtmSrc.Resampler := TLinearResampler.Create;
     VBtmDest := TCustomBitmap32.Create;
     try
       VBtmDest.SetSize(ATileSize.X, ATileSize.Y);
-      VBtmDest.Draw(Bounds(0, 0, ATileSize.X, ATileSize.Y), ACropRect, VBtmSrc);
+      StretchTransfer(
+        VBtmDest,
+        Bounds(0, 0, ATileSize.X, ATileSize.Y),
+        VBtmDest.ClipRect,
+        ABtm,
+        ACropRect,
+        VResampler,
+        dmOpaque
+      );
       ABtm.Assign(VBtmDest);
     finally
       VBtmDest.Free;
     end;
   finally
-    VBtmSrc.Free;
+    VResampler.Free;
   end;
 end;
 

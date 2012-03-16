@@ -26,6 +26,7 @@ uses
   i_TileDownloader,
   i_TileDownloadResultSaver,
   i_MapAbilitiesConfig,
+  i_ImageResamplerConfig,
   i_MapVersionConfig,
   i_InvisibleBrowser,
   i_TileDownloadSubsystem,
@@ -79,6 +80,7 @@ type
       AInvisibleBrowser: IInvisibleBrowser;
       ADownloadResultFactory: IDownloadResultFactory;
       AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
+      AImageResamplerConfig: IImageResamplerConfig;
       AVersionConfig: IMapVersionConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
       ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -127,6 +129,7 @@ constructor TTileDownloadSubsystem.Create(
   AInvisibleBrowser: IInvisibleBrowser;
   ADownloadResultFactory: IDownloadResultFactory;
   AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
+  AImageResamplerConfig: IImageResamplerConfig;
   AVersionConfig: IMapVersionConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
   ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -182,6 +185,7 @@ begin
     FDownloadResultSaver :=
       TTileDownloadResultSaverStuped.Create(
         AGlobalDownloadConfig,
+        AImageResamplerConfig,
         AContentTypeManager,
         AContentTypeSubst,
         ATilePostDownloadCropConfig,

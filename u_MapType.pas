@@ -359,6 +359,7 @@ begin
       AInvisibleBrowser,
       FDownloadResultFactory,
       FZmp.TileDownloaderConfig,
+      AImageResamplerConfig,
       FVersionConfig,
       FTileDownloaderConfig,
       FTileDownloadRequestBuilderConfig,
