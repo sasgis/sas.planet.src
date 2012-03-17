@@ -154,8 +154,8 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FViewConfig := AViewConfig;
 
-  FMainMapCS := MakeSyncMulti(Self);
-  FLayersSetCS := MakeSyncMulti(Self);
+  FMainMapCS := MakeSyncRW_Var(Self);
+  FLayersSetCS := MakeSyncRW_Var(Self);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),

@@ -22,7 +22,9 @@ unit u_Synchronizer;
 
 interface
 
-/////{$define DEBUG_GLOBAL_LOCKS}
+//////{$define DEBUG_GLOBAL_LOCKS}
+//////{$define ALLOW_USE_EVENTPAIR}
+
 
 uses
   Windows,
@@ -36,46 +38,40 @@ function MakeSyncObj(const ACreator: TObject; const AWithSpinLocks: Boolean = FA
 // can create TSynchronizerCSSC or TMultiReadExclusiveWriteSynchronizer
 function MakeSyncMulti(const ACreator: TObject): IReadWriteSync;
 
+
+
 // generic functions (Read and Write)
 
-// makes first available from { MakeSyncSRW, MakeSyncRes, MakeSyncSpinLock }
-// cannot be acquired recursively
-// no upgrade or downgrade
-// usually very short lightweight operations
-function MakeSyncRWLight(const ACreator: TObject): IReadWriteSync;
+// ARecursionAllowed SHOULD BE set to TRUE if you cannot assure work without recursion
 
-// makes first available from { MakeSyncRes, MakeSyncSpinLock }
-// small number of concurrent readers on short operation
-function MakeSyncRWShort(const ACreator: TObject): IReadWriteSync;
+// very short operation - about 1 or 2 simple variables read or write
+// makes first available from { MakeSyncSRW, MakeSyncSpinLock, MakeSyncRes, MakeSyncMREW }
+function MakeSyncRW_Var(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
 
+// small symmetrical operation
+// makes first available from { MakeSyncRes, MakeSyncSRW, MakeSyncMREW }
+function MakeSyncRW_Sym(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
+
+// others (many readers with 1-2 writers)
+// makes first available from { MakeSyncSRW, MakeSyncRes, MakeSyncMREW }
+function MakeSyncRW_Std(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
+
+// many concurrent readers and writers
 // makes first available from { MakeSyncRes, MakeSyncMREW }
-// small number of concurrent readers on long operation
-function MakeSyncRWLong(const ACreator: TObject): IReadWriteSync;
-
-// makes first available from { MakeSyncRes, MakeSyncMREW }
-// many concurrent readers
-function MakeSyncRWHuge(const ACreator: TObject): IReadWriteSync;
+function MakeSyncRW_Big(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
 
 
-// generic functions (CS - Critical Section - should use only BeginWrite-EndWrite routines)
+
+// generic functions (should use only BeginWrite-EndWrite routines)
+
+// ARecursionAllowed SHOULD BE set to TRUE if you cannot assure work without recursion
 
 // makes first available from { MakeSyncSRW, MakeSyncSpinLock }
-// cannot be acquired recursively
-// no upgrade or downgrade
-// usually very short lightweight operations
-function MakeSyncCSLight(const ACreator: TObject): IReadWriteSync;
+function MakeSync_Tiny(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
 
 // makes first available from { MakeSyncSpinLock }
-// small number of concurrent writers on short operation
-function MakeSyncCSShort(const ACreator: TObject): IReadWriteSync;
+function MakeSync_Huge(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
 
-// makes first available from { MakeSyncSection }
-// small number of concurrent writers on long operation
-function MakeSyncCSLong(const ACreator: TObject): IReadWriteSync;
-
-// makes first available from { MakeSyncSpinLock }
-// many concurrent writers
-function MakeSyncCSHuge(const ACreator: TObject): IReadWriteSync;
 
 
 // direct functions
@@ -99,9 +95,23 @@ function MakeSyncRes(const ACreator: TObject): IReadWriteSync;
 // available from Vista - but based on good old-known KeyedEvent NT kernel object (before Vista)
 function MakeSyncSRW(const ACreator: TObject): IReadWriteSync;
 
-
 type
   ESynchronizerNotAvailable = class(Exception);
+
+  IEventPair = interface
+  ['{F984DB4B-CDFC-4971-8696-7A7D229A4BA1}']
+    function SetHigh: LongInt;
+    function SetHighWaitLow: LongInt;
+    function SetLow: LongInt;
+    function SetLowWaitHigh: LongInt;
+    function WaitHigh: LongInt;
+    function WaitLow: LongInt;
+  end;
+
+{$if defined(ALLOW_USE_EVENTPAIR)}
+// makes TSynchronizerEventPair
+function MakeSyncEventPair(const ACreator: TObject): IEventPair;
+{$ifend}
 
 {$if defined(DEBUG_GLOBAL_LOCKS)}
 var
@@ -121,7 +131,20 @@ type
   end;
   PSyncTypeInitData = ^TSyncTypeInitData;
 
+  TEventPairInitData = packed record
+    NtCreateEventPair: Pointer;
+    NtSetHighEventPair: Pointer;
+    NtSetHighWaitLowEventPair: Pointer;
+    NtSetLowEventPair: Pointer;
+    NtSetLowWaitHighEventPair: Pointer;
+    NtWaitHighEventPair: Pointer;
+    NtWaitLowEventPair: Pointer;
+    NtClose: Pointer;
+  end;
+  PEventPairInitData = ^TEventPairInitData;
+
   PVOID = Pointer;
+  PLARGE_INTEGER = ^Int64;
   INT = Integer;
 
   RTL_RWLOCK = packed record
@@ -136,6 +159,9 @@ type
     pDebugInfo: PVOID;
   end;
   LPRTL_RWLOCK = ^RTL_RWLOCK;
+
+  // NULL only
+  POBJECT_ATTRIBUTES = Pointer;
 
   TRtlAcquireResourceExclusive = function(rwl: LPRTL_RWLOCK; fWait: Byte): Byte; stdcall;
   // RtlAcquireResourceShared is the same
@@ -157,10 +183,50 @@ type
   // RtlReleaseSRWLockShared is the same
 
 
+  // KeyedEvent - from XP (ver 5.1, build 3663)
+  RTL_KEYED_EVENT = packed record
+    Value1: Cardinal;
+  end;
+  PRTL_KEYED_EVENT = ^RTL_KEYED_EVENT;
+
+  TNtCreateKeyedEvent = function(
+    KeyedEventHandle: PHandle;
+    DesiredAccess: ACCESS_MASK;
+    ObjectAttributes: POBJECT_ATTRIBUTES;
+    Flags: ULONG): LongInt; stdcall;
+
+  TNtReleaseKeyedEvent = function(
+    EventHandle: THandle;
+    Key: PRTL_KEYED_EVENT;
+    Alertable: BOOLEAN;
+    Timeout: PLARGE_INTEGER): LongInt; stdcall;
+
+  // NtWaitForKeyedEvent is the same
+
+  TNtClose = function(ObjectHandle: THandle): LongInt; stdcall;
+
+  TNtCurrentTeb = function: Pointer; stdcall;
+
+  // EventPair - from NT 4 (build 1381)
+
+  TNtCreateEventPair = function(
+    EventPairHandle: PHandle;
+    DesiredAccess: ACCESS_MASK;
+    ObjectAttributes: POBJECT_ATTRIBUTES): LongInt; stdcall;
+  
+  TNtEventPairFunc = function(EventPairHandle: THandle): LongInt; stdcall;
+  // NtSetHighEventPair
+  // NtSetHighWaitLowEventPair
+  // NtSetLowEventPair
+  // NtSetLowWaitHighEventPair
+  // NtWaitHighEventPair
+  // NtWaitLowEventPair
+  
   ISynchronizerFactory = interface
   ['{89031A22-CE84-4B4E-A8CE-F9B86BC1836C}']
     function GetSyncResInitData: PSyncTypeInitData;
     function GetSyncSRWInitData: PSyncTypeInitData;
+    function GetEventPairInitData: PEventPairInitData;
   end;
 
   TSynchronizerFactory = class(TInterfacedObject, ISynchronizerFactory)
@@ -171,8 +237,21 @@ type
     { ISynchronizerFactory }
     function GetSyncResInitData: PSyncTypeInitData;
     function GetSyncSRWInitData: PSyncTypeInitData;
+    function GetEventPairInitData: PEventPairInitData; virtual;
+  protected
+    procedure InternalInitDLL(const ADLL: THandle); virtual;
   public
     constructor Create;
+  end;
+
+  TSynchronizerFactoryWithEventPair = class(TSynchronizerFactory)
+  private
+    FEventPairInitData: TEventPairInitData;
+  protected
+    { ISynchronizerFactory }
+    function GetEventPairInitData: PEventPairInitData; override;
+  protected
+    procedure InternalInitDLL(const ADLL: THandle); override;
   end;
 
   TSynchronizerAbstract = class(TInterfacedObject)
@@ -264,6 +343,23 @@ type
     constructor Create(const ACreator: TObject; const AInitData: PSyncTypeInitData);
   end;
 
+  TSynchronizerEventPair = class(TSynchronizerAbstract, IEventPair)
+  private
+    FInitData: PEventPairInitData;
+    FEventPairHandle: THandle;
+  protected
+    { IEventPair }
+    function SetHigh: LongInt;
+    function SetHighWaitLow: LongInt;
+    function SetLow: LongInt;
+    function SetLowWaitHigh: LongInt;
+    function WaitHigh: LongInt;
+    function WaitLow: LongInt;
+  public
+    constructor Create(const ACreator: TObject; const AInitData: PEventPairInitData);
+    destructor Destroy; override;
+  end;
+
 procedure RaiseNotAvailable(AClass: TClass);
 begin
   raise ESynchronizerNotAvailable.Create(AClass.ClassName);
@@ -318,90 +414,126 @@ begin
   Result := TSynchronizerSRW.Create(ACreator, GSynchronizerFactory.GetSyncSRWInitData);
 end;
 
+{$if defined(ALLOW_USE_EVENTPAIR)}
+function MakeSyncEventPair(const ACreator: TObject): IEventPair;
+begin
+  Result := TSynchronizerEventPair.Create(ACreator, GSynchronizerFactory.GetEventPairInitData);
+end;
+{$ifend}
+
 // generic functions RW
 
-// makes first available from { MakeSyncSRW, MakeSyncRes, MakeSyncSpinLock }
-function MakeSyncRWLight(const ACreator: TObject): IReadWriteSync;
+// very short operation - about 1 or 2 simple variables read or write
+// makes first available from { MakeSyncSRW, MakeSyncSpinLock, MakeSyncRes, MakeSyncMREW }
+function MakeSyncRW_Var(const ACreator: TObject; const ARecursionAllowed: Boolean): IReadWriteSync;
 var FData: PSyncTypeInitData;
 begin
-  FData := GSynchronizerFactory.GetSyncSRWInitData;
+  // SlimRW
+  if (not ARecursionAllowed) then begin
+    FData := GSynchronizerFactory.GetSyncSRWInitData;
+    if (FData<>nil) then begin
+      Result := TSynchronizerSRW.Create(ACreator, FData);
+      Exit;
+    end;
+  end;
+
+  // CriticalSection with Spinlock
+  Result := TSynchronizerCSSC.Create(ACreator, 4096);
+
+  // Resource
+  // MREW
+end;
+
+// small symmetrical operation
+// makes first available from { MakeSyncRes, MakeSyncSRW, MakeSyncMREW }
+function MakeSyncRW_Sym(const ACreator: TObject; const ARecursionAllowed: Boolean): IReadWriteSync;
+var FData: PSyncTypeInitData;
+begin
+  // Resource
+  FData := GSynchronizerFactory.GetSyncResInitData;
   if (FData<>nil) then begin
-    Result := TSynchronizerSRW.Create(ACreator, FData);
+    Result := TSynchronizerRes.Create(ACreator, FData);
     Exit;
   end;
 
-  FData := GSynchronizerFactory.GetSyncResInitData;
-  if (FData<>nil) then
-    Result := TSynchronizerRes.Create(ACreator, FData)
-  else
-    Result := TSynchronizerCSSC.Create(ACreator, 4096);
-    //Result := TMultiReadExclusiveWriteSynchronizer.Create;
+  // SlimRW
+  if (not ARecursionAllowed) then begin
+    FData := GSynchronizerFactory.GetSyncSRWInitData;
+    if (FData<>nil) then begin
+      Result := TSynchronizerSRW.Create(ACreator, FData);
+      Exit;
+    end;
+  end;
+
+  // MREW
+  Result := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
-// makes first available from { MakeSyncRes, MakeSyncSpinLock }
-function MakeSyncRWShort(const ACreator: TObject): IReadWriteSync;
+// others (many readers with 1-2 writers)
+// makes first available from { MakeSyncSRW, MakeSyncRes, MakeSyncMREW }
+function MakeSyncRW_Std(const ACreator: TObject; const ARecursionAllowed: Boolean): IReadWriteSync;
 var FData: PSyncTypeInitData;
 begin
+  // SlimRW
+  if (not ARecursionAllowed) then begin
+    FData := GSynchronizerFactory.GetSyncSRWInitData;
+    if (FData<>nil) then begin
+      Result := TSynchronizerSRW.Create(ACreator, FData);
+      Exit;
+    end;
+  end;
+
+  // Resource
   FData := GSynchronizerFactory.GetSyncResInitData;
-  if (FData<>nil) then
-    Result := TSynchronizerRes.Create(ACreator, FData)
-  else
-    Result := TSynchronizerCSSC.Create(ACreator, 4096);
+  if (FData<>nil) then begin
+    Result := TSynchronizerRes.Create(ACreator, FData);
+    Exit;
+  end;
+
+  // MREW
+  Result := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
+// many concurrent readers and writers
 // makes first available from { MakeSyncRes, MakeSyncMREW }
-function MakeSyncRWLong(const ACreator: TObject): IReadWriteSync;
+function MakeSyncRW_Big(const ACreator: TObject; const ARecursionAllowed: Boolean): IReadWriteSync;
 var FData: PSyncTypeInitData;
 begin
+  // Resource
   FData := GSynchronizerFactory.GetSyncResInitData;
-  if (FData<>nil) then
-    Result := TSynchronizerRes.Create(ACreator, FData)
-  else
-    Result := TMultiReadExclusiveWriteSynchronizer.Create;
-end;
+  if (FData<>nil) then begin
+    Result := TSynchronizerRes.Create(ACreator, FData);
+    Exit;
+  end;
 
-// makes first available from { MakeSyncRes, MakeSyncMREW }
-function MakeSyncRWHuge(const ACreator: TObject): IReadWriteSync;
-var FData: PSyncTypeInitData;
-begin
-  FData := GSynchronizerFactory.GetSyncResInitData;
-  if (FData<>nil) then
-    Result := TSynchronizerRes.Create(ACreator, FData)
-  else
-    Result := TMultiReadExclusiveWriteSynchronizer.Create;
+  // MREW
+  Result := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 // generic functions CS
 
 // makes first available from { MakeSyncSRW, MakeSyncSpinLock }
-function MakeSyncCSLight(const ACreator: TObject): IReadWriteSync;
+function MakeSync_Tiny(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
 var FData: PSyncTypeInitData;
 begin
-  FData := GSynchronizerFactory.GetSyncSRWInitData;
-  if (FData<>nil) then begin
-    Result := TSynchronizerSRW.Create(ACreator, FData);
-    Exit;
+  // SlimRW
+  if (not ARecursionAllowed) then begin
+    FData := GSynchronizerFactory.GetSyncSRWInitData;
+    if (FData<>nil) then begin
+      Result := TSynchronizerSRW.Create(ACreator, FData);
+      Exit;
+    end;
   end;
+
   Result := TSynchronizerCSSC.Create(ACreator, 4096);
 end;
 
 // makes first available from { MakeSyncSpinLock }
-function MakeSyncCSShort(const ACreator: TObject): IReadWriteSync;
+function MakeSync_Huge(const ACreator: TObject; const ARecursionAllowed: Boolean = FALSE): IReadWriteSync;
 begin
   Result := TSynchronizerCSSC.Create(ACreator, 4096);
 end;
 
-// makes first available from { MakeSyncSection }
-function MakeSyncCSLong(const ACreator: TObject): IReadWriteSync;
-begin
-  Result := TSynchronizerCS.Create(ACreator);
-end;
-
-// makes first available from { MakeSyncSpinLock }
-function MakeSyncCSHuge(const ACreator: TObject): IReadWriteSync;
-begin
-  Result := TSynchronizerCSSC.Create(ACreator, 2048);
-end;
 
 { TSynchronizerFake }
 
@@ -564,51 +696,13 @@ end;
 { TSynchronizerFactory }
 
 constructor TSynchronizerFactory.Create;
-var
-  hDLL: THandle;
 begin
-  FillChar(FResInitData, sizeof(FResInitData), #0);
-  FillChar(FSRWInitData, sizeof(FSRWInitData), #0);
-  
-  hDLL := GetModuleHandle('ntdll.dll');
-  if (0<>hDLL) then begin
-    // Resource
-    FResInitData.InitializePtr := GetProcAddress(hDLL,'RtlInitializeResource');
-    FResInitData.AcquireExclusivePtr := GetProcAddress(hDLL,'RtlAcquireResourceExclusive');
-    FResInitData.ReleaseExclusivePtr := GetProcAddress(hDLL,'RtlReleaseResource');
-    FResInitData.AcquireSharedPtr := GetProcAddress(hDLL,'RtlAcquireResourceShared');
-    FResInitData.ReleaseSharedPtr := FResInitData.ReleaseExclusivePtr;
-    FResInitData.UninitializePtr := GetProcAddress(hDLL,'RtlDeleteResource');
-    if (nil=FResInitData.InitializePtr) or
-       (nil=FResInitData.AcquireExclusivePtr) or
-       (nil=FResInitData.ReleaseExclusivePtr) or
-       (nil=FResInitData.AcquireSharedPtr) or
-       (nil=FResInitData.ReleaseSharedPtr) or
-       (nil=FResInitData.UninitializePtr) then begin
-      // very-very-very crazy (old?) system!
-      FillChar(FResInitData, sizeof(FResInitData), #0);
-    end;
+  InternalInitDLL(GetModuleHandle('ntdll.dll'));
+end;
 
-    // SRWLock
-    FSRWInitData.InitializePtr := GetProcAddress(hDLL,'RtlInitializeSRWLock');
-    if (nil=FSRWInitData.InitializePtr) then begin
-      // before Vista
-      // nothing
-    end else begin
-      // Vista and newer
-      FSRWInitData.AcquireExclusivePtr := GetProcAddress(hDLL,'RtlAcquireSRWLockExclusive');
-      FSRWInitData.ReleaseExclusivePtr := GetProcAddress(hDLL,'RtlReleaseSRWLockExclusive');
-      FSRWInitData.AcquireSharedPtr := GetProcAddress(hDLL,'RtlAcquireSRWLockShared');
-      FSRWInitData.ReleaseSharedPtr := GetProcAddress(hDLL,'RtlReleaseSRWLockShared');
-      if (nil=FSRWInitData.AcquireExclusivePtr) or
-         (nil=FSRWInitData.ReleaseExclusivePtr) or
-         (nil=FSRWInitData.AcquireSharedPtr) or
-         (nil=FSRWInitData.ReleaseSharedPtr) then begin
-        // very-very-very crazy Vista!
-        FillChar(FSRWInitData, sizeof(FSRWInitData), #0);
-      end;
-    end;
-  end;
+function TSynchronizerFactory.GetEventPairInitData: PEventPairInitData;
+begin
+  Result := nil;
 end;
 
 function TSynchronizerFactory.GetSyncResInitData: PSyncTypeInitData;
@@ -625,6 +719,52 @@ begin
     Result := nil
   else
     Result := @FSRWInitData;
+end;
+
+procedure TSynchronizerFactory.InternalInitDLL(const ADLL: THandle);
+begin
+  // Resource
+  FillChar(FResInitData, sizeof(FResInitData), #0);
+  if (0<>ADLL) then begin
+    FResInitData.InitializePtr := GetProcAddress(ADLL,'RtlInitializeResource');
+    FResInitData.AcquireExclusivePtr := GetProcAddress(ADLL,'RtlAcquireResourceExclusive');
+    FResInitData.ReleaseExclusivePtr := GetProcAddress(ADLL,'RtlReleaseResource');
+    FResInitData.AcquireSharedPtr := GetProcAddress(ADLL,'RtlAcquireResourceShared');
+    FResInitData.ReleaseSharedPtr := FResInitData.ReleaseExclusivePtr;
+    FResInitData.UninitializePtr := GetProcAddress(ADLL,'RtlDeleteResource');
+    if (nil=FResInitData.InitializePtr) or
+       (nil=FResInitData.AcquireExclusivePtr) or
+       (nil=FResInitData.ReleaseExclusivePtr) or
+       (nil=FResInitData.AcquireSharedPtr) or
+       (nil=FResInitData.ReleaseSharedPtr) or
+       (nil=FResInitData.UninitializePtr) then begin
+      // very-very-very crazy (old?) system!
+      FillChar(FResInitData, sizeof(FResInitData), #0);
+    end;
+  end;
+
+  // SRWLock
+  FillChar(FSRWInitData, sizeof(FSRWInitData), #0);
+  if (0<>ADLL) then begin
+    FSRWInitData.InitializePtr := GetProcAddress(ADLL,'RtlInitializeSRWLock');
+    if (nil=FSRWInitData.InitializePtr) then begin
+      // before Vista
+      // nothing
+    end else begin
+      // Vista and newer
+      FSRWInitData.AcquireExclusivePtr := GetProcAddress(ADLL,'RtlAcquireSRWLockExclusive');
+      FSRWInitData.ReleaseExclusivePtr := GetProcAddress(ADLL,'RtlReleaseSRWLockExclusive');
+      FSRWInitData.AcquireSharedPtr := GetProcAddress(ADLL,'RtlAcquireSRWLockShared');
+      FSRWInitData.ReleaseSharedPtr := GetProcAddress(ADLL,'RtlReleaseSRWLockShared');
+      if (nil=FSRWInitData.AcquireExclusivePtr) or
+         (nil=FSRWInitData.ReleaseExclusivePtr) or
+         (nil=FSRWInitData.AcquireSharedPtr) or
+         (nil=FSRWInitData.ReleaseSharedPtr) then begin
+        // very-very-very crazy Vista!
+        FillChar(FSRWInitData, sizeof(FSRWInitData), #0);
+      end;
+    end;
+  end;
 end;
 
 { TSynchronizerRes }
@@ -698,10 +838,107 @@ begin
   TRtlInitializeSRWLock(FInitData^.ReleaseExclusivePtr)(@FLock);
 end;
 
+{ TSynchronizerEventPair }
+
+constructor TSynchronizerEventPair.Create(const ACreator: TObject; const AInitData: PEventPairInitData);
+begin
+  if (nil=AInitData) then
+    RaiseNotAvailable(ClassType);
+  inherited Create;
+  FCreatorClassName := ACreator.ClassName;
+  FInitData := AInitData;
+  FEventPairHandle := 0;
+  TNtCreateEventPair(FInitData^.NtCreateEventPair)(@FEventPairHandle, STANDARD_RIGHTS_ALL, nil);
+end;
+
+destructor TSynchronizerEventPair.Destroy;
+begin
+  if (0<>FEventPairHandle) then begin
+    TNtClose(FInitData^.NtClose)(FEventPairHandle);
+    FEventPairHandle:=0;
+  end;
+  inherited;
+end;
+
+function TSynchronizerEventPair.SetHigh: LongInt;
+begin
+  Result := TNtEventPairFunc(FInitData^.NtSetHighEventPair)(FEventPairHandle);
+end;
+
+function TSynchronizerEventPair.SetHighWaitLow: LongInt;
+begin
+  Result := TNtEventPairFunc(FInitData^.NtSetHighWaitLowEventPair)(FEventPairHandle);
+end;
+
+function TSynchronizerEventPair.SetLow: LongInt;
+begin
+  Result := TNtEventPairFunc(FInitData^.NtSetLowEventPair)(FEventPairHandle);
+end;
+
+function TSynchronizerEventPair.SetLowWaitHigh: LongInt;
+begin
+  Result := TNtEventPairFunc(FInitData^.NtSetLowWaitHighEventPair)(FEventPairHandle);
+end;
+
+function TSynchronizerEventPair.WaitHigh: LongInt;
+begin
+  Result := TNtEventPairFunc(FInitData^.NtWaitHighEventPair)(FEventPairHandle);
+end;
+
+function TSynchronizerEventPair.WaitLow: LongInt;
+begin
+  Result := TNtEventPairFunc(FInitData^.NtWaitLowEventPair)(FEventPairHandle);
+end;
+
+{ TSynchronizerFactoryWithEventPair }
+
+function TSynchronizerFactoryWithEventPair.GetEventPairInitData: PEventPairInitData;
+begin
+  if (nil=FEventPairInitData.NtCreateEventPair) then
+    Result := nil
+  else
+    Result := @FEventPairInitData;
+end;
+
+procedure TSynchronizerFactoryWithEventPair.InternalInitDLL(const ADLL: THandle);
+begin
+  inherited;
+
+  // EventPair
+  FillChar(FEventPairInitData, sizeof(FEventPairInitData), #0);
+
+  if (ADLL<>0) then begin
+    FEventPairInitData.NtCreateEventPair := GetProcAddress(ADLL,'NtCreateEventPair');
+    FEventPairInitData.NtSetHighEventPair := GetProcAddress(ADLL,'NtSetHighEventPair');
+    FEventPairInitData.NtSetHighWaitLowEventPair := GetProcAddress(ADLL,'NtSetHighWaitLowEventPair');
+    FEventPairInitData.NtSetLowEventPair := GetProcAddress(ADLL,'NtSetLowEventPair');
+    FEventPairInitData.NtSetLowWaitHighEventPair := GetProcAddress(ADLL,'NtSetLowWaitHighEventPair');
+    FEventPairInitData.NtWaitHighEventPair := GetProcAddress(ADLL,'NtWaitHighEventPair');
+    FEventPairInitData.NtWaitLowEventPair := GetProcAddress(ADLL,'NtWaitLowEventPair');
+    FEventPairInitData.NtClose := GetProcAddress(ADLL,'NtClose');
+    if (nil=FEventPairInitData.NtCreateEventPair) or
+       (nil=FEventPairInitData.NtSetHighEventPair) or
+       (nil=FEventPairInitData.NtSetHighWaitLowEventPair) or
+       (nil=FEventPairInitData.NtSetLowEventPair) or
+       (nil=FEventPairInitData.NtSetLowWaitHighEventPair) or
+       (nil=FEventPairInitData.NtWaitHighEventPair) or
+       (nil=FEventPairInitData.NtWaitLowEventPair) or
+       (nil=FEventPairInitData.NtClose) then begin
+      // very-very-very crazy (old? NT 3.51?) system!
+      FillChar(FEventPairInitData, sizeof(FEventPairInitData), #0);
+    end;
+  end;
+end;
+
 initialization
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DebugGlobalLocks_Enabled := FALSE;
 {$ifend}
+
+{$if defined(ALLOW_USE_EVENTPAIR)}
+  GSynchronizerFactory := TSynchronizerFactoryWithEventPair.Create;
+{$else}
   GSynchronizerFactory := TSynchronizerFactory.Create;
+{$ifend}
 
 end.
