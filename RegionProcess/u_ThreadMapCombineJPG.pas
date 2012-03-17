@@ -55,6 +55,8 @@ type
 implementation
 
 uses
+  Exif,
+  t_GeoTypes,
   i_CoordConverter,
   u_ImageLineProvider;
 
@@ -106,10 +108,13 @@ var
   VCurrentPieceRect: TRect;
   VGeoConverter: ICoordConverter;
   VMapPieceSize: TPoint;
+  VExif: TExifSimple;
+  VCenterLonLat: TDoublePoint;
 begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
+  VCenterLonLat := ALocalConverter.GetCenterLonLat;
   FLineProvider :=
     TImageLineProviderRGB.Create(
       AImageProvider,
@@ -129,10 +134,12 @@ begin
       VJpegWriter.Height := FHeight;
       VJpegWriter.Quality := FQuality;
       VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
-
-      //TODO: Add GeoExif tag http://sasgis.ru/mantis/view.php?id=1201
-      //VJpegWriter.AddExifMarker(VExifStream);
-
+      VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
+      try
+        VJpegWriter.AddExifMarker(VExif.Stream);
+      finally
+        VExif.Free;
+      end;
       VJpegWriter.Compress(Self.GetLine);
     finally
       VJpegWriter.Free;
