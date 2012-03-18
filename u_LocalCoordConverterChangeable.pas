@@ -50,7 +50,7 @@ begin
   FTargetGeoConverter := ATargetGeoConverter;
   FConverterFactory := AConverterFactory;
 
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Var(Self);
 
   FSourceChangeListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
   FSource.ChangeNotifier.Add(FSourceChangeListener);

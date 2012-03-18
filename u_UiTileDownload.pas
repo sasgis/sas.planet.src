@@ -125,7 +125,7 @@ begin
   FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
 
-  FVisualCoordConverterCS := MakeSyncMulti(Self);
+  FVisualCoordConverterCS := MakeSyncRW_Var(Self);
 
   FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
 

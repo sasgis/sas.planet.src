@@ -247,7 +247,7 @@ constructor TMapTypeCacheConfigDLL.Create(
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
-  FCS := MakeSyncObj(Self, TRUE); // called only 1 tile - not need to use multisync
+  FCS := MakeSyncRW_Sym(Self, TRUE);
   FOnSettingsEdit := AOnSettingsEdit;
   OnSettingsEdit;
 end;
@@ -272,12 +272,12 @@ begin
     end;
     VBasePath := IncludeTrailingPathDelimiter(VBasePath);
     FBasePath := VBasePath;
-
-    if Assigned(FOnSettingsEdit) then begin
-      FOnSettingsEdit(Self);
-    end;
   finally
     FCS.EndWrite;
+  end;
+
+  if Assigned(FOnSettingsEdit) then begin
+    FOnSettingsEdit(Self);
   end;
 end;
 
@@ -309,7 +309,7 @@ constructor TMapTypeCacheConfigBerkeleyDB.Create(
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Sym(Self, TRUE);
   FFileNameGenerator := AFileNameGenerator;
   FOnSettingsEdit := AOnSettingsEdit;
   OnSettingsEdit;
@@ -348,11 +348,12 @@ begin
       VBasePath := RelativeToAbsolutePath(VCachePath, VBasePath);
     end;
     FBasePath := IncludeTrailingPathDelimiter(VBasePath);
-    if Addr(FOnSettingsEdit) <> nil then begin
-      FOnSettingsEdit(Self);
-    end;
   finally
     FCS.EndWrite;
+  end;
+
+  if Assigned(FOnSettingsEdit) then begin
+    FOnSettingsEdit(Self);
   end;
 end;
 

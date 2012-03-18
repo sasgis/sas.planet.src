@@ -61,7 +61,7 @@ uses
 constructor TOperationNotifier.Create;
 begin
   inherited Create;
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Std(Self, TRUE);
   FNotifier := TJclBaseNotifier.Create;
   FCurrentOperationID := 0;
 end;
