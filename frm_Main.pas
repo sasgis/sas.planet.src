@@ -2967,7 +2967,6 @@ var
   VConverter: ICoordConverter;
   VMapType: TMapType;
   VLocalConverter: ILocalCoordConverter;
-  VMouseLonLat: TDoublePoint;
   VTile: TPoint;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
@@ -2977,12 +2976,10 @@ begin
   VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
-  VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
-  VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
+  VTile := VConverter.PixelPosFloat2TilePos(VMouseMapPoint, VZoomCurr);
   btm:=TBitmap32.Create;
   try
-    if VMapType.LoadTile(btm, VTile, VZoomCurr, True) then begin
+    if VMapType.LoadTileUni(btm, VTile, VZoomCurr, VConverter, True, True, False) then begin
       btm1:=TBitmap.Create;
       try
         btm1.Width:=btm.Width;
