@@ -65,6 +65,7 @@ type
 implementation
 
 uses
+  GR32_Resamplers,
   c_CoordConverter,
   i_CoordConverter,
   i_VectorItemProjected,
@@ -326,7 +327,15 @@ begin
                         for xi := 0 to hxyi do begin
                           for yi := 0 to hxyi do begin
                             bmp32crop.Clear;
-                            bmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), bmp32);
+                            BlockTransfer(
+                              bmp32crop,
+                              0,
+                              0,
+                              bmp32crop.ClipRect,
+                              bmp32,
+                              bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                              dmOpaque
+                            );
                             TileStream.Clear;
                             VSaver.SaveToStream(bmp32crop, TileStream);
                             AddTileToCache(

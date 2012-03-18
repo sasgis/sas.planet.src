@@ -69,6 +69,7 @@ type
 implementation
 
 uses
+  GR32_Resamplers,
   c_CoordConverter,
   u_GeoToStr,
   u_ResStrings,
@@ -379,7 +380,15 @@ begin
                       for xi := 0 to hxyi - 1 do begin
                         for yi := 0 to hxyi - 1 do begin
                           Vbmp32crop.Clear;
-                          Vbmp32crop.Draw(0, 0, bounds(sizeim * xi, sizeim * yi, sizeim, sizeim), VBitmaps[j]);
+                          BlockTransfer(
+                            Vbmp32crop,
+                            0,
+                            0,
+                            Vbmp32crop.ClipRect,
+                            VBitmaps[j],
+                            bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                            dmOpaque
+                          );
                           VTileStream.Clear;
                           VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
                           WriteTileToSQLite3(
