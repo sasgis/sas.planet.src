@@ -179,10 +179,11 @@ implementation
 
 uses
   ActiveX,
-  u_Synchronizer,
   Types,
   GR32_Polygons,
+  GR32_Resamplers,
   c_ZeroGUID,
+  u_Synchronizer,
   u_GeoFun,
   u_ResStrings,
   i_TileIterator,
@@ -634,7 +635,15 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
-          FLayer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+          BlockTransfer(
+            FLayer.Bitmap,
+            VCurrTileOnBitmapRect.Left,
+            VCurrTileOnBitmapRect.Top,
+            FLayer.Bitmap.ClipRect,
+            VTileToDrawBmp,
+            VTilePixelsToDraw,
+            dmOpaque
+          );
           SetBitmapChanged;
         finally
           FLayer.Bitmap.UnLock;

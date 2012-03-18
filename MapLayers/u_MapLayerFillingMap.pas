@@ -45,6 +45,7 @@ implementation
 
 uses
   Classes,
+  GR32_Resamplers,
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,
@@ -96,7 +97,7 @@ var
   VZoom: Byte;
   VZoomSource: Byte;
   VSourceMapType: TMapType;
-  VBmp: TCustomBitmap32;
+  VTileToDrawBmp: TCustomBitmap32;
 
   {
     ѕр€моугольник пикселей растра в координатах текущей основной карты
@@ -154,7 +155,7 @@ begin
   VConfig := FConfig.GetStatic;
   VLocalConverter := LayerCoordConverter;
   if (VConfig <> nil) and (VLocalConverter <> nil) then begin
-    VBmp := TCustomBitmap32.Create;
+    VTileToDrawBmp := TCustomBitmap32.Create;
     try
       VZoom := VLocalConverter.GetZoom;
       VZoomSource := VConfig.GetActualZoom(VLocalConverter);
@@ -212,11 +213,11 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
-          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VBmp, VTile, VZoom, VZoomSource, VConfig.Colorer) then begin
+          if VSourceMapType.LoadFillingMap(AOperationID, ACancelNotifier, VTileToDrawBmp, VTile, VZoom, VZoomSource, VConfig.Colorer) then begin
             Layer.Bitmap.Lock;
             try
               if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-                Layer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, Vbmp);
+                Layer.Bitmap.Draw(VCurrTilePixelRectAtBitmap, VTilePixelsToDraw, VTileToDrawBmp);
                 SetBitmapChanged;
               end;
             finally
@@ -226,7 +227,7 @@ begin
         end;
       end;
     finally
-      VBmp.Free;
+      VTileToDrawBmp.Free;
     end;
   end;
 end;

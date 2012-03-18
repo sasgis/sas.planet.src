@@ -160,6 +160,11 @@ type
       AElments: IInterfaceList;
       ALocalConverter: ILocalCoordConverter
     );
+    function MouseOnElements(const ACopiedElements: IInterfaceList;
+                             const xy: TPoint;
+                             var AItem: IVectorDataItemSimple;
+                             var AItemS: Double): Boolean;
+    
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
@@ -188,14 +193,9 @@ type
     procedure SendTerminateToThreads; override;
 
     // helper
-    function MouseOnElements(const ACopiedElements: IInterfaceList;
-                             const xy: TPoint;
-                             var AItem: IVectorDataItemSimple;
-                             var AItemS: Double): Boolean;
-    
     procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double); overload;
     procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple); overload;
-    
+
     procedure MouseOnRegWithGUID(const xy: TPoint;
                                  out AItem: IVectorDataItemSimple;
                                  out AItemS: Double;
@@ -206,6 +206,7 @@ implementation
 
 uses
   ActiveX,
+  GR32_Resamplers,
   u_Synchronizer,
   i_CoordConverter,
   i_TileIterator,
@@ -497,7 +498,15 @@ begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
-            Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+            BlockTransfer(
+              Layer.Bitmap,
+              VCurrTileOnBitmapRect.Left,
+              VCurrTileOnBitmapRect.Top,
+              Layer.Bitmap.ClipRect,
+              VTileToDrawBmp,
+              VTilePixelsToDraw,
+              dmOpaque
+            );
             SetBitmapChanged;
           finally
             Layer.Bitmap.UnLock;

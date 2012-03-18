@@ -110,6 +110,7 @@ implementation
 uses
   ActiveX,
   Classes,
+  GR32_Resamplers,
   u_Synchronizer,
   t_GeoTypes,
   i_TileIterator,
@@ -312,7 +313,15 @@ begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
           end;
-          Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+          BlockTransfer(
+            Layer.Bitmap,
+            VCurrTileOnBitmapRect.Left,
+            VCurrTileOnBitmapRect.Top,
+            Layer.Bitmap.ClipRect,
+            VTileToDrawBmp,
+            VTilePixelsToDraw,
+            dmOpaque
+          );
           SetBitmapChanged;
         finally
           Layer.Bitmap.UnLock;

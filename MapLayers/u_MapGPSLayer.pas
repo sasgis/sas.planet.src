@@ -84,6 +84,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  GR32_Resamplers,
   i_CoordConverter,
   i_TileIterator,
   u_GeoFun,
@@ -246,7 +247,15 @@ begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 break;
               end;
-              Layer.Bitmap.Draw(VCurrTileOnBitmapRect, VTilePixelsToDraw, VTileToDrawBmp);
+              BlockTransfer(
+                Layer.Bitmap,
+                VCurrTileOnBitmapRect.Left,
+                VCurrTileOnBitmapRect.Top,
+                Layer.Bitmap.ClipRect,
+                VTileToDrawBmp,
+                VTilePixelsToDraw,
+                dmOpaque
+              );
               SetBitmapChanged;
             finally
               Layer.Bitmap.UnLock;
