@@ -222,8 +222,8 @@ begin
   FParentMap := AParentMap;
   FIconsList := AIconsList;
 
-  FMainMapCS := MakeSyncMulti(Self);
-  FLayersSetCS := MakeSyncMulti(Self);
+  FMainMapCS := MakeSyncRW_Var(Self);
+  FLayersSetCS := MakeSyncRW_Var(Self);
 
   FViewRectMoveDelta := DoublePoint(0, 0);
 

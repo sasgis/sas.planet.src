@@ -53,7 +53,7 @@ uses
 constructor TImageResamplerFactoryListStatic.Create;
 begin
   inherited;
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TStringList.Create;
 end;
 

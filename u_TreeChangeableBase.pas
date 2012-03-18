@@ -71,7 +71,7 @@ begin
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
   FChangeNotifier := TJclBaseNotifier.Create;
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Var(Self);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);
   OnConfigChange;

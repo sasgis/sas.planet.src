@@ -253,7 +253,7 @@ begin
   FLayersSet := ALayersSet;
   FVectorItmesFactory := AVectorItmesFactory;
   FErrorLogger := AErrorLogger;
-  FVectorMapsSetCS := MakeSyncMulti(Self);
+  FVectorMapsSetCS := MakeSyncRW_Var(Self);
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FPointsAgregatorThread := TDoublePointsAggregator.Create;

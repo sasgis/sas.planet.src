@@ -171,8 +171,8 @@ begin
   FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
-  FViewCoordConverterCS := MakeSyncMulti(Self);
-  FLayerCoordConverterCS := MakeSyncMulti(Self);
+  FViewCoordConverterCS := MakeSyncRW_Var(Self);
+  FLayerCoordConverterCS := MakeSyncRW_Var(Self);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),

@@ -165,7 +165,7 @@ begin
     ATimerNoifier,
     GetThreadPriorityByClass(AThreadPriorityByClass, Self)
   );
-  FMarksSubsetCS := MakeSyncMulti(Self);
+  FMarksSubsetCS := MakeSyncRW_Var(Self);
   FVectorItmesFactory := AVectorItmesFactory;
   FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
   FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');

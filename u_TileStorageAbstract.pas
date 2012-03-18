@@ -171,7 +171,7 @@ var
 begin
   FConfig := AConfig;
   FMapVersionFactory := AMapVersionFactory;
-  FStorageStateStaticCS := MakeSyncMulti(Self);
+  FStorageStateStaticCS := MakeSyncRW_Var(Self);
 
   VState := TStorageStateInternal.Create(AStorageTypeAbilities);
   FStorageStateInternal := VState;
