@@ -84,7 +84,7 @@ begin
   FRequestBuilderFactory := ARequestBuilderFactory;
 
   FChangeNotifier := TJclBaseNotifier.Create;
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Var(Self);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 

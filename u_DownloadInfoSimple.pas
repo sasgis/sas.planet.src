@@ -63,7 +63,7 @@ constructor TDownloadInfoSimple.Create(
 begin
   inherited Create;
   FParentInfo := AParent;
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Var(Self);
   FTileCount := ATileCount;
   FSize := ASize;
 end;

@@ -200,7 +200,7 @@ end;
 constructor TConfigDataElementWithStaticBase.Create;
 begin
   inherited;
-  FStaticCS := MakeSyncMulti(Self);
+  FStaticCS := MakeSyncRW_Var(Self);
 end;
 
 destructor TConfigDataElementWithStaticBase.Destroy;

@@ -75,7 +75,7 @@ begin
   FCapasitySemaphore := CreateSemaphore(nil, ACapacity, ACapacity, nil);
   FReadyRequestSemaphore := CreateSemaphore(nil, 0, ACapacity, nil);
   FStopThreadEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
-  FRequestArrayCS := MakeSyncMulti(Self);
+  FRequestArrayCS := MakeSyncRW_Std(Self);
 
   FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 100000, 1000);
   FGCList.Add(FTTLListener);

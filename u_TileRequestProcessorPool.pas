@@ -68,7 +68,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
 
-  FThreadArrayCS := MakeSyncMulti(Self);
+  FThreadArrayCS := MakeSyncRW_Big(Self);
 
   FDownloaderList := ADownloaderList;
 

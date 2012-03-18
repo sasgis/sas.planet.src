@@ -188,7 +188,7 @@ begin
   FProviderClass := AProviderClass;
   FConfig := AConfig;
 
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Var(Self);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigChangeListener);
 
