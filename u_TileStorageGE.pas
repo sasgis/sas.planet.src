@@ -48,7 +48,7 @@ type
     FCacheConfig: TMapTypeCacheConfigDLL;
     FMainContentType: IContentTypeInfoBasic;
     // access
-    FSync: TMultiReadExclusiveWriteSynchronizer;
+    FDLLSync: IReadWriteSync;
     FDLLHandle: THandle;
     FDLLCacheHandle: TDLLCacheHandle;
     // routines
@@ -174,6 +174,7 @@ uses
   u_BinaryDataByMemStream,
   u_MapVersionListStatic,
   u_AvailPicsNMC,
+  u_Synchronizer,
   u_TileInfoBasic,
   u_TileStorageTypeAbilities;
 
@@ -295,7 +296,7 @@ constructor TTileStorageDLL.Create(AConfig: ISimpleTileStorageConfig;
                                    AContentTypeManager: IContentTypeManager);
 begin
   inherited Create(TTileStorageTypeAbilitiesGE.Create, TMapVersionFactoryGE.Create, AConfig);
-  FSync := TMultiReadExclusiveWriteSynchronizer.Create;
+  FDLLSync := MakeSyncRW_Big(Self);
   FDLLHandle := 0;
   FDLLCacheHandle := nil;
   InternalLib_CleanupProc;
@@ -315,28 +316,41 @@ end;
 
 destructor TTileStorageDLL.Destroy;
 begin
-  InternalLib_Unload;
+  StorageStateInternal.ReadAccess := asDisabled;
+
+  FDLLSync.BeginWrite;
+  try
+    InternalLib_Unload;
+  finally
+    FDLLSync.EndWrite;
+  end;
+
   FreeAndNil(FCacheConfig);
-  FreeAndNil(FSync);
+
+  FDLLSync := nil;
+
   inherited Destroy;
 end;
 
 procedure TTileStorageDLL.DoOnMapSettingsEdit(Sender: TObject);
 var
   VNameInCache: AnsiString;
+  VAccesState: TAccesState;
 begin
   if (nil=FCacheConfig) then
     Exit;
   VNameInCache := FCacheConfig.GetNameInCache;
   if not SameText(VNameInCache, FCachedNameInCache) then begin
     // change path
-    FSync.BeginWrite;
+    FDLLSync.BeginWrite;
     try
+      VAccesState := StorageStateInternal.ReadAccess;
       StorageStateInternal.ReadAccess := asUnknown;
       FCachedNameInCache := VNameInCache;
-      InternalLib_SetPath(PChar(FCachedNameInCache));
+      if not InternalLib_SetPath(PChar(FCachedNameInCache)) then
+        StorageStateInternal.ReadAccess := VAccesState;
     finally
-      FSync.EndWrite;
+      FDLLSync.EndWrite;
     end;
   end;
 end;
@@ -362,7 +376,7 @@ var
 begin
   VList := nil;
     
-  FSync.BeginRead;
+  FDLLSync.BeginRead;
   try
     if StorageStateStatic.ReadAccess <> asDisabled then begin
       VVersionStoreString := AVersionInfo.StoreString;
@@ -389,7 +403,7 @@ begin
       end;
     end;
   finally
-    FSync.EndRead;
+    FDLLSync.EndRead;
   end;
 
   Result := TMapVersionListStatic.Create(VList);
@@ -561,7 +575,7 @@ begin
   Result := FALSE;
   ATileInfo := nil;
 
-  FSync.BeginRead;
+  FDLLSync.BeginRead;
   try
     if StorageStateStatic.ReadAccess <> asDisabled then begin
       VVersionStoreString := AVersionInfo.StoreString;
@@ -611,7 +625,7 @@ begin
       end;
     end;
   finally
-    FSync.EndRead;
+    FDLLSync.EndRead;
   end;
 end;
 

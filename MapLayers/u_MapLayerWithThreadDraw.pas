@@ -114,6 +114,7 @@ end;
 destructor TMapLayerWithThreadDraw.Destroy;
 begin
   FDrawTask := nil;
+  FBgDrawCounter := nil;
   inherited;
 end;
 
@@ -141,7 +142,8 @@ begin
     try
       DrawBitmap(AOperationID, ACancelNotifier);
     finally
-      FBgDrawCounter.FinishOperation(VCounterContext);
+      if Assigned(FBgDrawCounter) then
+        FBgDrawCounter.FinishOperation(VCounterContext);
     end;
 
     VDelicateRedrawCounter := InterlockedExchange(FDelicateRedrawCounter, 0);
