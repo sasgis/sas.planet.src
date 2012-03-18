@@ -39,6 +39,8 @@ type
   TMouseState = class(TInterfacedObject, IMouseState, IMouseHandler)
   private
     FCS: IReadWriteSync;
+    FNtQPC: Pointer;
+    
     FMinTime: Double;
     FMaxTime: Double;
     FUsedTime: Double;
@@ -88,17 +90,19 @@ type
     constructor Create();
     destructor Destroy; override;
   end;
-
+  
 implementation
 
 uses
+  u_QueryPerfCounter,
   u_Synchronizer;
 
 { TMouseState }
 
 constructor TMouseState.Create;
 begin
-  FCS := MakeSyncMulti(Self);
+  FCS := MakeSyncRW_Var(Self);
+  FNtQPC := NtQueryPerformanceCounterPtr;
   FCurentTime := 0;
   FMinTime := 0.001;
   FMaxTime := 3;
@@ -248,9 +252,17 @@ var
   VFirstPoint, VSecondPoint: TPoint;
   i: Integer;
 begin
-  QueryPerformanceCounter(VCurrTime);
+  if (nil<>FNtQPC) then begin
+    // fast
+    TNtQueryPerformanceCounter(FNtQPC)(@VCurrTime, @VFrequency);
+  end else begin
+    // slow
+    QueryPerformanceCounter(VCurrTime);
+    if FCurentTime <> 0 then
+      QueryPerformanceFrequency(VFrequency);
+  end;
+
   if FCurentTime <> 0 then begin
-    QueryPerformanceFrequency(VFrequency);
     VTimeFromLastMove := (VCurrTime - FCurentTime) / VFrequency;
     if VTimeFromLastMove < FMaxTime then begin
       if VTimeFromLastMove > FMinTime then begin
