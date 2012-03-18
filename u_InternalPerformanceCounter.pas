@@ -47,7 +47,7 @@ type
     function GetTotalTime: TDateTime;
     function GetStaticData: IInternalPerformanceCounterStaticData;
   public
-    constructor Create(const AName: string);
+    constructor Create(const AName: string; const AQueryPerfCntrFunc: Pointer);
   end;
 
   TInternalPerformanceCounterStaticData = class(TInterfacedObject, IInternalPerformanceCounterStaticData)
@@ -73,21 +73,18 @@ type
 implementation
 
 uses
-  SysUtils;
-
-type
-  PLARGE_INTEGER = ^Int64;
-  TNtQueryPerformanceCounter = function (PerformanceCounter: PLARGE_INTEGER; PerformanceFrequency: PLARGE_INTEGER): LongInt; stdcall;
+  SysUtils,
+  u_QueryPerfCounter;
 
 { TInternalPerformanceCounter }
 
-constructor TInternalPerformanceCounter.Create(const AName: string);
+constructor TInternalPerformanceCounter.Create(const AName: string; const AQueryPerfCntrFunc: Pointer);
 var FDummy: Int64;
 begin
   FId := Integer(Self);
   FName := AName;
 
-  FQueryPerfCntrFunc := GetProcAddress(GetModuleHandle('ntdll.dll'), 'NtQueryPerformanceCounter');
+  FQueryPerfCntrFunc := AQueryPerfCntrFunc;
 
   FCounter := 0;
   FTotal := 0;

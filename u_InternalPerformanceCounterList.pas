@@ -33,6 +33,7 @@ type
   TInternalPerformanceCounterList = class(TInterfacedObject, IInternalPerformanceCounterList)
   private
     FList: IInterfaceList;
+    FNtQPC: Pointer;
     FName: string;
     procedure AppendStaticListByCounterList(AResultList: IIDInterfaceList; ACounterList: IInternalPerformanceCounterList);
   protected
@@ -67,6 +68,7 @@ implementation
 
 uses
   SysUtils,
+  u_QueryPerfCounter,
   u_EnumUnknown,
   u_IDInterfaceList,
   u_InternalPerformanceCounter;
@@ -96,12 +98,13 @@ constructor TInternalPerformanceCounterList.Create(const AName: string);
 begin
   FList := TInterfaceList.Create;
   FName := AName;
+  FNtQPC := NtQueryPerformanceCounterPtr;
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewCounter(
   const AName: string): IInternalPerformanceCounter;
 begin
-  Result := TInternalPerformanceCounter.Create(AName);
+  Result := TInternalPerformanceCounter.Create(AName, FNtQPC);
   FList.Add(Result);
 end;
 
