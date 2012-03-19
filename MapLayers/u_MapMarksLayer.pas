@@ -294,8 +294,7 @@ begin
                   Layer.Bitmap.ClipRect,
                   VTileToDrawBmp,
                   VTileToDrawBmp.BoundsRect,
-                  dmOpaque,
-                  nil
+                  dmOpaque
                 );
               end else begin
                 Layer.Bitmap.FillRect(

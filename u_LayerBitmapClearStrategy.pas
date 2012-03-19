@@ -177,7 +177,7 @@ begin
   end;
 
   FSourceBitmap.SetSize(VCopyRect.Right - VCopyRect.Left, VCopyRect.Bottom - VCopyRect.Top);
-  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, VCopyRect, dmOpaque, nil);
+  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, VCopyRect, dmOpaque);
 end;
 
 destructor TLayerBitmapClearStrategyImageResize.Destroy;
@@ -205,7 +205,7 @@ begin
   inherited Create(ACounter);
   FSourceBitmap := TCustomBitmap32.Create;
   FSourceBitmap.SetSize(ASourceRect.Right - ASourceRect.Left, ASourceRect.Bottom - ASourceRect.Top);
-  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, ASourceRect, dmOpaque, nil);
+  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, ASourceRect, dmOpaque);
   if AResumpler <> nil then begin
     FSourceBitmap.Resampler := AResumpler;
   end;

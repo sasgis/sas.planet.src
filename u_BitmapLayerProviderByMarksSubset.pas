@@ -417,6 +417,15 @@ begin
         ),
         prToTopLeft
       );
+    BlockTransfer(
+      ATargetBmp,
+      VTargetPoint.X,
+      VTargetPoint.Y,
+      ATargetBmp.ClipRect,
+      VMarker.Bitmap,
+      VMarker.Bitmap.BoundsRect,
+      dmBlend
+    );
     ATargetBmp.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
     Result := True;
   end;
@@ -451,6 +460,7 @@ begin
         FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextBgColor,255));
         FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
       end;
+
       ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
       Result := True;
     end;

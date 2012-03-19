@@ -72,7 +72,6 @@ begin
     if Result then begin
       Result := FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
       if Result then begin
-        FTempBitmap.CombineMode := cmMerge;
         BlockTransfer(
           ATargetBmp,
           0,
@@ -80,8 +79,7 @@ begin
           ATargetBmp.ClipRect,
           FTempBitmap,
           FTempBitmap.BoundsRect,
-          dmBlend,
-          nil
+          dmBlend
         );
       end;
     end else begin

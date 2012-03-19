@@ -87,7 +87,6 @@ begin
       if
         FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True)
       then begin
-        FTempBitmap.CombineMode := cmMerge;
         BlockTransfer(
           ATargetBmp,
           0,
@@ -95,8 +94,7 @@ begin
           ATargetBmp.ClipRect,
           FTempBitmap,
           FTempBitmap.BoundsRect,
-          dmBlend,
-          nil
+          dmBlend
         );
       end;
     end else begin
@@ -113,7 +111,6 @@ begin
       if
         FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, FTempBitmap, ALocalConverter)
       then begin
-        FTempBitmap.CombineMode := cmMerge;
         BlockTransfer(
           ATargetBmp,
           0,
@@ -121,8 +118,7 @@ begin
           ATargetBmp.ClipRect,
           FTempBitmap,
           FTempBitmap.BoundsRect,
-          dmBlend,
-          nil
+          dmBlend
         );
       end;
     end else begin
