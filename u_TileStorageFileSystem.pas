@@ -439,11 +439,11 @@ begin
         VMemStream := TMemoryStream.Create;
         try
           VMemStream.LoadFromFile(VPath);
-          Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-          VMemStream := nil;
         except
           VMemStream.Free;
+          raise;
         end;
+        Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
       finally
         FLock.EndRead;
       end;
