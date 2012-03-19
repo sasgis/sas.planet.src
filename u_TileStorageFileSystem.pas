@@ -52,7 +52,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
-      APath: string;
+      const APath: string;
       AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic;
   public
@@ -193,9 +193,7 @@ begin
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
       FLock.BeginWrite;
       try
-        if FileExists(VPath) then begin
-          result := DeleteFile(VPath);
-        end;
+        Result := (DeleteFile(PChar(VPath)) <> FALSE);
       finally
         FLock.EndWrite;
       end;
@@ -224,9 +222,7 @@ begin
       VPath := ChangeFileExt(VPath, '.tne');
       FLock.BeginWrite;
       try
-        if FileExists(VPath) then begin
-          result := DeleteFile(VPath);
-        end;
+        Result := (DeleteFile(PChar(VPath)) <> FALSE);
       finally
         FLock.EndWrite;
       end;
@@ -261,33 +257,46 @@ begin
 end;
 
 function TTileStorageFileSystem.GetTileInfoByPath(
-  APath: string;
+  const APath: string;
   AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
-  InfoFile: TSearchRec;
-  VSearchResult: Integer;
+  VInfo: WIN32_FILE_ATTRIBUTE_DATA;
+
+  function _GetAttributesEx(const AFileName: String): Boolean;
+  begin
+    Result := (GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @VInfo) <> FALSE);
+  end;
+
+  function _GetFileDateTime: TDateTime;
+  var VSysTime: TSystemTime;
+  begin
+    Result := 0;
+    if (VInfo.ftCreationTime.dwLowDateTime<>0) and (VInfo.ftCreationTime.dwHighDateTime<>0) then
+    if (FileTimeToSystemTime(VInfo.ftCreationTime, VSysTime)<>FALSE) then
+    try
+      Result := SystemTimeToDateTime(VSysTime);
+    except
+    end;
+  end;
+
 begin
   FLock.BeginRead;
   try
-    VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
-    if VSearchResult <> 0 then begin
-      APath := ChangeFileExt(APath, '.tne');
-      VSearchResult := FindFirst(APath, faAnyFile, InfoFile);
-      if VSearchResult <> 0 then begin
-        Result := FTileNotExistsTileInfo;
-      end else begin
-        Result := TTileInfoBasicTNE.Create(FileDateToDateTime(InfoFile.Time), nil);
-        FindClose(InfoFile);
-      end;
-    end else begin
+    if _GetAttributesEx(APath) then begin
+      // tile exists
       Result := TTileInfoBasicExists.Create(
-        FileDateToDateTime(InfoFile.Time),
-        InfoFile.Size,
+        _GetFileDateTime,
+        VInfo.nFileSizeLow,
         nil,
         FMainContentType
       );
-      FindClose(InfoFile);
+    end else if _GetAttributesEx(ChangeFileExt(APath, '.tne')) then begin
+      // tne exists
+      Result := TTileInfoBasicTNE.Create(_GetFileDateTime, nil);
+    end else begin
+      // neither tile nor tne
+      Result := FTileNotExistsTileInfo;
     end;
   finally
     FLock.EndRead;
@@ -358,10 +367,14 @@ begin
         VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
           or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
         VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
+
         while VIterator.Next(VCurrTile) do begin
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then
+            break;
+
           VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
           VFolderName := ExtractFilePath(VFileName);
+
           if VFolderName = VPrevFolderName then begin
             VFolderExists := VPrevFolderExist;
           end else begin
@@ -369,11 +382,13 @@ begin
             VPrevFolderName := VFolderName;
             VPrevFolderExist := VFolderExists;
           end;
+          
           if VFolderExists then begin
             VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo);
           end else begin
             VTileInfo := FTileNotExistsTileInfo;
           end;
+          
           VTileColor := AColorer.GetColor(VTileInfo);
           if VTileColor <> 0 then begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
@@ -434,18 +449,19 @@ begin
     VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
     ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
     if ATileInfo.GetIsExists then begin
-      FLock.BeginRead;
+      VMemStream := TMemoryStream.Create;
       try
-        VMemStream := TMemoryStream.Create;
+        FLock.BeginRead;
         try
           VMemStream.LoadFromFile(VPath);
-        except
-          VMemStream.Free;
-          raise;
+          Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+          // owned successfully
+          VMemStream := nil;
+        finally
+          FLock.EndRead;
         end;
-        Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
       finally
-        FLock.EndRead;
+        VMemStream.Free;
       end;
     end;
   end;

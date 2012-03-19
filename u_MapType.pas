@@ -562,9 +562,8 @@ begin
             // foreach cache item for single attachment
             VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
             // delete attached file (what about ADelBytesNum?)
-            if FileExists(VFullPath) then
-              if DeleteFile(VFullPath) then
-                Inc(Result);
+            if DeleteFile(VFullPath) then
+              Inc(Result);
           end;
         end;
      end;
