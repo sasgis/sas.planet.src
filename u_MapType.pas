@@ -247,6 +247,7 @@ implementation
 
 uses
   Types,
+  GR32_Resamplers,
   i_BinaryData,
   i_TileInfoBasic,
   u_BinaryDataByMemStream,
@@ -764,6 +765,9 @@ function TMapType.LoadTile(
 var
   VBitmap: IBitmap32Static;
   VVersionInfo: IMapVersionInfo;
+  VRect: TRect;
+  VSize: TPoint;
+  VResampler: TCustomResampler;
 begin
   try
     Result := False;
@@ -780,7 +784,30 @@ begin
       end;
     end;
     if VBitmap <> nil then begin
-      btm.Assign(VBitmap.Bitmap);
+      VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+      VSize := Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
+      if
+        (VBitmap.Bitmap.Width <> VSize.X) or
+        (VBitmap.Bitmap.Height <> VSize.Y)
+      then begin
+        VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+        try
+          btm.SetSize(VSize.X, VSize.Y);
+          StretchTransfer(
+            btm,
+            btm.BoundsRect,
+            btm.ClipRect,
+            VBitmap.Bitmap,
+            VBitmap.Bitmap.BoundsRect,
+            VResampler,
+            dmOpaque
+          );
+        finally
+          VResampler.Free;
+        end;
+      end else begin
+        btm.Assign(VBitmap.Bitmap);
+      end;
       Result := True;
     end;
   except
@@ -844,6 +871,7 @@ var
   VRelativeRect: TDoubleRect;
   VParentZoom: Byte;
   VMinZoom: Integer;
+  VResampler: TCustomResampler;
 begin
   result:=false;
     VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
@@ -865,24 +893,34 @@ begin
             VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
             VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
 
-            VBmp.Resampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
-
             VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
             VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
             VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
             VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
             VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
             VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
+            VResampler :=FImageResamplerConfig.GetActiveFactory.CreateResampler;
             try
-              VBmp.DrawMode := dmOpaque;
-              spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
-              spr.Draw(VTileTargetBounds, VTileSourceBounds, VBmp);
-              Result := true;
-              Break;
-            except
-              if not IgnoreError then begin
-                raise
+              try
+                spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
+                StretchTransfer(
+                  spr,
+                  VTileTargetBounds,
+                  spr.ClipRect,
+                  VBmp,
+                  VTileSourceBounds,
+                  VResampler,
+                  dmOpaque
+                );
+                Result := true;
+                Break;
+              except
+                if not IgnoreError then begin
+                  raise
+                end;
               end;
+            finally
+              VResampler.Free;
             end;
           end;
         end;
@@ -900,28 +938,8 @@ function TMapType.LoadTileOrPreZ(
   AUsePre: Boolean;
   ACache: ITileObjCacheBitmap
 ): boolean;
-var
-  VRect: TRect;
-  VSize: TPoint;
-  bSpr:TCustomBitmap32;
 begin
-  VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
-  VSize := Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
   Result := LoadTile(spr, AXY, Azoom, IgnoreError, ACache);
-  if Result then begin
-    if (spr.Width < VSize.X) or
-      (spr.Height < VSize.Y) then begin
-      bSpr:=TCustomBitmap32.Create;
-      try
-        bSpr.Assign(spr);
-        spr.SetSize(VSize.X, VSize.Y);
-        spr.Clear(0);
-        spr.Draw(0,0,bSpr);
-      finally
-        bSpr.Free;
-      end;
-    end;
-  end;
   if not Result then begin
     if AUsePre then begin
       Result := LoadTileFromPreZ(spr, AXY, Azoom, IgnoreError, ACache);
