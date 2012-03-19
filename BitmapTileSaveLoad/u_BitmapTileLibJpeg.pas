@@ -61,12 +61,16 @@ begin
       try
         if VJpeg.ReadHeader() then begin
           VBtm := TCustomBitmap32.Create;
-          VBtm.Width := VJpeg.Width;
-          VBtm.Height := VJpeg.Height;
-          VJpeg.AppData := @VBtm;
-          if not VJpeg.Decompress(Self.ReadLine) then begin
-            VBtm.Clear;
-            raise Exception.Create('Jpeg decompress error!');
+          try
+            VBtm.Width := VJpeg.Width;
+            VBtm.Height := VJpeg.Height;
+            VJpeg.AppData := @VBtm;
+            if not VJpeg.Decompress(Self.ReadLine) then begin
+              raise Exception.Create('Jpeg decompress error!');
+            end;
+          except
+            VBtm.Free;
+            raise;
           end;
           Result := TBitmap32Static.CreateWithOwn(VBtm);
         end else begin
@@ -125,7 +129,7 @@ var
 begin
   VJpeg := Sender as TJpegReader;
   VBtm := TCustomBitmap32(VJpeg.AppData^);
-  for I := 0 to VBtm.Height - 1 do begin
+  for I := 0 to VBtm.Width - 1 do begin
     VColor.R := ALine^; Inc(ALine, 1);
     VColor.G := ALine^; Inc(ALine, 1);
     VColor.B := ALine^; Inc(ALine, 1);
