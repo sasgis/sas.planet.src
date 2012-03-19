@@ -1050,7 +1050,15 @@ begin
             VTargetBounds.Right := APixelRectTarget.Right - APixelRectTarget.Left;
           end;
 
-          spr.Draw(VTargetBounds, VSourceBounds, VSpr);
+          BlockTransfer(
+            spr,
+            VTargetBounds.Left,
+            VTargetBounds.Top,
+            spr.ClipRect,
+            VSpr,
+            VSourceBounds,
+            dmOpaque
+          );
         end else begin
           if not AAllowPartial then begin
             Exit;
