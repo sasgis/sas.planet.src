@@ -1086,6 +1086,7 @@ var
   VPixelRectOfTargetPixelRectInSource: TRect;
   VSpr:TCustomBitmap32;
   VTargetImageSize: TPoint;
+  VResampler: TCustomResampler;
 begin
   Result := False;
 
@@ -1107,12 +1108,21 @@ begin
     VSpr := TCustomBitmap32.Create;
     try
       if LoadBtimap(VSpr, VPixelRectOfTargetPixelRectInSource, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache) then begin
-        VSpr.DrawTo(
-          spr,
-          spr.ClipRect,
-          VSpr.ClipRect
-        );
-        Result := True;
+        VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+        try
+          StretchTransfer(
+            spr,
+            spr.BoundsRect,
+            spr.ClipRect,
+            VSpr,
+            VSpr.BoundsRect,
+            VResampler,
+            dmOpaque
+          );
+          Result := True;
+        finally
+          VResampler.Free;
+        end;
       end;
     finally
       VSpr.Free;
