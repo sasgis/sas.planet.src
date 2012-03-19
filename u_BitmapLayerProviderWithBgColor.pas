@@ -32,7 +32,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  GR32_Resamplers;
 
 { TBitmapLayerProviderWithBGColor }
 
@@ -72,8 +73,15 @@ begin
       ALocalConverter
     );
   if Result then begin
-    FTempBitmap.DrawMode := dmBlend;
-    ATargetBmp.Draw(0, 0, FTempBitmap);
+    BlockTransfer(
+      ATargetBmp,
+      0,
+      0,
+      ATargetBmp.ClipRect,
+      FTempBitmap,
+      FTempBitmap.BoundsRect,
+      dmBlend
+    );
   end;
 end;
 
