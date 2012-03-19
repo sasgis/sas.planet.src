@@ -42,7 +42,7 @@ uses
 constructor TImageResamplerFactoryListStaticSimple.Create;
 begin
   inherited;
-  Add(TImageResamplerFactoryNil.Create, 'Nearest');
+  Add(TImageResamplerFactoryNearest.Create, 'Nearest');
   Add(TImageResamplerFactoryLinear.Create, 'Linear');
   Add(TImageResamplerFactoryKernel.Create(nil), 'Box');
   Add(TImageResamplerFactoryKernel.Create(TCosineKernel), 'Cosine');

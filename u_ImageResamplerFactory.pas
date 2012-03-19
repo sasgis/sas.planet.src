@@ -33,7 +33,7 @@ type
     function CreateResampler: TCustomResampler;
   end;
 
-  TImageResamplerFactoryNil = class(TInterfacedObject, IImageResamplerFactory)
+  TImageResamplerFactoryNearest = class(TInterfacedObject, IImageResamplerFactory)
   protected
     function CreateResampler: TCustomResampler;
   end;
@@ -56,11 +56,11 @@ begin
   Result := TLinearResampler.Create;
 end;
 
-{ TImageResamplerFactoryNil }
+{ TImageResamplerFactoryNearest }
 
-function TImageResamplerFactoryNil.CreateResampler: TCustomResampler;
+function TImageResamplerFactoryNearest.CreateResampler: TCustomResampler;
 begin
-  Result := nil;
+  Result := TNearestResampler.Create;
 end;
 
 { TImageResamplerFactoryKernel }
