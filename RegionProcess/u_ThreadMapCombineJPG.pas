@@ -26,7 +26,7 @@ type
     FOperationID: Integer;
     FCancelNotifier: IOperationNotifier;
     FLineProvider: IImageLineProvider;
-    function GetLine(ALineNumber: Integer; var Abort: Boolean): Pointer;
+    function GetLine(Sender: TObject; ALineNumber: Integer; out Abort: Boolean): PByte;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -149,7 +149,8 @@ begin
   end;
 end;
 
-function TThreadMapCombineJPG.GetLine(ALineNumber: Integer; var Abort: Boolean): Pointer;
+function TThreadMapCombineJPG.GetLine(Sender: TObject; ALineNumber: Integer;
+  out Abort: Boolean): PByte;
 begin
   if ALineNumber mod 256 = 0 then begin
     ProgressFormUpdateOnProgress(ALineNumber/FHeight);

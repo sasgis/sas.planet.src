@@ -22,7 +22,8 @@ uses
   LibJpegInOutDataManager;
 
 type
-  TWriteScanLineCallBack = function(ALineNumber: Integer; var Abort: Boolean): Pointer of object;
+  TWriteScanLineCallBack = function(Sender: TObject; ALineNumber: Integer;
+    out Abort: Boolean): PByte of object;
 
   TJpegWriter = class(TObject)
   protected
@@ -34,6 +35,7 @@ type
     FQuality: Integer;
     FComMarker: AnsiString;
     FAppMarker: array [$E0..$EF] of TMemoryStream;
+    FAppData: Pointer;
     {$IFDEF LIB_JPEG_62_SUPPORT}
     jpeg62: LibJpeg62.jpeg_compress_struct;
     jpeg62_err: LibJpeg62.jpeg_error_mgr;
@@ -70,6 +72,7 @@ type
     property Width: Integer read FWidth write FWidth;
     property Height: Integer read FHeight write FHeight;
     property Quality: Integer read FQuality write FQuality;
+    property AppData: Pointer read FAppData write FAppData;
   end;
 
   TJpegWriterExtended = class(TJpegWriter)
@@ -99,6 +102,7 @@ begin
   for I := Low(FAppMarker) to High(FAppMarker) do begin
     FAppMarker[I] := nil;
   end;
+  FAppData := nil;
   if not FUseLibJpeg8 then begin
     {$IFDEF LIB_JPEG_62_SUPPORT}
     FLibInitilized := InitComp62();
@@ -366,7 +370,7 @@ begin
             end;
 
             if Addr(AWriteCallBack) <> nil then begin
-              VLine := AWriteCallBack(I, VAborted);
+              VLine := AWriteCallBack(Self, I, VAborted);
               if VAborted then begin
                 Break; // abort by user
               end;
@@ -476,7 +480,7 @@ begin
             end;
 
             if Addr(AWriteCallBack) <> nil then begin
-              VLine := AWriteCallBack(I, VAborted);
+              VLine := AWriteCallBack(Self, I, VAborted);
               if VAborted then begin
                 Break; // abort by user
               end;

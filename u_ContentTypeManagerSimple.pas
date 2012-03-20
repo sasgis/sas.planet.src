@@ -56,7 +56,7 @@ type
 
 implementation
 
-{.$DEFINE NATIVE_JPEG_LOADER}
+{.$DEFINE NATIVE_LIBJPEG}
 
 uses
   Classes,
@@ -66,7 +66,7 @@ uses
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
   u_BitmapTileGELoader,
-  {$IFDEF NATIVE_JPEG_LOADER}
+  {$IFDEF NATIVE_LIBJPEG}
   u_BitmapTileLibJpeg,
   {$ENDIF}
   u_KmlInfoSimpleParser,
@@ -101,12 +101,13 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
-    {$IFNDEF NATIVE_JPEG_LOADER}
+    {$IFNDEF NATIVE_LIBJPEG}
     TVampyreBasicBitmapTileLoaderJPEG.Create(APerfCounterList),
+    TVampyreBasicBitmapTileSaverJPG.Create(85)
     {$ELSE}
     TLibJpegTileLoader.Create(APerfCounterList),
+    TLibJpegTileSaver.Create(85)
     {$ENDIF}
-    TVampyreBasicBitmapTileSaverJPG.Create(85)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/jpeg');
