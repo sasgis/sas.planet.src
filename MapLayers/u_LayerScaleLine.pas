@@ -106,6 +106,7 @@ implementation
 
 uses
   SysUtils,
+  GR32_Resamplers,
   i_CoordConverter,
   u_NotifyEventListener,
   u_ResStrings,
@@ -193,7 +194,6 @@ var
 begin
   FTmpBitmap.SetSize(FTmpBitmap.TextWidth(Text) + 4, FTmpBitmap.TextHeight(Text) + 4);
   FTmpBitmap.Clear(0);
-  FTmpBitmap.DrawMode := dmOpaque;
   FTmpBitmap.RenderText(2, 2, Text, 0, TextColor);
   for I := 1 to FTmpBitmap.Width - 2 do begin
     for J := 1 to FTmpBitmap.Height - 2 do begin
@@ -213,7 +213,14 @@ begin
       end;
     end;
   end;
-  FTmpBitmap.DrawTo(TargetBitmap, X, Y);
+  BlockTransfer(
+    TargetBitmap,
+    X, Y,
+    TargetBitmap.ClipRect,
+    FTmpBitmap,
+    FTmpBitmap.BoundsRect,
+    dmOpaque
+  );
 end;
 
 procedure TLayerScaleLine.DoRedraw;
