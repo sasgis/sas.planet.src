@@ -41,12 +41,13 @@ type
       ALastSearchResults: ILastSearchResultConfig;
       AMarkerProvider: IBitmapMarkerProviderChangeable
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  Types,
+  GR32_Resamplers,
   i_CoordConverter,
   u_NotifyEventListener,
   u_GeoFun;
@@ -73,11 +74,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnLastSearchResultsChange),
     FLastSearchResults.GetChangeNotifier
   );
-end;
-
-destructor TSearchResultsLayer.Destroy;
-begin
-  inherited;
 end;
 
 procedure TSearchResultsLayer.OnConfigChange;
@@ -133,7 +129,17 @@ begin
           ),
           prToTopLeft
         );
-      ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
+      if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
+        BlockTransfer(
+          ABuffer,
+          VTargetPoint.X, VTargetPoint.Y,
+          ABuffer.ClipRect,
+          VMarker.Bitmap,
+          VMarker.Bitmap.BoundsRect,
+          dmBlend,
+          cmBlend
+        );
+      end;
     end;
   end;
 end;

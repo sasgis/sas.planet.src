@@ -79,7 +79,8 @@ type
 implementation
 
 uses
-  i_MarkPicture;
+  i_MarkPicture,
+  i_BitmapMarker;
 
 {$R *.dfm}
 procedure TfrMarksGeneralOptions.Init(AMarksDb: IMarksDb);
@@ -129,35 +130,44 @@ end;
 procedure TfrMarksGeneralOptions.cbbPointIconDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var
-  Bitmap: TCustomBitmap32;
-  Bitmap2: TBitmap32;
+  VBitmap: TBitmap32;
   VPic: IMarkPicture;
+  VMarker: IBitmapMarker;
+  VResampler: TCustomResampler;
 begin
   cbbPointIcon.Canvas.FillRect(Rect);
 
-  Bitmap:=TCustomBitmap32.Create;
-  try
-    VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[Index]));
-    Bitmap.Assign(VPic.GetMarker.Bitmap);
-    Bitmap.DrawMode:=dmBlend;
-    Bitmap.Resampler:=TKernelResampler.Create;
-    TKernelResampler(Bitmap.Resampler).Kernel:=TCubicKernel.Create;
-
-    Bitmap2:=TBitmap32.Create;
+  VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[Index]));
+  if (VPic <> nil) then begin
+    VMarker := VPic.GetMarker;
+    VBitmap:=TBitmap32.Create;
     try
-      Bitmap2.SetSize(31,31);
-      Bitmap2.Clear(clWhite32);
-      Bitmap2.Draw(Bounds(0, 0, 31,31), Bounds(0, 0, Bitmap.Width,Bitmap.Height),Bitmap);
-      Bitmap2.DrawTo(
+      VBitmap.SetSize(31,31);
+      VBitmap.Clear(clWhite32);
+      VResampler := TKernelResampler.Create;
+      try
+        TKernelResampler(VResampler).Kernel := TLinearKernel.Create;
+        StretchTransfer(
+          VBitmap,
+          VBitmap.BoundsRect,
+          VBitmap.ClipRect,
+          VMarker.Bitmap,
+          VMarker.Bitmap.BoundsRect,
+          VResampler,
+          dmBlend,
+          cmBlend
+        );
+      finally
+        VResampler.Free;
+      end;
+      VBitmap.DrawTo(
         cbbPointIcon.Canvas.Handle,
         Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
-        Bounds(0, 0, Bitmap2.Width,Bitmap2.Height)
+        VBitmap.BoundsRect
       );
     finally
-      Bitmap2.Free;
+      VBitmap.Free;
     end;
-  finally
-    Bitmap.Free;
   end;
 end;
 

@@ -353,9 +353,14 @@ begin
     VErrorString := '';
     try
       if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.CacheBitmap) then begin
-        VBmp.DrawMode := ADrawMode;
-        VBmp.CombineMode := cmMerge;
-        VBmp.DrawTo(ATargetBmp);
+        BlockTransfer(
+          ATargetBmp,
+          0, 0,
+          ATargetBmp.ClipRect,
+          VBmp,
+          VBmp.BoundsRect,
+          ADrawMode
+        );
         Result := True;
       end;
     except

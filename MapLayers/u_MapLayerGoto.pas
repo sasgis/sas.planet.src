@@ -53,6 +53,7 @@ uses
   Types,
   Math,
   SysUtils,
+  GR32_Resamplers,
   i_JclNotify,
   i_CoordConverter,
   u_NotifyEventListener,
@@ -172,7 +173,15 @@ begin
         prToTopLeft
       );
     if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-      ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
+      BlockTransfer(
+        ABuffer,
+        VTargetPoint.X, VTargetPoint.Y,
+        ABuffer.ClipRect,
+        VMarker.Bitmap,
+        VMarker.Bitmap.BoundsRect,
+        dmBlend,
+        cmBlend
+      );
     end;
   end;
 end;

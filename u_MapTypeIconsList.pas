@@ -59,8 +59,8 @@ var
   VIndex: Integer;
   VDib32: TDIB32;
   VPixelData32: TPixelData32;
-  VSourceBitmap: TCustomBitmap32;
   VValidBitmap: TCustomBitmap32;
+  VResampler: TCustomResampler;
 begin
   VDib32 := TDIB32.Create;
   try
@@ -69,18 +69,22 @@ begin
       if (ABmp.Bitmap.Width = FImageList.Width) and (ABmp.Bitmap.Height = FImageList.Height) then begin
         VValidBitmap.Assign(ABmp.Bitmap);
       end else begin
-        VSourceBitmap := TCustomBitmap32.Create;
+        VResampler := TLinearResampler.Create;
         try
-          VSourceBitmap.Assign(ABmp.Bitmap);
-          VSourceBitmap.DrawMode := dmOpaque;
-          VSourceBitmap.Resampler := TLinearResampler.Create;
           VValidBitmap.SetSize(FImageList.Width, FImageList.Height);
-          VSourceBitmap.DrawTo(VValidBitmap, VValidBitmap.BoundsRect, VSourceBitmap.BoundsRect);
+          StretchTransfer(
+            VValidBitmap,
+            VValidBitmap.BoundsRect,
+            VValidBitmap.ClipRect,
+            ABmp.Bitmap,
+            ABmp.Bitmap.BoundsRect,
+            VResampler,
+            dmOpaque
+          );
         finally
-          VSourceBitmap.Free;
+          VResampler.Free;
         end;
       end;
-
       VDib32.SetSize(VValidBitmap.Width, VValidBitmap.Height);
       VPixelData32.Bits := PRGBQuad(VValidBitmap.Bits);
       VPixelData32.ContentRect := VValidBitmap.BoundsRect;

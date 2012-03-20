@@ -59,6 +59,7 @@ implementation
 uses
   Types,
   SysUtils,
+  GR32_Resamplers,
   u_GeoFun,
   i_GPS,
   vsagps_public_base,
@@ -169,7 +170,15 @@ begin
         prToTopLeft
       );
     if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-      ABuffer.Draw(VTargetPoint.X, VTargetPoint.Y, VMarker.Bitmap);
+      BlockTransfer(
+        ABuffer,
+        VTargetPoint.X, VTargetPoint.Y,
+        ABuffer.ClipRect,
+        VMarker.Bitmap,
+        VMarker.Bitmap.BoundsRect,
+        dmBlend,
+        cmBlend
+      );
     end;
   end;
 end;

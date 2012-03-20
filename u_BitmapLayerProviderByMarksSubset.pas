@@ -468,7 +468,6 @@ begin
         FBitmapWithText.BoundsRect,
         dmBlend
       );
-      ATargetBmp.Draw(VDstRect, VSrcRect, FBitmapWithText);
       Result := True;
     end;
   end;
