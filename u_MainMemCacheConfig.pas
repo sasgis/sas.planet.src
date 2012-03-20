@@ -44,6 +44,9 @@ type
 
 implementation
 
+const
+  CMaxValidSize = 400;
+
 { TMainMemCacheConfig }
 
 constructor TMainMemCacheConfig.Create;
@@ -84,7 +87,10 @@ begin
   VMaxSize := AValue;
   if VMaxSize < 0 then begin
     VMaxSize := 0;
+  end else if VMaxSize > CMaxValidSize then begin
+    VMaxSize := CMaxValidSize;
   end;
+
   LockWrite;
   try
     if FMaxSize <> VMaxSize then begin
