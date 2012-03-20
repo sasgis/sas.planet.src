@@ -177,7 +177,14 @@ begin
   end;
 
   FSourceBitmap.SetSize(VCopyRect.Right - VCopyRect.Left, VCopyRect.Bottom - VCopyRect.Top);
-  BlockTransfer(FSourceBitmap, 0, 0, FSourceBitmap.ClipRect, ASourceBitmap, VCopyRect, dmOpaque);
+  BlockTransfer(
+    FSourceBitmap,
+    0, 0,
+    FSourceBitmap.ClipRect,
+    ASourceBitmap,
+    VCopyRect,
+    dmOpaque
+  );
 end;
 
 destructor TLayerBitmapClearStrategyImageResize.Destroy;
@@ -189,7 +196,14 @@ end;
 procedure TLayerBitmapClearStrategyImageResize.DoClear(ABitmap: TCustomBitmap32);
 begin
   ABitmap.Clear(0);
-  FSourceBitmap.DrawTo(ABitmap, FInTargetTopLeft.X, FInTargetTopLeft.Y);
+  BlockTransfer(
+    ABitmap,
+    FInTargetTopLeft.X, FInTargetTopLeft.Y,
+    ABitmap.ClipRect,
+    FSourceBitmap,
+    FSourceBitmap.BoundsRect,
+    dmOpaque
+  );
 end;
 
 { TLayerBitmapClearStrategyZoomChange }
