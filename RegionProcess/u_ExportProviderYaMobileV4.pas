@@ -12,6 +12,7 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItmesFactory,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV4;
 
@@ -20,6 +21,7 @@ type
   private
     FFrame: TfrExportYaMobileV4;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
@@ -35,6 +37,7 @@ type
       AGUIConfigList: IMapTypeGUIConfigList;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
@@ -72,11 +75,13 @@ constructor TExportProviderYaMobileV4.Create(
   AGUIConfigList: IMapTypeGUIConfigList;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
+  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -175,6 +180,7 @@ begin
     VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
+    FLocalConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,
     path,

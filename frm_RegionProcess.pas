@@ -109,6 +109,7 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       ACoordConverterFactory: ICoordConverterFactory;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       ATileNameGenerator: ITileFileNameGeneratorsList
@@ -204,6 +205,7 @@ begin
     AFullMapsSet,
     AGUIConfigList,
     ACoordConverterFactory,
+    ALocalConverterFactory,
     AProjectionFactory,
     AVectorItmesFactory,
     ATileNameGenerator
@@ -391,6 +393,7 @@ procedure TfrmRegionProcess.InitExportsList(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   ACoordConverterFactory: ICoordConverterFactory;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   ATileNameGenerator: ITileFileNameGeneratorsList
@@ -470,6 +473,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ALocalConverterFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
