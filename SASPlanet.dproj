@@ -65,15 +65,8 @@
     <DCCReference Include="c_TimeZones.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_AuthFunc.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_AuthKind.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_List.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_Provider.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_Result.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_Tiles.pas" />
-    <DCCReference Include="ExtTileStorages\t_ODBC.pas" />
-    <DCCReference Include="ExtTileStorages\u_DBMS_Basic.pas" />
-    <DCCReference Include="ExtTileStorages\u_DBMS_ODBC.pas" />
-    <DCCReference Include="ExtTileStorages\u_DBMS_provider.pas" />
-    <DCCReference Include="ExtTileStorages\u_ETS.pas" />
     <DCCReference Include="ExtTileStorages\u_ETS_Path.pas" />
     <DCCReference Include="ExtTileStorages\u_ETS_Tiles.pas" />
     <DCCReference Include="frm_About.pas">

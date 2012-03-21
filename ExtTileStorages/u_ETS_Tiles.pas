@@ -24,7 +24,6 @@ interface
 
 uses
   SysUtils,
-  t_ETS_Result,
   t_ETS_Tiles;
 
 type
@@ -37,7 +36,7 @@ function Convert_AHP1_to_0123(const str_AHP1: AnsiString): AnsiString;
 function ETS_TileId_Conversion_Routine(const ASrcFormat: LongWord;
                                        const ASrcData: Pointer;
                                        const ADstFormat: LongWord;
-                                       const ADstData: Pointer): LongInt; stdcall;
+                                       const ADstData: Pointer): Boolean; stdcall;
                                             
 implementation
 
@@ -326,35 +325,34 @@ end;
 function ETS_TileId_Conversion_Routine(const ASrcFormat: LongWord;
                                        const ASrcData: Pointer;
                                        const ADstFormat: LongWord;
-                                       const ADstData: Pointer): LongInt; stdcall;
+                                       const ADstData: Pointer): Boolean; stdcall;
 var
   V0123: TTILE_ID_0123;
 begin
+  Result := FALSE;
   try
     if (TILE_ID_FORMAT_XYZ=ASrcFormat) and (TILE_ID_FORMAT_0123=ADstFormat) then begin
       // xyz -> 0123
       Convert_XYZ_to_0123_Ex(ASrcData, nil, ADstData);
-      Result:=ETSR_OK;
+      Inc(Result);
     end else if (TILE_ID_FORMAT_XYZ=ASrcFormat) and (TILE_ID_FORMAT_AHP1=ADstFormat) then begin
       // xyz -> 0123 -> AHP1
       Convert_XYZ_to_0123_Ex(ASrcData, nil, @V0123);
       Convert_0123_to_AHP1_Ex(nil, @V0123, nil, ADstData);
-      Result:=ETSR_OK;
+      Inc(Result);
     end else if (TILE_ID_FORMAT_0123=ASrcFormat) and (TILE_ID_FORMAT_AHP1=ADstFormat) then begin
       // 0123 -> AHP1
       Convert_0123_to_AHP1_Ex(nil, ASrcData, nil, ADstData);
-      Result:=ETSR_OK;
+      Inc(Result);
     end else if (TILE_ID_FORMAT_AHP1=ASrcFormat) and (TILE_ID_FORMAT_0123=ADstFormat) then begin
       // AHP1 -> 0123
       Convert_AHP1_to_0123_Ex(nil, ASrcData, nil, ADstData);
-      Result:=ETSR_OK;
+      Inc(Result);
     end else begin
       // not implemented yet or not supported
-      Result:=ETSR_NOT_SUPPORTED;
     end;
   except
     // conversion exception
-    Result:=ETSR_INVALID_TILEID_FORMAT;
   end;
 end;
 

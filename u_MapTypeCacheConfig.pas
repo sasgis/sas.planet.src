@@ -119,11 +119,18 @@ type
   end;
 
   TMapTypeCacheConfigDBMS = class(TMapTypeCacheConfigAbstract)
-  protected
+  private
     FGlobalStorageIdentifier: String;
     FServiceName: String;
+    FOnSettingsEdit: TOnAfterMapSettingsEdit;
     procedure OnSettingsEdit; override;
   public
+    constructor Create(
+      AConfig: ISimpleTileStorageConfig;
+      AGlobalCacheConfig: TGlobalCahceConfig;
+      AOnSettingsEdit: TOnAfterMapSettingsEdit
+    );
+
     property ServiceName: String read FServiceName;
     property GlobalStorageIdentifier: String read FGlobalStorageIdentifier;
   end;
@@ -369,11 +376,24 @@ end;
 
 { TMapTypeCacheConfigDBMS }
 
+constructor TMapTypeCacheConfigDBMS.Create(AConfig: ISimpleTileStorageConfig;
+  AGlobalCacheConfig: TGlobalCahceConfig;
+  AOnSettingsEdit: TOnAfterMapSettingsEdit);
+begin
+  inherited Create(AConfig, AGlobalCacheConfig);
+  FOnSettingsEdit := AOnSettingsEdit;
+  OnSettingsEdit;
+end;
+
 procedure TMapTypeCacheConfigDBMS.OnSettingsEdit;
 begin
+  // no need to sync - cache at tilestorage and read only because of FOnSettingsEdit ticks
   FGlobalStorageIdentifier := FGlobalCacheConfig.DBMSCachepath;
   FServiceName := FConfig.GetStatic.NameInCache;
   FBasePath := ETS_TilePath_Single(FGlobalStorageIdentifier, FServiceName);
+  // notify
+  if Assigned(FOnSettingsEdit) then
+    FOnSettingsEdit(Self);
 end;
 
 { TMapTypeCacheConfigGC }
