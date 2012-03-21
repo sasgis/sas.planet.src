@@ -11,7 +11,10 @@ uses
   GR32,
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
+  i_BitmapTileSaveLoad,
+  i_BitmapLayerProvider,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
   i_CoordConverter,
   i_VectorItemLonLat,
@@ -21,9 +24,15 @@ uses
   u_ThreadExportAbstract;
 
 type
+  TExportTaskIPhone = record
+    FFlag: Integer;
+    FSaver: IBitmapTileSaver;
+    FImageProvider: IBitmapLayerProvider;
+  end;
+
   TThreadExportIPhone = class(TThreadExportAbstract)
   private
-    FMapTypeArr: array of TMapType;
+    FTasks: array of TExportTaskIPhone;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
 
@@ -31,8 +40,8 @@ type
     FExportPath: string;
     FSQLite3Lib: TALSqlite3Library;
     FSqlite3: PSQLite3;
-    csat, cmap, chib: byte;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     procedure CheckSQLiteAPIError(AError: Boolean);
@@ -51,6 +60,7 @@ type
       AOperationID: Integer;
       AProgressInfo: IRegionProcessProgressInfo;
       ACoordConverterFactory: ICoordConverterFactory;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       APath: string;
@@ -64,6 +74,7 @@ type
       Acmap: byte;
       Achib: byte
       );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -71,12 +82,13 @@ implementation
 uses
   GR32_Resamplers,
   c_CoordConverter,
+  i_LocalCoordConverter,
   u_GeoToStr,
   u_ResStrings,
   i_VectorItemProjected,
   i_TileIterator,
   u_TileIteratorByPolygon,
-  i_BitmapTileSaveLoad,
+  u_BitmapLayerProviderSimpleForCombine,
   u_BitmapTileVampyreSaver;
 
 constructor TThreadExportIPhone.Create(
@@ -84,6 +96,7 @@ constructor TThreadExportIPhone.Create(
   AOperationID: Integer;
   AProgressInfo: IRegionProcessProgressInfo;
   ACoordConverterFactory: ICoordConverterFactory;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   APath: string;
@@ -95,7 +108,7 @@ constructor TThreadExportIPhone.Create(
   ANewFormat: Boolean;
   Acsat, Acmap, Achib: byte);
 var
-  i: integer;
+  VTaskIndex: Integer;
 begin
   inherited Create(
     ACancelNotifier,
@@ -105,23 +118,93 @@ begin
     Azoomarr
   );
   FCoordConverterFactory := ACoordConverterFactory;
+  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
-  cSat := Acsat;
-  cMap := Acmap;
-  cHib := Achib;
   FExportPath := IncludeTrailingPathDelimiter(APath);
   ForceDirectories(FExportPath);
   FNewFormat := ANewFormat;
   FIsReplace := AReplace;
-  FActiveMapIndex := AActiveMapIndex;
-  setlength(FMapTypeArr, length(Atypemaparr));
-  for i := 1 to length(Atypemaparr) do begin
-    FMapTypeArr[i - 1] := Atypemaparr[i - 1];
+  FActiveMapIndex := -1;
+
+  if (length(Atypemaparr) <> 3)then begin
+    raise Exception.Create('Not expected maps count');
   end;
-  if FActiveMapIndex >= Length(FMapTypeArr) then begin
-    FActiveMapIndex := 0;
+  if
+    (Atypemaparr[0] = nil) and
+    (Atypemaparr[1] = nil) and
+    (Atypemaparr[2] = nil)
+  then begin
+    raise Exception.Create('Maps are not selected');
   end;
+
+  VTaskIndex := -1;
+  if Atypemaparr[0] <> nil then begin
+    Inc(VTaskIndex);
+    SetLength(FTasks, VTaskIndex + 1);
+    if AActiveMapIndex = 0 then begin
+      FActiveMapIndex := VTaskIndex;
+    end;
+    FTasks[VTaskIndex].FFlag := 3;
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
+    FTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderSimpleForCombine.Create(
+        nil,
+        Atypemaparr[0],
+        nil,
+        nil,
+        False,
+        False
+      );
+  end;
+  if Atypemaparr[1] <> nil then begin
+    Inc(VTaskIndex);
+    SetLength(FTasks, VTaskIndex + 1);
+    if AActiveMapIndex = 1 then begin
+      FActiveMapIndex := VTaskIndex;
+    end;
+    FTasks[VTaskIndex].FFlag := 2;
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverPNGRGB.Create(Acmap);
+    FTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderSimpleForCombine.Create(
+        nil,
+        Atypemaparr[1],
+        nil,
+        nil,
+        False,
+        False
+      );
+  end;
+  if Atypemaparr[2] <> nil then begin
+    Inc(VTaskIndex);
+    SetLength(FTasks, VTaskIndex + 1);
+    if AActiveMapIndex = 2 then begin
+      FActiveMapIndex := VTaskIndex;
+    end;
+    FTasks[VTaskIndex].FFlag := 6;
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Achib);
+    FTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderSimpleForCombine.Create(
+        nil,
+        Atypemaparr[0],
+        Atypemaparr[2],
+        nil,
+        False,
+        False
+      );
+  end;
+
+end;
+
+destructor TThreadExportIPhone.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Length(FTasks) - 1 do begin
+    FTasks[i].FSaver := nil;
+    FTasks[i].FImageProvider := nil;
+  end;
+  inherited;
 end;
 
 procedure TThreadExportIPhone.WriteTileToSQLite3(
@@ -182,7 +265,7 @@ begin
   Writeln(PList, '<plist>');
   Writeln(PList, '<dict>');
   Writeln(PList, '<key>LastViewMode</key>');
-  if FMapTypeArr[FActiveMapIndex] <> nil then begin
+  if FActiveMapIndex >= 0 then begin
     Writeln(PList, '<integer>' + IntToStr(FActiveMapIndex) + '</integer>');
   end;
   Writeln(PList, '<key>LastViewedLatitude</key>');
@@ -224,21 +307,17 @@ var
   VTileStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
-  VSavers: array of IBitmapTileSaver;
-  VBitmaps: array of TCustomBitmap32;
+  bmp32: TCustomBitmap32;
   Vbmp32crop: TCustomBitmap32;
-  VFlags: array of integer;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VDatabaseName: string;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VTileConverter: ILocalCoordConverter;
 begin
   inherited;
-  if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
-    exit;
-  end;
   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
 
   WritePListFile(VGeoConvert);
@@ -250,26 +329,11 @@ begin
     hxyi := 4;
     sizeim := 64;
   end;
+
   VTileStream := TMemoryStream.Create;
-
-  SetLength(VBitmaps, 3);
-  VBitmaps[0] := TCustomBitmap32.Create;
-  VBitmaps[1] := TCustomBitmap32.Create;
-  VBitmaps[2] := TCustomBitmap32.Create;
-  VBitmaps[2].DrawMode := dmBlend;
-
+  bmp32 := TCustomBitmap32.Create;
   Vbmp32crop := TCustomBitmap32.Create;
   try
-    SetLength(VSavers, 3);
-    VSavers[0] := TVampyreBasicBitmapTileSaverJPG.Create(cSat);
-    VSavers[1] := TVampyreBasicBitmapTileSaverPNGRGB.Create(cMap);
-    VSavers[2] := TVampyreBasicBitmapTileSaverJPG.Create(chib);
-
-    SetLength(VFlags, 3);
-    VFlags[0] := 3;
-    VFlags[1] := 2;
-    VFlags[2] := 6;
-
     Vbmp32crop.Width := sizeim;
     Vbmp32crop.Height := sizeim;
     VTilesToProcess := 0;
@@ -370,45 +434,46 @@ begin
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
                   exit;
                 end;
-                for j := 0 to Length(FMapTypeArr) - 1 do begin
-                  if FMapTypeArr[j] <> nil then begin
-                    if FMapTypeArr[j].LoadTileUni(VBitmaps[j], VTile, VZoom, VGeoConvert, False, true, true) then begin
-                      if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                        VBitmaps[0].Draw(0, 0, VBitmaps[j]);
-                        VBitmaps[j].Draw(0, 0, VBitmaps[0]);
+                VTileConverter := FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
+                for j := 0 to Length(FTasks) - 1 do begin
+                  if
+                    FTasks[j].FImageProvider.GetBitmapRect(
+                      OperationID, CancelNotifier,
+                      bmp32,
+                      FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                    )
+                  then begin
+                    for xi := 0 to hxyi - 1 do begin
+                      for yi := 0 to hxyi - 1 do begin
+                        Vbmp32crop.Clear;
+                        BlockTransfer(
+                          Vbmp32crop,
+                          0,
+                          0,
+                          Vbmp32crop.ClipRect,
+                          bmp32,
+                          bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                          dmOpaque
+                        );
+                        VTileStream.Clear;
+                        FTasks[j].FSaver.SaveToStream(Vbmp32crop, VTileStream);
+                        WriteTileToSQLite3(
+                          Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),
+                          VZoom + 1,
+                          VTileStream,
+                          FTasks[j].FFlag
+                        );
                       end;
-                      for xi := 0 to hxyi - 1 do begin
-                        for yi := 0 to hxyi - 1 do begin
-                          Vbmp32crop.Clear;
-                          BlockTransfer(
-                            Vbmp32crop,
-                            0,
-                            0,
-                            Vbmp32crop.ClipRect,
-                            VBitmaps[j],
-                            bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
-                            dmOpaque
-                          );
-                          VTileStream.Clear;
-                          VSavers[j].SaveToStream(Vbmp32crop, VTileStream);
-                          WriteTileToSQLite3(
-                            Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),
-                            VZoom + 1,
-                            VTileStream,
-                            VFlags[j]
-                          );
-                        end;
-                      end;
                     end;
-                    inc(VTilesProcessed);
-                    if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
-                      ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
-                      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-                    end;
-                    if (VTilesProcessed mod 500 = 0) then begin
-                      SQLiteWriteString('COMMIT TRANSACTION');
-                      SQLiteWriteString('BEGIN TRANSACTION');
-                    end;
+                  end;
+                  inc(VTilesProcessed);
+                  if ((VTilesToProcess < 100) and (VTilesProcessed mod 5 = 0)) or
+                    ((VTilesToProcess >= 100) and (VTilesProcessed mod 50 = 0)) then begin
+                    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+                  end;
+                  if (VTilesProcessed mod 500 = 0) then begin
+                    SQLiteWriteString('COMMIT TRANSACTION');
+                    SQLiteWriteString('BEGIN TRANSACTION');
                   end;
                 end;
               end;
@@ -433,9 +498,8 @@ begin
     end;
   finally
     VTileStream.Free;
-    for i := 0 to Length(VBitmaps) - 1 do
-      VBitmaps[i].Free;
     Vbmp32crop.Free;
+    bmp32.Free;
   end;
 end;
 

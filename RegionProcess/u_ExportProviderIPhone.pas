@@ -10,6 +10,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
@@ -20,6 +21,7 @@ type
   private
     FFrame: TfrExportIPhone;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FNewFormat: Boolean;
@@ -35,6 +37,7 @@ type
       AFullMapsSet: IMapTypeSet;
       AGUIConfigList: IMapTypeGUIConfigList;
       ACoordConverterFactory: ICoordConverterFactory;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       ANewFormat: Boolean
@@ -73,6 +76,7 @@ constructor TExportProviderIPhone.Create(
   AFullMapsSet: IMapTypeSet;
   AGUIConfigList: IMapTypeGUIConfigList;
   ACoordConverterFactory: ICoordConverterFactory;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   ANewFormat: Boolean
@@ -80,6 +84,7 @@ constructor TExportProviderIPhone.Create(
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
+  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FNewFormat := ANewFormat;
@@ -203,6 +208,7 @@ begin
     VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
+    FLocalConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,
     path,

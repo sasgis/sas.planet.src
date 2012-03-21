@@ -411,6 +411,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ACoordConverterFactory,
+      ALocalConverterFactory,
       AProjectionFactory,
       AVectorItmesFactory,
       True
@@ -427,6 +428,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       ACoordConverterFactory,
+      ALocalConverterFactory,
       AProjectionFactory,
       AVectorItmesFactory,
       False
