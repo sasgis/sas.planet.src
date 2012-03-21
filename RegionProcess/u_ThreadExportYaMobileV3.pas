@@ -64,6 +64,7 @@ type
       Acsat: byte;
       Acmap: byte
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -99,7 +100,6 @@ constructor TThreadExportYaMobileV3.Create(
   Acsat, Acmap: byte
 );
 var
-  i: integer;
   VTaskIndex: Integer;
 begin
   inherited Create(
@@ -236,6 +236,17 @@ begin
   finally
     VYaMob.Free;
   end;
+end;
+
+destructor TThreadExportYaMobileV3.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Length(FTasks) - 1 do begin
+    FTasks[i].FSaver := nil;
+    FTasks[i].FImageProvider := nil;
+  end;
+  inherited;
 end;
 
 procedure TThreadExportYaMobileV3.WriteTileToYaCache(
