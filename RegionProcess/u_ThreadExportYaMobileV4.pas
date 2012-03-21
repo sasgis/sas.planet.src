@@ -343,9 +343,7 @@ begin
               PolygLL
             );
           VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-          for j := 0 to Length(FTasks) - 1 do begin
-            VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
-          end;
+          VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
         end;
         try
           VTilesProcessed := 0;

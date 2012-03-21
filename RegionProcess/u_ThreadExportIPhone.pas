@@ -349,7 +349,7 @@ begin
           PolygLL
         );
       VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-      VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+      VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
     end;
     try
       ProgressInfo.Caption := SAS_STR_ExportTiles;
