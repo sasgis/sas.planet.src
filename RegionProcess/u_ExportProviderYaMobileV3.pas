@@ -10,6 +10,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_ExportProviderAbstract,
@@ -20,6 +21,7 @@ type
   private
     FFrame: TfrExportYaMobileV3;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
@@ -35,6 +37,7 @@ type
       AGUIConfigList: IMapTypeGUIConfigList;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
@@ -72,6 +75,7 @@ constructor TExportProviderYaMobileV3.Create(
   AGUIConfigList: IMapTypeGUIConfigList;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   ACoordConverterFactory: ICoordConverterFactory
 );
 begin
@@ -85,6 +89,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
+  FLocalConverterFactory := ALocalConverterFactory;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
 end;
@@ -184,6 +189,7 @@ begin
     VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
+    FLocalConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,
     path,

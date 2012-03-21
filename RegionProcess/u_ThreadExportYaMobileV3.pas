@@ -10,22 +10,31 @@ uses
   u_MapType,
   u_ResStrings,
   i_OperationNotifier,
+  i_BitmapTileSaveLoad,
+  i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   u_ThreadExportAbstract;
 
 type
+  TExportTaskYaMobileV3 = record
+    FMapId: Integer;
+    FSaver: IBitmapTileSaver;
+    FImageProvider: IBitmapLayerProvider;
+  end;
+
   TThreadExportYaMobileV3 = class(TThreadExportAbstract)
   private
-    FMapTypeArr: array of TMapType;
+    FTasks: array of TExportTaskYaMobileV3;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FIsReplace: boolean;
     FExportPath: string;
-    csat, cmap: byte;
     FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     function GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
     function TileToTablePos(ATile: TPoint): Integer;
     procedure CreateNilFile(AFileName: string; ATableSize: Integer);
@@ -44,6 +53,7 @@ type
       AOperationID: Integer;
       AProgressInfo: IRegionProcessProgressInfo;
       ACoordConverterFactory: ICoordConverterFactory;
+      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       AProjectionFactory: IProjectionInfoFactory;
       AVectorItmesFactory: IVectorItmesFactory;
       APath: string;
@@ -64,8 +74,9 @@ uses
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,
+  i_LocalCoordConverter,
   u_TileIteratorByPolygon,
-  i_BitmapTileSaveLoad,
+  u_BitmapLayerProviderSimpleForCombine,
   u_BitmapTileVampyreSaver,
   u_ARGBToPaletteConverter;
 
@@ -77,6 +88,7 @@ constructor TThreadExportYaMobileV3.Create(
   AOperationID: Integer;
   AProgressInfo: IRegionProcessProgressInfo;
   ACoordConverterFactory: ICoordConverterFactory;
+  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   AProjectionFactory: IProjectionInfoFactory;
   AVectorItmesFactory: IVectorItmesFactory;
   APath: string;
@@ -88,6 +100,7 @@ constructor TThreadExportYaMobileV3.Create(
 );
 var
   i: integer;
+  VTaskIndex: Integer;
 begin
   inherited Create(
     ACancelNotifier,
@@ -97,15 +110,54 @@ begin
     Azoomarr
   );
   FCoordConverterFactory := ACoordConverterFactory;
+  FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
-  cSat := Acsat;
-  cMap := Acmap;
   FExportPath := APath;
   FIsReplace := AReplace;
-  setlength(FMapTypeArr, length(Atypemaparr));
-  for i := 1 to length(Atypemaparr) do begin
-    FMapTypeArr[i - 1] := Atypemaparr[i - 1];
+  if (length(Atypemaparr) <> 3)then begin
+    raise Exception.Create('Not expected maps count');
+  end;
+  if
+    (Atypemaparr[0] = nil) and
+    (Atypemaparr[1] = nil) and
+    (Atypemaparr[2] = nil)
+  then begin
+    raise Exception.Create('Maps are not selected');
+  end;
+
+  VTaskIndex := -1;
+  if
+    (Atypemaparr[0] <> nil) or (Atypemaparr[2] <> nil)
+  then begin
+    Inc(VTaskIndex);
+    SetLength(FTasks, VTaskIndex + 1);
+    FTasks[VTaskIndex].FMapId := 2;
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
+    FTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderSimpleForCombine.Create(
+        nil,
+        Atypemaparr[0],
+        Atypemaparr[2],
+        nil,
+        False,
+        False
+      );
+  end;
+  if Atypemaparr[1] <> nil then begin
+    Inc(VTaskIndex);
+    SetLength(FTasks, VTaskIndex + 1);
+    FTasks[VTaskIndex].FMapId := 1;
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(TARGBToPaletteConverter.Create, Acmap);
+    FTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderSimpleForCombine.Create(
+        nil,
+        Atypemaparr[1],
+        nil,
+        nil,
+        False,
+        False
+      );
   end;
 end;
 
@@ -240,36 +292,26 @@ procedure TThreadExportYaMobileV3.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;
-  bmp32, bmp322, bmp32crop: TCustomBitmap32;
+  bmp32, bmp32crop: TCustomBitmap32;
   TileStream: TMemoryStream;
   tc: cardinal;
   VGeoConvert: ICoordConverter;
-  JPGSaver, PNGSaver: IBitmapTileSaver;
   VTile: TPoint;
-  VMapType: TMapType;
-  VSaver: IBitmapTileSaver;
-  Vmt: Byte;
   VTileIterators: array of ITileIterator;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VTileConverter: ILocalCoordConverter;
 begin
   inherited;
-  if (FMapTypeArr[0] = nil) and (FMapTypeArr[1] = nil) and (FMapTypeArr[2] = nil) then begin
-    exit;
-  end;
   bmp32 := TCustomBitmap32.Create;
-  bmp322 := TCustomBitmap32.Create;
   bmp32crop := TCustomBitmap32.Create;
   try
     hxyi := 1;
     sizeim := 128;
-    JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(cSat);
-    PNGSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(TARGBToPaletteConverter.Create, cMap);
     TileStream := TMemoryStream.Create;
     try
       bmp32.DrawMode := dmBlend;
-      bmp322.DrawMode := dmBlend;
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
       VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
@@ -288,10 +330,8 @@ begin
           );
 
         VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-        for j := 0 to 2 do begin
-          if (FMapTypeArr[j] <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-            VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
-          end;
+        for j := 0 to Length(FTasks) - 1 do begin
+          VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
         end;
       end;
       try
@@ -307,42 +347,38 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            for j := 0 to 2 do begin
-              VMapType := FMapTypeArr[j];
-              if (VMapType <> nil) and (not ((j = 0) and (FMapTypeArr[2] <> nil))) then begin
-                bmp322.Clear;
-                if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                  FMapTypeArr[0].LoadTileUni(bmp322, VTile, VZoom, VGeoConvert, False, False, True);
-                end;
-                bmp32.Clear;
-                if VMapType.LoadTileUni(bmp32, VTile, VZoom, VGeoConvert, False, False, True) then begin
-                  if (j = 2) and (FMapTypeArr[0] <> nil) then begin
-                    bmp322.Draw(0, 0, bmp32);
-                    bmp32.Draw(0, 0, bmp322);
-                  end;
-                  if (j = 2) or (j = 0) then begin
-                    VSaver := JPGSaver;
-                    Vmt := 2;
-                  end else begin
-                    VSaver := PNGSaver;
-                    Vmt := 1;
-                  end;
-                  for xi := 0 to hxyi do begin
-                    for yi := 0 to hxyi do begin
-                      bmp32crop.Clear;
-                      BlockTransfer(
-                        bmp32crop,
-                        0,
-                        0,
-                        bmp32crop.ClipRect,
-                        bmp32,
-                        bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
-                        dmOpaque
-                      );
-                      TileStream.Clear;
-                      VSaver.SaveToStream(bmp32crop, TileStream);
-                      WriteTileToYaCache(VTile, VZoom, Vmt, (yi * 2) + xi, FExportPath, TileStream, FIsReplace);
-                    end;
+            VTileConverter := FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
+            for j := 0 to length(FTasks) - 1 do begin
+              if
+                FTasks[j].FImageProvider.GetBitmapRect(
+                  OperationID, CancelNotifier,
+                  bmp32,
+                  FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                )
+              then begin
+                for xi := 0 to hxyi do begin
+                  for yi := 0 to hxyi do begin
+                    bmp32crop.Clear;
+                    BlockTransfer(
+                      bmp32crop,
+                      0,
+                      0,
+                      bmp32crop.ClipRect,
+                      bmp32,
+                      bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                      dmOpaque
+                    );
+                    TileStream.Clear;
+                    FTasks[j].FSaver.SaveToStream(bmp32crop, TileStream);
+                    WriteTileToYaCache(
+                      VTile,
+                      VZoom,
+                      FTasks[j].FMapId,
+                      (yi * 2) + xi,
+                      FExportPath,
+                      TileStream,
+                      FIsReplace
+                    );
                   end;
                 end;
                 inc(VTilesProcessed);
@@ -365,7 +401,6 @@ begin
     end;
   finally
     bmp32.Free;
-    bmp322.Free;
     bmp32crop.Free;
   end;
 end;

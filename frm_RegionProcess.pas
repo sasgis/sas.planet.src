@@ -458,6 +458,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ALocalConverterFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

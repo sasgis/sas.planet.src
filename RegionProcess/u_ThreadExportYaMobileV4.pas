@@ -106,7 +106,6 @@ constructor TThreadExportYaMobileV4.Create(
 );
 var
   i: integer;
-  VMapsCount: Integer;
   VTaskIndex: Integer;
 begin
   inherited Create(
@@ -122,8 +121,7 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
-  VMapsCount := length(Atypemaparr);
-  if (VMapsCount <> 3)then begin
+  if (length(Atypemaparr) <> 3)then begin
     raise Exception.Create('Not expected maps count');
   end;
   if
