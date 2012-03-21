@@ -224,6 +224,7 @@
     <DCCReference Include="i_GPSRecorder.pas" />
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_GUIDListStatic.pas" />
+    <DCCReference Include="i_HashFunction.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
     <DCCReference Include="i_IdCacheSimple.pas" />
     <DCCReference Include="i_ImageLineProvider.pas" />
@@ -658,6 +659,7 @@
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
+    <DCCReference Include="u_HashFunctionCRC64.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="u_IdCacheSimpleThreadSafe.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />

@@ -27,6 +27,8 @@ uses
   u_StreamReadOnlyByBinaryData in 'u_StreamReadOnlyByBinaryData.pas',
   i_StringListStatic in 'i_StringListStatic.pas',
   u_StringListStatic in 'u_StringListStatic.pas',
+  i_HashFunction in 'i_HashFunction.pas',
+  u_HashFunctionCRC64 in 'u_HashFunctionCRC64.pas',
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
   i_TimeZoneList in 'i_TimeZoneList.pas',
