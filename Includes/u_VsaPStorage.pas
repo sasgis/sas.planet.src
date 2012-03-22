@@ -62,29 +62,27 @@ type
     pfn_LsaRetrievePrivateData: Pointer;
     pfn_LsaClose: Pointer;
     pfn_LsaFreeMemory: Pointer;
-    FRegistryKey: String;
     
   private
     function GetEncryptionAvailable: Boolean;
     function GetStorageAvailable: Boolean;
 
-    procedure DivideRegistryKey(const full_key_value: String;
-                                out real_key: String;
-                                out real_value: String);
-    
     procedure DoInit;
     procedure DoUninit;
   public
     constructor Create;
     destructor Destroy; override;
 
+  protected
     // шифрование
     function Encrypt(const ADescript: LPCWSTR;
                      pIn: PDATA_BLOB;
+                     pOptionalEntropy: PDATA_BLOB;
                      pOut: PDATA_BLOB): BOOL;
                      
     function Decrypt(pDescript: PLPWSTR;
                      pIn: PDATA_BLOB;
+                     pOptionalEntropy: PDATA_BLOB;
                      pOut: PDATA_BLOB): BOOL;
 
     procedure FreeDecrypted(Buffer: PByte);
@@ -102,86 +100,21 @@ type
 
     procedure FreeSecretBuffer(BufferAddress: Pointer);
 
-    // сохранение в реестр и чтение из него
-    function ReadFromRegistry(const KeyName: String;
-                              pOut: PDATA_BLOB): Boolean;
-
-    function WriteToRegistry(const KeyName: String;
-                             const BufferAddress: Pointer;
-                             const BufferLength: Integer): Boolean;
-
-    procedure FreeRegistryBuffer(BufferAddress: Pointer);
-    
   public
+    function CryptAndSave(const ASecretKey, ASecretValue, AKeyName: WideString;
+                          const ADescript: LPCWSTR): Boolean;
+
+    function LoadAndDecrypt(const ASecretKey, AKeyName: WideString): WideString;
+
     property EncryptionAvailable: Boolean read GetEncryptionAvailable stored FALSE default FALSE;
     property StorageAvailable: Boolean read GetStorageAvailable stored FALSE default FALSE;
-    property RegistryKey: String read FRegistryKey write FRegistryKey;
   end;
 
-
-// —ледующие функции используют TVsaPStorage, а не наоборот
-
-// сохран€ет и возвращает сохраненный текст
-function VsaPStorage_GetTextAsSecretA(AStorage: TVsaPStorage;
-                                      const AKeyName: PWideChar;
-                                      const ADescript: LPCWSTR;
-                                      out ns: NTSTATUS): AnsiString;
-function VsaPStorage_SetTextAsSecretA(AStorage: TVsaPStorage;
-                                      const AKeyName: PWideChar;
-                                      const ADescript: LPCWSTR;
-                                      const AText: AnsiString;
-                                      out ns: NTSTATUS): Boolean;
-
-// сохран€ет и возвращает сохраненный пароль, использу€ вспомогательный ключ
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_GetPasswordWithSubKeyAsSecretA(AStorage: TVsaPStorage;
-                                                    const ASubKeyName: WideString;
-                                                    out ns: NTSTATUS): AnsiString;
-{$ifend}
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_SetPasswordWithSubKeyAsSecretA(AStorage: TVsaPStorage;
-                                                    const ASubKeyName: WideString;
-                                                    const APassword: AnsiString;
-                                                    out ns: NTSTATUS): Boolean;
-{$ifend}
-
-// то же дл€ реестра
-
-function VsaPStorage_GetTextInRegistryA(AStorage: TVsaPStorage;
-                                        const AKeyName: PWideChar;
-                                        const ADescript: LPCWSTR): AnsiString;
-function VsaPStorage_SetTextInRegistryA(AStorage: TVsaPStorage;
-                                        const AKeyName: PWideChar;
-                                        const ADescript: LPCWSTR;
-                                        const AText: AnsiString): Boolean;
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_GetPasswordWithSubKeyInRegistryA(AStorage: TVsaPStorage;
-                                                      const ASubKeyName: WideString): AnsiString;
-{$ifend}
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_SetPasswordWithSubKeyInRegistryA(AStorage: TVsaPStorage;
-                                                      const ASubKeyName: WideString;
-                                                      const APassword: AnsiString): Boolean;
-{$ifend}
-
 implementation
-
-uses Registry;
 
 const
   Dll_Crypt32 = 'crypt32.dll';
   Dll_AdvApi32 = 'advapi32.dll';
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-  // это использовать не об€зательно, просто значени€ по умолчанию дл€ лент€ев
-  // на вс€кий случай замен€ть значени€ в каждом новом проекте
-  VSAPSTORAGE_DESCRIPT_LSA = '{6A233205-472A-4163-8652-A192074D7DA1}';
-  VSAPSTORAGE_DESCRIPT_REG = '{AB7A462A-F997-4C45-827C-E5E55A71451C}';
-{$ifend}
 
   CRYPTPROTECT_UI_FORBIDDEN = 1;
 
@@ -259,171 +192,10 @@ type
 
   Tpfn_LsaFreeMemory = function(Buffer: PVOID): NTSTATUS; stdcall;
 
-
-function VsaPStorage_GetTextInRegistryA(AStorage: TVsaPStorage;
-                                        const AKeyName: PWideChar;
-                                        const ADescript: LPCWSTR): AnsiString;
-var
-  crypt_in, crypt_out: DATA_BLOB;
-  pDesc: LPWSTR;
-  sKeyName: String;
-begin
-  sKeyName := AKeyName;
-
-  crypt_in.cbData := 0;
-  crypt_in.pbData := nil;
-
-  try
-    if AStorage.ReadFromRegistry(sKeyName, @crypt_in) then
-      begin
-        crypt_out.cbData := 0;
-        crypt_out.pbData := nil;
-        pDesc := nil;
-        try
-          // ADescript
-          if AStorage.Decrypt(@pDesc, @crypt_in, @crypt_out) then
-            SetString(Result, PChar(Pointer(crypt_out.pbData)), crypt_out.cbData)
-          else
-            Result := '';
-        finally
-          AStorage.FreeDecrypted(Pointer(pDesc));
-          AStorage.FreeDecrypted(crypt_out.pbData);
-        end;
-      end
-    else
-      Result := '';
-  finally
-    if crypt_in.pbData <> nil then
-      AStorage.FreeRegistryBuffer(crypt_in.pbData);
-  end;
-end;
-
-function VsaPStorage_SetTextInRegistryA(AStorage: TVsaPStorage;
-                                        const AKeyName: PWideChar;
-                                        const ADescript: LPCWSTR;
-                                        const AText: AnsiString): Boolean;
-var
-  crypt_in, crypt_out: DATA_BLOB;
-  sKeyName: String;
-begin
-  sKeyName := AKeyName;
-
-  Result := FALSE;
-  crypt_in.pbData := Pointer(PChar(AText));
-  crypt_in.cbData := Length(AText);
-  crypt_out.cbData := 0;
-  crypt_out.pbData := nil;
-
-  if AStorage.Encrypt(ADescript, @crypt_in, @crypt_out) then
-  try
-    if AStorage.WriteToRegistry(sKeyName, crypt_out.pbData, crypt_out.cbData) then
-      Result := TRUE;
-  finally
-    AStorage.FreeDecrypted(crypt_out.pbData);
-  end;
-end;
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_GetPasswordWithSubKeyInRegistryA(AStorage: TVsaPStorage;
-                                                      const ASubKeyName: WideString): AnsiString;
-begin
-  Result := VsaPStorage_GetTextInRegistryA(AStorage, @(ASubKeyName[1]), VSAPSTORAGE_DESCRIPT_REG);
-end;
-{$ifend}
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_SetPasswordWithSubKeyInRegistryA(AStorage: TVsaPStorage;
-                                                      const ASubKeyName: WideString;
-                                                      const APassword: AnsiString): Boolean;
-begin
-  Result := VsaPStorage_SetTextInRegistryA(AStorage, @(ASubKeyName[1]), VSAPSTORAGE_DESCRIPT_REG, APassword);
-end;
-{$ifend}
-
-function VsaPStorage_GetTextAsSecretA(AStorage: TVsaPStorage;
-                                      const AKeyName: PWideChar;
-                                      const ADescript: LPCWSTR;
-                                      out ns: NTSTATUS): AnsiString;
-var
-  buf: PLSA_UNICODE_STRING;
-  crypt_in, crypt_out: DATA_BLOB;
-  pDesc: LPWSTR;
-begin
-  ns:=0;
-  if AStorage.ReadFromSecret(AKeyName, @buf, ns) then
-    try
-      crypt_in.cbData := buf.Length;
-      crypt_in.pbData := PByte(buf.Buffer);
-
-      crypt_out.cbData := 0;
-      crypt_out.pbData := nil;
-      pDesc := nil;
-      try
-        // ADescript
-        if AStorage.Decrypt(@pDesc, @crypt_in, @crypt_out) then
-          SetString(Result, PChar(Pointer(crypt_out.pbData)), crypt_out.cbData)
-        else
-          Result := '';
-      finally
-        AStorage.FreeDecrypted(Pointer(pDesc));
-        AStorage.FreeDecrypted(crypt_out.pbData);
-      end;
-    finally
-      AStorage.FreeSecretBuffer(buf);
-    end
-  else
-    Result := '';
-end;
-
-function VsaPStorage_SetTextAsSecretA(AStorage: TVsaPStorage;
-                                      const AKeyName: PWideChar;
-                                      const ADescript: LPCWSTR;
-                                      const AText: AnsiString;
-                                      out ns: NTSTATUS): Boolean;
-var
-  crypt_in, crypt_out: DATA_BLOB;
-begin
-  ns := 0;
-  Result := FALSE;
-  crypt_in.pbData := Pointer(PAnsiChar(AText));
-  crypt_in.cbData := Length(AText);
-  crypt_out.cbData := 0;
-  crypt_out.pbData := nil;
-
-  if AStorage.Encrypt(ADescript, @crypt_in, @crypt_out) then
-  try
-    if AStorage.WriteToSecret(AKeyName, crypt_out.pbData, crypt_out.cbData, ns) then
-      Result := TRUE;
-  finally
-    AStorage.FreeDecrypted(crypt_out.pbData);
-  end;
-end;
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_GetPasswordWithSubKeyAsSecretA(AStorage: TVsaPStorage;
-                                                    const ASubKeyName: WideString;
-                                                    out ns: NTSTATUS): AnsiString;
-begin
-  Result := VsaPStorage_GetTextAsSecretA(AStorage, @(ASubKeyName[1]), VSAPSTORAGE_DESCRIPT_LSA, ns);
-end;
-{$ifend}
-
-{$if defined(VSAPSTORAGE_USE_PREDEFINED)}
-function VsaPStorage_SetPasswordWithSubKeyAsSecretA(AStorage: TVsaPStorage;
-                                                    const ASubKeyName: WideString;
-                                                    const APassword: AnsiString;
-                                                    out ns: NTSTATUS): Boolean;
-begin
-  Result := VsaPStorage_SetTextAsSecretA(AStorage, @(ASubKeyName[1]), VSAPSTORAGE_DESCRIPT_LSA, APassword, ns);
-end;
-{$ifend}
-
-
 { TVsaPStorage }
 
 constructor TVsaPStorage.Create;
 begin
-  FRegistryKey := '';
   bInitialized := FALSE;
 
   hCrypt32DllHandle := 0;
@@ -439,42 +211,45 @@ begin
   pfn_LsaFreeMemory := nil;  
 end;
 
+function TVsaPStorage.CryptAndSave(const ASecretKey, ASecretValue, AKeyName: WideString;
+                                   const ADescript: LPCWSTR): Boolean;
+var
+  crypt_in, entropy, crypt_out: DATA_BLOB;
+  ns: NTSTATUS;
+begin
+  Result := FALSE;
+  crypt_out.cbData := 0;
+  crypt_out.pbData := nil;
+  try
+    crypt_in.pbData := Pointer(PWideChar(ASecretValue));
+    crypt_in.cbData := Length(ASecretValue);
+
+    entropy.pbData := Pointer(PWideChar(ASecretKey));
+    entropy.cbData := Length(ASecretKey);
+
+    if Encrypt(ADescript, @crypt_in, @entropy, @crypt_out)<>FALSE then
+    if WriteToSecret(PWideChar(AKeyName), crypt_out.pbData, crypt_out.cbData, ns) then
+      Inc(Result);
+  finally
+    FreeDecrypted(crypt_out.pbData);
+  end;  
+end;
+
 function TVsaPStorage.Decrypt(pDescript: PLPWSTR;
                               pIn: PDATA_BLOB;
+                              pOptionalEntropy: PDATA_BLOB;
                               pOut: PDATA_BLOB): BOOL;
 begin
   Result := EncryptionAvailable;
 
   if Result then
-    Result := Tpfn_CryptUnprotectData(pfn_CryptUnprotectData)(pIn, pDescript, nil, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, pOut);
+    Result := Tpfn_CryptUnprotectData(pfn_CryptUnprotectData)(pIn, pDescript, pOptionalEntropy, nil, nil, 0 {CRYPTPROTECT_UI_FORBIDDEN}, pOut);
 end;
 
 destructor TVsaPStorage.Destroy;
 begin
   DoUninit;
   inherited;
-end;
-
-procedure TVsaPStorage.DivideRegistryKey(const full_key_value: String;
-                                         out real_key: String;
-                                         out real_value: String);
-begin
-  // если ни одного слэша нет - все кладем в ключ, будет значение по умолчанию
-  real_value:='';
-  real_key:=full_key_value;
-
-  if System.Pos('\',full_key_value)>0 then
-  begin
-    // хот€ бы один слэш есть - перетаскиваем с конца символы в параметр
-    while (Length(real_key)>0) and (real_key[Length(real_key)]<>'\') do
-    begin
-      real_value:=real_key[Length(real_key)]+real_value;
-      System.Delete(real_key,Length(real_key),1);
-    end;
-
-    if (Length(real_key)>0) and (real_key[Length(real_key)]='\') then
-      System.Delete(real_key,Length(real_key),1);
-  end;
 end;
 
 procedure TVsaPStorage.DoInit;
@@ -545,24 +320,19 @@ end;
 
 function TVsaPStorage.Encrypt(const ADescript: LPCWSTR;
                               pIn: PDATA_BLOB;
+                              pOptionalEntropy: PDATA_BLOB;
                               pOut: PDATA_BLOB): BOOL;
 begin
   Result := EncryptionAvailable;
 
   if Result then
-    Result := Tpfn_CryptProtectData(pfn_CryptProtectData)(pIn, ADescript, nil, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, pOut);
+    Result := Tpfn_CryptProtectData(pfn_CryptProtectData)(pIn, ADescript, pOptionalEntropy, nil, nil, 0{CRYPTPROTECT_UI_FORBIDDEN}, pOut);
 end;
 
 procedure TVsaPStorage.FreeDecrypted(Buffer: PByte);
 begin
   if Buffer <> nil then
     LocalFree(HLOCAL(Buffer));
-end;
-
-procedure TVsaPStorage.FreeRegistryBuffer(BufferAddress: Pointer);
-begin
-  if BufferAddress <> nil then
-    FreeMem(BufferAddress);
 end;
 
 procedure TVsaPStorage.FreeSecretBuffer(BufferAddress: Pointer);
@@ -592,62 +362,34 @@ begin
             (pfn_LsaFreeMemory <> nil);
 end;
 
-function TVsaPStorage.ReadFromRegistry(const KeyName: String;
-                                       pOut: PDATA_BLOB): Boolean;
+function TVsaPStorage.LoadAndDecrypt(const ASecretKey, AKeyName: WideString): WideString;
 var
-  r: TRegistry;
-  v: TRegDataInfo;
-  real_key,real_value: String;
+  ns: NTSTATUS;
+  buf: PLSA_UNICODE_STRING;
+  crypt_in, entropy, crypt_out: DATA_BLOB;
 begin
-  Result := FALSE;
+  Result := '';
 
-  if RegistryKey = '' then
-    begin
-      // раздел реестра не установлен - будем выкусывать из переданного параметра
-      DivideRegistryKey(KeyName,real_key,real_value);
-    end
-  else
-    begin
-      real_key:=RegistryKey;
-      real_value:=KeyName;
-    end;
-
-  if (real_key='') then
-    Exit;
-
-  if pOut = nil then
-    Exit;
-
-  pOut^.cbData := 0;
-  pOut^.pbData := nil;
-
-  r := TRegistry.Create(KEY_READ);
+  if ReadFromSecret(PWideChar(AKeyName), @buf, ns) then
   try
-    r.RootKey := HKEY_CURRENT_USER;
-    if r.OpenKeyReadOnly(real_key) then
-    begin
-      if r.GetDataInfo(real_value, v) then
-      if v.DataSize > 0 then
-      try
-        pOut^.cbData := v.DataSize;
-        GetMem(pOut^.pbData, v.DataSize);
+    crypt_in.cbData := buf.Length;
+    crypt_in.pbData := Pointer(buf.Buffer);
 
-        if r.ReadBinaryData(real_value, pOut^.pbData^, pOut^.cbData) = v.DataSize then
-        begin
-          // успешно прочитали все данные
-          Result := TRUE;
-        end;
-      except
+    crypt_out.cbData := 0;
+    crypt_out.pbData := nil;
+
+    entropy.cbData := Length(ASecretKey);
+    entropy.pbData := Pointer(PWideChar(ASecretKey));
+
+    try
+      if Decrypt(nil, @crypt_in, @entropy, @crypt_out) then begin
+        SetString(Result, PWideChar(Pointer(crypt_out.pbData)), crypt_out.cbData);
       end;
+    finally
+      FreeDecrypted(crypt_out.pbData);
     end;
   finally
-    r.Free;
-
-    if (not Result) and (pOut^.pbData <> nil) then
-    begin
-      FreeRegistryBuffer(pOut^.pbData);
-      pOut^.pbData := nil;
-    end;
+    FreeSecretBuffer(buf);
   end;
 end;
 
@@ -684,43 +426,6 @@ begin
   end;
 end;
 
-function TVsaPStorage.WriteToRegistry(const KeyName: String;
-                                      const BufferAddress: Pointer;
-                                      const BufferLength: Integer): Boolean;
-var
-  r: TRegistry;
-  real_key,real_value: String;
-begin
-  Result := FALSE;
-  
-  if RegistryKey = '' then
-    begin
-      // раздел реестра не установлен - будем выкусывать из переданного параметра
-      DivideRegistryKey(KeyName,real_key,real_value);
-    end
-  else
-    begin
-      real_key:=RegistryKey;
-      real_value:=KeyName;
-    end;
-
-  if (real_key='') then
-    Exit;
-
-  r := TRegistry.Create(KEY_READ or KEY_WRITE);
-  try
-    r.RootKey := HKEY_CURRENT_USER;
-    if r.OpenKey(real_key, TRUE) then
-    begin
-      // при ошибке будет Exception
-      r.WriteBinaryData(real_value, BufferAddress^, BufferLength);
-      Result := TRUE;
-    end;
-  finally
-    r.Free;
-  end;
-end;
-
 function TVsaPStorage.WriteToSecret(const KeyName: PWideChar;
                                     const BufferAddress: Pointer;
                                     const BufferLength: Integer;
@@ -731,19 +436,17 @@ var
   us_keydata: LSA_UNICODE_STRING;
   oa: LSA_OBJECT_ATTRIBUTES;
 begin
-  Result := StorageAvailable;
+  Result := FALSE;
 
-  if Result then
+  if StorageAvailable then
   begin
-    Result := FALSE;
-
     FillChar(oa, Sizeof(oa), 0);
     oa.Length := Sizeof(oa);
 
     NtResult := Tpfn_LsaOpenPolicy(pfn_LsaOpenPolicy)(nil,@oa,POLICY_CREATE_SECRET or POLICY_GET_PRIVATE_INFORMATION or STANDARD_RIGHTS_READ, @hPolicy);
     if NtResult >= 0 then
     try
-      us_keyname.Length := Length(KeyName) * 2;
+      us_keyname.Length := Length(KeyName) * SizeOf(WideChar);
       us_keyname.MaximumLength := us_keyname.Length;
       us_keyname.Buffer := KeyName;
 
@@ -753,7 +456,7 @@ begin
 
       NtResult := Tpfn_LsaStorePrivateData(pfn_LsaStorePrivateData)(hPolicy, @us_keyname, @us_keydata);
       if NtResult >= 0 then
-        Result := TRUE;
+        Inc(Result);
     finally
       Tpfn_LsaClose(pfn_LsaClose)(hPolicy);
     end;

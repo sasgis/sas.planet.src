@@ -182,6 +182,9 @@ uses
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
 
+const
+  C_TileStorage_DBMS_DLL = 'TileStorage_DBMS.dll';
+
 function rETS_QueryAllContentTypes_Callback_A(
   const AHostPointer: Pointer;
   const AQueryPointer: Pointer;
@@ -192,10 +195,12 @@ var
   VExtensions: AnsiString;
 begin
   Result := FALSE;
-  if (AQueryPointer<>nil) and (AExtensions<>nil) then begin
+  if (AQueryPointer<>nil) and (AExtensions<>nil) then
+  try
     SetString(VExtensions, AExtensions, StrLen(AExtensions));
     TStringList(AQueryPointer).Insert(AIndex, VExtensions);
     Inc(Result);
+  except
   end;
 end;
 
@@ -209,10 +214,12 @@ var
   VExtensions: WideString;
 begin
   Result := FALSE;
-  if (AQueryPointer<>nil) and (AExtensions<>nil) then begin
+  if (AQueryPointer<>nil) and (AExtensions<>nil) then
+  try
     SetString(VExtensions, AExtensions, StrLenW(AExtensions));
     TStringList(AQueryPointer).Insert(AIndex, VExtensions);
     Inc(Result);
+  except
   end;
 end;
 
@@ -525,7 +532,7 @@ begin
   Result := FALSE;
 
   if (0=FDLLHandle) then
-    FDLLHandle := LoadLibrary('TileStorage_DBMS.dll');
+    FDLLHandle := LoadLibraryW(C_TileStorage_DBMS_DLL);
 
   if (0<>FDLLHandle) then begin
     // get init proc

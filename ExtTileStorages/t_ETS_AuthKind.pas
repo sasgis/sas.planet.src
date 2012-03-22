@@ -24,9 +24,9 @@ interface
 
 const
   // supported authentication kinds
-  ETS_AK_PROXY = $00000001; // basic proxy authentication
-  ETS_AK_UNC   = $00000002; // basic net (share) authentication
-  ETS_AK_DBMS  = $00000003; // basic database authentication
+  ETS_AK_PROXY = $01; // basic proxy authentication
+  ETS_AK_UNC   = $02; // basic net (share) authentication
+  ETS_AK_DBMS  = $03; // basic database authentication
 
   // and (auxillary) authentication flags
   ETS_AF_ANSI_VERSION      = $10000000; // use ansi if set, use unicode if not set (by default)
