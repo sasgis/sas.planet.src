@@ -660,24 +660,20 @@ function TMiniMapLayer.DrawMap(ATargetBmp: TCustomBitmap32; AMapType: TMapType;
   ADrawMode: TDrawMode; AUsePre: Boolean;
   ARecolorConfig: IBitmapPostProcessingConfigStatic): Boolean;
 var
-  VBmp: TCustomBitmap32;
+  VBmp: IBitmap32Static;
 begin
   Result := False;
-  VBmp := TCustomBitmap32.Create;
-  try
-    if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, True, AMapType.CacheBitmap) then begin
-      BlockTransfer(
-        ATargetBmp,
-        0, 0,
-        ATargetBmp.ClipRect,
-        VBmp,
-        VBmp.BoundsRect,
-        ADrawMode
-      );
-      Result := True;
-    end;
-  finally
-    VBmp.Free;
+  VBmp := AMapType.LoadTileUni(ATile, AZoom, AGeoConvert, AUsePre, True, True, AMapType.CacheBitmap);
+  if VBmp <> nil then begin
+    BlockTransfer(
+      ATargetBmp,
+      0, 0,
+      ATargetBmp.ClipRect,
+      VBmp.Bitmap,
+      VBmp.Bitmap.BoundsRect,
+      ADrawMode
+    );
+    Result := True;
   end;
 end;
 

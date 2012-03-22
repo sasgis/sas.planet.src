@@ -113,6 +113,7 @@ uses
   GR32_Resamplers,
   u_Synchronizer,
   t_GeoTypes,
+  i_Bitmap32Static,
   i_TileIterator,
   i_TileRectUpdateNotifier,
   u_ResStrings,
@@ -344,44 +345,40 @@ function TMapMainLayer.DrawMap(
   ARecolorConfig: IBitmapPostProcessingConfigStatic
 ): Boolean;
 var
-  VBmp: TCustomBitmap32;
+  VBmp: IBitmap32Static;
   VErrorString: string;
 begin
   Result := False;
-  VBmp := TCustomBitmap32.Create;
+  VErrorString := '';
   try
-    VErrorString := '';
-    try
-      if AMapType.LoadTileUni(VBmp, ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.CacheBitmap) then begin
-        BlockTransfer(
-          ATargetBmp,
-          0, 0,
-          ATargetBmp.ClipRect,
-          VBmp,
-          VBmp.BoundsRect,
-          ADrawMode
-        );
-        Result := True;
-      end;
-    except
-      on E: Exception do begin
-        VErrorString := E.Message;
-      end;
-    else
-      VErrorString := SAS_ERR_TileDownloadUnexpectedError;
-    end;
-    if VErrorString <> '' then begin
-      FErrorLogger.LogError(
-        TTileErrorInfo.Create(
-          AMapType,
-          AZoom,
-          ATile,
-          VErrorString
-        )
+    VBmp := AMapType.LoadTileUni(ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.CacheBitmap);
+    if VBmp <> nil then begin
+      BlockTransfer(
+        ATargetBmp,
+        0, 0,
+        ATargetBmp.ClipRect,
+        VBmp.Bitmap,
+        VBmp.Bitmap.BoundsRect,
+        ADrawMode
       );
+      Result := True;
     end;
-  finally
-    VBmp.Free;
+  except
+    on E: Exception do begin
+      VErrorString := E.Message;
+    end;
+  else
+    VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+  end;
+  if VErrorString <> '' then begin
+    FErrorLogger.LogError(
+      TTileErrorInfo.Create(
+        AMapType,
+        AZoom,
+        ATile,
+        VErrorString
+      )
+    );
   end;
 end;
 

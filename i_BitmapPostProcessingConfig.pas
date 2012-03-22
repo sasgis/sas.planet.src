@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  i_Bitmap32Static,
   i_ConfigDataElement;
 
 type
@@ -41,6 +42,7 @@ type
     property ContrastN: Integer read GetContrastN;
 
     procedure ProcessBitmap(Bitmap: TCustomBitmap32);
+    function Process(ABitmap: IBitmap32Static): IBitmap32Static;
   end;
 
   IBitmapPostProcessingConfig = interface(IConfigDataElement)

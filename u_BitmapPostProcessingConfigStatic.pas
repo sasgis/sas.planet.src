@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  i_Bitmap32Static,
   i_BitmapPostProcessingConfig;
 
 type
@@ -38,6 +39,7 @@ type
     function GetContrastN: Integer;
 
     procedure ProcessBitmap(Bitmap: TCustomBitmap32);
+    function Process(ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
       AInvertColor: boolean;
@@ -49,7 +51,8 @@ type
 implementation
 
 uses
-  GR32_Filters;
+  GR32_Filters,
+  u_Bitmap32Static;
 
 { TBitmapPostProcessingConfigStatic }
 
@@ -105,6 +108,31 @@ begin
                           ContrastTable[BlueComponent(dest^)],AlphaComponent(dest^));
       Inc(Dest);
    end;
+end;
+
+function TBitmapPostProcessingConfigStatic.Process(
+  ABitmap: IBitmap32Static
+): IBitmap32Static;
+var
+  VBitmap: TCustomBitmap32;
+begin
+  if
+    (FContrastN = 0) and
+    (not FInvertColor) and
+    (FGammaN = 50)
+  then begin
+    Result := ABitmap;
+  end else begin
+    VBitmap := TCustomBitmap32.Create;
+    try
+      VBitmap.Assign(ABitmap.Bitmap);
+      ProcessBitmap(VBitmap);
+      Result := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
+    finally
+      VBitmap.Free;
+    end;
+  end;
 end;
 
 procedure TBitmapPostProcessingConfigStatic.ProcessBitmap(

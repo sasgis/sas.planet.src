@@ -62,6 +62,7 @@ uses
   Types,
   c_CoordConverter,
   i_CoordConverter,
+  i_Bitmap32Static,
   i_TileIterator,
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
@@ -112,7 +113,7 @@ end;
 procedure TThreadExportToJnx.ProcessRegion;
 var
   i: integer;
-  VBmp: TCustomBitmap32;
+  VBitmapTile: IBitmap32Static;
   VZoom: Byte;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
@@ -170,7 +171,6 @@ begin
       ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
       VMemStream := TMemoryStream.Create;
       VStringStream := TStringStream.Create('');
-      VBmp := TCustomBitmap32.Create;
       try
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
@@ -181,11 +181,11 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            VBmp.Clear;
-            if FMapType.LoadTileUni(VBmp, VTile, VZoom, VGeoConvert, False, False, True) then begin
+            VBitmapTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
+            if VBitmapTile <> nil then begin
               VMemStream.Clear;
               VMemStream.Position := 0;
-              VSaver.SaveToStream(VBmp, VMemStream);
+              VSaver.SaveToStream(VBitmapTile.Bitmap, VMemStream);
 
               VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X , VTile.Y + 1), VZoom);
               VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X+1 , VTile.Y), VZoom);
@@ -219,7 +219,6 @@ begin
       finally
         VMemStream.Free;
         VStringStream.Free;
-        VBmp.Free;
       end;
     finally
       for i := 0 to Length(FZooms) - 1 do begin

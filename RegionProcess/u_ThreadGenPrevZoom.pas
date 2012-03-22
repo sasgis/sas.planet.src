@@ -61,6 +61,7 @@ implementation
 uses
   GR32_Resamplers,
   i_CoordConverter,
+  i_Bitmap32Static,
   i_VectorItemProjected,
   i_TileIterator,
   u_TileIteratorByPolygon,
@@ -107,7 +108,6 @@ end;
 procedure TThreadGenPrevZoom.ProcessRegion;
 var
   bmp_ex: TCustomBitmap32;
-  bmp: TCustomBitmap32;
   i, VSubTileCount: integer;
   VSubTilesSavedCount: integer;
   VZoomPrev: Byte;
@@ -128,6 +128,7 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VResampler: TCustomResampler;
+  VBitmapTile: IBitmap32Static;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -157,7 +158,6 @@ begin
       SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files;
 
     bmp_ex := TCustomBitmap32.Create;
-    bmp := TCustomBitmap32.Create;
     try
       VResampler := FResamplerFactory.CreateResampler;
       try
@@ -181,12 +181,18 @@ begin
                 continue;
               end;
             end;
-            if (not FUsePrevTiles) or (not FMapType.LoadTileUni(bmp_Ex, VTile, VZoom, VGeoConvert, True, True, True)) then begin
+            VBitmapTile := nil;
+            if FUsePrevTiles then begin
+              VBitmapTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, True, True, True);
+            end;
+            if VBitmapTile = nil then begin
               bmp_ex.SetSize(
                 VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
                 VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
               );
               bmp_ex.Clear(FBackGroundColor);
+            end else begin
+              bmp_ex.Assign(VBitmapTile.Bitmap);
             end;
 
             VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
@@ -196,7 +202,8 @@ begin
               VSubTileCount := VSubTileIterator.TilesTotal;
               VSubTilesSavedCount := 0;
               while VSubTileIterator.Next(VSubTile) do begin
-                if FMapType.LoadTile(bmp, VSubTile, VZoomPrev, True) then begin
+                VBitmapTile := FMapType.LoadTile(VSubTile, VZoomPrev, True);
+                if VBitmapTile <> nil  then begin
                   VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
                   VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
                   VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
@@ -212,7 +219,7 @@ begin
                     bmp_ex,
                     VSubTileInTargetBounds,
                     bmp_ex.ClipRect,
-                    bmp,
+                    VBitmapTile.Bitmap,
                     VSubTileBounds,
                     VResampler,
                     dmOpaque
@@ -242,7 +249,6 @@ begin
       end;
     finally
       bmp_ex.Free;
-      bmp.Free;
     end;
   finally
     for i := 0 to Length(VTileIterators) - 1 do begin

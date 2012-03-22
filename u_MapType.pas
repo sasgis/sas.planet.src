@@ -115,20 +115,18 @@ type
       var AVersionInfo: IMapVersionInfo
     ): IVectorDataItemList;
     function LoadTileFromPreZ(
-      spr: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
-    ): boolean;
+    ): IBitmap32Static;
     function LoadTileOrPreZ(
-      spr: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       IgnoreError: Boolean;
       AUsePre: Boolean;
       ACache: ITileObjCacheBitmap = nil
-    ): boolean;
+    ): IBitmap32Static;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
     function AllowListOfTileVersions: Boolean;
@@ -138,12 +136,11 @@ type
     function TileExists(AXY: TPoint; Azoom: byte): Boolean;
     function TileNotExistsOnServer(AXY: TPoint; Azoom: byte): Boolean;
     function LoadTile(
-      btm: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
-    ): boolean; overload;
+    ): IBitmap32Static; overload;
     function LoadTile(
       var AKml: IVectorDataItemList;
       AXY: TPoint;
@@ -152,28 +149,25 @@ type
       ACache: ITileObjCacheVector = nil
     ): boolean; overload;
     function LoadTileUni(
-      spr: TCustomBitmap32;
       AXY: TPoint;
       Azoom: byte;
       ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
-    ): boolean;
+    ): IBitmap32Static;
     function LoadBtimap(
-      spr: TCustomBitmap32;
       APixelRectTarget: TRect;
       Azoom: byte;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
-    ): boolean;
+    ): IBitmap32Static;
     function LoadBtimapUni(
-      spr: TCustomBitmap32;
       APixelRectTarget: TRect;
       Azoom: byte;
       ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       ACache: ITileObjCacheBitmap = nil
-    ): boolean;
+    ): IBitmap32Static;
     function DeleteTile(AXY: TPoint; Azoom: byte): Boolean;
     function DeleteAttachments(const AXY: TPoint;
                                const Azoom: byte;
@@ -251,6 +245,7 @@ uses
   i_BinaryData,
   i_TileInfoBasic,
   u_BinaryDataByMemStream,
+  u_Bitmap32Static,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
@@ -755,65 +750,68 @@ begin
 end;
 
 function TMapType.LoadTile(
-  btm: TCustomBitmap32;
   AXY: TPoint;
   Azoom: byte;
   IgnoreError: Boolean;
   ACache: ITileObjCacheBitmap
-): boolean;
+): IBitmap32Static;
 var
-  VBitmap: IBitmap32Static;
   VVersionInfo: IMapVersionInfo;
   VRect: TRect;
   VSize: TPoint;
+  VBitmap: TCustomBitmap32;
   VResampler: TCustomResampler;
 begin
   try
-    Result := False;
+    Result := nil;
     VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
-      VBitmap := LoadBitmapTileFromStorage(AXY, Azoom, VVersionInfo);
+      Result := LoadBitmapTileFromStorage(AXY, Azoom, VVersionInfo);
     end else begin
-      VBitmap := ACache.TryLoadTileFromCache(AXY, Azoom, VVersionInfo);
-      if VBitmap = nil then begin
-        VBitmap := LoadBitmapTileFromStorage(AXY, Azoom, VVersionInfo);
-        if VBitmap <> nil then begin
-          ACache.AddTileToCache(VBitmap, AXY, Azoom, VVersionInfo);
+      Result := ACache.TryLoadTileFromCache(AXY, Azoom, VVersionInfo);
+      if Result = nil then begin
+        Result := LoadBitmapTileFromStorage(AXY, Azoom, VVersionInfo);
+        if Result <> nil then begin
+          ACache.AddTileToCache(Result, AXY, Azoom, VVersionInfo);
         end;
       end;
     end;
-    if VBitmap <> nil then begin
+    if Result <> nil then begin
       VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
       VSize := Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if
-        (VBitmap.Bitmap.Width <> VSize.X) or
-        (VBitmap.Bitmap.Height <> VSize.Y)
+        (Result.Bitmap.Width <> VSize.X) or
+        (Result.Bitmap.Height <> VSize.Y)
       then begin
         VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
         try
-          btm.SetSize(VSize.X, VSize.Y);
-          StretchTransfer(
-            btm,
-            btm.BoundsRect,
-            btm.ClipRect,
-            VBitmap.Bitmap,
-            VBitmap.Bitmap.BoundsRect,
-            VResampler,
-            dmOpaque
-          );
+          VBitmap := TCustomBitmap32.Create;
+          try
+            VBitmap.SetSize(VSize.X, VSize.Y);
+            StretchTransfer(
+              VBitmap,
+              VBitmap.BoundsRect,
+              VBitmap.ClipRect,
+              Result.Bitmap,
+              Result.Bitmap.BoundsRect,
+              VResampler,
+              dmOpaque
+            );
+            Result := TBitmap32Static.CreateWithOwn(VBitmap);
+            VBitmap := nil;
+          finally
+            VBitmap.Free;
+          end;
         finally
           VResampler.Free;
         end;
-      end else begin
-        btm.Assign(VBitmap.Bitmap);
       end;
-      Result := True;
     end;
   except
     if not IgnoreError then begin
       raise;
     end else begin
-      Result := False;
+      Result := nil;
     end;
   end;
 end;
@@ -852,15 +850,14 @@ begin
 end;
 
 function TMapType.LoadTileFromPreZ(
-  spr: TCustomBitmap32;
   AXY: TPoint;
   Azoom: byte;
   IgnoreError: Boolean;
   ACache: ITileObjCacheBitmap
-): boolean;
+): IBitmap32Static;
 var
   i: integer;
-  VBmp: TCustomBitmap32;
+  VBmp: IBitmap32Static;
   VTileTargetBounds:TRect;
   VTileSourceBounds:TRect;
   VTileParent: TPoint;
@@ -870,89 +867,92 @@ var
   VRelativeRect: TDoubleRect;
   VParentZoom: Byte;
   VMinZoom: Integer;
+  VBitmap: TCustomBitmap32;
   VResampler: TCustomResampler;
 begin
-  result:=false;
-    VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
-    VMinZoom :=  Azoom - FLoadPrevMaxZoomDelta;
-    if VMinZoom < 0 then begin
-      VMinZoom := 0;
-    end;
-    if Azoom - 1 > VMinZoom then begin
-      VBmp:=TCustomBitmap32.Create;
-      try
-        for i := Azoom - 1 downto VMinZoom do begin
-          VParentZoom := i;
-          VTileParent := FCoordConverter.Relative2TilePos(VRelative, i);
-          if LoadTile(VBmp, VTileParent, VParentZoom, IgnoreError, ACache)then begin
-            VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
-            VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
-            VTileTargetBounds.Left := 0;
-            VTileTargetBounds.Top := 0;
-            VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
-            VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
+  Result := nil;
+  VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
+  VMinZoom :=  Azoom - FLoadPrevMaxZoomDelta;
+  if VMinZoom < 0 then begin
+    VMinZoom := 0;
+  end;
+  if Azoom - 1 > VMinZoom then begin
+    for i := Azoom - 1 downto VMinZoom do begin
+      VParentZoom := i;
+      VTileParent := FCoordConverter.Relative2TilePos(VRelative, i);
+      VBmp := LoadTile(VTileParent, VParentZoom, IgnoreError, ACache);
+      if VBmp <> nil then begin
+        VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
+        VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, Azoom);
+        VTileTargetBounds.Left := 0;
+        VTileTargetBounds.Top := 0;
+        VTileTargetBounds.Right := VTargetTilePixelRect.Right - VTargetTilePixelRect.Left;
+        VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
 
-            VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
-            VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
-            VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
-            VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
-            VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
-            VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
-            VResampler :=FImageResamplerConfig.GetActiveFactory.CreateResampler;
+        VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
+        VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
+        VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
+        VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
+        VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
+        VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
+        VResampler :=FImageResamplerConfig.GetActiveFactory.CreateResampler;
+        try
+          try
+            VBitmap := TCustomBitmap32.Create;
             try
-              try
-                spr.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
-                StretchTransfer(
-                  spr,
-                  VTileTargetBounds,
-                  spr.ClipRect,
-                  VBmp,
-                  VTileSourceBounds,
-                  VResampler,
-                  dmOpaque
-                );
-                Result := true;
-                Break;
-              except
-                if not IgnoreError then begin
-                  raise
-                end;
-              end;
+              VBitmap.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
+              StretchTransfer(
+                VBitmap,
+                VTileTargetBounds,
+                VBitmap.ClipRect,
+                VBmp.Bitmap,
+                VTileSourceBounds,
+                VResampler,
+                dmOpaque
+              );
+              Result := TBitmap32Static.CreateWithOwn(VBitmap);
+              VBitmap := nil;
             finally
-              VResampler.Free;
+              VBitmap.Free;
+            end;
+            Break;
+          except
+            if not IgnoreError then begin
+              raise
             end;
           end;
+        finally
+          VResampler.Free;
         end;
-      finally
-        FreeAndNil(VBmp);
       end;
     end;
+  end;
 end;
 
 function TMapType.LoadTileOrPreZ(
-  spr: TCustomBitmap32;
   AXY: TPoint;
   Azoom: byte;
   IgnoreError: Boolean;
   AUsePre: Boolean;
   ACache: ITileObjCacheBitmap
-): boolean;
+): IBitmap32Static;
+var
+  VBitmap: TCustomBitmap32;
 begin
-  Result := LoadTile(spr, AXY, Azoom, IgnoreError, ACache);
-  if not Result then begin
+  Result := LoadTile(AXY, Azoom, IgnoreError, ACache);
+  if Result = nil then begin
     if AUsePre then begin
-      Result := LoadTileFromPreZ(spr, AXY, Azoom, IgnoreError, ACache);
+      Result := LoadTileFromPreZ(AXY, Azoom, IgnoreError, ACache);
     end;
   end;
 end;
 
 function TMapType.LoadBtimap(
-  spr: TCustomBitmap32;
   APixelRectTarget: TRect;
   Azoom: byte;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   ACache: ITileObjCacheBitmap
-): boolean;
+): IBitmap32Static;
 var
   VPixelRectTarget: TRect;
   VTileRect: TRect;
@@ -960,12 +960,13 @@ var
   VPixelRectCurrTile: TRect;
   i, j: Integer;
   VTile: TPoint;
-  VSpr:TCustomBitmap32;
+  VSpr: IBitmap32Static;
   VLoadResult: Boolean;
   VSourceBounds: TRect;
   VTargetBounds: TRect;
+  VBitmap: TCustomBitmap32;
 begin
-  Result := False;
+  Result := nil;
 
   VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
   VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
@@ -983,22 +984,21 @@ begin
       (VPixelRectCurrTile.Right = APixelRectTarget.Right) and
       (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom)
     then begin
-      Result := LoadTileOrPreZ(spr, VTileRect.TopLeft, Azoom, IgnoreError, AUsePre, ACache);
+      Result := LoadTileOrPreZ(VTileRect.TopLeft, Azoom, IgnoreError, AUsePre, ACache);
       exit;
     end;
   end;
-
-  spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-  spr.Clear(0);
-
-  VSpr := TCustomBitmap32.Create;
+  VBitmap := TCustomBitmap32.Create;
   try
+    VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
+    VBitmap.Clear(0);
+
     for i := VTileRect.Top to VTileRect.Bottom - 1 do begin
       VTile.Y := i;
       for j := VTileRect.Left to VTileRect.Right - 1 do begin
         VTile.X := j;
-        VLoadResult := LoadTileOrPreZ(VSpr, VTile, Azoom, IgnoreError, AUsePre, ACache);
-        if VLoadResult then begin
+        VSpr := LoadTileOrPreZ(VTile, Azoom, IgnoreError, AUsePre, ACache);
+        if VSpr <> nil then begin
           VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, Azoom);
 
           if VPixelRectCurrTile.Top < APixelRectTarget.Top then begin
@@ -1050,11 +1050,11 @@ begin
           end;
 
           BlockTransfer(
-            spr,
+            VBitmap,
             VTargetBounds.Left,
             VTargetBounds.Top,
-            spr.ClipRect,
-            VSpr,
+            VBitmap.ClipRect,
+            VSpr.Bitmap,
             VSourceBounds,
             dmOpaque
           );
@@ -1065,84 +1065,85 @@ begin
         end;
       end;
     end;
-    Result := True;
+    Result := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
   finally
-    VSpr.Free;
+    VBitmap.Free;
   end;
 end;
 
 function TMapType.LoadBtimapUni(
-  spr: TCustomBitmap32;
   APixelRectTarget: TRect;
   Azoom: byte;
   ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   ACache: ITileObjCacheBitmap
-): boolean;
+): IBitmap32Static;
 var
   VPixelRectTarget: TRect;
   VLonLatRectTarget: TDoubleRect;
   VTileRectInSource: TRect;
   VPixelRectOfTargetPixelRectInSource: TRect;
-  VSpr:TCustomBitmap32;
+  VSpr: IBitmap32Static;
   VTargetImageSize: TPoint;
   VResampler: TCustomResampler;
+  VBitmap: TCustomBitmap32;
 begin
-  Result := False;
+  Result := nil;
 
   if FCoordConverter.IsSameConverter(ACoordConverterTarget) then begin
-    Result := LoadBtimap(spr, APixelRectTarget, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    Result := LoadBtimap(APixelRectTarget, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
     VTargetImageSize.Y := APixelRectTarget.Bottom - APixelRectTarget.Top;
 
-    spr.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
-    spr.Clear(0);
     VPixelRectTarget := APixelRectTarget;
     ACoordConverterTarget.CheckPixelRect(VPixelRectTarget, Azoom);
     VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(VPixelRectTarget, Azoom);
     FCoordConverter.CheckLonLatRect(VLonLatRectTarget);
     VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, Azoom);
     VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, Azoom);
-
-    VSpr := TCustomBitmap32.Create;
-    try
-      if LoadBtimap(VSpr, VPixelRectOfTargetPixelRectInSource, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache) then begin
-        VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+    VSpr := LoadBtimap(VPixelRectOfTargetPixelRectInSource, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    if VSpr <> nil then begin
+      VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+      try
+        VBitmap := TCustomBitmap32.Create;
         try
+          VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
+          VBitmap.Clear(0);
           StretchTransfer(
-            spr,
-            spr.BoundsRect,
-            spr.ClipRect,
-            VSpr,
-            VSpr.BoundsRect,
+            VBitmap,
+            VBitmap.BoundsRect,
+            VBitmap.ClipRect,
+            VSpr.Bitmap,
+            VSpr.Bitmap.BoundsRect,
             VResampler,
             dmOpaque
           );
-          Result := True;
+          Result := TBitmap32Static.CreateWithOwn(VBitmap);
+          VBitmap := nil;
         finally
-          VResampler.Free;
+          VBitmap.Free;
         end;
+      finally
+        VResampler.Free;
       end;
-    finally
-      VSpr.Free;
     end;
   end;
 end;
 
 function TMapType.LoadTileUni(
-  spr: TCustomBitmap32;
   AXY: TPoint;
   Azoom: byte;
   ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   ACache: ITileObjCacheBitmap
-): boolean;
+): IBitmap32Static;
 var
   VPixelRect: TRect;
 begin
   VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, Azoom);
-  Result := LoadBtimapUni(spr, VPixelRect, Azoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
+  Result := LoadBtimapUni(VPixelRect, Azoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
 end;
 
 procedure TMapType.MapAttachmentsInfoParser(Sender: TObject;

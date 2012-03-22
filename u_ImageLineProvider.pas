@@ -6,6 +6,7 @@ uses
   Types,
   GR32,
   i_OperationNotifier,
+  i_Bitmap32Static,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -22,22 +23,15 @@ type
 
     FZoom: byte;
     FMainGeoConverter: ICoordConverter;
-    FTempBitmap: TCustomBitmap32;
     FPreparedData: array of Pointer;
     FPreparedConverter: ILocalCoordConverter;
 
     function PrepareConverterForLocalLine(ALine: Integer): ILocalCoordConverter;
     function GetLocalLine(ALine: Integer): Pointer;
     procedure AddTile(
-      ATargetBitmap: TCustomBitmap32;
+      ATargetBitmap: IBitmap32Static;
       AConverter: ILocalCoordConverter
     );
-    function PrepareTileBitmap(
-      AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ATargetBitmap: TCustomBitmap32;
-      AConverter: ILocalCoordConverter
-    ): Boolean;
     procedure PrepareBufferMem(ARect: TRect);
     procedure ClearBuffer;
     procedure PrepareBufferData(
@@ -124,24 +118,25 @@ begin
 
   FZoom := FLocalConverter.Zoom;
   FMainGeoConverter := FLocalConverter.GeoConverter;
-  FTempBitmap := TCustomBitmap32.Create;
 end;
 
 destructor TImageLineProviderAbstract.Destroy;
 begin
   ClearBuffer;
-  FreeAndNil(FTempBitmap);
   inherited;
 end;
 
-procedure TImageLineProviderAbstract.AddTile(ATargetBitmap: TCustomBitmap32;
-  AConverter: ILocalCoordConverter);
+procedure TImageLineProviderAbstract.AddTile(
+  ATargetBitmap: IBitmap32Static;
+  AConverter: ILocalCoordConverter
+);
 var
   i: Integer;
   VBitmapRect: TRect;
   VPreparedMapRect: TRect;
   VIntersectionAtPrepared: TRect;
   VIntersectionAtBitmap: TRect;
+  VSourceLine: PColor32;
 begin
   VBitmapRect := AConverter.GetRectInMapPixel;
   VPreparedMapRect := FPreparedConverter.GetRectInMapPixel;
@@ -159,8 +154,13 @@ begin
   VIntersectionAtPrepared := FPreparedConverter.MapRect2LocalRect(VBitmapRect);
   VIntersectionAtBitmap := AConverter.MapRect2LocalRect(VBitmapRect);
   for i := 0 to (VBitmapRect.Bottom - VBitmapRect.Top - 1) do begin
+    if ATargetBitmap <> nil then begin
+      VSourceLine := ATargetBitmap.Bitmap.PixelPtr[VIntersectionAtBitmap.Left, i];
+    end else begin
+      VSourceLine := nil;
+    end;
     PreparePixleLine(
-      ATargetBitmap.PixelPtr[VIntersectionAtBitmap.Left, i],
+      VSourceLine,
       Pointer(Integer(FPreparedData[i]) + VIntersectionAtPrepared.Left*FBytesPerPixel),
       VBitmapRect.Right - VBitmapRect.Left
     );
@@ -240,8 +240,10 @@ begin
     for j := VRectOfTile.Left to VRectOfTile.Right - 1 do begin
       VTile.X := j;
       VTileConverter := FConverterFactory.CreateForTile(VTile, FZoom, FMainGeoConverter);
-      PrepareTileBitmap(AOperationID, ACancelNotifier, FTempBitmap, VTileConverter);
-      AddTile(FTempBitmap, VTileConverter);
+      AddTile(
+        FImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VTileConverter),
+        VTileConverter
+      );
     end;
   end;
 end;
@@ -304,20 +306,6 @@ begin
     );
 end;
 
-function TImageLineProviderAbstract.PrepareTileBitmap(
-  AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ATargetBitmap: TCustomBitmap32;
-  AConverter: ILocalCoordConverter
-): Boolean;
-var
-  VTileSize: TPoint;
-begin
-  VTileSize := AConverter.GetLocalRectSize;
-  FTempBitmap.SetSize(VTileSize.X, VTileSize.Y);
-  Result := FImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ATargetBitmap, AConverter);
-end;
-
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
@@ -374,21 +362,28 @@ type
 
 { TImageLineProviderRGB }
 
-procedure TImageLineProviderRGB.PreparePixleLine(ASource: PColor32;
-  ATarget: Pointer; ACount: Integer);
+procedure TImageLineProviderRGB.PreparePixleLine(
+  ASource: PColor32;
+  ATarget: Pointer;
+  ACount: Integer
+);
 var
   i: Integer;
   VSource: PColor32Entry;
   VTarget: ^TRGB;
 begin
-  VSource := PColor32Entry(ASource);
-  VTarget := ATarget;
-  for i := 0 to  ACount - 1 do begin
-    VTarget.B := VSource.B;
-    VTarget.G := VSource.G;
-    VTarget.R := VSource.R;
-    Inc(VSource);
-    Inc(VTarget);
+  if ASource <> nil then begin
+    VSource := PColor32Entry(ASource);
+    VTarget := ATarget;
+    for i := 0 to  ACount - 1 do begin
+      VTarget.B := VSource.B;
+      VTarget.G := VSource.G;
+      VTarget.R := VSource.R;
+      Inc(VSource);
+      Inc(VTarget);
+    end;
+  end else begin
+    FillChar(ATarget^, ACount * SizeOf(VTarget^), 0);
   end;
 end;
 
@@ -401,14 +396,18 @@ var
   VSource: PColor32Entry;
   VTarget: ^TBGR;
 begin
-  VSource := PColor32Entry(ASource);
-  VTarget := ATarget;
-  for i := 0 to  ACount - 1 do begin
-    VTarget.B := VSource.B;
-    VTarget.G := VSource.G;
-    VTarget.R := VSource.R;
-    Inc(VSource);
-    Inc(VTarget);
+  if ASource <> nil then begin
+    VSource := PColor32Entry(ASource);
+    VTarget := ATarget;
+    for i := 0 to  ACount - 1 do begin
+      VTarget.B := VSource.B;
+      VTarget.G := VSource.G;
+      VTarget.R := VSource.R;
+      Inc(VSource);
+      Inc(VTarget);
+    end;
+  end else begin
+    FillChar(ATarget^, ACount * SizeOf(VTarget^), 0);
   end;
 end;
 
@@ -421,15 +420,19 @@ var
   VSource: PColor32Entry;
   VTarget: ^TRGBA;
 begin
-  VSource := PColor32Entry(ASource);
-  VTarget := ATarget;
-  for i := 0 to  ACount - 1 do begin
-    VTarget.B := VSource.B;
-    VTarget.G := VSource.G;
-    VTarget.R := VSource.R;
-    VTarget.A := VSource.A;
-    Inc(VSource);
-    Inc(VTarget);
+  if ASource <> nil then begin
+    VSource := PColor32Entry(ASource);
+    VTarget := ATarget;
+    for i := 0 to  ACount - 1 do begin
+      VTarget.B := VSource.B;
+      VTarget.G := VSource.G;
+      VTarget.R := VSource.R;
+      VTarget.A := VSource.A;
+      Inc(VSource);
+      Inc(VTarget);
+    end;
+  end else begin
+    FillChar(ATarget^, ACount * SizeOf(VTarget^), 0);
   end;
 end;
 
@@ -438,7 +441,11 @@ end;
 procedure TImageLineProviderBGRA.PreparePixleLine(ASource: PColor32;
   ATarget: Pointer; ACount: Integer);
 begin
-  Move(ASource^, ATarget^, ACount); 
+  if ASource <> nil then begin
+    Move(ASource^, ATarget^, ACount * SizeOf(ASource^));
+  end else begin
+    FillChar(ATarget^, ACount * SizeOf(ASource^), 0);
+  end;
 end;
 
 end.

@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo,
+  i_Bitmap32Static,
   i_VectorDataItemSimple,
   i_IdCacheSimple,
   i_LocalCoordConverter,
@@ -85,9 +86,8 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    ): Boolean;
+    ): IBitmap32Static;
   public
     constructor Create(
       AColorMain: TColor32;
@@ -107,6 +107,7 @@ uses
   SysUtils,
   GR32_Polygons,
   i_EnumDoublePoint,
+  u_Bitmap32Static,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointMapPixelToLocalPixel,
@@ -404,9 +405,11 @@ begin
   end;
 end;
 
-function TBitmapLayerProviderByVectorSubset.GetBitmapRect(AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier; ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter): Boolean;
+function TBitmapLayerProviderByVectorSubset.GetBitmapRect(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  ALocalConverter: ILocalCoordConverter
+): IBitmap32Static;
 var
   i: Integer;
   VItem: IVectorDataItemSimple;
@@ -416,6 +419,8 @@ var
   VLLRect: TDoubleRect;
   VMarkLonLatRect: TDoubleRect;
   VBitmapInited: Boolean;
+  VTargetBmp: TCustomBitmap32;
+  VIsEmpty: Boolean;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
@@ -424,22 +429,34 @@ begin
   VLLRect := VGeoConvert.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
   VBitmapInited := False;
-  Result := False;
-  for i := 0 to FVectorItems.Count - 1 do begin
-    VItem := IVectorDataItemSimple(FVectorItems[i]);
-    VMarkLonLatRect := VItem.LLRect;
-    if(
-      (VLLRect.Right >= VMarkLonLatRect.Left)and
-      (VLLRect.Left <= VMarkLonLatRect.Right)and
-      (VLLRect.Bottom <= VMarkLonLatRect.Top)and
-      (VLLRect.Top >= VMarkLonLatRect.Bottom))
-    then begin
-      if DrawWikiElement(VBitmapInited, ATargetBmp, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
-        Result := True;
+  Result := nil;
+  if FVectorItems.Count > 0 then begin
+    VTargetBmp := TCustomBitmap32.Create;
+    try
+      VIsEmpty := True;
+      for i := 0 to FVectorItems.Count - 1 do begin
+        VItem := IVectorDataItemSimple(FVectorItems[i]);
+        VMarkLonLatRect := VItem.LLRect;
+        if(
+          (VLLRect.Right >= VMarkLonLatRect.Left)and
+          (VLLRect.Left <= VMarkLonLatRect.Right)and
+          (VLLRect.Bottom <= VMarkLonLatRect.Top)and
+          (VLLRect.Top >= VMarkLonLatRect.Bottom))
+        then begin
+          if DrawWikiElement(VBitmapInited, VTargetBmp, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
+            VIsEmpty := True;
+          end;
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Break;
+          end;
+        end;
       end;
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Break;
+      if not VIsEmpty then begin
+        Result := TBitmap32Static.CreateWithOwn(VTargetBmp);
+        VTargetBmp := nil;
       end;
+    finally
+      VTargetBmp.Free;
     end;
   end;
 end;
@@ -494,6 +511,7 @@ begin
   VSize := ALocalConverter.GetLocalRectSize;
   ATargetBmp.SetSize(VSize.X, VSize.Y);
   ATargetBmp.Clear(0);
+  ATargetBmp.CombineMode := cmMerge;
 end;
 
 end.

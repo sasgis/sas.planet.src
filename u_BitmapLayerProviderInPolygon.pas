@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   i_OperationNotifier,
+  i_Bitmap32Static,
   i_LocalCoordConverter,
   i_VectorItemProjected,
   i_BitmapLayerProvider;
@@ -19,9 +20,8 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    ): Boolean;
+    ): IBitmap32Static;
   public
     constructor Create(
       APolyProjected: IProjectedPolygon;
@@ -49,20 +49,18 @@ end;
 function TBitmapLayerProviderInPolygon.GetBitmapRect(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
-  ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter
-): Boolean;
+): IBitmap32Static;
 begin
   if FLine.IsRectIntersectPolygon(ALocalConverter.GetRectInMapPixelFloat) then begin
     Result :=
       FSourceProvider.GetBitmapRect(
         AOperationID,
         ACancelNotifier,
-        ATargetBmp,
         ALocalConverter
       );
   end else begin
-    Result := False;
+    Result := nil;
   end;
 end;
 

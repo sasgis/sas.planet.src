@@ -83,6 +83,7 @@ uses
   GR32_Resamplers,
   c_CoordConverter,
   i_LocalCoordConverter,
+  i_Bitmap32Static,
   u_GeoToStr,
   u_ResStrings,
   i_VectorItemProjected,
@@ -307,7 +308,7 @@ var
   VTileStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
-  bmp32: TCustomBitmap32;
+  VBitmapTile: IBitmap32Static;
   Vbmp32crop: TCustomBitmap32;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
@@ -331,7 +332,6 @@ begin
   end;
 
   VTileStream := TMemoryStream.Create;
-  bmp32 := TCustomBitmap32.Create;
   Vbmp32crop := TCustomBitmap32.Create;
   try
     Vbmp32crop.Width := sizeim;
@@ -436,13 +436,12 @@ begin
                 end;
                 VTileConverter := FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
                 for j := 0 to Length(FTasks) - 1 do begin
-                  if
+                  VBitmapTile :=
                     FTasks[j].FImageProvider.GetBitmapRect(
                       OperationID, CancelNotifier,
-                      bmp32,
                       FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-                    )
-                  then begin
+                    );
+                  if VBitmapTile <> nil then begin
                     for xi := 0 to hxyi - 1 do begin
                       for yi := 0 to hxyi - 1 do begin
                         Vbmp32crop.Clear;
@@ -451,7 +450,7 @@ begin
                           0,
                           0,
                           Vbmp32crop.ClipRect,
-                          bmp32,
+                          VBitmapTile.Bitmap,
                           bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                           dmOpaque
                         );
@@ -499,7 +498,6 @@ begin
   finally
     VTileStream.Free;
     Vbmp32crop.Free;
-    bmp32.Free;
   end;
 end;
 

@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   i_OperationNotifier,
+  i_Bitmap32Static,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
@@ -25,9 +26,8 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    ): Boolean;
+    ): IBitmap32Static;
   public
     constructor Create(
       ARecolorConfig: IBitmapPostProcessingConfigStatic;
@@ -44,7 +44,8 @@ implementation
 
 uses
   SysUtils,
-  GR32_Resamplers;
+  GR32_Resamplers,
+  u_Bitmap32Static;
 
 { TBitmapLayerProviderSimpleForCombine }
 
@@ -74,56 +75,73 @@ end;
 function TBitmapLayerProviderSimpleForCombine.GetBitmapRect(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
-  ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter
-): Boolean;
+): IBitmap32Static;
+var
+  VLayer: IBitmap32Static;
+  VResultBmp: TCustomBitmap32;
 begin
-  Result := False;
+  Result := nil;
+  VLayer := nil;
   if FMapTypeMain <> nil then begin
-    Result := FMapTypeMain.LoadBtimapUni(ATargetBmp, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+    Result := FMapTypeMain.LoadBtimapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
   end;
+
   if FMapTypeHybr <> nil then begin
-    if Result then begin
-      if
-        FMapTypeHybr.LoadBtimapUni(FTempBitmap, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True)
-      then begin
+    VLayer := FMapTypeHybr.LoadBtimapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
+  end;
+
+  if Result <> nil then begin
+    if VLayer <> nil then begin
+      VResultBmp := TCustomBitmap32.Create;
+      try
+        VResultBmp.Assign(Result.Bitmap);
         BlockTransfer(
-          ATargetBmp,
-          0,
-          0,
-          ATargetBmp.ClipRect,
-          FTempBitmap,
-          FTempBitmap.BoundsRect,
+          VResultBmp,
+          0, 0,
+          VResultBmp.ClipRect,
+          VLayer.Bitmap,
+          VLayer.Bitmap.BoundsRect,
           dmBlend
         );
+        Result := TBitmap32Static.CreateWithOwn(VResultBmp);
+        VResultBmp := nil;
+      finally
+        VResultBmp.Free;
       end;
-    end else begin
-      Result := FMapTypeHybr.LoadBtimapUni(ATargetBmp, ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
     end;
+  end else begin
+    Result := VLayer;
   end;
-  if Result then begin
+  if Result <> nil then begin
     if FRecolorConfig <> nil then begin
-      FRecolorConfig.ProcessBitmap(ATargetBmp);
+      Result := FRecolorConfig.Process(Result);
     end;
   end;
   if FMarksImageProvider <> nil then begin
-    if Result then begin
-      if
-        FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, FTempBitmap, ALocalConverter)
-      then begin
+    VLayer := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
+  end;
+  if Result <> nil then begin
+    if VLayer <> nil then begin
+      VResultBmp := TCustomBitmap32.Create;
+      try
+        VResultBmp.Assign(Result.Bitmap);
         BlockTransfer(
-          ATargetBmp,
-          0,
-          0,
-          ATargetBmp.ClipRect,
-          FTempBitmap,
-          FTempBitmap.BoundsRect,
+          VResultBmp,
+          0, 0,
+          VResultBmp.ClipRect,
+          VLayer.Bitmap,
+          VLayer.Bitmap.BoundsRect,
           dmBlend
         );
+        Result := TBitmap32Static.CreateWithOwn(VResultBmp);
+        VResultBmp := nil;
+      finally
+        VResultBmp.Free;
       end;
-    end else begin
-      Result := FMarksImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, ATargetBmp, ALocalConverter);
     end;
+  end else begin
+    Result := VLayer;
   end;
 end;
 

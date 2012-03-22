@@ -2968,6 +2968,7 @@ var
   VMapType: TMapType;
   VLocalConverter: ILocalCoordConverter;
   VTile: TPoint;
+  VBitmapTile: IBitmap32Static;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -2977,9 +2978,11 @@ begin
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VTile := VConverter.PixelPosFloat2TilePos(VMouseMapPoint, VZoomCurr);
-  btm:=TBitmap32.Create;
-  try
-    if VMapType.LoadTileUni(btm, VTile, VZoomCurr, VConverter, True, True, False) then begin
+  VBitmapTile := VMapType.LoadTileUni(VTile, VZoomCurr, VConverter, True, True, False);
+  if VBitmapTile <> nil then begin
+    btm := TBitmap32.Create;
+    try
+      btm.Assign(VBitmapTile.Bitmap);
       btm1:=TBitmap.Create;
       try
         btm1.Width:=btm.Width;
@@ -2989,9 +2992,9 @@ begin
       finally
         btm1.Free;
       end;
+    finally
+      btm.Free;
     end;
-  finally
-    btm.Free;
   end;
 end;
 

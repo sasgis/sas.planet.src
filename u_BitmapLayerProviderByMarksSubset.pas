@@ -32,6 +32,7 @@ uses
   i_IdCacheSimple,
   i_LocalCoordConverter,
   i_OperationNotifier,
+  i_Bitmap32Static,
   i_MarksDrawConfig,
   i_MarkPicture,
   i_MarksSimple,
@@ -96,9 +97,8 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    ): Boolean;
+    ): IBitmap32Static;
   public
     constructor Create(
       AConfig: IMarksDrawConfigStatic;
@@ -121,6 +121,7 @@ uses
   GR32_Polygons,
   i_BitmapMarker,
   i_EnumDoublePoint,
+  u_Bitmap32Static,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointMapPixelToLocalPixel,
@@ -550,9 +551,8 @@ end;
 function TBitmapLayerProviderByMarksSubset.GetBitmapRect(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
-  ATargetBmp: TCustomBitmap32;
   ALocalConverter: ILocalCoordConverter
-): Boolean;
+): IBitmap32Static;
 var
   VRectWithDelta: TRect;
   VLocalRect: TRect;
@@ -562,6 +562,7 @@ var
   VZoom: Byte;
   VMarksSubset: IMarksSubset;
   VDeltaSizeInPixel: TRect;
+  VTargetBmp: TCustomBitmap32;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
   VDeltaSizeInPixel := FConfig.OverSizeRect;
@@ -575,8 +576,18 @@ begin
   VConverter.CheckPixelRectFloat(VTargetRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
-
-  Result := DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, ATargetBmp, ALocalConverter);
+  Result := nil;
+  if not VMarksSubset.IsEmpty then begin
+    VTargetBmp := TCustomBitmap32.Create;
+    try
+      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VTargetBmp, ALocalConverter) then begin
+        Result := TBitmap32Static.CreateWithOwn(VTargetBmp);
+        VTargetBmp := nil;
+      end;
+    finally
+      VTargetBmp.Free;
+    end;
+  end;
 end;
 
 function TBitmapLayerProviderByMarksSubset.GetProjectedPath(
@@ -671,6 +682,7 @@ begin
   VSize := ALocalConverter.GetLocalRectSize;
   ATargetBmp.SetSize(VSize.X, VSize.Y);
   ATargetBmp.Clear(0);
+  ATargetBmp.CombineMode := cmMerge;
 end;
 
 end.

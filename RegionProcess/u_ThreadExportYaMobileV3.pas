@@ -73,6 +73,7 @@ uses
   GR32_Resamplers,
   c_CoordConverter,
   i_CoordConverter,
+  i_Bitmap32Static,
   i_VectorItemProjected,
   i_TileIterator,
   i_LocalCoordConverter,
@@ -303,7 +304,8 @@ procedure TThreadExportYaMobileV3.ProcessRegion;
 var
   i, j, xi, yi, hxyi, sizeim: integer;
   VZoom: Byte;
-  bmp32, bmp32crop: TCustomBitmap32;
+  VBitmapTile: IBitmap32Static;
+  bmp32crop: TCustomBitmap32;
   TileStream: TMemoryStream;
   tc: cardinal;
   VGeoConvert: ICoordConverter;
@@ -315,14 +317,12 @@ var
   VTileConverter: ILocalCoordConverter;
 begin
   inherited;
-  bmp32 := TCustomBitmap32.Create;
   bmp32crop := TCustomBitmap32.Create;
   try
     hxyi := 1;
     sizeim := 128;
     TileStream := TMemoryStream.Create;
     try
-      bmp32.DrawMode := dmBlend;
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
       VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
@@ -358,13 +358,12 @@ begin
             end;
             VTileConverter := FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
             for j := 0 to length(FTasks) - 1 do begin
-              if
+              VBitmapTile :=
                 FTasks[j].FImageProvider.GetBitmapRect(
                   OperationID, CancelNotifier,
-                  bmp32,
                   FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-                )
-              then begin
+                );
+              if VBitmapTile <> nil then begin
                 for xi := 0 to hxyi do begin
                   for yi := 0 to hxyi do begin
                     bmp32crop.Clear;
@@ -373,7 +372,7 @@ begin
                       0,
                       0,
                       bmp32crop.ClipRect,
-                      bmp32,
+                      VBitmapTile.Bitmap,
                       bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                       dmOpaque
                     );
@@ -409,7 +408,6 @@ begin
       TileStream.Free;
     end;
   finally
-    bmp32.Free;
     bmp32crop.Free;
   end;
 end;

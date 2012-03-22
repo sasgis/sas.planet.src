@@ -48,6 +48,7 @@ implementation
 
 uses
   KAZip,
+  i_Bitmap32Static,
   i_CoordConverter,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
@@ -104,7 +105,6 @@ var
   Zip: TKaZip;
 
   VPixelRect: TRect;
-  VBmp: TCustomBitmap32;
   VLocalConverter: ILocalCoordConverter;
   VLocalRect: TRect;
   JPGSaver: IBitmapTileSaver;
@@ -114,6 +114,7 @@ var
   VMapPieceSize: TPoint;
   VTilesProcessed: Integer;
   VTilesToProcess: Integer;
+  VBitmapTile: IBitmap32Static;
 begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
@@ -138,9 +139,6 @@ begin
     kmlm := TMemoryStream.Create;
     try
       str := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
-      VBmp := TCustomBitmap32.Create;
-      try
-        VBmp.SetSize(iWidth, iHeight);
         VLocalRect.Left := 0;
         VLocalRect.Top := 0;
         VLocalRect.Right := iWidth;
@@ -163,11 +161,12 @@ begin
                   VGeoConverter,
                   VPixelRect.TopLeft
                 );
-              if AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VBmp, VLocalConverter) then begin
+              VBitmapTile := AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
+              if VBitmapTile <> nil then begin
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
                   break;
                 end;
-                JPGSaver.SaveToStream(VBmp, jpgm);
+                JPGSaver.SaveToStream(VBitmapTile.Bitmap, jpgm);
 
                 VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
                 VNameInKmz := 'files/' + VFileName;
@@ -189,9 +188,6 @@ begin
             ProgressFormUpdateOnProgress(VTilesProcessed/VTilesToProcess);
           end;
         end;
-      finally
-        VBmp.Free;
-      end;
       str := str + ansiToUTF8('</Folder>' + #13#10 + '</kml>');
       kmlm.Write(str[1], length(str));
       kmlm.Position := 0;

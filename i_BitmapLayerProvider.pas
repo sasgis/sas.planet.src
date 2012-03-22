@@ -23,8 +23,8 @@ unit i_BitmapLayerProvider;
 interface
 
 uses
-  GR32,
   i_OperationNotifier,
+  i_Bitmap32Static,
   i_LocalCoordConverter;
 
 type
@@ -33,9 +33,8 @@ type
     function GetBitmapRect(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      ATargetBmp: TCustomBitmap32;
       ALocalConverter: ILocalCoordConverter
-    ): Boolean;
+    ): IBitmap32Static;
   end;
 
 implementation

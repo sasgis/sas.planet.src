@@ -128,6 +128,7 @@ uses
   u_Synchronizer,
   GR32_Resamplers,
   i_TileIterator,
+  i_Bitmap32Static,
   i_EnumDoublePoint,
   i_BitmapLayerProvider,
   u_IdCacheSimpleThreadSafe,
@@ -197,7 +198,7 @@ procedure TMapMarksLayer.DrawBitmap(
   ACancelNotifier: IOperationNotifier
 );
 var
-  VTileToDrawBmp: TCustomBitmap32;
+  VBitmapTile: IBitmap32Static;
 
   VGeoConvert: ICoordConverter;
   VBitmapConverter: ILocalCoordConverter;
@@ -219,7 +220,6 @@ var
   VMapRect: TDoubleRect;
   VCounterContext: TInternalPerformanceCounterContext;
   VTileConverter: ILocalCoordConverter;
-  VResult: Boolean;
 begin
   VBitmapConverter := LayerCoordConverter;
   if VBitmapConverter <> nil then begin
@@ -260,9 +260,6 @@ begin
       VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
 
-      VTileToDrawBmp := TCustomBitmap32.Create;
-      VTileToDrawBmp.CombineMode:=cmMerge;
-      try
         if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           while VTileIterator.Next(VTile) do begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -273,11 +270,10 @@ begin
             VCurrTilePixelRect := VTileConverter.GetRectInMapPixel;
             VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
-            VResult :=
+            VBitmapTile :=
               VProv.GetBitmapRect(
                 AOperationID,
                 ACancelNotifier,
-                VTileToDrawBmp,
                 VTileConverter
               );
             Layer.Bitmap.Lock;
@@ -285,15 +281,14 @@ begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 break;
               end;
-              if VResult then begin
-                VTileToDrawBmp.CombineMode := cmMerge;
+              if VBitmapTile <> nil then begin
                 BlockTransfer(
                   Layer.Bitmap,
                   VCurrTileOnBitmapRect.Left,
                   VCurrTileOnBitmapRect.Top,
                   Layer.Bitmap.ClipRect,
-                  VTileToDrawBmp,
-                  VTileToDrawBmp.BoundsRect,
+                  VBitmapTile.Bitmap,
+                  VBitmapTile.Bitmap.BoundsRect,
                   dmOpaque
                 );
               end else begin
@@ -311,9 +306,6 @@ begin
             end;
           end;
         end;
-      finally
-        VTileToDrawBmp.Free;
-      end;
     end else begin
       Layer.Bitmap.Lock;
       try
