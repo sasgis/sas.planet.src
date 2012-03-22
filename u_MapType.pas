@@ -936,8 +936,6 @@ function TMapType.LoadTileOrPreZ(
   AUsePre: Boolean;
   ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
-var
-  VBitmap: TCustomBitmap32;
 begin
   Result := LoadTile(AXY, Azoom, IgnoreError, ACache);
   if Result = nil then begin
@@ -961,7 +959,6 @@ var
   i, j: Integer;
   VTile: TPoint;
   VSpr: IBitmap32Static;
-  VLoadResult: Boolean;
   VSourceBounds: TRect;
   VTargetBounds: TRect;
   VBitmap: TCustomBitmap32;
