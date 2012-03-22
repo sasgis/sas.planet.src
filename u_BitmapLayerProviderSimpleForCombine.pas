@@ -20,8 +20,6 @@ type
     FMarksImageProvider: IBitmapLayerProvider;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-
-    FTempBitmap: TCustomBitmap32;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -37,7 +35,6 @@ type
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -62,14 +59,6 @@ begin
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
   FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
   FRecolorConfig := ARecolorConfig;
-
-  FTempBitmap := TCustomBitmap32.Create;
-end;
-
-destructor TBitmapLayerProviderSimpleForCombine.Destroy;
-begin
-  FreeAndNil(FTempBitmap);
-  inherited;
 end;
 
 function TBitmapLayerProviderSimpleForCombine.GetBitmapRect(

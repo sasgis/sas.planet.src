@@ -17,8 +17,6 @@ type
     FMapTypeHybr: TMapType;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-
-    FTempBitmap: TCustomBitmap32;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -32,7 +30,6 @@ type
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -51,14 +48,6 @@ begin
   FMapTypeHybr := AMapTypeHybr;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
   FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
-
-  FTempBitmap := TCustomBitmap32.Create;
-end;
-
-destructor TBitmapLayerProviderMapWithLayer.Destroy;
-begin
-  FreeAndNil(FTempBitmap);
-  inherited;
 end;
 
 function TBitmapLayerProviderMapWithLayer.GetBitmapRect(
