@@ -251,10 +251,17 @@ begin
       FHttpErrorCode := VResultWithRespond.StatusCode;
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         // save to stream
-        FMemoryStream.Position:=0;
-        FMemoryStream.SetSize(VResultOk.Data.Size);
-        CopyMemory(FMemoryStream.Memory, VResultOk.Data.Buffer, VResultOk.Data.Size);
-        Result:=TRUE;
+        if (System.Pos(FContentType, VResultOk.ContentType)>0) then begin
+          // ok
+          FMemoryStream.Position:=0;
+          FMemoryStream.SetSize(VResultOk.Data.Size);
+          CopyMemory(FMemoryStream.Memory, VResultOk.Data.Buffer, VResultOk.Data.Size);
+          Result:=TRUE;
+        end else begin
+          // invalid ContentType
+          FMemoryStream.Position:=0;
+          FMemoryStream.SetSize(0);
+        end;
       end;
     end else if Supports(VResult, IDownloadResultError, VDownloadResultError) then begin
       // error

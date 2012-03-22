@@ -325,6 +325,8 @@ begin
     
       // date as 2007/05/06
       VDate := GetWord(VLine, ',', 2);
+      if (Length(VDate)<10) then
+        break;
       VDate[5] := DateSeparator;
       VDate[8] := DateSeparator;
 
