@@ -43,6 +43,15 @@ type
     function GetCount: Integer;
   end;
 
+  IMapTypeListStatic = interface
+    ['{0A48D2E0-5C39-4E1A-A438-B50535E6D69B}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetItem(AIndex: Integer): IMapType;
+    property Items[AIndex: Integer]: IMapType read GetItem;
+  end;
+
 implementation
 
 end.

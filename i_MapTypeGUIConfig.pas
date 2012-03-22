@@ -43,6 +43,9 @@ type
     function GetSeparator: Boolean;
     property Separator: Boolean read GetSeparator;
 
+    function GetLayerZOrder: Integer;
+    property LayerZOrder: Integer read GetLayerZOrder;
+
     function GetParentSubMenu: string;
     property ParentSubMenu: string read GetParentSubMenu;
 
@@ -75,6 +78,10 @@ type
     function GetSeparator: Boolean;
     procedure SetSeparator(const AValue: Boolean);
     property Separator: Boolean read GetSeparator write SetSeparator;
+
+    function GetLayerZOrder: Integer;
+    procedure SetLayerZOrder(AValue: Integer);
+    property LayerZOrder: Integer read GetLayerZOrder write SetLayerZOrder;
 
     function GetParentSubMenu: IStringConfigDataElement;
     property ParentSubMenu: IStringConfigDataElement read GetParentSubMenu;

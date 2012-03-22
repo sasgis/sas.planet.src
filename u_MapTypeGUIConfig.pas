@@ -41,6 +41,7 @@ type
     FSortIndex: Integer;
     FHotKey: TShortCut;
     FSeparator: Boolean;
+    FLayerZOrder: Integer;
     FParentSubMenu: IStringConfigDataElement;
     FEnabled: Boolean;
     FInfoUrl: IStringConfigDataElement;
@@ -59,6 +60,9 @@ type
 
     function GetSeparator: Boolean;
     procedure SetSeparator(const AValue: Boolean);
+
+    function GetLayerZOrder: Integer;
+    procedure SetLayerZOrder(AValue: Integer);
 
     function GetParentSubMenu: IStringConfigDataElement;
 
@@ -130,6 +134,7 @@ begin
   end;
   FHotKey := FDefConfig.HotKey;
   FSeparator := FDefConfig.Separator;
+  FLayerZOrder := FDefConfig.LayerZOrder;
   FEnabled := FDefConfig.Enabled;
 end;
 
@@ -143,6 +148,7 @@ begin
       FSortIndex,
       FHotKey,
       FSeparator,
+      FLayerZOrder,
       FParentSubMenu.Value,
       FEnabled,
       FInfoUrl.Value,
@@ -158,6 +164,7 @@ begin
   if AConfigData <> nil then begin
     FHotKey := AConfigData.ReadInteger('HotKey', FHotKey);
     FSeparator := AConfigData.ReadBool('separator', FSeparator);
+    FLayerZOrder := AConfigData.ReadInteger('LayerZOrder', FLayerZOrder);
     FEnabled := AConfigData.ReadBool('Enabled', FEnabled);
     FSortIndex := AConfigData.ReadInteger('pnum', FSortIndex);
     SetChanged;
@@ -172,6 +179,11 @@ begin
     AConfigData.WriteBool('Separator', FSeparator);
   end else begin
     AConfigData.DeleteValue('Separator');
+  end;
+  if FLayerZOrder <> FDefConfig.LayerZOrder then begin
+    AConfigData.WriteInteger('LayerZOrder', FLayerZOrder);
+  end else begin
+    AConfigData.DeleteValue('LayerZOrder');
   end;
   if FEnabled <> FDefConfig.Enabled then begin
     AConfigData.WriteBool('Enabled', FEnabled);
@@ -223,6 +235,16 @@ end;
 function TMapTypeGUIConfig.GetInfoUrl: IStringConfigDataElement;
 begin
   Result := FInfoUrl;
+end;
+
+function TMapTypeGUIConfig.GetLayerZOrder: Integer;
+begin
+  LockRead;
+  try
+    Result := FLayerZOrder;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMapTypeGUIConfig.GetName: IStringConfigDataElement;
@@ -279,6 +301,19 @@ begin
   try
     if FHotKey <> AValue then begin
       FHotKey := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapTypeGUIConfig.SetLayerZOrder(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FLayerZOrder <> AValue then begin
+      FLayerZOrder := AValue;
       SetChanged;
     end;
   finally

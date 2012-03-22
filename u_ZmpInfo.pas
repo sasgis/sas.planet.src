@@ -57,6 +57,7 @@ type
     FBmp24: IBitmap32Static;
     FHotKey: TShortCut;
     FSeparator: Boolean;
+    FLayerZOrder: Integer;
     FEnabled: Boolean;
   private
     procedure LoadConfig(
@@ -91,6 +92,7 @@ type
     function GetBmp24: IBitmap32Static;
     function GetHotKey: TShortCut;
     function GetSeparator: Boolean;
+    function GetLayerZOrder: Integer;
     function GetParentSubMenu: IStringByLanguage;
     function GetEnabled: Boolean;
   public
@@ -302,6 +304,11 @@ begin
   Result := FInfoUrl;
 end;
 
+function TZmpInfoGUI.GetLayerZOrder: Integer;
+begin
+  Result := FLayerZOrder;
+end;
+
 function TZmpInfoGUI.GetName: IStringByLanguage;
 begin
   Result := FName;
@@ -469,6 +476,7 @@ begin
   FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
   FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
   FSeparator := AConfig.ReadBool('separator', false);
+  FLayerZOrder := AConfig.ReadInteger('LayerZOrder', 0);
   FEnabled := AConfig.ReadBool('Enabled', true);
   FSortIndex := AConfig.ReadInteger('pnum', -1);
 end;
