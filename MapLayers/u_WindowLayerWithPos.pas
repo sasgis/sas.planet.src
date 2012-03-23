@@ -80,10 +80,9 @@ type
   TWindowLayerBasic = class(TWindowLayerWithPosBase)
   private
     FVisible: Boolean;
-    FLayer: TPositionedLayer;
+    FLayer: TCustomLayer;
 
     FNeedRedraw: Boolean;
-    FNeedUpdateLocation: Boolean;
     FNeedRedrawCS: IReadWriteSync;
     FRedrawCounter: IInternalPerformanceCounter;
   protected
@@ -91,14 +90,8 @@ type
     procedure SetVisible(const Value: Boolean); virtual;
 
     procedure SetNeedRedraw; virtual;
-    procedure SetNeedUpdateLocation; virtual;
 
     function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
-
-    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
-    procedure UpdateLayerLocationIfNeed; virtual;
-    procedure UpdateLayerLocation; virtual;
-    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
 
     procedure Show; virtual;
     procedure DoShow; virtual;
@@ -107,7 +100,7 @@ type
     procedure DoRedraw; virtual; abstract;
     procedure RedrawIfNeed; virtual;
 
-    property LayerPositioned: TPositionedLayer read FLayer;
+    property LayerPositioned: TCustomLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
@@ -115,7 +108,7 @@ type
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
-      ALayer: TPositionedLayer;
+      ALayer: TCustomLayer;
       AViewPortState: IViewPortState;
       AListenScaleChange: Boolean
     );
@@ -128,6 +121,10 @@ type
     FNeedUpdateLayerSize: Boolean;
   protected
     FLayer: TBitmapLayer;
+
+    FNeedUpdateLocation: Boolean;
+    FNeedUpdateLocationCS: IReadWriteSync;
+
     procedure SetNeedUpdateLayerSize; virtual;
 
     procedure UpdateLayerSize; virtual;
@@ -135,6 +132,14 @@ type
     procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
     function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
+    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
+    procedure UpdateLayerLocationIfNeed; virtual;
+    procedure UpdateLayerLocation; virtual;
+    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
+  protected
+    procedure SetNeedUpdateLocation; virtual;
+    procedure SetNeedRedraw; override;
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
     procedure DoHide; override;
     procedure DoShow; override;
     procedure DoViewUpdate; override;
@@ -331,7 +336,7 @@ end;
 
 constructor TWindowLayerBasic.Create(
   APerfList: IInternalPerformanceCounterList;
-  ALayer: TPositionedLayer;
+  ALayer: TCustomLayer;
   AViewPortState: IViewPortState;
   AListenScaleChange: Boolean
 );
@@ -358,7 +363,6 @@ procedure TWindowLayerBasic.DoViewUpdate;
 begin
   inherited;
   RedrawIfNeed;
-  UpdateLayerLocationIfNeed;
 end;
 
 procedure TWindowLayerBasic.Hide;
@@ -378,7 +382,6 @@ procedure TWindowLayerBasic.DoHide;
 begin
   FVisible := False;
   FLayer.Visible := False;
-  SetNeedUpdateLocation;
   SetNeedRedraw;
 end;
 
@@ -399,13 +402,7 @@ procedure TWindowLayerBasic.DoShow;
 begin
   FVisible := True;
   FLayer.Visible := True;
-  SetNeedUpdateLocation;
   SetNeedRedraw;
-end;
-
-procedure TWindowLayerBasic.DoUpdateLayerLocation(ANewLocation: TFloatRect);
-begin
-  FLayer.Location := ANewLocation;
 end;
 
 function TWindowLayerBasic.GetVisible: Boolean;
@@ -417,38 +414,6 @@ function TWindowLayerBasic.GetVisibleForNewPos(
   ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
 begin
   Result := FVisible;
-end;
-
-procedure TWindowLayerBasic.UpdateLayerLocation;
-begin
-  if FVisible then begin
-    FNeedRedrawCS.BeginWrite;
-    try
-      FNeedUpdateLocation := False;
-    finally
-      FNeedRedrawCS.EndWrite;
-    end;
-    DoUpdateLayerLocation(GetMapLayerLocationRect);
-  end;
-end;
-
-procedure TWindowLayerBasic.UpdateLayerLocationIfNeed;
-var
-  VNeed: Boolean;
-begin
-  VNeed := False;
-  FNeedRedrawCS.BeginWrite;
-  try
-    if FNeedUpdateLocation then begin
-      FNeedUpdateLocation := False;
-      VNeed := True;
-    end;
-  finally
-    FNeedRedrawCS.EndWrite;
-  end;
-  if VNeed then begin
-    UpdateLayerLocation;
-  end;
 end;
 
 procedure TWindowLayerBasic.Redraw;
@@ -505,17 +470,6 @@ begin
   finally
     FNeedRedrawCS.EndWrite;
   end;
-  SetNeedUpdateLocation;
-end;
-
-procedure TWindowLayerBasic.SetNeedUpdateLocation;
-begin
-  FNeedRedrawCS.BeginWrite;
-  try
-    FNeedUpdateLocation := True;
-  finally
-    FNeedRedrawCS.EndWrite;
-  end;
 end;
 
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);
@@ -537,6 +491,7 @@ constructor TWindowLayerWithBitmap.Create(
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(APerfList, FLayer, AViewPortState, True);
+  FNeedUpdateLocationCS := MakeSyncFake(Self);
 
   FLayer.Bitmap.DrawMode := dmBlend;
 end;
@@ -545,6 +500,7 @@ procedure TWindowLayerWithBitmap.DoViewUpdate;
 begin
   UpdateLayerSizeIfNeed;
   inherited;
+  UpdateLayerLocationIfNeed;
 end;
 
 procedure TWindowLayerWithBitmap.DoHide;
@@ -557,6 +513,12 @@ procedure TWindowLayerWithBitmap.DoShow;
 begin
   inherited;
   SetNeedUpdateLayerSize;
+end;
+
+procedure TWindowLayerWithBitmap.DoUpdateLayerLocation(
+  ANewLocation: TFloatRect);
+begin
+  FLayer.Location := ANewLocation;
 end;
 
 procedure TWindowLayerWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
@@ -574,6 +536,12 @@ begin
   end;
 end;
 
+procedure TWindowLayerWithBitmap.SetNeedRedraw;
+begin
+  inherited;
+  SetNeedUpdateLocation;
+end;
+
 procedure TWindowLayerWithBitmap.SetNeedUpdateLayerSize;
 begin
   FNeedRedrawCS.BeginWrite;
@@ -581,6 +549,57 @@ begin
     FNeedUpdateLayerSize := True;
   finally
     FNeedRedrawCS.EndWrite;
+  end;
+end;
+
+procedure TWindowLayerWithBitmap.SetNeedUpdateLocation;
+begin
+  FNeedUpdateLocationCS.BeginWrite;
+  try
+    FNeedUpdateLocation := True;
+  finally
+    FNeedUpdateLocationCS.EndWrite;
+  end;
+end;
+
+procedure TWindowLayerWithBitmap.SetViewCoordConverter(
+  AValue: ILocalCoordConverter);
+begin
+  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedUpdateLocation;
+  end;
+  inherited;
+end;
+
+procedure TWindowLayerWithBitmap.UpdateLayerLocation;
+begin
+  if Visible then begin
+    FNeedUpdateLocationCS.BeginWrite;
+    try
+      FNeedUpdateLocation := False;
+    finally
+      FNeedUpdateLocationCS.EndWrite;
+    end;
+    DoUpdateLayerLocation(GetMapLayerLocationRect);
+  end;
+end;
+
+procedure TWindowLayerWithBitmap.UpdateLayerLocationIfNeed;
+var
+  VNeed: Boolean;
+begin
+  VNeed := False;
+  FNeedUpdateLocationCS.BeginWrite;
+  try
+    if FNeedUpdateLocation then begin
+      FNeedUpdateLocation := False;
+      VNeed := True;
+    end;
+  finally
+    FNeedUpdateLocationCS.EndWrite;
+  end;
+  if VNeed then begin
+    UpdateLayerLocation;
   end;
 end;
 

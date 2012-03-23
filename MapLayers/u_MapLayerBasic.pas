@@ -18,8 +18,31 @@ uses
 type
   TMapLayerBase = class(TWindowLayerBasic)
   protected
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+  public
+    constructor Create(
+      APerfList: IInternalPerformanceCounterList;
+      ALayer: TCustomLayer;
+      AViewPortState: IViewPortState
+    );
+  end;
+
+  TMapLayerBasicFullView = class(TMapLayerBase)
+  private
+    FLayer: TPositionedLayer;
+
+    FNeedUpdateLocation: Boolean;
+    FNeedUpdateLocationCS: IReadWriteSync;
+  protected
+    function GetMapLayerLocationRect: TFloatRect; virtual;
+    procedure UpdateLayerLocationIfNeed; virtual;
+    procedure UpdateLayerLocation; virtual;
+    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
+  protected
+    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetNeedRedraw; override;
+    procedure SetNeedUpdateLocation; virtual;
+    procedure DoViewUpdate; override;
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
@@ -28,12 +51,7 @@ type
     );
   end;
 
-  TMapLayerBasicFullView = class(TMapLayerBase)
-  protected
-    function GetMapLayerLocationRect: TFloatRect; override;
-  end;
-
-  TMapLayerBasicNoBitmap = class(TMapLayerBasicFullView)
+  TMapLayerBasicNoBitmap = class(TMapLayerBase)
   private
     FOnPaintCounter: IInternalPerformanceCounter;
     procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
@@ -49,23 +67,6 @@ type
       AViewPortState: IViewPortState
     );
     procedure StartThreads; override;
-  end;
-
-  TMapLayerFixedWithBitmap = class(TWindowLayerWithBitmap)
-  protected
-    FFixedLonLat: TDoublePoint;
-    FFixedOnBitmap: TDoublePoint;
-  protected
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
-    function GetMapLayerLocationRect: TFloatRect; override;
-    procedure DoRedraw; override;
-  public
-    constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AParentMap: TImage32;
-      AViewPortState: IViewPortState
-    );
   end;
 
   TMapLayerBasic = class(TMapLayerBasicFullView)
@@ -113,7 +114,7 @@ uses
 
 constructor TMapLayerBase.Create(
   APerfList: IInternalPerformanceCounterList;
-  ALayer: TPositionedLayer;
+  ALayer: TCustomLayer;
   AViewPortState: IViewPortState
 );
 begin
@@ -128,15 +129,29 @@ begin
   inherited;
 end;
 
-procedure TMapLayerBase.SetViewCoordConverter(AValue: ILocalCoordConverter);
+{ TMapLayerBasicFullView }
+
+constructor TMapLayerBasicFullView.Create(
+  APerfList: IInternalPerformanceCounterList; ALayer: TPositionedLayer;
+  AViewPortState: IViewPortState);
 begin
-  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
-    SetNeedUpdateLocation;
-  end;
-  inherited;
+  inherited Create(APerfList, ALayer, AViewPortState);
+  FLayer := ALayer;
+  FNeedUpdateLocationCS := MakeSyncFake(Self);
+  FNeedUpdateLocation := True;
 end;
 
-{ TMapLayerBasicFullView }
+procedure TMapLayerBasicFullView.DoUpdateLayerLocation(
+  ANewLocation: TFloatRect);
+begin
+  FLayer.Location := ANewLocation;
+end;
+
+procedure TMapLayerBasicFullView.DoViewUpdate;
+begin
+  inherited;
+  UpdateLayerLocationIfNeed;
+end;
 
 function TMapLayerBasicFullView.GetMapLayerLocationRect: TFloatRect;
 begin
@@ -147,68 +162,61 @@ begin
   end;
 end;
 
-{ TMapLayerFixedWithBitmap }
-
-constructor TMapLayerFixedWithBitmap.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AParentMap: TImage32;
-  AViewPortState: IViewPortState
-);
+procedure TMapLayerBasicFullView.SetNeedRedraw;
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited;
+  SetNeedUpdateLocation;
 end;
 
-procedure TMapLayerFixedWithBitmap.DoRedraw;
+procedure TMapLayerBasicFullView.SetNeedUpdateLocation;
 begin
-  // Ничего не делаем по-умолчанию.
-end;
-
-function TMapLayerFixedWithBitmap.GetLayerSizeForView(
-  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
-begin
-  FLayer.Bitmap.Lock;
+  FNeedUpdateLocationCS.BeginWrite;
   try
-    Result := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+    FNeedUpdateLocation := True;
   finally
-    FLayer.Bitmap.Unlock;
+    FNeedUpdateLocationCS.EndWrite;
   end;
 end;
 
-function TMapLayerFixedWithBitmap.GetMapLayerLocationRect: TFloatRect;
-var
-  VFixedVisualPixel: TDoublePoint;
-  VBitmapSize: TPoint;
-  VVisualCoordConverter: ILocalCoordConverter;
-begin
-  VVisualCoordConverter := ViewCoordConverter;
-  if VVisualCoordConverter <> nil then begin
-    VFixedVisualPixel := VVisualCoordConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-    if (Abs(VFixedVisualPixel.X) < (1 shl 15)) and (Abs(VFixedVisualPixel.Y) < (1 shl 15)) then begin
-      FLayer.Bitmap.Lock;
-      try
-        VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-      finally
-        FLayer.Bitmap.Unlock;
-      end;
-      Result.Left := VFixedVisualPixel.X - FFixedOnBitmap.X;
-      Result.Top := VFixedVisualPixel.Y - FFixedOnBitmap.Y;
-      Result.Right := Result.Left + VBitmapSize.X;
-      Result.Bottom := Result.Top + VBitmapSize.Y;
-    end else begin
-      Result := FloatRect(0, 0, 0, 0);
-    end;
-  end else begin
-    Result := FloatRect(0, 0, 0, 0);
-  end;
-end;
-
-procedure TMapLayerFixedWithBitmap.SetViewCoordConverter(
+procedure TMapLayerBasicFullView.SetViewCoordConverter(
   AValue: ILocalCoordConverter);
 begin
   if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedUpdateLocation;
   end;
   inherited;
+end;
+
+procedure TMapLayerBasicFullView.UpdateLayerLocation;
+begin
+  if Visible then begin
+    FNeedUpdateLocationCS.BeginWrite;
+    try
+      FNeedUpdateLocation := False;
+    finally
+      FNeedUpdateLocationCS.EndWrite;
+    end;
+    DoUpdateLayerLocation(GetMapLayerLocationRect);
+  end;
+end;
+
+procedure TMapLayerBasicFullView.UpdateLayerLocationIfNeed;
+var
+  VNeed: Boolean;
+begin
+  VNeed := False;
+  FNeedUpdateLocationCS.BeginWrite;
+  try
+    if FNeedUpdateLocation then begin
+      FNeedUpdateLocation := False;
+      VNeed := True;
+    end;
+  finally
+    FNeedUpdateLocationCS.EndWrite;
+  end;
+  if VNeed then begin
+    UpdateLayerLocation;
+  end;
 end;
 
 { TMapLayerBasic }
