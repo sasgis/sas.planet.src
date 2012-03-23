@@ -40,6 +40,7 @@ uses
   i_ImageResamplerConfig,
   i_GlobalViewMainConfig,
   i_BitmapPostProcessingConfig,
+  i_BitmapLayerProvider,
   i_ConfigDataProvider,
   i_TileError,
   u_MapType,
@@ -54,6 +55,9 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FTileChangeListener: IJclListener;
 
+    FBitmapProvider: IBitmapLayerProvider;
+    FBitmapProviderCS: IReadWriteSync;
+
     FMainMap: IMapType;
     FMainMapCS: IReadWriteSync;
     FLayersSet: IMapTypeSet;
@@ -62,28 +66,28 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FTileUpdateCounter: Integer;
+
+    procedure CreateBitmapProvider;
     procedure OnTileChange;
     procedure OnTimer;
 
-    function DrawMap(
-      ATargetBmp: TCustomBitmap32;
-      AMapType: TMapType;
-      AGeoConvert: ICoordConverter;
-      AZoom: Byte;
-      ATile: TPoint;
-      ADrawMode: TDrawMode;
-      AUsePre: Boolean;
-      ARecolorConfig: IBitmapPostProcessingConfigStatic
-    ): Boolean;
     procedure OnMainMapChange;
     procedure OnLayerSetChange;
     procedure OnConfigChange;
+    function GetLayersSet: IMapTypeSet;
+    function GetMainMap: IMapType;
+    procedure SetLayersSet(const Value: IMapTypeSet);
+    procedure SetMainMap(const Value: IMapType);
+
+    property MainMap: IMapType read GetMainMap write SetMainMap;
+    property LayersSet: IMapTypeSet read GetLayersSet write SetLayersSet;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier
     ); override;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure DoRedraw; override;
   public
     constructor Create(
       AThreadPriorityByClass: IConfigDataProvider;
@@ -120,6 +124,8 @@ uses
   u_TileErrorInfo,
   u_NotifyEventListener,
   u_ThreadPriorityByClass,
+  u_MapTypeListStatic,
+  u_BitmapLayerProviderForViewMaps,
   u_TileIteratorSpiralByRect;
 
 { TMapMainLayer }
@@ -158,6 +164,7 @@ begin
 
   FMainMapCS := MakeSyncRW_Var(Self);
   FLayersSetCS := MakeSyncRW_Var(Self);
+  FBitmapProviderCS := MakeSyncRW_Var(Self);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
@@ -186,10 +193,91 @@ begin
   FTileUpdateCounter := 0;
 end;
 
+procedure TMapMainLayer.CreateBitmapProvider;
+var
+  VMainMap: IMapType;
+  VLayersSet: IMapTypeSet;
+  VUsePrevZoomAtMap, VUsePrevZoomAtLayer: Boolean;
+  VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
+
+  VLayers: array of IMapType;
+  VLayersList: IMapTypeListStatic;
+  VProvider: IBitmapLayerProvider;
+  VItem: IMapType;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  VCnt: Cardinal;
+  i: Integer;
+  VLayersCount: Integer;
+  VZOrder: Integer;
+  VIndex: Integer;
+begin
+  VMainMap := MainMap;
+  VLayersSet := LayersSet;
+  VUsePrevZoomAtMap := FUsePrevZoomAtMap;
+  VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;
+  VPostProcessingConfig := FPostProcessingConfig.GetStatic;
+
+  VLayersCount := 0;
+  try
+    if VLayersSet <> nil then begin
+      VEnum := VLayersSet.GetIterator;
+      while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
+        VItem := VLayersSet.GetMapTypeByGUID(VGUID);
+        if VItem.MapType.IsBitmapTiles then begin
+          VZOrder := VItem.MapType.GUIConfig.LayerZOrder;
+          Inc(VLayersCount);
+          SetLength(VLayers, VLayersCount);
+          VIndex := 0;
+          if VLayersCount > 1 then begin
+            for i := VLayersCount - 2 downto 0 do begin
+              if VLayers[i].MapType.GUIConfig.LayerZOrder > VZOrder then begin
+                VLayers[i + 1] := VLayers[i];
+              end else begin
+                VIndex := i + 1;
+                Break;
+              end;
+            end;
+          end;
+          VLayers[VIndex] := VItem;
+        end;
+      end;
+    end;
+    VLayersList := TMapTypeListStatic.Create(VLayers);
+  finally
+    for i := 0 to Length(VLayers) - 1 do begin
+      VLayers[i] := nil;
+    end;
+    VLayers := nil;
+  end;
+  VProvider :=
+    TBitmapLayerProviderForViewMaps.Create(
+      VMainMap,
+      VLayersList,
+      VUsePrevZoomAtMap,
+      VUsePrevZoomAtLayer,
+      True,
+      VPostProcessingConfig,
+      FErrorLogger
+    );
+  FBitmapProviderCS.BeginWrite;
+  try
+    FBitmapProvider := VProvider;
+  finally
+    FBitmapProviderCS.EndWrite;
+  end;
+end;
+
 destructor TMapMainLayer.Destroy;
 begin
   FMainMapCS := nil;
   FLayersSetCS := nil;
+  inherited;
+end;
+
+procedure TMapMainLayer.DoRedraw;
+begin
+  CreateBitmapProvider;
   inherited;
 end;
 
@@ -198,14 +286,7 @@ procedure TMapMainLayer.DrawBitmap(
   ACancelNotifier: IOperationNotifier
 );
 var
-  i: Cardinal;
-  VMapType: TMapType;
-  VGUID: TGUID;
-  VItem: IMapType;
-  VEnum: IEnumGUID;
-  VLayersSet: IMapTypeSet;
-  VRecolorConfig: IBitmapPostProcessingConfigStatic;
-  VTileToDrawBmp: TCustomBitmap32;
+  VBitmapTile: IBitmap32Static;
 
   VGeoConvert: ICoordConverter;
   VBitmapConverter: ILocalCoordConverter;
@@ -220,18 +301,23 @@ var
   VTile: TPoint;
   { Прямоугольник пикслов текущего тайла в кооординатах основного конвертера }
   VCurrTilePixelRect: TRect;
-  { Прямоугольник тайла подлежащий отображению на текущий растр }
-  VTilePixelsToDraw: TRect;
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
-  VTileIsEmpty: Boolean;
-  // draw mode - very first item is opaque, others - as dmBlend
-  VDrawMode: TDrawMode;
-  VMainMap: IMapType;
+  VProvider: IBitmapLayerProvider;
+  VTileConverter: ILocalCoordConverter;
 begin
-  VRecolorConfig := FPostProcessingConfig.GetStatic;
-
   VBitmapConverter := LayerCoordConverter;
+  FBitmapProviderCS.BeginRead;
+  try
+    VProvider := FBitmapProvider;
+  finally
+    FBitmapProviderCS.EndRead;
+  end;
+
+  if (VBitmapConverter = nil) or (VProvider = nil) then begin
+    Exit;
+  end;
+
   VGeoConvert := VBitmapConverter.GetGeoConverter;
   VZoom := VBitmapConverter.GetZoom;
 
@@ -241,144 +327,74 @@ begin
   VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
   VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
 
-  VTileToDrawBmp := TCustomBitmap32.Create;
-  try
-    if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      while VTileIterator.Next(VTile) do begin
+  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    while VTileIterator.Next(VTile) do begin
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        break;
+      end;
+      VTileConverter := ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
+
+      VCurrTilePixelRect := VTileConverter.GetRectInMapPixel;
+      VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
+
+      VBitmapTile :=
+        VProvider.GetBitmapRect(
+          AOperationID,
+          ACancelNotifier,
+          VTileConverter
+        );
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        break;
+      end;
+      Layer.Bitmap.Lock;
+      try
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           break;
         end;
-        VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-
-        VTilePixelsToDraw.TopLeft := Point(0, 0);
-        VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-        VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
-
-        VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
-
-        VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
-        VTileIsEmpty := True;
-        VDrawMode := dmOpaque;
-        
-        FMainMapCS.BeginRead;
-        try
-          VMainMap := FMainMap;
-        finally
-          FMainMapCS.EndRead;
-        end;
-        
-        if VMainMap <> nil then begin
-          if DrawMap(VTileToDrawBmp, VMainMap.MapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtMap, VRecolorConfig) then begin
-            VTileIsEmpty := False;
-            VDrawMode := dmBlend;
-          end;
-        end;
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          break;
-        end;
-
-        FLayersSetCS.BeginRead;
-        try
-          VLayersSet := FLayersSet;
-        finally
-          FLayersSetCS.EndRead;
-        end;
-        if VLayersSet <> nil then begin
-          VEnum := VLayersSet.GetIterator;
-          while VEnum.Next(1, VGUID, i) = S_OK do begin
-            VItem := VLayersSet.GetMapTypeByGUID(VGUID);
-            VMapType := VItem.GetMapType;
-            if VMapType.IsBitmapTiles then begin
-              if DrawMap(VTileToDrawBmp, VMapType, VGeoConvert, VZoom, VTile, VDrawMode, FUsePrevZoomAtLayer, VRecolorConfig) then begin
-                VTileIsEmpty := False;
-                VDrawMode := dmBlend;
-              end;
-            end;
-            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-              break;
-            end;
-          end;
-        end;
-
-        if not VTileIsEmpty then begin
-          VRecolorConfig.ProcessBitmap(VTileToDrawBmp);
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            break;
-          end;
-        end else begin
-          VTileToDrawBmp.Clear(0);
-        end;
-
-        Layer.Bitmap.Lock;
-        try
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            break;
-          end;
+        if VBitmapTile <> nil then begin
           BlockTransfer(
             Layer.Bitmap,
             VCurrTileOnBitmapRect.Left,
             VCurrTileOnBitmapRect.Top,
             Layer.Bitmap.ClipRect,
-            VTileToDrawBmp,
-            VTilePixelsToDraw,
+            VBitmapTile.Bitmap,
+            VBitmapTile.Bitmap.BoundsRect,
             dmOpaque
           );
-          SetBitmapChanged;
-        finally
-          Layer.Bitmap.UnLock;
+        end else begin
+          Layer.Bitmap.FillRect(
+            VCurrTileOnBitmapRect.Left,
+            VCurrTileOnBitmapRect.Top,
+            VCurrTileOnBitmapRect.Right,
+            VCurrTileOnBitmapRect.Bottom,
+            0
+          );
         end;
+        SetBitmapChanged;
+      finally
+        Layer.Bitmap.UnLock;
       end;
     end;
-  finally
-    VTileToDrawBmp.Free;
   end;
 end;
 
-function TMapMainLayer.DrawMap(
-  ATargetBmp: TCustomBitmap32;
-  AMapType: TMapType;
-  AGeoConvert: ICoordConverter;
-  AZoom: Byte;
-  ATile: TPoint;
-  ADrawMode: TDrawMode;
-  AUsePre: Boolean;
-  ARecolorConfig: IBitmapPostProcessingConfigStatic
-): Boolean;
-var
-  VBmp: IBitmap32Static;
-  VErrorString: string;
+function TMapMainLayer.GetLayersSet: IMapTypeSet;
 begin
-  Result := False;
-  VErrorString := '';
+  FLayersSetCS.BeginRead;
   try
-    VBmp := AMapType.LoadTileUni(ATile, AZoom, AGeoConvert, AUsePre, True, False, AMapType.CacheBitmap);
-    if VBmp <> nil then begin
-      BlockTransfer(
-        ATargetBmp,
-        0, 0,
-        ATargetBmp.ClipRect,
-        VBmp.Bitmap,
-        VBmp.Bitmap.BoundsRect,
-        ADrawMode
-      );
-      Result := True;
-    end;
-  except
-    on E: Exception do begin
-      VErrorString := E.Message;
-    end;
-  else
-    VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+    Result := FLayersSet;
+  finally
+    FLayersSetCS.EndRead;
   end;
-  if VErrorString <> '' then begin
-    FErrorLogger.LogError(
-      TTileErrorInfo.Create(
-        AMapType,
-        AZoom,
-        ATile,
-        VErrorString
-      )
-    );
+end;
+
+function TMapMainLayer.GetMainMap: IMapType;
+begin
+  FMainMapCS.BeginRead;
+  try
+    Result := FMainMap;
+  finally
+    FMainMapCS.EndRead;
   end;
 end;
 
@@ -550,12 +566,7 @@ begin
   if LayerCoordConverter <> nil then begin
     VZoom := LayerCoordConverter.GetZoom;
 
-    FMainMapCS.BeginRead;
-    try
-      VMap := FMainMap;
-    finally
-      FMainMapCS.EndRead;
-    end;
+    VMap := MainMap;
 
     if VMap <> nil then begin
       VNotifier := VMap.MapType.NotifierByZoom[VZoom];
@@ -564,12 +575,7 @@ begin
       end;
     end;
 
-    FLayersSetCS.BeginRead;
-    try
-      VLayersSet := FLayersSet;
-    finally
-      FLayersSetCS.EndRead;
-    end;
+    VLayersSet := LayersSet;
 
     if VLayersSet <> nil then begin
       VEnum := VLayersSet.GetIterator;
@@ -608,12 +614,7 @@ begin
   VZoom := AValue.GetZoom;
   if VZoom <> VOldZoom then begin
     if VOldZoom <> 255 then begin
-      FMainMapCS.BeginRead;
-      try
-        VMap := FMainMap;
-      finally
-        FMainMapCS.EndRead;
-      end;
+      VMap := MainMap;
 
       if VMap <> nil then begin
         VNotifier := VMap.MapType.NotifierByZoom[VOldZoom];
@@ -622,13 +623,8 @@ begin
         end;
       end;
 
-      FLayersSetCS.BeginRead;
-      try
-        VLayersSet := FLayersSet;
-      finally
-        FLayersSetCS.EndRead;
-      end;
-      
+      VLayersSet := LayersSet;
+
       if VLayersSet <> nil then begin
         VEnum := VLayersSet.GetIterator;
         while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -647,13 +643,8 @@ begin
   AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
   VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
-  FMainMapCS.BeginRead;
-  try
-    VMap := FMainMap;
-  finally
-    FMainMapCS.EndRead;
-  end;
-  
+  VMap := MainMap;
+
   if VMap <> nil then begin
     VNotifier := VMap.MapType.NotifierByZoom[VZoom];
     if VNotifier <> nil then begin
@@ -663,13 +654,8 @@ begin
     end;
   end;
 
-  FLayersSetCS.BeginRead;
-  try
-    VLayersSet := FLayersSet;
-  finally
-    FLayersSetCS.EndRead;
-  end;
-  
+  VLayersSet := LayersSet;
+
   if VLayersSet <> nil then begin
     VEnum := VLayersSet.GetIterator;
     while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -683,6 +669,26 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+procedure TMapMainLayer.SetLayersSet(const Value: IMapTypeSet);
+begin
+  FLayersSetCS.BeginWrite;
+  try
+    FLayersSet := Value;
+  finally
+    FLayersSetCS.EndWrite;
+  end;
+end;
+
+procedure TMapMainLayer.SetMainMap(const Value: IMapType);
+begin
+  FMainMapCS.BeginWrite;
+  try
+    FMainMap := Value;
+  finally
+    FMainMapCS.EndWrite;
   end;
 end;
 

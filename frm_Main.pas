@@ -1426,6 +1426,7 @@ begin
         GState.BitmapPostProcessingConfig,
         GState.MapType.GUIConfigList,
         FMapTypeIcons18List,
+        FTileErrorLogger,
         GState.GUISyncronizedTimerNotifier
       )
     );
