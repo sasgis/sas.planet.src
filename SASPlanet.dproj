@@ -521,6 +521,7 @@
     <DCCReference Include="u_BitmapGeo.pas" />
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
+    <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
     <DCCReference Include="u_BitmapLayerProviderInPolygon.pas" />
     <DCCReference Include="u_BitmapLayerProviderMapWithLayer.pas" />
     <DCCReference Include="u_BitmapLayerProviderSimpleForCombine.pas" />
@@ -736,6 +737,7 @@
     <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
     <DCCReference Include="u_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
+    <DCCReference Include="u_MapTypeListStatic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
