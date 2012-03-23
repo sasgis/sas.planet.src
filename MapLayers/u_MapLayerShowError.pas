@@ -143,52 +143,6 @@ begin
   FMarker := nil;
 end;
 
-//procedure TTileErrorInfoLayer.DoRedraw;
-//var
-//  VText: string;
-//  VTextWidth: integer;
-//  VSize: TPoint;
-//  VErrorInfo: ITileErrorInfo;
-//begin
-//  inherited;
-//  VErrorInfo := FErrorInfo;
-//  if VErrorInfo <> nil then begin
-//    VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-//    FLayer.Bitmap.Clear(0);
-//    if VErrorInfo.MapType <> nil then begin
-//      VText := VErrorInfo.MapType.GUIConfig.Name.Value;
-//      VTextWidth := FLayer.Bitmap.TextWidth(VText);
-//      FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, VSize.Y div 4, VText, 0, clBlack32);
-//
-//      VTextWidth := FLayer.Bitmap.TextWidth(VErrorInfo.ErrorText);
-//      FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, (VSize.Y div 4) * 3, VErrorInfo.ErrorText, 0, clBlack32);
-//    end else begin
-//      VTextWidth := FLayer.Bitmap.TextWidth(VErrorInfo.ErrorText);
-//      FLayer.Bitmap.RenderText((VSize.X - VTextWidth) div 2, (VSize.Y div 2), VErrorInfo.ErrorText, 0, clBlack32);
-//    end;
-//  end;
-//end;
-
-//function TTileErrorInfoLayer.GetVisibleForNewPos(
-//  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
-//var
-//  VCurrTime: Cardinal;
-//  VErrorInfo: ITileErrorInfo;
-//begin
-//  Result := False;
-//  if FHideAfterTime <> 0 then begin
-//    VErrorInfo := FErrorInfo;
-//    if VErrorInfo <> nil then begin
-//      VCurrTime := GetTickCount;
-//      if (VCurrTime < FHideAfterTime) then begin
-//        if VErrorInfo.Zoom = LayerCoordConverter.GetZoom then begin
-//          Result := True;
-//        end;
-//      end;
-//    end;
-//  end;
-//end;
-
 procedure TTileErrorInfoLayer.OnErrorRecive;
 begin
   InterlockedIncrement(FNeedUpdateCounter);
