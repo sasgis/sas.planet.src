@@ -192,7 +192,7 @@ begin
       VTile,
       Vzoom,
       VCoordConverterTarget,
-      Result,
+      nil,
       FUsePrevZoomAtMap,
       FMainMap
     );
