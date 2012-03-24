@@ -362,7 +362,7 @@ begin
             dmOpaque
           );
         end else begin
-          Layer.Bitmap.FillRect(
+          Layer.Bitmap.FillRectS(
             VCurrTileOnBitmapRect.Left,
             VCurrTileOnBitmapRect.Top,
             VCurrTileOnBitmapRect.Right,

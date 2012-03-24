@@ -329,7 +329,7 @@ begin
              ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
             btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
           end else begin
-            btm.FillRect(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+            btm.FillRectS(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
           end;
         end;
       end;
