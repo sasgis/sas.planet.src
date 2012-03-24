@@ -619,6 +619,9 @@ begin
             // nothing
             ATileInfo := TTileInfoBasicNotExists.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
           end;
+        end else begin
+          // nothing
+          ATileInfo := TTileInfoBasicNotExists.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
         end;
       finally
         VQTInfo.VersionOut := nil;
