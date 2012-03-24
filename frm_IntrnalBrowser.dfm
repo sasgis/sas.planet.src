@@ -20,6 +20,8 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
     Height = 306
     Align = alClient
     TabOrder = 0
+    Silent = False
+    OnBeforeNavigate2 = EmbeddedWB1BeforeNavigate2
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     OnAuthenticate = EmbeddedWB1Authenticate
@@ -35,5 +37,26 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
       2B2E126208000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
       00000000000000000100000000000000000000000000000000000000}
+  end
+  object imgViewImage: TImgView32
+    Left = 0
+    Top = 0
+    Width = 554
+    Height = 306
+    Cursor = crHandPoint
+    Align = alClient
+    AutoSize = True
+    Bitmap.ResamplerClassName = 'TLinearResampler'
+    BitmapAlign = baCustom
+    Scale = 1.000000000000000000
+    ScaleMode = smResize
+    ScrollBars.ShowHandleGrip = True
+    ScrollBars.Style = rbsDefault
+    ScrollBars.Size = 16
+    ScrollBars.Visibility = svHidden
+    OverSize = 0
+    TabOrder = 1
+    Visible = False
+    OnClick = imgViewImageClick
   end
 end

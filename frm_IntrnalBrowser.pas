@@ -33,9 +33,11 @@ uses
   EwbCore,
   EmbeddedWB,
   SHDocVw_EWB,
+  GR32_Image,
   u_CommonFormAndFrameParents,
   u_BaseTileDownloaderThread,
   i_MapAttachmentsInfo,
+  i_ContentTypeManager,
   i_LanguageManager,
   i_ProxySettings;
 
@@ -45,6 +47,7 @@ const
 type
   TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
     EmbeddedWB1: TEmbeddedWB;
+    imgViewImage: TImgView32;
     procedure EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB;
       var hwnd: HWND; var szUserName, szPassWord: WideString;
       var Rezult: HRESULT);
@@ -52,15 +55,22 @@ type
     procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
       ScanCode: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+    procedure EmbeddedWB1BeforeNavigate2(ASender: TObject;
+      const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
+      Headers: OleVariant; var Cancel: WordBool);
+    procedure imgViewImageClick(Sender: TObject);
   private
     FParserThread: TBaseTileDownloaderThread;
     procedure KillParserThread;
     procedure WMPARSER_THREAD_FINISHED(var m: TMessage); message WM_PARSER_THREAD_FINISHED;
   private
     FProxyConfig: IProxyConfig;
+    FContentTypeManager: IContentTypeManager;
     procedure SetGoodCaption(const ACaption: String);
+    function OpenLocalImage(const AFilename: WideString): Boolean;
+    procedure ResetImageView(const AForImage: Boolean);
   public
-    constructor Create(ALanguageManager: ILanguageManager; AProxyConfig: IProxyConfig); reintroduce;
+    constructor Create(ALanguageManager: ILanguageManager; AProxyConfig: IProxyConfig; AContentTypeManager: IContentTypeManager); reintroduce;
 
     procedure showmessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
@@ -90,9 +100,10 @@ type
 { TfrmIntrnalBrowser }
  
 constructor TfrmIntrnalBrowser.Create(ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig);
+  AProxyConfig: IProxyConfig; AContentTypeManager: IContentTypeManager);
 begin
   inherited Create(ALanguageManager);
+  FContentTypeManager := AContentTypeManager;
   FProxyConfig := AProxyConfig;
 end;
 
@@ -109,6 +120,34 @@ begin
   end;
 end;
 
+procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(ASender: TObject;
+  const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
+  Headers: OleVariant; var Cancel: WordBool);
+var
+  VURL, VExt: WideString;
+begin
+  if Cancel then
+    Exit;
+  try
+    VURL := URL;
+
+    // check file exists and known image type
+    if System.Pos(':',VURL)>0 then
+      Exit;
+
+    // check file exists
+    if FileExists(VURL) then begin
+      VExt := ExtractFileExt(VURL);
+      if FContentTypeManager.GetIsBitmapExt(VExt) then
+      if OpenLocalImage(VURL) then begin
+        // image opened
+        Cancel := TRUE;
+      end;
+    end;
+  except
+  end;
+end;
+
 procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   EmbeddedWB1.Stop;
@@ -118,6 +157,11 @@ end;
 procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
 begin
   EmbeddedWB1.Navigate('about:blank');
+end;
+
+procedure TfrmIntrnalBrowser.imgViewImageClick(Sender: TObject);
+begin
+  ResetImageView(FALSE);
 end;
 
 procedure TfrmIntrnalBrowser.KillParserThread;
@@ -132,8 +176,27 @@ procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
 begin
   EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
+  ResetImageView(FALSE);
   show;
   EmbeddedWB1.Navigate(AUrl);
+end;
+
+function TfrmIntrnalBrowser.OpenLocalImage(const AFilename: WideString): Boolean;
+begin
+  Result := FALSE;
+  ResetImageView(TRUE);
+  try
+    imgViewImage.Bitmap.LoadFromFile(AFilename);
+    Inc(Result);
+  except
+  end;
+end;
+
+procedure TfrmIntrnalBrowser.ResetImageView(const AForImage: Boolean);
+begin
+  imgViewImage.Bitmap.Clear;
+  imgViewImage.Visible := AForImage;
+  EmbeddedWB1.Visible := (not AForImage);
 end;
 
 procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
@@ -157,7 +220,7 @@ begin
   Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
 
   VError:=FALSE;
-  
+
   if Assigned(AParserProc) then begin
     // if in cache - show immediately
     VOnlyCheckAllowRunImmediately := TRUE;
@@ -181,6 +244,7 @@ begin
   EmbeddedWB1.HTMLCode.Text := VText;
   Application.ProcessMessages;
   SetGoodCaption(ACaption);
+  ResetImageView(FALSE);
   Self.Show;
 
   // parse after show in thread
@@ -203,6 +267,7 @@ begin
   Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
   EmbeddedWB1.HTMLCode.Text:=AText;
   SetGoodCaption(ACaption);
+  ResetImageView(FALSE);
   show;
 end;
 
@@ -218,8 +283,14 @@ end;
 procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
   ScanCode: Word; Shift: TShiftState);
 begin
-  if Key = VK_ESCAPE then begin
-    close;
+  case Key of
+    VK_ESCAPE: begin
+      Close;
+    end;
+    VK_BACK: begin
+      if imgViewImage.Visible then
+        ResetImageView(FALSE);
+    end;
   end;
 end;
 

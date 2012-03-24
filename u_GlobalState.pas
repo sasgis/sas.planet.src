@@ -507,7 +507,8 @@ begin
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FLanguageManager,
-      FInetConfig.ProxyConfig
+      FInetConfig.ProxyConfig,
+      FContentTypeManager
     );
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(
