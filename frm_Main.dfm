@@ -120,7 +120,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 230
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -152,7 +152,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 363
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -163,7 +163,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 536
+      Left = 534
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -198,10 +198,10 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
-        object TBItem5: TTBXItem
+        object tbitmGPSTrackSaveToMarks: TTBXItem
           ImageIndex = 25
           Images = MenusImageList
-          OnClick = TBItem5Click
+          OnClick = tbitmGPSTrackSaveToMarksClick
           Caption = 'Add Track to Database'
           Hint = ''
         end
@@ -1088,7 +1088,7 @@ object frmMain: TfrmMain
         object tbitmGPSTrackSaveToDb: TTBXItem
           ImageIndex = 25
           Images = MenusImageList
-          OnClick = TBItem5Click
+          OnClick = tbitmGPSTrackSaveToMarksClick
           Caption = 'Add Track to Database'
           Hint = ''
         end
@@ -1197,7 +1197,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 399
+      Left = 429
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1223,7 +1223,7 @@ object frmMain: TfrmMain
       end
     end
     object FillDates: TTBXToolbar
-      Left = 610
+      Left = 629
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
@@ -1275,8 +1275,8 @@ object frmMain: TfrmMain
         OnChange = DateTimePicker1Change
       end
       object DateTimePicker2: TDateTimePicker
-        Left = 141
-        Top = 0
+        Left = 203
+        Top = 21
         Width = 81
         Height = 21
         Date = 40830.496065717590000000
@@ -1356,7 +1356,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1376,7 +1376,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -1404,7 +1404,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 551
+        Height = 549
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1419,7 +1419,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 542
+          Height = 540
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
@@ -1500,7 +1500,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 112
+        Top = 114
         Width = 61
         Height = 22
         MaxValue = 100000
@@ -1558,8 +1558,6 @@ object frmMain: TfrmMain
             DockRow = 10
             Stretch = True
             TabOrder = 0
-            ExplicitWidth = 32
-            ExplicitHeight = 32
             DesignSize = (
               150
               32)
@@ -3273,7 +3271,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
     end
-    object NMarkSep: TTBXSeparatorItem
+    object tbsprtMainPopUp0: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
@@ -3283,7 +3281,7 @@ object frmMain: TfrmMain
       Caption = 'Add Placemark'
       Hint = ''
     end
-    object N47: TTBXSeparatorItem
+    object tbsprtMainPopUp1: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
@@ -3300,7 +3298,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
     end
-    object N22: TTBXSeparatorItem
+    object tbsprtMainPopUp2: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
@@ -3383,7 +3381,7 @@ object frmMain: TfrmMain
       Caption = 'Open Overlay Layer Tile Folder'
       Hint = ''
     end
-    object N23: TTBXSeparatorItem
+    object tbsprtMainPopUp3: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
@@ -3424,7 +3422,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
     end
-    object N24: TTBXSeparatorItem
+    object tbsprtMainPopUp4: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end
@@ -3450,7 +3448,7 @@ object frmMain: TfrmMain
       Caption = 'Delete Overlay Layer Tile from Cache'
       Hint = ''
     end
-    object N1: TTBXSeparatorItem
+    object tbsprtMainPopUp5: TTBXSeparatorItem
       Caption = ''
       Hint = ''
     end

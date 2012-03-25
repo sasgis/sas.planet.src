@@ -192,7 +192,7 @@ type
     tbitmGoToModal: TTBXItem;
     NCalcRast: TTBXItem;
     tbitmQuit: TTBXItem;
-    TBItem5: TTBXItem;
+    tbitmGPSTrackSaveToMarks: TTBXItem;
     TBItemDelTrack: TTBXItem;
     NFoolSize: TTBXItem;
     NGoToCur: TTBXItem;
@@ -296,11 +296,11 @@ type
     NMarksCalcsLen: TTBXItem;
     NMarksCalcsPer: TTBXItem;
     NMarksCalcsSq: TTBXItem;
-    NMarkSep: TTBXSeparatorItem;
+    tbsprtMainPopUp0: TTBXSeparatorItem;
     NaddPoint: TTBXItem;
-    N47: TTBXSeparatorItem;
+    tbsprtMainPopUp1: TTBXSeparatorItem;
     N28: TTBXSubmenuItem;
-    N22: TTBXSeparatorItem;
+    tbsprtMainPopUp2: TTBXSeparatorItem;
     N43: TTBXSubmenuItem;
     Google1: TTBXItem;
     YaLink: TTBXItem;
@@ -313,17 +313,17 @@ type
     N15: TTBXItem;
     Nopendir: TTBXItem;
     N25: TTBXItem;
-    N23: TTBXSeparatorItem;
+    tbsprtMainPopUp3: TTBXSeparatorItem;
     N26: TTBXSubmenuItem;
     NGTOPO30: TTBXItem;
     NSRTM3: TTBXItem;
     N49: TTBXSeparatorItem;
     DigitalGlobe1: TTBXItem;
     N27: TTBXSeparatorItem;
-    N24: TTBXSeparatorItem;
+    tbsprtMainPopUp4: TTBXSeparatorItem;
     N21: TTBXItem;
     NDel: TTBXItem;
-    N1: TTBXSeparatorItem;
+    tbsprtMainPopUp5: TTBXSeparatorItem;
     NMapInfo: TTBXItem;
     ldm: TTBXSubmenuItem;
     dlm: TTBXSubmenuItem;
@@ -465,7 +465,7 @@ type
     procedure TBAdd_PointClick(Sender: TObject);
     procedure TBAdd_LineClick(Sender: TObject);
     procedure TBAdd_PolyClick(Sender: TObject);
-    procedure TBItem5Click(Sender: TObject);
+    procedure tbitmGPSTrackSaveToMarksClick(Sender: TObject);
     procedure NMarkEditClick(Sender: TObject);
     procedure NMarkDelClick(Sender: TObject);
     procedure NMarkOperClick(Sender: TObject);
@@ -3619,7 +3619,7 @@ begin
   FConfig.LayersConfig.CenterScaleConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
-procedure TfrmMain.TBItem5Click(Sender: TObject);
+procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
 var
   VAllPoints: ILonLatPath;
 begin
@@ -4036,7 +4036,7 @@ begin
     NMarkEdit.Visible := VMark <> nil;
     NMarkExport.Visible := VMark <> nil;
     NMarkDel.Visible := VMark <> nil;
-    NMarkSep.Visible := VMark <> nil;
+    tbsprtMainPopUp0.Visible := VMark <> nil;
     NMarkOper.Visible := VMark <> nil;
     NMarkNav.Visible := VMark <> nil;
     if (VMark <> nil) then begin
