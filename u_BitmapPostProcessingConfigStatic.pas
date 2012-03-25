@@ -33,12 +33,12 @@ type
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
+    procedure ProcessBitmap(Bitmap: TCustomBitmap32);
   protected
     function GetInvertColor: boolean;
     function GetGammaN: Integer;
     function GetContrastN: Integer;
 
-    procedure ProcessBitmap(Bitmap: TCustomBitmap32);
     function Process(ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(

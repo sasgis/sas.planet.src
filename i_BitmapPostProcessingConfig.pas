@@ -41,7 +41,6 @@ type
     function GetContrastN: Integer;
     property ContrastN: Integer read GetContrastN;
 
-    procedure ProcessBitmap(Bitmap: TCustomBitmap32);
     function Process(ABitmap: IBitmap32Static): IBitmap32Static;
   end;
 
