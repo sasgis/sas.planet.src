@@ -94,7 +94,7 @@ function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
 var
   VCache: ITileObjCacheBitmap;
   VLayer: IBitmap32Static;
-  VResultBmp: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
 begin
   Result := ASource;
   VLayer := nil;
@@ -147,21 +147,21 @@ begin
     if Result = nil then begin
       Result := VLayer;
     end else begin
-      VResultBmp := TCustomBitmap32.Create;
+      VBitmap := TCustomBitmap32.Create;
       try
-        VResultBmp.Assign(Result.Bitmap);
+        VBitmap.Assign(Result.Bitmap);
         BlockTransfer(
-          VResultBmp,
+          VBitmap,
           0, 0,
-          VResultBmp.ClipRect,
+          VBitmap.ClipRect,
           VLayer.Bitmap,
           VLayer.Bitmap.BoundsRect,
           dmBlend
         );
-        Result := TBitmap32Static.CreateWithOwn(VResultBmp);
-        VResultBmp := nil;
+        Result := TBitmap32Static.CreateWithOwn(VBitmap);
+        VBitmap := nil;
       finally
-        VResultBmp.Free;
+        VBitmap.Free;
       end;
     end;
   end;

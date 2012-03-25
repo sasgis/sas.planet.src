@@ -419,7 +419,7 @@ var
   VLLRect: TDoubleRect;
   VMarkLonLatRect: TDoubleRect;
   VBitmapInited: Boolean;
-  VTargetBmp: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
   VIsEmpty: Boolean;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
@@ -431,7 +431,7 @@ begin
   VBitmapInited := False;
   Result := nil;
   if FVectorItems.Count > 0 then begin
-    VTargetBmp := TCustomBitmap32.Create;
+    VBitmap := TCustomBitmap32.Create;
     try
       VIsEmpty := True;
       for i := 0 to FVectorItems.Count - 1 do begin
@@ -443,7 +443,7 @@ begin
           (VLLRect.Bottom <= VMarkLonLatRect.Top)and
           (VLLRect.Top >= VMarkLonLatRect.Bottom))
         then begin
-          if DrawWikiElement(VBitmapInited, VTargetBmp, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
+          if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
             VIsEmpty := True;
           end;
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -452,11 +452,11 @@ begin
         end;
       end;
       if not VIsEmpty then begin
-        Result := TBitmap32Static.CreateWithOwn(VTargetBmp);
-        VTargetBmp := nil;
+        Result := TBitmap32Static.CreateWithOwn(VBitmap);
+        VBitmap := nil;
       end;
     finally
-      VTargetBmp.Free;
+      VBitmap.Free;
     end;
   end;
 end;

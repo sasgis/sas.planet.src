@@ -562,7 +562,7 @@ var
   VZoom: Byte;
   VMarksSubset: IMarksSubset;
   VDeltaSizeInPixel: TRect;
-  VTargetBmp: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
   VDeltaSizeInPixel := FConfig.OverSizeRect;
@@ -578,14 +578,14 @@ begin
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
   Result := nil;
   if not VMarksSubset.IsEmpty then begin
-    VTargetBmp := TCustomBitmap32.Create;
+    VBitmap := TCustomBitmap32.Create;
     try
-      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VTargetBmp, ALocalConverter) then begin
-        Result := TBitmap32Static.CreateWithOwn(VTargetBmp);
-        VTargetBmp := nil;
+      if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter) then begin
+        Result := TBitmap32Static.CreateWithOwn(VBitmap);
+        VBitmap := nil;
       end;
     finally
-      VTargetBmp.Free;
+      VBitmap.Free;
     end;
   end;
 end;

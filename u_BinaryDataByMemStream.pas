@@ -35,29 +35,29 @@ constructor TBinaryDataByMemStream.CreateFromMem(
   const ABuffer: Pointer
 );
 var
-  VStream: TMemoryStream;
+  VMemStream: TMemoryStream;
 begin
-  VStream := TMemoryStream.Create;
+  VMemStream := TMemoryStream.Create;
   try
-    VStream.WriteBuffer(ABuffer^, ASize);
-    CreateWithOwn(VStream);
-    VStream := nil;
+    VMemStream.WriteBuffer(ABuffer^, ASize);
+    CreateWithOwn(VMemStream);
+    VMemStream := nil;
   finally
-    VStream.Free;
+    VMemStream.Free;
   end;
 end;
 
 constructor TBinaryDataByMemStream.CreateFromStream(AStream: TStream);
 var
-  VStream: TMemoryStream;
+  VMemStream: TMemoryStream;
 begin
-  VStream := TMemoryStream.Create;
+  VMemStream := TMemoryStream.Create;
   try
-    VStream.LoadFromStream(AStream);
-    CreateWithOwn(VStream);
-    VStream := nil;
+    VMemStream.LoadFromStream(AStream);
+    CreateWithOwn(VMemStream);
+    VMemStream := nil;
   finally
-    VStream.Free;
+    VMemStream.Free;
   end;
 end;
 
