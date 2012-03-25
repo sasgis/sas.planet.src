@@ -98,7 +98,7 @@ var
   IArray: TDynImageDataArray;
   I: LongInt;
   VCounterContext: TInternalPerformanceCounterContext;
-  VBtm: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
 begin
   VCounterContext := FLoadStreamCounter.StartOperation;
   try
@@ -122,15 +122,14 @@ begin
         FreeImage(IArray[I]);
       end;
 
-      VBtm := TCustomBitmap32.Create;
+      VBitmap := TCustomBitmap32.Create;
       try
-        ConvertImageDataToBitmap32(VImage, VBtm);
-      except
-        FreeAndNil(VBtm);
-        raise;
+        ConvertImageDataToBitmap32(VImage, VBitmap);
+        Result := TBitmap32Static.CreateWithOwn(VBitmap);
+        VBitmap := nil;
+      finally
+        VBitmap.Free;
       end;
-
-      Result := TBitmap32Static.CreateWithOwn(VBtm);
     finally
       FreeImage(VImage);
     end;

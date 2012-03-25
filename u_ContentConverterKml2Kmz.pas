@@ -58,11 +58,11 @@ begin
         VZip.Open(VResultStream);
         VZip.CompressionType := ctNormal;
         VZip.AddStream('doc.kml', VMemStream);
-      except
+        Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
+        VResultStream:= nil;
+      finally
         VResultStream.Free;
-        raise;
       end;
-      Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
     finally
       VZip.Free;
     end;

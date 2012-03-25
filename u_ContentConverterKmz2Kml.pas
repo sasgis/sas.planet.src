@@ -56,11 +56,11 @@ begin
       VResultStream := TMemoryStream.Create;
       try
         UnZip.Entries.Items[0].ExtractToStream(VResultStream);
-      except
+        Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
+        VResultStream:= nil;
+      finally
         VResultStream.Free;
-        raise;
       end;
-      Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
     finally
       UnZip.Free;
     end;

@@ -108,11 +108,11 @@ begin
         VMemStream := TMemoryStream.Create;
         try
           VMemStream.LoadFromFile(FFullFileName);
-        except
+          FSource := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+          VMemStream := nil;
+        finally
           VMemStream.Free;
-          raise;
         end;
-        FSource := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
         VBitmap := FLoader.Load(FSource);
 
         VAnchor.X := VBitmap.Bitmap.Width / 2;

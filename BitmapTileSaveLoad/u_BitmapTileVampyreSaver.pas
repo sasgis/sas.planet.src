@@ -120,11 +120,11 @@ begin
       if not VFormat.SaveToStream(VMemStream, IArray, True) then begin
         raise Exception.Create('Ошибка записи файла');
       end;
-    except
-      FreeAndNil(VMemStream);
-      raise;
+      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VMemStream := nil;
+    finally
+      VMemStream.Free;
     end;
-    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
   finally
     FreeImage(VImage);
   end;

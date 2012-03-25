@@ -48,13 +48,13 @@ uses
 function TBitmapMarkerProviderSimpleSquare.CreateMarker(ASize: Integer): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
-  VMarkerBitmap: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
   VSize: TPoint;
   VCenterPoint: TDoublePoint;
   VMarkRect: TRect;
   VBitmapStatic: IBitmap32Static;
 begin
-  VMarkerBitmap := TCustomBitmap32.Create;
+  VBitmap := TCustomBitmap32.Create;
   try
     VConfig := Config;
     VSize := Point(ASize, ASize);
@@ -62,16 +62,16 @@ begin
     VCenterPoint.X := VSize.X / 2;
     VCenterPoint.Y := VSize.Y / 2;
 
-    VMarkerBitmap.SetSize(VSize.Y, VSize.Y);
-    VMarkerBitmap.Clear(VConfig.MarkerColor);
+    VBitmap.SetSize(VSize.Y, VSize.Y);
+    VBitmap.Clear(VConfig.MarkerColor);
 
-    VMarkRect := VMarkerBitmap.BoundsRect;
-    VMarkerBitmap.FrameRectTS(VMarkRect, VConfig.BorderColor);
-  except
-    VMarkerBitmap.Free;
-    raise;
+    VMarkRect := VBitmap.BoundsRect;
+    VBitmap.FrameRectTS(VMarkRect, VConfig.BorderColor);
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
+  finally
+    VBitmap.Free;
   end;
-  VBitmapStatic := TBitmap32Static.CreateWithOwn(VMarkerBitmap);
   Result :=
     TBitmapMarker.Create(
       VBitmapStatic,

@@ -588,11 +588,11 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-  except
+    VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+    VMemStream := nil;
+  finally
     VMemStream.Free;
-    raise;
   end;
-  VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
   FStorage.SaveTile(AXY, Azoom, FVersionConfig.Version, VData);
 end;
 

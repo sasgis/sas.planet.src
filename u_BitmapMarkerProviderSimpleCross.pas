@@ -49,14 +49,14 @@ uses
 function TBitmapMarkerProviderSimpleCross.CreateMarker(ASize: Integer): IBitmapMarker;
 var
   VConfig: IBitmapMarkerProviderSimpleConfigStatic;
-  VMarkerBitmap: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
   VSize: TPoint;
   VPolygon: TPolygon32;
   VCenterPoint: TDoublePoint;
   VCrossHalfWidth: Double;
   VBitmapStatic: IBitmap32Static;
 begin
-  VMarkerBitmap := TCustomBitmap32.Create;
+  VBitmap := TCustomBitmap32.Create;
   try
     VConfig := Config;
     VSize := Point(ASize, ASize);
@@ -66,8 +66,8 @@ begin
 
     VCrossHalfWidth := ASize / 10;
 
-    VMarkerBitmap.SetSize(VSize.Y, VSize.Y);
-    VMarkerBitmap.Clear(0);
+    VBitmap.SetSize(VSize.Y, VSize.Y);
+    VBitmap.Clear(0);
     VPolygon := TPolygon32.Create;
     try
       VPolygon.Antialiased := true;
@@ -85,16 +85,16 @@ begin
       VPolygon.Add(FixedPoint(0, VCenterPoint.Y + VCrossHalfWidth));
       VPolygon.Add(FixedPoint(0, VCenterPoint.Y - VCrossHalfWidth));
       VPolygon.Add(FixedPoint(VCenterPoint.X - VCrossHalfWidth, VCenterPoint.Y - VCrossHalfWidth));
-      VPolygon.DrawFill(VMarkerBitmap, VConfig.MarkerColor);
-      VPolygon.DrawEdge(VMarkerBitmap, VConfig.BorderColor);
+      VPolygon.DrawFill(VBitmap, VConfig.MarkerColor);
+      VPolygon.DrawEdge(VBitmap, VConfig.BorderColor);
     finally
       VPolygon.Free;
     end;
-  except
-    VMarkerBitmap.Free;
-    raise;
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
+  finally
+    VBitmap.Free;
   end;
-  VBitmapStatic := TBitmap32Static.CreateWithOwn(VMarkerBitmap);
   Result :=
     TBitmapMarker.Create(
       VBitmapStatic,

@@ -30,8 +30,13 @@ var
   VBitmap: TCustomBitmap32;
 begin
   VBitmap := TCustomBitmap32.Create;
-  VBitmap.Assign(ABitmap);
-  CreateWithOwn(VBitmap);
+  try
+    VBitmap.Assign(ABitmap);
+    CreateWithOwn(VBitmap);
+    VBitmap := nil;
+  finally
+    VBitmap.Free;
+  end;
 end;
 
 constructor TBitmap32Static.CreateWithOwn(ABitmap: TCustomBitmap32);

@@ -90,7 +90,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegReader;
   VStream: TMemoryStream;
-  VBtm: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
 begin
   VCounterContext := FLoadStreamCounter.StartOperation;
   try
@@ -101,19 +101,19 @@ begin
       VJpeg := TJpegReader.Create(VStream);
       try
         if VJpeg.ReadHeader() then begin
-          VBtm := TCustomBitmap32.Create;
+          VBitmap := TCustomBitmap32.Create;
           try
-            VBtm.Width := VJpeg.Width;
-            VBtm.Height := VJpeg.Height;
-            VJpeg.AppData := @VBtm;
+            VBitmap.Width := VJpeg.Width;
+            VBitmap.Height := VJpeg.Height;
+            VJpeg.AppData := @VBitmap;
             if not VJpeg.Decompress(Self.ReadLine) then begin
               raise Exception.Create('Jpeg decompress error!');
             end;
-          except
-            VBtm.Free;
-            raise;
+            Result := TBitmap32Static.CreateWithOwn(VBitmap);
+            VBitmap := nil;
+          finally
+            VBitmap.Free;
           end;
-          Result := TBitmap32Static.CreateWithOwn(VBtm);
         end else begin
           raise Exception.Create('Jpeg open error!');
         end;
@@ -195,6 +195,7 @@ var
   VAppData: TWriterAppData;
   VMemStream: TMemoryStream;
 begin
+  Result := nil;
   VMemStream := TMemoryStream.Create;
   try
     VJpeg := TJpegWriter.Create(VMemStream);
@@ -216,11 +217,11 @@ begin
     finally
       VJpeg.Free;
     end;
-  except
-    FreeAndNil(VMemStream);
-    raise;
+    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+    VMemStream := nil;
+  finally
+    VMemStream.Free;
   end;
-  Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
 end;
 
 procedure TLibJpegTileSaver.SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);

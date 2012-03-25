@@ -205,7 +205,7 @@ procedure TTileDownloadResultSaverStuped.SaveTileDownload(
   AContenType: string
 );
 var
-  btmSrc: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
   VContentTypeInfo: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
@@ -222,19 +222,19 @@ begin
           VLoader := VContentTypeBitmap.GetLoader;
           if VLoader <> nil then begin
             VBitmapStatic := VLoader.Load(AData);
-            btmsrc := TCustomBitmap32.Create;
+            VBitmap := TCustomBitmap32.Create;
             try
-              btmSrc.Assign(VBitmapStatic.Bitmap);
+              VBitmap.Assign(VBitmapStatic.Bitmap);
               CropOnDownload(
-                btmSrc,
+                VBitmap,
                 FTilePostDownloadCropConfig.CropRect,
                 FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom)
               );
-            except
-              FreeAndNil(btmSrc);
-              raise;
+              VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+              VBitmap := nil;
+            finally
+              VBitmap.Free;
             end;
-            VBitmapStatic := TBitmap32Static.CreateWithOwn(btmSrc);
             VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
             FStorage.SaveTile(AXY, Azoom, AVersionInfo, VData);
           end else begin

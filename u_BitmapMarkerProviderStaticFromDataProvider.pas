@@ -170,12 +170,11 @@ begin
       end;
 
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-
-    except
+      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
+    finally
       VBitmap.Free;
-      raise;
     end;
-    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
     Result :=
       TBitmapMarker.Create(
         VBitmapStatic,
@@ -372,11 +371,11 @@ begin
       end;
 
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-    except
+      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
+    finally
       VBitmap.Free;
-      raise;
     end;
-    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
     Result :=
       TBitmapMarkerWithDirection.Create(
         VBitmapStatic,
@@ -440,11 +439,11 @@ begin
         VRasterizer.Free;
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-    except
+      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
+    finally
       VBitmap.Free;
-      raise;
     end;
-    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
     Result :=
       TBitmapMarkerWithDirection.Create(
         VBitmapStatic,
@@ -511,11 +510,11 @@ begin
         VRasterizer.Free;
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-    except
+      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
+    finally
       VBitmap.Free;
-      raise;
     end;
-    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
     Result :=
       TBitmapMarkerWithDirection.Create(
         VBitmapStatic,
