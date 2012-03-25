@@ -32,8 +32,13 @@ var
   VList: TStringList;
 begin
   VList := TStringList.Create;
-  VList.Assign(AList);
-  CreateWithOwn(VList);
+  try
+    VList.Assign(AList);
+    CreateWithOwn(VList);
+    VList := nil;
+  finally
+    VList.Free;
+  end;
 end;
 
 constructor TStringListStatic.CreateWithOwn(AList: TStringList);

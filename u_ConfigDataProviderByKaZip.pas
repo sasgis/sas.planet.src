@@ -129,11 +129,11 @@ begin
     VMemStream := TMemoryStream.Create;
     try
       FUnZip.Entries.Items[VIndex].ExtractToStream(VMemStream);
-    except
+      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VMemStream := nil;
+    finally
       VMemStream.Free;
-      raise;
     end;
-    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
   end;
 end;
 
@@ -214,11 +214,11 @@ begin
         VList.Add(VFileName);
       end;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByKaZip.ReadTime(const AIdent: string;
@@ -243,11 +243,11 @@ begin
         VList.Add(VFileName);
       end;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

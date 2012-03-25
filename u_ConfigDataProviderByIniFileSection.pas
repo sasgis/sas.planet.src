@@ -115,11 +115,11 @@ begin
   VMemStream := TMemoryStream.Create;
   try
     FIniFile.ReadBinaryStream(FSection, AIdent, VMemStream);
-  except
+    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+    VMemStream := nil;
+  finally
     VMemStream.Free;
-    raise;
   end;
-  Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadBool(const AIdent: string;
@@ -219,11 +219,11 @@ begin
         VList.Strings[i] := RightStr(VSection, VCurSectLen - VSectionLen);
       end;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadTime(const AIdent: string;
@@ -251,11 +251,11 @@ begin
   VList := TStringList.Create;
   try
     FIniFile.ReadSection(FSection, VList);
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

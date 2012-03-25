@@ -148,11 +148,11 @@ begin
           VList.Add(Result.Items[i]);
         end;
         VList.Add(FSubItemName);
-      except
+        Result := TStringListStatic.CreateWithOwn(VList);
+        VList := nil;
+      finally
         VList.Free;
-        raise;
       end;
-      Result := TStringListStatic.CreateWithOwn(VList);
     end;
   end else begin
     if FSubItem = nil then begin
@@ -164,11 +164,11 @@ begin
           end;
         end;
         VList.Add(FSubItemName);
-      except
+        Result := TStringListStatic.CreateWithOwn(VList);
+        VList := nil;
+      finally
         VList.Free;
-        raise;
       end;
-      Result := TStringListStatic.CreateWithOwn(VList);
     end;
   end;
 end;

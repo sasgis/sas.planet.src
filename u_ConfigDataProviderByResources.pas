@@ -81,11 +81,11 @@ begin
       VMemStream := TMemoryStream.Create;
       try
         VResStream.SaveToStream(VMemStream);
-      except
+        Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+        VMemStream := nil;
+      finally
         VMemStream.Free;
-        raise;
       end;
-      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     finally
       VResStream.Free;
     end;
@@ -135,7 +135,12 @@ var
   VList: TStringList;
 begin
   VList := TStringList.Create;
-  Result := TStringListStatic.CreateWithOwn(VList);
+  try
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
+    VList.Free;
+  end;
 end;
 
 function TConfigDataProviderByResources.ReadTime(const AIdent: string;
@@ -149,7 +154,12 @@ var
   VList: TStringList;
 begin
   VList := TStringList.Create;
-  Result := TStringListStatic.CreateWithOwn(VList);
+  try
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
+    VList.Free;
+  end;
 end;
 
 end.

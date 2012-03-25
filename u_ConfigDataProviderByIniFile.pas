@@ -129,11 +129,11 @@ begin
   VList := TStringList.Create;
   try
     FIniFile.ReadSections(VList);
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByIniFile.ReadTime(const AIdent: string;
@@ -147,7 +147,12 @@ var
   VList: TStringList;
 begin
   VList := TStringList.Create;
-  Result := TStringListStatic.CreateWithOwn(VList);
+  try
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
+    VList.Free;
+  end;
 end;
 
 end.

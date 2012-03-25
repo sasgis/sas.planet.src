@@ -281,11 +281,11 @@ begin
         VList.Add(VListStatic.Items[i]);
       end;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderWithLocal.ReadTime(const AIdent: string;
@@ -327,11 +327,11 @@ begin
         VList.Add(VListStatic.Items[i]);
       end;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.

@@ -40,11 +40,11 @@ begin
   VStream := TMemoryStream.Create;
   try
     VStream.WriteBuffer(ABuffer^, ASize);
-  except
-    FreeAndNil(VStream);
-    raise;
+    CreateWithOwn(VStream);
+    VStream := nil;
+  finally
+    VStream.Free;
   end;
-  CreateWithOwn(VStream);
 end;
 
 constructor TBinaryDataByMemStream.CreateFromStream(AStream: TStream);
@@ -54,11 +54,11 @@ begin
   VStream := TMemoryStream.Create;
   try
     VStream.LoadFromStream(AStream);
-  except
-    FreeAndNil(VStream);
-    raise;
+    CreateWithOwn(VStream);
+    VStream := nil;
+  finally
+    VStream.Free;
   end;
-  CreateWithOwn(VStream);
 end;
 
 constructor TBinaryDataByMemStream.CreateWithOwn(AMemStream: TMemoryStream);

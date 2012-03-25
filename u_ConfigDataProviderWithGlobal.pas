@@ -249,7 +249,12 @@ begin
     Result := FProviderMain.ReadSubItemsList;
   end else begin
     VList := TStringList.Create;
-    Result := TStringListStatic.CreateWithOwn(VList);
+    try
+      Result := TStringListStatic.CreateWithOwn(VList);
+      VList := nil;
+    finally
+      VList.Free;
+    end;
   end;
 end;
 
@@ -278,7 +283,12 @@ begin
     Result := FProviderMain.ReadValuesList;
   end else begin
     VList := TStringList.Create;
-    Result := TStringListStatic.CreateWithOwn(VList);
+    try
+      Result := TStringListStatic.CreateWithOwn(VList);
+      VList := nil;
+    finally
+      VList.Free;
+    end;
   end;
 end;
 

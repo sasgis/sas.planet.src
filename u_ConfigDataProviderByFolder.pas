@@ -110,20 +110,20 @@ end;
 
 function TConfigDataProviderByFolder.ReadBinary(const AIdent: string): IBinaryData;
 var
-  VStream: TMemoryStream;
+  VMemStream: TMemoryStream;
   VFileName: string;
 begin
   Result := nil;
   VFileName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
   if FileExists(VFileName) then begin
-    VStream := TMemoryStream.Create;
+    VMemStream := TMemoryStream.Create;
     try
-      VStream.LoadFromFile(VFileName);
-    except
-      VStream.Free;
-      raise;
+      VMemStream.LoadFromFile(VFileName);
+      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VMemStream := nil;
+    finally
+      VMemStream.Free;
     end;
-    Result := TBinaryDataByMemStream.CreateWithOwn(VStream);
   end;
 end;
 
@@ -211,11 +211,11 @@ begin
         end;
       until FindNext(SearchRec) <> 0;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 function TConfigDataProviderByFolder.ReadTime(const AIdent: string;
@@ -245,11 +245,11 @@ begin
         end;
       until FindNext(SearchRec) <> 0;
     end;
-  except
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
     VList.Free;
-    raise;
   end;
-  Result := TStringListStatic.CreateWithOwn(VList);
 end;
 
 end.
