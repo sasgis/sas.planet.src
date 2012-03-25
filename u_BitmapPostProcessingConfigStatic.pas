@@ -116,7 +116,9 @@ function TBitmapPostProcessingConfigStatic.Process(
 var
   VBitmap: TCustomBitmap32;
 begin
-  if
+  if ABitmap = nil then begin
+    Result := nil;
+  end else if
     (FContrastN = 0) and
     (not FInvertColor) and
     (FGammaN = 50)
