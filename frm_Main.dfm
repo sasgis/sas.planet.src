@@ -3370,9 +3370,9 @@ object frmMain: TfrmMain
       Caption = 'Show Primary Map Tile'
       Hint = ''
     end
-    object N25: TTBXItem
+    object tbitmOpenFolderMainMapTile: TTBXItem
       ImageIndex = 34
-      OnClick = N25Click
+      OnClick = tbitmOpenFolderMainMapTileClick
       Caption = 'Open Primary Map Tile Folder'
       Hint = ''
     end
@@ -3426,9 +3426,9 @@ object frmMain: TfrmMain
       Caption = ''
       Hint = ''
     end
-    object N21: TTBXItem
+    object tbitmDownloadMainMapTile: TTBXItem
       ImageIndex = 21
-      OnClick = N21Click
+      OnClick = tbitmDownloadMainMapTileClick
       Caption = 'Download Primary Map Tile to Cache (Ins+MLeft)'
       Hint = ''
     end

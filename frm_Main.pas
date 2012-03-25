@@ -312,7 +312,7 @@ type
     N20: TTBXItem;
     N15: TTBXItem;
     Nopendir: TTBXItem;
-    N25: TTBXItem;
+    tbitmOpenFolderMainMapTile: TTBXItem;
     tbsprtMainPopUp3: TTBXSeparatorItem;
     N26: TTBXSubmenuItem;
     NGTOPO30: TTBXItem;
@@ -321,7 +321,7 @@ type
     DigitalGlobe1: TTBXItem;
     N27: TTBXSeparatorItem;
     tbsprtMainPopUp4: TTBXSeparatorItem;
-    N21: TTBXItem;
+    tbitmDownloadMainMapTile: TTBXItem;
     NDel: TTBXItem;
     tbsprtMainPopUp5: TTBXSeparatorItem;
     NMapInfo: TTBXItem;
@@ -428,9 +428,9 @@ type
     procedure NaddPointClick(Sender: TObject);
     procedure N20Click(Sender: TObject);
     procedure N15Click(Sender: TObject);
-    procedure N21Click(Sender: TObject);
+    procedure tbitmDownloadMainMapTileClick(Sender: TObject);
     procedure NopendirClick(Sender: TObject);
-    procedure N25Click(Sender: TObject);
+    procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
     procedure NDelClick(Sender: TObject);
     procedure TBREGIONClick(Sender: TObject);
     procedure NShowGranClick(Sender: TObject);
@@ -1812,7 +1812,7 @@ begin
       FNDwnItemList.Add(VGUID, NDwnItem);
       NDwnItem.Caption:=VMapType.GUIConfig.Name.Value;
       NDwnItem.ImageIndex:=VIcon18Index;
-      NDwnItem.OnClick:=N21Click;
+      NDwnItem.OnClick := tbitmDownloadMainMapTileClick;
       NDwnItem.Tag:=longint(VMapType);
       ldm.Add(NDwnItem);
 
@@ -1828,7 +1828,7 @@ begin
       FNOpenDirItemList.Add(VGUID, NOpenDirItem);
       NOpenDirItem.Caption:=VMapType.GUIConfig.Name.Value;
       NOpenDirItem.ImageIndex:=VIcon18Index;
-      NOpenDirItem.OnClick:=N25Click;
+      NOpenDirItem.OnClick := tbitmOpenFolderMainMapTileClick;
       NOpenDirItem.Tag:=longint(VMapType);
       TBOpenDirLayer.Add(NOpenDirItem);
 
@@ -3046,7 +3046,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.N21Click(Sender: TObject);
+procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
 var
   path:string;
   VMapType:TMapType;
@@ -3119,7 +3119,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.N25Click(Sender: TObject);
+procedure TfrmMain.tbitmOpenFolderMainMapTileClick(Sender: TObject);
 var
   s:string;
   VZoomCurr: Byte;
