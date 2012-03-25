@@ -306,20 +306,20 @@ type
     YaLink: TTBXItem;
     kosmosnimkiru1: TTBXItem;
     livecom1: TTBXItem;
-    N51: TTBXSeparatorItem;
-    N13: TTBXItem;
-    N30: TTBXItem;
-    N20: TTBXItem;
-    N15: TTBXItem;
+    tbsprtCopyToClipboard0: TTBXSeparatorItem;
+    tbitmCopyToClipboardMainMapUrl: TTBXItem;
+    tbitmCopyToClipboardCoordinates: TTBXItem;
+    tbitmCopyToClipboardMainMapTile: TTBXItem;
+    tbitmCopyToClipboardMainMapTileFileName: TTBXItem;
     Nopendir: TTBXItem;
     tbitmOpenFolderMainMapTile: TTBXItem;
     tbsprtMainPopUp3: TTBXSeparatorItem;
     tbitmAdditionalOperations: TTBXSubmenuItem;
     NGTOPO30: TTBXItem;
     NSRTM3: TTBXItem;
-    N49: TTBXSeparatorItem;
+    tbsprtAdditionalOperations1: TTBXSeparatorItem;
     DigitalGlobe1: TTBXItem;
-    N27: TTBXSeparatorItem;
+    tbsprtAdditionalOperations0: TTBXSeparatorItem;
     tbsprtMainPopUp4: TTBXSeparatorItem;
     tbitmDownloadMainMapTile: TTBXItem;
     NDel: TTBXItem;
@@ -327,7 +327,7 @@ type
     NMapInfo: TTBXItem;
     ldm: TTBXSubmenuItem;
     dlm: TTBXSubmenuItem;
-    TBXToolPalette2: TTBXToolPalette;
+    tbtpltCenterWithZoom: TTBXToolPalette;
     TBOpenDirLayer: TTBXSubmenuItem;
     TBCopyLinkLayer: TTBXSubmenuItem;
     TBLayerInfo: TTBXSubmenuItem;
@@ -410,6 +410,7 @@ type
     nokiamapcreator1: TTBXItem;
     tbpmiVersions: TTBXSubmenuItem;
     tbpmiClearVersion: TTBXItem;
+    TBXSubmenuItem1: TTBXSubmenuItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -426,8 +427,8 @@ type
     procedure tbitmOptionsClick(Sender: TObject);
     procedure NbackloadClick(Sender: TObject);
     procedure NaddPointClick(Sender: TObject);
-    procedure N20Click(Sender: TObject);
-    procedure N15Click(Sender: TObject);
+    procedure tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
+    procedure tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
     procedure tbitmDownloadMainMapTileClick(Sender: TObject);
     procedure NopendirClick(Sender: TObject);
     procedure tbitmOpenFolderMainMapTileClick(Sender: TObject);
@@ -449,7 +450,7 @@ type
     procedure TBGPSconnClick(Sender: TObject);
     procedure TBGPSPathClick(Sender: TObject);
     procedure TBGPSToPointClick(Sender: TObject);
-    procedure N30Click(Sender: TObject);
+    procedure tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
     procedure TBCOORDClick(Sender: TObject);
     procedure ShowstatusClick(Sender: TObject);
     procedure ShowMiniMapClick(Sender: TObject);
@@ -470,7 +471,7 @@ type
     procedure NMarkDelClick(Sender: TObject);
     procedure NMarkOperClick(Sender: TObject);
     procedure livecom1Click(Sender: TObject);
-    procedure N13Click(Sender: TObject);
+    procedure tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
     procedure DigitalGlobe1Click(Sender: TObject);
     procedure mapMouseLeave(Sender: TObject);
     procedure NMapParamsClick(Sender: TObject);
@@ -521,7 +522,7 @@ type
     procedure ZSliderMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure MainPopupMenuPopup(Sender: TObject);
-    procedure TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette; var ACol,
+    procedure tbtpltCenterWithZoomCellClick(Sender: TTBXCustomToolPalette; var ACol,
       ARow: Integer; var AllowChange: Boolean);
     procedure TBScreenSelectClick(Sender: TObject);
     procedure NSensorsClick(Sender: TObject);
@@ -1836,7 +1837,7 @@ begin
       FNCopyLinkItemList.Add(VGUID, NCopyLinkItem);
       NCopyLinkItem.Caption:=VMapType.GUIConfig.Name.Value;
       NCopyLinkItem.ImageIndex:=VIcon18Index;
-      NCopyLinkItem.OnClick:=N13Click;
+      NCopyLinkItem.OnClick:=tbitmCopyToClipboardMainMapUrlClick;
       NCopyLinkItem.Tag:=longint(VMapType);
       TBCopyLinkLayer.Add(NCopyLinkItem);
 
@@ -2959,7 +2960,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.N20Click(Sender: TObject);
+procedure TfrmMain.tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
 var
   btm:TBitmap32;
   btm1:TBitmap;
@@ -2999,7 +3000,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.N30Click(Sender: TObject);
+procedure TfrmMain.tbitmCopyToClipboardCoordinatesClick(Sender: TObject);
 var
   VMouseLonLat: TDoublePoint;
   VStr: string;
@@ -3018,7 +3019,7 @@ begin
   CopyStringToClipboard(VStr);
 end;
 
-procedure TfrmMain.N15Click(Sender: TObject);
+procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
 var
   VZoomCurr: Byte;
   VMapType: TMapType;
@@ -3451,7 +3452,7 @@ end;
 
 //X-карта заполнения в основном окне
 
-procedure TfrmMain.TBXToolPalette2CellClick(Sender: TTBXCustomToolPalette;
+procedure TfrmMain.tbtpltCenterWithZoomCellClick(Sender: TTBXCustomToolPalette;
   var ACol, ARow: Integer; var AllowChange: Boolean);
 var
   VZoom: Byte;
@@ -3767,7 +3768,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.N13Click(Sender: TObject);
+procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
 var
   VZoomCurr: Byte;
   VMapType: TMapType;

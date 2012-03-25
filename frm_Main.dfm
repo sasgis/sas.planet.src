@@ -3288,12 +3288,12 @@ object frmMain: TfrmMain
     object tbitmCenterWithZoom: TTBXSubmenuItem
       Caption = 'Center With Zoom'
       Hint = ''
-      object TBXToolPalette2: TTBXToolPalette
+      object tbtpltCenterWithZoom: TTBXToolPalette
         ColCount = 5
         Images = ScalesImageList
         PaletteOptions = []
         RowCount = 5
-        OnCellClick = TBXToolPalette2CellClick
+        OnCellClick = tbtpltCenterWithZoomCellClick
         Caption = ''
         Hint = ''
       end
@@ -3336,12 +3336,12 @@ object frmMain: TfrmMain
         Caption = 'URL to Nokia Map Creator'
         Hint = ''
       end
-      object N51: TTBXSeparatorItem
+      object tbsprtCopyToClipboard0: TTBXSeparatorItem
         Caption = ''
         Hint = ''
       end
-      object N13: TTBXItem
-        OnClick = N13Click
+      object tbitmCopyToClipboardMainMapUrl: TTBXItem
+        OnClick = tbitmCopyToClipboardMainMapUrlClick
         Caption = 'URL to Primary Map Tile'
         Hint = ''
       end
@@ -3349,19 +3349,23 @@ object frmMain: TfrmMain
         Caption = 'URL to Layer Tile'
         Hint = ''
       end
-      object N30: TTBXItem
-        OnClick = N30Click
+      object tbitmCopyToClipboardCoordinates: TTBXItem
+        OnClick = tbitmCopyToClipboardCoordinatesClick
         Caption = 'Coordinates'
         Hint = ''
       end
-      object N20: TTBXItem
-        OnClick = N20Click
+      object tbitmCopyToClipboardMainMapTile: TTBXItem
+        OnClick = tbitmCopyToClipboardMainMapTileClick
         Caption = 'Primary Map Tile'
         Hint = ''
       end
-      object N15: TTBXItem
-        OnClick = N15Click
+      object tbitmCopyToClipboardMainMapTileFileName: TTBXItem
+        OnClick = tbitmCopyToClipboardMainMapTileFileNameClick
         Caption = 'Pathname to Tile in Cache'
+        Hint = ''
+      end
+      object TBXSubmenuItem1: TTBXSubmenuItem
+        Caption = ''
         Hint = ''
       end
     end
@@ -3398,7 +3402,7 @@ object frmMain: TfrmMain
         Caption = 'Current Altitude by SRTM3 (~90 m accuracy)'
         Hint = ''
       end
-      object N49: TTBXSeparatorItem
+      object tbsprtAdditionalOperations1: TTBXSeparatorItem
         Caption = ''
         Hint = ''
       end
@@ -3407,7 +3411,7 @@ object frmMain: TfrmMain
         Caption = 'Images available'
         Hint = ''
       end
-      object N27: TTBXSeparatorItem
+      object tbsprtAdditionalOperations0: TTBXSeparatorItem
         Caption = ''
         Hint = ''
       end
