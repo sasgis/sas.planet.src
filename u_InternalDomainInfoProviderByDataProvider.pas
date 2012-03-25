@@ -31,6 +31,8 @@ implementation
 uses
   StrUtils,
   SysUtils,
+  ActiveX,
+  UrlMon,
   i_ContentTypeInfo;
 
 const
@@ -60,6 +62,8 @@ var
   VFileName: string;
   VExt: string;
   VContentType: IContentTypeInfoBasic;
+  VUrl: WideString;
+  VMimeType: PWideChar;
 begin
   AContentType := '';
   VFileName := AFileName;
@@ -72,7 +76,16 @@ begin
     if VContentType <> nil then begin
       AContentType := VContentType.GetContentType;
     end else begin
-      AContentType := 'text/html'
+      VUrl := VFileName;
+      if Succeeded(FindMimeFromData(nil, PWideChar(VUrl), nil, 0, nil, 0, VMimeType, 0)) then begin
+        try
+          AContentType := VMimeType;
+        finally
+          CoTaskMemFree(VMimeType);
+        end;
+      end else begin
+        AContentType := 'text/html'
+      end;
     end;
   end;
 
