@@ -299,9 +299,9 @@ type
     tbsprtMainPopUp0: TTBXSeparatorItem;
     NaddPoint: TTBXItem;
     tbsprtMainPopUp1: TTBXSeparatorItem;
-    N28: TTBXSubmenuItem;
+    tbitmCenterWithZoom: TTBXSubmenuItem;
     tbsprtMainPopUp2: TTBXSeparatorItem;
-    N43: TTBXSubmenuItem;
+    tbitmCopyToClipboard: TTBXSubmenuItem;
     Google1: TTBXItem;
     YaLink: TTBXItem;
     kosmosnimkiru1: TTBXItem;
@@ -314,7 +314,7 @@ type
     Nopendir: TTBXItem;
     tbitmOpenFolderMainMapTile: TTBXItem;
     tbsprtMainPopUp3: TTBXSeparatorItem;
-    N26: TTBXSubmenuItem;
+    tbitmAdditionalOperations: TTBXSubmenuItem;
     NGTOPO30: TTBXItem;
     NSRTM3: TTBXItem;
     N49: TTBXSeparatorItem;

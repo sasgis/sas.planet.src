@@ -3285,7 +3285,7 @@ object frmMain: TfrmMain
       Caption = ''
       Hint = ''
     end
-    object N28: TTBXSubmenuItem
+    object tbitmCenterWithZoom: TTBXSubmenuItem
       Caption = 'Center With Zoom'
       Hint = ''
       object TBXToolPalette2: TTBXToolPalette
@@ -3302,7 +3302,7 @@ object frmMain: TfrmMain
       Caption = ''
       Hint = ''
     end
-    object N43: TTBXSubmenuItem
+    object tbitmCopyToClipboard: TTBXSubmenuItem
       ImageIndex = 28
       Caption = 'Copy to Clipboard'
       Hint = ''
@@ -3385,7 +3385,7 @@ object frmMain: TfrmMain
       Caption = ''
       Hint = ''
     end
-    object N26: TTBXSubmenuItem
+    object tbitmAdditionalOperations: TTBXSubmenuItem
       Caption = 'Additional Operations'
       Hint = ''
       object NGTOPO30: TTBXItem
