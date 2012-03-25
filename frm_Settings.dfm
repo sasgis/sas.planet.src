@@ -134,7 +134,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 190
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -612,8 +611,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 16
           OnClick = Button4Click
-          ExplicitLeft = 613
-          ExplicitTop = 137
         end
         object btnSetBDBCachePath: TButton
           Tag = 6
@@ -635,7 +632,6 @@ object frmSettings: TfrmSettings
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
-          ExplicitTop = 165
           ExplicitWidth = 91
           ExplicitHeight = 13
         end
@@ -657,7 +653,6 @@ object frmSettings: TfrmSettings
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'BerkeleyDB')
-          ExplicitTop = 165
         end
         object lbGCCachePath: TLabel
           AlignWithMargins = True
@@ -679,8 +674,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 18
-          ExplicitLeft = 344
-          ExplicitWidth = 121
         end
         object btnSetDefGCCachePath: TButton
           Tag = 7
@@ -692,8 +685,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 19
           OnClick = Button4Click
-          ExplicitLeft = 613
-          ExplicitTop = 161
         end
         object btnSetGCCachePath: TButton
           Tag = 7
@@ -1190,7 +1181,7 @@ object frmSettings: TfrmSettings
             Left = 3
             Top = 223
             Width = 319
-            Height = 105
+            Height = 125
             Align = alTop
             AutoSize = True
             BevelOuter = bvNone
@@ -1198,25 +1189,27 @@ object frmSettings: TfrmSettings
             TabOrder = 5
             object LabelGamma: TLabel
               Left = 3
-              Top = 3
+              Top = 23
               Width = 313
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitTop = 3
               ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
-              Top = 41
+              Top = 61
               Width = 313
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitTop = 41
               ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
-              Top = 16
+              Top = 36
               Width = 313
               Height = 25
               Align = alTop
@@ -1230,10 +1223,11 @@ object frmSettings: TfrmSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarGammaChange
+              ExplicitTop = 16
             end
             object TrBarContrast: TTrackBar
               Left = 3
-              Top = 54
+              Top = 74
               Width = 313
               Height = 25
               Align = alTop
@@ -1244,16 +1238,47 @@ object frmSettings: TfrmSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarContrastChange
+              ExplicitTop = 54
             end
             object CBinvertcolor: TCheckBox
               AlignWithMargins = True
               Left = 6
-              Top = 82
+              Top = 102
               Width = 307
               Height = 17
               Align = alTop
               Caption = 'Night mode (color inversion)'
               TabOrder = 2
+              ExplicitTop = 82
+            end
+            object pnlImageProcessTop: TPanel
+              Left = 3
+              Top = 3
+              Width = 313
+              Height = 20
+              Align = alTop
+              BevelOuter = bvNone
+              TabOrder = 3
+              object lblImageProcessCaption: TLabel
+                Left = 0
+                Top = 0
+                Width = 91
+                Height = 20
+                Align = alLeft
+                Caption = 'Image postprocess'
+                ExplicitHeight = 13
+              end
+              object btnImageProcessReset: TButton
+                Left = 292
+                Top = 0
+                Width = 21
+                Height = 20
+                Hint = 'Reset to default'
+                Align = alRight
+                Caption = '<>'
+                TabOrder = 0
+                OnClick = btnImageProcessResetClick
+              end
             end
           end
         end

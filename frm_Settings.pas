@@ -252,6 +252,9 @@ type
     edtGCCachePath: TEdit;
     btnSetDefGCCachePath: TButton;
     btnSetGCCachePath: TButton;
+    pnlImageProcessTop: TPanel;
+    btnImageProcessReset: TButton;
+    lblImageProcessCaption: TLabel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -279,6 +282,7 @@ type
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnGPSSwitchClick(Sender: TObject);
+    procedure btnImageProcessResetClick(Sender: TObject);
   private
     FShortCutManager: TShortcutManager;
     FOnSave: TNotifyEvent;
@@ -415,6 +419,13 @@ begin
   SaveGPSConfig;
   // change state
   GState.GPSConfig.GPSEnabled := (not GState.GPSConfig.GPSEnabled);
+end;
+
+procedure TfrmSettings.btnImageProcessResetClick(Sender: TObject);
+begin
+  TrBarGamma.Position := 50;
+  TrBarContrast.Position := 0;
+  CBinvertcolor.Checked := False;
 end;
 
 procedure TfrmSettings.SetProxy;
