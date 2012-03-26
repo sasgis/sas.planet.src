@@ -118,12 +118,19 @@ begin
   VTileRect.Bottom := VMovedTileRect.Bottom;
 
   VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
-
-  Result := TLocalCoordConverterNoScale.Create(
-    Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
-    ASource.ProjectionInfo,
-    VResultPixelRect.TopLeft
-  );
+  if EqualRect(VSourcePixelRect, VResultPixelRect) then begin
+    Result := ASource;
+  end else begin
+    Result := TLocalCoordConverterNoScale.Create(
+      Rect(
+        0, 0,
+        VResultPixelRect.Right - VResultPixelRect.Left,
+        VResultPixelRect.Bottom - VResultPixelRect.Top
+      ),
+      ASource.ProjectionInfo,
+      VResultPixelRect.TopLeft
+    );
+  end;
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateBySourceWithStableTileRectAndOtherGeo(
