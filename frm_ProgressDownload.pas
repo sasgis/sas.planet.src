@@ -125,7 +125,7 @@ begin
   if FStoped then begin
     FDownloadThread.DownloadResume;
     FStoped := false;
-    button1.Caption := SAS_STR_Stop;
+    button1.Caption := SAS_STR_Pause;
   end else begin
     FDownloadThread.DownloadPause;
     FStoped := true;

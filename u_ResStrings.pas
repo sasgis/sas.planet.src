@@ -128,6 +128,7 @@ ResourceString
   SAS_STR_EditPoly = 'Edit Polygon';
   SAS_STR_EditCategory = 'Edit Category';
   SAS_STR_EditMap = 'Map Settings:';
+  SAS_STR_Pause = 'Pause';
   SAS_STR_Stop = 'Stop';
   SAS_STR_Stop1 = 'Paused';
   SAS_STR_Continue = 'Resume';
