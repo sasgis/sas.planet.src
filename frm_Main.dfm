@@ -586,7 +586,7 @@ object frmMain: TfrmMain
             Hint = ''
           end
           object N001: TTBXItem
-            Tag = 99
+            Tag = 100
             GroupIndex = 1
             Images = MenusImageList
             RadioItem = True
@@ -646,6 +646,51 @@ object frmMain: TfrmMain
             RadioItem = True
             OnClick = N000Click
             Caption = '7'
+            Hint = ''
+          end
+          object tbitmTileGrid1p: TTBXItem
+            Tag = 101
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = N000Click
+            Caption = 'Current Zoom + 1'
+            Hint = ''
+          end
+          object tbitmTileGrid2p: TTBXItem
+            Tag = 102
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = N000Click
+            Caption = 'Current Zoom + 2'
+            Hint = ''
+          end
+          object tbitmTileGrid3p: TTBXItem
+            Tag = 103
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = N000Click
+            Caption = 'Current Zoom + 3'
+            Hint = ''
+          end
+          object tbitmTileGrid4p: TTBXItem
+            Tag = 104
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = N000Click
+            Caption = 'Current Zoom + 4'
+            Hint = ''
+          end
+          object tbitmTileGrid5p: TTBXItem
+            Tag = 105
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = N000Click
+            Caption = 'Current Zoom + 5'
             Hint = ''
           end
         end

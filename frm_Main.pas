@@ -411,6 +411,11 @@ type
     tbpmiVersions: TTBXSubmenuItem;
     tbpmiClearVersion: TTBXItem;
     TBXSubmenuItem1: TTBXSubmenuItem;
+    tbitmTileGrid1p: TTBXItem;
+    tbitmTileGrid2p: TTBXItem;
+    tbitmTileGrid3p: TTBXItem;
+    tbitmTileGrid4p: TTBXItem;
+    tbitmTileGrid5p: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -3485,9 +3490,9 @@ begin
     FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.LockWrite;
     try
       FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Visible := True;
-      if VTag = 99 then begin
+      if VTag >= 100 then begin
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := True;
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := 0;
+        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 100;
       end else begin
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.UseRelativeZoom := False;
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.Zoom := VTag - 1;
@@ -3520,7 +3525,14 @@ begin
     NShowGran.Items[0].Checked:=true;
   end else begin
     if VRelativeZoom then begin
-      NShowGran.Items[1].Checked:=true;
+      case VGridZoom of
+        1: NShowGran.Items[8].Checked:=true;
+        2: NShowGran.Items[9].Checked:=true;
+        3: NShowGran.Items[10].Checked:=true;
+        4: NShowGran.Items[11].Checked:=true;
+        5: NShowGran.Items[12].Checked:=true;
+      else NShowGran.Items[1].Checked:=true;
+      end;
     end;
   end;
   VZoomCurr := FConfig.ViewPortState.GetCurrentZoom;
