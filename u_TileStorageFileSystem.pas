@@ -269,11 +269,25 @@ var
   end;
 
   function _GetFileDateTime: TDateTime;
-  var VSysTime: TSystemTime;
+  var
+    VSysTime: TSystemTime;
+    VFileTimePtr: PFileTime;
   begin
     Result := 0;
+    VFileTimePtr := nil;
+
+    // last modified time (if exists)
+    if (VInfo.ftLastWriteTime.dwLowDateTime<>0) and (VInfo.ftLastWriteTime.dwHighDateTime<>0) then
+      VFileTimePtr := @(VInfo.ftLastWriteTime);
+
+    // created time (if exists and greater)
     if (VInfo.ftCreationTime.dwLowDateTime<>0) and (VInfo.ftCreationTime.dwHighDateTime<>0) then
-    if (FileTimeToSystemTime(VInfo.ftCreationTime, VSysTime)<>FALSE) then
+      if (nil=VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^)>0) then
+        VFileTimePtr := @(VInfo.ftCreationTime);
+
+    // convert max value
+    if (nil<>VFileTimePtr) then
+    if (FileTimeToSystemTime(VFileTimePtr^, VSysTime)<>FALSE) then
     try
       Result := SystemTimeToDateTime(VSysTime);
     except
