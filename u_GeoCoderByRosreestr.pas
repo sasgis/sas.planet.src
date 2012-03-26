@@ -85,13 +85,22 @@ begin
     sdesc := '';
 
     i := PosEx('"PARCELID":"', AStr, j);
-    j := PosEx('"', AStr, i + 12);
-    sname:= Utf8ToAnsi(Copy(AStr, i + 12, j - (i + 12)));
-    sname:=copy(sname,1,2)+':'+copy(sname,3,2)+':'+copy(sname,5,7)+':'+copy(sname,13,5);
+    if i>0 then begin
+     j := PosEx('"', AStr, i + 12);
+     sname:= Utf8ToAnsi(Copy(AStr, i + 12, j - (i + 12)));
+     sname:=copy(sname,1,2)+':'+copy(sname,3,2)+':'+copy(sname,5,7)+':'+copy(sname,12,5);
+    end else begin
+     i := PosEx('"KVARTALID":"', AStr, j);
+     j := PosEx('"', AStr, i + 13);
+     sname:= Utf8ToAnsi(Copy(AStr, i + 13, j - (i + 13)));
+     sname:=copy(sname,1,2)+':'+copy(sname,3,2)+':'+copy(sname,5,7){+':'+copy(sname,12,5)};
+    end;
 
     i := PosEx('"FULLADDRESS":"', AStr, j);
-    j := PosEx('"', AStr, i + 15);
-    sdesc:= sdesc + Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
+    if i>j  then begin
+     j := PosEx('"', AStr, i + 15);
+     sdesc:= sdesc + Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
+    end;
 
     i := PosEx('"UTILIZATION_BYDOCUMENT":"', AStr, j);
     if i>j then begin
@@ -108,11 +117,11 @@ begin
     end;
 
     i := PosEx('"x":', AStr, j);
-    j := PosEx('.', AStr, i + 4 );
+    j := PosEx(',', AStr, i + 4 );
     slon := Copy(AStr, i + 4, j - (i + 4));
 
     i := PosEx('"y":', AStr, j);
-    j := PosEx('.', AStr, i + 4 );
+    j := PosEx('}', AStr, i + 4 );
     slat := Copy(AStr, i + 4, j - (i + 4));
 
 
@@ -166,6 +175,7 @@ var
   VLonLatRect: TDoubleRect;
   i: integer;
   S1, S2, S3, S4: string;
+  i1, i2, i3, i4: integer;
 begin
   VSearch := ASearch;
   VConverter:=FLocalConverter.GetGeoConverter;
@@ -180,29 +190,47 @@ begin
    i := PosEx(':', VSearch, 1);
    s1 := copy(VSearch,1,i-1);
    VSearch := copy(VSearch,i+1,length(VSearch)-i+1);
+   i1:=strtoint(s1);
 
    i := PosEx(':', VSearch, 1);
    s2 := copy(VSearch,1,i-1);
    VSearch := copy(VSearch,i+1,length(VSearch)-i+1);
+   i2:=strtoint(s2);
 
    i := PosEx(':', VSearch, 1);
+   if i=0 then i:= length(VSearch)+1;
    s3 := copy(VSearch,1,i-1);
    VSearch := copy(VSearch,i+1,length(VSearch)-i+1);
+   try
+    i3:=strtoint(s3);
+   except
+    i3:=0;
+   end;
 
    s4 := VSearch;
+   try
+    i4 := strtoint(s4);
+   except
+    i4 := 0;
+   end;
 
-   if ''= RegExprReplaceMatchSubStr(s1,'[0-9]','') then while length(s1)<2 do s1:='0'+s1;
-   if ''= RegExprReplaceMatchSubStr(s2,'[0-9]','') then while length(s2)<2 do s2:='0'+s2;
-   if ''= RegExprReplaceMatchSubStr(s3,'[0-9]','') then while length(s3)<7 do s3:='0'+s3;
-   if ''= RegExprReplaceMatchSubStr(s4,'[0-9]','') then while length(s4)<5 do s4:='0'+s4;
+   if(''= RegExprReplaceMatchSubStr(s1,'[0-9]',''))and(i1>0)then while length(s1)<2 do s1:='0'+s1;
+   if(''= RegExprReplaceMatchSubStr(s2,'[0-9]',''))and(i2>0)then while length(s2)<2 do s2:='0'+s2;
+   if(''= RegExprReplaceMatchSubStr(s3,'[0-9]',''))and(i3>0)then while length(s3)<7 do s3:='0'+s3;
+   if(''= RegExprReplaceMatchSubStr(s4,'[0-9]',''))and(i4>0)then while length(s4)<5 do s4:='0'+s4;
 
    VSearch := s1+s2+s3+s4;
-   VSearch := ReplaceStr(VSearch,'*','');// убираем * из строки кадастрового номера
 
-   if ''= RegExprReplaceMatchSubStr(VSearch,'[0-9]','') then
-    Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20'''+URLEncode(AnsiToUtf8(VSearch))+'%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript17._jsonpCallback'
+   if PosEx('*', VSearch, 1)>0 then
+   begin
+    VSearch := ReplaceStr(VSearch,'*','');// убираем * из строки кадастрового номера
+    Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20'''+URLEncode(AnsiToUtf8(VSearch))+'%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript23._jsonpCallback'
+   end
    else
-    Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20'''+URLEncode(AnsiToUtf8(VSearch))+'%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript27._jsonpCallback';
+   if i4=0 then // Кварталы
+     Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/6/query?f=json&where=KVARTALID%20like%20'''+URLEncode(AnsiToUtf8(VSearch))+'%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript40._jsonpCallback'
+    else // участки
+     Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20'''+URLEncode(AnsiToUtf8(VSearch))+'%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript37._jsonpCallback';
 
   end else begin //name
    VSearch := ASearch;
