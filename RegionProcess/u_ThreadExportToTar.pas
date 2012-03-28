@@ -52,6 +52,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
+  u_StreamReadOnlyByBinaryData,
   u_TileIteratorByPolygon,
   u_TileStorageAbstract;
 
@@ -98,7 +99,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
-  VMemStream: TMemoryStream;
+  VStream: TStream;
   VFileTime: TDateTime;
   VTileInfo: ITileInfoBasic;
   VProjectedPolygon: IProjectedPolygon;
@@ -125,8 +126,6 @@ begin
   try
     ProgressInfo.Caption := SAS_STR_ExportTiles;
     ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
-    VMemStream := TMemoryStream.Create;
-    try
       VTileStorage := FMapType.TileStorage;
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
@@ -142,13 +141,16 @@ begin
           VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
           if VData <> nil then begin
             VFileTime := VTileInfo.GetLoadDate;
-            VMemStream.SetSize(0);
-            VMemStream.WriteBuffer(VData.Buffer^, VData.Size);
-            FTar.AddStream(
-              VMemStream,
-              FTileNameGen.GetTileFileName(VTile, VZoom)+ VExt,
-              VFileTime
-            );
+            VStream := TStreamReadOnlyByBinaryData.Create(VData);
+            try
+              FTar.AddStream(
+                VStream,
+                FTileNameGen.GetTileFileName(VTile, VZoom)+ VExt,
+                VFileTime
+              );
+            finally
+              VStream.Free;
+            end;
           end;
           inc(VTilesProcessed);
           if VTilesProcessed mod 100 = 0 then begin
@@ -156,9 +158,6 @@ begin
           end;
         end;
       end;
-    finally
-      VMemStream.Free;
-    end;
   finally
     for i := 0 to Length(FZooms) - 1 do begin
       VTileIterators[i] := nil;
