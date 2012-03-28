@@ -392,14 +392,14 @@ constructor TMapLayerBasicNoBitmap.Create(
   AViewPortState: IViewPortState
 );
 begin
-  inherited Create(APerfList, TPositionedLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(APerfList, TCustomLayer.Create(AParentMap.Layers), AViewPortState);
   FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
 end;
 
 procedure TMapLayerBasicNoBitmap.DoRedraw;
 begin
   inherited;
-  LayerPositioned.Changed;
+  Layer.Changed;
 end;
 
 procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
@@ -431,7 +431,7 @@ end;
 procedure TMapLayerBasicNoBitmap.StartThreads;
 begin
   inherited;
-  LayerPositioned.OnPaint := OnPaintLayer;
+  Layer.OnPaint := OnPaintLayer;
 end;
 
 end.

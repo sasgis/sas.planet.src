@@ -100,7 +100,7 @@ type
     procedure DoRedraw; virtual; abstract;
     procedure RedrawIfNeed; virtual;
 
-    property LayerPositioned: TCustomLayer read FLayer;
+    property Layer: TCustomLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
