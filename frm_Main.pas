@@ -5086,8 +5086,6 @@ var
   VZoom: Byte;
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
-  VMapRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VConverter := VLocalConverter.GetGeoConverter;
@@ -5095,15 +5093,12 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
-  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   CopyStringToClipboard(
-    'http://beta-maps.yandex.ru/?ll='+
+    'http://maps.yandex.ru/?ll='+
     R2StrPoint(round(VLonLat.x*100000)/100000)+'%2C'+
     R2StrPoint(round(VLonLat.y*100000)/100000)+
-    '&spn='+R2StrPoint(abs(VLonLatRect.Left-VLonLatRect.Right))+'%2C'+
-    R2StrPoint(abs(VLonLatRect.Top-VLonLatRect.Bottom))+'&l=sat'
+    '&z=' + IntToStr(VZoom) +
+    '&l=sat'
   );
 end;
 
