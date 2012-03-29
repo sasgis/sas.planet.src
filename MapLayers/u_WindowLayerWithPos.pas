@@ -36,27 +36,28 @@ uses
 type
   TWindowLayerWithPosBase = class(TWindowLayerAbstract)
   private
-    FViewUpdateLock: Integer;
     FViewPortState: IViewPortState;
+
     FViewCoordConverter: ILocalCoordConverter;
     FViewCoordConverterCS: IReadWriteSync;
+
     FLayerCoordConverter: ILocalCoordConverter;
     FLayerCoordConverterCS: IReadWriteSync;
+
+    FViewUpdateLock: Integer;
     procedure OnViewPortPosChange;
     procedure OnViewPortScaleChange;
     function GetLayerCoordConverter: ILocalCoordConverter;
     function GetViewCoordConverter: ILocalCoordConverter;
+
+    procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter);
   protected
     procedure SetViewCoordConverter(AValue: ILocalCoordConverter); virtual;
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); virtual;
 
     function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
 
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure DoPosChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-
-    procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
-    procedure DoScaleChange(ANewVisualCoordConverter: ILocalCoordConverter); virtual;
+    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter);
 
     procedure ViewUpdateLock;
     procedure ViewUpdateUnlock;
@@ -207,17 +208,11 @@ procedure TWindowLayerWithPosBase.PosChange(
 begin
   ViewUpdateLock;
   try
-    DoPosChange(ANewVisualCoordConverter);
+    SetViewCoordConverter(ANewVisualCoordConverter);
+    SetLayerCoordConverter(GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter));
   finally
     ViewUpdateUnlock;
   end;
-end;
-
-procedure TWindowLayerWithPosBase.DoPosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  SetViewCoordConverter(ANewVisualCoordConverter);
-  SetLayerCoordConverter(GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter));
 end;
 
 procedure TWindowLayerWithPosBase.OnViewPortScaleChange;
@@ -230,16 +225,10 @@ procedure TWindowLayerWithPosBase.ScaleChange(
 begin
   ViewUpdateLock;
   try
-    DoScaleChange(ANewVisualCoordConverter);
+    SetViewCoordConverter(ANewVisualCoordConverter);
   finally
     ViewUpdateUnlock;
   end;
-end;
-
-procedure TWindowLayerWithPosBase.DoScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
-begin
-  SetViewCoordConverter(ANewVisualCoordConverter);
 end;
 
 function TWindowLayerWithPosBase.GetLayerCoordConverter: ILocalCoordConverter;
