@@ -117,6 +117,7 @@ type
       AMarkLine: IMarkLine;
       AProjection: IProjectionInfo
     ):boolean; overload;
+    procedure Redraw; override;
   end;
 
 implementation
@@ -564,6 +565,11 @@ begin
     ViewUpdateUnlock;
   end;
   ViewUpdate;
+end;
+
+procedure TMapMarksLayer.Redraw;
+begin
+  inherited;
 end;
 
 procedure TMapMarksLayer.StartThreads;

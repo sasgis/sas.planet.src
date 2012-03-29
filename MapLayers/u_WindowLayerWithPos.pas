@@ -82,8 +82,7 @@ type
     FVisible: Boolean;
     FLayer: TCustomLayer;
 
-    FNeedRedraw: Boolean;
-    FNeedRedrawCS: IReadWriteSync;
+    FNeedRedrawCounter: Integer;
     FRedrawCounter: IInternalPerformanceCounter;
   protected
     function GetVisible: Boolean; virtual;
@@ -105,6 +104,7 @@ type
   protected
     procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
+    procedure Redraw; virtual;
   public
     constructor Create(
       APerfList: IInternalPerformanceCounterList;
@@ -113,17 +113,15 @@ type
       AListenScaleChange: Boolean
     );
     destructor Destroy; override;
-    procedure Redraw; virtual;
   end;
 
   TWindowLayerWithBitmap = class(TWindowLayerBasic)
   private
-    FNeedUpdateLayerSize: Boolean;
+    FNeedUpdateLayerSizeCounter: Integer;
   protected
     FLayer: TBitmapLayer;
 
-    FNeedUpdateLocation: Boolean;
-    FNeedUpdateLocationCS: IReadWriteSync;
+    FNeedUpdateLocationCounter: Integer;
 
     procedure SetNeedUpdateLayerSize; virtual;
 
@@ -348,13 +346,11 @@ begin
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
   FVisible := False;
-  FNeedRedraw := True;
-  FNeedRedrawCS := MakeSyncFake(Self);
+  FNeedRedrawCounter := 0;
 end;
 
 destructor TWindowLayerBasic.Destroy;
 begin
-  FNeedRedrawCS := nil;
   FLayer := nil;
   inherited;
 end;
@@ -421,12 +417,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   if FVisible then begin
-    FNeedRedrawCS.BeginWrite;
-    try
-      FNeedRedraw := False;
-    finally
-      FNeedRedrawCS.EndWrite;
-    end;
+    InterlockedExchange(FNeedRedrawCounter, 0);
     VCounterContext := FRedrawCounter.StartOperation;
     try
       DoRedraw;
@@ -440,16 +431,8 @@ procedure TWindowLayerBasic.RedrawIfNeed;
 var
   VNeed: Boolean;
 begin
-  VNeed := False;
-  FNeedRedrawCS.BeginWrite;
-  try
-    if FNeedRedraw then begin
-      FNeedRedraw := False;
-      VNeed := True;
-    end;
-  finally
-    FNeedRedrawCS.EndWrite;
-  end;
+  VNeed := InterlockedExchange(FNeedRedrawCounter, 0) > 0;
+
   if VNeed then begin
     Redraw;
   end;
@@ -464,12 +447,7 @@ end;
 
 procedure TWindowLayerBasic.SetNeedRedraw;
 begin
-  FNeedRedrawCS.BeginWrite;
-  try
-    FNeedRedraw := True;
-  finally
-    FNeedRedrawCS.EndWrite;
-  end;
+  InterlockedIncrement(FNeedRedrawCounter);
 end;
 
 procedure TWindowLayerBasic.SetVisible(const Value: Boolean);
@@ -491,7 +469,6 @@ constructor TWindowLayerWithBitmap.Create(
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(APerfList, FLayer, AViewPortState, True);
-  FNeedUpdateLocationCS := MakeSyncFake(Self);
 
   FLayer.Bitmap.DrawMode := dmBlend;
 end;
@@ -544,22 +521,12 @@ end;
 
 procedure TWindowLayerWithBitmap.SetNeedUpdateLayerSize;
 begin
-  FNeedRedrawCS.BeginWrite;
-  try
-    FNeedUpdateLayerSize := True;
-  finally
-    FNeedRedrawCS.EndWrite;
-  end;
+  InterlockedIncrement(FNeedUpdateLayerSizeCounter);
 end;
 
 procedure TWindowLayerWithBitmap.SetNeedUpdateLocation;
 begin
-  FNeedUpdateLocationCS.BeginWrite;
-  try
-    FNeedUpdateLocation := True;
-  finally
-    FNeedUpdateLocationCS.EndWrite;
-  end;
+  InterlockedIncrement(FNeedUpdateLocationCounter);
 end;
 
 procedure TWindowLayerWithBitmap.SetViewCoordConverter(
@@ -574,12 +541,7 @@ end;
 procedure TWindowLayerWithBitmap.UpdateLayerLocation;
 begin
   if Visible then begin
-    FNeedUpdateLocationCS.BeginWrite;
-    try
-      FNeedUpdateLocation := False;
-    finally
-      FNeedUpdateLocationCS.EndWrite;
-    end;
+    InterlockedExchange(FNeedUpdateLocationCounter, 0);
     DoUpdateLayerLocation(GetMapLayerLocationRect);
   end;
 end;
@@ -588,16 +550,7 @@ procedure TWindowLayerWithBitmap.UpdateLayerLocationIfNeed;
 var
   VNeed: Boolean;
 begin
-  VNeed := False;
-  FNeedUpdateLocationCS.BeginWrite;
-  try
-    if FNeedUpdateLocation then begin
-      FNeedUpdateLocation := False;
-      VNeed := True;
-    end;
-  finally
-    FNeedUpdateLocationCS.EndWrite;
-  end;
+  VNeed := InterlockedExchange(FNeedUpdateLocationCounter, 0) > 0;
   if VNeed then begin
     UpdateLayerLocation;
   end;
@@ -606,12 +559,7 @@ end;
 procedure TWindowLayerWithBitmap.UpdateLayerSize;
 begin
   if FVisible then begin
-    FNeedRedrawCS.BeginWrite;
-    try
-      FNeedUpdateLayerSize := False;
-    finally
-      FNeedRedrawCS.EndWrite;
-    end;
+    InterlockedExchange(FNeedUpdateLayerSizeCounter, 0);
     DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
   end;
 end;
@@ -620,16 +568,7 @@ procedure TWindowLayerWithBitmap.UpdateLayerSizeIfNeed;
 var
   VNeed: Boolean;
 begin
-  VNeed := False;
-  FNeedRedrawCS.BeginWrite;
-  try
-    if FNeedUpdateLayerSize then begin
-      FNeedUpdateLayerSize := False;
-      VNeed := True;
-    end;
-  finally
-    FNeedRedrawCS.EndWrite;
-  end;
+  VNeed := InterlockedExchange(FNeedUpdateLayerSizeCounter, 0) > 0;
   if VNeed then begin
     UpdateLayerSize;
   end;
