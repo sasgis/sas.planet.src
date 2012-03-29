@@ -65,6 +65,7 @@ type
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FGUIConfigList: IMapTypeGUIConfigList;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
+    FViewPortState: IViewPortState;
 
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
@@ -223,6 +224,7 @@ constructor TMiniMapLayer.Create(
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
+  FViewPortState := AViewPortState;
   FConfig := AConfig;
   FGUIConfigList := AGUIConfigList;
   FErrorLogger := AErrorLogger;
@@ -856,7 +858,7 @@ begin
       VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoom);
       FViewRectMoveDelta := DoublePoint(0, 0);
 
-      ViewPortState.ChangeLonLat(VLonLat);
+      FViewPortState.ChangeLonLat(VLonLat);
     end else begin
       FViewRectMoveDelta := DoublePoint(0, 0);
       DrawMainViewRect;

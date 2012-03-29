@@ -91,7 +91,7 @@ begin
   ViewUpdateLock;
   try
     SetNeedRedraw;
-    SetVisible(GetVisibleForNewPos(ViewPortState.GetVisualCoordConverter));
+    SetVisible(GetVisibleForNewPos(ViewCoordConverter))
   finally
     ViewUpdateUnlock;
   end;

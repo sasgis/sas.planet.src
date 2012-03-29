@@ -62,7 +62,6 @@ type
     procedure ViewUpdateUnlock;
     procedure DoViewUpdate; virtual;
 
-    property ViewPortState: IViewPortState read FViewPortState;
     property ViewCoordConverter: ILocalCoordConverter read GetViewCoordConverter;
     property LayerCoordConverter: ILocalCoordConverter read GetLayerCoordConverter;
   public
@@ -183,7 +182,7 @@ begin
   if AListenScaleChange then begin
     LinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnViewPortScaleChange),
-      ViewPortState.ScaleChangeNotifier
+      FViewPortState.ScaleChangeNotifier
     );
   end;
 end;
