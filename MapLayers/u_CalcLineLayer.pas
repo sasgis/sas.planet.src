@@ -182,7 +182,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TCalcLineLayer.OnLineChange;
@@ -200,7 +199,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TCalcLineLayer.DoConfigChange;

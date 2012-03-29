@@ -392,7 +392,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMapGPSLayer.OnGPSRecorderChange;
@@ -409,7 +408,6 @@ begin
     finally
       ViewUpdateUnlock;
     end;
-    ViewUpdate;
   end;
 end;
 

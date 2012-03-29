@@ -108,7 +108,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 

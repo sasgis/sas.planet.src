@@ -103,7 +103,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TNavToMarkLayer.OnNavToPointChange;
@@ -116,7 +115,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TNavToMarkLayer.PaintLayer(ABuffer: TBitmap32;

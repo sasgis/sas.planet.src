@@ -564,7 +564,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMapMarksLayer.Redraw;

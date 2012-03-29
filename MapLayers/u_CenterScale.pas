@@ -98,7 +98,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TCenterScale.SetViewCoordConverter(AValue: ILocalCoordConverter);

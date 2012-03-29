@@ -85,7 +85,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TSearchResultsLayer.OnLastSearchResultsChange;
@@ -97,7 +96,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TSearchResultsLayer.PaintLayer(ABuffer: TBitmap32;

@@ -95,7 +95,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMapLayerTileGrid.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);

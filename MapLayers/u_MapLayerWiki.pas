@@ -521,8 +521,12 @@ end;
 
 procedure TWikiLayer.OnConfigChange;
 begin
-  SetNeedRedraw;
-  ViewUpdate;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TWikiLayer.OnLayerSetChange;
@@ -596,7 +600,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TWikiLayer.OnTileChange;
@@ -613,7 +616,6 @@ begin
     finally
       ViewUpdateUnlock;
     end;
-    ViewUpdate;
   end;
 end;
 

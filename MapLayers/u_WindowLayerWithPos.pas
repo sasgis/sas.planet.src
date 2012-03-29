@@ -60,7 +60,6 @@ type
 
     procedure ViewUpdateLock;
     procedure ViewUpdateUnlock;
-    procedure ViewUpdate;
     procedure DoViewUpdate; virtual;
 
     property ViewPortState: IViewPortState read FViewPortState;
@@ -213,7 +212,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TWindowLayerWithPosBase.DoPosChange(
@@ -237,7 +235,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TWindowLayerWithPosBase.DoScaleChange(
@@ -304,31 +301,21 @@ begin
   OnViewPortPosChange;
 end;
 
-procedure TWindowLayerWithPosBase.ViewUpdate;
-begin
-  if FViewUpdateLock = 0 then begin
-    DoViewUpdate;
-  end;
-end;
-
 procedure TWindowLayerWithPosBase.ViewUpdateLock;
 begin
   InterlockedIncrement(FViewUpdateLock);
 end;
 
 procedure TWindowLayerWithPosBase.ViewUpdateUnlock;
-{$IFDEF DEBUG}
 var
   VLockCount: Integer;
 begin
   VLockCount := InterlockedDecrement(FViewUpdateLock);
   Assert(VLockCount >= 0);
+  if VLockCount = 0 then begin
+    DoViewUpdate;
+  end;
 end;
-{$ELSE}
-begin
-  InterlockedDecrement(FViewUpdateLock);
-end;
-{$ENDIF}
 
 { TWindowLayerBasic }
 
@@ -371,7 +358,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TWindowLayerBasic.DoHide;
@@ -391,7 +377,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TWindowLayerBasic.DoShow;

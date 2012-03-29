@@ -287,7 +287,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TLineLayerBase.StartThreads;
@@ -673,7 +672,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 { TPolygonEditLayer }
@@ -718,7 +716,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 { TPointsSetLayerBase }
@@ -808,7 +805,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TPointsSetLayerBase.PaintLayer(ABuffer: TBitmap32;
@@ -922,7 +918,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TPathEditPointsSetLayer.PreparePoints(
@@ -1025,7 +1020,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TPolygonEditPointsSetLayer.PreparePoints(

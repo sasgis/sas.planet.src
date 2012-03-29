@@ -91,7 +91,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TSelectionRectLayer.OnSelectionChange;
@@ -108,7 +107,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TSelectionRectLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);

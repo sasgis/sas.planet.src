@@ -413,7 +413,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnLayerSetChange;
@@ -486,7 +485,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnMainMapChange;
@@ -537,7 +535,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMapMainLayer.OnTileChange;

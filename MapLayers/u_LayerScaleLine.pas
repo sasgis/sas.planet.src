@@ -172,7 +172,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TLayerScaleLine.SetLayerCoordConverter(AValue: ILocalCoordConverter);

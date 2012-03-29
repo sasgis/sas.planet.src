@@ -142,7 +142,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TGotoLayer.PaintLayer(ABuffer: TBitmap32;

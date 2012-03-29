@@ -900,9 +900,13 @@ procedure TMiniMapLayer.LeftBorderMouseUP(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if FLeftBorderMoved then begin
-    SetNeedRedraw;
-    FLeftBorderMoved := False;
-    ViewUpdate;
+    ViewUpdateLock;
+    try
+      SetNeedRedraw;
+      FLeftBorderMoved := False;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 
@@ -1030,7 +1034,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMiniMapLayer.OnDrawBitmap(
@@ -1060,7 +1063,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMiniMapLayer.OnMainMapChange;
@@ -1075,7 +1077,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-  ViewUpdate;
 end;
 
 procedure TMiniMapLayer.OnTimer;
