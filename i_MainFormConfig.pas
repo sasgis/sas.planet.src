@@ -67,6 +67,9 @@ type
     procedure SetMouseScrollInvert(AValue: Boolean);
     property MouseScrollInvert: Boolean read GetMouseScrollInvert write SetMouseScrollInvert;
 
+    function GetUseNewMainLayer: Boolean;
+    property UseNewMainLayer: Boolean read GetUseNewMainLayer;
+
     // ѕоказывать хинты при нахождении мыши над меткой
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);

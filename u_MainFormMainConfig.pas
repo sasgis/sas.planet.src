@@ -37,6 +37,7 @@ type
     FShowMapName: Boolean;
     FMouseScrollInvert: Boolean;
     FShowHintOnMarks: Boolean;
+    FUseNewMainLayer: Boolean;
 
     FRullerFileName: string;
     FRuller: IBitmap32Static;
@@ -54,6 +55,8 @@ type
 
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
+
+    function GetUseNewMainLayer: Boolean;
 
     function GetRuller: IBitmap32Static;
     function GetTumbler: IBitmap32Static;
@@ -80,6 +83,7 @@ begin
   FShowMapName := True;
   FMouseScrollInvert := False;
   FShowHintOnMarks := True;
+  FUseNewMainLayer := False;
   FRuller := nil;
   FTumbler := nil;
 
@@ -94,6 +98,7 @@ begin
     FShowMapName := AConfigData.ReadBool('ShowMapNameOnPanel', FShowMapName);
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
+    FUseNewMainLayer := AConfigData.ReadBool('UseNewMainLayer', FUseNewMainLayer);
 
     FRuller := ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
     FTumbler := ReadBitmapByFileRef(AConfigData, FTumblerFileName, FContentTypeManager, FTumbler);
@@ -156,6 +161,16 @@ begin
   LockRead;
   try
     Result := FTumbler;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormMainConfig.GetUseNewMainLayer: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUseNewMainLayer;
   finally
     UnlockRead;
   end;
