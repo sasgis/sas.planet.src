@@ -100,6 +100,7 @@ uses
   u_ResStrings,
   u_ShortcutManager,
   u_MapMainLayer,
+  u_MapMainLayerNew,
   u_LayerStatBar,
   u_LayerScaleLine,
   u_MapMarksLayer,
@@ -1072,24 +1073,42 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
-
-    FLayersList.Add(
-      TMapMainLayer.Create(
-        GState.ThreadPriorityByClass,
-        GState.PerfCounterList,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.ClearStrategyFactory,
-        FConfig.MainMapsConfig,
-        GState.BitmapPostProcessingConfig,
-        GState.ViewConfig,
-        FTileErrorLogger,
-        GState.GUISyncronizedTimerNotifier
-      )
-    );
+    if FConfig.MainConfig.UseNewMainLayer then begin
+      FLayersList.Add(
+        TMapMainLayerNew.Create(
+          GState.ThreadPriorityByClass,
+          GState.PerfCounterList,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          FConfig.MainMapsConfig,
+          GState.BitmapPostProcessingConfig,
+          GState.ViewConfig,
+          FTileErrorLogger,
+          GState.GUISyncronizedTimerNotifier
+        )
+      );
+    end else begin
+      FLayersList.Add(
+        TMapMainLayer.Create(
+          GState.ThreadPriorityByClass,
+          GState.PerfCounterList,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.ClearStrategyFactory,
+          FConfig.MainMapsConfig,
+          GState.BitmapPostProcessingConfig,
+          GState.ViewConfig,
+          FTileErrorLogger,
+          GState.GUISyncronizedTimerNotifier
+        )
+      );
+    end;
     FLayersList.Add(
       TMapLayerGrids.Create(
         GState.PerfCounterList,
