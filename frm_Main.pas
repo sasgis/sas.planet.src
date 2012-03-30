@@ -4725,7 +4725,13 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://maps.nokia.com/mapcreator/?ns=true#|'+R2StrPoint(VLonLat.y)+'|'+R2StrPoint(VLonLat.x)+'|'+IntToStr(VZoom)+'|0|0|');
+  CopyStringToClipboard(
+    'http://maps.nokia.com/mapcreator/?ns=true#|' +
+    R2StrPoint(VLonLat.y) + '|' +
+    R2StrPoint(VLonLat.x) + '|' +
+    IntToStr(VZoom) +
+    '|0|0|'
+  );
 end;
 
 procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
@@ -4912,7 +4918,12 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://www.openstreetmap.org/?lat='+R2StrPoint(VLonLat.y)+'&lon='+R2StrPoint(VLonLat.x)+'&zoom='+inttostr(VZoom));
+  CopyStringToClipboard(
+    'http://www.openstreetmap.org/?lat=' +
+    R2StrPoint(VLonLat.y) +
+    '&lon=' + R2StrPoint(VLonLat.x) +
+    '&zoom=' + inttostr(VZoom)
+  );
 end;
 
 
@@ -5061,7 +5072,12 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  GState.InternalBrowser.Navigate('http://ws.geonames.org/srtm3', 'http://ws.geonames.org/srtm3?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  GState.InternalBrowser.Navigate(
+    'http://ws.geonames.org/srtm3',
+    'http://ws.geonames.org/srtm3?lat=' +
+    R2StrPoint(VLonLat.y) +
+    '&lng='+R2StrPoint(VLonLat.x)
+  );
 end;
 
 procedure TfrmMain.NGTOPO30Click(Sender: TObject);
@@ -5078,7 +5094,12 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  GState.InternalBrowser.Navigate('http://ws.geonames.org/gtopo30', 'http://ws.geonames.org/gtopo30?lat='+R2StrPoint(VLonLat.y)+'&lng='+R2StrPoint(VLonLat.x));
+  GState.InternalBrowser.Navigate(
+    'http://ws.geonames.org/gtopo30',
+    'http://ws.geonames.org/gtopo30?lat=' +
+    R2StrPoint(VLonLat.y) +
+    '&lng='+R2StrPoint(VLonLat.x)
+  );
 end;
 
 procedure TfrmMain.Google1Click(Sender: TObject);
@@ -5095,7 +5116,12 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://maps.google.com/?ie=UTF8&ll='+R2StrPoint(VLonLat.y)+','+R2StrPoint(VLonLat.x)+'&spn=57.249013,100.371094&t=h&z='+inttostr(VZoom));
+  CopyStringToClipboard(
+    'http://maps.google.com/?ie=UTF8&ll=' +
+    R2StrPoint(VLonLat.y) + ',' +
+    R2StrPoint(VLonLat.x) +
+    '&spn=57.249013,100.371094&t=h&z='+inttostr(VZoom)
+  );
 end;
 
 procedure TfrmMain.YaLinkClick(Sender: TObject);
@@ -5135,7 +5161,13 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://kosmosnimki.ru/?x='+R2StrPoint(VLonLat.x)+'&y='+R2StrPoint(VLonLat.y)+'&z='+inttostr(VZoom)+'&fullscreen=false&mode=satellite');
+  CopyStringToClipboard(
+    'http://kosmosnimki.ru/?x=' +
+    R2StrPoint(VLonLat.x) +
+    '&y=' + R2StrPoint(VLonLat.y) +
+    '&z=' + inttostr(VZoom) +
+    '&fullscreen=false&mode=satellite'
+  );
 end;
 
 procedure TfrmMain.livecom1Click(Sender: TObject);
@@ -5152,7 +5184,12 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
-  CopyStringToClipboard('http://www.bing.com/maps/default.aspx?v=2&cp='+R2StrPoint(VLonLat.y)+'~'+R2StrPoint(VLonLat.x)+'&style=h&lvl='+inttostr(VZoom));
+  CopyStringToClipboard(
+    'http://www.bing.com/maps/default.aspx?v=2&cp=' +
+    R2StrPoint(VLonLat.y) + '~' +
+    R2StrPoint(VLonLat.x) +
+    '&style=h&lvl=' + inttostr(VZoom)
+  );
 end;
 
 procedure TfrmMain.LoadMapIconsList;
