@@ -38,7 +38,7 @@ type
       ASource: ITileMatrix;
       ATile: TPoint;
       AZoom: Byte;
-      AResampler: TCustomResampler
+      var AResampler: TCustomResampler
     ): ITileMatrixElement;
   private
     function BuildNewMatrix(ASource: ITileMatrix; ANewConverter: ILocalCoordConverter): ITileMatrix;
@@ -59,6 +59,7 @@ uses
   i_Bitmap32Static,
   i_CoordConverter,
   u_Bitmap32Static,
+  u_GeoFun,
   u_TileMatrixElement,
   u_TileMatrix;
 
@@ -131,7 +132,7 @@ function TTileMatrixFactory.PrepareElementFromSource(
   ASource: ITileMatrix;
   ATile: TPoint;
   AZoom: Byte;
-  AResampler: TCustomResampler
+  var AResampler: TCustomResampler
 ): ITileMatrixElement;
 var
   VConverter: ICoordConverter;
@@ -153,7 +154,7 @@ begin
   VSourceZoom := ASource.LocalConverter.Zoom;
   VConverter := ASource.LocalConverter.GeoConverter;
   VRelativeRectTargetTile := VConverter.TilePos2RelativeRect(ATile, AZoom);
-  VTileRectSource := VConverter.RelativeRect2TileRect(VRelativeRectTargetTile, VSourceZoom);
+  VTileRectSource := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRectTargetTile, VSourceZoom), rrOutside);
   VBitmap := nil;
   VBitmapStatic := nil;
   VTargetTileCoordConverter := nil;
@@ -172,8 +173,8 @@ begin
               VBitmap := nil;
               VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, AZoom, VConverter);
               VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
-              VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-              VBitmap.Clear(0);
+              VBitmapStatic.Bitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
+              VBitmapStatic.Bitmap.Clear(0);
             end;
             PrepareCopyRects(
               VSourceElement.LocalConverter,
@@ -181,10 +182,14 @@ begin
               VSrcCopyRect,
               VDstCopyRect
             );
+            if AResampler = nil then begin
+              AResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+            end;
+            Assert(AResampler <> nil);
             StretchTransfer(
-              VBitmap,
+              VBitmapStatic.Bitmap,
               VDstCopyRect,
-              VBitmap.BoundsRect,
+              VBitmapStatic.Bitmap.BoundsRect,
               VSourceBitmap.Bitmap,
               VSrcCopyRect,
               AResampler,
@@ -331,15 +336,19 @@ begin
     VTileCount := Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
     SetLength(VElements, VTileCount.X * VTileCount.Y);
     try
-      VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
-      for VX := VIntersectRect.Left to VIntersectRect.Right - 1 do begin
-        VTile.X := VX;
-        for VY := VIntersectRect.Top to VIntersectRect.Bottom - 1 do begin
-          VTile.Y := VY;
-          VIndex := (VTile.Y - ATileRect.Top) * VTileCount.X + (VTile.X - ATileRect.Left);
+      VResampler := nil;
+      try
+        for VX := VIntersectRect.Left to VIntersectRect.Right - 1 do begin
+          VTile.X := VX;
+          for VY := VIntersectRect.Top to VIntersectRect.Bottom - 1 do begin
+            VTile.Y := VY;
+            VIndex := (VTile.Y - ATileRect.Top) * VTileCount.X + (VTile.X - ATileRect.Left);
 
-          VElements[VIndex] := PrepareElementFromSource(ASource, VTile, VZoom, VResampler);
+            VElements[VIndex] := PrepareElementFromSource(ASource, VTile, VZoom, VResampler);
+          end;
         end;
+      finally
+        VResampler.Free;
       end;
 
       Result :=

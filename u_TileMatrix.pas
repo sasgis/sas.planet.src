@@ -68,6 +68,8 @@ begin
     if FItems[i] = nil then begin
       VTile.Y := i div FTileCount.X;
       VTile.X := i - FTileCount.X * VTile.Y;
+      Inc(VTile.X, FTileRect.Left);
+      Inc(VTile.Y, FTileRect.Top);
 
       VTileConverter :=
         ALocalConverterFactory.CreateForTile(
