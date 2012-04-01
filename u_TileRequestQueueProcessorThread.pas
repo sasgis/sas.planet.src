@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   i_JclNotify,
+  i_ThreadConfig,
   i_TileRequest,
   i_TileRequestQueue,
   i_TileDownloader,
@@ -23,7 +24,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      APriority: TThreadPriority;
+      AThreadConfig: IThreadConfig;
       AAppClosingNotifier: IJclNotifier;
       ATileRequestQueue: ITileRequestQueue;
       ATileDownloaderSync: ITileDownloader
@@ -39,13 +40,13 @@ uses
 { TTileRequestQueueProcessorThread }
 
 constructor TTileRequestQueueProcessorThread.Create(
-  APriority: TThreadPriority;
+  AThreadConfig: IThreadConfig;
   AAppClosingNotifier: IJclNotifier;
   ATileRequestQueue: ITileRequestQueue;
   ATileDownloaderSync: ITileDownloader
 );
 begin
-  inherited Create(APriority);
+  inherited Create(AThreadConfig);
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
   FTileDownloaderSync := ATileDownloaderSync;

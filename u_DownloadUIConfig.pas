@@ -26,16 +26,18 @@ uses
   t_CommonTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ThreadConfig,
   i_DownloadUIConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TDownloadUIConfig = class(TConfigDataElementBase, IDownloadUIConfig)
+  TDownloadUIConfig = class(TConfigDataElementComplexBase, IDownloadUIConfig)
   private
     FUseDownload: TTileSource;
     FTilesOut: Integer;
     FTileMaxAgeInInternet: TDateTime;
     FRequestCount: Integer;
+    FThreadConfig: IThreadConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -51,10 +53,17 @@ type
 
     function GetMapUiRequestCount: Integer;
     procedure SetMapUiRequestCount(const AValue: Integer);
+
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create;
   end;
 implementation
+
+uses
+  Classes,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_ThreadConfig;
 
 { TDownloadUIConfig }
 
@@ -65,6 +74,9 @@ begin
   FTilesOut := 0;
   FTileMaxAgeInInternet := 1/24/60;
   FRequestCount := 32;
+
+  FThreadConfig := TThreadConfig.Create(tpLowest);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 procedure TDownloadUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -97,6 +109,11 @@ begin
   AConfigData.WriteTime('TileMaxAgeInInternet', FTileMaxAgeInInternet);
   AConfigData.WriteInteger('TilesOut', FTilesOut);
   AConfigData.WriteInteger('QueueRequestCount', FRequestCount);
+end;
+
+function TDownloadUIConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
 end;
 
 function TDownloadUIConfig.GetTileMaxAgeInInternet: TDateTime;

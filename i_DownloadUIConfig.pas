@@ -24,6 +24,7 @@ interface
 
 uses
   t_CommonTypes,
+  i_ThreadConfig,
   i_ConfigDataElement;
 
 type
@@ -44,6 +45,9 @@ type
     function GetMapUiRequestCount: Integer;
     procedure SetMapUiRequestCount(const AValue: Integer);
     property MapUiRequestCount: Integer read GetMapUiRequestCount write SetMapUiRequestCount;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 

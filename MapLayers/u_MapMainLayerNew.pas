@@ -10,7 +10,7 @@ uses
   i_TileError,
   i_BitmapPostProcessingConfig,
   i_ActiveMapsConfig,
-  i_GlobalViewMainConfig,
+  i_MainMapLayerConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
@@ -27,7 +27,7 @@ type
     FErrorLogger: ITileErrorLogger;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapsConfig: IMainMapsConfig;
-    FViewConfig: IGlobalViewMainConfig;
+    FConfig: IMainMapLayerConfig;
     FTileChangeListener: IJclListener;
     FMainMap: IMapType;
     FMainMapCS: IReadWriteSync;
@@ -64,7 +64,7 @@ type
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AMapsConfig: IMainMapsConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
-      AViewConfig: IGlobalViewMainConfig;
+      AConfig: IMainMapLayerConfig;
       AErrorLogger: ITileErrorLogger;
       ATimerNoifier: IJclNotifier
     );
@@ -97,7 +97,7 @@ constructor TMapMainLayerNew.Create(
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AMapsConfig: IMainMapsConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
-  AViewConfig: IGlobalViewMainConfig;
+  AConfig: IMainMapLayerConfig;
   AErrorLogger: ITileErrorLogger;
   ATimerNoifier: IJclNotifier
 );
@@ -111,12 +111,12 @@ begin
     AConverterFactory,
     ATimerNoifier,
     False,
-    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
+    AConfig.ThreadConfig
   );
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
-  FViewConfig := AViewConfig;
+  FConfig := AConfig;
 
   FMainMapCS := MakeSyncRW_Var(Self);
   FLayersSetCS := MakeSyncRW_Var(Self);
@@ -133,7 +133,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FViewConfig.GetChangeNotifier
+    FConfig.GetChangeNotifier
   );
 
   LinksList.Add(
@@ -237,12 +237,12 @@ procedure TMapMainLayerNew.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FViewConfig.LockRead;
+    FConfig.LockRead;
     try
-      FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
+      FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
     finally
-      FViewConfig.UnlockRead;
+      FConfig.UnlockRead;
     end;
     SetNeedUpdateLayerProvider;
   finally

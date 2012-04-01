@@ -25,17 +25,22 @@ interface
 uses
   Classes,
   SysUtils,
+  i_JclNotify,
+  i_ThreadConfig,
   i_Thread;
 
 type
   TInterfacedThread = class(TInterfacedObject, IThread)
   private
+    FConfig: IThreadConfig;
     FThread: TThread;
     FCS: IReadWriteSync;
     FTerminated: Boolean;
     FStarted: Boolean;
     FFinished: Boolean;
+    FConfigListener: IJclListener;
     procedure OnTerminate(Sender: TObject);
+    procedure OnConfigChange;
   protected
     procedure Execute; virtual; abstract;
     property Terminated: Boolean read FTerminated;
@@ -43,13 +48,14 @@ type
     procedure Start; virtual;
     procedure Terminate; virtual;
   public
-    constructor Create(APriority: TThreadPriority);
+    constructor Create(AConfig: IThreadConfig);
     destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  u_NotifyEventListener,
   u_Synchronizer;
 
 type
@@ -67,15 +73,18 @@ type
 
 { TInterfacedThread }
 
-constructor TInterfacedThread.Create(APriority: TThreadPriority);
+constructor TInterfacedThread.Create(AConfig: IThreadConfig);
 begin
   inherited Create;
-  FThread := TThread4InterfacedThread.Create(APriority, Self.Execute);
+  FConfig := AConfig;
+  FCS := MakeSyncObj(Self, TRUE);
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FThread := TThread4InterfacedThread.Create(FConfig.Priority, Self.Execute);
   FThread.OnTerminate := Self.OnTerminate;
   FTerminated := False;
   FStarted := False;
   FFinished := False;
-  FCS := MakeSyncObj(Self, TRUE);
+  FConfig.ChangeNotifier.Add(FConfigListener);
 end;
 
 destructor TInterfacedThread.Destroy;
@@ -83,7 +92,11 @@ var
   VNeedResume: Boolean;
 begin
   VNeedResume := False;
-  
+
+  FConfig.ChangeNotifier.Remove(FConfigListener);
+  FConfigListener := nil;
+  FConfig := nil;
+
   FCS.BeginWrite;
   try
     if not FStarted then begin
@@ -94,13 +107,25 @@ begin
     FCS.EndWrite;
   end;
 
+
   FCS := nil;
 
   if VNeedResume then begin
     FThread.Resume;
   end;
-  
   inherited;
+end;
+
+procedure TInterfacedThread.OnConfigChange;
+begin
+  FCS.BeginWrite;
+  try
+    if not FFinished then begin
+      FThread.Priority := FConfig.Priority;
+    end;
+  finally
+    FCS.EndWrite;
+  end;
 end;
 
 procedure TInterfacedThread.OnTerminate(Sender: TObject);

@@ -28,6 +28,7 @@ uses
   i_LocalCoordConverter,
   i_FillingMapColorer,
   i_MapTypes,
+  i_ThreadConfig,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
 
@@ -123,6 +124,9 @@ type
     function GetFillLastDay: TDateTime;
     procedure SetFillLastDay(const AValue: TDateTime);
     property FillLastDay: TDateTime read GetFillLastDay write SetFillLastDay;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 implementation

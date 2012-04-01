@@ -26,6 +26,7 @@ uses
   Classes,
   i_JclNotify,
   i_OperationNotifier,
+  i_ThreadConfig,
   u_BackgroundTask;
 
 type
@@ -47,7 +48,7 @@ type
     constructor Create(
       AAppClosingNotifier: IJclNotifier;
       AOnBgPaintLayer: TBgPaintLayerEvent;
-      APriority: TThreadPriority = tpLowest
+      AThreadConfig: IThreadConfig
     );
   end;
 
@@ -58,10 +59,10 @@ implementation
 constructor TBackgroundTaskLayerDrawBase.Create(
   AAppClosingNotifier: IJclNotifier;
   AOnBgPaintLayer: TBgPaintLayerEvent;
-  APriority: TThreadPriority
+  AThreadConfig: IThreadConfig
 );
 begin
-  inherited Create(AAppClosingNotifier, APriority);
+  inherited Create(AAppClosingNotifier, AThreadConfig);
   FOnBgPaintLayer := AOnBgPaintLayer;
 end;
 

@@ -52,7 +52,8 @@ uses
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
   i_GotoLayerConfig,
-  I_LastSearchResultConfig,
+  i_LastSearchResultConfig,
+  i_MainMapLayerConfig,
   i_MapLayerGridsConfig;
 
 type
@@ -90,6 +91,9 @@ type
 
   IMainFormLayersConfig = interface(IConfigDataElement)
     ['{02A323E8-25E4-43E5-BE24-AABDF9B331EC}']
+    function GetMainMapLayerConfig: IMainMapLayerConfig;
+    property MainMapLayerConfig: IMainMapLayerConfig read GetMainMapLayerConfig;
+
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     property MapLayerGridsConfig: IMapLayerGridsConfig read GetMapLayerGridsConfig;
 

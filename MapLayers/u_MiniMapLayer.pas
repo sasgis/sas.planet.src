@@ -252,7 +252,7 @@ begin
     TBackgroundTaskLayerDrawBase.Create(
       AAppClosingNotifier,
       OnDrawBitmap,
-      GetThreadPriorityByClass(AThreadPriorityByClass, Self)
+      FConfig.ThreadConfig
     );
   FUpdateCounter := 0;
 
@@ -991,15 +991,10 @@ var
 begin
   ViewUpdateLock;
   try
-    FViewConfig.LockRead;
-    try
-      FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
-    finally
-      FViewConfig.UnlockRead;
-    end;
     FConfig.LockRead;
     try
+      FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
       VBitmapStatic := FConfig.PlusButton;
       if VBitmapStatic <> nil then begin
         FPlusButton.Bitmap.Assign(VBitmapStatic.Bitmap);

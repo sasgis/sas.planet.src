@@ -73,7 +73,7 @@ begin
     AResamplerConfig,
     AConverterFactory,
     ATimerNoifier,
-    tpLowest
+    AConfig.ThreadConfig
   );
   FConfig := AConfig;
 

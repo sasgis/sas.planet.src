@@ -25,6 +25,7 @@ interface
 uses
   i_Bitmap32Static,
   i_MapTypes,
+  i_ThreadConfig,
   i_ActiveMapsConfig,
   i_ConfigDataElement;
 
@@ -56,6 +57,14 @@ type
     procedure SetBottomMargin(AValue: Integer);
     property BottomMargin: Integer read GetBottomMargin write SetBottomMargin;
 
+    function GetUsePrevZoomAtMap: Boolean;
+    procedure SetUsePrevZoomAtMap(const AValue: Boolean);
+    property UsePrevZoomAtMap: Boolean read GetUsePrevZoomAtMap write SetUsePrevZoomAtMap;
+
+    function GetUsePrevZoomAtLayer: Boolean;
+    procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
+    property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer write SetUsePrevZoomAtLayer;
+
     function GetPlusButton: IBitmap32Static;
     property PlusButton: IBitmap32Static read GetPlusButton;
 
@@ -64,6 +73,9 @@ type
 
     function GetMapsConfig: IMiniMapMapsConfig;
     property MapsConfig: IMiniMapMapsConfig read GetMapsConfig;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 implementation

@@ -27,6 +27,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ContentTypeManager,
+  i_ThreadConfig,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
   u_ConfigDataElementComplexBase;
@@ -41,12 +42,15 @@ type
     FMasterAlpha: Integer;
     FVisible: Boolean;
     FBottomMargin: Integer;
+    FUsePrevZoomAtMap: Boolean;
+    FUsePrevZoomAtLayer: Boolean;
 
     FPlusButtonFileName: string;
     FPlusButton: IBitmap32Static;
     FMinusButtonFileName: string;
     FMinusButton: IBitmap32Static;
     FMapsConfig: IMiniMapMapsConfig;
+    FThreadConfig: IThreadConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -66,10 +70,17 @@ type
     function GetBottomMargin: Integer;
     procedure SetBottomMargin(AValue: Integer);
 
+    function GetUsePrevZoomAtMap: Boolean;
+    procedure SetUsePrevZoomAtMap(const AValue: Boolean);
+
+    function GetUsePrevZoomAtLayer: Boolean;
+    procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
+
     function GetPlusButton: IBitmap32Static;
     function GetMinusButton: IBitmap32Static;
 
     function GetMapsConfig: IMiniMapMapsConfig;
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
       AContentTypeManager: IContentTypeManager;
@@ -80,9 +91,12 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,
+  u_ThreadConfig,
   u_MiniMapMapsConfig;
 
 { TMiniMapLayerConfig }
@@ -100,9 +114,14 @@ begin
   FVisible := True;
   FPlusButton := nil;
   FMinusButton := nil;
+  FUsePrevZoomAtMap := True;
+  FUsePrevZoomAtLayer := True;
 
   FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
+
+  FThreadConfig := TThreadConfig.Create(tpLower);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FPlusButtonFileName := 'sas:\Resource\ICONI.png';
   FMinusButtonFileName := 'sas:\Resource\ICONII.png';
@@ -116,6 +135,8 @@ begin
     SetZoomDelta(AConfigData.ReadInteger('ZoomDelta', FZoomDelta));
     SetMasterAlpha(AConfigData.ReadInteger('Alpha', FMasterAlpha));
     SetVisible(AConfigData.ReadBool('Visible', FVisible));
+    SetUsePrevZoomAtMap(AConfigData.ReadBool('UsePrevZoomAtMap', FUsePrevZoomAtMap));
+    SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer));
 
     FPlusButton := ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
     FMinusButton := ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);
@@ -131,6 +152,8 @@ begin
   AConfigData.WriteInteger('ZoomDelta', FZoomDelta);
   AConfigData.WriteInteger('Alpha', FMasterAlpha);
   AConfigData.WriteBool('Visible', FVisible);
+  AConfigData.WriteBool('UsePrevZoomAtMap', FUsePrevZoomAtMap);
+  AConfigData.WriteBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer);
 end;
 
 function TMiniMapLayerConfig.GetBottomMargin: Integer;
@@ -173,6 +196,31 @@ begin
   LockRead;
   try
     Result := FPlusButton;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMiniMapLayerConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
+end;
+
+function TMiniMapLayerConfig.GetUsePrevZoomAtLayer: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUsePrevZoomAtLayer;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMiniMapLayerConfig.GetUsePrevZoomAtMap: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUsePrevZoomAtMap;
   finally
     UnlockRead;
   end;
@@ -227,6 +275,32 @@ begin
   try
     if FMasterAlpha <> AValue then begin
       FMasterAlpha := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMiniMapLayerConfig.SetUsePrevZoomAtLayer(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FUsePrevZoomAtLayer <> AValue then begin
+      FUsePrevZoomAtLayer := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMiniMapLayerConfig.SetUsePrevZoomAtMap(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FUsePrevZoomAtMap <> AValue then begin
+      FUsePrevZoomAtMap := AValue;
       SetChanged;
     end;
   finally

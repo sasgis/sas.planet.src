@@ -26,15 +26,17 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ThreadConfig,
   i_KmlLayerConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementComplexBase;
 
 type
-  TKmlLayerConfig = class(TConfigDataElementBase, IKmlLayerConfig)
+  TKmlLayerConfig = class(TConfigDataElementComplexBase, IKmlLayerConfig)
   private
     FMainColor: TColor32;
     FPointColor: TColor32;
     FShadowColor: TColor32;
+    FThreadConfig: IThreadConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -47,12 +49,17 @@ type
 
     function GetShadowColor: TColor32;
     procedure SetShadowColor(AValue: TColor32);
+
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create;
   end;
 implementation
 
 uses
+  Classes,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_ThreadConfig,
   u_ConfigProviderHelpers;
 
 { TKmlLayerConfig }
@@ -63,6 +70,9 @@ begin
   FMainColor := clWhite32;
   FShadowColor := clBlack32;
   FPointColor := SetAlpha(clWhite32, 170);
+
+  FThreadConfig := TThreadConfig.Create(tpLowest);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 procedure TKmlLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
@@ -112,6 +122,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TKmlLayerConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
 end;
 
 procedure TKmlLayerConfig.SetMainColor(AValue: TColor32);

@@ -1085,7 +1085,7 @@ begin
           GState.LocalConverterFactory,
           FConfig.MainMapsConfig,
           GState.BitmapPostProcessingConfig,
-          GState.ViewConfig,
+          FConfig.LayersConfig.MainMapLayerConfig,
           FTileErrorLogger,
           GState.GUISyncronizedTimerNotifier
         )
@@ -1103,7 +1103,7 @@ begin
           GState.ClearStrategyFactory,
           FConfig.MainMapsConfig,
           GState.BitmapPostProcessingConfig,
-          GState.ViewConfig,
+          FConfig.LayersConfig.MainMapLayerConfig,
           FTileErrorLogger,
           GState.GUISyncronizedTimerNotifier
         )
@@ -2260,8 +2260,8 @@ var
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
 begin
-  Nbackload.Checked := GState.ViewConfig.UsePrevZoomAtMap;
-  NbackloadLayer.Checked := GState.ViewConfig.UsePrevZoomAtLayer;
+  Nbackload.Checked := GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtMap;
+  NbackloadLayer.Checked := GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtLayer;
   map.Color := GState.ViewConfig.BackGroundColor;
 
   NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
@@ -2951,12 +2951,12 @@ end;
 
 procedure TfrmMain.NbackloadClick(Sender: TObject);
 begin
-  GState.ViewConfig.UsePrevZoomAtMap := (Sender as TTBXItem).Checked;
+  GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtMap := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
 begin
-  GState.ViewConfig.UsePrevZoomAtLayer := (Sender as TTBXItem).Checked;
+  GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtLayer := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NBlock_toolbarsClick(Sender: TObject);

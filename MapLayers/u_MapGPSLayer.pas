@@ -117,7 +117,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
+    AConfig.ThreadConfig
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;

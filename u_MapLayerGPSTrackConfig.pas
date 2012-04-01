@@ -27,6 +27,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_ThreadConfig,
   i_MapLayerGPSTrackConfig,
   u_ConfigDataElementBase,
   u_ConfigDataElementComplexBase;
@@ -85,6 +86,7 @@ type
     FLineWidth: Double;
     FLastPointCount: Integer;
     FTrackColorerConfig: ITrackColorerConfig;
+    FThreadConfig: IThreadConfig;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
@@ -99,6 +101,7 @@ type
     procedure SetLastPointCount(AValue: Integer);
 
     function GetTrackColorerConfig: ITrackColorerConfig;
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create;
   end;
@@ -107,7 +110,9 @@ implementation
 
 uses
   SysUtils,
+  u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
+  u_ThreadConfig,
   u_ConfigProviderHelpers;
 
 { TSpeedRangeItem }
@@ -426,6 +431,9 @@ begin
   FLastPointCount := 5000;
   FTrackColorerConfig := TTrackColorerConfig.Create;
   Add(FTrackColorerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('SpeedGrid'));
+
+  FThreadConfig := TThreadConfig.Create(tpNormal);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 procedure TMapLayerGPSTrackConfig.DoReadConfig(
@@ -467,6 +475,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TMapLayerGPSTrackConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
 end;
 
 function TMapLayerGPSTrackConfig.GetTrackColorerConfig: ITrackColorerConfig;

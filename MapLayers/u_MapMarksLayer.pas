@@ -165,7 +165,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
+    AConfig.ThreadConfig
   );
   FMarksSubsetCS := MakeSyncRW_Var(Self);
   FVectorItmesFactory := AVectorItmesFactory;

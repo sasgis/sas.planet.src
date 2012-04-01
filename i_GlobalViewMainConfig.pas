@@ -32,14 +32,6 @@ type
     function GetBackGroundColor: TColor;
     procedure SetBackGroundColor(const AValue: TColor);
     property BackGroundColor: TColor read GetBackGroundColor write SetBackGroundColor;
-
-    function GetUsePrevZoomAtMap: Boolean;
-    procedure SetUsePrevZoomAtMap(const AValue: Boolean);
-    property UsePrevZoomAtMap: Boolean read GetUsePrevZoomAtMap write SetUsePrevZoomAtMap;
-
-    function GetUsePrevZoomAtLayer: Boolean;
-    procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
-    property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer write SetUsePrevZoomAtLayer;
   end;
 
 implementation

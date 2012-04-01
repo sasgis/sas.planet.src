@@ -8,6 +8,7 @@ uses
   i_OperationNotifier,
   i_CoordConverterFactory,
   i_CoordConverter,
+  i_ThreadConfig,
   i_TTLCheckNotifier,
   i_ConfigDataProvider,
   i_ContentTypeManager,
@@ -83,6 +84,7 @@ type
       AImageResamplerConfig: IImageResamplerConfig;
       AVersionConfig: IMapVersionConfig;
       ATileDownloaderConfig: ITileDownloaderConfig;
+      AThreadConfig: IThreadConfig;
       ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       AContentTypeManager: IContentTypeManager;
       AContentTypeSubst: IContentTypeSubst;
@@ -132,6 +134,7 @@ constructor TTileDownloadSubsystem.Create(
   AImageResamplerConfig: IImageResamplerConfig;
   AVersionConfig: IMapVersionConfig;
   ATileDownloaderConfig: ITileDownloaderConfig;
+  AThreadConfig: IThreadConfig;
   ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   AContentTypeManager: IContentTypeManager;
   AContentTypeSubst: IContentTypeSubst;
@@ -214,7 +217,7 @@ begin
     FTileDownloader := TTileDownloaderWithQueue.Create(
       VDownloaderList,
       AGCList,
-      tpLower,
+      AThreadConfig,
       AAppClosingNotifier,
       256
     );

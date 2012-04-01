@@ -38,7 +38,7 @@ uses
   i_ActiveMapsConfig,
   i_ViewPortState,
   i_ImageResamplerConfig,
-  i_GlobalViewMainConfig,
+  i_MainMapLayerConfig,
   i_BitmapPostProcessingConfig,
   i_BitmapLayerProvider,
   i_ConfigDataProvider,
@@ -52,7 +52,7 @@ type
     FErrorLogger: ITileErrorLogger;
     FMapsConfig: IMainMapsConfig;
     FPostProcessingConfig:IBitmapPostProcessingConfig;
-    FViewConfig: IGlobalViewMainConfig;
+    FConfig: IMainMapLayerConfig;
     FTileChangeListener: IJclListener;
 
     FBitmapProvider: IBitmapLayerProvider;
@@ -100,7 +100,7 @@ type
       AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       AMapsConfig: IMainMapsConfig;
       APostProcessingConfig:IBitmapPostProcessingConfig;
-      AViewConfig: IGlobalViewMainConfig;
+      AConfig: IMainMapLayerConfig;
       AErrorLogger: ITileErrorLogger;
       ATimerNoifier: IJclNotifier
     );
@@ -141,7 +141,7 @@ constructor TMapMainLayer.Create(
   AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   AMapsConfig: IMainMapsConfig;
   APostProcessingConfig: IBitmapPostProcessingConfig;
-  AViewConfig: IGlobalViewMainConfig;
+  AConfig: IMainMapLayerConfig;
   AErrorLogger: ITileErrorLogger;
   ATimerNoifier: IJclNotifier
 );
@@ -155,12 +155,12 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
+    AConfig.ThreadConfig
   );
   FMapsConfig := AMapsConfig;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
-  FViewConfig := AViewConfig;
+  FConfig := AConfig;
 
   FMainMapCS := MakeSyncRW_Var(Self);
   FLayersSetCS := MakeSyncRW_Var(Self);
@@ -178,7 +178,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FViewConfig.GetChangeNotifier
+    FConfig.GetChangeNotifier
   );
 
   LinksList.Add(
@@ -402,12 +402,12 @@ procedure TMapMainLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FViewConfig.LockRead;
+    FConfig.LockRead;
     try
-      FUsePrevZoomAtMap := FViewConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := FViewConfig.UsePrevZoomAtLayer;
+      FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
+      FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
     finally
-      FViewConfig.UnlockRead;
+      FConfig.UnlockRead;
     end;
     SetNeedRedraw;
   finally

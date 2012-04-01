@@ -24,6 +24,7 @@ interface
 
 uses
   i_ConfigDataElement,
+  i_ThreadConfig,
   i_UsedMarksConfig,
   i_MarksDrawConfig;
 
@@ -34,6 +35,9 @@ type
 
     function GetMarksDrawConfig: IMarksDrawConfig;
     property MarksDrawConfig: IMarksDrawConfig read GetMarksDrawConfig;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 implementation

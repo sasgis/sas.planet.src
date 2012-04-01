@@ -42,6 +42,7 @@ uses
   i_MarkPolygonLayerConfig,
   i_MarkPolyLineLayerConfig,
   i_FillingMapLayerConfig,
+  i_MainMapLayerConfig,
   i_GotoLayerConfig,
   i_ContentTypeManager,
   i_MainFormConfig,
@@ -50,6 +51,7 @@ uses
 type
   TMainFormLayersConfig = class(TConfigDataElementComplexBase, IMainFormLayersConfig)
   private
+    FMainMapLayerConfig: IMainMapLayerConfig;
     FMapLayerGridsConfig: IMapLayerGridsConfig;
     FStatBar: IStatBarConfig;
     FGPSMarker: IMapLayerGPSMarkerConfig;
@@ -70,6 +72,7 @@ type
     FFillingMapLayerConfig: IFillingMapLayerConfig;
     FGotoLayerConfig: IGotoLayerConfig;
   protected
+    function GetMainMapLayerConfig: IMainMapLayerConfig;
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;
     function GetGPSMarker: IMapLayerGPSMarkerConfig;
@@ -101,6 +104,7 @@ implementation
 uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_MainMapLayerConfig,
   u_MapLayerGridsConfig,
   u_StatBarConfig,
   u_MapLayerGPSMarkerConfig,
@@ -129,6 +133,8 @@ constructor TMainFormLayersConfig.Create(
 );
 begin
   inherited Create;
+  FMainMapLayerConfig := TMainMapLayerConfig.Create;
+  Add(FMainMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainLayer'));
   FMapLayerGridsConfig := TMapLayerGridsConfig.Create;
   Add(FMapLayerGridsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FStatBar := TStatBarConfig.Create;
@@ -207,6 +213,11 @@ end;
 function TMainFormLayersConfig.GetLastSelectionLayerConfig: ILastSelectionLayerConfig;
 begin
   Result := FLastSelectionLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetMainMapLayerConfig: IMainMapLayerConfig;
+begin
+  Result := FMainMapLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetMapLayerGridsConfig: IMapLayerGridsConfig;

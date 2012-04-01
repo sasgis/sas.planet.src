@@ -248,7 +248,7 @@ begin
     AConverterFactory,
     AClearStrategyFactory,
     ATimerNoifier,
-    GetThreadPriorityByClass(AThreadPriorityByClass, Self)
+    AConfig.ThreadConfig
   );
   FConfig := AConfig;
   FLayersSet := ALayersSet;

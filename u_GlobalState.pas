@@ -60,6 +60,7 @@ uses
   u_LastSelectionInfo,
   u_MarksSystem,
   u_MapTypesMainList,
+  i_ThreadConfig,
   i_ZmpConfig,
   i_ZmpInfoSet,
   i_GPSConfig,
@@ -125,6 +126,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FDownloadConfig: IGlobalDownloadConfig;
+    FDownloaderThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
     FImageResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
@@ -274,6 +276,7 @@ uses
   u_TimeZoneDiffByLonLatStuped,
   u_MainFormConfig,
   u_PathConfig,
+  u_ThreadConfig,
   u_ZmpConfig,
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
@@ -373,6 +376,7 @@ begin
     FGlobalAppConfig.ReadConfig(VViewCnonfig);
   end;
   FDownloadConfig := TGlobalDownloadConfig.Create;
+  FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
   FImageResamplerConfig :=
     TImageResamplerConfig.Create(
       TImageResamplerFactoryListStaticSimple.Create
@@ -625,6 +629,7 @@ begin
     FInetConfig,
     FImageResamplerConfig,
     FDownloadConfig,
+    FDownloaderThreadConfig,
     FContentTypeManager,
     FDownloadResultTextProvider,
     FCoordConverterFactory,
@@ -654,6 +659,7 @@ begin
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
+  FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
@@ -691,6 +697,7 @@ begin
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
+  FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));

@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  i_ThreadConfig,
   i_ConfigDataElement;
 
 type
@@ -66,6 +67,9 @@ type
 
     function GetTrackColorerConfig: ITrackColorerConfig;
     property TrackColorerConfig: ITrackColorerConfig read GetTrackColorerConfig;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 implementation

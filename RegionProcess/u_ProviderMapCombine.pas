@@ -341,8 +341,8 @@ begin
           Amt,
           Hmt,
           VMarksImageProvider,
-          FViewConfig.UsePrevZoomAtMap,
-          FViewConfig.UsePrevZoomAtLayer
+          True,
+          True
         )
       )
     );

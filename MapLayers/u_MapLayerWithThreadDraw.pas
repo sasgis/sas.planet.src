@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Image,
   i_JclNotify,
+  i_ThreadConfig,
   i_BackgroundTask,
   i_OperationNotifier,
   i_ImageResamplerConfig,
@@ -51,7 +52,7 @@ type
       AResamplerConfig: IImageResamplerConfig;
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
-      APriority: TThreadPriority
+      AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
     procedure StartThreads; override;
@@ -75,7 +76,7 @@ type
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       ATimerNoifier: IJclNotifier;
-      APriority: TThreadPriority
+      AThreadConfig: IThreadConfig
     );
   end;
 
@@ -95,13 +96,13 @@ constructor TMapLayerWithThreadDraw.Create(
   AResamplerConfig: IImageResamplerConfig;
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
-  APriority: TThreadPriority
+  AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
-  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnDrawBitmap, APriority);
+  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnDrawBitmap, AThreadConfig);
   FUpdateCounter := 0;
   FDelicateRedrawCounter := 0;
 
@@ -206,7 +207,7 @@ constructor TMapLayerTiledWithThreadDraw.Create(
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   ATimerNoifier: IJclNotifier;
-  APriority: TThreadPriority
+  AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(
@@ -217,7 +218,7 @@ begin
     AResamplerConfig,
     AConverterFactory,
     ATimerNoifier,
-    APriority
+    AThreadConfig
   );
   FClearStrategyFactory := AClearStrategyFactory;
 end;

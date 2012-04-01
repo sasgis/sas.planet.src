@@ -26,6 +26,7 @@ uses
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksLayerConfig,
+  i_ThreadConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -33,9 +34,11 @@ type
   private
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
+    FThreadConfig: IThreadConfig;
   protected
     function GetMarksShowConfig: IUsedMarksConfig;
     function GetMarksDrawConfig: IMarksDrawConfig;
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create();
   end;
@@ -43,7 +46,9 @@ type
 implementation
 
 uses
+  Classes,
   u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_ThreadConfig,
   u_UsedMarksConfig,
   u_MarksDrawConfig;
 
@@ -58,6 +63,9 @@ begin
 
   FMarksDrawConfig := TMarksDrawConfig.Create;
   Add(FMarksDrawConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  FThreadConfig := TThreadConfig.Create(tpLower);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 function TMarksLayerConfig.GetMarksDrawConfig: IMarksDrawConfig;
@@ -68,6 +76,11 @@ end;
 function TMarksLayerConfig.GetMarksShowConfig: IUsedMarksConfig;
 begin
   Result := FMarksShowConfig;
+end;
+
+function TMarksLayerConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
 end;
 
 end.

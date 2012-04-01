@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  i_ThreadConfig,
   i_ConfigDataElement;
 
 type
@@ -40,6 +41,9 @@ type
     function GetShadowColor: TColor32;
     procedure SetShadowColor(AValue: TColor32);
     property ShadowColor: TColor32 read GetShadowColor write SetShadowColor;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 implementation

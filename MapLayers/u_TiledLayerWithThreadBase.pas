@@ -10,6 +10,7 @@ uses
   GR32_Layers,
   SysUtils,
   i_JclNotify,
+  i_ThreadConfig,
   i_OperationNotifier,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -110,7 +111,7 @@ type
       AConverterFactory: ILocalCoordConverterFactorySimpe;
       ATimerNoifier: IJclNotifier;
       AUpdateLayerProviderOnPosChange: Boolean;
-      APriority: TThreadPriority
+      AThreadConfig: IThreadConfig
     );
   end;
 
@@ -140,7 +141,7 @@ constructor TTiledLayerWithThreadBase.Create(
   AConverterFactory: ILocalCoordConverterFactorySimpe;
   ATimerNoifier: IJclNotifier;
   AUpdateLayerProviderOnPosChange: Boolean;
-  APriority: TThreadPriority
+  AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(APerfList, AViewPortState, True);
@@ -157,7 +158,7 @@ begin
   FOneTilePaintCounter := PerfList.CreateAndAddNewCounter('OneTilePaint');
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
 
-  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnPrepareTileMatrix, APriority);
+  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnPrepareTileMatrix, AThreadConfig);
   FTileMatrixFactory :=
     TTileMatrixFactory.Create(
       AResamplerConfig,

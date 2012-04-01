@@ -250,6 +250,7 @@
     <DCCReference Include="i_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="i_MainFormConfig.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
+    <DCCReference Include="i_MainMapLayerConfig.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MainWindowPosition.pas" />
     <DCCReference Include="i_MapAbilitiesConfig.pas" />
@@ -333,6 +334,7 @@
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_StringListStatic.pas" />
     <DCCReference Include="i_Thread.pas" />
+    <DCCReference Include="i_ThreadConfig.pas" />
     <DCCReference Include="i_TileDownloader.pas" />
     <DCCReference Include="i_TileDownloaderConfig.pas" />
     <DCCReference Include="i_TileDownloaderList.pas" />
@@ -712,6 +714,7 @@
     <DCCReference Include="u_MainFormLayersConfig.pas" />
     <DCCReference Include="u_MainFormMainConfig.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
+    <DCCReference Include="u_MainMapLayerConfig.pas" />
     <DCCReference Include="u_MainMapsConfig.pas" />
     <DCCReference Include="u_MainMemCacheConfig.pas" />
     <DCCReference Include="u_MainWindowPositionConfig.pas" />
@@ -844,6 +847,7 @@
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_StringListStatic.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
+    <DCCReference Include="u_ThreadConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfig.pas" />
     <DCCReference Include="u_TileDownloaderConfigStatic.pas" />
     <DCCReference Include="u_TileDownloaderList.pas" />

@@ -31,6 +31,7 @@ uses
   i_JclNotify,
   i_Bitmap32Static,
   i_FillingMapColorer,
+  i_ThreadConfig,
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -228,6 +229,7 @@ type
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
+      ADownloaderThreadConfig: IThreadConfig;
       AContentTypeManager: IContentTypeManager;
       ACoordConverterFactory: ICoordConverterFactory;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
@@ -274,6 +276,7 @@ constructor TMapType.Create(
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;
+  ADownloaderThreadConfig: IThreadConfig;
   AContentTypeManager: IContentTypeManager;
   ACoordConverterFactory: ICoordConverterFactory;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
@@ -358,6 +361,7 @@ begin
       AImageResamplerConfig,
       FVersionConfig,
       FTileDownloaderConfig,
+      ADownloaderThreadConfig,
       FTileDownloadRequestBuilderConfig,
       FContentTypeManager,
       FZmp.ContentTypeSubst,

@@ -27,6 +27,7 @@ uses
   Classes,
   i_JclNotify,
   i_OperationNotifier,
+  i_ThreadConfig,
   i_BackgroundTask,
   u_OperationNotifier,
   u_InterfacedThread;
@@ -55,7 +56,8 @@ type
   public
     constructor Create(
       AAppClosingNotifier: IJclNotifier;
-      APriority: TThreadPriority = tpLowest);
+      AThreadConfig: IThreadConfig
+    );
     destructor Destroy; override;
   end;
 
@@ -69,12 +71,12 @@ uses
 
 constructor TBackgroundTask.Create(
   AAppClosingNotifier: IJclNotifier;
-  APriority: TThreadPriority
+  AThreadConfig: IThreadConfig
 );
 var
   VOperationNotifier: TOperationNotifier;
 begin
-  inherited Create(APriority);
+  inherited Create(AThreadConfig);
   FAppClosingNotifier := AAppClosingNotifier;
   FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);

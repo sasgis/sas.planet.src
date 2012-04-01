@@ -29,6 +29,7 @@ uses
   t_FillingMapModes,
   i_LocalCoordConverter,
   i_ActiveMapsConfig,
+  i_ThreadConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_FillingMapLayerConfig,
@@ -48,6 +49,7 @@ type
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
+    FThreadConfig: IThreadConfig;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -87,6 +89,8 @@ type
 
     function GetFillLastDay: TDateTime;
     procedure SetFillLastDay(const AValue: TDateTime);
+
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create(AMapsConfig: IMainMapsConfig);
   end;
@@ -94,8 +98,10 @@ type
 implementation
 
 uses
+  Classes,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigProviderHelpers,
+  u_ThreadConfig,
   u_FillingMapMapsConfig,
   u_FillingMapLayerConfigStatic;
 
@@ -116,6 +122,9 @@ begin
   FFillLastDay := DateOf(Now);
   FSourceMap := TFillingMapMapsConfig.Create(AMapsConfig);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  FThreadConfig := TThreadConfig.Create(tpLowest);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 function TFillingMapLayerConfig.CreateStatic: IInterface;
@@ -230,6 +239,11 @@ end;
 function TFillingMapLayerConfig.GetStatic: IFillingMapLayerConfigStatic;
 begin
   Result := IFillingMapLayerConfigStatic(GetStaticInternal);
+end;
+
+function TFillingMapLayerConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
 end;
 
 function TFillingMapLayerConfig.GetTNEColor: TColor32;

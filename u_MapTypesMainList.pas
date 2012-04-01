@@ -29,6 +29,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
+  i_ThreadConfig,
   i_CoordConverterFactory,
   i_ZmpInfoSet,
   i_TTLCheckNotifier,
@@ -80,6 +81,7 @@ type
       AInetConfig: IInetConfig;
       AImageResamplerConfig: IImageResamplerConfig;
       ADownloadConfig: IGlobalDownloadConfig;
+      ADownloaderThreadConfig: IThreadConfig;
       AContentTypeManager: IContentTypeManager;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       ACoordConverterFactory: ICoordConverterFactory;
@@ -181,6 +183,7 @@ procedure TMapTypesMainList.LoadMaps(
   AInetConfig: IInetConfig;
   AImageResamplerConfig: IImageResamplerConfig;
   ADownloadConfig: IGlobalDownloadConfig;
+  ADownloaderThreadConfig: IThreadConfig;
   AContentTypeManager: IContentTypeManager;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   ACoordConverterFactory: ICoordConverterFactory;
@@ -237,6 +240,7 @@ begin
           AInetConfig,
           AImageResamplerConfig,
           ADownloadConfig,
+          ADownloaderThreadConfig,
           AContentTypeManager,
           ACoordConverterFactory,
           ADownloadResultTextProvider,
