@@ -6,7 +6,6 @@ uses
   SysUtils,
   Classes,
   JNXlib,
-  GR32,
   t_GeoTypes,
   i_OperationNotifier,
   i_RegionProcessProgressInfo,

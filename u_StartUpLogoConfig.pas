@@ -56,7 +56,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_ConfigProviderHelpers;
 
 { TGlobalAppConfig }

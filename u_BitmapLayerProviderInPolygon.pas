@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderInPolygon;
 interface
 
 uses
-  GR32,
   i_OperationNotifier,
   i_Bitmap32Static,
   i_LocalCoordConverter,

@@ -50,7 +50,6 @@ uses
   i_BitmapLayerProvider,
   i_MapTypeGUIConfigList,
   i_MiniMapLayerConfig,
-  i_ConfigDataProvider,
   i_BitmapPostProcessingConfig,
   u_MapType,
   u_WindowLayerWithPos;
@@ -199,7 +198,6 @@ uses
   u_BitmapLayerProviderForViewMaps,
   u_BackgroundTaskLayerDrawBase,
   u_TileIteratorSpiralByRect,
-  u_ThreadPriorityByClass,
   u_MapTypeMenuItemsGeneratorBasic;
 
 { TMapMainLayer }

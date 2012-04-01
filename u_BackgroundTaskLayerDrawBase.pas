@@ -23,7 +23,6 @@ unit u_BackgroundTaskLayerDrawBase;
 interface
 
 uses
-  Classes,
   i_JclNotify,
   i_OperationNotifier,
   i_ThreadConfig,

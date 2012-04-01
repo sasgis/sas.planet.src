@@ -35,7 +35,6 @@ type
 implementation
 
 uses
-  SysUtils,
   GR32_Resamplers,
   u_Bitmap32Static;
 

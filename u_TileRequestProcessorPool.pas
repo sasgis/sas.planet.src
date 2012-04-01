@@ -4,7 +4,6 @@ interface
 
 uses
   SysUtils,
-  Classes,
   i_JclNotify,
   i_Thread,
   i_ThreadConfig,

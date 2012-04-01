@@ -38,8 +38,7 @@ type
 
 implementation
 
-uses
-  SysUtils;
+
 
 { TBitmapGeo }
 

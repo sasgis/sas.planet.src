@@ -3,7 +3,6 @@ unit u_TileRequestQueueProcessorThread;
 interface
 
 uses
-  Classes,
   i_JclNotify,
   i_ThreadConfig,
   i_TileRequest,

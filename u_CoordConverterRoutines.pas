@@ -35,8 +35,7 @@ implementation
 
 uses
   SysUtils,
-  Math,
-  c_CoordConverter;
+  Math;
 
 function Ellipsoid_LonLat2Metr(const ARadiusa, AExct: Double; const ALl: TDoublePoint): TDoublePoint;
 var

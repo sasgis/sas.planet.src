@@ -15,7 +15,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_MapTypes,
-  i_ConfigDataProvider,
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ImageResamplerConfig,
@@ -81,8 +80,7 @@ uses
   u_NotifyEventListener,
   u_MapTypeListStatic,
   u_BitmapLayerProviderForViewMaps,
-  u_Synchronizer,
-  u_ThreadPriorityByClass;
+  u_Synchronizer;
 
 { TMapMainLayerNew }
 

@@ -45,7 +45,6 @@ implementation
 
 uses
   Classes,
-  GR32_Resamplers,
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,

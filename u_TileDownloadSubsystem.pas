@@ -100,7 +100,6 @@ type
 implementation
 
 uses
-  Classes,
   i_TileDownloadRequest,
   i_TileDownloaderList,
   i_DownloadChecker,

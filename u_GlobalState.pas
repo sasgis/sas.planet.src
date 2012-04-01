@@ -235,7 +235,6 @@ uses
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
-  u_ConfigDataProviderByFolder,
   u_ConfigDataProviderByPathConfig,
   i_TTLCheckNotifier,
   u_TTLCheckNotifier,

@@ -41,7 +41,6 @@ uses
   i_MainMapLayerConfig,
   i_BitmapPostProcessingConfig,
   i_BitmapLayerProvider,
-  i_ConfigDataProvider,
   i_TileError,
   u_MapType,
   u_MapLayerWithThreadDraw;
@@ -112,17 +111,13 @@ implementation
 
 uses
   ActiveX,
-  Classes,
   GR32_Resamplers,
   u_Synchronizer,
   t_GeoTypes,
   i_Bitmap32Static,
   i_TileIterator,
   i_TileRectUpdateNotifier,
-  u_ResStrings,
-  u_TileErrorInfo,
   u_NotifyEventListener,
-  u_ThreadPriorityByClass,
   u_MapTypeListStatic,
   u_BitmapLayerProviderForViewMaps,
   u_TileIteratorSpiralByRect;

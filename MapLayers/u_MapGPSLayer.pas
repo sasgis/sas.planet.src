@@ -17,7 +17,6 @@ uses
   i_ImageResamplerConfig,
   i_GPSRecorder,
   i_MapLayerGPSTrackConfig,
-  i_ConfigDataProvider,
   i_ViewPortState,
   u_MapLayerWithThreadDraw;
 
@@ -88,7 +87,6 @@ uses
   i_TileIterator,
   u_GeoFun,
   u_NotifyEventListener,
-  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TMapGPSLayer }

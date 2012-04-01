@@ -23,7 +23,6 @@ unit i_BitmapPostProcessingConfig;
 interface
 
 uses
-  GR32,
   i_Bitmap32Static,
   i_ConfigDataElement;
 

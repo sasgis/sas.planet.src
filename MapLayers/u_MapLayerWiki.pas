@@ -43,7 +43,6 @@ uses
   i_IdCacheSimple,
   i_DoublePointsAggregator,
   i_KmlLayerConfig,
-  i_ConfigDataProvider,
   i_ImageResamplerConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -217,7 +216,6 @@ uses
   u_ResStrings,
   u_DoublePointsAggregator,
   u_IdCacheSimpleThreadSafe,
-  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TWikiLayer }

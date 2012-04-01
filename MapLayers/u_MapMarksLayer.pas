@@ -45,7 +45,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
-  i_ConfigDataProvider,
   u_MarksSystem,
   u_MapLayerWithThreadDraw;
 
@@ -135,7 +134,6 @@ uses
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByMarksSubset,
   u_NotifyEventListener,
-  u_ThreadPriorityByClass,
   u_TileIteratorSpiralByRect;
 
 { TMapMarksLayer }
