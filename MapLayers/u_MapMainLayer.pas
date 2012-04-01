@@ -90,7 +90,6 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(
-      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -131,7 +130,6 @@ uses
 { TMapMainLayer }
 
 constructor TMapMainLayer.Create(
-  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;

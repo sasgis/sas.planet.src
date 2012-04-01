@@ -1076,7 +1076,6 @@ begin
     if FConfig.MainConfig.UseNewMainLayer then begin
       FLayersList.Add(
         TMapMainLayerNew.Create(
-          GState.ThreadPriorityByClass,
           GState.PerfCounterList,
           GState.AppClosingNotifier,
           map,
@@ -1093,7 +1092,6 @@ begin
     end else begin
       FLayersList.Add(
         TMapMainLayer.Create(
-          GState.ThreadPriorityByClass,
           GState.PerfCounterList,
           GState.AppClosingNotifier,
           map,
@@ -1130,7 +1128,6 @@ begin
     );
     FWikiLayer :=
       TWikiLayer.Create(
-        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1159,7 +1156,6 @@ begin
     );
     FLayerMapMarks:=
       TMapMarksLayer.Create(
-        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1175,7 +1171,6 @@ begin
     FLayersList.Add(FLayerMapMarks);
     FLayersList.Add(
       TMapGPSLayer.Create(
-        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,
@@ -1439,7 +1434,6 @@ begin
     );
     FLayersList.Add(
       TMiniMapLayer.Create(
-        GState.ThreadPriorityByClass,
         GState.PerfCounterList,
         GState.AppClosingNotifier,
         map,

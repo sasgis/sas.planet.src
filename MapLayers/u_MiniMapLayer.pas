@@ -164,7 +164,6 @@ type
     procedure SendTerminateToThreads; override;
   public
     constructor Create(
-      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -206,7 +205,6 @@ uses
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(
-  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;

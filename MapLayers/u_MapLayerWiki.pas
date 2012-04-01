@@ -174,7 +174,6 @@ type
     procedure DoHide; override;
   public
     constructor Create(
-      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -224,7 +223,6 @@ uses
 { TWikiLayer }
 
 constructor TWikiLayer.Create(
-  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;

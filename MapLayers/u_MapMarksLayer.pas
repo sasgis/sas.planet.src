@@ -87,7 +87,6 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
-      AThreadPriorityByClass: IConfigDataProvider;
       APerfList: IInternalPerformanceCounterList;
       AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
@@ -142,7 +141,6 @@ uses
 { TMapMarksLayer }
 
 constructor TMapMarksLayer.Create(
-  AThreadPriorityByClass: IConfigDataProvider;
   APerfList: IInternalPerformanceCounterList;
   AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
