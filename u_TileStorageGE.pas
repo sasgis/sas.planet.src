@@ -273,7 +273,10 @@ begin
     end;
 
     // tile version
-    if (nil<>AVersionString) and (nil<>AContext) then begin
+    if (0 <> (ATileInfo^.Common.FlagsOut and DLLCACHE_QTO_SAME_VERSION)) then begin
+      // ok
+      Result := TRUE;
+    end else if (nil<>AVersionString) and (nil<>AContext) then begin
       // make as string
       SetString(VVersionStoreString, AVersionString, StrLen(AVersionString));
       // make and set version
