@@ -60,13 +60,13 @@ type
 implementation
 
 uses
-  u_Synchronizer,
   ImagingTypes,
   ImagingGraphics32,
   ImagingJpeg,
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap,
+  u_Synchronizer,
   u_Bitmap32Static;
 
 { TVampyreBasicBitmapTileLoader }
