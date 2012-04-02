@@ -147,7 +147,7 @@ type
   TETS_Initialize = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AStatusBuffer: PETS_STATUS_BUFFER;
-    const AFlags: Cardinal;
+    const AFlags: Cardinal;  // see ETS_INIT_* constants
     const AHostPointer: Pointer
   ): Boolean; stdcall;
 
@@ -222,6 +222,10 @@ const
   ETS_INFOCLASS_EXCEPTION_HANDLER_W   = $05; // set exception handler (pointer)
   ETS_INFOCLASS_LOST_NOTIFIER         = $06; // set lost connection notifier (pointer)
   ETS_INFOCLASS_REST_NOTIFIER         = $07; // set restore connection notifier (pointer)
+
+  // flags for Initialize
+  ETS_INIT_ISOLATE_ENV       = $00000001; // make single isolated environment and connection
+  ETS_INIT_STORED_PROC       = $00000002; // use stored procs (instead of direct requests)
 
   // flags for auth
   ETS_AUTH_UNICODE = $00000001;

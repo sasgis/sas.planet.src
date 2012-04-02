@@ -489,6 +489,7 @@ uses
   t_ETS_AuthFunc in 'ExtTileStorages\t_ETS_AuthFunc.pas',
   t_ETS_Provider in 'ExtTileStorages\t_ETS_Provider.pas',
   t_ETS_Tiles in 'ExtTileStorages\t_ETS_Tiles.pas',
+  t_ETS_Path in 'ExtTileStorages\t_ETS_Path.pas',
   u_ETS_Path in 'ExtTileStorages\u_ETS_Path.pas',
   u_ETS_Tiles in 'ExtTileStorages\u_ETS_Tiles.pas',
   u_TileStorageDBMS in 'u_TileStorageDBMS.pas',

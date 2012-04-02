@@ -22,25 +22,19 @@ unit u_ETS_Path;
 
 interface
 
-const
-  c_ETS_Path_Items_Count = 3;
-
-type
-  TETS_Path_Divided = record
-    Path_Items: array [0..c_ETS_Path_Items_Count-1] of String;
-    // 0 - ServerName: String;
-    // 1 - DatabaseName: String;
-    // 2 - TableName: String;
-  end;
-  PETS_Path_Divided = ^TETS_Path_Divided;
-
+uses
+  t_ETS_Path;
+  
 function ETS_TilePath_Divided(const AGlobalStorageIdentifier: String;
                               const AServiceName: String): TETS_Path_Divided;
 
 function ETS_TilePath_Single(const AGlobalStorageIdentifier: String;
                              const AServiceName: String): String;
 
+function ETS_TilePath_Divided_to_ServerDB(const pRec: PETS_Path_Divided): String;
+
 procedure Clear_TilePath_Divided(pRec: PETS_Path_Divided);
+procedure Copy_TilePath_Divided(const pSrc: PETS_Path_Divided; pDst: PETS_Path_Divided);
 
 implementation
 
@@ -60,6 +54,13 @@ var i: Byte;
 begin
   for i := 0 to c_ETS_Path_Items_Count-1 do
     pRec^.Path_Items[i]:='';
+end;
+
+procedure Copy_TilePath_Divided(const pSrc: PETS_Path_Divided; pDst: PETS_Path_Divided);
+var i: Byte;
+begin
+  for i := 0 to c_ETS_Path_Items_Count-1 do
+    pDst^.Path_Items[i]:=pSrc^.Path_Items[i];
 end;
 
 procedure InternalGet3Parts(const ASrc: String;
@@ -187,6 +188,15 @@ function ETS_TilePath_Single(const AGlobalStorageIdentifier: String;
 begin
   with ETS_TilePath_Divided(AGlobalStorageIdentifier, AServiceName) do begin
     Result := Path_Items[0] + PathDelim + Path_Items[1] + PathDelim + Path_Items[2];
+  end;
+end;
+
+function ETS_TilePath_Divided_to_ServerDB(const pRec: PETS_Path_Divided): String;
+begin
+  with pRec^ do begin
+    Result := Path_Items[0];
+    if (0<Length(Path_Items[1])) then
+      Result := Result + PathDelim + Path_Items[1];
   end;
 end;
 
