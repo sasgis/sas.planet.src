@@ -49,9 +49,11 @@ implementation
 uses
   KAZip,
   i_Bitmap32Static,
+  i_BinaryData,
   i_CoordConverter,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
+  u_StreamReadOnlyByBinaryData,
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
@@ -96,7 +98,7 @@ var
   i, j: integer;
   VFileName: string;
 
-  kmlm, jpgm: TMemoryStream;
+  kmlm: TMemoryStream;
   VLLRect: TDoubleRect;
   str: UTF8String;
   VNameInKmz: String;
@@ -115,6 +117,8 @@ var
   VTilesProcessed: Integer;
   VTilesToProcess: Integer;
   VBitmapTile: IBitmap32Static;
+  VData: IBinaryData;
+  VDataStream: TStreamReadOnlyByBinaryData;
 begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
@@ -145,8 +149,6 @@ begin
         VLocalRect.Bottom := iHeight;
         for i := 1 to nim.X do begin
           for j := 1 to nim.Y do begin
-            jpgm := TMemoryStream.Create;
-            try
               if CancelNotifier.IsOperationCanceled(OperationID) then begin
                 break;
               end;
@@ -166,25 +168,29 @@ begin
                 if CancelNotifier.IsOperationCanceled(OperationID) then begin
                   break;
                 end;
-                JPGSaver.SaveToStream(VBitmapTile.Bitmap, jpgm);
+                VData := JPGSaver.Save(VBitmapTile);
 
-                VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
-                VNameInKmz := 'files/' + VFileName;
-                str := str + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
-                str := str + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
-                VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, ALocalConverter.Zoom);
-                str := str + ansiToUTF8('<LatLonBox>' + #13#10);
-                str := str + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
-                str := str + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
-                str := str + ansiToUTF8('<east>' + R2StrPoint(VLLRect.Right) + '</east>' + #13#10);
-                str := str + ansiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
-                str := str + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
-                jpgm.Position := 0;
-                Zip.AddStream(VNameInKmz, jpgm);
+                if VData <> nil then begin
+                  VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
+                  VNameInKmz := 'files/' + VFileName;
+                  str := str + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
+                  str := str + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
+                  VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, ALocalConverter.Zoom);
+                  str := str + ansiToUTF8('<LatLonBox>' + #13#10);
+                  str := str + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
+                  str := str + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
+                  str := str + ansiToUTF8('<east>' + R2StrPoint(VLLRect.Right) + '</east>' + #13#10);
+                  str := str + ansiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
+                  str := str + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
+
+                  VDataStream := TStreamReadOnlyByBinaryData.Create(VData);
+                  try
+                    Zip.AddStream(VNameInKmz, VDataStream);
+                  finally
+                    VDataStream.Free;
+                  end;
+                end;
               end;
-            finally
-              jpgm.Free;
-            end;
             ProgressFormUpdateOnProgress(VTilesProcessed/VTilesToProcess);
           end;
         end;

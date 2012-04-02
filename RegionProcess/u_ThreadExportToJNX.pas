@@ -63,6 +63,7 @@ uses
   i_CoordConverter,
   i_Bitmap32Static,
   i_TileIterator,
+  i_BinaryData,
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
@@ -118,7 +119,6 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VSaver: IBitmapTileSaver;
-  VMemStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
   VStringStream: TStringStream;
   VWriter: TMultiVolumeJNXWriter;
@@ -128,6 +128,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VData: IBinaryData;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -168,7 +169,6 @@ begin
     try
       ProgressInfo.Caption := SAS_STR_ExportTiles;
       ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
-      VMemStream := TMemoryStream.Create;
       VStringStream := TStringStream.Create('');
       try
         VTilesProcessed := 0;
@@ -182,9 +182,7 @@ begin
             end;
             VBitmapTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
             if VBitmapTile <> nil then begin
-              VMemStream.Clear;
-              VMemStream.Position := 0;
-              VSaver.SaveToStream(VBitmapTile.Bitmap, VMemStream);
+              VData := VSaver.Save(VBitmapTile);
 
               VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X , VTile.Y + 1), VZoom);
               VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X+1 , VTile.Y), VZoom);
@@ -196,9 +194,8 @@ begin
                 WGS84CoordToJNX(VTopLeft.X)
               );
 
-              VMemStream.Position := 0;
               VStringStream.Size := 0;
-              VStringStream.CopyFrom(VMemStream, 0);
+              VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
               VWriter.WriteTile(
                 I,
@@ -216,7 +213,6 @@ begin
           end;
         end;
       finally
-        VMemStream.Free;
         VStringStream.Free;
       end;
     finally
