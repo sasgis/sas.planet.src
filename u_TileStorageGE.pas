@@ -23,13 +23,13 @@ unit u_TileStorageGE;
 interface
 
 uses
-  Types,
   Windows,
   SysUtils,
   Classes,
   i_BinaryData,
-  u_GECrypt,
   t_CommonTypes,
+  t_RangeFillingMap,
+  t_DLLCache,
   i_SimpleTileStorageConfig,
   u_MapVersionFactoryGE,
   i_ContentTypeInfo,
@@ -39,7 +39,6 @@ uses
   i_ContentTypeManager,
   u_MapTypeCacheConfig,
   u_GlobalCahceConfig,
-  u_GEIndexFile,
   u_TileStorageAbstract;
 
 type
@@ -47,6 +46,7 @@ type
   protected
     FCacheConfig: TMapTypeCacheConfigDLL;
     FMainContentType: IContentTypeInfoBasic;
+    FTileNotExistsTileInfo: ITileInfoBasic;
     // access
     FDLLSync: IReadWriteSync;
     FDLLHandle: THandle;
@@ -55,6 +55,7 @@ type
     FDLLCache_EnumTileVersions: Pointer;
     FDLLCache_QueryTile: Pointer;
     FDLLCache_ConvertImage: Pointer;
+    FDLLCache_QueryFillingMap: Pointer;
     // cached values
     FCachedNameInCache: AnsiString;
   protected
@@ -73,11 +74,17 @@ type
   protected
     procedure DoOnMapSettingsEdit(Sender: TObject);
 
+    function DoOnRangeFillingMap(
+      Sender: TObject;
+      const ASourceTilesRect: PRect;
+      const AVersionInfo: IMapVersionInfo;
+      const ARangeFillingMapInfo: PRangeFillingMapInfo): Boolean;
+
     function QueryTileInternal(
       const AXY: TPoint;
       const Azoom: byte;
       const AVersionInfo: IMapVersionInfo;
-      AStream: TStream;
+      AStream: TMemoryStream;
       out ATileInfo: ITileInfoBasic
     ): Boolean;
   public
@@ -134,13 +141,12 @@ type
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ); override;
-    
+
     function GetListOfTileVersions(
       const AXY: TPoint;
       const Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; override;
-
   end;
 
   TTileStorageGE = class(TTileStorageDLL)
@@ -153,6 +159,8 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       AContentTypeManager: IContentTypeManager
     );
+
+    function GetRangeFillingMapItemSize: SmallInt; override;
   end;
 
   TTileStorageGC = class(TTileStorageDLL)
@@ -165,6 +173,8 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       AContentTypeManager: IContentTypeManager
     );
+
+    function GetRangeFillingMapItemSize: SmallInt; override;
   end;
   
 implementation
@@ -179,16 +189,20 @@ uses
   u_TileStorageTypeAbilities;
 
 function DLLCache_ConvertImage_Callback(const AConvertImage_Context: Pointer;
-                                        const AFormatOut: Cardinal;
+                                        const AFormatOut: LongWord;
                                         const AOutputBuffer: Pointer;
-                                        const AOutputSize: Cardinal): Boolean; stdcall;
+                                        const AOutputSize: LongWord): Boolean; stdcall;
 begin
   Result := FALSE;
   // called from DLLCache_QueryTile_Callback - AConvertImage_Context is ATileInfo: PQueryTileInfo
-  if (DLLCACHE_IMG_PRIMARY=AFormatOut) and (AConvertImage_Context<>nil) and (AOutputBuffer<>nil) and (AOutputSize>0) then begin
-    PQueryTileInfo(AConvertImage_Context)^.TileStream.WriteBuffer(AOutputBuffer^, AOutputSize);
-    PQueryTileInfo(AConvertImage_Context)^.TileStream.Position:=0;
+  if (DLLCACHE_IMG_PRIMARY=AFormatOut) and (AConvertImage_Context<>nil) and (AOutputBuffer<>nil) and (AOutputSize>0) then
+  try
+    with TMemoryStream(PQueryTileInfo(AConvertImage_Context)^.TileStream) do begin
+      WriteBuffer(AOutputBuffer^, AOutputSize);
+      Position:=0;
+    end;
     Inc(Result);
+  except
   end;
 end;
 
@@ -196,22 +210,26 @@ function DLLCache_EnumTileVersions_Callback(const AContext: Pointer;
                                             const AEnumInfo: PEnumTileVersionsInfo;
                                             const AVersionString: PAnsiChar): Boolean; stdcall;
 var
-  VVersionString: String;
+  VVersionString: AnsiString;
 begin
   Result := FALSE;
   // if AVersionString is NULL - it means NO VERSION aka CLEAR - do not enum it
-  if (nil<>AEnumInfo) and (nil<>AVersionString) then begin
+  if (nil<>AEnumInfo) and (nil<>AVersionString) then
+  try
     // make list
     if (nil=AEnumInfo^.ListOfVersions) then begin
       AEnumInfo^.ListOfVersions := TStringList.Create;
-      AEnumInfo^.ListOfVersions.Sorted := TRUE;
-      AEnumInfo^.ListOfVersions.Duplicates := dupIgnore;
+      with TStringList(AEnumInfo^.ListOfVersions) do begin
+        Sorted := TRUE;
+        Duplicates := dupIgnore;
+      end;
     end;
     // make version string
     SetString(VVersionString, AVersionString, StrLen(AVersionString));
     // add if not found
-    AEnumInfo^.ListOfVersions.Add(VVersionString);
+    TStringList(AEnumInfo^.ListOfVersions).Add(VVersionString);
     Inc(Result);
+  except
   end;
 end;
 
@@ -220,21 +238,23 @@ function DLLCache_QueryTile_Callback(const AContext: Pointer;
                                      const ATileBuffer: Pointer;
                                      const AVersionString: PAnsiChar): Boolean; stdcall;
 var
-  VVersionStoreString: String;
+  VVersionStoreString: AnsiString;
 begin
   Result := FALSE;
-  if (nil<>ATileInfo) then begin
+  if (nil<>ATileInfo) then
+  try
     // tile body
     if (nil<>ATileBuffer) and (ATileInfo^.TileSize>0) and (nil<>ATileInfo^.TileStream) then begin
-      if (ATileInfo^.Size >= SizeOf(TQueryTileInfo_V2)) then begin
+      if (ATileInfo^.Common.Size >= SizeOf(TQueryTileInfo_V2)) then begin
         // MULTIPLE TYPES! check image type
         case PQueryTileInfo_V2(ATileInfo)^.FormatOut of
           DLLCACHE_IMG_PRIMARY: begin
             // JPEG
-            ATileInfo^.TileStream.WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
-            ATileInfo^.TileStream.Position:=0;
-            if (not Result) then
-              Inc(Result);
+            with TMemoryStream(ATileInfo^.TileStream) do begin
+              WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
+              Position:=0;
+            end;
+            Result := TRUE;
           end;
           DLLCACHE_IMG_SEC_DXT1: begin
             // call DLL to CONVERT to JPEG
@@ -243,40 +263,45 @@ begin
         end;
       end else begin
         // ONLY PRIMARY! always convert to primary image format at DLL
-        ATileInfo^.TileStream.WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
-        ATileInfo^.TileStream.Position:=0;
+        with TMemoryStream(ATileInfo^.TileStream) do begin
+          WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
+          Position:=0;
+        end;
         // do smth
-        if (not Result) then
-          Inc(Result);
+        Result := TRUE;
       end;
     end;
-    
+
     // tile version
     if (nil<>AVersionString) and (nil<>AContext) then begin
       // make as string
       SetString(VVersionStoreString, AVersionString, StrLen(AVersionString));
       // make and set version
-      ATileInfo^.VersionOut := TTileStorageDLL(AContext).MapVersionFactory.CreateByStoreString(VVersionStoreString);
+      IMapVersionInfo(ATileInfo^.VersionOut) := TTileStorageDLL(AContext).MapVersionFactory.CreateByStoreString(VVersionStoreString);
       // do smth
-      if (not Result) then
-        Inc(Result);
+      Result := TRUE;
     end;
+  except
   end;
 end;
 
 function HostExifReaderProc(const AContext: Pointer;
                             const ABuffer: Pointer;
-                            const ASize: Cardinal;
+                            const ASize: LongWord;
                             const AExifBufPtr: PPointer;
-                            const AExifSizPtr: PCardinal): Boolean; stdcall;
+                            const AExifSizPtr: PLongWord): Boolean; stdcall;
 var
   VExifOffset: PByte;
   VExifSize: Cardinal;
 begin
-  Result := FindExifInJpeg(ABuffer, ASize, TRUE, $0000, VExifOffset, VExifSize);
-  if Result then begin
-    AExifBufPtr^ := VExifOffset;
-    AExifSizPtr^ := VExifSize;
+  Result := FALSE;
+  try
+    if FindExifInJpeg(ABuffer, ASize, TRUE, $0000, VExifOffset, VExifSize) then begin
+      AExifBufPtr^ := VExifOffset;
+      AExifSizPtr^ := VExifSize;
+      Inc(Result);
+    end;
+  except
   end;
 end;
 
@@ -284,9 +309,11 @@ function HostStateChangedProc(const AContext: Pointer;
                               const AEnabled: Boolean): Boolean; stdcall;
 begin
   Result := FALSE;
-  if (nil<>AContext) then begin
+  if (nil<>AContext) then
+  try
     if TTileStorageDLL(AContext).InternalLib_NotifyStateChanged(AEnabled) then
       Inc(Result);
+  except
   end;
 end;
 
@@ -297,6 +324,7 @@ constructor TTileStorageDLL.Create(AConfig: ISimpleTileStorageConfig;
 begin
   inherited Create(TTileStorageTypeAbilitiesGE.Create, TMapVersionFactoryGE.Create, AConfig);
   FDLLSync := MakeSyncRW_Big(Self);
+  FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FDLLHandle := 0;
   FDLLCacheHandle := nil;
   InternalLib_CleanupProc;
@@ -327,6 +355,7 @@ begin
 
   FreeAndNil(FCacheConfig);
 
+  FTileNotExistsTileInfo := nil;
   FDLLSync := nil;
 
   inherited Destroy;
@@ -352,6 +381,39 @@ begin
     finally
       FDLLSync.EndWrite;
     end;
+  end;
+end;
+
+function TTileStorageDLL.DoOnRangeFillingMap(
+  Sender: TObject;
+  const ASourceTilesRect: PRect;
+  const AVersionInfo: IMapVersionInfo;
+  const ARangeFillingMapInfo: PRangeFillingMapInfo): Boolean;
+var
+  VVersionInfo: IMapVersionInfo;
+  VVersionStoreString: AnsiString;
+  VVersionStringPtr: PAnsiChar;
+begin
+  Result := FALSE;
+
+  if not Assigned(FDLLCache_QueryFillingMap) then
+    Exit;
+
+  VVersionInfo := AVersionInfo;
+  if Assigned(VVersionInfo) then begin
+    VVersionStoreString := VVersionInfo.StoreString;
+    VVersionStringPtr := PAnsiChar(VVersionStoreString);
+  end else begin
+    VVersionStringPtr := nil;
+  end;
+
+  try
+    Result := TDLLCache_QueryFillingMap(FDLLCache_QueryFillingMap)(
+        @FDLLCacheHandle,
+        ASourceTilesRect,
+        VVersionStringPtr,
+        ARangeFillingMapInfo);
+  except
   end;
 end;
 
@@ -382,19 +444,19 @@ begin
       VVersionStoreString := AVersionInfo.StoreString;
       // init
       FillChar(VEnumInfo, sizeof(VEnumInfo), #0);
-      VEnumInfo.Size := SizeOf(VEnumInfo);
-      VEnumInfo.Zoom := Azoom;
-      VEnumInfo.XY := AXY;
-      VEnumInfo.VersionInp := PAnsiChar(VVersionStoreString);
+      VEnumInfo.Common.Size := SizeOf(VEnumInfo);
+      VEnumInfo.Common.Zoom := Azoom;
+      VEnumInfo.Common.XY := AXY;
+      VEnumInfo.Common.VersionInp := PAnsiChar(VVersionStoreString);
       // call
       if InternalLib_GetTileVersions(@VEnumInfo) then
       if (nil<>VEnumInfo.ListOfVersions) then
       try
         // make version for each item
-        if (VEnumInfo.ListOfVersions.Count>0) then begin
+        if (TStringList(VEnumInfo.ListOfVersions).Count>0) then begin
           VList := TInterfaceList.Create;
-          for i := 0 to VEnumInfo.ListOfVersions.Count-1 do begin
-            VVersion := MapVersionFactory.CreateByStoreString(VEnumInfo.ListOfVersions[i]);
+          for i := 0 to TStringList(VEnumInfo.ListOfVersions).Count-1 do begin
+            VVersion := MapVersionFactory.CreateByStoreString(TStringList(VEnumInfo.ListOfVersions).Strings[i]);
             VList.Add(VVersion);
           end;
         end;
@@ -430,15 +492,17 @@ begin
             (nil<>FDLLCacheHandle) and
             (nil<>FDLLCache_EnumTileVersions) and
             (nil<>FDLLCache_QueryTile);
-  // FDLLCache_ConvertImage can be NULL
+  // FDLLCache_ConvertImage and FDLLCache_QueryFillingMap can be NULL
 end;
 
 function TTileStorageDLL.InternalLib_CleanupProc: Boolean;
 begin
   Result := FALSE;
+  OnRangeFillingMap := nil;
   FDLLCache_EnumTileVersions := nil;
   FDLLCache_QueryTile := nil;
   FDLLCache_ConvertImage := nil;
+  FDLLCache_QueryFillingMap := nil;
 end;
 
 function TTileStorageDLL.InternalLib_ConvertImage(const AConvertImage_Context: Pointer;
@@ -484,6 +548,11 @@ begin
       FDLLCache_EnumTileVersions := GetProcAddress(FDLLHandle, 'DLLCache_EnumTileVersions');
       FDLLCache_QueryTile := GetProcAddress(FDLLHandle, 'DLLCache_QueryTile');
       FDLLCache_ConvertImage := GetProcAddress(FDLLHandle, 'DLLCache_ConvertImage');
+      FDLLCache_QueryFillingMap := GetProcAddress(FDLLHandle, 'DLLCache_QueryFillingMap');
+
+      // params
+      if Assigned(FDLLCache_QueryFillingMap) then
+        OnRangeFillingMap := Self.DoOnRangeFillingMap;
     end;
   end;
 end;
@@ -504,8 +573,10 @@ end;
 function TTileStorageDLL.InternalLib_QueryTile(const ATileInfo: PQueryTileInfo): Boolean;
 begin
   Result := FALSE;
-  if (nil<>FDLLCache_QueryTile) then begin
+  if (nil<>FDLLCache_QueryTile) then
+  try
     Result := TDLLCache_QueryTile(FDLLCache_QueryTile)(@FDLLCacheHandle, ATileInfo, DLLCache_QueryTile_Callback);
+  except
   end;
 end;
 
@@ -536,6 +607,7 @@ begin
     p := GetProcAddress(FDLLHandle, 'DLLCache_Uninit');
     if (nil<>p) then
       TDLLCache_Uninit(p)(@FDLLCacheHandle);
+
     // finishing
     Inc(Result);
     FreeLibrary(FDLLHandle);
@@ -566,9 +638,10 @@ end;
 function TTileStorageDLL.QueryTileInternal(
   const AXY: TPoint; const Azoom: byte;
   const AVersionInfo: IMapVersionInfo;
-  AStream: TStream;
+  AStream: TMemoryStream;
   out ATileInfo: ITileInfoBasic): Boolean;
 var
+  VVersionInfo: IMapVersionInfo;
   VVersionStoreString: AnsiString;
   VQTInfo: TQueryTileInfo;
 begin
@@ -578,17 +651,18 @@ begin
   FDLLSync.BeginRead;
   try
     if StorageStateStatic.ReadAccess <> asDisabled then begin
-      VVersionStoreString := AVersionInfo.StoreString;
+      VVersionInfo := AVersionInfo;
+      VVersionStoreString := VVersionInfo.StoreString;
       // init
       FillChar(VQTInfo, SizeOf(VQTInfo), #0);
-      VQTInfo.Size := SizeOf(VQTInfo);
-      VQTInfo.Zoom := Azoom;
-      VQTInfo.XY := AXY;
-      VQTInfo.VersionInp := PAnsiChar(VVersionStoreString);
+      VQTInfo.Common.Size := SizeOf(VQTInfo);
+      VQTInfo.Common.Zoom := Azoom;
+      VQTInfo.Common.XY := AXY;
+      VQTInfo.Common.VersionInp := PAnsiChar(VVersionStoreString);
 
       // load tile body or not
       if (nil<>AStream) then begin
-        VQTInfo.FlagsInp := DLLCACHE_QTI_LOAD_TILE;
+        VQTInfo.Common.FlagsInp := DLLCACHE_QTI_LOAD_TILE;
         VQTInfo.TileStream := AStream;
       end;
       
@@ -596,10 +670,10 @@ begin
         // call
         if InternalLib_QueryTile(@VQTInfo) then begin
           // check version
-          if not Assigned(VQTInfo.VersionOut) then begin
+          if (nil=VQTInfo.VersionOut) then begin
             // no output version - may be _the_same_ version
-            if (0 <> (VQTInfo.FlagsOut and DLLCACHE_QTO_SAME_VERSION)) then
-              VQTInfo.VersionOut := AVersionInfo;
+            if (0 <> (VQTInfo.Common.FlagsOut and DLLCACHE_QTO_SAME_VERSION)) then
+              IMapVersionInfo(VQTInfo.VersionOut) := AVersionInfo;
           end;
 
           // check size
@@ -608,23 +682,23 @@ begin
             ATileInfo := TTileInfoBasicExists.Create(
               VQTInfo.DateOut,
               VQTInfo.TileSize,
-              VQTInfo.VersionOut,
+              IMapVersionInfo(VQTInfo.VersionOut),
               FMainContentType
             );
             Inc(Result);
-          end else if (0 <> (VQTInfo.FlagsOut and DLLCACHE_QTO_TNE_EXISTS)) then begin
+          end else if (0 <> (VQTInfo.Common.FlagsOut and DLLCACHE_QTO_TNE_EXISTS)) then begin
             // tne found
-            ATileInfo := TTileInfoBasicTNE.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
+            ATileInfo := TTileInfoBasicTNE.Create(VQTInfo.DateOut, IMapVersionInfo(VQTInfo.VersionOut));
           end else begin
             // nothing
-            ATileInfo := TTileInfoBasicNotExists.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
+            ATileInfo := FTileNotExistsTileInfo;
           end;
         end else begin
           // nothing
-          ATileInfo := TTileInfoBasicNotExists.Create(VQTInfo.DateOut, VQTInfo.VersionOut);
+          ATileInfo := FTileNotExistsTileInfo;
         end;
       finally
-        VQTInfo.VersionOut := nil;
+        IMapVersionInfo(VQTInfo.VersionOut) := nil;
       end;
     end;
   finally
@@ -653,6 +727,12 @@ begin
   FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
   InternalLib_Initialize;
   DoOnMapSettingsEdit(nil);
+end;
+
+function TTileStorageGE.GetRangeFillingMapItemSize: SmallInt;
+begin
+  // there are no loading tile dates in GE cache - just flags
+  Result := SizeOf(TRangeFillingItem1);
 end;
 
 function TTileStorageGE.InternalLib_CheckInitialized: Boolean;
@@ -691,6 +771,12 @@ begin
   FCacheConfig := TMapTypeCacheConfigGC.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
   InternalLib_Initialize;
   DoOnMapSettingsEdit(nil);
+end;
+
+function TTileStorageGC.GetRangeFillingMapItemSize: SmallInt;
+begin
+  // there are loading tile dates in GC cache - datetime up to minute and flags
+  Result := SizeOf(TRangeFillingItem4);
 end;
 
 function TTileStorageGC.InternalLib_CheckInitialized: Boolean;

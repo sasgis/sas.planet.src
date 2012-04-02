@@ -41,15 +41,22 @@ uses
   i_StorageStateInternal,
   i_TileInfoBasic,
   i_TileRectUpdateNotifier,
+  t_RangeFillingMap,
   u_MapTypeCacheConfig;
 
 type
+  TRangeFillingMapEvent = function (Sender: TObject;
+                                    const ASourceTilesRect: PRect;
+                                    const AVersionInfo: IMapVersionInfo;
+                                    const ARangeFillingMapInfo: PRangeFillingMapInfo): Boolean of object;
+
   TTileStorageAbstract = class
   private
     FConfig: ISimpleTileStorageConfig;
     FMapVersionFactory: IMapVersionFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
+    FOnRangeFillingMap: TRangeFillingMapEvent;
     FNotifierByZoom: array of ITileRectUpdateNotifier;
     FConfigListener: IJclListener;
     FStorageState: IStorageStateChangeble;
@@ -70,6 +77,7 @@ type
     property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
+    property OnRangeFillingMap: TRangeFillingMapEvent read FOnRangeFillingMap write FOnRangeFillingMap;
   public
     constructor Create(
       AStorageTypeAbilities: IStorageTypeAbilities;
@@ -137,6 +145,9 @@ type
       AVersionInfo: IMapVersionInfo;
       AColorer: IFillingMapColorer
     ): boolean; virtual;
+
+    function GetRangeFillingMapItemSize: SmallInt; virtual;
+
     property State: IStorageStateChangeble read FStorageState;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
     property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
@@ -169,6 +180,7 @@ var
   VNotifier: TTileRectUpdateNotifier;
   VState: TStorageStateInternal;
 begin
+  FOnRangeFillingMap := nil;
   FConfig := AConfig;
   FMapVersionFactory := AMapVersionFactory;
   FStorageStateStaticCS := MakeSyncRW_Var(Self);
@@ -243,6 +255,15 @@ begin
   Result := FNotifierByZoomInternal[AZoom - FMinValidZoom];
 end;
 
+function TTileStorageAbstract.GetRangeFillingMapItemSize: SmallInt;
+begin
+  // use SizeOf(TRangeFillingItem1)
+  // or SizeOf(TRangeFillingItem4)
+  // or SizeOf(TRangeFillingItem8)
+  // depending of tiledates in storage
+  Result := 0; // no range filling map abilities
+end;
+
 function TTileStorageAbstract.GetStorageStateStatic: IStorageStateStatic;
 begin
   FStorageStateStaticCS.BeginRead;
@@ -268,79 +289,169 @@ var
   VSourceTilesRect: TRect;
   VCurrTile: TPoint;
   VTileSize: TPoint;
-  VSourceTilePixels: TRect;
   VSolidDrow: Boolean;
   VIterator: ITileIterator;
   VTileInfo: ITileInfoBasic;
   VTileColor: TColor32;
   VGeoConvert: ICoordConverter;
+  // range
+  VRangeFillingMapInfo: TRangeFillingMapInfo;
+  i,j: Cardinal;
+  VTileMapItemPtr: Pointer;
+
+  procedure _PaintCurrTile;
+  var
+    VSourceTilePixels: TRect;
+  begin
+    VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
+    VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+    if VSourceTilePixels.Left < VPixelsRect.Left then begin
+      VSourceTilePixels.Left := VPixelsRect.Left;
+    end;
+    if VSourceTilePixels.Top < VPixelsRect.Top then begin
+      VSourceTilePixels.Top := VPixelsRect.Top;
+    end;
+    if VSourceTilePixels.Right > VPixelsRect.Right then begin
+      VSourceTilePixels.Right := VPixelsRect.Right;
+    end;
+    if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
+      VSourceTilePixels.Bottom := VPixelsRect.Bottom;
+    end;
+
+    VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
+    VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
+    VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
+    VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
+
+    if not VSolidDrow then begin
+      Dec(VSourceTilePixels.Right);
+      Dec(VSourceTilePixels.Bottom);
+    end;
+
+    if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
+       ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
+      btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+    end else begin
+      btm.FillRectS(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+    end;
+  end;
+  
 begin
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
-    Result := true;
-    try
-      VGeoConvert := FConfig.CoordConverter;
+  Result := FALSE;
+  if StorageStateStatic.ReadAccess <> asDisabled then
+  try
+    VGeoConvert := FConfig.CoordConverter;
 
-      VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
-      VGeoConvert.CheckZoom(ASourceZoom);
+    VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+    VGeoConvert.CheckZoom(ASourceZoom);
 
-      VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
+    VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
 
-      VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
+    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
-      btm.Width := VTileSize.X;
-      btm.Height := VTileSize.Y;
-      btm.Clear(0);
+    btm.Width := VTileSize.X;
+    btm.Height := VTileSize.Y;
+    btm.Clear(0);
 
-      VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
-      VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
-      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
-        or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
-      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
-      while VIterator.Next(VCurrTile) do begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
-        VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
-        VTileColor := AColorer.GetColor(VTileInfo);
-        if VTileColor <> 0 then begin
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
-          VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-          VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
-          if VSourceTilePixels.Left < VPixelsRect.Left then begin
-            VSourceTilePixels.Left := VPixelsRect.Left;
-          end;
-          if VSourceTilePixels.Top < VPixelsRect.Top then begin
-            VSourceTilePixels.Top := VPixelsRect.Top;
-          end;
-          if VSourceTilePixels.Right > VPixelsRect.Right then begin
-            VSourceTilePixels.Right := VPixelsRect.Right;
-          end;
-          if VSourceTilePixels.Bottom > VPixelsRect.Bottom then begin
-            VSourceTilePixels.Bottom := VPixelsRect.Bottom;
-          end;
-          VSourceTilePixels.Left := VSourceTilePixels.Left - VPixelsRect.Left;
-          VSourceTilePixels.Top := VSourceTilePixels.Top - VPixelsRect.Top;
-          VSourceTilePixels.Right := VSourceTilePixels.Right - VPixelsRect.Left;
-          VSourceTilePixels.Bottom := VSourceTilePixels.Bottom - VPixelsRect.Top;
-          if not VSolidDrow then begin
-            Dec(VSourceTilePixels.Right);
-            Dec(VSourceTilePixels.Bottom);
-          end;
+    VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+    VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+    VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
+      or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
 
-          if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-             ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-            btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
-          end else begin
-            btm.FillRectS(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+    if Assigned(FOnRangeFillingMap) and (ASourceZoom>Azoom) then begin
+      // make buffer: 1 tile has 2^(ASourceZoom-Azoom) tiles for each side
+      with VRangeFillingMapInfo do begin
+        SourceZoom := ASourceZoom;
+        Zoom := AZoom;
+        TileMapSize := 1 shl (ASourceZoom-Azoom);
+
+        // set buffer format (and size) depending on particular storage capabilities
+        ItemSize := GetRangeFillingMapItemSize;
+
+        // allocate
+        try
+          // EOutOfMemory allowed!
+          TileMapAddr := AllocMem(LongInt(TileMapSize)*LongInt(TileMapSize)*ItemSize);
+        except
+          try
+            // no memory - use minimal buffer (flags without date)
+            ItemSize := SizeOf(TRangeFillingItem1);
+            TileMapAddr := AllocMem(LongInt(TileMapSize)*LongInt(TileMapSize)*ItemSize);
+          except
+            // epic fail
+            ItemSize := 0;
           end;
         end;
       end;
-      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-        Result := false;
+      
+      if (VRangeFillingMapInfo.TileMapAddr<>nil) and (VRangeFillingMapInfo.ItemSize>0) then
+      try
+        // call storage
+        Result := FOnRangeFillingMap(Self, @VSourceTilesRect, AVersionInfo, @VRangeFillingMapInfo);
+
+        // check buffer
+        if Result then begin
+          // loop through arrays
+          VTileMapItemPtr := VRangeFillingMapInfo.TileMapAddr;
+          for i := 0 to VRangeFillingMapInfo.TileMapSize-1 do begin
+            // check cancelled
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              Result := FALSE;
+              break;
+            end;
+
+            for j := 0 to VRangeFillingMapInfo.TileMapSize-1 do begin
+              // check cancelled
+              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                Result := FALSE;
+                break;
+              end;
+
+              // get color
+              VTileColor := AColorer.GetRangeColor(VTileMapItemPtr, VRangeFillingMapInfo.ItemSize);
+
+              // apply color
+              VCurrTile := VSourceTilesRect.TopLeft;
+              Inc(VCurrTile.X, i);
+              Inc(VCurrTile.Y, j);
+              _PaintCurrTile;
+
+              // next item in buffer
+              VTileMapItemPtr := Pointer(LongInt(VTileMapItemPtr)+VRangeFillingMapInfo.ItemSize);
+            end;
+          end;
+        end;
+      finally
+        FreeMem(VRangeFillingMapInfo.TileMapAddr);
       end;
-    except
-      Result := false;
     end;
-  end else begin
-    Result := False;
+
+    if (not Result) then begin
+      Result := TRUE;
+      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
+      while VIterator.Next(VCurrTile) do begin
+        // check cancelled
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Result := FALSE;
+          break;
+        end;
+
+        VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
+        VTileColor := AColorer.GetColor(VTileInfo);
+
+        if VTileColor <> 0 then begin
+          // check cancelled
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Result := FALSE;
+            break;
+          end;
+
+          _PaintCurrTile;
+        end;
+      end;
+    end;
+  except
+    Result := false;
   end;
 end;
 

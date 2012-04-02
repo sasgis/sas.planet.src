@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   t_FillingMapModes,
+  t_RangeFillingMap,
   i_TileInfoBasic,
   i_FillingMapColorer;
 
@@ -19,8 +20,16 @@ type
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
     FGradientDays: integer;
+  private
+    function InternalGetColor(
+      const ATileInfoOptional: ITileInfoBasic;
+      const ARangeItemPtr: Pointer;
+      const ARangeItemLen: SmallInt): TColor32;
   protected
     function GetColor(ATileInfo: ITileInfoBasic): TColor32;
+    function GetRangeColor(
+      const ARangeItemPtr: Pointer;
+      const ARangeItemLen: SmallInt): TColor32;
   public
     constructor Create(
       ANoTileColor: TColor32;
@@ -67,6 +76,82 @@ begin
 end;
 
 function TFillingMapColorerSimple.GetColor(ATileInfo: ITileInfoBasic): TColor32;
+begin
+  Result := InternalGetColor(ATileInfo, nil, 0);
+end;
+
+function TFillingMapColorerSimple.GetRangeColor(
+  const ARangeItemPtr: Pointer;
+  const ARangeItemLen: SmallInt): TColor32;
+begin
+  Result := InternalGetColor(nil, ARangeItemPtr, ARangeItemLen);
+end;
+
+function TFillingMapColorerSimple.InternalGetColor(
+  const ATileInfoOptional: ITileInfoBasic;
+  const ARangeItemPtr: Pointer;
+  const ARangeItemLen: SmallInt): TColor32;
+
+  function _GetIsExists: Boolean;
+  begin
+    if Assigned(ATileInfoOptional) then
+      Result := ATileInfoOptional.IsExists
+    else case ARangeItemLen of
+      SizeOf(TRangeFillingItem1): begin
+        Result := PRangeFillingItem1(ARangeItemPtr)^.IsTileExists;
+      end;
+      SizeOf(TRangeFillingItem4): begin
+        Result := PRangeFillingItem4(ARangeItemPtr)^.IsTileExists;
+      end;
+      SizeOf(TRangeFillingItem8): begin
+        Result := PRangeFillingItem8(ARangeItemPtr)^.IsTileExists;
+      end;
+      else begin
+        Result := FALSE;
+      end;
+    end;
+  end;
+
+  function _GetIsExistsTNE: Boolean;
+  begin
+    if Assigned(ATileInfoOptional) then
+      Result := ATileInfoOptional.IsExistsTNE
+    else case ARangeItemLen of
+      SizeOf(TRangeFillingItem1): begin
+        Result := PRangeFillingItem1(ARangeItemPtr)^.IsTNEExists;
+      end;
+      SizeOf(TRangeFillingItem4): begin
+        Result := PRangeFillingItem4(ARangeItemPtr)^.IsTNEExists;
+      end;
+      SizeOf(TRangeFillingItem8): begin
+        Result := PRangeFillingItem8(ARangeItemPtr)^.IsTNEExists;
+      end;
+      else begin
+        Result := FALSE;
+      end;
+    end;
+  end;
+
+  function _GetLoadDate: TDateTime;
+  begin
+    if Assigned(ATileInfoOptional) then
+      Result := ATileInfoOptional.LoadDate
+    else case ARangeItemLen of
+      SizeOf(TRangeFillingItem1): begin
+        Result := 0; // no datetime
+      end;
+      SizeOf(TRangeFillingItem4): begin
+        Result := PRangeFillingItem4(ARangeItemPtr)^.GetAsDateTime;
+      end;
+      SizeOf(TRangeFillingItem8): begin
+        Result := PRangeFillingItem8(ARangeItemPtr)^.GetAsDateTime;
+      end;
+      else begin
+        Result := 0;
+      end;
+    end;
+  end;
+
 var
   VFileExists: Boolean;
   VFileDate: TDateTime;
@@ -74,11 +159,11 @@ var
   VC1,VC2: Double;
 begin
   Result := 0;
-  VFileExists := ATileInfo.IsExists;
+  VFileExists := _GetIsExists;
   if VFileExists then begin
     if FFillMode=fmExisting then begin
       if FFilterMode then begin
-        VFileDate := ATileInfo.LoadDate;
+        VFileDate := _GetLoadDate;
         VDateCompare :=CompareDate(VFileDate, FFillLastDay);
         if(VDateCompare<GreaterThanValue) then begin
           VDateCompare :=CompareDate(VFileDate, FFillFirstDay);
@@ -88,7 +173,7 @@ begin
         Result := FNoTileColor;
       end;
     end else if FFillMode=fmGradient then begin
-      VFileDate := ATileInfo.LoadDate;
+      VFileDate := _GetLoadDate;
       VDateCompare :=CompareDate(VFileDate,FFillLastDay);
       if(VDateCompare<>GreaterThanValue) then begin
         VDateCompare :=CompareDate(VFileDate,FFillFirstDay);
@@ -107,7 +192,7 @@ begin
   end else begin
     if FFillMode = fmUnexisting then Result := FNoTileColor;
     if FShowTNE then begin
-      if ATileInfo.IsExistsTNE then begin
+      if _GetIsExistsTNE then begin
         Result := FTNEColor;
       end;
     end;
