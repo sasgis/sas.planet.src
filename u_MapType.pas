@@ -104,7 +104,11 @@ type
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
     function GetIsHybridLayer: Boolean;
-    procedure SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
+    procedure SaveBitmapTileToStorage(
+      AXY: TPoint;
+      Azoom: byte;
+      ABitmap: IBitmap32Static
+    );
     function LoadBitmapTileFromStorage(
       const AXY: TPoint;
       const Azoom: Byte;
@@ -178,7 +182,11 @@ type
                                  const Azoom: byte;
                                  const ACountersPtr: PMapAttachmentsCounters;
                                  const AThread: TBaseTileDownloaderThread): Boolean;
-    procedure SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
+    procedure SaveTileSimple(
+      AXY: TPoint;
+      Azoom: byte;
+      ABitmap: IBitmap32Static
+    );
     function TileLoadDate(AXY: TPoint; Azoom: byte): TDateTime;
     function TileSize(AXY: TPoint; Azoom: byte): integer;
     function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean;
@@ -583,20 +591,15 @@ begin
   Result := VTileInfo.GetIsExistsTNE;
 end;
 
-procedure TMapType.SaveBitmapTileToStorage(AXY: TPoint; Azoom: byte;
-  btm: TCustomBitmap32);
+procedure TMapType.SaveBitmapTileToStorage(
+  AXY: TPoint;
+  Azoom: byte;
+  ABitmap: IBitmap32Static
+);
 var
-  VMemStream: TMemoryStream;
   VData: IBinaryData;
 begin
-  VMemStream := TMemoryStream.Create;
-  try
-    FBitmapSaverToStorage.SaveToStream(btm, VMemStream);
-    VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-    VMemStream := nil;
-  finally
-    VMemStream.Free;
-  end;
+  VData := FBitmapSaverToStorage.Save(ABitmap);
   FStorage.SaveTile(AXY, Azoom, FVersionConfig.Version, VData);
 end;
 
@@ -659,9 +662,13 @@ begin
   Result := VTileInfo.GetSize;
 end;
 
-procedure TMapType.SaveTileSimple(AXY: TPoint; Azoom: byte; btm: TCustomBitmap32);
+procedure TMapType.SaveTileSimple(
+  AXY: TPoint;
+  Azoom: byte;
+  ABitmap: IBitmap32Static
+);
 begin
-  SaveBitmapTileToStorage(AXY, Azoom, btm);
+  SaveBitmapTileToStorage(AXY, Azoom, ABitmap);
 end;
 
 function TMapType.TileExportToFile(AXY: TPoint; Azoom: byte;
