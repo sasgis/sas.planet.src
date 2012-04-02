@@ -83,6 +83,7 @@ type
     function CreateLayerProvider(ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider; virtual; abstract;
     function CreteTileMatrix(ASource: ITileMatrix; ANewConverter: ILocalCoordConverter): ITileMatrix; virtual;
     procedure DelicateRedraw;
+    procedure DelicateRedrawWithFullUpdate;
 
     procedure SetNeedUpdateTileMatrix;
     procedure DoUpdateTileMatrix; virtual;
@@ -182,6 +183,13 @@ end;
 
 procedure TTiledLayerWithThreadBase.DelicateRedraw;
 begin
+  InterlockedIncrement(FDelicateRedrawCounter);
+  FDrawTask.StartExecute;
+end;
+
+procedure TTiledLayerWithThreadBase.DelicateRedrawWithFullUpdate;
+begin
+  SetMatrixNotReady(TileMatrix);
   InterlockedIncrement(FDelicateRedrawCounter);
   FDrawTask.StartExecute;
 end;

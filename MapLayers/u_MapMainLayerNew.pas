@@ -371,19 +371,8 @@ begin
 end;
 
 procedure TMapMainLayerNew.OnTileChange(AMsg: IInterface);
-var
-  VTileKey: ITileKey;
-  VTileMatrix: ITileMatrix;
-  VElement: ITileMatrixElement;
 begin
-  if Supports(AMsg, ITileKey, VTileKey) then begin
-//    VTileMatrix := TileMatrix;
-//    if VTileMatrix <> nil then begin
-//      VTileMatrix.
-//      VElement := VTileMatrix.GetElementByTile(VTileKey.Tile)
-//    end;
-//    DeleteTileFromCache(VTileKey.Tile, VTileKey.Zoom, VTileKey.VersionInfo);
-  end;
+  DelicateRedrawWithFullUpdate;
 end;
 
 procedure TMapMainLayerNew.SendTerminateToThreads;
