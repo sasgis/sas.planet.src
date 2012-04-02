@@ -152,7 +152,6 @@ type
     FAppClosingNotifier: IJclNotifier;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
-    FThreadPriorityByClass: IConfigDataProvider;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
@@ -202,13 +201,13 @@ type
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
     property SensorList: ISensorList read FSensorList;
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
+    property DownloaderThreadConfig: IThreadConfig read FDownloaderThreadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
-    property ThreadPriorityByClass: IConfigDataProvider read FThreadPriorityByClass;
 
     constructor Create;
     destructor Destroy; override;
@@ -338,7 +337,6 @@ begin
       HInstance
     );
 
-  FThreadPriorityByClass := FMainConfigProvider.GetSubItem('ThreadPriorityByClass');
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
@@ -551,7 +549,6 @@ begin
   FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
   FGUISyncronizedTimerNotifier := nil;
-  FThreadPriorityByClass := nil;
   FMainConfigProvider := nil;
   FGlobalInternetState := nil;
   inherited;
