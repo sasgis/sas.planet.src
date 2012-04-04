@@ -318,6 +318,7 @@ uses
   u_MarkPictureListSimple in 'u_MarkPictureListSimple.pas',
   i_TileInfoBasic in 'i_TileInfoBasic.pas',
   u_TileInfoBasic in 'u_TileInfoBasic.pas',
+  u_TileRectInfo in 'u_TileRectInfo.pas',
   i_TileIterator in 'i_TileIterator.pas',
   u_TileIteratorAbstract in 'u_TileIteratorAbstract.pas',
   u_TileIteratorByPolygon in 'u_TileIteratorByPolygon.pas',
