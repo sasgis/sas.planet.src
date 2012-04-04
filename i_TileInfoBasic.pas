@@ -23,10 +23,41 @@ unit i_TileInfoBasic;
 interface
 
 uses
+  Types,
+  i_BinaryData,
+  i_TileIterator,
   i_MapVersionInfo,
   i_ContentTypeInfo;
 
 type
+  TTileInfoType = (titUnknown = 0, titNotExists = 1, titExists = 2, titTneExists = 3);
+
+  TTileInfo = record
+    FTile: TPoint;
+    FLoadDate: TDateTime;
+    FVersionInfo: IMapVersionInfo;
+    FContentType: IContentTypeInfoBasic;
+    FData: IBinaryData;
+    FSize: Cardinal;
+    FInfoType: TTileInfoType;
+  end;
+
+  IEnumTileInfo = interface
+    ['{E04CF298-53DE-4ABC-A083-03C917599DE5}']
+    function Next(var ATileInfo: TTileInfo): Boolean;
+  end;
+
+  ITileRectInfo = interface
+    ['{43C243C5-203A-41D3-9454-35A1CB8250D5}']
+    function GetTileRect: TRect;
+    property TileRect: TRect read GetTileRect;
+
+    function GetZoom: Byte;
+    property Zoom: Byte read GetZoom;
+
+    function GetEnum(ATileIterator: ITileIterator): IEnumTileInfo; 
+  end;
+
   ITileInfoBasic = interface
     ['{7916FA97-49F1-451E-B2C1-0669B9336291}']
     function GetIsExists: Boolean;
@@ -38,8 +69,8 @@ type
     function GetLoadDate: TDateTime;
     property LoadDate: TDateTime read GetLoadDate;
 
-    function GetTile: Pointer;
-    property Tile: Pointer read GetTile;
+    function GetTileData: IBinaryData;
+    property TileData: IBinaryData read GetTileData;
 
     function GetSize: Cardinal;
     property Size: Cardinal read GetSize;

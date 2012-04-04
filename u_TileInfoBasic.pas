@@ -23,6 +23,7 @@ unit u_TileInfoBasic;
 interface
 
 uses
+  i_BinaryData,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_TileInfoBasic;
@@ -36,7 +37,7 @@ type
     function GetIsExists: Boolean; virtual; abstract;
     function GetIsExistsTNE: Boolean; virtual; abstract;
     function GetLoadDate: TDateTime; virtual;
-    function GetTile: Pointer; virtual;
+    function GetTileData: IBinaryData; virtual;
     function GetSize: Cardinal; virtual; abstract;
     function GetVersionInfo: IMapVersionInfo; virtual;
     function GetContentType: IContentTypeInfoBasic; virtual; abstract;
@@ -83,13 +84,13 @@ type
 
   TTileInfoBasicExistsWithTile = class(TTileInfoBasicExists)
   private
-    FTile: Pointer;
+    FTileData: IBinaryData;
   protected
-    function GetTile: Pointer; override;
+    function GetTileData: IBinaryData; override;
   public
     constructor Create(
       ADate: TDateTime;
-      ATile: Pointer;
+      ATileData: IBinaryData;
       ASize: Cardinal;
       AVersionInfo: IMapVersionInfo;
       AContentType: IContentTypeInfoBasic
@@ -120,7 +121,7 @@ begin
   Result := FVersionInfo;
 end;
 
-function TTileInfoBasicBase.GetTile: Pointer;
+function TTileInfoBasicBase.GetTileData: IBinaryData;
 begin
   Result := nil;
 end;
@@ -185,32 +186,25 @@ end;
 
 constructor TTileInfoBasicExistsWithTile.Create(
   ADate: TDateTime;
-  ATile: Pointer;
+  ATileData: IBinaryData;
   ASize: Cardinal;
   AVersionInfo: IMapVersionInfo;
   AContentType: IContentTypeInfoBasic
 );
 begin
   inherited Create(ADate, ASize, AVersionInfo, AContentType);
-  if (ASize > 0) and (ATile <> nil) then begin
-    GetMem(FTile, ASize);
-    Move(ATile^, FTile^, ASize);
-  end else begin
-    FTile := nil;
-  end;
+  FTileData := ATileData;
 end;
 
 destructor TTileInfoBasicExistsWithTile.Destroy;
 begin
-  if FTile <> nil then begin
-    FreeMem(FTile);
-  end;
-  inherited Destroy;
+  FTileData := nil;
+  inherited;
 end;
 
-function TTileInfoBasicExistsWithTile.GetTile: Pointer;
+function TTileInfoBasicExistsWithTile.GetTileData: IBinaryData;
 begin
-  Result := FTile;
+  Result := FTileData;
 end;
 
 { TTileInfoBasicNotExists }

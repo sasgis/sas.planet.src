@@ -226,6 +226,7 @@ var
   VResult: Boolean;
   VData: TBDBData;
   VStream: TMemoryStream;
+  VTileData: IBinaryData;
 begin
   Result := FTileNotExistsTileInfo;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
@@ -246,11 +247,12 @@ begin
           VData
         );
         if VResult then begin
-          VStream.Position := 0;
+          VTileData := TBinaryDataByMemStream.CreateWithOwn(VStream);
+          VStream := nil;
           Result := TTileInfoBasicExistsWithTile.Create(
             VData.TileDate,
-            VStream.Memory,
-            VData.TileSize,
+            VTileData,
+            VTileData.Size,
             MapVersionFactory.CreateByStoreString(WideString(VData.TileVer)),
             FContentTypeManager.GetInfo(WideString(VData.TileMIME))
           );
@@ -288,20 +290,13 @@ function TTileStorageBerkeleyDB.LoadTile(
   AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
-var
-  VTile: Pointer;
-  VSize: Integer;
 begin
   Result := nil;
   ATileInfo := FTileNotExistsTileInfo;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     ATileInfo := GetTileInfo(AXY, AZoom, AVersionInfo);
     if ATileInfo.IsExists then begin
-      VTile := ATileInfo.Tile;
-      VSize := ATileInfo.Size;
-      if (VTile <> nil) and (VSize > 0) then begin
-        Result := TBinaryDataByMemStream.CreateFromMem(VSize, VTile);
-      end;
+      Result := ATileInfo.TileData;
     end;
   end;
 end;
