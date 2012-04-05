@@ -314,7 +314,11 @@ begin
 
       VMemStream := TMemoryStream.Create;
       try
-        VVersionString := AVersionInfo.StoreString;
+        if AVersionInfo <> nil then begin
+          VVersionString := AVersionInfo.StoreString;
+        end else begin
+          VVersionString := '';
+        end;
         VData.TileDate := ATileDate;
         VData.TileVer  := PWideChar(VVersionString);
         VData.TileMIME := ATileContetType;
