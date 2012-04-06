@@ -100,7 +100,6 @@ type
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; virtual; abstract;
-
     function LoadTile(
       AXY: TPoint;
       Azoom: byte;
@@ -134,6 +133,12 @@ type
       const Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; virtual;
+
+    function GetTileRectInfo(
+      const ARect: TRect;
+      const Azoom: byte;
+      AVersionInfo: IMapVersionInfo
+    ): ITileRectInfo; virtual; abstract;
 
     function LoadFillingMap(
       AOperationID: Integer;

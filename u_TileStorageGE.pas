@@ -104,6 +104,12 @@ type
       AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
 
+    function GetTileRectInfo(
+      const ARect: TRect;
+      const Azoom: byte;
+      AVersionInfo: IMapVersionInfo
+    ): ITileRectInfo; override;
+
     function LoadTile(
       AXY: TPoint;
       Azoom: byte;
@@ -487,6 +493,15 @@ end;
 function TTileStorageDLL.GetTileInfo(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): ITileInfoBasic;
 begin
   QueryTileInternal(AXY, Azoom, AVersionInfo, nil, Result);
+end;
+
+function TTileStorageDLL.GetTileRectInfo(
+  const ARect: TRect;
+  const Azoom: byte;
+  AVersionInfo: IMapVersionInfo
+): ITileRectInfo;
+begin
+  Result := nil;
 end;
 
 function TTileStorageDLL.InternalLib_CheckInitialized: Boolean;

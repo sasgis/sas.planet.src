@@ -79,6 +79,11 @@ type
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
+    function GetTileRectInfo(
+      const ARect: TRect;
+      const Azoom: byte;
+      AVersionInfo: IMapVersionInfo
+    ): ITileRectInfo; override;
 
     function LoadTile(
       AXY: TPoint;
@@ -128,6 +133,7 @@ uses
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
+  u_TileRectInfoShort,
   u_BinaryDataByMemStream,
   u_MapVersionFactorySimpleString,
   u_TileStorageTypeAbilities,
@@ -317,6 +323,130 @@ begin
   end;
 end;
 
+function TTileStorageFileSystem.GetTileRectInfo(
+  const ARect: TRect;
+  const Azoom: byte;
+  AVersionInfo: IMapVersionInfo
+): ITileRectInfo;
+var
+  VInfo: WIN32_FILE_ATTRIBUTE_DATA;
+
+  function _GetAttributesEx(const AFileName: String): Boolean;
+  begin
+    Result := (GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @VInfo) <> FALSE);
+  end;
+
+  function _GetFileDateTime: TDateTime;
+  var
+    VSysTime: TSystemTime;
+    VFileTimePtr: PFileTime;
+  begin
+    Result := 0;
+    VFileTimePtr := nil;
+
+    // last modified time (if exists)
+    if (VInfo.ftLastWriteTime.dwLowDateTime<>0) and (VInfo.ftLastWriteTime.dwHighDateTime<>0) then
+      VFileTimePtr := @(VInfo.ftLastWriteTime);
+
+    // created time (if exists and greater)
+    if (VInfo.ftCreationTime.dwLowDateTime<>0) and (VInfo.ftCreationTime.dwHighDateTime<>0) then
+      if (nil=VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^)>0) then
+        VFileTimePtr := @(VInfo.ftCreationTime);
+
+    // convert max value
+    if (nil<>VFileTimePtr) then
+    if (FileTimeToSystemTime(VFileTimePtr^, VSysTime)<>FALSE) then
+    try
+      Result := SystemTimeToDateTime(VSysTime);
+    except
+    end;
+  end;
+var
+  VFileName: string;
+  VRect: TRect;
+  VZoom: Byte;
+  VCount: TPoint;
+  VItems: PTileInfoShortInternalArray;
+  VIndex: Integer;
+  VTile: TPoint;
+  VIterator: ITileIterator;
+  VFolderName: string;
+  VPrevFolderName: string;
+  VPrevFolderExist: Boolean;
+  VFolderExists: Boolean;
+begin
+  Result := nil;
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VRect := ARect;
+    VZoom := Azoom;
+    Config.CoordConverter.CheckTileRect(VRect, VZoom);
+    VCount.X := VRect.Right - VRect.Left;
+    VCount.Y := VRect.Bottom - VRect.Top;
+    if (VCount.X > 0) and (VCount.Y > 0)   then begin
+      VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoShortInternal));
+      try
+        VPrevFolderName := '';
+        VPrevFolderExist := False;
+        FLock.BeginRead;
+        try
+          VIterator := TTileIteratorByRect.Create(VRect);
+          while VIterator.Next(VTile) do begin
+            VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
+            VFileName := FCacheConfig.GetTileFileName(VTile, VZoom);
+            VFolderName := ExtractFilePath(VFileName);
+
+            if VFolderName = VPrevFolderName then begin
+              VFolderExists := VPrevFolderExist;
+            end else begin
+              VFolderExists := DirectoryExists(VFolderName);
+              VPrevFolderName := VFolderName;
+              VPrevFolderExist := VFolderExists;
+            end;
+            if VFolderExists then begin
+              if _GetAttributesEx(VFileName) then begin
+                // tile exists
+                VItems[VIndex].FLoadDate := _GetFileDateTime;
+                VItems[VIndex].FSize := VInfo.nFileSizeLow;
+                VItems[VIndex].FInfoType := titExists;
+              end else if _GetAttributesEx(ChangeFileExt(VFileName, '.tne')) then begin
+                // tne exists
+                VItems[VIndex].FLoadDate := _GetFileDateTime;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titTneExists;
+              end else begin
+                // neither tile nor tne
+                VItems[VIndex].FLoadDate := 0;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titNotExists;
+              end;
+            end else begin
+              // neither tile nor tne
+              VItems[VIndex].FLoadDate := 0;
+              VItems[VIndex].FSize := 0;
+              VItems[VIndex].FInfoType := titNotExists;
+            end;
+          end;
+        finally
+          FLock.EndRead;
+        end;
+        Result :=
+          TTileRectInfoShort.CreateWithOwn(
+            VRect,
+            VZoom,
+            nil,
+            FMainContentType,
+            VItems
+          );
+        VItems := nil;
+      finally
+        if VItems <> nil then begin
+          FreeMemory(VItems);
+        end;
+      end;
+    end;
+  end;
+end;
+
 function TTileStorageFileSystem.GetTileInfo(
   AXY: TPoint;
   Azoom: byte;
@@ -396,13 +526,13 @@ begin
             VPrevFolderName := VFolderName;
             VPrevFolderExist := VFolderExists;
           end;
-          
+
           if VFolderExists then begin
             VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo);
           end else begin
             VTileInfo := FTileNotExistsTileInfo;
           end;
-          
+
           VTileColor := AColorer.GetColor(VTileInfo);
           if VTileColor <> 0 then begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then break;

@@ -75,6 +75,11 @@ type
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
+    function GetTileRectInfo(
+      const ARect: TRect;
+      const Azoom: byte;
+      AVersionInfo: IMapVersionInfo
+    ): ITileRectInfo; override;
 
     function LoadTile(
       AXY: TPoint;
@@ -114,10 +119,13 @@ implementation
 
 uses
   t_CommonTypes,
+  i_TileIterator,
   u_BinaryDataByMemStream,
   u_MapVersionFactorySimpleString,
   u_TTLCheckListener,
+  u_TileRectInfo,
   u_TileFileNameBDB,
+  u_TileIteratorByRect,
   u_TileStorageBerkeleyDBRecParser,
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
@@ -280,6 +288,78 @@ begin
 
     if not VResult then begin
       Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+    end;
+  end;
+end;
+
+function TTileStorageBerkeleyDB.GetTileRectInfo(
+  const ARect: TRect;
+  const Azoom: byte;
+  AVersionInfo: IMapVersionInfo
+): ITileRectInfo;
+var
+  VRect: TRect;
+  VZoom: Byte;
+  VCount: TPoint;
+  VItems: PTileInfoInternalArray;
+  VIndex: Integer;
+  VFileName: string;
+  VTile: TPoint;
+  VIterator: ITileIterator;
+  VFolderName: string;
+  VPrevFolderName: string;
+  VPrevFolderExist: Boolean;
+  VFolderExists: Boolean;
+begin
+  Result := nil;
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    VRect := ARect;
+    VZoom := Azoom;
+    Config.CoordConverter.CheckTileRect(VRect, VZoom);
+    VCount.X := VRect.Right - VRect.Left;
+    VCount.Y := VRect.Bottom - VRect.Top;
+    if (VCount.X > 0) and (VCount.Y > 0)   then begin
+      VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoInternal));
+      try
+        VPrevFolderName := '';
+        VPrevFolderExist := False;
+          VIterator := TTileIteratorByRect.Create(VRect);
+          while VIterator.Next(VTile) do begin
+            VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
+            VFileName := FCacheConfig.GetTileFileName(VTile, VZoom);
+            VFolderName := ExtractFilePath(VFileName);
+
+            if VFolderName = VPrevFolderName then begin
+              VFolderExists := VPrevFolderExist;
+            end else begin
+              VFolderExists := DirectoryExists(VFolderName);
+              VPrevFolderName := VFolderName;
+              VPrevFolderExist := VFolderExists;
+            end;
+            if VFolderExists then begin
+              //TODO: доделать.
+            end else begin
+              // neither tile nor tne
+              VItems[VIndex].FLoadDate := 0;
+              VItems[VIndex].FVersionInfo := nil;
+              VItems[VIndex].FContentType := nil;
+              VItems[VIndex].FData := nil;
+              VItems[VIndex].FSize := 0;
+              VItems[VIndex].FInfoType := titNotExists;
+            end;
+          end;
+        Result :=
+          TTileRectInfo.CreateWithOwn(
+            VRect,
+            VZoom,
+            VItems
+          );
+        VItems := nil;
+      finally
+        if VItems <> nil then begin
+          FreeMemory(VItems);
+        end;
+      end;
     end;
   end;
 end;
