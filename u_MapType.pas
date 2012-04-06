@@ -191,6 +191,16 @@ type
     function TileSize(AXY: TPoint; Azoom: byte): integer;
     function TileExportToFile(AXY: TPoint; Azoom: byte; AFileName: string; OverWrite: boolean): boolean;
 
+    function GetFillingMapBitmap(
+      AOperationID: Integer;
+      ACancelNotifier: IOperationNotifier;
+      APixelRectTarget: TRect;
+      Azoom: byte;
+      ACoordConverterTarget: ICoordConverter;
+      ASourceZoom: byte;
+      AColorer: IFillingMapColorer
+    ): IBitmap32Static;
+
     function LoadFillingMap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
@@ -737,6 +747,29 @@ begin
     Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.Version)
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
+  end;
+end;
+
+function TMapType.GetFillingMapBitmap(
+  AOperationID: Integer;
+  ACancelNotifier: IOperationNotifier;
+  APixelRectTarget: TRect;
+  Azoom: byte;
+  ACoordConverterTarget: ICoordConverter;
+  ASourceZoom: byte;
+  AColorer: IFillingMapColorer
+): IBitmap32Static;
+var
+  VBitmap: TCustomBitmap32;
+begin
+  VBitmap := TCustomBitmap32.Create;
+  try
+
+
+    Result := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
+  finally
+    VBitmap.Free;
   end;
 end;
 
