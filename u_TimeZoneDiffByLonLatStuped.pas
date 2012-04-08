@@ -14,34 +14,34 @@ uses
 type
   ITimeZonePointCheck = interface(ITimeZone)
     ['{8C51B27B-1257-4A55-AA03-C8041027A090}']
-    function IsPointFromThis(ALonLat: TDoublePoint): Boolean;
+    function IsPointFromThis(const ALonLat: TDoublePoint): Boolean;
   end;
 
   TTimeZone = class(TInterfacedObject, ITimeZone, ITimeZonePointCheck)
   private
     FDiff: TDateTime;
     FPolygon: ILonLatPolygon;
-    function IsPointFromPolygonLine(ALine: ILonLatPolygonLine; ALonLat: TDoublePoint): Boolean;
+    function IsPointFromPolygonLine(const ALine: ILonLatPolygonLine; const ALonLat: TDoublePoint): Boolean;
   protected
     function GetDiff: TDateTime;
     function GetPolygon: ILonLatPolygon;
   protected
-    function IsPointFromThis(ALonLat: TDoublePoint): Boolean;
+    function IsPointFromThis(const ALonLat: TDoublePoint): Boolean;
   public
-    constructor Create(ADiffInHour: Double; APolygon: ILonLatPolygon);
+    constructor Create(const ADiffInHour: Double; const APolygon: ILonLatPolygon);
   end;
 
   TTimeZoneDiffByLonLatStuped = class(TInterfacedObject, ITimeZoneList, ITimeZoneDiffByLonLat)
   private
     FTimeZoneList: IInterfaceList;
-    procedure AddFromSmallIntArray(AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer; ALength: Integer);
+    procedure AddFromSmallIntArray(const AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer; ALength: Integer);
   protected
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ITimeZone;
   protected
-    function GetTimeDiff(ALonLat: TDoublePoint): TDateTime;
+    function GetTimeDiff(const ALonLat: TDoublePoint): TDateTime;
   public
-    constructor Create(AVectorFactory: IVectorItmesFactory);
+    constructor Create(const AVectorFactory: IVectorItmesFactory);
   end;
 
 implementation
@@ -54,7 +54,7 @@ uses
 
 { TTimeZone }
 
-constructor TTimeZone.Create(ADiffInHour: Double; APolygon: ILonLatPolygon);
+constructor TTimeZone.Create(const ADiffInHour: Double; const APolygon: ILonLatPolygon);
 begin
   FDiff := ADiffInHour / 24;
   FPolygon := APolygon;
@@ -70,8 +70,8 @@ begin
   Result := FPolygon;
 end;
 
-function TTimeZone.IsPointFromPolygonLine(ALine: ILonLatPolygonLine;
-  ALonLat: TDoublePoint): Boolean;
+function TTimeZone.IsPointFromPolygonLine(const ALine: ILonLatPolygonLine;
+  const ALonLat: TDoublePoint): Boolean;
 var
   VEnum: IEnumDoublePoint;
   VPrevPoint: TDoublePoint;
@@ -95,8 +95,7 @@ begin
   end;
 end;
 
-
-function TTimeZone.IsPointFromThis(ALonLat: TDoublePoint): Boolean;
+function TTimeZone.IsPointFromThis(const ALonLat: TDoublePoint): Boolean;
 var
   i: Integer;
   VArea: ILonLatPolygonLine;
@@ -115,7 +114,7 @@ end;
 
 { TTimeZoneDiffByLonLatStuped }
 
-constructor TTimeZoneDiffByLonLatStuped.Create(AVectorFactory: IVectorItmesFactory);
+constructor TTimeZoneDiffByLonLatStuped.Create(const AVectorFactory: IVectorItmesFactory);
 var
   VZone: ITimeZonePointCheck;
   VAggregator: IDoublePointsAggregator;
@@ -456,7 +455,7 @@ begin
 end;
 
 procedure TTimeZoneDiffByLonLatStuped.AddFromSmallIntArray(
-  AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer;
+  const AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer;
   ALength: Integer);
 var
   i: Integer;
@@ -480,7 +479,7 @@ begin
 end;
 
 function TTimeZoneDiffByLonLatStuped.GetTimeDiff(
-  ALonLat: TDoublePoint): TDateTime;
+  const ALonLat: TDoublePoint): TDateTime;
 var
   i: Integer;
   VZone: ITimeZonePointCheck;
