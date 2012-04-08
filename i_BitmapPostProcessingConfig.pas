@@ -40,7 +40,7 @@ type
     function GetContrastN: Integer;
     property ContrastN: Integer read GetContrastN;
 
-    function Process(ABitmap: IBitmap32Static): IBitmap32Static;
+    function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   end;
 
   IBitmapPostProcessingConfig = interface(IConfigDataElement)
