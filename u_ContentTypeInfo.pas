@@ -37,8 +37,8 @@ type
     function GetDefaultExt: WideString;
   public
     constructor Create(
-      AContentType: WideString;
-      ADefaultExt: WideString
+      const AContentType: WideString;
+      const ADefaultExt: WideString
     );
   end;
 
@@ -51,10 +51,10 @@ type
     function GetSaver: IBitmapTileSaver;
   public
     constructor Create(
-      AContentType: WideString;
-      ADefaultExt: WideString;
-      ALoader: IBitmapTileLoader;
-      ASaver: IBitmapTileSaver
+      const AContentType: WideString;
+      const ADefaultExt: WideString;
+      const ALoader: IBitmapTileLoader;
+      const ASaver: IBitmapTileSaver
     );
     destructor Destroy; override;
   end;
@@ -66,9 +66,9 @@ type
     function GetLoader: IVectorDataLoader;
   public
     constructor Create(
-      AContentType: WideString;
-      ADefaultExt: WideString;
-      ALoader: IVectorDataLoader
+      const AContentType: WideString;
+      const ADefaultExt: WideString;
+      const ALoader: IVectorDataLoader
     );
     destructor Destroy; override;
   end;
@@ -77,7 +77,7 @@ implementation
 
 { TContentTypeInfoBase }
 
-constructor TContentTypeInfoBase.Create(AContentType, ADefaultExt: WideString);
+constructor TContentTypeInfoBase.Create(const AContentType, ADefaultExt: WideString);
 begin
   FContentType := AContentType;
   FDefaultExt := ADefaultExt;
@@ -95,8 +95,11 @@ end;
 
 { TContentTypeInfoBitmap }
 
-constructor TContentTypeInfoBitmap.Create(AContentType, ADefaultExt: WideString;
-  ALoader: IBitmapTileLoader; ASaver: IBitmapTileSaver);
+constructor TContentTypeInfoBitmap.Create(
+  const AContentType, ADefaultExt: WideString;
+  const ALoader: IBitmapTileLoader;
+  const ASaver: IBitmapTileSaver
+);
 begin
   inherited Create(AContentType, ADefaultExt);
   FLoader := ALoader;
@@ -122,8 +125,10 @@ end;
 
 { TContentTypeInfoKml }
 
-constructor TContentTypeInfoKml.Create(AContentType, ADefaultExt: WideString;
-  ALoader: IVectorDataLoader);
+constructor TContentTypeInfoKml.Create(
+  const AContentType, ADefaultExt: WideString;
+  const ALoader: IVectorDataLoader
+);
 begin
   inherited Create(AContentType, ADefaultExt);
   FLoader := ALoader;

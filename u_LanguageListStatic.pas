@@ -36,7 +36,7 @@ type
     property Count: Integer read GetCount;
 
     function GetCode(AIndex: Integer): string;
-    function FindCode(ACode: string; out AIndex: Integer): Boolean;
+    function FindCode(const ACode: string; out AIndex: Integer): Boolean;
   public
     constructor Create(
       AList: TStrings
@@ -76,8 +76,10 @@ begin
   inherited;
 end;
 
-function TLanguageListStatic.FindCode(ACode: string;
-  out AIndex: Integer): Boolean;
+function TLanguageListStatic.FindCode(
+  const ACode: string;
+  out AIndex: Integer
+): Boolean;
 begin
   Result := FSortedByCode.Find(ACode, AIndex);
 end;
