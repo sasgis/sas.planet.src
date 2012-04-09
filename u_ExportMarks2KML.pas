@@ -45,37 +45,37 @@ type
     doc:iXMLNode;
     Zip: TKaZip;
     procedure AddFolders(
-      AMarksSet: IMarksSubset;
-      ACategoryList: IInterfaceList
+      const AMarksSet: IMarksSubset;
+      const ACategoryList: IInterfaceList
     );
     function AddFolder(
-      AParentNode: IXMLNode;
-      ACategoryNamePostfix: string;
-      AMarksSubset: IMarksSubset
+      const AParentNode: IXMLNode;
+      const ACategoryNamePostfix: string;
+      const AMarksSubset: IMarksSubset
     ):boolean;
     function AddMarks(
-      AMarksSubset: IMarksSubset;
-      inNode:iXMLNode
+      const AMarksSubset: IMarksSubset;
+      const inNode:iXMLNode
     ): Boolean;
-    procedure AddMark(Mark:IMark; inNode:iXMLNode);
-    function SaveMarkIcon(Mark:IMarkPoint): string;
+    procedure AddMark(const Mark:IMark; const inNode:iXMLNode);
+    function SaveMarkIcon(const Mark:IMarkPoint): string;
     function Color32toKMLColor(Color32:TColor32):string;
   public
     constructor Create;
     destructor Destroy; override;
     procedure ExportToKML(
-      ACategoryList: IInterfaceList;
-      AMarksSubset: IMarksSubset;
-      AFileName: string
+      const ACategoryList: IInterfaceList;
+      const AMarksSubset: IMarksSubset;
+      const AFileName: string
     );
     procedure ExportCategoryToKML(
-      ACategory: IMarkCategory;
-      AMarksSubset: IMarksSubset;
-      AFileName: string
+      const ACategory: IMarkCategory;
+      const AMarksSubset: IMarksSubset;
+      const AFileName: string
     );
     procedure ExportMarkToKML(
-      Mark: IMark;
-      AFileName: string
+      const Mark: IMark;
+      const AFileName: string
     );
   end;
 
@@ -111,9 +111,9 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportToKML(
-  ACategoryList: IInterfaceList;
-  AMarksSubset: IMarksSubset;
-  AFileName: string
+  const ACategoryList: IInterfaceList;
+  const AMarksSubset: IMarksSubset;
+  const AFileName: string
 );
 var
   KMLStream:TMemoryStream;
@@ -141,9 +141,9 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportCategoryToKML(
-  ACategory: IMarkCategory;
-  AMarksSubset: IMarksSubset;
-  AFileName: string
+  const ACategory: IMarkCategory;
+  const AMarksSubset: IMarksSubset;
+  const AFileName: string
 );
 var
   KMLStream:TMemoryStream;
@@ -171,8 +171,8 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportMarkToKML(
-  Mark: IMark;
-  AFileName: string
+  const Mark: IMark;
+  const AFileName: string
 );
 var
   KMLStream:TMemoryStream;
@@ -200,8 +200,8 @@ begin
 end;
 
 procedure TExportMarks2KML.AddFolders(
-  AMarksSet: IMarksSubset;
-  ACategoryList: IInterfaceList
+  const AMarksSet: IMarksSubset;
+  const ACategoryList: IInterfaceList
 );
 var
   K: Integer;
@@ -216,9 +216,9 @@ begin
 end;
 
 function TExportMarks2KML.AddFolder(
-  AParentNode: IXMLNode;
-  ACategoryNamePostfix: string;
-  AMarksSubset: IMarksSubset
+  const AParentNode: IXMLNode;
+  const ACategoryNamePostfix: string;
+  const AMarksSubset: IMarksSubset
 ): boolean;
   function FindNodeWithText(AParent: iXMLNode; const ACategoryNameElement: string): IXMLNode;
   var
@@ -278,8 +278,8 @@ begin
 end;
 
 function TExportMarks2KML.AddMarks(
-  AMarksSubset:IMarksSubset;
-  inNode:iXMLNode
+  const AMarksSubset:IMarksSubset;
+  const inNode:iXMLNode
 ): Boolean;
 var
   Mark:IMark;
@@ -294,7 +294,7 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.AddMark(Mark:IMark;inNode:iXMLNode);
+procedure TExportMarks2KML.AddMark(const Mark: IMark; const inNode: iXMLNode);
 var
   width:integer;
   currNode:IXMLNode;
@@ -381,7 +381,7 @@ begin
           IntToHex(RedComponent(Color32),2);
 end;
 
-function TExportMarks2KML.SaveMarkIcon(Mark:IMarkPoint): string;
+function TExportMarks2KML.SaveMarkIcon(const Mark:IMarkPoint): string;
 var
   VTargetPath: string;
   VTargetFullName: string;
