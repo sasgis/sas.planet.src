@@ -31,65 +31,71 @@ uses
 type
   IDownloadResultFactory = interface
     ['{672345FB-40BA-4B13-AADE-6771192478FD}']
-    function BuildCanceled(ARequest: IDownloadRequest): IDownloadResultCanceled;
+    function BuildCanceled(
+      const ARequest: IDownloadRequest
+    ): IDownloadResultCanceled;
     function BuildOk(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AStatusCode: Cardinal;
       const ARawResponseHeader: string;
       const AContentType: string;
-      AData: IBinaryData
+      const AData: IBinaryData
     ): IDownloadResultOk;
-    function BuildUnexpectedProxyAuth(ARequest: IDownloadRequest): IDownloadResultProxyError;
-    function BuildBadProxyAuth(ARequest: IDownloadRequest): IDownloadResultProxyError;
+    function BuildUnexpectedProxyAuth(
+      const ARequest: IDownloadRequest
+    ): IDownloadResultProxyError;
+    function BuildBadProxyAuth(
+      const ARequest: IDownloadRequest
+    ): IDownloadResultProxyError;
     function BuildNoConnetctToServerByErrorCode(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AErrorCode: DWORD
     ): IDownloadResultNoConnetctToServer;
     function BuildLoadErrorByStatusCode(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AStatusCode: DWORD
     ): IDownloadResultError;
     function BuildLoadErrorByUnknownStatusCode(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AStatusCode: DWORD
     ): IDownloadResultError;
     function BuildLoadErrorByErrorCode(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AErrorCode: DWORD
     ): IDownloadResultError;
     function BuildLoadErrorByUnknownReason(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AReason: string
     ): IDownloadResultError;
     function BuildBadContentType(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AContentType: string;
       const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultBadContentType;
     function BuildBanned(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultBanned;
     function BuildDataNotExists(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AReasonText: string;
       const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsByStatusCode(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const ARawResponseHeader: string;
       const AStatusCode: DWORD
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsZeroSize(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AStatusCode: DWORD;
       const ARawResponseHeader: string
     ): IDownloadResultDataNotExists;
     function BuildNotNecessary(
-      ARequest: IDownloadRequest;
+      const ARequest: IDownloadRequest;
       const AReasonText: string;
       const AStatusCode: DWORD;
       const ARawResponseHeader: string
