@@ -43,9 +43,9 @@ type
     function GetInfoHTML: string;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
-      AName: string;
-      ADesc: string
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AName: string;
+      const ADesc: string
     );
   end;
 
@@ -54,8 +54,8 @@ implementation
 { TVectorDataItemBase }
 
 constructor TVectorDataItemBase.Create(
-  AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AName, ADesc: string
 );
 begin
   FHintConverter := AHintConverter;
