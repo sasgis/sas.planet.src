@@ -31,8 +31,8 @@ uses
 type
   TGeoCoderByNavitel = class(TGeoCoderBasic)
   protected
-    function PrepareURL(ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; override;
+    function PrepareURL(const ASearch: WideString): string; override;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
   public
   end;
 
@@ -576,7 +576,7 @@ case t of
 end;
 
 function TGeoCoderByNavitel.ParseStringToPlacemarksList(
-  AStr: string; ASearch: WideString): IInterfaceList;
+  const AStr: string; const ASearch: WideString): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc, Navitel_id, Navitel_type, place_id: string;
   i, j , ii , jj : integer;
@@ -590,6 +590,7 @@ var
   vBrLevel: integer;
   VBuffer: string;
   vErrCode: cardinal;
+  VStr: string;
 begin
   sfulldesc:='';
   sdesc:='';
@@ -598,14 +599,14 @@ begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
-  AStr := ReplaceStr(AStr,#$0A,'');
+  VStr := ReplaceStr(AStr,#$0A,'');
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
 
   vCurPos:=1;
-  while (vCurPos<length(AStr)) do begin
+  while (vCurPos<length(VStr)) do begin
    inc (vCurPos);
-   vCurChar:=copy(AStr,vCurPos,1);
+   vCurChar:=copy(VStr,vCurPos,1);
    VBuffer:=VBuffer+vCurChar;
 
    if vCurChar='[' then inc(vBrLevel);
@@ -685,7 +686,7 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByNavitel.PrepareURL(ASearch: WideString): string;
+function TGeoCoderByNavitel.PrepareURL(const ASearch: WideString): string;
 var
   VSearch: String;
   VConverter: ICoordConverter;

@@ -34,8 +34,8 @@ uses
 type
   TGeoCoderByGoogle = class(TGeoCoderBasic)
   protected
-    function PrepareURL(ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; override;
+    function PrepareURL(const ASearch: WideString): string; override;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
   public
   end;
 
@@ -51,7 +51,7 @@ uses
 { TGeoCoderByGoogle }
 
 function TGeoCoderByGoogle.ParseStringToPlacemarksList(
-  AStr: string; ASearch: WideString): IInterfaceList;
+  const AStr: string; const ASearch: WideString): IInterfaceList;
 var
   Stream:TMemoryStream;
   Node:IXMLNode;
@@ -109,7 +109,7 @@ begin
   end;
 end;
 
-function TGeoCoderByGoogle.PrepareURL(ASearch: WideString): string;
+function TGeoCoderByGoogle.PrepareURL(const ASearch: WideString): string;
 var
   VSearch: String;
   VConverter: ICoordConverter;

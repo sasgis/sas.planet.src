@@ -35,8 +35,8 @@ uses
 type
   TGeoCoderByOSM = class(TGeoCoderBasic)
   protected
-    function PrepareURL(ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; override;
+    function PrepareURL(const ASearch: WideString): string; override;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
   public
   end;
 
@@ -55,7 +55,7 @@ uses
 { TGeoCoderByOSM }
 
 function TGeoCoderByOSM.ParseStringToPlacemarksList(
-  AStr: string; ASearch: WideString): IInterfaceList;
+  const AStr: string; const ASearch: WideString): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc, osm_type, osm_id: string;
   i, j , k: integer;
@@ -140,7 +140,7 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByOSM.PrepareURL(ASearch: WideString): string;
+function TGeoCoderByOSM.PrepareURL(const ASearch: WideString): string;
 var
   VSearch: String;
   VConverter: ICoordConverter;

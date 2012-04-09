@@ -30,8 +30,8 @@ uses
 type
   TGeoCoderByRosreestr = class(TGeoCoderBasic)
   protected
-    function PrepareURL(ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; override;
+    function PrepareURL(const ASearch: WideString): string; override;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
   public
   end;
 
@@ -56,7 +56,7 @@ begin
 end;
 
 function TGeoCoderByRosreestr.ParseStringToPlacemarksList(
-  AStr: string; ASearch: WideString): IInterfaceList;
+  const AStr: string; const ASearch: WideString): IInterfaceList;
 
 var
   slat, slon, sname, sdesc, sfulldesc, VtempString: string;
@@ -65,64 +65,65 @@ var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
-
+  VStr: string;
 begin
   sfulldesc := '';
   sdesc := '';
   VtempString:= '';
+
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
-
+  VStr := AStr;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  i:=PosEx('_jsonpCallback', AStr);
-  AStr := ReplaceStr(AStr,'\"','''');
-  AStr := ReplaceStr(AStr,'\/','/');
+  i:=PosEx('_jsonpCallback', VStr);
+  VStr := ReplaceStr(VStr,'\"','''');
+  VStr := ReplaceStr(VStr,'\/','/');
   //по кадастровому номеру
-  while (PosEx('{"attributes"', AStr, i) > i)and(i>0) do begin
-    j := PosEx('{"attributes"', AStr, i);
+  while (PosEx('{"attributes"', VStr, i) > i)and(i>0) do begin
+    j := PosEx('{"attributes"', VStr, i);
     sdesc := '';
 
-    i := PosEx('"PARCELID":"', AStr, j);
+    i := PosEx('"PARCELID":"', VStr, j);
     if i>0 then begin
-     j := PosEx('"', AStr, i + 12);
-     sname:= Utf8ToAnsi(Copy(AStr, i + 12, j - (i + 12)));
+     j := PosEx('"', VStr, i + 12);
+     sname:= Utf8ToAnsi(Copy(VStr, i + 12, j - (i + 12)));
      sname:=copy(sname,1,2)+':'+copy(sname,3,2)+':'+copy(sname,5,7)+':'+copy(sname,12,5);
     end else begin
-     i := PosEx('"KVARTALID":"', AStr, j);
-     j := PosEx('"', AStr, i + 13);
-     sname:= Utf8ToAnsi(Copy(AStr, i + 13, j - (i + 13)));
+     i := PosEx('"KVARTALID":"', VStr, j);
+     j := PosEx('"', VStr, i + 13);
+     sname:= Utf8ToAnsi(Copy(VStr, i + 13, j - (i + 13)));
      sname:=copy(sname,1,2)+':'+copy(sname,3,2)+':'+copy(sname,5,7){+':'+copy(sname,12,5)};
     end;
 
-    i := PosEx('"FULLADDRESS":"', AStr, j);
+    i := PosEx('"FULLADDRESS":"', VStr, j);
     if i>j  then begin
-     j := PosEx('"', AStr, i + 15);
-     sdesc:= sdesc + Utf8ToAnsi(Copy(AStr, i + 15, j - (i + 15)));
+     j := PosEx('"', VStr, i + 15);
+     sdesc:= sdesc + Utf8ToAnsi(Copy(VStr, i + 15, j - (i + 15)));
     end;
 
-    i := PosEx('"UTILIZATION_BYDOCUMENT":"', AStr, j);
+    i := PosEx('"UTILIZATION_BYDOCUMENT":"', VStr, j);
     if i>j then begin
-     j := PosEx('"', AStr, i + 27);
-     VtempString := Utf8ToAnsi(Copy(AStr, i + 27, j - (i + 27)));
+     j := PosEx('"', VStr, i + 27);
+     VtempString := Utf8ToAnsi(Copy(VStr, i + 27, j - (i + 27)));
      if VtempString <> ':null,' then sdesc := sdesc +' '+ VtempString;
     end;
 
-    i := PosEx('"CATEGORY":"', AStr, j);
+    i := PosEx('"CATEGORY":"', VStr, j);
     if i>j then begin
-     j := PosEx('"', AStr, i + 12);
-     VtempString := Utf8ToAnsi(Copy(AStr, i + 12, j - (i + 12)));
+     j := PosEx('"', VStr, i + 12);
+     VtempString := Utf8ToAnsi(Copy(VStr, i + 12, j - (i + 12)));
      if VtempString <> ':null,' then sdesc := sdesc +' '+ VtempString;
     end;
 
-    i := PosEx('"x":', AStr, j);
-    j := PosEx(',', AStr, i + 4 );
-    slon := Copy(AStr, i + 4, j - (i + 4));
+    i := PosEx('"x":', VStr, j);
+    j := PosEx(',', VStr, i + 4 );
+    slon := Copy(VStr, i + 4, j - (i + 4));
 
-    i := PosEx('"y":', AStr, j);
-    j := PosEx('}', AStr, i + 4 );
-    slat := Copy(AStr, i + 4, j - (i + 4));
+    i := PosEx('"y":', VStr, j);
+    j := PosEx('}', VStr, i + 4 );
+    slat := Copy(VStr, i + 4, j - (i + 4));
 
 
     try
@@ -130,43 +131,43 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    i := (PosEx('}}', AStr, i));
+    i := (PosEx('}}', VStr, i));
     VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
 
   // по наименованию
-  while (PosEx('address', AStr, i) > i)and(i>0) do begin
+  while (PosEx('address', VStr, i) > i)and(i>0) do begin
     j := i;
 
-    i := PosEx('"address":"', AStr, j);
-    j := PosEx('"', AStr, i + 11);
-    sname:= Utf8ToAnsi(Copy(AStr, i + 11, j - (i + 11)));
+    i := PosEx('"address":"', VStr, j);
+    j := PosEx('"', VStr, i + 11);
+    sname:= Utf8ToAnsi(Copy(VStr, i + 11, j - (i + 11)));
 
-    i := PosEx('"x":', AStr, j);
-    j := PosEx('.', AStr, i + 4 );
-    slon := Copy(AStr, i + 4, j - (i + 4));
+    i := PosEx('"x":', VStr, j);
+    j := PosEx('.', VStr, i + 4 );
+    slon := Copy(VStr, i + 4, j - (i + 4));
 
-    i := PosEx('"y":', AStr, j);
-    j := PosEx('.', AStr, i + 4 );
-    slat := Copy(AStr, i + 4, j - (i + 4));
+    i := PosEx('"y":', VStr, j);
+    j := PosEx('.', VStr, i + 4 );
+    slat := Copy(VStr, i + 4, j - (i + 4));
 
-    i := PosEx('"ParentName":"', AStr, j);
-    j := PosEx('"', AStr, i + 14);
-    sdesc:=Utf8ToAnsi(Copy(AStr, i + 14, j - (i + 14)));
+    i := PosEx('"ParentName":"', VStr, j);
+    j := PosEx('"', VStr, i + 14);
+    sdesc:=Utf8ToAnsi(Copy(VStr, i + 14, j - (i + 14)));
     try
       meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),Vpoint);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    i := (PosEx('}}', AStr, i));
+    i := (PosEx('}}', VStr, i));
     VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
   Result := VList;
 end;
 
-function TGeoCoderByRosreestr.PrepareURL(ASearch: WideString): string;
+function TGeoCoderByRosreestr.PrepareURL(const ASearch: WideString): string;
 var
   VSearch: String;
   VConverter: ICoordConverter;

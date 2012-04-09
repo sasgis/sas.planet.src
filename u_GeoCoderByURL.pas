@@ -31,8 +31,8 @@ uses
 type
   TGeoCoderByURL = class(TGeoCoderBasic)
   protected
-    function PrepareURL(ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; override;
+    function PrepareURL(const ASearch: WideString): string; override;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
   public
   end;
 
@@ -196,7 +196,7 @@ begin
   out_Y := floattostr(((arctan(exp(in_Y/6378137))-pi/4)*360)/pi);
 end;
 
-function SubstrCount(A_Substr,A_String:string; var LastPos:integer):integer;
+function SubstrCount(const A_Substr,A_String:string; var LastPos:integer):integer;
 var i:integer;
 begin
 Result := 0;
@@ -209,7 +209,7 @@ if (A_substr<>'') and (Length(A_Substr)<Length(A_String)) then
 end;
 
 
-function Str2Degree(AStr:string; var llat,llon:boolean; Var res:Double):Boolean;
+function Str2Degree(const AStr:string; var llat,llon:boolean; Var res:Double):Boolean;
 var
   i : integer;
  delitel : single;
@@ -349,7 +349,7 @@ begin
 end;
 
 
-function PosStr2List(Apos1,Apos2:string;var AAList:IInterfaceList) : boolean;
+function PosStr2List(const Apos1,Apos2:string;var AAList:IInterfaceList) : boolean;
 var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;
@@ -580,7 +580,7 @@ begin
  end;
 end;
 
-function GetListByText(astr:string ; Var AList:IInterfaceList): boolean;
+function GetListByText(const astr:string ; Var AList:IInterfaceList): boolean;
 var
  Vtext, V2Search : string;
  VBLat1, VBlon1: boolean;
@@ -948,7 +948,7 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
 end;
 
 function TGeoCoderByURL.ParseStringToPlacemarksList(
-  AStr: string; ASearch: WideString): IInterfaceList;
+  const AStr: string; const ASearch: WideString): IInterfaceList;
 var
  VFormatSettings: TFormatSettings;
  VPlace : IGeoCodePlacemark;
@@ -1279,7 +1279,7 @@ begin
 end;
 
 
-function TGeoCoderByURL.PrepareURL(ASearch: WideString): string;
+function TGeoCoderByURL.PrepareURL(const ASearch: WideString): string;
  var
   VlocalLink :boolean;
 begin
