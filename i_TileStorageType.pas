@@ -46,7 +46,7 @@ type
     function GetCaption: string;
     property Caption: string read GetCaption;
 
-    function BuildStorage(APath: string): ITileStorage;
+    function BuildStorage(const APath: string): ITileStorage;
   end;
 
 implementation

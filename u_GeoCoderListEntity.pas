@@ -38,9 +38,9 @@ type
     function GetGeoCoder: IGeoCoder;
   public
     constructor Create(
-      AGUID: TGUID;
-      ACaption: WideString;
-      AGeoCoder: IGeoCoder
+      const AGUID: TGUID;
+      const ACaption: WideString;
+      const AGeoCoder: IGeoCoder
     );
   end;
 
@@ -48,8 +48,11 @@ implementation
 
 { TGeoCoderListEntity }
 
-constructor TGeoCoderListEntity.Create(AGUID: TGUID; ACaption: WideString;
-  AGeoCoder: IGeoCoder);
+constructor TGeoCoderListEntity.Create(
+  const AGUID: TGUID;
+  const ACaption: WideString;
+  const AGeoCoder: IGeoCoder
+);
 begin
   FGUID := AGUID;
   FCaption := ACaption;

@@ -10,12 +10,12 @@ uses
 type
   TTileStorageTypeBerkeleyDB = class(TTileStorageTypeBase)
   protected
-    function BuildStorage(APath: string): ITileStorage; override;
+    function BuildStorage(const APath: string): ITileStorage; override;
   public
     constructor Create(
-      AGUID: TGUID;
-      ACaption: string;
-      AConfig: ITileStorageTypeConfig
+      const AGUID: TGUID;
+      const ACaption: string;
+      const AConfig: ITileStorageTypeConfig
     );
   end;
 
@@ -28,9 +28,9 @@ uses
 { TTileStorageTypeBerkeleyDB }
 
 constructor TTileStorageTypeBerkeleyDB.Create(
-  AGUID: TGUID;
-  ACaption: string;
-  AConfig: ITileStorageTypeConfig
+  const AGUID: TGUID;
+  const ACaption: string;
+  const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
@@ -42,7 +42,7 @@ begin
   );
 end;
 
-function TTileStorageTypeBerkeleyDB.BuildStorage(APath: string): ITileStorage;
+function TTileStorageTypeBerkeleyDB.BuildStorage(const APath: string): ITileStorage;
 begin
   Assert(False);
   //TODO: Написать создание хранилища

@@ -13,13 +13,13 @@ type
   private
     FNameGenerator: ITileFileNameGenerator;
   protected
-    function BuildStorage(APath: string): ITileStorage; override;
+    function BuildStorage(const APath: string): ITileStorage; override;
   public
     constructor Create(
-      AGUID: TGUID;
-      ACaption: string;
-      ANameGenerator: ITileFileNameGenerator;
-      AConfig: ITileStorageTypeConfig
+      const AGUID: TGUID;
+      const ACaption: string;
+      const ANameGenerator: ITileFileNameGenerator;
+      const AConfig: ITileStorageTypeConfig
     );
   end;
 
@@ -32,10 +32,10 @@ uses
 { TTileStorageTypeFileSystemSimple }
 
 constructor TTileStorageTypeFileSystemSimple.Create(
-  AGUID: TGUID;
-  ACaption: string;
-  ANameGenerator: ITileFileNameGenerator;
-  AConfig: ITileStorageTypeConfig
+  const AGUID: TGUID;
+  const ACaption: string;
+  const ANameGenerator: ITileFileNameGenerator;
+  const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
@@ -49,7 +49,7 @@ begin
 end;
 
 function TTileStorageTypeFileSystemSimple.BuildStorage(
-  APath: string
+  const APath: string
 ): ITileStorage;
 begin
   Assert(False);
