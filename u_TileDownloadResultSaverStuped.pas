@@ -42,28 +42,28 @@ type
     procedure OnStorageStateChange;
 
     procedure SaveTileDownload(
-      AXY: TPoint;
+      const AXY: TPoint;
       AZoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AData: IBinaryData;
-      AContenType: string
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData;
+      const AContenType: string
     );
     procedure CropOnDownload(
       ABtm: TCustomBitmap32;
-      ACropRect: TRect;
-      ATileSize: TPoint
+      const ACropRect: TRect;
+      const ATileSize: TPoint
     );
   protected
     function GetState: ITileDownloaderStateChangeble;
-    procedure SaveDownloadResult(AResult: IDownloadResult);
+    procedure SaveDownloadResult(const AResult: IDownloadResult);
   public
     constructor Create(
-      ADownloadConfig: IGlobalDownloadConfig;
-      AImageResamplerConfig: IImageResamplerConfig;
-      AContentTypeManager: IContentTypeManager;
-      AContentTypeSubst: IContentTypeSubst;
-      ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-      AStorageConfig: ISimpleTileStorageConfig;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const AContentTypeManager: IContentTypeManager;
+      const AContentTypeSubst: IContentTypeSubst;
+      const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+      const AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
     );
     destructor Destroy; override;
@@ -88,12 +88,12 @@ uses
 { TTileDownloadResultSaverStuped }
 
 constructor TTileDownloadResultSaverStuped.Create(
-  ADownloadConfig: IGlobalDownloadConfig;
-  AImageResamplerConfig: IImageResamplerConfig;
-  AContentTypeManager: IContentTypeManager;
-  AContentTypeSubst: IContentTypeSubst;
-  ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-  AStorageConfig: ISimpleTileStorageConfig;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const AContentTypeManager: IContentTypeManager;
+  const AContentTypeSubst: IContentTypeSubst;
+  const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+  const AStorageConfig: ISimpleTileStorageConfig;
   AStorage: TTileStorageAbstract
 );
 var
@@ -133,8 +133,8 @@ end;
 
 procedure TTileDownloadResultSaverStuped.CropOnDownload(
   ABtm: TCustomBitmap32;
-  ACropRect: TRect;
-  ATileSize: TPoint
+  const ACropRect: TRect;
+  const ATileSize: TPoint
 );
 var
   VBtmDest: TCustomBitmap32;
@@ -173,7 +173,7 @@ begin
 end;
 
 procedure TTileDownloadResultSaverStuped.SaveDownloadResult(
-  AResult: IDownloadResult
+  const AResult: IDownloadResult
 );
 var
   VResultOk: IDownloadResultOk;
@@ -198,11 +198,11 @@ begin
 end;
 
 procedure TTileDownloadResultSaverStuped.SaveTileDownload(
-  AXY: TPoint;
+  const AXY: TPoint;
   AZoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AData: IBinaryData;
-  AContenType: string
+  const AVersionInfo: IMapVersionInfo;
+  const AData: IBinaryData;
+  const AContenType: string
 );
 var
   VBitmap: TCustomBitmap32;

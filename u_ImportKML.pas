@@ -34,11 +34,14 @@ type
   private
     FKmlLoader: IVectorDataLoader;
   protected
-    function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; override;
+    function DoImport(
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): IInterfaceList; override;
   public
     constructor Create(
-      AVectorDataFactory: IVectorDataFactory;
-      AKmlLoader: IVectorDataLoader
+      const AVectorDataFactory: IVectorDataFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -52,16 +55,18 @@ uses
 { TImportKML }
 
 constructor TImportKML.Create(
-  AVectorDataFactory: IVectorDataFactory;
-  AKmlLoader: IVectorDataLoader
+  const AVectorDataFactory: IVectorDataFactory;
+  const AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(AVectorDataFactory);
   FKmlLoader := AKmlLoader;
 end;
 
-function TImportKML.DoImport(AFileName: string;
-  AConfig: IImportConfig): IInterfaceList;
+function TImportKML.DoImport(
+  const AFileName: string;
+  const AConfig: IImportConfig
+): IInterfaceList;
 var
   KML: IVectorDataItemList;
   VMark: IMark;

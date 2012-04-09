@@ -12,7 +12,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
     property State: ITileDownloaderStateChangeble read GetState;
 
-    procedure SaveDownloadResult(AResult: IDownloadResult);
+    procedure SaveDownloadResult(const AResult: IDownloadResult);
   end;
 
 implementation
