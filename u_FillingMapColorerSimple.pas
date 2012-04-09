@@ -10,6 +10,7 @@ uses
   i_FillingMapColorer;
 
 type
+  PTileInfo = ^TTileInfo;
   TFillingMapColorerSimple = class(TInterfacedObject, IFillingMapColorer)
   private
     FNoTileColor: TColor32;
@@ -22,11 +23,12 @@ type
     FGradientDays: integer;
   private
     function InternalGetColor(
-      const ATileInfoOptional: ITileInfoBasic;
+      const ATileInfoOptional: PTileInfo;
       const ARangeItemPtr: Pointer;
       const ARangeItemLen: SmallInt): TColor32;
   protected
-    function GetColor(ATileInfo: ITileInfoBasic): TColor32;
+    function GetColor(const ATileInfo: ITileInfoBasic): TColor32; overload;
+    function GetColor(const ATileInfo: TTileInfo): TColor32; overload;
     function GetRangeColor(
       const ARangeItemPtr: Pointer;
       const ARangeItemLen: SmallInt): TColor32;
@@ -75,9 +77,36 @@ begin
   FGradientDays:=Trunc(FFillLastDay + 1.0 - FFillFirstDay);
 end;
 
-function TFillingMapColorerSimple.GetColor(ATileInfo: ITileInfoBasic): TColor32;
+function TFillingMapColorerSimple.GetColor(const ATileInfo: ITileInfoBasic): TColor32;
+var
+  VTileInfo: TTileInfo;
 begin
-  Result := InternalGetColor(ATileInfo, nil, 0);
+  try
+    VTileInfo.FLoadDate := ATileInfo.LoadDate;
+    VTileInfo.FSize := ATileInfo.Size;
+    VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
+    VTileInfo.FContentType := ATileInfo.ContentType;
+    VTileInfo.FData := ATileInfo.TileData;
+    if ATileInfo.IsExists then begin
+      VTileInfo.FInfoType := titExists;
+    end else if ATileInfo.IsExistsTNE then begin
+      VTileInfo.FInfoType := titTneExists;
+    end else begin
+      VTileInfo.FInfoType := titNotExists;
+    end;
+    Result := GetColor(VTileInfo);
+  finally
+    VTileInfo.FVersionInfo := nil;
+    VTileInfo.FContentType := nil;
+    VTileInfo.FData := nil;
+  end;
+end;
+
+function TFillingMapColorerSimple.GetColor(
+  const ATileInfo: TTileInfo
+): TColor32;
+begin
+  Result := InternalGetColor(@ATileInfo, nil, 0);
 end;
 
 function TFillingMapColorerSimple.GetRangeColor(
@@ -88,14 +117,14 @@ begin
 end;
 
 function TFillingMapColorerSimple.InternalGetColor(
-  const ATileInfoOptional: ITileInfoBasic;
+  const ATileInfoOptional: PTileInfo;
   const ARangeItemPtr: Pointer;
   const ARangeItemLen: SmallInt): TColor32;
 
   function _GetIsExists: Boolean;
   begin
     if Assigned(ATileInfoOptional) then
-      Result := ATileInfoOptional.IsExists
+      Result := ATileInfoOptional.FInfoType = titExists
     else case ARangeItemLen of
       SizeOf(TRangeFillingItem1): begin
         Result := PRangeFillingItem1(ARangeItemPtr)^.IsTileExists;
@@ -115,7 +144,7 @@ function TFillingMapColorerSimple.InternalGetColor(
   function _GetIsExistsTNE: Boolean;
   begin
     if Assigned(ATileInfoOptional) then
-      Result := ATileInfoOptional.IsExistsTNE
+      Result := ATileInfoOptional.FInfoType = titTneExists
     else case ARangeItemLen of
       SizeOf(TRangeFillingItem1): begin
         Result := PRangeFillingItem1(ARangeItemPtr)^.IsTNEExists;
@@ -135,7 +164,7 @@ function TFillingMapColorerSimple.InternalGetColor(
   function _GetLoadDate: TDateTime;
   begin
     if Assigned(ATileInfoOptional) then
-      Result := ATileInfoOptional.LoadDate
+      Result := ATileInfoOptional.FLoadDate
     else case ARangeItemLen of
       SizeOf(TRangeFillingItem1): begin
         Result := 0; // no datetime

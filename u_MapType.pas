@@ -36,6 +36,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_OperationNotifier,
+  i_LocalCoordConverter,
   i_TileObjCache,
   i_TileDownloaderConfig,
   i_LanguageManager,
@@ -194,9 +195,7 @@ type
     function GetFillingMapBitmap(
       AOperationID: Integer;
       ACancelNotifier: IOperationNotifier;
-      APixelRectTarget: TRect;
-      Azoom: byte;
-      ACoordConverterTarget: ICoordConverter;
+      ALocalConverter: ILocalCoordConverter;
       ASourceZoom: byte;
       AColorer: IFillingMapColorer
     ): IBitmap32Static;
@@ -264,6 +263,7 @@ uses
   GR32_Resamplers,
   i_BinaryData,
   i_TileInfoBasic,
+  i_TileIterator,
   u_BinaryDataByMemStream,
   u_Bitmap32Static,
   u_TileDownloaderConfig,
@@ -274,11 +274,13 @@ uses
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
   u_MapAttachmentsPascalScript,
+  u_TileIteratorByRect,
   u_VectorDataFactorySimple,
   u_HtmlToHintTextConverterStuped,
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
+  u_GeoFun,
   u_TileStorageGE,
   u_TileStorageBerkeleyDB,
   u_TileStorageFileSystem;
@@ -753,19 +755,81 @@ end;
 function TMapType.GetFillingMapBitmap(
   AOperationID: Integer;
   ACancelNotifier: IOperationNotifier;
-  APixelRectTarget: TRect;
-  Azoom: byte;
-  ACoordConverterTarget: ICoordConverter;
+  ALocalConverter: ILocalCoordConverter;
   ASourceZoom: byte;
   AColorer: IFillingMapColorer
 ): IBitmap32Static;
 var
   VBitmap: TCustomBitmap32;
+  VSize: TPoint;
+  VTargetMapPixelRect: TDoubleRect;
+  VSourceTileRect: TRect;
+  VSourceRelativeRect: TDoubleRect;
+  VSourceConverter: ICoordConverter;
+  VTargetConverter: ICoordConverter;
+  VSameSourceAndTarget: Boolean;
+  VTargetZoom: Byte;
+  VLonLatRect: TDoubleRect;
+  VIterator: ITileIterator;
+  VRelativeRectOfTile: TDoubleRect;
+  VLonLatRectOfTile: TDoubleRect;
+  VSolidDrow: Boolean;
+  VTileRectInfo: ITileRectInfo;
+  VEnumTileInfo: IEnumTileInfo;
+  VTileInfo: TTileInfo;
+  VMapPixelRectOfTile: TDoubleRect;
+  VLocalPixelRectOfTile: TRect;
+  VTileColor: TColor32;
 begin
   VBitmap := TCustomBitmap32.Create;
   try
+    VSize := ALocalConverter.GetLocalRectSize;
+    VBitmap.SetSize(VSize.X, VSize.Y);
+    VBitmap.Clear(0);
 
+    VSourceConverter := FCoordConverter;
+    VTargetConverter := ALocalConverter.GeoConverter;
+    VTargetZoom := ALocalConverter.Zoom;
 
+    VTargetMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+    VTargetConverter.CheckPixelRectFloat(VTargetMapPixelRect, VTargetZoom);
+
+    VSameSourceAndTarget := VSourceConverter.IsSameConverter(VTargetConverter);
+    if VSameSourceAndTarget then begin
+      VSourceRelativeRect := VSourceConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom)
+    end else begin
+      VLonLatRect := VTargetConverter.PixelRectFloat2LonLatRect(VTargetMapPixelRect, VTargetZoom);
+      VSourceConverter.CheckLonLatRect(VLonLatRect);
+      VSourceRelativeRect := VSourceConverter.LonLatRect2RelativeRect(VLonLatRect);
+    end;
+    VSourceTileRect := VSourceConverter.RelativeRect2TileRect(VSourceRelativeRect, ASourceZoom);
+    VSolidDrow :=
+      (VSize.X > (VSourceTileRect.Right - VSourceTileRect.Left) * 2) and
+      (VSize.Y > (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
+    VTileRectInfo := FStorage.GetTileRectInfo(VSourceTileRect, ASourceZoom, FVersionConfig.Version);
+    if VTileRectInfo <> nil then begin
+      VIterator := TTileIteratorByRect.Create(VSourceTileRect);
+      VEnumTileInfo := VTileRectInfo.GetEnum(VIterator);
+      while VEnumTileInfo.Next(VTileInfo) do begin
+        VTileColor := AColorer.GetColor(VTileInfo);
+        if VTileColor <> 0 then begin
+          if VSameSourceAndTarget then begin
+            VRelativeRectOfTile := VSourceConverter.TilePos2RelativeRect(VTileInfo.FTile, ASourceZoom);
+          end else begin
+            VLonLatRectOfTile := VSourceConverter.TilePos2LonLatRect(VTileInfo.FTile, ASourceZoom);
+            VTargetConverter.CheckLonLatRect(VLonLatRectOfTile);
+            VRelativeRectOfTile := VTargetConverter.LonLatRect2RelativeRect(VLonLatRectOfTile);
+          end;
+          VMapPixelRectOfTile := VTargetConverter.RelativeRect2PixelRectFloat(VRelativeRectOfTile, VTargetZoom);
+          VLocalPixelRectOfTile := RectFromDoubleRect(ALocalConverter.MapRectFloat2LocalRectFloat(VMapPixelRectOfTile), rrToTopLeft);
+          if not VSolidDrow then begin
+            Dec(VLocalPixelRectOfTile.Right);
+            Dec(VLocalPixelRectOfTile.Bottom);
+          end;
+          VBitmap.FillRectS(VLocalPixelRectOfTile, VTileColor);
+        end;
+      end;
+    end;
     Result := TBitmap32Static.CreateWithOwn(VBitmap);
     VBitmap := nil;
   finally

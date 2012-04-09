@@ -526,6 +526,7 @@
     <DCCReference Include="u_BitmapGeo.pas" />
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
+    <DCCReference Include="u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
     <DCCReference Include="u_BitmapLayerProviderInPolygon.pas" />
     <DCCReference Include="u_BitmapLayerProviderMapWithLayer.pas" />
@@ -887,6 +888,7 @@
     <DCCReference Include="u_TileMatrixFactory.pas" />
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
     <DCCReference Include="u_TileRectInfo.pas" />
+    <DCCReference Include="u_TileRectInfoShort.pas" />
     <DCCReference Include="u_TileRectUpdateNotifier.pas" />
     <DCCReference Include="u_TileRequest.pas" />
     <DCCReference Include="u_TileRequestBuilderHelpers.pas" />
