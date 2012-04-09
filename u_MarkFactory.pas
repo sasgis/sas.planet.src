@@ -51,104 +51,104 @@ type
 
     function CreatePoint(
       AID: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
-      APicName: string;
-      APic: IMarkPicture;
+      const APicName: string;
+      const APic: IMarkPicture;
       ACategoryId: Integer;
-      ACategory: ICategory;
-      ADesc: string;
-      APoint: TDoublePoint;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const APoint: TDoublePoint;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
     ): IMarkPoint;
     function CreateLine(
       AID: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
-      ACategory: ICategory;
-      ADesc: string;
-      ARect: TDoubleRect;
-      ALine: ILonLatPath;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ARect: TDoubleRect;
+      const ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
     function CreatePoly(
       AID: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
-      ACategory: ICategory;
-      ADesc: string;
-      ARect: TDoubleRect;
-      ALine: ILonLatPolygon;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ARect: TDoubleRect;
+      const ALine: ILonLatPolygon;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
     ): IMarkPoly;
   protected
     function CreateNewPoint(
-      APoint: TDoublePoint;
-      AName: string;
-      ADesc: string;
-      ATemplate: IMarkTemplatePoint = nil
+      const APoint: TDoublePoint;
+      const AName: string;
+      const ADesc: string;
+      const ATemplate: IMarkTemplatePoint = nil
     ): IMarkPoint;
     function CreateNewLine(
-      ALine: ILonLatPath;
-      AName: string;
-      ADesc: string;
-      ATemplate: IMarkTemplateLine = nil
+      const ALine: ILonLatPath;
+      const AName: string;
+      const ADesc: string;
+      const ATemplate: IMarkTemplateLine = nil
     ): IMarkLine;
     function CreateNewPoly(
-      ALine: ILonLatPolygon;
-      AName: string;
-      ADesc: string;
-      ATemplate: IMarkTemplatePoly = nil
+      const ALine: ILonLatPolygon;
+      const AName: string;
+      const ADesc: string;
+      const ATemplate: IMarkTemplatePoly = nil
     ): IMarkPoly;
 
     function ModifyPoint(
-      ASource: IMarkPoint;
-      AName: string;
+      const ASource: IMarkPoint;
+      const AName: string;
       AVisible: Boolean;
-      APic: IMarkPicture;
-      ACategory: ICategory;
-      ADesc: string;
-      APoint: TDoublePoint;
+      const APic: IMarkPicture;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const APoint: TDoublePoint;
       ATextColor: TColor32;
       ATextBgColor: TColor32;
       AFontSize: Integer;
       AMarkerSize: Integer
     ): IMarkPoint;
     function ModifyLine(
-      ASource: IMarkLine;
-      AName: string;
+      const ASource: IMarkLine;
+      const AName: string;
       AVisible: Boolean;
-      ACategory: ICategory;
-      ADesc: string;
-      ALine: ILonLatPath;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
     function ModifyPoly(
-      ASource: IMarkPoly;
-      AName: string;
+      const ASource: IMarkPoly;
+      const AName: string;
       AVisible: Boolean;
-      ACategory: ICategory;
-      ADesc: string;
-      ALine: ILonLatPolygon;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
     ): IMarkPoly;
 
     function SimpleModifyLine(
-      ASource: IMarkLine;
-      ALine: ILonLatPath;
-      ADesc: string
+      const ASource: IMarkLine;
+      const ALine: ILonLatPath;
+      const ADesc: string
     ): IMarkLine;
     function SimpleModifyPoly(
-      ASource: IMarkPoly;
-      ALine: ILonLatPolygon
+      const ASource: IMarkPoly;
+      const ALine: ILonLatPolygon
     ): IMarkPoly;
 
     function GetMarkPictureList: IMarkPictureList;
@@ -156,12 +156,12 @@ type
   protected
     function CreateMark(
       AID: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
-      APicName: string;
+      const APicName: string;
       ACategoryId: Integer;
-      ADesc: string;
-      ARect: TDoubleRect;
+      const ADesc: string;
+      const ARect: TDoubleRect;
       APoints: PDoublePointArray;
       APointCount: Integer;
       AColor1: TColor32;
@@ -170,7 +170,7 @@ type
       AScale2: Integer
     ): IMark;
     function CreateMarkId(
-      AName: string;
+      const AName: string;
       AId: Integer;
       ACategoryId: Integer;
       AVisible: Boolean
@@ -215,9 +215,9 @@ begin
 end;
 
 function TMarkFactory.CreateNewLine(
-  ALine: ILonLatPath;
-  AName, ADesc: string;
-  ATemplate: IMarkTemplateLine
+  const ALine: ILonLatPath;
+  const AName, ADesc: string;
+  const ATemplate: IMarkTemplateLine
 ): IMarkLine;
 var
   VTemplate: IMarkTemplateLine;
@@ -255,8 +255,11 @@ begin
   );
 end;
 
-function TMarkFactory.CreateNewPoint(APoint: TDoublePoint; AName, ADesc: string;
-  ATemplate: IMarkTemplatePoint): IMarkPoint;
+function TMarkFactory.CreateNewPoint(
+  const APoint: TDoublePoint;
+  const AName, ADesc: string;
+  const ATemplate: IMarkTemplatePoint
+): IMarkPoint;
 var
   VTemplate: IMarkTemplatePoint;
   VTemplateSML: IMarkTemplateSMLInternal;
@@ -297,9 +300,9 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoly(
-  ALine: ILonLatPolygon;
-  AName, ADesc: string;
-  ATemplate: IMarkTemplatePoly
+  const ALine: ILonLatPolygon;
+  const AName, ADesc: string;
+  const ATemplate: IMarkTemplatePoly
 ): IMarkPoly;
 var
   VTemplate: IMarkTemplatePoly;
@@ -340,14 +343,14 @@ end;
 
 function TMarkFactory.CreatePoint(
   AID: Integer;
-  AName: string;
+  const AName: string;
   AVisible: Boolean;
-  APicName: string;
-  APic: IMarkPicture;
+  const APicName: string;
+  const APic: IMarkPicture;
   ACategoryId: Integer;
-  ACategory: ICategory;
-  ADesc: string;
-  APoint: TDoublePoint;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
 ): IMarkPoint;
@@ -395,13 +398,13 @@ end;
 
 function TMarkFactory.CreateLine(
   AID: Integer;
-  AName: string;
+  const AName: string;
   AVisible: Boolean;
   ACategoryId: Integer;
-  ACategory: ICategory;
-  ADesc: string;
-  ARect: TDoubleRect;
-  ALine: ILonLatPath;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const ARect: TDoubleRect;
+  const ALine: ILonLatPath;
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
@@ -430,13 +433,13 @@ end;
 
 function TMarkFactory.CreatePoly(
   AID: Integer;
-  AName: string;
+  const AName: string;
   AVisible: Boolean;
   ACategoryId: Integer;
-  ACategory: ICategory;
-  ADesc: string;
-  ARect: TDoubleRect;
-  ALine: ILonLatPolygon;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const ARect: TDoubleRect;
+  const ALine: ILonLatPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IMarkPoly;
@@ -466,12 +469,12 @@ end;
 
 function TMarkFactory.CreateMark(
   AID: Integer;
-  AName: string;
+  const AName: string;
   AVisible: Boolean;
-  APicName: string;
+  const APicName: string;
   ACategoryId: Integer;
-  ADesc: string;
-  ARect: TDoubleRect;
+  const ADesc: string;
+  const ARect: TDoubleRect;
   APoints: PDoublePointArray;
   APointCount: Integer;
   AColor1, AColor2: TColor32;
@@ -497,7 +500,7 @@ begin
 end;
 
 function TMarkFactory.CreateMarkId(
-  AName: string;
+  const AName: string;
   AId: Integer;
   ACategoryId: Integer;
   AVisible: Boolean
@@ -510,9 +513,9 @@ begin
 end;
 
 function TMarkFactory.SimpleModifyLine(
-  ASource: IMarkLine;
-  ALine: ILonLatPath;
-  ADesc: string
+  const ASource: IMarkLine;
+  const ALine: ILonLatPath;
+  const ADesc: string
 ): IMarkLine;
 var
   VId: Integer;
@@ -549,8 +552,8 @@ begin
 end;
 
 function TMarkFactory.SimpleModifyPoly(
-  ASource: IMarkPoly;
-  ALine: ILonLatPolygon
+  const ASource: IMarkPoly;
+  const ALine: ILonLatPolygon
 ): IMarkPoly;
 var
   VVisible: Boolean;
@@ -583,13 +586,13 @@ begin
 end;
 
 function TMarkFactory.ModifyPoint(
-  ASource: IMarkPoint;
-  AName: string;
+  const ASource: IMarkPoint;
+  const AName: string;
   AVisible: Boolean;
-  APic: IMarkPicture;
-  ACategory: ICategory;
-  ADesc: string;
-  APoint: TDoublePoint;
+  const APic: IMarkPicture;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const APoint: TDoublePoint;
   ATextColor: TColor32;
   ATextBgColor: TColor32;
   AFontSize: Integer;
@@ -637,12 +640,12 @@ begin
 end;
 
 function TMarkFactory.ModifyLine(
-  ASource: IMarkLine;
-  AName: string;
+  const ASource: IMarkLine;
+  const AName: string;
   AVisible: Boolean;
-  ACategory: ICategory;
-  ADesc: string;
-  ALine: ILonLatPath;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const ALine: ILonLatPath;
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
@@ -680,12 +683,12 @@ begin
 end;
 
 function TMarkFactory.ModifyPoly(
-  ASource: IMarkPoly;
-  AName: string;
+  const ASource: IMarkPoly;
+  const AName: string;
   AVisible: Boolean;
-  ACategory: ICategory;
-  ADesc: string;
-  ALine: ILonLatPolygon;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const ALine: ILonLatPolygon;
   ABorderColor: TColor32;
   AFillColor: TColor32;
   ALineWidth: Integer

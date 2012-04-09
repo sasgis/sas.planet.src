@@ -32,12 +32,12 @@ type
     ['{0D5A67D8-585A-4DA8-9047-CB3CB76A600E}']
     function CreateMark(
       AID: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
-      APicName: string;
+      const APicName: string;
       ACategoryId: Integer;
-      ADesc: string;
-      ARect: TDoubleRect;
+      const ADesc: string;
+      const ARect: TDoubleRect;
       APoints: PDoublePointArray;
       APointCount: Integer;
       AColor1: TColor32;
@@ -46,7 +46,7 @@ type
       AScale2: Integer
     ): IMark;
     function CreateMarkId(
-      AName: string;
+      const AName: string;
       AId: Integer;
       ACategoryId: Integer;
       AVisible: Boolean
