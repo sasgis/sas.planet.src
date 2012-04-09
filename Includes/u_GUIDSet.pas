@@ -39,7 +39,7 @@ type
     function GetCount: Integer;
     procedure Delete(Index: Integer); virtual; abstract;
     function GetItemGUID(Index: Integer): TGUID; virtual; abstract;
-    function Find(AGUID: TGUID; var Index: Integer): Boolean; virtual;
+    function Find(const AGUID: TGUID; var Index: Integer): Boolean; virtual;
     function CompareGUIDs(const G1, G2: TGUID): Integer; virtual;
     procedure Sort(); virtual; abstract;
   public
@@ -52,10 +52,10 @@ type
     class procedure Error(Msg: PResStringRec; Data: Integer); overload;
 
     // Проверка наличия GUID в списке
-    function IsExists(AGUID: TGUID): boolean; virtual;
+    function IsExists(const AGUID: TGUID): boolean; virtual;
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
-    procedure Remove(AGUID: TGUID); virtual;
+    procedure Remove(const AGUID: TGUID); virtual;
 
     // Очитска списка
     procedure Clear; virtual;
@@ -289,7 +289,7 @@ begin
   raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-function TGUIDSetBase.Find(AGUID: TGUID; var Index: Integer): Boolean;
+function TGUIDSetBase.Find(const AGUID: TGUID; var Index: Integer): Boolean;
 var
   L, H, I, C: Integer;
 begin
@@ -310,7 +310,7 @@ begin
   Index := L;
 end;
 
-function TGUIDSetBase.IsExists(AGUID: TGUID): boolean;
+function TGUIDSetBase.IsExists(const AGUID: TGUID): boolean;
 var
   VIndex: Integer;
 begin
@@ -344,7 +344,7 @@ begin
   SetCapacity(FCapacity + Delta);
 end;
 
-procedure TGUIDSetBase.Remove(AGUID: TGUID);
+procedure TGUIDSetBase.Remove(const AGUID: TGUID);
 var
   VIndex: Integer;
 begin

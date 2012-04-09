@@ -34,9 +34,9 @@ type
     FList: IGUIDInterfaceSet;
   protected { IPathDetalizeProviderList }
     function GetGUIDEnum: IEnumGUID;
-    function Get(AGUID: TGUID): IPathDetalizeProviderListEntity;
+    function Get(const AGUID: TGUID): IPathDetalizeProviderListEntity;
   protected
-    procedure Add(AItem: IPathDetalizeProviderListEntity);
+    procedure Add(const AItem: IPathDetalizeProviderListEntity);
   public
     constructor Create;
   end;
@@ -55,7 +55,8 @@ begin
 end;
 
 procedure TPathDetalizeProviderListBase.Add(
-  AItem: IPathDetalizeProviderListEntity);
+  const AItem: IPathDetalizeProviderListEntity
+);
 begin
   LockWrite;
   try
@@ -69,7 +70,7 @@ begin
 end;
 
 function TPathDetalizeProviderListBase.Get(
-  AGUID: TGUID): IPathDetalizeProviderListEntity;
+  const AGUID: TGUID): IPathDetalizeProviderListEntity;
 begin
   LockRead;
   try

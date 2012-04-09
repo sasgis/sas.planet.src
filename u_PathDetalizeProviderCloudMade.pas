@@ -48,13 +48,13 @@ type
   protected
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
-    function GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
+    function GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
   public
     constructor Create(
-      AGUID: TGUID;
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory;
+      const AGUID: TGUID;
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory;
       AVehicle: TRouteVehicle;
       ARouteCalcType: TRouteCalcType
     );
@@ -67,9 +67,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -80,9 +80,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -93,9 +93,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -106,9 +106,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -119,9 +119,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -132,9 +132,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -154,10 +154,10 @@ uses
 { TPathDetalizeProviderCloudMade }
 
 constructor TPathDetalizeProviderCloudMade.Create(
-  AGUID: TGUID;
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory;
+  const AGUID: TGUID;
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory;
   AVehicle: TRouteVehicle;
   ARouteCalcType: TRouteCalcType
 );
@@ -170,7 +170,7 @@ begin
   FFactory := AFactory;
 end;
 
-function TPathDetalizeProviderCloudMade.GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath;
+function TPathDetalizeProviderCloudMade.GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath;
 var
   ms:TMemoryStream;
   url:string;
@@ -284,9 +284,9 @@ end;
 { TPathDetalizeProviderCloudMadeFastestByCar }
 
 constructor TPathDetalizeProviderCloudMadeFastestByCar.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -317,9 +317,9 @@ end;
 { TPathDetalizeProviderCloudMadeFastestByFoot }
 
 constructor TPathDetalizeProviderCloudMadeFastestByFoot.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -350,9 +350,9 @@ end;
 { TPathDetalizeProviderCloudMadeFastestByBicycle }
 
 constructor TPathDetalizeProviderCloudMadeFastestByBicycle.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -383,9 +383,9 @@ end;
 { TPathDetalizeProviderCloudMadeShortestByCar }
 
 constructor TPathDetalizeProviderCloudMadeShortestByCar.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -416,9 +416,9 @@ end;
 { TPathDetalizeProviderCloudMadeShortestByFoot }
 
 constructor TPathDetalizeProviderCloudMadeShortestByFoot.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -449,9 +449,9 @@ end;
 { TPathDetalizeProviderCloudMadeShortestByBicycle }
 
 constructor TPathDetalizeProviderCloudMadeShortestByBicycle.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(

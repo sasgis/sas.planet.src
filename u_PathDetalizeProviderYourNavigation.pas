@@ -41,16 +41,16 @@ type
     FProxyConfig: IProxyConfig;
     FKmlLoader: IVectorDataLoader;
   protected { IPathDetalizeProvider }
-    function GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
+    function GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
   public
     constructor Create(
-      AGUID: TGUID;
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AKmlLoader: IVectorDataLoader;
-      ABaseUrl: string
+      const AGUID: TGUID;
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AKmlLoader: IVectorDataLoader;
+      const ABaseUrl: string
     );
   end;
 
@@ -62,11 +62,11 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AKmlLoader: IVectorDataLoader
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -78,11 +78,11 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AKmlLoader: IVectorDataLoader
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -94,11 +94,11 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AKmlLoader: IVectorDataLoader
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -110,11 +110,11 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AKmlLoader: IVectorDataLoader
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -135,13 +135,13 @@ uses
 { TPathDetalizeProviderYourNavigation }
 
 constructor TPathDetalizeProviderYourNavigation.Create(
-  AGUID: TGUID;
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AKmlLoader: IVectorDataLoader;
-  ABaseUrl: string
+  const AGUID: TGUID;
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+  const AKmlLoader: IVectorDataLoader;
+  const ABaseUrl: string
 );
 begin
   inherited Create(AGUID, ALanguageManager);
@@ -152,7 +152,7 @@ begin
   FKmlLoader := AKmlLoader;
 end;
 
-function TPathDetalizeProviderYourNavigation.GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath;
+function TPathDetalizeProviderYourNavigation.GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath;
 var
   ms:TMemoryStream;
   url:string;
@@ -209,11 +209,11 @@ end;
 { TPathDetalizeProviderYourNavigationFastestByCar }
 
 constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AKmlLoader: IVectorDataLoader
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+  const AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -245,11 +245,11 @@ end;
 { TPathDetalizeProviderYourNavigationShortestByCar }
 
 constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AKmlLoader: IVectorDataLoader
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+ const  AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -281,11 +281,11 @@ end;
 { TPathDetalizeProviderYourNavigationFastestByBicycle }
 
 constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AKmlLoader: IVectorDataLoader
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+  const AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -317,11 +317,11 @@ end;
 { TPathDetalizeProviderYourNavigationShortestByBicycle }
 
 constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AKmlLoader: IVectorDataLoader
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+  const AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(

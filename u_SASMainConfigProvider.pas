@@ -30,9 +30,9 @@ type
   TSASMainConfigProvider = class(TConfigDataWriteProviderWithGlobal)
   private
     FMainIni: TMemIniFile;
-    function GetMainConfigFileName(ABasePath, AExeFileName: string): string;
+    function GetMainConfigFileName(const ABasePath, AExeFileName: string): string;
   public
-    constructor Create(ABasePath, AExeFileName: string; AHandle: THandle);
+    constructor Create(const ABasePath, AExeFileName: string; AHandle: THandle);
     destructor Destroy; override;
   end;
 
@@ -49,7 +49,7 @@ uses
 
 { TSASMainConfigProvider }
 
-constructor TSASMainConfigProvider.Create(ABasePath, AExeFileName: string; AHandle: THandle);
+constructor TSASMainConfigProvider.Create(const ABasePath, AExeFileName: string; AHandle: THandle);
 var
   VResourceProvider: IConfigDataProvider;
   VGlobalProvider: IConfigDataProvider;
@@ -71,7 +71,7 @@ begin
   inherited;
 end;
 
-function TSASMainConfigProvider.GetMainConfigFileName(ABasePath, AExeFileName: string): string;
+function TSASMainConfigProvider.GetMainConfigFileName(const ABasePath, AExeFileName: string): string;
 var
   VPos: Integer;
 begin

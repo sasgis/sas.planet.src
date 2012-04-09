@@ -39,14 +39,14 @@ type
 
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
-    function GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
+    function GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
   public
     constructor Create(
-      AGUID: TGUID;
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory;
-      ABaseUrl: string
+      const AGUID: TGUID;
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory;
+      const ABaseUrl: string
     );
   end;
 
@@ -58,9 +58,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -72,9 +72,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -86,9 +86,9 @@ type
     function GetMenuItemNameTranslated: string; override;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -112,11 +112,11 @@ uses
 { TPathDetalizeProviderMailRu }
 
 constructor TPathDetalizeProviderMailRu.Create(
-  AGUID: TGUID;
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory;
-  ABaseUrl: string
+  const AGUID: TGUID;
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory;
+  const ABaseUrl: string
 );
 begin
   inherited Create(AGUID, ALanguageManager);
@@ -125,7 +125,7 @@ begin
   FFactory := AFactory;
 end;
 
-function TPathDetalizeProviderMailRu.GetPath(ASource: ILonLatPath; var AComment: string): ILonLatPath;
+function TPathDetalizeProviderMailRu.GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath;
 var
   ms:TMemoryStream;
   pathstr,timeT1:string;
@@ -229,9 +229,9 @@ end;
 { TPathDetalizeProviderMailRuShortest }
 
 constructor TPathDetalizeProviderMailRuShortest.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -261,9 +261,9 @@ end;
 { TPathDetalizeProviderMailRuFastest }
 
 constructor TPathDetalizeProviderMailRuFastest.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
@@ -293,9 +293,9 @@ end;
 { TPathDetalizeProviderMailRuFastestWithTraffic }
 
 constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AFactory: IVectorItmesFactory
 );
 begin
   inherited Create(
