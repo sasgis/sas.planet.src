@@ -56,7 +56,7 @@ type
     function PosOfNonSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
     function PosOfSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
     function parse(
-      buffer: AnsiString;
+      const buffer: AnsiString;
       AList: IInterfaceList;
       AFactory: IVectorDataFactory
     ): boolean;
@@ -64,7 +64,7 @@ type
     procedure parseName(var Name: AnsiString);
     procedure parseDescription(var Description: AnsiString);
     function BuildItem(
-      AName, ADesc: string;
+      const AName, ADesc: string;
       APointsAggregator: IDoublePointsAggregator;
       AFactory: IVectorDataFactory
     ): IVectorDataItemSimple;
@@ -92,7 +92,7 @@ uses
 { TKmlInfoSimpleParser }
 
 function TKmlInfoSimpleParser.BuildItem(
-  AName, ADesc: string;
+  const AName, ADesc: string;
   APointsAggregator: IDoublePointsAggregator;
   AFactory: IVectorDataFactory
 ): IVectorDataItemSimple;
@@ -274,7 +274,7 @@ begin
 end;
 
 function TKmlInfoSimpleParser.parse(
-  buffer: AnsiString;
+  const buffer: AnsiString;
   AList: IInterfaceList;
   AFactory: IVectorDataFactory
 ): boolean;

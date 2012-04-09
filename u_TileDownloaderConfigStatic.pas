@@ -49,14 +49,14 @@ type
     function GetIteratorSubRectSize: TPoint;
   public
     constructor Create(
-      AInetConfigStatic: IInetConfigStatic;
+      const AInetConfigStatic: IInetConfigStatic;
       AEnabled: Boolean;
       AWaitInterval: Cardinal;
       AMaxConnectToServerCount: Cardinal;
       AIgnoreMIMEType: Boolean;
-      AExpectedMIMETypes: string;
-      ADefaultMIMEType: string;
-      AIteratorSubRectSize: TPoint
+      const AExpectedMIMETypes: string;
+      const ADefaultMIMEType: string;
+      const AIteratorSubRectSize: TPoint
     );
   end;
 
@@ -65,13 +65,13 @@ implementation
 { TTileDownloaderConfigStatic }
 
 constructor TTileDownloaderConfigStatic.Create(
-  AInetConfigStatic: IInetConfigStatic;
+  const AInetConfigStatic: IInetConfigStatic;
   AEnabled: Boolean;
   AWaitInterval: Cardinal;
   AMaxConnectToServerCount: Cardinal;
   AIgnoreMIMEType: Boolean;
-  AExpectedMIMETypes, ADefaultMIMEType: string;
-  AIteratorSubRectSize: TPoint
+  const AExpectedMIMETypes, ADefaultMIMEType: string;
+  const AIteratorSubRectSize: TPoint
 );
 begin
   FInetConfigStatic := AInetConfigStatic;
