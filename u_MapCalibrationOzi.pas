@@ -35,7 +35,12 @@ type
     // Ѕолее детальное описание прив€зки
     function GetDescription: WideString; safecall;
     // √енерирует прив€зку дл€ склеенной карты.
-    procedure SaveCalibrationInfo(AFileName: WideString; xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter); safecall;
+    procedure SaveCalibrationInfo(
+      const AFileName: WideString;
+      const xy1, xy2: TPoint;
+      Azoom: byte;
+      const AConverter: ICoordConverter
+    ); safecall;
   end;
 
 implementation
@@ -57,8 +62,12 @@ begin
   Result := '.map';
 end;
 
-procedure TMapCalibrationOzi.SaveCalibrationInfo(AFileName: WideString; xy1,
-  xy2: TPoint; Azoom: byte; AConverter: ICoordConverter);
+procedure TMapCalibrationOzi.SaveCalibrationInfo(
+  const AFileName: WideString;
+  const xy1, xy2: TPoint;
+  Azoom: byte;
+  const AConverter: ICoordConverter
+);
 const
   D2R: Double = 0.017453292519943295769236907684886;//  онстанта дл€ преобразовани€ градусов в радианы
 var
@@ -72,6 +81,7 @@ var
   VFileName: String;
   VLL1, VLL2: TDoublePoint;
   VLL: TDoublePoint;
+  VLocalRect: TRect;
 begin
   VFormat.DecimalSeparator := '.';
   VFileName := ChangeFileExt(AFileName, '.map');
@@ -114,28 +124,27 @@ begin
         lats[i] := lats[i] + ',N';
       end;
     end;
+    VLocalRect.TopLeft := Point(0, 0);
+    VLocalRect.BottomRight := Point(xy2.X - xy1.X, xy2.y - xy1.y);
 
-    xy2 := Point(xy2.X - xy1.X, xy2.y - xy1.y);
-    xy1 := Point(0, 0);
-
-    writeln(f, 'Point01,xy,    ' + inttostr(xy1.x) + ', ' + inttostr(xy1.y) + ',in, deg, ' + lats[1] + ', ' + lons[1] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point02,xy,    ' + inttostr(xy2.x) + ', ' + inttostr(xy2.y) + ',in, deg, ' + lats[3] + ', ' + lons[3] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point03,xy,    ' + inttostr(xy1.x) + ', ' + inttostr(xy2.y) + ',in, deg, ' + lats[3] + ', ' + lons[1] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point04,xy,    ' + inttostr(xy2.x) + ', ' + inttostr(xy1.y) + ',in, deg, ' + lats[1] + ', ' + lons[3] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point05,xy,    ' + inttostr((xy2.x - xy1.X) div 2) + ', ' + inttostr((xy2.y - xy1.y) div 2) + ',in, deg, ' + lats[2] + ', ' + lons[2] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point06,xy,    ' + inttostr((xy2.x - xy1.X) div 2) + ', ' + inttostr(xy1.y) + ',in, deg, ' + lats[1] + ', ' + lons[2] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point07,xy,    ' + inttostr(xy1.x) + ', ' + inttostr((xy2.y - xy1.y) div 2) + ',in, deg, ' + lats[2] + ', ' + lons[1] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point08,xy,    ' + inttostr(xy2.x) + ', ' + inttostr((xy2.y - xy1.y) div 2) + ',in, deg, ' + lats[2] + ', ' + lons[3] + ', grid,   ,           ,           ,N');
-    writeln(f, 'Point09,xy,    ' + inttostr((xy2.x - xy1.X) div 2) + ', ' + inttostr(xy2.y) + ',in, deg, ' + lats[3] + ', ' + lons[2] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point01,xy,    ' + inttostr(VLocalRect.Left) + ', ' + inttostr(VLocalRect.Top) + ',in, deg, ' + lats[1] + ', ' + lons[1] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point02,xy,    ' + inttostr(VLocalRect.Right) + ', ' + inttostr(VLocalRect.Bottom) + ',in, deg, ' + lats[3] + ', ' + lons[3] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point03,xy,    ' + inttostr(VLocalRect.Left) + ', ' + inttostr(VLocalRect.Bottom) + ',in, deg, ' + lats[3] + ', ' + lons[1] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point04,xy,    ' + inttostr(VLocalRect.Right) + ', ' + inttostr(VLocalRect.Top) + ',in, deg, ' + lats[1] + ', ' + lons[3] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point05,xy,    ' + inttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + inttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ',in, deg, ' + lats[2] + ', ' + lons[2] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point06,xy,    ' + inttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + inttostr(VLocalRect.Top) + ',in, deg, ' + lats[1] + ', ' + lons[2] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point07,xy,    ' + inttostr(VLocalRect.Left) + ', ' + inttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ',in, deg, ' + lats[2] + ', ' + lons[1] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point08,xy,    ' + inttostr(VLocalRect.Right) + ', ' + inttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ',in, deg, ' + lats[2] + ', ' + lons[3] + ', grid,   ,           ,           ,N');
+    writeln(f, 'Point09,xy,    ' + inttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + inttostr(VLocalRect.Bottom) + ',in, deg, ' + lats[3] + ', ' + lons[2] + ', grid,   ,           ,           ,N');
     for i := 10 to 30 do begin
       writeln(f, 'Point' + inttostr(i) + ',xy,     ,     ,in, deg,    ,        ,N,    ,        ,W, grid,   ,           ,           ,N');
     end;
 
     writeln(f, 'Projection Setup,,,,,,,,,,' + #13#10 + 'Map Feature = MF ; Map Comment = MC     These follow if they exist' + #13#10 + 'Track File = TF      These follow if they exist' + #13#10 + 'Moving Map Parameters = MM?    These follow if they exist' + #13#10 + 'MM0,Yes' + #13#10 + 'MMPNUM,4');
-    writeln(f, 'MMPXY,1,' + inttostr(xy1.X) + ',' + inttostr(xy1.y));
-    writeln(f, 'MMPXY,2,' + inttostr(xy2.X) + ',' + inttostr(xy1.y));
-    writeln(f, 'MMPXY,3,' + inttostr(xy2.X) + ',' + inttostr(xy2.y));
-    writeln(f, 'MMPXY,4,' + inttostr(xy1.X) + ',' + inttostr(xy2.y));
+    writeln(f, 'MMPXY,1,' + inttostr(VLocalRect.Left) + ',' + inttostr(VLocalRect.Top));
+    writeln(f, 'MMPXY,2,' + inttostr(VLocalRect.Right) + ',' + inttostr(VLocalRect.Top));
+    writeln(f, 'MMPXY,3,' + inttostr(VLocalRect.Right) + ',' + inttostr(VLocalRect.Bottom));
+    writeln(f, 'MMPXY,4,' + inttostr(VLocalRect.Left) + ',' + inttostr(VLocalRect.Bottom));
 
     writeln(f, 'MMPLL,1, ' + FloatToStr(lon[1], VFormat) + ', ' + FloatToStr(lat[1], VFormat));
     writeln(f, 'MMPLL,2, ' + FloatToStr(lon[3], VFormat) + ', ' + FloatToStr(lat[1], VFormat));
@@ -146,7 +155,7 @@ begin
 
     writeln(f, 'MM1B,' + FloatToStr(1 / ((AConverter.PixelsAtZoomFloat(Azoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat));
     writeln(f, 'MOP,Map Open Position,0,0');
-    writeln(f, 'IWH,Map Image Width/Height,' + inttostr(xy2.X) + ',' + inttostr(xy2.y));
+    writeln(f, 'IWH,Map Image Width/Height,' + inttostr(VLocalRect.Right) + ',' + inttostr(VLocalRect.Bottom));
   finally
     closefile(f);
   end;
