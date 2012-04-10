@@ -24,14 +24,14 @@ type
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APolygon: ILonLatPolygon;
-      AProjectedPolygon: IProjectedPolygon;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APolygon: ILonLatPolygon;
+      const AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
       AMapType: TMapType;
-      AFileName: string
+      const AFileName: string
     );
   end;
 implementation
@@ -46,14 +46,14 @@ uses
 { TThreadExportToAUX }
 
 constructor TThreadExportToAUX.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APolygon: ILonLatPolygon;
-  AProjectedPolygon: IProjectedPolygon;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APolygon: ILonLatPolygon;
+  const AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
   AMapType: TMapType;
-  AFileName: string
+  const AFileName: string
 );
 begin
   inherited Create(

@@ -24,24 +24,24 @@ type
   protected
     procedure SaveRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AFileName: string;
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverter: ILocalCoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe
+      const ACancelNotifier: IOperationNotifier;
+      const AFileName: string;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverter: ILocalCoordConverter;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe
     ); override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APolygon: ILonLatPolygon;
-      ATargetConverter: ILocalCoordConverter;
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AMapCalibrationList: IInterfaceList;
-      AFileName: string;
-      ASplitCount: TPoint;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APolygon: ILonLatPolygon;
+      const ATargetConverter: ILocalCoordConverter;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AMapCalibrationList: IInterfaceList;
+      const AFileName: string;
+      const ASplitCount: TPoint;
       AWithAlpha: Boolean
     );
   end;
@@ -94,16 +94,16 @@ end;
 { TThreadMapCombinePNG }
 
 constructor TThreadMapCombinePNG.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APolygon: ILonLatPolygon;
-  ATargetConverter: ILocalCoordConverter;
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AMapCalibrationList: IInterfaceList;
-  AFileName: string;
-  ASplitCount: TPoint;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APolygon: ILonLatPolygon;
+  const ATargetConverter: ILocalCoordConverter;
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AMapCalibrationList: IInterfaceList;
+  const AFileName: string;
+  const ASplitCount: TPoint;
   AWithAlpha: Boolean
 );
 begin
@@ -124,11 +124,11 @@ end;
 
 procedure TThreadMapCombinePNG.SaveRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AFileName: string;
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverter: ILocalCoordConverter;
-  AConverterFactory: ILocalCoordConverterFactorySimpe
+  const ACancelNotifier: IOperationNotifier;
+  const AFileName: string;
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverter: ILocalCoordConverter;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 const
   PNG_MAX_HEIGHT = 65536;

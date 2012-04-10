@@ -71,7 +71,7 @@ type
     procedure Hide; override;
     procedure RefreshTranslation; override;
     procedure StartProcess(APolygon: ILonLatPolygon); override;
-    procedure StartBySLS(AFileName: string);
+    procedure StartBySLS(const AFileName: string);
   end;
 
 
@@ -171,7 +171,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartBySLS(AFileName: string);
+procedure TProviderTilesDownload.StartBySLS(const AFileName: string);
 var
   VIni: TMemIniFile;
   VSLSData: IConfigDataProvider;

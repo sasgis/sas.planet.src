@@ -19,11 +19,11 @@ type
   protected
     procedure SaveRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AFileName: string;
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverter: ILocalCoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe
+      const ACancelNotifier: IOperationNotifier;
+      const AFileName: string;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverter: ILocalCoordConverter;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe
     ); override;
   end;
 
@@ -36,11 +36,11 @@ uses
 
 procedure TThreadMapCombineBMP.SaveRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AFileName: string;
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverter: ILocalCoordConverter;
-  AConverterFactory: ILocalCoordConverterFactorySimpe
+  const ACancelNotifier: IOperationNotifier;
+  const AFileName: string;
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverter: ILocalCoordConverter;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 const
   BMP_MAX_WIDTH = 32768;
