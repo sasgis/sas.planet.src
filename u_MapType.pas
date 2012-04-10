@@ -1107,7 +1107,7 @@ begin
   Result := nil;
 
   if FCoordConverter.IsSameConverter(ACoordConverterTarget) then begin
-    Result := LoadBtimap(APixelRectTarget, VZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    Result := LoadBtimap(APixelRectTarget, Azoom, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
     VZoom := Azoom;
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
