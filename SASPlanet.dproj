@@ -395,6 +395,7 @@
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerFillingMapNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGPSMarker.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGrids.pas" />
