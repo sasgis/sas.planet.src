@@ -48,7 +48,7 @@ type
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
   public
-    constructor Create(AFileName: string);
+    constructor Create(const AFileName: string);
     destructor Destroy; override;
   end;
 
@@ -64,7 +64,7 @@ uses
 
 { TConfigDataProviderByKaZip }
 
-constructor TConfigDataProviderByKaZip.Create(AFileName: string);
+constructor TConfigDataProviderByKaZip.Create(const AFileName: string);
 begin
   FSourceFileName := AFileName;
   if AFileName = '' then begin

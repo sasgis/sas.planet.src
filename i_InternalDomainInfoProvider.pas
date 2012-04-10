@@ -28,12 +28,12 @@ uses
 type
   IInternalDomainInfoProvider = interface
     ['{CD84B08E-E84B-4688-9D9A-A9A34F29139D}']
-    function LoadBinaryByFilePath(AFilePath: string; out AContentType: string): IBinaryData;
+    function LoadBinaryByFilePath(const AFilePath: string; out AContentType: string): IBinaryData;
   end;
 
   IInternalDomainInfoProviderList = interface
     ['{C2FE2C8D-C9F3-48F7-AB3B-37119722D118}']
-    function GetByName(AName: string): IInternalDomainInfoProvider;
+    function GetByName(const AName: string): IInternalDomainInfoProvider;
   end;
 
 implementation

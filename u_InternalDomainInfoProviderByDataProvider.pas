@@ -14,14 +14,25 @@ type
     FContentTypeManager: IContentTypeManager;
     FProvider: IConfigDataProvider;
 
-    function LoadDataFromSubDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; out AContentType: string): IBinaryData;
-    function LoadDataFromDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; out AContentType: string): IBinaryData;
+    function LoadDataFromSubDataProvider(
+      const ADataProvider: IConfigDataProvider;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
+    function LoadDataFromDataProvider(
+      const ADataProvider: IConfigDataProvider;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
   private
-    function LoadBinaryByFilePath(AFilePath: string; out AContentType: string): IBinaryData;
+    function LoadBinaryByFilePath(
+      const AFilePath: string;
+      out AContentType: string
+    ): IBinaryData;
   public
     constructor Create(
-      AProvider: IConfigDataProvider;
-      AContentTypeManager: IContentTypeManager
+      const AProvider: IConfigDataProvider;
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
