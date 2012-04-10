@@ -165,6 +165,8 @@ end;
 
 procedure TTileDownloadResultSaverStuped.OnStorageStateChange;
 begin
+  if not Assigned(FStateInternal) then
+    Exit;
   if FStorage.State.GetStatic.WriteAccess = asDisabled then begin
     FStateInternal.Disable('No write access to tile storage');
   end else begin
