@@ -16,7 +16,7 @@ type
     function GetRequest: ITileRequest;
   public
     constructor Create(
-      ARequest: ITileRequest
+      const ARequest: ITileRequest
     );
   end;
 
@@ -30,7 +30,7 @@ type
     function GetDownloadRequest: ITileDownloadRequest;
   public
     constructor Create(
-      ADownloadRequest: ITileDownloadRequest
+      const ADownloadRequest: ITileDownloadRequest
     );
   end;
 
@@ -41,7 +41,7 @@ type
     function GetDownloadResult: IDownloadResult;
   public
     constructor Create(
-      ADownloadResult: IDownloadResult
+      const ADownloadResult: IDownloadResult
     );
   end;
 
@@ -55,7 +55,7 @@ type
     function GetDownloadResult: IDownloadResult;
   public
     constructor Create(
-      ADownloadResult: IDownloadResult
+      const ADownloadResult: IDownloadResult
     );
   end;
 
@@ -66,8 +66,8 @@ type
     function GetErrorText: string;
   public
     constructor Create(
-      ARequest: ITileRequest;
-      AErrorText: string
+      const ARequest: ITileRequest;
+      const AErrorText: string
     );
   end;
 
@@ -78,8 +78,8 @@ type
     function GetDownloadRequest: ITileDownloadRequest;
   public
     constructor Create(
-      ADownloadRequest: ITileDownloadRequest;
-      AErrorText: string
+      const ADownloadRequest: ITileDownloadRequest;
+      const AErrorText: string
     );
   end;
 
@@ -90,8 +90,8 @@ type
     function GetDownloadResult: IDownloadResult;
   public
     constructor Create(
-      ADownloadResult: IDownloadResult;
-      AErrorText: string
+      const ADownloadResult: IDownloadResult;
+      const AErrorText: string
     );
   end;
 
@@ -99,7 +99,7 @@ implementation
 
 { TTileRequestResult }
 
-constructor TTileRequestResult.Create(ARequest: ITileRequest);
+constructor TTileRequestResult.Create(const ARequest: ITileRequest);
 begin
   FRequest := ARequest;
 end;
@@ -112,7 +112,8 @@ end;
 { TTileRequestResultCanceledAfterBuildDownloadRequest }
 
 constructor TTileRequestResultCanceledAfterBuildDownloadRequest.Create(
-  ADownloadRequest: ITileDownloadRequest);
+  const ADownloadRequest: ITileDownloadRequest
+);
 begin
   FDownloadRequest := ADownloadRequest;
   inherited Create(FDownloadRequest.Source);
@@ -126,7 +127,7 @@ end;
 { TTileRequestResultCanceledAfterDownloadRequest }
 
 constructor TTileRequestResultCanceledAfterDownloadRequest.Create(
-  ADownloadResult: IDownloadResult
+  const ADownloadResult: IDownloadResult
 );
 var
   VRequest: ITileDownloadRequest;
@@ -143,7 +144,7 @@ end;
 
 { TTileRequestResultOk }
 
-constructor TTileRequestResultOk.Create(ADownloadResult: IDownloadResult);
+constructor TTileRequestResultOk.Create(const ADownloadResult: IDownloadResult);
 begin
   FDownloadResult := ADownloadResult;
   FDownloadRequest := FDownloadResult.Request as ITileDownloadRequest;;
@@ -163,8 +164,8 @@ end;
 { TTileRequestResultErrorAfterBuildDownloadRequest }
 
 constructor TTileRequestResultErrorAfterBuildDownloadRequest.Create(
-  ADownloadRequest: ITileDownloadRequest;
-  AErrorText: string
+  const ADownloadRequest: ITileDownloadRequest;
+  const AErrorText: string
 );
 begin
   FDownloadRequest := ADownloadRequest;
@@ -179,8 +180,8 @@ end;
 { TTileRequestResultErrorAfterDownloadRequest }
 
 constructor TTileRequestResultErrorAfterDownloadRequest.Create(
-  ADownloadResult: IDownloadResult;
-  AErrorText: string
+  const ADownloadResult: IDownloadResult;
+  const AErrorText: string
 );
 var
   VRequest: ITileDownloadRequest;
@@ -198,7 +199,9 @@ end;
 { TTileRequestResultErrorBeforBuildDownloadRequest }
 
 constructor TTileRequestResultErrorBeforBuildDownloadRequest.Create(
-  ARequest: ITileRequest; AErrorText: string);
+  const ARequest: ITileRequest;
+  const AErrorText: string
+);
 begin
   inherited Create(ARequest);
   FErrorText := AErrorText;

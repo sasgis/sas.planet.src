@@ -30,7 +30,7 @@ type
   private
     function HTML2Txt(OrigHTML: String): String;
   protected
-    function Convert(AName, ADescription: string): string;
+    function Convert(const AName, ADescription: string): string;
   end;
 
 function StupedHtmlToTextConverter(const ASource: String): String;
@@ -78,8 +78,9 @@ end;
 
 { THtmlToHintTextConverterStuped }
 
-function THtmlToHintTextConverterStuped.Convert(AName,
-  ADescription: string): string;
+function THtmlToHintTextConverterStuped.Convert(
+  const AName, ADescription: string
+): string;
 var
   i,j: Integer;
   VNameInDesc: Boolean;
@@ -144,7 +145,7 @@ begin
   end;
   result := Copy(pString, lIni, lFim - lIni);
 end;
-function mid(str:string; pos:integer):string;
+function mid(const str:string; pos:integer):string;
 begin
  result:=copy(str,pos, length(str)-pos+1);
 end;

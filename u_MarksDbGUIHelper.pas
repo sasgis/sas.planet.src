@@ -73,7 +73,11 @@ type
     function EditCategoryModal(ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
     function SavePolyModal(AMark: IMarkPoly; ALine: ILonLatPolygon): Boolean;
-    function SaveLineModal(AMark: IMarkLine; ALine: ILonLatPath; ADescription: string): Boolean;
+    function SaveLineModal(
+      const AMark: IMarkLine;
+      const ALine: ILonLatPath;
+      const ADescription: string
+    ): Boolean;
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(ACategory:ICategory): IImportConfig;
 
@@ -345,9 +349,9 @@ begin
 end;
 
 function TMarksDbGUIHelper.SaveLineModal(
-  AMark: IMarkLine;
-  ALine: ILonLatPath;
-  ADescription: string
+  const AMark: IMarkLine;
+  const ALine: ILonLatPath;
+  const ADescription: string
 ): Boolean;
 var
   VMark: IMarkLine;

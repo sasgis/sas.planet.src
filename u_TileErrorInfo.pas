@@ -43,8 +43,8 @@ type
     constructor Create(
       AMapType: TMapType;
       AZoom: Byte;
-      ATile: TPoint;
-      AErrorText: string
+      const ATile: TPoint;
+      const AErrorText: string
     );
   end;
 
@@ -52,8 +52,12 @@ implementation
 
 { TTileErrorInfo }
 
-constructor TTileErrorInfo.Create(AMapType: TMapType; AZoom: Byte;
-  ATile: TPoint; AErrorText: string);
+constructor TTileErrorInfo.Create(
+  AMapType: TMapType;
+  AZoom: Byte;
+  const ATile: TPoint;
+  const AErrorText: string
+);
 begin
   FMapType := AMapType;
   FZoom := AZoom;
