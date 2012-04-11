@@ -29,135 +29,135 @@ type
       ACount: Integer
     ): ILonLatPolygon;
     function CreateLonLatPathByEnum(
-      AEnum: IEnumLonLatPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const AEnum: IEnumLonLatPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): ILonLatPath;
     function CreateLonLatPolygonByEnum(
-      AEnum: IEnumLonLatPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const AEnum: IEnumLonLatPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): ILonLatPolygon;
 
     function CreateProjectedPath(
-      AProjection: IProjectionInfo;
+      const AProjection: IProjectionInfo;
       APoints: PDoublePointArray;
       ACount: Integer
     ): IProjectedPath;
     function CreateProjectedPolygon(
-      AProjection: IProjectionInfo;
+      const AProjection: IProjectionInfo;
       APoints: PDoublePointArray;
       ACount: Integer
     ): IProjectedPolygon;
     function CreateLocalPath(
-      ALocalConverter: ILocalCoordConverter;
+      const ALocalConverter: ILocalCoordConverter;
       APoints: PDoublePointArray;
       ACount: Integer
     ): ILocalPath;
     function CreateLocalPolygon(
-      ALocalConverter: ILocalCoordConverter;
+      const ALocalConverter: ILocalCoordConverter;
       APoints: PDoublePointArray;
       ACount: Integer
     ): ILocalPolygon;
 
     function CreateLonLatPolygonLineByRect(
-      ARect: TDoubleRect
+      const ARect: TDoubleRect
     ): ILonLatPolygonLine;
     function CreateLonLatPolygonByRect(
-      ARect: TDoubleRect
+      const ARect: TDoubleRect
     ): ILonLatPolygon;
     function CreateProjectedPolygonLineByRect(
-      AProjection: IProjectionInfo;
-      ARect: TDoubleRect
+      const AProjection: IProjectionInfo;
+      const ARect: TDoubleRect
     ): IProjectedPolygonLine;
     function CreateProjectedPolygonByRect(
-      AProjection: IProjectionInfo;
-      ARect: TDoubleRect
+      const AProjection: IProjectionInfo;
+      const ARect: TDoubleRect
     ): IProjectedPolygon;
 
     function CreateLonLatPolygonByLonLatPathAndFilter(
-      ASource: ILonLatPath;
-      AFilter: ILonLatPointFilter
+      const ASource: ILonLatPath;
+      const AFilter: ILonLatPointFilter
     ): ILonLatPolygon;
 
     function CreateProjectedPathByEnum(
-      AProjection: IProjectionInfo;
-      AEnum: IEnumProjectedPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const AEnum: IEnumProjectedPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByEnum(
-      AProjection: IProjectionInfo;
-      AEnum: IEnumProjectedPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const AEnum: IEnumProjectedPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
     function CreateLocalPathByEnum(
-      ALocalConverter: ILocalCoordConverter;
-      AEnum: IEnumLocalPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const ALocalConverter: ILocalCoordConverter;
+      const AEnum: IEnumLocalPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): ILocalPath;
     function CreateLocalPolygonByEnum(
-      ALocalConverter: ILocalCoordConverter;
-      AEnum: IEnumLocalPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const ALocalConverter: ILocalCoordConverter;
+      const AEnum: IEnumLocalPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): ILocalPolygon;
 
     function CreateProjectedPathByLonLatEnum(
-      AProjection: IProjectionInfo;
-      AEnum: IEnumLonLatPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const AEnum: IEnumLonLatPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByLonLatEnum(
-      AProjection: IProjectionInfo;
-      AEnum: IEnumLonLatPoint;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const AEnum: IEnumLonLatPoint;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function CreateProjectedPathByLonLatPath(
-      AProjection: IProjectionInfo;
-      ASource: ILonLatPath;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const ASource: ILonLatPath;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByLonLatPolygon(
-      AProjection: IProjectionInfo;
-      ASource: ILonLatPolygon;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const ASource: ILonLatPolygon;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function CreateProjectedPathWithClipByLonLatEnum(
-      AProjection: IProjectionInfo;
-      AEnum: IEnumLonLatPoint;
-      AMapPixelsClipRect: TDoubleRect;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const AEnum: IEnumLonLatPoint;
+      const AMapPixelsClipRect: TDoubleRect;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonWithClipByLonLatEnum(
-      AProjection: IProjectionInfo;
-      AEnum: IEnumLonLatPoint;
-      AMapPixelsClipRect: TDoubleRect;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const AEnum: IEnumLonLatPoint;
+      const AMapPixelsClipRect: TDoubleRect;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function CreateProjectedPathWithClipByLonLatPath(
-      AProjection: IProjectionInfo;
-      ASource: ILonLatPath;
-      AMapPixelsClipRect: TDoubleRect;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const ASource: ILonLatPath;
+      const AMapPixelsClipRect: TDoubleRect;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonWithClipByLonLatPolygon(
-      AProjection: IProjectionInfo;
-      ASource: ILonLatPolygon;
-      AMapPixelsClipRect: TDoubleRect;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const ASource: ILonLatPolygon;
+      const AMapPixelsClipRect: TDoubleRect;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function CreateProjectedPathByLonLatPathUseConverter(
-      AProjection: IProjectionInfo;
-      ASource: ILonLatPath;
-      AConverter: ILonLatPointConverter;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const ASource: ILonLatPath;
+      const AConverter: ILonLatPointConverter;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function CreateProjectedPolygonByLonLatPolygonUseConverter(
-      AProjection: IProjectionInfo;
-      ASource: ILonLatPolygon;
-      AConverter: ILonLatPointConverter;
-      ATemp: IDoublePointsAggregator = nil
+      const AProjection: IProjectionInfo;
+      const ASource: ILonLatPolygon;
+      const AConverter: ILonLatPointConverter;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
   public
     constructor Create();
@@ -185,7 +185,7 @@ uses
 
 constructor TVectorItmesFactorySimple.Create;
 var
-VEmpty: TLineSetEmpty;
+  VEmpty: TLineSetEmpty;
 begin
   VEmpty := TLineSetEmpty.Create;
   FEmptyLonLatPath := VEmpty;
@@ -193,8 +193,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLocalPath(
-  ALocalConverter: ILocalCoordConverter; APoints: PDoublePointArray;
-  ACount: Integer): ILocalPath;
+  const ALocalConverter: ILocalCoordConverter;
+  APoints: PDoublePointArray;
+  ACount: Integer
+): ILocalPath;
 var
   VLine: ILocalPathLine;
   i: Integer;
@@ -251,8 +253,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLocalPathByEnum(
-  ALocalConverter: ILocalCoordConverter; AEnum: IEnumLocalPoint;
-  ATemp: IDoublePointsAggregator): ILocalPath;
+  const ALocalConverter: ILocalCoordConverter;
+  const AEnum: IEnumLocalPoint;
+  const ATemp: IDoublePointsAggregator
+): ILocalPath;
 var
   VPoint: TDoublePoint;
   VLine: ILocalPathLine;
@@ -308,8 +312,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLocalPolygon(
-  ALocalConverter: ILocalCoordConverter; APoints: PDoublePointArray;
-  ACount: Integer): ILocalPolygon;
+  const ALocalConverter: ILocalCoordConverter;
+  APoints: PDoublePointArray;
+  ACount: Integer
+): ILocalPolygon;
 var
   VLine: ILocalPolygonLine;
   i: Integer;
@@ -366,8 +372,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLocalPolygonByEnum(
-  ALocalConverter: ILocalCoordConverter; AEnum: IEnumLocalPoint;
-  ATemp: IDoublePointsAggregator): ILocalPolygon;
+  const ALocalConverter: ILocalCoordConverter;
+  const AEnum: IEnumLocalPoint;
+  const ATemp: IDoublePointsAggregator
+): ILocalPolygon;
 var
   VPoint: TDoublePoint;
   VLine: ILocalPolygonLine;
@@ -492,8 +500,8 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPathByEnum(
-  AEnum: IEnumLonLatPoint;
-  ATemp: IDoublePointsAggregator
+  const AEnum: IEnumLonLatPoint;
+  const ATemp: IDoublePointsAggregator
 ): ILonLatPath;
 var
   VPoint: TDoublePoint;
@@ -628,7 +636,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygonByEnum(
-  AEnum: IEnumLonLatPoint; ATemp: IDoublePointsAggregator): ILonLatPolygon;
+  const AEnum: IEnumLonLatPoint;
+  const ATemp: IDoublePointsAggregator
+): ILonLatPolygon;
 var
   VPoint: TDoublePoint;
   VLine: ILonLatPolygonLine;
@@ -694,8 +704,8 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygonByLonLatPathAndFilter(
-  ASource: ILonLatPath;
-  AFilter: ILonLatPointFilter
+  const ASource: ILonLatPath;
+  const AFilter: ILonLatPointFilter
 ): ILonLatPolygon;
 var
   i: Integer;
@@ -743,13 +753,15 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygonByRect(
-  ARect: TDoubleRect): ILonLatPolygon;
+  const ARect: TDoubleRect
+): ILonLatPolygon;
 begin
   Result := TLonLatPolygonOneLine.Create(CreateLonLatPolygonLineByRect(ARect));
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygonLineByRect(
-  ARect: TDoubleRect): ILonLatPolygonLine;
+  const ARect: TDoubleRect
+): ILonLatPolygonLine;
 var
   VPoints: array [0..4] of TDoublePoint;
 begin
@@ -762,12 +774,11 @@ begin
   Result := TLonLatPolygonLine.Create(@VPoints[0], 4);
 end;
 
-function TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatPolygonUseConverter(
-  AProjection: IProjectionInfo;
-  ASource: ILonLatPolygon;
-  AConverter: ILonLatPointConverter;
-  ATemp: IDoublePointsAggregator
-): IProjectedPolygon;
+function
+    TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatPolygonUseConverter(
+    const AProjection: IProjectionInfo; const ASource: ILonLatPolygon; const
+    AConverter: ILonLatPointConverter; const ATemp: IDoublePointsAggregator =
+    nil): IProjectedPolygon;
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPolygonLine;
@@ -842,8 +853,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPath(
-  AProjection: IProjectionInfo; APoints: PDoublePointArray;
-  ACount: Integer): IProjectedPath;
+  const AProjection: IProjectionInfo;
+  APoints: PDoublePointArray;
+  ACount: Integer
+): IProjectedPath;
 var
   VLine: IProjectedPathLine;
   i: Integer;
@@ -911,9 +924,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByEnum(
-  AProjection: IProjectionInfo;
-  AEnum: IEnumProjectedPoint;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const AEnum: IEnumProjectedPoint;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPath;
 var
   VPoint: TDoublePoint;
@@ -980,9 +993,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByLonLatEnum(
-  AProjection: IProjectionInfo;
-  AEnum: IEnumLonLatPoint;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const AEnum: IEnumLonLatPoint;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPath;
 begin
   Result :=
@@ -1000,8 +1013,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByLonLatPath(
-  AProjection: IProjectionInfo; ASource: ILonLatPath;
-  ATemp: IDoublePointsAggregator): IProjectedPath;
+  const AProjection: IProjectionInfo;
+  const ASource: ILonLatPath;
+  const ATemp: IDoublePointsAggregator
+): IProjectedPath;
 begin
   Result :=
     CreateProjectedPathByLonLatEnum(
@@ -1012,9 +1027,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByLonLatPathUseConverter(
-  AProjection: IProjectionInfo; ASource: ILonLatPath;
-  AConverter: ILonLatPointConverter;
-  ATemp: IDoublePointsAggregator): IProjectedPath;
+    const AProjection: IProjectionInfo; const ASource: ILonLatPath; const
+    AConverter: ILonLatPointConverter; const ATemp: IDoublePointsAggregator =
+    nil): IProjectedPath;
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPathLine;
@@ -1089,10 +1104,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathWithClipByLonLatEnum(
-  AProjection: IProjectionInfo;
-  AEnum: IEnumLonLatPoint;
-  AMapPixelsClipRect: TDoubleRect;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const AEnum: IEnumLonLatPoint;
+  const AMapPixelsClipRect: TDoubleRect;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPath;
 begin
   Result :=
@@ -1114,9 +1129,11 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathWithClipByLonLatPath(
-  AProjection: IProjectionInfo; ASource: ILonLatPath;
-  AMapPixelsClipRect: TDoubleRect;
-  ATemp: IDoublePointsAggregator): IProjectedPath;
+  const AProjection: IProjectionInfo;
+  const ASource: ILonLatPath;
+  const AMapPixelsClipRect: TDoubleRect;
+  const ATemp: IDoublePointsAggregator
+): IProjectedPath;
 begin
   Result :=
     CreateProjectedPathWithClipByLonLatEnum(
@@ -1128,8 +1145,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygon(
-  AProjection: IProjectionInfo; APoints: PDoublePointArray;
-  ACount: Integer): IProjectedPolygon;
+  const AProjection: IProjectionInfo;
+  APoints: PDoublePointArray;
+  ACount: Integer
+): IProjectedPolygon;
 var
   VLine: IProjectedPolygonLine;
   i: Integer;
@@ -1197,9 +1216,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonByEnum(
-  AProjection: IProjectionInfo;
-  AEnum: IEnumProjectedPoint;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const AEnum: IEnumProjectedPoint;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPolygon;
 var
   VPoint: TDoublePoint;
@@ -1266,9 +1285,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatEnum(
-  AProjection: IProjectionInfo;
-  AEnum: IEnumLonLatPoint;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const AEnum: IEnumLonLatPoint;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPolygon;
 begin
   Result :=
@@ -1288,9 +1307,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatPolygon(
-  AProjection: IProjectionInfo;
-  ASource: ILonLatPolygon;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const ASource: ILonLatPolygon;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPolygon;
 begin
   Result :=
@@ -1302,13 +1321,17 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonByRect(
-  AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygon;
+  const AProjection: IProjectionInfo;
+  const ARect: TDoubleRect
+): IProjectedPolygon;
 begin
   Result := TProjectedPolygonOneLine.Create(CreateProjectedPolygonLineByRect(AProjection, ARect));
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonLineByRect(
-  AProjection: IProjectionInfo; ARect: TDoubleRect): IProjectedPolygonLine;
+  const AProjection: IProjectionInfo;
+  const ARect: TDoubleRect
+): IProjectedPolygonLine;
 var
   VPoints: array [0..4] of TDoublePoint;
 begin
@@ -1322,10 +1345,10 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonWithClipByLonLatEnum(
-  AProjection: IProjectionInfo;
-  AEnum: IEnumLonLatPoint;
-  AMapPixelsClipRect: TDoubleRect;
-  ATemp: IDoublePointsAggregator
+  const AProjection: IProjectionInfo;
+  const AEnum: IEnumLonLatPoint;
+  const AMapPixelsClipRect: TDoubleRect;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPolygon;
 begin
   Result :=
@@ -1349,9 +1372,11 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygonWithClipByLonLatPolygon(
-  AProjection: IProjectionInfo; ASource: ILonLatPolygon;
-  AMapPixelsClipRect: TDoubleRect;
-  ATemp: IDoublePointsAggregator): IProjectedPolygon;
+  const AProjection: IProjectionInfo;
+  const ASource: ILonLatPolygon;
+  const AMapPixelsClipRect: TDoubleRect;
+  const ATemp: IDoublePointsAggregator
+): IProjectedPolygon;
 begin
   Result :=
     CreateProjectedPolygonWithClipByLonLatEnum(
