@@ -18,14 +18,14 @@ type
   private
     function GetLocalConverter: ILocalCoordConverter;
     function GetTileRect: TRect;
-    function GetElementByTile(ATile: TPoint): ITileMatrixElement;
+    function GetElementByTile(const ATile: TPoint): ITileMatrixElement;
     function GetItem(AX, AY: Integer): ITileMatrixElement;
   public
     constructor Create(
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      ALocalConverter: ILocalCoordConverter;
-      ATileRect: TRect;
-      AItems: array of ITileMatrixElement
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ALocalConverter: ILocalCoordConverter;
+      const ATileRect: TRect;
+      const AItems: array of ITileMatrixElement
     );
     destructor Destroy; override;
   end;
@@ -38,10 +38,10 @@ uses
 { TTileMatrix }
 
 constructor TTileMatrix.Create(
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  ALocalConverter: ILocalCoordConverter;
-  ATileRect: TRect;
-  AItems: array of ITileMatrixElement
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ALocalConverter: ILocalCoordConverter;
+  const ATileRect: TRect;
+  const AItems: array of ITileMatrixElement
 );
 var
   VItemsCount: Integer;
@@ -99,7 +99,7 @@ begin
   inherited;
 end;
 
-function TTileMatrix.GetElementByTile(ATile: TPoint): ITileMatrixElement;
+function TTileMatrix.GetElementByTile(const ATile: TPoint): ITileMatrixElement;
 begin
   Result := GetItem(ATile.X - FTileRect.Left, ATile.Y - FTileRect.Top);
 end;

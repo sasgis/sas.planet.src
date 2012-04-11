@@ -53,7 +53,11 @@ type
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
   public
-    constructor Create(AFullFileName: string; AName: string; ALoader: IBitmapTileLoader);
+    constructor Create(
+      const AFullFileName: string;
+      const AName: string;
+      const ALoader: IBitmapTileLoader
+    );
     destructor Destroy; override;
   end;
 
@@ -68,7 +72,11 @@ uses
   u_BitmapMarkerProviderStaticFromDataProvider;
 
 { TMarkPictureSimple }
-constructor TMarkPictureSimple.Create(AFullFileName: string; AName: string; ALoader: IBitmapTileLoader);
+constructor TMarkPictureSimple.Create(
+  const AFullFileName: string;
+  const AName: string;
+  const ALoader: IBitmapTileLoader
+);
 begin
   FFullFileName := AFullFileName;
   FName := AName;

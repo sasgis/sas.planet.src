@@ -53,21 +53,21 @@ type
     FByCategoryList: IIDInterfaceList;
 
     function ReadCurrentMark: IMark;
-    procedure WriteCurrentMarkId(AMark: IMarkId);
-    procedure WriteCurrentMark(AMark: IMark);
+    procedure WriteCurrentMarkId(const AMark: IMarkId);
+    procedure WriteCurrentMark(const AMark: IMark);
 
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
     function GetDbCode: Integer;
     procedure InitEmptyDS(ACdsMarks: TClientDataSet);
-    function GetCategoryID(ACategory: ICategory): Integer;
-    function GetFilterTextByCategory(ACategory: ICategory): string;
-    function _UpdateMark(AOldMark: IInterface; ANewMark: IInterface): IMark;
+    function GetCategoryID(const ACategory: ICategory): Integer;
+    function GetFilterTextByCategory(const ACategory: ICategory): string;
+    function _UpdateMark(const AOldMark: IInterface; const ANewMark: IInterface): IMark;
     procedure _AddMarksToList(
-      ASourceList: IIDInterfaceList;
-      ARect: TDoubleRect;
+      const ASourceList: IIDInterfaceList;
+      const ARect: TDoubleRect;
       AIgnoreVisible: Boolean;
-      AResultList: IInterfaceList
+      const AResultList: IInterfaceList
     );
   private
     procedure LockRead; virtual;
@@ -78,29 +78,29 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   private
-    function UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
-    function UpdateMarksList(AOldMarkList: IInterfaceList; ANewMarkList: IInterfaceList): IInterfaceList;
+    function UpdateMark(const AOldMark: IInterface; const ANewMark: IMark): IMark;
+    function UpdateMarksList(const AOldMarkList: IInterfaceList; const ANewMarkList: IInterfaceList): IInterfaceList;
 
-    function GetMarkByID(AMarkId: IMarkId): IMark;
-    procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
-    function GetMarkVisible(AMark: IMarkId): Boolean; overload;
-    function GetMarkVisible(AMark: IMark): Boolean; overload;
-    function GetMarkIsNew(AMark: IMark): Boolean;
+    function GetMarkByID(const AMarkId: IMarkId): IMark;
+    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
+    function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
+    function GetMarkVisible(const AMark: IMark): Boolean; overload;
+    function GetMarkIsNew(const AMark: IMark): Boolean;
     function GetFactory: IMarkFactory;
     function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
+    function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
-    procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(const ACategory: ICategory; ANewVisible: Boolean);
 
-    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
-    function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(const ARect: TDoubleRect; const ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(const ARect: TDoubleRect; const ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
   public
     constructor Create(
-      ABasePath: IPathConfig;
-      ACategoryDB: IMarkCategoryDBSmlInternal;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
-      AFactoryConfig: IMarksFactoryConfig
+      const ABasePath: IPathConfig;
+      const ACategoryDB: IMarkCategoryDBSmlInternal;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AFactoryConfig: IMarksFactoryConfig
     );
     destructor Destroy; override;
   end;
@@ -250,11 +250,11 @@ begin
 end;
 
 constructor TMarksDb.Create(
-  ABasePath: IPathConfig;
-  ACategoryDB: IMarkCategoryDBSmlInternal;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
-  AFactoryConfig: IMarksFactoryConfig
+  const ABasePath: IPathConfig;
+  const ACategoryDB: IMarkCategoryDBSmlInternal;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AFactoryConfig: IMarksFactoryConfig
 );
 var
   VFactory: TMarkFactory;
@@ -311,7 +311,10 @@ begin
   FSync.EndWrite;
 end;
 
-function TMarksDb._UpdateMark(AOldMark: IInterface; ANewMark: IInterface): IMark;
+function TMarksDb._UpdateMark(
+  const AOldMark: IInterface;
+  const ANewMark: IInterface
+): IMark;
 var
   VIdOld: Integer;
   VIdNew: Integer;
@@ -437,7 +440,10 @@ begin
   end;
 end;
 
-function TMarksDb.UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
+function TMarksDb.UpdateMark(
+  const AOldMark: IInterface;
+  const ANewMark: IMark
+): IMark;
 begin
   Assert((AOldMark <> nil) or (ANewMark <> nil));
   LockWrite;
@@ -449,8 +455,9 @@ begin
   SaveMarks2File;
 end;
 
-function TMarksDb.UpdateMarksList(AOldMarkList,
-  ANewMarkList: IInterfaceList): IInterfaceList;
+function TMarksDb.UpdateMarksList(
+  const AOldMarkList, ANewMarkList: IInterfaceList
+): IInterfaceList;
 var
   i: Integer;
   VNew: IInterface;
@@ -563,13 +570,13 @@ begin
     );
 end;
 
-procedure TMarksDb.WriteCurrentMarkId(AMark: IMarkId);
+procedure TMarksDb.WriteCurrentMarkId(const AMark: IMarkId);
 begin
   FCdsMarks.FieldByName('name').AsString := AMark.name;
   FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
 end;
 
-procedure TMarksDb.WriteCurrentMark(AMark: IMark);
+procedure TMarksDb.WriteCurrentMark(const AMark: IMark);
 var
   VMarkVisible: IMarkSMLInternal;
   VMarkPointSml: IMarkPointSMLInternal;
@@ -626,7 +633,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarkByID(AMarkId: IMarkId): IMark;
+function TMarksDb.GetMarkByID(const AMarkId: IMarkId): IMark;
 var
   VId: Integer;
   VMarkVisible: IMarkSMLInternal;
@@ -648,7 +655,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarkIsNew(AMark: IMark): Boolean;
+function TMarksDb.GetMarkIsNew(const AMark: IMark): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -660,7 +667,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarkVisible(AMark: IMark): Boolean;
+function TMarksDb.GetMarkVisible(const AMark: IMark): Boolean;
 var
   VMarkVisible: IMarkSMLInternal;
 begin
@@ -672,7 +679,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarkVisible(AMark: IMarkId): Boolean;
+function TMarksDb.GetMarkVisible(const AMark: IMarkId): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -684,8 +691,10 @@ begin
   end;
 end;
 
-procedure TMarksDb.SetAllMarksInCategoryVisible(ACategory: ICategory;
-  ANewVisible: Boolean);
+procedure TMarksDb.SetAllMarksInCategoryVisible(
+  const ACategory: ICategory;
+  ANewVisible: Boolean
+);
 var
   VVisible: Boolean;
   VFilter: string;
@@ -729,7 +738,7 @@ begin
   end;
 end;
 
-procedure TMarksDb.SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
+procedure TMarksDb.SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
 var
   VMarkVisible: IMarkSMLInternal;
   VId: Integer;
@@ -791,7 +800,7 @@ begin
   Result := FFactory;
 end;
 
-function TMarksDb.GetCategoryID(ACategory: ICategory): Integer;
+function TMarksDb.GetCategoryID(const ACategory: ICategory): Integer;
 var
   VCategoryInternal: IMarkCategorySMLInternal;
 begin
@@ -802,7 +811,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
+function TMarksDb.GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
 var
   VMarkId: IMarkId;
   VCategoryId: Integer;
@@ -855,7 +864,7 @@ begin
   ACdsMarks.Open;
 end;
 
-function TMarksDb.GetFilterTextByCategory(ACategory: ICategory): string;
+function TMarksDb.GetFilterTextByCategory(const ACategory: ICategory): string;
 var
   VCategoryID: Integer;
 begin
@@ -869,10 +878,10 @@ begin
 end;
 
 procedure TMarksDb._AddMarksToList(
-  ASourceList: IIDInterfaceList;
-  ARect: TDoubleRect;
+  const ASourceList: IIDInterfaceList;
+  const ARect: TDoubleRect;
   AIgnoreVisible: Boolean;
-  AResultList: IInterfaceList
+  const AResultList: IInterfaceList
 );
 var
   VMark: IMark;
@@ -903,8 +912,11 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarksSubset(ARect: TDoubleRect;
-  ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset;
+function TMarksDb.GetMarksSubset(
+  const ARect: TDoubleRect;
+  const ACategoryList: IInterfaceList;
+  AIgnoreVisible: Boolean
+): IMarksSubset;
 var
   VResultList: IInterfaceList;
   i: Integer;
@@ -936,8 +948,11 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory;
-  AIgnoreVisible: Boolean): IMarksSubset;
+function TMarksDb.GetMarksSubset(
+  const ARect: TDoubleRect;
+  const ACategory: ICategory;
+  AIgnoreVisible: Boolean
+): IMarksSubset;
 var
   VResultList: IInterfaceList;
   VCategoryId: Integer;

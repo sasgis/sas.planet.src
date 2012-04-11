@@ -33,7 +33,7 @@ type
     function GetTileRect: TRect;
     property TileRect: TRect read GetTileRect;
 
-    function GetElementByTile(ATile: TPoint): ITileMatrixElement;
+    function GetElementByTile(const ATile: TPoint): ITileMatrixElement;
 
     function GetItem(AX, AY: Integer): ITileMatrixElement;
     property Items[AX, AY: Integer]: ITileMatrixElement read GetItem;

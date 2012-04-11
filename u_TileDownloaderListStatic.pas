@@ -16,7 +16,7 @@ type
     function GetItem(AIndex: Integer): ITileDownloader;
   public
     constructor Create(
-      AList: array of ITileDownloader
+      const AList: array of ITileDownloader
     );
     destructor Destroy; override;
   end;
@@ -26,7 +26,7 @@ implementation
 { TTileDownloaderListStatic }
 
 constructor TTileDownloaderListStatic.Create(
-  AList: array of ITileDownloader
+  const AList: array of ITileDownloader
 );
 var
   i: Integer;

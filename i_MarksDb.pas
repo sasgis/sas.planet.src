@@ -32,22 +32,22 @@ uses
 type
   IMarksDb = interface
     ['{66181215-0260-42A3-9CEA-549329D85F74}']
-    function UpdateMark(AOldMark: IInterface; ANewMark: IMark): IMark;
-    function UpdateMarksList(AOldMarkList: IInterfaceList; ANewMarkList: IInterfaceList): IInterfaceList;
+    function UpdateMark(const AOldMark: IInterface; const ANewMark: IMark): IMark;
+    function UpdateMarksList(const AOldMarkList: IInterfaceList; const ANewMarkList: IInterfaceList): IInterfaceList;
 
-    function GetMarkByID(AMarkId: IMarkId): IMark;
-    function GetMarkIsNew(AMark: IMark): Boolean;
+    function GetMarkByID(const AMarkId: IMarkId): IMark;
+    function GetMarkIsNew(const AMark: IMark): Boolean;
 
     function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(ACategory: ICategory): IInterfaceList;
+    function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
-    procedure SetMarkVisibleByID(AMark: IMarkId; AVisible: Boolean);
-    function GetMarkVisible(AMark: IMarkId): Boolean; overload;
-    function GetMarkVisible(AMark: IMark): Boolean; overload;
-    procedure SetAllMarksInCategoryVisible(ACategory: ICategory; ANewVisible: Boolean);
+    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
+    function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
+    function GetMarkVisible(const AMark: IMark): Boolean; overload;
+    procedure SetAllMarksInCategoryVisible(const ACategory: ICategory; ANewVisible: Boolean);
 
-    function GetMarksSubset(ARect: TDoubleRect; ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
-    function GetMarksSubset(ARect: TDoubleRect; ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(const ARect: TDoubleRect; const ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(const ARect: TDoubleRect; const ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
 
     function GetFactory: IMarkFactory;
     property Factory: IMarkFactory read GetFactory;

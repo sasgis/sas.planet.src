@@ -34,7 +34,7 @@ type
     function GetCount: Integer;
   public
     constructor Create(
-      AList: array of TGUID;
+      const AList: array of TGUID;
       ACount: Integer
     );
     destructor Destroy; override;
@@ -44,7 +44,10 @@ implementation
 
 { TGUIDListStatic }
 
-constructor TGUIDListStatic.Create(AList: array of TGUID; ACount: Integer);
+constructor TGUIDListStatic.Create(
+  const AList: array of TGUID;
+  ACount: Integer
+);
 var
   i: Integer;
 begin
