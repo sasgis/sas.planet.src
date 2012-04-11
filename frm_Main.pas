@@ -108,6 +108,7 @@ uses
   u_MapLayerNavToMark,
   u_MapLayerSearchResults,
   u_MapLayerFillingMap,
+  u_MapLayerFillingMapNew,
   u_MiniMapLayer,
   u_MapLayerGrids,
   u_MapLayerTileGrid,
@@ -1142,18 +1143,33 @@ begin
         FConfig.MainMapsConfig.GetActiveKmlLayersSet
       );
     FLayersList.Add(FWikiLayer);
-    FLayersList.Add(
-      TMapLayerFillingMap.Create(
-        GState.PerfCounterList,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.FillingMapLayerConfig
-      )
-    );
+    if FConfig.MainConfig.UseNewMainLayer then begin
+      FLayersList.Add(
+        TMapLayerFillingMapNew.Create(
+          GState.PerfCounterList,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.GUISyncronizedTimerNotifier,
+          FConfig.LayersConfig.FillingMapLayerConfig
+        )
+      );
+    end else begin
+      FLayersList.Add(
+        TMapLayerFillingMap.Create(
+          GState.PerfCounterList,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.GUISyncronizedTimerNotifier,
+          FConfig.LayersConfig.FillingMapLayerConfig
+        )
+      );
+    end;
     FLayerMapMarks:=
       TMapMarksLayer.Create(
         GState.PerfCounterList,
