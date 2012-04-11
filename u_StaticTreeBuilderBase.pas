@@ -30,15 +30,15 @@ uses
 type
   TStaticTreeBuilderBase = class(TInterfacedObject, IStaticTreeBuilder)
   protected
-    procedure ProcessItems(ASource: IInterface; AList: TStringList); virtual; abstract;
-    procedure ProcessItem(ASource: IInterface; AItem: IInterface; AList: TStringList);
-    function GetNameFromItem(ASource: IInterface; AItem: IInterface): string; virtual; abstract;
+    procedure ProcessItems(const ASource: IInterface; AList: TStringList); virtual; abstract;
+    procedure ProcessItem(const ASource: IInterface; const AItem: IInterface; AList: TStringList);
+    function GetNameFromItem(const ASource: IInterface; const AItem: IInterface): string; virtual; abstract;
     function GetLevelName(const AName: string; out ACurLevelName, ATrailName: string): Boolean; virtual; abstract;
     procedure GetGroupAndVisibleName(const AName: string; out AGroupName, AVisibleName: string); virtual; abstract;
-    procedure AddItemToList(AItem: IInterface; AName: string; AList: TStringList);
+    procedure AddItemToList(const AItem: IInterface; const AName: string; AList: TStringList);
     function BuildTreeItemsList(AList: TStringList): IInterfaceList;
   protected
-    function BuildStatic(ASource: IInterface): IStaticTreeItem;
+    function BuildStatic(const ASource: IInterface): IStaticTreeItem;
   end;
 
   TStaticTreeBuilderBaseBySlash = class(TStaticTreeBuilderBase)
@@ -55,8 +55,8 @@ type
     procedure GetGroupAndVisibleName(const AName: string; out AGroupName, AVisibleName: string); override;
   public
     constructor Create(
-      ALevelsSeparator: string;
-      AGroupSeparator: string
+      const ALevelsSeparator: string;
+      const AGroupSeparator: string
     );
   end;
 
@@ -104,7 +104,9 @@ end;
 
 { TStaticTreeBuilderBase }
 
-procedure TStaticTreeBuilderBase.AddItemToList(AItem: IInterface; AName: string;
+procedure TStaticTreeBuilderBase.AddItemToList(
+  const AItem: IInterface;
+  const AName: string;
   AList: TStringList);
 var
   VCurLevelName: string;
@@ -143,7 +145,8 @@ begin
 end;
 
 function TStaticTreeBuilderBase.BuildStatic(
-  ASource: IInterface): IStaticTreeItem;
+  const ASource: IInterface
+): IStaticTreeItem;
 var
   VTempItem: TTempTreeItem;
 begin
@@ -187,8 +190,8 @@ begin
 end;
 
 procedure TStaticTreeBuilderBase.ProcessItem(
-  ASource: IInterface;
-  AItem: IInterface;
+  const ASource: IInterface;
+  const AItem: IInterface;
   AList: TStringList
 );
 begin
@@ -197,8 +200,9 @@ end;
 
 { TStaticTreeBuilderBaseBySlash }
 
-constructor TStaticTreeBuilderBaseBySlash.Create(ALevelsSeparator,
-  AGroupSeparator: string);
+constructor TStaticTreeBuilderBaseBySlash.Create(
+  const ALevelsSeparator, AGroupSeparator: string
+);
 begin
   inherited Create;
   FLevelsSeparator := ALevelsSeparator;

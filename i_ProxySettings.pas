@@ -77,7 +77,7 @@ type
     property UseProxy: boolean read GetUseProxy write SetUseProxy;
 
     function GetHost(): WideString; safecall;
-    procedure SetHost(AValue: WideString);
+    procedure SetHost(const AValue: WideString);
     property Host: WideString read GetHost write SetHost;
 
     function GetUseLogin(): boolean; safecall;
@@ -85,11 +85,11 @@ type
     property UseLogin: boolean read GetUseLogin write SetUseLogin;
 
     function GetLogin(): WideString; safecall;
-    procedure SetLogin(AValue: WideString);
+    procedure SetLogin(const AValue: WideString);
     property Login: WideString read GetLogin write SetLogin;
 
     function GetPassword(): WideString; safecall;
-    procedure SetPassword(AValue: WideString);
+    procedure SetPassword(const AValue: WideString);
     property Password: WideString read GetPassword write SetPassword;
 
     function GetStatic: IProxyConfigStatic;

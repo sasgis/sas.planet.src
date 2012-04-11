@@ -34,7 +34,7 @@ type
   protected
     function GetSource: IInterface; override;
   public
-    constructor Create(AProviderList: IPathDetalizeProviderList);
+    constructor Create(const AProviderList: IPathDetalizeProviderList);
   end;
 
 
@@ -47,10 +47,10 @@ uses
 type
   TStaticTreeByPathDetalizeProviderListBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
-    procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
+    procedure ProcessItems(const ASource: IInterface; AList: TStringList); override;
     function GetNameFromItem(
-      ASource: IInterface;
-      AItem: IInterface
+      const ASource: IInterface;
+      const AItem: IInterface
     ): string; override;
   public
     constructor Create;
@@ -64,15 +64,15 @@ begin
 end;
 
 function TStaticTreeByPathDetalizeProviderListBuilder.GetNameFromItem(
-  ASource: IInterface;
-  AItem: IInterface
+  const ASource: IInterface;
+  const AItem: IInterface
 ): string;
 begin
   Result := (AItem as IPathDetalizeProviderListEntity).MenuItemName;
 end;
 
 procedure TStaticTreeByPathDetalizeProviderListBuilder.ProcessItems(
-  ASource: IInterface;
+  const ASource: IInterface;
   AList: TStringList
 );
 var
@@ -93,7 +93,8 @@ end;
 { TTreeByPathDetalizeProviderList }
 
 constructor TTreeByPathDetalizeProviderList.Create(
-  AProviderList: IPathDetalizeProviderList);
+  const AProviderList: IPathDetalizeProviderList
+);
 begin
   FProviderList := AProviderList;
   inherited Create(

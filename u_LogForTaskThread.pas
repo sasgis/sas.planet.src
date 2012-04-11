@@ -37,12 +37,13 @@ type
     FLock: IReadWriteSync;
     FList: TWideStringList;
     FLinesSeparator: WideString;
+  private
+    procedure WriteText(const AMessage: WideString; ALogLevel: integer); safecall;
+  private
+    function GetLastMessages(AMaxRowsCount: Cardinal; var ALastId: Cardinal; out AcntLines: Cardinal): WideString; virtual; safecall;
   public
     constructor Create(AMaxLinesCount: Cardinal; AMinLogLevel: Integer);
     destructor Destroy; override;
-
-    function GetLastMessages(AMaxRowsCount: Cardinal; var ALastId: Cardinal; out AcntLines: Cardinal): WideString; virtual; safecall;
-    procedure WriteText(AMessage: WideString; ALogLevel: integer); safecall;
   end;
 
 implementation
@@ -112,8 +113,10 @@ begin
   end;
 end;
 
-procedure TLogForTaskThread.WriteText(AMessage: WideString;
-  ALogLevel: integer);
+procedure TLogForTaskThread.WriteText(
+  const AMessage: WideString;
+  ALogLevel: integer
+);
 var
   VIndex: Cardinal;
 begin

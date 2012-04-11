@@ -56,12 +56,12 @@ type
     FMarksSubsetTreeBuilder: IStaticTreeBuilder;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ABasePath: IPathConfig;
-      AMarkPictureList: IMarkPictureList;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
-      ACategoryFactoryConfig: IMarkCategoryFactoryConfig
+      const ALanguageManager: ILanguageManager;
+      const ABasePath: IPathConfig;
+      const AMarkPictureList: IMarkPictureList;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
 
@@ -74,10 +74,10 @@ type
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
-    procedure DeleteCategoryWithMarks(ACategory: IMarkCategory);
+    procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
-    function MarksSubsetToStaticTree(ASubset: IMarksSubset): IStaticTreeItem;
-    function CategoryListToStaticTree(AList: IInterfaceList): IStaticTreeItem;
+    function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
+    function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
   end;
 
 
@@ -93,25 +93,25 @@ uses
 type
   TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
-    procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
+    procedure ProcessItems(const ASource: IInterface; AList: TStringList); override;
     function GetNameFromItem(
-      ASource: IInterface;
-      AItem: IInterface
+      const ASource: IInterface;
+      const AItem: IInterface
     ): string; override;
   end;
 
 { TStaticTreeByCategoryListBuilder }
 
 function TStaticTreeByCategoryListBuilder.GetNameFromItem(
-  ASource: IInterface;
-  AItem: IInterface
+  const ASource: IInterface;
+  const AItem: IInterface
 ): string;
 begin
   Result := (AItem as ICategory).Name;
 end;
 
 procedure TStaticTreeByCategoryListBuilder.ProcessItems(
-  ASource: IInterface;
+  const ASource: IInterface;
   AList: TStringList
 );
 var
@@ -128,18 +128,18 @@ end;
 type
   TStaticTreeByMarksSubsetBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
-    procedure ProcessItems(ASource: IInterface; AList: TStringList); override;
+    procedure ProcessItems(const ASource: IInterface; AList: TStringList); override;
     function GetNameFromItem(
-      ASource: IInterface;
-      AItem: IInterface
+      const ASource: IInterface;
+      const AItem: IInterface
     ): string; override;
   end;
 
 { TStaticTreeByMarksSubsetBuilder }
 
 function TStaticTreeByMarksSubsetBuilder.GetNameFromItem(
-  ASource: IInterface;
-  AItem: IInterface
+  const ASource: IInterface;
+  const AItem: IInterface
 ): string;
 var
   VMark: IMark;
@@ -152,8 +152,10 @@ begin
   end;
 end;
 
-procedure TStaticTreeByMarksSubsetBuilder.ProcessItems(ASource: IInterface;
-  AList: TStringList);
+procedure TStaticTreeByMarksSubsetBuilder.ProcessItems(
+  const ASource: IInterface;
+  AList: TStringList
+);
 var
   VSubset: IMarksSubset;
   VEnum: IEnumUnknown;
@@ -171,12 +173,12 @@ end;
 { TMarksSystem }
 
 constructor TMarksSystem.Create(
-  ALanguageManager: ILanguageManager;
-  ABasePath: IPathConfig;
-  AMarkPictureList: IMarkPictureList;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
-  ACategoryFactoryConfig: IMarkCategoryFactoryConfig
+  const ALanguageManager: ILanguageManager;
+  const ABasePath: IPathConfig;
+  const AMarkPictureList: IMarkPictureList;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
   VCategoryDb: TMarkCategoryDB;
@@ -217,13 +219,13 @@ begin
 end;
 
 function TMarksSystem.CategoryListToStaticTree(
-  AList: IInterfaceList
+  const AList: IInterfaceList
 ): IStaticTreeItem;
 begin
   Result := FCategoryTreeBuilder.BuildStatic(AList);
 end;
 
-procedure TMarksSystem.DeleteCategoryWithMarks(ACategory: IMarkCategory);
+procedure TMarksSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 var
   VMarkIdList: IInterfaceList;
 begin
@@ -269,7 +271,7 @@ begin
 end;
 
 function TMarksSystem.MarksSubsetToStaticTree(
-  ASubset: IMarksSubset
+  const ASubset: IMarksSubset
 ): IStaticTreeItem;
 begin
   Result := FMarksSubsetTreeBuilder.BuildStatic(ASubset);

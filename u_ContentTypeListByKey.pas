@@ -33,8 +33,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Add(AKey: string; AType: IContentTypeInfoBasic);
-    function Get(AKey: string):  IContentTypeInfoBasic;
+    procedure Add(const AKey: string; const AType: IContentTypeInfoBasic);
+    function Get(const AKey: string):  IContentTypeInfoBasic;
     function GetEnumerator: TStringsEnumerator;
   end;
 
@@ -46,7 +46,10 @@ uses
 
 { TContentTypeListByKey }
 
-procedure TContentTypeListByKey.Add(AKey: string; AType: IContentTypeInfoBasic);
+procedure TContentTypeListByKey.Add(
+  const AKey: string;
+  const AType: IContentTypeInfoBasic
+);
 begin
   AType._AddRef;
   FList.AddObject(AKey, Pointer(AType));
@@ -72,7 +75,7 @@ begin
   inherited;
 end;
 
-function TContentTypeListByKey.Get(AKey: string): IContentTypeInfoBasic;
+function TContentTypeListByKey.Get(const AKey: string): IContentTypeInfoBasic;
 var
   VIndex: Integer;
 begin

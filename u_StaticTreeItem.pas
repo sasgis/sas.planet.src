@@ -41,10 +41,10 @@ type
     function GetSubItem(AIndex: Integer): IStaticTreeItem;
   public
     constructor Create(
-      AData: IInterface;
-      AName: string;
-      AGroupName: string;
-      ASubItems: IInterfaceList
+      const AData: IInterface;
+      const AName: string;
+      const AGroupName: string;
+      const ASubItems: IInterfaceList
     );
   end;
 
@@ -52,8 +52,11 @@ implementation
 
 { TStaticTreeItem }
 
-constructor TStaticTreeItem.Create(AData: IInterface; AName,
-  AGroupName: string; ASubItems: IInterfaceList);
+constructor TStaticTreeItem.Create(
+  const AData: IInterface;
+  const AName, AGroupName: string;
+  const ASubItems: IInterfaceList
+);
 begin
   FData := AData;
   FName := AName;

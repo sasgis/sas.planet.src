@@ -33,8 +33,8 @@ type
   public
     constructor Create();
     destructor Destroy; override;
-    procedure Add(AKey: string; AConverter: IContentConverter);
-    function Get(AKey: string): IContentConverter;
+    procedure Add(const AKey: string; const AConverter: IContentConverter);
+    function Get(const AKey: string): IContentConverter;
   end;
 
 implementation
@@ -44,8 +44,10 @@ uses
 
 { TContentConvertersListByKey }
 
-procedure TContentConvertersListByKey.Add(AKey: string;
-  AConverter: IContentConverter);
+procedure TContentConvertersListByKey.Add(
+  const AKey: string;
+  const AConverter: IContentConverter
+);
 begin
   AConverter._AddRef;
   FList.AddObject(AKey, Pointer(AConverter));
@@ -71,7 +73,7 @@ begin
   inherited;
 end;
 
-function TContentConvertersListByKey.Get(AKey: string): IContentConverter;
+function TContentConvertersListByKey.Get(const AKey: string): IContentConverter;
 var
   VIndex: Integer;
 begin
