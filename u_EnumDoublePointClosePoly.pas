@@ -20,49 +20,49 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ASourceEnum: IEnumDoublePoint
+      const ASourceEnum: IEnumDoublePoint
     );
   end;
 
   TEnumLonLatPointClosePoly = class(TEnumDoublePointClosePoly, IEnumLonLatPoint)
   public
     constructor Create(
-      ASourceEnum: IEnumLonLatPoint
+      const ASourceEnum: IEnumLonLatPoint
     );
   end;
 
   TEnumProjectedPointClosePoly = class(TEnumDoublePointClosePoly, IEnumProjectedPoint)
   public
     constructor Create(
-      ASourceEnum: IEnumProjectedPoint
+      const ASourceEnum: IEnumProjectedPoint
     );
   end;
 
   TEnumLocalPointClosePoly = class(TEnumDoublePointClosePoly, IEnumLocalPoint)
   public
     constructor Create(
-      ASourceEnum: IEnumLocalPoint
+      const ASourceEnum: IEnumLocalPoint
     );
   end;
 
   TDoublePointFilterPolygonClose = class(TInterfacedObject, IDoublePointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
+    function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
   end;
 
   TLonLatPointFilterPolygonClose = class(TInterfacedObject, ILonLatPointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+    function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumLonLatPoint;
   end;
 
   TProjectedPointFilterPolygonClose = class(TInterfacedObject, IProjectedPointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+    function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   end;
 
   TLocalPointFilterPolygonClose = class(TInterfacedObject, ILocalPointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumLocalPoint): IEnumLocalPoint;
+    function CreateFilteredEnum(const ASource: IEnumLocalPoint): IEnumLocalPoint;
   end;
 
 implementation
@@ -72,7 +72,7 @@ uses
 
 { TEnumDoublePointClosePoly }
 
-constructor TEnumDoublePointClosePoly.Create(ASourceEnum: IEnumDoublePoint);
+constructor TEnumDoublePointClosePoly.Create(const ASourceEnum: IEnumDoublePoint);
 begin
   FSourceEnum := ASourceEnum;
   FFinished := False;
@@ -131,7 +131,7 @@ end;
 
 { TEnumLonLatPointClosePoly }
 
-constructor TEnumLonLatPointClosePoly.Create(ASourceEnum: IEnumLonLatPoint);
+constructor TEnumLonLatPointClosePoly.Create(const ASourceEnum: IEnumLonLatPoint);
 begin
   inherited Create(ASourceEnum);
 end;
@@ -139,14 +139,15 @@ end;
 { TEnumProjectedPointClosePoly }
 
 constructor TEnumProjectedPointClosePoly.Create(
-  ASourceEnum: IEnumProjectedPoint);
+  const ASourceEnum: IEnumProjectedPoint
+);
 begin
   inherited Create(ASourceEnum);
 end;
 
 { TEnumLocalPointClosePoly }
 
-constructor TEnumLocalPointClosePoly.Create(ASourceEnum: IEnumLocalPoint);
+constructor TEnumLocalPointClosePoly.Create(const ASourceEnum: IEnumLocalPoint);
 begin
   inherited Create(ASourceEnum);
 end;
@@ -154,7 +155,8 @@ end;
 { TDoublePointFilterPolygonClose }
 
 function TDoublePointFilterPolygonClose.CreateFilteredEnum(
-  ASource: IEnumDoublePoint): IEnumDoublePoint;
+  const ASource: IEnumDoublePoint
+): IEnumDoublePoint;
 begin
   Result := TEnumDoublePointClosePoly.Create(ASource);
 end;
@@ -162,7 +164,8 @@ end;
 { TLonLatPointFilterPolygonClose }
 
 function TLonLatPointFilterPolygonClose.CreateFilteredEnum(
-  ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+  const ASource: IEnumLonLatPoint
+): IEnumLonLatPoint;
 begin
   Result := TEnumLonLatPointClosePoly.Create(ASource);
 end;
@@ -170,7 +173,8 @@ end;
 { TProjectedPointFilterPolygonClose }
 
 function TProjectedPointFilterPolygonClose.CreateFilteredEnum(
-  ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  const ASource: IEnumProjectedPoint
+): IEnumProjectedPoint;
 begin
   Result := TEnumProjectedPointClosePoly.Create(ASource);
 end;
@@ -178,7 +182,8 @@ end;
 { TLocalPointFilterPolygonClose }
 
 function TLocalPointFilterPolygonClose.CreateFilteredEnum(
-  ASource: IEnumLocalPoint): IEnumLocalPoint;
+  const ASource: IEnumLocalPoint
+): IEnumLocalPoint;
 begin
   Result := TEnumLocalPointClosePoly.Create(ASource);
 end;

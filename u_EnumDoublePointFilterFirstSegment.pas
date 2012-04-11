@@ -17,37 +17,37 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ASourceEnum: IEnumDoublePoint
+      const ASourceEnum: IEnumDoublePoint
     );
   end;
 
   TEnumLonLatPointFilterFirstSegment = class(TEnumDoublePointFilterFirstSegment, IEnumLonLatPoint)
   public
     constructor Create(
-      ASourceEnum: IEnumLonLatPoint
+      const ASourceEnum: IEnumLonLatPoint
     );
   end;
 
   TEnumProjectedPointFilterFirstSegment = class(TEnumDoublePointFilterFirstSegment, IEnumProjectedPoint)
   public
     constructor Create(
-      ASourceEnum: IEnumProjectedPoint
+      const ASourceEnum: IEnumProjectedPoint
     );
   end;
 
   TDoublePointFilterFirstSegment = class(TInterfacedObject, IDoublePointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
+    function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
   end;
 
   TLonLatPointFilterFirstSegment = class(TInterfacedObject, ILonLatPointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+    function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumLonLatPoint;
   end;
 
   TProjectedPointFilterFirstSegment = class(TInterfacedObject, IProjectedPointFilter)
   private
-    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+    function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   end;
 
 
@@ -59,7 +59,7 @@ uses
 { TEnumDoublePointFilterFirstSegment }
 
 constructor TEnumDoublePointFilterFirstSegment.Create(
-  ASourceEnum: IEnumDoublePoint);
+  const ASourceEnum: IEnumDoublePoint);
 begin
   FSourceEnum := ASourceEnum;
   FStarted := False;
@@ -97,7 +97,8 @@ end;
 { TEnumLonLatPointFilterFirstSegment }
 
 constructor TEnumLonLatPointFilterFirstSegment.Create(
-  ASourceEnum: IEnumLonLatPoint);
+  const ASourceEnum: IEnumLonLatPoint
+);
 begin
   inherited Create(ASourceEnum);
 end;
@@ -105,7 +106,8 @@ end;
 { TEnumProjectedPointFilterFirstSegment }
 
 constructor TEnumProjectedPointFilterFirstSegment.Create(
-  ASourceEnum: IEnumProjectedPoint);
+  const ASourceEnum: IEnumProjectedPoint
+);
 begin
   inherited Create(ASourceEnum);
 end;
@@ -113,7 +115,8 @@ end;
 { TDoublePointFilterFirstSegment }
 
 function TDoublePointFilterFirstSegment.CreateFilteredEnum(
-  ASource: IEnumDoublePoint): IEnumDoublePoint;
+  const ASource: IEnumDoublePoint
+): IEnumDoublePoint;
 begin
   Result := TEnumDoublePointFilterFirstSegment.Create(ASource);
 end;
@@ -121,7 +124,8 @@ end;
 { TLonLatPointFilterFirstSegment }
 
 function TLonLatPointFilterFirstSegment.CreateFilteredEnum(
-  ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+  const ASource: IEnumLonLatPoint
+): IEnumLonLatPoint;
 begin
   Result := TEnumLonLatPointFilterFirstSegment.Create(ASource);
 end;
@@ -129,7 +133,8 @@ end;
 { TProjectedPointFilterFirstSegment }
 
 function TProjectedPointFilterFirstSegment.CreateFilteredEnum(
-  ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  const ASource: IEnumProjectedPoint
+): IEnumProjectedPoint;
 begin
   Result := TEnumProjectedPointFilterFirstSegment.Create(ASource);
 end;

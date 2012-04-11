@@ -20,8 +20,8 @@ type
   public
     constructor Create(
       AZoom: Byte;
-      AConverter: ICoordConverter;
-      ASourceEnum: IEnumLonLatPoint
+      const AConverter: ICoordConverter;
+      const ASourceEnum: IEnumLonLatPoint
     );
   end;
 
@@ -31,11 +31,11 @@ type
     FZoom: Byte;
     FConverter: ICoordConverter;
   private
-    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumProjectedPoint;
+    function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumProjectedPoint;
   public
     constructor Create(
       AZoom: Byte;
-      AConverter: ICoordConverter
+      const AConverter: ICoordConverter
     );
   end;
 
@@ -48,8 +48,8 @@ uses
 
 constructor TEnumDoublePointLonLatToMapPixel.Create(
   AZoom: Byte;
-  AConverter: ICoordConverter;
-  ASourceEnum: IEnumLonLatPoint
+  const AConverter: ICoordConverter;
+  const ASourceEnum: IEnumLonLatPoint
 );
 begin
   FSourceEnum := ASourceEnum;
@@ -85,15 +85,18 @@ end;
 
 { TLonLatPointConverter }
 
-constructor TLonLatPointConverter.Create(AZoom: Byte;
-  AConverter: ICoordConverter);
+constructor TLonLatPointConverter.Create(
+  AZoom: Byte;
+  const AConverter: ICoordConverter
+);
 begin
   FZoom := AZoom;
   FConverter := AConverter;
 end;
 
 function TLonLatPointConverter.CreateFilteredEnum(
-  ASource: IEnumLonLatPoint): IEnumProjectedPoint;
+  const ASource: IEnumLonLatPoint
+): IEnumProjectedPoint;
 begin
   Result := TEnumDoublePointLonLatToMapPixel.Create(FZoom, FConverter, ASource);
 end;

@@ -29,10 +29,10 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ASourceEnum: IEnumLonLatPoint;
-      ARadius: Double;
-      AProjection: IProjectionInfo;
-      ATemp: IDoublePointsAggregator = nil
+      const ASourceEnum: IEnumLonLatPoint;
+      const ARadius: Double;
+      const AProjection: IProjectionInfo;
+      const ATemp: IDoublePointsAggregator = nil
     );
   end;
 
@@ -42,12 +42,12 @@ type
     FProjection: IProjectionInfo;
     FTemp: IDoublePointsAggregator;
   private
-    function CreateFilteredEnum(ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+    function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumLonLatPoint;
   public
     constructor Create(
-      ARadius: Double;
-      AProjection: IProjectionInfo;
-      ATemp: IDoublePointsAggregator = nil
+      const ARadius: Double;
+      const AProjection: IProjectionInfo;
+      const ATemp: IDoublePointsAggregator = nil
     );
   end;
 
@@ -62,10 +62,10 @@ uses
 { TEnumDoublePointLine2Poly }
 
 constructor TEnumDoublePointLine2Poly.Create(
-  ASourceEnum: IEnumLonLatPoint;
-  ARadius: Double;
-  AProjection: IProjectionInfo;
-  ATemp: IDoublePointsAggregator
+  const ASourceEnum: IEnumLonLatPoint;
+  const ARadius: Double;
+  const AProjection: IProjectionInfo;
+  const ATemp: IDoublePointsAggregator
 );
 begin
   FSourceEnum := ASourceEnum;
@@ -241,8 +241,11 @@ end;
 
 { TLonLatPointFilterLine2Poly }
 
-constructor TLonLatPointFilterLine2Poly.Create(ARadius: Double;
-  AProjection: IProjectionInfo; ATemp: IDoublePointsAggregator);
+constructor TLonLatPointFilterLine2Poly.Create(
+  const ARadius: Double;
+  const AProjection: IProjectionInfo;
+  const ATemp: IDoublePointsAggregator
+);
 begin
   FRadius := ARadius;
   FProjection := AProjection;
@@ -250,7 +253,8 @@ begin
 end;
 
 function TLonLatPointFilterLine2Poly.CreateFilteredEnum(
-  ASource: IEnumLonLatPoint): IEnumLonLatPoint;
+  const ASource: IEnumLonLatPoint
+): IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointLine2Poly.Create(ASource, FRadius, FProjection, FTemp);
 end;

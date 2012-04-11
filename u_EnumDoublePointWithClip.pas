@@ -19,11 +19,11 @@ type
   private
     function Next(out APoint: TDoublePoint): Boolean;
   protected
-    function GetPointCode(APoint: TDoublePoint): Byte; virtual; abstract;
-    function GetIntersectPoint(APrevPoint, ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
+    function GetPointCode(const APoint: TDoublePoint): Byte; virtual; abstract;
+    function GetIntersectPoint(const APrevPoint, ACurrPoint: TDoublePoint): TDoublePoint; virtual; abstract;
   public
     constructor Create(
-      ASourceEnum: IEnumDoublePoint
+      const ASourceEnum: IEnumDoublePoint
     );
   end;
 
@@ -31,46 +31,46 @@ type
   private
     FLineX: Double;
   protected
-    function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
+    function GetIntersectPoint(const APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
     property LineX: Double read FLineX;
   public
     constructor Create(
-      AX: Double;
-      ASourceEnum: IEnumDoublePoint
+      const AX: Double;
+      const ASourceEnum: IEnumDoublePoint
     );
   end;
 
   TEnumDoublePointClipByLeftBorder = class(TEnumDoublePointClipByVerticalLine)
   protected
-    function GetPointCode(APoint: TDoublePoint): Byte; override;
+    function GetPointCode(const APoint: TDoublePoint): Byte; override;
   end;
 
   TEnumDoublePointClipByRightBorder = class(TEnumDoublePointClipByVerticalLine)
   protected
-    function GetPointCode(APoint: TDoublePoint): Byte; override;
+    function GetPointCode(const APoint: TDoublePoint): Byte; override;
   end;
 
   TEnumDoublePointClipByHorizontalLine = class(TEnumDoublePointClipByLineAbstract)
   private
     FLineY: Double;
   protected
-    function GetIntersectPoint(APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
+    function GetIntersectPoint(const APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
     property LineY: Double read FLineY;
   public
     constructor Create(
-      AY: Double;
-      ASourceEnum: IEnumDoublePoint
+      const AY: Double;
+      const ASourceEnum: IEnumDoublePoint
     );
   end;
 
   TEnumDoublePointClipByTopBorder = class(TEnumDoublePointClipByHorizontalLine)
   protected
-    function GetPointCode(APoint: TDoublePoint): Byte; override;
+    function GetPointCode(const APoint: TDoublePoint): Byte; override;
   end;
 
   TEnumDoublePointClipByBottomBorder = class(TEnumDoublePointClipByHorizontalLine)
   protected
-    function GetPointCode(APoint: TDoublePoint): Byte; override;
+    function GetPointCode(const APoint: TDoublePoint): Byte; override;
   end;
 
   TEnumDoublePointClipByRect = class(TInterfacedObject, IEnumDoublePoint)
@@ -81,8 +81,8 @@ type
   public
     constructor Create(
       AClosed: Boolean;
-      ARect: TDoubleRect;
-      ASourceEnum: IEnumDoublePoint
+      const ARect: TDoubleRect;
+      const ASourceEnum: IEnumDoublePoint
     );
   end;
 
@@ -90,8 +90,8 @@ type
   public
     constructor Create(
       AClosed: Boolean;
-      ARect: TDoubleRect;
-      ASourceEnum: IEnumProjectedPoint
+      const ARect: TDoubleRect;
+      const ASourceEnum: IEnumProjectedPoint
     );
   end;
 
@@ -99,8 +99,8 @@ type
   public
     constructor Create(
       AClosed: Boolean;
-      ARect: TDoubleRect;
-      ASourceEnum: IEnumLocalPoint
+      const ARect: TDoubleRect;
+      const ASourceEnum: IEnumLocalPoint
     );
   end;
 
@@ -109,11 +109,11 @@ type
     FClosed: Boolean;
     FRect: TDoubleRect;
   private
-    function CreateFilteredEnum(ASource: IEnumDoublePoint): IEnumDoublePoint;
+    function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
   public
     constructor Create(
       AClosed: Boolean;
-      ARect: TDoubleRect
+      const ARect: TDoubleRect
     );
   end;
 
@@ -122,11 +122,11 @@ type
     FClosed: Boolean;
     FRect: TDoubleRect;
   private
-    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+    function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   public
     constructor Create(
       AClosed: Boolean;
-      ARect: TDoubleRect
+      const ARect: TDoubleRect
     );
   end;
 
@@ -140,7 +140,7 @@ uses
 { TEnumDoublePointClipByLineAbstract }
 
 constructor TEnumDoublePointClipByLineAbstract.Create(
-  ASourceEnum: IEnumDoublePoint
+  const ASourceEnum: IEnumDoublePoint
 );
 begin
   FSourceEnum := ASourceEnum;
@@ -226,16 +226,17 @@ end;
 { TEnumDoublePointClipByVerticalLine }
 
 constructor TEnumDoublePointClipByVerticalLine.Create(
-  AX: Double;
-  ASourceEnum: IEnumDoublePoint
+  const AX: Double;
+  const ASourceEnum: IEnumDoublePoint
 );
 begin
   inherited Create(ASourceEnum);
   FLineX := AX;
 end;
 
-function TEnumDoublePointClipByVerticalLine.GetIntersectPoint(APrevPoint,
-  ACurrPoint: TDoublePoint): TDoublePoint;
+function TEnumDoublePointClipByVerticalLine.GetIntersectPoint(
+  const APrevPoint, ACurrPoint: TDoublePoint
+): TDoublePoint;
 begin
   Result.X := LineX;
   Result.Y :=
@@ -246,7 +247,8 @@ end;
 { TEnumDoublePointClipByLeftBorder }
 
 function TEnumDoublePointClipByLeftBorder.GetPointCode(
-  APoint: TDoublePoint): Byte;
+  const APoint: TDoublePoint
+): Byte;
 begin
   if PointIsEmpty(APoint) then begin
     Result := 3;
@@ -262,7 +264,8 @@ end;
 { TEnumDoublePointClipByRightBorder }
 
 function TEnumDoublePointClipByRightBorder.GetPointCode(
-  APoint: TDoublePoint): Byte;
+  const APoint: TDoublePoint
+): Byte;
 begin
   if PointIsEmpty(APoint) then begin
     Result := 3;
@@ -278,16 +281,17 @@ end;
 { TEnumDoublePointClipByHorizontalLine }
 
 constructor TEnumDoublePointClipByHorizontalLine.Create(
-  AY: Double;
-  ASourceEnum: IEnumDoublePoint
+  const AY: Double;
+  const ASourceEnum: IEnumDoublePoint
 );
 begin
   inherited Create(ASourceEnum);
   FLineY := AY;
 end;
 
-function TEnumDoublePointClipByHorizontalLine.GetIntersectPoint(APrevPoint,
-  ACurrPoint: TDoublePoint): TDoublePoint;
+function TEnumDoublePointClipByHorizontalLine.GetIntersectPoint(
+  const APrevPoint, ACurrPoint: TDoublePoint
+): TDoublePoint;
 begin
   Result.X :=
     (ACurrPoint.X - APrevPoint.X) / (ACurrPoint.Y - APrevPoint.Y) *
@@ -298,7 +302,8 @@ end;
 { TEnumDoublePointClipByTopBorder }
 
 function TEnumDoublePointClipByTopBorder.GetPointCode(
-  APoint: TDoublePoint): Byte;
+  const APoint: TDoublePoint
+): Byte;
 begin
   if PointIsEmpty(APoint) then begin
     Result := 3;
@@ -314,7 +319,8 @@ end;
 { TEnumDoublePointClipByBottomBorder }
 
 function TEnumDoublePointClipByBottomBorder.GetPointCode(
-  APoint: TDoublePoint): Byte;
+  const APoint: TDoublePoint
+): Byte;
 begin
   if PointIsEmpty(APoint) then begin
     Result := 3;
@@ -331,8 +337,8 @@ end;
 
 constructor TEnumDoublePointClipByRect.Create(
   AClosed: Boolean;
-  ARect: TDoubleRect;
-  ASourceEnum: IEnumDoublePoint
+  const ARect: TDoubleRect;
+  const ASourceEnum: IEnumDoublePoint
 );
 begin
   if AClosed then begin
@@ -385,31 +391,40 @@ end;
 
 { TEnumProjectedPointClipByRect }
 
-constructor TEnumProjectedPointClipByRect.Create(AClosed: Boolean;
-  ARect: TDoubleRect; ASourceEnum: IEnumProjectedPoint);
+constructor TEnumProjectedPointClipByRect.Create(
+  AClosed: Boolean;
+  const ARect: TDoubleRect;
+  const ASourceEnum: IEnumProjectedPoint
+);
 begin
   inherited Create(AClosed, ARect, ASourceEnum);
 end;
 
 { TEnumLocalPointClipByRect }
 
-constructor TEnumLocalPointClipByRect.Create(AClosed: Boolean;
-  ARect: TDoubleRect; ASourceEnum: IEnumLocalPoint);
+constructor TEnumLocalPointClipByRect.Create(
+  AClosed: Boolean;
+  const ARect: TDoubleRect;
+  const ASourceEnum: IEnumLocalPoint
+);
 begin
   inherited Create(AClosed, ARect, ASourceEnum);
 end;
 
 { TDoublePointFilterClipByRect }
 
-constructor TDoublePointFilterClipByRect.Create(AClosed: Boolean;
-  ARect: TDoubleRect);
+constructor TDoublePointFilterClipByRect.Create(
+  AClosed: Boolean;
+  const ARect: TDoubleRect
+);
 begin
   FClosed := AClosed;
   FRect := ARect;
 end;
 
 function TDoublePointFilterClipByRect.CreateFilteredEnum(
-  ASource: IEnumDoublePoint): IEnumDoublePoint;
+  const ASource: IEnumDoublePoint
+): IEnumDoublePoint;
 begin
   if FClosed then begin
     Result :=
@@ -456,15 +471,18 @@ end;
 
 { TProjectedPointFilterClipByRect }
 
-constructor TProjectedPointFilterClipByRect.Create(AClosed: Boolean;
-  ARect: TDoubleRect);
+constructor TProjectedPointFilterClipByRect.Create(
+  AClosed: Boolean;
+  const ARect: TDoubleRect
+);
 begin
   FClosed := AClosed;
   FRect := ARect;
 end;
 
 function TProjectedPointFilterClipByRect.CreateFilteredEnum(
-  ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  const ASource: IEnumProjectedPoint
+): IEnumProjectedPoint;
 begin
   if FClosed then begin
     Result :=

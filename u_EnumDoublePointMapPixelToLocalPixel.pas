@@ -18,8 +18,8 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ALocalConverter: ILocalCoordConverter;
-      ASourceEnum: IEnumProjectedPoint
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceEnum: IEnumProjectedPoint
     );
   end;
 
@@ -27,10 +27,10 @@ type
   private
     FLocalConverter: ILocalCoordConverter;
   private
-    function CreateFilteredEnum(ASource: IEnumProjectedPoint): IEnumLocalPoint;
+    function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumLocalPoint;
   public
     constructor Create(
-      ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
   end;
 
@@ -42,8 +42,8 @@ uses
 { TEnumDoublePointMapPixelToLocalPixel }
 
 constructor TEnumDoublePointMapPixelToLocalPixel.Create(
-  ALocalConverter: ILocalCoordConverter;
-  ASourceEnum: IEnumProjectedPoint
+  const ALocalConverter: ILocalCoordConverter;
+  const ASourceEnum: IEnumProjectedPoint
 );
 begin
   FSourceEnum := ASourceEnum;
@@ -52,7 +52,8 @@ begin
 end;
 
 function TEnumDoublePointMapPixelToLocalPixel.Next(
-  out APoint: TDoublePoint): Boolean;
+  out APoint: TDoublePoint
+): Boolean;
 var
   VPoint: TDoublePoint;
 begin
@@ -78,13 +79,15 @@ end;
 { TProjectedPointConverter }
 
 constructor TProjectedPointConverter.Create(
-  ALocalConverter: ILocalCoordConverter);
+  const ALocalConverter: ILocalCoordConverter
+);
 begin
   FLocalConverter := ALocalConverter;
 end;
 
 function TProjectedPointConverter.CreateFilteredEnum(
-  ASource: IEnumProjectedPoint): IEnumLocalPoint;
+  const ASource: IEnumProjectedPoint
+): IEnumLocalPoint;
 begin
   Result := TEnumDoublePointMapPixelToLocalPixel.Create(FLocalConverter, ASource);
 end;
