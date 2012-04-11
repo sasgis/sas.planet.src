@@ -73,12 +73,12 @@ type
     function GetLastSearchResultConfig: ILastSearchResultConfig;
   public
     constructor Create(
-      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      AContentTypeManager: IContentTypeManager;
-      AGeoCoderList: IGeoCoderList;
-      AMapsSet, ALayersSet: IMapTypeSet;
-      ADefaultMapGUID: TGUID;
-      APerfCounterList: IInternalPerformanceCounterList
+      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AContentTypeManager: IContentTypeManager;
+      const AGeoCoderList: IGeoCoderList;
+      const AMapsSet, ALayersSet: IMapTypeSet;
+      const ADefaultMapGUID: TGUID;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -104,12 +104,12 @@ uses
 { TMainFormConfig }
 
 constructor TMainFormConfig.Create(
-  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  AContentTypeManager: IContentTypeManager;
-  AGeoCoderList: IGeoCoderList;
-  AMapsSet, ALayersSet: IMapTypeSet;
-  ADefaultMapGUID: TGUID;
-  APerfCounterList: IInternalPerformanceCounterList
+  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AContentTypeManager: IContentTypeManager;
+  const AGeoCoderList: IGeoCoderList;
+  const AMapsSet, ALayersSet: IMapTypeSet;
+  const ADefaultMapGUID: TGUID;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;

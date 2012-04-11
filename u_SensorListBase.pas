@@ -34,9 +34,9 @@ type
     FList: IGUIDInterfaceSet;
   protected { ISensorList }
     function GetGUIDEnum: IEnumGUID;
-    function Get(AGUID: TGUID): ISensorListEntity;
+    function Get(const AGUID: TGUID): ISensorListEntity;
   protected
-    procedure Add(AItem: ISensorListEntity);
+    procedure Add(const AItem: ISensorListEntity);
   public
     constructor Create;
   end;
@@ -54,7 +54,7 @@ begin
   FList := TGUIDInterfaceSet.Create(False);
 end;
 
-procedure TSensorListBase.Add(AItem: ISensorListEntity);
+procedure TSensorListBase.Add(const AItem: ISensorListEntity);
 begin
   LockWrite;
   try
@@ -67,7 +67,7 @@ begin
   end;
 end;
 
-function TSensorListBase.Get(AGUID: TGUID): ISensorListEntity;
+function TSensorListBase.Get(const AGUID: TGUID): ISensorListEntity;
 begin
   LockRead;
   try

@@ -42,7 +42,7 @@ type
   protected
     function GetGUID: TGUID;
   public
-    constructor Create(AGUID: TGUID);
+    constructor Create(const AGUID: TGUID);
   end;
 
 type
@@ -71,7 +71,7 @@ implementation
 
 { TNotificationMessageWithGUID }
 
-constructor TNotificationMessageWithGUID.Create(AGUID: TGUID);
+constructor TNotificationMessageWithGUID.Create(const AGUID: TGUID);
 begin
   FGUID := AGUID;
 end;

@@ -42,17 +42,17 @@ type
     FOnClick: TNotifyEvent;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate; virtual;
-    procedure ProcessSubItemGUID(AGUID: TGUID); virtual;
-    function CreateSubMenuItem(AName: string): TTBCustomItem; virtual;
-    function GetParentMenuItem(AName: string): TTBCustomItem; virtual;
-    function CreateMenuItem(AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
+    procedure ProcessSubItemGUID(const AGUID: TGUID); virtual;
+    function CreateSubMenuItem(const AName: string): TTBCustomItem; virtual;
+    function GetParentMenuItem(const AName: string): TTBCustomItem; virtual;
+    function CreateMenuItem(const AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
   public
     constructor Create(
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AMapsSet: IActiveMapsSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapsSet: IActiveMapsSet;
       ARootMenu: TTBCustomItem;
       AOnClick: TNotifyEvent;
-      AIconsList: IMapTypeIconsList
+      const AIconsList: IMapTypeIconsList
     );
     procedure BuildControls;
   end;
@@ -70,11 +70,11 @@ uses
 { TMapMenuGeneratorBasic }
 
 constructor TMapMenuGeneratorBasic.Create(
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AMapsSet: IActiveMapsSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapsSet: IActiveMapsSet;
   ARootMenu: TTBCustomItem;
   AOnClick: TNotifyEvent;
-  AIconsList: IMapTypeIconsList
+  const AIconsList: IMapTypeIconsList
 );
 begin
   FGUIConfigList := AGUIConfigList;
@@ -85,7 +85,8 @@ begin
 end;
 
 function TMapMenuGeneratorBasic.CreateMenuItem(
-  AMapActive: IActiveMapSingle): TTBXCustomItem;
+  const AMapActive: IActiveMapSingle
+): TTBXCustomItem;
 var
   VGUID: TGUID;
   VMapType: TMapType;
@@ -108,7 +109,8 @@ begin
 end;
 
 function TMapMenuGeneratorBasic.CreateSubMenuItem(
-  AName: string): TTBCustomItem;
+  const AName: string
+): TTBCustomItem;
 begin
   Result := TTBXSubmenuItemWithIndicator.Create(FRootMenu);
   Result.Caption := AName;
@@ -117,7 +119,8 @@ begin
 end;
 
 function TMapMenuGeneratorBasic.GetParentMenuItem(
-  AName: string): TTBCustomItem;
+  const AName: string
+): TTBCustomItem;
 var
   i: Integer;
 begin
@@ -154,7 +157,7 @@ begin
   end;
 end;
 
-procedure TMapMenuGeneratorBasic.ProcessSubItemGUID(AGUID: TGUID);
+procedure TMapMenuGeneratorBasic.ProcessSubItemGUID(const AGUID: TGUID);
 var
   VActiveMap: IActiveMapSingle;
   VSubMenu: TTBCustomItem;

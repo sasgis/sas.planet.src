@@ -57,9 +57,9 @@ type
     function GetDefault: string;    
   public
     constructor Create(
-      AGUID: TGUID;
+      const AGUID: TGUID;
       AMaxSubIndex: Integer;
-      AParseNumberAfter: String;
+      const AParseNumberAfter: String;
       ASL_NameInCache: TStringList;
       ASL_Ext: TStringList;
       ASL_Names: TStringList;
@@ -74,15 +74,17 @@ implementation
 
 { TMapAttachmentsInfo }
 
-constructor TMapAttachmentsInfo.Create(AGUID: TGUID;
-                                       AMaxSubIndex: Integer;
-                                       AParseNumberAfter: String;
-                                       ASL_NameInCache: TStringList;
-                                       ASL_Ext: TStringList;
-                                       ASL_Names: TStringList;
-                                       ASL_DefUrlBase: TStringList;
-                                       ASL_ContentType: TStringList;
-                                       AUseDwn, AUseDel: Boolean);
+constructor TMapAttachmentsInfo.Create(
+  const AGUID: TGUID;
+  AMaxSubIndex: Integer;
+  const AParseNumberAfter: String;
+  ASL_NameInCache: TStringList;
+  ASL_Ext: TStringList;
+  ASL_Names: TStringList;
+  ASL_DefUrlBase: TStringList;
+  ASL_ContentType: TStringList;
+  AUseDwn, AUseDel: Boolean
+);
 begin
   FMaxSubIndex := AMaxSubIndex;
   FParseNumberAfter := AParseNumberAfter;

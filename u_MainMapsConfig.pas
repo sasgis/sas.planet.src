@@ -42,7 +42,10 @@ type
     function GetActiveBitmapLayersSet: IActiveMapsSet;
     function GetActiveKmlLayersSet: IActiveMapsSet;
   public
-    constructor Create(AMapsSet, ALayersSet: IMapTypeSet; ADefaultMapGUID: TGUID);
+    constructor Create(
+      const AMapsSet, ALayersSet: IMapTypeSet;
+      const ADefaultMapGUID: TGUID
+    );
     destructor Destroy; override;
   end;
 
@@ -56,7 +59,10 @@ uses
 
 { TMainMapsConfig }
 
-constructor TMainMapsConfig.Create(AMapsSet, ALayersSet: IMapTypeSet; ADefaultMapGUID: TGUID);
+constructor TMainMapsConfig.Create(
+  const AMapsSet, ALayersSet: IMapTypeSet;
+  const ADefaultMapGUID: TGUID
+);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;

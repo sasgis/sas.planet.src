@@ -47,10 +47,10 @@ type
     function GetSensor: ISensor;
   public
     constructor Create(
-      AGUID: TGUID;
+      const AGUID: TGUID;
       ACanReset: Boolean;
-      ASensorTypeIID: TGUID;
-      ALanguageManager: ILanguageManager
+      const ASensorTypeIID: TGUID;
+      const ALanguageManager: ILanguageManager
     );
   end;
 
@@ -62,10 +62,10 @@ uses
 { TSensorBase }
 
 constructor TSensorBase.Create(
-  AGUID: TGUID;
+  const AGUID: TGUID;
   ACanReset: Boolean;
-  ASensorTypeIID: TGUID;
-  ALanguageManager: ILanguageManager
+  const ASensorTypeIID: TGUID;
+  const ALanguageManager: ILanguageManager
 );
 begin
   inherited Create(AGUID, ALanguageManager);

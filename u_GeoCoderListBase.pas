@@ -36,10 +36,10 @@ type
     FCS: IReadWriteSync;
     FAddNotifier: IJclNotifier;
   protected
-    procedure Add(AItem: IGeoCoderListEntity);
+    procedure Add(const AItem: IGeoCoderListEntity);
   protected
     function GetGUIDEnum: IEnumGUID;
-    function Get(AGUID: TGUID): IGeoCoderListEntity;
+    function Get(const AGUID: TGUID): IGeoCoderListEntity;
     function GetAddNotifier: IJclNotifier;
   public
     constructor Create;
@@ -69,7 +69,7 @@ begin
   inherited;
 end;
 
-procedure TGeoCoderListBase.Add(AItem: IGeoCoderListEntity);
+procedure TGeoCoderListBase.Add(const AItem: IGeoCoderListEntity);
 begin
   FCS.BeginWrite;
   try
@@ -80,7 +80,7 @@ begin
   FAddNotifier.Notify(nil);
 end;
 
-function TGeoCoderListBase.Get(AGUID: TGUID): IGeoCoderListEntity;
+function TGeoCoderListBase.Get(const AGUID: TGUID): IGeoCoderListEntity;
 begin
   FCS.BeginRead;
   try

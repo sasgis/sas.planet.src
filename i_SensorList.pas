@@ -51,7 +51,7 @@ type
   ISensorList = interface(IConfigDataElement)
     ['{69F7AA17-D6B4-4F49-891E-72AEA4DC053F}']
     function GetGUIDEnum: IEnumGUID;
-    function Get(AGUID: TGUID): ISensorListEntity;
+    function Get(const AGUID: TGUID): ISensorListEntity;
   end;
 
 implementation

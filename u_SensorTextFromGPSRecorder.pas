@@ -45,24 +45,24 @@ type
 
     function ValueChanged(const AOld, ANew: Double): Boolean; virtual;
 
-    function ValueToText(AValue: Double): string; virtual; abstract;
+    function ValueToText(const AValue: Double): string; virtual; abstract;
     function GetValue: Double; virtual; abstract;
   protected
     function GetText: string;
   public
     constructor Create(
-      AGUID: TGUID;
+      const AGUID: TGUID;
       ACanReset: Boolean;
-      ALanguageManager: ILanguageManager;
-      AGPSRecorder: IGPSRecorder;
-      AValueConverterConfig: IValueToStringConverterConfig
+      const ALanguageManager: ILanguageManager;
+      const AGPSRecorder: IGPSRecorder;
+      const AValueConverterConfig: IValueToStringConverterConfig
     );
   end;
 
   TSensorTimeFromGPSRecorder = class(TSensorTextFromGPSRecorder)
   protected
     function ValueChanged(const AOld, ANew: Double): Boolean; override;
-    function ValueToText(AValue: Double): string; override;
+    function ValueToText(const AValue: Double): string; override;
   end;
 
   TSensorSimpleTextFromGPSRecorder = class(TSensorTextFromGPSRecorder)
@@ -80,11 +80,11 @@ uses
 { TSensorTextFromGPSRecorder }
 
 constructor TSensorTextFromGPSRecorder.Create(
-  AGUID: TGUID;
+  const AGUID: TGUID;
   ACanReset: Boolean;
-  ALanguageManager: ILanguageManager;
-  AGPSRecorder: IGPSRecorder;
-  AValueConverterConfig: IValueToStringConverterConfig
+  const ALanguageManager: ILanguageManager;
+  const AGPSRecorder: IGPSRecorder;
+  const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(AGUID, ACanReset, ISensorText, ALanguageManager);
@@ -174,7 +174,7 @@ begin
   Result:=TRUE;
 end;
 
-function TSensorTimeFromGPSRecorder.ValueToText(AValue: Double): string;
+function TSensorTimeFromGPSRecorder.ValueToText(const AValue: Double): string;
 begin
   if (0=AValue) then
     Result:=''

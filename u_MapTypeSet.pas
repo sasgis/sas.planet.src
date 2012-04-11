@@ -31,11 +31,11 @@ type
   TMapTypeSet = class(TInterfacedObject, IMapTypeSet)
   private
     FList: IGUIDInterfaceSet;
-    function GetMapTypeByGUID(AGUID: TGUID): IMapType;
+    function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
     function GetCount: Integer;
   public
-    procedure Add(AMap: IMapType);
+    procedure Add(const AMap: IMapType);
     constructor Create(AAllowNil: Boolean);
     destructor Destroy; override;
   end;
@@ -48,7 +48,7 @@ uses
 
 { TMapTypeList }
 
-procedure TMapTypeSet.Add(AMap: IMapType);
+procedure TMapTypeSet.Add(const AMap: IMapType);
 var
   VGUID: TGUID;
 begin
@@ -81,7 +81,7 @@ begin
   Result := FList.GetGUIDEnum;
 end;
 
-function TMapTypeSet.GetMapTypeByGUID(AGUID: TGUID): IMapType;
+function TMapTypeSet.GetMapTypeByGUID(const AGUID: TGUID): IMapType;
 begin
   Result := Flist.GetByGUID(AGUID) as IMapType;
 end;
