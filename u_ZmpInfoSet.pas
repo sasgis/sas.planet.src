@@ -37,14 +37,14 @@ type
   private
     FList: IGUIDInterfaceSet;
   protected
-    function GetZmpByGUID(AGUID: TGUID): IZmpInfo;
+    function GetZmpByGUID(const AGUID: TGUID): IZmpInfo;
     function GetIterator: IEnumGUID;
   public
     constructor Create(
-      AZmpConfig: IZmpConfig;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALanguageManager: ILanguageManager;
-      AFilesIterator: IFileNameIterator
+      const AZmpConfig: IZmpConfig;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALanguageManager: ILanguageManager;
+      const AFilesIterator: IFileNameIterator
     );
   end;
 
@@ -63,10 +63,10 @@ uses
 { TZmpInfoSet }
 
 constructor TZmpInfoSet.Create(
-  AZmpConfig: IZmpConfig;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALanguageManager: ILanguageManager;
-  AFilesIterator: IFileNameIterator
+  const AZmpConfig: IZmpConfig;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALanguageManager: ILanguageManager;
+  const AFilesIterator: IFileNameIterator
 );
 var
   VFileName: WideString;
@@ -122,7 +122,7 @@ begin
   Result := FList.GetGUIDEnum;
 end;
 
-function TZmpInfoSet.GetZmpByGUID(AGUID: TGUID): IZmpInfo;
+function TZmpInfoSet.GetZmpByGUID(const AGUID: TGUID): IZmpInfo;
 begin
   Result := IZmpInfo(FList.GetByGUID(AGUID));
 end;

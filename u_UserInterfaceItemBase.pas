@@ -50,8 +50,8 @@ type
     function GetMenuItemName: string;
   public
     constructor Create(
-      AGUID: TGUID;
-      ALanguageManager: ILanguageManager
+      const AGUID: TGUID;
+      const ALanguageManager: ILanguageManager
     );
   end;
 
@@ -63,8 +63,10 @@ uses
 
 { TUserInterfaceItemBase }
 
-constructor TUserInterfaceItemBase.Create(AGUID: TGUID;
-  ALanguageManager: ILanguageManager);
+constructor TUserInterfaceItemBase.Create(
+  const AGUID: TGUID;
+  const ALanguageManager: ILanguageManager
+);
 begin
   inherited Create;
   FGUID := AGUID;

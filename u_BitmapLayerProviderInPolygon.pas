@@ -18,13 +18,13 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
-      APolyProjected: IProjectedPolygon;
-      ASourceProvider: IBitmapLayerProvider
+      const APolyProjected: IProjectedPolygon;
+      const ASourceProvider: IBitmapLayerProvider
     );
   end;
 
@@ -33,8 +33,8 @@ implementation
 { TBitmapLayerProviderInPolygon }
 
 constructor TBitmapLayerProviderInPolygon.Create(
-  APolyProjected: IProjectedPolygon;
-  ASourceProvider: IBitmapLayerProvider
+  const APolyProjected: IProjectedPolygon;
+  const ASourceProvider: IBitmapLayerProvider
 );
 begin
   FSourceProvider := ASourceProvider;
@@ -47,8 +47,8 @@ end;
 
 function TBitmapLayerProviderInPolygon.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 begin
   if FLine.IsRectIntersectPolygon(ALocalConverter.GetRectInMapPixelFloat) then begin

@@ -61,28 +61,28 @@ type
     FEnabled: Boolean;
   private
     procedure LoadConfig(
-      ALangList: ILanguageListStatic;
-      AConfig: IConfigDataProvider;
-      AConfigIni: IConfigDataProvider;
-      AConfigIniParams: IConfigDataProvider;
+      const ALangList: ILanguageListStatic;
+      const AConfig: IConfigDataProvider;
+      const AConfigIni: IConfigDataProvider;
+      const AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
     function CreateDefaultIcon(
       Apnum: Integer
     ): IBitmap32Static;
     procedure LoadIcons(
-      AConfig : IConfigDataProvider;
-      AConfigIniParams: IConfigDataProvider;
+      const AConfig : IConfigDataProvider;
+      const AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
     procedure LoadUIParams(
-      ALangList: ILanguageListStatic;
-      AConfig : IConfigDataProvider;
+      const ALangList: ILanguageListStatic;
+      const AConfig : IConfigDataProvider;
       Apnum: Integer
     );
     procedure LoadInfo(
-      ALangList: ILanguageListStatic;
-      AConfig : IConfigDataProvider
+      const ALangList: ILanguageListStatic;
+      const AConfig : IConfigDataProvider
     );
   protected
     function GetName: IStringByLanguage;
@@ -97,11 +97,11 @@ type
     function GetEnabled: Boolean;
   public
     constructor Create(
-      AGUID: TGUID;
-      ALanguageManager: ILanguageManager;
-      AConfig: IConfigDataProvider;
-      AConfigIni: IConfigDataProvider;
-      AConfigIniParams: IConfigDataProvider;
+      const AGUID: TGUID;
+      const ALanguageManager: ILanguageManager;
+      const AConfig: IConfigDataProvider;
+      const AConfigIni: IConfigDataProvider;
+      const AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
   end;
@@ -128,24 +128,27 @@ type
     FConfigIniParams: IConfigDataProvider;
   private
     procedure LoadConfig(
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALanguageManager: ILanguageManager
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALanguageManager: ILanguageManager
     );
-    procedure LoadCropConfig(AConfig : IConfigDataProvider);
-    procedure LoadAbilities(AConfig : IConfigDataProvider);
-    procedure LoadStorageConfig(AConfig : IConfigDataProvider);
-    function LoadGUID(AConfig : IConfigDataProvider): TGUID;
-    procedure LoadVersion(AConfig : IConfigDataProvider);
-    procedure LoadAttachmentsInfo(AConfig: IConfigDataProvider; ALanguageManager: ILanguageManager);
+    procedure LoadCropConfig(const AConfig : IConfigDataProvider);
+    procedure LoadAbilities(const AConfig : IConfigDataProvider);
+    procedure LoadStorageConfig(const AConfig : IConfigDataProvider);
+    function LoadGUID(const AConfig : IConfigDataProvider): TGUID;
+    procedure LoadVersion(const AConfig : IConfigDataProvider);
+    procedure LoadAttachmentsInfo(
+      const AConfig: IConfigDataProvider;
+      const ALanguageManager: ILanguageManager
+    );
     procedure LoadProjectionInfo(
-      AConfig : IConfigDataProvider;
-      ACoordConverterFactory: ICoordConverterFactory
+      const AConfig : IConfigDataProvider;
+      const ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadTileRequestBuilderConfig(
-      ACoordConverterFactory: ICoordConverterFactory;
-      AConfig : IConfigDataProvider
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const AConfig : IConfigDataProvider
     );
-    procedure LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
+    procedure LoadTileDownloaderConfig(const AConfig: IConfigDataProvider);
   protected
     { IZmpInfo }
     function GetGUID: TGUID;
@@ -164,11 +167,11 @@ type
     function GetMapAttachmentsInfo: IMapAttachmentsInfo;
   public
     constructor Create(
-      AZmpConfig: IZmpConfig;
-      ALanguageManager: ILanguageManager;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AFileName: string;
-      AConfig: IConfigDataProvider;
+      const AZmpConfig: IZmpConfig;
+      const ALanguageManager: ILanguageManager;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const AFileName: string;
+      const AConfig: IConfigDataProvider;
       Apnum: Integer
     );
   end;
@@ -242,11 +245,11 @@ end;
 { TZmpInfoGUI }
 
 constructor TZmpInfoGUI.Create(
-  AGUID: TGUID;
-  ALanguageManager: ILanguageManager;
-  AConfig: IConfigDataProvider;
-  AConfigIni: IConfigDataProvider;
-  AConfigIniParams: IConfigDataProvider;
+  const AGUID: TGUID;
+  const ALanguageManager: ILanguageManager;
+  const AConfig: IConfigDataProvider;
+  const AConfigIni: IConfigDataProvider;
+  const AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
 var
@@ -330,10 +333,10 @@ begin
 end;
 
 procedure TZmpInfoGUI.LoadConfig(
-  ALangList: ILanguageListStatic;
-  AConfig: IConfigDataProvider;
-  AConfigIni: IConfigDataProvider;
-  AConfigIniParams: IConfigDataProvider;
+  const ALangList: ILanguageListStatic;
+  const AConfig: IConfigDataProvider;
+  const AConfigIni: IConfigDataProvider;
+  const AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
 begin
@@ -343,8 +346,8 @@ begin
 end;
 
 procedure TZmpInfoGUI.LoadIcons(
-  AConfig: IConfigDataProvider;
-  AConfigIniParams: IConfigDataProvider;
+  const AConfig: IConfigDataProvider;
+  const AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
 procedure UpdateBMPTransp(ABitmap: TCustomBitmap32);
@@ -422,8 +425,8 @@ begin
 end;
 
 procedure TZmpInfoGUI.LoadInfo(
-  ALangList: ILanguageListStatic;
-  AConfig: IConfigDataProvider
+  const ALangList: ILanguageListStatic;
+  const AConfig: IConfigDataProvider
 );
 var
   VDefValue: string;
@@ -464,8 +467,8 @@ begin
 end;
 
 procedure TZmpInfoGUI.LoadUIParams(
-  ALangList: ILanguageListStatic;
-  AConfig: IConfigDataProvider;
+  const ALangList: ILanguageListStatic;
+  const AConfig: IConfigDataProvider;
   Apnum: Integer
 );
 begin
@@ -484,11 +487,11 @@ end;
 { TZmpInfo }
 
 constructor TZmpInfo.Create(
-  AZmpConfig: IZmpConfig;
-  ALanguageManager: ILanguageManager;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AFileName: string;
-  AConfig: IConfigDataProvider;
+  const AZmpConfig: IZmpConfig;
+  const ALanguageManager: ILanguageManager;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const AFileName: string;
+  const AConfig: IConfigDataProvider;
   Apnum: Integer
 );
 begin
@@ -577,7 +580,7 @@ begin
   Result := FVersionConfig;
 end;
 
-procedure TZmpInfo.LoadAbilities(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadAbilities(const AConfig: IConfigDataProvider);
 var
   VIsLayer: Boolean;
   VIsShowOnSmMap: Boolean;
@@ -601,8 +604,10 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadAttachmentsInfo(AConfig: IConfigDataProvider;
-                                       ALanguageManager: ILanguageManager);
+procedure TZmpInfo.LoadAttachmentsInfo(
+  const AConfig: IConfigDataProvider;
+  const ALanguageManager: ILanguageManager
+);
 var
   VParams: IConfigDataProvider;
   VGUID: TGUID;
@@ -684,8 +689,10 @@ begin
                                                     VUseDwn, VUseDel);
 end;
 
-procedure TZmpInfo.LoadConfig(ACoordConverterFactory: ICoordConverterFactory;
-                              ALanguageManager: ILanguageManager);
+procedure TZmpInfo.LoadConfig(
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALanguageManager: ILanguageManager
+);
 begin
   FGUID := LoadGUID(FConfigIniParams);
   LoadVersion(FConfigIniParams);
@@ -699,7 +706,7 @@ begin
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
-procedure TZmpInfo.LoadCropConfig(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadCropConfig(const AConfig: IConfigDataProvider);
 var
   VRect: TRect;
 begin
@@ -710,7 +717,7 @@ begin
   FTilePostDownloadCropConfig := TTilePostDownloadCropConfigStatic.Create(VRect);
 end;
 
-function TZmpInfo.LoadGUID(AConfig: IConfigDataProvider): TGUID;
+function TZmpInfo.LoadGUID(const AConfig: IConfigDataProvider): TGUID;
 var
   VGUIDStr: String;
 begin
@@ -726,7 +733,10 @@ begin
   end;
 end;
 
-procedure TZmpInfo.LoadProjectionInfo(AConfig: IConfigDataProvider; ACoordConverterFactory: ICoordConverterFactory);
+procedure TZmpInfo.LoadProjectionInfo(
+  const AConfig: IConfigDataProvider;
+  const ACoordConverterFactory: ICoordConverterFactory
+);
 var
   VParams: IConfigDataProvider;
 begin
@@ -740,7 +750,9 @@ begin
   end;
 end;
 
-procedure TZmpInfo.LoadStorageConfig(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadStorageConfig(
+  const AConfig: IConfigDataProvider
+);
 var
   VCacheTypeCode: Integer;
   VNameInCache: string;
@@ -784,7 +796,7 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadTileDownloaderConfig(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadTileDownloaderConfig(const AConfig: IConfigDataProvider);
 var
   VUseDownload: Boolean;
   VIgnoreMIMEType: Boolean;
@@ -829,8 +841,8 @@ begin
 end;
 
 procedure TZmpInfo.LoadTileRequestBuilderConfig(
-  ACoordConverterFactory: ICoordConverterFactory;
-  AConfig: IConfigDataProvider
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const AConfig: IConfigDataProvider
 );
 var
   VUrlBase: string;
@@ -850,7 +862,7 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadVersion(AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadVersion(const AConfig: IConfigDataProvider);
 var
   VVersion: Variant;
 begin

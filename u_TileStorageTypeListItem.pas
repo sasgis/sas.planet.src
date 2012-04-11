@@ -38,8 +38,8 @@ type
     function GetCanUseAsDefault: Boolean;
   public
     constructor Create(
-      AGUID: TGUID;
-      AStorageType: ITileStorageType;
+      const AGUID: TGUID;
+      const AStorageType: ITileStorageType;
       ACanUseAsDefault: Boolean
     );
   end;
@@ -49,8 +49,8 @@ implementation
 { TTileStorageTypeListItem }
 
 constructor TTileStorageTypeListItem.Create(
-  AGUID: TGUID;
-  AStorageType: ITileStorageType;
+  const AGUID: TGUID;
+  const AStorageType: ITileStorageType;
   ACanUseAsDefault: Boolean
 );
 begin

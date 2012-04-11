@@ -23,14 +23,14 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
-      AMapType: IMapType;
+      const AMapType: IMapType;
       ASourceZoom: Byte;
-      AColorer: IFillingMapColorer
+      const AColorer: IFillingMapColorer
     );
   end;
 
@@ -39,9 +39,9 @@ implementation
 { TBitmapLayerProviderFillingMap }
 
 constructor TBitmapLayerProviderFillingMap.Create(
-  AMapType: IMapType;
+  const AMapType: IMapType;
   ASourceZoom: Byte;
-  AColorer: IFillingMapColorer
+  const AColorer: IFillingMapColorer
 );
 begin
   FMapType := AMapType;
@@ -54,8 +54,8 @@ end;
 
 function TBitmapLayerProviderFillingMap.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 begin
   if ALocalConverter.Zoom > FSourceZoom then begin

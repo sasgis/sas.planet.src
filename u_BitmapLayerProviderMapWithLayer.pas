@@ -20,8 +20,8 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
@@ -51,8 +51,8 @@ end;
 
 function TBitmapLayerProviderMapWithLayer.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
   VLayer: IBitmap32Static;

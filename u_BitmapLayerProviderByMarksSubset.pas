@@ -56,57 +56,57 @@ type
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
     function GetProjectedPath(
-      AMarkPath: IMarkLine;
-      AProjectionInfo: IProjectionInfo
+      const AMarkPath: IMarkLine;
+      const AProjectionInfo: IProjectionInfo
     ): IProjectedPath;
     function GetProjectedPolygon(
-      AMarkPoly: IMarkPoly;
-      AProjectionInfo: IProjectionInfo
+      const AMarkPoly: IMarkPoly;
+      const AProjectionInfo: IProjectionInfo
     ): IProjectedPolygon;
 
     function DrawSubset(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AMarksSubset: IMarksSubset;
+      const ACancelNotifier: IOperationNotifier;
+      const AMarksSubset: IMarksSubset;
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter;
-      AMarkLine: IMarkLine
+      const ALocalConverter: ILocalCoordConverter;
+      const AMarkLine: IMarkLine
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter;
-      AMarkPoly: IMarkPoly
+      const ALocalConverter: ILocalCoordConverter;
+      const AMarkPoly: IMarkPoly
     ): Boolean;
     function DrawPoint(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter;
-      AMarkPoint: IMarkPoint
+      const ALocalConverter: ILocalCoordConverter;
+      const AMarkPoint: IMarkPoint
     ): Boolean;
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
   protected
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
-      AConfig: IMarksDrawConfigStatic;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AProjectionInfo: IProjectionInfo;
-      AProjectedCache: IIdCacheSimple;
-      ALinesClipRect: TDoubleRect;
-      AMarksSubset: IMarksSubset
+      const AConfig: IMarksDrawConfigStatic;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AProjectionInfo: IProjectionInfo;
+      const AProjectedCache: IIdCacheSimple;
+      const ALinesClipRect: TDoubleRect;
+      const AMarksSubset: IMarksSubset
     );
     destructor Destroy; override;
   end;
@@ -135,12 +135,12 @@ const
 { TMapMarksBitmapLayerProviderByMarksSubset }
 
 constructor TBitmapLayerProviderByMarksSubset.Create(
-  AConfig: IMarksDrawConfigStatic;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AProjectionInfo: IProjectionInfo;
-  AProjectedCache: IIdCacheSimple;
-  ALinesClipRect: TDoubleRect;
-  AMarksSubset: IMarksSubset
+  const AConfig: IMarksDrawConfigStatic;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AProjectionInfo: IProjectionInfo;
+  const AProjectedCache: IIdCacheSimple;
+  const ALinesClipRect: TDoubleRect;
+  const AMarksSubset: IMarksSubset
 );
 begin
   FConfig := AConfig;
@@ -177,8 +177,8 @@ end;
 function TBitmapLayerProviderByMarksSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter;
-  AMarkLine: IMarkLine
+  const ALocalConverter: ILocalCoordConverter;
+  const AMarkLine: IMarkLine
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -284,8 +284,8 @@ end;
 function TBitmapLayerProviderByMarksSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter;
-  AMarkPoly: IMarkPoly
+  const ALocalConverter: ILocalCoordConverter;
+  const AMarkPoly: IMarkPoly
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -384,8 +384,8 @@ end;
 function TBitmapLayerProviderByMarksSubset.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter;
-  AMarkPoint: IMarkPoint
+  const ALocalConverter: ILocalCoordConverter;
+  const AMarkPoint: IMarkPoint
 ): Boolean;
 var
   VLocalPoint: TDoublePoint;
@@ -476,10 +476,10 @@ end;
 
 function TBitmapLayerProviderByMarksSubset.DrawSubset(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AMarksSubset: IMarksSubset;
+  const ACancelNotifier: IOperationNotifier;
+  const AMarksSubset: IMarksSubset;
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
   VEnumMarks: IEnumUnknown;
@@ -550,8 +550,8 @@ end;
 
 function TBitmapLayerProviderByMarksSubset.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
   VRectWithDelta: TRect;
@@ -591,8 +591,8 @@ begin
 end;
 
 function TBitmapLayerProviderByMarksSubset.GetProjectedPath(
-  AMarkPath: IMarkLine;
-  AProjectionInfo: IProjectionInfo
+  const AMarkPath: IMarkLine;
+  const AProjectionInfo: IProjectionInfo
 ): IProjectedPath;
 var
   VID: Integer;
@@ -632,8 +632,8 @@ begin
 end;
 
 function TBitmapLayerProviderByMarksSubset.GetProjectedPolygon(
-  AMarkPoly: IMarkPoly;
-  AProjectionInfo: IProjectionInfo
+  const AMarkPoly: IMarkPoly;
+  const AProjectionInfo: IProjectionInfo
 ): IProjectedPolygon;
 var
   VID: Integer;
@@ -674,7 +674,7 @@ end;
 
 procedure TBitmapLayerProviderByMarksSubset.InitBitmap(
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VSize: TPoint;

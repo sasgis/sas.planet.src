@@ -36,17 +36,17 @@ type
 
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
     function GetProjectedPath(
-      AData: IVectorDataItemLine;
-      AProjectionInfo: IProjectionInfo;
-      ATemp: IDoublePointsAggregator = nil
+      const AData: IVectorDataItemLine;
+      const AProjectionInfo: IProjectionInfo;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function GetProjectedPolygon(
-      AData: IVectorDataItemPoly;
-      AProjectionInfo: IProjectionInfo;
-      ATemp: IDoublePointsAggregator = nil
+      const AData: IVectorDataItemPoly;
+      const AProjectionInfo: IProjectionInfo;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     function DrawPoint(
@@ -54,24 +54,24 @@ type
       ATargetBmp: TCustomBitmap32;
       APointColor: TColor32;
       APointColorBG: TColor32;
-      AData: IVectorDataItemPoint;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemPoint;
+      const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
-      AData: IVectorDataItemLine;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemLine;
+      const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
-      AData: IVectorDataItemPoly;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemPoly;
+      const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawWikiElement(
       var ABitmapInited: Boolean;
@@ -79,25 +79,25 @@ type
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
-      AData: IVectorDataItemSimple;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemSimple;
+      const ALocalConverter: ILocalCoordConverter
     ): Boolean;
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AProjectionInfo: IProjectionInfo;
-      AProjectedCache: IIdCacheSimple;
-      ALinesClipRect: TDoubleRect;
-      AVectorItems: IInterfaceList
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AProjectionInfo: IProjectionInfo;
+      const AProjectedCache: IIdCacheSimple;
+      const ALinesClipRect: TDoubleRect;
+      const AVectorItems: IInterfaceList
     );
   end;
 
@@ -119,11 +119,11 @@ uses
 
 constructor TBitmapLayerProviderByVectorSubset.Create(
   AColorMain, AColorBG, APointColor: TColor32;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AProjectionInfo: IProjectionInfo;
-  AProjectedCache: IIdCacheSimple;
-  ALinesClipRect: TDoubleRect;
-  AVectorItems: IInterfaceList
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AProjectionInfo: IProjectionInfo;
+  const AProjectedCache: IIdCacheSimple;
+  const ALinesClipRect: TDoubleRect;
+  const AVectorItems: IInterfaceList
 );
 begin
   FColorMain := AColorMain;
@@ -142,8 +142,8 @@ function TBitmapLayerProviderByVectorSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG: TColor32;
-  AData: IVectorDataItemLine;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemLine;
+  const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
   i: integer;
@@ -252,8 +252,8 @@ function TBitmapLayerProviderByVectorSubset.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   APointColor, APointColorBG: TColor32;
-  AData: IVectorDataItemPoint;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemPoint;
+  const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
   VConverter: ICoordConverter;
@@ -285,8 +285,8 @@ function TBitmapLayerProviderByVectorSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG: TColor32;
-  AData: IVectorDataItemPoly;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemPoly;
+  const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -386,8 +386,8 @@ function TBitmapLayerProviderByVectorSubset.DrawWikiElement(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG, APointColor: TColor32;
-  AData: IVectorDataItemSimple;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemSimple;
+  const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
   VItemPoint: IVectorDataItemPoint;
@@ -407,8 +407,8 @@ end;
 
 function TBitmapLayerProviderByVectorSubset.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
   i: Integer;
@@ -462,9 +462,9 @@ begin
 end;
 
 function TBitmapLayerProviderByVectorSubset.GetProjectedPath(
-  AData: IVectorDataItemLine;
-  AProjectionInfo: IProjectionInfo;
-  ATemp: IDoublePointsAggregator
+  const AData: IVectorDataItemLine;
+  const AProjectionInfo: IProjectionInfo;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPath;
 var
   VID: Integer;
@@ -483,9 +483,9 @@ begin
 end;
 
 function TBitmapLayerProviderByVectorSubset.GetProjectedPolygon(
-  AData: IVectorDataItemPoly;
-  AProjectionInfo: IProjectionInfo;
-  ATemp: IDoublePointsAggregator
+  const AData: IVectorDataItemPoly;
+  const AProjectionInfo: IProjectionInfo;
+  const ATemp: IDoublePointsAggregator
 ): IProjectedPolygon;
 var
   VID: Integer;
@@ -504,7 +504,9 @@ begin
 end;
 
 procedure TBitmapLayerProviderByVectorSubset.InitBitmap(
-  ATargetBmp: TCustomBitmap32; ALocalConverter: ILocalCoordConverter);
+  ATargetBmp: TCustomBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VSize: TPoint;
 begin

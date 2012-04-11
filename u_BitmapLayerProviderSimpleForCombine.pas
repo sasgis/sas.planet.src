@@ -23,15 +23,15 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
-      ARecolorConfig: IBitmapPostProcessingConfigStatic;
+      const ARecolorConfig: IBitmapPostProcessingConfigStatic;
       AMapTypeMain: TMapType;
       AMapTypeHybr: TMapType;
-      AMarksImageProvider: IBitmapLayerProvider;
+      const AMarksImageProvider: IBitmapLayerProvider;
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean
     );
@@ -46,9 +46,9 @@ uses
 { TBitmapLayerProviderSimpleForCombine }
 
 constructor TBitmapLayerProviderSimpleForCombine.Create(
-  ARecolorConfig: IBitmapPostProcessingConfigStatic;
+  const ARecolorConfig: IBitmapPostProcessingConfigStatic;
   AMapTypeMain, AMapTypeHybr: TMapType;
-  AMarksImageProvider: IBitmapLayerProvider;
+  const AMarksImageProvider: IBitmapLayerProvider;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );
 begin
@@ -62,8 +62,8 @@ end;
 
 function TBitmapLayerProviderSimpleForCombine.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
   VLayer: IBitmap32Static;

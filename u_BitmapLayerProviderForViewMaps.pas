@@ -26,29 +26,29 @@ type
     FErrorLogger: ITileErrorLogger;
     function GetBitmapByMapType(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ATile: TPoint;
+      const ACancelNotifier: IOperationNotifier;
+      const ATile: TPoint;
       Azoom: byte;
-      ACoordConverterTarget: ICoordConverter;
-      ASource: IBitmap32Static;
+      const ACoordConverterTarget: ICoordConverter;
+      const ASource: IBitmap32Static;
       AUsePrevZoom: Boolean;
-      AMapType: IMapType
+      const AMapType: IMapType
     ): IBitmap32Static;
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
-      AMainMap: IMapType;
-      ALayersList: IMapTypeListStatic;
+      const AMainMap: IMapType;
+      const ALayersList: IMapTypeListStatic;
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean;
       AUseCache: Boolean;
-      APostProcessingConfig:IBitmapPostProcessingConfigStatic;
-      AErrorLogger: ITileErrorLogger
+      const APostProcessingConfig: IBitmapPostProcessingConfigStatic;
+      const AErrorLogger: ITileErrorLogger
     );
   end;
 
@@ -65,11 +65,11 @@ uses
 { TBitmapLayerProviderForViewMaps }
 
 constructor TBitmapLayerProviderForViewMaps.Create(
-  AMainMap: IMapType;
-  ALayersList: IMapTypeListStatic;
+  const AMainMap: IMapType;
+  const ALayersList: IMapTypeListStatic;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer, AUseCache: Boolean;
-  APostProcessingConfig: IBitmapPostProcessingConfigStatic;
-  AErrorLogger: ITileErrorLogger
+  const APostProcessingConfig: IBitmapPostProcessingConfigStatic;
+  const AErrorLogger: ITileErrorLogger
 );
 begin
   FMainMap := AMainMap;
@@ -83,13 +83,13 @@ end;
 
 function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ATile: TPoint;
+  const ACancelNotifier: IOperationNotifier;
+  const ATile: TPoint;
   Azoom: byte;
-  ACoordConverterTarget: ICoordConverter;
-  ASource: IBitmap32Static;
+  const ACoordConverterTarget: ICoordConverter;
+  const ASource: IBitmap32Static;
   AUsePrevZoom: Boolean;
-  AMapType: IMapType
+  const AMapType: IMapType
 ): IBitmap32Static;
 var
   VCache: ITileObjCacheBitmap;
@@ -169,8 +169,8 @@ end;
 
 function TBitmapLayerProviderForViewMaps.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
   VTile: TPoint;

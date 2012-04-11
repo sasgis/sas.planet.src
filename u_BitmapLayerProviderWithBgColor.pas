@@ -17,13 +17,13 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
     constructor Create(
       ABackGroundColor: TColor32;
-      ASourceProvider: IBitmapLayerProvider
+      const ASourceProvider: IBitmapLayerProvider
     );
   end;
 
@@ -34,8 +34,9 @@ uses
 
 { TBitmapLayerProviderWithBGColor }
 
-constructor TBitmapLayerProviderWithBGColor.Create(ABackGroundColor: TColor32;
-  ASourceProvider: IBitmapLayerProvider);
+constructor TBitmapLayerProviderWithBGColor.Create(
+  ABackGroundColor: TColor32;
+  const ASourceProvider: IBitmapLayerProvider);
 begin
   FSourceProvider := ASourceProvider;
   FBackGroundColor := ABackGroundColor;
@@ -44,8 +45,8 @@ end;
 
 function TBitmapLayerProviderWithBGColor.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
   VTileSize: TPoint;
