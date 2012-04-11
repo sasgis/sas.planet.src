@@ -1031,7 +1031,9 @@ begin
   sfulldesc := Vlink;
  end  else
 // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
- if  RegExprGetMatchSubStr(Vlink,'openstreetmap\..+lat',0)<>'' then begin
+// http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
+ if  (RegExprGetMatchSubStr(Vlink,'openstreetmap\..+lat',0)<>'')
+ or (RegExprGetMatchSubStr(Vlink,'osm\..+lat',0)<>'')then begin
   sname := 'OpenStreetMap';
   i := PosEx('lat=', Vlink, 1);
   j := PosEx('&', Vlink, i);
@@ -1319,6 +1321,7 @@ end.
 // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
 // http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
 // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
+// http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
 
 // тайловые ссылки
 // http://a.tile.openstreetmap.org/15/19928/11707.png
