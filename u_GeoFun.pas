@@ -36,17 +36,17 @@ type
    name:String;
    descr:String;
   end;
-  function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
+  function CalcAngleDelta(const ADerg1, ADegr2: Double): Double;
 
-  function PointFromDoublePoint(APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
-  function RectFromDoubleRect(ARect: TDoubleRect; ARounding: TRectRounding): TRect;
-  function DoublePoint(APoint: TPoint): TDoublePoint; overload;
-  function DoublePoint(X, Y: Double): TDoublePoint; overload;
-  function DoubleRect(ARect: TRect): TDoubleRect; overload;
-  function DoubleRect(ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
-  function DoubleRect(ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
-  function RectCenter(ARect: TRect): TDoublePoint; overload;
-  function RectCenter(ARect: TDoubleRect): TDoublePoint; overload;
+  function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
+  function RectFromDoubleRect(const ARect: TDoubleRect; ARounding: TRectRounding): TRect;
+  function DoublePoint(const APoint: TPoint): TDoublePoint; overload;
+  function DoublePoint(const X, Y: Double): TDoublePoint; overload;
+  function DoubleRect(const ARect: TRect): TDoubleRect; overload;
+  function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
+  function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
+  function RectCenter(const ARect: TRect): TDoublePoint; overload;
+  function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload;
 
 
   function LonLatPointInRect(const APoint: TDoublePoint; const ARect: TDoubleRect): Boolean;
@@ -60,21 +60,28 @@ type
   function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
   function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
 
-  function DoublePointsEqual(p1,p2: TDoublePoint): Boolean;
-  function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
+  function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean;
+  function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean;
 
-  procedure CalculateWFileParams(LL1,LL2:TDoublePoint;ImageWidth,ImageHeight:integer;AConverter: ICoordConverter;
-            var CellIncrementX,CellIncrementY,OriginX,OriginY:Double);
+  procedure CalculateWFileParams(
+    const LL1,LL2:TDoublePoint;
+    ImageWidth,ImageHeight:integer;
+    const AConverter: ICoordConverter;
+    var CellIncrementX,CellIncrementY,OriginX,OriginY:Double
+  );
   function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
-  function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
-  function PointIsEmpty(APoint: TDoublePoint): Boolean;
+  function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
+  function PointIsEmpty(const APoint: TDoublePoint): Boolean;
 
 const
   CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
 
 implementation
 
-function PointFromDoublePoint(APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
+function PointFromDoublePoint(
+  const APoint: TDoublePoint;
+  ARounding: TPointRounding
+): TPoint;
 begin
   case ARounding of
     prClosest: begin
@@ -92,7 +99,10 @@ begin
   end;
 end;
 
-function RectFromDoubleRect(ARect: TDoubleRect; ARounding: TRectRounding): TRect;
+function RectFromDoubleRect(
+  const ARect: TDoubleRect;
+  ARounding: TRectRounding
+): TRect;
 begin
   case ARounding of
     rrClosest: begin
@@ -127,7 +137,7 @@ begin
   end;
 end;
 
-function CalcAngleDelta(ADerg1, ADegr2: Double): Double;
+function CalcAngleDelta(const ADerg1, ADegr2: Double): Double;
 begin
   Result := ADerg1 - ADegr2;
   if (Result > 360) or (Result < 360) then begin
@@ -141,9 +151,9 @@ begin
 end;
 
 procedure CalculateWFileParams(
-  LL1, LL2: TDoublePoint;
+  const LL1, LL2: TDoublePoint;
   ImageWidth, ImageHeight: integer;
-  AConverter: ICoordConverter;
+  const AConverter: ICoordConverter;
   var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
 );
 var
@@ -170,7 +180,7 @@ begin
   end;
 end;
 
-function DoublePointsEqual(p1,p2:TDoublePoint):boolean;
+function DoublePointsEqual(const p1,p2:TDoublePoint):boolean;
 var
   VP1Empty: Boolean;
   VP2Empty: Boolean;
@@ -188,7 +198,7 @@ begin
   end;
 end;
 
-function DoubleRectsEqual(ARect1, ARect2: TDoubleRect): Boolean;
+function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean;
 begin
   Result :=
     (ARect1.Left = ARect2.Left) and
@@ -211,7 +221,7 @@ begin
   end;
 end;
 
-function GetDegBordersStepByScale(AScale: Double; AZoom: Byte): TDoublePoint;
+function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
 begin
 
 if AScale > 1000000000 then begin Result.X:=10; Result.Y:=10; end;
@@ -290,19 +300,19 @@ begin
           (APoint.Y>=ARect.Top)and(APoint.Y<=ARect.Bottom);
 end;
 
-function DoublePoint(APoint: TPoint): TDoublePoint; overload;
+function DoublePoint(const APoint: TPoint): TDoublePoint; overload;
 begin
   Result.X := APoint.X;
   Result.Y := APoint.Y;
 end;
 
-function DoublePoint(X, Y: Double): TDoublePoint; overload;
+function DoublePoint(const X, Y: Double): TDoublePoint; overload;
 begin
   Result.X := X;
   Result.Y := Y;
 end;
 
-function DoubleRect(ARect: TRect): TDoubleRect; overload;
+function DoubleRect(const ARect: TRect): TDoubleRect; overload;
 begin
   Result.Left := ARect.Left;
   Result.Top := ARect.Top;
@@ -310,13 +320,13 @@ begin
   Result.Bottom := ARect.Bottom;
 end;
 
-function DoubleRect(ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
+function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
 begin
   Result.TopLeft := ATopLeft;
   Result.BottomRight := ABottomRight;
 end;
 
-function DoubleRect(ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
+function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
 begin
   Result.Left := ALeft;
   Result.Top := ATop;
@@ -324,14 +334,14 @@ begin
   Result.Bottom := ABottom;
 end;
 
-function RectCenter(ARect: TRect): TDoublePoint; overload;
+function RectCenter(const ARect: TRect): TDoublePoint; overload;
 begin
   Result := DoublePoint(ARect.TopLeft);
   Result.X := (Result.X + ARect.Right) / 2;
   Result.Y := (Result.Y + ARect.Bottom) / 2;
 end;
 
-function RectCenter(ARect: TDoubleRect): TDoublePoint; overload;
+function RectCenter(const ARect: TDoubleRect): TDoublePoint; overload;
 begin
   Result.X := (ARect.Left + ARect.Right) / 2;
   Result.Y := (ARect.Top + ARect.Bottom) / 2;
@@ -385,7 +395,7 @@ begin
   if not Result then FillChar(Rect, SizeOf(Rect), 0);
 end;
 
-function PointIsEmpty(APoint: TDoublePoint): Boolean;
+function PointIsEmpty(const APoint: TDoublePoint): Boolean;
 begin
   Result := IsNan(APoint.X) or IsNan(APoint.Y);
 end;

@@ -44,16 +44,16 @@ type
     procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
-    function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+    function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 
     function IsEmpty: Boolean; virtual; abstract;
     function IsReady: Boolean; virtual; abstract;
     procedure Clear;
     procedure DeleteActivePoint;
-    procedure InsertPoint(APoint: TDoublePoint);
-    procedure MoveActivePoint(APoint: TDoublePoint);
+    procedure InsertPoint(const APoint: TDoublePoint);
+    procedure MoveActivePoint(const APoint: TDoublePoint);
   public
-    constructor Create(AFactory: IVectorItmesFactory);
+    constructor Create(const AFactory: IVectorItmesFactory);
   end;
 
   TPathOnMapEdit = class(TLineOnMapEdit, IPathOnMapEdit)
@@ -102,7 +102,7 @@ type
     function GetSelectedPointIndex: Integer;
   public
     constructor Create(
-      ASelectedPoint: TDoublePoint;
+      const ASelectedPoint: TDoublePoint;
       ASelectedSegmentIndex: Integer;
       ASelectedPointIndex: Integer
     );
@@ -119,7 +119,7 @@ type
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
     constructor Create(
-      ALine: ILonLatPath;
+      const ALine: ILonLatPath;
       ASelectedPointIndex: Integer
     );
   end;
@@ -136,14 +136,14 @@ type
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
     constructor Create(
-      ALine: ILonLatPolygon;
+      const ALine: ILonLatPolygon;
       ASelectedPointIndex: Integer
     );
   end;
 
 { TLineOnMapEdit }
 
-constructor TLineOnMapEdit.Create(AFactory: IVectorItmesFactory);
+constructor TLineOnMapEdit.Create(const AFactory: IVectorItmesFactory);
 begin
   inherited Create;
   FFactory := AFactory;
@@ -212,7 +212,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEdit.InsertPoint(APoint: TDoublePoint);
+procedure TLineOnMapEdit.InsertPoint(const APoint: TDoublePoint);
 var
   VInsertCount: Integer;
   VCurrPoint: TDoublePoint;
@@ -283,7 +283,7 @@ begin
   end;
 end;
 
-procedure TLineOnMapEdit.MoveActivePoint(APoint: TDoublePoint);
+procedure TLineOnMapEdit.MoveActivePoint(const APoint: TDoublePoint);
 var
   VCurrPoint: TDoublePoint;
 begin
@@ -307,7 +307,7 @@ begin
   end;
 end;
 
-function TLineOnMapEdit.SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+function TLineOnMapEdit.SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 var
   VIndex: Integer;
   VPoint: TDoublePoint;
@@ -676,8 +676,10 @@ end;
 
 { TLonLatLineWithSelectedBase }
 
-constructor TLonLatLineWithSelectedBase.Create(ASelectedPoint: TDoublePoint;
-  ASelectedSegmentIndex, ASelectedPointIndex: Integer);
+constructor TLonLatLineWithSelectedBase.Create(
+  const ASelectedPoint: TDoublePoint;
+  ASelectedSegmentIndex, ASelectedPointIndex: Integer
+);
 begin
   FSelectedPoint := ASelectedPoint;
   FSelectedSegmentIndex := ASelectedSegmentIndex;
@@ -701,7 +703,8 @@ end;
 
 { TLonLatPathWithSelected }
 
-constructor TLonLatPathWithSelected.Create(ALine: ILonLatPath;
+constructor TLonLatPathWithSelected.Create(
+  const ALine: ILonLatPath;
   ASelectedPointIndex: Integer);
 var
   VSelectedSegmentIndex: Integer;
@@ -776,8 +779,10 @@ end;
 
 { TLonLatPolygonWithSelected }
 
-constructor TLonLatPolygonWithSelected.Create(ALine: ILonLatPolygon;
-  ASelectedPointIndex: Integer);
+constructor TLonLatPolygonWithSelected.Create(
+  const ALine: ILonLatPolygon;
+  ASelectedPointIndex: Integer
+);
 var
   VSelectedSegmentIndex: Integer;
   VSelectedPointIndex: Integer;

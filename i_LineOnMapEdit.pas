@@ -47,14 +47,14 @@ type
     procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
-    function SelectPointInLonLatRect(ARect: TDoubleRect): Boolean;
+    function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 
     function IsEmpty: Boolean;
     function IsReady: Boolean;
     procedure Clear;
     procedure DeleteActivePoint;
-    procedure InsertPoint(APoint: TDoublePoint);
-    procedure MoveActivePoint(APoint: TDoublePoint);
+    procedure InsertPoint(const APoint: TDoublePoint);
+    procedure MoveActivePoint(const APoint: TDoublePoint);
   end;
 
   IPathOnMapEdit = interface(ILineOnMapEdit)
