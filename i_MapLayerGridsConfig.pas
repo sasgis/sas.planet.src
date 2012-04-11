@@ -54,8 +54,8 @@ type
     procedure SetZoom(AValue: Integer);
     property Zoom: Integer read GetZoom write SetZoom;
 
-    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
-    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
+    function GetRectStickToGrid(const ALocalConverter: ILocalCoordConverter; const ASourceRect: TDoubleRect): TDoubleRect;
   end;
 
   IGenShtabGridConfig = interface(IBaseGridConfig)
@@ -64,7 +64,7 @@ type
     procedure SetScale(AValue: Integer);
     property Scale: Integer read GetScale write SetScale;
 
-    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+    function GetRectStickToGrid(const ALocalConverter: ILocalCoordConverter; const ASourceRect: TDoubleRect): TDoubleRect;
   end;
 
   IDegreeGridConfig = interface(IBaseGridConfig)
@@ -73,7 +73,7 @@ type
     procedure SetScale(AValue: Double);
     property Scale: Double read GetScale write SetScale;
 
-    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+    function GetRectStickToGrid(const ALocalConverter: ILocalCoordConverter; const ASourceRect: TDoubleRect): TDoubleRect;
   end;
 
   IMapLayerGridsConfig = interface(IConfigDataElement)

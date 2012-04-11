@@ -46,8 +46,11 @@ type
     function GetZoom: Integer;
     procedure SetZoom(AValue: Integer);
 
-    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
-    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
+    function GetRectStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceRect: TDoubleRect
+    ): TDoubleRect;
   public
     constructor Create;
   end;
@@ -85,7 +88,8 @@ begin
 end;
 
 function TTileGridConfig.GetActualZoom(
-  ALocalConverter: ILocalCoordConverter): Byte;
+  const ALocalConverter: ILocalCoordConverter
+): Byte;
 var
   VZoom: Integer;
   VRelative: Boolean;
@@ -109,7 +113,9 @@ begin
 end;
 
 function TTileGridConfig.GetRectStickToGrid(
-  ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+  const ALocalConverter: ILocalCoordConverter;
+  const ASourceRect: TDoubleRect
+): TDoubleRect;
 var
   VZoom: Byte;
   VZoomCurr: Byte;

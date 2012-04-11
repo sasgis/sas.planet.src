@@ -34,12 +34,12 @@ type
   private
     FList: IInterfaceList;
   protected
-    function GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
-    function GetSubsetByCategory(ACategory: ICategory): IMarksSubset;
+    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IMarksSubset;
+    function GetSubsetByCategory(const ACategory: ICategory): IMarksSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
   public
-    constructor Create(AList: IInterfaceList);
+    constructor Create(const AList: IInterfaceList);
   end;
 
 implementation
@@ -49,7 +49,7 @@ uses
 
 { TMarksSubset }
 
-constructor TMarksSubset.Create(AList: IInterfaceList);
+constructor TMarksSubset.Create(const AList: IInterfaceList);
 begin
   FList := AList;
 end;
@@ -59,7 +59,7 @@ begin
   Result := TEnumUnknown.Create(FList);
 end;
 
-function TMarksSubset.GetSubsetByCategory(ACategory: ICategory): IMarksSubset;
+function TMarksSubset.GetSubsetByCategory(const ACategory: ICategory): IMarksSubset;
 var
   VNewList: IInterfaceList;
   i: Integer;
@@ -86,7 +86,7 @@ begin
   Result := TMarksSubset.Create(VNewList);
 end;
 
-function TMarksSubset.GetSubsetByLonLatRect(ARect: TDoubleRect): IMarksSubset;
+function TMarksSubset.GetSubsetByLonLatRect(const ARect: TDoubleRect): IMarksSubset;
 var
   VNewList: IInterfaceList;
   i: Integer;

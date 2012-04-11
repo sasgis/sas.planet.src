@@ -43,10 +43,10 @@ type
     function GetSearchHistory: IStringHistory;
     function GetList: IGeoCoderList;
     function GetActiveGeoCoderGUID: TGUID;
-    procedure SetActiveGeoCoderGUID(AValue: TGUID);
+    procedure SetActiveGeoCoderGUID(const AValue: TGUID);
     function GetActiveGeoCoder: IGeoCoderListEntity;
   public
-    constructor Create(AList: IGeoCoderList);
+    constructor Create(const AList: IGeoCoderList);
   end;
 
 implementation
@@ -59,7 +59,7 @@ uses
 
 { TMainGeoCoderConfig }
 
-constructor TMainGeoCoderConfig.Create(AList: IGeoCoderList);
+constructor TMainGeoCoderConfig.Create(const AList: IGeoCoderList);
 var
   i: Cardinal;
 begin
@@ -129,7 +129,7 @@ begin
   Result := FSearchHistory;
 end;
 
-procedure TMainGeoCoderConfig.SetActiveGeoCoderGUID(AValue: TGUID);
+procedure TMainGeoCoderConfig.SetActiveGeoCoderGUID(const AValue: TGUID);
 begin
   if not IsEqualGUID(AValue, CGUID_Zero) then begin
     LockWrite;

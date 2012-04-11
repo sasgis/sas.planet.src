@@ -40,7 +40,10 @@ type
   protected
     function GetScale: Integer;
     procedure SetScale(AValue: Integer);
-    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+    function GetRectStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceRect: TDoubleRect
+    ): TDoubleRect;
   public
     constructor Create;
   end;
@@ -77,7 +80,9 @@ begin
 end;
 
 function TGenShtabGridConfig.GetRectStickToGrid(
-  ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+  const ALocalConverter: ILocalCoordConverter;
+  const ASourceRect: TDoubleRect
+): TDoubleRect;
 var
   VScale: Integer;
   VVisible: Boolean;

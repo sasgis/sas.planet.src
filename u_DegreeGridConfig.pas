@@ -40,7 +40,10 @@ type
   protected
     function GetScale: Double;
     procedure SetScale(AValue: Double);
-    function GetRectStickToGrid(ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+    function GetRectStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceRect: TDoubleRect
+    ): TDoubleRect;
   public
     constructor Create;
   end;
@@ -77,7 +80,9 @@ begin
 end;
 
 function TDegreeGridConfig.GetRectStickToGrid(
-  ALocalConverter: ILocalCoordConverter; ASourceRect: TDoubleRect): TDoubleRect;
+  const ALocalConverter: ILocalCoordConverter;
+  const ASourceRect: TDoubleRect
+): TDoubleRect;
 var
   VScale: Double;
   VVisible: Boolean;

@@ -36,7 +36,7 @@ type
     property SearchHistory: IStringHistory read GetSearchHistory;
 
     function GetActiveGeoCoderGUID: TGUID;
-    procedure SetActiveGeoCoderGUID(AValue: TGUID);
+    procedure SetActiveGeoCoderGUID(const AValue: TGUID);
     property ActiveGeoCoderGUID: TGUID read GetActiveGeoCoderGUID write SetActiveGeoCoderGUID;
 
     function GetActiveGeoCoder: IGeoCoderListEntity;
