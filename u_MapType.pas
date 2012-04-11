@@ -804,8 +804,8 @@ begin
     end;
     VSourceTileRect := VSourceConverter.RelativeRect2TileRect(VSourceRelativeRect, ASourceZoom);
     VSolidDrow :=
-      (VSize.X > (VSourceTileRect.Right - VSourceTileRect.Left) * 2) and
-      (VSize.Y > (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
+      (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
+      (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
     VTileRectInfo := FStorage.GetTileRectInfo(VSourceTileRect, ASourceZoom, FVersionConfig.Version);
     if VTileRectInfo <> nil then begin
       VIterator := TTileIteratorByRect.Create(VSourceTileRect);
