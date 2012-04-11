@@ -31,10 +31,10 @@ type
   ITileStorageTypeList = interface(IConfigDataElement)
     ['{42BD0720-3B8A-4F19-8208-C6E4105377DE}']
     function GetDefault: ITileStorageType;
-    procedure SetDefaultByGUID(AGUID: TGUID);
+    procedure SetDefaultByGUID(const AGUID: TGUID);
 
-    function Get(AGUID: TGUID): ITileStorageType;
-    function GetCanUseAsDefault(AGUID: TGUID): Boolean;
+    function Get(const AGUID: TGUID): ITileStorageType;
+    function GetCanUseAsDefault(const AGUID: TGUID): Boolean;
     function GetEnum: IEnumGUID;
   end;
 

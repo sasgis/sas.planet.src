@@ -62,7 +62,7 @@ type
     FValueChangeId: Integer;
     FValueShowId: Integer;
 
-    function GuidToComponentName(APrefix: string; AGUID: TGUID): string;
+    function GuidToComponentName(const APrefix: string; const AGUID: TGUID): string;
     procedure CreateMenu;
     procedure UpdateControls;
 
@@ -81,9 +81,9 @@ type
     function GetSensor: ISensor;
   public
     constructor Create(
-      AListEntity: ISensorListEntity;
-      AConfig: ISensorViewConfig;
-      ATimerNoifier: IJclNotifier;
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -104,9 +104,9 @@ type
     procedure UpdateDataView; override;
   public
     constructor Create(
-      AListEntity: ISensorListEntity;
-      AConfig: ISensorViewConfig;
-      ATimerNoifier: IJclNotifier;
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -125,9 +125,9 @@ type
     procedure UpdateDataView; override;
   public
     constructor Create(
-      AListEntity: ISensorListEntity;
-      AConfig: ISensorViewConfig;
-      ATimerNoifier: IJclNotifier;
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -148,10 +148,16 @@ uses
 
 { TSensorViewTBXPanelBase }
 
-constructor TSensorViewTBXPanelBase.Create(AListEntity: ISensorListEntity;
-  AConfig: ISensorViewConfig; ATimerNoifier: IJclNotifier; AOwner: TComponent;
-  ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem; AImages: TCustomImageList;
-  AImageIndexReset: TImageIndex);
+constructor TSensorViewTBXPanelBase.Create(
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   FListEntity := AListEntity;
   FSensor := FListEntity.GetSensor;
@@ -295,8 +301,8 @@ begin
 end;
 
 function TSensorViewTBXPanelBase.GuidToComponentName(
-  APrefix: string;
-  AGUID: TGUID
+  const APrefix: string;
+  const AGUID: TGUID
 ): string;
 var
   VGUIDStr: string;
@@ -374,9 +380,9 @@ end;
 { TSensorViewTextTBXPanel }
 
 constructor TSensorViewTextTBXPanel.Create(
-  AListEntity: ISensorListEntity;
-  AConfig: ISensorViewConfig;
-  ATimerNoifier: IJclNotifier;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -425,10 +431,16 @@ end;
 
 { TSensorViewBitmapTBXPanel }
 
-constructor TSensorViewBitmapTBXPanel.Create(AListEntity: ISensorListEntity;
-  AConfig: ISensorViewConfig; ATimerNoifier: IJclNotifier; AOwner: TComponent;
-  ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem; AImages: TCustomImageList;
-  AImageIndexReset: TImageIndex);
+constructor TSensorViewBitmapTBXPanel.Create(
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited;
   if not Supports(FListEntity.GetSensor, ISensorBitmap, FSensor) then begin

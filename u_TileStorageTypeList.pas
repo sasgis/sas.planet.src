@@ -44,14 +44,14 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetDefault: ITileStorageType;
-    procedure SetDefaultByGUID(AGUID: TGUID);
-    function Get(AGUID: TGUID): ITileStorageType;
-    function GetCanUseAsDefault(AGUID: TGUID): Boolean;
+    procedure SetDefaultByGUID(const AGUID: TGUID);
+    function Get(const AGUID: TGUID): ITileStorageType;
+    function GetCanUseAsDefault(const AGUID: TGUID): Boolean;
     function GetEnum: IEnumGUID;
   protected
-    procedure Add(AValue: ITileStorageTypeListItem);
+    procedure Add(const AValue: ITileStorageTypeListItem);
   public
-    constructor Create(AFirstType: ITileStorageTypeListItem);
+    constructor Create(const AFirstType: ITileStorageTypeListItem);
   end;
 
 implementation
@@ -64,7 +64,8 @@ uses
 { TTileStorageTypeList }
 
 constructor TTileStorageTypeList.Create(
-  AFirstType: ITileStorageTypeListItem);
+  const AFirstType: ITileStorageTypeListItem
+);
 begin
   inherited Create;
   Assert(AFirstType.CanUseAsDefault);
@@ -73,7 +74,7 @@ begin
   FDefault := AFirstType;
 end;
 
-procedure TTileStorageTypeList.Add(AValue: ITileStorageTypeListItem);
+procedure TTileStorageTypeList.Add(const AValue: ITileStorageTypeListItem);
 begin
   FList.Add(AValue.GUID, AValue);
 end;
@@ -140,7 +141,7 @@ begin
   end;
 end;
 
-function TTileStorageTypeList.Get(AGUID: TGUID): ITileStorageType;
+function TTileStorageTypeList.Get(const AGUID: TGUID): ITileStorageType;
 var
   VResult: ITileStorageTypeListItem;
 begin
@@ -150,7 +151,7 @@ begin
   end;
 end;
 
-function TTileStorageTypeList.GetCanUseAsDefault(AGUID: TGUID): Boolean;
+function TTileStorageTypeList.GetCanUseAsDefault(const AGUID: TGUID): Boolean;
 var
   VResult: ITileStorageTypeListItem;
 begin
@@ -171,7 +172,7 @@ begin
   Result := FList.GetGUIDEnum;
 end;
 
-procedure TTileStorageTypeList.SetDefaultByGUID(AGUID: TGUID);
+procedure TTileStorageTypeList.SetDefaultByGUID(const AGUID: TGUID);
 var
   VResult: ITileStorageTypeListItem;
 begin
