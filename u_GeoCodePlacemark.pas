@@ -41,10 +41,10 @@ type
     function GetAccuracy: Integer; safecall;
   public
     constructor Create(
-      APoint: TDoublePoint;
-      AAddress: WideString;
-      ADesc: WideString;
-      AFullDesc: WideString;
+      const APoint: TDoublePoint;
+      const AAddress: WideString;
+      const ADesc: WideString;
+      const AFullDesc: WideString;
       AAccuracy: Integer
     );
     destructor Destroy; override;
@@ -54,8 +54,13 @@ implementation
 
 { TGeoCodePlacemark }
 
-constructor TGeoCodePlacemark.Create(APoint: TDoublePoint;
-  AAddress: WideString; ADesc: WideString; AFullDesc: WideString; AAccuracy: Integer);
+constructor TGeoCodePlacemark.Create(
+  const APoint: TDoublePoint;
+  const AAddress: WideString;
+  const ADesc: WideString;
+  const AFullDesc: WideString;
+  AAccuracy: Integer
+);
 begin
   FAddress := AAddress;
   FDesc := ADesc;
@@ -96,4 +101,3 @@ begin
 end;
 
 end.
- 

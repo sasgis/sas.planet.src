@@ -11,22 +11,22 @@ type
   IVectorDataFactory = interface
     ['{F90BAFE2-B3A5-4C6B-9831-3E460F7771F6}']
     function BuildPoint(
-      AId: string;
-      AName: string;
-      ADesc: string;
-      APoint: TDoublePoint
+      const AId: string;
+      const AName: string;
+      const ADesc: string;
+      const APoint: TDoublePoint
     ): IVectorDataItemPoint;
     function BuildPath(
-      AId: string;
-      AName: string;
-      ADesc: string;
-      ALine: ILonLatPath
+      const AId: string;
+      const AName: string;
+      const ADesc: string;
+      const ALine: ILonLatPath
     ): IVectorDataItemLine;
     function BuildPoly(
-      AId: string;
-      AName: string;
-      ADesc: string;
-      APoly: ILonLatPolygon
+      const AId: string;
+      const AName: string;
+      const ADesc: string;
+      const APoly: ILonLatPolygon
     ): IVectorDataItemPoly;
   end;
 

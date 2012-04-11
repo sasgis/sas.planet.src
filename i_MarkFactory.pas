@@ -36,67 +36,67 @@ type
   IMarkFactory = interface
     ['{725CB1AC-1393-4889-B621-64C3B4348331}']
     function CreateNewPoint(
-      APoint: TDoublePoint;
-      AName: string;
-      ADesc: string;
-      ATemplate: IMarkTemplatePoint = nil
+      const APoint: TDoublePoint;
+      const AName: string;
+      const ADesc: string;
+      const ATemplate: IMarkTemplatePoint = nil
     ): IMarkPoint;
     function CreateNewLine(
-      ALine: ILonLatPath;
-      AName: string;
-      ADesc: string;
-      ATemplate: IMarkTemplateLine = nil
+      const ALine: ILonLatPath;
+      const AName: string;
+      const ADesc: string;
+      const ATemplate: IMarkTemplateLine = nil
     ): IMarkLine;
     function CreateNewPoly(
-      ALine: ILonLatPolygon;
-      AName: string;
-      ADesc: string;
-      ATemplate: IMarkTemplatePoly = nil
+      const ALine: ILonLatPolygon;
+      const AName: string;
+      const ADesc: string;
+      const ATemplate: IMarkTemplatePoly = nil
     ): IMarkPoly;
 
     function ModifyPoint(
-      ASource: IMarkPoint;
-      AName: string;
+      const ASource: IMarkPoint;
+      const AName: string;
       AVisible: Boolean;
-      APic: IMarkPicture;
-      ACategory: ICategory;
-      ADesc: string;
-      APoint: TDoublePoint;
+      const APic: IMarkPicture;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const APoint: TDoublePoint;
       ATextColor: TColor32;
       ATextBgColor: TColor32;
       AFontSize: Integer;
       AMarkerSize: Integer
     ): IMarkPoint;
     function ModifyLine(
-      ASource: IMarkLine;
-      AName: string;
+      const ASource: IMarkLine;
+      const AName: string;
       AVisible: Boolean;
-      ACategory: ICategory;
-      ADesc: string;
-      ALine: ILonLatPath;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
     function ModifyPoly(
-      ASource: IMarkPoly;
-      AName: string;
+      const ASource: IMarkPoly;
+      const AName: string;
       AVisible: Boolean;
-      ACategory: ICategory;
-      ADesc: string;
-      ALine: ILonLatPolygon;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
     ): IMarkPoly;
 
     function SimpleModifyLine(
-      ASource: IMarkLine;
-      ALine: ILonLatPath;
-      ADesc: string
+      const ASource: IMarkLine;
+      const ALine: ILonLatPath;
+      const ADesc: string
     ): IMarkLine;
     function SimpleModifyPoly(
-      ASource: IMarkPoly;
-      ALine: ILonLatPolygon
+      const ASource: IMarkPoly;
+      const ALine: ILonLatPolygon
     ): IMarkPoly;
 
     function GetMarkPictureList: IMarkPictureList;

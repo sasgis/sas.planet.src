@@ -48,15 +48,15 @@ type
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
+      const AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
-      AName: string;
+      const AName: string;
       AId: Integer;
       AVisible: Boolean;
-      ACategory: ICategory;
-      ADesc: string;
-      ALLRect: TDoubleRect;
-      ALine: ILonLatPolygon;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALLRect: TDoubleRect;
+      const ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
@@ -68,15 +68,15 @@ implementation
 { TMarkFull }
 
 constructor TMarkPoly.Create(
-  AHintConverter: IHtmlToHintTextConverter;
+  const AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
-  AName: string;
+  const AName: string;
   AId: Integer;
   AVisible: Boolean;
-  ACategory: ICategory;
-  ADesc: string;
-  ALLRect: TDoubleRect;
-  ALine: ILonLatPolygon;
+  const ACategory: ICategory;
+  const ADesc: string;
+  const ALLRect: TDoubleRect;
+  const ALine: ILonLatPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 );

@@ -47,19 +47,19 @@ type
     procedure SetCapacity(NewCapacity: Integer); override;
     procedure SetCount(NewCount: Integer); override;
     procedure Delete(Index: Integer); override;
-    procedure Insert(Index: Integer; AGUID: TGUID; AObj: IInterface);
+    procedure Insert(Index: Integer; const AGUID: TGUID; const AObj: IInterface);
     procedure Sort(); override;
     function GetItemGUID(Index: Integer): TGUID; override;
   public
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(AGUID: TGUID; AInterface: IInterface): IInterface; virtual;
+    function Add(const AGUID: TGUID; const AInterface: IInterface): IInterface; virtual;
 
     // Получение объекта по GUID
-    function GetByGUID(AGUID: TGUID): IInterface; virtual;
+    function GetByGUID(const AGUID: TGUID): IInterface; virtual;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AGUID: TGUID; AInterface: IInterface); virtual;
+    procedure Replace(const AGUID: TGUID; const AInterface: IInterface); virtual;
   end;
 
 resourcestring
@@ -74,7 +74,7 @@ uses
 
 { TGUIDList }
 
-function TGUIDInterfaceSet.Add(AGUID: TGUID; AInterface: IInterface): IInterface;
+function TGUIDInterfaceSet.Add(const AGUID: TGUID; const AInterface: IInterface): IInterface;
 var
   VIndex: Integer;
 begin
@@ -102,7 +102,7 @@ begin
   end;
 end;
 
-function TGUIDInterfaceSet.GetByGUID(AGUID: TGUID): IInterface;
+function TGUIDInterfaceSet.GetByGUID(const AGUID: TGUID): IInterface;
 var
   VIndex: Integer;
 begin
@@ -118,7 +118,7 @@ begin
   Result := FList^[Index].GUID;
 end;
 
-procedure TGUIDInterfaceSet.Insert(Index: Integer; AGUID: TGUID; AObj: IInterface);
+procedure TGUIDInterfaceSet.Insert(Index: Integer; const AGUID: TGUID; const AObj: IInterface);
 begin
   if (Index < 0) or (Index > FCount) then begin
     Error(@SListIndexError, Index);
@@ -136,7 +136,7 @@ begin
   Inc(FCount);
 end;
 
-procedure TGUIDInterfaceSet.Replace(AGUID: TGUID; AInterface: IInterface);
+procedure TGUIDInterfaceSet.Replace(const AGUID: TGUID; const AInterface: IInterface);
 var
   VIndex: Integer;
 begin

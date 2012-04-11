@@ -31,19 +31,19 @@ type
   ['{BA17FFE8-E281-4E2E-8B92-8F39ACC67036}']
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(AGUID: TGUID; AInterface: IInterface): IInterface;
+    function Add(const AGUID: TGUID; const AInterface: IInterface): IInterface;
 
     // Проверка наличия GUID в списке
-    function IsExists(AGUID: TGUID): boolean;
+    function IsExists(const AGUID: TGUID): boolean;
 
     // Получение объекта по GUID
-    function GetByGUID(AGUID: TGUID): IInterface;
+    function GetByGUID(const AGUID: TGUID): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AGUID: TGUID; AInterface: IInterface);
+    procedure Replace(const AGUID: TGUID; const AInterface: IInterface);
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
-    procedure Remove(AGUID: TGUID);
+    procedure Remove(const AGUID: TGUID);
 
     // Очитска списка
     procedure Clear;
@@ -61,19 +61,19 @@ type
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Если список является владельцем объектов и переданный объект не равен хранимому, то он будет удален
     // Возвращает хранимый объект
-    function Add(AGUID: TGUID; AObj: TObject): TObject;
+    function Add(const AGUID: TGUID; AObj: TObject): TObject;
 
     // Проверка наличия GUID в списке
-    function IsExists(AGUID: TGUID): boolean;
+    function IsExists(const AGUID: TGUID): boolean;
 
     // Получение объекта по GUID
-    function GetByGUID(AGUID: TGUID): TObject;
+    function GetByGUID(const AGUID: TGUID): TObject;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AGUID: TGUID; AObj: TObject);
+    procedure Replace(const AGUID: TGUID; AObj: TObject);
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
-    procedure Remove(AGUID: TGUID);
+    procedure Remove(const AGUID: TGUID);
 
     // Очитска списка
     procedure Clear;
@@ -92,4 +92,3 @@ type
 implementation
 
 end.
- 

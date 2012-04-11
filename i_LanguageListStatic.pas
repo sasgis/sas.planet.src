@@ -31,7 +31,7 @@ type
     function GetCode(AIndex: Integer): string;
     property Code[AIndex: Integer]: string read GetCode;
 
-    function FindCode(ACode: string; out AIndex: Integer): Boolean;
+    function FindCode(const ACode: string; out AIndex: Integer): Boolean;
   end;
 
 implementation

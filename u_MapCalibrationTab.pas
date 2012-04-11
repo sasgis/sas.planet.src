@@ -35,7 +35,12 @@ type
     // Более детальное описание привязки
     function GetDescription: WideString; safecall;
     // Генерирует привязку для склеенной карты.
-    procedure SaveCalibrationInfo(AFileName: WideString; xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter); safecall;
+    procedure SaveCalibrationInfo(
+      const AFileName: WideString;
+      const xy1, xy2: TPoint;
+      Azoom: byte;
+      const AConverter: ICoordConverter
+    ); safecall;
   end;
 
 implementation
@@ -57,14 +62,19 @@ begin
   Result := '.tab';
 end;
 
-procedure TMapCalibrationTab.SaveCalibrationInfo(AFileName: WideString;
-  xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter);
+procedure TMapCalibrationTab.SaveCalibrationInfo(
+  const AFileName: WideString;
+  const xy1, xy2: TPoint;
+  Azoom: byte;
+  const AConverter: ICoordConverter
+);
 var
   f: TextFile;
   xy: TPoint;
   lat, lon: array[1..3] of real;
   VLL1, VLL2: TDoublePoint;
   VLL: TDoublePoint;
+  VLocalRect: TRect;
 begin
   assignfile(f, ChangeFileExt(AFileName, '.tab'));
   rewrite(f);
@@ -88,18 +98,18 @@ begin
   lon[3] := VLL2.X;
   lat[3] := VLL2.Y;
 
-  xy2 := Point(xy2.X - xy1.X, xy2.y - xy1.y);
-  xy1 := Point(0, 0);
+  VLocalRect.TopLeft := Point(0, 0);
+  VLocalRect.BottomRight := Point(xy2.X - xy1.X, xy2.y - xy1.y);
 
-  writeln(f, '(' + R2StrPoint(lon[1]) + ',' + R2StrPoint(lat[1]) + ') (' + inttostr(xy1.x) + ', ' + inttostr(xy1.y) + ') Label "Точка 1",');
-  writeln(f, '(' + R2StrPoint(lon[3]) + ',' + R2StrPoint(lat[3]) + ') (' + inttostr(xy2.x) + ', ' + inttostr(xy2.y) + ') Label "Точка 2",');
-  writeln(f, '(' + R2StrPoint(lon[1]) + ',' + R2StrPoint(lat[3]) + ') (' + inttostr(xy1.x) + ', ' + inttostr(xy2.y) + ') Label "Точка 3",');
-  writeln(f, '(' + R2StrPoint(lon[3]) + ',' + R2StrPoint(lat[1]) + ') (' + inttostr(xy2.x) + ', ' + inttostr(xy1.y) + ') Label "Точка 4",');
-  writeln(f, '(' + R2StrPoint(lon[2]) + ',' + R2StrPoint(lat[2]) + ') (' + inttostr((xy2.x - xy1.X) div 2) + ', ' + inttostr((xy2.y - xy1.y) div 2) + ') Label "Точка 5",');
-  writeln(f, '(' + R2StrPoint(lon[2]) + ',' + R2StrPoint(lat[1]) + ') (' + inttostr((xy2.x - xy1.X) div 2) + ', ' + inttostr(xy1.y) + ') Label "Точка 6",');
-  writeln(f, '(' + R2StrPoint(lon[1]) + ',' + R2StrPoint(lat[2]) + ') (' + inttostr(xy1.x) + ', ' + inttostr((xy2.y - xy1.y) div 2) + ') Label "Точка 7",');
-  writeln(f, '(' + R2StrPoint(lon[3]) + ',' + R2StrPoint(lat[2]) + ') (' + inttostr(xy2.x) + ', ' + inttostr((xy2.y - xy1.y) div 2) + ') Label "Точка 8",');
-  writeln(f, '(' + R2StrPoint(lon[2]) + ',' + R2StrPoint(lat[3]) + ') (' + inttostr((xy2.x - xy1.X) div 2) + ', ' + inttostr(xy2.y) + ') Label "Точка 9"');
+  writeln(f, '(' + R2StrPoint(lon[1]) + ',' + R2StrPoint(lat[1]) + ') (' + inttostr(VLocalRect.Left) + ', ' + inttostr(VLocalRect.Top) + ') Label "Точка 1",');
+  writeln(f, '(' + R2StrPoint(lon[3]) + ',' + R2StrPoint(lat[3]) + ') (' + inttostr(VLocalRect.Right) + ', ' + inttostr(VLocalRect.Bottom) + ') Label "Точка 2",');
+  writeln(f, '(' + R2StrPoint(lon[1]) + ',' + R2StrPoint(lat[3]) + ') (' + inttostr(VLocalRect.Left) + ', ' + inttostr(VLocalRect.Bottom) + ') Label "Точка 3",');
+  writeln(f, '(' + R2StrPoint(lon[3]) + ',' + R2StrPoint(lat[1]) + ') (' + inttostr(VLocalRect.Right) + ', ' + inttostr(VLocalRect.Top) + ') Label "Точка 4",');
+  writeln(f, '(' + R2StrPoint(lon[2]) + ',' + R2StrPoint(lat[2]) + ') (' + inttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + inttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 5",');
+  writeln(f, '(' + R2StrPoint(lon[2]) + ',' + R2StrPoint(lat[1]) + ') (' + inttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + inttostr(VLocalRect.Top) + ') Label "Точка 6",');
+  writeln(f, '(' + R2StrPoint(lon[1]) + ',' + R2StrPoint(lat[2]) + ') (' + inttostr(VLocalRect.Left) + ', ' + inttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 7",');
+  writeln(f, '(' + R2StrPoint(lon[3]) + ',' + R2StrPoint(lat[2]) + ') (' + inttostr(VLocalRect.Right) + ', ' + inttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 8",');
+  writeln(f, '(' + R2StrPoint(lon[2]) + ',' + R2StrPoint(lat[3]) + ') (' + inttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + inttostr(VLocalRect.Bottom) + ') Label "Точка 9"');
 
   writeln(f, 'CoordSys Earth Projection 1, 104');
   writeln(f, 'Units "degree"');

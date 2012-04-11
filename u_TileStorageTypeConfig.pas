@@ -36,7 +36,7 @@ type
   protected
     function GetBasePath: IPathConfig;
   public
-    constructor Create(ABasePath: IPathConfig; ADefaultPath: string);
+    constructor Create(const ABasePath: IPathConfig; const ADefaultPath: string);
   end;
 
 implementation
@@ -48,8 +48,8 @@ uses
 { TTileStorageTypeConfig }
 
 constructor TTileStorageTypeConfig.Create(
-  ABasePath: IPathConfig;
-  ADefaultPath: string
+  const ABasePath: IPathConfig;
+  const ADefaultPath: string
 );
 begin
   inherited Create;

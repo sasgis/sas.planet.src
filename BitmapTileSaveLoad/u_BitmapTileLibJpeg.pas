@@ -41,7 +41,7 @@ type
     constructor Create(APerfCounterList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
-    function Load(AData: IBinaryData): IBitmap32Static;
+    function Load(const AData: IBinaryData): IBitmap32Static;
   end;
 
   TLibJpegTileSaver = class(TInterfacedObject, IBitmapTileSaver)
@@ -52,7 +52,7 @@ type
     constructor Create(ACompressionQuality: Byte);
     destructor Destroy; override;
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
-    function Save(ABitmap: IBitmap32Static): IBinaryData;
+    function Save(const ABitmap: IBitmap32Static): IBinaryData;
   end;
 
 implementation
@@ -85,7 +85,7 @@ begin
   inherited;
 end;
 
-function TLibJpegTileLoader.Load(AData: IBinaryData): IBitmap32Static;
+function TLibJpegTileLoader.Load(const AData: IBinaryData): IBitmap32Static;
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegReader;
@@ -189,7 +189,7 @@ begin
   inherited Destroy;
 end;
 
-function TLibJpegTileSaver.Save(ABitmap: IBitmap32Static): IBinaryData;
+function TLibJpegTileSaver.Save(const ABitmap: IBitmap32Static): IBinaryData;
 var
   VJpeg: TJpegWriter;
   VAppData: TWriterAppData;

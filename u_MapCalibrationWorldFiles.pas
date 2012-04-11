@@ -30,15 +30,20 @@ uses
 type
   TMapCalibrationWorldFiles = class(TInterfacedObject, IMapCalibration)
   private
-    procedure SavePrjFile(AFileName: WideString; AConverter: ICoordConverter);
-    procedure SaveAuxXmlFile(AFileName: WideString; AConverter: ICoordConverter);
+    procedure SavePrjFile(const AFileName: WideString; const AConverter: ICoordConverter);
+    procedure SaveAuxXmlFile(const AFileName: WideString; const AConverter: ICoordConverter);
   public
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: WideString; safecall;
     // Более детальное описание привязки
     function GetDescription: WideString; safecall;
     // Генерирует привязку для склеенной карты.
-    procedure SaveCalibrationInfo(AFileName: WideString; xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter); safecall;
+    procedure SaveCalibrationInfo(
+      const AFileName: WideString;
+      const xy1, xy2: TPoint;
+      Azoom: byte;
+      const AConverter: ICoordConverter
+    ); safecall;
   end;
 
 implementation
@@ -50,7 +55,7 @@ uses
   t_GeoTypes,
   u_GeoToStr;
 
-function GetProj(AConverter: ICoordConverter): string;
+function GetProj(const AConverter: ICoordConverter): string;
 begin
   case AConverter.GetProjectionEPSG of
     3785: begin
@@ -148,8 +153,10 @@ begin
   Result := '.w';
 end;
 
-procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(AFileName: WideString;
-  AConverter: ICoordConverter);
+procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
+  const AFileName: WideString;
+  const AConverter: ICoordConverter
+);
 var
   AuxXmkfile: TMemoryStream;
   str: UTF8String;
@@ -166,8 +173,11 @@ begin
 end;
 
 procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
-  AFileName: WideString; xy1, xy2: TPoint; Azoom: byte;
-  AConverter: ICoordConverter);
+  const AFileName: WideString;
+  const xy1, xy2: TPoint;
+  Azoom: byte;
+  const AConverter: ICoordConverter
+);
 var
   f: TextFile;
   ll1, ll2: TDoublePoint;
@@ -189,8 +199,10 @@ begin
   SaveAuxXmlFile(AFileName, AConverter);
 end;
 
-procedure TMapCalibrationWorldFiles.SavePrjFile(AFileName: WideString;
-  AConverter: ICoordConverter);
+procedure TMapCalibrationWorldFiles.SavePrjFile(
+  const AFileName: WideString;
+  const AConverter: ICoordConverter
+);
 var
   f: TextFile;
   VprojInfo: String;

@@ -42,12 +42,12 @@ type
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
+      const AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
-      AName: string;
+      const AName: string;
       AId: Integer;
-      ACategory: ICategory;
-      ADesc: string;
+      const ACategory: ICategory;
+      const ADesc: string;
       AVisible: Boolean
     );
   end;
@@ -57,12 +57,12 @@ implementation
 { TMarkFullBase }
 
 constructor TMarkFullBase.Create(
-  AHintConverter: IHtmlToHintTextConverter;
+  const AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
-  AName: string;
+  const AName: string;
   AId: Integer;
-  ACategory: ICategory;
-  ADesc: string;
+  const ACategory: ICategory;
+  const ADesc: string;
   AVisible: Boolean
 );
 begin

@@ -23,23 +23,23 @@ type
     FBasePathListener: IJclListener;
     procedure OnBasePathChange;
     procedure _UpdateFullPath;
-    function IsRelativePath(APath: string): Boolean;
+    function IsRelativePath(const APath: string): Boolean;
   protected
     procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   private
     function GetDefaultPath: string;
     function GetBasePathConfig: IPathConfig;
-    procedure SetBasePathConfig(AValue : IPathConfig);
+    procedure SetBasePathConfig(const AValue : IPathConfig);
     function GetPath: string;
-    procedure SetPath(AValue: string);
+    procedure SetPath(const AValue: string);
     function GetIsRelative: Boolean;
     function GetFullPath: string;
   public
     constructor Create(
-      AStoreIdent: string;
-      ADefaultPath: string;
-      ABasePathConfig: IPathConfig
+      const AStoreIdent: string;
+      const ADefaultPath: string;
+      const ABasePathConfig: IPathConfig
     );
     destructor Destroy; override;
   end;
@@ -53,8 +53,10 @@ uses
 
 { TPathConfig }
 
-constructor TPathConfig.Create(AStoreIdent, ADefaultPath: string;
-  ABasePathConfig: IPathConfig);
+constructor TPathConfig.Create(
+  const AStoreIdent, ADefaultPath: string;
+  const ABasePathConfig: IPathConfig
+);
 begin
   inherited Create;
   FStoreIdent := AStoreIdent;
@@ -148,7 +150,7 @@ begin
   end;
 end;
 
-function TPathConfig.IsRelativePath(APath: string): Boolean;
+function TPathConfig.IsRelativePath(const APath: string): Boolean;
 begin
   Result := PathIsRelative(PChar(APath));
 end;
@@ -163,7 +165,7 @@ begin
   end;
 end;
 
-procedure TPathConfig.SetBasePathConfig(AValue: IPathConfig);
+procedure TPathConfig.SetBasePathConfig(const AValue: IPathConfig);
 begin
   LockWrite;
   try
@@ -184,7 +186,7 @@ begin
   end;
 end;
 
-procedure TPathConfig.SetPath(AValue: string);
+procedure TPathConfig.SetPath(const AValue: string);
 var
   VNewIsRelative: Boolean;
   VOldIsRelative: Boolean;

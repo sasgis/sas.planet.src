@@ -8,7 +8,7 @@ uses
 type
   ITimeZoneDiffByLonLat = interface
     ['{15E97BD9-B681-47CD-9488-620120CDF341}']
-    function GetTimeDiff(ALonLat: TDoublePoint): TDateTime;
+    function GetTimeDiff(const ALonLat: TDoublePoint): TDateTime;
   end;
 
 implementation

@@ -33,13 +33,13 @@ type
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
-    procedure ProcessBitmap(Bitmap: TCustomBitmap32);
+    procedure ProcessBitmap(const Bitmap: TCustomBitmap32);
   protected
     function GetInvertColor: boolean;
     function GetGammaN: Integer;
     function GetContrastN: Integer;
 
-    function Process(ABitmap: IBitmap32Static): IBitmap32Static;
+    function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
       AInvertColor: boolean;
@@ -79,7 +79,7 @@ begin
   Result := FInvertColor;
 end;
 
-procedure Contrast(Bitmap: TCustomBitmap32; Value: double);
+procedure Contrast(const Bitmap: TCustomBitmap32; Value: double);
  function BLimit(B:Integer):Byte;
   begin
    if B<0 then Result:=0
@@ -111,7 +111,7 @@ begin
 end;
 
 function TBitmapPostProcessingConfigStatic.Process(
-  ABitmap: IBitmap32Static
+  const ABitmap: IBitmap32Static
 ): IBitmap32Static;
 var
   VBitmap: TCustomBitmap32;
@@ -138,7 +138,7 @@ begin
 end;
 
 procedure TBitmapPostProcessingConfigStatic.ProcessBitmap(
-  Bitmap: TCustomBitmap32);
+  const Bitmap: TCustomBitmap32);
   function Power(Base, Exponent: Extended): Extended;
   begin
     Result := Exp(Exponent * Ln(Base));

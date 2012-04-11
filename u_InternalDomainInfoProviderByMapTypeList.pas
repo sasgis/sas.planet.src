@@ -35,16 +35,35 @@ type
   private
     FZmpInfoSet: IZmpInfoSet;
     FContentTypeManager: IContentTypeManager;
-    function ParseFilePath(AFilePath: string; out AZmpGUID: TGUID; out AFileName: string): Boolean;
-    function LoadDataFromZmp(AZmp: IZmpInfo; AFileName: string; out AContentType: string): IBinaryData;
-    function LoadDataFromDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; out AContentType: string): IBinaryData;
-    function LoadDataFromSubDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; out AContentType: string): IBinaryData;
+    function ParseFilePath(
+      const AFilePath: string;
+      out AZmpGUID: TGUID;
+      out AFileName: string
+    ): Boolean;
+    function LoadDataFromZmp(
+      const AZmp: IZmpInfo;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
+    function LoadDataFromDataProvider(
+      const ADataProvider: IConfigDataProvider;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
+    function LoadDataFromSubDataProvider(
+      const ADataProvider: IConfigDataProvider;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
   protected
-    function LoadBinaryByFilePath(AFilePath: string; out AContentType: string): IBinaryData;
+    function LoadBinaryByFilePath(
+      const AFilePath: string;
+      out AContentType: string
+    ): IBinaryData;
   public
     constructor Create(
-      AZmpInfoSet: IZmpInfoSet;
-      AContentTypeManager: IContentTypeManager
+      const AZmpInfoSet: IZmpInfoSet;
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -62,8 +81,8 @@ const
 { TInternalDomainInfoProviderByMapTypeList }
 
 constructor TInternalDomainInfoProviderByMapTypeList.Create(
-  AZmpInfoSet: IZmpInfoSet;
-  AContentTypeManager: IContentTypeManager
+  const AZmpInfoSet: IZmpInfoSet;
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   FZmpInfoSet := AZmpInfoSet;
@@ -71,7 +90,7 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMapTypeList.LoadBinaryByFilePath(
-  AFilePath: string;
+  const AFilePath: string;
   out AContentType: string
 ): IBinaryData;
 var
@@ -89,8 +108,8 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMapTypeList.LoadDataFromDataProvider(
-  ADataProvider: IConfigDataProvider;
-  AFileName: string;
+  const ADataProvider: IConfigDataProvider;
+  const AFileName: string;
   out AContentType: string
 ): IBinaryData;
 var
@@ -117,8 +136,8 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMapTypeList.LoadDataFromSubDataProvider(
-  ADataProvider: IConfigDataProvider;
-  AFileName: string;
+  const ADataProvider: IConfigDataProvider;
+  const AFileName: string;
   out AContentType: string
 ): IBinaryData;
 var
@@ -150,8 +169,8 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMapTypeList.LoadDataFromZmp(
-  AZmp: IZmpInfo;
-  AFileName: string;
+  const AZmp: IZmpInfo;
+  const AFileName: string;
   out AContentType: string
 ): IBinaryData;
 begin
@@ -159,7 +178,10 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMapTypeList.ParseFilePath(
-  AFilePath: string; out AZmpGUID: TGUID; out AFileName: string): Boolean;
+  const AFilePath: string;
+  out AZmpGUID: TGUID;
+  out AFileName: string
+): Boolean;
 var
   VGUIDString: string;
   VPos: Integer;

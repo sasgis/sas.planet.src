@@ -32,10 +32,13 @@ type
   private
     FFactory: IVectorItmesFactory;
   protected
-    function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+    function ProcessImport(
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): Boolean;
   public
     constructor Create(
-      AFactory: IVectorItmesFactory
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -52,13 +55,15 @@ uses
 
 { TImportHLG }
 
-constructor TImportHLG.Create(AFactory: IVectorItmesFactory);
+constructor TImportHLG.Create(const AFactory: IVectorItmesFactory);
 begin
   FFactory := AFactory;
 end;
 
-function TImportHLG.ProcessImport(AFileName: string;
-  AConfig: IImportConfig): Boolean;
+function TImportHLG.ProcessImport(
+  const AFileName: string;
+  const AConfig: IImportConfig
+): Boolean;
 var
   ini:TMemIniFile;
   i:integer;

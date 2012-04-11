@@ -36,12 +36,12 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     function GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
-    function TileToTablePos(ATile: TPoint): Integer;
-    procedure CreateNilFile(AFileName: string; ATableSize: Integer);
+    function TileToTablePos(const ATile: TPoint): Integer;
+    procedure CreateNilFile(const AFileName: string; ATableSize: Integer);
     procedure WriteTileToYaCache(
-      ATile: TPoint;
+      const ATile: TPoint;
       AZoom, AMapType, sm_xy: Byte;
-      AExportPath: string;
+      const AExportPath: string;
       ATileStream: TMemoryStream;
       AReplace: Boolean
     );
@@ -49,17 +49,17 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APath: string;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
-      Atypemaparr: array of TMapType;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APath: string;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
+      const Atypemaparr: array of TMapType;
       Areplace: boolean;
       Acsat: byte;
       Acmap: byte
@@ -86,17 +86,17 @@ const
   YaHeaderSize: integer = 1024;
 
 constructor TThreadExportYaMobileV3.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APath: string;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
-  Atypemaparr: array of TMapType;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APath: string;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
+  const Atypemaparr: array of TMapType;
   Areplace: boolean;
   Acsat, Acmap: byte
 );
@@ -191,7 +191,7 @@ begin
   Result := LowerCase(Result + IntToHex(Num, 3));
 end;
 
-function TThreadExportYaMobileV3.TileToTablePos(ATile: TPoint): Integer;
+function TThreadExportYaMobileV3.TileToTablePos(const ATile: TPoint): Integer;
 var
   X,Y: Integer;
 begin
@@ -213,7 +213,10 @@ begin
             ((X and $01) shl 2);
 end;
 
-procedure TThreadExportYaMobileV3.CreateNilFile(AFileName: string; ATableSize: Integer);
+procedure TThreadExportYaMobileV3.CreateNilFile(
+  const AFileName: string;
+  ATableSize: Integer
+);
 var
   VYaMob: TMemoryStream;
   VInitSize: Integer;
@@ -251,9 +254,9 @@ begin
 end;
 
 procedure TThreadExportYaMobileV3.WriteTileToYaCache(
-  ATile: TPoint;
+  const ATile: TPoint;
   AZoom, AMapType, sm_xy: Byte;
-  AExportPath: string;
+  const AExportPath: string;
   ATileStream: TMemoryStream;
   AReplace: Boolean
 );

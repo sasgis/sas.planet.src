@@ -40,8 +40,8 @@ type
     FKmlTypeList: TContentTypeListByKey;
     FConverterMatrix: TContentConverterMatrix;
   protected
-    procedure AddByType(AInfo: IContentTypeInfoBasic; AType: string);
-    procedure AddByExt(AInfo: IContentTypeInfoBasic; AExt: string);
+    procedure AddByType(const AInfo: IContentTypeInfoBasic; const AType: string);
+    procedure AddByExt(const AInfo: IContentTypeInfoBasic; const AExt: string);
     property ExtList: TContentTypeListByKey read FExtList;
     property TypeList: TContentTypeListByKey read FTypeList;
     property BitmapExtList: TContentTypeListByKey read FBitmapExtList;
@@ -68,8 +68,10 @@ implementation
 uses
   SysUtils;
 
-procedure TContentTypeManagerBase.AddByExt(AInfo: IContentTypeInfoBasic;
-  AExt: string);
+procedure TContentTypeManagerBase.AddByExt(
+  const AInfo: IContentTypeInfoBasic;
+  const AExt: string
+);
 begin
   FExtList.Add(AExt, AInfo);
   if Supports(AInfo, IContentTypeInfoBitmap) then begin
@@ -79,8 +81,10 @@ begin
   end;
 end;
 
-procedure TContentTypeManagerBase.AddByType(AInfo: IContentTypeInfoBasic;
-  AType: string);
+procedure TContentTypeManagerBase.AddByType(
+  const AInfo: IContentTypeInfoBasic;
+  const AType: string
+);
 begin
   FTypeList.Add(AType, AInfo);
   if Supports(AInfo, IContentTypeInfoBitmap) then begin

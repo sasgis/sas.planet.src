@@ -42,15 +42,15 @@ type
     function GetInfo: IStorageTypeAbilities;
     function GetConfig: ITileStorageTypeConfig;
     function GetMapVersionFactory: IMapVersionFactory;
-    function BuildStorage(APath: string): ITileStorage; virtual; abstract;
+    function BuildStorage(const APath: string): ITileStorage; virtual; abstract;
     function GetCaption: string;
   public
     constructor Create(
-      AGUID: TGUID;
-      ACaption: string;
-      AInfo: IStorageTypeAbilities;
-      AMapVersionFactory: IMapVersionFactory;
-      AConfig: ITileStorageTypeConfig
+      const AGUID: TGUID;
+      const ACaption: string;
+      const AInfo: IStorageTypeAbilities;
+      const AMapVersionFactory: IMapVersionFactory;
+      const AConfig: ITileStorageTypeConfig
     );
   end;
 
@@ -59,11 +59,11 @@ implementation
 { TTileStorageTypeBase }
 
 constructor TTileStorageTypeBase.Create(
-  AGUID: TGUID;
-  ACaption: string;
-  AInfo: IStorageTypeAbilities;
-  AMapVersionFactory: IMapVersionFactory;
-  AConfig: ITileStorageTypeConfig
+  const AGUID: TGUID;
+  const ACaption: string;
+  const AInfo: IStorageTypeAbilities;
+  const AMapVersionFactory: IMapVersionFactory;
+  const AConfig: ITileStorageTypeConfig
 );
 begin
   FGUID := AGUID;

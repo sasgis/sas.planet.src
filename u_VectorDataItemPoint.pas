@@ -37,10 +37,10 @@ type
     function GetPoint: TDoublePoint;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
-      AName: string;
-      ADesc: string;
-      APoint: TDoublePoint
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AName: string;
+      const ADesc: string;
+      const APoint: TDoublePoint
     );
   end;
 
@@ -49,12 +49,16 @@ implementation
 { TVectorDataItemPoint }
 
 constructor TVectorDataItemPoint.Create(
-  AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string;
-  APoint: TDoublePoint
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AName, ADesc: string;
+  const APoint: TDoublePoint
 );
 begin
-  inherited Create(AHintConverter, AName, ADesc);
+  inherited Create(
+    AHintConverter,
+    AName,
+    ADesc
+  );
   FPoint := APoint;
 end;
 

@@ -33,7 +33,7 @@ type
     FList: TStringList;
     FCS: IReadWriteSync;
   protected
-    procedure Add(AFactory: IImageResamplerFactory; ACaption: string);
+    procedure Add(const AFactory: IImageResamplerFactory; const ACaption: string);
   protected
     function Count: Integer;
     function Get(AIndex: Integer): IImageResamplerFactory;
@@ -74,8 +74,10 @@ begin
   inherited;
 end;
 
-procedure TImageResamplerFactoryListStatic.Add(AFactory: IImageResamplerFactory;
-  ACaption: string);
+procedure TImageResamplerFactoryListStatic.Add(
+  const AFactory: IImageResamplerFactory;
+  const ACaption: string
+);
 begin
   FCS.BeginWrite;
   try

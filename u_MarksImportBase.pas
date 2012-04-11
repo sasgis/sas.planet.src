@@ -34,12 +34,18 @@ type
     FVectorDataFactory: IVectorDataFactory;
   protected
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
-    function DoImport(AFileName: string; AConfig: IImportConfig): IInterfaceList; virtual; abstract;
+    function DoImport(
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): IInterfaceList; virtual; abstract;
   protected
-    function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+    function ProcessImport(
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): Boolean;
   public
     constructor Create(
-      AVectorDataFactory: IVectorDataFactory
+      const AVectorDataFactory: IVectorDataFactory
     );
   end;
 
@@ -47,13 +53,15 @@ implementation
 
 { TMarksImportBase }
 
-constructor TMarksImportBase.Create(AVectorDataFactory: IVectorDataFactory);
+constructor TMarksImportBase.Create(const AVectorDataFactory: IVectorDataFactory);
 begin
   FVectorDataFactory := AVectorDataFactory;
 end;
 
-function TMarksImportBase.ProcessImport(AFileName: string;
-  AConfig: IImportConfig): Boolean;
+function TMarksImportBase.ProcessImport(
+  const AFileName: string;
+  const AConfig: IImportConfig
+): Boolean;
 var
   VList: IInterfaceList;
 begin

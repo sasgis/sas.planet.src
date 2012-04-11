@@ -14,14 +14,25 @@ type
     FContentTypeManager: IContentTypeManager;
     FProvider: IConfigDataProvider;
 
-    function LoadDataFromSubDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; out AContentType: string): IBinaryData;
-    function LoadDataFromDataProvider(ADataProvider: IConfigDataProvider; AFileName: string; out AContentType: string): IBinaryData;
+    function LoadDataFromSubDataProvider(
+      const ADataProvider: IConfigDataProvider;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
+    function LoadDataFromDataProvider(
+      const ADataProvider: IConfigDataProvider;
+      const AFileName: string;
+      out AContentType: string
+    ): IBinaryData;
   private
-    function LoadBinaryByFilePath(AFilePath: string; out AContentType: string): IBinaryData;
+    function LoadBinaryByFilePath(
+      const AFilePath: string;
+      out AContentType: string
+    ): IBinaryData;
   public
     constructor Create(
-      AProvider: IConfigDataProvider;
-      AContentTypeManager: IContentTypeManager
+      const AProvider: IConfigDataProvider;
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -41,8 +52,8 @@ const
 { TInternalDomainInfoProviderByDataProvider }
 
 constructor TInternalDomainInfoProviderByDataProvider.Create(
-  AProvider: IConfigDataProvider;
-  AContentTypeManager: IContentTypeManager
+  const AProvider: IConfigDataProvider;
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   FProvider := AProvider;
@@ -50,14 +61,18 @@ begin
 end;
 
 function TInternalDomainInfoProviderByDataProvider.LoadBinaryByFilePath(
-  AFilePath: string; out AContentType: string): IBinaryData;
+  const AFilePath: string;
+  out AContentType: string
+): IBinaryData;
 begin
   Result := LoadDataFromSubDataProvider(FProvider, AFilePath, AContentType);
 end;
 
 function TInternalDomainInfoProviderByDataProvider.LoadDataFromDataProvider(
-  ADataProvider: IConfigDataProvider; AFileName: string;
-  out AContentType: string): IBinaryData;
+  const ADataProvider: IConfigDataProvider;
+  const AFileName: string;
+  out AContentType: string
+): IBinaryData;
 var
   VFileName: string;
   VExt: string;
@@ -93,8 +108,8 @@ begin
 end;
 
 function TInternalDomainInfoProviderByDataProvider.LoadDataFromSubDataProvider(
-  ADataProvider: IConfigDataProvider;
-  AFileName: string;
+  const ADataProvider: IConfigDataProvider;
+  const AFileName: string;
   out AContentType: string
 ): IBinaryData;
 var

@@ -22,38 +22,38 @@ type
   public
     constructor Create(
       AFormatClass: TImageFileFormatClass;
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
-    function Load(AData: IBinaryData): IBitmap32Static;
+    function Load(const AData: IBinaryData): IBitmap32Static;
   end;
 
   TVampyreBasicBitmapTileLoaderPNG = class(TVampyreBasicBitmapTileLoader)
   public
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
   TVampyreBasicBitmapTileLoaderGIF = class(TVampyreBasicBitmapTileLoader)
   public
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
   TVampyreBasicBitmapTileLoaderBMP = class(TVampyreBasicBitmapTileLoader)
   public
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
   TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
   public
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -73,7 +73,7 @@ uses
 
 constructor TVampyreBasicBitmapTileLoader.Create(
   AFormatClass: TImageFileFormatClass;
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FCS := MakeSyncObj(Self, TRUE);
@@ -91,7 +91,7 @@ begin
 end;
 
 function TVampyreBasicBitmapTileLoader.Load(
-  AData: IBinaryData
+  const AData: IBinaryData
 ): IBitmap32Static;
 var
   VImage: TImageData;
@@ -180,7 +180,7 @@ end;
 { TVampyreBasicBitmapTileLoaderPNG }
 
 constructor TVampyreBasicBitmapTileLoaderPNG.Create(
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(TPNGFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyrePNG'))
@@ -189,7 +189,7 @@ end;
 { TVampyreBasicBitmapTileLoaderGIF }
 
 constructor TVampyreBasicBitmapTileLoaderGIF.Create(
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(TGIFFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreGIF'))
@@ -198,7 +198,7 @@ end;
 { TVampyreBasicBitmapTileLoaderBMP }
 
 constructor TVampyreBasicBitmapTileLoaderBMP.Create(
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(TBitmapFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreBMP'))
@@ -207,7 +207,7 @@ end;
 { TVampyreBasicBitmapTileLoaderJPEG }
 
 constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'))

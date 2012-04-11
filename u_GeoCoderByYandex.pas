@@ -31,8 +31,8 @@ uses
 type
   TGeoCoderByYandex = class(TGeoCoderBasic)
   protected
-    function PrepareURL(ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; override;
+    function PrepareURL(const ASearch: WideString): string; override;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
   public
   end;
 
@@ -49,7 +49,7 @@ uses
 { TGeoCoderByYandex }
 
 function TGeoCoderByYandex.ParseStringToPlacemarksList(
-  AStr: string; ASearch: WideString): IInterfaceList;
+  const AStr: string; const ASearch: WideString): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc: string;
   i, j: integer;
@@ -195,7 +195,7 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByYandex.PrepareURL(ASearch: WideString): string;
+function TGeoCoderByYandex.PrepareURL(const ASearch: WideString): string;
 var
   VSearch: String;
   VConverter: ICoordConverter;

@@ -37,9 +37,9 @@ type
     FLocalConverter: ILocalCoordConverter;
     FInetSettings: IProxySettings;
     function URLEncode(const S: string): string; virtual;
-    function PrepareURL(ASearch: WideString): string; virtual; abstract;
-    function GetDataFromInet(ASearch: WideString): string; virtual;
-    function ParseStringToPlacemarksList(AStr: string; ASearch: WideString): IInterfaceList; virtual; abstract;
+    function PrepareURL(const ASearch: WideString): string; virtual; abstract;
+    function GetDataFromInet(const ASearch: WideString): string; virtual;
+    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
       ACancelNotifier: IOperationNotifier;
@@ -55,7 +55,7 @@ type
   EInternetOpenError = class(Exception)
   public
     ErrorCode: DWORD;
-    constructor Create(Code: DWORD; Msg: String);
+    constructor Create(Code: DWORD; const Msg: String);
   end;
 
   EProxyAuthError = class(Exception);
@@ -80,7 +80,7 @@ begin
   inherited;
 end;
 
-function TGeoCoderBasic.GetDataFromInet(ASearch: WideString): string;
+function TGeoCoderBasic.GetDataFromInet(const ASearch: WideString): string;
 var
   s, par: string;
   err: boolean;
@@ -254,7 +254,7 @@ end;
 
 { EInternetOpenError }
 
-constructor EInternetOpenError.Create(Code: DWORD; Msg: String);
+constructor EInternetOpenError.Create(Code: DWORD; const Msg: String);
 begin
   inherited Create(Msg);
   ErrorCode := Code;

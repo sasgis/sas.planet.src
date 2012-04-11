@@ -33,12 +33,18 @@ type
   TImportMpSimple = class(TInterfacedObject, IImportFile)
   private
     FFactory: IVectorItmesFactory;
-    procedure ParseCoordinates(AData: string; APointsAggregator: IDoublePointsAggregator);
+    procedure ParseCoordinates(
+      const AData: string;
+      const APointsAggregator: IDoublePointsAggregator
+    );
   protected
-    function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+    function ProcessImport(
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): Boolean;
   public
     constructor Create(
-      AFactory: IVectorItmesFactory
+      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -58,12 +64,15 @@ const
 
 { TImportMpSimple }
 
-constructor TImportMpSimple.Create(AFactory: IVectorItmesFactory);
+constructor TImportMpSimple.Create(const AFactory: IVectorItmesFactory);
 begin
   FFactory := AFactory;
 end;
 
-procedure TImportMpSimple.ParseCoordinates(AData: string; APointsAggregator: IDoublePointsAggregator);
+procedure TImportMpSimple.ParseCoordinates(
+  const AData: string;
+  const APointsAggregator: IDoublePointsAggregator
+);
 var
   VCoordList: TStringList;
   VString: string;
@@ -104,8 +113,10 @@ begin
   end;
 end;
 
-function TImportMpSimple.ProcessImport(AFileName: string;
-  AConfig: IImportConfig): Boolean;
+function TImportMpSimple.ProcessImport(
+  const AFileName: string;
+  const AConfig: IImportConfig
+): Boolean;
 var
   VFile: TStringList;
   i:integer;

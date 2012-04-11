@@ -37,10 +37,10 @@ type
     function GetLLRect: TDoubleRect;  override;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
-      AName: string;
-      ADesc: string;
-      ALLRect: TDoubleRect
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AName: string;
+      const ADesc: string;
+      const ALLRect: TDoubleRect
     );
   end;
 
@@ -51,10 +51,10 @@ type
     function GetLine: ILonLatPath;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
-      AName: string;
-      ADesc: string;
-      ALine: ILonLatPath
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AName: string;
+      const ADesc: string;
+      const ALine: ILonLatPath
     );
   end;
 
@@ -65,10 +65,10 @@ type
     function GetLine: ILonLatPolygon;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
-      AName: string;
-      ADesc: string;
-      ALine: ILonLatPolygon
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AName: string;
+      const ADesc: string;
+      const ALine: ILonLatPolygon
     );
   end;
 
@@ -78,9 +78,9 @@ implementation
 { TVectorDataItemPolygon }
 
 constructor TVectorDataItemPolygon.Create(
-  AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string;
-  ALLRect: TDoubleRect
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AName, ADesc: string;
+  const ALLRect: TDoubleRect
 );
 begin
   inherited Create(AHintConverter, AName, ADesc);
@@ -94,8 +94,11 @@ end;
 
 { TVectorDataItemPath }
 
-constructor TVectorDataItemPath.Create(AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string; ALine: ILonLatPath);
+constructor TVectorDataItemPath.Create(
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AName, ADesc: string;
+  const ALine: ILonLatPath
+);
 begin
   inherited Create(AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
@@ -108,8 +111,11 @@ end;
 
 { TVectorDataItemPoly }
 
-constructor TVectorDataItemPoly.Create(AHintConverter: IHtmlToHintTextConverter;
-  AName, ADesc: string; ALine: ILonLatPolygon);
+constructor TVectorDataItemPoly.Create(
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AName, ADesc: string;
+  const ALine: ILonLatPolygon
+);
 begin
   inherited Create(AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;

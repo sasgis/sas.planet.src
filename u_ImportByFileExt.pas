@@ -39,15 +39,18 @@ type
     FImportHLG: IImportFile;
     FImportMP: IImportFile;
   protected
-    function ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+    function ProcessImport(
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): Boolean;
   public
     constructor Create(
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AXmlLoader: IVectorDataLoader;
-      APltLoader: IVectorDataLoader;
-      AKmlLoader: IVectorDataLoader;
-      AKmzLoader: IVectorDataLoader
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AXmlLoader: IVectorDataLoader;
+      const APltLoader: IVectorDataLoader;
+      const AKmlLoader: IVectorDataLoader;
+      const AKmzLoader: IVectorDataLoader
     );
   end;
 
@@ -62,12 +65,12 @@ uses
 { TImportByFileExt }
 
 constructor TImportByFileExt.Create(
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AXmlLoader: IVectorDataLoader;
-  APltLoader: IVectorDataLoader;
-  AKmlLoader: IVectorDataLoader;
-  AKmzLoader: IVectorDataLoader
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+  const AXmlLoader: IVectorDataLoader;
+  const APltLoader: IVectorDataLoader;
+  const AKmlLoader: IVectorDataLoader;
+  const AKmzLoader: IVectorDataLoader
 );
 begin
   FImportXML := TImportKML.Create(AVectorDataFactory, AXmlLoader);
@@ -78,7 +81,10 @@ begin
   FImportKMZ := TImportKML.Create(AVectorDataFactory, AKmzLoader);
 end;
 
-function TImportByFileExt.ProcessImport(AFileName: string; AConfig: IImportConfig): Boolean;
+function TImportByFileExt.ProcessImport(
+  const AFileName: string;
+  const AConfig: IImportConfig
+): Boolean;
 var VExtLwr: String;
 begin
   Result := False;

@@ -45,7 +45,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCurrentLanguageCode: string;
-    procedure SetCurrentLanguageCode(ACode: string);
+    procedure SetCurrentLanguageCode(const ACode: string);
 
     function GetCurrentLanguageIndex: Integer;
     procedure SetCurrentLanguageIndex(AValue: Integer);
@@ -153,7 +153,7 @@ var
   VCodes : TStringList;
   VLanguagesEx: TLanguagesEx;
 
-  procedure Add(AName, ACode : string);
+  procedure Add(const AName, ACode : string);
   begin
     FNames.Add(AName);
     VCodes.Add(ACode);
@@ -225,7 +225,7 @@ begin
   end;
 end;
 
-procedure TLanguageManager.SetCurrentLanguageCode(ACode: string);
+procedure TLanguageManager.SetCurrentLanguageCode(const ACode: string);
 var
   VIndex: Integer;
 begin

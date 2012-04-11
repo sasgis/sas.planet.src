@@ -30,26 +30,26 @@ type
     procedure ProgressFormUpdateOnProgress(AProgress: Double);
     procedure SaveRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AFileName: string;
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverter: ILocalCoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe
+      const ACancelNotifier: IOperationNotifier;
+      const AFileName: string;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverter: ILocalCoordConverter;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe
     ); virtual; abstract;
 
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APolygon: ILonLatPolygon;
-      ATargetConverter: ILocalCoordConverter;
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AMapCalibrationList: IInterfaceList;
-      AFileName: string;
-      ASplitCount: TPoint
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APolygon: ILonLatPolygon;
+      const ATargetConverter: ILocalCoordConverter;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AMapCalibrationList: IInterfaceList;
+      const AFileName: string;
+      const ASplitCount: TPoint
     );
   end;
 
@@ -63,16 +63,16 @@ uses
 { TMapCombineThreadBase }
 
 constructor TThreadMapCombineBase.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APolygon: ILonLatPolygon;
-  ATargetConverter: ILocalCoordConverter;
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AMapCalibrationList: IInterfaceList;
-  AFileName: string;
-  ASplitCount: TPoint
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APolygon: ILonLatPolygon;
+  const ATargetConverter: ILocalCoordConverter;
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AMapCalibrationList: IInterfaceList;
+  const AFileName: string;
+  const ASplitCount: TPoint
 );
 begin
   inherited Create(

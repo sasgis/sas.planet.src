@@ -31,12 +31,12 @@ type
   private
     FList: TStringList;
   protected
-    function GetByName(AName: string): IInternalDomainInfoProvider;
+    function GetByName(const AName: string): IInternalDomainInfoProvider;
   public
     constructor Create();
     destructor Destroy; override;
 
-    procedure Add(AName: string; ADomain: IInternalDomainInfoProvider);
+    procedure Add(const AName: string; const ADomain: IInternalDomainInfoProvider);
   end;
 implementation
 
@@ -65,8 +65,10 @@ begin
   inherited;
 end;
 
-procedure TInternalDomainInfoProviderList.Add(AName: string;
-  ADomain: IInternalDomainInfoProvider);
+procedure TInternalDomainInfoProviderList.Add(
+  const AName: string;
+  const ADomain: IInternalDomainInfoProvider
+);
 var
   VIndex: Integer;
 begin
@@ -77,7 +79,8 @@ begin
 end;
 
 function TInternalDomainInfoProviderList.GetByName(
-  AName: string): IInternalDomainInfoProvider;
+  const AName: string
+): IInternalDomainInfoProvider;
 var
   VIndex: Integer;
 begin

@@ -12,11 +12,11 @@ type
     property DefaultPath: string read GetDefaultPath;
 
     function GetBasePathConfig: IPathConfig;
-    procedure SetBasePathConfig(AValue : IPathConfig);
-    property BasePathConfig: IPathConfig read GetBasePathConfig write SetBasePathConfig; 
+    procedure SetBasePathConfig(const AValue : IPathConfig);
+    property BasePathConfig: IPathConfig read GetBasePathConfig write SetBasePathConfig;
 
     function GetPath: string;
-    procedure SetPath(AValue: string);
+    procedure SetPath(const AValue: string);
     property Path: string read GetPath write SetPath;
 
     function GetIsRelative: Boolean;

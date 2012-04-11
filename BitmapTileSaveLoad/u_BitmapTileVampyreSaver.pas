@@ -25,16 +25,16 @@ type
     procedure PrepareData(var AImage: TImageData); virtual;
   protected
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
-    function Save(ABitmap: IBitmap32Static): IBinaryData;
+    function Save(const ABitmap: IBitmap32Static): IBinaryData;
   public
     constructor Create(
       AFormat: TImageFileFormat;
       AMeta: TMetadata;
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     ); overload;
     constructor Create(
       AFormatClass: TImageFileFormatClass;
-      APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList
     ); overload;
     destructor Destroy; override;
   end;
@@ -43,10 +43,10 @@ type
   public
     constructor Create(
       ACompressLevel: LongInt;
-      APerfCounterList: IInternalPerformanceCounterList = nil
+      const APerfCounterList: IInternalPerformanceCounterList = nil
     ); overload;
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList = nil
+      const APerfCounterList: IInternalPerformanceCounterList = nil
     ); overload;
   end;
 
@@ -62,23 +62,23 @@ type
     procedure PrepareData(var AImage: TImageData); override;
   public
     constructor Create(
-      AConverter: IARGBToPaletteConverter;
+      const AConverter: IARGBToPaletteConverter;
       ACompressLevel: LongInt;
-      APerfCounterList: IInternalPerformanceCounterList = nil
+      const APerfCounterList: IInternalPerformanceCounterList = nil
     );
   end;
 
   TVampyreBasicBitmapTileSaverGIF = class(TVampyreBasicBitmapTileSaver)
   public
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList = nil
+      const APerfCounterList: IInternalPerformanceCounterList = nil
     );
   end;
 
   TVampyreBasicBitmapTileSaverBMP = class(TVampyreBasicBitmapTileSaver)
   public
     constructor Create(
-      APerfCounterList: IInternalPerformanceCounterList = nil
+      const APerfCounterList: IInternalPerformanceCounterList = nil
     );
   end;
 
@@ -86,7 +86,7 @@ type
   public
     constructor Create(
       ACompressionQuality: Byte;
-      APerfCounterList: IInternalPerformanceCounterList = nil
+      const APerfCounterList: IInternalPerformanceCounterList = nil
     );
   end;
 
@@ -106,7 +106,7 @@ uses
 constructor TVampyreBasicBitmapTileSaver.Create(
   AFormat: TImageFileFormat;
   AMeta: TMetadata;
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FCS := MakeSyncObj(Self, TRUE);
@@ -121,7 +121,7 @@ end;
 
 constructor TVampyreBasicBitmapTileSaver.Create(
   AFormatClass: TImageFileFormatClass;
-  APerfCounterList: IInternalPerformanceCounterList);
+  const APerfCounterList: IInternalPerformanceCounterList);
 var
   VMeta: TMetadata;
 begin
@@ -142,7 +142,7 @@ begin
 end;
 
 function TVampyreBasicBitmapTileSaver.Save(
-  ABitmap: IBitmap32Static
+  const ABitmap: IBitmap32Static
 ): IBinaryData;
 var
   VImage: TImageData;
@@ -228,7 +228,7 @@ end;
 
 constructor TVampyreBasicBitmapTileSaverPNG.Create(
   ACompressLevel: LongInt;
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 var
   VFormat: TPNGFileFormat;
@@ -241,7 +241,7 @@ begin
 end;
 
 constructor TVampyreBasicBitmapTileSaverPNG.Create(
-  APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(TPNGFileFormat, APerfCounterList);
@@ -250,7 +250,7 @@ end;
 { TVampyreBasicBitmapTileSaverGIF }
 
 constructor TVampyreBasicBitmapTileSaverGIF.Create(
-  APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList = nil
 );
 begin
   inherited Create(TGIFFileFormat, APerfCounterList);
@@ -259,7 +259,7 @@ end;
 { TVampyreBasicBitmapTileSaverBMP }
 
 constructor TVampyreBasicBitmapTileSaverBMP.Create(
-  APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList = nil
 );
 begin
   inherited Create(TBitmapFileFormat, APerfCounterList);
@@ -275,9 +275,9 @@ end;
 { TVampyreBasicBitmapTileSaverPNGPalette }
 
 constructor TVampyreBasicBitmapTileSaverPNGPalette.Create(
-  AConverter: IARGBToPaletteConverter;
+  const AConverter: IARGBToPaletteConverter;
   ACompressLevel: Integer;
-  APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList = nil
 );
 begin
   inherited Create(ACompressLevel, APerfCounterList);
@@ -295,7 +295,7 @@ end;
 
 constructor TVampyreBasicBitmapTileSaverJPG.Create(
   ACompressionQuality: byte;
-  APerfCounterList: IInternalPerformanceCounterList = nil
+  const APerfCounterList: IInternalPerformanceCounterList = nil
 );
 var
   VFormat: TJpegFileFormat;

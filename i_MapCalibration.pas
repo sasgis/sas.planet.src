@@ -34,7 +34,12 @@ type
     // Ѕолее детальное описание прив€зки
     function GetDescription: WideString; safecall;
     // √енерирует прив€зку дл€ склеенной карты.
-    procedure SaveCalibrationInfo(AFileName: WideString; xy1, xy2: TPoint; Azoom: byte; AConverter: ICoordConverter); safecall;
+    procedure SaveCalibrationInfo(
+      const AFileName: WideString;
+      const xy1, xy2: TPoint;
+      Azoom: byte;
+      const AConverter: ICoordConverter
+    ); safecall;
   end;
 
   IMapCalibrationList = interface

@@ -48,7 +48,7 @@ type
   IPathDetalizeProviderList = interface(IConfigDataElement)
     ['{73A94DEE-3216-402E-9A22-90E84A215CEC}']
     function GetGUIDEnum: IEnumGUID;
-    function Get(AGUID: TGUID): IPathDetalizeProviderListEntity;
+    function Get(const AGUID: TGUID): IPathDetalizeProviderListEntity;
   end;
 
 
