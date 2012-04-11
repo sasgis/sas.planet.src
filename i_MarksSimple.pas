@@ -50,7 +50,7 @@ type
 
     function GetHintText: string;
     function GetInfoHTML: string;
-    function IsSameId(AMarkId: IMarkID): Boolean;
+    function IsSameId(const AMarkId: IMarkID): Boolean;
     function GetGoToLonLat: TDoublePoint;
   end;
 

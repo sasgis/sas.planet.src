@@ -19,9 +19,9 @@ type
     function GetInetConfig: IInetConfigStatic;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHeader: string;
-      AInetConfig: IInetConfigStatic
+      const AUrl: string;
+      const ARequestHeader: string;
+      const AInetConfig: IInetConfigStatic
     );
   end;
 
@@ -33,11 +33,11 @@ type
     function GetPostDataSize: Integer;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHeader: string;
+      const AUrl: string;
+      const ARequestHeader: string;
       APostData: Pointer;
       APostDataSize: Integer;
-      AInetConfig: IInetConfigStatic
+      const AInetConfig: IInetConfigStatic
     );
     destructor Destroy; override;
   end;
@@ -50,8 +50,8 @@ uses
 { TDownloadRequest }
 
 constructor TDownloadRequest.Create(
-  AUrl, ARequestHeader: string;
-  AInetConfig: IInetConfigStatic
+  const AUrl, ARequestHeader: string;
+  const AInetConfig: IInetConfigStatic
 );
 begin
   FUrl := AUrl;
@@ -77,10 +77,10 @@ end;
 { TDownloadPostRequest }
 
 constructor TDownloadPostRequest.Create(
-  AUrl, ARequestHeader: string;
+  const AUrl, ARequestHeader: string;
   APostData: Pointer;
   APostDataSize: Integer;
-  AInetConfig: IInetConfigStatic);
+  const AInetConfig: IInetConfigStatic);
 begin
   inherited Create(AUrl, ARequestHeader, AInetConfig);
   FPostData := TMemoryStream.Create;

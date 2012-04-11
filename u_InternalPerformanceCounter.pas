@@ -64,9 +64,9 @@ type
   public
     constructor Create(
       AId: Integer;
-      AName: string;
+      const AName: string;
       ACounter: Cardinal;
-      ATotalTime: TDateTime
+      const ATotalTime: TDateTime
     );
   end;
 
@@ -149,8 +149,12 @@ end;
 
 { TInternalPerformanceCounterStaticData }
 
-constructor TInternalPerformanceCounterStaticData.Create(AId: Integer;
-  AName: string; ACounter: Cardinal; ATotalTime: TDateTime);
+constructor TInternalPerformanceCounterStaticData.Create(
+  AId: Integer;
+  const AName: string;
+  ACounter: Cardinal;
+  const ATotalTime: TDateTime
+);
 begin
   FId := AId;
   FName := AName;

@@ -23,6 +23,7 @@ unit i_DownloadRequest;
 interface
 
 uses
+  i_BinaryData,
   i_InetConfig;
 
 type

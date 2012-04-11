@@ -45,13 +45,13 @@ type
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
-    function IsSameId(AMarkId: IMarkID): Boolean;
+    function IsSameId(const AMarkId: IMarkID): Boolean;
   public
     constructor Create(
       ADbCode: Integer;
-      AName: string;
+      const AName: string;
       AId: Integer;
-      ACategory: ICategory;
+      const ACategory: ICategory;
       AVisible: Boolean
     );
   end;
@@ -65,9 +65,9 @@ uses
 
 constructor TMarkId.Create(
   ADbCode: Integer;
-  AName: string;
+  const AName: string;
   AId: Integer;
-  ACategory: ICategory;
+  const ACategory: ICategory;
   AVisible: Boolean
 );
 var
@@ -116,7 +116,7 @@ begin
   Result := FVisible;
 end;
 
-function TMarkId.IsSameId(AMarkId: IMarkID): Boolean;
+function TMarkId.IsSameId(const AMarkId: IMarkID): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin
