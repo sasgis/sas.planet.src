@@ -30,21 +30,21 @@ uses
   i_ConfigDataWriteProvider;
 
 procedure WriteColor32(
-  AConfigProvider: IConfigDataWriteProvider;
-  AIdent: string;
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
   AValue: TColor32
 );
 function ReadColor32(
-  AConfigProvider: IConfigDataProvider;
-  AIdent: string;
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
   ADefault: TColor32
 ): TColor32;
 
 function ReadBitmapByFileRef(
-  AConfigProvider: IConfigDataProvider;
-  AFullFileName: string;
-  AContentTypeManager: IContentTypeManager;
-  ADefault: IBitmap32Static
+  const AConfigProvider: IConfigDataProvider;
+  const AFullFileName: string;
+  const AContentTypeManager: IContentTypeManager;
+  const ADefault: IBitmap32Static
 ): IBitmap32Static;
 
 implementation
@@ -56,8 +56,8 @@ uses
   i_ContentTypeInfo;
 
 function ReadColor32(
-  AConfigProvider: IConfigDataProvider;
-  AIdent: string;
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
   ADefault: TColor32
 ): TColor32;
 var
@@ -84,8 +84,8 @@ begin
 end;
 
 procedure WriteColor32(
-  AConfigProvider: IConfigDataWriteProvider;
-  AIdent: string;
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
   AValue: TColor32
 );
 begin
@@ -93,10 +93,10 @@ begin
 end;
 
 function ReadBitmapByFileRef(
-  AConfigProvider: IConfigDataProvider;
-  AFullFileName: string;
-  AContentTypeManager: IContentTypeManager;
-  ADefault: IBitmap32Static
+  const AConfigProvider: IConfigDataProvider;
+  const AFullFileName: string;
+  const AContentTypeManager: IContentTypeManager;
+  const ADefault: IBitmap32Static
 ): IBitmap32Static;
 var
   VFilePath: string;

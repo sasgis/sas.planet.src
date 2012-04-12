@@ -33,7 +33,7 @@ type
   private
     FSource: IConfigDataProvider;
     FIdentRenamesList: TStringList;
-    function GetDepreciatedName(AIdent: string): string;
+    function GetDepreciatedName(const AIdent: string): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
     function ReadBinary(const AIdent: string): IBinaryData; virtual;
@@ -78,7 +78,8 @@ begin
 end;
 
 function TConfigDataProviderWithUseDepreciated.GetDepreciatedName(
-  AIdent: string): string;
+  const AIdent: string
+): string;
 begin
   Result := FIdentRenamesList.Values[AIdent];
 end;
