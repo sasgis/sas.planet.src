@@ -113,8 +113,10 @@ type
 implementation
 
 uses
+  i_BinaryData,
   u_NotifyEventListener,
   u_Synchronizer,
+  u_StreamReadOnlyByBinaryData,
   u_BinaryDataByMemStream;
 
 { TDownloaderHttp }
@@ -245,13 +247,13 @@ end;
 
 procedure TDownloaderHttp.DoPostRequest(ARequest: IDownloadPostRequest);
 var
-  VStream: TMemoryStream;
+  VData: IBinaryData;
+  VStream: TStream;
 begin
-  if ARequest.PostDataSize > 0 then begin
-    VStream := TMemoryStream.Create;
+  VData := ARequest.PostData;
+  if (VData <> nil) and (VData.Size > 0) then begin
+    VStream := TStreamReadOnlyByBinaryData.Create(VData);
     try
-      VStream.Write(ARequest.PostData^, ARequest.PostDataSize);
-      VStream.Position := 0;
       FHttpClient.Post(
         ARequest.Url,
         VStream,

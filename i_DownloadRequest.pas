@@ -41,11 +41,8 @@ type
 
   IDownloadPostRequest = interface(IDownloadRequest)
     ['{5AFD72E6-E99C-49B8-8594-13773AB8914A}']
-    function GetPostData: Pointer;
-    property PostData: Pointer read GetPostData;
-
-    function GetPostDataSize: Integer;
-    property PostDataSize: Integer read GetPostDataSize;
+    function GetPostData: IBinaryData;
+    property PostData: IBinaryData read GetPostData;
   end;
 
   IDownloadHeadRequest = interface(IDownloadRequest)

@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   i_InetConfig,
+  i_BinaryData,
   i_DownloadRequest;
 
 type
@@ -27,19 +28,16 @@ type
 
   TDownloadPostRequest = class(TDownloadRequest, IDownloadPostRequest)
   private
-    FPostData: TMemoryStream;
+    FPostData: IBinaryData;
   protected
-    function GetPostData: Pointer;
-    function GetPostDataSize: Integer;
+    function GetPostData: IBinaryData;
   public
     constructor Create(
       const AUrl: string;
       const ARequestHeader: string;
-      APostData: Pointer;
-      APostDataSize: Integer;
+      const APostData: IBinaryData;
       const AInetConfig: IInetConfigStatic
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -78,29 +76,17 @@ end;
 
 constructor TDownloadPostRequest.Create(
   const AUrl, ARequestHeader: string;
-  APostData: Pointer;
-  APostDataSize: Integer;
+  const APostData: IBinaryData;
   const AInetConfig: IInetConfigStatic);
 begin
   inherited Create(AUrl, ARequestHeader, AInetConfig);
-  FPostData := TMemoryStream.Create;
-  FPostData.WriteBuffer(APostData^, APostDataSize);
+  FPostData := APostData;
 end;
 
-destructor TDownloadPostRequest.Destroy;
-begin
-  FreeAndNil(FPostData);
-  inherited;
-end;
 
-function TDownloadPostRequest.GetPostData: Pointer;
+function TDownloadPostRequest.GetPostData: IBinaryData;
 begin
-  Result := FPostData.Memory;
-end;
-
-function TDownloadPostRequest.GetPostDataSize: Integer;
-begin
-  Result := FPostData.Size;
+  Result := FPostData;
 end;
 
 end.
