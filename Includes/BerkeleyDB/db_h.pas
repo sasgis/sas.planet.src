@@ -1,5 +1,5 @@
 {===========================================================================}
-{ Berkeley DB 5.1.25 Header File                                            }
+{ Berkeley DB 5.1.29 Header File                                            }
 {                                                                           }
 { http://www.oracle.com/technetwork/database/berkeleydb/                    }
 { http://en.wikipedia.org/wiki/Berkeley_DB                                  }
@@ -47,9 +47,9 @@ const
   DB_VERSION_RELEASE     = 2;
   DB_VERSION_MAJOR       = 5;
   DB_VERSION_MINOR       = 1;
-  DB_VERSION_PATCH       = 25;
-  DB_VERSION_STRING      = 'Berkeley DB 5.1.25: (January 28, 2011)';
-  DB_VERSION_FULL_STRING = 'Berkeley DB 11g Release 2, library version 11.2.5.1.25: (January 28, 2011)';
+  DB_VERSION_PATCH       = 29;
+  DB_VERSION_STRING      = 'Berkeley DB 5.1.29: (October 25, 2011)';
+  DB_VERSION_FULL_STRING = 'Berkeley DB 11g Release 2, library version 11.2.5.1.29: (October 25, 2011)';
 
   DB_MAX_PAGES   = $ffffffff;      (* >= # of pages in a file *)
 
