@@ -47,11 +47,11 @@ type
     function GetChecker: IDownloadChecker;
   public
     constructor Create(
-      AUrl: string;
-      ARequestHeader: string;
-      AInetConfig: IInetConfigStatic;
-      ACheker: IDownloadChecker;
-      ASource: ITileRequest
+      const AUrl: string;
+      const ARequestHeader: string;
+      const AInetConfig: IInetConfigStatic;
+      const ACheker: IDownloadChecker;
+      const ASource: ITileRequest
     );
   end;
 
@@ -60,10 +60,10 @@ implementation
 { TTileDownloadRequest }
 
 constructor TTileDownloadRequest.Create(
-  AUrl, ARequestHeader: string;
-  AInetConfig: IInetConfigStatic;
-  ACheker: IDownloadChecker;
-  ASource: ITileRequest
+  const AUrl, ARequestHeader: string;
+  const AInetConfig: IInetConfigStatic;
+  const ACheker: IDownloadChecker;
+  const ASource: ITileRequest
 );
 begin
   FUrl := AUrl;

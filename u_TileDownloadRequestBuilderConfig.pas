@@ -41,9 +41,9 @@ type
     function GetGeoCoder: ICoordConverter;
   public
     constructor Create(
-      AUrlBase: string;
-      ARequestHeader: string;
-      AGeoCoder: ICoordConverter
+      const AUrlBase: string;
+      const ARequestHeader: string;
+      const AGeoCoder: ICoordConverter
     );
   end;
 
@@ -65,7 +65,7 @@ type
 
     function GetGeoCoder: ICoordConverter;
   public
-    constructor Create(ADefConfig: ITileDownloadRequestBuilderConfigStatic);
+    constructor Create(const ADefConfig: ITileDownloadRequestBuilderConfigStatic);
   end;
 
 implementation
@@ -75,7 +75,7 @@ uses
 
 { TTileDownloadRequestBuilderConfig }
 
-constructor TTileDownloadRequestBuilderConfig.Create(ADefConfig: ITileDownloadRequestBuilderConfigStatic);
+constructor TTileDownloadRequestBuilderConfig.Create(const ADefConfig: ITileDownloadRequestBuilderConfigStatic);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
@@ -180,8 +180,8 @@ end;
 { TTileDownloadRequestBuilderConfigStatic }
 
 constructor TTileDownloadRequestBuilderConfigStatic.Create(
-  AUrlBase, ARequestHeader: string;
-  AGeoCoder: ICoordConverter
+  const AUrlBase, ARequestHeader: string;
+  const AGeoCoder: ICoordConverter
 );
 begin
   FUrlBase := AUrlBase;
