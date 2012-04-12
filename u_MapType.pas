@@ -68,6 +68,7 @@ uses
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   i_TileDownloadSubsystem,
+  i_InternalPerformanceCounter,
   u_GlobalCahceConfig,
   u_BaseTileDownloaderThread,
   u_TileStorageAbstract;
@@ -101,6 +102,7 @@ type
     FMapAttachmentsFactory: IMapAttachmentsFactory;
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
+    FPerfCounterList: IInternalPerformanceCounterList;
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -251,7 +253,8 @@ type
       ACoordConverterFactory: ICoordConverterFactory;
       ADownloadResultTextProvider: IDownloadResultTextProvider;
       AInvisibleBrowser: IInvisibleBrowser;
-      AConfig: IConfigDataProvider
+      AConfig: IConfigDataProvider;
+      APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
  end;
@@ -301,13 +304,15 @@ constructor TMapType.Create(
   ACoordConverterFactory: ICoordConverterFactory;
   ADownloadResultTextProvider: IDownloadResultTextProvider;
   AInvisibleBrowser: IInvisibleBrowser;
-  AConfig: IConfigDataProvider
+  AConfig: IConfigDataProvider;
+  APerfCounterList: IInternalPerformanceCounterList
 );
 var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
 begin
   FZmp := AZmp;
+  FPerfCounterList := APerfCounterList.CreateAndAddNewSubList(FZmp.GUI.Name.GetDefault);
   FGUIConfig :=
     TMapTypeGUIConfig.Create(
       ALanguageManager,
@@ -344,13 +349,13 @@ begin
   end;
 
   if FStorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
-    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
+    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager, FPerfCounterList);
   end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE  then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GC  then begin
     FStorage := TTileStorageGC.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager);
+    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager, FPerfCounterList);
   end;
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin

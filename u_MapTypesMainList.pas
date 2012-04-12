@@ -26,6 +26,7 @@ uses
   ActiveX,
   SysUtils,
   i_JclNotify,
+  i_InternalPerformanceCounter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
@@ -53,6 +54,7 @@ type
   private
     FGUIConfigList: IMapTypeGUIConfigList;
     FZmpInfoSet: IZmpInfoSet;
+    FPerfCounterList: IInternalPerformanceCounterList;
 
     FMapType: array of TMapType;
     FFullMapsSet: IMapTypeSet;
@@ -63,7 +65,8 @@ type
     function GetFirstMainMapGUID: TGUID;
   public
     constructor Create(
-      AZmpInfoSet: IZmpInfoSet
+      AZmpInfoSet: IZmpInfoSet;
+      APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
@@ -108,9 +111,13 @@ uses
 
 { TMapTypesMainList }
 
-constructor TMapTypesMainList.Create(AZmpInfoSet: IZmpInfoSet);
+constructor TMapTypesMainList.Create(
+  AZmpInfoSet: IZmpInfoSet;
+  APerfCounterList: IInternalPerformanceCounterList
+);
 begin
   FZmpInfoSet := AZmpInfoSet;
+  FPerfCounterList := APerfCounterList;
 end;
 
 destructor TMapTypesMainList.Destroy;
@@ -245,7 +252,8 @@ begin
           ACoordConverterFactory,
           ADownloadResultTextProvider,
           AInvisibleBrowser,
-          VLocalMapConfig
+          VLocalMapConfig,
+          FPerfCounterList
         );
     except
       if ExceptObject <> nil then begin

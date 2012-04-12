@@ -474,7 +474,7 @@ begin
       FLanguageManager,
       VFilesIterator
     );
-  FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet);
+  FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet, FPerfCounterList.CreateAndAddNewSubList('MapType'));
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
   FPathDetalizeList :=

@@ -43,16 +43,23 @@ type
     btnReset: TButton;
     btnSaveToFile: TButton;
     btnCopyToClipboard: TButton;
+    chkHideEmtyRows: TCheckBox;
+    chkAutoRefresh: TCheckBox;
+    tmrRefresh: TTimer;
+    chkAlphaBlend: TCheckBox;
     procedure btnRefreshClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnResetClick(Sender: TObject);
     procedure btnSaveToFileClick(Sender: TObject);
     procedure btnCopyToClipboardClick(Sender: TObject);
+    procedure tmrRefreshTimer(Sender: TObject);
+    procedure chkAutoRefreshClick(Sender: TObject);
+    procedure chkAlphaBlendClick(Sender: TObject);
   private
     FPerfCounterList: IInternalPerformanceCounterList;
     FPrevStateList: IIDInterfaceList;
-    procedure AddRowFromCounter(AName: string; ARow: Integer; ACounter: IInternalPerformanceCounter);
+    function AddRowFromCounter(AName: string; ARow: Integer; ACounter: IInternalPerformanceCounter): Boolean;
     function AddRowsFromList(AParentName: string; AStartRaw: Integer; AList: IInternalPerformanceCounterList): Integer;
     procedure PrepareGridHeader;
     procedure RefreshData;
@@ -70,8 +77,8 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmDebugInfo.AddRowFromCounter(AName: string; ARow: Integer;
-  ACounter: IInternalPerformanceCounter);
+function TfrmDebugInfo.AddRowFromCounter(AName: string; ARow: Integer;
+  ACounter: IInternalPerformanceCounter): Boolean;
 var
   VCount: Cardinal;
   VTime: TDateTime;
@@ -92,20 +99,24 @@ begin
     VTime := VTime - VPrevData.TotalTime;
   end;
 
-  if sgrdDebugInfo.RowCount <= ARow then begin
-    sgrdDebugInfo.RowCount := ARow + 1;
-  end;
-
-  sgrdDebugInfo.Cells[0, ARow] := AName;
-  if VCount > 0 then begin
-    sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
-    VAvgTime := VTime/VCount*24*60*60;
-    sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
-    sgrdDebugInfo.Cells[3, ARow] := FormatDateTime('nn:ss.zzz', VTime);
+  if chkHideEmtyRows.Checked and (VCount = 0) then begin
+    Result := False;
   end else begin
-    sgrdDebugInfo.Cells[1, ARow] := '';
-    sgrdDebugInfo.Cells[2, ARow] := '';
-    sgrdDebugInfo.Cells[3, ARow] := '';
+    if sgrdDebugInfo.RowCount <= ARow then begin
+      sgrdDebugInfo.RowCount := ARow + 1;
+    end;
+    sgrdDebugInfo.Cells[0, ARow] := AName;
+    if VCount > 0 then begin
+      sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
+      VAvgTime := VTime/VCount*24*60*60;
+      sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[3, ARow] := FormatDateTime('nn:ss.zzz', VTime);
+    end else begin
+      sgrdDebugInfo.Cells[1, ARow] := '';
+      sgrdDebugInfo.Cells[2, ARow] := '';
+      sgrdDebugInfo.Cells[3, ARow] := '';
+    end;
+    Result := True;
   end;
 end;
 
@@ -124,8 +135,9 @@ begin
   VName := AParentName + '/';
   while VEnum.Next(1, VUnknown, Addr(Vcnt)) = S_OK do begin
     if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
-      AddRowFromCounter(VName + VCounter.Name, Result, VCounter);
-      Inc(Result);
+      if AddRowFromCounter(VName + VCounter.Name, Result, VCounter) then begin
+        Inc(Result);
+      end;
     end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
       Result := AddRowsFromList(VName + VList.Name, Result, VList);
     end;
@@ -147,6 +159,7 @@ end;
 
 procedure TfrmDebugInfo.btnResetClick(Sender: TObject);
 begin
+  sgrdDebugInfo.RowCount := 2;
   FPrevStateList := FPerfCounterList.GetStaticDataList;
   RefreshData;
 end;
@@ -178,6 +191,16 @@ begin
   end;  
 end;
 
+procedure TfrmDebugInfo.chkAlphaBlendClick(Sender: TObject);
+begin
+  Self.AlphaBlend := chkAlphaBlend.Checked;
+end;
+
+procedure TfrmDebugInfo.chkAutoRefreshClick(Sender: TObject);
+begin
+  tmrRefresh.Enabled := chkAutoRefresh.Checked;
+end;
+
 constructor TfrmDebugInfo.Create(AOwner: TComponent;
   APerfCounterList: IInternalPerformanceCounterList);
 begin
@@ -187,7 +210,7 @@ end;
 
 procedure TfrmDebugInfo.FormCreate(Sender: TObject);
 begin
-  sgrdDebugInfo.ColWidths[0] := 150;
+  sgrdDebugInfo.ColWidths[0] := 520;
   sgrdDebugInfo.RowCount := 2;
   sgrdDebugInfo.FixedRows := 1;
 end;
@@ -233,9 +256,9 @@ end;
 procedure TfrmDebugInfo.PrepareGridHeader;
 begin
   sgrdDebugInfo.Cells[0, 0] := 'Class';
-  sgrdDebugInfo.Cells[1, 0] := 'Redraw cnt';
-  sgrdDebugInfo.Cells[2, 0] := 'Redraw time avg, s';
-  sgrdDebugInfo.Cells[3, 0] := 'Redraw time total';
+  sgrdDebugInfo.Cells[1, 0] := 'Count';
+  sgrdDebugInfo.Cells[2, 0] := 'Time avg, s';
+  sgrdDebugInfo.Cells[3, 0] := 'Time total';
 end;
 
 procedure TfrmDebugInfo.RefreshData;
@@ -253,6 +276,11 @@ begin
       sgrdDebugInfo.Cells[j, i] := '';
     end;
   end;
+end;
+
+procedure TfrmDebugInfo.tmrRefreshTimer(Sender: TObject);
+begin
+  RefreshData;
 end;
 
 end.

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -34,10 +34,15 @@ uses
   i_ContentTypeManager,
   i_TTLCheckNotifier,
   i_TTLCheckListener,
+  i_InternalPerformanceCounter,
   u_TileStorageBerkeleyDBHelper,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
+
+{$IFDEF DEBUG}
+  {$DEFINE WITH_PERF_COUTER}
+{$ENDIF}
 
 type
   TTileStorageBerkeleyDB = class(TTileStorageAbstract)
@@ -49,13 +54,23 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
     FTTLListener: ITTLCheckListener;
+    {$IFDEF WITH_PERF_COUTER}
+    FPerfCounterList: IInternalPerformanceCounterList;
+    FGetTileInfoCounter: IInternalPerformanceCounter;
+    FLoadTileCounter: IInternalPerformanceCounter;
+    FDeleteTileCounter: IInternalPerformanceCounter;
+    FDeleteTNECounter: IInternalPerformanceCounter;
+    FSaveTileCounter: IInternalPerformanceCounter;
+    FSaveTNECounter: IInternalPerformanceCounter;
+    {$ENDIF}
     procedure OnMapSettingsEdit(Sender: TObject);
   public
     constructor Create(
       AGCList: ITTLCheckNotifier;
       AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager
+      AContentTypeManager: IContentTypeManager;
+      APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
 
@@ -112,7 +127,6 @@ type
       Azoom: byte;
       AVersionInfo: IMapVersionInfo
     ); override;
-
   end;
 
 implementation
@@ -136,7 +150,8 @@ constructor TTileStorageBerkeleyDB.Create(
   AGCList: ITTLCheckNotifier;
   AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager
+  AContentTypeManager: IContentTypeManager;
+  APerfCounterList: IInternalPerformanceCounterList
 );
 const
   CBDBSync = 300000; // 5 min
@@ -147,6 +162,17 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
+
+  {$IFDEF WITH_PERF_COUTER}
+  FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('BerkeleyDB');
+  FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');
+  FLoadTileCounter := FPerfCounterList.CreateAndAddNewCounter('LoadTile');
+  FDeleteTileCounter := FPerfCounterList.CreateAndAddNewCounter('DeleteTile');
+  FDeleteTNECounter := FPerfCounterList.CreateAndAddNewCounter('DeleteTNE');
+  FSaveTileCounter := FPerfCounterList.CreateAndAddNewCounter('SaveTile');
+  FSaveTNECounter := FPerfCounterList.CreateAndAddNewCounter('SaveTNE');
+  {$ENDIF}
+
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FCacheConfig := TMapTypeCacheConfigBerkeleyDB.Create(
     AConfig,
@@ -235,61 +261,73 @@ var
   VData: TBDBData;
   VStream: TMemoryStream;
   VTileData: IBinaryData;
+{$IFDEF WITH_PERF_COUTER}
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  Result := FTileNotExistsTileInfo;
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FGetTileInfoCounter.StartOperation;
+  try
+  {$ENDIF}
+    Result := FTileNotExistsTileInfo;
+    if StorageStateStatic.ReadAccess <> asDisabled then begin
 
-    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
 
-    VResult := False;
+      VResult := False;
 
-    if FileExists(VPath) then begin
-      VStream := TMemoryStream.Create;
-      try
-        VResult := FHelper.LoadTile(
-          VPath,
-          AXY,
-          AZoom,
-          AVersionInfo,
-          VStream,
-          VData
-        );
-        if VResult then begin
-          VTileData := TBinaryDataByMemStream.CreateWithOwn(VStream);
-          VStream := nil;
-          Result := TTileInfoBasicExistsWithTile.Create(
-            VData.TileDate,
-            VTileData,
-            VTileData.Size,
-            MapVersionFactory.CreateByStoreString(WideString(VData.TileVer)),
-            FContentTypeManager.GetInfo(WideString(VData.TileMIME))
-          );
-        end;
-      finally
-        VStream.Free;
-      end;
-    end;
-
-    if not VResult then begin
-      VPath := ChangeFileExt(VPath, '.tne');
       if FileExists(VPath) then begin
-        VResult := FHelper.IsTNEFound(
-          VPath,
-          AXY,
-          AZoom,
-          AVersionInfo,
-          VData
-        );
-        if VResult then begin
-          Result := TTileInfoBasicTNE.Create(VData.TileDate, AVersionInfo);
+        VStream := TMemoryStream.Create;
+        try
+          VResult := FHelper.LoadTile(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo,
+            VStream,
+            VData
+          );
+          if VResult then begin
+            VTileData := TBinaryDataByMemStream.CreateWithOwn(VStream);
+            VStream := nil;
+            Result := TTileInfoBasicExistsWithTile.Create(
+              VData.TileDate,
+              VTileData,
+              VTileData.Size,
+              MapVersionFactory.CreateByStoreString(WideString(VData.TileVer)),
+              FContentTypeManager.GetInfo(WideString(VData.TileMIME))
+            );
+          end;
+        finally
+          VStream.Free;
         end;
       end;
-    end;
 
-    if not VResult then begin
-      Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+      if not VResult then begin
+        VPath := ChangeFileExt(VPath, '.tne');
+        if FileExists(VPath) then begin
+          VResult := FHelper.IsTNEFound(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo,
+            VData
+          );
+          if VResult then begin
+            Result := TTileInfoBasicTNE.Create(VData.TileDate, AVersionInfo);
+          end;
+        end;
+      end;
+
+      if not VResult then begin
+        Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
+      end;
     end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FGetTileInfoCounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 function TTileStorageBerkeleyDB.GetTileRectInfo(
@@ -370,15 +408,28 @@ function TTileStorageBerkeleyDB.LoadTile(
   AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
+{$IFDEF WITH_PERF_COUTER}
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  Result := nil;
-  ATileInfo := FTileNotExistsTileInfo;
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
-    ATileInfo := GetTileInfo(AXY, AZoom, AVersionInfo);
-    if ATileInfo.IsExists then begin
-      Result := ATileInfo.TileData;
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FLoadTileCounter.StartOperation;
+  try
+  {$ENDIF}
+    Result := nil;
+    ATileInfo := FTileNotExistsTileInfo;
+    if StorageStateStatic.ReadAccess <> asDisabled then begin
+      ATileInfo := GetTileInfo(AXY, AZoom, AVersionInfo);
+      if ATileInfo.IsExists then begin
+        Result := ATileInfo.TileData;
+      end;
     end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FLoadTileCounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTile(
@@ -390,24 +441,36 @@ procedure TTileStorageBerkeleyDB.SaveTile(
 var
   VPath: string;
   VResult: Boolean;
+{$IFDEF WITH_PERF_COUTER}
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  if StorageStateStatic.WriteAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-    if FHelper.CreateDirIfNotExists(VPath) then begin
-      VResult := FHelper.SaveTile(
-        VPath,
-        AXY,
-        AZoom,
-        Now,
-        AVersionInfo,
-        PWideChar(FMainContentType.GetContentType),
-        AData
-      );
-      if VResult then begin
-        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FSaveTileCounter.StartOperation;
+  try
+  {$ENDIF}
+    if StorageStateStatic.WriteAccess <> asDisabled then begin
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+      if FHelper.CreateDirIfNotExists(VPath) then begin
+        VResult := FHelper.SaveTile(
+          VPath,
+          AXY,
+          AZoom,
+          Now,
+          AVersionInfo,
+          PWideChar(FMainContentType.GetContentType),
+          AData
+        );
+        if VResult then begin
+          NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+        end;
       end;
     end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FSaveTileCounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTNE(
@@ -418,25 +481,37 @@ procedure TTileStorageBerkeleyDB.SaveTNE(
 var
   VPath: String;
   VResult: Boolean;
+{$IFDEF WITH_PERF_COUTER}
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  if StorageStateStatic.WriteAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-    VPath := ChangeFileExt(VPath, '.tne');
-    if FHelper.CreateDirIfNotExists(VPath) then begin
-      VResult := FHelper.SaveTile(
-        VPath,
-        AXY,
-        AZoom,
-        Now,
-        AVersionInfo,
-        PWideChar(FMainContentType.GetContentType),
-        nil
-      );
-      if VResult then begin
-        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FSaveTNECounter.StartOperation;
+  try
+  {$ENDIF}
+    if StorageStateStatic.WriteAccess <> asDisabled then begin
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+      VPath := ChangeFileExt(VPath, '.tne');
+      if FHelper.CreateDirIfNotExists(VPath) then begin
+        VResult := FHelper.SaveTile(
+          VPath,
+          AXY,
+          AZoom,
+          Now,
+          AVersionInfo,
+          PWideChar(FMainContentType.GetContentType),
+          nil
+        );
+        if VResult then begin
+          NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+        end;
       end;
     end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FSaveTNECounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 function TTileStorageBerkeleyDB.DeleteTile(
@@ -446,29 +521,41 @@ function TTileStorageBerkeleyDB.DeleteTile(
 ): Boolean;
 var
   VPath: string;
+{$IFDEF WITH_PERF_COUTER}
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  Result := False;
-  if StorageStateStatic.DeleteAccess <> asDisabled then begin
-    try
-      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-      if FileExists(VPath) then begin
-        Result := FHelper.DeleteTile(
-          VPath,
-          AXY,
-          AZoom,
-          AVersionInfo
-        );
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FDeleteTileCounter.StartOperation;
+  try
+  {$ENDIF}
+    Result := False;
+    if StorageStateStatic.DeleteAccess <> asDisabled then begin
+      try
+        VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+        if FileExists(VPath) then begin
+          Result := FHelper.DeleteTile(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo
+          );
+        end;
+        if not Result then begin
+          Result := DeleteTNE(AXY, AZoom, AVersionInfo);
+        end;
+      except
+        Result := False;
       end;
-      if not Result then begin
-        Result := DeleteTNE(AXY, AZoom, AVersionInfo);
+      if Result then begin
+        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
       end;
-    except
-      Result := False;
     end;
-    if Result then begin
-      NotifyTileUpdate(AXY, Azoom, AVersionInfo);
-    end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FDeleteTileCounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 function TTileStorageBerkeleyDB.DeleteTNE(
@@ -478,24 +565,36 @@ function TTileStorageBerkeleyDB.DeleteTNE(
 ): Boolean;
 var
   VPath: string;
+{$IFDEF WITH_PERF_COUTER}
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  Result := False;
-  if StorageStateStatic.DeleteAccess <> asDisabled then begin
-    try
-      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-      VPath := ChangeFileExt(VPath, '.tne');
-      if FileExists(VPath) then begin
-        Result := FHelper.DeleteTile(
-          VPath,
-          AXY,
-          AZoom,
-          AVersionInfo
-        );
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FDeleteTNECounter.StartOperation;
+  try
+  {$ENDIF}
+    Result := False;
+    if StorageStateStatic.DeleteAccess <> asDisabled then begin
+      try
+        VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
+        VPath := ChangeFileExt(VPath, '.tne');
+        if FileExists(VPath) then begin
+          Result := FHelper.DeleteTile(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo
+          );
+        end;
+      except
+        Result := False;
       end;
-    except
-      Result := False;
     end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FDeleteTNECounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 end.

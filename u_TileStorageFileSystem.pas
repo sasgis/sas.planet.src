@@ -38,9 +38,14 @@ uses
   i_TileInfoBasic,
   i_TileFileNameGeneratorsList,
   i_ContentTypeManager,
+  i_InternalPerformanceCounter,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
+
+{$IFDEF DEBUG}
+  {$DEFINE WITH_PERF_COUTER}
+{$ENDIF}
 
 type
   TTileStorageFileSystem = class(TTileStorageAbstract)
@@ -50,6 +55,15 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FFormatSettings: TFormatSettings;
     FTileNotExistsTileInfo: ITileInfoBasic;
+    {$IFDEF WITH_PERF_COUTER}
+    FPerfCounterList: IInternalPerformanceCounterList;
+    //FGetTileInfoCounter: IInternalPerformanceCounter;
+    FLoadTileCounter: IInternalPerformanceCounter;
+    //FDeleteTileCounter: IInternalPerformanceCounter;
+    //FDeleteTNECounter: IInternalPerformanceCounter;
+    FSaveTileCounter: IInternalPerformanceCounter;
+    //FSaveTNECounter: IInternalPerformanceCounter;
+    {$ENDIF}
     procedure CreateDirIfNotExists(APath: string);
     function GetTileInfoByPath(
       const APath: string;
@@ -60,7 +74,8 @@ type
       AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      AContentTypeManager: IContentTypeManager
+      AContentTypeManager: IContentTypeManager;
+      APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
 
@@ -146,7 +161,8 @@ constructor TTileStorageFileSystem.Create(
   AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AContentTypeManager: IContentTypeManager
+  AContentTypeManager: IContentTypeManager;
+  APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(
@@ -166,6 +182,15 @@ begin
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
+  {$IFDEF WITH_PERF_COUTER}
+  FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('FileSystem');
+  //FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');
+  FLoadTileCounter := FPerfCounterList.CreateAndAddNewCounter('LoadTile');
+  //FDeleteTileCounter := FPerfCounterList.CreateAndAddNewCounter('DeleteTile');
+  //FDeleteTNECounter := FPerfCounterList.CreateAndAddNewCounter('DeleteTNE');
+  FSaveTileCounter := FPerfCounterList.CreateAndAddNewCounter('SaveTile');
+  //FSaveTNECounter := FPerfCounterList.CreateAndAddNewCounter('SaveTNE');
+  {$ENDIF}
 end;
 
 destructor TTileStorageFileSystem.Destroy;
@@ -587,28 +612,41 @@ function TTileStorageFileSystem.LoadTile(
 var
   VPath: String;
   VMemStream: TMemoryStream;
+{$IFDEF WITH_PERF_COUTER}
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  Result := nil;
-  if StorageStateStatic.ReadAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
-    if ATileInfo.GetIsExists then begin
-      VMemStream := TMemoryStream.Create;
-      try
-        FLock.BeginRead;
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FLoadTileCounter.StartOperation;
+  try
+  {$ENDIF}
+    Result := nil;
+    if StorageStateStatic.ReadAccess <> asDisabled then begin
+      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+      ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
+      if ATileInfo.GetIsExists then begin
+        VMemStream := TMemoryStream.Create;
         try
-          VMemStream.LoadFromFile(VPath);
-          Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-          // owned successfully
-          VMemStream := nil;
+          FLock.BeginRead;
+          try
+            VMemStream.LoadFromFile(VPath);
+            Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+            // owned successfully
+            VMemStream := nil;
+          finally
+            FLock.EndRead;
+          end;
         finally
-          FLock.EndRead;
+          VMemStream.Free;
         end;
-      finally
-        VMemStream.Free;
       end;
     end;
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FLoadTileCounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 procedure TTileStorageFileSystem.SaveTile(
@@ -620,25 +658,37 @@ procedure TTileStorageFileSystem.SaveTile(
 var
   VPath: String;
   VFileStream: TFileStream;
+{$IFDEF WITH_PERF_COUTER}
+  VCounterContext: TInternalPerformanceCounterContext;
+{$ENDIF}
 begin
-  if StorageStateStatic.WriteAccess <> asDisabled then begin
-    VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-    FLock.BeginWrite;
-    try
-      CreateDirIfNotExists(VPath);
-      VFileStream := TFileStream.Create(VPath, fmCreate);
+  {$IFDEF WITH_PERF_COUTER}
+  VCounterContext := FSaveTileCounter.StartOperation;
+  try
+  {$ENDIF}
+    if StorageStateStatic.WriteAccess <> asDisabled then begin
+      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+      FLock.BeginWrite;
       try
-        VFileStream.Size := AData.Size;
-        VFileStream.Position := 0;
-        VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+        CreateDirIfNotExists(VPath);
+        VFileStream := TFileStream.Create(VPath, fmCreate);
+        try
+          VFileStream.Size := AData.Size;
+          VFileStream.Position := 0;
+          VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+        finally
+          VFileStream.Free;
+        end;
       finally
-        VFileStream.Free;
+        FLock.EndWrite;
       end;
-    finally
-      FLock.EndWrite;
+      NotifyTileUpdate(AXY, Azoom, AVersionInfo);
     end;
-    NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+  {$IFDEF WITH_PERF_COUTER}
+  finally
+    FSaveTileCounter.FinishOperation(VCounterContext);
   end;
+  {$ENDIF}
 end;
 
 procedure TTileStorageFileSystem.SaveTNE(
