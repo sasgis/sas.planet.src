@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,7 +24,7 @@ interface
 
 uses
   SyncObjs,
-  db_h,
+  libdb51,
   u_BerkeleyDBPool;
 
 type
@@ -133,11 +133,6 @@ begin
   end;
 end;
 
-procedure ErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
-begin
-  raise EBerkeleyDBExeption.Create(errpfx + ': ' + msg);
-end;
-
 { TBerkeleyDBEnv }
 
 constructor TBerkeleyDBEnv.Create(
@@ -178,7 +173,7 @@ begin
   if not FActive and FLibInitOk then begin
     CheckBDB(db_env_create(FEnv, 0));
     FEnv.set_errpfx(FEnv, CBerkeleyDBEnvErrPfx);
-    FEnv.set_errcall(FEnv,ErrCall);
+    FEnv.set_errcall(FEnv, BDBErrCall);
     CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_NOSYNC, 1));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_WRITE_NOSYNC, 1));

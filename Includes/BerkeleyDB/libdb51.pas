@@ -17,24 +17,29 @@
 {   C to Pascal Converter 2.19.8.2010  http://cc.embarcadero.com/Item/26951 }
 {===========================================================================}
 
-unit db_h;
+unit libdb51;
 
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
-
 interface
 
+(*
+  TRANSLATOR NOTES:
 
-{ TRANSLATOR NOTES:
-  Refactoring:
-    Types need to be defined alltogether in an unique type declaraction so pointers to records can be defined and used prior to the record definition,
-    so consts are also grouped together (and declared before types because some consts are used in type definition).
-  Dbm/Ndbm/Hsearch historic interfaces are not translated.
-  Data types not present in the C source but needed for Pascal syntax are marked with @@PAS_HELPER(pascaltype)
-  Names used in C but reserved in Pascal are renamed and marked with @@PAS_MAPPING(pascalname=cname)
-}
+  1) Refactoring: Types need to be defined alltogether in an unique type
+     declaraction so pointers to records can be defined and used prior to the
+     record definition, so consts are also grouped together (and declared
+     before types because some consts are used in type definition).
 
+  2) Dbm/Ndbm/Hsearch historic interfaces are not translated.
+
+  3) Data types not present in the C source but needed for Pascal syntax are
+     marked with @@PAS_HELPER(pascaltype)
+
+  4) Names used in C but reserved in Pascal are renamed and marked
+     with @@PAS_MAPPING(pascalname=cname)
+*)
 
 
 // TRANSLATION: CONSTS...
@@ -2595,8 +2600,6 @@ type
     start_time, end_time: time_t;
   end;
 
-
-
 // TRANSLATION: STRUCTURE (RECORD) RENAMING...
 
 type
@@ -2672,8 +2675,6 @@ type
   T_db_env_set_func_write_P1      = function (p1: integer; p2: pointer; p3: size_t                                      ): ssize_t; cdecl; // @@PAS_HELPER(T_db_env_set_func_write_P1)
   T_db_env_set_func_yield_P1      = function (p1: u_long; p2: u_long                                                    ): integer; cdecl; // @@PAS_HELPER(T_db_env_set_func_yield_P1)
 
-
-
 // TRANSLATION: GLOBAL FUNCTIONS...
 
 var
@@ -2685,29 +2686,27 @@ var
   log_compare               : function(lsn0, lsn1: PDB_LSN                                                     ): integer  ; cdecl;
   db_sequence_create        : function(out seq: PDB_SEQUENCE; db: PDB; flags: u_int32_t                        ): integer  ; cdecl;
 
-  db_env_set_func_close     : function(p1: T_db_env_set_func_close_P1                                          ): integer  ; cdecl;
-  db_env_set_func_dirfree   : function(p1: T_db_env_set_func_dirfree_P1                                        ): integer  ; cdecl;
-  db_env_set_func_dirlist   : function(p1: T_db_env_set_func_dirlist_P1                                        ): integer  ; cdecl;
-  db_env_set_func_exists    : function(p1: T_db_env_set_func_exists_P1                                         ): integer  ; cdecl;
+  //db_env_set_func_close     : function(p1: T_db_env_set_func_close_P1                                          ): integer  ; cdecl;
+  //db_env_set_func_dirfree   : function(p1: T_db_env_set_func_dirfree_P1                                        ): integer  ; cdecl;
+  //db_env_set_func_dirlist   : function(p1: T_db_env_set_func_dirlist_P1                                        ): integer  ; cdecl;
+  //db_env_set_func_exists    : function(p1: T_db_env_set_func_exists_P1                                         ): integer  ; cdecl;
   db_env_set_func_free      : function(p1: T_db_env_set_func_free_P1                                           ): integer  ; cdecl;
-  db_env_set_func_fsync     : function(p1: T_db_env_set_func_fsync_P1                                          ): integer  ; cdecl;
-  db_env_set_func_ftruncate : function(p1: T_db_env_set_func_ftruncate_P1                                      ): integer  ; cdecl;
-  db_env_set_func_ioinfo    : function(p1: T_db_env_set_func_ioinfo_P1                                         ): integer  ; cdecl;
+  //db_env_set_func_fsync     : function(p1: T_db_env_set_func_fsync_P1                                          ): integer  ; cdecl;
+  //db_env_set_func_ftruncate : function(p1: T_db_env_set_func_ftruncate_P1                                      ): integer  ; cdecl;
+  //db_env_set_func_ioinfo    : function(p1: T_db_env_set_func_ioinfo_P1                                         ): integer  ; cdecl;
   db_env_set_func_malloc    : function(p1: T_db_env_set_func_malloc_P1                                         ): integer  ; cdecl;
-  db_env_set_func_file_map  : function(p1: T_db_env_set_func_file_map_P1  ; p2: T_db_env_set_func_file_map_P2  ): integer  ; cdecl;
-  db_env_set_func_region_map: function(p1: T_db_env_set_func_region_map_P1; p2: T_db_env_set_func_region_map_P2): integer  ; cdecl;
-  db_env_set_func_pread     : function(p1: T_db_env_set_func_pread_P1                                          ): integer  ; cdecl;
-  db_env_set_func_pwrite    : function(p1: T_db_env_set_func_pwrite_P1                                         ): integer  ; cdecl;
-  db_env_set_func_open      : function(p1: T_db_env_set_func_open_P1                                           ): integer  ; cdecl;
-  db_env_set_func_read      : function(p1: T_db_env_set_func_read_P1                                           ): integer  ; cdecl;
+  //db_env_set_func_file_map  : function(p1: T_db_env_set_func_file_map_P1  ; p2: T_db_env_set_func_file_map_P2  ): integer  ; cdecl;
+  //db_env_set_func_region_map: function(p1: T_db_env_set_func_region_map_P1; p2: T_db_env_set_func_region_map_P2): integer  ; cdecl;
+  //db_env_set_func_pread     : function(p1: T_db_env_set_func_pread_P1                                          ): integer  ; cdecl;
+  //db_env_set_func_pwrite    : function(p1: T_db_env_set_func_pwrite_P1                                         ): integer  ; cdecl;
+  //db_env_set_func_open      : function(p1: T_db_env_set_func_open_P1                                           ): integer  ; cdecl;
+  //db_env_set_func_read      : function(p1: T_db_env_set_func_read_P1                                           ): integer  ; cdecl;
   db_env_set_func_realloc   : function(p1: T_db_env_set_func_realloc_P1                                        ): integer  ; cdecl;
-  db_env_set_func_rename    : function(p1: T_db_env_set_func_rename_P1                                         ): integer  ; cdecl;
-  db_env_set_func_seek      : function(p1: T_db_env_set_func_seek_P1                                           ): integer  ; cdecl;
-  db_env_set_func_unlink    : function(p1: T_db_env_set_func_unlink_P1                                         ): integer  ; cdecl;
-  db_env_set_func_write     : function(p1: T_db_env_set_func_write_P1                                          ): integer  ; cdecl;
-  db_env_set_func_yield     : function(p1: T_db_env_set_func_yield_P1                                          ): integer  ; cdecl;
-
-
+  //db_env_set_func_rename    : function(p1: T_db_env_set_func_rename_P1                                         ): integer  ; cdecl;
+  //db_env_set_func_seek      : function(p1: T_db_env_set_func_seek_P1                                           ): integer  ; cdecl;
+  //db_env_set_func_unlink    : function(p1: T_db_env_set_func_unlink_P1                                         ): integer  ; cdecl;
+  //db_env_set_func_write     : function(p1: T_db_env_set_func_write_P1                                          ): integer  ; cdecl;
+  //db_env_set_func_yield     : function(p1: T_db_env_set_func_yield_P1                                          ): integer  ; cdecl;
 
 // TRANSLATION: ROUTINES
 
@@ -2719,12 +2718,15 @@ function  CheckAndNotExistsBDB(resultCode: integer): boolean;          // check 
 procedure CheckBDBandNil      (resultCode: integer; var ptr);          // set the 'ptr' pointer to nil and call CheckBDB()
 function  CallBDBandNil       (resultCode: integer; var ptr): integer; // set the 'ptr' pointer to nil and return the 'resultCode'
 
-
+procedure BDBRaiseException(const EMsg: string); 
+procedure BDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 
 implementation
 
-
 uses Windows, SysUtils, SyncObjs;
+
+type
+  EBerkeleyDBExeption = class(Exception);
 
 var
   DllHandle: THandle = 0;
@@ -2734,13 +2736,28 @@ var
 const
   DllName = 'libdb51.dll';
 
+procedure BDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
+begin
+  raise EBerkeleyDBExeption.Create(errpfx + ': ' + msg);
+end;
+
+procedure BDBRaiseException(const EMsg: string);
+begin
+  raise EBerkeleyDBExeption.Create(EMsg);
+end;
+
 function InitBerkeleyDB: Boolean;
-  procedure LoadProc(var proc; procName: string);
+
+  procedure LoadProc(var proc; const procName: string);
   begin
     pointer(proc) := GetProcAddress(DllHandle, pchar(procName));
-    if pointer(proc)=nil then
-      raise Exception.Create('Function '''+procName+''' not found in '+DllName);
+    if pointer(proc) = nil then begin
+      raise EBerkeleyDBExeption.Create(
+        'Function ''' + procName + ''' not found in ' + DllName
+      );
+    end;
   end;
+
 begin
   LibInitCS.Acquire;
   try
@@ -2752,8 +2769,9 @@ begin
 
       if DllHandle = 0 then begin
         DllInitError := True;
-        raise Exception.Create('Berkeley DB not found ('+DllName+')' + #13#10 +
-          SysErrorMessage(GetLastError));
+        raise EBerkeleyDBExeption.Create(
+          'Berkeley DB not found (' + DllName + ')' + #13#10 + SysErrorMessage(GetLastError)
+        );
       end;
 
       LoadProc(db_create              , 'db_create'              );
@@ -2797,15 +2815,18 @@ end;
 
 procedure CheckBDB(resultCode: integer);
 begin
-  if resultCode<>0 then
-    raise Exception.Create('Error #'+IntToStr(resultCode)+': '+string(AnsiString(db_strerror(resultCode))));
+  if resultCode <> 0 then begin
+    raise EBerkeleyDBExeption.Create(
+      'Error #' + IntToStr(resultCode) + ': ' + string(AnsiString(db_strerror(resultCode)))
+    );
+  end;
 end;
 
 function CheckAndFoundBDB(resultCode: integer): boolean;
 begin
-  if (resultCode=DB_NOTFOUND) or (resultCode=DB_KEYEMPTY) then
+  if (resultCode=DB_NOTFOUND) or (resultCode=DB_KEYEMPTY) then begin
     Result := false
-  else begin
+  end else begin
     CheckBDB(resultCode);
     Result := true;
   end;
@@ -2813,9 +2834,9 @@ end;
 
 function CheckAndNotExistsBDB(resultCode: integer): boolean;
 begin
-  if resultCode=DB_KEYEXIST then
+  if resultCode = DB_KEYEXIST then begin
     Result := false
-  else begin
+  end else begin
     CheckBDB(resultCode);
     Result := true;
   end;
@@ -2833,13 +2854,14 @@ begin
   Result := resultCode;
 end;
 
-
 initialization
   LibInitCS := TCriticalSection.Create;
 
 finalization
-  if DllHandle<>0 then
+  if DllHandle<>0 then begin
     FreeLibrary(DllHandle);
+  end;
   FreeAndNil(LibInitCS);
+
 end.
 

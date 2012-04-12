@@ -72,6 +72,7 @@ function PRawMetaToPBDBMetaInfo(ARawData: PByte; ARawDataSize: Cardinal; AMeta: 
 implementation
 
 uses
+  libdb51,
   u_BerkeleyDB,
   CRC32;
 
@@ -202,7 +203,7 @@ begin
         Result := True;
       end;
     end else begin
-      raise EBerkeleyDBExeption.Create(
+      BDBRaiseException(
         'Error [BerkeleyDB]: Bad magic value (' +
         AData.RecMagic[0] +
         AData.RecMagic[1] +

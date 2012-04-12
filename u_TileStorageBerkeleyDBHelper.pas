@@ -109,7 +109,8 @@ implementation
 
 uses
   Windows,
-  SysUtils;
+  SysUtils,
+  libdb51;
 
 const
   CPageSize = 1024; // 1k
@@ -148,7 +149,7 @@ begin
     FPool := FEnv.Pool;
     FPool.OnObjCreate := Self.OnBDBObjCreate;
   end else begin
-    raise EBerkeleyDBExeption.Create(
+    BDBRaiseException(
       'Error [BerkeleyDB]: Can''t allocate environment: ' + APath
     );
   end;
@@ -196,7 +197,8 @@ begin
     if VBDB.Open(FEnv.EnvPtr, AFileName, CPageSize, CCacheSize) then begin
       Result := VBDB;
     end else begin
-      raise EBerkeleyDBExeption.Create(
+      Result := nil;
+      BDBRaiseException(
         'Error [BerkeleyDB]: Can''t open file: ' + AFileName
       );
     end;

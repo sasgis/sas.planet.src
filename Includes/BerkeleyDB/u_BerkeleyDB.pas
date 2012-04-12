@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -25,7 +25,7 @@ interface
 uses
   SysUtils,
   SyncObjs,
-  db_h;
+  libdb51;
 
 const
   BDB_MIN_PAGE_SIZE : Cardinal  = $200;  //512 b
@@ -38,11 +38,7 @@ const
   BDB_DEF_PAGE_SIZE  = 0;      //auto-selected based on the underlying
                                //filesystem I/O block size (512b - 16k)
 
-  CBerkeleyDBErrPfx = 'BerkeleyDB';
-
 type
-  EBerkeleyDBExeption = class(Exception);
-
   TBDBOnEvent = procedure(Sender: TObject) of object;
 
   TBerkeleyDB = class(TObject)
@@ -113,6 +109,9 @@ implementation
 uses
   u_BerkeleyDBEnv;
 
+const
+  CBerkeleyDBErrPfx = 'BerkeleyDB';
+
 { TBerkeleyDB }
 
 constructor TBerkeleyDB.Create;
@@ -153,9 +152,7 @@ function TBerkeleyDB.Open(
     VRelativeFileName: string;
   begin
     if FENV = nil then begin
-      raise EBerkeleyDBExeption.Create(
-        'Aborted [BerkeleyDB]: Environment not assigned.'
-      );
+      BDBRaiseException(CBerkeleyDBErrPfx + ': Environment not assigned.');
     end;
 
     VEnvHomePtr := '';

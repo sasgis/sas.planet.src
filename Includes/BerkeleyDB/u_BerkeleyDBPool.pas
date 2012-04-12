@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -65,6 +65,9 @@ type
 
 implementation
 
+uses
+  libdb51;
+
 { TBerkeleyDBPool }
 
 constructor TBerkeleyDBPool.Create(const APoolSize: Cardinal = 12);
@@ -113,7 +116,7 @@ begin
         end;
       end;
       if not VFound then begin
-        raise EBerkeleyDBExeption.Create(
+        BDBRaiseException(
           'Error [BerkeleyDB]: Can''t release an object that is not in the pool!'
         );
       end;
@@ -201,7 +204,7 @@ begin
               Result := CreateNewObj();
             end;
           end else begin
-            raise EBerkeleyDBExeption.Create(
+            BDBRaiseException(
               'Error [BerkeleyDB]: There are no available objects in the pool!'
             );
           end;
@@ -209,7 +212,7 @@ begin
         if Result <> nil then begin
           Inc(FUsageCount);
         end else begin
-          raise EBerkeleyDBExeption.Create(
+          BDBRaiseException(
             'Error [BerkeleyDB]: Can''t acquire db: ' + AFileName
           );
         end;
@@ -306,7 +309,7 @@ begin
     if AValue > FPoolSize then begin
       FPoolSize := AValue;
     end else begin
-      raise EBerkeleyDBExeption.Create(
+      BDBRaiseException(
         'Error [BerkeleyDB]: Can''t decrease pool size!'
       );
     end;
