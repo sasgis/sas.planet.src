@@ -33,6 +33,7 @@ uses
 
 type
   TMarkPictureSimple = class(TInterfacedObject, IMarkPicture)
+  private
     FFullFileName: string;
     FName: string;
     FLoader: IBitmapTileLoader;

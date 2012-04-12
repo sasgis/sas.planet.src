@@ -185,7 +185,7 @@ var
   VMarksDb: TMarksDb;
 begin
   FBasePath := ABasePath;
-  VCategoryDB := TMarkCategoryDB.Create(ABasePath, ACategoryFactoryConfig);
+  VCategoryDB := TMarkCategoryDB.Create(FBasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig :=

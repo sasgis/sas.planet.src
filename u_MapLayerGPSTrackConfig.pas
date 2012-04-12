@@ -34,6 +34,7 @@ uses
 
 type
   TSpeedRangeItem = class(TInterfacedObject, ISpeedRangeItem)
+  private
     FSpeed: Double;
     FMinSpeedColor: TColor32;
     FMaxSpeedColor: TColor32;

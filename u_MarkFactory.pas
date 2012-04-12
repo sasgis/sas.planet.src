@@ -222,7 +222,6 @@ function TMarkFactory.CreateNewLine(
 var
   VTemplate: IMarkTemplateLine;
   VTemplateSML: IMarkTemplateSMLInternal;
-  VCategory: ICategory;
   VCategoryID: Integer;
   VName: string;
 begin
@@ -246,7 +245,7 @@ begin
     VName,
     True,
     VCategoryId,
-    VCategory,
+    nil,
     ADesc,
     ALine.Bounds,
     ALine,
@@ -264,7 +263,6 @@ var
   VTemplate: IMarkTemplatePoint;
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
-  VCategory: ICategory;
   VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
@@ -289,7 +287,7 @@ begin
     '',
     VTemplate.Pic,
     VCategoryId,
-    VCategory,
+    nil,
     ADesc,
     APoint,
     VTemplate.TextColor,
@@ -308,7 +306,6 @@ var
   VTemplate: IMarkTemplatePoly;
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
-  VCategory: ICategory;
   VCategoryID: Integer;
 begin
   VTemplate := ATemplate;
@@ -331,7 +328,7 @@ begin
     VName,
     True,
     VCategoryId,
-    VCategory,
+    nil,
     ADesc,
     ALine.Bounds,
     ALine,
