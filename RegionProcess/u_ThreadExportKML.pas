@@ -29,19 +29,19 @@ type
     KMLFile: TextFile;
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
-    procedure KmlFileWrite(ATile: TPoint; AZoom, level: byte);
+    procedure KmlFileWrite(const ATile: TPoint; AZoom, level: byte);
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APath: string;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APath: string;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
       Atypemap: TMapType;
       ANotSaveNotExists: boolean;
       ARelativePath: boolean
@@ -58,14 +58,14 @@ uses
   i_CoordConverter;
 
 constructor TThreadExportKML.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APath: string;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APath: string;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
   Atypemap: TMapType;
   ANotSaveNotExists: boolean;
   ARelativePath: boolean
@@ -86,7 +86,7 @@ begin
   FMapType := Atypemap;
 end;
 
-procedure TThreadExportKML.KmlFileWrite(ATile: TPoint; AZoom, level: byte);
+procedure TThreadExportKML.KmlFileWrite(const ATile: TPoint; AZoom, level: byte);
 var
   VZoom: Byte;
   xi, yi: integer;

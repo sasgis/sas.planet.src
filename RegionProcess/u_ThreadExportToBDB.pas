@@ -52,24 +52,24 @@ type
     function TileExportToRemoteBDB(
       AHelper: TTileStorageBerkeleyDBHelper;
       AMapType: TMapType;
-      AXY: TPoint;
+      const AXY: TPoint;
       AZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
-      ARemotePath: string
+      const AVersionInfo: IMapVersionInfo;
+      const ARemotePath: string
     ): Boolean;
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APath: string;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
-      Atypemaparr: array of TMapType;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APath: string;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
+      const Atypemaparr: array of TMapType;
       Amove: boolean;
       Areplace: boolean
     );
@@ -88,15 +88,15 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToBDB.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APath: string;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
-  Atypemaparr: array of TMapType;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APath: string;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
+  const Atypemaparr: array of TMapType;
   Amove, Areplace: boolean
 );
 var
@@ -134,10 +134,10 @@ end;
 function TThreadExportToBDB.TileExportToRemoteBDB(
   AHelper: TTileStorageBerkeleyDBHelper;
   AMapType: TMapType;
-  AXY: TPoint;
+  const AXY: TPoint;
   AZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
-  ARemotePath: string
+  const AVersionInfo: IMapVersionInfo;
+  const ARemotePath: string
 ): Boolean;
 var
   VExportSDBFile: string;

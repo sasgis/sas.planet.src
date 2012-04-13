@@ -45,9 +45,9 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     procedure CheckSQLiteAPIError(AError: Boolean);
-    procedure WritePListFile(AGeoConvert: ICoordConverter);
+    procedure WritePListFile(const AGeoConvert: ICoordConverter);
     procedure WriteTileToSQLite3(
-      AXY: TPoint;
+      const AXY: TPoint;
       AZoom: Integer;
       AMemStream: TMemoryStream;
       AFlags: Integer
@@ -56,17 +56,17 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APath: string;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
-      Atypemaparr: array of TMapType;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APath: string;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
+      const Atypemaparr: array of TMapType;
       AActiveMapIndex: Integer;
       Areplace: boolean;
       ANewFormat: Boolean;
@@ -93,21 +93,22 @@ uses
   u_BitmapTileVampyreSaver;
 
 constructor TThreadExportIPhone.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APath: string;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
-  Atypemaparr: array of TMapType;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APath: string;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
+  const Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
   Areplace: boolean;
   ANewFormat: Boolean;
-  Acsat, Acmap, Achib: byte);
+  Acsat, Acmap, Achib: byte
+);
 var
   VTaskIndex: Integer;
 begin
@@ -209,7 +210,7 @@ begin
 end;
 
 procedure TThreadExportIPhone.WriteTileToSQLite3(
-  AXY: TPoint;
+  const AXY: TPoint;
   AZoom: Integer;
   AMemStream: TMemoryStream;
   AFlags: Integer
@@ -253,7 +254,7 @@ begin
   end;
 end;
 
-procedure TThreadExportIPhone.WritePListFile(AGeoConvert: ICoordConverter);
+procedure TThreadExportIPhone.WritePListFile(const AGeoConvert: ICoordConverter);
 var
   PList: Text;
   VLLCenter: TDoublePoint;

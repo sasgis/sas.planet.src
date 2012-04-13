@@ -50,10 +50,10 @@ type
     function GetAllowReplace: boolean;
   public
     constructor Create(
-      ACoordConverter: ICoordConverter;
+      const ACoordConverter: ICoordConverter;
       ACacheTypeCode: Integer;
-      ANameInCache: string;
-      ATileFileExt: string;
+      const ANameInCache: string;
+      const ATileFileExt: string;
       AIsStoreFileCache: Boolean;
       AIsReadOnly: boolean;
       AAllowDelete: boolean;
@@ -67,10 +67,10 @@ implementation
 { TSimpleTileStorageConfigStatic }
 
 constructor TSimpleTileStorageConfigStatic.Create(
-  ACoordConverter: ICoordConverter;
+  const ACoordConverter: ICoordConverter;
   ACacheTypeCode: Integer;
-  ANameInCache: string;
-  ATileFileExt: string;
+  const ANameInCache: string;
+  const ATileFileExt: string;
   AIsStoreFileCache, AIsReadOnly, AAllowDelete, AAllowAdd, AAllowReplace: boolean
 );
 begin

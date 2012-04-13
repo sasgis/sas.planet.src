@@ -48,7 +48,7 @@ type
     procedure CloseCacheFiles;
     procedure AddTileToCache(
       ATileData: TMemoryStream;
-      ATilePoint: TPoint;
+      const ATilePoint: TPoint;
       AZoom: Byte;
       AMapID: Integer
     );
@@ -56,17 +56,17 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APath: string;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
-      Atypemaparr: array of TMapType;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APath: string;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
+      const Atypemaparr: array of TMapType;
       Areplace: boolean;
       Acsat: byte;
       Acmap: byte
@@ -91,17 +91,17 @@ uses
 { TThreadExportYaMobileV4 }
 
 constructor TThreadExportYaMobileV4.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APath: string;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
-  Atypemaparr: array of TMapType;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APath: string;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
+  const Atypemaparr: array of TMapType;
   Areplace: boolean;
   Acsat, Acmap: byte
 );
@@ -232,7 +232,7 @@ end;
 
 procedure TThreadExportYaMobileV4.AddTileToCache(
   ATileData: TMemoryStream;
-  ATilePoint: TPoint;
+  const ATilePoint: TPoint;
   AZoom: Byte;
   AMapID: Integer
 );

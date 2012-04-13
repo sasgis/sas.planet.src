@@ -31,19 +31,19 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APath: string;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
-      Atypemaparr: array of TMapType;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APath: string;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
+      const Atypemaparr: array of TMapType;
       Amove: boolean;
       Areplace: boolean;
-      ATileNameGen: ITileFileNameGenerator
-      );
+      const ATileNameGen: ITileFileNameGenerator
+    );
   end;
 
 implementation
@@ -55,17 +55,17 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToFileSystem.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APath: string;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
-  Atypemaparr: array of TMapType;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APath: string;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
+  const Atypemaparr: array of TMapType;
   Amove, Areplace: boolean;
-  ATileNameGen: ITileFileNameGenerator
+  const ATileNameGen: ITileFileNameGenerator
 );
 var
   i: integer;
