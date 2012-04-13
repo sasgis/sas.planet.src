@@ -66,12 +66,12 @@ type
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
-    function Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
+    function Edit2Digit(const Atext:string; lat:boolean; var res:Double): boolean;
   public
     constructor Create(
       AOwner: TComponent;
-      AViewPortState: IViewPortState;
-      AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AViewPortState: IViewPortState;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
@@ -104,8 +104,12 @@ begin
   end;
 end;
 
-constructor TfrLonLat.Create(AOwner: TComponent; AViewPortState: IViewPortState;
-  AValueToStringConverterConfig: IValueToStringConverterConfig; ATileSelectStyle: TTileSelectStyle);
+constructor TfrLonLat.Create(
+  AOwner: TComponent;
+  const AViewPortState: IViewPortState;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  ATileSelectStyle: TTileSelectStyle
+);
 begin
   inherited Create(AOwner);
   FViewPortState := AViewPortState;
@@ -113,7 +117,7 @@ begin
   FTileSelectStyle:=ATileSelectStyle;
 end;
 
-function TfrLonLat.Edit2Digit(Atext:string; lat:boolean; var res:Double): boolean;
+function TfrLonLat.Edit2Digit(const Atext: string; lat: boolean; var res: Double): boolean;
 var i,delitel:integer;
     gms:double;
     text:string;

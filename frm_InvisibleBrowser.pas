@@ -46,11 +46,11 @@ type
     FProxyConfig: IProxyConfig;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig
     ); reintroduce;
     destructor Destroy; override;
-    procedure NavigateAndWait(AUrl: WideString);
+    procedure NavigateAndWait(const AUrl: WideString);
   end;
 
 implementation
@@ -61,8 +61,8 @@ uses
 {$R *.dfm}
 
 constructor TfrmInvisibleBrowser.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig
 );
 begin
   inherited Create(ALanguageManager);
@@ -83,7 +83,7 @@ end;
 
 { TfrmInvisibleBrowser }
 
-procedure TfrmInvisibleBrowser.NavigateAndWait(AUrl: WideString);
+procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: WideString);
 begin
   FCS.BeginWrite;
   try

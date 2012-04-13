@@ -42,8 +42,8 @@ type
     function GetDownloadTryCount: Integer;
   public
     constructor Create(
-      AProxyConfigStatic: IProxyConfigStatic;
-      AUserAgentString: string;
+      const AProxyConfigStatic: IProxyConfigStatic;
+      const AUserAgentString: string;
       ATimeOut: Cardinal;
       ASleepOnResetConnection: Cardinal;
       ADownloadTryCount: Integer
@@ -55,8 +55,8 @@ implementation
 { TTileDownloaderConfigStatic }
 
 constructor TInetConfigStatic.Create(
-  AProxyConfigStatic: IProxyConfigStatic;
-  AUserAgentString: string;
+  const AProxyConfigStatic: IProxyConfigStatic;
+  const AUserAgentString: string;
   ATimeOut, ASleepOnResetConnection: Cardinal;
   ADownloadTryCount: Integer
 );

@@ -37,7 +37,7 @@ type
     FBgColor: TColor32;
     FTextColor: TColor32;
     FAALevel: Integer;
-    function GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
+    function GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;
     procedure OnConfigChange;
     procedure OnTimerEvent;
   protected
@@ -126,7 +126,7 @@ begin
   Result.Top := Result.Bottom - FLayer.Bitmap.Height;
 end;
 
-function TLayerStatBar.GetTimeInLonLat(ALonLat: TDoublePoint): TDateTime;
+function TLayerStatBar.GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;
 var
   tz: TDateTime;
   st: TSystemTime;
@@ -195,7 +195,7 @@ end;
 
 procedure TLayerStatBar.DoRedraw;
 
-  procedure RenderText(AOffset: TPoint; AText: string; ADrawLine: Boolean = True);
+  procedure RenderText(const AOffset: TPoint; const AText: string; ADrawLine: Boolean = True);
   begin
     FLayer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
     if ADrawLine then begin

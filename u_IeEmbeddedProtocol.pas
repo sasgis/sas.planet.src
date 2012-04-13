@@ -37,8 +37,8 @@ type
     FUrl: String;
     FProtocolSink: IInternetProtocolSink;
     FBindInfo: IInternetBindInfo;
-    function ParseUrl(AUrl: string; out ADomain, AFilePath: string): Boolean;
-    function LoadDataToStream(AUrl: String): Boolean;
+    function ParseUrl(const AUrl: string; out ADomain, AFilePath: string): Boolean;
+    function LoadDataToStream(const AUrl: String): Boolean;
   private { IInternetProtocolRoot }
     function Start(szUrl: LPCWSTR; OIProtSink: IInternetProtocolSink; OIBindInfo: IInternetBindInfo; grfPI, dwReserved: DWORD): HResult; stdcall;
     function Continue(const ProtocolData: TProtocolData): HResult; stdcall;
@@ -52,7 +52,7 @@ type
     function LockRequest(dwOptions: DWORD): HResult; stdcall;
     function UnlockRequest: HResult; stdcall;
   public
-    constructor Create(ADomainList: IInternalDomainInfoProviderList);
+    constructor Create(const ADomainList: IInternalDomainInfoProviderList);
     destructor Destroy; override;
   end;
 
@@ -65,7 +65,7 @@ uses
 
 { TIeEmbeddedProtocol }
 
-constructor TIeEmbeddedProtocol.Create(ADomainList: IInternalDomainInfoProviderList);
+constructor TIeEmbeddedProtocol.Create(const ADomainList: IInternalDomainInfoProviderList);
 begin
   FDomainList := ADomainList;
   FStream := TMemoryStream.Create;
@@ -89,7 +89,7 @@ begin
   Result := Inet_E_Invalid_Request;
 end;
 
-function TIeEmbeddedProtocol.LoadDataToStream(AUrl: String): Boolean;
+function TIeEmbeddedProtocol.LoadDataToStream(const AUrl: String): Boolean;
 var
   VDomainName: string;
   VFilePath: string;
@@ -125,8 +125,10 @@ begin
   Result := S_OK;
 end;
 
-function TIeEmbeddedProtocol.ParseUrl(AUrl: string; out ADomain,
-  AFilePath: string): Boolean;
+function TIeEmbeddedProtocol.ParseUrl(
+  const AUrl: string;
+  out ADomain, AFilePath: string
+): Boolean;
 var
   VProtoclSeparator: string;
   VFileNameSeparator: string;
