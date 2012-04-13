@@ -41,7 +41,7 @@ uses
   u_TileStorageAbstract;
 
 {$IFDEF DEBUG}
-  {$DEFINE WITH_PERF_COUTER}
+  {$DEFINE WITH_PERF_COUNTER}
 {$ENDIF}
 
 type
@@ -54,7 +54,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
     FTTLListener: ITTLCheckListener;
-    {$IFDEF WITH_PERF_COUTER}
+    {$IFDEF WITH_PERF_COUNTER}
     FPerfCounterList: IInternalPerformanceCounterList;
     FGetTileInfoCounter: IInternalPerformanceCounter;
     FLoadTileCounter: IInternalPerformanceCounter;
@@ -163,7 +163,7 @@ begin
     AConfig
   );
 
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('BerkeleyDB');
   FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');
   FLoadTileCounter := FPerfCounterList.CreateAndAddNewCounter('LoadTile');
@@ -261,11 +261,11 @@ var
   VData: TBDBData;
   VStream: TMemoryStream;
   VTileData: IBinaryData;
-{$IFDEF WITH_PERF_COUTER}
+{$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FGetTileInfoCounter.StartOperation;
   try
   {$ENDIF}
@@ -323,7 +323,7 @@ begin
         Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
       end;
     end;
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   finally
     FGetTileInfoCounter.FinishOperation(VCounterContext);
   end;
@@ -408,12 +408,12 @@ function TTileStorageBerkeleyDB.LoadTile(
   AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
-{$IFDEF WITH_PERF_COUTER}
+{$IFDEF WITH_PERF_COUNTER}
 var
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FLoadTileCounter.StartOperation;
   try
   {$ENDIF}
@@ -425,7 +425,7 @@ begin
         Result := ATileInfo.TileData;
       end;
     end;
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   finally
     FLoadTileCounter.FinishOperation(VCounterContext);
   end;
@@ -441,11 +441,11 @@ procedure TTileStorageBerkeleyDB.SaveTile(
 var
   VPath: string;
   VResult: Boolean;
-{$IFDEF WITH_PERF_COUTER}
+{$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FSaveTileCounter.StartOperation;
   try
   {$ENDIF}
@@ -466,7 +466,7 @@ begin
         end;
       end;
     end;
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   finally
     FSaveTileCounter.FinishOperation(VCounterContext);
   end;
@@ -481,11 +481,11 @@ procedure TTileStorageBerkeleyDB.SaveTNE(
 var
   VPath: String;
   VResult: Boolean;
-{$IFDEF WITH_PERF_COUTER}
+{$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FSaveTNECounter.StartOperation;
   try
   {$ENDIF}
@@ -507,7 +507,7 @@ begin
         end;
       end;
     end;
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   finally
     FSaveTNECounter.FinishOperation(VCounterContext);
   end;
@@ -521,11 +521,11 @@ function TTileStorageBerkeleyDB.DeleteTile(
 ): Boolean;
 var
   VPath: string;
-{$IFDEF WITH_PERF_COUTER}
+{$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FDeleteTileCounter.StartOperation;
   try
   {$ENDIF}
@@ -551,7 +551,7 @@ begin
         NotifyTileUpdate(AXY, Azoom, AVersionInfo);
       end;
     end;
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   finally
     FDeleteTileCounter.FinishOperation(VCounterContext);
   end;
@@ -565,11 +565,11 @@ function TTileStorageBerkeleyDB.DeleteTNE(
 ): Boolean;
 var
   VPath: string;
-{$IFDEF WITH_PERF_COUTER}
+{$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FDeleteTNECounter.StartOperation;
   try
   {$ENDIF}
@@ -590,7 +590,7 @@ begin
         Result := False;
       end;
     end;
-  {$IFDEF WITH_PERF_COUTER}
+  {$IFDEF WITH_PERF_COUNTER}
   finally
     FDeleteTNECounter.FinishOperation(VCounterContext);
   end;
