@@ -40,7 +40,12 @@ type
     function GetPlacemarks: IEnumUnknown; safecall;
     function GetPlacemarksCount: integer; safecall;
   public
-    constructor Create(ASearchText: WideString; AResultCode: integer; AMessage: WideString; AList: IInterfaceList);
+    constructor Create(
+      const ASearchText: WideString;
+      AResultCode: integer;
+      const AMessage: WideString;
+      const AList: IInterfaceList
+    );
     destructor Destroy; override;
   end;
 
@@ -51,8 +56,12 @@ uses
 
 { TGeoCodeResult }
 
-constructor TGeoCodeResult.Create(ASearchText: WideString;
-  AResultCode: integer; AMessage: WideString; AList: IInterfaceList);
+constructor TGeoCodeResult.Create(
+  const ASearchText: WideString;
+  AResultCode: integer;
+  const AMessage: WideString;
+  const AList: IInterfaceList
+);
 begin
   FSearchText := ASearchText;
   FList := AList;

@@ -53,16 +53,16 @@ type
     function GetBmp24: IBitmap32Static;
   public
     constructor Create(
-      AName: string;
+      const AName: string;
       ASortIndex: Integer;
       AHotKey: TShortCut;
       ASeparator: Boolean;
       ALayerZOrder: Integer;
-      AParentSubMenu: string;
+      const AParentSubMenu: string;
       AEnabled: Boolean;
-      AInfoUrl: string;
-      ABmp18: IBitmap32Static;
-      ABmp24: IBitmap32Static
+      const AInfoUrl: string;
+      const ABmp18: IBitmap32Static;
+      const ABmp24: IBitmap32Static
     );
   end;
 
@@ -71,16 +71,16 @@ implementation
 { TMapTypeGUIConfigStatic }
 
 constructor TMapTypeGUIConfigStatic.Create(
-  AName: string;
+  const AName: string;
   ASortIndex: Integer;
   AHotKey: TShortCut;
   ASeparator: Boolean;
   ALayerZOrder: Integer;
-  AParentSubMenu: string;
+  const AParentSubMenu: string;
   AEnabled: Boolean;
-  AInfoUrl: string;
-  ABmp18: IBitmap32Static;
-  ABmp24: IBitmap32Static
+  const AInfoUrl: string;
+  const ABmp18: IBitmap32Static;
+  const ABmp24: IBitmap32Static
 );
 begin
   FName := AName;

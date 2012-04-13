@@ -68,18 +68,22 @@ type
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceList;
-    function GeocodeResultFromLonLat(ASearch: WideString; ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
+    function GeocodeResultFromLonLat(
+      const ASearch: WideString;
+      const ALonLat: TDoublePoint;
+      const AMessage: WideString
+    ): IGeoCodeResult;
     procedure InitHistory;
     procedure InitGeoCoders;
     procedure EmptyGeoCoders;
     procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AMarksDb: IMarksDb;
-      AMainGeoCoderConfig: IMainGeoCoderConfig;
-      AViewPortState: IViewPortState;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      const ALanguageManager: ILanguageManager;
+      const AMarksDb: IMarksDb;
+      const AMainGeoCoderConfig: IMainGeoCoderConfig;
+      const AViewPortState: IViewPortState;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
     function ShowGeocodeModal(
@@ -100,8 +104,11 @@ uses
 
 {$R *.dfm}
 
-function TfrmGoTo.GeocodeResultFromLonLat(ASearch: WideString;
-  ALonLat: TDoublePoint; AMessage: WideString): IGeoCodeResult;
+function TfrmGoTo.GeocodeResultFromLonLat(
+  const ASearch: WideString;
+  const ALonLat: TDoublePoint;
+  const AMessage: WideString
+): IGeoCodeResult;
 var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
@@ -258,11 +265,11 @@ begin
 end;
 
 constructor TfrmGoTo.Create(
-  ALanguageManager: ILanguageManager;
-  AMarksDb: IMarksDb;
-  AMainGeoCoderConfig: IMainGeoCoderConfig;
-  AViewPortState: IViewPortState;
-  AValueToStringConverterConfig: IValueToStringConverterConfig
+  const ALanguageManager: ILanguageManager;
+  const AMarksDb: IMarksDb;
+  const AMainGeoCoderConfig: IMainGeoCoderConfig;
+  const AViewPortState: IViewPortState;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(ALanguageManager);

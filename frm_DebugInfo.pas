@@ -59,13 +59,13 @@ type
   private
     FPerfCounterList: IInternalPerformanceCounterList;
     FPrevStateList: IIDInterfaceList;
-    function AddRowFromCounter(AName: string; ARow: Integer; ACounter: IInternalPerformanceCounter): Boolean;
-    function AddRowsFromList(AParentName: string; AStartRaw: Integer; AList: IInternalPerformanceCounterList): Integer;
+    function AddRowFromCounter(const AName: string; ARow: Integer; const ACounter: IInternalPerformanceCounter): Boolean;
+    function AddRowsFromList(const AParentName: string; AStartRaw: Integer; const AList: IInternalPerformanceCounterList): Integer;
     procedure PrepareGridHeader;
     procedure RefreshData;
     function GetGridLinesText(const ATop, ABottom: Integer): String;
   public
-    constructor Create(AOwner: TComponent; APerfCounterList: IInternalPerformanceCounterList); reintroduce;
+    constructor Create(AOwner: TComponent; const APerfCounterList: IInternalPerformanceCounterList); reintroduce;
   end;
 
 implementation
@@ -77,8 +77,11 @@ uses
 
 {$R *.dfm}
 
-function TfrmDebugInfo.AddRowFromCounter(AName: string; ARow: Integer;
-  ACounter: IInternalPerformanceCounter): Boolean;
+function TfrmDebugInfo.AddRowFromCounter(
+  const AName: string;
+  ARow: Integer;
+  const ACounter: IInternalPerformanceCounter
+): Boolean;
 var
   VCount: Cardinal;
   VTime: TDateTime;
@@ -128,8 +131,11 @@ begin
   end;
 end;
 
-function TfrmDebugInfo.AddRowsFromList(AParentName: string; AStartRaw: Integer;
-  AList: IInternalPerformanceCounterList): Integer;
+function TfrmDebugInfo.AddRowsFromList(
+  const AParentName: string;
+  AStartRaw: Integer;
+  const AList: IInternalPerformanceCounterList
+): Integer;
 var
   VEnum: IEnumUnknown;
   VUnknown: IUnknown;
@@ -209,8 +215,10 @@ begin
   tmrRefresh.Enabled := chkAutoRefresh.Checked;
 end;
 
-constructor TfrmDebugInfo.Create(AOwner: TComponent;
-  APerfCounterList: IInternalPerformanceCounterList);
+constructor TfrmDebugInfo.Create(
+  AOwner: TComponent;
+  const APerfCounterList: IInternalPerformanceCounterList
+);
 begin
   inherited Create(AOwner);
   FPerfCounterList := APerfCounterList;
