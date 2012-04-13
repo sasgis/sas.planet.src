@@ -46,7 +46,7 @@ type
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
   public
-    constructor Create(AFolderName: string);
+    constructor Create(const AFolderName: string);
   end;
 
 implementation
@@ -60,7 +60,7 @@ uses
 
 { TConfigDataProviderByFolder }
 
-constructor TConfigDataProviderByFolder.Create(AFolderName: string);
+constructor TConfigDataProviderByFolder.Create(const AFolderName: string);
 begin
   FSourceFolderName := AFolderName;
 end;

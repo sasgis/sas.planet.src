@@ -32,8 +32,8 @@ type
     FFactory: IFileNameIteratorFactory;
   protected
     function  CreateIterator(
-      ARootFolderName: WideString;
-      AFolderNameFromRoot: WideString
+      const ARootFolderName: WideString;
+      const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
   public
     constructor Create();
@@ -83,8 +83,9 @@ begin
   end;
 end;
 
-function TZmpFileNamesIteratorFactory.CreateIterator(ARootFolderName,
-  AFolderNameFromRoot: WideString): IFileNameIterator;
+function TZmpFileNamesIteratorFactory.CreateIterator(
+  const ARootFolderName, AFolderNameFromRoot: WideString
+): IFileNameIterator;
 begin
   Result := FFactory.CreateIterator(ARootFolderName, AFolderNameFromRoot);
 end;

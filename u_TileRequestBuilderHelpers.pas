@@ -25,12 +25,12 @@ interface
 function Rand(X: Integer): Integer;            
 function GetUnixTime: Int64;
 function StrLength (const Str: string): Integer;
-function GetAfter(SubStr, Str: string): string;
-function GetBefore(SubStr, Str: string): string;
-function GetBetween(Str, After, Before: string): string;
+function GetAfter(const SubStr, Str: string): string;
+function GetBefore(const SubStr, Str: string): string;
+function GetBetween(const Str, After, Before: string): string;
 function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
-function SetHeaderValue(AHeaders, AName, AValue: string): string;
-function GetHeaderValue(AHeaders, AName: string): string;
+function SetHeaderValue(const AHeaders, AName, AValue: string): string;
+function GetHeaderValue(const AHeaders, AName: string): string;
 function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
 function GetNumberAfter(const ASubStr, AText: String): String;
 function GetDiv3Path(const ASource: String): String;
@@ -72,7 +72,7 @@ begin
   Result := Length(Str);
 end;
 
-function GetAfter(SubStr, Str: string): string;
+function GetAfter(const SubStr, Str: string): string;
 begin
   if pos(substr,str) > 0 then
     result := copy(str,pos(substr,str)+length(substr),length(str))
@@ -80,7 +80,7 @@ begin
     result := '';
 end;
 
-function GetBefore(SubStr, Str: string): string;
+function GetBefore(const SubStr, Str: string): string;
 begin
   if pos(substr,str)>0 then
     result := copy(str,1,pos(substr,str)-1)
@@ -88,7 +88,7 @@ begin
     result := '';
 end;
 
-function GetBetween(Str, After, Before: string): string;
+function GetBetween(const Str, After, Before: string): string;
 begin
   result := GetBefore(Before,GetAfter(After,str));
 end;
@@ -141,7 +141,7 @@ asm
       POP EDI
 end;
 
-function SetHeaderValue(AHeaders, AName, AValue: string): string;
+function SetHeaderValue(const AHeaders, AName, AValue: string): string;
 var
   VRegExpr: TRegExpr;
 begin
@@ -162,7 +162,7 @@ begin
     Result := AName + ': ' + AValue + #13#10;
 end;
 
-function GetHeaderValue(AHeaders, AName: string): string;
+function GetHeaderValue(const AHeaders, AName: string): string;
 var
   VRegExpr: TRegExpr;
 begin

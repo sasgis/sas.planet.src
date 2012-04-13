@@ -13,11 +13,11 @@ type
   private
     FIgnoredFoldersMasksList: TWideStrings;
   protected
-    function IsNeedFolderProcess(AParentFolderNameFromRoot, AFolderName: WideString): Boolean; override;
+    function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: WideString): Boolean; override;
   public
     constructor Create(
-      ARootFolderName: WideString;
-      AFolderNameFromRoot: WideString;
+      const ARootFolderName: WideString;
+      const AFolderNameFromRoot: WideString;
       AMaxFolderDepth: integer;
       AIgnoredFoldersMasksList: TWideStrings
     );
@@ -30,8 +30,8 @@ type
     FIgnoredFoldersMasksList: TWideStrings;
   protected
     function  CreateIterator(
-      ARootFolderName: WideString;
-      AFolderNameFromRoot: WideString
+      const ARootFolderName: WideString;
+      const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
   public
     constructor Create(
@@ -52,10 +52,11 @@ function PathMatchSpecW(pszFile, pszSpec: PWideChar): BOOL; stdcall; external 's
 { TFoldersIteratorRecursiveByLevelsWithIgnoredFolders }
 
 constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Create(
-  ARootFolderName: WideString;
-  AFolderNameFromRoot: WideString;
+  const ARootFolderName: WideString;
+  const AFolderNameFromRoot: WideString;
   AMaxFolderDepth: integer;
-  AIgnoredFoldersMasksList: TWideStrings);
+  AIgnoredFoldersMasksList: TWideStrings
+);
 begin
   inherited Create(
     ARootFolderName,
@@ -73,7 +74,8 @@ begin
 end;
 
 function TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.IsNeedFolderProcess(
-  AParentFolderNameFromRoot, AFolderName: WideString): Boolean;
+  const AParentFolderNameFromRoot, AFolderName: WideString
+): Boolean;
 var
   i: Integer;
   VMask: WideString;
@@ -107,7 +109,8 @@ begin
 end;
 
 function TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.CreateIterator(
-  ARootFolderName, AFolderNameFromRoot: WideString): IFileNameIterator;
+  const ARootFolderName, AFolderNameFromRoot: WideString
+): IFileNameIterator;
 begin
   Result := TFoldersIteratorRecursiveByLevelsWithIgnoredFolders.Create(
     ARootFolderName,

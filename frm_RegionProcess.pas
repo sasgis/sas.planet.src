@@ -543,7 +543,7 @@ begin
   CBFormat.ItemIndex := 0;
 end;
 
-procedure TfrmRegionProcess.scleitRECT(APolyLL: ILonLatPolygon);
+procedure TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon);
 begin
   FProviderMapCombine.StartProcess(APolyLL);
 end;
@@ -564,7 +564,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.Show_(Azoom:byte; APolygon: ILonLatPolygon);
+procedure TfrmRegionProcess.Show_(Azoom:byte; const APolygon: ILonLatPolygon);
 var
   i:integer;
   VExportProvider: TExportProviderAbstract;
@@ -641,7 +641,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.StartSlsFromFile(AFileName: string);
+procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);
 begin
   FProviderTilesDownload.StartBySLS(AFileName);
 end;
