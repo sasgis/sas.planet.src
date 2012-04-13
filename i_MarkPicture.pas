@@ -47,7 +47,7 @@ type
 
     function Get(AIndex: Integer): IMarkPicture;
     function GetName(AIndex: Integer): string;
-    function GetIndexByName(AValue: string): Integer;
+    function GetIndexByName(const AValue: string): Integer;
 
     function GetDefaultPicture: IMarkPicture;
   end;

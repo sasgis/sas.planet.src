@@ -15,18 +15,18 @@ type
     FSecondLine: string;
   private
     function GetProcessed: Double;
-    procedure SetProcessed(AValue: Double);
+    procedure SetProcessed(const AValue: Double);
   private
     function GetFinished: Boolean;
 
     function GetCaption: string;
-    procedure SetCaption(AValue: string);
+    procedure SetCaption(const AValue: string);
 
     function GetFirstLine: string;
-    procedure SetFirstLine(AValue: string);
+    procedure SetFirstLine(const AValue: string);
 
     function GetSecondLine: string;
-    procedure SetSecondLine(AValue: string);
+    procedure SetSecondLine(const AValue: string);
 
     procedure Finish;
   public
@@ -73,17 +73,17 @@ begin
   Result := FSecondLine;
 end;
 
-procedure TRegionProcessProgressInfo.SetCaption(AValue: string);
+procedure TRegionProcessProgressInfo.SetCaption(const AValue: string);
 begin
   FCaption := AValue;
 end;
 
-procedure TRegionProcessProgressInfo.SetFirstLine(AValue: string);
+procedure TRegionProcessProgressInfo.SetFirstLine(const AValue: string);
 begin
   FFirstLine := AValue;
 end;
 
-procedure TRegionProcessProgressInfo.SetProcessed(AValue: Double);
+procedure TRegionProcessProgressInfo.SetProcessed(const AValue: Double);
 begin
   if AValue < 0 then begin
     FProcessed := 0;
@@ -94,7 +94,7 @@ begin
   end;
 end;
 
-procedure TRegionProcessProgressInfo.SetSecondLine(AValue: string);
+procedure TRegionProcessProgressInfo.SetSecondLine(const AValue: string);
 begin
   FSecondLine := AValue;
 end;

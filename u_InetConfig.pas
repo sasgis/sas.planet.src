@@ -46,7 +46,7 @@ type
     function GetProxyConfig: IProxyConfig;
 
     function GetUserAgentString: string;
-    procedure SetUserAgentString(AValue: string);
+    procedure SetUserAgentString(const AValue: string);
 
     function GetTimeOut: Cardinal;
     procedure SetTimeOut(AValue: Cardinal);
@@ -210,7 +210,7 @@ begin
   end;
 end;
 
-procedure TInetConfig.SetUserAgentString(AValue: string);
+procedure TInetConfig.SetUserAgentString(const AValue: string);
 begin
   LockWrite;
   try

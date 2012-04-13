@@ -46,13 +46,13 @@ type
 
     function Get(AIndex: Integer): IMarkPicture;
     function GetName(AIndex: Integer): string;
-    function GetIndexByName(AValue: string): Integer;
+    function GetIndexByName(const AValue: string): Integer;
 
     function GetDefaultPicture: IMarkPicture;
   public
     constructor Create(
-      ABasePath: IPathConfig;
-      AContentTypeManager: IContentTypeManager
+      const ABasePath: IPathConfig;
+      const AContentTypeManager: IContentTypeManager
     );
     destructor Destroy; override;
   end;
@@ -68,8 +68,8 @@ uses
 { TMarkPictureListSimple }
 
 constructor TMarkPictureListSimple.Create(
-  ABasePath: IPathConfig;
-  AContentTypeManager: IContentTypeManager
+  const ABasePath: IPathConfig;
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create;
@@ -169,7 +169,7 @@ begin
   end;
 end;
 
-function TMarkPictureListSimple.GetIndexByName(AValue: string): Integer;
+function TMarkPictureListSimple.GetIndexByName(const AValue: string): Integer;
 begin
   LockRead;
   try

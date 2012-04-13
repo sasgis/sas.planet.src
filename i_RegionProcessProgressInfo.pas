@@ -6,7 +6,7 @@ type
   IProgressInfo = interface
     ['{B636F3D1-3F17-4BE5-8D8E-E161F945E42D}']
     function GetProcessed: Double;
-    procedure SetProcessed(AValue: Double);
+    procedure SetProcessed(const AValue: Double);
     property Processed: Double read GetProcessed write SetProcessed;
   end;
   
@@ -16,15 +16,15 @@ type
     property Finished: Boolean read GetFinished;
 
     function GetCaption: string;
-    procedure SetCaption(AValue: string);
+    procedure SetCaption(const AValue: string);
     property Caption: string read GetCaption write SetCaption;
 
     function GetFirstLine: string;
-    procedure SetFirstLine(AValue: string);
+    procedure SetFirstLine(const AValue: string);
     property FirstLine: string read GetFirstLine write SetFirstLine;
 
     function GetSecondLine: string;
-    procedure SetSecondLine(AValue: string);
+    procedure SetSecondLine(const AValue: string);
     property SecondLine: string read GetSecondLine write SetSecondLine;
 
     procedure Finish;

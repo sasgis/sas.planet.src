@@ -51,7 +51,7 @@ type
     property ProxyConfig: IProxyConfig read GetProxyConfig;
 
     function GetUserAgentString: string;
-    procedure SetUserAgentString(AValue: string);
+    procedure SetUserAgentString(const AValue: string);
     property UserAgentString: string read GetUserAgentString write SetUserAgentString;
 
     function GetTimeOut: Cardinal;

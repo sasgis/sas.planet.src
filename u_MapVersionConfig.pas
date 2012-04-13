@@ -40,7 +40,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVersionFactory: IMapVersionFactory;
-    procedure SetVersionFactory(AValue: IMapVersionFactory);
+    procedure SetVersionFactory(const AValue: IMapVersionFactory);
 
     function GetVersion: IMapVersionInfo;
     procedure SetVersion(const AValue: IMapVersionInfo);
@@ -129,7 +129,7 @@ begin
   end;
 end;
 
-procedure TMapVersionConfig.SetVersionFactory(AValue: IMapVersionFactory);
+procedure TMapVersionConfig.SetVersionFactory(const AValue: IMapVersionFactory);
 begin
   LockWrite;
   try

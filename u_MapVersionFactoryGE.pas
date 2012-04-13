@@ -16,8 +16,8 @@ type
 
   TMapVersionFactoryGE = class(TInterfacedObject, IMapVersionFactory, IMapVersionFactoryGEInternal)
   private
-    function CreateByStoreString(AValue: string): IMapVersionInfo;
-    function CreateByMapVersion(AValue: IMapVersionInfo): IMapVersionInfo;
+    function CreateByStoreString(const AValue: string): IMapVersionInfo;
+    function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
     function CreateByGE(const AVer: Word;
                         const AGEServer: String;
                         const ATileDate: String): IMapVersionInfo;
@@ -140,7 +140,8 @@ begin
 end;
 
 function TMapVersionFactoryGE.CreateByMapVersion(
-  AValue: IMapVersionInfo): IMapVersionInfo;
+  const AValue: IMapVersionInfo
+): IMapVersionInfo;
 begin
   Result := nil;
   if not Supports(AValue, IMapVersionInfoGE, Result) then begin
@@ -153,7 +154,7 @@ begin
 end;
 
 function TMapVersionFactoryGE.CreateByStoreString(
-  AValue: string
+  const AValue: string
 ): IMapVersionInfo;
 
   function _StrToWord(const ASrc: String; var w: Word): Boolean;

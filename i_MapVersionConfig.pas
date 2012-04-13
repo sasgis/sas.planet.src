@@ -29,14 +29,14 @@ uses
 type
   IMapVersionFactory = interface
     ['{4E03F54E-C11D-443C-BF0E-D9A2B0D1299C}']
-    function CreateByStoreString(AValue: string): IMapVersionInfo;
-    function CreateByMapVersion(AValue: IMapVersionInfo): IMapVersionInfo;
+    function CreateByStoreString(const AValue: string): IMapVersionInfo;
+    function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
   end;
 
   IMapVersionConfig = interface(IConfigDataElement)
     ['{0D710534-C49F-43BC-8092-A0F5ABB5E107}']
     function GetVersionFactory: IMapVersionFactory;
-    procedure SetVersionFactory(AValue: IMapVersionFactory);
+    procedure SetVersionFactory(const AValue: IMapVersionFactory);
     property VersionFactory: IMapVersionFactory read GetVersionFactory write SetVersionFactory;
 
     function GetVersion: IMapVersionInfo;
