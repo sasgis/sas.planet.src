@@ -12,7 +12,7 @@ type
   TLocalLineBase = class(TInterfacedObject)
   private
     FCount: Integer;
-    FPoints: TArrayOfDoublePoint;
+    FPoints: array of TDoublePoint;
     FLocalConverter: ILocalCoordConverter;
   private
     function GetLocalConverter: ILocalCoordConverter;

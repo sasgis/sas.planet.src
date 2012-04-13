@@ -34,7 +34,7 @@ type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
   private
     FFactory: IVectorItmesFactory;
-    FPoints: TArrayOfDoublePoint;
+    FPoints: array of TDoublePoint;
     FPointsCount: Integer;
     FSelectedPointIndex: Integer;
     procedure _GrowPoints(AAddCount: Integer);

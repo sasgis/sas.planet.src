@@ -13,7 +13,7 @@ type
   private
     FCount: Integer;
     FBounds: TDoubleRect;
-    FPoints: TArrayOfDoublePoint;
+    FPoints: array of TDoublePoint;
   private
     function GetBounds: TDoubleRect;
     function GetCount: Integer;

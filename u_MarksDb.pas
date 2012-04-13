@@ -113,7 +113,9 @@ uses
   i_EnumID,
   i_EnumDoublePoint,
   u_IDInterfaceList,
+  i_DoublePointsAggregator,
   i_VectorItemLonLat,
+  u_DoublePointsAggregator,
   u_MarkFactory,
   u_GeoFun,
   u_MarksSubset;
@@ -124,7 +126,7 @@ type
   end;
 
 
-procedure Blob2ExtArr(Blobfield: Tfield; var APoints: TArrayOfDoublePoint);
+procedure Blob2ExtArr(Blobfield: Tfield; AAggregator: IDoublePointsAggregator);
 var
   VSize: Integer;
   VPointsCount: Integer;
@@ -138,11 +140,9 @@ begin
   try
     VSize := VStream.Size;
     VPointsCount := VSize div SizeOf(TExtendedPoint);
-    SetLength(APoints, VPointsCount);
     for i := 0 to VPointsCount - 1 do begin
       VStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
-      APoints[i].X := VPoint.X;
-      APoints[i].Y := VPoint.Y;
+      AAggregator.Add(DoublePoint(VPoint.X, VPoint.Y));
     end;
   finally
     VStream.Free;
@@ -527,7 +527,7 @@ var
   VId: Integer;
   VName: string;
   VVisible: Boolean;
-  VPoints: TArrayOfDoublePoint;
+  VPoints: IDoublePointsAggregator;
   VCategoryId: Integer;
   VDesc: string;
   VLLRect: TDoubleRect;
@@ -536,6 +536,7 @@ var
   VScale1: Integer;
   VScale2: Integer;
 begin
+  VPoints := TDoublePointsAggregator.Create;
   VId := FCdsMarks.fieldbyname('id').AsInteger;
   VName := FCdsMarks.FieldByName('name').AsString;
   VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
@@ -561,8 +562,8 @@ begin
       VCategoryId,
       VDesc,
       VLLRect,
-      @VPoints[0],
-      Length(VPoints),
+      VPoints.Points,
+      VPoints.Count,
       VColor1,
       VColor2,
       VScale1,

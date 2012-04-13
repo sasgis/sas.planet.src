@@ -47,8 +47,6 @@ type
 
   PDoublePointArray = ^TDoublePointArray;
   TDoublePointArray = array [0..0] of TDoublePoint;
-  PArrayOfDoublePoint = vsagps_public_point.PArrayOfDoublePoint;
-  TArrayOfDoublePoint = vsagps_public_point.TArrayOfDoublePoint;
 
 // Скопировал из ECWReader что бы не добавлять лишние зависимости от того юнита.
 {$MINENUMSIZE 4}

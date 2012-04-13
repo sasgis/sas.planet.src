@@ -9,7 +9,7 @@ uses
 type
   TDoublePointsAggregator = class(TInterfacedObject, IDoublePointsAggregator)
   private
-    FPoints: TArrayOfDoublePoint;
+    FPoints: array of TDoublePoint;
     FCount: Integer;
     FCapacity: Integer;
   private

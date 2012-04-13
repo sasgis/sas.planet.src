@@ -77,7 +77,7 @@ type
     array_count: Integer;
     array_capacity: Integer;
     array_rect: TDoubleRect;
-    array_points: TArrayOfDoublePoint;
+    array_points: array of TDoublePoint;
   end;
   PParseXML_Aux = ^TParseXML_Aux;
 
