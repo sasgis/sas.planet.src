@@ -23,6 +23,7 @@ unit u_DownloadCheckerStuped;
 interface
 
 uses
+  i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
@@ -43,14 +44,13 @@ type
     function IsNeedCheckTileSize(ARequest: IDownloadRequest): Boolean;
   protected
     function BeforeRequest(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest
+      const AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest
     ): IDownloadResult;
     function AfterReciveData(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest;
-      const ARecivedSize: Integer;
-      const ARecivedBuffer: Pointer;
+      const AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest;
+      const ARecivedData: IBinaryData;
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string
@@ -121,8 +121,8 @@ begin
 end;
 
 function TDownloadCheckerStuped.BeforeRequest(
-  AResultFactory: IDownloadResultFactory;
-  ARequest: IDownloadRequest
+  const AResultFactory: IDownloadResultFactory;
+  const ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
   if FAntiBan <> nil then begin
@@ -131,10 +131,9 @@ begin
 end;
 
 function TDownloadCheckerStuped.AfterReciveData(
-  AResultFactory: IDownloadResultFactory;
-  ARequest: IDownloadRequest;
-  const ARecivedSize: Integer;
-  const ARecivedBuffer: Pointer;
+  const AResultFactory: IDownloadResultFactory;
+  const ARequest: IDownloadRequest;
+  const ARecivedData: IBinaryData;
   var AStatusCode: Cardinal;
   var AContentType: string;
   var AResponseHead: string
@@ -154,7 +153,7 @@ begin
     end;
   end;
   if IsNeedCheckTileSize(ARequest) then begin
-    if CheckOldTileSize(ARequest, ARecivedSize) then begin
+    if CheckOldTileSize(ARequest, ARecivedData.Size) then begin
       Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AStatusCode, AResponseHead);
       Exit;
     end;
@@ -163,8 +162,7 @@ begin
     Result := FAntiBan.PostCheckDownload(
       AResultFactory,
       ARequest,
-      ARecivedSize,
-      ARecivedBuffer,
+      ARecivedData,
       AStatusCode,
       AResponseHead
     );

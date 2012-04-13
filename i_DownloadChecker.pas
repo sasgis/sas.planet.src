@@ -23,6 +23,7 @@ unit i_DownloadChecker;
 interface
 
 uses
+  i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory;
@@ -31,14 +32,13 @@ type
   IDownloadChecker = interface
     ['{70846BCE-6732-4FEB-8304-23BEFD4646D6}']
     function BeforeRequest(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest
+      const AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest
     ): IDownloadResult;
     function AfterReciveData(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest;
-      const ARecivedSize: Integer;
-      const ARecivedBuffer: Pointer;
+      const AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest;
+      const ARecivedData: IBinaryData;
       var AStatusCode: Cardinal;
       var AContentType: string;
       var AResponseHead: string

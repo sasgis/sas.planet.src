@@ -23,6 +23,7 @@ unit i_AntiBan;
 interface
 
 uses
+  i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory;
@@ -31,13 +32,12 @@ type
   IAntiBan = interface
     ['{19B5BF44-50AA-43C9-BC2C-94A92A85A209}']
     procedure PreDownload(
-      ARequest: IDownloadRequest
+      const ARequest: IDownloadRequest
     );
     function PostCheckDownload(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest;
-      const ARecivedSize: Integer;
-      const ARecivedBuffer: Pointer;
+      const AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest;
+      const ARecivedBuffer: IBinaryData;
       var AStatusCode: Cardinal;
       var AResponseHead: string
     ): IDownloadResult;

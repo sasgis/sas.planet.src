@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   SysUtils,
+  i_BinaryData,
   i_ConfigDataProvider,
   i_AntiBan,
   i_DownloadRequest,
@@ -43,24 +44,24 @@ type
     FBanCS: IReadWriteSync;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan();
-    procedure ExecOnBan(ALastUrl: String);
-  public
-    constructor Create(
-      AInvisibleBrowser: IInvisibleBrowser;
-      AConfig: IConfigDataProvider
-    );
-    destructor Destroy; override;
+    procedure ExecOnBan(const ALastUrl: String);
+  private
     procedure PreDownload(
-      ARequest: IDownloadRequest
+      const ARequest: IDownloadRequest
     );
     function PostCheckDownload(
-      AResultFactory: IDownloadResultFactory;
-      ARequest: IDownloadRequest;
-      const ARecivedSize: Integer;
-      const ARecivedBuffer: Pointer;
+      const AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest;
+      const ARecivedBuffer: IBinaryData;
       var AStatusCode: Cardinal;
       var AResponseHead: string
     ): IDownloadResult;
+  public
+    constructor Create(
+      const AInvisibleBrowser: IInvisibleBrowser;
+      const AConfig: IConfigDataProvider
+    );
+    destructor Destroy; override;
   end;
 
 
@@ -78,12 +79,12 @@ type
     FLastUrl: string;
     procedure ExecOnBan;
   public
-    procedure Exec(ALastUrl: String);
+    procedure Exec(const ALastUrl: String);
   end;
 
 { TExecOnBan }
 
-procedure TExecOnBan.Exec(ALastUrl: String);
+procedure TExecOnBan.Exec(const ALastUrl: String);
 begin
   FLastUrl := ALastUrl;
   TThread.Synchronize(nil, ExecOnBan);
@@ -109,8 +110,8 @@ begin
 end;
 
 constructor TAntiBanStuped.Create(
-  AInvisibleBrowser: IInvisibleBrowser;
-  AConfig: IConfigDataProvider
+  const AInvisibleBrowser: IInvisibleBrowser;
+  const AConfig: IConfigDataProvider
 );
 var
   VParams: IConfigDataProvider;
@@ -128,7 +129,7 @@ begin
   inherited;
 end;
 
-procedure TAntiBanStuped.ExecOnBan(ALastUrl: String);
+procedure TAntiBanStuped.ExecOnBan(const ALastUrl: String);
 begin
   FBanCS.BeginWrite;
   if FBanFlag then begin
@@ -164,10 +165,9 @@ begin
 end;
 
 function TAntiBanStuped.PostCheckDownload(
-  AResultFactory: IDownloadResultFactory;
-  ARequest: IDownloadRequest;
-  const ARecivedSize: Integer;
-  const ARecivedBuffer: Pointer;
+  const AResultFactory: IDownloadResultFactory;
+  const ARequest: IDownloadRequest;
+  const ARecivedBuffer: IBinaryData;
   var AStatusCode: Cardinal;
   var AResponseHead: string
 ): IDownloadResult;
@@ -190,7 +190,7 @@ begin
 end;
 
 procedure TAntiBanStuped.PreDownload(
-  ARequest: IDownloadRequest
+  const ARequest: IDownloadRequest
 );
 begin
   IncDownloadedAndCheckAntiBan;

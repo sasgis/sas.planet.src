@@ -421,18 +421,23 @@ var
   VStatusCode: Cardinal;
   VContentType: string;
   VRequestWithChecker: IRequestWithChecker;
+  VResponseBody: IBinaryData;
 begin
   if AResultFactory <> nil then begin
     VRawHeaderText := FHttpResponseHeader.RawHeaderText;
     VContentType := FHttpResponseHeader.ContentType;
     VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
+      VResponseBody :=
+        TBinaryDataByMemStream.CreateFromMem(
+          FHttpResponseBody.Size,
+          FHttpResponseBody.Memory
+        );
       if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
         Result := VRequestWithChecker.Checker.AfterReciveData(
           AResultFactory,
           ARequest,
-          FHttpResponseBody.Size,
-          FHttpResponseBody.Memory,
+          VResponseBody,
           VStatusCode,
           VContentType,
           VRawHeaderText
@@ -452,10 +457,7 @@ begin
             VStatusCode,
             VRawHeaderText,
             VContentType,
-            TBinaryDataByMemStream.CreateFromMem(
-              FHttpResponseBody.Size,
-              FHttpResponseBody.Memory
-            )
+            VResponseBody
           );
         end;
       end;
