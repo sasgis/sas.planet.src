@@ -28,7 +28,7 @@ uses
 
 type
   TTileIteratorSpiralByRect = class(TTileIteratorByRectBase)
-  protected
+  private
     FCenterPoint: TPoint;
     FMaxRadius: Integer;
 
@@ -36,13 +36,13 @@ type
     FCurrentRing: Integer;
     FIndexInRing: Integer;
 
-    function CheckPoint(APoint: TPoint): Boolean;
-    class function GetMaxRing(ACenterPoint: TPoint; ARect: TRect): Integer;
+    function CheckPoint(const APoint: TPoint): Boolean;
+    class function GetMaxRing(const ACenterPoint: TPoint; const ARect: TRect): Integer;
     class function GetTilesInRingCount(ARad: Integer): Integer;
     class function GetDeltaByRingAndIndex(ARad: Integer; AIndex: Integer): TPoint;
   public
-    constructor CreateWithCenter(ARect: TRect; APoint: TPoint);
-    constructor Create(ARect: TRect); override;
+    constructor CreateWithCenter(const ARect: TRect; const APoint: TPoint);
+    constructor Create(const ARect: TRect); override;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
   end;
@@ -51,7 +51,10 @@ implementation
 
 { TTileIteratorSpiralByRect }
 
-constructor TTileIteratorSpiralByRect.CreateWithCenter(ARect: TRect; APoint: TPoint);
+constructor TTileIteratorSpiralByRect.CreateWithCenter(
+  const ARect: TRect;
+  const APoint: TPoint
+);
 begin
   inherited Create(ARect);
 
@@ -62,7 +65,7 @@ begin
   Reset;
 end;
 
-function TTileIteratorSpiralByRect.CheckPoint(APoint: TPoint): Boolean;
+function TTileIteratorSpiralByRect.CheckPoint(const APoint: TPoint): Boolean;
 begin
   Result:=
     (APoint.X >= FTilesRect.Left) and
@@ -71,7 +74,7 @@ begin
     (APoint.Y < FTilesRect.Bottom);
 end;
 
-constructor TTileIteratorSpiralByRect.Create(ARect: TRect);
+constructor TTileIteratorSpiralByRect.Create(const ARect: TRect);
 begin
   CreateWithCenter(ARect, Point((ARect.Left + ARect.Right) div 2, (ARect.Top + ARect.Bottom) div 2));
 end;
@@ -125,7 +128,10 @@ begin
   end;
 end;
 
-class function TTileIteratorSpiralByRect.GetMaxRing(ACenterPoint: TPoint; ARect: TRect): Integer;
+class function TTileIteratorSpiralByRect.GetMaxRing(
+  const ACenterPoint: TPoint;
+  const ARect: TRect
+): Integer;
 var
   VRad: Integer;
 begin

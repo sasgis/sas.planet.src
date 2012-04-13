@@ -40,7 +40,7 @@ type
     procedure OnConfigChange;
     procedure DrawOutLinedText(
       X, Y: Integer;
-      Text: string;
+      const Text: string;
       TextColor: TColor32;
       OutLineColor: TColor32;
       TargetBitmap: TBitmap32
@@ -52,14 +52,14 @@ type
       AOutLineColor: TColor32;
       ATextColor: TColor32;
       AScaleLegendWidth: Integer;
-      AHalfValue, AFullValue: string;
+      const AHalfValue, AFullValue: string;
       ATargetBitmap: TBitmap32
     );
     procedure DrawGorizontalScaleMarks(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
       ATextColor: TColor32;
-      AText: string;
+      const AText: string;
       AScalePos: Integer;
       ATargetBitmap: TBitmap32
     );
@@ -72,12 +72,12 @@ type
       AOutLineColor: TColor32;
       ATextColor: TColor32;
       AScaleLegendHeight: Integer;
-      AHalfValue, AFullValue: string;
+      const AHalfValue, AFullValue: string;
       ATargetBitmap: TBitmap32
     );
     procedure DrawVerticalScaleMarks(
       ALineColor, AOutLineColor, ATextColor: TColor32;
-      AText: string;
+      const AText: string;
       AScalePos: Integer;
       ATargetBitmap: TBitmap32
     );
@@ -186,8 +186,13 @@ begin
   OnConfigChange;
 end;
 
-procedure TLayerScaleLine.DrawOutlinedText(X, Y: Integer; Text: string;
-  TextColor: TColor32; OutLineColor: TColor32; TargetBitmap: TBitmap32);
+procedure TLayerScaleLine.DrawOutlinedText(
+  X, Y: Integer;
+  const Text: string;
+  TextColor: TColor32;
+  OutLineColor: TColor32;
+  TargetBitmap: TBitmap32
+);
 var
   I, J: Integer;
 begin
@@ -300,7 +305,7 @@ procedure TLayerScaleLine.DrawGorizontalScaleLegend(
   AOutLineColor: TColor32;
   ATextColor: TColor32;
   AScaleLegendWidth: Integer;
-  AHalfValue, AFullValue: string;
+  const AHalfValue, AFullValue: string;
   ATargetBitmap: TBitmap32
 );
 var
@@ -337,7 +342,7 @@ end;
 
 procedure TLayerScaleLine.DrawGorizontalScaleMarks(
   ALineColor, AOutLineColor, ATextColor: TColor32;
-  AText: string;
+  const AText: string;
   AScalePos: Integer;
   ATargetBitmap: TBitmap32
 );
@@ -535,7 +540,7 @@ procedure TLayerScaleLine.DrawVerticalScaleLegend(
   AOutLineColor: TColor32;
   ATextColor: TColor32;
   AScaleLegendHeight: Integer;
-  AHalfValue, AFullValue: string;
+  const AHalfValue, AFullValue: string;
   ATargetBitmap: TBitmap32
 );
 var
@@ -573,7 +578,7 @@ end;
 
 procedure TLayerScaleLine.DrawVerticalScaleMarks(
   ALineColor, AOutLineColor, ATextColor: TColor32;
-  AText: string;
+  const AText: string;
   AScalePos: Integer;
   ATargetBitmap: TBitmap32
 );

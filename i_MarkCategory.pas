@@ -28,7 +28,7 @@ type
     function GetName: string; stdcall;
     property Name: string read GetName;
 
-    function IsSame(ACategory: ICategory): Boolean;
+    function IsSame(const ACategory: ICategory): Boolean;
   end;
 
   IMarkCategory = interface(ICategory)

@@ -34,27 +34,30 @@ type
     FConfig: IMarkCategoryFactoryConfig;
     FDbCode: Integer;
   protected
-    function CreateNew(AName: string): IMarkCategory;
+    function CreateNew(const AName: string): IMarkCategory;
     function Modify(
-      ASource: IMarkCategory;
-      AName: string;
+      const ASource: IMarkCategory;
+      const AName: string;
       AVisible: Boolean;
       AAfterScale: integer;
       ABeforeScale: integer
     ): IMarkCategory;
-    function ModifyVisible(ASource: IMarkCategory; AVisible: Boolean): IMarkCategory;
+    function ModifyVisible(
+      const ASource: IMarkCategory;
+      AVisible: Boolean
+    ): IMarkCategory;
   protected
     function CreateCategory(
       AId: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
       AAfterScale: integer;
       ABeforeScale: integer
     ): IMarkCategory;
   public
     constructor Create(
-      ADbCode: Integer;
-      AConfig: IMarkCategoryFactoryConfig
+      const ADbCode: Integer;
+      const AConfig: IMarkCategoryFactoryConfig
     );
   end;
 
@@ -68,8 +71,8 @@ uses
 { TMarkCategoryFactory }
 
 constructor TMarkCategoryFactory.Create(
-  ADbCode: Integer;
-  AConfig: IMarkCategoryFactoryConfig
+  const ADbCode: Integer;
+  const AConfig: IMarkCategoryFactoryConfig
 );
 begin
   FDbCode := ADbCode;
@@ -78,7 +81,7 @@ end;
 
 function TMarkCategoryFactory.CreateCategory(
   AId: Integer;
-  AName: string;
+  const AName: string;
   AVisible: Boolean;
   AAfterScale, ABeforeScale: integer
 ): IMarkCategory;
@@ -93,7 +96,7 @@ begin
   );
 end;
 
-function TMarkCategoryFactory.CreateNew(AName: string): IMarkCategory;
+function TMarkCategoryFactory.CreateNew(const AName: string): IMarkCategory;
 var
   VName: string;
   VAfterScale, VBeforeScale: Integer;
@@ -121,8 +124,8 @@ begin
 end;
 
 function TMarkCategoryFactory.Modify(
-  ASource: IMarkCategory;
-  AName: string;
+  const ASource: IMarkCategory;
+  const AName: string;
   AVisible: Boolean;
   AAfterScale, ABeforeScale: integer
 ): IMarkCategory;
@@ -157,7 +160,7 @@ begin
 end;
 
 function TMarkCategoryFactory.ModifyVisible(
-  ASource: IMarkCategory;
+  const ASource: IMarkCategory;
   AVisible: Boolean
 ): IMarkCategory;
 var

@@ -40,7 +40,7 @@ type
     function GetId: integer; stdcall;
   protected
     function GetName: string; stdcall;
-    function IsSame(ACategory: ICategory): Boolean;
+    function IsSame(const ACategory: ICategory): Boolean;
   protected
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
@@ -50,7 +50,7 @@ type
     constructor Create(
       ADbCode: Integer;
       AId: Integer;
-      AName: string;
+      const AName: string;
       AVisible: Boolean;
       AAfterScale: integer;
       ABeforeScale: integer
@@ -66,8 +66,11 @@ uses
 
 constructor TMarkCategory.Create(
   ADbCode: Integer;
-  AId: Integer; AName: string; AVisible: Boolean;
-  AAfterScale, ABeforeScale: integer);
+  AId: Integer;
+  const AName: string;
+  AVisible: Boolean;
+  AAfterScale, ABeforeScale: integer
+);
 begin
   FDbCode := ADbCode;
   FId := AId;
@@ -112,7 +115,7 @@ begin
   Result := FId < 0;
 end;
 
-function TMarkCategory.IsSame(ACategory: ICategory): Boolean;
+function TMarkCategory.IsSame(const ACategory: ICategory): Boolean;
 var
   VCategoryInternal: IMarkCategorySMLInternal;
 begin

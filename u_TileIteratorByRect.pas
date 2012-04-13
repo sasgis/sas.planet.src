@@ -35,7 +35,7 @@ type
     function GetTilesTotal: Int64; override;
     function GetTilesRect: TRect; override;
   public
-    constructor Create(ARect: TRect); virtual;
+    constructor Create(const ARect: TRect); virtual;
   end;
 
 
@@ -45,7 +45,7 @@ type
     FEOI: Boolean;
     FCurrent: TPoint;
   public
-    constructor Create(ARect: TRect); override;
+    constructor Create(const ARect: TRect); override;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
   end;
@@ -54,7 +54,7 @@ implementation
 
 { TTileIteratorSpiralByRect }
 
-constructor TTileIteratorByRect.Create(ARect: TRect);
+constructor TTileIteratorByRect.Create(const ARect: TRect);
 begin
   inherited;
   Reset;
@@ -92,7 +92,7 @@ end;
 
 { TTileIteratorByRectBase }
 
-constructor TTileIteratorByRectBase.Create(ARect: TRect);
+constructor TTileIteratorByRectBase.Create(const ARect: TRect);
 begin
   FTilesRect := ARect;
 end;

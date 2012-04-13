@@ -58,9 +58,9 @@ type
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
   protected
-    function GetCategoryByName(AName: string): IMarkCategory;
-    function WriteCategory(ACategory: IMarkCategory): IMarkCategory;
-    procedure DeleteCategory(ACategory: IMarkCategory);
+    function GetCategoryByName(const AName: string): IMarkCategory;
+    function WriteCategory(const ACategory: IMarkCategory): IMarkCategory;
+    procedure DeleteCategory(const ACategory: IMarkCategory);
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
@@ -72,8 +72,8 @@ type
     function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
-      ABasePath: IPathConfig;
-      AFactoryConfig: IMarkCategoryFactoryConfig
+      const ABasePath: IPathConfig;
+      const AFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
   end;
@@ -88,8 +88,8 @@ uses
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
-  ABasePath: IPathConfig;
-  AFactoryConfig: IMarkCategoryFactoryConfig
+  const ABasePath: IPathConfig;
+  const AFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
   VFactory: TMarkCategoryFactory;
@@ -140,7 +140,7 @@ begin
   FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
-function TMarkCategoryDB.WriteCategory(ACategory: IMarkCategory): IMarkCategory;
+function TMarkCategoryDB.WriteCategory(const ACategory: IMarkCategory): IMarkCategory;
 var
   VId: Integer;
   VExists: Boolean;
@@ -206,7 +206,7 @@ begin
   FCdsKategory.Open;
 end;
 
-procedure TMarkCategoryDB.DeleteCategory(ACategory: IMarkCategory);
+procedure TMarkCategoryDB.DeleteCategory(const ACategory: IMarkCategory);
 var
   VId: Integer;
   VExist: Boolean;
@@ -252,7 +252,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetCategoryByName(AName: string): IMarkCategory;
+function TMarkCategoryDB.GetCategoryByName(const AName: string): IMarkCategory;
 var
   VEnum: IEnumID;
   i: Cardinal;
