@@ -38,16 +38,16 @@ type
     function GetMarker: IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
   public
-    constructor Create(AMarker: IBitmapMarker);
+    constructor Create(const AMarker: IBitmapMarker);
   end;
 
   TBitmapMarkerProviderStaticFromDataProvider = class(TBitmapMarkerProviderStatic)
   public
     constructor Create(
-      AResourceDataProvider: IConfigDataProvider;
-      AContentTypeManager: IContentTypeManager;
-      AResourceName: string;
-      AAnchorPoint: TDoublePoint
+      const AResourceDataProvider: IConfigDataProvider;
+      const AContentTypeManager: IContentTypeManager;
+      const AResourceName: string;
+      const AAnchorPoint: TDoublePoint
     );
   end;
 
@@ -102,7 +102,7 @@ const
 
 { TBitmapMarkerProviderStatic }
 
-constructor TBitmapMarkerProviderStatic.Create(AMarker: IBitmapMarker);
+constructor TBitmapMarkerProviderStatic.Create(const AMarker: IBitmapMarker);
 begin
   FMarker := AMarker;
 end;
@@ -198,10 +198,10 @@ end;
 { TBitmapMarkerProviderStaticFromDataProvider }
 
 constructor TBitmapMarkerProviderStaticFromDataProvider.Create(
-  AResourceDataProvider: IConfigDataProvider;
-  AContentTypeManager: IContentTypeManager;
-  AResourceName: string;
-  AAnchorPoint: TDoublePoint
+  const AResourceDataProvider: IConfigDataProvider;
+  const AContentTypeManager: IContentTypeManager;
+  const AResourceName: string;
+  const AAnchorPoint: TDoublePoint
 );
 var
   VFileName: string;

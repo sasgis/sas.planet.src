@@ -39,18 +39,18 @@ type
     procedure ConverterMatrixUpdateSynonyms;
     procedure ConverterMatrixUpdateFixedWithSynonyms;
     procedure ConverterMatrixUpdateBitmaps;
-    function FindConverterWithSynonyms(ASourceType, ATargetType: string): IContentConverter;
+    function FindConverterWithSynonyms(const ASourceType, ATargetType: string): IContentConverter;
     procedure UpdateConverterMatrix;
     procedure InitLists(
-      AFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AFactory: IVectorItmesFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   public
     constructor Create(
-      AFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AFactory: IVectorItmesFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -77,9 +77,9 @@ uses
 { TContentTypeManagerSimple }
 
 constructor TContentTypeManagerSimple.Create(
-  AFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AFactory: IVectorItmesFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
@@ -91,9 +91,9 @@ begin
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
-  AFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AFactory: IVectorItmesFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 var
   VContentType: IContentTypeInfoBasic;
@@ -253,8 +253,9 @@ begin
   end;
 end;
 
-function TContentTypeManagerSimple.FindConverterWithSynonyms(ASourceType,
-  ATargetType: string): IContentConverter;
+function TContentTypeManagerSimple.FindConverterWithSynonyms(
+  const ASourceType, ATargetType: string
+): IContentConverter;
 var
   VSourceEnumerator: TStringsEnumerator;
   VSoruceName: string;

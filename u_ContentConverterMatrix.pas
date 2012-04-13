@@ -33,8 +33,8 @@ type
   public
     constructor Create();
     destructor Destroy; override;
-    procedure Add(ASourceType, ATargetType: string; AConverter: IContentConverter);
-    function Get(ASourceType, ATargetType: string): IContentConverter;
+    procedure Add(const ASourceType, ATargetType: string; const AConverter: IContentConverter);
+    function Get(const ASourceType, ATargetType: string): IContentConverter;
   end;
 
 implementation
@@ -45,8 +45,10 @@ uses
 
 { TContentConverterMatrix }
 
-procedure TContentConverterMatrix.Add(ASourceType, ATargetType: string;
-  AConverter: IContentConverter);
+procedure TContentConverterMatrix.Add(
+  const ASourceType, ATargetType: string;
+  const AConverter: IContentConverter
+);
 var
   VIndex: Integer;
   VList: TContentConvertersListByKey;
@@ -82,8 +84,9 @@ begin
   inherited;
 end;
 
-function TContentConverterMatrix.Get(ASourceType,
-  ATargetType: string): IContentConverter;
+function TContentConverterMatrix.Get(
+  const ASourceType, ATargetType: string
+): IContentConverter;
 var
   VIndex: Integer;
   VList: TContentConvertersListByKey;

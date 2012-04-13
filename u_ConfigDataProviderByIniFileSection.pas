@@ -52,7 +52,11 @@ type
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
   public
-    constructor Create(AIniFile: TCustomIniFile; ASection: string; AParent: IConfigDataProvider);
+    constructor Create(
+      AIniFile: TCustomIniFile;
+      const ASection: string;
+      const AParent: IConfigDataProvider
+    );
     destructor Destroy; override;
   end;
 
@@ -66,8 +70,11 @@ uses
 
 { TConfigDataProviderByIniFileSection }
 
-constructor TConfigDataProviderByIniFileSection.Create(AIniFile: TCustomIniFile;
-  ASection: string; AParent: IConfigDataProvider);
+constructor TConfigDataProviderByIniFileSection.Create(
+  AIniFile: TCustomIniFile;
+  const ASection: string;
+  const AParent: IConfigDataProvider
+);
 begin
   FIniFile := AIniFile;
   FSection := ASection;

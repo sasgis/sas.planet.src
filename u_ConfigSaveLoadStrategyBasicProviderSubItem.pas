@@ -42,7 +42,7 @@ type
       AElement: IConfigDataElement
     );
   public
-    constructor Create(ASubItemName: string);
+    constructor Create(const ASubItemName: string);
   end;
 
 implementation
@@ -50,7 +50,8 @@ implementation
 { TConfigSaveLoadStrategyBasicProviderSubItem }
 
 constructor TConfigSaveLoadStrategyBasicProviderSubItem.Create(
-  ASubItemName: string);
+  const ASubItemName: string
+);
 begin
   FSubItemName := ASubItemName;
 end;

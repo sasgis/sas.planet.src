@@ -48,8 +48,8 @@ type
     function ReadValuesList: IStringListStatic;
   public
     constructor Create(
-      ASubItemName: string;
-      ASubItem: IConfigDataProvider
+      const ASubItemName: string;
+      const ASubItem: IConfigDataProvider
     );
     destructor Destroy; override;
   end;
@@ -61,8 +61,10 @@ uses
 
 { TConfigDataProviderVirtualWithSubItem }
 
-constructor TConfigDataProviderVirtualWithSubItem.Create(ASubItemName: string;
-  ASubItem: IConfigDataProvider);
+constructor TConfigDataProviderVirtualWithSubItem.Create(
+  const ASubItemName: string;
+  const ASubItem: IConfigDataProvider
+);
 begin
   FSubItemName := ASubItemName;
   FSubItem := ASubItem;

@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-function RomanToDig(astr:string):integer;
+function RomanToDig(const astr:string):integer;
 var Vfind :string;
 i, lastValue, curValue: integer;
 begin

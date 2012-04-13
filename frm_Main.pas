@@ -683,8 +683,8 @@ type
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw(Sender: TObject);
-    function ConvLatLon2Scale( Astr:string):Double;
-    function Deg2Strvalue( aDeg:Double):string;
+    function ConvLatLon2Scale(const Astr:string):Double;
+    function Deg2Strvalue(const aDeg:Double):string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -962,7 +962,7 @@ begin
   FSensorViewList := nil;
 end;
         
-function TfrmMain.ConvLatLon2Scale( Astr:string):Double;
+function TfrmMain.ConvLatLon2Scale(const Astr:string):Double;
 var rest: boolean;
   res: Double;
   i,delitel:integer;
@@ -1017,7 +1017,7 @@ begin
   result := res;
 end;
 
-function TfrmMain.deg2strvalue( aDeg:Double):string;
+function TfrmMain.deg2strvalue(const aDeg:Double):string;
 var
   Vmin :integer;
   VDegScale : Double;

@@ -31,16 +31,16 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      ATargetFile: string;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const ATargetFile: string;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
       AMapType: TMapType;
-      ATileNameGen: ITileFileNameGenerator
+      const ATileNameGen: ITileFileNameGenerator
     );
     destructor Destroy; override;
   end;
@@ -57,16 +57,17 @@ uses
   u_TileStorageAbstract;
 
 constructor TThreadExportToTar.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  ATargetFile: string;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const ATargetFile: string;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
   AMapType: TMapType;
-  ATileNameGen: ITileFileNameGenerator);
+  const ATileNameGen: ITileFileNameGenerator
+);
 begin
   inherited Create(
     ACancelNotifier,

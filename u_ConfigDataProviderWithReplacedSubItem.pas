@@ -49,9 +49,9 @@ type
     function ReadValuesList: IStringListStatic;
   public
     constructor Create(
-      ASource: IConfigDataProvider;
-      ASubItemName: string;
-      ASubItem: IConfigDataProvider
+      const ASource: IConfigDataProvider;
+      const ASubItemName: string;
+      const ASubItem: IConfigDataProvider
     );
     destructor Destroy; override;
   end;
@@ -64,9 +64,9 @@ uses
 { TConfigDataProviderWithReplacedSubItem }
 
 constructor TConfigDataProviderWithReplacedSubItem.Create(
-  ASource: IConfigDataProvider;
-  ASubItemName: string;
-  ASubItem: IConfigDataProvider
+  const ASource: IConfigDataProvider;
+  const ASubItemName: string;
+  const ASubItem: IConfigDataProvider
 );
 begin
   FSource := ASource;

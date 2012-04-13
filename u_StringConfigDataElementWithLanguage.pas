@@ -49,15 +49,15 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetValue: string;
-    procedure SetValue(AValue: string);
+    procedure SetValue(const AValue: string);
 
     function GetDefaultValue: string;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ADefValuesByLanguage: IStringByLanguage;
+      const ALanguageManager: ILanguageManager;
+      const ADefValuesByLanguage: IStringByLanguage;
       AUseSotre: Boolean;
-      AStoreIdentifier: string;
+      const AStoreIdentifier: string;
       AIsStoreDefault: Boolean
     );
     destructor Destroy; override;
@@ -72,10 +72,10 @@ uses
 { TStringConfigDataElementWithLanguage }
 
 constructor TStringConfigDataElementWithLanguage.Create(
-  ALanguageManager: ILanguageManager;
-  ADefValuesByLanguage: IStringByLanguage;
+  const ALanguageManager: ILanguageManager;
+  const ADefValuesByLanguage: IStringByLanguage;
   AUseSotre: Boolean;
-  AStoreIdentifier: string;
+  const AStoreIdentifier: string;
   AIsStoreDefault: Boolean
 );
 begin
@@ -166,7 +166,7 @@ begin
   end;
 end;
 
-procedure TStringConfigDataElementWithLanguage.SetValue(AValue: string);
+procedure TStringConfigDataElementWithLanguage.SetValue(const AValue: string);
 begin
   LockWrite;
   try
