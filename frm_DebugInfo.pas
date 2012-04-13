@@ -82,6 +82,8 @@ function TfrmDebugInfo.AddRowFromCounter(AName: string; ARow: Integer;
 var
   VCount: Cardinal;
   VTime: TDateTime;
+  VMax: TDateTime;
+  VMin: TDateTime;
   VId: Integer;
   VPrevData: IInternalPerformanceCounterStaticData;
   VAvgTime: Extended;
@@ -89,6 +91,8 @@ begin
   VId := ACounter.Id;
   VCount := ACounter.Counter;
   VTime := ACounter.TotalTime;
+  VMax := ACounter.MaxTime;
+  VMin := ACounter.MinTime;
 
   VPrevData := nil;
   if FPrevStateList <> nil then begin
@@ -109,12 +113,16 @@ begin
     if VCount > 0 then begin
       sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
       VAvgTime := VTime/VCount*24*60*60;
-      sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
-      sgrdDebugInfo.Cells[3, ARow] := FormatDateTime('nn:ss.zzz', VTime);
+      sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VMax*24*60*60, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[3, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[4, ARow] := FloatToStrF(VMin*24*60*60, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[5, ARow] := FormatDateTime('nn:ss.zzz', VTime);
     end else begin
       sgrdDebugInfo.Cells[1, ARow] := '';
       sgrdDebugInfo.Cells[2, ARow] := '';
       sgrdDebugInfo.Cells[3, ARow] := '';
+      sgrdDebugInfo.Cells[4, ARow] := '';
+      sgrdDebugInfo.Cells[5, ARow] := '';
     end;
     Result := True;
   end;
@@ -210,7 +218,7 @@ end;
 
 procedure TfrmDebugInfo.FormCreate(Sender: TObject);
 begin
-  sgrdDebugInfo.ColWidths[0] := 520;
+  sgrdDebugInfo.ColWidths[0] := 360;
   sgrdDebugInfo.RowCount := 2;
   sgrdDebugInfo.FixedRows := 1;
 end;
@@ -257,8 +265,10 @@ procedure TfrmDebugInfo.PrepareGridHeader;
 begin
   sgrdDebugInfo.Cells[0, 0] := 'Class';
   sgrdDebugInfo.Cells[1, 0] := 'Count';
-  sgrdDebugInfo.Cells[2, 0] := 'Time avg, s';
-  sgrdDebugInfo.Cells[3, 0] := 'Time total';
+  sgrdDebugInfo.Cells[2, 0] := 'Time max, s';
+  sgrdDebugInfo.Cells[3, 0] := 'Time avg, s';
+  sgrdDebugInfo.Cells[4, 0] := 'Time min, s';
+  sgrdDebugInfo.Cells[5, 0] := 'Time total';
 end;
 
 procedure TfrmDebugInfo.RefreshData;

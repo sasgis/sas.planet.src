@@ -23,7 +23,7 @@ object frmDebugInfo: TfrmDebugInfo
     Width = 792
     Height = 537
     Align = alClient
-    ColCount = 4
+    ColCount = 6
     DefaultColWidth = 80
     DefaultRowHeight = 20
     FixedColor = clWindow
@@ -32,6 +32,8 @@ object frmDebugInfo: TfrmDebugInfo
     TabOrder = 0
     ColWidths = (
       338
+      80
+      80
       80
       80
       80)
@@ -44,8 +46,6 @@ object frmDebugInfo: TfrmDebugInfo
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 480
-    ExplicitWidth = 400
     object btnRefresh: TButton
       AlignWithMargins = True
       Left = 715
@@ -60,7 +60,6 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Refresh'
       TabOrder = 0
       OnClick = btnRefreshClick
-      ExplicitLeft = 323
     end
     object btnReset: TButton
       AlignWithMargins = True
@@ -91,7 +90,6 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Save to file ...'
       TabOrder = 2
       OnClick = btnSaveToFileClick
-      ExplicitLeft = 216
     end
     object btnCopyToClipboard: TButton
       AlignWithMargins = True
@@ -107,7 +105,6 @@ object frmDebugInfo: TfrmDebugInfo
       Caption = 'Copy to clipboard'
       TabOrder = 3
       OnClick = btnCopyToClipboardClick
-      ExplicitLeft = 81
     end
     object chkHideEmtyRows: TCheckBox
       Left = 88

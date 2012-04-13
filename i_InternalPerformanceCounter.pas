@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2011, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -27,6 +27,8 @@ uses
   i_IDList;
 
 type
+  TInternalPerformanceCounterContext = Int64;
+
   IInternalPerformanceCounterStaticData = interface
     ['{64BD3E69-4EAB-41CE-8A87-8324FE9E81D2}']
     function GetId: Integer;
@@ -40,9 +42,14 @@ type
 
     function GetTotalTime: TDateTime;
     property TotalTime: TDateTime read GetTotalTime;
+
+    function GetMaxTime: TDateTime;
+    property MaxTime: TDateTime read GetMaxTime;
+
+    function GetMinTime: TDateTime;
+    property MinTime: TDateTime read GetMinTime;
   end;
 
-  TInternalPerformanceCounterContext = Int64;
   IInternalPerformanceCounter = interface
     ['{2D5EE758-A5EA-467D-A679-C3CD1B116973}']
     function GetId: Integer;
@@ -59,6 +66,12 @@ type
 
     function GetTotalTime: TDateTime;
     property TotalTime: TDateTime read GetTotalTime;
+
+    function GetMaxTime: TDateTime;
+    property MaxTime: TDateTime read GetMaxTime;
+
+    function GetMinTime: TDateTime;
+    property MinTime: TDateTime read GetMinTime;
 
     function GetStaticData: IInternalPerformanceCounterStaticData;
   end;
