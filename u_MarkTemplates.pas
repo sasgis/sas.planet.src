@@ -32,7 +32,7 @@ uses
   i_MarkNameGenerator;
 
 type
-  FMarkTemplateBase = class(TInterfacedObject, IMarkTemplate, IMarkTemplateSMLInternal)
+  TMarkTemplateBase = class(TInterfacedObject, IMarkTemplate, IMarkTemplateSMLInternal)
   private
     FCategoryDb: IMarkCategoryDBSmlInternal;
     FNameGenerator: IMarkNameGenerator;
@@ -50,7 +50,7 @@ type
     );
   end;
 
-  TMarkTemplatePoint = class(FMarkTemplateBase, IMarkTemplatePoint)
+  TMarkTemplatePoint = class(TMarkTemplateBase, IMarkTemplatePoint)
   private
     FTextColor: TColor32;
     FTextBgColor: TColor32;
@@ -77,7 +77,7 @@ type
     );
   end;
 
-  TMarkTemplateLine = class(FMarkTemplateBase, IMarkTemplateLine)
+  TMarkTemplateLine = class(TMarkTemplateBase, IMarkTemplateLine)
   private
     FLineColor: TColor32;
     FLineWidth: Integer;
@@ -95,7 +95,7 @@ type
     );
   end;
 
-  TMarkTemplatePoly = class(FMarkTemplateBase, IMarkTemplatePoly)
+  TMarkTemplatePoly = class(TMarkTemplateBase, IMarkTemplatePoly)
   private
     FBorderColor: TColor32;
     FFillColor: TColor32;
@@ -123,7 +123,7 @@ uses
 
 { FMarkTemplateBase }
 
-constructor FMarkTemplateBase.Create(
+constructor TMarkTemplateBase.Create(
   ACategoryDb: IMarkCategoryDBSmlInternal;
   ANameGenerator: IMarkNameGenerator;
   ACategoryId: Integer
@@ -135,22 +135,22 @@ begin
   FCategoryId := ACategoryId;
 end;
 
-function FMarkTemplateBase.GetCategory: ICategory;
+function TMarkTemplateBase.GetCategory: ICategory;
 begin
   Result := FCategoryDb.GetCategoryByID(FCategoryId);
 end;
 
-function FMarkTemplateBase.GetCategoryId: Integer;
+function TMarkTemplateBase.GetCategoryId: Integer;
 begin
   Result := FCategoryId;
 end;
 
-function FMarkTemplateBase.GetNewName: string;
+function TMarkTemplateBase.GetNewName: string;
 begin
   Result := FNameGenerator.GetNewName;
 end;
 
-function FMarkTemplateBase.IsSameInternal(
+function TMarkTemplateBase.IsSameInternal(
   ATemplate: IMarkTemplate): Boolean;
 var
   VTemplateInternal: IMarkTemplateSMLInternal;
