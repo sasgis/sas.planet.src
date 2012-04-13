@@ -481,6 +481,7 @@ var
   VPolygon: ILonLatPolygon;
   VPath: ILonLatPath;
 begin
+  Result := nil;
   if APointCount > 0 then begin
     if APointCount = 1 then begin
       Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, nil, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)

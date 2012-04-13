@@ -158,6 +158,7 @@ end;
 
 function TMarkPictureListSimple.GetDefaultPicture: IMarkPicture;
 begin
+  Result := nil;
   LockRead;
   try
     if GetCount > 0 then begin

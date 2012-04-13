@@ -125,6 +125,7 @@ function TDownloadCheckerStuped.BeforeRequest(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
 begin
+  Result := nil;
   if FAntiBan <> nil then begin
     FAntiBan.PreDownload(ARequest);
   end;
@@ -141,6 +142,7 @@ function TDownloadCheckerStuped.AfterReciveData(
 var
   VConfig: ITileDownloaderConfigStatic;
 begin
+  Result := nil;
   VConfig := FTileDownloaderConfig.GetStatic;
   if VConfig.IgnoreMIMEType then begin
     AContentType := VConfig.DefaultMIMEType;

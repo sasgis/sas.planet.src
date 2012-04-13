@@ -225,6 +225,7 @@ function TExportMarks2KML.AddFolder(
     i: Integer;
     tmpNode: IXMLNode;
   begin
+    Result := nil;
     if AParent.HasChildNodes then begin
       for i:=0 to AParent.ChildNodes.Count-1 do begin
         tmpNode :=AParent.ChildNodes.Get(i);

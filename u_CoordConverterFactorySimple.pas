@@ -91,6 +91,7 @@ function TCoordConverterFactorySimple.GetCoordConverterByCode(
   ATileSplitCode: Integer
 ): ICoordConverter;
 begin
+  Result := nil;
   if ATileSplitCode = CTileSplitQuadrate256x256 then begin
     case AProjectionEPSG of
       CGoogleProjectionEPSG: begin
@@ -122,6 +123,7 @@ var
   VEPSG: Integer;
   VTileSplitCode: Integer;
 begin
+  Result := nil;
   VTileSplitCode := CTileSplitQuadrate256x256;
   VEPSG := 0;
   VProjection := 1;

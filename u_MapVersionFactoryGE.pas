@@ -142,6 +142,7 @@ end;
 function TMapVersionFactoryGE.CreateByMapVersion(
   AValue: IMapVersionInfo): IMapVersionInfo;
 begin
+  Result := nil;
   if not Supports(AValue, IMapVersionInfoGE, Result) then begin
     if AValue <> nil then begin
       Result := CreateByStoreString(AValue.StoreString);
