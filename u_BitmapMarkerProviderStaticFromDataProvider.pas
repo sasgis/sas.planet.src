@@ -54,21 +54,31 @@ type
   TBitmapMarkerWithDirectionProviderStaticFromDataProvider = class(TInterfacedObject, IBitmapMarkerProvider, IBitmapMarkerWithDirectionProvider)
   private
     FMarker: IBitmapMarkerWithDirection;
-    function ModifyMarkerWithRotation(ASourceMarker: IBitmapMarkerWithDirection; AAngle: Double): IBitmapMarkerWithDirection;
-    function ModifyMarkerWithResize(ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer): IBitmapMarkerWithDirection;
-    function ModifyMarkerWithRotationAndResize(ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer; AAngle: Double): IBitmapMarkerWithDirection;
+    function ModifyMarkerWithRotation(
+      const ASourceMarker: IBitmapMarkerWithDirection;
+      const AAngle: Double
+    ): IBitmapMarkerWithDirection;
+    function ModifyMarkerWithResize(
+      const ASourceMarker: IBitmapMarkerWithDirection;
+      ASize: Integer
+    ): IBitmapMarkerWithDirection;
+    function ModifyMarkerWithRotationAndResize(
+      const ASourceMarker: IBitmapMarkerWithDirection;
+      ASize: Integer;
+      const AAngle: Double
+    ): IBitmapMarkerWithDirection;
   protected
     function GetMarker: IBitmapMarker;
-    function GetMarkerWithRotation(AAngle: Double): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotation(const AAngle: Double): IBitmapMarkerWithDirection;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-    function GetMarkerWithRotationBySize(AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotationBySize(const AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
   public
     constructor Create(
-      AResourceDataProvider: IConfigDataProvider;
-      AContentTypeManager: IContentTypeManager;
-      AResourceName: string;
-      AAnchorPoint: TDoublePoint;
-      ADefaultDirection: Double
+      const AResourceDataProvider: IConfigDataProvider;
+      const AContentTypeManager: IContentTypeManager;
+      const AResourceName: string;
+      const AAnchorPoint: TDoublePoint;
+      const ADefaultDirection: Double
     );
   end;
 
@@ -228,9 +238,12 @@ end;
 { TBitmapMarkerWithDirectionProviderStaticFromDataProvider }
 
 constructor TBitmapMarkerWithDirectionProviderStaticFromDataProvider.Create(
-  AResourceDataProvider: IConfigDataProvider;
-  AContentTypeManager: IContentTypeManager; AResourceName: string;
-  AAnchorPoint: TDoublePoint; ADefaultDirection: Double);
+  const AResourceDataProvider: IConfigDataProvider;
+  const AContentTypeManager: IContentTypeManager;
+  const AResourceName: string;
+  const AAnchorPoint: TDoublePoint;
+  const ADefaultDirection: Double
+);
 var
   VFileName: string;
   VFileExt: string;
@@ -283,7 +296,8 @@ begin
 end;
 
 function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarkerWithRotation(
-  AAngle: Double): IBitmapMarkerWithDirection;
+  const AAngle: Double
+): IBitmapMarkerWithDirection;
 var
   VMarker: IBitmapMarkerWithDirection;
 begin
@@ -295,7 +309,9 @@ begin
 end;
 
 function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.GetMarkerWithRotationBySize(
-  AAngle: Double; ASize: Integer): IBitmapMarkerWithDirection;
+  const AAngle: Double;
+  ASize: Integer
+): IBitmapMarkerWithDirection;
 var
   VMarker: IBitmapMarkerWithDirection;
 begin
@@ -315,8 +331,9 @@ begin
 end;
 
 function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.ModifyMarkerWithResize(
-  ASourceMarker: IBitmapMarkerWithDirection;
-  ASize: Integer): IBitmapMarkerWithDirection;
+  const ASourceMarker: IBitmapMarkerWithDirection;
+  ASize: Integer
+): IBitmapMarkerWithDirection;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;
@@ -388,8 +405,9 @@ begin
 end;
 
 function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.ModifyMarkerWithRotation(
-  ASourceMarker: IBitmapMarkerWithDirection;
-  AAngle: Double): IBitmapMarkerWithDirection;
+  const ASourceMarker: IBitmapMarkerWithDirection;
+  const AAngle: Double
+): IBitmapMarkerWithDirection;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;
@@ -456,8 +474,10 @@ begin
 end;
 
 function TBitmapMarkerWithDirectionProviderStaticFromDataProvider.ModifyMarkerWithRotationAndResize(
-  ASourceMarker: IBitmapMarkerWithDirection; ASize: Integer;
-  AAngle: Double): IBitmapMarkerWithDirection;
+  const ASourceMarker: IBitmapMarkerWithDirection;
+  ASize: Integer;
+  const AAngle: Double
+): IBitmapMarkerWithDirection;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;

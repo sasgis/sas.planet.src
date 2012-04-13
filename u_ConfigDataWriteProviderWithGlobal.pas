@@ -47,9 +47,9 @@ type
     procedure WriteTime(const AIdent: string; const AValue: TDateTime);
   public
     constructor Create(
-      AProviderMain: IConfigDataWriteProvider;
-      AProviderGlobalPrefix: string;
-      AProviderGlobal: IConfigDataProvider
+      const AProviderMain: IConfigDataWriteProvider;
+      const AProviderGlobalPrefix: string;
+      const AProviderGlobal: IConfigDataProvider
     );
   end;
 
@@ -61,9 +61,9 @@ uses
 { TConfigDataWriteProviderWithGlobal }
 
 constructor TConfigDataWriteProviderWithGlobal.Create(
-  AProviderMain: IConfigDataWriteProvider;
-  AProviderGlobalPrefix: string;
-  AProviderGlobal: IConfigDataProvider
+  const AProviderMain: IConfigDataWriteProvider;
+  const AProviderGlobalPrefix: string;
+  const AProviderGlobal: IConfigDataProvider
 );
 begin
   inherited Create(AProviderMain, AProviderGlobalPrefix, AProviderGlobal);

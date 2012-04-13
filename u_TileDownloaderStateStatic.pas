@@ -16,7 +16,7 @@ type
   public
     constructor Create(
       AEnabled: Boolean;
-      AReason: string
+      const AReason: string
     );
   end;
 
@@ -26,7 +26,7 @@ implementation
 
 constructor TTileDownloaderStateStatic.Create(
   AEnabled: Boolean;
-  AReason: string
+  const AReason: string
 );
 begin
   FEnabled := AEnabled;

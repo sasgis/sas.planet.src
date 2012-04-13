@@ -54,9 +54,9 @@ type
     function ReadValuesList: IStringListStatic;
   public
     constructor Create(
-      AProviderMain: IConfigDataProvider;
-      AProviderGlobalPrefix: string;
-      AProviderGlobal: IConfigDataProvider
+      const AProviderMain: IConfigDataProvider;
+      const AProviderGlobalPrefix: string;
+      const AProviderGlobal: IConfigDataProvider
     );
     destructor Destroy; override;
   public
@@ -72,9 +72,9 @@ uses
 { TConfigDataProviderWithGlobal }
 
 constructor TConfigDataProviderWithGlobal.Create(
-  AProviderMain: IConfigDataProvider;
-  AProviderGlobalPrefix: string;
-  AProviderGlobal: IConfigDataProvider
+  const AProviderMain: IConfigDataProvider;
+  const AProviderGlobalPrefix: string;
+  const AProviderGlobal: IConfigDataProvider
 );
 begin
   FProviderMain := AProviderMain;

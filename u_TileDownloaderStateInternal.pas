@@ -16,7 +16,7 @@ type
     function GetDisableReason: string;
     property DisableReason: string read GetDisableReason;
 
-    procedure Disable(AReason: string);
+    procedure Disable(const AReason: string);
     procedure Enable;
 
     function GetStatic: ITileDownloaderStateStatic;
@@ -33,7 +33,7 @@ type
     function GetEnabled: Boolean;
     function GetDisableReason: string;
 
-    procedure Disable(AReason: string);
+    procedure Disable(const AReason: string);
     procedure Enable;
 
     function GetStatic: ITileDownloaderStateStatic;
@@ -67,7 +67,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TTileDownloaderStateInternal.Disable(AReason: string);
+procedure TTileDownloaderStateInternal.Disable(const AReason: string);
 begin
   LockWrite;
   try
