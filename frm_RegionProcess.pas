@@ -95,54 +95,54 @@ type
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TProviderTilesDownload;
     FProviderMapCombine: TExportProviderAbstract;
-    procedure LoadRegion(APolyLL: ILonLatPolygon);
-    procedure DelRegion(APolyLL: ILonLatPolygon);
-    procedure genbacksatREG(APolyLL: ILonLatPolygon);
-    procedure scleitRECT(APolyLL: ILonLatPolygon);
-    procedure savefilesREG(APolyLL: ILonLatPolygon);
-    procedure ExportREG(APolyLL: ILonLatPolygon);
+    procedure LoadRegion(const APolyLL: ILonLatPolygon);
+    procedure DelRegion(const APolyLL: ILonLatPolygon);
+    procedure genbacksatREG(const APolyLL: ILonLatPolygon);
+    procedure scleitRECT(const APolyLL: ILonLatPolygon);
+    procedure savefilesREG(const APolyLL: ILonLatPolygon);
+    procedure ExportREG(const APolyLL: ILonLatPolygon);
     procedure InitExportsList(
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ATileNameGenerator: ITileFileNameGeneratorsList
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ATileNameGenerator: ITileFileNameGeneratorsList
     );
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      ALastSelectionInfo: ILastSelectionInfo;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ATileNameGenerator: ITileFileNameGeneratorsList;
-      AViewConfig: IGlobalViewMainConfig;
-      AImageResamplerConfig: IImageResamplerConfig;
-      AMarksShowConfig: IUsedMarksConfig;
-      AMarksDrawConfig: IMarksDrawConfig;
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const ALastSelectionInfo: ILastSelectionInfo;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ATileNameGenerator: ITileFileNameGeneratorsList;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const AMarksShowConfig: IUsedMarksConfig;
+      const AMarksDrawConfig: IMarksDrawConfig;
       AMarksDB: TMarksSystem;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AMapCalibrationList: IMapCalibrationList;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloadInfo: IDownloadInfoSimple;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AMapCalibrationList: IMapCalibrationList;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloadInfo: IDownloadInfoSimple;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
-    procedure LoadSelFromFile(FileName:string);
-    procedure StartSlsFromFile(AFileName:string);
-    procedure Show_(Azoom:byte; APolygon: ILonLatPolygon);
+    procedure LoadSelFromFile(const FileName:string);
+    procedure StartSlsFromFile(const AFileName:string);
+    procedure Show_(Azoom:byte; const APolygon: ILonLatPolygon);
     procedure RefreshTranslation; override;
   end;
 
@@ -169,28 +169,28 @@ uses
 {$R *.dfm}
 
 constructor TfrmRegionProcess.Create(
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  ALastSelectionInfo: ILastSelectionInfo;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ATileNameGenerator: ITileFileNameGeneratorsList;
-  AViewConfig: IGlobalViewMainConfig;
-  AImageResamplerConfig: IImageResamplerConfig;
-  AMarksShowConfig: IUsedMarksConfig;
-  AMarksDrawConfig: IMarksDrawConfig;
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const ALastSelectionInfo: ILastSelectionInfo;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ATileNameGenerator: ITileFileNameGeneratorsList;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const AMarksShowConfig: IUsedMarksConfig;
+  const AMarksDrawConfig: IMarksDrawConfig;
   AMarksDB: TMarksSystem;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AMapCalibrationList: IMapCalibrationList;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloadInfo: IDownloadInfoSimple;
-  AValueToStringConverterConfig: IValueToStringConverterConfig
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AMapCalibrationList: IMapCalibrationList;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloadInfo: IDownloadInfoSimple;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   TP_Ignore(Self, 'CBFormat.Items');
@@ -301,7 +301,7 @@ begin
   inherited;
 end;
 
-procedure TfrmRegionProcess.LoadSelFromFile(FileName:string);
+procedure TfrmRegionProcess.LoadSelFromFile(const FileName: string);
 var
   i:integer;
   VIni:TMemIniFile;
@@ -354,12 +354,12 @@ begin
   FProviderMapCombine.RefreshTranslation;
 end;
 
-procedure TfrmRegionProcess.DelRegion(APolyLL: ILonLatPolygon);
+procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
 begin
   FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.ExportREG(APolyLL: ILonLatPolygon);
+procedure TfrmRegionProcess.ExportREG(const APolyLL: ILonLatPolygon);
 var
   VExportProvider: TExportProviderAbstract;
 begin
@@ -370,33 +370,33 @@ begin
 end;
 
 
-procedure TfrmRegionProcess.savefilesREG(APolyLL: ILonLatPolygon);
+procedure TfrmRegionProcess.savefilesREG(const APolyLL: ILonLatPolygon);
 begin
   FProviderTilesCopy.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.LoadRegion(APolyLL: ILonLatPolygon);
+procedure TfrmRegionProcess.LoadRegion(const APolyLL: ILonLatPolygon);
 begin
   FProviderTilesDownload.StartProcess(APolyLL);
 end;
 
-procedure TfrmRegionProcess.genbacksatREG(APolyLL: ILonLatPolygon);
+procedure TfrmRegionProcess.genbacksatREG(const APolyLL: ILonLatPolygon);
 begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.InitExportsList(
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ATileNameGenerator: ITileFileNameGeneratorsList
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 var
   VExportProvider: TExportProviderAbstract;

@@ -75,6 +75,7 @@ var
   VCategoryText: string;
   VCategory: IMarkCategory;
 begin
+  Result := nil;
   VCategoryText := CBKateg.Text;
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin

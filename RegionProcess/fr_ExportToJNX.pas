@@ -56,11 +56,11 @@ type
   public
     constructor CreateForFileType(
       AOwner : TComponent;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AFileFilters: string;
-      AFileExtDefault: string
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AFileFilters: string;
+      const AFileExtDefault: string
     );
     procedure Init;
     procedure RefreshTranslation; override;
@@ -138,11 +138,11 @@ end;
 
 constructor TfrExportToJNX.CreateForFileType(
   AOwner : TComponent;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AFileFilters: string;
-  AFileExtDefault: string
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AFileFilters: string;
+  const AFileExtDefault: string
 );
 begin
   inherited Create(AOwner);
