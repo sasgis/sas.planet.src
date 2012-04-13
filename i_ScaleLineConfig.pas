@@ -52,7 +52,7 @@ type
     property OutLineColor: TColor32 read GetOutLineColor write SetOutLineColor;
 
     function GetFontName: string;
-    procedure SetFontName(AValue: string);
+    procedure SetFontName(const AValue: string);
     property FontName: string read GetFontName write SetFontName;
 
     function GetFontSize: Integer;

@@ -63,17 +63,20 @@ type
     procedure SetIgnoreMIMEType(AValue: Boolean);
 
     function GetExpectedMIMETypes: string;
-    procedure SetExpectedMIMETypes(AValue: string);
+    procedure SetExpectedMIMETypes(const AValue: string);
 
     function GetDefaultMIMEType: string;
-    procedure SetDefaultMIMEType(AValue: string);
+    procedure SetDefaultMIMEType(const AValue: string);
 
     function GetIteratorSubRectSize: TPoint;
-    procedure SetIteratorSubRectSize(AValue: TPoint);
+    procedure SetIteratorSubRectSize(const AValue: TPoint);
 
     function GetStatic: ITileDownloaderConfigStatic;
   public
-    constructor Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
+    constructor Create(
+      const AIntetConfig: IInetConfig;
+      const ADefault: ITileDownloaderConfigStatic
+    );
   end;
 
 implementation
@@ -83,7 +86,10 @@ uses
 
 { TTileDownloaderConfig }
 
-constructor TTileDownloaderConfig.Create(AIntetConfig: IInetConfig; ADefault: ITileDownloaderConfigStatic);
+constructor TTileDownloaderConfig.Create(
+  const AIntetConfig: IInetConfig;
+  const ADefault: ITileDownloaderConfigStatic
+);
 begin
   inherited Create;
   FDefConfig := ADefault;
@@ -227,7 +233,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderConfig.SetIteratorSubRectSize(AValue: TPoint);
+procedure TTileDownloaderConfig.SetIteratorSubRectSize(const AValue: TPoint);
 begin
   LockWrite;
   try
@@ -241,7 +247,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderConfig.SetDefaultMIMEType(AValue: string);
+procedure TTileDownloaderConfig.SetDefaultMIMEType(const AValue: string);
 begin
   LockWrite;
   try
@@ -273,7 +279,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderConfig.SetExpectedMIMETypes(AValue: string);
+procedure TTileDownloaderConfig.SetExpectedMIMETypes(const AValue: string);
 begin
   LockWrite;
   try

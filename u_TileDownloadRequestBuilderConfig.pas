@@ -58,10 +58,10 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function  GetUrlBase: string;
-    procedure SetUrlBase(AValue: string);
+    procedure SetUrlBase(const AValue: string);
 
     function  GetRequestHeader: string;
-    procedure SetRequestHeader(AValue: string);
+    procedure SetRequestHeader(const AValue: string);
 
     function GetGeoCoder: ICoordConverter;
   public
@@ -75,7 +75,9 @@ uses
 
 { TTileDownloadRequestBuilderConfig }
 
-constructor TTileDownloadRequestBuilderConfig.Create(const ADefConfig: ITileDownloadRequestBuilderConfigStatic);
+constructor TTileDownloadRequestBuilderConfig.Create(
+  const ADefConfig: ITileDownloadRequestBuilderConfigStatic
+);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
@@ -151,7 +153,7 @@ begin
   end;
 end;
 
-procedure TTileDownloadRequestBuilderConfig.SetRequestHeader(AValue: string);
+procedure TTileDownloadRequestBuilderConfig.SetRequestHeader(const AValue: string);
 begin
   LockWrite;
   try
@@ -164,7 +166,7 @@ begin
   end;
 end;
 
-procedure TTileDownloadRequestBuilderConfig.SetUrlBase(AValue: string);
+procedure TTileDownloadRequestBuilderConfig.SetUrlBase(const AValue: string);
 begin
   LockWrite;
   try

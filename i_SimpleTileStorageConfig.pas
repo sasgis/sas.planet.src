@@ -67,7 +67,7 @@ type
     property CacheTypeCode: Integer read GetCacheTypeCode write SetCacheTypeCode;
 
     function GetNameInCache: string;
-    procedure SetNameInCache(AValue: string);
+    procedure SetNameInCache(const AValue: string);
     property NameInCache: string read GetNameInCache write SetNameInCache;
 
     function GetTileFileExt: string;

@@ -67,7 +67,7 @@ type
     procedure SetTextColor(AValue: TColor32);
 
     function GetFontName: string;
-    procedure SetFontName(AValue: string);
+    procedure SetFontName(const AValue: string);
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
@@ -320,7 +320,7 @@ begin
   end;
 end;
 
-procedure TStatBarConfig.SetFontName(AValue: string);
+procedure TStatBarConfig.SetFontName(const AValue: string);
 begin
   LockWrite;
   try

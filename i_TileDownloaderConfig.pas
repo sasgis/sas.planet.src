@@ -77,15 +77,15 @@ type
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType write SetIgnoreMIMEType;
 
     function GetExpectedMIMETypes: string;
-    procedure SetExpectedMIMETypes(AValue: string);
+    procedure SetExpectedMIMETypes(const AValue: string);
     property ExpectedMIMETypes: string read GetExpectedMIMETypes write SetExpectedMIMETypes;
 
     function GetDefaultMIMEType: string;
-    procedure SetDefaultMIMEType(AValue: string);
+    procedure SetDefaultMIMEType(const AValue: string);
     property DefaultMIMEType: string read GetDefaultMIMEType write SetDefaultMIMEType;
 
     function GetIteratorSubRectSize: TPoint;
-    procedure SetIteratorSubRectSize(AValue: TPoint);
+    procedure SetIteratorSubRectSize(const AValue: TPoint);
     property IteratorSubRectSize: TPoint read GetIteratorSubRectSize write SetIteratorSubRectSize;
 
     function GetStatic: ITileDownloaderConfigStatic;

@@ -43,11 +43,11 @@ type
   ITileDownloadRequestBuilderConfig = interface(IConfigDataElement)
     ['{FA554C29-EDAF-4E3C-9B59-BC881502F33A}']
     function  GetUrlBase: string;
-    procedure SetUrlBase(AValue: string);
+    procedure SetUrlBase(const AValue: string);
     property UrlBase: string read GetUrlBase write SetUrlBase;
 
     function  GetRequestHeader: string;
-    procedure SetRequestHeader(AValue: string);
+    procedure SetRequestHeader(const AValue: string);
     property RequestHeader: string read GetRequestHeader write SetRequestHeader;
 
     function GetGeoCoder: ICoordConverter;

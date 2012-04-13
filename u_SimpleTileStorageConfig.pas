@@ -52,7 +52,7 @@ type
     procedure SetCacheTypeCode(AValue: Integer);
 
     function GetNameInCache: string;
-    procedure SetNameInCache(AValue: string);
+    procedure SetNameInCache(const AValue: string);
 
     function GetTileFileExt: string;
     function GetIsStoreFileCache: Boolean;
@@ -312,7 +312,7 @@ begin
   end;
 end;
 
-procedure TSimpleTileStorageConfig.SetNameInCache(AValue: string);
+procedure TSimpleTileStorageConfig.SetNameInCache(const AValue: string);
 begin
   LockWrite;
   try

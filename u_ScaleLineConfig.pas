@@ -61,7 +61,7 @@ type
     procedure SetOutLineColor(AValue: TColor32);
 
     function GetFontName: string;
-    procedure SetFontName(AValue: string);
+    procedure SetFontName(const AValue: string);
 
     function GetFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
@@ -294,7 +294,7 @@ begin
   end;
 end;
 
-procedure TScaleLineConfig.SetFontName(AValue: string);
+procedure TScaleLineConfig.SetFontName(const AValue: string);
 begin
   LockWrite;
   try

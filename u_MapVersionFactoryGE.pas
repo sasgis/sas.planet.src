@@ -43,7 +43,7 @@ type
     function GetGEServer: String;
     function GetTileDate: String;
 
-    function IsSame(AValue: IMapVersionInfo): Boolean;
+    function IsSame(const AValue: IMapVersionInfo): Boolean;
   public
     constructor Create(
       const AVer: Word;
@@ -108,7 +108,7 @@ begin
   Result := FVer;
 end;
 
-function TMapVersionInfoGE.IsSame(AValue: IMapVersionInfo): Boolean;
+function TMapVersionInfoGE.IsSame(const AValue: IMapVersionInfo): Boolean;
 var
   VVersionGE: IMapVersionInfoGE;
 begin

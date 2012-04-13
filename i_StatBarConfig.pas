@@ -50,7 +50,7 @@ type
     property TextColor: TColor32 read GetTextColor write SetTextColor;
 
     function GetFontName: string;
-    procedure SetFontName(AValue: string);
+    procedure SetFontName(const AValue: string);
     property FontName: string read GetFontName write SetFontName;
 
     function GetFontSize: Integer;

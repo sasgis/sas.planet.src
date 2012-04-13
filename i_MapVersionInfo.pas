@@ -34,7 +34,7 @@ type
     function GetCaption: string;
     property Caption: string read GetCaption;
 
-    function IsSame(AValue: IMapVersionInfo): Boolean;
+    function IsSame(const AValue: IMapVersionInfo): Boolean;
   end;
 
   IMapVersionListStatic = interface
