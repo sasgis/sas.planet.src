@@ -201,7 +201,7 @@ begin
  free;
 end;
 
-function GetWord(Str, Smb: string; WordNmbr: Byte): string;
+function GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
 var SWord: string;
     StrLen, N: Byte;
 begin

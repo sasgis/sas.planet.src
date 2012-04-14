@@ -25,14 +25,14 @@ type
     procedure OnTTLTrim(Sender: TObject);
   protected
     function DoRequest(
-      ARequest: IDownloadRequest;
-      ACancelNotifier: IOperationNotifier;
+      const ARequest: IDownloadRequest;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): IDownloadResult;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AResultFactory: IDownloadResultFactory
+      const AGCList: ITTLCheckNotifier;
+      const AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
   end;
@@ -46,8 +46,8 @@ uses
 { TDownloaderHttpWithTTL }
 
 constructor TDownloaderHttpWithTTL.Create(
-  AGCList: ITTLCheckNotifier;
-  AResultFactory: IDownloadResultFactory
+  const AGCList: ITTLCheckNotifier;
+  const AResultFactory: IDownloadResultFactory
 );
 const
   CHttpClientTTL = 300000; // 5 min
@@ -74,8 +74,8 @@ begin
 end;
 
 function TDownloaderHttpWithTTL.DoRequest(
-  ARequest: IDownloadRequest;
-  ACancelNotifier: IOperationNotifier;
+  const ARequest: IDownloadRequest;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 ): IDownloadResult;
 var

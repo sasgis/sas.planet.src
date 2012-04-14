@@ -66,21 +66,21 @@ type
     FDisconnectByUser: Byte;
     FOpeningHandle: HINTERNET;
     function OnBeforeRequest(
-      ARequest: IDownloadRequest;
-      AResultFactory: IDownloadResultFactory
+      const ARequest: IDownloadRequest;
+      const AResultFactory: IDownloadResultFactory
     ): IDownloadResult;
     function OnOSError(
-      ARequest: IDownloadRequest;
-      AResultFactory: IDownloadResultFactory;
+      const ARequest: IDownloadRequest;
+      const AResultFactory: IDownloadResultFactory;
       AErrorCode: Cardinal
     ): IDownloadResult;
     function OnAfterResponse(
-      ARequest: IDownloadRequest;
-      AResultFactory: IDownloadResultFactory
+      const ARequest: IDownloadRequest;
+      const AResultFactory: IDownloadResultFactory
     ): IDownloadResult;
     procedure PreConfigHttpClient(
       const ARawHttpRequestHeader: string;
-      AInetConfig: IInetConfigStatic
+      const AInetConfig: IInetConfigStatic
     );
     function IsConnectError(ALastError: Cardinal): Boolean;
     function IsDownloadError(ALastError: Cardinal): Boolean;
@@ -89,9 +89,9 @@ type
     function IsContentNotExistStatus(AStatusCode: Cardinal): Boolean;
     procedure Disconnect;
     procedure OnCancelEvent;
-    procedure DoGetRequest(ARequest: IDownloadRequest);
-    procedure DoHeadRequest(ARequest: IDownloadHeadRequest);
-    procedure DoPostRequest(ARequest: IDownloadPostRequest);
+    procedure DoGetRequest(const ARequest: IDownloadRequest);
+    procedure DoHeadRequest(const ARequest: IDownloadHeadRequest);
+    procedure DoPostRequest(const ARequest: IDownloadPostRequest);
   protected
     procedure CheckGraceOff(Sender: Tobject);
     procedure DoOnALStatusChange(sender: Tobject;
@@ -99,13 +99,13 @@ type
                                  StatusInformation: Pointer;
                                  StatusInformationLength: DWord);
     function DoRequest(
-      ARequest: IDownloadRequest;
-      ACancelNotifier: IOperationNotifier;
+      const ARequest: IDownloadRequest;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): IDownloadResult;
   public
     constructor Create(
-      AResultFactory: IDownloadResultFactory
+      const AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
   end;
@@ -133,7 +133,7 @@ begin
 end;
 
 constructor TDownloaderHttp.Create(
-  AResultFactory: IDownloadResultFactory
+  const AResultFactory: IDownloadResultFactory
 );
 begin
   inherited Create;
@@ -170,7 +170,7 @@ begin
   inherited;
 end;
 
-procedure TDownloaderHttp.DoGetRequest(ARequest: IDownloadRequest);
+procedure TDownloaderHttp.DoGetRequest(const ARequest: IDownloadRequest);
 begin
   FHttpClient.Get(
     ARequest.Url,
@@ -179,7 +179,7 @@ begin
   );
 end;
 
-procedure TDownloaderHttp.DoHeadRequest(ARequest: IDownloadHeadRequest);
+procedure TDownloaderHttp.DoHeadRequest(const ARequest: IDownloadHeadRequest);
 begin
   FHttpClient.Head(
     ARequest.Url,
@@ -245,7 +245,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttp.DoPostRequest(ARequest: IDownloadPostRequest);
+procedure TDownloaderHttp.DoPostRequest(const ARequest: IDownloadPostRequest);
 var
   VData: IBinaryData;
   VStream: TStream;
@@ -273,8 +273,8 @@ begin
 end;
 
 function TDownloaderHttp.DoRequest(
-  ARequest: IDownloadRequest;
-  ACancelNotifier: IOperationNotifier;
+  const ARequest: IDownloadRequest;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 ): IDownloadResult;
 var
@@ -358,8 +358,8 @@ begin
 end;
 
 function TDownloaderHttp.OnBeforeRequest(
-  ARequest: IDownloadRequest;
-  AResultFactory: IDownloadResultFactory
+  const ARequest: IDownloadRequest;
+  const AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
 var
   VRequestWithChecker: IRequestWithChecker;
@@ -387,8 +387,8 @@ begin
 end;
 
 function TDownloaderHttp.OnOSError(
-  ARequest: IDownloadRequest;
-  AResultFactory: IDownloadResultFactory;
+  const ARequest: IDownloadRequest;
+  const AResultFactory: IDownloadResultFactory;
   AErrorCode: Cardinal
 ): IDownloadResult;
 begin
@@ -413,8 +413,8 @@ begin
 end;
 
 function TDownloaderHttp.OnAfterResponse(
-  ARequest: IDownloadRequest;
-  AResultFactory: IDownloadResultFactory
+  const ARequest: IDownloadRequest;
+  const AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
 var
   VRawHeaderText: string;
@@ -483,7 +483,7 @@ end;
 
 procedure TDownloaderHttp.PreConfigHttpClient(
   const ARawHttpRequestHeader: string;
-  AInetConfig: IInetConfigStatic
+  const AInetConfig: IInetConfigStatic
 );
 var
   VProxyConfig: IProxyConfigStatic;

@@ -31,8 +31,8 @@ type
   IDownloader = interface
     ['{08A98FF9-5EDE-4F6E-9D5B-351FBF4C05BE}']
     function DoRequest(
-      ARequest: IDownloadRequest;
-      ACancelNotifier: IOperationNotifier;
+      const ARequest: IDownloadRequest;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): IDownloadResult;
   end;

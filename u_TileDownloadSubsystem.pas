@@ -54,44 +54,44 @@ type
     FTileDownloader: ITileDownloader;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
-    function GetScriptText(AConfig: IConfigDataProvider): string;
+    function GetScriptText(const AConfig: IConfigDataProvider): string;
     procedure OnAppClosing;
   protected
     function GetRequest(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
       ACheckTileSize: Boolean
     ): ITileRequest;
-    function GetLink(AXY: TPoint; Azoom: byte): string;
+    function GetLink(const AXY: TPoint; Azoom: byte): string;
     procedure Download(
-      ATileRequest: ITileRequest
+      const ATileRequest: ITileRequest
     );
 
     function GetState: ITileDownloaderStateChangeble;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      ACoordConverter : ICoordConverter;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALanguageManager: ILanguageManager;
-      AGlobalDownloadConfig: IGlobalDownloadConfig;
-      AInvisibleBrowser: IInvisibleBrowser;
-      ADownloadResultFactory: IDownloadResultFactory;
-      AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
-      AImageResamplerConfig: IImageResamplerConfig;
-      AVersionConfig: IMapVersionConfig;
-      ATileDownloaderConfig: ITileDownloaderConfig;
-      AThreadConfig: IThreadConfig;
-      ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-      AContentTypeManager: IContentTypeManager;
-      AContentTypeSubst: IContentTypeSubst;
-      ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-      AMapAbilitiesConfig: IMapAbilitiesConfig;
-      AZmpData: IConfigDataProvider;
-      AStorageConfig: ISimpleTileStorageConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
+      const ACoordConverter : ICoordConverter;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALanguageManager: ILanguageManager;
+      const AGlobalDownloadConfig: IGlobalDownloadConfig;
+      const AInvisibleBrowser: IInvisibleBrowser;
+      const ADownloadResultFactory: IDownloadResultFactory;
+      const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const AVersionConfig: IMapVersionConfig;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const AThreadConfig: IThreadConfig;
+      const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
+      const AContentTypeManager: IContentTypeManager;
+      const AContentTypeSubst: IContentTypeSubst;
+      const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+      const AMapAbilitiesConfig: IMapAbilitiesConfig;
+      const AZmpData: IConfigDataProvider;
+      const AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
     );
     destructor Destroy; override;
@@ -121,26 +121,26 @@ const
 { TTileDownloadSubsystem }
 
 constructor TTileDownloadSubsystem.Create(
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  ACoordConverter : ICoordConverter;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALanguageManager: ILanguageManager;
-  AGlobalDownloadConfig: IGlobalDownloadConfig;
-  AInvisibleBrowser: IInvisibleBrowser;
-  ADownloadResultFactory: IDownloadResultFactory;
-  AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
-  AImageResamplerConfig: IImageResamplerConfig;
-  AVersionConfig: IMapVersionConfig;
-  ATileDownloaderConfig: ITileDownloaderConfig;
-  AThreadConfig: IThreadConfig;
-  ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-  AContentTypeManager: IContentTypeManager;
-  AContentTypeSubst: IContentTypeSubst;
-  ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-  AMapAbilitiesConfig: IMapAbilitiesConfig;
-  AZmpData: IConfigDataProvider;
-  AStorageConfig: ISimpleTileStorageConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
+  const ACoordConverter : ICoordConverter;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALanguageManager: ILanguageManager;
+  const AGlobalDownloadConfig: IGlobalDownloadConfig;
+  const AInvisibleBrowser: IInvisibleBrowser;
+  const ADownloadResultFactory: IDownloadResultFactory;
+  const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const AVersionConfig: IMapVersionConfig;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const AThreadConfig: IThreadConfig;
+  const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
+  const AContentTypeManager: IContentTypeManager;
+  const AContentTypeSubst: IContentTypeSubst;
+  const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+  const AMapAbilitiesConfig: IMapAbilitiesConfig;
+  const AZmpData: IConfigDataProvider;
+  const AStorageConfig: ISimpleTileStorageConfig;
   AStorage: TTileStorageAbstract
 );
 var
@@ -243,7 +243,7 @@ begin
   inherited;
 end;
 
-procedure TTileDownloadSubsystem.Download(ATileRequest: ITileRequest);
+procedure TTileDownloadSubsystem.Download(const ATileRequest: ITileRequest);
 begin
   if FZmpDownloadEnabled then begin
     if FState.GetStatic.Enabled then begin
@@ -252,7 +252,7 @@ begin
   end;
 end;
 
-function TTileDownloadSubsystem.GetLink(AXY: TPoint; Azoom: byte): string;
+function TTileDownloadSubsystem.GetLink(const AXY: TPoint; Azoom: byte): string;
 var
   VRequest: ITileRequest;
   VDownloadRequest: ITileDownloadRequest;
@@ -279,18 +279,27 @@ begin
   end;
 end;
 
-function TTileDownloadSubsystem.GetRequest(ACancelNotifier: IOperationNotifier;
-  AOperationID: Integer; AXY: TPoint; Azoom: byte;
-  ACheckTileSize: Boolean): ITileRequest;
+function TTileDownloadSubsystem.GetRequest(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AXY: TPoint;
+  Azoom: byte;
+  ACheckTileSize: Boolean
+): ITileRequest;
+var
+  VZoom: Byte;
+  VTile: TPoint;
 begin
   Result := nil;
   if FZmpDownloadEnabled then begin
-    if FCoordConverter.CheckTilePosStrict(AXY, Azoom, False) then begin
+    VZoom := VZoom;
+    VTile := AXY;
+    if FCoordConverter.CheckTilePosStrict(VTile, VZoom, False) then begin
       if ACheckTileSize then begin
         Result :=
           TTileRequestWithSizeCheck.Create(
-            AXY,
-            Azoom,
+            VTile,
+            VZoom,
             FVersionConfig.Version,
             ACancelNotifier,
             AOperationID
@@ -298,8 +307,8 @@ begin
       end else begin
         Result :=
           TTileRequest.Create(
-            AXY,
-            Azoom,
+            VTile,
+            VZoom,
             FVersionConfig.Version,
             ACancelNotifier,
             AOperationID

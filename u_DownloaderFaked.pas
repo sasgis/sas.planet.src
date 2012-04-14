@@ -15,13 +15,13 @@ type
     FResultFactory: IDownloadResultFactory;
   protected
     function DoRequest(
-      ARequest: IDownloadRequest;
-      ACancelNotifier: IOperationNotifier;
+      const ARequest: IDownloadRequest;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): IDownloadResult;
   public
     constructor Create(
-      AResultFactory: IDownloadResultFactory
+      const AResultFactory: IDownloadResultFactory
     );
   end;
 
@@ -30,13 +30,16 @@ implementation
 
 { TDownloaderFaked }
 
-constructor TDownloaderFaked.Create(AResultFactory: IDownloadResultFactory);
+constructor TDownloaderFaked.Create(const AResultFactory: IDownloadResultFactory);
 begin
   FResultFactory := AResultFactory;
 end;
 
-function TDownloaderFaked.DoRequest(ARequest: IDownloadRequest;
-  ACancelNotifier: IOperationNotifier; AOperationID: Integer): IDownloadResult;
+function TDownloaderFaked.DoRequest(
+  const ARequest: IDownloadRequest;
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
+): IDownloadResult;
 begin
   Result := FResultFactory.BuildCanceled(ARequest);
 end;

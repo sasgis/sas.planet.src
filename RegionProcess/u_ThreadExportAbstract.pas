@@ -18,11 +18,11 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean
     );
     destructor Destroy; override;
   end;
@@ -33,11 +33,11 @@ uses
   SysUtils;
 
 constructor TThreadExportAbstract.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean
 );
 var
   i: Integer;

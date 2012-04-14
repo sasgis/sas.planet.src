@@ -12,15 +12,15 @@ type
   ITileDownloadSubsystem = interface
     ['{06FFC386-43A0-4308-B294-58F8CF429BCB}']
     function GetRequest(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
       ACheckTileSize: Boolean
     ): ITileRequest;
-    function GetLink(AXY: TPoint; Azoom: byte): string;
+    function GetLink(const AXY: TPoint; Azoom: byte): string;
     procedure Download(
-      ATileRequest: ITileRequest
+      const ATileRequest: ITileRequest
     );
 
     function GetState: ITileDownloaderStateChangeble;

@@ -126,7 +126,7 @@ type
   end;
 
 
-procedure Blob2ExtArr(Blobfield: Tfield; AAggregator: IDoublePointsAggregator);
+procedure Blob2ExtArr(Blobfield: Tfield; const AAggregator: IDoublePointsAggregator);
 var
   VSize: Integer;
   VPointsCount: Integer;
