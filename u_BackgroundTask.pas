@@ -44,7 +44,7 @@ type
   protected
     procedure ExecuteTask(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;

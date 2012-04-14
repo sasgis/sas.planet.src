@@ -41,13 +41,13 @@ type
   protected
     procedure ExecuteTask(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); override;
   public
     constructor Create(
-      AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: IJclNotifier;
       AOnBgPaintLayer: TBgPaintLayerEvent;
-      AThreadConfig: IThreadConfig
+      const AThreadConfig: IThreadConfig
     );
   end;
 
@@ -56,9 +56,9 @@ implementation
 { TBackgroundTaskLayerDrawBase }
 
 constructor TBackgroundTaskLayerDrawBase.Create(
-  AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: IJclNotifier;
   AOnBgPaintLayer: TBgPaintLayerEvent;
-  AThreadConfig: IThreadConfig
+  const AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(AAppClosingNotifier, AThreadConfig);
@@ -67,7 +67,7 @@ end;
 
 procedure TBackgroundTaskLayerDrawBase.ExecuteTask(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 begin
   inherited;
