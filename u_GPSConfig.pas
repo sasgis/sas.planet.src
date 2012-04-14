@@ -40,8 +40,8 @@ type
     FLogPath: IPathConfig;
     FModuleConfig: IGPSModuleByCOMPortConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
     procedure InternalApplyLogWrite(const AValues: Byte);
     function InternalGetLogWriteAsInt: Byte;
     procedure InternalSetWriteLogValue(const ATrackTypes: TVSAGPS_TrackTypes; const AValue: Boolean);
@@ -105,7 +105,7 @@ begin
   Add(FModuleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Module'));
 end;
 
-procedure TGPSConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGPSConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -116,7 +116,7 @@ begin
   end;
 end;
 
-procedure TGPSConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TGPSConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('Enabled', FGPSEnabled);

@@ -37,8 +37,8 @@ type
     FArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
     FReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCrossDistInPixels: Double;
     procedure SetCrossDistInPixels(AValue: Double);
@@ -85,7 +85,8 @@ begin
 end;
 
 procedure TMapLayerNavToPointMarkerConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -95,7 +96,8 @@ begin
 end;
 
 procedure TMapLayerNavToPointMarkerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteFloat('CrossDistInPixels', FCrossDistInPixels);

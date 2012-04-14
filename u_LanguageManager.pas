@@ -41,8 +41,8 @@ type
     procedure SetTranslateIgnore;
   protected
     procedure DoBeforeChangeNotify; override;
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguageCode(const ACode: string);
@@ -105,7 +105,7 @@ begin
   end;
 end;
 
-procedure TLanguageManager.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TLanguageManager.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-procedure TLanguageManager.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TLanguageManager.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteString('Lang', GetCurrentLanguageCode);

@@ -47,7 +47,7 @@ type
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
     function ReadCurrentCategory(out AId: Integer): IMarkCategory;
-    procedure WriteCurrentCategory(ACategory: IMarkCategory);
+    procedure WriteCurrentCategory(const ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
     function GetDbCode: Integer;
@@ -132,7 +132,7 @@ begin
   Result := FFactoryDbInternal.CreateCategory(AId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
-procedure TMarkCategoryDB.WriteCurrentCategory(ACategory: IMarkCategory);
+procedure TMarkCategoryDB.WriteCurrentCategory(const ACategory: IMarkCategory);
 begin
   FCdsKategory.fieldbyname('name').AsString := ACategory.name;
   FCdsKategory.FieldByName('visible').AsBoolean := ACategory.visible;

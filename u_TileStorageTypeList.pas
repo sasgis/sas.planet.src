@@ -40,8 +40,8 @@ type
     FList: IGUIDInterfaceSet;
     FDefault: ITileStorageTypeListItem;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetDefault: ITileStorageType;
     procedure SetDefaultByGUID(const AGUID: TGUID);
@@ -79,7 +79,7 @@ begin
   FList.Add(AValue.GUID, AValue);
 end;
 
-procedure TTileStorageTypeList.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TTileStorageTypeList.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   i: Cardinal;
   VGUID: TGUID;
@@ -116,7 +116,8 @@ begin
 end;
 
 procedure TTileStorageTypeList.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   i: Cardinal;
   VGUID: TGUID;

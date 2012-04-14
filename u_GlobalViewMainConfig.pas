@@ -34,8 +34,8 @@ type
   private
     FBackGroundColor: TColor;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetBackGroundColor: TColor;
     procedure SetBackGroundColor(const AValue: TColor);
@@ -53,7 +53,7 @@ begin
   FBackGroundColor := clSilver;
 end;
 
-procedure TGlobalViewMainConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGlobalViewMainConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -63,7 +63,8 @@ begin
 end;
 
 procedure TGlobalViewMainConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('BackgroundColor', Integer(FBackGroundColor));

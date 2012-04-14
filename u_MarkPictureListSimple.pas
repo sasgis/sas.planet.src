@@ -39,8 +39,8 @@ type
     FContentTypeManager: IContentTypeManager;
     procedure Clear;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCount: Integer;
 
@@ -95,7 +95,7 @@ begin
   FList.Clear;
 end;
 
-procedure TMarkPictureListSimple.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMarkPictureListSimple.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   SearchRec: TSearchRec;
   VLoader: IBitmapTileLoader;
@@ -131,7 +131,8 @@ begin
 end;
 
 procedure TMarkPictureListSimple.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
 end;

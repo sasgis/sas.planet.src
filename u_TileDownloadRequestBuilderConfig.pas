@@ -54,8 +54,8 @@ type
     FRequestHeader: string;
     FGeoCoder: ICoordConverter;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function  GetUrlBase: string;
     procedure SetUrlBase(const AValue: string);
@@ -87,7 +87,8 @@ begin
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -104,7 +105,8 @@ begin
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   if FURLBase <> FDefConfig.UrlBase then begin

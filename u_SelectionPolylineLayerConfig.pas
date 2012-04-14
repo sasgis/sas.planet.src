@@ -38,8 +38,8 @@ type
     FPolygoneRadius: Double;
     FFillColor: TColor32;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetFillColor: TColor32;
     procedure SetFillColor(AValue: TColor32);
@@ -120,7 +120,7 @@ begin
   SetLineWidth(1);
 end;
 
-procedure TSelectionPolylineShadowLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TSelectionPolylineShadowLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -130,7 +130,7 @@ begin
   end;
 end;
 
-procedure TSelectionPolylineShadowLayerConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TSelectionPolylineShadowLayerConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteFloat('PolygoneRadius', FPolygoneRadius);

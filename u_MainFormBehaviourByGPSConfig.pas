@@ -37,8 +37,8 @@ type
     FSensorsAutoShow: Boolean;
     FProcessGPSIfActive: Boolean;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMapMove: Boolean;
     procedure SetMapMove(AValue: Boolean);
@@ -69,7 +69,8 @@ begin
 end;
 
 procedure TMainFormBehaviourByGPSConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -83,7 +84,8 @@ begin
 end;
 
 procedure TMainFormBehaviourByGPSConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('MoveMapByGPS', FMapMove);

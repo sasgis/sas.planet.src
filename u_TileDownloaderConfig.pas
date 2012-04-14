@@ -45,8 +45,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetInetConfigStatic: IInetConfigStatic;
 
@@ -123,7 +123,9 @@ begin
   Result := VStatic;
 end;
 
-procedure TTileDownloaderConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TTileDownloaderConfig.DoReadConfig(
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -137,7 +139,8 @@ begin
 end;
 
 procedure TTileDownloaderConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   if FWaitInterval <> FDefConfig.WaitInterval then begin

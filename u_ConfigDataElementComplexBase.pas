@@ -41,11 +41,14 @@ type
     procedure OnItemChange;
   protected
     procedure DoSubItemChange; virtual;
-    procedure Add(AItem: IChangeable); overload;
-    procedure Add(AItem: IConfigDataElement; ASaveLoadStrategy: IConfigSaveLoadStrategy); overload;
+    procedure Add(const AItem: IChangeable); overload;
     procedure Add(
-      AItem: IConfigDataElement;
-      ASaveLoadStrategy: IConfigSaveLoadStrategy;
+      const AItem: IConfigDataElement;
+      const ASaveLoadStrategy: IConfigSaveLoadStrategy
+    ); overload;
+    procedure Add(
+      const AItem: IConfigDataElement;
+      const ASaveLoadStrategy: IConfigSaveLoadStrategy;
       ANeedReadLock: Boolean;
       ANeedWriteLock: Boolean;
       ANeedStopNotify: Boolean;
@@ -53,8 +56,8 @@ type
     ); overload;
     function GetItemsCount: Integer;
     function GetSaveLoadStrategy(AIndex: Integer): IConfigSaveLoadStrategy;
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     procedure StopNotify; override;
     procedure StartNotify; override;
@@ -213,7 +216,7 @@ begin
   inherited;
 end;
 
-procedure TConfigDataElementComplexBase.Add(AItem: IChangeable);
+procedure TConfigDataElementComplexBase.Add(const AItem: IChangeable);
 var
   VItem: TSubItemInfoBase;
 begin
@@ -224,9 +227,11 @@ begin
   end;
 end;
 
-procedure TConfigDataElementComplexBase.Add(AItem: IConfigDataElement;
-  ASaveLoadStrategy: IConfigSaveLoadStrategy; ANeedReadLock, ANeedWriteLock,
-  ANeedStopNotify, ANeedChangedListen: Boolean);
+procedure TConfigDataElementComplexBase.Add(
+  const AItem: IConfigDataElement;
+  const ASaveLoadStrategy: IConfigSaveLoadStrategy;
+  ANeedReadLock, ANeedWriteLock, ANeedStopNotify, ANeedChangedListen: Boolean
+);
 var
   VItem: TSubItemInfoBase;
 begin
@@ -245,15 +250,16 @@ begin
 end;
 
 procedure TConfigDataElementComplexBase.Add(
-  AItem: IConfigDataElement;
-  ASaveLoadStrategy: IConfigSaveLoadStrategy
+  const AItem: IConfigDataElement;
+  const ASaveLoadStrategy: IConfigSaveLoadStrategy
 );
 begin
   Add(AItem, ASaveLoadStrategy, True, True, True, True);
 end;
 
 procedure TConfigDataElementComplexBase.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 var
   i: Integer;
   VItem: TSubItemInfoBase;
@@ -272,7 +278,8 @@ begin
 end;
 
 procedure TConfigDataElementComplexBase.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   i: Integer;
   VItem: TSubItemInfoBase;

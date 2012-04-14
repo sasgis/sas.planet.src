@@ -35,8 +35,8 @@ type
     FIsSendStatistic: Boolean;
     FIsShowDebugInfo: Boolean;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetIsShowIconInTray: Boolean;
     procedure SetIsShowIconInTray(AValue: Boolean);
@@ -67,7 +67,7 @@ begin
   FIsSendStatistic := True;
 end;
 
-procedure TGlobalAppConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGlobalAppConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -78,7 +78,7 @@ begin
   end;
 end;
 
-procedure TGlobalAppConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TGlobalAppConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('ShowIconInTray', FIsShowIconInTray);

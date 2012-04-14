@@ -36,8 +36,8 @@ type
     FGridColor: TColor32;
     FShowText: Boolean;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -66,7 +66,7 @@ begin
   FGridColor := SetAlpha(clWhite32, 150);
 end;
 
-procedure TBaseGridConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TBaseGridConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -77,7 +77,7 @@ begin
   end;
 end;
 
-procedure TBaseGridConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TBaseGridConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);

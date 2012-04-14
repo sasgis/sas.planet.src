@@ -39,8 +39,8 @@ type
   protected
     procedure SetChanged;
     function CheckIsChangedAndReset: Boolean;
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); virtual; abstract;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); virtual; abstract;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); virtual; abstract;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); virtual; abstract;
   protected
     procedure LockRead; virtual;
     procedure LockWrite; virtual;
@@ -77,14 +77,14 @@ type
 type
   TConfigDataElementBaseEmptySaveLoad = class(TConfigDataElementBase)
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   end;
 
   TConfigDataElementWithStaticBaseEmptySaveLoad = class(TConfigDataElementWithStaticBase)
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   end;
 
 implementation
@@ -243,24 +243,28 @@ end;
 { TConfigDataElementBaseEmptySaveLoad }
 
 procedure TConfigDataElementBaseEmptySaveLoad.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
 end;
 
 procedure TConfigDataElementBaseEmptySaveLoad.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
 end;
 
 { TConfigDataElementWithStaticBaseEmptySaveLoad }
 
 procedure TConfigDataElementWithStaticBaseEmptySaveLoad.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
 end;
 
 procedure TConfigDataElementWithStaticBaseEmptySaveLoad.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
 end;
 

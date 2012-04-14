@@ -38,8 +38,8 @@ type
     FStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
 
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMinMoveSpeed: Double;
     procedure SetMinMoveSpeed(AValue: Double);
@@ -86,7 +86,8 @@ begin
 end;
 
 procedure TMapLayerGPSMarkerConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -96,7 +97,8 @@ begin
 end;
 
 procedure TMapLayerGPSMarkerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteFloat('MinSpeed', FMinMoveSpeed);

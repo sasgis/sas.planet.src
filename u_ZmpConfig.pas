@@ -44,8 +44,8 @@ type
 
    protected
 //    procedure DoBeforeChangeNotify; override;
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
 //    function GetIgnoreMIMEType: Boolean;
 //    procedure SetIgnoreMIMEType(AValue: Boolean);
@@ -87,7 +87,7 @@ begin
   FMaxConnectToServerCount := 4;
 end;
 
-procedure TZmpConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TZmpConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -96,7 +96,7 @@ begin
   end;
 end;
 
-procedure TZmpConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TZmpConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteInteger('MaxConnectToServerCount', FMaxConnectToServerCount);

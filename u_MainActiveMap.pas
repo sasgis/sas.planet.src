@@ -47,10 +47,10 @@ type
     function GetActiveMap: IActiveMap;
     function GetActiveMapsSet: IActiveMapsSet;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create(AMapsSet: IMapTypeSet);
+    constructor Create(const AMapsSet: IMapTypeSet);
     destructor Destroy; override;
   end;
 implementation
@@ -68,7 +68,7 @@ const
 
 { TMainActiveMap }
 
-constructor TMainActiveMap.Create(AMapsSet: IMapTypeSet);
+constructor TMainActiveMap.Create(const AMapsSet: IMapTypeSet);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
@@ -110,7 +110,7 @@ begin
   inherited;
 end;
 
-procedure TMainActiveMap.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMainActiveMap.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VGUIDString: string;
   VGUID: TGUID;
@@ -135,7 +135,7 @@ begin
   end;
 end;
 
-procedure TMainActiveMap.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TMainActiveMap.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 var
   VGUIDString: string;
   VGUID: TGUID;

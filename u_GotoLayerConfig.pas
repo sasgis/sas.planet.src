@@ -33,8 +33,8 @@ type
   private
     FShowTickCount: Cardinal;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetShowTickCount: Cardinal;
     procedure SetShowTickCount(AValue: Cardinal);
@@ -52,7 +52,7 @@ begin
   FShowTickCount := 20000;
 end;
 
-procedure TGotoLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGotoLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -61,7 +61,7 @@ begin
   end;
 end;
 
-procedure TGotoLayerConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TGotoLayerConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteInteger('ShowTickCount', FShowTickCount);

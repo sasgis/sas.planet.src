@@ -35,28 +35,28 @@ type
     FList: IImageResamplerFactoryList;
     FActiveIndex: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetList: IImageResamplerFactoryList;
     function GetActiveIndex: Integer;
     procedure SetActiveIndex(AValue: Integer);
     function GetActiveFactory: IImageResamplerFactory;
   public
-    constructor Create(AList: IImageResamplerFactoryList);
+    constructor Create(const AList: IImageResamplerFactoryList);
   end;
 
 implementation
 
 { TMainFormMainConfig }
 
-constructor TImageResamplerConfig.Create(AList: IImageResamplerFactoryList);
+constructor TImageResamplerConfig.Create(const AList: IImageResamplerFactoryList);
 begin
   inherited Create;
   FList := AList;
 end;
 
-procedure TImageResamplerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TImageResamplerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -71,7 +71,8 @@ begin
 end;
 
 procedure TImageResamplerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('ResamplingType', FActiveIndex);

@@ -35,8 +35,8 @@ type
   private
     FScale: Double;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetScale: Double;
     procedure SetScale(AValue: Double);
@@ -64,7 +64,7 @@ begin
   FScale := 0;
 end;
 
-procedure TDegreeGridConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TDegreeGridConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -73,7 +73,8 @@ begin
 end;
 
 procedure TDegreeGridConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteFloat('Scale', FScale);

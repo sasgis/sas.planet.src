@@ -46,8 +46,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetPort: DWORD;
     procedure SetPort(const AValue: DWORD);
@@ -121,7 +121,8 @@ begin
 end;
 
 procedure TGPSModuleByCOMPortConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -136,7 +137,9 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TGPSModuleByCOMPortConfig.DoWriteConfig(
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('COM', FPort);

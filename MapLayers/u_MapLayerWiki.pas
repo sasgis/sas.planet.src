@@ -131,10 +131,10 @@ type
     );
     procedure AddElementsFromMap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AElments: IInterfaceList;
+      const ACancelNotifier: IOperationNotifier;
+      const AElments: IInterfaceList;
       Alayer: TMapType;
-      ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure PrepareWikiElements(
       AOperationID: Integer;
@@ -326,10 +326,10 @@ end;
 
 procedure TWikiLayer.AddElementsFromMap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AElments: IInterfaceList;
+  const ACancelNotifier: IOperationNotifier;
+  const AElments: IInterfaceList;
   Alayer: TMapType;
-  ALocalConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   ii: integer;

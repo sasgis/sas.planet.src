@@ -25,8 +25,8 @@ type
     procedure _UpdateFullPath;
     function IsRelativePath(const APath: string): Boolean;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetDefaultPath: string;
     function GetBasePathConfig: IPathConfig;
@@ -87,7 +87,7 @@ begin
   inherited;
 end;
 
-procedure TPathConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TPathConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -97,7 +97,7 @@ begin
   end;
 end;
 
-procedure TPathConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TPathConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   if FStoreIdent <> '' then begin

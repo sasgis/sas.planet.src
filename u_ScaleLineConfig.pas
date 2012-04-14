@@ -42,8 +42,8 @@ type
     FNumbersFormat: TScaleLegendNumbersFormat;
     FBottomMargin: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -99,7 +99,7 @@ begin
   FBottomMargin := 0;
 end;
 
-procedure TScaleLineConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TScaleLineConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -120,7 +120,7 @@ begin
   end;
 end;
 
-procedure TScaleLineConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TScaleLineConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);

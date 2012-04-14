@@ -37,8 +37,8 @@ type
     FActiveGeoCoderGUID: TGUID;
     FSearchHistory: IStringHistory;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetSearchHistory: IStringHistory;
     function GetList: IGeoCoderList;
@@ -72,7 +72,7 @@ begin
   Add(FSearchHistory, TConfigSaveLoadStrategyBasicProviderSubItem.Create('History'));
 end;
 
-procedure TMainGeoCoderConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMainGeoCoderConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VGUID: TGUID;
   VGUIDStr: string;
@@ -93,7 +93,8 @@ begin
 end;
 
 procedure TMainGeoCoderConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteString('GeoCoderGUID', GUIDToString(FActiveGeoCoderGUID));

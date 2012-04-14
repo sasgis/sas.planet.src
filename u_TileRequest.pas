@@ -29,10 +29,10 @@ type
     function GetOperationID: Integer;
   public
     constructor Create(
-      ATile: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
-      ACancelNotifier: IOperationNotifier;
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     );
   end;
@@ -47,10 +47,10 @@ uses
 { TTileRequest }
 
 constructor TTileRequest.Create(
-  ATile: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
-  ACancelNotifier: IOperationNotifier;
+  const ATile: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 );
 begin

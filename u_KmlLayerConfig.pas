@@ -38,8 +38,8 @@ type
     FShadowColor: TColor32;
     FThreadConfig: IThreadConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMainColor: TColor32;
     procedure SetMainColor(AValue: TColor32);
@@ -75,7 +75,7 @@ begin
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
-procedure TKmlLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TKmlLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -86,7 +86,7 @@ begin
   end;
 end;
 
-procedure TKmlLayerConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TKmlLayerConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   WriteColor32(AConfigData, 'MainColor', FMainColor);

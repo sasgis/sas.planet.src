@@ -40,8 +40,8 @@ type
     // Масштаб, на котором было последнее выделение
     FZoom: Byte;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetZoom: Byte;
     function GetPolygon: ILonLatPolygon;
@@ -68,7 +68,7 @@ begin
   FZoom := 0;
 end;
 
-procedure TLastSelectionInfo.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TLastSelectionInfo.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   i: Integer;
   VPoint: TDoublePoint;
@@ -97,7 +97,8 @@ begin
 end;
 
 procedure TLastSelectionInfo.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   i: Integer;
   VEnum: IEnumDoublePoint;

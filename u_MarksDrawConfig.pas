@@ -40,8 +40,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetShowPointCaption: Boolean;
     procedure SetShowPointCaption(AValue: Boolean);
@@ -95,7 +95,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TMarksDrawConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMarksDrawConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -111,7 +111,7 @@ begin
   end;
 end;
 
-procedure TMarksDrawConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TMarksDrawConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);

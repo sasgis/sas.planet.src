@@ -40,8 +40,8 @@ type
     FLogoFileName: string;
     FLogo: IBitmap32Static;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetIsShowLogo: Boolean;
     procedure SetIsShowLogo(AValue: Boolean);
@@ -72,7 +72,7 @@ begin
   FLogoFileName := 'sas:\Resource\LOGOI.jpg';
 end;
 
-procedure TStartUpLogoConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TStartUpLogoConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -84,7 +84,7 @@ begin
   end;
 end;
 
-procedure TStartUpLogoConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TStartUpLogoConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('ShowLogo', FIsShowLogo);

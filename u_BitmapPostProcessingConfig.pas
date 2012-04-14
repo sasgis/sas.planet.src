@@ -37,8 +37,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetInvertColor: boolean;
     procedure SetInvertColor(const AValue: boolean);
@@ -80,7 +80,8 @@ begin
 end;
 
 procedure TBitmapPostProcessingConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -92,7 +93,8 @@ begin
 end;
 
 procedure TBitmapPostProcessingConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('InvertColor', FInvertColor);

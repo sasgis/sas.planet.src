@@ -35,8 +35,8 @@ type
   private
     FVisible: Boolean;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -58,7 +58,8 @@ begin
 end;
 
 procedure TLastSelectionLayerConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -68,7 +69,8 @@ begin
 end;
 
 procedure TLastSelectionLayerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);

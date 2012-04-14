@@ -36,8 +36,8 @@ type
     FVersionFactory: IMapVersionFactory;
     FVersion: IMapVersionInfo;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVersionFactory: IMapVersionFactory;
     procedure SetVersionFactory(const AValue: IMapVersionFactory);
@@ -64,7 +64,7 @@ begin
   FVersion := FVersionFactory.CreateByMapVersion(FDefConfig);
 end;
 
-procedure TMapVersionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMapVersionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VStoreString: string;
 begin
@@ -78,7 +78,8 @@ begin
 end;
 
 procedure TMapVersionConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   VStoreString: string;
 begin

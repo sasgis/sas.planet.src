@@ -52,10 +52,10 @@ type
     function GetActiveLayersSet: IActiveMapsSet;
     function GetAllActiveMapsSet: IActiveMapsSet;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create(AMapsSet, ALayersSet: IMapTypeSet);
+    constructor Create(const AMapsSet, ALayersSet: IMapTypeSet);
     destructor Destroy; override;
   end;
 
@@ -78,7 +78,7 @@ const
 
 { TActivMapWithLayers }
 
-constructor TActivMapWithLayers.Create(AMapsSet, ALayersSet: IMapTypeSet);
+constructor TActivMapWithLayers.Create(const AMapsSet, ALayersSet: IMapTypeSet);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
@@ -149,7 +149,7 @@ begin
   inherited;
 end;
 
-procedure TActivMapWithLayers.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TActivMapWithLayers.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VList: IStringListStatic;
   i: Integer;
@@ -186,7 +186,8 @@ begin
 end;
 
 procedure TActivMapWithLayers.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   VList: IStringListStatic;
   i: Cardinal;

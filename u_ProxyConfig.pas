@@ -66,8 +66,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseIESettings: Boolean; safecall;
     function GetUseProxy: Boolean; safecall;
@@ -119,7 +119,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TProxyConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TProxyConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-procedure TProxyConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TProxyConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('UseIEProxySettings', FUseIESettings);

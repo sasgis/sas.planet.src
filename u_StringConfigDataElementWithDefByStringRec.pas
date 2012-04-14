@@ -44,8 +44,8 @@ type
     FLangChangeListener: IJclListener;
     procedure OnLangChange;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetValue: string;
     procedure SetValue(const AValue: string);
@@ -99,7 +99,8 @@ begin
 end;
 
 procedure TStringConfigDataElementWithDefByStringRec.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if FUseSotre then begin
@@ -110,7 +111,8 @@ begin
 end;
 
 procedure TStringConfigDataElementWithDefByStringRec.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   if FUseSotre then begin

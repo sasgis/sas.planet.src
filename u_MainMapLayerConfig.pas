@@ -24,8 +24,8 @@ type
 
     function GetThreadConfig: IThreadConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
     constructor Create();
   end;
@@ -51,7 +51,7 @@ begin
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
-procedure TMainMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMainMapLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -62,7 +62,8 @@ begin
 end;
 
 procedure TMainMapLayerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('UsePrevZoomAtMap', FUsePrevZoomAtMap);

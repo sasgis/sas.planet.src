@@ -47,8 +47,8 @@ type
     FInfoUrl: IStringConfigDataElement;
   protected
     function CreateStatic: IInterface; override;
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetName: IStringConfigDataElement;
 
@@ -158,7 +158,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TMapTypeGUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMapTypeGUIConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -172,7 +172,8 @@ begin
 end;
 
 procedure TMapTypeGUIConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   if FSeparator <> FDefConfig.Separator then begin

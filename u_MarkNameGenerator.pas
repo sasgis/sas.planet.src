@@ -36,8 +36,8 @@ type
     FFormatString: IStringConfigDataElement;
     FCounter: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetFormatString: IStringConfigDataElement;
 
@@ -65,7 +65,7 @@ begin
   FCounter := 0;
 end;
 
-procedure TMarkNameGenerator.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMarkNameGenerator.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -75,7 +75,8 @@ begin
 end;
 
 procedure TMarkNameGenerator.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('Counter', FCounter);

@@ -54,14 +54,14 @@ type
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
-      AHintConverter: IHtmlToHintTextConverter;
+      const AHintConverter: IHtmlToHintTextConverter;
       ADbCode: Integer;
       const AName: string;
       AId: Integer;
       AVisible: Boolean;
       const APicName: string;
-      APic: IMarkPicture;
-      ACategory: ICategory;
+      const APic: IMarkPicture;
+      const ACategory: ICategory;
       const ADesc: string;
       const APoint: TDoublePoint;
       ATextColor: TColor32;
@@ -76,14 +76,14 @@ implementation
 { TMarkPoint }
 
 constructor TMarkPoint.Create(
-  AHintConverter: IHtmlToHintTextConverter;
+  const AHintConverter: IHtmlToHintTextConverter;
   ADbCode: Integer;
   const AName: string;
   AId: Integer;
   AVisible: Boolean;
   const APicName: string;
-  APic: IMarkPicture;
-  ACategory: ICategory;
+  const APic: IMarkPicture;
+  const ACategory: ICategory;
   const ADesc: string;
   const APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;

@@ -38,8 +38,8 @@ type
   private
     FDefaultTemplate: IMarkTemplatePoly;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
       const ACategory: ICategory;
@@ -120,7 +120,8 @@ begin
 end;
 
 procedure TMarkPolyTemplateConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 var
   VCategoryId: Integer;
   VBorderColor, VFillColor: TColor32;
@@ -155,7 +156,8 @@ begin
 end;
 
 procedure TMarkPolyTemplateConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   VCategoryId: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;

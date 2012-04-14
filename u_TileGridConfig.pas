@@ -37,8 +37,8 @@ type
     FUseRelativeZoom: Boolean;
     FZoom: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseRelativeZoom: Boolean;
     procedure SetUseRelativeZoom(AValue: Boolean);
@@ -70,7 +70,7 @@ begin
   FZoom := 0;
 end;
 
-procedure TTileGridConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TTileGridConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -80,7 +80,7 @@ begin
   end;
 end;
 
-procedure TTileGridConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TTileGridConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('UseRelativeZoom', FUseRelativeZoom);

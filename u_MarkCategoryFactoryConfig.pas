@@ -37,8 +37,8 @@ type
     FAfterScale: Integer;
     FBeforeScale: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetDefaultName: IStringConfigDataElement;
 
@@ -77,7 +77,8 @@ begin
 end;
 
 procedure TMarkCategoryFactoryConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -88,7 +89,8 @@ begin
 end;
 
 procedure TMarkCategoryFactoryConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('AfterScale', FAfterScale);

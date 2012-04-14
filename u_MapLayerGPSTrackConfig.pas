@@ -66,8 +66,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetStatic: ITrackColorerStatic;
 
@@ -89,8 +89,8 @@ type
     FTrackColorerConfig: ITrackColorerConfig;
     FThreadConfig: IThreadConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -173,7 +173,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TTrackColorerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TTrackColorerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VSpeed: Double;
   VColorMin: TColor32;
@@ -206,7 +206,8 @@ begin
 end;
 
 procedure TTrackColorerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   i: Integer;
   VSufix: string;
@@ -438,7 +439,8 @@ begin
 end;
 
 procedure TMapLayerGPSTrackConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -450,7 +452,8 @@ begin
 end;
 
 procedure TMapLayerGPSTrackConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);

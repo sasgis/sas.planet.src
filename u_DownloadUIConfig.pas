@@ -39,8 +39,8 @@ type
     FRequestCount: Integer;
     FThreadConfig: IThreadConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseDownload: TTileSource;
     procedure SetUseDownload(const AValue: TTileSource);
@@ -79,7 +79,7 @@ begin
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
-procedure TDownloadUIConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TDownloadUIConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -98,7 +98,8 @@ begin
 end;
 
 procedure TDownloadUIConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   case FUseDownload of

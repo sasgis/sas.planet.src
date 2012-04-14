@@ -66,8 +66,8 @@ type
   private
     procedure InternalSafeAlloc;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
 
     function GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
     procedure ReGenerateGPSUnitInfo;
@@ -253,7 +253,7 @@ begin
   end;
 end;
 
-procedure TGPSRecorderStuped.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGPSRecorderStuped.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -264,7 +264,8 @@ begin
 end;
 
 procedure TGPSRecorderStuped.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteFloat('Odometer1', FOdometer1);

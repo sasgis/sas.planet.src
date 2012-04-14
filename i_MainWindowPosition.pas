@@ -36,7 +36,7 @@ type
     procedure SetNoFullScreen;
     procedure SetMaximized;
     procedure SetNormalWindow;
-    procedure SetWindowPosition(ARect: TRect);
+    procedure SetWindowPosition(const ARect: TRect);
   end;
 
 implementation

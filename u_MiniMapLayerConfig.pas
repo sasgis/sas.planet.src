@@ -52,8 +52,8 @@ type
     FMapsConfig: IMiniMapMapsConfig;
     FThreadConfig: IThreadConfig;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetWidth: Integer;
     procedure SetWidth(AValue: Integer);
@@ -83,8 +83,8 @@ type
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
-      AContentTypeManager: IContentTypeManager;
-      AMapsConfig: IMainMapsConfig
+      const AContentTypeManager: IContentTypeManager;
+      const AMapsConfig: IMainMapsConfig
     );
   end;
 
@@ -102,8 +102,8 @@ uses
 { TMiniMapLayerConfig }
 
 constructor TMiniMapLayerConfig.Create(
-  AContentTypeManager: IContentTypeManager;
-  AMapsConfig: IMainMapsConfig
+  const AContentTypeManager: IContentTypeManager;
+  const AMapsConfig: IMainMapsConfig
 );
 begin
   inherited Create;
@@ -127,7 +127,7 @@ begin
   FMinusButtonFileName := 'sas:\Resource\ICONII.png';
 end;
 
-procedure TMiniMapLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMiniMapLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -145,7 +145,8 @@ begin
 end;
 
 procedure TMiniMapLayerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('Width', FWidth);

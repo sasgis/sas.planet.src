@@ -36,8 +36,8 @@ type
     FMaxPixelPerSecond: Double;
     FSpeedChangeTime: Double;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetFirstKeyPressDelta: Double;
     procedure SetFirstKeyPressDelta(AValue: Double);
@@ -67,7 +67,7 @@ begin
   FSpeedChangeTime := 3;
 end;
 
-procedure TKeyMovingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TKeyMovingConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -79,7 +79,7 @@ begin
   end;
 end;
 
-procedure TKeyMovingConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TKeyMovingConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteFloat('FirstKeyPressDelta', FFirstKeyPressDelta);

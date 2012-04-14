@@ -34,8 +34,8 @@ type
   private
     FList: TStringList;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCapacity: Integer;
     procedure SetCapacity(AValue: Integer);
@@ -99,7 +99,7 @@ begin
   end;
 end;
 
-procedure TStringHistory.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TStringHistory.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   i: Integer;
 begin
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-procedure TStringHistory.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TStringHistory.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 var
   i: Integer;
 begin

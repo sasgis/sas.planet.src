@@ -40,8 +40,8 @@ type
     FShortCut: TShortCut;
     function GetBitmap(AMenu: TTBCustomItem): TBitmap;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCaption: String;
     function GetIconBitmap: TBitmap;
@@ -77,14 +77,17 @@ begin
   inherited;
 end;
 
-procedure TShortCutSingleConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TShortCutSingleConfig.DoReadConfig(
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   SetShortCut(AConfigData.ReadInteger(FMenuItem.name, FShortCut));
 end;
 
 procedure TShortCutSingleConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger(FMenuItem.Name, FMenuItem.ShortCut);

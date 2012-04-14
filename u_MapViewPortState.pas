@@ -66,8 +66,8 @@ type
     procedure NotifyChangeScale;
   protected
     procedure DoChangeNotify; override;
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMainCoordConverter: ICoordConverter;
     procedure SetMainCoordConverter(const AValue: ICoordConverter);
@@ -356,7 +356,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMapViewPortState.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VLonLat: TDoublePoint;
   VZoom: Byte;
@@ -378,7 +378,8 @@ begin
 end;
 
 procedure TMapViewPortState.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   VLonLat: TDoublePoint;
 begin

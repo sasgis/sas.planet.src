@@ -36,8 +36,8 @@ type
     FIsMaximized: Boolean;
     FBoundsRect: TRect;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetIsFullScreen: Boolean;
     function GetIsMaximized: Boolean;
@@ -46,16 +46,16 @@ type
     procedure SetNoFullScreen;
     procedure SetMaximized;
     procedure SetNormalWindow;
-    procedure SetWindowPosition(ARect: TRect);
+    procedure SetWindowPosition(const ARect: TRect);
   public
-    constructor Create(AStartRect: TRect);
+    constructor Create(const AStartRect: TRect);
   end;
 
 implementation
 
 { TMainWindowPositionConfig }
 
-constructor TMainWindowPositionConfig.Create(AStartRect: TRect);
+constructor TMainWindowPositionConfig.Create(const AStartRect: TRect);
 begin
   inherited Create;
   FBoundsRect := AStartRect;
@@ -63,7 +63,7 @@ begin
   FIsMaximized := False;
 end;
 
-procedure TMainWindowPositionConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMainWindowPositionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -80,7 +80,8 @@ begin
 end;
 
 procedure TMainWindowPositionConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('FullScreen', FIsFullScreen);
@@ -175,7 +176,7 @@ begin
   end;
 end;
 
-procedure TMainWindowPositionConfig.SetWindowPosition(ARect: TRect);
+procedure TMainWindowPositionConfig.SetWindowPosition(const ARect: TRect);
 begin
   LockWrite;
   try

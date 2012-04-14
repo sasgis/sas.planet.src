@@ -45,8 +45,8 @@ type
     FLangChangeListener: IJclListener;
     procedure OnLangChange;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetValue: string;
     procedure SetValue(const AValue: string);
@@ -102,7 +102,8 @@ begin
 end;
 
 procedure TStringConfigDataElementWithLanguage.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 begin
   inherited;
   if FUseSotre then begin
@@ -113,7 +114,8 @@ begin
 end;
 
 procedure TStringConfigDataElementWithLanguage.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   VDefValue: string;
 begin

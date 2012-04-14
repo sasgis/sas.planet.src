@@ -36,8 +36,8 @@ type
     FBaudRate: Cardinal;
     FWaitTime: Cardinal;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseGSMByCOM: Boolean;
     procedure SetUseGSMByCOM(const AValue: Boolean);
@@ -67,7 +67,7 @@ begin
   FWaitTime := 200;
 end;
 
-procedure TGSMGeoCodeConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGSMGeoCodeConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -79,7 +79,7 @@ begin
   end;
 end;
 
-procedure TGSMGeoCodeConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TGSMGeoCodeConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteBool('UseGSMByCOM', FUseGSMByCOM);

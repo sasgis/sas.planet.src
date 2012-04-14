@@ -40,8 +40,8 @@ type
     FDefaultTemplate: IMarkTemplatePoint;
     FMarkPictureList: IMarkPictureList;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
       const APic: IMarkPicture;
@@ -141,7 +141,8 @@ begin
 end;
 
 procedure TMarkPointTemplateConfig.DoReadConfig(
-  AConfigData: IConfigDataProvider);
+  const AConfigData: IConfigDataProvider
+);
 var
   VPicName: string;
   VPic: IMarkPicture;
@@ -201,7 +202,8 @@ begin
 end;
 
 procedure TMarkPointTemplateConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 var
   VCategoryId: Integer;
   VPicName: string;

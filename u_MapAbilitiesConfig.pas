@@ -46,8 +46,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetIsLayer: Boolean;
 
@@ -122,7 +122,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TMapAbilitiesConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMapAbilitiesConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -135,7 +135,8 @@ begin
 end;
 
 procedure TMapAbilitiesConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   if FIsShowOnSmMap <> FDefConfig.IsShowOnSmMap then begin

@@ -48,8 +48,8 @@ type
     FHttpQueueInfo: Boolean;
     FTilePathInfo: Boolean;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
@@ -123,7 +123,7 @@ begin
   FTilePathInfo := True;
 end;
 
-procedure TStatBarConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TStatBarConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -147,7 +147,8 @@ begin
 end;
 
 procedure TStatBarConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('Visible', FVisible);

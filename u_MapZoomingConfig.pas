@@ -35,8 +35,8 @@ type
     FAnimateZoom: Boolean;
     FAnimateZoomTime: Cardinal;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetZoomingAtMousePos: Boolean;
     procedure SetZoomingAtMousePos(AValue: Boolean);
@@ -62,7 +62,7 @@ begin
   FAnimateZoomTime := 320;
 end;
 
-procedure TMapZoomingConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMapZoomingConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -74,7 +74,8 @@ begin
 end;
 
 procedure TMapZoomingConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('ZoomingAtMousePos', FZoomingAtMousePos);

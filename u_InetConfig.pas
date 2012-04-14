@@ -40,8 +40,8 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetProxyConfig: IProxyConfig;
 
@@ -98,7 +98,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TInetConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TInetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-procedure TInetConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TInetConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   AConfigData.WriteString('UserAgentString', FUserAgentString);

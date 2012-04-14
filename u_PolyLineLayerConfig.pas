@@ -35,8 +35,8 @@ type
     FLineColor: TColor32;
     FLineWidth: integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetLineColor: TColor32;
     procedure SetLineColor(AValue: TColor32);
@@ -56,8 +56,8 @@ type
     FPointActiveColor: TColor32;
     FPointSize: integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetPointFillColor: TColor32;
     procedure SetPointFillColor(AValue: TColor32);
@@ -94,7 +94,7 @@ begin
   FPointSize := 8;
 end;
 
-procedure TPointsSetLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TPointsSetLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -109,7 +109,8 @@ begin
 end;
 
 procedure TPointsSetLayerConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   WriteColor32(AConfigData, 'PointFillColor', FPointFillColor);
@@ -243,7 +244,7 @@ begin
   FLineWidth := 3;
 end;
 
-procedure TLineLayerConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TLineLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -254,7 +255,7 @@ begin
   end;
 end;
 
-procedure TLineLayerConfig.DoWriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TLineLayerConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
   WriteColor32(AConfigData, 'LineColor', FLineColor);

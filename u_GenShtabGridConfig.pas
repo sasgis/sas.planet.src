@@ -35,8 +35,8 @@ type
   private
     FScale: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetScale: Integer;
     procedure SetScale(AValue: Integer);
@@ -64,7 +64,7 @@ begin
   FScale := 0;
 end;
 
-procedure TGenShtabGridConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TGenShtabGridConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -73,7 +73,8 @@ begin
 end;
 
 procedure TGenShtabGridConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('Scale', FScale);

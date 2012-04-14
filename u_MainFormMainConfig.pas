@@ -44,8 +44,8 @@ type
     FTumblerFileName: string;
     FTumbler: IBitmap32Static;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetShowMapName: Boolean;
     procedure SetShowMapName(AValue: Boolean);
@@ -62,7 +62,7 @@ type
     function GetTumbler: IBitmap32Static;
   public
     constructor Create(
-      AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -74,7 +74,7 @@ uses
 { TMainFormMainConfig }
 
 constructor TMainFormMainConfig.Create(
-  AContentTypeManager: IContentTypeManager
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create;
@@ -90,7 +90,7 @@ begin
   FTumblerFileName := 'sas:\Resource\VTUMBLER.png';
 end;
 
-procedure TMainFormMainConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMainFormMainConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -107,7 +107,8 @@ begin
 end;
 
 procedure TMainFormMainConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteBool('ShowMapNameOnPanel', FShowMapName);

@@ -33,8 +33,8 @@ type
   private
     FMaxSize: Integer;
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMaxSize: Integer;
     procedure SetMaxSize(AValue: Integer);
@@ -55,7 +55,7 @@ begin
   FMaxSize := 100;
 end;
 
-procedure TMainMemCacheConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TMainMemCacheConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -64,7 +64,8 @@ begin
 end;
 
 procedure TMainMemCacheConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('UICachePerZmp', FMaxSize);

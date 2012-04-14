@@ -18,8 +18,8 @@ type
     function GetPriority: TThreadPriority;
     procedure SetPriority(AValue: TThreadPriority);
   protected
-    procedure DoReadConfig(AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
     constructor Create(
       ADefPriority: TThreadPriority
@@ -40,7 +40,7 @@ begin
   FPriority := FPriorityDef;
 end;
 
-procedure TThreadConfig.DoReadConfig(AConfigData: IConfigDataProvider);
+procedure TThreadConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
@@ -49,7 +49,8 @@ begin
 end;
 
 procedure TThreadConfig.DoWriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   inherited;
   AConfigData.WriteInteger('ThreadPriority', Ord(FPriority));
