@@ -21,15 +21,15 @@ type
     FBuilderCS: IReadWriteSync;
   protected
     function BuildRequest(
-      ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo;
-      ACancelNotifier: IOperationNotifier;
+      const ASource: ITileRequest;
+      const ALastResponseInfo: ILastResponseInfo;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): ITileDownloadRequest;
   public
     constructor Create(
-      ADownloader: IDownloader;
-      AFactory: ITileDownloadRequestBuilderFactory
+      const ADownloader: IDownloader;
+      const AFactory: ITileDownloadRequestBuilderFactory
     );
     destructor Destroy; override;
   end;
@@ -42,8 +42,8 @@ uses
 { TTileDownloadRequestBuilderLazy }
 
 constructor TTileDownloadRequestBuilderLazy.Create(
-  ADownloader: IDownloader;
-  AFactory: ITileDownloadRequestBuilderFactory
+  const ADownloader: IDownloader;
+  const AFactory: ITileDownloadRequestBuilderFactory
 );
 begin
   FBuilderCS := MakeSyncObj(Self, TRUE);
@@ -58,9 +58,9 @@ begin
 end;
 
 function TTileDownloadRequestBuilderLazy.BuildRequest(
-  ASource: ITileRequest;
-  ALastResponseInfo: ILastResponseInfo;
-  ACancelNotifier: IOperationNotifier;
+  const ASource: ITileRequest;
+  const ALastResponseInfo: ILastResponseInfo;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 ): ITileDownloadRequest;
 var

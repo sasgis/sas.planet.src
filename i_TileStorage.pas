@@ -47,54 +47,43 @@ type
     property State: IStorageStateChangeble read GetState;
 
     function GetTileFileName(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): string;
     function GetTileInfo(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): ITileInfoBasic;
 
     function LoadTile(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
+      const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData;
     function DeleteTile(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): Boolean;
     function DeleteTNE(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): Boolean;
     procedure SaveTile(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo;
-      AData: IBinaryData
+      const AVersion: IMapVersionInfo;
+      const AData: IBinaryData
     );
     procedure SaveTNE(
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
-      AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     );
-
-    function LoadFillingMap(
-      AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      btm: TCustomBitmap32;
-      AXY: TPoint;
-      Azoom: byte;
-      ASourceZoom: byte;
-      AVersion: IMapVersionInfo;
-      AColorer: IFillingMapColorer
-    ): boolean;
   end;
 
 

@@ -41,13 +41,13 @@ type
     procedure Unlock;
   protected
     function BuildRequest(
-      ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo;
-      ACancelNotifier: IOperationNotifier;
+      const ASource: ITileRequest;
+      const ALastResponseInfo: ILastResponseInfo;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): ITileDownloadRequest; virtual; abstract;
   public
-    constructor Create(AConfig: ITileDownloadRequestBuilderConfig);
+    constructor Create(const AConfig: ITileDownloadRequestBuilderConfig);
     destructor Destroy; override;
   end;
 
@@ -58,7 +58,7 @@ uses
 
 { TTileDownloadRequestBuilder }
 
-constructor TTileDownloadRequestBuilder.Create(AConfig: ITileDownloadRequestBuilderConfig);
+constructor TTileDownloadRequestBuilder.Create(const AConfig: ITileDownloadRequestBuilderConfig);
 begin
   inherited Create;
   FConfig := AConfig;

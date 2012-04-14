@@ -17,7 +17,7 @@ type
 
     function GetLine(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       ALine: Integer
     ): Pointer;
   end;

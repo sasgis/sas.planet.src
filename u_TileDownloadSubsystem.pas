@@ -319,7 +319,8 @@ begin
 end;
 
 function TTileDownloadSubsystem.GetScriptText(
-  AConfig: IConfigDataProvider): string;
+  const AConfig: IConfigDataProvider
+): string;
 begin
   Result := AConfig.ReadString(PascalScriptFileName, '');
 end;

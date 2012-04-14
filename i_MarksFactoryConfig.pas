@@ -34,8 +34,8 @@ type
   IMarkPointTemplateConfig = interface(IConfigDataElement)
     ['{B796934A-83FE-4E8A-B69D-11237690AA23}']
     function CreateTemplate(
-      APic: IMarkPicture;
-      ACategory: ICategory;
+      const APic: IMarkPicture;
+      const ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -46,7 +46,7 @@ type
     property MarkPictureList: IMarkPictureList read GetMarkPictureList;
 
     function GetDefaultTemplate: IMarkTemplatePoint;
-    procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
+    procedure SetDefaultTemplate(const AValue: IMarkTemplatePoint);
     property DefaultTemplate: IMarkTemplatePoint read GetDefaultTemplate write SetDefaultTemplate;
 
     function GetNameGenerator: IMarkNameGenerator;
@@ -55,13 +55,13 @@ type
   IMarkLineTemplateConfig = interface(IConfigDataElement)
     ['{0F7596F4-1BA2-4581-9509-77627F50B1AF}']
     function CreateTemplate(
-      ACategory: ICategory;
+      const ACategory: ICategory;
       AColor1: TColor32;
       AScale1: Integer
     ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
-    procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
+    procedure SetDefaultTemplate(const AValue: IMarkTemplateLine);
     property DefaultTemplate: IMarkTemplateLine read GetDefaultTemplate write SetDefaultTemplate;
 
     function GetNameGenerator: IMarkNameGenerator;
@@ -70,14 +70,14 @@ type
   IMarkPolyTemplateConfig = interface(IConfigDataElement)
     ['{149D8DC1-7848-4D34-ABCA-2B7F8D3A22EF}']
     function CreateTemplate(
-      ACategory: ICategory;
+      const ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
     ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;
-    procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
+    procedure SetDefaultTemplate(const AValue: IMarkTemplatePoly);
     property TemplateDefault: IMarkTemplatePoly read GetDefaultTemplate write SetDefaultTemplate;
 
     function GetNameGenerator: IMarkNameGenerator;

@@ -42,17 +42,17 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategory: ICategory;
+      const ACategory: ICategory;
       AColor1: TColor32;
       AScale1: Integer
     ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
-    procedure SetDefaultTemplate(AValue: IMarkTemplateLine);
+    procedure SetDefaultTemplate(const AValue: IMarkTemplateLine);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ACategoryDb: IMarkCategoryDBSmlInternal
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDb: IMarkCategoryDBSmlInternal
     );
   end;
 
@@ -69,8 +69,8 @@ uses
 { TMarkLineTemplateConfig }
 
 constructor TMarkLineTemplateConfig.Create(
-  ALanguageManager: ILanguageManager;
-  ACategoryDb: IMarkCategoryDBSmlInternal
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDb: IMarkCategoryDBSmlInternal
 );
 begin
   inherited Create(
@@ -92,7 +92,7 @@ begin
 end;
 
 function TMarkLineTemplateConfig.CreateTemplate(
-  ACategory: ICategory;
+  const ACategory: ICategory;
   AColor1: TColor32;
   AScale1: Integer
 ): IMarkTemplateLine;
@@ -173,7 +173,8 @@ begin
 end;
 
 procedure TMarkLineTemplateConfig.SetDefaultTemplate(
-  AValue: IMarkTemplateLine);
+  const AValue: IMarkTemplateLine
+);
 begin
   if AValue <> nil then begin
     LockWrite;

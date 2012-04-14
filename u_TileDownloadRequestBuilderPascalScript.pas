@@ -79,26 +79,26 @@ type
     procedure RegisterAppVars;
     procedure RegisterAppRoutines;
     procedure SetVar(
-      ALastResponseInfo: ILastResponseInfo;
-      ADownloaderConfig: ITileDownloaderConfigStatic;
-      ASource: ITileRequest
+      const ALastResponseInfo: ILastResponseInfo;
+      const ADownloaderConfig: ITileDownloaderConfigStatic;
+      const ASource: ITileRequest
     );
     procedure OnLangChange;
   protected
     function BuildRequest(
-      ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo;
-      ACancelNotifier: IOperationNotifier;
+      const ASource: ITileRequest;
+      const ALastResponseInfo: ILastResponseInfo;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): ITileDownloadRequest; override;
   public
     constructor Create(
       const ACompiledData: TbtString;
-      AConfig: ITileDownloadRequestBuilderConfig;
-      ATileDownloaderConfig: ITileDownloaderConfig;
-      ADownloader: IDownloader;
-      ACheker: IDownloadChecker;
-      ALangManager: ILanguageManager
+      const AConfig: ITileDownloadRequestBuilderConfig;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const ADownloader: IDownloader;
+      const ACheker: IDownloadChecker;
+      const ALangManager: ILanguageManager
     );
     destructor Destroy; override;
   end;
@@ -116,11 +116,11 @@ uses
 
 constructor TTileDownloadRequestBuilderPascalScript.Create(
   const ACompiledData: TbtString;
-  AConfig: ITileDownloadRequestBuilderConfig;
-  ATileDownloaderConfig: ITileDownloaderConfig;
-  ADownloader: IDownloader;
-  ACheker: IDownloadChecker;
-  ALangManager: ILanguageManager
+  const AConfig: ITileDownloadRequestBuilderConfig;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const ADownloader: IDownloader;
+  const ACheker: IDownloadChecker;
+  const ALangManager: ILanguageManager
 );
 begin
   inherited Create(AConfig);
@@ -158,9 +158,9 @@ begin
 end;
 
 function TTileDownloadRequestBuilderPascalScript.BuildRequest(
-  ASource: ITileRequest;
-  ALastResponseInfo: ILastResponseInfo;
-  ACancelNotifier: IOperationNotifier;
+  const ASource: ITileRequest;
+  const ALastResponseInfo: ILastResponseInfo;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 ): ITileDownloadRequest;
 var
@@ -263,9 +263,9 @@ begin
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.SetVar(
-  ALastResponseInfo: ILastResponseInfo;
-  ADownloaderConfig: ITileDownloaderConfigStatic;
-  ASource: ITileRequest
+  const ALastResponseInfo: ILastResponseInfo;
+  const ADownloaderConfig: ITileDownloaderConfigStatic;
+  const ASource: ITileRequest
 );
 var
   XY: TPoint;

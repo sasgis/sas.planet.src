@@ -29,15 +29,15 @@ type
     function PrepareConverterForLocalLine(ALine: Integer): ILocalCoordConverter;
     function GetLocalLine(ALine: Integer): Pointer;
     procedure AddTile(
-      ATargetBitmap: IBitmap32Static;
-      AConverter: ILocalCoordConverter
+      const ATargetBitmap: IBitmap32Static;
+      const AConverter: ILocalCoordConverter
     );
     procedure PrepareBufferMem(ARect: TRect);
     procedure ClearBuffer;
     procedure PrepareBufferData(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const AConverter: ILocalCoordConverter
     );
   protected
     procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); virtual; abstract;
@@ -46,14 +46,14 @@ type
     function GetBytesPerPixel: Integer;
     function GetLine(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       ALine: Integer
     ): Pointer;
   public
     constructor Create(
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverter: ILocalCoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverter: ILocalCoordConverter;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
       ABytesPerPixel: Integer
     );
     destructor Destroy; override;
@@ -62,18 +62,18 @@ type
   TImageLineProviderNoAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverter: ILocalCoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverter: ILocalCoordConverter;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
 
   TImageLineProviderWithAlfa = class(TImageLineProviderAbstract)
   public
     constructor Create(
-      AImageProvider: IBitmapLayerProvider;
-      ALocalConverter: ILocalCoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverter: ILocalCoordConverter;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
 
@@ -105,9 +105,9 @@ uses
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverter: ILocalCoordConverter;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverter: ILocalCoordConverter;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
   ABytesPerPixel: Integer
 );
 begin
@@ -127,8 +127,8 @@ begin
 end;
 
 procedure TImageLineProviderAbstract.AddTile(
-  ATargetBitmap: IBitmap32Static;
-  AConverter: ILocalCoordConverter
+  const ATargetBitmap: IBitmap32Static;
+  const AConverter: ILocalCoordConverter
 );
 var
   i: Integer;
@@ -187,7 +187,7 @@ end;
 
 function TImageLineProviderAbstract.GetLine(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   ALine: Integer
 ): Pointer;
 var
@@ -224,8 +224,8 @@ end;
 
 procedure TImageLineProviderAbstract.PrepareBufferData(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const AConverter: ILocalCoordConverter
 );
 var
   VTile: TPoint;
@@ -309,9 +309,9 @@ end;
 { TImageLineProviderNoAlfa }
 
 constructor TImageLineProviderNoAlfa.Create(
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverter: ILocalCoordConverter;
-  AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverter: ILocalCoordConverter;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create(
@@ -325,9 +325,9 @@ end;
 { TImageLineProviderWithAlfa }
 
 constructor TImageLineProviderWithAlfa.Create(
-  AImageProvider: IBitmapLayerProvider;
-  ALocalConverter: ILocalCoordConverter;
-  AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverter: ILocalCoordConverter;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create(

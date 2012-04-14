@@ -32,9 +32,9 @@ type
   ITileDownloadRequestBuilder = interface
     ['{3F65B989-F693-460B-AE98-FD1DAECEA04B}']
     function BuildRequest(
-      ASource: ITileRequest;
-      ALastResponseInfo: ILastResponseInfo;
-      ACancelNotifier: IOperationNotifier;
+      const ASource: ITileRequest;
+      const ALastResponseInfo: ILastResponseInfo;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     ): ITileDownloadRequest;
   end;

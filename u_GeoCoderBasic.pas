@@ -42,13 +42,13 @@ type
     function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IGeoCodeResult; virtual; safecall;
   public
-    constructor Create(AInetSettings: IProxySettings);
+    constructor Create(const AInetSettings: IProxySettings);
     destructor Destroy; override;
   end;
 
@@ -69,7 +69,7 @@ uses
 
 { TGeoCoderBasic }
 
-constructor TGeoCoderBasic.Create(AInetSettings: IProxySettings);
+constructor TGeoCoderBasic.Create(const AInetSettings: IProxySettings);
 begin
   FInetSettings := AInetSettings;
 end;
@@ -153,7 +153,7 @@ begin
 end;
 
 function TGeoCoderBasic.GetLocations(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter

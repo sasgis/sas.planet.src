@@ -44,8 +44,8 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      APic: IMarkPicture;
-      ACategory: ICategory;
+      const APic: IMarkPicture;
+      const ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -55,12 +55,12 @@ type
     function GetMarkPictureList: IMarkPictureList;
 
     function GetDefaultTemplate: IMarkTemplatePoint;
-    procedure SetDefaultTemplate(AValue: IMarkTemplatePoint);
+    procedure SetDefaultTemplate(const AValue: IMarkTemplatePoint);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ACategoryDb: IMarkCategoryDBSmlInternal;
-      AMarkPictureList: IMarkPictureList
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDb: IMarkCategoryDBSmlInternal;
+      const AMarkPictureList: IMarkPictureList
     );
   end;
 
@@ -77,9 +77,9 @@ uses
 { TMarkPointTemplateConfig }
 
 constructor TMarkPointTemplateConfig.Create(
-  ALanguageManager: ILanguageManager;
-  ACategoryDb: IMarkCategoryDBSmlInternal;
-  AMarkPictureList: IMarkPictureList
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDb: IMarkCategoryDBSmlInternal;
+  const AMarkPictureList: IMarkPictureList
 );
 var
   VPic: IMarkPicture;
@@ -113,8 +113,8 @@ begin
 end;
 
 function TMarkPointTemplateConfig.CreateTemplate(
-  APic: IMarkPicture;
-  ACategory: ICategory;
+  const APic: IMarkPicture;
+  const ACategory: ICategory;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
 ): IMarkTemplatePoint;
@@ -241,7 +241,8 @@ begin
 end;
 
 procedure TMarkPointTemplateConfig.SetDefaultTemplate(
-  AValue: IMarkTemplatePoint);
+  const AValue: IMarkTemplatePoint
+);
 begin
   if AValue <> nil then begin
     LockWrite;

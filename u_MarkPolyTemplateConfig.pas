@@ -42,18 +42,18 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      ACategory: ICategory;
+      const ACategory: ICategory;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer
     ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;
-    procedure SetDefaultTemplate(AValue: IMarkTemplatePoly);
+    procedure SetDefaultTemplate(const AValue: IMarkTemplatePoly);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ACategoryDb: IMarkCategoryDBSmlInternal
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDb: IMarkCategoryDBSmlInternal
     );
   end;
 
@@ -70,8 +70,8 @@ uses
 { TMarkPolyTemplateConfig }
 
 constructor TMarkPolyTemplateConfig.Create(
-  ALanguageManager: ILanguageManager;
-  ACategoryDb: IMarkCategoryDBSmlInternal
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDb: IMarkCategoryDBSmlInternal
 );
 begin
   inherited Create(
@@ -94,7 +94,7 @@ begin
 end;
 
 function TMarkPolyTemplateConfig.CreateTemplate(
-  ACategory: ICategory;
+  const ACategory: ICategory;
   AColor1: TColor32;
   AColor2: TColor32;
   AScale1: Integer
@@ -181,7 +181,8 @@ begin
 end;
 
 procedure TMarkPolyTemplateConfig.SetDefaultTemplate(
-  AValue: IMarkTemplatePoly);
+  const AValue: IMarkTemplatePoly
+);
 begin
   if AValue <> nil then begin
     LockWrite;
