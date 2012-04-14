@@ -39,7 +39,7 @@ type
     property MapGUID: TGUID read FMapGUID;
   protected
     function GetMapType: IMapType;
-    function GetIsActive: Boolean; virtual;
+    function GetIsActive: Boolean;
   public
     constructor Create(AMapType: IMapType);
     destructor Destroy; override;

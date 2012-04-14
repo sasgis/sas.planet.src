@@ -40,7 +40,11 @@ type
   private
     procedure WriteText(const AMessage: WideString; ALogLevel: integer); safecall;
   private
-    function GetLastMessages(AMaxRowsCount: Cardinal; var ALastId: Cardinal; out AcntLines: Cardinal): WideString; virtual; safecall;
+    function GetLastMessages(
+      AMaxRowsCount: Cardinal;
+      var ALastId: Cardinal;
+      out AcntLines: Cardinal
+    ): WideString; safecall;
   public
     constructor Create(AMaxLinesCount: Cardinal; AMinLogLevel: Integer);
     destructor Destroy; override;

@@ -236,8 +236,8 @@ type
     function CheckLonLatPos(var XY: TDoublePoint): boolean; virtual; stdcall; abstract;
     function CheckLonLatRect(var XY: TDoubleRect): boolean; virtual; stdcall; abstract;
     function GetTileSplitCode: Integer; virtual; stdcall; abstract;
-    function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
-    function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
+    function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; stdcall;
+    function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; stdcall;
   private
     function GetProjectionEPSG: Integer; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; stdcall;

@@ -183,15 +183,15 @@ type
   protected
     function GetPosition: IGPSPosition; virtual; safecall;
 
-    function GetDataReciveNotifier: IJclNotifier; virtual; safecall;
+    function GetDataReciveNotifier: IJclNotifier; safecall;
 
-    function GetConnectingNotifier: IJclNotifier; virtual; safecall;
-    function GetConnectedNotifier: IJclNotifier; virtual; safecall;
-    function GetDisconnectingNotifier: IJclNotifier; virtual; safecall;
-    function GetDisconnectedNotifier: IJclNotifier; virtual; safecall;
+    function GetConnectingNotifier: IJclNotifier; safecall;
+    function GetConnectedNotifier: IJclNotifier; safecall;
+    function GetDisconnectingNotifier: IJclNotifier; safecall;
+    function GetDisconnectedNotifier: IJclNotifier; safecall;
 
-    function GetConnectErrorNotifier: IJclNotifier; virtual; safecall;
-    function GetTimeOutNotifier: IJclNotifier; virtual; safecall;
+    function GetConnectErrorNotifier: IJclNotifier; safecall;
+    function GetTimeOutNotifier: IJclNotifier; safecall;
   public
     constructor Create(APositionFactory: IGPSPositionFactory);
     destructor Destroy; override;

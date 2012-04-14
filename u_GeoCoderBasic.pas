@@ -36,7 +36,7 @@ type
   protected
     FLocalConverter: ILocalCoordConverter;
     FInetSettings: IProxySettings;
-    function URLEncode(const S: string): string; virtual;
+    function URLEncode(const S: string): string;
     function PrepareURL(const ASearch: WideString): string; virtual; abstract;
     function GetDataFromInet(const ASearch: WideString): string; virtual;
     function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; virtual; abstract;
