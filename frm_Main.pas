@@ -653,17 +653,17 @@ type
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure WMTIMECHANGE(var m: TMessage); message WM_TIMECHANGE;
-    procedure zooming(ANewZoom: byte; AMousePos: TPoint; move: boolean);
-    procedure MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
+    procedure zooming(ANewZoom: byte; const AMousePos: TPoint; move: boolean);
+    procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; const ALastTime:double; AZoom:byte; const AMousePos:TPoint);
     procedure ProcessPosChangeMessage;
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange;
     procedure OnMainFormMainConfigChange;
 
-    procedure CopyStringToClipboard(s: Widestring);
+    procedure CopyStringToClipboard(const s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
-    procedure UpdateGPSSatellites(APosition: IGPSPosition);
+    procedure UpdateGPSSatellites(const APosition: IGPSPosition);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange;
@@ -678,7 +678,7 @@ type
     Procedure TrayControl(Var Msg: TMessage); Message WM_SYSCOMMAND;
     procedure OnBeforeViewChange;
     procedure OnAfterViewChange;
-    procedure SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+    procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
     procedure DoSelectSpecialVersion(Sender: TObject);
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
@@ -2065,7 +2065,7 @@ begin
   DeleteDC(hSourcDC);
 end;
 
-procedure TfrmMain.CopyStringToClipboard(s: Widestring);
+procedure TfrmMain.CopyStringToClipboard(const s: Widestring);
 var hg: THandle;
     P: PChar;
 begin
@@ -2585,7 +2585,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.UpdateGPSSatellites(APosition: IGPSPosition);
+procedure TfrmMain.UpdateGPSSatellites(const APosition: IGPSPosition);
 var
   bar_width,bar_height,bar_x1,bar_dy:integer;
   VTalkerID_FixCount,VTalkerID_ALLCount,VCountForAllTalkerIDsFixed,i: Byte;
@@ -2637,7 +2637,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.zooming(ANewZoom:byte; AMousePos: TPoint; move:boolean);
+procedure TfrmMain.zooming(ANewZoom:byte; const AMousePos: TPoint; move:boolean);
 var
   ts1,ts2,ts3,fr:int64;
   Scale: Double;
@@ -2701,16 +2701,17 @@ begin
   end;
 end;
 
-procedure TfrmMain.MapMoveAnimate(AMouseMoveSpeed: TDoublePoint; ALastTime:double; AZoom:byte; AMousePos:TPoint);
+procedure TfrmMain.MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; const ALastTime:double; AZoom:byte; const AMousePos:TPoint);
 var
   ts1,ts2,fr:int64;
   VTime: Double;
-  VMaxTime: Double; 
+  VMaxTime: Double;
   Vk: Double;
   VMapDeltaXY:TDoublePoint;
   VMapDeltaXYmul:TDoublePoint;
   VLastDrawTime:double;
   VMousePPS: Double;
+  VLastTime: double;
 begin
   FMapMoveAnimtion:=True;
   try
@@ -2726,10 +2727,11 @@ begin
       if VMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
         VMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
       end;
+      VLastTime := ALastTime;
 
       repeat
         Vk:=VMousePPS * VMaxTime; //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
-        Vk:=Vk*(ALastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
+        Vk:=Vk*(VLastTime/VMaxTime); //из этого расстояния вычленяем то, которое мы прошли за время ALastTime (время потраченное на последнее ChangeMapPixelByDelta)
         Vk:=Vk*(exp(-VTime/VMaxTime)-exp(-1)); //замедляем экспоненциально, -exp(-1) нужно для того, чтоб к окончанию времени VMaxTime у нас смещение было =0
         VMapDeltaXY.x:=VMapDeltaXYmul.x*Vk;
         VMapDeltaXY.y:=VMapDeltaXYmul.y*Vk;
@@ -2742,7 +2744,7 @@ begin
 
         VLastDrawTime := (ts2-ts1)/fr;
         VTime := VTime + VLastDrawTime;
-        ALastTime:=ALastTime+0.3*(VLastDrawTime-ALastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
+        VLastTime:=VLastTime+0.3*(VLastDrawTime-VLastTime); //время последней итерации сглаженное с предыдущими (чтоб поменьше было рывков во время движения)
       until (VTime>=VMaxTime)or(AZoom<>FConfig.ViewPortState.GetCurrentZoom)or
             (AMousePos.X<>FMouseState.GetLastUpPos(FMapMovingButton).X)or
             (AMousePos.Y<>FMouseState.GetLastUpPos(FMapMovingButton).Y);
@@ -4842,7 +4844,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.SaveWindowConfigToIni(AProvider: IConfigDataWriteProvider);
+procedure TfrmMain.SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
 var
   lock_tb_b:boolean;
   VProvider: IConfigDataWriteProvider;

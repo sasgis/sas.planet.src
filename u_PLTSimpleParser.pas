@@ -39,15 +39,15 @@ type
   private
     FFactory: IVectorItmesFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
-    procedure ParseStringList(AStringList: TStringList; APointsAggregator: IDoublePointsAggregator);
-    function GetWord(Str, Smb: string; WordNmbr: Byte): string;
+    procedure ParseStringList(AStringList: TStringList; const APointsAggregator: IDoublePointsAggregator);
+    function GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
   protected
     function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
     function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
   public
     constructor Create(
-      AFactory: IVectorItmesFactory;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AFactory: IVectorItmesFactory;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -62,8 +62,8 @@ uses
   u_GeoToStr;
 
 constructor TPLTSimpleParser.Create(
-  AFactory: IVectorItmesFactory;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AFactory: IVectorItmesFactory;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FFactory := AFactory;
@@ -119,7 +119,7 @@ end;
 
 procedure TPLTSimpleParser.ParseStringList(
   AStringList: TStringList;
-  APointsAggregator: IDoublePointsAggregator
+  const APointsAggregator: IDoublePointsAggregator
 );
 var
   i,j:integer;
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-function TPLTSimpleParser.GetWord(Str, Smb: string; WordNmbr: Byte): string;
+function TPLTSimpleParser.GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
 var SWord: string;
     StrLen, N: Byte;
 begin

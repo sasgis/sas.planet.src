@@ -7,8 +7,13 @@ uses
   Classes,
   i_ProxySettings;
 
-procedure OpenUrlInBrowser(URL: string);
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
+procedure OpenUrlInBrowser(const URL: string);
+function GetStreamFromURL(
+  ms: TMemoryStream;
+  const url:string;
+  const conttype:string;
+  const AProxyConfig: IProxyConfigStatic
+):integer;
 
 implementation
 
@@ -18,12 +23,17 @@ uses
   ShellAPI,
   WinInet;
 
-procedure OpenUrlInBrowser(URL: string);
+procedure OpenUrlInBrowser(const URL: string);
 begin
   ShellExecute(0, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
-function GetStreamFromURL(var ms:TMemoryStream;url:string;conttype:string; AProxyConfig: IProxyConfigStatic):integer;
+function GetStreamFromURL(
+  ms: TMemoryStream;
+  const url:string;
+  const conttype:string;
+  const AProxyConfig: IProxyConfigStatic
+):integer;
 var par,ty:string;
     err:boolean;
     Buffer:array [1..64535] of char;

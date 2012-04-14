@@ -60,36 +60,36 @@ type
     FfrmImportConfigEdit: TfrmImportConfigEdit;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
   public
-    procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
+    procedure MarksListToStrings(const AList: IInterfaceList; AStrings: TStrings);
 
-    function DeleteMarkModal(AMarkID: IMarkID; handle:THandle):boolean;
-    function DeleteMarksModal(AMarkIDList: IInterfaceList; handle:THandle):boolean;
-    function OperationMark(AMark: IMark; AProjection: IProjectionInfo):boolean;
-    function AddKategory(name:string): IMarkCategory;
-    procedure ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle); overload;
-    procedure ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle); overload;
-    procedure ShowMarkSq(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle);
-    function EditMarkModal(AMark: IMark): IMark;
-    function EditCategoryModal(ACategory: IMarkCategory): IMarkCategory;
-    function AddNewPointModal(ALonLat: TDoublePoint): Boolean;
-    function SavePolyModal(AMark: IMarkPoly; ALine: ILonLatPolygon): Boolean;
+    function DeleteMarkModal(const AMarkID: IMarkID; handle:THandle):boolean;
+    function DeleteMarksModal(const AMarkIDList: IInterfaceList; handle:THandle):boolean;
+    function OperationMark(const AMark: IMark; const AProjection: IProjectionInfo):boolean;
+    function AddKategory(const name:string): IMarkCategory;
+    procedure ShowMarkLength(const AMark: IMarkLine; const AConverter: ICoordConverter; AHandle: THandle); overload;
+    procedure ShowMarkLength(const AMark: IMarkPoly; const AConverter: ICoordConverter; AHandle: THandle); overload;
+    procedure ShowMarkSq(const AMark: IMarkPoly; const AConverter: ICoordConverter; AHandle: THandle);
+    function EditMarkModal(const AMark: IMark): IMark;
+    function EditCategoryModal(const ACategory: IMarkCategory): IMarkCategory;
+    function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
+    function SavePolyModal(const AMark: IMarkPoly; const ALine: ILonLatPolygon): Boolean;
     function SaveLineModal(
       const AMark: IMarkLine;
       const ALine: ILonLatPath;
       const ADescription: string
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
-    function MarksMultiEditModal(ACategory:ICategory): IImportConfig;
+    function MarksMultiEditModal(const ACategory:ICategory): IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AMediaPath: IPathConfig;
+      const ALanguageManager: ILanguageManager;
+      const AMediaPath: IPathConfig;
       AMarksDB: TMarksSystem;
-      AViewPortState: IViewPortState;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AViewPortState: IViewPortState;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
     );
     destructor Destroy; override;
@@ -107,12 +107,12 @@ uses
 { TMarksDbGUIHelper }
 
 constructor TMarksDbGUIHelper.Create(
-  ALanguageManager: ILanguageManager;
-  AMediaPath: IPathConfig;
+  const ALanguageManager: ILanguageManager;
+  const AMediaPath: IPathConfig;
   AMarksDB: TMarksSystem;
-  AViewPortState: IViewPortState;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AViewPortState: IViewPortState;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess
 );
 begin
@@ -173,7 +173,7 @@ begin
   inherited;
 end;
 
-function TMarksDbGUIHelper.AddKategory(name: string): IMarkCategory;
+function TMarksDbGUIHelper.AddKategory(const name: string): IMarkCategory;
 var
   VCategory: IMarkCategory;
 begin
@@ -184,7 +184,7 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.AddNewPointModal(ALonLat: TDoublePoint): Boolean;
+function TMarksDbGUIHelper.AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
 var
   VMark: IMarkPoint;
 begin
@@ -197,8 +197,10 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.MarksListToStrings(AList: IInterfaceList;
-  AStrings: TStrings);
+procedure TMarksDbGUIHelper.MarksListToStrings(
+  const AList: IInterfaceList;
+  AStrings: TStrings
+);
 var
   i: Integer;
   VMarkId: IMarkId;
@@ -210,8 +212,10 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.DeleteMarkModal(AMarkID: IMarkID;
-  handle: THandle): boolean;
+function TMarksDbGUIHelper.DeleteMarkModal(
+  const AMarkID: IMarkID;
+  handle: THandle
+): boolean;
 begin
   Result := false;
   if AMarkID <> nil then begin
@@ -221,8 +225,10 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.DeleteMarksModal(AMarkIDList: IInterfaceList;
-  handle: THandle): boolean;
+function TMarksDbGUIHelper.DeleteMarksModal(
+  const AMarkIDList: IInterfaceList;
+  handle: THandle
+): boolean;
 var
   VMark: IMarkId;
 begin
@@ -243,12 +249,13 @@ begin
 end;
 
 function TMarksDbGUIHelper.EditCategoryModal(
-  ACategory: IMarkCategory): IMarkCategory;
+  const ACategory: IMarkCategory
+): IMarkCategory;
 begin
   Result := FfrmMarkCategoryEdit.EditCategory(ACategory);
 end;
 
-function TMarksDbGUIHelper.EditMarkModal(AMark: IMark): IMark;
+function TMarksDbGUIHelper.EditMarkModal(const AMark: IMark): IMark;
 var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
@@ -269,12 +276,16 @@ begin
   Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
-function TMarksDbGUIHelper.MarksMultiEditModal(ACategory:ICategory): IImportConfig;
+function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory:ICategory): IImportConfig;
 begin
   Result := FfrmMarksMultiEdit.GetImportConfig(ACategory);
 end;
 
-procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkLine; AConverter: ICoordConverter; AHandle: THandle);
+procedure TMarksDbGUIHelper.ShowMarkLength(
+  const AMark: IMarkLine;
+  const AConverter: ICoordConverter;
+  AHandle: THandle
+);
 var
   VLen: Double;
   VMessage: string;
@@ -287,7 +298,11 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.ShowMarkLength(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle);
+procedure TMarksDbGUIHelper.ShowMarkLength(
+  const AMark: IMarkPoly;
+  const AConverter: ICoordConverter;
+  AHandle: THandle
+);
 var
   VLen: Double;
   VMessage: string;
@@ -300,7 +315,11 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.ShowMarkSq(AMark: IMarkPoly; AConverter: ICoordConverter; AHandle: THandle);
+procedure TMarksDbGUIHelper.ShowMarkSq(
+  const AMark: IMarkPoly;
+  const AConverter: ICoordConverter;
+  AHandle: THandle
+);
 var
   VArea: Double;
   VMessage: string;
@@ -312,7 +331,10 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.OperationMark(AMark: IMark; AProjection: IProjectionInfo): boolean;
+function TMarksDbGUIHelper.OperationMark(
+  const AMark: IMark;
+  const AProjection: IProjectionInfo
+): boolean;
 var
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
@@ -372,8 +394,8 @@ begin
 end;
 
 function TMarksDbGUIHelper.SavePolyModal(
-  AMark: IMarkPoly;
-  ALine: ILonLatPolygon
+  const AMark: IMarkPoly;
+  const ALine: ILonLatPolygon
 ): Boolean;
 var
   VMark: IMarkPoly;

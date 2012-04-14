@@ -44,16 +44,16 @@ type
     constructor Create;
     function Encode(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      FileName:string;
-      Width,Height:cardinal;
-      CompressRatio:Single;
-      Hint:CompressHint;
-      AReadDelegate:TEcwRead;
-      Datum,Projection:string;
-      SizeUnits:TCellSizeUnits;
-      CellIncrementX,CellIncrementY,OriginX,OriginY:double
-    ):integer;
+      const ACancelNotifier: IOperationNotifier;
+      const FileName: string;
+      Width,Height: cardinal;
+      CompressRatio: Single;
+      Hint: CompressHint;
+      AReadDelegate: TEcwRead;
+      const Datum, Projection: string;
+      SizeUnits: TCellSizeUnits;
+      CellIncrementX, CellIncrementY, OriginX, OriginY: double
+    ): integer;
     property ReadDelegate: TEcwRead read FReadDelegate;
     property OperationID: Integer read FOperationID;
     property CancelNotifier: IOperationNotifier read FCancelNotifier;
@@ -98,15 +98,15 @@ end;
 
 function TECWWrite.Encode(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  FileName:string;
-  Width,Height:cardinal;
-  CompressRatio:Single;
-  Hint:CompressHint;
-  AReadDelegate:TEcwRead;
-  Datum,Projection:string;
+  const ACancelNotifier: IOperationNotifier;
+  const FileName:string;
+  Width, Height: cardinal;
+  CompressRatio: Single;
+  Hint: CompressHint;
+  AReadDelegate: TEcwRead;
+  const Datum, Projection: string;
   SizeUnits: TCellSizeUnits;
-  CellIncrementX,CellIncrementY,OriginX,OriginY:double
+  CellIncrementX, CellIncrementY, OriginX, OriginY: double
 ): Integer;
 var
   VNCSError: NCSError;
