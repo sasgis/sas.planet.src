@@ -72,10 +72,12 @@ constructor TTileStorageInfo.Create(
 );
 begin
   FTypeInfo := ATypeInfo;
+  FCoordConverter := ACoordConverter;
   FMainContentType := AMainContentType;
   FAllowDifferentContentTypes := AAllowDifferentContentTypes;
   FAllowDelete := AAllowDelete;
   FAllowSave := AAllowSave;
+  FIsReadOnly :=AIsReadOnly;
 end;
 
 function TTileStorageInfo.GetAllowDelete: boolean;

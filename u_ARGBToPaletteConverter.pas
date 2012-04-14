@@ -30,10 +30,6 @@ uses
 const
   MaxPossibleColors = 4096;
   HashSize = 32768;
-  AlphaWeight = 1024;
-  RedWeight = 612;
-  GreenWeight = 1202;
-  BlueWeight = 234;
 
 type
   PColorBin = ^TColorBin;
@@ -103,6 +99,12 @@ uses
   Imaging,
   ImagingFormats,
   ImagingUtility;
+
+const
+  AlphaWeight = 1024;
+  RedWeight = 612;
+  GreenWeight = 1202;
+  BlueWeight = 234;
 
 { TARGBToPaletteConverter }
 

@@ -136,6 +136,8 @@ constructor TTileRectInfoShort.CreateWithOwn(
 );
 begin
   FTileRect := ATileRect;
+  FContentType := AContentType;
+  FVersionInfo := AVersionInfo;
   FZoom := AZoom;
   FTileCount.X := FTileRect.Right - FTileRect.Left;
   FTileCount.Y := FTileRect.Bottom - FTileRect.Top;

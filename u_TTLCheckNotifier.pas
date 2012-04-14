@@ -35,13 +35,14 @@ type
     FList: TList;
     FSync: IReadWriteSync;
     FNextCheck: Cardinal;
-  public
-    constructor Create;
-    destructor Destroy; override;
+  private
     procedure Add(const AListener: ITTLCheckListener);
     procedure Remove(const AListener: ITTLCheckListener);
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
+  public
+    constructor Create;
+    destructor Destroy; override;
   end;
 
 implementation

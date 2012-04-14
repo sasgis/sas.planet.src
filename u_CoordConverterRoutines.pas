@@ -28,14 +28,14 @@ uses
 function Ellipsoid_LonLat2Metr(const ARadiusa, AExct: Double; const ALl: TDoublePoint): TDoublePoint;
 function Ellipsoid_Metr2LonLat(const ARadiusa, AExct: Double; const AMm: TDoublePoint): TDoublePoint;
 
-const
-  Ellipsoid_Metr2LonLat_Grad_Error = 0.00000001;
-
 implementation
 
 uses
   SysUtils,
   Math;
+
+const
+  Ellipsoid_Metr2LonLat_Grad_Error = 0.00000001;
 
 function Ellipsoid_LonLat2Metr(const ARadiusa, AExct: Double; const ALl: TDoublePoint): TDoublePoint;
 var

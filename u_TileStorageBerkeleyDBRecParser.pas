@@ -52,14 +52,8 @@ type
   end;
 
 const
-  CBDBMetaVersion = #01;
-  CBDBMetaMagic: array [0..3] of AnsiChar = ('M', 'I', 'D', CBDBMetaVersion);    //Meta Info Data
-
   CBDBMetaKeyX : Cardinal = $FFFFFFFF;
   CBDBMetaKeyY : Cardinal = $FFFFFFFF;
-
-  CBDBRecVersion = #03;
-  CBDBRecMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', CBDBRecVersion);      //TiLe Data
 
 function PointToKey(APoint: TPoint): TBDBKey;
 
@@ -75,6 +69,13 @@ uses
   libdb51,
   u_BerkeleyDB,
   CRC32;
+
+const
+  CBDBMetaVersion = #01;
+  CBDBMetaMagic: array [0..3] of AnsiChar = ('M', 'I', 'D', CBDBMetaVersion);    //Meta Info Data
+
+  CBDBRecVersion = #03;
+  CBDBRecMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', CBDBRecVersion);      //TiLe Data
 
 function PointToKey(APoint: TPoint): TBDBKey;
 

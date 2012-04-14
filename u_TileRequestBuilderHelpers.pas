@@ -36,13 +36,6 @@ function GetNumberAfter(const ASubStr, AText: String): String;
 function GetDiv3Path(const ASource: String): String;
 function DownloadFileToLocal(const AFullRemoteUrl, AFullLocalFilename, AContType: String): Integer;
 
-// auxillary
-function DoHttpRequestEx(const ARequestUrl, ARequestHeader, APostData: string;
-                         out AResponseHeader, AResponseData: string;
-                         const ASaveToLocal: Boolean;
-                         const ALocalFileName: String;
-                         const AContentType: String): Cardinal;
-
 implementation
 
 uses
