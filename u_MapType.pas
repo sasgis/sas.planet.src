@@ -148,14 +148,13 @@ type
       const Azoom: byte;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
-    ): IBitmap32Static; overload;
-    function LoadTile(
-      var AKml: IVectorDataItemList;
+    ): IBitmap32Static;
+    function LoadTileVector(
       const AXY: TPoint;
       const Azoom: byte;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
-    ): boolean; overload;
+    ): IVectorDataItemList;
     function LoadTileUni(
       const AXY: TPoint;
       const Azoom: byte;
@@ -933,35 +932,32 @@ begin
   end;
 end;
 
-function TMapType.LoadTile(
-  var AKml: IVectorDataItemList;
+function TMapType.LoadTileVector(
   const AXY: TPoint;
   const Azoom: byte;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheVector
-): boolean;
+): IVectorDataItemList;
 var
   VVersionInfo: IMapVersionInfo;
 begin
+  Result := nil;
   try
     VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
-      AKml := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);
+      Result := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);
     end else begin
-      AKml := ACache.TryLoadTileFromCache(AXY, Azoom, VVersionInfo); // no versions for kml
-      if AKml = nil then begin
-        AKml := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);
-        if AKml <> nil then begin
-          ACache.AddTileToCache(AKml, AXY, Azoom, VVersionInfo);
+      Result := ACache.TryLoadTileFromCache(AXY, Azoom, VVersionInfo);
+      if Result = nil then begin
+        Result := LoadKmlTileFromStorage(AXY, Azoom, VVersionInfo);
+        if Result <> nil then begin
+          ACache.AddTileToCache(Result, AXY, Azoom, VVersionInfo);
         end;
       end;
     end;
-    Result := AKml <> nil;
   except
     if not IgnoreError then begin
       raise;
-    end else begin
-      Result := False;
     end;
   end;
 end;
