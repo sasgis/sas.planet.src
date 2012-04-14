@@ -50,8 +50,8 @@ type
     procedure Terminate; override;
     property CancelNotifier: IOperationNotifier read FCancelNotifier;
   protected
-    procedure StartExecute; virtual;
-    procedure StopExecute; virtual;
+    procedure StartExecute;
+    procedure StopExecute;
   public
     constructor Create(
       AAppClosingNotifier: IJclNotifier;

@@ -32,7 +32,7 @@ type
   TCoordConverterBasic = class(TCoordConverterAbstract, ICoordConverterSimple)
   protected
     FValidLonLatRect: TDoubleRect;
-    function GetValidLonLatRect: TDoubleRect; virtual;
+    function GetValidLonLatRect: TDoubleRect;
 
     procedure CheckZoomInternal(var AZoom: Byte); override;
 
@@ -149,8 +149,8 @@ type
     function GetTileSplitCode: Integer; override;
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; override;
   private
-    function Pos2LonLat(const AXY: TPoint; Azoom: byte): TDoublePoint; virtual; stdcall;
-    function LonLat2Pos(const AXY: TDoublePoint; Azoom: byte): Tpoint; virtual; stdcall;
+    function Pos2LonLat(const AXY: TPoint; Azoom: byte): TDoublePoint; stdcall;
+    function LonLat2Pos(const AXY: TDoublePoint; Azoom: byte): Tpoint; stdcall;
   public
     procedure AfterConstruction; override;
   end;

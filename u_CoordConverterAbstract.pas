@@ -165,56 +165,56 @@ type
     function PixelRect2LonLatRect(const AXY: TRect; const AZoom: byte): TDoubleRect; stdcall;
     function PixelRect2TileRectFloat(const XY: TRect; const AZoom: byte): TDoubleRect; stdcall;
 
-    function PixelRectFloat2TileRect(const XY: TDoubleRect; const AZoom: byte): TRect; virtual; stdcall;
-    function PixelRectFloat2TileRectFloat(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function PixelRectFloat2RelativeRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function PixelRectFloat2LonLatRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
+    function PixelRectFloat2TileRect(const XY: TDoubleRect; const AZoom: byte): TRect; stdcall;
+    function PixelRectFloat2TileRectFloat(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;
+    function PixelRectFloat2RelativeRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;
+    function PixelRectFloat2LonLatRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;
 
-    function TilePos2PixelPos(const AXY: TPoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function TilePos2PixelRect(const AXY: TPoint; const Azoom: byte): TRect; virtual; stdcall;
-    function TilePos2PixelRectFloat(const AXY: TPoint; const Azoom: byte): TDoubleRect; virtual; stdcall;
-    function TilePos2LonLatRect(const AXY: TPoint; const Azoom: byte): TDoubleRect; virtual; stdcall;
-    function TilePos2LonLat(const AXY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function TilePos2Relative(const AXY: TPoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function TilePos2RelativeRect(const AXY: TPoint; const Azoom: byte): TDoubleRect; virtual; stdcall;
+    function TilePos2PixelPos(const AXY: TPoint; const Azoom: byte): TPoint; stdcall;
+    function TilePos2PixelRect(const AXY: TPoint; const Azoom: byte): TRect; stdcall;
+    function TilePos2PixelRectFloat(const AXY: TPoint; const Azoom: byte): TDoubleRect; stdcall;
+    function TilePos2LonLatRect(const AXY: TPoint; const Azoom: byte): TDoubleRect; stdcall;
+    function TilePos2LonLat(const AXY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
+    function TilePos2Relative(const AXY: TPoint; const Azoom: byte): TDoublePoint; stdcall;
+    function TilePos2RelativeRect(const AXY: TPoint; const Azoom: byte): TDoubleRect; stdcall;
 
-    function TilePosFloat2PixelPos(const XY: TDoublePoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function TilePosFloat2PixelPosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function TilePosFloat2Relative(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function TilePosFloat2LonLat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
+    function TilePosFloat2PixelPos(const XY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function TilePosFloat2PixelPosFloat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function TilePosFloat2Relative(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function TilePosFloat2LonLat(const XY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
 
-    function TileRect2PixelRect(const AXY: TRect; const AZoom: byte): TRect; virtual; stdcall;
-    function TileRect2RelativeRect(const AXY: TRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function TileRect2LonLatRect(const AXY: TRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
+    function TileRect2PixelRect(const AXY: TRect; const AZoom: byte): TRect; stdcall;
+    function TileRect2RelativeRect(const AXY: TRect; const AZoom: byte): TDoubleRect; stdcall;
+    function TileRect2LonLatRect(const AXY: TRect; const Azoom: byte): TDoubleRect; stdcall;
 
-    function TileRectFloat2PixelRect(const XY: TDoubleRect; const AZoom: byte): TRect; virtual; stdcall;
-    function TileRectFloat2PixelRectFloat(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function TileRectFloat2RelativeRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; virtual; stdcall;
-    function TileRectFloat2LonLatRect(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
+    function TileRectFloat2PixelRect(const XY: TDoubleRect; const AZoom: byte): TRect; stdcall;
+    function TileRectFloat2PixelRectFloat(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;
+    function TileRectFloat2RelativeRect(const XY: TDoubleRect; const AZoom: byte): TDoubleRect; stdcall;
+    function TileRectFloat2LonLatRect(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
 
-    function LonLat2PixelPos(const AXY: TDoublePoint; const Azoom: byte): Tpoint; virtual; stdcall;
-    function LonLat2PixelPosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function LonLat2TilePos(const AXY: TDoublePoint; const Azoom: byte): Tpoint; virtual; stdcall;
-    function LonLat2TilePosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function LonLat2Relative(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
+    function LonLat2PixelPos(const AXY: TDoublePoint; const Azoom: byte): Tpoint; stdcall;
+    function LonLat2PixelPosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function LonLat2TilePos(const AXY: TDoublePoint; const Azoom: byte): Tpoint; stdcall;
+    function LonLat2TilePosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function LonLat2Relative(const AXY: TDoublePoint): TDoublePoint; stdcall;
 
-    function LonLatRect2RelativeRect(const AXY: TDoubleRect): TDoubleRect; virtual; stdcall;
-    function LonLatRect2PixelRect(const AXY: TDoubleRect; const Azoom: byte): TRect; virtual; stdcall;//TODO: Автотест
-    function LonLatRect2PixelRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
-    function LonLatRect2TileRect(const AXY: TDoubleRect; const Azoom: byte): TRect; virtual; stdcall;//TODO: Автотест
-    function LonLatRect2TileRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
+    function LonLatRect2RelativeRect(const AXY: TDoubleRect): TDoubleRect; stdcall;
+    function LonLatRect2PixelRect(const AXY: TDoubleRect; const Azoom: byte): TRect; stdcall;
+    function LonLatRect2PixelRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
+    function LonLatRect2TileRect(const AXY: TDoubleRect; const Azoom: byte): TRect; stdcall;
+    function LonLatRect2TileRectFloat(const XY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
 
-    function Relative2PixelPos(const AXY: TDoublePoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function Relative2PixelPosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function Relative2TilePos(const AXY: TDoublePoint; const Azoom: byte): TPoint; virtual; stdcall;
-    function Relative2TilePosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; virtual; stdcall;
-    function Relative2LonLat(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
+    function Relative2PixelPos(const AXY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function Relative2PixelPosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function Relative2TilePos(const AXY: TDoublePoint; const Azoom: byte): TPoint; stdcall;
+    function Relative2TilePosFloat(const AXY: TDoublePoint; const Azoom: byte): TDoublePoint; stdcall;
+    function Relative2LonLat(const AXY: TDoublePoint): TDoublePoint; stdcall;
 
-    function RelativeRect2LonLatRect(const AXY: TDoubleRect): TDoubleRect; virtual; stdcall;
-    function RelativeRect2TileRect(const AXY: TDoubleRect; const Azoom: byte): TRect; virtual; stdcall;
-    function RelativeRect2TileRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
-    function RelativeRect2PixelRect(const AXY: TDoubleRect; const Azoom: byte): TRect; virtual; stdcall;
-    function RelativeRect2PixelRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; virtual; stdcall;
+    function RelativeRect2LonLatRect(const AXY: TDoubleRect): TDoubleRect; stdcall;
+    function RelativeRect2TileRect(const AXY: TDoubleRect; const Azoom: byte): TRect; stdcall;
+    function RelativeRect2TileRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
+    function RelativeRect2PixelRect(const AXY: TDoubleRect; const Azoom: byte): TRect; stdcall;
+    function RelativeRect2PixelRectFloat(const AXY: TDoubleRect; const Azoom: byte): TDoubleRect; stdcall;
   protected
     function GetTileSize(const XY: TPoint; const Azoom: byte): TPoint; virtual; stdcall; abstract;
 
@@ -239,9 +239,9 @@ type
     function LonLat2Metr(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
     function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; virtual; stdcall;
   private
-    function GetProjectionEPSG: Integer; virtual; stdcall;
-    function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
-    function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; virtual; stdcall;
+    function GetProjectionEPSG: Integer; stdcall;
+    function GetCellSizeUnits: TCellSizeUnits; stdcall;
+    function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; stdcall;
 
   public
     constructor Create(

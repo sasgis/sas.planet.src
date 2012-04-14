@@ -35,15 +35,15 @@ type
     FIdentRenamesList: TStringList;
     function GetDepreciatedName(const AIdent: string): string;
   protected
-    function GetSubItem(const AIdent: string): IConfigDataProvider; virtual;
-    function ReadBinary(const AIdent: string): IBinaryData; virtual;
-    function ReadString(const AIdent: string; const ADefault: string): string; virtual;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint; virtual;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean; virtual;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double; virtual;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; virtual;
+    function GetSubItem(const AIdent: string): IConfigDataProvider;
+    function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadString(const AIdent: string; const ADefault: string): string;
+    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
+    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
+    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
+    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
+    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
+    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; 
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
