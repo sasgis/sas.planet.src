@@ -21,20 +21,25 @@ type
     FConfig: IFillingMapLayerConfig;
     procedure OnConfigChange;
   protected
-    function CreateLayerProvider(ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider; override;
-    function CreteTileMatrix(ASource: ITileMatrix; ANewConverter: ILocalCoordConverter): ITileMatrix; override;
+    function CreateLayerProvider(
+      const ALayerConverter: ILocalCoordConverter
+    ): IBitmapLayerProvider; override;
+    function CreteTileMatrix(
+      const ASource: ITileMatrix;
+      const ANewConverter: ILocalCoordConverter
+    ): ITileMatrix; override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      ATimerNoifier: IJclNotifier;
-      AConfig: IFillingMapLayerConfig
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ATimerNoifier: IJclNotifier;
+      const AConfig: IFillingMapLayerConfig
     );
   end;
 
@@ -47,11 +52,15 @@ uses
 { TMapLayerFillingMapNew }
 
 constructor TMapLayerFillingMapNew.Create(
-  APerfList: IInternalPerformanceCounterList; AAppClosingNotifier: IJclNotifier;
-  AParentMap: TImage32; AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  ATimerNoifier: IJclNotifier; AConfig: IFillingMapLayerConfig);
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
+  AParentMap: TImage32;
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ATimerNoifier: IJclNotifier;
+  const AConfig: IFillingMapLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -73,7 +82,7 @@ begin
 end;
 
 function TMapLayerFillingMapNew.CreateLayerProvider(
-  ALayerConverter: ILocalCoordConverter
+  const ALayerConverter: ILocalCoordConverter
 ): IBitmapLayerProvider;
 var
   VConfig: IFillingMapLayerConfigStatic;
@@ -88,8 +97,10 @@ begin
     );
 end;
 
-function TMapLayerFillingMapNew.CreteTileMatrix(ASource: ITileMatrix;
-  ANewConverter: ILocalCoordConverter): ITileMatrix;
+function TMapLayerFillingMapNew.CreteTileMatrix(
+  const ASource: ITileMatrix;
+  const ANewConverter: ILocalCoordConverter
+): ITileMatrix;
 var
   VConfig: IFillingMapLayerConfigStatic;
 begin

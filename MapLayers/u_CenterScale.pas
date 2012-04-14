@@ -21,15 +21,15 @@ type
     procedure OnConfigChange;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AConfig: ICenterScaleConfig
+      const AViewPortState: IViewPortState;
+      const AConfig: ICenterScaleConfig
     );
   end;
 
@@ -41,10 +41,10 @@ uses
 { TCenterScale }
 
 constructor TCenterScale.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AConfig: ICenterScaleConfig
+  const AViewPortState: IViewPortState;
+  const AConfig: ICenterScaleConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -100,7 +100,7 @@ begin
   end;
 end;
 
-procedure TCenterScale.SetViewCoordConverter(AValue: ILocalCoordConverter);
+procedure TCenterScale.SetViewCoordConverter(const AValue: ILocalCoordConverter);
 begin
   inherited;
   SetNeedUpdateLocation;

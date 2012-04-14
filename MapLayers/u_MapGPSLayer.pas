@@ -35,44 +35,44 @@ type
     procedure OnTimer;
     procedure DrawPath(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter;
-      ATrackColorer: ITrackColorerStatic;
-      ALineWidth: Double;
+      const ALocalConverter: ILocalCoordConverter;
+      const ATrackColorer: ITrackColorerStatic;
+      const ALineWidth: Double;
       APointsCount: Integer
     );
     function PrepareProjectedPointsByEnum(
       AMaxPointsCount: Integer;
-      ALocalConverter: ILocalCoordConverter;
-      AEnum: IEnumGPSTrackPoint
+      const ALocalConverter: ILocalCoordConverter;
+      const AEnum: IEnumGPSTrackPoint
     ): Integer;
     procedure DrawSection(
       ATargetBmp: TCustomBitmap32;
-      ATrackColorer: ITrackColorerStatic;
-      ALineWidth: Double;
-      APointPrev, APointCurr: TDoublePoint;
-      ASpeed: Double
+      const ATrackColorer: ITrackColorerStatic;
+      const ALineWidth: Double;
+      const APointPrev, APointCurr: TDoublePoint;
+      const ASpeed: Double
     );
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      ATimerNoifier: IJclNotifier;
-      AConfig: IMapLayerGPSTrackConfig;
-      AGPSRecorder: IGPSRecorder
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      const ATimerNoifier: IJclNotifier;
+      const AConfig: IMapLayerGPSTrackConfig;
+      const AGPSRecorder: IGPSRecorder
     );
     destructor Destroy; override;
   end;
@@ -92,16 +92,16 @@ uses
 { TMapGPSLayer }
 
 constructor TMapGPSLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  ATimerNoifier: IJclNotifier;
-  AConfig: IMapLayerGPSTrackConfig;
-  AGPSRecorder: IGPSRecorder
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  const ATimerNoifier: IJclNotifier;
+  const AConfig: IMapLayerGPSTrackConfig;
+  const AGPSRecorder: IGPSRecorder
 );
 begin
   inherited Create(
@@ -148,7 +148,7 @@ end;
 
 procedure TMapGPSLayer.DrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VTrackColorer: ITrackColorerStatic;
@@ -267,11 +267,11 @@ end;
 
 procedure TMapGPSLayer.DrawPath(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter;
-  ATrackColorer: ITrackColorerStatic;
-  ALineWidth: Double;
+  const ALocalConverter: ILocalCoordConverter;
+  const ATrackColorer: ITrackColorerStatic;
+  const ALineWidth: Double;
   APointsCount: Integer
 );
   function GetCode(const AMapRect: TDoubleRect; const APoint: TDoublePoint): Byte;
@@ -352,10 +352,10 @@ end;
 
 procedure TMapGPSLayer.DrawSection(
   ATargetBmp: TCustomBitmap32;
-  ATrackColorer: ITrackColorerStatic;
-  ALineWidth: Double;
-  APointPrev, APointCurr: TDoublePoint;
-  ASpeed: Double);
+  const ATrackColorer: ITrackColorerStatic;
+  const ALineWidth: Double;
+  const APointPrev, APointCurr: TDoublePoint;
+  const ASpeed: Double);
 var
   VFixedPointsPair: array [0..10] of TFixedPoint;
   VSegmentColor: TColor32;
@@ -409,8 +409,8 @@ end;
 
 function TMapGPSLayer.PrepareProjectedPointsByEnum(
   AMaxPointsCount: Integer;
-  ALocalConverter: ILocalCoordConverter;
-  AEnum: IEnumGPSTrackPoint
+  const ALocalConverter: ILocalCoordConverter;
+  const AEnum: IEnumGPSTrackPoint
 ): Integer;
 var
   i: Integer;

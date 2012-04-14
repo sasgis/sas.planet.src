@@ -27,18 +27,20 @@ type
     procedure OnConfigChange;
   protected
     procedure DoRedraw; override;
-    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
+    function GetVisibleForNewPos(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): Boolean; override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AConfig: IMapLayerGridsConfig;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AConfig: IMapLayerGridsConfig;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
   end;
 
@@ -59,13 +61,13 @@ const
 { TMapLayerGrids }
 
 constructor TMapLayerGrids.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AConfig: IMapLayerGridsConfig;
-  AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AConfig: IMapLayerGridsConfig;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(
@@ -505,7 +507,9 @@ begin
   end;
 end;
 
-function TMapLayerGrids.GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+function TMapLayerGrids.GetVisibleForNewPos(
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): Boolean;
 var
   VConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;

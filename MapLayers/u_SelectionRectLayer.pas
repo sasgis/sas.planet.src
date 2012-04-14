@@ -28,7 +28,10 @@ type
     procedure OnSelectionChange;
     procedure OnConfigChange;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public
@@ -109,7 +112,10 @@ begin
   end;
 end;
 
-procedure TSelectionRectLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
+procedure TSelectionRectLayer.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   jj: integer;
   VDrawRect: TRect;

@@ -43,13 +43,11 @@ type
     procedure UpdateConverterMatrix;
     procedure InitLists(
       const AFactory: IVectorItmesFactory;
-      const AHintConverter: IHtmlToHintTextConverter;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;
-      const AHintConverter: IHtmlToHintTextConverter;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -78,21 +76,18 @@ uses
 
 constructor TContentTypeManagerSimple.Create(
   const AFactory: IVectorItmesFactory;
-  const AHintConverter: IHtmlToHintTextConverter;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   InitLists(
     AFactory,
-    AHintConverter,
     APerfCounterList.CreateAndAddNewSubList('TileLoad')
   );
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
   const AFactory: IVectorItmesFactory;
-  const AHintConverter: IHtmlToHintTextConverter;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var

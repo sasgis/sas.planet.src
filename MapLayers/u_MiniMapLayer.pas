@@ -115,7 +115,7 @@ type
     procedure LayerMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
-    function GetActualZoom(AVisualCoordConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const AVisualCoordConverter: ILocalCoordConverter): Byte;
 
     procedure BuildPopUpMenu;
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
@@ -128,14 +128,14 @@ type
     procedure OnLayerSetChange;
     procedure OnDrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     );
     procedure OnTimer;
 
     procedure SetBitmapChanged;
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     );
     procedure ClearLayerBitmap;
     function GetLayersSet: IMapTypeSet;
@@ -151,11 +151,15 @@ type
     procedure DoShow; override;
     procedure DoHide; override;
     procedure DoRedraw; override;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); override;
-    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); override;
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
-    function GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure DoUpdateLayerSize(const ANewSize: TPoint); override;
+    procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); override;
+    function GetLayerSizeForView(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): TPoint; override;
+    function GetLayerCoordConverterByViewConverter(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): ILocalCoordConverter; override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
   public
@@ -163,19 +167,19 @@ type
     procedure SendTerminateToThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      AConfig: IMiniMapLayerConfig;
-      AViewConfig: IGlobalViewMainConfig;
-      APostProcessingConfig:IBitmapPostProcessingConfig;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AIconsList: IMapTypeIconsList;
-      AErrorLogger: ITileErrorLogger;
-      ATimerNoifier: IJclNotifier
+      const AViewPortState: IViewPortState;
+      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      const AConfig: IMiniMapLayerConfig;
+      const AViewConfig: IGlobalViewMainConfig;
+      const APostProcessingConfig:IBitmapPostProcessingConfig;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AIconsList: IMapTypeIconsList;
+      const AErrorLogger: ITileErrorLogger;
+      const ATimerNoifier: IJclNotifier
     );
     destructor Destroy; override;
   end;
@@ -203,19 +207,19 @@ uses
 { TMapMainLayer }
 
 constructor TMiniMapLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  AConfig: IMiniMapLayerConfig;
-  AViewConfig: IGlobalViewMainConfig;
-  APostProcessingConfig:IBitmapPostProcessingConfig;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AIconsList: IMapTypeIconsList;
-  AErrorLogger: ITileErrorLogger;
-  ATimerNoifier: IJclNotifier
+  const AViewPortState: IViewPortState;
+  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  const AConfig: IMiniMapLayerConfig;
+  const AViewConfig: IGlobalViewMainConfig;
+  const APostProcessingConfig:IBitmapPostProcessingConfig;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AIconsList: IMapTypeIconsList;
+  const AErrorLogger: ITileErrorLogger;
+  const ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -383,7 +387,8 @@ begin
 end;
 
 function TMiniMapLayer.GetLayerCoordConverterByViewConverter(
-  ANewVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): ILocalCoordConverter;
 var
   VVisualMapCenter: TDoublePoint;
   VZoom: Byte;
@@ -420,7 +425,8 @@ begin
 end;
 
 function TMiniMapLayer.GetLayerSizeForView(
-  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): TPoint;
 var
   VWidth: Integer;
 begin
@@ -610,7 +616,7 @@ end;
 
 procedure TMiniMapLayer.DrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VBitmapTile: IBitmap32Static;
@@ -705,7 +711,9 @@ begin
   end;
 end;
 
-function TMiniMapLayer.GetActualZoom(AVisualCoordConverter: ILocalCoordConverter): Byte;
+function TMiniMapLayer.GetActualZoom(
+  const AVisualCoordConverter: ILocalCoordConverter
+): Byte;
 var
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
@@ -1031,7 +1039,7 @@ end;
 
 procedure TMiniMapLayer.OnDrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -1116,7 +1124,9 @@ begin
   InterlockedIncrement(FUpdateCounter);
 end;
 
-procedure TMiniMapLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TMiniMapLayer.SetLayerCoordConverter(
+  const AValue: ILocalCoordConverter
+);
 var
   VNewSize: TPoint;
 begin
@@ -1203,7 +1213,7 @@ begin
   FMinusButton.MouseEvents := True;
 end;
 
-procedure TMiniMapLayer.DoUpdateLayerLocation(ANewLocation: TFloatRect);
+procedure TMiniMapLayer.DoUpdateLayerLocation(const ANewLocation: TFloatRect);
 var
   VRect: TFloatRect;
 begin
@@ -1235,7 +1245,7 @@ begin
   FMinusButton.Location := VRect;
 end;
 
-procedure TMiniMapLayer.DoUpdateLayerSize(ANewSize: TPoint);
+procedure TMiniMapLayer.DoUpdateLayerSize(const ANewSize: TPoint);
 var
   VBitmapSizeInPixel: TPoint;
   VBorderWidth: Integer;

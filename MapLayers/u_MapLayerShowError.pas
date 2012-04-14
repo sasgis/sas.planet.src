@@ -31,18 +31,21 @@ type
 
     procedure OnTimer;
     procedure OnErrorRecive;
-    function CreateMarkerByError(AErrorInfo: ITileErrorInfo): IBitmapMarker;
-    procedure ShowError(AErrorInfo: ITileErrorInfo);
+    function CreateMarkerByError(const AErrorInfo: ITileErrorInfo): IBitmapMarker;
+    procedure ShowError(const AErrorInfo: ITileErrorInfo);
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
     procedure DoHide; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ALogProvider: ITileErrorLogProviedrStuped;
-      ATimerNoifier: IJclNotifier
+      const AViewPortState: IViewPortState;
+      const ALogProvider: ITileErrorLogProviedrStuped;
+      const ATimerNoifier: IJclNotifier
     );
   end;
 
@@ -62,11 +65,11 @@ uses
 { TTileErrorInfoLayer }
 
 constructor TTileErrorInfoLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ALogProvider: ITileErrorLogProviedrStuped;
-  ATimerNoifier: IJclNotifier
+  const AViewPortState: IViewPortState;
+  const ALogProvider: ITileErrorLogProviedrStuped;
+  const ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -85,7 +88,8 @@ begin
 end;
 
 function TTileErrorInfoLayer.CreateMarkerByError(
-  AErrorInfo: ITileErrorInfo): IBitmapMarker;
+  const AErrorInfo: ITileErrorInfo
+): IBitmapMarker;
 var
   VText: string;
   VSize: TPoint;
@@ -173,8 +177,10 @@ begin
   end;
 end;
 
-procedure TTileErrorInfoLayer.PaintLayer(ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+procedure TTileErrorInfoLayer.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VMarker: IBitmapMarker;
   VFixedOnView: TDoublePoint;
@@ -214,7 +220,7 @@ begin
   end;
 end;
 
-procedure TTileErrorInfoLayer.ShowError(AErrorInfo: ITileErrorInfo);
+procedure TTileErrorInfoLayer.ShowError(const AErrorInfo: ITileErrorInfo);
 var
   VConverter: ICoordConverter;
   VMapType: TMapType;

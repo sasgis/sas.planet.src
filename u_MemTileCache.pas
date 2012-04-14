@@ -51,27 +51,40 @@ type
     FCacheList: TStringList;
     FSync: TMultiReadExclusiveWriteSynchronizer;
     procedure OnChangeConfig;
-    procedure OnTileStorageChange(AMsg: IInterface);
-    function GetMemCacheKey(const AXY: TPoint; const Azoom: byte;
-                            const AMapVersionInfo: IMapVersionInfo): string;
+    procedure OnTileStorageChange(const AMsg: IInterface);
+    function GetMemCacheKey(
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AMapVersionInfo: IMapVersionInfo
+    ): string;
     procedure OnTTLTrim(Sender: TObject);
   protected
     procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
   protected
     procedure Clear;
-    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo);
-    procedure AddObjectToCache(AObj: IInterface; const AXY: TPoint; const AZoom: Byte;
-                               const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadObjectFromCache(const AXY: TPoint; const AZoom: Byte;
-                                    const AMapVersionInfo: IMapVersionInfo): IInterface;
+    procedure DeleteTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    procedure AddObjectToCache(
+      const AObj: IInterface;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    function TryLoadObjectFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    ): IInterface;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      ATileStorage: TTileStorageAbstract;
-      ACoordConverter: ICoordConverter;
-      AConfig: IMainMemCacheConfig
+      const AGCList: ITTLCheckNotifier;
+      const ATileStorage: TTileStorageAbstract;
+      const ACoordConverter: ICoordConverter;
+      const AConfig: IMainMemCacheConfig
     );
     destructor Destroy; override;
   end;
@@ -117,10 +130,10 @@ uses
 { TTileCacheBase }
 
 constructor TMemTileCacheBase.Create(
-  AGCList: ITTLCheckNotifier;
-  ATileStorage: TTileStorageAbstract;
-  ACoordConverter: ICoordConverter;
-  AConfig: IMainMemCacheConfig
+  const AGCList: ITTLCheckNotifier;
+  const ATileStorage: TTileStorageAbstract;
+  const ACoordConverter: ICoordConverter;
+  const AConfig: IMainMemCacheConfig
 );
 var
   i: Integer;
@@ -180,7 +193,7 @@ begin
 end;
 
 procedure TMemTileCacheBase.AddObjectToCache(
-  AObj: IInterface;
+  const AObj: IInterface;
   const AXY: TPoint;
   const AZoom: Byte;
   const AMapVersionInfo: IMapVersionInfo
@@ -285,7 +298,7 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.OnTileStorageChange(AMsg: IInterface);
+procedure TMemTileCacheBase.OnTileStorageChange(const AMsg: IInterface);
 var
   VTileKey: ITileKey;
 begin

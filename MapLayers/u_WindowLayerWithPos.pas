@@ -50,14 +50,14 @@ type
     function GetLayerCoordConverter: ILocalCoordConverter;
     function GetViewCoordConverter: ILocalCoordConverter;
 
-    procedure ScaleChange(ANewVisualCoordConverter: ILocalCoordConverter);
+    procedure ScaleChange(const ANewVisualCoordConverter: ILocalCoordConverter);
   protected
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); virtual;
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); virtual;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); virtual;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); virtual;
 
-    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
+    function GetLayerCoordConverterByViewConverter(const ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
 
-    procedure PosChange(ANewVisualCoordConverter: ILocalCoordConverter);
+    procedure PosChange(const ANewVisualCoordConverter: ILocalCoordConverter);
 
     procedure ViewUpdateLock;
     procedure ViewUpdateUnlock;
@@ -67,8 +67,8 @@ type
     property LayerCoordConverter: ILocalCoordConverter read GetLayerCoordConverter;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AViewPortState: IViewPortState;
+      const APerfList: IInternalPerformanceCounterList;
+      const AViewPortState: IViewPortState;
       AListenScaleChange: Boolean
     );
     destructor Destroy; override;
@@ -89,7 +89,7 @@ type
 
     procedure SetNeedRedraw; virtual;
 
-    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
+    function GetVisibleForNewPos(const ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
 
     procedure Show; virtual;
     procedure DoShow; virtual;
@@ -101,14 +101,14 @@ type
     property Layer: TCustomLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
     procedure Redraw; virtual;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       ALayer: TCustomLayer;
-      AViewPortState: IViewPortState;
+      const AViewPortState: IViewPortState;
       AListenScaleChange: Boolean
     );
     destructor Destroy; override;
@@ -126,31 +126,31 @@ type
 
     procedure UpdateLayerSize; virtual;
     procedure UpdateLayerSizeIfNeed; virtual;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
+    procedure DoUpdateLayerSize(const ANewSize: TPoint); virtual;
+    function GetLayerSizeForView(const ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
     function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
     procedure UpdateLayerLocationIfNeed; virtual;
     procedure UpdateLayerLocation; virtual;
-    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
+    procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
   protected
     procedure SetNeedUpdateLocation; virtual;
     procedure SetNeedRedraw; override;
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoHide; override;
     procedure DoShow; override;
     procedure DoViewUpdate; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState
+      const AViewPortState: IViewPortState
     );
   end;
 
   TWindowLayerFixedSizeWithBitmap = class(TWindowLayerWithBitmap)
   protected
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
+    function GetLayerSizeForView(const ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
     procedure DoRedraw; override;
   end;
 
@@ -164,8 +164,8 @@ uses
 { TWindowLayerWithPosBase }
 
 constructor TWindowLayerWithPosBase.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AViewPortState: IViewPortState;
+  const APerfList: IInternalPerformanceCounterList;
+  const AViewPortState: IViewPortState;
   AListenScaleChange: Boolean
 );
 begin
@@ -204,7 +204,8 @@ begin
 end;
 
 procedure TWindowLayerWithPosBase.PosChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+  const ANewVisualCoordConverter: ILocalCoordConverter
+);
 begin
   ViewUpdateLock;
   try
@@ -221,7 +222,8 @@ begin
 end;
 
 procedure TWindowLayerWithPosBase.ScaleChange(
-  ANewVisualCoordConverter: ILocalCoordConverter);
+  const ANewVisualCoordConverter: ILocalCoordConverter
+);
 begin
   ViewUpdateLock;
   try
@@ -242,7 +244,8 @@ begin
 end;
 
 function TWindowLayerWithPosBase.GetLayerCoordConverterByViewConverter(
-  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+  const ANewViewCoordConverter: ILocalCoordConverter
+): ILocalCoordConverter;
 begin
   Result := ANewViewCoordConverter;
 end;
@@ -262,7 +265,8 @@ begin
 end;
 
 procedure TWindowLayerWithPosBase.SetLayerCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   FLayerCoordConverterCS.BeginWrite;
   try
@@ -273,7 +277,8 @@ begin
 end;
 
 procedure TWindowLayerWithPosBase.SetViewCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   FViewCoordConverterCS.BeginWrite;
   try
@@ -308,9 +313,9 @@ end;
 { TWindowLayerBasic }
 
 constructor TWindowLayerBasic.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   ALayer: TCustomLayer;
-  AViewPortState: IViewPortState;
+  const AViewPortState: IViewPortState;
   AListenScaleChange: Boolean
 );
 begin
@@ -380,7 +385,8 @@ begin
 end;
 
 function TWindowLayerBasic.GetVisibleForNewPos(
-  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): Boolean;
 begin
   Result := FVisible;
 end;
@@ -412,7 +418,8 @@ begin
 end;
 
 procedure TWindowLayerBasic.SetLayerCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   SetVisible(GetVisibleForNewPos(AValue));
   inherited;
@@ -435,9 +442,9 @@ end;
 { TWindowLayerWithBitmap }
 
 constructor TWindowLayerWithBitmap.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState
+  const AViewPortState: IViewPortState
 );
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
@@ -466,12 +473,13 @@ begin
 end;
 
 procedure TWindowLayerWithBitmap.DoUpdateLayerLocation(
-  ANewLocation: TFloatRect);
+  const ANewLocation: TFloatRect
+);
 begin
   FLayer.Location := ANewLocation;
 end;
 
-procedure TWindowLayerWithBitmap.DoUpdateLayerSize(ANewSize: TPoint);
+procedure TWindowLayerWithBitmap.DoUpdateLayerSize(const ANewSize: TPoint);
 var
   VNedRedraw: Boolean;
 begin
@@ -503,7 +511,8 @@ begin
 end;
 
 procedure TWindowLayerWithBitmap.SetViewCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedUpdateLocation;
@@ -555,7 +564,8 @@ begin
 end;
 
 function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForView(
-  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): TPoint;
 begin
   FLayer.Bitmap.Lock;
   try

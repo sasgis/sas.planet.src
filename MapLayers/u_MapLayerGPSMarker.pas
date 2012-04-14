@@ -36,21 +36,24 @@ type
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
     procedure OnTimer;
-    procedure PrepareMarker(ASpeed, AAngle: Double; AForceStopped: Boolean);
+    procedure PrepareMarker(const ASpeed, AAngle: Double; AForceStopped: Boolean);
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ATimerNoifier: IJclNotifier;
-      AConfig: IMapLayerGPSMarkerConfig;
-      AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
-      AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
-      AGPSRecorder: IGPSRecorder
+      const AViewPortState: IViewPortState;
+      const ATimerNoifier: IJclNotifier;
+      const AConfig: IMapLayerGPSMarkerConfig;
+      const AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
@@ -69,14 +72,14 @@ uses
 { TMapLayerGPSMarker }
 
 constructor TMapLayerGPSMarker.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ATimerNoifier: IJclNotifier;
-  AConfig: IMapLayerGPSMarkerConfig;
-  AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
-  AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
-  AGPSRecorder: IGPSRecorder
+  const AViewPortState: IViewPortState;
+  const ATimerNoifier: IJclNotifier;
+  const AConfig: IMapLayerGPSMarkerConfig;
+  const AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
+  const AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
+  const AGPSRecorder: IGPSRecorder
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -151,7 +154,10 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarker.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
+procedure TMapLayerGPSMarker.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VMarker: IBitmapMarker;
   VFixedOnView: TDoublePoint;
@@ -182,7 +188,10 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarker.PrepareMarker(ASpeed, AAngle: Double; AForceStopped: Boolean);
+procedure TMapLayerGPSMarker.PrepareMarker(
+  const ASpeed, AAngle: Double;
+  AForceStopped: Boolean
+);
 var
   VMarker: IBitmapMarker;
   VMarkerProvider: IBitmapMarkerProvider;

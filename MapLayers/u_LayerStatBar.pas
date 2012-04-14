@@ -43,23 +43,25 @@ type
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; override;
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    function GetLayerSizeForView(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): TPoint; override;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AConfig: IStatBarConfig;
-      AValueToStringConverterConfig: IValueToStringConverterConfig;
-      AMouseState: IMouseState;
-      ATimerNoifier: IJclNotifier;
-      ATimeZoneDiff: ITimeZoneDiffByLonLat;
-      ADownloadInfo: IDownloadInfoSimple;
-      AGlobalInternetState: IGlobalInternetState;
-      AMainMapsConfig: IMainMapsConfig
+      const AViewPortState: IViewPortState;
+      const AConfig: IStatBarConfig;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AMouseState: IMouseState;
+      const ATimerNoifier: IJclNotifier;
+      const ATimeZoneDiff: ITimeZoneDiffByLonLat;
+      const ADownloadInfo: IDownloadInfoSimple;
+      const AGlobalInternetState: IGlobalInternetState;
+      const AMainMapsConfig: IMainMapsConfig
     );
   end;
 
@@ -80,17 +82,17 @@ const
 { TLayerStatBar }
 
 constructor TLayerStatBar.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AConfig: IStatBarConfig;
-  AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMouseState: IMouseState;
-  ATimerNoifier: IJclNotifier;
-  ATimeZoneDiff: ITimeZoneDiffByLonLat;
-  ADownloadInfo: IDownloadInfoSimple;
-  AGlobalInternetState: IGlobalInternetState;
-  AMainMapsConfig: IMainMapsConfig
+  const AViewPortState: IViewPortState;
+  const AConfig: IStatBarConfig;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AMouseState: IMouseState;
+  const ATimerNoifier: IJclNotifier;
+  const ATimeZoneDiff: ITimeZoneDiffByLonLat;
+  const ADownloadInfo: IDownloadInfoSimple;
+  const AGlobalInternetState: IGlobalInternetState;
+  const AMainMapsConfig: IMainMapsConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -112,7 +114,9 @@ begin
   FLastUpdateTick := 0;
 end;
 
-function TLayerStatBar.GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+function TLayerStatBar.GetLayerSizeForView(
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): TPoint;
 begin
   Result.X := ANewVisualCoordConverter.GetLocalRectSize.X;
   Result.Y := FConfig.Height;
@@ -180,7 +184,7 @@ begin
   Redraw;
 end;
 
-procedure TLayerStatBar.SetViewCoordConverter(AValue: ILocalCoordConverter);
+procedure TLayerStatBar.SetViewCoordConverter(const AValue: ILocalCoordConverter);
 begin
   inherited;
   SetNeedUpdateLayerSize;

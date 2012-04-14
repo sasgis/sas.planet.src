@@ -126,6 +126,7 @@ var
   VBorderColor, VFillColor: TColor32;
   VLineWidth: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
+  VTemplate: IMarkTemplatePoly;
 begin
   inherited;
   VCategoryID := -1;
@@ -141,7 +142,7 @@ begin
     VFillColor := ReadColor32(AConfigData, 'FillColor', VFillColor);
     VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
-  SetDefaultTemplate(
+  VTemplate :=
     TMarkTemplatePoly.Create(
       CategoryDb,
       NameGenerator,
@@ -149,8 +150,8 @@ begin
       VBorderColor,
       VFillColor,
       VLineWidth
-    )
-  );
+    );
+  SetDefaultTemplate(VTemplate);
 end;
 
 procedure TMarkPolyTemplateConfig.DoWriteConfig(

@@ -108,9 +108,9 @@ type
     FAppClosingListener: IJclListener;
     FResult: ITileRequestResult;
 
-    procedure OnTileDownloadFinish(AMsg: IInterface);
+    procedure OnTileDownloadFinish(const AMsg: IInterface);
     procedure OnAppClosing;
-    procedure ProcessResult(AResult: ITileRequestResult);
+    procedure ProcessResult(const AResult: ITileRequestResult);
     procedure SleepCancelable(ATime: Cardinal);
 
     procedure PrepareStrings;
@@ -120,22 +120,22 @@ type
     function GetDownloadSize: Double;
 
     constructor CreateInternal(
-      AAppClosingNotifier: IJclNotifier;
-      ALog: ILogSimple;
+      const AAppClosingNotifier: IJclNotifier;
+      const ALog: ILogSimple;
       AMapType: TMapType;
       AZoom: byte;
-      APolygon: ILonLatPolygon;
-      APolyProjected: IProjectedPolygon;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloadInfo: IDownloadInfoSimple;
+      const APolygon: ILonLatPolygon;
+      const APolyProjected: IProjectedPolygon;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloadInfo: IDownloadInfoSimple;
       AReplaceExistTiles: Boolean;
       ACheckExistTileSize: Boolean;
       ACheckExistTileDate: Boolean;
-      AReplaceOlderDate: TDateTime;
+      const AReplaceOlderDate: TDateTime;
       ASecondLoadTNE: Boolean;
-      ALastProcessedPoint: TPoint;
-      AProcessed: Int64;
-      AElapsedTime: TDateTime;
+      const ALastProcessedPoint: TPoint;
+      const AProcessed: Int64;
+      const AElapsedTime: TDateTime;
       const AForAttachments: Boolean
     );
   protected
@@ -143,34 +143,34 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      AAppClosingNotifier: IJclNotifier;
-      ALog: ILogSimple;
-      APolygon: ILonLatPolygon;
-      APolyProjected: IProjectedPolygon;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloadInfo: IDownloadInfoSimple;
+      const AAppClosingNotifier: IJclNotifier;
+      const ALog: ILogSimple;
+      const APolygon: ILonLatPolygon;
+      const APolyProjected: IProjectedPolygon;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloadInfo: IDownloadInfoSimple;
       Azamena: boolean;
       ACheckExistTileSize: boolean;
       Azdate: boolean;
       ASecondLoadTNE: boolean;
       AZoom: byte;
       Atypemap: TMapType;
-      AReplaceOlderDate: TDateTime;
+      const AReplaceOlderDate: TDateTime;
       const AForAttachments: Boolean
     );
     constructor CreateFromSls(
-      AAppClosingNotifier: IJclNotifier;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ALog: ILogSimple;
-      AFullMapsSet: IMapTypeSet;
-      AProjectionFactory: IProjectionInfoFactory;
-      ASLSSection: IConfigDataProvider;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloadInfo: IDownloadInfoSimple
+      const AAppClosingNotifier: IJclNotifier;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ALog: ILogSimple;
+      const AFullMapsSet: IMapTypeSet;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const ASLSSection: IConfigDataProvider;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloadInfo: IDownloadInfoSimple
     );
     destructor Destroy; override;
 
-    procedure SaveToFile(ASLSSection: IConfigDataWriteProvider);
+    procedure SaveToFile(const ASLSSection: IConfigDataWriteProvider);
     procedure DownloadPause;
     procedure DownloadResume;
     property TotalInRegion: Int64 read FTotalInRegion;
@@ -203,19 +203,20 @@ uses
   u_ResStrings;
 
 constructor TThreadDownloadTiles.CreateInternal(
-  AAppClosingNotifier: IJclNotifier;
-  ALog: ILogSimple;
+  const AAppClosingNotifier: IJclNotifier;
+  const ALog: ILogSimple;
   AMapType: TMapType;
   AZoom: byte;
-  APolygon: ILonLatPolygon;
-  APolyProjected: IProjectedPolygon;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloadInfo: IDownloadInfoSimple;
+  const APolygon: ILonLatPolygon;
+  const APolyProjected: IProjectedPolygon;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloadInfo: IDownloadInfoSimple;
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
-  AReplaceOlderDate: TDateTime; ASecondLoadTNE: Boolean;
-  ALastProcessedPoint: TPoint;
-  AProcessed: Int64;
-  AElapsedTime: TDateTime;
+  const AReplaceOlderDate: TDateTime;
+  ASecondLoadTNE: Boolean;
+  const ALastProcessedPoint: TPoint;
+  const AProcessed: Int64;
+  const AElapsedTime: TDateTime;
   const AForAttachments: Boolean
 );
 var
@@ -309,16 +310,16 @@ begin
 end;
 
 constructor TThreadDownloadTiles.Create(
-  AAppClosingNotifier: IJclNotifier;
-  ALog: ILogSimple;
-  APolygon: ILonLatPolygon;
-  APolyProjected: IProjectedPolygon;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloadInfo: IDownloadInfoSimple;
+  const AAppClosingNotifier: IJclNotifier;
+  const ALog: ILogSimple;
+  const APolygon: ILonLatPolygon;
+  const APolyProjected: IProjectedPolygon;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloadInfo: IDownloadInfoSimple;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
   Atypemap: TMapType;
-  AReplaceOlderDate: TDateTime;
+  const AReplaceOlderDate: TDateTime;
   const AForAttachments: Boolean
 );
 begin
@@ -344,14 +345,14 @@ begin
 end;
 
 constructor TThreadDownloadTiles.CreateFromSls(
-  AAppClosingNotifier: IJclNotifier;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ALog: ILogSimple;
-  AFullMapsSet: IMapTypeSet;
-  AProjectionFactory: IProjectionInfoFactory;
-  ASLSSection: IConfigDataProvider;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloadInfo: IDownloadInfoSimple
+  const AAppClosingNotifier: IJclNotifier;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ALog: ILogSimple;
+  const AFullMapsSet: IMapTypeSet;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const ASLSSection: IConfigDataProvider;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloadInfo: IDownloadInfoSimple
 );
 var
   i: integer;
@@ -514,7 +515,7 @@ begin
   inherited;
 end;
 
-procedure TThreadDownloadTiles.SaveToFile(ASLSSection: IConfigDataWriteProvider);
+procedure TThreadDownloadTiles.SaveToFile(const ASLSSection: IConfigDataWriteProvider);
 var
   i:integer;
   VElapsedTime: TDateTime;
@@ -778,7 +779,7 @@ begin
   FFinishEvent.SetEvent;
 end;
 
-procedure TThreadDownloadTiles.OnTileDownloadFinish(AMsg: IInterface);
+procedure TThreadDownloadTiles.OnTileDownloadFinish(const AMsg: IInterface);
 var
   VResult: ITileRequestResult;
 begin
@@ -811,7 +812,7 @@ begin
   FRES_ProcessFilesComplete := SAS_MSG_ProcessFilesComplete;
 end;
 
-procedure TThreadDownloadTiles.ProcessResult(AResult: ITileRequestResult);
+procedure TThreadDownloadTiles.ProcessResult(const AResult: ITileRequestResult);
 var
   VResultOk: IDownloadResultOk;
   VResultBadContentType: IDownloadResultBadContentType;

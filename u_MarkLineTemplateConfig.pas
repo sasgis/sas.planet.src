@@ -122,6 +122,7 @@ var
   VLineColor: TColor32;
   VLineWidth: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
+  VTemplate: IMarkTemplateLine;
 begin
   inherited;
   VCategoryID := -1;
@@ -135,15 +136,16 @@ begin
     VLineColor := ReadColor32(AConfigData, 'LineColor', VLineColor);
     VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
-  SetDefaultTemplate(
+  VTemplate :=
     TMarkTemplateLine.Create(
       CategoryDb,
       NameGenerator,
       VCategoryId,
       VLineColor,
       VLineWidth
-    )
-  );
+    );
+
+  SetDefaultTemplate(VTemplate);
 end;
 
 procedure TMarkLineTemplateConfig.DoWriteConfig(

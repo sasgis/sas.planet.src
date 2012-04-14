@@ -61,22 +61,22 @@ type
     procedure OnCancel;
     procedure DoProcessDownloadRequests(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     );
     procedure RetartDownloadIfNeed;
-    procedure OnTileDownloadFinish(AMsg: IInterface);
+    procedure OnTileDownloadFinish(const AMsg: IInterface);
     procedure OnAppClosing;
   public
     constructor Create(
-      AConfig: IDownloadUIConfig;
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      AViewPortState: IViewPortState;
-      AMapTypeActive: IActiveMapSingle;
-      ADownloadInfo: IDownloadInfoSimple;
-      AGlobalInternetState: IGlobalInternetState;
-      AErrorLogger: ITileErrorLogger
+      const AConfig: IDownloadUIConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
+      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AViewPortState: IViewPortState;
+      const AMapTypeActive: IActiveMapSingle;
+      const ADownloadInfo: IDownloadInfoSimple;
+      const AGlobalInternetState: IGlobalInternetState;
+      const AErrorLogger: ITileErrorLogger
     );
     destructor Destroy; override;
   end;
@@ -104,15 +104,15 @@ uses
 { TUiTileDownload }
 
 constructor TUiTileDownload.Create(
-  AConfig: IDownloadUIConfig;
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  AViewPortState: IViewPortState;
-  AMapTypeActive: IActiveMapSingle;
-  ADownloadInfo: IDownloadInfoSimple;
-  AGlobalInternetState: IGlobalInternetState;
-  AErrorLogger: ITileErrorLogger
+  const AConfig: IDownloadUIConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
+  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AViewPortState: IViewPortState;
+  const AMapTypeActive: IActiveMapSingle;
+  const ADownloadInfo: IDownloadInfoSimple;
+  const AGlobalInternetState: IGlobalInternetState;
+  const AErrorLogger: ITileErrorLogger
 );
 begin
   FConfig := AConfig;
@@ -261,7 +261,7 @@ end;
 
 procedure TUiTileDownload.DoProcessDownloadRequests(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VIterator: ITileIterator;
@@ -353,7 +353,7 @@ begin
   end;
 end;
 
-procedure TUiTileDownload.OnTileDownloadFinish(AMsg: IInterface);
+procedure TUiTileDownload.OnTileDownloadFinish(const AMsg: IInterface);
 var
   VResult: ITileRequestResult;
   VResultWithDownload: ITileRequestResultWithDownloadResult;

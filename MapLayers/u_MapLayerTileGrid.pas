@@ -18,16 +18,18 @@ type
     FConfig: ITileGridConfig;
     procedure OnConfigChange;
   protected
-    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    function GetVisibleForNewPos(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): Boolean; override;
+    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AConfig: ITileGridConfig
+      const AViewPortState: IViewPortState;
+      const AConfig: ITileGridConfig
     );
   end;
 
@@ -40,10 +42,10 @@ uses
 { TMapLayerTileGrid }
 
 constructor TMapLayerTileGrid.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AConfig: ITileGridConfig
+  const AViewPortState: IViewPortState;
+  const AConfig: ITileGridConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -56,7 +58,8 @@ begin
 end;
 
 function TMapLayerTileGrid.GetVisibleForNewPos(
-  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): Boolean;
 var
   VConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
@@ -97,7 +100,10 @@ begin
   end;
 end;
 
-procedure TMapLayerTileGrid.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
+procedure TMapLayerTileGrid.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   i, j: integer;
   VVisible: Boolean;

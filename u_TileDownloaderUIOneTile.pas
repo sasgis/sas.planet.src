@@ -58,21 +58,21 @@ type
     FAppClosingListener: IJclListener;
     FResult: ITileRequestResult;
 
-    procedure OnTileDownloadFinish(AMsg: IInterface);
+    procedure OnTileDownloadFinish(const AMsg: IInterface);
     procedure OnAppClosing;
-    procedure ProcessResult(AResult: ITileRequestResult);
+    procedure ProcessResult(const AResult: ITileRequestResult);
   protected
     procedure Execute; override;
   public
     constructor Create(
-      AThreadConfig: IThreadConfig;
-      AAppClosingNotifier: IJclNotifier;
-      AXY: TPoint;
+      const AThreadConfig: IThreadConfig;
+      const AAppClosingNotifier: IJclNotifier;
+      const AXY: TPoint;
       AZoom: byte;
       AMapType: TMapType;
-      ADownloadInfo: IDownloadInfoSimple;
-      AGlobalInternetState: IGlobalInternetState;
-      AErrorLogger: ITileErrorLogger
+      const ADownloadInfo: IDownloadInfoSimple;
+      const AGlobalInternetState: IGlobalInternetState;
+      const AErrorLogger: ITileErrorLogger
     ); overload;
     destructor Destroy; override;
   end;
@@ -87,14 +87,14 @@ uses
   u_TileErrorInfo;
 
 constructor TTileDownloaderUIOneTile.Create(
-  AThreadConfig: IThreadConfig;
-  AAppClosingNotifier: IJclNotifier;
-  AXY: TPoint;
+  const AThreadConfig: IThreadConfig;
+  const AAppClosingNotifier: IJclNotifier;
+  const AXY: TPoint;
   AZoom: byte;
   AMapType: TMapType;
-  ADownloadInfo: IDownloadInfoSimple;
-  AGlobalInternetState: IGlobalInternetState;
-  AErrorLogger: ITileErrorLogger
+  const ADownloadInfo: IDownloadInfoSimple;
+  const AGlobalInternetState: IGlobalInternetState;
+  const AErrorLogger: ITileErrorLogger
 );
 var
   VOperationNotifier: TOperationNotifier;
@@ -157,7 +157,7 @@ begin
   FFinishEvent.SetEvent;
 end;
 
-procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(AMsg: IInterface);
+procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(const AMsg: IInterface);
 var
   VResult: ITileRequestResult;
 begin
@@ -166,7 +166,7 @@ begin
   FFinishEvent.SetEvent;
 end;
 
-procedure TTileDownloaderUIOneTile.ProcessResult(AResult: ITileRequestResult);
+procedure TTileDownloaderUIOneTile.ProcessResult(const AResult: ITileRequestResult);
 var
   VResultWithDownload: ITileRequestResultWithDownloadResult;
   VDownloadResultOk: IDownloadResultOk;

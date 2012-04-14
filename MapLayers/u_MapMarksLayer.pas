@@ -65,55 +65,55 @@ type
     FMarksSubset: IMarksSubset;
     FMarksSubsetCS: IReadWriteSync;
     FLinesClipRect: TDoubleRect;
-    
+
     function GetProjectedPath(
-      AMarkPath: IMarkLine;
-      AProjectionInfo: IProjectionInfo
+      const AMarkPath: IMarkLine;
+      const AProjectionInfo: IProjectionInfo
     ): IProjectedPath;
     function GetProjectedPolygon(
-      AMarkPoly: IMarkPoly;
-      AProjectionInfo: IProjectionInfo
+      const AMarkPoly: IMarkPoly;
+      const AProjectionInfo: IProjectionInfo
     ): IProjectedPolygon;
 
     procedure OnConfigChange;
-    function GetMarksSubset(ALocalConverter: ILocalCoordConverter): IMarksSubset;
+    function GetMarksSubset(const ALocalConverter: ILocalCoordConverter): IMarksSubset;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      ATimerNoifier: IJclNotifier;
-      AConfig: IMarksLayerConfig;
+      const AViewPortState: IViewPortState;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      const ATimerNoifier: IJclNotifier;
+      const AConfig: IMarksLayerConfig;
       AMarkDB: TMarksSystem
     );
     destructor Destroy; override;
 
-    procedure MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
-    procedure MouseOnReg(xy: TPoint; out AMark: IMark); overload;
+    procedure MouseOnReg(const xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
+    procedure MouseOnReg(const xy: TPoint; out AMark: IMark); overload;
 
     function GetIntersection(
       const ACurrLonLat: TDoublePoint;
       var AIntersectionLonLat: TDoublePoint;
-      AMarkPoly: IMarkPoly;
-      AProjection: IProjectionInfo
+      const AMarkPoly: IMarkPoly;
+      const AProjection: IProjectionInfo
     ):boolean; overload;
     function GetIntersection(
       const ACurrLonLat: TDoublePoint;
       var AIntersectionLonLat: TDoublePoint;
-      AMarkLine: IMarkLine;
-      AProjection: IProjectionInfo
+      const AMarkLine: IMarkLine;
+      const AProjection: IProjectionInfo
     ):boolean; overload;
     procedure Redraw; override;
   end;
@@ -139,16 +139,16 @@ uses
 { TMapMarksLayer }
 
 constructor TMapMarksLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  ATimerNoifier: IJclNotifier;
-  AConfig: IMarksLayerConfig;
+  const AViewPortState: IViewPortState;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  const ATimerNoifier: IJclNotifier;
+  const AConfig: IMarksLayerConfig;
   AMarkDB: TMarksSystem
 );
 begin
@@ -192,7 +192,7 @@ end;
 
 procedure TMapMarksLayer.DrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VBitmapTile: IBitmap32Static;
@@ -317,7 +317,11 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMark; out AMarkS: Double);
+procedure TMapMarksLayer.MouseOnReg(
+  const xy: TPoint;
+  out AMark: IMark;
+  out AMarkS: Double
+);
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -406,7 +410,7 @@ begin
 end;
 
 function TMapMarksLayer.GetMarksSubset(
-  ALocalConverter: ILocalCoordConverter
+  const ALocalConverter: ILocalCoordConverter
 ): IMarksSubset;
 var
   VList: IInterfaceList;
@@ -438,8 +442,10 @@ begin
   end;
 end;
 
-function TMapMarksLayer.GetProjectedPath(AMarkPath: IMarkLine;
-  AProjectionInfo: IProjectionInfo): IProjectedPath;
+function TMapMarksLayer.GetProjectedPath(
+  const AMarkPath: IMarkLine;
+  const AProjectionInfo: IProjectionInfo
+): IProjectedPath;
 var
   VID: Integer;
 begin
@@ -455,8 +461,10 @@ begin
   end;
 end;
 
-function TMapMarksLayer.GetProjectedPolygon(AMarkPoly: IMarkPoly;
-  AProjectionInfo: IProjectionInfo): IProjectedPolygon;
+function TMapMarksLayer.GetProjectedPolygon(
+  const AMarkPoly: IMarkPoly;
+  const AProjectionInfo: IProjectionInfo
+): IProjectedPolygon;
 var
   VID: Integer;
 begin
@@ -472,7 +480,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(xy: TPoint; out AMark: IMark);
+procedure TMapMarksLayer.MouseOnReg(const xy: TPoint; out AMark: IMark);
 var
   VMarkS: Double;
 begin
@@ -482,8 +490,8 @@ end;
 function TMapMarksLayer.GetIntersection(
   const ACurrLonLat: TDoublePoint;
   var AIntersectionLonLat: TDoublePoint;
-  AMarkPoly: IMarkPoly;
-  AProjection: IProjectionInfo
+  const AMarkPoly: IMarkPoly;
+  const AProjection: IProjectionInfo
 ): boolean;
 var
   r: double;
@@ -517,8 +525,8 @@ end;
 function TMapMarksLayer.GetIntersection(
   const ACurrLonLat: TDoublePoint;
   var AIntersectionLonLat: TDoublePoint;
-  AMarkLine: IMarkLine;
-  AProjection: IProjectionInfo
+  const AMarkLine: IMarkLine;
+  const AProjection: IProjectionInfo
 ): Boolean;
 var
   r: double;

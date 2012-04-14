@@ -87,17 +87,19 @@ type
       out AFullLen: Double
     );
   protected
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(
+      const AValue: ILocalCoordConverter
+    ); override;
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoRedraw; override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AConfig: IScaleLineConfig
+      const AViewPortState: IViewPortState;
+      const AConfig: IScaleLineConfig
     );
     destructor Destroy; override;
   end;
@@ -116,10 +118,10 @@ uses
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AConfig: IScaleLineConfig
+  const AViewPortState: IViewPortState;
+  const AConfig: IScaleLineConfig
 );
 var
   VSize: TPoint;
@@ -174,7 +176,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLine.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TLayerScaleLine.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
 begin
   inherited;
   SetNeedRedraw;

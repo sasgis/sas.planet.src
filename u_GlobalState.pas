@@ -398,7 +398,6 @@ begin
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorItmesFactory,
-      THtmlToHintTextConverterStuped.Create,
       FPerfCounterList
     );
 

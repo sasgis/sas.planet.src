@@ -30,7 +30,7 @@ uses
 
 type
   TNotifyListenerNoMmgEvent = procedure() of object;
-  TNotifyListenerEvent = procedure(AMsg: IInterface) of object;
+  TNotifyListenerEvent = procedure(const AMsg: IInterface) of object;
 
   TNotifyEventListener = class(TJclBaseListener, IJclListenerDisconnectable)
   private

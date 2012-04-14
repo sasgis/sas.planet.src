@@ -145,46 +145,46 @@ type
     procedure OnLayerSetChange;
     procedure GetBitmapRect(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AElments: IInterfaceList;
+      const ACancelNotifier: IOperationNotifier;
+      const AElments: IInterfaceList;
       ATargetBmp: TCustomBitmap32;
-      ALocalConverter: ILocalCoordConverter;
+      const ALocalConverter: ILocalCoordConverter;
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32
     );
     procedure ProcessDraw(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      AElments: IInterfaceList;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const AElments: IInterfaceList;
+      const ALocalConverter: ILocalCoordConverter
     );
     function MouseOnElements(const ACopiedElements: IInterfaceList;
                              const xy: TPoint;
                              var AItem: IVectorDataItemSimple;
                              var AItemS: Double): Boolean;
-    
+
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); override;
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoHide; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      AErrorLogger: ITileErrorLogger;
-      ATimerNoifier: IJclNotifier;
-      AConfig: IKmlLayerConfig;
-      ALayersSet: IActiveMapsSet
+      const AViewPortState: IViewPortState;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      const AErrorLogger: ITileErrorLogger;
+      const ATimerNoifier: IJclNotifier;
+      const AConfig: IKmlLayerConfig;
+      const ALayersSet: IActiveMapsSet
     );
     destructor Destroy; override;
     procedure StartThreads; override;
@@ -221,18 +221,18 @@ uses
 { TWikiLayer }
 
 constructor TWikiLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  AErrorLogger: ITileErrorLogger;
-  ATimerNoifier: IJclNotifier;
-  AConfig: IKmlLayerConfig;
-  ALayersSet: IActiveMapsSet
+  const AViewPortState: IViewPortState;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  const AErrorLogger: ITileErrorLogger;
+  const ATimerNoifier: IJclNotifier;
+  const AConfig: IKmlLayerConfig;
+  const ALayersSet: IActiveMapsSet
 );
 begin
   inherited Create(
@@ -417,9 +417,9 @@ end;
 
 procedure TWikiLayer.ProcessDraw(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AElments: IInterfaceList;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const AElments: IInterfaceList;
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VColorMain: TColor32;
@@ -651,7 +651,7 @@ begin
   end;
 end;
 
-procedure TWikiLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TWikiLayer.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
 var
   VOldZoom: Byte;
   VZoom: Byte;
@@ -729,7 +729,7 @@ end;
 
 procedure TWikiLayer.DrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VLocalConverter: ILocalCoordConverter;
@@ -769,11 +769,12 @@ end;
 
 procedure TWikiLayer.GetBitmapRect(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  AElments: IInterfaceList;
+  const ACancelNotifier: IOperationNotifier;
+  const AElments: IInterfaceList;
   ATargetBmp: TCustomBitmap32;
-  ALocalConverter: ILocalCoordConverter; AColorMain, AColorBG,
-  APointColor: TColor32);
+  const ALocalConverter: ILocalCoordConverter;
+  AColorMain, AColorBG, APointColor: TColor32
+);
 var
   i: Integer;
   VItem: IVectorDataItemSimple;

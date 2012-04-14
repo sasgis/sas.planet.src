@@ -24,19 +24,21 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); override;
-    function GetVisibleForNewPos(ANewVisualCoordConverter: ILocalCoordConverter): Boolean; override;
+    function GetVisibleForNewPos(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): Boolean; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      ATimerNoifier: IJclNotifier;
-      AConfig: IFillingMapLayerConfig
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ATimerNoifier: IJclNotifier;
+      const AConfig: IFillingMapLayerConfig
     );
     procedure StartThreads; override;
   end;
@@ -54,14 +56,14 @@ uses
 { TMapLayerFillingMap }
 
 constructor TMapLayerFillingMap.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  ATimerNoifier: IJclNotifier;
-  AConfig: IFillingMapLayerConfig
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ATimerNoifier: IJclNotifier;
+  const AConfig: IFillingMapLayerConfig
 );
 begin
   inherited Create(
@@ -90,7 +92,7 @@ end;
 
 procedure TMapLayerFillingMap.DrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VZoom: Byte;
@@ -232,7 +234,8 @@ begin
 end;
 
 function TMapLayerFillingMap.GetVisibleForNewPos(
-  ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): Boolean;
 var
   VConfig: IFillingMapLayerConfigStatic;
 begin

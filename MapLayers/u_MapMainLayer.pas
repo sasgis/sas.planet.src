@@ -83,24 +83,24 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); override;
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoRedraw; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      AMapsConfig: IMainMapsConfig;
-      APostProcessingConfig:IBitmapPostProcessingConfig;
-      AConfig: IMainMapLayerConfig;
-      AErrorLogger: ITileErrorLogger;
-      ATimerNoifier: IJclNotifier
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      const AMapsConfig: IMainMapsConfig;
+      const APostProcessingConfig:IBitmapPostProcessingConfig;
+      const AConfig: IMainMapLayerConfig;
+      const AErrorLogger: ITileErrorLogger;
+      const ATimerNoifier: IJclNotifier
     );
     destructor Destroy; override;
     procedure StartThreads; override;
@@ -125,18 +125,18 @@ uses
 { TMapMainLayer }
 
 constructor TMapMainLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  AMapsConfig: IMainMapsConfig;
-  APostProcessingConfig: IBitmapPostProcessingConfig;
-  AConfig: IMainMapLayerConfig;
-  AErrorLogger: ITileErrorLogger;
-  ATimerNoifier: IJclNotifier
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  const AMapsConfig: IMainMapsConfig;
+  const APostProcessingConfig: IBitmapPostProcessingConfig;
+  const AConfig: IMainMapLayerConfig;
+  const AErrorLogger: ITileErrorLogger;
+  const ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(
@@ -276,7 +276,7 @@ end;
 
 procedure TMapMainLayer.DrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VBitmapTile: IBitmap32Static;
@@ -582,7 +582,9 @@ begin
   end;
 end;
 
-procedure TMapMainLayer.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TMapMainLayer.SetLayerCoordConverter(
+  const AValue: ILocalCoordConverter
+);
 var
   VOldZoom: Byte;
   VZoom: Byte;

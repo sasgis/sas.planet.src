@@ -18,12 +18,14 @@ uses
 type
   TMapLayerBase = class(TWindowLayerBasic)
   protected
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(
+      const AValue: ILocalCoordConverter
+    ); override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       ALayer: TCustomLayer;
-      AViewPortState: IViewPortState
+      const AViewPortState: IViewPortState
     );
   end;
 
@@ -37,17 +39,17 @@ type
     function GetMapLayerLocationRect: TFloatRect; virtual;
     procedure UpdateLayerLocationIfNeed; virtual;
     procedure UpdateLayerLocation; virtual;
-    procedure DoUpdateLayerLocation(ANewLocation: TFloatRect); virtual;
+    procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
   protected
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLocation; virtual;
     procedure DoViewUpdate; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       ALayer: TPositionedLayer;
-      AViewPortState: IViewPortState
+      const AViewPortState: IViewPortState
     );
   end;
 
@@ -56,15 +58,15 @@ type
     FOnPaintCounter: IInternalPerformanceCounter;
     procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); virtual; abstract;
+    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); virtual; abstract;
   protected
     procedure DoRedraw; override;
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState
+      const AViewPortState: IViewPortState
     );
     procedure StartThreads; override;
   end;
@@ -81,25 +83,29 @@ type
     procedure UpdateLayerSizeIfNeed; virtual;
 
     procedure ClearLayerBitmap; virtual;
-    procedure DoUpdateLayerSize(ANewSize: TPoint); virtual;
-    function GetLayerSizeForView(ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual;
+    procedure DoUpdateLayerSize(const ANewSize: TPoint); virtual;
+    function GetLayerSizeForView(
+      const ANewVisualCoordConverter: ILocalCoordConverter
+    ): TPoint; virtual;
     property Layer: TBitmapLayer read FLayer;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoViewUpdate; override;
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
-    function GetLayerCoordConverterByViewConverter(ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
+    function GetLayerCoordConverterByViewConverter(
+      const ANewViewCoordConverter: ILocalCoordConverter
+    ): ILocalCoordConverter; override;
     procedure DoShow; override;
     procedure DoHide; override;
     procedure DoRedraw; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      ACoordConverterFactory: ILocalCoordConverterFactorySimpe
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe
     );
     destructor Destroy; override;
   end;
@@ -113,15 +119,15 @@ uses
 { TMapLayerBase }
 
 constructor TMapLayerBase.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   ALayer: TCustomLayer;
-  AViewPortState: IViewPortState
+  const AViewPortState: IViewPortState
 );
 begin
   inherited Create(APerfList, ALayer, AViewPortState, True);
 end;
 
-procedure TMapLayerBase.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TMapLayerBase.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
 begin
   if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
@@ -132,8 +138,10 @@ end;
 { TMapLayerBasicFullView }
 
 constructor TMapLayerBasicFullView.Create(
-  APerfList: IInternalPerformanceCounterList; ALayer: TPositionedLayer;
-  AViewPortState: IViewPortState);
+  const APerfList: IInternalPerformanceCounterList;
+  ALayer: TPositionedLayer;
+  const AViewPortState: IViewPortState
+);
 begin
   inherited Create(APerfList, ALayer, AViewPortState);
   FLayer := ALayer;
@@ -142,7 +150,8 @@ begin
 end;
 
 procedure TMapLayerBasicFullView.DoUpdateLayerLocation(
-  ANewLocation: TFloatRect);
+  const ANewLocation: TFloatRect
+);
 begin
   FLayer.Location := ANewLocation;
 end;
@@ -179,7 +188,8 @@ begin
 end;
 
 procedure TMapLayerBasicFullView.SetViewCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedUpdateLocation;
@@ -234,11 +244,11 @@ begin
 end;
 
 constructor TMapLayerBasic.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  ACoordConverterFactory: ILocalCoordConverterFactorySimpe
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   FConverterFactory := ACoordConverterFactory;
@@ -273,7 +283,7 @@ begin
   end;
 end;
 
-procedure TMapLayerBasic.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TMapLayerBasic.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
 var
   VNewSize: TPoint;
 begin
@@ -323,7 +333,7 @@ begin
   SetNeedUpdateLayerSize;
 end;
 
-procedure TMapLayerBasic.DoUpdateLayerSize(ANewSize: TPoint);
+procedure TMapLayerBasic.DoUpdateLayerSize(const ANewSize: TPoint);
 var
   VNedRedraw: Boolean;
 begin
@@ -369,13 +379,15 @@ begin
 end;
 
 function TMapLayerBasic.GetLayerCoordConverterByViewConverter(
-  ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+  const ANewViewCoordConverter: ILocalCoordConverter
+): ILocalCoordConverter;
 begin
   Result := FConverterFactory.CreateBySourceWithStableTileRect(ANewViewCoordConverter);
 end;
 
 function TMapLayerBasic.GetLayerSizeForView(
-  ANewVisualCoordConverter: ILocalCoordConverter): TPoint;
+  const ANewVisualCoordConverter: ILocalCoordConverter
+): TPoint;
 begin
   if Visible then begin
     Result := ANewVisualCoordConverter.GetLocalRectSize;
@@ -387,9 +399,9 @@ end;
 { TMapLayerBasicNoBitmap }
 
 constructor TMapLayerBasicNoBitmap.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState
+  const AViewPortState: IViewPortState
 );
 begin
   inherited Create(APerfList, TCustomLayer.Create(AParentMap.Layers), AViewPortState);
@@ -420,7 +432,8 @@ begin
 end;
 
 procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;

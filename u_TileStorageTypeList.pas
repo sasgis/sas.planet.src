@@ -145,6 +145,7 @@ function TTileStorageTypeList.Get(const AGUID: TGUID): ITileStorageType;
 var
   VResult: ITileStorageTypeListItem;
 begin
+  Result := nil;
   VResult := ITileStorageTypeListItem(FList.GetByGUID(AGUID));
   if VResult <> nil then begin
     Result := VResult.StorageType;

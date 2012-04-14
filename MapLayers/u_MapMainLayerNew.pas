@@ -35,7 +35,7 @@ type
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    procedure OnTileChange(AMsg: IInterface);
+    procedure OnTileChange(const AMsg: IInterface);
     procedure OnMainMapChange;
     procedure OnLayerSetChange;
     procedure OnConfigChange;
@@ -47,24 +47,28 @@ type
     property MainMap: IMapType read GetMainMap write SetMainMap;
     property LayersSet: IMapTypeSet read GetLayersSet write SetLayersSet;
   protected
-    function CreateLayerProvider(ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider; override;
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    function CreateLayerProvider(
+      const ALayerConverter: ILocalCoordConverter
+    ): IBitmapLayerProvider; override;
+    procedure SetLayerCoordConverter(
+      const AValue: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AMapsConfig: IMainMapsConfig;
-      APostProcessingConfig:IBitmapPostProcessingConfig;
-      AConfig: IMainMapLayerConfig;
-      AErrorLogger: ITileErrorLogger;
-      ATimerNoifier: IJclNotifier
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AMapsConfig: IMainMapsConfig;
+      const APostProcessingConfig:IBitmapPostProcessingConfig;
+      const AConfig: IMainMapLayerConfig;
+      const AErrorLogger: ITileErrorLogger;
+      const ATimerNoifier: IJclNotifier
     );
   end;
 
@@ -85,17 +89,17 @@ uses
 { TMapMainLayerNew }
 
 constructor TMapMainLayerNew.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AMapsConfig: IMainMapsConfig;
-  APostProcessingConfig: IBitmapPostProcessingConfig;
-  AConfig: IMainMapLayerConfig;
-  AErrorLogger: ITileErrorLogger;
-  ATimerNoifier: IJclNotifier
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AMapsConfig: IMainMapsConfig;
+  const APostProcessingConfig: IBitmapPostProcessingConfig;
+  const AConfig: IMainMapLayerConfig;
+  const AErrorLogger: ITileErrorLogger;
+  const ATimerNoifier: IJclNotifier
 );
 begin
   inherited Create(
@@ -140,7 +144,7 @@ begin
 end;
 
 function TMapMainLayerNew.CreateLayerProvider(
-  ALayerConverter: ILocalCoordConverter
+  const ALayerConverter: ILocalCoordConverter
 ): IBitmapLayerProvider;
 var
   VMainMap: IMapType;
@@ -370,7 +374,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayerNew.OnTileChange(AMsg: IInterface);
+procedure TMapMainLayerNew.OnTileChange(const AMsg: IInterface);
 begin
   DelicateRedrawWithFullUpdate;
 end;
@@ -415,7 +419,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayerNew.SetLayerCoordConverter(AValue: ILocalCoordConverter);
+procedure TMapMainLayerNew.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
 var
   VOldZoom: Byte;
   VZoom: Byte;

@@ -32,7 +32,7 @@ type
   TBgPaintLayerEvent =
     procedure(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ) of object;
 
   TBackgroundTaskLayerDrawBase = class(TBackgroundTask)

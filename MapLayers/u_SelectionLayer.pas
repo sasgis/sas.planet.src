@@ -24,18 +24,18 @@ type
 
     procedure OnChangeSelection;
   protected
-    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
     procedure DoConfigChange; override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AConfig: ILastSelectionLayerConfig;
-      ALastSelectionInfo: ILastSelectionInfo
+      const AViewPortState: IViewPortState;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AConfig: ILastSelectionLayerConfig;
+      const ALastSelectionInfo: ILastSelectionInfo
     );
   end;
 
@@ -48,12 +48,12 @@ uses
 { TSelectionLayer }
 
 constructor TSelectionLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AConfig: ILastSelectionLayerConfig;
-  ALastSelectionInfo: ILastSelectionInfo
+  const AViewPortState: IViewPortState;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AConfig: ILastSelectionLayerConfig;
+  const ALastSelectionInfo: ILastSelectionInfo
 );
 begin
   inherited Create(
@@ -80,7 +80,8 @@ begin
 end;
 
 function TSelectionLayer.GetLine(
-  ALocalConverter: ILocalCoordConverter): ILonLatPolygon;
+  const ALocalConverter: ILocalCoordConverter
+): ILonLatPolygon;
 begin
   if FVisible then begin
     Result := FLine;

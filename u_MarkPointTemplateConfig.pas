@@ -150,6 +150,7 @@ var
   VTextColor, VTextBgColor: TColor32;
   VFontSize, VMarkerSize: Integer;
   VTemplateInternal: IMarkTemplateSMLInternal;
+  VTemplate: IMarkTemplatePoint;
 begin
   inherited;
   VCategoryID := -1;
@@ -185,7 +186,7 @@ begin
     VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
     VMarkerSize := AConfigData.ReadInteger('IconSize', VMarkerSize);
   end;
-  SetDefaultTemplate(
+  VTemplate :=
     TMarkTemplatePoint.Create(
       CategoryDb,
       NameGenerator,
@@ -195,8 +196,8 @@ begin
       VFontSize,
       VMarkerSize,
       VPic
-    )
-  );
+    );
+  SetDefaultTemplate(VTemplate);
 end;
 
 procedure TMarkPointTemplateConfig.DoWriteConfig(

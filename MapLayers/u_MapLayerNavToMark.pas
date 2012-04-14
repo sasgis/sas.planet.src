@@ -31,18 +31,21 @@ type
     procedure OnNavToPointChange;
     procedure OnConfigChange;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ANavToPoint: INavigationToPoint;
-      AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
-      AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
-      AConfig: IMapLayerNavToPointMarkerConfig
+      const AViewPortState: IViewPortState;
+      const ANavToPoint: INavigationToPoint;
+      const AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AConfig: IMapLayerNavToPointMarkerConfig
     );
   end;
 
@@ -59,13 +62,13 @@ uses
 { TNavToMarkLayer }
 
 constructor TNavToMarkLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ANavToPoint: INavigationToPoint;
-  AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
-  AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
-  AConfig: IMapLayerNavToPointMarkerConfig
+  const AViewPortState: IViewPortState;
+  const ANavToPoint: INavigationToPoint;
+  const AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
+  const AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
+  const AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -117,8 +120,10 @@ begin
   end;
 end;
 
-procedure TNavToMarkLayer.PaintLayer(ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+procedure TNavToMarkLayer.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VMarkMapPos: TDoublePoint;
   VScreenCenterMapPos: TDoublePoint;

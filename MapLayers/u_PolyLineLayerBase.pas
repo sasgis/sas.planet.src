@@ -43,11 +43,11 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      AConfig: ILineLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const AConfig: ILineLayerConfig
     );
   end;
 
@@ -72,9 +72,9 @@ type
     FPolygon: IDrawablePolygon;
   protected
     procedure ChangedSource;
-    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPath; virtual; abstract;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPath; virtual; abstract;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); override;
   end;
 
   TPolygonLayerBase = class(TLineLayerBase)
@@ -90,17 +90,17 @@ type
     FPolygonFill: IDrawablePolygon;
   protected
     procedure ChangedSource;
-    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon; virtual; abstract;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; virtual; abstract;
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      AConfig: IPolygonLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const AConfig: IPolygonLayerConfig
     );
   end;
 
@@ -110,15 +110,15 @@ type
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPath; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPath; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      ALineOnMapEdit: IPathOnMapEdit;
-      AConfig: ILineLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const ALineOnMapEdit: IPathOnMapEdit;
+      const AConfig: ILineLayerConfig
     );
   end;
 
@@ -128,15 +128,15 @@ type
     FLine: ILonLatPolygonWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      ALineOnMapEdit: IPolygonOnMapEdit;
-      AConfig: IPolygonLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const ALineOnMapEdit: IPolygonOnMapEdit;
+      const AConfig: IPolygonLayerConfig
     );
   end;
 
@@ -166,22 +166,25 @@ type
   protected
     procedure ChangedSource;
     procedure PreparePoints(
-      AProjection: IProjectionInfo;
+      const AProjection: IProjectionInfo;
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); virtual; abstract;
     procedure DoConfigChange; virtual;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      AConfig: IPointsSetLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const AConfig: IPointsSetLayerConfig
     );
   end;
 
@@ -192,18 +195,18 @@ type
     procedure OnLineChange;
   protected
     procedure PreparePoints(
-      AProjection: IProjectionInfo;
+      const AProjection: IProjectionInfo;
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      ALineOnMapEdit: IPathOnMapEdit;
-      AConfig: IPointsSetLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const ALineOnMapEdit: IPathOnMapEdit;
+      const AConfig: IPointsSetLayerConfig
     );
   end;
 
@@ -214,18 +217,18 @@ type
     procedure OnLineChange;
   protected
     procedure PreparePoints(
-      AProjection: IProjectionInfo;
+      const AProjection: IProjectionInfo;
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      ALineOnMapEdit: IPolygonOnMapEdit;
-      AConfig: IPointsSetLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const ALineOnMapEdit: IPolygonOnMapEdit;
+      const AConfig: IPointsSetLayerConfig
     );
   end;
 
@@ -244,11 +247,11 @@ uses
 { TLineLayerBase }
 
 constructor TLineLayerBase.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory;
-  AConfig: ILineLayerConfig
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const AConfig: ILineLayerConfig
 );
 begin
   inherited Create(
@@ -316,8 +319,10 @@ begin
   FLine := nil;
 end;
 
-procedure TPathLayerBase.PaintLayer(ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+procedure TPathLayerBase.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VLonLatLine: ILonLatPath;
   VEnum: IEnumLocalPoint;
@@ -451,11 +456,11 @@ end;
 { TPolygonLayerBase }
 
 constructor TPolygonLayerBase.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory;
-  AConfig: IPolygonLayerConfig
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const AConfig: IPolygonLayerConfig
 );
 begin
   inherited Create(
@@ -480,8 +485,10 @@ begin
   FFillVisible := (AlphaComponent(FFillColor) > 0);
 end;
 
-procedure TPolygonLayerBase.PaintLayer(ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+procedure TPolygonLayerBase.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VLonLatLine: ILonLatPolygon;
   VEnum: IEnumLocalPoint;
@@ -632,10 +639,14 @@ end;
 
 { TPathEditLayer }
 
-constructor TPathEditLayer.Create(APerfList: IInternalPerformanceCounterList;
-  AParentMap: TImage32; AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory; ALineOnMapEdit: IPathOnMapEdit;
-  AConfig: ILineLayerConfig);
+constructor TPathEditLayer.Create(
+  const APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const ALineOnMapEdit: IPathOnMapEdit;
+  const AConfig: ILineLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -652,7 +663,9 @@ begin
   );
 end;
 
-function TPathEditLayer.GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPath;
+function TPathEditLayer.GetLine(
+  const ALocalConverter: ILocalCoordConverter
+): ILonLatPath;
 begin
   Result := FLine;
 end;
@@ -676,10 +689,14 @@ end;
 
 { TPolygonEditLayer }
 
-constructor TPolygonEditLayer.Create(APerfList: IInternalPerformanceCounterList;
-  AParentMap: TImage32; AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory; ALineOnMapEdit: IPolygonOnMapEdit;
-  AConfig: IPolygonLayerConfig);
+constructor TPolygonEditLayer.Create(
+  const APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const ALineOnMapEdit: IPolygonOnMapEdit;
+  const AConfig: IPolygonLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -696,7 +713,9 @@ begin
   );
 end;
 
-function TPolygonEditLayer.GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon;
+function TPolygonEditLayer.GetLine(
+  const ALocalConverter: ILocalCoordConverter
+): ILonLatPolygon;
 begin
   Result := FLine;
 end;
@@ -726,9 +745,12 @@ begin
 end;
 
 constructor TPointsSetLayerBase.Create(
-  APerfList: IInternalPerformanceCounterList; AParentMap: TImage32;
-  AViewPortState: IViewPortState; AFactory: IVectorItmesFactory;
-  AConfig: IPointsSetLayerConfig);
+  const APerfList: IInternalPerformanceCounterList;
+  AParentMap: TImage32;
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const AConfig: IPointsSetLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -807,8 +829,10 @@ begin
   end;
 end;
 
-procedure TPointsSetLayerBase.PaintLayer(ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+procedure TPointsSetLayerBase.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VProjection: IProjectionInfo;
   VPoints: IDoublePointsAggregator;
@@ -880,12 +904,12 @@ end;
 { TPathEditPointsSetLayer }
 
 constructor TPathEditPointsSetLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory;
-  ALineOnMapEdit: IPathOnMapEdit;
-  AConfig: IPointsSetLayerConfig
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const ALineOnMapEdit: IPathOnMapEdit;
+  const AConfig: IPointsSetLayerConfig
 );
 begin
   inherited Create(
@@ -921,7 +945,7 @@ begin
 end;
 
 procedure TPathEditPointsSetLayer.PreparePoints(
-  AProjection: IProjectionInfo;
+  const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
   out AActivePointIndex: Integer
 );
@@ -982,12 +1006,12 @@ end;
 { TPolygonEditPointsSetLayer }
 
 constructor TPolygonEditPointsSetLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory;
-  ALineOnMapEdit: IPolygonOnMapEdit;
-  AConfig: IPointsSetLayerConfig
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const ALineOnMapEdit: IPolygonOnMapEdit;
+  const AConfig: IPointsSetLayerConfig
 );
 begin
   inherited Create(
@@ -1023,7 +1047,7 @@ begin
 end;
 
 procedure TPolygonEditPointsSetLayer.PreparePoints(
-  AProjection: IProjectionInfo;
+  const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
   out AActivePointIndex: Integer);
 var

@@ -28,13 +28,13 @@ type
     FDelicateRedrawCounter: Integer;
     procedure OnDrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     );
     procedure OnTimer;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     ); virtual; abstract;
     procedure SetBitmapChanged;
     property DrawTask: IBackgroundTask read FDrawTask;
@@ -45,14 +45,14 @@ type
     procedure DoRedraw; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      ATimerNoifier: IJclNotifier;
-      AThreadConfig: IThreadConfig
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ATimerNoifier: IJclNotifier;
+      const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
     procedure StartThreads; override;
@@ -64,7 +64,7 @@ type
     FClearStrategy: ILayerBitmapClearStrategy;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   protected
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure ClearLayerBitmap; override;
   public
     constructor Create(
@@ -89,14 +89,14 @@ uses
 { TMapLayerWithThreadDraw }
 
 constructor TMapLayerWithThreadDraw.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  ATimerNoifier: IJclNotifier;
-  AThreadConfig: IThreadConfig
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ATimerNoifier: IJclNotifier;
+  const AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
@@ -130,7 +130,7 @@ end;
 
 procedure TMapLayerWithThreadDraw.OnDrawBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -239,7 +239,8 @@ begin
 end;
 
 procedure TMapLayerTiledWithThreadDraw.SetLayerCoordConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter
+);
 begin
   Layer.Bitmap.Lock;
   try

@@ -54,24 +54,27 @@ type
   protected
     procedure ChangedSource;
     procedure PreparePoints(
-      AProjection: IProjectionInfo;
+      const AProjection: IProjectionInfo;
       out AProjectedPoints: IDoublePointsAggregator;
       out ADistStrings: TStringList;
       out ATextSizeArray: TArrayOfPoint
     );
     procedure DoConfigChange;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ALineOnMapEdit: IPathOnMapEdit;
-      AConfig: ICalcLineLayerCaptionsConfig;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AViewPortState: IViewPortState;
+      const ALineOnMapEdit: IPathOnMapEdit;
+      const AConfig: ICalcLineLayerCaptionsConfig;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
     destructor Destroy; override;
   end;
@@ -91,12 +94,12 @@ uses
 { TCalcLineLayer }
 
 constructor TCalcLineLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ALineOnMapEdit: IPathOnMapEdit;
-  AConfig: ICalcLineLayerCaptionsConfig;
-  AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AViewPortState: IViewPortState;
+  const ALineOnMapEdit: IPathOnMapEdit;
+  const AConfig: ICalcLineLayerCaptionsConfig;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(
@@ -210,7 +213,10 @@ begin
   FValueConverter := FValueToStringConverterConfig.GetStatic;
 end;
 
-procedure TCalcLineLayer.PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter);
+procedure TCalcLineLayer.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VProjection: IProjectionInfo;
   VPoints: IDoublePointsAggregator;
@@ -300,7 +306,7 @@ begin
 end;
 
 procedure TCalcLineLayer.PreparePoints(
-  AProjection: IProjectionInfo;
+  const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
   out ADistStrings: TStringList;
   out ATextSizeArray: TArrayOfPoint

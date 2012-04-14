@@ -56,32 +56,37 @@ type
     function GetTileMatrix: ITileMatrix;
     procedure SetTileMatrix(const Value: ITileMatrix);
 
-    procedure SetMatrixNotReady(ATileMatrix: ITileMatrix);
+    procedure SetMatrixNotReady(const ATileMatrix: ITileMatrix);
     procedure OnPrepareTileMatrix(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: IOperationNotifier
     );
 
     procedure PrepareTileMatrix(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ATileMatrix: ITileMatrix;
-      ALayerProvider: IBitmapLayerProvider
+      const ACancelNotifier: IOperationNotifier;
+      const ATileMatrix: ITileMatrix;
+      const ALayerProvider: IBitmapLayerProvider
     );
 
     procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
     procedure PaintLayer(
       ABuffer: TBitmap32;
-      ALocalConverter: ILocalCoordConverter;
-      ATileMatrix: ITileMatrix
+      const ALocalConverter: ILocalCoordConverter;
+      const ATileMatrix: ITileMatrix
     );
     procedure OnTimer;
     function GetLayerProvider: IBitmapLayerProvider;
     procedure SetLayerProvider(const Value: IBitmapLayerProvider);
     property LayerProvider: IBitmapLayerProvider read GetLayerProvider write SetLayerProvider;
   protected
-    function CreateLayerProvider(ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider; virtual; abstract;
-    function CreteTileMatrix(ASource: ITileMatrix; ANewConverter: ILocalCoordConverter): ITileMatrix; virtual;
+    function CreateLayerProvider(
+      const ALayerConverter: ILocalCoordConverter
+    ): IBitmapLayerProvider; virtual; abstract;
+    function CreteTileMatrix(
+      const ASource: ITileMatrix;
+      const ANewConverter: ILocalCoordConverter
+    ): ITileMatrix; virtual;
     procedure DelicateRedraw;
     procedure DelicateRedrawWithFullUpdate;
 
@@ -94,8 +99,8 @@ type
     procedure SetNeedUpdateLayer;
     procedure DoUpdateLayer; virtual;
   protected
-    procedure SetLayerCoordConverter(AValue: ILocalCoordConverter); override;
-    procedure SetViewCoordConverter(AValue: ILocalCoordConverter); override;
+    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
+    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
     property TileMatrix: ITileMatrix read GetTileMatrix;
   public
@@ -103,15 +108,15 @@ type
     procedure SendTerminateToThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      ATimerNoifier: IJclNotifier;
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ATimerNoifier: IJclNotifier;
       AUpdateLayerProviderOnPosChange: Boolean;
-      AThreadConfig: IThreadConfig
+      const AThreadConfig: IThreadConfig
     );
   end;
 
@@ -133,15 +138,15 @@ uses
 { TTiledLayerWithThreadBase }
 
 constructor TTiledLayerWithThreadBase.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  ATimerNoifier: IJclNotifier;
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ATimerNoifier: IJclNotifier;
   AUpdateLayerProviderOnPosChange: Boolean;
-  AThreadConfig: IThreadConfig
+  const AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(APerfList, AViewPortState, True);
@@ -175,8 +180,10 @@ begin
   );
 end;
 
-function TTiledLayerWithThreadBase.CreteTileMatrix(ASource: ITileMatrix;
-  ANewConverter: ILocalCoordConverter): ITileMatrix;
+function TTiledLayerWithThreadBase.CreteTileMatrix(
+  const ASource: ITileMatrix;
+  const ANewConverter: ILocalCoordConverter
+): ITileMatrix;
 begin
   Result := FTileMatrixFactory.BuildNewMatrix(ASource, ANewConverter);
 end;
@@ -275,7 +282,7 @@ end;
 
 procedure TTiledLayerWithThreadBase.OnPrepareTileMatrix(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: IOperationNotifier
 );
 var
   VTileMatrix: ITileMatrix;
@@ -322,9 +329,12 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.PrepareTileMatrix(AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier; ATileMatrix: ITileMatrix;
-  ALayerProvider: IBitmapLayerProvider);
+procedure TTiledLayerWithThreadBase.PrepareTileMatrix(
+  AOperationID: Integer;
+  const ACancelNotifier: IOperationNotifier;
+  const ATileMatrix: ITileMatrix;
+  const ALayerProvider: IBitmapLayerProvider
+);
 var
   VTileIterator: ITileIterator;
   VTile: TPoint;
@@ -366,8 +376,8 @@ end;
 
 procedure TTiledLayerWithThreadBase.PaintLayer(
   ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter;
-  ATileMatrix: ITileMatrix
+  const ALocalConverter: ILocalCoordConverter;
+  const ATileMatrix: ITileMatrix
 );
 var
   VTileRectInClipRect: TRect;
@@ -436,7 +446,7 @@ begin
 end;
 
 procedure TTiledLayerWithThreadBase.SetLayerCoordConverter(
-  AValue: ILocalCoordConverter
+  const AValue: ILocalCoordConverter
 );
 begin
   inherited;
@@ -454,7 +464,9 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.SetMatrixNotReady(ATileMatrix: ITileMatrix);
+procedure TTiledLayerWithThreadBase.SetMatrixNotReady(
+  const ATileMatrix: ITileMatrix
+);
 var
   i, j: Integer;
   VTileRect: TRect;
@@ -499,7 +511,7 @@ begin
 end;
 
 procedure TTiledLayerWithThreadBase.SetViewCoordConverter(
-  AValue: ILocalCoordConverter
+  const AValue: ILocalCoordConverter
 );
 begin
   inherited;

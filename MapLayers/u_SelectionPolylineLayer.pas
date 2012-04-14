@@ -23,17 +23,17 @@ type
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
   protected
     procedure DoConfigChange; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AFactory: IVectorItmesFactory;
-      ALineOnMapEdit: IPathOnMapEdit;
-      AConfig: ISelectionPolylineShadowLayerConfig
+      const AViewPortState: IViewPortState;
+      const AFactory: IVectorItmesFactory;
+      const ALineOnMapEdit: IPathOnMapEdit;
+      const AConfig: ISelectionPolylineShadowLayerConfig
     );
   end;
 
@@ -46,12 +46,12 @@ uses
 { TSelectionPolylineShadowLayer }
 
 constructor TSelectionPolylineShadowLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AFactory: IVectorItmesFactory;
-  ALineOnMapEdit: IPathOnMapEdit;
-  AConfig: ISelectionPolylineShadowLayerConfig
+  const AViewPortState: IViewPortState;
+  const AFactory: IVectorItmesFactory;
+  const ALineOnMapEdit: IPathOnMapEdit;
+  const AConfig: ISelectionPolylineShadowLayerConfig
 );
 begin
   inherited Create(
@@ -76,7 +76,9 @@ begin
   FRadius := FConfig.Radius;
 end;
 
-function TSelectionPolylineShadowLayer.GetLine(ALocalConverter: ILocalCoordConverter): ILonLatPolygon;
+function TSelectionPolylineShadowLayer.GetLine(
+  const ALocalConverter: ILocalCoordConverter
+): ILonLatPolygon;
 var
   VLine: ILonLatPathWithSelected;
 begin

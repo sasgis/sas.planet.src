@@ -29,17 +29,24 @@ type
     procedure OnLastSearchResultsChange;
     procedure OnConfigChange;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public
-    procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double);
+    procedure MouseOnReg(
+      const xy: TPoint;
+      out AItem: IVectorDataItemSimple;
+      out AItemS: Double
+    );
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ALastSearchResults: ILastSearchResultConfig;
-      AMarkerProvider: IBitmapMarkerProviderChangeable
+      const AViewPortState: IViewPortState;
+      const ALastSearchResults: ILastSearchResultConfig;
+      const AMarkerProvider: IBitmapMarkerProviderChangeable
     );
   end;
 
@@ -55,11 +62,11 @@ uses
 { TSearchResultsLayer }
 
 constructor TSearchResultsLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ALastSearchResults: ILastSearchResultConfig;
-  AMarkerProvider: IBitmapMarkerProviderChangeable
+  const AViewPortState: IViewPortState;
+  const ALastSearchResults: ILastSearchResultConfig;
+  const AMarkerProvider: IBitmapMarkerProviderChangeable
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -98,8 +105,10 @@ begin
   end;
 end;
 
-procedure TSearchResultsLayer.PaintLayer(ABuffer: TBitmap32;
-  ALocalConverter: ILocalCoordConverter);
+procedure TSearchResultsLayer.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VConverter: ICoordConverter;
   VEnum: IEnumUnknown;
@@ -142,8 +151,11 @@ begin
   end;
 end;
 
-procedure TSearchResultsLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple;
-  out AItemS: Double);
+procedure TSearchResultsLayer.MouseOnReg(
+  const xy: TPoint;
+  out AItem: IVectorDataItemSimple;
+  out AItemS: Double
+);
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
