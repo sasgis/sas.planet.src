@@ -30,13 +30,13 @@ type
   private
     function GetTileRect: TRect;
     function GetZoom: Byte;
-    function GetEnum(ATileIterator: ITileIterator): IEnumTileInfo;
+    function GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
   public
     constructor CreateWithOwn(
-      ATileRect: TRect;
+      const ATileRect: TRect;
       AZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
-      AContentType: IContentTypeInfoBasic;
+      const AVersionInfo: IMapVersionInfo;
+      const AContentType: IContentTypeInfoBasic;
       AItems: PTileInfoShortInternalArray
     );
     destructor Destroy; override;
@@ -60,22 +60,22 @@ type
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
-      ARef: IInterface;
-      AVersionInfo: IMapVersionInfo;
-      AContentType: IContentTypeInfoBasic;
-      ATileRect: TRect;
+      const ARef: IInterface;
+      const AVersionInfo: IMapVersionInfo;
+      const AContentType: IContentTypeInfoBasic;
+      const ATileRect: TRect;
       AItems: PTileInfoShortInternalArray;
-      ATileIterator: ITileIterator
+      const ATileIterator: ITileIterator
     );
   end;
 
 constructor TEnumTileInfoShort.Create(
-  ARef: IInterface;
-  AVersionInfo: IMapVersionInfo;
-  AContentType: IContentTypeInfoBasic;
-  ATileRect: TRect;
+  const ARef: IInterface;
+  const AVersionInfo: IMapVersionInfo;
+  const AContentType: IContentTypeInfoBasic;
+  const ATileRect: TRect;
   AItems: PTileInfoShortInternalArray;
-  ATileIterator: ITileIterator
+  const ATileIterator: ITileIterator
 );
 begin
   FRef := ARef;
@@ -128,10 +128,10 @@ end;
 { TTileRectInfoShort }
 
 constructor TTileRectInfoShort.CreateWithOwn(
-  ATileRect: TRect;
+  const ATileRect: TRect;
   AZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
-  AContentType: IContentTypeInfoBasic;
+  const AVersionInfo: IMapVersionInfo;
+  const AContentType: IContentTypeInfoBasic;
   AItems: PTileInfoShortInternalArray
 );
 begin
@@ -152,7 +152,8 @@ begin
 end;
 
 function TTileRectInfoShort.GetEnum(
-  ATileIterator: ITileIterator): IEnumTileInfo;
+  const ATileIterator: ITileIterator
+): IEnumTileInfo;
 begin
   Result :=
     TEnumTileInfoShort.Create(

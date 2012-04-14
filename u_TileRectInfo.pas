@@ -31,10 +31,10 @@ type
   private
     function GetTileRect: TRect;
     function GetZoom: Byte;
-    function GetEnum(ATileIterator: ITileIterator): IEnumTileInfo;
+    function GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
   public
     constructor CreateWithOwn(
-      ATileRect: TRect;
+      const ATileRect: TRect;
       AZoom: Byte;
       AItems: PTileInfoInternalArray
     );
@@ -57,15 +57,19 @@ type
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
-      ARef: IInterface;
-      ATileRect: TRect;
+      const ARef: IInterface;
+      const ATileRect: TRect;
       AItems: PTileInfoInternalArray;
-      ATileIterator: ITileIterator
+      const ATileIterator: ITileIterator
     );
   end;
 
-constructor TEnumTileInfo.Create(ARef: IInterface; ATileRect: TRect;
-  AItems: PTileInfoInternalArray; ATileIterator: ITileIterator);
+constructor TEnumTileInfo.Create(
+  const ARef: IInterface;
+  const ATileRect: TRect;
+  AItems: PTileInfoInternalArray;
+  const ATileIterator: ITileIterator
+);
 begin
   FRef := ARef;
   FTileRect := ATileRect;
@@ -115,7 +119,7 @@ end;
 { TTileRectInfo }
 
 constructor TTileRectInfo.CreateWithOwn(
-  ATileRect: TRect;
+  const ATileRect: TRect;
   AZoom: Byte;
   AItems: PTileInfoInternalArray
 );
@@ -145,7 +149,7 @@ begin
   inherited;
 end;
 
-function TTileRectInfo.GetEnum(ATileIterator: ITileIterator): IEnumTileInfo;
+function TTileRectInfo.GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
 begin
   Result := TEnumTileInfo.Create(Self, FTileRect, @FItems[0], ATileIterator);
 end;

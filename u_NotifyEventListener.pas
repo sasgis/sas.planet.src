@@ -37,7 +37,7 @@ type
     FDisconnectCount: Integer;
     FEvent: TNotifyListenerEvent;
   protected
-    procedure Notification(AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface); override;
   protected
     procedure Disconnect; stdcall;
   public
@@ -48,7 +48,7 @@ type
   private
     FEvent: TNotifyListenerNoMmgEvent;
   protected
-    procedure Notification(AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface); override;
   public
     constructor Create(AEvent: TNotifyListenerNoMmgEvent);
   end;
@@ -58,7 +58,7 @@ type
     FEvent: TNotifyListenerNoMmgEvent;
     procedure DoEvent;
   protected
-    procedure Notification(AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface); override;
   public
     constructor Create(AEvent: TNotifyListenerNoMmgEvent);
   end;
@@ -79,7 +79,7 @@ begin
   InterlockedIncrement(FDisconnectCount);
 end;
 
-procedure TNotifyEventListener.Notification(AMsg: IInterface);
+procedure TNotifyEventListener.Notification(const AMsg: IInterface);
 begin
   inherited;
   if InterlockedCompareExchange(FDisconnectCount, 0, 0) = 0 then begin
@@ -100,7 +100,7 @@ begin
   FEvent;
 end;
 
-procedure TNotifyEventListenerSync.Notification(AMsg: IInterface);
+procedure TNotifyEventListenerSync.Notification(const AMsg: IInterface);
 begin
   inherited;
   TThread.Synchronize(nil, DoEvent);
@@ -114,7 +114,7 @@ begin
   Assert(Assigned(FEvent));
 end;
 
-procedure TNotifyNoMmgEventListener.Notification(AMsg: IInterface);
+procedure TNotifyNoMmgEventListener.Notification(const AMsg: IInterface);
 begin
   FEvent;
 end;

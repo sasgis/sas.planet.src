@@ -46,18 +46,24 @@ type
     FZoomChangeCreateCounter: IInternalPerformanceCounter;
     FZoomChangeCounter: IInternalPerformanceCounter;
 
-    function GetStrategeForZoomChange(ASourceConverter, ATargetConverter: ILocalCoordConverter; ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
-    function GetStrategeForSameZoom(ASourceConverter, ATargetConverter: ILocalCoordConverter; ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
+    function GetStrategeForZoomChange(
+      const ASourceConverter, ATargetConverter: ILocalCoordConverter;
+      ASourceBitmap: TCustomBitmap32
+    ): ILayerBitmapClearStrategy;
+    function GetStrategeForSameZoom(
+      const ASourceConverter, ATargetConverter: ILocalCoordConverter;
+      ASourceBitmap: TCustomBitmap32
+    ): ILayerBitmapClearStrategy;
   protected
     function GetStrategy(
-      ASourceConverter, ATargetConverter: ILocalCoordConverter;
+      const ASourceConverter, ATargetConverter: ILocalCoordConverter;
       ASourceBitmap: TCustomBitmap32;
-      APrevStrategy: ILayerBitmapClearStrategy
+      const APrevStrategy: ILayerBitmapClearStrategy
     ): ILayerBitmapClearStrategy;
   public
     constructor Create(
-      AResamplerConfig: IImageResamplerConfig;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AResamplerConfig: IImageResamplerConfig;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -72,8 +78,8 @@ uses
 { TLayerBitmapClearStrategyFactory }
 
 constructor TLayerBitmapClearStrategyFactory.Create(
-  AResamplerConfig: IImageResamplerConfig;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AResamplerConfig: IImageResamplerConfig;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FResamplerConfig := AResamplerConfig;
@@ -90,8 +96,9 @@ begin
 end;
 
 function TLayerBitmapClearStrategyFactory.GetStrategeForSameZoom(
-  ASourceConverter, ATargetConverter: ILocalCoordConverter;
-  ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
+  const ASourceConverter, ATargetConverter: ILocalCoordConverter;
+  ASourceBitmap: TCustomBitmap32
+): ILayerBitmapClearStrategy;
 var
   VLocalSizeSource: TPoint;
   VLocalSizeTarget: TPoint;
@@ -136,8 +143,9 @@ begin
 end;
 
 function TLayerBitmapClearStrategyFactory.GetStrategeForZoomChange(
-  ASourceConverter, ATargetConverter: ILocalCoordConverter;
-  ASourceBitmap: TCustomBitmap32): ILayerBitmapClearStrategy;
+  const ASourceConverter, ATargetConverter: ILocalCoordConverter;
+  ASourceBitmap: TCustomBitmap32
+): ILayerBitmapClearStrategy;
 var
   VConverterSource: ICoordConverter;
   VConverterTarget: ICoordConverter;
@@ -200,10 +208,9 @@ begin
 end;
 
 function TLayerBitmapClearStrategyFactory.GetStrategy(
-  ASourceConverter,
-  ATargetConverter: ILocalCoordConverter;
+  const ASourceConverter, ATargetConverter: ILocalCoordConverter;
   ASourceBitmap: TCustomBitmap32;
-  APrevStrategy: ILayerBitmapClearStrategy
+  const APrevStrategy: ILayerBitmapClearStrategy
 ): ILayerBitmapClearStrategy;
 var
   VConverterSource: ICoordConverter;

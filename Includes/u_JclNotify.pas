@@ -45,7 +45,7 @@ uses
 type
   TJclBaseListener = class (TInterfacedObject, IJclListener)
   protected
-    procedure Notification(msg: IInterface); virtual; stdcall;
+    procedure Notification(const msg: IInterface); virtual; stdcall;
   end;
 
   TJclBaseNotifier = class (TInterfacedObject, IJclNotifier)
@@ -56,16 +56,16 @@ type
     FListeners: TInterfaceList;
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
   protected
-    procedure Add(listener: IJclListener); stdcall;
-    procedure Notify(msg: IInterface); stdcall;
-    procedure Remove(listener: IJclListener); stdcall;
+    procedure Add(const listener: IJclListener); stdcall;
+    procedure Notify(const msg: IInterface); stdcall;
+    procedure Remove(const listener: IJclListener); stdcall;
   end;
 
   TJclBaseNotifierFaked = class (TInterfacedObject, IJclNotifier)
   protected
-    procedure Add(listener: IJclListener); stdcall;
-    procedure Notify(msg: IInterface); stdcall;
-    procedure Remove(listener: IJclListener); stdcall;
+    procedure Add(const listener: IJclListener); stdcall;
+    procedure Notify(const msg: IInterface); stdcall;
+    procedure Remove(const listener: IJclListener); stdcall;
   end;
 
 implementation
@@ -91,7 +91,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TJclBaseNotifier.Add(listener: IJclListener);
+procedure TJclBaseNotifier.Add(const listener: IJclListener);
 begin
   FSynchronizer.BeginWrite;
   try
@@ -102,7 +102,7 @@ begin
   end;
 end;
 
-procedure TJclBaseNotifier.Notify(msg: IInterface);
+procedure TJclBaseNotifier.Notify(const msg: IInterface);
 var
   idx: Integer;
 begin
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure TJclBaseNotifier.Remove(listener: IJclListener);
+procedure TJclBaseNotifier.Remove(const listener: IJclListener);
 var
   idx: Integer;
 begin
@@ -131,24 +131,24 @@ end;
 
 { TJclBaseListener }
 
-procedure TJclBaseListener.Notification(msg: IInterface);
+procedure TJclBaseListener.Notification(const msg: IInterface);
 begin
   // do nothing; descendants should override this method to process incoming notifications
 end;
 
 { TJclBaseNotifierFaked }
 
-procedure TJclBaseNotifierFaked.Add(listener: IJclListener);
+procedure TJclBaseNotifierFaked.Add(const listener: IJclListener);
 begin
   // do nothing;
 end;
 
-procedure TJclBaseNotifierFaked.Notify(msg: IInterface);
+procedure TJclBaseNotifierFaked.Notify(const msg: IInterface);
 begin
   // do nothing;
 end;
 
-procedure TJclBaseNotifierFaked.Remove(listener: IJclListener);
+procedure TJclBaseNotifierFaked.Remove(const listener: IJclListener);
 begin
   // do nothing;
 end;

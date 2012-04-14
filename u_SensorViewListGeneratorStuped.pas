@@ -41,13 +41,19 @@ type
     FParentMenu: TTBCustomItem;
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
-    procedure AddSensor(ASensor: ISensorListEntity; AResult: IGUIDInterfaceSet);
-    procedure AddSensorsInFixedOrder(ASensorList: ISensorList; AResult: IGUIDInterfaceSet);
+    procedure AddSensor(
+      const ASensor: ISensorListEntity;
+      const AResult: IGUIDInterfaceSet
+    );
+    procedure AddSensorsInFixedOrder(
+      const ASensorList: ISensorList;
+      const AResult: IGUIDInterfaceSet
+    );
   protected
-    function CreateSensorViewList(ASensorList: ISensorList): IGUIDInterfaceSet;
+    function CreateSensorViewList(const ASensorList: ISensorList): IGUIDInterfaceSet;
   public
     constructor Create(
-      ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -69,8 +75,10 @@ uses
 
 { TSensorViewListGeneratorStuped }
 
-procedure TSensorViewListGeneratorStuped.AddSensor(ASensor: ISensorListEntity;
-  AResult: IGUIDInterfaceSet);
+procedure TSensorViewListGeneratorStuped.AddSensor(
+  const ASensor: ISensorListEntity;
+  const AResult: IGUIDInterfaceSet
+);
 var
   VSensorViewConfig: ISensorViewConfig;
   VSensorView: ISensorView;
@@ -99,7 +107,9 @@ begin
 end;
 
 procedure TSensorViewListGeneratorStuped.AddSensorsInFixedOrder(
-  ASensorList: ISensorList; AResult: IGUIDInterfaceSet);
+  const ASensorList: ISensorList;
+  const AResult: IGUIDInterfaceSet
+);
 var
   VSensor: ISensorListEntity;
 begin
@@ -139,7 +149,7 @@ begin
 end;
 
 constructor TSensorViewListGeneratorStuped.Create(
-  ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -156,7 +166,8 @@ begin
 end;
 
 function TSensorViewListGeneratorStuped.CreateSensorViewList(
-  ASensorList: ISensorList): IGUIDInterfaceSet;
+  const ASensorList: ISensorList
+): IGUIDInterfaceSet;
 var
   VGUID: TGUID;
   i: Cardinal;

@@ -50,7 +50,7 @@ type
   private
     FEvent: TNotifyWithGUIDEvent;
   protected
-    procedure Notification(msg: IInterface); override;
+    procedure Notification(const msg: IInterface); override;
   public
     constructor Create(AEvent: TNotifyWithGUIDEvent);
   end;
@@ -89,7 +89,7 @@ begin
 end;
 
 procedure TNotifyWithGUIDEventListener.Notification(
-  msg: IInterface
+  const msg: IInterface
 );
 begin
   FEvent(INotificationMessageWithGUID(msg).GetGUID);

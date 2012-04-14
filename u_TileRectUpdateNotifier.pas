@@ -28,14 +28,14 @@ type
     function GetGeoCoder: ICoordConverter; stdcall;
     function GetZoom: Byte; stdcall;
 
-    procedure Add(AListener: IJclListener; ATileRect: TRect); stdcall;
-    procedure Remove(AListener: IJclListener); stdcall;
+    procedure Add(const AListener: IJclListener; const ATileRect: TRect); stdcall;
+    procedure Remove(const AListener: IJclListener); stdcall;
 
-    procedure TileUpdateNotify(ATileKey: ITileKey); stdcall;
+    procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;
   public
     constructor Create(
       AZoom: Byte;
-      AGeoCoder: ICoordConverter
+      const AGeoCoder: ICoordConverter
     );
     destructor Destroy; override;
   end;
@@ -46,7 +46,7 @@ implementation
 
 constructor TTileRectUpdateNotifier.Create(
   AZoom: Byte;
-  AGeoCoder: ICoordConverter
+  const AGeoCoder: ICoordConverter
 );
 begin
   FZoom := AZoom;
@@ -76,7 +76,10 @@ begin
   end;
 end;
 
-procedure TTileRectUpdateNotifier.Add(AListener: IJclListener; ATileRect: TRect);
+procedure TTileRectUpdateNotifier.Add(
+  const AListener: IJclListener;
+  const ATileRect: TRect
+);
 var
   i: Integer;
   VIndex: Integer;
@@ -115,7 +118,9 @@ begin
   Result := FZoom;
 end;
 
-procedure TTileRectUpdateNotifier.Remove(AListener: IJclListener);
+procedure TTileRectUpdateNotifier.Remove(
+  const AListener: IJclListener
+);
 var
   i: Integer;
   VIndex: Integer;
@@ -147,7 +152,7 @@ begin
   end;
 end;
 
-procedure TTileRectUpdateNotifier.TileUpdateNotify(ATileKey: ITileKey);
+procedure TTileRectUpdateNotifier.TileUpdateNotify(const ATileKey: ITileKey);
 var
   i: Integer;
   VTile: TPoint;

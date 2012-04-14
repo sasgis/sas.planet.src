@@ -53,7 +53,7 @@ type
     function GetPic: IMarkPicture;
     property Pic: IMarkPicture read GetPic;
 
-    function IsSame(ATemplate: IMarkTemplatePoint): Boolean;
+    function IsSame(const ATemplate: IMarkTemplatePoint): Boolean;
   end;
 
   IMarkTemplateLine = interface(IMarkTemplate)
@@ -64,7 +64,7 @@ type
     function GetLineWidth: Integer;
     property LineWidth: Integer read GetLineWidth;
 
-    function IsSame(ATemplate: IMarkTemplateLine): Boolean;
+    function IsSame(const ATemplate: IMarkTemplateLine): Boolean;
   end;
 
   IMarkTemplatePoly = interface(IMarkTemplate)
@@ -78,7 +78,7 @@ type
     function GetLineWidth: Integer;
     property LineWidth: Integer read GetLineWidth;
 
-    function IsSame(ATemplate: IMarkTemplatePoly): Boolean;
+    function IsSame(const ATemplate: IMarkTemplatePoly): Boolean;
   end;
 
 implementation

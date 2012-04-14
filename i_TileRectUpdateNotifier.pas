@@ -17,12 +17,15 @@ type
     function GetZoom: Byte; stdcall;
     property Zoom: Byte read GetZoom;
 
-    procedure Add(AListener: IJclListener; ATileRect: TRect); stdcall;
-    procedure Remove(AListener: IJclListener); stdcall;
+    procedure Add(
+      const AListener: IJclListener;
+      const ATileRect: TRect
+    ); stdcall;
+    procedure Remove(const AListener: IJclListener); stdcall;
   end;
   ITileRectUpdateNotifierInternal = interface
     ['{86C0C887-1DD8-43B8-9B5A-0504B4BFA809}']
-    procedure TileUpdateNotify(ATileKey: ITileKey); stdcall;
+    procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;
   end;
 
 implementation

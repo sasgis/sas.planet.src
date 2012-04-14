@@ -55,7 +55,7 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetEnum(ATileIterator: ITileIterator): IEnumTileInfo; 
+    function GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo; 
   end;
 
   ITileInfoBasic = interface
