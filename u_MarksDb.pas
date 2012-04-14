@@ -150,7 +150,7 @@ begin
 end;
 
 procedure BlobFromPoint(
-  APoint: TDoublePoint;
+  const APoint: TDoublePoint;
   Blobfield: Tfield
 );
 var
@@ -170,7 +170,7 @@ begin
 end;
 
 procedure BlobFromPath(
-  APath: ILonLatPath;
+  const APath: ILonLatPath;
   Blobfield: Tfield
 );
 var
@@ -214,7 +214,7 @@ begin
 end;
 
 procedure BlobFromPolygon(
-  APolygon: ILonLatPolygon;
+  const APolygon: ILonLatPolygon;
   Blobfield: Tfield
 );
 var

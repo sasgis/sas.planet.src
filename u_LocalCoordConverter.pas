@@ -91,10 +91,10 @@ type
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
     constructor Create(
-      ALocalRect: TRect;
-      AProjection: IProjectionInfo;
-      AMapScale: TDoublePoint;
-      ALocalTopLeftAtMap: TDoublePoint
+      const ALocalRect: TRect;
+      const AProjection: IProjectionInfo;
+      const AMapScale: TDoublePoint;
+      const ALocalTopLeftAtMap: TDoublePoint
     );
   end;
 
@@ -110,9 +110,9 @@ type
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
     constructor Create(
-      ALocalRect: TRect;
-      AProjection: IProjectionInfo;
-      ALocalTopLeftAtMap: TPoint
+      const ALocalRect: TRect;
+      const AProjection: IProjectionInfo;
+      const ALocalTopLeftAtMap: TPoint
     );
   end;
 
@@ -280,9 +280,10 @@ end;
 { TLocalCoordConverter }
 
 constructor TLocalCoordConverter.Create(
-  ALocalRect: TRect;
-  AProjection: IProjectionInfo;
-  AMapScale, ALocalTopLeftAtMap: TDoublePoint);
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo;
+  const AMapScale, ALocalTopLeftAtMap: TDoublePoint
+);
 begin
   inherited Create(ALocalRect, AProjection);
   FLocalTopLeftAtMap := ALocalTopLeftAtMap;
@@ -341,8 +342,11 @@ end;
 
 { TLocalCoordConverterNoScale }
 
-constructor TLocalCoordConverterNoScale.Create(ALocalRect: TRect;
-  AProjection: IProjectionInfo; ALocalTopLeftAtMap: TPoint);
+constructor TLocalCoordConverterNoScale.Create(
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo;
+  const ALocalTopLeftAtMap: TPoint
+);
 begin
   inherited Create(ALocalRect, AProjection);
   FLocalTopLeftAtMap := ALocalTopLeftAtMap;

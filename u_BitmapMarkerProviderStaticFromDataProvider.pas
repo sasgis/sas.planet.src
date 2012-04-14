@@ -33,7 +33,10 @@ type
   TBitmapMarkerProviderStatic = class(TInterfacedObject, IBitmapMarkerProvider)
   private
     FMarker: IBitmapMarker;
-    function ModifyMarkerWithResize(ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
+    function ModifyMarkerWithResize(
+      const ASourceMarker: IBitmapMarker;
+      ASize: Integer
+    ): IBitmapMarker;
   protected
     function GetMarker: IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
@@ -126,7 +129,9 @@ begin
 end;
 
 function TBitmapMarkerProviderStatic.ModifyMarkerWithResize(
-  ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
+  const ASourceMarker: IBitmapMarker;
+  ASize: Integer
+): IBitmapMarker;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;

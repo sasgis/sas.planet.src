@@ -43,8 +43,8 @@ type
     function GetContentType: IContentTypeInfoBasic; virtual; abstract;
   public
     constructor Create(
-      ADate: TDateTime;
-      AVersionInfo: IMapVersionInfo
+      const ADate: TDateTime;
+      const AVersionInfo: IMapVersionInfo
     );
   end;
 
@@ -75,10 +75,10 @@ type
     function GetContentType: IContentTypeInfoBasic; override;
   public
     constructor Create(
-      ADate: TDateTime;
+      const ADate: TDateTime;
       ASize: Cardinal;
-      AVersionInfo: IMapVersionInfo;
-      AContentType: IContentTypeInfoBasic
+      const AVersionInfo: IMapVersionInfo;
+      const AContentType: IContentTypeInfoBasic
     );
   end;
 
@@ -89,11 +89,11 @@ type
     function GetTileData: IBinaryData; override;
   public
     constructor Create(
-      ADate: TDateTime;
-      ATileData: IBinaryData;
+      const ADate: TDateTime;
+      const ATileData: IBinaryData;
       ASize: Cardinal;
-      AVersionInfo: IMapVersionInfo;
-      AContentType: IContentTypeInfoBasic
+      const AVersionInfo: IMapVersionInfo;
+      const AContentType: IContentTypeInfoBasic
     );
     destructor Destroy; override;
   end;
@@ -103,8 +103,8 @@ implementation
 { TTileInfoBasicBase }
 
 constructor TTileInfoBasicBase.Create(
-  ADate: TDateTime;
-  AVersionInfo: IMapVersionInfo
+  const ADate: TDateTime;
+  const AVersionInfo: IMapVersionInfo
 );
 begin
   FDate := ADate;
@@ -151,10 +151,10 @@ end;
 { TTileInfoBasicExists }
 
 constructor TTileInfoBasicExists.Create(
-  ADate: TDateTime;
+  const ADate: TDateTime;
   ASize: Cardinal;
-  AVersionInfo: IMapVersionInfo;
-  AContentType: IContentTypeInfoBasic
+  const AVersionInfo: IMapVersionInfo;
+  const AContentType: IContentTypeInfoBasic
 );
 begin
   inherited Create(ADate, AVersionInfo);
@@ -185,11 +185,11 @@ end;
 { TTileInfoBasicExistsWithTile }
 
 constructor TTileInfoBasicExistsWithTile.Create(
-  ADate: TDateTime;
-  ATileData: IBinaryData;
+  const ADate: TDateTime;
+  const ATileData: IBinaryData;
   ASize: Cardinal;
-  AVersionInfo: IMapVersionInfo;
-  AContentType: IContentTypeInfoBasic
+  const AVersionInfo: IMapVersionInfo;
+  const AContentType: IContentTypeInfoBasic
 );
 begin
   inherited Create(ADate, ASize, AVersionInfo, AContentType);

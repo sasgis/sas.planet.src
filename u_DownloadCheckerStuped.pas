@@ -39,9 +39,9 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FStorage: TTileStorageAbstract;
     FAntiBan: IAntiBan;
-    function PrepareOldTileInfo(ARequest: IDownloadRequest): ITileInfoBasic;
-    function CheckOldTileSize(ARequest: IDownloadRequest; ANewSize: Cardinal): Boolean;
-    function IsNeedCheckTileSize(ARequest: IDownloadRequest): Boolean;
+    function PrepareOldTileInfo(const ARequest: IDownloadRequest): ITileInfoBasic;
+    function CheckOldTileSize(const ARequest: IDownloadRequest; ANewSize: Cardinal): Boolean;
+    function IsNeedCheckTileSize(const ARequest: IDownloadRequest): Boolean;
   protected
     function BeforeRequest(
       const AResultFactory: IDownloadResultFactory;
@@ -57,8 +57,8 @@ type
     ): IDownloadResult;
   public
     constructor Create(
-      AAntiBan: IAntiBan;
-      ATileDownloaderConfig: ITileDownloaderConfig;
+      const AAntiBan: IAntiBan;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
       AStorage: TTileStorageAbstract
     );
   end;
@@ -73,8 +73,8 @@ uses
 { TDownloadCheckerStuped }
 
 constructor TDownloadCheckerStuped.Create(
-  AAntiBan: IAntiBan;
-  ATileDownloaderConfig: ITileDownloaderConfig;
+  const AAntiBan: IAntiBan;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
   AStorage: TTileStorageAbstract
 );
 begin
@@ -84,7 +84,8 @@ begin
 end;
 
 function TDownloadCheckerStuped.IsNeedCheckTileSize(
-  ARequest: IDownloadRequest): Boolean;
+  const ARequest: IDownloadRequest
+): Boolean;
 var
   VTileDownloadRequest: ITileDownloadRequest;
 begin
@@ -95,7 +96,8 @@ begin
 end;
 
 function TDownloadCheckerStuped.PrepareOldTileInfo(
-  ARequest: IDownloadRequest): ITileInfoBasic;
+  const ARequest: IDownloadRequest
+): ITileInfoBasic;
 var
   VTileDownloadRequest: ITileDownloadRequest;
 begin
@@ -104,8 +106,10 @@ begin
   end;
 end;
 
-function TDownloadCheckerStuped.CheckOldTileSize(ARequest: IDownloadRequest;
-  ANewSize: Cardinal): Boolean;
+function TDownloadCheckerStuped.CheckOldTileSize(
+  const ARequest: IDownloadRequest;
+  ANewSize: Cardinal
+): Boolean;
 var
   VOldTileSize: Cardinal;
   VExistsTileInfo: ITileInfoBasic;
