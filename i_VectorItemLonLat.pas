@@ -15,7 +15,7 @@ type
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
 
-    function CalcLength(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -31,8 +31,8 @@ type
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
 
-    function CalcPerimeter(ADatum: IDatum): Double;
-    function CalcArea(ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
+    function CalcArea(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -48,7 +48,7 @@ type
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
 
-    function CalcLength(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -64,8 +64,8 @@ type
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
 
-    function CalcPerimeter(ADatum: IDatum): Double;
-    function CalcArea(ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
+    function CalcArea(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

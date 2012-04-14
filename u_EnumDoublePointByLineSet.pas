@@ -24,49 +24,49 @@ type
     function GetNextEnum: IEnumDoublePoint; virtual; abstract;
   private
     function Next(out APoint: TDoublePoint): Boolean;
-    constructor Create(ALineSet: IInterface; ALineCount: Integer; AClosed: Boolean);
+    constructor Create(const ALineSet: IInterface; ALineCount: Integer; AClosed: Boolean);
   end;
 
   TEnumLonLatPointByPath = class(TEnumDoublePointByLineSetBase, IEnumLonLatPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(ALineSet: ILonLatPath);
+    constructor Create(const ALineSet: ILonLatPath);
   end;
 
   TEnumLonLatPointByPolygon = class(TEnumDoublePointByLineSetBase, IEnumLonLatPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(ALineSet: ILonLatPolygon);
+    constructor Create(const ALineSet: ILonLatPolygon);
   end;
 
   TEnumProjectedPointByPath = class(TEnumDoublePointByLineSetBase, IEnumProjectedPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(ALineSet: IProjectedPath);
+    constructor Create(const ALineSet: IProjectedPath);
   end;
 
   TEnumProjectedPointByPolygon = class(TEnumDoublePointByLineSetBase, IEnumProjectedPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(ALineSet: IProjectedPolygon);
+    constructor Create(const ALineSet: IProjectedPolygon);
   end;
 
   TEnumLocalPointByPath = class(TEnumDoublePointByLineSetBase, IEnumLocalPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(ALineSet: ILocalPath);
+    constructor Create(const ALineSet: ILocalPath);
   end;
 
   TEnumLocalPointByPolygon = class(TEnumDoublePointByLineSetBase, IEnumLocalPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(ALineSet: ILocalPolygon);
+    constructor Create(const ALineSet: ILocalPolygon);
   end;
 
 implementation
@@ -76,8 +76,11 @@ uses
 
 { TEnumDoublePointByLineSetBase }
 
-constructor TEnumDoublePointByLineSetBase.Create(ALineSet: IInterface;
-  ALineCount: Integer; AClosed: Boolean);
+constructor TEnumDoublePointByLineSetBase.Create(
+  const ALineSet: IInterface;
+  ALineCount: Integer;
+  AClosed: Boolean
+);
 begin
   FSourceLineSet := ALineSet;
   FClosed := AClosed;
@@ -130,7 +133,7 @@ end;
 
 { TEnumLonLatPointByPath }
 
-constructor TEnumLonLatPointByPath.Create(ALineSet: ILonLatPath);
+constructor TEnumLonLatPointByPath.Create(const ALineSet: ILonLatPath);
 begin
   inherited Create(ALineSet, ALineSet.Count, False);
 end;
@@ -142,7 +145,7 @@ end;
 
 { TEnumLonLatPointByPolygon }
 
-constructor TEnumLonLatPointByPolygon.Create(ALineSet: ILonLatPolygon);
+constructor TEnumLonLatPointByPolygon.Create(const ALineSet: ILonLatPolygon);
 begin
   inherited Create(ALineSet, ALineSet.Count, True);
 end;
@@ -154,7 +157,7 @@ end;
 
 { TEnumProjectedPointByPath }
 
-constructor TEnumProjectedPointByPath.Create(ALineSet: IProjectedPath);
+constructor TEnumProjectedPointByPath.Create(const ALineSet: IProjectedPath);
 begin
   inherited Create(ALineSet, ALineSet.Count, False);
 end;
@@ -166,7 +169,7 @@ end;
 
 { TEnumProjectedPointByPolygon }
 
-constructor TEnumProjectedPointByPolygon.Create(ALineSet: IProjectedPolygon);
+constructor TEnumProjectedPointByPolygon.Create(const ALineSet: IProjectedPolygon);
 begin
   inherited Create(ALineSet, ALineSet.Count, True);
 end;
@@ -178,7 +181,7 @@ end;
 
 { TEnumLocalPointByPath }
 
-constructor TEnumLocalPointByPath.Create(ALineSet: ILocalPath);
+constructor TEnumLocalPointByPath.Create(const ALineSet: ILocalPath);
 begin
   inherited Create(ALineSet, ALineSet.Count, False);
 end;
@@ -190,7 +193,7 @@ end;
 
 { TEnumLocalPointByPolygon }
 
-constructor TEnumLocalPointByPolygon.Create(ALineSet: ILocalPolygon);
+constructor TEnumLocalPointByPolygon.Create(const ALineSet: ILocalPolygon);
 begin
   inherited Create(ALineSet, ALineSet.Count, True);
 end;

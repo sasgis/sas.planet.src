@@ -114,7 +114,7 @@ type
   private
     function GetEnum: IEnumLonLatPoint;
     function GetBounds: TDoubleRect;
-    function CalcLength(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public

@@ -35,7 +35,7 @@ type
   TLonLatPathLine = class(TLonLatLineBase, ILonLatPathLine)
   private
     function GetEnum: IEnumLonLatPoint;
-    function CalcLength(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
       APoints: PDoublePointArray;
@@ -46,8 +46,8 @@ type
   TLonLatPolygonLine = class(TLonLatLineBase, ILonLatPolygonLine)
   private
     function GetEnum: IEnumLonLatPoint;
-    function CalcPerimeter(ADatum: IDatum): Double;
-    function CalcArea(ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
+    function CalcArea(const ADatum: IDatum): Double;
   public
     constructor Create(
       APoints: PDoublePointArray;
@@ -127,7 +127,7 @@ end;
 
 { TLonLatPathLine }
 
-function TLonLatPathLine.CalcLength(ADatum: IDatum): Double;
+function TLonLatPathLine.CalcLength(const ADatum: IDatum): Double;
 var
   VEnum: IEnumLonLatPoint;
   VPrevPoint: TDoublePoint;
@@ -155,7 +155,7 @@ end;
 
 { TLonLatPolygonLine }
 
-function TLonLatPolygonLine.CalcArea(ADatum: IDatum): Double;
+function TLonLatPolygonLine.CalcArea(const ADatum: IDatum): Double;
 begin
   if FCount < 3 then begin
     Result := 0;
@@ -164,7 +164,7 @@ begin
   end;
 end;
 
-function TLonLatPolygonLine.CalcPerimeter(ADatum: IDatum): Double;
+function TLonLatPolygonLine.CalcPerimeter(const ADatum: IDatum): Double;
 var
   VEnum: IEnumLonLatPoint;
   VPrevPoint: TDoublePoint;

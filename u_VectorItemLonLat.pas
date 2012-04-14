@@ -20,22 +20,22 @@ type
   public
     constructor Create(
       const ABounds: TDoubleRect;
-      AList: IInterfaceList
+      const AList: IInterfaceList
     );
   end;
 
   TLonLatPath = class(TLonLatLineSet, ILonLatPath)
   private
     function GetEnum: IEnumLonLatPoint;
-    function CalcLength(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   end;
 
   TLonLatPolygon = class(TLonLatLineSet, ILonLatPolygon)
   private
     function GetEnum: IEnumLonLatPoint;
-    function CalcPerimeter(ADatum: IDatum): Double;
-    function CalcArea(ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
+    function CalcArea(const ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   end;
 
@@ -45,12 +45,12 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
-    function CalcLength(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
     constructor Create(
-      ALine: ILonLatPathLine
+      const ALine: ILonLatPathLine
     );
   end;
 
@@ -60,13 +60,13 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
-    function CalcPerimeter(ADatum: IDatum): Double;
-    function CalcArea(ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
+    function CalcArea(const ADatum: IDatum): Double;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
     constructor Create(
-      ALine: ILonLatPolygonLine
+      const ALine: ILonLatPolygonLine
     );
   end;
 
@@ -80,7 +80,7 @@ uses
 
 constructor TLonLatLineSet.Create(
   const ABounds: TDoubleRect;
-  AList: IInterfaceList
+  const AList: IInterfaceList
 );
 begin
   FBounds := ABounds;
@@ -99,7 +99,7 @@ end;
 
 { TLonLatPath }
 
-function TLonLatPath.CalcLength(ADatum: IDatum): Double;
+function TLonLatPath.CalcLength(const ADatum: IDatum): Double;
 var
   i: Integer;
 begin
@@ -123,7 +123,7 @@ end;
 
 { TLonLatPolygon }
 
-function TLonLatPolygon.CalcArea(ADatum: IDatum): Double;
+function TLonLatPolygon.CalcArea(const ADatum: IDatum): Double;
 var
   i: Integer;
 begin
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function TLonLatPolygon.CalcPerimeter(ADatum: IDatum): Double;
+function TLonLatPolygon.CalcPerimeter(const ADatum: IDatum): Double;
 var
   i: Integer;
 begin
@@ -157,12 +157,12 @@ end;
 
 { TLonLatPathOneLine }
 
-function TLonLatPathOneLine.CalcLength(ADatum: IDatum): Double;
+function TLonLatPathOneLine.CalcLength(const ADatum: IDatum): Double;
 begin
   Result := FLine.CalcLength(ADatum);
 end;
 
-constructor TLonLatPathOneLine.Create(ALine: ILonLatPathLine);
+constructor TLonLatPathOneLine.Create(const ALine: ILonLatPathLine);
 begin
   FLine := ALine;
 end;
@@ -193,17 +193,17 @@ end;
 
 { TLonLatPolygonOneLine }
 
-function TLonLatPolygonOneLine.CalcArea(ADatum: IDatum): Double;
+function TLonLatPolygonOneLine.CalcArea(const ADatum: IDatum): Double;
 begin
   Result := FLine.CalcArea(ADatum);
 end;
 
-function TLonLatPolygonOneLine.CalcPerimeter(ADatum: IDatum): Double;
+function TLonLatPolygonOneLine.CalcPerimeter(const ADatum: IDatum): Double;
 begin
   Result := FLine.CalcPerimeter(ADatum);
 end;
 
-constructor TLonLatPolygonOneLine.Create(ALine: ILonLatPolygonLine);
+constructor TLonLatPolygonOneLine.Create(const ALine: ILonLatPolygonLine);
 begin
   FLine := ALine;
 end;

@@ -37,19 +37,19 @@ type
     function GetEPSG: integer; stdcall;
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
-    function IsSameDatum(ADatum: IDatum): Boolean; stdcall;
+    function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
     function SphericalTriangleSquare(points:array of TDoublePoint):Double;
     function CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
     function CalcDist(const AStart, AFinish: TDoublePoint): Double;
   public
     constructor Create(
       AEPSG: Integer;
-      ARadiusA: Double;
-      ARadiusB: Double
+      const ARadiusA: Double;
+      const ARadiusB: Double
     ); overload;
     constructor Create(
       AEPSG: Integer;
-      ARadiusA: Double
+      const ARadiusA: Double
     ); overload;
   end;
 
@@ -63,7 +63,7 @@ uses
 
 { TDatum }
 
-constructor TDatum.Create(AEPSG: Integer; ARadiusA, ARadiusB: Double);
+constructor TDatum.Create(AEPSG: Integer; const ARadiusA, ARadiusB: Double);
 begin
   FEPSG := AEPSG;
   FRadiusA := ARadiusA;
@@ -243,7 +243,7 @@ begin
    end;
 end;
 
-constructor TDatum.Create(AEPSG: Integer; ARadiusA: Double);
+constructor TDatum.Create(AEPSG: Integer; const ARadiusA: Double);
 begin
   Create(AEPSG, ARadiusA, ARadiusA);
 end;
@@ -263,7 +263,7 @@ begin
   Result := FRadiusB
 end;
 
-function TDatum.IsSameDatum(ADatum: IDatum): Boolean;
+function TDatum.IsSameDatum(const ADatum: IDatum): Boolean;
 var
   VSelf: IDatum;
 begin

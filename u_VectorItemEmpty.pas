@@ -18,12 +18,12 @@ type
     function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
 
     function GetEnumLonLat: IEnumLonLatPoint;
-    function CalcAreaLonLat(ADatum: IDatum): Double;
+    function CalcAreaLonLat(const ADatum: IDatum): Double;
   private
     function GetBounds: TDoubleRect;
     function GetCount: Integer;
-    function CalcLength(ADatum: IDatum): Double;
-    function CalcPerimeter(ADatum: IDatum): Double;
+    function CalcLength(const ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
 
     function ILonLatPolygon.CalcArea = CalcAreaLonLat;
 
@@ -67,17 +67,17 @@ begin
   FBounds.BottomRight := CEmptyDoublePoint;
 end;
 
-function TLineSetEmpty.CalcAreaLonLat(ADatum: IDatum): Double;
+function TLineSetEmpty.CalcAreaLonLat(const ADatum: IDatum): Double;
 begin
   Result := 0;
 end;
 
-function TLineSetEmpty.CalcLength(ADatum: IDatum): Double;
+function TLineSetEmpty.CalcLength(const ADatum: IDatum): Double;
 begin
   Result := 0;
 end;
 
-function TLineSetEmpty.CalcPerimeter(ADatum: IDatum): Double;
+function TLineSetEmpty.CalcPerimeter(const ADatum: IDatum): Double;
 begin
   Result := 0;
 end;

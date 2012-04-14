@@ -37,7 +37,7 @@ type
     function GetSpheroidRadiusB: Double; stdcall;
 
     // Возвращает является ли другой конвертер эквивалентным текущему
-    function IsSameDatum(ADatum: IDatum): Boolean; stdcall;
+    function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
 
     function CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
     function CalcDist(const AStart: TDoublePoint; const AFinish: TDoublePoint): Double;
