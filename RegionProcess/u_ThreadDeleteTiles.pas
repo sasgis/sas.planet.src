@@ -45,14 +45,16 @@ type
     FForAttachments: Boolean;
   protected
     procedure ProcessRegion; override;
-    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess, ADeleted: Int64);
+    procedure ProgressFormUpdateOnProgress(
+      const AProcessed, AToProcess, ADeleted: Int64
+    );
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      APolyLL: ILonLatPolygon;
-      AProjectedPolygon: IProjectedPolygon;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const APolyLL: ILonLatPolygon;
+      const AProjectedPolygon: IProjectedPolygon;
       Azoom: byte;
       Atypemap: TMapType;
       ADelByte: boolean;
@@ -68,11 +70,11 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  APolyLL: ILonLatPolygon;
-  AProjectedPolygon: IProjectedPolygon;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const APolyLL: ILonLatPolygon;
+  const AProjectedPolygon: IProjectedPolygon;
   Azoom: byte;
   Atypemap: TMapType;
   ADelByte: boolean;
@@ -135,7 +137,9 @@ begin
   end;
 end;
 
-procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress(AProcessed, AToProcess, ADeleted: Int64);
+procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress(
+  const AProcessed, AToProcess, ADeleted: Int64
+);
 begin
   ProgressInfo.Processed := AProcessed/AToProcess;
   ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);

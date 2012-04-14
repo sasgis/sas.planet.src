@@ -99,59 +99,59 @@ type
 
     // common tile storage interface
     function GetTileInfo(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
       const ARect: TRect;
       const Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
 
     function LoadTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; override;
 
     function GetTileFileName(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string; override;
 
     function DeleteTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     function DeleteTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AData: IBinaryData
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ); override;
 
     function GetListOfTileVersions(
       const AXY: TPoint;
       const Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; override;
   end;
 
@@ -341,12 +341,20 @@ begin
   FMainContentType := AContentTypeManager.GetInfo('image/jpeg'); // ('application/vnd.google-earth.tile-image'); // wtf?
 end;
 
-function TTileStorageDLL.DeleteTile(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): Boolean;
+function TTileStorageDLL.DeleteTile(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): Boolean;
 begin
   Result := FALSE;
 end;
 
-function TTileStorageDLL.DeleteTNE(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): Boolean;
+function TTileStorageDLL.DeleteTNE(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): Boolean;
 begin
   Result := FALSE;
 end;
@@ -436,8 +444,11 @@ begin
   Result := FCacheConfig;
 end;
 
-function TTileStorageDLL.GetListOfTileVersions(const AXY: TPoint; const Azoom: byte;
-                                               AVersionInfo: IMapVersionInfo): IMapVersionListStatic;
+function TTileStorageDLL.GetListOfTileVersions(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): IMapVersionListStatic;
 var
   VEnumInfo: TEnumTileVersionsInfo;
   VVersionStoreString: AnsiString;
@@ -485,12 +496,20 @@ begin
   Result := FMainContentType;
 end;
 
-function TTileStorageDLL.GetTileFileName(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): string;
+function TTileStorageDLL.GetTileFileName(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): string;
 begin
   Abort;
 end;
 
-function TTileStorageDLL.GetTileInfo(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo): ITileInfoBasic;
+function TTileStorageDLL.GetTileInfo(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): ITileInfoBasic;
 begin
   QueryTileInternal(AXY, Azoom, AVersionInfo, nil, Result);
 end;
@@ -498,7 +517,7 @@ end;
 function TTileStorageDLL.GetTileRectInfo(
   const ARect: TRect;
   const Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
 begin
   Result := nil;
@@ -635,9 +654,12 @@ begin
   end;
 end;
 
-function TTileStorageDLL.LoadTile(AXY: TPoint; Azoom: byte;
-                                  AVersionInfo: IMapVersionInfo;
-                                  out ATileInfo: ITileInfoBasic): IBinaryData;
+function TTileStorageDLL.LoadTile(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo;
+  out ATileInfo: ITileInfoBasic
+): IBinaryData;
 var
   VMemStream: TMemoryStream;
 begin
@@ -724,12 +746,21 @@ begin
   end;
 end;
 
-procedure TTileStorageDLL.SaveTile(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo; AData: IBinaryData);
+procedure TTileStorageDLL.SaveTile(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo;
+  const AData: IBinaryData
+);
 begin
   Abort;
 end;
 
-procedure TTileStorageDLL.SaveTNE(AXY: TPoint; Azoom: byte; AVersionInfo: IMapVersionInfo);
+procedure TTileStorageDLL.SaveTNE(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
+);
 begin
   Abort;
 end;

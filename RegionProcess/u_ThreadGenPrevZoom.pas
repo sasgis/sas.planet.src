@@ -35,24 +35,24 @@ type
     FBackGroundColor: TColor32;
   protected
     procedure ProcessRegion; override;
-    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
+    procedure ProgressFormUpdateOnProgress(const AProcessed, AToProcess: Int64);
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
       Azoom: byte;
-      AInZooms: TArrayOfByte;
-      APolygLL: ILonLatPolygon;
+      const AInZooms: TArrayOfByte;
+      const APolygLL: ILonLatPolygon;
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormPrev: boolean;
       AUsePrevTiles: boolean;
       ABackGroundColor: TColor32;
-      AResamplerFactory: IImageResamplerFactory
+      const AResamplerFactory: IImageResamplerFactory
     );
   end;
 
@@ -69,21 +69,21 @@ uses
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
   Azoom: byte;
-  AInZooms: TArrayOfByte;
-  APolygLL: ILonLatPolygon;
+  const AInZooms: TArrayOfByte;
+  const APolygLL: ILonLatPolygon;
   Atypemap: TMapType;
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormPrev: boolean;
   AUsePrevTiles: boolean;
   ABackGroundColor: TColor32;
-  AResamplerFactory: IImageResamplerFactory
+  const AResamplerFactory: IImageResamplerFactory
 );
 begin
   inherited Create(
@@ -262,7 +262,9 @@ begin
   end;
 end;
 
-procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
+procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress(
+  const AProcessed, AToProcess: Int64
+);
 begin
   ProgressInfo.Processed := AProcessed/AToProcess;
   ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)

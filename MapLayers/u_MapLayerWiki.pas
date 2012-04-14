@@ -80,14 +80,14 @@ type
     procedure OnTimer;
 
     function GetProjectedPath(
-      AData: IVectorDataItemLine;
-      AProjectionInfo: IProjectionInfo;
-      ATemp: IDoublePointsAggregator = nil
+      const AData: IVectorDataItemLine;
+      const AProjectionInfo: IProjectionInfo;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPath;
     function GetProjectedPolygon(
-      AData: IVectorDataItemPoly;
-      AProjectionInfo: IProjectionInfo;
-      ATemp: IDoublePointsAggregator = nil
+      const AData: IVectorDataItemPoly;
+      const AProjectionInfo: IProjectionInfo;
+      const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
 
     procedure ElementsClear;
@@ -99,35 +99,35 @@ type
       ATargetBmp: TCustomBitmap32;
       APointColor: TColor32;
       APointColorBG: TColor32;
-      AData: IVectorDataItemPoint;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemPoint;
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure DrawLine(
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
-      AData: IVectorDataItemLine;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemLine;
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure DrawPoly(
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
-      AData: IVectorDataItemPoly;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemPoly;
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure DrawWikiElement(
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
-      AData: IVectorDataItemSimple;
-      ALocalConverter: ILocalCoordConverter
+      const AData: IVectorDataItemSimple;
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure AddWikiElement(
-      AElments: IInterfaceList;
-      AData: IVectorDataItemSimple;
-      ALocalConverter: ILocalCoordConverter
+      const AElments: IInterfaceList;
+      const AData: IVectorDataItemSimple;
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure AddElementsFromMap(
       AOperationID: Integer;
@@ -138,8 +138,8 @@ type
     );
     procedure PrepareWikiElements(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter
     );
     procedure OnConfigChange;
     procedure OnLayerSetChange;
@@ -159,10 +159,12 @@ type
       const AElments: IInterfaceList;
       const ALocalConverter: ILocalCoordConverter
     );
-    function MouseOnElements(const ACopiedElements: IInterfaceList;
-                             const xy: TPoint;
-                             var AItem: IVectorDataItemSimple;
-                             var AItemS: Double): Boolean;
+    function MouseOnElements(
+      const ACopiedElements: IInterfaceList;
+      const xy: TPoint;
+      var AItem: IVectorDataItemSimple;
+      var AItemS: Double
+    ): Boolean;
 
   protected
     procedure DrawBitmap(
@@ -191,8 +193,12 @@ type
     procedure SendTerminateToThreads; override;
 
     // helper
-    procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double); overload;
-    procedure MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple); overload;
+    procedure MouseOnReg(
+      const xy: TPoint;
+      out AItem: IVectorDataItemSimple;
+      out AItemS: Double
+    ); overload;
+    procedure MouseOnReg(const xy: TPoint; out AItem: IVectorDataItemSimple); overload;
 
     procedure MouseOnRegWithGUID(const xy: TPoint;
                                  out AItem: IVectorDataItemSimple;
@@ -293,7 +299,11 @@ begin
   ElementsClear;
 end;
 
-procedure TWikiLayer.AddWikiElement(AElments: IInterfaceList; AData: IVectorDataItemSimple; ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.AddWikiElement(
+  const AElments: IInterfaceList;
+  const AData: IVectorDataItemSimple;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VConverter: ICoordConverter;
   VSize: TPoint;
@@ -380,8 +390,8 @@ end;
 
 procedure TWikiLayer.PrepareWikiElements(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VVectorMapsSet: IMapTypeSet;
@@ -816,9 +826,9 @@ begin
 end;
 
 function TWikiLayer.GetProjectedPath(
-  AData: IVectorDataItemLine;
-  AProjectionInfo: IProjectionInfo;
-  ATemp: IDoublePointsAggregator = nil
+  const AData: IVectorDataItemLine;
+  const AProjectionInfo: IProjectionInfo;
+  const ATemp: IDoublePointsAggregator = nil
 ): IProjectedPath;
 var
   VID: Integer;
@@ -837,9 +847,9 @@ begin
 end;
 
 function TWikiLayer.GetProjectedPolygon(
-  AData: IVectorDataItemPoly;
-  AProjectionInfo: IProjectionInfo;
-  ATemp: IDoublePointsAggregator = nil
+  const AData: IVectorDataItemPoly;
+  const AProjectionInfo: IProjectionInfo;
+  const ATemp: IDoublePointsAggregator = nil
 ): IProjectedPolygon;
 var
   VID: Integer;
@@ -861,8 +871,8 @@ procedure TWikiLayer.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   APointColor: TColor32;
   APointColorBG: TColor32;
-  AData: IVectorDataItemPoint;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemPoint;
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VConverter: ICoordConverter;
@@ -886,9 +896,12 @@ begin
   ATargetBmp.FillRectS(VRect, APointColor);
 end;
 
-procedure TWikiLayer.DrawPoly(ATargetBmp: TCustomBitmap32; AColorMain,
-  AColorBG: TColor32; AData: IVectorDataItemPoly;
-  ALocalConverter: ILocalCoordConverter);
+procedure TWikiLayer.DrawPoly(
+  ATargetBmp: TCustomBitmap32;
+  AColorMain, AColorBG: TColor32;
+  const AData: IVectorDataItemPoly;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VLen: integer;
   i: integer;
@@ -932,8 +945,8 @@ end;
 procedure TWikiLayer.DrawLine(
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG: TColor32;
-  AData: IVectorDataItemLine;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemLine;
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VLen: integer;
@@ -984,8 +997,8 @@ procedure TWikiLayer.DrawWikiElement(
   AColorMain: TColor32;
   AColorBG: TColor32;
   APointColor: TColor32;
-  AData: IVectorDataItemSimple;
-  ALocalConverter: ILocalCoordConverter
+  const AData: IVectorDataItemSimple;
+  const ALocalConverter: ILocalCoordConverter
 );
 var
   VItemPoint: IVectorDataItemPoint;
@@ -1006,7 +1019,11 @@ begin
   FAllElements.ClearMapElements;
 end;
 
-procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple; out AItemS: Double);
+procedure TWikiLayer.MouseOnReg(
+  const xy: TPoint;
+  out AItem: IVectorDataItemSimple;
+  out AItemS: Double
+);
 var
   VElements: IInterfaceList;
 begin
@@ -1098,7 +1115,7 @@ begin
   end;
 end;
 
-procedure TWikiLayer.MouseOnReg(xy: TPoint; out AItem: IVectorDataItemSimple);
+procedure TWikiLayer.MouseOnReg(const xy: TPoint; out AItem: IVectorDataItemSimple);
 var
   VItemS: Double;
 begin

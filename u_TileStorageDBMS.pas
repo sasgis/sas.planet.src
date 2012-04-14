@@ -124,47 +124,47 @@ type
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string; override;
 
     function GetTileInfo(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
 
     function LoadTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; override;
 
     function DeleteTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     function DeleteTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AData: IBinaryData
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ); override;
 
   end;
@@ -381,18 +381,18 @@ begin
 end;
 
 function TTileStorageDBMS.DeleteTile(
-  AXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 begin
   Result := SendTileCommand(AXY, AZoom, AVersionInfo, nil, FETS_Delete_Tile_TNE_A, FETS_Delete_Tile_TNE_W);
 end;
 
 function TTileStorageDBMS.DeleteTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 begin
   Result := SendTileCommand(AXY, AZoom, AVErsionInfo, nil, FETS_Delete_TNE_A, FETS_Delete_TNE_W)
@@ -454,9 +454,9 @@ begin
 end;
 
 function TTileStorageDBMS.GetTileFileName(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): string;
 var VVer: String;
 begin
@@ -470,9 +470,9 @@ begin
 end;
 
 function TTileStorageDBMS.GetTileInfo(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 begin
   QueryTileInternal(AXY, Azoom, AVersionInfo, nil, Result);
@@ -722,9 +722,9 @@ begin
 end;
 
 function TTileStorageDBMS.LoadTile(
-  AXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
 var
@@ -791,10 +791,10 @@ begin
 end;
 
 procedure TTileStorageDBMS.SaveTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AData: IBinaryData
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo;
+  const AData: IBinaryData
 );
 var
   VData: TETS_INSERT_TILE_DATA;
@@ -810,9 +810,9 @@ begin
 end;
 
 procedure TTileStorageDBMS.SaveTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 );
 begin
   SendTileCommand(AXY, Azoom, AVersionInfo, nil, FETS_Insert_TNE_A, FETS_Insert_TNE_W);

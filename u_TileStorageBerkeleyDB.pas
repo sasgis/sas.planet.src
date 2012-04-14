@@ -80,52 +80,52 @@ type
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string; override;
 
     function GetTileInfo(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
     function GetTileRectInfo(
       const ARect: TRect;
       const Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
 
     function LoadTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; override;
 
     function DeleteTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     function DeleteTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AData: IBinaryData
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ); override;
   end;
 
@@ -240,9 +240,9 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.GetTileFileName(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): string;
 begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom) + PathDelim +
@@ -251,9 +251,9 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
-  AXY: TPoint;
-  AZoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   VPath: string;
@@ -333,7 +333,7 @@ end;
 function TTileStorageBerkeleyDB.GetTileRectInfo(
   const ARect: TRect;
   const Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
 var
   VRect: TRect;
@@ -403,9 +403,9 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.LoadTile(
-  AXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
 {$IFDEF WITH_PERF_COUNTER}
@@ -433,10 +433,10 @@ begin
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTile(
-  AXY: TPoint;
-  AZoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AData: IBinaryData
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo;
+  const AData: IBinaryData
 );
 var
   VPath: string;
@@ -474,9 +474,9 @@ begin
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTNE(
-  AXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 );
 var
   VPath: String;
@@ -515,9 +515,9 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.DeleteTile(
-  AXY: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VPath: string;
@@ -559,9 +559,9 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.DeleteTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VPath: string;

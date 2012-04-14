@@ -85,60 +85,60 @@ type
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
     function GetTileFileName(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string; override;
     function GetTileInfo(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
     function GetTileRectInfo(
       const ARect: TRect;
       const Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
 
     function LoadTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; override;
 
     function DeleteTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
     function DeleteTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AData: IBinaryData
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData
     ); override;
     procedure SaveTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ); override;
 
     function LoadFillingMap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AColorer: IFillingMapColorer
+      const AVersionInfo: IMapVersionInfo;
+      const AColorer: IFillingMapColorer
     ): boolean; override;
   end;
 
@@ -211,9 +211,9 @@ begin
 end;
 
 function TTileStorageFileSystem.DeleteTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VPath: string;
@@ -251,9 +251,9 @@ begin
 end;
 
 function TTileStorageFileSystem.DeleteTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VPath: string;
@@ -303,9 +303,9 @@ begin
 end;
 
 function TTileStorageFileSystem.GetTileFileName(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): string;
 begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom);
@@ -375,7 +375,7 @@ end;
 function TTileStorageFileSystem.GetTileRectInfo(
   const ARect: TRect;
   const Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
 var
   VInfo: WIN32_FILE_ATTRIBUTE_DATA;
@@ -497,9 +497,9 @@ begin
 end;
 
 function TTileStorageFileSystem.GetTileInfo(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   VPath: String;
@@ -524,12 +524,12 @@ end;
 
 function TTileStorageFileSystem.LoadFillingMap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
-  AXY: TPoint;
+  const AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AColorer: IFillingMapColorer
+  const AVersionInfo: IMapVersionInfo;
+  const AColorer: IFillingMapColorer
 ): boolean;
 var
   VPixelsRect: TRect;
@@ -548,15 +548,17 @@ var
   VFolderExists: Boolean;
   VGeoConvert: ICoordConverter;
   VTileInfo: ITileInfoBasic;
+  VTile: TPoint;
 begin
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     Result := true;
     try
       VGeoConvert := Config.CoordConverter;
-      VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+      VTile := AXY;
+      VGeoConvert.CheckTilePosStrict(VTile, Azoom, True);
       VGeoConvert.CheckZoom(ASourceZoom);
 
-      VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
+      VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, Azoom);
 
       VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
@@ -564,7 +566,7 @@ begin
       btm.Height := VTileSize.Y;
       btm.Clear(0);
 
-      VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+      VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
       VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
       VPrevFolderName := '';
       VPrevFolderExist := False;
@@ -640,9 +642,9 @@ begin
 end;
 
 function TTileStorageFileSystem.LoadTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo;
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
 var
@@ -686,10 +688,10 @@ begin
 end;
 
 procedure TTileStorageFileSystem.SaveTile(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AData: IBinaryData
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo;
+  const AData: IBinaryData
 );
 var
   VPath: String;
@@ -728,9 +730,9 @@ begin
 end;
 
 procedure TTileStorageFileSystem.SaveTNE(
-  AXY: TPoint;
-  Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AVersionInfo: IMapVersionInfo
 );
 var
   VPath: String;

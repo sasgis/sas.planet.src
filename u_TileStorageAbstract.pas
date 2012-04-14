@@ -73,16 +73,16 @@ type
     function GetStorageStateStatic: IStorageStateStatic;
     property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   protected
-    procedure NotifyTileUpdate(ATile: TPoint; AZoom: Byte; AVersion: IMapVersionInfo);
+    procedure NotifyTileUpdate(const ATile: TPoint; const AZoom: Byte; const AVersion: IMapVersionInfo);
     property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
     property OnRangeFillingMap: TRangeFillingMapEvent read FOnRangeFillingMap write FOnRangeFillingMap;
   public
     constructor Create(
-      AStorageTypeAbilities: IStorageTypeAbilities;
-      AMapVersionFactory: IMapVersionFactory;
-      AConfig: ISimpleTileStorageConfig
+      const AStorageTypeAbilities: IStorageTypeAbilities;
+      const AMapVersionFactory: IMapVersionFactory;
+      const AConfig: ISimpleTileStorageConfig
     );
     destructor Destroy; override;
     function GetMainContentType: IContentTypeInfoBasic; virtual; abstract;
@@ -91,64 +91,64 @@ type
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
 
     function GetTileFileName(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string; virtual; abstract;
     function GetTileInfo(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; virtual; abstract;
     function LoadTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; virtual; abstract;
     function DeleteTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
     function DeleteTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
     procedure SaveTile(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AData: IBinaryData
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData
     ); virtual; abstract;
     procedure SaveTNE(
-      AXY: TPoint;
-      Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AXY: TPoint;
+      const Azoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ); virtual; abstract;
 
     function GetListOfTileVersions(
       const AXY: TPoint;
       const Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; virtual;
 
     function GetTileRectInfo(
       const ARect: TRect;
       const Azoom: byte;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; virtual; abstract;
 
     function LoadFillingMap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AVersionInfo: IMapVersionInfo;
-      AColorer: IFillingMapColorer
+      const AVersionInfo: IMapVersionInfo;
+      const AColorer: IFillingMapColorer
     ): boolean; virtual;
 
     function GetRangeFillingMapItemSize: SmallInt; virtual;
@@ -175,9 +175,9 @@ uses
 { TTileStorageAbstract }
 
 constructor TTileStorageAbstract.Create(
-  AStorageTypeAbilities: IStorageTypeAbilities;
-  AMapVersionFactory: IMapVersionFactory;
-  AConfig: ISimpleTileStorageConfig
+  const AStorageTypeAbilities: IStorageTypeAbilities;
+  const AMapVersionFactory: IMapVersionFactory;
+  const AConfig: ISimpleTileStorageConfig
 );
 var
   VCount: Integer;
@@ -238,7 +238,7 @@ end;
 function TTileStorageAbstract.GetListOfTileVersions(
   const AXY: TPoint;
   const Azoom: byte;
-  AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo
 ): IMapVersionListStatic;
 begin
   Result := nil;
@@ -281,12 +281,12 @@ end;
 
 function TTileStorageAbstract.LoadFillingMap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
-  AXY: TPoint;
+  const AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AVersionInfo: IMapVersionInfo;
-  AColorer: IFillingMapColorer
+  const AVersionInfo: IMapVersionInfo;
+  const AColorer: IFillingMapColorer
 ): boolean;
 var
   VPixelsRect: TRect;
@@ -303,6 +303,7 @@ var
   VRangeFillingMapInfo: TRangeFillingMapInfo;
   i,j: Cardinal;
   VTileMapItemPtr: Pointer;
+  VTile: TPoint;
 
   procedure _PaintCurrTile;
   var
@@ -346,11 +347,11 @@ begin
   if StorageStateStatic.ReadAccess <> asDisabled then
   try
     VGeoConvert := FConfig.CoordConverter;
-
-    VGeoConvert.CheckTilePosStrict(AXY, Azoom, True);
+    VTile := AXY;
+    VGeoConvert.CheckTilePosStrict(VTile, Azoom, True);
     VGeoConvert.CheckZoom(ASourceZoom);
 
-    VPixelsRect := VGeoConvert.TilePos2PixelRect(AXY, Azoom);
+    VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, Azoom);
 
     VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
@@ -358,7 +359,7 @@ begin
     btm.Height := VTileSize.Y;
     btm.Clear(0);
 
-    VRelativeRect := VGeoConvert.TilePos2RelativeRect(AXY, Azoom);
+    VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
     VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
     VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
       or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
@@ -461,9 +462,9 @@ begin
 end;
 
 procedure TTileStorageAbstract.NotifyTileUpdate(
-  ATile: TPoint;
-  AZoom: Byte;
-  AVersion: IMapVersionInfo
+  const ATile: TPoint;
+  const AZoom: Byte;
+  const AVersion: IMapVersionInfo
 );
 var
   VKey: ITileKey;

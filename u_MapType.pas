@@ -196,20 +196,20 @@ type
 
     function GetFillingMapBitmap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
-      ALocalConverter: ILocalCoordConverter;
+      const ACancelNotifier: IOperationNotifier;
+      const ALocalConverter: ILocalCoordConverter;
       ASourceZoom: byte;
-      AColorer: IFillingMapColorer
+      const AColorer: IFillingMapColorer
     ): IBitmap32Static;
 
     function LoadFillingMap(
       AOperationID: Integer;
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       btm: TCustomBitmap32;
-      AXY: TPoint;
+      const AXY: TPoint;
       Azoom: byte;
       ASourceZoom: byte;
-      AColorer: IFillingMapColorer
+      const AColorer: IFillingMapColorer
     ): boolean;
     function GetShortFolderName: string;
 
@@ -727,11 +727,11 @@ end;
 
 function TMapType.LoadFillingMap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   btm: TCustomBitmap32;
-  AXY: TPoint;
+  const AXY: TPoint;
   Azoom, ASourceZoom: byte;
-  AColorer: IFillingMapColorer
+  const AColorer: IFillingMapColorer
 ): boolean;
 begin
   Result :=
@@ -763,10 +763,10 @@ end;
 
 function TMapType.GetFillingMapBitmap(
   AOperationID: Integer;
-  ACancelNotifier: IOperationNotifier;
-  ALocalConverter: ILocalCoordConverter;
+  const ACancelNotifier: IOperationNotifier;
+  const ALocalConverter: ILocalCoordConverter;
   ASourceZoom: byte;
-  AColorer: IFillingMapColorer
+  const AColorer: IFillingMapColorer
 ): IBitmap32Static;
 var
   VBitmap: TCustomBitmap32;
