@@ -12,12 +12,12 @@ type
     FGeoConverter: ICoordConverter;
     FZoom: Byte;
   private
-    function GetIsSameProjectionInfo(AProjection: IProjectionInfo): Boolean;
+    function GetIsSameProjectionInfo(const AProjection: IProjectionInfo): Boolean;
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
   public
     constructor Create(
-      AGeoConverter: ICoordConverter;
+      const AGeoConverter: ICoordConverter;
       AZoom: Byte
     );
   end;
@@ -26,7 +26,10 @@ implementation
 
 { TProjectionInfo }
 
-constructor TProjectionInfo.Create(AGeoConverter: ICoordConverter; AZoom: Byte);
+constructor TProjectionInfo.Create(
+  const AGeoConverter: ICoordConverter;
+  AZoom: Byte
+);
 begin
   FGeoConverter := AGeoConverter;
   FZoom := AZoom;
@@ -38,7 +41,7 @@ begin
 end;
 
 function TProjectionInfo.GetIsSameProjectionInfo(
-  AProjection: IProjectionInfo): Boolean;
+  const AProjection: IProjectionInfo): Boolean;
 var
   VSelf: IProjectionInfo;
 begin

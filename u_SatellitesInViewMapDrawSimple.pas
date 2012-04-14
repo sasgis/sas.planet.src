@@ -71,12 +71,16 @@ type
       AWidth: Integer;
       AHorizSpace: Integer
     ): TRect;
-    procedure GetCircleCenterAndRadius(ABitmap: TBitmap32; ARowCount,
-      ABarHeight: Integer; out ACenter: TPoint; out ARadius: Integer);
+    procedure GetCircleCenterAndRadius(
+      ABitmap: TBitmap32;
+      ARowCount, ABarHeight: Integer;
+      out ACenter: TPoint;
+      out ARadius: Integer
+    );
 
     procedure DrawEmptySkyMap(
       ABitmap: TBitmap32;
-      ACenter: TPoint;
+      const ACenter: TPoint;
       ARadius: Integer
     );
     procedure DrawEmptySignalBars(
@@ -88,10 +92,10 @@ type
     );
     procedure DrawSkyMap(
       ABitmap: TBitmap32;
-      ACenter: TPoint;
+      const ACenter: TPoint;
       ARadius: Integer;
-      ASatellites: IGPSSatellitesInView;
-      const AGPSEnabled: Boolean
+      const ASatellites: IGPSSatellitesInView;
+      AGPSEnabled: Boolean
     );
     procedure DrawSignalBars(
       ABitmap: TBitmap32;
@@ -99,10 +103,14 @@ type
       ABarHeight:  Integer;
       AWidth: Integer;
       AHorizSpace: Integer;
-      ASatellites: IGPSSatellitesInView
+      const ASatellites: IGPSSatellitesInView
     );
   protected
-    procedure Draw(ABitmap: TBitmap32; ASatellites: IGPSSatellitesInView; const AGPSEnabled: Boolean);
+    procedure Draw(
+      ABitmap: TBitmap32;
+      const ASatellites: IGPSSatellitesInView;
+      const AGPSEnabled: Boolean
+    );
   public
     constructor Create;
   end;
@@ -156,8 +164,11 @@ begin
   FSignalBarMinHorizSpaces := 2;
 end;
 
-procedure TSatellitesInViewMapDrawSimple.Draw(ABitmap: TBitmap32;
-  ASatellites: IGPSSatellitesInView; const AGPSEnabled: Boolean);
+procedure TSatellitesInViewMapDrawSimple.Draw(
+  ABitmap: TBitmap32;
+  const ASatellites: IGPSSatellitesInView;
+  const AGPSEnabled: Boolean
+);
 var
   VRowCount: Integer;
   VBarHeight: Integer;
@@ -204,8 +215,11 @@ begin
   end;
 end;
 
-procedure TSatellitesInViewMapDrawSimple.DrawEmptySkyMap(ABitmap: TBitmap32;
-  ACenter: TPoint; ARadius: Integer);
+procedure TSatellitesInViewMapDrawSimple.DrawEmptySkyMap(
+  ABitmap: TBitmap32;
+  const ACenter: TPoint;
+  ARadius: Integer
+);
 var
   VPoints: TArrayOfFloatPoint;
   VCirclesCount: Integer;
@@ -233,9 +247,11 @@ begin
   end;
 end;
 
-procedure TSatellitesInViewMapDrawSimple.DrawSignalBars(ABitmap: TBitmap32;
+procedure TSatellitesInViewMapDrawSimple.DrawSignalBars(
+  ABitmap: TBitmap32;
   ARowCount, ABarHeight, AWidth, AHorizSpace: Integer;
-  ASatellites: IGPSSatellitesInView);
+  const ASatellites: IGPSSatellitesInView
+);
 var
   VSatFixed: Boolean;
   VSatFixibility: TSingleSatFixibilityData;
@@ -355,9 +371,13 @@ begin
   end;
 end;
 
-procedure TSatellitesInViewMapDrawSimple.DrawSkyMap(ABitmap: TBitmap32;
-  ACenter: TPoint; ARadius: Integer; ASatellites: IGPSSatellitesInView;
-  const AGPSEnabled: Boolean);
+procedure TSatellitesInViewMapDrawSimple.DrawSkyMap(
+  ABitmap: TBitmap32;
+  const ACenter: TPoint;
+  ARadius: Integer;
+  const ASatellites: IGPSSatellitesInView;
+  AGPSEnabled: Boolean
+);
 var
   VSatFixed: Boolean;
   VSatFixibility: TSingleSatFixibilityData;

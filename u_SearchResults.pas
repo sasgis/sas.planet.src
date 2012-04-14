@@ -47,16 +47,16 @@ type
     FSearchItems:array of TfrSearchResultsItem;
   protected
     procedure ClearSearchResults;
-    procedure ShowSearchResults(ASearchResult: IGeoCodeResult; AZoom: Byte);
+    procedure ShowSearchResults(const ASearchResult: IGeoCodeResult; AZoom: Byte);
   public
     constructor Create(
-      AIntrnalBrowser: IInternalBrowser;
-      AMapGoto: IMapViewGoto;
+      const AIntrnalBrowser: IInternalBrowser;
+      const AMapGoto: IMapViewGoto;
       ADrawParent: TWinControl;
       ASearchWindow: TWinControl;
-      AValueConverterConfig: IValueToStringConverterConfig;
-      ALastSearchResults: ILastSearchResultConfig;
-      AViewPortState: IViewPortState
+      const AValueConverterConfig: IValueToStringConverterConfig;
+      const ALastSearchResults: ILastSearchResultConfig;
+      const AViewPortState: IViewPortState
     );
     destructor Destroy; override;
   end;
@@ -70,13 +70,13 @@ uses
 { TSearchResultPresenterOnPanel }
 
 constructor TSearchResultPresenterOnPanel.Create(
-  AIntrnalBrowser: IInternalBrowser;
-  AMapGoto: IMapViewGoto;
+  const AIntrnalBrowser: IInternalBrowser;
+  const AMapGoto: IMapViewGoto;
   ADrawParent: TWinControl;
   ASearchWindow: TWinControl;
-  AValueConverterConfig: IValueToStringConverterConfig;
-  ALastSearchResults: ILastSearchResultConfig;
-  AViewPortState: IViewPortState
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  const ALastSearchResults: ILastSearchResultConfig;
+  const AViewPortState: IViewPortState
 );
 begin
   FIntrnalBrowser := AIntrnalBrowser;
@@ -105,7 +105,9 @@ begin
 end;
 
 procedure TSearchResultPresenterOnPanel.ShowSearchResults(
-  ASearchResult: IGeoCodeResult; AZoom: Byte);
+  const ASearchResult: IGeoCodeResult;
+  AZoom: Byte
+);
 var
   VPlacemark: IGeoCodePlacemark;
   VEnum: IEnumUnknown;

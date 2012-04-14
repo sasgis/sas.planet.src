@@ -38,12 +38,12 @@ type
     function GetOrInitArray: TArrayOfITileRequest;
     procedure OnClosing;
   protected
-    procedure Push(ARequest: ITileRequest);
+    procedure Push(const ARequest: ITileRequest);
     function Pull: ITileRequest;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
       ACapacity: Integer
     );
     destructor Destroy; override;
@@ -59,8 +59,8 @@ uses
 { TTileRequestQuery }
 
 constructor TTileRequestQueue.Create(
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
   ACapacity: Integer
 );
 begin
@@ -185,7 +185,7 @@ begin
   end;
 end;
 
-procedure TTileRequestQueue.Push(ARequest: ITileRequest);
+procedure TTileRequestQueue.Push(const ARequest: ITileRequest);
 var
   VIndex: Integer;
   VArray: TArrayOfITileRequest;
