@@ -58,12 +58,12 @@ type
     function GetFillFirstDay: TDateTime;
     function GetFillLastDay: TDateTime;
 
-    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
     function GetColorer: IFillingMapColorer;
   public
     constructor Create(
       AVisible: Boolean;
-      ASourceMap: IMapType;
+      const ASourceMap: IMapType;
       AUseRelativeZoom: Boolean;
       AZoom: Byte;
       ANoTileColor: TColor32;
@@ -71,8 +71,8 @@ type
       ATNEColor: TColor32;
       AFillMode: TFillMode;
       AFilterMode: Boolean;
-      AFillFirstDay: TDateTime;
-      AFillLastDay: TDateTime
+      const AFillFirstDay: TDateTime;
+      const AFillLastDay: TDateTime
     );
   end;
 
@@ -85,7 +85,7 @@ uses
 
 constructor TFillingMapLayerConfigStatic.Create(
   AVisible: Boolean;
-  ASourceMap: IMapType;
+  const ASourceMap: IMapType;
   AUseRelativeZoom: Boolean;
   AZoom: Byte;
   ANoTileColor: TColor32;
@@ -93,8 +93,8 @@ constructor TFillingMapLayerConfigStatic.Create(
   ATNEColor: TColor32;
   AFillMode: TFillMode;
   AFilterMode: Boolean;
-  AFillFirstDay: TDateTime;
-  AFillLastDay: TDateTime
+  const AFillFirstDay: TDateTime;
+  const AFillLastDay: TDateTime
 );
 begin
   FVisible := AVisible;
@@ -121,7 +121,8 @@ begin
 end;
 
 function TFillingMapLayerConfigStatic.GetActualZoom(
-  ALocalConverter: ILocalCoordConverter): Byte;
+  const ALocalConverter: ILocalCoordConverter
+): Byte;
 var
   VZoom: Integer;
 begin

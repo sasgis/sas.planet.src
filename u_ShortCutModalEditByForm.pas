@@ -16,10 +16,10 @@ type
     FEditCounter: Longint;
     FfrmShortCutEdit: TfrmShortCutEdit;
   protected
-    function EditShortCut(AShortCutInfo: IShortCutSingleConfig): Boolean;
+    function EditShortCut(const AShortCutInfo: IShortCutSingleConfig): Boolean;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      const ALanguageManager: ILanguageManager
     );
     destructor Destroy; override;
   end;
@@ -32,7 +32,7 @@ uses
 { TShortCutModalEditByForm }
 
 constructor TShortCutModalEditByForm.Create(
-  ALanguageManager: ILanguageManager
+  const ALanguageManager: ILanguageManager
 );
 begin
   FLanguageManager := ALanguageManager;
@@ -49,7 +49,9 @@ begin
   inherited;
 end;
 
-function TShortCutModalEditByForm.EditShortCut(AShortCutInfo: IShortCutSingleConfig): Boolean;
+function TShortCutModalEditByForm.EditShortCut(
+  const AShortCutInfo: IShortCutSingleConfig
+): Boolean;
 var
   VCounter: Longint;
 begin

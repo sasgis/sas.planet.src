@@ -56,7 +56,7 @@ type
     function GetTNEColor: TColor32;
     property TNEColor: TColor32 read GetTNEColor;
 
-    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
 
     function GetFillMode: TFillMode;
     property FillMode: TFillMode read GetFillMode;

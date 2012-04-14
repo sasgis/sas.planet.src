@@ -28,7 +28,7 @@ uses
 type
   IShortCutModalEdit = interface
     ['{A2955208-9A2C-4E56-8C12-7121EE60E880}']
-    function EditShortCut(AShortCutInfo: IShortCutSingleConfig): Boolean;
+    function EditShortCut(const AShortCutInfo: IShortCutSingleConfig): Boolean;
   end;
 
 implementation
