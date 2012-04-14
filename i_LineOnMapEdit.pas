@@ -62,8 +62,8 @@ type
     function GetPath: ILonLatPathWithSelected;
     property Path: ILonLatPathWithSelected read GetPath;
 
-    procedure SetPath(AValue: ILonLatPathWithSelected); overload;
-    procedure SetPath(AValue: ILonLatPath); overload;
+    procedure SetPath(const AValue: ILonLatPathWithSelected); overload;
+    procedure SetPath(const AValue: ILonLatPath); overload;
   end;
 
   IPolygonOnMapEdit = interface(ILineOnMapEdit)
@@ -71,8 +71,8 @@ type
     function GetPolygon: ILonLatPolygonWithSelected;
     property Polygon: ILonLatPolygonWithSelected read GetPolygon;
 
-    procedure SetPolygon(AValue: ILonLatPolygonWithSelected); overload;
-    procedure SetPolygon(AValue: ILonLatPolygon); overload;
+    procedure SetPolygon(const AValue: ILonLatPolygonWithSelected); overload;
+    procedure SetPolygon(const AValue: ILonLatPolygon); overload;
   end;
 
 implementation

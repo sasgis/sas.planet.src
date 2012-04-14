@@ -27,12 +27,12 @@ type
     procedure SetIsReady(AValue: Boolean);
 
     function GetBitmap: IBitmap32Static;
-    procedure SetBitmap(AValue: IBitmap32Static);
+    procedure SetBitmap(const AValue: IBitmap32Static);
   public
     constructor Create(
-      ATile: TPoint;
-      ALocalConverter: ILocalCoordConverter;
-      ABitmap: IBitmap32Static
+      const ATile: TPoint;
+      const ALocalConverter: ILocalCoordConverter;
+      const ABitmap: IBitmap32Static
     );
   end;
 
@@ -45,9 +45,9 @@ uses
 { TTileMatrixElement }
 
 constructor TTileMatrixElement.Create(
-  ATile: TPoint;
-  ALocalConverter: ILocalCoordConverter;
-  ABitmap: IBitmap32Static
+  const ATile: TPoint;
+  const ALocalConverter: ILocalCoordConverter;
+  const ABitmap: IBitmap32Static
 );
 var
   VZoom: Byte;
@@ -95,7 +95,7 @@ begin
   Result := FTile;
 end;
 
-procedure TTileMatrixElement.SetBitmap(AValue: IBitmap32Static);
+procedure TTileMatrixElement.SetBitmap(const AValue: IBitmap32Static);
 begin
   FSync.BeginWrite;
   try

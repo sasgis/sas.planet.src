@@ -70,7 +70,7 @@ type
     procedure DoWriteConfig(AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetMainCoordConverter: ICoordConverter;
-    procedure SetMainCoordConverter(AValue: ICoordConverter);
+    procedure SetMainCoordConverter(const AValue: ICoordConverter);
     property MainCoordConverter: ICoordConverter read GetMainCoordConverter write SetMainCoordConverter;
 
     function GetCurrentCoordConverter: ICoordConverter;
@@ -78,25 +78,25 @@ type
 
     function GetVisualCoordConverter: ILocalCoordConverter;
 
-    procedure ChangeViewSize(ANewSize: TPoint);
-    procedure ChangeMapPixelByDelta(ADelta: TDoublePoint);
-    procedure ChangeMapPixelToVisualPoint(AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte; AFreezePoint: TPoint);
-    procedure ChangeZoomWithFreezeAtCenter(AZoom: Byte);
+    procedure ChangeViewSize(const ANewSize: TPoint);
+    procedure ChangeMapPixelByDelta(const ADelta: TDoublePoint);
+    procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
+    procedure ChangeZoomWithFreezeAtVisualPoint(const AZoom: Byte; const AFreezePoint: TPoint);
+    procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
-    procedure ChangeLonLat(ALonLat: TDoublePoint);
+    procedure ChangeLonLat(const ALonLat: TDoublePoint);
 
-    procedure MoveTo(Pnt: TPoint);
-    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload;
-    procedure ScaleTo(AScale: Double); overload;
+    procedure MoveTo(const Pnt: TPoint);
+    procedure ScaleTo(const AScale: Double; const ACenterPoint: TPoint); overload;
+    procedure ScaleTo(const AScale: Double); overload;
 
     function GetScaleChangeNotifier: IJclNotifier;
   public
     constructor Create(
-      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      AMapZoomingConfig: IMapZoomingConfig;
-      AMainMapConfig: IMainMapsConfig;
-      APerfCounterList: IInternalPerformanceCounterList
+      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AMapZoomingConfig: IMapZoomingConfig;
+      const AMainMapConfig: IMainMapsConfig;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
   end;
@@ -113,10 +113,10 @@ uses
 { TMapViewPortStateNew }
 
 constructor TMapViewPortState.Create(
-  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  AMapZoomingConfig: IMapZoomingConfig;
-  AMainMapConfig: IMainMapsConfig;
-  APerfCounterList: IInternalPerformanceCounterList
+  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AMapZoomingConfig: IMapZoomingConfig;
+  const AMainMapConfig: IMainMapsConfig;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
@@ -150,7 +150,7 @@ begin
   inherited;
 end;
 
-procedure TMapViewPortState.ChangeLonLat(ALonLat: TDoublePoint);
+procedure TMapViewPortState.ChangeLonLat(const ALonLat: TDoublePoint);
 var
   VLonLat: TDoublePoint;
   VPixelPos: TDoublePoint;
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeMapPixelByDelta(ADelta: TDoublePoint);
+procedure TMapViewPortState.ChangeMapPixelByDelta(const ADelta: TDoublePoint);
 var
   VNewPos: TDoublePoint;
   VZoom: Byte;
@@ -198,7 +198,8 @@ begin
 end;
 
 procedure TMapViewPortState.ChangeMapPixelToVisualPoint(
-  AVisualPoint: TPoint);
+  const AVisualPoint: TPoint
+);
 var
   VNewPos: TDoublePoint;
   VZoom: Byte;
@@ -221,7 +222,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeViewSize(ANewSize: TPoint);
+procedure TMapViewPortState.ChangeViewSize(const ANewSize: TPoint);
 var
   VChanged: Boolean;
 begin
@@ -251,7 +252,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeZoomWithFreezeAtCenter(AZoom: Byte);
+procedure TMapViewPortState.ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 var
   VRelativePoint: TDoublePoint;
   VZoom: Byte;
@@ -280,8 +281,10 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte;
-  AFreezePoint: TPoint);
+procedure TMapViewPortState.ChangeZoomWithFreezeAtVisualPoint(
+  const AZoom: Byte;
+  const AFreezePoint: TPoint
+);
 var
   VZoom: Byte;
   VZoomOld: Byte;
@@ -431,7 +434,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.MoveTo(Pnt: TPoint);
+procedure TMapViewPortState.MoveTo(const Pnt: TPoint);
 var
   VChanged: Boolean;
   VVisibleMove: TDoublePoint;
@@ -490,7 +493,7 @@ begin
   FVisibleMove.Y := 0;
 end;
 
-procedure TMapViewPortState.ScaleTo(AScale: Double; ACenterPoint: TPoint);
+procedure TMapViewPortState.ScaleTo(const AScale: Double; const ACenterPoint: TPoint);
 var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
@@ -539,7 +542,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ScaleTo(AScale: Double);
+procedure TMapViewPortState.ScaleTo(const AScale: Double);
 var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
@@ -629,7 +632,7 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.SetMainCoordConverter(AValue: ICoordConverter);
+procedure TMapViewPortState.SetMainCoordConverter(const AValue: ICoordConverter);
 begin
   LockWrite;
   try

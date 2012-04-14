@@ -18,12 +18,12 @@ type
     function GetZoom: Byte;
     function GetVersionInfo: IMapVersionInfo;
 
-    function IsSame(AValue: ITileKey): Boolean;
+    function IsSame(const AValue: ITileKey): Boolean;
   public
     constructor Create(
-      ATile: TPoint;
-      AZoom: Byte;
-      AVersionInfo: IMapVersionInfo
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo
     );
   end;
 
@@ -32,9 +32,9 @@ implementation
 { TTileKey }
 
 constructor TTileKey.Create(
-  ATile: TPoint;
-  AZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  const ATile: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 );
 begin
   FTile := ATile;
@@ -57,7 +57,7 @@ begin
   Result := FZoom;
 end;
 
-function TTileKey.IsSame(AValue: ITileKey): Boolean;
+function TTileKey.IsSame(const AValue: ITileKey): Boolean;
 var
   VTile: TPoint;
 begin

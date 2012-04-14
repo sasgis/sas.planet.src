@@ -35,7 +35,7 @@ type
     property CachePath: IPathConfig read GetCachePath;
 
     function GetTileStorageType: ITileStorageType;
-    procedure SetTileStorageType(AValue: ITileStorageType);
+    procedure SetTileStorageType(const AValue: ITileStorageType);
     property TileStorageType: ITileStorageType read GetTileStorageType write SetTileStorageType;
 
     function BuildStorage: ITileStorage;

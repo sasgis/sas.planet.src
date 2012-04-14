@@ -35,7 +35,7 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinary(const AIdent: string; AValue: IBinaryData);
+    procedure WriteBinary(const AIdent: string; const AValue: IBinaryData);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
     procedure WriteBool(const AIdent: string; const AValue: Boolean);
@@ -85,7 +85,7 @@ begin
   Result := TConfigDataWriteProviderByIniFileSection.Create(FIniFile, AIdent, Self);
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteBinary(const AIdent: string; AValue: IBinaryData);
+procedure TConfigDataWriteProviderByIniFile.WriteBinary(const AIdent: string; const AValue: IBinaryData);
 begin
   raise Exception.Create('Not expected');
 end;

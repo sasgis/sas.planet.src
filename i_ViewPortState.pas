@@ -34,7 +34,7 @@ type
   IViewPortState = interface(IConfigDataElement)
     ['{F2F2E282-AA3B-48BC-BC09-73FE9C07B723}']
     function GetMainCoordConverter: ICoordConverter;
-    procedure SetMainCoordConverter(AValue: ICoordConverter);
+    procedure SetMainCoordConverter(const AValue: ICoordConverter);
     property MainCoordConverter: ICoordConverter read GetMainCoordConverter write SetMainCoordConverter;
 
     function GetCurrentCoordConverter: ICoordConverter;
@@ -43,17 +43,17 @@ type
     function GetVisualCoordConverter: ILocalCoordConverter;
 
 
-    procedure ChangeViewSize(ANewSize: TPoint);
-    procedure ChangeMapPixelByDelta(ADelta: TDoublePoint);
-    procedure ChangeMapPixelToVisualPoint(AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(AZoom: Byte; AFreezePoint: TPoint);
-    procedure ChangeZoomWithFreezeAtCenter(AZoom: Byte);
+    procedure ChangeViewSize(const ANewSize: TPoint);
+    procedure ChangeMapPixelByDelta(const ADelta: TDoublePoint);
+    procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
+    procedure ChangeZoomWithFreezeAtVisualPoint(const AZoom: Byte; const AFreezePoint: TPoint);
+    procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
-    procedure ChangeLonLat(ALonLat: TDoublePoint);
+    procedure ChangeLonLat(const ALonLat: TDoublePoint);
 
-    procedure MoveTo(Pnt: TPoint);
-    procedure ScaleTo(AScale: Double; ACenterPoint: TPoint); overload;
-    procedure ScaleTo(AScale: Double); overload;
+    procedure MoveTo(const Pnt: TPoint);
+    procedure ScaleTo(const AScale: Double; const ACenterPoint: TPoint); overload;
+    procedure ScaleTo(const AScale: Double); overload;
 
     function GetScaleChangeNotifier: IJclNotifier;
     property ScaleChangeNotifier: IJclNotifier read GetScaleChangeNotifier;

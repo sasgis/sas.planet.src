@@ -38,7 +38,7 @@ type
     function GetLastErrorInfo: ITileErrorInfo;
     function GetNotifier: IJclNotifier;
   protected
-    procedure LogError(AValue: ITileErrorInfo);
+    procedure LogError(const AValue: ITileErrorInfo);
   public
     constructor Create;
     destructor Destroy; override;
@@ -80,7 +80,7 @@ begin
   Result := FNotifier;
 end;
 
-procedure TTileErrorLogProviedrStuped.LogError(AValue: ITileErrorInfo);
+procedure TTileErrorLogProviedrStuped.LogError(const AValue: ITileErrorInfo);
 begin
   FCS.BeginWrite;
   try

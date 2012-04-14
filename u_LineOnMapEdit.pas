@@ -66,8 +66,8 @@ type
     function IsEmpty: Boolean; override;
     function IsReady: Boolean; override;
     function GetPath: ILonLatPathWithSelected;
-    procedure SetPath(AValue: ILonLatPathWithSelected); overload;
-    procedure SetPath(AValue: ILonLatPath); overload;
+    procedure SetPath(const AValue: ILonLatPathWithSelected); overload;
+    procedure SetPath(const AValue: ILonLatPath); overload;
   end;
 
   TPolygonOnMapEdit = class(TLineOnMapEdit, IPolygonOnMapEdit)
@@ -80,8 +80,8 @@ type
     function IsEmpty: Boolean; override;
     function IsReady: Boolean; override;
     function GetPolygon: ILonLatPolygonWithSelected;
-    procedure SetPolygon(AValue: ILonLatPolygonWithSelected); overload;
-    procedure SetPolygon(AValue: ILonLatPolygon); overload;
+    procedure SetPolygon(const AValue: ILonLatPolygonWithSelected); overload;
+    procedure SetPolygon(const AValue: ILonLatPolygon); overload;
   end;
 
 implementation
@@ -451,7 +451,7 @@ begin
   end;
 end;
 
-procedure TPathOnMapEdit.SetPath(AValue: ILonLatPathWithSelected);
+procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPathWithSelected);
 var
   i: Integer;
   VLine: ILonLatPathLine;
@@ -514,7 +514,7 @@ begin
   end;
 end;
 
-procedure TPathOnMapEdit.SetPath(AValue: ILonLatPath);
+procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPath);
 var
   i: Integer;
   VLine: ILonLatPathLine;
@@ -569,7 +569,7 @@ begin
   end;
 end;
 
-procedure TPolygonOnMapEdit.SetPolygon(AValue: ILonLatPolygonWithSelected);
+procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygonWithSelected);
 var
   i: Integer;
   VLine: ILonLatPolygonLine;
@@ -632,7 +632,7 @@ begin
   end;
 end;
 
-procedure TPolygonOnMapEdit.SetPolygon(AValue: ILonLatPolygon);
+procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygon);
 var
   i: Integer;
   VLine: ILonLatPolygonLine;

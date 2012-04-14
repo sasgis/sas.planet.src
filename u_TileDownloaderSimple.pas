@@ -49,16 +49,16 @@ type
     procedure SleepIfConnectErrorOrWaitInterval;
   protected
     procedure Download(
-      ATileRequest: ITileRequest
+      const ATileRequest: ITileRequest
     );
   public
     constructor Create(
-      AAppClosingNotifier: IJclNotifier;
-      ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-      ATileDownloaderConfig: ITileDownloaderConfig;
-      AHttpDownloader: IDownloader;
-      AResultSaver: ITileDownloadResultSaver;
-      ALastResponseInfo: ILastResponseInfo
+      const AAppClosingNotifier: IJclNotifier;
+      const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const AHttpDownloader: IDownloader;
+      const AResultSaver: ITileDownloadResultSaver;
+      const ALastResponseInfo: ILastResponseInfo
     );
     destructor Destroy; override;
   end;
@@ -77,12 +77,12 @@ uses
 { TITileDownloaderSimple }
 
 constructor TTileDownloaderSimple.Create(
-  AAppClosingNotifier: IJclNotifier;
-  ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
-  ATileDownloaderConfig: ITileDownloaderConfig;
-  AHttpDownloader: IDownloader;
-  AResultSaver: ITileDownloadResultSaver;
-  ALastResponseInfo: ILastResponseInfo
+  const AAppClosingNotifier: IJclNotifier;
+  const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const AHttpDownloader: IDownloader;
+  const AResultSaver: ITileDownloadResultSaver;
+  const ALastResponseInfo: ILastResponseInfo
 );
 var
   VOperationNotifier: TOperationNotifier;
@@ -128,7 +128,7 @@ begin
 end;
 
 procedure TTileDownloaderSimple.Download(
-  ATileRequest: ITileRequest
+  const ATileRequest: ITileRequest
 );
 var
   VDownloadRequest: ITileDownloadRequest;

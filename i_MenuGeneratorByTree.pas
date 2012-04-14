@@ -31,7 +31,7 @@ type
     ['{8482166C-1719-4817-A9AC-2DA7F1FE63DB}']
     procedure BuildMenu(
       ARootMenu: TTBCustomItem;
-      ATree: IStaticTreeItem
+      const ATree: IStaticTreeItem
     );
   end;
 

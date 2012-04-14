@@ -33,7 +33,7 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinary(const AIdent: string; AValue: IBinaryData);
+    procedure WriteBinary(const AIdent: string; const AValue: IBinaryData);
     procedure WriteString(const AIdent: string; const AValue: string);
     procedure WriteInteger(const AIdent: string; const AValue: Longint);
     procedure WriteBool(const AIdent: string; const AValue: Boolean);

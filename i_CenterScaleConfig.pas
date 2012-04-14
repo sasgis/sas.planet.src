@@ -34,7 +34,7 @@ type
     property Visible: Boolean read GetVisible write SetVisible;
 
     function GetBitmap: IBitmapMarker;
-    procedure SetBitmap(AValue: IBitmapMarker);
+    procedure SetBitmap(const AValue: IBitmapMarker);
     property Bitmap: IBitmapMarker read GetBitmap write SetBitmap;
  end;
 

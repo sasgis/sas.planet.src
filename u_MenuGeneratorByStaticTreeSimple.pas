@@ -33,14 +33,14 @@ type
   private
     FOnClick: TNotifyEvent;
   protected
-    procedure AddSubItems(AParent: TTBCustomItem; AItem: IStaticTreeItem); virtual;
-    procedure AddItem(AParent: TTBCustomItem; AItem: IStaticTreeItem); virtual;
+    procedure AddSubItems(AParent: TTBCustomItem; const AItem: IStaticTreeItem); virtual;
+    procedure AddItem(AParent: TTBCustomItem; const AItem: IStaticTreeItem); virtual;
     procedure ClearOldItems(ARootMenu: TTBCustomItem); virtual;
-    function IsFlatSubTree(AItem: IStaticTreeItem): Boolean; virtual;
+    function IsFlatSubTree(const AItem: IStaticTreeItem): Boolean; virtual;
   protected
     procedure BuildMenu(
       ARootMenu: TTBCustomItem;
-      ATree: IStaticTreeItem
+      const ATree: IStaticTreeItem
     );
   public
     constructor Create(
@@ -60,8 +60,10 @@ begin
   FOnClick := AOnClick;
 end;
 
-procedure TMenuGeneratorByStaticTreeSimple.AddItem(AParent: TTBCustomItem;
-  AItem: IStaticTreeItem);
+procedure TMenuGeneratorByStaticTreeSimple.AddItem(
+  AParent: TTBCustomItem;
+  const AItem: IStaticTreeItem
+);
 var
   VItem: TTBCustomItem;
   VLabel: TTBXLabelItem;
@@ -102,8 +104,10 @@ begin
 
 end;
 
-procedure TMenuGeneratorByStaticTreeSimple.AddSubItems(AParent: TTBCustomItem;
-  AItem: IStaticTreeItem);
+procedure TMenuGeneratorByStaticTreeSimple.AddSubItems(
+  AParent: TTBCustomItem;
+  const AItem: IStaticTreeItem
+);
 var
   i: Integer;
 begin
@@ -112,8 +116,10 @@ begin
   end;
 end;
 
-procedure TMenuGeneratorByStaticTreeSimple.BuildMenu(ARootMenu: TTBCustomItem;
-  ATree: IStaticTreeItem);
+procedure TMenuGeneratorByStaticTreeSimple.BuildMenu(
+  ARootMenu: TTBCustomItem;
+  const ATree: IStaticTreeItem
+);
 begin
   ClearOldItems(ARootMenu);
   AddSubItems(ARootMenu, ATree);
@@ -131,7 +137,8 @@ begin
 end;
 
 function TMenuGeneratorByStaticTreeSimple.IsFlatSubTree(
-  AItem: IStaticTreeItem): Boolean;
+  const AItem: IStaticTreeItem
+): Boolean;
 var
   VLen: Integer;
 begin

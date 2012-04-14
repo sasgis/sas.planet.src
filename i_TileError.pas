@@ -44,7 +44,7 @@ type
 
   ITileErrorLogger = interface
     ['{693E489D-A78E-42B8-87FB-F16EF5F53ACF}']
-    procedure LogError(AValue: ITileErrorInfo);
+    procedure LogError(const AValue: ITileErrorInfo);
   end;
 
 implementation

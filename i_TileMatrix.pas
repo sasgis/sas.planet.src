@@ -21,7 +21,7 @@ type
     property IsReady: Boolean read GetIsReady write SetIsReady;
 
     function GetBitmap: IBitmap32Static;
-    procedure SetBitmap(AValue: IBitmap32Static);
+    procedure SetBitmap(const AValue: IBitmap32Static);
     property Bitmap: IBitmap32Static read GetBitmap write SetBitmap;
   end;
 

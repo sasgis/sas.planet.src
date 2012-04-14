@@ -43,7 +43,7 @@ type
     procedure SetVisible(const AValue: Boolean);
 
     function GetBitmap: IBitmapMarker;
-    procedure SetBitmap(AValue: IBitmapMarker);
+    procedure SetBitmap(const AValue: IBitmapMarker);
   public
     constructor Create;
   end;
@@ -164,7 +164,7 @@ begin
   end;
 end;
 
-procedure TCenterScaleConfig.SetBitmap(AValue: IBitmapMarker);
+procedure TCenterScaleConfig.SetBitmap(const AValue: IBitmapMarker);
 begin
   LockWrite;
   try

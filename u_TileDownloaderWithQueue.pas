@@ -19,17 +19,16 @@ type
     FSyncTileRequestProcessorPull: ITileRequestProcessorPool;
   protected
     procedure Download(
-      ATileRequest: ITileRequest
+      const ATileRequest: ITileRequest
     );
   public
     constructor Create(
-      ATileDownloaderList: ITileDownloaderList;
-      AGCList: ITTLCheckNotifier;
-      AThreadConfig: IThreadConfig;
-      AAppClosingNotifier: IJclNotifier;
+      const ATileDownloaderList: ITileDownloaderList;
+      const AGCList: ITTLCheckNotifier;
+      const AThreadConfig: IThreadConfig;
+      const AAppClosingNotifier: IJclNotifier;
       AQueueCapacity: Integer
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -41,10 +40,10 @@ uses
 { TTileDownloaderWithQueue }
 
 constructor TTileDownloaderWithQueue.Create(
-  ATileDownloaderList: ITileDownloaderList;
-  AGCList: ITTLCheckNotifier;
-  AThreadConfig: IThreadConfig;
-  AAppClosingNotifier: IJclNotifier;
+  const ATileDownloaderList: ITileDownloaderList;
+  const AGCList: ITTLCheckNotifier;
+  const AThreadConfig: IThreadConfig;
+  const AAppClosingNotifier: IJclNotifier;
   AQueueCapacity: Integer
 );
 begin
@@ -64,12 +63,7 @@ begin
     );
 end;
 
-destructor TTileDownloaderWithQueue.Destroy;
-begin
-  inherited;
-end;
-
-procedure TTileDownloaderWithQueue.Download(ATileRequest: ITileRequest);
+procedure TTileDownloaderWithQueue.Download(const ATileRequest: ITileRequest);
 begin
   FQueue.Push(ATileRequest);
   FSyncTileRequestProcessorPull.InitThreadsIfNeed;
