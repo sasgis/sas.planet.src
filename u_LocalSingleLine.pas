@@ -21,8 +21,8 @@ type
   public
     constructor Create(
       AClosed: Boolean;
-      ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const ALocalConverter: ILocalCoordConverter;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -32,8 +32,8 @@ type
     function GetEnum: IEnumLocalPoint;
   public
     constructor Create(
-      ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const ALocalConverter: ILocalCoordConverter;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -43,8 +43,8 @@ type
     function GetEnum: IEnumLocalPoint;
   public
     constructor Create(
-      ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const ALocalConverter: ILocalCoordConverter;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -59,8 +59,8 @@ uses
 
 constructor TLocalLineBase.Create(
   AClosed: Boolean;
-  ALocalConverter: ILocalCoordConverter;
-  APoints: PDoublePointArray;
+  const ALocalConverter: ILocalCoordConverter;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
@@ -94,8 +94,8 @@ end;
 { TLocalPathLine }
 
 constructor TLocalPathLine.Create(
-  ALocalConverter: ILocalCoordConverter;
-  APoints: PDoublePointArray;
+  const ALocalConverter: ILocalCoordConverter;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
@@ -110,8 +110,8 @@ end;
 { TLocalPolygonLine }
 
 constructor TLocalPolygonLine.Create(
-  ALocalConverter: ILocalCoordConverter;
-  APoints: PDoublePointArray;
+  const ALocalConverter: ILocalCoordConverter;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin

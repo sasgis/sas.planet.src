@@ -24,14 +24,14 @@ type
     constructor Create(
       AClosed: Boolean;
       const ABounds: TDoubleRect;
-      AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const AProjection: IProjectionInfo;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
     constructor Create(
       AClosed: Boolean;
-      AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const AProjection: IProjectionInfo;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
   end;
@@ -43,8 +43,8 @@ type
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
-      AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const AProjection: IProjectionInfo;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -58,8 +58,8 @@ type
     function CalcArea: Double;
   public
     constructor Create(
-      AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const AProjection: IProjectionInfo;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -74,8 +74,8 @@ uses
 
 constructor TProjectedLineBase.Create(
   AClosed: Boolean;
-  AProjection: IProjectionInfo;
-  APoints: PDoublePointArray;
+  const AProjection: IProjectionInfo;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 var
@@ -104,8 +104,8 @@ end;
 constructor TProjectedLineBase.Create(
   AClosed: Boolean;
   const ABounds: TDoubleRect;
-  AProjection: IProjectionInfo;
-  APoints: PDoublePointArray;
+  const AProjection: IProjectionInfo;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
@@ -143,8 +143,11 @@ end;
 
 { TProjectedPathLine }
 
-constructor TProjectedPathLine.Create(AProjection: IProjectionInfo;
-  APoints: PDoublePointArray; ACount: Integer);
+constructor TProjectedPathLine.Create(
+  const AProjection: IProjectionInfo;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
 begin
   inherited Create(False, AProjection, APoints, ACount);
 end;
@@ -303,8 +306,11 @@ begin
   end;
 end;
 
-constructor TProjectedPolygonLine.Create(AProjection: IProjectionInfo;
-  APoints: PDoublePointArray; ACount: Integer);
+constructor TProjectedPolygonLine.Create(
+  const AProjection: IProjectionInfo;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
 begin
   inherited Create(True, AProjection, APoints, ACount);
 end;

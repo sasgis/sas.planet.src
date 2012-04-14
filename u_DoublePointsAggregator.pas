@@ -14,7 +14,7 @@ type
     FCapacity: Integer;
   private
     procedure Add(const APoint: TDoublePoint);
-    procedure AddPoints(APoints: PDoublePointArray; ACount: Integer);
+    procedure AddPoints(const APoints: PDoublePointArray; ACount: Integer);
     procedure Clear;
 
     function GetCount: Integer;
@@ -60,8 +60,10 @@ begin
   Inc(FCount);
 end;
 
-procedure TDoublePointsAggregator.AddPoints(APoints: PDoublePointArray;
-  ACount: Integer);
+procedure TDoublePointsAggregator.AddPoints(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
 var
   VNewCount: Integer;
   VSize: Integer;

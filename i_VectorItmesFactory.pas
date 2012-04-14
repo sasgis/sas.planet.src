@@ -17,11 +17,11 @@ type
   IVectorItmesFactory = interface
     ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
     function CreateLonLatPath(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPath;
     function CreateLonLatPolygon(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPolygon;
     function CreateLonLatPathByEnum(
@@ -35,23 +35,23 @@ type
 
     function CreateProjectedPath(
       const AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): IProjectedPath;
     function CreateProjectedPolygon(
       const AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): IProjectedPolygon;
 
     function CreateLocalPath(
       const ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILocalPath;
     function CreateLocalPolygon(
       const ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILocalPolygon;
 

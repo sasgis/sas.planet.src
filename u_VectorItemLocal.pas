@@ -19,8 +19,8 @@ type
     function GetLocalConverter: ILocalCoordConverter;
   public
     constructor Create(
-      ALocalConverter: ILocalCoordConverter;
-      AList: IInterfaceList
+      const ALocalConverter: ILocalCoordConverter;
+      const AList: IInterfaceList
     );
   end;
 
@@ -46,7 +46,7 @@ type
     function GetItem(AIndex: Integer): ILocalPathLine;
   public
     constructor Create(
-      ALine: ILocalPathLine
+      const ALine: ILocalPathLine
     );
   end;
 
@@ -60,7 +60,7 @@ type
     function GetItem(AIndex: Integer): ILocalPolygonLine;
   public
     constructor Create(
-      ALine: ILocalPolygonLine
+      const ALine: ILocalPolygonLine
     );
   end;
 
@@ -75,7 +75,7 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ALocalConverter: ILocalCoordConverter
+      const ALocalConverter: ILocalCoordConverter
     );
   end;
 
@@ -98,8 +98,10 @@ uses
 
 { TLocalLineSet }
 
-constructor TLocalLineSet.Create(ALocalConverter: ILocalCoordConverter;
-  AList: IInterfaceList);
+constructor TLocalLineSet.Create(
+  const ALocalConverter: ILocalCoordConverter;
+  const AList: IInterfaceList
+);
 begin
   FList := AList;
   Assert(FList <> nil);
@@ -147,7 +149,7 @@ end;
 
 { TLocalPathOneLine }
 
-constructor TLocalPathOneLine.Create(ALine: ILocalPathLine);
+constructor TLocalPathOneLine.Create(const ALine: ILocalPathLine);
 begin
   FLine := ALine;
 end;
@@ -178,7 +180,7 @@ end;
 
 { TLocalPolygonOneLine }
 
-constructor TLocalPolygonOneLine.Create(ALine: ILocalPolygonLine);
+constructor TLocalPolygonOneLine.Create(const ALine: ILocalPolygonLine);
 begin
   FLine := ALine;
 end;
@@ -210,7 +212,7 @@ end;
 
 { TLocalLineSetEmpty }
 
-constructor TLocalLineSetEmpty.Create(ALocalConverter: ILocalCoordConverter);
+constructor TLocalLineSetEmpty.Create(const ALocalConverter: ILocalCoordConverter);
 begin
   FLocalConverter := ALocalConverter;
 end;

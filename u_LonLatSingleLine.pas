@@ -22,12 +22,12 @@ type
     constructor Create(
       AClosed: Boolean;
       const ABounds: TDoubleRect;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
     constructor Create(
       AClosed: Boolean;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
   end;
@@ -38,7 +38,7 @@ type
     function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -50,7 +50,7 @@ type
     function CalcArea(const ADatum: IDatum): Double;
   public
     constructor Create(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -65,7 +65,7 @@ uses
 
 constructor TLonLatLineBase.Create(
   AClosed: Boolean;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 var
@@ -94,7 +94,7 @@ end;
 constructor TLonLatLineBase.Create(
   AClosed: Boolean;
   const ABounds: TDoubleRect;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
@@ -143,7 +143,7 @@ begin
   end;
 end;
 
-constructor TLonLatPathLine.Create(APoints: PDoublePointArray; ACount: Integer);
+constructor TLonLatPathLine.Create(const APoints: PDoublePointArray; ACount: Integer);
 begin
   inherited Create(False, APoints, ACount);
 end;
@@ -180,8 +180,10 @@ begin
   end;
 end;
 
-constructor TLonLatPolygonLine.Create(APoints: PDoublePointArray;
-  ACount: Integer);
+constructor TLonLatPolygonLine.Create(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
 begin
   inherited Create(True, APoints, ACount);
 end;

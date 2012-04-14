@@ -21,11 +21,11 @@ type
     FEmptyLonLatPolygon: ILonLatPolygon;
   private
     function CreateLonLatPath(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPath;
     function CreateLonLatPolygon(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILonLatPolygon;
     function CreateLonLatPathByEnum(
@@ -39,22 +39,22 @@ type
 
     function CreateProjectedPath(
       const AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): IProjectedPath;
     function CreateProjectedPolygon(
       const AProjection: IProjectionInfo;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): IProjectedPolygon;
     function CreateLocalPath(
       const ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILocalPath;
     function CreateLocalPolygon(
       const ALocalConverter: ILocalCoordConverter;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     ): ILocalPolygon;
 
@@ -194,7 +194,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateLocalPath(
   const ALocalConverter: ILocalCoordConverter;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 ): ILocalPath;
 var
@@ -313,7 +313,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateLocalPolygon(
   const ALocalConverter: ILocalCoordConverter;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 ): ILocalPolygon;
 var
@@ -430,7 +430,7 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPath(
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 ): ILonLatPath;
 var
@@ -568,7 +568,9 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateLonLatPolygon(
-  APoints: PDoublePointArray; ACount: Integer): ILonLatPolygon;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): ILonLatPolygon;
 var
   VLine: ILonLatPolygonLine;
   i: Integer;
@@ -854,7 +856,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateProjectedPath(
   const AProjection: IProjectionInfo;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 ): IProjectedPath;
 var
@@ -1154,7 +1156,7 @@ end;
 
 function TVectorItmesFactorySimple.CreateProjectedPolygon(
   const AProjection: IProjectionInfo;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 ): IProjectedPolygon;
 var

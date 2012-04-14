@@ -20,7 +20,7 @@ type
     constructor Create(
       const ADataOwner: IInterface;
       AClosed: Boolean;
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -44,7 +44,7 @@ uses
 constructor TEnumDoublePointBySingleLineBase.Create(
   const ADataOwner: IInterface;
   AClosed: Boolean;
-  APoints: PDoublePointArray;
+  const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin

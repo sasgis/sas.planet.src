@@ -16,7 +16,7 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      APoints: PDoublePointArray;
+      const APoints: PDoublePointArray;
       ACount: Integer
     );
   end;
@@ -31,8 +31,10 @@ uses
 
 { TEnumDoublePointsByArray }
 
-constructor TEnumDoublePointsByArray.Create(APoints: PDoublePointArray;
-  ACount: Integer);
+constructor TEnumDoublePointsByArray.Create(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
 begin
   FPoints := APoints;
   FCount := ACount;
