@@ -75,11 +75,11 @@ type
                                    const AUnitIndex: Byte;
                                    const AKind: TVSAGPS_UNIT_INFO_Kind);
   protected
-    procedure AddPoint(APosition: IGPSPosition);
+    procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
-    
+
     function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
 
     function GetAllPoints: ILonLatPath;
@@ -99,7 +99,7 @@ type
     function GetLastHeading: Double;
     function GetLastPosition: TDoublePoint;
     function GetCurrentPosition: IGPSPosition;
-    
+
     procedure ExecuteGPSCommand(Sender: TObject;
                                 const AUnitIndex: Byte;
                                 const ACommand: LongInt;
@@ -108,9 +108,9 @@ type
     function GetGPSUnitInfo: String;
   public
     constructor Create(
-      AVectorItmesFactory: IVectorItmesFactory;
-      ADatum: IDatum;
-      AGPSPositionFactory: IGPSPositionFactory
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ADatum: IDatum;
+      const AGPSPositionFactory: IGPSPositionFactory
     );
     destructor Destroy; override;
   end;
@@ -208,9 +208,9 @@ end;
 { TGPSRecorderStuped }
 
 constructor TGPSRecorderStuped.Create(
-  AVectorItmesFactory: IVectorItmesFactory;
-  ADatum: IDatum;
-  AGPSPositionFactory: IGPSPositionFactory
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ADatum: IDatum;
+  const AGPSPositionFactory: IGPSPositionFactory
 );
 begin
   inherited Create;
@@ -306,7 +306,7 @@ begin
   end;
 end;
 
-procedure TGPSRecorderStuped.AddPoint(APosition: IGPSPosition);
+procedure TGPSRecorderStuped.AddPoint(const APosition: IGPSPosition);
 var
   pPos: PSingleGPSData;
   pSatFixAll: PVSAGPS_FIX_ALL;

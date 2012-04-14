@@ -44,7 +44,7 @@ type
 
   IGPSRecorder = interface(IConfigDataElement)
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
-    procedure AddPoint(APosition: IGPSPosition);
+    procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;

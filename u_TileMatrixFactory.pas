@@ -16,36 +16,39 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FImageResamplerConfig: IImageResamplerConfig;
     function BuildEmpty(
-      ATileRect: TRect;
-      ANewConverter: ILocalCoordConverter
+      const ATileRect: TRect;
+      const ANewConverter: ILocalCoordConverter
     ): ITileMatrix;
     function BuildSameProjection(
-      ASource: ITileMatrix;
-      ATileRect: TRect;
-      ANewConverter: ILocalCoordConverter
+      const ASource: ITileMatrix;
+      const ATileRect: TRect;
+      const ANewConverter: ILocalCoordConverter
     ): ITileMatrix;
     function BuildZoomChange(
-      ASource: ITileMatrix;
-      ATileRect: TRect;
-      ANewConverter: ILocalCoordConverter
+      const ASource: ITileMatrix;
+      const ATileRect: TRect;
+      const ANewConverter: ILocalCoordConverter
     ): ITileMatrix;
 
     procedure PrepareCopyRects(
-      ASourceConverter, ATargetConverter: ILocalCoordConverter;
+      const ASourceConverter, ATargetConverter: ILocalCoordConverter;
       out ASourceRect, ATargetRect: TRect
     );
     function PrepareElementFromSource(
-      ASource: ITileMatrix;
-      ATile: TPoint;
+      const ASource: ITileMatrix;
+      const ATile: TPoint;
       AZoom: Byte;
       var AResampler: TCustomResampler
     ): ITileMatrixElement;
   private
-    function BuildNewMatrix(ASource: ITileMatrix; ANewConverter: ILocalCoordConverter): ITileMatrix;
+    function BuildNewMatrix(
+      const ASource: ITileMatrix;
+      const ANewConverter: ILocalCoordConverter
+    ): ITileMatrix;
   public
     constructor Create(
-      AImageResamplerConfig: IImageResamplerConfig;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
 
@@ -66,8 +69,8 @@ uses
 { TTileMatrixFactory }
 
 constructor TTileMatrixFactory.Create(
-  AImageResamplerConfig: IImageResamplerConfig;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   FImageResamplerConfig := AImageResamplerConfig;
@@ -75,7 +78,7 @@ begin
 end;
 
 procedure TTileMatrixFactory.PrepareCopyRects(
-  ASourceConverter, ATargetConverter: ILocalCoordConverter;
+  const ASourceConverter, ATargetConverter: ILocalCoordConverter;
   out ASourceRect, ATargetRect: TRect
 );
 var
@@ -129,8 +132,8 @@ begin
 end;
 
 function TTileMatrixFactory.PrepareElementFromSource(
-  ASource: ITileMatrix;
-  ATile: TPoint;
+  const ASource: ITileMatrix;
+  const ATile: TPoint;
   AZoom: Byte;
   var AResampler: TCustomResampler
 ): ITileMatrixElement;
@@ -208,8 +211,8 @@ begin
 end;
 
 function TTileMatrixFactory.BuildNewMatrix(
-  ASource: ITileMatrix;
-  ANewConverter: ILocalCoordConverter
+  const ASource: ITileMatrix;
+  const ANewConverter: ILocalCoordConverter
 ): ITileMatrix;
 var
   VLocalConverter: ILocalCoordConverter;
@@ -248,8 +251,8 @@ begin
 end;
 
 function TTileMatrixFactory.BuildEmpty(
-  ATileRect: TRect;
-  ANewConverter: ILocalCoordConverter
+  const ATileRect: TRect;
+  const ANewConverter: ILocalCoordConverter
 ): ITileMatrix;
 begin
   Result :=
@@ -262,9 +265,9 @@ begin
 end;
 
 function TTileMatrixFactory.BuildSameProjection(
-  ASource: ITileMatrix;
-  ATileRect: TRect;
-  ANewConverter: ILocalCoordConverter
+  const ASource: ITileMatrix;
+  const ATileRect: TRect;
+  const ANewConverter: ILocalCoordConverter
 ): ITileMatrix;
 var
   VIntersectRect: TRect;
@@ -306,9 +309,9 @@ begin
 end;
 
 function TTileMatrixFactory.BuildZoomChange(
-  ASource: ITileMatrix;
-  ATileRect: TRect;
-  ANewConverter: ILocalCoordConverter
+  const ASource: ITileMatrix;
+  const ATileRect: TRect;
+  const ANewConverter: ILocalCoordConverter
 ): ITileMatrix;
 var
   VConverter: ICoordConverter;

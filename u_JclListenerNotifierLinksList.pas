@@ -41,7 +41,7 @@ type
     procedure DoActivateLinks;
     procedure DoDeactivateLinks;
   protected
-    procedure Add(AListener: IJclListener; ANotifier: IJclNotifier);
+    procedure Add(const AListener: IJclListener; const ANotifier: IJclNotifier);
     procedure ActivateLinks;
     procedure DeactivateLinks;
   public
@@ -124,8 +124,10 @@ begin
   end;
 end;
 
-procedure TJclListenerNotifierLinksList.Add(AListener: IJclListener;
-  ANotifier: IJclNotifier);
+procedure TJclListenerNotifierLinksList.Add(
+  const AListener: IJclListener;
+  const ANotifier: IJclNotifier
+);
 var
   VListenerIndex: Integer;
   VNotifierIndex: Integer;

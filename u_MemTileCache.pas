@@ -78,18 +78,32 @@ type
 
   TMemTileCacheVector = class(TMemTileCacheBase, ITileObjCacheVector)
   protected
-    procedure AddTileToCache(AObj: IVectorDataItemList; const AXY: TPoint; const AZoom: Byte;
-                             const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo): IVectorDataItemList;
+    procedure AddTileToCache(
+      const AObj: IVectorDataItemList;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    function TryLoadTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    ): IVectorDataItemList;
   end;
 
   TMemTileCacheBitmap = class(TMemTileCacheBase, ITileObjCacheBitmap)
   protected
-    procedure AddTileToCache(AObj: IBitmap32Static; const AXY: TPoint; const AZoom: Byte;
-                             const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo): IBitmap32Static;
+    procedure AddTileToCache(
+      const AObj: IBitmap32Static;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    function TryLoadTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    ): IBitmap32Static;
   end;
 
 implementation
@@ -312,9 +326,12 @@ end;
 
 { TMemTileCacheVector }
 
-procedure TMemTileCacheVector.AddTileToCache(AObj: IVectorDataItemList;
-                                             const AXY: TPoint; const AZoom: Byte;
-                                             const AMapVersionInfo: IMapVersionInfo);
+procedure TMemTileCacheVector.AddTileToCache(
+  const AObj: IVectorDataItemList;
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
+);
 var
   VKey: string;
   i: integer;
@@ -353,7 +370,7 @@ end;
 { TMemTileCacheBitmap }
 
 procedure TMemTileCacheBitmap.AddTileToCache(
-  AObj: IBitmap32Static;
+  const AObj: IBitmap32Static;
   const AXY: TPoint;
   const AZoom: Byte;
   const AMapVersionInfo: IMapVersionInfo

@@ -41,7 +41,10 @@ type
 
   ITileMatrixFactory = interface
     ['{63A336D2-751D-4C4F-BC18-CF3791206619}']
-    function BuildNewMatrix(ASource: ITileMatrix; ANewConverter: ILocalCoordConverter): ITileMatrix;
+    function BuildNewMatrix(
+      const ASource: ITileMatrix;
+      const ANewConverter: ILocalCoordConverter
+    ): ITileMatrix;
   end;
 
 implementation

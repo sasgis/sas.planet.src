@@ -241,11 +241,11 @@ type
   private
     function GetProjectionEPSG: Integer; virtual; stdcall;
     function GetCellSizeUnits: TCellSizeUnits; virtual; stdcall;
-    function IsSameConverter(AOtherMapCoordConv: ICoordConverter): Boolean; virtual; stdcall;
+    function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; virtual; stdcall;
 
   public
     constructor Create(
-      ADatum: IDatum;
+      const ADatum: IDatum;
       AProjEPSG: integer;
       ACellSizeUnits: TCellSizeUnits
     );
@@ -1007,7 +1007,7 @@ begin
 end;
 
 constructor TCoordConverterAbstract.Create(
-  ADatum: IDatum;
+  const ADatum: IDatum;
   AProjEPSG: integer;
   ACellSizeUnits: TCellSizeUnits
 );
@@ -1023,7 +1023,8 @@ begin
 end;
 
 function TCoordConverterAbstract.IsSameConverter(
-  AOtherMapCoordConv: ICoordConverter): Boolean;
+  const AOtherMapCoordConv: ICoordConverter
+): Boolean;
 var
   VSelf: ICoordConverter;
 begin

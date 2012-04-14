@@ -95,7 +95,7 @@ type
                                    const AUnitIndex: Byte;
                                    const AKind: TVSAGPS_UNIT_INFO_Kind);
   protected
-    procedure AddPoint(APosition: IGPSPosition);
+    procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
@@ -130,9 +130,9 @@ type
     function GetGPSUnitInfo: String;
   public
     constructor Create(
-      AVectorItmesFactory: IVectorItmesFactory;
-      ADatum: IDatum;
-      AGPSPositionFactory: IGPSPositionFactory
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ADatum: IDatum;
+      const AGPSPositionFactory: IGPSPositionFactory
     );
     destructor Destroy; override;
   end;
@@ -420,9 +420,9 @@ end;
 { TGPSRecorderStuped }
 
 constructor TGPSRecorder.Create(
-  AVectorItmesFactory: IVectorItmesFactory;
-  ADatum: IDatum;
-  AGPSPositionFactory: IGPSPositionFactory
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ADatum: IDatum;
+  const AGPSPositionFactory: IGPSPositionFactory
 );
 begin
   inherited Create;
@@ -534,7 +534,7 @@ begin
   end;
 end;
 
-procedure TGPSRecorder.AddPoint(APosition: IGPSPosition);
+procedure TGPSRecorder.AddPoint(const APosition: IGPSPosition);
 var
   pPos: PSingleGPSData;
   pSatFixAll: PVSAGPS_FIX_ALL;

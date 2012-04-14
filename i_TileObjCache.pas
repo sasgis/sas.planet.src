@@ -32,23 +32,43 @@ type
   ITileObjCacheVector = interface
     ['{B52B38D1-C57C-424C-B85B-AC623A54E7B5}']
     procedure Clear;
-    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo);
-    procedure AddTileToCache(AObj: IVectorDataItemList; const AXY: TPoint; const AZoom: Byte;
-                             const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo): IVectorDataItemList;
+    procedure DeleteTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    procedure AddTileToCache(
+      const AObj: IVectorDataItemList;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    function TryLoadTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    ): IVectorDataItemList;
   end;
 
   ITileObjCacheBitmap = interface
     ['{B52B38D1-C57C-424C-B85B-AC623A54E7B5}']
     procedure Clear;
-    procedure DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo);
-    procedure AddTileToCache(AObj: IBitmap32Static; const AXY: TPoint; const AZoom: Byte;
-                             const AMapVersionInfo: IMapVersionInfo);
-    function TryLoadTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                  const AMapVersionInfo: IMapVersionInfo): IBitmap32Static;
+    procedure DeleteTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    procedure AddTileToCache(
+      const AObj: IBitmap32Static;
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    );
+    function TryLoadTileFromCache(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AMapVersionInfo: IMapVersionInfo
+    ): IBitmap32Static;
   end;
 
 implementation

@@ -187,7 +187,7 @@ type
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer; stdcall;
     // Возвращает является ли другой конвертер эквивалентным текущему
-    function IsSameConverter(AOtherMapCoordConv: ICoordConverter): Boolean; stdcall;
+    function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; stdcall;
 
     // Преобразует георафические координаты в метрические, и обратно
     function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
