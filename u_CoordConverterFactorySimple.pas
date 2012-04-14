@@ -36,11 +36,11 @@ type
     FLonLat: ICoordConverter;
     FEPSG53004: ICoordConverter;
   private
-    function GetCoordConverterByConfig(AConfig: IConfigDataProvider): ICoordConverter;
+    function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(AProjectionEPSG: Integer; ATileSplitCode: Integer): ICoordConverter;
   private
     function GetByConverterAndZoom(
-      AGeoConverter: ICoordConverter;
+      const AGeoConverter: ICoordConverter;
       AZoom: Byte
     ): IProjectionInfo;
   public
@@ -81,14 +81,15 @@ begin
 end;
 
 function TCoordConverterFactorySimple.GetByConverterAndZoom(
-  AGeoConverter: ICoordConverter; AZoom: Byte): IProjectionInfo;
+  const AGeoConverter: ICoordConverter;
+  AZoom: Byte
+): IProjectionInfo;
 begin
   Result := TProjectionInfo.Create(AGeoConverter, AZoom);
 end;
 
 function TCoordConverterFactorySimple.GetCoordConverterByCode(
-  AProjectionEPSG,
-  ATileSplitCode: Integer
+  AProjectionEPSG, ATileSplitCode: Integer
 ): ICoordConverter;
 begin
   Result := nil;
@@ -115,7 +116,8 @@ begin
 end;
 
 function TCoordConverterFactorySimple.GetCoordConverterByConfig(
-  AConfig: IConfigDataProvider): ICoordConverter;
+  const AConfig: IConfigDataProvider
+): ICoordConverter;
 var
   VProjection: byte;
   VRadiusA: Double;

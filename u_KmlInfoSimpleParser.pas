@@ -60,21 +60,21 @@ type
       AList: IInterfaceList;
       AFactory: IVectorDataFactory
     ): boolean;
-    function parseCoordinates(AText: PAnsiChar; ALen: integer; APointsAggregator: IDoublePointsAggregator): boolean;
+    function parseCoordinates(AText: PAnsiChar; ALen: integer; const APointsAggregator: IDoublePointsAggregator): boolean;
     procedure parseName(var Name: AnsiString);
     procedure parseDescription(var Description: AnsiString);
     function BuildItem(
       const AName, ADesc: string;
-      APointsAggregator: IDoublePointsAggregator;
-      AFactory: IVectorDataFactory
+      const APointsAggregator: IDoublePointsAggregator;
+      const AFactory: IVectorDataFactory
     ): IVectorDataItemSimple;
   protected
-    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
-    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
+    function LoadFromStream(AStream: TStream; const AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
+    function Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
   public
     constructor Create(
-      AFactory: IVectorItmesFactory;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AFactory: IVectorItmesFactory;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
   end;
@@ -93,8 +93,8 @@ uses
 
 function TKmlInfoSimpleParser.BuildItem(
   const AName, ADesc: string;
-  APointsAggregator: IDoublePointsAggregator;
-  AFactory: IVectorDataFactory
+  const APointsAggregator: IDoublePointsAggregator;
+  const AFactory: IVectorDataFactory
 ): IVectorDataItemSimple;
 var
   VPointCount: Integer;
@@ -127,8 +127,8 @@ begin
 end;
 
 constructor TKmlInfoSimpleParser.Create(
-  AFactory: IVectorItmesFactory;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AFactory: IVectorItmesFactory;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FFactory := AFactory;
@@ -162,8 +162,8 @@ begin
 end;
 
 function TKmlInfoSimpleParser.Load(
-  AData: IBinaryData;
-  AFactory: IVectorDataFactory
+  const AData: IBinaryData;
+  const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -177,9 +177,9 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.LoadFromStream
-  (AStream: TStream;
-  AFactory: IVectorDataFactory
+function TKmlInfoSimpleParser.LoadFromStream(
+  AStream: TStream;
+  const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 
   function GetAnsiString(AStream: TStream): AnsiString;
@@ -356,7 +356,7 @@ end;
 function TKmlInfoSimpleParser.parseCoordinates(
   AText: PAnsiChar;
   ALen: integer;
-  APointsAggregator: IDoublePointsAggregator
+  const APointsAggregator: IDoublePointsAggregator
 ): boolean;
 var
   VCurPos: PAnsiChar;

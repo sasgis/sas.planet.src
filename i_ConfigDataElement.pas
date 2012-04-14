@@ -34,8 +34,8 @@ type
     procedure LockWrite;
     procedure UnlockRead;
     procedure UnlockWrite;
-    procedure ReadConfig(AConfigData: IConfigDataProvider);
-    procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
+    procedure ReadConfig(const AConfigData: IConfigDataProvider);
+    procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
     procedure StopNotify;
     procedure StartNotify;
   end;

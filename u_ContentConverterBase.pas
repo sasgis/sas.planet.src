@@ -36,11 +36,11 @@ type
     function GetSource: IContentTypeInfoBasic;
     function GetTarget: IContentTypeInfoBasic;
     function GetIsSimpleCopy: Boolean; virtual; abstract;
-    function Convert(AData: IBinaryData): IBinaryData; virtual; abstract;
+    function Convert(const AData: IBinaryData): IBinaryData; virtual; abstract;
   public
     constructor Create(
-      ASource: IContentTypeInfoBasic;
-      ATarget: IContentTypeInfoBasic
+      const ASource: IContentTypeInfoBasic;
+      const ATarget: IContentTypeInfoBasic
     );
     destructor Destroy; override;
   end;
@@ -53,15 +53,16 @@ type
   TContentConverterSimpleCopy = class(TContentConverterAbstract)
   protected
     function GetIsSimpleCopy: Boolean; override;
-    function Convert(AData: IBinaryData): IBinaryData; override;
+    function Convert(const AData: IBinaryData): IBinaryData; override;
   end;
 
 implementation
 
 { TContentConverterAbstract }
 
-constructor TContentConverterAbstract.Create(ASource,
-  ATarget: IContentTypeInfoBasic);
+constructor TContentConverterAbstract.Create(
+  const ASource, ATarget: IContentTypeInfoBasic
+);
 begin
   FSource := ASource;
   FTarget := ATarget;
@@ -93,7 +94,7 @@ end;
 
 { TContentConverterSimpleCopy }
 
-function TContentConverterSimpleCopy.Convert(AData: IBinaryData): IBinaryData;
+function TContentConverterSimpleCopy.Convert(const AData: IBinaryData): IBinaryData;
 begin
   Result := AData;
 end;

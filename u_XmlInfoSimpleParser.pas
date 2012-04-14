@@ -51,12 +51,18 @@ type
       const pPX_State: Pvsagps_XML_ParserState
     );
   protected
-    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
-    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
+    function LoadFromStream(
+      AStream: TStream;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList;
+    function Load(
+      const AData: IBinaryData;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList;
   public
     constructor Create(
-      AFactory: IVectorItmesFactory;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AFactory: IVectorItmesFactory;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
   end;
@@ -104,8 +110,8 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
-  AFactory: IVectorItmesFactory;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AFactory: IVectorItmesFactory;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FFactory := AFactory;
@@ -346,7 +352,10 @@ begin
   end;
 end;
 
-function TXmlInfoSimpleParser.Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
+function TXmlInfoSimpleParser.Load(
+  const AData: IBinaryData;
+  const AFactory: IVectorDataFactory
+): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -359,7 +368,10 @@ begin
   end;
 end;
 
-function TXmlInfoSimpleParser.LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
+function TXmlInfoSimpleParser.LoadFromStream(
+  AStream: TStream;
+  const AFactory: IVectorDataFactory
+): IVectorDataItemList;
 var
   tAux: TParseXML_Aux;
   VCounterContext: TInternalPerformanceCounterContext;

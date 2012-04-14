@@ -46,8 +46,8 @@ type
     procedure LockWrite; virtual;
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
-    procedure ReadConfig(AConfigData: IConfigDataProvider); virtual;
-    procedure WriteConfig(AConfigData: IConfigDataWriteProvider); virtual;
+    procedure ReadConfig(const AConfigData: IConfigDataProvider); 
+    procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
     procedure StopNotify; virtual;
     procedure StartNotify; virtual;
   public
@@ -135,7 +135,7 @@ begin
   FLock.BeginWrite;
 end;
 
-procedure TConfigDataElementBase.ReadConfig(AConfigData: IConfigDataProvider);
+procedure TConfigDataElementBase.ReadConfig(const AConfigData: IConfigDataProvider);
 begin
   LockWrite;
   try
@@ -179,7 +179,8 @@ begin
 end;
 
 procedure TConfigDataElementBase.WriteConfig(
-  AConfigData: IConfigDataWriteProvider);
+  const AConfigData: IConfigDataWriteProvider
+);
 begin
   LockRead;
   try

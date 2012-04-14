@@ -42,8 +42,14 @@ type
     procedure ParseStringList(AStringList: TStringList; const APointsAggregator: IDoublePointsAggregator);
     function GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
   protected
-    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
-    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
+    function LoadFromStream(
+      AStream: TStream;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList;
+    function Load(
+      const AData: IBinaryData;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList;
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;
@@ -70,7 +76,10 @@ begin
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
 end;
 
-function TPLTSimpleParser.Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
+function TPLTSimpleParser.Load(
+  const AData: IBinaryData;
+  const AFactory: IVectorDataFactory
+): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -83,7 +92,10 @@ begin
   end;
 end;
 
-function TPLTSimpleParser.LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
+function TPLTSimpleParser.LoadFromStream(
+  AStream: TStream;
+  const AFactory: IVectorDataFactory
+): IVectorDataItemList;
 var
   pltstr: TStringList;
   trackname: string;

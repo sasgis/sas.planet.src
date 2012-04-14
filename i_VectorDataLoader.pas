@@ -31,8 +31,8 @@ uses
 type
   IVectorDataLoader = interface
     ['{F9986E7D-897C-4BD3-8A92-A9798BFB32FA}']
-    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
-    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
+    function LoadFromStream(AStream: TStream; const AFactory: IVectorDataFactory): IVectorDataItemList;
+    function Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList;
   end;
 
 implementation

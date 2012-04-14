@@ -32,7 +32,7 @@ type
     function GetSource: IContentTypeInfoBasic;
     function GetTarget: IContentTypeInfoBasic;
     function GetIsSimpleCopy: Boolean;
-    function Convert(AData: IBinaryData): IBinaryData;
+    function Convert(const AData: IBinaryData): IBinaryData;
   end;
 
 implementation

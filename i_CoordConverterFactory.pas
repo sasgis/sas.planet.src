@@ -30,14 +30,14 @@ uses
 type
   ICoordConverterFactory = interface
     ['{399F7734-B79E-44E0-9A5A-A6BA38E9125A}']
-    function GetCoordConverterByConfig(AConfig: IConfigDataProvider): ICoordConverter;
+    function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(AProjectionEPSG: Integer; ATileSplitCode: Integer): ICoordConverter;
   end;
 
   IProjectionInfoFactory = interface
     ['{81B33FFE-DD06-4817-8371-E3FC2F5BCAF2}']
     function GetByConverterAndZoom(
-      AGeoConverter: ICoordConverter;
+      const AGeoConverter: ICoordConverter;
       AZoom: Byte
     ): IProjectionInfo;
   end;

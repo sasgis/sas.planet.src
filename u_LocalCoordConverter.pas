@@ -39,7 +39,7 @@ type
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
   protected
-    function GetIsSameConverter(AConverter: ILocalCoordConverter): Boolean;
+    function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean;
 
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
@@ -72,8 +72,8 @@ type
     function GetRectInMapPixelFloat: TDoubleRect;
   public
     constructor Create(
-      ALocalRect: TRect;
-      AProjection: IProjectionInfo
+      const ALocalRect: TRect;
+      const AProjection: IProjectionInfo
     );
   end;
 
@@ -122,8 +122,8 @@ uses
   u_GeoFun;
 
 constructor TLocalCoordConverterBase.Create(
-  ALocalRect: TRect;
-  AProjection: IProjectionInfo
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo
 );
 begin
   FLocalRect := ALocalRect;
@@ -156,7 +156,8 @@ begin
 end;
 
 function TLocalCoordConverterBase.GetIsSameConverter(
-  AConverter: ILocalCoordConverter): Boolean;
+  const AConverter: ILocalCoordConverter
+): Boolean;
 var
   VSelf: ILocalCoordConverter;
 begin

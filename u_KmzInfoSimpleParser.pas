@@ -36,12 +36,12 @@ type
   private
     FLoadKmzStreamCounter: IInternalPerformanceCounter;
   protected
-    function LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList; override;
-    function Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList; override;
+    function LoadFromStream(AStream: TStream; const AFactory: IVectorDataFactory): IVectorDataItemList; override;
+    function Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList; override;
   public
     constructor Create(
-      AFactory: IVectorItmesFactory;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AFactory: IVectorItmesFactory;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -55,8 +55,9 @@ uses
 { TKmzInfoSimpleParser }
 
 constructor TKmzInfoSimpleParser.Create(
-  AFactory: IVectorItmesFactory;
-  APerfCounterList: IInternalPerformanceCounterList);
+  const AFactory: IVectorItmesFactory;
+  const APerfCounterList: IInternalPerformanceCounterList
+);
 var
   VPerfCounterList: IInternalPerformanceCounterList;
 begin
@@ -65,7 +66,7 @@ begin
   FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
 end;
 
-function TKmzInfoSimpleParser.Load(AData: IBinaryData; AFactory: IVectorDataFactory): IVectorDataItemList;
+function TKmzInfoSimpleParser.Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -78,7 +79,10 @@ begin
   end;
 end;
 
-function TKmzInfoSimpleParser.LoadFromStream(AStream: TStream; AFactory: IVectorDataFactory): IVectorDataItemList;
+function TKmzInfoSimpleParser.LoadFromStream(
+  AStream: TStream;
+  const AFactory: IVectorDataFactory
+): IVectorDataItemList;
 var
   i: Integer;
   UnZip: TKAZip;

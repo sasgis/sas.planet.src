@@ -30,7 +30,7 @@ uses
 type
   TContentConverterKml2Kmz = class(TContentConverterBase)
   protected
-    function Convert(AData: IBinaryData): IBinaryData; override;
+    function Convert(const AData: IBinaryData): IBinaryData; override;
   end;
 
 implementation
@@ -42,7 +42,7 @@ uses
 
 { TContentConverterKmz2Kml }
 
-function TContentConverterKml2Kmz.Convert(AData: IBinaryData): IBinaryData;
+function TContentConverterKml2Kmz.Convert(const AData: IBinaryData): IBinaryData;
 var
   VMemStream: TCustomMemoryStream;
   VZip:TKAZip;

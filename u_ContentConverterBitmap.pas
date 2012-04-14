@@ -34,11 +34,11 @@ type
     FSourceLoader: IBitmapTileLoader;
     FTargetSaver: IBitmapTileSaver;
   protected
-    function Convert(AData: IBinaryData): IBinaryData; override;
+    function Convert(const AData: IBinaryData): IBinaryData; override;
   public
     constructor Create(
-      ASource: IContentTypeInfoBasic;
-      ATarget: IContentTypeInfoBasic
+      const ASource: IContentTypeInfoBasic;
+      const ATarget: IContentTypeInfoBasic
     );
     destructor Destroy; override;
   end;
@@ -51,8 +51,9 @@ uses
 
 { TContentConverterBitmap }
 
-constructor TContentConverterBitmap.Create(ASource,
-  ATarget: IContentTypeInfoBasic);
+constructor TContentConverterBitmap.Create(
+  const ASource, ATarget: IContentTypeInfoBasic
+);
 var
   VSource: IContentTypeInfoBitmap;
   VTarget: IContentTypeInfoBitmap;
@@ -78,7 +79,7 @@ begin
   inherited;
 end;
 
-function TContentConverterBitmap.Convert(AData: IBinaryData): IBinaryData;
+function TContentConverterBitmap.Convert(const AData: IBinaryData): IBinaryData;
 begin
   Result := FTargetSaver.Save(FSourceLoader.Load(AData));
 end;
