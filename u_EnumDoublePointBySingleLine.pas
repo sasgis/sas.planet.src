@@ -18,7 +18,7 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ADataOwner: IInterface;
+      const ADataOwner: IInterface;
       AClosed: Boolean;
       APoints: PDoublePointArray;
       ACount: Integer
@@ -42,7 +42,7 @@ uses
 { TEnumDoublePointBySingleLineBase }
 
 constructor TEnumDoublePointBySingleLineBase.Create(
-  ADataOwner: IInterface;
+  const ADataOwner: IInterface;
   AClosed: Boolean;
   APoints: PDoublePointArray;
   ACount: Integer

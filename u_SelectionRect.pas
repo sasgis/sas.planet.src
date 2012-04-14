@@ -49,15 +49,15 @@ type
     ): TDoubleRect;
   protected
     function IsEmpty: Boolean;
-    procedure SetNextPoint(ALonLat: TDoublePoint; Shift: TShiftState);
+    procedure SetNextPoint(const ALonLat: TDoublePoint; Shift: TShiftState);
     procedure Reset;
     function GetRect: TDoubleRect;
   public
     constructor Create(
-      AViewPortState: IViewPortState;
-      ATileGridConfig: ITileGridConfig;
-      AGenShtabGridConfig: IGenShtabGridConfig;
-      ADegreeGridConfig: IDegreeGridConfig
+      const AViewPortState: IViewPortState;
+      const ATileGridConfig: ITileGridConfig;
+      const AGenShtabGridConfig: IGenShtabGridConfig;
+      const ADegreeGridConfig: IDegreeGridConfig
     );
   end;
 
@@ -71,10 +71,10 @@ uses
 { TSelectionRect }
 
 constructor TSelectionRect.Create(
-  AViewPortState: IViewPortState;
-  ATileGridConfig: ITileGridConfig;
-  AGenShtabGridConfig: IGenShtabGridConfig;
-  ADegreeGridConfig: IDegreeGridConfig
+  const AViewPortState: IViewPortState;
+  const ATileGridConfig: ITileGridConfig;
+  const AGenShtabGridConfig: IGenShtabGridConfig;
+  const ADegreeGridConfig: IDegreeGridConfig
 );
 begin
   inherited Create;
@@ -163,8 +163,10 @@ begin
   end;
 end;
 
-procedure TSelectionRect.SetNextPoint(ALonLat: TDoublePoint;
-  Shift: TShiftState);
+procedure TSelectionRect.SetNextPoint(
+  const ALonLat: TDoublePoint;
+  Shift: TShiftState
+);
 var
   VNewRect: TDoubleRect;
 begin

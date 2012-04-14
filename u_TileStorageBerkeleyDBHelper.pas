@@ -63,42 +63,42 @@ type
 
     function SaveTile(
       const ADataBase: string;
-      ATileXY: TPoint;
-      ATileZoom: Byte;
-      ATileDate: TDateTime;
-      AVersionInfo: IMapVersionInfo;
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const ATileDate: TDateTime;
+      const AVersionInfo: IMapVersionInfo;
       ATileContetType: PWideChar;
-      AData: IBinaryData
+      const AData: IBinaryData
     ): Boolean;
 
     function DeleteTile(
       const ADataBase: string;
-      ATileXY: TPoint;
-      ATileZoom: Byte;
-      AVersionInfo: IMapVersionInfo
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean;
 
     function LoadTile(
       const ADataBase: string;
-      ATileXY: TPoint;
-      ATileZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
       out ATileStream: TMemoryStream;
       out ABDBData: TBDBData
     ): Boolean;
 
     function TileExists(
       const ADataBase: string;
-      ATileXY: TPoint;
-      ATileZoom: Byte;
-      AVersionInfo: IMapVersionInfo
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const AVersionInfo: IMapVersionInfo
     ): Boolean;
 
     function IsTNEFound(
       const ADataBase: string;
-      ATileXY: TPoint;
-      ATileZoom: Byte;
-      AVersionInfo: IMapVersionInfo;
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
       out ABDBData: TBDBData
     ): Boolean;
 
@@ -292,12 +292,12 @@ end;
 
 function TTileStorageBerkeleyDBHelper.SaveTile(
   const ADataBase: string;
-  ATileXY: TPoint;
-  ATileZoom: Byte;
-  ATileDate: TDateTime;
-  AVersionInfo: IMapVersionInfo;
+  const ATileXY: TPoint;
+  const ATileZoom: Byte;
+  const ATileDate: TDateTime;
+  const AVersionInfo: IMapVersionInfo;
   ATileContetType: PWideChar;
-  AData: IBinaryData
+  const AData: IBinaryData
 ): Boolean;
 var
   VKey: TBDBKey;
@@ -355,9 +355,9 @@ end;
 
 function TTileStorageBerkeleyDBHelper.DeleteTile(
   const ADataBase: string;
-  ATileXY: TPoint;
-  ATileZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  const ATileXY: TPoint;
+  const ATileZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VKey: TBDBKey;
@@ -379,9 +379,9 @@ end;
 
 function TTileStorageBerkeleyDBHelper.LoadTile(
   const ADataBase: string;
-  ATileXY: TPoint;
-  ATileZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
+  const ATileXY: TPoint;
+  const ATileZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
   out ATileStream: TMemoryStream;
   out ABDBData: TBDBData
 ): Boolean;
@@ -420,9 +420,9 @@ end;
 
 function TTileStorageBerkeleyDBHelper.TileExists(
   const ADataBase: string;
-  ATileXY: TPoint;
-  ATileZoom: Byte;
-  AVersionInfo: IMapVersionInfo
+  const ATileXY: TPoint;
+  const ATileZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
   VKey: TBDBKey;
@@ -444,9 +444,9 @@ end;
 
 function TTileStorageBerkeleyDBHelper.IsTNEFound(
   const ADataBase: string;
-  ATileXY: TPoint;
-  ATileZoom: Byte;
-  AVersionInfo: IMapVersionInfo;
+  const ATileXY: TPoint;
+  const ATileZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
   out ABDBData: TBDBData
 ): Boolean;
 var

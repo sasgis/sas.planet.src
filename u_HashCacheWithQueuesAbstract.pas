@@ -86,7 +86,7 @@ type
   public
     function GetItem(
       AHashIndex: THashIndex;
-      AKey: UInt64;
+      const AKey: UInt64;
       out AIndex: TItemIndex
     ): PCacheItem;
     procedure RemoveItem(
@@ -134,10 +134,10 @@ type
     procedure MoveItemFromFirstInToFirstOut;
     procedure FreeItemFromQueueMulti;
   protected
-    procedure CreateByKey(AKey: UInt64; AData: Pointer; out Item: IInterface); virtual; abstract;
-    function GetIndexByKey(AKey: UInt64): THashIndex; virtual; abstract;
-    procedure GetOrCreateItem(AKey: UInt64; AData: Pointer; out AItem: IInterface);
-    procedure  DeleteItem(AKey: UInt64);
+    procedure CreateByKey(const AKey: UInt64; AData: Pointer; out Item: IInterface); virtual; abstract;
+    function GetIndexByKey(const AKey: UInt64): THashIndex; virtual; abstract;
+    procedure GetOrCreateItem(const AKey: UInt64; AData: Pointer; out AItem: IInterface);
+    procedure  DeleteItem(const AKey: UInt64);
     procedure Clear;
   public
     constructor Create(
@@ -451,7 +451,7 @@ end;
 
 function THashTable.GetItem(
   AHashIndex: THashIndex;
-  AKey: UInt64;
+  const AKey: UInt64;
   out AIndex: TItemIndex
 ): PCacheItem;
 begin
@@ -638,7 +638,7 @@ begin
   end;
 end;
 
-procedure THashCacheWithQueuesAbstract.DeleteItem(AKey: UInt64);
+procedure THashCacheWithQueuesAbstract.DeleteItem(const AKey: UInt64);
 var
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
@@ -689,7 +689,7 @@ begin
 end;
 
 procedure THashCacheWithQueuesAbstract.GetOrCreateItem(
-  AKey: UInt64;
+  const AKey: UInt64;
   AData: Pointer;
   out AItem: IInterface);
 var

@@ -57,8 +57,8 @@ type
     function PosOfSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
     function parse(
       const buffer: AnsiString;
-      AList: IInterfaceList;
-      AFactory: IVectorDataFactory
+      const AList: IInterfaceList;
+      const AFactory: IVectorDataFactory
     ): boolean;
     function parseCoordinates(AText: PAnsiChar; ALen: integer; const APointsAggregator: IDoublePointsAggregator): boolean;
     procedure parseName(var Name: AnsiString);
@@ -275,8 +275,8 @@ end;
 
 function TKmlInfoSimpleParser.parse(
   const buffer: AnsiString;
-  AList: IInterfaceList;
-  AFactory: IVectorDataFactory
+  const AList: IInterfaceList;
+  const AFactory: IVectorDataFactory
 ): boolean;
 var
   position, PosStartPlace, PosTag1, PosTag2,PosTag3, PosEndPlace, sLen, sStart: integer;

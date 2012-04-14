@@ -14,14 +14,14 @@ type
     procedure SetSize(NewSize: Longint); override;
     function Write(const Buffer; Count: Longint): Longint; override;
   public
-    constructor Create(AData: IBinaryData);
+    constructor Create(const AData: IBinaryData);
   end;
 
 implementation
 
 { TStreamReadOnlyByBinaryData }
 
-constructor TStreamReadOnlyByBinaryData.Create(AData: IBinaryData);
+constructor TStreamReadOnlyByBinaryData.Create(const AData: IBinaryData);
 begin
   FData := AData;
   SetPointer(FData.Buffer, FData.Size);
