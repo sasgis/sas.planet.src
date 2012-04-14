@@ -32,29 +32,29 @@ type
   ILocalCoordConverterFactorySimpe = interface
     ['{102D5E00-4F2C-4425-9EB9-ED4DD77141FB}']
     function CreateConverter(
-      ALocalRect: TRect;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter;
-      AMapScale: TDoublePoint;
-      ALocalTopLeftAtMap: TDoublePoint
+      const ALocalRect: TRect;
+      const AZoom: Byte;
+      const AGeoConverter: ICoordConverter;
+      const AMapScale: TDoublePoint;
+      const ALocalTopLeftAtMap: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
-      ALocalRect: TRect;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter;
-      ALocalTopLeftAtMap: TPoint
+      const ALocalRect: TRect;
+      const AZoom: Byte;
+      const AGeoConverter: ICoordConverter;
+      const ALocalTopLeftAtMap: TPoint
     ): ILocalCoordConverter;
     function CreateForTile(
-      ATile: TPoint;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
     function CreateBySourceWithStableTileRect(
-      ASource: ILocalCoordConverter
+      const ASource: ILocalCoordConverter
     ): ILocalCoordConverter;
     function CreateBySourceWithStableTileRectAndOtherGeo(
-      ASource: ILocalCoordConverter;
-      AGeoConverter: ICoordConverter
+      const ASource: ILocalCoordConverter;
+      const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
   end;
 

@@ -130,8 +130,8 @@ type
   private
     function GetEnum: IEnumLonLatPoint;
     function GetBounds: TDoubleRect;
-    function CalcPerimeter(ADatum: IDatum): Double;
-    function CalcArea(ADatum: IDatum): Double;
+    function CalcPerimeter(const ADatum: IDatum): Double;
+    function CalcArea(const ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
@@ -752,7 +752,7 @@ begin
   FLine := ALine;
 end;
 
-function TLonLatPathWithSelected.CalcLength(ADatum: IDatum): Double;
+function TLonLatPathWithSelected.CalcLength(const ADatum: IDatum): Double;
 begin
   Result := FLine.CalcLength(ADatum);
 end;
@@ -829,12 +829,12 @@ begin
   FLine := ALine;
 end;
 
-function TLonLatPolygonWithSelected.CalcArea(ADatum: IDatum): Double;
+function TLonLatPolygonWithSelected.CalcArea(const ADatum: IDatum): Double;
 begin
   Result := FLine.CalcArea(ADatum);
 end;
 
-function TLonLatPolygonWithSelected.CalcPerimeter(ADatum: IDatum): Double;
+function TLonLatPolygonWithSelected.CalcPerimeter(const ADatum: IDatum): Double;
 begin
   Result := FLine.CalcPerimeter(ADatum);
 end;

@@ -13,7 +13,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
     property State: ITileDownloaderStateChangeble read GetState;
 
-    function BuildRequestBuilder(ADownloader: IDownloader): ITileDownloadRequestBuilder;
+    function BuildRequestBuilder(const ADownloader: IDownloader): ITileDownloadRequestBuilder;
   end;
 
 implementation

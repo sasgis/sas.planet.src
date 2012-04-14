@@ -34,12 +34,12 @@ type
     FSubItemName: string;
   protected
     procedure WriteConfig(
-      AProvider: IConfigDataWriteProvider;
-      AElement: IConfigDataElement
+      const AProvider: IConfigDataWriteProvider;
+      const AElement: IConfigDataElement
     );
     procedure ReadConfig(
-      AProvider: IConfigDataProvider;
-      AElement: IConfigDataElement
+      const AProvider: IConfigDataProvider;
+      const AElement: IConfigDataElement
     );
   public
     constructor Create(const ASubItemName: string);
@@ -57,7 +57,8 @@ begin
 end;
 
 procedure TConfigSaveLoadStrategyBasicProviderSubItem.ReadConfig(
-  AProvider: IConfigDataProvider; AElement: IConfigDataElement);
+  const AProvider: IConfigDataProvider;
+  const AElement: IConfigDataElement);
 var
   VProvider: IConfigDataProvider;
 begin
@@ -70,7 +71,9 @@ begin
 end;
 
 procedure TConfigSaveLoadStrategyBasicProviderSubItem.WriteConfig(
-  AProvider: IConfigDataWriteProvider; AElement: IConfigDataElement);
+  const AProvider: IConfigDataWriteProvider;
+  const AElement: IConfigDataElement
+);
 var
   VProvider: IConfigDataWriteProvider;
 begin

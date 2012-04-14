@@ -36,33 +36,33 @@ type
     FProjectionFactory: IProjectionInfoFactory;
   private
     function CreateConverter(
-      ALocalRect: TRect;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter;
-      AMapScale: TDoublePoint;
-      ALocalTopLeftAtMap: TDoublePoint
+      const ALocalRect: TRect;
+      const AZoom: Byte;
+      const AGeoConverter: ICoordConverter;
+      const AMapScale: TDoublePoint;
+      const ALocalTopLeftAtMap: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
-      ALocalRect: TRect;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter;
-      ALocalTopLeftAtMap: TPoint
+      const ALocalRect: TRect;
+      const AZoom: Byte;
+      const AGeoConverter: ICoordConverter;
+      const ALocalTopLeftAtMap: TPoint
     ): ILocalCoordConverter;
     function CreateForTile(
-      ATile: TPoint;
-      AZoom: Byte;
-      AGeoConverter: ICoordConverter
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
     function CreateBySourceWithStableTileRect(
-      ASource: ILocalCoordConverter
+      const ASource: ILocalCoordConverter
     ): ILocalCoordConverter;
     function CreateBySourceWithStableTileRectAndOtherGeo(
-      ASource: ILocalCoordConverter;
-      AGeoConverter: ICoordConverter
+      const ASource: ILocalCoordConverter;
+      const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
   public
     constructor Create(
-      AProjectionFactory: IProjectionInfoFactory
+      const AProjectionFactory: IProjectionInfoFactory
     );
   end;
 
@@ -75,13 +75,14 @@ uses
 { TLocalCoordConverterFactorySimpe }
 
 constructor TLocalCoordConverterFactorySimpe.Create(
-  AProjectionFactory: IProjectionInfoFactory);
+  const AProjectionFactory: IProjectionInfoFactory
+);
 begin
   FProjectionFactory := AProjectionFactory;
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateBySourceWithStableTileRect(
-  ASource: ILocalCoordConverter
+  const ASource: ILocalCoordConverter
 ): ILocalCoordConverter;
 var
   VZoom: Byte;
@@ -134,8 +135,8 @@ begin
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateBySourceWithStableTileRectAndOtherGeo(
-  ASource: ILocalCoordConverter;
-  AGeoConverter: ICoordConverter
+  const ASource: ILocalCoordConverter;
+  const AGeoConverter: ICoordConverter
 ): ILocalCoordConverter;
 var
   VZoom: Byte;
@@ -188,11 +189,10 @@ begin
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateConverter(
-  ALocalRect: TRect;
-  AZoom: Byte;
-  AGeoConverter: ICoordConverter;
-  AMapScale,
-  ALocalTopLeftAtMap: TDoublePoint
+  const ALocalRect: TRect;
+  const AZoom: Byte;
+  const AGeoConverter: ICoordConverter;
+  const AMapScale, ALocalTopLeftAtMap: TDoublePoint
 ): ILocalCoordConverter;
 begin
   Result :=
@@ -205,10 +205,10 @@ begin
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateConverterNoScale(
-  ALocalRect: TRect;
-  AZoom: Byte;
-  AGeoConverter: ICoordConverter;
-  ALocalTopLeftAtMap: TPoint
+  const ALocalRect: TRect;
+  const AZoom: Byte;
+  const AGeoConverter: ICoordConverter;
+  const ALocalTopLeftAtMap: TPoint
 ): ILocalCoordConverter;
 begin
   Result := TLocalCoordConverterNoScale.Create(
@@ -218,8 +218,11 @@ begin
   );
 end;
 
-function TLocalCoordConverterFactorySimpe.CreateForTile(ATile: TPoint;
-  AZoom: Byte; AGeoConverter: ICoordConverter): ILocalCoordConverter;
+function TLocalCoordConverterFactorySimpe.CreateForTile(
+  const ATile: TPoint;
+  const AZoom: Byte;
+  const AGeoConverter: ICoordConverter
+): ILocalCoordConverter;
 var
   VPixelRect: TRect;
   VBitmapTileRect: TRect;

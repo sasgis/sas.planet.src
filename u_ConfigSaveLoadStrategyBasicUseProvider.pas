@@ -32,12 +32,12 @@ type
   TConfigSaveLoadStrategyBasicUseProvider = class(TInterfacedObject, IConfigSaveLoadStrategy)
   protected
     procedure WriteConfig(
-      AProvider: IConfigDataWriteProvider;
-      AElement: IConfigDataElement
+      const AProvider: IConfigDataWriteProvider;
+      const AElement: IConfigDataElement
     );
     procedure ReadConfig(
-      AProvider: IConfigDataProvider;
-      AElement: IConfigDataElement
+      const AProvider: IConfigDataProvider;
+      const AElement: IConfigDataElement
     );
   end;
 
@@ -46,13 +46,17 @@ implementation
 { TConfigSaveLoadStrategyBasicUseProvider }
 
 procedure TConfigSaveLoadStrategyBasicUseProvider.ReadConfig(
-  AProvider: IConfigDataProvider; AElement: IConfigDataElement);
+  const AProvider: IConfigDataProvider;
+  const AElement: IConfigDataElement
+);
 begin
   AElement.ReadConfig(AProvider);
 end;
 
 procedure TConfigSaveLoadStrategyBasicUseProvider.WriteConfig(
-  AProvider: IConfigDataWriteProvider; AElement: IConfigDataElement);
+  const AProvider: IConfigDataWriteProvider;
+  const AElement: IConfigDataElement
+);
 begin
   AElement.WriteConfig(AProvider);
 end;

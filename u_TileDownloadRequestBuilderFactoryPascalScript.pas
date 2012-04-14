@@ -50,14 +50,14 @@ type
     function DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean; override;
   protected
     function GetState: ITileDownloaderStateChangeble;
-    function BuildRequestBuilder(ADownloader: IDownloader): ITileDownloadRequestBuilder;
+    function BuildRequestBuilder(const ADownloader: IDownloader): ITileDownloadRequestBuilder;
   public
     constructor Create(
       const AScriptText: string;
-      AConfig: ITileDownloadRequestBuilderConfig;
-      ATileDownloaderConfig: ITileDownloaderConfig;
-      ACheker: IDownloadChecker;
-      ALangManager: ILanguageManager
+      const AConfig: ITileDownloadRequestBuilderConfig;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const ACheker: IDownloadChecker;
+      const ALangManager: ILanguageManager
     );
     destructor Destroy; override;
   end;
@@ -73,10 +73,10 @@ uses
 
 constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
   const AScriptText: string;
-  AConfig: ITileDownloadRequestBuilderConfig;
-  ATileDownloaderConfig: ITileDownloaderConfig;
-  ACheker: IDownloadChecker;
-  ALangManager: ILanguageManager
+  const AConfig: ITileDownloadRequestBuilderConfig;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const ACheker: IDownloadChecker;
+  const ALangManager: ILanguageManager
 );
 var
   VState: TTileDownloaderStateInternal;
@@ -151,7 +151,7 @@ begin
 end;
 
 function TTileDownloadRequestBuilderFactoryPascalScript.BuildRequestBuilder(
-  ADownloader: IDownloader
+  const ADownloader: IDownloader
 ): ITileDownloadRequestBuilder;
 begin
   Result := nil;
