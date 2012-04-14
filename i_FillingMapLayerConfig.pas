@@ -107,7 +107,7 @@ type
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
-    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
 
     function GetFillMode: TFillMode;
     procedure SetFillMode(const AValue: TFillMode);

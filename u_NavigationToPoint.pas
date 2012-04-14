@@ -44,8 +44,11 @@ type
     function GetMarkId: IMarkID;
     function GetLonLat: TDoublePoint;
 
-    procedure StartNavToMark(AMarkId: IMarkID; APointLonLat: TDoublePoint);
-    procedure StartNavLonLat(APointLonLat: TDoublePoint);
+    procedure StartNavToMark(
+      const AMarkId: IMarkID;
+      const APointLonLat: TDoublePoint
+    );
+    procedure StartNavLonLat(const APointLonLat: TDoublePoint);
     procedure StopNav;
   public
     constructor Create;
@@ -115,7 +118,7 @@ begin
   end;
 end;
 
-procedure TNavigationToPoint.StartNavLonLat(APointLonLat: TDoublePoint);
+procedure TNavigationToPoint.StartNavLonLat(const APointLonLat: TDoublePoint);
 begin
   LockWrite;
   try
@@ -128,8 +131,10 @@ begin
   end;
 end;
 
-procedure TNavigationToPoint.StartNavToMark(AMarkId: IMarkID;
-  APointLonLat: TDoublePoint);
+procedure TNavigationToPoint.StartNavToMark(
+  const AMarkId: IMarkID;
+  const APointLonLat: TDoublePoint
+);
 begin
   LockWrite;
   try

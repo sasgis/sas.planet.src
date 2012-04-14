@@ -15,7 +15,7 @@ type
   private
     function GetByID(AID: Integer): IInterface;
     procedure Clear;
-    procedure Add(AID: Integer; AInterface: IInterface);
+    procedure Add(AID: Integer; const AInterface: IInterface);
   public
     constructor Create;
     destructor Destroy; override;
@@ -41,7 +41,7 @@ begin
   inherited;
 end;
 
-procedure TIdCacheSimpleThreadSafe.Add(AID: Integer; AInterface: IInterface);
+procedure TIdCacheSimpleThreadSafe.Add(AID: Integer; const AInterface: IInterface);
 begin
   FCS.BeginWrite;
   try

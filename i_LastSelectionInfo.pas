@@ -35,7 +35,7 @@ type
     function GetPolygon: ILonLatPolygon;
     property Polygon: ILonLatPolygon read GetPolygon;
 
-    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
+    procedure SetPolygon(const ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
   end;
 
 implementation

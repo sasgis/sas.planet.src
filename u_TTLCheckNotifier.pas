@@ -38,8 +38,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Add(AListener: ITTLCheckListener);
-    procedure Remove(AListener: ITTLCheckListener);
+    procedure Add(const AListener: ITTLCheckListener);
+    procedure Remove(const AListener: ITTLCheckListener);
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;
@@ -66,7 +66,7 @@ begin
   inherited;
 end;
 
-procedure TTTLCheckNotifier.Add(AListener: ITTLCheckListener);
+procedure TTTLCheckNotifier.Add(const AListener: ITTLCheckListener);
 begin
   FSync.BeginWrite;
   try
@@ -107,7 +107,7 @@ begin
   end;
 end;
 
-procedure TTTLCheckNotifier.Remove(AListener: ITTLCheckListener);
+procedure TTTLCheckNotifier.Remove(const AListener: ITTLCheckListener);
 begin
   FSync.BeginWrite;
   try

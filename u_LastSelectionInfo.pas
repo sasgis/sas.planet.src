@@ -45,9 +45,9 @@ type
   private
     function GetZoom: Byte;
     function GetPolygon: ILonLatPolygon;
-    procedure SetPolygon(ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
+    procedure SetPolygon(const ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
   public
-    constructor Create(AVectorItmesFactory: IVectorItmesFactory);
+    constructor Create(const AVectorItmesFactory: IVectorItmesFactory);
   end;
 
 implementation
@@ -60,7 +60,7 @@ uses
 
 { TLastSelectionInfo }
 
-constructor TLastSelectionInfo.Create(AVectorItmesFactory: IVectorItmesFactory);
+constructor TLastSelectionInfo.Create(const AVectorItmesFactory: IVectorItmesFactory);
 begin
   inherited Create;
   FVectorItmesFactory := AVectorItmesFactory;
@@ -137,8 +137,10 @@ begin
   end;
 end;
 
-procedure TLastSelectionInfo.SetPolygon(ALonLatPolygon: ILonLatPolygon;
-  AZoom: Byte);
+procedure TLastSelectionInfo.SetPolygon(
+  const ALonLatPolygon: ILonLatPolygon;
+  AZoom: Byte
+);
 begin
   LockWrite;
   try

@@ -28,8 +28,8 @@ uses
 type
   ITTLCheckNotifier = interface
     ['{25465366-07F9-459A-9D54-1597E4BD6306}']
-    procedure Add(AListener: ITTLCheckListener);
-    procedure Remove(AListener: ITTLCheckListener);
+    procedure Add(const AListener: ITTLCheckListener);
+    procedure Remove(const AListener: ITTLCheckListener);
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;

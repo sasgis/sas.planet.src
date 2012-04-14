@@ -76,7 +76,7 @@ type
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
-    function GetActualZoom(ALocalConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
 
     function GetFillMode: TFillMode;
     procedure SetFillMode(const AValue: TFillMode);
@@ -92,7 +92,7 @@ type
 
     function GetThreadConfig: IThreadConfig;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(const AMapsConfig: IMainMapsConfig);
   end;
 
 implementation
@@ -107,7 +107,7 @@ uses
 
 { TFillingMapLayerConfig }
 
-constructor TFillingMapLayerConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TFillingMapLayerConfig.Create(const AMapsConfig: IMainMapsConfig);
 begin
   inherited Create;
   FVisible := False;
@@ -178,7 +178,8 @@ begin
 end;
 
 function TFillingMapLayerConfig.GetActualZoom(
-  ALocalConverter: ILocalCoordConverter): Byte;
+  const ALocalConverter: ILocalCoordConverter
+): Byte;
 var
   VZoom: Integer;
   VRelative: Boolean;

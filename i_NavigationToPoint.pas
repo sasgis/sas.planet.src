@@ -39,8 +39,8 @@ type
     function GetLonLat: TDoublePoint;
     property LonLat: TDoublePoint read GetLonLat;
 
-    procedure StartNavToMark(AMarkId: IMarkID; APointLonLat: TDoublePoint);
-    procedure StartNavLonLat(APointLonLat: TDoublePoint);
+    procedure StartNavToMark(const AMarkId: IMarkID; const APointLonLat: TDoublePoint);
+    procedure StartNavLonLat(const APointLonLat: TDoublePoint);
     procedure StopNav;
   end;
 implementation

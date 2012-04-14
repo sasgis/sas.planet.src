@@ -19,9 +19,9 @@ type
     function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
   public
     constructor Create(
-      ADownloader: IDownloader;
-      AInetConfig: IInetConfigStatic;
-      ACancelNotifier: IOperationNotifier;
+      const ADownloader: IDownloader;
+      const AInetConfig: IInetConfigStatic;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer
     );
   end;
@@ -39,9 +39,9 @@ uses
 { TSimpleHttpDownloader }
 
 constructor TSimpleHttpDownloader.Create(
-  ADownloader: IDownloader;
-  AInetConfig: IInetConfigStatic;
-  ACancelNotifier: IOperationNotifier;
+  const ADownloader: IDownloader;
+  const AInetConfig: IInetConfigStatic;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer
 );
 begin
