@@ -101,6 +101,7 @@ function TDownloadCheckerStuped.PrepareOldTileInfo(
 var
   VTileDownloadRequest: ITileDownloadRequest;
 begin
+  Result := nil;
   if Supports(ARequest, ITileDownloadRequest, VTileDownloadRequest) then begin
     Result := FStorage.GetTileInfo(VTileDownloadRequest.Source.Tile, VTileDownloadRequest.Source.Zoom, VTileDownloadRequest.Source.VersionInfo);
   end;

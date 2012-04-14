@@ -92,6 +92,7 @@ var
   VStream: TMemoryStream;
   VBitmap: TCustomBitmap32;
 begin
+  Result := nil;
   VCounterContext := FLoadStreamCounter.StartOperation;
   try
     VStream := TMemoryStream.Create;

@@ -165,6 +165,7 @@ var
   VEnum: IEnumLonLatPoint;
   VLine: ILonLatPathLine;
 begin
+  Result := nil;
   AComment := '';
   ms:=TMemoryStream.Create;
   try

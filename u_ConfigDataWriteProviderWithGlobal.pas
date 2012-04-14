@@ -114,6 +114,7 @@ var
   VIdent: string;
   VUseMain: Boolean;
 begin
+  Result := nil;
   VIdent := PrepareIdent(AIdent, VUseMain);
   if VUseMain then begin
     if FProviderMain <> nil then begin

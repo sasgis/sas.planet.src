@@ -184,6 +184,7 @@ var
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
 begin
+  Result := nil;
   AComment := '';
   meters:=0;
   seconds:=0;

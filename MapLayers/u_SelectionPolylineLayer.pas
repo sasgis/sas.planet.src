@@ -82,6 +82,7 @@ function TSelectionPolylineShadowLayer.GetLine(
 var
   VLine: ILonLatPathWithSelected;
 begin
+  Result := nil;
   VLine := FLine;
   if VLine <> nil then begin
     Result :=

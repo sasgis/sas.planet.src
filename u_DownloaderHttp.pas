@@ -392,6 +392,7 @@ function TDownloaderHttp.OnOSError(
   AErrorCode: Cardinal
 ): IDownloadResult;
 begin
+  Result := nil;
   if AResultFactory <> nil then begin
     if IsConnectError(AErrorCode) then begin
       Result := AResultFactory.BuildNoConnetctToServerByErrorCode(
@@ -423,6 +424,7 @@ var
   VRequestWithChecker: IRequestWithChecker;
   VResponseBody: IBinaryData;
 begin
+  Result := nil;
   if AResultFactory <> nil then begin
     VRawHeaderText := FHttpResponseHeader.RawHeaderText;
     VContentType := FHttpResponseHeader.ContentType;

@@ -507,6 +507,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
+  Result := nil;
   {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FGetTileInfoCounter.StartOperation;
   try

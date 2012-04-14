@@ -466,6 +466,7 @@ var
   VMinCount: Integer;
   VMaxCount: Integer;
 begin
+  Result := nil;
   if ANewMarkList <> nil then begin
     Result := TInterfaceList.Create;
     Result.Capacity := ANewMarkList.Count;

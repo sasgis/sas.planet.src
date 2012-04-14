@@ -136,6 +136,7 @@ var
   VEnum: IEnumLonLatPoint;
   VPointsAggregator: IDoublePointsAggregator;
 begin
+  Result := nil;
   url := FBaseUrl;
   if ASource.Count > 0 then begin
     VEnum := ASource.Item[0].GetEnum;

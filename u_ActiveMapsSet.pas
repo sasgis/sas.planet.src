@@ -127,6 +127,7 @@ end;
 
 function TActiveMapsSet.GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
 begin
+  Result := nil;
   if FMapsSet.GetMapTypeByGUID(AMapGUID) <> nil then begin
     Result := IActiveMapSingle(FSingeMapsSet.GetByGUID(AMapGUID));
   end;
