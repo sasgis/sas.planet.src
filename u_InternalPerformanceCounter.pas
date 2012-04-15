@@ -89,7 +89,7 @@ uses
 { TInternalPerformanceCounter }
 
 constructor TInternalPerformanceCounter.Create(const AName: string; const AQueryPerfCntrFunc: Pointer);
-var FDummy: Int64;
+var VDummy: Int64;
 begin
   FId := Integer(Self);
   FName := AName;
@@ -101,7 +101,7 @@ begin
   FMin := $7FFFFFFFFFFFFFF;
   FMax := 0;
 
-  if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@FDummy, @FFreq)) then
+  if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VDummy, @FFreq)) then
     FFreq := 0;
 end;
 

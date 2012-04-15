@@ -23,8 +23,6 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FQuality: Integer;
-    FOperationID: Integer;
-    FCancelNotifier: IOperationNotifier;
     FLineProvider: IImageLineProvider;
     function GetLine(Sender: TObject; ALineNumber: Integer; out Abort: Boolean): PByte;
   protected
@@ -155,8 +153,8 @@ begin
   if ALineNumber mod 256 = 0 then begin
     ProgressFormUpdateOnProgress(ALineNumber/FHeight);
   end;
-  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ALineNumber);
-  Abort := (Result = nil) or CancelNotifier.IsOperationCanceled(FOperationID);
+  Result := FLineProvider.GetLine(OperationID, CancelNotifier, ALineNumber);
+  Abort := (Result = nil) or CancelNotifier.IsOperationCanceled(OperationID);
 end;
 
 end.
