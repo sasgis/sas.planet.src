@@ -351,7 +351,6 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
-  VMarkerWithDirection: IBitmapMarkerWithDirection;
   VBitmapStatic: IBitmap32Static;
 begin
   VTransform := TAffineTransformation.Create;
@@ -402,7 +401,7 @@ begin
       TBitmapMarkerWithDirection.Create(
         VBitmapStatic,
         DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y),
-        VMarkerWithDirection.Direction
+        ASourceMarker.Direction
       );
   finally
     VTransform.Free;
