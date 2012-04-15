@@ -292,7 +292,7 @@ var
 begin
   Result := nil;
   if FZmpDownloadEnabled then begin
-    VZoom := VZoom;
+    VZoom := AZoom;
     VTile := AXY;
     if FCoordConverter.CheckTilePosStrict(VTile, VZoom, False) then begin
       if ACheckTileSize then begin
