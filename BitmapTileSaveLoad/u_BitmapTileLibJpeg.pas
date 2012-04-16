@@ -38,7 +38,7 @@ type
     function ReadLine(Sender: TObject; ALine: PByte; ALineSize: Cardinal;
       ALineNumber: Integer): Boolean;
   public
-    constructor Create(APerfCounterList: IInternalPerformanceCounterList);
+    constructor Create(const APerfCounterList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
     function Load(const AData: IBinaryData): IBitmap32Static;
@@ -75,7 +75,9 @@ type
 
 { TLibJpegTileLoader }
 
-constructor TLibJpegTileLoader.Create(APerfCounterList: IInternalPerformanceCounterList);
+constructor TLibJpegTileLoader.Create(
+  const APerfCounterList: IInternalPerformanceCounterList
+);
 begin
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/LoadStream');
 end;

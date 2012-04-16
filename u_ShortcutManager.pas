@@ -41,8 +41,8 @@ type
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IShortCutSingleConfig;
     function GetShortCutInfoByShortCut(AShortCut:TShortCut): IShortCutSingleConfig;
-    procedure Load(AProvider: IConfigDataProvider);
-    procedure Save(AProvider: IConfigDataWriteProvider);
+    procedure Load(const AProvider: IConfigDataProvider);
+    procedure Save(const AProvider: IConfigDataWriteProvider);
     procedure CancelChanges;
     procedure ApplyChanges;
   end;
@@ -120,7 +120,7 @@ begin
   end;
 end;
 
-procedure TShortcutManager.Load(AProvider: IConfigDataProvider);
+procedure TShortcutManager.Load(const AProvider: IConfigDataProvider);
 var
   i: Integer;
   VShortCutInfo: IShortCutSingleConfig;
@@ -156,7 +156,7 @@ begin
   end;
 end;
 
-procedure TShortcutManager.Save(AProvider: IConfigDataWriteProvider);
+procedure TShortcutManager.Save(const AProvider: IConfigDataWriteProvider);
 var
   i: Integer;
   VShortCutInfo: IShortCutSingleConfig;

@@ -44,7 +44,7 @@ type
     procedure Reset; override;
   public
     constructor Create(
-      AProjected: IProjectedPolygon
+      const AProjected: IProjectedPolygon
     );
   end;
 
@@ -53,7 +53,7 @@ implementation
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
-  AProjected: IProjectedPolygon
+  const AProjected: IProjectedPolygon
 );
 var
   VBounds: TDoubleRect;

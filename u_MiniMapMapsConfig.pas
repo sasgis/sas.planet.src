@@ -40,7 +40,7 @@ type
     function CreateMiniMapLayersSet: IMapTypeSet;
     procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
-    procedure SetActiveMiniMap(AValue: IMapType);
+    procedure SetActiveMiniMap(const AValue: IMapType);
   protected
     function GetActiveMiniMap: IMapType;
   public
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-procedure TMiniMapMapsConfig.SetActiveMiniMap(AValue: IMapType);
+procedure TMiniMapMapsConfig.SetActiveMiniMap(const AValue: IMapType);
 begin
   LockWrite;
   try

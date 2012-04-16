@@ -38,7 +38,7 @@ type
     property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
     property Count: Integer read GetCount;
   public
-    constructor Create(AParentPerfList: IInternalPerformanceCounterList);
+    constructor Create(const AParentPerfList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     function Add(AItem: TWindowLayerAbstract): Integer;
     procedure StartThreads;
@@ -52,7 +52,9 @@ uses
 
 { TWindowLayerBasicList }
 
-constructor TWindowLayerBasicList.Create(AParentPerfList: IInternalPerformanceCounterList);
+constructor TWindowLayerBasicList.Create(
+  const AParentPerfList: IInternalPerformanceCounterList
+);
 begin
   FList := TList.Create;;
   FPerfList := AParentPerfList.CreateAndAddNewSubList('Layer');

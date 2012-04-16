@@ -36,7 +36,7 @@ type
     function GetChangeNotifier: IJclNotifier;
   public
     constructor Create(
-      AProviderStatic: IBitmapMarkerProvider
+      const AProviderStatic: IBitmapMarkerProvider
     );
   end;
 
@@ -48,7 +48,8 @@ uses
 { TBitmapMarkerProviderChangeableFaked }
 
 constructor TBitmapMarkerProviderChangeableFaked.Create(
-  AProviderStatic: IBitmapMarkerProvider);
+  const AProviderStatic: IBitmapMarkerProvider
+);
 begin
   FProviderStatic := AProviderStatic;
   FChangeNotifier := TJclBaseNotifierFaked.Create;

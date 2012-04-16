@@ -51,8 +51,8 @@ type
   public
     constructor Create(
       AOwner: TComponent;
-      AViewPortState: IViewPortState;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AViewPortState: IViewPortState;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
     function Execute(var ALonLatRect: TDoubleRect): Boolean;
@@ -68,8 +68,8 @@ uses
 
 constructor TfrmLonLatRectEdit.Create(
   AOwner: TComponent;
-  AViewPortState: IViewPortState;
-  AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AViewPortState: IViewPortState;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(AOwner);

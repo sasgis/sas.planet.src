@@ -40,7 +40,7 @@ type
     function GetStatic: IStorageStateStatic;
   public
     constructor Create(
-      AStorageTypeAbilities: IStorageTypeAbilities
+      const AStorageTypeAbilities: IStorageTypeAbilities
     );
   end;
 
@@ -52,7 +52,7 @@ uses
 { TStorageStateInternal }
 
 constructor TStorageStateInternal.Create(
-  AStorageTypeAbilities: IStorageTypeAbilities
+  const AStorageTypeAbilities: IStorageTypeAbilities
 );
 begin
   inherited Create;

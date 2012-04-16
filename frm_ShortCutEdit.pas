@@ -45,7 +45,7 @@ type
     procedure btnClearClick(Sender: TObject);
   private
   public
-    function EditHotKeyModal(AShortCutInfo: IShortCutSingleConfig): Boolean;
+    function EditHotKeyModal(const AShortCutInfo: IShortCutSingleConfig): Boolean;
   end;
 
 implementation
@@ -57,7 +57,9 @@ begin
   HotKey.HotKey := 0;
 end;
 
-function TfrmShortCutEdit.EditHotKeyModal(AShortCutInfo: IShortCutSingleConfig): Boolean;
+function TfrmShortCutEdit.EditHotKeyModal(
+  const AShortCutInfo: IShortCutSingleConfig
+): Boolean;
 begin
   HotKey.HotKey := AShortCutInfo.ShortCut;
   if ShowModal = mrOK then begin

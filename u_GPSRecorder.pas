@@ -406,12 +406,12 @@ type
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
-      ASource: IEnumGPSTrackPoint
+      const ASource: IEnumGPSTrackPoint
     );
   end;
 
 constructor TEnumTrackPointsByEnumGPSTrackPoint.Create(
-  ASource: IEnumGPSTrackPoint
+  const ASource: IEnumGPSTrackPoint
 );
 begin
   FSource := ASource;

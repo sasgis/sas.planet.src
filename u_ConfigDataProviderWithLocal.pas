@@ -49,8 +49,8 @@ type
     function ReadValuesList: IStringListStatic;
   public
     constructor Create(
-      AProviderMain: IConfigDataProvider;
-      AProviderLocal: IConfigDataProvider
+      const AProviderMain: IConfigDataProvider;
+      const AProviderLocal: IConfigDataProvider
     );
     destructor Destroy; override;
   public
@@ -66,8 +66,9 @@ uses
 
 { TConfigDataProviderWithLocal }
 
-constructor TConfigDataProviderWithLocal.Create(AProviderMain,
-  AProviderLocal: IConfigDataProvider);
+constructor TConfigDataProviderWithLocal.Create(
+  const AProviderMain, AProviderLocal: IConfigDataProvider
+);
 begin
   FProviderMain := AProviderMain;
   FProviderLocal := AProviderLocal;

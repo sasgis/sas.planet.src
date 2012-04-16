@@ -47,7 +47,7 @@ type
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
   public
-    constructor Create(ASourcePath: IPathConfig);
+    constructor Create(const ASourcePath: IPathConfig);
   end;
 
 implementation
@@ -62,7 +62,7 @@ uses
 
 { TConfigDataProviderByPathConfig }
 
-constructor TConfigDataProviderByPathConfig.Create(ASourcePath: IPathConfig);
+constructor TConfigDataProviderByPathConfig.Create(const ASourcePath: IPathConfig);
 begin
   FSourcePath := ASourcePath;
 end;

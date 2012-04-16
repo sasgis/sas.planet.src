@@ -40,8 +40,10 @@ type
 
     function GetSatellites: IGPSSatellitesInView; stdcall;
   public
-    constructor Create(const ASingleGPSData: PSingleGPSData;
-                       ASatellites: IGPSSatellitesInView);
+    constructor Create(
+      const ASingleGPSData: PSingleGPSData;
+      const ASatellites: IGPSSatellitesInView
+    );
     destructor Destroy; override;
   end;
 
@@ -49,8 +51,10 @@ implementation
 
 { TGPSPosition }
 
-constructor TGPSPositionStatic.Create(const ASingleGPSData: PSingleGPSData;
-                                      ASatellites: IGPSSatellitesInView);
+constructor TGPSPositionStatic.Create(
+  const ASingleGPSData: PSingleGPSData;
+  const ASatellites: IGPSSatellitesInView
+);
 begin
   if (nil=ASingleGPSData) then
     InitSingleGPSData(@FSingleGPSData)

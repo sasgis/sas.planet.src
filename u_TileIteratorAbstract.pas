@@ -47,7 +47,7 @@ type
     property Projected: IProjectedPolygon read FProjected;
   public
     constructor Create(
-      AProjected: IProjectedPolygon
+      const AProjected: IProjectedPolygon
     );
     destructor Destroy; override;
   end;
@@ -57,7 +57,7 @@ implementation
 { TTileIteratorByPolygonAbstract }
 
 constructor TTileIteratorByPolygonAbstract.Create(
-  AProjected: IProjectedPolygon
+  const AProjected: IProjectedPolygon
 );
 begin
   FProjected := AProjected;

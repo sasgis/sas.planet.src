@@ -49,7 +49,7 @@ type
     function ReadValuesList: IStringListStatic;
   public
     constructor Create(
-      ASource: IConfigDataProvider;
+      const ASource: IConfigDataProvider;
       AIdentRenamesList: TStringList
     );
     destructor Destroy; override;
@@ -63,7 +63,9 @@ uses
 { TConfigDataProviderWithRenamesList }
 
 constructor TConfigDataProviderWithUseDepreciated.Create(
-  ASource: IConfigDataProvider; AIdentRenamesList: TStringList);
+  const ASource: IConfigDataProvider;
+  AIdentRenamesList: TStringList
+);
 begin
   FSource := ASource;
   FIdentRenamesList := TStringList.Create;

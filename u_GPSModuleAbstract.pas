@@ -40,7 +40,7 @@ type
   private
     FList: TList;
     function Get(Index: Integer): IGPSSatelliteInfo;
-    procedure Put(Index: Integer; Item: IGPSSatelliteInfo);
+    procedure Put(Index: Integer; const Item: IGPSSatelliteInfo);
     procedure SetCapacity(NewCapacity: Integer);
     procedure SetCount(NewCount: Integer);
     function GetCapacity: Integer;
@@ -193,7 +193,7 @@ type
     function GetConnectErrorNotifier: IJclNotifier; safecall;
     function GetTimeOutNotifier: IJclNotifier; safecall;
   public
-    constructor Create(APositionFactory: IGPSPositionFactory);
+    constructor Create(const APositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
   end;
 
@@ -206,7 +206,7 @@ uses
 
 { TGPSPositionUpdatable }
 
-constructor TGPSModuleAbstract.Create(APositionFactory: IGPSPositionFactory);
+constructor TGPSModuleAbstract.Create(const APositionFactory: IGPSPositionFactory);
 begin
   FGPSPositionFactory := APositionFactory;
 
@@ -810,7 +810,7 @@ begin
   Result := PUnknownList(FList.List);
 end;
 
-procedure TSatellitesInternalList.Put(Index: Integer; Item: IGPSSatelliteInfo);
+procedure TSatellitesInternalList.Put(Index: Integer; const Item: IGPSSatelliteInfo);
 begin
   if (Index >= 0) and (Index < FList.Count) then begin
     IInterface(FList.List[Index]) := Item;

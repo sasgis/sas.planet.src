@@ -29,8 +29,8 @@ uses
 type
   TGeoCoderListSimple = class(TGeoCoderListBase)
   public
-    constructor Create(AProxy: IProxySettings);
-  end;
+    constructor Create(const AProxy: IProxySettings);
+  end;                       
 
 implementation
 
@@ -48,7 +48,7 @@ uses
 
 { TGeoCoderListSimple }
 
-constructor TGeoCoderListSimple.Create(AProxy: IProxySettings);
+constructor TGeoCoderListSimple.Create(const AProxy: IProxySettings);
 begin
   inherited Create;
   Add(
