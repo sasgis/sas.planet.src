@@ -59,12 +59,12 @@ type
     procedure SetGCCachepath(const Value: string);
   public
     constructor Create(
-      ACacheGlobalPath: IPathConfig
+      const ACacheGlobalPath: IPathConfig
     );
     destructor Destroy; override;
 
-    procedure LoadConfig(AConfigProvider: IConfigDataProvider);
-    procedure SaveConfig(AConfigProvider: IConfigDataWriteProvider);
+    procedure LoadConfig(const AConfigProvider: IConfigDataProvider);
+    procedure SaveConfig(const AConfigProvider: IConfigDataWriteProvider);
 
     //Способ храения кэша по-умолчанию.
     property DefCache: byte read FDefCache write SetDefCache;
@@ -104,7 +104,7 @@ uses
 { TGlobalCahceConfig }
 
 constructor TGlobalCahceConfig.Create(
-  ACacheGlobalPath: IPathConfig
+ const  ACacheGlobalPath: IPathConfig
 );
 begin
   FCacheGlobalPath := ACacheGlobalPath;
@@ -131,7 +131,7 @@ begin
   Result := FCacheGlobalPath.FullPath;
 end;
 
-procedure TGlobalCahceConfig.LoadConfig(AConfigProvider: IConfigDataProvider);
+procedure TGlobalCahceConfig.LoadConfig(const AConfigProvider: IConfigDataProvider);
 var
   VViewConfig: IConfigDataProvider;
   VPathConfig: IConfigDataProvider;
@@ -155,7 +155,8 @@ begin
 end;
 
 procedure TGlobalCahceConfig.SaveConfig(
-  AConfigProvider: IConfigDataWriteProvider);
+  const AConfigProvider: IConfigDataWriteProvider
+);
 var
   VViewConfig: IConfigDataWriteProvider;
   VPathConfig: IConfigDataWriteProvider;

@@ -36,11 +36,11 @@ type
     procedure InitThreadsIfNeed;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AThreadConfig: IThreadConfig;
-      AAppClosingNotifier: IJclNotifier;
-      ATileRequestQueue: ITileRequestQueue;
-      ADownloaderList: ITileDownloaderList
+      const AGCList: ITTLCheckNotifier;
+      const AThreadConfig: IThreadConfig;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATileRequestQueue: ITileRequestQueue;
+      const ADownloaderList: ITileDownloaderList
     );
     destructor Destroy; override;
   end;
@@ -56,11 +56,11 @@ uses
 { TTileRequestProcessorPool }
 
 constructor TTileRequestProcessorPool.Create(
-  AGCList: ITTLCheckNotifier;
-  AThreadConfig: IThreadConfig;
-  AAppClosingNotifier: IJclNotifier;
-  ATileRequestQueue: ITileRequestQueue;
-  ADownloaderList: ITileDownloaderList
+  const AGCList: ITTLCheckNotifier;
+  const AThreadConfig: IThreadConfig;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATileRequestQueue: ITileRequestQueue;
+  const ADownloaderList: ITileDownloaderList
 );
 begin
   FGCList := AGCList;

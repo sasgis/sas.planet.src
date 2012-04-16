@@ -178,10 +178,10 @@ type
   public
     constructor Create(
       ADbCode: Integer;
-      AConfig: IMarksFactoryConfig;
-      AFactory: IVectorItmesFactory;
-      AHintConverter: IHtmlToHintTextConverter;
-      ACategoryDB: IMarkCategoryDBSmlInternal
+      const AConfig: IMarksFactoryConfig;
+      const AFactory: IVectorItmesFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const ACategoryDB: IMarkCategoryDBSmlInternal
     );
   end;
 
@@ -200,10 +200,10 @@ uses
 
 constructor TMarkFactory.Create(
   ADbCode: Integer;
-  AConfig: IMarksFactoryConfig;
-  AFactory: IVectorItmesFactory;
-  AHintConverter: IHtmlToHintTextConverter;
-  ACategoryDB: IMarkCategoryDBSmlInternal
+  const AConfig: IMarksFactoryConfig;
+  const AFactory: IVectorItmesFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const ACategoryDB: IMarkCategoryDBSmlInternal
 );
 begin
   FDbCode := ADbCode;

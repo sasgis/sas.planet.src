@@ -20,15 +20,15 @@ type
     FList: IInterfaceList;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      AConfig: IDownloadUIConfig;
-      ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      AViewPortState: IViewPortState;
-      AMapsSet: IActiveMapsSet;
-      ADownloadInfo: IDownloadInfoSimple;
-      AGlobalInternetState: IGlobalInternetState;
-      AErrorLogger: ITileErrorLogger
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
+      const AConfig: IDownloadUIConfig;
+      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AViewPortState: IViewPortState;
+      const AMapsSet: IActiveMapsSet;
+      const ADownloadInfo: IDownloadInfoSimple;
+      const AGlobalInternetState: IGlobalInternetState;
+      const AErrorLogger: ITileErrorLogger
     );
   end;
 
@@ -41,15 +41,15 @@ uses
 { TUITileDownloadList }
 
 constructor TUITileDownloadList.Create(
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  AConfig: IDownloadUIConfig;
-  ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  AViewPortState: IViewPortState;
-  AMapsSet: IActiveMapsSet;
-  ADownloadInfo: IDownloadInfoSimple;
-  AGlobalInternetState: IGlobalInternetState;
-  AErrorLogger: ITileErrorLogger
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
+  const AConfig: IDownloadUIConfig;
+  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AViewPortState: IViewPortState;
+  const AMapsSet: IActiveMapsSet;
+  const ADownloadInfo: IDownloadInfoSimple;
+  const AGlobalInternetState: IGlobalInternetState;
+  const AErrorLogger: ITileErrorLogger
 );
 var
   VEnum: IEnumGUID;

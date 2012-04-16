@@ -19,11 +19,11 @@ type
     FCategoryDB: IMarkCategoryDB;
     FCategoryList: IInterfaceList;
     FLastUsedCategoryName: string;
-    procedure CategoryListToStrings(AList: IInterfaceList; AStrings: TStrings);
+    procedure CategoryListToStrings(const AList: IInterfaceList; AStrings: TStrings);
   public
-    constructor Create(AOwner: TComponent; ACategoryDB: IMarkCategoryDB); reintroduce;
+    constructor Create(AOwner: TComponent; const ACategoryDB: IMarkCategoryDB); reintroduce;
     destructor Destroy; override;
-    procedure Init(ACategory: ICategory);
+    procedure Init(const ACategory: ICategory);
     function GetCategory: ICategory;
     procedure Clear;
   end;
@@ -34,8 +34,10 @@ implementation
 
 { TfrMarkCategorySelectOrAdd }
 
-constructor TfrMarkCategorySelectOrAdd.Create(AOwner: TComponent;
-  ACategoryDB: IMarkCategoryDB);
+constructor TfrMarkCategorySelectOrAdd.Create(
+  AOwner: TComponent;
+  const ACategoryDB: IMarkCategoryDB
+);
 begin
   inherited Create(AOwner);
   FCategoryDB := ACategoryDB;
@@ -51,7 +53,9 @@ begin
 end;
 
 procedure TfrMarkCategorySelectOrAdd.CategoryListToStrings(
-  AList: IInterfaceList; AStrings: TStrings);
+  const AList: IInterfaceList;
+  AStrings: TStrings
+);
 var
   i: Integer;
   VCategory: IMarkCategory;
@@ -96,7 +100,7 @@ begin
   end;
 end;
 
-procedure TfrMarkCategorySelectOrAdd.Init(ACategory: ICategory);
+procedure TfrMarkCategorySelectOrAdd.Init(const ACategory: ICategory);
 var
   i: Integer;
   VCategory: ICategory;

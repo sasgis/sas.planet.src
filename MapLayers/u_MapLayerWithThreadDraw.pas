@@ -68,15 +68,15 @@ type
     procedure ClearLayerBitmap; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
-      AAppClosingNotifier: IJclNotifier;
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppClosingNotifier: IJclNotifier;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      AResamplerConfig: IImageResamplerConfig;
-      AConverterFactory: ILocalCoordConverterFactorySimpe;
-      AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      ATimerNoifier: IJclNotifier;
-      AThreadConfig: IThreadConfig
+      const AViewPortState: IViewPortState;
+      const AResamplerConfig: IImageResamplerConfig;
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+      const ATimerNoifier: IJclNotifier;
+      const AThreadConfig: IThreadConfig
     );
   end;
 
@@ -199,15 +199,15 @@ end;
 { TMapLayerTiledWithThreadDraw }
 
 constructor TMapLayerTiledWithThreadDraw.Create(
-  APerfList: IInternalPerformanceCounterList;
-  AAppClosingNotifier: IJclNotifier;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppClosingNotifier: IJclNotifier;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  AResamplerConfig: IImageResamplerConfig;
-  AConverterFactory: ILocalCoordConverterFactorySimpe;
-  AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  ATimerNoifier: IJclNotifier;
-  AThreadConfig: IThreadConfig
+  const AViewPortState: IViewPortState;
+  const AResamplerConfig: IImageResamplerConfig;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
+  const ATimerNoifier: IJclNotifier;
+  const AThreadConfig: IThreadConfig
 );
 begin
   inherited Create(

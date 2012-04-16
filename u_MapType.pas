@@ -191,7 +191,12 @@ type
     );
     function TileLoadDate(const AXY: TPoint; Azoom: byte): TDateTime;
     function TileSize(const AXY: TPoint; Azoom: byte): integer;
-    function TileExportToFile(const AXY: TPoint; Azoom: byte; const AFileName: string; OverWrite: boolean): boolean;
+    function TileExportToFile(
+      const AXY: TPoint;
+      Azoom: byte;
+      const AFileName: string;
+      OverWrite: boolean
+    ): boolean;
 
     function GetFillingMapBitmap(
       AOperationID: Integer;
@@ -237,23 +242,23 @@ type
     property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
 
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AZmp: IZmpInfo;
-      AMainMemCacheConfig: IMainMemCacheConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      AInetConfig: IInetConfig;
-      AImageResamplerConfig: IImageResamplerConfig;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloaderThreadConfig: IThreadConfig;
-      AContentTypeManager: IContentTypeManager;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ADownloadResultTextProvider: IDownloadResultTextProvider;
-      AInvisibleBrowser: IInvisibleBrowser;
-      AConfig: IConfigDataProvider;
-      APerfCounterList: IInternalPerformanceCounterList
+      const ALanguageManager: ILanguageManager;
+      const AZmp: IZmpInfo;
+      const AMainMemCacheConfig: IMainMemCacheConfig;
+      const AGlobalCacheConfig: TGlobalCahceConfig;
+      const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
+      const AInetConfig: IInetConfig;
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloaderThreadConfig: IThreadConfig;
+      const AContentTypeManager: IContentTypeManager;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ADownloadResultTextProvider: IDownloadResultTextProvider;
+      const AInvisibleBrowser: IInvisibleBrowser;
+      const AConfig: IConfigDataProvider;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
  end;
@@ -288,23 +293,23 @@ uses
   u_TileStorageFileSystem;
 
 constructor TMapType.Create(
-  ALanguageManager: ILanguageManager;
-  AZmp: IZmpInfo;
-  AMainMemCacheConfig: IMainMemCacheConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  AInetConfig: IInetConfig;
-  AImageResamplerConfig: IImageResamplerConfig;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloaderThreadConfig: IThreadConfig;
-  AContentTypeManager: IContentTypeManager;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ADownloadResultTextProvider: IDownloadResultTextProvider;
-  AInvisibleBrowser: IInvisibleBrowser;
-  AConfig: IConfigDataProvider;
-  APerfCounterList: IInternalPerformanceCounterList
+  const ALanguageManager: ILanguageManager;
+  const AZmp: IZmpInfo;
+  const AMainMemCacheConfig: IMainMemCacheConfig;
+  const AGlobalCacheConfig: TGlobalCahceConfig;
+  const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
+  const AInetConfig: IInetConfig;
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloaderThreadConfig: IThreadConfig;
+  const AContentTypeManager: IContentTypeManager;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ADownloadResultTextProvider: IDownloadResultTextProvider;
+  const AInvisibleBrowser: IInvisibleBrowser;
+  const AConfig: IConfigDataProvider;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 var
   VContentTypeBitmap: IContentTypeInfoBitmap;

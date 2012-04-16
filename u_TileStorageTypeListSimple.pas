@@ -32,7 +32,7 @@ uses
 type
   TTileStorageTypeListSimple = class(TTileStorageTypeList)
   public
-    constructor Create(ABasePath: IPathConfig);
+    constructor Create(const ABasePath: IPathConfig);
   end;
 
 implementation
@@ -62,7 +62,7 @@ const
 
 { TTileStorageTypeListSimple }
 
-constructor TTileStorageTypeListSimple.Create(ABasePath: IPathConfig);
+constructor TTileStorageTypeListSimple.Create(const ABasePath: IPathConfig);
 var
   VItem: ITileStorageTypeListItem;
   VStorageTypeConfig: ITileStorageTypeConfig;

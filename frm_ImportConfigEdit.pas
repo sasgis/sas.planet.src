@@ -55,9 +55,9 @@ type
     FMarksDb: IMarksDb;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ACategoryDB: IMarkCategoryDB;
-      AMarksDb: IMarksDb
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDB: IMarkCategoryDB;
+      const AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
     function GetImportConfig: IImportConfig;
@@ -74,9 +74,9 @@ uses
 {$R *.dfm}
 
 constructor TfrmImportConfigEdit.Create(
-  ALanguageManager: ILanguageManager;
-  ACategoryDB: IMarkCategoryDB;
-  AMarksDb: IMarksDb
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDB: IMarkCategoryDB;
+  const AMarksDb: IMarksDb
 );
 begin
   inherited Create(ALanguageManager);

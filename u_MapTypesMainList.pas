@@ -65,8 +65,8 @@ type
     function GetFirstMainMapGUID: TGUID;
   public
     constructor Create(
-      AZmpInfoSet: IZmpInfoSet;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AZmpInfoSet: IZmpInfoSet;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
@@ -75,23 +75,23 @@ type
     property FirstMainMapGUID: TGUID read GetFirstMainMapGUID;
 
     procedure LoadMaps(
-      ALanguageManager: ILanguageManager;
-      AMainMemCacheConfig: IMainMemCacheConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      AInetConfig: IInetConfig;
-      AImageResamplerConfig: IImageResamplerConfig;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloaderThreadConfig: IThreadConfig;
-      AContentTypeManager: IContentTypeManager;
-      ADownloadResultTextProvider: IDownloadResultTextProvider;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AInvisibleBrowser: IInvisibleBrowser;
-      ALocalMapsConfig: IConfigDataProvider
+      const ALanguageManager: ILanguageManager;
+      const AMainMemCacheConfig: IMainMemCacheConfig;
+      const AGlobalCacheConfig: TGlobalCahceConfig;
+      const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
+      const AInetConfig: IInetConfig;
+      const AImageResamplerConfig: IImageResamplerConfig;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloaderThreadConfig: IThreadConfig;
+      const AContentTypeManager: IContentTypeManager;
+      const ADownloadResultTextProvider: IDownloadResultTextProvider;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const AInvisibleBrowser: IInvisibleBrowser;
+      const ALocalMapsConfig: IConfigDataProvider
     );
-    procedure SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
+    procedure SaveMaps(const ALocalMapsConfig: IConfigDataWriteProvider);
 
     function GetGUIConfigList: IMapTypeGUIConfigList;
     property GUIConfigList: IMapTypeGUIConfigList read GetGUIConfigList;
@@ -112,8 +112,8 @@ uses
 { TMapTypesMainList }
 
 constructor TMapTypesMainList.Create(
-  AZmpInfoSet: IZmpInfoSet;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AZmpInfoSet: IZmpInfoSet;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FZmpInfoSet := AZmpInfoSet;
@@ -181,21 +181,21 @@ begin
 end;
 
 procedure TMapTypesMainList.LoadMaps(
-  ALanguageManager: ILanguageManager;
-  AMainMemCacheConfig: IMainMemCacheConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  AInetConfig: IInetConfig;
-  AImageResamplerConfig: IImageResamplerConfig;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloaderThreadConfig: IThreadConfig;
-  AContentTypeManager: IContentTypeManager;
-  ADownloadResultTextProvider: IDownloadResultTextProvider;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AInvisibleBrowser: IInvisibleBrowser;
-  ALocalMapsConfig: IConfigDataProvider
+  const ALanguageManager: ILanguageManager;
+  const AMainMemCacheConfig: IMainMemCacheConfig;
+  const AGlobalCacheConfig: TGlobalCahceConfig;
+  const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
+  const AInetConfig: IInetConfig;
+  const AImageResamplerConfig: IImageResamplerConfig;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloaderThreadConfig: IThreadConfig;
+  const AContentTypeManager: IContentTypeManager;
+  const ADownloadResultTextProvider: IDownloadResultTextProvider;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const AInvisibleBrowser: IInvisibleBrowser;
+  const ALocalMapsConfig: IConfigDataProvider
 );
 var
   VMapType: TMapType;
@@ -298,7 +298,9 @@ begin
   end;
 end;
 
-procedure TMapTypesMainList.SaveMaps(ALocalMapsConfig: IConfigDataWriteProvider);
+procedure TMapTypesMainList.SaveMaps(
+  const ALocalMapsConfig: IConfigDataWriteProvider
+);
 var
   i: integer;
   VGUIDString: string;

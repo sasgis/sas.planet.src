@@ -108,18 +108,22 @@ type
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
     frMarkCategory: TfrMarkCategorySelectOrAdd;
-    procedure DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
+    procedure DrawFromMarkIcons(
+      canvas: TCanvas;
+      const APic: IMarkPicture;
+      const bound: TRect
+    );
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AMediaPath: IPathConfig;
-      ACategoryDB: IMarkCategoryDB;
-      AMarksDb: IMarksDb;
-      AViewPortState: IViewPortState;
-      AValueToStringConverterConfig: IValueToStringConverterConfig
+      const ALanguageManager: ILanguageManager;
+      const AMediaPath: IPathConfig;
+      const ACategoryDB: IMarkCategoryDB;
+      const AMarksDb: IMarksDb;
+      const AViewPortState: IViewPortState;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(AMark: IMarkPoint): IMarkPoint;
+    function EditMark(const AMark: IMarkPoint): IMarkPoint;
     procedure RefreshTranslation; override;
   end;
 
@@ -132,12 +136,12 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarkEditPoint.Create(
-  ALanguageManager: ILanguageManager;
-  AMediaPath: IPathConfig;
-  ACategoryDB: IMarkCategoryDB;
-  AMarksDb: IMarksDb;
-  AViewPortState: IViewPortState;
-  AValueToStringConverterConfig: IValueToStringConverterConfig
+  const ALanguageManager: ILanguageManager;
+  const AMediaPath: IPathConfig;
+  const ACategoryDB: IMarkCategoryDB;
+  const AMarksDb: IMarksDb;
+  const AViewPortState: IViewPortState;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(ALanguageManager);
@@ -167,7 +171,7 @@ begin
   inherited;
 end;
 
-function TfrmMarkEditPoint.EditMark(AMark: IMarkPoint): IMarkPoint;
+function TfrmMarkEditPoint.EditMark(const AMark: IMarkPoint): IMarkPoint;
 var
   VPicCount: Integer;
   VColCount: Integer;
@@ -252,7 +256,11 @@ begin
  if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TfrmMarkEditPoint.DrawFromMarkIcons(canvas:TCanvas; APic: IMarkPicture; bound:TRect);
+procedure TfrmMarkEditPoint.DrawFromMarkIcons(
+  canvas: TCanvas;
+  const APic: IMarkPicture;
+  const bound:TRect
+);
 var
   VBitmap: TBitmap32;
   wdth:integer;

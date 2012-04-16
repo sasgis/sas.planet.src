@@ -53,10 +53,10 @@ type
   private
     FFactory: IMarkCategoryFactory;
   public
-    function EditCategory(ACategory: IMarkCategory): IMarkCategory;
+    function EditCategory(const ACategory: IMarkCategory): IMarkCategory;
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AFactory: IMarkCategoryFactory
+      const ALanguageManager: ILanguageManager;
+      const AFactory: IMarkCategoryFactory
     ); reintroduce;
   end;
 
@@ -68,15 +68,15 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarkCategoryEdit.Create(
-  ALanguageManager: ILanguageManager;
-  AFactory: IMarkCategoryFactory
+  const ALanguageManager: ILanguageManager;
+  const AFactory: IMarkCategoryFactory
 );
 begin
   inherited Create(ALanguageManager);
   FFactory := AFactory;
 end;
 
-function TfrmMarkCategoryEdit.EditCategory(ACategory: IMarkCategory): IMarkCategory;
+function TfrmMarkCategoryEdit.EditCategory(const ACategory: IMarkCategory): IMarkCategory;
 begin
   EditName.Text:=SAS_STR_NewPoly;
   if ACategory.IsNew then begin

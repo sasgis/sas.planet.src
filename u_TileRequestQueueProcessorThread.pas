@@ -23,10 +23,10 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      AThreadConfig: IThreadConfig;
-      AAppClosingNotifier: IJclNotifier;
-      ATileRequestQueue: ITileRequestQueue;
-      ATileDownloaderSync: ITileDownloader
+      const AThreadConfig: IThreadConfig;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATileRequestQueue: ITileRequestQueue;
+      const ATileDownloaderSync: ITileDownloader
     );
     destructor Destroy; override;
   end;
@@ -39,10 +39,10 @@ uses
 { TTileRequestQueueProcessorThread }
 
 constructor TTileRequestQueueProcessorThread.Create(
-  AThreadConfig: IThreadConfig;
-  AAppClosingNotifier: IJclNotifier;
-  ATileRequestQueue: ITileRequestQueue;
-  ATileDownloaderSync: ITileDownloader
+  const AThreadConfig: IThreadConfig;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATileRequestQueue: ITileRequestQueue;
+  const ATileDownloaderSync: ITileDownloader
 );
 begin
   inherited Create(AThreadConfig);

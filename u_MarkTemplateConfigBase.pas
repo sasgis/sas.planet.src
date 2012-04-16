@@ -40,8 +40,8 @@ type
     function GetNameGenerator: IMarkNameGenerator;
   public
     constructor Create(
-      ACategoryDb: IMarkCategoryDBSmlInternal;
-      AFormatString: IStringConfigDataElement
+      const ACategoryDb: IMarkCategoryDBSmlInternal;
+      const AFormatString: IStringConfigDataElement
     );
   end;
 
@@ -54,8 +54,8 @@ uses
   { TMarkTemplateConfigBase }
 
 constructor TMarkTemplateConfigBase.Create(
-  ACategoryDb: IMarkCategoryDBSmlInternal;
-  AFormatString: IStringConfigDataElement
+  const ACategoryDb: IMarkCategoryDBSmlInternal;
+  const AFormatString: IStringConfigDataElement
 );
 begin
   inherited Create;

@@ -18,8 +18,8 @@ type
     procedure Show;
   public
     constructor Create(
-      AAppConfig: IGlobalAppConfig;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AAppConfig: IGlobalAppConfig;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
   end;
@@ -32,8 +32,8 @@ uses
 { TDebugInfoWindow }
 
 constructor TDebugInfoWindow.Create(
-  AAppConfig: IGlobalAppConfig;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AAppConfig: IGlobalAppConfig;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FAppConfig := AAppConfig;

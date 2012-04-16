@@ -74,13 +74,13 @@ type
     frMarkCategory: TfrMarkCategorySelectOrAdd;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AMediaPath: IPathConfig;
-      ACategoryDB: IMarkCategoryDB;
-      AMarksDb: IMarksDb
+      const ALanguageManager: ILanguageManager;
+      const AMediaPath: IPathConfig;
+      const ACategoryDB: IMarkCategoryDB;
+      const AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(AMark: IMarkLine): IMarkLine;
+    function EditMark(const AMark: IMarkLine): IMarkLine;
     procedure RefreshTranslation; override;
   end;
 
@@ -89,10 +89,10 @@ implementation
 {$R *.dfm}
 
 constructor TfrmMarkEditPath.Create(
-  ALanguageManager: ILanguageManager;
-  AMediaPath: IPathConfig;
-  ACategoryDB: IMarkCategoryDB;
-  AMarksDb: IMarksDb
+  const ALanguageManager: ILanguageManager;
+  const AMediaPath: IPathConfig;
+  const ACategoryDB: IMarkCategoryDB;
+  const AMarksDb: IMarksDb
 );
 begin
   inherited Create(ALanguageManager);
@@ -114,7 +114,7 @@ begin
   inherited;
 end;
 
-function TfrmMarkEditPath.EditMark(AMark: IMarkLine): IMarkLine;
+function TfrmMarkEditPath.EditMark(const AMark: IMarkLine): IMarkLine;
 begin
   frMarkCategory.Init(AMark.Category);
   try

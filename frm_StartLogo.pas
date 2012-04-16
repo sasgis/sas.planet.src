@@ -45,11 +45,14 @@ type
   private
     FReadyToHide: Boolean;
     FConfig: IStartUpLogoConfig;
-    constructor Create(AOwner: TComponent; AConfig: IStartUpLogoConfig); reintroduce;
+    constructor Create(
+      AOwner: TComponent;
+      const AConfig: IStartUpLogoConfig
+    ); reintroduce;
   public
     destructor Destroy; override;
 
-    class procedure ShowLogo(AConfig: IStartUpLogoConfig);
+    class procedure ShowLogo(const AConfig: IStartUpLogoConfig);
     class procedure ReadyToHideLogo;
   end;
 
@@ -66,8 +69,10 @@ var
 
 {$R *.dfm}
 
-constructor TfrmStartLogo.Create(AOwner: TComponent;
-  AConfig: IStartUpLogoConfig);
+constructor TfrmStartLogo.Create(
+  AOwner: TComponent;
+  const AConfig: IStartUpLogoConfig
+);
 begin
   inherited Create(AOwner);
   FConfig := AConfig;
@@ -129,7 +134,7 @@ begin
   end;
 end;
 
-class procedure TfrmStartLogo.ShowLogo(AConfig: IStartUpLogoConfig);
+class procedure TfrmStartLogo.ShowLogo(const AConfig: IStartUpLogoConfig);
 begin
   if AConfig.IsShowLogo then begin
     frmStartLogo := TfrmStartLogo.Create(nil, AConfig);

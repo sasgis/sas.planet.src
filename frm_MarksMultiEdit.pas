@@ -55,12 +55,12 @@ type
     FMarksDb: IMarksDb;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ACategoryDB: IMarkCategoryDB;
-      AMarksDb: IMarksDb
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDB: IMarkCategoryDB;
+      const AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
-    function GetImportConfig(ACategory:ICategory): IImportConfig;
+    function GetImportConfig(const ACategory:ICategory): IImportConfig;
     procedure RefreshTranslation; override;
   end;
 
@@ -74,9 +74,9 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarksMultiEdit.Create(
-  ALanguageManager: ILanguageManager;
-  ACategoryDB: IMarkCategoryDB;
-  AMarksDb: IMarksDb
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDB: IMarkCategoryDB;
+  const AMarksDb: IMarksDb
 );
 begin
   inherited Create(ALanguageManager);
@@ -102,7 +102,7 @@ begin
   inherited;
 end;
 
-function TfrmMarksMultiEdit.GetImportConfig(ACategory:ICategory): IImportConfig;
+function TfrmMarksMultiEdit.GetImportConfig(const ACategory:ICategory): IImportConfig;
 var
   VIndex: Integer;
   VPic: IMarkPicture;

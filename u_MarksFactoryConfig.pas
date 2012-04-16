@@ -41,9 +41,9 @@ type
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ACategoryDb: IMarkCategoryDBSmlInternal;
-      AMarkPictureList: IMarkPictureList
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDb: IMarkCategoryDBSmlInternal;
+      const AMarkPictureList: IMarkPictureList
     );
   end;
 
@@ -58,9 +58,9 @@ uses
 { TMarksFactoryConfig }
 
 constructor TMarksFactoryConfig.Create(
-  ALanguageManager: ILanguageManager;
-  ACategoryDb: IMarkCategoryDBSmlInternal;
-  AMarkPictureList: IMarkPictureList
+  const ALanguageManager: ILanguageManager;
+  const ACategoryDb: IMarkCategoryDBSmlInternal;
+  const AMarkPictureList: IMarkPictureList
 );
 begin
   inherited Create;
