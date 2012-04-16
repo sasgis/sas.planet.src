@@ -143,6 +143,7 @@ constructor TEnumDoublePointClipByLineAbstract.Create(
   const ASourceEnum: IEnumDoublePoint
 );
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FFinished := False;
   FPrevPointCode := 3;
@@ -341,6 +342,7 @@ constructor TEnumDoublePointClipByRect.Create(
   const ASourceEnum: IEnumDoublePoint
 );
 begin
+  inherited Create;
   if AClosed then begin
     FEnum :=
       TEnumDoublePointClosePoly.Create(
@@ -418,6 +420,7 @@ constructor TDoublePointFilterClipByRect.Create(
   const ARect: TDoubleRect
 );
 begin
+  inherited Create;
   FClosed := AClosed;
   FRect := ARect;
 end;
@@ -476,6 +479,7 @@ constructor TProjectedPointFilterClipByRect.Create(
   const ARect: TDoubleRect
 );
 begin
+  inherited Create;
   FClosed := AClosed;
   FRect := ARect;
 end;

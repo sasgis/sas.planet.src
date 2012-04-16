@@ -71,6 +71,7 @@ uses
 
 constructor TGeoCoderBasic.Create(const AInetSettings: IProxySettings);
 begin
+  inherited Create;
   FInetSettings := AInetSettings;
 end;
 

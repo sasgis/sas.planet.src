@@ -48,6 +48,7 @@ constructor TGPSModuleFactoryByVSAGPS.Create(
   const AGPSPositionFactory: IGPSPositionFactory
 );
 begin
+  inherited Create;
   FGPSPositionFactory := AGPSPositionFactory;
 end;
 

@@ -62,6 +62,7 @@ constructor TFillingMapColorerSimple.Create(
   AFillFirstDay, AFillLastDay: TDateTime
 );
 begin
+  inherited Create;
   FNoTileColor := ANoTileColor;
   FShowTNE := AShowTNE;
   FTNEColor := ATNEColor;

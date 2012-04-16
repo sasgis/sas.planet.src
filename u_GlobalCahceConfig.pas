@@ -107,6 +107,7 @@ constructor TGlobalCahceConfig.Create(
  const  ACacheGlobalPath: IPathConfig
 );
 begin
+  inherited Create;
   FCacheGlobalPath := ACacheGlobalPath;
   FDefCache := c_File_Cache_Id_SAS;
   FCacheChangeNotifier := TJclBaseNotifier.Create;

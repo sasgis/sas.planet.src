@@ -46,6 +46,7 @@ constructor TEnumDoublePointMapPixelToLocalPixel.Create(
   const ASourceEnum: IEnumProjectedPoint
 );
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FLocalConverter := ALocalConverter;
   FFinished := False;
@@ -82,6 +83,7 @@ constructor TProjectedPointConverter.Create(
   const ALocalConverter: ILocalCoordConverter
 );
 begin
+  inherited Create;
   FLocalConverter := ALocalConverter;
 end;
 

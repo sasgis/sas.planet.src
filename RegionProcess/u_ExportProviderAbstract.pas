@@ -52,6 +52,7 @@ constructor TExportProviderAbstract.Create(
   const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
+  inherited Create;
   FParent := AParent;
   FLanguageManager := ALanguageManager;
   FMainMapsConfig := AMainMapsConfig;

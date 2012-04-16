@@ -311,6 +311,7 @@ var
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
 begin
+  inherited Create;
   if ModuleIsLib then begin
     // run as DLL or PACKAGE
     VProgramPath := GetModuleName(HInstance);

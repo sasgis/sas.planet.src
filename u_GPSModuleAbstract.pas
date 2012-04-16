@@ -208,6 +208,7 @@ uses
 
 constructor TGPSModuleAbstract.Create(const APositionFactory: IGPSPositionFactory);
 begin
+  inherited Create;
   FGPSPositionFactory := APositionFactory;
 
   FCSGPSData := MakeSyncObj(Self);
@@ -780,6 +781,7 @@ end;
 
 constructor TSatellitesInternalList.Create;
 begin
+  inherited Create;
   FList := TList.Create;;
 end;
 

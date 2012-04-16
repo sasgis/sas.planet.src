@@ -90,6 +90,7 @@ uses
 constructor TExportMarks2KML.Create;
 var child:iXMLNode;
 begin
+  inherited Create;
   kmldoc:=TXMLDocument.Create(Application);
   kmldoc.Options:=kmldoc.Options + [doNodeAutoIndent];
   kmldoc.Active:=true;

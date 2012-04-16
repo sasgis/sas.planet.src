@@ -52,6 +52,7 @@ constructor TEnumDoublePointLonLatToMapPixel.Create(
   const ASourceEnum: IEnumLonLatPoint
 );
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FZoom := AZoom;
   FConverter := AConverter;
@@ -90,6 +91,7 @@ constructor TLonLatPointConverter.Create(
   const AConverter: ICoordConverter
 );
 begin
+  inherited Create;
   FZoom := AZoom;
   FConverter := AConverter;
 end;

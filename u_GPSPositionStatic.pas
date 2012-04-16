@@ -56,6 +56,7 @@ constructor TGPSPositionStatic.Create(
   const ASatellites: IGPSSatellitesInView
 );
 begin
+  inherited Create;
   if (nil=ASingleGPSData) then
     InitSingleGPSData(@FSingleGPSData)
   else

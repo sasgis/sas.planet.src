@@ -62,6 +62,7 @@ constructor TGeoCodePlacemark.Create(
   AAccuracy: Integer
 );
 begin
+  inherited Create;
   FAddress := AAddress;
   FDesc := ADesc;
   FFullDesc := AFullDesc;

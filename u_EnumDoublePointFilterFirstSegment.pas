@@ -61,6 +61,7 @@ uses
 constructor TEnumDoublePointFilterFirstSegment.Create(
   const ASourceEnum: IEnumDoublePoint);
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FStarted := False;
   FFinished := False;

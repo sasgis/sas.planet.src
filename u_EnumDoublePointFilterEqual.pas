@@ -60,6 +60,7 @@ uses
 
 constructor TEnumDoublePointFilterEqual.Create(const ASourceEnum: IEnumDoublePoint);
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FPrevEmpty := True;
   FFinished := False;

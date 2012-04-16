@@ -63,6 +63,7 @@ constructor TGeoCodeResult.Create(
   const AList: IInterfaceList
 );
 begin
+  inherited Create;
   FSearchText := ASearchText;
   FList := AList;
   FMessage := AMessage;

@@ -68,6 +68,7 @@ constructor TEnumDoublePointLine2Poly.Create(
   const ATemp: IDoublePointsAggregator
 );
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FRadius := ARadius;
   FProjection := AProjection;
@@ -247,6 +248,7 @@ constructor TLonLatPointFilterLine2Poly.Create(
   const ATemp: IDoublePointsAggregator
 );
 begin
+  inherited Create;
   FRadius := ARadius;
   FProjection := AProjection;
   FTemp := ATemp;

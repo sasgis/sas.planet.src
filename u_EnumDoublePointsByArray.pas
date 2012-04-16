@@ -36,6 +36,7 @@ constructor TEnumDoublePointsByArray.Create(
   ACount: Integer
 );
 begin
+  inherited Create;
   FPoints := APoints;
   FCount := ACount;
   FIndex := 0;

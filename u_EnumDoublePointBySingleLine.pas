@@ -48,6 +48,7 @@ constructor TEnumDoublePointBySingleLineBase.Create(
   ACount: Integer
 );
 begin
+  inherited Create;
   FSourceLine := ADataOwner;
   FClosed := AClosed;
   FPoints := APoints;

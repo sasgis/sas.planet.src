@@ -58,6 +58,7 @@ end;
 
 constructor TEnumUnknown.Create(AList: IInterfaceList);
 begin
+  inherited Create;
   FList := AList;
   FCurrent := 0;
 end;

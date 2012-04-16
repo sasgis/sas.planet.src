@@ -202,6 +202,7 @@ constructor TTrackPointsBlocksListStatic.Create(
 var
   i: Integer;
 begin
+  inherited Create;
   if APrevList <> nil then begin
     FCount := APrevList.Count;
   end else begin
@@ -271,6 +272,7 @@ constructor TEnumGPSTrackPointByBlocksListBase.Create(
   AValidPointsInLastBlock: Integer
 );
 begin
+  inherited Create;
   FList := AList;
   Assert(FList <> nil);
   FValidPointsInLastBlock := AValidPointsInLastBlock;
@@ -414,6 +416,7 @@ constructor TEnumTrackPointsByEnumGPSTrackPoint.Create(
   const ASource: IEnumGPSTrackPoint
 );
 begin
+  inherited Create;
   FSource := ASource;
 end;
 

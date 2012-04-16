@@ -81,6 +81,7 @@ uses
 
 constructor TGPSPositionFactory.Create;
 begin
+  inherited Create;
   FExecuteGPSCommandEvent := nil;
   FGPSUnitInfoChangedEvent := nil;
   FSatellitesInViewEmpty := TGPSSatellitesInView.Create(0, nil, 0, nil);

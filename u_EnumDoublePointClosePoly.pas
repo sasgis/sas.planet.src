@@ -74,6 +74,7 @@ uses
 
 constructor TEnumDoublePointClosePoly.Create(const ASourceEnum: IEnumDoublePoint);
 begin
+  inherited Create;
   FSourceEnum := ASourceEnum;
   FFinished := False;
   FPointsInPolyCount := 0;

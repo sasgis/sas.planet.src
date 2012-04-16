@@ -97,6 +97,7 @@ constructor TFillingMapLayerConfigStatic.Create(
   const AFillLastDay: TDateTime
 );
 begin
+  inherited Create;
   FVisible := AVisible;
   FSourceMap := ASourceMap;
   FUseRelativeZoom := AUseRelativeZoom;

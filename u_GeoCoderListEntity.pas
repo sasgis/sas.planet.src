@@ -54,6 +54,7 @@ constructor TGeoCoderListEntity.Create(
   const AGeoCoder: IGeoCoder
 );
 begin
+  inherited Create;
   FGUID := AGUID;
   FCaption := ACaption;
   FGeoCoder := AGeoCoder;
