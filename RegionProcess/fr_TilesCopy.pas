@@ -45,9 +45,9 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
     procedure Init;
     procedure RefreshTranslation; override;
@@ -103,9 +103,9 @@ end;
 
 constructor TfrTilesCopy.Create(
   AOwner : TComponent;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
   inherited Create(AOwner);

@@ -149,7 +149,7 @@ type
     procedure UnlockConnect;
     procedure DoAddPointToLogWriter(const AUnitIndex: Byte); override;
   public
-    constructor Create(AGPSPositionFactory: IGPSPositionFactory);
+    constructor Create(const AGPSPositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
   end;
 implementation
@@ -344,7 +344,7 @@ end;
 
 { TGPSModuleByZylGPS }
 
-constructor TGPSModuleByVSAGPS.Create(AGPSPositionFactory: IGPSPositionFactory);
+constructor TGPSModuleByVSAGPS.Create(const AGPSPositionFactory: IGPSPositionFactory);
 begin
   inherited Create(AGPSPositionFactory);
 

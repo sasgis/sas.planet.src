@@ -54,13 +54,13 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorFactory: IVectorItmesFactory;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorFactory: IVectorItmesFactory;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
-    procedure Init(AZoom: Byte; APolygLL: ILonLatPolygon);
+    procedure Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
   end;
 
 implementation
@@ -139,11 +139,11 @@ end;
 
 constructor TfrTilesDownload.Create(
   AOwner: TComponent;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorFactory: IVectorItmesFactory;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorFactory: IVectorItmesFactory;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
   inherited Create(AOwner);
@@ -154,7 +154,7 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
-procedure TfrTilesDownload.Init(AZoom: Byte; APolygLL: ILonLatPolygon);
+procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
 var
   i: integer;
   VMapType: TMapType;

@@ -48,14 +48,14 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FImageResamplerConfig: IImageResamplerConfig;
-    procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+    procedure InitResamplersList(const AList: IImageResamplerFactoryList; ABox: TComboBox);
   public
     constructor Create(
       AOwner : TComponent;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AImageResamplerConfig: IImageResamplerConfig
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AImageResamplerConfig: IImageResamplerConfig
     ); reintroduce;
     procedure Init(AZoom: Byte);
   end;
@@ -164,10 +164,10 @@ end;
 
 constructor TfrTilesGenPrev.Create(
   AOwner : TComponent;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AImageResamplerConfig: IImageResamplerConfig
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AImageResamplerConfig: IImageResamplerConfig
 );
 begin
   TP_Ignore(Self, 'cbbResampler.Items');
@@ -221,8 +221,10 @@ begin
   cbbResampler.ItemIndex := FImageResamplerConfig.ActiveIndex;
 end;
 
-procedure TfrTilesGenPrev.InitResamplersList(AList: IImageResamplerFactoryList;
-  ABox: TComboBox);
+procedure TfrTilesGenPrev.InitResamplersList(
+  const AList: IImageResamplerFactoryList;
+  ABox: TComboBox
+);
 var
   i: Integer;
 begin
