@@ -40,7 +40,7 @@ type
     function GetStatic: IStaticTreeItem;
     function GetChangeNotifier: IJclNotifier;
   public
-    constructor Create(AMapsSet: IActiveMapsSet);
+    constructor Create(const AMapsSet: IActiveMapsSet);
   end;
 
 implementation
@@ -50,7 +50,7 @@ uses
 
 { TTreeByMapActiveMapsSet }
 
-constructor TTreeByMapActiveMapsSet.Create(AMapsSet: IActiveMapsSet);
+constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IActiveMapsSet);
 begin
   FMapsSet := AMapsSet;
   FChangeNotifier := TJclBaseNotifier.Create;

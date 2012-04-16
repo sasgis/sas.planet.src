@@ -30,8 +30,8 @@ type
   TConfigDataProviderZmpComplex = class(TConfigDataProviderWithLocal)
   public
     constructor Create(
-      AZmpMapConfig: IConfigDataProvider;
-      ALocalMapConfig: IConfigDataProvider
+      const AZmpMapConfig: IConfigDataProvider;
+      const ALocalMapConfig: IConfigDataProvider
     );
   end;
 
@@ -45,8 +45,9 @@ uses
 
 { TConfigDataProviderZmpComplex }
 
-constructor TConfigDataProviderZmpComplex.Create(AZmpMapConfig,
-  ALocalMapConfig: IConfigDataProvider);
+constructor TConfigDataProviderZmpComplex.Create(
+  const AZmpMapConfig, ALocalMapConfig: IConfigDataProvider
+);
 var
   VConfig: IConfigDataProvider;
   VParamsTXT: IConfigDataProvider;

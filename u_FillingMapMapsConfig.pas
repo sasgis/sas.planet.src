@@ -39,11 +39,11 @@ type
     function CreateMapsSet: IMapTypeSet;
     procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
-    procedure SetActualMap(AValue: IMapType);
+    procedure SetActualMap(const AValue: IMapType);
   protected
     function GetActualMap: IMapType;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(const AMapsConfig: IMainMapsConfig);
     destructor Destroy; override;
   end;
 
@@ -59,7 +59,7 @@ uses
 
 { TFillingMapMapsConfig }
 
-constructor TFillingMapMapsConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TFillingMapMapsConfig.Create(const AMapsConfig: IMainMapsConfig);
 begin
   FMainMapsConfig := AMapsConfig;
   inherited Create(CreateMapsSet);
@@ -134,7 +134,7 @@ begin
   end;
 end;
 
-procedure TFillingMapMapsConfig.SetActualMap(AValue: IMapType);
+procedure TFillingMapMapsConfig.SetActualMap(const AValue: IMapType);
 begin
   LockWrite;
   try

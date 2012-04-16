@@ -41,10 +41,10 @@ type
     function GetTemplateNewPoly: IMarkTemplatePoly;
   public
     constructor Create(
-      AMarkDB: IMarksDb;
-      ATemplateNewPoint: IMarkTemplatePoint;
-      ATemplateNewLine: IMarkTemplateLine;
-      ATemplateNewPoly: IMarkTemplatePoly
+      const AMarkDB: IMarksDb;
+      const ATemplateNewPoint: IMarkTemplatePoint;
+      const ATemplateNewLine: IMarkTemplateLine;
+      const ATemplateNewPoly: IMarkTemplatePoly
     );
   end;
 
@@ -53,10 +53,10 @@ implementation
 { TImportConfig }
 
 constructor TImportConfig.Create(
-  AMarkDB: IMarksDb;
-  ATemplateNewPoint: IMarkTemplatePoint;
-  ATemplateNewLine: IMarkTemplateLine;
-  ATemplateNewPoly: IMarkTemplatePoly
+  const AMarkDB: IMarksDb;
+  const ATemplateNewPoint: IMarkTemplatePoint;
+  const ATemplateNewLine: IMarkTemplateLine;
+  const ATemplateNewPoly: IMarkTemplatePoly
 );
 begin
   FMarkDB := AMarkDB;

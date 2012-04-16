@@ -46,7 +46,11 @@ type
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetMapsSet: IMapTypeSet;
   public
-    constructor Create(AMainMapChangeNotyfier: IJclNotifier; ASingeMapsList: IGUIDInterfaceSet; AMapsSet: IMapTypeSet);
+    constructor Create(
+      const AMainMapChangeNotyfier: IJclNotifier;
+      const ASingeMapsList: IGUIDInterfaceSet;
+      const AMapsSet: IMapTypeSet
+    );
     destructor Destroy; override;
   end;
 
@@ -58,8 +62,11 @@ uses
 
 { TActiveMapConfigNew }
 
-constructor TActiveMapConfig.Create(AMainMapChangeNotyfier: IJclNotifier;
-  ASingeMapsList: IGUIDInterfaceSet; AMapsSet: IMapTypeSet);
+constructor TActiveMapConfig.Create(
+  const AMainMapChangeNotyfier: IJclNotifier;
+  const ASingeMapsList: IGUIDInterfaceSet;
+  const AMapsSet: IMapTypeSet
+);
 var
   i: Cardinal;
 begin

@@ -72,7 +72,7 @@ type
   protected
     { Private declarations }
   public
-    procedure Init(AMarksDb: IMarksDb);
+    procedure Init(const AMarksDb: IMarksDb);
     procedure Clear;
   end;
 
@@ -83,7 +83,7 @@ uses
   i_BitmapMarker;
 
 {$R *.dfm}
-procedure TfrMarksGeneralOptions.Init(AMarksDb: IMarksDb);
+procedure TfrMarksGeneralOptions.Init(const AMarksDb: IMarksDb);
 var
   VPictureList: IMarkPictureList;
   i: Integer;

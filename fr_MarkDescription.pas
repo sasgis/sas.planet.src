@@ -69,7 +69,7 @@ type
   public
     property Description: string read GetDescription write SetDescription;
   public
-    constructor Create(AMediaPath: IPathConfig); reintroduce;
+    constructor Create(const AMediaPath: IPathConfig); reintroduce;
   end;
 
 implementation
@@ -84,7 +84,7 @@ uses
 type
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg, ebUrl);
 
-constructor TfrMarkDescription.Create(AMediaPath: IPathConfig);
+constructor TfrMarkDescription.Create(const AMediaPath: IPathConfig);
 begin
   inherited Create(nil);
   FMediaPath := AMediaPath;

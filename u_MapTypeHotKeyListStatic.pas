@@ -36,7 +36,7 @@ type
     function GetMapTypeGUIDByHotKey(AHotKey: TShortCut): IMapType;
   public
     constructor Create(
-      AMapsSet: IMapTypeSet
+      const AMapsSet: IMapTypeSet
     );
   end;
 
@@ -48,7 +48,7 @@ uses
 
 { TMapTypeHotKeyListStatic }
 
-constructor TMapTypeHotKeyListStatic.Create(AMapsSet: IMapTypeSet);
+constructor TMapTypeHotKeyListStatic.Create(const AMapsSet: IMapTypeSet);
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;

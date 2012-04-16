@@ -36,10 +36,17 @@ type
     FMapActive: IActiveMapSingle;
     FListener: IJclListener;
     procedure OnMapChangeState;
-    procedure AdjustFont(Item: TTBCustomItem;
-      Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
+    procedure AdjustFont(
+      Item: TTBCustomItem;
+      Viewer: TTBItemViewer;
+      Font: TFont;
+      StateFlags: Integer
+    );
   public
-    constructor Create(AOwner: TComponent; AMapActive: IActiveMapSingle); reintroduce;
+    constructor Create(
+      AOwner: TComponent;
+      const AMapActive: IActiveMapSingle
+    ); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -50,8 +57,10 @@ uses
 
 { TMiniMapTBXITem }
 
-constructor TActiveMapTBXItem.Create(AOwner: TComponent;
-  AMapActive: IActiveMapSingle);
+constructor TActiveMapTBXItem.Create(
+  AOwner: TComponent;
+  const AMapActive: IActiveMapSingle
+);
 begin
   inherited Create(AOwner);
   FMapActive := AMapActive;

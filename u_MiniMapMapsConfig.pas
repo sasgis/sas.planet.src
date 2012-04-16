@@ -44,7 +44,7 @@ type
   protected
     function GetActiveMiniMap: IMapType;
   public
-    constructor Create(AMapsConfig: IMainMapsConfig);
+    constructor Create(const AMapsConfig: IMainMapsConfig);
     destructor Destroy; override;
   end;
 
@@ -60,7 +60,7 @@ uses
 
 { TMiniMapMapsConfig }
 
-constructor TMiniMapMapsConfig.Create(AMapsConfig: IMainMapsConfig);
+constructor TMiniMapMapsConfig.Create(const AMapsConfig: IMainMapsConfig);
 begin
   FMainMapsConfig := AMapsConfig;
   inherited Create(CreateMiniMapMapsSet, CreateMiniMapLayersSet);

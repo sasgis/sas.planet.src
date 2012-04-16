@@ -77,7 +77,7 @@ type
     function GetAutodetectCOMFlags: DWORD;
     procedure SetAutodetectCOMFlags(const AValue: DWORD);
   public
-    constructor Create(ALogPath: IPathConfig);
+    constructor Create(const ALogPath: IPathConfig);
   end;
 
 implementation
@@ -87,7 +87,7 @@ uses
 
 { TGPSModuleByCOMPortConfig }
 
-constructor TGPSModuleByCOMPortConfig.Create(ALogPath: IPathConfig);
+constructor TGPSModuleByCOMPortConfig.Create(const ALogPath: IPathConfig);
 begin
   inherited Create;
   FLogPath := ALogPath;

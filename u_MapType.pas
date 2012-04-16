@@ -138,7 +138,7 @@ type
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
    public
     function AllowListOfTileVersions: Boolean;
-    procedure SaveConfig(ALocalConfig: IConfigDataWriteProvider);
+    procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     function GetTileFileName(const AXY: TPoint; Azoom: byte): string;
     function GetTileShowName(const AXY: TPoint; Azoom: byte): string;
     function TileExists(const AXY: TPoint; Azoom: byte): Boolean;
@@ -624,7 +624,7 @@ begin
   FStorage.SaveTile(AXY, Azoom, FVersionConfig.Version, VData);
 end;
 
-procedure TMapType.SaveConfig(ALocalConfig: IConfigDataWriteProvider);
+procedure TMapType.SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
 begin
   FGUIConfig.WriteConfig(ALocalConfig);
   FTileDownloadRequestBuilderConfig.WriteConfig(ALocalConfig);

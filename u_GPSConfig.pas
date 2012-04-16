@@ -62,7 +62,7 @@ type
     function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
     procedure AbortWriteLog(const ATrackTypes: TVSAGPS_TrackTypes);
   public
-    constructor Create(ALogPath: IPathConfig);
+    constructor Create(const ALogPath: IPathConfig);
   end;
 
 implementation
@@ -94,7 +94,7 @@ begin
   end;
 end;
 
-constructor TGPSConfig.Create(ALogPath: IPathConfig);
+constructor TGPSConfig.Create(const ALogPath: IPathConfig);
 begin
   inherited Create;
   FLogPath := ALogPath;

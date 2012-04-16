@@ -21,9 +21,9 @@ type
   public
     constructor Create(
       AZmpDownloadEnabled: Boolean;
-      ARequestBuilderState: ITileDownloaderStateChangeble;
-      ASaverState: ITileDownloaderStateChangeble;
-      AMapAbilitiesConfig: IMapAbilitiesConfig
+      const ARequestBuilderState: ITileDownloaderStateChangeble;
+      const ASaverState: ITileDownloaderStateChangeble;
+      const AMapAbilitiesConfig: IMapAbilitiesConfig
     );
   end;
 
@@ -36,9 +36,9 @@ uses
 
 constructor TTileDownloadSubsystemState.Create(
   AZmpDownloadEnabled: Boolean;
-  ARequestBuilderState: ITileDownloaderStateChangeble;
-  ASaverState: ITileDownloaderStateChangeble;
-  AMapAbilitiesConfig: IMapAbilitiesConfig
+  const ARequestBuilderState: ITileDownloaderStateChangeble;
+  const ASaverState: ITileDownloaderStateChangeble;
+  const AMapAbilitiesConfig: IMapAbilitiesConfig
 );
 begin
   inherited Create;
