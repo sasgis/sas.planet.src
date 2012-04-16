@@ -51,6 +51,7 @@ constructor TBitmapMarkerProviderChangeableFaked.Create(
   const AProviderStatic: IBitmapMarkerProvider
 );
 begin
+  inherited Create;
   FProviderStatic := AProviderStatic;
   FChangeNotifier := TJclBaseNotifierFaked.Create;
 end;

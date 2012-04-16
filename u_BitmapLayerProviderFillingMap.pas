@@ -44,6 +44,7 @@ constructor TBitmapLayerProviderFillingMap.Create(
   const AColorer: IFillingMapColorer
 );
 begin
+  inherited Create;
   FMapType := AMapType;
   FSourceZoom := ASourceZoom;
   FColorer := AColorer;

@@ -61,6 +61,7 @@ uses
 
 constructor TConfigDataProviderByResources.Create(AInstance: THandle);
 begin
+  inherited Create;
   FInstance := AInstance;
 end;
 

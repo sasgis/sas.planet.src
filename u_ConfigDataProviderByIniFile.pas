@@ -63,6 +63,7 @@ uses
 
 constructor TConfigDataProviderByIniFile.Create(AIniFile: TCustomIniFile);
 begin
+  inherited Create;
   FIniFile := AIniFile;
 end;
 

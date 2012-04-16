@@ -143,6 +143,7 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
   const AMarksSubset: IMarksSubset
 );
 begin
+  inherited Create;
   FConfig := AConfig;
   FVectorItmesFactory := AVectorItmesFactory;
   FProjectionInfo := AProjectionInfo;

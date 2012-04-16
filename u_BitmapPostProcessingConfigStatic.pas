@@ -59,6 +59,7 @@ uses
 constructor TBitmapPostProcessingConfigStatic.Create(AInvertColor: boolean;
   AGammaN, AContrastN: Integer);
 begin
+  inherited Create;
   FInvertColor := AInvertColor;
   FContrastN := AContrastN;
   FGammaN := AGammaN;

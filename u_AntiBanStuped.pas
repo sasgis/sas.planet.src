@@ -116,6 +116,7 @@ constructor TAntiBanStuped.Create(
 var
   VParams: IConfigDataProvider;
 begin
+  inherited Create;
   FInvisibleBrowser := AInvisibleBrowser;
   FBanCS := MakeSyncObj(Self, TRUE);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');

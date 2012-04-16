@@ -66,6 +66,7 @@ uses
 
 constructor TConfigDataProviderByKaZip.Create(const AFileName: string);
 begin
+  inherited Create;
   FSourceFileName := AFileName;
   if AFileName = '' then begin
     raise Exception.Create(SAS_ERR_EmptyZMPFileName);

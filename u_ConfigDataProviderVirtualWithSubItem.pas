@@ -66,6 +66,7 @@ constructor TConfigDataProviderVirtualWithSubItem.Create(
   const ASubItem: IConfigDataProvider
 );
 begin
+  inherited Create;
   FSubItemName := ASubItemName;
   FSubItem := ASubItem;
 end;

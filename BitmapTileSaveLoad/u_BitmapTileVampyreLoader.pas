@@ -76,6 +76,7 @@ constructor TVampyreBasicBitmapTileLoader.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FCS := MakeSyncObj(Self, TRUE);
   FMetadata := TMetadata.Create;
   FFormat := AFormatClass.Create(FMetadata);

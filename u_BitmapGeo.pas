@@ -47,6 +47,7 @@ constructor TBitmapGeo.Create(
   const AConverter: ILocalCoordConverter
 );
 begin
+  inherited Create;
   FBitmap := ABitmap;
   FConverter := AConverter;
 end;

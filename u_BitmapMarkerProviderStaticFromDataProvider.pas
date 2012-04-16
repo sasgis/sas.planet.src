@@ -107,6 +107,7 @@ const
 
 constructor TBitmapMarkerProviderStatic.Create(const AMarker: IBitmapMarker);
 begin
+  inherited Create;
   FMarker := AMarker;
 end;
 
@@ -257,6 +258,7 @@ var
   VBitmap: IBitmap32Static;
   VData: IBinaryData;
 begin
+  inherited Create;
   VFileName := ExtractFileName(AResourceName);
   VFileExt := ExtractFileExt(VFileName);
   VBitmap := nil;

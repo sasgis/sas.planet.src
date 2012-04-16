@@ -35,6 +35,7 @@ uses
 
 constructor TChangeableBase.Create;
 begin
+  inherited Create;
   FBeforeChangeNotifier := TJclBaseNotifier.Create;
   FChangeNotifier := TJclBaseNotifier.Create;
   FAfterChangeNotifier := TJclBaseNotifier.Create;

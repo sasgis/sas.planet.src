@@ -77,6 +77,7 @@ constructor TConfigDataProviderWithGlobal.Create(
   const AProviderGlobal: IConfigDataProvider
 );
 begin
+  inherited Create;
   FProviderMain := AProviderMain;
   FProviderGlobalPrefix := AProviderGlobalPrefix;
   FProviderGlobalPrefixLen := Length(AProviderGlobalPrefix);

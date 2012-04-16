@@ -235,6 +235,7 @@ end;
 
 constructor TBaseFactoryPascalScript.Create(const AScriptText: string);
 begin
+  inherited Create;
   FCompiledData:='';
   FScriptText:=AScriptText;
 end;

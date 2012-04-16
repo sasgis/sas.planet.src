@@ -145,6 +145,7 @@ end;
 
 constructor TARGBToPaletteConverter.Create;
 begin
+  inherited;
   FCS := MakeSyncObj(Self, TRUE);
 end;
 

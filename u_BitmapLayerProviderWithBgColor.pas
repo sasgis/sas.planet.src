@@ -38,6 +38,7 @@ constructor TBitmapLayerProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
   const ASourceProvider: IBitmapLayerProvider);
 begin
+  inherited Create;
   FSourceProvider := ASourceProvider;
   FBackGroundColor := ABackGroundColor;
   Assert(FSourceProvider <> nil);

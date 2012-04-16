@@ -191,6 +191,7 @@ constructor TBitmapMarkerProviderChangeableWithConfig.Create(
   const AConfig: IBitmapMarkerProviderSimpleConfig
 );
 begin
+  inherited Create;
   FProviderClass := AProviderClass;
   FConfig := AConfig;
 

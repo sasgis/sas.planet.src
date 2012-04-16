@@ -108,6 +108,7 @@ end;
 
 constructor TAvailPicsAbstract.Create(const ATileInfoPtr: PAvailPicsTileInfo);
 begin
+  inherited Create;
   FTileInfoPtr := ATileInfoPtr;
   FLocalConverter := nil;
 end;

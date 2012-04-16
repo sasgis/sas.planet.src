@@ -62,6 +62,7 @@ uses
 
 constructor TConfigDataProviderByFolder.Create(const AFolderName: string);
 begin
+  inherited Create;
   FSourceFolderName := AFolderName;
 end;
 

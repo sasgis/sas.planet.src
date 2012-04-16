@@ -53,6 +53,7 @@ constructor TConfigSaveLoadStrategyBasicProviderSubItem.Create(
   const ASubItemName: string
 );
 begin
+  inherited Create;
   FSubItemName := ASubItemName;
 end;
 

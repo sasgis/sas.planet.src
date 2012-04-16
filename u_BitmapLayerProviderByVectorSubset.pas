@@ -126,6 +126,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   const AVectorItems: IInterfaceList
 );
 begin
+  inherited Create;
   FColorMain := AColorMain;
   FColorBG := AColorBG;
   FPointColor := APointColor;

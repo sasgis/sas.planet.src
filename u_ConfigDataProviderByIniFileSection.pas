@@ -76,6 +76,7 @@ constructor TConfigDataProviderByIniFileSection.Create(
   const AParent: IConfigDataProvider
 );
 begin
+  inherited Create;
   FIniFile := AIniFile;
   FSection := ASection;
   FParent := AParent;

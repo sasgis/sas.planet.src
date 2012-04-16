@@ -37,6 +37,7 @@ constructor TBitmapLayerProviderInPolygon.Create(
   const ASourceProvider: IBitmapLayerProvider
 );
 begin
+  inherited Create;
   FSourceProvider := ASourceProvider;
   FPolyProjected := APolyProjected;
   Assert(FSourceProvider <> nil);

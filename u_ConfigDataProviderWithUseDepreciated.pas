@@ -67,6 +67,7 @@ constructor TConfigDataProviderWithUseDepreciated.Create(
   AIdentRenamesList: TStringList
 );
 begin
+  inherited Create;
   FSource := ASource;
   FIdentRenamesList := TStringList.Create;
   FIdentRenamesList.Assign(AIdentRenamesList);

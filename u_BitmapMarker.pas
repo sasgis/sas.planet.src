@@ -74,6 +74,7 @@ constructor TBitmapMarker.Create(
 var
   VBitmap: TCustomBitmap32;
 begin
+  inherited Create;
   FAnchorPoint := AAnchorPoint;
   FBitmap := ABitmap;
   VBitmap := FBitmap.Bitmap;

@@ -52,6 +52,7 @@ constructor TBitmapLayerProviderSimpleForCombine.Create(
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );
 begin
+  inherited Create;
   FMapTypeMain := AMapTypeMain;
   FMapTypeHybr := AMapTypeHybr;
   FMarksImageProvider := AMarksImageProvider;

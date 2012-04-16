@@ -79,6 +79,7 @@ constructor TLibJpegTileLoader.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/LoadStream');
 end;
 

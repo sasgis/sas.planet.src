@@ -43,6 +43,7 @@ uses
 constructor TBitmapLayerProviderMapWithLayer.Create(AMapTypeMain,
   AMapTypeHybr: TMapType; AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean);
 begin
+  inherited Create;
   FMapTypeMain := AMapTypeMain;
   FMapTypeHybr := AMapTypeHybr;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;

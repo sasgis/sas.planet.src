@@ -64,6 +64,7 @@ uses
 
 constructor TConfigDataProviderByPathConfig.Create(const ASourcePath: IPathConfig);
 begin
+  inherited Create;
   FSourcePath := ASourcePath;
 end;
 

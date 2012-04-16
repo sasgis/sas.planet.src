@@ -72,6 +72,7 @@ constructor TBitmapLayerProviderForViewMaps.Create(
   const AErrorLogger: ITileErrorLogger
 );
 begin
+  inherited Create;
   FMainMap := AMainMap;
   FLayersList := ALayersList;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;

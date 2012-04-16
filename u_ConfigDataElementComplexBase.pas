@@ -127,6 +127,7 @@ constructor TSubItemInfoBase.Create(
   ANeedReadLock, ANeedWriteLock, ANeedStopNotify, ANeedChangedListen: Boolean
 );
 begin
+  inherited Create;
   FItem := AItem;
   FSaveLoadStrategy := ASaveLoadStrategy;
   FNeedReadLock := ANeedReadLock;

@@ -109,6 +109,7 @@ constructor TVampyreBasicBitmapTileSaver.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FCS := MakeSyncObj(Self, TRUE);
   FMetadata := AMeta;
   FFormat := AFormat;
