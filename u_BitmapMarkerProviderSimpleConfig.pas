@@ -32,6 +32,7 @@ uses
 type
   TBitmapMarkerProviderSimpleConfig = class(TConfigDataElementWithStaticBase, IBitmapMarkerProviderSimpleConfig)
   private
+    FDefault: IBitmapMarkerProviderSimpleConfigStatic;
     FMarkerSize: Integer;
     FMarkerColor: TColor32;
     FBorderColor: TColor32;
@@ -68,9 +69,10 @@ constructor TBitmapMarkerProviderSimpleConfig.Create(
 );
 begin
   inherited Create;
-  FMarkerSize := ADefault.MarkerSize;
-  FMarkerColor := ADefault.MarkerColor;
-  FBorderColor := ADefault.BorderColor;
+  FDefault := ADefault;
+  FMarkerSize := FDefault.MarkerSize;
+  FMarkerColor := FDefault.MarkerColor;
+  FBorderColor := FDefault.BorderColor;
 end;
 
 function TBitmapMarkerProviderSimpleConfig.CreateStatic: IInterface;
