@@ -189,15 +189,15 @@ type
     function GetBlock(AIndex: Integer): ITrackPoitnsBlock;
   public
     constructor Create(
-      APrevList: ITrackPointsBlocksListStatic;
-      ANewBlock: ITrackPoitnsBlock
+      const APrevList: ITrackPointsBlocksListStatic;
+      const ANewBlock: ITrackPoitnsBlock
     );
     destructor Destroy; override;
   end;
 
 constructor TTrackPointsBlocksListStatic.Create(
-  APrevList: ITrackPointsBlocksListStatic;
-  ANewBlock: ITrackPoitnsBlock
+  const APrevList: ITrackPointsBlocksListStatic;
+  const ANewBlock: ITrackPoitnsBlock
 );
 var
   i: Integer;

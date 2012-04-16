@@ -41,9 +41,9 @@ type
     procedure Add(ACount: UInt64; ASize: UInt64);
   public
     constructor Create(
-      AParent: IDownloadInfoSimple;
-      ATileCount: UInt64 = 0;
-      ASize: UInt64 = 0
+      const AParent: IDownloadInfoSimple;
+      const ATileCount: UInt64 = 0;
+      const ASize: UInt64 = 0
     );
     destructor Destroy; override;
   end;
@@ -56,9 +56,9 @@ uses
 { TDownloadInfoSimple }
 
 constructor TDownloadInfoSimple.Create(
-  AParent: IDownloadInfoSimple;
-  ATileCount: UInt64;
-  ASize: UInt64
+  const AParent: IDownloadInfoSimple;
+  const ATileCount: UInt64;
+  const ASize: UInt64
 );
 begin
   inherited Create;
