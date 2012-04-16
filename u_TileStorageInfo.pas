@@ -50,13 +50,13 @@ type
     function GetCoordConverter: ICoordConverter;
   public
     constructor Create(
-      ATypeInfo: IStorageTypeAbilities;
-      AMainContentType: IContentTypeInfoBasic;
+      const ATypeInfo: IStorageTypeAbilities;
+      const AMainContentType: IContentTypeInfoBasic;
       AAllowDifferentContentTypes: Boolean;
       AAllowDelete: boolean;
       AAllowSave: boolean;
       AIsReadOnly: boolean;
-      ACoordConverter: ICoordConverter
+      const ACoordConverter: ICoordConverter
     );
   end;
 
@@ -65,10 +65,10 @@ implementation
 { TTileStorageInfo }
 
 constructor TTileStorageInfo.Create(
-  ATypeInfo: IStorageTypeAbilities;
-  AMainContentType: IContentTypeInfoBasic; AAllowDifferentContentTypes,
-  AAllowDelete, AAllowSave, AIsReadOnly: boolean;
-  ACoordConverter: ICoordConverter
+  const ATypeInfo: IStorageTypeAbilities;
+  const AMainContentType: IContentTypeInfoBasic;
+  AAllowDifferentContentTypes, AAllowDelete, AAllowSave, AIsReadOnly: boolean;
+  const ACoordConverter: ICoordConverter
 );
 begin
   FTypeInfo := ATypeInfo;

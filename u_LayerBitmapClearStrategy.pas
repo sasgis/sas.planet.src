@@ -36,7 +36,7 @@ type
   protected
     procedure Clear(ABitmap: TCustomBitmap32);
   public
-    constructor Create(ACounter: IInternalPerformanceCounter);
+    constructor Create(const ACounter: IInternalPerformanceCounter);
   end;
 
   TLayerBitmapClearStrategySimpleClear = class(TLayerBitmapClearStrategyBase)
@@ -50,7 +50,10 @@ type
   protected
     procedure DoClear(ABitmap: TCustomBitmap32); override;
   public
-    constructor Create(ACounter: IInternalPerformanceCounter; ADelta: TPoint);
+    constructor Create(
+      const ACounter: IInternalPerformanceCounter;
+      const ADelta: TPoint
+    );
   end;
 
   TLayerBitmapClearStrategyImageResize = class(TLayerBitmapClearStrategyBase)
@@ -61,9 +64,9 @@ type
     procedure DoClear(ABitmap: TCustomBitmap32); override;
   public
     constructor Create(
-      ACounter: IInternalPerformanceCounter;
+      const ACounter: IInternalPerformanceCounter;
       ASourceBitmap: TCustomBitmap32;
-      ATargetRectInSource: TRect
+      const ATargetRectInSource: TRect
     );
     destructor Destroy; override;
   end;
@@ -77,11 +80,11 @@ type
     procedure DoClear(ABitmap: TCustomBitmap32); override;
   public
     constructor Create(
-      ACounter: IInternalPerformanceCounter;
+      const ACounter: IInternalPerformanceCounter;
       AResumpler: TCustomResampler;
       ASourceBitmap: TCustomBitmap32;
-      ASourceRect: TRect;
-      ATargetRect: TRect
+      const ASourceRect: TRect;
+      const ATargetRect: TRect
     );
     destructor Destroy; override;
   end;
@@ -95,7 +98,8 @@ uses
 { TLayerBitmapClearStrategyBase }
 
 constructor TLayerBitmapClearStrategyBase.Create(
-  ACounter: IInternalPerformanceCounter);
+  const ACounter: IInternalPerformanceCounter
+);
 begin
   FCounter := ACounter;
 end;
@@ -122,8 +126,8 @@ end;
 { TLayerBitmapClearStrategyMoveImage }
 
 constructor TLayerBitmapClearStrategyMoveImage.Create(
-  ACounter: IInternalPerformanceCounter;
-  ADelta: TPoint
+  const ACounter: IInternalPerformanceCounter;
+  const ADelta: TPoint
 );
 begin
   inherited Create(ACounter);
@@ -138,9 +142,9 @@ end;
 { TLayerBitmapClearStrategyImageResize }
 
 constructor TLayerBitmapClearStrategyImageResize.Create(
-  ACounter: IInternalPerformanceCounter;
+  const ACounter: IInternalPerformanceCounter;
   ASourceBitmap: TCustomBitmap32;
-  ATargetRectInSource: TRect
+  const ATargetRectInSource: TRect
 );
 var
   VCopyRect: TRect;
@@ -209,11 +213,11 @@ end;
 { TLayerBitmapClearStrategyZoomChange }
 
 constructor TLayerBitmapClearStrategyZoomChange.Create(
-  ACounter: IInternalPerformanceCounter;
+  const ACounter: IInternalPerformanceCounter;
   AResumpler: TCustomResampler;
   ASourceBitmap: TCustomBitmap32;
-  ASourceRect: TRect;
-  ATargetRect: TRect
+  const ASourceRect: TRect;
+  const ATargetRect: TRect
 );
 begin
   inherited Create(ACounter);

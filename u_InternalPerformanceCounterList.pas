@@ -35,7 +35,10 @@ type
     FList: IInterfaceList;
     FNtQPC: Pointer;
     FName: string;
-    procedure AppendStaticListByCounterList(AResultList: IIDInterfaceList; ACounterList: IInternalPerformanceCounterList);
+    procedure AppendStaticListByCounterList(
+      const AResultList: IIDInterfaceList;
+      const ACounterList: IInternalPerformanceCounterList
+    );
   protected
     function GetName: string;
 
@@ -78,7 +81,9 @@ uses
 { TInternalPerformanceCounterList }
 
 procedure TInternalPerformanceCounterList.AppendStaticListByCounterList(
-  AResultList: IIDInterfaceList; ACounterList: IInternalPerformanceCounterList);
+  const AResultList: IIDInterfaceList;
+  const ACounterList: IInternalPerformanceCounterList
+);
 var
   VEnum: IEnumUnknown;
   Vcnt: Integer;

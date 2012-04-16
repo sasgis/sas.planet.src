@@ -52,7 +52,7 @@ type
 
     function GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
   public
-    constructor Create(ADefault: IBitmapMarkerProviderSimpleConfigStatic);
+    constructor Create(const ADefault: IBitmapMarkerProviderSimpleConfigStatic);
   end;
 
 implementation
@@ -64,7 +64,8 @@ uses
 { TBitmapMarkerProviderSimpleConfig }
 
 constructor TBitmapMarkerProviderSimpleConfig.Create(
-  ADefault: IBitmapMarkerProviderSimpleConfigStatic);
+  const ADefault: IBitmapMarkerProviderSimpleConfigStatic
+);
 begin
   inherited Create;
   FMarkerSize := ADefault.MarkerSize;

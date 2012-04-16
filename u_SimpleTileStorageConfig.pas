@@ -71,7 +71,7 @@ type
 
     function GetStatic: ISimpleTileStorageConfigStatic;
   public
-    constructor Create(ADefConfig: ISimpleTileStorageConfigStatic);
+    constructor Create(const ADefConfig: ISimpleTileStorageConfigStatic);
   end;
 
 implementation
@@ -82,7 +82,8 @@ uses
 { TSimpleTileStorageConfig }
 
 constructor TSimpleTileStorageConfig.Create(
-  ADefConfig: ISimpleTileStorageConfigStatic);
+  const ADefConfig: ISimpleTileStorageConfigStatic
+);
 begin
   inherited Create;
   FDefConfig := ADefConfig;

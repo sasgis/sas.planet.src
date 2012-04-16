@@ -77,8 +77,8 @@ type
     function GetStatic: IMapTypeGUIConfigStatic;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      ADefConfig: IZmpInfoGUI
+      const ALanguageManager: ILanguageManager;
+      const ADefConfig: IZmpInfoGUI
     );
   end;
 
@@ -92,8 +92,8 @@ uses
 { TMapTypeGUIConfig }
 
 constructor TMapTypeGUIConfig.Create(
-  ALanguageManager: ILanguageManager;
-  ADefConfig: IZmpInfoGUI
+  const ALanguageManager: ILanguageManager;
+  const ADefConfig: IZmpInfoGUI
 );
 begin
   inherited Create;

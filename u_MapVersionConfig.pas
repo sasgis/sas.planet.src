@@ -45,7 +45,7 @@ type
     function GetVersion: IMapVersionInfo;
     procedure SetVersion(const AValue: IMapVersionInfo);
   public
-    constructor Create(ADefConfig: IMapVersionInfo);
+    constructor Create(const ADefConfig: IMapVersionInfo);
   end;
 
 
@@ -56,7 +56,7 @@ uses
 
 { TMapVersionConfig }
 
-constructor TMapVersionConfig.Create(ADefConfig: IMapVersionInfo);
+constructor TMapVersionConfig.Create(const ADefConfig: IMapVersionInfo);
 begin
   inherited Create;
   FDefConfig := ADefConfig;

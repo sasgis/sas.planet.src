@@ -58,7 +58,7 @@ type
 
     function GetStatic: IValueToStringConverter;
   public
-    constructor Create(ADependentOnElement: IConfigDataElement);
+    constructor Create(const ADependentOnElement: IConfigDataElement);
     destructor Destroy; override;
   end;
 
@@ -71,7 +71,7 @@ uses
 
 { TValueToStringConverterConfig }
 
-constructor TValueToStringConverterConfig.Create(ADependentOnElement: IConfigDataElement);
+constructor TValueToStringConverterConfig.Create(const ADependentOnElement: IConfigDataElement);
 begin
   inherited Create;
   FIsLatitudeFirst := True;

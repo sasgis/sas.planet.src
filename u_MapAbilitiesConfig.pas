@@ -66,8 +66,8 @@ type
     function GetStatic: IMapAbilitiesConfigStatic;
   public
     constructor Create(
-      ADefConfig: IMapAbilitiesConfigStatic;
-      AStorageConfig: ISimpleTileStorageConfig
+      const ADefConfig: IMapAbilitiesConfigStatic;
+      const AStorageConfig: ISimpleTileStorageConfig
     );
     destructor Destroy; override;
   end;
@@ -81,8 +81,8 @@ uses
 { TMapAbilitiesConfig }
 
 constructor TMapAbilitiesConfig.Create(
-  ADefConfig: IMapAbilitiesConfigStatic;
-  AStorageConfig: ISimpleTileStorageConfig
+  const ADefConfig: IMapAbilitiesConfigStatic;
+  const AStorageConfig: ISimpleTileStorageConfig
 );
 begin
   inherited Create;
