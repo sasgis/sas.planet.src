@@ -32,11 +32,11 @@ type
   protected
     function GetTilesTotal: Int64; virtual; abstract;
     function GetTilesRect: TRect; virtual; abstract;
-  public
     function Next(out ATile: TPoint): Boolean; virtual; abstract;
     procedure Reset; virtual; abstract;
     property TilesTotal: Int64 read GetTilesTotal;
     property TilesRect: TRect read GetTilesRect;
+  public
   end;
 
   TTileIteratorByPolygonAbstract = class(TTileIteratorAbstract)

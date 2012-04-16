@@ -40,12 +40,12 @@ type
   protected
     function GetTilesTotal: Int64; override;
     function GetTilesRect: TRect; override;
+    function Next(out ATile: TPoint): Boolean; override;
+    procedure Reset; override;
   public
     constructor Create(
       AProjected: IProjectedPolygon
     );
-    function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset; override;
   end;
 
 implementation

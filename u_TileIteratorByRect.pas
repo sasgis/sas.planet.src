@@ -44,10 +44,10 @@ type
   protected
     FEOI: Boolean;
     FCurrent: TPoint;
-  public
-    constructor Create(const ARect: TRect); override;
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
+  public
+    constructor Create(const ARect: TRect); override;
   end;
 
 implementation

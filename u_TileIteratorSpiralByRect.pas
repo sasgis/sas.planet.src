@@ -40,11 +40,12 @@ type
     class function GetMaxRing(const ACenterPoint: TPoint; const ARect: TRect): Integer;
     class function GetTilesInRingCount(ARad: Integer): Integer;
     class function GetDeltaByRingAndIndex(ARad: Integer; AIndex: Integer): TPoint;
+  protected
+    function Next(out ATile: TPoint): Boolean; override;
+    procedure Reset; override;
   public
     constructor CreateWithCenter(const ARect: TRect; const APoint: TPoint);
     constructor Create(const ARect: TRect); override;
-    function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset; override;
   end;
 
 implementation
