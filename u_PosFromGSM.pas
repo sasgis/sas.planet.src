@@ -154,12 +154,12 @@ procedure TPosFromGSM.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Point
    end;
    result:=s;
  end;
- function addT4(s:string):string;
+ function addT4(const s:string):string;
  begin
-  while length(s)<4 do begin
-    s:='0'+s;
+  Result := s;
+  while length(Result)<4 do begin
+    Result := '0' + Result;
   end;
-  result:=s;
  end;
 var s:string;
     pos,pose:integer;

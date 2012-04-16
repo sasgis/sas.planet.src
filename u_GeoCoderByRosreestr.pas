@@ -47,7 +47,7 @@ uses
   u_GeoCodePlacemark;
 
 { TGeoCoderByRosreestr }
-procedure meters_to_lonlat( in_x,in_y : Double; var outout : TDoublePoint);
+procedure meters_to_lonlat(in_x, in_y: Double; out outout: TDoublePoint);
 const
  pi = 3.1415926535897932384626433832795;
 begin

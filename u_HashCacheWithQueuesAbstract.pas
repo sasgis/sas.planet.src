@@ -525,6 +525,7 @@ constructor THashCacheWithQueuesAbstract.Create(
 );
 var
   VIndex: TItemIndex;
+  VHashSizeInBit: Byte;
 begin
   Assert(AHashSizeInBit >= 6);
   Assert(AHashSizeInBit <= 30);
@@ -538,16 +539,16 @@ begin
   Assert(AFirstOutCount < High(TItemIndex));
 
   Assert(AMultiUseCount + AFirstUseCount + AFirstOutCount < High(TItemIndex));
-
+  VHashSizeInBit := AHashSizeInBit;
   FCS := MakeSyncObj(Self, TRUE);
-  
-  if AHashSizeInBit < 6 then begin
-    AHashSizeInBit := 6;
+
+  if VHashSizeInBit < 6 then begin
+    VHashSizeInBit := 6;
   end;
-  if AHashSizeInBit > 30 then begin
-    AHashSizeInBit := 30;
+  if VHashSizeInBit > 30 then begin
+    VHashSizeInBit := 30;
   end;
-  FHashSize := 1 shl AHashSizeInBit;
+  FHashSize := 1 shl VHashSizeInBit;
 
 
   FQueueMultiMaxCount := AMultiUseCount;

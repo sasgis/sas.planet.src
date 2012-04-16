@@ -47,7 +47,6 @@ uses
 
 constructor TCoordConverterMercatorOnSphere.Create(Aradiusa: Double);
 begin
-  ARadiusa := Aradiusa;
   if Abs(ARadiusa - 6378137) < 1 then begin
     inherited Create(TDatum.Create(7059, Aradiusa), 3785, CELL_UNITS_METERS);
   end else if Abs(ARadiusa - 6371000) < 1 then begin
@@ -55,7 +54,6 @@ begin
   end else begin
     inherited Create(TDatum.Create(0, Aradiusa), 0, CELL_UNITS_UNKNOWN);
   end;
-
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;

@@ -349,7 +349,7 @@ begin
 end;
 
 
-function PosStr2List(const Apos1,Apos2:string;var AAList:IInterfaceList) : boolean;
+function PosStr2List(const Apos1,Apos2: string; const AAList: IInterfaceList) : boolean;
 var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;

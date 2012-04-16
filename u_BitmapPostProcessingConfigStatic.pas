@@ -92,10 +92,9 @@ var Dest: PColor32;
     vd: Double;
 begin
   if Value=0 then Exit;
-  Value:=Value/10;
   mR:=128;
-  if Value>0 then vd:=1+(Value/10)
-             else vd:=1-(Sqrt(-Value)/10);
+  if Value>0 then vd:=1+(Value/100)
+             else vd:=1-(Sqrt(-Value/1000));
   for i:=0 to 255 do begin
     ContrastTable[i]:=BLimit(mR+Trunc((i-mR)*vd));
   end;

@@ -54,8 +54,8 @@ type
     procedure StopExecute;
   public
     constructor Create(
-      AAppClosingNotifier: IJclNotifier;
-      AThreadConfig: IThreadConfig
+      const AAppClosingNotifier: IJclNotifier;
+      const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
   end;
@@ -68,8 +68,8 @@ uses
 { TBackgroundTask }
 
 constructor TBackgroundTask.Create(
-  AAppClosingNotifier: IJclNotifier;
-  AThreadConfig: IThreadConfig
+  const AAppClosingNotifier: IJclNotifier;
+  const AThreadConfig: IThreadConfig
 );
 var
   VOperationNotifier: TOperationNotifier;

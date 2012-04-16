@@ -641,8 +641,9 @@ begin
   VData := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VTileInfo);
   if VData <> nil then begin
     Result := FBitmapLoaderFromStorage.Load(VData);
-    if Assigned(VTileInfo) then
+    if Assigned(VTileInfo) then begin
       AVersionInfo := VTileInfo.VersionInfo;
+    end;
   end;
 end;
 
@@ -659,6 +660,9 @@ begin
   VData := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VTileInfo);
   if VData <> nil then  begin
     Result := FKmlLoaderFromStorage.Load(VData, FVectorDataFactory);
+    if Assigned(VTileInfo) then begin
+      AVersionInfo := VTileInfo.VersionInfo;
+    end;
   end;
 end;
 

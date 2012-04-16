@@ -38,7 +38,7 @@ type
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
-    function SphericalTriangleSquare(points:array of TDoublePoint):Double;
+    function SphericalTriangleSquare(points: array of TDoublePoint):Double;
     function CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
     function CalcDist(const AStart, AFinish: TDoublePoint): Double;
   public
