@@ -27,9 +27,9 @@ type
                                       const AParserProc: TMapAttachmentsInfoParserProc);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AContentTypeManager: IContentTypeManager
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AContentTypeManager: IContentTypeManager
     );
     destructor Destroy; override;
   end;
@@ -42,9 +42,9 @@ uses
 { TInternalBrowserByForm }
 
 constructor TInternalBrowserByForm.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AContentTypeManager: IContentTypeManager
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   FLanguageManager := ALanguageManager;

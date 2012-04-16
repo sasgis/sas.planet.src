@@ -27,8 +27,8 @@ type
     function GetStatic: ILocalCoordConverter;
   public
     constructor Create(
-      ASource: ILocalCoordConverterChangeable;
-      ATargetGeoConverter: ICoordConverter;
+      const ASource: ILocalCoordConverterChangeable;
+      const ATargetGeoConverter: ICoordConverter;
       AConverterFactory: ILocalCoordConverterFactorySimpe
     );
     destructor Destroy; override;
@@ -43,8 +43,10 @@ uses
 { TLocalCoordConverterChangeable }
 
 constructor TLocalCoordConverterChangeable.Create(
-  ASource: ILocalCoordConverterChangeable; ATargetGeoConverter: ICoordConverter;
-  AConverterFactory: ILocalCoordConverterFactorySimpe);
+  const ASource: ILocalCoordConverterChangeable;
+  const ATargetGeoConverter: ICoordConverter;
+  const AConverterFactory: ILocalCoordConverterFactorySimpe
+);
 begin
   FSource := ASource;
   FTargetGeoConverter := ATargetGeoConverter;

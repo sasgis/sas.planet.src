@@ -48,8 +48,8 @@ type
     function GetChangeNotifier: IJclNotifier;
   public
     constructor Create(
-      AStaticTreeBuilder: IStaticTreeBuilder;
-      AConfigChangeNotifier: IJclNotifier
+      const AStaticTreeBuilder: IStaticTreeBuilder;
+      const AConfigChangeNotifier: IJclNotifier
     );
     destructor Destroy; override;
   end;
@@ -64,8 +64,8 @@ uses
 { TTreeChangeableBase }
 
 constructor TTreeChangeableBase.Create(
-  AStaticTreeBuilder: IStaticTreeBuilder;
-  AConfigChangeNotifier: IJclNotifier
+  const AStaticTreeBuilder: IStaticTreeBuilder;
+  const AConfigChangeNotifier: IJclNotifier
 );
 begin
   FStaticTreeBuilder := AStaticTreeBuilder;

@@ -65,8 +65,8 @@ type
     );
     destructor Destroy; override;
 
-    procedure ReadConfig(AConfigData: IConfigDataProvider);
-    procedure WriteConfig(AConfigData: IConfigDataWriteProvider);
+    procedure ReadConfig(const AConfigData: IConfigDataProvider);
+    procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
 
     property MarksDb: IMarksDb read FMarksDb;
     property CategoryDB: IMarkCategoryDB read FCategoryDB;
@@ -277,14 +277,14 @@ begin
   Result := FMarksSubsetTreeBuilder.BuildStatic(ASubset);
 end;
 
-procedure TMarksSystem.ReadConfig(AConfigData: IConfigDataProvider);
+procedure TMarksSystem.ReadConfig(const AConfigData: IConfigDataProvider);
 begin
   FMarksFactoryConfig.ReadConfig(AConfigData);
   FCategoryDBInternal.LoadCategoriesFromFile;
   FMarksDbInternal.LoadMarksFromFile;
 end;
 
-procedure TMarksSystem.WriteConfig(AConfigData: IConfigDataWriteProvider);
+procedure TMarksSystem.WriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   FMarksFactoryConfig.WriteConfig(AConfigData);
   FCategoryDBInternal.SaveCategory2File;

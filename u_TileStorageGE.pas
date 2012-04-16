@@ -88,8 +88,10 @@ type
       out ATileInfo: ITileInfoBasic
     ): Boolean;
   public
-    constructor Create(AConfig: ISimpleTileStorageConfig;
-                       AContentTypeManager: IContentTypeManager);
+    constructor Create(
+      const AConfig: ISimpleTileStorageConfig;
+      const AContentTypeManager: IContentTypeManager
+    );
     destructor Destroy; override;
 
     // auxillary tile storage routines
@@ -161,9 +163,9 @@ type
     function InternalLib_CheckInitialized: Boolean; override;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager
     );
 
     function GetRangeFillingMapItemSize: SmallInt; override;
@@ -175,9 +177,9 @@ type
     function InternalLib_CheckInitialized: Boolean; override;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager
     );
 
     function GetRangeFillingMapItemSize: SmallInt; override;
@@ -328,8 +330,10 @@ end;
 
 { TTileStorageDLL }
 
-constructor TTileStorageDLL.Create(AConfig: ISimpleTileStorageConfig;
-                                   AContentTypeManager: IContentTypeManager);
+constructor TTileStorageDLL.Create(
+  const AConfig: ISimpleTileStorageConfig;
+  const AContentTypeManager: IContentTypeManager
+);
 begin
   inherited Create(TTileStorageTypeAbilitiesGE.Create, TMapVersionFactoryGE.Create, AConfig);
   FDLLSync := MakeSyncRW_Big(Self);
@@ -768,9 +772,10 @@ end;
 { TTileStorageGE }
 
 constructor TTileStorageGE.Create(
-  AConfig: ISimpleTileStorageConfig;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager);
+  const AContentTypeManager: IContentTypeManager
+);
 begin
   inherited Create(AConfig, AContentTypeManager);
   FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
@@ -812,9 +817,10 @@ end;
 { TTileStorageGC }
 
 constructor TTileStorageGC.Create(
-  AConfig: ISimpleTileStorageConfig;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager);
+  const AContentTypeManager: IContentTypeManager
+);
 begin
   inherited Create(AConfig, AContentTypeManager);
   FCacheConfig := TMapTypeCacheConfigGC.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);

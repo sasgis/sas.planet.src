@@ -49,7 +49,7 @@ type
     function GetLogo: IBitmap32Static;
   public
     constructor Create(
-      AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -61,7 +61,7 @@ uses
 { TGlobalAppConfig }
 
 constructor TStartUpLogoConfig.Create(
-  AContentTypeManager: IContentTypeManager
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create;

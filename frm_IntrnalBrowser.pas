@@ -70,7 +70,11 @@ type
     function OpenLocalImage(const AFilename: WideString): Boolean;
     procedure ResetImageView(const AForImage: Boolean);
   public
-    constructor Create(ALanguageManager: ILanguageManager; AProxyConfig: IProxyConfig; AContentTypeManager: IContentTypeManager); reintroduce;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AContentTypeManager: IContentTypeManager
+    ); reintroduce;
 
     procedure showmessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
@@ -99,8 +103,11 @@ type
 
 { TfrmIntrnalBrowser }
  
-constructor TfrmIntrnalBrowser.Create(ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig; AContentTypeManager: IContentTypeManager);
+constructor TfrmIntrnalBrowser.Create(
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AContentTypeManager: IContentTypeManager
+);
 begin
   inherited Create(ALanguageManager);
   FContentTypeManager := AContentTypeManager;

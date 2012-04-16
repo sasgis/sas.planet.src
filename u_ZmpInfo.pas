@@ -202,10 +202,12 @@ uses
   u_ResStrings;
 
 // common subroutine
-function InternalMakeStringListByLanguage(ALangList: ILanguageListStatic;
-                                          AConfig: IConfigDataProvider;
-                                          const AParamName: String;
-                                          const ADefValue: String): TStringList;
+function InternalMakeStringListByLanguage(
+  const ALangList: ILanguageListStatic;
+  const AConfig: IConfigDataProvider;
+  const AParamName: String;
+  const ADefValue: String
+): TStringList;
 var
   VDefValue: string;
   i: Integer;
@@ -227,10 +229,12 @@ begin
   end;
 end;
 
-function InternalMakeStringByLanguage(ALangList: ILanguageListStatic;
-                                      AConfig: IConfigDataProvider;
-                                      const AParamName: String;
-                                      const ADefValue: String): TStringByLanguageWithStaticList;
+function InternalMakeStringByLanguage(
+  const ALangList: ILanguageListStatic;
+  const AConfig: IConfigDataProvider;
+  const AParamName: String;
+  const ADefValue: String
+): TStringByLanguageWithStaticList;
 var
   VValueList: TStringList;
 begin

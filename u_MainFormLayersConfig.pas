@@ -94,8 +94,8 @@ type
     function GetGotoLayerConfig: IGotoLayerConfig;
   public
     constructor Create(
-      AContentTypeManager: IContentTypeManager;
-      AMapsConfig: IMainMapsConfig
+      const AContentTypeManager: IContentTypeManager;
+      const AMapsConfig: IMainMapsConfig
     );
   end;
 
@@ -128,8 +128,8 @@ uses
 { TMainFormLayersConfig }
 
 constructor TMainFormLayersConfig.Create(
-  AContentTypeManager: IContentTypeManager;
-  AMapsConfig: IMainMapsConfig
+  const AContentTypeManager: IContentTypeManager;
+  const AMapsConfig: IMainMapsConfig
 );
 begin
   inherited Create;
