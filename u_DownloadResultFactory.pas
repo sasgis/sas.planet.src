@@ -121,6 +121,7 @@ constructor TDownloadResultFactory.Create(
   const ATextProvider: IDownloadResultTextProvider
 );
 begin
+  inherited Create;
   FTextProvider := ATextProvider;
 end;
 

@@ -52,6 +52,7 @@ constructor TDownloadRequest.Create(
   const AInetConfig: IInetConfigStatic
 );
 begin
+  inherited Create;
   FUrl := AUrl;
   FRequestHeader := ARequestHeader;
   FInetConfig := AInetConfig;

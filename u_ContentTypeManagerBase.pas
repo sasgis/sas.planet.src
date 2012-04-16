@@ -96,6 +96,7 @@ end;
 
 constructor TContentTypeManagerBase.Create;
 begin
+  inherited Create;
   FExtList := TContentTypeListByKey.Create;
   FTypeList := TContentTypeListByKey.Create;
   FBitmapExtList := TContentTypeListByKey.Create;

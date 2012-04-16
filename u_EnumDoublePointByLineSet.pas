@@ -82,6 +82,7 @@ constructor TEnumDoublePointByLineSetBase.Create(
   AClosed: Boolean
 );
 begin
+  inherited Create;
   FSourceLineSet := ALineSet;
   FClosed := AClosed;
   FCurrentEnum := nil;

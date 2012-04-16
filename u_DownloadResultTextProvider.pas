@@ -75,6 +75,7 @@ constructor TDownloadResultTextProvider.Create(
   const ALangManager: ILanguageManager
 );
 begin
+  inherited Create;
   FLangManager := ALangManager;
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);

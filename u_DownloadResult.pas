@@ -241,6 +241,7 @@ constructor TDownloadResult.Create(
   const ARequest: IDownloadRequest
 );
 begin
+  inherited Create;
   FRequest := ARequest;
 end;
 

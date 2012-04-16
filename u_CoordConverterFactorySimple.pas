@@ -65,6 +65,7 @@ var
   VRadiusA: Double;
   VRadiusB: Double;
 begin
+  inherited Create;
   VRadiusA := 6378137;
   FGoogle := TCoordConverterMercatorOnSphere.Create(VRadiusA);
 

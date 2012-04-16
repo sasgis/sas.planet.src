@@ -55,6 +55,7 @@ end;
 
 constructor TContentConvertersListByKey.Create;
 begin
+  inherited Create;
   FList := TStringList.Create;
   FList.Sorted := True;
   FList.Duplicates := dupError;

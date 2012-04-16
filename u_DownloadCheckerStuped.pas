@@ -78,6 +78,7 @@ constructor TDownloadCheckerStuped.Create(
   AStorage: TTileStorageAbstract
 );
 begin
+  inherited Create;
   FAntiBan := AAntiBan;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FStorage := AStorage;

@@ -53,6 +53,7 @@ const
   CHttpClientTTL = 300000; // 5 min
   CHttpClientTTLCheckInterval = 30000; // 30 sec
 begin
+  inherited Create;
   FResultFactory := AResultFactory;
   FGCList := AGCList;
   FCS := MakeSyncObj(Self, FALSE);

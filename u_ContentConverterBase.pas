@@ -64,6 +64,7 @@ constructor TContentConverterAbstract.Create(
   const ASource, ATarget: IContentTypeInfoBasic
 );
 begin
+  inherited Create;
   FSource := ASource;
   FTarget := ATarget;
 end;

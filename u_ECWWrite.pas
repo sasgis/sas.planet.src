@@ -63,6 +63,7 @@ implementation
 
 constructor TECWWrite.Create;
 begin
+  inherited Create;
   if not InitLibEcw then begin
     raise Exception.Create('InitLibEcw error!');
   end;

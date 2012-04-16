@@ -65,10 +65,16 @@ const
 
 constructor TDatum.Create(AEPSG: Integer; const ARadiusA, ARadiusB: Double);
 begin
+  inherited Create;
   FEPSG := AEPSG;
   FRadiusA := ARadiusA;
   FRadiusB := ARadiusB;
   FExct := sqrt(FRadiusA * FRadiusA - FRadiusB * FRadiusB) / FRadiusA;
+end;
+
+constructor TDatum.Create(AEPSG: Integer; const ARadiusA: Double);
+begin
+  Create(AEPSG, ARadiusA, ARadiusA);
 end;
 
 function TDatum.CalcDist(const AStart, AFinish: TDoublePoint): Double;
@@ -241,11 +247,6 @@ begin
    end else begin
      result:=NAN;
    end;
-end;
-
-constructor TDatum.Create(AEPSG: Integer; const ARadiusA: Double);
-begin
-  Create(AEPSG, ARadiusA, ARadiusA);
 end;
 
 function TDatum.GetEPSG: integer;

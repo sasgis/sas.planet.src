@@ -1012,6 +1012,7 @@ constructor TCoordConverterAbstract.Create(
   ACellSizeUnits: TCellSizeUnits
 );
 begin
+  inherited Create;
   FDatum := ADatum;
   FProjEPSG := AProjEPSG;
   FCellSizeUnits := ACellSizeUnits;

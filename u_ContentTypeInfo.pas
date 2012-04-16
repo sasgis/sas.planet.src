@@ -79,6 +79,7 @@ implementation
 
 constructor TContentTypeInfoBase.Create(const AContentType, ADefaultExt: WideString);
 begin
+  inherited Create;
   FContentType := AContentType;
   FDefaultExt := ADefaultExt;
 end;

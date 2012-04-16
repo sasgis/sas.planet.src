@@ -32,6 +32,7 @@ implementation
 
 constructor TDownloaderFaked.Create(const AResultFactory: IDownloadResultFactory);
 begin
+  inherited Create;
   FResultFactory := AResultFactory;
 end;
 

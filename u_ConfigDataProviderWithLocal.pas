@@ -70,6 +70,7 @@ constructor TConfigDataProviderWithLocal.Create(
   const AProviderMain, AProviderLocal: IConfigDataProvider
 );
 begin
+  inherited Create;
   FProviderMain := AProviderMain;
   FProviderLocal := AProviderLocal;
 end;

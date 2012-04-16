@@ -69,6 +69,7 @@ constructor TConfigDataProviderWithReplacedSubItem.Create(
   const ASubItem: IConfigDataProvider
 );
 begin
+  inherited Create;
   FSource := ASource;
   FSubItemName := ASubItemName;
   FSubItem := ASubItem;

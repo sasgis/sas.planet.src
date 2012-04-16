@@ -52,6 +52,7 @@ constructor TContentTypeSubstByList.Create(const AConfig: IConfigDataProvider);
 var
   VSubstListText: string;
 begin
+  inherited Create;
   FSource := TStringList.Create;
   FTarget := TStringList.Create;
   VSubstListText := AConfig.ReadString('MimeTypeSubst', '');

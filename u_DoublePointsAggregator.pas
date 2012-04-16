@@ -30,6 +30,7 @@ implementation
 
 constructor TDoublePointsAggregator.Create;
 begin
+  inherited Create;
   FCount := 0;
 end;
 

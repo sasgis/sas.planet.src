@@ -36,6 +36,7 @@ constructor TDebugInfoWindow.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FAppConfig := AAppConfig;
   FPerfCounterList := APerfCounterList;
 end;
