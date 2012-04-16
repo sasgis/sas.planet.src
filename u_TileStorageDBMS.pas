@@ -110,10 +110,10 @@ type
     ): Boolean;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AConfig: ISimpleTileStorageConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager
+      const AContentTypeManager: IContentTypeManager
     );
     
     destructor Destroy; override;
@@ -278,10 +278,10 @@ end;
 { TTileStorageDBMS }
 
 constructor TTileStorageDBMS.Create(
-  AGCList: ITTLCheckNotifier;
-  AConfig: ISimpleTileStorageConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager
+  const AContentTypeManager: IContentTypeManager
 );
 const
   CBDBSync = 300000; // 5 min

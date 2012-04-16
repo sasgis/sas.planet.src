@@ -66,11 +66,11 @@ type
     procedure OnMapSettingsEdit(Sender: TObject);
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AConfig: ISimpleTileStorageConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      AContentTypeManager: IContentTypeManager;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AContentTypeManager: IContentTypeManager;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
 
@@ -147,11 +147,11 @@ uses
 { TTileStorageBerkeleyDB }
 
 constructor TTileStorageBerkeleyDB.Create(
-  AGCList: ITTLCheckNotifier;
-  AConfig: ISimpleTileStorageConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AContentTypeManager: IContentTypeManager;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AContentTypeManager: IContentTypeManager;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 const
   CBDBSync = 300000; // 5 min

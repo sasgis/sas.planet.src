@@ -64,18 +64,18 @@ type
     FSaveTileCounter: IInternalPerformanceCounter;
     FSaveTNECounter: IInternalPerformanceCounter;
     {$ENDIF}
-    procedure CreateDirIfNotExists(APath: string);
+    procedure CreateDirIfNotExists(const APath: string);
     function GetTileInfoByPath(
       const APath: string;
-      AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      AContentTypeManager: IContentTypeManager;
-      APerfCounterList: IInternalPerformanceCounterList
+      const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const AContentTypeManager: IContentTypeManager;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
 
@@ -158,11 +158,11 @@ uses
 { TTileStorageFileSystem }
 
 constructor TTileStorageFileSystem.Create(
-  AConfig: ISimpleTileStorageConfig;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  AContentTypeManager: IContentTypeManager;
-  APerfCounterList: IInternalPerformanceCounterList
+  const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const AContentTypeManager: IContentTypeManager;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create(
@@ -199,14 +199,15 @@ begin
   inherited;
 end;
 
-procedure TTileStorageFileSystem.CreateDirIfNotExists(APath: string);
+procedure TTileStorageFileSystem.CreateDirIfNotExists(const APath: string);
 var
   i: integer;
+  VPath: string;
 begin
-  i := LastDelimiter(PathDelim, Apath);
-  Apath := copy(Apath, 1, i);
-  if not(DirectoryExists(Apath)) then begin
-    ForceDirectories(Apath);
+  i := LastDelimiter(PathDelim, APath);
+  VPath := copy(APath, 1, i);
+  if not(DirectoryExists(VPath)) then begin
+    ForceDirectories(VPath);
   end;
 end;
 
@@ -313,7 +314,7 @@ end;
 
 function TTileStorageFileSystem.GetTileInfoByPath(
   const APath: string;
-  AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
   VInfo: WIN32_FILE_ATTRIBUTE_DATA;

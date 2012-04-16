@@ -49,8 +49,8 @@ type
   public
     constructor Create(
       AMap: TImage32;
-      AViewPortState: IViewPortState;
-      AConfig: IKeyMovingConfig
+      const AViewPortState: IViewPortState;
+      const AConfig: IKeyMovingConfig
     );
   end;
 
@@ -62,8 +62,11 @@ uses
 
 { TKeyMovingHandler }
 
-constructor TKeyMovingHandler.Create(AMap: TImage32;
-  AViewPortState: IViewPortState; AConfig: IKeyMovingConfig);
+constructor TKeyMovingHandler.Create(
+  AMap: TImage32;
+  const AViewPortState: IViewPortState;
+  const AConfig: IKeyMovingConfig
+);
 begin
   FConfig := AConfig;
   FMap := AMap;

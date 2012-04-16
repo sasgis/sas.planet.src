@@ -48,7 +48,10 @@ type
     procedure CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
     function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
   public
-    constructor Create(AConfig: IGSMGeoCodeConfig; AMapGoto: IMapViewGoto);
+    constructor Create(
+      const AConfig: IGSMGeoCodeConfig;
+      const AMapGoto: IMapViewGoto
+    );
     function GetPos(AZoom: Byte):boolean;
   end;
 
@@ -59,7 +62,10 @@ uses
 
 { TPosFromGSM }
 
-constructor TPosFromGSM.Create(AConfig: IGSMGeoCodeConfig; AMapGoto: IMapViewGoto);
+constructor TPosFromGSM.Create(
+  const AConfig: IGSMGeoCodeConfig;
+  const AMapGoto: IMapViewGoto
+);
 begin
   FConfig := AConfig;
   FMapGoto := AMapGoto;

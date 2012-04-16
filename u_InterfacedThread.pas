@@ -48,7 +48,7 @@ type
     procedure Start; virtual;
     procedure Terminate; virtual;
   public
-    constructor Create(AConfig: IThreadConfig);
+    constructor Create(const AConfig: IThreadConfig);
     destructor Destroy; override;
   end;
 
@@ -68,12 +68,12 @@ type
     procedure Execute; override;
   public
     constructor Create(APriority: TThreadPriority; AExec: TThreadMethod);
-    procedure Start(ARef: IInterface);
+    procedure Start(const ARef: IInterface);
   end;
 
 { TInterfacedThread }
 
-constructor TInterfacedThread.Create(AConfig: IThreadConfig);
+constructor TInterfacedThread.Create(const AConfig: IThreadConfig);
 begin
   inherited Create;
   FConfig := AConfig;
@@ -192,7 +192,7 @@ begin
   end;
 end;
 
-procedure TThread4InterfacedThread.Start(ARef: IInterface);
+procedure TThread4InterfacedThread.Start(const ARef: IInterface);
 begin
   FRef := ARef;
   if not Terminated then begin

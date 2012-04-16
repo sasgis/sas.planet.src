@@ -77,11 +77,11 @@ type
     procedure CreateModuleAndLinks;
   public
     constructor Create(
-      AGPSModuleFactory: IGPSModuleByCOMFactory;
-      AConfig: IGPSConfig;
-      AGPSRecorder: IGPSRecorder;
-      ATimerNoifier: IJclNotifier;
-      APerfCounterList: IInternalPerformanceCounterList
+      const AGPSModuleFactory: IGPSModuleByCOMFactory;
+      const AConfig: IGPSConfig;
+      const AGPSRecorder: IGPSRecorder;
+      const ATimerNoifier: IJclNotifier;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
     procedure StartThreads; virtual;
@@ -106,11 +106,11 @@ uses
   u_NotifyEventListener;
 
 constructor TGPSpar.Create(
-  AGPSModuleFactory: IGPSModuleByCOMFactory;
-  AConfig: IGPSConfig;
-  AGPSRecorder: IGPSRecorder;
-  ATimerNoifier: IJclNotifier;
-  APerfCounterList: IInternalPerformanceCounterList
+  const AGPSModuleFactory: IGPSModuleByCOMFactory;
+  const AConfig: IGPSConfig;
+  const AGPSRecorder: IGPSRecorder;
+  const ATimerNoifier: IJclNotifier;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   FConfig := AConfig;

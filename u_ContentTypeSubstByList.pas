@@ -37,7 +37,7 @@ type
   protected
     function GetContentType(const ASource: string): string;
   public
-    constructor Create(AConfig: IConfigDataProvider);
+    constructor Create(const AConfig: IConfigDataProvider);
     destructor Destroy; override;
   end;
 
@@ -48,7 +48,7 @@ uses
 
 { TContentTypeSubstByList }
 
-constructor TContentTypeSubstByList.Create(AConfig: IConfigDataProvider);
+constructor TContentTypeSubstByList.Create(const AConfig: IConfigDataProvider);
 var
   VSubstListText: string;
 begin

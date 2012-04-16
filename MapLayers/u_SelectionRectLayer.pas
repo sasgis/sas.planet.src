@@ -36,11 +36,11 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
-      APerfList: IInternalPerformanceCounterList;
+      const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
-      AViewPortState: IViewPortState;
-      ASelection: ISelectionRect;
-      AConfig: ISelectionRectLayerConfig
+      const AViewPortState: IViewPortState;
+      const ASelection: ISelectionRect;
+      const AConfig: ISelectionRectLayerConfig
     );
   end;
 
@@ -56,11 +56,11 @@ uses
 { TSelectionRectLayer }
 
 constructor TSelectionRectLayer.Create(
-  APerfList: IInternalPerformanceCounterList;
+  const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
-  AViewPortState: IViewPortState;
-  ASelection: ISelectionRect;
-  AConfig: ISelectionRectLayerConfig
+  const AViewPortState: IViewPortState;
+  const ASelection: ISelectionRect;
+  const AConfig: ISelectionRectLayerConfig
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);

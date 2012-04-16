@@ -50,11 +50,14 @@ type
     FConfigChangeNotifier: IJclNotifier;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig
     );
     destructor Destroy; override;
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; virtual;
+    function GetTileFileName(
+      const AXY: TPoint;
+      const Azoom: byte
+    ): string; virtual;
 
     property ConfigChangeNotifier: IJclNotifier read FConfigChangeNotifier;
   end;
@@ -65,9 +68,9 @@ type
     procedure OnSettingsEdit; override;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
-      ATileNameGeneratorList: ITileFileNameGeneratorsList
+      const ATileNameGeneratorList: ITileFileNameGeneratorsList
     );
   end;
 
@@ -81,7 +84,7 @@ type
     procedure OnSettingsEdit; override;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       AOnSettingsEdit: TOnAfterMapSettingsEdit
     );
@@ -108,13 +111,16 @@ type
     procedure OnSettingsEdit; override;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
-      AFileNameGenerator: ITileFileNameGenerator;
+      const AConfig: ISimpleTileStorageConfig;
+      const AFileNameGenerator: ITileFileNameGenerator;
       AGlobalCacheConfig: TGlobalCahceConfig;
       AOnSettingsEdit: TOnAfterMapSettingsEdit
     );
     destructor Destroy; override;
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string; override;
+    function GetTileFileName(
+      const AXY: TPoint;
+      const Azoom: byte
+    ): string; override;
     property BasePath: string read FBasePath;
   end;
 
@@ -126,7 +132,7 @@ type
     procedure OnSettingsEdit; override;
   public
     constructor Create(
-      AConfig: ISimpleTileStorageConfig;
+      const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       AOnSettingsEdit: TOnAfterMapSettingsEdit
     );
@@ -148,7 +154,7 @@ uses
 { TMapTypeCacheConfigAbstract }
 
 constructor TMapTypeCacheConfigAbstract.Create(
-  AConfig: ISimpleTileStorageConfig;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig
 );
 begin
@@ -171,7 +177,10 @@ begin
   inherited;
 end;
 
-function TMapTypeCacheConfigAbstract.GetTileFileName(AXY: TPoint; Azoom: byte): string;
+function TMapTypeCacheConfigAbstract.GetTileFileName(
+  const AXY: TPoint;
+  const Azoom: byte
+): string;
 begin
   Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FConfig.GetStatic.TileFileExt;
 end;
@@ -179,9 +188,9 @@ end;
 { TMapTypeCacheConfig }
 
 constructor TMapTypeCacheConfig.Create(
-  AConfig: ISimpleTileStorageConfig;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  ATileNameGeneratorList: ITileFileNameGeneratorsList
+  const ATileNameGeneratorList: ITileFileNameGeneratorsList
 );
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
@@ -248,7 +257,7 @@ end;
 { TMapTypeCacheConfigDLL }
 
 constructor TMapTypeCacheConfigDLL.Create(
-  AConfig: ISimpleTileStorageConfig;
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   AOnSettingsEdit: TOnAfterMapSettingsEdit
 );
@@ -309,8 +318,8 @@ end;
 { TMapTypeCacheConfigBerkeleyDB }
 
 constructor TMapTypeCacheConfigBerkeleyDB.Create(
-  AConfig: ISimpleTileStorageConfig;
-  AFileNameGenerator: ITileFileNameGenerator;
+  const AConfig: ISimpleTileStorageConfig;
+  const AFileNameGenerator: ITileFileNameGenerator;
   AGlobalCacheConfig: TGlobalCahceConfig;
   AOnSettingsEdit: TOnAfterMapSettingsEdit
 );
@@ -364,7 +373,10 @@ begin
   end;
 end;
 
-function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
+function TMapTypeCacheConfigBerkeleyDB.GetTileFileName(
+  const AXY: TPoint;
+  const AZoom: Byte
+): string;
 begin
   FCS.BeginRead;
   try
@@ -376,9 +388,11 @@ end;
 
 { TMapTypeCacheConfigDBMS }
 
-constructor TMapTypeCacheConfigDBMS.Create(AConfig: ISimpleTileStorageConfig;
+constructor TMapTypeCacheConfigDBMS.Create(
+  const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
-  AOnSettingsEdit: TOnAfterMapSettingsEdit);
+  AOnSettingsEdit: TOnAfterMapSettingsEdit
+);
 begin
   inherited Create(AConfig, AGlobalCacheConfig);
   FOnSettingsEdit := AOnSettingsEdit;
