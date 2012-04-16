@@ -260,11 +260,16 @@ type
   private
     function Next(out APoint: TGPSTrackPoint): Boolean; virtual; abstract;
   public
-    constructor Create(AList: ITrackPointsBlocksListStatic; AValidPointsInLastBlock: Integer);
+    constructor Create(
+      const AList: ITrackPointsBlocksListStatic;
+      AValidPointsInLastBlock: Integer
+    );
   end;
 
 constructor TEnumGPSTrackPointByBlocksListBase.Create(
-  AList: ITrackPointsBlocksListStatic; AValidPointsInLastBlock: Integer);
+  const AList: ITrackPointsBlocksListStatic;
+  AValidPointsInLastBlock: Integer
+);
 begin
   FList := AList;
   Assert(FList <> nil);
@@ -282,11 +287,14 @@ type
   private
     function Next(out APoint: TGPSTrackPoint): Boolean; override;
   public
-    constructor Create(AList: ITrackPointsBlocksListStatic; AValidPointsInLastBlock: Integer);
+    constructor Create(
+      const AList: ITrackPointsBlocksListStatic;
+      AValidPointsInLastBlock: Integer
+    );
   end;
 
 constructor TEnumGPSTrackPointByBlocksList.Create(
-  AList: ITrackPointsBlocksListStatic;
+  const AList: ITrackPointsBlocksListStatic;
   AValidPointsInLastBlock: Integer
 );
 begin
@@ -340,11 +348,14 @@ type
   private
     function Next(out APoint: TGPSTrackPoint): Boolean; override;
   public
-    constructor Create(AList: ITrackPointsBlocksListStatic; AValidPointsInLastBlock: Integer);
+    constructor Create(
+      const AList: ITrackPointsBlocksListStatic;
+      AValidPointsInLastBlock: Integer
+    );
   end;
 
 constructor TEnumGPSTrackPointByBlocksListBackward.Create(
-  AList: ITrackPointsBlocksListStatic;
+  const AList: ITrackPointsBlocksListStatic;
   AValidPointsInLastBlock: Integer
 );
 begin

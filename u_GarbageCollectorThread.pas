@@ -35,15 +35,20 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(AList: ITTLCheckNotifier; ASleepTime: Cardinal);
+    constructor Create(
+      const AList: ITTLCheckNotifier;
+      ASleepTime: Cardinal
+    );
     destructor Destroy; override;
     property List: ITTLCheckNotifier read FList;
   end;
 
 implementation
 
-constructor TGarbageCollectorThread.Create(AList: ITTLCheckNotifier;
-  ASleepTime: Cardinal);
+constructor TGarbageCollectorThread.Create(
+  const AList: ITTLCheckNotifier;
+  ASleepTime: Cardinal
+);
 begin
   inherited Create(false);
   FList := AList;
