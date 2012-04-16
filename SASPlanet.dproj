@@ -51,8 +51,6 @@
     <DelphiCompile Include="SASPlanet.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileGEDXTextureLoader.pas" />
-    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileGELoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
@@ -65,6 +63,7 @@
     <DCCReference Include="c_TimeZones.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_AuthFunc.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_AuthKind.pas" />
+    <DCCReference Include="ExtTileStorages\t_ETS_Path.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_Provider.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_Tiles.pas" />
     <DCCReference Include="ExtTileStorages\u_ETS_Path.pas" />
@@ -619,8 +618,6 @@
     <DCCReference Include="u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="u_FillingMapMapsConfig.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
-    <DCCReference Include="u_GECrypt.pas" />
-    <DCCReference Include="u_GEIndexFile.pas" />
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
