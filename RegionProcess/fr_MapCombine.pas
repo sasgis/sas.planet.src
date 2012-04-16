@@ -77,15 +77,15 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorFactory: IVectorItmesFactory;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AMapCalibrationList: IMapCalibrationList
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorFactory: IVectorItmesFactory;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     procedure RefreshTranslation; override;
-    procedure Init(AZoom: Byte; APolygLL: ILonLatPolygon);
+    procedure Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
   end;
 
 implementation
@@ -182,12 +182,12 @@ end;
 
 constructor TfrMapCombine.Create(
   AOwner : TComponent;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorFactory: IVectorItmesFactory;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AMapCalibrationList: IMapCalibrationList
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorFactory: IVectorItmesFactory;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapCalibrationList: IMapCalibrationList
 );
 begin
   inherited Create(AOwner);
@@ -201,7 +201,7 @@ begin
   UpdatePanelSizes;
 end;
 
-procedure TfrMapCombine.Init(AZoom: Byte; APolygLL: ILonLatPolygon);
+procedure TfrMapCombine.Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
 var
   i: Integer;
   VMapType: TMapType;

@@ -34,8 +34,8 @@ type
     FInternetSession: IInternetSession;
   public
     constructor Create(
-      AProtocol: PWideChar;
-      AFactory : IClassFactory
+      const AProtocol: PWideChar;
+      const AFactory : IClassFactory
     );
     destructor Destroy; override;
   end;
@@ -47,8 +47,10 @@ const
 
 { TIeEmbeddedProtocolRegistration }
 
-constructor TIeEmbeddedProtocolRegistration.Create(AProtocol: PWideChar;
-  AFactory: IClassFactory);
+constructor TIeEmbeddedProtocolRegistration.Create(
+  const AProtocol: PWideChar;
+  const AFactory: IClassFactory
+);
 begin
   FProtocol := AProtocol;
   FFactory := AFactory;

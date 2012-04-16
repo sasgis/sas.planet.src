@@ -37,9 +37,9 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
     procedure Init(AZoom: Byte);
   end;
@@ -61,9 +61,12 @@ begin
   end;
 end;
 
-constructor TfrExportAUX.Create(AOwner: TComponent;
-  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList);
+constructor TfrExportAUX.Create(
+  AOwner: TComponent;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
+);
 begin
   inherited Create(AOwner);
   FMainMapsConfig := AMainMapsConfig;

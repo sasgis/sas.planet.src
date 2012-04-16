@@ -46,7 +46,7 @@ type
 
     function GetNewName: string;
   public
-    constructor Create(AFormatString: IStringConfigDataElement);
+    constructor Create(const AFormatString: IStringConfigDataElement);
   end;
 
 implementation
@@ -57,7 +57,7 @@ uses
 
 { TMarkNameGenerator }
 
-constructor TMarkNameGenerator.Create(AFormatString: IStringConfigDataElement);
+constructor TMarkNameGenerator.Create(const AFormatString: IStringConfigDataElement);
 begin
   inherited Create;
   FFormatString := AFormatString;

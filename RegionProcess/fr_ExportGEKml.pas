@@ -42,9 +42,9 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
     procedure Init;
   end;
@@ -72,9 +72,12 @@ begin
   end;
 end;
 
-constructor TfrExportGEKml.Create(AOwner: TComponent;
-  AMainMapsConfig: IMainMapsConfig; AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList);
+constructor TfrExportGEKml.Create(
+  AOwner: TComponent;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
+);
 begin
   inherited Create(AOwner);
   FMainMapsConfig := AMainMapsConfig;

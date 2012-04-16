@@ -34,11 +34,11 @@ type
   TPathDetalizeProviderListSimple = class(TPathDetalizeProviderListBase)
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig;
-      AVectorDataFactory: IVectorDataFactory;
-      AFactory: IVectorItmesFactory;
-      AKmlLoader: IVectorDataLoader
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig;
+      const AVectorDataFactory: IVectorDataFactory;
+      const AFactory: IVectorItmesFactory;
+      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -53,11 +53,11 @@ uses
 { TPathDetalizeProviderListSimple }
 
 constructor TPathDetalizeProviderListSimple.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig;
-  AVectorDataFactory: IVectorDataFactory;
-  AFactory: IVectorItmesFactory;
-  AKmlLoader: IVectorDataLoader
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AFactory: IVectorItmesFactory;
+  const AKmlLoader: IVectorDataLoader
 );
 var
   VEntity: IPathDetalizeProviderListEntity;

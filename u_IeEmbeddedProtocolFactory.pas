@@ -37,7 +37,7 @@ type
       out obj): HResult; stdcall;
     function LockServer(fLock: BOOL): HResult; stdcall;
   public
-    constructor Create(ADomainList: IInternalDomainInfoProviderList);
+    constructor Create(const ADomainList: IInternalDomainInfoProviderList);
   end;
 
 implementation
@@ -49,7 +49,8 @@ uses
 { TIeEmbeddedProtocolFactory }
 
 constructor TIeEmbeddedProtocolFactory.Create(
-  ADomainList: IInternalDomainInfoProviderList);
+  const ADomainList: IInternalDomainInfoProviderList
+);
 begin
   FDomainList := ADomainList;
 end;
