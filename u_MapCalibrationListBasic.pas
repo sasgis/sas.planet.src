@@ -30,7 +30,7 @@ type
   TMapCalibrationListBasic = class(TInterfacedObject, IMapCalibrationList)
   private
     FList: IInterfaceList;
-    procedure Add(AItem: IMapCalibration);
+    procedure Add(const AItem: IMapCalibration);
   protected
     function GetCount: Integer;
     function Get(AIndex: Integer): IMapCalibration;
@@ -60,7 +60,7 @@ begin
   Add(TMapCalibrationWorldFiles.Create);
 end;
 
-procedure TMapCalibrationListBasic.Add(AItem: IMapCalibration);
+procedure TMapCalibrationListBasic.Add(const AItem: IMapCalibration);
 begin
   FList.Add(AItem);
 end;

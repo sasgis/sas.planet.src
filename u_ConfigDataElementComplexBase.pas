@@ -110,8 +110,8 @@ type
     property NeedChangedListen: Boolean read FNeedChangedListen;
   public
     constructor Create(
-      AItem: IChangeable;
-      ASaveLoadStrategy: IConfigSaveLoadStrategy;
+      const AItem: IChangeable;
+      const ASaveLoadStrategy: IConfigSaveLoadStrategy;
       ANeedReadLock: Boolean;
       ANeedWriteLock: Boolean;
       ANeedStopNotify: Boolean;
@@ -121,9 +121,11 @@ type
 
 { TSubItemInfoBase }
 
-constructor TSubItemInfoBase.Create(AItem: IChangeable;
-  ASaveLoadStrategy: IConfigSaveLoadStrategy; ANeedReadLock, ANeedWriteLock,
-  ANeedStopNotify, ANeedChangedListen: Boolean);
+constructor TSubItemInfoBase.Create(
+  const AItem: IChangeable;
+  const ASaveLoadStrategy: IConfigSaveLoadStrategy;
+  ANeedReadLock, ANeedWriteLock, ANeedStopNotify, ANeedChangedListen: Boolean
+);
 begin
   FItem := AItem;
   FSaveLoadStrategy := ASaveLoadStrategy;
@@ -139,8 +141,8 @@ type
     FItem: IConfigDataElement;
   public
     constructor Create(
-      AItem: IConfigDataElement;
-      ASaveLoadStrategy: IConfigSaveLoadStrategy;
+      const AItem: IConfigDataElement;
+      const ASaveLoadStrategy: IConfigSaveLoadStrategy;
       ANeedReadLock: Boolean;
       ANeedWriteLock: Boolean;
       ANeedStopNotify: Boolean;
@@ -152,8 +154,8 @@ type
 { TSubItemConfigInfo }
 
 constructor TSubItemConfigInfo.Create(
-  AItem: IConfigDataElement;
-  ASaveLoadStrategy: IConfigSaveLoadStrategy;
+  const AItem: IConfigDataElement;
+  const ASaveLoadStrategy: IConfigSaveLoadStrategy;
   ANeedReadLock, ANeedWriteLock, ANeedStopNotify, ANeedChangedListen: Boolean
 );
 begin
@@ -172,14 +174,14 @@ type
   TSubItemChangeableInfo = class(TSubItemInfoBase)
   public
     constructor Create(
-      AItem: IChangeable
+      const AItem: IChangeable
     );
   end;
 
 
 { TSubItemChangeableInfo }
 
-constructor TSubItemChangeableInfo.Create(AItem: IChangeable);
+constructor TSubItemChangeableInfo.Create(const AItem: IChangeable);
 begin
   inherited Create(
     AItem,

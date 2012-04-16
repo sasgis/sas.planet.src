@@ -58,7 +58,7 @@ type
     function GetMessageUnexpectedProxyAuth: string;
   public
     constructor Create(
-      ALangManager: ILanguageManager
+      const ALangManager: ILanguageManager
     );
     destructor Destroy; override;
   end;
@@ -71,7 +71,9 @@ uses
 
 { TDownloadResultTextProvider }
 
-constructor TDownloadResultTextProvider.Create(ALangManager: ILanguageManager);
+constructor TDownloadResultTextProvider.Create(
+  const ALangManager: ILanguageManager
+);
 begin
   FLangManager := ALangManager;
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);

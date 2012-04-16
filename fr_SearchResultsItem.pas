@@ -55,10 +55,10 @@ type
     constructor Create(
       AOwner: TComponent;
       AParent:TWinControl;
-      APlacemark: IGeoCodePlacemark;
-      AViewPortState: IViewPortState;
-      AIntrnalBrowser: IInternalBrowser;
-      AMapGoto: IMapViewGoto
+      const APlacemark: IGeoCodePlacemark;
+      const AViewPortState: IViewPortState;
+      const AIntrnalBrowser: IInternalBrowser;
+      const AMapGoto: IMapViewGoto
     ); reintroduce;
   end;
 
@@ -68,10 +68,10 @@ implementation
 constructor TfrSearchResultsItem.Create(
   AOwner: TComponent;
   AParent:TWinControl;
-  APlacemark: IGeoCodePlacemark;
-  AViewPortState: IViewPortState;
-  AIntrnalBrowser: IInternalBrowser;
-  AMapGoto: IMapViewGoto
+  const APlacemark: IGeoCodePlacemark;
+  const AViewPortState: IViewPortState;
+  const AIntrnalBrowser: IInternalBrowser;
+  const AMapGoto: IMapViewGoto
 );
 begin
   inherited Create(AOwner);

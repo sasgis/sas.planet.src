@@ -12,7 +12,7 @@ object frSearchResultsItem: TfrSearchResultsItem
   object Bevel1: TBevel
     AlignWithMargins = True
     Left = 3
-    Top = 59
+    Top = 65
     Width = 445
     Height = 5
     Margins.Bottom = 0
@@ -25,7 +25,7 @@ object frSearchResultsItem: TfrSearchResultsItem
     Left = 0
     Top = 0
     Width = 451
-    Height = 19
+    Height = 22
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
@@ -52,20 +52,20 @@ object frSearchResultsItem: TfrSearchResultsItem
   end
   object PanelFullDesc: TPanel
     Left = 0
-    Top = 36
+    Top = 42
     Width = 451
     Height = 20
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 50
+    ExplicitTop = 39
     object LabelFullDesc: TLabel
       AlignWithMargins = True
       Left = 376
       Top = 3
       Width = 72
-      Height = 17
+      Height = 14
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -82,9 +82,9 @@ object frSearchResultsItem: TfrSearchResultsItem
   end
   object PanelDesc: TPanel
     Left = 0
-    Top = 19
+    Top = 22
     Width = 451
-    Height = 17
+    Height = 20
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone

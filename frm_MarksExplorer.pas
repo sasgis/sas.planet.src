@@ -137,17 +137,17 @@ type
     function GetSelectedMarksIdList: IInterfaceList;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AImportFileByExt: IImportFile;
-      AViewPortState: IViewPortState;
-      ANavToPoint: INavigationToPoint;
-      AMarksShowConfig: IUsedMarksConfig;
+      const ALanguageManager: ILanguageManager;
+      const AImportFileByExt: IImportFile;
+      const AViewPortState: IViewPortState;
+      const ANavToPoint: INavigationToPoint;
+      const AMarksShowConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper;
       AOnNeedRedraw: TNotifyEvent;
-      AMapGoto: IMapViewGoto
+      const AMapGoto: IMapViewGoto
     ); reintroduce;
     procedure EditMarks;
-    procedure ExportMark(AMark: IMark);
+    procedure ExportMark(const AMark: IMark);
   end;
 
 implementation
@@ -160,14 +160,14 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarksExplorer.Create(
-  ALanguageManager: ILanguageManager;
-  AImportFileByExt: IImportFile;
-  AViewPortState: IViewPortState;
-  ANavToPoint: INavigationToPoint;
-  AMarksShowConfig: IUsedMarksConfig;
+  const ALanguageManager: ILanguageManager;
+  const AImportFileByExt: IImportFile;
+  const AViewPortState: IViewPortState;
+  const ANavToPoint: INavigationToPoint;
+  const AMarksShowConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper;
   AOnNeedRedraw: TNotifyEvent;
-  AMapGoto: IMapViewGoto
+  const AMapGoto: IMapViewGoto
 );
 begin
   inherited Create(ALanguageManager);
@@ -182,7 +182,11 @@ begin
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
-  procedure AddTreeSubItems(ATree: IStaticTreeItem; AParentNode: TTreeNode; ATreeItems: TTreeNodes);
+  procedure AddTreeSubItems(
+    const ATree: IStaticTreeItem;
+    AParentNode: TTreeNode;
+    ATreeItems: TTreeNodes
+  );
   var
     i: Integer;
     VTree: IStaticTreeItem;
@@ -721,7 +725,7 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.ExportMark(AMark: IMark);
+procedure TfrmMarksExplorer.ExportMark(const AMark: IMark);
 var
   KMLExport:TExportMarks2KML;
 begin
