@@ -41,8 +41,8 @@ type
     function GetAnchorPoint: TDoublePoint;
   public
     constructor Create(
-      ABitmap: IBitmap32Static;
-      AAnchorPoint: TDoublePoint
+      const ABitmap: IBitmap32Static;
+      const AAnchorPoint: TDoublePoint
     );
   end;
 
@@ -53,9 +53,9 @@ type
     function GetDirection: Double;
   public
     constructor Create(
-      ABitmap: IBitmap32Static;
-      AAnchorPoint: TDoublePoint;
-      ADirection: Double
+      const ABitmap: IBitmap32Static;
+      const AAnchorPoint: TDoublePoint;
+      const ADirection: Double
     );
   end;
 
@@ -68,8 +68,8 @@ uses
 { TBitmapMarker }
 
 constructor TBitmapMarker.Create(
-  ABitmap: IBitmap32Static;
-  AAnchorPoint: TDoublePoint
+  const ABitmap: IBitmap32Static;
+  const AAnchorPoint: TDoublePoint
 );
 var
   VBitmap: TCustomBitmap32;
@@ -100,9 +100,9 @@ end;
 { TBitmapMarkerWithDirection }
 
 constructor TBitmapMarkerWithDirection.Create(
-  ABitmap: IBitmap32Static;
-  AAnchorPoint: TDoublePoint;
-  ADirection: Double
+  const ABitmap: IBitmap32Static;
+  const AAnchorPoint: TDoublePoint;
+  const ADirection: Double
 );
 begin
   inherited Create(ABitmap, AAnchorPoint);

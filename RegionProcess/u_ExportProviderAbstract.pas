@@ -27,17 +27,17 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList
+      const ALanguageManager: ILanguageManager;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList
     );
     function GetCaption: string; virtual; abstract;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); virtual; abstract;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); virtual; abstract;
     procedure Show; virtual; abstract;
     procedure Hide; virtual; abstract;
     procedure RefreshTranslation; virtual; abstract;
-    procedure StartProcess(APolygon: ILonLatPolygon); virtual; abstract;
+    procedure StartProcess(const APolygon: ILonLatPolygon); virtual; abstract;
   end;
 
 implementation
@@ -46,10 +46,10 @@ implementation
 
 constructor TExportProviderAbstract.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList
+  const ALanguageManager: ILanguageManager;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
   FParent := AParent;

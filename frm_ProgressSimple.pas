@@ -59,10 +59,10 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      ACancelNotifier: IOperationNotifierInternal;
-      AProgressInfo: IRegionProcessProgressInfo
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const ACancelNotifier: IOperationNotifierInternal;
+      const AProgressInfo: IRegionProcessProgressInfo
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -76,10 +76,10 @@ uses
 
 constructor TfrmProgressSimple.Create(
   AOwner : TComponent;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  ACancelNotifier: IOperationNotifierInternal;
-  AProgressInfo: IRegionProcessProgressInfo
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const ACancelNotifier: IOperationNotifierInternal;
+  const AProgressInfo: IRegionProcessProgressInfo
 );
 begin
   inherited Create(AOwner);

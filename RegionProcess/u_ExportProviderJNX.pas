@@ -27,23 +27,23 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ACoordConverterFactory: ICoordConverterFactory
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
@@ -66,15 +66,15 @@ uses
 
 constructor TExportProviderJNX.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ACoordConverterFactory: ICoordConverterFactory
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
@@ -96,7 +96,10 @@ begin
   Result := SAS_STR_ExportJNXPackCaption;
 end;
 
-procedure TExportProviderJNX.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TExportProviderJNX.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportToJNX.CreateForFileType(
@@ -141,7 +144,7 @@ begin
   end;
 end;
 
-procedure TExportProviderJNX.StartProcess(APolygon: ILonLatPolygon);
+procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;

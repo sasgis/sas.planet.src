@@ -42,29 +42,29 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AViewConfig: IGlobalViewMainConfig;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AMarksShowConfig: IUsedMarksConfig;
-      AMarksDrawConfig: IMarksDrawConfig;
+      const ALanguageManager: ILanguageManager;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AMarksShowConfig: IUsedMarksConfig;
+      const AMarksDrawConfig: IMarksDrawConfig;
       AMarksDB: TMarksSystem;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-      AMapCalibrationList: IMapCalibrationList
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      const AMapCalibrationList: IMapCalibrationList
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -106,21 +106,21 @@ uses
 
 constructor TProviderMapCombine.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AViewConfig: IGlobalViewMainConfig;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AMarksShowConfig: IUsedMarksConfig;
-  AMarksDrawConfig: IMarksDrawConfig;
+  const ALanguageManager: ILanguageManager;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AMarksShowConfig: IUsedMarksConfig;
+  const AMarksDrawConfig: IMarksDrawConfig;
   AMarksDB: TMarksSystem;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-  AMapCalibrationList: IMapCalibrationList
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  const AMapCalibrationList: IMapCalibrationList
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
@@ -148,7 +148,10 @@ begin
   Result := SAS_STR_OperationMapCombineCaption;
 end;
 
-procedure TProviderMapCombine.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TProviderMapCombine.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrMapCombine.Create(
@@ -194,7 +197,7 @@ begin
   end;
 end;
 
-procedure TProviderMapCombine.StartProcess(APolygon: ILonLatPolygon);
+procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);
 var
   Amt,Hmt:TMapType;
   i:integer;

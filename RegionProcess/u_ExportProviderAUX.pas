@@ -26,22 +26,22 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -63,14 +63,14 @@ uses
 
 constructor TExportProviderAUX.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
@@ -91,7 +91,10 @@ begin
   Result := SAS_STR_ExportAUXGeoServerCaption;
 end;
 
-procedure TExportProviderAUX.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TExportProviderAUX.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportAUX.Create(
@@ -134,7 +137,7 @@ begin
   end;
 end;
 
-procedure TExportProviderAUX.StartProcess(APolygon: ILonLatPolygon);
+procedure TExportProviderAUX.StartProcess(const APolygon: ILonLatPolygon);
 var
   path:string;
   VMapType: TMapType;

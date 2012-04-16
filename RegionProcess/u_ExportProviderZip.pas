@@ -28,23 +28,23 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ATileNameGenerator: ITileFileNameGeneratorsList
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -66,15 +66,15 @@ uses
 
 constructor TExportProviderZip.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ATileNameGenerator: ITileFileNameGeneratorsList
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
@@ -96,7 +96,10 @@ begin
   Result := SAS_STR_ExportZipPackCaption;
 end;
 
-procedure TExportProviderZip.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TExportProviderZip.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportToFileCont.CreateForFileType(
@@ -141,7 +144,7 @@ begin
   end;
 end;
 
-procedure TExportProviderZip.StartProcess(APolygon: ILonLatPolygon);
+procedure TExportProviderZip.StartProcess(const APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;

@@ -53,24 +53,24 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      AAppClosingNotifier: IJclNotifier;
-      ALanguageManager: ILanguageManager;
-      AValueToStringConverterConfig: IValueToStringConverterConfig;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ADownloadConfig: IGlobalDownloadConfig;
-      ADownloadInfo: IDownloadInfoSimple
+      const AAppClosingNotifier: IJclNotifier;
+      const ALanguageManager: ILanguageManager;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ADownloadConfig: IGlobalDownloadConfig;
+      const ADownloadInfo: IDownloadInfoSimple
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
     procedure StartBySLS(const AFileName: string);
   end;
 
@@ -94,16 +94,16 @@ uses
 
 constructor TProviderTilesDownload.Create(
   AParent: TWinControl;
-  AAppClosingNotifier: IJclNotifier;
-  ALanguageManager: ILanguageManager;
-  AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ADownloadConfig: IGlobalDownloadConfig;
-  ADownloadInfo: IDownloadInfoSimple
+  const AAppClosingNotifier: IJclNotifier;
+  const ALanguageManager: ILanguageManager;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ADownloadConfig: IGlobalDownloadConfig;
+  const ADownloadInfo: IDownloadInfoSimple
 );
 begin
   inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
@@ -126,7 +126,10 @@ begin
   Result := SAS_STR_OperationDownloadCaption;
 end;
 
-procedure TProviderTilesDownload.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TProviderTilesDownload.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDownload.Create(
@@ -206,7 +209,7 @@ begin
   );
 end;
 
-procedure TProviderTilesDownload.StartProcess(APolygon: ILonLatPolygon);
+procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon);
 var
   VMapType: TMapType;
   VZoom: byte;

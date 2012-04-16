@@ -30,24 +30,24 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AViewConfig: IGlobalViewMainConfig;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      AImageResamplerConfig: IImageResamplerConfig
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AViewConfig: IGlobalViewMainConfig;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const AImageResamplerConfig: IImageResamplerConfig
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -70,16 +70,16 @@ uses
 
 constructor TProviderTilesGenPrev.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AViewConfig: IGlobalViewMainConfig;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  AImageResamplerConfig: IImageResamplerConfig
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const AImageResamplerConfig: IImageResamplerConfig
 );
 begin
   inherited Create(
@@ -108,7 +108,10 @@ begin
   Result := SAS_STR_OperationGenPrevCaption;
 end;
 
-procedure TProviderTilesGenPrev.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TProviderTilesGenPrev.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesGenPrev.Create(
@@ -152,7 +155,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesGenPrev.StartProcess(APolygon: ILonLatPolygon);
+procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon);
 var
   i:integer;
   VInZooms: TArrayOfByte;

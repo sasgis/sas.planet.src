@@ -30,25 +30,25 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      ACoordConverterFactory: ICoordConverterFactory;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
       ANewFormat: Boolean
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -69,16 +69,16 @@ uses
 
 constructor TExportProviderIPhone.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  ACoordConverterFactory: ICoordConverterFactory;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
   ANewFormat: Boolean
 );
 begin
@@ -107,7 +107,10 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TExportProviderIPhone.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame := TfrExportIPhone.Create(
@@ -150,7 +153,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.StartProcess(APolygon: ILonLatPolygon);
+procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;

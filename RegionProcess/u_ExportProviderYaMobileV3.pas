@@ -29,24 +29,24 @@ type
   public
     constructor Create(
       AParent: TWinControl;
-      ALanguageManager: ILanguageManager;
-      AAppClosingNotifier: IJclNotifier;
-      ATimerNoifier: IJclNotifier;
-      AMainMapsConfig: IMainMapsConfig;
-      AFullMapsSet: IMapTypeSet;
-      AGUIConfigList: IMapTypeGUIConfigList;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      ACoordConverterFactory: ICoordConverterFactory
+      const ALanguageManager: ILanguageManager;
+      const AAppClosingNotifier: IJclNotifier;
+      const ATimerNoifier: IJclNotifier;
+      const AMainMapsConfig: IMainMapsConfig;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ACoordConverterFactory: ICoordConverterFactory
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; APolygon: ILonLatPolygon); override;
+    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -67,16 +67,16 @@ uses
 
 constructor TExportProviderYaMobileV3.Create(
   AParent: TWinControl;
-  ALanguageManager: ILanguageManager;
-  AAppClosingNotifier: IJclNotifier;
-  ATimerNoifier: IJclNotifier;
-  AMainMapsConfig: IMainMapsConfig;
-  AFullMapsSet: IMapTypeSet;
-  AGUIConfigList: IMapTypeGUIConfigList;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  ACoordConverterFactory: ICoordConverterFactory
+  const ALanguageManager: ILanguageManager;
+  const AAppClosingNotifier: IJclNotifier;
+  const ATimerNoifier: IJclNotifier;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
   inherited Create(
@@ -105,7 +105,10 @@ begin
   Result := SAS_STR_ExportYaMobileV3Caption;
 end;
 
-procedure TExportProviderYaMobileV3.InitFrame(Azoom: byte; APolygon: ILonLatPolygon);
+procedure TExportProviderYaMobileV3.InitFrame(
+  Azoom: byte;
+  const APolygon: ILonLatPolygon
+);
 begin
   if FFrame = nil then begin
     FFrame :=
@@ -149,7 +152,7 @@ begin
   end;
 end;
 
-procedure TExportProviderYaMobileV3.StartProcess(APolygon: ILonLatPolygon);
+procedure TExportProviderYaMobileV3.StartProcess(const APolygon: ILonLatPolygon);
 var
   i:integer;
   path:string;

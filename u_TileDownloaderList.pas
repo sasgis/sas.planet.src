@@ -39,13 +39,13 @@ type
     function GetChangeNotifier: IJclNotifier;
   public
     constructor Create(
-      AGCList: ITTLCheckNotifier;
-      AAppClosingNotifier: IJclNotifier;
-      AResultFactory: IDownloadResultFactory;
-      ADownloadSystemState: ITileDownloaderStateChangeble;
-      ATileDownloaderConfig: ITileDownloaderConfig;
-      AResultSaver: ITileDownloadResultSaver;
-      ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
+      const AGCList: ITTLCheckNotifier;
+      const AAppClosingNotifier: IJclNotifier;
+      const AResultFactory: IDownloadResultFactory;
+      const ADownloadSystemState: ITileDownloaderStateChangeble;
+      const ATileDownloaderConfig: ITileDownloaderConfig;
+      const AResultSaver: ITileDownloadResultSaver;
+      const ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
     );
     destructor Destroy; override;
   end;
@@ -66,13 +66,13 @@ uses
 { TTileDownloaderList }
 
 constructor TTileDownloaderList.Create(
-  AGCList: ITTLCheckNotifier;
-  AAppClosingNotifier: IJclNotifier;
-  AResultFactory: IDownloadResultFactory;
-  ADownloadSystemState: ITileDownloaderStateChangeble;
-  ATileDownloaderConfig: ITileDownloaderConfig;
-  AResultSaver: ITileDownloadResultSaver;
-  ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
+  const AGCList: ITTLCheckNotifier;
+  const AAppClosingNotifier: IJclNotifier;
+  const AResultFactory: IDownloadResultFactory;
+  const ADownloadSystemState: ITileDownloaderStateChangeble;
+  const ATileDownloaderConfig: ITileDownloaderConfig;
+  const AResultSaver: ITileDownloadResultSaver;
+  const ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
 );
 begin
   FGCList := AGCList;

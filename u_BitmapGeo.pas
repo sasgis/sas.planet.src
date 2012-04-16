@@ -18,8 +18,8 @@ type
     function GetConverter: ILocalCoordConverter;
   public
     constructor Create(
-      ABitmap: IBitmap32Static;
-      AConverter: ILocalCoordConverter
+      const ABitmap: IBitmap32Static;
+      const AConverter: ILocalCoordConverter
     );
   end;
 
@@ -30,9 +30,9 @@ type
     function GetTile: TPoint;
   public
     constructor Create(
-      ATile: TPoint;
-      ABitmap: IBitmap32Static;
-      AConverter: ILocalCoordConverter
+      const ATile: TPoint;
+      const ABitmap: IBitmap32Static;
+      const AConverter: ILocalCoordConverter
     );
   end;
 
@@ -43,8 +43,8 @@ implementation
 { TBitmapGeo }
 
 constructor TBitmapGeo.Create(
-  ABitmap: IBitmap32Static;
-  AConverter: ILocalCoordConverter
+  const ABitmap: IBitmap32Static;
+  const AConverter: ILocalCoordConverter
 );
 begin
   FBitmap := ABitmap;
@@ -63,8 +63,11 @@ end;
 
 { TBitmapGeoTile }
 
-constructor TBitmapGeoTile.Create(ATile: TPoint; ABitmap: IBitmap32Static;
-  AConverter: ILocalCoordConverter);
+constructor TBitmapGeoTile.Create(
+  const ATile: TPoint;
+  const ABitmap: IBitmap32Static;
+  const AConverter: ILocalCoordConverter
+);
 begin
   inherited Create(ABitmap, AConverter);
   FTile := ATile;
