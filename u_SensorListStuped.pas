@@ -34,11 +34,11 @@ type
   TSensorListStuped = class(TSensorListBase)
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AViewPortState: IViewPortState;
-      ANavigationToPoint: INavigationToPoint;
-      AGPSRecorder: IGPSRecorder;
-      AValueConverterConfig: IValueToStringConverterConfig
+      const ALanguageManager: ILanguageManager;
+      const AViewPortState: IViewPortState;
+      const ANavigationToPoint: INavigationToPoint;
+      const AGPSRecorder: IGPSRecorder;
+      const AValueConverterConfig: IValueToStringConverterConfig
     );
   end;
 
@@ -54,11 +54,11 @@ uses
 { TSensorListStuped }
 
 constructor TSensorListStuped.Create(
-  ALanguageManager: ILanguageManager;
-  AViewPortState: IViewPortState;
-  ANavigationToPoint: INavigationToPoint;
-  AGPSRecorder: IGPSRecorder;
-  AValueConverterConfig: IValueToStringConverterConfig
+  const ALanguageManager: ILanguageManager;
+  const AViewPortState: IViewPortState;
+  const ANavigationToPoint: INavigationToPoint;
+  const AGPSRecorder: IGPSRecorder;
+  const AValueConverterConfig: IValueToStringConverterConfig
 );
 var
   VEntity: ISensorListEntity;

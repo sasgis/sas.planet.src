@@ -34,7 +34,7 @@ type
   protected
     function CreateGPSModule: IGPSModuleByCOM;
   public
-    constructor Create(AGPSPositionFactory: IGPSPositionFactory);
+    constructor Create(const AGPSPositionFactory: IGPSPositionFactory);
   end;
 
 implementation
@@ -45,7 +45,8 @@ uses
 { TGPSModuleFactoryByZylGPS }
 
 constructor TGPSModuleFactoryByVSAGPS.Create(
-  AGPSPositionFactory: IGPSPositionFactory);
+  const AGPSPositionFactory: IGPSPositionFactory
+);
 begin
   FGPSPositionFactory := AGPSPositionFactory;
 end;
