@@ -450,7 +450,6 @@ type
     procedure TBPreviousClick(Sender: TObject);
     procedure TBCalcRasClick(Sender: TObject);
     procedure tbitmOnlineHelpClick(Sender: TObject);
-    procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBSubmenuItem1Click(Sender: TObject);
     procedure N000Click(Sender: TObject);
     procedure TrayItemQuitClick(Sender: TObject);
@@ -498,9 +497,7 @@ type
     procedure NSRTM3Click(Sender: TObject);
     procedure NGTOPO30Click(Sender: TObject);
     procedure NMarkNavClick(Sender: TObject);
-    procedure TBEditPathMarshClick(Sender: TObject);
     procedure AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
-    procedure TBfillMapAsMainClick(Sender: TObject);
     procedure NMarksCalcsLenClick(Sender: TObject);
     procedure NMarksCalcsSqClick(Sender: TObject);
     procedure NMarksCalcsPerClick(Sender: TObject);
@@ -511,7 +508,6 @@ type
     procedure NbackloadLayerClick(Sender: TObject);
     procedure TBXSensorsBarVisibleChanged(Sender: TObject);
     procedure tbitmSaveCurrentPositionClick(Sender: TObject);
-    procedure TBXSelectSrchClick(Sender: TObject);
     procedure TBXSearchEditAcceptText(Sender: TObject; var NewText: String;
       var Accept: Boolean);
     procedure tbitmPositionByGSMClick(Sender: TObject);
@@ -680,6 +676,10 @@ type
     procedure OnAfterViewChange;
     procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
     procedure DoSelectSpecialVersion(Sender: TObject);
+    procedure TBEditPathMarshClick(Sender: TObject);
+    procedure TBfillMapAsMainClick(Sender: TObject);
+    procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
+    procedure TBXSelectSrchClick(Sender: TObject);
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     procedure LayerMapMarksRedraw(Sender: TObject);
