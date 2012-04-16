@@ -63,7 +63,6 @@ uses
   u_ContentConverterKml2Kmz,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
-  u_BitmapTileGELoader,
   {$IFDEF NATIVE_LIBJPEG}
   u_BitmapTileLibJpeg,
   {$ENDIF}
