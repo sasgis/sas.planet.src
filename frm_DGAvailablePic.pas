@@ -130,10 +130,12 @@ type
     FDownloadResultTextProvider: IDownloadResultTextProvider;
     FResultFactory: IDownloadResultFactory;
   public
-    constructor Create(ALanguageManager: ILanguageManager;
-                       const AInetConfig: IInetConfig); reintroduce;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AInetConfig: IInetConfig
+    ); reintroduce;
     destructor Destroy; override;
-    
+
     procedure ShowInfo(const AVisualPoint: TPoint;
                        const ALocalConverter: ILocalCoordConverter);
   end;
@@ -673,8 +675,10 @@ begin
   veImageParams.Strings.Clear;
 end;
 
-constructor TfrmDGAvailablePic.Create(ALanguageManager: ILanguageManager;
-                                      const AInetConfig: IInetConfig);
+constructor TfrmDGAvailablePic.Create(
+  const ALanguageManager: ILanguageManager;
+  const AInetConfig: IInetConfig
+);
 begin
   FVertResizeFactor:=0;
   FCallIndex:=0;

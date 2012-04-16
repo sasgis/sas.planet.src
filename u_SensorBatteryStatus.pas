@@ -43,7 +43,7 @@ type
     function GetText: string;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      const ALanguageManager: ILanguageManager
     );
     destructor Destroy; override;
   end;
@@ -57,7 +57,7 @@ uses
 
 { TSensorBatteryStatus }
 
-constructor TSensorBatteryStatus.Create(ALanguageManager: ILanguageManager);
+constructor TSensorBatteryStatus.Create(const ALanguageManager: ILanguageManager);
 begin
   inherited Create(CSensorBatteryGUID, False, ISensorText, ALanguageManager);
   FStatusText := '-';

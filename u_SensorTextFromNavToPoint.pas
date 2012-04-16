@@ -51,10 +51,10 @@ type
     function GetText: string;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AViewPortState: IViewPortState;
-      ANavigationToPoint: INavigationToPoint;
-      AValueConverterConfig: IValueToStringConverterConfig
+      const ALanguageManager: ILanguageManager;
+      const AViewPortState: IViewPortState;
+      const ANavigationToPoint: INavigationToPoint;
+      const AValueConverterConfig: IValueToStringConverterConfig
     );
   end;
 
@@ -69,9 +69,11 @@ uses
 { TSensorTextFromNavToPoint }
 
 constructor TSensorTextFromNavToPoint.Create(
-  ALanguageManager: ILanguageManager; AViewPortState: IViewPortState;
-  ANavigationToPoint: INavigationToPoint;
-  AValueConverterConfig: IValueToStringConverterConfig);
+  const ALanguageManager: ILanguageManager;
+  const AViewPortState: IViewPortState;
+  const ANavigationToPoint: INavigationToPoint;
+  const AValueConverterConfig: IValueToStringConverterConfig
+);
 begin
   inherited Create(CSensorDistToMarkGUID, False, ISensorText, ALanguageManager);
   FViewPortState := AViewPortState;

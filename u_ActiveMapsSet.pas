@@ -56,11 +56,11 @@ type
     function GetMapsSet: IMapTypeSet;
   public
     constructor Create(
-      AMapsSet: IMapTypeSet;
-      ASingeMapsList: IGUIDInterfaceSet;
-      AMainMapChangeNotyfier: IJclNotifier;
-      ALayerSetSelectNotyfier: IJclNotifier;
-      ALayerSetUnselectNotyfier: IJclNotifier
+      const AMapsSet: IMapTypeSet;
+      const ASingeMapsList: IGUIDInterfaceSet;
+      const AMainMapChangeNotyfier: IJclNotifier;
+      const ALayerSetSelectNotyfier: IJclNotifier;
+      const ALayerSetUnselectNotyfier: IJclNotifier
     );
     destructor Destroy; override;
   end;
@@ -74,9 +74,11 @@ uses
 
 { TActiveMapsSet }
 
-constructor TActiveMapsSet.Create(AMapsSet: IMapTypeSet;
-  ASingeMapsList: IGUIDInterfaceSet; AMainMapChangeNotyfier,
-  ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
+constructor TActiveMapsSet.Create(
+  const AMapsSet: IMapTypeSet;
+  const ASingeMapsList: IGUIDInterfaceSet;
+  const AMainMapChangeNotyfier, ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier
+);
 begin
   inherited Create;
   FMapsSet := AMapsSet;

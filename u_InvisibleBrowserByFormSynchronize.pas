@@ -20,8 +20,8 @@ type
     procedure NavigateAndWait(const AUrl: WideString);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AProxyConfig: IProxyConfig
+      const ALanguageManager: ILanguageManager;
+      const AProxyConfig: IProxyConfig
     );
     destructor Destroy; override;
   end;
@@ -67,8 +67,8 @@ end;
 { TInvisibleBrowserByFormSynchronize }
 
 constructor TInvisibleBrowserByFormSynchronize.Create(
-  ALanguageManager: ILanguageManager;
-  AProxyConfig: IProxyConfig
+  const ALanguageManager: ILanguageManager;
+  const AProxyConfig: IProxyConfig
 );
 begin
   FCS := MakeSyncObj(Self, FALSE);

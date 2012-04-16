@@ -292,7 +292,10 @@ type
     FAutodetecting: Boolean;
     procedure SatellitePaint;
     procedure GPSReceiverReceive;
-    procedure InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+    procedure InitResamplersList(
+      const AList: IImageResamplerFactoryList;
+      ABox: TComboBox
+    );
     procedure InitMapsList;
     procedure SaveGPSConfig;
     procedure LoadGPSConfig;
@@ -300,9 +303,9 @@ type
     function AutodetectCOMFlags: DWORD;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AShortCutManager: TShortcutManager;
-      AMapTypeEditor: IMapTypeConfigModalEdit;
+      const ALanguageManager: ILanguageManager;
+      const AShortCutManager: TShortcutManager;
+      const AMapTypeEditor: IMapTypeConfigModalEdit;
       AOnSave: TNotifyEvent
     ); reintroduce;
     destructor Destroy; override;
@@ -336,9 +339,9 @@ uses
 {$R *.dfm}
 
 constructor TfrmSettings.Create(
-  ALanguageManager: ILanguageManager;
-  AShortCutManager: TShortcutManager;
-  AMapTypeEditor: IMapTypeConfigModalEdit;
+  const ALanguageManager: ILanguageManager;
+  const AShortCutManager: TShortcutManager;
+  const AMapTypeEditor: IMapTypeConfigModalEdit;
   AOnSave: TNotifyEvent
 );
 begin
@@ -1122,7 +1125,10 @@ begin
   end;
 end;
 
-procedure TfrmSettings.InitResamplersList(AList: IImageResamplerFactoryList; ABox: TComboBox);
+procedure TfrmSettings.InitResamplersList(
+  const AList: IImageResamplerFactoryList;
+  ABox: TComboBox
+);
 var
   i: Integer;
 begin

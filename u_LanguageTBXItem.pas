@@ -39,7 +39,12 @@ type
     procedure OnLangChange;
     procedure OnClickItem(Sender: TObject);
   public
-    constructor Create(AOwner: TComponent; AParentMenu: TTBCustomItem; ALanguageManager: ILanguageManager; ALangIndex: Integer); reintroduce;
+    constructor Create(
+      AOwner: TComponent;
+      AParentMenu: TTBCustomItem;
+      const ALanguageManager: ILanguageManager;
+      ALangIndex: Integer
+    ); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -54,7 +59,7 @@ uses
 constructor TLanguageTBXItem.Create(
   AOwner: TComponent;
   AParentMenu: TTBCustomItem;
-  ALanguageManager: ILanguageManager;
+  const ALanguageManager: ILanguageManager;
   ALangIndex: Integer
 );
 begin

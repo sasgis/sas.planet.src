@@ -41,7 +41,7 @@ type
     function GetMapType: IMapType;
     function GetIsActive: Boolean;
   public
-    constructor Create(AMapType: IMapType);
+    constructor Create(const AMapType: IMapType);
     destructor Destroy; override;
   end;
 
@@ -52,7 +52,10 @@ type
     FMainMapListener: IJclListener;
     procedure OnMainMapChange(const AGUID: TGUID);
   public
-    constructor Create(AMapType: IMapType; AMainMapChangeNotyfier: IJclNotifier);
+    constructor Create(
+      const AMapType: IMapType;
+      const AMainMapChangeNotyfier: IJclNotifier
+    );
     destructor Destroy; override;
   end;
 
@@ -67,9 +70,9 @@ type
     procedure OnLayerSetUnselectChange(const AGUID: TGUID);
   public
     constructor Create(
-      AMapType: IMapType;
-      ALayerSetSelectNotyfier: IJclNotifier;
-      ALayerSetUnselectNotyfier: IJclNotifier
+      const AMapType: IMapType;
+      const ALayerSetSelectNotyfier: IJclNotifier;
+      const ALayerSetUnselectNotyfier: IJclNotifier
     );
     destructor Destroy; override;
   end;
@@ -83,7 +86,7 @@ uses
 
 { TActiveMapSingleAbstract }
 
-constructor TActiveMapSingleAbstract.Create(AMapType: IMapType);
+constructor TActiveMapSingleAbstract.Create(const AMapType: IMapType);
 begin
   inherited Create;
   FMapType := AMapType;
@@ -130,8 +133,10 @@ end;
 
 { TActiveMapSingleMainMap }
 
-constructor TActiveMapSingleMainMap.Create(AMapType: IMapType;
-  AMainMapChangeNotyfier: IJclNotifier);
+constructor TActiveMapSingleMainMap.Create(
+  const AMapType: IMapType;
+  const AMainMapChangeNotyfier: IJclNotifier
+);
 begin
   inherited Create(AMapType);
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
@@ -154,8 +159,10 @@ end;
 
 { TActiveMapSingleLayer }
 
-constructor TActiveMapSingleLayer.Create(AMapType: IMapType;
-  ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier);
+constructor TActiveMapSingleLayer.Create(
+  const AMapType: IMapType;
+  const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier
+);
 begin
   inherited Create(AMapType);
   FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;

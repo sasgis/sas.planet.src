@@ -39,7 +39,7 @@ type
     function EditMap(AMapType: TMapType): Boolean;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      const ALanguageManager: ILanguageManager
     );
     destructor Destroy; override;
   end;
@@ -52,7 +52,7 @@ uses
 { TMapTypeConfigModalEditByForm }
 
 constructor TMapTypeConfigModalEditByForm.Create(
-  ALanguageManager: ILanguageManager
+  const ALanguageManager: ILanguageManager
 );
 begin
   FLanguageManager := ALanguageManager;

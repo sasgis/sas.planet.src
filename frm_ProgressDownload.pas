@@ -86,10 +86,10 @@ type
     procedure StopThread;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const ALanguageManager: ILanguageManager;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
-      ALog: ILogForTaskThread
+      const ALog: ILogForTaskThread
     ); reintroduce; virtual;
     destructor Destroy; override;
 
@@ -140,10 +140,10 @@ begin
 end;
 
 constructor TfrmProgressDownload.Create(
-  ALanguageManager: ILanguageManager;
-  AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const ALanguageManager: ILanguageManager;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
   ADownloadThread: TThreadDownloadTiles;
-  ALog: ILogForTaskThread
+  const ALog: ILogForTaskThread
 );
 begin
   inherited Create(ALanguageManager);

@@ -48,7 +48,7 @@ type
     function GetBeforeScale: Integer;
     procedure SetBeforeScale(AValue: Integer);
   public
-    constructor Create(ALanguageManager: ILanguageManager);
+    constructor Create(const ALanguageManager: ILanguageManager);
   end;
 
 implementation
@@ -60,7 +60,7 @@ uses
 
 { TMarkCategoryFactoryConfig }
 
-constructor TMarkCategoryFactoryConfig.Create(ALanguageManager: ILanguageManager);
+constructor TMarkCategoryFactoryConfig.Create(const ALanguageManager: ILanguageManager);
 begin
   inherited Create;
   FDefaultName :=

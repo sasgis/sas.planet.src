@@ -52,7 +52,7 @@ type
     procedure LoadList(AList: TStrings);
   public
     constructor Create(
-      ALanguageManager: ILanguageManager
+      const ALanguageManager: ILanguageManager
     ); reintroduce;
     procedure SetShortCutManager(AShortCutManager: TShortcutManager);
     procedure CancelChanges;
@@ -80,7 +80,7 @@ begin
 end;
 
 constructor TfrShortCutList.Create(
-  ALanguageManager: ILanguageManager
+  const ALanguageManager: ILanguageManager
 );
 begin
   inherited Create(nil);

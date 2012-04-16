@@ -52,8 +52,8 @@ type
     function GetHotKeyList: IMapTypeHotKeyListStatic;
   public
     constructor Create(
-      ALanguageManager: ILanguageManager;
-      AMapsSet: IMapTypeSet
+      const ALanguageManager: ILanguageManager;
+      const AMapsSet: IMapTypeSet
     );
     destructor Destroy; override;
   end;
@@ -68,8 +68,8 @@ uses
 { TMapTypeGUIConfigList }
 
 constructor TMapTypeGUIConfigList.Create(
-  ALanguageManager: ILanguageManager;
-  AMapsSet: IMapTypeSet
+  const ALanguageManager: ILanguageManager;
+  const AMapsSet: IMapTypeSet
 );
 var
   VGUID: TGUID;

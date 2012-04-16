@@ -43,7 +43,7 @@ type
   protected
     procedure RefreshTranslation; virtual;
   public
-    constructor Create(ALanguageManager: ILanguageManager); reintroduce;
+    constructor Create(const ALanguageManager: ILanguageManager); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -94,7 +94,8 @@ end;
 { TFormWitghLanguageManager }
 
 constructor TFormWitghLanguageManager.Create(
-  ALanguageManager: ILanguageManager);
+  const ALanguageManager: ILanguageManager
+);
 begin
   inherited Create(nil);
   TranslateComponent(self);
