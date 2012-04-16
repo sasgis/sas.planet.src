@@ -29,7 +29,7 @@ type
     constructor Create(
       const ASource: ILocalCoordConverterChangeable;
       const ATargetGeoConverter: ICoordConverter;
-      AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AConverterFactory: ILocalCoordConverterFactorySimpe
     );
     destructor Destroy; override;
   end;
