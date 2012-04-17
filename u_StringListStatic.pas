@@ -43,6 +43,7 @@ end;
 
 constructor TStringListStatic.CreateWithOwn(AList: TStringList);
 begin
+  inherited Create;
   FList := AList;
 end;
 

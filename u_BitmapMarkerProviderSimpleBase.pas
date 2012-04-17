@@ -108,6 +108,7 @@ constructor TBitmapMarkerProviderSimpleAbstract.CreateProvider(
   const AConfig: IBitmapMarkerProviderSimpleConfigStatic
 );
 begin
+  inherited Create;
   FConfig := AConfig;
 end;
 

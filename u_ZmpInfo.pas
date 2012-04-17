@@ -259,6 +259,7 @@ constructor TZmpInfoGUI.Create(
 var
   VLangList: ILanguageListStatic;
 begin
+  inherited Create;
   FGUID := AGUID;
   VLangList := ALanguageManager.LanguageList;
   LoadConfig(VLangList, AConfig, AConfigIni, AConfigIniParams, Apnum);
@@ -499,6 +500,7 @@ constructor TZmpInfo.Create(
   Apnum: Integer
 );
 begin
+  inherited Create;
   FFileName := AFileName;
   FZmpConfig := AZmpConfig;
   FConfig := AConfig;

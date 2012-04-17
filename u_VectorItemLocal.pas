@@ -103,6 +103,7 @@ constructor TLocalLineSet.Create(
   const AList: IInterfaceList
 );
 begin
+  inherited Create;
   FList := AList;
   Assert(FList <> nil);
   FLocalConverter := ALocalConverter;
@@ -151,6 +152,7 @@ end;
 
 constructor TLocalPathOneLine.Create(const ALine: ILocalPathLine);
 begin
+  inherited Create;
   FLine := ALine;
 end;
 
@@ -182,6 +184,7 @@ end;
 
 constructor TLocalPolygonOneLine.Create(const ALine: ILocalPolygonLine);
 begin
+  inherited Create;
   FLine := ALine;
 end;
 

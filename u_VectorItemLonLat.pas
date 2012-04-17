@@ -83,6 +83,7 @@ constructor TLonLatLineSet.Create(
   const AList: IInterfaceList
 );
 begin
+  inherited Create;
   FBounds := ABounds;
   FList := AList;
 end;
@@ -164,6 +165,7 @@ end;
 
 constructor TLonLatPathOneLine.Create(const ALine: ILonLatPathLine);
 begin
+  inherited Create;
   FLine := ALine;
 end;
 
@@ -205,6 +207,7 @@ end;
 
 constructor TLonLatPolygonOneLine.Create(const ALine: ILonLatPolygonLine);
 begin
+  inherited Create;
   FLine := ALine;
 end;
 

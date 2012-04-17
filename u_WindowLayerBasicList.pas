@@ -56,6 +56,7 @@ constructor TWindowLayerBasicList.Create(
   const AParentPerfList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FList := TList.Create;;
   FPerfList := AParentPerfList.CreateAndAddNewSubList('Layer');
 end;

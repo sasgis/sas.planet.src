@@ -76,6 +76,7 @@ var
   VZmpMapConfig: IConfigDataProvider;
   VMapTypeCount: integer;
 begin
+  inherited Create;
   FList := TGUIDInterfaceSet.Create;
   VMapTypeCount := 0;
   while AFilesIterator.Next(VFileName) do begin

@@ -56,6 +56,7 @@ var
   VFoldersIteratorFactory: IFileNameIteratorFactory;
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
 begin
+  inherited Create;
   VIgnoredFodlerMasks := TWideStringList.Create;
   VProcessFileMasks := TWideStringList.Create;
   try

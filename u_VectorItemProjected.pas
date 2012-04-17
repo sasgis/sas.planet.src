@@ -128,6 +128,7 @@ constructor TProjectedLineSet.Create(
   const AList: IInterfaceList
 );
 begin
+  inherited Create;
   FList := AList;
   FBounds := ABounds;
   FProjection := AProjection;
@@ -282,6 +283,7 @@ end;
 
 constructor TProjectedPathOneLine.Create(const ALine: IProjectedPathLine);
 begin
+  inherited Create;
   FLine := ALine;
 end;
 
@@ -333,6 +335,7 @@ end;
 
 constructor TProjectedPolygonOneLine.Create(const ALine: IProjectedPolygonLine);
 begin
+  inherited Create;
   FLine := ALine;
 end;
 
@@ -396,6 +399,7 @@ end;
 
 constructor TProjectedLineSetEmpty.Create(const AProjection: IProjectionInfo);
 begin
+  inherited Create;
   FProjection := AProjection;
 end;
 

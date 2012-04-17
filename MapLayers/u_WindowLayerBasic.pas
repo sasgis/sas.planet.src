@@ -32,6 +32,7 @@ constructor TWindowLayerAbstract.Create(
   const APerfList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FPerfList := APerfList.CreateAndAddNewSubList(ClassName);
   FLinksList := TJclListenerNotifierLinksList.Create;
 end;

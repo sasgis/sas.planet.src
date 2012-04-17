@@ -41,6 +41,7 @@ end;
 
 constructor TBitmap32Static.CreateWithOwn(ABitmap: TCustomBitmap32);
 begin
+  inherited Create;
   FBitmap := ABitmap;
 end;
 

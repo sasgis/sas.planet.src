@@ -136,6 +136,7 @@ constructor TTileRectInfoShort.CreateWithOwn(
   AItems: PTileInfoShortInternalArray
 );
 begin
+  inherited Create;
   FTileRect := ATileRect;
   FContentType := AContentType;
   FVersionInfo := AVersionInfo;

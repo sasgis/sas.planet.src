@@ -114,6 +114,7 @@ constructor TXmlInfoSimpleParser.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FFactory := AFactory;
   FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadXmlStream');
   VSAGPS_PrepareFormatSettings(FFormat);

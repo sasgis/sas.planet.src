@@ -63,6 +63,7 @@ end;
 
 constructor TBinaryDataByMemStream.CreateWithOwn(AMemStream: TMemoryStream);
 begin
+  inherited Create;
   FMemStream := AMemStream;
 end;
 

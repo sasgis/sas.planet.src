@@ -187,6 +187,7 @@ constructor TVectorItmesFactorySimple.Create;
 var
   VEmpty: TLineSetEmpty;
 begin
+  inherited Create;
   VEmpty := TLineSetEmpty.Create;
   FEmptyLonLatPath := VEmpty;
   FEmptyLonLatPolygon := VEmpty;

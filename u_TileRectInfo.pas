@@ -125,6 +125,7 @@ constructor TTileRectInfo.CreateWithOwn(
   AItems: PTileInfoInternalArray
 );
 begin
+  inherited Create;
   FTileRect := ATileRect;
   FZoom := AZoom;
   FTileCount.X := FTileRect.Right - FTileRect.Left;
