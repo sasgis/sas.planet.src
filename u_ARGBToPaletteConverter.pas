@@ -194,7 +194,7 @@ procedure TARGBToPaletteConverter.CreateHistogram(
 );
 var
   A, R, G, B: Byte;
-  I, Addr: LongInt;
+  I, VAddr: LongInt;
   PC: PColorBin;
   Col: TColor32Rec;
 begin
@@ -206,8 +206,8 @@ begin
     G := Col.G and ChannelMask;
     B := Col.B and ChannelMask;
 
-    Addr := (A + 11 * B + 59 * R + 119 * G) mod HashSize;
-    PC := Table[Addr];
+    VAddr := (A + 11 * B + 59 * R + 119 * G) mod HashSize;
+    PC := Table[VAddr];
 
     while (PC <> nil) and ((PC.Color.R <> R) or (PC.Color.G <> G) or
       (PC.Color.B <> B) or (PC.Color.A <> A)) do
@@ -221,8 +221,8 @@ begin
       PC.Color.B := B;
       PC.Color.A := A;
       PC.Number := 1;
-      PC.Next := Table[Addr];
-      Table[Addr] := PC;
+      PC.Next := Table[VAddr];
+      Table[VAddr] := PC;
     end
     else
       Inc(PC^.Number);

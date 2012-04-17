@@ -136,17 +136,17 @@ procedure TPLTSimpleParser.ParseStringList(
 );
 var
   i,j:integer;
-  str: string;
+  VStr: string;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
 begin
   for i:=6 to AStringList.Count-1 do begin
     try
       j:=1;
-      str:=AStringList[i];
-      while j<length(str) do begin
-        if str[j]=' ' then begin
-          delete(str,j,1);
+      VStr:=AStringList[i];
+      while j<length(VStr) do begin
+        if VStr[j]=' ' then begin
+          delete(VStr,j,1);
         end else begin
           inc(j);
         end;
@@ -157,8 +157,8 @@ begin
       end;
       VValidPoint := True;
       try
-        VPoint.y := str2r(GetWord(str, ',', 1));
-        VPoint.x := str2r(GetWord(str, ',', 2));
+        VPoint.y := str2r(GetWord(VStr, ',', 1));
+        VPoint.x := str2r(GetWord(VStr, ',', 2));
       except
         VValidPoint := False;
       end;

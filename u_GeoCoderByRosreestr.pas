@@ -38,6 +38,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils,
   RegExprUtils,
@@ -48,11 +49,9 @@ uses
 
 { TGeoCoderByRosreestr }
 procedure meters_to_lonlat(in_x, in_y: Double; out outout: TDoublePoint);
-const
- pi = 3.1415926535897932384626433832795;
 begin
-  outout.X := in_X/6378137*180/pi;
-  outout.Y := ((arctan(exp(in_Y/6378137))-pi/4)*360)/pi;
+  outout.X := in_X/6378137*180/Pi;
+  outout.Y := ((arctan(exp(in_Y/6378137))-Pi/4)*360)/Pi;
 end;
 
 function TGeoCoderByRosreestr.ParseStringToPlacemarksList(

@@ -967,23 +967,23 @@ var rest: boolean;
   res: Double;
   i,delitel:integer;
   gms:double;
-  text:string;
+  VText:string;
 begin
 
-  text := Astr;
+  VText := Astr;
   rest := true;
   i:=1;
-  while i<=length(text) do begin
-    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
-      text[i]:=' ';
+  while i<=length(VText) do begin
+    if (not(VText[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      VText[i]:=' ';
       dec(i);
     end;
-     if ((i=1)and(text[i]=' '))or
-       ((i=length(text))and(text[i]=' '))or
-       ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
-       ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
-       ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
-      Delete(text,i,1);
+     if ((i=1)and(VText[i]=' '))or
+       ((i=length(VText))and(VText[i]=' '))or
+       ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
+       ((i>1) and (VText[i]=' ') and (not(VText[i-1] in ['0'..'9'])))or
+       ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
+      Delete(VText,i,1);
       dec(i);
     end;
     inc(i);
@@ -993,12 +993,12 @@ begin
     res:=0;
     delitel:=1;
     repeat
-     i:=posEx(' ',text,1);
+     i:=posEx(' ',VText,1);
      if i=0 then begin
-       gms:=str2r(text);
+       gms:=str2r(VText);
      end else begin
-       gms:=str2r(copy(text,1,i-1));
-       Delete(text,1,i);
+       gms:=str2r(copy(VText,1,i-1));
+       Delete(VText,1,i);
      end;
      if ((delitel>1)and(abs(gms)>60))or
         ((delitel=1)and(abs(gms)>180)) then begin

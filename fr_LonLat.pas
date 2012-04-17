@@ -120,37 +120,37 @@ end;
 function TfrLonLat.Edit2Digit(const Atext: string; lat: boolean; var res: Double): boolean;
 var i,delitel:integer;
     gms:double;
-    text:string;
+    VText:string;
     minus: boolean;
 begin
   result:=true;
   res:=0;
-  text:=Atext;
+  VText:=Atext;
 
-  text:=StringReplace(text,'S','-',[rfReplaceAll]);
-  text:=StringReplace(text,'W','-',[rfReplaceAll]);
-  text:=StringReplace(text,'N','+',[rfReplaceAll]);
-  text:=StringReplace(text,'E','+',[rfReplaceAll]);
-  text:=StringReplace(text,'Þ','-',[rfReplaceAll]);
-  text:=StringReplace(text,'Ç','-',[rfReplaceAll]);
-  text:=StringReplace(text,'Â','+',[rfReplaceAll]);
-  text:=StringReplace(text,'Ñ','+',[rfReplaceAll]);
+  VText:=StringReplace(VText,'S','-',[rfReplaceAll]);
+  VText:=StringReplace(VText,'W','-',[rfReplaceAll]);
+  VText:=StringReplace(VText,'N','+',[rfReplaceAll]);
+  VText:=StringReplace(VText,'E','+',[rfReplaceAll]);
+  VText:=StringReplace(VText,'Þ','-',[rfReplaceAll]);
+  VText:=StringReplace(VText,'Ç','-',[rfReplaceAll]);
+  VText:=StringReplace(VText,'Â','+',[rfReplaceAll]);
+  VText:=StringReplace(VText,'Ñ','+',[rfReplaceAll]);
   minus:= false;
-  if posEx('-',text,1)>0 then minus := true;
+  if posEx('-',VText,1)>0 then minus := true;
 
   i:=1;
-  while i<=length(text) do begin
-    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
-      text[i]:=' ';
+  while i<=length(VText) do begin
+    if (not(VText[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      VText[i]:=' ';
       dec(i);
     end;
 
-    if ((i=1)and(text[i]=' '))or
-       ((i=length(text))and(text[i]=' '))or
-       ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
-       ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
-       ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
-      Delete(text,i,1);
+    if ((i=1)and(VText[i]=' '))or
+       ((i=length(VText))and(VText[i]=' '))or
+       ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
+       ((i>1) and (VText[i]=' ') and (not(VText[i-1] in ['0'..'9'])))or
+       ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
+      Delete(VText,i,1);
       dec(i);
     end;
     inc(i);
@@ -160,12 +160,12 @@ begin
     res:=0;
     delitel:=1;
     repeat
-     i:=posEx(' ',text,1);
+     i:=posEx(' ',VText,1);
      if i=0 then begin
-       gms:=str2r(text);
+       gms:=str2r(VText);
      end else begin
-       gms:=str2r(copy(text,1,i-1));
-       Delete(text,1,i);
+       gms:=str2r(copy(VText,1,i-1));
+       Delete(VText,1,i);
      end;
      if ((delitel>1)and(abs(gms)>60))or
         ((delitel=1)and(lat)and(abs(gms)>90))or

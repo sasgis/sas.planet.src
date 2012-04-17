@@ -284,14 +284,14 @@ function TExportMarks2KML.AddMarks(
   const inNode:iXMLNode
 ): Boolean;
 var
-  Mark:IMark;
+  VMark:IMark;
   VEnumMarks:IEnumUnknown;
   i:integer;
 begin
   Result := False;
   VEnumMarks := AMarksSubset.GetEnum;
-  while (VEnumMarks.Next(1, Mark, @i) = S_OK) do begin
-    AddMark(Mark,inNode);
+  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+    AddMark(VMark,inNode);
     Result := True;
   end;
 end;

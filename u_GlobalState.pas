@@ -557,16 +557,16 @@ end;
 {$IFDEF SasDebugWithJcl}
 procedure TGlobalState.DoException(Sender: TObject; E: Exception);
 var
-  Str: TStringList;
+  VStr: TStringList;
 begin
-  Str := TStringList.Create;
+  VStr := TStringList.Create;
   try
-    JclLastExceptStackListToStrings(Str, True, True, True, True);
-    Str.Insert(0, E.Message);
-    Str.Insert(1, '');
-    Application.MessageBox(PChar(Str.Text), 'Ошибка', MB_OK or MB_ICONSTOP);
+    JclLastExceptStackListToStrings(VStr, True, True, True, True);
+    VStr.Insert(0, E.Message);
+    VStr.Insert(1, '');
+    Application.MessageBox(PChar(VStr.Text), 'Ошибка', MB_OK or MB_ICONSTOP);
   finally
-    FreeAndNil(Str);
+    FreeAndNil(VStr);
   end;
 end;
 {$ENDIF SasDebugWithJcl}

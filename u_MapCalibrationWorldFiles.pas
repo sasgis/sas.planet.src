@@ -159,15 +159,15 @@ procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
 );
 var
   AuxXmkfile: TMemoryStream;
-  str: UTF8String;
+  VStr: UTF8String;
   VprojInfo: String;
 begin
   AuxXmkfile := TMemoryStream.create;
-  str := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
+  VStr := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
   VprojInfo := GetProj(AConverter);
-  str := str + AnsiToUtf8(VprojInfo);
-  str := str + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
-  AuxXmkfile.Write(str[1], length(str));
+  VStr := VStr + AnsiToUtf8(VprojInfo);
+  VStr := VStr + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
+  AuxXmkfile.Write(VStr[1], length(VStr));
   AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
   AuxXmkfile.Free;
 end;

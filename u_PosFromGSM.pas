@@ -154,10 +154,10 @@ procedure TPosFromGSM.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Point
  function DelKov(s:string):string;
  var i:integer;
  begin
-   i:=pos('"',s);
+   i:=Pos('"',s);
    while i>0 do begin
     Delete(s,i,1);
-    i:=pos('"',s);
+    i:=Pos('"',s);
    end;
    result:=s;
  end;
@@ -169,33 +169,33 @@ procedure TPosFromGSM.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Point
   end;
  end;
 var s:string;
-    pos,pose:integer;
+    VPos,pose:integer;
     LL:TDoublePoint;
 begin
  setlength(s,DataSize);
  if DataSize<10 then exit;
  CopyMemory(@s[1],DataPtr,DataSize);
- pos:=posEx('+CREG:',s);
- if pos>0 then begin
-   pos:=posEx(',',s,pos+1);
-   pos:=posEx(',',s,pos+1);
-   pose:=posEx(',',s,pos+1);
-   if pos>0 then begin
-     LAC:=addT4(DelKov(copy(s,pos+1,pose-(pos+1))));
+ VPos:=posEx('+CREG:',s);
+ if VPos>0 then begin
+   VPos:=posEx(',',s,VPos+1);
+   VPos:=posEx(',',s,VPos+1);
+   pose:=posEx(',',s,VPos+1);
+   if VPos>0 then begin
+     LAC:=addT4(DelKov(copy(s,VPos+1,pose-(VPos+1))));
    end;
-   pos:=posEx(#$D,s,pose+1);
-   if pos>0 then begin
-     CellID:=addT4(DelKov(copy(s,pose+1,pos-(pose+1))));
+   VPos:=posEx(#$D,s,pose+1);
+   if VPos>0 then begin
+     CellID:=addT4(DelKov(copy(s,pose+1,VPos-(pose+1))));
    end;
  end else begin
    exit;
  end;
- pos:=posEx('+COPS:',s);
- if pos>0 then begin
-   pos:=posEx(',"',s,pos);
-   if pos>0 then begin
-     NC:=DelKov(copy(s,pos+2,3));
-     CC:=DelKov(copy(s,pos+5,2));
+ VPos:=posEx('+COPS:',s);
+ if VPos>0 then begin
+   VPos:=posEx(',"',s,VPos);
+   if VPos>0 then begin
+     NC:=DelKov(copy(s,VPos+2,3));
+     CC:=DelKov(copy(s,VPos+5,2));
    end;
  end else begin
    exit;

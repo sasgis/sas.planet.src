@@ -189,8 +189,6 @@ begin
 end;
 
 procedure meters_to_lonlat( in_x,in_y : Double; var out_x, out_y : string);
-const
- pi = 3.1415926535897932384626433832795;
 begin
   out_X := floattostr(in_X/6378137*180/pi);
   out_Y := floattostr(((arctan(exp(in_Y/6378137))-pi/4)*360)/pi);
@@ -214,81 +212,81 @@ var
   i : integer;
  delitel : single;
   gms : double;
-  text : string;
+  VText : string;
   minus:boolean;
 begin
     result:=true;
     res:=0;
-    text := Trim(AnsiUpperCase(Astr));
+    VText := Trim(AnsiUpperCase(Astr));
     llat := false;
     llon := false;
 
-    if PosEx('W', Text, 1) > 0 then llon := true;
-    if PosEx('E', Text, 1) > 0 then llon := true;
-    if PosEx('Ç', Text, 1) > 0 then llon := true;
-    if PosEx('Â', Text, 1) > 0 then llon := true;
-    if PosEx('LON', Text, 1) > 0 then llon := true;
-    if PosEx('LN', Text, 1) > 0 then llon := true;
-    Text := ReplaceStr(Text,'LON','');
-    Text := ReplaceStr(Text,'LN','');
+    if PosEx('W', VText, 1) > 0 then llon := true;
+    if PosEx('E', VText, 1) > 0 then llon := true;
+    if PosEx('Ç', VText, 1) > 0 then llon := true;
+    if PosEx('Â', VText, 1) > 0 then llon := true;
+    if PosEx('LON', VText, 1) > 0 then llon := true;
+    if PosEx('LN', VText, 1) > 0 then llon := true;
+    VText := ReplaceStr(VText,'LON','');
+    VText := ReplaceStr(VText,'LN','');
 
-    if PosEx('S', Text, 1) > 0 then llat := true;
-    if PosEx('N', Text, 1) > 0 then llat := true;
-    if PosEx('Þ', Text, 1) > 0 then llat := true;
-    if PosEx('Ñ', Text, 1) > 0 then llat := true;
-    if PosEx('LAT', Text, 1) > 0 then llat := true;
-    if PosEx('LL', Text, 1) > 0 then llat := true;
-    Text := ReplaceStr(Text,'LAT','');
-    Text := ReplaceStr(Text,'LL','');
+    if PosEx('S', VText, 1) > 0 then llat := true;
+    if PosEx('N', VText, 1) > 0 then llat := true;
+    if PosEx('Þ', VText, 1) > 0 then llat := true;
+    if PosEx('Ñ', VText, 1) > 0 then llat := true;
+    if PosEx('LAT', VText, 1) > 0 then llat := true;
+    if PosEx('LL', VText, 1) > 0 then llat := true;
+    VText := ReplaceStr(VText,'LAT','');
+    VText := ReplaceStr(VText,'LL','');
 
-    Text := ReplaceStr(Text,'Ø.','');
-    Text := ReplaceStr(Text,'Ø','');
-    Text := ReplaceStr(Text,'Ä.','');
-    Text := ReplaceStr(Text,'Ä','');
-    Text := ReplaceStr(Text,'=','');
+    VText := ReplaceStr(VText,'Ø.','');
+    VText := ReplaceStr(VText,'Ø','');
+    VText := ReplaceStr(VText,'Ä.','');
+    VText := ReplaceStr(VText,'Ä','');
+    VText := ReplaceStr(VText,'=','');
 
-    text := StringReplace(text,'S','-',[rfReplaceAll]);
-    text := StringReplace(text,'W','-',[rfReplaceAll]);
-    text := StringReplace(text,'N','+',[rfReplaceAll]);
-    text := StringReplace(text,'E','+',[rfReplaceAll]);
-    text := StringReplace(text,'Þ','-',[rfReplaceAll]);
-    text := StringReplace(text,'Ç','-',[rfReplaceAll]);
-    text := StringReplace(text,'Â','+',[rfReplaceAll]);
-    text := StringReplace(text,'Ñ','+',[rfReplaceAll]);
+    VText := StringReplace(VText,'S','-',[rfReplaceAll]);
+    VText := StringReplace(VText,'W','-',[rfReplaceAll]);
+    VText := StringReplace(VText,'N','+',[rfReplaceAll]);
+    VText := StringReplace(VText,'E','+',[rfReplaceAll]);
+    VText := StringReplace(VText,'Þ','-',[rfReplaceAll]);
+    VText := StringReplace(VText,'Ç','-',[rfReplaceAll]);
+    VText := StringReplace(VText,'Â','+',[rfReplaceAll]);
+    VText := StringReplace(VText,'Ñ','+',[rfReplaceAll]);
     minus:= false;
-    if posEx('-',text,1)>0 then minus := true;
+    if posEx('-',VText,1)>0 then minus := true;
 
-    if (copy(text,length(text),1)='.') then text := copy(text,1,length(text)-1);
-    if (copy(text,length(text),1)=',') then text := copy(text,1,length(text)-1);
-    if (copy(text,length(text),1)='+') or (copy(text,length(text),1)='-') then text:=copy(text,length(text),1)+copy(text,0,length(text)-1);
+    if (copy(VText,length(VText),1)='.') then VText := copy(VText,1,length(VText)-1);
+    if (copy(VText,length(VText),1)=',') then VText := copy(VText,1,length(VText)-1);
+    if (copy(VText,length(VText),1)='+') or (copy(VText,length(VText),1)='-') then VText:=copy(VText,length(VText),1)+copy(VText,0,length(VText)-1);
 
-    if PosEx('+-', Text, 1) > 0 then begin // WE123 NS123
+    if PosEx('+-', VText, 1) > 0 then begin // WE123 NS123
      llon := true;
      llat := true;
-     Text := ReplaceStr(Text,'+-','+');
+     VText := ReplaceStr(VText,'+-','+');
     end;
-    if PosEx('-+', Text, 1) > 0 then begin // EW123 SN123
+    if PosEx('-+', VText, 1) > 0 then begin // EW123 SN123
      llon := true;
      llat := true;
-     Text := ReplaceStr(Text,'-+','-');
+     VText := ReplaceStr(VText,'-+','-');
     end;
-    if PosEx('--', Text, 1) > 0 then begin // -123S
-     Text := ReplaceStr(Text,'--','-');
+    if PosEx('--', VText, 1) > 0 then begin // -123S
+     VText := ReplaceStr(VText,'--','-');
     end;
 
   i:=1;
-  while i<=length(text) do begin
-    if (not(text[i] in ['0'..'9','-','+','.',',',' '])) then begin
-      text[i]:=' ';
+  while i<=length(VText) do begin
+    if (not(VText[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      VText[i]:=' ';
       dec(i);
     end;
 
-    if ((i=1)and(text[i]=' '))or
-       ((i=length(text))and(text[i]=' '))or
-       ((i<length(text)-1)and(text[i]=' ')and(text[i+1]=' '))or
-       ((i>1) and (text[i]=' ') and (not(text[i-1] in ['0'..'9'])))or
-       ((i<length(text)-1)and(text[i]=',')and(text[i+1]=' ')) then begin
-      Delete(text,i,1);
+    if ((i=1)and(VText[i]=' '))or
+       ((i=length(VText))and(VText[i]=' '))or
+       ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
+       ((i>1) and (VText[i]=' ') and (not(VText[i-1] in ['0'..'9'])))or
+       ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
+      Delete(VText,i,1);
       dec(i);
     end;
     inc(i);
@@ -297,18 +295,18 @@ begin
     res:=0;
     delitel:=1;
     repeat
-     i:=posEx(' ',text,1);
+     i:=posEx(' ',VText,1);
      if i=0 then begin
-       gms:=str2r(text);
+       gms:=str2r(VText);
      end else begin
-       gms:=str2r(copy(text,1,i-1));
-       Delete(text,1,i);
+       gms:=str2r(copy(VText,1,i-1));
+       Delete(VText,1,i);
      end;
      if ((delitel>1)and(abs(gms)>60))or
         ((delitel=1)and(llat)and(abs(gms)>90))or
         ((delitel=1)and(not llat)and(abs(gms)>180)) then begin
       if (delitel=60) and (GMS>60) then begin //  37 6298475265502
-         delitel := Power(10,length(text));
+         delitel := Power(10,length(VText));
       end else Result:=false;
      end;
      if res<0 then begin
