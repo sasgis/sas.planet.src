@@ -279,7 +279,8 @@ begin
   VStorageConfig := FStorageConfig.GetStatic;
   LockWrite;
   try
-    VValue := FDefConfig.UseDownload and VStorageConfig.AllowAdd and AValue;
+    // allow to download without saving to storage
+    VValue := FDefConfig.UseDownload {and VStorageConfig.AllowAdd} and AValue;
     if FUseDownload <> VValue then begin
       FUseDownload := VValue;
       SetChanged;

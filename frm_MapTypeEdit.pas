@@ -104,6 +104,7 @@ type
 implementation
 
 uses
+  t_CommonTypes,
   i_TileDownloaderState,
   u_GlobalCahceConfig,
   u_GlobalState;
@@ -278,11 +279,17 @@ begin
   edtVersion.Text := FMapType.VersionConfig.Version.StoreString;
   pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
+
+  // download availability
   if VDownloadState.Enabled then begin
     mmoDownloadState.Text := SAS_STR_Yes;
   end else begin
     mmoDownloadState.Text := VDownloadState.DisableReason;
   end;
+
+  // check storage write access
+  if (FMapType.TileStorage.State.GetStatic.WriteAccess = asDisabled) then
+    mmoDownloadState.Lines.Add('No write access to tile storage');
 
   Result := ShowModal = mrOk;
 end;
