@@ -63,6 +63,7 @@ constructor TTileRequestProcessorPool.Create(
   const ADownloaderList: ITileDownloaderList
 );
 begin
+  inherited Create;
   FGCList := AGCList;
   FThreadConfig := AThreadConfig;
   FAppClosingNotifier := AAppClosingNotifier;

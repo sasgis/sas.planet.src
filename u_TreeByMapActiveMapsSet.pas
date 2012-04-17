@@ -52,6 +52,7 @@ uses
 
 constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IActiveMapsSet);
 begin
+  inherited Create;
   FMapsSet := AMapsSet;
   FChangeNotifier := TJclBaseNotifier.Create;
   FStaticTree := CreateStatic;

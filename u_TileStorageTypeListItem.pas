@@ -54,6 +54,7 @@ constructor TTileStorageTypeListItem.Create(
   ACanUseAsDefault: Boolean
 );
 begin
+  inherited Create;
   FGUID := AGUID;
   FStorageType := AStorageType;
   FCanUseAsDefault := ACanUseAsDefault;

@@ -101,6 +101,7 @@ implementation
 
 constructor TTileRequestResult.Create(const ARequest: ITileRequest);
 begin
+  inherited Create;
   FRequest := ARequest;
 end;
 

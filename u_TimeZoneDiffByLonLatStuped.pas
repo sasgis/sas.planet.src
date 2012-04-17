@@ -56,6 +56,7 @@ uses
 
 constructor TTimeZone.Create(const ADiffInHour: Double; const APolygon: ILonLatPolygon);
 begin
+  inherited Create;
   FDiff := ADiffInHour / 24;
   FPolygon := APolygon;
 end;
@@ -120,6 +121,7 @@ var
   VAggregator: IDoublePointsAggregator;
   VPolygon: ILonLatPolygon;
 begin
+  inherited Create;
   FTimeZoneList := TInterfaceList.Create;
   VAggregator := TDoublePointsAggregator.Create;
 

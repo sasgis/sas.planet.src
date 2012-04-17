@@ -78,6 +78,7 @@ constructor TEnumTileInfoShort.Create(
   const ATileIterator: ITileIterator
 );
 begin
+  inherited Create;
   FRef := ARef;
   FVersionInfo := AVersionInfo;
   FContentType := AContentType;

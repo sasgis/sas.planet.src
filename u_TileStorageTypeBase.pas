@@ -66,6 +66,7 @@ constructor TTileStorageTypeBase.Create(
   const AConfig: ITileStorageTypeConfig
 );
 begin
+  inherited Create;
   FGUID := AGUID;
   FCaption := ACaption;
   FInfo := AInfo;

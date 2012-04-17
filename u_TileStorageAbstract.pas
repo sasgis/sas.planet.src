@@ -185,6 +185,7 @@ var
   VNotifier: TTileRectUpdateNotifier;
   VState: TStorageStateInternal;
 begin
+  inherited Create;
   FOnRangeFillingMap := nil;
   FConfig := AConfig;
   FMapVersionFactory := AMapVersionFactory;

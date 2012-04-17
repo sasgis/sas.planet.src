@@ -54,6 +54,7 @@ constructor TTileRequest.Create(
   AOperationID: Integer
 );
 begin
+  inherited Create;
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;

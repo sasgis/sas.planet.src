@@ -49,6 +49,7 @@ constructor TTileRectUpdateNotifier.Create(
   const AGeoCoder: ICoordConverter
 );
 begin
+  inherited Create;
   FZoom := AZoom;
   FGeoCoder := AGeoCoder;
   FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;

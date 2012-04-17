@@ -71,6 +71,7 @@ constructor TTileStorageInfo.Create(
   const ACoordConverter: ICoordConverter
 );
 begin
+  inherited Create;
   FTypeInfo := ATypeInfo;
   FCoordConverter := ACoordConverter;
   FMainContentType := AMainContentType;

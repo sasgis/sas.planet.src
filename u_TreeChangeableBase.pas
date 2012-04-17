@@ -68,6 +68,7 @@ constructor TTreeChangeableBase.Create(
   const AConfigChangeNotifier: IJclNotifier
 );
 begin
+  inherited Create;
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
   FChangeNotifier := TJclBaseNotifier.Create;

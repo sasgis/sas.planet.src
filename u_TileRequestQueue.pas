@@ -64,6 +64,7 @@ constructor TTileRequestQueue.Create(
   ACapacity: Integer
 );
 begin
+  inherited Create;
   FGCList := AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
   FCapacity := ACapacity;
