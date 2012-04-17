@@ -34,7 +34,6 @@ uses
   i_OperationNotifier,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
-  i_ConfigDataProvider,
   u_OperationNotifier,
   u_BaseTileDownloaderThread,
   u_MapType;

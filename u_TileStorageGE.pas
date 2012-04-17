@@ -188,7 +188,6 @@ type
 implementation
 
 uses
-  i_MapVersionInfoGE,
   u_BinaryDataByMemStream,
   u_MapVersionListStatic,
   u_AvailPicsNMC,

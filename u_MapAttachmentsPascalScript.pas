@@ -26,8 +26,6 @@ uses
   Classes,
   Windows,
   SysUtils,
-  uPSC_dll,
-  uPSR_dll,
   uPSRuntime,
   uPSCompiler,
   uPSUtils,
@@ -56,8 +54,6 @@ implementation
 
 uses
   u_ResStrings,
-  u_GlobalState,
-  u_MapAttachmentsInfo,
   u_TileRequestBuilderHelpers;
 
 { TMapAttachmentsFactoryPascalScript }

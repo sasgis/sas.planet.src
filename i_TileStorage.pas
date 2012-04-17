@@ -26,12 +26,10 @@ uses
   Classes,
   GR32,
   i_BinaryData,
-  i_OperationNotifier,
   i_TileRectUpdateNotifier,
   i_MapVersionInfo,
   i_StorageState,
   i_TileInfoBasic,
-  i_FillingMapColorer,
   i_TileStorageInfo;
 
 type

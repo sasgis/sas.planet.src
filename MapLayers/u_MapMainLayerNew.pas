@@ -77,8 +77,6 @@ implementation
 uses
   ActiveX,
   t_GeoTypes,
-  i_TileKey,
-  i_TileMatrix,
   i_TileRectUpdateNotifier,
   i_CoordConverter,
   u_NotifyEventListener,

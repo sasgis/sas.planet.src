@@ -22,8 +22,7 @@ unit i_MapAttachmentsFactory;
 
 interface
 
-uses
-  i_StringByLanguage;
+
 
 type
   IMapAttachmentsFactory = interface

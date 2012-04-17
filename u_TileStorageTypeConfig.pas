@@ -24,8 +24,6 @@ interface
 
 uses
   i_PathConfig,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_TileStorageTypeConfig,
   u_ConfigDataElementComplexBase;
 

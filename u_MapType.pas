@@ -271,7 +271,6 @@ uses
   i_BinaryData,
   i_TileInfoBasic,
   i_TileIterator,
-  u_BinaryDataByMemStream,
   u_Bitmap32Static,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,

@@ -5,13 +5,11 @@ interface
 uses
   Types,
   i_OperationNotifier,
-  i_CoordConverter,
   i_Bitmap32Static,
   i_LocalCoordConverter,
   i_MapTypes,
   i_BitmapLayerProvider,
   i_FillingMapColorer,
-  i_TileError,
   u_MapType;
 
 type

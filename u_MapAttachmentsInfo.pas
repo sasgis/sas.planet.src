@@ -25,7 +25,6 @@ interface
 uses
   Classes,
   SysUtils,
-  i_StringByLanguage,
   i_MapAttachmentsInfo;
 
 type

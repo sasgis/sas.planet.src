@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  i_BinaryData,
   i_TileIterator,
   i_MapVersionInfo,
   i_ContentTypeInfo,

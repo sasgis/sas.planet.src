@@ -67,7 +67,6 @@ implementation
 
 uses
   libdb51,
-  u_BerkeleyDB,
   CRC32;
 
 const

@@ -27,7 +27,6 @@ uses
   i_ContentTypeInfo,
   i_ContentConverter,
   i_InternalPerformanceCounter,
-  i_HtmlToHintTextConverter,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
   u_ContentTypeManagerBase;
