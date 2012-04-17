@@ -48,6 +48,7 @@ constructor TLocalCoordConverterChangeable.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
+  inherited Create;
   FSource := ASource;
   FTargetGeoConverter := ATargetGeoConverter;
   FConverterFactory := AConverterFactory;

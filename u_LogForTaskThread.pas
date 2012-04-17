@@ -61,6 +61,7 @@ constructor TLogForTaskThread.Create(AMaxLinesCount: Cardinal; AMinLogLevel: Int
 var
   i: Integer;
 begin
+  inherited Create;
   FMinLogLevel := AMinLogLevel;
   FMaxRowsCount := AMaxLinesCount;
   FLock := MakeSyncObj(Self, TRUE);

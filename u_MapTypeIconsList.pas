@@ -105,6 +105,7 @@ end;
 
 constructor TMapTypeIconsList.Create(AWidth, AHeight: Integer);
 begin
+  inherited Create;
   FImageList := TTBXImageList.Create(nil);
   FImageList.Width := AWidth;
   FImageList.Height := AHeight;

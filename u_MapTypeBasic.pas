@@ -46,6 +46,7 @@ uses
 
 constructor TMapTypeBasic.Create(AMapType: TMapType);
 begin
+  inherited Create;
   FMapType := AMapType;
 end;
 

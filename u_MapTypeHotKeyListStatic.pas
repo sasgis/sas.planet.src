@@ -56,6 +56,7 @@ var
   VMap: IMapType;
   VHotKey: TShortCut;
 begin
+  inherited Create;
   FList := TIDInterfaceList.Create(False);
   VEnum := AMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin

@@ -64,6 +64,7 @@ constructor TLocalLineBase.Create(
   ACount: Integer
 );
 begin
+  inherited Create;
   FLocalConverter := ALocalConverter;
   Assert(FLocalConverter <> nil);
   FCount := ACount;

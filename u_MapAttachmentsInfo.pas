@@ -86,6 +86,7 @@ constructor TMapAttachmentsInfo.Create(
   AUseDwn, AUseDel: Boolean
 );
 begin
+  inherited Create;
   FMaxSubIndex := AMaxSubIndex;
   FParseNumberAfter := AParseNumberAfter;
   FGUID := AGUID;

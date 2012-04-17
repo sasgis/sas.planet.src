@@ -121,6 +121,7 @@ uses
 constructor TSpeedRangeItem.Create(ASpeed: Double; AMinColor,
   AMaxColor: TColor32);
 begin
+  inherited Create;
   FSpeed := ASpeed;
   FMinSpeedColor := AMinColor;
   FMaxSpeedColor := AMaxColor;
@@ -325,6 +326,7 @@ var
   i: Integer;
   VItem: ISpeedRangeItem;
 begin
+  inherited Create;
   FCount := AList.Count;
 
   SetLength(FSpeedArray, FCount);

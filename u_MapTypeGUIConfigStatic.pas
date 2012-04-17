@@ -83,6 +83,7 @@ constructor TMapTypeGUIConfigStatic.Create(
   const ABmp24: IBitmap32Static
 );
 begin
+  inherited Create;
   FName := AName;
   FSortIndex := ASortIndex;
   FHotKey := AHotKey;

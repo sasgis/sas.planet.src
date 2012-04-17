@@ -315,6 +315,7 @@ var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
 begin
+  inherited Create;
   FZmp := AZmp;
   FPerfCounterList := APerfCounterList.CreateAndAddNewSubList(FZmp.GUI.Name.GetDefault);
   FGUIConfig :=

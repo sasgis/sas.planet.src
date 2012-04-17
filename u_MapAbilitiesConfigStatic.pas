@@ -61,6 +61,7 @@ constructor TMapAbilitiesConfigStatic.Create(
   AUseDownload: boolean
 );
 begin
+  inherited Create;
   FIsLayer := AIsLayer;
   FIsShowOnSmMap := AIsShowOnSmMap;
   FIsUseStick := AIsUseStick;

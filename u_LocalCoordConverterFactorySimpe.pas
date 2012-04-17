@@ -78,6 +78,7 @@ constructor TLocalCoordConverterFactorySimpe.Create(
   const AProjectionFactory: IProjectionInfoFactory
 );
 begin
+  inherited Create;
   FProjectionFactory := AProjectionFactory;
 end;
 

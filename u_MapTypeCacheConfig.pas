@@ -158,6 +158,7 @@ constructor TMapTypeCacheConfigAbstract.Create(
   AGlobalCacheConfig: TGlobalCahceConfig
 );
 begin
+  inherited Create;
   FConfig := AConfig;
   FGlobalCacheConfig := AGlobalCacheConfig;
   FConfigChangeNotifier := TJclBaseNotifier.Create;

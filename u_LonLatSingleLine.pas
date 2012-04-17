@@ -72,6 +72,7 @@ var
   VBounds: TDoubleRect;
   i: Integer;
 begin
+  inherited Create;
   VBounds.TopLeft := APoints[0];
   VBounds.BottomRight := APoints[0];
   for i := 1 to ACount - 1 do begin
@@ -98,6 +99,7 @@ constructor TLonLatLineBase.Create(
   ACount: Integer
 );
 begin
+  inherited Create;
   FBounds := ABounds;
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
