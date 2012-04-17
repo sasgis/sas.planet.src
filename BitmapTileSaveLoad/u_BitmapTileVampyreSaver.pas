@@ -27,15 +27,15 @@ type
     procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   public
-    constructor Create(
+    constructor CreateWithMeta(
       AFormat: TImageFileFormat;
       AMeta: TMetadata;
       const APerfCounterList: IInternalPerformanceCounterList
-    ); overload;
+    );
     constructor Create(
       AFormatClass: TImageFileFormatClass;
       const APerfCounterList: IInternalPerformanceCounterList
-    ); overload;
+    );
     destructor Destroy; override;
   end;
 
@@ -103,7 +103,7 @@ uses
 
 { TVampyreBasicBitmapTileSaver }
 
-constructor TVampyreBasicBitmapTileSaver.Create(
+constructor TVampyreBasicBitmapTileSaver.CreateWithMeta(
   AFormat: TImageFileFormat;
   AMeta: TMetadata;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -128,7 +128,7 @@ var
 begin
   VMeta := TMetadata.Create;
   try
-    Create(AFormatClass.Create(VMeta), VMeta, APerfCounterList);
+    CreateWithMeta(AFormatClass.Create(VMeta), VMeta, APerfCounterList);
     VMeta := nil;
   finally
     VMeta.Free;
@@ -243,7 +243,7 @@ begin
   VMeta := TMetadata.Create;
   VFormat := TPNGFileFormat.Create(VMeta);
   VFormat.CompressLevel := ACompressLevel;
-  inherited Create(VFormat, VMeta, APerfCounterList);
+  inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
 end;
 
 constructor TVampyreBasicBitmapTileSaverPNG.Create(
@@ -310,7 +310,7 @@ begin
   VMeta := TMetadata.Create;
   VFormat := TJpegFileFormat.Create(VMeta);
   VFormat.Quality := ACompressionQuality;
-  inherited Create(VFormat, VMeta, APerfCounterList);
+  inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
 end;
 
 end.
