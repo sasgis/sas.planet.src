@@ -58,6 +58,7 @@ constructor TVectorDataItemBase.Create(
   const AName, ADesc: string
 );
 begin
+  inherited Create;
   FHintConverter := AHintConverter;
   FName := AName;
   FDesc := ADesc;

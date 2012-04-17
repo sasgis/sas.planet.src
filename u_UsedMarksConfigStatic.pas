@@ -50,6 +50,7 @@ implementation
 constructor TUsedMarksConfigStatic.Create(AIsUseMarks, AIgnoreMarksVisible,
   AIgnoreCategoriesVisible: Boolean);
 begin
+  inherited Create;
   FIsUseMarks := AIsUseMarks;
   FIgnoreCategoriesVisible := AIgnoreCategoriesVisible;
   FIgnoreMarksVisible := AIgnoreMarksVisible;

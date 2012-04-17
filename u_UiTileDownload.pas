@@ -115,6 +115,7 @@ constructor TUiTileDownload.Create(
   const AErrorLogger: ITileErrorLogger
 );
 begin
+  inherited Create;
   FConfig := AConfig;
   FGCList :=  AGCList;
   FAppClosingNotifier := AAppClosingNotifier;

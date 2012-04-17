@@ -58,6 +58,7 @@ var
   VMapTypeActive: IActiveMapSingle;
   VDownload: IInterface;
 begin
+  inherited Create;
   FList := TInterfaceList.Create;
   VEnum := AMapsSet.GetMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin

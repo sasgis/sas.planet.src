@@ -50,6 +50,7 @@ constructor TVectorDataFactorySimple.Create(
   const AHintConverter: IHtmlToHintTextConverter
 );
 begin
+  inherited Create;
   FHintConverter := AHintConverter;
 end;
 

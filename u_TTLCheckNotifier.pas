@@ -51,6 +51,7 @@ implementation
 
 constructor TTTLCheckNotifier.Create;
 begin
+  inherited Create;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   FList := TList.Create;
 end;

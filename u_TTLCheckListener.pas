@@ -35,6 +35,7 @@ constructor TTTLCheckListener.Create(
   ATTL, ACheckInterval: Cardinal
 );
 begin
+  inherited Create;
   FOnTrimByTTL := AOnTrimByTTL;
   FTTL := ATTL;
   FCheckInterval := ACheckInterval;

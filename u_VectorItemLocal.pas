@@ -214,6 +214,7 @@ end;
 
 constructor TLocalLineSetEmpty.Create(const ALocalConverter: ILocalCoordConverter);
 begin
+  inherited Create;
   FLocalConverter := ALocalConverter;
 end;
 

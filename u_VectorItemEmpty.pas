@@ -61,6 +61,7 @@ constructor TLineSetEmpty.Create;
 var
   VEnum: TEnumDoublePointEmpty;
 begin
+  inherited Create;
   VEnum := TEnumDoublePointEmpty.Create;
   FEnumLonLat := VEnum;
   FBounds.TopLeft := CEmptyDoublePoint;

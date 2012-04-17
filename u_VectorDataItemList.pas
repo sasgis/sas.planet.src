@@ -43,6 +43,7 @@ implementation
 
 constructor TVectorDataItemList.Create(AList: IInterfaceList);
 begin
+  inherited Create;
   FList := AList;
 end;
 
