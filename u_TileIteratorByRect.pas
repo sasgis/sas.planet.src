@@ -94,6 +94,7 @@ end;
 
 constructor TTileIteratorByRectBase.Create(const ARect: TRect);
 begin
+  inherited Create;
   FTilesRect := ARect;
 end;
 

@@ -71,6 +71,7 @@ constructor TEnumTileInfo.Create(
   const ATileIterator: ITileIterator
 );
 begin
+  inherited Create;
   FRef := ARef;
   FTileRect := ATileRect;
   FItems := AItems;

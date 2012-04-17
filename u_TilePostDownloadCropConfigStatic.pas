@@ -46,6 +46,7 @@ implementation
 
 constructor TTilePostDownloadCropConfigStatic.Create(ACropRect: TRect);
 begin
+  inherited Create;
   if
     (ACropRect.Left >= 0) and
     (ACropRect.Top >= 0) and

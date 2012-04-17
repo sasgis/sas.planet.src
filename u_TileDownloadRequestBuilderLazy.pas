@@ -46,6 +46,7 @@ constructor TTileDownloadRequestBuilderLazy.Create(
   const AFactory: ITileDownloadRequestBuilderFactory
 );
 begin
+  inherited Create;
   FBuilderCS := MakeSyncObj(Self, TRUE);
   FDownloader := ADownloader;
   FFactory := AFactory;

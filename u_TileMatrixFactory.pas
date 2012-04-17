@@ -73,6 +73,7 @@ constructor TTileMatrixFactory.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
+  inherited Create;
   FImageResamplerConfig := AImageResamplerConfig;
   FLocalConverterFactory := ALocalConverterFactory;
 end;

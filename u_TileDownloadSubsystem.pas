@@ -148,6 +148,7 @@ var
   VDownloadChecker: IDownloadChecker;
   VOperationNotifier: TOperationNotifier;
 begin
+  inherited Create;
   FCoordConverter := ACoordConverter;
   FVersionConfig := AVersionConfig;
   FTileDownloaderConfig := ATileDownloaderConfig;

@@ -56,6 +56,7 @@ constructor TTileFileNameGeneratorsSimpleList.Create(
   AGlobalCacheConfig: TGlobalCahceConfig
 );
 begin
+  inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
   SetLength(FItems, 5);
   FItems[0] := TTileFileNameGMV.Create;

@@ -54,6 +54,7 @@ var
   VConverter: ICoordConverter;
   VMapPixelRect: TRect;
 begin
+  inherited Create;
   FTile := ATile;
   FLocalConverter := ALocalConverter;
   FBitmap := ABitmap;

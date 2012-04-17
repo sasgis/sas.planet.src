@@ -60,6 +60,7 @@ constructor TTileIteratorByPolygonAbstract.Create(
   const AProjected: IProjectedPolygon
 );
 begin
+  inherited Create;
   FProjected := AProjected;
 end;
 

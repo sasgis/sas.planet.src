@@ -50,6 +50,7 @@ var
   VTile: TPoint;
   VTileConverter: ILocalCoordConverter;
 begin
+  inherited Create;
   FLocalConverter := ALocalConverter;
   FTileRect := ATileRect;
   FTileCount := Point(FTileRect.Right - FTileRect.Left, FTileRect.Bottom - FTileRect.Top);

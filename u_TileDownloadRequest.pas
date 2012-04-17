@@ -66,6 +66,7 @@ constructor TTileDownloadRequest.Create(
   const ASource: ITileRequest
 );
 begin
+  inherited Create;
   FUrl := AUrl;
   FRequestHeader := ARequestHeader;
   FInetConfig := AInetConfig;

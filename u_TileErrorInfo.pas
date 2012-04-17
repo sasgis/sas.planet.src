@@ -59,6 +59,7 @@ constructor TTileErrorInfo.Create(
   const AErrorText: string
 );
 begin
+  inherited Create;
   FMapType := AMapType;
   FZoom := AZoom;
   FTile := ATile;

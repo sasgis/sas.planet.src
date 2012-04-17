@@ -188,6 +188,7 @@ constructor TTileDownloadRequestBuilderConfigStatic.Create(
   const AGeoCoder: ICoordConverter
 );
 begin
+  inherited Create;
   FUrlBase := AUrlBase;
   FRequestHeader := ARequestHeader;
   FGeoCoder := AGeoCoder;

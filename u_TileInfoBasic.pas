@@ -107,6 +107,7 @@ constructor TTileInfoBasicBase.Create(
   const AVersionInfo: IMapVersionInfo
 );
 begin
+  inherited Create;
   FDate := ADate;
   FVersionInfo := AVersionInfo;
 end;

@@ -99,6 +99,7 @@ constructor TTileDownloadResultSaverStuped.Create(
 var
   VState: TTileDownloaderStateInternal;
 begin
+  inherited Create;
   FDownloadConfig := ADownloadConfig;
   FImageResamplerConfig := AImageResamplerConfig;
   FContentTypeManager := AContentTypeManager;

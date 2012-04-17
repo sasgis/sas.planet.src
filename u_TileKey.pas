@@ -37,6 +37,7 @@ constructor TTileKey.Create(
   const AVersionInfo: IMapVersionInfo
 );
 begin
+  inherited Create;
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;
