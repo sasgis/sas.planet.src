@@ -111,6 +111,7 @@ constructor TImageLineProviderAbstract.Create(
   ABytesPerPixel: Integer
 );
 begin
+  inherited Create;
   FImageProvider := AImageProvider;
   FLocalConverter := ALocalConverter;
   FConverterFactory := AConverterFactory;

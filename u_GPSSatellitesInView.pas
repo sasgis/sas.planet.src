@@ -76,6 +76,7 @@ constructor TGPSSatellitesInView.Create(
   AItemsGL: PUnknownList
 );
 begin
+  inherited Create;
   // init
   SetFixedSats(nil);
   // make

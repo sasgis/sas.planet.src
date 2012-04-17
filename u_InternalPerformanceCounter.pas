@@ -91,6 +91,7 @@ uses
 constructor TInternalPerformanceCounter.Create(const AName: string; const AQueryPerfCntrFunc: Pointer);
 var VDummy: Int64;
 begin
+  inherited Create;
   FId := Integer(Self);
   FName := AName;
 
@@ -191,6 +192,7 @@ constructor TInternalPerformanceCounterStaticData.Create(
   const AMinTime: TDateTime
 );
 begin
+  inherited Create;
   FId := AId;
   FName := AName;
   FCounter := ACounter;

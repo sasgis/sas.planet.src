@@ -113,6 +113,7 @@ constructor TGPSpar.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   FGPSModuleFactory := AGPSModuleFactory;

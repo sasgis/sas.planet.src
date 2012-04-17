@@ -47,6 +47,7 @@ uses
 
 constructor TInternalDomainInfoProviderList.Create;
 begin
+  inherited Create;
   FList := TStringList.Create;
   FList.Sorted := True;
 end;

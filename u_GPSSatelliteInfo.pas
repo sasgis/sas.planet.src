@@ -51,6 +51,7 @@ constructor TGPSSatelliteInfo.Create(
   const ASingleSatFixibilityData: PSingleSatFixibilityData;
   const ASingleSatSkyData: PSingleSatSkyData);
 begin
+  inherited Create;
   FSingleSatFixibilityData := ASingleSatFixibilityData^;
   FSingleSatSkyData := ASingleSatSkyData^;
 end;

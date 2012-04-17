@@ -103,6 +103,7 @@ end;
 
 constructor TInternalPerformanceCounterList.Create(const AName: string);
 begin
+  inherited Create;
   FList := TInterfaceList.Create;
   FName := AName;
   FNtQPC := NtQueryPerformanceCounterPtr;

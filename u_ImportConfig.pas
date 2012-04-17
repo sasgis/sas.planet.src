@@ -59,6 +59,7 @@ constructor TImportConfig.Create(
   const ATemplateNewPoly: IMarkTemplatePoly
 );
 begin
+  inherited Create;
   FMarkDB := AMarkDB;
   FTemplateNewPoint := ATemplateNewPoint;
   FTemplateNewLine := ATemplateNewLine;

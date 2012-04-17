@@ -51,6 +51,7 @@ constructor TGUIDListStatic.Create(
 var
   i: Integer;
 begin
+  inherited Create;
   SetLength(FList, ACount);
   for i := 0 to ACount - 1 do begin
     FList[i] := AList[i];

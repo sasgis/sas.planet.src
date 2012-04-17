@@ -158,6 +158,7 @@ uses
 
 constructor TItemsArray.Create(AItemsCount: Integer);
 begin
+  inherited Create;
   FItemsCount := AItemsCount;
   SetLength(FItems, FItemsCount);
 end;
@@ -175,6 +176,7 @@ end;
 
 constructor TStack.Create(AItems: TItemsArray);
 begin
+  inherited Create;
   FItems := AItems;
   FItemsCount :=  FItems.ItemsCount;
   FCount := 0;
@@ -218,6 +220,7 @@ constructor TQueue.Create(
   AItems: TItemsArray
 );
 begin
+  inherited Create;
   FQueueType := AQueueType;
   FItems := AItems;
   FItemsCount := FItems.FItemsCount;
@@ -421,6 +424,7 @@ constructor THashTable.Create(AHashSize: Integer; AItems: TItemsArray);
 var
   i: Integer;
 begin
+  inherited Create;
   FHashSize := AHashSize;
   SetLength(FHash, FHashSize);
   FItems := AItems;
@@ -527,6 +531,7 @@ var
   VIndex: TItemIndex;
   VHashSizeInBit: Byte;
 begin
+  inherited Create;
   Assert(AHashSizeInBit >= 6);
   Assert(AHashSizeInBit <= 30);
   Assert(AMultiUseCount > 0);

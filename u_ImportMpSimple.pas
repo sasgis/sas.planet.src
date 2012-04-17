@@ -66,6 +66,7 @@ const
 
 constructor TImportMpSimple.Create(const AFactory: IVectorItmesFactory);
 begin
+  inherited Create;
   FFactory := AFactory;
 end;
 

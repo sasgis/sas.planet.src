@@ -55,6 +55,7 @@ var
   I, J: Byte;
   D: UInt64;
 begin
+  inherited Create;
   for I := 0 to 255 do begin
     D := I;
     for J := 1 to 8 do begin

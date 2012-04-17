@@ -73,6 +73,7 @@ constructor TImportByFileExt.Create(
   const AKmzLoader: IVectorDataLoader
 );
 begin
+  inherited Create;
   FImportXML := TImportKML.Create(AVectorDataFactory, AXmlLoader);
   FImportPLT := TImportKML.Create(AVectorDataFactory, APltLoader);
   FImportHLG := TImportHLG.Create(AFactory);

@@ -52,6 +52,7 @@ constructor TIeEmbeddedProtocolRegistration.Create(
   const AFactory: IClassFactory
 );
 begin
+  inherited Create;
   FProtocol := AProtocol;
   FFactory := AFactory;
   CoInternetGetSession(0, FInternetSession, 0);

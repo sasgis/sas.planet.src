@@ -127,7 +127,12 @@ var
   VMeta: TMetadata;
 begin
   VMeta := TMetadata.Create;
-  Create(AFormatClass.Create(VMeta), VMeta, APerfCounterList);
+  try
+    Create(AFormatClass.Create(VMeta), VMeta, APerfCounterList);
+    VMeta := nil;
+  finally
+    VMeta.Free;
+  end;
 end;
 
 destructor TVampyreBasicBitmapTileSaver.Destroy;

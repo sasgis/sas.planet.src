@@ -47,6 +47,7 @@ constructor TInternalBrowserByForm.Create(
   const AContentTypeManager: IContentTypeManager
 );
 begin
+  inherited Create;
   FLanguageManager := ALanguageManager;
   FProxyConfig := AProxyConfig;
   FContentTypeManager := AContentTypeManager;

@@ -126,6 +126,7 @@ constructor TLocalCoordConverterBase.Create(
   const AProjection: IProjectionInfo
 );
 begin
+  inherited Create;
   FLocalRect := ALocalRect;
   FLocalSize.X := FLocalRect.Right - FLocalRect.Left;
   FLocalSize.Y := FLocalRect.Bottom - FLocalRect.Top;

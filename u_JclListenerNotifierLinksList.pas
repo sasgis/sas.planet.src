@@ -58,6 +58,7 @@ uses
 
 constructor TJclListenerNotifierLinksList.Create;
 begin
+  inherited Create;
   FCS := MakeSyncRW_Sym(Self, TRUE);
   FListenerList := TInterfaceList.Create;
   FNotifierList := TInterfaceList.Create;

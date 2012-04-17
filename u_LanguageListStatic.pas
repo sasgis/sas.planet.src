@@ -56,6 +56,7 @@ var
   i: Integer;
   VCode: string;
 begin
+  inherited Create;
   FSortedByCode := TStringList.Create;
   FSortedByCode.Sorted := True;
   FSortedByCode.Duplicates := dupError;

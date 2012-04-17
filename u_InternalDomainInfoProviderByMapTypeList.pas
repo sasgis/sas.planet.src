@@ -85,6 +85,7 @@ constructor TInternalDomainInfoProviderByMapTypeList.Create(
   const AContentTypeManager: IContentTypeManager
 );
 begin
+  inherited Create;
   FZmpInfoSet := AZmpInfoSet;
   FContentTypeManager := AContentTypeManager;
 end;

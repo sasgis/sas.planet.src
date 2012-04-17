@@ -57,6 +57,7 @@ uses
 
 constructor TGeoCoderListBase.Create;
 begin
+  inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TGUIDInterfaceSet.Create(False);
   FAddNotifier := TJclBaseNotifier.Create;

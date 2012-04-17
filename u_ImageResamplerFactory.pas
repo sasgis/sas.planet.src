@@ -68,6 +68,7 @@ end;
 constructor TImageResamplerFactoryKernel.Create(
   AKernelClass: TCustomKernelClass);
 begin
+  inherited Create;
   FKernelClass := AKernelClass;
 end;
 

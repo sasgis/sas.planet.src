@@ -152,6 +152,7 @@ constructor TEnumTrackPointsByArray.Create(
   ACount: Integer
 );
 begin
+  inherited Create;
   FCopyPoints := ACopyPoints;
   FCount := ACount;
   if FCopyPoints then begin

@@ -61,6 +61,7 @@ constructor TInetConfigStatic.Create(
   ADownloadTryCount: Integer
 );
 begin
+  inherited Create;
   FProxyConfigStatic := AProxyConfigStatic;
   FTimeOut := ATimeOut;
   FSleepOnResetConnection := ASleepOnResetConnection;

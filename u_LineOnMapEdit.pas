@@ -681,6 +681,7 @@ constructor TLonLatLineWithSelectedBase.Create(
   ASelectedSegmentIndex, ASelectedPointIndex: Integer
 );
 begin
+  inherited Create;
   FSelectedPoint := ASelectedPoint;
   FSelectedSegmentIndex := ASelectedSegmentIndex;
   FSelectedPointIndex := ASelectedPointIndex;

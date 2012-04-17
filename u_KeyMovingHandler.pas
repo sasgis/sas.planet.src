@@ -68,6 +68,7 @@ constructor TKeyMovingHandler.Create(
   const AConfig: IKeyMovingConfig
 );
 begin
+  inherited Create;
   FConfig := AConfig;
   FMap := AMap;
   FViewPortState := AViewPortState;

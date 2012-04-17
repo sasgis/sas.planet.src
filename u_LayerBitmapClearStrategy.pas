@@ -101,6 +101,7 @@ constructor TLayerBitmapClearStrategyBase.Create(
   const ACounter: IInternalPerformanceCounter
 );
 begin
+  inherited Create;
   FCounter := ACounter;
 end;
 

@@ -50,6 +50,7 @@ constructor TSyncNavigate.Create(
   AfrmInvisibleBrowser: TfrmInvisibleBrowser
 );
 begin
+  inherited Create;
   FUrl := AUrl;
   FfrmInvisibleBrowser := AfrmInvisibleBrowser;
 end;
@@ -71,6 +72,7 @@ constructor TInvisibleBrowserByFormSynchronize.Create(
   const AProxyConfig: IProxyConfig
 );
 begin
+  inherited Create;
   FCS := MakeSyncObj(Self, FALSE);
   FProxyConfig := AProxyConfig;
   FLanguageManager := ALanguageManager;

@@ -82,6 +82,7 @@ constructor TLayerBitmapClearStrategyFactory.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FResamplerConfig := AResamplerConfig;
 
   FSimpleClearCounter := APerfCounterList.CreateAndAddNewCounter('SimpleClear');

@@ -162,6 +162,7 @@ type
 
 constructor TTrackPoitnsBlock.Create(ACount: Integer);
 begin
+  inherited Create;
   FCount := ACount;
   Assert(FCount > 0);
   SetLength(FPoints, FCount);

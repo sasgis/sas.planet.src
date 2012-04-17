@@ -52,6 +52,7 @@ constructor TIeEmbeddedProtocolFactory.Create(
   const ADomainList: IInternalDomainInfoProviderList
 );
 begin
+  inherited Create;
   FDomainList := ADomainList;
 end;
 

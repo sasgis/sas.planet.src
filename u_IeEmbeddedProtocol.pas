@@ -67,6 +67,7 @@ uses
 
 constructor TIeEmbeddedProtocol.Create(const ADomainList: IInternalDomainInfoProviderList);
 begin
+  inherited Create;
   FDomainList := ADomainList;
   FStream := TMemoryStream.Create;
 end;

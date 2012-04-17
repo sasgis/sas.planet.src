@@ -31,6 +31,7 @@ uses
 
 constructor TIdCacheSimpleThreadSafe.Create;
 begin
+  inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FIdList := TIDInterfaceList.Create(False);
 end;

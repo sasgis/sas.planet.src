@@ -57,6 +57,7 @@ uses
 
 constructor TImportHLG.Create(const AFactory: IVectorItmesFactory);
 begin
+  inherited Create;
   FFactory := AFactory;
 end;
 

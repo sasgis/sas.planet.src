@@ -56,6 +56,7 @@ constructor TInternalDomainInfoProviderByDataProvider.Create(
   const AContentTypeManager: IContentTypeManager
 );
 begin
+  inherited Create;
   FProvider := AProvider;
   FContentTypeManager := AContentTypeManager;
 end;
