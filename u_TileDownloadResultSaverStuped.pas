@@ -166,7 +166,6 @@ end;
 
 procedure TTileDownloadResultSaverStuped.OnStorageStateChange;
 begin
-(*
   if not Assigned(FStateInternal) then
     Exit;
   if FStorage.State.GetStatic.WriteAccess = asDisabled then begin
@@ -174,7 +173,6 @@ begin
   end else begin
     FStateInternal.Enable;
   end;
-*)
 end;
 
 procedure TTileDownloadResultSaverStuped.SaveDownloadResult(
