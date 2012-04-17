@@ -75,6 +75,7 @@ constructor TMarkCategoryFactory.Create(
   const AConfig: IMarkCategoryFactoryConfig
 );
 begin
+  inherited Create;
   FDbCode := ADbCode;
   FConfig := AConfig;
 end;

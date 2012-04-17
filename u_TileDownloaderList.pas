@@ -75,6 +75,7 @@ constructor TTileDownloaderList.Create(
   const ARequestBuilderFactory: ITileDownloadRequestBuilderFactory
 );
 begin
+  inherited Create;
   FGCList := AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
   FResultFactory := AResultFactory;

@@ -159,6 +159,7 @@ constructor TSensorViewTBXPanelBase.Create(
   AImageIndexReset: TImageIndex
 );
 begin
+  inherited Create;
   FListEntity := AListEntity;
   FSensor := FListEntity.GetSensor;
   FConfig := AConfig;

@@ -74,6 +74,7 @@ constructor TSimpleTileStorageConfigStatic.Create(
   AIsStoreFileCache, AIsReadOnly, AAllowDelete, AAllowAdd, AAllowReplace: boolean
 );
 begin
+  inherited Create;
   FCoordConverter := ACoordConverter;
   FCacheTypeCode := ACacheTypeCode;
   FNameInCache := ANameInCache;

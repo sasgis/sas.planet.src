@@ -58,6 +58,7 @@ constructor TStaticTreeItem.Create(
   const ASubItems: IInterfaceList
 );
 begin
+  inherited Create;
   FData := AData;
   FName := AName;
   FGroupName := AGroupName;

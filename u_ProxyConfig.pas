@@ -307,6 +307,7 @@ constructor TProxyConfigStatic.Create(
   const ALogin, APassword: WideString
 );
 begin
+  inherited Create;
   FUseIESettings := AUseIESettings;
   FUseProxy := AUseProxy;
   FHost := AHost;

@@ -47,6 +47,7 @@ constructor TTileDownloaderWithQueue.Create(
   AQueueCapacity: Integer
 );
 begin
+  inherited Create;
   FQueue :=
     TTileRequestQueue.Create(
       AGCList,

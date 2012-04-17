@@ -259,6 +259,7 @@ constructor TMarksDb.Create(
 var
   VFactory: TMarkFactory;
 begin
+  inherited Create;
   FBasePath := ABasePath;
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   VFactory :=

@@ -74,6 +74,7 @@ constructor TTileDownloaderConfigStatic.Create(
   const AIteratorSubRectSize: TPoint
 );
 begin
+  inherited Create;
   FInetConfigStatic := AInetConfigStatic;
   FEnabled := AEnabled;
   FWaitInterval := AWaitInterval;

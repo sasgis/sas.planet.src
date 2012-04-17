@@ -79,6 +79,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   const AViewPortState: IViewPortState
 );
 begin
+  inherited Create;
   FIntrnalBrowser := AIntrnalBrowser;
   FMapGoto := AMapGoto;
   FValueConverterConfig := AValueConverterConfig;

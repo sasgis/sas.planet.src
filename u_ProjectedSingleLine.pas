@@ -82,6 +82,7 @@ var
   VBounds: TDoubleRect;
   i: Integer;
 begin
+  inherited Create;
   VBounds.TopLeft := APoints[0];
   VBounds.BottomRight := APoints[0];
   for i := 1 to ACount - 1 do begin
@@ -109,6 +110,7 @@ constructor TProjectedLineBase.Create(
   ACount: Integer
 );
 begin
+  inherited Create;
   FBounds := ABounds;
   FProjection := AProjection;
   FCount := ACount;

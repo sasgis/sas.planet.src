@@ -29,6 +29,7 @@ constructor TTileDownloaderStateStatic.Create(
   const AReason: string
 );
 begin
+  inherited Create;
   FEnabled := AEnabled;
   FReason := AReason;
 end;

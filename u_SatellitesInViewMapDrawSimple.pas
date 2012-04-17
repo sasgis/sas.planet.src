@@ -144,6 +144,7 @@ end;
 
 constructor TSatellitesInViewMapDrawSimple.Create;
 begin
+  inherited Create;
   FSatFixedColor := clGreen32;
   FSatNotFixedColor := clYellow32;
   FSatNotVisibleColor := clRed32;

@@ -31,6 +31,7 @@ constructor TTileDownloaderListStatic.Create(
 var
   i: Integer;
 begin
+  inherited Create;
   FCount := Length(AList);
   SetLength(FList, FCount);
   for i := 0 to FCount - 1 do begin

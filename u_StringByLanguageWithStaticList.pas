@@ -48,6 +48,7 @@ uses
 
 constructor TStringByLanguageWithStaticList.Create(AValueList: TStrings);
 begin
+  inherited Create;
   FValueList := TStringList.Create;
   Assert(AValueList.Count > 0);
   FValueList.Assign(AValueList);

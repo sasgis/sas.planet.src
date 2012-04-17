@@ -72,6 +72,7 @@ constructor TMarkCategory.Create(
   AAfterScale, ABeforeScale: integer
 );
 begin
+  inherited Create;
   FDbCode := ADbCode;
   FId := AId;
   FName := AName;

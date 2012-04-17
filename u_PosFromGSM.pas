@@ -67,6 +67,7 @@ constructor TPosFromGSM.Create(
   const AMapGoto: IMapViewGoto
 );
 begin
+  inherited Create;
   FConfig := AConfig;
   FMapGoto := AMapGoto;
 end;

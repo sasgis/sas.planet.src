@@ -58,6 +58,7 @@ uses
 constructor TShortcutManager.Create(AMainMenu: TTBCustomItem;
   AIgnoredItems: TList);
 begin
+  inherited Create;
   FIgnoredItems := AIgnoredItems;
   FItemsList := TInterfaceList.Create;
   LoadItems(AMainMenu);

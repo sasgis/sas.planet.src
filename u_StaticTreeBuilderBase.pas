@@ -82,6 +82,7 @@ type
 
 constructor TTempTreeItem.Create;
 begin
+  inherited Create;
   FSubList := TStringList.Create;
   FSubList.Sorted := True;
   FSubList.Duplicates := dupAccept;

@@ -105,6 +105,7 @@ end;
 constructor TGotoPosStatic.Create(ALonLat: TDoublePoint; AZoom: Byte;
   AGotoTime: TDateTime);
 begin
+  inherited Create;
   FLonLat := ALonLat;
   FZoom := AZoom;
   FGotoTime := AGotoTime;

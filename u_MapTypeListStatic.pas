@@ -26,6 +26,7 @@ constructor TMapTypeListStatic.Create(const AItems: array of IMapType);
 var
   i: Integer;
 begin
+  inherited Create;
   FCount := Length(AItems);
   SetLength(FItems, FCount);
   for i := 0 to FCount - 1 do begin

@@ -206,6 +206,7 @@ constructor TMarkFactory.Create(
   const ACategoryDB: IMarkCategoryDBSmlInternal
 );
 begin
+  inherited Create;
   FDbCode := ADbCode;
   FConfig := AConfig;
   FFactory := AFactory;

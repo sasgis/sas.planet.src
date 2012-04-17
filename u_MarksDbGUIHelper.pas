@@ -116,6 +116,7 @@ constructor TMarksDbGUIHelper.Create(
   AFormRegionProcess: TfrmRegionProcess
 );
 begin
+  inherited Create;
   FMarksDB := AMarksDB;
   FVectorItmesFactory := AVectorItmesFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;

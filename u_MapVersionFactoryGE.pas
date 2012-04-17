@@ -60,6 +60,7 @@ constructor TMapVersionInfoGE.Create(
   const ATileDate: String
 );
 begin
+  inherited Create;
   FVer := AVer;
   FGEServer := AGEServer;
   FTileDate := ATileDate;

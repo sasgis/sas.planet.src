@@ -39,6 +39,7 @@ implementation
 
 constructor TRegionProcessProgressInfo.Create;
 begin
+  inherited Create;
   FFinished := False;
   FProcessed := 0;
 end;

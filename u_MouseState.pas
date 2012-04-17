@@ -101,6 +101,7 @@ uses
 
 constructor TMouseState.Create;
 begin
+  inherited Create;
   FCS := MakeSyncRW_Var(Self);
   FNtQPC := NtQueryPerformanceCounterPtr;
   FCurentTime := 0;

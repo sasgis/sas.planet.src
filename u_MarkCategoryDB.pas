@@ -94,6 +94,7 @@ constructor TMarkCategoryDB.Create(
 var
   VFactory: TMarkCategoryFactory;
 begin
+  inherited Create;
   FDbCode := Integer(Self);
   FBasePath := ABasePath;
   FSync := TSimpleRWSync.Create;

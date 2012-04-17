@@ -57,6 +57,7 @@ uses
 
 constructor TMenuGeneratorByStaticTreeSimple.Create(AOnClick: TNotifyEvent);
 begin
+  inherited Create;
   FOnClick := AOnClick;
 end;
 

@@ -139,6 +139,7 @@ var
   i: Integer;
   VNotifier: ITileRectUpdateNotifier;
 begin
+  inherited Create;
   FConfig := AConfig;
   FGCList := AGCList;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnChangeConfig);

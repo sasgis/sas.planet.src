@@ -47,6 +47,7 @@ implementation
 
 constructor TMapVersionInfo.Create(const AVersion: string);
 begin
+  inherited Create;
   FVersion := AVersion;
 end;
 

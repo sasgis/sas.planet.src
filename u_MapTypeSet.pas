@@ -62,6 +62,7 @@ end;
 
 constructor TMapTypeSet.Create(AAllowNil: Boolean);
 begin
+  inherited Create;
   FList := TGUIDInterfaceSet.Create(AAllowNil);
 end;
 

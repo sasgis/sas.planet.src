@@ -157,6 +157,7 @@ constructor TSensorViewListGeneratorStuped.Create(
   AImageIndexReset: TImageIndex
 );
 begin
+  inherited Create;
   FTimerNoifier := ATimerNoifier;
   FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;

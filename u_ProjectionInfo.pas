@@ -31,6 +31,7 @@ constructor TProjectionInfo.Create(
   AZoom: Byte
 );
 begin
+  inherited Create;
   FGeoConverter := AGeoConverter;
   FZoom := AZoom;
 end;

@@ -69,6 +69,7 @@ implementation
 
 constructor TNotifyEventListener.Create(AEvent: TNotifyListenerEvent);
 begin
+  inherited Create;
   FEvent := AEvent;
   FDisconnectCount := 0;
   Assert(Assigned(FEvent));
@@ -91,6 +92,7 @@ end;
 
 constructor TNotifyEventListenerSync.Create(AEvent: TNotifyListenerNoMmgEvent);
 begin
+  inherited Create;
   FEvent := AEvent;
   Assert(Assigned(FEvent));
 end;
@@ -110,6 +112,7 @@ end;
 
 constructor TNotifyNoMmgEventListener.Create(AEvent: TNotifyListenerNoMmgEvent);
 begin
+  inherited Create;
   FEvent := AEvent;
   Assert(Assigned(FEvent));
 end;

@@ -116,6 +116,7 @@ constructor TMapTypesMainList.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FZmpInfoSet := AZmpInfoSet;
   FPerfCounterList := APerfCounterList;
 end;

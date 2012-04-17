@@ -77,6 +77,7 @@ constructor TMapMenuGeneratorBasic.Create(
   const AIconsList: IMapTypeIconsList
 );
 begin
+  inherited Create;
   FGUIConfigList := AGUIConfigList;
   FMapsSet := AMapsSet;
   FRootMenu := ARootMenu;

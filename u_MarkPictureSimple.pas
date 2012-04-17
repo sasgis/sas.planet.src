@@ -79,6 +79,7 @@ constructor TMarkPictureSimple.Create(
   const ALoader: IBitmapTileLoader
 );
 begin
+  inherited Create;
   FFullFileName := AFullFileName;
   FName := AName;
   FLoader := ALoader;

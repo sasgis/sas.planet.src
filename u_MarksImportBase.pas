@@ -55,6 +55,7 @@ implementation
 
 constructor TMarksImportBase.Create(const AVectorDataFactory: IVectorDataFactory);
 begin
+  inherited Create;
   FVectorDataFactory := AVectorDataFactory;
 end;
 

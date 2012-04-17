@@ -62,6 +62,7 @@ constructor TMarksDrawConfigStatic.Create(
   AOverSizeRect: TRect
 );
 begin
+  inherited Create;
   FShowPointCaption := AShowPointCaption;
   FUseSolidCaptionBackground := AUseSolidCaptionBackground;
   FUseSimpleDrawOrder := AUseSimpleDrawOrder;

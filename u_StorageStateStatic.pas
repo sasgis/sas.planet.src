@@ -41,6 +41,7 @@ constructor TStorageStateStatic.Create(
   AReplaceAccess: TAccesState
 );
 begin
+  inherited Create;
   FReadAccess := AReadAccess;
   FWriteAccess := AWriteAccess;
   FDeleteAccess := ADeleteAccess;

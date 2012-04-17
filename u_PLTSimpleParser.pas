@@ -72,6 +72,7 @@ constructor TPLTSimpleParser.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
+  inherited Create;
   FFactory := AFactory;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
 end;

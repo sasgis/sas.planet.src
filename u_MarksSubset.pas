@@ -51,6 +51,7 @@ uses
 
 constructor TMarksSubset.Create(const AList: IInterfaceList);
 begin
+  inherited Create;
   FList := AList;
 end;
 

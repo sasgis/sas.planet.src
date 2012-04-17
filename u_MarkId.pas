@@ -73,6 +73,7 @@ constructor TMarkId.Create(
 var
   VCategory: IMarkCategorySMLInternal;
 begin
+  inherited Create;
   FDbCode := ADbCode;
   FName := AName;
   FId := AId;

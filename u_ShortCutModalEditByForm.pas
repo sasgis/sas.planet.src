@@ -35,6 +35,7 @@ constructor TShortCutModalEditByForm.Create(
   const ALanguageManager: ILanguageManager
 );
 begin
+  inherited Create;
   FLanguageManager := ALanguageManager;
   FEditCounter := 0;
 end;

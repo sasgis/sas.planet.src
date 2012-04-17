@@ -73,6 +73,7 @@ implementation
 
 constructor TNotificationMessageWithGUID.Create(const AGUID: TGUID);
 begin
+  inherited Create;
   FGUID := AGUID;
 end;
 
@@ -85,6 +86,7 @@ end;
 
 constructor TNotifyWithGUIDEventListener.Create(AEvent: TNotifyWithGUIDEvent);
 begin
+  inherited Create;
   FEvent := AEvent;
 end;
 

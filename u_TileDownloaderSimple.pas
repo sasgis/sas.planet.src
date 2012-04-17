@@ -87,6 +87,7 @@ constructor TTileDownloaderSimple.Create(
 var
   VOperationNotifier: TOperationNotifier;
 begin
+  inherited Create;
   FAppClosingNotifier := AAppClosingNotifier;
   FTileDownloadRequestBuilder := ATileDownloadRequestBuilder;
   FTileDownloaderConfig := ATileDownloaderConfig;

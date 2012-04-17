@@ -45,6 +45,7 @@ constructor TSimpleHttpDownloader.Create(
   AOperationID: Integer
 );
 begin
+  inherited Create;
   FDownloader := ADownloader;
   FInetConfig := AInetConfig;
   FCancelNotifier := ACancelNotifier;
