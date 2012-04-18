@@ -246,6 +246,8 @@
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="i_LogForTaskThread.pas" />
     <DCCReference Include="i_LogSimple.pas" />
+    <DCCReference Include="i_LonLatRect.pas" />
+    <DCCReference Include="i_LonLatRectUpdateNotifier.pas" />
     <DCCReference Include="i_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="i_MainFormConfig.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
@@ -706,6 +708,7 @@
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LocalSingleLine.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
+    <DCCReference Include="u_LonLatRect.pas" />
     <DCCReference Include="u_LonLatSingleLine.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainFormBehaviourByGPSConfig.pas" />
