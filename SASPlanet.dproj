@@ -709,6 +709,7 @@
     <DCCReference Include="u_LocalSingleLine.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_LonLatRect.pas" />
+    <DCCReference Include="u_LonLatRectUpdateNotifier.pas" />
     <DCCReference Include="u_LonLatSingleLine.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainFormBehaviourByGPSConfig.pas" />

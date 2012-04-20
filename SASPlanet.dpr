@@ -45,6 +45,7 @@ uses
   i_TileRectUpdateNotifier in 'i_TileRectUpdateNotifier.pas',
   u_TileRectUpdateNotifier in 'u_TileRectUpdateNotifier.pas',
   i_LonLatRectUpdateNotifier in 'i_LonLatRectUpdateNotifier.pas',
+  u_LonLatRectUpdateNotifier in 'u_LonLatRectUpdateNotifier.pas',
   i_ConfigDataProvider in 'i_ConfigDataProvider.pas',
   i_ConfigDataWriteProvider in 'i_ConfigDataWriteProvider.pas',
   u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',

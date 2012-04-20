@@ -59,6 +59,7 @@ type
   function IntersecTDoubleRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
   function IntersecLonLatRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
   function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
+  function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean;
 
   function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean;
   function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean;
@@ -382,6 +383,15 @@ begin
   if R2.Bottom > R1.Bottom then Rect.Bottom := R2.Bottom;
   Result := not IsLonLatRectEmpty(Rect);
   if not Result then FillChar(Rect, SizeOf(Rect), 0);
+end;
+
+function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean;
+begin
+  Result :=
+    (R1.Left < R2.Right) and
+    (R1.Right > R2.Left) and
+    (R1.Top > R2.Bottom) and
+    (R1.Bottom < R2.Top);
 end;
 
 function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;
