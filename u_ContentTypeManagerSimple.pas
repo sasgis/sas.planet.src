@@ -42,7 +42,8 @@ type
     procedure UpdateConverterMatrix;
     procedure InitLists(
       const AFactory: IVectorItmesFactory;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const ALoadPerfCounterList: IInternalPerformanceCounterList;
+      const ASavePerfCounterList: IInternalPerformanceCounterList
     );
   public
     constructor Create(
@@ -80,13 +81,15 @@ begin
   inherited Create;
   InitLists(
     AFactory,
-    APerfCounterList.CreateAndAddNewSubList('TileLoad')
+    APerfCounterList.CreateAndAddNewSubList('TileLoad'),
+    APerfCounterList.CreateAndAddNewSubList('TileSave')
   );
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
   const AFactory: IVectorItmesFactory;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const ALoadPerfCounterList: IInternalPerformanceCounterList;
+  const ASavePerfCounterList: IInternalPerformanceCounterList
 );
 var
   VContentType: IContentTypeInfoBasic;
@@ -95,11 +98,11 @@ begin
     'image/jpg',
     '.jpg',
     {$IFNDEF NATIVE_LIBJPEG}
-    TVampyreBasicBitmapTileLoaderJPEG.Create(APerfCounterList),
-    TVampyreBasicBitmapTileSaverJPG.Create(85)
+    TVampyreBasicBitmapTileLoaderJPEG.Create(ALoadPerfCounterList),
+    TVampyreBasicBitmapTileSaverJPG.Create(85, ASavePerfCounterList)
     {$ELSE}
-    TLibJpegTileLoader.Create(APerfCounterList),
-    TLibJpegTileSaver.Create(85)
+    TLibJpegTileLoader.Create(ALoadPerfCounterList),
+    TLibJpegTileSaver.Create(85, ASavePerfCounterList)
     {$ENDIF}
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -111,8 +114,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/png',
     '.png',
-    TVampyreBasicBitmapTileLoaderPNG.Create(APerfCounterList),
-    TVampyreBasicBitmapTileSaverPNG.Create
+    TVampyreBasicBitmapTileLoaderPNG.Create(ALoadPerfCounterList),
+    TVampyreBasicBitmapTileSaverPNG.Create(ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/x-png');
@@ -122,8 +125,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/gif',
     '.gif',
-    TVampyreBasicBitmapTileLoaderGIF.Create(APerfCounterList),
-    TVampyreBasicBitmapTileSaverGIF.Create
+    TVampyreBasicBitmapTileLoaderGIF.Create(ALoadPerfCounterList),
+    TVampyreBasicBitmapTileSaverGIF.Create(ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
@@ -131,8 +134,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/bmp',
     '.bmp',
-    TVampyreBasicBitmapTileLoaderBMP.Create(APerfCounterList),
-    TVampyreBasicBitmapTileSaverBMP.Create
+    TVampyreBasicBitmapTileLoaderBMP.Create(ALoadPerfCounterList),
+    TVampyreBasicBitmapTileSaverBMP.Create(ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/x-ms-bmp');
@@ -155,7 +158,7 @@ begin
     '.kml',
     TKmlInfoSimpleParser.Create(
       AFactory,
-      APerfCounterList
+      ALoadPerfCounterList
     )
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -166,7 +169,7 @@ begin
     '.kmz',
     TKmzInfoSimpleParser.Create(
       AFactory,
-      APerfCounterList
+      ALoadPerfCounterList
     )
   );
   AddByType(VContentType, VContentType.GetContentType);
