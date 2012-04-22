@@ -40,6 +40,7 @@ uses
 
 constructor TLonLatRect.Create(const ARect: TDoubleRect);
 begin
+  inherited Create;
   Assert(not IsNan(ARect.Left));
   Assert(not IsNan(ARect.Top));
   Assert(not IsNan(ARect.Right));
