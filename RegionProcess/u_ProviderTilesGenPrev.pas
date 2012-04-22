@@ -166,6 +166,7 @@ var
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
+  VBgColor: TColor32;
 begin
   inherited;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
@@ -189,7 +190,11 @@ begin
   except
     VResampler := FImageResamplerConfig.GetActiveFactory;
   end;
-
+  if VMapType.IsHybridLayer then begin
+    VBgColor := 0;
+  end else begin
+    VBgColor := Color32(FViewConfig.BackGroundColor);
+  end;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
@@ -217,7 +222,7 @@ begin
     FFrame.chkSaveFullOnly.Checked,
     FFrame.chkFromPrevZoom.Checked,
     FFrame.chkUsePrevTiles.Checked,
-    Color32(FViewConfig.BackGroundColor),
+    VBgColor,
     VResampler
   );
 end;
