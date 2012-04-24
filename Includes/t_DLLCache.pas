@@ -128,15 +128,15 @@ type
     const ARangeFillingMapInfo: PRangeFillingMapInfo
   ): Boolean; stdcall;
 
-  // common params (same for TQueryTileInfo and TEnumTileVersionsInfo)
+  // common params (same for TQueryTileInfo + TEnumTileVersionsInfo + TUrlOfTileInfo)
   TCommonTileOperInfo = packed record
     Size: SmallInt; // FULL size!
     Cancelled: Byte;
     Zoom: Byte;
     XY: TPoint;
     VersionInp: PAnsiChar; // original version
-    FlagsInp: LongWord; // DLLCACHE_QTI_* constants
-    FlagsOut: LongWord; // DLLCACHE_QTO_* constants
+    FlagsInp: LongWord; // DLLCACHE_QTI_* constants (and others)
+    FlagsOut: LongWord; // DLLCACHE_QTO_* constants (and others)
   end;
   PCommonTileOperInfo = ^TCommonTileOperInfo;
 
@@ -262,6 +262,54 @@ type
     const AHostInstanceParams: PHostInstanceParams
   ): Boolean; stdcall;
   *)
+
+const
+  // UrlOfTile - Input
+  DLLCACHE_UTI_GET_VERSION = $00000001; // return version of file (not implemented yet)
+
+  // UrlOfTile - Output
+  DLLCACHE_UTO_QTREE       = $00000001; // url for Qtree file
+  DLLCACHE_UTO_IMAGE       = $00000002; // url for Image file
+  DLLCACHE_UTO_HIDDEN      = $00000004; // special flag for another default server (to be renamed!)
+
+  DLLCACHE_UTPI_HOST       = $00000001; // set special proxy host (address)
+
+type
+  TUrlOfTileInfo = packed record
+    // common params
+    Common: TCommonTileOperInfo;
+    // result params
+    Counter: LongWord;    // opaque for DLL
+    ResultURLs: Pointer;  // opaque for DLL - use TStringList
+    ProxyParams: Pointer; // opaque for DLL
+  end;
+  PUrlOfTileInfo = ^TUrlOfTileInfo;
+
+  TUrlOfTileProxyInfo = packed record
+    Size: SmallInt;
+    Flags: Word; // see DLLCACHE_UTPI_* constants
+    ProxyAddr: PAnsiChar;
+    Reserved1: Pointer;
+    Reserved2: Pointer;
+  end;
+  PUrlOfTileProxyInfo = ^TUrlOfTileProxyInfo;
+
+  TDLLCache_UrlOfTile_Callback = function(
+    const AContext: Pointer;
+    const AUrlOfTileType: LongWord; {reserved - use 0}
+    const AUrlOfTileInfo: PUrlOfTileInfo;
+    const AUrlOfTileText: PAnsiChar;
+    const AVersionString: PAnsiChar;
+    const AUrlOfTileProxy: PUrlOfTileProxyInfo
+  ): Boolean; stdcall;
+
+  // DLLCache_UrlOfTile - get full url to download tile
+  TDLLCache_UrlOfTile = function(
+    const ADLLCacheHandle: PDLLCacheHandle;
+    const AUrlOfTileType: LongWord; {reserved - use 0}
+    const AUrlOfTileInfo: PUrlOfTileInfo;
+    const AUrlOfTile_Callback: TDLLCache_UrlOfTile_Callback
+  ): Boolean; stdcall;
 
 implementation
 
