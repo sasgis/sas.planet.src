@@ -3,7 +3,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Top = 247
   BorderStyle = bsSizeToolWin
   Caption = 'Images available'
-  ClientHeight = 359
+  ClientHeight = 517
   ClientWidth = 256
   Color = clBtnFace
   Constraints.MinHeight = 332
@@ -20,7 +20,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   TextHeight = 13
   object spltDesc: TSplitter
     Left = 0
-    Top = 240
+    Top = 398
     Width = 256
     Height = 3
     Cursor = crVSplit
@@ -31,13 +31,14 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   end
   object gbImageParams: TGroupBox
     Left = 0
-    Top = 243
+    Top = 401
     Width = 256
     Height = 116
     Align = alBottom
     Caption = 'Description:'
     Constraints.MinHeight = 80
     TabOrder = 0
+    ExplicitTop = 243
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
@@ -55,19 +56,21 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   end
   object gbAvailImages: TGroupBox
     Left = 0
-    Top = 78
+    Top = 97
     Width = 256
-    Height = 162
+    Height = 301
     Align = alClient
     Caption = 'Images available'
     Constraints.MinHeight = 144
     TabOrder = 1
+    ExplicitTop = 78
+    ExplicitHeight = 162
     object tvFound: TTreeView
       AlignWithMargins = True
       Left = 5
       Top = 18
       Width = 165
-      Height = 139
+      Height = 278
       Align = alClient
       HideSelection = False
       HotTrack = True
@@ -80,15 +83,17 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnClick = tvFoundClick
       OnDeletion = tvFoundDeletion
       OnMouseDown = tvFoundMouseDown
+      ExplicitHeight = 139
     end
     object pnlRight: TPanel
       Left = 173
       Top = 15
       Width = 81
-      Height = 145
+      Height = 284
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 145
       object btnUp: TButton
         AlignWithMargins = True
         Left = 3
@@ -142,16 +147,17 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Left = 0
     Top = 0
     Width = 256
-    Height = 78
+    Height = 97
     Align = alTop
     Caption = 'Image services'
     TabOrder = 2
+    ExplicitWidth = 282
     DesignSize = (
       256
-      78)
+      97)
     object lbZoom: TLabel
-      Left = 186
-      Top = 22
+      Left = 128
+      Top = 44
       Width = 47
       Height = 13
       Hint = '(zoom %)'
@@ -162,12 +168,12 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     object cbDGstacks: TComboBox
       AlignWithMargins = True
       Left = 71
-      Top = 44
+      Top = 67
       Width = 180
       Height = 21
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 2
     end
     object chkNMC: TCheckBox
@@ -182,7 +188,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     object chkDG: TCheckBox
       AlignWithMargins = True
       Left = 13
-      Top = 44
+      Top = 67
       Width = 41
       Height = 17
       Caption = 'DG'
@@ -196,6 +202,15 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Height = 17
       Caption = 'Bing'
       TabOrder = 3
+    end
+    object chkTerraserver: TCheckBox
+      AlignWithMargins = True
+      Left = 13
+      Top = 44
+      Width = 84
+      Height = 17
+      Caption = 'Terraserver'
+      TabOrder = 4
     end
   end
 end

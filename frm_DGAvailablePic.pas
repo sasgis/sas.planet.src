@@ -40,6 +40,7 @@ uses
   u_AvailPicsDG,
   u_AvailPicsBing,
   u_AvailPicsNMC,
+  u_AvailPicsTerra,
   i_OperationNotifier,
   u_OperationNotifier,
   i_DownloadRequest,
@@ -73,6 +74,7 @@ type
     veImageParams: TValueListEditor;
     lbZoom: TLabel;
     spltDesc: TSplitter;
+    chkTerraserver: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -89,6 +91,7 @@ type
   private
     FBing: TAvailPicsBing;
     FNMC: TAvailPicsNMC;
+    FTerraserver: TAvailPicsTerraserver;
     FDGStacks: TAvailPicsDGs;
     FAvailPicsTileInfo: TAvailPicsTileInfo;
     FCallIndex: DWORD;
@@ -410,6 +413,7 @@ begin
   // run thread for every image source
   RunImageThread(chkBing, FBing);
   RunImageThread(chkNMC, FNMC);
+  RunImageThread(chkTerraserver, FTerraserver);
 
   // for DG - for current stack
   VDGstack:=nil;
@@ -516,6 +520,7 @@ begin
   // simple
   FreeAndNil(FBing);
   FreeAndNil(FNMC);
+  FreeAndNil(FTerraserver);
   // list
   cbDGstacks.Items.Clear;
   k:=Length(FDGStacks);
@@ -537,6 +542,10 @@ begin
   // make for nokia map creator
   if (nil=FNMC) then
     FNMC := TAvailPicsNMC.Create(@FAvailPicsTileInfo);
+
+  // make for terraserver
+  if (nil=FTerraserver) then
+    FTerraserver := TAvailPicsTerraserver.Create(@FAvailPicsTileInfo);
 
   // make for digital globe
   if (0=Length(FDGStacks)) then
@@ -563,6 +572,9 @@ begin
 
   if (nil<>FNMC) then
     FNMC.SetLocalConverter(FLocalConverter);
+
+  if (nil<>FTerraserver) then
+    FTerraserver.SetLocalConverter(FLocalConverter);
 
   k:=Length(FDGStacks);
   if (0<k) then
@@ -684,6 +696,7 @@ begin
   FCallIndex:=0;
   FBing:=nil;
   FNMC:=nil;
+  FTerraserver:=nil;
   SetLength(FDGStacks, 0);
 
   ZeroMemory(@FAvailPicsTileInfo, sizeof(FAvailPicsTileInfo));

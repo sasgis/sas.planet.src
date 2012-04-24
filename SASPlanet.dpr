@@ -732,6 +732,7 @@ uses
   u_AvailPicsBing in 'u_AvailPicsBing.pas',
   u_AvailPicsNMC in 'u_AvailPicsNMC.pas',
   u_AvailPicsDG in 'u_AvailPicsDG.pas',
+  u_AvailPicsTerra in 'u_AvailPicsTerra.pas',
   i_InternalBrowser in 'i_InternalBrowser.pas',
   u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
