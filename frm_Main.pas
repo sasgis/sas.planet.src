@@ -418,6 +418,7 @@ type
     tbitmTileGrid3p: TTBXItem;
     tbitmTileGrid4p: TTBXItem;
     tbitmTileGrid5p: TTBXItem;
+    terraserver1: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -554,6 +555,7 @@ type
     procedure nokiamapcreator1Click(Sender: TObject);
     procedure tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
     procedure tbpmiClearVersionClick(Sender: TObject);
+    procedure terraserver1Click(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2878,6 +2880,32 @@ begin
     FConfig.ViewPortState.GetCurrentZoom - 1,
     FMouseState.CurentPos,
     false
+  );
+end;
+
+procedure TfrmMain.terraserver1Click(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  CopyStringToClipboard(
+    'http://www.terraserver.com/view.asp?' +
+    'cx=' + RoundEx(VLonLat.x, 4) +
+    '&cy=' + RoundEx(VLonLat.y, 4) +
+    // scale (by zoom and lat):
+    // 10 (failed), 5 if (zoom <= 15), 2.5 if (zoom = 16), 1.5 if (zoom = 17), 1, 0.75 (zoom = 18), 0.5, 0.25, 0.15 (failed)
+    // select from values above (round up to nearest) for another values
+    '&mpp=5' +
+    '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&vic='
   );
 end;
 

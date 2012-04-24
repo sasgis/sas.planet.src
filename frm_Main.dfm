@@ -120,7 +120,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 230
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -152,7 +152,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 363
+      Left = 365
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -163,7 +163,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 534
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1242,7 +1242,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 429
+      Left = 399
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1268,7 +1268,7 @@ object frmMain: TfrmMain
       end
     end
     object FillDates: TTBXToolbar
-      Left = 629
+      Left = 610
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
@@ -1320,8 +1320,8 @@ object frmMain: TfrmMain
         OnChange = DateTimePicker1Change
       end
       object DateTimePicker2: TDateTimePicker
-        Left = 203
-        Top = 21
+        Left = 141
+        Top = 0
         Width = 81
         Height = 21
         Date = 40830.496065717590000000
@@ -1449,7 +1449,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 549
+        Height = 551
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1464,7 +1464,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 540
+          Height = 542
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
@@ -1545,7 +1545,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 114
+        Top = 112
         Width = 61
         Height = 22
         MaxValue = 100000
@@ -3379,6 +3379,11 @@ object frmMain: TfrmMain
       object nokiamapcreator1: TTBXItem
         OnClick = nokiamapcreator1Click
         Caption = 'URL to Nokia Map Creator'
+        Hint = ''
+      end
+      object terraserver1: TTBXItem
+        OnClick = terraserver1Click
+        Caption = 'URL to Terraserver'
         Hint = ''
       end
       object tbsprtCopyToClipboard0: TTBXSeparatorItem
