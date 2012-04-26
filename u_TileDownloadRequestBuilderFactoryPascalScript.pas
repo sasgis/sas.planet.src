@@ -115,6 +115,9 @@ begin
     T := ACompiler.FindType('ICoordConverter');
     ACompiler.AddUsedVariable('Converter', t);
 
+    T := ACompiler.FindType('IProj4Conv');
+    ACompiler.AddUsedVariable('Proj4Conv', t);
+
     T := ACompiler.FindType('string');
     ACompiler.AddUsedVariable('ResultURL', t);
     ACompiler.AddUsedVariable('GetURLBase', t);

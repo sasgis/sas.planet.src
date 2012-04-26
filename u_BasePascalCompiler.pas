@@ -83,6 +83,7 @@ uses
   Math,
   RegExprUtils,
   u_GeoToStr,
+  u_proj4,
   u_TileRequestBuilderHelpers;
 
 function CommonAppScriptOnUses(Sender: TPSPascalCompiler;
@@ -131,6 +132,15 @@ begin
 
       RegisterMethod('function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint', cdStdCall);
       RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
+    end;
+
+    // IProj4Conv
+    with Sender.AddInterface(Sender.FindInterface('IUnknown'), IProj4Conv, 'IProj4Conv') do begin
+      RegisterMethod('function AvailableConv: Boolean', cdStdCall);
+      RegisterMethod('function SetProj(const Args, APath: String): Boolean', cdStdCall);
+      RegisterMethod('function SetEPSG(const AEPSG: Integer): Boolean', cdStdCall);
+      RegisterMethod('function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint', cdStdCall);
+      RegisterMethod('function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint', cdStdCall);
     end;
   end;
 
