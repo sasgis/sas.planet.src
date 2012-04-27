@@ -715,12 +715,24 @@ end;
 procedure TZmpInfo.LoadCropConfig(const AConfig: IConfigDataProvider);
 var
   VRect: TRect;
+  VCutCount, VCutSize, VCutTile: TPoint;
+  VCutToSkip: String;
 begin
+  // crop params
   VRect.Left := AConfig.ReadInteger('TileRLeft',0);
   VRect.Top := AConfig.ReadInteger('TileRTop',0);
   VRect.Right := AConfig.ReadInteger('TileRRight',0);
   VRect.Bottom := AConfig.ReadInteger('TileRBottom',0);
-  FTilePostDownloadCropConfig := TTilePostDownloadCropConfigStatic.Create(VRect);
+  // cut params
+  VCutCount.X := AConfig.ReadInteger('CutCountX',0);
+  VCutCount.Y := AConfig.ReadInteger('CutCountY',0);
+  VCutSize.X := AConfig.ReadInteger('CutSizeX',0);
+  VCutSize.Y := AConfig.ReadInteger('CutSizeY',0);
+  VCutTile.X := AConfig.ReadInteger('CutTileX',0);
+  VCutTile.Y := AConfig.ReadInteger('CutTileY',0);
+  VCutToSkip := AConfig.ReadString('CutToSkip','');
+  // make
+  FTilePostDownloadCropConfig := TTilePostDownloadCropConfigStatic.Create(VRect, VCutCount, VCutSize, VCutTile, VCutToSkip);
 end;
 
 function TZmpInfo.LoadGUID(const AConfig: IConfigDataProvider): TGUID;

@@ -216,30 +216,100 @@ var
   VTargetContentTypeBitmap: IContentTypeInfoBitmap;
   VBitmapStatic: IBitmap32Static;
   VData: IBinaryData;
+  // cut images
+  VCutCount, VCutSize, VCutTile: TPoint;
+  i,j: Integer;
+  VPos: TPoint;
+  VCutBitmapStatic: IBitmap32Static;
 begin
   if FStorageConfig.AllowAdd then begin
-    if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and FTilePostDownloadCropConfig.IsCropOnDownload then begin
+    if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and
+       (FTilePostDownloadCropConfig.IsCropOnDownload or FTilePostDownloadCropConfig.IsCutOnDownload)
+    then begin
       VContentTypeInfo := FContentTypeManager.GetInfo(AContenType);
       if VContentTypeInfo <> nil then begin
         if Supports(VContentTypeInfo, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
           VLoader := VContentTypeBitmap.GetLoader;
           if VLoader <> nil then begin
+            // full downloaded image
             VBitmapStatic := VLoader.Load(AData);
-            VBitmap := TCustomBitmap32.Create;
-            try
-              VBitmap.Assign(VBitmapStatic.Bitmap);
-              CropOnDownload(
-                VBitmap,
-                FTilePostDownloadCropConfig.CropRect,
-                FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom)
-              );
-              VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-              VBitmap := nil;
-            finally
-              VBitmap.Free;
+            // TODO: crop before cut
+            if FTilePostDownloadCropConfig.IsCutOnDownload then begin
+              // cut into multiple tiles
+              // define parts
+              VCutCount := FTilePostDownloadCropConfig.CutCount;
+              VCutSize := FTilePostDownloadCropConfig.CutSize;
+              VCutTile := FTilePostDownloadCropConfig.CutTile;
+
+              if (0=VCutSize.X) or (0=VCutSize.Y) then
+                VCutSize := FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom);
+
+              // define counts
+              if (0=VCutCount.X) or (0=VCutCount.Y) then begin
+                // define count by image size
+                if (VCutSize.X > 0) then
+                  VCutCount.X := VBitmapStatic.Bitmap.Width div VCutSize.X;
+                if (VCutSize.Y > 0) then
+                  VCutCount.Y := VBitmapStatic.Bitmap.Height div VCutSize.Y;
+              end;
+
+              if (VCutCount.X>0) and (VCutCount.Y>0) then begin
+                // cut in loop
+                for i := 0 to VCutCount.X-1 do
+                for j := 0 to VCutCount.Y-1 do // dummy loop indeed
+                begin
+                  VPos.X := i;
+                  VPos.Y := j;
+                  
+                  if not FTilePostDownloadCropConfig.CutSkipItem(VPos,VCutCount) then begin
+                    // position of item (>=0 - ordinal, <0 - relative to count)
+                    VPos.X := VPos.X + AXY.X - VCutTile.X;
+                    if VCutTile.X<0 then
+                      VPos.X := VPos.X - VCutCount.X;
+                    VPos.Y := VPos.Y + AXY.Y - VCutTile.Y;
+                    if VCutTile.Y<0 then
+                      VPos.Y := VPos.Y - VCutCount.Y;
+
+                    // crop single part
+                    VBitmap := TCustomBitmap32.Create;
+                    try
+                      VBitmap.Assign(VBitmapStatic.Bitmap);
+                      CropOnDownload(
+                        VBitmap,
+                        Rect(VCutSize.X*i, VCutSize.Y*j, VCutSize.X*(i+1), VCutSize.Y*(j+1)),
+                        FStorageConfig.CoordConverter.GetTileSize(VPos, Azoom)
+                      );
+                      //
+                      VCutBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+                      VBitmap := nil;
+                    finally
+                      VBitmap.Free;
+                    end;
+
+                    // save
+                    VData := VTargetContentTypeBitmap.GetSaver.Save(VCutBitmapStatic);
+                    FStorage.SaveTile(VPos, Azoom, AVersionInfo, VData);
+                  end;
+                end;
+              end;
+            end else begin
+              // crop single tile
+              VBitmap := TCustomBitmap32.Create;
+              try
+                VBitmap.Assign(VBitmapStatic.Bitmap);
+                CropOnDownload(
+                  VBitmap,
+                  FTilePostDownloadCropConfig.CropRect,
+                  FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom)
+                );
+                VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+                VBitmap := nil;
+              finally
+                VBitmap.Free;
+              end;
+              VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
+              FStorage.SaveTile(AXY, Azoom, AVersionInfo, VData);
             end;
-            VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
-            FStorage.SaveTile(AXY, Azoom, AVersionInfo, VData);
           end else begin
             raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
           end;

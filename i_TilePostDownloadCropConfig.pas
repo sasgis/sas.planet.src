@@ -33,6 +33,27 @@ type
 
     function GetCropRect: TRect;
     property CropRect: TRect read GetCropRect;
+
+    // cut downloaded image into multiple images and save all (nonexistent) items
+    // crop before cut (if defined)
+
+    function GetIsCutOnDownload: Boolean;
+    property IsCutOnDownload: Boolean read GetIsCutOnDownload;
+
+    // count of parts (X and Y)
+    function GetCutCount: TPoint;
+    property CutCount: TPoint read GetCutCount;
+
+    // or size of every part (X and Y)
+    function GetCutSize: TPoint;
+    property CutSize: TPoint read GetCutSize;
+    
+    // position of requested tile
+    function GetCutTile: TPoint;
+    property CutTile: TPoint read GetCutTile;
+
+    // skip (for watermarks)
+    function CutSkipItem(const AItem, ACount: TPoint): Boolean;
   end;
 
 implementation
