@@ -161,6 +161,7 @@ uses
   u_ExportProviderZip,
   u_ExportProviderTar,
   u_ExportProviderJNX,
+  u_ExportProviderCE,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -527,6 +528,21 @@ begin
 
   VExportProvider :=
     TExportProviderJNX.Create(
+      pnlExport,
+      ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
+      ACoordConverterFactory
+    );
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
+  VExportProvider :=
+    TExportProviderCE.Create(
       pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
