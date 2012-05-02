@@ -121,7 +121,7 @@ type
         public
                 constructor Create(const fname:string; const maxsize:integer=-1; const cmt:string=''; const info:boolean=true); //Начинает процесс экспорта тайлов в файл fname (без расширения!); maxsize - максимально допустимый размер файлов данных (если <0, то взять значение по умолчанию); cmt - однократно добавляемый в конец файлов комментарий; info - записывать ли в файлы данных дополнительную информацию об тайле (12-15+ байтов) и копирайт в файлы данных и файл индекса. Копирайт является также сигнатурой наличия дополнительной инфы в файлах данных!
                 destructor Destroy(); override; //Закрывает открытые файлы и освобождает память
-                function Add(const z,x,y:integer; const ftile:TMemoryStream; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
+                function Add(const z,x,y:integer; const ptile:pointer; tilesize: integer; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
                 function SaveINX(const fname:string=''; const bAllowDups:boolean=false):boolean; //Завершить передачу тайлов, сформировать индекс, записать его в файл fname (без расширения!) (если не указан, то берётся имя файла данных); разрешение дубликатов с одинаковыми координатами. Вернёт true если всё прошло удачно.
                 class function GetVersion():string; //Выдать строку с информацией о версии.
                 class function GetCopyright():string; //Выдать строку с информацией о классе.
@@ -173,11 +173,11 @@ begin
 end;
 
 
-function TSAS4WinCE.Add(const z,x,y:integer; const ftile:TMemoryStream; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
+function TSAS4WinCE.Add(const z,x,y:integer; const ptile:pointer; tilesize: integer; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
 var     n,l:integer;
         s:string;
 begin
-        Result:=false; l:=ftile.Size;
+        Result:=false; l:=tilesize;
         if l=0 then Exit;{raise ESAS4WinCE.Create('Size of tile is 0.');} //Тайлы нулевой длины не принимаем
         if l>fLimit then Exit;{raise ESAS4WinCE.Create('Size of tile is too big.');} //Тайлы длиннее предела не принимаем
         if not z in [1..24] then Exit;{raise ESAS4WinCE.Create('Incorrect zoom.');} //Зум может быть только 1..24
@@ -210,7 +210,7 @@ begin
                 end;
                 Inc(fDataLen,1+3+3+4+1+n);
         end;
-        if bWriteFD then Blockwrite(FD,ftile.Memory^,l);
+        if bWriteFD then Blockwrite(FD,ptile^,l);
         if fTilesNum>High(Ttiles) then SetLength(Ttiles,High(Ttiles)+1+TilesSizeInc); //Мало памяти, надо ещё увеличить буфер
         t.dzxy:=(int64(fDataNum) shl 56)+(int64(z) shl 48)+(int64(x) shl 24)+y;
         t.ptr:=fDataLen-fDataPrev;

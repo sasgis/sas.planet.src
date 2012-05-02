@@ -5,8 +5,6 @@ interface
 uses
   SysUtils,
   Classes,
-  SAS4WinCE,
-  t_GeoTypes,
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
@@ -24,9 +22,9 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
-    FMaxSize : integer;  // Максимальный размер файла
-    FComent  : string;  // Коментарий
-    FRecoverInfo : boolean;  // пишем копирайт ?
+    FMaxSize: Integer;
+    FComment: string;
+    FRecoverInfo: Boolean;
   protected
     procedure ProcessRegion; override;
   public
@@ -41,11 +39,9 @@ type
       APolygon: ILonLatPolygon;
       Azoomarr: array of boolean;
       AMapType: TMapType;
-
-      AMaxSize : integer;
-      AComent  : string;
-      ARecoverInfo : boolean
-
+      AMaxSize: Integer;
+      AComment: string;
+      ARecoverInfo: Boolean
     );
   end;
 
@@ -54,20 +50,18 @@ implementation
 uses
   Types,
   GR32,
+  SAS4WinCE,
   c_CoordConverter,
   i_CoordConverter,
-  i_Bitmap32Static,
   i_TileIterator,
   i_TileInfoBasic,
   i_BinaryData,
   i_VectorItemProjected,
-  i_BitmapTileSaveLoad,
-  u_BitmapTileVampyreSaver,
   u_TileIteratorByPolygon,
-  u_BinaryDataByMemStream,
   u_TileStorageAbstract,
   u_StreamReadOnlyByBinaryData;
 
+{ TThreadExportToCE }
 
 constructor TThreadExportToCE.Create(
   ACancelNotifier: IOperationNotifier;
@@ -80,10 +74,9 @@ constructor TThreadExportToCE.Create(
   APolygon: ILonLatPolygon;
   Azoomarr: array of boolean;
   AMapType: TMapType;
-
-  AMaxSize : integer;
-  AComent  : string;
-  ARecoverInfo : boolean
+  AMaxSize: Integer;
+  AComment: string;
+  ARecoverInfo: Boolean
 );
 begin
   inherited Create(
@@ -98,11 +91,9 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
-
   FMaxSize := AMaxSize;
-  FComent  := AComent;
+  FComment  := AComment;
   FRecoverInfo := ARecoverInfo;
-
 end;
 
 procedure TThreadExportToCE.ProcessRegion;
@@ -114,22 +105,17 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
-  VSaver: IBitmapTileSaver;
   VGeoConvert: ICoordConverter;
   VSAS4WinCE:  TSAS4WinCE;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  TileStream : TMemoryStream;
   VData: IBinaryData;
   VTileInfo: ITileInfoBasic;
-  VStream: TMemoryStream;
-
 begin
   inherited;
   VTilesToProcess := 0;
-  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(100);
-  VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
+   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
@@ -145,71 +131,56 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
   end;
 
+  //Начинает процесс экспорта тайлов в файл fname (без расширения!);
+  //maxsize - максимально допустимый размер файлов данных (если <0, то взять
+  //значение по умолчанию); cmt - однократно добавляемый в конец файлов комментарий;
+  //info - записывать ли в файлы данных дополнительную информацию об
+  //тайле (12-15+ байтов) и копирайт в файлы данных и файл индекса.
+  //Копирайт является также сигнатурой наличия дополнительной инфы в файлах данных!
 
-//Начинает процесс экспорта тайлов в файл fname (без расширения!); maxsize - максимально допустимый размер файлов данных (если <0, то взять значение по умолчанию); cmt - однократно добавляемый в конец файлов комментарий; info - записывать ли в файлы данных дополнительную информацию об тайле (12-15+ байтов) и копирайт в файлы данных и файл индекса. Копирайт является также сигнатурой наличия дополнительной инфы в файлах данных!
-  VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize, FComent, FRecoverInfo);
+  VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize, FComment, FRecoverInfo);
   try
-   TileStream := TMemoryStream.Create;
     try
       ProgressInfo.Caption := SAS_STR_ExportTiles;
       ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
       VTileStorage := FMapType.TileStorage;
-
-      try
-
-        VTilesProcessed := 0;
-        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-        for i := 0 to Length(FZooms) - 1 do begin
-          VZoom := FZooms[i];
-          VExt := FMapType.StorageConfig.TileFileExt;
-          VTileIterator := VTileIterators[i];
-          while VTileIterator.Next(VTile) do begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              exit;
-            end;
-
+      VTilesProcessed := 0;
+      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
+        VExt := FMapType.StorageConfig.TileFileExt;
+        VTileIterator := VTileIterators[i];
+        while VTileIterator.Next(VTile) do begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
+            exit;
+          end;
           VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
           if VData <> nil then begin
-            VStream := TStreamReadOnlyByBinaryData.Create(VData);
-//            TileStream.clear;
-//            TileStream.LoadFromStream(VStream);
-
-            try
-             VSAS4WinCE.Add(
-                VZoom+1,
-                VTile.X,
-                VTile.Y,
-                VStream,
-                VExt
-             );
-            finally
-//              VStream.Free;
-            end;
+            VSAS4WinCE.Add(
+              VZoom + 1,
+              VTile.X,
+              VTile.Y,
+              VData.Buffer,
+              VData.Size,
+              VExt
+            );
           end;
-
-            inc(VTilesProcessed);
-            if VTilesProcessed mod 100 = 0 then begin
-              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-            end;
+          inc(VTilesProcessed);
+          if VTilesProcessed mod 100 = 0 then begin
+            ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
         end;
-      finally
-        TileStream.Free;
       end;
-
+      VSAS4WinCE.SaveINX(FTargetFile, True);
     finally
       for i := 0 to Length(FZooms) - 1 do begin
         VTileIterators[i] := nil;
       end;
       VTileIterators := nil;
     end;
-  VSAS4WinCE.SaveINX(FTargetFile,true);
-  VStream.Free;
-
   finally
-   VSAS4WinCE.Free;
+    VSAS4WinCE.Free;
   end;
-
 end;
 
 end.

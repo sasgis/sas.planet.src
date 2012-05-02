@@ -154,8 +154,7 @@ object frExportToCE: TfrExportToCE
           '256'
           '512'
           '1024'
-          '2048'
-          '')
+          '2048')
       end
       object SaveRecoverInfo: TCheckBox
         Left = 3
@@ -163,6 +162,8 @@ object frExportToCE: TfrExportToCE
         Width = 367
         Height = 17
         Caption = 'Save recover informaiton'
+        Checked = True
+        State = cbChecked
         TabOrder = 4
       end
       object LFoldersName: TListBox

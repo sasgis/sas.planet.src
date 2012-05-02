@@ -88,8 +88,8 @@ object frmRegionProcess: TfrmRegionProcess
         Width = 249
         Height = 21
         Style = csDropDownList
-        DropDownCount = 9
-        ItemHeight = 0
+        DropDownCount = 10
+        ItemHeight = 13
         TabOrder = 0
         OnChange = CBFormatChange
       end
