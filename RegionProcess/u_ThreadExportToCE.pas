@@ -162,12 +162,13 @@ begin
             );
           end;
           inc(VTilesProcessed);
-          if VTilesProcessed mod 100 = 0 then begin
+          if VTilesProcessed mod 50 = 0 then begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
         end;
       end;
-      VSAS4WinCE.SaveINX(FTargetFile, True);
+      ProgressInfo.FirstLine := 'Making index..'; //todo
+      VSAS4WinCE.SaveINX(FTargetFile);
     finally
       for i := 0 to Length(FZooms) - 1 do begin
         VTileIterators[i] := nil;
