@@ -112,6 +112,8 @@ var
 begin
   inherited;
   VTilesToProcess := 0;
+  ProgressInfo.Caption := SAS_STR_ExportTiles;
+  ProgressInfo.FirstLine := 'Preparing tiles to export..';
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
@@ -137,7 +139,6 @@ begin
   VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize, FComment, FRecoverInfo);
   try
     try
-      ProgressInfo.Caption := SAS_STR_ExportTiles;
       ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
       VTileStorage := FMapType.TileStorage;
       VTilesProcessed := 0;
