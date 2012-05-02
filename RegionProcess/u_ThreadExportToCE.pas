@@ -144,12 +144,12 @@ begin
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
-        VExt := FMapType.StorageConfig.TileFileExt;
         VTileIterator := VTileIterators[i];
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
+          VExt := FMapType.StorageConfig. TileFileExt;
           VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
           if VData <> nil then begin
             VSAS4WinCE.Add(
@@ -163,11 +163,15 @@ begin
           end;
           inc(VTilesProcessed);
           if VTilesProcessed mod 50 = 0 then begin
-            ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+            ProgressInfo.Processed := VTilesProcessed/VTilesToProcess;
+            VExt := inttostr(VSAS4WinCE.DataNum);
+            if VSAS4WinCE.DataNum<10 then VExt := '0' + VExt;
+            ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(VTilesProcessed) +  '    (.d'+VExt+')';
           end;
         end;
       end;
-      ProgressInfo.FirstLine := 'Making index..'; //todo
+      ProgressInfo.FirstLine := 'Making .inx file ..';
+      ProgressInfo.SecondLine := '';
       VSAS4WinCE.SaveINX(FTargetFile);
     finally
       for i := 0 to Length(FZooms) - 1 do begin

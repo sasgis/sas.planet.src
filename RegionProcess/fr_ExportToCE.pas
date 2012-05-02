@@ -30,17 +30,21 @@ type
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
-    LMapName: TLabel;
     EMapName: TEdit;
     EComent: TEdit;
     SaveRecoverInfo: TCheckBox;
     lVolSize: TLabel;
     dlgSaveTargetFile: TSaveDialog;
     LFoldersName: TListBox;
+    CComment: TCheckBox;
+    CheckBox1: TCheckBox;
+    CMapName: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure cbbMapChange(Sender: TObject);
     procedure chklstZoomsDblClick(Sender: TObject);
+    procedure CMapNameClick(Sender: TObject);
+    procedure CCommentClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -79,9 +83,17 @@ end;
 
 procedure TfrExportToCE.cbbMapChange(Sender: TObject);
 begin
-  EMapName.text := cbbMap.text;
+  if EMapName.enabled then  EMapName.text := cbbMap.text;
   if temppath <> '' then
    edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath)+LFoldersName.items[cbbMap.itemindex];
+end;
+
+procedure TfrExportToCE.CCommentClick(Sender: TObject);
+begin
+  if CComment.checked then EComent.enabled := true else begin
+      EComent.Enabled := false;
+      EComent.text := '';
+  end;
 end;
 
 procedure TfrExportToCE.chkAllZoomsClick(Sender: TObject);
@@ -101,6 +113,17 @@ begin
   for I := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
   if chklstZooms.ItemIndex<chklstZooms.items.count-1 then for I := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
   if chklstZooms.ItemIndex=chklstZooms.items.count-1 then chkAllZooms.state:=cbChecked else chkAllZooms.state:=cbGrayed;
+end;
+
+procedure TfrExportToCE.CMapNameClick(Sender: TObject);
+begin
+  if CMapName.checked then begin
+     EMapName.enabled := true;
+     EMapName.text := cbbMap.text;
+  end else begin
+     EMapName.Enabled := false;
+     EMapName.text := '';
+  end;
 end;
 
 constructor TfrExportToCe.CreateForFileType(
@@ -154,7 +177,19 @@ begin
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
   end;
-  EMapName.text := cbbMap.text;
+  if CComment.checked then EComent.enabled := true else begin
+      EComent.Enabled := false;
+      EComent.text := '';
+  end;
+  if CMapName.checked then begin
+     EMapName.enabled := true;
+     EMapName.text := cbbMap.text;
+  end else begin
+     EMapName.Enabled := false;
+     EMapName.text := '';
+  end;
+
+
 end;
 
 procedure TfrExportToCE.RefreshTranslation;

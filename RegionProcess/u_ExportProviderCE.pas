@@ -61,7 +61,6 @@ uses
   u_MapType,
   frm_ProgressSimple;
 
-
 { TExportProviderCE }
 
 constructor TExportProviderCE.Create(
@@ -158,7 +157,6 @@ var
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
-//  VMatchSubStr: string;
 
 begin
 
@@ -167,11 +165,15 @@ begin
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
-  VMaxSize := (Strtointdef(FFrame.cbbMaxVolSize.text,-1)-1)*1048576;
-  VComent := FFrame.EmapName.Text+#13#10+FFrame.EComent.Text;
+  VMaxSize := (Strtointdef(RegExprGetMatchSubStr(FFrame.cbbMaxVolSize.Text, '[0-9]+', 0),-1)-1)*1048576;
+
+  VComent := FFrame.EmapName.Text;
+  if VComent <>'' then VComent := Guidtostring(VMapType.Zmp.GUID)+#13#10+VComent;
+  if FFrame.EComent.Text <> '' then begin
+      if VComent <>'' then VComent := VComent+#13#10;
+      VComent := VComent + FFrame.EComent.Text;
+  end;
   VRecoverInfo := FFrame.SaveRecoverInfo.Checked;
-
-
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;

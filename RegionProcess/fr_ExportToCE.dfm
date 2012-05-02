@@ -62,6 +62,14 @@ object frExportToCE: TfrExportToCE
         TabOrder = 1
         OnDblClick = chklstZoomsDblClick
       end
+      object CheckBox1: TCheckBox
+        Left = -368
+        Top = 48
+        Width = 97
+        Height = 17
+        Caption = 'CheckBox1'
+        TabOrder = 2
+      end
     end
     object pnlMain: TPanel
       Left = 0
@@ -88,20 +96,6 @@ object frExportToCE: TfrExportToCE
         Align = alCustom
         Caption = 'Map'
       end
-      object LMapName: TLabel
-        Left = 3
-        Top = 46
-        Width = 50
-        Height = 13
-        Caption = 'Map Name'
-      end
-      object LComent: TLabel
-        Left = 3
-        Top = 77
-        Width = 45
-        Height = 13
-        Caption = 'Comment'
-      end
       object lVolSize: TLabel
         Left = 271
         Top = 3
@@ -124,17 +118,17 @@ object frExportToCE: TfrExportToCE
         OnChange = cbbMapChange
       end
       object EMapName: TEdit
-        Left = 96
+        Left = 111
         Top = 47
-        Width = 274
+        Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
       end
       object EComent: TEdit
-        Left = 96
+        Left = 111
         Top = 74
-        Width = 274
+        Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
@@ -144,17 +138,16 @@ object frExportToCE: TfrExportToCE
         Top = 19
         Width = 99
         Height = 21
-        Style = csDropDownList
         Anchors = [akTop, akRight]
         ItemHeight = 13
         ItemIndex = 2
         TabOrder = 2
-        Text = '1024'
+        Text = '1024 Mb'
         Items.Strings = (
-          '256'
-          '512'
-          '1024'
-          '2048')
+          '256 Mb'
+          '512 Mb'
+          '1024 Mb'
+          '2048 Mb')
       end
       object SaveRecoverInfo: TCheckBox
         Left = 3
@@ -162,8 +155,6 @@ object frExportToCE: TfrExportToCE
         Width = 367
         Height = 17
         Caption = 'Save recover informaiton'
-        Checked = True
-        State = cbChecked
         TabOrder = 4
       end
       object LFoldersName: TListBox
@@ -174,6 +165,24 @@ object frExportToCE: TfrExportToCE
         ItemHeight = 13
         TabOrder = 5
         Visible = False
+      end
+      object CComment: TCheckBox
+        Left = 3
+        Top = 78
+        Width = 102
+        Height = 17
+        Caption = 'Comment'
+        TabOrder = 6
+        OnClick = CCommentClick
+      end
+      object CMapName: TCheckBox
+        Left = 3
+        Top = 51
+        Width = 102
+        Height = 17
+        Caption = 'Map Name'
+        TabOrder = 7
+        OnClick = CMapNameClick
       end
     end
   end
