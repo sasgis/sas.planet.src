@@ -51,8 +51,6 @@ uses
   Types,
   GR32,
   SAS4WinCE,
-  c_CoordConverter,
-  i_CoordConverter,
   i_TileIterator,
   i_TileInfoBasic,
   i_BinaryData,
@@ -105,7 +103,6 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
-  VGeoConvert: ICoordConverter;
   VSAS4WinCE:  TSAS4WinCE;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
@@ -115,14 +112,13 @@ var
 begin
   inherited;
   VTilesToProcess := 0;
-   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(
-          VGeoConvert,
+          FMapType.GeoConvert,
           VZoom
         ),
         PolygLL
