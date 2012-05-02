@@ -121,7 +121,7 @@ type
         public
                 constructor Create(const fname:string; const maxsize:integer=-1; const cmt:string=''; const info:boolean=true); //Начинает процесс экспорта тайлов в файл fname (без расширения!); maxsize - максимально допустимый размер файлов данных (если <0, то взять значение по умолчанию); cmt - однократно добавляемый в конец файлов комментарий; info - записывать ли в файлы данных дополнительную информацию об тайле (12-15+ байтов) и копирайт в файлы данных и файл индекса. Копирайт является также сигнатурой наличия дополнительной инфы в файлах данных!
                 destructor Destroy(); override; //Закрывает открытые файлы и освобождает память
-                function Add(const z,x,y:integer; const ptile:pointer; tilesize: integer; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
+                function Add(const z,x,y:integer; const ptile:pointer; const tilesize: integer; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
                 function SaveINX(const fname:string=''; const bAllowDups:boolean=false):boolean; //Завершить передачу тайлов, сформировать индекс, записать его в файл fname (без расширения!) (если не указан, то берётся имя файла данных); разрешение дубликатов с одинаковыми координатами. Вернёт true если всё прошло удачно.
                 class function GetVersion():string; //Выдать строку с информацией о версии.
                 class function GetCopyright():string; //Выдать строку с информацией о классе.
@@ -173,7 +173,7 @@ begin
 end;
 
 
-function TSAS4WinCE.Add(const z,x,y:integer; const ptile:pointer; tilesize: integer; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
+function TSAS4WinCE.Add(const z,x,y:integer; const ptile:pointer; const tilesize: integer; const fext:string=''):boolean; //Добавляет тайл: z,x,y его координаты; ftile содержимое; fext расширение исходного файла с тайлом. Вернёт true если тайл обработан.
 var     n,l:integer;
         s:string;
 begin

@@ -167,8 +167,7 @@ begin
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   path:=FFrame.edtTargetFile.Text;
-
-  VMaxSize := Strtoint(FFrame.cbbMaxVolSize.text)*1048576;
+  VMaxSize := (Strtointdef(FFrame.cbbMaxVolSize.text,-1)-1)*1048576;
   VComent := FFrame.EmapName.Text+#13#10+FFrame.EComent.Text;
   VRecoverInfo := FFrame.SaveRecoverInfo.Checked;
 
