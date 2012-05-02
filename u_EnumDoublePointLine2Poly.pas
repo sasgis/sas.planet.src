@@ -119,8 +119,8 @@ begin
               VVector.X := VCurrPoint.X - FPrevPoint.X;
               VVector.Y := VCurrPoint.Y - FPrevPoint.Y;
               VDist := FProjection.GeoConverter.Datum.CalcDist(FPrevLonLat, VCurrLonLat);
-              VLonLatMul:=FRadius / VDist;
               if VDist > 0.000001 then begin
+                VLonLatMul:=FRadius / VDist;
                 VLonLatMul:=VLonLatMul*sqrt(sqr(VVector.X)+sqr(VVector.Y));
 
                 VCurrVectorAngle := Math.Arctan2(VVector.Y, VVector.X);
