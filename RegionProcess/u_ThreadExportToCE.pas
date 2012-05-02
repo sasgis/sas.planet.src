@@ -150,7 +150,7 @@ begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          VExt := FMapType.StorageConfig. TileFileExt;
+          VExt := FMapType.StorageConfig.TileFileExt;
           VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
           if VData <> nil then begin
             VSAS4WinCE.Add(
