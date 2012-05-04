@@ -138,7 +138,9 @@ object frExportToCE: TfrExportToCE
         Top = 101
         Width = 367
         Height = 17
-        Caption = 'Save recover informaiton'
+        Caption = 'Save recovery informaiton'
+        Checked = True
+        State = cbChecked
         TabOrder = 3
       end
       object LFoldersName: TListBox
