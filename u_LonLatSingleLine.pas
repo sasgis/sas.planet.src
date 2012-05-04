@@ -35,6 +35,7 @@ type
   TLonLatPathLine = class(TLonLatLineBase, ILonLatPathLine)
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const ALine: ILonLatPathLine): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
@@ -46,6 +47,7 @@ type
   TLonLatPolygonLine = class(TLonLatLineBase, ILonLatPolygonLine)
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const ALine: ILonLatPolygonLine): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
   public
@@ -155,6 +157,38 @@ begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
 end;
 
+function TLonLatPathLine.IsSame(const ALine: ILonLatPathLine): Boolean;
+var
+  i: Integer;
+  VPoints: PDoublePointArray;
+begin
+  if ALine = ILonLatPathLine(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  if FCount <> ALine.Count then begin
+    Result := False;
+    Exit;
+  end;
+
+  if not DoubleRectsEqual(FBounds, ALine.Bounds) then begin
+    Result := False;
+    Exit;
+  end;
+
+  VPoints := ALine.Points;
+
+  for i := 0 to FCount - 1 do begin
+    if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  Result := True;
+end;
+
 { TLonLatPolygonLine }
 
 function TLonLatPolygonLine.CalcArea(const ADatum: IDatum): Double;
@@ -193,6 +227,38 @@ end;
 function TLonLatPolygonLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
+end;
+
+function TLonLatPolygonLine.IsSame(const ALine: ILonLatPolygonLine): Boolean;
+var
+  i: Integer;
+  VPoints: PDoublePointArray;
+begin
+  if ALine = ILonLatPolygonLine(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  if FCount <> ALine.Count then begin
+    Result := False;
+    Exit;
+  end;
+
+  if not DoubleRectsEqual(FBounds, ALine.Bounds) then begin
+    Result := False;
+    Exit;
+  end;
+
+  VPoints := ALine.Points;
+
+  for i := 0 to FCount - 1 do begin
+    if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  Result := True;
 end;
 
 end.

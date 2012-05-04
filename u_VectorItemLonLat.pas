@@ -27,6 +27,7 @@ type
   TLonLatPath = class(TLonLatLineSet, ILonLatPath)
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const APath: ILonLatPath): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   end;
@@ -34,6 +35,7 @@ type
   TLonLatPolygon = class(TLonLatLineSet, ILonLatPolygon)
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
@@ -45,6 +47,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const APath: ILonLatPath): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): ILonLatPathLine;
@@ -60,6 +63,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
     function GetBounds: TDoubleRect;
@@ -122,6 +126,35 @@ begin
   end;
 end;
 
+function TLonLatPath.IsSame(const APath: ILonLatPath): Boolean;
+var
+  i: Integer;
+  VLine: ILonLatPathLine;
+begin
+  if APath = ILonLatPath(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  if FList.Count <> APath.Count then begin
+    Result := False;
+    Exit;
+  end;
+
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    if VLine = nil then begin
+      Result := False;
+      Exit;
+    end;
+    if not VLine.IsSame(APath.Item[i]) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  Result := True;
+end;
+
 { TLonLatPolygon }
 
 function TLonLatPolygon.CalcArea(const ADatum: IDatum): Double;
@@ -154,6 +187,35 @@ begin
   if not Supports(FList[AIndex], ILonLatPolygonLine, Result) then begin
     Result := nil;
   end;
+end;
+
+function TLonLatPolygon.IsSame(const APolygon: ILonLatPolygon): Boolean;
+var
+  i: Integer;
+  VLine: ILonLatPolygonLine;
+begin
+  if APolygon = ILonLatPolygon(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
+  if FList.Count <> APolygon.Count then begin
+    Result := False;
+    Exit;
+  end;
+
+  for i := 0 to FList.Count - 1 do begin
+    VLine := GetItem(i);
+    if VLine = nil then begin
+      Result := False;
+      Exit;
+    end;
+    if not VLine.IsSame(APolygon.Item[i]) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  Result := True;
 end;
 
 { TLonLatPathOneLine }
@@ -191,6 +253,15 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TLonLatPathOneLine.IsSame(const APath: ILonLatPath): Boolean;
+begin
+  if APath.Count <> 1 then begin
+    Result := False;
+    Exit;
+  end;
+  Result := FLine.IsSame(APath.Item[0]);
 end;
 
 { TLonLatPolygonOneLine }
@@ -233,6 +304,15 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TLonLatPolygonOneLine.IsSame(const APolygon: ILonLatPolygon): Boolean;
+begin
+  if APolygon.Count <> 1 then begin
+    Result := False;
+    Exit;
+  end;
+  Result := FLine.IsSame(APolygon.Item[0]);
 end;
 
 end.

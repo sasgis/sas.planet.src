@@ -113,6 +113,7 @@ type
     FLine: ILonLatPath;
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const APath: ILonLatPath): Boolean;
     function GetBounds: TDoubleRect;
     function CalcLength(const ADatum: IDatum): Double;
     function GetCount: Integer;
@@ -129,6 +130,7 @@ type
     FLine: ILonLatPolygon;
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function GetBounds: TDoubleRect;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
@@ -778,6 +780,11 @@ begin
   Result := FLine.Item[AIndex];
 end;
 
+function TLonLatPathWithSelected.IsSame(const APath: ILonLatPath): Boolean;
+begin
+  Result := FLine.IsSame(APath);
+end;
+
 { TLonLatPolygonWithSelected }
 
 constructor TLonLatPolygonWithSelected.Create(
@@ -859,6 +866,12 @@ function TLonLatPolygonWithSelected.GetItem(
   AIndex: Integer): ILonLatPolygonLine;
 begin
   Result := FLine.Item[AIndex];
+end;
+
+function TLonLatPolygonWithSelected.IsSame(
+  const APolygon: ILonLatPolygon): Boolean;
+begin
+  Result := FLine.IsSame(APolygon);
 end;
 
 end.

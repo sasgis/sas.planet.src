@@ -24,8 +24,13 @@ type
     function GetCount: Integer;
     function CalcLength(const ADatum: IDatum): Double;
     function CalcPerimeter(const ADatum: IDatum): Double;
+    function IsSamePath(const APath: ILonLatPath): Boolean;
+    function IsSamePolygon(const APolygon: ILonLatPolygon): Boolean;
 
     function ILonLatPolygon.CalcArea = CalcAreaLonLat;
+
+    function ILonLatPath.IsSame = IsSamePath;
+    function ILonLatPolygon.IsSame = IsSamePolygon;
 
     function ILonLatPath.GetEnum = GetEnumLonLat;
     function ILonLatPolygon.GetEnum = GetEnumLonLat;
@@ -107,6 +112,16 @@ function TLineSetEmpty.GetItemLonLatPolygonLine(
   AIndex: Integer): ILonLatPolygonLine;
 begin
   Result := nil;
+end;
+
+function TLineSetEmpty.IsSamePath(const APath: ILonLatPath): Boolean;
+begin
+  Result := (APath.Count = 0);
+end;
+
+function TLineSetEmpty.IsSamePolygon(const APolygon: ILonLatPolygon): Boolean;
+begin
+  Result := (APolygon.Count = 0);
 end;
 
 end.
