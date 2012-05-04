@@ -175,6 +175,8 @@ ResourceString
   SAS_STR_MapCombineProgressCaption = 'Size: %0:dx%1:d. Split to %2:d files';
   SAS_STR_MiniMapAsMainMap = 'Displayed Main Map';
   SAS_STR_SensorReset = 'Reset';
+  SAS_STR_Zoom = 'Zoom';
+  SAS_STR_Tiles = 'Tiles';
 
   SAS_STR_SensorGPSRecorderLastSpeedCaption = 'Current speed, km/h:';
   SAS_STR_SensorGPSRecorderLastSpeedDescription = 'Shows current speed';

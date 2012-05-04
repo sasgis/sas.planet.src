@@ -39,6 +39,7 @@ type
     CComment: TCheckBox;
     CheckBox1: TCheckBox;
     CMapName: TCheckBox;
+    TempPath: TEdit;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure cbbMapChange(Sender: TObject);
@@ -71,21 +72,22 @@ uses
   u_MapType;
 
 {$R *.dfm}
-var
-  TempPath: string;
 
 procedure TfrExportToCE.btnSelectTargetFileClick(Sender: TObject);
+var TempString: string ;
 begin
-  if SelectDirectory('', '', TempPath) then begin
-   edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath)+LFoldersName.items[cbbMap.itemindex];
+  if SelectDirectory('', '', TempString) then begin
+   TempPath.text := TempString;
+   edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text)+LFoldersName.items[cbbMap.itemindex];
   end;
 end;
 
 procedure TfrExportToCE.cbbMapChange(Sender: TObject);
 begin
   if EMapName.enabled then  EMapName.text := cbbMap.text;
-  if temppath <> '' then
-   edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath)+LFoldersName.items[cbbMap.itemindex];
+  if (TempPath.text = '' ) and (edtTargetFile.Text<>'')then TempPath.text := edtTargetFile.Text;
+  if (TempPath.text <> '' )then
+  edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text)+LFoldersName.items[cbbMap.itemindex]
 end;
 
 procedure TfrExportToCE.CCommentClick(Sender: TObject);
@@ -169,8 +171,8 @@ begin
 
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
-          if temppath <> '' then
-           edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath)+LFoldersName.items[cbbMap.itemindex];
+          if TempPath.text <> '' then
+           edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text)+LFoldersName.items[cbbMap.itemindex];
       end;
     end;
   end;
@@ -197,7 +199,5 @@ begin
   inherited;
 end;
 
-begin
-TempPath := '';
 
 end.

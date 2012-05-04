@@ -164,7 +164,14 @@ begin
     ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
   end;
   VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path:=FFrame.edtTargetFile.Text;
+  if FFrame.Temppath.Text <> '' then
+    path:=FFrame.edtTargetFile.Text
+  else
+    if copy(FFrame.edtTargetFile.Text,length(FFrame.edtTargetFile.Text),1)<>'\' then
+      path:= FFrame.edtTargetFile.Text
+    else
+      path:= IncludeTrailingPathDelimiter(FFrame.edtTargetFile.Text) + VMapType.GetShortFolderName;
+
   VMaxSize := (Strtointdef(RegExprGetMatchSubStr(FFrame.cbbMaxVolSize.Text, '[0-9]+', 0),-1)-1)*1048576;
 
   VComent := FFrame.EmapName.Text;

@@ -106,7 +106,7 @@ object frExportToCE: TfrExportToCE
       end
       object cbbMap: TComboBox
         Left = 3
-        Top = 19
+        Top = 20
         Width = 262
         Height = 21
         Align = alCustom
@@ -184,6 +184,14 @@ object frExportToCE: TfrExportToCE
         TabOrder = 7
         OnClick = CMapNameClick
       end
+      object TempPath: TEdit
+        Left = 268
+        Top = 204
+        Width = 102
+        Height = 21
+        TabOrder = 8
+        Visible = False
+      end
     end
   end
   object pnlTop: TPanel
@@ -234,6 +242,6 @@ object frExportToCE: TfrExportToCE
     Filter = '*.d00|*.d00|All (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 336
-    Top = 248
+    Top = 272
   end
 end

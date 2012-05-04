@@ -127,6 +127,7 @@ begin
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+  ProgressInfo.SecondLine := SAS_STR_Zoom + ': ' + inttostr(Vzoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess);
   end;
 
   //Начинает процесс экспорта тайлов в файл fname (без расширения!);
@@ -165,11 +166,10 @@ begin
           inc(VTilesProcessed);
           if VTilesProcessed mod 50 = 0 then begin
             ProgressInfo.Processed := VTilesProcessed/VTilesToProcess;
-            if VSAS4WinCE.DataNum>0 then
-            VExt := inttostr(VSAS4WinCE.DataNum) else
-            VExt := '0';
-            if VSAS4WinCE.DataNum<10 then VExt := '0' + VExt;
-            ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(VTilesProcessed) +  '    (.d'+VExt+')';
+            VExt := '  (.d' + inttostr(VSAS4WinCE.DataNum) + ')';
+            if VSAS4WinCE.DataNum < 10 then VExt := '  (.d0' + inttostr(VSAS4WinCE.DataNum) + ')';
+            if VSAS4WinCE.DataNum < 0 then VExt := '';
+            ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(VTilesProcessed) + VExt;
           end;
         end;
       end;
