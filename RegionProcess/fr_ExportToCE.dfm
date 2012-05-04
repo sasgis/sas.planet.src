@@ -138,7 +138,7 @@ object frExportToCE: TfrExportToCE
         Top = 101
         Width = 367
         Height = 17
-        Caption = 'Save recovery informaiton'
+        Caption = 'Save recovery information'
         Checked = True
         State = cbChecked
         TabOrder = 3
