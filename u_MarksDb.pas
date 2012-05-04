@@ -58,7 +58,6 @@ type
 
     function GetMarksFileName: string;
     function GetMarksBackUpFileName: string;
-    function GetDbCode: Integer;
     procedure InitEmptyDS(ACdsMarks: TClientDataSet);
     function GetCategoryID(const ACategory: ICategory): Integer;
     function GetFilterTextByCategory(const ACategory: ICategory): string;
@@ -264,7 +263,6 @@ begin
   FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   VFactory :=
     TMarkFactory.Create(
-      GetDbCode,
       AFactoryConfig,
       AVectorItmesFactory,
       AHintConverter,
@@ -332,9 +330,7 @@ begin
   Result := nil;
   VIdOld := -1;
   if Supports(AOldMark, IMarkSMLInternal, VMarkInternal) then begin
-    if VMarkInternal.DbCode = GetDbCode then begin
-      VIdOld := VMarkInternal.Id;
-    end;
+    VIdOld := VMarkInternal.Id;
   end;
   VLocated := False;
   VOldMark := nil;
@@ -791,11 +787,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TMarksDb.GetDbCode: Integer;
-begin
-  Result := Integer(Self);
 end;
 
 function TMarksDb.GetFactory: IMarkFactory;

@@ -51,6 +51,7 @@ type
     function GetHintText: string;
     function GetInfoHTML: string;
     function IsSameId(const AMarkId: IMarkID): Boolean;
+    function IsEqual(const AMark: IMark): Boolean;
     function GetGoToLonLat: TDoublePoint;
   end;
 

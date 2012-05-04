@@ -30,16 +30,16 @@ uses
 type
   TMarkId = class(TInterfacedObject, IMarkID, IMarkSMLInternal)
   private
-    FDbCode: Integer;
     FName: string;
     FId: Integer;
     FCategory: ICategory;
     FCategoryId: Integer;
     FVisible: Boolean;
   protected
+    function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
+  protected
     function GetName: string;
   protected
-    function GetDbCode: Integer;
     function GetId: Integer;
     function GetCategory: ICategory;
     function GetCategoryId: Integer;
@@ -48,7 +48,6 @@ type
     function IsSameId(const AMarkId: IMarkID): Boolean;
   public
     constructor Create(
-      ADbCode: Integer;
       const AName: string;
       AId: Integer;
       const ACategory: ICategory;
@@ -64,7 +63,6 @@ uses
 { TMarkId }
 
 constructor TMarkId.Create(
-  ADbCode: Integer;
   const AName: string;
   AId: Integer;
   const ACategory: ICategory;
@@ -74,7 +72,6 @@ var
   VCategory: IMarkCategorySMLInternal;
 begin
   inherited Create;
-  FDbCode := ADbCode;
   FName := AName;
   FId := AId;
   FCategory := ACategory;
@@ -97,11 +94,6 @@ begin
   Result := FCategoryId;
 end;
 
-function TMarkId.GetDbCode: Integer;
-begin
-  Result := FDbCode;
-end;
-
 function TMarkId.GetId: Integer;
 begin
   Result := FId;
@@ -115,6 +107,27 @@ end;
 function TMarkId.GetVisible: Boolean;
 begin
   Result := FVisible;
+end;
+
+function TMarkId.IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
+begin
+  Result := True;
+  if FCategoryId <> AMarkInternal.CategoryId then begin
+    Result := False;
+    Exit;
+  end;
+  if FId <> AMarkInternal.Id then begin
+    Result := False;
+    Exit;
+  end;
+  if FVisible <> AMarkInternal.Visible then begin
+    Result := False;
+    Exit;
+  end;
+  if FName <> AMarkInternal.Name then begin
+    Result := False;
+    Exit;
+  end;
 end;
 
 function TMarkId.IsSameId(const AMarkId: IMarkID): Boolean;

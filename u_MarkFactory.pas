@@ -43,7 +43,6 @@ type
   private
     FConfig: IMarksFactoryConfig;
     FFactory: IVectorItmesFactory;
-    FDbCode: Integer;
     FCategoryDB: IMarkCategoryDBSmlInternal;
     FHintConverter: IHtmlToHintTextConverter;
 
@@ -177,7 +176,6 @@ type
     ): IMarkID;
   public
     constructor Create(
-      ADbCode: Integer;
       const AConfig: IMarksFactoryConfig;
       const AFactory: IVectorItmesFactory;
       const AHintConverter: IHtmlToHintTextConverter;
@@ -199,7 +197,6 @@ uses
 { TMarkFactory }
 
 constructor TMarkFactory.Create(
-  ADbCode: Integer;
   const AConfig: IMarksFactoryConfig;
   const AFactory: IVectorItmesFactory;
   const AHintConverter: IHtmlToHintTextConverter;
@@ -207,7 +204,6 @@ constructor TMarkFactory.Create(
 );
 begin
   inherited Create;
-  FDbCode := ADbCode;
   FConfig := AConfig;
   FFactory := AFactory;
   FHintConverter := AHintConverter;
@@ -378,7 +374,6 @@ begin
 
   Result := TMarkPoint.Create(
     FHintConverter,
-    FDbCode,
     AName,
     AID,
     AVisible,
@@ -416,7 +411,6 @@ begin
 
   Result := TMarkLine.Create(
     FHintConverter,
-    FDbCode,
     AName,
     AId,
     AVisible,
@@ -451,7 +445,6 @@ begin
 
   Result := TMarkPoly.Create(
     FHintConverter,
-    FDbCode,
     AName,
     AID,
     AVisible,
@@ -508,7 +501,7 @@ var
   VCategory: ICategory;
 begin
   VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
-  Result := TMarkId.Create(FDbCode, AName, AId, VCategory, AVisible);
+  Result := TMarkId.Create(AName, AId, VCategory, AVisible);
 end;
 
 function TMarkFactory.SimpleModifyLine(

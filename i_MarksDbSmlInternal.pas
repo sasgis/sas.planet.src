@@ -25,14 +25,14 @@ interface
 type
   IMarkSMLInternal = interface
   ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
-    function GetDbCode: Integer;
-    property DbCode: Integer read GetDbCode;
-
     function GetId: Integer;
     property Id: Integer read GetId;
 
     function GetCategoryId: Integer;
     property CategoryId: Integer read GetCategoryId;
+
+    function GetName: string;
+    property Name: string read GetName;
 
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);

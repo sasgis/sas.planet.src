@@ -44,10 +44,10 @@ type
     function GetLineColor: TColor32;
     function GetLineWidth: Integer;
     function GetGoToLonLat: TDoublePoint; override;
+    function IsEqual(const AMark: IMark): Boolean; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      ADbCode: Integer;
       const AName: string;
       AId: Integer;
       AVisible: Boolean;
@@ -62,11 +62,14 @@ type
 
 implementation
 
+uses
+  SysUtils,
+  u_GeoFun;
+
 { TMarkFull }
 
 constructor TMarkLine.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  ADbCode: Integer;
   const AName: string;
   AId: Integer;
   AVisible: Boolean;
@@ -78,7 +81,7 @@ constructor TMarkLine.Create(
   ALineWidth: Integer
 );
 begin
-  inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
+  inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
   FLine := ALine;
   FLineColor := ALineColor;
@@ -98,6 +101,41 @@ end;
 function TMarkLine.GetLLRect: TDoubleRect;
 begin
   Result := FLLRect;
+end;
+
+function TMarkLine.IsEqual(const AMark: IMark): Boolean;
+var
+  VMarkPath: IMarkLine;
+begin
+  if AMark = IMark(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if not Supports(AMark, IMarkLine, VMarkPath) then begin
+    Result := False;
+    Exit;
+  end;
+  if not DoubleRectsEqual(FLLRect, VMarkPath.LLRect) then begin
+    Result := False;
+    Exit;
+  end;
+  if not inherited IsEqual(AMark) then begin
+    Result := False;
+    Exit;
+  end;
+  if FLineColor <> VMarkPath.LineColor then begin
+    Result := False;
+    Exit;
+  end;
+  if FLineWidth <> VMarkPath.LineWidth then begin
+    Result := False;
+    Exit;
+  end;
+  if FLine.IsSame(VMarkPath.Line) then begin
+    Result := False;
+    Exit;
+  end;
+  Result := True;
 end;
 
 function TMarkLine.GetLine: ILonLatPath;

@@ -40,10 +40,10 @@ type
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
+    function IsEqual(const AMark: IMark): Boolean; virtual;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      ADbCode: Integer;
       const AName: string;
       AId: Integer;
       const ACategory: ICategory;
@@ -54,11 +54,15 @@ type
 
 implementation
 
+uses
+  SysUtils,
+  i_MarksDbSmlInternal,
+  u_GeoFun;
+
 { TMarkFullBase }
 
 constructor TMarkFullBase.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  ADbCode: Integer;
   const AName: string;
   AId: Integer;
   const ACategory: ICategory;
@@ -66,7 +70,7 @@ constructor TMarkFullBase.Create(
   AVisible: Boolean
 );
 begin
-  inherited Create(ADbCode, AName, AId, ACategory, AVisible);
+  inherited Create(AName, AId, ACategory, AVisible);
   FHintConverter := AHintConverter;
   FDesc := ADesc;
 end;
@@ -88,6 +92,20 @@ begin
     Result:='<HTML><BODY>';
     Result:=Result+Fdesc;
     Result:=Result+'</BODY></HTML>';
+  end;
+end;
+
+function TMarkFullBase.IsEqual(const AMark: IMark): Boolean;
+var
+  VMarkInternal: IMarkSMLInternal;
+begin
+  Result := False;
+  if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+    if IsEqualInternal(VMarkInternal) then begin
+      if FDesc = AMark.Desc then begin
+        Result := True;
+      end;
+    end;
   end;
 end;
 

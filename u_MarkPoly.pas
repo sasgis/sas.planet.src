@@ -46,10 +46,10 @@ type
     function GetFillColor: TColor32;
     function GetLineWidth: Integer;
     function GetGoToLonLat: TDoublePoint; override;
+    function IsEqual(const AMark: IMark): Boolean; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      ADbCode: Integer;
       const AName: string;
       AId: Integer;
       AVisible: Boolean;
@@ -65,11 +65,14 @@ type
 
 implementation
 
+uses
+  SysUtils,
+  u_GeoFun;
+
 { TMarkFull }
 
 constructor TMarkPoly.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  ADbCode: Integer;
   const AName: string;
   AId: Integer;
   AVisible: Boolean;
@@ -81,7 +84,7 @@ constructor TMarkPoly.Create(
   ALineWidth: Integer
 );
 begin
-  inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
+  inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
   FLLRect := ALLRect;
   FLine := ALine;
   FBorderColor := ABorderColor;
@@ -108,6 +111,45 @@ end;
 function TMarkPoly.GetLLRect: TDoubleRect;
 begin
   Result := FLLRect;
+end;
+
+function TMarkPoly.IsEqual(const AMark: IMark): Boolean;
+var
+  VMarkPoly: IMarkPoly;
+begin
+  if AMark = IMark(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if not Supports(AMark, IMarkPoly, VMarkPoly) then begin
+    Result := False;
+    Exit;
+  end;
+  if not DoubleRectsEqual(FLLRect, VMarkPoly.LLRect) then begin
+    Result := False;
+    Exit;
+  end;
+  if not inherited IsEqual(AMark) then begin
+    Result := False;
+    Exit;
+  end;
+  if FBorderColor <> VMarkPoly.BorderColor then begin
+    Result := False;
+    Exit;
+  end;
+  if FFillColor <> VMarkPoly.FillColor then begin
+    Result := False;
+    Exit;
+  end;
+  if FLineWidth <> VMarkPoly.LineWidth then begin
+    Result := False;
+    Exit;
+  end;
+  if FLine.IsSame(VMarkPoly.Line) then begin
+    Result := False;
+    Exit;
+  end;
+  Result := True;
 end;
 
 function TMarkPoly.GetLine: ILonLatPolygon;

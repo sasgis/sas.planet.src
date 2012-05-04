@@ -52,10 +52,10 @@ type
     function GetPicName: string;
     function GetPic: IMarkPicture;
     function GetGoToLonLat: TDoublePoint; override;
+    function IsEqual(const AMark: IMark): Boolean; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      ADbCode: Integer;
       const AName: string;
       AId: Integer;
       AVisible: Boolean;
@@ -73,11 +73,14 @@ type
 
 implementation
 
+uses
+  SysUtils,
+  u_GeoFun;
+
 { TMarkPoint }
 
 constructor TMarkPoint.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  ADbCode: Integer;
   const AName: string;
   AId: Integer;
   AVisible: Boolean;
@@ -90,7 +93,7 @@ constructor TMarkPoint.Create(
   AFontSize, AMarkerSize: Integer
 );
 begin
-  inherited Create(AHintConverter, ADbCode, AName, AId, ACategory, ADesc, AVisible);
+  inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
   FPicName := APicName;
   FPic := APic;
   FPoint := APoint;
@@ -103,6 +106,49 @@ end;
 function TMarkPoint.GetTextColor: TColor32;
 begin
   Result := FTextColor;
+end;
+
+function TMarkPoint.IsEqual(const AMark: IMark): Boolean;
+var
+  VMarkPoint: IMarkPoint;
+begin
+  if AMark = IMark(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if not Supports(AMark, IMarkPoint, VMarkPoint) then begin
+    Result := False;
+    Exit;
+  end;
+  if not DoublePointsEqual(FPoint, VMarkPoint.Point) then begin
+    Result := False;
+    Exit;
+  end;
+  if not inherited IsEqual(AMark) then begin
+    Result := False;
+    Exit;
+  end;
+  if FPic <> VMarkPoint.Pic then begin
+    Result := False;
+    Exit;
+  end;
+  if FTextColor <> VMarkPoint.TextColor then begin
+    Result := False;
+    Exit;
+  end;
+  if FTextBgColor <> VMarkPoint.TextBgColor then begin
+    Result := False;
+    Exit;
+  end;
+  if FFontSize <> VMarkPoint.FontSize then begin
+    Result := False;
+    Exit;
+  end;
+  if FMarkerSize <> VMarkPoint.MarkerSize then begin
+    Result := False;
+    Exit;
+  end;
+  Result := True;
 end;
 
 function TMarkPoint.GetTextBgColor: TColor32;
