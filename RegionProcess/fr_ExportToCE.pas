@@ -25,7 +25,6 @@ type
     chklstZooms: TCheckListBox;
     lblMap: TLabel;
     cbbMap: TComboBox;
-    cbbMaxVolSize: TComboBox;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
@@ -40,6 +39,7 @@ type
     CheckBox1: TCheckBox;
     CMapName: TCheckBox;
     TempPath: TEdit;
+    cbbMaxVolSize: TSpinEdit;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure cbbMapChange(Sender: TObject);
@@ -152,7 +152,6 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
-  cbbMaxVolSize.ItemIndex := 2;
   if chklstZooms.Items.count=0 then
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));

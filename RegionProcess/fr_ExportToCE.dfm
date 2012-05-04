@@ -123,7 +123,7 @@ object frExportToCE: TfrExportToCE
         Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 3
+        TabOrder = 2
       end
       object EComent: TEdit
         Left = 111
@@ -133,29 +133,13 @@ object frExportToCE: TfrExportToCE
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
       end
-      object cbbMaxVolSize: TComboBox
-        Left = 271
-        Top = 19
-        Width = 99
-        Height = 21
-        Anchors = [akTop, akRight]
-        ItemHeight = 13
-        ItemIndex = 2
-        TabOrder = 2
-        Text = '1024 Mb'
-        Items.Strings = (
-          '256 Mb'
-          '512 Mb'
-          '1024 Mb'
-          '2048 Mb')
-      end
       object SaveRecoverInfo: TCheckBox
         Left = 3
         Top = 101
         Width = 367
         Height = 17
         Caption = 'Save recover informaiton'
-        TabOrder = 4
+        TabOrder = 3
       end
       object LFoldersName: TListBox
         Left = 271
@@ -163,7 +147,7 @@ object frExportToCE: TfrExportToCE
         Width = 99
         Height = 97
         ItemHeight = 13
-        TabOrder = 5
+        TabOrder = 4
         Visible = False
       end
       object CComment: TCheckBox
@@ -172,7 +156,7 @@ object frExportToCE: TfrExportToCE
         Width = 102
         Height = 17
         Caption = 'Comment'
-        TabOrder = 6
+        TabOrder = 5
         OnClick = CCommentClick
       end
       object CMapName: TCheckBox
@@ -181,16 +165,27 @@ object frExportToCE: TfrExportToCE
         Width = 102
         Height = 17
         Caption = 'Map Name'
-        TabOrder = 7
+        TabOrder = 6
         OnClick = CMapNameClick
       end
       object TempPath: TEdit
-        Left = 268
+        Left = 271
         Top = 204
-        Width = 102
+        Width = 99
         Height = 21
-        TabOrder = 8
+        TabOrder = 7
         Visible = False
+      end
+      object cbbMaxVolSize: TSpinEdit
+        Left = 271
+        Top = 19
+        Width = 99
+        Height = 22
+        Anchors = [akTop, akRight]
+        MaxValue = 2047
+        MinValue = 1
+        TabOrder = 8
+        Value = 1024
       end
     end
   end

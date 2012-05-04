@@ -137,7 +137,7 @@ begin
   //тайле (12-15+ байтов) и копирайт в файлы данных и файл индекса.
   //Копирайт является также сигнатурой наличия дополнительной инфы в файлах данных!
 
-  VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize, FComment, FRecoverInfo);
+  VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize*1048576, FComment, FRecoverInfo);
   try
     try
       ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;

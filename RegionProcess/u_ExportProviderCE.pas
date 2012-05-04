@@ -172,7 +172,7 @@ begin
     else
       path:= IncludeTrailingPathDelimiter(FFrame.edtTargetFile.Text) + VMapType.GetShortFolderName;
 
-  VMaxSize := (Strtointdef(RegExprGetMatchSubStr(FFrame.cbbMaxVolSize.Text, '[0-9]+', 0),-1)-1)*1048576;
+  VMaxSize := FFrame.cbbMaxVolSize.value;
 
   VComent := FFrame.EmapName.Text;
   if VComent <>'' then VComent := Guidtostring(VMapType.Zmp.GUID)+#13#10+VComent;
