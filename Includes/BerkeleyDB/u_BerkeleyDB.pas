@@ -259,20 +259,25 @@ function TBerkeleyDB.Read(
 var
   dbtKey, dbtData: DBT;
 begin
-  Result := False;
-  if FDBEnabled then begin
-    FillChar(dbtKey, Sizeof(DBT), 0);
-    FillChar(dbtData, Sizeof(DBT), 0);
-    dbtKey.data := AKey;
-    dbtKey.size := AKeySize;
-    dbtData.flags := DB_DBT_MALLOC;
-    Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, 0));
-    if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
-      AData := dbtData.data;
-      ADataSize := dbtData.size;
-      dbtData.data := nil;
-      dbtData.size := 0;
+  FCS.Acquire;
+  try
+    Result := False;
+    if FDBEnabled then begin
+      FillChar(dbtKey, Sizeof(DBT), 0);
+      FillChar(dbtData, Sizeof(DBT), 0);
+      dbtKey.data := AKey;
+      dbtKey.size := AKeySize;
+      dbtData.flags := DB_DBT_MALLOC;
+      Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, 0));
+      if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
+        AData := dbtData.data;
+        ADataSize := dbtData.size;
+        dbtData.data := nil;
+        dbtData.size := 0;
+      end;
     end;
+  finally
+    FCS.Release;
   end;
 end;
 
@@ -284,19 +289,27 @@ function TBerkeleyDB.Write(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
+  VOnCheckPointAllow: Boolean;
 begin
-  Result := False;
-  if FDBEnabled then begin
-    FSyncAllow := True;
-    FillChar(dbtKey, Sizeof(DBT), 0);
-    FillChar(dbtData, Sizeof(DBT), 0);
-    dbtKey.data := AKey;
-    dbtKey.size := AKeySize;
-    dbtData.data := AData;
-    dbtData.size := ADataSize;
-    Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, 0));
+  VOnCheckPointAllow := False;
+  FCS.Acquire;
+  try
+    Result := False;
+    if FDBEnabled then begin
+      FSyncAllow := True;
+      FillChar(dbtKey, Sizeof(DBT), 0);
+      FillChar(dbtData, Sizeof(DBT), 0);
+      dbtKey.data := AKey;
+      dbtKey.size := AKeySize;
+      dbtData.data := AData;
+      dbtData.size := ADataSize;
+      Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, 0));
+      VOnCheckPointAllow := Result;
+    end;
+  finally
+    FCS.Release;
   end;
-  if Result and (Addr(FOnCheckPoint) <> nil) then begin
+  if VOnCheckPointAllow and (Addr(FOnCheckPoint) <> nil) then begin
     FOnCheckPoint(Self);
   end;
 end;
@@ -308,12 +321,17 @@ function TBerkeleyDB.Exists(
 var
   dbtKey: DBT;
 begin
-  Result := False;
-  if FDBEnabled then begin
-    FillChar(dbtKey, Sizeof(DBT), 0);
-    dbtKey.data := AKey;
-    dbtKey.size := AKeySize;
-    Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, 0));
+  FCS.Acquire;
+  try
+    Result := False;
+    if FDBEnabled then begin
+      FillChar(dbtKey, Sizeof(DBT), 0);
+      dbtKey.data := AKey;
+      dbtKey.size := AKeySize;
+      Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, 0));
+    end;
+  finally
+    FCS.Release;
   end;
 end;
 
@@ -323,15 +341,23 @@ function TBerkeleyDB.Del(
 ): Boolean;
 var
   dbtKey: DBT;
+  VOnCheckPointAllow: Boolean;
 begin
-  Result := False;
-  if FDBEnabled then begin
-    FillChar(dbtKey, Sizeof(DBT), 0);
-    dbtKey.data := AKey;
-    dbtKey.size := AKeySize;
-    Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, 0));
+  VOnCheckPointAllow := False;
+  FCS.Acquire;
+  try
+    Result := False;
+    if FDBEnabled then begin
+      FillChar(dbtKey, Sizeof(DBT), 0);
+      dbtKey.data := AKey;
+      dbtKey.size := AKeySize;
+      Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, 0));
+      VOnCheckPointAllow := Result;
+    end;
+  finally
+    FCS.Release;
   end;
-  if Result and (Addr(FOnCheckPoint) <> nil) then begin
+  if VOnCheckPointAllow and (Addr(FOnCheckPoint) <> nil) then begin
     FOnCheckPoint(Self);
   end;
 end;
