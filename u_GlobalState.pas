@@ -338,6 +338,12 @@ begin
       HInstance
     );
 
+  // read directories
+  FMapsPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMAPS'));
+  FTrackPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTRACKS'));
+  FMarksDbPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMARKS'));
+  FMediaDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMediaData'));
+
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
@@ -607,11 +613,6 @@ begin
   ForceDirectories(VMapsPath);
   Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
-
-  FMapsPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMAPS'));
-  FTrackPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTRACKS'));
-  FMarksDbPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMARKS'));
-  FMediaDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMediaData'));
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
 
