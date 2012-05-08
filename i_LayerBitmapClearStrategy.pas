@@ -27,7 +27,7 @@ uses
   i_LocalCoordConverter;
 
 type
-  ILayerBitmapClearStrategy =  interface
+  ILayerBitmapClearStrategy = interface
     ['{F2E51CCC-D584-4D88-98E7-0057F3825F63}']
     procedure Clear(ABitmap: TCustomBitmap32);
   end;

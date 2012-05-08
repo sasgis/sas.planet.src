@@ -44,7 +44,10 @@ type
 
   ILineOnMapEdit = interface(IConfigDataElement)
     ['{BD78781E-F5E0-406B-AE16-E5015BA87743}']
-    procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
+    procedure SetSelectedPoint(
+      ASegmentIndex: Integer;
+      APointIndex: Integer
+    );
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
     function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;

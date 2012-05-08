@@ -21,6 +21,7 @@
 unit i_LastSearchResultConfig;
 
 interface
+
 uses
   i_ConfigDataElement,
   i_GeoCoder;
@@ -31,12 +32,13 @@ type
     function GetIsActive: Boolean;
     property IsActive: Boolean read GetIsActive;
 
-    function GetGeoCodeResult:IGeoCodeResult;
+    function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);
     property GeoCodeResult: IGeoCodeResult read GetGeoCodeResult write SetGeoCodeResult;
 
     procedure ClearGeoCodeResult;
   end;
+
 implementation
 
 end.

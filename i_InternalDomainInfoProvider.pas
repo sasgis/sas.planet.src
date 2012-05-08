@@ -28,7 +28,10 @@ uses
 type
   IInternalDomainInfoProvider = interface
     ['{CD84B08E-E84B-4688-9D9A-A9A34F29139D}']
-    function LoadBinaryByFilePath(const AFilePath: string; out AContentType: string): IBinaryData;
+    function LoadBinaryByFilePath(
+      const AFilePath: string;
+      out AContentType: string
+    ): IBinaryData;
   end;
 
   IInternalDomainInfoProviderList = interface
