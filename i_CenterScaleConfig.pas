@@ -36,7 +36,7 @@ type
     function GetBitmap: IBitmapMarker;
     procedure SetBitmap(const AValue: IBitmapMarker);
     property Bitmap: IBitmapMarker read GetBitmap write SetBitmap;
- end;
+  end;
 
 implementation
 
