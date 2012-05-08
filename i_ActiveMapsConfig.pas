@@ -69,7 +69,7 @@ type
     function GetActiveBitmapLayersSet: IActiveMapsSet;
     function GetActiveKmlLayersSet: IActiveMapsSet;
   end;
-  
+
 implementation
 
 end.
