@@ -32,8 +32,14 @@ uses
 type
   IMarksDb = interface
     ['{66181215-0260-42A3-9CEA-549329D85F74}']
-    function UpdateMark(const AOldMark: IInterface; const ANewMark: IMark): IMark;
-    function UpdateMarksList(const AOldMarkList: IInterfaceList; const ANewMarkList: IInterfaceList): IInterfaceList;
+    function UpdateMark(
+      const AOldMark: IInterface;
+      const ANewMark: IMark
+    ): IMark;
+    function UpdateMarksList(
+      const AOldMarkList: IInterfaceList;
+      const ANewMarkList: IInterfaceList
+    ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
     function GetMarkIsNew(const AMark: IMark): Boolean;
@@ -41,13 +47,27 @@ type
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
-    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
+    procedure SetMarkVisibleByID(
+      const AMark: IMarkId;
+      AVisible: Boolean
+    );
     function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(const AMark: IMark): Boolean; overload;
-    procedure SetAllMarksInCategoryVisible(const ACategory: ICategory; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(
+      const ACategory: ICategory;
+      ANewVisible: Boolean
+    );
 
-    function GetMarksSubset(const ARect: TDoubleRect; const ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
-    function GetMarksSubset(const ARect: TDoubleRect; const ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(
+      const ARect: TDoubleRect;
+      const ACategoryList: IInterfaceList;
+      AIgnoreVisible: Boolean
+    ): IMarksSubset; overload;
+    function GetMarksSubset(
+      const ARect: TDoubleRect;
+      const ACategory: ICategory;
+      AIgnoreVisible: Boolean
+    ): IMarksSubset; overload;
 
     function GetFactory: IMarkFactory;
     property Factory: IMarkFactory read GetFactory;

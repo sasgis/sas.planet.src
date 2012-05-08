@@ -25,7 +25,7 @@ interface
 uses
   i_ConfigDataElement,
   i_MapVersionInfo;
-  
+
 type
   IMapVersionFactory = interface
     ['{4E03F54E-C11D-443C-BF0E-D9A2B0D1299C}']
