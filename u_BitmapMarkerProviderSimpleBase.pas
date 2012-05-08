@@ -57,12 +57,18 @@ type
   private
     FMarker: IBitmapMarkerWithDirection;
   protected
-    function CreateMarker(ASize: Integer; ADirection: Double): IBitmapMarkerWithDirection; virtual; abstract;
+    function CreateMarker(
+      ASize: Integer;
+      ADirection: Double
+    ): IBitmapMarkerWithDirection; virtual; abstract;
   protected
     function GetMarker: IBitmapMarker; override;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker; override;
     function GetMarkerWithRotation(const AAngle: Double): IBitmapMarkerWithDirection;
-    function GetMarkerWithRotationBySize(const AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotationBySize(
+      const AAngle: Double;
+      ASize: Integer
+    ): IBitmapMarkerWithDirection;
   public
     constructor CreateProvider(const AConfig: IBitmapMarkerProviderSimpleConfigStatic); override;
   end;
@@ -243,4 +249,3 @@ begin
 end;
 
 end.
-

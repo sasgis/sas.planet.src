@@ -49,10 +49,12 @@ implementation
 { TBitmapMarkerProviderSimpleConfigStatic }
 
 constructor TBitmapMarkerProviderSimpleConfigStatic.Create(
-  AMarkerSize: Integer; AMarkerColor, ABorderColor: TColor32);
+  AMarkerSize: Integer;
+  AMarkerColor, ABorderColor: TColor32
+);
 begin
   inherited Create;
-  FMarkerSize :=  AMarkerSize;
+  FMarkerSize := AMarkerSize;
   FMarkerColor := AMarkerColor;
   FBorderColor := ABorderColor;
 end;
