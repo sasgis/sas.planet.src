@@ -27,7 +27,7 @@ uses
 
 type
   IMapAbilitiesConfigStatic = interface
-  ['{89BC8688-41A7-4ADE-A911-E90BAC6B5689}']
+    ['{89BC8688-41A7-4ADE-A911-E90BAC6B5689}']
     function GetIsLayer: Boolean;
     property IsLayer: Boolean read GetIsLayer;
 
@@ -45,7 +45,7 @@ type
   end;
 
   IMapAbilitiesConfig = interface(IConfigDataElement)
-  ['{6CF60AD7-0284-4252-AC55-2A2C1ABAF4FC}']
+    ['{6CF60AD7-0284-4252-AC55-2A2C1ABAF4FC}']
     function GetIsLayer: Boolean;
     property IsLayer: Boolean read GetIsLayer;
 

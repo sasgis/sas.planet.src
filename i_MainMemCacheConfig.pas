@@ -24,7 +24,7 @@ interface
 
 uses
   i_ConfigDataElement;
-  
+
 type
   IMainMemCacheConfig = interface(IConfigDataElement)
     ['{E60F1967-FE2D-4C3C-81D1-D99B50A0F21F}']

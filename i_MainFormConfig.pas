@@ -192,7 +192,7 @@ type
 
     function GetLastSearchResultConfig: ILastSearchResultConfig;
     property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
- end;
+  end;
 
 implementation
 
