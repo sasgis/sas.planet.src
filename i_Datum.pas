@@ -39,11 +39,16 @@ type
     // Возвращает является ли другой конвертер эквивалентным текущему
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
 
-    function CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
-    function CalcDist(const AStart: TDoublePoint; const AFinish: TDoublePoint): Double;
+    function CalcPoligonArea(
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    ): Double;
+    function CalcDist(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint
+    ): Double;
   end;
 
 implementation
 
 end.
-

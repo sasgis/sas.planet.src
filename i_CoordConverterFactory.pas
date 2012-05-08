@@ -31,7 +31,10 @@ type
   ICoordConverterFactory = interface
     ['{399F7734-B79E-44E0-9A5A-A6BA38E9125A}']
     function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
-    function GetCoordConverterByCode(AProjectionEPSG: Integer; ATileSplitCode: Integer): ICoordConverter;
+    function GetCoordConverterByCode(
+      AProjectionEPSG: Integer;
+      ATileSplitCode: Integer
+    ): ICoordConverter;
   end;
 
   IProjectionInfoFactory = interface

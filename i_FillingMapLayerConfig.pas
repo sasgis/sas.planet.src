@@ -34,7 +34,7 @@ uses
 
 type
   IFillingMapLayerConfigStatic = interface
-  ['{6D257213-D59E-45D8-A632-6499B2549C64}']
+    ['{6D257213-D59E-45D8-A632-6499B2549C64}']
     function GetVisible: Boolean;
     property Visible: Boolean read GetVisible;
 
