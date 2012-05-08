@@ -46,13 +46,19 @@ type
     procedure ChangeViewSize(const ANewSize: TPoint);
     procedure ChangeMapPixelByDelta(const ADelta: TDoublePoint);
     procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(const AZoom: Byte; const AFreezePoint: TPoint);
+    procedure ChangeZoomWithFreezeAtVisualPoint(
+      const AZoom: Byte;
+      const AFreezePoint: TPoint
+    );
     procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
 
     procedure MoveTo(const Pnt: TPoint);
-    procedure ScaleTo(const AScale: Double; const ACenterPoint: TPoint); overload;
+    procedure ScaleTo(
+      const AScale: Double;
+      const ACenterPoint: TPoint
+    ); overload;
     procedure ScaleTo(const AScale: Double); overload;
 
     function GetScaleChangeNotifier: IJclNotifier;

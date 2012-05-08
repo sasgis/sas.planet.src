@@ -47,7 +47,7 @@ type
     // or size of every part (X and Y)
     function GetCutSize: TPoint;
     property CutSize: TPoint read GetCutSize;
-    
+
     // position of requested tile
     function GetCutTile: TPoint;
     property CutTile: TPoint read GetCutTile;
