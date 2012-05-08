@@ -38,7 +38,7 @@ type
     ): IGPSSatelliteInfo;
 
     function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
-    
+
     function BuildSatellitesInView(
       const AItemsCountGP: Integer;
       const AItemsGP: PUnknownList;
@@ -52,10 +52,12 @@ type
       const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
 
-    function ExecuteGPSCommand(Sender: TObject;
-                               const AUnitIndex: Byte;
-                               const ACommand: LongInt;
-                               const APointer: Pointer): String;
+    function ExecuteGPSCommand(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): String;
     procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
 
     procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);

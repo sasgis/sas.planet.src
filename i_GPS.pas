@@ -37,16 +37,21 @@ type
     ['{D8744967-74EB-47A1-A8FD-4626B5CD2B20}']
     function GetCount(const ATalkerID: String): Byte; stdcall;
     function GetFixCount(const ATalkerID: String): Byte; stdcall;
-    function GetItem(const ATalkerID: String; const AIndex: Byte): IGPSSatelliteInfo; stdcall;
+    function GetItem(
+      const ATalkerID: String;
+      const AIndex: Byte
+    ): IGPSSatelliteInfo; stdcall;
 
     procedure SetFixedSats(AFixSatsAll: PVSAGPS_FIX_ALL); stdcall;
     function GetFixedSats: PVSAGPS_FIX_ALL; stdcall;
 
-    function GetAllSatelliteParams(const AIndex: Byte;
-                                   const ATalkerID: String;
-                                   var AFixed: Boolean;
-                                   AParams: PSingleSatFixibilityData;
-                                   ASky: PSingleSatSkyData = nil): Boolean; stdcall;
+    function GetAllSatelliteParams(
+      const AIndex: Byte;
+      const ATalkerID: String;
+      var AFixed: Boolean;
+      AParams: PSingleSatFixibilityData;
+      ASky: PSingleSatSkyData = nil
+    ): Boolean; stdcall;
 
     function EnumerateTalkerID(var ATalkerID: String): Boolean; stdcall;
     function GetCountForAllTalkerIDs(const AOnlyForFixed: Boolean): Byte; stdcall;
@@ -60,8 +65,10 @@ type
     ['{B2422759-9B8B-4CC5-AAA5-46A7240759D0}']
     function GetPosParams: PSingleGPSData; stdcall;
 
-    function GetTracksParams(var pPos: PSingleGPSData;
-                             var pSatFixAll: PVSAGPS_FIX_ALL): Boolean; stdcall;
+    function GetTracksParams(
+      var pPos: PSingleGPSData;
+      var pSatFixAll: PVSAGPS_FIX_ALL
+    ): Boolean; stdcall;
 
     function GetSatellites: IGPSSatellitesInView; stdcall;
     property Satellites: IGPSSatellitesInView read GetSatellites;

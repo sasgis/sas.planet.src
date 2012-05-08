@@ -39,7 +39,10 @@ type
     property NoDataTimeOut: Integer read GetNoDataTimeOut write SetNoDataTimeOut;
 
     function GetWriteLog(const ATrackType: TVSAGPS_TrackType): Boolean;
-    procedure SetWriteLog(const ATrackType: TVSAGPS_TrackType; const AValue: Boolean);
+    procedure SetWriteLog(
+      const ATrackType: TVSAGPS_TrackType;
+      const AValue: Boolean
+    );
     property WriteLog[const ATrackType: TVSAGPS_TrackType]: Boolean read GetWriteLog write SetWriteLog;
 
     function AllowWriteLog(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
