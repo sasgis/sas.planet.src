@@ -67,7 +67,7 @@ type
   end;
 
   IProxyConfig = interface(IConfigDataElement)
-  ['{0CE5A97E-471D-4A3E-93E3-D130DD1F50F5}']
+    ['{0CE5A97E-471D-4A3E-93E3-D130DD1F50F5}']
     function GetUseIESettings: Boolean; safecall;
     procedure SetUseIESettings(AValue: Boolean);
     property UseIESettings: Boolean read GetUseIESettings write SetUseIESettings;
