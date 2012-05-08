@@ -22,10 +22,6 @@ unit t_MapAttachments;
 
 interface
 
-//uses
-  //Classes,
-  //SysUtils;
-
 type
   TMapAttachmentsCounters = record
     ac_Downloaded: UInt64;
