@@ -46,7 +46,10 @@ type
     property FontSize: Integer read GetFontSize write SetFontSize;
 
     function GetZoomDeltaColor(AIndex: Integer): TColor32;
-    procedure SetZoomDeltaColor(AIndex: Integer; AValue: TColor32);
+    procedure SetZoomDeltaColor(
+      AIndex: Integer;
+      AValue: TColor32
+    );
     property ZoomDeltaColor[AIndex: Integer]: TColor32 read GetZoomDeltaColor write SetZoomDeltaColor;
 
     function GetZoomDeltaColors: TArrayOfColor32;
