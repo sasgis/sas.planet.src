@@ -77,8 +77,12 @@ begin
   inherited;
 end;
 
-procedure TActiveMapTBXItem.AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer;
-  Font: TFont; StateFlags: Integer);
+procedure TActiveMapTBXItem.AdjustFont(
+  Item: TTBCustomItem;
+  Viewer: TTBItemViewer;
+  Font: TFont;
+  StateFlags: Integer
+);
 begin
   if Self.Checked then begin
     Self.FontSettings.Bold := tsTrue;

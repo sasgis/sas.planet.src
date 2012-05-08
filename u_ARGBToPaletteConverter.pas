@@ -33,6 +33,7 @@ const
 
 type
   PColorBin = ^TColorBin;
+
   TColorBin = record
     Color: TColor32Rec;
     Number: LongInt;
@@ -58,20 +59,26 @@ type
     Table: THashTable;
     Box: array[0..MaxPossibleColors - 1] of TColorBox;
     Boxes: LongInt;
-    procedure CreateHistogram (
+    procedure CreateHistogram(
       NumPixels: Integer;
       Src: PByte;
       SrcInfo: PImageFormatInfo;
       ChannelMask: Byte
     );
-    procedure InitBox (var Box : TColorBox);
-    procedure ChangeBox (var Box: TColorBox; const C: TColorBin);
+    procedure InitBox(var Box: TColorBox);
+    procedure ChangeBox(
+      var Box: TColorBox;
+      const C: TColorBin
+    );
     procedure MakeColormap(
       MaxColors: LongInt;
       ChannelMask: Byte
     );
-    procedure FillOutputPalette(MaxColors: Integer; DstPal: PPalette32);
-    function MapColor(const Col: TColor32Rec) : LongInt;
+    procedure FillOutputPalette(
+      MaxColors: Integer;
+      DstPal: PPalette32
+    );
+    function MapColor(const Col: TColor32Rec): LongInt;
     procedure MapImage(
       NumPixels: Integer;
       Src, Dst: PByte;
@@ -121,7 +128,7 @@ begin
   GetImageFormatInfo(DestFormat, DstInfo);
   GetImageFormatInfo(AImage.Format, SrcInfo);
   NumPixels := AImage.Width * AImage.Height;
-  NewSize := NumPixels * DstInfo.BytesPerPixel;;
+  NewSize := NumPixels * DstInfo.BytesPerPixel;
   GetMem(NewData, NewSize);
   FillChar(NewData^, NewSize, 0);
   GetMem(NewPal, DstInfo.PaletteEntries * SizeOf(TColor32Rec));
@@ -169,19 +176,36 @@ begin
   Box.List := nil;
 end;
 
-procedure TARGBToPaletteConverter.ChangeBox(var Box: TColorBox;
-  const C: TColorBin);
+procedure TARGBToPaletteConverter.ChangeBox(
+  var Box: TColorBox;
+  const C: TColorBin
+);
 begin
-  with C.Color do
-  begin
-    if A < Box.AMin then Box.AMin := A;
-    if A > Box.AMax then Box.AMax := A;
-    if B < Box.BMin then Box.BMin := B;
-    if B > Box.BMax then Box.BMax := B;
-    if G < Box.GMin then Box.GMin := G;
-    if G > Box.GMax then Box.GMax := G;
-    if R < Box.RMin then Box.RMin := R;
-    if R > Box.RMax then Box.RMax := R;
+  with C.Color do begin
+    if A < Box.AMin then begin
+      Box.AMin := A;
+    end;
+    if A > Box.AMax then begin
+      Box.AMax := A;
+    end;
+    if B < Box.BMin then begin
+      Box.BMin := B;
+    end;
+    if B > Box.BMax then begin
+      Box.BMax := B;
+    end;
+    if G < Box.GMin then begin
+      Box.GMin := G;
+    end;
+    if G > Box.GMax then begin
+      Box.GMax := G;
+    end;
+    if R < Box.RMin then begin
+      Box.RMin := R;
+    end;
+    if R > Box.RMax then begin
+      Box.RMax := R;
+    end;
   end;
   Inc(Box.Total, C.Number);
 end;
@@ -198,8 +222,7 @@ var
   PC: PColorBin;
   Col: TColor32Rec;
 begin
-  for I := 0 to NumPixels - 1 do
-  begin
+  for I := 0 to NumPixels - 1 do begin
     Col := GetPixel32Generic(Src, SrcInfo, nil);
     A := Col.A and ChannelMask;
     R := Col.R and ChannelMask;
@@ -210,11 +233,11 @@ begin
     PC := Table[VAddr];
 
     while (PC <> nil) and ((PC.Color.R <> R) or (PC.Color.G <> G) or
-      (PC.Color.B <> B) or (PC.Color.A <> A)) do
+        (PC.Color.B <> B) or (PC.Color.A <> A)) do begin
       PC := PC.Next;
+    end;
 
-    if PC = nil then
-    begin
+    if PC = nil then begin
       New(PC);
       PC.Color.R := R;
       PC.Color.G := G;
@@ -223,9 +246,9 @@ begin
       PC.Number := 1;
       PC.Next := Table[VAddr];
       Table[VAddr] := PC;
-    end
-    else
+    end else begin
       Inc(PC^.Number);
+    end;
     Inc(Src, SrcInfo.BytesPerPixel);
   end;
 end;
@@ -245,16 +268,15 @@ begin
   I := 0;
   Boxes := 1;
   LargestIdx := 0;
-  while (I < HashSize) and (Table[I] = nil) do
+  while (I < HashSize) and (Table[I] = nil) do begin
     Inc(i);
-  if I < HashSize then
-  begin
+  end;
+  if I < HashSize then begin
     // put all colors into Box[0]
     InitBox(Box[0]);
     repeat
       CP := Table[I];
-      while CP.Next <> nil do
-      begin
+      while CP.Next <> nil do begin
         ChangeBox(Box[0], CP^);
         CP := CP.Next;
       end;
@@ -270,56 +292,47 @@ begin
     repeat
       // cut one color box
       Largest := 0;
-      for I := 0 to Boxes - 1 do
-        with Box[I] do
-        begin
+      for I := 0 to Boxes - 1 do begin
+        with Box[I] do begin
           Size := (AMax - AMin) * AlphaWeight;
           S := (RMax - RMin) * RedWeight;
-          if S > Size then
+          if S > Size then begin
             Size := S;
+          end;
           S := (GMax - GMin) * GreenWeight;
-          if S > Size then
+          if S > Size then begin
             Size := S;
+          end;
           S := (BMax - BMin) * BlueWeight;
-          if S > Size then
+          if S > Size then begin
             Size := S;
-          if Size > Largest then
-          begin
+          end;
+          if Size > Largest then begin
             Largest := Size;
             LargestIdx := I;
           end;
         end;
-      if Largest > 0 then
-      begin
+      end;
+      if Largest > 0 then begin
         // cutting Box[LargestIdx] into Box[LargestIdx] and Box[Boxes]
         CutR := False;
         CutG := False;
         CutB := False;
         CutA := False;
-        with Box[LargestIdx] do
-        begin
-          if (AMax - AMin) * AlphaWeight = Largest then
-          begin
+        with Box[LargestIdx] do begin
+          if (AMax - AMin) * AlphaWeight = Largest then begin
             Cut := (AMax + AMin) shr 1;
             CutA := True;
-          end
-          else
-            if (RMax - RMin) * RedWeight = Largest then
-            begin
-              Cut := (RMax + RMin) shr 1;
-              CutR := True;
-            end
-            else
-              if (GMax - GMin) * GreenWeight = Largest then
-              begin
-                Cut := (GMax + GMin) shr 1;
-                CutG := True;
-              end
-              else
-              begin
-                Cut := (BMax + BMin) shr 1;
-                CutB := True;
-              end;
+          end else if (RMax - RMin) * RedWeight = Largest then begin
+            Cut := (RMax + RMin) shr 1;
+            CutR := True;
+          end else if (GMax - GMin) * GreenWeight = Largest then begin
+            Cut := (GMax + GMin) shr 1;
+            CutG := True;
+          end else begin
+            Cut := (BMax + BMin) shr 1;
+            CutB := True;
+          end;
           CP := List;
         end;
         InitBox(Box[LargestIdx]);
@@ -327,13 +340,13 @@ begin
         repeat
           // distribute one color
           Pom := CP.Next;
-          with CP.Color do
-          begin
+          with CP.Color do begin
             if (CutA and (A <= Cut)) or (CutR and (R <= Cut)) or
-              (CutG and (G <= Cut)) or (CutB and (B <= Cut)) then
-              I := LargestIdx
-            else
+              (CutG and (G <= Cut)) or (CutB and (B <= Cut)) then begin
+              I := LargestIdx;
+            end else begin
               I := Boxes;
+            end;
           end;
           CP.Next := Box[i].List;
           Box[i].List := CP;
@@ -344,8 +357,7 @@ begin
       end;
     until (Boxes = MaxColors) or (Largest = 0);
     // compute box representation
-    for I := 0 to Boxes - 1 do
-    begin
+    for I := 0 to Boxes - 1 do begin
       SumR := 0;
       SumG := 0;
       SumB := 0;
@@ -359,8 +371,7 @@ begin
         Box[I].List := CP.Next;
         Dispose(CP);
       until Box[I].List = nil;
-      with Box[I] do
-      begin
+      with Box[I] do begin
         Represented.A := SumA div Total;
         Represented.R := SumR div Total;
         Represented.G := SumG div Total;
@@ -376,17 +387,15 @@ begin
       end;
     end;
     // sort color boxes
-    for I := 0 to Boxes - 2 do
-    begin
+    for I := 0 to Boxes - 2 do begin
       Largest := 0;
-      for J := I to Boxes - 1 do
-        if Box[J].Total > Largest then
-        begin
+      for J := I to Boxes - 1 do begin
+        if Box[J].Total > Largest then begin
           Largest := Box[J].Total;
           LargestIdx := J;
         end;
-      if LargestIdx <> I then
-      begin
+      end;
+      if LargestIdx <> I then begin
         Temp := Box[I];
         Box[I] := Box[LargestIdx];
         Box[LargestIdx] := Temp;
@@ -403,18 +412,17 @@ var
   I: LongInt;
 begin
   FillChar(DstPal^, SizeOf(TColor32Rec) * MaxColors, $FF);
-  for I := 0 to MaxColors - 1 do
-  begin
-    if I < Boxes then
-    with Box[I].Represented do
-    begin
-      DstPal[I].A := A;
-      DstPal[I].R := R;
-      DstPal[I].G := G;
-      DstPal[I].B := B;
-    end
-    else
+  for I := 0 to MaxColors - 1 do begin
+    if I < Boxes then begin
+      with Box[I].Represented do begin
+        DstPal[I].A := A;
+        DstPal[I].R := R;
+        DstPal[I].G := G;
+        DstPal[I].B := B;
+      end;
+    end else begin
       DstPal[I].Color := $FF000000;
+    end;
   end;
 end;
 
@@ -423,15 +431,18 @@ var
   I: LongInt;
 begin
   I := 0;
-  with Col do
+  with Col do begin
     while (I < Boxes) and ((Box[I].AMin > A) or (Box[I].AMax < A) or
-      (Box[I].RMin > R) or (Box[I].RMax < R) or (Box[I].GMin > G) or
-      (Box[I].GMax < G) or (Box[I].BMin > B) or (Box[I].BMax < B)) do
+        (Box[I].RMin > R) or (Box[I].RMax < R) or (Box[I].GMin > G) or
+        (Box[I].GMax < G) or (Box[I].BMin > B) or (Box[I].BMax < B)) do begin
       Inc(I);
-  if I = Boxes then
-    MapColor := 0
-  else
+    end;
+  end;
+  if I = Boxes then begin
+    MapColor := 0;
+  end else begin
     MapColor := I;
+  end;
 end;
 
 procedure TARGBToPaletteConverter.MapImage(
@@ -443,8 +454,7 @@ var
   I: LongInt;
   Col: TColor32Rec;
 begin
-  for I := 0 to NumPixels - 1 do
-  begin
+  for I := 0 to NumPixels - 1 do begin
     Col := GetPixel32Generic(Src, SrcInfo, nil);
     IndexSetDstPixel(Dst, DstInfo, MapColor(Col));
     Inc(Src, SrcInfo.BytesPerPixel);
@@ -452,9 +462,15 @@ begin
   end;
 end;
 
-procedure TARGBToPaletteConverter.ReduceColorsMedianCut(NumPixels: Integer; Src,
-  Dst: PByte; SrcInfo, DstInfo: PImageFormatInfo; MaxColors: Integer;
-  ChannelMask: Byte; DstPal: PPalette32);
+procedure TARGBToPaletteConverter.ReduceColorsMedianCut(
+  NumPixels: Integer;
+  Src,
+  Dst: PByte;
+  SrcInfo, DstInfo: PImageFormatInfo;
+  MaxColors: Integer;
+  ChannelMask: Byte;
+  DstPal: PPalette32
+);
 begin
   MaxColors := ClampInt(MaxColors, 2, MaxPossibleColors);
 
