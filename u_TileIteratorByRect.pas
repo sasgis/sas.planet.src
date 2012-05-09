@@ -38,8 +38,6 @@ type
     constructor Create(const ARect: TRect); virtual;
   end;
 
-
-
   TTileIteratorByRect = class(TTileIteratorByRectBase, ITileIteratorByRows)
   protected
     FEOI: Boolean;
@@ -52,11 +50,29 @@ type
 
 implementation
 
-{ TTileIteratorSpiralByRect }
+{ TTileIteratorByRectBase }
+
+constructor TTileIteratorByRectBase.Create(const ARect: TRect);
+begin
+  inherited Create;
+  FTilesRect := ARect;
+end;
+
+function TTileIteratorByRectBase.GetTilesRect: TRect;
+begin
+  Result := FTilesRect;
+end;
+
+function TTileIteratorByRectBase.GetTilesTotal: Int64;
+begin
+  Result := FTilesTotal;
+end;
+
+{ TTileIteratorByRect }
 
 constructor TTileIteratorByRect.Create(const ARect: TRect);
 begin
-  inherited;
+  inherited Create(ARect);
   Reset;
 end;
 
@@ -88,24 +104,6 @@ begin
     FTilesTotal := FTilesTotal * (FTilesRect.Bottom - FTilesRect.Top);
     FCurrent := FTilesRect.TopLeft;
   end;
-end;
-
-{ TTileIteratorByRectBase }
-
-constructor TTileIteratorByRectBase.Create(const ARect: TRect);
-begin
-  inherited Create;
-  FTilesRect := ARect;
-end;
-
-function TTileIteratorByRectBase.GetTilesRect: TRect;
-begin
-  Result := FTilesRect;
-end;
-
-function TTileIteratorByRectBase.GetTilesTotal: Int64;
-begin
-  Result := FTilesTotal;
 end;
 
 end.

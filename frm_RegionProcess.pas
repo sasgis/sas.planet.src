@@ -161,6 +161,7 @@ uses
   u_ExportProviderZip,
   u_ExportProviderTar,
   u_ExportProviderJNX,
+  u_ExportProviderOgf2,
   u_ExportProviderCE,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
@@ -537,6 +538,22 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ACoordConverterFactory
+    );
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
+    VExportProvider :=
+    TExportProviderOgf2.Create(
+      pnlExport,
+      ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AProjectionFactory,
+      AVectorItmesFactory,
+      ALocalConverterFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
