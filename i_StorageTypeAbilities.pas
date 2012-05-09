@@ -37,8 +37,7 @@ type
     function GetAllowReplace: boolean;
     property AllowReplace: boolean read GetAllowReplace;
   end;
-  
+
 implementation
 
 end.
-

@@ -23,7 +23,7 @@ unit t_FillingMapModes;
 interface
 
 type
-  TFillMode = (fmUnexisting=0,fmExisting=1,fmGradient=2);
+  TFillMode = (fmUnexisting = 0, fmExisting = 1, fmGradient = 2);
 
 implementation
 

@@ -31,7 +31,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
- end;
+  end;
 
 implementation
 

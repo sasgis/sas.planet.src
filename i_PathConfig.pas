@@ -12,7 +12,7 @@ type
     property DefaultPath: string read GetDefaultPath;
 
     function GetBasePathConfig: IPathConfig;
-    procedure SetBasePathConfig(const AValue : IPathConfig);
+    procedure SetBasePathConfig(const AValue: IPathConfig);
     property BasePathConfig: IPathConfig read GetBasePathConfig write SetBasePathConfig;
 
     function GetPath: string;

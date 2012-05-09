@@ -38,7 +38,7 @@ type
   TTrackPointArray = array [0..0] of TGPSTrackPoint;
 
   IEnumGPSTrackPoint = interface
-  ['{9BD74D0A-BB44-4A63-A689-748F082CC3A1}']
+    ['{9BD74D0A-BB44-4A63-A689-748F082CC3A1}']
     function Next(out APoint: TGPSTrackPoint): Boolean;
   end;
 
@@ -86,10 +86,12 @@ type
     function GetCurrentPosition: IGPSPosition;
     property CurrentPosition: IGPSPosition read GetCurrentPosition;
 
-    procedure ExecuteGPSCommand(Sender: TObject;
-                                const AUnitIndex: Byte;
-                                const ACommand: LongInt;
-                                const APointer: Pointer);
+    procedure ExecuteGPSCommand(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    );
 
     function GetGPSUnitInfo: String;
     property GPSUnitInfo: String read GetGPSUnitInfo;

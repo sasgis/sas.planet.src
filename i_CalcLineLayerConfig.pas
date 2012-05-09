@@ -53,7 +53,7 @@ type
 
     function GetCaptionConfig: ICalcLineLayerCaptionsConfig;
     property CaptionConfig: ICalcLineLayerCaptionsConfig read GetCaptionConfig;
- end;
+  end;
 
 implementation
 

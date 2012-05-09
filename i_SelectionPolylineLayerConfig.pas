@@ -45,7 +45,7 @@ type
 
     function GetPointsConfig: IPointsSetLayerConfig;
     property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
- end;
+  end;
 
 implementation
 

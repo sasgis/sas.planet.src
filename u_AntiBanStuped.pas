@@ -137,10 +137,12 @@ begin
     FBanFlag := false;
     FBanCS.EndWrite;
 
-    with TExecOnBan.Create do try
-      Exec(ALastUrl);
-    finally
-      Free;
+    with TExecOnBan.Create do begin
+      try
+        Exec(ALastUrl);
+      finally
+        Free;
+      end;
     end;
   end else begin
     FBanCS.EndWrite;

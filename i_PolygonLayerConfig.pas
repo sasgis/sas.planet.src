@@ -32,7 +32,7 @@ type
     function GetFillColor: TColor32;
     procedure SetFillColor(AValue: TColor32);
     property FillColor: TColor32 read GetFillColor write SetFillColor;
- end;
+  end;
 
 implementation
 

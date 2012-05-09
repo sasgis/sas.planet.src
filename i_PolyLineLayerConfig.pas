@@ -60,7 +60,7 @@ type
     function GetPointSize: integer;
     procedure SetPointSize(AValue: integer);
     property PointSize: integer read GetPointSize write SetPointSize;
- end;
+  end;
 
 implementation
 

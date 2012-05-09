@@ -31,7 +31,7 @@ type
     function GetShowTickCount: Cardinal;
     procedure SetShowTickCount(AValue: Cardinal);
     property ShowTickCount: Cardinal read GetShowTickCount write SetShowTickCount;
- end;
+  end;
 
 implementation
 

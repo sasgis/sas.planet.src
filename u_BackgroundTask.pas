@@ -119,8 +119,9 @@ begin
 
         ExecuteTask(VOperatonID, FCancelNotifier);
 
-        if Terminated then
+        if Terminated then begin
           Exit;
+        end;
 
         if not FCancelNotifier.IsOperationCanceled(VOperatonID) then begin
           ResetEvent(FAllowExecuteHandle);

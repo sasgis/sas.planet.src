@@ -32,7 +32,10 @@ type
     property Size: UInt64 read GetSize;
 
     procedure Reset;
-    procedure Add(ACount: UInt64; ASize: UInt64);
+    procedure Add(
+      ACount: UInt64;
+      ASize: UInt64
+    );
   end;
 
 implementation

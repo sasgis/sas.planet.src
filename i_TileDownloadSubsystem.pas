@@ -18,7 +18,10 @@ type
       Azoom: byte;
       ACheckTileSize: Boolean
     ): ITileRequest;
-    function GetLink(const AXY: TPoint; Azoom: byte): string;
+    function GetLink(
+      const AXY: TPoint;
+      Azoom: byte
+    ): string;
     procedure Download(
       const ATileRequest: ITileRequest
     );

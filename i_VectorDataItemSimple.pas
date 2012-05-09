@@ -27,7 +27,7 @@ uses
   i_VectorItemLonLat;
 
 type
-  IVectorDataItemSimple =  interface
+  IVectorDataItemSimple = interface
     ['{1242B43D-C878-4AC9-9F29-0A3E258F4670}']
     function GetName: string;
     property Name: string read GetName;

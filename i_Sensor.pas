@@ -36,12 +36,12 @@ type
   end;
 
   ISensorText = interface(ISensor)
-  ['{9FBEF687-7C1E-4BA6-85D7-ECD16E2F1A7A}']
+    ['{9FBEF687-7C1E-4BA6-85D7-ECD16E2F1A7A}']
     function GetText: string;
   end;
 
   ISensorBitmap = interface(ISensor)
-  ['{6A1BB26A-13DE-4533-BA3F-188769BF71D6}']
+    ['{6A1BB26A-13DE-4533-BA3F-188769BF71D6}']
     function GetBitmap: IBitmap32Static;
     property Bitmap: IBitmap32Static read GetBitmap;
   end;

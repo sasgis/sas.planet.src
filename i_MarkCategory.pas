@@ -32,7 +32,7 @@ type
   end;
 
   IMarkCategory = interface(ICategory)
-  ['{00226B68-9915-41AA-90B7-3F2348E53527}']
+    ['{00226B68-9915-41AA-90B7-3F2348E53527}']
     function GetVisible: boolean; stdcall;
     property Visible: boolean read GetVisible;
 

@@ -9,7 +9,7 @@ type
     procedure SetProcessed(const AValue: Double);
     property Processed: Double read GetProcessed write SetProcessed;
   end;
-  
+
   IRegionProcessProgressInfo = interface(IProgressInfo)
     ['{58559CEF-9233-4E25-87E0-F88E1A78C5AD}']
     function GetFinished: Boolean;

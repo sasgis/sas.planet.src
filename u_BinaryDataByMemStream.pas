@@ -11,7 +11,7 @@ type
   private
     FMemStream: TMemoryStream;
   private
-    function  GetBuffer: Pointer;
+    function GetBuffer: Pointer;
     function GetSize: Integer;
   public
     constructor CreateFromStream(AStream: TStream);

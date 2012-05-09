@@ -117,7 +117,7 @@ begin
 
 
   FAllMapsSet := VAllMapsList;
-  
+
   FActiveLayersSet := TActiveMapsSet.Create(
     ALayersSet,
     FAllMapsSingleList,
@@ -127,7 +127,7 @@ begin
   );
   Add(FActiveLayersSet, nil);
 
-  FAllActiveMapsSet :=  TActiveMapsSet.Create(
+  FAllActiveMapsSet := TActiveMapsSet.Create(
     FAllMapsSet,
     FAllMapsSingleList,
     MainMapChangeNotyfier,
@@ -177,7 +177,7 @@ begin
         if not IsEqualGUID(VGUID, CGUID_Zero) then begin
           VMap := FActiveLayersSet.GetMapsSet.GetMapTypeByGUID(VGUID);
           if VMap <> nil then begin
-            SelectLayerByGUID(VGUID)
+            SelectLayerByGUID(VGUID);
           end;
         end;
       end;

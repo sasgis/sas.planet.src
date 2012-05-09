@@ -24,7 +24,7 @@ interface
 
 type
   IMarkSMLInternal = interface
-  ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
+    ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
     function GetId: Integer;
     property Id: Integer read GetId;
 
@@ -40,7 +40,7 @@ type
   end;
 
   IMarkPointSMLInternal = interface(IMarkSMLInternal)
-  ['{8032428E-F038-46C0-A060-47EDDF3A4852}']
+    ['{8032428E-F038-46C0-A060-47EDDF3A4852}']
     function GetPicName: string;
     property PicName: string read GetPicName;
   end;

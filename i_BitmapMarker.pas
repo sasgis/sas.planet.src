@@ -32,7 +32,10 @@ uses
 type
   IMarkerDrawable = interface
     ['{91E8968F-8563-4ED0-8774-AF844F8CA8B9}']
-    procedure DrawToBitmap(ABitmap: TCustomBitmap32; const APosition: TDoublePoint);
+    procedure DrawToBitmap(
+      ABitmap: TCustomBitmap32;
+      const APosition: TDoublePoint
+    );
   end;
 
   IBitmapMarker = interface(IBitmap32Static)
@@ -67,7 +70,10 @@ type
 
   IMarkerDrawableProviderBySizeAbdDirection = interface
     ['{FF051FA9-D992-4383-8321-DC5CC2DBB6F1}']
-    function GetMarker(const AAngle: Double;  ASize: Integer): IMarkerDrawable;
+    function GetMarker(
+      const AAngle: Double;
+      ASize: Integer
+    ): IMarkerDrawable;
   end;
 
   IBitmapMarkerProvider = interface
@@ -79,7 +85,10 @@ type
   IBitmapMarkerWithDirectionProvider = interface(IBitmapMarkerProvider)
     ['{80B3D3EB-E42E-4D40-A20D-6C15F7E446A0}']
     function GetMarkerWithRotation(const AAngle: Double): IBitmapMarkerWithDirection;
-    function GetMarkerWithRotationBySize(const AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotationBySize(
+      const AAngle: Double;
+      ASize: Integer
+    ): IBitmapMarkerWithDirection;
   end;
 
   IBitmapMarkerProviderChangeable = interface

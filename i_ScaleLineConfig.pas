@@ -66,7 +66,7 @@ type
     function GetBottomMargin: Integer;
     procedure SetBottomMargin(AValue: Integer);
     property BottomMargin: Integer read GetBottomMargin write SetBottomMargin;
- end;
+  end;
 
 implementation
 

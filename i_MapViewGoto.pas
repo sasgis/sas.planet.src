@@ -41,7 +41,10 @@ type
 
   IMapViewGoto = interface
     ['{33FDD537-B089-4ED6-8AB4-720E47B3C8B8}']
-    procedure GotoPos(const ALonLat: TDoublePoint; const AZoom: Byte);
+    procedure GotoPos(
+      const ALonLat: TDoublePoint;
+      const AZoom: Byte
+    );
 
     function GetLastGotoPos: IGotoPosStatic;
     property LastGotoPos: IGotoPosStatic read GetLastGotoPos;

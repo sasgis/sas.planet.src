@@ -47,7 +47,10 @@ type
     function GetSpeedRangeCount: Integer;
 
     function GetSpeedRangeItem(AIndex: Integer): ISpeedRangeItem;
-    function AddSpeedRangeItem(ASpeed: Double; AMinColor, AMaxColor: TColor32): Integer;
+    function AddSpeedRangeItem(
+      ASpeed: Double;
+      AMinColor, AMaxColor: TColor32
+    ): Integer;
     procedure ClearItems;
   end;
 

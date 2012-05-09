@@ -26,10 +26,10 @@ interface
 
 type
   IMapAttachmentsFactory = interface
-  ['{DC43DD1D-FA27-4920-87F8-E15C16BFB232}']
+    ['{DC43DD1D-FA27-4920-87F8-E15C16BFB232}']
     function GetCompiledData: String;
   end;
-  
+
 implementation
 
 end.

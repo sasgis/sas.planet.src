@@ -25,8 +25,14 @@ type
     function IsPointInRect(const APoint: TDoublePoint): Boolean;
     function UnionWithRect(const ARect: TDoubleRect): TDoubleRect; overload;
     function UnionWithRect(const ARect: ILonLatRect): TDoubleRect; overload;
-    function IntersecWithRect(out AResultRect: TDoubleRect; const ARect: TDoubleRect): Boolean; overload;
-    function IntersecWithRect(out AResultRect: TDoubleRect; const ARect: ILonLatRect): Boolean; overload;
+    function IntersecWithRect(
+      out AResultRect: TDoubleRect;
+      const ARect: TDoubleRect
+    ): Boolean; overload;
+    function IntersecWithRect(
+      out AResultRect: TDoubleRect;
+      const ARect: ILonLatRect
+    ): Boolean; overload;
     function IsIntersecWithRect(const ARect: TDoubleRect): Boolean; overload;
     function IsIntersecWithRect(const ARect: ILonLatRect): Boolean; overload;
   end;

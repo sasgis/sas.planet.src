@@ -38,7 +38,7 @@ type
     property Name: string read GetName;
 
     function GetCounter: Cardinal;
-    property Counter: Cardinal  read GetCounter;
+    property Counter: Cardinal read GetCounter;
 
     function GetTotalTime: TDateTime;
     property TotalTime: TDateTime read GetTotalTime;
@@ -62,7 +62,7 @@ type
     procedure FinishOperation(const AContext: TInternalPerformanceCounterContext);
 
     function GetCounter: Cardinal;
-    property Counter: Cardinal  read GetCounter;
+    property Counter: Cardinal read GetCounter;
 
     function GetTotalTime: TDateTime;
     property TotalTime: TDateTime read GetTotalTime;
@@ -76,7 +76,7 @@ type
     function GetStaticData: IInternalPerformanceCounterStaticData;
   end;
 
-  IInternalPerformanceCounterList =  interface
+  IInternalPerformanceCounterList = interface
     ['{75567269-AD8D-443F-AA45-9336C9890719}']
     function GetName: string;
     property Name: string read GetName;
