@@ -21,11 +21,17 @@ uses
   u_ThreadExportAbstract;
 
 type
+  TOgf2TileFormat = (tfBMP = 0, tfPNG = 1, tfJPEG = 2);
+  TOgf2TileResolution = (tr128 = 0, tr256 = 1);
+
   TThreadExportToOgf2 = class(TThreadExportAbstract)
   private
     FMapType: TMapType;
+    FOverlayMapType: TMapType;
     FOgf2TileWidth: Integer;
     FOgf2TileHeight: Integer;
+    FOgf2TileFormat: TOgf2TileFormat;
+    FJpegQuality: Byte;
     FTargetFile: string;
     FImageProvider: IBitmapLayerProvider;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -59,7 +65,12 @@ type
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const AZoomArr: array of Boolean;
-      AMapType: TMapType
+      AMapType: TMapType;
+      AOverlayMapType: TMapType;
+      AUsePrevZoom: Boolean;
+      AOgf2TileResolution: TOgf2TileResolution;
+      AOgf2TileFormat: TOgf2TileFormat;
+      AJpegQuality: Byte
     );
   end;
 
@@ -79,6 +90,7 @@ uses
   u_BitmapTileVampyreSaver,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
+  u_ARGBToPaletteConverter,
   u_GeoFun;
 
 const
@@ -97,7 +109,12 @@ constructor TThreadExportToOgf2.Create(
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const AZoomArr: array of Boolean;
-  AMapType: TMapType
+  AMapType: TMapType;
+  AOverlayMapType: TMapType;
+  AUsePrevZoom: Boolean;
+  AOgf2TileResolution: TOgf2TileResolution;
+  AOgf2TileFormat: TOgf2TileFormat;
+  AJpegQuality: Byte
 );
 begin
   inherited Create(
@@ -109,25 +126,36 @@ begin
   );
   FTargetFile := ATargetFile;
   FMapType := AMapType;
+  FOverlayMapType := AOverlayMapType;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FOgf2TileFormat := AOgf2TileFormat;
+  FJpegQuality := AJpegQuality;
 
-  //TODO: add options to configure ImageProvider
   FImageProvider :=
     TBitmapLayerProviderSimpleForCombine.Create(
       nil,
       FMapType,
+      FOverlayMapType,
       nil,
-      nil,
-      False,
-      False
+      AUsePrevZoom,
+      AUsePrevZoom
     );
 
-  // TODO: add options to case resolution at 128*128 or 256*256 pix
-  FOgf2TileWidth := 128;
-  FOgf2TileHeight := 128;
+  case AOgf2TileResolution of
+    tr128:
+      begin
+        FOgf2TileWidth := 128;
+        FOgf2TileHeight := 128;
+      end;
+  else
+      begin
+        FOgf2TileWidth := 256;
+        FOgf2TileHeight := 256;
+      end;
+  end;
 end;
 
 procedure TThreadExportToOgf2.SaveOziCalibrationMap(
@@ -242,8 +270,15 @@ begin
 
   VZoom := FZooms[0];
 
-  //TODO: add options for select image format (bmp/gif/jpeg/png/tiff) in ogf2
-  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(95);
+  case FOgf2TileFormat of
+    tfBMP:
+      VSaver := TVampyreBasicBitmapTileSaverBMP.Create;
+
+    tfPNG:
+      VSaver := TVampyreBasicBitmapTileSaverPNGRGB.Create;
+  else
+      VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpegQuality);
+  end;
 
   VGeoConvert :=
     FCoordConverterFactory.GetCoordConverterByCode(

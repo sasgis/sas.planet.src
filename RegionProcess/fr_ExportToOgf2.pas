@@ -19,7 +19,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   u_CommonFormAndFrameParents,
-  t_GeoTypes;
+  t_GeoTypes, Spin;
 
 type
   TfrExportToOgf2 = class(TFrame)
@@ -35,8 +35,19 @@ type
     lblZoom: TLabel;
     cbbZoom: TComboBox;
     lblStat: TLabel;
+    lblHyb: TLabel;
+    cbbHyb: TComboBox;
+    cbbImageFormat: TComboBox;
+    lblImageFormat: TLabel;
+    lblTileRes: TLabel;
+    cbbTileRes: TComboBox;
+    chkUsePrevZoom: TCheckBox;
+    lblJpgQulity: TLabel;
+    seJpgQuality: TSpinEdit;
+    pnlBottom: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
+    procedure cbbTileResChange(Sender: TObject);
   private
     FVectorFactory: IVectorItmesFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -79,9 +90,16 @@ begin
   end;
 end;
 
+procedure TfrExportToOgf2.cbbTileResChange(Sender: TObject);
+begin
+  cbbZoomChange(Sender);
+end;
+
 procedure TfrExportToOgf2.cbbZoomChange(Sender: TObject);
 var
-  numd:int64 ;
+  VTilesCountRow: Int64;
+  VTilesCountCol: Int64;
+  VTilesCountTotal: Int64;
   VMapType: TMapType;
   VZoom: byte;
   VPolyLL: ILonLatPolygon;
@@ -90,11 +108,18 @@ var
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;
+  VTileSize: Integer;
 begin
   if cbbMap.ItemIndex >= 0 then begin
     VMapType := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
   end else begin
     VMapType := nil;
+  end;
+
+  if cbbTileRes.ItemIndex > 0 then begin
+    VTileSize := 256;
+  end else begin
+    VTileSize := 128;
   end;
 
   if VMapType <> nil then begin
@@ -112,16 +137,19 @@ begin
         VBounds := VLine.Bounds;
         VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
         VTileRect := VMapType.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
-        numd := (VTileRect.Right - VTileRect.Left);
-        numd := numd * (VTileRect.Bottom - VTileRect.Top);
+
+        VTilesCountRow := (VTileRect.Right - VTileRect.Left) * (256 div VTileSize);
+        VTilesCountCol := (VTileRect.Bottom - VTileRect.Top) * (256 div VTileSize);
+        VTilesCountTotal := VTilesCountRow * VTilesCountCol;
+
         lblStat.Caption :=
-          SAS_STR_filesnum+': '+
-          inttostr(VTileRect.Right - VTileRect.Left)+'x'+
-          inttostr(VTileRect.Bottom - VTileRect.Top)+
-          '('+inttostr(numd)+')' +
-          ', '+SAS_STR_Resolution + ' ' +
-          inttostr( (VTileRect.Right - VTileRect.Left) * 256 )+'x'+
-          inttostr( (VTileRect.Bottom - VTileRect.Top) * 256 );
+          SAS_STR_filesnum + ': ' +
+          IntToStr(VTilesCountRow) + 'x' +
+          IntToStr(VTilesCountCol) +
+          '(' + FloatToStrF(VTilesCountTotal, ffNumber, 12, 0) + ')' +
+          ', ' + SAS_STR_Resolution + ' ' +
+          IntToStr(VTilesCountRow * VTileSize) + 'x' +
+          IntToStr(VTilesCountCol * VTileSize) + ' pix';
       end;
     end;
   end;
@@ -150,7 +178,7 @@ end;
 
 procedure TfrExportToOgf2.Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
 var
-  i: integer;
+  I: Integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
@@ -158,27 +186,45 @@ var
   VGUID: TGUID;
 begin
   FPolygLL := APolygLL;
+
   cbbZoom.Items.Clear;
-  for i:=1 to 24 do begin
-    cbbZoom.Items.Add(inttostr(i));
+  cbbMap.Items.Clear;
+  cbbHyb.Items.Clear;
+
+  for I := 1 to 24 do begin
+    cbbZoom.Items.Add(IntToStr(I));
   end;
   cbbZoom.ItemIndex := AZoom;
-  
+
+  cbbTileRes.ItemIndex := 0; // 128*128 pix
+
+  cbbHyb.Items.AddObject(SAS_STR_No, nil);   
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
-  cbbMap.items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
+  for I := 0 to VGUIDList.Count-1 do begin
+    VGUID := VGUIDList.Items[I];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-        cbbMap.ItemIndex:=VAddedIndex;
+    if (VMapType.IsBitmapTiles) and (VMapType.GUIConfig.Enabled) then begin
+      if (not(VMapType.Abilities.IsLayer)) then begin
+        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
+        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
+          cbbMap.ItemIndex := VAddedIndex;
+        end;
+      end else if(VMapType.IsHybridLayer) then begin
+        VAddedIndex := cbbHyb.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
+        if (cbbHyb.ItemIndex = -1) then begin
+          if FMainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VGUID) then begin
+            cbbHyb.ItemIndex := VAddedIndex;
+          end;
+        end;
       end;
     end;
   end;
   if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
     cbbMap.ItemIndex := 0;
+  end;
+  if cbbHyb.ItemIndex = -1 then begin
+    cbbHyb.ItemIndex := 0;
   end;
 
   cbbZoomChange(nil);

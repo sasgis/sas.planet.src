@@ -154,6 +154,11 @@ var
   I: Integer;
   VTargetFile: string;
   VMapType: TMapType;
+  VOverlay: TMapType;
+  VUsePrevZoom: Boolean;
+  VOgf2TileResolution: TOgf2TileResolution;
+  VOgf2TileFormat: TOgf2TileFormat;
+  VJpegQuality: Byte;
   VZoomArr: array [0..23] of Boolean;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
@@ -161,12 +166,21 @@ var
 begin
   inherited;
 
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   VTargetFile := FFrame.edtTargetFile.Text;
+
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  VOverlay := TMapType(FFrame.cbbHyb.Items.Objects[FFrame.cbbHyb.ItemIndex]);
+
   for I := 0 to 23 do begin
     VZoomArr[I] := False;
   end;
   VZoomArr[FFrame.cbbZoom.ItemIndex] := True;
+
+  VUsePrevZoom := FFrame.chkUsePrevZoom.Checked;
+
+  VOgf2TileResolution := TOgf2TileResolution(FFrame.cbbTileRes.ItemIndex);
+  VOgf2TileFormat := TOgf2TileFormat(FFrame.cbbImageFormat);
+  VJpegQuality := FFrame.seJpgQuality.Value;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
@@ -191,7 +205,12 @@ begin
     VTargetFile,
     APolygon,
     VZoomArr,
-    VMapType
+    VMapType,
+    VOverlay,
+    VUsePrevZoom,
+    VOgf2TileResolution,
+    VOgf2TileFormat,
+    VJpegQuality
   );
 end;
 
