@@ -36,7 +36,8 @@ uses
 
 constructor TBitmapLayerProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
-  const ASourceProvider: IBitmapLayerProvider);
+  const ASourceProvider: IBitmapLayerProvider
+);
 begin
   inherited Create;
   FSourceProvider := ASourceProvider;

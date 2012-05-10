@@ -74,7 +74,10 @@ type
     function GetMarker: IBitmapMarker;
     function GetMarkerWithRotation(const AAngle: Double): IBitmapMarkerWithDirection;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-    function GetMarkerWithRotationBySize(const AAngle: Double;  ASize: Integer): IBitmapMarkerWithDirection;
+    function GetMarkerWithRotationBySize(
+      const AAngle: Double;
+      ASize: Integer
+    ): IBitmapMarkerWithDirection;
   public
     constructor Create(
       const AResourceDataProvider: IConfigDataProvider;
@@ -216,6 +219,7 @@ var
   VBitmapContntType: IContentTypeInfoBitmap;
   VBitmap: IBitmap32Static;
   VData: IBinaryData;
+  VMarker: IBitmapMarker;
 begin
   VFileName := ExtractFileName(AResourceName);
   VFileExt := ExtractFileExt(VFileName);
@@ -233,12 +237,8 @@ begin
       end;
     end;
   end;
-  inherited Create(
-    TBitmapMarker.Create(
-      VBitmap,
-      AAnchorPoint
-    )
-  );
+  VMarker := TBitmapMarker.Create(VBitmap, AAnchorPoint);
+  inherited Create(VMarker);
 end;
 
 { TBitmapMarkerWithDirectionProviderStaticFromDataProvider }

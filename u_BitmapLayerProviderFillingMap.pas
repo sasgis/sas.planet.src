@@ -67,7 +67,7 @@ begin
         ALocalConverter,
         FSourceZoom,
         FColorer
-      )
+      );
   end;
 end;
 

@@ -22,7 +22,7 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FUseCache: Boolean;
-    FPostProcessingConfig:IBitmapPostProcessingConfigStatic;
+    FPostProcessingConfig: IBitmapPostProcessingConfigStatic;
     FErrorLogger: ITileErrorLogger;
     function GetBitmapByMapType(
       AOperationID: Integer;
@@ -96,6 +96,7 @@ var
   VCache: ITileObjCacheBitmap;
   VLayer: IBitmap32Static;
   VBitmap: TCustomBitmap32;
+  VError: ITileErrorInfo;
 begin
   Result := ASource;
   VLayer := nil;
@@ -117,26 +118,25 @@ begin
   except
     on E: Exception do begin
       if FErrorLogger <> nil then begin
-        FErrorLogger.LogError(
+        VError :=
           TTileErrorInfo.Create(
             AMapType.MapType,
             AZoom,
             ATile,
             E.Message
-          )
-        );
+          );
+        FErrorLogger.LogError(VError);
       end else begin
         raise;
       end;
     end;
-  else
-      if FErrorLogger <> nil then begin
+    else if FErrorLogger <> nil then begin
         FErrorLogger.LogError(
           TTileErrorInfo.Create(
-            AMapType.MapType,
-            AZoom,
-            ATile,
-            'Unexpected read tile error'
+          AMapType.MapType,
+          AZoom,
+          ATile,
+          'Unexpected read tile error'
           )
         );
       end else begin
