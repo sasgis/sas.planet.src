@@ -35,8 +35,10 @@ type
   protected
     function GetPosParams: PSingleGPSData; stdcall;
 
-    function GetTracksParams(var pPos: PSingleGPSData;
-                             var pSatFixAll: PVSAGPS_FIX_ALL): Boolean; stdcall;
+    function GetTracksParams(
+      var pPos: PSingleGPSData;
+      var pSatFixAll: PVSAGPS_FIX_ALL
+    ): Boolean; stdcall;
 
     function GetSatellites: IGPSSatellitesInView; stdcall;
   public
@@ -57,11 +59,12 @@ constructor TGPSPositionStatic.Create(
 );
 begin
   inherited Create;
-  if (nil=ASingleGPSData) then
-    InitSingleGPSData(@FSingleGPSData)
-  else
-    FSingleGPSData:=ASingleGPSData^;
-    
+  if (nil = ASingleGPSData) then begin
+    InitSingleGPSData(@FSingleGPSData);
+  end else begin
+    FSingleGPSData := ASingleGPSData^;
+  end;
+
   FSatellites := ASatellites;
 end;
 
@@ -81,15 +84,18 @@ begin
   Result := FSatellites;
 end;
 
-function TGPSPositionStatic.GetTracksParams(var pPos: PSingleGPSData;
-                                            var pSatFixAll: PVSAGPS_FIX_ALL): Boolean;
+function TGPSPositionStatic.GetTracksParams(
+  var pPos: PSingleGPSData;
+  var pSatFixAll: PVSAGPS_FIX_ALL
+): Boolean;
 begin
-  Result:=TRUE;
+  Result := TRUE;
   pPos := @FSingleGPSData;
-  if Assigned(FSatellites) then
-    pSatFixAll:=FSatellites.GetFixedSats
-  else
-    pSatFixAll:=nil;
+  if Assigned(FSatellites) then begin
+    pSatFixAll := FSatellites.GetFixedSats;
+  end else begin
+    pSatFixAll := nil;
+  end;
 end;
 
 end.

@@ -26,7 +26,7 @@ uses
   i_GUIDListStatic;
 
 type
-  TGUIDListStatic =  class(TInterfacedObject, IGUIDListStatic)
+  TGUIDListStatic = class(TInterfacedObject, IGUIDListStatic)
   private
     FList: array of TGUID;
   protected

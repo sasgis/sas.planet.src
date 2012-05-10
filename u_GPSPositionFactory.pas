@@ -57,11 +57,13 @@ type
       const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
 
-    function ExecuteGPSCommand(Sender: TObject;
-                               const AUnitIndex: Byte;
-                               const ACommand: LongInt;
-                               const APointer: Pointer): String;
-                                
+    function ExecuteGPSCommand(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): String;
+
     procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
 
     procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
@@ -89,15 +91,18 @@ begin
     TGPSPositionStatic.Create(nil, FSatellitesInViewEmpty);
 end;
 
-function TGPSPositionFactory.ExecuteGPSCommand(Sender: TObject;
-                                               const AUnitIndex: Byte;
-                                               const ACommand: Integer;
-                                               const APointer: Pointer): String;
+function TGPSPositionFactory.ExecuteGPSCommand(
+  Sender: TObject;
+  const AUnitIndex: Byte;
+  const ACommand: Integer;
+  const APointer: Pointer
+): String;
 begin
-  if Assigned(FExecuteGPSCommandEvent) then
-    Result := FExecuteGPSCommandEvent(Sender, AUnitIndex, ACommand, APointer)
-  else
+  if Assigned(FExecuteGPSCommandEvent) then begin
+    Result := FExecuteGPSCommandEvent(Sender, AUnitIndex, ACommand, APointer);
+  end else begin
     Result := '';
+  end;
 end;
 
 function TGPSPositionFactory.GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
@@ -157,7 +162,7 @@ begin
       AItemsGP,
       AItemsCountGL,
       AItemsGL
-    )
+    );
 end;
 
 function TGPSPositionFactory.BuildSatellitesInViewEmpty: IGPSSatellitesInView;

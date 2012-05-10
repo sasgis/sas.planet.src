@@ -71,9 +71,11 @@ type
 
     function GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
     procedure ReGenerateGPSUnitInfo;
-    procedure DoGPSUnitInfoChanged(Sender: TObject;
-                                   const AUnitIndex: Byte;
-                                   const AKind: TVSAGPS_UNIT_INFO_Kind);
+    procedure DoGPSUnitInfoChanged(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const AKind: TVSAGPS_UNIT_INFO_Kind
+    );
   protected
     procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
@@ -100,10 +102,12 @@ type
     function GetLastPosition: TDoublePoint;
     function GetCurrentPosition: IGPSPosition;
 
-    procedure ExecuteGPSCommand(Sender: TObject;
-                                const AUnitIndex: Byte;
-                                const ACommand: LongInt;
-                                const APointer: Pointer);
+    procedure ExecuteGPSCommand(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    );
 
     function GetGPSUnitInfo: String;
   public
@@ -233,16 +237,19 @@ end;
 procedure TGPSRecorderStuped.DoGPSUnitInfoChanged(
   Sender: TObject;
   const AUnitIndex: Byte;
-  const AKind: TVSAGPS_UNIT_INFO_Kind);
-var VNewFullInfo: String;
+  const AKind: TVSAGPS_UNIT_INFO_Kind
+);
+var
+  VNewFullInfo: String;
 begin
-  if (guik_ClearALL=AKind) then begin
+  if (guik_ClearALL = AKind) then begin
     // clear all info
     VNewFullInfo := '';
   end else begin
     // other parameters
-    if not VSAGPS_ChangedFor_GPSUnitInfo(AKind) then
+    if not VSAGPS_ChangedFor_GPSUnitInfo(AKind) then begin
       Exit;
+    end;
     VNewFullInfo := GenerateGPSUnitInfo(AUnitIndex);
   end;
 
@@ -277,13 +284,15 @@ procedure TGPSRecorderStuped.ExecuteGPSCommand(
   Sender: TObject;
   const AUnitIndex: Byte;
   const ACommand: LongInt;
-  const APointer: Pointer);
+  const APointer: Pointer
+);
 begin
-  if (gpsc_Refresh_GPSUnitInfo=ACommand) then begin
+  if (gpsc_Refresh_GPSUnitInfo = ACommand) then begin
     // refresh info
     ReGenerateGPSUnitInfo;
-  end else if Assigned(FGPSPositionFactory) then
+  end else if Assigned(FGPSPositionFactory) then begin
     FGPSPositionFactory.ExecuteGPSCommand(Sender, AUnitIndex, ACommand, APointer);
+  end;
 end;
 
 procedure TGPSRecorderStuped.AddEmptyPoint;
@@ -333,7 +342,7 @@ begin
         end;
 
         if pPos^.UTCDateOK and pPos^.UTCTimeOK then begin
-          FTrack[FPointsCount].Time := (pPos^.UTCDate+pPos^.UTCTime);
+          FTrack[FPointsCount].Time := (pPos^.UTCDate + pPos^.UTCTime);
         end else begin
           FTrack[FPointsCount].Time := NaN;
         end;
@@ -358,8 +367,9 @@ begin
           // speed may be unavailable
           if (not NoData_Float64(pPos^.Speed_KMH)) then begin
             // max speen
-            if (pPos^.Speed_KMH > FMaxSpeed) then
+            if (pPos^.Speed_KMH > FMaxSpeed) then begin
               FMaxSpeed := pPos^.Speed_KMH;
+            end;
             // avg speed
             FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
             VAlfa := 1 / FAvgSpeedTickCount;
@@ -369,14 +379,15 @@ begin
 
           // if prev position available too - calc distance
           // no recalc if AllowCalcStats disabled
-          if pPos^.AllowCalcStats then
-          if FLastPositionOK then begin
-            VPointPrev.X := FTrack[FPointsCount - 1].Point.X; // lon
-            VPointPrev.Y := FTrack[FPointsCount - 1].Point.Y; // lat
-            VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
-            FDist := FDist + VDistToPrev;
-            FOdometer1 := FOdometer1 + VDistToPrev;
-            FOdometer2 := FOdometer2 + VDistToPrev;
+          if pPos^.AllowCalcStats then begin
+            if FLastPositionOK then begin
+              VPointPrev.X := FTrack[FPointsCount - 1].Point.X; // lon
+              VPointPrev.Y := FTrack[FPointsCount - 1].Point.Y; // lat
+              VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
+              FDist := FDist + VDistToPrev;
+              FOdometer1 := FOdometer1 + VDistToPrev;
+              FOdometer2 := FOdometer2 + VDistToPrev;
+            end;
           end;
         end;
 
@@ -407,10 +418,11 @@ end;
 
 function TGPSRecorderStuped.GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
 begin
-  if Assigned(FGPSPositionFactory) then
-    Result:=FGPSPositionFactory.ExecuteGPSCommand(Self, AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil)
-  else
-    Result:='';
+  if Assigned(FGPSPositionFactory) then begin
+    Result := FGPSPositionFactory.ExecuteGPSCommand(Self, AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil);
+  end else begin
+    Result := '';
+  end;
 end;
 
 function TGPSRecorderStuped.GetAllPoints: ILonLatPath;
@@ -460,7 +472,7 @@ function TGPSRecorderStuped.GetGPSUnitInfo: String;
 begin
   LockRead;
   try
-    Result:=FGPSUnitInfo;
+    Result := FGPSUnitInfo;
   finally
     UnlockRead;
   end;
@@ -572,12 +584,11 @@ begin
       VCount := FPointsCount;
       VStartIndex := 0;
     end else begin
-      VStartIndex :=FPointsCount - VCount;
+      VStartIndex := FPointsCount - VCount;
     end;
     Result :=
       TEnumTrackPointsByArray.Create(
-        True,
-        @FTrack[VStartIndex],
+        True, @FTrack[VStartIndex],
         VCount
       );
   finally

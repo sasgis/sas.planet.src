@@ -40,7 +40,10 @@ type
   private
     FList: TList;
     function Get(Index: Integer): IGPSSatelliteInfo;
-    procedure Put(Index: Integer; const Item: IGPSSatelliteInfo);
+    procedure Put(
+      Index: Integer;
+      const Item: IGPSSatelliteInfo
+    );
     procedure SetCapacity(NewCapacity: Integer);
     procedure SetCount(NewCount: Integer);
     function GetCapacity: Integer;
@@ -108,7 +111,8 @@ type
 
     procedure _UpdateSatsInView(
       const ATalkerID: String;
-      const ACount: Byte);
+      const ACount: Byte
+    );
 
     procedure _UpdateDOP(
       const AHDOP: Double;
@@ -177,9 +181,11 @@ type
     procedure DoAddPointToLogWriter(const AUnitIndex: Byte); virtual; abstract;
 
     procedure LockGPSData;
-    procedure UnLockGPSData(const AUnitIndex: Byte;
-                            const ANotifyPosChanged: Boolean;
-                            const ANotifySatChanged: Boolean);
+    procedure UnLockGPSData(
+      const AUnitIndex: Byte;
+      const ANotifyPosChanged: Boolean;
+      const ANotifySatChanged: Boolean
+    );
   protected
     function GetPosition: IGPSPosition; virtual; safecall;
 
@@ -240,7 +246,7 @@ begin
   //FreeAndNil(FCS);
   FreeAndNil(FSatellitesGP);
   FreeAndNil(FSatellitesGL);
-  
+
   FLastStaticPosition := nil;
   FGPSPositionFactory := nil;
 
@@ -254,7 +260,7 @@ begin
   FTimeOutNotifier := nil;
 
   FCSGPSData := nil;
-  
+
   inherited;
 end;
 
@@ -289,24 +295,24 @@ begin
 end;
 
 function TGPSModuleAbstract.GetPosition: IGPSPosition;
-var VSatsInView: IGPSSatellitesInView;
+var
+  VSatsInView: IGPSSatellitesInView;
 begin
   LockGPSData;
   try
     if FGPSSatChanged or FGPSPosChanged then begin
       if (not FGPSSatChanged) then begin
         // use existing sats
-        if Assigned(FLastStaticPosition) then
-          VSatsInView:=FLastStaticPosition.Satellites
-        else
-          VSatsInView:=nil;
-        Result := FGPSPositionFactory.BuildPosition(
-          @FSingleGPSData,
+        if Assigned(FLastStaticPosition) then begin
+          VSatsInView := FLastStaticPosition.Satellites;
+        end else begin
+          VSatsInView := nil;
+        end;
+        Result := FGPSPositionFactory.BuildPosition(@FSingleGPSData,
           VSatsInView);
       end else begin
         // make new sats
-        Result := FGPSPositionFactory.BuildPosition(
-          @FSingleGPSData,
+        Result := FGPSPositionFactory.BuildPosition(@FSingleGPSData,
           FGPSPositionFactory.BuildSatellitesInView(
             FSatellitesGP.Count,
             FSatellitesGP.List,
@@ -316,28 +322,30 @@ begin
         );
       end;
       // apply fix info
-      if Assigned(Result.Satellites) then
+      if Assigned(Result.Satellites) then begin
         Result.Satellites.SetFixedSats(@FFixSatsALL);
+      end;
       // save to cache
       FLastStaticPosition := Result;
       // reset flags
-      FGPSSatChanged:=FALSE;
-      FGPSPosChanged:=FALSE;
+      FGPSSatChanged := FALSE;
+      FGPSPosChanged := FALSE;
     end else begin
       // get prev from cache
       Result := FLastStaticPosition;
     end;
   finally
-    UnLockGPSData(cUnitIndex_Reserved,FALSE,FALSE);
+    UnLockGPSData(cUnitIndex_Reserved, FALSE, FALSE);
   end;
 end;
 
 function TGPSModuleAbstract.GetSatellitesListByTalkerID(const ATalkerID: String): TSatellitesInternalList;
 begin
-  if SameText(ATalkerID, nmea_ti_GLONASS) then
-    Result:=FSatellitesGL
-  else
-    Result:=FSatellitesGP;
+  if SameText(ATalkerID, nmea_ti_GLONASS) then begin
+    Result := FSatellitesGL;
+  end else begin
+    Result := FSatellitesGP;
+  end;
 end;
 
 function TGPSModuleAbstract.GetTimeOutNotifier: IJclNotifier;
@@ -354,10 +362,13 @@ function TGPSModuleAbstract.SerializeSatsInfo: String;
 
   procedure _AddToResult(const s: String);
   begin
-    Result:=Result+s+',';
+    Result := Result + s + ',';
   end;
-  
-  procedure _DoForSats(const lst: TSatellitesInternalList; const sats_prefix: String);
+
+  procedure _DoForSats(
+  const lst: TSatellitesInternalList;
+  const sats_prefix: String
+  );
   var
     i: Integer;
     v_done: Byte;
@@ -366,43 +377,49 @@ function TGPSModuleAbstract.SerializeSatsInfo: String;
     si: IGPSSatelliteInfo;
     s: String;
   begin
-    si:=nil;
-    v_done:=0;
-    if lst<>nil then
-    if (0<lst.Count) then
-    for i := 0 to lst.Count-1 do begin
-      si:=lst[i];
-      if Assigned(si) then begin
-        si.GetBaseSatelliteParams(@bsp);
-        with bsp do
-        if SatAvailableForShow(sat_info.svid, snr, status) then begin
-          si.GetSkySatelliteParams(@ssp);
-          // to string
-          s:=SerializeSingleSatInfo(@bsp, @ssp);
-          // prefix to result
-          if (0=v_done) then
-            _AddToResult(sats_prefix);
-          Inc(v_done);
-          // info to result
-          _AddToResult(s);
+    si := nil;
+    v_done := 0;
+    if lst <> nil then begin
+      if (0 < lst.Count) then begin
+        for i := 0 to lst.Count - 1 do begin
+          si := lst[i];
+          if Assigned(si) then begin
+            si.GetBaseSatelliteParams(@bsp);
+            with bsp do begin
+              if SatAvailableForShow(sat_info.svid, snr, status) then begin
+                si.GetSkySatelliteParams(@ssp);
+                // to string
+                s := SerializeSingleSatInfo(@bsp, @ssp);
+                // prefix to result
+                if (0 = v_done) then begin
+                  _AddToResult(sats_prefix);
+                end;
+                Inc(v_done);
+                // info to result
+                _AddToResult(s);
+              end;
+            end;
+          end;
         end;
       end;
     end;
   end;
 
 begin
-  Result:='';
+  Result := '';
   // for gps
   _DoForSats(FSatellitesGP, nmea_ti_GPS);
   // for glonass
   _DoForSats(FSatellitesGL, nmea_ti_GLONASS);
   // Nmea23_Mode at the end of line
-  Result:=Result+IntToHex(Ord(FSingleGPSData.DGPS.Nmea23_Mode), 2);
+  Result := Result + IntToHex(Ord(FSingleGPSData.DGPS.Nmea23_Mode), 2);
 end;
 
-procedure TGPSModuleAbstract.UnLockGPSData(const AUnitIndex: Byte;
-                                           const ANotifyPosChanged: Boolean;
-                                           const ANotifySatChanged: Boolean);
+procedure TGPSModuleAbstract.UnLockGPSData(
+  const AUnitIndex: Byte;
+  const ANotifyPosChanged: Boolean;
+  const ANotifySatChanged: Boolean
+);
 var
   VGPSPosChanged, VGPSSatChanged: Boolean;
   VTicks: DWORD;
@@ -412,8 +429,9 @@ begin
 
   // save to log (add point to tracks)
   try
-    if VGPSPosChanged and ANotifyPosChanged then
+    if VGPSPosChanged and ANotifyPosChanged then begin
       DoAddPointToLogWriter(AUnitIndex);
+    end;
   except
   end;
 
@@ -423,7 +441,7 @@ begin
   // notify GUI
   if (ANotifyPosChanged and VGPSPosChanged) then begin
     // notify about position
-    FNotifiedTicks:=GetTickCount;
+    FNotifiedTicks := GetTickCount;
     GetDataReciveNotifier.Notify(nil);
   end else if (ANotifySatChanged and VGPSSatChanged) then begin
     // notify about sats
@@ -435,16 +453,18 @@ begin
   end;
 end;
 
-procedure TGPSModuleAbstract._UpdateDGPSParams(const ADGPS_Station_ID: SmallInt;
-                                               const ADGPS_Age_Second: Single);
+procedure TGPSModuleAbstract._UpdateDGPSParams(
+  const ADGPS_Station_ID: SmallInt;
+  const ADGPS_Age_Second: Single
+);
 begin
   if FSingleGPSData.DGPS.DGPS_Station_ID <> ADGPS_Station_ID then begin
     FSingleGPSData.DGPS.DGPS_Station_ID := ADGPS_Station_ID;
-    FGPSPosChanged:=TRUE;
+    FGPSPosChanged := TRUE;
   end;
   if FSingleGPSData.DGPS.DGPS_Age_Second <> ADGPS_Age_Second then begin
     FSingleGPSData.DGPS.DGPS_Age_Second := ADGPS_Age_Second;
-    FGPSPosChanged:=TRUE;
+    FGPSPosChanged := TRUE;
   end;
 end;
 
@@ -477,13 +497,14 @@ end;
 procedure TGPSModuleAbstract._UpdateFixedSats(
   const ATalkerID: String;
   const AFixedSats: PVSAGPS_FIX_SATS
-  );
-var p: PVSAGPS_FIX_SATS;
+);
+var
+  p: PVSAGPS_FIX_SATS;
 begin
-  p:=Select_PVSAGPS_FIX_SATS_from_ALL(@FFixSatsALL, ATalkerID);
+  p := Select_PVSAGPS_FIX_SATS_from_ALL(@FFixSatsALL, ATalkerID);
   if not CompareMem(AFixedSats, p, sizeof(p^)) then begin
     Move(AFixedSats^, p^, sizeof(p^));
-    FGPSSatChanged:=TRUE;
+    FGPSSatChanged := TRUE;
   end;
 end;
 
@@ -491,50 +512,58 @@ procedure TGPSModuleAbstract._UpdateFixStatus(const AFixStatus: Byte);
 begin
   if FSingleGPSData.FixStatus <> AFixStatus then begin
     FSingleGPSData.FixStatus := AFixStatus;
-    FGPSPosChanged:=TRUE;
+    FGPSPosChanged := TRUE;
   end;
 end;
 
 procedure TGPSModuleAbstract._UpdateFromTrackPoint(const pData: PSingleTrackPointData);
 
-  procedure _DoForSats(const a_fix_count: Byte;
-                       const p_sky_1: PSingleSatsInfoData;
-                       const a_talker_id: String);
+  procedure _DoForSats(
+  const a_fix_count: Byte;
+  const p_sky_1: PSingleSatsInfoData;
+  const a_talker_id: String
+  );
   var
     i: SmallInt;
   begin
-    if (0<a_fix_count) then
-    for i := 0 to a_fix_count-1 do
-    with p_sky_1^.entries[i] do
-      _UpdateSattelite(a_talker_id,
-                       i,
-                       single_fix.sat_info,
-                       single_sky.elevation,
-                       single_sky.azimuth,
-                       single_fix.snr,
-                       single_fix.status,
-                       single_fix.flags);
+    if (0 < a_fix_count) then begin
+      for i := 0 to a_fix_count - 1 do begin
+        with p_sky_1^.entries[i] do begin
+          _UpdateSattelite(
+            a_talker_id,
+            i,
+            single_fix.sat_info,
+            single_sky.elevation,
+            single_sky.azimuth,
+            single_fix.snr,
+            single_fix.status,
+            single_fix.flags
+          );
+        end;
+      end;
+    end;
   end;
-  
+
 begin
   CopyMemory(@FSingleGPSData, @(pData^.gps_data), sizeof(FSingleGPSData));
-  FGPSPosChanged:=TRUE;
+  FGPSPosChanged := TRUE;
 
-  if (FFixSatsALL.gp.fix_count<>pData^.gpx_sats_count) then begin
-    FFixSatsALL.gp.fix_count:=pData^.gpx_sats_count;
-    FFixSatsALL.gp.all_count:=pData^.gpx_sats_count;
-    FGPSSatChanged:=TRUE;
+  if (FFixSatsALL.gp.fix_count <> pData^.gpx_sats_count) then begin
+    FFixSatsALL.gp.fix_count := pData^.gpx_sats_count;
+    FFixSatsALL.gp.all_count := pData^.gpx_sats_count;
+    FGPSSatChanged := TRUE;
   end;
 
-  if (sizeof(TFullTrackPointData) = PData^.full_data_size) then
-  with PFullTrackPointData(PData)^ do begin
-    // apply satellite params
-    // fix params
-    CopyMemory(@FFixSatsALL, @fix_all, sizeof(FFixSatsALL));
-    // other params - gps
-    _DoForSats(fix_all.gp.fix_count, @(sky_fix.gp), nmea_ti_GPS);
-    // other params - glonass
-    _DoForSats(fix_all.gl.fix_count, @(sky_fix.gl), nmea_ti_GLONASS);
+  if (sizeof(TFullTrackPointData) = PData^.full_data_size) then begin
+    with PFullTrackPointData(PData)^ do begin
+      // apply satellite params
+      // fix params
+      CopyMemory(@FFixSatsALL, @fix_all, sizeof(FFixSatsALL));
+      // other params - gps
+      _DoForSats(fix_all.gp.fix_count, @(sky_fix.gp), nmea_ti_GPS);
+      // other params - glonass
+      _DoForSats(fix_all.gl.fix_count, @(sky_fix.gl), nmea_ti_GLONASS);
+    end;
   end;
 end;
 
@@ -554,7 +583,10 @@ begin
   end;
 end;
 
-procedure TGPSModuleAbstract._UpdateMagVar(const AMagVar_Deg: Double; const AMagVar_Sym: Char);
+procedure TGPSModuleAbstract._UpdateMagVar(
+  const AMagVar_Deg: Double;
+  const AMagVar_Sym: Char
+);
 begin
   if FSingleGPSData.MagVar.variation_degree <> AMagVar_Deg then begin
     FSingleGPSData.MagVar.variation_degree := AMagVar_Deg;
@@ -570,7 +602,8 @@ procedure TGPSModuleAbstract._UpdatePosTime(
   const APositionOK: Boolean;
   const APosition: TDoublePoint;
   const AUTCTimeOK: Boolean;
-  const AUTCTime: TDateTime);
+  const AUTCTime: TDateTime
+);
 begin
   if FSingleGPSData.PositionLon <> APosition.X then begin
     FSingleGPSData.PositionLon := APosition.X;
@@ -599,18 +632,20 @@ procedure TGPSModuleAbstract._UpdateSpeedHeading(
   const ASpeed_KMH: Double;
   const AHeading: Double;
   const AVSpeed_MS: Double;
-  const AVSpeedOK: Boolean);
+  const AVSpeedOK: Boolean
+);
 begin
   if FSingleGPSData.Speed_KMH <> ASpeed_KMH then begin
     FSingleGPSData.Speed_KMH := ASpeed_KMH;
     FGPSPosChanged := TRUE;
   end;
 
-  if (FSingleGPSData.VSpeedOK or AVSpeedOK) then
-  if (FSingleGPSData.VSpeedOK <> AVSpeedOK) or (FSingleGPSData.VSpeed_MS <> AVSpeed_MS) then begin
-    FSingleGPSData.VSpeed_MS := AVSpeed_MS;
-    FSingleGPSData.VSpeedOK := AVSpeedOK;
-    FGPSPosChanged := TRUE;
+  if (FSingleGPSData.VSpeedOK or AVSpeedOK) then begin
+    if (FSingleGPSData.VSpeedOK <> AVSpeedOK) or (FSingleGPSData.VSpeed_MS <> AVSpeed_MS) then begin
+      FSingleGPSData.VSpeed_MS := AVSpeed_MS;
+      FSingleGPSData.VSpeedOK := AVSpeedOK;
+      FGPSPosChanged := TRUE;
+    end;
   end;
 
   if FSingleGPSData.Heading <> AHeading then begin
@@ -622,10 +657,11 @@ end;
 procedure TGPSModuleAbstract._UpdateSatsInView(
   const ATalkerID: String;
   const ACount: Byte
-  );
-var f: TSatellitesInternalList;
+);
+var
+  f: TSatellitesInternalList;
 begin
-  f:=GetSatellitesListByTalkerID(ATalkerID);
+  f := GetSatellitesListByTalkerID(ATalkerID);
   if f.Count <> ACount then begin
     f.Count := ACount;
     FGPSSatChanged := True;
@@ -640,7 +676,8 @@ procedure TGPSModuleAbstract._UpdateSattelite(
   const AAzimuth: SInt16;
   const ASignalToNoiseRatio: SInt16;
   const AFixedStatus: Byte;
-  const ASatFlags: Byte);
+  const ASatFlags: Byte
+);
 var
   VSattelite: IGPSSatelliteInfo;
   VSatteliteChanged: Boolean;
@@ -649,19 +686,20 @@ var
   f: TSatellitesInternalList;
 begin
   VSatteliteChanged := False;
-  f:=GetSatellitesListByTalkerID(ATalkerID);
-  
-  if (f.Count<=AIndex) then begin
+  f := GetSatellitesListByTalkerID(ATalkerID);
+
+  if (f.Count <= AIndex) then begin
     // need to enlarge list of sats
     // but if "empty" sat - don't do it
-    if (not SatAvailableForShow(ASatellite_Info.svid, ASignalToNoiseRatio, AFixedStatus)) then
+    if (not SatAvailableForShow(ASatellite_Info.svid, ASignalToNoiseRatio, AFixedStatus)) then begin
       Exit;
-    f.Count:=AIndex+1;
-    VSattelite:=nil;
+    end;
+    f.Count := AIndex + 1;
+    VSattelite := nil;
   end else begin
     VSattelite := f[AIndex];
   end;
-  
+
   if VSattelite <> nil then begin
     // first
     VSattelite.GetSkySatelliteParams(@VSky);
@@ -673,8 +711,9 @@ begin
     end;
 
     // base
-    if (not VSatteliteChanged) then
+    if (not VSatteliteChanged) then begin
       VSattelite.GetBaseSatelliteParams(@VData);
+    end;
     if (not VSatteliteChanged) and (Word(VData.sat_info) <> Word(ASatellite_Info)) then begin
       VSatteliteChanged := True;
     end;
@@ -697,13 +736,11 @@ begin
     VData.snr := ASignalToNoiseRatio;
     VData.status := AFixedStatus;
     VData.flags := ASatFlags;
-    VSky.elevation:=AElevation;
-    VSky.azimuth:=AAzimuth;
+    VSky.elevation := AElevation;
+    VSky.azimuth := AAzimuth;
 
-    VSattelite := FGPSPositionFactory.BuildSatelliteInfo(
-      @VData,
-      @VSky);
-      
+    VSattelite := FGPSPositionFactory.BuildSatelliteInfo(@VData, @VSky);
+
     f[AIndex] := VSattelite;
     FGPSSatChanged := True;
   end;
@@ -713,16 +750,19 @@ procedure TGPSModuleAbstract._UpdateToEmptyPosition;
 begin
   //Lock;
   //try
-    FGPSPosChanged:=SingleGPSDataNotEmpty(@FSingleGPSData);
-    InitSingleGPSData(@FSingleGPSData);
-    FGPSSatChanged := FALSE;
-    FLastStaticPosition := FGPSPositionFactory.BuildPositionEmpty;
+  FGPSPosChanged := SingleGPSDataNotEmpty(@FSingleGPSData);
+  InitSingleGPSData(@FSingleGPSData);
+  FGPSSatChanged := FALSE;
+  FLastStaticPosition := FGPSPositionFactory.BuildPositionEmpty;
   //finally
-    //Unlock;
+  //Unlock;
   //end;
 end;
 
-procedure TGPSModuleAbstract._UpdateUTCDate(const AUTCDateOK: Boolean; const AUTCDate: TDateTime);
+procedure TGPSModuleAbstract._UpdateUTCDate(
+  const AUTCDateOK: Boolean;
+  const AUTCDate: TDateTime
+);
 begin
   if FSingleGPSData.UTCDate <> AUTCDate then begin
     FSingleGPSData.UTCDate := AUTCDate;
@@ -738,31 +778,34 @@ procedure TGPSModuleAbstract._UpdateNavMode(const ANavMode: Char);
 begin
   if FSingleGPSData.NavMode <> ANavMode then begin
     FSingleGPSData.NavMode := ANavMode;
-    FGPSPosChanged:=TRUE;
+    FGPSPosChanged := TRUE;
   end;
 end;
 
 procedure TGPSModuleAbstract._UpdateNmea23Mode(
-      const ANmea23Mode: Char;
-      const ADontSetIfNewIsEmpty: Boolean;
-      const ADontSetIfOldIsANR: Boolean
+  const ANmea23Mode: Char;
+  const ADontSetIfNewIsEmpty: Boolean;
+  const ADontSetIfOldIsANR: Boolean
 );
   procedure _DoCommon;
   begin
     if (FSingleGPSData.DGPS.Nmea23_Mode <> ANmea23Mode) then begin
       FSingleGPSData.DGPS.Nmea23_Mode := ANmea23Mode;
-      FGPSPosChanged:=TRUE;
+      FGPSPosChanged := TRUE;
     end;
   end;
+
 begin
   if ADontSetIfNewIsEmpty then begin
     // empty if nmea version bellow 2.3
-    if (ANmea23Mode<>#0) then
+    if (ANmea23Mode <> #0) then begin
       _DoCommon;
+    end;
   end else if ADontSetIfOldIsANR then begin
     // keep A, N or R if set from message without these values
-    if (not (FSingleGPSData.DGPS.Nmea23_Mode in ['A','N','R'])) then
+    if (not (FSingleGPSData.DGPS.Nmea23_Mode in ['A', 'N', 'R'])) then begin
       _DoCommon;
+    end;
   end else begin
     // common action
     _DoCommon;
@@ -782,7 +825,8 @@ end;
 constructor TSatellitesInternalList.Create;
 begin
   inherited Create;
-  FList := TList.Create;;
+  FList := TList.Create;
+  ;
 end;
 
 destructor TSatellitesInternalList.Destroy;
@@ -812,7 +856,10 @@ begin
   Result := PUnknownList(FList.List);
 end;
 
-procedure TSatellitesInternalList.Put(Index: Integer; const Item: IGPSSatelliteInfo);
+procedure TSatellitesInternalList.Put(
+  Index: Integer;
+  const Item: IGPSSatelliteInfo
+);
 begin
   if (Index >= 0) and (Index < FList.Count) then begin
     IInterface(FList.List[Index]) := Item;

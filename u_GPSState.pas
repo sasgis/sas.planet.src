@@ -331,46 +331,78 @@ begin
         case FInternalState of
           isDisconnected: begin
             case FModuleState of
-              msDisconnected: VInternalStateNew := isDisconnected;
-              msConnecting: VInternalStateNew := isConnecting;
-              msConnected: VInternalStateNew := isConnecting;
-              msDisconnecting: VInternalStateNew := isConnecting;
+              msDisconnected: begin
+                VInternalStateNew := isDisconnected;
+              end;
+              msConnecting: begin
+                VInternalStateNew := isConnecting;
+              end;
+              msConnected: begin
+                VInternalStateNew := isConnecting;
+              end;
+              msDisconnecting: begin
+                VInternalStateNew := isConnecting;
+              end;
             end;
           end;
-          isConnecting:  begin
+          isConnecting: begin
             case FModuleState of
-              msDisconnected: VInternalStateNew := isDisconnecting;
-              msConnecting: VInternalStateNew := isConnecting;
-              msConnected: VInternalStateNew := isConnected;
-              msDisconnecting: VInternalStateNew := isDisconnecting;
+              msDisconnected: begin
+                VInternalStateNew := isDisconnecting;
+              end;
+              msConnecting: begin
+                VInternalStateNew := isConnecting;
+              end;
+              msConnected: begin
+                VInternalStateNew := isConnected;
+              end;
+              msDisconnecting: begin
+                VInternalStateNew := isDisconnecting;
+              end;
             end;
           end;
-          isConnected:  begin
+          isConnected: begin
             case FModuleState of
-              msDisconnected: VInternalStateNew := isDisconnecting;
-              msConnecting: VInternalStateNew := isDisconnecting;
-              msConnected: VInternalStateNew := isConnected;
-              msDisconnecting: VInternalStateNew := isDisconnecting;
+              msDisconnected: begin
+                VInternalStateNew := isDisconnecting;
+              end;
+              msConnecting: begin
+                VInternalStateNew := isDisconnecting;
+              end;
+              msConnected: begin
+                VInternalStateNew := isConnected;
+              end;
+              msDisconnecting: begin
+                VInternalStateNew := isDisconnecting;
+              end;
             end;
           end;
-          isDisconnecting:  begin
+          isDisconnecting: begin
             case FModuleState of
-              msDisconnected: VInternalStateNew := isDisconnected;
-              msConnecting: VInternalStateNew := isConnecting;
-              msConnected: VInternalStateNew := isConnecting;
-              msDisconnecting: VInternalStateNew := isDisconnecting;
+              msDisconnected: begin
+                VInternalStateNew := isDisconnected;
+              end;
+              msConnecting: begin
+                VInternalStateNew := isConnecting;
+              end;
+              msConnected: begin
+                VInternalStateNew := isConnecting;
+              end;
+              msDisconnecting: begin
+                VInternalStateNew := isDisconnecting;
+              end;
             end;
           end;
-          isTimeOut:  begin
+          isTimeOut: begin
             VInternalStateNew := VInternalStatePrev;
           end;
-          isConnectError:  begin
+          isConnectError: begin
             VInternalStateNew := VInternalStatePrev;
           end;
         end;
       end;
       if VInternalStateNew in [isConnectError, isTimeOut] then begin
-        if not(FInternalState in [isConnectError, isTimeOut]) then begin
+        if not (FInternalState in [isConnectError, isTimeOut]) then begin
           VInternalStatePrev := FInternalState;
         end;
       end;
@@ -406,12 +438,24 @@ begin
     end;
     if VNeedNotify then begin
       case VInternalStateNew of
-        isDisconnected: FDisconnectedNotifier.Notify(nil);
-        isConnecting: FConnectingNotifier.Notify(nil);
-        isConnected: FConnectedNotifier.Notify(nil);
-        isDisconnecting: FDisconnectingNotifier.Notify(nil);
-        isTimeOut: FTimeOutNotifier.Notify(nil);
-        isConnectError: FConnectErrorNotifier.Notify(nil);
+        isDisconnected: begin
+          FDisconnectedNotifier.Notify(nil);
+        end;
+        isConnecting: begin
+          FConnectingNotifier.Notify(nil);
+        end;
+        isConnected: begin
+          FConnectedNotifier.Notify(nil);
+        end;
+        isDisconnecting: begin
+          FDisconnectingNotifier.Notify(nil);
+        end;
+        isTimeOut: begin
+          FTimeOutNotifier.Notify(nil);
+        end;
+        isConnectError: begin
+          FConnectErrorNotifier.Notify(nil);
+        end;
       end;
     end;
     if VDataRecived then begin
@@ -435,4 +479,3 @@ begin
 end;
 
 end.
-

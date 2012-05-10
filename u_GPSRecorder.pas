@@ -39,7 +39,7 @@ uses
 
 type
   ITrackPoitnsBlock = interface
-  ['{E8161A93-14F0-45BC-B4B7-0A28D92965E6}']
+    ['{E8161A93-14F0-45BC-B4B7-0A28D92965E6}']
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -91,9 +91,11 @@ type
 
     function GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
     procedure ReGenerateGPSUnitInfo;
-    procedure DoGPSUnitInfoChanged(Sender: TObject;
-                                   const AUnitIndex: Byte;
-                                   const AKind: TVSAGPS_UNIT_INFO_Kind);
+    procedure DoGPSUnitInfoChanged(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const AKind: TVSAGPS_UNIT_INFO_Kind
+    );
   protected
     procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
@@ -121,11 +123,13 @@ type
     function GetLastHeading: Double;
     function GetLastPosition: TDoublePoint;
     function GetCurrentPosition: IGPSPosition;
-    
-    procedure ExecuteGPSCommand(Sender: TObject;
-                                const AUnitIndex: Byte;
-                                const ACommand: LongInt;
-                                const APointer: Pointer);
+
+    procedure ExecuteGPSCommand(
+      Sender: TObject;
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    );
 
     function GetGPSUnitInfo: String;
   public
@@ -325,7 +329,7 @@ function TEnumGPSTrackPointByBlocksList.PrepareNextBlock: Boolean;
 var
   VBlock: ITrackPoitnsBlock;
 begin
-  if FBlockIndex  >= FList.Count - 1 then begin
+  if FBlockIndex >= FList.Count - 1 then begin
     Result := False;
   end else begin
     Inc(FBlockIndex);
@@ -385,11 +389,11 @@ function TEnumGPSTrackPointByBlocksListBackward.PrepareNextBlock: Boolean;
 var
   VBlock: ITrackPoitnsBlock;
 begin
-  if FBlockIndex  < 0 then begin
+  if FBlockIndex < 0 then begin
     Result := False;
   end else begin
     Inc(FBlockIndex);
-    Result := FBlockIndex  >= 0;
+    Result := FBlockIndex >= 0;
     if Result then begin
       VBlock := FList.Block[FBlockIndex];
       FBlockPoints := VBlock.Points;
@@ -459,16 +463,19 @@ end;
 procedure TGPSRecorder.DoGPSUnitInfoChanged(
   Sender: TObject;
   const AUnitIndex: Byte;
-  const AKind: TVSAGPS_UNIT_INFO_Kind);
-var VNewFullInfo: String;
+  const AKind: TVSAGPS_UNIT_INFO_Kind
+);
+var
+  VNewFullInfo: String;
 begin
-  if (guik_ClearALL=AKind) then begin
+  if (guik_ClearALL = AKind) then begin
     // clear all info
     VNewFullInfo := '';
   end else begin
     // other parameters
-    if not VSAGPS_ChangedFor_GPSUnitInfo(AKind) then
+    if not VSAGPS_ChangedFor_GPSUnitInfo(AKind) then begin
       Exit;
+    end;
     VNewFullInfo := GenerateGPSUnitInfo(AUnitIndex);
   end;
 
@@ -503,13 +510,15 @@ procedure TGPSRecorder.ExecuteGPSCommand(
   Sender: TObject;
   const AUnitIndex: Byte;
   const ACommand: LongInt;
-  const APointer: Pointer);
+  const APointer: Pointer
+);
 begin
-  if (gpsc_Refresh_GPSUnitInfo=ACommand) then begin
+  if (gpsc_Refresh_GPSUnitInfo = ACommand) then begin
     // refresh info
     ReGenerateGPSUnitInfo;
-  end else if Assigned(FGPSPositionFactory) then
+  end else if Assigned(FGPSPositionFactory) then begin
     FGPSPositionFactory.ExecuteGPSCommand(Sender, AUnitIndex, ACommand, APointer);
+  end;
 end;
 
 function TGPSRecorder.AddPointInternal(const APoint: TGPSTrackPoint): TDoublePoint;
@@ -569,7 +578,7 @@ begin
     end;
 
     if pPos^.UTCDateOK and pPos^.UTCTimeOK then begin
-      VPoint.Time := (pPos^.UTCDate+pPos^.UTCTime);
+      VPoint.Time := (pPos^.UTCDate + pPos^.UTCTime);
     end else begin
       VPoint.Time := NaN;
     end;
@@ -599,8 +608,9 @@ begin
           // speed may be unavailable
           if (not NoData_Float64(pPos^.Speed_KMH)) then begin
             // max speen
-            if (pPos^.Speed_KMH > FMaxSpeed) then
+            if (pPos^.Speed_KMH > FMaxSpeed) then begin
               FMaxSpeed := pPos^.Speed_KMH;
+            end;
             // avg speed
             FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
             VAlfa := 1 / FAvgSpeedTickCount;
@@ -610,12 +620,13 @@ begin
 
           // if prev position available too - calc distance
           // no recalc if AllowCalcStats disabled
-          if pPos^.AllowCalcStats then
-          if not PointIsEmpty(VPointPrev) then begin
-            VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
-            FDist := FDist + VDistToPrev;
-            FOdometer1 := FOdometer1 + VDistToPrev;
-            FOdometer2 := FOdometer2 + VDistToPrev;
+          if pPos^.AllowCalcStats then begin
+            if not PointIsEmpty(VPointPrev) then begin
+              VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
+              FDist := FDist + VDistToPrev;
+              FOdometer1 := FOdometer1 + VDistToPrev;
+              FOdometer2 := FOdometer2 + VDistToPrev;
+            end;
           end;
         end;
 
@@ -646,10 +657,11 @@ end;
 
 function TGPSRecorder.GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
 begin
-  if Assigned(FGPSPositionFactory) then
-    Result:=FGPSPositionFactory.ExecuteGPSCommand(Self, AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil)
-  else
-    Result:='';
+  if Assigned(FGPSPositionFactory) then begin
+    Result := FGPSPositionFactory.ExecuteGPSCommand(Self, AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil);
+  end else begin
+    Result := '';
+  end;
 end;
 
 function TGPSRecorder.GetAllPoints: ILonLatPath;
@@ -659,11 +671,11 @@ begin
     Result :=
       FVectorItmesFactory.CreateLonLatPathByEnum(
         TEnumTrackPointsByEnumGPSTrackPoint.Create(
-          TEnumGPSTrackPointByBlocksList.Create(
-            FTrack,
-            FPointsInBlockCount
-          )
-        )
+        TEnumGPSTrackPointByBlocksList.Create(
+        FTrack,
+        FPointsInBlockCount
+      )
+      )
       );
   finally
     UnlockRead;
@@ -704,7 +716,7 @@ function TGPSRecorder.GetGPSUnitInfo: String;
 begin
   LockRead;
   try
-    Result:=FGPSUnitInfo;
+    Result := FGPSUnitInfo;
   finally
     UnlockRead;
   end;
