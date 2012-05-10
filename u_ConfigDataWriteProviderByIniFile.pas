@@ -35,14 +35,38 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinary(const AIdent: string; const AValue: IBinaryData);
-    procedure WriteString(const AIdent: string; const AValue: string);
-    procedure WriteInteger(const AIdent: string; const AValue: Longint);
-    procedure WriteBool(const AIdent: string; const AValue: Boolean);
-    procedure WriteDate(const AIdent: string; const AValue: TDateTime);
-    procedure WriteDateTime(const AIdent: string; const AValue: TDateTime);
-    procedure WriteFloat(const AIdent: string; const AValue: Double);
-    procedure WriteTime(const AIdent: string; const AValue: TDateTime);
+    procedure WriteBinary(
+      const AIdent: string;
+      const AValue: IBinaryData
+    );
+    procedure WriteString(
+      const AIdent: string;
+      const AValue: string
+    );
+    procedure WriteInteger(
+      const AIdent: string;
+      const AValue: Longint
+    );
+    procedure WriteBool(
+      const AIdent: string;
+      const AValue: Boolean
+    );
+    procedure WriteDate(
+      const AIdent: string;
+      const AValue: TDateTime
+    );
+    procedure WriteDateTime(
+      const AIdent: string;
+      const AValue: TDateTime
+    );
+    procedure WriteFloat(
+      const AIdent: string;
+      const AValue: Double
+    );
+    procedure WriteTime(
+      const AIdent: string;
+      const AValue: TDateTime
+    );
   public
     destructor Destroy; override;
   end;
@@ -85,37 +109,50 @@ begin
   Result := TConfigDataWriteProviderByIniFileSection.Create(FIniFile, AIdent, Self);
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteBinary(const AIdent: string; const AValue: IBinaryData);
+procedure TConfigDataWriteProviderByIniFile.WriteBinary(
+  const AIdent: string;
+  const AValue: IBinaryData
+);
 begin
   raise Exception.Create('Not expected');
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteBool(const AIdent: string;
-  const AValue: Boolean);
+procedure TConfigDataWriteProviderByIniFile.WriteBool(
+  const AIdent: string;
+  const AValue: Boolean
+);
 begin
   raise Exception.Create('Not expected');
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteDate(const AIdent: string;
-  const AValue: TDateTime);
+procedure TConfigDataWriteProviderByIniFile.WriteDate(
+  const AIdent: string;
+  const AValue: TDateTime
+);
 begin
   raise Exception.Create('Not expected');
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteDateTime(const AIdent: string;
-  const AValue: TDateTime);
+procedure TConfigDataWriteProviderByIniFile.WriteDateTime(
+  const AIdent: string;
+  const AValue: TDateTime
+);
 begin
   raise Exception.Create('Not expected');
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteFloat(const AIdent: string;
-  const AValue: Double);
+procedure TConfigDataWriteProviderByIniFile.WriteFloat(
+  const AIdent: string;
+  const AValue: Double
+);
 begin
   raise Exception.Create('Not expected');
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteInteger(const AIdent: string;
-  const AValue: Integer);
+procedure TConfigDataWriteProviderByIniFile.WriteInteger(
+  const AIdent: string;
+  const AValue: Integer
+);
 begin
   raise Exception.Create('Not expected');
 end;
@@ -126,8 +163,10 @@ begin
   raise Exception.Create('Not expected');
 end;
 
-procedure TConfigDataWriteProviderByIniFile.WriteTime(const AIdent: string;
-  const AValue: TDateTime);
+procedure TConfigDataWriteProviderByIniFile.WriteTime(
+  const AIdent: string;
+  const AValue: TDateTime
+);
 begin
   raise Exception.Create('Not expected');
 end;

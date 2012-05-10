@@ -40,12 +40,15 @@ type
   public
     procedure RegisterAppCommonRoutines;
   end;
-  
+
   TBasePascalCompiler = class;
 
-  TOnBasePascalCompilerUsesProc = function (ACompiler: TBasePascalCompiler;
-                                            const AName: string): Boolean of object;
-  
+  TOnBasePascalCompilerUsesProc =
+    function(
+      ACompiler: TBasePascalCompiler;
+      const AName: string
+    ): Boolean of object;
+
   TBasePascalCompiler = class(TPSPascalCompiler)
   private
     FOnAuxUses: TOnBasePascalCompilerUsesProc;
@@ -61,7 +64,10 @@ type
     FScriptText: string;
     FCompiledData: TbtString;
   protected
-    function DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean; virtual;
+    function DoCompilerOnAuxUses(
+      ACompiler: TBasePascalCompiler;
+      const AName: string
+    ): Boolean; virtual;
     function PreparePascalScript(const APascalScript: String): Boolean;
   public
     constructor Create(const AScriptText: string);
@@ -86,14 +92,16 @@ uses
   u_proj4,
   u_TileRequestBuilderHelpers;
 
-function CommonAppScriptOnUses(Sender: TPSPascalCompiler;
-                               const AName: string): Boolean;
+function CommonAppScriptOnUses(
+  Sender: TPSPascalCompiler;
+  const AName: string
+): Boolean;
 var
   T: TPSType;
   RecT: TPSRecordType;
 begin
   // common types
-  if SameText(AName,'SYSTEM') then begin
+  if SameText(AName, 'SYSTEM') then begin
     // TPoint
     T := Sender.FindType('integer');
     RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
@@ -145,12 +153,14 @@ begin
   end;
 
   // custom vars and functions
-  if (Sender is TBasePascalCompiler) then
-    if Assigned(TBasePascalCompiler(Sender).OnAuxUses) then
+  if (Sender is TBasePascalCompiler) then begin
+    if Assigned(TBasePascalCompiler(Sender).OnAuxUses) then begin
       TBasePascalCompiler(Sender).OnAuxUses(TBasePascalCompiler(Sender), AName);
+    end;
+  end;
 
   // common functions
-  if SameText(AName,'SYSTEM') then begin
+  if SameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(x:integer): integer');
     Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): string');
@@ -175,7 +185,7 @@ begin
     Sender.AddDelphiFunction('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal');
     Sender.AddDelphiFunction('function DownloadFileToLocal(const AFullRemoteUrl, AFullLocalFilename, AContentType: String): Integer');
     Sender.AddDelphiFunction('function FileExists(const FileName: string): Boolean');
-    
+
     Result := True;
   end else begin
     Result := False;
@@ -192,9 +202,11 @@ var
 begin
   if (not Self.Compile(FScriptText)) then begin
     VCompilerMsg := '';
-    if (0<Self.MsgCount) then
-    for i := 0 to Self.MsgCount - 1 do
-      VCompilerMsg := VCompilerMsg + Self.Msg[i].MessageToString + #13#10;
+    if (0 < Self.MsgCount) then begin
+      for i := 0 to Self.MsgCount - 1 do begin
+        VCompilerMsg := VCompilerMsg + Self.Msg[i].MessageToString + #13#10;
+      end;
+    end;
     raise EPascalScriptCompileError.CreateFmt(SAS_ERR_UrlScriptCompileError, [VCompilerMsg]);
   end;
   Result := Self.GetOutput(AData);
@@ -214,7 +226,7 @@ end;
 procedure TBasePascalScriptExec.RegisterAppCommonRoutines;
 begin
   RegisterDLLRuntime(Self);
-  
+
   // numeric routines
   Self.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
   Self.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
@@ -246,22 +258,25 @@ end;
 constructor TBaseFactoryPascalScript.Create(const AScriptText: string);
 begin
   inherited Create;
-  FCompiledData:='';
-  FScriptText:=AScriptText;
+  FCompiledData := '';
+  FScriptText := AScriptText;
 end;
 
-function TBaseFactoryPascalScript.DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean;
+function TBaseFactoryPascalScript.DoCompilerOnAuxUses(
+  ACompiler: TBasePascalCompiler;
+  const AName: string
+): Boolean;
 begin
   // common routines linked to object (based on TPSPascalCompiler)
-  Result:=FALSE;
+  Result := FALSE;
 end;
 
 function TBaseFactoryPascalScript.PreparePascalScript(const APascalScript: String): Boolean;
 var
   VCompiler: TBasePascalCompiler;
 begin
-  FScriptText:=APascalScript;
-  VCompiler:=TBasePascalCompiler.Create(APascalScript);
+  FScriptText := APascalScript;
+  VCompiler := TBasePascalCompiler.Create(APascalScript);
   try
     VCompiler.OnExternalProc := DllExternalProc;
     VCompiler.OnAuxUses := DoCompilerOnAuxUses;
