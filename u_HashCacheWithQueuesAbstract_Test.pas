@@ -24,7 +24,10 @@ type
     function GetKey: UInt64;
     function GetOpId: Integer;
   public
-    constructor Create(AKey: UInt64; AOpId: Integer);
+    constructor Create(
+      AKey: UInt64;
+      AOpId: Integer
+    );
   end;
 
   IHashCacheWithQueuesTest = interface
@@ -36,7 +39,11 @@ type
   private
     FOpId: Integer;
   protected
-    procedure CreateByKey(AKey: UInt64; AData: Pointer; out Item: IInterface); override;
+    procedure CreateByKey(
+      AKey: UInt64;
+      AData: Pointer;
+      out Item: IInterface
+    ); override;
     function GetIndexByKey(AKey: UInt64): Integer; override;
   private
     function GetByKey(AKey: UInt64): ISimple;
@@ -92,7 +99,10 @@ implementation
 
 { TSimple }
 
-constructor TSimple.Create(AKey: UInt64; AOpId: Integer);
+constructor TSimple.Create(
+  AKey: UInt64;
+  AOpId: Integer
+);
 begin
   FKey := AKey;
   FOpId := AOpId;

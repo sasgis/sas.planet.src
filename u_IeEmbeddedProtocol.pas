@@ -37,18 +37,37 @@ type
     FUrl: String;
     FProtocolSink: IInternetProtocolSink;
     FBindInfo: IInternetBindInfo;
-    function ParseUrl(const AUrl: string; out ADomain, AFilePath: string): Boolean;
+    function ParseUrl(
+      const AUrl: string;
+      out ADomain, AFilePath: string
+    ): Boolean;
     function LoadDataToStream(const AUrl: String): Boolean;
   private { IInternetProtocolRoot }
-    function Start(szUrl: LPCWSTR; OIProtSink: IInternetProtocolSink; OIBindInfo: IInternetBindInfo; grfPI, dwReserved: DWORD): HResult; stdcall;
+    function Start(
+      szUrl: LPCWSTR;
+      OIProtSink: IInternetProtocolSink;
+      OIBindInfo: IInternetBindInfo;
+      grfPI, dwReserved: DWORD
+    ): HResult; stdcall;
     function Continue(const ProtocolData: TProtocolData): HResult; stdcall;
-    function Abort(hrReason: HResult; dwOptions: DWORD): HResult; stdcall;
+    function Abort(
+      hrReason: HResult;
+      dwOptions: DWORD
+    ): HResult; stdcall;
     function Terminate(dwOptions: DWORD): HResult; stdcall;
     function Suspend: HResult; stdcall;
     function Resume: HResult; stdcall;
   private { IInternetProtocol }
-    function Read(pv: Pointer; cb: ULONG; out cbRead: ULONG): HResult; stdcall;
-    function Seek(dlibMove: LARGE_INTEGER; dwOrigin: DWORD; out libNewPosition: ULARGE_INTEGER): HResult; stdcall;
+    function Read(
+      pv: Pointer;
+      cb: ULONG;
+      out cbRead: ULONG
+    ): HResult; stdcall;
+    function Seek(
+      dlibMove: LARGE_INTEGER;
+      dwOrigin: DWORD;
+      out libNewPosition: ULARGE_INTEGER
+    ): HResult; stdcall;
     function LockRequest(dwOptions: DWORD): HResult; stdcall;
     function UnlockRequest: HResult; stdcall;
   public
@@ -78,8 +97,10 @@ begin
   inherited;
 end;
 
-function TIeEmbeddedProtocol.Abort(hrReason: HResult;
-  dwOptions: DWORD): HResult;
+function TIeEmbeddedProtocol.Abort(
+  hrReason: HResult;
+  dwOptions: DWORD
+): HResult;
 begin
   Result := Inet_E_Invalid_Request;
 end;
@@ -159,13 +180,16 @@ begin
   end;
 end;
 
-function TIeEmbeddedProtocol.Read(pv: Pointer; cb: ULONG;
-  out cbRead: ULONG): HResult;
+function TIeEmbeddedProtocol.Read(
+  pv: Pointer;
+  cb: ULONG;
+  out cbRead: ULONG
+): HResult;
 begin
   if FStream.Position < FStream.Size then begin
     cbRead := FStream.Read(pv^, cb);
     if FStream.Position < FStream.Size then begin
-      FProtocolSink.ReportData(BSCF_INTERMEDIATEDATANOTIFICATION, FStream.Position, FStream.Size)
+      FProtocolSink.ReportData(BSCF_INTERMEDIATEDATANOTIFICATION, FStream.Position, FStream.Size);
     end else begin
       FProtocolSink.ReportData(BSCF_LASTDATANOTIFICATION, FStream.Position, FStream.Size);
     end;
@@ -181,15 +205,22 @@ begin
   Result := Inet_E_Invalid_Request;
 end;
 
-function TIeEmbeddedProtocol.Seek(dlibMove: LARGE_INTEGER; dwOrigin: DWORD;
-  out libNewPosition: ULARGE_INTEGER): HResult;
+function TIeEmbeddedProtocol.Seek(
+  dlibMove: LARGE_INTEGER;
+  dwOrigin: DWORD;
+  out libNewPosition: ULARGE_INTEGER
+): HResult;
 begin
   Result := E_Fail;
 end;
 
-function TIeEmbeddedProtocol.Start(szUrl: LPCWSTR;
-  OIProtSink: IInternetProtocolSink; OIBindInfo: IInternetBindInfo; grfPI,
-  dwReserved: DWORD): HResult;
+function TIeEmbeddedProtocol.Start(
+  szUrl: LPCWSTR;
+  OIProtSink: IInternetProtocolSink;
+  OIBindInfo: IInternetBindInfo;
+  grfPI,
+  dwReserved: DWORD
+): HResult;
 begin
   if ((szUrl = nil) or (OIProtSink = nil)) then begin
     Result := E_INVALIDARG;

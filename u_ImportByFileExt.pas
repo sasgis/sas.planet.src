@@ -86,21 +86,22 @@ function TImportByFileExt.ProcessImport(
   const AFileName: string;
   const AConfig: IImportConfig
 ): Boolean;
-var VExtLwr: String;
+var
+  VExtLwr: String;
 begin
   Result := False;
-  VExtLwr:=LowerCase(ExtractFileExt(AFileName));
-  if ('.gpx'=VExtLwr) then begin
+  VExtLwr := LowerCase(ExtractFileExt(AFileName));
+  if ('.gpx' = VExtLwr) then begin
     Result := FImportXML.ProcessImport(AFileName, AConfig);
-  end else if ('.kml'=VExtLwr) then begin
+  end else if ('.kml' = VExtLwr) then begin
     Result := FImportKML.ProcessImport(AFileName, AConfig);
-  end else if ('.kmz'=VExtLwr) then begin
+  end else if ('.kmz' = VExtLwr) then begin
     Result := FImportKMZ.ProcessImport(AFileName, AConfig);
-  end else if ('.plt'=VExtLwr) then begin
+  end else if ('.plt' = VExtLwr) then begin
     Result := FImportPLT.ProcessImport(AFileName, AConfig);
-  end else if ('.hlg'=VExtLwr) then begin
+  end else if ('.hlg' = VExtLwr) then begin
     Result := FImportHLG.ProcessImport(AFileName, AConfig);
-  end else if ('.mp'=VExtLwr) then begin
+  end else if ('.mp' = VExtLwr) then begin
     Result := FImportMP.ProcessImport(AFileName, AConfig);
   end;
 end;

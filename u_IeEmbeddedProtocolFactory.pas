@@ -33,8 +33,11 @@ type
     FDomainList: IInternalDomainInfoProviderList;
   protected
     { IClassFactory }
-    function CreateInstance(const unkOuter: IUnknown; const iid: TIID;
-      out obj): HResult; stdcall;
+    function CreateInstance(
+      const unkOuter: IUnknown;
+      const iid: TIID;
+      out obj
+    ): HResult; stdcall;
     function LockServer(fLock: BOOL): HResult; stdcall;
   public
     constructor Create(const ADomainList: IInternalDomainInfoProviderList);
@@ -57,7 +60,10 @@ begin
 end;
 
 function TIeEmbeddedProtocolFactory.CreateInstance(
-  const unkOuter: IInterface; const iid: TIID; out obj): HResult;
+  const unkOuter: IInterface;
+  const iid: TIID;
+  out obj
+): HResult;
 var
   VProtocol: TIeEmbeddedProtocol;
   VGUIDSTring: string;
@@ -68,11 +74,14 @@ begin
   end;
   VGUIDSTring := GUIDToString(iid);
   VProtocol := TIeEmbeddedProtocol.Create(FDomainList);
-  if VProtocol.GetInterface(IID, Obj) then
-    Result := 0
-  else
+  if VProtocol.GetInterface(IID, Obj) then begin
+    Result := 0;
+  end else begin
     Result := E_NOINTERFACE;
-  if VProtocol.RefCount = 0 then VProtocol.Free;
+  end;
+  if VProtocol.RefCount = 0 then begin
+    VProtocol.Free;
+  end;
 end;
 
 function TIeEmbeddedProtocolFactory.LockServer(fLock: BOOL): HResult;

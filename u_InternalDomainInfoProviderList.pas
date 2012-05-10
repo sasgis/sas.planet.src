@@ -36,8 +36,12 @@ type
     constructor Create();
     destructor Destroy; override;
 
-    procedure Add(const AName: string; const ADomain: IInternalDomainInfoProvider);
+    procedure Add(
+      const AName: string;
+      const ADomain: IInternalDomainInfoProvider
+    );
   end;
+
 implementation
 
 uses

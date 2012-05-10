@@ -40,7 +40,11 @@ type
       const AConverter: ILocalCoordConverter
     );
   protected
-    procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); virtual; abstract;
+    procedure PreparePixleLine(
+      ASource: PColor32;
+      ATarget: Pointer;
+      ACount: Integer
+    ); virtual; abstract;
   private
     function GetLocalConverter: ILocalCoordConverter;
     function GetBytesPerPixel: Integer;
@@ -79,22 +83,38 @@ type
 
   TImageLineProviderRGB = class(TImageLineProviderNoAlfa)
   protected
-    procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); override;
+    procedure PreparePixleLine(
+      ASource: PColor32;
+      ATarget: Pointer;
+      ACount: Integer
+    ); override;
   end;
 
   TImageLineProviderBGR = class(TImageLineProviderNoAlfa)
   protected
-    procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); override;
+    procedure PreparePixleLine(
+      ASource: PColor32;
+      ATarget: Pointer;
+      ACount: Integer
+    ); override;
   end;
 
   TImageLineProviderRGBA = class(TImageLineProviderWithAlfa)
   protected
-    procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); override;
+    procedure PreparePixleLine(
+      ASource: PColor32;
+      ATarget: Pointer;
+      ACount: Integer
+    ); override;
   end;
 
   TImageLineProviderBGRA = class(TImageLineProviderWithAlfa)
   protected
-    procedure PreparePixleLine(ASource: PColor32; ATarget: Pointer; ACount: Integer); override;
+    procedure PreparePixleLine(
+      ASource: PColor32;
+      ATarget: Pointer;
+      ACount: Integer
+    ); override;
   end;
 
 implementation
@@ -162,7 +182,7 @@ begin
     end;
     PreparePixleLine(
       VSourceLine,
-      Pointer(Integer(FPreparedData[i]) + VIntersectionAtPrepared.Left*FBytesPerPixel),
+      Pointer(Integer(FPreparedData[i]) + VIntersectionAtPrepared.Left * FBytesPerPixel),
       VBitmapRect.Right - VBitmapRect.Left
     );
   end;
@@ -201,7 +221,7 @@ begin
     end;
   end;
 
-  if FPreparedConverter =  nil then begin
+  if FPreparedConverter = nil then begin
     FPreparedConverter := PrepareConverterForLocalLine(ALine);
     PrepareBufferData(AOperationID, ACancelNotifier, FPreparedConverter);
   end;
@@ -257,7 +277,7 @@ var
   i: Integer;
 begin
   VWidth := ARect.Right - ARect.Left;
-  VLinesNeed :=  ARect.Bottom - ARect.Top;
+  VLinesNeed := ARect.Bottom - ARect.Top;
   VLinesExists := Length(FPreparedData);
   if VLinesExists < VLinesNeed then begin
     SetLength(FPreparedData, VLinesNeed);
@@ -281,10 +301,7 @@ begin
   VCurrentPieceRect := FLocalConverter.GetLocalRect;
   VPixel :=
     FLocalConverter.LocalPixel2MapPixel(
-      Point(
-        VCurrentPieceRect.Left,
-        ALine
-      )
+      Point(VCurrentPieceRect.Left, ALine)
     );
   VTile := FMainGeoConverter.PixelPos2TilePos(VPixel, FZoom);
   VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTile, FZoom);
@@ -376,7 +393,7 @@ begin
   if ASource <> nil then begin
     VSource := PColor32Entry(ASource);
     VTarget := ATarget;
-    for i := 0 to  ACount - 1 do begin
+    for i := 0 to ACount - 1 do begin
       VTarget.B := VSource.B;
       VTarget.G := VSource.G;
       VTarget.R := VSource.R;
@@ -390,8 +407,11 @@ end;
 
 { TImageLineProviderBGR }
 
-procedure TImageLineProviderBGR.PreparePixleLine(ASource: PColor32;
-  ATarget: Pointer; ACount: Integer);
+procedure TImageLineProviderBGR.PreparePixleLine(
+  ASource: PColor32;
+  ATarget: Pointer;
+  ACount: Integer
+);
 var
   i: Integer;
   VSource: PColor32Entry;
@@ -400,7 +420,7 @@ begin
   if ASource <> nil then begin
     VSource := PColor32Entry(ASource);
     VTarget := ATarget;
-    for i := 0 to  ACount - 1 do begin
+    for i := 0 to ACount - 1 do begin
       VTarget.B := VSource.B;
       VTarget.G := VSource.G;
       VTarget.R := VSource.R;
@@ -414,8 +434,11 @@ end;
 
 { TImageLineProviderARGB }
 
-procedure TImageLineProviderRGBA.PreparePixleLine(ASource: PColor32;
-  ATarget: Pointer; ACount: Integer);
+procedure TImageLineProviderRGBA.PreparePixleLine(
+  ASource: PColor32;
+  ATarget: Pointer;
+  ACount: Integer
+);
 var
   i: Integer;
   VSource: PColor32Entry;
@@ -424,7 +447,7 @@ begin
   if ASource <> nil then begin
     VSource := PColor32Entry(ASource);
     VTarget := ATarget;
-    for i := 0 to  ACount - 1 do begin
+    for i := 0 to ACount - 1 do begin
       VTarget.B := VSource.B;
       VTarget.G := VSource.G;
       VTarget.R := VSource.R;
@@ -439,8 +462,11 @@ end;
 
 { TImageLineProviderBGRA }
 
-procedure TImageLineProviderBGRA.PreparePixleLine(ASource: PColor32;
-  ATarget: Pointer; ACount: Integer);
+procedure TImageLineProviderBGRA.PreparePixleLine(
+  ASource: PColor32;
+  ATarget: Pointer;
+  ACount: Integer
+);
 begin
   if ASource <> nil then begin
     Move(ASource^, ATarget^, ACount * SizeOf(ASource^));

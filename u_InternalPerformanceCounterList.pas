@@ -92,7 +92,7 @@ var
   VList: IInternalPerformanceCounterList;
 begin
   VEnum := ACounterList.GetEunm;
-  while VEnum.Next(1, VUnknown, @Vcnt)=S_OK do begin
+  while VEnum.Next(1, VUnknown, @Vcnt) = S_OK do begin
     if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
       AResultList.Add(VCounter.Id, VCounter.GetStaticData);
     end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin

@@ -11,8 +11,15 @@ type
   private
     T: array[Byte] of UInt64;
   private
-    function CalcHash(ABuffer: Pointer; ASize: Integer): THashValue;
-    function CalcHashWithSeed(ABuffer: Pointer; ASize: Integer; ASeed: THashValue): THashValue;
+    function CalcHash(
+      ABuffer: Pointer;
+      ASize: Integer
+    ): THashValue;
+    function CalcHashWithSeed(
+      ABuffer: Pointer;
+      ASize: Integer;
+      ASeed: THashValue
+    ): THashValue;
   public
     constructor Create();
   end;
@@ -43,8 +50,7 @@ begin
   PData := ABuffer;
   MyCRC64 := ASeed;
   for I := 1 to ASize do begin
-    MyCRC64 := MyCRC64 shr 8 xor T[Cardinal(MyCRC64)
-    and $FF xor PData^];
+    MyCRC64 := MyCRC64 shr 8 xor T[Cardinal(MyCRC64) and $FF xor PData^];
     Inc(PData);
   end;
   Result := MyCRC64;

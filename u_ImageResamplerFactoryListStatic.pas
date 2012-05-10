@@ -33,7 +33,10 @@ type
     FList: TStringList;
     FCS: IReadWriteSync;
   protected
-    procedure Add(const AFactory: IImageResamplerFactory; const ACaption: string);
+    procedure Add(
+      const AFactory: IImageResamplerFactory;
+      const ACaption: string
+    );
   protected
     function Count: Integer;
     function Get(AIndex: Integer): IImageResamplerFactory;

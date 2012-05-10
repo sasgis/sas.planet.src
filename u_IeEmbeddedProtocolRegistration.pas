@@ -30,12 +30,12 @@ type
   TIeEmbeddedProtocolRegistration = class
   private
     FProtocol: WideString;
-    FFactory : IClassFactory;
+    FFactory: IClassFactory;
     FInternetSession: IInternetSession;
   public
     constructor Create(
       const AProtocol: PWideChar;
-      const AFactory : IClassFactory
+      const AFactory: IClassFactory
     );
     destructor Destroy; override;
   end;

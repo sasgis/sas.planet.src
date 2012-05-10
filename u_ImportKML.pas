@@ -81,41 +81,43 @@ begin
   VStream := TFileStream.Create(AFileName, fmOpenRead);
   try
     KML := FKmlLoader.LoadFromStream(VStream, VectorDataFactory);
-    if Assigned(KML) then
-    if (0<KML.Count) then
-    for i:=0 to KML.Count-1 do begin
-      VMark := nil;
-      VItem := KML.GetItem(i);
-      if Supports(VItem, IVectorDataItemPoint, VItemPoint) then begin
-        if AConfig.TemplateNewPoint <> nil then begin
-          VMark := AConfig.MarkDB.Factory.CreateNewPoint(
-            VItemPoint.Point,
-            VItemPoint.Name,
-            VItemPoint.Desc,
-            AConfig.TemplateNewPoint
-          );
+    if Assigned(KML) then begin
+      if (0 < KML.Count) then begin
+        for i := 0 to KML.Count - 1 do begin
+          VMark := nil;
+          VItem := KML.GetItem(i);
+          if Supports(VItem, IVectorDataItemPoint, VItemPoint) then begin
+            if AConfig.TemplateNewPoint <> nil then begin
+              VMark := AConfig.MarkDB.Factory.CreateNewPoint(
+                VItemPoint.Point,
+                VItemPoint.Name,
+                VItemPoint.Desc,
+                AConfig.TemplateNewPoint
+              );
+            end;
+          end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
+            if AConfig.TemplateNewPoly <> nil then begin
+              VMark := AConfig.MarkDB.Factory.CreateNewPoly(
+                VItemPoly.Line,
+                VItemPoly.Name,
+                VItemPoly.Desc,
+                AConfig.TemplateNewPoly
+              );
+            end;
+          end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
+            if AConfig.TemplateNewLine <> nil then begin
+              VMark := AConfig.MarkDB.Factory.CreateNewLine(
+                VItemLine.Line,
+                VItemLine.Name,
+                VItemLine.Desc,
+                AConfig.TemplateNewLine
+              );
+            end;
+          end;
+          if VMark <> nil then begin
+            Result.Add(VMark);
+          end;
         end;
-      end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-        if AConfig.TemplateNewPoly <> nil then begin
-          VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-            VItemPoly.Line,
-            VItemPoly.Name,
-            VItemPoly.Desc,
-            AConfig.TemplateNewPoly
-          );
-        end;
-      end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-        if AConfig.TemplateNewLine <> nil then begin
-          VMark := AConfig.MarkDB.Factory.CreateNewLine(
-            VItemLine.Line,
-            VItemLine.Name,
-            VItemLine.Desc,
-            AConfig.TemplateNewLine
-          );
-        end;
-      end;
-      if VMark <> nil then begin
-        Result.Add(VMark);
       end;
     end;
   finally

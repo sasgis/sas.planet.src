@@ -66,8 +66,8 @@ function TImportHLG.ProcessImport(
   const AConfig: IImportConfig
 ): Boolean;
 var
-  ini:TMemIniFile;
-  i:integer;
+  ini: TMemIniFile;
+  i: integer;
   VPointsAggregator: IDoublePointsAggregator;
   VMark: IMark;
   VPoint: TDoublePoint;
@@ -75,12 +75,12 @@ begin
   Result := False;
   VPointsAggregator := TDoublePointsAggregator.Create;
   if AConfig.TemplateNewPoly <> nil then begin
-    ini:=TMemIniFile.Create(AFileName);
+    ini := TMemIniFile.Create(AFileName);
     try
-      i:=1;
-      while str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+IntToStr(i),'2147483647'))<>2147483647 do begin
-        VPoint.x:=str2r(Ini.ReadString('HIGHLIGHTING','PointLon_'+IntToStr(i),'2147483647'));
-        VPoint.y:=str2r(Ini.ReadString('HIGHLIGHTING','PointLat_'+IntToStr(i),'2147483647'));
+      i := 1;
+      while str2r(Ini.ReadString('HIGHLIGHTING', 'PointLon_' + IntToStr(i), '2147483647')) <> 2147483647 do begin
+        VPoint.x := str2r(Ini.ReadString('HIGHLIGHTING', 'PointLon_' + IntToStr(i), '2147483647'));
+        VPoint.y := str2r(Ini.ReadString('HIGHLIGHTING', 'PointLat_' + IntToStr(i), '2147483647'));
         VPointsAggregator.Add(VPoint);
         inc(i);
       end;

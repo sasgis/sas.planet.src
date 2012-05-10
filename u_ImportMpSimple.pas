@@ -82,7 +82,7 @@ var
   VXStr: string;
   VYStr: string;
   VPoint: TDoublePoint;
-  VFormatSettings : TFormatSettings;
+  VFormatSettings: TFormatSettings;
 begin
   VCoordList := TStringList.Create;
   try
@@ -120,7 +120,7 @@ function TImportMpSimple.ProcessImport(
 ): Boolean;
 var
   VFile: TStringList;
-  i:integer;
+  i: integer;
   VPointsAggregator: IDoublePointsAggregator;
   VMark: IMark;
   VString: string;
@@ -130,7 +130,7 @@ begin
   Result := False;
   if AConfig.TemplateNewPoly <> nil then begin
     VPointsAggregator := TDoublePointsAggregator.Create;
-    VFile:=TStringList.Create;
+    VFile := TStringList.Create;
     try
       VFile.LoadFromFile(AFileName);
       VPoligonLine := -1;

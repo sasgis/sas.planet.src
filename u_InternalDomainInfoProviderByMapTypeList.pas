@@ -129,7 +129,7 @@ begin
     if VContentType <> nil then begin
       AContentType := VContentType.GetContentType;
     end else begin
-      AContentType := 'text/html'
+      AContentType := 'text/html';
     end;
   end;
 
@@ -204,7 +204,7 @@ begin
       AZmpGUID := CGUID_Zero;
     end;
   end;
-  Result := not IsEqualGUID(AZmpGUID, CGUID_Zero)
+  Result := not IsEqualGUID(AZmpGUID, CGUID_Zero);
 end;
 
 end.

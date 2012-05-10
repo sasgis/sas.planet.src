@@ -100,7 +100,7 @@ begin
           CoTaskMemFree(VMimeType);
         end;
       end else begin
-        AContentType := 'text/html'
+        AContentType := 'text/html';
       end;
     end;
   end;

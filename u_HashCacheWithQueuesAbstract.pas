@@ -13,6 +13,7 @@ type
   TArrayOfHashIndex = array of THashIndex;
 
   PCacheItem = ^TCacheItem;
+
   TCacheItem = record
     Key: UInt64;
     Value: IInterface;
@@ -47,7 +48,10 @@ type
   public
     property Count: Integer read FCount;
 
-    procedure Push(AIndex: TItemIndex; AItem: PCacheItem);
+    procedure Push(
+      AIndex: TItemIndex;
+      AItem: PCacheItem
+    );
     function Pop(out AIndex: TItemIndex): PCacheItem;
   public
     constructor Create(
@@ -66,10 +70,19 @@ type
     FTailIndex: TItemIndex;
   public
     property Count: Integer read FCount;
-    procedure MoveItemToHead(AIndex: TItemIndex; AItem: PCacheItem);
-    procedure PushItemToHead(AIndex: TItemIndex; AItem: PCacheItem);
+    procedure MoveItemToHead(
+      AIndex: TItemIndex;
+      AItem: PCacheItem
+    );
+    procedure PushItemToHead(
+      AIndex: TItemIndex;
+      AItem: PCacheItem
+    );
     function PopItemFromTail(out AIndex: TItemIndex): PCacheItem;
-    procedure ExcludeItem(AIndex: TItemIndex; AItem: PCacheItem);
+    procedure ExcludeItem(
+      AIndex: TItemIndex;
+      AItem: PCacheItem
+    );
   public
     constructor Create(
       AQueueType: TQueueType;
@@ -134,10 +147,18 @@ type
     procedure MoveItemFromFirstInToFirstOut;
     procedure FreeItemFromQueueMulti;
   protected
-    procedure CreateByKey(const AKey: UInt64; AData: Pointer; out Item: IInterface); virtual; abstract;
+    procedure CreateByKey(
+      const AKey: UInt64;
+      AData: Pointer;
+      out Item: IInterface
+    ); virtual; abstract;
     function GetIndexByKey(const AKey: UInt64): THashIndex; virtual; abstract;
-    procedure GetOrCreateItem(const AKey: UInt64; AData: Pointer; out AItem: IInterface);
-    procedure  DeleteItem(const AKey: UInt64);
+    procedure GetOrCreateItem(
+      const AKey: UInt64;
+      AData: Pointer;
+      out AItem: IInterface
+    );
+    procedure DeleteItem(const AKey: UInt64);
     procedure Clear;
   public
     constructor Create(
@@ -178,7 +199,7 @@ constructor TStack.Create(AItems: TItemsArray);
 begin
   inherited Create;
   FItems := AItems;
-  FItemsCount :=  FItems.ItemsCount;
+  FItemsCount := FItems.ItemsCount;
   FCount := 0;
   FHeadIndex := FItemsCount;
 end;
@@ -198,7 +219,10 @@ begin
   end;
 end;
 
-procedure TStack.Push(AIndex: TItemIndex; AItem: PCacheItem);
+procedure TStack.Push(
+  AIndex: TItemIndex;
+  AItem: PCacheItem
+);
 begin
   Assert(AIndex < FItemsCount);
   Assert(AItem <> nil);
@@ -229,7 +253,10 @@ begin
   FTailIndex := FItemsCount;
 end;
 
-procedure TQueue.ExcludeItem(AIndex: TItemIndex; AItem: PCacheItem);
+procedure TQueue.ExcludeItem(
+  AIndex: TItemIndex;
+  AItem: PCacheItem
+);
 var
   VPrevItem: PCacheItem;
   VPrevIndex: TItemIndex;
@@ -302,7 +329,10 @@ begin
   end;
 end;
 
-procedure TQueue.MoveItemToHead(AIndex: TItemIndex; AItem: PCacheItem);
+procedure TQueue.MoveItemToHead(
+  AIndex: TItemIndex;
+  AItem: PCacheItem
+);
 var
   VPrevItem: PCacheItem;
   VPrevIndex: TItemIndex;
@@ -385,7 +415,10 @@ begin
   end;
 end;
 
-procedure TQueue.PushItemToHead(AIndex: TItemIndex; AItem: PCacheItem);
+procedure TQueue.PushItemToHead(
+  AIndex: TItemIndex;
+  AItem: PCacheItem
+);
 var
   VNextItem: PCacheItem;
   VNextIndex: TItemIndex;
@@ -420,7 +453,10 @@ end;
 
 { THashTable }
 
-constructor THashTable.Create(AHashSize: Integer; AItems: TItemsArray);
+constructor THashTable.Create(
+  AHashSize: Integer;
+  AItems: TItemsArray
+);
 var
   i: Integer;
 begin
@@ -501,16 +537,16 @@ begin
     FHash[AHashIndex] := AItem.CollisionNextIndex;
   end else begin
     while VIndex < FItemsCount do begin
-      VPrevItem :=  FItems.GetItemByIndex(VIndex);
+      VPrevItem := FItems.GetItemByIndex(VIndex);
       Assert(VPrevItem <> nil);
       if VPrevItem <> nil then begin
         VIndex := VPrevItem.CollisionNextIndex;
         if VIndex = AIndex then begin
-          VPrevItem.CollisionNextIndex :=  AItem.CollisionNextIndex;
+          VPrevItem.CollisionNextIndex := AItem.CollisionNextIndex;
           AItem.CollisionNextIndex := FItemsCount;
           Break;
         end else begin
-          VIndex := VPrevItem.CollisionNextIndex ;
+          VIndex := VPrevItem.CollisionNextIndex;
         end;
       end else begin
         VIndex := FItemsCount;
@@ -697,7 +733,8 @@ end;
 procedure THashCacheWithQueuesAbstract.GetOrCreateItem(
   const AKey: UInt64;
   AData: Pointer;
-  out AItem: IInterface);
+  out AItem: IInterface
+);
 var
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
@@ -735,7 +772,7 @@ begin
   finally
     FCS.EndWrite;
   end;
-  
+
   if AItem = nil then begin
     CreateByKey(AKey, AData, AItem);
     FCS.BeginWrite;

@@ -39,7 +39,10 @@ type
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
     procedure SyncNavigate;
   public
-    constructor Create(const AUrl: WideString; AfrmInvisibleBrowser: TfrmInvisibleBrowser);
+    constructor Create(
+      const AUrl: WideString;
+      AfrmInvisibleBrowser: TfrmInvisibleBrowser
+    );
     procedure Navigate;
   end;
 
@@ -99,8 +102,8 @@ begin
   finally
     FCS.EndWrite;
   end;
-  
-  VSyncNav :=  TSyncNavigate.Create(AUrl, FfrmInvisibleBrowser);
+
+  VSyncNav := TSyncNavigate.Create(AUrl, FfrmInvisibleBrowser);
   try
     VSyncNav.Navigate;
   finally

@@ -51,7 +51,10 @@ type
     function GetMinTime: TDateTime;
     function GetStaticData: IInternalPerformanceCounterStaticData;
   public
-    constructor Create(const AName: string; const AQueryPerfCntrFunc: Pointer);
+    constructor Create(
+      const AName: string;
+      const AQueryPerfCntrFunc: Pointer
+    );
   end;
 
   TInternalPerformanceCounterStaticData = class(TInterfacedObject, IInternalPerformanceCounterStaticData)
@@ -88,8 +91,12 @@ uses
 
 { TInternalPerformanceCounter }
 
-constructor TInternalPerformanceCounter.Create(const AName: string; const AQueryPerfCntrFunc: Pointer);
-var VDummy: Int64;
+constructor TInternalPerformanceCounter.Create(
+  const AName: string;
+  const AQueryPerfCntrFunc: Pointer
+);
+var
+  VDummy: Int64;
 begin
   inherited Create;
   FId := Integer(Self);
@@ -102,24 +109,30 @@ begin
   FMin := $7FFFFFFFFFFFFFF;
   FMax := 0;
 
-  if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VDummy, @FFreq)) then
+  if (nil = FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VDummy, @FFreq)) then begin
     FFreq := 0;
+  end;
 end;
 
 procedure TInternalPerformanceCounter.FinishOperation(const AContext: TInternalPerformanceCounterContext);
 var
   VCounter, VFreq, VOperationCounter: Int64;
 begin
-  if AContext <> 0 then
-  if (0 = TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VCounter, @VFreq)) then begin
-    // check
-    Assert(VFreq=FFreq);
-    // accumulate
-    Inc(FCounter);
-    VOperationCounter := VCounter - AContext;
-    FTotal := FTotal + VOperationCounter;
-    if VOperationCounter > FMax then FMax := VOperationCounter;
-    if VOperationCounter < FMin then FMin := VOperationCounter;
+  if AContext <> 0 then begin
+    if (0 = TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@VCounter, @VFreq)) then begin
+      // check
+      Assert(VFreq = FFreq);
+      // accumulate
+      Inc(FCounter);
+      VOperationCounter := VCounter - AContext;
+      FTotal := FTotal + VOperationCounter;
+      if VOperationCounter > FMax then begin
+        FMax := VOperationCounter;
+      end;
+      if VOperationCounter < FMin then begin
+        FMin := VOperationCounter;
+      end;
+    end;
   end;
 end;
 
@@ -135,26 +148,29 @@ end;
 
 function TInternalPerformanceCounter.GetTotalTime: TDateTime;
 begin
-  if (FFreq = 0) then
-    Result := 0
-  else
+  if (FFreq = 0) then begin
+    Result := 0;
+  end else begin
     Result := FTotal / FFreq / 24 / 60 / 60;
+  end;
 end;
 
 function TInternalPerformanceCounter.GetMaxTime: TDateTime;
 begin
-  if (FFreq = 0) or (FTotal = 0) then
-    Result := 0
-  else
-    Result := FMax / FFreq / 24 / 60 /60;
+  if (FFreq = 0) or (FTotal = 0) then begin
+    Result := 0;
+  end else begin
+    Result := FMax / FFreq / 24 / 60 / 60;
+  end;
 end;
 
 function TInternalPerformanceCounter.GetMinTime: TDateTime;
 begin
-  if (FFreq = 0) or (FTotal = 0) then
-    Result := 0
-  else
-    Result := FMin / FFreq / 24 / 60 /60;
+  if (FFreq = 0) or (FTotal = 0) then begin
+    Result := 0;
+  end else begin
+    Result := FMin / FFreq / 24 / 60 / 60;
+  end;
 end;
 
 function TInternalPerformanceCounter.GetName: string;
@@ -177,8 +193,9 @@ end;
 
 function TInternalPerformanceCounter.StartOperation: TInternalPerformanceCounterContext;
 begin
-  if (nil=FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@Result, nil)) then
+  if (nil = FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@Result, nil)) then begin
     Result := 0;
+  end;
 end;
 
 { TInternalPerformanceCounterStaticData }

@@ -67,7 +67,10 @@ type
     procedure DoTerminate; override;
     procedure Execute; override;
   public
-    constructor Create(APriority: TThreadPriority; AExec: TThreadMethod);
+    constructor Create(
+      APriority: TThreadPriority;
+      AExec: TThreadMethod
+    );
     procedure Start(const ARef: IInterface);
   end;
 
@@ -170,7 +173,10 @@ end;
 
 { TThread4InterfacedThread }
 
-constructor TThread4InterfacedThread.Create(APriority: TThreadPriority; AExec: TThreadMethod);
+constructor TThread4InterfacedThread.Create(
+  APriority: TThreadPriority;
+  AExec: TThreadMethod
+);
 begin
   inherited Create(True);
   Self.Priority := APriority;
