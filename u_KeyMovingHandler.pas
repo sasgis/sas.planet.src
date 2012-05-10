@@ -45,7 +45,10 @@ type
     FMoveVector: TPoint;
   protected
     procedure MapMoveAnimate;
-    procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
+    procedure DoMessageEvent(
+      var Msg: TMsg;
+      var Handled: Boolean
+    );
   public
     constructor Create(
       AMap: TImage32;
@@ -74,7 +77,10 @@ begin
   FViewPortState := AViewPortState;
 end;
 
-procedure TKeyMovingHandler.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
+procedure TKeyMovingHandler.DoMessageEvent(
+  var Msg: TMsg;
+  var Handled: Boolean
+);
 var
   VMoveByDelta: Boolean;
 begin
@@ -85,25 +91,43 @@ begin
         VK_RIGHT,
         VK_LEFT,
         VK_DOWN,
-        VK_UP: VMoveByDelta := True;
+        VK_UP: begin
+          VMoveByDelta := True;
+        end;
       end;
       if VMoveByDelta then begin
         case Msg.wParam of
-          VK_RIGHT: FMoveVector.x := 1;
-          VK_LEFT: FMoveVector.x := -1;
-          VK_DOWN: FMoveVector.y := 1;
-          VK_UP: FMoveVector.y := -1;
+          VK_RIGHT: begin
+            FMoveVector.x := 1;
+          end;
+          VK_LEFT: begin
+            FMoveVector.x := -1;
+          end;
+          VK_DOWN: begin
+            FMoveVector.y := 1;
+          end;
+          VK_UP: begin
+            FMoveVector.y := -1;
+          end;
         end;
         MapMoveAnimate;
       end;
     end;
     WM_KEYUP: begin
-        case Msg.wParam of
-          VK_RIGHT: FMoveVector.x := 0;
-          VK_LEFT: FMoveVector.x := 0;
-          VK_DOWN: FMoveVector.y := 0;
-          VK_UP: FMoveVector.y := 0;
+      case Msg.wParam of
+        VK_RIGHT: begin
+          FMoveVector.x := 0;
         end;
+        VK_LEFT: begin
+          FMoveVector.x := 0;
+        end;
+        VK_DOWN: begin
+          FMoveVector.y := 0;
+        end;
+        VK_UP: begin
+          FMoveVector.y := 0;
+        end;
+      end;
     end;
   end;
 
@@ -123,8 +147,8 @@ var
   VAllKeyUp: Boolean;
   VZoom: byte;
 begin
-  if not(FMapMoveAnimtion) then begin
-    FMapMoveAnimtion:=True;
+  if not (FMapMoveAnimtion) then begin
+    FMapMoveAnimtion := True;
     try
       QueryPerformanceCounter(VCurrTick);
       QueryPerformanceFrequency(VFr);
@@ -132,7 +156,7 @@ begin
       FKeyMovingLastTick := VCurrTick;
       FTimeFromFirstToLast := 0;
       VTimeFromLast := 0;
-      VZoom:=FViewPortState.GetCurrentZoom;
+      VZoom := FViewPortState.GetCurrentZoom;
       FConfig.LockRead;
       try
         VStartSpeed := FConfig.MinPixelPerSecond;
@@ -144,18 +168,18 @@ begin
 
       repeat
         VDrawTimeFromLast := (VCurrTick - FKeyMovingLastTick) / VFr;
-        VTimeFromLast := VTimeFromLast+ 0.3*(VDrawTimeFromLast-VTimeFromLast);
+        VTimeFromLast := VTimeFromLast + 0.3 * (VDrawTimeFromLast - VTimeFromLast);
         if (FTimeFromFirstToLast >= VAcelerateTime) or (VAcelerateTime < 0.01) then begin
           VStep := VMaxSpeed * VTimeFromLast;
         end else begin
           VAcelerate := (VMaxSpeed - VStartSpeed) / VAcelerateTime;
-          VStep := (VStartSpeed + VAcelerate * (FTimeFromFirstToLast + VTimeFromLast/2)) * VTimeFromLast;
+          VStep := (VStartSpeed + VAcelerate * (FTimeFromFirstToLast + VTimeFromLast / 2)) * VTimeFromLast;
         end;
         FKeyMovingLastTick := VCurrTick;
         FTimeFromFirstToLast := FTimeFromFirstToLast + VTimeFromLast;
 
-        VPointDelta.x:=FMoveVector.x*VStep;
-        VPointDelta.y:=FMoveVector.y*VStep;
+        VPointDelta.x := FMoveVector.x * VStep;
+        VPointDelta.y := FMoveVector.y * VStep;
 
         FMap.BeginUpdate;
         try
@@ -169,16 +193,16 @@ begin
         QueryPerformanceCounter(VCurrTick);
         QueryPerformanceFrequency(VFr);
 
-        VAllKeyUp:=(GetAsyncKeyState(VK_RIGHT) = 0)and
-                   (GetAsyncKeyState(VK_LEFT) = 0)and
-                   (GetAsyncKeyState(VK_DOWN) = 0)and
-                   (GetAsyncKeyState(VK_UP) = 0);
+        VAllKeyUp := (GetAsyncKeyState(VK_RIGHT) = 0) and
+          (GetAsyncKeyState(VK_LEFT) = 0) and
+          (GetAsyncKeyState(VK_DOWN) = 0) and
+          (GetAsyncKeyState(VK_UP) = 0);
         if VAllKeyUp then begin
-          FMoveVector:=Point(0,0);
+          FMoveVector := Point(0, 0);
         end;
-      until ((FMoveVector.x=0)and(FMoveVector.y=0))or(VZoom<>FViewPortState.GetCurrentZoom);
+      until ((FMoveVector.x = 0) and (FMoveVector.y = 0)) or (VZoom <> FViewPortState.GetCurrentZoom);
     finally
-      FMapMoveAnimtion:=false;
+      FMapMoveAnimtion := false;
     end;
   end;
 end;

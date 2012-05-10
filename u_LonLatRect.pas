@@ -22,8 +22,14 @@ type
     function IsPointInRect(const APoint: TDoublePoint): Boolean;
     function UnionWithRect(const ARect: TDoubleRect): TDoubleRect; overload;
     function UnionWithRect(const ARect: ILonLatRect): TDoubleRect; overload;
-    function IntersecWithRect(out AResultRect: TDoubleRect; const ARect: TDoubleRect): Boolean; overload;
-    function IntersecWithRect(out AResultRect: TDoubleRect; const ARect: ILonLatRect): Boolean; overload;
+    function IntersecWithRect(
+      out AResultRect: TDoubleRect;
+      const ARect: TDoubleRect
+    ): Boolean; overload;
+    function IntersecWithRect(
+      out AResultRect: TDoubleRect;
+      const ARect: ILonLatRect
+    ): Boolean; overload;
     function IsIntersecWithRect(const ARect: TDoubleRect): Boolean; overload;
     function IsIntersecWithRect(const ARect: ILonLatRect): Boolean; overload;
   public
@@ -89,8 +95,10 @@ begin
   end;
 end;
 
-function TLonLatRect.IntersecWithRect(out AResultRect: TDoubleRect;
-  const ARect: TDoubleRect): Boolean;
+function TLonLatRect.IntersecWithRect(
+  out AResultRect: TDoubleRect;
+  const ARect: TDoubleRect
+): Boolean;
 begin
   Result := IntersecLonLatRect(AResultRect, FRect, ARect);
 end;
@@ -100,7 +108,7 @@ begin
   if ARect = nil then begin
     Result := False;
   end else if ILonLatRect(Self) = ARect then begin
-    Result :=True;
+    Result := True;
   end else begin
     Result := DoubleRectsEqual(FRect, ARect.Rect);
   end;

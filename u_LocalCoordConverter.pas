@@ -312,8 +312,8 @@ end;
 function TLocalCoordConverter.LocalPixelFloat2MapPixelFloat(
   const APoint: TDoublePoint): TDoublePoint;
 begin
-  Result.X := APoint.X  / FMapScale.X + FLocalTopLeftAtMap.X;
-  Result.Y := APoint.Y  / FMapScale.Y + FLocalTopLeftAtMap.Y;
+  Result.X := APoint.X / FMapScale.X + FLocalTopLeftAtMap.X;
+  Result.Y := APoint.Y / FMapScale.Y + FLocalTopLeftAtMap.Y;
 end;
 
 function TLocalCoordConverter.MapPixel2LocalPixel(const APoint: TPoint): TPoint;

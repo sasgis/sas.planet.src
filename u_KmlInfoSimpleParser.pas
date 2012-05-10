@@ -52,15 +52,29 @@ type
     FBMSrchDescE: TSearchBM;
     FBMSrchCoord: TSearchBM;
     FBMSrchCoordE: TSearchBM;
-    function PosOfChar(APattern: AnsiChar; AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
-    function PosOfNonSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
-    function PosOfSpaceChar(AText: PAnsiChar; ALast: PAnsiChar): PAnsiChar;
+    function PosOfChar(
+      APattern: AnsiChar;
+      AText: PAnsiChar;
+      ALast: PAnsiChar
+    ): PAnsiChar;
+    function PosOfNonSpaceChar(
+      AText: PAnsiChar;
+      ALast: PAnsiChar
+    ): PAnsiChar;
+    function PosOfSpaceChar(
+      AText: PAnsiChar;
+      ALast: PAnsiChar
+    ): PAnsiChar;
     function parse(
       const buffer: AnsiString;
       const AList: IInterfaceList;
       const AFactory: IVectorDataFactory
     ): boolean;
-    function parseCoordinates(AText: PAnsiChar; ALen: integer; const APointsAggregator: IDoublePointsAggregator): boolean;
+    function parseCoordinates(
+      AText: PAnsiChar;
+      ALen: integer;
+      const APointsAggregator: IDoublePointsAggregator
+    ): boolean;
     procedure parseName(var Name: AnsiString);
     procedure parseDescription(var Description: AnsiString);
     function BuildItem(
@@ -69,8 +83,14 @@ type
       const AFactory: IVectorDataFactory
     ): IVectorDataItemSimple;
   protected
-    function LoadFromStream(AStream: TStream; const AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
-    function Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList; virtual;
+    function LoadFromStream(
+      AStream: TStream;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList; virtual;
+    function Load(
+      const AData: IBinaryData;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList; virtual;
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;
@@ -231,8 +251,9 @@ begin
         VList := TInterfaceList.Create;
         parse(VKml, VList, AFactory);
         Result := TVectorDataItemList.Create(VList);
-      end else
+      end else begin
         Assert(False, 'KML data reader - Unknown error');
+      end;
     end;
   finally
     FLoadKmlStreamCounter.FinishOperation(VCounterContext);
@@ -280,7 +301,7 @@ function TKmlInfoSimpleParser.parse(
   const AFactory: IVectorDataFactory
 ): boolean;
 var
-  position, PosStartPlace, PosTag1, PosTag2,PosTag3, PosEndPlace, sLen, sStart: integer;
+  position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen, sStart: integer;
   VName: string;
   VDescription: string;
   VItem: IVectorDataItemSimple;
@@ -295,58 +316,58 @@ begin
   VPointsAggregator := TDoublePointsAggregator.Create;
   While (position > 0) and (PosStartPlace > 0) and (PosEndPlace > 0) and (result) do begin
     try
-        PosStartPlace := integer(FBMSrchPlacemark.Search(@buffer[position], sLen - position + 1)) - sStart + 1;
-        if PosStartPlace > 0 then begin
-          PosEndPlace := integer(FBMSrchPlacemarkE.Search(@buffer[PosStartPlace], sLen - PosStartPlace + 1)) - sStart + 1;
-          if PosEndPlace > 0 then begin
-            VName := '';
-            position := integer(FBMSrchId.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
-            PosTag1 := integer(FBMSrchName.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
-            if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-              PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
-              if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-                PosTag3 := integer(FBMSrchNameE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
-                if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                  VName := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
-                  parseName(VName);
-                end;
+      PosStartPlace := integer(FBMSrchPlacemark.Search(@buffer[position], sLen - position + 1)) - sStart + 1;
+      if PosStartPlace > 0 then begin
+        PosEndPlace := integer(FBMSrchPlacemarkE.Search(@buffer[PosStartPlace], sLen - PosStartPlace + 1)) - sStart + 1;
+        if PosEndPlace > 0 then begin
+          VName := '';
+          position := integer(FBMSrchId.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          PosTag1 := integer(FBMSrchName.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+            PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
+            if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+              PosTag3 := integer(FBMSrchNameE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
+              if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
+                VName := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
+                parseName(VName);
               end;
             end;
-            VDescription := '';
-            PosTag1 := integer(FBMSrchDesc.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
-            if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-              PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
-              if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-                PosTag3 := integer(FBMSrchDescE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
-                if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                  Vdescription := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
-                  parseDescription(Vdescription);
-                end;
+          end;
+          VDescription := '';
+          PosTag1 := integer(FBMSrchDesc.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+            PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
+            if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+              PosTag3 := integer(FBMSrchDescE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
+              if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
+                Vdescription := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
+                parseDescription(Vdescription);
               end;
             end;
-            PosTag1 := integer(FBMSrchCoord.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
-            if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
-              PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
-              if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
-                PosTag3 := integer(FBMSrchCoordE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
-                if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                  VPointsAggregator.Clear;
-                  Result := parseCoordinates(@buffer[PosTag2 + 1], PosTag3 - (PosTag2 + 1), VPointsAggregator);
-                end else begin
-                  result := false;
-                end;
+          end;
+          PosTag1 := integer(FBMSrchCoord.Search(@buffer[PosStartPlace], PosEndPlace - PosStartPlace + 1)) - sStart + 1;
+          if (PosTag1 > PosStartPlace) and (PosTag1 < PosEndPlace) then begin
+            PosTag2 := integer(FBMSrchCloseQ.Search(@buffer[PosTag1], PosEndPlace - PosTag1 + 1)) - sStart + 1;
+            if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
+              PosTag3 := integer(FBMSrchCoordE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
+              if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
+                VPointsAggregator.Clear;
+                Result := parseCoordinates(@buffer[PosTag2 + 1], PosTag3 - (PosTag2 + 1), VPointsAggregator);
               end else begin
                 result := false;
               end;
             end else begin
               result := false;
             end;
-          end;
-          VItem := BuildItem(VName, VDescription, VPointsAggregator, AFactory);
-          if VItem <> nil then begin
-            AList.Add(VItem);
+          end else begin
+            result := false;
           end;
         end;
+        VItem := BuildItem(VName, VDescription, VPointsAggregator, AFactory);
+        if VItem <> nil then begin
+          AList.Add(VItem);
+        end;
+      end;
       position := PosEndPlace + 1;
     except
       Result := false;
@@ -383,7 +404,7 @@ begin
             VCurCoord.x := VValue;
             VCurPos := VNumEndPos;
             Inc(VCurPos);
-            if VCurPos <  VLastPos then begin
+            if VCurPos < VLastPos then begin
               VCurPos := PosOfNonSpaceChar(VCurPos, VLastPos);
               if VCurPos <> nil then begin
                 VComa := PosOfChar(',', VCurPos, VLastPos);
@@ -432,8 +453,11 @@ begin
   Result := APointsAggregator.Count > 0;
 end;
 
-function TKmlInfoSimpleParser.PosOfChar(APattern: AnsiChar; AText: PAnsiChar;
-  ALast: PAnsiChar): PAnsiChar;
+function TKmlInfoSimpleParser.PosOfChar(
+  APattern: AnsiChar;
+  AText: PAnsiChar;
+  ALast: PAnsiChar
+): PAnsiChar;
 var
   VCurr: PAnsiChar;
 begin
@@ -448,8 +472,10 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.PosOfNonSpaceChar(AText: PAnsiChar;
-  ALast: PAnsiChar): PAnsiChar;
+function TKmlInfoSimpleParser.PosOfNonSpaceChar(
+  AText: PAnsiChar;
+  ALast: PAnsiChar
+): PAnsiChar;
 var
   VCurr: PAnsiChar;
 begin

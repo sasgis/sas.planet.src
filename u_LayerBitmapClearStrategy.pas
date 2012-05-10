@@ -163,7 +163,7 @@ begin
 
   if ATargetRectInSource.Top <= 0 then begin
     VCopyRect.Top := 0;
-    FInTargetTopLeft.Y := - ATargetRectInSource.Top;
+    FInTargetTopLeft.Y := -ATargetRectInSource.Top;
   end else begin
     VCopyRect.Top := ATargetRectInSource.Top;
     FInTargetTopLeft.Y := 0;

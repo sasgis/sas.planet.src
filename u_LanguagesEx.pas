@@ -60,10 +60,10 @@ uses
 type
   TLanguagesEx = class(TLanguages)
   private
-    FISO639:TStrings;
-    FISO3166:TStrings;
-    FGetText:TStrings;
-    FEngNames:TStrings;
+    FISO639: TStrings;
+    FISO3166: TStrings;
+    FGetText: TStrings;
+    FEngNames: TStrings;
     function GetIDFromFromISO639Name(const ISO639Name: string): LCID;
     function GetIDFromISO3166Name(const ISO3166Name: string): LCID;
     function GetISO3166NameFromID(ID: LCID): string;
@@ -74,16 +74,16 @@ type
     function GetEngNameFromLocaleID(ID: LCID): string;
   public
     constructor Create;
-    destructor Destroy;override;
+    destructor Destroy; override;
     // ISO639 names are the 2 letter language abbreviation
-    property IDFromFromISO639Name[const ISO639Name:string]:LCID read GetIDFromFromISO639Name;
-    property ISO639NameFromID[ID:LCID]:string read GetISO639NameFromID;
+    property IDFromFromISO639Name[const ISO639Name: string]: LCID read GetIDFromFromISO639Name;
+    property ISO639NameFromID[ID: LCID]: string read GetISO639NameFromID;
     // ISO3166 names are the 2 letter country abbreviation
-    property IDFromISO3166Name[const ISO3166Name:string]:LCID read GetIDFromISO3166Name;
-    property ISO3166NameFromID[ID:LCID]:string read GetISO3166NameFromID;
+    property IDFromISO3166Name[const ISO3166Name: string]: LCID read GetIDFromISO3166Name;
+    property ISO3166NameFromID[ID: LCID]: string read GetISO3166NameFromID;
 
-    property GNUGetTextName[ID:LCID]:string read GetGNUGetTextNames;
-    property GNUGetTextID[const Name:string]:LCID read GetGNUGetTextID;
+    property GNUGetTextName[ID: LCID]: string read GetGNUGetTextNames;
+    property GNUGetTextID[const Name: string]: LCID read GetGNUGetTextID;
 
     property EngNameFromLocaleID[ID: LCID]: string read GetEngNameFromLocaleID;
   end;
@@ -99,9 +99,9 @@ constructor TLanguagesEx.Create;
 begin
   inherited Create;
   FISO639 := TStringlist.Create;
-//  TStringlist(FISO639).Sorted := true;
+  //  TStringlist(FISO639).Sorted := true;
   FISO3166 := TStringlist.Create;
-//  TStringlist(FISO3166).Sorted := true;
+  //  TStringlist(FISO3166).Sorted := true;
   FGetText := TStringlist.Create;
   TStringlist(FGetText).Sorted := true;
   FEngNames := TStringList.Create;
@@ -118,19 +118,21 @@ begin
 end;
 
 function TLanguagesEx.GetEngNameFromLocaleID(ID: LCID): string;
-var i:integer;
+var
+  i: integer;
 begin
-  i :=  FEngNames.IndexOfObject(TObject(ID));
-  if i >= 0 then
-    Result := FEngNames[i]
-  else
+  i := FEngNames.IndexOfObject(TObject(ID));
+  if i >= 0 then begin
+    Result := FEngNames[i];
+  end else begin
     Result := SUnknown;
+  end;
 end;
 
 procedure TLanguagesEx.GetExtraInfo;
 var
-  i,AID:integer;
-  S,T:string;
+  i, AID: integer;
+  S, T: string;
   VEngNameLen: Integer;
   VEngName: string;
 begin
@@ -138,87 +140,98 @@ begin
   FISO3166.Clear;
   FGetText.Clear;
   FEngNames.Clear;
-  SetLength(S,4); // should be enough
-  for i := 0 to Count - 1 do
-  begin
+  SetLength(S, 4); // should be enough
+  for i := 0 to Count - 1 do begin
     AID := LocaleID[i];
-    if GetLocaleInfo(AID,LOCALE_SISO3166CTRYNAME,@S[1],4) <> 0 then
-    begin
+    if GetLocaleInfo(AID, LOCALE_SISO3166CTRYNAME, @S[1], 4) <> 0 then begin
       T := string(PChar(S));
-      FISO3166.AddObject(T,TObject(AID));
+      FISO3166.AddObject(T, TObject(AID));
     end;
-    if GetLocaleInfo(AID,LOCALE_SISO639LANGNAME,@S[1],4) <> 0 then
-      FISO639.AddObject(string(PChar(S)),TObject(AID));
+    if GetLocaleInfo(AID, LOCALE_SISO639LANGNAME, @S[1], 4) <> 0 then begin
+      FISO639.AddObject(string(PChar(S)), TObject(AID));
+    end;
     // add both language and lang_country combination
-    FGetText.AddObject(string(PChar(S)),TObject(AID));
-    FGetText.AddObject(string(PChar(S)) + '_' + T,TObject(AID));
+    FGetText.AddObject(string(PChar(S)), TObject(AID));
+    FGetText.AddObject(string(PChar(S)) + '_' + T, TObject(AID));
     VEngNameLen := GetLocaleInfo(AID, LOCALE_SENGLANGUAGE, nil, 0);
     if VEngNameLen > 0 then begin
       SetLength(VEngName, VEngNameLen);
-      GetLocaleInfo(AID,LOCALE_SENGLANGUAGE,@VEngName[1],VEngNameLen);
-      FEngNames.AddObject(string(PChar(VEngName)),TObject(AID));
+      GetLocaleInfo(AID, LOCALE_SENGLANGUAGE, @VEngName[1], VEngNameLen);
+      FEngNames.AddObject(string(PChar(VEngName)), TObject(AID));
     end;
   end;
 end;
 
 function TLanguagesEx.GetGNUGetTextID(const Name: string): LCID;
-var i:integer;
+var
+  i: integer;
 begin
-  i :=  FGetText.IndexOf(Name);
-  if i >= 0 then
-    Result := LCID(FGetText.Objects[i])
-  else
+  i := FGetText.IndexOf(Name);
+  if i >= 0 then begin
+    Result := LCID(FGetText.Objects[i]);
+  end else begin
     Result := 0;
+  end;
 end;
 
 function TLanguagesEx.GetGNUGetTextNames(ID: LCID): string;
-var i:integer;
+var
+  i: integer;
 begin
-  i :=  FGetText.IndexOfObject(TObject(ID));
-  if i >= 0 then
-    Result := FGetText[i]
-  else
+  i := FGetText.IndexOfObject(TObject(ID));
+  if i >= 0 then begin
+    Result := FGetText[i];
+  end else begin
     Result := SUnknown;
+  end;
 end;
 
 function TLanguagesEx.GetIDFromFromISO639Name(const ISO639Name: string): LCID;
-var i:integer;
+var
+  i: integer;
 begin
   i := FISO639.IndexOf(ISO639Name);
-  if i >= 0 then
-    Result := LCID(FISO639.Objects[i])
-  else
+  if i >= 0 then begin
+    Result := LCID(FISO639.Objects[i]);
+  end else begin
     Result := 0;
+  end;
 end;
 
 function TLanguagesEx.GetIDFromISO3166Name(const ISO3166Name: string): LCID;
-var i:integer;
+var
+  i: integer;
 begin
   i := FISO3166.IndexOf(ISO3166Name);
-  if i >= 0 then
-    Result := LCID(FISO3166.Objects[i])
-  else
+  if i >= 0 then begin
+    Result := LCID(FISO3166.Objects[i]);
+  end else begin
     Result := 0;
+  end;
 end;
 
 function TLanguagesEx.GetISO3166NameFromID(ID: LCID): string;
-var i:integer;
+var
+  i: integer;
 begin
   i := FISO3166.IndexOfObject(TObject(ID));
-  if i >= 0 then
-    Result := FISO3166[i]
-  else
+  if i >= 0 then begin
+    Result := FISO3166[i];
+  end else begin
     Result := '';
+  end;
 end;
 
 function TLanguagesEx.GetISO639NameFromID(ID: LCID): string;
-var i:integer;
+var
+  i: integer;
 begin
   i := FISO639.IndexOfObject(TObject(ID));
-  if i >= 0 then
-    Result := FISO639[i]
-  else
+  if i >= 0 then begin
+    Result := FISO639[i];
+  end else begin
     Result := '';
+  end;
 end;
 
 {$ENDIF}

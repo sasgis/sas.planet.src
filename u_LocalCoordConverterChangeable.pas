@@ -105,7 +105,7 @@ begin
     VConverter := nil;
   end;
   VNeedNotify := False;
-  
+
   FCS.BeginWrite;
   try
     if FStatic = nil then begin
@@ -122,7 +122,7 @@ begin
   finally
     FCS.EndWrite;
   end;
-  
+
   if VNeedNotify then begin
     DoChangeNotify;
   end;

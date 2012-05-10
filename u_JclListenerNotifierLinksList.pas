@@ -41,7 +41,10 @@ type
     procedure DoActivateLinks;
     procedure DoDeactivateLinks;
   protected
-    procedure Add(const AListener: IJclListener; const ANotifier: IJclNotifier);
+    procedure Add(
+      const AListener: IJclListener;
+      const ANotifier: IJclNotifier
+    );
     procedure ActivateLinks;
     procedure DeactivateLinks;
   public

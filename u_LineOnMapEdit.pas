@@ -41,7 +41,10 @@ type
     procedure _UpdateLineObject; virtual; abstract;
     procedure _UpdateLineWithSelected; virtual; abstract;
   private
-    procedure SetSelectedPoint(ASegmentIndex: Integer; APointIndex: Integer);
+    procedure SetSelectedPoint(
+      ASegmentIndex: Integer;
+      APointIndex: Integer
+    );
     procedure SetSelectedNextPoint;
     procedure SetSelectedPrevPoint;
     function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
@@ -460,7 +463,7 @@ var
 begin
   LockWrite;
   try
-    FSelectedPointIndex := - 1;
+    FSelectedPointIndex := -1;
     FPointsCount := 0;
     for i := 0 to AValue.Count - 1 do begin
       VLine := AValue.Item[i];
@@ -578,7 +581,7 @@ var
 begin
   LockWrite;
   try
-    FSelectedPointIndex := - 1;
+    FSelectedPointIndex := -1;
     FPointsCount := 0;
     for i := 0 to AValue.Count - 1 do begin
       VLine := AValue.Item[i];
@@ -708,7 +711,8 @@ end;
 
 constructor TLonLatPathWithSelected.Create(
   const ALine: ILonLatPath;
-  ASelectedPointIndex: Integer);
+  ASelectedPointIndex: Integer
+);
 var
   VSelectedSegmentIndex: Integer;
   VSelectedPointIndex: Integer;

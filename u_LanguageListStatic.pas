@@ -36,7 +36,10 @@ type
     property Count: Integer read GetCount;
 
     function GetCode(AIndex: Integer): string;
-    function FindCode(const ACode: string; out AIndex: Integer): Boolean;
+    function FindCode(
+      const ACode: string;
+      out AIndex: Integer
+    ): Boolean;
   public
     constructor Create(
       AList: TStrings

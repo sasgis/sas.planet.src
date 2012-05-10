@@ -36,7 +36,7 @@ type
   private
     FList: ILanguageListStatic;
     FDefaultLangCode: string;
-    FNames : TStringList;
+    FNames: TStringList;
     procedure LoadLangs;
     procedure SetTranslateIgnore;
   protected
@@ -150,18 +150,19 @@ end;
 
 procedure TLanguageManager.LoadLangs;
 var
-  VCodes : TStringList;
+  VCodes: TStringList;
   VLanguagesEx: TLanguagesEx;
 
-  procedure Add(const AName, ACode : string);
+  procedure Add(const AName, ACode: string);
   begin
     FNames.Add(AName);
     VCodes.Add(ACode);
   end;
+
 var
   VinstalledLanguages: TStringList;
   i: Integer;
-  id : LCID;
+  id: LCID;
   VCurrentCode: string;
   VCurrentIndex: Integer;
 begin
@@ -199,7 +200,7 @@ begin
       VLanguagesEx.Free;
     end;
   finally
-    VCodes.Free;
+VCodes.Free;
   end;
 end;
 
@@ -237,14 +238,14 @@ end;
 procedure TLanguageManager.SetTranslateIgnore;
 begin
   TP_GlobalIgnoreClass(TFont);
-  TP_GlobalIgnoreClassProperty(TAction,'Category');
-  TP_GlobalIgnoreClassProperty(TControl,'HelpKeyword');
-  TP_GlobalIgnoreClassProperty(TWinControl,'ImeName');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'StatusText');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'UserAgent');
-  TP_GlobalIgnoreClassProperty(TEmbeddedWB,'About');
-  TP_GlobalIgnoreClassProperty(TOpenDialog,'DefaultExt');
-  TP_GlobalIgnoreClassProperty(TCustomBitmap32,'ResamplerClassName');
+  TP_GlobalIgnoreClassProperty(TAction, 'Category');
+  TP_GlobalIgnoreClassProperty(TControl, 'HelpKeyword');
+  TP_GlobalIgnoreClassProperty(TWinControl, 'ImeName');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'UserAgent');
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'About');
+  TP_GlobalIgnoreClassProperty(TOpenDialog, 'DefaultExt');
+  TP_GlobalIgnoreClassProperty(TCustomBitmap32, 'ResamplerClassName');
 
 end;
 

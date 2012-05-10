@@ -147,7 +147,10 @@ begin
   end;
 end;
 
-constructor TLonLatPathLine.Create(const APoints: PDoublePointArray; ACount: Integer);
+constructor TLonLatPathLine.Create(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+);
 begin
   inherited Create(False, APoints, ACount);
 end;

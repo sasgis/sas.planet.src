@@ -61,8 +61,10 @@ begin
   inherited;
 end;
 
-procedure TLonLatRectUpdateNotifier.Add(const AListener: IJclListener;
-  const ARect: TDoubleRect);
+procedure TLonLatRectUpdateNotifier.Add(
+  const AListener: IJclListener;
+  const ARect: TDoubleRect
+);
 var
   i: Integer;
   VIndex: Integer;

@@ -115,8 +115,7 @@ begin
   VLocalSizeSource := ASourceConverter.GetLocalRectSize;
   VLocalSizeTarget := ATargetConverter.GetLocalRectSize;
   if (VLocalSizeSource.X = VLocalSizeTarget.X) and
-    (VLocalSizeSource.Y = VLocalSizeTarget.Y)
-  then begin
+    (VLocalSizeSource.Y = VLocalSizeTarget.Y) then begin
     VCounterContext := FMoveImageCreateCounter.StartOperation;
     try
       VMapCenterSource := PointFromDoublePoint(ASourceConverter.GetCenterMapPixelFloat, prToTopLeft);
@@ -220,13 +219,11 @@ var
   VZoomTarget: Byte;
   VLocalSizeSource: TPoint;
 begin
-  if
-    (ATargetConverter = nil) or
+  if (ATargetConverter = nil) or
     (ASourceConverter = nil) or
     (ASourceBitmap = nil) or
     ASourceBitmap.Empty or
-    ASourceConverter.GetIsSameConverter(ATargetConverter)
-  then begin
+    ASourceConverter.GetIsSameConverter(ATargetConverter) then begin
     Result := nil;
     Exit;
   end;
@@ -244,8 +241,7 @@ begin
 
   VLocalSizeSource := ASourceConverter.GetLocalRectSize;
   if (VLocalSizeSource.X <> ASourceBitmap.Width) or
-    (VLocalSizeSource.Y <> ASourceBitmap.Height)
-  then begin
+    (VLocalSizeSource.Y <> ASourceBitmap.Height) then begin
     Result := FSimpleClearStrategy;
     Exit;
   end;
@@ -254,8 +250,7 @@ begin
   VZoomTarget := ATargetConverter.GetZoom;
 
   if (VZoomSource + 1 < VZoomTarget) or
-    (VZoomSource > VZoomTarget + 1)
-  then begin
+    (VZoomSource > VZoomTarget + 1) then begin
     Result := FSimpleClearStrategy;
     Exit;
   end;

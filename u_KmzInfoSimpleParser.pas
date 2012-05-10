@@ -36,8 +36,14 @@ type
   private
     FLoadKmzStreamCounter: IInternalPerformanceCounter;
   protected
-    function LoadFromStream(AStream: TStream; const AFactory: IVectorDataFactory): IVectorDataItemList; override;
-    function Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList; override;
+    function LoadFromStream(
+      AStream: TStream;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList; override;
+    function Load(
+      const AData: IBinaryData;
+      const AFactory: IVectorDataFactory
+    ): IVectorDataItemList; override;
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;
@@ -66,7 +72,10 @@ begin
   FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
 end;
 
-function TKmzInfoSimpleParser.Load(const AData: IBinaryData; const AFactory: IVectorDataFactory): IVectorDataItemList;
+function TKmzInfoSimpleParser.Load(
+  const AData: IBinaryData;
+  const AFactory: IVectorDataFactory
+): IVectorDataItemList;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -106,7 +115,7 @@ begin
             VIndex := UnZip.Entries.IndexOf('doc.kml');
             if VIndex < 0 then begin
               for i := 0 to UnZip.Entries.Count - 1 do begin
-                if ExtractFileExt(UnZip.Entries.Items[i].FileName) =  '.kml' then begin
+                if ExtractFileExt(UnZip.Entries.Items[i].FileName) = '.kml' then begin
                   VIndex := i;
                   Break;
                 end;

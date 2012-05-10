@@ -45,7 +45,10 @@ type
   private
     function GetZoom: Byte;
     function GetPolygon: ILonLatPolygon;
-    procedure SetPolygon(const ALonLatPolygon: ILonLatPolygon; AZoom: Byte);
+    procedure SetPolygon(
+      const ALonLatPolygon: ILonLatPolygon;
+      AZoom: Byte
+    );
   public
     constructor Create(const AVectorItmesFactory: IVectorItmesFactory);
   end;
@@ -79,10 +82,10 @@ begin
   inherited;
   if AConfigData <> nil then begin
     VPolygon := TDoublePointsAggregator.Create;
-    i:=1;
+    i := 1;
     repeat
-      VPoint.X := AConfigData.ReadFloat('PointX_'+inttostr(i), 1000000);
-      VPoint.Y := AConfigData.ReadFloat('PointY_'+inttostr(i), 1000000);
+      VPoint.X := AConfigData.ReadFloat('PointX_' + inttostr(i), 1000000);
+      VPoint.Y := AConfigData.ReadFloat('PointY_' + inttostr(i), 1000000);
       VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
       if VValidPoint then begin
         VPolygon.Add(VPoint);
@@ -111,8 +114,8 @@ begin
     VEnum := FPolygon.GetEnum;
     i := 1;
     while VEnum.Next(VPoint) do begin
-      AConfigData.WriteFloat('PointX_'+inttostr(i), VPoint.X);
-      AConfigData.WriteFloat('PointY_'+inttostr(i), VPoint.Y);
+      AConfigData.WriteFloat('PointX_' + inttostr(i), VPoint.X);
+      AConfigData.WriteFloat('PointY_' + inttostr(i), VPoint.Y);
       Inc(i);
     end;
   end;

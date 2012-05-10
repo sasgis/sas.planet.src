@@ -38,7 +38,10 @@ type
     FList: TWideStringList;
     FLinesSeparator: WideString;
   private
-    procedure WriteText(const AMessage: WideString; ALogLevel: integer); safecall;
+    procedure WriteText(
+      const AMessage: WideString;
+      ALogLevel: integer
+    ); safecall;
   private
     function GetLastMessages(
       AMaxRowsCount: Cardinal;
@@ -46,7 +49,10 @@ type
       out AcntLines: Cardinal
     ): WideString; safecall;
   public
-    constructor Create(AMaxLinesCount: Cardinal; AMinLogLevel: Integer);
+    constructor Create(
+      AMaxLinesCount: Cardinal;
+      AMinLogLevel: Integer
+    );
     destructor Destroy; override;
   end;
 
@@ -57,7 +63,10 @@ uses
 
 { TLogForTaskThread }
 
-constructor TLogForTaskThread.Create(AMaxLinesCount: Cardinal; AMinLogLevel: Integer);
+constructor TLogForTaskThread.Create(
+  AMaxLinesCount: Cardinal;
+  AMinLogLevel: Integer
+);
 var
   i: Integer;
 begin
@@ -75,13 +84,16 @@ end;
 
 destructor TLogForTaskThread.Destroy;
 begin
-  FLock:=nil;
+  FLock := nil;
   FreeAndNil(FList);
   inherited;
 end;
 
-function TLogForTaskThread.GetLastMessages(AMaxRowsCount: Cardinal;
-  var ALastId: Cardinal; out AcntLines: Cardinal): WideString;
+function TLogForTaskThread.GetLastMessages(
+  AMaxRowsCount: Cardinal;
+  var ALastId: Cardinal;
+  out AcntLines: Cardinal
+): WideString;
 var
   VNewRowsCount: Cardinal;
   i: Cardinal;

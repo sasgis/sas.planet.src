@@ -54,6 +54,7 @@ type
   public
     constructor Create;
   end;
+
 implementation
 
 uses

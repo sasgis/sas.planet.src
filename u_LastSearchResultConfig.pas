@@ -34,14 +34,14 @@ type
     FGeoCodeResult: IGeoCodeResult;
   protected
     function GetIsActive: Boolean;
-    function GetGeoCodeResult:IGeoCodeResult;
+    function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);
     procedure ClearGeoCodeResult;
   end;
 
 implementation
 
-function TLastSearchResultConfig.GetGeoCodeResult:IGeoCodeResult;
+function TLastSearchResultConfig.GetGeoCodeResult: IGeoCodeResult;
 begin
   LockRead;
   try
@@ -67,7 +67,7 @@ begin
   try
     if FGeoCodeResult <> AValue then begin
       FIsActive := True;
-      FGeoCodeResult:=AValue;
+      FGeoCodeResult := AValue;
       SetChanged;
     end;
   finally
@@ -80,7 +80,7 @@ begin
   LockWrite;
   try
     FIsActive := false;
-    FGeoCodeResult:=nil;
+    FGeoCodeResult := nil;
     SetChanged;
   finally
     UnlockWrite;
