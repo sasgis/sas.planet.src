@@ -60,9 +60,9 @@ begin
   FIsShowIconInTray := False;
 
   {$IFDEF DEBUG}
-    FIsShowDebugInfo := True;
+  FIsShowDebugInfo := True;
   {$ELSE}
-    FIsShowDebugInfo := False;
+  FIsShowDebugInfo := False;
   {$ENDIF}
   FIsSendStatistic := True;
 end;

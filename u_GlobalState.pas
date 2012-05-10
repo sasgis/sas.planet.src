@@ -155,7 +155,10 @@ type
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
-    procedure DoException(Sender: TObject; E: Exception);
+    procedure DoException(
+      Sender: TObject;
+      E: Exception
+    );
     {$ENDIF SasDebugWithJcl}
   public
     property MapType: TMapTypesMainList read FMainMapsList;
@@ -235,6 +238,7 @@ uses
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigDataProviderByPathConfig,
+  i_InternalDomainInfoProvider,
   i_TTLCheckNotifier,
   u_TTLCheckNotifier,
   i_FileNameIterator,
@@ -310,6 +314,7 @@ var
   VCoordConverterFactorySimple: TCoordConverterFactorySimple;
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
+  VInternalDomainInfoProvider: IInternalDomainInfoProvider;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -496,12 +501,15 @@ begin
     CZmpInfoInternalDomain,
     TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
   );
-  VInternalDomainInfoProviderList.Add(
-    CMediaDataInternalDomain,
+
+  VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByDataProvider.Create(
       TConfigDataProviderByPathConfig.Create(FMediaDataPath),
       FContentTypeManager
-    )
+    );
+  VInternalDomainInfoProviderList.Add(
+    CMediaDataInternalDomain,
+    VInternalDomainInfoProvider
   );
 
 
@@ -561,7 +569,10 @@ begin
 end;
 
 {$IFDEF SasDebugWithJcl}
-procedure TGlobalState.DoException(Sender: TObject; E: Exception);
+procedure TGlobalState.DoException(
+  Sender: TObject;
+  E: Exception
+);
 var
   VStr: TStringList;
 begin
@@ -575,6 +586,7 @@ begin
     FreeAndNil(VStr);
   end;
 end;
+
 {$ENDIF SasDebugWithJcl}
 
 procedure TGlobalState.StartExceptionTracking;
@@ -633,17 +645,19 @@ begin
     FInvisibleBrowser,
     VLocalMapsConfig
   );
-  FMainFormConfig := TMainFormConfig.Create(
-    FLocalConverterFactory,
-    FContentTypeManager,
-    FGeoCoderList,
-    FMainMapsList.MapsSet,
-    FMainMapsList.LayersSet,
-    FMainMapsList.FirstMainMapGUID,
-    FPerfCounterList.CreateAndAddNewSubList('ViewState')
-  );
+  FMainFormConfig :=
+    TMainFormConfig.Create(
+      FLocalConverterFactory,
+      FContentTypeManager,
+      FGeoCoderList,
+      FMainMapsList.MapsSet,
+      FMainMapsList.LayersSet,
+      FMainMapsList.FirstMainMapGUID,
+      FPerfCounterList.CreateAndAddNewSubList('ViewState')
+    );
 
-  FSensorList := TSensorListStuped.Create(
+  FSensorList :=
+    TSensorListStuped.Create(
       FLanguageManager,
       FMainFormConfig.ViewPortState,
       FMainFormConfig.NavToPoint,
@@ -683,8 +697,9 @@ var
   VLocalMapsConfig: IConfigDataWriteProvider;
   VMapsPath: String;
 begin
-  if ModuleIsLib then
+  if ModuleIsLib then begin
     Exit;
+  end;
   VMapsPath := IncludeTrailingPathDelimiter(FMapsPath.FullPath);
   Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);

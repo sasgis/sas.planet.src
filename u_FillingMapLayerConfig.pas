@@ -118,7 +118,7 @@ begin
   FTNEColor := SetAlpha(clRed32, 110);
   FFillMode := fmUnexisting;
   FFilterMode := False;
-  FFillFirstDay := EncodeDate(2000,1,1);
+  FFillFirstDay := EncodeDate(2000, 1, 1);
   FFillLastDay := DateOf(Now);
   FSourceMap := TFillingMapMapsConfig.Create(AMapsConfig);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);

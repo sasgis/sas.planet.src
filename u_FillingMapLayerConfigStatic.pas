@@ -161,7 +161,7 @@ end;
 
 function TFillingMapLayerConfigStatic.GetZoom: Byte;
 begin
-  Result := FZoom
+  Result := FZoom;
 end;
 
 function TFillingMapLayerConfigStatic.GetTNEColor: TColor32;

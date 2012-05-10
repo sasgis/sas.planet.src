@@ -30,12 +30,13 @@ type
   TGeoCoderListSimple = class(TGeoCoderListBase)
   public
     constructor Create(const AProxy: IProxySettings);
-  end;                       
+  end;
 
 implementation
 
 uses
   c_GeoCoderGUIDSimple,
+  i_GeoCoderList,
   u_GeoCoderListEntity,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
@@ -49,64 +50,73 @@ uses
 { TGeoCoderListSimple }
 
 constructor TGeoCoderListSimple.Create(const AProxy: IProxySettings);
+var
+  VItem: IGeoCoderListEntity;
 begin
   inherited Create;
-  Add(
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderGoogleGUID,
       'Google',
       TGeoCoderByGoogle.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderYandexGUID,
       'Yandex',
       TGeoCoderByYandex.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoder2GISGUID,
       '2GIS',
       TGeoCoderBy2GIS.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderOSMGUID,
       'OSM',
       TGeoCoderByOSM.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderWikiMapiaGUID,
       'WikiMapia',
       TGeoCoderByWikiMapia.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
       TGeoCoderByRosreestr.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderNavitelGUID,
       'Navitel',
       TGeoCoderByNavitel.Create(AProxy)
-    )
-  );
-  Add(
+    );
+  Add(VItem);
+
+  VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'Link and URL',
       TGeoCoderByURL.Create(AProxy)
-    )
-  );
+    );
+  Add(VItem);
 
 
 end;

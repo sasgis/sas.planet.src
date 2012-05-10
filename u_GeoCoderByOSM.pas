@@ -36,7 +36,10 @@ type
   TGeoCoderByOSM = class(TGeoCoderBasic)
   protected
     function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
+    function ParseStringToPlacemarksList(
+      const AStr: string;
+      const ASearch: WideString
+    ): IInterfaceList; override;
   public
   end;
 
@@ -55,78 +58,80 @@ uses
 { TGeoCoderByOSM }
 
 function TGeoCoderByOSM.ParseStringToPlacemarksList(
-  const AStr: string; const ASearch: WideString): IInterfaceList;
+  const AStr: string;
+  const ASearch: WideString
+): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc, osm_type, osm_id: string;
-  i, j , k: integer;
+  i, j, k: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
 begin
-  sfulldesc:='';
-  sdesc:='';
+  sfulldesc := '';
+  sdesc := '';
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  i:=PosEx('<searchresults', AStr);
+  i := PosEx('<searchresults', AStr);
 
-  while (PosEx('<place', AStr, i) > i)and(i>0) do begin
+  while (PosEx('<place', AStr, i) > i) and (i > 0) do begin
     j := i;
 
     i := PosEx('osm_type=''', AStr, j);
-    j := PosEx('''', AStr, i + 10 );
+    j := PosEx('''', AStr, i + 10);
     osm_type := Copy(AStr, i + 10, j - (i + 10));
 
     i := PosEx('osm_id=''', AStr, j);
-    j := PosEx('''', AStr, i + 8 );
+    j := PosEx('''', AStr, i + 8);
     osm_id := Copy(AStr, i + 8, j - (i + 8));
 
     i := PosEx('lat=''', AStr, j);
-    j := PosEx('''', AStr, i + 5 );
+    j := PosEx('''', AStr, i + 5);
     slat := Copy(AStr, i + 5, j - (i + 5));
 
     i := PosEx('lon=''', AStr, j);
-    j := PosEx('''', AStr, i + 5 );
+    j := PosEx('''', AStr, i + 5);
     slon := Copy(AStr, i + 5, j - (i + 5));
 
     i := PosEx('display_name=''', AStr, j);
     j := PosEx('''', AStr, i + 14);
-    sname:= Utf8ToAnsi(Copy(AStr, i + 14, j - (i + 14)));
+    sname := Utf8ToAnsi(Copy(AStr, i + 14, j - (i + 14)));
 
     i := PosEx('class=''', AStr, j);
-    if i>j then begin
+    if i > j then begin
       j := PosEx('''', AStr, i + 7);
-      sdesc:=Utf8ToAnsi(Copy(AStr, i + 7, j - (i + 7)));
+      sdesc := Utf8ToAnsi(Copy(AStr, i + 7, j - (i + 7)));
     end;
 
     i := PosEx('type=''', AStr, j);
-    if i>j then begin
+    if i > j then begin
       j := PosEx('''', AStr, i + 6);
-      sdesc:=sdesc+'='+Utf8ToAnsi(Copy(AStr, i + 6, j - (i + 6)));
+      sdesc := sdesc + '=' + Utf8ToAnsi(Copy(AStr, i + 6, j - (i + 6)));
     end;
 
     // финт ушам, дабы не занимать много места
     // будем разбивать "Кураж, 84, Вокзальная улица, Магнитогорск, Челябинская область, Уральский федеральный округ, 455000, Российская Федерация"
     // до первой запятой, остальное пихать в переменную sdesc
-    k:=posEx(',',sname,1);
-    sdesc:=sdesc+(copy(sname,k,length(sname)-k+1));
-    sname:=(copy(sname,1,k-1));
+    k := posEx(',', sname, 1);
+    sdesc := sdesc + (copy(sname, k, length(sname) - k + 1));
+    sname := (copy(sname, 1, k - 1));
     // конец финта ушами
 
 
-    sfulldesc:='http://www.openstreetmap.org/browse/'+osm_type+'/'+osm_id;
+    sfulldesc := 'http://www.openstreetmap.org/browse/' + osm_type + '/' + osm_id;
 
-//    Получение ссылки на иконку объекта, (на будущее), дабы обозначать найденные объекты...
-//    k := PosEx('icon=''', AStr, i);
-//    j := PosEx('><', AStr, i); // бывает что нету иконки тут проверяем на конец блока
-//    if k<j then begin
-//      j := PosEx('''', AStr, k + 6);
-//      sfulldesc:='<img src='''+Copy(AStr, k + 6, j - (k + 6))+'''>';
-//    end else sfulldesc:='';
+    //    Получение ссылки на иконку объекта, (на будущее), дабы обозначать найденные объекты...
+    //    k := PosEx('icon=''', AStr, i);
+    //    j := PosEx('><', AStr, i); // бывает что нету иконки тут проверяем на конец блока
+    //    if k<j then begin
+    //      j := PosEx('''', AStr, k + 6);
+    //      sfulldesc:='<img src='''+Copy(AStr, k + 6, j - (k + 6))+'''>';
+    //    end else sfulldesc:='';
 
     try
       VPoint.Y := StrToFloat(slat, VFormatSettings);
@@ -150,14 +155,14 @@ var
 begin
 
   VSearch := ASearch;
-  VConverter:=FLocalConverter.GetGeoConverter;
+  VConverter := FLocalConverter.GetGeoConverter;
   VZoom := FLocalConverter.GetZoom;
   VMapRect := FLocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   //http://nominatim.openstreetmap.org/search?q=%D0%A2%D1%8E%D0%BC%D0%B5%D0%BD%D1%8C&format=xml
-  Result := 'http://nominatim.openstreetmap.org/search?q='+URLEncode(AnsiToUtf8(VSearch))+'&format=xml';
+  Result := 'http://nominatim.openstreetmap.org/search?q=' + URLEncode(AnsiToUtf8(VSearch)) + '&format=xml';
 end;
 
 end.

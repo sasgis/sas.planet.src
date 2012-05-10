@@ -39,10 +39,10 @@ uses
 type
   TExportMarks2KML = class
   private
-    kmldoc:TXMLDocument;
-    filename:string;
-    inKMZ:boolean;
-    doc:iXMLNode;
+    kmldoc: TXMLDocument;
+    filename: string;
+    inKMZ: boolean;
+    doc: iXMLNode;
     Zip: TKaZip;
     procedure AddFolders(
       const AMarksSet: IMarksSubset;
@@ -52,14 +52,17 @@ type
       const AParentNode: IXMLNode;
       const ACategoryNamePostfix: string;
       const AMarksSubset: IMarksSubset
-    ):boolean;
+    ): boolean;
     function AddMarks(
       const AMarksSubset: IMarksSubset;
-      const inNode:iXMLNode
+      const inNode: iXMLNode
     ): Boolean;
-    procedure AddMark(const Mark:IMark; const inNode:iXMLNode);
-    function SaveMarkIcon(const Mark:IMarkPoint): string;
-    function Color32toKMLColor(Color32:TColor32):string;
+    procedure AddMark(
+      const Mark: IMark;
+      const inNode: iXMLNode
+    );
+    function SaveMarkIcon(const Mark: IMarkPoint): string;
+    function Color32toKMLColor(Color32: TColor32): string;
   public
     constructor Create;
     destructor Destroy; override;
@@ -88,17 +91,18 @@ uses
   u_StreamReadOnlyByBinaryData;
 
 constructor TExportMarks2KML.Create;
-var child:iXMLNode;
+var
+  child: iXMLNode;
 begin
   inherited Create;
-  kmldoc:=TXMLDocument.Create(Application);
-  kmldoc.Options:=kmldoc.Options + [doNodeAutoIndent];
-  kmldoc.Active:=true;
-  kmldoc.Version:='1.0';
-  kmldoc.Encoding:='UTF-8';
-  child:=kmldoc.AddChild('kml');
-  child.Attributes['xmlns']:='http://earth.google.com/kml/2.2';
-  doc:=child.AddChild('Document');
+  kmldoc := TXMLDocument.Create(Application);
+  kmldoc.Options := kmldoc.Options + [doNodeAutoIndent];
+  kmldoc.Active := true;
+  kmldoc.Version := '1.0';
+  kmldoc.Encoding := 'UTF-8';
+  child := kmldoc.AddChild('kml');
+  child.Attributes['xmlns'] := 'http://earth.google.com/kml/2.2';
+  doc := child.AddChild('Document');
   Zip := TKaZip.Create(nil);
 end;
 
@@ -117,21 +121,21 @@ procedure TExportMarks2KML.ExportToKML(
   const AFileName: string
 );
 var
-  KMLStream:TMemoryStream;
+  KMLStream: TMemoryStream;
 begin
-  filename:=Afilename;
-  inKMZ:=ExtractFileExt(filename)='.kmz';
+  filename := Afilename;
+  inKMZ := ExtractFileExt(filename) = '.kmz';
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
     AddFolders(AMarksSubset, ACategoryList);
-    KMLStream:=TMemoryStream.Create;
+    KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
-      KMLStream.Position:=0;
-      Zip.AddStream('doc.kml',KMLStream);
+      KMLStream.Position := 0;
+      Zip.AddStream('doc.kml', KMLStream);
     finally
       KMLStream.Free;
     end;
@@ -147,21 +151,21 @@ procedure TExportMarks2KML.ExportCategoryToKML(
   const AFileName: string
 );
 var
-  KMLStream:TMemoryStream;
+  KMLStream: TMemoryStream;
 begin
-  filename:=Afilename;
-  inKMZ:=ExtractFileExt(filename)='.kmz';
+  filename := Afilename;
+  inKMZ := ExtractFileExt(filename) = '.kmz';
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
     AddFolder(doc, ACategory.name, AMarksSubset);
-    KMLStream:=TMemoryStream.Create;
+    KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
-      KMLStream.Position:=0;
-      Zip.AddStream('doc.kml',KMLStream);
+      KMLStream.Position := 0;
+      Zip.AddStream('doc.kml', KMLStream);
     finally
       KMLStream.Free;
     end;
@@ -176,26 +180,26 @@ procedure TExportMarks2KML.ExportMarkToKML(
   const AFileName: string
 );
 var
-  KMLStream:TMemoryStream;
+  KMLStream: TMemoryStream;
 begin
-  filename:=Afilename;
-  inKMZ:=ExtractFileExt(filename)='.kmz';
+  filename := Afilename;
+  inKMZ := ExtractFileExt(filename) = '.kmz';
   if inKMZ then begin
     Zip.FileName := filename;
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
-    AddMark(Mark,doc);
-    KMLStream:=TMemoryStream.Create;
+    AddMark(Mark, doc);
+    KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
-      KMLStream.Position:=0;
-      Zip.AddStream('doc.kml',KMLStream);
+      KMLStream.Position := 0;
+      Zip.AddStream('doc.kml', KMLStream);
     finally
       KMLStream.Free;
     end;
   end else begin
-    AddMark(Mark,doc);
+    AddMark(Mark, doc);
     kmldoc.SaveToFile(FileName);
   end;
 end;
@@ -221,16 +225,19 @@ function TExportMarks2KML.AddFolder(
   const ACategoryNamePostfix: string;
   const AMarksSubset: IMarksSubset
 ): boolean;
-  function FindNodeWithText(AParent: iXMLNode; const ACategoryNameElement: string): IXMLNode;
+  function FindNodeWithText(
+    AParent: iXMLNode;
+  const ACategoryNameElement: string
+  ): IXMLNode;
   var
     i: Integer;
     tmpNode: IXMLNode;
   begin
     Result := nil;
     if AParent.HasChildNodes then begin
-      for i:=0 to AParent.ChildNodes.Count-1 do begin
-        tmpNode :=AParent.ChildNodes.Get(i);
-        if (tmpNode.NodeName='Folder')and(tmpNode.ChildValues['name'] = ACategoryNameElement) then begin
+      for i := 0 to AParent.ChildNodes.Count - 1 do begin
+        tmpNode := AParent.ChildNodes.Get(i);
+        if (tmpNode.NodeName = 'Folder') and (tmpNode.ChildValues['name'] = ACategoryNameElement) then begin
           Result := tmpNode;
           break;
         end;
@@ -245,15 +252,15 @@ var
   VNode: IXMLNode;
   VCreatedNode: Boolean;
 begin
-  if ACategoryNamePostfix='' then begin
+  if ACategoryNamePostfix = '' then begin
     Result := AddMarks(AMarksSubset, AParentNode);
   end else begin
-    VDelimiterPos:=Pos('\', ACategoryNamePostfix);
+    VDelimiterPos := Pos('\', ACategoryNamePostfix);
     if VDelimiterPos > 0 then begin
       VCatgoryNamePrefix := Copy(ACategoryNamePostfix, 1, VDelimiterPos - 1);
-      VCatgoryNamePostfix := Copy(ACategoryNamePostfix, VDelimiterPos + 1, Length(ACategoryNamePostfix))
+      VCatgoryNamePostfix := Copy(ACategoryNamePostfix, VDelimiterPos + 1, Length(ACategoryNamePostfix));
     end else begin
-      VCatgoryNamePrefix:=ACategoryNamePostfix;
+      VCatgoryNamePrefix := ACategoryNamePostfix;
       VCatgoryNamePostfix := '';
     end;
     VCreatedNode := False;
@@ -263,11 +270,11 @@ begin
       VNode := FindNodeWithText(AParentNode, VCatgoryNamePrefix);
       if (VNode = nil) then begin
         VNode := AParentNode.AddChild('Folder');
-        VNode.ChildValues['name']:=VCatgoryNamePrefix;
-        VNode.ChildValues['open']:=1;
+        VNode.ChildValues['name'] := VCatgoryNamePrefix;
+        VNode.ChildValues['open'] := 1;
         with VNode.AddChild('Style').AddChild('ListStyle') do begin
-          ChildValues['listItemType']:='check';
-          ChildValues['bgColor']:='00ffffff';
+          ChildValues['listItemType'] := 'check';
+          ChildValues['bgColor'] := '00ffffff';
         end;
         VCreatedNode := True;
       end;
@@ -280,27 +287,30 @@ begin
 end;
 
 function TExportMarks2KML.AddMarks(
-  const AMarksSubset:IMarksSubset;
-  const inNode:iXMLNode
+  const AMarksSubset: IMarksSubset;
+  const inNode: iXMLNode
 ): Boolean;
 var
-  VMark:IMark;
-  VEnumMarks:IEnumUnknown;
-  i:integer;
+  VMark: IMark;
+  VEnumMarks: IEnumUnknown;
+  i: integer;
 begin
   Result := False;
   VEnumMarks := AMarksSubset.GetEnum;
   while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-    AddMark(VMark,inNode);
+    AddMark(VMark, inNode);
     Result := True;
   end;
 end;
 
-procedure TExportMarks2KML.AddMark(const Mark: IMark; const inNode: iXMLNode);
+procedure TExportMarks2KML.AddMark(
+  const Mark: IMark;
+  const inNode: iXMLNode
+);
 var
-  width:integer;
-  currNode:IXMLNode;
-  coordinates:string;
+  width: integer;
+  currNode: IXMLNode;
+  coordinates: string;
   VFileName: string;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
@@ -308,82 +318,82 @@ var
   VEnum: IEnumLonLatPoint;
   VLonLat: TDoublePoint;
 begin
-  currNode:=inNode.AddChild('Placemark');
-  currNode.ChildValues['name']:=Mark.name;
-  currNode.ChildValues['description']:=Mark.Desc;
+  currNode := inNode.AddChild('Placemark');
+  currNode.ChildValues['name'] := Mark.name;
+  currNode.ChildValues['description'] := Mark.Desc;
   if Supports(Mark, IMarkPoint, VMarkPoint) then begin
     with currNode.AddChild('Style') do begin
       with AddChild('LabelStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkPoint.TextColor);
-        ChildValues['scale']:=R2StrPoint(VMarkPoint.FontSize/14);
+        ChildValues['color'] := Color32toKMLColor(VMarkPoint.TextColor);
+        ChildValues['scale'] := R2StrPoint(VMarkPoint.FontSize / 14);
       end;
       if VMarkPoint.Pic <> nil then begin
         with AddChild('IconStyle') do begin
           VFileName := SaveMarkIcon(VMarkPoint);
-          width:=VMarkPoint.Pic.GetMarker.BitmapSize.X;
-          ChildValues['scale']:=R2StrPoint(VMarkPoint.MarkerSize/width);
+          width := VMarkPoint.Pic.GetMarker.BitmapSize.X;
+          ChildValues['scale'] := R2StrPoint(VMarkPoint.MarkerSize / width);
           with AddChild('Icon') do begin
-            ChildValues['href']:=VFileName;
+            ChildValues['href'] := VFileName;
           end;
           with AddChild('hotSpot') do begin
-            Attributes['x']:='0.5';
-            Attributes['y']:=0;
-            Attributes['xunits']:='fraction';
-            Attributes['yunits']:='fraction';
+            Attributes['x'] := '0.5';
+            Attributes['y'] := 0;
+            Attributes['xunits'] := 'fraction';
+            Attributes['yunits'] := 'fraction';
           end;
         end;
       end;
     end;
-    currNode:=currNode.AddChild('Point');
-    currNode.ChildValues['extrude']:=1;
-    coordinates:=coordinates+R2StrPoint(VMarkPoint.Point.X)+','+R2StrPoint(VMarkPoint.Point.Y)+',0 ';
-    currNode.ChildValues['coordinates']:=coordinates;
+    currNode := currNode.AddChild('Point');
+    currNode.ChildValues['extrude'] := 1;
+    coordinates := coordinates + R2StrPoint(VMarkPoint.Point.X) + ',' + R2StrPoint(VMarkPoint.Point.Y) + ',0 ';
+    currNode.ChildValues['coordinates'] := coordinates;
   end else if Supports(Mark, IMarkLine, VMarkLine) then begin
     with currNode.AddChild('Style') do begin
       with AddChild('LineStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkLine.LineColor);
-        ChildValues['width']:=R2StrPoint(VMarkLine.LineWidth);
+        ChildValues['color'] := Color32toKMLColor(VMarkLine.LineColor);
+        ChildValues['width'] := R2StrPoint(VMarkLine.LineWidth);
       end;
     end;
-    currNode:=currNode.AddChild('LineString');
-    currNode.ChildValues['extrude']:=1;
-    coordinates:='';
+    currNode := currNode.AddChild('LineString');
+    currNode.ChildValues['extrude'] := 1;
+    coordinates := '';
     VEnum := VMarkLine.Line.GetEnum;
     while VEnum.Next(VLonLat) do begin
-      coordinates:=coordinates+R2StrPoint(VLonLat.X)+','+R2StrPoint(VLonLat.Y)+',0 ';
+      coordinates := coordinates + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ',0 ';
     end;
-    currNode.ChildValues['coordinates']:=coordinates;
+    currNode.ChildValues['coordinates'] := coordinates;
   end else if Supports(Mark, IMarkPoly, VMarkPoly) then begin
     with currNode.AddChild('Style') do begin
       with AddChild('LineStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkPoly.BorderColor);
-        ChildValues['width']:=R2StrPoint(VMarkPoly.LineWidth);
+        ChildValues['color'] := Color32toKMLColor(VMarkPoly.BorderColor);
+        ChildValues['width'] := R2StrPoint(VMarkPoly.LineWidth);
       end;
       with AddChild('PolyStyle') do begin
-        ChildValues['color']:=Color32toKMLColor(VMarkPoly.FillColor);
-        ChildValues['fill']:=1;
+        ChildValues['color'] := Color32toKMLColor(VMarkPoly.FillColor);
+        ChildValues['fill'] := 1;
       end;
     end;
-    currNode:=currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-    currNode.ChildValues['extrude']:=1;
-    coordinates:='';
+    currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
+    currNode.ChildValues['extrude'] := 1;
+    coordinates := '';
     VEnum := VMarkPoly.Line.GetEnum;
     while VEnum.Next(VLonLat) do begin
-      coordinates:=coordinates+R2StrPoint(VLonLat.X)+','+R2StrPoint(VLonLat.Y)+',0 ';
+      coordinates := coordinates + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ',0 ';
     end;
-    currNode.ChildValues['coordinates']:=coordinates;
+    currNode.ChildValues['coordinates'] := coordinates;
   end;
 end;
 
-function TExportMarks2KML.Color32toKMLColor(Color32:TColor32):string;
+function TExportMarks2KML.Color32toKMLColor(Color32: TColor32): string;
 begin
-  result:=IntToHex(AlphaComponent(Color32),2)+
-          IntToHex(BlueComponent(Color32),2)+
-          IntToHex(GreenComponent(Color32),2)+
-          IntToHex(RedComponent(Color32),2);
+  result := IntToHex(AlphaComponent(Color32), 2) +
+    IntToHex(BlueComponent(Color32), 2) +
+    IntToHex(GreenComponent(Color32), 2) +
+    IntToHex(RedComponent(Color32), 2);
 end;
 
-function TExportMarks2KML.SaveMarkIcon(const Mark:IMarkPoint): string;
+function TExportMarks2KML.SaveMarkIcon(const Mark: IMarkPoint): string;
 var
   VTargetPath: string;
   VTargetFullName: string;
@@ -399,7 +409,7 @@ begin
       try
         VPicName := Mark.Pic.GetName;
         VTargetPath := 'files' + PathDelim;
-        Result := VTargetPath  + VPicName;
+        Result := VTargetPath + VPicName;
         if inKMZ then begin
           Zip.AddStream(Result, VStream);
         end else begin
@@ -416,4 +426,3 @@ begin
 end;
 
 end.
-

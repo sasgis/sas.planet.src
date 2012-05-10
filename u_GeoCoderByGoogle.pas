@@ -35,7 +35,10 @@ type
   TGeoCoderByGoogle = class(TGeoCoderBasic)
   protected
     function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
+    function ParseStringToPlacemarksList(
+      const AStr: string;
+      const ASearch: WideString
+    ): IInterfaceList; override;
   public
   end;
 
@@ -51,46 +54,48 @@ uses
 { TGeoCoderByGoogle }
 
 function TGeoCoderByGoogle.ParseStringToPlacemarksList(
-  const AStr: string; const ASearch: WideString): IInterfaceList;
+  const AStr: string;
+  const ASearch: WideString
+): IInterfaceList;
 var
-  Stream:TMemoryStream;
-  Node:IXMLNode;
-  PlacemarkNode, PointNode, AddressNode:IXMLNode;
-  i:Integer;
-  StringList:TStringList;
+  Stream: TMemoryStream;
+  Node: IXMLNode;
+  PlacemarkNode, PointNode, AddressNode: IXMLNode;
+  i: Integer;
+  StringList: TStringList;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
-  XMLDocument:TXMLDocument;
-  VPointStr:string;
+  XMLDocument: TXMLDocument;
+  VPointStr: string;
 begin
   if AStr = '' then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  Stream:=TMemoryStream.Create;
-  StringList:=TStringList.Create;
-  XMLDocument:=TXMLDocument.Create(application);
+  Stream := TMemoryStream.Create;
+  StringList := TStringList.Create;
+  XMLDocument := TXMLDocument.Create(application);
   try
-    Stream.Write(AStr[1],length(AStr));
+    Stream.Write(AStr[1], length(AStr));
     XMLDocument.LoadFromStream(Stream);
-    Node:=XMLDocument.DocumentElement;
-    Node:=Node.ChildNodes.FindNode('Response');
-    if (Node<>nil) and (Node.ChildNodes.Count>0) then begin
-      for i:=0 to Node.ChildNodes.Count-1 do begin
-        if Node.ChildNodes[i].NodeName='Placemark' then begin
-          PlacemarkNode:=Node.ChildNodes[i];
-          AddressNode:=PlacemarkNode.ChildNodes.FindNode('address');
-          PointNode:=PlacemarkNode.ChildNodes.FindNode('Point');
-          PointNode:=PointNode.ChildNodes.FindNode('coordinates');
-          if (AddressNode<>nil) and (PointNode<>nil) then begin
-            VPointStr:=PointNode.Text;
-            ExtractStrings([','],[],PChar(VPointStr),StringList);
+    Node := XMLDocument.DocumentElement;
+    Node := Node.ChildNodes.FindNode('Response');
+    if (Node <> nil) and (Node.ChildNodes.Count > 0) then begin
+      for i := 0 to Node.ChildNodes.Count - 1 do begin
+        if Node.ChildNodes[i].NodeName = 'Placemark' then begin
+          PlacemarkNode := Node.ChildNodes[i];
+          AddressNode := PlacemarkNode.ChildNodes.FindNode('address');
+          PointNode := PlacemarkNode.ChildNodes.FindNode('Point');
+          PointNode := PointNode.ChildNodes.FindNode('coordinates');
+          if (AddressNode <> nil) and (PointNode <> nil) then begin
+            VPointStr := PointNode.Text;
+            ExtractStrings([','], [], PChar(VPointStr), StringList);
             try
-              VPoint.X:=StrToFloat(StringList[0], VFormatSettings);
-              VPoint.Y:=StrToFloat(StringList[1], VFormatSettings);
+              VPoint.X := StrToFloat(StringList[0], VFormatSettings);
+              VPoint.Y := StrToFloat(StringList[1], VFormatSettings);
             except
               raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [StringList[1], StringList[0]]);
             end;
@@ -124,7 +129,7 @@ begin
       VSearch[i] := '+';
     end;
   end;
-  VConverter:=FLocalConverter.GetGeoConverter;
+  VConverter := FLocalConverter.GetGeoConverter;
   VZoom := FLocalConverter.GetZoom;
   VMapRect := FLocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
@@ -132,9 +137,9 @@ begin
   Result := 'http://maps.google.com/maps/geo?q=' +
     URLEncode(AnsiToUtf8(VSearch)) +
     '&output=xml' + SAS_STR_GoogleSearchLanguage +
-    '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA'+
-    '&ll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
-    '&spn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom);
+    '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA' +
+    '&ll=' + R2StrPoint(FLocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(FLocalConverter.GetCenterLonLat.y) +
+    '&spn=' + R2StrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2StrPoint(VLonLatRect.Top - VLonLatRect.Bottom);
 end;
 
 end.

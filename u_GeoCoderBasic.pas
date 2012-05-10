@@ -39,7 +39,10 @@ type
     function URLEncode(const S: string): string;
     function PrepareURL(const ASearch: WideString): string; virtual; abstract;
     function GetDataFromInet(const ASearch: WideString): string; virtual;
-    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; virtual; abstract;
+    function ParseStringToPlacemarksList(
+      const AStr: string;
+      const ASearch: WideString
+    ): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
       const ACancelNotifier: IOperationNotifier;
@@ -55,7 +58,10 @@ type
   EInternetOpenError = class(Exception)
   public
     ErrorCode: DWORD;
-    constructor Create(Code: DWORD; const Msg: String);
+    constructor Create(
+      Code: DWORD;
+      const Msg: String
+    );
   end;
 
   EProxyAuthError = class(Exception);
@@ -142,7 +148,7 @@ begin
 
       repeat
         err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
-        s := s + copy(Buffer,1,BufferLen);
+        s := s + copy(Buffer, 1, BufferLen);
       until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
     finally
       InternetCloseHandle(hFile);
@@ -167,7 +173,7 @@ var
 begin
   VResultCode := 200;
   VMessage := '';
-  FLocalConverter:=ALocalConverter;
+  FLocalConverter := ALocalConverter;
   try
     if not (ASearch = '') then begin
       VServerResult := GetDataFromInet(ASearch);
@@ -255,7 +261,10 @@ end;
 
 { EInternetOpenError }
 
-constructor EInternetOpenError.Create(Code: DWORD; const Msg: String);
+constructor EInternetOpenError.Create(
+  Code: DWORD;
+  const Msg: String
+);
 begin
   inherited Create(Msg);
   ErrorCode := Code;

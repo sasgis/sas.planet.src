@@ -79,21 +79,21 @@ type
     property BDBCachepath: string read FBDBCachepath write SetBDBCachepath;
     property DBMSCachepath: string read FDBMSCachepath write SetDBMSCachepath;
 
-    property  CacheGlobalPath: string read GetCacheGlobalPath;
+    property CacheGlobalPath: string read GetCacheGlobalPath;
     property CacheChangeNotifier: IJclNotifier read FCacheChangeNotifier;
   end;
 
 const
   c_File_Cache_Id_DEFAULT = 0; // subst only
-  c_File_Cache_Id_GMV    = 1;  // old
-  c_File_Cache_Id_SAS    = 2;  // new
-  c_File_Cache_Id_ES     = 3;
-  c_File_Cache_Id_GM     = 4;
+  c_File_Cache_Id_GMV = 1;  // old
+  c_File_Cache_Id_SAS = 2;  // new
+  c_File_Cache_Id_ES = 3;
+  c_File_Cache_Id_GM = 4;
   c_File_Cache_Id_GM_Aux = 41; // auxillary
-  c_File_Cache_Id_GE     = 5;  // GE cache direct access
-  c_File_Cache_Id_BDB    = 6;
-  c_File_Cache_Id_DBMS   = 7;
-  c_File_Cache_Id_GC     = 8;  // GeoCacher.LOCAL direct access
+  c_File_Cache_Id_GE = 5;  // GE cache direct access
+  c_File_Cache_Id_BDB = 6;
+  c_File_Cache_Id_DBMS = 7;
+  c_File_Cache_Id_GC = 8;  // GeoCacher.LOCAL direct access
 
 implementation
 
@@ -104,7 +104,7 @@ uses
 { TGlobalCahceConfig }
 
 constructor TGlobalCahceConfig.Create(
- const  ACacheGlobalPath: IPathConfig
+  const ACacheGlobalPath: IPathConfig
 );
 begin
   inherited Create;
@@ -187,11 +187,11 @@ end;
 procedure TGlobalCahceConfig.SetDefCache(const Value: byte);
 begin
   if Value in [c_File_Cache_Id_GMV,
-               c_File_Cache_Id_SAS,
-               c_File_Cache_Id_ES,
-               c_File_Cache_Id_GM,
-               c_File_Cache_Id_GM_Aux,
-               c_File_Cache_Id_BDB] then begin
+    c_File_Cache_Id_SAS,
+    c_File_Cache_Id_ES,
+    c_File_Cache_Id_GM,
+    c_File_Cache_Id_GM_Aux,
+    c_File_Cache_Id_BDB] then begin
     if FDefCache <> Value then begin
       FDefCache := Value;
       FCacheChangeNotifier.Notify(nil);

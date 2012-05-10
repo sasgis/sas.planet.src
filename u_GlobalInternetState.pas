@@ -27,7 +27,7 @@ uses
   i_GlobalInternetState;
 
 type
-  TGlobalInternetState = class (TInterfacedObject, IGlobalInternetState)
+  TGlobalInternetState = class(TInterfacedObject, IGlobalInternetState)
   private
     FCS: IReadWriteSync;
     FQueueCount: Integer;
