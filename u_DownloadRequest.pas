@@ -78,7 +78,8 @@ end;
 constructor TDownloadPostRequest.Create(
   const AUrl, ARequestHeader: string;
   const APostData: IBinaryData;
-  const AInetConfig: IInetConfigStatic);
+  const AInetConfig: IInetConfigStatic
+);
 begin
   inherited Create(AUrl, ARequestHeader, AInetConfig);
   FPostData := APostData;

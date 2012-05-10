@@ -40,7 +40,10 @@ type
     FStorage: TTileStorageAbstract;
     FAntiBan: IAntiBan;
     function PrepareOldTileInfo(const ARequest: IDownloadRequest): ITileInfoBasic;
-    function CheckOldTileSize(const ARequest: IDownloadRequest; ANewSize: Cardinal): Boolean;
+    function CheckOldTileSize(
+      const ARequest: IDownloadRequest;
+      ANewSize: Cardinal
+    ): Boolean;
     function IsNeedCheckTileSize(const ARequest: IDownloadRequest): Boolean;
   protected
     function BeforeRequest(

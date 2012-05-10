@@ -37,7 +37,10 @@ type
     FEPSG53004: ICoordConverter;
   private
     function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
-    function GetCoordConverterByCode(AProjectionEPSG: Integer; ATileSplitCode: Integer): ICoordConverter;
+    function GetCoordConverterByCode(
+      AProjectionEPSG: Integer;
+      ATileSplitCode: Integer
+    ): ICoordConverter;
   private
     function GetByConverterAndZoom(
       const AGeoConverter: ICoordConverter;
@@ -103,13 +106,14 @@ begin
         Result := FEPSG53004;
       end;
       CYandexProjectionEPSG: begin
-        Result := FYandex
+        Result := FYandex;
       end;
       CGELonLatProjectionEPSG: begin
         Result := FLonLat;
       end;
-      else
-        raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(AProjectionEPSG)]);
+    else begin
+      raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(AProjectionEPSG)]);
+    end;
     end;
   end else begin
     raise Exception.Create('Неизвестный тип разделения карты на тайлы');
@@ -145,7 +149,7 @@ begin
         if Abs(VRadiusA - 6378137) < 1 then begin
           VEPSG := CGoogleProjectionEPSG;
         end else if Abs(VRadiusA - 6371000) < 1 then begin
-          VEPSG := 53004
+          VEPSG := 53004;
         end;
       end;
       2: begin
@@ -157,9 +161,9 @@ begin
         if (Abs(VRadiusA - 6378137) < 1) and (Abs(VRadiusB - 6356752) < 1) then begin
           VEPSG := CGELonLatProjectionEPSG;
         end;
-      end
-      else
-        raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
+      end else begin
+      raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
+    end;
     end;
   end;
 
@@ -173,11 +177,18 @@ begin
 
   if Result = nil then begin
     case VProjection of
-      1: Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
-      2: Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
-      3: Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
-      else
-        raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
+      1: begin
+        Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+      end;
+      2: begin
+        Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+      end;
+      3: begin
+        Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+      end;
+    else begin
+      raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);
+    end;
     end;
   end;
 end;

@@ -14,7 +14,10 @@ type
     FCapacity: Integer;
   private
     procedure Add(const APoint: TDoublePoint);
-    procedure AddPoints(const APoints: PDoublePointArray; ACount: Integer);
+    procedure AddPoints(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    );
     procedure Clear;
 
     function GetCount: Integer;
@@ -49,10 +52,10 @@ begin
   if FCount >= FCapacity then begin
     if FCapacity < 256 then begin
       VSize := 256;
-    end else if FCapacity < 4*1024 then begin
+    end else if FCapacity < 4 * 1024 then begin
       VSize := FCapacity * 2;
     end else begin
-      VSize := FCapacity + 4*1024;
+      VSize := FCapacity + 4 * 1024;
     end;
     SetLength(FPoints, VSize);
     FCapacity := VSize;
@@ -76,10 +79,10 @@ begin
       while VNewCount > VSize do begin
         if VSize < 256 then begin
           VSize := 256;
-        end else if VSize < 4*1024 then begin
+        end else if VSize < 4 * 1024 then begin
           VSize := VSize * 2;
         end else begin
-          VSize := VSize + 4*1024;
+          VSize := VSize + 4 * 1024;
         end;
       end;
       SetLength(FPoints, VSize);

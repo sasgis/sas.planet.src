@@ -58,6 +58,7 @@ type
   public
     constructor Create;
   end;
+
 implementation
 
 uses
@@ -72,7 +73,7 @@ begin
   inherited;
   FUseDownload := tsCacheInternet;
   FTilesOut := 0;
-  FTileMaxAgeInInternet := 1/24/60;
+  FTileMaxAgeInInternet := 1 / 24 / 60;
   FRequestCount := 32;
 
   FThreadConfig := TThreadConfig.Create(tpLowest);
@@ -84,11 +85,18 @@ begin
   inherited;
   if AConfigData <> nil then begin
     case AConfigData.ReadInteger('TileSource', Integer(FUseDownload)) of
-      0: FUseDownload := tsInternet;
-      1: FUseDownload := tsCache;
-      2: FUseDownload := tsCacheInternet;
-    else
+      0: begin
+        FUseDownload := tsInternet;
+      end;
+      1: begin
+        FUseDownload := tsCache;
+      end;
+      2: begin
+        FUseDownload := tsCacheInternet;
+      end;
+    else begin
       FUseDownload := tsCache;
+    end;
     end;
     FTileMaxAgeInInternet := AConfigData.ReadTime('TileMaxAgeInInternet', FTileMaxAgeInInternet);
     FTilesOut := AConfigData.ReadInteger('TilesOut', FTilesOut);
@@ -103,9 +111,15 @@ procedure TDownloadUIConfig.DoWriteConfig(
 begin
   inherited;
   case FUseDownload of
-    tsInternet: AConfigData.WriteInteger('TileSource', 0);
-    tsCache: AConfigData.WriteInteger('TileSource', 1);
-    tsCacheInternet: AConfigData.WriteInteger('TileSource', 2);
+    tsInternet: begin
+      AConfigData.WriteInteger('TileSource', 0);
+    end;
+    tsCache: begin
+      AConfigData.WriteInteger('TileSource', 1);
+    end;
+    tsCacheInternet: begin
+      AConfigData.WriteInteger('TileSource', 2);
+    end;
   end;
   AConfigData.WriteTime('TileMaxAgeInInternet', FTileMaxAgeInInternet);
   AConfigData.WriteInteger('TilesOut', FTilesOut);

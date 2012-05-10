@@ -38,7 +38,10 @@ type
     function GetSize: UInt64;
 
     procedure Reset;
-    procedure Add(ACount: UInt64; ASize: UInt64);
+    procedure Add(
+      ACount: UInt64;
+      ASize: UInt64
+    );
   public
     constructor Create(
       const AParent: IDownloadInfoSimple;

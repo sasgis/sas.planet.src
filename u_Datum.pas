@@ -38,8 +38,11 @@ type
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
-    function SphericalTriangleSquare(points: array of TDoublePoint):Double;
-    function CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
+    function SphericalTriangleSquare(points: array of TDoublePoint): Double;
+    function CalcPoligonArea(
+      const APoints: PDoublePointArray;
+      const ACount: Integer
+    ): Double;
     function CalcDist(const AStart, AFinish: TDoublePoint): Double;
   public
     constructor Create(
@@ -63,7 +66,10 @@ const
 
 { TDatum }
 
-constructor TDatum.Create(AEPSG: Integer; const ARadiusA, ARadiusB: Double);
+constructor TDatum.Create(
+  AEPSG: Integer;
+  const ARadiusA, ARadiusB: Double
+);
 begin
   inherited Create;
   FEPSG := AEPSG;
@@ -72,7 +78,10 @@ begin
   FExct := sqrt(FRadiusA * FRadiusA - FRadiusB * FRadiusB) / FRadiusA;
 end;
 
-constructor TDatum.Create(AEPSG: Integer; const ARadiusA: Double);
+constructor TDatum.Create(
+  AEPSG: Integer;
+  const ARadiusA: Double
+);
 begin
   Create(AEPSG, ARadiusA, ARadiusA);
 end;
@@ -98,8 +107,8 @@ begin
   fdPhi := VStart.Y - VFinish.Y;
   fz := Sqrt(intPower(Sin(fdPhi / 2), 2) + Cos(VFinish.Y) * Cos(VStart.Y) * intPower(Sin(fdLambda / 2), 2));
   fz := 2 * ArcSin(fz);
-  fSinPhimean :=Sin((VStart.Y + VFinish.Y) / 2.0);
-  fTemp := 1 - e2 * (fSinPhimean*fSinPhimean);
+  fSinPhimean := Sin((VStart.Y + VFinish.Y) / 2.0);
+  fTemp := 1 - e2 * (fSinPhimean * fSinPhimean);
   fRho := (a * (1 - e2)) / Power(fTemp, 1.5);
   fNu := a / (Sqrt(1 - e2 * (fSinPhimean * fSinPhimean)));
   fAlpha := Cos(VFinish.Y) * Sin(fdLambda) * 1 / Sin(fz);
@@ -111,142 +120,151 @@ begin
   fAlpha := ArcSin(fAlpha);
   fR := (fRho * fNu) / ((fRho * intPower(Sin(fAlpha), 2)) + (fNu * intPower(Cos(fAlpha), 2)));
 
-  if abs(fdLambda)<=Pi then begin
+  if abs(fdLambda) <= Pi then begin
     result := (fz * fR);
   end else begin
-    result := (Pi * fR)+((Pi * fR)-(fz * fR));
+    result := (Pi * fR) + ((Pi * fR) - (fz * fR));
   end;
 end;
 
-function TDatum.SphericalTriangleSquare(points: array of TDoublePoint):Double;
-var x,y,z:array [0..2] of double;
-    a12,a23,a13,s,eps:double;
-    i:integer;
+function TDatum.SphericalTriangleSquare(points: array of TDoublePoint): Double;
+var
+  x, y, z: array [0..2] of double;
+  a12, a23, a13, s, eps: double;
+  i: integer;
 begin
   for i := 0 to 2 do begin
-    points[i].Y:=Pi/2-points[i].Y*D2R;
-    points[i].X:=Pi+  points[i].X*D2R;
-    x[i]:=Sin(points[i].Y)*Cos(points[i].X);
-    y[i]:=Sin(points[i].Y)*Sin(points[i].X);
-    z[i]:=Cos(points[i].Y);
+    points[i].Y := Pi / 2 - points[i].Y * D2R;
+    points[i].X := Pi + points[i].X * D2R;
+    x[i] := Sin(points[i].Y) * Cos(points[i].X);
+    y[i] := Sin(points[i].Y) * Sin(points[i].X);
+    z[i] := Cos(points[i].Y);
   end;
-  a12:=ArcCos(1-(Sqr(x[0]-x[1])+Sqr(y[0]-y[1])+Sqr(z[0]-z[1]))/2);   //Стороны сферического треугольника
-  a23:=ArcCos(1-(Sqr(x[1]-x[2])+Sqr(y[1]-y[2])+Sqr(z[1]-z[2]))/2);
-  a13:=ArcCos(1-(Sqr(x[0]-x[2])+Sqr(y[0]-y[2])+Sqr(z[0]-z[2]))/2);
-  s:=(a12+a23+a13)/2;
-  s:=Tan(s/2)*Tan((s-a12)/2)*Tan((s-a23)/2)*Tan((s-a13)/2);
-  if s>=0 then begin
-    eps:=4*ArcTan(Sqrt(s))  //сферический эксцесс
+  a12 := ArcCos(1 - (Sqr(x[0] - x[1]) + Sqr(y[0] - y[1]) + Sqr(z[0] - z[1])) / 2);   //Стороны сферического треугольника
+  a23 := ArcCos(1 - (Sqr(x[1] - x[2]) + Sqr(y[1] - y[2]) + Sqr(z[1] - z[2])) / 2);
+  a13 := ArcCos(1 - (Sqr(x[0] - x[2]) + Sqr(y[0] - y[2]) + Sqr(z[0] - z[2])) / 2);
+  s := (a12 + a23 + a13) / 2;
+  s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2);
+  if s >= 0 then begin
+    eps := 4 * ArcTan(Sqrt(s));  //сферический эксцесс
   end else begin
-    eps:=0;
+    eps := 0;
   end;
-  Result:=Sqr(FRadiusA)*eps;  //Площадь
+  Result := Sqr(FRadiusA) * eps;  //Площадь
 end;
 
-function TDatum.CalcPoligonArea(const APoints: PDoublePointArray; const ACount: Integer): Double;
+function TDatum.CalcPoligonArea(
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+): Double;
 
- function sign(Avalue: double):integer;
- begin
-   if AValue < 0 then begin
-     Result := -1
-   end else begin
-     Result := 1;
-   end;
- end;
+  function sign(Avalue: double): integer;
+  begin
+    if AValue < 0 then begin
+      Result := -1;
+    end else begin
+      Result := 1;
+    end;
+  end;
 
- function Orientation(const APoints: PDoublePointArray; const ACount: Integer):extended;
- var i:integer;
-     s:double;
- begin
-   s:=0;
-   for i:=0 to ACount-1 do begin
-     s := s+(APoints[(i+1) mod ACount].x-APoints[i].x)*(APoints[(i+1) mod ACount].y+APoints[i].y);
-   end;
-   result:=-s/2;
- end;
+  function Orientation(
+  const APoints: PDoublePointArray;
+  const ACount: Integer
+  ): extended;
+  var
+    i: integer;
+    s: double;
+  begin
+    s := 0;
+    for i := 0 to ACount - 1 do begin
+      s := s + (APoints[(i + 1) mod ACount].x - APoints[i].x) * (APoints[(i + 1) mod ACount].y + APoints[i].y);
+    end;
+    result := -s / 2;
+  end;
 
- function Det(point1,point2,point3:TDoublePoint): Extended;
- begin
-   Result:=((point2.X-point1.X)*(point3.Y-point1.Y) - (point2.Y-point1.Y)*(point3.X-point1.X))/2;
- end;
+  function Det(point1, point2, point3: TDoublePoint): Extended;
+  begin
+    Result := ((point2.X - point1.X) * (point3.Y - point1.Y) - (point2.Y - point1.Y) * (point3.X - point1.X)) / 2;
+  end;
 
- function InTriangle(point,point1,point2,point3:TDoublePoint): Boolean;
- var a,b,c : double;
- begin
-   a := det(point,point1,point2);
-   b := det(point,point2,point3);
-   c := det(point,point3,point1);
-   Result:=((a>=0)and(b>=0)and(c>=0))or((a<0)and(b<0)and(c<0));
- end;
+  function InTriangle(point, point1, point2, point3: TDoublePoint): Boolean;
+  var
+    a, b, c: double;
+  begin
+    a := det(point, point1, point2);
+    b := det(point, point2, point3);
+    c := det(point, point3, point1);
+    Result := ((a >= 0) and (b >= 0) and (c >= 0)) or ((a < 0) and (b < 0) and (c < 0));
+  end;
 
-var Node : TDoublePoint;
-    p:array [0..2] of TDoublePoint;  //вершины треугольника
-    pn:array [0..2] of integer;
-    Noden : integer;
-    PointsNum : integer;
-    Orient : Integer;
-    inPoint : Boolean;
-    s : double;
-    i:integer;
-    PointsA: Array of integer;
-    ErrNum:integer;
+var
+  Node: TDoublePoint;
+  p: array [0..2] of TDoublePoint;  //вершины треугольника
+  pn: array [0..2] of integer;
+  Noden: integer;
+  PointsNum: integer;
+  Orient: Integer;
+  inPoint: Boolean;
+  s: double;
+  i: integer;
+  PointsA: Array of integer;
+  ErrNum: integer;
 begin
-   s:=0;
-   if ACount<3 then
-   begin
-    result:=s;
+  s := 0;
+  if ACount < 3 then begin
+    result := s;
     exit;
-   end;
-   Orient := Sign(Orientation(APoints, ACount)); //ориентация многоугольника
-   PointsNum:=ACount;
-   ErrNum:=0;
-   SetLength(PointsA, ACount);
-   For NodeN:=0 to ACount-1 do begin
-     PointsA[NodeN]:=1;
-   end;
-   for I := 0 to 2 do begin
-     pn[i]:=i;
-     p[i] := APoints[i];
-   end;
-   while (PointsNum > 3)and(ErrNum<=ACount) do begin
-     if Sign(Det(p[0],p[1],p[2]))=Orient then begin//Проверка ориентации треугольника
-       inPoint := false;
-       NodeN:=(pn[2]+1) mod ACount;
-       Node := APoints[Noden];
-       while NodeN <> pn[0] do begin
-         if (PointsA[NodeN]=1)and(InTriangle(Node,p[0],p[1],p[2])) then begin
-           inPoint := true;  // Проверка не попала ли вершина в отсекаемый треугольник
-         end;
-         Noden := (NodeN+1) mod ACount;
-         Node := APoints[NodeN];
-       end;
-     end else begin
-       inPoint:=true;
-     end;
-     if (not InPoint) then begin
-       s := s+SphericalTriangleSquare(p);
-       PointsA[pn[1]]:=0;    //Удаление вершины из рассмотрения
-       dec(PointsNum);
-       ErrNum := 0;
-     end else begin
-       pn[0] := pn[1];          //  Переход к следущему треугольнику
-       p[0] := APoints[pn[0]];
-       inc(ErrNum);
-     end;
-     pn[1] := pn[2];  //  Переход к следущему треугольнику
-     p[1] := APoints[pn[1]];
-     pn[2]:=(pn[2]+1) mod ACount;
-     while (PointsA[pn[2]]=0)and(pn[2] <> pn[0]) do begin
-       pn[2]:=(pn[2]+1) mod ACount;
-     end;
-     p[2] := APoints[pn[2]];
-   end;
-   if ErrNum<=ACount then begin
-     s:=s+SphericalTriangleSquare(p);
-     result:=s;
-   end else begin
-     result:=NAN;
-   end;
+  end;
+  Orient := Sign(Orientation(APoints, ACount)); //ориентация многоугольника
+  PointsNum := ACount;
+  ErrNum := 0;
+  SetLength(PointsA, ACount);
+  For NodeN := 0 to ACount - 1 do begin
+    PointsA[NodeN] := 1;
+  end;
+  for I := 0 to 2 do begin
+    pn[i] := i;
+    p[i] := APoints[i];
+  end;
+  while (PointsNum > 3) and (ErrNum <= ACount) do begin
+    if Sign(Det(p[0], p[1], p[2])) = Orient then begin//Проверка ориентации треугольника
+      inPoint := false;
+      NodeN := (pn[2] + 1) mod ACount;
+      Node := APoints[Noden];
+      while NodeN <> pn[0] do begin
+        if (PointsA[NodeN] = 1) and (InTriangle(Node, p[0], p[1], p[2])) then begin
+          inPoint := true;  // Проверка не попала ли вершина в отсекаемый треугольник
+        end;
+        Noden := (NodeN + 1) mod ACount;
+        Node := APoints[NodeN];
+      end;
+    end else begin
+      inPoint := true;
+    end;
+    if (not InPoint) then begin
+      s := s + SphericalTriangleSquare(p);
+      PointsA[pn[1]] := 0;    //Удаление вершины из рассмотрения
+      dec(PointsNum);
+      ErrNum := 0;
+    end else begin
+      pn[0] := pn[1];          //  Переход к следущему треугольнику
+      p[0] := APoints[pn[0]];
+      inc(ErrNum);
+    end;
+    pn[1] := pn[2];  //  Переход к следущему треугольнику
+    p[1] := APoints[pn[1]];
+    pn[2] := (pn[2] + 1) mod ACount;
+    while (PointsA[pn[2]] = 0) and (pn[2] <> pn[0]) do begin
+      pn[2] := (pn[2] + 1) mod ACount;
+    end;
+    p[2] := APoints[pn[2]];
+  end;
+  if ErrNum <= ACount then begin
+    s := s + SphericalTriangleSquare(p);
+    result := s;
+  end else begin
+    result := NAN;
+  end;
 end;
 
 function TDatum.GetEPSG: integer;
@@ -261,7 +279,7 @@ end;
 
 function TDatum.GetSpheroidRadiusB: Double;
 begin
-  Result := FRadiusB
+  Result := FRadiusB;
 end;
 
 function TDatum.IsSameDatum(const ADatum: IDatum): Boolean;
