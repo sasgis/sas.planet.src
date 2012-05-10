@@ -33,8 +33,11 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Add(const AKey: string; const AType: IContentTypeInfoBasic);
-    function Get(const AKey: string):  IContentTypeInfoBasic;
+    procedure Add(
+      const AKey: string;
+      const AType: IContentTypeInfoBasic
+    );
+    function Get(const AKey: string): IContentTypeInfoBasic;
     function GetEnumerator: TStringsEnumerator;
   end;
 

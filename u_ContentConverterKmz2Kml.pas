@@ -44,20 +44,20 @@ uses
 
 function TContentConverterKmz2Kml.Convert(const AData: IBinaryData): IBinaryData;
 var
-  UnZip:TKAZip;
+  UnZip: TKAZip;
   VMemStream: TCustomMemoryStream;
   VResultStream: TMemoryStream;
 begin
   VMemStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    UnZip:=TKAZip.Create(nil);
+    UnZip := TKAZip.Create(nil);
     try
       UnZip.Open(VMemStream);
       VResultStream := TMemoryStream.Create;
       try
         UnZip.Entries.Items[0].ExtractToStream(VResultStream);
         Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
-        VResultStream:= nil;
+        VResultStream := nil;
       finally
         VResultStream.Free;
       end;

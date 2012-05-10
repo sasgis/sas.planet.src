@@ -33,7 +33,10 @@ type
   public
     constructor Create();
     destructor Destroy; override;
-    procedure Add(const ASourceType, ATargetType: string; const AConverter: IContentConverter);
+    procedure Add(
+      const ASourceType, ATargetType: string;
+      const AConverter: IContentConverter
+    );
     function Get(const ASourceType, ATargetType: string): IContentConverter;
   end;
 
@@ -94,7 +97,7 @@ var
 begin
   if FList.Find(ASourceType, VIndex) then begin
     VList := TContentConvertersListByKey(FList.Objects[VIndex]);
-    Result := VList.Get(ATargetType)
+    Result := VList.Get(ATargetType);
   end else begin
     Result := nil;
   end;

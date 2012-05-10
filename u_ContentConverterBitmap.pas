@@ -67,7 +67,7 @@ begin
 
   VTarget := GetTarget as IContentTypeInfoBitmap;
   FTargetSaver := VTarget.GetSaver;
-  if FTargetSaver  = nil then begin
+  if FTargetSaver = nil then begin
     raise Exception.Create(SAS_ERR_CantSaveBitmapToTargetType);
   end;
 end;

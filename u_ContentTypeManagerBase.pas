@@ -40,8 +40,14 @@ type
     FKmlTypeList: TContentTypeListByKey;
     FConverterMatrix: TContentConverterMatrix;
   protected
-    procedure AddByType(const AInfo: IContentTypeInfoBasic; const AType: string);
-    procedure AddByExt(const AInfo: IContentTypeInfoBasic; const AExt: string);
+    procedure AddByType(
+      const AInfo: IContentTypeInfoBasic;
+      const AType: string
+    );
+    procedure AddByExt(
+      const AInfo: IContentTypeInfoBasic;
+      const AExt: string
+    );
     property ExtList: TContentTypeListByKey read FExtList;
     property TypeList: TContentTypeListByKey read FTypeList;
     property BitmapExtList: TContentTypeListByKey read FBitmapExtList;

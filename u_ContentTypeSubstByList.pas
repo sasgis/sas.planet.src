@@ -123,7 +123,7 @@ begin
       if (VSource <> '') and (VTarget <> '') then begin
         VTargetIndex := FTarget.Add(VTarget);
         FSource.AddObject(VSource, TObject(VTargetIndex));
-      end; 
+      end;
     end;
   finally
     VTempList.Free;

@@ -25,8 +25,14 @@ interface
 uses
   t_GeoTypes;
 
-function Ellipsoid_LonLat2Metr(const ARadiusa, AExct: Double; const ALl: TDoublePoint): TDoublePoint;
-function Ellipsoid_Metr2LonLat(const ARadiusa, AExct: Double; const AMm: TDoublePoint): TDoublePoint;
+function Ellipsoid_LonLat2Metr(
+    const ARadiusa, AExct: Double;
+    const ALl: TDoublePoint
+  ): TDoublePoint;
+function Ellipsoid_Metr2LonLat(
+    const ARadiusa, AExct: Double;
+    const AMm: TDoublePoint
+  ): TDoublePoint;
 
 implementation
 
@@ -37,7 +43,10 @@ uses
 const
   Ellipsoid_Metr2LonLat_Grad_Error = 0.00000001;
 
-function Ellipsoid_LonLat2Metr(const ARadiusa, AExct: Double; const ALl: TDoublePoint): TDoublePoint;
+function Ellipsoid_LonLat2Metr(
+  const ARadiusa, AExct: Double;
+  const ALl: TDoublePoint
+): TDoublePoint;
 var
   VLL: TDoublePoint;
   b, bs: extended;
@@ -55,15 +64,18 @@ begin
   result.y := ARadiusa * Ln(b);
 end;
 
-function Ellipsoid_Metr2LonLat(const ARadiusa, AExct: Double; const AMm: TDoublePoint): TDoublePoint;
+function Ellipsoid_Metr2LonLat(
+  const ARadiusa, AExct: Double;
+  const AMm: TDoublePoint
+): TDoublePoint;
 var
-  VSinN,VCommon,VNext,VResult: Extended;
+  VSinN, VCommon, VNext, VResult: Extended;
 begin
   result.X := (AMm.X / ARadiusa) * (180 / Pi);
 
   // get initial value as on spheroid
   Result.Y := (AMm.Y / ARadiusa);
-  VCommon := Exp(2*Result.Y); // for iterations
+  VCommon := Exp(2 * Result.Y); // for iterations
   Result.Y := exp(Result.Y);
   Result.Y := ArcTan(Result.Y);
   Result.Y := (2 * (180 / Pi) * Result.Y) - 90;
@@ -72,15 +84,15 @@ begin
   VSinN := Result.Y / (180 / Pi);
   repeat
     // get sinus of next iteration
-    VNext := (1-AExct*VSinN)/(1+AExct*VSinN);
+    VNext := (1 - AExct * VSinN) / (1 + AExct * VSinN);
     VNext := Power(VNext, AExct);
-    VNext := 1 - ( (1+VSinN) * VNext / VCommon );
+    VNext := 1 - ((1 + VSinN) * VNext / VCommon);
     // get result
-    VResult := ArcSin(VNext)*(180 / Pi);
+    VResult := ArcSin(VNext) * (180 / Pi);
     // check result
-    if Abs(VResult-Result.Y)<Ellipsoid_Metr2LonLat_Grad_Error then begin
+    if Abs(VResult - Result.Y) < Ellipsoid_Metr2LonLat_Grad_Error then begin
       // done
-      Result.Y:=VResult;
+      Result.Y := VResult;
       break;
     end else begin
       // one more time

@@ -45,12 +45,12 @@ uses
 function TContentConverterKml2Kmz.Convert(const AData: IBinaryData): IBinaryData;
 var
   VMemStream: TCustomMemoryStream;
-  VZip:TKAZip;
+  VZip: TKAZip;
   VResultStream: TMemoryStream;
 begin
   VMemStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    VZip:=TKAZip.Create(nil);
+    VZip := TKAZip.Create(nil);
     try
       VResultStream := TMemoryStream.Create;
       try
@@ -59,7 +59,7 @@ begin
         VZip.CompressionType := ctNormal;
         VZip.AddStream('doc.kml', VMemStream);
         Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
-        VResultStream:= nil;
+        VResultStream := nil;
       finally
         VResultStream.Free;
       end;

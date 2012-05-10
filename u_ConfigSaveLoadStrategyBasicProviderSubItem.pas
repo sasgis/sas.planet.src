@@ -59,7 +59,8 @@ end;
 
 procedure TConfigSaveLoadStrategyBasicProviderSubItem.ReadConfig(
   const AProvider: IConfigDataProvider;
-  const AElement: IConfigDataElement);
+  const AElement: IConfigDataElement
+);
 var
   VProvider: IConfigDataProvider;
 begin

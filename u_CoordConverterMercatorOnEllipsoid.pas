@@ -63,7 +63,7 @@ end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
 begin
-  Result:=Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALl);
+  Result := Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALl);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(
@@ -81,7 +81,7 @@ end;
 
 function TCoordConverterMercatorOnEllipsoid.Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint;
 begin
-  Result:=Ellipsoid_Metr2LonLat(Datum.GetSpheroidRadiusA, FExct, AMm);
+  Result := Ellipsoid_Metr2LonLat(Datum.GetSpheroidRadiusA, FExct, AMm);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.Relative2LonLatInternal(
