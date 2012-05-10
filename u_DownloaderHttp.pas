@@ -94,10 +94,12 @@ type
     procedure DoPostRequest(const ARequest: IDownloadPostRequest);
   protected
     procedure CheckGraceOff(Sender: Tobject);
-    procedure DoOnALStatusChange(sender: Tobject;
-                                 InternetStatus: DWord;
-                                 StatusInformation: Pointer;
-                                 StatusInformationLength: DWord);
+    procedure DoOnALStatusChange(
+      sender: Tobject;
+      InternetStatus: DWord;
+      StatusInformation: Pointer;
+      StatusInformationLength: DWord
+    );
     function DoRequest(
       const ARequest: IDownloadRequest;
       const ACancelNotifier: IOperationNotifier;
@@ -123,12 +125,13 @@ uses
 
 procedure TDownloaderHttp.CheckGraceOff(Sender: Tobject);
 begin
-  if (0<>FDisconnectByServer) then
-  try
-    //FDisconnectByServer:=0;
-    Disconnect;
-  finally
-    FDisconnectByServer:=0;
+  if (0 <> FDisconnectByServer) then begin
+    try
+      //FDisconnectByServer:=0;
+      Disconnect;
+    finally
+      FDisconnectByServer := 0;
+    end;
   end;
 end;
 
@@ -188,11 +191,14 @@ begin
   );
 end;
 
-procedure TDownloaderHttp.DoOnALStatusChange(sender: Tobject;
-  InternetStatus: DWord; StatusInformation: Pointer;
-  StatusInformationLength: DWord);
+procedure TDownloaderHttp.DoOnALStatusChange(
+  sender: Tobject;
+  InternetStatus: DWord;
+  StatusInformation: Pointer;
+  StatusInformationLength: DWord
+);
 begin
-  if (0=FDisconnectByUser) then begin
+  if (0 = FDisconnectByUser) then begin
     // if disconnected - raise flag
     case InternetStatus of
       (*
@@ -222,8 +228,9 @@ begin
       end;
       *)
       INTERNET_STATUS_CLOSING_CONNECTION: begin // 50
-        if (0=FDisconnectByServer) then
+        if (0 = FDisconnectByServer) then begin
           Inc(FDisconnectByServer);
+        end;
         (*
         if (nil<>FOpeningHandle) then begin
           InternetCloseHandle(FOpeningHandle);
@@ -232,8 +239,9 @@ begin
         *)
       end;
       INTERNET_STATUS_CONNECTION_CLOSED: begin // 51
-        if (0=FDisconnectByServer) then
+        if (0 = FDisconnectByServer) then begin
           Inc(FDisconnectByServer);
+        end;
         (*
         if (nil<>FOpeningHandle) then begin
           InternetCloseHandle(FOpeningHandle);
@@ -302,31 +310,32 @@ begin
             FResultFactory
           );
         end;
-        if Result = nil then
-        try
-          if Supports(ARequest, IDownloadHeadRequest, VHeadRequest) then begin
-            DoHeadRequest(VHeadRequest);
-          end else if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
-            DoPostRequest(VPostRequest);
-          end else begin
-            DoGetRequest(ARequest);
-          end;
-        except
-          on E: EALHTTPClientException do begin
-            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-              Result := FResultFactory.BuildCanceled(ARequest);
+        if Result = nil then begin
+          try
+            if Supports(ARequest, IDownloadHeadRequest, VHeadRequest) then begin
+              DoHeadRequest(VHeadRequest);
+            end else if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
+              DoPostRequest(VPostRequest);
             end else begin
-              if E.StatusCode = 0 then begin
-                Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, e.Message);
+              DoGetRequest(ARequest);
+            end;
+          except
+            on E: EALHTTPClientException do begin
+              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                Result := FResultFactory.BuildCanceled(ARequest);
+              end else begin
+                if E.StatusCode = 0 then begin
+                  Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, e.Message);
+                end;
               end;
             end;
-          end;
-          on E: EOSError do begin
-            Result := OnOSError(
-              ARequest,
-              FResultFactory,
-              E.ErrorCode
-            );
+            on E: EOSError do begin
+              Result := OnOSError(
+                ARequest,
+                FResultFactory,
+                E.ErrorCode
+              );
+            end;
           end;
         end;
         if Result = nil then begin
@@ -491,8 +500,7 @@ var
   VProxyConfig: IProxyConfigStatic;
 begin
   if (ARawHttpRequestHeader <> '') and
-     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader)
-  then begin
+    (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then begin
     FHttpClientLastConfig.HeaderRawText := ARawHttpRequestHeader;
     FHttpClient.RequestHeader.RawHeaderText := FHttpClientLastConfig.HeaderRawText;
   end;
@@ -502,35 +510,34 @@ begin
   end;
   if FHttpClient.RequestHeader.Accept = '' then begin
     FHttpClient.RequestHeader.Accept := '*/*';
-  end;   
+  end;
   if FHttpClientLastConfig.HttpTimeOut <> AInetConfig.TimeOut then begin
     FHttpClientLastConfig.HttpTimeOut := AInetConfig.TimeOut;
     FHttpClient.ConnectTimeout := FHttpClientLastConfig.HttpTimeOut;
     FHttpClient.SendTimeout := FHttpClientLastConfig.HttpTimeOut;
     FHttpClient.ReceiveTimeout := FHttpClientLastConfig.HttpTimeOut;
   end;
-  FHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
-                                    wHttpIo_Pragma_nocache,
-                                    wHttpIo_No_cookies,
-                                    wHttpIo_Keep_connection
-                                 ];
+  FHttpClient.InternetOptions := [wHttpIo_No_cache_write,
+    wHttpIo_Pragma_nocache,
+    wHttpIo_No_cookies,
+    wHttpIo_Keep_connection
+    ];
   VProxyConfig := AInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then begin
     if (FHttpClientLastConfig.ProxyUseIESettings <> VProxyConfig.UseIESettings) or
-       (FHttpClientLastConfig.ProxyUseCustomSettings <> VProxyConfig.UseProxy) or
-       (FHttpClientLastConfig.ProxyUseLogin <> VProxyConfig.UseLogin) or
-       (FHttpClientLastConfig.ProxyHost <> VProxyConfig.Host) or
-       (FHttpClientLastConfig.ProxyUserName <> VProxyConfig.Login) or
-       (FHttpClientLastConfig.ProxyPassword <> VProxyConfig.Password)
-    then begin
+      (FHttpClientLastConfig.ProxyUseCustomSettings <> VProxyConfig.UseProxy) or
+      (FHttpClientLastConfig.ProxyUseLogin <> VProxyConfig.UseLogin) or
+      (FHttpClientLastConfig.ProxyHost <> VProxyConfig.Host) or
+      (FHttpClientLastConfig.ProxyUserName <> VProxyConfig.Login) or
+      (FHttpClientLastConfig.ProxyPassword <> VProxyConfig.Password) then begin
       FHttpClientLastConfig.ProxyUseIESettings := VProxyConfig.UseIESettings;
       FHttpClientLastConfig.ProxyUseCustomSettings := VProxyConfig.UseProxy;
       FHttpClientLastConfig.ProxyUseLogin := VProxyConfig.UseLogin;
       FHttpClientLastConfig.ProxyHost := VProxyConfig.Host;
       FHttpClientLastConfig.ProxyUserName := VProxyConfig.Login;
-      FHttpClientLastConfig.ProxyPassword := VProxyConfig.Password; 
+      FHttpClientLastConfig.ProxyPassword := VProxyConfig.Password;
       if FHttpClientLastConfig.ProxyUseIESettings then begin
-        FHttpClient.AccessType := wHttpAt_Preconfig
+        FHttpClient.AccessType := wHttpAt_Preconfig;
       end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
         FHttpClient.AccessType := wHttpAt_Proxy;
         FHttpClient.ProxyParams.ProxyServer :=
@@ -576,10 +583,9 @@ begin
     begin
       Result := True;
     end;
-  else
-    begin
-      Result := False;
-    end;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -599,10 +605,9 @@ begin
     begin
       Result := True;
     end;
-  else
-    begin
-      Result := False;
-    end;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -617,10 +622,9 @@ begin
     begin
       Result := True;
     end;
-  else
-    begin
-      Result := False;
-    end;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -636,10 +640,9 @@ begin
     begin
       Result := True;
     end;
-  else
-    begin
-      Result := False;
-    end;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 
@@ -652,10 +655,9 @@ begin
     begin
       Result := True;
     end;
-  else
-    begin
-      Result := False;
-    end;
+  else begin
+    Result := False;
+  end;
   end;
 end;
 

@@ -37,14 +37,38 @@ type
     procedure DeleteSubItem(const AIdent: string);
     procedure DeleteValue(const AIdent: string);
     procedure DeleteValues;
-    procedure WriteBinary(const AIdent: string; const AValue: IBinaryData);
-    procedure WriteString(const AIdent: string; const AValue: string);
-    procedure WriteInteger(const AIdent: string; const AValue: Longint);
-    procedure WriteBool(const AIdent: string; const AValue: Boolean);
-    procedure WriteDate(const AIdent: string; const AValue: TDateTime);
-    procedure WriteDateTime(const AIdent: string; const AValue: TDateTime);
-    procedure WriteFloat(const AIdent: string; const AValue: Double);
-    procedure WriteTime(const AIdent: string; const AValue: TDateTime);
+    procedure WriteBinary(
+      const AIdent: string;
+      const AValue: IBinaryData
+    );
+    procedure WriteString(
+      const AIdent: string;
+      const AValue: string
+    );
+    procedure WriteInteger(
+      const AIdent: string;
+      const AValue: Longint
+    );
+    procedure WriteBool(
+      const AIdent: string;
+      const AValue: Boolean
+    );
+    procedure WriteDate(
+      const AIdent: string;
+      const AValue: TDateTime
+    );
+    procedure WriteDateTime(
+      const AIdent: string;
+      const AValue: TDateTime
+    );
+    procedure WriteFloat(
+      const AIdent: string;
+      const AValue: Double
+    );
+    procedure WriteTime(
+      const AIdent: string;
+      const AValue: TDateTime
+    );
   public
     constructor Create(
       const AProviderMain: IConfigDataWriteProvider;
@@ -125,7 +149,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteBinary(const AIdent: string; const AValue: IBinaryData);
+procedure TConfigDataWriteProviderWithGlobal.WriteBinary(
+  const AIdent: string;
+  const AValue: IBinaryData
+);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -140,8 +167,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteBool(const AIdent: string;
-  const AValue: Boolean);
+procedure TConfigDataWriteProviderWithGlobal.WriteBool(
+  const AIdent: string;
+  const AValue: Boolean
+);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -156,8 +185,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteDate(const AIdent: string;
-  const AValue: TDateTime);
+procedure TConfigDataWriteProviderWithGlobal.WriteDate(
+  const AIdent: string;
+  const AValue: TDateTime
+);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -172,8 +203,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteDateTime(const AIdent: string;
-  const AValue: TDateTime);
+procedure TConfigDataWriteProviderWithGlobal.WriteDateTime(
+  const AIdent: string;
+  const AValue: TDateTime
+);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -188,8 +221,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteFloat(const AIdent: string;
-  const AValue: Double);
+procedure TConfigDataWriteProviderWithGlobal.WriteFloat(
+  const AIdent: string;
+  const AValue: Double
+);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -204,8 +239,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteInteger(const AIdent: string;
-  const AValue: Integer);
+procedure TConfigDataWriteProviderWithGlobal.WriteInteger(
+  const AIdent: string;
+  const AValue: Integer
+);
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -236,8 +273,10 @@ begin
   end;
 end;
 
-procedure TConfigDataWriteProviderWithGlobal.WriteTime(const AIdent: string;
-  const AValue: TDateTime);
+procedure TConfigDataWriteProviderWithGlobal.WriteTime(
+  const AIdent: string;
+  const AValue: TDateTime
+);
 var
   VIdent: string;
   VUseMain: Boolean;

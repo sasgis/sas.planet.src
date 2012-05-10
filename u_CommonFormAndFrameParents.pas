@@ -31,7 +31,7 @@ uses
 type
   TCommonFormParent = class(TForm)
   public
-    constructor Create(AOwner : TComponent); override;
+    constructor Create(AOwner: TComponent); override;
     procedure RefreshTranslation; virtual;
   end;
 
@@ -49,7 +49,7 @@ type
 
   TCommonFrameParent = class(Forms.TFrame)
   public
-    constructor Create(AOwner : TComponent); override;
+    constructor Create(AOwner: TComponent); override;
     procedure RefreshTranslation; virtual;
   end;
 

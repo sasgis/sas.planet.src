@@ -41,13 +41,34 @@ type
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
-    function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; 
+    function ReadString(
+      const AIdent: string;
+      const ADefault: string
+    ): string;
+    function ReadInteger(
+      const AIdent: string;
+      const ADefault: Longint
+    ): Longint;
+    function ReadBool(
+      const AIdent: string;
+      const ADefault: Boolean
+    ): Boolean;
+    function ReadDate(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadDateTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadFloat(
+      const AIdent: string;
+      const ADefault: Double
+    ): Double;
+    function ReadTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
@@ -112,7 +133,7 @@ begin
   Result := nil;
   VSectionName := GetSubItemSectionName(AIdent);
   if FIniFile.SectionExists(VSectionName) then begin
-    Result:= TConfigDataProviderByIniFileSection.Create(FIniFile, VSectionName, Self);
+    Result := TConfigDataProviderByIniFileSection.Create(FIniFile, VSectionName, Self);
   end;
 end;
 
@@ -130,68 +151,81 @@ begin
   end;
 end;
 
-function TConfigDataProviderByIniFileSection.ReadBool(const AIdent: string;
-  const ADefault: Boolean): Boolean;
+function TConfigDataProviderByIniFileSection.ReadBool(
+  const AIdent: string;
+  const ADefault: Boolean
+): Boolean;
 begin
   Result := FIniFile.ReadBool(FSection, AIdent, ADefault);
 end;
 
-function TConfigDataProviderByIniFileSection.ReadDate(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByIniFileSection.ReadDate(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   DateStr: string;
 begin
   Result := ADefault;
   DateStr := FIniFile.ReadString(FSection, AIdent, '');
-  if DateStr <> '' then
-  try
-    Result := StrToDate(DateStr, FFormatSettings);
-  except
-    on EConvertError do
-      // Ignore EConvertError exceptions
-    else
-      raise;
+  if DateStr <> '' then begin
+    try
+      Result := StrToDate(DateStr, FFormatSettings);
+    except
+      on EConvertError do
+        // Ignore EConvertError exceptions
+      else
+        raise;
+    end;
   end;
 end;
 
-function TConfigDataProviderByIniFileSection.ReadDateTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByIniFileSection.ReadDateTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   DateStr: string;
 begin
   DateStr := FIniFile.ReadString(FSection, AIdent, '');
   Result := ADefault;
-  if DateStr <> '' then
-  try
-    Result := StrToDateTime(DateStr, FFormatSettings);
-  except
-    on EConvertError do
-      // Ignore EConvertError exceptions
-    else
-      raise;
+  if DateStr <> '' then begin
+    try
+      Result := StrToDateTime(DateStr, FFormatSettings);
+    except
+      on EConvertError do
+        // Ignore EConvertError exceptions
+      else
+        raise;
+    end;
   end;
 end;
 
-function TConfigDataProviderByIniFileSection.ReadFloat(const AIdent: string;
-  const ADefault: Double): Double;
+function TConfigDataProviderByIniFileSection.ReadFloat(
+  const AIdent: string;
+  const ADefault: Double
+): Double;
 var
   FloatStr: string;
 begin
   FloatStr := FIniFile.ReadString(FSection, AIdent, '');
   Result := ADefault;
-  if FloatStr <> '' then
-  try
-    Result := StrToFloat(FloatStr, FFormatSettings);
-  except
-    on EConvertError do
-      // Ignore EConvertError exceptions
-    else
-      raise;
+  if FloatStr <> '' then begin
+    try
+      Result := StrToFloat(FloatStr, FFormatSettings);
+    except
+      on EConvertError do
+        // Ignore EConvertError exceptions
+      else
+        raise;
+    end;
   end;
 end;
 
-function TConfigDataProviderByIniFileSection.ReadInteger(const AIdent: string;
-  const ADefault: Integer): Longint;
+function TConfigDataProviderByIniFileSection.ReadInteger(
+  const AIdent: string;
+  const ADefault: Integer
+): Longint;
 begin
   Result := FIniFile.ReadInteger(FSection, AIdent, ADefault);
 end;
@@ -234,21 +268,24 @@ begin
   end;
 end;
 
-function TConfigDataProviderByIniFileSection.ReadTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByIniFileSection.ReadTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   TimeStr: string;
 begin
   TimeStr := FIniFile.ReadString(FSection, AIdent, '');
   Result := ADefault;
-  if TimeStr <> '' then
-  try
-    Result := StrToTime(TimeStr, FFormatSettings);
-  except
-    on EConvertError do
-      // Ignore EConvertError exceptions
-    else
-      raise;
+  if TimeStr <> '' then begin
+    try
+      Result := StrToTime(TimeStr, FFormatSettings);
+    except
+      on EConvertError do
+        // Ignore EConvertError exceptions
+      else
+        raise;
+    end;
   end;
 end;
 

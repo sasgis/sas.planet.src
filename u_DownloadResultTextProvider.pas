@@ -98,7 +98,7 @@ end;
 
 function TDownloadResultTextProvider.GetMessageBadProxyAuth: string;
 begin
-  Result := FMessageBadProxyAuth
+  Result := FMessageBadProxyAuth;
 end;
 
 function TDownloadResultTextProvider.GetMessageBanned: string;

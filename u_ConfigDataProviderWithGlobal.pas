@@ -38,17 +38,41 @@ type
   protected
     property ProviderGlobalPrefix: string read FProviderGlobalPrefix;
     property ProviderGlobal: IConfigDataProvider read FProviderGlobal;
-    function PrepareIdent(const AIdent: string; out AUseMain: Boolean): string;
+    function PrepareIdent(
+      const AIdent: string;
+      out AUseMain: Boolean
+    ): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
-    function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; 
+    function ReadString(
+      const AIdent: string;
+      const ADefault: string
+    ): string;
+    function ReadInteger(
+      const AIdent: string;
+      const ADefault: Longint
+    ): Longint;
+    function ReadBool(
+      const AIdent: string;
+      const ADefault: Boolean
+    ): Boolean;
+    function ReadDate(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadDateTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadFloat(
+      const AIdent: string;
+      const ADefault: Double
+    ): Double;
+    function ReadTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
@@ -113,7 +137,8 @@ end;
 
 function TConfigDataProviderWithGlobal.PrepareIdent(
   const AIdent: string;
-  out AUseMain: Boolean): string;
+  out AUseMain: Boolean
+): string;
 begin
   if LeftStr(AIdent, FProviderGlobalPrefixLen) = FProviderGlobalPrefix then begin
     Result := MidStr(AIdent, FProviderGlobalPrefixLen + 1, Length(AIdent));
@@ -140,8 +165,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithGlobal.ReadBool(const AIdent: string;
-  const ADefault: Boolean): Boolean;
+function TConfigDataProviderWithGlobal.ReadBool(
+  const AIdent: string;
+  const ADefault: Boolean
+): Boolean;
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -157,8 +184,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithGlobal.ReadDate(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithGlobal.ReadDate(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -174,8 +203,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithGlobal.ReadDateTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithGlobal.ReadDateTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -191,8 +222,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithGlobal.ReadFloat(const AIdent: string;
-  const ADefault: Double): Double;
+function TConfigDataProviderWithGlobal.ReadFloat(
+  const AIdent: string;
+  const ADefault: Double
+): Double;
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -208,8 +241,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithGlobal.ReadInteger(const AIdent: string;
-  const ADefault: Integer): Longint;
+function TConfigDataProviderWithGlobal.ReadInteger(
+  const AIdent: string;
+  const ADefault: Integer
+): Longint;
 var
   VIdent: string;
   VUseMain: Boolean;
@@ -259,8 +294,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithGlobal.ReadTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithGlobal.ReadTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
   VUseMain: Boolean;

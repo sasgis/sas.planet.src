@@ -33,7 +33,10 @@ type
   public
     constructor Create();
     destructor Destroy; override;
-    procedure Add(const AKey: string; const AConverter: IContentConverter);
+    procedure Add(
+      const AKey: string;
+      const AConverter: IContentConverter
+    );
     function Get(const AKey: string): IContentConverter;
   end;
 

@@ -46,7 +46,7 @@ type
     procedure LockWrite; virtual;
     procedure UnlockRead; virtual;
     procedure UnlockWrite; virtual;
-    procedure ReadConfig(const AConfigData: IConfigDataProvider); 
+    procedure ReadConfig(const AConfigData: IConfigDataProvider);
     procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
     procedure StopNotify; virtual;
     procedure StartNotify; virtual;

@@ -56,8 +56,10 @@ uses
 
 { TBitmapPostProcessingConfigStatic }
 
-constructor TBitmapPostProcessingConfigStatic.Create(AInvertColor: boolean;
-  AGammaN, AContrastN: Integer);
+constructor TBitmapPostProcessingConfigStatic.Create(
+  AInvertColor: boolean;
+  AGammaN, AContrastN: Integer
+);
 begin
   inherited Create;
   FInvertColor := AInvertColor;
@@ -80,34 +82,51 @@ begin
   Result := FInvertColor;
 end;
 
-procedure Contrast(const Bitmap: TCustomBitmap32; Value: double);
- function BLimit(B:Integer):Byte;
+procedure Contrast(
+  const Bitmap: TCustomBitmap32;
+  Value: double
+);
+  function BLimit(B: Integer): Byte;
   begin
-   if B<0 then Result:=0
-          else if B>255 then Result:=255
-                        else Result:=B;
-  end;
-var Dest: PColor32;
-    y,mr,i:Integer;
-    ContrastTable:array [0..255] of byte;
-    vd: Double;
-begin
-  if Value=0 then Exit;
-  mR:=128;
-  if Value>0 then vd:=1+(Value/100)
-             else vd:=1-(Sqrt(-Value/1000));
-  for i:=0 to 255 do begin
-    ContrastTable[i]:=BLimit(mR+Trunc((i-mR)*vd));
+    if B < 0 then begin
+      Result := 0;
+    end else if B > 255 then begin
+      Result := 255;
+    end else begin
+      Result := B;
+    end;
   end;
 
-  Dest:=@Bitmap.Bits[0];
-  for y:=0 to Bitmap.Width*Bitmap.Height-1 do
-   begin
-      Dest^:=GR32.Color32(ContrastTable[RedComponent(dest^)],
-                          ContrastTable[GreenComponent(dest^)],
-                          ContrastTable[BlueComponent(dest^)],AlphaComponent(dest^));
-      Inc(Dest);
-   end;
+var
+  Dest: PColor32;
+  y, mr, i: Integer;
+  ContrastTable: array [0..255] of byte;
+  vd: Double;
+begin
+  if Value = 0 then begin
+    Exit;
+  end;
+  mR := 128;
+  if Value > 0 then begin
+    vd := 1 + (Value / 100);
+  end else begin
+    vd := 1 - (Sqrt(-Value / 1000));
+  end;
+  for i := 0 to 255 do begin
+    ContrastTable[i] := BLimit(mR + Trunc((i - mR) * vd));
+  end;
+
+  Dest := @Bitmap.Bits[0];
+  for y := 0 to Bitmap.Width * Bitmap.Height - 1 do begin
+    Dest^ :=
+      GR32.Color32(
+        ContrastTable[RedComponent(dest^)],
+        ContrastTable[GreenComponent(dest^)],
+        ContrastTable[BlueComponent(dest^)],
+        AlphaComponent(dest^)
+      );
+    Inc(Dest);
+  end;
 end;
 
 function TBitmapPostProcessingConfigStatic.Process(
@@ -118,11 +137,7 @@ var
 begin
   if ABitmap = nil then begin
     Result := nil;
-  end else if
-    (FContrastN = 0) and
-    (not FInvertColor) and
-    (FGammaN = 50)
-  then begin
+  end else if (FContrastN = 0) and (not FInvertColor) and (FGammaN = 50) then begin
     Result := ABitmap;
   end else begin
     VBitmap := TCustomBitmap32.Create;
@@ -143,26 +158,40 @@ procedure TBitmapPostProcessingConfigStatic.ProcessBitmap(
   begin
     Result := Exp(Exponent * Ln(Base));
   end;
-var Dest: PColor32;
-    X,Y: integer;
-    GammaTable:array[0..255] of byte;
-    L:Double;
+
+var
+  Dest: PColor32;
+  X, Y: integer;
+  GammaTable: array[0..255] of byte;
+  L: Double;
 begin
   Contrast(Bitmap, FContrastN);
-  if FInvertColor then InvertRGB(Bitmap,Bitmap);;
-  if FGammaN<>50 then
-   begin
-    if FGammaN<50 then L:=1/((FGammaN*2)/100)
-                 else L:=1/((FGammaN-40)/10);
-    GammaTable[0]:=0;
-    for X := 1 to 255 do GammaTable[X]:=round(255*Power(X/255,L));
-    Dest:=@Bitmap.Bits[0];
-    for Y := 0 to Bitmap.Height*Bitmap.Width-1 do
-     begin
-      Dest^:= GR32.Color32(GammaTable[RedComponent(dest^)],GammaTable[GreenComponent(dest^)],GammaTable[BlueComponent(dest^)],AlphaComponent(dest^));
+  if FInvertColor then begin
+    InvertRGB(Bitmap, Bitmap);
+  end;
+
+  if FGammaN <> 50 then begin
+    if FGammaN < 50 then begin
+      L := 1 / ((FGammaN * 2) / 100);
+    end else begin
+      L := 1 / ((FGammaN - 40) / 10);
+    end;
+    GammaTable[0] := 0;
+    for X := 1 to 255 do begin
+      GammaTable[X] := round(255 * Power(X / 255, L));
+    end;
+    Dest := @Bitmap.Bits[0];
+    for Y := 0 to Bitmap.Height * Bitmap.Width - 1 do begin
+      Dest^ :=
+        GR32.Color32(
+          GammaTable[RedComponent(dest^)],
+          GammaTable[GreenComponent(dest^)],
+          GammaTable[BlueComponent(dest^)],
+          AlphaComponent(dest^)
+        );
       Inc(Dest);
-     end;
-   end;
+    end;
+  end;
 end;
 
 end.

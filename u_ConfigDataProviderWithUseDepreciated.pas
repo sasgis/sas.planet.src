@@ -37,13 +37,34 @@ type
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
-    function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; 
+    function ReadString(
+      const AIdent: string;
+      const ADefault: string
+    ): string;
+    function ReadInteger(
+      const AIdent: string;
+      const ADefault: Longint
+    ): Longint;
+    function ReadBool(
+      const AIdent: string;
+      const ADefault: Boolean
+    ): Boolean;
+    function ReadDate(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadDateTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadFloat(
+      const AIdent: string;
+      const ADefault: Double
+    ): Double;
+    function ReadTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
@@ -106,8 +127,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadBool(const AIdent: string;
-  const ADefault: Boolean): Boolean;
+function TConfigDataProviderWithUseDepreciated.ReadBool(
+  const AIdent: string;
+  const ADefault: Boolean
+): Boolean;
 var
   VIdent: string;
 begin
@@ -119,8 +142,10 @@ begin
   Result := FSource.ReadBool(AIdent, Result);
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadDate(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithUseDepreciated.ReadDate(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
 begin
@@ -132,8 +157,10 @@ begin
   Result := FSource.ReadDate(AIdent, Result);
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadDateTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithUseDepreciated.ReadDateTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
 begin
@@ -145,8 +172,10 @@ begin
   Result := FSource.ReadDateTime(AIdent, Result);
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadFloat(const AIdent: string;
-  const ADefault: Double): Double;
+function TConfigDataProviderWithUseDepreciated.ReadFloat(
+  const AIdent: string;
+  const ADefault: Double
+): Double;
 var
   VIdent: string;
 begin
@@ -158,8 +187,10 @@ begin
   Result := FSource.ReadFloat(AIdent, Result);
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadInteger(const AIdent: string;
-  const ADefault: Integer): Longint;
+function TConfigDataProviderWithUseDepreciated.ReadInteger(
+  const AIdent: string;
+  const ADefault: Integer
+): Longint;
 var
   VIdent: string;
 begin
@@ -189,8 +220,10 @@ begin
   Result := FSource.ReadSubItemsList;
 end;
 
-function TConfigDataProviderWithUseDepreciated.ReadTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithUseDepreciated.ReadTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
 begin

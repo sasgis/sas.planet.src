@@ -37,13 +37,34 @@ type
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
-    function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; 
+    function ReadString(
+      const AIdent: string;
+      const ADefault: string
+    ): string;
+    function ReadInteger(
+      const AIdent: string;
+      const ADefault: Longint
+    ): Longint;
+    function ReadBool(
+      const AIdent: string;
+      const ADefault: Boolean
+    ): Boolean;
+    function ReadDate(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadDateTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadFloat(
+      const AIdent: string;
+      const ADefault: Double
+    ): Double;
+    function ReadTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
@@ -138,32 +159,42 @@ begin
   end;
 end;
 
-function TConfigDataProviderByKaZip.ReadBool(const AIdent: string;
-  const ADefault: Boolean): Boolean;
+function TConfigDataProviderByKaZip.ReadBool(
+  const AIdent: string;
+  const ADefault: Boolean
+): Boolean;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadDate(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByKaZip.ReadDate(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadDateTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByKaZip.ReadDateTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadFloat(const AIdent: string;
-  const ADefault: Double): Double;
+function TConfigDataProviderByKaZip.ReadFloat(
+  const AIdent: string;
+  const ADefault: Double
+): Double;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadInteger(const AIdent: string;
-  const ADefault: Integer): Longint;
+function TConfigDataProviderByKaZip.ReadInteger(
+  const AIdent: string;
+  const ADefault: Integer
+): Longint;
 begin
   Result := ADefault;
 end;
@@ -222,8 +253,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderByKaZip.ReadTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByKaZip.ReadTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 begin
   Result := ADefault;
 end;

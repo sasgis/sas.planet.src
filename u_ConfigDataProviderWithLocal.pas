@@ -33,17 +33,41 @@ type
   private
     FProviderMain: IConfigDataProvider;
     FProviderLocal: IConfigDataProvider;
-    function PrepareIdent(const AIdent: string; out AUseMain, AUseLocal: Boolean): string;
+    function PrepareIdent(
+      const AIdent: string;
+      out AUseMain, AUseLocal: Boolean
+    ): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
-    function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime; 
+    function ReadString(
+      const AIdent: string;
+      const ADefault: string
+    ): string;
+    function ReadInteger(
+      const AIdent: string;
+      const ADefault: Longint
+    ): Longint;
+    function ReadBool(
+      const AIdent: string;
+      const ADefault: Boolean
+    ): Boolean;
+    function ReadDate(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadDateTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadFloat(
+      const AIdent: string;
+      const ADefault: Double
+    ): Double;
+    function ReadTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
@@ -120,7 +144,8 @@ end;
 function TConfigDataProviderWithLocal.PrepareIdent(
   const AIdent: string;
   out AUseMain,
-  AUseLocal: Boolean): string;
+  AUseLocal: Boolean
+): string;
 var
   VPrefix: string;
   VSeparatorPos: Integer;
@@ -159,8 +184,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadBool(const AIdent: string;
-  const ADefault: Boolean): Boolean;
+function TConfigDataProviderWithLocal.ReadBool(
+  const AIdent: string;
+  const ADefault: Boolean
+): Boolean;
 var
   VIdent: string;
   VUseLocal: Boolean;
@@ -176,8 +203,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadDate(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithLocal.ReadDate(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
   VUseLocal: Boolean;
@@ -193,8 +222,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadDateTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithLocal.ReadDateTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
   VUseLocal: Boolean;
@@ -210,8 +241,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadFloat(const AIdent: string;
-  const ADefault: Double): Double;
+function TConfigDataProviderWithLocal.ReadFloat(
+  const AIdent: string;
+  const ADefault: Double
+): Double;
 var
   VIdent: string;
   VUseLocal: Boolean;
@@ -227,8 +260,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadInteger(const AIdent: string;
-  const ADefault: Integer): Longint;
+function TConfigDataProviderWithLocal.ReadInteger(
+  const AIdent: string;
+  const ADefault: Integer
+): Longint;
 var
   VIdent: string;
   VUseLocal: Boolean;
@@ -290,8 +325,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderWithLocal.ReadTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderWithLocal.ReadTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 var
   VIdent: string;
   VUseLocal: Boolean;

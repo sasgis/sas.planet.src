@@ -35,13 +35,34 @@ type
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
-    function ReadString(const AIdent: string; const ADefault: string): string;
-    function ReadInteger(const AIdent: string; const ADefault: Longint): Longint;
-    function ReadBool(const AIdent: string; const ADefault: Boolean): Boolean;
-    function ReadDate(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadDateTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
-    function ReadFloat(const AIdent: string; const ADefault: Double): Double;
-    function ReadTime(const AIdent: string; const ADefault: TDateTime): TDateTime;
+    function ReadString(
+      const AIdent: string;
+      const ADefault: string
+    ): string;
+    function ReadInteger(
+      const AIdent: string;
+      const ADefault: Longint
+    ): Longint;
+    function ReadBool(
+      const AIdent: string;
+      const ADefault: Boolean
+    ): Boolean;
+    function ReadDate(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadDateTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
+    function ReadFloat(
+      const AIdent: string;
+      const ADefault: Double
+    ): Double;
+    function ReadTime(
+      const AIdent: string;
+      const ADefault: TDateTime
+    ): TDateTime;
 
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
@@ -78,7 +99,7 @@ begin
   Result := nil;
   VFullName := IncludeTrailingPathDelimiter(FSourceFolderName) + AIdent;
   if DirectoryExists(VFullName) then begin
-      Result := TConfigDataProviderByFolder.Create(VFullName);
+    Result := TConfigDataProviderByFolder.Create(VFullName);
   end else begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.TXT') then begin
@@ -128,32 +149,42 @@ begin
   end;
 end;
 
-function TConfigDataProviderByFolder.ReadBool(const AIdent: string;
-  const ADefault: Boolean): Boolean;
+function TConfigDataProviderByFolder.ReadBool(
+  const AIdent: string;
+  const ADefault: Boolean
+): Boolean;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByFolder.ReadDate(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByFolder.ReadDate(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByFolder.ReadDateTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByFolder.ReadDateTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByFolder.ReadFloat(const AIdent: string;
-  const ADefault: Double): Double;
+function TConfigDataProviderByFolder.ReadFloat(
+  const AIdent: string;
+  const ADefault: Double
+): Double;
 begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByFolder.ReadInteger(const AIdent: string;
-  const ADefault: Integer): Longint;
+function TConfigDataProviderByFolder.ReadInteger(
+  const AIdent: string;
+  const ADefault: Integer
+): Longint;
 begin
   Result := ADefault;
 end;
@@ -219,8 +250,10 @@ begin
   end;
 end;
 
-function TConfigDataProviderByFolder.ReadTime(const AIdent: string;
-  const ADefault: TDateTime): TDateTime;
+function TConfigDataProviderByFolder.ReadTime(
+  const AIdent: string;
+  const ADefault: TDateTime
+): TDateTime;
 begin
   Result := ADefault;
 end;

@@ -54,7 +54,7 @@ uses
   u_GeoFun;
 
 const
-  GSHprec=100000000;
+  GSHprec = 100000000;
 
 { TDegreeGridConfig }
 
@@ -98,18 +98,26 @@ begin
   end;
   Result := ASourceRect;
   if VVisible then begin
-    z := GetDegBordersStepByScale(VScale,ALocalConverter.Getzoom);
-    Result.Left := Result.Left-(round(Result.Left*GSHprec) mod round(z.X*GSHprec))/GSHprec;
-    if Result.Left < 0 then Result.Left := Result.Left-z.X;
+    z := GetDegBordersStepByScale(VScale, ALocalConverter.Getzoom);
+    Result.Left := Result.Left - (round(Result.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+    if Result.Left < 0 then begin
+      Result.Left := Result.Left - z.X;
+    end;
 
-    Result.Top := Result.Top-(round(Result.Top*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
-    if Result.Top > 0 then Result.Top := Result.Top+z.Y;
+    Result.Top := Result.Top - (round(Result.Top * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+    if Result.Top > 0 then begin
+      Result.Top := Result.Top + z.Y;
+    end;
 
-    Result.Right := Result.Right-(round(Result.Right*GSHprec) mod round(z.X*GSHprec))/GSHprec;
-    if Result.Right >= 0 then Result.Right := Result.Right+z.X;
+    Result.Right := Result.Right - (round(Result.Right * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+    if Result.Right >= 0 then begin
+      Result.Right := Result.Right + z.X;
+    end;
 
-    Result.Bottom := Result.Bottom-(round(Result.Bottom*GSHprec) mod round(z.Y*GSHprec))/GSHprec;
-    if Result.Bottom <= 0 then Result.Bottom := Result.Bottom-z.Y;
+    Result.Bottom := Result.Bottom - (round(Result.Bottom * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+    if Result.Bottom <= 0 then begin
+      Result.Bottom := Result.Bottom - z.Y;
+    end;
   end;
 end;
 
@@ -134,7 +142,7 @@ begin
 
   LockWrite;
   try
-    if( FScale <> VScale )then begin
+    if (FScale <> VScale) then begin
       FScale := VScale;
       if FScale = 0 then begin
         SetVisible(False);

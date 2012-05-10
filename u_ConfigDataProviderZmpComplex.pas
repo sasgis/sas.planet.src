@@ -53,6 +53,7 @@ var
   VParamsTXT: IConfigDataProvider;
   VParams: IConfigDataProvider;
   VRenamesList: TStringList;
+  VSubProvider: IConfigDataProvider;
   VLocalMapConfig: IConfigDataProvider;
 begin
   VConfig := AZmpMapConfig;
@@ -69,15 +70,8 @@ begin
   end;
   VParamsTXT := TConfigDataProviderWithReplacedSubItem.Create(VParamsTXT, 'PARAMS', VParams);
   VConfig := TConfigDataProviderWithReplacedSubItem.Create(VConfig, 'params.txt', VParamsTXT);
-
-  VLocalMapConfig :=
-    TConfigDataProviderVirtualWithSubItem.Create(
-      'params.txt',
-      TConfigDataProviderVirtualWithSubItem.Create(
-        'PARAMS',
-        ALocalMapConfig
-      )
-    );
+  VSubProvider := TConfigDataProviderVirtualWithSubItem.Create('PARAMS', ALocalMapConfig);
+  VLocalMapConfig := TConfigDataProviderVirtualWithSubItem.Create('params.txt', VSubProvider);
 
   inherited Create(VConfig, VLocalMapConfig);
 end;
