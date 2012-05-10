@@ -120,7 +120,7 @@ begin
           Result := True;
         end else begin
           APoint := CEmptyDoublePoint;
-          Result :=  False;
+          Result := False;
         end;
       end;
     end;

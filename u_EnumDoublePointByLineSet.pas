@@ -24,7 +24,11 @@ type
     function GetNextEnum: IEnumDoublePoint; virtual; abstract;
   private
     function Next(out APoint: TDoublePoint): Boolean;
-    constructor Create(const ALineSet: IInterface; ALineCount: Integer; AClosed: Boolean);
+    constructor Create(
+      const ALineSet: IInterface;
+      ALineCount: Integer;
+      AClosed: Boolean
+    );
   end;
 
   TEnumLonLatPointByPath = class(TEnumDoublePointByLineSetBase, IEnumLonLatPoint)

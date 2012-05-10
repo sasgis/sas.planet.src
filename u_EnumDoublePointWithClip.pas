@@ -31,7 +31,7 @@ type
   private
     FLineX: Double;
   protected
-    function GetIntersectPoint(const APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
+    function GetIntersectPoint(const APrevPoint, ACurrPoint: TDoublePoint): TDoublePoint; override;
     property LineX: Double read FLineX;
   public
     constructor Create(
@@ -54,7 +54,7 @@ type
   private
     FLineY: Double;
   protected
-    function GetIntersectPoint(const APrevPoint,ACurrPoint: TDoublePoint): TDoublePoint; override;
+    function GetIntersectPoint(const APrevPoint, ACurrPoint: TDoublePoint): TDoublePoint; override;
     property LineY: Double read FLineY;
   public
     constructor Create(
@@ -308,7 +308,7 @@ function TEnumDoublePointClipByTopBorder.GetPointCode(
 begin
   if PointIsEmpty(APoint) then begin
     Result := 3;
-  end else   if APoint.Y < LineY then begin
+  end else if APoint.Y < LineY then begin
     Result := 0;
   end else if APoint.Y > LineY then begin
     Result := 2;
@@ -325,7 +325,7 @@ function TEnumDoublePointClipByBottomBorder.GetPointCode(
 begin
   if PointIsEmpty(APoint) then begin
     Result := 3;
-  end else   if APoint.Y > LineY then begin
+  end else if APoint.Y > LineY then begin
     Result := 0;
   end else if APoint.Y < LineY then begin
     Result := 2;
@@ -341,48 +341,29 @@ constructor TEnumDoublePointClipByRect.Create(
   const ARect: TDoubleRect;
   const ASourceEnum: IEnumDoublePoint
 );
+var
+  VEnum: IEnumDoublePoint;
 begin
   inherited Create;
   if AClosed then begin
-    FEnum :=
-      TEnumDoublePointClosePoly.Create(
-        TEnumDoublePointClipByLeftBorder.Create(
-          ARect.Left,
-          TEnumDoublePointClosePoly.Create(
-            TEnumDoublePointClipByTopBorder.Create(
-              ARect.Top,
-              TEnumDoublePointClosePoly.Create(
-                TEnumDoublePointClipByRightBorder.Create(
-                  ARect.Right,
-                  TEnumDoublePointClosePoly.Create(
-                    TEnumDoublePointClipByBottomBorder.Create(
-                      ARect.Bottom,
-                      TEnumDoublePointClosePoly.Create(
-                        ASourceEnum
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      );
+    VEnum := ASourceEnum;
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByBottomBorder.Create(ARect.Bottom, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByRightBorder.Create(ARect.Right, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByTopBorder.Create(ARect.Top, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByLeftBorder.Create(ARect.Left, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    FEnum := VEnum;
   end else begin
-    FEnum :=
-      TEnumDoublePointClipByLeftBorder.Create(
-        ARect.Left,
-        TEnumDoublePointClipByTopBorder.Create(
-          ARect.Top,
-          TEnumDoublePointClipByRightBorder.Create(
-            ARect.Right,
-            TEnumDoublePointClipByBottomBorder.Create(
-              ARect.Bottom,
-              ASourceEnum
-            )
-          )
-        )
-      );
+    VEnum := ASourceEnum;
+    VEnum := TEnumDoublePointClipByBottomBorder.Create(ARect.Bottom, VEnum);
+    VEnum := TEnumDoublePointClipByTopBorder.Create(ARect.Top, VEnum);
+    VEnum := TEnumDoublePointClipByLeftBorder.Create(ARect.Left, VEnum);
+    VEnum := TEnumDoublePointClipByRightBorder.Create(ARect.Right, VEnum);
+    FEnum := VEnum;
   end;
 end;
 
@@ -428,47 +409,28 @@ end;
 function TDoublePointFilterClipByRect.CreateFilteredEnum(
   const ASource: IEnumDoublePoint
 ): IEnumDoublePoint;
+var
+  VEnum: IEnumDoublePoint;
 begin
   if FClosed then begin
-    Result :=
-      TEnumDoublePointClosePoly.Create(
-        TEnumDoublePointClipByLeftBorder.Create(
-          FRect.Left,
-          TEnumDoublePointClosePoly.Create(
-            TEnumDoublePointClipByTopBorder.Create(
-              FRect.Top,
-              TEnumDoublePointClosePoly.Create(
-                TEnumDoublePointClipByRightBorder.Create(
-                  FRect.Right,
-                  TEnumDoublePointClosePoly.Create(
-                    TEnumDoublePointClipByBottomBorder.Create(
-                      FRect.Bottom,
-                      TEnumDoublePointClosePoly.Create(
-                        ASource
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      );
+    VEnum := ASource;
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByBottomBorder.Create(FRect.Bottom, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByRightBorder.Create(FRect.Right, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByTopBorder.Create(FRect.Top, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByLeftBorder.Create(FRect.Left, VEnum);
+    VEnum := TEnumDoublePointClosePoly.Create(VEnum);
+    Result := VEnum;
   end else begin
-    Result :=
-      TEnumDoublePointClipByLeftBorder.Create(
-        FRect.Left,
-        TEnumDoublePointClipByTopBorder.Create(
-          FRect.Top,
-          TEnumDoublePointClipByRightBorder.Create(
-            FRect.Right,
-            TEnumDoublePointClipByBottomBorder.Create(
-              FRect.Bottom,
-              ASource
-            )
-          )
-        )
-      );
+    VEnum := ASource;
+    VEnum := TEnumDoublePointClipByBottomBorder.Create(FRect.Bottom, VEnum);
+    VEnum := TEnumDoublePointClipByRightBorder.Create(FRect.Right, VEnum);
+    VEnum := TEnumDoublePointClipByTopBorder.Create(FRect.Top, VEnum);
+    VEnum := TEnumDoublePointClipByLeftBorder.Create(FRect.Left, VEnum);
+    Result := VEnum;
   end;
 end;
 
@@ -487,47 +449,28 @@ end;
 function TProjectedPointFilterClipByRect.CreateFilteredEnum(
   const ASource: IEnumProjectedPoint
 ): IEnumProjectedPoint;
+var
+  VEnum: IEnumProjectedPoint;
 begin
   if FClosed then begin
-    Result :=
-      TEnumProjectedPointClosePoly.Create(
-        TEnumDoublePointClipByLeftBorder.Create(
-          FRect.Left,
-          TEnumProjectedPointClosePoly.Create(
-            TEnumDoublePointClipByTopBorder.Create(
-              FRect.Top,
-              TEnumProjectedPointClosePoly.Create(
-                TEnumDoublePointClipByRightBorder.Create(
-                  FRect.Right,
-                  TEnumProjectedPointClosePoly.Create(
-                    TEnumDoublePointClipByBottomBorder.Create(
-                      FRect.Bottom,
-                      TEnumProjectedPointClosePoly.Create(
-                        ASource
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      );
+    VEnum := ASource;
+    VEnum := TEnumProjectedPointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByBottomBorder.Create(FRect.Bottom, VEnum);
+    VEnum := TEnumProjectedPointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByRightBorder.Create(FRect.Right, VEnum);
+    VEnum := TEnumProjectedPointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByTopBorder.Create(FRect.Top, VEnum);
+    VEnum := TEnumProjectedPointClosePoly.Create(VEnum);
+    VEnum := TEnumDoublePointClipByLeftBorder.Create(FRect.Left, VEnum);
+    VEnum := TEnumProjectedPointClosePoly.Create(VEnum);
+    Result := VEnum;
   end else begin
-    Result :=
-      TEnumDoublePointClipByLeftBorder.Create(
-        FRect.Left,
-        TEnumDoublePointClipByTopBorder.Create(
-          FRect.Top,
-          TEnumDoublePointClipByRightBorder.Create(
-            FRect.Right,
-            TEnumDoublePointClipByBottomBorder.Create(
-              FRect.Bottom,
-              ASource
-            )
-          )
-        )
-      );
+    VEnum := ASource;
+    VEnum := TEnumDoublePointClipByBottomBorder.Create(FRect.Bottom, VEnum);
+    VEnum := TEnumDoublePointClipByRightBorder.Create(FRect.Right, VEnum);
+    VEnum := TEnumDoublePointClipByTopBorder.Create(FRect.Top, VEnum);
+    VEnum := TEnumDoublePointClipByLeftBorder.Create(FRect.Left, VEnum);
+    Result := VEnum;
   end;
 end;
 

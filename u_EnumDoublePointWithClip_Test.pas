@@ -60,7 +60,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.AllPointsIn;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -85,7 +85,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.AllPointsOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -102,7 +102,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.FirstPointOnLine;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -127,7 +127,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.FirstPointOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -152,7 +152,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.LastPointOnLine;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -177,7 +177,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.LastPointOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -202,7 +202,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.TwoPointsIn;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -227,7 +227,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.SecondPointOnLine;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 3);
@@ -249,7 +249,7 @@ end;
 procedure TestTEnumDoublePointClipByLeftBorder.SecondPointOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 3);
@@ -275,7 +275,7 @@ end;
 procedure TestTEnumDoublePointClipByRect.ClosedAllPointsAround;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 5);
@@ -303,7 +303,7 @@ end;
 procedure TestTEnumDoublePointClipByRect.ClosedAllPointsOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -320,7 +320,7 @@ end;
 procedure TestTEnumDoublePointClipByRect.ClosedFirstPointOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -347,7 +347,7 @@ end;
 procedure TestTEnumDoublePointClipByRect.ClosedSecondPointOut;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);

@@ -64,7 +64,7 @@ var
   VSource: TArrayOfDoublePoint;
   VResult: TArrayOfDoublePoint;
   i: Integer;
-  VEnum:  IEnumDoublePoint;
+  VEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VSource, 5);
@@ -98,7 +98,7 @@ var
   VSource: TArrayOfDoublePoint;
   VResult: TArrayOfDoublePoint;
   i: Integer;
-  VEnum:  IEnumDoublePoint;
+  VEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VSource, 2);

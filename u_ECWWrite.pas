@@ -32,7 +32,11 @@ type
   TlineRGB = array[0..0] of single;
   PlineRGB = ^TlineRGB;
 
-  TEcwRead = function(Line: Integer; var lineR,LineG,LineB:PLineRGB):boolean of object;
+  TEcwRead =
+    function(
+      Line: Integer;
+      var lineR, LineG, LineB: PLineRGB
+    ): boolean of object;
 
 type
   TECWWrite = class
@@ -46,7 +50,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: IOperationNotifier;
       const FileName: string;
-      Width,Height: cardinal;
+      Width, Height: cardinal;
       CompressRatio: Single;
       Hint: CompressHint;
       AReadDelegate: TEcwRead;
@@ -100,7 +104,7 @@ end;
 function TECWWrite.Encode(
   AOperationID: Integer;
   const ACancelNotifier: IOperationNotifier;
-  const FileName:string;
+  const FileName: string;
   Width, Height: cardinal;
   CompressRatio: Single;
   Hint: CompressHint;
@@ -153,7 +157,7 @@ begin
       raise Exception.Create('ECW Encode: FileName string is too long!');
     end;
 
-    VNCSError:= NCSEcwCompressOpen(VEcwData, False);
+    VNCSError := NCSEcwCompressOpen(VEcwData, False);
     if VNCSError = NCS_SUCCESS then begin
       VNCSError := NCSEcwCompress(VEcwData);
       if VNCSError = NCS_SUCCESS then begin
@@ -163,7 +167,7 @@ begin
     Result := Integer(VNCSError);
   finally
     NCSEcwCompressFreeClient(VEcwData);
-  end; 
+  end;
 end;
 
 end.

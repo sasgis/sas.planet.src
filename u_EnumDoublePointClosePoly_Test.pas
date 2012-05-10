@@ -45,7 +45,7 @@ end;
 procedure TestTEnumDoublePointClosePoly.NoPoints;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 0);
@@ -56,7 +56,7 @@ end;
 procedure TestTEnumDoublePointClosePoly.OnePoint;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 1);
@@ -72,7 +72,7 @@ end;
 procedure TestTEnumDoublePointClosePoly.SimpleIfNeedAddPoint;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 3);
@@ -96,7 +96,7 @@ end;
 procedure TestTEnumDoublePointClosePoly.SimpleIfNoAddPoint;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -121,7 +121,7 @@ end;
 procedure TestTEnumDoublePointClosePoly.TwoPoly;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 5);
@@ -151,7 +151,7 @@ end;
 procedure TestTEnumDoublePointClosePoly.WithEmtyAtEnd;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -178,4 +178,3 @@ initialization
   // Register any test cases with the test runner
   RegisterTest(TestTEnumDoublePointClosePoly.Suite);
 end.
-

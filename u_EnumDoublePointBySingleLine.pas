@@ -65,7 +65,7 @@ begin
     Result := True;
   end else begin
     if (FIndex = FCount) then begin
-      if FClosed and (FCount > 1)  then begin
+      if FClosed and (FCount > 1) then begin
         APoint := FPoints[0];
         Result := True;
       end else begin

@@ -49,7 +49,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.DeleteThreePoints;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -68,7 +68,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.DeleteTwoPoints;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -89,7 +89,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.NoPoints;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 0);
@@ -100,7 +100,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.OnePoint;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 1);
@@ -116,7 +116,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.SimpleIfNeedDeletePoint;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 3);
@@ -136,7 +136,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.SimpleIfNoDeletePoint;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);
@@ -161,7 +161,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.TwoLines;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 5);
@@ -189,7 +189,7 @@ end;
 procedure TestTEnumDoublePointFilterEqual.WithEmtyAtEnd;
 var
   VData: TArrayOfDoublePoint;
-  VTestEnum:  IEnumDoublePoint;
+  VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 4);

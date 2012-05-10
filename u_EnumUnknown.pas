@@ -31,8 +31,11 @@ type
   private
     FList: IInterfaceList;
     FCurrent: Longint;
-    function Next(celt: Longint; out elt;
-      pceltFetched: PLongint): HResult; stdcall;
+    function Next(
+      celt: Longint;
+      out elt;
+      pceltFetched: PLongint
+    ): HResult; stdcall;
     function Skip(celt: Longint): HResult; stdcall;
     function Reset: HResult; stdcall;
     function Clone(out enm: IEnumUnknown): HResult; stdcall;
@@ -69,8 +72,11 @@ begin
   inherited;
 end;
 
-function TEnumUnknown.Next(celt: Integer; out elt;
-  pceltFetched: PLongint): HResult;
+function TEnumUnknown.Next(
+  celt: Integer;
+  out elt;
+  pceltFetched: PLongint
+): HResult;
 begin
   if celt <> 1 then begin
     Result := E_NOTIMPL;
