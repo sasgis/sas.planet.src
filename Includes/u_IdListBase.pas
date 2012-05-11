@@ -18,7 +18,10 @@ type
     function GetCount: Integer;
     procedure Delete(Index: Integer); virtual; abstract;
     function GetItemId(Index: Integer): Integer; virtual; abstract;
-    function Find(AId: Integer; var Index: Integer): Boolean; virtual;
+    function Find(
+      AId: Integer;
+      var Index: Integer
+    ): Boolean; virtual;
     function CompareId(const I1, I2: Integer): Integer; virtual;
     procedure Sort(); virtual; abstract;
   public
@@ -27,8 +30,14 @@ type
 
     destructor Destroy; override;
 
-    class procedure Error(const Msg: string; Data: Integer); overload; virtual;
-    class procedure Error(Msg: PResStringRec; Data: Integer); overload;
+    class procedure Error(
+      const Msg: string;
+      Data: Integer
+    ); overload; virtual;
+    class procedure Error(
+      Msg: PResStringRec;
+      Data: Integer
+    ); overload;
 
     // Проверка наличия ID в списке
     function IsExists(AId: Integer): boolean; virtual;
@@ -63,7 +72,11 @@ type
     FCurrentIndex: integer;
   public
     constructor Create(AGUIDList: TIDListBase);
-    function Next(celt: LongWord; out rgelt: Integer; out pceltFetched: LongWord): HResult; stdcall;
+    function Next(
+      celt: LongWord;
+      out rgelt: Integer;
+      out pceltFetched: LongWord
+    ): HResult; stdcall;
     function Skip(celt: LongWord): HResult; stdcall;
     function Reset: HResult; stdcall;
     function Clone(out ppenum: IEnumID): HResult; stdcall;
@@ -87,8 +100,11 @@ begin
   FCurrentIndex := 0;
 end;
 
-function TIDListEnum.Next(celt: LongWord; out rgelt: Integer;
-  out pceltFetched: LongWord): HResult;
+function TIDListEnum.Next(
+  celt: LongWord;
+  out rgelt: Integer;
+  out pceltFetched: LongWord
+): HResult;
 var
   i: integer;
   VpID: PInteger;
@@ -163,21 +179,30 @@ begin
   inherited;
 end;
 
-class procedure TIdListBase.Error(const Msg: string; Data: Integer);
+class procedure TIdListBase.Error(
+  const Msg: string;
+  Data: Integer
+);
   function ReturnAddr: Pointer;
   asm
-          MOV     EAX,[EBP+4]
+    MOV     EAX,[EBP+4]
   end;
 begin
   raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-class procedure TIdListBase.Error(Msg: PResStringRec; Data: Integer);
+class procedure TIdListBase.Error(
+  Msg: PResStringRec;
+  Data: Integer
+);
 begin
   TIDListBase.Error(LoadResString(Msg), Data);
 end;
 
-function TIdListBase.Find(AId: Integer; var Index: Integer): Boolean;
+function TIdListBase.Find(
+  AId: Integer;
+  var Index: Integer
+): Boolean;
 var
   L, H, I, C: Integer;
 begin
@@ -187,7 +212,9 @@ begin
   while L <= H do begin
     I := (L + H) shr 1;
     C := CompareId(GetItemId(I), AID);
-    if C < 0 then L := I + 1 else begin
+    if C < 0 then begin
+      L := I + 1;
+    end else begin
       H := I - 1;
       if C = 0 then begin
         Result := True;

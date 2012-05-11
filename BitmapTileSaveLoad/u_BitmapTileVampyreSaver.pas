@@ -24,7 +24,10 @@ type
   protected
     procedure PrepareData(var AImage: TImageData); virtual;
   protected
-    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
+    procedure SaveToStream(
+      ABtm: TCustomBitmap32;
+      AStream: TStream
+    );
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   public
     constructor CreateWithMeta(
@@ -122,7 +125,8 @@ end;
 
 constructor TVampyreBasicBitmapTileSaver.Create(
   AFormatClass: TImageFileFormatClass;
-  const APerfCounterList: IInternalPerformanceCounterList);
+  const APerfCounterList: IInternalPerformanceCounterList
+);
 var
   VMeta: TMetadata;
 begin
@@ -193,8 +197,10 @@ begin
   end;
 end;
 
-procedure TVampyreBasicBitmapTileSaver.SaveToStream(ABtm: TCustomBitmap32;
-  AStream: TStream);
+procedure TVampyreBasicBitmapTileSaver.SaveToStream(
+  ABtm: TCustomBitmap32;
+  AStream: TStream
+);
 var
   VImage: TImageData;
   IArray: TDynImageDataArray;
@@ -314,4 +320,3 @@ begin
 end;
 
 end.
-

@@ -35,23 +35,37 @@ type
   TLibJpegTileLoader = class(TInterfacedObject, IBitmapTileLoader)
   protected
     FLoadStreamCounter: IInternalPerformanceCounter;
-    function ReadLine(Sender: TObject; ALine: PByte; ALineSize: Cardinal;
-      ALineNumber: Integer): Boolean;
+    function ReadLine(
+      Sender: TObject;
+      ALine: PByte;
+      ALineSize: Cardinal;
+      ALineNumber: Integer
+    ): Boolean;
   public
     constructor Create(const APerfCounterList: IInternalPerformanceCounterList);
     destructor Destroy; override;
-    procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+    procedure LoadFromStream(
+      AStream: TStream;
+      ABtm: TCustomBitmap32
+    );
     function Load(const AData: IBinaryData): IBitmap32Static;
   end;
 
   TLibJpegTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   protected
     FCompressionQuality: Byte;
-    function WriteLine(Sender: TObject; ALineNumber: Integer; out Abort: Boolean): PByte;
+    function WriteLine(
+      Sender: TObject;
+      ALineNumber: Integer;
+      out Abort: Boolean
+    ): PByte;
   public
     constructor Create(ACompressionQuality: Byte);
     destructor Destroy; override;
-    procedure SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
+    procedure SaveToStream(
+      ABtm: TCustomBitmap32;
+      AStream: TStream
+    );
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   end;
 
@@ -132,7 +146,10 @@ begin
   end;
 end;
 
-procedure TLibJpegTileLoader.LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+procedure TLibJpegTileLoader.LoadFromStream(
+  AStream: TStream;
+  ABtm: TCustomBitmap32
+);
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegReader;
@@ -160,8 +177,12 @@ begin
   end;
 end;
 
-function TLibJpegTileLoader.ReadLine(Sender: TObject; ALine: PByte;
-  ALineSize: Cardinal; ALineNumber: Integer): Boolean;
+function TLibJpegTileLoader.ReadLine(
+  Sender: TObject;
+  ALine: PByte;
+  ALineSize: Cardinal;
+  ALineNumber: Integer
+): Boolean;
 var
   VJpeg: TJpegReader;
   VBtm: TCustomBitmap32;
@@ -171,9 +192,12 @@ begin
   VJpeg := Sender as TJpegReader;
   VBtm := TCustomBitmap32(VJpeg.AppData^);
   for I := 0 to VBtm.Width - 1 do begin
-    VColor.R := ALine^; Inc(ALine, 1);
-    VColor.G := ALine^; Inc(ALine, 1);
-    VColor.B := ALine^; Inc(ALine, 1);
+    VColor.R := ALine^;
+    Inc(ALine, 1);
+    VColor.G := ALine^;
+    Inc(ALine, 1);
+    VColor.B := ALine^;
+    Inc(ALine, 1);
     VColor.A := $FF;
     VBtm.Pixel[I, ALineNumber] := TColor32(VColor);
   end;
@@ -228,7 +252,10 @@ begin
   end;
 end;
 
-procedure TLibJpegTileSaver.SaveToStream(ABtm: TCustomBitmap32; AStream: TStream);
+procedure TLibJpegTileSaver.SaveToStream(
+  ABtm: TCustomBitmap32;
+  AStream: TStream
+);
 var
   VJpeg: TJpegWriter;
   VAppData: TWriterAppData;
@@ -254,8 +281,11 @@ begin
   end;
 end;
 
-function TLibJpegTileSaver.WriteLine(Sender: TObject; ALineNumber: Integer;
-  out Abort: Boolean): PByte;
+function TLibJpegTileSaver.WriteLine(
+  Sender: TObject;
+  ALineNumber: Integer;
+  out Abort: Boolean
+): PByte;
 var
   VJpeg: TJpegWriter;
   VAppData: TWriterAppData;
@@ -268,9 +298,12 @@ begin
   VLine := VAppData.Line;
   for I := 0 to VAppData.Bitmap.Width - 1 do begin
     VPixColor := TColor32Rec(VAppData.Bitmap.Pixel[I, ALineNumber]);
-    VLine^ := VPixColor.R; Inc(VLine);
-    VLine^ := VPixColor.G; Inc(VLine);
-    VLine^ := VPixColor.B; Inc(VLine);
+    VLine^ := VPixColor.R;
+    Inc(VLine);
+    VLine^ := VPixColor.G;
+    Inc(VLine);
+    VLine^ := VPixColor.B;
+    Inc(VLine);
   end;
   Result := VAppData.Line;
   Abort := False;

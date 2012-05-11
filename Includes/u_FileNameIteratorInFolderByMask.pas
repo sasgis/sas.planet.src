@@ -39,9 +39,11 @@ uses
 
 { TFileNameIteratorInFolderByMask }
 
-constructor TFileNameIteratorInFolderByMask.Create(ARootFolderName,
+constructor TFileNameIteratorInFolderByMask.Create(
+  ARootFolderName,
   AFolderNameFromRoot, AFileMask: WideString;
-  AFilesOnly: Boolean);
+  AFilesOnly: Boolean
+);
 begin
   FRootFolderName := ARootFolderName;
   FFolderNameFromRoot := AFolderNameFromRoot;

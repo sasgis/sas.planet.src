@@ -39,7 +39,10 @@ type
     function GetCount: Integer;
     procedure Delete(Index: Integer); virtual; abstract;
     function GetItemGUID(Index: Integer): TGUID; virtual; abstract;
-    function Find(const AGUID: TGUID; var Index: Integer): Boolean; virtual;
+    function Find(
+      const AGUID: TGUID;
+      var Index: Integer
+    ): Boolean; virtual;
     function CompareGUIDs(const G1, G2: TGUID): Integer; virtual;
     procedure Sort(); virtual; abstract;
   public
@@ -48,8 +51,14 @@ type
 
     destructor Destroy; override;
 
-    class procedure Error(const Msg: string; Data: Integer); overload; virtual;
-    class procedure Error(Msg: PResStringRec; Data: Integer); overload;
+    class procedure Error(
+      const Msg: string;
+      Data: Integer
+    ); overload; virtual;
+    class procedure Error(
+      Msg: PResStringRec;
+      Data: Integer
+    ); overload;
 
     // Проверка наличия GUID в списке
     function IsExists(const AGUID: TGUID): boolean; virtual;
@@ -85,7 +94,11 @@ type
     FCurrentIndex: integer;
   public
     constructor Create(AGUIDList: TGUIDSetBase);
-    function Next(celt: UINT; out rgelt: TGUID; out pceltFetched: UINT): HResult; stdcall;
+    function Next(
+      celt: UINT;
+      out rgelt: TGUID;
+      out pceltFetched: UINT
+    ): HResult; stdcall;
     function Skip(celt: UINT): HResult; stdcall;
     function Reset: HResult; stdcall;
     function Clone(out ppenum: IEnumGUID): HResult; stdcall;
@@ -109,8 +122,11 @@ begin
   FCurrentIndex := 0;
 end;
 
-function TGUIDListEnum.Next(celt: UINT; out rgelt: TGUID;
-  out pceltFetched: UINT): HResult;
+function TGUIDListEnum.Next(
+  celt: UINT;
+  out rgelt: TGUID;
+  out pceltFetched: UINT
+): HResult;
 var
   i: integer;
   VpGUID: PGUID;
@@ -274,22 +290,31 @@ begin
   inherited;
 end;
 
-class procedure TGUIDSetBase.Error(Msg: PResStringRec; Data: Integer);
+class procedure TGUIDSetBase.Error(
+  Msg: PResStringRec;
+  Data: Integer
+);
 begin
   TGUIDSetBase.Error(LoadResString(Msg), Data);
 end;
 
-class procedure TGUIDSetBase.Error(const Msg: string; Data: Integer);
+class procedure TGUIDSetBase.Error(
+  const Msg: string;
+  Data: Integer
+);
   function ReturnAddr: Pointer;
   asm
-          MOV     EAX,[EBP+4]
+    MOV     EAX,[EBP+4]
   end;
 
 begin
   raise EListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-function TGUIDSetBase.Find(const AGUID: TGUID; var Index: Integer): Boolean;
+function TGUIDSetBase.Find(
+  const AGUID: TGUID;
+  var Index: Integer
+): Boolean;
 var
   L, H, I, C: Integer;
 begin
@@ -299,7 +324,9 @@ begin
   while L <= H do begin
     I := (L + H) shr 1;
     C := CompareGUIDs(GetItemGUID(I), AGUID);
-    if C < 0 then L := I + 1 else begin
+    if C < 0 then begin
+      L := I + 1;
+    end else begin
       H := I - 1;
       if C = 0 then begin
         Result := True;

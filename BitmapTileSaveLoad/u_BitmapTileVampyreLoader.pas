@@ -25,7 +25,10 @@ type
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
-    procedure LoadFromStream(AStream: TStream; ABtm: TCustomBitmap32);
+    procedure LoadFromStream(
+      AStream: TStream;
+      ABtm: TCustomBitmap32
+    );
     function Load(const AData: IBinaryData): IBitmap32Static;
   end;
 
@@ -139,8 +142,10 @@ begin
   end;
 end;
 
-procedure TVampyreBasicBitmapTileLoader.LoadFromStream(AStream: TStream;
-  ABtm: TCustomBitmap32);
+procedure TVampyreBasicBitmapTileLoader.LoadFromStream(
+  AStream: TStream;
+  ABtm: TCustomBitmap32
+);
 var
   VImage: TImageData;
   IArray: TDynImageDataArray;
@@ -184,7 +189,7 @@ constructor TVampyreBasicBitmapTileLoaderPNG.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(TPNGFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyrePNG'))
+  inherited Create(TPNGFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyrePNG'));
 end;
 
 { TVampyreBasicBitmapTileLoaderGIF }
@@ -193,7 +198,7 @@ constructor TVampyreBasicBitmapTileLoaderGIF.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(TGIFFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreGIF'))
+  inherited Create(TGIFFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreGIF'));
 end;
 
 { TVampyreBasicBitmapTileLoaderBMP }
@@ -202,7 +207,7 @@ constructor TVampyreBasicBitmapTileLoaderBMP.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(TBitmapFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreBMP'))
+  inherited Create(TBitmapFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreBMP'));
 end;
 
 { TVampyreBasicBitmapTileLoaderJPEG }
@@ -211,8 +216,7 @@ constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
-  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'))
+  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
 end;
 
 end.
-

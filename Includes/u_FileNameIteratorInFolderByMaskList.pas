@@ -35,7 +35,7 @@ type
   private
     FFileMasksList: TWideStrings;
     FFilesOnly: Boolean;
-    function  CreateIterator(
+    function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
@@ -119,7 +119,8 @@ end;
 
 constructor TFileNameIteratorInFolderByMaskListFactory.Create(
   AFileMasksList: TWideStrings;
-  AFilesOnly: Boolean);
+  AFilesOnly: Boolean
+);
 begin
   FFilesOnly := AFilesOnly;
   FFileMasksList := TWideStringList.Create;

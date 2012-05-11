@@ -39,7 +39,7 @@ const
 type
   PInterfaceWithGUIDList = ^TInterfaceWithGUIDList;
   TInterfaceWithGUIDList = array[0..MaxInterfaceWithGUIDListSize - 1] of TInterfaceWithGUID;
-  TInterfaceWithGUIDListSortCompare = function (const Item1, Item2: TGUID): Integer of object;
+  TInterfaceWithGUIDListSortCompare = function(const Item1, Item2: TGUID): Integer of object;
 
   TGUIDInterfaceSet = class(TGUIDSetBase, IGUIDInterfaceSet)
   protected
@@ -47,19 +47,29 @@ type
     procedure SetCapacity(NewCapacity: Integer); override;
     procedure SetCount(NewCount: Integer); override;
     procedure Delete(Index: Integer); override;
-    procedure Insert(Index: Integer; const AGUID: TGUID; const AObj: IInterface);
+    procedure Insert(
+      Index: Integer;
+      const AGUID: TGUID;
+      const AObj: IInterface
+    );
     procedure Sort(); override;
     function GetItemGUID(Index: Integer): TGUID; override;
   public
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(const AGUID: TGUID; const AInterface: IInterface): IInterface; virtual;
+    function Add(
+      const AGUID: TGUID;
+      const AInterface: IInterface
+    ): IInterface; virtual;
 
     // Получение объекта по GUID
     function GetByGUID(const AGUID: TGUID): IInterface; virtual;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(const AGUID: TGUID; const AInterface: IInterface); virtual;
+    procedure Replace(
+      const AGUID: TGUID;
+      const AInterface: IInterface
+    ); virtual;
   end;
 
 resourcestring
@@ -74,7 +84,10 @@ uses
 
 { TGUIDList }
 
-function TGUIDInterfaceSet.Add(const AGUID: TGUID; const AInterface: IInterface): IInterface;
+function TGUIDInterfaceSet.Add(
+  const AGUID: TGUID;
+  const AInterface: IInterface
+): IInterface;
 var
   VIndex: Integer;
 begin
@@ -118,7 +131,11 @@ begin
   Result := FList^[Index].GUID;
 end;
 
-procedure TGUIDInterfaceSet.Insert(Index: Integer; const AGUID: TGUID; const AObj: IInterface);
+procedure TGUIDInterfaceSet.Insert(
+  Index: Integer;
+  const AGUID: TGUID;
+  const AObj: IInterface
+);
 begin
   if (Index < 0) or (Index > FCount) then begin
     Error(@SListIndexError, Index);
@@ -136,7 +153,10 @@ begin
   Inc(FCount);
 end;
 
-procedure TGUIDInterfaceSet.Replace(const AGUID: TGUID; const AInterface: IInterface);
+procedure TGUIDInterfaceSet.Replace(
+  const AGUID: TGUID;
+  const AInterface: IInterface
+);
 var
   VIndex: Integer;
 begin
@@ -172,7 +192,7 @@ begin
     SetCapacity(NewCount);
   end;
   if NewCount > FCount then begin
-    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithGUID), 0)
+    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithGUID), 0);
   end else begin
     for I := FCount - 1 downto NewCount do begin
       Delete(I);
@@ -181,8 +201,11 @@ begin
   FCount := NewCount;
 end;
 
-procedure QuickSort(SortList: PInterfaceWithGUIDList; L, R: Integer;
-  SCompare: TInterfaceWithGUIDListSortCompare);
+procedure QuickSort(
+  SortList: PInterfaceWithGUIDList;
+  L, R: Integer;
+  SCompare: TInterfaceWithGUIDListSortCompare
+);
 var
   I, J: Integer;
   P, T: TInterfaceWithGUID;

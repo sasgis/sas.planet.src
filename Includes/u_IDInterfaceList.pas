@@ -15,7 +15,7 @@ type
 
   PInterfaceWithIdList = ^TInterfaceWithIdList;
   TInterfaceWithIdList = array[0..MaxListSize - 1] of TInterfaceWithId;
-  TInterfaceWithIDListSortCompare = function (const Item1, Item2: Integer): Integer of object;
+  TInterfaceWithIDListSortCompare = function(const Item1, Item2: Integer): Integer of object;
 
   TIDInterfaceList = class(TIDListBase, IIDInterfaceList)
   protected
@@ -23,19 +23,29 @@ type
     procedure SetCapacity(NewCapacity: Integer); override;
     procedure SetCount(NewCount: Integer); override;
     procedure Delete(Index: Integer); override;
-    procedure Insert(Index: Integer; AID: Integer; AObj: IInterface);
+    procedure Insert(
+      Index: Integer;
+      AID: Integer;
+      AObj: IInterface
+    );
     procedure Sort(); override;
     function GetItemId(Index: Integer): Integer; override;
   public
     // Добавление объекта. Если объект с таким ID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(AID: Integer; AInterface: IInterface): IInterface; virtual;
+    function Add(
+      AID: Integer;
+      AInterface: IInterface
+    ): IInterface; virtual;
 
     // Получение объекта по ID
     function GetByID(AID: Integer): IInterface; virtual;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AID: Integer; AInterface: IInterface); virtual;
+    procedure Replace(
+      AID: Integer;
+      AInterface: IInterface
+    ); virtual;
   end;
 
 resourcestring
@@ -48,7 +58,10 @@ uses
 
 { TIDInterfaceList }
 
-function TIDInterfaceList.Add(AID: Integer; AInterface: IInterface): IInterface;
+function TIDInterfaceList.Add(
+  AID: Integer;
+  AInterface: IInterface
+): IInterface;
 var
   VIndex: Integer;
 begin
@@ -92,7 +105,10 @@ begin
   Result := FList^[Index].ID;
 end;
 
-procedure TIDInterfaceList.Insert(Index, AID: Integer; AObj: IInterface);
+procedure TIDInterfaceList.Insert(
+  Index, AID: Integer;
+  AObj: IInterface
+);
 begin
   if (Index < 0) or (Index > FCount) then begin
     Error(@SListIndexError, Index);
@@ -110,7 +126,10 @@ begin
   Inc(FCount);
 end;
 
-procedure TIDInterfaceList.Replace(AID: Integer; AInterface: IInterface);
+procedure TIDInterfaceList.Replace(
+  AID: Integer;
+  AInterface: IInterface
+);
 var
   VIndex: Integer;
 begin
@@ -146,7 +165,7 @@ begin
     SetCapacity(NewCount);
   end;
   if NewCount > FCount then begin
-    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithID), 0)
+    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TInterfaceWithID), 0);
   end else begin
     for I := FCount - 1 downto NewCount do begin
       Delete(I);
@@ -155,8 +174,11 @@ begin
   FCount := NewCount;
 end;
 
-procedure QuickSort(SortList: PInterfaceWithIDList; L, R: Integer;
-  SCompare: TInterfaceWithIDListSortCompare);
+procedure QuickSort(
+  SortList: PInterfaceWithIDList;
+  L, R: Integer;
+  SCompare: TInterfaceWithIDListSortCompare
+);
 var
   I, J: Integer;
   P, T: TInterfaceWithID;

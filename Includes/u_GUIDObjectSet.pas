@@ -18,7 +18,7 @@ const
 type
   PObjectWithGUIDList = ^TObjectWithGUIDList;
   TObjectWithGUIDList = array[0..MaxObjectWithGUIDListSize - 1] of TObjectWithGUID;
-  TObjectWithGUIDListSortCompare = function (const Item1, Item2: TGUID): Integer of object;
+  TObjectWithGUIDListSortCompare = function(const Item1, Item2: TGUID): Integer of object;
 
 type
   TGUIDObjectSet = class(TGUIDSetBase, IGUIDObjectSet)
@@ -27,19 +27,29 @@ type
     procedure SetCapacity(NewCapacity: Integer); override;
     procedure SetCount(NewCount: Integer); override;
     procedure Delete(Index: Integer); override;
-    procedure Insert(Index: Integer; const AGUID: TGUID; AObj: TObject);
+    procedure Insert(
+      Index: Integer;
+      const AGUID: TGUID;
+      AObj: TObject
+    );
     procedure Sort(); override;
     function GetItemGUID(Index: Integer): TGUID; override;
   public
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(const AGUID: TGUID; AObj: TObject): TObject; virtual;
+    function Add(
+      const AGUID: TGUID;
+      AObj: TObject
+    ): TObject; virtual;
 
     // Получение объекта по GUID
     function GetByGUID(const AGUID: TGUID): TObject; virtual;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(const AGUID: TGUID; AObj: TObject); virtual;
+    procedure Replace(
+      const AGUID: TGUID;
+      AObj: TObject
+    ); virtual;
 
     // Является ли этот список владельцем объектов
     function GetIsObjectOwner: Boolean;
@@ -58,7 +68,10 @@ uses
 
 { TGUIDList }
 
-function TGUIDObjectSet.Add(const AGUID: TGUID; AObj: TObject): TObject;
+function TGUIDObjectSet.Add(
+  const AGUID: TGUID;
+  AObj: TObject
+): TObject;
 var
   VIndex: Integer;
 begin
@@ -108,7 +121,11 @@ begin
   Result := FList^[Index].GUID;
 end;
 
-procedure TGUIDObjectSet.Insert(Index: Integer; const AGUID: TGUID; AObj: TObject);
+procedure TGUIDObjectSet.Insert(
+  Index: Integer;
+  const AGUID: TGUID;
+  AObj: TObject
+);
 begin
   if (Index < 0) or (Index > FCount) then begin
     Error(@SListIndexError, Index);
@@ -126,7 +143,10 @@ begin
   Inc(FCount);
 end;
 
-procedure TGUIDObjectSet.Replace(const AGUID: TGUID; AObj: TObject);
+procedure TGUIDObjectSet.Replace(
+  const AGUID: TGUID;
+  AObj: TObject
+);
 var
   VIndex: Integer;
 begin
@@ -162,7 +182,7 @@ begin
     SetCapacity(NewCount);
   end;
   if NewCount > FCount then begin
-    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TObjectWithGUID), 0)
+    FillChar(FList^[FCount], (NewCount - FCount) * SizeOf(TObjectWithGUID), 0);
   end else begin
     for I := FCount - 1 downto NewCount do begin
       Delete(I);
@@ -171,8 +191,11 @@ begin
   FCount := NewCount;
 end;
 
-procedure QuickSort(SortList: PObjectWithGUIDList; L, R: Integer;
-  SCompare: TObjectWithGUIDListSortCompare);
+procedure QuickSort(
+  SortList: PObjectWithGUIDList;
+  L, R: Integer;
+  SCompare: TObjectWithGUIDListSortCompare
+);
 var
   I, J: Integer;
   P, T: TObjectWithGUID;

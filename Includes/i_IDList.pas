@@ -28,10 +28,13 @@ uses
 
 type
   IIDInterfaceList = interface(IInterface)
-  ['{9AC37296-C3C6-4272-A829-F5DB3D702382}']
+    ['{9AC37296-C3C6-4272-A829-F5DB3D702382}']
     // Добавление объекта. Если объект с таким ID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(AID: Integer; AInterface: IInterface): IInterface;
+    function Add(
+      AID: Integer;
+      AInterface: IInterface
+    ): IInterface;
 
     // Проверка наличия ID в списке
     function IsExists(AID: Integer): boolean;
@@ -40,7 +43,10 @@ type
     function GetByID(AID: Integer): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AID: Integer; AInterface: IInterface);
+    procedure Replace(
+      AID: Integer;
+      AInterface: IInterface
+    );
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
     procedure Remove(AID: Integer);
@@ -57,11 +63,14 @@ type
   end;
 
   IIDObjectList = interface(IInterface)
-  ['{52DB5379-FCF5-4681-932E-6B09B141A607}']
+    ['{52DB5379-FCF5-4681-932E-6B09B141A607}']
     // Добавление объекта. Если объект с таким ID уже есть, то заменяться не будет
     // Если список является владельцем объектов и переданный объект не равен хранимому, то он будет удален
     // Возвращает хранимый объект
-    function Add(AID: Integer; AObj: TObject): TObject;
+    function Add(
+      AID: Integer;
+      AObj: TObject
+    ): TObject;
 
     // Проверка наличия ID в списке
     function IsExists(AID: Integer): boolean;
@@ -70,7 +79,10 @@ type
     function GetByGUID(AID: Integer): TObject;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(AID: Integer; AObj: TObject);
+    procedure Replace(
+      AID: Integer;
+      AObj: TObject
+    );
 
     // Удаление объекта, если нет с таким ID, то ничего не будет происходить
     procedure Remove(AID: Integer);
@@ -92,4 +104,3 @@ type
 implementation
 
 end.
-

@@ -36,7 +36,7 @@ type
     FFolderIteratorFactory: IFileNameIteratorFactory;
     FFilesInFolderIteratorFactory: IFileNameIteratorFactory;
   protected
-    function  CreateIterator(
+    function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
@@ -46,6 +46,7 @@ type
       const AFilesInFolderIteratorFactory: IFileNameIteratorFactory
     );
   end;
+
 implementation
 
 { TFileNameIteratorFolderWithSubfolders }

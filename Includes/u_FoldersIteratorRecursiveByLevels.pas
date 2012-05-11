@@ -16,7 +16,10 @@ type
     FFolderNameFromRoot: WideString;
     FFolderNamesList: TWideStringList;
     FMaxFolderDepth: integer;
-    procedure ProcessAddSubFolders(const AFolderNameFromRoot: WideString; ADepth: Integer);
+    procedure ProcessAddSubFolders(
+      const AFolderNameFromRoot: WideString;
+      ADepth: Integer
+    );
   protected
     function IsNeedFolderProcess(const AParentFolderNameFromRoot, AFolderName: WideString): Boolean; virtual;
   protected
@@ -36,7 +39,7 @@ type
   private
     FMaxFolderDepth: integer;
   protected
-    function  CreateIterator(
+    function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
@@ -51,7 +54,8 @@ implementation
 constructor TFoldersIteratorRecursiveByLevels.Create(
   const ARootFolderName: WideString;
   const AFolderNameFromRoot: WideString;
-  AMaxFolderDepth: integer);
+  AMaxFolderDepth: integer
+);
 begin
   if ARootFolderName <> '' then begin
     FRootFolderName := IncludeTrailingPathDelimiter(ARootFolderName);
@@ -112,7 +116,7 @@ begin
     VCurrFullFilesMask := FRootFolderName + VFolderNameFromRoot + '*';
     VhFind := THandle(Windows.FindFirstFileExW(PWideChar(VCurrFullFilesMask),
       FindExInfoStandard, @VFindFileData, FindExSearchLimitToDirectories, nil, 0));
-    if not(VhFind = INVALID_HANDLE_VALUE) then begin
+    if not (VhFind = INVALID_HANDLE_VALUE) then begin
       try
         repeat
           if (VFindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) <> 0 then begin

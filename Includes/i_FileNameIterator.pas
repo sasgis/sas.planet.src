@@ -12,7 +12,7 @@ type
 
   IFileNameIteratorFactory = interface
     ['{D4AB40AB-4853-4A53-8CFF-0975FAB34BD7}']
-    function  CreateIterator(
+    function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;

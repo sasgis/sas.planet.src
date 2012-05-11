@@ -28,10 +28,13 @@ uses
 
 type
   IGUIDInterfaceSet = interface(IInterface)
-  ['{BA17FFE8-E281-4E2E-8B92-8F39ACC67036}']
+    ['{BA17FFE8-E281-4E2E-8B92-8F39ACC67036}']
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
-    function Add(const AGUID: TGUID; const AInterface: IInterface): IInterface;
+    function Add(
+      const AGUID: TGUID;
+      const AInterface: IInterface
+    ): IInterface;
 
     // Проверка наличия GUID в списке
     function IsExists(const AGUID: TGUID): boolean;
@@ -40,7 +43,10 @@ type
     function GetByGUID(const AGUID: TGUID): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(const AGUID: TGUID; const AInterface: IInterface);
+    procedure Replace(
+      const AGUID: TGUID;
+      const AInterface: IInterface
+    );
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
     procedure Remove(const AGUID: TGUID);
@@ -57,11 +63,14 @@ type
   end;
 
   IGUIDObjectSet = interface(IInterface)
-  ['{9E176E50-3182-455C-AF58-9B6FB8E30E15}']
+    ['{9E176E50-3182-455C-AF58-9B6FB8E30E15}']
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Если список является владельцем объектов и переданный объект не равен хранимому, то он будет удален
     // Возвращает хранимый объект
-    function Add(const AGUID: TGUID; AObj: TObject): TObject;
+    function Add(
+      const AGUID: TGUID;
+      AObj: TObject
+    ): TObject;
 
     // Проверка наличия GUID в списке
     function IsExists(const AGUID: TGUID): boolean;
@@ -70,7 +79,10 @@ type
     function GetByGUID(const AGUID: TGUID): TObject;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
-    procedure Replace(const AGUID: TGUID; AObj: TObject);
+    procedure Replace(
+      const AGUID: TGUID;
+      AObj: TObject
+    );
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить
     procedure Remove(const AGUID: TGUID);

@@ -50,4 +50,3 @@ initialization
   RegisterTest(TestTGUIDInterfaceSet.Suite);
   RegisterTest(TestTGUIDObjectSet.Suite);
 end.
-

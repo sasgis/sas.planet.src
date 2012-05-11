@@ -12,6 +12,7 @@ uses
   ActiveX,
   TestFramework,
   i_GUIDSet;
+
 type
   // Test methods for interface IGUIDObjectSet
 

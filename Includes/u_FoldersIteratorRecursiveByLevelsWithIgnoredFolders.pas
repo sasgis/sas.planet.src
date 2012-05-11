@@ -29,7 +29,7 @@ type
     FMaxFolderDepth: integer;
     FIgnoredFoldersMasksList: TWideStrings;
   protected
-    function  CreateIterator(
+    function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
@@ -95,7 +95,9 @@ end;
 { TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory }
 
 constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.Create(
-  AMaxFolderDepth: integer; AIgnoredFoldersMasksList: TWideStrings);
+  AMaxFolderDepth: integer;
+  AIgnoredFoldersMasksList: TWideStrings
+);
 begin
   FMaxFolderDepth := AMaxFolderDepth;
   FIgnoredFoldersMasksList := TWideStringList.Create;
