@@ -33,8 +33,14 @@ type
   private
     FOnClick: TNotifyEvent;
   protected
-    procedure AddSubItems(AParent: TTBCustomItem; const AItem: IStaticTreeItem); virtual;
-    procedure AddItem(AParent: TTBCustomItem; const AItem: IStaticTreeItem); virtual;
+    procedure AddSubItems(
+      AParent: TTBCustomItem;
+      const AItem: IStaticTreeItem
+    ); virtual;
+    procedure AddItem(
+      AParent: TTBCustomItem;
+      const AItem: IStaticTreeItem
+    ); virtual;
     procedure ClearOldItems(ARootMenu: TTBCustomItem); virtual;
     function IsFlatSubTree(const AItem: IStaticTreeItem): Boolean; virtual;
   protected
@@ -47,6 +53,7 @@ type
       AOnClick: TNotifyEvent
     );
   end;
+
 implementation
 
 uses

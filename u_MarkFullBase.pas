@@ -89,9 +89,9 @@ function TMarkFullBase.GetInfoHTML: string;
 begin
   Result := '';
   if Fdesc <> '' then begin
-    Result:='<HTML><BODY>';
-    Result:=Result+Fdesc;
-    Result:=Result+'</BODY></HTML>';
+    Result := '<HTML><BODY>';
+    Result := Result + Fdesc;
+    Result := Result + '</BODY></HTML>';
   end;
 end;
 

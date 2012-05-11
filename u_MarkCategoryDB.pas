@@ -190,19 +190,19 @@ procedure TMarkCategoryDB.InitEmptyDS;
 begin
   FCdsKategory.Close;
   FCdsKategory.XMLData :=
-    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
-    '<DATAPACKET Version="2.0">'+
-    '<METADATA>'+
-    '<FIELDS>'+
-    '<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>'+
-    '<FIELD attrname="name" fieldtype="string" WIDTH="256"/>'+
-    '<FIELD attrname="visible" fieldtype="boolean"/>'+
-    '<FIELD attrname="AfterScale" fieldtype="i2"/>'+
-    '<FIELD attrname="BeforeScale" fieldtype="i2"/>'+
-    '</FIELDS>'+
-    '<PARAMS AUTOINCVALUE="1"/>'+
-    '</METADATA>'+
-    '<ROWDATA></ROWDATA>'+
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<DATAPACKET Version="2.0">' +
+    '<METADATA>' +
+    '<FIELDS>' +
+    '<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
+    '<FIELD attrname="name" fieldtype="string" WIDTH="256"/>' +
+    '<FIELD attrname="visible" fieldtype="boolean"/>' +
+    '<FIELD attrname="AfterScale" fieldtype="i2"/>' +
+    '<FIELD attrname="BeforeScale" fieldtype="i2"/>' +
+    '</FIELDS>' +
+    '<PARAMS AUTOINCVALUE="1"/>' +
+    '</METADATA>' +
+    '<ROWDATA></ROWDATA>' +
     '</DATAPACKET>';
   FCdsKategory.Open;
 end;
@@ -258,7 +258,7 @@ var
   VEnum: IEnumID;
   i: Cardinal;
   VId: Integer;
-  VCategory:  IMarkCategory;
+  VCategory: IMarkCategory;
 begin
   Result := nil;
   LockRead;
@@ -297,16 +297,16 @@ begin
     try
       FCdsKategory.Filtered := false;
       FCdsKategory.First;
-        while not (FCdsKategory.Eof) do begin
-          if FCdsKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
-            FCdsKategory.Edit;
-            FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
-            FCdsKategory.post;
-            VCategory := ReadCurrentCategory(VId);
-            FList.Replace(VId, VCategory);
-          end;
-          FCdsKategory.Next;
+      while not (FCdsKategory.Eof) do begin
+        if FCdsKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
+          FCdsKategory.Edit;
+          FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
+          FCdsKategory.post;
+          VCategory := ReadCurrentCategory(VId);
+          FList.Replace(VId, VCategory);
         end;
+        FCdsKategory.Next;
+      end;
     finally
       FCdsKategory.EnableControls;
     end;
@@ -404,7 +404,7 @@ var
 begin
   result := true;
   try
-    VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);;
+    VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);
     try
       LockRead;
       try

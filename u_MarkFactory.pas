@@ -39,7 +39,7 @@ uses
 
 type
 
-  TMarkFactory =  class(TInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
+  TMarkFactory = class(TInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
   private
     FConfig: IMarksFactoryConfig;
     FFactory: IVectorItmesFactory;
@@ -237,18 +237,19 @@ begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
-  Result := CreateLine(
-    -1,
-    VName,
-    True,
-    VCategoryId,
-    nil,
-    ADesc,
-    ALine.Bounds,
-    ALine,
-    VTemplate.LineColor,
-    VTemplate.LineWidth
-  );
+  Result :=
+    CreateLine(
+      -1,
+      VName,
+      True,
+      VCategoryId,
+      nil,
+      ADesc,
+      ALine.Bounds,
+      ALine,
+      VTemplate.LineColor,
+      VTemplate.LineWidth
+    );
 end;
 
 function TMarkFactory.CreateNewPoint(
@@ -277,21 +278,22 @@ begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
-  Result := CreatePoint(
-    -1,
-    VName,
-    True,
-    '',
-    VTemplate.Pic,
-    VCategoryId,
-    nil,
-    ADesc,
-    APoint,
-    VTemplate.TextColor,
-    VTemplate.TextBgColor,
-    VTemplate.FontSize,
-    VTemplate.MarkerSize
-  );
+  Result :=
+    CreatePoint(
+      -1,
+      VName,
+      True,
+      '',
+      VTemplate.Pic,
+      VCategoryId,
+      nil,
+      ADesc,
+      APoint,
+      VTemplate.TextColor,
+      VTemplate.TextBgColor,
+      VTemplate.FontSize,
+      VTemplate.MarkerSize
+    );
 end;
 
 function TMarkFactory.CreateNewPoly(
@@ -320,19 +322,20 @@ begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
-  Result := CreatePoly(
-    -1,
-    VName,
-    True,
-    VCategoryId,
-    nil,
-    ADesc,
-    ALine.Bounds,
-    ALine,
-    VTemplate.BorderColor,
-    VTemplate.FillColor,
-    VTemplate.LineWidth
-  );
+  Result :=
+    CreatePoly(
+      -1,
+      VName,
+      True,
+      VCategoryId,
+      nil,
+      ADesc,
+      ALine.Bounds,
+      ALine,
+      VTemplate.BorderColor,
+      VTemplate.FillColor,
+      VTemplate.LineWidth
+    );
 end;
 
 function TMarkFactory.CreatePoint(
@@ -372,21 +375,22 @@ begin
     VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
   end;
 
-  Result := TMarkPoint.Create(
-    FHintConverter,
-    AName,
-    AID,
-    AVisible,
-    VPicName,
-    VPic,
-    VCategory,
-    ADesc,
-    APoint,
-    ATextColor,
-    ATextBgColor,
-    AFontSize,
-    AMarkerSize
-  );
+  Result :=
+    TMarkPoint.Create(
+      FHintConverter,
+      AName,
+      AID,
+      AVisible,
+      VPicName,
+      VPic,
+      VCategory,
+      ADesc,
+      APoint,
+      ATextColor,
+      ATextBgColor,
+      AFontSize,
+      AMarkerSize
+    );
 end;
 
 function TMarkFactory.CreateLine(
@@ -409,18 +413,19 @@ begin
     VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
   end;
 
-  Result := TMarkLine.Create(
-    FHintConverter,
-    AName,
-    AId,
-    AVisible,
-    VCategory,
-    ADesc,
-    ARect,
-    ALine,
-    ALineColor,
-    ALineWidth
-  );
+  Result :=
+    TMarkLine.Create(
+      FHintConverter,
+      AName,
+      AId,
+      AVisible,
+      VCategory,
+      ADesc,
+      ARect,
+      ALine,
+      ALineColor,
+      ALineWidth
+    );
 end;
 
 function TMarkFactory.CreatePoly(
@@ -443,19 +448,20 @@ begin
     VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
   end;
 
-  Result := TMarkPoly.Create(
-    FHintConverter,
-    AName,
-    AID,
-    AVisible,
-    VCategory,
-    ADesc,
-    ARect,
-    ALine,
-    ABorderColor,
-    AFillColor,
-    ALineWidth
-  );
+  Result :=
+    TMarkPoly.Create(
+      FHintConverter,
+      AName,
+      AID,
+      AVisible,
+      VCategory,
+      ADesc,
+      ARect,
+      ALine,
+      ABorderColor,
+      AFillColor,
+      ALineWidth
+    );
 end;
 
 function TMarkFactory.CreateMark(
@@ -478,14 +484,54 @@ begin
   Result := nil;
   if APointCount > 0 then begin
     if APointCount = 1 then begin
-      Result := CreatePoint(AId, AName, AVisible, APicName, nil, ACategoryId, nil, ADesc, APoints[0], AColor1, AColor2, AScale1, AScale2)
+      Result :=
+        CreatePoint(
+          AId,
+          AName,
+          AVisible,
+          APicName,
+          nil,
+          ACategoryId,
+          nil,
+          ADesc,
+          APoints[0],
+          AColor1,
+          AColor2,
+          AScale1,
+          AScale2
+        );
     end else begin
       if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
         VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount);
-        Result := CreatePoly(AId, AName, AVisible, ACategoryId, nil, ADesc, VPolygon.Bounds, VPolygon, AColor1, AColor2, AScale1);
+        Result :=
+          CreatePoly(
+            AId,
+            AName,
+            AVisible,
+            ACategoryId,
+            nil,
+            ADesc,
+            VPolygon.Bounds,
+            VPolygon,
+            AColor1,
+            AColor2,
+            AScale1
+          );
       end else begin
         VPath := FFactory.CreateLonLatPath(APoints, APointCount);
-        Result := CreateLine(AId, AName, AVisible, ACategoryId, nil, ADesc, VPath.Bounds, VPath, AColor1, AScale1);
+        Result :=
+          CreateLine(
+            AId,
+            AName,
+            AVisible,
+            ACategoryId,
+            nil,
+            ADesc,
+            VPath.Bounds,
+            VPath,
+            AColor1,
+            AScale1
+          );
       end;
     end;
   end;
@@ -529,18 +575,19 @@ begin
     VDesc := ASource.Desc;
   end;
 
-  Result := CreateLine(
-    VId,
-    ASource.Name,
-    VVisible,
-    VCategoryId,
-    ASource.Category,
-    VDesc,
-    ALine.Bounds,
-    ALine,
-    ASource.LineColor,
-    ASource.LineWidth
-  );
+  Result :=
+    CreateLine(
+      VId,
+      ASource.Name,
+      VVisible,
+      VCategoryId,
+      ASource.Category,
+      VDesc,
+      ALine.Bounds,
+      ALine,
+      ASource.LineColor,
+      ASource.LineWidth
+    );
 end;
 
 function TMarkFactory.SimpleModifyPoly(
@@ -562,19 +609,20 @@ begin
     VCategoryId := VMarkInternal.CategoryId;
   end;
 
-  Result := CreatePoly(
-    VId,
-    ASource.Name,
-    VVisible,
-    VCategoryId,
-    ASource.Category,
-    ASource.Desc,
-    ALine.Bounds,
-    ALine,
-    ASource.BorderColor,
-    ASource.FillColor,
-    ASource.LineWidth
-  );
+  Result :=
+    CreatePoly(
+      VId,
+      ASource.Name,
+      VVisible,
+      VCategoryId,
+      ASource.Category,
+      ASource.Desc,
+      ALine.Bounds,
+      ALine,
+      ASource.BorderColor,
+      ASource.FillColor,
+      ASource.LineWidth
+    );
 end;
 
 function TMarkFactory.ModifyPoint(
@@ -614,21 +662,22 @@ begin
     end;
   end;
 
-  Result := CreatePoint(
-    VID,
-    AName,
-    AVisible,
-    VPicName,
-    APic,
-    VCategoryId,
-    ACategory,
-    ADesc,
-    APoint,
-    ATextColor,
-    ATextBgColor,
-    AFontSize,
-    AMarkerSize
-  );
+  Result :=
+    CreatePoint(
+      VID,
+      AName,
+      AVisible,
+      VPicName,
+      APic,
+      VCategoryId,
+      ACategory,
+      ADesc,
+      APoint,
+      ATextColor,
+      ATextBgColor,
+      AFontSize,
+      AMarkerSize
+    );
 end;
 
 function TMarkFactory.ModifyLine(
@@ -660,18 +709,19 @@ begin
     end;
   end;
 
-  Result := CreateLine(
-    VId,
-    AName,
-    AVisible,
-    VCategoryId,
-    ACategory,
-    ADesc,
-    ALine.Bounds,
-    ALine,
-    ALineColor,
-    ALineWidth
-  );
+  Result :=
+    CreateLine(
+      VId,
+      AName,
+      AVisible,
+      VCategoryId,
+      ACategory,
+      ADesc,
+      ALine.Bounds,
+      ALine,
+      ALineColor,
+      ALineWidth
+    );
 end;
 
 function TMarkFactory.ModifyPoly(
@@ -704,19 +754,20 @@ begin
     end;
   end;
 
-  Result := CreatePoly(
-    VID,
-    AName,
-    AVisible,
-    VCategoryId,
-    ACategory,
-    ADesc,
-    ALine.Bounds,
-    ALine,
-    ABorderColor,
-    AFillColor,
-    ALineWidth
-  );
+  Result :=
+    CreatePoly(
+      VID,
+      AName,
+      AVisible,
+      VCategoryId,
+      ACategory,
+      ADesc,
+      ALine.Bounds,
+      ALine,
+      ABorderColor,
+      AFillColor,
+      ALineWidth
+    );
 end;
 
 function TMarkFactory.GetConfig: IMarksFactoryConfig;

@@ -61,6 +61,7 @@ implementation
 
 uses
   SysUtils,
+  i_StringConfigDataElement,
   i_MarksDbSmlInternal,
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
@@ -73,24 +74,26 @@ constructor TMarkPolyTemplateConfig.Create(
   const ALanguageManager: ILanguageManager;
   const ACategoryDb: IMarkCategoryDBSmlInternal
 );
+var
+  VFormatString: IStringConfigDataElement;
 begin
-  inherited Create(
-    ACategoryDb,
+  VFormatString :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
       @SAS_STR_NewPoly,
       True,
       'FormatString',
       True
-    )
-  );
+    );
+  inherited Create(ACategoryDb, VFormatString);
 
-  FDefaultTemplate := CreateTemplate(
-    nil,
-    SetAlpha(clBlack32, 166),
-    SetAlpha(clWhite32, 51),
-    2
-  );
+  FDefaultTemplate :=
+    CreateTemplate(
+      nil,
+      SetAlpha(clBlack32, 166),
+      SetAlpha(clWhite32, 51),
+      2
+    );
 end;
 
 function TMarkPolyTemplateConfig.CreateTemplate(
@@ -109,14 +112,15 @@ begin
       VCategoryId := VCategoryInternal.Id;
     end;
   end;
-  Result := TMarkTemplatePoly.Create(
-    CategoryDb,
-    NameGenerator,
-    VCategoryId,
-    AColor1,
-    AColor2,
-    AScale1
-  );
+  Result :=
+    TMarkTemplatePoly.Create(
+      CategoryDb,
+      NameGenerator,
+      VCategoryId,
+      AColor1,
+      AColor2,
+      AScale1
+    );
 end;
 
 procedure TMarkPolyTemplateConfig.DoReadConfig(
@@ -201,4 +205,3 @@ begin
 end;
 
 end.
-

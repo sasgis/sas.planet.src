@@ -60,26 +60,53 @@ type
     FfrmImportConfigEdit: TfrmImportConfigEdit;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
   public
-    procedure MarksListToStrings(const AList: IInterfaceList; AStrings: TStrings);
+    procedure MarksListToStrings(
+      const AList: IInterfaceList;
+      AStrings: TStrings
+    );
 
-    function DeleteMarkModal(const AMarkID: IMarkID; handle:THandle):boolean;
-    function DeleteMarksModal(const AMarkIDList: IInterfaceList; handle:THandle):boolean;
-    function OperationMark(const AMark: IMark; const AProjection: IProjectionInfo):boolean;
-    function AddKategory(const name:string): IMarkCategory;
-    procedure ShowMarkLength(const AMark: IMarkLine; const AConverter: ICoordConverter; AHandle: THandle); overload;
-    procedure ShowMarkLength(const AMark: IMarkPoly; const AConverter: ICoordConverter; AHandle: THandle); overload;
-    procedure ShowMarkSq(const AMark: IMarkPoly; const AConverter: ICoordConverter; AHandle: THandle);
+    function DeleteMarkModal(
+      const AMarkID: IMarkID;
+      handle: THandle
+    ): boolean;
+    function DeleteMarksModal(
+      const AMarkIDList: IInterfaceList;
+      handle: THandle
+    ): boolean;
+    function OperationMark(
+      const AMark: IMark;
+      const AProjection: IProjectionInfo
+    ): boolean;
+    function AddKategory(const name: string): IMarkCategory;
+    procedure ShowMarkLength(
+      const AMark: IMarkLine;
+      const AConverter: ICoordConverter;
+      AHandle: THandle
+    ); overload;
+    procedure ShowMarkLength(
+      const AMark: IMarkPoly;
+      const AConverter: ICoordConverter;
+      AHandle: THandle
+    ); overload;
+    procedure ShowMarkSq(
+      const AMark: IMarkPoly;
+      const AConverter: ICoordConverter;
+      AHandle: THandle
+    );
     function EditMarkModal(const AMark: IMark): IMark;
     function EditCategoryModal(const ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
-    function SavePolyModal(const AMark: IMarkPoly; const ALine: ILonLatPolygon): Boolean;
+    function SavePolyModal(
+      const AMark: IMarkPoly;
+      const ALine: ILonLatPolygon
+    ): Boolean;
     function SaveLineModal(
       const AMark: IMarkLine;
       const ALine: ILonLatPath;
       const ADescription: string
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
-    function MarksMultiEditModal(const ACategory:ICategory): IImportConfig;
+    function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
 
     property MarksDB: TMarksSystem read FMarksDB;
   public
@@ -220,7 +247,7 @@ function TMarksDbGUIHelper.DeleteMarkModal(
 begin
   Result := false;
   if AMarkID <> nil then begin
-    if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+AMarkID.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+    if MessageBox(handle, pchar(SAS_MSG_youasure + ' "' + AMarkID.name + '"'), pchar(SAS_MSG_coution), 36) = IDYES then begin
       result := FMarksDb.MarksDb.UpdateMark(AMarkID, nil) = nil;
     end;
   end;
@@ -235,13 +262,13 @@ var
 begin
   Result := false;
   if AMarkIDList <> nil then begin
-    if AMarkIDList.Count=1 then begin
-      VMark:=IMarkId(AMarkIDList[0]);
-      if MessageBox(handle,pchar(SAS_MSG_youasure+' "'+VMark.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+    if AMarkIDList.Count = 1 then begin
+      VMark := IMarkId(AMarkIDList[0]);
+      if MessageBox(handle, pchar(SAS_MSG_youasure + ' "' + VMark.name + '"'), pchar(SAS_MSG_coution), 36) = IDYES then begin
         result := FMarksDb.MarksDb.UpdateMark(VMark, nil) = nil;
       end;
     end else begin
-      if MessageBox(handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES then begin
+      if MessageBox(handle, pchar(SAS_MSG_youasure), pchar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMarksList(AMarkIDList, nil);
         result := true;
       end;
@@ -277,7 +304,7 @@ begin
   Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
-function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory:ICategory): IImportConfig;
+function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
 begin
   Result := FfrmMarksMultiEdit.GetImportConfig(ACategory);
 end;
@@ -293,9 +320,9 @@ var
 begin
   if AMark <> nil then begin
     VLen := AMark.Line.CalcLength(AConverter.Datum);
-    VMessage := SAS_STR_L+' - '+
+    VMessage := SAS_STR_L + ' - ' +
       FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name), 0);
   end;
 end;
 
@@ -310,9 +337,9 @@ var
 begin
   if AMark <> nil then begin
     VLen := AMark.Line.CalcPerimeter(AConverter.Datum);
-    VMessage := SAS_STR_P+' - '+
+    VMessage := SAS_STR_P + ' - ' +
       FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name),0);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name), 0);
   end;
 end;
 
@@ -326,9 +353,9 @@ var
   VMessage: string;
 begin
   if AMark <> nil then begin
-    VArea:= AMark.Line.CalcArea(AConverter.Datum);
-    VMessage := SAS_STR_S+' - '+FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
-    MessageBox(AHandle,pchar(VMessage),pchar(AMark.name),0);
+    VArea := AMark.Line.CalcArea(AConverter.Datum);
+    VMessage := SAS_STR_S + ' - ' + FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name), 0);
   end;
 end;
 
@@ -343,16 +370,16 @@ var
   VDefRadius: String;
   VPolygon: ILonLatPolygon;
 begin
-  Result:=false;
+  Result := false;
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     FFormRegionProcess.Show_(AProjection.Zoom, VMarkPoly.Line);
-    Result:=true;
+    Result := true;
   end else begin
     if Supports(AMark, IMarkLine, VMarkLine) then begin
-      VDefRadius:='100';
-      if InputQuery('','Radius , m', VDefRadius) then begin
+      VDefRadius := '100';
+      if InputQuery('', 'Radius , m', VDefRadius) then begin
         try
-          VRadius:=str2r(VDefRadius);
+          VRadius := str2r(VDefRadius);
         except
           ShowMessage(SAS_ERR_ParamsInput);
           Exit;
@@ -363,7 +390,7 @@ begin
             TLonLatPointFilterLine2Poly.Create(VRadius, AProjection)
           );
         FFormRegionProcess.Show_(AProjection.Zoom, VPolygon);
-        Result:=true;
+        Result := true;
       end;
     end else begin
       ShowMessage(SAS_MSG_FunExForPoly);

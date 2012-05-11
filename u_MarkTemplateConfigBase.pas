@@ -51,7 +51,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_MarkNameGenerator;
 
-  { TMarkTemplateConfigBase }
+{ TMarkTemplateConfigBase }
 
 constructor TMarkTemplateConfigBase.Create(
   const ACategoryDb: IMarkCategoryDBSmlInternal;

@@ -207,8 +207,8 @@ begin
   FSync.BeginWrite;
   try
     i := FCacheList.IndexOf(VKey);
-    if (i < 0)and(FCacheList.Capacity>0) then begin
-      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
+    if (i < 0) and (FCacheList.Capacity > 0) then begin
+      if (FCacheList.Count >= FCacheList.Capacity) and (FCacheList.Count > 0) then begin
         ItemFree(0);
         FCacheList.Delete(0);
       end;
@@ -235,8 +235,11 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.DeleteTileFromCache(const AXY: TPoint; const AZoom: Byte;
-                                                const AMapVersionInfo: IMapVersionInfo);
+procedure TMemTileCacheBase.DeleteTileFromCache(
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AMapVersionInfo: IMapVersionInfo
+);
 var
   i: Integer;
   VKey: string;
@@ -254,14 +257,18 @@ begin
   end;
 end;
 
-function TMemTileCacheBase.GetMemCacheKey(const AXY: TPoint; const Azoom: byte;
-                                          const AMapVersionInfo: IMapVersionInfo): string;
-var VVer: String;
+function TMemTileCacheBase.GetMemCacheKey(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const AMapVersionInfo: IMapVersionInfo
+): string;
+var
+  VVer: String;
 begin
   Result := inttostr(Azoom) + '_' + inttostr(AXY.X) + '_' + inttostr(AXY.Y);
   if Assigned(AMapVersionInfo) then begin
     VVer := AMapVersionInfo.StoreString;
-    if (0<Length(VVer)) then begin
+    if (0 < Length(VVer)) then begin
       Result := Result + '_' + VVer;
     end;
   end;
@@ -354,8 +361,8 @@ begin
   FSync.BeginWrite;
   try
     i := FCacheList.IndexOf(VKey);
-    if (i < 0)and(FCacheList.Capacity>0) then begin
-      if (FCacheList.Count >= FCacheList.Capacity)and(FCacheList.Count>0) then begin
+    if (i < 0) and (FCacheList.Capacity > 0) then begin
+      if (FCacheList.Count >= FCacheList.Capacity) and (FCacheList.Count > 0) then begin
         ItemFree(0);
         FCacheList.Delete(0);
       end;

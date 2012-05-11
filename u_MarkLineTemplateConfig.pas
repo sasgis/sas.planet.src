@@ -60,6 +60,7 @@ implementation
 
 uses
   SysUtils,
+  i_StringConfigDataElement,
   i_MarksDbSmlInternal,
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
@@ -72,23 +73,25 @@ constructor TMarkLineTemplateConfig.Create(
   const ALanguageManager: ILanguageManager;
   const ACategoryDb: IMarkCategoryDBSmlInternal
 );
+var
+  VFormatString: IStringConfigDataElement;
 begin
-  inherited Create(
-    ACategoryDb,
+  VFormatString :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
       @SAS_STR_NewPath,
       True,
       'FormatString',
       True
-    )
-  );
+    );
+  inherited Create(ACategoryDb, VFormatString);
 
-  FDefaultTemplate := CreateTemplate(
-    nil,
-    SetAlpha(clRed32, 166),
-    2
-  );
+  FDefaultTemplate :=
+    CreateTemplate(
+      nil,
+      SetAlpha(clRed32, 166),
+      2
+    );
 end;
 
 function TMarkLineTemplateConfig.CreateTemplate(
@@ -106,13 +109,14 @@ begin
       VCategoryId := VCategoryInternal.Id;
     end;
   end;
-  Result := TMarkTemplateLine.Create(
-    CategoryDb,
-    NameGenerator,
-    VCategoryId,
-    AColor1,
-    AScale1
-  );
+  Result :=
+    TMarkTemplateLine.Create(
+      CategoryDb,
+      NameGenerator,
+      VCategoryId,
+      AColor1,
+      AScale1
+    );
 end;
 
 procedure TMarkLineTemplateConfig.DoReadConfig(
@@ -194,4 +198,3 @@ begin
 end;
 
 end.
-

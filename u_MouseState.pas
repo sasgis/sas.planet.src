@@ -40,14 +40,14 @@ type
   private
     FCS: IReadWriteSync;
     FNtQPC: Pointer;
-    
+
     FMinTime: Double;
     FMaxTime: Double;
     FUsedTime: Double;
 
     FPrevSpeedUsed: Integer;
-    FPrevPoints: array[0..CPrevSpeedCount-1] of TPoint;
-    FPrevTime: array[0..CPrevSpeedCount-1] of Double;
+    FPrevPoints: array[0..CPrevSpeedCount - 1] of TPoint;
+    FPrevTime: array[0..CPrevSpeedCount - 1] of Double;
 
     FCurentPos: TPoint;
     FCurentTime: TLargeInteger;
@@ -90,7 +90,7 @@ type
     constructor Create();
     destructor Destroy; override;
   end;
-  
+
 implementation
 
 uses
@@ -253,14 +253,15 @@ var
   VFirstPoint, VSecondPoint: TPoint;
   i: Integer;
 begin
-  if (nil<>FNtQPC) then begin
+  if (nil <> FNtQPC) then begin
     // fast
     TNtQueryPerformanceCounter(FNtQPC)(@VCurrTime, @VFrequency);
   end else begin
     // slow
     QueryPerformanceCounter(VCurrTime);
-    if FCurentTime <> 0 then
+    if FCurentTime <> 0 then begin
       QueryPerformanceFrequency(VFrequency);
+    end;
   end;
 
   if FCurentTime <> 0 then begin

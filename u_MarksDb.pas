@@ -42,7 +42,7 @@ uses
   i_MarkFactorySmlInternal;
 
 type
-  TMarksDb =  class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
+  TMarksDb = class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
   private
     FSync: IReadWriteSync;
     FBasePath: IPathConfig;
@@ -61,7 +61,10 @@ type
     procedure InitEmptyDS(ACdsMarks: TClientDataSet);
     function GetCategoryID(const ACategory: ICategory): Integer;
     function GetFilterTextByCategory(const ACategory: ICategory): string;
-    function _UpdateMark(const AOldMark: IInterface; const ANewMark: IInterface): IMark;
+    function _UpdateMark(
+      const AOldMark: IInterface;
+      const ANewMark: IInterface
+    ): IMark;
     procedure _AddMarksToList(
       const ASourceList: IIDInterfaceList;
       const ARect: TDoubleRect;
@@ -77,11 +80,20 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   private
-    function UpdateMark(const AOldMark: IInterface; const ANewMark: IMark): IMark;
-    function UpdateMarksList(const AOldMarkList: IInterfaceList; const ANewMarkList: IInterfaceList): IInterfaceList;
+    function UpdateMark(
+      const AOldMark: IInterface;
+      const ANewMark: IMark
+    ): IMark;
+    function UpdateMarksList(
+      const AOldMarkList: IInterfaceList;
+      const ANewMarkList: IInterfaceList
+    ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
-    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
+    procedure SetMarkVisibleByID(
+      const AMark: IMarkId;
+      AVisible: Boolean
+    );
     function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(const AMark: IMark): Boolean; overload;
     function GetMarkIsNew(const AMark: IMark): Boolean;
@@ -89,10 +101,21 @@ type
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
-    procedure SetAllMarksInCategoryVisible(const ACategory: ICategory; ANewVisible: Boolean);
+    procedure SetAllMarksInCategoryVisible(
+      const ACategory: ICategory;
+      ANewVisible: Boolean
+    );
 
-    function GetMarksSubset(const ARect: TDoubleRect; const ACategoryList: IInterfaceList; AIgnoreVisible: Boolean): IMarksSubset; overload;
-    function GetMarksSubset(const ARect: TDoubleRect; const ACategory: ICategory; AIgnoreVisible: Boolean): IMarksSubset; overload;
+    function GetMarksSubset(
+      const ARect: TDoubleRect;
+      const ACategoryList: IInterfaceList;
+      AIgnoreVisible: Boolean
+    ): IMarksSubset; overload;
+    function GetMarksSubset(
+      const ARect: TDoubleRect;
+      const ACategory: ICategory;
+      AIgnoreVisible: Boolean
+    ): IMarksSubset; overload;
   public
     constructor Create(
       const ABasePath: IPathConfig;
@@ -125,7 +148,10 @@ type
   end;
 
 
-procedure Blob2ExtArr(Blobfield: Tfield; const AAggregator: IDoublePointsAggregator);
+procedure Blob2ExtArr(
+  Blobfield: Tfield;
+  const AAggregator: IDoublePointsAggregator
+);
 var
   VSize: Integer;
   VPointsCount: Integer;
@@ -335,12 +361,12 @@ begin
   VLocated := False;
   VOldMark := nil;
   if VIdOld >= 0 then begin
-      VOldMark := IMark(FMarksList.GetByID(VIdOld));
+    VOldMark := IMark(FMarksList.GetByID(VIdOld));
 
-      FCdsMarks.Filtered := false;
-      if FCdsMarks.Locate('id', VIdOld, []) then begin
-        VLocated := True;
-      end;
+    FCdsMarks.Filtered := false;
+    if FCdsMarks.Locate('id', VIdOld, []) then begin
+      VLocated := True;
+    end;
   end;
   if VLocated then begin
     if Supports(ANewMark, IMark, VMark) then begin
@@ -359,7 +385,7 @@ begin
       Result := ReadCurrentMark;
     end;
   end;
-  
+
   VIdNew := -1;
   if Supports(Result, IMarkSMLInternal, VMarkInternal) then begin
     VIdNew := VMarkInternal.Id;
@@ -737,7 +763,10 @@ begin
   end;
 end;
 
-procedure TMarksDb.SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
+procedure TMarksDb.SetMarkVisibleByID(
+  const AMark: IMarkId;
+  AVisible: Boolean
+);
 var
   VMarkVisible: IMarkSMLInternal;
   VId: Integer;
@@ -830,29 +859,29 @@ procedure TMarksDb.InitEmptyDS(ACdsMarks: TClientDataSet);
 begin
   ACdsMarks.Close;
   ACdsMarks.XMLData :=
-    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
-    '<DATAPACKET Version="2.0">'+
-    '	<METADATA>'+
-    '		<FIELDS>'+
-    '			<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>'+
-    '			<FIELD attrname="name" fieldtype="string" WIDTH="255"/>'+
-    '			<FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="Text"/>'+
-    '			<FIELD attrname="scale1" fieldtype="i4"/>'+
-    ' 		<FIELD attrname="scale2" fieldtype="i4"/>'+
-    '			<FIELD attrname="lonlatarr" fieldtype="bin.hex" SUBTYPE="Binary"/>'+
-    '			<FIELD attrname="lonL" fieldtype="r8"/>'+
-    '			<FIELD attrname="latT" fieldtype="r8"/>'+
-    '			<FIELD attrname="LonR" fieldtype="r8"/>'+
-    '			<FIELD attrname="LatB" fieldtype="r8"/>'+
-    '			<FIELD attrname="color1" fieldtype="i4"/>'+
-    '			<FIELD attrname="color2" fieldtype="i4"/>'+
-    '			<FIELD attrname="visible" fieldtype="boolean"/>'+
-    '			<FIELD attrname="picname" fieldtype="string" WIDTH="20"/>'+
-    '			<FIELD attrname="categoryid" fieldtype="i4"/>'+
-    '		</FIELDS>'+
-    '		<PARAMS AUTOINCVALUE="1"/>'+
-    '	</METADATA>'+
-    '	<ROWDATA/>'+
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<DATAPACKET Version="2.0">' +
+    '	<METADATA>' +
+    '		<FIELDS>' +
+    '			<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
+    '			<FIELD attrname="name" fieldtype="string" WIDTH="255"/>' +
+    '			<FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="Text"/>' +
+    '			<FIELD attrname="scale1" fieldtype="i4"/>' +
+    ' 		<FIELD attrname="scale2" fieldtype="i4"/>' +
+    '			<FIELD attrname="lonlatarr" fieldtype="bin.hex" SUBTYPE="Binary"/>' +
+    '			<FIELD attrname="lonL" fieldtype="r8"/>' +
+    '			<FIELD attrname="latT" fieldtype="r8"/>' +
+    '			<FIELD attrname="LonR" fieldtype="r8"/>' +
+    '			<FIELD attrname="LatB" fieldtype="r8"/>' +
+    '			<FIELD attrname="color1" fieldtype="i4"/>' +
+    '			<FIELD attrname="color2" fieldtype="i4"/>' +
+    '			<FIELD attrname="visible" fieldtype="boolean"/>' +
+    '			<FIELD attrname="picname" fieldtype="string" WIDTH="20"/>' +
+    '			<FIELD attrname="categoryid" fieldtype="i4"/>' +
+    '		</FIELDS>' +
+    '		<PARAMS AUTOINCVALUE="1"/>' +
+    '	</METADATA>' +
+    '	<ROWDATA/>' +
     '</DATAPACKET>';
   ACdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
   ACdsMarks.Open;
@@ -887,12 +916,10 @@ begin
   VEnumId := ASourceList.GetIDEnum;
   while VEnumId.Next(1, VId, VCnt) = S_OK do begin
     VMark := IMark(ASourceList.GetByID(VId));
-    if
-      (VMark.LLRect.Right > ARect.Left) and
+    if (VMark.LLRect.Right > ARect.Left) and
       (VMark.LLRect.Left < ARect.Right) and
       (VMark.LLRect.Bottom < ARect.Top) and
-      (VMark.LLRect.Top > ARect.Bottom)
-    then begin
+      (VMark.LLRect.Top > ARect.Bottom) then begin
       if not AIgnoreVisible then begin
         if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin
@@ -1043,7 +1070,7 @@ begin
   try
     VFileName := GetMarksFileName;
     ForceDirectories(ExtractFilePath(VFileName));
-    VStream := TFileStream.Create(VFileName, fmCreate);;
+    VStream := TFileStream.Create(VFileName, fmCreate);
     try
       LockRead;
       try

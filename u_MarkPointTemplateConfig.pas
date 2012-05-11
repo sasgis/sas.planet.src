@@ -68,6 +68,7 @@ implementation
 
 uses
   SysUtils,
+  i_StringConfigDataElement,
   i_MarksDbSmlInternal,
   u_ConfigProviderHelpers,
   u_StringConfigDataElementWithDefByStringRec,
@@ -83,17 +84,17 @@ constructor TMarkPointTemplateConfig.Create(
 );
 var
   VPic: IMarkPicture;
+  VFormatString: IStringConfigDataElement;
 begin
-  inherited Create(
-    ACategoryDb,
+  VFormatString :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
       @SAS_STR_NewMark,
       True,
       'FormatString',
       True
-    )
-  );
+    );
+  inherited Create(ACategoryDb, VFormatString);
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin
@@ -102,14 +103,15 @@ begin
     VPic := nil;
   end;
 
-  FDefaultTemplate := CreateTemplate(
-    VPic,
-    nil,
-    SetAlpha(clYellow32, 166),
-    SetAlpha(clBlack32, 166),
-    11,
-    32
-  );
+  FDefaultTemplate :=
+    CreateTemplate(
+      VPic,
+      nil,
+      SetAlpha(clYellow32, 166),
+      SetAlpha(clBlack32, 166),
+      11,
+      32
+    );
 end;
 
 function TMarkPointTemplateConfig.CreateTemplate(
@@ -128,16 +130,17 @@ begin
       VCategoryId := VCategoryInternal.Id;
     end;
   end;
-  Result := TMarkTemplatePoint.Create(
-    CategoryDb,
-    NameGenerator,
-    VCategoryId,
-    AColor1,
-    AColor2,
-    AScale1,
-    AScale2,
-    APic
-  );
+  Result :=
+    TMarkTemplatePoint.Create(
+      CategoryDb,
+      NameGenerator,
+      VCategoryId,
+      AColor1,
+      AColor2,
+      AScale1,
+      AScale2,
+      APic
+    );
 end;
 
 procedure TMarkPointTemplateConfig.DoReadConfig(

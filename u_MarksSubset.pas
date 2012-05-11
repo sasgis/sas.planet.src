@@ -100,12 +100,11 @@ begin
     for i := 0 to FList.Count - 1 do begin
       VMark := IMark(FList.Items[i]);
       VMarkLonLatRect := VMark.LLRect;
-      if(
-        (ARect.Right >= VMarkLonLatRect.Left)and
-        (ARect.Left <= VMarkLonLatRect.Right)and
-        (ARect.Bottom <= VMarkLonLatRect.Top)and
-        (ARect.Top >= VMarkLonLatRect.Bottom))
-      then begin
+      if (
+        (ARect.Right >= VMarkLonLatRect.Left) and
+        (ARect.Left <= VMarkLonLatRect.Right) and
+        (ARect.Bottom <= VMarkLonLatRect.Top) and
+        (ARect.Top >= VMarkLonLatRect.Bottom)) then begin
         VNewList.Add(VMark);
       end;
     end;

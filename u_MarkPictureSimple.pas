@@ -107,7 +107,7 @@ end;
 procedure TMarkPictureSimple.InitPic;
 var
   VMemStream: TMemoryStream;
-  VBitmap:  IBitmap32Static;
+  VBitmap: IBitmap32Static;
   VAnchor: TDoublePoint;
   VBaseMarker: IBitmapMarker;
 begin

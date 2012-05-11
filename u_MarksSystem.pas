@@ -93,7 +93,10 @@ uses
 type
   TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
-    procedure ProcessItems(const ASource: IInterface; AList: TStringList); override;
+    procedure ProcessItems(
+      const ASource: IInterface;
+      AList: TStringList
+    ); override;
     function GetNameFromItem(
       const ASource: IInterface;
       const AItem: IInterface
@@ -128,7 +131,10 @@ end;
 type
   TStaticTreeByMarksSubsetBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
-    procedure ProcessItems(const ASource: IInterface; AList: TStringList); override;
+    procedure ProcessItems(
+      const ASource: IInterface;
+      AList: TStringList
+    ); override;
     function GetNameFromItem(
       const ASource: IInterface;
       const AItem: IInterface
@@ -245,11 +251,9 @@ begin
   VList := FCategoryDB.GetCategoriesList;
   for i := 0 to VList.Count - 1 do begin
     VCategory := IMarkCategory(VList[i]);
-    if
-      (VCategory.visible) and
+    if (VCategory.visible) and
       (VCategory.AfterScale <= AZoom + 1) and
-      (VCategory.BeforeScale >= AZoom + 1)
-    then begin
+      (VCategory.BeforeScale >= AZoom + 1) then begin
       Result.Add(VCategory);
     end;
   end;
@@ -293,6 +297,3 @@ begin
 end;
 
 end.
-
-
-
