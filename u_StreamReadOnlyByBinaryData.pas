@@ -12,7 +12,10 @@ type
     FData: IBinaryData;
   public
     procedure SetSize(NewSize: Longint); override;
-    function Write(const Buffer; Count: Longint): Longint; override;
+    function Write(
+      const Buffer;
+      Count: Longint
+    ): Longint; override;
   public
     constructor Create(const AData: IBinaryData);
   end;
@@ -36,8 +39,10 @@ begin
   end;
 end;
 
-function TStreamReadOnlyByBinaryData.Write(const Buffer;
-  Count: Integer): Longint;
+function TStreamReadOnlyByBinaryData.Write(
+  const Buffer;
+  Count: Integer
+): Longint;
 begin
   raise EWriteError.Create('Read only stream');
 end;

@@ -116,7 +116,7 @@ procedure TStringConfigDataElementWithDefByStringRec.DoWriteConfig(
 begin
   inherited;
   if FUseSotre then begin
-    if (FValue <> FDefValue) or FIsStoreDefault   then begin
+    if (FValue <> FDefValue) or FIsStoreDefault then begin
       AConfigData.WriteString(FStoreIdentifier, FValue);
     end else begin
       AConfigData.DeleteValue(FStoreIdentifier);
@@ -151,7 +151,7 @@ begin
   LockWrite;
   try
     VDefValueNew := LoadResString(FResStringRec);
-    if FValue = FDefValue  then begin
+    if FValue = FDefValue then begin
       SetValue(VDefValueNew);
     end;
     FDefValue := VDefValueNew;

@@ -62,7 +62,10 @@ type
     FValueChangeId: Integer;
     FValueShowId: Integer;
 
-    function GuidToComponentName(const APrefix: string; const AGUID: TGUID): string;
+    function GuidToComponentName(
+      const APrefix: string;
+      const AGUID: TGUID
+    ): string;
     procedure CreateMenu;
     procedure UpdateControls;
 
@@ -332,7 +335,7 @@ end;
 procedure TSensorViewTBXPanelBase.OnResetClick(Sender: TObject);
 begin
   if FSensor.CanReset then begin
-    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor),pchar(SAS_MSG_coution),36)=IDYES) then begin
+    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor), pchar(SAS_MSG_coution), 36) = IDYES) then begin
       FSensor.Reset;
       OnTimer;
     end;

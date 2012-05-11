@@ -452,7 +452,7 @@ end;
 
 function TSensorFromGPSRecorderDist.ValueToText(const AValue: Double): string;
 begin
-  Result := ValueConverter.DistConvert(AValue)
+  Result := ValueConverter.DistConvert(AValue);
 end;
 
 { TSensorFromGPSRecorderOdometer1 }
@@ -500,7 +500,7 @@ end;
 
 function TSensorFromGPSRecorderOdometer1.ValueToText(const AValue: Double): string;
 begin
-  Result := ValueConverter.DistConvert(AValue)
+  Result := ValueConverter.DistConvert(AValue);
 end;
 
 { TSensorFromGPSRecorderOdometer2 }
@@ -548,7 +548,7 @@ end;
 
 function TSensorFromGPSRecorderOdometer2.ValueToText(const AValue: Double): string;
 begin
-  Result := ValueConverter.DistConvert(AValue)
+  Result := ValueConverter.DistConvert(AValue);
 end;
 
 { TSensorFromGPSRecorderAltitude }
@@ -632,7 +632,7 @@ end;
 
 function TSensorFromGPSRecorderHeading.ValueToText(const AValue: Double): string;
 begin
-  Result := RoundEx(AValue, 2) + '°';;
+  Result := RoundEx(AValue, 2) + '°';
 end;
 
 { TSensorFromGPSRecorderHDOP }
@@ -668,7 +668,8 @@ begin
 end;
 
 function TSensorFromGPSRecorderHDOP.GetValue: Double;
-var VPosition: IGPSPosition;
+var
+  VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
   Result := VPosition.GetPosParams^.HDOP;
@@ -712,7 +713,8 @@ begin
 end;
 
 function TSensorFromGPSRecorderVDOP.GetValue: Double;
-var VPosition: IGPSPosition;
+var
+  VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
   Result := VPosition.GetPosParams^.VDOP;
@@ -756,11 +758,13 @@ begin
 end;
 
 function TSensorFromGPSRecorderUTCTime.GetValue: Double;
-var VPosition: IGPSPosition;
+var
+  VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  with VPosition.GetPosParams^ do
-    Result := (UTCDate+UTCTime);
+  with VPosition.GetPosParams^ do begin
+    Result := (UTCDate + UTCTime);
+  end;
 end;
 
 { TSensorFromGPSRecorderLocalTime }
@@ -796,13 +800,16 @@ begin
 end;
 
 function TSensorFromGPSRecorderLocalTime.GetValue: Double;
-var VPosition: IGPSPosition;
+var
+  VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  with VPosition.GetPosParams^ do
-  Result := (UTCDate+UTCTime);
-  if (0<>Result) then
-    Result:=SystemTimeToLocalTime(Result);
+  with VPosition.GetPosParams^ do begin
+    Result := (UTCDate + UTCTime);
+  end;
+  if (0 <> Result) then begin
+    Result := SystemTimeToLocalTime(Result);
+  end;
 end;
 
 procedure TSensorFromGPSRecorderLocalTime.Reset;
@@ -844,7 +851,8 @@ begin
 end;
 
 function TSensorFromGPSRecorderDGPS.GetValue: Double;
-var VPosition: IGPSPosition;
+var
+  VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
   Result := Double(VPosition.GetPosParams^.DGPS);
@@ -859,28 +867,43 @@ end;
 function TSensorFromGPSRecorderDGPS.ValueChanged(const AOld, ANew: Double): Boolean;
 begin
   Result := (not CompareMem(@AOld, @ANew, sizeof(Double)));
-end;                                                              
+end;
 
 function TSensorFromGPSRecorderDGPS.ValueToText(const AValue: Double): string;
 begin
   with TSingleDGPSData(AValue) do begin
     case Nmea23_Mode of
-    'A': Result:='A'; //'Autonomous';
-    'D': Result:=SAS_STR_Yes ; //'DGPS';
-    'E': Result:='DR'; //'Dead Reckoning';
-    'R': Result:='CP'; //'Coarse Position';
-    'P': Result:='PPS'; //'PPS';
-    else Result:=SAS_STR_No; //#0 if no data or 'N' = Not Valid
+      'A': begin
+        Result := 'A';
+      end; //'Autonomous';
+      'D': begin
+        Result := SAS_STR_Yes;
+      end; //'DGPS';
+      'E': begin
+        Result := 'DR';
+      end; //'Dead Reckoning';
+      'R': begin
+        Result := 'CP';
+      end; //'Coarse Position';
+      'P': begin
+        Result := 'PPS';
+      end; //'PPS';
+    else begin
+      Result := SAS_STR_No;
+    end; //#0 if no data or 'N' = Not Valid
     end;
 
-    if (Dimentions>1) then
-      Result := Result + ' ('+IntToStr(Dimentions)+'D)';
+    if (Dimentions > 1) then begin
+      Result := Result + ' (' + IntToStr(Dimentions) + 'D)';
+    end;
 
     if (not NoData_Float32(DGPS_Age_Second)) then begin
-      if (DGPS_Age_Second>0) then
-        Result := Result + ': ' + RoundEx(DGPS_Age_Second, 2);//+' '+SAS_UNITS_Secund;
-      if (DGPS_Station_ID>0) then
+      if (DGPS_Age_Second > 0) then begin
+        Result := Result + ': ' + RoundEx(DGPS_Age_Second, 2);
+      end;//+' '+SAS_UNITS_Secund;
+      if (DGPS_Station_ID > 0) then begin
         Result := Result + ' #' + IntToStr(DGPS_Station_ID);
+      end;
     end;
   end;
 end;

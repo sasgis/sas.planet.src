@@ -230,7 +230,7 @@ begin
     if FReadAccess <> AValue then begin
       FReadAccess := AValue;
       if FAddAccess = asDisabled then begin
-        FWriteAccess :=  asDisabled;
+        FWriteAccess := asDisabled;
         FDeleteAccess := asDisabled;
         FAddAccess := asDisabled;
         FReplaceAccess := asDisabled;
@@ -278,14 +278,11 @@ var
   VValue: TAccesState;
 begin
   VValue := AValue;
-  if
-    FStorageTypeAbilities.IsReadOnly or
-    not (
-      FStorageTypeAbilities.AllowReplace or
-      FStorageTypeAbilities.AllowAdd or
-      FStorageTypeAbilities.AllowDelete
-    )
-  then begin
+  if FStorageTypeAbilities.IsReadOnly or not (
+    FStorageTypeAbilities.AllowReplace or
+    FStorageTypeAbilities.AllowAdd or
+    FStorageTypeAbilities.AllowDelete
+    ) then begin
     VValue := asDisabled;
   end;
 

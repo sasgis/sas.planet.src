@@ -16,7 +16,10 @@ type
     FCancelNotifier: IOperationNotifier;
     FOperationID: Integer;
   protected
-    function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
+    function DoHttpRequest(
+      const ARequestUrl, ARequestHeader, APostData: string;
+      out AResponseHeader, AResponseData: string
+    ): Cardinal;
   public
     constructor Create(
       const ADownloader: IDownloader;

@@ -105,21 +105,22 @@ var
   VDataUpdate: Boolean;
 begin
   GetSystemPowerStatus(sps);
-  if sps.ACLineStatus=0 then begin
+  if sps.ACLineStatus = 0 then begin
     case sps.BatteryFlag of
-    128: begin
-      VResult := SAS_STR_BattaryStateOnLine;
-    end;
-    8: begin
-      VResult := SAS_STR_BattaryStateCharge;
-    end;
-    else
-      if sps.BatteryLifePercent=255 then begin
-        VResult := SAS_STR_BattaryStateUnknown
-      end else begin
-        VResult := inttostr(sps.BatteryLifePercent)+'%';
+      128: begin
+        VResult := SAS_STR_BattaryStateOnLine;
       end;
-    end
+      8: begin
+        VResult := SAS_STR_BattaryStateCharge;
+      end;
+    else begin
+      if sps.BatteryLifePercent = 255 then begin
+        VResult := SAS_STR_BattaryStateUnknown;
+      end else begin
+        VResult := inttostr(sps.BatteryLifePercent) + '%';
+      end;
+    end;
+    end;
   end else begin
     VResult := SAS_STR_BattaryStateOnLine;
   end;

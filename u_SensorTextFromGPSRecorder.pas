@@ -171,15 +171,16 @@ end;
 
 function TSensorTimeFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
 begin
-  Result:=TRUE;
+  Result := TRUE;
 end;
 
 function TSensorTimeFromGPSRecorder.ValueToText(const AValue: Double): string;
 begin
-  if (0=AValue) then
-    Result:=''
-  else
-    Result := FormatDateTime('hh:nn:ss',AValue);
+  if (0 = AValue) then begin
+    Result := '';
+  end else begin
+    Result := FormatDateTime('hh:nn:ss', AValue);
+  end;
 end;
 
 end.

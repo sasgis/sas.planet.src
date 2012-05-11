@@ -122,7 +122,7 @@ begin
   inherited;
   if FUseSotre then begin
     VDefValue := FDefValuesByLanguage.GetString(FLangIndex);
-    if (FValue <> VDefValue) or FIsStoreDefault   then begin
+    if (FValue <> VDefValue) or FIsStoreDefault then begin
       AConfigData.WriteString(FStoreIdentifier, FValue);
     end else begin
       AConfigData.DeleteValue(FStoreIdentifier);
@@ -159,7 +159,7 @@ begin
   try
     VNewIndex := FLanguageManager.CurrentLanguageIndex;
     VDefValue := FDefValuesByLanguage.GetString(FLangIndex);
-    if FValue = VDefValue  then begin
+    if FValue = VDefValue then begin
       SetValue(FDefValuesByLanguage.GetString(VNewIndex));
     end;
     FLangIndex := VNewIndex;

@@ -36,11 +36,14 @@ type
     FItemsList: IInterfaceList;
     procedure LoadItems(Menu: TTBCustomItem);
   public
-    constructor Create(AMainMenu: TTBCustomItem; AIgnoredItems: TList);
+    constructor Create(
+      AMainMenu: TTBCustomItem;
+      AIgnoredItems: TList
+    );
     destructor Destroy; override;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IShortCutSingleConfig;
-    function GetShortCutInfoByShortCut(AShortCut:TShortCut): IShortCutSingleConfig;
+    function GetShortCutInfoByShortCut(AShortCut: TShortCut): IShortCutSingleConfig;
     procedure Load(const AProvider: IConfigDataProvider);
     procedure Save(const AProvider: IConfigDataWriteProvider);
     procedure CancelChanges;
@@ -55,8 +58,10 @@ uses
 
 { TShortcutManager }
 
-constructor TShortcutManager.Create(AMainMenu: TTBCustomItem;
-  AIgnoredItems: TList);
+constructor TShortcutManager.Create(
+  AMainMenu: TTBCustomItem;
+  AIgnoredItems: TList
+);
 begin
   inherited Create;
   FIgnoredItems := AIgnoredItems;
@@ -141,9 +146,9 @@ var
   VShortCutInfo: IShortCutSingleConfig;
   VMenuItem: TTBCustomItem;
 begin
-  for i := 0 to Menu.Count-1 do begin
+  for i := 0 to Menu.Count - 1 do begin
     VMenuItem := Menu.Items[i];
-    if not(VMenuItem is TTBSeparatorItem) then begin
+    if not (VMenuItem is TTBSeparatorItem) then begin
       if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VMenuItem) < 0) then begin
         if Assigned(VMenuItem.OnClick) then begin
           VShortCutInfo := TShortCutSingleConfig.Create(VMenuItem);

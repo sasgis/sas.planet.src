@@ -281,7 +281,7 @@ end;
 
 procedure TSimpleTileStorageConfig.SetCacheTypeCode(AValue: Integer);
 begin
-  if FDefConfig.CacheTypeCode <> 5  then begin
+  if FDefConfig.CacheTypeCode <> 5 then begin
     if AValue <> 5 then begin
       LockWrite;
       try

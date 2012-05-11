@@ -29,6 +29,7 @@ type
       AReplaceAccess: TAccesState
     );
   end;
+
 implementation
 
 { TStorageStateStatic }

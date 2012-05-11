@@ -30,12 +30,32 @@ uses
 type
   TStaticTreeBuilderBase = class(TInterfacedObject, IStaticTreeBuilder)
   protected
-    procedure ProcessItems(const ASource: IInterface; AList: TStringList); virtual; abstract;
-    procedure ProcessItem(const ASource: IInterface; const AItem: IInterface; AList: TStringList);
-    function GetNameFromItem(const ASource: IInterface; const AItem: IInterface): string; virtual; abstract;
-    function GetLevelName(const AName: string; out ACurLevelName, ATrailName: string): Boolean; virtual; abstract;
-    procedure GetGroupAndVisibleName(const AName: string; out AGroupName, AVisibleName: string); virtual; abstract;
-    procedure AddItemToList(const AItem: IInterface; const AName: string; AList: TStringList);
+    procedure ProcessItems(
+      const ASource: IInterface;
+      AList: TStringList
+    ); virtual; abstract;
+    procedure ProcessItem(
+      const ASource: IInterface;
+      const AItem: IInterface;
+      AList: TStringList
+    );
+    function GetNameFromItem(
+      const ASource: IInterface;
+      const AItem: IInterface
+    ): string; virtual; abstract;
+    function GetLevelName(
+      const AName: string;
+      out ACurLevelName, ATrailName: string
+    ): Boolean; virtual; abstract;
+    procedure GetGroupAndVisibleName(
+      const AName: string;
+      out AGroupName, AVisibleName: string
+    ); virtual; abstract;
+    procedure AddItemToList(
+      const AItem: IInterface;
+      const AName: string;
+      AList: TStringList
+    );
     function BuildTreeItemsList(AList: TStringList): IInterfaceList;
   protected
     function BuildStatic(const ASource: IInterface): IStaticTreeItem;
@@ -51,8 +71,14 @@ type
     property LevelsSeparator: string read FLevelsSeparator;
     property GroupSeparator: string read FGroupSeparator;
   protected
-    function GetLevelName(const AName: string; out ACurLevelName, ATrailName: string): Boolean; override;
-    procedure GetGroupAndVisibleName(const AName: string; out AGroupName, AVisibleName: string); override;
+    function GetLevelName(
+      const AName: string;
+      out ACurLevelName, ATrailName: string
+    ): Boolean; override;
+    procedure GetGroupAndVisibleName(
+      const AName: string;
+      out AGroupName, AVisibleName: string
+    ); override;
   public
     constructor Create(
       const ALevelsSeparator: string;
@@ -108,7 +134,8 @@ end;
 procedure TStaticTreeBuilderBase.AddItemToList(
   const AItem: IInterface;
   const AName: string;
-  AList: TStringList);
+  AList: TStringList
+);
 var
   VCurLevelName: string;
   VTrailName: string;
@@ -213,7 +240,9 @@ begin
 end;
 
 procedure TStaticTreeBuilderBaseBySlash.GetGroupAndVisibleName(
-  const AName: string; out AGroupName, AVisibleName: string);
+  const AName: string;
+  out AGroupName, AVisibleName: string
+);
 var
   VPos: Integer;
 begin
@@ -232,8 +261,10 @@ begin
   end;
 end;
 
-function TStaticTreeBuilderBaseBySlash.GetLevelName(const AName: string;
-  out ACurLevelName, ATrailName: string): Boolean;
+function TStaticTreeBuilderBaseBySlash.GetLevelName(
+  const AName: string;
+  out ACurLevelName, ATrailName: string
+): Boolean;
 var
   VPos: Integer;
 begin

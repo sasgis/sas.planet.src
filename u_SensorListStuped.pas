@@ -96,10 +96,10 @@ begin
 
   VEntity := TSensorFromGPSRecorderHDOP.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
   Self.Add(VEntity);
-  
+
   VEntity := TSensorFromGPSRecorderVDOP.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
   Self.Add(VEntity);
-  
+
   VEntity := TSensorFromGPSRecorderUTCTime.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
   Self.Add(VEntity);
 

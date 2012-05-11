@@ -130,10 +130,10 @@ begin
         Delete(AddName, Pos('&', AddName), 1);
       end;
       if Result = '' then begin
-        Result := AddName
+        Result := AddName;
       end else begin
         if AddName <> '' then begin
-          Result :=AddName + ' -> ' + Result;
+          Result := AddName + ' -> ' + Result;
         end;
       end;
 

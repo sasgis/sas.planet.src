@@ -127,7 +127,7 @@ begin
       FNavigationToPoint.LockRead;
       try
         VNavActive := FNavigationToPoint.IsActive;
-        VNavLonLat := FNavigationToPoint.LonLat;      
+        VNavLonLat := FNavigationToPoint.LonLat;
       finally
         FNavigationToPoint.UnlockRead;
       end;
