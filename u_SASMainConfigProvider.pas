@@ -32,7 +32,10 @@ type
     FMainIni: TMemIniFile;
     function GetMainConfigFileName(const ABasePath, AExeFileName: string): string;
   public
-    constructor Create(const ABasePath, AExeFileName: string; AHandle: THandle);
+    constructor Create(
+      const ABasePath, AExeFileName: string;
+      AHandle: THandle
+    );
     destructor Destroy; override;
   end;
 
@@ -49,7 +52,10 @@ uses
 
 { TSASMainConfigProvider }
 
-constructor TSASMainConfigProvider.Create(const ABasePath, AExeFileName: string; AHandle: THandle);
+constructor TSASMainConfigProvider.Create(
+  const ABasePath, AExeFileName: string;
+  AHandle: THandle
+);
 var
   VResourceProvider: IConfigDataProvider;
   VGlobalProvider: IConfigDataProvider;

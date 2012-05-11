@@ -33,7 +33,10 @@ type
   protected { IPathDetalizeProviderListEntity }
     function GetProvider: IPathDetalizeProvider;
   protected { IPathDetalizeProvider }
-    function GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath; virtual; abstract;
+    function GetPath(
+      const ASource: ILonLatPath;
+      var AComment: string
+    ): ILonLatPath; virtual; abstract;
   end;
 
 

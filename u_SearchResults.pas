@@ -40,14 +40,17 @@ type
     FMapGoto: IMapViewGoto;
     FViewPortState: IViewPortState;
     FIntrnalBrowser: IInternalBrowser;
-    FDrawParent:TWinControl;
-    FSearchWindow:TWinControl;
+    FDrawParent: TWinControl;
+    FSearchWindow: TWinControl;
     FValueConverterConfig: IValueToStringConverterConfig;
     FLastSearchResults: ILastSearchResultConfig;
-    FSearchItems:array of TfrSearchResultsItem;
+    FSearchItems: array of TfrSearchResultsItem;
   protected
     procedure ClearSearchResults;
-    procedure ShowSearchResults(const ASearchResult: IGeoCodeResult; AZoom: Byte);
+    procedure ShowSearchResults(
+      const ASearchResult: IGeoCodeResult;
+      AZoom: Byte
+    );
   public
     constructor Create(
       const AIntrnalBrowser: IInternalBrowser;
@@ -97,12 +100,13 @@ begin
 end;
 
 procedure TSearchResultPresenterOnPanel.ClearSearchResults;
-var i:integer;
+var
+  i: integer;
 begin
   for i := 0 to length(FSearchItems) - 1 do begin
     FSearchItems[i].Free;
   end;
-  SetLength(FSearchItems,0);
+  SetLength(FSearchItems, 0);
 end;
 
 procedure TSearchResultPresenterOnPanel.ShowSearchResults(
@@ -113,7 +117,7 @@ var
   VPlacemark: IGeoCodePlacemark;
   VEnum: IEnumUnknown;
   i: Cardinal;
-  LengthFSearchItems:integer;
+  LengthFSearchItems: integer;
   VItemForGoTo: IGeoCodePlacemark;
 begin
   ClearSearchResults;
@@ -121,18 +125,18 @@ begin
   VEnum := ASearchResult.GetPlacemarks;
 
   FLastSearchResults.ClearGeoCodeResult;
-  if ASearchResult.GetPlacemarksCount>1 then begin
+  if ASearchResult.GetPlacemarksCount > 1 then begin
     FSearchWindow.Show;
-    FLastSearchResults.GeoCodeResult:=ASearchResult;
+    FLastSearchResults.GeoCodeResult := ASearchResult;
   end;
 
   while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
     if VItemForGoTo = nil then begin
       VItemForGoTo := VPlacemark;
     end;
-    LengthFSearchItems:=length(FSearchItems);
-    SetLength(FSearchItems,LengthFSearchItems+1);
-    FSearchItems[LengthFSearchItems]:=
+    LengthFSearchItems := length(FSearchItems);
+    SetLength(FSearchItems, LengthFSearchItems + 1);
+    FSearchItems[LengthFSearchItems] :=
       TfrSearchResultsItem.Create(
         nil,
         FDrawParent,
@@ -141,8 +145,8 @@ begin
         FIntrnalBrowser,
         FMapGoto
       );
-    if LengthFSearchItems>0 then begin
-      FSearchItems[LengthFSearchItems].Top:=FSearchItems[LengthFSearchItems-1].Top+1
+    if LengthFSearchItems > 0 then begin
+      FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;
     end;
   end;
   if ASearchResult.GetResultCode in [200, 203] then begin
@@ -152,7 +156,7 @@ begin
       FMapGoto.GotoPos(VItemForGoTo.GetPoint, AZoom);
       if ASearchResult.GetPlacemarksCount = 1 then begin
         if ASearchResult.GetResultCode = 200 then begin
-          ShowMessage(SAS_STR_foundplace+' "'+VItemForGoTo.GetAddress+'"');
+          ShowMessage(SAS_STR_foundplace + ' "' + VItemForGoTo.GetAddress + '"');
         end;
       end;
     end;
@@ -165,15 +169,15 @@ begin
         ShowMessage(SAS_ERR_Authorization + #13#10 + ASearchResult.GetMessage);
       end;
       416: begin
-        ShowMessage('Ошибка разбора ответа: '+ #13#10 + ASearchResult.GetMessage);
+        ShowMessage('Ошибка разбора ответа: ' + #13#10 + ASearchResult.GetMessage);
       end;
       404: begin
         ShowMessage(SAS_STR_notfound);
       end;
-      else begin
-        ShowMessage('Неизвестная ошибка: '+ #13#10 + ASearchResult.GetMessage);
-      end;
-    end
+    else begin
+      ShowMessage('Неизвестная ошибка: ' + #13#10 + ASearchResult.GetMessage);
+    end;
+    end;
   end;
 end;
 

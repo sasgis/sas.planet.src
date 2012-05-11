@@ -49,7 +49,10 @@ type
     ): TDoubleRect;
   protected
     function IsEmpty: Boolean;
-    procedure SetNextPoint(const ALonLat: TDoublePoint; Shift: TShiftState);
+    procedure SetNextPoint(
+      const ALonLat: TDoublePoint;
+      Shift: TShiftState
+    );
     procedure Reset;
     function GetRect: TDoubleRect;
   public
@@ -107,7 +110,8 @@ end;
 
 function TSelectionRect.PrepareSelectionRect(
   const APoint1, APoint2: TDoublePoint;
-  Shift: TShiftState): TDoubleRect;
+  Shift: TShiftState
+): TDoubleRect;
 var
   VConverter: ICoordConverter;
   VTemp: Double;
@@ -134,13 +138,14 @@ begin
     Result := FTileGridConfig.GetRectStickToGrid(VLocalConverter, Result);
   end;
   if (ssShift in Shift) then begin
-    if FGenShtabGridConfig.scale<>0 then
-     Result := FGenShtabGridConfig.GetRectStickToGrid(VLocalConverter, Result)
-    else
-     Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    if FGenShtabGridConfig.scale <> 0 then begin
+      Result := FGenShtabGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    end else begin
+      Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
     end;
+  end;
   if (ssAlt in Shift) then begin
-     Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
+    Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);
   end;
 end;
 

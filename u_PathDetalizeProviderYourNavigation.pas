@@ -41,7 +41,10 @@ type
     FProxyConfig: IProxyConfig;
     FKmlLoader: IVectorDataLoader;
   protected { IPathDetalizeProvider }
-    function GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
+    function GetPath(
+      const ASource: ILonLatPath;
+      var AComment: string
+    ): ILonLatPath; override;
   public
     constructor Create(
       const AGUID: TGUID;
@@ -152,12 +155,15 @@ begin
   FKmlLoader := AKmlLoader;
 end;
 
-function TPathDetalizeProviderYourNavigation.GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath;
+function TPathDetalizeProviderYourNavigation.GetPath(
+  const ASource: ILonLatPath;
+  var AComment: string
+): ILonLatPath;
 var
-  ms:TMemoryStream;
-  url:string;
-  kml:IVectorDataItemList;
-  conerr:boolean;
+  ms: TMemoryStream;
+  url: string;
+  kml: IVectorDataItemList;
+  conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
   VItem: IVectorDataItemLine;
   VCurrPoint: TDoublePoint;
@@ -167,18 +173,20 @@ var
 begin
   Result := nil;
   AComment := '';
-  ms:=TMemoryStream.Create;
+  ms := TMemoryStream.Create;
   try
     url := FBaseUrl;
-    conerr:=false;
+    conerr := false;
     VPointsAggregator := TDoublePointsAggregator.Create;
     VEnum := ASource.GetEnum;
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
-        if conerr then Continue;
-        url:=url+'&flat='+R2StrPoint(VPrevPoint.y)+'&flon='+R2StrPoint(VPrevPoint.x)+
-            '&tlat='+R2StrPoint(VCurrPoint.y)+'&tlon='+R2StrPoint(VCurrPoint.x);
-        if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic)>0 then begin
+        if conerr then begin
+          Continue;
+        end;
+        url := url + '&flat=' + R2StrPoint(VPrevPoint.y) + '&flon=' + R2StrPoint(VPrevPoint.x) +
+          '&tlat=' + R2StrPoint(VCurrPoint.y) + '&tlon=' + R2StrPoint(VCurrPoint.x);
+        if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic) > 0 then begin
           kml := FKmlLoader.LoadFromStream(ms, FVectorDataFactory);
           if kml <> nil then begin
             ms.SetSize(0);
@@ -194,7 +202,7 @@ begin
             end;
           end;
         end else begin
-          conerr:=true;
+          conerr := true;
         end;
         VPrevPoint := VCurrPoint;
       end;
@@ -240,7 +248,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Car (Fastest)') + '|0010';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByCar }
@@ -250,7 +258,7 @@ constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
   const AProxyConfig: IProxyConfig;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItmesFactory;
- const  AKmlLoader: IVectorDataLoader
+  const AKmlLoader: IVectorDataLoader
 );
 begin
   inherited Create(
@@ -276,7 +284,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Car (Shortest)') + '|0020';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Shortest)') + '|0020';
 end;
 
 { TPathDetalizeProviderYourNavigationFastestByBicycle }
@@ -312,7 +320,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Bicycle (Fastest)') + '|0030';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Fastest)') + '|0030';
 end;
 
 { TPathDetalizeProviderYourNavigationShortestByBicycle }
@@ -348,7 +356,7 @@ end;
 
 function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
 begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' +  _('By Bicycle (Shortest)') + '|0040';
+  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Shortest)') + '|0040';
 end;
 
 end.

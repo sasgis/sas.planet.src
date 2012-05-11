@@ -30,7 +30,7 @@ type
   private
     function GetDefaultPath: string;
     function GetBasePathConfig: IPathConfig;
-    procedure SetBasePathConfig(const AValue : IPathConfig);
+    procedure SetBasePathConfig(const AValue: IPathConfig);
     function GetPath: string;
     procedure SetPath(const AValue: string);
     function GetIsRelative: Boolean;
@@ -223,6 +223,7 @@ procedure TPathConfig._UpdateFullPath;
     PathCombine(@Result[1], PChar(ABasePath), PChar(ARelativePath));
     SetLength(Result, StrLen(@Result[1]));
   end;
+
 var
   VBasePath: string;
   VPath: string;

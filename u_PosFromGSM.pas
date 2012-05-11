@@ -40,19 +40,23 @@ type
     FConfig: IGSMGeoCodeConfig;
     FMapGoto: IMapViewGoto;
     FZoom: Byte;
-    CommPortDriver:TCommPortDriver;
-    LAC:string;
-    CellID:string;
-    CC:string;
-    NC:string;
-    procedure CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
-    function GetCoordFromGoogle(var LL:TDoublePoint): boolean;
+    CommPortDriver: TCommPortDriver;
+    LAC: string;
+    CellID: string;
+    CC: string;
+    NC: string;
+    procedure CommPortDriver1ReceiveData(
+      Sender: TObject;
+      DataPtr: Pointer;
+      DataSize: Cardinal
+    );
+    function GetCoordFromGoogle(var LL: TDoublePoint): boolean;
   public
     constructor Create(
       const AConfig: IGSMGeoCodeConfig;
       const AMapGoto: IMapViewGoto
     );
-    function GetPos(AZoom: Byte):boolean;
+    function GetPos(AZoom: Byte): boolean;
   end;
 
 implementation
@@ -72,7 +76,7 @@ begin
   FMapGoto := AMapGoto;
 end;
 
-function TPosFromGSM.GetCoordFromGoogle(var LL:TDoublePoint): boolean;
+function TPosFromGSM.GetCoordFromGoogle(var LL: TDoublePoint): boolean;
 var
   strA, strB, strC, strAll: string;
   sResult: string;
@@ -83,25 +87,25 @@ var
   sTmp, sTmp2: string;
   iCntr: Integer;
   SwinHttp: TSwinHttp;
-  post:string;
+  post: string;
 begin
   Result := true;
-  NC:='0'+NC;
-  CC:='0'+CC;
+  NC := '0' + NC;
+  CC := '0' + CC;
   strA := '000E00000000000000000000000000001B0000000000000000000000030000';
   strB := '0000' + CellID + '0000' + LAC;
   strC := '000000' + IntToHex(strtoint(NC), 2) + '000000' + IntToHex(strtoint(CC), 2);
   strAll := strA + strB + strC + 'FFFFFFFF00000000';
-  SwinHttp:=TSwinHttp.Create(nil);
-  SwinHttp.InThread:=false;
+  SwinHttp := TSwinHttp.Create(nil);
+  SwinHttp.InThread := false;
   SwinHttp.Request.Headers.Clear;
   SwinHttp.Request.Headers.Add('Content-Type: application/x-www-form-urlencoded');
-  SwinHttp.Request.Headers.Add('Content-Length: '+inttostr(Length(strAll) div 2));
+  SwinHttp.Request.Headers.Add('Content-Length: ' + inttostr(Length(strAll) div 2));
   SwinHttp.Request.Headers.Add('Accept: text/html, */*');
 
   ms := TMemoryStream.Create;
   try
-    iCntr := 1; 
+    iCntr := 1;
     for i := 1 to (Length(strAll) div 2) do begin
       b := StrToInt('0x' + Copy(strAll, iCntr, 2));
       iCntr := iCntr + 2;
@@ -109,13 +113,13 @@ begin
     end;
     ms.Seek(0, soFromBeginning);
     try
-      ms.Position:=0;
-      setLength(post,ms.Size);
-      ms.Read(post[1],ms.Size);
-      SwinHttp.Post('http://www.google.com/glm/mmap',post);
-      SetLength(sResult,SwinHttp.Response.Content.Size);
-      SwinHttp.Response.Content.ReadBuffer(sResult[1],SwinHttp.Response.Content.Size);
-      if (SwinHttp.Error=0) then begin
+      ms.Position := 0;
+      setLength(post, ms.Size);
+      ms.Read(post[1], ms.Size);
+      SwinHttp.Post('http://www.google.com/glm/mmap', post);
+      SetLength(sResult, SwinHttp.Response.Content.Size);
+      SwinHttp.Response.Content.ReadBuffer(sResult[1], SwinHttp.Response.Content.Size);
+      if (SwinHttp.Error = 0) then begin
         if (Length(sResult) > 14) then begin
           sTmp := '0x';
           for i := 1 to 5 do begin
@@ -129,19 +133,18 @@ begin
             sTmp := sTmp + IntToHex(Ord(sTmp2[1]), 2);
           end;
           iLon := StrToInt(sTmp);
-          LL.y := iLat/1000000;
-          LL.x := iLon/1000000;
+          LL.y := iLat / 1000000;
+          LL.x := iLon / 1000000;
         end else begin
-          result:=false;
+          result := false;
           ShowMessage(SAS_ERR_UnablePposition);
         end;
-      end
-      else begin
-        result:=false;
+      end else begin
+        result := false;
         ShowMessage(SAS_ERR_Communication);
       end;
     except
-      result:=false;
+      result := false;
       ShowMessage(SAS_ERR_UnablePposition);
     end;
   finally
@@ -150,90 +153,107 @@ begin
   end;
 end;
 
-procedure TPosFromGSM.CommPortDriver1ReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
- function DelKov(s:string):string;
- var i:integer;
- begin
-   i:=Pos('"',s);
-   while i>0 do begin
-    Delete(s,i,1);
-    i:=Pos('"',s);
-   end;
-   result:=s;
- end;
- function addT4(const s:string):string;
- begin
-  Result := s;
-  while length(Result)<4 do begin
-    Result := '0' + Result;
+procedure TPosFromGSM.CommPortDriver1ReceiveData(
+  Sender: TObject;
+  DataPtr: Pointer;
+  DataSize: Cardinal
+);
+  function DelKov(s: string): string;
+  var
+    i: integer;
+  begin
+    i := Pos('"', s);
+    while i > 0 do begin
+      Delete(s, i, 1);
+      i := Pos('"', s);
+    end;
+    result := s;
   end;
- end;
-var s:string;
-    VPos,pose:integer;
-    LL:TDoublePoint;
+
+  function addT4(const s: string): string;
+  begin
+    Result := s;
+    while length(Result) < 4 do begin
+      Result := '0' + Result;
+    end;
+  end;
+
+var
+  s: string;
+  VPos, pose: integer;
+  LL: TDoublePoint;
 begin
- setlength(s,DataSize);
- if DataSize<10 then exit;
- CopyMemory(@s[1],DataPtr,DataSize);
- VPos:=posEx('+CREG:',s);
- if VPos>0 then begin
-   VPos:=posEx(',',s,VPos+1);
-   VPos:=posEx(',',s,VPos+1);
-   pose:=posEx(',',s,VPos+1);
-   if VPos>0 then begin
-     LAC:=addT4(DelKov(copy(s,VPos+1,pose-(VPos+1))));
-   end;
-   VPos:=posEx(#$D,s,pose+1);
-   if VPos>0 then begin
-     CellID:=addT4(DelKov(copy(s,pose+1,VPos-(pose+1))));
-   end;
- end else begin
-   exit;
- end;
- VPos:=posEx('+COPS:',s);
- if VPos>0 then begin
-   VPos:=posEx(',"',s,VPos);
-   if VPos>0 then begin
-     NC:=DelKov(copy(s,VPos+2,3));
-     CC:=DelKov(copy(s,VPos+5,2));
-   end;
- end else begin
-   exit;
- end;
- CommPortDriver.SendString('AT+CREG=1'+#13);
- CommPortDriver.Disconnect;
+  setlength(s, DataSize);
+  if DataSize < 10 then begin
+    exit;
+  end;
+  CopyMemory(@s[1], DataPtr, DataSize);
+  VPos := posEx('+CREG:', s);
+  if VPos > 0 then begin
+    VPos := posEx(',', s, VPos + 1);
+    VPos := posEx(',', s, VPos + 1);
+    pose := posEx(',', s, VPos + 1);
+    if VPos > 0 then begin
+      LAC := addT4(DelKov(copy(s, VPos + 1, pose - (VPos + 1))));
+    end;
+    VPos := posEx(#$D, s, pose + 1);
+    if VPos > 0 then begin
+      CellID := addT4(DelKov(copy(s, pose + 1, VPos - (pose + 1))));
+    end;
+  end else begin
+    exit;
+  end;
+  VPos := posEx('+COPS:', s);
+  if VPos > 0 then begin
+    VPos := posEx(',"', s, VPos);
+    if VPos > 0 then begin
+      NC := DelKov(copy(s, VPos + 2, 3));
+      CC := DelKov(copy(s, VPos + 5, 2));
+    end;
+  end else begin
+    exit;
+  end;
+  CommPortDriver.SendString('AT+CREG=1' + #13);
+  CommPortDriver.Disconnect;
   if GetCoordFromGoogle(LL) then begin
     FMapGoto.GotoPos(LL, FZoom);
   end;
- free;
+  free;
 end;
 
-function GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
-var SWord: string;
-    StrLen, N: Byte;
+function GetWord(
+  Str: string;
+  const Smb: string;
+  WordNmbr: Byte
+): string;
+var
+  SWord: string;
+  StrLen, N: Byte;
 begin
   StrLen := SizeOf(Str);
   N := 1;
-  while ((WordNmbr >= N) and (StrLen <> 0)) do
-  begin
+  while ((WordNmbr >= N) and (StrLen <> 0)) do begin
     StrLen := System.Pos(Smb, str);
-    if StrLen <> 0 then
-    begin
+    if StrLen <> 0 then begin
       SWord := Copy(Str, 1, StrLen - 1);
       Delete(Str, 1, StrLen);
       Inc(N);
-    end
-    else SWord := Str;
+    end else begin
+      SWord := Str;
+    end;
   end;
-  if WordNmbr <= N then Result := SWord
-                   else Result := '';
+  if WordNmbr <= N then begin
+    Result := SWord;
+  end else begin
+    Result := '';
+  end;
 end;
 
 
-function TPosFromGSM.GetPos(AZoom: Byte):boolean;
+function TPosFromGSM.GetPos(AZoom: Byte): boolean;
 var
-  paramss:string;
-  LL:TDoublePoint;
+  paramss: string;
+  LL: TDoublePoint;
   VUseGSM: Boolean;
   VPort: string;
   VRate: Cardinal;
@@ -250,43 +270,43 @@ begin
   finally
     FConfig.UnlockRead;
   end;
- if VUseGSM then begin
-   CommPortDriver:=TCommPortDriver.Create(nil);
-   CommPortDriver.PortName:='\\.\'+VPort;
-   CommPortDriver.BaudRateValue:=VRate;
-   CommPortDriver.OnReceiveData:=CommPortDriver1ReceiveData;
-   CommPortDriver.Connect;
-   if CommPortDriver.Connected then begin
-     if (CommPortDriver.SendString('AT+CREG=2'+#13))and
-        (CommPortDriver.SendString('AT+COPS=0,2'+#13)) then begin
-       sleep(VWait);
-       CommPortDriver.SendString('AT+CREG?'+#13);
-       CommPortDriver.SendString('AT+COPS?'+#13);
-       Result:=true;
-     end;
-   end else begin
-     ShowMessage(SAS_ERR_PortOpen);
-     Result:=false;
-   end;
- end else begin
-   if InputQuery(SAS_STR_InputLacitpCaption,SAS_STR_InputLacitp,paramss) then begin
-     try
-     CC:=GetWord(paramss,',',1);
-     NC:=GetWord(paramss,',',2);
-     LAC:= IntToHex(strtoint(GetWord(paramss,',',3)),4);
-     CellID:= IntToHex(strtoint(GetWord(paramss,',',4)),4);
-     if GetCoordFromGoogle(LL) then begin
-        FMapGoto.GotoPos(LL, FZoom);
-        Result:=true;
-     end else begin
-        Result:=false;
-     end;
-     except
-       ShowMessage(SAS_ERR_ParamsInput);
-       Result:=false;
-     end;
-   end;
- end;
+  if VUseGSM then begin
+    CommPortDriver := TCommPortDriver.Create(nil);
+    CommPortDriver.PortName := '\\.\' + VPort;
+    CommPortDriver.BaudRateValue := VRate;
+    CommPortDriver.OnReceiveData := CommPortDriver1ReceiveData;
+    CommPortDriver.Connect;
+    if CommPortDriver.Connected then begin
+      if (CommPortDriver.SendString('AT+CREG=2' + #13)) and
+        (CommPortDriver.SendString('AT+COPS=0,2' + #13)) then begin
+        sleep(VWait);
+        CommPortDriver.SendString('AT+CREG?' + #13);
+        CommPortDriver.SendString('AT+COPS?' + #13);
+        Result := true;
+      end;
+    end else begin
+      ShowMessage(SAS_ERR_PortOpen);
+      Result := false;
+    end;
+  end else begin
+    if InputQuery(SAS_STR_InputLacitpCaption, SAS_STR_InputLacitp, paramss) then begin
+      try
+        CC := GetWord(paramss, ',', 1);
+        NC := GetWord(paramss, ',', 2);
+        LAC := IntToHex(strtoint(GetWord(paramss, ',', 3)), 4);
+        CellID := IntToHex(strtoint(GetWord(paramss, ',', 4)), 4);
+        if GetCoordFromGoogle(LL) then begin
+          FMapGoto.GotoPos(LL, FZoom);
+          Result := true;
+        end else begin
+          Result := false;
+        end;
+      except
+        ShowMessage(SAS_ERR_ParamsInput);
+        Result := false;
+      end;
+    end;
+  end;
 end;
 
 end.

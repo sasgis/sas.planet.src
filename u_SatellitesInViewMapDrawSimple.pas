@@ -67,7 +67,7 @@ type
       ABitmap: TBitmap32;
       AIndex: Integer;
       ARowCount: Integer;
-      ABarHeight:  Integer;
+      ABarHeight: Integer;
       AWidth: Integer;
       AHorizSpace: Integer
     ): TRect;
@@ -86,7 +86,7 @@ type
     procedure DrawEmptySignalBars(
       ABitmap: TBitmap32;
       ARowCount: Integer;
-      ABarHeight:  Integer;
+      ABarHeight: Integer;
       AWidth: Integer;
       AHorizSpace: Integer
     );
@@ -100,7 +100,7 @@ type
     procedure DrawSignalBars(
       ABitmap: TBitmap32;
       ARowCount: Integer;
-      ABarHeight:  Integer;
+      ABarHeight: Integer;
       AWidth: Integer;
       AHorizSpace: Integer;
       const ASatellites: IGPSSatellitesInView
@@ -129,15 +129,16 @@ const
 { TSatellitesInViewMapDrawSimple }
 
 procedure TSatellitesInViewMapDrawSimple.AdjustSignalSatBarsCount(const ASatCount: Integer);
-var rem: Integer;
+var
+  rem: Integer;
 begin
-  FSignalBarsCount:=cDefault_FSignalBarsCount;
-  if (cDefault_FSignalBarsCount<ASatCount) then begin
+  FSignalBarsCount := cDefault_FSignalBarsCount;
+  if (cDefault_FSignalBarsCount < ASatCount) then begin
     // calc reminder
-    FSignalBarsCount:=ASatCount;
-    rem:=(ASatCount mod 4);
-    if (0<>rem) then begin
-      FSignalBarsCount:=FSignalBarsCount-rem+4;
+    FSignalBarsCount := ASatCount;
+    rem := (ASatCount mod 4);
+    if (0 <> rem) then begin
+      FSignalBarsCount := FSignalBarsCount - rem + 4;
     end;
   end;
 end;
@@ -198,8 +199,10 @@ begin
   end;
 end;
 
-procedure TSatellitesInViewMapDrawSimple.DrawEmptySignalBars(ABitmap: TBitmap32;
-  ARowCount, ABarHeight, AWidth, AHorizSpace: Integer);
+procedure TSatellitesInViewMapDrawSimple.DrawEmptySignalBars(
+  ABitmap: TBitmap32;
+  ARowCount, ABarHeight, AWidth, AHorizSpace: Integer
+);
 var
   i: Byte;
   VRect: TRect;
@@ -209,10 +212,11 @@ begin
   VRect.Bottom := ABitmap.Height;
   VRect.Top := VRect.Bottom - ARowCount * (ABarHeight + FSignalBarVertSpaces);
   ABitmap.FillRectS(VRect, FSignalBarsBGColor);
-  if (0<FSignalBarsCount) then
-  for i := 0 to FSignalBarsCount - 1 do begin
-    VRect := GetSignalBarRect(ABitmap, i, ARowCount, ABarHeight, AWidth, AHorizSpace);
-    ABitmap.FrameRectS(VRect, FSignalBarBorderColor);
+  if (0 < FSignalBarsCount) then begin
+    for i := 0 to FSignalBarsCount - 1 do begin
+      VRect := GetSignalBarRect(ABitmap, i, ARowCount, ABarHeight, AWidth, AHorizSpace);
+      ABitmap.FrameRectS(VRect, FSignalBarBorderColor);
+    end;
   end;
 end;
 
@@ -263,7 +267,11 @@ var
     VRect: TRect;
     VColor: TColor32;
 
-    procedure InternalDrawText(const AText: String; const AUpper: Boolean; const AColor32: TColor32);
+    procedure InternalDrawText(
+    const AText: String;
+    const AUpper: Boolean;
+    const AColor32: TColor32
+    );
     var
       VTextSize: TSize;
       VTextPos: TPoint;
@@ -271,12 +279,14 @@ var
       VTextSize := ABitmap.TextExtent(AText);
       VTextPos.X := Trunc((VRect.Left + VRect.Right) / 2 - VTextSize.cx / 2);
       VTextPos.Y := VRect.Bottom;
-      if AUpper then
-        VTextPos.Y := VTextPos.Y - VTextSize.cy ; // - 1;
+      if AUpper then begin
+        VTextPos.Y := VTextPos.Y - VTextSize.cy;
+      end; // - 1;
       ABitmap.RenderText(VTextPos.X, VTextPos.Y, AText, 4, AColor32);
     end;
+
   begin
-    Result:=FALSE;
+    Result := FALSE;
 
     // rect
     VRect := GetSignalBarRect(ABitmap, VIndex, ARowCount, ABarHeight, AWidth, AHorizSpace);
@@ -286,7 +296,7 @@ var
     Dec(VRect.Bottom);
 
     // sat number
-    if (VSatFixibility.sat_info.svid>0) then begin
+    if (VSatFixibility.sat_info.svid > 0) then begin
       // sat number ok
       InternalDrawText(IntToStr(VSatFixibility.sat_info.svid), FALSE, clBlack32);
     end;
@@ -294,9 +304,9 @@ var
     // if snr > 0 - draw colored stripe
     if (VSatFixibility.snr > 0) then begin
       // select color
-      if (VSatFixibility.status>0) and
-         (cGarmin_Flag_InSolution=(VSatFixibility.flags and cGarmin_Flag_InSolution)) and
-         (0=(VSatFixibility.flags and cGarmin_Flag_HasEphemeris)) then begin
+      if (VSatFixibility.status > 0) and
+        (cGarmin_Flag_InSolution = (VSatFixibility.flags and cGarmin_Flag_InSolution)) and
+        (0 = (VSatFixibility.flags and cGarmin_Flag_HasEphemeris)) then begin
         VColor := FSignalBarBorderColor; // in solution but without ephemeris - garmin workaround
       end else if VSatFixed then begin
         VColor := FSatFixedColor;
@@ -305,12 +315,13 @@ var
       end;
 
       // draw colored stripe (if > 100% - truncate to 100%, so fill full bar)
-      if (VSatFixibility.snr<100) then
-        VRect.Top := VRect.Bottom - Trunc((VRect.Bottom - VRect.Top) * VSatFixibility.snr /100);
+      if (VSatFixibility.snr < 100) then begin
+        VRect.Top := VRect.Bottom - Trunc((VRect.Bottom - VRect.Top) * VSatFixibility.snr / 100);
+      end;
       ABitmap.FillRectS(VRect, VColor);
 
       // draw D for DGPS
-      if (cGarmin_Flag_Differential=(VSatFixibility.flags and cGarmin_Flag_Differential)) then begin
+      if (cGarmin_Flag_Differential = (VSatFixibility.flags and cGarmin_Flag_Differential)) then begin
         InternalDrawText('D', TRUE, FSignalBarsBGColor);
       end;
     end;
@@ -318,7 +329,7 @@ var
     // check count of bars
     Inc(VIndex);
     if VIndex >= FSignalBarsCount then begin
-      Result:=TRUE;
+      Result := TRUE;
     end;
   end;
 
@@ -327,46 +338,55 @@ var
   VCountForAllTalkerIDs, VTalkerIDCount: Byte;
   VTalkerID: String;
 begin
-  if (not Assigned(ASatellites)) then
+  if (not Assigned(ASatellites)) then begin
     Exit;
+  end;
 
   VIndex := 0;
 
   // get count of satellites for all constellations
-  VCountForAllTalkerIDs:=ASatellites.GetCountForAllTalkerIDs(FALSE);
+  VCountForAllTalkerIDs := ASatellites.GetCountForAllTalkerIDs(FALSE);
 
   // Adjust count of bars
   AdjustSignalSatBarsCount(VCountForAllTalkerIDs);
 
   // no sats - nothing to do
-  if (0=VCountForAllTalkerIDs) then
+  if (0 = VCountForAllTalkerIDs) then begin
     Exit;
+  end;
 
   // loop (for many constellations)
-  VTalkerID:='';
+  VTalkerID := '';
   while ASatellites.EnumerateTalkerID(VTalkerID) do begin
     // count of satellites for current talker_id
-    VTalkerIDCount:=ASatellites.Count[VTalkerID];
+    VTalkerIDCount := ASatellites.Count[VTalkerID];
 
     // draw items
-    if (0<VTalkerIDCount) then begin
+    if (0 < VTalkerIDCount) then begin
       // first step
-      for i := 0 to VTalkerIDCount-1 do
-      if ASatellites.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
-      if (VSatFixibility.snr > 0) then begin
-        // for sats with signals (Signal-to-Noise Ratio > 0)
-        if InternalDrawLast then
-          Exit;
+      for i := 0 to VTalkerIDCount - 1 do begin
+        if ASatellites.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then begin
+          if (VSatFixibility.snr > 0) then begin
+            // for sats with signals (Signal-to-Noise Ratio > 0)
+            if InternalDrawLast then begin
+              Exit;
+            end;
+          end;
+        end;
       end;
 
       // second step - if some bars are available for drawing
-      if (VIndex < FSignalBarsCount) then
-      for i := 0 to VTalkerIDCount - 1 do
-      if ASatellites.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
-      if (VSatFixibility.snr <= 0) then begin
-        // satellites without signal - to the end
-        if InternalDrawLast then
-          Exit;
+      if (VIndex < FSignalBarsCount) then begin
+        for i := 0 to VTalkerIDCount - 1 do begin
+          if ASatellites.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then begin
+            if (VSatFixibility.snr <= 0) then begin
+              // satellites without signal - to the end
+              if InternalDrawLast then begin
+                Exit;
+              end;
+            end;
+          end;
+        end;
       end;
     end;
   end;
@@ -407,41 +427,43 @@ begin
   if (0=VCountForAllTalkerIDs) then
     Exit;
   }
-  
+
   // loop (for many constellations)
-  VTalkerID:='';
+  VTalkerID := '';
   while ASatellites.EnumerateTalkerID(VTalkerID) do begin
     // count of satellites
     VTalkerIDCount := ASatellites.Count[VTalkerID];
     // loop
-    if (0<VTalkerIDCount) then
-    for i := 0 to VTalkerIDCount-1 do
-    if ASatellites.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility, @VSatSky) then begin
-      // select color
-      if VSatFixed then begin
-        VColor := FSatFixedColor;
-      end else if VSatFixibility.snr > 0 then begin
-        VColor := FSatNotFixedColor;
-      end else begin
-        VColor := FSatNotVisibleColor;
-      end;
+    if (0 < VTalkerIDCount) then begin
+      for i := 0 to VTalkerIDCount - 1 do begin
+        if ASatellites.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility, @VSatSky) then begin
+          // select color
+          if VSatFixed then begin
+            VColor := FSatFixedColor;
+          end else if VSatFixibility.snr > 0 then begin
+            VColor := FSatNotFixedColor;
+          end else begin
+            VColor := FSatNotVisibleColor;
+          end;
 
-      // sat position
-      VSatAtRadius := ARadius * ((90 - VSatSky.elevation) / 90);
-      VSatPos.x := ACenter.x + VSatAtRadius * cos((VSatSky.azimuth - 90) * (Pi / 180));
-      VSatPos.y := ACenter.y + VSatAtRadius * sin((VSatSky.azimuth - 90) * (Pi / 180));
-      VPoints := Ellipse(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, FSkyMapSatRdius, 20);
-      PolygonFS(ABitmap, VPoints, VColor);
-      
-      if (VSatFixibility.sat_info.svid > 0) then begin
-        VText := IntToStr(VSatFixibility.sat_info.svid);
-        VTextSize := ABitmap.TextExtent(VText);
-        VTextPos.X := Trunc(VSatPos.X - VTextSize.cx / 2);
-        VTextPos.Y := Trunc(VSatPos.Y - VTextSize.cy / 2);
-        ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
-      end;
+          // sat position
+          VSatAtRadius := ARadius * ((90 - VSatSky.elevation) / 90);
+          VSatPos.x := ACenter.x + VSatAtRadius * cos((VSatSky.azimuth - 90) * (Pi / 180));
+          VSatPos.y := ACenter.y + VSatAtRadius * sin((VSatSky.azimuth - 90) * (Pi / 180));
+          VPoints := Ellipse(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, FSkyMapSatRdius, 20);
+          PolygonFS(ABitmap, VPoints, VColor);
 
-      PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
+          if (VSatFixibility.sat_info.svid > 0) then begin
+            VText := IntToStr(VSatFixibility.sat_info.svid);
+            VTextSize := ABitmap.TextExtent(VText);
+            VTextPos.X := Trunc(VSatPos.X - VTextSize.cx / 2);
+            VTextPos.Y := Trunc(VSatPos.Y - VTextSize.cy / 2);
+            ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
+          end;
+
+          PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
+        end;
+      end;
     end;
   end;
 end;
@@ -449,9 +471,10 @@ end;
 procedure TSatellitesInViewMapDrawSimple.GetCircleCenterAndRadius(
   ABitmap: TBitmap32;
   ARowCount: Integer;
-  ABarHeight:  Integer;
+  ABarHeight: Integer;
   out ACenter: TPoint;
-  out ARadius: Integer);
+  out ARadius: Integer
+);
 var
   VHeight: Integer;
 begin
@@ -465,7 +488,7 @@ begin
     end else begin
       ARadius := ACenter.X;
     end;
-    ARadius := ARadius -  FSkyMapMargin;
+    ARadius := ARadius - FSkyMapMargin;
   end else begin
     ARadius := 0;
     ACenter.X := 0;
@@ -474,7 +497,9 @@ begin
 end;
 
 function TSatellitesInViewMapDrawSimple.GetSignalBarHeight(
-  ABitmap: TBitmap32; ARowCount: Integer): Integer;
+  ABitmap: TBitmap32;
+  ARowCount: Integer
+): Integer;
 begin
   if ARowCount > 1 then begin
     Result := (ABitmap.Height - ABitmap.Width - FSignalBarVertSpaces * 2) div 2;
@@ -487,8 +512,14 @@ begin
   end;
 end;
 
-function TSatellitesInViewMapDrawSimple.GetSignalBarRect(ABitmap: TBitmap32;
-  AIndex: Integer; ARowCount: Integer; ABarHeight:  Integer; AWidth: Integer; AHorizSpace: Integer): TRect;
+function TSatellitesInViewMapDrawSimple.GetSignalBarRect(
+  ABitmap: TBitmap32;
+  AIndex: Integer;
+  ARowCount: Integer;
+  ABarHeight: Integer;
+  AWidth: Integer;
+  AHorizSpace: Integer
+): TRect;
 var
   VRowIndex: Integer;
   VColIndex: Integer;
@@ -507,7 +538,7 @@ begin
     VRowIndex := 0;
   end;
   VColIndex := AIndex mod VColCount;
-  VLeftMargin := FSignalBarMinHorizSpaces + (ABitmap.Width - VColCount * AWidth - (VColCount - 1) * AHorizSpace - 2 * FSignalBarMinHorizSpaces ) div 2;
+  VLeftMargin := FSignalBarMinHorizSpaces + (ABitmap.Width - VColCount * AWidth - (VColCount - 1) * AHorizSpace - 2 * FSignalBarMinHorizSpaces) div 2;
 
   Result.Bottom := ABitmap.Height - (FSignalBarVertSpaces + VRowIndex * (ABarHeight + FSignalBarVertSpaces));
   Result.Top := Result.Bottom - ABarHeight;
@@ -526,7 +557,10 @@ begin
 end;
 
 procedure TSatellitesInViewMapDrawSimple.GetSignalBarWidthAndHorizSpace(
-  ABitmap: TBitmap32; ARowCount: Integer; out AWidth, AHorizSpace: Integer);
+  ABitmap: TBitmap32;
+  ARowCount: Integer;
+  out AWidth, AHorizSpace: Integer
+);
 var
   VBarWithSpace: Integer;
   VColCount: Integer;

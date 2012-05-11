@@ -46,7 +46,7 @@ type
   end;
 
 type
-  TNotifyWithGUIDEventListener =  class(TJclBaseListener)
+  TNotifyWithGUIDEventListener = class(TJclBaseListener)
   private
     FEvent: TNotifyWithGUIDEvent;
   protected
@@ -62,7 +62,7 @@ type
   end;
 
 type
-  TNotifierWithGUID = class (TJclBaseNotifier, INotifierWithGUID)
+  TNotifierWithGUID = class(TJclBaseNotifier, INotifierWithGUID)
   protected
     procedure NotifyByGUID(const AGUID: TGUID); stdcall;
   end;

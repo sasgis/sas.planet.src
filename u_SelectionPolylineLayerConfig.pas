@@ -116,7 +116,7 @@ constructor TSelectionPolylineShadowLayerConfig.Create;
 begin
   inherited;
   FPolygoneRadius := 100;
-  FFillColor := SetAlpha(clBlack32,150);
+  FFillColor := SetAlpha(clBlack32, 150);
   SetLineWidth(1);
 end;
 

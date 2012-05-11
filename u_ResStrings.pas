@@ -65,8 +65,8 @@ ResourceString
   SAS_ERR_FileExistsShort = 'The tile already exists';
   SAS_ERR_Memory = 'Not enough memory to complete the task';
   SAS_ERR_UseADifferentFormat = 'Please choose another format (ECW, BMP, JP2) while stitching large images';
-  SAS_ERR_BadMIMEForDownloadRastr  =  'Server returned type "%0:s", this is not bitmap image';
-  SAS_ERR_BadMIME  =  'Server returned unexpected type "%0:s"';
+  SAS_ERR_BadMIMEForDownloadRastr = 'Server returned type "%0:s", this is not bitmap image';
+  SAS_ERR_BadMIME = 'Server returned unexpected type "%0:s"';
   SAS_ERR_MapGUIDEmpty = 'Empty GUID';
   SAS_ERR_MapGUIDBad = 'Incorrect GUID: %0:s';
   SAS_ERR_MapGUIDError = 'There is an error %1:s in map %0:s';
@@ -79,7 +79,7 @@ ResourceString
   SAS_ERR_MapDownloadByError = 'Download of map %0:s disabled because of error: %1:s';
   SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpected content type';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
-  SAS_ERR_CoordinatesInput='Error in geographic coordinates';
+  SAS_ERR_CoordinatesInput = 'Error in geographic coordinates';
 
   SAS_ERR_EmptyZMPFileName = 'Empty ZMP file name';
   SAS_ERR_FileNotFoundFmt = 'File %0:s not found';

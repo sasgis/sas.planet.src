@@ -53,7 +53,10 @@ type
     procedure SetFontSize(AValue: Integer);
 
     function GetZoomDeltaColor(AIndex: Integer): TColor32;
-    procedure SetZoomDeltaColor(AIndex: Integer; AValue: TColor32);
+    procedure SetZoomDeltaColor(
+      AIndex: Integer;
+      AValue: TColor32
+    );
 
     function GetZoomDeltaColors: TArrayOfColor32;
   public
@@ -206,8 +209,10 @@ begin
   end;
 end;
 
-procedure TSelectionRectLayerConfig.SetZoomDeltaColor(AIndex: Integer;
-  AValue: TColor32);
+procedure TSelectionRectLayerConfig.SetZoomDeltaColor(
+  AIndex: Integer;
+  AValue: TColor32
+);
 var
   VColors: TArrayOfColor32;
 begin

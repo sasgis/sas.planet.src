@@ -34,8 +34,8 @@ uses
   u_PathDetalizeProviderListEntity;
 
 type
-  TRouteVehicle = (car,foot,bicycle);
-  TRouteCalcType = (fastest,shortest);
+  TRouteVehicle = (car, foot, bicycle);
+  TRouteCalcType = (fastest, shortest);
 
 type
   TPathDetalizeProviderCloudMade = class(TPathDetalizeProviderListEntity)
@@ -48,7 +48,10 @@ type
   protected
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
-    function GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath; override;
+    function GetPath(
+      const ASource: ILonLatPath;
+      var AComment: string
+    ): ILonLatPath; override;
   public
     constructor Create(
       const AGUID: TGUID;
@@ -170,77 +173,92 @@ begin
   FFactory := AFactory;
 end;
 
-function TPathDetalizeProviderCloudMade.GetPath(const ASource: ILonLatPath; var AComment: string): ILonLatPath;
+function TPathDetalizeProviderCloudMade.GetPath(
+  const ASource: ILonLatPath;
+  var AComment: string
+): ILonLatPath;
 var
-  ms:TMemoryStream;
-  url:string;
-  conerr:boolean;
+  ms: TMemoryStream;
+  url: string;
+  conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
-  pathstr,timeT1:string;
-  posit,posit2,dd,seconds,meters:integer;
-  dateT1:TDateTime;
+  pathstr, timeT1: string;
+  posit, posit2, dd, seconds, meters: integer;
+  dateT1: TDateTime;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
 begin
   Result := nil;
   AComment := '';
-  meters:=0;
-  seconds:=0;
+  meters := 0;
+  seconds := 0;
   VPointsAggregator := TDoublePointsAggregator.Create;
-  ms:=TMemoryStream.Create;
+  ms := TMemoryStream.Create;
   try
-    conerr:=false;
+    conerr := false;
     VEnum := ASource.GetEnum;
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
-        if conerr then Continue;
+        if conerr then begin
+          Continue;
+        end;
         url := FBaseUrl;
-        url:=url+R2StrPoint(VPrevPoint.y)+','+R2StrPoint(VPrevPoint.x)+
-            ','+R2StrPoint(VCurrPoint.y)+','+R2StrPoint(VCurrPoint.x);
+        url := url + R2StrPoint(VPrevPoint.y) + ',' + R2StrPoint(VPrevPoint.x) +
+          ',' + R2StrPoint(VCurrPoint.y) + ',' + R2StrPoint(VCurrPoint.x);
         case FVehicle of
-          car: url:=url+'/car';
-          foot: url:=url+'/foot';
-          bicycle: url:=url+'/bicycle';
+          car: begin
+            url := url + '/car';
+          end;
+          foot: begin
+            url := url + '/foot';
+          end;
+          bicycle: begin
+            url := url + '/bicycle';
+          end;
         end;
         case FRouteCalcType of
-          fastest: url:=url+'.js?units=km&lang=en&callback=getRoute6&translation=common';
-          shortest: url:=url+'/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
+          fastest: begin
+            url := url + '.js?units=km&lang=en&callback=getRoute6&translation=common';
+          end;
+          shortest: begin
+            url := url + '/shortest.js?units=km&lang=en&callback=getRoute6&translation=common';
+          end;
         end;
         ms.Clear;
-        if GetStreamFromURL(ms, url, 'application/json;charset=UTF-8', FProxyConfig.GetStatic)>0 then begin
-          ms.Position:=0;
+        if GetStreamFromURL(ms, url, 'application/json;charset=UTF-8', FProxyConfig.GetStatic) > 0 then begin
+          ms.Position := 0;
           SetLength(pathstr, ms.Size);
           ms.ReadBuffer(pathstr[1], ms.Size);
           try
-            posit:=PosEx('[',pathstr,1);
-            posit:=PosEx('[',pathstr,posit+1);
-            if posit>0 then  begin
-              While (posit>0) do begin
-                posit2:=PosEx(',',pathstr,posit);
-                VPoint.Y := str2r(copy(pathstr,posit+1,posit2-(posit+1)));
-                posit:=PosEx(']',pathstr,posit2);
-                VPoint.X := str2r(copy(pathstr,posit2+1,posit-(posit2+1)));
+            posit := PosEx('[', pathstr, 1);
+            posit := PosEx('[', pathstr, posit + 1);
+            if posit > 0 then begin
+              While (posit > 0) do begin
+                posit2 := PosEx(',', pathstr, posit);
+                VPoint.Y := str2r(copy(pathstr, posit + 1, posit2 - (posit + 1)));
+                posit := PosEx(']', pathstr, posit2);
+                VPoint.X := str2r(copy(pathstr, posit2 + 1, posit - (posit2 + 1)));
 
                 VPointsAggregator.Add(VPoint);
-                if pathstr[posit+1]=']' then begin
-                  posit:=-1;
+                if pathstr[posit + 1] = ']' then begin
+                  posit := -1;
                 end else begin
-                  posit:=PosEx('[',pathstr,posit+1);
+                  posit := PosEx('[', pathstr, posit + 1);
                 end;
               end;
-              posit:=PosEx('"total_distance":',pathstr,1);
-              posit2:=PosEx(',',pathstr,posit);
-              meters:=meters+strtoint(copy(pathstr,posit+17,posit2-(posit+17)));
-              posit:=PosEx('"total_time":',pathstr,1);
-              posit2:=PosEx(',',pathstr,posit);
-              seconds:=seconds+strtoint(copy(pathstr,posit+13,posit2-(posit+13)));
+              posit := PosEx('"total_distance":', pathstr, 1);
+              posit2 := PosEx(',', pathstr, posit);
+              meters := meters + strtoint(copy(pathstr, posit + 17, posit2 - (posit + 17)));
+              posit := PosEx('"total_time":', pathstr, 1);
+              posit2 := PosEx(',', pathstr, posit);
+              seconds := seconds + strtoint(copy(pathstr, posit + 13, posit2 - (posit + 13)));
             end;
           except
           end;
         end else begin
-          conerr:=true;
+          conerr := true;
         end;
         VPrevPoint := VCurrPoint;
       end;
@@ -250,19 +268,19 @@ begin
   end;
   if not conerr then begin
     Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
-    if meters>1000 then begin
-      AComment:=SAS_STR_MarshLen+' '+RoundEx(meters/1000,2)+' '+SAS_UNITS_km;
+    if meters > 1000 then begin
+      AComment := SAS_STR_MarshLen + ' ' + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
     end else begin
-      AComment:=SAS_STR_MarshLen+' '+inttostr(meters)+' '+SAS_UNITS_m;
+      AComment := SAS_STR_MarshLen + ' ' + inttostr(meters) + ' ' + SAS_UNITS_m;
     end;
-    DateT1:=SecondToTime(seconds);
-    dd:=DaysBetween(0,DateT1);
-    timeT1:='';
-    if dd>0 then begin
-      timeT1:=inttostr(dd)+' дней, ';
+    DateT1 := SecondToTime(seconds);
+    dd := DaysBetween(0, DateT1);
+    timeT1 := '';
+    if dd > 0 then begin
+      timeT1 := inttostr(dd) + ' дней, ';
     end;
-    timeT1:=timeT1+TimeToStr(DateT1);
-    AComment:=AComment+#13#10+SAS_STR_Marshtime+timeT1;
+    timeT1 := timeT1 + TimeToStr(DateT1);
+    AComment := AComment + #13#10 + SAS_STR_Marshtime + timeT1;
   end;
 end;
 
@@ -312,7 +330,7 @@ end;
 
 function TPathDetalizeProviderCloudMadeFastestByCar.GetMenuItemNameTranslated: string;
 begin
-  Result :=_('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010';
+  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010';
 end;
 
 { TPathDetalizeProviderCloudMadeFastestByFoot }

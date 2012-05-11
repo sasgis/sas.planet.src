@@ -53,6 +53,7 @@ type
   public
     constructor Create;
   end;
+
 implementation
 
 { TNavigationToPoint }
@@ -70,7 +71,7 @@ begin
   if AConfigData <> nil then begin
     FIsActive := AConfigData.ReadBool('Active', FIsActive);
     { TODO -odemidov -c :  06.04.2011 10:54:49 Переделать чтение метки из параметров}
-//    FId := AConfigData.ReadInteger('ID', FId);
+    //    FId := AConfigData.ReadInteger('ID', FId);
     FLonLat.X := AConfigData.ReadFloat('X', FLonLat.X);
     FLonLat.Y := AConfigData.ReadFloat('Y', FLonLat.Y);
     SetChanged;
@@ -83,8 +84,8 @@ procedure TNavigationToPoint.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('Active', FIsActive);
-    { TODO -odemidov -c :  06.04.2011 10:54:49 Переделать чтение метки из параметров}
-//  AConfigData.WriteInteger('ID', FId);
+  { TODO -odemidov -c :  06.04.2011 10:54:49 Переделать чтение метки из параметров}
+  //  AConfigData.WriteInteger('ID', FId);
   AConfigData.WriteFloat('X', FLonLat.X);
   AConfigData.WriteFloat('Y', FLonLat.Y);
 end;

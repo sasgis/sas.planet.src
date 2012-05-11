@@ -111,10 +111,15 @@ begin
     FFontName := AConfigData.ReadString('FontName', FFontName);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
     case AConfigData.ReadInteger('NumbersFormat', Integer(FNumbersFormat)) of
-      Integer(slnfScienceRound): FNumbersFormat := slnfScienceRound;
-      Integer(slnfScience): FNumbersFormat := slnfScience;
-    else
+      Integer(slnfScienceRound): begin
+        FNumbersFormat := slnfScienceRound;
+      end;
+      Integer(slnfScience): begin
+        FNumbersFormat := slnfScience;
+      end;
+    else begin
       FNumbersFormat := slnfNice;
+    end;
     end;
     SetChanged;
   end;
@@ -225,7 +230,7 @@ begin
   end;
 end;
 
-{$ENDREGION} //GET Property Value Methods
+{$ENDREGION}//GET Property Value Methods
 
 {$REGION 'SET Property Value Methods'}
 
@@ -346,6 +351,6 @@ begin
   end;
 end;
 
-{$ENDREGION} //SET Property Value Methods
+{$ENDREGION}//SET Property Value Methods
 
 end.

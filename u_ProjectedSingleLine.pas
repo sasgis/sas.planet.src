@@ -39,7 +39,10 @@ type
   TProjectedPathLine = class(TProjectedLineBase, IProjectedPathLine)
   private
     function GetEnum: IEnumProjectedPoint;
-    function IsPointOnPath(const APoint: TDoublePoint; ADist: Double): Boolean;
+    function IsPointOnPath(
+      const APoint: TDoublePoint;
+      ADist: Double
+    ): Boolean;
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
@@ -53,7 +56,10 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function IsPointOnBorder(const APoint: TDoublePoint; ADist: Double): Boolean;
+    function IsPointOnBorder(
+      const APoint: TDoublePoint;
+      ADist: Double
+    ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
   public
@@ -220,7 +226,7 @@ begin
       while VEnum.Next(VCurrPoint) do begin
         VDelta.X := VCurrPoint.X - VPrevPoint.X;
         VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
-        if (VDelta.Y < 0)then begin
+        if (VDelta.Y < 0) then begin
           if (VCurrPoint.Y <= ARect.Top) and (ARect.Top < VPrevPoint.Y) then begin
             VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
             if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
@@ -235,7 +241,7 @@ begin
               Exit;
             end;
           end;
-        end else if (VDelta.Y > 0)then begin
+        end else if (VDelta.Y > 0) then begin
           if (VCurrPoint.Y > ARect.Top) and (ARect.Top >= VPrevPoint.Y) then begin
             VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
             if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
@@ -252,7 +258,7 @@ begin
           end;
         end;
 
-        if (VDelta.X < 0)then begin
+        if (VDelta.X < 0) then begin
           if (VCurrPoint.X <= ARect.Left) and (ARect.Left < VPrevPoint.X) then begin
             VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
             if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
@@ -267,7 +273,7 @@ begin
               Exit;
             end;
           end;
-        end else if (VDelta.X > 0)then begin
+        end else if (VDelta.X > 0) then begin
           if (VCurrPoint.X > ARect.Left) and (ARect.Left >= VPrevPoint.X) then begin
             VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
             if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
@@ -329,16 +335,14 @@ var
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
 begin
-  result:=false;
+  result := false;
   VEnum := GetEnum;
   if VEnum.Next(VPrevPoint) then begin
     while VEnum.Next(VCurrPoint) do begin
-      if
-        (((VCurrPoint.y<=APoint.y)and(APoint.y<VPrevPoint.y))or
-        ((VPrevPoint.y<=APoint.y)and(APoint.y<VCurrPoint.y)))and
-        (APoint.x>(VPrevPoint.x-VCurrPoint.x)*(APoint.y-VCurrPoint.y)/(VPrevPoint.y-VCurrPoint.y)+VCurrPoint.x)
-      then begin
-        result:=not(result);
+      if (((VCurrPoint.y <= APoint.y) and (APoint.y < VPrevPoint.y)) or
+        ((VPrevPoint.y <= APoint.y) and (APoint.y < VCurrPoint.y))) and
+        (APoint.x > (VPrevPoint.x - VCurrPoint.x) * (APoint.y - VCurrPoint.y) / (VPrevPoint.y - VCurrPoint.y) + VCurrPoint.x) then begin
+        result := not (result);
       end;
       VPrevPoint := VCurrPoint;
     end;
@@ -415,7 +419,7 @@ begin
         while VEnum.Next(VCurrPoint) do begin
           VDelta.X := VCurrPoint.X - VPrevPoint.X;
           VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
-          if (VDelta.Y < 0)then begin
+          if (VDelta.Y < 0) then begin
             if (VCurrPoint.Y <= ARect.Top) and (ARect.Top < VPrevPoint.Y) then begin
               VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
               if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
@@ -433,7 +437,7 @@ begin
                 Exit;
               end;
             end;
-          end else if (VDelta.Y > 0)then begin
+          end else if (VDelta.Y > 0) then begin
             if (VCurrPoint.Y > ARect.Top) and (ARect.Top >= VPrevPoint.Y) then begin
               VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
               if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
@@ -453,7 +457,7 @@ begin
             end;
           end;
 
-          if (VDelta.X < 0)then begin
+          if (VDelta.X < 0) then begin
             if (VCurrPoint.X <= ARect.Left) and (ARect.Left < VPrevPoint.X) then begin
               VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
               if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
@@ -468,7 +472,7 @@ begin
                 Exit;
               end;
             end;
-          end else if (VDelta.X > 0)then begin
+          end else if (VDelta.X > 0) then begin
             if (VCurrPoint.X > ARect.Left) and (ARect.Left >= VPrevPoint.X) then begin
               VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
               if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin

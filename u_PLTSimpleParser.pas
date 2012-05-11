@@ -39,8 +39,15 @@ type
   private
     FFactory: IVectorItmesFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
-    procedure ParseStringList(AStringList: TStringList; const APointsAggregator: IDoublePointsAggregator);
-    function GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
+    procedure ParseStringList(
+      AStringList: TStringList;
+      const APointsAggregator: IDoublePointsAggregator
+    );
+    function GetWord(
+      Str: string;
+      const Smb: string;
+      WordNmbr: Byte
+    ): string;
   protected
     function LoadFromStream(
       AStream: TStream;
@@ -62,7 +69,6 @@ implementation
 uses
   u_StreamReadOnlyByBinaryData,
   u_VectorDataItemList,
-  
   u_DoublePointsAggregator,
   u_GeoFun,
   u_GeoToStr;
@@ -105,14 +111,14 @@ var
   VPointsAggregator: IDoublePointsAggregator;
 begin
   Result := nil;
-  pltstr:=TStringList.Create;
+  pltstr := TStringList.Create;
   try
     pltstr.LoadFromStream(AStream);
     if pltstr.Count > 7 then begin
       VPointsAggregator := TDoublePointsAggregator.Create;
       ParseStringList(pltstr, VPointsAggregator);
       if VPointsAggregator.Count > 0 then begin
-        trackname:=GetWord(pltstr[4], ',', 4);
+        trackname := GetWord(pltstr[4], ',', 4);
         VItem :=
           AFactory.BuildPath(
             '',
@@ -135,23 +141,23 @@ procedure TPLTSimpleParser.ParseStringList(
   const APointsAggregator: IDoublePointsAggregator
 );
 var
-  i,j:integer;
+  i, j: integer;
   VStr: string;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
 begin
-  for i:=6 to AStringList.Count-1 do begin
+  for i := 6 to AStringList.Count - 1 do begin
     try
-      j:=1;
-      VStr:=AStringList[i];
-      while j<length(VStr) do begin
-        if VStr[j]=' ' then begin
-          delete(VStr,j,1);
+      j := 1;
+      VStr := AStringList[i];
+      while j < length(VStr) do begin
+        if VStr[j] = ' ' then begin
+          delete(VStr, j, 1);
         end else begin
           inc(j);
         end;
       end;
-      if (GetWord(AStringList[i], ',', 3)='1') and (i>6) then begin
+      if (GetWord(AStringList[i], ',', 3) = '1') and (i > 6) then begin
         VPoint := CEmptyDoublePoint;
         APointsAggregator.Add(VPoint);
       end;
@@ -170,25 +176,32 @@ begin
   end;
 end;
 
-function TPLTSimpleParser.GetWord(Str: string; const Smb: string; WordNmbr: Byte): string;
-var SWord: string;
-    StrLen, N: Byte;
+function TPLTSimpleParser.GetWord(
+  Str: string;
+  const Smb: string;
+  WordNmbr: Byte
+): string;
+var
+  SWord: string;
+  StrLen, N: Byte;
 begin
   StrLen := SizeOf(Str);
   N := 1;
-  while ((WordNmbr >= N) and (StrLen <> 0)) do
-  begin
+  while ((WordNmbr >= N) and (StrLen <> 0)) do begin
     StrLen := System.Pos(Smb, str);
-    if StrLen <> 0 then
-    begin
+    if StrLen <> 0 then begin
       SWord := Copy(Str, 1, StrLen - 1);
       Delete(Str, 1, StrLen);
       Inc(N);
-    end
-    else SWord := Str;
+    end else begin
+      SWord := Str;
+    end;
   end;
-  if WordNmbr <= N then Result := SWord
-                   else Result := '';
+  if WordNmbr <= N then begin
+    Result := SWord;
+  end else begin
+    Result := '';
+  end;
 end;
 
 end.
