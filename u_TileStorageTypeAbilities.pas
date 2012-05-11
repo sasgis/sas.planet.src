@@ -57,7 +57,7 @@ type
     function GetAllowDelete: boolean;
     function GetAllowReplace: boolean;
   end;
-  
+
 implementation
 
 

@@ -356,36 +356,36 @@ begin
     Config.CoordConverter.CheckTileRect(VRect, VZoom);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
-    if (VCount.X > 0) and (VCount.Y > 0)   then begin
+    if (VCount.X > 0) and (VCount.Y > 0) then begin
       VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoInternal));
       try
         VPrevFolderName := '';
         VPrevFolderExist := False;
-          VIterator := TTileIteratorByRect.Create(VRect);
-          while VIterator.Next(VTile) do begin
-            VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
-            VFileName := FCacheConfig.GetTileFileName(VTile, VZoom);
-            VFolderName := ExtractFilePath(VFileName);
+        VIterator := TTileIteratorByRect.Create(VRect);
+        while VIterator.Next(VTile) do begin
+          VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
+          VFileName := FCacheConfig.GetTileFileName(VTile, VZoom);
+          VFolderName := ExtractFilePath(VFileName);
 
-            if VFolderName = VPrevFolderName then begin
-              VFolderExists := VPrevFolderExist;
-            end else begin
-              VFolderExists := DirectoryExists(VFolderName);
-              VPrevFolderName := VFolderName;
-              VPrevFolderExist := VFolderExists;
-            end;
-            if VFolderExists then begin
-              //TODO: доделать.
-            end else begin
-              // neither tile nor tne
-              VItems[VIndex].FLoadDate := 0;
-              VItems[VIndex].FVersionInfo := nil;
-              VItems[VIndex].FContentType := nil;
-              VItems[VIndex].FData := nil;
-              VItems[VIndex].FSize := 0;
-              VItems[VIndex].FInfoType := titNotExists;
-            end;
+          if VFolderName = VPrevFolderName then begin
+            VFolderExists := VPrevFolderExist;
+          end else begin
+            VFolderExists := DirectoryExists(VFolderName);
+            VPrevFolderName := VFolderName;
+            VPrevFolderExist := VFolderExists;
           end;
+          if VFolderExists then begin
+            //TODO: доделать.
+          end else begin
+            // neither tile nor tne
+            VItems[VIndex].FLoadDate := 0;
+            VItems[VIndex].FVersionInfo := nil;
+            VItems[VIndex].FContentType := nil;
+            VItems[VIndex].FData := nil;
+            VItems[VIndex].FSize := 0;
+            VItems[VIndex].FInfoType := titNotExists;
+          end;
+        end;
         Result :=
           TTileRectInfo.CreateWithOwn(
             VRect,

@@ -148,7 +148,7 @@ end;
 constructor TTileRequestResultOk.Create(const ADownloadResult: IDownloadResult);
 begin
   FDownloadResult := ADownloadResult;
-  FDownloadRequest := FDownloadResult.Request as ITileDownloadRequest;;
+  FDownloadRequest := FDownloadResult.Request as ITileDownloadRequest;
   inherited Create(FDownloadRequest.Source);
 end;
 

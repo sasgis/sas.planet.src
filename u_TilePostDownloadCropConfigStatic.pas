@@ -76,14 +76,12 @@ begin
   inherited Create;
 
   // crop params
-  if
-    (ACropRect.Left >= 0) and
+  if (ACropRect.Left >= 0) and
     (ACropRect.Top >= 0) and
     (ACropRect.Right > ACropRect.Left) and
     (ACropRect.Bottom > ACropRect.Top) and
     (ACropRect.Right < 10000) and
-    (ACropRect.Bottom < 10000)
-  then begin
+    (ACropRect.Bottom < 10000) then begin
     FIsCropOnDownload := True;
     FCropRect := ACropRect;
   end else begin
@@ -93,24 +91,20 @@ begin
 
   // cut params (by Size or by Count)
   if (
-      (ACutCount.X>0) and
-      (ACutCount.Y>0) and
-      (((ACutTile.X>=0) and (ACutTile.X<ACutCount.X)) or (ACutTile.X<0)) and
-      (((ACutTile.Y>=0) and (ACutTile.Y<ACutCount.Y)) or (ACutTile.Y<0))
-     )
-    OR
-     (
-      (ACutSize.X>0) or (ACutSize.Y>0) // if not defined - use 256 from config
-     )
-    OR
-     (
-      (0<Length(ACutToSkip)) // some tiles to exclude
-     )
-    OR
-     (
-      (ACutTile.X<>0) or (ACutTile.Y<>0) // requested tile in big image
-     )
-  then begin
+    (ACutCount.X > 0) and
+    (ACutCount.Y > 0) and
+    (((ACutTile.X >= 0) and (ACutTile.X < ACutCount.X)) or (ACutTile.X < 0)) and
+    (((ACutTile.Y >= 0) and (ACutTile.Y < ACutCount.Y)) or (ACutTile.Y < 0))
+    ) OR
+    (
+    (ACutSize.X > 0) or (ACutSize.Y > 0) // if not defined - use 256 from config
+    ) OR
+    (
+    (0 < Length(ACutToSkip)) // some tiles to exclude
+    ) OR
+    (
+    (ACutTile.X <> 0) or (ACutTile.Y <> 0) // requested tile in big image
+    ) then begin
     // do
     FIsCutOnDownload := TRUE;
     FCutCount := ACutCount;
@@ -120,7 +114,7 @@ begin
   end else begin
     // no cutting
     FIsCutOnDownload := FALSE;
-    FCutCount := Point(0,0);
+    FCutCount := Point(0, 0);
     FCutSize := FCutCount;
     FCutTile := FCutCount;
     FCutToSkip := '';
@@ -128,17 +122,20 @@ begin
 end;
 
 function TTilePostDownloadCropConfigStatic.CutSkipItem(const AItem, ACount: TPoint): Boolean;
-var S: String;
+var
+  S: String;
 begin
-  if (0<Length(FCutToSkip)) then begin
-    S := '('+IntToStr(AItem.X)+','+IntToStr(AItem.Y)+')';
+  if (0 < Length(FCutToSkip)) then begin
+    S := '(' + IntToStr(AItem.X) + ',' + IntToStr(AItem.Y) + ')';
     Result := (System.Pos(S, FCutToSkip) > 0);
-    if Result then
+    if Result then begin
       Exit;
-    S := '('+IntToStr(AItem.X)+','+IntToStr(AItem.Y-ACount.Y)+')';
+    end;
+    S := '(' + IntToStr(AItem.X) + ',' + IntToStr(AItem.Y - ACount.Y) + ')';
     Result := (System.Pos(S, FCutToSkip) > 0);
-  end else
+  end else begin
     Result := FALSE;
+  end;
 end;
 
 function TTilePostDownloadCropConfigStatic.GetCropRect: TRect;

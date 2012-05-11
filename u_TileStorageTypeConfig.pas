@@ -34,7 +34,10 @@ type
   protected
     function GetBasePath: IPathConfig;
   public
-    constructor Create(const ABasePath: IPathConfig; const ADefaultPath: string);
+    constructor Create(
+      const ABasePath: IPathConfig;
+      const ADefaultPath: string
+    );
   end;
 
 implementation

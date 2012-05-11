@@ -37,14 +37,23 @@ type
     FIndexInRing: Integer;
 
     function CheckPoint(const APoint: TPoint): Boolean;
-    class function GetMaxRing(const ACenterPoint: TPoint; const ARect: TRect): Integer;
+    class function GetMaxRing(
+      const ACenterPoint: TPoint;
+      const ARect: TRect
+    ): Integer;
     class function GetTilesInRingCount(ARad: Integer): Integer;
-    class function GetDeltaByRingAndIndex(ARad: Integer; AIndex: Integer): TPoint;
+    class function GetDeltaByRingAndIndex(
+      ARad: Integer;
+      AIndex: Integer
+    ): TPoint;
   protected
     function Next(out ATile: TPoint): Boolean; override;
     procedure Reset; override;
   public
-    constructor CreateWithCenter(const ARect: TRect; const APoint: TPoint);
+    constructor CreateWithCenter(
+      const ARect: TRect;
+      const APoint: TPoint
+    );
     constructor Create(const ARect: TRect); override;
   end;
 
@@ -59,16 +68,16 @@ constructor TTileIteratorSpiralByRect.CreateWithCenter(
 begin
   inherited Create(ARect);
 
-  FCenterPoint:=APoint;
+  FCenterPoint := APoint;
 
-  FMaxRadius:=GetMaxRing(FCenterPoint, FTilesRect);
+  FMaxRadius := GetMaxRing(FCenterPoint, FTilesRect);
 
   Reset;
 end;
 
 function TTileIteratorSpiralByRect.CheckPoint(const APoint: TPoint): Boolean;
 begin
-  Result:=
+  Result :=
     (APoint.X >= FTilesRect.Left) and
     (APoint.Y >= FTilesRect.Top) and
     (APoint.X < FTilesRect.Right) and
@@ -95,7 +104,7 @@ begin
     case VLineIndex of
       0: begin
         Result.X := 1 + VIndexInLine;
-        Result.Y := - ARad;
+        Result.Y := -ARad;
       end;
       1: begin
         Result.X := ARad;
@@ -110,12 +119,12 @@ begin
         Result.Y := ARad;
       end;
       4: begin
-        Result.X := - 1 - VIndexInLine;
+        Result.X := -1 - VIndexInLine;
         Result.Y := ARad;
       end;
       5: begin
         Result.X := -ARad;
-        Result.Y := ARad - 1  - VIndexInLine;
+        Result.Y := ARad - 1 - VIndexInLine;
       end;
       6: begin
         Result.X := -ARad;
@@ -123,7 +132,7 @@ begin
       end;
       7: begin
         Result.X := 1 - ARad + VIndexInLine;
-        Result.Y := - ARad;
+        Result.Y := -ARad;
       end;
     end;
   end;
@@ -136,18 +145,18 @@ class function TTileIteratorSpiralByRect.GetMaxRing(
 var
   VRad: Integer;
 begin
-  Result := ACenterPoint.x-ARect.Left;
-  VRad := ARect.Right-ACenterPoint.x;
-  if(VRad > Result)then begin
-    Result:=VRad;
+  Result := ACenterPoint.x - ARect.Left;
+  VRad := ARect.Right - ACenterPoint.x;
+  if (VRad > Result) then begin
+    Result := VRad;
   end;
   VRad := ACenterPoint.y - ARect.Top;
-  if(VRad > Result)then begin
-    Result:=VRad;
+  if (VRad > Result) then begin
+    Result := VRad;
   end;
   VRad := ARect.Bottom - ACenterPoint.y;
-  if(VRad > Result)then begin
-    Result:=VRad;
+  if (VRad > Result) then begin
+    Result := VRad;
   end;
 end;
 
@@ -184,7 +193,7 @@ end;
 
 procedure TTileIteratorSpiralByRect.Reset;
 begin
-  FEOI:=IsRectEmpty(FTilesRect);
+  FEOI := IsRectEmpty(FTilesRect);
   FCurrentRing := 0;
   FIndexInRing := 0;
 end;

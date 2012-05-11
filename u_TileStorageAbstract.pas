@@ -45,10 +45,12 @@ uses
   u_MapTypeCacheConfig;
 
 type
-  TRangeFillingMapEvent = function (Sender: TObject;
-                                    const ASourceTilesRect: PRect;
-                                    const AVersionInfo: IMapVersionInfo;
-                                    const ARangeFillingMapInfo: PRangeFillingMapInfo): Boolean of object;
+  TRangeFillingMapEvent = function(
+      Sender: TObject;
+      const ASourceTilesRect: PRect;
+      const AVersionInfo: IMapVersionInfo;
+      const ARangeFillingMapInfo: PRangeFillingMapInfo
+    ): Boolean of object;
 
   TTileStorageAbstract = class
   private
@@ -73,7 +75,11 @@ type
     function GetStorageStateStatic: IStorageStateStatic;
     property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
   protected
-    procedure NotifyTileUpdate(const ATile: TPoint; const AZoom: Byte; const AVersion: IMapVersionInfo);
+    procedure NotifyTileUpdate(
+      const ATile: TPoint;
+      const AZoom: Byte;
+      const AVersion: IMapVersionInfo
+    );
     property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
@@ -302,7 +308,7 @@ var
   VGeoConvert: ICoordConverter;
   // range
   VRangeFillingMapInfo: TRangeFillingMapInfo;
-  i,j: Cardinal;
+  i, j: Cardinal;
   VTileMapItemPtr: Pointer;
   VTile: TPoint;
 
@@ -335,130 +341,131 @@ var
       Dec(VSourceTilePixels.Bottom);
     end;
 
-    if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-       ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-      btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+    if ((VSourceTilePixels.Right - VSourceTilePixels.Left) = 1) and
+      ((VSourceTilePixels.Bottom - VSourceTilePixels.Top) = 1) then begin
+      btm.Pixel[VSourceTilePixels.Left, VSourceTilePixels.Top] := VTileColor;
     end else begin
-      btm.FillRectS(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+      btm.FillRectS(VSourceTilePixels.Left, VSourceTilePixels.Top, VSourceTilePixels.Right, VSourceTilePixels.Bottom, VTileColor);
     end;
   end;
-  
+
 begin
   Result := FALSE;
-  if StorageStateStatic.ReadAccess <> asDisabled then
-  try
-    VGeoConvert := FConfig.CoordConverter;
-    VTile := AXY;
-    VGeoConvert.CheckTilePosStrict(VTile, Azoom, True);
-    VGeoConvert.CheckZoom(ASourceZoom);
+  if StorageStateStatic.ReadAccess <> asDisabled then begin
+    try
+      VGeoConvert := FConfig.CoordConverter;
+      VTile := AXY;
+      VGeoConvert.CheckTilePosStrict(VTile, Azoom, True);
+      VGeoConvert.CheckZoom(ASourceZoom);
 
-    VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, Azoom);
+      VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, Azoom);
 
-    VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
+      VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
-    btm.Width := VTileSize.X;
-    btm.Height := VTileSize.Y;
-    btm.Clear(0);
+      btm.Width := VTileSize.X;
+      btm.Height := VTileSize.Y;
+      btm.Clear(0);
 
-    VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
-    VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
-    VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
-      or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
+      VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
+      VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+      VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left)) or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
 
-    if Assigned(FOnRangeFillingMap) and (ASourceZoom>Azoom) then begin
-      // make buffer: 1 tile has 2^(ASourceZoom-Azoom) tiles for each side
-      with VRangeFillingMapInfo do begin
-        SourceZoom := ASourceZoom;
-        Zoom := AZoom;
-        TileMapSize := 1 shl (ASourceZoom-Azoom);
+      if Assigned(FOnRangeFillingMap) and (ASourceZoom > Azoom) then begin
+        // make buffer: 1 tile has 2^(ASourceZoom-Azoom) tiles for each side
+        with VRangeFillingMapInfo do begin
+          SourceZoom := ASourceZoom;
+          Zoom := AZoom;
+          TileMapSize := 1 shl (ASourceZoom - Azoom);
 
-        // set buffer format (and size) depending on particular storage capabilities
-        ItemSize := GetRangeFillingMapItemSize;
+          // set buffer format (and size) depending on particular storage capabilities
+          ItemSize := GetRangeFillingMapItemSize;
 
-        // allocate
-        try
-          // EOutOfMemory allowed!
-          TileMapAddr := AllocMem(LongInt(TileMapSize)*LongInt(TileMapSize)*ItemSize);
-        except
+          // allocate
           try
-            // no memory - use minimal buffer (flags without date)
-            ItemSize := SizeOf(TRangeFillingItem1);
-            TileMapAddr := AllocMem(LongInt(TileMapSize)*LongInt(TileMapSize)*ItemSize);
+            // EOutOfMemory allowed!
+            TileMapAddr := AllocMem(LongInt(TileMapSize) * LongInt(TileMapSize) * ItemSize);
           except
-            // epic fail
-            ItemSize := 0;
+            try
+              // no memory - use minimal buffer (flags without date)
+              ItemSize := SizeOf(TRangeFillingItem1);
+              TileMapAddr := AllocMem(LongInt(TileMapSize) * LongInt(TileMapSize) * ItemSize);
+            except
+              // epic fail
+              ItemSize := 0;
+            end;
           end;
         end;
-      end;
-      
-      if (VRangeFillingMapInfo.TileMapAddr<>nil) and (VRangeFillingMapInfo.ItemSize>0) then
-      try
-        // call storage
-        Result := FOnRangeFillingMap(Self, @VSourceTilesRect, AVersionInfo, @VRangeFillingMapInfo);
 
-        // check buffer
-        if Result then begin
-          // loop through arrays
-          VTileMapItemPtr := VRangeFillingMapInfo.TileMapAddr;
-          for i := 0 to VRangeFillingMapInfo.TileMapSize-1 do begin
-            // check cancelled
-            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-              Result := FALSE;
-              break;
-            end;
+        if (VRangeFillingMapInfo.TileMapAddr <> nil) and (VRangeFillingMapInfo.ItemSize > 0) then begin
+          try
+            // call storage
+            Result := FOnRangeFillingMap(Self, @VSourceTilesRect, AVersionInfo, @VRangeFillingMapInfo);
 
-            for j := 0 to VRangeFillingMapInfo.TileMapSize-1 do begin
-              // check cancelled
-              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-                Result := FALSE;
-                break;
+            // check buffer
+            if Result then begin
+              // loop through arrays
+              VTileMapItemPtr := VRangeFillingMapInfo.TileMapAddr;
+              for i := 0 to VRangeFillingMapInfo.TileMapSize - 1 do begin
+                // check cancelled
+                if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                  Result := FALSE;
+                  break;
+                end;
+
+                for j := 0 to VRangeFillingMapInfo.TileMapSize - 1 do begin
+                  // check cancelled
+                  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                    Result := FALSE;
+                    break;
+                  end;
+
+                  // get color
+                  VTileColor := AColorer.GetRangeColor(VTileMapItemPtr, VRangeFillingMapInfo.ItemSize);
+
+                  // apply color
+                  VCurrTile := VSourceTilesRect.TopLeft;
+                  Inc(VCurrTile.X, i);
+                  Inc(VCurrTile.Y, j);
+                  _PaintCurrTile;
+
+                  // next item in buffer
+                  VTileMapItemPtr := Pointer(LongInt(VTileMapItemPtr) + VRangeFillingMapInfo.ItemSize);
+                end;
               end;
-
-              // get color
-              VTileColor := AColorer.GetRangeColor(VTileMapItemPtr, VRangeFillingMapInfo.ItemSize);
-
-              // apply color
-              VCurrTile := VSourceTilesRect.TopLeft;
-              Inc(VCurrTile.X, i);
-              Inc(VCurrTile.Y, j);
-              _PaintCurrTile;
-
-              // next item in buffer
-              VTileMapItemPtr := Pointer(LongInt(VTileMapItemPtr)+VRangeFillingMapInfo.ItemSize);
             end;
+          finally
+            FreeMem(VRangeFillingMapInfo.TileMapAddr);
           end;
         end;
-      finally
-        FreeMem(VRangeFillingMapInfo.TileMapAddr);
       end;
-    end;
 
-    if (not Result) then begin
-      Result := TRUE;
-      VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
-      while VIterator.Next(VCurrTile) do begin
-        // check cancelled
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Result := FALSE;
-          break;
-        end;
-
-        VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
-        VTileColor := AColorer.GetColor(VTileInfo);
-
-        if VTileColor <> 0 then begin
+      if (not Result) then begin
+        Result := TRUE;
+        VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
+        while VIterator.Next(VCurrTile) do begin
           // check cancelled
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             Result := FALSE;
             break;
           end;
 
-          _PaintCurrTile;
+          VTileInfo := GetTileInfo(VCurrTile, ASourceZoom, AVersionInfo);
+          VTileColor := AColorer.GetColor(VTileInfo);
+
+          if VTileColor <> 0 then begin
+            // check cancelled
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              Result := FALSE;
+              break;
+            end;
+
+            _PaintCurrTile;
+          end;
         end;
       end;
+    except
+      Result := false;
     end;
-  except
-    Result := false;
   end;
 end;
 

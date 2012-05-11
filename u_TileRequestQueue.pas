@@ -13,7 +13,8 @@ uses
 
 type
   TTileRequestQueue = class(TInterfacedObject, ITileRequestQueue)
-  private type
+  private
+    type
     TArrayOfITileRequest = array of ITileRequest;
   private
     FCapacity: Integer;
@@ -112,7 +113,7 @@ begin
   finally
     FRequestArrayCS.EndRead;
   end;
-  
+
   if Result = nil then begin
     FRequestArrayCS.BeginWrite;
     try

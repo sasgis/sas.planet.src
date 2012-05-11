@@ -28,7 +28,10 @@ type
     function GetGeoCoder: ICoordConverter; stdcall;
     function GetZoom: Byte; stdcall;
 
-    procedure Add(const AListener: IJclListener; const ATileRect: TRect); stdcall;
+    procedure Add(
+      const AListener: IJclListener;
+      const ATileRect: TRect
+    ); stdcall;
     procedure Remove(const AListener: IJclListener); stdcall;
 
     procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;

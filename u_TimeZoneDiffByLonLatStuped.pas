@@ -21,20 +21,30 @@ type
   private
     FDiff: TDateTime;
     FPolygon: ILonLatPolygon;
-    function IsPointFromPolygonLine(const ALine: ILonLatPolygonLine; const ALonLat: TDoublePoint): Boolean;
+    function IsPointFromPolygonLine(
+      const ALine: ILonLatPolygonLine;
+      const ALonLat: TDoublePoint
+    ): Boolean;
   protected
     function GetDiff: TDateTime;
     function GetPolygon: ILonLatPolygon;
   protected
     function IsPointFromThis(const ALonLat: TDoublePoint): Boolean;
   public
-    constructor Create(const ADiffInHour: Double; const APolygon: ILonLatPolygon);
+    constructor Create(
+      const ADiffInHour: Double;
+      const APolygon: ILonLatPolygon
+    );
   end;
 
   TTimeZoneDiffByLonLatStuped = class(TInterfacedObject, ITimeZoneList, ITimeZoneDiffByLonLat)
   private
     FTimeZoneList: IInterfaceList;
-    procedure AddFromSmallIntArray(const AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer; ALength: Integer);
+    procedure AddFromSmallIntArray(
+      const AAggregator: IDoublePointsAggregator;
+      ASmallIntPolygon: Pointer;
+      ALength: Integer
+    );
   protected
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ITimeZone;
@@ -54,7 +64,10 @@ uses
 
 { TTimeZone }
 
-constructor TTimeZone.Create(const ADiffInHour: Double; const APolygon: ILonLatPolygon);
+constructor TTimeZone.Create(
+  const ADiffInHour: Double;
+  const APolygon: ILonLatPolygon
+);
 begin
   inherited Create;
   FDiff := ADiffInHour / 24;
@@ -71,24 +84,24 @@ begin
   Result := FPolygon;
 end;
 
-function TTimeZone.IsPointFromPolygonLine(const ALine: ILonLatPolygonLine;
-  const ALonLat: TDoublePoint): Boolean;
+function TTimeZone.IsPointFromPolygonLine(
+  const ALine: ILonLatPolygonLine;
+  const ALonLat: TDoublePoint
+): Boolean;
 var
   VEnum: IEnumDoublePoint;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
 begin
-  result:=false;
-  if LonLatPointInRect(ALonLat,  ALine.Bounds) then begin
+  result := false;
+  if LonLatPointInRect(ALonLat, ALine.Bounds) then begin
     VEnum := ALine.GetEnum;
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
-        if
-          (((VCurrPoint.y <= ALonLat.y) and (ALonLat.y < VPrevPoint.y))or
-          ((VPrevPoint.y <= ALonLat.y) and (ALonLat.y < VCurrPoint.y)))and
-          (ALonLat.x > (VPrevPoint.x - VCurrPoint.x) * (ALonLat.y - VCurrPoint.y) / (VPrevPoint.y - VCurrPoint.y) + VCurrPoint.x)
-        then begin
-          Result := not(Result);
+        if (((VCurrPoint.y <= ALonLat.y) and (ALonLat.y < VPrevPoint.y)) or
+          ((VPrevPoint.y <= ALonLat.y) and (ALonLat.y < VCurrPoint.y))) and
+          (ALonLat.x > (VPrevPoint.x - VCurrPoint.x) * (ALonLat.y - VCurrPoint.y) / (VPrevPoint.y - VCurrPoint.y) + VCurrPoint.x) then begin
+          Result := not (Result);
         end;
         VPrevPoint := VCurrPoint;
       end;
@@ -457,15 +470,17 @@ begin
 end;
 
 procedure TTimeZoneDiffByLonLatStuped.AddFromSmallIntArray(
-  const AAggregator: IDoublePointsAggregator; ASmallIntPolygon: Pointer;
-  ALength: Integer);
+  const AAggregator: IDoublePointsAggregator;
+  ASmallIntPolygon: Pointer;
+  ALength: Integer
+);
 var
   i: Integer;
   VPoint: TDoublePoint;
 begin
   for i := 0 to ALength - 1 do begin
-    VPoint.X := SmallInt(Pointer(Integer(ASmallIntPolygon)+SizeOf(SmallInt)*2*i+SizeOf(SmallInt)*0)^)/100;
-    VPoint.Y := SmallInt(Pointer(Integer(ASmallIntPolygon)+SizeOf(SmallInt)*2*i+SizeOf(SmallInt)*1)^)/100;
+    VPoint.X := SmallInt(Pointer(Integer(ASmallIntPolygon) + SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 0)^) / 100;
+    VPoint.Y := SmallInt(Pointer(Integer(ASmallIntPolygon) + SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 1)^) / 100;
     AAggregator.Add(VPoint);
   end;
 end;

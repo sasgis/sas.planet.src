@@ -84,7 +84,7 @@ var
   VIndex: Integer;
 begin
   Result := FTileIterator.Next(VTile);
-  if Result  then begin
+  if Result then begin
     ATileInfo.FTile := VTile;
     VIndex := TileToIndex(VTile);
     if VIndex < 0 then begin

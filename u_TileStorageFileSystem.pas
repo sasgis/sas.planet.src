@@ -206,7 +206,7 @@ var
 begin
   i := LastDelimiter(PathDelim, APath);
   VPath := copy(APath, 1, i);
-  if not(DirectoryExists(VPath)) then begin
+  if not (DirectoryExists(VPath)) then begin
     ForceDirectories(VPath);
   end;
 end;
@@ -243,7 +243,7 @@ begin
       if Result then begin
         NotifyTileUpdate(AXY, Azoom, AVersionInfo);
       end;
-    end; 
+    end;
   {$IFDEF WITH_PERF_COUNTER}
   finally
     FDeleteTileCounter.FinishOperation(VCounterContext);
@@ -333,20 +333,25 @@ var
     VFileTimePtr := nil;
 
     // last modified time (if exists)
-    if (VInfo.ftLastWriteTime.dwLowDateTime<>0) and (VInfo.ftLastWriteTime.dwHighDateTime<>0) then
+    if (VInfo.ftLastWriteTime.dwLowDateTime <> 0) and (VInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
       VFileTimePtr := @(VInfo.ftLastWriteTime);
+    end;
 
     // created time (if exists and greater)
-    if (VInfo.ftCreationTime.dwLowDateTime<>0) and (VInfo.ftCreationTime.dwHighDateTime<>0) then
-      if (nil=VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^)>0) then
+    if (VInfo.ftCreationTime.dwLowDateTime <> 0) and (VInfo.ftCreationTime.dwHighDateTime <> 0) then begin
+      if (nil = VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^) > 0) then begin
         VFileTimePtr := @(VInfo.ftCreationTime);
+      end;
+    end;
 
     // convert max value
-    if (nil<>VFileTimePtr) then
-    if (FileTimeToSystemTime(VFileTimePtr^, VSysTime)<>FALSE) then
-    try
-      Result := SystemTimeToDateTime(VSysTime);
-    except
+    if (nil <> VFileTimePtr) then begin
+      if (FileTimeToSystemTime(VFileTimePtr^, VSysTime) <> FALSE) then begin
+        try
+          Result := SystemTimeToDateTime(VSysTime);
+        except
+        end;
+      end;
     end;
   end;
 
@@ -395,22 +400,28 @@ var
     VFileTimePtr := nil;
 
     // last modified time (if exists)
-    if (VInfo.ftLastWriteTime.dwLowDateTime<>0) and (VInfo.ftLastWriteTime.dwHighDateTime<>0) then
+    if (VInfo.ftLastWriteTime.dwLowDateTime <> 0) and (VInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
       VFileTimePtr := @(VInfo.ftLastWriteTime);
+    end;
 
     // created time (if exists and greater)
-    if (VInfo.ftCreationTime.dwLowDateTime<>0) and (VInfo.ftCreationTime.dwHighDateTime<>0) then
-      if (nil=VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^)>0) then
+    if (VInfo.ftCreationTime.dwLowDateTime <> 0) and (VInfo.ftCreationTime.dwHighDateTime <> 0) then begin
+      if (nil = VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^) > 0) then begin
         VFileTimePtr := @(VInfo.ftCreationTime);
+      end;
+    end;
 
     // convert max value
-    if (nil<>VFileTimePtr) then
-    if (FileTimeToSystemTime(VFileTimePtr^, VSysTime)<>FALSE) then
-    try
-      Result := SystemTimeToDateTime(VSysTime);
-    except
+    if (nil <> VFileTimePtr) then begin
+      if (FileTimeToSystemTime(VFileTimePtr^, VSysTime) <> FALSE) then begin
+        try
+          Result := SystemTimeToDateTime(VSysTime);
+        except
+        end;
+      end;
     end;
   end;
+
 var
   VFileName: string;
   VRect: TRect;
@@ -432,7 +443,7 @@ begin
     Config.CoordConverter.CheckTileRect(VRect, VZoom);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
-    if (VCount.X > 0) and (VCount.Y > 0)   then begin
+    if (VCount.X > 0) and (VCount.Y > 0) then begin
       VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoShortInternal));
       try
         VPrevFolderName := '';
@@ -573,13 +584,13 @@ begin
       VPrevFolderName := '';
       VPrevFolderExist := False;
       begin
-        VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left))
-          or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
+        VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left)) or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
         VIterator := TTileIteratorByRect.Create(VSourceTilesRect);
 
         while VIterator.Next(VCurrTile) do begin
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             break;
+          end;
 
           VFileName := FCacheConfig.GetTileFileName(VCurrTile, ASourceZoom);
           VFolderName := ExtractFilePath(VFileName);
@@ -600,7 +611,9 @@ begin
 
           VTileColor := AColorer.GetColor(VTileInfo);
           if VTileColor <> 0 then begin
-            if ACancelNotifier.IsOperationCanceled(AOperationID) then break;
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              break;
+            end;
             VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
             VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
             if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -623,11 +636,11 @@ begin
               Dec(VSourceTilePixels.Right);
               Dec(VSourceTilePixels.Bottom);
             end;
-            if ((VSourceTilePixels.Right-VSourceTilePixels.Left)=1)and
-               ((VSourceTilePixels.Bottom-VSourceTilePixels.Top)=1)then begin
-              btm.Pixel[VSourceTilePixels.Left,VSourceTilePixels.Top]:=VTileColor;
+            if ((VSourceTilePixels.Right - VSourceTilePixels.Left) = 1) and
+              ((VSourceTilePixels.Bottom - VSourceTilePixels.Top) = 1) then begin
+              btm.Pixel[VSourceTilePixels.Left, VSourceTilePixels.Top] := VTileColor;
             end else begin
-              btm.FillRectS(VSourceTilePixels.Left,VSourceTilePixels.Top,VSourceTilePixels.Right,VSourceTilePixels.Bottom, VTileColor);
+              btm.FillRectS(VSourceTilePixels.Left, VSourceTilePixels.Top, VSourceTilePixels.Right, VSourceTilePixels.Bottom, VTileColor);
             end;
           end;
         end;

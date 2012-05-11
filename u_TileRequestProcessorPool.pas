@@ -15,7 +15,8 @@ uses
 
 type
   TTileRequestProcessorPool = class(TInterfacedObject, ITileRequestProcessorPool)
-  private type
+  private
+    type
     TArrayOfThread = array of IThread;
   private
     FThreadConfig: IThreadConfig;
@@ -44,6 +45,7 @@ type
     );
     destructor Destroy; override;
   end;
+
 implementation
 
 uses
@@ -104,7 +106,7 @@ var
   VTileDownloaderSync: ITileDownloader;
 begin
   FTTLListener.UpdateUseTime;
-  
+
   FThreadArrayCS.BeginRead;
   try
     VThreadArray := FThreadArray;
@@ -164,7 +166,7 @@ begin
   finally
     FThreadArrayCS.EndWrite;
   end;
-  
+
   if VThreadArray <> nil then begin
     for i := 0 to Length(VThreadArray) - 1 do begin
       VItem := VThreadArray[i];

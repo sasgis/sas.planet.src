@@ -28,40 +28,57 @@ uses
 
 type
   PBDBKey = ^TBDBKey;
+
   TBDBKey = packed record
-    TileX : Cardinal;
-    TileY : Cardinal;
+    TileX: Cardinal;
+    TileY: Cardinal;
   end;
 
   PBDBData = ^TBDBData;
+
   TBDBData = record
-    RecMagic  : array [0..3] of AnsiChar;
-    RecCRC32  : Cardinal;
-    TileSize  : Cardinal;
-    TileDate  : TDateTime;
-    TileVer   : PWideChar;
-    TileMIME  : PWideChar;
-    TileBody  : PByte;
+    RecMagic: array [0..3] of AnsiChar;
+    RecCRC32: Cardinal;
+    TileSize: Cardinal;
+    TileDate: TDateTime;
+    TileVer: PWideChar;
+    TileMIME: PWideChar;
+    TileBody: PByte;
   end;
 
   PBDBStorageMetaInfo = ^TBDBStorageMetaInfo;
+
   TBDBStorageMetaInfo = record
-    MetaMagic     : array [0..3] of AnsiChar;
-    MetaCRC32     : Cardinal;
-    StorageEPSG   : Integer;
+    MetaMagic: array [0..3] of AnsiChar;
+    MetaCRC32: Cardinal;
+    StorageEPSG: Integer;
   end;
 
 const
-  CBDBMetaKeyX : Cardinal = $FFFFFFFF;
-  CBDBMetaKeyY : Cardinal = $FFFFFFFF;
+  CBDBMetaKeyX: Cardinal = $FFFFFFFF;
+  CBDBMetaKeyY: Cardinal = $FFFFFFFF;
 
 function PointToKey(APoint: TPoint): TBDBKey;
 
-function PBDBDataToMemStream(AData: PBDBData; out AStream: TMemoryStream): Boolean;
-function PRawDataToPBDBData(ARawData: PByte; ARawDataSize: Cardinal; AData: PBDBData): Boolean;
+function PBDBDataToMemStream(
+    AData: PBDBData;
+    out AStream: TMemoryStream
+  ): Boolean;
+function PRawDataToPBDBData(
+    ARawData: PByte;
+    ARawDataSize: Cardinal;
+    AData: PBDBData
+  ): Boolean;
 
-function PBDBMetaInfoToMemStream(AMeta: PBDBStorageMetaInfo; out AStream: TMemoryStream): Boolean;
-function PRawMetaToPBDBMetaInfo(ARawData: PByte; ARawDataSize: Cardinal; AMeta: PBDBStorageMetaInfo): Boolean;
+function PBDBMetaInfoToMemStream(
+    AMeta: PBDBStorageMetaInfo;
+    out AStream: TMemoryStream
+  ): Boolean;
+function PRawMetaToPBDBMetaInfo(
+    ARawData: PByte;
+    ARawDataSize: Cardinal;
+    AMeta: PBDBStorageMetaInfo
+  ): Boolean;
 
 implementation
 
@@ -78,7 +95,10 @@ const
 
 function PointToKey(APoint: TPoint): TBDBKey;
 
-  procedure SetBit(var ADest: Cardinal; ABit: Integer); inline;
+  procedure SetBit(
+  var ADest: Cardinal;
+    ABit: Integer
+  ); inline;
   begin
     ADest := ADest or (Cardinal(1) shl ABit);
   end;
@@ -99,17 +119,17 @@ begin
     VSetY := ((APoint.Y shr I) and 1) = 1;
     if I <= 15 then begin
       if VSetX then begin
-        SetBit(Result.TileY, I*2);
+        SetBit(Result.TileY, I * 2);
       end;
       if VSetY then begin
-        SetBit(Result.TileY, I*2+1);
+        SetBit(Result.TileY, I * 2 + 1);
       end;
     end else begin
       if VSetX then begin
-        SetBit(Result.TileX, (I-16)*2);
+        SetBit(Result.TileX, (I - 16) * 2);
       end;
       if VSetY then begin
-        SetBit(Result.TileX, (I-16)*2+1);
+        SetBit(Result.TileX, (I - 16) * 2 + 1);
       end;
     end;
   end;
@@ -122,14 +142,17 @@ function PBDBDataToMemStream(
   out AStream: TMemoryStream
 ): Boolean;
 
-  procedure WideCharToStream(APWideChar: PWideChar; AStream: TMemoryStream);
+  procedure WideCharToStream(
+    APWideChar: PWideChar;
+    AStream: TMemoryStream
+  );
   const
     CEndLine: WideChar = #0000;
   begin
     if (APWideChar <> nil) and (Length(APWideChar) > 0) then begin
-      AStream.WriteBuffer( APWideChar^, Length(APWideChar)*SizeOf(WideChar) );
+      AStream.WriteBuffer(APWideChar^, Length(APWideChar) * SizeOf(WideChar));
     end;
-    AStream.WriteBuffer( CEndLine , SizeOf(CEndLine) );
+    AStream.WriteBuffer(CEndLine, SizeOf(CEndLine));
   end;
 
 begin

@@ -78,7 +78,7 @@ begin
   FAllowDifferentContentTypes := AAllowDifferentContentTypes;
   FAllowDelete := AAllowDelete;
   FAllowSave := AAllowSave;
-  FIsReadOnly :=AIsReadOnly;
+  FIsReadOnly := AIsReadOnly;
 end;
 
 function TTileStorageInfo.GetAllowDelete: boolean;

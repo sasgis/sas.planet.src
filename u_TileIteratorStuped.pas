@@ -157,40 +157,40 @@ constructor TTileIteratorBySubRect.Create(
 );
 begin
   inherited Create(AProjected);
-  FSubRectWidth:=ASubRectSize.x;
-  FSubRectHeight:=ASubRectSize.y;
+  FSubRectWidth := ASubRectSize.x;
+  FSubRectHeight := ASubRectSize.y;
   Reset;
 end;
 
 function TTileIteratorBySubRect.Next(out ATile: TPoint): Boolean;
 begin
   Result := False;
-  while not(result) do begin
+  while not (result) do begin
     FCurrent.X := p_x shr 8;
     FCurrent.Y := p_y shr 8;
-    ATile:= FCurrent;
+    ATile := FCurrent;
     if (RgnAndRgn(@FPolyg[0], Length(FPolyg), p_x, p_y, false)) then begin
       Result := True;
     end;
 
     inc(p_x, 256);
     FCurrent.X := p_x shr 8;
-    if (((FCurrent.X + 0) mod FSubRectWidth)=0)or(FCurrent.X>=FTilesRect.Right) then begin
+    if (((FCurrent.X + 0) mod FSubRectWidth) = 0) or (FCurrent.X >= FTilesRect.Right) then begin
       inc(p_y, 256);
       FCurrent.Y := p_y shr 8;
-      if (((FCurrent.Y + 0) mod FSubRectHeight)=0)or(FCurrent.Y>=FTilesRect.Bottom) then begin
-        if (FCurrent.X>=FTilesRect.Right) then begin
-          if (FCurrent.Y>=FTilesRect.Bottom) then begin
+      if (((FCurrent.Y + 0) mod FSubRectHeight) = 0) or (FCurrent.Y >= FTilesRect.Bottom) then begin
+        if (FCurrent.X >= FTilesRect.Right) then begin
+          if (FCurrent.Y >= FTilesRect.Bottom) then begin
             Exit;
           end;
-          FCurrentSubRect.x:=0;
+          FCurrentSubRect.x := 0;
           inc(FCurrentSubRect.Y);
         end else begin
           inc(FCurrentSubRect.x);
         end;
-        p_y := (FTilesRect.Top-(FTilesRect.Top mod FSubRectHeight)+FSubRectHeight*FCurrentSubRect.Y) shl 8 + 128;
+        p_y := (FTilesRect.Top - (FTilesRect.Top mod FSubRectHeight) + FSubRectHeight * FCurrentSubRect.Y) shl 8 + 128;
       end;
-      p_x := (FTilesRect.Left-(FTilesRect.Left mod FSubRectHeight)+FSubRectWidth*FCurrentSubRect.x) shl 8 + 128;
+      p_x := (FTilesRect.Left - (FTilesRect.Left mod FSubRectHeight) + FSubRectWidth * FCurrentSubRect.x) shl 8 + 128;
     end;
   end;
 end;
@@ -198,7 +198,7 @@ end;
 procedure TTileIteratorBySubRect.Reset;
 begin
   inherited;
-  FCurrentSubRect := Point(0,0);
+  FCurrentSubRect := Point(0, 0);
 end;
 
 end.

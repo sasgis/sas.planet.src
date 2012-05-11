@@ -47,7 +47,10 @@ uses
 type
   TStaticTreeByPathDetalizeProviderListBuilder = class(TStaticTreeBuilderBaseBySlash)
   protected
-    procedure ProcessItems(const ASource: IInterface; AList: TStringList); override;
+    procedure ProcessItems(
+      const ASource: IInterface;
+      AList: TStringList
+    ); override;
     function GetNameFromItem(
       const ASource: IInterface;
       const AItem: IInterface
