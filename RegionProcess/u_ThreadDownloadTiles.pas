@@ -52,7 +52,7 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FPolygLL: ILonLatPolygon;
     FPolyProjected: IProjectedPolygon;
-    FSecondLoadTNE:boolean;
+    FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
     FCheckExistTileDate: boolean;
@@ -337,7 +337,7 @@ begin
     Azdate,
     AReplaceOlderDate,
     ASecondLoadTNE,
-    Point(-1,-1),
+    Point(-1, -1),
     0,
     0,
     AForAttachments
@@ -394,7 +394,7 @@ begin
       FFinished := true;
       Exit;
     end;
-    VGuids := ASLSSection.ReadString('MapGUID','');
+    VGuids := ASLSSection.ReadString('MapGUID', '');
     if VGuids = '' then begin
       ALog.WriteText('Map GUID is empty', 10);
       Terminate;
@@ -416,23 +416,23 @@ begin
     VCheckExistTileDate := ASLSSection.ReadBool('zdate', VCheckExistTileDate);
     VCheckTileDate := ASLSSection.ReadDate('FDate', VCheckTileDate);
     VProcessedTileCount := ASLSSection.ReadInteger('scachano', VProcessedTileCount);
-    VProcessedSize := trunc(ASLSSection.ReadFloat('dwnb', 0)*1024);
+    VProcessedSize := trunc(ASLSSection.ReadFloat('dwnb', 0) * 1024);
 
     VProcessed := ASLSSection.ReadInteger('obrab', VProcessed);
-    VSecondLoadTNE:=ASLSSection.ReadBool('SecondLoadTNE', VSecondLoadTNE);
+    VSecondLoadTNE := ASLSSection.ReadBool('SecondLoadTNE', VSecondLoadTNE);
     VElapsedTime := ASLSSection.ReadFloat('ElapsedTime', VProcessed);
     if ADownloadConfig.IsUseSessionLastSuccess then begin
-      VLastProcessedPoint.X:=ASLSSection.ReadInteger('LastSuccessfulStartX',-1);
-      VLastProcessedPoint.Y:=ASLSSection.ReadInteger('LastSuccessfulStartY',-1);
+      VLastProcessedPoint.X := ASLSSection.ReadInteger('LastSuccessfulStartX', -1);
+      VLastProcessedPoint.Y := ASLSSection.ReadInteger('LastSuccessfulStartY', -1);
     end else begin
-      VLastProcessedPoint.X:=ASLSSection.ReadInteger('StartX',-1);
-      VLastProcessedPoint.Y:=ASLSSection.ReadInteger('StartY',-1);
+      VLastProcessedPoint.X := ASLSSection.ReadInteger('StartX', -1);
+      VLastProcessedPoint.Y := ASLSSection.ReadInteger('StartY', -1);
     end;
     VPointsAggregator := TDoublePointsAggregator.Create;
-    i:=1;
+    i := 1;
     repeat
-      VPoint.X := ASLSSection.ReadFloat('LLPointX_'+inttostr(i),-10000);
-      VPoint.Y := ASLSSection.ReadFloat('LLPointY_'+inttostr(i),-10000);
+      VPoint.X := ASLSSection.ReadFloat('LLPointX_' + inttostr(i), -10000);
+      VPoint.Y := ASLSSection.ReadFloat('LLPointY_' + inttostr(i), -10000);
       VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
       if VValidPoint then begin
         VPointsAggregator.Add(VPoint);
@@ -460,9 +460,9 @@ begin
       VProjectedPolygon :=
         AVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
           AProjectionFactory.GetByConverterAndZoom(
-            VMapType.GeoConvert,
-            VZoom
-          ),
+          VMapType.GeoConvert,
+          VZoom
+        ),
           VPolygon
         );
     end;
@@ -517,7 +517,7 @@ end;
 
 procedure TThreadDownloadTiles.SaveToFile(const ASLSSection: IConfigDataWriteProvider);
 var
-  i:integer;
+  i: integer;
   VElapsedTime: TDateTime;
   VEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
@@ -539,8 +539,8 @@ begin
   VEnum := FPolygLL.GetEnum;
   i := 0;
   while VEnum.Next(VPoint) do begin
-    ASLSSection.WriteFloat('LLPointX_'+inttostr(i), VPoint.x);
-    ASLSSection.WriteFloat('LLPointY_'+inttostr(i), VPoint.y);
+    ASLSSection.WriteFloat('LLPointX_' + inttostr(i), VPoint.x);
+    ASLSSection.WriteFloat('LLPointY_' + inttostr(i), VPoint.y);
     Inc(i);
   end;
   if (FPausedByUser) then begin
@@ -567,20 +567,21 @@ begin
   Randomize;
   FStartTime := Now;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
-//  if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
-//     (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
-//    VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
-//  end else begin
-//    VTileIterator := TTileIteratorBySubRect.Create(FPolyProjected,
-//                      FMapType.TileDownloaderConfig.IteratorSubRectSize);
-//  end;
+  //  if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
+  //     (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
+  //    VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
+  //  end else begin
+  //    VTileIterator := TTileIteratorBySubRect.Create(FPolyProjected,
+  //                      FMapType.TileDownloaderConfig.IteratorSubRectSize);
+  //  end;
   try
     FTotalInRegion := VTileIterator.TilesTotal;
-    FLastSuccessfulPoint := Point(-1,-1);
-    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0)  then begin
+    FLastSuccessfulPoint := Point(-1, -1);
+    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
       while VTileIterator.Next(VTile) do begin
         if Terminated then begin
-          Break;;
+          Break;
+          ;
         end;
         if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
           Break;
@@ -599,7 +600,9 @@ begin
           if (FPausedByUser) then begin
             FElapsedTime := FElapsedTime + (Now - FStartTime);
             FLog.WriteText(FRES_UserStop, 10);
-            While (FPausedByUser)and (not Terminated) do SleepCancelable(FPausedSleepTime);
+            While (FPausedByUser) and (not Terminated) do begin
+              SleepCancelable(FPausedSleepTime);
+            end;
             FStartTime := now;
           end;
 
@@ -608,20 +611,18 @@ begin
           VTileExists := FMapType.TileExists(VTile, Fzoom);
 
           // for attachments need base tile - but even for existing tile some attachments may not exist
-          if (FReplaceExistTiles) or not(VTileExists) then begin
+          if (FReplaceExistTiles) or not (VTileExists) then begin
             // what to do
             if VTileExists then begin
               FLog.WriteText(FRES_LoadProcessRepl, 0);
             end else begin
-              FLog.WriteText(FRES_LoadProcess+'...', 0);
+              FLog.WriteText(FRES_LoadProcess + '...', 0);
             end;
-            if (FCheckExistTileDate)
-              and (VTileExists)
-              and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then
-            begin
+            if (FCheckExistTileDate) and (VTileExists) and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then begin
               // skip existing newer tile (but download attachments)
-              if (FLog<>nil) then
+              if (FLog <> nil) then begin
                 FLog.WriteText(FRES_FileBeCreateTime, 0);
+              end;
               if (not FForAttachments) then begin
                 FLastSuccessfulPoint := VTile;
                 FLastProcessedPoint := VTile;
@@ -633,12 +634,13 @@ begin
               end;
             end else begin
               try
-                if (not(FSecondLoadTNE)) and
-                   (FMapType.TileNotExistsOnServer(VTile, Fzoom)) and
-                   (FDownloadConfig.IsSaveTileNotExists) then begin
+                if (not (FSecondLoadTNE)) and
+                  (FMapType.TileNotExistsOnServer(VTile, Fzoom)) and
+                  (FDownloadConfig.IsSaveTileNotExists) then begin
                   // tne found - skip downloading tile
-                  if (FLog<>nil) then
+                  if (FLog <> nil) then begin
                     FLog.WriteText('(tne exists)', 0);
+                  end;
                   FLastProcessedPoint := VTile;
                   FLastSuccessfulPoint := VTile;
                   FGoToNextTile := True;
@@ -702,30 +704,39 @@ var
   VMapAttachmentsCounters: TMapAttachmentsCounters;
   VAttachmentsResultInfo: String;
 
-  procedure _Add_Info_If_Positive(const APrefix: String; const AValue: UInt64);
+  procedure _Add_Info_If_Positive(
+  const APrefix: String;
+  const AValue: UInt64
+  );
   begin
-    if (AValue>0) then begin
-      if (Length(VAttachmentsResultInfo)>0) then
+    if (AValue > 0) then begin
+      if (Length(VAttachmentsResultInfo) > 0) then begin
         VAttachmentsResultInfo := VAttachmentsResultInfo + ', ';
+      end;
       VAttachmentsResultInfo := VAttachmentsResultInfo + APrefix + ': ' + IntToStr(AValue);
     end;
   end;
+
 begin
   Result := TRUE;
-  
-  if (not FForAttachments) then
-    Exit;
 
-  if (FLog<>nil) then
+  if (not FForAttachments) then begin
+    Exit;
+  end;
+
+  if (FLog <> nil) then begin
     FLog.WriteText(FRES_LoadAttachmentsBegin, 0);
+  end;
   try
     // if true - at least one attachment has been downloaded
-    if FMapType.DownloadAttachments(ATile, Fzoom, @VMapAttachmentsCounters, Self) then
+    if FMapType.DownloadAttachments(ATile, Fzoom, @VMapAttachmentsCounters, Self) then begin
       FDownloadInfo.Add(0, VMapAttachmentsCounters.ac_Size);
+    end;
 
     // if any of attachment has been cancelled - don't step to the next tile
-    if (VMapAttachmentsCounters.ac_Cancelled>0) then
+    if (VMapAttachmentsCounters.ac_Cancelled > 0) then begin
       Result := FALSE;
+    end;
   finally
     VAttachmentsResultInfo := '';
 
@@ -735,11 +746,13 @@ begin
     _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Failed, VMapAttachmentsCounters.ac_Failed);
     _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Cancelled, VMapAttachmentsCounters.ac_Cancelled);
 
-    if (0=Length(VAttachmentsResultInfo)) then
-      VAttachmentsResultInfo := FRES_LoadAttachmentsEnd_Nothing; // no attachments at all
+    if (0 = Length(VAttachmentsResultInfo)) then begin
+      VAttachmentsResultInfo := FRES_LoadAttachmentsEnd_Nothing;
+    end; // no attachments at all
 
-    if (FLog<>nil) then
+    if (FLog <> nil) then begin
       FLog.WriteText(VAttachmentsResultInfo, 0);
+    end;
   end;
 end;
 
@@ -823,28 +836,32 @@ begin
     FFinishEvent.ResetEvent;
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VResultOk) then begin
       // tile downloaded successfully (try to download attachments)
-      if (FLog<>nil) then
+      if (FLog <> nil) then begin
         FLog.WriteText('(Ok!)', 0);
+      end;
       if (not FForAttachments) then begin
         // common behaviour
         FLastSuccessfulPoint := AResult.Request.Tile;
         FGoToNextTile := True;
-        if FDownloadInfo <> nil then
+        if FDownloadInfo <> nil then begin
           FDownloadInfo.Add(1, VResultOk.Data.Size);
+        end;
       end else if Exec_Download_Attachments(AResult.Request.Tile) then begin
         // attachments downloaded
         FLastSuccessfulPoint := AResult.Request.Tile;
         FGoToNextTile := True;
-        if FDownloadInfo <> nil then
+        if FDownloadInfo <> nil then begin
           FDownloadInfo.Add(1, VResultOk.Data.Size);
+        end;
       end else begin
         // wait on current tile - just sum size
         FDownloadInfo.Add(0, VResultOk.Data.Size);
       end;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
       // same file size - assuming file the same (but download attachments)
-      if (FLog<>nil) then
+      if (FLog <> nil) then begin
         FLog.WriteText(FRES_FileBeCreateLen, 0);
+      end;
       if (not FForAttachments) then begin
         FLastSuccessfulPoint := AResult.Request.Tile;
         FGoToNextTile := True;
@@ -853,7 +870,7 @@ begin
         FGotoNextTile := True;
       end;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
-      FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime,[FProxyAuthErrorSleepTime div 1000]), 10);
+      FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime, [FProxyAuthErrorSleepTime div 1000]), 10);
       SleepCancelable(FProxyAuthErrorSleepTime);
       FGoToNextTile := false;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultBanned) then begin
@@ -891,4 +908,3 @@ begin
 end;
 
 end.
-

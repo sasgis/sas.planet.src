@@ -115,10 +115,7 @@ begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(
-          FMapType.GeoConvert,
-          VZoom
-        ),
+        FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
@@ -127,46 +124,46 @@ begin
   try
     ProgressInfo.Caption := SAS_STR_ExportTiles;
     ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
-      VTileStorage := FMapType.TileStorage;
-      FZip.FileName := FTargetFile;
-      FZip.CreateZip(FTargetFile);
-      FZip.CompressionType := ctFast;
-      FZip.Active := true;
+    VTileStorage := FMapType.TileStorage;
+    FZip.FileName := FTargetFile;
+    FZip.CreateZip(FTargetFile);
+    FZip.CompressionType := ctFast;
+    FZip.Active := true;
 
-      VTilesProcessed := 0;
-      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-      for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-          VExt := FMapType.StorageConfig.TileFileExt;
-          VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
-          VTileIterator := VTileIterators[i];
-          while VTileIterator.Next(VTile) do begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              exit;
-            end;
-            VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
-            if VData <> nil then begin
-              VFileTime := VTileInfo.GetLoadDate;
-              VStream := TStreamReadOnlyByBinaryData.Create(VData);
-              try
+    VTilesProcessed := 0;
+    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
+      VExt := FMapType.StorageConfig.TileFileExt;
+      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
+      VTileIterator := VTileIterators[i];
+      while VTileIterator.Next(VTile) do begin
+        if CancelNotifier.IsOperationCanceled(OperationID) then begin
+          exit;
+        end;
+        VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
+        if VData <> nil then begin
+          VFileTime := VTileInfo.GetLoadDate;
+          VStream := TStreamReadOnlyByBinaryData.Create(VData);
+          try
                 {$WARN SYMBOL_PLATFORM OFF}
-                FZip.AddStream(
-                  FTileNameGen.GetTileFileName(VTile, VZoom)+ VExt,
-                  faArchive,
-                  VFileTime,
-                  VStream
-                );
+            FZip.AddStream(
+              FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
+              faArchive,
+              VFileTime,
+              VStream
+            );
                 {$WARN SYMBOL_PLATFORM ON}
-              finally
-                VStream.Free;
-              end;
-            end;
-            inc(VTilesProcessed);
-            if VTilesProcessed mod 100 = 0 then begin
-              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-            end;
+          finally
+            VStream.Free;
           end;
+        end;
+        inc(VTilesProcessed);
+        if VTilesProcessed mod 100 = 0 then begin
+          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+        end;
       end;
+    end;
   finally
     for i := 0 to Length(FZooms) - 1 do begin
       VTileIterators[i] := nil;

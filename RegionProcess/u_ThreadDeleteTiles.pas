@@ -122,9 +122,9 @@ begin
       // try to delete
       if (FForAttachments or (not DelBytes) or (DelBytesNum = FMapType.TileSize(VTile, FZoom))) then begin
         // for attachments - may delete many files
-        if FForAttachments then
-          VDeletedCount := VDeletedCount + FMapType.DeleteAttachments(VTile, FZoom, DelBytes, DelBytesNum)
-        else if FMapType.DeleteTile(VTile, FZoom) then begin
+        if FForAttachments then begin
+          VDeletedCount := VDeletedCount + FMapType.DeleteAttachments(VTile, FZoom, DelBytes, DelBytesNum);
+        end else if FMapType.DeleteTile(VTile, FZoom) then begin
           // for map - delete single file
           inc(VDeletedCount);
         end;
@@ -141,7 +141,7 @@ procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress(
   const AProcessed, AToProcess, ADeleted: Int64
 );
 begin
-  ProgressInfo.Processed := AProcessed/AToProcess;
+  ProgressInfo.Processed := AProcessed / AToProcess;
   ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
   ProgressInfo.FirstLine := SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_files;
 end;

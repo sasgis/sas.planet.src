@@ -69,14 +69,15 @@ end;
 procedure TThreadExportAbstract.ProcessRegion;
 begin
   inherited;
-  if Length(FZooms) <= 0 then
+  if Length(FZooms) <= 0 then begin
     raise Exception.Create('Не выбрано ни одного зума');
+  end;
 end;
 
 procedure TThreadExportAbstract.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressInfo.Processed := AProcessed/AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)
+  ProgressInfo.Processed := AProcessed / AToProcess;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
 end;
 
 end.

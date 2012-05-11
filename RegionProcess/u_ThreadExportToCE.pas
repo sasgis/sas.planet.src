@@ -90,7 +90,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FMaxSize := AMaxSize;
-  FComment  := AComment;
+  FComment := AComment;
   FRecoverInfo := ARecoverInfo;
 end;
 
@@ -103,7 +103,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
-  VSAS4WinCE:  TSAS4WinCE;
+  VSAS4WinCE: TSAS4WinCE;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -119,15 +119,12 @@ begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(
-          FMapType.GeoConvert,
-          VZoom
-        ),
+        FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
-  ProgressInfo.SecondLine := SAS_STR_Zoom + ': ' + inttostr(Vzoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess);
+    ProgressInfo.SecondLine := SAS_STR_Zoom + ': ' + inttostr(Vzoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess);
   end;
 
   //Начинает процесс экспорта тайлов в файл fname (без расширения!);
@@ -137,7 +134,7 @@ begin
   //тайле (12-15+ байтов) и копирайт в файлы данных и файл индекса.
   //Копирайт является также сигнатурой наличия дополнительной инфы в файлах данных!
 
-  VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize*1048576, FComment, FRecoverInfo);
+  VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize * 1048576, FComment, FRecoverInfo);
   try
     try
       ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
@@ -165,10 +162,14 @@ begin
           end;
           inc(VTilesProcessed);
           if VTilesProcessed mod 50 = 0 then begin
-            ProgressInfo.Processed := VTilesProcessed/VTilesToProcess;
+            ProgressInfo.Processed := VTilesProcessed / VTilesToProcess;
             VExt := '  (.d' + inttostr(VSAS4WinCE.DataNum) + ')';
-            if VSAS4WinCE.DataNum < 10 then VExt := '  (.d0' + inttostr(VSAS4WinCE.DataNum) + ')';
-            if VSAS4WinCE.DataNum < 0 then VExt := '';
+            if VSAS4WinCE.DataNum < 10 then begin
+              VExt := '  (.d0' + inttostr(VSAS4WinCE.DataNum) + ')';
+            end;
+            if VSAS4WinCE.DataNum < 0 then begin
+              VExt := '';
+            end;
             ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(VTilesProcessed) + VExt;
           end;
         end;

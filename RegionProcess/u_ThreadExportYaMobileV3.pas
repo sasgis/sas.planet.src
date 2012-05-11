@@ -35,9 +35,16 @@ type
     FExportPath: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
-    function GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
+    function GetMobileFile(
+      X, Y: Integer;
+      Z: Byte;
+      AMapType: Byte
+    ): string;
     function TileToTablePos(const ATile: TPoint): Integer;
-    procedure CreateNilFile(const AFileName: string; ATableSize: Integer);
+    procedure CreateNilFile(
+      const AFileName: string;
+      ATableSize: Integer
+    );
     procedure WriteTileToYaCache(
       const ATile: TPoint;
       AZoom, AMapType, sm_xy: Byte;
@@ -116,21 +123,17 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
-  if (length(Atypemaparr) <> 3)then begin
+  if (length(Atypemaparr) <> 3) then begin
     raise Exception.Create('Not expected maps count');
   end;
-  if
-    (Atypemaparr[0] = nil) and
+  if (Atypemaparr[0] = nil) and
     (Atypemaparr[1] = nil) and
-    (Atypemaparr[2] = nil)
-  then begin
+    (Atypemaparr[2] = nil) then begin
     raise Exception.Create('Maps are not selected');
   end;
 
   VTaskIndex := -1;
-  if
-    (Atypemaparr[0] <> nil) or (Atypemaparr[2] <> nil)
-  then begin
+  if (Atypemaparr[0] <> nil) or (Atypemaparr[2] <> nil) then begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 2;
@@ -162,55 +165,56 @@ begin
   end;
 end;
 
-function TThreadExportYaMobileV3.GetMobileFile(X,Y: Integer; Z: Byte; AMapType: Byte): string;
+function TThreadExportYaMobileV3.GetMobileFile(
+  X, Y: Integer;
+  Z: Byte;
+  AMapType: Byte
+): string;
 var
   Mask, Num: Integer;
 begin
   Result := IntToStr(Z) + PathDelim;
-  if(Z > 15) then
-  begin
-    Mask := (1 shl (Z-15))-1;
-    Num  := (((X shr 15) and Mask) shl 4) + ((Y shr 15) and Mask);
+  if (Z > 15) then begin
+    Mask := (1 shl (Z - 15)) - 1;
+    Num := (((X shr 15) and Mask) shl 4) + ((Y shr 15) and Mask);
     Result := Result + IntToHex(Num, 2) + PathDelim;
   end;
-  if(Z > 11) then
-  begin
-    Mask := (1 shl (Z-11))-1;
+  if (Z > 11) then begin
+    Mask := (1 shl (Z - 11)) - 1;
     Mask := Mask and $F;
-    Num  := (((X shr 11) and Mask) shl 4) + ((Y shr 11) and Mask);
+    Num := (((X shr 11) and Mask) shl 4) + ((Y shr 11) and Mask);
     Result := Result + IntToHex(Num, 2) + PathDelim;
   end;
-  if(Z > 7) then
-  begin
-    Mask := (1 shl (Z-7))-1;
+  if (Z > 7) then begin
+    Mask := (1 shl (Z - 7)) - 1;
     Mask := Mask and $F;
-    Num  := (((X shr 7) and Mask) shl 8) + (((Y shr 7) and Mask) shl 4) + AMapType;
-  end
-  else
-    Num := AMapType;    
+    Num := (((X shr 7) and Mask) shl 8) + (((Y shr 7) and Mask) shl 4) + AMapType;
+  end else begin
+    Num := AMapType;
+  end;
   Result := LowerCase(Result + IntToHex(Num, 3));
 end;
 
 function TThreadExportYaMobileV3.TileToTablePos(const ATile: TPoint): Integer;
 var
-  X,Y: Integer;
+  X, Y: Integer;
 begin
   X := ATile.X and $7F;
   Y := ATile.Y and $7F;
   Result := ((Y and $40) shl 9) +
-            ((X and $40) shl 8) +
-            ((Y and $20) shl 8) +
-            ((X and $20) shl 7) +
-            ((Y and $10) shl 7) +
-            ((X and $10) shl 6) +
-            ((Y and $08) shl 6) +
-            ((X and $08) shl 5) +
-            ((Y and $04) shl 5) +
-            ((X and $04) shl 4) +
-            ((Y and $02) shl 4) +
-            ((X and $02) shl 3) +
-            ((Y and $01) shl 3) +
-            ((X and $01) shl 2);
+    ((X and $40) shl 8) +
+    ((Y and $20) shl 8) +
+    ((X and $20) shl 7) +
+    ((Y and $10) shl 7) +
+    ((X and $10) shl 6) +
+    ((Y and $08) shl 6) +
+    ((X and $08) shl 5) +
+    ((Y and $04) shl 5) +
+    ((X and $04) shl 4) +
+    ((Y and $02) shl 4) +
+    ((X and $02) shl 3) +
+    ((Y and $01) shl 3) +
+    ((X and $01) shl 2);
 end;
 
 procedure TThreadExportYaMobileV3.CreateNilFile(
@@ -225,10 +229,12 @@ begin
   VYaMob := TMemoryStream.Create;
   try
     VPath := copy(AFileName, 1, LastDelimiter(PathDelim, AFileName));
-    if not(DirectoryExists(VPath)) then
-      if not ForceDirectories(VPath) then
+    if not (DirectoryExists(VPath)) then begin
+      if not ForceDirectories(VPath) then begin
         Exit;
-    VInitSize := YaHeaderSize + 6*(sqr(ATableSize));
+      end;
+    end;
+    VInitSize := YaHeaderSize + 6 * (sqr(ATableSize));
     VYaMob.SetSize(VInitSize);
     FillChar(VYaMob.Memory^, VInitSize, 0);
     VYaMob.Position := 0;
@@ -271,27 +277,28 @@ var
   VTileSize: SmallInt;
   VHead: array [0..12] of byte;
 begin
-  if AZoom > 7 then
-    VTableSize := 256
-  else
+  if AZoom > 7 then begin
+    VTableSize := 256;
+  end else begin
     VTableSize := 2 shl AZoom;
+  end;
 
   VYaMobileFile := AExportPath + GetMobileFile(ATile.X, ATile.Y, AZoom, AMapType);
 
-  if not FileExists(VYaMobileFile) then
+  if not FileExists(VYaMobileFile) then begin
     CreateNilFile(VYaMobileFile, VTableSize);
+  end;
 
   VYaMobileStream := TFileStream.Create(VYaMobileFile, fmOpenReadWrite or fmShareExclusive);
   try
     VYaMobileStream.Read(VHead, Length(VHead));
-    VTableOffset := ( VHead[6] or (VHead[7] shl 8) or (VHead[8] shl 16) or (VHead[9] shl 24) );
-    VTablePos := TileToTablePos(ATile)*6 + sm_xy*6;
+    VTableOffset := (VHead[6] or (VHead[7] shl 8) or (VHead[8] shl 16) or (VHead[9] shl 24));
+    VTablePos := TileToTablePos(ATile) * 6 + sm_xy * 6;
     VTileOffset := VYaMobileStream.Size;
     VTileSize := ATileStream.Size;
     VYaMobileStream.Position := VTableOffset + VTablePos;
     VYaMobileStream.Read(VExistsTileOffset, 4);
-    if (VExistsTileOffset = 0) or AReplace then
-    begin
+    if (VExistsTileOffset = 0) or AReplace then begin
       VYaMobileStream.Position := VTableOffset + VTablePos;
       VYaMobileStream.Write(VTileOffset, 4);
       VYaMobileStream.Write(VTileSize, 2);
@@ -330,16 +337,13 @@ begin
       bmp32crop.Height := sizeim;
       VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
       VTilesToProcess := 0;
-      SetLength(VTileIterators,Length(FZooms));
+      SetLength(VTileIterators, Length(FZooms));
 
       for i := 0 to Length(FZooms) - 1 do begin
         VZoom := FZooms[i];
         VProjectedPolygon :=
           FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-            FProjectionFactory.GetByConverterAndZoom(
-              VGeoConvert,
-              VZoom
-            ),
+            FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
             PolygLL
           );
 
@@ -402,7 +406,7 @@ begin
           end;
         end;
       finally
-        for i := 0 to Length(FZooms)-1 do begin
+        for i := 0 to Length(FZooms) - 1 do begin
           VTileIterators[i] := nil;
         end;
       end;

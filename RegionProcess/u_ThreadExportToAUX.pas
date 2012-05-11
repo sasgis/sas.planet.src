@@ -34,6 +34,7 @@ type
       const AFileName: string
     );
   end;
+
 implementation
 
 uses
@@ -121,8 +122,8 @@ end;
 
 procedure TThreadExportToAUX.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressInfo.Processed := AProcessed/AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)
+  ProgressInfo.Processed := AProcessed / AToProcess;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
 end;
 
 end.

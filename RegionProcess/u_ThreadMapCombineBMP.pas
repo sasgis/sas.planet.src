@@ -70,17 +70,17 @@ begin
       VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
       if VLineBGR <> nil then begin
         if not VBMP.WriteLine(i, VLineBGR) then begin
-          raise Exception.Create( _('BMP: Line write failure!') );
+          raise Exception.Create(_('BMP: Line write failure!'));
         end;
       end else begin
-        raise Exception.Create( _('BMP: Fill line failure!') );
+        raise Exception.Create(_('BMP: Fill line failure!'));
       end;
 
       if CancelNotifier.IsOperationCanceled(OperationID) then begin
         Break;
       end;
       if i mod 256 = 0 then begin
-        ProgressFormUpdateOnProgress(i/VSize.Y);
+        ProgressFormUpdateOnProgress(i / VSize.Y);
       end;
     end;
   finally

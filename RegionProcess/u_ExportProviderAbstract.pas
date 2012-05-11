@@ -33,7 +33,10 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList
     );
     function GetCaption: string; virtual; abstract;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); virtual; abstract;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); virtual; abstract;
     procedure Show; virtual; abstract;
     procedure Hide; virtual; abstract;
     procedure RefreshTranslation; virtual; abstract;

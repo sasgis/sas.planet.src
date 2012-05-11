@@ -57,6 +57,7 @@ uses
 
 type
   sas_png_rw_io_ptr = ^sas_png_rw_io;
+
   sas_png_rw_io = record
     DestStream: TFileStream;
     DestBuffer: Pointer;
@@ -72,8 +73,11 @@ begin
   end;
 end;
 
-procedure sas_png_write_data(png_ptr: png_structp; data: png_bytep;
-  data_length: png_size_t); cdecl;
+procedure sas_png_write_data(
+  png_ptr: png_structp;
+  data: png_bytep;
+  data_length: png_size_t
+); cdecl;
 var
   rw_io_ptr: sas_png_rw_io_ptr;
 begin
@@ -171,11 +175,11 @@ begin
   end;
 
   if not Init_LibPNG then begin
-    raise Exception.Create( _('Initialization of LibPNG failed.') );
+    raise Exception.Create(_('Initialization of LibPNG failed.'));
   end;
 
   rw_io.DestStream := TFileStream.Create(AFileName, fmCreate);
-  rw_io.DestBufferSize := 64*1024; // 64k
+  rw_io.DestBufferSize := 64 * 1024; // 64k
   GetMem(rw_io.DestBuffer, rw_io.DestBufferSize);
   rw_io.BufferedDataSize := 0;
   try
@@ -183,7 +187,7 @@ begin
     if Assigned(png_ptr) then begin
       info_ptr := png_create_info_struct(png_ptr);
     end else begin
-      raise Exception.Create( _('LibPNG: Failed to Create PngStruct!') );
+      raise Exception.Create(_('LibPNG: Failed to Create PngStruct!'));
     end;
     if Assigned(info_ptr) then begin
       try
@@ -206,7 +210,7 @@ begin
               Break;
             end;
             if i mod 256 = 0 then begin
-              ProgressFormUpdateOnProgress(i/info_ptr.height);
+              ProgressFormUpdateOnProgress(i / info_ptr.height);
             end;
           end;
         finally

@@ -151,7 +151,7 @@ begin
   Result := False;
   VExportSDBFile :=
     IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) +
-    AMapType.GetShortFolderName) +
+      AMapType.GetShortFolderName) +
     FTileNameGen.GetTileFileName(AXY, AZoom) +
     '.sdb';
   VSDBFileExists := FileExists(VExportSDBFile);
@@ -214,10 +214,7 @@ begin
       VGeoConvert := FMapTypeArr[i].GeoConvert;
       VProjectedPolygon :=
         FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(
-            VGeoConvert,
-            VZoom
-          ),
+          FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );
       VTileIterators[i, j] := TTileIteratorByPolygon.Create(VProjectedPolygon);

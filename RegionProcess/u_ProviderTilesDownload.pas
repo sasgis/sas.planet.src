@@ -66,7 +66,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -181,7 +184,7 @@ var
   VSessionSection: IConfigDataProvider;
   VLog: TLogForTaskThread;
   VSimpleLog: ILogSimple;
-  VThreadLog:ILogForTaskThread;
+  VThreadLog: ILogForTaskThread;
   VThread: TThreadDownloadTiles;
 begin
   VIni := TMemIniFile.Create(AFileName);
@@ -220,16 +223,13 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VForAttachments: Boolean;
 begin
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  VForAttachments:=(not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex],VMapType.GUIConfig.Name.Value));
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  VForAttachments := (not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
   VZoom := FFrame.cbbZoom.ItemIndex;
 
   VProjectedPolygon :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(
-        VMapType.GeoConvert,
-        VZoom
-      ),
+      FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
       APolygon
     );
   VLog := TLogForTaskThread.Create(5000, 0);
@@ -260,4 +260,3 @@ begin
 end;
 
 end.
-

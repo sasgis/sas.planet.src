@@ -26,7 +26,10 @@ type
     FImageLineProvider: IImageLineProvider;
     FLinesCount: Integer;
     FQuality: Integer;
-    function ReadLine(ALine: Integer; var LineR, LineG, LineB: PLineRGB): Boolean;
+    function ReadLine(
+      ALine: Integer;
+      var LineR, LineG, LineB: PLineRGB
+    ): Boolean;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -88,8 +91,11 @@ begin
   FQuality := AQuality;
 end;
 
-function TThreadMapCombineECW.ReadLine(ALine: Integer; var LineR, LineG,
-  LineB: PLineRGB): Boolean;
+function TThreadMapCombineECW.ReadLine(
+  ALine: Integer;
+  var LineR, LineG,
+  LineB: PLineRGB
+): Boolean;
 type
   TBGR = packed record
     B: Byte;
@@ -104,14 +110,14 @@ var
   VWidth: Integer;
 begin
   VWidth := FImageLineProvider.LocalConverter.GetLocalRectSize.X;
-  VRGB := FImageLineProvider.GetLine(OperationID, CancelNotifier,ALine);
+  VRGB := FImageLineProvider.GetLine(OperationID, CancelNotifier, ALine);
   for i := 0 to VWidth - 1 do begin
     LineR[i] := VRGB[i].R;
     LineG[i] := VRGB[i].G;
     LineB[i] := VRGB[i].B;
   end;
   if ALine mod 256 = 0 then begin
-    ProgressFormUpdateOnProgress(ALine/FLinesCount);
+    ProgressFormUpdateOnProgress(ALine / FLinesCount);
   end;
   Result := True;
 end;
@@ -154,7 +160,7 @@ begin
       ALocalConverter.GeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, ALocalConverter.Zoom),
       VMapPieceSize.X, VMapPieceSize.Y, VGeoConverter,
       CellIncrementX, CellIncrementY, OriginX, OriginY
-      );
+    );
     errecw :=
       VECWWriter.Encode(
         OperationID,

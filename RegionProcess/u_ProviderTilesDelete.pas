@@ -58,7 +58,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -94,7 +97,7 @@ constructor TProviderTilesDelete.Create(
   const AVectorItmesFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -171,11 +174,11 @@ var
   VForAttachments: Boolean;
 begin
   inherited;
-  if (MessageBox(FFrame.handle,pchar(SAS_MSG_youasure),pchar(SAS_MSG_coution),36)=IDYES) then begin
+  if (MessageBox(FFrame.handle, pchar(SAS_MSG_youasure), pchar(SAS_MSG_coution), 36) = IDYES) then begin
 
     // selected map
-    VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-    VForAttachments:=(not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex],VMapType.GUIConfig.Name.Value));
+    VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+    VForAttachments := (not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
 
     // selected zoom
     if FFrame.cbbZoom.ItemIndex < 0 then begin
@@ -192,10 +195,7 @@ begin
 
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(
-          VMapType.GeoConvert,
-          VZoom
-        ),
+        FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
         APolygon
       );
 
@@ -227,4 +227,3 @@ begin
 end;
 
 end.
-

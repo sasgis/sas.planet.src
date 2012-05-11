@@ -60,7 +60,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -79,7 +82,6 @@ uses
   i_MarksSimple,
   i_CoordConverter,
   i_LocalCoordConverter,
-  
   i_RegionProcessProgressInfo,
   i_VectorItemProjected,
   i_BitmapLayerProvider,
@@ -199,8 +201,8 @@ end;
 
 procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);
 var
-  Amt,Hmt:TMapType;
-  i:integer;
+  Amt, Hmt: TMapType;
+  i: integer;
   VPrTypes: IInterfaceList;
   VFileName: string;
   VSplitCount: TPoint;
@@ -227,20 +229,20 @@ var
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
 begin
-  Amt:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  Hmt:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+  Amt := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  Hmt := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
 
   if Amt <> nil then begin
     VMainMapType := Amt;
   end else if Hmt <> nil then begin
     VMainMapType := Hmt;
   end else begin
-    raise Exception.Create( _('No one Map or Layer are selected!') );
+    raise Exception.Create(_('No one Map or Layer are selected!'));
   end;
 
   VFileName := FFrame.edtTargetFile.Text;
   if VFileName = '' then begin
-    raise Exception.Create( _('Please, select output file first!') );
+    raise Exception.Create(_('Please, select output file first!'));
   end;
 
   VGeoConverter := VMainMapType.GeoConvert;
@@ -272,7 +274,7 @@ begin
     );
 
   VPrTypes := TInterfaceList.Create;
-  for i:=0 to FFrame.chklstPrTypes.Items.Count-1 do begin
+  for i := 0 to FFrame.chklstPrTypes.Items.Count - 1 do begin
     if FFrame.chklstPrTypes.Checked[i] then begin
       VPrTypes.Add(IInterface(Pointer(FFrame.chklstPrTypes.Items.Objects[i])));
     end;
@@ -335,21 +337,26 @@ begin
     VRecolorConfig := FBitmapPostProcessingConfig.GetStatic;
   end;
   VImageProvider :=
+    TBitmapLayerProviderSimpleForCombine.Create(
+      VRecolorConfig,
+      Amt,
+      Hmt,
+      VMarksImageProvider,
+      True,
+      True
+    );
+  VImageProvider :=
+    TBitmapLayerProviderInPolygon.Create(
+      VProjectedPolygon,
+      VImageProvider
+    );
+  VImageProvider :=
     TBitmapLayerProviderWithBGColor.Create(
       FViewConfig.BackGroundColor,
-      TBitmapLayerProviderInPolygon.Create(
-        VProjectedPolygon,
-        TBitmapLayerProviderSimpleForCombine.Create(
-          VRecolorConfig,
-          Amt,
-          Hmt,
-          VMarksImageProvider,
-          True,
-          True
-        )
-      )
+      VImageProvider
     );
-  if (VFileExt='.ECW')or(VFileExt='.JP2') then begin
+
+  if (VFileExt = '.ECW') or (VFileExt = '.JP2') then begin
     TThreadMapCombineECW.Create(
       VCancelNotifierInternal,
       VOperationID,
@@ -363,7 +370,7 @@ begin
       VSplitCount,
       FFrame.seJpgQuality.Value
     );
-  end else if (VFileExt='.BMP') then begin
+  end else if (VFileExt = '.BMP') then begin
     TThreadMapCombineBMP.Create(
       VCancelNotifierInternal,
       VOperationID,
@@ -376,11 +383,11 @@ begin
       VFileName,
       VSplitCount
     );
-  end else if (VFileExt='.KMZ') then begin
+  end else if (VFileExt = '.KMZ') then begin
     VMapPieceSize.X := VMapSize.X div VSplitCount.X;
     VMapPieceSize.Y := VMapSize.Y div VSplitCount.Y;
-    VKmzImgesCount.X := ((VMapPieceSize.X-1) div 1024) + 1;
-    VKmzImgesCount.Y := ((VMapPieceSize.Y-1) div 1024) + 1;
+    VKmzImgesCount.X := ((VMapPieceSize.X - 1) div 1024) + 1;
+    VKmzImgesCount.Y := ((VMapPieceSize.Y - 1) div 1024) + 1;
     if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
       ShowMessage(SAS_MSG_GarminMax1Mp);
     end;
@@ -398,7 +405,7 @@ begin
       VSplitCount,
       FFrame.seJpgQuality.Value
     );
-  end else if (VFileExt='.JPG') then begin
+  end else if (VFileExt = '.JPG') then begin
     TThreadMapCombineJPG.Create(
       VCancelNotifierInternal,
       VOperationID,
@@ -412,7 +419,7 @@ begin
       VSplitCount,
       FFrame.seJpgQuality.Value
     );
-  end else if (VFileExt='.PNG') then begin
+  end else if (VFileExt = '.PNG') then begin
     TThreadMapCombinePNG.Create(
       VCancelNotifierInternal,
       VOperationID,
@@ -430,4 +437,3 @@ begin
 end;
 
 end.
-

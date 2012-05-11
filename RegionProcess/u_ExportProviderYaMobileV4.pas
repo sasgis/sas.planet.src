@@ -42,7 +42,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -147,24 +150,26 @@ end;
 
 procedure TExportProviderYaMobileV4.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
-  typemaparr:array of TMapType;
-  comprSat,comprMap:byte;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
+  typemaparr: array of TMapType;
+  comprSat, comprMap: byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
-  for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
-  setlength(typemaparr,3);
-  typemaparr[0]:=TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
-  typemaparr[1]:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  typemaparr[2]:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
-  comprSat:=FFrame.seSatCompress.Value;
-  comprMap:=FFrame.seMapCompress.Value;
-  path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
+  end;
+  setlength(typemaparr, 3);
+  typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
+  typemaparr[1] := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  typemaparr[2] := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+  comprSat := FFrame.seSatCompress.Value;
+  comprMap := FFrame.seMapCompress.Value;
+  path := IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;

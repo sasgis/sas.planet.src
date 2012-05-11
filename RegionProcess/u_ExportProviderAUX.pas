@@ -37,7 +37,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -73,7 +76,7 @@ constructor TExportProviderAUX.Create(
   const AVectorItmesFactory: IVectorItmesFactory
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -139,7 +142,7 @@ end;
 
 procedure TExportProviderAUX.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path:string;
+  path: string;
   VMapType: TMapType;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
@@ -148,8 +151,8 @@ var
   VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path:=FFrame.edtTargetFile.Text;
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  path := FFrame.edtTargetFile.Text;
   if FFrame.cbbZoom.ItemIndex < 0 then begin
     FFrame.cbbZoom.ItemIndex := 0;
   end;
@@ -157,10 +160,7 @@ begin
 
   VProjectedPolygon :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(
-        VMapType.GeoConvert,
-        VZoom
-      ),
+      FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
       APolygon
     );
 
@@ -185,8 +185,7 @@ begin
     VZoom,
     VMapType,
     path
-  )
+  );
 end;
 
 end.
-

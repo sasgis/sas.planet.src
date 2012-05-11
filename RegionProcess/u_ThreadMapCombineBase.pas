@@ -94,7 +94,7 @@ end;
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress(AProgress: Double);
 begin
   ProgressInfo.Processed := AProgress;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%'
+  ProgressInfo.SecondLine := SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%';
 end;
 
 

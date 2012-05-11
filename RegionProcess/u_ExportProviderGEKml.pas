@@ -37,7 +37,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -138,9 +141,9 @@ end;
 
 procedure TExportProviderGEKml.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
   VMapType: TMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
@@ -149,11 +152,13 @@ var
   VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
-  for i:=0 to 23 do ZoomArr[i]:=FFrame.chklstZooms.Checked[i];
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path:=FFrame.edtTargetFile.Text;
-  RelativePath:=FFrame.chkUseRelativePath.Checked;
-  NotSaveNotExists:=FFrame.chkNotSaveNotExists.Checked;
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
+  end;
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  path := FFrame.edtTargetFile.Text;
+  RelativePath := FFrame.chkUseRelativePath.Checked;
+  NotSaveNotExists := FFrame.chkNotSaveNotExists.Checked;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
@@ -183,4 +188,3 @@ begin
 end;
 
 end.
-

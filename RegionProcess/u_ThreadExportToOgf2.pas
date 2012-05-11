@@ -145,16 +145,14 @@ begin
     );
 
   case AOgf2TileResolution of
-    tr128:
-      begin
-        FOgf2TileWidth := 128;
-        FOgf2TileHeight := 128;
-      end;
-  else
-      begin
-        FOgf2TileWidth := 256;
-        FOgf2TileHeight := 256;
-      end;
+    tr128: begin
+      FOgf2TileWidth := 128;
+      FOgf2TileHeight := 128;
+    end;
+  else begin
+    FOgf2TileWidth := 256;
+    FOgf2TileHeight := 256;
+  end;
   end;
 end;
 
@@ -245,7 +243,7 @@ var
   VPreviewImageWidth: Integer;
   VPreviewImageHeight: Integer;
   VPreviewImageData: IBinaryData;
-  VEmptyTile: IBinaryData;    
+  VEmptyTile: IBinaryData;
   VTileStream: TMemoryStream;
   VBitmap: TCustomBitmap32;
   VBitmapTile: IBitmap32Static;
@@ -262,7 +260,7 @@ var
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;
-  I,J: Integer;
+  I, J: Integer;
 begin
   inherited;
   VTilesProcessed := 0;
@@ -272,12 +270,17 @@ begin
 
   case FOgf2TileFormat of
     tfBMP:
+    begin
       VSaver := TVampyreBasicBitmapTileSaverBMP.Create;
+    end;
 
     tfPNG:
+    begin
       VSaver := TVampyreBasicBitmapTileSaverPNGRGB.Create;
-  else
-      VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpegQuality);
+    end;
+  else begin
+    VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpegQuality);
+  end;
   end;
 
   VGeoConvert :=
@@ -288,10 +291,7 @@ begin
 
   VProjected :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(
-        VGeoConvert,
-        VZoom
-      ),
+      FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
       Self.PolygLL
     );
 
@@ -361,11 +361,7 @@ begin
                   FImageProvider.GetBitmapRect(
                     OperationID,
                     CancelNotifier,
-                    FLocalConverterFactory.CreateForTile(
-                      VTile,
-                      VZoom,
-                      VGeoConvert
-                    )
+                    FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
                   );
 
                 for I := 0 to (256 div FOgf2TileWidth) - 1 do begin
@@ -379,12 +375,7 @@ begin
                         0,
                         VBitmap.ClipRect,
                         VBitmapTile.Bitmap,
-                        Bounds(
-                          FOgf2TileWidth  * I,
-                          FOgf2TileHeight * J,
-                          FOgf2TileWidth,
-                          FOgf2TileHeight
-                        ),
+                        Bounds(FOgf2TileWidth * I, FOgf2TileHeight * J, FOgf2TileWidth, FOgf2TileHeight),
                         dmOpaque
                       );
 

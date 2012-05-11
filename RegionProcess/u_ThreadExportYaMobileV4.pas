@@ -122,21 +122,17 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
-  if (length(Atypemaparr) <> 3)then begin
+  if (length(Atypemaparr) <> 3) then begin
     raise Exception.Create('Not expected maps count');
   end;
-  if
-    (Atypemaparr[0] = nil) and
+  if (Atypemaparr[0] = nil) and
     (Atypemaparr[1] = nil) and
-    (Atypemaparr[2] = nil)
-  then begin
+    (Atypemaparr[2] = nil) then begin
     raise Exception.Create('Maps are not selected');
   end;
 
   VTaskIndex := -1;
-  if
-    (Atypemaparr[0] <> nil) or (Atypemaparr[2] <> nil)
-  then begin
+  if (Atypemaparr[0] <> nil) or (Atypemaparr[2] <> nil) then begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     if Atypemaparr[2] <> nil then begin
@@ -319,102 +315,98 @@ var
   VTilesProcessed: Int64;
 begin
   inherited;
-    hxyi := 1;
-    sizeim := 128;
-    TileStream := TMemoryStream.Create;
+  hxyi := 1;
+  sizeim := 128;
+  TileStream := TMemoryStream.Create;
+  try
+    bmp32crop := TCustomBitmap32.Create;
     try
-      bmp32crop := TCustomBitmap32.Create;
+      bmp32crop.Width := sizeim;
+      bmp32crop.Height := sizeim;
+      VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+      VTilesToProcess := 0;
+      SetLength(VTileIterators, Length(FZooms));
+
+      for i := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[i];
+        VProjectedPolygon :=
+          FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+            FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+            PolygLL
+          );
+        VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+        VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
+      end;
       try
-        bmp32crop.Width := sizeim;
-        bmp32crop.Height := sizeim;
-        VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-        VTilesToProcess := 0;
-        SetLength(VTileIterators,Length(FZooms));
+        VTilesProcessed := 0;
 
-        for i := 0 to Length(FZooms) - 1 do begin
-          VZoom := FZooms[i];
-          VProjectedPolygon :=
-            FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-              FProjectionFactory.GetByConverterAndZoom(
-                VGeoConvert,
-                VZoom
-              ),
-              PolygLL
-            );
-          VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-          VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
-        end;
+        ProgressInfo.Caption := SAS_STR_ExportTiles;
+        ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+
+        tc := GetTickCount;
         try
-          VTilesProcessed := 0;
-
-          ProgressInfo.Caption := SAS_STR_ExportTiles;
-          ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
-          ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-
-          tc := GetTickCount;
-          try
-            for j := 0 to length(FTasks) - 1 do begin
-              GenUserXml(IntToStr(FTasks[j].FMapId), FTasks[j].FMapName);
-              for i := 0 to Length(FZooms) - 1 do begin
-                VZoom := FZooms[i];
-                VTileIterators[i].Reset;
-                while VTileIterators[i].Next(VTile) do begin
-                  if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                    exit;
-                  end;
-                  VBitmapTile :=
-                    FTasks[j].FImageProvider.GetBitmapRect(
-                      OperationID, CancelNotifier,
-                      FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-                    );
-                  if VBitmapTile <> nil then begin
-                    for xi := 0 to hxyi do begin
-                      for yi := 0 to hxyi do begin
-                        bmp32crop.Clear;
-                        BlockTransfer(
-                          bmp32crop,
-                          0,
-                          0,
-                          bmp32crop.ClipRect,
-                          VBitmapTile.Bitmap,
-                          bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
-                          dmOpaque
-                        );
-                        TileStream.Clear;
-                        FTasks[j].FSaver.SaveToStream(bmp32crop, TileStream);
-                        AddTileToCache(
-                          TileStream,
-                          Types.Point(2*VTile.X + Xi, 2*VTile.Y + Yi),
-                          VZoom,
-                          FTasks[j].FMapId
-                        );
-                      end;
+          for j := 0 to length(FTasks) - 1 do begin
+            GenUserXml(IntToStr(FTasks[j].FMapId), FTasks[j].FMapName);
+            for i := 0 to Length(FZooms) - 1 do begin
+              VZoom := FZooms[i];
+              VTileIterators[i].Reset;
+              while VTileIterators[i].Next(VTile) do begin
+                if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                  exit;
+                end;
+                VBitmapTile :=
+                  FTasks[j].FImageProvider.GetBitmapRect(
+                    OperationID, CancelNotifier,
+                    FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                  );
+                if VBitmapTile <> nil then begin
+                  for xi := 0 to hxyi do begin
+                    for yi := 0 to hxyi do begin
+                      bmp32crop.Clear;
+                      BlockTransfer(
+                        bmp32crop,
+                        0,
+                        0,
+                        bmp32crop.ClipRect,
+                        VBitmapTile.Bitmap,
+                        bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                        dmOpaque
+                      );
+                      TileStream.Clear;
+                      FTasks[j].FSaver.SaveToStream(bmp32crop, TileStream);
+                      AddTileToCache(
+                        TileStream,
+                        Types.Point(2 * VTile.X + Xi, 2 * VTile.Y + Yi),
+                        VZoom,
+                        FTasks[j].FMapId
+                      );
                     end;
                   end;
-                  inc(VTilesProcessed);
-                  if (GetTickCount - tc > 1000) then begin
-                    tc := GetTickCount;
-                    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-                    end;
+                end;
+                inc(VTilesProcessed);
+                if (GetTickCount - tc > 1000) then begin
+                  tc := GetTickCount;
+                  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
                 end;
               end;
             end;
-          finally
-            CloseCacheFiles;
           end;
         finally
-          for i := 0 to Length(FZooms)-1 do begin
-            VTileIterators[i] := nil;
-          end;
+          CloseCacheFiles;
         end;
-        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
       finally
-        bmp32crop.Free;
+        for i := 0 to Length(FZooms) - 1 do begin
+          VTileIterators[i] := nil;
+        end;
       end;
+      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
     finally
-      TileStream.Free;
+      bmp32crop.Free;
     end;
+  finally
+    TileStream.Free;
+  end;
 end;
 
 end.
-

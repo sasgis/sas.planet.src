@@ -39,7 +39,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -146,43 +149,43 @@ end;
 
 procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
   VMapType: TMapType;
-  VProductName : string;
-  VMapName : string;
-  VJNXVersion : integer;
-  VZorder : integer;
-  VProductID : integer;
-  VJpgQuality : byte;
+  VProductName: string;
+  VMapName: string;
+  VJNXVersion: integer;
+  VZorder: integer;
+  VProductID: integer;
+  VJpgQuality: byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
   VMatchSubStr: string;
-  VLevelsDesc : TStringList;
+  VLevelsDesc: TStringList;
 begin
   inherited;
   VLevelsDesc := TStringList.Create;
-  for i:=0 to FFrame.TreeView1.Items.count-1 do begin
+  for i := 0 to FFrame.TreeView1.Items.count - 1 do begin
     VLevelsDesc.add(FFrame.TreeView1.Items[i].text);
   end;
 
 
-  for i:=0 to 23 do begin
-    ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
-  end;                      
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path:=FFrame.edtTargetFile.Text;
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
+  end;
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  path := FFrame.edtTargetFile.Text;
   VProductName := FFrame.EProductName.Text;
   VMapName := FFrame.EmapName.Text;
   VJpgQuality := FFrame.EJpgQuality.Value;
   if FFrame.v3.checked then begin
-      VJNXVersion := 3;
-      VZorder := 0;
+    VJNXVersion := 3;
+    VZorder := 0;
   end else begin
-      VJNXVersion := 4;
-      VZorder := FFrame.EZorder.Value;
+    VJNXVersion := 4;
+    VZorder := FFrame.EZorder.Value;
   end;
   try
     VMatchSubStr := RegExprGetMatchSubStr(FFrame.EProductID.Text, '[0-9]+', 0);

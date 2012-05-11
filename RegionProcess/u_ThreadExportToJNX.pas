@@ -25,12 +25,12 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FProductName: string; // копирайт
-    FMapName : string;  // имя карты
-    FJNXversion : byte;  // 3..4
-    FZorder : integer;   // для 4 версии
-    FProductID : integer; // 0,2,3,4,5,6,7,8,9
-    FJpgQuality : byte ; // 10..100 TODO
-    FLevelsDesc : TStringList; // Levels Descriptions
+    FMapName: string;  // имя карты
+    FJNXversion: byte;  // 3..4
+    FZorder: integer;   // для 4 версии
+    FProductID: integer; // 0,2,3,4,5,6,7,8,9
+    FJpgQuality: byte; // 10..100 TODO
+    FLevelsDesc: TStringList; // Levels Descriptions
   protected
     procedure ProcessRegion; override;
   public
@@ -45,13 +45,13 @@ type
       const APolygon: ILonLatPolygon;
       const Azoomarr: array of boolean;
       AMapType: TMapType;
-      const AProductName : string;
-      const AMapName : string;
-      AJNXVersion : integer;
-      AZorder : integer;
-      AProductID : integer;
-      AJpgQuality : byte;
-      ALevelsDesc : TStringList
+      const AProductName: string;
+      const AMapName: string;
+      AJNXVersion: integer;
+      AZorder: integer;
+      AProductID: integer;
+      AJpgQuality: byte;
+      ALevelsDesc: TStringList
     );
   end;
 
@@ -80,13 +80,13 @@ constructor TThreadExportToJnx.Create(
   const APolygon: ILonLatPolygon;
   const Azoomarr: array of boolean;
   AMapType: TMapType;
-  const AProductName : string;
-  const AMapName : string;
-  AJNXVersion : integer;
-  AZorder : integer;
-  AProductID : integer;
-  AJpgQuality : byte;
-  ALevelsDesc : TStringList
+  const AProductName: string;
+  const AMapName: string;
+  AJNXVersion: integer;
+  AZorder: integer;
+  AProductID: integer;
+  AJpgQuality: byte;
+  ALevelsDesc: TStringList
 );
 begin
   inherited Create(
@@ -139,10 +139,7 @@ begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(
-          VGeoConvert,
-          VZoom
-        ),
+        FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
@@ -154,14 +151,14 @@ begin
     VWriter.Levels := Length(FZooms);
     for i := 0 to Length(FZooms) - 1 do begin
       VWriter.LevelScale[i] := DigitalGlobeZoomToScale(FZooms[i]);
-      VWriter.TileCount[i]  := VTileIterators[i].TilesTotal;
+      VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
       VWriter.ProductName := FProductName;
-      VWriter.MapName :=  FmapName;
+      VWriter.MapName := FmapName;
       VWriter.Version := FJNXVersion;
       VWriter.ZOrder := FZorder;
-      VWriter.LevelDescription[i] := FLevelsDesc[i*3];
-      VWriter.LevelName[i] := FLevelsDesc[i*3+1];
-      VWriter.LevelCopyright[i] := FLevelsDesc[i*3+2];
+      VWriter.LevelDescription[i] := FLevelsDesc[i * 3];
+      VWriter.LevelName[i] := FLevelsDesc[i * 3 + 1];
+      VWriter.LevelCopyright[i] := FLevelsDesc[i * 3 + 2];
       VWriter.LevelZoom[i] := FZooms[i];
       VWriter.ProductID := FProductID;
     end;
@@ -184,8 +181,8 @@ begin
             if VBitmapTile <> nil then begin
               VData := VSaver.Save(VBitmapTile);
 
-              VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X , VTile.Y + 1), VZoom);
-              VBottomRight := VGeoConvert.TilePos2LonLat( Point(VTile.X+1 , VTile.Y), VZoom);
+              VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
+              VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);
 
               VTileBounds := JNXRect(
                 WGS84CoordToJNX(VBottomRight.Y),

@@ -24,7 +24,11 @@ type
     FHeight: Integer;
     FQuality: Integer;
     FLineProvider: IImageLineProvider;
-    function GetLine(Sender: TObject; ALineNumber: Integer; out Abort: Boolean): PByte;
+    function GetLine(
+      Sender: TObject;
+      ALineNumber: Integer;
+      out Abort: Boolean
+    ): PByte;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -119,7 +123,7 @@ begin
       ALocalConverter,
       AConverterFactory
     );
-  FWidth  := VMapPieceSize.X;
+  FWidth := VMapPieceSize.X;
   FHeight := VMapPieceSize.Y;
   if (FWidth >= JPG_MAX_WIDTH) or (FHeight >= JPG_MAX_HEIGHT) then begin
     raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['JPG', FWidth, JPG_MAX_WIDTH, FHeight, JPG_MAX_HEIGHT, 'JPG']);
@@ -147,11 +151,14 @@ begin
   end;
 end;
 
-function TThreadMapCombineJPG.GetLine(Sender: TObject; ALineNumber: Integer;
-  out Abort: Boolean): PByte;
+function TThreadMapCombineJPG.GetLine(
+  Sender: TObject;
+  ALineNumber: Integer;
+  out Abort: Boolean
+): PByte;
 begin
   if ALineNumber mod 256 = 0 then begin
-    ProgressFormUpdateOnProgress(ALineNumber/FHeight);
+    ProgressFormUpdateOnProgress(ALineNumber / FHeight);
   end;
   Result := FLineProvider.GetLine(OperationID, CancelNotifier, ALineNumber);
   Abort := (Result = nil) or CancelNotifier.IsOperationCanceled(OperationID);

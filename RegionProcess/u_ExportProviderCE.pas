@@ -39,7 +39,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -145,14 +148,14 @@ end;
 
 procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
   VMapType: TMapType;
 
-  VMaxSize : integer;
-  VComent : string;
-  VRecoverInfo : boolean;
+  VMaxSize: integer;
+  VComent: string;
+  VRecoverInfo: boolean;
 
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
@@ -160,25 +163,29 @@ var
 
 begin
 
-  for i:=0 to 23 do begin
-    ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
   end;
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  if FFrame.Temppath.Text <> '' then
-    path:=FFrame.edtTargetFile.Text
-  else
-    if copy(FFrame.edtTargetFile.Text,length(FFrame.edtTargetFile.Text),1)<>'\' then
-      path:= FFrame.edtTargetFile.Text
-    else
-      path:= IncludeTrailingPathDelimiter(FFrame.edtTargetFile.Text) + VMapType.GetShortFolderName;
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  if FFrame.Temppath.Text <> '' then begin
+    path := FFrame.edtTargetFile.Text;
+  end else if copy(FFrame.edtTargetFile.Text, length(FFrame.edtTargetFile.Text), 1) <> '\' then begin
+    path := FFrame.edtTargetFile.Text;
+  end else begin
+    path := IncludeTrailingPathDelimiter(FFrame.edtTargetFile.Text) + VMapType.GetShortFolderName;
+  end;
 
   VMaxSize := FFrame.cbbMaxVolSize.value;
 
   VComent := FFrame.EmapName.Text;
-  if VComent <>'' then VComent := Guidtostring(VMapType.Zmp.GUID)+#13#10+VComent;
+  if VComent <> '' then begin
+    VComent := Guidtostring(VMapType.Zmp.GUID) + #13#10 + VComent;
+  end;
   if FFrame.EComent.Text <> '' then begin
-      if VComent <>'' then VComent := VComent+#13#10;
-      VComent := VComent + FFrame.EComent.Text;
+    if VComent <> '' then begin
+      VComent := VComent + #13#10;
+    end;
+    VComent := VComent + FFrame.EComent.Text;
   end;
   VRecoverInfo := FFrame.SaveRecoverInfo.Checked;
   VCancelNotifierInternal := TOperationNotifier.Create;

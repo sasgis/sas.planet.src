@@ -97,7 +97,7 @@ begin
   FIsReplace := AReplace;
   FIsSaveFullOnly := Asavefull;
   FGenFormPrevZoom := AGenFormPrev;
-  FUsePrevTiles:=AUsePrevTiles;
+  FUsePrevTiles := AUsePrevTiles;
   FZooms := AInZooms;
   FTileInProc := 0;
   FSourceZoom := Azoom;
@@ -141,10 +141,7 @@ begin
 
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(
-          VGeoConvert,
-          VZoom
-        ),
+        FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
@@ -153,107 +150,107 @@ begin
     end else begin
       VZoomDelta := FZooms[i - 1] - FZooms[i];
     end;
-    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * (1 shl (2*VZoomDelta));
+    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * (1 shl (2 * VZoomDelta));
   end;
   try
     ProgressInfo.Caption :=
       SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files;
 
-      VResampler := FResamplerFactory.CreateResampler;
-      try
-        FTileInProc := 0;
-        VTilesProcessed := 0;
-        for i := 0 to length(FZooms) - 1 do begin
-          if (not FGenFormPrevZoom) or (i = 0) then begin
-            VZoomPrev := FSourceZoom;
-          end else begin
-            VZoomPrev := FZooms[i - 1];
+    VResampler := FResamplerFactory.CreateResampler;
+    try
+      FTileInProc := 0;
+      VTilesProcessed := 0;
+      for i := 0 to length(FZooms) - 1 do begin
+        if (not FGenFormPrevZoom) or (i = 0) then begin
+          VZoomPrev := FSourceZoom;
+        end else begin
+          VZoomPrev := FZooms[i - 1];
+        end;
+        VZoom := FZooms[i];
+        VTileIterator := VTileIterators[i];
+        while VTileIterator.Next(VTile) do begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
+            exit;
           end;
-          VZoom := FZooms[i];
-          VTileIterator := VTileIterators[i];
-          while VTileIterator.Next(VTile) do begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              exit;
+          VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
+          if FMapType.TileExists(VTile, VZoom) then begin
+            if not (FIsReplace) then begin
+              continue;
             end;
-            VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-            if FMapType.TileExists(VTile, VZoom) then begin
-              if not (FIsReplace) then begin
-                continue;
-              end;
+          end;
+          VBitmapSourceTile := nil;
+          if FUsePrevTiles then begin
+            VBitmapSourceTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, True, True, True);
+          end;
+          bmp_ex := TCustomBitmap32.Create;
+          try
+            if VBitmapSourceTile = nil then begin
+              bmp_ex.SetSize(
+                VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
+                VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
+              );
+              bmp_ex.Clear(FBackGroundColor);
+            end else begin
+              bmp_ex.Assign(VBitmapSourceTile.Bitmap);
             end;
-            VBitmapSourceTile := nil;
-            if FUsePrevTiles then begin
-              VBitmapSourceTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, True, True, True);
-            end;
-            bmp_ex := TCustomBitmap32.Create;
-            try
-              if VBitmapSourceTile = nil then begin
-                bmp_ex.SetSize(
-                  VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
-                  VCurrentTilePixelRect.Bottom - VCurrentTilePixelRect.Top
-                );
-                bmp_ex.Clear(FBackGroundColor);
-              end else begin
-                bmp_ex.Assign(VBitmapSourceTile.Bitmap);
-              end;
 
-              VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
-              VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
-              VSubTileIterator := TTileIteratorByRect.Create(VRectOfSubTiles);
-              VSubTileCount := VSubTileIterator.TilesTotal;
-              VSubTilesSavedCount := 0;
-              while VSubTileIterator.Next(VSubTile) do begin
-                VBitmapSourceTile := FMapType.LoadTile(VSubTile, VZoomPrev, True);
-                if VBitmapSourceTile <> nil  then begin
-                  VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
-                  VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
-                  VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
-                  VSubTileBounds.Left := 0;
-                  VSubTileBounds.Top := 0;
-                  VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
-                  VSubTileInTargetBounds := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, VZoom);
-                  VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
-                  VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
-                  VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
-                  VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
-                  StretchTransfer(
-                    bmp_ex,
-                    VSubTileInTargetBounds,
-                    bmp_ex.ClipRect,
-                    VBitmapSourceTile.Bitmap,
-                    VSubTileBounds,
-                    VResampler,
-                    dmOpaque
-                  );
-                  inc(VSubTilesSavedCount);
-                end else begin
-                  if FIsSaveFullOnly then begin
-                    Break;
-                  end;
-                end;
-                inc(VTilesProcessed);
-                if (VTilesProcessed mod 30 = 0) then begin
-                  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+            VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
+            VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
+            VSubTileIterator := TTileIteratorByRect.Create(VRectOfSubTiles);
+            VSubTileCount := VSubTileIterator.TilesTotal;
+            VSubTilesSavedCount := 0;
+            while VSubTileIterator.Next(VSubTile) do begin
+              VBitmapSourceTile := FMapType.LoadTile(VSubTile, VZoomPrev, True);
+              if VBitmapSourceTile <> nil then begin
+                VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
+                VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
+                VSubTileBounds.Bottom := VSubTileBounds.Bottom - VSubTileBounds.Top;
+                VSubTileBounds.Left := 0;
+                VSubTileBounds.Top := 0;
+                VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
+                VSubTileInTargetBounds := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, VZoom);
+                VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
+                VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
+                VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;
+                VSubTileInTargetBounds.Bottom := VSubTileInTargetBounds.Bottom - VCurrentTilePixelRect.Top;
+                StretchTransfer(
+                  bmp_ex,
+                  VSubTileInTargetBounds,
+                  bmp_ex.ClipRect,
+                  VBitmapSourceTile.Bitmap,
+                  VSubTileBounds,
+                  VResampler,
+                  dmOpaque
+                );
+                inc(VSubTilesSavedCount);
+              end else begin
+                if FIsSaveFullOnly then begin
+                  Break;
                 end;
               end;
-              VBitmap := nil;
-              if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
-                VBitmap := TBitmap32Static.CreateWithOwn(bmp_ex);
-                bmp_ex := nil;
+              inc(VTilesProcessed);
+              if (VTilesProcessed mod 30 = 0) then begin
+                ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
               end;
-            finally
-              bmp_ex.Free;
             end;
-            if VBitmap <> nil then begin
-              FMapType.SaveTileSimple(VTile, VZoom, VBitmap);
-              inc(FTileInProc);
-              VBitmap := nil;
+            VBitmap := nil;
+            if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
+              VBitmap := TBitmap32Static.CreateWithOwn(bmp_ex);
+              bmp_ex := nil;
             end;
+          finally
+            bmp_ex.Free;
+          end;
+          if VBitmap <> nil then begin
+            FMapType.SaveTileSimple(VTile, VZoom, VBitmap);
+            inc(FTileInProc);
+            VBitmap := nil;
           end;
         end;
-      finally
-        VResampler.Free;
       end;
+    finally
+      VResampler.Free;
+    end;
   finally
     for i := 0 to Length(VTileIterators) - 1 do begin
       VTileIterators[i] := nil;
@@ -266,8 +263,8 @@ procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress(
   const AProcessed, AToProcess: Int64
 );
 begin
-  ProgressInfo.Processed := AProcessed/AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed)
+  ProgressInfo.Processed := AProcessed / AToProcess;
+  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
 end;
 
 end.

@@ -40,7 +40,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -146,9 +149,9 @@ end;
 
 procedure TExportProviderZip.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
   VMapType: TMapType;
   VNameGenerator: ITileFileNameGenerator;
   VCancelNotifierInternal: IOperationNotifierInternal;
@@ -156,11 +159,11 @@ var
   VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
-  for i:=0 to 23 do begin
-    ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
   end;
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path:=FFrame.edtTargetFile.Text;
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  path := FFrame.edtTargetFile.Text;
   VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
 
   VCancelNotifierInternal := TOperationNotifier.Create;
@@ -190,4 +193,3 @@ begin
 end;
 
 end.
-

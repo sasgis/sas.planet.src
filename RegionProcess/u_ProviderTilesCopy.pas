@@ -40,7 +40,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -144,26 +147,26 @@ end;
 
 procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
-  typemaparr:array of TMapType;
-  Replace:boolean;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
+  typemaparr: array of TMapType;
+  Replace: boolean;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
 begin
-  for i:=0 to 23 do begin
-    ZoomArr[i]:=FFrame.chklstZooms.Checked[i];
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
   end;
-  for i:=0 to FFrame.chklstMaps.Items.Count-1 do begin
+  for i := 0 to FFrame.chklstMaps.Items.Count - 1 do begin
     if FFrame.chklstMaps.Checked[i] then begin
-    setlength(typemaparr,length(typemaparr)+1);
-    typemaparr[length(typemaparr)-1]:=TMapType(FFrame.chklstMaps.Items.Objects[i]);
+      setlength(typemaparr, length(typemaparr) + 1);
+      typemaparr[length(typemaparr) - 1] := TMapType(FFrame.chklstMaps.Items.Objects[i]);
     end;
   end;
-  path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
-  Replace:=FFrame.chkReplaseTarget.Checked;
+  path := IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
+  Replace := FFrame.chkReplaseTarget.Checked;
 
 
   VCancelNotifierInternal := TOperationNotifier.Create;
@@ -191,7 +194,7 @@ begin
       typemaparr,
       FFrame.chkDeleteSource.Checked,
       Replace
-    )
+    );
   end else begin
     TThreadExportToFileSystem.Create(
       VCancelNotifierInternal,
@@ -206,9 +209,8 @@ begin
       FFrame.chkDeleteSource.Checked,
       Replace,
       FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1)
-    )
+    );
   end;
 end;
 
 end.
-

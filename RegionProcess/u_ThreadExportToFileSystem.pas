@@ -114,10 +114,7 @@ begin
       VGeoConvert := FMapTypeArr[j].GeoConvert;
       VProjectedPolygon :=
         FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(
-            VGeoConvert,
-            VZoom
-          ),
+          FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );
       VTileIterators[j, i] := TTileIteratorByPolygon.Create(VProjectedPolygon);

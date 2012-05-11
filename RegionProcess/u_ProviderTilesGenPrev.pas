@@ -43,7 +43,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -157,7 +160,7 @@ end;
 
 procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
+  i: integer;
   VInZooms: TArrayOfByte;
   VMapType: TMapType;
   VZoomsCount: Integer;
@@ -169,10 +172,10 @@ var
   VBgColor: TColor32;
 begin
   inherited;
-  VMapType:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   VFromZoom := FFrame.cbbFromZoom.ItemIndex + 1;
   VZoomsCount := 0;
-  for i:=0 to FFrame.cbbFromZoom.ItemIndex do begin
+  for i := 0 to FFrame.cbbFromZoom.ItemIndex do begin
     if FFrame.chklstZooms.ItemEnabled[i] then begin
       if FFrame.chklstZooms.Checked[i] then begin
         SetLength(VInZooms, VZoomsCount + 1);
@@ -228,4 +231,3 @@ begin
 end;
 
 end.
-

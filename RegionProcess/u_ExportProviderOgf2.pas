@@ -42,7 +42,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(AZoom: Byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      AZoom: Byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;

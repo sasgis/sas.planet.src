@@ -29,7 +29,10 @@ type
     KMLFile: TextFile;
     FTilesToProcess: Int64;
     FTilesProcessed: Int64;
-    procedure KmlFileWrite(const ATile: TPoint; AZoom, level: byte);
+    procedure KmlFileWrite(
+      const ATile: TPoint;
+      AZoom, level: byte
+    );
   protected
     procedure ProcessRegion; override;
   public
@@ -86,7 +89,10 @@ begin
   FMapType := Atypemap;
 end;
 
-procedure TThreadExportKML.KmlFileWrite(const ATile: TPoint; AZoom, level: byte);
+procedure TThreadExportKML.KmlFileWrite(
+  const ATile: TPoint;
+  AZoom, level: byte
+);
 var
   VZoom: Byte;
   xi, yi: integer;
@@ -157,10 +163,7 @@ begin
     VZoom := FZooms[0];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(
-          FMapType.GeoConvert,
-          VZoom
-        ),
+        FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );
     VIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
@@ -169,10 +172,7 @@ begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
         FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(
-            FMapType.GeoConvert,
-            VZoom
-          ),
+          FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
           PolygLL
         );
       VTempIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);

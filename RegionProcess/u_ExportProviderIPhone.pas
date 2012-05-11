@@ -44,7 +44,10 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; override;
-    procedure InitFrame(Azoom: byte; const APolygon: ILonLatPolygon); override;
+    procedure InitFrame(
+      Azoom: byte;
+      const APolygon: ILonLatPolygon
+    ); override;
     procedure Show; override;
     procedure Hide; override;
     procedure RefreshTranslation; override;
@@ -82,7 +85,7 @@ constructor TExportProviderIPhone.Create(
   ANewFormat: Boolean
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet,  AGUIConfigList);
+  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
@@ -155,44 +158,46 @@ end;
 
 procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i:integer;
-  path:string;
-  Zoomarr:array [0..23] of boolean;
-  typemaparr:array of TMapType;
-  comprSat,comprMap,comprHyb:byte;
-  Replace:boolean;
+  i: integer;
+  path: string;
+  Zoomarr: array [0..23] of boolean;
+  typemaparr: array of TMapType;
+  comprSat, comprMap, comprHyb: byte;
+  Replace: boolean;
   VActiveMapIndex: Integer;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
-  for i:=0 to 23 do ZoomArr[i]:= FFrame.chklstZooms.Checked[i];
-  setlength(typemaparr,3);
+  for i := 0 to 23 do begin
+    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
+  end;
+  setlength(typemaparr, 3);
   VActiveMapIndex := 0;
-  typemaparr[0]:=TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
-  if typemaparr[0]<>nil then begin
+  typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
+  if typemaparr[0] <> nil then begin
     if FFrame.rbSat.Checked then begin
       VActiveMapIndex := 0;
     end;
   end;
-  typemaparr[1]:=TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  if typemaparr[1]<>nil then begin
+  typemaparr[1] := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  if typemaparr[1] <> nil then begin
     if FFrame.rbMap.Checked then begin
       VActiveMapIndex := 1;
     end;
   end;
-  typemaparr[2]:=TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
-  if typemaparr[2]<>nil then begin
+  typemaparr[2] := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+  if typemaparr[2] <> nil then begin
     if FFrame.rbHybr.Checked then begin
       VActiveMapIndex := 2;
     end;
   end;
-  comprSat:=FFrame.seSatCompress.Value;
-  comprMap:=FFrame.seMapCompress.Value;
-  comprHyb:=FFrame.seHybrCompress.Value;
-  path:=IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
-  Replace:=FFrame.chkAppendTilse.Checked;
+  comprSat := FFrame.seSatCompress.Value;
+  comprMap := FFrame.seMapCompress.Value;
+  comprHyb := FFrame.seHybrCompress.Value;
+  path := IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
+  Replace := FFrame.chkAppendTilse.Checked;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
@@ -224,8 +229,7 @@ begin
     comprSat,
     comprMap,
     comprHyb
-  )
+  );
 end;
 
 end.
-
