@@ -36,7 +36,7 @@ type
   protected
     function GetName: string;
     function GetDesc: string;
-    function GetLLRect: TDoubleRect;  virtual; abstract;
+    function GetLLRect: TDoubleRect; virtual; abstract;
     function GetHintText: string;
     function GetHintTextWithoutDesc: string;
     function GetInfoCaption: string;
@@ -88,9 +88,9 @@ function TVectorDataItemBase.GetInfoHTML: string;
 begin
   Result := '';
   if Fdesc <> '' then begin
-    Result:='<HTML><BODY>';
-    Result:=Result+Fdesc;
-    Result:=Result+'</BODY></HTML>';
+    Result := '<HTML><BODY>';
+    Result := Result + Fdesc;
+    Result := Result + '</BODY></HTML>';
   end;
 end;
 

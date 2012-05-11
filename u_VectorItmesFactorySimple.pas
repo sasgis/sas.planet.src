@@ -284,7 +284,7 @@ begin
         end;
         VLine := TLocalPathLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
         Inc(VLineCount);
-        VTemp.Clear
+        VTemp.Clear;
       end;
     end else begin
       VTemp.Add(VPoint);
@@ -300,7 +300,7 @@ begin
     end;
     VLine := TLocalPathLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := TLocalPathEmpty.Create(ALocalConverter);
@@ -402,7 +402,7 @@ begin
         end;
         VLine := TLocalPolygonLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
         Inc(VLineCount);
-        VTemp.Clear
+        VTemp.Clear;
       end;
     end else begin
       VTemp.Add(VPoint);
@@ -418,7 +418,7 @@ begin
     end;
     VLine := TLocalPolygonLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := TLocalPolygonEmpty.Create(ALocalConverter);
@@ -535,7 +535,7 @@ begin
           VBounds := VLine.Bounds;
         end;
         Inc(VLineCount);
-        VTemp.Clear
+        VTemp.Clear;
       end;
     end else begin
       VTemp.Add(VPoint);
@@ -556,7 +556,7 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := FEmptyLonLatPath;
@@ -673,7 +673,7 @@ begin
           VBounds := VLine.Bounds;
         end;
         Inc(VLineCount);
-        VTemp.Clear
+        VTemp.Clear;
       end;
     end else begin
       VTemp.Add(VPoint);
@@ -694,7 +694,7 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := FEmptyLonLatPolygon;
@@ -777,11 +777,13 @@ begin
   Result := TLonLatPolygonLine.Create(@VPoints[0], 4);
 end;
 
-function
-    TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatPolygonUseConverter(
-    const AProjection: IProjectionInfo; const ASource: ILonLatPolygon; const
-    AConverter: ILonLatPointConverter; const ATemp: IDoublePointsAggregator =
-    nil): IProjectedPolygon;
+function TVectorItmesFactorySimple.CreateProjectedPolygonByLonLatPolygonUseConverter(
+  const AProjection: IProjectionInfo;
+  const ASource: ILonLatPolygon;
+  const AConverter: ILonLatPointConverter;
+  const ATemp: IDoublePointsAggregator =
+  nil
+): IProjectedPolygon;
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPolygonLine;
@@ -825,7 +827,7 @@ begin
         VBounds := VLine.Bounds;
       end;
       Inc(VLineCount);
-      VTemp.Clear
+      VTemp.Clear;
     end;
   end;
   if VTemp.Count > 0 then begin
@@ -843,7 +845,7 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := TProjectedPolygonEmpty.Create(AProjection);
@@ -962,7 +964,7 @@ begin
           VBounds := VLine.Bounds;
         end;
         Inc(VLineCount);
-        VTemp.Clear
+        VTemp.Clear;
       end;
     end else begin
       VTemp.Add(VPoint);
@@ -983,7 +985,7 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := TProjectedPathEmpty.Create(AProjection);
@@ -1004,13 +1006,12 @@ var
   VEnum: IEnumProjectedPoint;
 begin
   VEnum :=
-    TEnumProjectedPointFilterEqual.Create(
-      TEnumDoublePointLonLatToMapPixel.Create(
-        AProjection.Zoom,
-        AProjection.GeoConverter,
-        AEnum
-      )
+    TEnumDoublePointLonLatToMapPixel.Create(
+      AProjection.Zoom,
+      AProjection.GeoConverter,
+      AEnum
     );
+  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
   Result :=
     CreateProjectedPathByEnum(
       AProjection,
@@ -1034,9 +1035,12 @@ begin
 end;
 
 function TVectorItmesFactorySimple.CreateProjectedPathByLonLatPathUseConverter(
-    const AProjection: IProjectionInfo; const ASource: ILonLatPath; const
-    AConverter: ILonLatPointConverter; const ATemp: IDoublePointsAggregator =
-    nil): IProjectedPath;
+  const AProjection: IProjectionInfo;
+  const ASource: ILonLatPath;
+  const AConverter: ILonLatPointConverter;
+  const ATemp: IDoublePointsAggregator =
+  nil
+): IProjectedPath;
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPathLine;
@@ -1080,7 +1084,7 @@ begin
         VBounds := VLine.Bounds;
       end;
       Inc(VLineCount);
-      VTemp.Clear
+      VTemp.Clear;
     end;
   end;
   if VTemp.Count > 0 then begin
@@ -1098,7 +1102,7 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := TProjectedPathEmpty.Create(AProjection);
@@ -1120,16 +1124,17 @@ var
   VEnum: IEnumProjectedPoint;
 begin
   VEnum :=
+    TEnumDoublePointLonLatToMapPixel.Create(
+      AProjection.Zoom,
+      AProjection.GeoConverter,
+      AEnum
+    );
+  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
+  VEnum :=
     TEnumProjectedPointClipByRect.Create(
       False,
       AMapPixelsClipRect,
-      TEnumProjectedPointFilterEqual.Create(
-        TEnumDoublePointLonLatToMapPixel.Create(
-          AProjection.Zoom,
-          AProjection.GeoConverter,
-          AEnum
-        )
-      )
+      VEnum
     );
   Result :=
     CreateProjectedPathByEnum(
@@ -1262,7 +1267,7 @@ begin
           VBounds := VLine.Bounds;
         end;
         Inc(VLineCount);
-        VTemp.Clear
+        VTemp.Clear;
       end;
     end else begin
       VTemp.Add(VPoint);
@@ -1283,7 +1288,7 @@ begin
       VBounds := VLine.Bounds;
     end;
     Inc(VLineCount);
-    VTemp.Clear
+    VTemp.Clear;
   end;
   if VLineCount = 0 then begin
     Result := TProjectedPolygonEmpty.Create(AProjection);
@@ -1304,15 +1309,13 @@ var
   VEnum: IEnumProjectedPoint;
 begin
   VEnum :=
-    TEnumProjectedPointFilterEqual.Create(
-      TEnumDoublePointLonLatToMapPixel.Create(
-        AProjection.Zoom,
-        AProjection.GeoConverter,
-        TEnumLonLatPointFilterFirstSegment.Create(
-          AEnum
-        )
-      )
+    TEnumDoublePointLonLatToMapPixel.Create(
+      AProjection.Zoom,
+      AProjection.GeoConverter,
+      TEnumLonLatPointFilterFirstSegment.Create(AEnum)
     );
+  VEnum :=
+    TEnumProjectedPointFilterEqual.Create(VEnum);
   Result :=
     CreateProjectedPolygonByEnum(
       AProjection,
@@ -1369,18 +1372,18 @@ var
   VEnum: IEnumProjectedPoint;
 begin
   VEnum :=
+    TEnumDoublePointLonLatToMapPixel.Create(
+      AProjection.Zoom,
+      AProjection.GeoConverter,
+      TEnumLonLatPointFilterFirstSegment.Create(AEnum)
+    );
+  VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
+
+  VEnum :=
     TEnumProjectedPointClipByRect.Create(
       True,
       AMapPixelsClipRect,
-      TEnumProjectedPointFilterEqual.Create(
-        TEnumDoublePointLonLatToMapPixel.Create(
-          AProjection.Zoom,
-          AProjection.GeoConverter,
-          TEnumLonLatPointFilterFirstSegment.Create(
-            AEnum
-          )
-        )
-      )
+      VEnum
     );
   Result :=
     CreateProjectedPolygonByEnum(

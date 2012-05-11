@@ -76,7 +76,7 @@ begin
           AGlobalInternetState,
           AErrorLogger
         );
-      FList.Add(VDownload)
+      FList.Add(VDownload);
     end;
   end;
 end;

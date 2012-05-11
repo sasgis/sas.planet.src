@@ -30,7 +30,10 @@ type
   TProjectedPath = class(TProjectedLineSet, IProjectedPath)
   private
     function GetEnum: IEnumProjectedPoint;
-    function IsPointOnPath(const APoint:TDoublePoint; const ADist: Double): Boolean;
+    function IsPointOnPath(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
     function GetItem(AIndex: Integer): IProjectedPathLine;
   end;
@@ -39,7 +42,10 @@ type
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function IsPointOnBorder(const APoint: TDoublePoint; const ADist: Double): Boolean;
+    function IsPointOnBorder(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
@@ -52,7 +58,10 @@ type
     function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
-    function IsPointOnPath(const APoint: TDoublePoint; const ADist: Double): Boolean;
+    function IsPointOnPath(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
     function GetBounds: TDoubleRect;
     function GetItem(AIndex: Integer): IProjectedPathLine;
@@ -71,7 +80,10 @@ type
     function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function IsPointOnBorder(const APoint: TDoublePoint; const ADist: Double): Boolean;
+    function IsPointOnBorder(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
@@ -100,14 +112,20 @@ type
   TProjectedPathEmpty = class(TProjectedLineSetEmpty, IProjectedPath)
   private
     function GetItem(AIndex: Integer): IProjectedPathLine;
-    function IsPointOnPath(const APoint:TDoublePoint; const ADist: Double): Boolean;
+    function IsPointOnPath(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   end;
 
   TProjectedPolygonEmpty = class(TProjectedLineSetEmpty, IProjectedPolygon)
   private
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
-    function IsPointOnBorder(const APoint: TDoublePoint; const ADist: Double): Boolean;
+    function IsPointOnBorder(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;

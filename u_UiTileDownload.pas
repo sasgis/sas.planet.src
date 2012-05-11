@@ -117,7 +117,7 @@ constructor TUiTileDownload.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-  FGCList :=  AGCList;
+  FGCList := AGCList;
   FAppClosingNotifier := AAppClosingNotifier;
   FConverterFactory := ACoordConverterFactory;
   FViewPortState := AViewPortState;
@@ -190,13 +190,13 @@ begin
   finally
     FCS.EndWrite;
   end;
-  
+
   CloseHandle(FSemaphore);
   CloseHandle(FCancelEventHandle);
-  
+
   FCS := nil;
   FVisualCoordConverterCS := nil;
-  
+
   inherited;
 end;
 
@@ -244,7 +244,7 @@ begin
       FMapTypeActive.GetMapType.MapType.GeoConvert
     );
   VNeedRestart := False;
-  
+
   FVisualCoordConverterCS.BeginWrite;
   try
     if (FVisualCoordConverter = nil) or not VConverter.GetIsSameConverter(FVisualCoordConverter) then begin
@@ -325,7 +325,7 @@ begin
           end;
         end else begin
           if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-            if not(VMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
+            if not (VMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
               VNeedDownload := True;
             end;
           end;
@@ -364,6 +364,7 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VRequestError: ITileRequestResultError;
   VErrorString: string;
+  VError: ITileErrorInfo;
 begin
   FGlobalInternetState.DecQueueCount;
 
@@ -394,14 +395,14 @@ begin
   if VErrorString <> '' then begin
     if FErrorLogger <> nil then begin
       VErrorString := 'Error: ' + VErrorString;
-      FErrorLogger.LogError(
+      VError :=
         TTileErrorInfo.Create(
           FMapTypeActive.GetMapType.MapType,
           VResult.Request.Zoom,
           VResult.Request.Tile,
           VErrorString
-        )
-      );
+        );
+      FErrorLogger.LogError(VError);
     end;
   end;
 end;

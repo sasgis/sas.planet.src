@@ -71,18 +71,18 @@ type
       Apnum: Integer
     ): IBitmap32Static;
     procedure LoadIcons(
-      const AConfig : IConfigDataProvider;
+      const AConfig: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
     );
     procedure LoadUIParams(
       const ALangList: ILanguageListStatic;
-      const AConfig : IConfigDataProvider;
+      const AConfig: IConfigDataProvider;
       Apnum: Integer
     );
     procedure LoadInfo(
       const ALangList: ILanguageListStatic;
-      const AConfig : IConfigDataProvider
+      const AConfig: IConfigDataProvider
     );
   protected
     function GetName: IStringByLanguage;
@@ -131,22 +131,22 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALanguageManager: ILanguageManager
     );
-    procedure LoadCropConfig(const AConfig : IConfigDataProvider);
-    procedure LoadAbilities(const AConfig : IConfigDataProvider);
-    procedure LoadStorageConfig(const AConfig : IConfigDataProvider);
-    function LoadGUID(const AConfig : IConfigDataProvider): TGUID;
-    procedure LoadVersion(const AConfig : IConfigDataProvider);
+    procedure LoadCropConfig(const AConfig: IConfigDataProvider);
+    procedure LoadAbilities(const AConfig: IConfigDataProvider);
+    procedure LoadStorageConfig(const AConfig: IConfigDataProvider);
+    function LoadGUID(const AConfig: IConfigDataProvider): TGUID;
+    procedure LoadVersion(const AConfig: IConfigDataProvider);
     procedure LoadAttachmentsInfo(
       const AConfig: IConfigDataProvider;
       const ALanguageManager: ILanguageManager
     );
     procedure LoadProjectionInfo(
-      const AConfig : IConfigDataProvider;
+      const AConfig: IConfigDataProvider;
       const ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadTileRequestBuilderConfig(
       const ACoordConverterFactory: ICoordConverterFactory;
-      const AConfig : IConfigDataProvider
+      const AConfig: IConfigDataProvider
     );
     procedure LoadTileDownloaderConfig(const AConfig: IConfigDataProvider);
   protected
@@ -220,7 +220,7 @@ begin
     for i := 0 to ALangList.Count - 1 do begin
       VValue := VDefValue;
       VLanguageCode := ALangList.Code[i];
-      VValue := AConfig.ReadString(AParamName+'_' + VLanguageCode, VDefValue);
+      VValue := AConfig.ReadString(AParamName + '_' + VLanguageCode, VDefValue);
       Result.Add(VValue);
     end;
   except
@@ -245,7 +245,7 @@ begin
     VValueList.Free;
   end;
 end;
-  
+
 { TZmpInfoGUI }
 
 constructor TZmpInfoGUI.Create(
@@ -274,7 +274,7 @@ var
 begin
   VBitmap := TBitmap32.Create;
   try
-    VNameDef :=  copy(IntToStr(Apnum), 1, 2);
+    VNameDef := copy(IntToStr(Apnum), 1, 2);
     VBitmap.SetSize(32, 32);
     VBitmap.Clear(clLightGray32);
     VTextSize := VBitmap.TextExtent(VNameDef);
@@ -355,23 +355,24 @@ procedure TZmpInfoGUI.LoadIcons(
   const AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
-procedure UpdateBMPTransp(ABitmap: TCustomBitmap32);
-var
-  VTranspColor: TColor32;
-  VLine: PColor32Array;
-  i: Integer;
-  j: Integer;
-begin
-  VTranspColor := Color32(255, 0, 255, 255);
-  for i := 0 to ABitmap.Height - 1 do begin
-    VLine := ABitmap.ScanLine[i];
-    for j := 0 to ABitmap.Width - 1 do begin
-      if VLine[j] = VTranspColor then begin
-        VLine[j] := 0;
+  procedure UpdateBMPTransp(ABitmap: TCustomBitmap32);
+  var
+    VTranspColor: TColor32;
+    VLine: PColor32Array;
+    i: Integer;
+    j: Integer;
+  begin
+    VTranspColor := Color32(255, 0, 255, 255);
+    for i := 0 to ABitmap.Height - 1 do begin
+      VLine := ABitmap.ScanLine[i];
+      for j := 0 to ABitmap.Width - 1 do begin
+        if VLine[j] = VTranspColor then begin
+          VLine[j] := 0;
+        end;
       end;
     end;
   end;
-end;
+
 var
   VStream: TStream;
   VBitmap: TCustomBitmap32;
@@ -454,11 +455,11 @@ begin
     for i := 0 to ALangList.Count - 1 do begin
       VValue := VDefValue;
       VLanguageCode := ALangList.Code[i];
-      VFileName := 'index_'+VLanguageCode+'.html';
+      VFileName := 'index_' + VLanguageCode + '.html';
       if AConfig.ReadString(VFileName, '') <> '' then begin
         VValue := '/' + VFileName;
       end else begin
-        VFileName := 'info_'+VLanguageCode+'.txt';
+        VFileName := 'info_' + VLanguageCode + '.txt';
         if AConfig.ReadString(VFileName, '') <> '' then begin
           VValue := '/' + VFileName;
         end;
@@ -478,11 +479,11 @@ procedure TZmpInfoGUI.LoadUIParams(
 );
 begin
   // multilanguage params
-  FName := InternalMakeStringByLanguage(ALangList, AConfig, 'name', 'map#'+inttostr(Apnum));
+  FName := InternalMakeStringByLanguage(ALangList, AConfig, 'name', 'map#' + inttostr(Apnum));
   FParentSubMenu := InternalMakeStringByLanguage(ALangList, AConfig, 'ParentSubMenu', '');
 
-  FHotKey :=AConfig.ReadInteger('DefHotKey', 0);
-  FHotKey :=AConfig.ReadInteger('HotKey', FHotKey);
+  FHotKey := AConfig.ReadInteger('DefHotKey', 0);
+  FHotKey := AConfig.ReadInteger('HotKey', FHotKey);
   FSeparator := AConfig.ReadBool('separator', false);
   FLayerZOrder := AConfig.ReadInteger('LayerZOrder', 0);
   FEnabled := AConfig.ReadBool('Enabled', true);
@@ -618,43 +619,44 @@ var
   VParams: IConfigDataProvider;
   VGUID: TGUID;
   VSL_Names: TStringList;
-  i,VMaxSubIndex: Integer;
+  i, VMaxSubIndex: Integer;
   VParseNumberAfter: String;
   VSL_NameInCache, VSL_Ext, VSL_DefUrlBase, VSL_ContentType: TStringList;
-  VStrVal,VNameInCacheDefault: String;
+  VStrVal, VNameInCacheDefault: String;
   VEnabled, VUseDwn, VUseDel: Boolean;
 begin
   // params in special section
   VParams := AConfig.GetSubItem('AttachmentsInfo');
 
   if not Assigned(VParams) then begin
-    FMapAttachmentsInfo:=nil;
+    FMapAttachmentsInfo := nil;
     Exit;
   end;
-  
+
   // gui params
   VGUID := LoadGUID(VParams);
   VSL_Names := InternalMakeStringListByLanguage(ALanguageManager.LanguageList, VParams, 'name', '');
 
   // count of sub-items for single attachment
-  VMaxSubIndex := VParams.ReadInteger('MaxSubIndex',0);
-  VParseNumberAfter := VParams.ReadString('ParseNumberAfter','');
-  VUseDwn := VParams.ReadBool('UseDwn',FALSE);
-  VUseDel := VParams.ReadBool('UseDel',FALSE);
+  VMaxSubIndex := VParams.ReadInteger('MaxSubIndex', 0);
+  VParseNumberAfter := VParams.ReadString('ParseNumberAfter', '');
+  VUseDwn := VParams.ReadBool('UseDwn', FALSE);
+  VUseDel := VParams.ReadBool('UseDel', FALSE);
 
   // noway
-  VSL_NameInCache:=nil;
-  VSL_Ext:=nil;
-  VSL_DefUrlBase:=nil;
-  VSL_ContentType:=nil;
+  VSL_NameInCache := nil;
+  VSL_Ext := nil;
+  VSL_DefUrlBase := nil;
+  VSL_ContentType := nil;
 
-  if (VMaxSubIndex>=0) and (System.Length(VParseNumberAfter)>0) then begin
+  if (VMaxSubIndex >= 0) and (System.Length(VParseNumberAfter) > 0) then begin
     // make containers and obtain default values
     VSL_NameInCache := TStringList.Create;
     VNameInCacheDefault := VParams.ReadString('NameInCache', '');
-    if (System.Length(VNameInCacheDefault)>0) then
-      VNameInCacheDefault:=ExpandFileName(VNameInCacheDefault);
-    VSL_NameInCache.AddObject(VNameInCacheDefault, TObject(Pointer(Ord(VParams.ReadBool('Enabled',FALSE)))));
+    if (System.Length(VNameInCacheDefault) > 0) then begin
+      VNameInCacheDefault := ExpandFileName(VNameInCacheDefault);
+    end;
+    VSL_NameInCache.AddObject(VNameInCacheDefault, TObject(Pointer(Ord(VParams.ReadBool('Enabled', FALSE)))));
 
     VSL_Ext := TStringList.Create;
     VSL_Ext.Add(LowerCase(VParams.ReadString('Ext', '')));
@@ -666,33 +668,34 @@ begin
     VSL_ContentType.Add(VParams.ReadString('ContentType', ''));
 
     // other values (by index)
-    if VMaxSubIndex>0 then
-    for i := 1 to VMaxSubIndex do begin
-      VStrVal := ExpandFileName(VParams.ReadString('NameInCache'+IntToStr(i), VNameInCacheDefault));
-      VEnabled := VParams.ReadBool('Enabled'+IntToStr(i),(VSL_NameInCache.Objects[0]<>nil));
-      VSL_NameInCache.AddObject(VStrVal, TObject(Pointer(Ord(VEnabled))));
+    if VMaxSubIndex > 0 then begin
+      for i := 1 to VMaxSubIndex do begin
+        VStrVal := ExpandFileName(VParams.ReadString('NameInCache' + IntToStr(i), VNameInCacheDefault));
+        VEnabled := VParams.ReadBool('Enabled' + IntToStr(i), (VSL_NameInCache.Objects[0] <> nil));
+        VSL_NameInCache.AddObject(VStrVal, TObject(Pointer(Ord(VEnabled))));
 
-      VStrVal := LowerCase(VParams.ReadString('Ext'+IntToStr(i), VSL_Ext[0]));
-      VSL_Ext.Add(VStrVal);
+        VStrVal := LowerCase(VParams.ReadString('Ext' + IntToStr(i), VSL_Ext[0]));
+        VSL_Ext.Add(VStrVal);
 
-      VStrVal := VParams.ReadString('DefUrlBase'+IntToStr(i), VSL_DefUrlBase[0]);
-      VSL_DefUrlBase.Add(VStrVal);
+        VStrVal := VParams.ReadString('DefUrlBase' + IntToStr(i), VSL_DefUrlBase[0]);
+        VSL_DefUrlBase.Add(VStrVal);
 
-      VStrVal := VParams.ReadString('ContentType'+IntToStr(i), VSL_ContentType[0]);
-      VSL_ContentType.Add(VStrVal);
+        VStrVal := VParams.ReadString('ContentType' + IntToStr(i), VSL_ContentType[0]);
+        VSL_ContentType.Add(VStrVal);
+      end;
     end;
   end;
 
   // make object (VSL_* will be destroyed in object's destructor)
   FMapAttachmentsInfo := TMapAttachmentsInfo.Create(VGUID,
-                                                    VMaxSubIndex,
-                                                    VParseNumberAfter,
-                                                    VSL_NameInCache,
-                                                    VSL_Ext,
-                                                    VSL_Names,
-                                                    VSL_DefUrlBase,
-                                                    VSL_ContentType,
-                                                    VUseDwn, VUseDel);
+    VMaxSubIndex,
+    VParseNumberAfter,
+    VSL_NameInCache,
+    VSL_Ext,
+    VSL_Names,
+    VSL_DefUrlBase,
+    VSL_ContentType,
+    VUseDwn, VUseDel);
 end;
 
 procedure TZmpInfo.LoadConfig(
@@ -708,7 +711,7 @@ begin
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
-  LoadAttachmentsInfo(FConfigIni,ALanguageManager);
+  LoadAttachmentsInfo(FConfigIni, ALanguageManager);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
@@ -719,18 +722,18 @@ var
   VCutToSkip: String;
 begin
   // crop params
-  VRect.Left := AConfig.ReadInteger('TileRLeft',0);
-  VRect.Top := AConfig.ReadInteger('TileRTop',0);
-  VRect.Right := AConfig.ReadInteger('TileRRight',0);
-  VRect.Bottom := AConfig.ReadInteger('TileRBottom',0);
+  VRect.Left := AConfig.ReadInteger('TileRLeft', 0);
+  VRect.Top := AConfig.ReadInteger('TileRTop', 0);
+  VRect.Right := AConfig.ReadInteger('TileRRight', 0);
+  VRect.Bottom := AConfig.ReadInteger('TileRBottom', 0);
   // cut params
-  VCutCount.X := AConfig.ReadInteger('CutCountX',0);
-  VCutCount.Y := AConfig.ReadInteger('CutCountY',0);
-  VCutSize.X := AConfig.ReadInteger('CutSizeX',0);
-  VCutSize.Y := AConfig.ReadInteger('CutSizeY',0);
-  VCutTile.X := AConfig.ReadInteger('CutTileX',0);
-  VCutTile.Y := AConfig.ReadInteger('CutTileY',0);
-  VCutToSkip := AConfig.ReadString('CutToSkip','');
+  VCutCount.X := AConfig.ReadInteger('CutCountX', 0);
+  VCutCount.Y := AConfig.ReadInteger('CutCountY', 0);
+  VCutSize.X := AConfig.ReadInteger('CutSizeX', 0);
+  VCutSize.Y := AConfig.ReadInteger('CutSizeY', 0);
+  VCutTile.X := AConfig.ReadInteger('CutTileX', 0);
+  VCutTile.Y := AConfig.ReadInteger('CutTileY', 0);
+  VCutToSkip := AConfig.ReadString('CutToSkip', '');
   // make
   FTilePostDownloadCropConfig := TTilePostDownloadCropConfigStatic.Create(VRect, VCutCount, VCutSize, VCutTile, VCutToSkip);
 end;
@@ -823,7 +826,7 @@ var
   VWaitInterval: Cardinal;
   VMaxConnectToServerCount: Cardinal;
   VIteratorSubRectSize: TPoint;
-  fL : TStringList;
+  fL: TStringList;
 begin
   VUseDownload := AConfig.ReadBool('UseDwn', True);
   VIgnoreMIMEType := AConfig.ReadBool('IgnoreContentType', False);
@@ -840,8 +843,8 @@ begin
     fL.Delimiter := ',';
     fL.StrictDelimiter := True;
     fL.DelimitedText := AConfig.ReadString('IteratorSubRectSize', '1,1');
-    VIteratorSubRectSize.x:=StrToInt(fL[0]);
-    VIteratorSubRectSize.y:=StrToInt(fL[1]);
+    VIteratorSubRectSize.x := StrToInt(fL[0]);
+    VIteratorSubRectSize.y := StrToInt(fL[1]);
   finally
     fL.Free
   end;

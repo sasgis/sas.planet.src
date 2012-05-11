@@ -109,7 +109,7 @@ var
   i: Integer;
 begin
   Result := 0;
-  for i:= 0 to  FList.Count - 1 do begin
+  for i := 0 to FList.Count - 1 do begin
     Result := Result + GetItem(i).CalcLength(ADatum);
   end;
 end;
@@ -162,7 +162,7 @@ var
   i: Integer;
 begin
   Result := 0;
-  for i:= 0 to  FList.Count - 1 do begin
+  for i := 0 to FList.Count - 1 do begin
     Result := Result + GetItem(i).CalcArea(ADatum);
   end;
 end;
@@ -172,7 +172,7 @@ var
   i: Integer;
 begin
   Result := 0;
-  for i:= 0 to  FList.Count - 1 do begin
+  for i := 0 to FList.Count - 1 do begin
     Result := Result + GetItem(i).CalcPerimeter(ADatum);
   end;
 end;

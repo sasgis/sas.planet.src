@@ -34,7 +34,7 @@ type
   private
     FLLRect: TDoubleRect;
   protected
-    function GetLLRect: TDoubleRect;  override;
+    function GetLLRect: TDoubleRect; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;

@@ -33,7 +33,7 @@ type
   private
     FPoint: TDoublePoint;
   protected
-    function GetLLRect: TDoubleRect;  override;
+    function GetLLRect: TDoubleRect; override;
     function GetPoint: TDoublePoint;
   public
     constructor Create(

@@ -31,7 +31,7 @@ type
   private
     FFactory: IFileNameIteratorFactory;
   protected
-    function  CreateIterator(
+    function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
@@ -39,6 +39,7 @@ type
     constructor Create();
     destructor Destroy; override;
   end;
+
 implementation
 
 uses

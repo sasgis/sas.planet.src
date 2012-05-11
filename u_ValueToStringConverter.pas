@@ -66,6 +66,7 @@ type
       ADegrShowFormat: TDegrShowFormat
     );
   end;
+
 implementation
 
 uses
@@ -74,8 +75,11 @@ uses
 
 { TValueToStringConverter }
 
-constructor TValueToStringConverter.Create(ADistStrFormat: TDistStrFormat;
-  AIsLatitudeFirst: Boolean; ADegrShowFormat: TDegrShowFormat);
+constructor TValueToStringConverter.Create(
+  ADistStrFormat: TDistStrFormat;
+  AIsLatitudeFirst: Boolean;
+  ADegrShowFormat: TDegrShowFormat
+);
 begin
   inherited Create;
   FDistStrFormat := ADistStrFormat;
@@ -92,12 +96,12 @@ begin
   FNorthMarker := 'N';
   FEastMarker := 'E';
   FWestMarker := 'W';
-  FSouthMarker := 'S'
+  FSouthMarker := 'S';
 end;
 
 function TValueToStringConverter.AltitudeConvert(AMeters: Double): string;
 begin
-  Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeters; 
+  Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeters;
 end;
 
 function TValueToStringConverter.AreaConvert(AAreaInSqm: Double): string;
@@ -112,10 +116,10 @@ end;
 function TValueToStringConverter.DataSizeConvert(ASizeInKb: Double): string;
 begin
   if ASizeInKb > 1048576 then begin
-    result := FormatFloat('0.0', ASizeInKb/1048576) + ' ' + FUnitsGb;
+    result := FormatFloat('0.0', ASizeInKb / 1048576) + ' ' + FUnitsGb;
   end else begin
     if ASizeInKb > 1024 then begin
-      result := FormatFloat('0.0', ASizeInKb/1024) + ' ' + FUnitsMb;
+      result := FormatFloat('0.0', ASizeInKb / 1024) + ' ' + FUnitsMb;
     end else begin
       result := FormatFloat('0.0', ASizeInKb) + ' ' + FUnitsKb;
     end;
@@ -151,7 +155,7 @@ begin
       VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
       VInt := Trunc(VValue / (60 * 10000));
       VValue := VValue - VInt * (60 * 10000);
-      Result := IntToStr(VInt)+'°';
+      Result := IntToStr(VInt) + '°';
       Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
     end;
     dshCharDegr, dshSignDegr: begin
@@ -168,18 +172,18 @@ begin
   case FDistStrFormat of
     dsfKmAndM: begin
       if ADistInMeters > 1000 then begin
-        VKmDist :=ADistInMeters/1000;
+        VKmDist := ADistInMeters / 1000;
         Result := IntToStr(Trunc(VKmDist)) + ' ' + FUnitsKm + ' ';
-        Result := Result + FormatFloat('0.00', frac(VKmDist)*1000) + ' ' + FUnitsMeters;
+        Result := Result + FormatFloat('0.00', frac(VKmDist) * 1000) + ' ' + FUnitsMeters;
       end else begin
         Result := FormatFloat('0.00', ADistInMeters) + ' ' + FUnitsMeters;
       end;
     end;
     dsfSimpleKM: begin
-      if ADistInMeters<10000 then begin
+      if ADistInMeters < 10000 then begin
         Result := FormatFloat('0.00', ADistInMeters) + ' ' + FUnitsMeters;
       end else begin
-        Result := FormatFloat('0.00', ADistInMeters/1000) + ' ' + FUnitsKm;
+        Result := FormatFloat('0.00', ADistInMeters / 1000) + ' ' + FUnitsKm;
       end;
     end;
   end;

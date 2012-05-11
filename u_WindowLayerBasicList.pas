@@ -57,7 +57,7 @@ constructor TWindowLayerBasicList.Create(
 );
 begin
   inherited Create;
-  FList := TList.Create;;
+  FList := TList.Create;
   FPerfList := AParentPerfList.CreateAndAddNewSubList('Layer');
 end;
 

@@ -23,7 +23,6 @@ unit u_ZmpConfig;
 interface
 
 uses
-//  Windows,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ZmpConfig,
@@ -32,47 +31,14 @@ uses
 type
   TZmpConfig = class(TConfigDataElementComplexBase, IZmpConfig)
   private
-//    FIgnoreMIMEType: Boolean;
-//    FDefaultMIMEType: string;
-//    FExpectedMIMETypes: string;
-//    FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
-//    FIteratorSubRectSize: TPoint;
-//    FUrlBase: string;
-//    FRequestHead: string;
-//    FVersion: Variant;
 
-   protected
-//    procedure DoBeforeChangeNotify; override;
+  protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
-//    function GetIgnoreMIMEType: Boolean;
-//    procedure SetIgnoreMIMEType(AValue: Boolean);
-//
-//    function GetDefaultMIMEType: string;
-//    procedure SetDefaultMIMEType(AValue: string);
-//
-//    function GetExpectedMIMETypes: string;
-//    procedure SetExpectedMIMETypes(AValue: string);
-//
-//    function GetWaitInterval: Cardinal;
-//    procedure SetWaitInterval(AValue: Cardinal);
-
     function GetMaxConnectToServerCount: Cardinal;
     procedure SetMaxConnectToServerCount(AValue: Cardinal);
-
-//    function GetIteratorSubRectSize: TPoint;
-//    procedure SetIteratorSubRectSize(AValue: TPoint);
-//
-//    function GetUrlBase: string;
-//    procedure SetUrlBase(AValue: string);
-//
-//    function GetRequestHead: string;
-//    procedure SetRequestHead(AValue: string);
-//
-//    function GetVersion: Variant;
-//    procedure SetVersion(AValue: Variant);
   public
     constructor Create;
   end;
