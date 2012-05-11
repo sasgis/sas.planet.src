@@ -52,10 +52,22 @@ type
   end;
 
   IDrawablePolygon = interface
-  ['{EB682EC5-9DD3-4B9C-84AD-44A5EED26FA6}']
-    procedure DrawFill(Bitmap: TCustomBitmap32; Color: TColor32; Transformation: TTransformation = nil);
-    procedure DrawEdge(Bitmap: TCustomBitmap32; Color: TColor32; Transformation: TTransformation = nil);
-    procedure Draw(Bitmap: TCustomBitmap32; OutlineColor, FillColor: TColor32; Transformation: TTransformation = nil);
+    ['{EB682EC5-9DD3-4B9C-84AD-44A5EED26FA6}']
+    procedure DrawFill(
+      Bitmap: TCustomBitmap32;
+      Color: TColor32;
+      Transformation: TTransformation = nil
+    );
+    procedure DrawEdge(
+      Bitmap: TCustomBitmap32;
+      Color: TColor32;
+      Transformation: TTransformation = nil
+    );
+    procedure Draw(
+      Bitmap: TCustomBitmap32;
+      OutlineColor, FillColor: TColor32;
+      Transformation: TTransformation = nil
+    );
   end;
 
   TDrawablePolygon32 = class(TPolygon32, IDrawablePolygon)
@@ -74,7 +86,10 @@ type
     procedure ChangedSource;
     function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPath; virtual; abstract;
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   end;
 
   TPolygonLayerBase = class(TLineLayerBase)
@@ -93,7 +108,10 @@ type
     function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; virtual; abstract;
   protected
     procedure DoConfigChange; override;
-    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -340,7 +358,7 @@ var
   VIndex: Integer;
   VPoint: TDoublePoint;
 begin
-  if (AlphaComponent(FLineColor) = 0) or (FLineWidth < 1)  then begin
+  if (AlphaComponent(FLineColor) = 0) or (FLineWidth < 1) then begin
     Exit;
   end;
 
@@ -364,7 +382,7 @@ begin
     end;
   end;
 
-  if VProjectedLine =  nil then begin
+  if VProjectedLine = nil then begin
     VLocalLine := nil;
     VProjectedLine := FFactory.CreateProjectedPathByLonLatPath(ALocalConverter.ProjectionInfo, VLonLatLine, FPreparedPointsAggreagtor);
     FProjectedLine := VProjectedLine;
@@ -389,16 +407,17 @@ begin
     VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
 
     VEnum :=
-      TEnumLocalPointFilterEqual.Create(
-        TEnumLocalPointClipByRect.Create(
-          False,
-          VRectWithDelta,
-          TEnumDoublePointMapPixelToLocalPixel.Create(
-            ALocalConverter,
-            VProjectedLine.GetEnum
-          )
-        )
+      TEnumDoublePointMapPixelToLocalPixel.Create(
+        ALocalConverter,
+        VProjectedLine.GetEnum
       );
+    VEnum :=
+      TEnumLocalPointClipByRect.Create(
+        False,
+        VRectWithDelta,
+        VEnum
+      );
+    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
     VLocalLine := FFactory.CreateLocalPathByEnum(ALocalConverter, VEnum, FPreparedPointsAggreagtor);
     FLocalLine := VLocalLine;
   end;
@@ -507,7 +526,7 @@ var
   VIndex: Integer;
   VPoint: TDoublePoint;
 begin
-  if not FFillVisible  and not FLineVisible then begin
+  if not FFillVisible and not FLineVisible then begin
     Exit;
   end;
 
@@ -532,7 +551,7 @@ begin
     end;
   end;
 
-  if VProjectedLine =  nil then begin
+  if VProjectedLine = nil then begin
     VLocalLine := nil;
     VProjectedLine := FFactory.CreateProjectedPolygonByLonLatPolygon(ALocalConverter.ProjectionInfo, VLonLatLine, FPreparedPointsAggreagtor);
     FProjectedLine := VProjectedLine;
@@ -558,16 +577,17 @@ begin
     VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
 
     VEnum :=
-      TEnumLocalPointFilterEqual.Create(
-        TEnumLocalPointClipByRect.Create(
-          True,
-          VRectWithDelta,
-          TEnumDoublePointMapPixelToLocalPixel.Create(
-            ALocalConverter,
-            VProjectedLine.GetEnum
-          )
-        )
+      TEnumDoublePointMapPixelToLocalPixel.Create(
+        ALocalConverter,
+        VProjectedLine.GetEnum
       );
+    VEnum :=
+      TEnumLocalPointClipByRect.Create(
+        True,
+        VRectWithDelta,
+        VEnum
+      );
+    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
     VLocalLine := FFactory.CreateLocalPolygonByEnum(ALocalConverter, VEnum, FPreparedPointsAggreagtor);
     FLocalLine := VLocalLine;
   end;
@@ -786,19 +806,14 @@ var
   VHalfSize: Double;
   VRect: TRect;
 begin
-  if
-    (APosOnBitmap.x > 0) and
+  if (APosOnBitmap.x > 0) and
     (APosOnBitmap.y > 0) and
     (APosOnBitmap.x < ABitmapSize.X) and
-    (APosOnBitmap.y < ABitmapSize.Y)
-  then begin
+    (APosOnBitmap.y < ABitmapSize.Y) then begin
     VHalfSize := ASize / 2;
     VRect.TopLeft :=
       PointFromDoublePoint(
-        DoublePoint(
-          APosOnBitmap.X - VHalfSize,
-          APosOnBitmap.Y - VHalfSize
-        ),
+        DoublePoint(APosOnBitmap.X - VHalfSize, APosOnBitmap.Y - VHalfSize),
         prToTopLeft
       );
     VRect.Right := VRect.Left + ASize;
@@ -1049,7 +1064,8 @@ end;
 procedure TPolygonEditPointsSetLayer.PreparePoints(
   const AProjection: IProjectionInfo;
   out AProjectedPoints: IDoublePointsAggregator;
-  out AActivePointIndex: Integer);
+  out AActivePointIndex: Integer
+);
 var
   VLine: ILonLatPolygonWithSelected;
   VConverter: ICoordConverter;
@@ -1105,4 +1121,3 @@ begin
 end;
 
 end.
-

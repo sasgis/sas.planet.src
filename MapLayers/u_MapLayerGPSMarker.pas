@@ -16,7 +16,6 @@ uses
   i_ViewPortState,
   u_MapLayerBasic;
 
-
 type
   TMapLayerGPSMarker = class(TMapLayerBasicNoBitmap)
   private
@@ -36,7 +35,10 @@ type
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
     procedure OnTimer;
-    procedure PrepareMarker(const ASpeed, AAngle: Double; AForceStopped: Boolean);
+    procedure PrepareMarker(
+      const ASpeed, AAngle: Double;
+      AForceStopped: Boolean
+    );
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -129,7 +131,7 @@ procedure TMapLayerGPSMarker.OnTimer;
 var
   VGPSPosition: IGPSPosition;
   VpPos: PSingleGPSData;
-  VForceStoppedMarker: Boolean;  
+  VForceStoppedMarker: Boolean;
 begin
   if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
     ViewUpdateLock;
@@ -143,7 +145,7 @@ begin
         // ok
         FFixedLonLat.X := VpPos^.PositionLon;
         FFixedLonLat.Y := VpPos^.PositionLat;
-        VForceStoppedMarker:=((not VpPos^.AllowCalcStats) or NoData_Float64(VpPos^.Speed_KMH) or NoData_Float64(VpPos^.Heading));
+        VForceStoppedMarker := ((not VpPos^.AllowCalcStats) or NoData_Float64(VpPos^.Speed_KMH) or NoData_Float64(VpPos^.Heading));
         PrepareMarker(VpPos^.Speed_KMH, VpPos^.Heading, VForceStoppedMarker);
         Show;
         SetNeedRedraw;
@@ -161,19 +163,18 @@ procedure TMapLayerGPSMarker.PaintLayer(
 var
   VMarker: IBitmapMarker;
   VFixedOnView: TDoublePoint;
+  VTargetPointFloat: TDoublePoint;
   VTargetPoint: TPoint;
 begin
   VMarker := FMarker;
   if VMarker <> nil then begin
     VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-    VTargetPoint :=
-      PointFromDoublePoint(
-        DoublePoint(
-          VFixedOnView.X - VMarker.AnchorPoint.X,
-          VFixedOnView.Y - VMarker.AnchorPoint.Y
-        ),
-        prToTopLeft
+    VTargetPointFloat :=
+      DoublePoint(
+        VFixedOnView.X - VMarker.AnchorPoint.X,
+        VFixedOnView.Y - VMarker.AnchorPoint.Y
       );
+    VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
     if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
       BlockTransfer(
         ABuffer,

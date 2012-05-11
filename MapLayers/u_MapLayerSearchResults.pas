@@ -70,7 +70,7 @@ constructor TSearchResultsLayer.Create(
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
-  FLastSearchResults:=ALastSearchResults;
+  FLastSearchResults := ALastSearchResults;
   FMarkerProvider := AMarkerProvider;
 
   LinksList.Add(
@@ -114,10 +114,11 @@ var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
   VVisualConverter: ILocalCoordConverter;
+  VTargetPointFloat: TDoublePoint;
   VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
   VMarker: IBitmapMarker;
-  i:integer;
+  i: integer;
   VSearchResults: IGeoCodeResult;
 begin
   VVisualConverter := ViewCoordConverter;
@@ -127,15 +128,13 @@ begin
   if VSearchResults <> nil then begin
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
-      VTargetPoint :=
-        PointFromDoublePoint(
-          DoublePoint(
-            VFixedOnView.X - VMarker.AnchorPoint.X,
-            VFixedOnView.Y - VMarker.AnchorPoint.Y
-          ),
-          prToTopLeft
+      VFixedOnView := VVisualConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
+      VTargetPointFloat :=
+        DoublePoint(
+          VFixedOnView.X - VMarker.AnchorPoint.X,
+          VFixedOnView.Y - VMarker.AnchorPoint.Y
         );
+      VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
       if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
         BlockTransfer(
           ABuffer,
@@ -190,11 +189,17 @@ begin
     VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if((VLonLatRect.Right>VPlacemark.GetPoint.X)and(VLonLatRect.Left<VPlacemark.GetPoint.X)and
-        (VLonLatRect.Bottom<VPlacemark.GetPoint.Y)and(VLonLatRect.Top>VPlacemark.GetPoint.Y))then begin
-         AItem := TVectorDataItemPoint.Create(THtmlToHintTextConverterStuped.Create,VPlacemark.GetAddress+#13#10+VPlacemark.GetDesc,VPlacemark.GetFullDesc,VPlacemark.GetPoint);
-         AItemS := 0;
-         exit;
+      if ((VLonLatRect.Right > VPlacemark.GetPoint.X) and (VLonLatRect.Left < VPlacemark.GetPoint.X) and
+        (VLonLatRect.Bottom < VPlacemark.GetPoint.Y) and (VLonLatRect.Top > VPlacemark.GetPoint.Y)) then begin
+        AItem :=
+          TVectorDataItemPoint.Create(
+            THtmlToHintTextConverterStuped.Create,
+            VPlacemark.GetAddress + #13#10 + VPlacemark.GetDesc,
+            VPlacemark.GetFullDesc,
+            VPlacemark.GetPoint
+          );
+        AItemS := 0;
+        exit;
       end;
     end;
   end;

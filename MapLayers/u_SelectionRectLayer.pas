@@ -101,7 +101,7 @@ begin
   ViewUpdateLock;
   try
     if FSelection.IsEmpty then begin
-      Hide
+      Hide;
     end else begin
       FSelectedLonLat := FSelection.GetRect;
       SetNeedRedraw;

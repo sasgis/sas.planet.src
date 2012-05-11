@@ -20,7 +20,7 @@ type
   TNavToMarkLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IMapLayerNavToPointMarkerConfig;
-    FNavToPoint:  INavigationToPoint;
+    FNavToPoint: INavigationToPoint;
     FArrowMarkerProvider: IBitmapMarkerProviderChangeable;
     FArrowMarkerProviderStatic: IBitmapMarkerProvider;
     FReachedMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -135,6 +135,7 @@ var
   VDistInPixel: Double;
   VAngle: Double;
   VVisualConverter: ILocalCoordConverter;
+  VTargetPointFloat: TDoublePoint;
   VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
   VMarker: IBitmapMarker;
@@ -151,7 +152,7 @@ begin
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
   VCrossDist := FConfig.CrossDistInPixels;
   if VDistInPixel < VCrossDist then begin
-    VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(FMarkPoint);
+    VFixedOnView := VVisualConverter.LonLat2LocalPixelFloat(FMarkPoint);
     VMarker := FReachedMarker;
   end else begin
     VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
@@ -161,7 +162,7 @@ begin
     VFixedOnView := VVisualConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
     VMarkerProvider := FArrowMarkerProviderStatic;
     if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
-      VAngle := ArcSin(VDelta.X/VDistInPixel) / Pi * 180;
+      VAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;
       if VDelta.Y > 0 then begin
         VAngle := 180 - VAngle;
       end;
@@ -170,14 +171,12 @@ begin
       VMarker := VMarkerProvider.GetMarker;
     end;
   end;
-  VTargetPoint :=
-    PointFromDoublePoint(
-      DoublePoint(
-        VFixedOnView.X - VMarker.AnchorPoint.X,
-        VFixedOnView.Y - VMarker.AnchorPoint.Y
-      ),
-      prToTopLeft
+  VTargetPointFloat :=
+    DoublePoint(
+      VFixedOnView.X - VMarker.AnchorPoint.X,
+      VFixedOnView.Y - VMarker.AnchorPoint.Y
     );
+  VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
   if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
     BlockTransfer(
       ABuffer,

@@ -56,9 +56,15 @@ type
   TMapLayerBasicNoBitmap = class(TMapLayerBase)
   private
     FOnPaintCounter: IInternalPerformanceCounter;
-    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+    procedure OnPaintLayer(
+      Sender: TObject;
+      Buffer: TBitmap32
+    );
   protected
-    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); virtual; abstract;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); virtual; abstract;
   protected
     procedure DoRedraw; override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
@@ -255,7 +261,7 @@ begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(APerfList, FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
-//  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
+  //  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
   FNeedUpdateLayerSizeCS := MakeSyncFake(Self);
 end;
 
@@ -414,8 +420,10 @@ begin
   Layer.Changed;
 end;
 
-procedure TMapLayerBasicNoBitmap.OnPaintLayer(Sender: TObject;
-  Buffer: TBitmap32);
+procedure TMapLayerBasicNoBitmap.OnPaintLayer(
+  Sender: TObject;
+  Buffer: TBitmap32
+);
 var
   VLocalConverter: ILocalCoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;

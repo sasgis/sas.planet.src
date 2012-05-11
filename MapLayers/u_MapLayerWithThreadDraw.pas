@@ -143,8 +143,9 @@ begin
     try
       DrawBitmap(AOperationID, ACancelNotifier);
     finally
-      if Assigned(FBgDrawCounter) then
+      if Assigned(FBgDrawCounter) then begin
         FBgDrawCounter.FinishOperation(VCounterContext);
+      end;
     end;
 
     VDelicateRedrawCounter := InterlockedExchange(FDelicateRedrawCounter, 0);

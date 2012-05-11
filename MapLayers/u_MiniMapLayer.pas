@@ -100,19 +100,67 @@ type
 
     procedure DrawMainViewRect;
 
-    procedure PlusButtonMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure PlusButtonMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure PlusButtonMouseDown(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure PlusButtonMouseUP(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
 
-    procedure MinusButtonMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure MinusButtonMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure MinusButtonMouseDown(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure MinusButtonMouseUP(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
 
-    procedure LeftBorderMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LeftBorderMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LeftBorderMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure LeftBorderMouseDown(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure LeftBorderMouseUP(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure LeftBorderMouseMove(
+      Sender: TObject;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
 
-    procedure LayerMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LayerMouseUP(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure LayerMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure LayerMouseDown(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure LayerMouseUP(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
+    procedure LayerMouseMove(
+      Sender: TObject;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
 
 
     function GetActualZoom(const AVisualCoordConverter: ILocalCoordConverter): Byte;
@@ -175,7 +223,7 @@ type
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       const AConfig: IMiniMapLayerConfig;
       const AViewConfig: IGlobalViewMainConfig;
-      const APostProcessingConfig:IBitmapPostProcessingConfig;
+      const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AIconsList: IMapTypeIconsList;
       const AErrorLogger: ITileErrorLogger;
@@ -215,7 +263,7 @@ constructor TMiniMapLayer.Create(
   const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   const AConfig: IMiniMapLayerConfig;
   const AViewConfig: IGlobalViewMainConfig;
-  const APostProcessingConfig:IBitmapPostProcessingConfig;
+  const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AIconsList: IMapTypeIconsList;
   const AErrorLogger: ITileErrorLogger;
@@ -365,7 +413,7 @@ destructor TMiniMapLayer.Destroy;
 begin
   FMainMapCS := nil;
   FLayersSetCS := nil;
-  
+
   FConverterFactory := nil;
   FDrawTask := nil;
   inherited;
@@ -397,6 +445,7 @@ var
   VVisualMapCenterInRelative: TDoublePoint;
   VVisualMapCenterInLayerMap: TDoublePoint;
   VLocalTopLeftAtMap: TPoint;
+  VLocalTopLeftAtMapFloat: TDoublePoint;
   VLayerSize: TPoint;
 begin
   VVisualMapCenter := ANewVisualCoordConverter.GetCenterMapPixelFloat;
@@ -407,14 +456,12 @@ begin
   VZoom := GetActualZoom(ANewVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
   VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
-  VLocalTopLeftAtMap :=
-    PointFromDoublePoint(
-      DoublePoint(
-        VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
-        VVisualMapCenterInLayerMap.Y - VLayerSize.Y / 2
-      ),
-      prToTopLeft
+  VLocalTopLeftAtMapFloat :=
+    DoublePoint(
+      VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
+      VVisualMapCenterInLayerMap.Y - VLayerSize.Y / 2
     );
+  VLocalTopLeftAtMap := PointFromDoublePoint(VLocalTopLeftAtMapFloat, prToTopLeft);
 
   Result := ConverterFactory.CreateConverterNoScale(
     Rect(0, 0, VLayerSize.X, VLayerSize.Y),
@@ -528,7 +575,7 @@ begin
     FIconsList
   );
   try
-   VGenerator.BuildControls;
+    VGenerator.BuildControls;
   finally
     FreeAndNil(VGenerator);
   end;
@@ -584,10 +631,7 @@ begin
       VBitmapRect.Bottom := VBitmapRect.Bottom + FViewRectMoveDelta.Y;
 
       VBitmapSize := Point(FViewRectDrawLayer.Bitmap.Width, FViewRectDrawLayer.Bitmap.Height);
-      if (VBitmapRect.Left >= 0) or (VBitmapRect.Top >= 0)
-        or (VBitmapRect.Right <= VBitmapSize.X)
-        or (VBitmapRect.Bottom <= VBitmapSize.Y)
-      then begin
+      if (VBitmapRect.Left >= 0) or (VBitmapRect.Top >= 0) or (VBitmapRect.Right <= VBitmapSize.X) or (VBitmapRect.Bottom <= VBitmapSize.Y) then begin
         VPolygon := TPolygon32.Create;
         try
           VPolygon.Antialiased := true;
@@ -596,15 +640,19 @@ begin
           VPolygon.Add(FixedPoint(VBitmapRect.Right, VBitmapRect.Bottom));
           VPolygon.Add(FixedPoint(VBitmapRect.Left, VBitmapRect.Bottom));
           VPolygon.DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clWhite32, (VZoomDelta) * 35));
-          with VPolygon.Outline do try
-            with Grow(Fixed(3.2 / 2), 0.5) do try
-              FillMode := pfWinding;
-              DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clNavy32, (VZoomDelta)*43));
+          with VPolygon.Outline do begin
+            try
+              with Grow(Fixed(3.2 / 2), 0.5) do begin
+                try
+                  FillMode := pfWinding;
+                  DrawFill(FViewRectDrawLayer.Bitmap, SetAlpha(clNavy32, (VZoomDelta) * 43));
+                finally
+                  Free;
+                end;
+              end;
             finally
               Free;
             end;
-          finally
-            Free;
           end;
         finally
           VPolygon.Free;
@@ -777,8 +825,12 @@ begin
   FMinusButton.MouseEvents := false;
 end;
 
-procedure TMiniMapLayer.LayerMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.LayerMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VLayerSize: TPoint;
   VBitmapCenter: TDoublePoint;
@@ -787,7 +839,9 @@ var
 begin
   FParentMap.PopupMenu := nil;
   case button of
-    mbRight: FParentMap.PopupMenu := FPopup;
+    mbRight: begin
+      FParentMap.PopupMenu := FPopup;
+    end;
     mbLeft: begin
       VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
       VBitmapCenter := DoublePoint(VLayerSize.X / 2, VLayerSize.Y / 2);
@@ -801,8 +855,11 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.LayerMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
+procedure TMiniMapLayer.LayerMouseMove(
+  Sender: TObject;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VBitmapSize: TPoint;
   VBitmapCenter: TDoublePoint;
@@ -837,8 +894,12 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.LayerMouseUP(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.LayerMouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VBitmapCoordConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -871,8 +932,12 @@ begin
   FPosMoved := False;
 end;
 
-procedure TMiniMapLayer.LeftBorderMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.LeftBorderMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     FLeftBorderMoved := true;
@@ -880,8 +945,11 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.LeftBorderMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.LeftBorderMouseMove(
+  Sender: TObject;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VNewWidth: Integer;
   VVisibleSize: TPoint;
@@ -902,8 +970,12 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.LeftBorderMouseUP(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.LeftBorderMouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if FLeftBorderMoved then begin
     ViewUpdateLock;
@@ -916,16 +988,24 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.MinusButtonMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.MinusButtonMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     FMinusButtonPressed := True;
   end;
 end;
 
-procedure TMiniMapLayer.MinusButtonMouseUP(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.MinusButtonMouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     if FMinusButtonPressed then begin
@@ -1087,16 +1167,24 @@ begin
   end;
 end;
 
-procedure TMiniMapLayer.PlusButtonMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.PlusButtonMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     FPlusButtonPressed := True;
   end;
 end;
 
-procedure TMiniMapLayer.PlusButtonMouseUP(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayer.PlusButtonMouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     if FPlusButtonPressed then begin
@@ -1284,5 +1372,3 @@ begin
 end;
 
 end.
-
-

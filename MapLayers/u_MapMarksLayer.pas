@@ -100,21 +100,28 @@ type
     );
     destructor Destroy; override;
 
-    procedure MouseOnReg(const xy: TPoint; out AMark: IMark; out AMarkS: Double); overload;
-    procedure MouseOnReg(const xy: TPoint; out AMark: IMark); overload;
+    procedure MouseOnReg(
+      const xy: TPoint;
+      out AMark: IMark;
+      out AMarkS: Double
+    ); overload;
+    procedure MouseOnReg(
+      const xy: TPoint;
+      out AMark: IMark
+    ); overload;
 
     function GetIntersection(
       const ACurrLonLat: TDoublePoint;
       var AIntersectionLonLat: TDoublePoint;
       const AMarkPoly: IMarkPoly;
       const AProjection: IProjectionInfo
-    ):boolean; overload;
+    ): boolean; overload;
     function GetIntersection(
       const ACurrLonLat: TDoublePoint;
       var AIntersectionLonLat: TDoublePoint;
       const AMarkLine: IMarkLine;
       const AProjection: IProjectionInfo
-    ):boolean; overload;
+    ): boolean; overload;
     procedure Redraw; override;
   end;
 
@@ -257,52 +264,52 @@ begin
       VTileSourceRect := VGeoConvert.PixelRect2TileRect(VBitmapOnMapPixelRect, VZoom);
       VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
 
-        if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          while VTileIterator.Next(VTile) do begin
+      if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        while VTileIterator.Next(VTile) do begin
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            break;
+          end;
+          VTileConverter := ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
+
+          VCurrTilePixelRect := VTileConverter.GetRectInMapPixel;
+          VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
+
+          VBitmapTile :=
+            VProv.GetBitmapRect(
+              AOperationID,
+              ACancelNotifier,
+              VTileConverter
+            );
+          Layer.Bitmap.Lock;
+          try
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
-            VTileConverter := ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
-
-            VCurrTilePixelRect := VTileConverter.GetRectInMapPixel;
-            VCurrTileOnBitmapRect := VBitmapConverter.MapRect2LocalRect(VCurrTilePixelRect);
-
-            VBitmapTile :=
-              VProv.GetBitmapRect(
-                AOperationID,
-                ACancelNotifier,
-                VTileConverter
+            if VBitmapTile <> nil then begin
+              BlockTransfer(
+                Layer.Bitmap,
+                VCurrTileOnBitmapRect.Left,
+                VCurrTileOnBitmapRect.Top,
+                Layer.Bitmap.ClipRect,
+                VBitmapTile.Bitmap,
+                VBitmapTile.Bitmap.BoundsRect,
+                dmOpaque
               );
-            Layer.Bitmap.Lock;
-            try
-              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-                break;
-              end;
-              if VBitmapTile <> nil then begin
-                BlockTransfer(
-                  Layer.Bitmap,
-                  VCurrTileOnBitmapRect.Left,
-                  VCurrTileOnBitmapRect.Top,
-                  Layer.Bitmap.ClipRect,
-                  VBitmapTile.Bitmap,
-                  VBitmapTile.Bitmap.BoundsRect,
-                  dmOpaque
-                );
-              end else begin
-                Layer.Bitmap.FillRectS(
-                  VCurrTileOnBitmapRect.Left,
-                  VCurrTileOnBitmapRect.Top,
-                  VCurrTileOnBitmapRect.Right,
-                  VCurrTileOnBitmapRect.Bottom,
-                  0
-                );
-              end;
-              SetBitmapChanged;
-            finally
-              Layer.Bitmap.UnLock;
+            end else begin
+              Layer.Bitmap.FillRectS(
+                VCurrTileOnBitmapRect.Left,
+                VCurrTileOnBitmapRect.Top,
+                VCurrTileOnBitmapRect.Right,
+                VCurrTileOnBitmapRect.Bottom,
+                0
+              );
             end;
+            SetBitmapChanged;
+          finally
+            Layer.Bitmap.UnLock;
           end;
         end;
+      end;
     end else begin
       Layer.Bitmap.Lock;
       try
@@ -335,7 +342,7 @@ var
   VVisualConverter: ILocalCoordConverter;
   VMarksSubset: IMarksSubset;
   VMarksEnum: IEnumUnknown;
-  VSquare:Double;
+  VSquare: Double;
   i: Cardinal;
   VCounterContext: TInternalPerformanceCounterContext;
   VMarkLine: IMarkLine;
@@ -347,7 +354,7 @@ begin
   try
     AMark := nil;
     AMarkS := 0;
-    
+
     FMarksSubsetCS.BeginRead;
     try
       VMarksSubset := FMarksSubset;
@@ -372,8 +379,8 @@ begin
         VMarksEnum := VMarksSubset.GetEnum;
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
           VMarkLonLatRect := VMark.LLRect;
-          if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
-          (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
+          if ((VLonLatRect.Right > VMarkLonLatRect.Left) and (VLonLatRect.Left < VMarkLonLatRect.Right) and
+            (VLonLatRect.Bottom < VMarkLonLatRect.Top) and (VLonLatRect.Top > VMarkLonLatRect.Bottom)) then begin
             if Supports(VMark, IMarkPoint) then begin
               AMark := VMark;
               AMarkS := 0;
@@ -388,12 +395,10 @@ begin
                 end;
               end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
                 VProjectdPolygon := GetProjectedPolygon(VMarkPoly, VLocalConverter.ProjectionInfo);
-                if
-                  VProjectdPolygon.IsPointInPolygon(VPixelPos) or
-                  VProjectdPolygon.IsPointOnBorder(VPixelPos, (VMarkPoly.LineWidth / 2) + 3)
-                then begin
+                if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
+                  VProjectdPolygon.IsPointOnBorder(VPixelPos, (VMarkPoly.LineWidth / 2) + 3) then begin
                   VSquare := VProjectdPolygon.CalcArea;
-                  if (AMark = nil) or (VSquare<AMarkS) then begin
+                  if (AMark = nil) or (VSquare < AMarkS) then begin
                     AMark := VMark;
                     AMarkS := VSquare;
                   end;
@@ -480,7 +485,10 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(const xy: TPoint; out AMark: IMark);
+procedure TMapMarksLayer.MouseOnReg(
+  const xy: TPoint;
+  out AMark: IMark
+);
 var
   VMarkS: Double;
 begin
@@ -511,10 +519,8 @@ begin
   while VEnum.Next(VLonLatPoint) do begin
     VConverter.CheckLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    if
-      (VCurrPixel.x>=VMapPoint.X-r)and(VCurrPixel.x<=VMapPoint.X+r)and
-      (VCurrPixel.y>=VMapPoint.Y-r)and(VCurrPixel.y<=VMapPoint.Y+r)
-    then begin
+    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
+      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
       AIntersectionLonLat := VLonLatPoint;
       Result := true;
       exit;
@@ -546,10 +552,8 @@ begin
   while VEnum.Next(VLonLatPoint) do begin
     VConverter.CheckLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    if
-      (VCurrPixel.x>=VMapPoint.X-r)and(VCurrPixel.x<=VMapPoint.X+r)and
-      (VCurrPixel.y>=VMapPoint.Y-r)and(VCurrPixel.y<=VMapPoint.Y+r)
-    then begin
+    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
+      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
       AIntersectionLonLat := VLonLatPoint;
       Result := true;
       exit;

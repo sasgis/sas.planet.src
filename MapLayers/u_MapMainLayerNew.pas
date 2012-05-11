@@ -65,7 +65,7 @@ type
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapsConfig: IMainMapsConfig;
-      const APostProcessingConfig:IBitmapPostProcessingConfig;
+      const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AConfig: IMainMapLayerConfig;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: IJclNotifier

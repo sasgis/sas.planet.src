@@ -32,7 +32,7 @@ type
     FTileMatrixCS: IReadWriteSync;
 
     FLayerProvider: IBitmapLayerProvider;
-    FLayerProviderCS:IReadWriteSync;
+    FLayerProviderCS: IReadWriteSync;
 
     FLayer: TCustomLayer;
 
@@ -69,7 +69,10 @@ type
       const ALayerProvider: IBitmapLayerProvider
     );
 
-    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+    procedure OnPaintLayer(
+      Sender: TObject;
+      Buffer: TBitmap32
+    );
     procedure PaintLayer(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter;
@@ -312,9 +315,9 @@ begin
         FPrepareLayerProviderCounter.FinishOperation(VCounterContext);
       end;
       if VProvider = nil then begin
-        Exit
+        Exit;
       end;
-      LayerProvider :=  VProvider;
+      LayerProvider := VProvider;
     end;
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
@@ -458,7 +461,7 @@ procedure TTiledLayerWithThreadBase.SetLayerProvider(
 begin
   FLayerProviderCS.BeginWrite;
   try
-    FLayerProvider :=  Value;
+    FLayerProvider := Value;
   finally
     FLayerProviderCS.EndWrite;
   end;
@@ -504,7 +507,7 @@ procedure TTiledLayerWithThreadBase.SetTileMatrix(const Value: ITileMatrix);
 begin
   FTileMatrixCS.BeginWrite;
   try
-    FTileMatrix :=  Value;
+    FTileMatrix := Value;
   finally
     FTileMatrixCS.EndWrite;
   end;

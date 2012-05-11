@@ -155,18 +155,16 @@ procedure TCalcLineLayer.DrawPointText(
 var
   VRect: TRect;
 begin
-  if
-    (APosOnBitmap.x > 0) and
+  if (APosOnBitmap.x > 0) and
     (APosOnBitmap.y > 0) and
     (APosOnBitmap.x < ABitmapSize.X - 12 - ATextSize.cx) and
-    (APosOnBitmap.y < ABitmapSize.Y - ATextSize.cy)
-  then begin
+    (APosOnBitmap.y < ABitmapSize.Y - ATextSize.cy) then begin
     ABuffer.Font.Size := AFontSize;
     VRect.Left := Trunc(APosOnBitmap.x + 12);
     VRect.Top := Trunc(APosOnBitmap.Y);
     VRect.Right := VRect.Left + ATextSize.cx + 4;
     VRect.Bottom := VRect.Top + ATextSize.cy + 4;
-    ABuffer.FillRectTS(VRect, ATextBGColor );
+    ABuffer.FillRectTS(VRect, ATextBGColor);
     ABuffer.RenderText(VRect.Left + 2, VRect.Top + 2, AText, 3, ATextColor);
   end;
 end;
@@ -365,8 +363,8 @@ begin
           VCurrProjected := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
           VSkipPoint :=
             (
-              (abs(VPrevProjected.X - VCurrProjected.X) < 60) and
-              (abs(VPrevProjected.Y - VCurrProjected.Y) < 15)
+            (abs(VPrevProjected.X - VCurrProjected.X) < 60) and
+            (abs(VPrevProjected.Y - VCurrProjected.Y) < 15)
             );
           if not VSkipPoint then begin
             AProjectedPoints.Add(VCurrProjected);

@@ -64,7 +64,10 @@ type
       ATargetBitmap: TBitmap32
     );
     function GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
-    procedure ModifyLenAndWidth(var ALen: Double; var AWidth: Integer);
+    procedure ModifyLenAndWidth(
+      var ALen: Double;
+      var AWidth: Integer
+    );
     // vertical
     procedure RedrawVerticalScaleLegend;
     procedure DrawVerticalScaleLegend(
@@ -204,16 +207,14 @@ begin
   for I := 1 to FTmpBitmap.Width - 2 do begin
     for J := 1 to FTmpBitmap.Height - 2 do begin
       if (FTmpBitmap.Pixel[I, J] <> TextColor) and (FTmpBitmap.Pixel[I, J] <> OutLineColor) then begin
-        if
-          (FTmpBitmap.Pixel[I + 1, J] = TextColor) or
+        if (FTmpBitmap.Pixel[I + 1, J] = TextColor) or
           (FTmpBitmap.Pixel[I - 1, J] = TextColor) or
           (FTmpBitmap.Pixel[I, J + 1] = TextColor) or
           (FTmpBitmap.Pixel[I, J - 1] = TextColor) or
           (FTmpBitmap.Pixel[I + 1, J + 1] = TextColor) or
           (FTmpBitmap.Pixel[I - 1, J + 1] = TextColor) or
           (FTmpBitmap.Pixel[I + 1, J - 1] = TextColor) or
-          (FTmpBitmap.Pixel[I - 1, J - 1] = TextColor)
-        then begin
+          (FTmpBitmap.Pixel[I - 1, J - 1] = TextColor) then begin
           FTmpBitmap.Pixel[I, J] := OutLineColor;
         end;
       end;
@@ -273,22 +274,19 @@ begin
   end;
 
   case FConfig.NumbersFormat of
-    slnfNice:
-      begin
-        VHalfValue := IntToStr(Round(num/2)) + VUnitsString;
-        VFullValue := IntToStr(Round(num)) + VUnitsString;
-      end;
-    slnfScienceRound:
-      begin
-        rnum := Round(num/2);
-        VHalfValue := IntToStr(rnum) + VUnitsString;
-        VFullValue := IntToStr(rnum*2) + VUnitsString;
-      end
-  else
-    begin
-      VHalfValue := FloatToStrF(num/2, ffFixed, 10, 2) + VUnitsString;
-      VFullValue := FloatToStrF(num, ffFixed, 10, 2) + VUnitsString;
+    slnfNice: begin
+      VHalfValue := IntToStr(Round(num / 2)) + VUnitsString;
+      VFullValue := IntToStr(Round(num)) + VUnitsString;
     end;
+    slnfScienceRound: begin
+      rnum := Round(num / 2);
+      VHalfValue := IntToStr(rnum) + VUnitsString;
+      VFullValue := IntToStr(rnum * 2) + VUnitsString;
+    end;
+  else begin
+    VHalfValue := FloatToStrF(num / 2, ffFixed, 10, 2) + VUnitsString;
+    VFullValue := FloatToStrF(num, ffFixed, 10, 2) + VUnitsString;
+  end;
   end;
 
   DrawGorizontalScaleLegend(
@@ -323,11 +321,22 @@ begin
   for I := 0 to 4 do begin
     VStartX := I * (VWidth div 4);
     case I of
-      0:  if not FConfig.Extended then VText := '0' else VText := '';
-      2:  VText := AHalfValue;
-      4:  VText := AFullValue;
-    else
+      0: begin
+        if not FConfig.Extended then begin
+          VText := '0';
+        end else begin
+          VText := '';
+        end;
+      end;
+      2: begin
+        VText := AHalfValue;
+      end;
+      4: begin
+        VText := AFullValue;
+      end;
+    else begin
       VText := '';
+    end;
     end;
     DrawGorizontalScaleMarks(
       ALineColor,
@@ -369,7 +378,7 @@ begin
     VStartY := VHeight - 20;
   end;
   ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos - 1, VHeight - 1, AOutLineColor);
-  ATargetBitmap.Line(AScalePos,     VStartY, AScalePos,     VHeight - 1, ALineColor);
+  ATargetBitmap.Line(AScalePos, VStartY, AScalePos, VHeight - 1, ALineColor);
   ATargetBitmap.Line(AScalePos + 1, VStartY, AScalePos + 1, VHeight - 1, AOutLineColor);
   ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
 end;
@@ -400,61 +409,61 @@ procedure TLayerScaleLine.ModifyLenAndWidth(
   const
     CNiceValues: array [0..54] of Double =
       (
-        40000000,
-        30000000,
-        20000000,
-        15000000,
-        10000000,
-         8000000,
-         5000000,
-         4000000,
-         3000000,
-         2000000,
-         1500000,
-         1000000,
-          800000,
-          500000,
-          400000,
-          300000,
-          200000,
-          150000,
-          100000,
-           80000,
-           50000,
-           40000,
-           30000,
-           20000,
-           15000,
-           10000,
-            8000,
-            5000,
-            4000,
-            3000,
-            2000,
-            1500,
-            1000,
-             800,
-             500,
-             400,
-             300,
-             200,
-             150,
-             100,
-              80,
-              50,
-              40,
-              30,
-              20,
-              15,
-              10,
-               8,
-               6,
-               4,
-               3,
-               2,
-               1.5,
-               1,
-               0.5
+      40000000,
+      30000000,
+      20000000,
+      15000000,
+      10000000,
+      8000000,
+      5000000,
+      4000000,
+      3000000,
+      2000000,
+      1500000,
+      1000000,
+      800000,
+      500000,
+      400000,
+      300000,
+      200000,
+      150000,
+      100000,
+      80000,
+      50000,
+      40000,
+      30000,
+      20000,
+      15000,
+      10000,
+      8000,
+      5000,
+      4000,
+      3000,
+      2000,
+      1500,
+      1000,
+      800,
+      500,
+      400,
+      300,
+      200,
+      150,
+      100,
+      80,
+      50,
+      40,
+      30,
+      20,
+      15,
+      10,
+      8,
+      6,
+      4,
+      3,
+      2,
+      1.5,
+      1,
+      0.5
       );
   var
     i: Integer;
@@ -466,6 +475,7 @@ procedure TLayerScaleLine.ModifyLenAndWidth(
       end;
     end;
   end;
+
 var
   VNewLen: Double;
   VNewWidth: Integer;
@@ -478,7 +488,7 @@ begin
   end;
 end;
 
-{$ENDREGION} // Gorizontal Scale Legend
+{$ENDREGION}// Gorizontal Scale Legend
 
 {$REGION 'Vertical Scale Legend'}
 
@@ -512,18 +522,15 @@ begin
 
   case FConfig.NumbersFormat of
 
-   // slnfNice: // TODO
+    // slnfNice: // TODO
 
-    slnfScienceRound:
-      begin
-        VHalfValue := IntToStr(Round(VHalfLenght)) + VUnitsString;
-        VFullValue := IntToStr(Round(VFullLenght)) + VUnitsString;
-      end
-  else
-    begin
-      VHalfValue := FloatToStrF(VHalfLenght, ffFixed, 10, 2) + VUnitsString;
-      VFullValue := FloatToStrF(VFullLenght, ffFixed, 10, 2) + VUnitsString;
-    end;
+    slnfScienceRound: begin
+      VHalfValue := IntToStr(Round(VHalfLenght)) + VUnitsString;
+      VFullValue := IntToStr(Round(VFullLenght)) + VUnitsString;
+    end else begin
+    VHalfValue := FloatToStrF(VHalfLenght, ffFixed, 10, 2) + VUnitsString;
+    VFullValue := FloatToStrF(VFullLenght, ffFixed, 10, 2) + VUnitsString;
+  end;
   end;
 
   DrawVerticalScaleLegend(
@@ -559,10 +566,15 @@ begin
     for I := 1 to 4 do begin
       VStartY := (VBitmapSize.Y - 3) - I * (VHeight div 4);
       case I of
-        2:  VText := AHalfValue;
-        4:  VText := AFullValue;
-      else
+        2: begin
+          VText := AHalfValue;
+        end;
+        4: begin
+          VText := AFullValue;
+        end;
+      else begin
         VText := '';
+      end;
       end;
       DrawVerticalScaleMarks(
         ALineColor,
@@ -602,13 +614,16 @@ begin
   end else begin
     VStartX := 20;
   end;
-  ATargetBitmap.HorzLineS(VStartX, AScalePos - 1, 0,             AOutLineColor);
-  ATargetBitmap.HorzLineS(VStartX, AScalePos,     0,             ALineColor);
-  ATargetBitmap.HorzLineS(VStartX, AScalePos + 1, 0,             AOutLineColor);
+  ATargetBitmap.HorzLineS(VStartX, AScalePos - 1, 0, AOutLineColor);
+  ATargetBitmap.HorzLineS(VStartX, AScalePos, 0, ALineColor);
+  ATargetBitmap.HorzLineS(VStartX, AScalePos + 1, 0, AOutLineColor);
   ATargetBitmap.VertLineS(VStartX, AScalePos - 1, AScalePos + 1, AOutLineColor);
 end;
 
-procedure TLayerScaleLine.GetMetersPerVerticalLine(ALineHeight: Integer; out AHalfLen, AFullLen: Double);
+procedure TLayerScaleLine.GetMetersPerVerticalLine(
+  ALineHeight: Integer;
+  out AHalfLen, AFullLen: Double
+);
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
   VCenterPixelXY: TPoint;
@@ -641,6 +656,6 @@ begin
   AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
 end;
 
-{$ENDREGION} // Vertical Scale Legend
+{$ENDREGION}// Vertical Scale Legend
 
 end.

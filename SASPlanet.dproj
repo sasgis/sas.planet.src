@@ -409,12 +409,9 @@
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayer.pas" />
-    <DCCReference Include="MapLayers\u_MarkPolygonLayer.pas" />
-    <DCCReference Include="MapLayers\u_MarkPolyLineLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_PolyLineLayerBase.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
-    <DCCReference Include="MapLayers\u_SelectionPolygonLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionPolylineLayer.pas" />
     <DCCReference Include="MapLayers\u_SelectionRectLayer.pas" />
     <DCCReference Include="MapLayers\u_TiledLayerWithThreadBase.pas" />

@@ -111,7 +111,7 @@ var
   VFixedOnView: TDoublePoint;
 begin
   VGotoPos := FGotoPos;
-  Result :=  False;
+  Result := False;
   if VGotoPos <> nil then begin
     VGotoTime := VGotoPos.GotoTime;
     if not IsNan(VGotoTime) then begin
@@ -121,7 +121,7 @@ begin
         if (VGotoTime <= VCurrTime) then begin
           VTimeDelta := VCurrTime - VGotoTime;
           if (VTimeDelta < FShowTimeDelta) then begin
-            VFixedOnView :=  ANewVisualCoordConverter.LonLat2LocalPixelFloat(VGotoLonLat);
+            VFixedOnView := ANewVisualCoordConverter.LonLat2LocalPixelFloat(VGotoLonLat);
             if PixelPointInRect(VFixedOnView, DoubleRect(ANewVisualCoordConverter.GetLocalRect)) then begin
               Result := True;
             end;
@@ -162,6 +162,7 @@ var
   VGotoLonLat: TDoublePoint;
   VFixedOnView: TDoublePoint;
   VTargetPoint: TPoint;
+  VTargetPointFloat: TDoublePoint;
 begin
   inherited;
   VGotoPos := FGotoPos;
@@ -170,15 +171,13 @@ begin
   if not PointIsEmpty(VGotoLonLat) then begin
     VConverter := VVisualConverter.GetGeoConverter;
     VMarker := FMarker;
-    VFixedOnView :=  VVisualConverter.LonLat2LocalPixelFloat(VGotoLonLat);
-    VTargetPoint :=
-      PointFromDoublePoint(
-        DoublePoint(
-          VFixedOnView.X - VMarker.AnchorPoint.X,
-          VFixedOnView.Y - VMarker.AnchorPoint.Y
-        ),
-        prToTopLeft
+    VFixedOnView := VVisualConverter.LonLat2LocalPixelFloat(VGotoLonLat);
+    VTargetPointFloat :=
+      DoublePoint(
+        VFixedOnView.X - VMarker.AnchorPoint.X,
+        VFixedOnView.Y - VMarker.AnchorPoint.Y
       );
+    VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
     if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
       BlockTransfer(
         ABuffer,

@@ -184,6 +184,7 @@ procedure TTileErrorInfoLayer.PaintLayer(
 var
   VMarker: IBitmapMarker;
   VFixedOnView: TDoublePoint;
+  VTargetPointFloat: TDoublePoint;
   VTargetPoint: TPoint;
 begin
   if FErrorInfo <> nil then begin
@@ -196,14 +197,12 @@ begin
       FMarker := VMarker;
       if VMarker <> nil then begin
         VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-        VTargetPoint :=
-          PointFromDoublePoint(
-            DoublePoint(
-              VFixedOnView.X - VMarker.AnchorPoint.X,
-              VFixedOnView.Y - VMarker.AnchorPoint.Y
-            ),
-            prToTopLeft
+        VTargetPointFloat :=
+          DoublePoint(
+            VFixedOnView.X - VMarker.AnchorPoint.X,
+            VFixedOnView.Y - VMarker.AnchorPoint.Y
           );
+        VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
         if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
           BlockTransfer(
             ABuffer,

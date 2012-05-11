@@ -204,7 +204,7 @@ begin
     if (VPointsCount > 1) then begin
       if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         VTileToDrawBmp := TCustomBitmap32.Create;
-        VTileToDrawBmp.CombineMode:=cmMerge;
+        VTileToDrawBmp.CombineMode := cmMerge;
         try
           VGeoConvert := VLocalConverter.GetGeoConverter;
           VZoom := VLocalConverter.GetZoom;
@@ -274,30 +274,34 @@ procedure TMapGPSLayer.DrawPath(
   const ALineWidth: Double;
   APointsCount: Integer
 );
-  function GetCode(const AMapRect: TDoubleRect; const APoint: TDoublePoint): Byte;
-  //  Смысл разрядов кода:
-  //
-  // 1 рр = 1 - точка над верхним краем окна;
-  //
-  // 2 рр = 1 - точка под нижним краем окна;
-  //
-  // 3 рр = 1 - точка справа от правого края окна;
-  //
-  // 4 рр = 1 - точка слева от левого края окна.
+  function GetCode(
+  const AMapRect: TDoubleRect;
+  const APoint: TDoublePoint
+  ): Byte;
+    //  Смысл разрядов кода:
+
+    // 1 рр = 1 - точка над верхним краем окна;
+
+    // 2 рр = 1 - точка под нижним краем окна;
+
+    // 3 рр = 1 - точка справа от правого края окна;
+
+    // 4 рр = 1 - точка слева от левого края окна.
   begin
     Result := 0;
     if AMapRect.Top > APoint.Y then begin
       Result := 1;
     end else if AMapRect.Bottom < APoint.Y then begin
-      Result := 2
+      Result := 2;
     end;
 
     if AMapRect.Left > APoint.X then begin
       Result := Result or 8;
     end else if AMapRect.Right < APoint.X then begin
-      Result := Result or 4
+      Result := Result or 4;
     end;
   end;
+
 var
   VPointPrev: TDoublePoint;
   VPointPrevIsEmpty: Boolean;
@@ -332,7 +336,7 @@ begin
       if not VPointPrevIsEmpty then begin
         if (VPointPrevCode and VPointCurrCode) = 0 then begin
           if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal,  FPoints[i].Speed);
+            DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal, FPoints[i].Speed);
           end;
         end;
       end;
@@ -355,7 +359,8 @@ procedure TMapGPSLayer.DrawSection(
   const ATrackColorer: ITrackColorerStatic;
   const ALineWidth: Double;
   const APointPrev, APointCurr: TDoublePoint;
-  const ASpeed: Double);
+  const ASpeed: Double
+);
 var
   VFixedPointsPair: array [0..10] of TFixedPoint;
   VSegmentColor: TColor32;
@@ -365,15 +370,19 @@ begin
     VFixedPointsPair[1] := FixedPoint(APointCurr.X, APointCurr.Y);
     FPolygon.Clear;
     FPolygon.AddPoints(VFixedPointsPair[0], 2);
-    with FPolygon.Outline do try
-      with Grow(Fixed(ALineWidth / 2), 0.5) do try
-        VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
-        DrawFill(ATargetBmp, VSegmentColor);
+    with FPolygon.Outline do begin
+      try
+        with Grow(Fixed(ALineWidth / 2), 0.5) do begin
+          try
+            VSegmentColor := ATrackColorer.GetColorForSpeed(ASpeed);
+            DrawFill(ATargetBmp, VSegmentColor);
+          finally
+            free;
+          end;
+        end;
       finally
         free;
       end;
-    finally
-      free;
     end;
     FPolygon.Clear;
   end;
@@ -459,10 +468,8 @@ begin
         VPrevPointIsEmpty := VCurrPointIsEmpty;
         VPrevPoint := VCurrPoint;
       end else begin
-        if
-          (abs(VPrevPoint.X - VCurrPoint.X) > 2) or
-          (abs(VPrevPoint.Y - VCurrPoint.Y) > 2)
-        then begin
+        if (abs(VPrevPoint.X - VCurrPoint.X) > 2) or
+          (abs(VPrevPoint.Y - VCurrPoint.Y) > 2) then begin
           FPoints[VIndex] := VPoint;
           Inc(VIndex);
           VPrevPointIsEmpty := VCurrPointIsEmpty;

@@ -198,12 +198,17 @@ type
       out AItem: IVectorDataItemSimple;
       out AItemS: Double
     ); overload;
-    procedure MouseOnReg(const xy: TPoint; out AItem: IVectorDataItemSimple); overload;
+    procedure MouseOnReg(
+      const xy: TPoint;
+      out AItem: IVectorDataItemSimple
+    ); overload;
 
-    procedure MouseOnRegWithGUID(const xy: TPoint;
-                                 out AItem: IVectorDataItemSimple;
-                                 out AItemS: Double;
-                                 out ALayerGUID: TGUID);
+    procedure MouseOnRegWithGUID(
+      const xy: TPoint;
+      out AItem: IVectorDataItemSimple;
+      out AItemS: Double;
+      out ALayerGUID: TGUID
+    );
   end;
 
 implementation
@@ -343,6 +348,7 @@ var
   VTileSourceRect: TRect;
   VTile: TPoint;
   VErrorString: string;
+  VError: ITileErrorInfo;
 begin
   VZoom := ALocalConverter.GetZoom;
   VSourceGeoConvert := Alayer.GeoConvert;
@@ -372,18 +378,18 @@ begin
       on E: Exception do begin
         VErrorString := E.Message;
       end;
-    else
-      VErrorString := SAS_ERR_TileDownloadUnexpectedError;
+      else
+        VErrorString := SAS_ERR_TileDownloadUnexpectedError;
     end;
     if VErrorString <> '' then begin
-      FErrorLogger.LogError(
+      VError :=
         TTileErrorInfo.Create(
           Alayer,
           VZoom,
           VTile,
           VErrorString
-        )
-      );
+        );
+      FErrorLogger.LogError(VError);
     end;
     kml := nil;
   end;
@@ -409,7 +415,7 @@ begin
   finally
     FVectorMapsSetCS.EndRead;
   end;
-  
+
   if VVectorMapsSet <> nil then begin
     VEnum := VVectorMapsSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
@@ -485,7 +491,7 @@ begin
           VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
           VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
 
-          VCurrTileOnBitmapRect:= ALocalConverter.MapRect2LocalRect(VCurrTilePixelRect);
+          VCurrTileOnBitmapRect := ALocalConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);
@@ -563,7 +569,7 @@ begin
     finally
       FVectorMapsSetCS.EndWrite;
     end;
-    
+
     VLocalConverter := LayerCoordConverter;
     if VLocalConverter <> nil then begin
       VZoom := VLocalConverter.GetZoom;
@@ -690,7 +696,7 @@ begin
       finally
         FVectorMapsSetCS.EndRead;
       end;
-      
+
       if VLayersSet <> nil then begin
         VEnum := VLayersSet.GetIterator;
         while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -715,7 +721,7 @@ begin
   finally
     FVectorMapsSetCS.EndRead;
   end;
-  
+
   if VLayersSet <> nil then begin
     VEnum := VLayersSet.GetIterator;
     while VEnum.Next(1, VGUID, cnt) = S_OK do begin
@@ -804,12 +810,11 @@ begin
   for i := 0 to AElments.Count - 1 do begin
     VItem := IVectorDataItemSimple(AElments[i]);
     VMarkLonLatRect := VItem.LLRect;
-    if(
-      (VLLRect.Right >= VMarkLonLatRect.Left)and
-      (VLLRect.Left <= VMarkLonLatRect.Right)and
-      (VLLRect.Bottom <= VMarkLonLatRect.Top)and
-      (VLLRect.Top >= VMarkLonLatRect.Bottom))
-    then begin
+    if (
+      (VLLRect.Right >= VMarkLonLatRect.Left) and
+      (VLLRect.Left <= VMarkLonLatRect.Right) and
+      (VLLRect.Bottom <= VMarkLonLatRect.Top) and
+      (VLLRect.Top >= VMarkLonLatRect.Bottom)) then begin
       DrawWikiElement(ATargetBmp, AColorMain, AColorBG, APointColor, VItem, ALocalConverter);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
@@ -820,10 +825,11 @@ end;
 
 function TWikiLayer.GetElementsListByMap(const AMapType: TMapType): IInterfaceList;
 begin
-  if Assigned(AMapType.Zmp.MapAttachmentsInfo) then
-    Result := FAllElements.GetMapElementsWithGUID(AMapType.Zmp.GUID)
-  else
+  if Assigned(AMapType.Zmp.MapAttachmentsInfo) then begin
+    Result := FAllElements.GetMapElementsWithGUID(AMapType.Zmp.GUID);
+  end else begin
     Result := FAllElements.GetMapElementsWithoutGUID;
+  end;
 end;
 
 function TWikiLayer.GetProjectedPath(
@@ -1031,19 +1037,21 @@ begin
   AItem := nil;
   AItemS := 0;
   // single call on ALL elements
-  VElements:=TInterfaceList.Create;
+  VElements := TInterfaceList.Create;
   try
     FAllElements.CopyMapElementsToList(TRUE, TRUE, VElements);
     MouseOnElements(VElements, xy, AItem, AItemS);
   finally
-    VElements:=nil;
+    VElements := nil;
   end;
 end;
 
-function TWikiLayer.MouseOnElements(const ACopiedElements: IInterfaceList;
-                                    const xy: TPoint;
-                                    var AItem: IVectorDataItemSimple;
-                                    var AItemS: Double): Boolean;
+function TWikiLayer.MouseOnElements(
+  const ACopiedElements: IInterfaceList;
+  const xy: TPoint;
+  var AItem: IVectorDataItemSimple;
+  var AItemS: Double
+): Boolean;
 var
   VRect: TRect;
   VLocalConverter: ILocalCoordConverter;
@@ -1060,7 +1068,7 @@ var
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
   VProjectdPolygon: IProjectedPolygon;
-  VSquare:Double;
+  VSquare: Double;
 begin
   // return TRUE if breaks loop
   Result := FALSE;
@@ -1085,29 +1093,29 @@ begin
     for i := 0 to ACopiedElements.Count - 1 do begin
       VItem := IVectorDataItemSimple(Pointer(ACopiedElements[i]));
       VMarkLonLatRect := VItem.LLRect;
-      if((VLonLatRect.Right>VMarkLonLatRect.Left)and(VLonLatRect.Left<VMarkLonLatRect.Right)and
-      (VLonLatRect.Bottom<VMarkLonLatRect.Top)and(VLonLatRect.Top>VMarkLonLatRect.Bottom))then begin
+      if ((VLonLatRect.Right > VMarkLonLatRect.Left) and (VLonLatRect.Left < VMarkLonLatRect.Right) and
+        (VLonLatRect.Bottom < VMarkLonLatRect.Top) and (VLonLatRect.Top > VMarkLonLatRect.Bottom)) then begin
         if Supports(VItem, IVectorDataItemPoint) then begin
           AItem := VItem;
           AItemS := 0;
-          Result:=TRUE;
+          Result := TRUE;
           Exit;
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
           VProjectdPath := GetProjectedPath(VItemLine, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
           if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
             AItem := VItem;
             AItemS := 0;
-            Result:=TRUE;
+            Result := TRUE;
             Exit;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
           VProjectdPolygon := GetProjectedPolygon(VItemPoly, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
           if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
             VSquare := VProjectdPolygon.CalcArea;
-            if (AItem = nil) or (VSquare<AItemS) then begin
+            if (AItem = nil) or (VSquare < AItemS) then begin
               AItem := VItem;
               AItemS := VSquare;
-              Result:=TRUE;
+              Result := TRUE;
             end;
           end;
         end;
@@ -1116,17 +1124,22 @@ begin
   end;
 end;
 
-procedure TWikiLayer.MouseOnReg(const xy: TPoint; out AItem: IVectorDataItemSimple);
+procedure TWikiLayer.MouseOnReg(
+  const xy: TPoint;
+  out AItem: IVectorDataItemSimple
+);
 var
   VItemS: Double;
 begin
   MouseOnReg(xy, AItem, VItemS);
 end;
 
-procedure TWikiLayer.MouseOnRegWithGUID(const xy: TPoint;
-                                        out AItem: IVectorDataItemSimple;
-                                        out AItemS: Double;
-                                        out ALayerGUID: TGUID);
+procedure TWikiLayer.MouseOnRegWithGUID(
+  const xy: TPoint;
+  out AItem: IVectorDataItemSimple;
+  out AItemS: Double;
+  out ALayerGUID: TGUID
+);
 var
   VElements: IInterfaceList;
   VEnumGUID: IEnumGUID;
@@ -1137,32 +1150,34 @@ begin
   ALayerGUID := GUID_NULL;
   AItemS := 0;
 
-  VElements:=TInterfaceList.Create;
+  VElements := TInterfaceList.Create;
   try
     // loop through guided
     VEnumGUID := FAllElements.GetGUIDEnum;
     try
-      if Assigned(VEnumGUID) then
-      while (S_OK=VEnumGUID.Next(1, ALayerGUID, celtFetched)) do begin
-        VElements.Clear;
-        CopyMapElements(FAllElements.GetMapElementsWithGUID(ALayerGUID), VElements);
-        VResult:=MouseOnElements(VElements, xy, AItem, AItemS);
-        if VResult then
-          Exit;
+      if Assigned(VEnumGUID) then begin
+        while (S_OK = VEnumGUID.Next(1, ALayerGUID, celtFetched)) do begin
+          VElements.Clear;
+          CopyMapElements(FAllElements.GetMapElementsWithGUID(ALayerGUID), VElements);
+          VResult := MouseOnElements(VElements, xy, AItem, AItemS);
+          if VResult then begin
+            Exit;
+          end;
+        end;
       end;
     finally
-      VEnumGUID:=nil;
+      VEnumGUID := nil;
     end;
 
     // no guid at all
-    ALayerGUID:=GUID_NULL;
+    ALayerGUID := GUID_NULL;
 
     // without guid
     VElements.Clear;
     CopyMapElements(FAllElements.GetMapElementsWithoutGUID, VElements);
     MouseOnElements(VElements, xy, AItem, AItemS);
   finally
-    VElements:=nil;
+    VElements := nil;
   end;
 end;
 

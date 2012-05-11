@@ -21,7 +21,10 @@ type
     function GetVisibleForNewPos(
       const ANewVisualCoordConverter: ILocalCoordConverter
     ): Boolean; override;
-    procedure PaintLayer(ABuffer: TBitmap32; const ALocalConverter: ILocalCoordConverter); override;
+    procedure PaintLayer(
+      ABuffer: TBitmap32;
+      const ALocalConverter: ILocalCoordConverter
+    ); override;
   public
     procedure StartThreads; override;
   public

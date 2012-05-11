@@ -88,10 +88,7 @@ begin
     Result :=
       Factory.CreateLonLatPolygonByLonLatPathAndFilter(
         VLine,
-        TLonLatPointFilterLine2Poly.Create(
-          FRadius,
-          ALocalConverter.ProjectionInfo
-        )
+        TLonLatPointFilterLine2Poly.Create(FRadius, ALocalConverter.ProjectionInfo)
       );
   end;
 end;

@@ -35,31 +35,43 @@ type
     { IMapElementsGuidedList }
     function GetMapElementsWithGUID(const AGUID: TGUID): IInterfaceList;
     function GetMapElementsWithoutGUID: IInterfaceList;
-    procedure CopyMapElementsToList(const AWithoutGUID, AWithGUID: Boolean; ADstList: IInterfaceList);
+    procedure CopyMapElementsToList(
+      const AWithoutGUID, AWithGUID: Boolean;
+      ADstList: IInterfaceList
+    );
     procedure ClearMapElements;
   public
     constructor Create;
     destructor Destroy; override;
   end;
 
-procedure CopyMapElements(const ASrcList: IInterfaceList; ADstList: IInterfaceList);
+procedure CopyMapElements(
+    const ASrcList: IInterfaceList;
+    ADstList: IInterfaceList
+  );
 
 implementation
 
 uses
   ActiveX;
 
-procedure CopyMapElements(const ASrcList: IInterfaceList; ADstList: IInterfaceList);
-var i,k: Integer;
+procedure CopyMapElements(
+  const ASrcList: IInterfaceList;
+  ADstList: IInterfaceList
+);
+var
+  i, k: Integer;
 begin
-  if not Assigned(ASrcList) then
+  if not Assigned(ASrcList) then begin
     Exit;
+  end;
   ASrcList.Lock;
   try
     k := ASrcList.Count;
-    if (0<k) then
-    for i := 0 to k-1 do begin
-      ADstList.Add(ASrcList[i]);
+    if (0 < k) then begin
+      for i := 0 to k - 1 do begin
+        ADstList.Add(ASrcList[i]);
+      end;
     end;
   finally
     ASrcList.Unlock;
@@ -71,12 +83,15 @@ end;
 procedure TMapElementsGuidedList.ClearMapElements;
 begin
   Clear;
-  if Assigned(FListWithoutGUID) then
+  if Assigned(FListWithoutGUID) then begin
     FListWithoutGUID.Clear;
+  end;
 end;
 
-procedure TMapElementsGuidedList.CopyMapElementsToList(const AWithoutGUID, AWithGUID: Boolean;
-                                                       ADstList: IInterfaceList);
+procedure TMapElementsGuidedList.CopyMapElementsToList(
+  const AWithoutGUID, AWithGUID: Boolean;
+  ADstList: IInterfaceList
+);
 var
   VEnum: IEnumGUID;
   VGUID: TGUID;
@@ -89,10 +104,11 @@ begin
 
   if AWithGUID then begin
     // from every list with guid
-    VEnum:=GetGUIDEnum;
-    if Assigned(VEnum) then
-    while (S_OK=VEnum.Next(1, VGUID, celtFetched)) do begin
-      CopyMapElements(IInterfaceList(Pointer(GetByGUID(VGUID))), ADstList);
+    VEnum := GetGUIDEnum;
+    if Assigned(VEnum) then begin
+      while (S_OK = VEnum.Next(1, VGUID, celtFetched)) do begin
+        CopyMapElements(IInterfaceList(Pointer(GetByGUID(VGUID))), ADstList);
+      end;
     end;
   end;
 end;
@@ -100,12 +116,12 @@ end;
 constructor TMapElementsGuidedList.Create;
 begin
   inherited Create;
-  FListWithoutGUID:=nil;
+  FListWithoutGUID := nil;
 end;
 
 destructor TMapElementsGuidedList.Destroy;
 begin
-  FListWithoutGUID:=nil;
+  FListWithoutGUID := nil;
   inherited;
 end;
 
@@ -122,9 +138,10 @@ end;
 
 function TMapElementsGuidedList.GetMapElementsWithoutGUID: IInterfaceList;
 begin
-  if not Assigned(FListWithoutGUID) then
-    FListWithoutGUID:=TInterfaceList.Create;
-  Result:=FListWithoutGUID;
+  if not Assigned(FListWithoutGUID) then begin
+    FListWithoutGUID := TInterfaceList.Create;
+  end;
+  Result := FListWithoutGUID;
 end;
 
 end.

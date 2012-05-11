@@ -50,7 +50,7 @@ type
   private
     FErrorLogger: ITileErrorLogger;
     FMapsConfig: IMainMapsConfig;
-    FPostProcessingConfig:IBitmapPostProcessingConfig;
+    FPostProcessingConfig: IBitmapPostProcessingConfig;
     FConfig: IMainMapLayerConfig;
     FTileChangeListener: IJclListener;
 
@@ -97,7 +97,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       const AMapsConfig: IMainMapsConfig;
-      const APostProcessingConfig:IBitmapPostProcessingConfig;
+      const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AConfig: IMainMapLayerConfig;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: IJclNotifier
@@ -502,7 +502,7 @@ begin
     finally
       FMainMapCS.EndWrite;
     end;
-    
+
     if VOldMainMap <> VNewMainMap then begin
       VLocalConverter := LayerCoordConverter;
       VZoom := VLocalConverter.GetZoom;
@@ -694,5 +694,3 @@ begin
 end;
 
 end.
-
-

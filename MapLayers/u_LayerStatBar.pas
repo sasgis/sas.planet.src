@@ -144,7 +144,11 @@ end;
 
 procedure TLayerStatBar.OnConfigChange;
 
-  procedure SetValidFontSize(AFont: TFont; ASize: Integer; AMaxHeight: Integer);
+  procedure SetValidFontSize(
+    AFont: TFont;
+    ASize: Integer;
+    AMaxHeight: Integer
+  );
   begin
     if abs(AFont.Height) < AMaxHeight then begin
       AFont.Size := ASize;
@@ -162,7 +166,7 @@ begin
     FConfig.LockRead;
     try
       FLayer.Bitmap.Font.Name := FConfig.FontName;
-      SetValidFontSize(FLayer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2) );
+      SetValidFontSize(FLayer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2));
 
       FMinUpdate := FConfig.MinUpdateTickCount;
       FBgColor := FConfig.BgColor;
@@ -199,7 +203,11 @@ end;
 
 procedure TLayerStatBar.DoRedraw;
 
-  procedure RenderText(const AOffset: TPoint; const AText: string; ADrawLine: Boolean = True);
+  procedure RenderText(
+  const AOffset: TPoint;
+  const AText: string;
+    ADrawLine: Boolean = True
+  );
   begin
     FLayer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
     if ADrawLine then begin
@@ -293,14 +301,14 @@ begin
       VTileName := VMap.GetTileShowName(VTile, VZoomCurr);
       VString := SAS_STR_load + ' ' +
         inttostr(FDownloadInfo.TileCount) +
-        ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size/1024) + ')';
+        ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size / 1024) + ')';
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
 
     if FConfig.ViewHttpQueueInfo then begin
       VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-      VString := SAS_STR_queue+ ' ' + IntToStr(FGlobalInternetState.QueueCount);
+      VString := SAS_STR_queue + ' ' + IntToStr(FGlobalInternetState.QueueCount);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
@@ -314,13 +322,14 @@ begin
           if VTileNameWidthAviable < VTileNameWidth + 40 then begin
             SetLength(VShortTileName, 6);
             StrLCopy(PAnsiChar(VShortTileName), PAnsiChar(VTileName), 6);
-            VShortTileName := VShortTileName + '...' +
+            VShortTileName :=
+              VShortTileName + '...' +
               RightStr(
-                VTileName,
-                Trunc(
-                  (Length(VTileName)/VTileNameWidth) * (VTileNameWidthAviable - FLayer.Bitmap.TextWidth(VShortTileName) - 40 )
-                )
-              );
+              VTileName,
+              Trunc(
+                (Length(VTileName) / VTileNameWidth) * (VTileNameWidthAviable - FLayer.Bitmap.TextWidth(VShortTileName) - 40)
+              )
+            );
             VTileName := VShortTileName;
           end;
         end;

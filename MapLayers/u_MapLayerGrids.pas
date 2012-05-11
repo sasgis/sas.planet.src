@@ -54,7 +54,6 @@ uses
   u_GeoToStr,
   StrUtils;
 
-
 const
   GSHprec = 100000000;
 
@@ -103,16 +102,16 @@ function FloatPoint2RectWihtClip(ASource: TDoublePoint): TPoint;
 const
   CMaxClip = 1 shl 14;
 begin
-  if ASource.X < - CMaxClip then begin
-    Result.X := - CMaxClip;
+  if ASource.X < -CMaxClip then begin
+    Result.X := -CMaxClip;
   end else if ASource.X > CMaxClip then begin
     Result.X := CMaxClip;
   end else begin
     Result.X := trunc(ASource.X);
   end;
 
-  if ASource.Y < - CMaxClip then begin
-    Result.Y := - CMaxClip;
+  if ASource.Y < -CMaxClip then begin
+    Result.Y := -CMaxClip;
   end else if ASource.Y > CMaxClip then begin
     Result.Y := CMaxClip;
   end else begin
@@ -144,12 +143,12 @@ var
 
   VVDrawLonLatRect: TDoubleRect;
   VVDrawRectFloat: TDoubleRect;
-  VVDrawScreenRect:  TRect;
+  VVDrawScreenRect: TRect;
   VValueConverter: IValueToStringConverter;
-  ss:string;
-  VTextXPos : TDoublePoint;
-  VTextYPos : TDoublePoint;
-  VTextPos2 : TRect;
+  ss: string;
+  VTextXPos: TDoublePoint;
+  VTextYPos: TDoublePoint;
+  VTextPos2: TRect;
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   FConfig.DegreeGrid.LockRead;
@@ -166,12 +165,16 @@ begin
   VLocalConverter := LayerCoordConverter;
   VGeoConvert := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
-  z := GetDegBordersStepByScale(VScale,VZoom);
+  z := GetDegBordersStepByScale(VScale, VZoom);
   VLoadedRect := VLocalConverter.GetRectInMapPixelFloat;
   VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
-  if VLoadedLonLatRect.Top>90 then VLoadedLonLatRect.Top:=90;
-  if VLoadedLonLatRect.Bottom<-90 then VLoadedLonLatRect.Bottom:=-90;
+  if VLoadedLonLatRect.Top > 90 then begin
+    VLoadedLonLatRect.Top := 90;
+  end;
+  if VLoadedLonLatRect.Bottom < -90 then begin
+    VLoadedLonLatRect.Bottom := -90;
+  end;
 
   VGridLonLatRect.Left := VLoadedLonLatRect.Left - z.X;
   VGridLonLatRect.Top := VLoadedLonLatRect.Top + z.Y;
@@ -195,68 +198,89 @@ begin
 
   // вертикаль
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-  VDrawLonLatRect.Right := VGridLonLatRect.Right;//
+  VDrawLonLatRect.Right := VGridLonLatRect.Right;
   VDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
-  VDrawLonLatRect.Left := trunc(VDrawLonLatRect.Left/z.x)*z.x;
+  VDrawLonLatRect.Left := trunc(VDrawLonLatRect.Left / z.x) * z.x;
   while VDrawLonLatRect.Left <= VGridLonLatRect.Right do begin
-   VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
-   VDrawScreenRect.TopLeft     := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
-   VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
-   Layer.bitmap.LineAS(
+    VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
+    VDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.TopLeft));
+    VDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VDrawRectFloat.BottomRight));
+    Layer.bitmap.LineAS(
       VDrawScreenRect.Left, VDrawScreenRect.Top,
       VDrawScreenRect.left, VDrawScreenRect.Bottom, VColor
     );
     VVDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
-    VVDrawLonLatRect.Right   := VGridLonLatRect.Right;
-    VVDrawLonLatRect.Bottom  := VGridLonLatRect.Bottom;
-    VVDrawLonLatRect.Top := trunc(VGridLonLatRect.Top/z.y)*z.y;
+    VVDrawLonLatRect.Right := VGridLonLatRect.Right;
+    VVDrawLonLatRect.Bottom := VGridLonLatRect.Bottom;
+    VVDrawLonLatRect.Top := trunc(VGridLonLatRect.Top / z.y) * z.y;
 
-    while VVDrawLonLatRect.Top>VGridLonLatRect.Bottom  do begin
+    while VVDrawLonLatRect.Top > VGridLonLatRect.Bottom do begin
       vVDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VVDrawLonLatRect, VZoom);
-      vVDrawScreenRect.TopLeft     := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.TopLeft));
+      vVDrawScreenRect.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.TopLeft));
       vVDrawScreenRect.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(vVDrawRectFloat.BottomRight));
       Layer.bitmap.LineAS(
-       vVDrawScreenRect.Left, vVDrawScreenRect.Top,
-       vVDrawScreenRect.Right, vVDrawScreenRect.top, VColor
+        vVDrawScreenRect.Left, vVDrawScreenRect.Top,
+        vVDrawScreenRect.Right, vVDrawScreenRect.top, VColor
       );
 
-      if VCanShowText then
-       if VDrawLonLatRect.Left+z.X/2<180 then begin
-       VTextYPos :=  VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left+z.X/2, VVDrawLonLatRect.Top),Vzoom);
-       VTextXPos :=  VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left, VVDrawLonLatRect.Top+z.Y/2),Vzoom);
-       VTextPos2.TopLeft  := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VTextYPos));
-       VTextPos2.BottomRight  := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VTextXPos));
-// X
-       ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top);
-       ss:=copy(ListName,length(ListName)-5,6);
-       if copy(ListName,length(ListName)-5,6)='00.00"' then ListName := ReplaceStr(ListName,'00.00"','');
-       if copy(ListName,length(ListName)-5,6)='00,00"' then ListName := ReplaceStr(ListName,'00,00"','');
-       if copy(ListName,length(ListName)-3,4)=',00"' then ListName := ReplaceStr(ListName,',00"','"');
-       if copy(ListName,length(ListName)-3,4)='.00"' then ListName := ReplaceStr(ListName,'.00"','"');
-       if copy(ListName,length(ListName)-2,3)='00''' then ListName := ReplaceStr(ListName,'00''','');
-       twidth  := Layer.bitmap.TextWidth(ListName);
-        Layer.bitmap.RenderTextW(
-          VTextPos2.Left  - twidth  div 2,
-          VTextPos2.Top,
-          ListName, 0, VColor);
-// Y
-       ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left);
-       if copy(ListName,length(ListName)-5,6)='00.00"' then ListName := ReplaceStr(ListName,'00.00"','');
-       if copy(ListName,length(ListName)-5,6)='00,00"' then ListName := ReplaceStr(ListName,'00,00"','');
-       if copy(ListName,length(ListName)-3,4)=',00"' then ListName := ReplaceStr(ListName,',00"','"');
-       if copy(ListName,length(ListName)-3,4)='.00"' then ListName := ReplaceStr(ListName,'.00"','"');
-       if copy(ListName,length(ListName)-2,3)='00''' then ListName := ReplaceStr(ListName,'00''','');
-       theight := Layer.bitmap.TextHeight(ListName);
-       Layer.bitmap.RenderTextW(
-         VTextPos2.Right +2,
-         VTextPos2.Bottom  - theight div 2,
-         ListName, 0, VColor);
+      if VCanShowText then begin
+        if VDrawLonLatRect.Left + z.X / 2 < 180 then begin
+          VTextYPos := VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left + z.X / 2, VVDrawLonLatRect.Top), Vzoom);
+          VTextXPos := VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left, VVDrawLonLatRect.Top + z.Y / 2), Vzoom);
+          VTextPos2.TopLeft := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VTextYPos));
+          VTextPos2.BottomRight := FloatPoint2RectWihtClip(VLocalConverter.MapPixelFloat2LocalPixelFloat(VTextXPos));
+          // X
+          ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top);
+          ss := copy(ListName, length(ListName) - 5, 6);
+          if copy(ListName, length(ListName) - 5, 6) = '00.00"' then begin
+            ListName := ReplaceStr(ListName, '00.00"', '');
+          end;
+          if copy(ListName, length(ListName) - 5, 6) = '00,00"' then begin
+            ListName := ReplaceStr(ListName, '00,00"', '');
+          end;
+          if copy(ListName, length(ListName) - 3, 4) = ',00"' then begin
+            ListName := ReplaceStr(ListName, ',00"', '"');
+          end;
+          if copy(ListName, length(ListName) - 3, 4) = '.00"' then begin
+            ListName := ReplaceStr(ListName, '.00"', '"');
+          end;
+          if copy(ListName, length(ListName) - 2, 3) = '00''' then begin
+            ListName := ReplaceStr(ListName, '00''', '');
+          end;
+          twidth := Layer.bitmap.TextWidth(ListName);
+          Layer.bitmap.RenderTextW(
+            VTextPos2.Left - twidth div 2,
+            VTextPos2.Top,
+            ListName, 0, VColor);
+          // Y
+          ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left);
+          if copy(ListName, length(ListName) - 5, 6) = '00.00"' then begin
+            ListName := ReplaceStr(ListName, '00.00"', '');
+          end;
+          if copy(ListName, length(ListName) - 5, 6) = '00,00"' then begin
+            ListName := ReplaceStr(ListName, '00,00"', '');
+          end;
+          if copy(ListName, length(ListName) - 3, 4) = ',00"' then begin
+            ListName := ReplaceStr(ListName, ',00"', '"');
+          end;
+          if copy(ListName, length(ListName) - 3, 4) = '.00"' then begin
+            ListName := ReplaceStr(ListName, '.00"', '"');
+          end;
+          if copy(ListName, length(ListName) - 2, 3) = '00''' then begin
+            ListName := ReplaceStr(ListName, '00''', '');
+          end;
+          theight := Layer.bitmap.TextHeight(ListName);
+          Layer.bitmap.RenderTextW(
+            VTextPos2.Right + 2,
+            VTextPos2.Bottom - theight div 2,
+            ListName, 0, VColor);
+        end;
       end;
 
       VVDrawLonLatRect.Top := VVDrawLonLatRect.Top - z.Y;
-   end;
-  VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
-  VDrawLonLatRect.Right := VDrawLonLatRect.Left;
+    end;
+    VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
+    VDrawLonLatRect.Right := VDrawLonLatRect.Left;
   end;
 
 end;
@@ -302,8 +326,12 @@ begin
   VGeoConvert.CheckPixelRectFloat(VLoadedRect, VZoom);
 
   VLoadedLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VLoadedRect, VZoom);
-  if VLoadedLonLatRect.Top>90 then VLoadedLonLatRect.Top:=90;
-  if VLoadedLonLatRect.Bottom<-90 then VLoadedLonLatRect.Bottom:=-90;
+  if VLoadedLonLatRect.Top > 90 then begin
+    VLoadedLonLatRect.Top := 90;
+  end;
+  if VLoadedLonLatRect.Bottom < -90 then begin
+    VLoadedLonLatRect.Bottom := -90;
+  end;
 
   VGridLonLatRect.Left := VLoadedLonLatRect.Left - z.X;
   VGridLonLatRect.Top := VLoadedLonLatRect.Top + z.Y;
@@ -346,21 +374,22 @@ begin
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
 
-if (z.x<6)and( VDrawLonLatRect.Left = round(VDrawLonLatRect.Left/6)*6) then begin
-    Layer.bitmap.LineAS(
-      VDrawScreenRect.Left+1, VDrawScreenRect.Top,
-      VDrawScreenRect.Right+1, VDrawScreenRect.Bottom, VColor
-    );
-    Layer.bitmap.LineAS(
-      VDrawScreenRect.Left-1, VDrawScreenRect.Top,
-      VDrawScreenRect.Right-1, VDrawScreenRect.Bottom, VColor
-    );
+    if (z.x < 6) and (VDrawLonLatRect.Left = round(VDrawLonLatRect.Left / 6) * 6) then begin
+      Layer.bitmap.LineAS(
+        VDrawScreenRect.Left + 1, VDrawScreenRect.Top,
+        VDrawScreenRect.Right + 1, VDrawScreenRect.Bottom, VColor
+      );
+      Layer.bitmap.LineAS(
+        VDrawScreenRect.Left - 1, VDrawScreenRect.Top,
+        VDrawScreenRect.Right - 1, VDrawScreenRect.Bottom, VColor
+      );
     end;
-if (z.x<3)and( VDrawLonLatRect.Left = round(VDrawLonLatRect.Left/3)*3) then
-    Layer.bitmap.LineAS(
-      VDrawScreenRect.Left+1, VDrawScreenRect.Top,
-      VDrawScreenRect.Right+1, VDrawScreenRect.Bottom, {(((VColor and $FF000000) or $88000000) or VColor)} Vcolor
-    );
+    if (z.x < 3) and (VDrawLonLatRect.Left = round(VDrawLonLatRect.Left / 3) * 3) then begin
+      Layer.bitmap.LineAS(
+        VDrawScreenRect.Left + 1, VDrawScreenRect.Top,
+        VDrawScreenRect.Right + 1, VDrawScreenRect.Bottom, {(((VColor and $FF000000) or $88000000) or VColor)} Vcolor
+      );
+    end;
 
     VDrawLonLatRect.Left := VDrawLonLatRect.Left + z.X;
     VDrawLonLatRect.Right := VDrawLonLatRect.Left;
@@ -380,21 +409,22 @@ if (z.x<3)and( VDrawLonLatRect.Left = round(VDrawLonLatRect.Left/3)*3) then
       VDrawScreenRect.Right, VDrawScreenRect.Bottom, VColor
     );
 
-if (z.Y<4)and(round((VDrawLonLatRect.Top+0.000000001)*100) = trunc((VDrawLonLatRect.Top+0.01)/4)*4*100 )then begin
-    Layer.bitmap.LineAS(
-      VDrawScreenRect.Left, VDrawScreenRect.Top+1,
-      VDrawScreenRect.Right, VDrawScreenRect.Bottom+1, VColor
-    );
-    Layer.bitmap.LineAS(
-      VDrawScreenRect.Left, VDrawScreenRect.Top-1,
-      VDrawScreenRect.Right, VDrawScreenRect.Bottom-1, VColor
-    );
+    if (z.Y < 4) and (round((VDrawLonLatRect.Top + 0.000000001) * 100) = trunc((VDrawLonLatRect.Top + 0.01) / 4) * 4 * 100) then begin
+      Layer.bitmap.LineAS(
+        VDrawScreenRect.Left, VDrawScreenRect.Top + 1,
+        VDrawScreenRect.Right, VDrawScreenRect.Bottom + 1, VColor
+      );
+      Layer.bitmap.LineAS(
+        VDrawScreenRect.Left, VDrawScreenRect.Top - 1,
+        VDrawScreenRect.Right, VDrawScreenRect.Bottom - 1, VColor
+      );
     end;
-if (z.Y<2)and(round((VDrawLonLatRect.Top+0.000000001)*100) = trunc((VDrawLonLatRect.Top+0.01)/2)*2*100 )then
-    Layer.bitmap.LineAS(
-      VDrawScreenRect.Left, VDrawScreenRect.Top+1,
-      VDrawScreenRect.Right, VDrawScreenRect.Bottom+1, {((VColor and $FF000000) or $88000000) or VColor}Vcolor
-    );
+    if (z.Y < 2) and (round((VDrawLonLatRect.Top + 0.000000001) * 100) = trunc((VDrawLonLatRect.Top + 0.01) / 2) * 2 * 100) then begin
+      Layer.bitmap.LineAS(
+        VDrawScreenRect.Left, VDrawScreenRect.Top + 1,
+        VDrawScreenRect.Right, VDrawScreenRect.Bottom + 1, {((VColor and $FF000000) or $88000000) or VColor}Vcolor
+      );
+    end;
 
     VDrawLonLatRect.Top := VDrawLonLatRect.Top - z.Y;
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Top;
@@ -435,6 +465,7 @@ if (z.Y<2)and(round((VDrawLonLatRect.Top+0.000000001)*100) = trunc((VDrawLonLatR
     VDrawLonLatRect.Bottom := VDrawLonLatRect.Bottom - z.Y;
   end;
 end;
+
 procedure TMapLayerGrids.generate_granica;
 var
   i, j: integer;
