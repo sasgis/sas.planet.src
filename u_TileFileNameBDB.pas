@@ -29,7 +29,10 @@ uses
 type
   TTileFileNameBDB = class(TInterfacedObject, ITileFileNameGenerator)
   public
-    function GetTileFileName(AXY: TPoint; AZoom: Byte): string;
+    function GetTileFileName(
+      AXY: TPoint;
+      AZoom: Byte
+    ): string;
   end;
 
 implementation
@@ -39,7 +42,10 @@ uses
 
 { TTileFileNameBDB }
 
-function TTileFileNameBDB.GetTileFileName(AXY: TPoint; AZoom: Byte): string;
+function TTileFileNameBDB.GetTileFileName(
+  AXY: TPoint;
+  AZoom: Byte
+): string;
 begin
   Result := Format(
     'z%d' + PathDelim +

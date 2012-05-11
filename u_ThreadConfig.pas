@@ -26,6 +26,7 @@ type
     );
 
   end;
+
 implementation
 
 { TThreadPriorityConfig }

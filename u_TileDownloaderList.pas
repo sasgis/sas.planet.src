@@ -54,6 +54,7 @@ implementation
 
 uses
   u_Synchronizer,
+  i_TileDownloadRequestBuilder,
   i_Downloader,
   u_JclNotify,
   u_NotifyEventListener,
@@ -112,19 +113,22 @@ end;
 function TTileDownloaderList.CreateDownloader: ITileDownloader;
 var
   VDownloader: IDownloader;
+  VTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
 begin
   VDownloader :=
     TDownloaderHttpWithTTL.Create(
       FGCList,
       FResultFactory
     );
+  VTileDownloadRequestBuilder :=
+    TTileDownloadRequestBuilderLazy.Create(
+      VDownloader,
+      FRequestBuilderFactory
+    );
   Result :=
     TTileDownloaderSimple.Create(
       FAppClosingNotifier,
-      TTileDownloadRequestBuilderLazy.Create(
-        VDownloader,
-        FRequestBuilderFactory
-      ),
+      VTileDownloadRequestBuilder,
       FTileDownloaderConfig,
       VDownloader,
       FResultSaver,

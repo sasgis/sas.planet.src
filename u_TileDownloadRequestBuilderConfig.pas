@@ -36,8 +36,8 @@ type
     FRequestHeader: string;
     FGeoCoder: ICoordConverter;
   protected
-    function  GetUrlBase: string;
-    function  GetRequestHeader: string;
+    function GetUrlBase: string;
+    function GetRequestHeader: string;
     function GetGeoCoder: ICoordConverter;
   public
     constructor Create(
@@ -57,10 +57,10 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
-    function  GetUrlBase: string;
+    function GetUrlBase: string;
     procedure SetUrlBase(const AValue: string);
 
-    function  GetRequestHeader: string;
+    function GetRequestHeader: string;
     procedure SetRequestHeader(const AValue: string);
 
     function GetGeoCoder: ICoordConverter;
@@ -89,24 +89,28 @@ end;
 procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
+var
+  VRequestHeader: string;
 begin
   inherited;
   if AConfigData <> nil then begin
     SetUrlBase(AConfigData.ReadString('URLBase', FUrlBase));
-    SetRequestHeader(
+    VRequestHeader :=
       StringReplace(
         AConfigData.ReadString('RequestHead', FRequestHeader),
         '\r\n',
         #13#10,
         [rfIgnoreCase, rfReplaceAll]
-      )
-    );
+      );
+    SetRequestHeader(VRequestHeader);
   end;
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
+var
+  VRequestHeader: string;
 begin
   inherited;
   if FURLBase <> FDefConfig.UrlBase then begin
@@ -116,15 +120,14 @@ begin
   end;
 
   if FRequestHeader <> FDefConfig.RequestHeader then begin
-    AConfigData.WriteString(
-      'RequestHead',
+    VRequestHeader :=
       StringReplace(
         FRequestHeader,
         #13#10,
         '\r\n',
         [rfIgnoreCase, rfReplaceAll]
-      )
-    );
+      );
+    AConfigData.WriteString('RequestHead', VRequestHeader);
   end else begin
     AConfigData.DeleteValue('RequestHead');
   end;

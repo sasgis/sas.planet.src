@@ -127,7 +127,7 @@ begin
   VConverter := ALocalConverter.GetGeoConverter;
   LockRead;
   try
-    if GetVisible  then begin
+    if GetVisible then begin
       VZoom := GetActualZoom(ALocalConverter);
     end else begin
       VZoom := VZoomCurr;

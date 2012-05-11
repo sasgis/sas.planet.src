@@ -47,7 +47,10 @@ type
     FCS: IReadWriteSync;
     FScriptInited: Boolean;
   protected
-    function DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean; override;
+    function DoCompilerOnAuxUses(
+      ACompiler: TBasePascalCompiler;
+      const AName: string
+    ): Boolean; override;
   protected
     function GetState: ITileDownloaderStateChangeble;
     function BuildRequestBuilder(const ADownloader: IDownloader): ITileDownloadRequestBuilder;
@@ -82,7 +85,7 @@ var
   VState: TTileDownloaderStateInternal;
 begin
   inherited Create(AScriptText);
-  
+
   FConfig := AConfig;
   FCheker := ACheker;
   FLangManager := ALangManager;
@@ -106,8 +109,10 @@ begin
   inherited;
 end;
 
-function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler;
-                                                                            const AName: string): Boolean;
+function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
+  ACompiler: TBasePascalCompiler;
+  const AName: string
+): Boolean;
 var
   T: TPSType;
 begin
@@ -168,7 +173,7 @@ begin
               PreparePascalScript(FScriptText);
               FScriptInited := True;
             except
-              on E:EPascalScriptCompileError do begin
+              on E: EPascalScriptCompileError do begin
                 FStateInternal.Disable(E.Message);
                 FCompiledData := '';
               end;

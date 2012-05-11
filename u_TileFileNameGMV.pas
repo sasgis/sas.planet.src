@@ -29,7 +29,10 @@ uses
 type
   TTileFileNameGMV = class(TInterfacedObject, ITileFileNameGenerator)
   public
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte
+    ): string;
   end;
 
 implementation
@@ -39,8 +42,10 @@ uses
 
 { TTileFileNameGMV }
 
-function TTileFileNameGMV.GetTileFileName(AXY: TPoint;
-  Azoom: byte): string;
+function TTileFileNameGMV.GetTileFileName(
+  AXY: TPoint;
+  Azoom: byte
+): string;
 var
   i: byte;
   VMask: Integer;

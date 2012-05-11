@@ -39,7 +39,7 @@ type
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    FCoordConverter : ICoordConverter;
+    FCoordConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
     FAppClosingNotifier: IJclNotifier;
 
@@ -64,7 +64,10 @@ type
       Azoom: byte;
       ACheckTileSize: Boolean
     ): ITileRequest;
-    function GetLink(const AXY: TPoint; Azoom: byte): string;
+    function GetLink(
+      const AXY: TPoint;
+      Azoom: byte
+    ): string;
     procedure Download(
       const ATileRequest: ITileRequest
     );
@@ -74,7 +77,7 @@ type
     constructor Create(
       const AGCList: ITTLCheckNotifier;
       const AAppClosingNotifier: IJclNotifier;
-      const ACoordConverter : ICoordConverter;
+      const ACoordConverter: ICoordConverter;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALanguageManager: ILanguageManager;
       const AGlobalDownloadConfig: IGlobalDownloadConfig;
@@ -123,7 +126,7 @@ const
 constructor TTileDownloadSubsystem.Create(
   const AGCList: ITTLCheckNotifier;
   const AAppClosingNotifier: IJclNotifier;
-  const ACoordConverter : ICoordConverter;
+  const ACoordConverter: ICoordConverter;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALanguageManager: ILanguageManager;
   const AGlobalDownloadConfig: IGlobalDownloadConfig;
@@ -253,7 +256,10 @@ begin
   end;
 end;
 
-function TTileDownloadSubsystem.GetLink(const AXY: TPoint; Azoom: byte): string;
+function TTileDownloadSubsystem.GetLink(
+  const AXY: TPoint;
+  Azoom: byte
+): string;
 var
   VRequest: ITileRequest;
   VDownloadRequest: ITileDownloadRequest;
@@ -269,7 +275,7 @@ begin
           Azoom,
           False
         );
-      VDownloadRequest:= nil;
+      VDownloadRequest := nil;
       if VRequest <> nil then begin
         VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(VRequest, nil, FDestroyNotifier, FDestroyOperationID);
       end;

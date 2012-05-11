@@ -94,7 +94,7 @@ begin
   FHttpDownloader := AHttpDownloader;
   FResultSaver := AResultSaver;
   FLastResponseInfo := ALastResponseInfo;
-  Assert(FResultSaver<>nil);
+  Assert(FResultSaver <> nil);
 
   VOperationNotifier := TOperationNotifier.Create;
   FDestroyNotifierInternal := VOperationNotifier;

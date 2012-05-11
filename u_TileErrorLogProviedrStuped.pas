@@ -61,7 +61,7 @@ end;
 
 destructor TTileErrorLogProviedrStuped.Destroy;
 begin
-  FNotifier:=nil;
+  FNotifier := nil;
   FCS := nil;
   inherited;
 end;

@@ -29,7 +29,10 @@ uses
 type
   TTileFileNameGM2 = class(TInterfacedObject, ITileFileNameGenerator)
   public
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte
+    ): string;
   end;
 
 implementation
@@ -39,8 +42,10 @@ uses
 
 { TTileFileNameGM2 }
 
-function TTileFileNameGM2.GetTileFileName(AXY: TPoint;
-  Azoom: byte): string;
+function TTileFileNameGM2.GetTileFileName(
+  AXY: TPoint;
+  Azoom: byte
+): string;
 begin
   result := format('z%d' + PathDelim + '%d_%d', [
     Azoom,

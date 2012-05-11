@@ -314,7 +314,7 @@ begin
 
   // TODO:  Заменить DefaultMIMEType на отдельную настройку
   if ADownloaderConfig.DefaultMIMEType <> '' then begin
-    VAccept := ADownloaderConfig.DefaultMIMEType
+    VAccept := ADownloaderConfig.DefaultMIMEType;
   end else begin
     VAccept := '*/*';
   end;

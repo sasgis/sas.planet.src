@@ -240,8 +240,8 @@ procedure TTileDownloaderConfig.SetIteratorSubRectSize(const AValue: TPoint);
 begin
   LockWrite;
   try
-    if (FIteratorSubRectSize.x <> AValue.x)or
-       (FIteratorSubRectSize.y <> AValue.y) then begin
+    if (FIteratorSubRectSize.x <> AValue.x) or
+      (FIteratorSubRectSize.y <> AValue.y) then begin
       FIteratorSubRectSize := AValue;
       SetChanged;
     end;

@@ -36,10 +36,10 @@ type
   protected
     function GetIsExists: Boolean; virtual; abstract;
     function GetIsExistsTNE: Boolean; virtual; abstract;
-    function GetLoadDate: TDateTime; 
+    function GetLoadDate: TDateTime;
     function GetTileData: IBinaryData; virtual;
     function GetSize: Cardinal; virtual; abstract;
-    function GetVersionInfo: IMapVersionInfo; 
+    function GetVersionInfo: IMapVersionInfo;
     function GetContentType: IContentTypeInfoBasic; virtual; abstract;
   public
     constructor Create(

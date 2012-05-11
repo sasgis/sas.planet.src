@@ -29,9 +29,15 @@ uses
 type
   TTileFileNameES = class(TInterfacedObject, ITileFileNameGenerator)
   private
-    class function FullInt(i: Integer; AZoom: byte): string;
+    class function FullInt(
+      i: Integer;
+      AZoom: byte
+    ): string;
   public
-    function GetTileFileName(AXY: TPoint; Azoom: byte): string;
+    function GetTileFileName(
+      AXY: TPoint;
+      Azoom: byte
+    ): string;
   end;
 
 implementation
@@ -42,7 +48,10 @@ uses
 
 { TTileFileNameES }
 
-class function TTileFileNameES.FullInt(i: Integer; AZoom: byte): string;
+class function TTileFileNameES.FullInt(
+  i: Integer;
+  AZoom: byte
+): string;
 begin
   Result := IntToStr(i);
   if AZoom < 4 then begin
@@ -61,8 +70,10 @@ begin
   end;
 end;
 
-function TTileFileNameES.GetTileFileName(AXY: TPoint;
-  Azoom: byte): string;
+function TTileFileNameES.GetTileFileName(
+  AXY: TPoint;
+  Azoom: byte
+): string;
 var
   VZoomStr: string;
   VFileName: string;

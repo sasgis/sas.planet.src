@@ -174,6 +174,7 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VRequestError: ITileRequestResultError;
   VErrorString: string;
+  VError: ITileErrorInfo;
 begin
   FGlobalInternetState.DecQueueCount;
   if AResult <> nil then begin
@@ -201,14 +202,14 @@ begin
     if VErrorString <> '' then begin
       if FErrorLogger <> nil then begin
         VErrorString := 'Error: ' + VErrorString;
-        FErrorLogger.LogError(
+        VError :=
           TTileErrorInfo.Create(
             FMapType,
             AResult.Request.Zoom,
             AResult.Request.Tile,
             VErrorString
-          )
-        );
+          );
+        FErrorLogger.LogError(VError);
       end;
     end;
   end;

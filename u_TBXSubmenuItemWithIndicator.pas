@@ -31,8 +31,12 @@ uses
 type
   TTBXSubmenuItemWithIndicator = class(TTBXSubmenuItem)
   private
-    procedure AdjustFont(Item: TTBCustomItem;
-      Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
+    procedure AdjustFont(
+      Item: TTBCustomItem;
+      Viewer: TTBItemViewer;
+      Font: TFont;
+      StateFlags: Integer
+    );
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -47,14 +51,18 @@ begin
   OnAdjustFont := Self.AdjustFont;
 end;
 
-procedure TTBXSubmenuItemWithIndicator.AdjustFont(Item: TTBCustomItem;
-  Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
+procedure TTBXSubmenuItemWithIndicator.AdjustFont(
+  Item: TTBCustomItem;
+  Viewer: TTBItemViewer;
+  Font: TFont;
+  StateFlags: Integer
+);
 var
   VChildSelected: Boolean;
   i: Integer;
 begin
   VChildSelected := False;
-  for i := 0 to  Self.Count - 1 do begin
+  for i := 0 to Self.Count - 1 do begin
     if Self.Items[i].Checked then begin
       VChildSelected := True;
       Break;
