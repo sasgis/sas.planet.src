@@ -74,8 +74,8 @@ uses
   u_TileStorageAbstract;
 
 type
- TMapType = class
-   private
+  TMapType = class
+  private
     FZmp: IZmpInfo;
 
     FCacheBitmap: ITileObjCacheBitmap;
@@ -85,8 +85,8 @@ type
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
     FVectorDataFactory: IVectorDataFactory;
-    FCoordConverter : ICoordConverter;
-    FViewCoordConverter : ICoordConverter;
+    FCoordConverter: ICoordConverter;
+    FViewCoordConverter: ICoordConverter;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
@@ -136,13 +136,25 @@ type
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
-   public
+  public
     function AllowListOfTileVersions: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
-    function GetTileFileName(const AXY: TPoint; Azoom: byte): string;
-    function GetTileShowName(const AXY: TPoint; Azoom: byte): string;
-    function TileExists(const AXY: TPoint; Azoom: byte): Boolean;
-    function TileNotExistsOnServer(const AXY: TPoint; Azoom: byte): Boolean;
+    function GetTileFileName(
+      const AXY: TPoint;
+      Azoom: byte
+    ): string;
+    function GetTileShowName(
+      const AXY: TPoint;
+      Azoom: byte
+    ): string;
+    function TileExists(
+      const AXY: TPoint;
+      Azoom: byte
+    ): Boolean;
+    function TileNotExistsOnServer(
+      const AXY: TPoint;
+      Azoom: byte
+    ): Boolean;
     function LoadTile(
       const AXY: TPoint;
       const Azoom: byte;
@@ -175,22 +187,35 @@ type
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function DeleteTile(const AXY: TPoint; Azoom: byte): Boolean;
-    function DeleteAttachments(const AXY: TPoint;
-                               const Azoom: byte;
-                               const ADelBytes: Boolean;
-                               const ADelBytesNum: Integer): Integer;
-    function DownloadAttachments(const AXY: TPoint;
-                                 const Azoom: byte;
-                                 const ACountersPtr: PMapAttachmentsCounters;
-                                 const AThread: TBaseTileDownloaderThread): Boolean;
+    function DeleteTile(
+      const AXY: TPoint;
+      Azoom: byte
+    ): Boolean;
+    function DeleteAttachments(
+      const AXY: TPoint;
+      const Azoom: byte;
+      const ADelBytes: Boolean;
+      const ADelBytesNum: Integer
+    ): Integer;
+    function DownloadAttachments(
+      const AXY: TPoint;
+      const Azoom: byte;
+      const ACountersPtr: PMapAttachmentsCounters;
+      const AThread: TBaseTileDownloaderThread
+    ): Boolean;
     procedure SaveTileSimple(
       const AXY: TPoint;
       Azoom: byte;
       const ABitmap: IBitmap32Static
     );
-    function TileLoadDate(const AXY: TPoint; Azoom: byte): TDateTime;
-    function TileSize(const AXY: TPoint; Azoom: byte): integer;
+    function TileLoadDate(
+      const AXY: TPoint;
+      Azoom: byte
+    ): TDateTime;
+    function TileSize(
+      const AXY: TPoint;
+      Azoom: byte
+    ): integer;
     function TileExportToFile(
       const AXY: TPoint;
       Azoom: byte;
@@ -219,7 +244,11 @@ type
 
     function GetLanguageManager: ILanguageManager;
     // parse vector object description
-    procedure MapAttachmentsInfoParser(Sender: TObject; var ADescr: String; var AOnlyCheckAllowRunImmediately: Boolean);
+    procedure MapAttachmentsInfoParser(
+      Sender: TObject;
+      var ADescr: String;
+      var AOnlyCheckAllowRunImmediately: Boolean
+    );
 
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
@@ -261,7 +290,7 @@ type
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
- end;
+  end;
 
 implementation
 
@@ -354,9 +383,9 @@ begin
 
   if FStorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
     FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager, FPerfCounterList);
-  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE  then begin
+  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GC  then begin
+  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GC then begin
     FStorage := TTileStorageGC.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
     FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager, FPerfCounterList);
@@ -437,96 +466,112 @@ begin
   inherited;
 end;
 
-function TMapType.DownloadAttachments(const AXY: TPoint;
-                                      const Azoom: byte;
-                                      const ACountersPtr: PMapAttachmentsCounters;
-                                      const AThread: TBaseTileDownloaderThread): Boolean;
+function TMapType.DownloadAttachments(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const ACountersPtr: PMapAttachmentsCounters;
+  const AThread: TBaseTileDownloaderThread
+): Boolean;
 var
   VKml: IVectorDataItemList;
   VSimpleAttach: IVectorDataItemSimple;
   VMapAttachmentsInfo: IMapAttachmentsInfo;
-  VDesc,VNumber,VSubCache,VFullPath,VFullUrl: String;
+  VDesc, VNumber, VSubCache, VFullPath, VFullUrl: String;
   VVersion: IMapVersionInfo;
-  i,j,VSize,VMaxSubIndex: Integer;
+  i, j, VSize, VMaxSubIndex: Integer;
 
   function _Thread_Terminated: Boolean;
   begin
     Result := FALSE;
-    if (AThread<>nil) then
-    if AThread.Terminated or AThread.PausedByUser then begin
-      Result := TRUE;
-      // calc cancelled objects
-      if (nil<>ACountersPtr) then
-        ACountersPtr^.ac_Cancelled := (VKml.Count - i);
+    if (AThread <> nil) then begin
+      if AThread.Terminated or AThread.PausedByUser then begin
+        Result := TRUE;
+        // calc cancelled objects
+        if (nil <> ACountersPtr) then begin
+          ACountersPtr^.ac_Cancelled := (VKml.Count - i);
+        end;
+      end;
     end;
   end;
+
 begin
   // init
   Result := FALSE;
-  if (nil<>ACountersPtr) then
+  if (nil <> ACountersPtr) then begin
     FillChar(ACountersPtr^, sizeof(ACountersPtr^), 0);
+  end;
 
   // attachments
   VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
-  if (not Assigned(VMapAttachmentsInfo)) then
+  if (not Assigned(VMapAttachmentsInfo)) then begin
     Exit;
+  end;
   VMaxSubIndex := VMapAttachmentsInfo.MaxSubIndex;
 
   // foreach tile
   VKml := Self.LoadKmlTileFromStorage(AXY, Azoom, VVersion);
-  if Assigned(VKml) then
-  if (0<VKml.Count) then
-  for i := 0 to VKml.Count-1 do begin
-    // check terminated
-    if _Thread_Terminated then
-      Exit;
+  if Assigned(VKml) then begin
+    if (0 < VKml.Count) then begin
+      for i := 0 to VKml.Count - 1 do begin
+        // check terminated
+        if _Thread_Terminated then begin
+          Exit;
+        end;
 
-    // get item description (full text)
-    VSimpleAttach:=VKml.GetItem(i);
-    if Assigned(VSimpleAttach) then begin
-      VDesc:=VSimpleAttach.Desc;
+        // get item description (full text)
+        VSimpleAttach := VKml.GetItem(i);
+        if Assigned(VSimpleAttach) then begin
+          VDesc := VSimpleAttach.Desc;
 
-      if (Length(VDesc)>0) then begin
-        // parse description
-        VNumber:=GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
-        if (Length(VNumber)>0) then begin
-          VSubCache := GetDiv3Path(VNumber);
+          if (Length(VDesc) > 0) then begin
+            // parse description
+            VNumber := GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
+            if (Length(VNumber) > 0) then begin
+              VSubCache := GetDiv3Path(VNumber);
 
-          // 0 just for default values - starts from 1
-          for j := 1 to VMaxSubIndex do
-          if VMapAttachmentsInfo.GetEnabled(j) then begin
-            // check terminated or paused
-            if _Thread_Terminated then
-              Exit;
-            
-            // foreach url and cache item for single attachment
-            VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
-            
-            // if attachment exists - skip downloading
-            if (FileExists(VFullPath)) then begin
-              // skip existing attachments
-              if (nil<>ACountersPtr) then
-                Inc(ACountersPtr^.ac_Skipped);
-            end else begin
-              // make full source url
-              VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j)+VNumber+VMapAttachmentsInfo.GetExt(j);
-              VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
-              if (VSize>0) then begin
-                // downloaded ok
-                if (nil<>ACountersPtr) then
-                  Inc(ACountersPtr^.ac_Downloaded);
-                if (nil<>ACountersPtr) then
-                  Inc(ACountersPtr^.ac_Size,VSize);
-                Result:=TRUE;
-              end else begin
-                // error
-                if (nil<>ACountersPtr) then
-                  Inc(ACountersPtr^.ac_Failed);
+              // 0 just for default values - starts from 1
+              for j := 1 to VMaxSubIndex do begin
+                if VMapAttachmentsInfo.GetEnabled(j) then begin
+                  // check terminated or paused
+                  if _Thread_Terminated then begin
+                    Exit;
+                  end;
+
+                  // foreach url and cache item for single attachment
+                  VFullPath := VMapAttachmentsInfo.GetNameInCache(j) + VSubCache + VNumber + VMapAttachmentsInfo.GetExt(j);
+
+                  // if attachment exists - skip downloading
+                  if (FileExists(VFullPath)) then begin
+                    // skip existing attachments
+                    if (nil <> ACountersPtr) then begin
+                      Inc(ACountersPtr^.ac_Skipped);
+                    end;
+                  end else begin
+                    // make full source url
+                    VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j) + VNumber + VMapAttachmentsInfo.GetExt(j);
+                    VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
+                    if (VSize > 0) then begin
+                      // downloaded ok
+                      if (nil <> ACountersPtr) then begin
+                        Inc(ACountersPtr^.ac_Downloaded);
+                      end;
+                      if (nil <> ACountersPtr) then begin
+                        Inc(ACountersPtr^.ac_Size, VSize);
+                      end;
+                      Result := TRUE;
+                    end else begin
+                      // error
+                      if (nil <> ACountersPtr) then begin
+                        Inc(ACountersPtr^.ac_Failed);
+                      end;
+                    end;
+                  end;
+                end;
               end;
             end;
           end;
         end;
-     end;
+      end;
     end;
   end;
 end;
@@ -536,7 +581,10 @@ begin
   Result := FStorage.NotifierByZoom[AZoom];
 end;
 
-function TMapType.GetTileFileName(const AXY: TPoint; Azoom: byte): string;
+function TMapType.GetTileFileName(
+  const AXY: TPoint;
+  Azoom: byte
+): string;
 begin
   Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.Version);
 end;
@@ -544,10 +592,13 @@ end;
 function TMapType.AllowListOfTileVersions: Boolean;
 begin
   // only for GE and GC
-  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]);
+  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]);
 end;
 
-function TMapType.TileExists(const AXY: TPoint; Azoom: byte): Boolean;
+function TMapType.TileExists(
+  const AXY: TPoint;
+  Azoom: byte
+): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
@@ -555,56 +606,68 @@ begin
   Result := VTileInfo.GetIsExists;
 end;
 
-function TMapType.DeleteAttachments(const AXY: TPoint;
-                                    const Azoom: byte;
-                                    const ADelBytes: Boolean;
-                                    const ADelBytesNum: Integer): Integer;
+function TMapType.DeleteAttachments(
+  const AXY: TPoint;
+  const Azoom: byte;
+  const ADelBytes: Boolean;
+  const ADelBytesNum: Integer
+): Integer;
 var
   VKml: IVectorDataItemList;
   VSimpleAttach: IVectorDataItemSimple;
   VMapAttachmentsInfo: IMapAttachmentsInfo;
-  VDesc,VNumber,VSubCache,VFullPath: String;
-  i,j: Integer;
+  VDesc, VNumber, VSubCache, VFullPath: String;
+  i, j: Integer;
   VVersion: IMapVersionInfo;
 begin
-  Result:=0;
+  Result := 0;
   // get file from storage
   // FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
   VKml := Self.LoadKmlTileFromStorage(AXY, Azoom, VVersion);
-  if Assigned(VKml) then
-  if (VKml.Count>0) then
-  for i := 0 to VKml.Count-1 do begin
-    // get item description (full text)
-    VSimpleAttach:=VKml.GetItem(i);
-    if Assigned(VSimpleAttach) then begin
-      VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
-      VDesc:=VSimpleAttach.Desc;
-      if (Length(VDesc)>0) and Assigned(VMapAttachmentsInfo) then begin
-        // parse description
-        VNumber:=GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
-        if (Length(VNumber)>0) then begin
-          VSubCache := GetDiv3Path(VNumber);
-          // 0 just for default values - starts from 1
-          for j := 1 to VMapAttachmentsInfo.MaxSubIndex do
-          if VMapAttachmentsInfo.GetEnabled(j) then begin
-            // foreach cache item for single attachment
-            VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
-            // delete attached file (what about ADelBytesNum?)
-            if DeleteFile(VFullPath) then
-              Inc(Result);
+  if Assigned(VKml) then begin
+    if (VKml.Count > 0) then begin
+      for i := 0 to VKml.Count - 1 do begin
+        // get item description (full text)
+        VSimpleAttach := VKml.GetItem(i);
+        if Assigned(VSimpleAttach) then begin
+          VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
+          VDesc := VSimpleAttach.Desc;
+          if (Length(VDesc) > 0) and Assigned(VMapAttachmentsInfo) then begin
+            // parse description
+            VNumber := GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
+            if (Length(VNumber) > 0) then begin
+              VSubCache := GetDiv3Path(VNumber);
+              // 0 just for default values - starts from 1
+              for j := 1 to VMapAttachmentsInfo.MaxSubIndex do begin
+                if VMapAttachmentsInfo.GetEnabled(j) then begin
+                  // foreach cache item for single attachment
+                  VFullPath := VMapAttachmentsInfo.GetNameInCache(j) + VSubCache + VNumber + VMapAttachmentsInfo.GetExt(j);
+                  // delete attached file (what about ADelBytesNum?)
+                  if DeleteFile(VFullPath) then begin
+                    Inc(Result);
+                  end;
+                end;
+              end;
+            end;
           end;
         end;
-     end;
+      end;
     end;
   end;
 end;
 
-function TMapType.DeleteTile(const AXY: TPoint; Azoom: byte): Boolean;
+function TMapType.DeleteTile(
+  const AXY: TPoint;
+  Azoom: byte
+): Boolean;
 begin
   Result := FStorage.DeleteTile(AXY, Azoom, FVersionConfig.Version);
 end;
 
-function TMapType.TileNotExistsOnServer(const AXY: TPoint; Azoom: byte): Boolean;
+function TMapType.TileNotExistsOnServer(
+  const AXY: TPoint;
+  Azoom: byte
+): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
@@ -663,7 +726,7 @@ var
 begin
   Result := nil;
   VData := FStorage.LoadTile(AXY, Azoom, AVersionInfo, VTileInfo);
-  if VData <> nil then  begin
+  if VData <> nil then begin
     Result := FKmlLoaderFromStorage.Load(VData, FVectorDataFactory);
     if Assigned(VTileInfo) then begin
       AVersionInfo := VTileInfo.VersionInfo;
@@ -671,7 +734,10 @@ begin
   end;
 end;
 
-function TMapType.TileLoadDate(const AXY: TPoint; Azoom: byte): TDateTime;
+function TMapType.TileLoadDate(
+  const AXY: TPoint;
+  Azoom: byte
+): TDateTime;
 var
   VTileInfo: ITileInfoBasic;
 begin
@@ -679,7 +745,10 @@ begin
   Result := VTileInfo.GetLoadDate;
 end;
 
-function TMapType.TileSize(const AXY: TPoint; Azoom: byte): integer;
+function TMapType.TileSize(
+  const AXY: TPoint;
+  Azoom: byte
+): integer;
 var
   VTileInfo: ITileInfoBasic;
 begin
@@ -760,10 +829,13 @@ begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorageConfig.NameInCache)));
 end;
 
-function TMapType.GetTileShowName(const AXY: TPoint; Azoom: byte): string;
+function TMapType.GetTileShowName(
+  const AXY: TPoint;
+  Azoom: byte
+): string;
 begin
   if FStorageConfig.IsStoreFileCache then begin
-    Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.Version)
+    Result := FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.Version);
   end else begin
     Result := 'z' + IntToStr(Azoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
   end;
@@ -813,7 +885,7 @@ begin
 
     VSameSourceAndTarget := VSourceConverter.IsSameConverter(VTargetConverter);
     if VSameSourceAndTarget then begin
-      VSourceRelativeRect := VSourceConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom)
+      VSourceRelativeRect := VSourceConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom);
     end else begin
       VLonLatRect := VTargetConverter.PixelRectFloat2LonLatRect(VTargetMapPixelRect, VTargetZoom);
       VSourceConverter.CheckLonLatRect(VLonLatRect);
@@ -904,10 +976,8 @@ begin
     if Result <> nil then begin
       VRect := FCoordConverter.TilePos2PixelRect(AXY, Azoom);
       VSize := Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
-      if
-        (Result.Bitmap.Width <> VSize.X) or
-        (Result.Bitmap.Height <> VSize.Y)
-      then begin
+      if (Result.Bitmap.Width <> VSize.X) or
+        (Result.Bitmap.Height <> VSize.Y) then begin
         VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
         try
           VBitmap := TCustomBitmap32.Create;
@@ -980,8 +1050,8 @@ function TMapType.LoadTileFromPreZ(
 var
   i: integer;
   VBmp: IBitmap32Static;
-  VTileTargetBounds:TRect;
-  VTileSourceBounds:TRect;
+  VTileTargetBounds: TRect;
+  VTileSourceBounds: TRect;
   VTileParent: TPoint;
   VTargetTilePixelRect: TRect;
   VSourceTilePixelRect: TRect;
@@ -994,7 +1064,7 @@ var
 begin
   Result := nil;
   VRelative := FCoordConverter.TilePos2Relative(AXY, Azoom);
-  VMinZoom :=  Azoom - FLoadPrevMaxZoomDelta;
+  VMinZoom := Azoom - FLoadPrevMaxZoomDelta;
   if VMinZoom < 0 then begin
     VMinZoom := 0;
   end;
@@ -1017,7 +1087,7 @@ begin
         VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
         VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
         VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
-        VResampler :=FImageResamplerConfig.GetActiveFactory.CreateResampler;
+        VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
         try
           try
             VBitmap := TCustomBitmap32.Create;
@@ -1040,7 +1110,7 @@ begin
             Break;
           except
             if not IgnoreError then begin
-              raise
+              raise;
             end;
           end;
         finally
@@ -1096,15 +1166,12 @@ begin
   FCoordConverter.CheckPixelRect(VPixelRectTarget, VZoom);
   VTileRect := FCoordConverter.PixelRect2TileRect(VPixelRectTarget, VZoom);
   if (VTileRect.Left = VTileRect.Right - 1) and
-    (VTileRect.Top = VTileRect.Bottom - 1)
-  then begin
+    (VTileRect.Top = VTileRect.Bottom - 1) then begin
     VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTileRect.TopLeft, VZoom);
-    if
-      (VPixelRectCurrTile.Left = APixelRectTarget.Left) and
+    if (VPixelRectCurrTile.Left = APixelRectTarget.Left) and
       (VPixelRectCurrTile.Top = APixelRectTarget.Top) and
       (VPixelRectCurrTile.Right = APixelRectTarget.Right) and
-      (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom)
-    then begin
+      (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom) then begin
       Result := LoadTileOrPreZ(VTileRect.TopLeft, VZoom, IgnoreError, AUsePre, ACache);
       exit;
     end;
@@ -1269,16 +1336,18 @@ begin
   Result := LoadBtimapUni(VPixelRect, Azoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
 end;
 
-procedure TMapType.MapAttachmentsInfoParser(Sender: TObject;
-                                            var ADescr: String;
-                                            var AOnlyCheckAllowRunImmediately: Boolean);
+procedure TMapType.MapAttachmentsInfoParser(
+  Sender: TObject;
+  var ADescr: String;
+  var AOnlyCheckAllowRunImmediately: Boolean
+);
 var
   VMapAttachmentsInfo: IMapAttachmentsInfo;
   VParseAttachmentScript: String;
 
   function _SenderTerminated: Boolean;
   begin
-    Result := (Sender<>nil) and (Sender is TBaseTileDownloaderThread) and TBaseTileDownloaderThread(Sender).Terminated;
+    Result := (Sender <> nil) and (Sender is TBaseTileDownloaderThread) and TBaseTileDownloaderThread(Sender).Terminated;
   end;
 
   function _CheckForeachAttachment(const ADownload: Boolean): Boolean;
@@ -1289,26 +1358,27 @@ var
     Result := TRUE;
     VNumber := GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, ADescr);
     VSubCache := GetDiv3Path(VNumber);
-    for j := 1 to VMapAttachmentsInfo.MaxSubIndex do
-    if VMapAttachmentsInfo.GetEnabled(j) then begin
-      // check terminated
-      if _SenderTerminated then begin
-        Result := FALSE;
-        Exit;
-      end;
-
-      // full local path
-      VFullPath := VMapAttachmentsInfo.GetNameInCache(j)+VSubCache+VNumber+VMapAttachmentsInfo.GetExt(j);
-      // if file exists - nothing to do
-      if (not FileExists(VFullPath)) then begin
-        if ADownload then begin
-          // download now
-          VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j)+VNumber+VMapAttachmentsInfo.GetExt(j);
-          DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
-        end else begin
-          // cannot show immediately
+    for j := 1 to VMapAttachmentsInfo.MaxSubIndex do begin
+      if VMapAttachmentsInfo.GetEnabled(j) then begin
+        // check terminated
+        if _SenderTerminated then begin
           Result := FALSE;
           Exit;
+        end;
+
+        // full local path
+        VFullPath := VMapAttachmentsInfo.GetNameInCache(j) + VSubCache + VNumber + VMapAttachmentsInfo.GetExt(j);
+        // if file exists - nothing to do
+        if (not FileExists(VFullPath)) then begin
+          if ADownload then begin
+            // download now
+            VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j) + VNumber + VMapAttachmentsInfo.GetExt(j);
+            DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
+          end else begin
+            // cannot show immediately
+            Result := FALSE;
+            Exit;
+          end;
         end;
       end;
     end;
@@ -1316,30 +1386,30 @@ var
 
 begin
   VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
-  if not Assigned(VMapAttachmentsInfo) then
+  if not Assigned(VMapAttachmentsInfo) then begin
     Exit;
+  end;
 
   // real kml layer with attachments
   if AOnlyCheckAllowRunImmediately then begin
     // check attachments (for all enabled items)
     AOnlyCheckAllowRunImmediately := _CheckForeachAttachment(FALSE);
-    if (not AOnlyCheckAllowRunImmediately) then
+    if (not AOnlyCheckAllowRunImmediately) then begin
       Exit;
-  end
-  else begin
+    end;
+  end else begin
     // we can donload all attachments
     AOnlyCheckAllowRunImmediately := _CheckForeachAttachment(TRUE);
-    if _SenderTerminated then
+    if _SenderTerminated then begin
       Exit;
+    end;
   end;
 
   // full description parser
   VParseAttachmentScript := Self.Zmp.DataProvider.ReadString('ParseAttachmentScript.txt', '');
-  if (0<Length(VParseAttachmentScript)) then begin
+  if (0 < Length(VParseAttachmentScript)) then begin
     RunParseAttachmentScript(FMapAttachmentsFactory, VMapAttachmentsInfo, VParseAttachmentScript, ADescr);
   end;
 end;
 
 end.
-
-

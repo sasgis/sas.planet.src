@@ -70,7 +70,7 @@ begin
     FBoundsRect := Bounds(
       AConfigData.ReadInteger('Left', FBoundsRect.Left),
       AConfigData.ReadInteger('Top', FBoundsRect.Top),
-      AConfigData.ReadInteger('Width', FBoundsRect.Right -  FBoundsRect.Top),
+      AConfigData.ReadInteger('Width', FBoundsRect.Right - FBoundsRect.Top),
       AConfigData.ReadInteger('Height', FBoundsRect.Bottom - FBoundsRect.Top)
     );
     FIsMaximized := AConfigData.ReadBool('Maximized', FIsMaximized);

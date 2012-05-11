@@ -53,7 +53,7 @@ type
     function GetUseDel: Boolean; stdcall;
     { IStringByLanguage }
     function GetString(ALangIndex: Integer): string;
-    function GetDefault: string;    
+    function GetDefault: string;
   public
     constructor Create(
       const AGUID: TGUID;
@@ -110,42 +110,47 @@ end;
 
 function TMapAttachmentsInfo.GetContentType(const AIndex: Integer): String;
 begin
-  if (FSL_ContentType<>nil) and (AIndex>=0) and (AIndex<FSL_ContentType.Count) then
-    Result := FSL_ContentType[AIndex]
-  else
+  if (FSL_ContentType <> nil) and (AIndex >= 0) and (AIndex < FSL_ContentType.Count) then begin
+    Result := FSL_ContentType[AIndex];
+  end else begin
     Result := '';
+  end;
 end;
 
 function TMapAttachmentsInfo.GetDefault: string;
 begin
-  if FSL_Names=nil then
-    Result := ''
-  else
+  if FSL_Names = nil then begin
+    Result := '';
+  end else begin
     Result := FSL_Names[0];
+  end;
 end;
 
 function TMapAttachmentsInfo.GetDefURLBase(const AIndex: Integer): String;
 begin
-  if (FSL_DefUrlBase<>nil) and (AIndex>=0) and (AIndex<FSL_DefUrlBase.Count) then
-    Result := FSL_DefUrlBase[AIndex]
-  else
+  if (FSL_DefUrlBase <> nil) and (AIndex >= 0) and (AIndex < FSL_DefUrlBase.Count) then begin
+    Result := FSL_DefUrlBase[AIndex];
+  end else begin
     Result := '';
+  end;
 end;
 
 function TMapAttachmentsInfo.GetEnabled(const AIndex: Integer): Boolean;
 begin
-  if (FSL_NameInCache<>nil) and (AIndex>=0) and (AIndex<FSL_NameInCache.Count) then
-    Result := (FSL_NameInCache.Objects[AIndex]<>nil)
-  else
+  if (FSL_NameInCache <> nil) and (AIndex >= 0) and (AIndex < FSL_NameInCache.Count) then begin
+    Result := (FSL_NameInCache.Objects[AIndex] <> nil);
+  end else begin
     Result := FALSE;
+  end;
 end;
 
 function TMapAttachmentsInfo.GetExt(const AIndex: Integer): String;
 begin
-  if (FSL_Ext<>nil) and (AIndex>=0) and (AIndex<FSL_Ext.Count) then
-    Result := FSL_Ext[AIndex]
-  else
+  if (FSL_Ext <> nil) and (AIndex >= 0) and (AIndex < FSL_Ext.Count) then begin
+    Result := FSL_Ext[AIndex];
+  end else begin
     Result := '';
+  end;
 end;
 
 function TMapAttachmentsInfo.GetGUID: TGUID;
@@ -160,10 +165,11 @@ end;
 
 function TMapAttachmentsInfo.GetNameInCache(const AIndex: Integer): String;
 begin
-  if (FSL_NameInCache<>nil) and (AIndex>=0) and (AIndex<FSL_NameInCache.Count) then
-    Result := FSL_NameInCache[AIndex]
-  else
+  if (FSL_NameInCache <> nil) and (AIndex >= 0) and (AIndex < FSL_NameInCache.Count) then begin
+    Result := FSL_NameInCache[AIndex];
+  end else begin
     Result := '';
+  end;
 end;
 
 function TMapAttachmentsInfo.GetParseNumberAfter: String;
@@ -173,12 +179,13 @@ end;
 
 function TMapAttachmentsInfo.GetString(ALangIndex: Integer): string;
 begin
-  if (FSL_Names=nil) then
-    Result := ''
-  else if  (ALangIndex<=0) or (ALangIndex>=FSL_Names.Count) then
-    Result := GetDefault
-  else
+  if (FSL_Names = nil) then begin
+    Result := '';
+  end else if (ALangIndex <= 0) or (ALangIndex >= FSL_Names.Count) then begin
+    Result := GetDefault;
+  end else begin
     Result := FSL_Names[ALangIndex];
+  end;
 end;
 
 function TMapAttachmentsInfo.GetUseDel: Boolean;

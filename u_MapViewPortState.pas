@@ -81,13 +81,19 @@ type
     procedure ChangeViewSize(const ANewSize: TPoint);
     procedure ChangeMapPixelByDelta(const ADelta: TDoublePoint);
     procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
-    procedure ChangeZoomWithFreezeAtVisualPoint(const AZoom: Byte; const AFreezePoint: TPoint);
+    procedure ChangeZoomWithFreezeAtVisualPoint(
+      const AZoom: Byte;
+      const AFreezePoint: TPoint
+    );
     procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
 
     procedure MoveTo(const Pnt: TPoint);
-    procedure ScaleTo(const AScale: Double; const ACenterPoint: TPoint); overload;
+    procedure ScaleTo(
+      const AScale: Double;
+      const ACenterPoint: TPoint
+    ); overload;
     procedure ScaleTo(const AScale: Double); overload;
 
     function GetScaleChangeNotifier: IJclNotifier;
@@ -210,7 +216,8 @@ begin
     VZoom := FZoom;
     VNewPos := FVisibleCoordConverter.LocalPixel2MapPixelFloat(AVisualPoint);
     FActiveCoordConverter.CheckPixelPosFloatStrict(VNewPos, VZoom, True);
-    VChanged := not DoublePointsEqual(FCenterPos, VNewPos);;
+    VChanged := not DoublePointsEqual(FCenterPos, VNewPos);
+    ;
     ResetScaleAndMove;
     FCenterPos := VNewPos;
     if VChanged then begin
@@ -494,7 +501,10 @@ begin
   FVisibleMove.Y := 0;
 end;
 
-procedure TMapViewPortState.ScaleTo(const AScale: Double; const ACenterPoint: TPoint);
+procedure TMapViewPortState.ScaleTo(
+  const AScale: Double;
+  const ACenterPoint: TPoint
+);
 var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
@@ -509,7 +519,7 @@ begin
   VVisiblePointFixed.Y := ACenterPoint.Y;
   LockWrite;
   try
-    if not DoublePointsEqual(FVisibleMove, DoublePoint(0,0)) then begin
+    if not DoublePointsEqual(FVisibleMove, DoublePoint(0, 0)) then begin
       FVisibleMove.X := 0;
       FVisibleMove.Y := 0;
       VChanged := True;
@@ -560,7 +570,7 @@ begin
     VVisiblePointFixed.X := VViewCenter.X;
     VVisiblePointFixed.Y := VViewCenter.Y;
     VMapPointFixed := FVisibleCoordConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
-    if not DoublePointsEqual(FVisibleMove, DoublePoint(0,0)) then begin
+    if not DoublePointsEqual(FVisibleMove, DoublePoint(0, 0)) then begin
       FVisibleMove.X := 0;
       FVisibleMove.Y := 0;
       VChanged := True;

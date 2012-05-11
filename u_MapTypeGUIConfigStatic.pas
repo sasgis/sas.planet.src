@@ -90,7 +90,7 @@ begin
   FSeparator := ASeparator;
   FLayerZOrder := ALayerZOrder;
   FParentSubMenu := AParentSubMenu;
-  FEnabled :=  AEnabled;
+  FEnabled := AEnabled;
   FInfoUrl := AInfoUrl;
   FBmp18 := ABmp18;
   FBmp24 := ABmp24;
@@ -103,7 +103,7 @@ end;
 
 function TMapTypeGUIConfigStatic.GetBmp24: IBitmap32Static;
 begin
-  Result := FBmp24
+  Result := FBmp24;
 end;
 
 function TMapTypeGUIConfigStatic.GetEnabled: Boolean;

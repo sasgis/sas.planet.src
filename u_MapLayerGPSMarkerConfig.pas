@@ -60,28 +60,28 @@ uses
 { TMapLayerGPSMarkerConfig }
 
 constructor TMapLayerGPSMarkerConfig.Create;
+var
+  VMarkerProvider: IBitmapMarkerProviderSimpleConfigStatic;
 begin
   inherited;
   FMinMoveSpeed := 1;
 
-  FMovedMarkerConfig :=
-    TBitmapMarkerProviderSimpleConfig.Create(
-      TBitmapMarkerProviderSimpleConfigStatic.Create(
-        25,
-        SetAlpha(clRed32, 150),
-        SetAlpha(clBlack32, 200)
-      )
+  VMarkerProvider :=
+    TBitmapMarkerProviderSimpleConfigStatic.Create(
+      25,
+      SetAlpha(clRed32, 150),
+      SetAlpha(clBlack32, 200)
     );
+  FMovedMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
   Add(FMovedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerMoved'));
 
-  FStopedMarkerConfig :=
-    TBitmapMarkerProviderSimpleConfig.Create(
-      TBitmapMarkerProviderSimpleConfigStatic.Create(
-        10,
-        SetAlpha(clRed32, 200),
-        SetAlpha(clBlack32, 200)
-      )
+  VMarkerProvider :=
+    TBitmapMarkerProviderSimpleConfigStatic.Create(
+      10,
+      SetAlpha(clRed32, 200),
+      SetAlpha(clBlack32, 200)
     );
+  FStopedMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
   Add(FStopedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerStoped'));
 end;
 

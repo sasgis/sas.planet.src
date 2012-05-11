@@ -40,7 +40,10 @@ type
     function GetIconIndexByGUID(const AGUID: TGUID): Integer;
     function GetIterator: IEnumGUID;
   public
-    procedure Add(const AGUID: TGUID; const ABmp: IBitmap32Static);
+    procedure Add(
+      const AGUID: TGUID;
+      const ABmp: IBitmap32Static
+    );
     constructor Create(AWidth, AHeight: Integer);
     destructor Destroy; override;
   end;
@@ -54,7 +57,10 @@ uses
 
 { TMapTypeIconsList }
 
-procedure TMapTypeIconsList.Add(const AGUID: TGUID; const ABmp: IBitmap32Static);
+procedure TMapTypeIconsList.Add(
+  const AGUID: TGUID;
+  const ABmp: IBitmap32Static
+);
 var
   VIndex: Integer;
   VDib32: TDIB32;

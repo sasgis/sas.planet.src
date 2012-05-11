@@ -53,6 +53,7 @@ type
     constructor Create(const AMapsSet: IMapTypeSet);
     destructor Destroy; override;
   end;
+
 implementation
 
 uses
@@ -91,7 +92,7 @@ begin
   FActiveMap := TActiveMapConfig.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsSet);
   Add(FActiveMap, nil);
 
-  FActiveMapsSet :=  TActiveMapsSet.Create(
+  FActiveMapsSet := TActiveMapsSet.Create(
     FMapsSet,
     FSingeMapsList,
     MainMapChangeNotyfier,

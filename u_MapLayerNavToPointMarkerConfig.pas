@@ -59,28 +59,28 @@ uses
 { TMapLayerGPSMarkerConfig }
 
 constructor TMapLayerNavToPointMarkerConfig.Create;
+var
+  VMarkerProvider: IBitmapMarkerProviderSimpleConfigStatic;
 begin
   inherited;
   FCrossDistInPixels := 100;
 
-  FArrowMarkerConfig :=
-    TBitmapMarkerProviderSimpleConfig.Create(
-      TBitmapMarkerProviderSimpleConfigStatic.Create(
-        25,
-        SetAlpha(clRed32, 150),
-        SetAlpha(clBlack32, 200)
-      )
+  VMarkerProvider :=
+    TBitmapMarkerProviderSimpleConfigStatic.Create(
+      25,
+      SetAlpha(clRed32, 150),
+      SetAlpha(clBlack32, 200)
     );
+  FArrowMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
   Add(FArrowMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ArrowMarker'));
 
-  FReachedMarkerConfig :=
-    TBitmapMarkerProviderSimpleConfig.Create(
-      TBitmapMarkerProviderSimpleConfigStatic.Create(
-        20,
-        SetAlpha(clRed32, 200),
-        SetAlpha(clBlack32, 200)
-      )
+  VMarkerProvider :=
+    TBitmapMarkerProviderSimpleConfigStatic.Create(
+      20,
+      SetAlpha(clRed32, 200),
+      SetAlpha(clBlack32, 200)
     );
+  FReachedMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
   Add(FReachedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ReachedPointMarker'));
 end;
 

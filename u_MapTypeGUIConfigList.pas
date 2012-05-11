@@ -113,46 +113,46 @@ begin
 end;
 
 function TMapTypeGUIConfigList.CreateOrderedList: IGUIDListStatic;
-procedure QuickSort(
+  procedure QuickSort(
   var AIndexList: array of Integer;
   var AGUIDList: array of TGUID;
-  L, R: Integer
-);
-var
-  I, J: Integer;
-  P: Integer;
-  TI: Integer;
-  TG: TGUID;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := AIndexList[(L + R) shr 1];
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Integer;
+    TI: Integer;
+    TG: TGUID;
+  begin
     repeat
-      while AIndexList[I] < P do begin
-        Inc(I);
-      end;
-      while AIndexList[J] > P do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        TI := AIndexList[I];
-        TG := AGUIDList[I];
+      I := L;
+      J := R;
+      P := AIndexList[(L + R) shr 1];
+      repeat
+        while AIndexList[I] < P do begin
+          Inc(I);
+        end;
+        while AIndexList[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          TI := AIndexList[I];
+          TG := AGUIDList[I];
 
-        AIndexList[I] := AIndexList[J];
-        AGUIDList[I] := AGUIDList[J];
-        AIndexList[J] := TI;
-        AGUIDList[J] := TG;
-        Inc(I);
-        Dec(J);
+          AIndexList[I] := AIndexList[J];
+          AGUIDList[I] := AGUIDList[J];
+          AIndexList[J] := TI;
+          AGUIDList[J] := TG;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AIndexList, AGUIDList, L, J);
       end;
-    until I > J;
-    if L < J then begin
-      QuickSort(AIndexList, AGUIDList, L, J);
-    end;
-    L := I;
-  until I >= R;
-end;
+      L := I;
+    until I >= R;
+  end;
 
 var
   VIndexList: array of Integer;

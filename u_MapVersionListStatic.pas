@@ -31,18 +31,20 @@ end;
 
 function TMapVersionListStatic.GetCount: Integer;
 begin
-  if not Assigned(FList) then
-    Result := 0
-  else
+  if not Assigned(FList) then begin
+    Result := 0;
+  end else begin
     Result := FList.Count;
+  end;
 end;
 
 function TMapVersionListStatic.GetItem(AIndex: Integer): IMapVersionInfo;
 begin
-  if not Assigned(FList) then
-    Result := nil
-  else
+  if not Assigned(FList) then begin
+    Result := nil;
+  end else begin
     Result := IMapVersionInfo(FList.Items[AIndex]);
+  end;
 end;
 
 end.

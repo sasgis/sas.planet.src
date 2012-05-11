@@ -291,7 +291,7 @@ begin
   try
     for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
-      VMapType :=FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
       VMapType.GUIConfig.SortIndex := i + 1;
     end;
   finally
@@ -313,7 +313,7 @@ begin
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
-    VMapType :=FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     VGUIDString := GUIDToString(VGUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VMapType.SaveConfig(VSubItem);

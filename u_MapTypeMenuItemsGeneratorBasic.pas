@@ -184,9 +184,9 @@ begin
       VSubMenu.Add(VMenuItem);
       VMapType := nil;
       if VActiveMap.GetMapType <> nil then begin
-        VMapType:=VActiveMap.GetMapType.MapType;
+        VMapType := VActiveMap.GetMapType.MapType;
       end;
-      if (VMapType<>nil)and(VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
+      if (VMapType <> nil) and (VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
         VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
       end;
     end;

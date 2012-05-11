@@ -43,7 +43,10 @@ type
     function GetMinSpeedColor: TColor32;
     function GetMaxSpeedColor: TColor32;
   public
-    constructor Create(ASpeed: Double; AMinColor, AMaxColor: TColor32);
+    constructor Create(
+      ASpeed: Double;
+      AMinColor, AMaxColor: TColor32
+    );
   end;
 
   TTrackColorerStatic = class(TInterfacedObject, ITrackColorerStatic)
@@ -52,7 +55,10 @@ type
     FSpeedArray: array of Double;
     FMinColorArray: TArrayOfColor32;
     FMaxColorArray: TArrayOfColor32;
-    function GetColor(AColorMin, AColorMax: TColor32; ASpeedMin, ASpeedMax, ASpeed: Double): TColor32;
+    function GetColor(
+      AColorMin, AColorMax: TColor32;
+      ASpeedMin, ASpeedMax, ASpeed: Double
+    ): TColor32;
   protected
     function GetColorForSpeed(ASpeed: Double): TColor32;
   public
@@ -74,7 +80,10 @@ type
     function GetSpeedRangeCount: Integer;
 
     function GetSpeedRangeItem(AIndex: Integer): ISpeedRangeItem;
-    function AddSpeedRangeItem(ASpeed: Double; AMinColor, AMaxColor: TColor32): Integer;
+    function AddSpeedRangeItem(
+      ASpeed: Double;
+      AMinColor, AMaxColor: TColor32
+    ): Integer;
     procedure ClearItems;
   public
     constructor Create();
@@ -118,8 +127,11 @@ uses
 
 { TSpeedRangeItem }
 
-constructor TSpeedRangeItem.Create(ASpeed: Double; AMinColor,
-  AMaxColor: TColor32);
+constructor TSpeedRangeItem.Create(
+  ASpeed: Double;
+  AMinColor,
+  AMaxColor: TColor32
+);
 begin
   inherited Create;
   FSpeed := ASpeed;
@@ -189,7 +201,7 @@ begin
     VCleared := False;
     while True do begin
       VSufix := IntToStr(i);
-      VSpeed := AConfigData.ReadFloat('Speed_'+VSufix, -1);
+      VSpeed := AConfigData.ReadFloat('Speed_' + VSufix, -1);
       if VSpeed < 0 then begin
         Break;
       end else begin
@@ -219,14 +231,17 @@ begin
   for i := 0 to FList.Count - 1 do begin
     VItem := ISpeedRangeItem(FList.Items[i]);
     VSufix := IntToStr(i);
-    AConfigData.WriteFloat('Speed_'+VSufix, VItem.GetSpeed);
+    AConfigData.WriteFloat('Speed_' + VSufix, VItem.GetSpeed);
     WriteColor32(AConfigData, 'MinColor_' + VSufix, VItem.GetMinSpeedColor);
     WriteColor32(AConfigData, 'MaxColor_' + VSufix, VItem.GetMaxSpeedColor);
   end;
 end;
 
-function TTrackColorerConfig.AddSpeedRangeItem(ASpeed: Double; AMinColor,
-  AMaxColor: TColor32): Integer;
+function TTrackColorerConfig.AddSpeedRangeItem(
+  ASpeed: Double;
+  AMinColor,
+  AMaxColor: TColor32
+): Integer;
 var
   VItemNew: ISpeedRangeItem;
   VItemExists: ISpeedRangeItem;
@@ -248,14 +263,14 @@ begin
         VItemExists := ISpeedRangeItem(FList[VI]);
         VDelta := VItemExists.GetSpeed - ASpeed;
         if Abs(VDelta) < 0.01 then begin
-          VC := 0
+          VC := 0;
         end else if VDelta > 0 then begin
           VC := 1;
         end else begin
           VC := -1;
         end;
         if VC < 0 then begin
-          VL := VI + 1
+          VL := VI + 1;
         end else begin
           VH := VI - 1;
           if VC = 0 then begin
@@ -341,8 +356,11 @@ begin
   end;
 end;
 
-function TTrackColorerStatic.GetColor(AColorMin, AColorMax: TColor32; ASpeedMin,
-  ASpeedMax, ASpeed: Double): TColor32;
+function TTrackColorerStatic.GetColor(
+  AColorMin, AColorMax: TColor32;
+  ASpeedMin,
+  ASpeedMax, ASpeed: Double
+): TColor32;
 var
   VRatio: Double;
   VRMin, VGMin, VBMin, VAMin: Byte;

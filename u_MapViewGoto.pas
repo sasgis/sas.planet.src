@@ -52,7 +52,10 @@ type
     FLastGotoPos: IGotoPosStatic;
     FChangeNotifier: IJclNotifier;
   protected
-    procedure GotoPos(const ALonLat: TDoublePoint; const AZoom: Byte);
+    procedure GotoPos(
+      const ALonLat: TDoublePoint;
+      const AZoom: Byte
+    );
     function GetLastGotoPos: IGotoPosStatic;
     function GetChangeNotifier: IJclNotifier;
   public
@@ -87,7 +90,10 @@ begin
   Result := FLastGotoPos;
 end;
 
-procedure TMapViewGoto.GotoPos(const ALonLat: TDoublePoint; const AZoom: Byte);
+procedure TMapViewGoto.GotoPos(
+  const ALonLat: TDoublePoint;
+  const AZoom: Byte
+);
 begin
   FViewPortState.LockWrite;
   try
@@ -102,8 +108,11 @@ end;
 
 { TGotoPosStatic }
 
-constructor TGotoPosStatic.Create(ALonLat: TDoublePoint; AZoom: Byte;
-  AGotoTime: TDateTime);
+constructor TGotoPosStatic.Create(
+  ALonLat: TDoublePoint;
+  AZoom: Byte;
+  AGotoTime: TDateTime
+);
 begin
   inherited Create;
   FLonLat := ALonLat;

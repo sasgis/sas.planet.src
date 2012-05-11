@@ -9,18 +9,22 @@ uses
 type
   IMapVersionFactoryGEInternal = interface(IMapVersionFactory)
     ['{F5A6FBE0-D633-4BCB-999A-BB0428CB1EF2}']
-    function CreateByGE(const AVer: Word;
-                        const AGEServer: String;
-                        const ATileDate: String): IMapVersionInfo;
+    function CreateByGE(
+      const AVer: Word;
+      const AGEServer: String;
+      const ATileDate: String
+    ): IMapVersionInfo;
   end;
 
   TMapVersionFactoryGE = class(TInterfacedObject, IMapVersionFactory, IMapVersionFactoryGEInternal)
   private
     function CreateByStoreString(const AValue: string): IMapVersionInfo;
     function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
-    function CreateByGE(const AVer: Word;
-                        const AGEServer: String;
-                        const ATileDate: String): IMapVersionInfo;
+    function CreateByGE(
+      const AVer: Word;
+      const AGEServer: String;
+      const ATileDate: String
+    ): IMapVersionInfo;
   end;
 
 implementation
@@ -84,14 +88,16 @@ begin
 
   // Ver
   if (FVer <> 0) then begin
-    if (0<Length(Result)) then
-      Result:=Result+'\';
-    Result:=Result+IntToStr(FVer);
+    if (0 < Length(Result)) then begin
+      Result := Result + '\';
+    end;
+    Result := Result + IntToStr(FVer);
   end;
 
   // GEServer
-  if (0<Length(FGEServer)) then
-    Result:=Result+'['+FGEServer+']';
+  if (0 < Length(FGEServer)) then begin
+    Result := Result + '[' + FGEServer + ']';
+  end;
 end;
 
 function TMapVersionInfoGE.GetTileDate: String;
@@ -133,9 +139,11 @@ end;
 
 { TMapVersionFactoryGE }
 
-function TMapVersionFactoryGE.CreateByGE(const AVer: Word;
-                                         const AGEServer: String;
-                                         const ATileDate: String): IMapVersionInfo;
+function TMapVersionFactoryGE.CreateByGE(
+  const AVer: Word;
+  const AGEServer: String;
+  const ATileDate: String
+): IMapVersionInfo;
 begin
   Result := TMapVersionInfoGE.Create(AVer, AGEServer, ATileDate);
 end;
@@ -158,26 +166,40 @@ function TMapVersionFactoryGE.CreateByStoreString(
   const AValue: string
 ): IMapVersionInfo;
 
-  function _StrToWord(const ASrc: String; var w: Word): Boolean;
-  var v: Integer;
+  function _StrToWord(
+  const ASrc: String;
+  var w: Word
+  ): Boolean;
+  var
+    v: Integer;
   begin
-    Result:=FALSE;
-    if (0<Length(ASrc)) then
-    if TryStrToInt(Trim(ASrc), v) then
-    if (v>0) and (v<=$FFFF) then begin
-      w := v;
-      Inc(Result);
+    Result := FALSE;
+    if (0 < Length(ASrc)) then begin
+      if TryStrToInt(Trim(ASrc), v) then begin
+        if (v > 0) and (v <= $FFFF) then begin
+          w := v;
+          Inc(Result);
+        end;
+      end;
     end;
   end;
 
-  procedure _StrToByte(const ASrc: String; var b: Byte);
-  var v: Integer;
+  procedure _StrToByte(
+  const ASrc: String;
+  var b: Byte
+  );
+  var
+    v: Integer;
   begin
-    if (0<Length(ASrc)) then
-    if TryStrToInt(Trim(ASrc), v) then
-    if (v>0) and (v<=$FF) then
-      b := v;
+    if (0 < Length(ASrc)) then begin
+      if TryStrToInt(Trim(ASrc), v) then begin
+        if (v > 0) and (v <= $FF) then begin
+          b := v;
+        end;
+      end;
+    end;
   end;
+
 var
   VVer: Word;
   VGEServer: String;
@@ -192,11 +214,12 @@ begin
   VPos := System.Pos('[', AValue);
   if (VPos > 0) then begin
     // with GEServer
-    VTileDate := System.Copy(AValue, 1, (VPos-1));
-    VGEServer := System.Copy(AValue, (VPos+1), Length(AValue));
+    VTileDate := System.Copy(AValue, 1, (VPos - 1));
+    VGEServer := System.Copy(AValue, (VPos + 1), Length(AValue));
     VPos := System.Pos(']', VGEServer);
-    if (VPos > 0) then
-      SetLength(VGEServer, (VPos-1));
+    if (VPos > 0) then begin
+      SetLength(VGEServer, (VPos - 1));
+    end;
   end else begin
     // no GEServer - just date\ver
     VGEServer := '';
@@ -207,8 +230,8 @@ begin
   VPos := System.Pos('\', VTileDate);
   if (VPos > 0) then begin
     // both TileDate and Ver
-    _StrToWord(System.Copy(VTileDate, (VPos+1), Length(VTileDate)), VVer);
-    SetLength(VTileDate, (VPos-1));
+    _StrToWord(System.Copy(VTileDate, (VPos + 1), Length(VTileDate)), VVer);
+    SetLength(VTileDate, (VPos - 1));
   end else begin
     // TileDate OR Ver - check it as int
     if _StrToWord(VTileDate, VVer) then begin

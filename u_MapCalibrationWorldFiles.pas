@@ -30,8 +30,14 @@ uses
 type
   TMapCalibrationWorldFiles = class(TInterfacedObject, IMapCalibration)
   private
-    procedure SavePrjFile(const AFileName: WideString; const AConverter: ICoordConverter);
-    procedure SaveAuxXmlFile(const AFileName: WideString; const AConverter: ICoordConverter);
+    procedure SavePrjFile(
+      const AFileName: WideString;
+      const AConverter: ICoordConverter
+    );
+    procedure SaveAuxXmlFile(
+      const AFileName: WideString;
+      const AConverter: ICoordConverter
+    );
   public
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: WideString; safecall;
@@ -121,7 +127,7 @@ begin
         'PARAMETER["false_northing",0],' + #13#10 +
         'AUTHORITY["EPSG","3395"],' + #13#10 +
         'AXIS["Easting",EAST],' + #13#10 +
-        'AXIS["Northing",NORTH]]'
+        'AXIS["Northing",NORTH]]';
     end;
     4326: begin
       Result :=
@@ -134,10 +140,11 @@ begin
         'AUTHORITY["EPSG","8901"]],' + #13#10 +
         'UNIT["degree",0.01745329251994328,' + #13#10 +
         'AUTHORITY["EPSG","9122"]],' + #13#10 +
-        'AUTHORITY["EPSG","4326"]]'
+        'AUTHORITY["EPSG","4326"]]';
     end;
-  else
+  else begin
     Result := '';
+  end;
   end;
 end;
 

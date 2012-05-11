@@ -37,7 +37,10 @@ uses
 type
   TMapAttachmentsFactoryPascalScript = class(TBaseFactoryPascalScript, IMapAttachmentsFactory)
   protected
-    function DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler; const AName: string): Boolean; override;
+    function DoCompilerOnAuxUses(
+      ACompiler: TBasePascalCompiler;
+      const AName: string
+    ): Boolean; override;
   protected
     { IMapAttachmentsFactory }
     function GetCompiledData: String;
@@ -45,10 +48,12 @@ type
     constructor Create(const AScriptText: string);
   end;
 
-procedure RunParseAttachmentScript(var AMapAttachmentsFactory: IMapAttachmentsFactory;
-                                   const AMapAttachmentsInfo: IMapAttachmentsInfo;
-                                   const AParseAttachmentScript: String;
-                                   var ADesc: String);
+procedure RunParseAttachmentScript(
+    var AMapAttachmentsFactory: IMapAttachmentsFactory;
+    const AMapAttachmentsInfo: IMapAttachmentsInfo;
+    const AParseAttachmentScript: String;
+    var ADesc: String
+  );
 
 implementation
 
@@ -64,8 +69,10 @@ begin
   PreparePascalScript(AScriptText);
 end;
 
-function TMapAttachmentsFactoryPascalScript.DoCompilerOnAuxUses(ACompiler: TBasePascalCompiler;
-                                                                const AName: string): Boolean;
+function TMapAttachmentsFactoryPascalScript.DoCompilerOnAuxUses(
+  ACompiler: TBasePascalCompiler;
+  const AName: string
+): Boolean;
 var
   T: TPSType;
 begin
@@ -101,8 +108,9 @@ begin
     ACompiler.AddUsedVariable('MapAttachmentsInfo', t);
 
     Result := TRUE;
-  end else
+  end else begin
     Result := FALSE;
+  end;
 end;
 
 function TMapAttachmentsFactoryPascalScript.GetCompiledData: String;
@@ -110,10 +118,12 @@ begin
   Result := FCompiledData;
 end;
 
-procedure RunParseAttachmentScript(var AMapAttachmentsFactory: IMapAttachmentsFactory;
-                                   const AMapAttachmentsInfo: IMapAttachmentsInfo;
-                                   const AParseAttachmentScript: String;
-                                   var ADesc: String);
+procedure RunParseAttachmentScript(
+  var AMapAttachmentsFactory: IMapAttachmentsFactory;
+  const AMapAttachmentsInfo: IMapAttachmentsInfo;
+  const AParseAttachmentScript: String;
+  var ADesc: String
+);
 var
   VSasPSExec: TBasePascalScriptExec;
   VpSourceText: PPSVariantAString;
@@ -126,7 +136,7 @@ begin
   // compiler
   if not Assigned(AMapAttachmentsFactory) then begin
     // create
-    AMapAttachmentsFactory:=TMapAttachmentsFactoryPascalScript.Create(AParseAttachmentScript);
+    AMapAttachmentsFactory := TMapAttachmentsFactoryPascalScript.Create(AParseAttachmentScript);
   end;
 
   // prepare
@@ -138,8 +148,9 @@ begin
     // special functions
     VSasPSExec.RegisterDelphiFunction(@DownloadFileToLocal, 'DownloadFileToLocal', cdRegister);
 
-    if not VSasPSExec.LoadData(AMapAttachmentsFactory.GetCompiledData) then
+    if not VSasPSExec.LoadData(AMapAttachmentsFactory.GetCompiledData) then begin
       raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);
+    end;
 
     // link output parameter to parser
     VpResultText := PPSVariantAString(VSasPSExec.GetVar2('ResultText'));
@@ -165,8 +176,9 @@ begin
     VSasPSExec.RunScript;
 
     // subst result value
-    if (Length(VpResultText^.Data)>0) then
-      ADesc:=VpResultText^.Data;
+    if (Length(VpResultText^.Data) > 0) then begin
+      ADesc := VpResultText^.Data;
+    end;
   finally
     FreeAndNil(VSasPSExec);
   end;
