@@ -40,6 +40,8 @@ type
     function LinkToImages: String; override;
   end;
 
+procedure AdjustMinimalBingHiResZoom(var VActualZoom: Byte);
+
 implementation
 
 uses
@@ -47,6 +49,14 @@ uses
   xmldom,
   vsagps_public_xml_dom,
   vsagps_public_xml_parser;
+
+procedure AdjustMinimalBingHiResZoom(var VActualZoom: Byte);
+begin
+  //  do not check for small zooms
+  // check decremented
+  if (VActualZoom<14) then
+    VActualZoom:=14;
+end;
   
 { TAvailPicsBing }
 
@@ -65,7 +75,7 @@ function TAvailPicsBing.LinkToImages: String;
 var VZoom: Byte;
 begin
   VZoom := FTileInfoPtr.Zoom;
-  AdjustMinimalHiResZoom(VZoom);
+  AdjustMinimalBingHiResZoom(VZoom);
 
   // use decremented zoom here!
     

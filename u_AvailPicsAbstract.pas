@@ -72,17 +72,9 @@ type
     FDefaultKey: String;
   end;
 
-procedure AdjustMinimalHiResZoom(var VActualZoom: Byte);
 function CheckHiResResolution(const AStrResolution: String): Boolean;
 
 implementation
-
-procedure AdjustMinimalHiResZoom(var VActualZoom: Byte);
-begin
-  //  do not check for small zooms
-  if (VActualZoom<14) then
-    VActualZoom:=14;
-end;
 
 function CheckHiResResolution(const AStrResolution: String): Boolean;
 var VRes: String;

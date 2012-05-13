@@ -68,13 +68,18 @@ type
     btnCopy: TButton;
     pnlRight: TPanel;
     chkBing: TCheckBox;
-    chkNMC: TCheckBox;
     chkDG: TCheckBox;
     btnRefresh: TButton;
     veImageParams: TValueListEditor;
     lbZoom: TLabel;
     spltDesc: TSplitter;
     chkTerraserver: TCheckBox;
+    chkNMC15: TCheckBox;
+    chkNMC18: TCheckBox;
+    chkNMC20: TCheckBox;
+    lbNMC: TLabel;
+    chkNMC16: TCheckBox;
+    lbNMCZoom: TLabel;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -90,12 +95,13 @@ type
     procedure FormShow(Sender: TObject);
   private
     FBing: TAvailPicsBing;
-    FNMC: TAvailPicsNMC;
+    FNMCs: TAvailPicsNMCs;
     FTerraserver: TAvailPicsTerraserver;
     FDGStacks: TAvailPicsDGs;
     FAvailPicsTileInfo: TAvailPicsTileInfo;
     FCallIndex: DWORD;
     FVertResizeFactor: Integer;
+    FCSAddNode: IReadWriteSync;
   private
     procedure MakePicsVendors;
     procedure KillPicsVendors;
@@ -147,6 +153,7 @@ implementation
 
 uses
   u_Clipboard,
+  u_Synchronizer,
   i_CoordConverter;
 
 type
@@ -159,11 +166,13 @@ type
   private
     FInetConfig: IInetConfig;
     FForm: TfrmDGAvailablePic;
+    FChkBox: TCheckBox;
     FAvailPicsSrc: TAvailPicsAbstract;
     FCallIndex: DWORD;
     FMemoryStream: TMemoryStream;
     function CallIndexActual: Boolean;
     function GetStreamFromURL1: Boolean;
+    procedure PostFinishedMessage;
   protected
     procedure Execute; override;
     procedure ShowList;
@@ -172,7 +181,8 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const AAvailPicsSrc: TAvailPicsAbstract;
-      const AForm: TfrmDGAvailablePic
+      const AForm: TfrmDGAvailablePic;
+      const AChkBox: TCheckBox
     );
 
     destructor Destroy; override;
@@ -192,7 +202,8 @@ end;
 constructor TGetList.Create(
       const AInetConfig: IInetConfig;
       const AAvailPicsSrc: TAvailPicsAbstract;
-      const AForm: TfrmDGAvailablePic
+      const AForm: TfrmDGAvailablePic;
+      const AChkBox: TCheckBox
 );
 begin
   inherited Create(True);
@@ -205,6 +216,7 @@ begin
   FLinkToService:=AAvailPicsSrc.LinkToImages;
   FContentType:=AAvailPicsSrc.ContentType;
   FForm := AForm;
+  FChkBox := AChkBox;
   FCallIndex := AForm.FCallIndex;
   FMemoryStream := TMemoryStream.Create;
 end;
@@ -282,6 +294,14 @@ begin
   end;
 end;
 
+procedure TGetList.PostFinishedMessage;
+begin
+  try
+    FChkBox.Enabled := TRUE;
+  except
+  end;
+end;
+
 procedure TGetList.ShowList;
 begin
   if not CallIndexActual then
@@ -307,6 +327,7 @@ begin
         Synchronize(ShowError);
     end;
   finally
+    PostFinishedMessage;
     FreeAndNil(FMemoryStream);
   end;
 end;
@@ -374,6 +395,20 @@ end;
 function TfrmDGAvailablePic.AddAvailImageItem(Sender: TObject;
                                               const ADate, AId: String;
                                               var AParams: TStrings): Boolean;
+
+  procedure _CopyNewLines(dst: TStrings; const src: TStrings);
+  var
+    i: Integer;
+    v,s: String;
+  begin
+    for i := 0 to src.Count - 1 do begin
+      s := src.Names[i];
+      v := dst.Values[s];
+      if (0=Length(v)) then
+        dst.Values[s] := src.ValueFromIndex[i];
+    end;
+  end;
+  
 var
   //VImageService: String;
   // VVendorNode: TTreeNode;
@@ -392,27 +427,60 @@ begin
     VImageService:=chkDG.Caption;
   *)
   
-  // lookup for node as "2011/12/30" -> "DG" -> NODE (TID + PARAMS)
-  if GetImagesNode(nil, ADate, VDateNode) then
-  //if GetImagesNode(VDateNode, VImageService, VVendorNode) then
-  begin
-    VItemNode := tvFound.Items.AddChild(VDateNode, AId); // for subnides - replace with VVendorNode
-    VItemNode.Data := AParams;
-    AParams := nil; // own object
-    Inc(Result);
+  FCSAddNode.BeginWrite;
+  try
+    // lookup for node as "2011/12/30" -> "DG" -> NODE (TID + PARAMS)
+    if GetImagesNode(nil, ADate, VDateNode) then
+    //if GetImagesNode(VDateNode, VImageService, VVendorNode) then
+    begin
+      // find existing node or create new one
+      if GetImagesNode(VDateNode, AId, VItemNode) then begin
+        if (VItemNode.Data<>nil) then begin
+          // add new lines
+          _CopyNewLines(TStrings(VItemNode.Data), AParams);
+          FreeAndNil(AParams);
+        end else begin
+          // set params
+          VItemNode.Data := AParams;
+          AParams := nil; // own object
+        end;
+        Inc(Result);
+      end;
+
+      (*
+      // old version
+      VItemNode := tvFound.Items.AddChild(VDateNode, AId); // for subnides - replace with VVendorNode
+      VItemNode.Data := AParams;
+      AParams := nil; // own object
+      Inc(Result);
+      *)
+    end;
+  finally
+    FCSAddNode.EndWrite;
   end;
 end;
 
 procedure TfrmDGAvailablePic.btnRefreshClick(Sender: TObject);
 var
   VDGstack: TAvailPicsDG;
+  j: TAvailPicsNMCZoom;
+  VComp: TComponent;
 begin
   // clear
   ClearAvailableImages;
 
   // run thread for every image source
   RunImageThread(chkBing, FBing);
-  RunImageThread(chkNMC, FNMC);
+
+  for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
+    // chkNMC15, chkNMC16, chkNMC18, chkNMC20
+    VComp := FindComponent('chkNMC' + IntToStr(Ord(j)));
+    if Assigned(VComp) then
+    if (VComp is TCheckBox) then begin
+      RunImageThread(TCheckBox(VComp), FNMCs[j]);
+    end;
+  end;
+
   RunImageThread(chkTerraserver, FTerraserver);
 
   // for DG - for current stack
@@ -515,12 +583,19 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.KillPicsVendors;
-var i,k: Integer;
+var
+  i,k: Integer;
+  j: TAvailPicsNMCZoom;
 begin
   // simple
   FreeAndNil(FBing);
-  FreeAndNil(FNMC);
   FreeAndNil(FTerraserver);
+
+  // fixed array
+  for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
+    FreeAndNil(FNMCs[j]);
+  end;
+
   // list
   cbDGstacks.Items.Clear;
   k:=Length(FDGStacks);
@@ -540,8 +615,7 @@ begin
     FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo);
 
   // make for nokia map creator
-  if (nil=FNMC) then
-    FNMC := TAvailPicsNMC.Create(@FAvailPicsTileInfo);
+  GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo);
 
   // make for terraserver
   if (nil=FTerraserver) then
@@ -565,13 +639,17 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.PropagateLocalConverter;
-var i,k: Integer;
+var
+  i,k: Integer;
+  j: TAvailPicsNMCZoom;
 begin
   if (nil<>FBing) then
     FBing.SetLocalConverter(FLocalConverter);
 
-  if (nil<>FNMC) then
-    FNMC.SetLocalConverter(FLocalConverter);
+  for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
+    if (FNMCs[j]<>nil) then
+      FNMCs[j].SetLocalConverter(FLocalConverter);
+  end;
 
   if (nil<>FTerraserver) then
     FTerraserver.SetLocalConverter(FLocalConverter);
@@ -587,12 +665,17 @@ procedure TfrmDGAvailablePic.RunImageThread(const AChkBox: TCheckBox;
                                             const AImgVendor: TAvailPicsAbstract);
 begin
   if Assigned(AImgVendor) then
-  if AChkBox.Checked then
-  with TGetList.Create(FInetConfig,
-                       AImgVendor,
-                       Self) do
-  begin
-    Resume;
+  if AChkBox.Checked and AChkBox.Enabled then begin
+    // disable
+    AChkBox.Enabled := FALSE;
+    // run
+    with TGetList.Create(FInetConfig,
+                         AImgVendor,
+                         Self,
+                         AChkBox) do
+    begin
+      Resume;
+    end;
   end;
 end;
 
@@ -665,9 +748,10 @@ var
   VActualZoom: Byte;
   VZoomStr: String;
 begin
+  // Bing minimal zoom
   if Assigned(FLocalConverter) then begin
     VActualZoom:=FLocalConverter.Zoom;
-    AdjustMinimalHiResZoom(VActualZoom);
+    AdjustMinimalBingHiResZoom(VActualZoom);
     Inc(VActualZoom);
     VZoomStr:=IntToStr(VActualZoom);
   end else begin
@@ -695,7 +779,7 @@ begin
   FVertResizeFactor:=0;
   FCallIndex:=0;
   FBing:=nil;
-  FNMC:=nil;
+  FillChar(FNMCs, sizeof(FNMCs), 0);
   FTerraserver:=nil;
   SetLength(FDGStacks, 0);
 
@@ -703,6 +787,8 @@ begin
   FAvailPicsTileInfo.AddImageProc := AddAvailImageItem;
 
   inherited Create(ALanguageManager);
+
+  FCSAddNode := MakeSync_Tiny(Self, FALSE);
 
   FLocalConverter := nil;
   FInetConfig := AInetConfig;
@@ -719,6 +805,7 @@ begin
   FDownloadResultTextProvider:=nil;
   FInetConfig:=nil;
   FLocalConverter:=nil;
+  FCSAddNode:=nil;
   inherited;
 end;
 

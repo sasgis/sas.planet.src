@@ -31,6 +31,8 @@ uses
 type
   TAvailPicsNMC = class(TAvailPicsByKey)
   private
+    FWorkingZoom: Byte;
+  private
     function GetQuadKey: String;
     function ParseExifXml(const AStream: TMemoryStream): Integer;
   public
@@ -41,7 +43,16 @@ type
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
     function LinkToImages: String; override;
+
+    property WorkingZoom: Byte read FWorkingZoom write FWorkingZoom;
   end;
+
+  TAvailPicsNMCZoom = (nmcz15=15, nmcz16=16, nmcz18=18, nmcz20=20);
+
+  TAvailPicsNMCs = array [TAvailPicsNMCZoom] of TAvailPicsNMC;
+
+procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
+                               const ATileInfoPtr: PAvailPicsTileInfo);
 
 function FindExifInJpeg(const AJpegBuffer: Pointer;
                         const AJpegSize: Cardinal;
@@ -54,6 +65,7 @@ implementation
 
 uses
   t_GeoTypes,
+  u_ResStrings,
   u_GeoToStr,
   t_ETS_Tiles,
   u_ETS_Tiles,
@@ -360,11 +372,26 @@ begin
   Inc(Result);
 end;
 
+procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
+                               const ATileInfoPtr: PAvailPicsTileInfo);
+var
+  j: TAvailPicsNMCZoom;
+begin
+
+  for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
+    if (nil=ADGs[j]) then begin
+      ADGs[j] := TAvailPicsNMC.Create(ATileInfoPtr);
+      ADGs[j].WorkingZoom := Ord(j);
+    end;
+  end;
+end;
+
 { TAvailPicsNMC }
 
 procedure TAvailPicsNMC.AfterConstruction;
 begin
   inherited;
+  FWorkingZoom:=0; // real value
   FDefaultKey:='88a38a0c5e5cf5e340b95dd5eacae3a065d0275a68e71fe6';
 end;
 
@@ -378,8 +405,14 @@ var
   VXYZ: TTILE_ID_XYZ;
   VTilePos: Tpoint;
 begin
-  VXYZ.z := FTileInfoPtr.Zoom;
-  AdjustMinimalHiResZoom(VXYZ.z);
+  // check working zoom
+  if (0=FWorkingZoom) then begin
+    // actual zoom (decremented)
+    VXYZ.z := FTileInfoPtr.Zoom;
+  end else begin
+    // fixed zoom (decremented)
+    VXYZ.z := FWorkingZoom-1;
+  end;
 
   // get tile coords (use decremented zoom)
   VTilePos := FLocalConverter.GeoConverter.LonLat2TilePos(FTileInfoPtr.LonLat, VXYZ.z);
@@ -582,8 +615,15 @@ const
             VDate[8]:=DateSeparator;
           except
           end;
+
           // add params from common
           //VSLParams.AddStrings(SL_Common);
+
+          // add working zoom
+          if (FWorkingZoom<>0) then begin
+            VSLParams.Values[SAS_STR_Zoom + ' ' + IntToStr(FWorkingZoom)] := SAS_STR_Yes;
+          end;
+
           // add item
           FTileInfoPtr.AddImageProc(Self, VDate, VTail, VSLParams);
         end;
