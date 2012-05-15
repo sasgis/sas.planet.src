@@ -28,99 +28,6 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Maps'
       ImageIndex = 8
-      object MapList: TListView
-        Left = 0
-        Top = 0
-        Width = 547
-        Height = 381
-        Align = alClient
-        Columns = <
-          item
-            Caption = 'Map Name'
-            Width = 130
-          end
-          item
-            Caption = 'Cache Folder'
-            Width = 85
-          end
-          item
-            Caption = 'Menu'
-            Width = 110
-          end
-          item
-            Caption = 'Hotkey'
-            Width = 53
-          end
-          item
-            Caption = 'ZMP Filename'
-            Width = 100
-          end
-          item
-            Caption = 'Enabled'
-          end>
-        FlatScrollBars = True
-        HideSelection = False
-        ReadOnly = True
-        RowSelect = True
-        TabOrder = 0
-        ViewStyle = vsReport
-        OnChange = MapListChange
-        OnCustomDrawSubItem = MapListCustomDrawSubItem
-        OnDblClick = Button15Click
-      end
-      object pnlMapsRightButtons: TPanel
-        Left = 547
-        Top = 0
-        Width = 97
-        Height = 381
-        Align = alRight
-        BevelOuter = bvNone
-        TabOrder = 1
-        object Button15: TButton
-          AlignWithMargins = True
-          Left = 3
-          Top = 65
-          Width = 91
-          Height = 25
-          Align = alTop
-          Caption = 'Settings'
-          TabOrder = 0
-          OnClick = Button15Click
-        end
-        object Button11: TButton
-          AlignWithMargins = True
-          Left = 3
-          Top = 34
-          Width = 91
-          Height = 25
-          Align = alTop
-          Caption = 'Down'
-          TabOrder = 1
-          OnClick = Button11Click
-        end
-        object Button12: TButton
-          AlignWithMargins = True
-          Left = 3
-          Top = 3
-          Width = 91
-          Height = 25
-          Align = alTop
-          Caption = 'Up'
-          TabOrder = 2
-          OnClick = Button12Click
-        end
-        object btnMapInfo: TButton
-          AlignWithMargins = True
-          Left = 3
-          Top = 96
-          Width = 91
-          Height = 25
-          Align = alTop
-          Caption = 'Info'
-          TabOrder = 3
-          OnClick = btnMapInfoClick
-        end
-      end
     end
     object tsCache: TTabSheet
       Caption = 'Cache'
@@ -1194,7 +1101,6 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitTop = 3
               ExplicitWidth = 6
             end
             object LabelContrast: TLabel
@@ -1204,7 +1110,6 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitTop = 41
               ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
@@ -1223,7 +1128,6 @@ object frmSettings: TfrmSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarGammaChange
-              ExplicitTop = 16
             end
             object TrBarContrast: TTrackBar
               Left = 3
@@ -1238,7 +1142,6 @@ object frmSettings: TfrmSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarContrastChange
-              ExplicitTop = 54
             end
             object CBinvertcolor: TCheckBox
               AlignWithMargins = True
@@ -1249,7 +1152,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Night mode (color inversion)'
               TabOrder = 2
-              ExplicitTop = 82
             end
             object pnlImageProcessTop: TPanel
               Left = 3

@@ -48,6 +48,7 @@ uses
   i_LanguageManager,
   u_MapType,
   u_ShortcutManager,
+  fr_MapsList,
   fr_ShortCutList;
 
 type
@@ -125,10 +126,6 @@ type
     CBDblDwnl: TCheckBox;
     CkBGoNextTile: TCheckBox;
     tsMaps: TTabSheet;
-    Button11: TButton;
-    Button12: TButton;
-    Button15: TButton;
-    MapList: TListView;
     GroupBox5: TGroupBox;
     CBoxLocal: TComboBox;
     Label8: TLabel;
@@ -163,7 +160,6 @@ type
     edtBDBCachePath: TEdit;
     btnSetDefBDBCachePath: TButton;
     btnSetBDBCachePath: TButton;
-    btnMapInfo: TButton;
     CBSensorsBarAutoShow: TCheckBox;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
@@ -183,7 +179,6 @@ type
     SE_NumTrackPoints: TSpinEdit;
     CB_GPSlogNmea: TCheckBox;
     pnlBottomButtons: TPanel;
-    pnlMapsRightButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
     grdpnlCache: TGridPanel;
     pnlProxyUrl: TPanel;
@@ -263,13 +258,9 @@ type
     procedure FormCreate(Sender: TObject);
     procedure TrBarGammaChange(Sender: TObject);
     procedure TrBarContrastChange(Sender: TObject);
-    procedure Button12Click(Sender: TObject);
-    procedure Button11Click(Sender: TObject);
-    procedure Button15Click(Sender: TObject);
     procedure MapListCustomDrawSubItem(Sender: TCustomListView;
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
-    procedure btnMapInfoClick(Sender: TObject);
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
@@ -277,8 +268,6 @@ type
     procedure CBoxLocalChange(Sender: TObject);
     procedure SatellitePaintBoxResize(Sender: TObject);
     procedure tsGPSShow(Sender: TObject);
-    procedure MapListChange(Sender: TObject; Item: TListItem;
-      Change: TItemChange);
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnGPSSwitchClick(Sender: TObject);
@@ -288,6 +277,7 @@ type
     FOnSave: TNotifyEvent;
     FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
+    frMapsList: TfrMapsList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
     FAutodetecting: Boolean;
     procedure SatellitePaint;
@@ -296,7 +286,6 @@ type
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
     );
-    procedure InitMapsList;
     procedure SaveGPSConfig;
     procedure LoadGPSConfig;
     procedure AutodetectAntiFreeze(Sender: TObject; AThread: TObject);
@@ -356,12 +345,14 @@ begin
     GState.GPSpar.DataReciveNotifier
   );
   frShortCutList := TfrShortCutList.Create(ALanguageManager);
+  frMapsList := TfrMapsList.Create(AMapTypeEditor);
   PageControl1.ActivePageIndex:=0;
 end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
   frShortCutList.CancelChanges;
+  frMapsList.CancelChanges;
   Close
 end;
 
@@ -501,14 +492,6 @@ var
   VNeedReboot: boolean;
 begin
   VNeedReboot:=false;
-  GState.MapType.GUIConfigList.LockWrite;
-  try
-    For i:=0 to MapList.Items.Count-1 do begin
-      TMapType(MapList.Items.Item[i].data).GUIConfig.SortIndex := i+1;
-    end;
-  finally
-    GState.MapType.GUIConfigList.UnlockWrite;
-  end;
 
   GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
@@ -671,6 +654,7 @@ begin
  GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  frShortCutList.ApplyChanges;
+ frMapsList.ApplyChanges;
   if Assigned(FOnSave) then begin
     FOnSave(nil);
   end;
@@ -757,6 +741,7 @@ end;
 destructor TfrmSettings.Destroy;
 begin
   FreeAndNil(frShortCutList);
+  FreeAndNil(frMapsList);
   inherited;
 end;
 
@@ -767,10 +752,11 @@ var
   i: Integer;
 begin
   FLinksList.ActivateLinks;
- InitMapsList;
 
- CBoxLocal.Clear;
- frShortCutList.Parent := GroupBox5;
+  CBoxLocal.Clear;
+  frShortCutList.Parent := GroupBox5;
+  frMapsList.Parent := tsMaps;
+  frMapsList.Init;
 
   CBoxLocal.Items.Clear;
   for i := 0 to GState.LanguageManager.LanguageList.Count - 1 do begin
@@ -948,7 +934,6 @@ begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
     ComboBoxCOM.Items.Add('COM'+inttostr(i));
   end;
-  MapList.DoubleBuffered:=true;
 end;
 
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);
@@ -965,63 +950,6 @@ end;
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
-end;
-
-procedure ExchangeItems(lv: TListView; const i, j: Integer);
-var
-  tempLI: TListItem;
-begin
-  lv.Items.BeginUpdate;
-  try
-    tempLI := TListItem.Create(lv.Items);
-    try
-      tempLI.Assign(lv.Items.Item[i]);
-      lv.Items.Item[i].Assign(lv.Items.Item[j]);
-      lv.Items.Item[j].Assign(tempLI);
-      lv.Items.Item[j].Selected:=true;
-    finally
-      tempLI.Free;
-    end;
-  finally
-    lv.Items.EndUpdate
-  end;
-end;
-
-procedure TfrmSettings.Button12Click(Sender: TObject);
-begin
-  If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then begin
-    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
-  end;
-end;
-
-procedure TfrmSettings.Button11Click(Sender: TObject);
-begin
-  If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then begin
-    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
-  end;
-end;
-
-procedure TfrmSettings.Button15Click(Sender: TObject);
-var
-  VMapType: TMapType;
-begin
-  VMapType := TMapType(MapList.Selected.Data);
-  if FMapTypeEditor.EditMap(VMapType) then begin
-    InitMapsList;
-  end;
-end;
-
-procedure TfrmSettings.MapListChange(Sender: TObject; Item: TListItem;
-  Change: TItemChange);
-var
-  VMap: TMapType;
-begin
-  if Self.Visible then begin
-    if Item.Data<>nil then begin
-      VMap := TMapType(Item.Data);
-      btnMapInfo.Enabled:=VMap.GUIConfig.InfoUrl.Value<>'';
-    end;
-  end;
 end;
 
 procedure TfrmSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
@@ -1076,53 +1004,7 @@ begin
   inherited;
   FormShow(Self);
   frShortCutList.RefreshTranslation;
-end;
-
-procedure TfrmSettings.btnMapInfoClick(Sender: TObject);
-var
-  VMap: TMapType;
-  VUrl: string;
-begin
-  VMap := TMapType(MapList.Selected.Data);
-  VUrl := VMap.GUIConfig.InfoUrl.Value;
-  if VUrl <> '' then begin
-    VUrl := CZmpInfoInternalURL + GUIDToString(VMap.Zmp.GUID) + VUrl;
-    GState.InternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
-  end;
-end;
-
-procedure TfrmSettings.InitMapsList;
-var
-  i: integer;
-  VMapType: TMapType;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
-begin
-  MapList.Clear;
-  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-
-    MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
-    MapList.Items.Item[i].Data:=VMapType;
-    MapList.Items.Item[i].SubItems.Add(VMapType.StorageConfig.NameInCache);
-    if VMapType.Abilities.IsLayer then begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
-    end else begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
-    end;
-    MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.GUIConfig.HotKey));
-    MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
-    if VMapType.GUIConfig.Enabled then begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
-    end else begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
-    end;
-  end;
-  if MapList.Items.Count > 0 then begin
-    MapList.Items.Item[0].Selected := True;
-  end;
+  frMapsList.RefreshTranslation;
 end;
 
 procedure TfrmSettings.InitResamplersList(
