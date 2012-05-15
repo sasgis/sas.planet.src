@@ -783,6 +783,7 @@ uses
   fr_TilesDownload in 'RegionProcess\fr_TilesDownload.pas' {frTilesDownload: TFrame},
   u_ProviderTilesDownload in 'RegionProcess\u_ProviderTilesDownload.pas',
   fr_ShortCutList in 'fr_ShortCutList.pas' {frShortCutList: TFrame},
+  fr_MapsList in 'fr_MapsList.pas' {frMapsList: TFrame},
   fr_MarkCategorySelectOrAdd in 'fr_MarkCategorySelectOrAdd.pas' {frMarkCategorySelectOrAdd: TFrame},
   fr_MarksGeneralOptions in 'fr_MarksGeneralOptions.pas' {frMarksGeneralOptions: TFrame},
   fr_MarkDescription in 'fr_MarkDescription.pas' {frMarkDescription: TFrame},

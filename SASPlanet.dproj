@@ -138,6 +138,10 @@
       <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="fr_MapsList.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frMapsList</Form>
+    </DCCReference>
     <DCCReference Include="fr_MarkCategorySelectOrAdd.pas">
       <Form>frMarkCategorySelectOrAdd</Form>
       <DesignClass>TFrame</DesignClass>
