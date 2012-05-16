@@ -180,42 +180,78 @@ begin
 end;
 
 procedure TfrMapsList.UpdateList;
+procedure SetSubItem(AItem: TListItem; AIndex: Integer; AValue: string);
 var
-  VPrevIndex: Integer;
+  i: Integer;
+begin
+  if AIndex < AItem.SubItems.Count then begin
+    AItem.SubItems.Strings[AIndex] := AValue;
+  end else begin
+    for i := AItem.SubItems.Count to AIndex - 1 do begin
+      AItem.SubItems.Add('');
+    end;
+    AItem.SubItems.Add(AValue);
+  end;
+end;
+
+procedure UpdateItem(AItem: TListItem; AMapType: TMapType);
+var
+  VValue: string;
+begin
+  AItem.Caption := AMapType.GUIConfig.Name.Value;
+  AItem.Data := AMapType;
+  VValue := AMapType.StorageConfig.NameInCache;
+  SetSubItem(AItem, 0, VValue);
+  if AMapType.Abilities.IsLayer then begin
+    VValue := SAS_STR_Layers+'\'+AMapType.GUIConfig.ParentSubMenu.Value;
+  end else begin
+    VValue := SAS_STR_Maps+'\'+AMapType.GUIConfig.ParentSubMenu.Value;
+  end;
+  SetSubItem(AItem, 1, VValue);
+  VValue := ShortCutToText(AMapType.GUIConfig.HotKey);
+  SetSubItem(AItem, 2, VValue);
+  VValue := AMapType.Zmp.FileName;
+  SetSubItem(AItem, 3, VValue);
+  if AMapType.GUIConfig.Enabled then begin
+    VValue := SAS_STR_Yes;
+  end else begin
+    VValue := SAS_STR_No;
+  end;
+  SetSubItem(AItem, 4, VValue);
+end;
+
+var
+  VPrevSelectedIndex: Integer;
   i: integer;
   VMapType: TMapType;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
+  VItem: TListItem;
 begin
-  VPrevIndex := MapList.ItemIndex;
-  MapList.Clear;
-  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
-  for i := 0 to VGUIDList.Count - 1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-
-    MapList.AddItem(VMapType.GUIConfig.Name.Value, nil);
-    MapList.Items.Item[i].Data:=VMapType;
-    MapList.Items.Item[i].SubItems.Add(VMapType.StorageConfig.NameInCache);
-    if VMapType.Abilities.IsLayer then begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_Layers+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
-    end else begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_Maps+'\'+VMapType.GUIConfig.ParentSubMenu.Value);
+  VPrevSelectedIndex := MapList.ItemIndex;
+  MapList.Items.BeginUpdate;
+  try
+    VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+    for i := 0 to VGUIDList.Count - 1 do begin
+      VGUID := VGUIDList.Items[i];
+      VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      if i < MapList.Items.Count then begin
+        VItem := MapList.Items[i];
+      end else begin
+        VItem := MapList.Items.Add;
+      end;
+      UpdateItem(VItem, VMapType);
     end;
-    MapList.Items.Item[i].SubItems.Add(ShortCutToText(VMapType.GUIConfig.HotKey));
-    MapList.Items.Item[i].SubItems.Add(VMapType.Zmp.FileName);
-    if VMapType.GUIConfig.Enabled then begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_Yes)
-    end else begin
-      MapList.Items.Item[i].SubItems.Add(SAS_STR_No)
+    for i := MapList.Items.Count - 1 downto VGUIDList.Count do begin
+      MapList.Items.Delete(i);
     end;
-  end;
-  if MapList.Items.Count > 0 then begin
-    if MapList.Items.Count > VPrevIndex then begin
-      MapList.ItemIndex := VPrevIndex;
-    end else begin
-      MapList.Items.Item[0].Selected := True;
+    if MapList.Items.Count > 0 then begin
+      if (VPrevSelectedIndex >= 0) and (VPrevSelectedIndex >= MapList.Items.Count) then begin
+        MapList.ItemIndex := MapList.Items.Count - 1;
+      end;
     end;
+  finally
+    MapList.Items.EndUpdate;
   end;
 end;
 

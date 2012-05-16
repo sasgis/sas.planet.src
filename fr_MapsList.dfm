@@ -1,10 +1,12 @@
 object frMapsList: TfrMapsList
   Left = 0
   Top = 0
-  Width = 706
-  Height = 298
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
+  ExplicitWidth = 706
+  ExplicitHeight = 298
   object pnlMapsRightButtons: TPanel
     Left = 609
     Top = 0
