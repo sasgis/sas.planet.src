@@ -39,6 +39,7 @@ uses
   u_BinaryDataByMemStream in 'u_BinaryDataByMemStream.pas',
   i_LonLatRect in 'i_LonLatRect.pas',
   u_LonLatRect in 'u_LonLatRect.pas',
+  u_LonLatRectByPoint in 'u_LonLatRectByPoint.pas',
   u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',
