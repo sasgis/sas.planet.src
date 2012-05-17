@@ -916,10 +916,7 @@ begin
   VEnumId := ASourceList.GetIDEnum;
   while VEnumId.Next(1, VId, VCnt) = S_OK do begin
     VMark := IMark(ASourceList.GetByID(VId));
-    if (VMark.LLRect.Right > ARect.Left) and
-      (VMark.LLRect.Left < ARect.Right) and
-      (VMark.LLRect.Bottom < ARect.Top) and
-      (VMark.LLRect.Top > ARect.Bottom) then begin
+    if IsIntersecLonLatRect(ARect, VMark.LLRect) then begin
       if not AIgnoreVisible then begin
         if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin

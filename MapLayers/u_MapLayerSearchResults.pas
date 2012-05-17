@@ -189,8 +189,7 @@ begin
     VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if ((VLonLatRect.Right > VPlacemark.GetPoint.X) and (VLonLatRect.Left < VPlacemark.GetPoint.X) and
-        (VLonLatRect.Bottom < VPlacemark.GetPoint.Y) and (VLonLatRect.Top > VPlacemark.GetPoint.Y)) then begin
+      if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin
         AItem :=
           TVectorDataItemPoint.Create(
             THtmlToHintTextConverterStuped.Create,

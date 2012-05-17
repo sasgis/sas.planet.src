@@ -418,7 +418,6 @@ var
   VGeoConvert: ICoordConverter;
   VMapPixelRect: TDoubleRect;
   VLLRect: TDoubleRect;
-  VMarkLonLatRect: TDoubleRect;
   VBitmapInited: Boolean;
   VBitmap: TCustomBitmap32;
   VIsEmpty: Boolean;
@@ -437,13 +436,7 @@ begin
       VIsEmpty := True;
       for i := 0 to FVectorItems.Count - 1 do begin
         VItem := IVectorDataItemSimple(FVectorItems[i]);
-        VMarkLonLatRect := VItem.LLRect;
-        if(
-          (VLLRect.Right >= VMarkLonLatRect.Left)and
-          (VLLRect.Left <= VMarkLonLatRect.Right)and
-          (VLLRect.Bottom <= VMarkLonLatRect.Top)and
-          (VLLRect.Top >= VMarkLonLatRect.Bottom))
-        then begin
+        if IsIntersecLonLatRect(VLLRect, VItem.LLRect) then begin
           if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
             VIsEmpty := True;
           end;

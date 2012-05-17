@@ -225,6 +225,7 @@ uses
   u_TileIteratorByRect,
   u_TileErrorInfo,
   u_ResStrings,
+  u_GeoFun,
   u_DoublePointsAggregator,
   u_IdCacheSimpleThreadSafe,
   u_TileIteratorSpiralByRect;
@@ -799,7 +800,6 @@ var
   VGeoConvert: ICoordConverter;
   VMapPixelRect: TDoubleRect;
   VLLRect: TDoubleRect;
-  VMarkLonLatRect: TDoubleRect;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
@@ -809,12 +809,7 @@ begin
 
   for i := 0 to AElments.Count - 1 do begin
     VItem := IVectorDataItemSimple(AElments[i]);
-    VMarkLonLatRect := VItem.LLRect;
-    if (
-      (VLLRect.Right >= VMarkLonLatRect.Left) and
-      (VLLRect.Left <= VMarkLonLatRect.Right) and
-      (VLLRect.Bottom <= VMarkLonLatRect.Top) and
-      (VLLRect.Top >= VMarkLonLatRect.Bottom)) then begin
+    if IsIntersecLonLatRect(VLLRect, VItem.LLRect) then begin
       DrawWikiElement(ATargetBmp, AColorMain, AColorBG, APointColor, VItem, ALocalConverter);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
@@ -1063,7 +1058,6 @@ var
   VPixelPos: TDoublePoint;
   i: integer;
   VItem: IVectorDataItemSimple;
-  VMarkLonLatRect: TDoubleRect; // TODO: can remove it?
   VProjectdPath: IProjectedPath;
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
@@ -1092,9 +1086,7 @@ begin
     // check element
     for i := 0 to ACopiedElements.Count - 1 do begin
       VItem := IVectorDataItemSimple(Pointer(ACopiedElements[i]));
-      VMarkLonLatRect := VItem.LLRect;
-      if ((VLonLatRect.Right > VMarkLonLatRect.Left) and (VLonLatRect.Left < VMarkLonLatRect.Right) and
-        (VLonLatRect.Bottom < VMarkLonLatRect.Top) and (VLonLatRect.Top > VMarkLonLatRect.Bottom)) then begin
+      if IsIntersecLonLatRect(VLonLatRect, VItem.LLRect) then begin
         if Supports(VItem, IVectorDataItemPoint) then begin
           AItem := VItem;
           AItemS := 0;

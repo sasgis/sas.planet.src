@@ -45,6 +45,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_EnumUnknown;
 
 { TMarksSubset }
@@ -92,19 +93,13 @@ var
   VNewList: IInterfaceList;
   i: Integer;
   VMark: IMark;
-  VMarkLonLatRect: TDoubleRect;
 begin
   VNewList := TInterfaceList.Create;
   VNewList.Lock;
   try
     for i := 0 to FList.Count - 1 do begin
       VMark := IMark(FList.Items[i]);
-      VMarkLonLatRect := VMark.LLRect;
-      if (
-        (ARect.Right >= VMarkLonLatRect.Left) and
-        (ARect.Left <= VMarkLonLatRect.Right) and
-        (ARect.Bottom <= VMarkLonLatRect.Top) and
-        (ARect.Top >= VMarkLonLatRect.Bottom)) then begin
+      if IsIntersecLonLatRect(ARect, VMark.LLRect) then begin
         VNewList.Add(VMark);
       end;
     end;

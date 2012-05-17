@@ -141,6 +141,7 @@ uses
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByMarksSubset,
   u_NotifyEventListener,
+  u_GeoFun,
   u_TileIteratorSpiralByRect;
 
 { TMapMarksLayer }
@@ -333,7 +334,6 @@ var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
   VConverter: ICoordConverter;
-  VMarkLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;
   VZoom: Byte;
   VMark: IMark;
@@ -378,9 +378,7 @@ begin
         VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
         VMarksEnum := VMarksSubset.GetEnum;
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-          VMarkLonLatRect := VMark.LLRect;
-          if ((VLonLatRect.Right > VMarkLonLatRect.Left) and (VLonLatRect.Left < VMarkLonLatRect.Right) and
-            (VLonLatRect.Bottom < VMarkLonLatRect.Top) and (VLonLatRect.Top > VMarkLonLatRect.Bottom)) then begin
+          if IsIntersecLonLatRect(VLonLatRect, VMark.LLRect) then begin
             if Supports(VMark, IMarkPoint) then begin
               AMark := VMark;
               AMarkS := 0;
