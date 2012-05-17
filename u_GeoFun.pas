@@ -388,10 +388,10 @@ end;
 function IsIntersecLonLatRect(const R1, R2: TDoubleRect): Boolean;
 begin
   Result :=
-    (R1.Left < R2.Right) and
-    (R1.Right > R2.Left) and
-    (R1.Top > R2.Bottom) and
-    (R1.Bottom < R2.Top);
+    (R1.Left <= R2.Right) and
+    (R1.Right >= R2.Left) and
+    (R1.Top >= R2.Bottom) and
+    (R1.Bottom <= R2.Top);
 end;
 
 function IntersecProjectedRect(out Rect: TDoubleRect; const R1, R2: TDoubleRect): Boolean;

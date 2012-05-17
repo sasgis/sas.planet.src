@@ -122,10 +122,10 @@ end;
 function TLonLatRect.IsIntersecWithRect(const ARect: TDoubleRect): Boolean;
 begin
   Result :=
-    (FRect.Left < ARect.Right) and
-    (FRect.Right > ARect.Left) and
-    (FRect.Top > ARect.Bottom) and
-    (FRect.Bottom < ARect.Top);
+    (FRect.Left <= ARect.Right) and
+    (FRect.Right >= ARect.Left) and
+    (FRect.Top >= ARect.Bottom) and
+    (FRect.Bottom <= ARect.Top);
 end;
 
 function TLonLatRect.IsIntersecWithRect(const ARect: ILonLatRect): Boolean;
