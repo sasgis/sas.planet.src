@@ -20,6 +20,7 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
     Height = 306
     Align = alClient
     TabOrder = 0
+    Silent = False
     OnBeforeNavigate2 = EmbeddedWB1BeforeNavigate2
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]

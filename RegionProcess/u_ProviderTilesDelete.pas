@@ -56,15 +56,11 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory
     );
-    destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(
       Azoom: byte;
       const APolygon: ILonLatPolygon
     ); override;
-    procedure Show; override;
-    procedure Hide; override;
-    procedure RefreshTranslation; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -104,12 +100,6 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-destructor TProviderTilesDelete.Destroy;
-begin
-  FreeAndNil(FFrame);
-  inherited;
-end;
-
 function TProviderTilesDelete.GetCaption: string;
 begin
   Result := SAS_STR_OperationDeleteCaption;
@@ -127,38 +117,9 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-    FFrame.Visible := False;
-    FFrame.Parent := Self.Parent;
+    SetFrame(FFrame);
   end;
   FFrame.Init(Azoom);
-end;
-
-procedure TProviderTilesDelete.RefreshTranslation;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
-  end;
-end;
-
-procedure TProviderTilesDelete.Hide;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
-  end;
-end;
-
-procedure TProviderTilesDelete.Show;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if not FFrame.Visible then begin
-      FFrame.Show;
-    end;
-  end;
 end;
 
 procedure TProviderTilesDelete.StartProcess(const APolygon: ILonLatPolygon);

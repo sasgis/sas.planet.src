@@ -58,15 +58,11 @@ type
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AMapCalibrationList: IMapCalibrationList
     );
-    destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(
       Azoom: byte;
       const APolygon: ILonLatPolygon
     ); override;
-    procedure Show; override;
-    procedure Hide; override;
-    procedure RefreshTranslation; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -139,12 +135,6 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
 end;
 
-destructor TProviderMapCombine.Destroy;
-begin
-  FreeAndNil(FFrame);
-  inherited;
-end;
-
 function TProviderMapCombine.GetCaption: string;
 begin
   Result := SAS_STR_OperationMapCombineCaption;
@@ -165,38 +155,9 @@ begin
       Self.GUIConfigList,
       FMapCalibrationList
     );
-    FFrame.Visible := False;
-    FFrame.Parent := Self.Parent;
+    SetFrame(FFrame);
   end;
   FFrame.Init(Azoom, APolygon);
-end;
-
-procedure TProviderMapCombine.RefreshTranslation;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
-  end;
-end;
-
-procedure TProviderMapCombine.Hide;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
-  end;
-end;
-
-procedure TProviderMapCombine.Show;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if not FFrame.Visible then begin
-      FFrame.Show;
-    end;
-  end;
 end;
 
 procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);

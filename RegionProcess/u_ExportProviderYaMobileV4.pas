@@ -40,15 +40,11 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
     );
-    destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(
       Azoom: byte;
       const APolygon: ILonLatPolygon
     ); override;
-    procedure Show; override;
-    procedure Hide; override;
-    procedure RefreshTranslation; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -91,12 +87,6 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-destructor TExportProviderYaMobileV4.Destroy;
-begin
-  FreeAndNil(FFrame);
-  inherited;
-end;
-
 function TExportProviderYaMobileV4.GetCaption: string;
 begin
   Result := SAS_STR_ExportYaMobileV4Caption;
@@ -108,44 +98,16 @@ procedure TExportProviderYaMobileV4.InitFrame(
 );
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportYaMobileV4.Create(
-      nil,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList
-    );
-    FFrame.Visible := False;
-    FFrame.Parent := Self.Parent;
+    FFrame :=
+      TfrExportYaMobileV4.Create(
+        nil,
+        Self.MainMapsConfig,
+        Self.FullMapsSet,
+        Self.GUIConfigList
+      );
+    SetFrame(FFrame);
   end;
   FFrame.Init;
-end;
-
-procedure TExportProviderYaMobileV4.RefreshTranslation;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
-  end;
-end;
-
-procedure TExportProviderYaMobileV4.Hide;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
-  end;
-end;
-
-procedure TExportProviderYaMobileV4.Show;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if not FFrame.Visible then begin
-      FFrame.Show;
-    end;
-  end;
 end;
 
 procedure TExportProviderYaMobileV4.StartProcess(const APolygon: ILonLatPolygon);

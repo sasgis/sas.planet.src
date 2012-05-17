@@ -64,15 +64,11 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple
     );
-    destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(
       Azoom: byte;
       const APolygon: ILonLatPolygon
     ); override;
-    procedure Show; override;
-    procedure Hide; override;
-    procedure RefreshTranslation; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
     procedure StartBySLS(const AFileName: string);
   end;
@@ -118,12 +114,6 @@ begin
   FDownloadInfo := ADownloadInfo;
 end;
 
-destructor TProviderTilesDownload.Destroy;
-begin
-  FreeAndNil(FFrame);
-  inherited;
-end;
-
 function TProviderTilesDownload.GetCaption: string;
 begin
   Result := SAS_STR_OperationDownloadCaption;
@@ -143,38 +133,9 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-    FFrame.Visible := False;
-    FFrame.Parent := Self.Parent;
+    SetFrame(FFrame);
   end;
   FFrame.Init(Azoom, APolygon);
-end;
-
-procedure TProviderTilesDownload.RefreshTranslation;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
-  end;
-end;
-
-procedure TProviderTilesDownload.Hide;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
-  end;
-end;
-
-procedure TProviderTilesDownload.Show;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if not FFrame.Visible then begin
-      FFrame.Show;
-    end;
-  end;
 end;
 
 procedure TProviderTilesDownload.StartBySLS(const AFileName: string);

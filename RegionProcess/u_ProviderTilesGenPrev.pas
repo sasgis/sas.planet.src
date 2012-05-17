@@ -41,15 +41,11 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const AImageResamplerConfig: IImageResamplerConfig
     );
-    destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(
       Azoom: byte;
       const APolygon: ILonLatPolygon
     ); override;
-    procedure Show; override;
-    procedure Hide; override;
-    procedure RefreshTranslation; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -100,12 +96,6 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-destructor TProviderTilesGenPrev.Destroy;
-begin
-  FreeAndNil(FFrame);
-  inherited;
-end;
-
 function TProviderTilesGenPrev.GetCaption: string;
 begin
   Result := SAS_STR_OperationGenPrevCaption;
@@ -124,38 +114,9 @@ begin
       Self.GUIConfigList,
       FImageResamplerConfig
     );
-    FFrame.Visible := False;
-    FFrame.Parent := Self.Parent;
+    SetFrame(FFrame);
   end;
   FFrame.Init(Azoom);
-end;
-
-procedure TProviderTilesGenPrev.RefreshTranslation;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
-  end;
-end;
-
-procedure TProviderTilesGenPrev.Hide;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
-  end;
-end;
-
-procedure TProviderTilesGenPrev.Show;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if not FFrame.Visible then begin
-      FFrame.Show;
-    end;
-  end;
 end;
 
 procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon);

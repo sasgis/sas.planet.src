@@ -38,15 +38,11 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
-    destructor Destroy; override;
     function GetCaption: string; override;
     procedure InitFrame(
       Azoom: byte;
       const APolygon: ILonLatPolygon
     ); override;
-    procedure Show; override;
-    procedure Hide; override;
-    procedure RefreshTranslation; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -88,12 +84,6 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-destructor TProviderTilesCopy.Destroy;
-begin
-  FreeAndNil(FFrame);
-  inherited;
-end;
-
 function TProviderTilesCopy.GetCaption: string;
 begin
   Result := SAS_STR_OperationTilesCopyCaption;
@@ -111,38 +101,9 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-    FFrame.Visible := False;
-    FFrame.Parent := Self.Parent;
+    SetFrame(FFrame);
   end;
   FFrame.Init;
-end;
-
-procedure TProviderTilesCopy.RefreshTranslation;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
-  end;
-end;
-
-procedure TProviderTilesCopy.Hide;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if FFrame.Visible then begin
-      FFrame.Hide;
-    end;
-  end;
-end;
-
-procedure TProviderTilesCopy.Show;
-begin
-  inherited;
-  if FFrame <> nil then begin
-    if not FFrame.Visible then begin
-      FFrame.Show;
-    end;
-  end;
 end;
 
 procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon);
