@@ -29,11 +29,12 @@ uses
   Controls,
   ExtCtrls,
   StdCtrls,
+  i_LanguageManager,
   i_StartUpLogoConfig,
   u_CommonFormAndFrameParents;
 
 type
-  TfrmStartLogo = class(TCommonFormParent)
+  TfrmStartLogo = class(TFormWitghLanguageManager)
     tmrLogo: TTimer;
     imgLogo: TImage32;
     lblVersion: TLabel;
@@ -46,13 +47,16 @@ type
     FReadyToHide: Boolean;
     FConfig: IStartUpLogoConfig;
     constructor Create(
-      AOwner: TComponent;
+      const ALanguageManager: ILanguageManager;
       const AConfig: IStartUpLogoConfig
     ); reintroduce;
   public
     destructor Destroy; override;
 
-    class procedure ShowLogo(const AConfig: IStartUpLogoConfig);
+    class procedure ShowLogo(
+      const ALanguageManager: ILanguageManager;
+      const AConfig: IStartUpLogoConfig
+    );
     class procedure ReadyToHideLogo;
   end;
 
@@ -70,11 +74,11 @@ var
 {$R *.dfm}
 
 constructor TfrmStartLogo.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const AConfig: IStartUpLogoConfig
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FConfig := AConfig;
 end;
 
@@ -134,10 +138,13 @@ begin
   end;
 end;
 
-class procedure TfrmStartLogo.ShowLogo(const AConfig: IStartUpLogoConfig);
+class procedure TfrmStartLogo.ShowLogo(
+  const ALanguageManager: ILanguageManager;
+  const AConfig: IStartUpLogoConfig
+);
 begin
   if AConfig.IsShowLogo then begin
-    frmStartLogo := TfrmStartLogo.Create(nil, AConfig);
+    frmStartLogo := TfrmStartLogo.Create(ALanguageManager, AConfig);
     frmStartLogo.Show;
     Application.ProcessMessages;
   end;

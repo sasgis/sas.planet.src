@@ -824,7 +824,7 @@ begin
   try
     Application.Initialize;
     Application.Title := SAS_STR_ApplicationTitle;
-    TfrmStartLogo.ShowLogo(GState.StartUpLogoConfig);
+    TfrmStartLogo.ShowLogo(GState.LanguageManager, GState.StartUpLogoConfig);
     try
       GState.LoadConfig;
     except
