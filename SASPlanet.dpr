@@ -835,7 +835,6 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-    Application.CreateForm(TfrmAbout, frmAbout);
     GState.StartExceptionTracking;
     try
       Application.Run;

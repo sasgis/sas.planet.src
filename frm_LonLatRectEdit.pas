@@ -32,12 +32,13 @@ uses
   ExtCtrls,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
+  i_LanguageManager,
   i_ValueToStringConverter,
   i_ViewPortState,
   fr_LonLat;
 
 type
-  TfrmLonLatRectEdit = class(TCommonFormParent)
+  TfrmLonLatRectEdit = class(TFormWitghLanguageManager)
     btnOk: TButton;
     btnCancel: TButton;
     grpTopLeft: TGroupBox;
@@ -50,7 +51,7 @@ type
     FfrLonLatBottomRight: TfrLonLat;
   public
     constructor Create(
-      AOwner: TComponent;
+      const ALanguageManager: ILanguageManager;
       const AViewPortState: IViewPortState;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
@@ -66,22 +67,22 @@ uses
 {$R *.dfm}
 
 constructor TfrmLonLatRectEdit.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const AViewPortState: IViewPortState;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FfrLonLatTopLeft :=
     TfrLonLat.Create(
-      nil,
+      ALanguageManager,
       AViewPortState,
       AValueToStringConverterConfig,
       tssTopLeft
     );
   FfrLonLatBottomRight :=
     TfrLonLat.Create(
-      nil,
+      ALanguageManager,
       AViewPortState,
       AValueToStringConverterConfig,
       tssBottomRight

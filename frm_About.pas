@@ -31,7 +31,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrmAbout = class(TCommonFormParent)
+  TfrmAbout = class(TFormWitghLanguageManager)
     Bevel1: TBevel;
     btnClose: TButton;
     lblVersionCatpion: TLabel;
@@ -50,9 +50,6 @@ type
   private
   public
   end;
-
-var
-  frmAbout: TfrmAbout;
 
 implementation
 

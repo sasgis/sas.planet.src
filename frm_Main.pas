@@ -121,6 +121,7 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MarksDbGUIHelper,
+  frm_About,
   frm_Settings,
   frm_RegionProcess,
   frm_DGAvailablePic,
@@ -618,6 +619,7 @@ type
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
     FfrmMarksExplorer: TfrmMarksExplorer;
+    FfrmAbout: TfrmAbout;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -700,7 +702,6 @@ implementation
 uses
   u_GUIDObjectSet,
   u_GlobalState,
-  frm_About,
   frm_LonLatRectEdit,
   c_ZeroGUID,
   c_SasVersion,
@@ -1968,6 +1969,7 @@ begin
   FNOpenDirItemList := nil;
   FNCopyLinkItemList := nil;
   FLinksList := nil;
+  FreeAndNil(FfrmAbout);
   FreeAndNil(FTumbler);
   FreeAndNil(FRuller);
   FreeAndNil(FFormRegionProcess);
@@ -3305,7 +3307,10 @@ end;
 
 procedure TfrmMain.tbitmAboutClick(Sender: TObject);
 begin
-  frmAbout.ShowModal;
+  if FfrmAbout = nil then begin
+    FfrmAbout := TfrmAbout.Create(GState.LanguageManager);
+  end;
+  FfrmAbout.ShowModal;
 end;
 
 procedure TfrmMain.TBREGIONClick(Sender: TObject);
@@ -3642,7 +3647,7 @@ begin
   TBRectSave.ImageIndex:=12;
   VSelLonLat:=
     TfrmLonLatRectEdit.Create(
-      nil,
+      GState.LanguageManager,
       FConfig.ViewPortState,
       GState.ValueToStringConverterConfig
     );
