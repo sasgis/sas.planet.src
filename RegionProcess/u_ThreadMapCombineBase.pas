@@ -11,6 +11,7 @@ uses
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_CoordConverter,
+  i_MapCalibration,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   u_ThreadRegionProcessAbstract;
@@ -21,7 +22,7 @@ type
     FTargetConverter: ILocalCoordConverter;
     FImageProvider: IBitmapLayerProvider;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
-    FMapCalibrationList: IInterfaceList;
+    FMapCalibrationList: IMapCalibrationList;
     FSplitCount: TPoint;
     FFileName: string;
     FFilePath: string;
@@ -47,7 +48,7 @@ type
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMapCalibrationList: IInterfaceList;
+      const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint
     );
@@ -57,7 +58,6 @@ implementation
 
 uses
   SysUtils,
-  i_MapCalibration,
   u_ResStrings;
 
 { TMapCombineThreadBase }
@@ -70,7 +70,7 @@ constructor TThreadMapCombineBase.Create(
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMapCalibrationList: IInterfaceList;
+  const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint
 );

@@ -39,6 +39,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapCalibrationList: IMapCalibrationList;
+    function PrepareMapCalibrationList: IMapCalibrationList;
   public
     constructor Create(
       AParent: TWinControl;
@@ -84,6 +85,7 @@ uses
   i_ProjectionInfo,
   u_ProjectionInfo,
   u_GeoFun,
+  u_MapCalibrationListBasic,
   u_IdCacheSimpleThreadSafe,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
@@ -160,11 +162,24 @@ begin
   FFrame.Init(Azoom, APolygon);
 end;
 
+function TProviderMapCombine.PrepareMapCalibrationList: IMapCalibrationList;
+var
+  i: Integer;
+  VList: IInterfaceList;
+begin
+  VList := TInterfaceList.Create;
+  for i := 0 to FFrame.chklstPrTypes.Items.Count - 1 do begin
+    if FFrame.chklstPrTypes.Checked[i] then begin
+      VList.Add(IMapCalibration(Pointer(FFrame.chklstPrTypes.Items.Objects[i])));
+    end;
+  end;
+  Result := TMapCalibrationListByInterfaceList.Create(VList);
+end;
+
 procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);
 var
   Amt, Hmt: TMapType;
-  i: integer;
-  VPrTypes: IInterfaceList;
+  VPrTypes: IMapCalibrationList;
   VFileName: string;
   VSplitCount: TPoint;
   VFileExt: string;
@@ -234,12 +249,8 @@ begin
       VMapRect.TopLeft
     );
 
-  VPrTypes := TInterfaceList.Create;
-  for i := 0 to FFrame.chklstPrTypes.Items.Count - 1 do begin
-    if FFrame.chklstPrTypes.Checked[i] then begin
-      VPrTypes.Add(IInterface(Pointer(FFrame.chklstPrTypes.Items.Objects[i])));
-    end;
-  end;
+  VPrTypes := PrepareMapCalibrationList;
+
   VSplitCount.X := FFrame.seSplitHor.Value;
   VSplitCount.Y := FFrame.seSplitVert.Value;
   VFileExt := UpperCase(ExtractFileExt(VFileName));

@@ -27,13 +27,17 @@ uses
   i_MapCalibration;
 
 type
-  TMapCalibrationListBasic = class(TInterfacedObject, IMapCalibrationList)
+  TMapCalibrationListByInterfaceList = class(TInterfacedObject, IMapCalibrationList)
   private
     FList: IInterfaceList;
-    procedure Add(const AItem: IMapCalibration);
   protected
     function GetCount: Integer;
     function Get(AIndex: Integer): IMapCalibration;
+  public
+    constructor Create(AList: IInterfaceList);
+  end;
+
+  TMapCalibrationListBasic = class(TMapCalibrationListByInterfaceList)
   public
     constructor Create();
   end;
@@ -47,32 +51,39 @@ uses
   u_MapCalibrationTab,
   u_MapCalibrationWorldFiles;
 
-{ TMapCalibrationListBasic }
+{ TMapCalibrationListByInterfaceList }
 
-constructor TMapCalibrationListBasic.Create;
+constructor TMapCalibrationListByInterfaceList.Create(AList: IInterfaceList);
 begin
-  inherited;
-  FList := TInterfaceList.Create;
-  Add(TMapCalibrationOzi.Create);
-  Add(TMapCalibrationDat.Create);
-  Add(TMapCalibrationKml.Create);
-  Add(TMapCalibrationTab.Create);
-  Add(TMapCalibrationWorldFiles.Create);
+  inherited Create;
+  FList := AList;
 end;
 
-procedure TMapCalibrationListBasic.Add(const AItem: IMapCalibration);
-begin
-  FList.Add(AItem);
-end;
-
-function TMapCalibrationListBasic.Get(AIndex: Integer): IMapCalibration;
+function TMapCalibrationListByInterfaceList.Get(
+  AIndex: Integer
+): IMapCalibration;
 begin
   Result := IMapCalibration(FList.Items[AIndex]);
 end;
 
-function TMapCalibrationListBasic.GetCount: Integer;
+function TMapCalibrationListByInterfaceList.GetCount: Integer;
 begin
   Result := FList.Count;
+end;
+
+{ TMapCalibrationListBasic }
+
+constructor TMapCalibrationListBasic.Create;
+var
+  VList: IInterfaceList;
+begin
+  VList := TInterfaceList.Create;
+  VList.Add(IMapCalibration(TMapCalibrationOzi.Create));
+  VList.Add(IMapCalibration(TMapCalibrationDat.Create));
+  VList.Add(IMapCalibration(TMapCalibrationKml.Create));
+  VList.Add(IMapCalibration(TMapCalibrationTab.Create));
+  VList.Add(IMapCalibration(TMapCalibrationWorldFiles.Create));
+  inherited Create(VList);
 end;
 
 end.

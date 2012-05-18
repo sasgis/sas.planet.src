@@ -10,6 +10,7 @@ uses
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
+  i_MapCalibration,
   i_VectorItemLonLat,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -47,7 +48,7 @@ type
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMapCalibrationList: IInterfaceList;
+      const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
       AQuality: Integer
@@ -72,7 +73,7 @@ constructor TThreadMapCombineJPG.Create(
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMapCalibrationList: IInterfaceList;
+  const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
   AQuality: Integer

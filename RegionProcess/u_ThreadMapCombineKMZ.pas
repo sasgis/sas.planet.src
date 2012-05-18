@@ -10,6 +10,7 @@ uses
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
+  i_MapCalibration,
   i_VectorItemLonLat,
   i_LocalCoordConverterFactorySimpe,
   t_GeoTypes,
@@ -37,7 +38,7 @@ type
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMapCalibrationList: IInterfaceList;
+      const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
       AQuality: Integer
@@ -64,7 +65,7 @@ constructor TThreadMapCombineKMZ.Create(
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMapCalibrationList: IInterfaceList;
+  const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
   AQuality: Integer

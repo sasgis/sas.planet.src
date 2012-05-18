@@ -13,6 +13,7 @@ uses
   i_LocalCoordConverter,
   i_VectorItemLonLat,
   i_ImageLineProvider,
+  i_MapCalibration,
   i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
   u_GeoFun,
@@ -48,7 +49,7 @@ type
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMapCalibrationList: IInterfaceList;
+      const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
       AQuality: Integer
@@ -70,7 +71,7 @@ constructor TThreadMapCombineECW.Create(
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMapCalibrationList: IInterfaceList;
+  const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
   AQuality: Integer
