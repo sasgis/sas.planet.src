@@ -126,7 +126,7 @@ procedure TProviderTilesDownload.InitFrame(
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDownload.Create(
-      nil,
+      Self.LanguageManager,
       FProjectionFactory,
       FVectorItmesFactory,
       Self.MainMapsConfig,

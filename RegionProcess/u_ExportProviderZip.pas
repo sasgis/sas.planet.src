@@ -95,8 +95,8 @@ procedure TExportProviderZip.InitFrame(
 );
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportToFileCont.CreateForFileType(
-      nil,
+    FFrame := TfrExportToFileCont.Create(
+      Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,

@@ -13,6 +13,7 @@ uses
   StdCtrls,
   CheckLst,
   Spin,
+  i_LanguageManager,
   i_MapTypes,
   i_CoordConverterFactory,
   i_VectorItemLonLat,
@@ -76,7 +77,7 @@ type
     procedure UpdatePanelSizes;
   public
     constructor Create(
-      AOwner : TComponent;
+      const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorFactory: IVectorItmesFactory;
       const AMainMapsConfig: IMainMapsConfig;
@@ -181,7 +182,7 @@ begin
 end;
 
 constructor TfrMapCombine.Create(
-  AOwner : TComponent;
+  const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorFactory: IVectorItmesFactory;
   const AMainMapsConfig: IMainMapsConfig;
@@ -190,7 +191,7 @@ constructor TfrMapCombine.Create(
   const AMapCalibrationList: IMapCalibrationList
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FVectorFactory := AVectorFactory;
   FMainMapsConfig := AMainMapsConfig;

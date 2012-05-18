@@ -12,6 +12,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_LanguageManager,
   i_MapTypes,
   i_CoordConverterFactory,
   i_VectorItemLonLat,
@@ -56,8 +57,8 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FPolygLL: ILonLatPolygon;
   public
-    constructor CreateForFileType(
-      AOwner : TComponent;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorFactory: IVectorItmesFactory;
       const AMainMapsConfig: IMainMapsConfig;
@@ -155,8 +156,8 @@ begin
   end;
 end;
 
-constructor TfrExportToOgf2.CreateForFileType(
-  AOwner : TComponent;
+constructor TfrExportToOgf2.Create(
+  const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorFactory: IVectorItmesFactory;
   const AMainMapsConfig: IMainMapsConfig;
@@ -166,7 +167,7 @@ constructor TfrExportToOgf2.CreateForFileType(
   const AFileExtDefault: string
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FVectorFactory := AVectorFactory;
   FMainMapsConfig := AMainMapsConfig;

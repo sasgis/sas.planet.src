@@ -94,7 +94,6 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(const AMark: IMarkPoly): IMarkPoly;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -112,10 +111,10 @@ begin
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 
-  frMarkDescription := TfrMarkDescription.Create(AMediaPath);
+  frMarkDescription := TfrMarkDescription.Create(ALanguageManager, AMediaPath);
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
-      nil,
+      ALanguageManager,
       FCategoryDB
     );
 end;
@@ -169,13 +168,6 @@ begin
   frMarkCategory.Parent := pnlCategory;
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
-end;
-
-procedure TfrmMarkEditPoly.RefreshTranslation;
-begin
-  inherited;
-  frMarkDescription.RefreshTranslation;
-  frMarkCategory.RefreshTranslation;
 end;
 
 procedure TfrmMarkEditPoly.btnOkClick(Sender: TObject);

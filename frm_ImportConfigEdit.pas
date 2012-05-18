@@ -61,7 +61,6 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function GetImportConfig: IImportConfig;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -85,10 +84,10 @@ begin
 
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
-      nil,
+      ALanguageManager,
       FCategoryDB
     );
-  frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(nil);
+  frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(ALanguageManager);
 end;
 
 destructor TfrmImportConfigEdit.Destroy;
@@ -162,13 +161,6 @@ begin
       frMarkCategory.Clear;
       frMarksGeneralOptions.Clear;
     end;
-end;
-
-procedure TfrmImportConfigEdit.RefreshTranslation;
-begin
-  inherited;
-  frMarkCategory.RefreshTranslation;
-  frMarksGeneralOptions.RefreshTranslation;
 end;
 
 procedure TfrmImportConfigEdit.btnOkClick(Sender: TObject);

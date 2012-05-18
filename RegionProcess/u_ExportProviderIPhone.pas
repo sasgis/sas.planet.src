@@ -107,7 +107,7 @@ procedure TExportProviderIPhone.InitFrame(
 begin
   if FFrame = nil then begin
     FFrame := TfrExportIPhone.Create(
-      nil,
+      Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList

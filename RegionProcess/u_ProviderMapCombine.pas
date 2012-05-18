@@ -166,7 +166,7 @@ procedure TProviderMapCombine.InitFrame(
 begin
   if FFrame = nil then begin
     FFrame := TfrMapCombine.Create(
-      nil,
+      Self.LanguageManager,
       FProjectionFactory,
       FVectorItmesFactory,
       Self.MainMapsConfig,

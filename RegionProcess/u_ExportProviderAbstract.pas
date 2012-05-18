@@ -42,7 +42,6 @@ type
     ); virtual; abstract;
     procedure Show;
     procedure Hide;
-    procedure RefreshTranslation;
     procedure StartProcess(const APolygon: ILonLatPolygon); virtual; abstract;
   end;
 
@@ -81,13 +80,6 @@ begin
     if FFrame.Visible then begin
       FFrame.Hide;
     end;
-  end;
-end;
-
-procedure TExportProviderAbstract.RefreshTranslation;
-begin
-  if FFrame <> nil then begin
-    FFrame.RefreshTranslation;
   end;
 end;
 

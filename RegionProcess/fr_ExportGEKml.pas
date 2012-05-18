@@ -11,6 +11,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -41,7 +42,7 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
   public
     constructor Create(
-      AOwner : TComponent;
+      const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
@@ -73,13 +74,13 @@ begin
 end;
 
 constructor TfrExportGEKml.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

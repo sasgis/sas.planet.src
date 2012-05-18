@@ -99,8 +99,6 @@ begin
   for i := 0 to application.ComponentCount - 1 do begin
     if application.Components[i] is TCommonFormParent then begin
       TCommonFormParent(application.Components[i]).RefreshTranslation;
-    end else if application.Components[i] is TCommonFrameParent then begin
-      TCommonFrameParent(application.Components[i]).RefreshTranslation;
     end;
   end;
 end;

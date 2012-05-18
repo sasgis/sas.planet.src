@@ -345,7 +345,7 @@ begin
     GState.GPSpar.DataReciveNotifier
   );
   frShortCutList := TfrShortCutList.Create(ALanguageManager);
-  frMapsList := TfrMapsList.Create(AMapTypeEditor);
+  frMapsList := TfrMapsList.Create(ALanguageManager, AMapTypeEditor);
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -1003,8 +1003,6 @@ procedure TfrmSettings.RefreshTranslation;
 begin
   inherited;
   FormShow(Self);
-  frShortCutList.RefreshTranslation;
-  frMapsList.RefreshTranslation;
 end;
 
 procedure TfrmSettings.InitResamplersList(

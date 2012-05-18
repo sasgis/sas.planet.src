@@ -33,6 +33,7 @@ uses
   ExtCtrls,
   StdCtrls,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
   i_LocalCoordConverter,
   t_GeoTypes,
   i_ValueToStringConverter,
@@ -69,7 +70,7 @@ type
     function Edit2Digit(const Atext:string; lat:boolean; var res:Double): boolean;
   public
     constructor Create(
-      AOwner: TComponent;
+      const ALanguageManager: ILanguageManager;
       const AViewPortState: IViewPortState;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       ATileSelectStyle: TTileSelectStyle
@@ -105,13 +106,13 @@ begin
 end;
 
 constructor TfrLonLat.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const AViewPortState: IViewPortState;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   ATileSelectStyle: TTileSelectStyle
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FViewPortState := AViewPortState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FTileSelectStyle:=ATileSelectStyle;

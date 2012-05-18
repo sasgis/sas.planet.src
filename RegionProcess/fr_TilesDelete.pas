@@ -31,6 +31,7 @@ uses
   ExtCtrls,
   StdCtrls,
   Spin,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -58,7 +59,7 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
   public
     constructor Create(
-      AOwner : TComponent;
+      const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
@@ -77,13 +78,13 @@ uses
 { TFrame3 }
 
 constructor TfrTilesDelete.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

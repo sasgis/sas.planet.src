@@ -90,7 +90,7 @@ procedure TExportProviderGEKml.InitFrame(
 begin
   if FFrame = nil then begin
     FFrame := TfrExportGEKml.Create(
-      nil,
+      Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList

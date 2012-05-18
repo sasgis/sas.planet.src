@@ -124,7 +124,6 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(const AMark: IMarkPoint): IMarkPoint;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -148,17 +147,17 @@ begin
   FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
 
-  frMarkDescription := TfrMarkDescription.Create(AMediaPath);
+  frMarkDescription := TfrMarkDescription.Create(ALanguageManager, AMediaPath);
   frLonLatPoint :=
     TfrLonLat.Create(
-      nil,
+      ALanguageManager,
       AViewPortState,
       AValueToStringConverterConfig,
       tssCenter
     );
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
-      nil,
+      ALanguageManager,
       FCategoryDB
     );
 end;
@@ -317,14 +316,6 @@ procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject; Button: TMouseButt
 begin
  drwgrdIcons.Visible:=not(drwgrdIcons.Visible);
  if drwgrdIcons.Visible then drwgrdIcons.SetFocus;
-end;
-
-procedure TfrmMarkEditPoint.RefreshTranslation;
-begin
-  inherited;
-  frLonLatPoint.RefreshTranslation;
-  frMarkDescription.RefreshTranslation;
-  frMarkCategory.RefreshTranslation;
 end;
 
 procedure TfrmMarkEditPoint.drwgrdIconsMouseUp(Sender: TObject;

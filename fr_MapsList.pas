@@ -36,6 +36,7 @@ type
     procedure UpdateList;
   public
     constructor Create(
+      const ALanguageManager: ILanguageManager;
       const AMapTypeEditor: IMapTypeConfigModalEdit
     ); reintroduce;
     procedure Init;
@@ -133,10 +134,11 @@ begin
 end;
 
 constructor TfrMapsList.Create(
+  const ALanguageManager: ILanguageManager;
   const AMapTypeEditor: IMapTypeConfigModalEdit
 );
 begin
-  inherited Create(nil);
+  inherited Create(ALanguageManager);
   FMapTypeEditor := AMapTypeEditor;
   MapList.DoubleBuffered:=true;
 end;

@@ -11,6 +11,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -54,14 +55,14 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
   public
-    constructor CreateForFileType(
-      AOwner : TComponent;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AFileFilters: string;
       const AFileExtDefault: string
-    );
+    ); reintroduce;
     procedure Init;
     procedure RefreshTranslation; override;
   end;
@@ -136,8 +137,8 @@ if chklstZooms.Checked[VCurrZoom] then
  end;
 end;
 
-constructor TfrExportToJNX.CreateForFileType(
-  AOwner : TComponent;
+constructor TfrExportToJNX.Create(
+  const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -145,7 +146,7 @@ constructor TfrExportToJNX.CreateForFileType(
   const AFileExtDefault: string
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

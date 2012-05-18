@@ -98,8 +98,8 @@ procedure TExportProviderOgf2.InitFrame(
 );
 begin
   if FFrame = nil then begin
-    FFrame := TfrExportToOgf2.CreateForFileType(
-      nil,
+    FFrame := TfrExportToOgf2.Create(
+      Self.LanguageManager,
       FProjectionFactory,
       FVectorItmesFactory,
       Self.MainMapsConfig,

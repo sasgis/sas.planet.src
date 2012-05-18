@@ -90,7 +90,6 @@ type
       out AResult: IGeoCodeResult;
       out AZoom: Byte
     ): Boolean;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -218,12 +217,6 @@ begin
   end;
 end;
 
-procedure TfrmGoTo.RefreshTranslation;
-begin
-  inherited;
-  frLonLatPoint.RefreshTranslation;
-end;
-
 function TfrmGoTo.ShowGeocodeModal(
   out AResult: IGeoCodeResult;
   out AZoom: Byte
@@ -277,7 +270,7 @@ begin
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
-  frLonLatPoint := TfrLonLat.Create(nil, FViewPortState, FValueToStringConverterConfig, tssCenter);
+  frLonLatPoint := TfrLonLat.Create(ALanguageManager, FViewPortState, FValueToStringConverterConfig, tssCenter);
   frLonLatPoint.Width:= tsCoordinates.Width;
   frLonLatPoint.Height:= tsCoordinates.Height;
 end;

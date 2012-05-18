@@ -11,6 +11,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -40,14 +41,14 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
   public
-    constructor CreateForFileType(
-      AOwner : TComponent;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AFileFilters: string;
       const AFileExtDefault: string
-    );
+    ); reintroduce;
     procedure Init;
     procedure RefreshTranslation; override;
   end;
@@ -76,8 +77,8 @@ begin
   end;
 end;
 
-constructor TfrExportToFileCont.CreateForFileType(
-  AOwner : TComponent;
+constructor TfrExportToFileCont.Create(
+  const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -85,7 +86,7 @@ constructor TfrExportToFileCont.CreateForFileType(
   const AFileExtDefault: string
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

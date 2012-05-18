@@ -56,7 +56,6 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function Execute(var ALonLatRect: TDoubleRect): Boolean;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -118,13 +117,6 @@ procedure TfrmLonLatRectEdit.FormShow(Sender: TObject);
 begin
   FfrLonLatTopLeft.Parent := grpTopLeft;
   FfrLonLatBottomRight.Parent := grpBottomRight;
-end;
-
-procedure TfrmLonLatRectEdit.RefreshTranslation;
-begin
-  inherited;
-  FfrLonLatTopLeft.RefreshTranslation;
-  FfrLonLatBottomRight.RefreshTranslation;
 end;
 
 end.

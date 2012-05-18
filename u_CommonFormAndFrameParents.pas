@@ -48,9 +48,15 @@ type
   end;
 
   TCommonFrameParent = class(Forms.TFrame)
-  public
-    constructor Create(AOwner: TComponent); override;
+  private
+    FLanguageChangeListener: IJclListener;
+    FLanguageManager: ILanguageManager;
+    procedure OnLangChange;
+  protected
     procedure RefreshTranslation; virtual;
+  public
+    constructor Create(const ALanguageManager: ILanguageManager); reintroduce;
+    destructor Destroy; override;
   end;
 
   TFrame = class(TCommonFrameParent);
@@ -76,19 +82,32 @@ end;
 
 { TFrame }
 
-constructor TCommonFrameParent.Create(AOwner: TComponent);
+constructor TCommonFrameParent.Create(const ALanguageManager: ILanguageManager);
 begin
+  inherited Create(nil);
+  TranslateComponent(self);
+  FLanguageManager := ALanguageManager;
+  FLanguageChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
+  FLanguageManager.ChangeNotifier.Add(FLanguageChangeListener);
+end;
+
+destructor TCommonFrameParent.Destroy;
+begin
+  FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
+  FLanguageChangeListener := nil;
+  FLanguageManager := nil;
+
   inherited;
-  if (Owner = Application) or (Owner = nil) then begin
-    TranslateComponent(self);
-  end;
+end;
+
+procedure TCommonFrameParent.OnLangChange;
+begin
+  RefreshTranslation;
 end;
 
 procedure TCommonFrameParent.RefreshTranslation;
 begin
-  if (Owner = Application) or (Owner = nil) then begin
-    ReTranslateComponent(self);
-  end;
+  ReTranslateComponent(self);
 end;
 
 { TFormWitghLanguageManager }

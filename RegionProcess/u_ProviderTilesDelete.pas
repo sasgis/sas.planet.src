@@ -112,7 +112,7 @@ procedure TProviderTilesDelete.InitFrame(
 begin
   if FFrame = nil then begin
     FFrame := TfrTilesDelete.Create(
-      nil,
+      Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList

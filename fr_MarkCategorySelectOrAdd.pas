@@ -8,6 +8,7 @@ uses
   Forms,
   StdCtrls,
   u_CommonFormAndFrameParents,
+  i_LanguageManager,
   i_MarkCategory,
   i_MarkCategoryDB;
 
@@ -21,7 +22,10 @@ type
     FLastUsedCategoryName: string;
     procedure CategoryListToStrings(const AList: IInterfaceList; AStrings: TStrings);
   public
-    constructor Create(AOwner: TComponent; const ACategoryDB: IMarkCategoryDB); reintroduce;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const ACategoryDB: IMarkCategoryDB
+    ); reintroduce;
     destructor Destroy; override;
     procedure Init(const ACategory: ICategory);
     function GetCategory: ICategory;
@@ -35,11 +39,11 @@ implementation
 { TfrMarkCategorySelectOrAdd }
 
 constructor TfrMarkCategorySelectOrAdd.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const ACategoryDB: IMarkCategoryDB
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FCategoryDB := ACategoryDB;
   FCategoryList := nil;
   FLastUsedCategoryName := '';

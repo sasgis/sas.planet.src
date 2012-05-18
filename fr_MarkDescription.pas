@@ -37,6 +37,7 @@ uses
   TB2Item,
   TB2Dock,
   TB2Toolbar,
+  i_LanguageManager,
   i_PathConfig,
   u_CommonFormAndFrameParents;
 
@@ -63,13 +64,16 @@ type
       Shift: TShiftState);
   private
     FMediaPath: IPathConfig;
-    
+
     function GetDescription: string;
     procedure SetDescription(const Value: string);
   public
     property Description: string read GetDescription write SetDescription;
   public
-    constructor Create(const AMediaPath: IPathConfig); reintroduce;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AMediaPath: IPathConfig
+    ); reintroduce;
   end;
 
 implementation
@@ -84,9 +88,12 @@ uses
 type
   TEditBtn = (ebB,ebI,ebU,ebLeft,ebCenter,ebRight,ebImg, ebUrl);
 
-constructor TfrMarkDescription.Create(const AMediaPath: IPathConfig);
+constructor TfrMarkDescription.Create(
+  const ALanguageManager: ILanguageManager;
+  const AMediaPath: IPathConfig
+);
 begin
-  inherited Create(nil);
+  inherited Create(ALanguageManager);
   FMediaPath := AMediaPath;
 end;
 

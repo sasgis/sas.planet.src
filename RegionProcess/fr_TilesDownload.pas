@@ -14,6 +14,7 @@ uses
   t_GeoTypes,
   i_MapTypes,
   i_CoordConverterFactory,
+  i_LanguageManager,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ActiveMapsConfig,
@@ -53,7 +54,7 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
   public
     constructor Create(
-      AOwner : TComponent;
+      const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorFactory: IVectorItmesFactory;
       const AMainMapsConfig: IMainMapsConfig;
@@ -138,7 +139,7 @@ begin
 end;
 
 constructor TfrTilesDownload.Create(
-  AOwner: TComponent;
+  const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorFactory: IVectorItmesFactory;
   const AMainMapsConfig: IMainMapsConfig;
@@ -146,7 +147,7 @@ constructor TfrTilesDownload.Create(
   const AGUIConfigList: IMapTypeGUIConfigList
 );
 begin
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FVectorFactory := AVectorFactory;
   FMainMapsConfig := AMainMapsConfig;

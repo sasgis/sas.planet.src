@@ -92,7 +92,7 @@ begin
   if FFrame = nil then begin
     FFrame :=
       TfrExportAUX.Create(
-        nil,
+        Self.LanguageManager,
         Self.MainMapsConfig,
         Self.FullMapsSet,
         Self.GUIConfigList

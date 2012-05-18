@@ -10,6 +10,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  i_LanguageManager,
   i_ImageResamplerFactory,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -51,7 +52,7 @@ type
     procedure InitResamplersList(const AList: IImageResamplerFactoryList; ABox: TComboBox);
   public
     constructor Create(
-      AOwner : TComponent;
+      const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -163,7 +164,7 @@ begin
 end;
 
 constructor TfrTilesGenPrev.Create(
-  AOwner : TComponent;
+  const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -172,7 +173,7 @@ constructor TfrTilesGenPrev.Create(
 begin
   TP_Ignore(Self, 'cbbResampler.Items');
   TP_Ignore(Self, 'cbbResampler.Text');
-  inherited Create(AOwner);
+  inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

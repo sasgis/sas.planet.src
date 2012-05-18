@@ -61,7 +61,6 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function GetImportConfig(const ACategory:ICategory): IImportConfig;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -85,11 +84,11 @@ begin
 
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
-      nil,
+      ALanguageManager,
       FCategoryDB
     );
 
-  frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(nil);
+  frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(ALanguageManager);
   frMarksGeneralOptions.chkPointIgnore.Checked:=true;
   frMarksGeneralOptions.chkLineIgnore.Checked:=true;
   frMarksGeneralOptions.chkPolyIgnore.Checked:=true;
@@ -168,13 +167,6 @@ begin
       frMarkCategory.Clear;
       frMarksGeneralOptions.Clear;
     end;
-end;
-
-procedure TfrmMarksMultiEdit.RefreshTranslation;
-begin
-  inherited;
-  frMarkCategory.RefreshTranslation;
-  frMarksGeneralOptions.RefreshTranslation;
 end;
 
 procedure TfrmMarksMultiEdit.btnOkClick(Sender: TObject);

@@ -83,7 +83,7 @@ constructor TfrShortCutList.Create(
   const ALanguageManager: ILanguageManager
 );
 begin
-  inherited Create(nil);
+  inherited Create(ALanguageManager);
   FShortCutEdit := TShortCutModalEditByForm.Create(ALanguageManager);
 end;
 

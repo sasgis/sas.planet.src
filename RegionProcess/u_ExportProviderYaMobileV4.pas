@@ -100,7 +100,7 @@ begin
   if FFrame = nil then begin
     FFrame :=
       TfrExportYaMobileV4.Create(
-        nil,
+        Self.LanguageManager,
         Self.MainMapsConfig,
         Self.FullMapsSet,
         Self.GUIConfigList

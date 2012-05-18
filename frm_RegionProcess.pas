@@ -345,15 +345,9 @@ begin
   VIndex := CBFormat.ItemIndex;
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
-    VProvider.RefreshTranslation;
     CBFormat.Items[i] := VProvider.GetCaption;
   end;
   CBFormat.ItemIndex := VIndex;
-  FProviderTilesDelte.RefreshTranslation;
-  FProviderTilesGenPrev.RefreshTranslation;
-  FProviderTilesCopy.RefreshTranslation;
-  FProviderTilesDownload.RefreshTranslation;
-  FProviderMapCombine.RefreshTranslation;
 end;
 
 procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
