@@ -2,8 +2,8 @@
 Модуль:      SAS4WinCE
 Назначение:  SASPlanet
 Автор:       Dima2000
-Версия:      v17
-Дата:        02.05.2012
+Версия:      v18
+Дата:        18.05.2012
 
 Модуль   содержит  класс  TSAS4WinCE,  реализующий экспорт тайлов из SASPlanet
 сразу  в    формат   пакованного   кэша   для   программ  v_max  (SAS4WinCE  и
@@ -171,6 +171,11 @@ Dima2000:
     В  коде  изменений  вроде как нет, идентификаторы к стандарту не приводил,
     стандарты дело хорошее, но не до фанатизма.
 
+18.05.2012  v18
+Dima2000:
+[+] Добавил метод .AddExistTile для реиндексации и прочих вкусностей.
+[!] Исправил глюк с многотомными файлами данных с комментариями.
+
 *******************************************************************************
 ToDo:
 +1. Вместо кодов ошибок генерить исключения.
@@ -330,6 +335,19 @@ type
     {Вернёт true если тайл обработан}
     ): boolean;
 
+    {Добавляет лишь информацию о тайле}
+    function AddExistTile(
+      {Координаты тайла}
+      const z, x, y: integer;
+      {Номер файла данных с тайлом}
+      const d: byte;
+      {Смещение тайла в файле данных}
+      const ptr: integer;
+      {Размер тайла}
+      const tilesize: integer
+    {Вернёт true если тайл обработан}
+    ): boolean;
+
     {Завершить передачу тайлов, сформировать индекс, записать его в файл}
     function SaveINX(
       {Имя  файла  (без  расширения)  для  записи  индекса,  с  путём,
@@ -370,7 +388,7 @@ implementation
 
 const
   unit_name = 'Packed cache for SAS4WinCE/SAS4Android';
-  unit_ver = 'v17';
+  unit_ver = 'v18';
   copyright =
     #13#10'*****   Export from SAS.Planeta to SAS4WinCE  '
     + unit_ver
@@ -412,6 +430,8 @@ begin
     Blockwrite(FD, s[1], length(s));
     {Увеличим общий объём всех файлов данных на длину добавленной строки}
     Inc(fDataLen, length(s));
+    {Запомним сколько байтов было накоплено в файлах данных ранее}
+    fDataPrev := fDataLen;
   end;
   CloseFile(FD);
   bOpenFD := false;
@@ -508,9 +528,9 @@ begin
   if bWriteFD then
     {Физическую запись тайла производим только если разрешено}
     Blockwrite(FD, ptile^, tilesize);
-  if fTilesNum > High(Ttiles) then
+  if fTilesNum >= Length(Ttiles) then
     {Мало памяти, надо ещё увеличить буфер}
-    SetLength(Ttiles, High(Ttiles) + 1 + TilesSizeInc);
+    SetLength(Ttiles, Length(Ttiles) + TilesSizeInc);
   t.dzxy := (int64(fDataNum) shl 56) + (int64(z) shl 48) + (int64(x) shl 24) + y;
   {Смещение в текущем файле данных}
   t.ptr := fDataLen - fDataPrev;
@@ -518,6 +538,65 @@ begin
   Ttiles[fTilesNum] := t;
   Inc(fTilesNum);
   Inc(fDataLen, tilesize);
+  {Если дошли сюда без исключений, значит всё хорошо}
+  Result := true;
+end;
+
+
+{Добавляет лишь информацию о тайле}
+function TSAS4WinCE.AddExistTile(
+  {Координаты тайла}
+  const z, x, y: integer;
+  {Номер файла данных с тайлом}
+  const d: byte;
+  {Смещение тайла в файле данных}
+  const ptr: integer;
+  {Размер тайла}
+  const tilesize: integer
+{Вернёт true если тайл обработан}
+): boolean;
+var
+  n: integer;
+begin
+  Result := false;
+  if fTilesNum > 130000000 then
+    {Слишком много тайлов для индекса 2ГБ}
+    raise ESAS4WinCEbigIndex.Create('Too many tiles!');
+  if tilesize = 0 then
+    {Тайлы нулевой длины не принимаем}
+    Exit;{raise ESAS4WinCE.Create('Size of tile is 0.');}
+  if tilesize > fLimit then
+    {Тайлы длиннее предела не принимаем}
+    Exit;{raise ESAS4WinCE.Create('Size of tile is too big.');}
+  if not z in [1..24] then
+    {Зум может быть только 1..24}
+    Exit;{raise ESAS4WinCE.Create('Incorrect zoom.');}
+  {Расчитаем максимально допустимые координаты}
+  n := ((1 shl z) shr 1) - 1;
+  if (x < 0) or (x > n) then
+    {Тайлы с некорректными координатами не принимаем}
+    Exit;{raise ESAS4WinCE.Create('Incorrect x.');}
+  if (y < 0) or (y > n) then
+    {Тайлы с некорректными координатами не принимаем}
+    Exit;{raise ESAS4WinCE.Create('Incorrect y.');}
+  if d > 99 then
+    {Больше ста файлов данных создавать нельзя}
+    raise ESAS4WinCEover100dat.Create('Over 100 data files is not allowed.');
+
+  if d <> fDataNum then begin
+    fDataPrev := fDataLen;
+    fDataNum := d;
+  end;
+  if fTilesNum >= Length(Ttiles) then
+    {Мало памяти, надо ещё увеличить буфер}
+    SetLength(Ttiles, Length(Ttiles) + TilesSizeInc);
+  t.dzxy := (int64(fDataNum) shl 56) + (int64(z) shl 48) + (int64(x) shl 24) + y;
+  {Смещение в текущем файле данных}
+  t.ptr := ptr;
+  t.size := tilesize;
+  Ttiles[fTilesNum] := t;
+  Inc(fTilesNum);
+  fDataLen := fDataPrev + ptr + tilesize;
   {Если дошли сюда без исключений, значит всё хорошо}
   Result := true;
 end;
@@ -637,9 +716,9 @@ begin
       if ny > 0 then
       begin
         {Были Y, сохраним таблицу Y}
-        if nx > High(Tx) then
+        if nx >= Length(Tx) then
           {Слишком много X, не влезают в таблицу, увеличим размер таблички}
-          SetLength(Tx, High(Tx) + 1 + 10000);
+          SetLength(Tx, Length(Tx) + 10000);
         Tx[nx].n := px;
         {Указатель на начало таблицы Y}
         Tx[nx].ptr := fIndexLen;
@@ -677,9 +756,9 @@ begin
       {Начнём новую таблицу X}
       nx := 0;
     end;
-    if ny > High(Ty) then
+    if ny >= Length(Ty) then
       {Слишком много Y, не влезают в таблицу, увеличим размер таблички}
-      SetLength(Ty, High(Ty) + 1 + 10000);
+      SetLength(Ty, Length(Ty) + 10000);
     Ty[ny].n := y;
     Ty[ny].d := t.dzxy shr 56;
     Ty[ny].ptr := t.ptr;
