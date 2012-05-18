@@ -7,9 +7,15 @@ uses
   Controls,
   t_GeoTypes,
   i_JclNotify,
+  i_OperationNotifier,
   i_LanguageManager,
+  i_CoordConverter,
+  i_LocalCoordConverter,
   i_CoordConverterFactory,
+  i_BitmapLayerProvider,
+  i_VectorItemProjected,
   i_VectorItemLonLat,
+  i_RegionProcessProgressInfo,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -39,7 +45,23 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapCalibrationList: IMapCalibrationList;
+    function PrepareTargetFileName: string;
+    function PrepareSplitCount: TPoint;
+    function PrepareGeoConverter: ICoordConverter;
+    function PrepareTargetConverter(
+      const AProjectedPolygon: IProjectedPolygon
+    ): ILocalCoordConverter;
     function PrepareMapCalibrationList: IMapCalibrationList;
+    function PrepareImageProvider(
+      const APolygon: ILonLatPolygon;
+      const AProjectedPolygon: IProjectedPolygon
+    ): IBitmapLayerProvider;
+    function PreparePolygon(const APolygon: ILonLatPolygon): IProjectedPolygon;
+    procedure PrepareProcessInfo(
+      out ACancelNotifier: IOperationNotifier;
+      out AOperationID: Integer;
+      out AProgressInfo: IRegionProcessProgressInfo
+    );
   public
     constructor Create(
       AParent: TWinControl;
@@ -77,11 +99,6 @@ uses
   SysUtils,
   gnugettext,
   i_MarksSimple,
-  i_CoordConverter,
-  i_LocalCoordConverter,
-  i_RegionProcessProgressInfo,
-  i_VectorItemProjected,
-  i_BitmapLayerProvider,
   i_ProjectionInfo,
   u_ProjectionInfo,
   u_GeoFun,
@@ -162,6 +179,25 @@ begin
   FFrame.Init(Azoom, APolygon);
 end;
 
+function TProviderMapCombine.PrepareGeoConverter: ICoordConverter;
+var
+  Amt, Hmt: TMapType;
+  VMainMapType: TMapType;
+begin
+  Amt := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  Hmt := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+
+  if Amt <> nil then begin
+    VMainMapType := Amt;
+  end else if Hmt <> nil then begin
+    VMainMapType := Hmt;
+  end else begin
+    raise Exception.Create(_('No one Map or Layer are selected!'));
+  end;
+
+  Result := VMainMapType.GeoConvert;
+end;
+
 function TProviderMapCombine.PrepareMapCalibrationList: IMapCalibrationList;
 var
   i: Integer;
@@ -176,84 +212,31 @@ begin
   Result := TMapCalibrationListByInterfaceList.Create(VList);
 end;
 
-procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);
+function TProviderMapCombine.PrepareImageProvider(
+  const APolygon: ILonLatPolygon;
+  const AProjectedPolygon: IProjectedPolygon
+): IBitmapLayerProvider;
 var
   Amt, Hmt: TMapType;
-  VPrTypes: IMapCalibrationList;
-  VFileName: string;
-  VSplitCount: TPoint;
-  VFileExt: string;
-  VMarksSubset: IMarksSubset;
   VLonLatRect: TDoubleRect;
-  VMarksConfigStatic: IUsedMarksConfigStatic;
   VZoom: Byte;
+  VGeoConverter: ICoordConverter;
+  VMarksSubset: IMarksSubset;
+  VMarksConfigStatic: IUsedMarksConfigStatic;
   VList: IInterfaceList;
   VMarksImageProvider: IBitmapLayerProvider;
-  VMainMapType: TMapType;
-  VGeoConverter: ICoordConverter;
-  VProjection: IProjectionInfo;
-  VProjectedPolygon: IProjectedPolygon;
   VMapRect: TRect;
   VLineClipRect: TDoubleRect;
-  VTargetConverter: ILocalCoordConverter;
-  VImageProvider: IBitmapLayerProvider;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
-  VMapSize: TPoint;
-  VMapPieceSize: TPoint;
-  VKmzImgesCount: TPoint;
-  VCancelNotifierInternal: IOperationNotifierInternal;
-  VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
 begin
   Amt := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   Hmt := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
 
-  if Amt <> nil then begin
-    VMainMapType := Amt;
-  end else if Hmt <> nil then begin
-    VMainMapType := Hmt;
-  end else begin
-    raise Exception.Create(_('No one Map or Layer are selected!'));
-  end;
-
-  VFileName := FFrame.edtTargetFile.Text;
-  if VFileName = '' then begin
-    raise Exception.Create(_('Please, select output file first!'));
-  end;
-
-  VGeoConverter := VMainMapType.GeoConvert;
-
-  VZoom := FFrame.cbbZoom.ItemIndex;
-  VGeoConverter.CheckZoom(VZoom);
-
-  VProjection := TProjectionInfo.Create(VGeoConverter, VZoom);
-
   VLonLatRect := APolygon.Item[0].Bounds;
+  VGeoConverter := AProjectedPolygon.Projection.GeoConverter;
+  VZoom := AProjectedPolygon.Projection.Zoom;
   VGeoConverter.CheckLonLatRect(VLonLatRect);
 
-  VProjectedPolygon :=
-    FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-      VProjection,
-      APolygon
-    );
-
-  VMapRect := RectFromDoubleRect(VProjectedPolygon.Bounds, rrOutside);
-  VMapSize.X := VMapRect.Right - VMapRect.Left;
-  VMapSize.Y := VMapRect.Bottom - VMapRect.Top;
-
-  VTargetConverter :=
-    FLocalConverterFactory.CreateConverterNoScale(
-      Rect(0, 0, VMapSize.X, VMapSize.Y),
-      VZoom,
-      VGeoConverter,
-      VMapRect.TopLeft
-    );
-
-  VPrTypes := PrepareMapCalibrationList;
-
-  VSplitCount.X := FFrame.seSplitHor.Value;
-  VSplitCount.Y := FFrame.seSplitVert.Value;
-  VFileExt := UpperCase(ExtractFileExt(VFileName));
   VMarksSubset := nil;
   if FFrame.chkUseMapMarks.Checked then begin
     VMarksConfigStatic := FMarksShowConfig.GetStatic;
@@ -277,6 +260,7 @@ begin
   end;
   VMarksImageProvider := nil;
   if VMarksSubset <> nil then begin
+    VMapRect := RectFromDoubleRect(AProjectedPolygon.Bounds, rrOutside);
     VLineClipRect.Left := VMapRect.Left - 10;
     VLineClipRect.Top := VMapRect.Top - 10;
     VLineClipRect.Right := VMapRect.Right + 10;
@@ -285,30 +269,17 @@ begin
       TBitmapLayerProviderByMarksSubset.Create(
         FMarksDrawConfig.GetStatic,
         FVectorItmesFactory,
-        VProjection,
+        AProjectedPolygon.Projection,
         TIdCacheSimpleThreadSafe.Create,
         VLineClipRect,
         VMarksSubset
       );
   end;
-
-  VCancelNotifierInternal := TOperationNotifier.Create;
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create;
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo
-  );
-
   VRecolorConfig := nil;
   if FFrame.chkUseRecolor.Checked then begin
     VRecolorConfig := FBitmapPostProcessingConfig.GetStatic;
   end;
-  VImageProvider :=
+  Result :=
     TBitmapLayerProviderSimpleForCombine.Create(
       VRecolorConfig,
       Amt,
@@ -317,45 +288,151 @@ begin
       True,
       True
     );
-  VImageProvider :=
+  Result :=
     TBitmapLayerProviderInPolygon.Create(
-      VProjectedPolygon,
-      VImageProvider
+      AProjectedPolygon,
+      Result
     );
-  VImageProvider :=
+  Result :=
     TBitmapLayerProviderWithBGColor.Create(
       FViewConfig.BackGroundColor,
-      VImageProvider
+      Result
     );
+end;
 
+function TProviderMapCombine.PreparePolygon(
+  const APolygon: ILonLatPolygon
+): IProjectedPolygon;
+var
+  VGeoConverter: ICoordConverter;
+  VZoom: Byte;
+  VProjection: IProjectionInfo;
+begin
+  VGeoConverter := PrepareGeoConverter;
+
+  VZoom := FFrame.cbbZoom.ItemIndex;
+  VGeoConverter.CheckZoom(VZoom);
+
+  VProjection := TProjectionInfo.Create(VGeoConverter, VZoom);
+
+  Result :=
+    FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+      VProjection,
+      APolygon
+    );
+end;
+
+procedure TProviderMapCombine.PrepareProcessInfo(
+  out ACancelNotifier: IOperationNotifier;
+  out AOperationID: Integer;
+  out AProgressInfo: IRegionProcessProgressInfo
+);
+var
+  VCancelNotifierInternal: IOperationNotifierInternal;
+begin
+  VCancelNotifierInternal := TOperationNotifier.Create;
+  ACancelNotifier := VCancelNotifierInternal;
+  AOperationID := VCancelNotifierInternal.CurrentOperation;
+  AProgressInfo := TRegionProcessProgressInfo.Create;
+
+  TfrmProgressSimple.Create(
+    Application,
+    FAppClosingNotifier,
+    FTimerNoifier,
+    VCancelNotifierInternal,
+    AProgressInfo
+  );
+end;
+
+function TProviderMapCombine.PrepareSplitCount: TPoint;
+begin
+  Result.X := FFrame.seSplitHor.Value;
+  Result.Y := FFrame.seSplitVert.Value;
+end;
+
+function TProviderMapCombine.PrepareTargetConverter(
+  const AProjectedPolygon: IProjectedPolygon
+): ILocalCoordConverter;
+var
+  VMapRect: TRect;
+  VMapSize: TPoint;
+begin
+  VMapRect := RectFromDoubleRect(AProjectedPolygon.Bounds, rrOutside);
+  VMapSize.X := VMapRect.Right - VMapRect.Left;
+  VMapSize.Y := VMapRect.Bottom - VMapRect.Top;
+
+  Result :=
+    FLocalConverterFactory.CreateConverterNoScale(
+      Rect(0, 0, VMapSize.X, VMapSize.Y),
+      AProjectedPolygon.Projection.Zoom,
+      AProjectedPolygon.Projection.GeoConverter,
+      VMapRect.TopLeft
+    );
+end;
+
+function TProviderMapCombine.PrepareTargetFileName: string;
+begin
+  Result := FFrame.edtTargetFile.Text;
+  if Result = '' then begin
+    raise Exception.Create(_('Please, select output file first!'));
+  end;
+end;
+
+procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);
+var
+  VMapCalibrations: IMapCalibrationList;
+  VFileName: string;
+  VSplitCount: TPoint;
+  VFileExt: string;
+  VProjectedPolygon: IProjectedPolygon;
+  VTargetConverter: ILocalCoordConverter;
+  VImageProvider: IBitmapLayerProvider;
+  VMapSize: TPoint;
+  VMapPieceSize: TPoint;
+  VKmzImgesCount: TPoint;
+  VCancelNotifier: IOperationNotifier;
+  VOperationID: Integer;
+  VProgressInfo: IRegionProcessProgressInfo;
+begin
+  PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
+  VProjectedPolygon := PreparePolygon(APolygon);
+  VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
+  VImageProvider := PrepareImageProvider(APolygon, VProjectedPolygon);
+  VMapCalibrations := PrepareMapCalibrationList;
+  VFileName := PrepareTargetFileName;
+  VSplitCount := PrepareSplitCount;
+
+
+  VFileExt := UpperCase(ExtractFileExt(VFileName));
   if (VFileExt = '.ECW') or (VFileExt = '.JP2') then begin
     TThreadMapCombineECW.Create(
-      VCancelNotifierInternal,
+      VCancelNotifier,
       VOperationID,
       VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
       FLocalConverterFactory,
-      VPrTypes,
+      VMapCalibrations,
       VFileName,
       VSplitCount,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt = '.BMP') then begin
     TThreadMapCombineBMP.Create(
-      VCancelNotifierInternal,
+      VCancelNotifier,
       VOperationID,
       VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
       FLocalConverterFactory,
-      VPrTypes,
+      VMapCalibrations,
       VFileName,
       VSplitCount
     );
   end else if (VFileExt = '.KMZ') then begin
+    VMapSize := VTargetConverter.GetLocalRectSize;
     VMapPieceSize.X := VMapSize.X div VSplitCount.X;
     VMapPieceSize.Y := VMapSize.Y div VSplitCount.Y;
     VKmzImgesCount.X := ((VMapPieceSize.X - 1) div 1024) + 1;
@@ -365,42 +442,42 @@ begin
     end;
 
     TThreadMapCombineKMZ.Create(
-      VCancelNotifierInternal,
+      VCancelNotifier,
       VOperationID,
       VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
       FLocalConverterFactory,
-      VPrTypes,
+      VMapCalibrations,
       VFileName,
       VSplitCount,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt = '.JPG') then begin
     TThreadMapCombineJPG.Create(
-      VCancelNotifierInternal,
+      VCancelNotifier,
       VOperationID,
       VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
       FLocalConverterFactory,
-      VPrTypes,
+      VMapCalibrations,
       VFileName,
       VSplitCount,
       FFrame.seJpgQuality.Value
     );
   end else if (VFileExt = '.PNG') then begin
     TThreadMapCombinePNG.Create(
-      VCancelNotifierInternal,
+      VCancelNotifier,
       VOperationID,
       VProgressInfo,
       APolygon,
       VTargetConverter,
       VImageProvider,
       FLocalConverterFactory,
-      VPrTypes,
+      VMapCalibrations,
       VFileName,
       VSplitCount,
       FFrame.chkPngWithAlpha.Checked
