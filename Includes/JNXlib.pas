@@ -1,8 +1,8 @@
 unit JNXLib;
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.4
-  Date:    2012.03.11
+  Version: 1.5
+  Date:    2012.05.18
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -348,10 +348,10 @@ end;
 
 function DigitalGlobeZoomToScale(z: integer): integer;
 const
-  ZoomToScale: array [0..21] of integer = (
+  ZoomToScale: array [0..23] of integer = (
     2446184, 2446184, 2446184, 2446184, 2446184, 2446184, 2446184, 1223072,
      611526,  305758,  152877,   76437,   38218,   19109,    9554,    4777,
-       2388,    1194,     597,     298,     149,      75
+       2388,    1194,     597,     298,     149,      75,      37,      19
   );
 begin
   Result := ZoomToScale[z];
