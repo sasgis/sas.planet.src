@@ -486,7 +486,6 @@ end;
 
 procedure TfrmSettings.btnApplyClick(Sender: TObject);
 var
-  i: integer;
   VProxyConfig: IProxyConfig;
   VInetConfig: IInetConfig;
   VNeedReboot: boolean;
