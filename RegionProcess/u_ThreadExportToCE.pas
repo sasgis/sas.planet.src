@@ -29,18 +29,18 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfo;
-      ACoordConverterFactory: ICoordConverterFactory;
-      AProjectionFactory: IProjectionInfoFactory;
-      AVectorItmesFactory: IVectorItmesFactory;
-      ATargetFile: string;
-      APolygon: ILonLatPolygon;
-      Azoomarr: array of boolean;
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const AProjectionFactory: IProjectionInfoFactory;
+      const AVectorItmesFactory: IVectorItmesFactory;
+      const ATargetFile: string;
+      const APolygon: ILonLatPolygon;
+      const Azoomarr: array of boolean;
       AMapType: TMapType;
       AMaxSize: Integer;
-      AComment: string;
+      const AComment: string;
       ARecoverInfo: Boolean
     );
   end;
@@ -62,18 +62,18 @@ uses
 { TThreadExportToCE }
 
 constructor TThreadExportToCE.Create(
-  ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfo;
-  ACoordConverterFactory: ICoordConverterFactory;
-  AProjectionFactory: IProjectionInfoFactory;
-  AVectorItmesFactory: IVectorItmesFactory;
-  ATargetFile: string;
-  APolygon: ILonLatPolygon;
-  Azoomarr: array of boolean;
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const AVectorItmesFactory: IVectorItmesFactory;
+  const ATargetFile: string;
+  const APolygon: ILonLatPolygon;
+  const Azoomarr: array of boolean;
   AMapType: TMapType;
   AMaxSize: Integer;
-  AComment: string;
+  const AComment: string;
   ARecoverInfo: Boolean
 );
 begin
