@@ -29,7 +29,7 @@ uses
   u_JclNotify;
 
 type
-  TNotifyListenerNoMmgEvent = procedure() of object;
+  TNotifyListenerNoMmgEvent = procedure of object;
   TNotifyListenerEvent = procedure(const AMsg: IInterface) of object;
 
   TNotifyEventListener = class(TJclBaseListener, IJclListenerDisconnectable)

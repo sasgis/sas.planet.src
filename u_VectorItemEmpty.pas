@@ -38,7 +38,7 @@ type
     function ILonLatPath.GetItem = GetItemLonLatPathLine;
     function ILonLatPolygon.GetItem = GetItemLonLatPolygonLine;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

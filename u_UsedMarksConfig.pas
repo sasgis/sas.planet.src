@@ -51,7 +51,7 @@ type
 
     function GetStatic: IUsedMarksConfigStatic;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

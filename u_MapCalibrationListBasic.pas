@@ -39,7 +39,7 @@ type
 
   TMapCalibrationListBasic = class(TMapCalibrationListByInterfaceList)
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

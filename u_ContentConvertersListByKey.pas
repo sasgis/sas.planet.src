@@ -31,7 +31,7 @@ type
   private
     FList: TStringList;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
     procedure Add(
       const AKey: string;

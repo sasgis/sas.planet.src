@@ -43,7 +43,7 @@ type
     FBanFlag: Boolean;
     FBanCS: IReadWriteSync;
     procedure addDwnforban;
-    procedure IncDownloadedAndCheckAntiBan();
+    procedure IncDownloadedAndCheckAntiBan;
     procedure ExecOnBan(const ALastUrl: String);
   private
     procedure PreDownload(

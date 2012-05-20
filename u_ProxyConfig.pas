@@ -85,7 +85,7 @@ type
 
     function GetStatic: IProxyConfigStatic;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

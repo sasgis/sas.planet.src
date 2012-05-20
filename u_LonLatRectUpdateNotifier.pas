@@ -31,7 +31,7 @@ type
     procedure RectUpdateNotify(const ARect: ILonLatRect); overload; stdcall;
     procedure RectUpdateNotify(const ARect: TDoubleRect); overload; stdcall;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

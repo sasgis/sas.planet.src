@@ -95,7 +95,7 @@ type
   protected
     procedure Convert(var AImage: TImageData);
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

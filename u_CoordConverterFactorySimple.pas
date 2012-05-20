@@ -47,7 +47,7 @@ type
       AZoom: Byte
     ): IProjectionInfo;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

@@ -87,7 +87,7 @@ type
       const APosition: TPoint
     );
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

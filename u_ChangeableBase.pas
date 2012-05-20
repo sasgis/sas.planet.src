@@ -22,7 +22,7 @@ type
     procedure DoInChangeNotify; virtual;
     procedure DoAfterChangeNotify; virtual;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

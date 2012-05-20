@@ -40,7 +40,7 @@ type
     function GetMarksDrawConfig: IMarksDrawConfig;
     function GetThreadConfig: IThreadConfig;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

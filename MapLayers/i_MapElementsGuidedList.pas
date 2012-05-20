@@ -37,7 +37,7 @@ type
     );
     procedure ClearMapElements;
     // enum lists - override for special order of layers
-    function GetGUIDEnum(): IEnumGUID;
+    function GetGUIDEnum: IEnumGUID;
   end;
 
 implementation

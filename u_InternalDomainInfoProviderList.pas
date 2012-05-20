@@ -33,7 +33,7 @@ type
   protected
     function GetByName(const AName: string): IInternalDomainInfoProvider;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
 
     procedure Add(

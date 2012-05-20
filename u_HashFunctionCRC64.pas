@@ -21,7 +21,7 @@ type
       ASeed: THashValue
     ): THashValue;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

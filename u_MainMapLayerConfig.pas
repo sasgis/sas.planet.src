@@ -27,7 +27,7 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

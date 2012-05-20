@@ -36,7 +36,7 @@ type
       const AFolderNameFromRoot: WideString
     ): IFileNameIterator;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

@@ -51,7 +51,7 @@ type
     function GetWaitTime: Cardinal;
     procedure SetWaitTime(const AValue: Cardinal);
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

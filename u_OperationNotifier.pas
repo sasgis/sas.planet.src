@@ -46,7 +46,7 @@ type
     procedure AddListener(AListener: IJclListener); stdcall;
     procedure RemoveListener(AListener: IJclListener); stdcall;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

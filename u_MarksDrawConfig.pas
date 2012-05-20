@@ -60,7 +60,7 @@ type
 
     function GetStatic: IMarksDrawConfigStatic;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

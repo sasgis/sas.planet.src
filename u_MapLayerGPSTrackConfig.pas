@@ -86,7 +86,7 @@ type
     ): Integer;
     procedure ClearItems;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 

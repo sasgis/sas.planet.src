@@ -29,19 +29,19 @@ type
   // Настройки прокси
   IProxySettings = interface(IInterface)
     ['{17F31D40-FCA0-4525-9820-A14BB61AA08A}']
-    function GetUseProxy(): boolean; safecall;
+    function GetUseProxy: boolean; safecall;
     property UseProxy: boolean read GetUseProxy;
 
-    function GetHost(): WideString; safecall;
+    function GetHost: WideString; safecall;
     property Host: WideString read GetHost;
 
-    function GetUseLogin(): boolean; safecall;
+    function GetUseLogin: boolean; safecall;
     property UseLogin: boolean read GetUseLogin;
 
-    function GetLogin(): WideString; safecall;
+    function GetLogin: WideString; safecall;
     property Login: WideString read GetLogin;
 
-    function GetPassword(): WideString; safecall;
+    function GetPassword: WideString; safecall;
     property Password: WideString read GetPassword;
   end;
 
@@ -50,19 +50,19 @@ type
     function GetUseIESettings: Boolean;
     property UseIESettings: Boolean read GetUseIESettings;
 
-    function GetUseProxy(): boolean;
+    function GetUseProxy: boolean;
     property UseProxy: boolean read GetUseProxy;
 
-    function GetHost(): WideString;
+    function GetHost: WideString;
     property Host: WideString read GetHost;
 
-    function GetUseLogin(): boolean;
+    function GetUseLogin: boolean;
     property UseLogin: boolean read GetUseLogin;
 
-    function GetLogin(): WideString;
+    function GetLogin: WideString;
     property Login: WideString read GetLogin;
 
-    function GetPassword(): WideString;
+    function GetPassword: WideString;
     property Password: WideString read GetPassword;
   end;
 
@@ -72,23 +72,23 @@ type
     procedure SetUseIESettings(AValue: Boolean);
     property UseIESettings: Boolean read GetUseIESettings write SetUseIESettings;
 
-    function GetUseProxy(): Boolean; safecall;
+    function GetUseProxy: Boolean; safecall;
     procedure SetUseProxy(AValue: Boolean);
     property UseProxy: boolean read GetUseProxy write SetUseProxy;
 
-    function GetHost(): WideString; safecall;
+    function GetHost: WideString; safecall;
     procedure SetHost(const AValue: WideString);
     property Host: WideString read GetHost write SetHost;
 
-    function GetUseLogin(): boolean; safecall;
+    function GetUseLogin: boolean; safecall;
     procedure SetUseLogin(AValue: Boolean);
     property UseLogin: boolean read GetUseLogin write SetUseLogin;
 
-    function GetLogin(): WideString; safecall;
+    function GetLogin: WideString; safecall;
     procedure SetLogin(const AValue: WideString);
     property Login: WideString read GetLogin write SetLogin;
 
-    function GetPassword(): WideString; safecall;
+    function GetPassword: WideString; safecall;
     procedure SetPassword(const AValue: WideString);
     property Password: WideString read GetPassword write SetPassword;
 

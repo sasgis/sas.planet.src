@@ -54,7 +54,7 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -70,7 +70,7 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

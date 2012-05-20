@@ -65,7 +65,7 @@ type
     function GetIsKmlExt(const AExt: WideString): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: WideString): IContentConverter;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

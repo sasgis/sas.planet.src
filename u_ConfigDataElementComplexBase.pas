@@ -66,7 +66,7 @@ type
     procedure LockRead; override;
     procedure UnlockRead; override;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -82,7 +82,7 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

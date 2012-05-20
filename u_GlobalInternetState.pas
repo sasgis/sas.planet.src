@@ -31,7 +31,7 @@ type
   private
     FCS: IReadWriteSync;
     FQueueCount: Integer;
-    function GetQueueCount(): Integer;
+    function GetQueueCount: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -83,7 +83,7 @@ begin
   end;
 end;
 
-function TGlobalInternetState.GetQueueCount(): Integer;
+function TGlobalInternetState.GetQueueCount: Integer;
 begin
   FCS.BeginRead;
   try

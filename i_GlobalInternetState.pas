@@ -28,7 +28,7 @@ type
     procedure IncQueueCount;
     procedure DecQueueCount;
 
-    function GetQueueCount(): Integer;
+    function GetQueueCount: Integer;
     property QueueCount: Integer read GetQueueCount;
   end;
 

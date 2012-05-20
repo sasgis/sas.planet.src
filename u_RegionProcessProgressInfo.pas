@@ -30,7 +30,7 @@ type
 
     procedure Finish;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

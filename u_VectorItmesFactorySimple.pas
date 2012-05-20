@@ -160,7 +160,7 @@ type
       const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation
