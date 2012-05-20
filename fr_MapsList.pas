@@ -182,7 +182,7 @@ begin
 end;
 
 procedure TfrMapsList.UpdateList;
-procedure SetSubItem(AItem: TListItem; AIndex: Integer; AValue: string);
+procedure SetSubItem(AItem: TListItem; AIndex: Integer; const AValue: string);
 var
   i: Integer;
 begin
