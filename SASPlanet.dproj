@@ -433,12 +433,17 @@
       <Form>frExportIPhone</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_ExportToCE.pas">
+      <Form>frExportToCE</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToFileCont.pas">
       <Form>frExportToFileCont</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToJNX.pas">
       <Form>frExportToJNX</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToOgf2.pas">
       <DesignClass>TFrame</DesignClass>
@@ -474,6 +479,7 @@
     </DCCReference>
     <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
+    <DCCReference Include="RegionProcess\u_ExportProviderCE.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderGEKml.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderIPhone.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderJNX.pas" />
@@ -494,6 +500,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToBDB.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToCE.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToOgf2.pas" />
@@ -524,6 +531,7 @@
     <DCCReference Include="u_AvailPicsBing.pas" />
     <DCCReference Include="u_AvailPicsDG.pas" />
     <DCCReference Include="u_AvailPicsNMC.pas" />
+    <DCCReference Include="u_AvailPicsTerra.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
