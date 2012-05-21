@@ -162,7 +162,7 @@ begin
           end;
           inc(VTilesProcessed);
           if VTilesProcessed mod 50 = 0 then begin
-            ProgressInfo.Processed := VTilesProcessed / VTilesToProcess;
+            ProgressInfo.ProcessedRatio := VTilesProcessed / VTilesToProcess;
             VExt := '  (.d' + inttostr(VSAS4WinCE.DataNum) + ')';
             if VSAS4WinCE.DataNum < 10 then begin
               VExt := '  (.d0' + inttostr(VSAS4WinCE.DataNum) + ')';

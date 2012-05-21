@@ -263,7 +263,7 @@ procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress(
   const AProcessed, AToProcess: Int64
 );
 begin
-  ProgressInfo.Processed := AProcessed / AToProcess;
+  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
   ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
 end;
 

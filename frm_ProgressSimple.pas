@@ -185,7 +185,7 @@ begin
     Self.Caption := FProgressInfo.Caption;
     MemoInfo.Lines[0] := FProgressInfo.FirstLine;
     MemoInfo.Lines[1] := FProgressInfo.SecondLine;
-    FRarProgress.Progress1 := Trunc(FProgressInfo.Processed * 100);
+    FRarProgress.Progress1 := Trunc(FProgressInfo.ProcessedRatio * 100);
     if FProgressInfo.Finished then begin
       Close;
     end;

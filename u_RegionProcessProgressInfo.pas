@@ -6,16 +6,16 @@ uses
   i_RegionProcessProgressInfo;
 
 type
-  TRegionProcessProgressInfo = class(TInterfacedObject, IProgressInfo, IRegionProcessProgressInfo)
+  TRegionProcessProgressInfo = class(TInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfo)
   private
-    FProcessed: Double;
+    FProcessedRatio: Double;
     FFinished: Boolean;
     FCaption: string;
     FFirstLine: string;
     FSecondLine: string;
   private
-    function GetProcessed: Double;
-    procedure SetProcessed(const AValue: Double);
+    function GetProcessedRatio: Double;
+    procedure SetProcessedRatio(const AValue: Double);
   private
     function GetFinished: Boolean;
 
@@ -41,7 +41,7 @@ constructor TRegionProcessProgressInfo.Create;
 begin
   inherited Create;
   FFinished := False;
-  FProcessed := 0;
+  FProcessedRatio := 0;
 end;
 
 procedure TRegionProcessProgressInfo.Finish;
@@ -64,9 +64,9 @@ begin
   Result := FFirstLine;
 end;
 
-function TRegionProcessProgressInfo.GetProcessed: Double;
+function TRegionProcessProgressInfo.GetProcessedRatio: Double;
 begin
-  Result := FProcessed;
+  Result := FProcessedRatio;
 end;
 
 function TRegionProcessProgressInfo.GetSecondLine: string;
@@ -84,14 +84,14 @@ begin
   FFirstLine := AValue;
 end;
 
-procedure TRegionProcessProgressInfo.SetProcessed(const AValue: Double);
+procedure TRegionProcessProgressInfo.SetProcessedRatio(const AValue: Double);
 begin
   if AValue < 0 then begin
-    FProcessed := 0;
+    FProcessedRatio := 0;
   end else if AValue > 1 then begin
-    FProcessed := 1;
+    FProcessedRatio := 1;
   end else begin
-    FProcessed := AValue;
+    FProcessedRatio := AValue;
   end;
 end;
 

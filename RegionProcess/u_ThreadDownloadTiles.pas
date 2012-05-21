@@ -178,10 +178,8 @@ type
     property Processed: Int64 read FProcessed;
     property DownloadSize: Double read GetDownloadSize;
     property ElapsedTime: TDateTime read GetElapsedTime;
-    property StartTime: TDateTime read FStartTime;
     property Zoom: Byte read FZoom;
     property Finished: Boolean read FFinished;
-    property MapType: TMapType read FMapType;
   end;
 
 implementation

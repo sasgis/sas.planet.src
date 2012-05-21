@@ -92,9 +92,6 @@ type
       const ALog: ILogForTaskThread
     ); reintroduce; virtual;
     destructor Destroy; override;
-
-    property DownloadThread: TThreadDownloadTiles read FDownloadThread;
-  public
   end;
 
 implementation

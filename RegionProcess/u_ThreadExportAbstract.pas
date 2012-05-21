@@ -76,7 +76,7 @@ end;
 
 procedure TThreadExportAbstract.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressInfo.Processed := AProcessed / AToProcess;
+  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
   ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
 end;
 

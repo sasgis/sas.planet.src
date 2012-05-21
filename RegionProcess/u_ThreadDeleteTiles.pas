@@ -141,7 +141,7 @@ procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress(
   const AProcessed, AToProcess, ADeleted: Int64
 );
 begin
-  ProgressInfo.Processed := AProcessed / AToProcess;
+  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
   ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
   ProgressInfo.FirstLine := SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_files;
 end;
