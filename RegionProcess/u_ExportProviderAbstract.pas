@@ -9,7 +9,8 @@ uses
   i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList;
+  i_MapTypeGUIConfigList,
+  i_RegionProcessParamsFrame;
 
 type
   TExportProviderAbstract = class
@@ -19,8 +20,10 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    function GetParamsFrame: IRegionProcessParamsFrameBase;
   protected
     function CreateFrame: TFrame; virtual; abstract;
+    property ParamsFrame: IRegionProcessParamsFrameBase read GetParamsFrame;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainMapsConfig: IMainMapsConfig read FMainMapsConfig;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
@@ -46,8 +49,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_RegionProcessParamsFrame;
+  SysUtils;
 
 { TExportProviderAbstract }
 
@@ -71,6 +73,13 @@ begin
   inherited;
 end;
 
+function TExportProviderAbstract.GetParamsFrame: IRegionProcessParamsFrameBase;
+begin
+  if not Supports(FFrame, IRegionProcessParamsFrameBase, Result) then begin
+    Result := nil;
+  end;
+end;
+
 procedure TExportProviderAbstract.Hide;
 begin
   if FFrame <> nil then begin
@@ -90,13 +99,15 @@ var
 begin
   if FFrame = nil then begin
     FFrame := CreateFrame;
+    Assert(Supports(FFrame, IRegionProcessParamsFrameBase));
   end;
   if FFrame <> nil then begin
     FFrame.Parent := AParent;
     if not FFrame.Visible then begin
       FFrame.Show;
     end;
-    if Supports(FFrame, IRegionProcessParamsFrameBase, VFrame) then begin
+    VFrame := ParamsFrame;
+    if VFrame <> nil then begin
       VFrame.Init(Azoom, APolygon);
     end;
   end;

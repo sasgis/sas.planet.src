@@ -16,10 +16,11 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportAUX = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrExportAUX = class(TFrame, IRegionProcessParamsFrameBase, IRegionProcessParamsFrameOneMapAndZoom, IRegionProcessParamsFrameTargetPath)
     pnlCenter: TPanel;
     pnlMain: TPanel;
     lblMap: TLabel;
@@ -42,6 +43,11 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoom: Byte;
+  private
+    function GetPath: string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -54,8 +60,7 @@ type
 implementation
 
 uses
-  i_GUIDListStatic,
-  u_MapType;
+  i_GUIDListStatic;
 
 {$R *.dfm}
 
@@ -79,6 +84,28 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrExportAUX.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+  Assert(Result <> nil);
+end;
+
+function TfrExportAUX.GetPath: string;
+begin
+  Result := edtTargetFile.Text;
+end;
+
+function TfrExportAUX.GetZoom: Byte;
+begin
+  if cbbZoom.ItemIndex < 0 then begin
+    cbbZoom.ItemIndex := 0;
+  end;
+  Result := cbbZoom.ItemIndex;
 end;
 
 procedure TfrExportAUX.Init(

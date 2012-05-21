@@ -13,13 +13,11 @@ uses
   i_VectorItmesFactory,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
-  u_ExportProviderAbstract,
-  fr_ExportAUX;
+  u_ExportProviderAbstract;
 
 type
   TExportProviderAUX = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportAUX;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
@@ -47,12 +45,14 @@ implementation
 uses
   SysUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   i_VectorItemProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
   u_MapType,
+  fr_ExportAUX,
   frm_ProgressSimple;
 
 { TExportProviderKml }
@@ -82,14 +82,15 @@ end;
 
 function TExportProviderAUX.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrExportAUX.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-  Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMapAndZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderAUX.GetCaption: string;
@@ -99,7 +100,7 @@ end;
 
 procedure TExportProviderAUX.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
+  VPath: string;
   VMapType: TMapType;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
@@ -108,12 +109,9 @@ var
   VProgressInfo: IRegionProcessProgressInfo;
 begin
   inherited;
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path := FFrame.edtTargetFile.Text;
-  if FFrame.cbbZoom.ItemIndex < 0 then begin
-    FFrame.cbbZoom.ItemIndex := 0;
-  end;
-  VZoom := FFrame.cbbZoom.ItemIndex;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMapAndZoom).MapType;
+  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneMapAndZoom).Zoom;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VProjectedPolygon :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -141,7 +139,7 @@ begin
     VProjectedPolygon,
     VZoom,
     VMapType,
-    path
+    VPath
   );
 end;
 
