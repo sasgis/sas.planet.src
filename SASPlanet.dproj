@@ -477,6 +477,7 @@
       <Form>frTilesGenPrev</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\i_RegionProcessParamsFrame.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderCE.pas" />

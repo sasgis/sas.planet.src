@@ -21,11 +21,12 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapCalibration,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents,
   t_GeoTypes;
 
 type
-  TfrMapCombine = class(TFrame)
+  TfrMapCombine = class(TFrame, IRegionProcessParamsFrameBase)
     pnlTop: TPanel;
     pnlTargetFile: TPanel;
     lblTargetFile: TLabel;
@@ -75,6 +76,11 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FPolygLL: ILonLatPolygon;
     procedure UpdatePanelSizes;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -86,7 +92,6 @@ type
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     procedure RefreshTranslation; override;
-    procedure Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
   end;
 
 implementation
@@ -202,7 +207,10 @@ begin
   UpdatePanelSizes;
 end;
 
-procedure TfrMapCombine.Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
+procedure TfrMapCombine.Init(
+  const AZoom: byte;
+  const APolygon: ILonLatPolygon
+);
 var
   i: Integer;
   VMapType: TMapType;
@@ -212,7 +220,7 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
-  FPolygLL := APolygLL;
+  FPolygLL := APolygon;
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));

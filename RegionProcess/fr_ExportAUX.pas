@@ -14,10 +14,12 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_VectorItemLonLat,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportAUX = class(TFrame)
+  TfrExportAUX = class(TFrame, IRegionProcessParamsFrameBase)
     pnlCenter: TPanel;
     pnlMain: TPanel;
     lblMap: TLabel;
@@ -35,6 +37,11 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -42,7 +49,6 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
-    procedure Init(AZoom: Byte);
   end;
 
 implementation
@@ -75,7 +81,10 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
-procedure TfrExportAUX.Init(AZoom: Byte);
+procedure TfrExportAUX.Init(
+  const AZoom: byte;
+  const APolygon: ILonLatPolygon
+);
 var
   i: integer;
   VMapType: TMapType;

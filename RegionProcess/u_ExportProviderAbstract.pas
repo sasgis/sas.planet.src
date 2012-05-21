@@ -4,31 +4,29 @@ interface
 
 uses
   Controls,
+  Forms,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
-  i_MapTypeGUIConfigList,
-  u_CommonFormAndFrameParents;
+  i_MapTypeGUIConfigList;
 
 type
   TExportProviderAbstract = class
   private
     FFrame: TFrame;
-    FParent: TWinControl;
     FLanguageManager: ILanguageManager;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
   protected
-    procedure SetFrame(AValue: TFrame); virtual;
+    function CreateFrame: TFrame; virtual; abstract;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainMapsConfig: IMainMapsConfig read FMainMapsConfig;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property GUIConfigList: IMapTypeGUIConfigList read FGUIConfigList;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -36,11 +34,11 @@ type
     );
     destructor Destroy; override;
     function GetCaption: string; virtual; abstract;
-    procedure InitFrame(
-      Azoom: byte;
+    procedure Show(
+      AParent: TWinControl;
+      AZoom: byte;
       const APolygon: ILonLatPolygon
-    ); virtual; abstract;
-    procedure Show;
+    );
     procedure Hide;
     procedure StartProcess(const APolygon: ILonLatPolygon); virtual; abstract;
   end;
@@ -48,12 +46,12 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  i_RegionProcessParamsFrame;
 
 { TExportProviderAbstract }
 
 constructor TExportProviderAbstract.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -61,7 +59,6 @@ constructor TExportProviderAbstract.Create(
 );
 begin
   inherited Create;
-  FParent := AParent;
   FLanguageManager := ALanguageManager;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
@@ -83,27 +80,24 @@ begin
   end;
 end;
 
-procedure TExportProviderAbstract.SetFrame(AValue: TFrame);
+procedure TExportProviderAbstract.Show(
+  AParent: TWinControl;
+  AZoom: byte;
+  const APolygon: ILonLatPolygon
+);
 var
-  VWasVisible: Boolean;
+  VFrame: IRegionProcessParamsFrameBase;
 begin
-  VWasVisible := False;
-  if FFrame <> nil then begin
-    VWasVisible := FFrame.Visible;
-    FreeAndNil(FFrame);
+  if FFrame = nil then begin
+    FFrame := CreateFrame;
   end;
-  FFrame := AValue;
   if FFrame <> nil then begin
-    FFrame.Visible := VWasVisible;
-    FFrame.Parent := FParent;
-  end;
-end;
-
-procedure TExportProviderAbstract.Show;
-begin
-  if FFrame <> nil then begin
+    FFrame.Parent := AParent;
     if not FFrame.Visible then begin
       FFrame.Show;
+    end;
+    if Supports(FFrame, IRegionProcessParamsFrameBase, VFrame) then begin
+      VFrame.Init(Azoom, APolygon);
     end;
   end;
 end;

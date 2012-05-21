@@ -16,10 +16,12 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
+  i_VectorItemLonLat,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesGenPrev = class(TFrame)
+  TfrTilesGenPrev = class(TFrame, IRegionProcessParamsFrameBase)
     pnlBottom: TPanel;
     pnlRight: TPanel;
     pnlCenter: TPanel;
@@ -50,6 +52,11 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FImageResamplerConfig: IImageResamplerConfig;
     procedure InitResamplersList(const AList: IImageResamplerFactoryList; ABox: TComboBox);
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -58,7 +65,6 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AImageResamplerConfig: IImageResamplerConfig
     ); reintroduce;
-    procedure Init(AZoom: Byte);
   end;
 
 implementation
@@ -180,7 +186,10 @@ begin
   FImageResamplerConfig := AImageResamplerConfig;
 end;
 
-procedure TfrTilesGenPrev.Init(AZoom: Byte);
+procedure TfrTilesGenPrev.Init(
+  const AZoom: byte;
+  const APolygon: ILonLatPolygon
+);
 var
   i: integer;
   VMapType: TMapType;

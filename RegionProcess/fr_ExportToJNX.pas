@@ -15,10 +15,12 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_VectorItemLonLat,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
-  TfrExportToJNX = class(TFrame)
+  TfrExportToJNX = class(TFrame, IRegionProcessParamsFrameBase)
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;
@@ -54,6 +56,11 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -63,8 +70,6 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
-    procedure Init;
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -191,13 +196,6 @@ begin
   if v4.checked then EZorder.enabled := true else EZorder.Enabled := false;
   EProductID.ItemIndex :=0;
 end;
-
-procedure TfrExportToJNX.RefreshTranslation;
-begin
-  inherited;
-end;
-
-
 
 procedure TfrExportToJNX.versionselect(Sender: TObject);
 begin

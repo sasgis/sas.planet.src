@@ -20,10 +20,11 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapAttachmentsInfo,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDownload = class(TFrame)
+  TfrTilesDownload = class(TFrame, IRegionProcessParamsFrameBase)
     lblZoom: TLabel;
     lblStat: TLabel;
     chkReplace: TCheckBox;
@@ -52,6 +53,11 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -61,7 +67,6 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
-    procedure Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
   end;
 
 implementation
@@ -155,7 +160,7 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
-procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
+procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygon: ILonLatPolygon);
 var
   i: integer;
   VMapType: TMapType;
@@ -166,7 +171,7 @@ var
   VMapAttachmentsInfo: IMapAttachmentsInfo;
   VMapAttachmentsName: String;
 begin
-  FPolygLL := APolygLL;
+  FPolygLL := APolygon;
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));

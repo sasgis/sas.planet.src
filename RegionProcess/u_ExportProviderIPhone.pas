@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
@@ -27,9 +28,10 @@ type
     FNewFormat: Boolean;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -43,10 +45,6 @@ type
       ANewFormat: Boolean
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -54,7 +52,6 @@ type
 implementation
 
 uses
-  Forms,
   SysUtils,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
@@ -67,7 +64,6 @@ uses
 { TExportProviderIPhone }
 
 constructor TExportProviderIPhone.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -81,7 +77,12 @@ constructor TExportProviderIPhone.Create(
   ANewFormat: Boolean
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
@@ -91,6 +92,18 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
+function TExportProviderIPhone.CreateFrame: TFrame;
+begin
+  FFrame :=
+    TfrExportIPhone.Create(
+      Self.LanguageManager,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
+    );
+  Result := FFrame;
+end;
+
 function TExportProviderIPhone.GetCaption: string;
 begin
   if FNewFormat then begin
@@ -98,23 +111,6 @@ begin
   end else begin
     Result := SAS_STR_ExportIPhone64Caption;
   end;
-end;
-
-procedure TExportProviderIPhone.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrExportIPhone.Create(
-      Self.LanguageManager,
-      Self.MainMapsConfig,
-      Self.FullMapsSet,
-      Self.GUIConfigList
-    );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init;
 end;
 
 procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);

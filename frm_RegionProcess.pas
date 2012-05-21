@@ -215,7 +215,6 @@ begin
 
   FProviderTilesDelte :=
     TProviderTilesDelete.Create(
-      TabSheet4,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -227,7 +226,6 @@ begin
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
-      TabSheet3,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -241,7 +239,6 @@ begin
     );
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(
-      TabSheet6,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -254,7 +251,6 @@ begin
     );
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
-      TabSheet1,
       AAppClosingNotifier,
       ALanguageManager,
       AValueToStringConverterConfig,
@@ -268,7 +264,6 @@ begin
     );
   FProviderMapCombine :=
     TProviderMapCombine.Create(
-      TabSheet2,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -399,7 +394,6 @@ var
 begin
   VExportProvider :=
     TExportProviderIPhone.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -416,7 +410,6 @@ begin
 
   VExportProvider :=
     TExportProviderIPhone.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -433,7 +426,6 @@ begin
 
   VExportProvider :=
     TExportProviderGEKml.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -447,7 +439,6 @@ begin
 
   VExportProvider :=
     TExportProviderYaMobileV3.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -463,7 +454,6 @@ begin
 
   VExportProvider :=
     TExportProviderYaMobileV4.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -479,7 +469,6 @@ begin
 
   VExportProvider :=
     TExportProviderAUX.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -493,7 +482,6 @@ begin
 
   VExportProvider :=
     TExportProviderZip.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -508,7 +496,6 @@ begin
 
   VExportProvider :=
     TExportProviderTar.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -523,7 +510,6 @@ begin
 
   VExportProvider :=
     TExportProviderJNX.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -538,7 +524,6 @@ begin
 
     VExportProvider :=
     TExportProviderOgf2.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -554,7 +539,6 @@ begin
 
   VExportProvider :=
     TExportProviderCE.Create(
-      pnlExport,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -603,7 +587,7 @@ begin
   for i := 0 to CBFormat.Items.Count - 1 do begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
-      VExportProvider.InitFrame(Azoom, FPolygonLL);
+      VExportProvider.Show(pnlExport, FZoom_rect, FPolygonLL);
     end;
   end;
   Self.Show;
@@ -613,16 +597,11 @@ end;
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
   CBFormatChange(CBFormat);
-  FProviderTilesDelte.InitFrame(FZoom_rect, FPolygonLL);
-  FProviderTilesDelte.Show;
-  FProviderTilesGenPrev.InitFrame(FZoom_rect, FPolygonLL);
-  FProviderTilesGenPrev.Show;
-  FProviderTilesCopy.InitFrame(FZoom_rect, FPolygonLL);
-  FProviderTilesCopy.Show;
-  FProviderTilesDownload.InitFrame(FZoom_rect, FPolygonLL);
-  FProviderTilesDownload.Show;
-  FProviderMapCombine.InitFrame(FZoom_rect, FPolygonLL);
-  FProviderMapCombine.Show;
+  FProviderTilesDelte.Show(TabSheet4, FZoom_rect, FPolygonLL);
+  FProviderTilesGenPrev.Show(TabSheet3, FZoom_rect, FPolygonLL);
+  FProviderTilesCopy.Show(TabSheet6, FZoom_rect, FPolygonLL);
+  FProviderTilesDownload.Show(TabSheet1, FZoom_rect, FPolygonLL);
+  FProviderMapCombine.Show(TabSheet2, FZoom_rect, FPolygonLL);
 
   PageControl1.ActivePageIndex:=0;
 end;
@@ -682,7 +661,7 @@ begin
     VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
     if VExportProvider <> nil then begin
       if i = CBFormat.ItemIndex then begin
-        VExportProvider.Show;
+        VExportProvider.Show(pnlExport, FZoom_rect, FPolygonLL);
       end else begin
         VExportProvider.Hide;
       end;

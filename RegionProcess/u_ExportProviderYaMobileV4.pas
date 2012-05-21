@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
@@ -26,9 +27,10 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -41,10 +43,6 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -52,7 +50,6 @@ type
 implementation
 
 uses
-  Forms,
   SysUtils,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
@@ -65,7 +62,6 @@ uses
 { TExportProviderYaMaps }
 
 constructor TExportProviderYaMobileV4.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -78,7 +74,12 @@ constructor TExportProviderYaMobileV4.Create(
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
@@ -87,27 +88,21 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
+function TExportProviderYaMobileV4.CreateFrame: TFrame;
+begin
+  FFrame :=
+    TfrExportYaMobileV4.Create(
+      Self.LanguageManager,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
+    );
+  Result := FFrame;
+end;
+
 function TExportProviderYaMobileV4.GetCaption: string;
 begin
   Result := SAS_STR_ExportYaMobileV4Caption;
-end;
-
-procedure TExportProviderYaMobileV4.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame :=
-      TfrExportYaMobileV4.Create(
-        Self.LanguageManager,
-        Self.MainMapsConfig,
-        Self.FullMapsSet,
-        Self.GUIConfigList
-      );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init;
 end;
 
 procedure TExportProviderYaMobileV4.StartProcess(const APolygon: ILonLatPolygon);

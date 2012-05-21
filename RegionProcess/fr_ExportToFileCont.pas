@@ -15,10 +15,12 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_VectorItemLonLat,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportToFileCont = class(TFrame)
+  TfrExportToFileCont = class(TFrame, IRegionProcessParamsFrameBase)
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;
@@ -40,6 +42,11 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -49,7 +56,6 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
-    procedure Init;
     procedure RefreshTranslation; override;
   end;
 

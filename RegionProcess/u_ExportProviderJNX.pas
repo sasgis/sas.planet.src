@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
@@ -24,9 +25,10 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -38,17 +40,12 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
 
 uses
-  Forms,
   SysUtils,
   Classes,
   RegExprUtils,
@@ -64,7 +61,6 @@ uses
 { TExportProviderJNX }
 
 constructor TExportProviderJNX.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -76,7 +72,12 @@ constructor TExportProviderJNX.Create(
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -84,18 +85,10 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-function TExportProviderJNX.GetCaption: string;
+function TExportProviderJNX.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_ExportJNXPackCaption;
-end;
-
-procedure TExportProviderJNX.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrExportToJNX.Create(
+  FFrame :=
+    TfrExportToJNX.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
@@ -103,9 +96,12 @@ begin
       'JNX |*.jnx',
       'jnx'
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init;
+  Result := FFrame;
+end;
+
+function TExportProviderJNX.GetCaption: string;
+begin
+  Result := SAS_STR_ExportJNXPackCaption;
 end;
 
 procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);

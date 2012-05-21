@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
@@ -25,9 +26,10 @@ type
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -39,17 +41,12 @@ type
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
 
 uses
-  Forms,
   SysUtils,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
@@ -63,7 +60,6 @@ uses
 { TExportProviderTar }
 
 constructor TExportProviderTar.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -75,7 +71,12 @@ constructor TExportProviderTar.Create(
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGenerator := ATileNameGenerator;
@@ -83,18 +84,10 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-function TExportProviderTar.GetCaption: string;
+function TExportProviderTar.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_ExportTarPackCaption;
-end;
-
-procedure TExportProviderTar.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrExportToFileCont.Create(
+  FFrame :=
+    TfrExportToFileCont.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
@@ -102,9 +95,12 @@ begin
       'Tar |*.tar',
       'tar'
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init;
+  Result := FFrame;
+end;
+
+function TExportProviderTar.GetCaption: string;
+begin
+  Result := SAS_STR_ExportTarPackCaption;
 end;
 
 procedure TExportProviderTar.StartProcess(const APolygon: ILonLatPolygon);

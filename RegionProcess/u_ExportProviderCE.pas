@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
@@ -24,9 +25,10 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -38,17 +40,12 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
 
 uses
-  Forms,
   SysUtils,
   Classes,
   RegExprUtils,
@@ -63,7 +60,6 @@ uses
 { TExportProviderCE }
 
 constructor TExportProviderCE.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -75,7 +71,12 @@ constructor TExportProviderCE.Create(
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -83,18 +84,10 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-function TExportProviderCE.GetCaption: string;
+function TExportProviderCE.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_ExportCEPackCaption;
-end;
-
-procedure TExportProviderCE.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrExportToCE.Create(
+  FFrame :=
+    TfrExportToCE.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
@@ -102,9 +95,12 @@ begin
       'd00 |*.d00',
       'd00'
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init;
+  Result := FFrame;
+end;
+
+function TExportProviderCE.GetCaption: string;
+begin
+  Result := SAS_STR_ExportCEPackCaption;
 end;
 
 procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);

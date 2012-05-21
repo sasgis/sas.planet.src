@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
@@ -26,9 +27,10 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -41,17 +43,12 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      AZoom: Byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
 
 uses
-  Forms,
   SysUtils,
   Classes,
   i_RegionProcessProgressInfo,
@@ -65,7 +62,6 @@ uses
 { TExportProviderOgf2 }
 
 constructor TExportProviderOgf2.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -78,7 +74,12 @@ constructor TExportProviderOgf2.Create(
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -87,18 +88,10 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-function TExportProviderOgf2.GetCaption: string;
+function TExportProviderOgf2.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_ExportOgf2PackCaption;
-end;
-
-procedure TExportProviderOgf2.InitFrame(
-  AZoom: Byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrExportToOgf2.Create(
+  FFrame :=
+    TfrExportToOgf2.Create(
       Self.LanguageManager,
       FProjectionFactory,
       FVectorItmesFactory,
@@ -108,9 +101,12 @@ begin
       'OGF2 (*.ogf2) |*.ogf2',
       'ogf2'
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init(AZoom, APolygon);
+  Result := FFrame;
+end;
+
+function TExportProviderOgf2.GetCaption: string;
+begin
+  Result := SAS_STR_ExportOgf2PackCaption;
 end;
 
 procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon);

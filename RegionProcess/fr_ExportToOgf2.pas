@@ -19,11 +19,12 @@ uses
   i_VectorItmesFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents,
   t_GeoTypes, Spin;
 
 type
-  TfrExportToOgf2 = class(TFrame)
+  TfrExportToOgf2 = class(TFrame, IRegionProcessParamsFrameBase)
     pnlCenter: TPanel;
     lblMap: TLabel;
     cbbMap: TComboBox;
@@ -56,6 +57,11 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FPolygLL: ILonLatPolygon;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -67,8 +73,6 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     );
-    procedure Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
-    procedure RefreshTranslation; override;
   end;
 
 implementation
@@ -177,7 +181,10 @@ begin
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
 end;
 
-procedure TfrExportToOgf2.Init(const AZoom: Byte; const APolygLL: ILonLatPolygon);
+procedure TfrExportToOgf2.Init(
+  const AZoom: byte;
+  const APolygon: ILonLatPolygon
+);
 var
   I: Integer;
   VMapType: TMapType;
@@ -186,7 +193,7 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
-  FPolygLL := APolygLL;
+  FPolygLL := APolygon;
 
   cbbZoom.Items.Clear;
   cbbMap.Items.Clear;
@@ -229,11 +236,6 @@ begin
   end;
 
   cbbZoomChange(nil);
-end;
-
-procedure TfrExportToOgf2.RefreshTranslation;
-begin
-  inherited;
 end;
 
 end.

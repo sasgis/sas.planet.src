@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Forms,
   Controls,
   t_GeoTypes,
   i_JclNotify,
@@ -62,9 +63,10 @@ type
       out AOperationID: Integer;
       out AProgressInfo: IRegionProcessProgressInfo
     );
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -82,10 +84,6 @@ type
       const AMapCalibrationList: IMapCalibrationList
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -93,7 +91,6 @@ type
 implementation
 
 uses
-  Forms,
   Classes,
   Dialogs,
   SysUtils,
@@ -122,7 +119,6 @@ uses
 { TProviderTilesDelete }
 
 constructor TProviderMapCombine.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -140,7 +136,12 @@ constructor TProviderMapCombine.Create(
   const AMapCalibrationList: IMapCalibrationList
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -154,18 +155,10 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
 end;
 
-function TProviderMapCombine.GetCaption: string;
+function TProviderMapCombine.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_OperationMapCombineCaption;
-end;
-
-procedure TProviderMapCombine.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrMapCombine.Create(
+  FFrame :=
+    TfrMapCombine.Create(
       Self.LanguageManager,
       FProjectionFactory,
       FVectorItmesFactory,
@@ -174,9 +167,12 @@ begin
       Self.GUIConfigList,
       FMapCalibrationList
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init(Azoom, APolygon);
+  Result := FFrame;
+end;
+
+function TProviderMapCombine.GetCaption: string;
+begin
+  Result := SAS_STR_OperationMapCombineCaption;
 end;
 
 function TProviderMapCombine.PrepareGeoConverter: ICoordConverter;

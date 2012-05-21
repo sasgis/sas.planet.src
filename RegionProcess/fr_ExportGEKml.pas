@@ -15,10 +15,12 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_VectorItemLonLat,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportGEKml = class(TFrame)
+  TfrExportGEKml = class(TFrame, IRegionProcessParamsFrameBase)
     pnlCenter: TPanel;
     lblZooms: TLabel;
     chkAllZooms: TCheckBox;
@@ -40,6 +42,11 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -47,7 +54,6 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
-    procedure Init;
   end;
 
 implementation

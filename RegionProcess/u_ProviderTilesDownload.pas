@@ -24,6 +24,7 @@ interface
 
 uses
   Windows, // for inline AnsiSameText
+  Forms,
   Controls,
   i_JclNotify,
   i_MapTypes,
@@ -50,9 +51,10 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const AAppClosingNotifier: IJclNotifier;
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -65,10 +67,6 @@ type
       const ADownloadInfo: IDownloadInfoSimple
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
     procedure StartBySLS(const AFileName: string);
   end;
@@ -92,7 +90,6 @@ uses
 { TProviderTilesDownload }
 
 constructor TProviderTilesDownload.Create(
-  AParent: TWinControl;
   const AAppClosingNotifier: IJclNotifier;
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -105,7 +102,12 @@ constructor TProviderTilesDownload.Create(
   const ADownloadInfo: IDownloadInfoSimple
 );
 begin
-  inherited Create(AParent, ALanguageManager, AMainMapsConfig, AFullMapsSet, AGUIConfigList);
+  inherited Create(
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList
+  );
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FProjectionFactory := AProjectionFactory;
@@ -114,18 +116,10 @@ begin
   FDownloadInfo := ADownloadInfo;
 end;
 
-function TProviderTilesDownload.GetCaption: string;
+function TProviderTilesDownload.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_OperationDownloadCaption;
-end;
-
-procedure TProviderTilesDownload.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrTilesDownload.Create(
+  FFrame :=
+    TfrTilesDownload.Create(
       Self.LanguageManager,
       FProjectionFactory,
       FVectorItmesFactory,
@@ -133,9 +127,12 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init(Azoom, APolygon);
+  Result := FFrame;
+end;
+
+function TProviderTilesDownload.GetCaption: string;
+begin
+  Result := SAS_STR_OperationDownloadCaption;
 end;
 
 procedure TProviderTilesDownload.StartBySLS(const AFileName: string);

@@ -36,10 +36,12 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapAttachmentsInfo,
+  i_VectorItemLonLat,
+  i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDelete = class(TFrame)
+  TfrTilesDelete = class(TFrame, IRegionProcessParamsFrameBase)
     cbbMap: TComboBox;
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;
@@ -57,6 +59,11 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+  private
+    procedure Init(
+      const AZoom: byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -64,7 +71,6 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
-    procedure Init(AZoom: Byte);
   end;
 
 implementation
@@ -90,7 +96,10 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
-procedure TfrTilesDelete.Init(AZoom: Byte);
+procedure TfrTilesDelete.Init(
+  const AZoom: byte;
+  const APolygon: ILonLatPolygon
+);
 var
   i: integer;
   VMapType: TMapType;

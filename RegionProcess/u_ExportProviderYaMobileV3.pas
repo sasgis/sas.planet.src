@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_LanguageManager,
   i_MapTypes,
@@ -26,9 +27,10 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -41,10 +43,6 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -52,7 +50,6 @@ type
 implementation
 
 uses
-  Forms,
   SysUtils,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
@@ -65,7 +62,6 @@ uses
 { TExportProviderYaMobileV3 }
 
 constructor TExportProviderYaMobileV3.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -79,7 +75,6 @@ constructor TExportProviderYaMobileV3.Create(
 );
 begin
   inherited Create(
-    AParent,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,
@@ -93,27 +88,21 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
+function TExportProviderYaMobileV3.CreateFrame: TFrame;
+begin
+  FFrame :=
+    TfrExportYaMobileV3.Create(
+      Self.LanguageManager,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
+    );
+  Result := FFrame;
+end;
+
 function TExportProviderYaMobileV3.GetCaption: string;
 begin
   Result := SAS_STR_ExportYaMobileV3Caption;
-end;
-
-procedure TExportProviderYaMobileV3.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame :=
-      TfrExportYaMobileV3.Create(
-        Self.LanguageManager,
-        Self.MainMapsConfig,
-        Self.FullMapsSet,
-        Self.GUIConfigList
-      );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init;
 end;
 
 procedure TExportProviderYaMobileV3.StartProcess(const APolygon: ILonLatPolygon);

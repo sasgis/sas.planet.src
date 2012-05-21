@@ -4,6 +4,7 @@ interface
 
 uses
   Controls,
+  Forms,
   i_JclNotify,
   i_LanguageManager,
   i_VectorItemLonLat,
@@ -27,9 +28,10 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
+  protected
+    function CreateFrame: TFrame; override;
   public
     constructor Create(
-      AParent: TWinControl;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: IJclNotifier;
       const ATimerNoifier: IJclNotifier;
@@ -42,10 +44,6 @@ type
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
-    procedure InitFrame(
-      Azoom: byte;
-      const APolygon: ILonLatPolygon
-    ); override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
@@ -53,7 +51,6 @@ type
 implementation
 
 uses
-  Forms,
   SysUtils,
   GR32,
   i_ImageResamplerFactory,
@@ -68,7 +65,6 @@ uses
 { TProviderTilesGenPrev }
 
 constructor TProviderTilesGenPrev.Create(
-  AParent: TWinControl;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: IJclNotifier;
   const ATimerNoifier: IJclNotifier;
@@ -82,7 +78,6 @@ constructor TProviderTilesGenPrev.Create(
 );
 begin
   inherited Create(
-    AParent,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,
@@ -96,27 +91,22 @@ begin
   FTimerNoifier := ATimerNoifier;
 end;
 
-function TProviderTilesGenPrev.GetCaption: string;
+function TProviderTilesGenPrev.CreateFrame: TFrame;
 begin
-  Result := SAS_STR_OperationGenPrevCaption;
-end;
-
-procedure TProviderTilesGenPrev.InitFrame(
-  Azoom: byte;
-  const APolygon: ILonLatPolygon
-);
-begin
-  if FFrame = nil then begin
-    FFrame := TfrTilesGenPrev.Create(
+  FFrame :=
+    TfrTilesGenPrev.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
       FImageResamplerConfig
     );
-    SetFrame(FFrame);
-  end;
-  FFrame.Init(Azoom);
+  Result := FFrame;
+end;
+
+function TProviderTilesGenPrev.GetCaption: string;
+begin
+  Result := SAS_STR_OperationGenPrevCaption;
 end;
 
 procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon);
