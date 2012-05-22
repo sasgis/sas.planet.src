@@ -73,7 +73,7 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadThread: TThreadDownloadTiles;
-    FLog: ILogForTaskThread;
+    FLog: ILogSimpleProvider;
     FLastLogID: Cardinal;
     FStoped: boolean;
     FFinished: Boolean;
@@ -89,7 +89,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
-      const ALog: ILogForTaskThread
+      const ALog: ILogSimpleProvider
     ); reintroduce; virtual;
     destructor Destroy; override;
   end;
@@ -140,7 +140,7 @@ constructor TfrmProgressDownload.Create(
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   ADownloadThread: TThreadDownloadTiles;
-  const ALog: ILogForTaskThread
+  const ALog: ILogSimpleProvider
 );
 begin
   inherited Create(ALanguageManager);

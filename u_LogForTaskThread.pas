@@ -29,7 +29,7 @@ uses
   i_LogForTaskThread;
 
 type
-  TLogForTaskThread = class(TInterfacedObject, ILogForTaskThread, ILogSimple)
+  TLogSimpleProvider = class(TInterfacedObject, ILogSimpleProvider, ILogSimple)
   private
     FMinLogLevel: Integer;
     FNextId: Cardinal;
@@ -63,7 +63,7 @@ uses
 
 { TLogForTaskThread }
 
-constructor TLogForTaskThread.Create(
+constructor TLogSimpleProvider.Create(
   AMaxLinesCount: Cardinal;
   AMinLogLevel: Integer
 );
@@ -82,14 +82,14 @@ begin
   FLinesSeparator := #13#10;
 end;
 
-destructor TLogForTaskThread.Destroy;
+destructor TLogSimpleProvider.Destroy;
 begin
   FLock := nil;
   FreeAndNil(FList);
   inherited;
 end;
 
-function TLogForTaskThread.GetLastMessages(
+function TLogSimpleProvider.GetLastMessages(
   AMaxRowsCount: Cardinal;
   var ALastId: Cardinal;
   out AcntLines: Cardinal
@@ -130,7 +130,7 @@ begin
   end;
 end;
 
-procedure TLogForTaskThread.WriteText(
+procedure TLogSimpleProvider.WriteText(
   const AMessage: WideString;
   ALogLevel: integer
 );

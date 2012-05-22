@@ -140,22 +140,18 @@ var
   VIni: TMemIniFile;
   VSLSData: IConfigDataProvider;
   VSessionSection: IConfigDataProvider;
-  VLog: TLogForTaskThread;
-  VSimpleLog: ILogSimple;
-  VThreadLog: ILogForTaskThread;
+  VLog: TLogSimpleProvider;
   VThread: TThreadDownloadTiles;
 begin
   VIni := TMemIniFile.Create(AFileName);
   VSLSData := TConfigDataProviderByIniFile.Create(VIni);
   VSessionSection := VSLSData.GetSubItem('Session');
-  VLog := TLogForTaskThread.Create(5000, 0);
-  VSimpleLog := VLog;
-  VThreadLog := VLog;
+  VLog := TLogSimpleProvider.Create(5000, 0);
   VThread :=
     TThreadDownloadTiles.CreateFromSls(
       FAppClosingNotifier,
       FVectorItmesFactory,
-      VSimpleLog,
+      VLog,
       FullMapsSet,
       FProjectionFactory,
       VSessionSection,
@@ -166,7 +162,7 @@ begin
     LanguageManager,
     FValueToStringConverterConfig,
     VThread,
-    VThreadLog
+    VLog
   );
 end;
 
@@ -174,9 +170,7 @@ procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon);
 var
   VMapType: TMapType;
   VZoom: byte;
-  VLog: TLogForTaskThread;
-  VSimpleLog: ILogSimple;
-  VThreadLog: ILogForTaskThread;
+  VLog: TLogSimpleProvider;
   VThread: TThreadDownloadTiles;
   VProjectedPolygon: IProjectedPolygon;
   VForAttachments: Boolean;
@@ -190,12 +184,10 @@ begin
       FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
       APolygon
     );
-  VLog := TLogForTaskThread.Create(5000, 0);
-  VSimpleLog := VLog;
-  VThreadLog := VLog;
+  VLog := TLogSimpleProvider.Create(5000, 0);
   VThread := TThreadDownloadTiles.Create(
     FAppClosingNotifier,
-    VSimpleLog,
+    VLog,
     APolygon,
     VProjectedPolygon,
     FDownloadConfig,
@@ -213,7 +205,7 @@ begin
     Self.LanguageManager,
     FValueToStringConverterConfig,
     VThread,
-    VThreadLog
+    VLog
   );
 end;
 
