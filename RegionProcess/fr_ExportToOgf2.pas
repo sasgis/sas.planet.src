@@ -205,6 +205,7 @@ begin
   cbbZoom.ItemIndex := AZoom;
 
   cbbTileRes.ItemIndex := 0; // 128*128 pix
+  cbbImageFormat.ItemIndex := 2; // JPEG
 
   cbbHyb.Items.AddObject(SAS_STR_No, nil);   
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;

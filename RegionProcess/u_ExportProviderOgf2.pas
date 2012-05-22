@@ -139,7 +139,7 @@ begin
   VUsePrevZoom := FFrame.chkUsePrevZoom.Checked;
 
   VOgf2TileResolution := TOgf2TileResolution(FFrame.cbbTileRes.ItemIndex);
-  VOgf2TileFormat := TOgf2TileFormat(FFrame.cbbImageFormat);
+  VOgf2TileFormat := TOgf2TileFormat(FFrame.cbbImageFormat.ItemIndex);
   VJpegQuality := FFrame.seJpgQuality.Value;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
