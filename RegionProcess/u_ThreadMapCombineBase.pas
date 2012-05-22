@@ -43,7 +43,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
@@ -65,7 +65,7 @@ uses
 constructor TThreadMapCombineBase.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
@@ -93,8 +93,8 @@ end;
 
 procedure TThreadMapCombineBase.ProgressFormUpdateOnProgress(AProgress: Double);
 begin
-  ProgressInfo.ProcessedRatio := AProgress;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%';
+  ProgressInfo.SetProcessedRatio(AProgress);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ': ' + IntToStr(Trunc(AProgress * 100)) + '%');
 end;
 
 
@@ -124,16 +124,14 @@ begin
   VProcessTiles := VSizeInTile.X;
   VProcessTiles := VProcessTiles * VSizeInTile.Y;
 
-  ProgressInfo.Caption :=
-    Format(
-      SAS_STR_MapCombineProgressCaption,
-      [VMapSize.X, VMapSize.Y, FSplitCount.X * FSplitCount.Y]
-    );
-  ProgressInfo.FirstLine :=
-    Format(
-      SAS_STR_MapCombineProgressLine0,
-      [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
-    );
+  ProgressInfo.SetCaption(Format(
+    SAS_STR_MapCombineProgressCaption,
+    [VMapSize.X, VMapSize.Y, FSplitCount.X * FSplitCount.Y]
+  ));
+  ProgressInfo.SetFirstLine(Format(
+    SAS_STR_MapCombineProgressLine0,
+    [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
+  ));
   ProgressFormUpdateOnProgress(0);
   VMapPieceSize.X := VMapSize.X div FSplitCount.X;
   VMapPieceSize.Y := VMapSize.Y div FSplitCount.Y;

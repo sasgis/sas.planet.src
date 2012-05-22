@@ -39,7 +39,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
@@ -63,7 +63,7 @@ uses
 constructor TThreadExportKML.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
@@ -180,8 +180,10 @@ begin
     end;
   end;
   FTilesProcessed := 0;
-  ProgressInfo.Caption := SAS_STR_ExportTiles;
-  ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files;
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+  ProgressInfo.SetFirstLine(
+    SAS_STR_AllSaves + ' ' + inttostr(FTilesToProcess) + ' ' + SAS_STR_Files
+  );
   ProgressFormUpdateOnProgress(FTilesProcessed, FTilesToProcess);
   try
     AssignFile(KMLFile, FPathExport);

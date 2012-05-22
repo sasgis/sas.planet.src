@@ -35,7 +35,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
@@ -101,7 +101,7 @@ end;
 constructor TThreadMapCombinePNG.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;

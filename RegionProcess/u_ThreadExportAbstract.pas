@@ -20,7 +20,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const Azoomarr: array of boolean
     );
@@ -35,7 +35,7 @@ uses
 constructor TThreadExportAbstract.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const Azoomarr: array of boolean
 );
@@ -76,8 +76,8 @@ end;
 
 procedure TThreadExportAbstract.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 end.

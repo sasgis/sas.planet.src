@@ -61,7 +61,7 @@ type
     procedure PrepareProcessInfo(
       out ACancelNotifier: IOperationNotifier;
       out AOperationID: Integer;
-      out AProgressInfo: IRegionProcessProgressInfo
+      out AProgressInfo: IRegionProcessProgressInfoInternal
     );
   protected
     function CreateFrame: TFrame; override;
@@ -321,22 +321,24 @@ end;
 procedure TProviderMapCombine.PrepareProcessInfo(
   out ACancelNotifier: IOperationNotifier;
   out AOperationID: Integer;
-  out AProgressInfo: IRegionProcessProgressInfo
+  out AProgressInfo: IRegionProcessProgressInfoInternal
 );
 var
   VCancelNotifierInternal: IOperationNotifierInternal;
+  VProgressInfo: TRegionProcessProgressInfo;
 begin
   VCancelNotifierInternal := TOperationNotifier.Create;
   ACancelNotifier := VCancelNotifierInternal;
   AOperationID := VCancelNotifierInternal.CurrentOperation;
-  AProgressInfo := TRegionProcessProgressInfo.Create;
+  VProgressInfo := TRegionProcessProgressInfo.Create;
+  AProgressInfo := VProgressInfo;
 
   TfrmProgressSimple.Create(
     Application,
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    AProgressInfo
+    VProgressInfo
   );
 end;
 
@@ -388,7 +390,7 @@ var
   VKmzImgesCount: TPoint;
   VCancelNotifier: IOperationNotifier;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
 begin
   PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
   VProjectedPolygon := PreparePolygon(APolygon);

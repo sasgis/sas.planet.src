@@ -58,7 +58,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -95,7 +95,7 @@ const
 constructor TThreadExportYaMobileV3.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -351,8 +351,10 @@ begin
         VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
       end;
       try
-        ProgressInfo.Caption := SAS_STR_ExportTiles;
-        ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+        ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+        ProgressInfo.SetFirstLine(
+          SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+        );
 
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);

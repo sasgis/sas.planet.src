@@ -14,7 +14,7 @@ type
   private
     FOperationID: Integer;
     FCancelListener: IJclListener;
-    FProgressInfo: IRegionProcessProgressInfo;
+    FProgressInfo: IRegionProcessProgressInfoInternal;
     FPolygLL: ILonLatPolygon;
 
     FMessageForShow: string;
@@ -28,13 +28,13 @@ type
 
     property CancelNotifier: IOperationNotifier read FCancelNotifier;
     property OperationID: Integer read FOperationID;
-    property ProgressInfo: IRegionProcessProgressInfo read FProgressInfo;
+    property ProgressInfo: IRegionProcessProgressInfoInternal read FProgressInfo;
     property PolygLL: ILonLatPolygon read FPolygLL;
   public
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon
     );
     destructor Destroy; override;
@@ -50,7 +50,7 @@ uses
 constructor TThreadRegionProcessAbstract.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon
 );
 begin

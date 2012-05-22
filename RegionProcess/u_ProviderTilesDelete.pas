@@ -127,7 +127,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
   VForAttachments: Boolean;
 begin
   inherited;

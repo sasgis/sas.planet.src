@@ -52,7 +52,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
       Azoom: byte;
@@ -72,7 +72,7 @@ uses
 constructor TThreadDeleteTiles.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
   Azoom: byte;
@@ -108,8 +108,9 @@ begin
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   try
     VTilesToProcess := VTileIterator.TilesTotal;
-    ProgressInfo.Caption :=
-      SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')';
+    ProgressInfo.SetCaption(
+      SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')'
+    );
     VTilesProcessed := 0;
     VDeletedCount := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
@@ -141,9 +142,9 @@ procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress(
   const AProcessed, AToProcess, ADeleted: Int64
 );
 begin
-  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
-  ProgressInfo.FirstLine := SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_files;
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
+  ProgressInfo.SetFirstLine(SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_files);
 end;
 
 end.

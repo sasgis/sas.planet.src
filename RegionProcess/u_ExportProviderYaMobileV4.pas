@@ -114,7 +114,7 @@ var
   comprSat, comprMap: byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
   for i := 0 to 23 do begin

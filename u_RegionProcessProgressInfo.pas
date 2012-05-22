@@ -6,7 +6,7 @@ uses
   i_RegionProcessProgressInfo;
 
 type
-  TRegionProcessProgressInfo = class(TInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfo)
+  TRegionProcessProgressInfo = class(TInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfo, IRegionProcessProgressInfoInternal)
   private
     FProcessedRatio: Double;
     FFinished: Boolean;

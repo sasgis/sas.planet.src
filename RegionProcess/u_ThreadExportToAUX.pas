@@ -26,7 +26,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
@@ -49,7 +49,7 @@ uses
 constructor TThreadExportToAUX.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
@@ -88,8 +88,10 @@ begin
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   try
     VTilesToProcess := VTileIterator.TilesTotal;
-    ProgressInfo.Caption := SAS_STR_ExportTiles;
-    ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+    ProgressInfo.SetFirstLine(
+      SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+    );
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
     VPixelRect := VGeoConvert.TileRect2PixelRect(VTileIterator.TilesRect, FZoom);
@@ -122,8 +124,8 @@ end;
 
 procedure TThreadExportToAUX.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
 begin
-  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 end.

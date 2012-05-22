@@ -122,7 +122,7 @@ var
   VZoomArr: array [0..23] of Boolean;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
 

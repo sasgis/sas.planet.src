@@ -58,7 +58,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -93,7 +93,7 @@ uses
 constructor TThreadExportYaMobileV4.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -340,8 +340,10 @@ begin
       try
         VTilesProcessed := 0;
 
-        ProgressInfo.Caption := SAS_STR_ExportTiles;
-        ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+        ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+        ProgressInfo.SetFirstLine(
+          SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+        );
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
         tc := GetTickCount;

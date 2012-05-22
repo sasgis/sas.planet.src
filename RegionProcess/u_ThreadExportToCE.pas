@@ -31,7 +31,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
@@ -64,7 +64,7 @@ uses
 constructor TThreadExportToCE.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
@@ -112,8 +112,8 @@ var
 begin
   inherited;
   VTilesToProcess := 0;
-  ProgressInfo.Caption := SAS_STR_ExportTiles;
-  ProgressInfo.FirstLine := 'Preparing tiles to export..';
+  ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+  ProgressInfo.SetFirstLine('Preparing tiles to export..');
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
@@ -124,7 +124,9 @@ begin
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
-    ProgressInfo.SecondLine := SAS_STR_Zoom + ': ' + inttostr(Vzoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess);
+    ProgressInfo.SetSecondLine(
+      SAS_STR_Zoom + ': ' + inttostr(Vzoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)
+    );
   end;
 
   //Начинает процесс экспорта тайлов в файл fname (без расширения!);
@@ -137,7 +139,7 @@ begin
   VSAS4WinCE := TSAS4WinCE.Create(FTargetFile, FMaxSize * 1048576, FComment, FRecoverInfo);
   try
     try
-      ProgressInfo.FirstLine := SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files;
+      ProgressInfo.SetFirstLine(SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files);
       VTileStorage := FMapType.TileStorage;
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
@@ -162,7 +164,7 @@ begin
           end;
           inc(VTilesProcessed);
           if VTilesProcessed mod 50 = 0 then begin
-            ProgressInfo.ProcessedRatio := VTilesProcessed / VTilesToProcess;
+            ProgressInfo.SetProcessedRatio(VTilesProcessed / VTilesToProcess);
             VExt := '  (.d' + inttostr(VSAS4WinCE.DataNum) + ')';
             if VSAS4WinCE.DataNum < 10 then begin
               VExt := '  (.d0' + inttostr(VSAS4WinCE.DataNum) + ')';
@@ -170,12 +172,12 @@ begin
             if VSAS4WinCE.DataNum < 0 then begin
               VExt := '';
             end;
-            ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(VTilesProcessed) + VExt;
+            ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(VTilesProcessed) + VExt);
           end;
         end;
       end;
-      ProgressInfo.FirstLine := 'Making .inx file ..';
-      ProgressInfo.SecondLine := '';
+      ProgressInfo.SetFirstLine('Making .inx file ..');
+      ProgressInfo.SetSecondLine('');
       VSAS4WinCE.SaveINX(FTargetFile);
     finally
       for i := 0 to Length(FZooms) - 1 do begin

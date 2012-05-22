@@ -57,7 +57,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -101,7 +101,7 @@ const
 constructor TThreadExportToOgf2.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -310,11 +310,12 @@ begin
   try
     VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal;
 
-    ProgressInfo.Caption := SAS_STR_ExportTiles;
-    ProgressInfo.FirstLine :=
+    ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+    ProgressInfo.SetFirstLine(
       SAS_STR_AllSaves + ' ' +
       IntToStr(VTilesToProcess) + ' ' +
-      SAS_STR_Files;
+      SAS_STR_Files
+    );
 
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 

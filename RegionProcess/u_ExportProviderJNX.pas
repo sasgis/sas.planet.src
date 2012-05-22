@@ -118,7 +118,7 @@ var
   VJpgQuality: byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
   VMatchSubStr: string;
   VLevelsDesc: TStringList;
 begin

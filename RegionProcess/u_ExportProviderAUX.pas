@@ -106,7 +106,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMapAndZoom).MapType;

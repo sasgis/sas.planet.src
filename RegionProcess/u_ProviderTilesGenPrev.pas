@@ -119,7 +119,7 @@ var
   VResampler: IImageResamplerFactory;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
   VBgColor: TColor32;
 begin
   inherited;

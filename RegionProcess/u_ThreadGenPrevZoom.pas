@@ -40,7 +40,7 @@ type
     constructor Create(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const AProgressInfo: IRegionProcessProgressInfo;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       Azoom: byte;
@@ -71,7 +71,7 @@ uses
 constructor TThreadGenPrevZoom.Create(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const AProgressInfo: IRegionProcessProgressInfo;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   Azoom: byte;
@@ -153,8 +153,9 @@ begin
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * (1 shl (2 * VZoomDelta));
   end;
   try
-    ProgressInfo.Caption :=
-      SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files;
+    ProgressInfo.SetCaption(
+      SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files
+    );
 
     VResampler := FResamplerFactory.CreateResampler;
     try
@@ -263,8 +264,8 @@ procedure TThreadGenPrevZoom.ProgressFormUpdateOnProgress(
   const AProcessed, AToProcess: Int64
 );
 begin
-  ProgressInfo.ProcessedRatio := AProcessed / AToProcess;
-  ProgressInfo.SecondLine := SAS_STR_Processed + ' ' + inttostr(AProcessed);
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 end.

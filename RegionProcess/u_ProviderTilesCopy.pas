@@ -111,7 +111,7 @@ var
   Replace: boolean;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfo;
+  VProgressInfo: TRegionProcessProgressInfo;
 begin
   for i := 0 to 23 do begin
     ZoomArr[i] := FFrame.chklstZooms.Checked[i];
