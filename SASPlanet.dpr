@@ -86,7 +86,7 @@ uses
   i_OperationNotifier in 'i_OperationNotifier.pas',
   u_OperationNotifier in 'u_OperationNotifier.pas',
   i_LogSimple in 'i_LogSimple.pas',
-  i_LogForTaskThread in 'i_LogForTaskThread.pas',
+  i_LogSimpleProvider in 'i_LogSimpleProvider.pas',
   i_SimpleFactory in 'i_SimpleFactory.pas',
   i_TTLCheckNotifier in 'i_TTLCheckNotifier.pas',
   i_TTLCheckListener in 'i_TTLCheckListener.pas',

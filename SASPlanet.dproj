@@ -248,8 +248,8 @@
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
-    <DCCReference Include="i_LogForTaskThread.pas" />
     <DCCReference Include="i_LogSimple.pas" />
+    <DCCReference Include="i_LogSimpleProvider.pas" />
     <DCCReference Include="i_LonLatRect.pas" />
     <DCCReference Include="i_LonLatRectUpdateNotifier.pas" />
     <DCCReference Include="i_MainFormBehaviourByGPSConfig.pas" />

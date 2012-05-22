@@ -34,7 +34,7 @@ uses
   DateUtils,
   RarProgress,
   u_CommonFormAndFrameParents,
-  i_LogForTaskThread,
+  i_LogSimpleProvider,
   i_LanguageManager,
   i_ValueToStringConverter,
   u_ResStrings,

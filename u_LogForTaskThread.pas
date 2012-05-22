@@ -26,7 +26,7 @@ uses
   SysUtils,
   WideStrings,
   i_LogSimple,
-  i_LogForTaskThread;
+  i_LogSimpleProvider;
 
 type
   TLogSimpleProvider = class(TInterfacedObject, ILogSimpleProvider, ILogSimple)

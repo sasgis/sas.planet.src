@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_LogForTaskThread;
+unit i_LogSimpleProvider;
 
 interface
 

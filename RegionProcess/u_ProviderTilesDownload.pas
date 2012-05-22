@@ -78,7 +78,7 @@ uses
   SysUtils,
   IniFiles,
   i_LogSimple,
-  i_LogForTaskThread,
+  i_LogSimpleProvider,
   i_VectorItemProjected,
   i_ConfigDataProvider,
   u_ConfigDataProviderByIniFile,
