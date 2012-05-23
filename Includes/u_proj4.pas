@@ -319,6 +319,8 @@ function TProj4Conv.GetPredefinedEPSGParams(
   const AEPSG: Integer;
   out AOutArgs: String
 ): Boolean;
+var
+  i: Integer;
 begin
   Result := FALSE;
   AOutArgs := '';
@@ -340,8 +342,22 @@ begin
     // WGS 84
     AOutArgs := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
     Result := TRUE;
-  end else if (AEPSG>=32630) and (AEPSG<32660) then begin
-    // WGS 84 / UTM zone
+  end else if (AEPSG>=2463) and (AEPSG<=2491) then begin
+    // 2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
+    i := 21 + (AEPSG-2463)*6;
+    if (i>180) then
+      i := i - 360;
+    AOutArgs := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+    Result := TRUE;
+  end else if (AEPSG>=2492) and (AEPSG<=2522) then begin
+    // 2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
+    i := 9 + (AEPSG-2492)*6;
+    if (i>180) then
+      i := i - 360;
+    AOutArgs := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+    Result := TRUE;
+  end else if (AEPSG>=32601) and (AEPSG<=32660) then begin
+    // 32601-32660 = WGS 84 / UTM zone N
     AOutArgs := '+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
     Result := TRUE;
   end;
