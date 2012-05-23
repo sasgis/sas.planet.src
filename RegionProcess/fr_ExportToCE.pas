@@ -3,6 +3,7 @@ unit fr_ExportToCE;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -17,10 +18,17 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
-  TfrExportToCE = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrExportToCE = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameOneMap
+    )
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;
@@ -58,6 +66,10 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoomArray: TByteDynArray;
+    function GetPath: string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -74,8 +86,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
-  i_GUIDListStatic,
-  u_MapType;
+  i_GUIDListStatic;
 
 {$R *.dfm}
 
@@ -147,6 +158,47 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrExportToCE.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+end;
+
+function TfrExportToCE.GetPath: string;
+var
+  VMapType: TMapType;
+begin
+  Result := '';
+  if Temppath.Text <> '' then begin
+    Result := edtTargetFile.Text;
+  end else if copy(edtTargetFile.Text, length(edtTargetFile.Text), 1) <> '\' then begin
+    Result := edtTargetFile.Text;
+  end else begin
+    VMapType := GetMapType;
+    if VMapType <> nil then begin
+      Result := IncludeTrailingPathDelimiter(edtTargetFile.Text) + VMapType.GetShortFolderName;
+    end;
+  end;
+end;
+
+function TfrExportToCE.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  for i := 0 to 23 do begin
+    if chklstZooms.Checked[i] then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := i;
+      Inc(VCount);
+    end;
+  end;
 end;
 
 procedure TfrExportToCE.Init;

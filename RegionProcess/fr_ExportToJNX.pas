@@ -3,6 +3,7 @@ unit fr_ExportToJNX;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -17,10 +18,17 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
-  TfrExportToJNX = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrExportToJNX = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTargetPath
+    )
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;
@@ -61,6 +69,10 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoomArray: TByteDynArray;
+    function GetPath: string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -75,8 +87,7 @@ type
 implementation
 
 uses
-  i_GUIDListStatic,
-  u_MapType;
+  i_GUIDListStatic;
 
 {$R *.dfm}
 
@@ -157,6 +168,36 @@ begin
   FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
+end;
+
+function TfrExportToJNX.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+  Assert(Result <> nil);
+end;
+
+function TfrExportToJNX.GetPath: string;
+begin
+  Result := edtTargetFile.Text;
+end;
+
+function TfrExportToJNX.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  for i := 0 to 23 do begin
+    if chklstZooms.Checked[i] then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := i;
+      Inc(VCount);
+    end;
+  end;
 end;
 
 procedure TfrExportToJNX.Init;

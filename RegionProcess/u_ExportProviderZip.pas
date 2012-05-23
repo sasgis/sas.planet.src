@@ -48,8 +48,10 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
@@ -97,6 +99,9 @@ begin
       'zip'
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderZip.GetCaption: string;
@@ -106,9 +111,8 @@ end;
 
 procedure TExportProviderZip.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
   VMapType: TMapType;
   VNameGenerator: ITileFileNameGenerator;
   VCancelNotifierInternal: IOperationNotifierInternal;
@@ -116,11 +120,10 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
-  end;
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path := FFrame.edtTargetFile.Text;
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+
   VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
 
   VCancelNotifierInternal := TOperationNotifier.Create;

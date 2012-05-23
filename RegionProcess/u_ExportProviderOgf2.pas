@@ -49,9 +49,11 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   Classes,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToOgf2,
@@ -102,6 +104,8 @@ begin
       'ogf2'
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderOgf2.GetCaption: string;
@@ -111,7 +115,6 @@ end;
 
 procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon);
 var
-  I: Integer;
   VTargetFile: string;
   VMapType: TMapType;
   VOverlay: TMapType;
@@ -119,22 +122,18 @@ var
   VOgf2TileResolution: TOgf2TileResolution;
   VOgf2TileFormat: TOgf2TileFormat;
   VJpegQuality: Byte;
-  VZoomArr: array [0..23] of Boolean;
+  VZoom: Byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
 
-  VTargetFile := FFrame.edtTargetFile.Text;
+  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
+  VTargetFile := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   VOverlay := TMapType(FFrame.cbbHyb.Items.Objects[FFrame.cbbHyb.ItemIndex]);
-
-  for I := 0 to 23 do begin
-    VZoomArr[I] := False;
-  end;
-  VZoomArr[FFrame.cbbZoom.ItemIndex] := True;
 
   VUsePrevZoom := FFrame.chkUsePrevZoom.Checked;
 
@@ -164,7 +163,7 @@ begin
     FVectorItmesFactory,
     VTargetFile,
     APolygon,
-    VZoomArr,
+    VZoom,
     VMapType,
     VOverlay,
     VUsePrevZoom,

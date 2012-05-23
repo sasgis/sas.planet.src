@@ -24,6 +24,7 @@ interface
 
 uses
   Windows,
+  Types,
   SysUtils,
   Classes,
   i_MapVersionInfo,
@@ -68,7 +69,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       const Atypemaparr: array of TMapType;
       Amove: boolean;
       Areplace: boolean
@@ -95,7 +96,7 @@ constructor TThreadExportToBDB.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   const Atypemaparr: array of TMapType;
   Amove, Areplace: boolean
 );

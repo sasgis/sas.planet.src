@@ -3,6 +3,7 @@ unit u_ThreadExportToZip;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   KAZip,
@@ -38,7 +39,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       AMapType: TMapType;
       const ATileNameGen: ITileFileNameGenerator
     );
@@ -64,7 +65,7 @@ constructor TThreadExportToZip.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   AMapType: TMapType;
   const ATileNameGen: ITileFileNameGenerator
 );

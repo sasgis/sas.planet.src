@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   SysUtils,
   Classes,
   GR32,
@@ -65,7 +66,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       const Atypemaparr: array of TMapType;
       Areplace: boolean;
       Acsat: byte;
@@ -102,7 +103,7 @@ constructor TThreadExportYaMobileV3.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   const Atypemaparr: array of TMapType;
   Areplace: boolean;
   Acsat, Acmap: byte

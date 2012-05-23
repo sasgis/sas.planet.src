@@ -81,6 +81,7 @@ uses
   i_LogSimpleProvider,
   i_VectorItemProjected,
   i_ConfigDataProvider,
+  i_RegionProcessParamsFrame,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,

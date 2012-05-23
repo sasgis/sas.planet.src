@@ -48,8 +48,10 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
@@ -106,15 +108,22 @@ procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon);
 var
   i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
+  VZoomCount: Integer;
   typemaparr: array of TMapType;
   Replace: boolean;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
+  Zoomarr := nil;
+  VZoomCount := 0;
   for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
+    if FFrame.chklstZooms.Checked[i] then begin
+      SetLength(Zoomarr, VZoomCount + 1);
+      Zoomarr[VZoomCount] := i;
+      Inc(VZoomCount);
+    end;
   end;
   for i := 0 to FFrame.chklstMaps.Items.Count - 1 do begin
     if FFrame.chklstMaps.Checked[i] then begin

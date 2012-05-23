@@ -3,6 +3,7 @@ unit u_ThreadExportToJNX;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   JNXlib,
@@ -43,7 +44,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       AMapType: TMapType;
       const AProductName: string;
       const AMapName: string;
@@ -58,7 +59,6 @@ type
 implementation
 
 uses
-  Types,
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
@@ -78,7 +78,7 @@ constructor TThreadExportToJnx.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   AMapType: TMapType;
   const AProductName: string;
   const AMapName: string;

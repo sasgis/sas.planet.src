@@ -52,8 +52,10 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportIPhone,
@@ -102,6 +104,8 @@ begin
       Self.GUIConfigList
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderIPhone.GetCaption: string;
@@ -115,9 +119,8 @@ end;
 
 procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
   typemaparr: array of TMapType;
   comprSat, comprMap, comprHyb: byte;
   Replace: boolean;
@@ -127,9 +130,8 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
-  end;
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   setlength(typemaparr, 3);
   VActiveMapIndex := 0;
   typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
@@ -153,7 +155,6 @@ begin
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
   comprHyb := FFrame.seHybrCompress.Value;
-  path := IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
   Replace := FFrame.chkAppendTilse.Checked;
 
   VCancelNotifierInternal := TOperationNotifier.Create;

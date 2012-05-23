@@ -50,8 +50,10 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV4,
@@ -98,6 +100,8 @@ begin
       Self.GUIConfigList
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderYaMobileV4.GetCaption: string;
@@ -107,9 +111,8 @@ end;
 
 procedure TExportProviderYaMobileV4.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
   typemaparr: array of TMapType;
   comprSat, comprMap: byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
@@ -117,16 +120,14 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
-  end;
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   setlength(typemaparr, 3);
   typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
   typemaparr[1] := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
   typemaparr[2] := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
-  path := IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;

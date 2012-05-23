@@ -3,6 +3,7 @@ unit i_RegionProcessParamsFrame;
 interface
 
 uses
+  Types,
   i_VectorItemLonLat,
   u_MapType;
 
@@ -15,13 +16,22 @@ type
     );
   end;
 
-  IRegionProcessParamsFrameOneMapAndZoom = interface(IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameOneMap = interface(IRegionProcessParamsFrameBase)
     ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
     function GetMapType: TMapType;
     property MapType: TMapType read GetMapType;
+  end;
 
+  IRegionProcessParamsFrameOneZoom = interface(IRegionProcessParamsFrameBase)
+    ['{51668A2D-05E8-470F-9642-05E83B6D2956}']
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
+  end;
+
+  IRegionProcessParamsFrameZoomArray = interface(IRegionProcessParamsFrameBase)
+    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    function GetZoomArray: TByteDynArray;
+    property ZoomArray: TByteDynArray read GetZoomArray;
   end;
 
   IRegionProcessParamsFrameTargetPath = interface(IRegionProcessParamsFrameBase)

@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   SysUtils,
   Classes,
   i_TileFileNameGenerator,
@@ -38,7 +39,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       const Atypemaparr: array of TMapType;
       Amove: boolean;
       Areplace: boolean;
@@ -62,7 +63,7 @@ constructor TThreadExportToFileSystem.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   const Atypemaparr: array of TMapType;
   Amove, Areplace: boolean;
   const ATileNameGen: ITileFileNameGenerator

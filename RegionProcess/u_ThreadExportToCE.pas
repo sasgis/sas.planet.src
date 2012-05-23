@@ -3,6 +3,7 @@ unit u_ThreadExportToCE;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   i_OperationNotifier,
@@ -37,7 +38,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       AMapType: TMapType;
       AMaxSize: Integer;
       const AComment: string;
@@ -48,7 +49,6 @@ type
 implementation
 
 uses
-  Types,
   GR32,
   SAS4WinCE,
   i_TileIterator,
@@ -70,7 +70,7 @@ constructor TThreadExportToCE.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   AMapType: TMapType;
   AMaxSize: Integer;
   const AComment: string;

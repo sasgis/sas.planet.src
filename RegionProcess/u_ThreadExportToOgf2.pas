@@ -18,14 +18,15 @@ uses
   i_VectorItmesFactory,
   u_MapType,
   u_ResStrings,
-  u_ThreadExportAbstract;
+  u_ThreadRegionProcessAbstract;
 
 type
   TOgf2TileFormat = (tfBMP = 0, tfPNG = 1, tfJPEG = 2);
   TOgf2TileResolution = (tr128 = 0, tr256 = 1);
 
-  TThreadExportToOgf2 = class(TThreadExportAbstract)
+  TThreadExportToOgf2 = class(TThreadRegionProcessAbstract)
   private
+    FZoom: Byte;
     FMapType: TMapType;
     FOverlayMapType: TMapType;
     FOgf2TileWidth: Integer;
@@ -51,6 +52,7 @@ type
       const ATileRect: TRect;
       const AZoom: Byte
     );
+    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   protected
     procedure ProcessRegion; override;
   public
@@ -64,7 +66,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
-      const AZoomArr: array of Boolean;
+      AZoom: Byte;
       AMapType: TMapType;
       AOverlayMapType: TMapType;
       AUsePrevZoom: Boolean;
@@ -108,7 +110,7 @@ constructor TThreadExportToOgf2.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
-  const AZoomArr: array of Boolean;
+  AZoom: Byte;
   AMapType: TMapType;
   AOverlayMapType: TMapType;
   AUsePrevZoom: Boolean;
@@ -121,9 +123,9 @@ begin
     ACancelNotifier,
     AOperationID,
     AProgressInfo,
-    APolygon,
-    AZoomArr
+    APolygon
   );
+  FZoom := AZoom;
   FTargetFile := ATargetFile;
   FMapType := AMapType;
   FOverlayMapType := AOverlayMapType;
@@ -266,7 +268,7 @@ begin
   VTilesProcessed := 0;
   VTilesToProcess := 0;
 
-  VZoom := FZooms[0];
+  VZoom := FZoom;
 
   case FOgf2TileFormat of
     tfBMP:
@@ -424,6 +426,13 @@ begin
   finally
     VTileIterator := nil;
   end;
+end;
+
+procedure TThreadExportToOgf2.ProgressFormUpdateOnProgress(AProcessed,
+  AToProcess: Int64);
+begin
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 end.

@@ -3,6 +3,7 @@ unit fr_ExportGEKml;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -17,10 +18,28 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportGEKml = class(TFrame, IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameKmlExport = interface(IRegionProcessParamsFrameBase)
+    ['{B2DFB5AD-EAD9-4F36-81F1-87A3D2F1A5B0}']
+    function GetNotSaveNotExists: Boolean;
+    property NotSaveNotExists: Boolean read GetNotSaveNotExists;
+
+    function GetRelativePath: Boolean;
+    property RelativePath: Boolean read GetRelativePath;
+  end;
+
+type
+  TfrExportGEKml = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameKmlExport
+    )
     pnlCenter: TPanel;
     lblZooms: TLabel;
     chkAllZooms: TCheckBox;
@@ -47,6 +66,12 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoomArray: TByteDynArray;
+    function GetPath: string;
+    function GetNotSaveNotExists: Boolean;
+    function GetRelativePath: Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -59,8 +84,7 @@ type
 implementation
 
 uses
-  i_GUIDListStatic,
-  u_MapType;
+  i_GUIDListStatic;
 
 {$R *.dfm}
 
@@ -90,6 +114,45 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrExportGEKml.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+end;
+
+function TfrExportGEKml.GetNotSaveNotExists: Boolean;
+begin
+  Result := chkNotSaveNotExists.Checked;
+end;
+
+function TfrExportGEKml.GetPath: string;
+begin
+  Result := edtTargetFile.Text;
+end;
+
+function TfrExportGEKml.GetRelativePath: Boolean;
+begin
+  Result := chkUseRelativePath.Checked;
+end;
+
+function TfrExportGEKml.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  for i := 0 to 23 do begin
+    if chklstZooms.Checked[i] then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := i;
+      Inc(VCount);
+    end;
+  end;
 end;
 
 procedure TfrExportGEKml.Init;

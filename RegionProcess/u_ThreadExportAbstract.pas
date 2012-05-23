@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  Types,
   i_VectorItemLonLat,
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
@@ -13,7 +14,7 @@ uses
 type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)
   protected
-    FZooms: array of Byte;
+    FZooms: TByteDynArray;
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
     procedure ProcessRegion; override;
   public
@@ -22,7 +23,7 @@ type
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean
+      const AZooms: TByteDynArray
     );
     destructor Destroy; override;
   end;
@@ -37,11 +38,13 @@ constructor TThreadExportAbstract.Create(
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean
+  const AZooms: TByteDynArray
 );
 var
   i: Integer;
+  VZoomSourceCount: Integer;
   VZoomCount: Integer;
+  VZoom: Byte;
 begin
   inherited Create(
     ACancelNotifier,
@@ -49,15 +52,30 @@ begin
     AProgressInfo,
     APolygon
   );
-  SetLength(FZooms, 24);
+  Assert(AZooms <> nil);
+  VZoomSourceCount := Length(AZooms);
+  Assert(VZoomSourceCount > 0);
+  Assert(VZoomSourceCount <= 24);
+  if VZoomSourceCount > 24 then begin
+    VZoomSourceCount := 24;
+  end;
   VZoomCount := 0;
-  for i := 0 to 23 do begin
-    if Azoomarr[i] then begin
-      FZooms[VZoomCount] := i;
-      Inc(VZoomCount);
+  for i := 0 to VZoomSourceCount - 1 do begin
+    VZoom := AZooms[i];
+    if VZoom < 24 then begin
+      if VZoomCount > 0 then begin
+        if FZooms[VZoomCount - 1] < VZoom then begin
+          SetLength(FZooms, VZoomCount + 1);
+          FZooms[VZoomCount] := VZoom;
+          Inc(VZoomCount);
+        end;
+      end else begin
+        SetLength(FZooms, VZoomCount + 1);
+        FZooms[VZoomCount] := VZoom;
+        Inc(VZoomCount);
+      end;
     end;
   end;
-  SetLength(FZooms, VZoomCount);
 end;
 
 destructor TThreadExportAbstract.Destroy;

@@ -44,7 +44,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       Atypemap: TMapType;
       ANotSaveNotExists: boolean;
       ARelativePath: boolean
@@ -68,7 +68,7 @@ constructor TThreadExportKML.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   Atypemap: TMapType;
   ANotSaveNotExists: boolean;
   ARelativePath: boolean

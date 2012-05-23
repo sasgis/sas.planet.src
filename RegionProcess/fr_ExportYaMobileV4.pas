@@ -3,6 +3,7 @@ unit fr_ExportYaMobileV4;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -20,7 +21,12 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportYaMobileV4 = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrExportYaMobileV4 = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTargetPath
+    )
     pnlCenter: TPanel;
     pnlTop: TPanel;
     lblTargetPath: TLabel;
@@ -54,6 +60,9 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetZoomArray: TByteDynArray;
+    function GetPath: string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -95,6 +104,27 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrExportYaMobileV4.GetPath: string;
+begin
+  Result := IncludeTrailingPathDelimiter(edtTargetPath.Text);
+end;
+
+function TfrExportYaMobileV4.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  for i := 0 to 23 do begin
+    if chklstZooms.Checked[i] then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := i;
+      Inc(VCount);
+    end;
+  end;
 end;
 
 procedure TfrExportYaMobileV4.Init;

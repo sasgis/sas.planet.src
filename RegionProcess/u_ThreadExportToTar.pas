@@ -3,6 +3,7 @@ unit u_ThreadExportToTar;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   LibTar,
@@ -38,7 +39,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: array of boolean;
+      const Azoomarr: TByteDynArray;
       AMapType: TMapType;
       const ATileNameGen: ITileFileNameGenerator
     );
@@ -64,7 +65,7 @@ constructor TThreadExportToTar.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: array of boolean;
+  const Azoomarr: TByteDynArray;
   AMapType: TMapType;
   const ATileNameGen: ITileFileNameGenerator
 );

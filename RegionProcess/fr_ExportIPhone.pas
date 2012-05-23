@@ -3,6 +3,7 @@ unit fr_ExportIPhone;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -20,7 +21,12 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportIPhone = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrExportIPhone = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTargetPath
+    )
     pnlMaps: TPanel;
     lblMaps: TLabel;
     lblSat: TLabel;
@@ -61,6 +67,9 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetZoomArray: TByteDynArray;
+    function GetPath: string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -111,6 +120,27 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrExportIPhone.GetPath: string;
+begin
+  Result := IncludeTrailingPathDelimiter(edtTargetPath.Text);
+end;
+
+function TfrExportIPhone.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  for i := 0 to 23 do begin
+    if chklstZooms.Checked[i] then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := i;
+      Inc(VCount);
+    end;
+  end;
 end;
 
 procedure TfrExportIPhone.Init;

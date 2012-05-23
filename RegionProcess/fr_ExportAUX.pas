@@ -20,7 +20,13 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrExportAUX = class(TFrame, IRegionProcessParamsFrameBase, IRegionProcessParamsFrameOneMapAndZoom, IRegionProcessParamsFrameTargetPath)
+  TfrExportAUX = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameOneZoom,
+      IRegionProcessParamsFrameTargetPath
+    )
     pnlCenter: TPanel;
     pnlMain: TPanel;
     lblMap: TLabel;
@@ -46,7 +52,6 @@ type
   private
     function GetMapType: TMapType;
     function GetZoom: Byte;
-  private
     function GetPath: string;
   public
     constructor Create(

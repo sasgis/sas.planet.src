@@ -96,6 +96,7 @@ uses
   SysUtils,
   gnugettext,
   i_MarksSimple,
+  i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   u_ProjectionInfo,
   u_GeoFun,

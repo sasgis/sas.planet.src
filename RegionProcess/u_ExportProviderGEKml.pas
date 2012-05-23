@@ -19,7 +19,6 @@ uses
 type
   TExportProviderGEKml = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportGEKml;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
@@ -45,8 +44,10 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportKML,
@@ -81,13 +82,17 @@ end;
 
 function TExportProviderGEKml.CreateFrame: TFrame;
 begin
-  FFrame := TfrExportGEKml.Create(
-    Self.LanguageManager,
-    Self.MainMapsConfig,
-    Self.FullMapsSet,
-    Self.GUIConfigList
-  );
-  Result := FFrame;
+  Result :=
+    TfrExportGEKml.Create(
+      Self.LanguageManager,
+      Self.MainMapsConfig,
+      Self.FullMapsSet,
+      Self.GUIConfigList
+    );
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameKmlExport));
 end;
 
 function TExportProviderGEKml.GetCaption: string;
@@ -97,9 +102,8 @@ end;
 
 procedure TExportProviderGEKml.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
   VMapType: TMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
@@ -108,13 +112,11 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
-  end;
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path := FFrame.edtTargetFile.Text;
-  RelativePath := FFrame.chkUseRelativePath.Checked;
-  NotSaveNotExists := FFrame.chkNotSaveNotExists.Checked;
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  RelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
+  NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;

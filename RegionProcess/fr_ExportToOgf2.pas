@@ -20,11 +20,17 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents,
   t_GeoTypes, Spin;
 
 type
-  TfrExportToOgf2 = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrExportToOgf2 = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneZoom,
+      IRegionProcessParamsFrameTargetPath
+    )
     pnlCenter: TPanel;
     lblMap: TLabel;
     cbbMap: TComboBox;
@@ -62,6 +68,9 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetZoom: Byte;
+    function GetPath: string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -81,8 +90,7 @@ uses
   i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 {$R *.dfm}
 
@@ -179,6 +187,19 @@ begin
   FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
+end;
+
+function TfrExportToOgf2.GetPath: string;
+begin
+  Result := edtTargetFile.Text;
+end;
+
+function TfrExportToOgf2.GetZoom: Byte;
+begin
+  if cbbZoom.ItemIndex < 0 then begin
+    cbbZoom.ItemIndex := 0;
+  end;
+  Result := cbbZoom.ItemIndex;
 end;
 
 procedure TfrExportToOgf2.Init(

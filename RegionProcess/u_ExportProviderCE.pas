@@ -46,10 +46,12 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   Classes,
   RegExprUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToCE,
@@ -96,6 +98,9 @@ begin
       'd00'
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderCE.GetCaption: string;
@@ -105,9 +110,8 @@ end;
 
 procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
   VMapType: TMapType;
 
   VMaxSize: integer;
@@ -118,18 +122,9 @@ var
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
-
-  for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
-  end;
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  if FFrame.Temppath.Text <> '' then begin
-    path := FFrame.edtTargetFile.Text;
-  end else if copy(FFrame.edtTargetFile.Text, length(FFrame.edtTargetFile.Text), 1) <> '\' then begin
-    path := FFrame.edtTargetFile.Text;
-  end else begin
-    path := IncludeTrailingPathDelimiter(FFrame.edtTargetFile.Text) + VMapType.GetShortFolderName;
-  end;
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VMaxSize := FFrame.cbbMaxVolSize.value;
 

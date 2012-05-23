@@ -46,10 +46,12 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   Classes,
   RegExprUtils,
   i_RegionProcessProgressInfo,
+  i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
@@ -97,6 +99,9 @@ begin
       'jnx'
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TExportProviderJNX.GetCaption: string;
@@ -108,7 +113,7 @@ procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
   i: integer;
   path: string;
-  Zoomarr: array [0..23] of boolean;
+  Zoomarr: TByteDynArray;
   VMapType: TMapType;
   VProductName: string;
   VMapName: string;
@@ -128,12 +133,10 @@ begin
     VLevelsDesc.add(FFrame.TreeView1.Items[i].text);
   end;
 
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
 
-  for i := 0 to 23 do begin
-    ZoomArr[i] := FFrame.chklstZooms.Checked[i];
-  end;
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  path := FFrame.edtTargetFile.Text;
   VProductName := FFrame.EProductName.Text;
   VMapName := FFrame.EmapName.Text;
   VJpgQuality := FFrame.EJpgQuality.Value;

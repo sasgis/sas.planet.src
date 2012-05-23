@@ -89,7 +89,8 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-  Assert(Supports(Result, IRegionProcessParamsFrameOneMapAndZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
@@ -109,8 +110,8 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMapAndZoom).MapType;
-  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneMapAndZoom).Zoom;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VProjectedPolygon :=
