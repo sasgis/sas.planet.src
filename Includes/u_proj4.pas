@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_proj4;
 
 interface
@@ -304,7 +324,24 @@ begin
   AOutArgs := '';
 
   // known EPSGs
-  if (AEPSG>=32630) and (AEPSG<32660) then begin
+  if (AEPSG=53004) then begin
+    // Sphere Mercator ESRI:53004
+    AOutArgs := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
+    Result := TRUE;
+  end else if (AEPSG=3785) then begin
+    // Popular Visualisation CRS / Mercator
+    AOutArgs := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+    Result := TRUE;
+  end else if (AEPSG=3395) then begin
+    // WGS 84 / World Mercator
+    AOutArgs := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+    Result := TRUE;
+  end else if (AEPSG=4326) then begin
+    // WGS 84
+    AOutArgs := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
+    Result := TRUE;
+  end else if (AEPSG>=32630) and (AEPSG<32660) then begin
+    // WGS 84 / UTM zone
     AOutArgs := '+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
     Result := TRUE;
   end;
