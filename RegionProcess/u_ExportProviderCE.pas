@@ -13,13 +13,11 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  u_ExportProviderAbstract,
-  fr_ExportToCE;
+  u_ExportProviderAbstract;
 
 type
   TExportProviderCE = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportToCE;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
@@ -57,6 +55,7 @@ uses
   u_ThreadExportToCE,
   u_ResStrings,
   u_MapType,
+  fr_ExportToCE,
   frm_ProgressSimple;
 
 { TExportProviderCE }
@@ -88,7 +87,7 @@ end;
 
 function TExportProviderCE.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrExportToCE.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
@@ -97,9 +96,9 @@ begin
       'd00 |*.d00',
       'd00'
     );
-  Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameExportToCE));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
@@ -125,20 +124,10 @@ begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VMaxSize := (ParamsFrame as IRegionProcessParamsFrameExportToCE).MaxSize;
+  VComent := (ParamsFrame as IRegionProcessParamsFrameExportToCE).Coment;
+  VRecoverInfo := (ParamsFrame as IRegionProcessParamsFrameExportToCE).IsAddRecoverInfo;
 
-  VMaxSize := FFrame.cbbMaxVolSize.value;
-
-  VComent := FFrame.EmapName.Text;
-  if VComent <> '' then begin
-    VComent := Guidtostring(VMapType.Zmp.GUID) + #13#10 + VComent;
-  end;
-  if FFrame.EComent.Text <> '' then begin
-    if VComent <> '' then begin
-      VComent := VComent + #13#10;
-    end;
-    VComent := VComent + FFrame.EComent.Text;
-  end;
-  VRecoverInfo := FFrame.SaveRecoverInfo.Checked;
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;

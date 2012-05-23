@@ -22,12 +22,26 @@ uses
   u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
+  IRegionProcessParamsFrameExportToCE = interface(IRegionProcessParamsFrameBase)
+    ['{B2DFB5AD-EAD9-4F36-81F1-87A3D2F1A5B0}']
+    function GetComent: string;
+    property Coment: string read GetComent;
+
+    function GetIsAddRecoverInfo: boolean;
+    property IsAddRecoverInfo: boolean read GetIsAddRecoverInfo;
+
+    function GetMaxSize: integer;
+    property MaxSize: integer read GetMaxSize;
+  end;
+
+type
   TfrExportToCE = class(
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameZoomArray,
       IRegionProcessParamsFrameTargetPath,
-      IRegionProcessParamsFrameOneMap
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameExportToCE
     )
     pnlCenter: TPanel;
     pnlRight: TPanel;
@@ -70,6 +84,10 @@ type
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
+  private
+    function GetComent: string;
+    function GetIsAddRecoverInfo: boolean;
+    function GetMaxSize: integer;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -160,12 +178,39 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
+function TfrExportToCE.GetComent: string;
+var
+  VMapType: TMapType;
+begin
+  Result := EmapName.Text;
+  if Result <> '' then begin
+    VMapType :=  GetMapType;
+    Result := Guidtostring(VMapType.Zmp.GUID) + #13#10 + Result;
+  end;
+  if EComent.Text <> '' then begin
+    if Result <> '' then begin
+      Result := Result + #13#10;
+    end;
+    Result := Result + EComent.Text;
+  end;
+end;
+
+function TfrExportToCE.GetIsAddRecoverInfo: boolean;
+begin
+  Result := SaveRecoverInfo.Checked;
+end;
+
 function TfrExportToCE.GetMapType: TMapType;
 begin
   Result := nil;
   if cbbMap.ItemIndex >= 0 then begin
     Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
   end;
+end;
+
+function TfrExportToCE.GetMaxSize: integer;
+begin
+  Result := cbbMaxVolSize.value;
 end;
 
 function TfrExportToCE.GetPath: string;
