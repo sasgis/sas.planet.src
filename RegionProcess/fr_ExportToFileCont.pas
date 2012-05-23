@@ -17,9 +17,18 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
+  i_TileFileNameGenerator,
+  i_TileFileNameGeneratorsList,
   i_RegionProcessParamsFrame,
   u_MapType,
   u_CommonFormAndFrameParents;
+
+type
+  IRegionProcessParamsFrameExportToFileCont = interface(IRegionProcessParamsFrameBase)
+    ['{0DB6292A-DE1D-4437-A110-3439923ED4B0}']
+    function GetNameGenerator: ITileFileNameGenerator;
+    property NameGenerator: ITileFileNameGenerator read GetNameGenerator;
+  end;
 
 type
   TfrExportToFileCont = class(
@@ -27,7 +36,8 @@ type
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
       IRegionProcessParamsFrameZoomArray,
-      IRegionProcessParamsFrameTargetPath
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameExportToFileCont
     )
     pnlCenter: TPanel;
     pnlRight: TPanel;
@@ -50,6 +60,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FTileNameGeneratorList: ITileFileNameGeneratorsList;
   private
     procedure Init(
       const AZoom: byte;
@@ -59,12 +70,15 @@ type
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
+  private
+    function GetNameGenerator: ITileFileNameGenerator;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
@@ -99,6 +113,7 @@ constructor TfrExportToFileCont.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const AFileFilters: string;
   const AFileExtDefault: string
 );
@@ -107,6 +122,7 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FTileNameGeneratorList := ATileNameGeneratorList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
   cbbNamesType.ItemIndex := 1;
@@ -119,6 +135,11 @@ begin
     Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
   end;
   Assert(Result <> nil);
+end;
+
+function TfrExportToFileCont.GetNameGenerator: ITileFileNameGenerator;
+begin
+  Result := FTileNameGeneratorList.GetGenerator(cbbNamesType.ItemIndex + 1);
 end;
 
 function TfrExportToFileCont.GetPath: string;

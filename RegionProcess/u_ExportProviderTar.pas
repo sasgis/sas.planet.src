@@ -20,7 +20,6 @@ uses
 type
   TExportProviderTar = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportToFileCont;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
@@ -88,19 +87,20 @@ end;
 
 function TExportProviderTar.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrExportToFileCont.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
+      FTileNameGenerator,
       'Tar |*.tar',
       'tar'
     );
-  Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameExportToFileCont));
 end;
 
 function TExportProviderTar.GetCaption: string;
@@ -122,7 +122,7 @@ begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  VNameGenerator := FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1);
+  VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
