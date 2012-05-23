@@ -29,6 +29,7 @@ uses
   uPSRuntime,
   uPSCompiler,
   uPSUtils,
+  i_proj4,
   i_CoordConverter,
   u_ResStrings;
 
@@ -128,27 +129,29 @@ begin
       aType := t;
     end;
 
+    // IProj4Converter
+    with Sender.AddInterface(Sender.FindInterface('IUnknown'), IProj4Converter, 'IProj4Converter') do begin
+      RegisterMethod('function Available: Boolean', cdStdCall);
+      RegisterMethod('function SetProj(const AArgs, APath: String): Boolean', cdStdCall);
+      RegisterMethod('function SetEPSG(const AEPSG: Integer; const APath: String): Boolean', cdStdCall);
+      RegisterMethod('function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint', cdStdCall);
+      RegisterMethod('function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint', cdStdCall);
+    end;
+
     // ICoordConverter
     with Sender.AddInterface(Sender.FindInterface('IUnknown'), ICoordConverterSimple, 'ICoordConverter') do begin
-      RegisterMethod('function Pos2LonLat(XY : TPoint; Azoom : byte) : TDoublePoint', cdStdCall);
-      RegisterMethod('function LonLat2Pos(Ll : TDoublePoint; Azoom : byte) : Tpoint', cdStdCall);
-      RegisterMethod('function LonLat2Metr(Ll : TDoublePoint) : TDoublePoint', cdStdCall);
-      RegisterMethod('function Metr2LonLat(Mm : TDoublePoint) : TDoublePoint', cdStdCall);
+      RegisterMethod('function Pos2LonLat(const XY : TPoint; Azoom : byte) : TDoublePoint', cdStdCall);
+      RegisterMethod('function LonLat2Pos(const Ll : TDoublePoint; Azoom : byte) : Tpoint', cdStdCall);
+      RegisterMethod('function LonLat2Metr(const Ll : TDoublePoint) : TDoublePoint', cdStdCall);
+      RegisterMethod('function Metr2LonLat(const Mm : TDoublePoint) : TDoublePoint', cdStdCall);
 
       RegisterMethod('function TilesAtZoom(AZoom: byte): Longint', cdStdCall);
       RegisterMethod('function PixelsAtZoom(AZoom: byte): Longint', cdStdCall);
 
       RegisterMethod('function TilePos2PixelPos(const XY : TPoint; Azoom : byte): TPoint', cdStdCall);
       RegisterMethod('function TilePos2PixelRect(const XY : TPoint; Azoom : byte): TRect', cdStdCall);
-    end;
 
-    // IProj4Conv
-    with Sender.AddInterface(Sender.FindInterface('IUnknown'), IProj4Conv, 'IProj4Conv') do begin
-      RegisterMethod('function AvailableConv: Boolean', cdStdCall);
-      RegisterMethod('function SetProj(const Args, APath: String): Boolean', cdStdCall);
-      RegisterMethod('function SetEPSG(const AEPSG: Integer): Boolean', cdStdCall);
-      RegisterMethod('function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint', cdStdCall);
-      RegisterMethod('function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint', cdStdCall);
+      RegisterMethod('function GetProj4Converter: IProj4Converter', cdStdCall);
     end;
   end;
 

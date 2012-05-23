@@ -7,39 +7,23 @@ interface
 uses
   Windows,
   SysUtils,
+  i_proj4,
   t_GeoTypes;
 
 type
-  PProjPJ = Pointer;
-
-  // full interface
-  IProj4Full = interface
-  ['{BE0ADFF4-D0C5-4BD7-B09A-C4D9F8D9A273}']
-    function Available: Boolean;
-    function MakeProj(const Args, APath: String): PProjPJ; stdcall;
-    function KillProj(AProjPJ: PProjPJ): Integer; stdcall;
-    function LonLat2XY(const AProjLP: TDoublePoint; const projPJ: PProjPJ): TDoublePoint; stdcall;
-    function XY2LonLat(const AProjXY: TDoublePoint; const projPJ: PProjPJ): TDoublePoint; stdcall;
-  end;
-
-  // single projection converter interface
-  IProj4Conv = interface
-  ['{74309735-EB2E-4996-A226-1C172F076737}']
-    function AvailableConv: Boolean; stdcall;
-    function SetProj(const Args, APath: String): Boolean; stdcall;
-    function SetEPSG(const AEPSG: Integer): Boolean; stdcall;
-    function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint; stdcall;
-    function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint; stdcall;
-  end;
-  
-  EProj4Unavailable = class(Exception);
+  EProj4Error          = class(Exception);
+  EProj4NotAvailable   = class(EProj4Error);
+  EProj4NotInitialized = class(EProj4Error);
 
 // make full proj4 object
 function CreateProj4Full: IProj4Full;
 // make single projection converter
-function CreateProj4Conv: IProj4Conv;
+function CreateProj4Converter: IProj4Converter;
 
 implementation
+
+uses
+  u_Synchronizer;
 
 const
    proj447_dll='proj447.dll';
@@ -65,11 +49,12 @@ type
   protected
     function InternalInitLib: Boolean;
     function InternalLoadLib: Boolean;
+    function InternalAvailable(const AMakeOnDemand: Boolean): Boolean;
     procedure InternalZero;
   protected
     { IProj4Full }
-    function Available: Boolean;
-    function MakeProj(const Args, APath: String): PProjPJ; stdcall;
+    function AvailableFull: Boolean;
+    function MakeProj(const AArgs, APath: String): PProjPJ; stdcall;
     function KillProj(AProjPJ: PProjPJ): Integer; stdcall;
     function LonLat2XY(const AProjLP: TDoublePoint; const projPJ: PProjPJ): TDoublePoint; stdcall;
     function XY2LonLat(const AProjXY: TDoublePoint; const projPJ: PProjPJ): TDoublePoint; stdcall;
@@ -81,15 +66,22 @@ type
   TProj4Full = class(TProj4Abstract, IProj4Full)
   end;
 
-  TProj4Conv = class(TProj4Abstract, IProj4Conv)
+  TProj4Conv = class(TProj4Abstract, IProj4Converter)
   protected
     FProjPJ: PProjPJ;
+    FSync: IReadWriteSync;
+    // proj params
+    FEPSG: Integer;
+    FArgs, FPath: String;
   protected
     procedure InternalKillProj;
+    function InternalSetProj(const AArgs, APath: String): Boolean;
+    function GetPredefinedEPSGParams(const AEPSG: Integer; out AOutArgs: String): Boolean;
+  protected
     { IProj4Conv }
-    function AvailableConv: Boolean; stdcall;
-    function SetProj(const Args, APath: String): Boolean; stdcall;
-    function SetEPSG(const AEPSG: Integer): Boolean; stdcall;
+    function Available: Boolean; stdcall;
+    function SetProj(const AArgs, APath: String): Boolean; stdcall;
+    function SetEPSG(const AEPSG: Integer; const APath: String): Boolean; stdcall;
     function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint; stdcall;
     function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint; stdcall;
   public
@@ -130,20 +122,16 @@ begin
   Result := TProj4Full.Create;
 end;
 
-function CreateProj4Conv: IProj4Conv;
+function CreateProj4Converter: IProj4Converter;
 begin
   Result := TProj4Conv.Create;
 end;
 
 { TProj4Abstract }
 
-function TProj4Abstract.Available: Boolean;
+function TProj4Abstract.AvailableFull: Boolean;
 begin
-  if (is_Unknown = FInitStatus) then begin
-    // load on demand
-    InternalLoadLib;
-  end;
-  Result := (is_Available = FInitStatus);
+  Result := InternalAvailable(TRUE);
 end;
 
 constructor TProj4Abstract.Create;
@@ -162,6 +150,17 @@ begin
     InternalZero;
   end;
   inherited;
+end;
+
+function TProj4Abstract.InternalAvailable(const AMakeOnDemand: Boolean): Boolean;
+begin
+  if AMakeOnDemand then
+  if (is_Unknown = FInitStatus) then begin
+    // load on demand
+    InternalLoadLib;
+  end;
+
+  Result := (is_Available = FInitStatus);
 end;
 
 function TProj4Abstract.InternalInitLib: Boolean;
@@ -211,60 +210,104 @@ end;
 
 function TProj4Abstract.KillProj(AProjPJ: PProjPJ): Integer;
 begin
-  if Available and (F_pj_free<>nil) then
+  if InternalAvailable(FALSE) and (F_pj_free<>nil) then
     Result := T_pj_free(F_pj_free)(AProjPJ)
   else
-    raise EProj4Unavailable.Create('');
+    raise EProj4NotAvailable.Create('');
 end;
 
 function TProj4Abstract.LonLat2XY(const AProjLP: TDoublePoint; const projPJ: PProjPJ): TDoublePoint;
 var
   VProjLP: TProjLP;
 begin
-  if Available and (F_pj_fwd<>nil) then begin
+  if InternalAvailable(FALSE) and (F_pj_fwd<>nil) then begin
     VProjLP.X := AProjLP.X * DEG_TO_RAD;
     VProjLP.Y := AProjLP.Y * DEG_TO_RAD;
     Result := T_pj_fwd(F_pj_fwd)(VProjLP, projPJ);
   end else
-    raise EProj4Unavailable.Create('');;
+    raise EProj4NotAvailable.Create('');;
 end;
 
-function TProj4Abstract.MakeProj(const Args, APath: String): PProjPJ;
+function TProj4Abstract.MakeProj(const AArgs, APath: String): PProjPJ;
 begin
-  if Available and (F_pj_init_plus_path<>nil) then
-    Result := T_pj_init_plus_path(F_pj_init_plus_path)(PAnsiChar(Args), PAnsiChar(APath))
+  if InternalAvailable(TRUE) and (F_pj_init_plus_path<>nil) then
+    Result := T_pj_init_plus_path(F_pj_init_plus_path)(PAnsiChar(AArgs), PAnsiChar(APath))
   else
-    raise EProj4Unavailable.Create('');
+    raise EProj4NotAvailable.Create('');
 end;
 
 function TProj4Abstract.XY2LonLat(const AProjXY: TDoublePoint; const projPJ: PProjPJ): TDoublePoint;
 begin
-  if Available and (F_pj_inv<>nil) then begin
+  if InternalAvailable(FALSE) and (F_pj_inv<>nil) then begin
     Result := T_pj_inv(F_pj_inv)(AProjXY, projPJ);
     Result.X := Result.X * RAD_TO_DEG;
     Result.Y := Result.Y * RAD_TO_DEG;
   end else
-    raise EProj4Unavailable.Create('');
+    raise EProj4NotAvailable.Create('');
 end;
 
 { TProj4Conv }
 
-function TProj4Conv.AvailableConv: Boolean;
+function TProj4Conv.Available: Boolean;
 begin
-  Result := Available and (FProjPJ<>nil);
+  FSync.BeginRead;
+  try
+    Result := InternalAvailable(FALSE);
+  finally
+    FSync.EndRead;
+  end;
+
+  if (not Result) then begin
+    FSync.BeginWrite;
+    try
+      Result := InternalAvailable(TRUE);
+    finally
+      FSync.EndWrite;
+    end;
+  end;
+
+  if Result then
+    Result := (FProjPJ<>nil);
 end;
 
 constructor TProj4Conv.Create;
 begin
   inherited Create;
   // init
+  FSync := MakeSyncRW_Std(Self, FALSE);
   FProjPJ := nil;
+  FEPSG := 0;
+  FArgs := '';
+  FPath := '';
 end;
 
 destructor TProj4Conv.Destroy;
 begin
-  InternalKillProj;
+  // kill proj
+  FSync.BeginWrite;
+  try
+    InternalKillProj;
+  finally
+    FSync.EndWrite;
+  end;
+  // kill sync
+  FSync := nil;
   inherited;
+end;
+
+function TProj4Conv.GetPredefinedEPSGParams(
+  const AEPSG: Integer;
+  out AOutArgs: String
+): Boolean;
+begin
+  Result := FALSE;
+  AOutArgs := '';
+
+  // known EPSGs
+  if (AEPSG>=32630) and (AEPSG<32660) then begin
+    AOutArgs := '+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+    Result := TRUE;
+  end;
 end;
 
 procedure TProj4Conv.InternalKillProj;
@@ -275,42 +318,104 @@ begin
   end;
 end;
 
-function TProj4Conv.LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint;
-begin
-  if AvailableConv then
-    Result := inherited LonLat2XY(AProjLP, FProjPJ)
-  else
-    raise EProj4Unavailable.Create('');
-end;
-
-function TProj4Conv.SetEPSG(const AEPSG: Integer): Boolean;
-begin
-  if (AEPSG>=32630) and (AEPSG<32660) then begin
-    // known
-    Result := SetProj('+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs', '');
-  end else begin
-    // not implemented yet
-    Result := FALSE;
-  end;
-end;
-
-function TProj4Conv.SetProj(const Args, APath: String): Boolean;
+function TProj4Conv.InternalSetProj(const AArgs, APath: String): Boolean;
 begin
   Result := FALSE;
   InternalKillProj;
   // make proj
-  if Available then begin
-    FProjPJ := MakeProj(Args, APath);
+  if InternalAvailable(TRUE) then begin
+    FProjPJ := MakeProj(AArgs, APath);
     Result := (FProjPJ<>nil);
+  end;
+end;
+
+function TProj4Conv.LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint;
+begin
+  if Available then begin
+    FSync.BeginRead;
+    try
+      Result := inherited LonLat2XY(AProjLP, FProjPJ);
+    finally
+      FSync.EndRead;
+    end;
+  end else
+    raise EProj4NotAvailable.Create('');
+end;
+
+function TProj4Conv.SetEPSG(const AEPSG: Integer; const APath: String): Boolean;
+var VArgs: String;
+begin
+  FSync.BeginWrite;
+  try
+    if (FEPSG<>AEPSG) or (not AnsiSameText(FPath,APath)) then begin
+      // should set new proj
+      if GetPredefinedEPSGParams(AEPSG, VArgs) then begin
+        // ok
+        FEPSG := AEPSG;
+        FArgs := VArgs;
+        FPath := APath;
+        // call
+        Result := InternalSetProj(FArgs, FPath);
+      end else begin
+        // failed - nothing to do
+        Result := FALSE;
+      end;
+    end else begin
+      // already ok
+      Result := TRUE;
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+function TProj4Conv.SetProj(const AArgs, APath: String): Boolean;
+const
+  c_EPSG = 'EPSG:';
+var
+  VEPSG: Integer;
+  VArgs: String;
+begin
+  FSync.BeginWrite;
+  try
+    if (not AnsiSameText(FArgs,AArgs)) or (not AnsiSameText(FPath,APath)) then begin
+      // check special 'EPSG:32640' form
+      if SameText(System.Copy(AArgs, 1, Length(c_EPSG)), c_EPSG) then
+      if TryStrToInt(System.Copy(AArgs, Length(c_EPSG)+1, Length(AArgs)), VEPSG) then
+      if GetPredefinedEPSGParams(VEPSG, VArgs) then begin
+        // set as EPSG
+        FEPSG := VEPSG;
+        FArgs := AArgs;
+        FPath := APath;
+        Result := InternalSetProj(VArgs, APath);
+        Exit;
+      end;
+
+      // set as raw params
+      FArgs := AArgs;
+      FPath := APath;
+      FEPSG := 0;
+      Result := InternalSetProj(AArgs, APath);
+    end else begin
+      // already ok
+      Result := TRUE;
+    end;
+  finally
+    FSync.EndWrite;
   end;
 end;
 
 function TProj4Conv.XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint;
 begin
-  if AvailableConv then
-    Result := inherited XY2LonLat(AProjXY, FProjPJ)
-  else
-    raise EProj4Unavailable.Create('');
+  if Available then begin
+    FSync.BeginRead;
+    try
+      Result := inherited XY2LonLat(AProjXY, FProjPJ);
+    finally
+      FSync.EndRead;
+    end;
+  end else
+    raise EProj4NotAvailable.Create('');
 end;
 
 end.

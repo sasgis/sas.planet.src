@@ -75,7 +75,6 @@ type
     FpGetTMetr: PPSVariantDouble;
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
-    FpProj4Conv: PPSVariantInterface;
     procedure PrepareCompiledScript(const ACompiledData: TbtString);
     procedure RegisterAppVars;
     procedure RegisterAppRoutines;
@@ -146,9 +145,6 @@ begin
   FLangManager.GetChangeNotifier.Remove(FLangListener);
   FLangManager := nil;
   FLangListener := nil;
-
-  // destroy proj4 converter
-  FpProj4Conv.Data := nil;
 
   FreeAndNil(FPSExec);
   FCoordConverter := nil;
@@ -265,7 +261,6 @@ begin
   FpGetBmetr := PPSVariantDouble(FPSExec.GetVar2('GetBmetr'));
   FpGetRmetr := PPSVariantDouble(FPSExec.GetVar2('GetRmetr'));
   FpConverter := PPSVariantInterface(FPSExec.GetVar2('Converter'));
-  FpProj4Conv := PPSVariantInterface(FPSExec.GetVar2('Proj4Conv'));
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.SetVar(
@@ -301,7 +296,7 @@ begin
   FpGetRMetr.Data := Ll.X;
   FpGetBMetr.Data := Ll.Y;
   FpConverter.Data := FCoordConverter;
-  FpProj4Conv.Data := CreateProj4Conv;
+  //FpProj4Conv.Data := CreateProj4Conv;
   FpResultUrl.Data := '';
   FConfig.LockRead;
   try

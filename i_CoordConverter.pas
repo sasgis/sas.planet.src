@@ -25,6 +25,7 @@ interface
 uses
   Types,
   t_GeoTypes,
+  i_proj4,
   i_Datum;
 
 type
@@ -41,9 +42,11 @@ type
       const Ll: TDoublePoint;
       Azoom: byte
     ): Tpoint; stdcall;
-    // ?????????
-    function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
 
+    // метрические координаты
+    function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
+    function Metr2LonLat(const Mm : TDoublePoint) : TDoublePoint; stdcall;
+    
     // ¬озвращает количество тайлов в заданном зуме
     function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     // ¬озвращает общее количество пикселей на заданном зуме
@@ -59,6 +62,10 @@ type
       const XY: TPoint;
       const Azoom: byte
     ): TRect; stdcall;
+
+    // returns proj4 interface
+    function GetProj4Converter: IProj4Converter; stdcall;
+    //property Proj4Converter: IProj4Converter read GetProj4Converter;
   end;
 
   ICoordConverter = interface

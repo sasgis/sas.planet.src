@@ -26,6 +26,7 @@ uses
   Types,
   t_GeoTypes,
   i_Datum,
+  i_proj4,
   i_CoordConverter;
 
 type
@@ -34,6 +35,7 @@ type
     FDatum: IDatum;
     FProjEPSG: integer;
     FCellSizeUnits: TCellSizeUnits;
+    FProj4Converter: IProj4Converter;
   protected
     procedure CheckZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
 
@@ -609,15 +611,24 @@ type
     function GetCellSizeUnits: TCellSizeUnits; stdcall;
     function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; stdcall;
 
+  protected
+    // returns proj4 interface
+    function GetProj4Converter: IProj4Converter; stdcall;
+
   public
     constructor Create(
       const ADatum: IDatum;
       AProjEPSG: integer;
-      ACellSizeUnits: TCellSizeUnits
+      ACellSizeUnits: TCellSizeUnits;
+      const AProj4Info: TProj4Info
     );
   end;
 
 implementation
+
+uses
+  Windows,
+  u_proj4;
 
 { TCoordConverterAbstract }
 
@@ -1467,6 +1478,13 @@ begin
   Result := 0;
 end;
 
+function TCoordConverterAbstract.GetProj4Converter: IProj4Converter;
+begin
+  Result := FProj4Converter;
+  if (nil=Result) then
+    raise EProj4NotInitialized.Create('');
+end;
+
 function TCoordConverterAbstract.GetProjectionEPSG: Integer;
 begin
   Result := FProjEPSG;
@@ -1475,13 +1493,30 @@ end;
 constructor TCoordConverterAbstract.Create(
   const ADatum: IDatum;
   AProjEPSG: integer;
-  ACellSizeUnits: TCellSizeUnits
+  ACellSizeUnits: TCellSizeUnits;
+  const AProj4Info: TProj4Info
 );
 begin
   inherited Create;
   FDatum := ADatum;
   FProjEPSG := AProjEPSG;
   FCellSizeUnits := ACellSizeUnits;
+
+  if Proj4InfoIsEmpty(AProj4Info) then begin
+    // no proj4
+    FProj4Converter := nil;
+  end else begin
+    // with proj4
+    FProj4Converter := CreateProj4Converter;
+    // initialize
+    if (0<Length(AProj4Info.Proj4Args)) then begin
+      // set initialize string
+      FProj4Converter.SetProj(AProj4Info.Proj4Args, AProj4Info.Proj4Path);
+    end else begin
+      // init by default EPSG - ONLY if Proj4Path defined
+      FProj4Converter.SetEPSG(FProjEPSG, AProj4Info.Proj4Path);
+    end;
+  end;
 end;
 
 function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;
