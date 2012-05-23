@@ -23,7 +23,7 @@ uses
 
 type
   IRegionProcessParamsFrameExportToCE = interface(IRegionProcessParamsFrameBase)
-    ['{B2DFB5AD-EAD9-4F36-81F1-87A3D2F1A5B0}']
+    ['{00A64FCB-EFC5-4E88-B4CF-0FCCDB096FAE}']
     function GetComent: string;
     property Coment: string read GetComent;
 
