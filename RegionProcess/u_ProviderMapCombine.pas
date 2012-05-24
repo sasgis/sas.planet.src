@@ -47,7 +47,6 @@ type
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapCalibrationList: IMapCalibrationList;
     function PrepareTargetFileName: string;
-    function PrepareSplitCount: TPoint;
     function PrepareTargetConverter(
       const AProjectedPolygon: IProjectedPolygon
     ): ILocalCoordConverter;
@@ -194,6 +193,8 @@ var
   VLineClipRect: TDoubleRect;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
   VSourceProvider: IBitmapLayerProvider;
+  VUseMarks: Boolean;
+  VUseRecolor: Boolean;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
 
@@ -203,7 +204,8 @@ begin
   VGeoConverter.CheckLonLatRect(VLonLatRect);
 
   VMarksSubset := nil;
-  if FFrame.chkUseMapMarks.Checked then begin
+  VUseMarks := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseMarks;
+  if VUseMarks then begin
     VMarksConfigStatic := FMarksShowConfig.GetStatic;
     if VMarksConfigStatic.IsUseMarks then begin
       VList := nil;
@@ -241,7 +243,8 @@ begin
       );
   end;
   VRecolorConfig := nil;
-  if FFrame.chkUseRecolor.Checked then begin
+  VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseRecolor;
+  if VUseRecolor then begin
     VRecolorConfig := FBitmapPostProcessingConfig.GetStatic;
   end;
   Result :=
@@ -303,12 +306,6 @@ begin
   );
 end;
 
-function TProviderMapCombine.PrepareSplitCount: TPoint;
-begin
-  Result.X := FFrame.seSplitHor.Value;
-  Result.Y := FFrame.seSplitVert.Value;
-end;
-
 function TProviderMapCombine.PrepareTargetConverter(
   const AProjectedPolygon: IProjectedPolygon
 ): ILocalCoordConverter;
@@ -331,7 +328,7 @@ end;
 
 function TProviderMapCombine.PrepareTargetFileName: string;
 begin
-  Result := FFrame.edtTargetFile.Text;
+  Result := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   if Result = '' then begin
     raise Exception.Create(_('Please, select output file first!'));
   end;
@@ -359,8 +356,7 @@ begin
   VImageProvider := PrepareImageProvider(APolygon, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
-  VSplitCount := PrepareSplitCount;
-
+  VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
 
   VFileExt := UpperCase(ExtractFileExt(VFileName));
   if (VFileExt = '.ECW') or (VFileExt = '.JP2') then begin

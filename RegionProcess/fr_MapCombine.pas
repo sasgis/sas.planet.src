@@ -28,13 +28,27 @@ uses
   t_GeoTypes;
 
 type
+  IRegionProcessParamsFrameMapCombine = interface(IRegionProcessParamsFrameBase)
+    ['{6771DEDD-F33C-4152-B4AB-47E6A0B032E1}']
+    function GetUseMarks: Boolean;
+    property UseMarks: Boolean read GetUseMarks;
+
+    function GetUseRecolor: Boolean;
+    property UseRecolor: Boolean read GetUseRecolor;
+
+    function GetSplitCount: TPoint;
+    property SplitCount: TPoint read GetSplitCount;
+  end;
+
+type
   TfrMapCombine = class(
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameImageProvider,
       IRegionProcessParamsFrameMapCalibrationList,
       IRegionProcessParamsFrameTargetProjection,
-      IRegionProcessParamsFrameTargetPath
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameMapCombine
     )
     pnlTop: TPanel;
     pnlTargetFile: TPanel;
@@ -95,6 +109,10 @@ type
     function GetPath: string;
     function GetProjection: IProjectionInfo;
     function GetMapCalibrationList: IMapCalibrationList;
+  private
+    function GetUseMarks: Boolean;
+    function GetUseRecolor: Boolean;
+    function GetSplitCount: TPoint;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -289,6 +307,22 @@ begin
       True,
       True
     );
+end;
+
+function TfrMapCombine.GetSplitCount: TPoint;
+begin
+  Result.X := seSplitHor.Value;
+  Result.Y := seSplitVert.Value;
+end;
+
+function TfrMapCombine.GetUseMarks: Boolean;
+begin
+  Result := chkUseMapMarks.Checked;
+end;
+
+function TfrMapCombine.GetUseRecolor: Boolean;
+begin
+  Result := chkUseRecolor.Checked;
 end;
 
 procedure TfrMapCombine.Init(
