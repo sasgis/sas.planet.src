@@ -87,7 +87,7 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_VectorItemProjected,
-  u_BitmapLayerProviderSimpleForCombine,
+  u_BitmapLayerProviderMapWithLayer,
   u_BinaryDataByMemStream,
   u_BitmapTileVampyreSaver,
   u_TileIteratorByRect,
@@ -137,11 +137,9 @@ begin
   FJpegQuality := AJpegQuality;
 
   FImageProvider :=
-    TBitmapLayerProviderSimpleForCombine.Create(
-      nil,
+    TBitmapLayerProviderMapWithLayer.Create(
       FMapType,
       FOverlayMapType,
-      nil,
       AUsePrevZoom,
       AUsePrevZoom
     );

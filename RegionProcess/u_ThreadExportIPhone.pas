@@ -89,7 +89,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   u_TileIteratorByPolygon,
-  u_BitmapLayerProviderSimpleForCombine,
+  u_BitmapLayerProviderMapWithLayer,
   u_BitmapTileVampyreSaver;
 
 constructor TThreadExportIPhone.Create(
@@ -148,10 +148,8 @@ begin
     FTasks[VTaskIndex].FFlag := 3;
     FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderSimpleForCombine.Create(
-        nil,
+      TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],
-        nil,
         nil,
         False,
         False
@@ -166,10 +164,8 @@ begin
     FTasks[VTaskIndex].FFlag := 2;
     FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverPNGRGB.Create(Acmap);
     FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderSimpleForCombine.Create(
-        nil,
+      TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[1],
-        nil,
         nil,
         False,
         False
@@ -184,11 +180,9 @@ begin
     FTasks[VTaskIndex].FFlag := 6;
     FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Achib);
     FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderSimpleForCombine.Create(
-        nil,
+      TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],
         Atypemaparr[2],
-        nil,
         False,
         False
       );

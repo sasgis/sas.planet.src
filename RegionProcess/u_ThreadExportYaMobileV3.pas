@@ -86,7 +86,7 @@ uses
   i_TileIterator,
   i_LocalCoordConverter,
   u_TileIteratorByPolygon,
-  u_BitmapLayerProviderSimpleForCombine,
+  u_BitmapLayerProviderMapWithLayer,
   u_BitmapTileVampyreSaver,
   u_ARGBToPaletteConverter;
 
@@ -140,11 +140,9 @@ begin
     FTasks[VTaskIndex].FMapId := 2;
     FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderSimpleForCombine.Create(
-        nil,
+      TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],
         Atypemaparr[2],
-        nil,
         False,
         False
       );
@@ -155,10 +153,8 @@ begin
     FTasks[VTaskIndex].FMapId := 1;
     FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(TARGBToPaletteConverter.Create, Acmap);
     FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderSimpleForCombine.Create(
-        nil,
+      TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[1],
-        nil,
         nil,
         False,
         False

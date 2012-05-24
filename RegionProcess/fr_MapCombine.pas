@@ -22,11 +22,20 @@ uses
   i_MapTypeGUIConfigList,
   i_MapCalibration,
   i_RegionProcessParamsFrame,
+  i_ProjectionInfo,
+  i_BitmapLayerProvider,
   u_CommonFormAndFrameParents,
   t_GeoTypes;
 
 type
-  TfrMapCombine = class(TFrame, IRegionProcessParamsFrameBase)
+  TfrMapCombine = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameImageProvider,
+      IRegionProcessParamsFrameMapCalibrationList,
+      IRegionProcessParamsFrameTargetProjection,
+      IRegionProcessParamsFrameTargetPath
+    )
     pnlTop: TPanel;
     pnlTargetFile: TPanel;
     lblTargetFile: TLabel;
@@ -81,6 +90,11 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetProvider: IBitmapLayerProvider;
+    function GetPath: string;
+    function GetProjection: IProjectionInfo;
+    function GetMapCalibrationList: IMapCalibrationList;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -99,7 +113,10 @@ implementation
 uses
   i_GUIDListStatic,
   i_VectorItemProjected,
+  i_CoordConverter,
   u_GeoFun,
+  u_BitmapLayerProviderMapWithLayer,
+  u_MapCalibrationListBasic,
   u_ResStrings,
   u_MapType;
 
@@ -205,6 +222,73 @@ begin
   FMapCalibrationList := AMapCalibrationList;
   cbbOutputFormat.ItemIndex := 0;
   UpdatePanelSizes;
+end;
+
+function TfrMapCombine.GetMapCalibrationList: IMapCalibrationList;
+var
+  i: Integer;
+  VList: IInterfaceList;
+begin
+  VList := TInterfaceList.Create;
+  for i := 0 to chklstPrTypes.Items.Count - 1 do begin
+    if chklstPrTypes.Checked[i] then begin
+      VList.Add(IMapCalibration(Pointer(chklstPrTypes.Items.Objects[i])));
+    end;
+  end;
+  Result := TMapCalibrationListByInterfaceList.Create(VList);
+end;
+
+function TfrMapCombine.GetPath: string;
+begin
+  Result := edtTargetFile.Text;
+end;
+
+function TfrMapCombine.GetProjection: IProjectionInfo;
+var
+  VMap: TMapType;
+  VLayer: TMapType;
+  VMainMapType: TMapType;
+  VZoom: Byte;
+  VGeoConverter: ICoordConverter;
+begin
+  Result := nil;
+  VMap := nil;
+  VMainMapType := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+  VLayer := nil;
+  if cbbHybr.ItemIndex >= 0 then begin
+    VLayer := TMapType(cbbHybr.Items.Objects[cbbHybr.ItemIndex]);
+  end;
+
+  if VMap <> nil then begin
+    VMainMapType := VMap;
+  end else if VLayer <> nil then begin
+    VMainMapType := VLayer;
+  end;
+  if VMainMapType <> nil then begin
+    VGeoConverter := VMainMapType.GeoConvert;
+    VZoom := cbbZoom.ItemIndex;
+    Result := FProjectionFactory.GetByConverterAndZoom(VGeoConverter, VZoom);
+  end;
+end;
+
+function TfrMapCombine.GetProvider: IBitmapLayerProvider;
+var
+  VMap: TMapType;
+  VLayer: TMapType;
+begin
+  VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  VLayer := TMapType(cbbHybr.Items.Objects[cbbHybr.ItemIndex]);
+
+  Result :=
+    TBitmapLayerProviderMapWithLayer.Create(
+      VMap,
+      VLayer,
+      True,
+      True
+    );
 end;
 
 procedure TfrMapCombine.Init(

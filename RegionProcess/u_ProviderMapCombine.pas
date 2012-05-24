@@ -48,11 +48,9 @@ type
     FMapCalibrationList: IMapCalibrationList;
     function PrepareTargetFileName: string;
     function PrepareSplitCount: TPoint;
-    function PrepareGeoConverter: ICoordConverter;
     function PrepareTargetConverter(
       const AProjectedPolygon: IProjectedPolygon
     ): ILocalCoordConverter;
-    function PrepareMapCalibrationList: IMapCalibrationList;
     function PrepareImageProvider(
       const APolygon: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon
@@ -169,6 +167,10 @@ begin
       FMapCalibrationList
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
+  Assert(Supports(Result, IRegionProcessParamsFrameMapCalibrationList));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetProjection));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
 end;
 
 function TProviderMapCombine.GetCaption: string;
@@ -176,45 +178,11 @@ begin
   Result := SAS_STR_OperationMapCombineCaption;
 end;
 
-function TProviderMapCombine.PrepareGeoConverter: ICoordConverter;
-var
-  Amt, Hmt: TMapType;
-  VMainMapType: TMapType;
-begin
-  Amt := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  Hmt := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
-
-  if Amt <> nil then begin
-    VMainMapType := Amt;
-  end else if Hmt <> nil then begin
-    VMainMapType := Hmt;
-  end else begin
-    raise Exception.Create(_('No one Map or Layer are selected!'));
-  end;
-
-  Result := VMainMapType.GeoConvert;
-end;
-
-function TProviderMapCombine.PrepareMapCalibrationList: IMapCalibrationList;
-var
-  i: Integer;
-  VList: IInterfaceList;
-begin
-  VList := TInterfaceList.Create;
-  for i := 0 to FFrame.chklstPrTypes.Items.Count - 1 do begin
-    if FFrame.chklstPrTypes.Checked[i] then begin
-      VList.Add(IMapCalibration(Pointer(FFrame.chklstPrTypes.Items.Objects[i])));
-    end;
-  end;
-  Result := TMapCalibrationListByInterfaceList.Create(VList);
-end;
-
 function TProviderMapCombine.PrepareImageProvider(
   const APolygon: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon
 ): IBitmapLayerProvider;
 var
-  Amt, Hmt: TMapType;
   VLonLatRect: TDoubleRect;
   VZoom: Byte;
   VGeoConverter: ICoordConverter;
@@ -225,9 +193,9 @@ var
   VMapRect: TRect;
   VLineClipRect: TDoubleRect;
   VRecolorConfig: IBitmapPostProcessingConfigStatic;
+  VSourceProvider: IBitmapLayerProvider;
 begin
-  Amt := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  Hmt := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+  VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
 
   VLonLatRect := APolygon.Item[0].Bounds;
   VGeoConverter := AProjectedPolygon.Projection.GeoConverter;
@@ -279,8 +247,7 @@ begin
   Result :=
     TBitmapLayerProviderSimpleForCombine.Create(
       VRecolorConfig,
-      Amt,
-      Hmt,
+      VSourceProvider,
       VMarksImageProvider,
       True,
       True
@@ -301,16 +268,9 @@ function TProviderMapCombine.PreparePolygon(
   const APolygon: ILonLatPolygon
 ): IProjectedPolygon;
 var
-  VGeoConverter: ICoordConverter;
-  VZoom: Byte;
   VProjection: IProjectionInfo;
 begin
-  VGeoConverter := PrepareGeoConverter;
-
-  VZoom := FFrame.cbbZoom.ItemIndex;
-  VGeoConverter.CheckZoom(VZoom);
-
-  VProjection := TProjectionInfo.Create(VGeoConverter, VZoom);
+  VProjection := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 
   Result :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -397,7 +357,7 @@ begin
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
   VImageProvider := PrepareImageProvider(APolygon, VProjectedPolygon);
-  VMapCalibrations := PrepareMapCalibrationList;
+  VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := PrepareSplitCount;
 

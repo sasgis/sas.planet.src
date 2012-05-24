@@ -5,6 +5,9 @@ interface
 uses
   Types,
   i_VectorItemLonLat,
+  i_BitmapLayerProvider,
+  i_MapCalibration,
+  i_ProjectionInfo,
   u_MapType;
 
 type
@@ -32,6 +35,24 @@ type
     ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
     function GetZoomArray: TByteDynArray;
     property ZoomArray: TByteDynArray read GetZoomArray;
+  end;
+
+  IRegionProcessParamsFrameTargetProjection = interface(IRegionProcessParamsFrameBase)
+    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    function GetProjection: IProjectionInfo;
+    property Projection: IProjectionInfo read GetProjection;
+  end;
+
+  IRegionProcessParamsFrameMapCalibrationList = interface(IRegionProcessParamsFrameBase)
+    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    function GetMapCalibrationList: IMapCalibrationList;
+    property MapCalibrationList: IMapCalibrationList read GetMapCalibrationList;
+  end;
+
+  IRegionProcessParamsFrameImageProvider = interface(IRegionProcessParamsFrameBase)
+    ['{9FDF9521-9A18-455D-8AAC-E9FF9FC08791}']
+    function GetProvider: IBitmapLayerProvider;
+    property Provider: IBitmapLayerProvider read GetProvider;
   end;
 
   IRegionProcessParamsFrameTargetPath = interface(IRegionProcessParamsFrameBase)
