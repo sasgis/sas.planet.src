@@ -99,6 +99,7 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameExportToJNX));
 end;
 
 function TExportProviderJNX.GetCaption: string;
