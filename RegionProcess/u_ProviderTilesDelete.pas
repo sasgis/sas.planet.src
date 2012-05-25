@@ -40,7 +40,6 @@ uses
 type
   TProviderTilesDelete = class(TExportProviderAbstract)
   private
-    FFrame: TfrTilesDelete;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FAppClosingNotifier: IJclNotifier;
@@ -104,14 +103,16 @@ end;
 
 function TProviderTilesDelete.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrTilesDelete.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-  Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameTilesDelete));
 end;
 
 function TProviderTilesDelete.GetCaption: string;
@@ -122,7 +123,8 @@ end;
 procedure TProviderTilesDelete.StartProcess(const APolygon: ILonLatPolygon);
 var
   VMapType: TMapType;
-  VDelBySize: Boolean;
+  VDelBySize: Integer;
+  VIsDelSize: Boolean;
   VDelSize: Cardinal;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
@@ -132,24 +134,20 @@ var
   VForAttachments: Boolean;
 begin
   inherited;
-  if (MessageBox(FFrame.handle, pchar(SAS_MSG_youasure), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+  if (Application.MessageBox(pchar(SAS_MSG_youasure), pchar(SAS_MSG_coution), 36) = IDYES) then begin
 
-    // selected map
-    VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-    VForAttachments := (not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
+    VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+    VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
 
-    // selected zoom
-    if FFrame.cbbZoom.ItemIndex < 0 then begin
-      FFrame.cbbZoom.ItemIndex := 0;
+    VForAttachments := (ParamsFrame as IRegionProcessParamsFrameTilesDelete).ForAttachments;
+    VDelBySize := (ParamsFrame as IRegionProcessParamsFrameTilesDelete).DeleteBySize;
+
+    VIsDelSize := (VDelBySize >= 0);
+    if VIsDelSize then begin
+      VDelSize := VDelBySize;
+    end else begin
+      VDelSize := 0;
     end;
-
-    // del only with specified size
-    VDelSize := 0;
-    VDelBySize := FFrame.chkDelBySize.Checked;
-    if VDelBySize then begin
-      VDelSize := FFrame.seDelSize.Value;
-    end;
-    VZoom := FFrame.cbbZoom.ItemIndex;
 
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -175,9 +173,9 @@ begin
       VProgressInfo,
       APolygon,
       VProjectedPolygon,
-      FFrame.cbbZoom.ItemIndex,
+      VZoom,
       VMapType,
-      VDelBySize,
+      VIsDelSize,
       VDelSize,
       VForAttachments
     );

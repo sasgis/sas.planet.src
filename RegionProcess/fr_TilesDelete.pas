@@ -38,10 +38,27 @@ uses
   i_MapAttachmentsInfo,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDelete = class(TFrame, IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameTilesDelete = interface(IRegionProcessParamsFrameBase)
+    ['{34B156A8-D8DD-4EFF-AF55-70C93C3ADE17}']
+    function GetDeleteBySize: Integer;
+    property DeleteBySize: Integer read GetDeleteBySize;
+
+    function GetForAttachments: Boolean;
+    property ForAttachments: Boolean read GetForAttachments;
+  end;
+
+type
+  TfrTilesDelete = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameOneZoom,
+      IRegionProcessParamsFrameTilesDelete
+    )
     cbbMap: TComboBox;
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;
@@ -64,6 +81,12 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoom: Byte;
+  private
+    function GetDeleteBySize: Integer;
+    function GetForAttachments: Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -76,8 +99,7 @@ type
 implementation
 
 uses
-  i_GUIDListStatic,
-  u_MapType;
+  i_GUIDListStatic;
 
 {$R *.dfm}
 
@@ -94,6 +116,42 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrTilesDelete.GetDeleteBySize: Integer;
+begin
+  if chkDelBySize.Checked then begin
+    Result := seDelSize.Value;
+  end else begin
+    Result := -1;
+  end;
+end;
+
+function TfrTilesDelete.GetForAttachments: Boolean;
+var
+  VMapType: TMapType;
+begin
+  Result := False;
+  VMapType := GetMapType;
+  if VMapType <> nil then begin
+    Result := (not AnsiSameText(cbbMap.Items[cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
+  end;
+end;
+
+function TfrTilesDelete.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+end;
+
+function TfrTilesDelete.GetZoom: Byte;
+begin
+  if cbbZoom.ItemIndex < 0 then begin
+    cbbZoom.ItemIndex := 0;
+  end;
+  Result := cbbZoom.ItemIndex;
 end;
 
 procedure TfrTilesDelete.Init(
