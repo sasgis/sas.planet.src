@@ -50,6 +50,7 @@ uses
   SysUtils,
   Classes,
   RegExprUtils,
+  i_StringListStatic,
   i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
@@ -57,6 +58,7 @@ uses
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
+  u_StringListStatic,
   frm_ProgressSimple;
 
 
@@ -125,13 +127,15 @@ var
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VMatchSubStr: string;
-  VLevelsDesc: TStringList;
+  VList: TStringList;
+  VLevelsDesc: IStringListStatic;
 begin
   inherited;
-  VLevelsDesc := TStringList.Create;
+  VList := TStringList.Create;
   for i := 0 to FFrame.TreeView1.Items.count - 1 do begin
-    VLevelsDesc.add(FFrame.TreeView1.Items[i].text);
+    VList.add(FFrame.TreeView1.Items[i].text);
   end;
+  VLevelsDesc := TStringListStatic.CreateWithOwn(VList);
 
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;

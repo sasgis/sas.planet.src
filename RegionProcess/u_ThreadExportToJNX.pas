@@ -13,6 +13,7 @@ uses
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
+  i_StringListStatic,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -31,7 +32,7 @@ type
     FZorder: integer;   // для 4 версии
     FProductID: integer; // 0,2,3,4,5,6,7,8,9
     FJpgQuality: byte; // 10..100 TODO
-    FLevelsDesc: TStringList; // Levels Descriptions
+    FLevelsDesc: IStringListStatic; // Levels Descriptions
   protected
     procedure ProcessRegion; override;
   public
@@ -52,7 +53,7 @@ type
       AZorder: integer;
       AProductID: integer;
       AJpgQuality: byte;
-      ALevelsDesc: TStringList
+      ALevelsDesc: IStringListStatic
     );
   end;
 
@@ -86,7 +87,7 @@ constructor TThreadExportToJnx.Create(
   AZorder: integer;
   AProductID: integer;
   AJpgQuality: byte;
-  ALevelsDesc: TStringList
+  ALevelsDesc: IStringListStatic
 );
 begin
   inherited Create(
@@ -156,9 +157,9 @@ begin
       VWriter.MapName := FmapName;
       VWriter.Version := FJNXVersion;
       VWriter.ZOrder := FZorder;
-      VWriter.LevelDescription[i] := FLevelsDesc[i * 3];
-      VWriter.LevelName[i] := FLevelsDesc[i * 3 + 1];
-      VWriter.LevelCopyright[i] := FLevelsDesc[i * 3 + 2];
+      VWriter.LevelDescription[i] := FLevelsDesc.Items[i * 3];
+      VWriter.LevelName[i] := FLevelsDesc.Items[i * 3 + 1];
+      VWriter.LevelCopyright[i] := FLevelsDesc.Items[i * 3 + 2];
       VWriter.LevelZoom[i] := FZooms[i];
       VWriter.ProductID := FProductID;
     end;
