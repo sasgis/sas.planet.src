@@ -13,13 +13,11 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  u_ExportProviderAbstract,
-  fr_ExportToJNX;
+  u_ExportProviderAbstract;
 
 type
   TExportProviderJNX = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportToJNX;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
@@ -49,16 +47,14 @@ uses
   Types,
   SysUtils,
   Classes,
-  RegExprUtils,
   i_StringListStatic,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
-  u_StringListStatic,
+  fr_ExportToJNX,
   frm_ProgressSimple;
 
 
@@ -91,7 +87,7 @@ end;
 
 function TExportProviderJNX.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrExportToJNX.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
@@ -100,7 +96,6 @@ begin
       'JNX |*.jnx',
       'jnx'
     );
-  Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
@@ -113,7 +108,6 @@ end;
 
 procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
   Zoomarr: TByteDynArray;
   VMapType: TMapType;
@@ -126,37 +120,21 @@ var
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
-  VMatchSubStr: string;
-  VList: TStringList;
   VLevelsDesc: IStringListStatic;
 begin
   inherited;
-  VList := TStringList.Create;
-  for i := 0 to FFrame.TreeView1.Items.count - 1 do begin
-    VList.add(FFrame.TreeView1.Items[i].text);
-  end;
-  VLevelsDesc := TStringListStatic.CreateWithOwn(VList);
 
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  VLevelsDesc := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LevelsDesc;
 
-  VProductName := FFrame.EProductName.Text;
-  VMapName := FFrame.EmapName.Text;
-  VJpgQuality := FFrame.EJpgQuality.Value;
-  if FFrame.v3.checked then begin
-    VJNXVersion := 3;
-    VZorder := 0;
-  end else begin
-    VJNXVersion := 4;
-    VZorder := FFrame.EZorder.Value;
-  end;
-  try
-    VMatchSubStr := RegExprGetMatchSubStr(FFrame.EProductID.Text, '[0-9]+', 0);
-    VProductID := StrToIntDef(VMatchSubStr, 0);
-  except
-    VProductID := 0;
-  end;
+  VProductName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductName;
+  VMapName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapName;
+  VJpgQuality := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JpgQuality;
+  VJNXVersion := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JNXVersion;
+  VZorder := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ZOrder;
+  VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;

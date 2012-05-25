@@ -14,6 +14,7 @@ uses
   ExtCtrls,
   i_LanguageManager,
   i_MapTypes,
+  i_StringListStatic,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
@@ -22,12 +23,38 @@ uses
   u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
+  IRegionProcessParamsFrameExportToJNX = interface(IRegionProcessParamsFrameBase)
+    ['{BBF2A4A5-C6CC-45D0-A010-A122617EFBB6}']
+    function GetLevelsDesc: IStringListStatic;
+    property LevelsDesc: IStringListStatic read GetLevelsDesc;
+
+    function GetProductName: string;
+    property ProductName: string read GetProductName;
+
+    function GetMapName: string;
+    property MapName: string read GetMapName;
+
+    function GetJpgQuality: Byte;
+    property JpgQuality: Byte read GetJpgQuality;
+
+    function GetJNXVersion: Integer;
+    property JNXVersion: Integer read GetJNXVersion;
+
+    function GetZOrder: Integer;
+    property ZOrder: Integer read GetZOrder;
+
+    function GetProductID: Integer;
+    property ProductID: Integer read GetProductID;
+  end;
+
+type
   TfrExportToJNX = class(
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
       IRegionProcessParamsFrameZoomArray,
-      IRegionProcessParamsFrameTargetPath
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameExportToJNX
     )
     pnlCenter: TPanel;
     pnlRight: TPanel;
@@ -73,6 +100,14 @@ type
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
+  private
+    function GetLevelsDesc: IStringListStatic;
+    function GetProductName: string;
+    function GetMapName: string;
+    function GetJpgQuality: Byte;
+    function GetJNXVersion: Integer;
+    function GetZOrder: Integer;
+    function GetProductID: Integer;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -87,7 +122,9 @@ type
 implementation
 
 uses
-  i_GUIDListStatic;
+  RegExprUtils,
+  i_GUIDListStatic,
+  u_StringListStatic;
 
 {$R *.dfm}
 
@@ -170,6 +207,42 @@ begin
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
 end;
 
+function TfrExportToJNX.GetJNXVersion: Integer;
+begin
+  if v3.checked then begin
+    Result := 3;
+  end else begin
+    Result := 4;
+  end;
+end;
+
+function TfrExportToJNX.GetJpgQuality: Byte;
+begin
+  Result := EJpgQuality.Value;
+end;
+
+function TfrExportToJNX.GetLevelsDesc: IStringListStatic;
+var
+  VList: TStringList;
+  i: Integer;
+begin
+  VList := TStringList.Create;
+  try
+    for i := 0 to TreeView1.Items.count - 1 do begin
+      VList.add(TreeView1.Items[i].text);
+    end;
+    Result := TStringListStatic.CreateWithOwn(VList);
+    VList := nil;
+  finally
+    VList.Free;
+  end;
+end;
+
+function TfrExportToJNX.GetMapName: string;
+begin
+  Result := EmapName.Text;
+end;
+
 function TfrExportToJNX.GetMapType: TMapType;
 begin
   Result := nil;
@@ -182,6 +255,23 @@ end;
 function TfrExportToJNX.GetPath: string;
 begin
   Result := edtTargetFile.Text;
+end;
+
+function TfrExportToJNX.GetProductID: Integer;
+var
+  VMatchSubStr: string;
+begin
+  try
+    VMatchSubStr := RegExprGetMatchSubStr(EProductID.Text, '[0-9]+', 0);
+    Result := StrToIntDef(VMatchSubStr, 0);
+  except
+    Result := 0;
+  end;
+end;
+
+function TfrExportToJNX.GetProductName: string;
+begin
+  Result := EProductName.Text;
 end;
 
 function TfrExportToJNX.GetZoomArray: TByteDynArray;
@@ -197,6 +287,15 @@ begin
       Result[VCount] := i;
       Inc(VCount);
     end;
+  end;
+end;
+
+function TfrExportToJNX.GetZOrder: Integer;
+begin
+  if v3.checked then begin
+    Result := 0;
+  end else begin
+    Result := EZorder.Value;
   end;
 end;
 
