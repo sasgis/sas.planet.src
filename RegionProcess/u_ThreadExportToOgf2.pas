@@ -16,23 +16,16 @@ uses
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
-  u_MapType,
   u_ResStrings,
   u_ThreadRegionProcessAbstract;
 
 type
-  TOgf2TileFormat = (tfBMP = 0, tfPNG = 1, tfJPEG = 2);
-  TOgf2TileResolution = (tr128 = 0, tr256 = 1);
-
   TThreadExportToOgf2 = class(TThreadRegionProcessAbstract)
   private
     FZoom: Byte;
-    FMapType: TMapType;
-    FOverlayMapType: TMapType;
     FOgf2TileWidth: Integer;
     FOgf2TileHeight: Integer;
-    FOgf2TileFormat: TOgf2TileFormat;
-    FJpegQuality: Byte;
+    FTileSaver: IBitmapTileSaver;
     FTargetFile: string;
     FImageProvider: IBitmapLayerProvider;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -66,13 +59,10 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
+      const AImageProvider: IBitmapLayerProvider;
       AZoom: Byte;
-      AMapType: TMapType;
-      AOverlayMapType: TMapType;
-      AUsePrevZoom: Boolean;
-      AOgf2TileResolution: TOgf2TileResolution;
-      AOgf2TileFormat: TOgf2TileFormat;
-      AJpegQuality: Byte
+      const ATileSize: TPoint;
+      const ATileSaver: IBitmapTileSaver
     );
   end;
 
@@ -87,12 +77,9 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_VectorItemProjected,
-  u_BitmapLayerProviderMapWithLayer,
   u_BinaryDataByMemStream,
-  u_BitmapTileVampyreSaver,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
-  u_ARGBToPaletteConverter,
   u_GeoFun;
 
 const
@@ -110,13 +97,10 @@ constructor TThreadExportToOgf2.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
+  const AImageProvider: IBitmapLayerProvider;
   AZoom: Byte;
-  AMapType: TMapType;
-  AOverlayMapType: TMapType;
-  AUsePrevZoom: Boolean;
-  AOgf2TileResolution: TOgf2TileResolution;
-  AOgf2TileFormat: TOgf2TileFormat;
-  AJpegQuality: Byte
+  const ATileSize: TPoint;
+  const ATileSaver: IBitmapTileSaver
 );
 begin
   inherited Create(
@@ -125,35 +109,16 @@ begin
     AProgressInfo,
     APolygon
   );
+  FImageProvider := AImageProvider;
   FZoom := AZoom;
   FTargetFile := ATargetFile;
-  FMapType := AMapType;
-  FOverlayMapType := AOverlayMapType;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
-  FOgf2TileFormat := AOgf2TileFormat;
-  FJpegQuality := AJpegQuality;
-
-  FImageProvider :=
-    TBitmapLayerProviderMapWithLayer.Create(
-      FMapType,
-      FOverlayMapType,
-      AUsePrevZoom,
-      AUsePrevZoom
-    );
-
-  case AOgf2TileResolution of
-    tr128: begin
-      FOgf2TileWidth := 128;
-      FOgf2TileHeight := 128;
-    end;
-  else begin
-    FOgf2TileWidth := 256;
-    FOgf2TileHeight := 256;
-  end;
-  end;
+  FTileSaver := ATileSaver;
+  FOgf2TileWidth := ATileSize.X;
+  FOgf2TileHeight := ATileSize.Y;
 end;
 
 procedure TThreadExportToOgf2.SaveOziCalibrationMap(
@@ -267,22 +232,7 @@ begin
   VTilesToProcess := 0;
 
   VZoom := FZoom;
-
-  case FOgf2TileFormat of
-    tfBMP:
-    begin
-      VSaver := TVampyreBasicBitmapTileSaverBMP.Create;
-    end;
-
-    tfPNG:
-    begin
-      VSaver := TVampyreBasicBitmapTileSaverPNGRGB.Create;
-    end;
-  else begin
-    VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpegQuality);
-  end;
-  end;
-
+  VSaver := FTileSaver;
   VGeoConvert :=
     FCoordConverterFactory.GetCoordConverterByCode(
       CGoogleProjectionEPSG, // Merkator, WSG84, EPSG = 3785

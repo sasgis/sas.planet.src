@@ -14,22 +14,36 @@ uses
   ExtCtrls,
   i_LanguageManager,
   i_MapTypes,
+  i_BitmapTileSaveLoad,
   i_CoordConverterFactory,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
   u_MapType,
   u_CommonFormAndFrameParents,
   t_GeoTypes, Spin;
 
 type
+  IRegionProcessParamsFrameExportToOgf2 = interface(IRegionProcessParamsFrameBase)
+    ['{CDF84DFB-9DD8-4F4D-B0B3-6D0D35B082F0}']
+    function GetSaver: IBitmapTileSaver;
+    property Saver: IBitmapTileSaver read GetSaver;
+
+    function GetTileSize: TPoint;
+    property TileSize: TPoint read GetTileSize;
+  end;
+
+type
   TfrExportToOgf2 = class(
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneZoom,
-      IRegionProcessParamsFrameTargetPath
+      IRegionProcessParamsFrameImageProvider,
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameExportToOgf2
     )
     pnlCenter: TPanel;
     lblMap: TLabel;
@@ -69,8 +83,12 @@ type
       const APolygon: ILonLatPolygon
     );
   private
+    function GetProvider: IBitmapLayerProvider;
     function GetZoom: Byte;
     function GetPath: string;
+  private
+    function GetSaver: IBitmapTileSaver;
+    function GetTileSize: TPoint;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -90,6 +108,8 @@ uses
   i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
+  u_BitmapTileVampyreSaver,
+  u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 
 {$R *.dfm}
@@ -192,6 +212,64 @@ end;
 function TfrExportToOgf2.GetPath: string;
 begin
   Result := edtTargetFile.Text;
+end;
+
+function TfrExportToOgf2.GetProvider: IBitmapLayerProvider;
+var
+  VMap: TMapType;
+  VLayer: TMapType;
+  VUsePrevZoom: Boolean;
+begin
+  VMap := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+  VLayer := nil;
+  if cbbHyb.ItemIndex >= 0 then begin
+    VLayer := TMapType(cbbHyb.Items.Objects[cbbHyb.ItemIndex]);
+  end;
+
+  VUsePrevZoom := chkUsePrevZoom.Checked;
+
+  Result :=
+    TBitmapLayerProviderMapWithLayer.Create(
+      VMap,
+      VLayer,
+      VUsePrevZoom,
+      VUsePrevZoom
+    );
+end;
+
+function TfrExportToOgf2.GetSaver: IBitmapTileSaver;
+var
+  VJpegQuality: Byte;
+begin
+  case cbbImageFormat.ItemIndex of
+    0: begin
+      Result := TVampyreBasicBitmapTileSaverBMP.Create;
+    end;
+
+    1: begin
+      Result := TVampyreBasicBitmapTileSaverPNGRGB.Create;
+    end;
+  else begin
+    VJpegQuality := seJpgQuality.Value;
+    Result := TVampyreBasicBitmapTileSaverJPG.Create(VJpegQuality);
+  end;
+  end;
+end;
+
+function TfrExportToOgf2.GetTileSize: TPoint;
+var
+  VTileSize: Integer;
+begin
+  if cbbTileRes.ItemIndex > 0 then begin
+    VTileSize := 256;
+  end else begin
+    VTileSize := 128;
+  end;
+  Result.X := VTileSize;
+  Result.Y := VTileSize;
 end;
 
 function TfrExportToOgf2.GetZoom: Byte;

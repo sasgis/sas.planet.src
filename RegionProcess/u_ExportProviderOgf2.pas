@@ -20,7 +20,6 @@ uses
 type
   TExportProviderOgf2 = class(TExportProviderAbstract)
   private
-    FFrame: TfrExportToOgf2;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
@@ -52,13 +51,13 @@ uses
   Types,
   SysUtils,
   Classes,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
+  i_BitmapLayerProvider,
+  i_BitmapTileSaveLoad,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToOgf2,
   u_ResStrings,
-  u_MapType,
   frm_ProgressSimple;
 
 { TExportProviderOgf2 }
@@ -92,7 +91,7 @@ end;
 
 function TExportProviderOgf2.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrExportToOgf2.Create(
       Self.LanguageManager,
       FProjectionFactory,
@@ -103,9 +102,10 @@ begin
       'OGF2 (*.ogf2) |*.ogf2',
       'ogf2'
     );
-  Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameExportToOgf2));
 end;
 
 function TExportProviderOgf2.GetCaption: string;
@@ -116,30 +116,21 @@ end;
 procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon);
 var
   VTargetFile: string;
-  VMapType: TMapType;
-  VOverlay: TMapType;
-  VUsePrevZoom: Boolean;
-  VOgf2TileResolution: TOgf2TileResolution;
-  VOgf2TileFormat: TOgf2TileFormat;
-  VJpegQuality: Byte;
-  VZoom: Byte;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
+  VImageProvider: IBitmapLayerProvider;
+  VZoom: Byte;
+  VSaver: IBitmapTileSaver;
+  VTileSize: TPoint;
 begin
   inherited;
 
-  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
   VTargetFile := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
-
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  VOverlay := TMapType(FFrame.cbbHyb.Items.Objects[FFrame.cbbHyb.ItemIndex]);
-
-  VUsePrevZoom := FFrame.chkUsePrevZoom.Checked;
-
-  VOgf2TileResolution := TOgf2TileResolution(FFrame.cbbTileRes.ItemIndex);
-  VOgf2TileFormat := TOgf2TileFormat(FFrame.cbbImageFormat.ItemIndex);
-  VJpegQuality := FFrame.seJpgQuality.Value;
+  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
+  VImageProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+  VSaver := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).Saver;
+  VTileSize := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).TileSize;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
@@ -163,13 +154,10 @@ begin
     FVectorItmesFactory,
     VTargetFile,
     APolygon,
+    VImageProvider,
     VZoom,
-    VMapType,
-    VOverlay,
-    VUsePrevZoom,
-    VOgf2TileResolution,
-    VOgf2TileFormat,
-    VJpegQuality
+    VTileSize,
+    VSaver
   );
 end;
 
