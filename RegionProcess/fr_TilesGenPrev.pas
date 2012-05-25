@@ -3,6 +3,7 @@ unit fr_TilesGenPrev;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -18,10 +19,36 @@ uses
   i_ImageResamplerConfig,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesGenPrev = class(TFrame, IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameTilesGenPrev = interface(IRegionProcessParamsFrameBase)
+    ['{34B156A8-D8DD-4EFF-AF55-70C93C3ADE17}']
+    function GetIsReplace: Boolean;
+    property IsReplace: Boolean read GetIsReplace;
+
+    function GetIsSaveFullOnly: Boolean;
+    property IsSaveFullOnly: Boolean read GetIsSaveFullOnly;
+
+    function GetIsUseTilesFromPrevZoom: Boolean;
+    property IsUseTilesFromPrevZoom: Boolean read GetIsUseTilesFromPrevZoom;
+
+    function GetIsCreateAllFromFirstZoom: Boolean;
+    property IsCreateAllFromFirstZoom: Boolean read GetIsCreateAllFromFirstZoom;
+
+    function GetResampler: IImageResamplerFactory;
+    property Resampler: IImageResamplerFactory read GetResampler;
+  end;
+
+type
+  TfrTilesGenPrev = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTilesGenPrev
+    )
     pnlBottom: TPanel;
     pnlRight: TPanel;
     pnlCenter: TPanel;
@@ -57,6 +84,15 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoomArray: TByteDynArray;
+  private
+    function GetIsReplace: Boolean;
+    function GetIsSaveFullOnly: Boolean;
+    function GetIsUseTilesFromPrevZoom: Boolean;
+    function GetIsCreateAllFromFirstZoom: Boolean;
+    function GetResampler: IImageResamplerFactory;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -71,8 +107,7 @@ implementation
 
 uses
   gnugettext,
-  i_GUIDListStatic,
-  u_MapType;
+  i_GUIDListStatic;
 
 {$R *.dfm}
 
@@ -184,6 +219,72 @@ begin
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   FImageResamplerConfig := AImageResamplerConfig;
+end;
+
+function TfrTilesGenPrev.GetIsCreateAllFromFirstZoom: Boolean;
+begin
+  Result := not chkFromPrevZoom.Checked;
+end;
+
+function TfrTilesGenPrev.GetIsReplace: Boolean;
+begin
+  Result := chkReplace.Checked;
+end;
+
+function TfrTilesGenPrev.GetIsSaveFullOnly: Boolean;
+begin
+  Result := chkSaveFullOnly.Checked;
+end;
+
+function TfrTilesGenPrev.GetIsUseTilesFromPrevZoom: Boolean;
+begin
+  Result := chkUsePrevTiles.Checked;
+end;
+
+function TfrTilesGenPrev.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+end;
+
+function TfrTilesGenPrev.GetResampler: IImageResamplerFactory;
+begin
+  try
+    if cbbResampler.ItemIndex >= 0 then begin
+      Result := FImageResamplerConfig.GetList.Items[cbbResampler.ItemIndex];
+    end else begin
+      Result := FImageResamplerConfig.GetActiveFactory;
+    end;
+  except
+    Result := FImageResamplerConfig.GetActiveFactory;
+  end;
+end;
+
+function TfrTilesGenPrev.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+  VSourceZoom: Byte;
+begin
+  Result := nil;
+  VCount := 1;
+
+  SetLength(Result, VCount);
+  VSourceZoom := cbbFromZoom.ItemIndex + 1;
+  Result[0] := VSourceZoom;
+  if VSourceZoom > 0 then begin
+    for i := 0 to VSourceZoom  - 1do begin
+      if chklstZooms.ItemEnabled[i] then begin
+        if chklstZooms.Checked[i] then begin
+          SetLength(Result, VCount + 1);
+          Result[VCount] := VSourceZoom - 1 - i;
+          Inc(VCount);
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrTilesGenPrev.Init(
