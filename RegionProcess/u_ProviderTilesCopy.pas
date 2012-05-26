@@ -97,6 +97,9 @@ begin
       Self.GUIConfigList
     );
   Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameTilesCopy));
 end;
 
 function TProviderTilesCopy.GetCaption: string;
@@ -106,33 +109,22 @@ end;
 
 procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
   path: string;
   Zoomarr: TByteDynArray;
-  VZoomCount: Integer;
-  typemaparr: array of TMapType;
-  Replace: boolean;
+  VReplace: Boolean;
+  VDeleteSource: Boolean;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
+  VCacheType: Byte;
+  VMaps: IMapTypeListStatic;
 begin
-  Zoomarr := nil;
-  VZoomCount := 0;
-  for i := 0 to 23 do begin
-    if FFrame.chklstZooms.Checked[i] then begin
-      SetLength(Zoomarr, VZoomCount + 1);
-      Zoomarr[VZoomCount] := i;
-      Inc(VZoomCount);
-    end;
-  end;
-  for i := 0 to FFrame.chklstMaps.Items.Count - 1 do begin
-    if FFrame.chklstMaps.Checked[i] then begin
-      setlength(typemaparr, length(typemaparr) + 1);
-      typemaparr[length(typemaparr) - 1] := TMapType(FFrame.chklstMaps.Items.Objects[i]);
-    end;
-  end;
-  path := IncludeTrailingPathDelimiter(FFrame.edtTargetPath.Text);
-  Replace := FFrame.chkReplaseTarget.Checked;
+  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
+  VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
+  VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
+  VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
 
 
   VCancelNotifierInternal := TOperationNotifier.Create;
@@ -147,7 +139,7 @@ begin
     VProgressInfo
   );
 
-  if FFrame.cbbNamesType.ItemIndex = 4 then begin
+  if VCacheType = 5 then begin
     TThreadExportToBDB.Create(
       VCancelNotifierInternal,
       VOperationID,
@@ -157,9 +149,9 @@ begin
       FVectorItmesFactory,
       APolygon,
       ZoomArr,
-      typemaparr,
-      FFrame.chkDeleteSource.Checked,
-      Replace
+      VMaps,
+      VDeleteSource,
+      VReplace
     );
   end else begin
     TThreadExportToFileSystem.Create(
@@ -171,10 +163,10 @@ begin
       FVectorItmesFactory,
       APolygon,
       ZoomArr,
-      typemaparr,
-      FFrame.chkDeleteSource.Checked,
-      Replace,
-      FTileNameGenerator.GetGenerator(FFrame.cbbNamesType.ItemIndex + 1)
+      VMaps,
+      VDeleteSource,
+      VReplace,
+      FTileNameGenerator.GetGenerator(VCacheType)
     );
   end;
 end;

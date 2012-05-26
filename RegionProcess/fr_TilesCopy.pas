@@ -3,6 +3,7 @@ unit fr_TilesCopy;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   Controls,
@@ -19,7 +20,29 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesCopy = class(TFrame, IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameTilesCopy = interface(IRegionProcessParamsFrameBase)
+    ['{71851148-93F1-42A9-ADAC-757928C5C85A}']
+    function GetReplaseTarget: Boolean;
+    property ReplaseTarget: Boolean read GetReplaseTarget;
+
+    function GetDeleteSource: Boolean;
+    property DeleteSource: Boolean read GetDeleteSource;
+
+    function GetTargetCacheType: Byte;
+    property TargetCacheType: Byte read GetTargetCacheType;
+
+    function GetMapTypeList: IMapTypeListStatic;
+    property MapTypeList: IMapTypeListStatic read GetMapTypeList;
+  end;
+
+type
+  TfrTilesCopy = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameZoomArray,
+      IRegionProcessParamsFrameTargetPath,
+      IRegionProcessParamsFrameTilesCopy
+    )
     pnlCenter: TPanel;
     pnlRight: TPanel;
     lblZooms: TLabel;
@@ -50,6 +73,14 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetZoomArray: TByteDynArray;
+    function GetPath: string;
+  private
+    function GetReplaseTarget: Boolean;
+    function GetDeleteSource: Boolean;
+    function GetTargetCacheType: Byte;
+    function GetMapTypeList: IMapTypeListStatic;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -67,6 +98,7 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   i_GUIDListStatic,
+  u_MapTypeListStatic,
   u_MapType;
 
 {$R *.dfm}
@@ -120,6 +152,69 @@ begin
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   cbbNamesType.ItemIndex := 1;
+end;
+
+function TfrTilesCopy.GetDeleteSource: Boolean;
+begin
+  Result := chkDeleteSource.Checked;
+end;
+
+function TfrTilesCopy.GetMapTypeList: IMapTypeListStatic;
+var
+  VMap: IMapType;
+  VMaps: array of IMapType;
+  VMapType: TMapType;
+  i: Integer;
+begin
+  for i := 0 to chklstMaps.Items.Count - 1 do begin
+    if chklstMaps.Checked[i] then begin
+      VMap := nil;
+      VMapType := TMapType(chklstMaps.Items.Objects[i]);
+      if VMapType <> nil then begin
+        VMap := FFullMapsSet.GetMapTypeByGUID(VMapType.Zmp.GUID);
+      end;
+      if VMap <> nil then begin
+        SetLength(VMaps, Length(VMaps) + 1);
+        VMaps[Length(VMaps) - 1] := VMap;
+      end;
+    end;
+  end;
+  Result := TMapTypeListStatic.Create(VMaps);
+end;
+
+function TfrTilesCopy.GetPath: string;
+begin
+  Result := IncludeTrailingPathDelimiter(edtTargetPath.Text);
+end;
+
+function TfrTilesCopy.GetReplaseTarget: Boolean;
+begin
+  Result := chkReplaseTarget.Checked;
+end;
+
+function TfrTilesCopy.GetTargetCacheType: Byte;
+begin
+  if cbbNamesType.ItemIndex >= 0 then begin
+    Result := cbbNamesType.ItemIndex + 1
+  end else begin
+    Result := 1;
+  end;
+end;
+
+function TfrTilesCopy.GetZoomArray: TByteDynArray;
+var
+  i: Integer;
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  for i := 0 to 23 do begin
+    if chklstZooms.Checked[i] then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := i;
+      Inc(VCount);
+    end;
+  end;
 end;
 
 procedure TfrTilesCopy.Init;

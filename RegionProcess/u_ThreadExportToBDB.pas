@@ -34,6 +34,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_TileFileNameGenerator,
+  i_MapTypes,
   u_MapType,
   u_ResStrings,
   u_TileStorageBerkeleyDBHelper,
@@ -42,7 +43,7 @@ uses
 type
   TThreadExportToBDB = class(TThreadExportAbstract)
   private
-    FMapTypeArr: array of TMapType;
+    FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGen: ITileFileNameGenerator;
@@ -70,7 +71,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
-      const Atypemaparr: array of TMapType;
+      const Atypemaparr: IMapTypeListStatic;
       Amove: boolean;
       Areplace: boolean
     );
@@ -97,11 +98,9 @@ constructor TThreadExportToBDB.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
-  const Atypemaparr: array of TMapType;
+  const Atypemaparr: IMapTypeListStatic;
   Amove, Areplace: boolean
 );
-var
-  i: integer;
 begin
   inherited Create(
     ACancelNotifier,
@@ -119,10 +118,7 @@ begin
   FIsMove := AMove;
   FTileNameGen := TTileFileNameBDB.Create;
   FIsReplace := AReplace;
-  setlength(FMapTypeArr, length(Atypemaparr));
-  for i := 0 to length(Atypemaparr) - 1 do begin
-    FMapTypeArr[i] := Atypemaparr[i];
-  end;
+  FMapTypeArr := Atypemaparr;
 end;
 
 function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): string;
@@ -207,12 +203,12 @@ var
   VVersionInfo: IMapVersionInfo;
 begin
   inherited;
-  SetLength(VTileIterators, length(FMapTypeArr), Length(FZooms));
+  SetLength(VTileIterators, FMapTypeArr.Count, Length(FZooms));
   VTilesToProcess := 0;
-  for i := 0 to length(FMapTypeArr) - 1 do begin
+  for i := 0 to FMapTypeArr.Count - 1 do begin
     for j := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[j];
-      VGeoConvert := FMapTypeArr[i].GeoConvert;
+      VGeoConvert := FMapTypeArr.Items[i].MapType.GeoConvert;
       VProjectedPolygon :=
         FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
@@ -229,8 +225,8 @@ begin
     );
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    for i := 0 to length(FMapTypeArr) - 1 do begin
-      VMapType := FMapTypeArr[i];
+    for i := 0 to FMapTypeArr.Count - 1 do begin
+      VMapType := FMapTypeArr.Items[i].MapType;
       VVersionInfo := VMapType.VersionConfig.Version;
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
@@ -259,7 +255,7 @@ begin
       end;
     end;
   finally
-    for i := 0 to length(FMapTypeArr) - 1 do begin
+    for i := 0 to FMapTypeArr.Count - 1 do begin
       for j := 0 to Length(FZooms) - 1 do begin
         VTileIterators[i, j] := nil;
       end;
