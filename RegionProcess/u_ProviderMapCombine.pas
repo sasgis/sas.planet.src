@@ -34,7 +34,6 @@ uses
 type
   TProviderMapCombine = class(TExportProviderAbstract)
   private
-    FFrame: TfrMapCombine;
     FViewConfig: IGlobalViewMainConfig;
     FAppClosingNotifier: IJclNotifier;
     FTimerNoifier: IJclNotifier;
@@ -155,7 +154,7 @@ end;
 
 function TProviderMapCombine.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrMapCombine.Create(
       Self.LanguageManager,
       FProjectionFactory,
@@ -165,11 +164,13 @@ begin
       Self.GUIConfigList,
       FMapCalibrationList
     );
-  Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
   Assert(Supports(Result, IRegionProcessParamsFrameMapCalibrationList));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetProjection));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
+  Assert(Supports(Result, IRegionProcessParamsFrameMapCombine));
+  Assert(Supports(Result, IRegionProcessParamsFrameMapCombineJpg));
+  Assert(Supports(Result, IRegionProcessParamsFrameMapCombineWithAlfa));
 end;
 
 function TProviderMapCombine.GetCaption: string;
@@ -371,7 +372,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      FFrame.seJpgQuality.Value
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.BMP') then begin
     TThreadMapCombineBMP.Create(
@@ -407,7 +408,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      FFrame.seJpgQuality.Value
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.JPG') then begin
     TThreadMapCombineJPG.Create(
@@ -421,7 +422,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      FFrame.seJpgQuality.Value
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.PNG') then begin
     TThreadMapCombinePNG.Create(
@@ -435,7 +436,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      FFrame.chkPngWithAlpha.Checked
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineWithAlfa).IsSaveAlfa
     );
   end;
 end;

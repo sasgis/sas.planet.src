@@ -40,6 +40,18 @@ type
     property SplitCount: TPoint read GetSplitCount;
   end;
 
+  IRegionProcessParamsFrameMapCombineJpg = interface(IRegionProcessParamsFrameBase)
+    ['{C9A0712B-4456-4F34-8A06-9BA57F21D40A}']
+    function GetQuality: Integer;
+    property Quality: Integer read GetQuality;
+  end;
+
+  IRegionProcessParamsFrameMapCombineWithAlfa = interface(IRegionProcessParamsFrameBase)
+    ['{45043DE9-9950-40C9-92E2-0D28FEC341C7}']
+    function GetIsSaveAlfa: Boolean;
+    property IsSaveAlfa: Boolean read GetIsSaveAlfa;
+  end;
+
 type
   TfrMapCombine = class(
       TFrame,
@@ -48,7 +60,9 @@ type
       IRegionProcessParamsFrameMapCalibrationList,
       IRegionProcessParamsFrameTargetProjection,
       IRegionProcessParamsFrameTargetPath,
-      IRegionProcessParamsFrameMapCombine
+      IRegionProcessParamsFrameMapCombine,
+      IRegionProcessParamsFrameMapCombineJpg,
+      IRegionProcessParamsFrameMapCombineWithAlfa
     )
     pnlTop: TPanel;
     pnlTargetFile: TPanel;
@@ -113,6 +127,8 @@ type
     function GetUseMarks: Boolean;
     function GetUseRecolor: Boolean;
     function GetSplitCount: TPoint;
+    function GetQuality: Integer;
+    function GetIsSaveAlfa: Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -242,6 +258,11 @@ begin
   UpdatePanelSizes;
 end;
 
+function TfrMapCombine.GetIsSaveAlfa: Boolean;
+begin
+  Result := chkPngWithAlpha.Checked;
+end;
+
 function TfrMapCombine.GetMapCalibrationList: IMapCalibrationList;
 var
   i: Integer;
@@ -307,6 +328,11 @@ begin
       True,
       True
     );
+end;
+
+function TfrMapCombine.GetQuality: Integer;
+begin
+  Result := seJpgQuality.Value;
 end;
 
 function TfrMapCombine.GetSplitCount: TPoint;
