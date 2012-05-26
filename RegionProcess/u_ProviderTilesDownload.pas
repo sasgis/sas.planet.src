@@ -44,7 +44,6 @@ uses
 type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
-    FFrame: TfrTilesDownload;
     FAppClosingNotifier: IJclNotifier;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
@@ -119,7 +118,7 @@ end;
 
 function TProviderTilesDownload.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrTilesDownload.Create(
       Self.LanguageManager,
       FProjectionFactory,
@@ -128,7 +127,9 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-  Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
+  Assert(Supports(Result, IRegionProcessParamsFrameTilesDownload));
 end;
 
 function TProviderTilesDownload.GetCaption: string;
@@ -176,9 +177,9 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VForAttachments: Boolean;
 begin
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  VForAttachments := (not AnsiSameText(FFrame.cbbMap.Items[FFrame.cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
-  VZoom := FFrame.cbbZoom.ItemIndex;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
+  VForAttachments := (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ForAttachments;
 
   VProjectedPolygon :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -193,13 +194,13 @@ begin
     VProjectedPolygon,
     FDownloadConfig,
     FDownloadInfo,
-    FFrame.chkReplace.Checked,
-    FFrame.chkReplaceIfDifSize.Checked,
-    FFrame.chkReplaceOlder.Checked,
-    FFrame.chkTryLoadIfTNE.Checked,
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
     VZoom,
     VMapType,
-    FFrame.dtpReplaceOlderDate.DateTime,
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
     VForAttachments
   );
   TfrmProgressDownload.Create(

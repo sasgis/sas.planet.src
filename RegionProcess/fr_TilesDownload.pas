@@ -21,10 +21,39 @@ uses
   i_MapTypeGUIConfigList,
   i_MapAttachmentsInfo,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDownload = class(TFrame, IRegionProcessParamsFrameBase)
+  IRegionProcessParamsFrameTilesDownload = interface(IRegionProcessParamsFrameBase)
+    ['{70B48431-5383-4CD2-A1EF-AF9291F6ABB0}']
+    function GetForAttachments: Boolean;
+    property ForAttachments: Boolean read GetForAttachments;
+
+    function GetIsIgnoreTne: Boolean;
+    property IsIgnoreTne: Boolean read GetIsIgnoreTne;
+
+    function GetIsReplace: Boolean;
+    property IsReplace: Boolean read GetIsReplace;
+
+    function GetIsReplaceIfDifSize: Boolean;
+    property IsReplaceIfDifSize: Boolean read GetIsReplaceIfDifSize;
+
+    function GetIsReplaceIfOlder: Boolean;
+    property IsReplaceIfOlder: Boolean read GetIsReplaceIfOlder;
+
+    function GetReplaceDate: TDateTime;
+    property ReplaceDate: TDateTime read GetReplaceDate;
+  end;
+
+type
+  TfrTilesDownload = class(
+      TFrame,
+      IRegionProcessParamsFrameBase,
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameOneZoom,
+      IRegionProcessParamsFrameTilesDownload
+    )
     lblZoom: TLabel;
     lblStat: TLabel;
     chkReplace: TCheckBox;
@@ -58,6 +87,16 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+  private
+    function GetMapType: TMapType;
+    function GetZoom: Byte;
+  private
+    function GetForAttachments: Boolean;
+    function GetIsIgnoreTne: Boolean;
+    function GetIsReplace: Boolean;
+    function GetIsReplaceIfDifSize: Boolean;
+    function GetIsReplaceIfOlder: Boolean;
+    function GetReplaceDate: TDateTime;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -75,8 +114,7 @@ uses
   i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 {$R *.dfm}
 
@@ -158,6 +196,58 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+end;
+
+function TfrTilesDownload.GetForAttachments: Boolean;
+var
+  VMapType: TMapType;
+begin
+  Result := False;
+  VMapType := GetMapType;
+  if VMapType <> nil then begin
+    Result := (not AnsiSameText(cbbMap.Items[cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
+  end;
+end;
+
+function TfrTilesDownload.GetIsIgnoreTne: Boolean;
+begin
+  Result := chkTryLoadIfTNE.Checked
+end;
+
+function TfrTilesDownload.GetIsReplace: Boolean;
+begin
+  Result := chkReplace.Checked;
+end;
+
+function TfrTilesDownload.GetIsReplaceIfDifSize: Boolean;
+begin
+  Result := chkReplaceIfDifSize.Checked;
+end;
+
+function TfrTilesDownload.GetIsReplaceIfOlder: Boolean;
+begin
+  Result := chkReplaceOlder.Checked;
+end;
+
+function TfrTilesDownload.GetMapType: TMapType;
+begin
+  Result := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+end;
+
+function TfrTilesDownload.GetReplaceDate: TDateTime;
+begin
+  Result := dtpReplaceOlderDate.DateTime;
+end;
+
+function TfrTilesDownload.GetZoom: Byte;
+begin
+  if cbbZoom.ItemIndex < 0 then begin
+    cbbZoom.ItemIndex := 0;
+  end;
+  Result := cbbZoom.ItemIndex;
 end;
 
 procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygon: ILonLatPolygon);
