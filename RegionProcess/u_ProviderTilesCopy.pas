@@ -20,7 +20,6 @@ uses
 type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
-    FFrame: TfrTilesCopy;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
@@ -89,14 +88,13 @@ end;
 
 function TProviderTilesCopy.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrTilesCopy.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList
     );
-  Result := FFrame;
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
   Assert(Supports(Result, IRegionProcessParamsFrameTilesCopy));
