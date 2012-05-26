@@ -3,6 +3,7 @@ unit u_ProviderTilesGenPrev;
 interface
 
 uses
+  Types,
   Controls,
   Forms,
   i_JclNotify,
@@ -21,7 +22,6 @@ uses
 type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
-    FFrame: TfrTilesGenPrev;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FImageResamplerConfig: IImageResamplerConfig;
@@ -94,7 +94,7 @@ end;
 
 function TProviderTilesGenPrev.CreateFrame: TFrame;
 begin
-  FFrame :=
+  Result :=
     TfrTilesGenPrev.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
@@ -102,7 +102,9 @@ begin
       Self.GUIConfigList,
       FImageResamplerConfig
     );
-  Result := FFrame;
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
+  Assert(Supports(Result, IRegionProcessParamsFrameTilesGenPrev));
 end;
 
 function TProviderTilesGenPrev.GetCaption: string;
@@ -112,11 +114,8 @@ end;
 
 procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon);
 var
-  i: integer;
-  VInZooms: TArrayOfByte;
+  VInZooms: TByteDynArray;
   VMapType: TMapType;
-  VZoomsCount: Integer;
-  VFromZoom: Byte;
   VResampler: IImageResamplerFactory;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
@@ -124,27 +123,9 @@ var
   VBgColor: TColor32;
 begin
   inherited;
-  VMapType := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  VFromZoom := FFrame.cbbFromZoom.ItemIndex + 1;
-  VZoomsCount := 0;
-  for i := 0 to FFrame.cbbFromZoom.ItemIndex do begin
-    if FFrame.chklstZooms.ItemEnabled[i] then begin
-      if FFrame.chklstZooms.Checked[i] then begin
-        SetLength(VInZooms, VZoomsCount + 1);
-        VInZooms[VZoomsCount] := FFrame.cbbFromZoom.ItemIndex - i;
-        Inc(VZoomsCount);
-      end;
-    end;
-  end;
-  try
-    if FFrame.cbbResampler.ItemIndex >= 0 then begin
-      VResampler := FImageResamplerConfig.GetList.Items[FFrame.cbbResampler.ItemIndex];
-    end else begin
-      VResampler := FImageResamplerConfig.GetActiveFactory;
-    end;
-  except
-    VResampler := FImageResamplerConfig.GetActiveFactory;
-  end;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  VInZooms := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  VResampler := (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).Resampler;
   if VMapType.IsHybridLayer then begin
     VBgColor := 0;
   end else begin
@@ -169,14 +150,13 @@ begin
     VProgressInfo,
     FProjectionFactory,
     FVectorItmesFactory,
-    VFromZoom,
     VInZooms,
     APolygon,
     VMapType,
-    FFrame.chkReplace.Checked,
-    FFrame.chkSaveFullOnly.Checked,
-    FFrame.chkFromPrevZoom.Checked,
-    FFrame.chkUsePrevTiles.Checked,
+    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsReplace,
+    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsSaveFullOnly,
+    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsCreateAllFromFirstZoom,
+    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsUseTilesFromPrevZoom,
     VBgColor,
     VResampler
   );

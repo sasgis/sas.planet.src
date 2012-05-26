@@ -3,6 +3,7 @@ unit u_ThreadGenPrevZoom;
 interface
 
 uses
+  Types,
   SysUtils,
   Classes,
   GR32,
@@ -22,10 +23,9 @@ type
   private
     FIsReplace: boolean;
     FIsSaveFullOnly: boolean;
-    FGenFormPrevZoom: boolean;
+    FGenFormFirstZoom: boolean;
     FUsePrevTiles: boolean;
-    FSourceZoom: byte;
-    FZooms: TArrayOfByte;
+    FZooms: TByteDynArray;
     FMapType: TMapType;
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -43,13 +43,12 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
-      Azoom: byte;
-      const AInZooms: TArrayOfByte;
+      const AZooms: TByteDynArray;
       const APolygLL: ILonLatPolygon;
       Atypemap: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
-      AGenFormPrev: boolean;
+      AGenFormFirstZoom: boolean;
       AUsePrevTiles: boolean;
       ABackGroundColor: TColor32;
       const AResamplerFactory: IImageResamplerFactory
@@ -74,13 +73,12 @@ constructor TThreadGenPrevZoom.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
-  Azoom: byte;
-  const AInZooms: TArrayOfByte;
+  const AZooms: TByteDynArray;
   const APolygLL: ILonLatPolygon;
   Atypemap: TMapType;
   AReplace: boolean;
   Asavefull: boolean;
-  AGenFormPrev: boolean;
+  AGenFormFirstZoom: boolean;
   AUsePrevTiles: boolean;
   ABackGroundColor: TColor32;
   const AResamplerFactory: IImageResamplerFactory
@@ -92,15 +90,17 @@ begin
     AProgressInfo,
     APolygLL
   );
+  if Length(AZooms) <= 1 then begin
+    raise Exception.Create('Не выбрано целевых масштабов');
+  end;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FIsReplace := AReplace;
   FIsSaveFullOnly := Asavefull;
-  FGenFormPrevZoom := AGenFormPrev;
+  FGenFormFirstZoom := AGenFormFirstZoom;
   FUsePrevTiles := AUsePrevTiles;
-  FZooms := AInZooms;
+  FZooms := AZooms;
   FTileInProc := 0;
-  FSourceZoom := Azoom;
   FMapType := Atypemap;
   FResamplerFactory := AResamplerFactory;
   FBackGroundColor := ABackGroundColor;
@@ -135,8 +135,8 @@ begin
   inherited;
   VTilesToProcess := 0;
   VGeoConvert := FMapType.GeoConvert;
-  SetLength(VTileIterators, Length(FZooms));
-  for i := 0 to Length(FZooms) - 1 do begin
+  SetLength(VTileIterators, Length(FZooms) - 1);
+  for i := 1 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
 
     VProjectedPolygon :=
@@ -144,13 +144,14 @@ begin
         FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
         PolygLL
       );
-    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-    if (not FGenFormPrevZoom) or (i = 0) then begin
-      VZoomDelta := FSourceZoom - FZooms[i];
+    VTileIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VTileIterators[i - 1] := VTileIterator;
+    if FGenFormFirstZoom then begin
+      VZoomDelta := FZooms[0] - VZoom;
     end else begin
-      VZoomDelta := FZooms[i - 1] - FZooms[i];
+      VZoomDelta := FZooms[i - 1] - VZoom;
     end;
-    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * (1 shl (2 * VZoomDelta));
+    VTilesToProcess := VTilesToProcess + VTileIterator.TilesTotal * (1 shl (2 * VZoomDelta));
   end;
   try
     ProgressInfo.SetCaption(
@@ -161,14 +162,14 @@ begin
     try
       FTileInProc := 0;
       VTilesProcessed := 0;
-      for i := 0 to length(FZooms) - 1 do begin
-        if (not FGenFormPrevZoom) or (i = 0) then begin
-          VZoomPrev := FSourceZoom;
+      for i := 1 to Length(FZooms) - 1 do begin
+        if FGenFormFirstZoom then begin
+          VZoomPrev := FZooms[0];
         end else begin
           VZoomPrev := FZooms[i - 1];
         end;
         VZoom := FZooms[i];
-        VTileIterator := VTileIterators[i];
+        VTileIterator := VTileIterators[i - 1];
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
