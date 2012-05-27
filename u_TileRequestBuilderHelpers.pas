@@ -176,11 +176,13 @@ begin
     Result := '';
 end;
 
-function DoHttpRequestEx(const ARequestUrl, ARequestHeader, APostData: string;
-                         out AResponseHeader, AResponseData: string;
-                         const ASaveToLocal: Boolean;
-                         const ALocalFileName: String;
-                         const AContentType: String): Cardinal;
+function DoHttpRequestEx(
+  const ARequestUrl, ARequestHeader, APostData: string;
+  out AResponseHeader, AResponseData: string;
+  const ASaveToLocal: Boolean;
+  const ALocalFileName: String;
+  const AContentType: String
+): Cardinal;
 var
   VHttpClient: TALWinInetHTTPClient;
   VHttpResponseHeader: TALHTTPResponseHeader;
@@ -290,9 +292,17 @@ end;
 
 function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
 begin
-  Result := DoHttpRequestEx(ARequestUrl, ARequestHeader, APostData,
-                            AResponseHeader, AResponseData,
-                            FALSE, '', '');
+  Result :=
+    DoHttpRequestEx(
+      ARequestUrl,
+      ARequestHeader,
+      APostData,
+      AResponseHeader,
+      AResponseData,
+      FALSE,
+      '',
+      ''
+    );
 end;
 
 function GetNumberAfter(const ASubStr, AText: String): String;
@@ -333,9 +343,17 @@ end;
 function DownloadFileToLocal(const AFullRemoteUrl, AFullLocalFilename, AContType: String): Integer;
 var VResponseHeader, VResponseData: string;
 begin
-  Result := DoHttpRequestEx(AFullRemoteUrl, '', '',
-                            VResponseHeader, VResponseData,
-                            TRUE, AFullLocalFilename, AContType);
+  Result :=
+    DoHttpRequestEx(
+      AFullRemoteUrl,
+      '',
+      '',
+      VResponseHeader,
+      VResponseData,
+      TRUE,
+      AFullLocalFilename,
+      AContType
+    );
 end;
 
 end.
