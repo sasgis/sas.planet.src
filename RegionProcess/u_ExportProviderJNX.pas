@@ -9,11 +9,13 @@ uses
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
+  i_StringListStatic,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  u_ExportProviderAbstract;
+  u_ExportProviderAbstract,
+  fr_ExportToJNX;
 
 type
   TExportProviderJNX = class(TExportProviderAbstract)
@@ -47,14 +49,16 @@ uses
   Types,
   SysUtils,
   Classes,
-  i_StringListStatic,
+  RegExprUtils,
+  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
-  fr_ExportToJNX,
+  u_MapTypeListStatic,
+  u_StringListStatic,
   frm_ProgressSimple;
 
 
@@ -117,30 +121,38 @@ var
   VJNXVersion: integer;
   VZorder: integer;
   VProductID: integer;
-  VJpgQuality: byte;
+  VJpgQuality: IStringListStatic;
   VCancelNotifierInternal: IOperationNotifierInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VLevelsDesc: IStringListStatic;
+  VMapList: IMapTypeListStatic;
+  VLayerList: IMapTypeListStatic;
+  VScaleArr: TByteDynArray;
+
 begin
   inherited;
 
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
-  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  VLevelsDesc := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LevelsDesc;
 
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapType;
+  VLevelsDesc := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LevelsDesc;
   VProductName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductName;
   VMapName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapName;
-  VJpgQuality := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JpgQuality;
+  VJpgQuality := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JpgQuality; 
   VJNXVersion := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JNXVersion;
   VZorder := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ZOrder;
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
+  VScaleArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ScaleArray;
+  VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
+  VLayerList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LayerList;
 
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
-
+  
+  
   TfrmProgressSimple.Create(
     Application,
     FAppClosingNotifier,
@@ -166,7 +178,10 @@ begin
     VZorder,
     VProductID,
     VJpgQuality,
-    VLevelsDesc
+    VLevelsDesc,
+    VMapList,
+    VLayerList,
+    VScaleArr
   );
 end;
 

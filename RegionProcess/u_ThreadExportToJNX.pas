@@ -8,6 +8,7 @@ uses
   Classes,
   JNXlib,
   t_GeoTypes,
+  i_MapTypes,
   i_OperationNotifier,
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
@@ -21,7 +22,7 @@ uses
 type
   TThreadExportToJnx = class(TThreadExportAbstract)
   private
-    FMapType: TMapType;
+//  FMapType: TMapType;
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -31,8 +32,13 @@ type
     FJNXversion: byte;  // 3..4
     FZorder: integer;   // для 4 версии
     FProductID: integer; // 0,2,3,4,5,6,7,8,9
-    FJpgQuality: byte; // 10..100 TODO
+    FJpgQuality: IStringListStatic; // 10..100 TODO
     FLevelsDesc: IStringListStatic; // Levels Descriptions
+    FMapList: IMapTypeListStatic;
+    FLayersList: IMapTypeListStatic;
+    FZoomList: TByteDynArray;
+    FScaleArr: TByteDynArray;
+
   protected
     procedure ProcessRegion; override;
   public
@@ -52,8 +58,11 @@ type
       AJNXVersion: integer;
       AZorder: integer;
       AProductID: integer;
-      AJpgQuality: byte;
-      ALevelsDesc: IStringListStatic
+      AJpgQuality: IStringListStatic;
+      ALevelsDesc: IStringListStatic;
+      const AMapList: IMapTypeListStatic;
+      const ALayerList: IMapTypeListStatic;
+      const AScaleArr: TByteDynArray
     );
   end;
 
@@ -68,6 +77,7 @@ uses
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
+
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
@@ -86,8 +96,12 @@ constructor TThreadExportToJnx.Create(
   AJNXVersion: integer;
   AZorder: integer;
   AProductID: integer;
-  AJpgQuality: byte;
-  ALevelsDesc: IStringListStatic
+  AJpgQuality: IStringListStatic;
+  ALevelsDesc: IStringListStatic;
+  const AMapList: IMapTypeListStatic;
+  const ALayerList: IMapTypeListStatic;
+  const AScaleArr: TByteDynArray
+
 );
 begin
   inherited Create(
@@ -98,7 +112,7 @@ begin
     Azoomarr
   );
   FTargetFile := ATargetFile;
-  FMapType := AMapType;
+//FMapType := AMapType;
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
@@ -109,9 +123,22 @@ begin
   FProductID := AProductID;
   FJpgQuality := AJpgQuality;
   FLevelsDesc := ALevelsDesc;
+  FMapList := AMapList;
+  FLayersList := ALayerList;
+  FZoomList := Azoomarr;
+  FScaleArr := AScaleArr;
 end;
 
 procedure TThreadExportToJnx.ProcessRegion;
+const
+  ZoomToScale: array [0..32] of integer = (
+2083334, 2083334, 2083334, 2083334, 2083334, 2083334, 2083334, 1302084,
+781250,  520834,  312500,  208334,  130209,   78125,    52084,   31250,
+ 20834,   13021,    7813,    5209,    3125,    2084,     1303,     782,
+   521,     313,    209,      131,      79,      52,       32,      21,
+   14
+  );
+
 var
   i: integer;
   VBitmapTile: IBitmap32Static;
@@ -133,10 +160,9 @@ var
 begin
   inherited;
   VTilesToProcess := 0;
-  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(FJpgQuality);
   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   SetLength(VTileIterators, Length(FZooms));
-  for i := 0 to Length(FZooms) - 1 do begin
+  for i := 0 to FMapList.Count - 1 do begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -150,18 +176,19 @@ begin
   VWriter := TMultiVolumeJNXWriter.Create(FTargetFile);
   try
     VWriter.Levels := Length(FZooms);
-    for i := 0 to Length(FZooms) - 1 do begin
-      VWriter.LevelScale[i] := DigitalGlobeZoomToScale(FZooms[i]);
+    VWriter.ProductName := FProductName;
+    VWriter.MapName := FmapName;
+    VWriter.Version := FJNXVersion;
+    VWriter.ZOrder := FZorder;
+    VWriter.ProductID := FProductID;
+    
+    for i := 0 to FMapList.Count - 1 do begin
+      VWriter.LevelScale[i] := ZoomToScale[FScaleArr[i]];;
       VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
-      VWriter.ProductName := FProductName;
-      VWriter.MapName := FmapName;
-      VWriter.Version := FJNXVersion;
-      VWriter.ZOrder := FZorder;
-      VWriter.LevelDescription[i] := FLevelsDesc.Items[i * 3];
+      VWriter.LevelDescription[i] := FLevelsDesc.items[i * 3];
       VWriter.LevelName[i] := FLevelsDesc.Items[i * 3 + 1];
-      VWriter.LevelCopyright[i] := FLevelsDesc.Items[i * 3 + 2];
-      VWriter.LevelZoom[i] := FZooms[i];
-      VWriter.ProductID := FProductID;
+      VWriter.LevelCopyright[i] := FLevelsDesc.items[i * 3 + 2];
+      VWriter.LevelZoom[i] := FZoomList[i];
     end;
 
     try
@@ -172,13 +199,15 @@ begin
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FZooms) - 1 do begin
-          VZoom := FZooms[i];
+          VSaver := TVampyreBasicBitmapTileSaverJPG.Create(strtoint(FJpgQuality.Items[i]));
+          VZoom := FZoomList[i];
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            VBitmapTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
+//            VBitmapTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
+            VBitmapTile := FMapList.Items[i].MapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
             if VBitmapTile <> nil then begin
               VData := VSaver.Save(VBitmapTile);
 
