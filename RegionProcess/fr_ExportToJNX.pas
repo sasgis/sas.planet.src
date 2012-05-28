@@ -848,7 +848,7 @@ begin
     else
       VLayers[j] := nil;
   end;
-
+  Result := TMapTypeListStatic.Create(VLayers);
 end;
 
 
