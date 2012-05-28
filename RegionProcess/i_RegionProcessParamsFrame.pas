@@ -20,43 +20,43 @@ type
   end;
 
   IRegionProcessParamsFrameOneMap = interface(IRegionProcessParamsFrameBase)
-    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    ['{240B7587-DDC0-4471-BDF4-AD2EE0040526}']
     function GetMapType: TMapType;
     property MapType: TMapType read GetMapType;
   end;
 
   IRegionProcessParamsFrameOneZoom = interface(IRegionProcessParamsFrameBase)
-    ['{51668A2D-05E8-470F-9642-05E83B6D2956}']
+    ['{A1A9D2C3-4C9F-4205-B19C-5A768E938808}']
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
   end;
 
   IRegionProcessParamsFrameZoomArray = interface(IRegionProcessParamsFrameBase)
-    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    ['{9DB542F9-7F4E-4DFF-8957-E0E81B8A9096}']
     function GetZoomArray: TByteDynArray;
     property ZoomArray: TByteDynArray read GetZoomArray;
   end;
 
   IRegionProcessParamsFrameTargetProjection = interface(IRegionProcessParamsFrameBase)
-    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    ['{F0FACC2E-C686-4282-99A1-E5E2F1F5CE2D}']
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
   end;
 
   IRegionProcessParamsFrameMapCalibrationList = interface(IRegionProcessParamsFrameBase)
-    ['{0C15FA38-5F6E-4BF6-A4ED-31B74FF8169F}']
+    ['{41A9899D-D431-4D12-8DC4-1F65B36A8CAB}']
     function GetMapCalibrationList: IMapCalibrationList;
     property MapCalibrationList: IMapCalibrationList read GetMapCalibrationList;
   end;
 
   IRegionProcessParamsFrameImageProvider = interface(IRegionProcessParamsFrameBase)
-    ['{9FDF9521-9A18-455D-8AAC-E9FF9FC08791}']
+    ['{98A4BE9B-AF50-45F5-8E26-0DBF0F094C0B}']
     function GetProvider: IBitmapLayerProvider;
     property Provider: IBitmapLayerProvider read GetProvider;
   end;
 
   IRegionProcessParamsFrameTargetPath = interface(IRegionProcessParamsFrameBase)
-    ['{9FDF9521-9A18-455D-8AAC-E9FF9FC08791}']
+    ['{A0510824-7E26-430F-9C04-AE71EBAD65FF}']
     function GetPath: string;
     property Path: string read GetPath;
   end;
