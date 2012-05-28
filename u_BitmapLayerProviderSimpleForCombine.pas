@@ -17,8 +17,6 @@ type
     FRecolorConfig: IBitmapPostProcessingConfigStatic;
     FSourceProvider: IBitmapLayerProvider;
     FMarksImageProvider: IBitmapLayerProvider;
-    FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -29,9 +27,7 @@ type
     constructor Create(
       const ARecolorConfig: IBitmapPostProcessingConfigStatic;
       const ASourceProvider: IBitmapLayerProvider;
-      const AMarksImageProvider: IBitmapLayerProvider;
-      AUsePrevZoomAtMap: Boolean;
-      AUsePrevZoomAtLayer: Boolean
+      const AMarksImageProvider: IBitmapLayerProvider
     );
   end;
 
@@ -46,15 +42,12 @@ uses
 constructor TBitmapLayerProviderSimpleForCombine.Create(
   const ARecolorConfig: IBitmapPostProcessingConfigStatic;
   const ASourceProvider: IBitmapLayerProvider;
-  const AMarksImageProvider: IBitmapLayerProvider;
-  AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
+  const AMarksImageProvider: IBitmapLayerProvider
 );
 begin
   inherited Create;
   FSourceProvider := ASourceProvider;
   FMarksImageProvider := AMarksImageProvider;
-  FUsePrevZoomAtMap := AUsePrevZoomAtMap;
-  FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
   FRecolorConfig := ARecolorConfig;
 end;
 

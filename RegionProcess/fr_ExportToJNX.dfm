@@ -26,7 +26,7 @@ object frExportToJNX: TfrExportToJNX
       Left = 3
       Top = 3
       Width = 41
-      Height = 21
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
@@ -34,7 +34,6 @@ object frExportToJNX: TfrExportToJNX
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
@@ -66,6 +65,10 @@ object frExportToJNX: TfrExportToJNX
     OnChange = PageControl1Change
     object Map: TTabSheet
       Caption = 'Map'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlCenter: TPanel
         Left = 0
         Top = 0
@@ -143,7 +146,7 @@ object frExportToJNX: TfrExportToJNX
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 1
             OnChange = CbbZoomChange
           end
@@ -168,7 +171,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 3
             OnChange = CbbZoom2Change
           end
@@ -193,7 +196,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 5
             OnChange = CbbZoom4Change
           end
@@ -218,7 +221,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 7
             OnChange = CbbZoom5Change
           end
@@ -243,7 +246,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 9
             OnChange = CbbZoom3Change
           end
@@ -256,7 +259,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 10
           end
           object cbbscale3: TComboBox
@@ -268,7 +271,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 11
           end
           object cbbscale4: TComboBox
@@ -280,7 +283,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 12
           end
           object cbbscale5: TComboBox
@@ -292,7 +295,7 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 13
           end
           object cbbscale: TComboBox
@@ -346,6 +349,10 @@ object frExportToJNX: TfrExportToJNX
     object Layer: TTabSheet
       Caption = 'Overlay layer:'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         443
         249)
@@ -408,7 +415,7 @@ object frExportToJNX: TfrExportToJNX
           Style = csDropDownList
           Anchors = [akTop, akRight]
           Enabled = False
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 2
         end
         object chbLayer4: TCheckBox
@@ -448,7 +455,7 @@ object frExportToJNX: TfrExportToJNX
           Style = csDropDownList
           Anchors = [akTop, akRight]
           Enabled = False
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 6
         end
         object cbbHyb: TComboBox
@@ -459,7 +466,7 @@ object frExportToJNX: TfrExportToJNX
           Style = csDropDownList
           Anchors = [akTop, akRight]
           Enabled = False
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 7
         end
         object cbbHyb4: TComboBox
@@ -470,7 +477,7 @@ object frExportToJNX: TfrExportToJNX
           Style = csDropDownList
           Anchors = [akTop, akRight]
           Enabled = False
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 8
         end
         object cbbHyb3: TComboBox
@@ -481,7 +488,7 @@ object frExportToJNX: TfrExportToJNX
           Style = csDropDownList
           Anchors = [akTop, akRight]
           Enabled = False
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 9
         end
       end
@@ -489,6 +496,10 @@ object frExportToJNX: TfrExportToJNX
     object Info: TTabSheet
       Caption = 'Additional'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object PnlInfo: TPanel
         Left = 0
         Top = 0
@@ -656,7 +667,7 @@ object frExportToJNX: TfrExportToJNX
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
       DropDownCount = 16
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 1
       OnChange = cbbMapChange
     end
@@ -670,7 +681,7 @@ object frExportToJNX: TfrExportToJNX
       Anchors = [akLeft, akTop, akRight]
       DropDownCount = 16
       Enabled = False
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 2
       OnChange = cbbMap2Change
     end
@@ -684,7 +695,7 @@ object frExportToJNX: TfrExportToJNX
       Anchors = [akLeft, akTop, akRight]
       DropDownCount = 16
       Enabled = False
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 3
       OnChange = cbbMap3Change
     end
@@ -698,7 +709,7 @@ object frExportToJNX: TfrExportToJNX
       Anchors = [akLeft, akTop, akRight]
       DropDownCount = 16
       Enabled = False
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 4
       OnChange = cbbMap4Change
     end
@@ -712,7 +723,7 @@ object frExportToJNX: TfrExportToJNX
       Anchors = [akLeft, akTop, akRight]
       DropDownCount = 16
       Enabled = False
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 5
       OnChange = cbbMap5Change
     end

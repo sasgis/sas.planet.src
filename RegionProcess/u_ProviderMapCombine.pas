@@ -252,9 +252,7 @@ begin
     TBitmapLayerProviderSimpleForCombine.Create(
       VRecolorConfig,
       VSourceProvider,
-      VMarksImageProvider,
-      True,
-      True
+      VMarksImageProvider
     );
   Result :=
     TBitmapLayerProviderInPolygon.Create(
