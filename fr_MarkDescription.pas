@@ -116,6 +116,8 @@ begin
   end else if Key = VK_ESCAPE then begin
     Form := GetParentForm(Self);
     if Form <> nil then Form.ModalResult := mrCancel;
+  end else if (Key = $41) and (ssCtrl in Shift) then begin
+    EditComment.SelectAll;
   end;
 end;
 
