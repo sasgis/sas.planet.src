@@ -572,6 +572,8 @@ uses
   i_StringConfigDataElement in 'i_StringConfigDataElement.pas',
   u_StringConfigDataElementWithLanguage in 'u_StringConfigDataElementWithLanguage.pas',
   u_StringConfigDataElementWithDefByStringRec in 'u_StringConfigDataElementWithDefByStringRec.pas',
+  i_ProjConverter in 'i_ProjConverter.pas',
+  u_ProjConverterFactory in 'u_ProjConverterFactory.pas',
   u_LanguagesEx in 'u_LanguagesEx.pas',
   u_LanguageTBXItem in 'u_LanguageTBXItem.pas',
   i_ImageResamplerFactory in 'i_ImageResamplerFactory.pas',
