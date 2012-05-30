@@ -24,7 +24,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_proj4,
   u_CoordConverterBasic;
 
 type
@@ -37,8 +36,7 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
-      const Aradiusa, Aradiusb: Double;
-      const AProj4Info: TProj4Info
+      const Aradiusa, Aradiusb: Double
     );
   end;
 
@@ -51,15 +49,14 @@ uses
 { TCoordConverterSimpleLonLat }
 
 constructor TCoordConverterSimpleLonLat.Create(
-  const Aradiusa, Aradiusb: Double;
-  const AProj4Info: TProj4Info
+  const Aradiusa, Aradiusb: Double
 );
 begin
   FExct := sqrt(ARadiusa * ARadiusa - ARadiusb * ARadiusb) / ARadiusa;
   if (Abs(ARadiusa - 6378137) < 1) and (Abs(ARadiusb - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(4326, Aradiusa, Aradiusb), 4326, CELL_UNITS_DEGREES, AProj4Info);
+    inherited Create(TDatum.Create(4326, Aradiusa, Aradiusb), 4326, CELL_UNITS_DEGREES);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb), 0, CELL_UNITS_UNKNOWN, AProj4Info);
+    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb), 0, CELL_UNITS_UNKNOWN);
   end;
 end;
 

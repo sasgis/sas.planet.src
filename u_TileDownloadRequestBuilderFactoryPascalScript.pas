@@ -27,6 +27,7 @@ uses
   i_LanguageManager,
   i_Downloader,
   i_DownloadChecker,
+  i_ProjConverter,
   i_TileDownloaderConfig,
   i_TileDownloaderState,
   i_TileDownloadRequestBuilderConfig,
@@ -46,6 +47,8 @@ type
     FLangManager: ILanguageManager;
     FCS: IReadWriteSync;
     FScriptInited: Boolean;
+    FDefProjConverter: IProjConverter;
+    FProjFactory: IProjConverterFactory;
   protected
     function DoCompilerOnAuxUses(
       ACompiler: TBasePascalCompiler;
@@ -60,6 +63,7 @@ type
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const ACheker: IDownloadChecker;
+      const AProjFactory: IProjConverterFactory;
       const ALangManager: ILanguageManager
     );
     destructor Destroy; override;
@@ -79,6 +83,7 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const ACheker: IDownloadChecker;
+  const AProjFactory: IProjConverterFactory;
   const ALangManager: ILanguageManager
 );
 var
@@ -91,6 +96,7 @@ begin
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FScriptText := AScriptText;
+  FProjFactory := AProjFactory;
 
   FCS := MakeSyncObj(Self, TRUE);
   VState := TTileDownloaderStateInternal.Create;
@@ -117,6 +123,15 @@ var
   T: TPSType;
 begin
   if SameText('SYSTEM', AName) then begin
+    T := ACompiler.FindType('ISimpleHttpDownloader');
+    ACompiler.AddUsedVariable('Downloader', t);
+
+    T := ACompiler.FindType('IProjConverter');
+    ACompiler.AddUsedVariable('DefProjConverter', t);
+
+    T := ACompiler.FindType('IProjConverterFactory');
+    ACompiler.AddUsedVariable('ProjFactory', t);
+
     T := ACompiler.FindType('ICoordConverter');
     ACompiler.AddUsedVariable('Converter', t);
 
@@ -158,6 +173,8 @@ end;
 function TTileDownloadRequestBuilderFactoryPascalScript.BuildRequestBuilder(
   const ADownloader: IDownloader
 ): ITileDownloadRequestBuilder;
+var
+  VProjArgs: string;
 begin
   Result := nil;
   if FStateInternal.Enabled then begin
@@ -167,6 +184,10 @@ begin
         try
           if not FScriptInited then begin
             try
+              VProjArgs := FConfig.DefaultProjConverterArgs;
+              if VProjArgs <> '' then begin
+                FDefProjConverter := FProjFactory.GetByInitString(VProjArgs);
+              end;
               PreparePascalScript(FScriptText);
               FScriptInited := True;
             except
@@ -191,6 +212,8 @@ begin
           FTileDownloaderConfig,
           ADownloader,
           FCheker,
+          FDefProjConverter,
+          FProjFactory,
           FLangManager
         );
     except

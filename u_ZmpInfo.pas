@@ -869,16 +869,23 @@ var
   VUrlBase: string;
   VRequestHead: string;
   VCoordConverter: ICoordConverter;
+  VIsUseDownloader: Boolean;
+  VDefaultProjConverterArgs: string;
 begin
   VURLBase := AConfig.ReadString('DefURLBase', '');
   VURLBase := AConfig.ReadString('URLBase', VURLBase);
   VRequestHead := AConfig.ReadString('RequestHead', '');
   VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(AConfig);
+  VIsUseDownloader := AConfig.ReadBool('IsUseDownloaderInScript', False);
+  VDefaultProjConverterArgs := AConfig.ReadString('Proj4Args', '');
+
   FTileDownloadRequestBuilderConfig :=
     TTileDownloadRequestBuilderConfigStatic.Create(
       VUrlBase,
       VRequestHead,
+      VIsUseDownloader,
+      VDefaultProjConverterArgs,
       VCoordConverter
     );
 end;

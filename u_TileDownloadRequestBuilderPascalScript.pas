@@ -36,6 +36,7 @@ uses
   i_DownloadChecker,
   i_LanguageManager,
   i_LastResponseInfo,
+  i_ProjConverter,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
   u_BasePascalCompiler,
@@ -48,6 +49,8 @@ type
     FCheker: IDownloadChecker;
     FDownloader: IDownloader;
     FCoordConverter: ICoordConverterSimple;
+    FDefProjConverter: IProjConverter;
+    FProjFactory: IProjConverterFactory;
     FScriptBuffer: string;
 
     FLang: string;
@@ -75,13 +78,18 @@ type
     FpGetTMetr: PPSVariantDouble;
     FpGetBMetr: PPSVariantDouble;
     FpConverter: PPSVariantInterface;
+    FpDownloader: PPSVariantInterface;
+    FpDefProjConverter: PPSVariantInterface;
+    FpProjFactory: PPSVariantInterface;
     procedure PrepareCompiledScript(const ACompiledData: TbtString);
     procedure RegisterAppVars;
     procedure RegisterAppRoutines;
     procedure SetVar(
       const ALastResponseInfo: ILastResponseInfo;
       const ADownloaderConfig: ITileDownloaderConfigStatic;
-      const ASource: ITileRequest
+      const ASource: ITileRequest;
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer
     );
     procedure OnLangChange;
   protected
@@ -98,6 +106,8 @@ type
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const ADownloader: IDownloader;
       const ACheker: IDownloadChecker;
+      const ADefProjConverter: IProjConverter;
+      const AProjFactory: IProjConverterFactory;
       const ALangManager: ILanguageManager
     );
     destructor Destroy; override;
@@ -107,9 +117,9 @@ implementation
 
 uses
   t_GeoTypes,
-  u_proj4,
   u_NotifyEventListener,
   u_TileDownloadRequest,
+  u_SimpleHttpDownloader,
   u_TileRequestBuilderHelpers,
   u_ResStrings;
 
@@ -121,6 +131,8 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const ADownloader: IDownloader;
   const ACheker: IDownloadChecker;
+  const ADefProjConverter: IProjConverter;
+  const AProjFactory: IProjConverterFactory;
   const ALangManager: ILanguageManager
 );
 begin
@@ -129,6 +141,8 @@ begin
   FTileDownloaderConfig := ATileDownloaderConfig;
   FLangManager := ALangManager;
   FDownloader := ADownloader;
+  FDefProjConverter := ADefProjConverter;
+  FProjFactory := AProjFactory;
   FCheker := ACheker;
 
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
@@ -176,7 +190,9 @@ begin
         SetVar(
           ALastResponseInfo,
           VDownloaderConfig,
-          ASource
+          ASource,
+          ACancelNotifier,
+          AOperationID
         );
         try
           if not FPSExec.RunScript then begin
@@ -261,12 +277,17 @@ begin
   FpGetBmetr := PPSVariantDouble(FPSExec.GetVar2('GetBmetr'));
   FpGetRmetr := PPSVariantDouble(FPSExec.GetVar2('GetRmetr'));
   FpConverter := PPSVariantInterface(FPSExec.GetVar2('Converter'));
+  FpDownloader := PPSVariantInterface(FPSExec.GetVar2('Downloader'));
+  FpDefProjConverter := PPSVariantInterface(FPSExec.GetVar2('DefProjConverter'));
+  FpProjFactory := PPSVariantInterface(FPSExec.GetVar2('ProjFactory'));
 end;
 
 procedure TTileDownloadRequestBuilderPascalScript.SetVar(
   const ALastResponseInfo: ILastResponseInfo;
   const ADownloaderConfig: ITileDownloaderConfigStatic;
-  const ASource: ITileRequest
+  const ASource: ITileRequest;
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer
 );
 var
   XY: TPoint;
@@ -274,6 +295,7 @@ var
   VTile: TPoint;
   VZoom: Byte;
   VAccept: string;
+  VUseDownloader: Boolean;
 begin
   VTile := ASource.Tile;
   VZoom := ASource.Zoom;
@@ -296,13 +318,13 @@ begin
   FpGetRMetr.Data := Ll.X;
   FpGetBMetr.Data := Ll.Y;
   FpConverter.Data := FCoordConverter;
-  //FpProj4Conv.Data := CreateProj4Conv;
+
   FpResultUrl.Data := '';
   FConfig.LockRead;
   try
     FpGetURLBase.Data := FConfig.URLBase;
     FpRequestHead.Data := FConfig.RequestHeader;
-
+    VUseDownloader := FConfig.IsUseDownloader;
   finally
     FConfig.UnlockRead;
   end;
@@ -332,6 +354,21 @@ begin
     FLang := FLangManager.GetCurrentLanguageCode;
   end;
   FpLang.Data := FLang;
+  if FDownloader <> nil then begin
+    if VUseDownloader then begin
+      FpDownloader.Data :=
+        TSimpleHttpDownloader.Create(
+          FDownloader,
+          ADownloaderConfig.InetConfigStatic,
+          ACancelNotifier,
+          AOperationID
+        );
+    end;
+  end else begin
+    FpDownloader.Data := nil;
+  end;
+  FpDefProjConverter.Data := FDefProjConverter;
+  FpProjFactory.Data := FProjFactory;
 end;
 
 end.

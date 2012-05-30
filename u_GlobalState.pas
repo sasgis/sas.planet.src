@@ -239,6 +239,7 @@ uses
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigDataProviderByPathConfig,
   i_InternalDomainInfoProvider,
+  i_ProjConverter,
   i_TTLCheckNotifier,
   u_TTLCheckNotifier,
   i_FileNameIterator,
@@ -277,6 +278,7 @@ uses
   u_DownloadResultTextProvider,
   u_TimeZoneDiffByLonLatStuped,
   u_MainFormConfig,
+  u_ProjConverterFactory,
   u_PathConfig,
   u_ThreadConfig,
   u_ZmpConfig,
@@ -620,6 +622,7 @@ var
   VLocalMapsConfig: IConfigDataProvider;
   Ini: TMeminifile;
   VMapsPath: String;
+  VProjFactory: IProjConverterFactory;
 begin
   VMapsPath := IncludeTrailingPathDelimiter(FMapsPath.FullPath);
   ForceDirectories(VMapsPath);
@@ -627,6 +630,8 @@ begin
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
+
+  VProjFactory := TProjConverterFactory.Create;
 
   FMainMapsList.LoadMaps(
     FLanguageManager,
@@ -643,6 +648,7 @@ begin
     FDownloadResultTextProvider,
     FCoordConverterFactory,
     FInvisibleBrowser,
+    VProjFactory,
     VLocalMapsConfig
   );
   FMainFormConfig :=

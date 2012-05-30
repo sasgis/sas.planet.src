@@ -29,7 +29,6 @@ uses
   uPSRuntime,
   uPSCompiler,
   uPSUtils,
-  i_proj4,
   i_CoordConverter,
   u_ResStrings;
 
@@ -89,8 +88,9 @@ implementation
 uses
   Math,
   RegExprUtils,
+  i_SimpleHttpDownloader,
+  i_ProjConverter,
   u_GeoToStr,
-  u_proj4,
   u_TileRequestBuilderHelpers;
 
 function CommonAppScriptOnUses(
@@ -129,13 +129,16 @@ begin
       aType := t;
     end;
 
-    // IProj4Converter
-    with Sender.AddInterface(Sender.FindInterface('IUnknown'), IProj4Converter, 'IProj4Converter') do begin
-      RegisterMethod('function Available: Boolean', cdStdCall);
-      RegisterMethod('function SetProj(const AArgs, APath: String): Boolean', cdStdCall);
-      RegisterMethod('function SetEPSG(const AEPSG: Integer; const APath: String): Boolean', cdStdCall);
-      RegisterMethod('function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint', cdStdCall);
-      RegisterMethod('function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint', cdStdCall);
+    with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'),IProjConverter, 'IProjConverter') do
+    begin
+      RegisterMethod('Function LonLat2XY( const AProjLP : TDoublePoint) : TDoublePoint', cdRegister);
+      RegisterMethod('Function XY2LonLat( const AProjXY : TDoublePoint) : TDoublePoint', cdRegister);
+    end;
+
+    with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), IProjConverterFactory, 'IProjConverterFactory') do
+    begin
+      RegisterMethod('Function GetByEPSG( const AEPSG : Integer) : IProjConverter', cdRegister);
+      RegisterMethod('Function GetByInitString( const AArgs : String) : IProjConverter', cdRegister);
     end;
 
     // ICoordConverter
@@ -153,6 +156,13 @@ begin
 
       RegisterMethod('function GetProj4Converter: IProj4Converter', cdStdCall);
     end;
+    
+    //ISimpleHttpDownloader
+    with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), ISimpleHttpDownloader, 'ISimpleHttpDownloader') do
+    begin
+      RegisterMethod('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData : string; out AResponseHeader, AResponseData : string) : Cardinal', cdRegister);
+    end;
+
   end;
 
   // custom vars and functions
@@ -185,8 +195,7 @@ begin
     Sender.AddDelphiFunction('function GetUnixTime:int64');
     Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: string): string');
     Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: string): string');
-    Sender.AddDelphiFunction('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal');
-    Sender.AddDelphiFunction('function DownloadFileToLocal(const AFullRemoteUrl, AFullLocalFilename, AContentType: String): Integer');
+    Sender.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: String): Integer');
     Sender.AddDelphiFunction('function FileExists(const FileName: string): Boolean');
 
     Result := True;
@@ -250,9 +259,8 @@ begin
   Self.RegisterDelphiFunction(@GetUnixTime, 'GetUnixTime', cdRegister);
   Self.RegisterDelphiFunction(@SetHeaderValue, 'SetHeaderValue', cdRegister);
   Self.RegisterDelphiFunction(@GetHeaderValue, 'GetHeaderValue', cdRegister);
-  Self.RegisterDelphiFunction(@DoHttpRequest, 'DoHttpRequest', cdRegister);
   Self.RegisterDelphiFunction(@GetDiv3Path, 'GetDiv3Path', cdRegister);
-  Self.RegisterDelphiFunction(@DownloadFileToLocal, 'DownloadFileToLocal', cdRegister);
+  Self.RegisterDelphiFunction(@SaveToLocalFile, 'SaveToLocalFile', cdRegister);
   Self.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
 end;
 

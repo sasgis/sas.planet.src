@@ -145,9 +145,6 @@ begin
     // register common functions
     VSasPSExec.RegisterAppCommonRoutines;
 
-    // special functions
-    VSasPSExec.RegisterDelphiFunction(@DownloadFileToLocal, 'DownloadFileToLocal', cdRegister);
-
     if not VSasPSExec.LoadData(AMapAttachmentsFactory.GetCompiledData) then begin
       raise Exception.Create(SAS_ERR_UrlScriptByteCodeLoad);
     end;

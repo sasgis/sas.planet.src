@@ -30,6 +30,7 @@ uses
   i_ImageResamplerConfig,
   i_MapVersionConfig,
   i_InvisibleBrowser,
+  i_ProjConverter,
   i_TileDownloadSubsystem,
   u_OperationNotifier,
   u_TileStorageAbstract;
@@ -94,6 +95,7 @@ type
       const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
       const AMapAbilitiesConfig: IMapAbilitiesConfig;
       const AZmpData: IConfigDataProvider;
+      const AProjFactory: IProjConverterFactory;
       const AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
     );
@@ -143,6 +145,7 @@ constructor TTileDownloadSubsystem.Create(
   const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
   const AMapAbilitiesConfig: IMapAbilitiesConfig;
   const AZmpData: IConfigDataProvider;
+  const AProjFactory: IProjConverterFactory;
   const AStorageConfig: ISimpleTileStorageConfig;
   AStorage: TTileStorageAbstract
 );
@@ -180,6 +183,7 @@ begin
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,
         VDownloadChecker,
+        AProjFactory,
         ALanguageManager
       );
 

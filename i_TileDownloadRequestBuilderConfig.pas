@@ -35,6 +35,12 @@ type
     function GetRequestHeader: string;
     property RequestHeader: string read GetRequestHeader;
 
+    function GetIsUseDownloader: Boolean;
+    property IsUseDownloader: Boolean read GetIsUseDownloader;
+
+    function GetDefaultProjConverterArgs: string;
+    property DefaultProjConverterArgs: string read GetDefaultProjConverterArgs;
+
     function GetGeoCoder: ICoordConverter;
     property GeoCoder: ICoordConverter read GetGeoCoder;
   end;
@@ -49,6 +55,12 @@ type
     function GetRequestHeader: string;
     procedure SetRequestHeader(const AValue: string);
     property RequestHeader: string read GetRequestHeader write SetRequestHeader;
+
+    function GetIsUseDownloader: Boolean;
+    property IsUseDownloader: Boolean read GetIsUseDownloader;
+
+    function GetDefaultProjConverterArgs: string;
+    property DefaultProjConverterArgs: string read GetDefaultProjConverterArgs;
 
     function GetGeoCoder: ICoordConverter;
     property GeoCoder: ICoordConverter read GetGeoCoder;

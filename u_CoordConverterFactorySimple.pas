@@ -23,7 +23,6 @@ unit u_CoordConverterFactorySimple;
 interface
 
 uses
-  i_proj4,
   i_CoordConverter,
   i_ProjectionInfo,
   i_ConfigDataProvider,
@@ -68,26 +67,22 @@ constructor TCoordConverterFactorySimple.Create;
 var
   VRadiusA: Double;
   VRadiusB: Double;
-  VProj4Info: TProj4Info;
 begin
   inherited Create;
 
-  // predefined values without proj4
-  Proj4InfoClear(VProj4Info);
-
   VRadiusA := 6378137;
-  FGoogle := TCoordConverterMercatorOnSphere.Create(VRadiusA, VProj4Info);
+  FGoogle := TCoordConverterMercatorOnSphere.Create(VRadiusA);
 
   VRadiusA := 6371000;
-  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VRadiusA, VProj4Info);
+  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VRadiusA);
 
   VRadiusA := 6378137;
   VRadiusB := 6356752;
-  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB, VProj4Info);
+  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
 
   VRadiusA := 6378137;
   VRadiusB := 6356752;
-  FLonLat := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB, VProj4Info);
+  FLonLat := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
 end;
 
 function TCoordConverterFactorySimple.GetByConverterAndZoom(
@@ -135,7 +130,6 @@ var
   VRadiusB: Double;
   VEPSG: Integer;
   VTileSplitCode: Integer;
-  VProj4Info: TProj4Info;
 begin
   Result := nil;
   VTileSplitCode := CTileSplitQuadrate256x256;
@@ -143,16 +137,12 @@ begin
   VProjection := 1;
   VRadiusA := 6378137;
   VRadiusB := VRadiusA;
-  Proj4InfoClear(VProj4Info);
-  
+
   if AConfig <> nil then begin
     VEPSG := AConfig.ReadInteger('EPSG', VEPSG);
     VProjection := AConfig.ReadInteger('projection', VProjection);
     VRadiusA := AConfig.ReadFloat('sradiusa', VRadiusA);
     VRadiusB := AConfig.ReadFloat('sradiusb', VRadiusA);
-    // read proj4 params
-    VProj4Info.Proj4Args := AConfig.ReadString('Proj4Args', '');
-    VProj4Info.Proj4Path := AConfig.ReadString('Proj4Path', '');
   end;
 
   if VEPSG = 0 then begin
@@ -181,9 +171,7 @@ begin
 
   if VEPSG <> 0 then begin
     try
-      // if no proj4 - try to use predefined
-      if Proj4InfoIsEmpty(VProj4Info) then
-        Result := GetCoordConverterByCode(VEPSG, VTileSplitCode);
+      Result := GetCoordConverterByCode(VEPSG, VTileSplitCode);
     except
       Result := nil;
     end;
@@ -192,13 +180,13 @@ begin
   if Result = nil then begin
     case VProjection of
       1: begin
-        Result := TCoordConverterMercatorOnSphere.Create(VRadiusA, VProj4Info);
+        Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
       end;
       2: begin
-        Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB, VProj4Info);
+        Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
       end;
       3: begin
-        Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB, VProj4Info);
+        Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
       end;
     else begin
       raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);

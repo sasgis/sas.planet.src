@@ -25,7 +25,6 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_proj4,
   i_Datum;
 
 type
@@ -62,10 +61,6 @@ type
       const XY: TPoint;
       const Azoom: byte
     ): TRect; stdcall;
-
-    // returns proj4 interface
-    function GetProj4Converter: IProj4Converter; stdcall;
-    //property Proj4Converter: IProj4Converter read GetProj4Converter;
   end;
 
   ICoordConverter = interface

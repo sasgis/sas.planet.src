@@ -41,6 +41,7 @@ uses
   i_InvisibleBrowser,
   i_DownloadResultTextProvider,
   i_TileFileNameGeneratorsList,
+  i_ProjConverter,
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
   i_MapTypes,
@@ -89,6 +90,7 @@ type
       const ADownloadResultTextProvider: IDownloadResultTextProvider;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
+      const AProjFactory: IProjConverterFactory;
       const ALocalMapsConfig: IConfigDataProvider
     );
     procedure SaveMaps(const ALocalMapsConfig: IConfigDataWriteProvider);
@@ -196,6 +198,7 @@ procedure TMapTypesMainList.LoadMaps(
   const ADownloadResultTextProvider: IDownloadResultTextProvider;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
+  const AProjFactory: IProjConverterFactory;
   const ALocalMapsConfig: IConfigDataProvider
 );
 var
@@ -253,6 +256,7 @@ begin
           ACoordConverterFactory,
           ADownloadResultTextProvider,
           AInvisibleBrowser,
+          AProjFactory,
           VLocalMapConfig,
           FPerfCounterList
         );

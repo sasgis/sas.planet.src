@@ -67,6 +67,7 @@ uses
   i_TileRectUpdateNotifier,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
+  i_ProjConverter,
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
   u_GlobalCahceConfig,
@@ -286,6 +287,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ADownloadResultTextProvider: IDownloadResultTextProvider;
       const AInvisibleBrowser: IInvisibleBrowser;
+      const AProjFactory: IProjConverterFactory;
       const AConfig: IConfigDataProvider;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -336,6 +338,7 @@ constructor TMapType.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ADownloadResultTextProvider: IDownloadResultTextProvider;
   const AInvisibleBrowser: IInvisibleBrowser;
+  const AProjFactory: IProjConverterFactory;
   const AConfig: IConfigDataProvider;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -426,6 +429,7 @@ begin
       FZmp.TilePostDownloadCropConfig,
       FAbilitiesConfig,
       FZmp.DataProvider,
+      AProjFactory,
       FStorageConfig,
       FStorage
     );
@@ -549,7 +553,7 @@ begin
                   end else begin
                     // make full source url
                     VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j) + VNumber + VMapAttachmentsInfo.GetExt(j);
-                    VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
+//                    VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j)); //TODO: Исправить когда-нибудь
                     if (VSize > 0) then begin
                       // downloaded ok
                       if (nil <> ACountersPtr) then begin
@@ -1373,7 +1377,7 @@ var
           if ADownload then begin
             // download now
             VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j) + VNumber + VMapAttachmentsInfo.GetExt(j);
-            DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j));
+//            DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j)); //TODO: Исправить когда-нибудь
           end else begin
             // cannot show immediately
             Result := FALSE;
