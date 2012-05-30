@@ -15,6 +15,8 @@ type
     FDllHolder: IInterface;
   private
     procedure InitDll;
+    function GetArgsByEpsg(const AEPSG: Integer): string;
+    function GetByInitStringInternal(const AArgs: String): IProjConverter;
   private
     function GetByEPSG(const AEPSG: Integer): IProjConverter;
     function GetByInitString(const AArgs: String): IProjConverter;
@@ -239,52 +241,75 @@ begin
   FDllFailed := False;
 end;
 
-function TProjConverterFactory.GetByEPSG(const AEPSG: Integer): IProjConverter;
+function TProjConverterFactory.GetArgsByEpsg(const AEPSG: Integer): string;
 var
-  VArgs: string;
   i: Integer;
 begin
-  Result := nil;
-  VArgs := '';
+  Result := '';
   // known EPSGs
   if (AEPSG=53004) then begin
     // Sphere Mercator ESRI:53004
-    VArgs := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
+    Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
   end else if (AEPSG=3785) then begin
     // Popular Visualisation CRS / Mercator
-    VArgs := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+    Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
   end else if (AEPSG=3395) then begin
     // WGS 84 / World Mercator
-    VArgs := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+    Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
   end else if (AEPSG=4326) then begin
     // WGS 84
-    VArgs := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
+    Result := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
   end else if (AEPSG>=2463) and (AEPSG<=2491) then begin
     // 2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
     i := 21 + (AEPSG-2463)*6;
     if (i>180) then
       i := i - 360;
-    VArgs := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+    Result := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
   end else if (AEPSG>=2492) and (AEPSG<=2522) then begin
     // 2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
     i := 9 + (AEPSG-2492)*6;
     if (i>180) then
       i := i - 360;
-    VArgs := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+    Result := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
   end else if (AEPSG>=32601) and (AEPSG<=32660) then begin
     // 32601-32660 = WGS 84 / UTM zone N
-    VArgs := '+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+    Result := '+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
   end;
+end;
+
+function TProjConverterFactory.GetByEPSG(const AEPSG: Integer): IProjConverter;
+var
+  VArgs: string;
+begin
+  Result := nil;
+  VArgs := GetArgsByEpsg(AEPSG);
   if VArgs <> '' then begin
-    Result := GetByInitString(VArgs);
+    Result := GetByInitStringInternal(VArgs);
   end;
 end;
 
 function TProjConverterFactory.GetByInitString(
   const AArgs: String
 ): IProjConverter;
+const
+  c_EPSG = 'EPSG:';
 var
-  VDll: IProjDLLHolder;  
+  VEPSG: Integer;
+  VArgs: String;
+begin
+  VArgs := AArgs;
+  if SameText(System.Copy(AArgs, 1, Length(c_EPSG)), c_EPSG) then begin
+    if TryStrToInt(System.Copy(AArgs, Length(c_EPSG)+1, Length(AArgs)), VEPSG) then begin
+      VArgs := GetArgsByEpsg(VEPSG);
+    end;
+  end;
+  Result := GetByInitStringInternal(VArgs);
+end;
+
+function TProjConverterFactory.GetByInitStringInternal(
+  const AArgs: String): IProjConverter;
+var
+  VDll: IProjDLLHolder;
   VProj: PProjPJ;
 begin
   Result := nil;
