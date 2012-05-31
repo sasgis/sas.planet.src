@@ -39,8 +39,7 @@ type
 type
   IProjDLLHolder = interface
     function ProjInit(
-      const Args: PAnsiChar;
-      const Path: PAnsiChar
+      const Args: PAnsiChar
     ): PProjPJ;
     function ProjFree(
       projPJ: PProjPJ
@@ -57,9 +56,8 @@ type
   end;
 
 type
-  T_pj_init_plus_path = function(
-    const Args: PAnsiChar;
-    const Path: PAnsiChar
+  T_pj_init_plus = function(
+    const Args: PAnsiChar
   ): PProjPJ; cdecl;
 
   { forward projection normally Longitude Latitude to plain xy Coordinates }
@@ -83,14 +81,13 @@ type
   TProjDLLHolder = class(TInterfacedObject, IProjDLLHolder)
   private
     FDLLHandle: THandle;
-    F_pj_init_plus_path: T_pj_init_plus_path;
+    F_pj_init_plus: T_pj_init_plus;
     F_pj_fwd: T_pj_fwd;
     F_pj_inv: T_pj_inv;
     F_pj_free: T_pj_free;
   private
     function ProjInit(
-      const Args: PAnsiChar;
-      const Path: PAnsiChar
+      const Args: PAnsiChar
     ): PProjPJ;
     function ProjFree(
       projPJ: PProjPJ
@@ -117,20 +114,20 @@ begin
   FDLLHandle := LoadLibrary(PChar(ADllFullName));
   if (FDLLHandle<>0) then begin
     try
-      F_pj_init_plus_path := GetProcAddress(FDLLHandle, '_pj_init_plus_path');
-      if Addr(F_pj_init_plus_path) = nil then begin
+      F_pj_init_plus := GetProcAddress(FDLLHandle, 'pj_init_plus');
+      if Addr(F_pj_init_plus) = nil then begin
         RaiseLastOSError;
       end;
 
-      F_pj_fwd := GetProcAddress(FDLLHandle, '_pj_fwd');
+      F_pj_fwd := GetProcAddress(FDLLHandle, 'pj_fwd');
       if Addr(F_pj_fwd) = nil then begin
         RaiseLastOSError;
       end;
-      F_pj_inv := GetProcAddress(FDLLHandle, '_pj_inv');
+      F_pj_inv := GetProcAddress(FDLLHandle, 'pj_inv');
       if Addr(F_pj_inv) = nil then begin
         RaiseLastOSError;
       end;
-      F_pj_free := GetProcAddress(FDLLHandle, '_pj_free');
+      F_pj_free := GetProcAddress(FDLLHandle, 'pj_free');
       if Addr(F_pj_free) = nil then begin
         RaiseLastOSError;
       end;
@@ -164,9 +161,9 @@ begin
   Result := F_pj_free(projPJ);
 end;
 
-function TProjDLLHolder.ProjInit(const Args, Path: PAnsiChar): PProjPJ;
+function TProjDLLHolder.ProjInit(const Args: PAnsiChar): PProjPJ;
 begin
-  Result := F_pj_init_plus_path(Args, Path);
+  Result := F_pj_init_plus(Args);
 end;
 
 function TProjDLLHolder.ProjInverse(ProjXY: TProjXY;
@@ -336,7 +333,7 @@ begin
       FSync.EndWrite;
     end;
     if VDll <> nil  then begin
-      VProj := VDll.ProjInit(PAnsiChar(AArgs), nil);
+      VProj := VDll.ProjInit(PAnsiChar(AArgs));
       if VProj <> nil then begin
         Result := TProjConverterByDll.Create(VDll, VProj);      
       end;
@@ -346,11 +343,11 @@ end;
 
 procedure TProjConverterFactory.InitDll;
 const
-   proj447_dll='proj447.dll';
+   proj4_dll='proj480.dll';
 var
-  VDll: IProjDLLHolder;  
+  VDll: IProjDLLHolder;
 begin
-  VDll := TProjDLLHolder.Create(proj447_dll);
+  VDll := TProjDLLHolder.Create(proj4_dll);
   FDllHolder := VDll;
 end;
 
