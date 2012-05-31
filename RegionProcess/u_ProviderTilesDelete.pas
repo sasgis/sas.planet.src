@@ -66,7 +66,6 @@ implementation
 
 uses
   SysUtils,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,

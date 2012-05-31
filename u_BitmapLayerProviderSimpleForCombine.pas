@@ -8,8 +8,7 @@ uses
   i_Bitmap32Static,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
-  i_BitmapPostProcessingConfig,
-  u_MapType;
+  i_BitmapPostProcessingConfig;
 
 type
   TBitmapLayerProviderSimpleForCombine = class(TInterfacedObject, IBitmapLayerProvider)

@@ -56,8 +56,7 @@ implementation
 
 uses
   SysUtils,
-  i_MarksDbSmlInternal,
-  u_GeoFun;
+  i_MarksDbSmlInternal;
 
 { TMarkFullBase }
 

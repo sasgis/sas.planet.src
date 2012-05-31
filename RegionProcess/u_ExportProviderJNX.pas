@@ -49,16 +49,12 @@ uses
   Types,
   SysUtils,
   Classes,
-  RegExprUtils,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
   u_ResStrings,
   u_MapType,
-  u_MapTypeListStatic,
-  u_StringListStatic,
   frm_ProgressSimple;
 
 

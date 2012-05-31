@@ -76,8 +76,6 @@ implementation
 uses
   SysUtils,
   IniFiles,
-  i_LogSimple,
-  i_LogSimpleProvider,
   i_VectorItemProjected,
   i_ConfigDataProvider,
   i_RegionProcessParamsFrame,

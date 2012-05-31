@@ -11,6 +11,7 @@ uses
   CheckLst,
   StdCtrls,
   ExtCtrls,
+  Spin,
   Dialogs,
   i_LanguageManager,
   i_MapTypes,
@@ -19,7 +20,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
-  u_CommonFormAndFrameParents, Spin, ComCtrls;
+  u_CommonFormAndFrameParents;
 
 type
   IRegionProcessParamsFrameExportToCE = interface(IRegionProcessParamsFrameBase)

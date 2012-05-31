@@ -94,9 +94,7 @@ uses
   i_MarksSimple,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
-  u_ProjectionInfo,
   u_GeoFun,
-  u_MapCalibrationListBasic,
   u_IdCacheSimpleThreadSafe,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
@@ -110,7 +108,6 @@ uses
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ResStrings,
-  u_MapType,
   frm_ProgressSimple;
 
 { TProviderTilesDelete }

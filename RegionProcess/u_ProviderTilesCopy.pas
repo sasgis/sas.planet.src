@@ -49,14 +49,12 @@ implementation
 uses
   Types,
   SysUtils,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
   u_ThreadExportToBDB,
   u_ResStrings,
-  u_MapType,
   frm_ProgressSimple;
 
 { TProviderTilesDelete }

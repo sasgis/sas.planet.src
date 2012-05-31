@@ -308,11 +308,9 @@ implementation
 uses
   Types,
   Menus,
-  c_InternalBrowser,
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
-  i_GUIDListStatic,
   vsagps_public_base,
   vsagps_public_tracks,
 {$if defined(VSAGPS_AS_DLL)}

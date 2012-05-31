@@ -54,7 +54,6 @@ uses
   SysUtils,
   GR32,
   i_ImageResamplerFactory,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,

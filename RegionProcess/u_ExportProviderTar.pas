@@ -48,7 +48,6 @@ implementation
 uses
   Types,
   SysUtils,
-  i_RegionProcessProgressInfo,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,

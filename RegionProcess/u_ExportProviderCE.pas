@@ -47,8 +47,6 @@ uses
   Types,
   SysUtils,
   Classes,
-  RegExprUtils,
-  i_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,
