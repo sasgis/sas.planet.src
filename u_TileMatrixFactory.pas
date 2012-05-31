@@ -225,6 +225,7 @@ begin
   VMapPixelRect := ANewConverter.GetRectInMapPixel;
   VZoom := ANewConverter.Zoom;
   VConverter := ANewConverter.GeoConverter;
+  VConverter.CheckPixelRect(VMapPixelRect, VZoom);
   VTileRect := VConverter.PixelRect2TileRect(VMapPixelRect, VZoom);
   if EqualRect(VMapPixelRect, VConverter.TileRect2PixelRect(VTileRect, VZoom)) then begin
     VLocalConverter := ANewConverter;

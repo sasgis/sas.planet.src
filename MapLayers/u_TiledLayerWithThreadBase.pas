@@ -393,6 +393,7 @@ var
   VResampler: TCustomResampler;
   VDstRect: TRect;
   VCounterContext: TInternalPerformanceCounterContext;
+  VMapPixelRect: TRect;
 begin
   inherited;
   VConverter := ALocalConverter.GeoConverter;
@@ -403,11 +404,9 @@ begin
   if VZoom <> ATileMatrix.LocalConverter.Zoom then begin
     Exit;
   end;
-  VTileRectInClipRect :=
-    VConverter.PixelRectFloat2TileRect(
-      ALocalConverter.LocalRect2MapRectFloat(ABuffer.ClipRect),
-      VZoom
-    );
+  VMapPixelRect := ALocalConverter.LocalRect2MapRect(ABuffer.ClipRect);
+  VConverter.CheckPixelRect(VMapPixelRect, VZoom);
+  VTileRectInClipRect := VConverter.PixelRect2TileRect(VMapPixelRect, VZoom);
   VResampler := nil;
   try
     VTileIterator := TTileIteratorByRect.Create(VTileRectInClipRect);
