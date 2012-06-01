@@ -703,6 +703,7 @@ uses
   u_GUIDObjectSet,
   u_GlobalState,
   frm_LonLatRectEdit,
+  i_OperationNotifier,
   c_ZeroGUID,
   c_SasVersion,
   c_InternalBrowser,
@@ -747,6 +748,7 @@ uses
   u_MapTypeMenuItemsGeneratorBasic,
   u_TreeByPathDetalizeProviderList,
   u_MenuGeneratorByStaticTreeSimple,
+  u_OperationNotifier,
   u_PosFromGSM,
   u_SearchResults,
   u_InetFunc,
@@ -5063,11 +5065,13 @@ var
   VResult: IGeoCodeResult;
   VLocalConverter: ILocalCoordConverter;
   VText: string;
+  VNotifier: IOperationNotifier;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
   VText := Trim(NewText);
-  VResult := VItem.GetGeoCoder.GetLocations(nil, 0, VText, VLocalConverter);
+  VNotifier := TOperationNotifier.Create;
+  VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
   FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
   FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
 end;
@@ -5079,6 +5083,7 @@ var
   VItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
   VText: string;
+  VNotifier: IOperationNotifier;
 begin
   if Sender is TTBCustomItem then begin
     VToolbarItem := TTBCustomItem(Sender);
@@ -5086,7 +5091,8 @@ begin
     if VItem <> nil then begin
       VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
       VText := Trim(NewText);
-      VResult := VItem.GetGeoCoder.GetLocations(nil, 0, VText, VLocalConverter);
+      VNotifier := TOperationNotifier.Create;
+      VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
       FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
     end;

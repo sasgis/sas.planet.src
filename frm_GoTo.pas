@@ -98,6 +98,8 @@ uses
   ActiveX,
   i_GeoCoderList,
   i_MarksSimple,
+  i_OperationNotifier,
+  u_OperationNotifier,
   u_GeoCodeResult,
   u_GeoCodePlacemark;
 
@@ -181,6 +183,7 @@ var
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
+  VNotifier: IOperationNotifier;
 begin
   VLocalConverter := FViewPortState.GetVisualCoordConverter;
   if pgcSearchType.ActivePage = tsPlaceMarks then begin
@@ -207,7 +210,8 @@ begin
       VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
     end;
     if VGeoCoderItem <> nil then begin
-      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(nil, 0, textsrch, VLocalConverter);
+      VNotifier := TOperationNotifier.Create;
+      FResult := VGeoCoderItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, textsrch, VLocalConverter);
       FMainGeoCoderConfig.SearchHistory.AddItem(textsrch);
       FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
       ModalResult := mrOk;
