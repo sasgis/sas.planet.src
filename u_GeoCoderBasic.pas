@@ -27,21 +27,35 @@ uses
   SysUtils,
   Classes,
   i_OperationNotifier,
-  i_ProxySettings,
+  i_InetConfig,
+  i_TTLCheckNotifier,
+  i_DownloadResultFactory,
+  i_DownloadRequest,
+  i_DownloadResult,
+  i_Downloader,
   i_GeoCoder,
   i_LocalCoordConverter;
 
 type
   TGeoCoderBasic = class(TInterfacedObject, IGeoCoder)
+  private
+    FDownloader: IDownloader;
+    FInetSettings: IInetConfig;
   protected
-    FLocalConverter: ILocalCoordConverter;
-    FInetSettings: IProxySettings;
+    property Downloader: IDownloader read FDownloader;
+    property InetSettings: IInetConfig read FInetSettings;
+    function PrepareRequestByURL(AUrl: string): IDownloadRequest;
     function URLEncode(const S: string): string;
-    function PrepareURL(const ASearch: WideString): string; virtual; abstract;
-    function GetDataFromInet(const ASearch: WideString): string; virtual;
-    function ParseStringToPlacemarksList(
-      const AStr: string;
-      const ASearch: WideString
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; virtual; abstract;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
@@ -49,18 +63,12 @@ type
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IGeoCodeResult; virtual; safecall;
+    ): IGeoCodeResult; safecall;
   public
-    constructor Create(const AInetSettings: IProxySettings);
-    destructor Destroy; override;
-  end;
-
-  EInternetOpenError = class(Exception)
-  public
-    ErrorCode: DWORD;
     constructor Create(
-      Code: DWORD;
-      const Msg: String
+      const AInetSettings: IInetConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AResultFactory: IDownloadResultFactory
     );
   end;
 
@@ -70,93 +78,21 @@ type
 implementation
 
 uses
-  WinInet,
+  u_DownloaderHttpWithTTL,
+  u_DownloadRequest,
   u_GeoCodeResult;
 
 { TGeoCoderBasic }
 
-constructor TGeoCoderBasic.Create(const AInetSettings: IProxySettings);
+constructor TGeoCoderBasic.Create(
+  const AInetSettings: IInetConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AResultFactory: IDownloadResultFactory
+);
 begin
   inherited Create;
   FInetSettings := AInetSettings;
-end;
-
-destructor TGeoCoderBasic.Destroy;
-begin
-  FInetSettings := nil;
-  inherited;
-end;
-
-function TGeoCoderBasic.GetDataFromInet(const ASearch: WideString): string;
-var
-  s, par: string;
-  err: boolean;
-  Buffer: array [1..64535] of char;
-  BufferLen: LongWord;
-  hSession, hFile: Pointer;
-  dwindex, dwcodelen, dwReserv: dword;
-  dwtype: array [1..20] of char;
-  VUrl: string;
-  VLogin: string;
-  VPassword: string;
-  VLastError: DWORD;
-begin
-  hSession := InternetOpen(pChar('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)'), INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-  if not Assigned(hSession) then begin
-    VLastError := GetLastError;
-    raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpen');
-  end;
-  try
-    VUrl := PrepareURL(ASearch);
-    if VUrl = '' then begin
-      Result := '';
-      exit;
-    end;
-    hFile := InternetOpenUrl(hSession, PChar(VUrl), PChar(par), length(par), INTERNET_FLAG_DONT_CACHE or INTERNET_FLAG_KEEP_CONNECTION or INTERNET_FLAG_RELOAD, 0);
-    if not Assigned(hFile) then begin
-      VLastError := GetLastError;
-      raise EInternetOpenError.Create(VLastError, 'Ошибка InternetOpenUrl');
-    end;
-    try
-      dwcodelen := SizeOf(dwtype);
-      dwReserv := 0;
-      dwindex := 0;
-      if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
-        dwindex := strtoint(pchar(@dwtype));
-      end;
-      if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
-        if FInetSettings <> nil then begin
-          if (FInetSettings.UseLogin) then begin
-            VLogin := FInetSettings.Login;
-            VPassword := FInetSettings.Password;
-            InternetSetOption(hFile, INTERNET_OPTION_PROXY_USERNAME, PChar(VLogin), length(VLogin));
-            InternetSetOption(hFile, INTERNET_OPTION_PROXY_PASSWORD, PChar(VPassword), length(VPassword));
-            HttpSendRequest(hFile, nil, 0, Nil, 0);
-
-            dwcodelen := SizeOf(dwtype);
-            dwReserv := 0;
-            dwindex := 0;
-            if HttpQueryInfo(hFile, HTTP_QUERY_STATUS_CODE, @dwtype, dwcodelen, dwReserv) then begin
-              dwindex := strtoint(pchar(@dwtype));
-            end;
-          end;
-        end;
-        if (dwindex = HTTP_STATUS_PROXY_AUTH_REQ) then begin
-          raise EProxyAuthError.Create('Ошибка уатентификации на Proxy');
-        end;
-      end;
-
-      repeat
-        err := not (internetReadFile(hFile, @Buffer, SizeOf(Buffer), BufferLen));
-        s := s + copy(Buffer, 1, BufferLen);
-      until (BufferLen = 0) and (BufferLen < SizeOf(Buffer)) and (err = false);
-    finally
-      InternetCloseHandle(hFile);
-    end;
-  finally
-    InternetCloseHandle(hSession);
-  end;
-  Result := s;
+  FDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
 end;
 
 function TGeoCoderBasic.GetLocations(
@@ -166,32 +102,62 @@ function TGeoCoderBasic.GetLocations(
   const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;
 var
-  VServerResult: string;
   VList: IInterfaceList;
   VResultCode: Integer;
   VMessage: WideString;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
+  VResultError: IDownloadResultError;
 begin
   VResultCode := 200;
   VMessage := '';
-  FLocalConverter := ALocalConverter;
+  VList := nil;
+  Result := nil;
+  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    Exit;
+  end;
+
   try
     if not (ASearch = '') then begin
-      VServerResult := GetDataFromInet(ASearch);
-      VList := ParseStringToPlacemarksList(VServerResult, ASearch);
+      VRequest := PrepareRequest(ASearch, ALocalConverter);
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Exit;
+      end;
+      if VRequest <> nil then begin
+        VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          Exit;
+        end;
+
+        if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+          VList :=
+            ParseResultToPlacemarksList(
+              ACancelNotifier,
+              AOperationID,
+              VResultOk,
+              ASearch,
+              ALocalConverter
+            );
+        end else if Supports(VRequest, IDownloadResultError, VResultError) then begin
+          VResultCode := 503;
+          VMessage := VResultError.ErrorText;
+        end else begin
+          VResultCode := 417;
+          VMessage := 'Unknown error';
+        end;
+      end else begin
+        VList :=
+          ParseResultToPlacemarksList(
+            ACancelNotifier,
+            AOperationID,
+            nil,
+            ASearch,
+            ALocalConverter
+          );
+      end;
     end;
   except
-    on E: EInternetOpenError do begin
-      VResultCode := 503;
-      VMessage := E.Message;
-    end;
-    on E: EProxyAuthError do begin
-      VResultCode := 407;
-      VMessage := E.Message;
-    end;
-    on E: EAnswerParseError do begin
-      VResultCode := 416;
-      VMessage := E.Message;
-    end;
     on E: Exception do begin
       VResultCode := 417;
       VMessage := E.Message;
@@ -205,6 +171,11 @@ begin
     VMessage := 'Не найдено';
   end;
   Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
+end;
+
+function TGeoCoderBasic.PrepareRequestByURL(AUrl: string): IDownloadRequest;
+begin
+  Result := TDownloadRequest.Create(AUrl, '', FInetSettings.GetStatic);
 end;
 
 function TGeoCoderBasic.URLEncode(const S: string): string;
@@ -257,17 +228,6 @@ begin
       idx := idx + 3;
     end;
   end;
-end;
-
-{ EInternetOpenError }
-
-constructor EInternetOpenError.Create(
-  Code: DWORD;
-  const Msg: String
-);
-begin
-  inherited Create(Msg);
-  ErrorCode := Code;
 end;
 
 end.

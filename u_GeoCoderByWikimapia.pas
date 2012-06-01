@@ -24,16 +24,25 @@ interface
 
 uses
   Classes,
-  i_CoordConverter,
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByWikiMapia = class(TGeoCoderBasic)
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(
-      const AStr: string;
-      const ASearch: WideString
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
   end;
@@ -45,15 +54,19 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
+  i_CoordConverter,
   u_ResStrings,
   u_GeoCodePlacemark;
 
 
 { TGeoCoderByOSM }
 
-function TGeoCoderByWikiMapia.ParseStringToPlacemarksList(
-  const AStr: string;
-  const ASearch: WideString
+function TGeoCoderByWikiMapia.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
 ): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc{, vzoom}: string;
@@ -62,17 +75,20 @@ var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceList;
   VFormatSettings: TFormatSettings;
+  VStr: string;
 begin
   sfulldesc := '';
   sdesc := '';
-  if (AStr = '') then begin
+  if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
+  SetLength(Vstr, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  i := PosEx('<div style="overflow: hidden; width:100%;width:3px;height:2px;"', AStr, 1);
-  while (PosEx('<div class="sdiv" onclick="parent.jevals=', AStr, i) > i) and (i > 0) do begin
+  i := PosEx('<div style="overflow: hidden; width:100%;width:3px;height:2px;"', VStr, 1);
+  while (PosEx('<div class="sdiv" onclick="parent.jevals=', VStr, i) > i) and (i > 0) do begin
     j := i;
 
     //    зум для внешней ссылки оставлен для потом
@@ -82,21 +98,21 @@ begin
     //    j := PosEx(')', AStr, i);
     //    VZoom:=Copy(AStr, i + 1, j - (i + 1));
 
-    i := PosEx('{parent.searchvis(', AStr, j);
-    j := PosEx(',', AStr, i + 18);
-    slon := Copy(AStr, i + 18, j - (i + 18));
+    i := PosEx('{parent.searchvis(', VStr, j);
+    j := PosEx(',', VStr, i + 18);
+    slon := Copy(VStr, i + 18, j - (i + 18));
 
     i := j;
-    j := PosEx(')', AStr, i + 1);
-    slat := Copy(AStr, i + 1, j - (i + 1));
+    j := PosEx(')', VStr, i + 1);
+    slat := Copy(VStr, i + 1, j - (i + 1));
 
-    i := PosEx('<span class="sname">', AStr, j);
-    j := PosEx('<', AStr, i + 20);
-    sname := Utf8ToAnsi(Copy(AStr, i + 20, j - (i + 20)));
+    i := PosEx('<span class="sname">', VStr, j);
+    j := PosEx('<', VStr, i + 20);
+    sname := Utf8ToAnsi(Copy(VStr, i + 20, j - (i + 20)));
 
-    i := PosEx('<span class="desc">', AStr, j);
-    j := PosEx('<', AStr, i + 19);
-    sdesc := Utf8ToAnsi(Copy(AStr, i + 19, j - (i + 19)));
+    i := PosEx('<span class="desc">', VStr, j);
+    j := PosEx('<', VStr, i + 19);
+    sdesc := Utf8ToAnsi(Copy(VStr, i + 19, j - (i + 19)));
 
     //    оставим до лучших времён
     //    sfulldesc:='http://www.wikimapia.org/#lat='+slat+'&lon='+slon+'&z='+VZoom;
@@ -117,7 +133,8 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByWikiMapia.PrepareURL(const ASearch: WideString): string;
+function TGeoCoderByWikiMapia.PrepareRequest(const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
@@ -127,14 +144,17 @@ var
 begin
 
   VSearch := ASearch;
-  VConverter := FLocalConverter.GetGeoConverter;
-  VZoom := FLocalConverter.GetZoom;
-  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
   //http://wikimapia.org/search/?q=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D0%B4%D0%B0%D1%80
-  Result := 'http://wikimapia.org/search/?q=' + URLEncode(AnsiToUtf8(VSearch));
+  Result :=
+    PrepareRequestByURL(
+      'http://wikimapia.org/search/?q=' + URLEncode(AnsiToUtf8(VSearch))
+    );
 end;
 
 end.

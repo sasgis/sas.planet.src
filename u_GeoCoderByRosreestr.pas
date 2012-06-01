@@ -24,16 +24,25 @@ interface
 
 uses
   Classes,
-  i_CoordConverter,
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByRosreestr = class(TGeoCoderBasic)
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(
-      const AStr: string;
-      const ASearch: WideString
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
   end;
@@ -47,6 +56,7 @@ uses
   RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
+  i_CoordConverter,
   u_ResStrings,
   u_GeoCodePlacemark;
 
@@ -60,11 +70,13 @@ begin
   outout.Y := ((arctan(exp(in_Y / 6378137)) - Pi / 4) * 360) / Pi;
 end;
 
-function TGeoCoderByRosreestr.ParseStringToPlacemarksList(
-  const AStr: string;
-  const ASearch: WideString
+function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
 ): IInterfaceList;
-
 var
   slat, slon, sname, sdesc, sfulldesc, VtempString: string;
   i, j: integer;
@@ -78,10 +90,11 @@ begin
   sdesc := '';
   VtempString := '';
 
-  if AStr = '' then begin
+  if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
-  VStr := AStr;
+  SetLength(Vstr, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
   i := PosEx('_jsonpCallback', VStr);
@@ -178,7 +191,8 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByRosreestr.PrepareURL(const ASearch: WideString): string;
+function TGeoCoderByRosreestr.PrepareRequest(const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
@@ -190,9 +204,9 @@ var
   i1, i2, i3, i4: integer;
 begin
   VSearch := ASearch;
-  VConverter := FLocalConverter.GetGeoConverter;
-  VZoom := FLocalConverter.GetZoom;
-  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   VSearch := ReplaceStr(ReplaceStr(VSearch, '*', ''), ':', '');// убираем * и : из строки кадастрового номера
@@ -253,18 +267,30 @@ begin
 
     if PosEx('*', VSearch, 1) > 0 then begin
       VSearch := ReplaceStr(VSearch, '*', '');// убираем * из строки кадастрового номера
-      Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript23._jsonpCallback';
+      Result :=
+        PrepareRequestByURL(
+          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript23._jsonpCallback'
+        );
     end else if i4 = 0 then // Кварталы
     begin
-      Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/6/query?f=json&where=KVARTALID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript40._jsonpCallback';
+      Result :=
+        PrepareRequestByURL(
+          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/6/query?f=json&where=KVARTALID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript40._jsonpCallback'
+        );
     end else // участки
     begin
-      Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript37._jsonpCallback';
+      Result :=
+        PrepareRequestByURL(
+          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript37._jsonpCallback'
+        );
     end;
 
   end else begin //name
     VSearch := ASearch;
-    Result := 'http://maps.rosreestr.ru/ArcGIS/rest/services/Address/Locator_Composite/GeocodeServer/findAddressCandidates?SingleLine=' + URLEncode(AnsiToUtf8(VSearch)) + '&f=json&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript10._jsonpCallback';
+    Result :=
+      PrepareRequestByURL(
+        'http://maps.rosreestr.ru/ArcGIS/rest/services/Address/Locator_Composite/GeocodeServer/findAddressCandidates?SingleLine=' + URLEncode(AnsiToUtf8(VSearch)) + '&f=json&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript10._jsonpCallback'
+      );
   end;
 
   //  http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20'23430116030%25'&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript17._jsonpCallback

@@ -40,7 +40,6 @@ uses
 type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
-    FMapZoomingConfig: IMapZoomingConfig;
     FScaleChangeNotifier: IJclNotifier;
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
@@ -100,7 +99,6 @@ type
   public
     constructor Create(
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMapZoomingConfig: IMapZoomingConfig;
       const AMainMapConfig: IMainMapsConfig;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -120,7 +118,6 @@ uses
 
 constructor TMapViewPortState.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMapZoomingConfig: IMapZoomingConfig;
   const AMainMapConfig: IMainMapsConfig;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -132,7 +129,6 @@ begin
   FScaleChangeNotifier := TJclBaseNotifier.Create;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
-  FMapZoomingConfig := AMapZoomingConfig;
   FMainCoordConverter := nil;
   FCenterPos := DoublePoint(128, 128);
   FZoom := 0;

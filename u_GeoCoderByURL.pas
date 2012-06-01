@@ -24,138 +24,61 @@ interface
 
 uses
   Classes,
-  u_GeoCoderBasic,
-  i_GeoCoder;
-
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
+  i_InetConfig,
+  i_TTLCheckNotifier,
+  i_DownloadResultFactory,
+  i_ValueToStringConverter,
+  u_GeoCoderBasic;
 
 type
   TGeoCoderByURL = class(TGeoCoderBasic)
+  private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    function PosStr2List(const Apos1,Apos2: string; const AAList: IInterfaceList) : boolean;
+    function GetListByText(
+      const ALocalConverter: ILocalCoordConverter;
+      const astr:string ; Var AList:IInterfaceList): boolean;
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IInterfaceList; override;
   public
+    constructor Create(
+      const AInetSettings: IInetConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AResultFactory: IDownloadResultFactory;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
+    );
   end;
 
 implementation
 
 uses
+  windows,
   SysUtils,
+  Math,
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
+  i_GeoCoder,
   u_ResStrings,
+  u_DownloadRequest,
   u_GeoCodePlacemark,
-  ALHTTPCommon,
-  ALHttpClient,
-  ALWinInetHttpClient,
-  i_InetConfig,
-  i_ProxySettings,
-  u_GlobalState,
-  u_GeoToStr,
-  windows,
-  Math,
-  i_LocalCoordConverter;
+  u_GeoToStr;
 
 { TGeoCoderByExtLink }
-
-function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
-var
-  VHttpClient: TALWinInetHTTPClient;
-  VHttpResponseHeader: TALHTTPResponseHeader;
-  VHttpResponseBody: TMemoryStream;
-  VHttpPostData: TMemoryStream;
-  VInetConfig: IInetConfigStatic;
-  VProxyConfig: IProxyConfigStatic;
-  VTmp:TStringList;
-begin
-  try
-    VHttpClient := TALWinInetHTTPClient.Create(nil);
-    try
-      VHttpResponseHeader := TALHTTPResponseHeader.Create;
-      try
-        // config
-        VInetConfig := GState.InetConfig.GetStatic;
-        VHttpClient.RequestHeader.RawHeaderText := ARequestHeader;
-        VHttpClient.RequestHeader.Accept := '*/*';
-        VHttpClient.ConnectTimeout := VInetConfig.TimeOut;
-        VHttpClient.SendTimeout := VInetConfig.TimeOut;
-        VHttpClient.ReceiveTimeout := VInetConfig.TimeOut;
-        VHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
-                                          wHttpIo_Pragma_nocache,
-                                          wHttpIo_No_cookies,
-                                          wHttpIo_Ignore_cert_cn_invalid,
-                                          wHttpIo_Ignore_cert_date_invalid,
-                                          wHttpIo_No_auto_redirect
-                                       ];
-        VProxyConfig := VInetConfig.ProxyConfigStatic;
-        if Assigned(VProxyConfig) then begin
-          if VProxyConfig.UseIESettings then begin
-            VHttpClient.AccessType := wHttpAt_Preconfig
-          end else if VProxyConfig.UseProxy then begin
-            VHttpClient.AccessType := wHttpAt_Proxy;
-            VHttpClient.ProxyParams.ProxyServer :=
-              Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host) - 1);
-            VHttpClient.ProxyParams.ProxyPort :=
-              StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
-            if VProxyConfig.UseLogin then begin
-              VHttpClient.ProxyParams.ProxyUserName := VProxyConfig.Login;
-              VHttpClient.ProxyParams.ProxyPassword := VProxyConfig.Password;
-            end;
-          end else begin
-            VHttpClient.AccessType := wHttpAt_Direct;
-          end;
-        end;
-        // request
-        VHttpResponseBody := TMemoryStream.Create;
-        try
-          VTmp := TStringList.Create;
-          try
-            if APostData <> '' then begin
-              VHttpPostData := TMemoryStream.Create;
-              try
-                VHttpPostData.Position := 0;
-                VTmp.Text := APostData;
-                VTmp.SaveToStream(VHttpPostData);
-                VHttpClient.Post(ARequestUrl, VHttpPostData, VHttpResponseBody, VHttpResponseHeader);
-              finally
-                VHttpPostData.Free;
-              end;
-            end else begin
-              VHttpClient.Get(ARequestUrl, VHttpResponseBody, VHttpResponseHeader);
-            end;
-            Result := StrToIntDef(VHttpResponseHeader.StatusCode, 0);
-            AResponseHeader := VHttpResponseHeader.RawHeaderText;
-            if VHttpResponseBody.Size > 0 then begin
-              VHttpResponseBody.Position := 0;
-              VTmp.Clear;
-              VTmp.LoadFromStream(VHttpResponseBody);
-              AResponseData := VTmp.Text;
-            end;
-          finally
-            AResponseHeader := VHttpResponseHeader.RawHeaderText; // save redirect header
-            VTmp.Free;
-          end;
-        finally
-          VHttpResponseBody.Free;
-        end;
-      finally
-        VHttpResponseHeader.Free;
-      end;
-    finally
-      VHttpClient.Free;
-    end;
-  except
-    on E: EALHTTPClientException do begin
-      Result := E.StatusCode;
-      AResponseData := E.Message;
-    end;
-    on E: EOSError do begin
-      Result := E.ErrorCode;
-      AResponseHeader := '';
-      AResponseData := E.Message;
-    end;
-  end;
-end;
 
 function RomanToDig(const astr:string):integer;
 var Vfind :string;
@@ -347,7 +270,7 @@ begin
 end;
 
 
-function PosStr2List(const Apos1,Apos2: string; const AAList: IInterfaceList) : boolean;
+function TGeoCoderByURL.PosStr2List(const Apos1,Apos2: string; const AAList: IInterfaceList) : boolean;
 var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;
@@ -375,7 +298,7 @@ begin
       if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
         sname := apos1+' '+apos2;
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         if FValueToStringConverterConfig.IsLatitudeFirst = true then
          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -392,7 +315,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -406,7 +329,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -423,7 +346,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -437,7 +360,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -448,7 +371,7 @@ begin
 
      if VBLat1 or VBLat2 or VBLon1 or Vblon2 = False then begin // все 4 координаты не заданы конкретно
 
-        if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+        if FValueToStringConverterConfig.IsLatitudeFirst = true then
         begin
          VPoint.X := VDLon ; VPoint.Y := VDLat ;
         end else begin
@@ -459,7 +382,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -473,7 +396,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -488,7 +411,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -502,7 +425,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -512,7 +435,7 @@ begin
 //  и наоборот
       if vdlat <> vdlon  then begin
 
-        if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+        if FValueToStringConverterConfig.IsLatitudeFirst = true then
         begin
          VPoint.Y := VDLon ; VPoint.X := VDLat ;
         end else begin
@@ -523,7 +446,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -537,7 +460,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -552,7 +475,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -566,7 +489,7 @@ begin
          if not( ((VDLAT<0) or (VDLON<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
           sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -578,7 +501,9 @@ begin
  end;
 end;
 
-function GetListByText(const astr:string ; Var AList:IInterfaceList): boolean;
+function TGeoCoderByURL.GetListByText(
+  const ALocalConverter: ILocalCoordConverter;
+  const astr:string ; Var AList:IInterfaceList): boolean;
 var
  Vtext, V2Search : string;
  VBLat1, VBlon1: boolean;
@@ -721,7 +646,7 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
        end;
 
        if VcoordError = false then begin
-        VLocalConverter := GState.MainFormConfig.ViewPortState.GetVisualCoordConverter;
+        VLocalConverter := ALocalConverter;
         XYPoint.X:=ViLon;
         XYPoint.Y:=ViLat;
         sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
@@ -730,7 +655,7 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
         VPoint := VLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
          sname := astr;
-         if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+         if FValueToStringConverterConfig.IsLatitudeFirst = true then
            sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
            sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -915,7 +840,7 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
          VPoint.Y:=VDLon;
          VPoint.X:=VDLat;
          if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-          if GState.ValueToStringConverterConfig.IsLatitudeFirst = true then
+          if FValueToStringConverterConfig.IsLatitudeFirst = true then
             sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
             sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -945,8 +870,20 @@ if SubstrCount(',',V2Search,i)=1 then V2Search := ReplaceStr(V2Search,',',' '); 
   end ;
 end;
 
-function TGeoCoderByURL.ParseStringToPlacemarksList(
-  const AStr: string; const ASearch: WideString): IInterfaceList;
+constructor TGeoCoderByURL.Create(const AInetSettings: IInetConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AResultFactory: IDownloadResultFactory;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
+);
+begin
+  inherited Create(AInetSettings, AGCList, AResultFactory);
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
+end;
+
+function TGeoCoderByURL.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier; AOperationID: Integer;
+  const AResult: IDownloadResultOk; const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter): IInterfaceList;
 var
  VFormatSettings: TFormatSettings;
  VPlace : IGeoCodePlacemark;
@@ -958,10 +895,18 @@ var
  vErrCode: cardinal;
  VHeader: string;
  i, j : integer;
+ VStr: string;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
 begin
  VLinkErr := false;
  VList := TInterfaceList.Create;
  VFormatSettings.DecimalSeparator := '.';
+ if AResult <> nil then begin
+  SetLength(Vstr, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
+ end;
  Vlink := ReplaceStr(ASearch,'%2C',',');
  vErrCode := 200;
  // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
@@ -1125,7 +1070,7 @@ begin
  end
  else  // short link
  if PosEx('http://g.co/', Vlink, 1) > 0then begin
-  Vlink := Astr;
+  Vlink := Vstr;
   sname := 'google';
   i := PosEx('ll', Vlink, 1);
   j := PosEx(',', Vlink, i);
@@ -1138,7 +1083,7 @@ begin
  end else
  if (RegExprGetMatchSubStr(vlink,'\.yandex\..+/-/',0)<>'' ) or
     (PosEx('maps.yandex.ru/?oid=', Vlink, 1) > 0 ) then begin
-  Vlink := ReplaceStr(astr,'''','');
+  Vlink := ReplaceStr(Vstr,'''','');
   sname := 'yandex';
   i := PosEx('{ll:', Vlink, 1);
   if i=0 then i := PosEx(',ll:', Vlink, 1);
@@ -1152,7 +1097,7 @@ begin
  end else
  if (PosEx('maps.yandex.ru/?um=', Vlink, 1) > 0 ) then begin // need 2 more test
   sname := 'yandex';
-  Vlink := astr;
+  Vlink := Vstr;
   i := PosEx('{''bounds'':[[', Vlink, 1);
   if i=0 then i := PosEx(',ll:', Vlink, 1);
   j := PosEx(',', Vlink, i+1);
@@ -1164,7 +1109,7 @@ begin
   sfulldesc := ASearch;
  end else
  if PosEx('binged.it', Vlink, 1) > 0then begin
-  Vlink := Astr;
+  Vlink := Vstr;
   sname := 'bing';
   i := PosEx('cp=', Vlink, 1);
   j := PosEx('~', Vlink, i);
@@ -1176,7 +1121,7 @@ begin
   sfulldesc := ASearch;
  end else
  if PosEx('osm.org', Vlink, 1) > 0then begin
-  Vlink := Astr;
+  Vlink := Vstr;
   sname := 'osm';
   i := PosEx('LonLat(', Vlink, 1);
   j := PosEx(',', Vlink, i);
@@ -1191,60 +1136,74 @@ begin
   sdesc := 'http://kosmosnimki.ru/TinyReference.ashx?id='+Copy(vlink,38,9);
   VHeader := 'Referer: '+vlink+' Cookie: TinyReference='+Copy(vlink,38,9);
   Vlink := '';
-  vErrCode := DoHttpRequest(sdesc, VHeader ,'',sname,Vlink);
-  i := PosEx('"x":', Vlink, 1);
-  j := PosEx(',', Vlink, i + 4 );
-  slon := Copy(Vlink, i + 4, j - (i + 4));
-  i := PosEx('"y":', Vlink, j);
-  j := PosEx(',', Vlink, i + 4 );
-  slat := Copy(Vlink, i + 4, j - (i + 4));
-  sfulldesc := Vlink;
-  sname := 'kosmosnimki';
-  meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),slon,slat);
-  slon := ReplaceStr(slon,',','.');
-  slat := ReplaceStr(slat,',','.');
-  sdesc := '[ '+slon+' , '+slat+' ]';
-  sfulldesc := ASearch;
+  VRequest := TDownloadRequest.Create(sdesc, VHeader, InetSettings.GetStatic);
+  VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+  if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+    SetLength(Vlink, VResultOk.Data.Size);
+    Move(VResultOk.Data.Buffer^, Vlink[1], VResultOk.Data.Size);
+    i := PosEx('"x":', Vlink, 1);
+    j := PosEx(',', Vlink, i + 4 );
+    slon := Copy(Vlink, i + 4, j - (i + 4));
+    i := PosEx('"y":', Vlink, j);
+    j := PosEx(',', Vlink, i + 4 );
+    slat := Copy(Vlink, i + 4, j - (i + 4));
+    sfulldesc := Vlink;
+    sname := 'kosmosnimki';
+    meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),slon,slat);
+    slon := ReplaceStr(slon,',','.');
+    slat := ReplaceStr(slat,',','.');
+    sdesc := '[ '+slon+' , '+slat+' ]';
+    sfulldesc := ASearch;
+  end;
  end else
  if PosEx('api/index.html?permalink=', Vlink, 1) > 0then begin
   slat := Copy(vlink,53,5);
   slon := Copy(vlink,59,5);
   sdesc := 'http://maps.kosmosnimki.ru/TinyReference/Get.ashx?id='+slat;
   VHeader := 'Referer: http://maps.kosmosnimki.ru/api/index.html?'+slon;
-  Vlink := '';
-  vErrCode := DoHttpRequest(sdesc, VHeader ,'',sname,Vlink);
-  Vlink := ReplaceStr(Vlink,'\','');
-  i := PosEx('"x":', Vlink, 1);
-  j := PosEx(',', Vlink, i + 4 );
-  slon := Copy(Vlink, i + 4, j - (i + 4));
-  i := PosEx('"y":', Vlink, j);
-  j := PosEx(',', Vlink, i + 4 );
-  slat := Copy(Vlink, i + 4, j - (i + 4));
-  sfulldesc := Vlink;
-  sname := 'maps.kosmosnimki';
-  meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),slon,slat);
-  slon := ReplaceStr(slon,',','.');
-  slat := ReplaceStr(slat,',','.');
-  sdesc := '[ '+slon+' , '+slat+' ]';
-  sfulldesc := ASearch;
+  VRequest := TDownloadRequest.Create(sdesc, VHeader, InetSettings.GetStatic);
+  VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+  if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+    SetLength(Vlink, VResultOk.Data.Size);
+    Move(VResultOk.Data.Buffer^, Vlink[1], VResultOk.Data.Size);
+    Vlink := ReplaceStr(Vlink,'\','');
+    i := PosEx('"x":', Vlink, 1);
+    j := PosEx(',', Vlink, i + 4 );
+    slon := Copy(Vlink, i + 4, j - (i + 4));
+    i := PosEx('"y":', Vlink, j);
+    j := PosEx(',', Vlink, i + 4 );
+    slat := Copy(Vlink, i + 4, j - (i + 4));
+    sfulldesc := Vlink;
+    sname := 'maps.kosmosnimki';
+    meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),slon,slat);
+    slon := ReplaceStr(slon,',','.');
+    slat := ReplaceStr(slat,',','.');
+    sdesc := '[ '+slon+' , '+slat+' ]';
+    sfulldesc := ASearch;
+  end;
  end else
  if PosEx('go.2gis.ru', Vlink, 1) > 0then begin
   sdesc := vlink;
   VHeader := 'Cookie: 2gisAPI=c2de06c2dd3109de8ca09a59ee197a4210495664eeae8d4075848.943590';
   Vlink := '';
-  vErrCode := DoHttpRequest(sdesc, VHeader ,'',sname,Vlink);
-  i := PosEx('center/', sname, 1);
-  j := PosEx(',', sname, i );
-  slon := Copy(sname, i + 7, j - (i + 7));
-  i := j;
-  j := PosEx('/', sname, i );
-  slat := Copy(sname, i + 1, j - (i + 1));
-  sname := '2gis';
-  sdesc := '[ '+slon+' , '+slat+' ]';
-  sfulldesc := ASearch;
+  VRequest := TDownloadRequest.Create(sdesc, VHeader, InetSettings.GetStatic);
+  VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+  if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+    SetLength(Vlink, VResultOk.Data.Size);
+    Move(VResultOk.Data.Buffer^, Vlink[1], VResultOk.Data.Size);
+    i := PosEx('center/', sname, 1);
+    j := PosEx(',', sname, i );
+    slon := Copy(sname, i + 7, j - (i + 7));
+    i := j;
+    j := PosEx('/', sname, i );
+    slat := Copy(sname, i + 1, j - (i + 1));
+    sname := '2gis';
+    sdesc := '[ '+slon+' , '+slat+' ]';
+    sfulldesc := ASearch;
+  end;
  end else
  if PosEx('rambler.ru', Vlink, 1) > 0then begin
-  Vlink := ReplaceStr(astr,'\"','');
+  Vlink := ReplaceStr(Vstr,'\"','');
   sname := 'rambler';
   i := PosEx('lon:', Vlink, 1);
   j := PosEx(',', Vlink, i+1);
@@ -1255,7 +1214,7 @@ begin
   sdesc := '[ '+slon+' , '+slat+' ]';
   sfulldesc := ASearch;
  end else begin
- VLinkErr := GetListByText(ASearch,VList);
+ VLinkErr := GetListByText(ALocalConverter, ASearch,VList);
  end;
 
 
@@ -1279,11 +1238,12 @@ begin
 end;
 
 
-function TGeoCoderByURL.PrepareURL(const ASearch: WideString): string;
- var
-  VlocalLink :boolean;
+function TGeoCoderByURL.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 begin
-  VlocalLink := true;
+  Result := nil;
   if (PosEx('http://g.co/', ASearch, 1) > 0 )or
      (PosEx('yandex.ru/?oid=', ASearch, 1) > 0 )or
      (PosEx('binged.it', ASearch, 1) > 0 )or
@@ -1293,13 +1253,10 @@ begin
      (PosEx('rambler.ru/?', ASearch, 1) > 0 ) or
      (PosEx('yandex.ru/?um=', ASearch, 1) > 0 ) or
      (RegExprGetMatchSubStr(ASearch,'\.yandex\..+/-/',0)<>'' )
-   then begin
-   VlocalLink := false;
-   Result := ASearch;
+  then begin
+   Result := PrepareRequestByURL(ASearch);
   end;
-  if VlocalLink = true then Result := '';
 end;
-begin
 
 end.
 

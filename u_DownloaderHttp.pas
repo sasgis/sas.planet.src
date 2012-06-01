@@ -517,10 +517,12 @@ begin
     FHttpClient.SendTimeout := FHttpClientLastConfig.HttpTimeOut;
     FHttpClient.ReceiveTimeout := FHttpClientLastConfig.HttpTimeOut;
   end;
-  FHttpClient.InternetOptions := [wHttpIo_No_cache_write,
-    wHttpIo_Pragma_nocache,
-    wHttpIo_No_cookies,
-    wHttpIo_Keep_connection
+  FHttpClient.InternetOptions :=
+    [
+      wHttpIo_No_cache_write,
+      wHttpIo_Pragma_nocache,
+      wHttpIo_No_cookies,
+      wHttpIo_Keep_connection
     ];
   VProxyConfig := AInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then begin

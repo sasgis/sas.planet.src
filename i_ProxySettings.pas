@@ -26,25 +26,6 @@ uses
   i_ConfigDataElement;
 
 type
-  // Настройки прокси
-  IProxySettings = interface(IInterface)
-    ['{17F31D40-FCA0-4525-9820-A14BB61AA08A}']
-    function GetUseProxy: boolean; safecall;
-    property UseProxy: boolean read GetUseProxy;
-
-    function GetHost: WideString; safecall;
-    property Host: WideString read GetHost;
-
-    function GetUseLogin: boolean; safecall;
-    property UseLogin: boolean read GetUseLogin;
-
-    function GetLogin: WideString; safecall;
-    property Login: WideString read GetLogin;
-
-    function GetPassword: WideString; safecall;
-    property Password: WideString read GetPassword;
-  end;
-
   IProxyConfigStatic = interface(IInterface)
     ['{DD723CA2-3A8F-4350-B04E-284B00AC47EA}']
     function GetUseIESettings: Boolean;

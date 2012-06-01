@@ -24,20 +24,25 @@ interface
 
 uses
   Classes,
-  forms,
-  u_GeoTostr,
-  XMLIntf,
-  XMLDoc,
-  i_CoordConverter,
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
   u_GeoCoderBasic;
 
 type
   TGeoCoderBy2GIS = class(TGeoCoderBasic)
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(
-      const AStr: string;
-      const ASearch: WideString
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
   end;
@@ -45,17 +50,25 @@ type
 implementation
 
 uses
+  forms,
+  XMLIntf,
+  XMLDoc,
   SysUtils,
   t_GeoTypes,
+  i_CoordConverter,
   i_GeoCoder,
   u_ResStrings,
+  u_GeoTostr,
   u_GeoCodePlacemark;
 
 { TGeoCoderBy2GIS }
 
-function TGeoCoderBy2GIS.ParseStringToPlacemarksList(
-  const AStr: string;
-  const ASearch: WideString
+function TGeoCoderBy2GIS.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
 ): IInterfaceList;
 var
   Stream: TMemoryStream;
@@ -70,7 +83,7 @@ var
   VFormatSettings: TFormatSettings;
   XMLDocument: TXMLDocument;
 begin
-  if AStr = '' then begin
+  if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
@@ -78,7 +91,7 @@ begin
   Stream := TMemoryStream.Create;
   XMLDocument := TXMLDocument.Create(application);
   try
-    Stream.Write(AStr[1], length(AStr));
+    Stream.Write(AResult.Data.Buffer^, AResult.Data.Size);
     XMLDocument.LoadFromStream(Stream);
     Node := XMLDocument.DocumentElement;
     Node := Node.ChildNodes.FindNode('result');
@@ -111,7 +124,8 @@ begin
   end;
 end;
 
-function TGeoCoderBy2GIS.PrepareURL(const ASearch: WideString): string;
+function TGeoCoderBy2GIS.PrepareRequest(const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
@@ -121,21 +135,24 @@ var
   VRadius: integer;
 begin
   VSearch := ASearch;
-  VConverter := FLocalConverter.GetGeoConverter;
-  VZoom := FLocalConverter.GetZoom;
-  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
-  VRadius := round(FLocalConverter.GetGeoConverter.Datum.CalcDist(VLonLatRect.TopLeft, VLonLatRect.BottomRight));
+  VRadius := round(ALocalConverter.GetGeoConverter.Datum.CalcDist(VLonLatRect.TopLeft, VLonLatRect.BottomRight));
   if VRadius > 40000 then begin
     VRadius := 40000;
   end;
   //point='+R2StrPoint(FCurrentPos.x)+','+R2StrPoint(FCurrentPos.y)+'&radius=40000&where=новосибирск'
-  Result := 'http://catalog.api.2gis.ru/search?what=' + URLEncode(AnsiToUtf8(VSearch)) +
-    '&point=' + R2StrPoint(FLocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(FLocalConverter.GetCenterLonLat.y) +
-    '&radius=' + inttostr(VRadius) +
-    '&page=1&pagesize=50&key=ruihvk0699&version=1.3&sort=relevance&output=xml';
+  Result :=
+    PrepareRequestByURL(
+      'http://catalog.api.2gis.ru/search?what=' + URLEncode(AnsiToUtf8(VSearch)) +
+      '&point=' + R2StrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(ALocalConverter.GetCenterLonLat.y) +
+      '&radius=' + inttostr(VRadius) +
+      '&page=1&pagesize=50&key=ruihvk0699&version=1.3&sort=relevance&output=xml'
+    );
 end;
 
 end.

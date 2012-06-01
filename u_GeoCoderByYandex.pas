@@ -24,15 +24,26 @@ interface
 
 uses
   Classes,
-  i_CoordConverter,
-  u_GeoTostr,
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByYandex = class(TGeoCoderBasic)
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IInterfaceList; override;
   public
   end;
 
@@ -43,13 +54,20 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
+  i_CoordConverter,
+  u_GeoToStr,
   u_ResStrings,
   u_GeoCodePlacemark;
 
 { TGeoCoderByYandex }
 
-function TGeoCoderByYandex.ParseStringToPlacemarksList(
-  const AStr: string; const ASearch: WideString): IInterfaceList;
+function TGeoCoderByYandex.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc: string;
   i, j: integer;
@@ -68,15 +86,16 @@ begin
   Buffer := '';
   BrLevel := 0;
   err := false;
-  if AStr = '' then begin
+  if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  Vstr2Find := AStr;
+  SetLength(Vstr2Find, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, Vstr2Find[1], AResult.Data.Size);
   Vstr2Find := ReplaceStr(Vstr2Find,'\/','/'); // разделители
   Vstr2Find := ReplaceStr(Vstr2Find,'\"','"'); // разделители
-  CurPos:=PosEx('"features":[', AStr,1)-1;
+  CurPos:=PosEx('"features":[', Vstr2Find, 1)-1;
   while (CurPos<length(Vstr2Find)) and (not err)do begin
    inc (CurPos);
    CurChar:=copy(Vstr2Find,CurPos,1);
@@ -195,7 +214,8 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByYandex.PrepareURL(const ASearch: WideString): string;
+function TGeoCoderByYandex.PrepareRequest(const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
@@ -204,16 +224,18 @@ var
   VLonLatRect: TDoubleRect;
 begin
   VSearch := ASearch;
-  VConverter:=FLocalConverter.GetGeoConverter;
-  VZoom := FLocalConverter.GetZoom;
-  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter:=ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-  Result := 'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+
-            '&sll='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+','+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
+  Result :=
+    PrepareRequestByURL(
+            'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+
+            '&sll='+R2StrPoint(ALocalConverter.GetCenterLonLat.x)+','+R2StrPoint(ALocalConverter.GetCenterLonLat.y)+
             '&sspn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom)+
-            '&z='+inttostr(VZoom)+'&source=form&output=json';
-
+            '&z='+inttostr(VZoom)+'&source=form&output=json'
+    );
 end;
 end.
 // examples

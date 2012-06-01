@@ -24,20 +24,25 @@ interface
 
 uses
   Classes,
-  forms,
-  u_GeoTostr,
-  XMLIntf,
-  XMLDoc,
-  i_CoordConverter,
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByGoogle = class(TGeoCoderBasic)
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(
-      const AStr: string;
-      const ASearch: WideString
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
   end;
@@ -46,16 +51,24 @@ implementation
 
 uses
   SysUtils,
+  forms,
+  XMLIntf,
+  XMLDoc,
   t_GeoTypes,
   i_GeoCoder,
+  i_CoordConverter,
   u_ResStrings,
+  u_GeoTostr,
   u_GeoCodePlacemark;
 
 { TGeoCoderByGoogle }
 
-function TGeoCoderByGoogle.ParseStringToPlacemarksList(
-  const AStr: string;
-  const ASearch: WideString
+function TGeoCoderByGoogle.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
 ): IInterfaceList;
 var
   Stream: TMemoryStream;
@@ -70,7 +83,7 @@ var
   XMLDocument: TXMLDocument;
   VPointStr: string;
 begin
-  if AStr = '' then begin
+  if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
@@ -79,7 +92,7 @@ begin
   StringList := TStringList.Create;
   XMLDocument := TXMLDocument.Create(application);
   try
-    Stream.Write(AStr[1], length(AStr));
+    Stream.Write(AResult.Data.Buffer^, AResult.Data.Size);
     XMLDocument.LoadFromStream(Stream);
     Node := XMLDocument.DocumentElement;
     Node := Node.ChildNodes.FindNode('Response');
@@ -114,7 +127,8 @@ begin
   end;
 end;
 
-function TGeoCoderByGoogle.PrepareURL(const ASearch: WideString): string;
+function TGeoCoderByGoogle.PrepareRequest(const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
@@ -129,17 +143,20 @@ begin
       VSearch[i] := '+';
     end;
   end;
-  VConverter := FLocalConverter.GetGeoConverter;
-  VZoom := FLocalConverter.GetZoom;
-  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-  Result := 'http://maps.google.com/maps/geo?q=' +
-    URLEncode(AnsiToUtf8(VSearch)) +
-    '&output=xml' + SAS_STR_GoogleSearchLanguage +
-    '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA' +
-    '&ll=' + R2StrPoint(FLocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(FLocalConverter.GetCenterLonLat.y) +
-    '&spn=' + R2StrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2StrPoint(VLonLatRect.Top - VLonLatRect.Bottom);
+  Result :=
+    PrepareRequestByURL(
+      'http://maps.google.com/maps/geo?q=' +
+      URLEncode(AnsiToUtf8(VSearch)) +
+      '&output=xml' + SAS_STR_GoogleSearchLanguage +
+      '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA' +
+      '&ll=' + R2StrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(ALocalConverter.GetCenterLonLat.y) +
+      '&spn=' + R2StrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2StrPoint(VLonLatRect.Top - VLonLatRect.Bottom)
+    );
 end;
 
 end.

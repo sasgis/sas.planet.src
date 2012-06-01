@@ -24,15 +24,26 @@ interface
 
 uses
   Classes,
-  u_GeoTostr,
-  i_CoordConverter,
+  i_OperationNotifier,
+  i_LocalCoordConverter,
+  i_DownloadRequest,
+  i_DownloadResult,
   u_GeoCoderBasic;
 
 type
   TGeoCoderByNavitel = class(TGeoCoderBasic)
   protected
-    function PrepareURL(const ASearch: WideString): string; override;
-    function ParseStringToPlacemarksList(const AStr: string; const ASearch: WideString): IInterfaceList; override;
+    function PrepareRequest(
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IDownloadRequest; override;
+    function ParseResultToPlacemarksList(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const AResult: IDownloadResultOk;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IInterfaceList; override;
   public
   end;
 
@@ -43,6 +54,7 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
+  i_CoordConverter,
   u_ResStrings,
   u_GeoCodePlacemark,
   ALHTTPCommon,
@@ -50,108 +62,11 @@ uses
   ALWinInetHttpClient,
   i_InetConfig,
   i_ProxySettings,
+  u_GeoTostr,
   u_GlobalState,
   RegExprUtils;
 
 { TGeoCoderByNavitel }
-
-function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData: string; out AResponseHeader, AResponseData: string): Cardinal;
-var
-  VHttpClient: TALWinInetHTTPClient;
-  VHttpResponseHeader: TALHTTPResponseHeader;
-  VHttpResponseBody: TMemoryStream;
-  VHttpPostData: TMemoryStream;
-  VInetConfig: IInetConfigStatic;
-  VProxyConfig: IProxyConfigStatic;
-  VTmp:TStringList;
-begin
-  try
-    VHttpClient := TALWinInetHTTPClient.Create(nil);
-    try
-      VHttpResponseHeader := TALHTTPResponseHeader.Create;
-      try
-        // config
-        VInetConfig := GState.InetConfig.GetStatic;
-        VHttpClient.RequestHeader.RawHeaderText := ARequestHeader;
-        VHttpClient.RequestHeader.Accept := '*/*';
-        VHttpClient.ConnectTimeout := VInetConfig.TimeOut;
-        VHttpClient.SendTimeout := VInetConfig.TimeOut;
-        VHttpClient.ReceiveTimeout := VInetConfig.TimeOut;
-        VHttpClient.InternetOptions := [  wHttpIo_No_cache_write,
-                                          wHttpIo_Pragma_nocache,
-                                          wHttpIo_No_cookies,
-                                          wHttpIo_Ignore_cert_cn_invalid,
-                                          wHttpIo_Ignore_cert_date_invalid
-                                       ];
-        VProxyConfig := VInetConfig.ProxyConfigStatic;
-        if Assigned(VProxyConfig) then begin
-          if VProxyConfig.UseIESettings then begin
-            VHttpClient.AccessType := wHttpAt_Preconfig
-          end else if VProxyConfig.UseProxy then begin
-            VHttpClient.AccessType := wHttpAt_Proxy;
-            VHttpClient.ProxyParams.ProxyServer :=
-              Copy(VProxyConfig.Host, 0, Pos(':', VProxyConfig.Host) - 1);
-            VHttpClient.ProxyParams.ProxyPort :=
-              StrToInt(Copy(VProxyConfig.Host, Pos(':', VProxyConfig.Host) + 1));
-            if VProxyConfig.UseLogin then begin
-              VHttpClient.ProxyParams.ProxyUserName := VProxyConfig.Login;
-              VHttpClient.ProxyParams.ProxyPassword := VProxyConfig.Password;
-            end;
-          end else begin
-            VHttpClient.AccessType := wHttpAt_Direct;
-          end;
-        end;
-        // request
-        VHttpResponseBody := TMemoryStream.Create;
-        try
-          VTmp := TStringList.Create;
-          try
-            if APostData <> '' then begin
-              VHttpPostData := TMemoryStream.Create;
-              try
-                VHttpPostData.Position := 0;
-                VTmp.Text := APostData;
-                VTmp.SaveToStream(VHttpPostData);
-                VHttpClient.Post(ARequestUrl, VHttpPostData, VHttpResponseBody, VHttpResponseHeader);
-              finally
-                VHttpPostData.Free;
-              end;
-            end else begin
-              VHttpClient.Get(ARequestUrl, VHttpResponseBody, VHttpResponseHeader);
-            end;
-            Result := StrToIntDef(VHttpResponseHeader.StatusCode, 0);
-            AResponseHeader := VHttpResponseHeader.RawHeaderText;
-            if VHttpResponseBody.Size > 0 then begin
-              VHttpResponseBody.Position := 0;
-              VTmp.Clear;
-              VTmp.LoadFromStream(VHttpResponseBody);
-              AResponseData := VTmp.Text;
-            end;
-          finally
-            VTmp.Free;
-          end;
-        finally
-          VHttpResponseBody.Free;
-        end;
-      finally
-        VHttpResponseHeader.Free;
-      end;
-    finally
-      VHttpClient.Free;
-    end;
-  except
-    on E: EALHTTPClientException do begin
-      Result := E.StatusCode;
-      AResponseHeader := '';
-      AResponseData := E.Message;
-    end;
-    on E: EOSError do begin
-      Result := E.ErrorCode;
-      AResponseHeader := '';
-      AResponseData := E.Message;
-    end;
-  end;
-end;
 
 function NavitelType(t : integer) : string;
 begin
@@ -575,8 +490,13 @@ case t of
  end;
 end;
 
-function TGeoCoderByNavitel.ParseStringToPlacemarksList(
-  const AStr: string; const ASearch: WideString): IInterfaceList;
+function TGeoCoderByNavitel.ParseResultToPlacemarksList(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IInterfaceList;
 var
   slat, slon, sname, sdesc, sfulldesc, Navitel_id, Navitel_type, place_id: string;
   i, j , ii , jj : integer;
@@ -589,17 +509,22 @@ var
   vCurChar: string;
   vBrLevel: integer;
   VBuffer: string;
-  vErrCode: cardinal;
   VStr: string;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
 begin
   sfulldesc:='';
   sdesc:='';
   vBrLevel := 1;
-  if AStr = '' then begin
+  if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
 
-  VStr := ReplaceStr(AStr,#$0A,'');
+  SetLength(Vstr, AResult.Data.Size);
+  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
+
+  VStr := ReplaceStr(VStr,#$0A,'');
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
 
@@ -626,9 +551,14 @@ begin
      i := PosEx('[', vBuffer, 1);
      if i>0  then begin
        j := PosEx(',', vBuffer, i + 1);
-       sfulldesc := 'http://maps.navitel.su/webmaps/searchTwoStepInfo?id='+(Copy(vBuffer, i + 1, j - (i + 1)));
-       vErrCode := DoHttpRequest(sfulldesc, '' ,'',sname,sdesc);
-       if vErrCode <> 200 then exit;
+       VRequest :=
+        PrepareRequestByURL(
+          'http://maps.navitel.su/webmaps/searchTwoStepInfo?id='+(Copy(vBuffer, i + 1, j - (i + 1)))
+        );
+       VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+      if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+        SetLength(sdesc, VResultOk.Data.Size);
+        Move(VResultOk.Data.Buffer^, sdesc[1], VResultOk.Data.Size);
         ii := 1;
        jj := PosEx(',', sdesc, ii + 1 );
        slon := Copy(sdesc, ii + 1, jj - (ii + 1));
@@ -636,6 +566,9 @@ begin
        jj := PosEx(',', sdesc, ii + 1 );
        slat := Copy(sdesc, ii + 1, jj - (ii + 1));
        sfulldesc :='';
+      end else begin
+        Exit;
+      end;
      end;
      i:=j+1;
      j := PosEx(']', vBuffer, i);
@@ -649,18 +582,24 @@ begin
      j := PosEx(',', vBuffer, i+1);
      place_id := Copy(vBuffer, i + 1, j - (i + 1));
      if place_id<>'null' then begin
+      VRequest := PrepareRequestByURL('http://maps.navitel.su/webmaps/searchById?id='+(place_id));
+      VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       //http://maps.navitel.su/webmaps/searchById?id=812207
-      vErrCode := DoHttpRequest('http://maps.navitel.su/webmaps/searchById?id='+(place_id), '' ,'',Navitel_type,sdesc);
-      sdesc := RegExprReplaceMatchSubStr(sdesc,'[0-9]','');
-      sdesc := ReplaceStr(sdesc,#$0A,'');
-      sdesc := ReplaceStr(sdesc,#$0D,'');
-      sdesc := ReplaceStr(sdesc,'[','');
-      sdesc := ReplaceStr(sdesc,']','');
-      sdesc := ReplaceStr(sdesc,'null','');
-      sdesc := ReplaceStr(sdesc,', ','');
-      sdesc := ReplaceStr(sdesc,'""','","');
-      sdesc := Utf8ToAnsi(sdesc);
-      if vErrCode <> 200 then exit;
+      if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+        SetLength(sdesc, VResultOk.Data.Size);
+        Move(VResultOk.Data.Buffer^, sdesc[1], VResultOk.Data.Size);
+        sdesc := RegExprReplaceMatchSubStr(sdesc,'[0-9]','');
+        sdesc := ReplaceStr(sdesc,#$0A,'');
+        sdesc := ReplaceStr(sdesc,#$0D,'');
+        sdesc := ReplaceStr(sdesc,'[','');
+        sdesc := ReplaceStr(sdesc,']','');
+        sdesc := ReplaceStr(sdesc,'null','');
+        sdesc := ReplaceStr(sdesc,', ','');
+        sdesc := ReplaceStr(sdesc,'""','","');
+        sdesc := Utf8ToAnsi(sdesc);
+      end else begin
+        Exit;
+      end;
      end else begin
        i := PosEx('[', vBuffer, j+1);
        if i>j+1 then begin
@@ -686,7 +625,10 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByNavitel.PrepareURL(const ASearch: WideString): string;
+function TGeoCoderByNavitel.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
@@ -696,9 +638,9 @@ var
 begin
 
   VSearch := ASearch;
-  VConverter:=FLocalConverter.GetGeoConverter;
-  VZoom := FLocalConverter.GetZoom;
-  VMapRect := FLocalConverter.GetRectInMapPixelFloat;
+  VConverter:=ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
@@ -707,9 +649,12 @@ begin
 
   //http://maps.navitel.su/webmaps/searchTwoStep?s=%D0%BC%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&lon=37.6&lat=55.8&z=6
   //http://maps.navitel.su/webmaps/searchTwoStepInfo?id=848692
-  Result := 'http://maps.navitel.su/webmaps/searchTwoStep?s='+URLEncode(AnsiToUtf8(VSearch))+
-  '&lon='+R2StrPoint(FLocalConverter.GetCenterLonLat.x)+'&lat='+R2StrPoint(FLocalConverter.GetCenterLonLat.y)+
-  '&z='+inttostr(VZoom);
+  Result :=
+    PrepareRequestByURL(
+      'http://maps.navitel.su/webmaps/searchTwoStep?s='+URLEncode(AnsiToUtf8(VSearch))+
+      '&lon='+R2StrPoint(ALocalConverter.GetCenterLonLat.x)+'&lat='+R2StrPoint(ALocalConverter.GetCenterLonLat.y)+
+      '&z='+inttostr(VZoom)
+    );
 end;
 
 end.

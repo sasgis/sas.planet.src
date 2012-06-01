@@ -293,6 +293,7 @@ uses
   u_IeEmbeddedProtocolFactory,
   u_VectorItmesFactorySimple,
   u_VectorDataFactorySimple,
+  u_DownloadResultFactory,
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
@@ -464,7 +465,14 @@ begin
       FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create(FVectorItmesFactory);
-  FGeoCoderList := TGeoCoderListSimple.Create(FInetConfig.ProxyConfig as IProxySettings);
+  FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
+  FGeoCoderList :=
+    TGeoCoderListSimple.Create(
+      FInetConfig,
+      FGCThread.List,
+      TDownloadResultFactory.Create(FDownloadResultTextProvider),
+      FValueToStringConverterConfig
+    );
   FMarkPictureList := TMarkPictureListSimple.Create(FMarksIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
   FMarksDB :=
@@ -489,7 +497,6 @@ begin
     );
   FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet, FPerfCounterList.CreateAndAddNewSubList('MapType'));
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
-  FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
   FPathDetalizeList :=
     TPathDetalizeProviderListSimple.Create(
       FLanguageManager,

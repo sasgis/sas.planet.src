@@ -125,7 +125,7 @@ begin
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GeoCoder'));
   FMainMapsConfig := TMainMapsConfig.Create(AMapsSet, ALayersSet, ADefaultMapGUID);
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
-  FViewPortState := TMapViewPortState.Create(ACoordConverterFactory, FMapZoomingConfig, FMainMapsConfig, APerfCounterList);
+  FViewPortState := TMapViewPortState.Create(ACoordConverterFactory, FMainMapsConfig, APerfCounterList);
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
   FLayersConfig := TMainFormLayersConfig.Create(AContentTypeManager, FMainMapsConfig);
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);

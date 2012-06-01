@@ -55,7 +55,7 @@ type
     );
   end;
 
-  TProxyConfig = class(TConfigDataElementWithStaticBase, IProxyConfig, IProxySettings)
+  TProxyConfig = class(TConfigDataElementWithStaticBase, IProxyConfig)
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
@@ -70,17 +70,21 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetUseIESettings: Boolean; safecall;
-    function GetUseProxy: Boolean; safecall;
-    function GetHost: WideString; safecall;
-    function GetUseLogin: boolean; safecall;
-    function GetLogin: WideString; safecall;
-    function GetPassword: WideString; safecall;
-
     procedure SetUseIESettings(AValue: Boolean);
+
+    function GetUseProxy: Boolean; safecall;
     procedure SetUseProxy(AValue: Boolean);
+
+    function GetHost: WideString; safecall;
     procedure SetHost(const AValue: WideString);
+
+    function GetUseLogin: boolean; safecall;
     procedure SetUseLogin(AValue: Boolean);
+
+    function GetLogin: WideString; safecall;
     procedure SetLogin(const AValue: WideString);
+
+    function GetPassword: WideString; safecall;
     procedure SetPassword(const AValue: WideString);
 
     function GetStatic: IProxyConfigStatic;
