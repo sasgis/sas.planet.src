@@ -110,6 +110,7 @@ begin
       end else begin
         if VTile.TileTTL < VMinTTL then begin
           VOldestItem := I;
+          VMinTTL := VTile.TileTTL;
         end;
       end;
     end;
@@ -178,8 +179,13 @@ begin
          (VTile.TileXY.Y = AXY.Y) and
          (VTile.TileZoom = AZoom)
       then begin
-        VTile.TileTTL := GetTickCount + FTileInfoTTL;
-        Result := VTile.TileInfoBasic;
+        if (VTile.TileTTL > GetTickCount) then begin
+          Dispose(PTileInfoCacheRec(FList.Items[I]));
+          FList.Delete(I);
+        end else begin
+          VTile.TileTTL := GetTickCount + FTileInfoTTL;
+          Result := VTile.TileInfoBasic;
+        end;
         Break;
       end;
     end;
