@@ -45,6 +45,8 @@ type
   private
     FDB: PDB;
     FENV: PDB_ENV;
+    FTXN: PDB_TXN;
+    FTXNCommitCount: Integer;
     FAppData: Pointer;
     FFileName: string;
     FDBEnabled: Boolean;
@@ -54,6 +56,9 @@ type
     FOnOpen: TBDBOnEvent;
     FOnClose: TBDBOnEvent;
     FOnCheckPoint: TBDBOnEvent;
+
+    function GetTransaction: PDB_TXN;
+    procedure CommitTransaction;
   public
     constructor Create;
 
@@ -111,6 +116,7 @@ uses
 
 const
   CBerkeleyDBErrPfx = 'BerkeleyDB';
+  cMaxTxnCommitCount = 32;
 
 { TBerkeleyDB }
 
@@ -121,6 +127,8 @@ begin
   FFileName := '';
   FDB := nil;
   FENV := nil;
+  FTXN := nil;
+  FTXNCommitCount := 0;
   FAppData := nil;
   FOnCreate := nil;
   FOnOpen := nil;
@@ -240,6 +248,7 @@ begin
   try
     if Assigned(FDB) then begin
       VOnCloseAllow := True;
+      CommitTransaction;
       CheckBDBandNil(FDB.close(FDB, 0), FDB);
     end;
   finally
@@ -247,6 +256,26 @@ begin
   end;
   if VOnCloseAllow and (Addr(FOnClose) <> nil) then begin
     FOnClose(Self);
+  end;
+end;
+
+function TBerkeleyDB.GetTransaction: PDB_TXN;
+begin
+  if FTXNCommitCount > cMaxTxnCommitCount then begin
+    CommitTransaction;
+  end;
+  if FTXN = nil then begin
+    CheckBDB(FENV.txn_begin(FENV, nil, @FTXN, 0));
+  end;
+  Result := FTXN;
+end;
+
+procedure TBerkeleyDB.CommitTransaction;
+begin
+  if FTXN <> nil then begin
+    CheckBDB(FTXN.commit(FTXN, 0));
+    FTXNCommitCount := 0;
+    FTXN := nil;
   end;
 end;
 
@@ -258,6 +287,7 @@ function TBerkeleyDB.Read(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
+  txn: PDB_TXN;
 begin
   FCS.Acquire;
   try
@@ -268,7 +298,8 @@ begin
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
       dbtData.flags := DB_DBT_MALLOC;
-      Result := CheckAndFoundBDB(FDB.get(FDB, nil, @dbtKey, @dbtData, 0));
+      txn := GetTransaction;
+      Result := CheckAndFoundBDB(FDB.get(FDB, txn, @dbtKey, @dbtData, 0));
       if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
         AData := dbtData.data;
         ADataSize := dbtData.size;
@@ -289,6 +320,7 @@ function TBerkeleyDB.Write(
 ): Boolean;
 var
   dbtKey, dbtData: DBT;
+  txn: PDB_TXN;
   VOnCheckPointAllow: Boolean;
 begin
   VOnCheckPointAllow := False;
@@ -303,7 +335,9 @@ begin
       dbtKey.size := AKeySize;
       dbtData.data := AData;
       dbtData.size := ADataSize;
-      Result := CheckAndNotExistsBDB(FDB.put(FDB, nil, @dbtKey, @dbtData, 0));
+      txn := GetTransaction;
+      Result := CheckAndNotExistsBDB(FDB.put(FDB, txn, @dbtKey, @dbtData, 0));
+      Inc(FTXNCommitCount);
       VOnCheckPointAllow := Result;
     end;
   finally
@@ -320,6 +354,7 @@ function TBerkeleyDB.Exists(
 ): Boolean;
 var
   dbtKey: DBT;
+  txn: PDB_TXN;
 begin
   FCS.Acquire;
   try
@@ -328,7 +363,8 @@ begin
       FillChar(dbtKey, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-      Result := CheckAndFoundBDB(FDB.exists(FDB, nil, @dbtKey, 0));
+      txn := GetTransaction;
+      Result := CheckAndFoundBDB(FDB.exists(FDB, txn, @dbtKey, 0));
     end;
   finally
     FCS.Release;
@@ -341,6 +377,7 @@ function TBerkeleyDB.Del(
 ): Boolean;
 var
   dbtKey: DBT;
+  txn: PDB_TXN;
   VOnCheckPointAllow: Boolean;
 begin
   VOnCheckPointAllow := False;
@@ -351,7 +388,9 @@ begin
       FillChar(dbtKey, Sizeof(DBT), 0);
       dbtKey.data := AKey;
       dbtKey.size := AKeySize;
-      Result := CheckAndFoundBDB(FDB.del(FDB, nil, @dbtKey, 0));
+      txn := GetTransaction;
+      Result := CheckAndFoundBDB(FDB.del(FDB, txn, @dbtKey, 0));
+      Inc(FTXNCommitCount);
       VOnCheckPointAllow := Result;
     end;
   finally
@@ -369,6 +408,7 @@ begin
     Result := False;
     if FDBEnabled and FSyncAllow then begin
       FSyncAllow := False;
+      CommitTransaction;
       CheckBDB(FDB.sync(FDB, 0));
       Result := True; 
     end;
