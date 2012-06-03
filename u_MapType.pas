@@ -553,7 +553,7 @@ begin
                   end else begin
                     // make full source url
                     VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j) + VNumber + VMapAttachmentsInfo.GetExt(j);
-//                    VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j)); //TODO: Исправить когда-нибудь
+                    VSize := 0; //VSize := DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j)); //TODO: Исправить когда-нибудь
                     if (VSize > 0) then begin
                       // downloaded ok
                       if (nil <> ACountersPtr) then begin
