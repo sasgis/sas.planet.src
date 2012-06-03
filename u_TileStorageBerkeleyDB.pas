@@ -38,6 +38,7 @@ uses
   u_TileStorageBerkeleyDBHelper,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
+  u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
 {$IFDEF DEBUG}
@@ -54,6 +55,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
     FTTLListener: ITTLCheckListener;
+    FTileInfoMemCache: TTileInfoBasicMemCache;
     {$IFDEF WITH_PERF_COUNTER}
     FPerfCounterList: IInternalPerformanceCounterList;
     FGetTileInfoCounter: IInternalPerformanceCounter;
@@ -81,50 +83,51 @@ type
 
     function GetTileFileName(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): string; override;
 
     function GetTileInfo(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
+
     function GetTileRectInfo(
       const ARect: TRect;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
 
     function LoadTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; override;
 
     function DeleteTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     function DeleteTNE(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ); override;
   end;
@@ -193,10 +196,13 @@ begin
   );
   FGCList := AGCList;
   FGCList.Add(FTTLListener);
+
+  FTileInfoMemCache := TTileInfoBasicMemCache.Create(100, 30000);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
+  FTileInfoMemCache.Free;
   if Assigned(FGCList) then begin
     FGCList.Remove(FTTLListener);
     FGCList := nil;
@@ -241,18 +247,18 @@ end;
 
 function TTileStorageBerkeleyDB.GetTileFileName(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Result := FCacheConfig.GetTileFileName(AXY, Azoom) + PathDelim +
+  Result := FCacheConfig.GetTileFileName(AXY, AZoom) + PathDelim +
     'x' + IntToStr(AXY.X) + PathDelim + 'y' + IntToStr(AXY.Y) +
     FMainContentType.GetDefaultExt;
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
@@ -269,6 +275,11 @@ begin
   VCounterContext := FGetTileInfoCounter.StartOperation;
   try
   {$ENDIF}
+    Result := FTileInfoMemCache.Get(AXY, AZoom);
+    if Result <> nil then begin
+      Exit;
+    end;
+
     Result := FTileNotExistsTileInfo;
     if StorageStateStatic.ReadAccess <> asDisabled then begin
 
@@ -323,6 +334,9 @@ begin
         Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
       end;
     end;
+
+    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+
   {$IFDEF WITH_PERF_COUNTER}
   finally
     FGetTileInfoCounter.FinishOperation(VCounterContext);
@@ -332,7 +346,7 @@ end;
 
 function TTileStorageBerkeleyDB.GetTileRectInfo(
   const ARect: TRect;
-  const Azoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
 var
@@ -352,7 +366,7 @@ begin
   Result := nil;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VRect := ARect;
-    VZoom := Azoom;
+    VZoom := AZoom;
     Config.CoordConverter.CheckTileRect(VRect, VZoom);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
@@ -434,7 +448,7 @@ end;
 
 procedure TTileStorageBerkeleyDB.SaveTile(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AData: IBinaryData
 );
@@ -462,7 +476,8 @@ begin
           AData
         );
         if VResult then begin
-          NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+          FTileInfoMemCache.Remove(AXY, AZoom);
+          NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
       end;
     end;
@@ -503,7 +518,8 @@ begin
           nil
         );
         if VResult then begin
-          NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+          FTileInfoMemCache.Remove(AXY, AZoom);
+          NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
       end;
     end;
@@ -548,7 +564,8 @@ begin
         Result := False;
       end;
       if Result then begin
-        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+        FTileInfoMemCache.Remove(AXY, AZoom);
+        NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
   {$IFDEF WITH_PERF_COUNTER}
@@ -560,7 +577,7 @@ end;
 
 function TTileStorageBerkeleyDB.DeleteTNE(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
