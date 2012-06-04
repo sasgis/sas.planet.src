@@ -33,7 +33,6 @@ uses
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ActiveMapsConfig,
-  i_MapZoomingConfig,
   i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 

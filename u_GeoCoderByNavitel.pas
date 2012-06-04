@@ -52,19 +52,13 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
   u_ResStrings,
   u_GeoCodePlacemark,
-  ALHTTPCommon,
-  ALHttpClient,
-  ALWinInetHttpClient,
-  i_InetConfig,
-  i_ProxySettings,
-  u_GeoTostr,
-  u_GlobalState,
-  RegExprUtils;
+  u_GeoTostr;
 
 { TGeoCoderByNavitel }
 

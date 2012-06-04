@@ -50,7 +50,6 @@ type
 implementation
 
 uses
-  Math,
   SysUtils,
   StrUtils,
   RegExprUtils,

@@ -56,8 +56,7 @@ uses
   i_BinaryData,
   i_VectorItemProjected,
   u_TileIteratorByPolygon,
-  u_TileStorageAbstract,
-  u_StreamReadOnlyByBinaryData;
+  u_TileStorageAbstract;
 
 { TThreadExportToCE }
 
