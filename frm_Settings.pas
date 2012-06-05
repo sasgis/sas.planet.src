@@ -343,7 +343,14 @@ begin
     GState.GPSpar.DataReciveNotifier
   );
   frShortCutList := TfrShortCutList.Create(ALanguageManager);
-  frMapsList := TfrMapsList.Create(ALanguageManager, AMapTypeEditor);
+  frMapsList :=
+    TfrMapsList.Create(
+      ALanguageManager,
+      GState.InternalBrowser,
+      GState.MapType.FullMapsSet,
+      GState.MapType.GUIConfigList,
+      AMapTypeEditor
+    );
   PageControl1.ActivePageIndex:=0;
 end;
 

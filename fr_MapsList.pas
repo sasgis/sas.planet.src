@@ -11,6 +11,7 @@ uses
   i_LanguageManager,
   i_MapTypeGUIConfigList,
   i_MapTypeConfigModalEdit,
+  i_InternalBrowser,
   i_MapTypes,
   u_CommonFormAndFrameParents;
 
@@ -33,12 +34,19 @@ type
       SubItem: Integer; State: TCustomDrawState; var DefaultDraw: Boolean);
   private
     FMapTypeEditor: IMapTypeConfigModalEdit;
+    FFullMapsSet: IMapTypeSet;
+    FGUIConfigList: IMapTypeGUIConfigList;
+    FInternalBrowser: IInternalBrowser;
     procedure UpdateList;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AInternalBrowser: IInternalBrowser;
+      const AFullMapsSet: IMapTypeSet;
+      const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeEditor: IMapTypeConfigModalEdit
     ); reintroduce;
+    destructor Destroy; override;
     procedure Init;
     procedure CancelChanges;
     procedure ApplyChanges;
@@ -51,8 +59,7 @@ uses
   c_InternalBrowser,
   i_GUIDListStatic,
   u_MapType,
-  u_ResStrings,
-  u_GlobalState;
+  u_ResStrings;
 
 {$R *.dfm}
 
@@ -81,14 +88,18 @@ end;
 procedure TfrMapsList.ApplyChanges;
 var
   i: Integer;
+  VMapType: TMapType;
 begin
-  GState.MapType.GUIConfigList.LockWrite;
+  FGUIConfigList.LockWrite;
   try
     For i:=0 to MapList.Items.Count-1 do begin
-      TMapType(MapList.Items.Item[i].data).GUIConfig.SortIndex := i+1;
+      VMapType := TMapType(MapList.Items.Item[i].data);
+      if VMapType <> nil then begin
+        VMapType.GUIConfig.SortIndex := i+1;
+      end;
     end;
   finally
-    GState.MapType.GUIConfigList.UnlockWrite;
+    FGUIConfigList.UnlockWrite;
   end;
 end;
 
@@ -98,10 +109,12 @@ var
   VUrl: string;
 begin
   VMap := TMapType(MapList.Selected.Data);
-  VUrl := VMap.GUIConfig.InfoUrl.Value;
-  if VUrl <> '' then begin
-    VUrl := CZmpInfoInternalURL + GUIDToString(VMap.Zmp.GUID) + VUrl;
-    GState.InternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
+  if VMap <> nil then begin
+    VUrl := VMap.GUIConfig.InfoUrl.Value;
+    if VUrl <> '' then begin
+      VUrl := CZmpInfoInternalURL + GUIDToString(VMap.Zmp.GUID) + VUrl;
+      FInternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
+    end;
   end;
 end;
 
@@ -124,8 +137,10 @@ var
   VMapType: TMapType;
 begin
   VMapType := TMapType(MapList.Selected.Data);
-  if FMapTypeEditor.EditMap(VMapType) then begin
-    UpdateList;
+  if VMapType <> nil then begin
+    if FMapTypeEditor.EditMap(VMapType) then begin
+      UpdateList;
+    end;
   end;
 end;
 
@@ -135,12 +150,28 @@ end;
 
 constructor TfrMapsList.Create(
   const ALanguageManager: ILanguageManager;
+  const AInternalBrowser: IInternalBrowser;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeEditor: IMapTypeConfigModalEdit
 );
 begin
   inherited Create(ALanguageManager);
+  FInternalBrowser := AInternalBrowser;
+  FFullMapsSet := AFullMapsSet;
   FMapTypeEditor := AMapTypeEditor;
+  FGUIConfigList := AGUIConfigList;
   MapList.DoubleBuffered:=true;
+end;
+
+destructor TfrMapsList.Destroy;
+var
+  i: Integer;
+begin
+  For i:=0 to MapList.Items.Count-1 do begin
+    MapList.Items.Item[i].data := nil;
+  end;
+  inherited;
 end;
 
 procedure TfrMapsList.Init;
@@ -151,12 +182,12 @@ end;
 procedure TfrMapsList.MapListChange(Sender: TObject; Item: TListItem;
   Change: TItemChange);
 var
-  VMap: TMapType;
+  VMapType: TMapType;
 begin
   if Self.Visible then begin
-    if Item.Data<>nil then begin
-      VMap := TMapType(Item.Data);
-      btnMapInfo.Enabled:=VMap.GUIConfig.InfoUrl.Value<>'';
+    VMapType := TMapType(Item.Data);
+    if VMapType <> nil then begin
+      btnMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
     end;
   end;
 end;
@@ -164,16 +195,20 @@ end;
 procedure TfrMapsList.MapListCustomDrawSubItem(Sender: TCustomListView;
   Item: TListItem; SubItem: Integer; State: TCustomDrawState;
   var DefaultDraw: Boolean);
+var
+  VMapType: TMapType;
 begin
  if item = nil then EXIT;
- if TMapType(Item.Data).GUIConfig.Separator then
-  begin
+ VMapType := TMapType(Item.Data);
+ if VMapType <> nil then begin
+  if VMapType.GUIConfig.Separator then begin
    sender.canvas.Pen.Color:=clGray;
    sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
    sender.canvas.LineTo(sender.Column[0].Width,Item.DisplayRect(drBounds).Bottom-1);
   end;
- if Item.Index mod 2 = 1 then sender.canvas.brush.Color:=cl3DLight
+  if Item.Index mod 2 = 1 then sender.canvas.brush.Color:=cl3DLight
                          else sender.canvas.brush.Color:=clwhite;
+ end;
 end;
 
 procedure TfrMapsList.MapListDblClick(Sender: TObject);
@@ -233,10 +268,10 @@ begin
   VPrevSelectedIndex := MapList.ItemIndex;
   MapList.Items.BeginUpdate;
   try
-    VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+    VGUIDList := FGUIConfigList.OrderedMapGUIDList;
     for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
-      VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
       if i < MapList.Items.Count then begin
         VItem := MapList.Items[i];
       end else begin
