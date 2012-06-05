@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  Graphics,
+  i_Bitmap32Static,
   i_ConfigDataElement;
 
 type
@@ -33,8 +33,8 @@ type
     function GetCaption: String;
     property Caption: String read GetCaption;
 
-    function GetIconBitmap: TBitmap;
-    property IconBitmap: TBitmap read GetIconBitmap;
+    function GetIconBitmap: IBitmap32Static;
+    property IconBitmap: IBitmap32Static read GetIconBitmap;
 
     function GetShortCut: TShortCut;
     procedure SetShortCut(AValue: TShortCut);

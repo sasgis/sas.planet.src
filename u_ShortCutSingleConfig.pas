@@ -24,8 +24,8 @@ interface
 
 uses
   Classes,
-  Graphics,
   TB2Item,
+  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ShortCutSingleConfig,
@@ -34,17 +34,17 @@ uses
 type
   TShortCutSingleConfig = class(TConfigDataElementBase, IShortCutSingleConfig)
   private
-    FIconBitmap: TBitmap;
+    FIconBitmap: IBitmap32Static;
     FMenuItem: TTBCustomItem;
     FDefShortCut: TShortCut;
     FShortCut: TShortCut;
-    function GetBitmap(AMenu: TTBCustomItem): TBitmap;
+    function GetBitmap(AMenu: TTBCustomItem): IBitmap32Static;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function GetCaption: String;
-    function GetIconBitmap: TBitmap;
+    function GetIconBitmap: IBitmap32Static;
     function GetShortCut: TShortCut;
     procedure SetShortCut(AValue: TShortCut);
     procedure ResetToDefault;
@@ -52,13 +52,15 @@ type
     procedure ApplyShortCut;
   public
     constructor Create(AMenuItem: TTBCustomItem);
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Graphics,
+  GR32,
+  u_Bitmap32Static;
 
 { TShortCutSingleConfig }
 
@@ -69,12 +71,6 @@ begin
   FDefShortCut := AMenuItem.ShortCut;
   FShortCut := FDefShortCut;
   FIconBitmap := GetBitmap(AMenuItem);
-end;
-
-destructor TShortCutSingleConfig.Destroy;
-begin
-  FreeAndNil(FIconBitmap);
-  inherited;
 end;
 
 procedure TShortCutSingleConfig.DoReadConfig(
@@ -106,12 +102,26 @@ begin
   end;
 end;
 
-function TShortCutSingleConfig.GetBitmap(AMenu: TTBCustomItem): TBitmap;
+function TShortCutSingleConfig.GetBitmap(AMenu: TTBCustomItem): IBitmap32Static;
+var
+  VBitmap: TBitmap32;
+  VBmp: TBitmap;
 begin
   Result := nil;
-  if AMenu.ImageIndex >= 0 then begin
-    Result := TBitmap.Create;
-    AMenu.Images.GetBitmap(AMenu.ImageIndex, Result);
+  if (AMenu.Images <> nil) and (AMenu.ImageIndex >= 0) then begin
+    VBitmap := TBitmap32.Create;
+    try
+      VBmp := TBitmap.Create;
+      try
+        AMenu.Images.GetBitmap(AMenu.ImageIndex, VBmp);
+        VBitmap.Assign(VBmp);
+      finally
+        VBmp.Free;
+      end;
+      Result := TBitmap32Static.CreateWithCopy(VBitmap);
+    finally
+      VBitmap.Free;
+    end;
   end;
 end;
 
@@ -148,7 +158,7 @@ begin
   end;
 end;
 
-function TShortCutSingleConfig.GetIconBitmap: TBitmap;
+function TShortCutSingleConfig.GetIconBitmap: IBitmap32Static;
 begin
   Result := FIconBitmap;
 end;
