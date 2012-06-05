@@ -550,7 +550,7 @@ begin
           'http://maps.navitel.su/webmaps/searchTwoStepInfo?id='+(Copy(vBuffer, i + 1, j - (i + 1)))
         );
        VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-      if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         SetLength(sdesc, VResultOk.Data.Size);
         Move(VResultOk.Data.Buffer^, sdesc[1], VResultOk.Data.Size);
         ii := 1;
@@ -579,7 +579,7 @@ begin
       VRequest := PrepareRequestByURL('http://maps.navitel.su/webmaps/searchById?id='+(place_id));
       VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       //http://maps.navitel.su/webmaps/searchById?id=812207
-      if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         SetLength(sdesc, VResultOk.Data.Size);
         Move(VResultOk.Data.Buffer^, sdesc[1], VResultOk.Data.Size);
         sdesc := RegExprReplaceMatchSubStr(sdesc,'[0-9]','');

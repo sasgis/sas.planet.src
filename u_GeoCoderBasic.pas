@@ -130,7 +130,7 @@ begin
           Exit;
         end;
 
-        if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+        if Supports(VResult, IDownloadResultOk, VResultOk) then begin
           VList :=
             ParseResultToPlacemarksList(
               ACancelNotifier,
@@ -139,7 +139,7 @@ begin
               ASearch,
               ALocalConverter
             );
-        end else if Supports(VRequest, IDownloadResultError, VResultError) then begin
+        end else if Supports(VResult, IDownloadResultError, VResultError) then begin
           VResultCode := 503;
           VMessage := VResultError.ErrorText;
         end else begin

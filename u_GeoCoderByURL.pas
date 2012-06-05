@@ -1138,7 +1138,7 @@ begin
   Vlink := '';
   VRequest := TDownloadRequest.Create(sdesc, VHeader, InetSettings.GetStatic);
   VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-  if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
     SetLength(Vlink, VResultOk.Data.Size);
     Move(VResultOk.Data.Buffer^, Vlink[1], VResultOk.Data.Size);
     i := PosEx('"x":', Vlink, 1);
@@ -1163,7 +1163,7 @@ begin
   VHeader := 'Referer: http://maps.kosmosnimki.ru/api/index.html?'+slon;
   VRequest := TDownloadRequest.Create(sdesc, VHeader, InetSettings.GetStatic);
   VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-  if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
     SetLength(Vlink, VResultOk.Data.Size);
     Move(VResultOk.Data.Buffer^, Vlink[1], VResultOk.Data.Size);
     Vlink := ReplaceStr(Vlink,'\','');
@@ -1188,7 +1188,7 @@ begin
   Vlink := '';
   VRequest := TDownloadRequest.Create(sdesc, VHeader, InetSettings.GetStatic);
   VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-  if Supports(VRequest, IDownloadResultOk, VResultOk) then begin
+  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
     SetLength(Vlink, VResultOk.Data.Size);
     Move(VResultOk.Data.Buffer^, Vlink[1], VResultOk.Data.Size);
     i := PosEx('center/', sname, 1);
