@@ -2,8 +2,8 @@
 Модуль:      SAS4WinCE
 Назначение:  SASPlanet
 Автор:       Dima2000
-Версия:      v18
-Дата:        18.05.2012
+Версия:      v19
+Дата:        06.06.2012
 
 Модуль   содержит  класс  TSAS4WinCE,  реализующий экспорт тайлов из SASPlanet
 сразу  в    формат   пакованного   кэша   для   программ  v_max  (SAS4WinCE  и
@@ -176,6 +176,13 @@ Dima2000:
 [+] Добавил метод .AddExistTile для реиндексации и прочих вкусностей.
 [!] Исправил глюк с многотомными файлами данных с комментариями.
 
+06.06.2012  v19
+Dima2000:
+[!] Переделал метод .SaveINX для упорядоченной записи таблиц в индекс. Иначе
+    под андроидом клиент v_max-а не работает. Заодно теперь должна быть и
+    двоичная идентичность индексных файлов с родным упаковщиком (если не писать
+    дополнительной инфы конечно).
+
 *******************************************************************************
 ToDo:
 +1. Вместо кодов ошибок генерить исключения.
@@ -236,16 +243,6 @@ type
     ptr: integer;   // Смещение в файле данных
     size: integer;  // Длина файла
   end;
-  TTableZX = packed record
-    n: integer;     // Значение
-    ptr: integer;   // Смещение таблицы в файле индекса
-  end;
-  TTableY = packed record
-    n: integer;     // Значение
-    d: integer;     // Номер файла данных
-    ptr: integer;   // Смещение тайла в файле данных
-    size: integer;  // Длина файла тайла
-  end;
 
   TSAS4WinCE = class
   private
@@ -281,14 +278,8 @@ type
     Ttiles: array of TTileInfo;
     {Для операций над массивом и ускорения доступа}
     t: TTileInfo;
-    {Таблица Z}
-    Tz: array [1..24] of TTableZX;
-    {Таблица X[z]}
-    Tx: array of TTableZX;
-    {Таблица Y[z,x]}
-    Ty: array of TTableY;
 {!} fSwap: int64;             // Сколько всего обменов произвела сортировка
-{!} fMaxTx, fMaxTy: integer;  // Максимальный достигнутый размер таблиц X и Y
+    fMaxTx, fMaxTy: integer;  // Максимальный достигнутый размер таблиц X и Y
 
     {Сформировать индекс и записать его в указанный файл}
     procedure CreateINX(const fname: string; const bAllowDups: boolean);
@@ -379,8 +370,8 @@ type
     {Максимально допустимый размер файлов данных (переданное .Create)}
     property MaxFileSize: integer  read fMaxSize;
 {!} property Swaps: int64      read fSwap;  // Сколько всего обменов произвела сортировка
-{!} property MaxTx: integer    read fMaxTx; // Максимальный размер таблиц X
-{!} property MaxTy: integer    read fMaxTy; // Максимальный размер таблиц Y
+    property MaxTx: integer    read fMaxTx; // Максимальный размер таблиц X
+    property MaxTy: integer    read fMaxTy; // Максимальный размер таблиц Y
   end;
 
 
@@ -388,7 +379,7 @@ implementation
 
 const
   unit_name = 'Packed cache for SAS4WinCE/SAS4Android';
-  unit_ver = 'v18';
+  unit_ver = 'v19';
   copyright =
     #13#10'*****   Export from SAS.Planeta to SAS4WinCE  '
     + unit_ver
@@ -651,57 +642,43 @@ procedure TSAS4WinCE.CreateINX(
   {Допускать ли тайлы с одинаковыми координатами}
   const bAllowDups: boolean
 );
+type
+  TTnumY = packed record
+    x: integer;     // Значение
+    n: integer;     // Количество Y для данных Z,X
+  end;
+  TTzx = packed record
+    x: integer;
+    ptr: integer;
+  end;
+  TTy = packed record
+    y: integer;
+    d: integer;
+    ptr: integer;
+    size: integer;
+  end;
 var
-  i, z, x, y, pz, px, nz, nx, ny: integer;
-  s: string;
+  {Для хранения значений Z}
+  Tz: array[0..23] of integer;
+  {Для подсчёта сколько разных Y для каждой пары Z,X}
+  TnumY: array of array of TTnumY;
+  {Для ускорения записи таблиц X}
+  Tx: array of TTzx;
+  {Для ускорения записи таблиц Y}
+  Ty: array of TTy;
   p: TTileInfo;
+  z, x, nx, ny, pz, px, iz, ix, iy, it: integer;
+  s: string;
   bWr: boolean;
 begin
-  bWr := false;
-  if length(fname) > 0 then
-    {Писать будем только в непустой файл}
-    bWr := true;
-  s := '';
-  if bWriteTileInfo then
-    s := #13#10 + copyright + #0#0#0#0;
-  if bWr then
-  begin
-    {Если файл индекса пишется, то откроем его, запишем начальную таблицу Z и копирайт}
-    AssignFile(FD, fname + '.inx');
-    Rewrite(FD, 1);
-    bOpenFI := true;
-    for i := 1 to 24 do
-    begin
-      Tz[i].n := 0;
-      Tz[i].ptr := 0;
-    end;
-    z := 0;
-    Blockwrite(FD, z, 4);
-    {Начальная талица Z, всегда 24 нулевых элемента}
-    Blockwrite(FD, Tz, 24 * SizeOf(TTableZX));
-    {После таблицы Z запишем копирайт, в файле индекса его длину выравниваем на 4 байта}
-    if length(s) > 0 then
-      Blockwrite(FD, s[1], length(s) and -4);
-  end;
-  {Размер таблицы Z и копирайта}
-  fIndexLen := 4 + 24 * SizeOf(TTableZX) + (length(s) and -4);
-  pz := 0;
-  px := -1;
-  nz := 0;
-  nx := 0;
-  ny := 0;
-  p.dzxy := -1;
-  fMaxTx := 0; fMaxTy := 0; {!}
-  for i := 0 to fTilesNum do
-  {Последний раз фиктивный, только для сохранения накопленных таблиц}
-  begin
-    t.dzxy := -1;
-    {Фиктивный раз массив не читаем}
-    if i < fTilesNum then
-      t := Ttiles[i];
-    z := ((t.dzxy shr 48) and $FF);
-    x := ((t.dzxy shr 24) and $FFFFFF);
-    y := ((t.dzxy shr  0) and $FFFFFF);
+  {Писать будем только в непустой файл}
+  bWr := (length(fname) > 0);
+  fMaxTx := 0; fMaxTy := 0;
+  pz := 0; px := -1; p.dzxy := -1;
+  iz := -1; ix := -1;
+  {Первый проход по массиву - для подсчётов длин таблиц}
+  for it := 0 to fTilesNum - 1 do begin
+    t := Ttiles[it];
     if (t.dzxy and mask56) < p.dzxy then
       {Найдена ошибка сортировки!}
       raise ESAS4WinCEsortingError.Create('Found sorting error!');
@@ -710,70 +687,99 @@ begin
       (это в общем-то не обязательно ошибка, может они с разным расширением)}
       raise ESAS4WinCEdupZXY.Create('Duplicate z,x,y in tiles.');
     p.dzxy := t.dzxy and mask56;
-    if (z <> pz) or (x <> px) then
-    begin
-      {Обнаружен новый Z или X, пора записать таблицу Y и начать новую}
-      if ny > 0 then
-      begin
-        {Были Y, сохраним таблицу Y}
-        if nx >= Length(Tx) then
-          {Слишком много X, не влезают в таблицу, увеличим размер таблички}
-          SetLength(Tx, Length(Tx) + 10000);
-        Tx[nx].n := px;
-        {Указатель на начало таблицы Y}
-        Tx[nx].ptr := fIndexLen;
-        if bWr then
-        begin
-          Blockwrite(FD, ny, 4);
-          Blockwrite(FD, Ty[0], ny * SizeOf(TTableY));
-        end;
-{!}     if ny > fMaxTy then fMaxTy := ny;
-        Inc(nx);
-        {Увеличим размер файла индекса на записанный объём}
-        Inc(fIndexLen, 4 + ny * SizeOf(TTableY));
-      end;
-      {Начнём новую таблицу Y}
-      ny := 0;
+    z := (t.dzxy shr 48) and $FF;
+    x := (t.dzxy shr 24) and $FFFFFF;
+    if pz <> z then begin
+      {Обнаружен новый Z}
+      Inc(iz);
+      SetLength(TnumY, iz + 1);
+      Tz[iz] := z;
+      px := -1; ix := -1;
     end;
-    if z <> pz then
-    begin {Обнаружен новый Z, значит пора записать таблицу X и начать новую}
-      if nx > 0 then
-      begin
-        {Инкремент делается здесь т.к. Z начинаются с 1}
-        Inc(nz);
-        Tz[nz].n := pz;
-        {Указатель на начало таблицы X}
-        Tz[nz].ptr := fIndexLen;
-        if bWr then
-        begin
-          Blockwrite(FD, nx, 4);
-          Blockwrite(FD, Tx[0], nx * SizeOf(TTableZX));
-        end;
-{!}     if nx > fMaxTx then fMaxTx := nx;
-        {Увеличим размер файла индекса на записанный объём}
-        Inc(fIndexLen, 4 + nx * SizeOf(TTableZX));
-      end;
-      {Начнём новую таблицу X}
-      nx := 0;
+    if px <> x then begin
+      {Обнаружен новый X}
+      Inc(ix);
+      SetLength(TnumY[iz], ix + 1);
+      TnumY[iz, ix].x := x;
+      TnumY[iz, ix].n := 0;
     end;
-    if ny >= Length(Ty) then
-      {Слишком много Y, не влезают в таблицу, увеличим размер таблички}
-      SetLength(Ty, Length(Ty) + 10000);
-    Ty[ny].n := y;
-    Ty[ny].d := t.dzxy shr 56;
-    Ty[ny].ptr := t.ptr;
-    Ty[ny].size := t.size;
-    Inc(ny);
+    Inc(TnumY[iz, ix].n);
     pz := z; px := x;
-    if fIndexLen > IndexMaxSize then
-      {Слишком много тайлов для индекса 2ГБ}
-      raise ESAS4WinCEbigIndex.Create('Too many tiles!');
   end;
-  if bWr then
-  begin
+  {Сформировать копирайт, тут для учёта его размера между таблицами Z и X}
+  s := '';
+  if bWriteTileInfo then begin
+    s := #13#10 + copyright + #0#0#0#0;
+    {В файле индекса длину текста выравниваем на 4 байта}
+    s := Copy(s, 1, length(s) and -4);
+  end;
+  z := Length(TnumY);
+  if bWr then begin
+    {Если файл индекса пишется, то откроем его, запишем размер таблицы Z}
+    AssignFile(FD, fname + '.inx');
+    Rewrite(FD, 1);
+    bOpenFI := true;
+    Blockwrite(FD, z, 4);
+  end;
+  {Смещение начала таблиц X}
+  fIndexLen := 4 + z * SizeOf(TTzx) + length(s);
+  {Формируем таблицу Z}
+  for iz := 0 to High(TnumY) do begin
+    if bWr then begin
+      Blockwrite(FD, Tz[iz], 4);
+      Blockwrite(FD, fIndexLen, 4);
+    end;
+    nx := Length(TnumY[iz]);
+    if nx > fMaxTx then fMaxTx := nx;
+    {Продвинем указатель на размер таблицы X для данного Z}
+    Inc(fIndexLen, 4 + nx * SizeOf(TTzx));
+  end;
+  {Выделим память под самую большую таблицу X}
+  SetLength(Tx, fMaxTx);
+  {После таблицы Z запишем копирайт}
+  if bWr and (length(s) > 0) then
+    Blockwrite(FD, s[1], length(s));
+  {Теперь будем писать все таблицы X}
+  for iz := 0 to High(TnumY) do begin
+    nx := Length(TnumY[iz]);
+    for ix := 0 to nx - 1 do begin
+      Tx[ix].x := TnumY[iz, ix].x;
+      Tx[ix].ptr := fIndexLen;
+      ny := TnumY[iz, ix].n;
+      if ny > fMaxTy then fMaxTy := ny;
+      {Продвинем указатель на размер таблицы Y для данных Z,X}
+      Inc(fIndexLen, 4 + ny * SizeOf(TTy));
+    end;
+    if bWr then begin
+      Blockwrite(FD, nx, 4);
+      Blockwrite(FD, Tx[0], nx * SizeOf(TTzx));
+    end;
+  end;
+  if bWr then begin
+    it := -1;
+    {Выделим память под самую большую таблицу Y}
+    SetLength(Ty, fMaxTy);
+    {Второй проход по массиву - теперь будем писать все таблицы Y}
+    for iz := 0 to High(TnumY) do begin
+      nx := Length(TnumY[iz]);
+      for ix := 0 to nx - 1 do begin
+        ny := TnumY[iz, ix].n;
+        for iy := 0 to ny - 1 do begin
+          Inc(it);
+          t := Ttiles[it];
+          Ty[iy].y := t.dzxy and $FFFFFF;
+          Ty[iy].d := t.dzxy shr 56;
+          Ty[iy].ptr := t.ptr;
+          Ty[iy].size := t.size;
+        end;
+        Blockwrite(FD, ny, 4);
+        Blockwrite(FD, Ty[0], ny * SizeOf(TTy));
+      end;
+    end;
+  end;
+  if bWr then begin
     {Добавим в конец файла индекса пользовательский комментарий}
-    if length(comment)>0 then
-    begin
+    if length(comment)>0 then begin
       {Добавим  два  перевода  строки  для  визуального отделения комментария от
       бинарных данных и \0 в конец чтобы строка стала ASCIIZ}
       s := #13#10#13#10 + Comment + #0;
@@ -784,14 +790,9 @@ begin
       {Увеличим объём файла индекса на длину добавленной строки}
       Inc(fIndexLen, length(s));
     end;
-    {Запишем в начало файла точную таблицу Z}
-    Seek(FD, 0);
-    Blockwrite(FD, nz, 4);
-    Blockwrite(FD, Tz[1], 24 * SizeOf(TTableZX));
     CloseFile(FD);
     bOpenFI := false;
   end;
-  {Освободим память временных таблиц}
   SetLength(Tx, 0);
   SetLength(Ty, 0);
 end;
@@ -850,7 +851,8 @@ begin
     {А также на длину копирайта если таковой пишется
     и на длину расширения, и на размер recovery info}
     Dec(fLimit, length(copyright) + 300);
-  fSwap := 0; fMaxTx := 0; fMaxTy := 0; {!}
+  fMaxTx := 0; fMaxTy := 0;
+  fSwap := 0; {!}
 end;
 
 
@@ -862,8 +864,6 @@ begin
     CloseFile(FD);
   {Освободить всю занятую таблицами память}
   SetLength(Ttiles, 0);
-  SetLength(Tx, 0);
-  SetLength(Ty, 0);
   inherited Destroy;
 end;
 
