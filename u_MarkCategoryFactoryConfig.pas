@@ -66,10 +66,10 @@ begin
   FDefaultName :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
-      @SAS_STR_NewCategory,
       True,
       'DefaultName',
-      True
+      True,
+      @SAS_STR_NewCategory
     );
   Add(FDefaultName, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FAfterScale := 3;

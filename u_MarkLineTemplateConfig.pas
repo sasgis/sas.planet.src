@@ -79,10 +79,10 @@ begin
   VFormatString :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
-      @SAS_STR_NewPath,
       True,
       'FormatString',
-      True
+      True,
+      @SAS_STR_NewPath
     );
   inherited Create(ACategoryDb, VFormatString);
 
