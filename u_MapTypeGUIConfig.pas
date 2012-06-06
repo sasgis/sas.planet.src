@@ -101,30 +101,30 @@ begin
   FName :=
     TStringConfigDataElementWithLanguage.Create(
       ALanguageManager,
-      FDefConfig.Name,
       True,
       'Name',
-      True
+      True,
+      FDefConfig.Name
     );
   Add(FName, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FParentSubMenu :=
     TStringConfigDataElementWithLanguage.Create(
       ALanguageManager,
-      FDefConfig.ParentSubMenu,
       True,
       'ParentSubMenu',
-      False
+      False,
+      FDefConfig.ParentSubMenu
     );
   Add(FParentSubMenu, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FInfoUrl :=
     TStringConfigDataElementWithLanguage.Create(
       ALanguageManager,
-      FDefConfig.InfoUrl,
       False,
       'InfoUrl',
-      False
+      False,
+      FDefConfig.InfoUrl
     );
   Add(FInfoUrl, nil);
 

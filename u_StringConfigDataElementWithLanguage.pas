@@ -29,38 +29,22 @@ uses
   i_StringConfigDataElement,
   i_StringByLanguage,
   i_LanguageManager,
-  u_ConfigDataElementBase;
+  u_StringConfigDataElementWithDefBase;
 
 type
-  TStringConfigDataElementWithLanguage = class(TConfigDataElementBase, IStringConfigDataElement)
+  TStringConfigDataElementWithLanguage = class(TStringConfigDataElementWithDefBase)
   private
-    FLanguageManager: ILanguageManager;
     FDefValuesByLanguage: IStringByLanguage;
-    FUseSotre: Boolean;
-    FStoreIdentifier: string;
-    FIsStoreDefault: Boolean;
-
-    FValue: string;
-    FLangIndex: Integer;
-    FLangChangeListener: IJclListener;
-    procedure OnLangChange;
   protected
-    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
-    function GetValue: string;
-    procedure SetValue(const AValue: string);
-
-    function GetDefaultValue: string;
+    function GetDefValueForCurrentLang: string; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ADefValuesByLanguage: IStringByLanguage;
       AUseSotre: Boolean;
       const AStoreIdentifier: string;
-      AIsStoreDefault: Boolean
+      AIsStoreDefault: Boolean;
+      const ADefValuesByLanguage: IStringByLanguage
     );
-    destructor Destroy; override;
   end;
 
 
@@ -73,112 +57,22 @@ uses
 
 constructor TStringConfigDataElementWithLanguage.Create(
   const ALanguageManager: ILanguageManager;
-  const ADefValuesByLanguage: IStringByLanguage;
   AUseSotre: Boolean;
   const AStoreIdentifier: string;
-  AIsStoreDefault: Boolean
+  AIsStoreDefault: Boolean;
+  const ADefValuesByLanguage: IStringByLanguage
 );
 begin
-  inherited Create;
-  FLanguageManager := ALanguageManager;
+  inherited Create(ALanguageManager, AUseSotre, AStoreIdentifier, AIsStoreDefault);
   FDefValuesByLanguage := ADefValuesByLanguage;
-  FUseSotre := AUseSotre;
-  FStoreIdentifier := AStoreIdentifier;
-  FIsStoreDefault := AIsStoreDefault;
-
-  FLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
-  FLanguageManager.GetChangeNotifier.Add(FLangChangeListener);
-
-  FLangIndex := FLanguageManager.CurrentLanguageIndex;
-  FValue := FDefValuesByLanguage.GetString(FLangIndex);
 end;
 
-destructor TStringConfigDataElementWithLanguage.Destroy;
-begin
-  FLanguageManager.GetChangeNotifier.Remove(FLangChangeListener);
-  FLangChangeListener := nil;
-  FLanguageManager := nil;
-  inherited;
-end;
-
-procedure TStringConfigDataElementWithLanguage.DoReadConfig(
-  const AConfigData: IConfigDataProvider
-);
-begin
-  inherited;
-  if FUseSotre then begin
-    if AConfigData <> nil then begin
-      SetValue(AConfigData.ReadString(FStoreIdentifier, FValue));
-    end;
-  end;
-end;
-
-procedure TStringConfigDataElementWithLanguage.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
+function TStringConfigDataElementWithLanguage.GetDefValueForCurrentLang: string;
 var
-  VDefValue: string;
+  VIndex: Integer;
 begin
-  inherited;
-  if FUseSotre then begin
-    VDefValue := FDefValuesByLanguage.GetString(FLangIndex);
-    if (FValue <> VDefValue) or FIsStoreDefault then begin
-      AConfigData.WriteString(FStoreIdentifier, FValue);
-    end else begin
-      AConfigData.DeleteValue(FStoreIdentifier);
-    end;
-  end;
-end;
-
-function TStringConfigDataElementWithLanguage.GetDefaultValue: string;
-begin
-  LockRead;
-  try
-    Result := FDefValuesByLanguage.GetString(FLangIndex);
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TStringConfigDataElementWithLanguage.GetValue: string;
-begin
-  LockRead;
-  try
-    Result := FValue;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TStringConfigDataElementWithLanguage.OnLangChange;
-var
-  VNewIndex: Integer;
-  VDefValue: string;
-begin
-  LockWrite;
-  try
-    VNewIndex := FLanguageManager.CurrentLanguageIndex;
-    VDefValue := FDefValuesByLanguage.GetString(FLangIndex);
-    if FValue = VDefValue then begin
-      SetValue(FDefValuesByLanguage.GetString(VNewIndex));
-    end;
-    FLangIndex := VNewIndex;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TStringConfigDataElementWithLanguage.SetValue(const AValue: string);
-begin
-  LockWrite;
-  try
-    if FValue <> AValue then begin
-      FValue := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
+  VIndex := LanguageManager.CurrentLanguageIndex;
+  Result := FDefValuesByLanguage.GetString(VIndex);
 end;
 
 end.

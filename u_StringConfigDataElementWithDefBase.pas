@@ -43,6 +43,7 @@ type
     FLangChangeListener: IJclListener;
     procedure OnLangChange;
   protected
+    property LanguageManager: ILanguageManager read FLanguageManager;
     function GetDefValueForCurrentLang: string; virtual; abstract;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
