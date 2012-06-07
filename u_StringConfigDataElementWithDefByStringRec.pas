@@ -43,7 +43,11 @@ type
       const AStoreIdentifier: string;
       AIsStoreDefault: Boolean;
       AResStringRec: PResStringRec
-    );
+    ); overload;
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      AResStringRec: PResStringRec
+    ); overload;
   end;
 
 implementation
@@ -62,6 +66,15 @@ constructor TStringConfigDataElementWithDefByStringRec.Create(
 );
 begin
   inherited Create(ALanguageManager, AUseSotre, AStoreIdentifier, AIsStoreDefault);
+  FResStringRec := AResStringRec;
+end;
+
+constructor TStringConfigDataElementWithDefByStringRec.Create(
+  const ALanguageManager: ILanguageManager;
+  AResStringRec: PResStringRec
+);
+begin
+  inherited Create(ALanguageManager, False, '', False);
   FResStringRec := AResStringRec;
 end;
 
