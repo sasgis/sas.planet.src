@@ -45,7 +45,13 @@ type
 implementation
 
 uses
+  gnugettext,
+  c_PathDetalizeProvidersGUID,
+  i_StringConfigDataElement,
+  i_PathDetalizeProvider,
   i_PathDetalizeProviderList,
+  u_StringConfigDataElementWithDefByGetText,
+  u_PathDetalizeProviderListEntity,
   u_PathDetalizeProviderYourNavigation,
   u_PathDetalizeProviderMailRu,
   u_PathDetalizeProviderCloudMade;
@@ -61,33 +67,430 @@ constructor TPathDetalizeProviderListSimple.Create(
 );
 var
   VEntity: IPathDetalizeProviderListEntity;
+  VCaption: IStringConfigDataElement;
+  VDescription: IStringConfigDataElement;
+  VMenuItemName: IStringConfigDataElement;
+  VProvider: IPathDetalizeProvider;
 begin
   inherited Create;
-  VEntity := TPathDetalizeProviderMailRuShortest.Create(ALanguageManager, AProxyConfig, AFactory);
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Shortest) with Maps@mail.ru')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Shortest) with Maps@mail.ru')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('Maps@mail.ru') + '|0020~\' + _('By Car (Shortest)') + '|0010'
+    );
+  VProvider :=
+    TPathDetalizeProviderMailRu.Create(
+      AProxyConfig,
+      AFactory,
+      'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderMailRuShortest,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderMailRuFastest.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Fastest) with Maps@mail.ru')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Fastest) with Maps@mail.ru')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest)') + '|0020'
+    );
+  VProvider :=
+    TPathDetalizeProviderMailRu.Create(
+      AProxyConfig,
+      AFactory,
+      'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderMailRuFastest,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderMailRuFastestWithTraffic.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Fastest with traffic) with Maps@mail.ru')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Fastest with traffic) with Maps@mail.ru')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      False,
+      '',
+      False,
+      _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest with traffic)') + '|0030'
+    );
+  VProvider :=
+    TPathDetalizeProviderMailRu.Create(
+      AProxyConfig,
+      AFactory,
+      'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderMailRuFastestWithTraffic,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationFastestByCar.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Fastest) with yournavigation.org')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Fastest) with yournavigation.org')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Fastest)') + '|0010'
+    );
+  VProvider :=
+    TPathDetalizeProviderYourNavigation.Create(
+      AProxyConfig,
+      AVectorDataFactory,
+      AFactory,
+      AKmlLoader,
+      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderYourNavigationFastestByCar,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationShortestByCar.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Shortest) with yournavigation.org')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Shortest) with yournavigation.org')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Shortest)') + '|0020'
+    );
+  VProvider :=
+    TPathDetalizeProviderYourNavigation.Create(
+      AProxyConfig,
+      AVectorDataFactory,
+      AFactory,
+      AKmlLoader,
+      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderYourNavigationShortestByCar,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationFastestByBicycle.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By bicycle (Fastest) with yournavigation.org')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by bicycle (Fastest) with yournavigation.org')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Fastest)') + '|0030'
+    );
+  VProvider :=
+    TPathDetalizeProviderYourNavigation.Create(
+      AProxyConfig,
+      AVectorDataFactory,
+      AFactory,
+      AKmlLoader,
+      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderYourNavigationFastestByBicycle,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderYourNavigationShortestByBicycle.Create(ALanguageManager, AProxyConfig, AVectorDataFactory, AFactory, AKmlLoader);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By bicycle (Shortest) with yournavigation.org')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by bicycle (Shortest) with yournavigation.org')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Shortest)') + '|0040'
+    );
+  VProvider :=
+    TPathDetalizeProviderYourNavigation.Create(
+      AProxyConfig,
+      AVectorDataFactory,
+      AFactory,
+      AKmlLoader,
+      'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderYourNavigationShortestByBicycle,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeFastestByCar.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Fastest) with cloudmade.com')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Fastest) with cloudmade.com')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010'
+    );
+  VProvider :=
+    TPathDetalizeProviderCloudMade.Create(
+      AProxyConfig,
+      AFactory,
+      car,
+      fastest
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderCloudMadeFastestByCar,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeFastestByFoot.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By foot (Fastest) with cloudmade.com')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by foot (Fastest) with cloudmade.com')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Fastest)') + '|0020'
+    );
+  VProvider :=
+    TPathDetalizeProviderCloudMade.Create(
+      AProxyConfig,
+      AFactory,
+      foot,
+      fastest
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderCloudMadeFastestByFoot,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeFastestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By bicycle (Fastest) with cloudmade.com')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by bicycle (Fastest) with cloudmade.com')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Fastest)') + '|0030'
+    );
+  VProvider :=
+    TPathDetalizeProviderCloudMade.Create(
+      AProxyConfig,
+      AFactory,
+      bicycle,
+      fastest
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderCloudMadeFastestByBicycle,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeShortestByCar.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By car (Shortest) with cloudmade.com')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by car (Shortest) with cloudmade.com')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Shortest)') + '|0040'
+    );
+  VProvider :=
+    TPathDetalizeProviderCloudMade.Create(
+      AProxyConfig,
+      AFactory,
+      car,
+      shortest
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderCloudMadeShortestByCar,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeShortestByFoot.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By foot (Shortest) with cloudmade.com')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by foot (Shortest) with cloudmade.com')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Shortest)') + '|0050'
+    );
+  VProvider :=
+    TPathDetalizeProviderCloudMade.Create(
+      AProxyConfig,
+      AFactory,
+      foot,
+      shortest
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderCloudMadeShortestByFoot,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
-  VEntity := TPathDetalizeProviderCloudMadeShortestByBicycle.Create(ALanguageManager, AProxyConfig, AFactory);
+
+  VCaption :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('By bicycle (Shortest) with cloudmade.com')
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      gettext_NoOp('Detalize route by bicycle (Shortest) with cloudmade.com')
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByGetText.Create(
+      ALanguageManager,
+      _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Shortest)') + '|0060'
+    );
+  VProvider :=
+    TPathDetalizeProviderCloudMade.Create(
+      AProxyConfig,
+      AFactory,
+      bicycle,
+      shortest
+    );
+  VEntity :=
+    TPathDetalizeProviderListEntity.Create(
+      CPathDetalizeProviderCloudMadeShortestByBicycle,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VProvider
+    );
   Add(VEntity);
 end;
 

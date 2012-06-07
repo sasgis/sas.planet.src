@@ -28,10 +28,10 @@ uses
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ProxySettings,
-  u_PathDetalizeProviderListEntity;
+  i_PathDetalizeProvider;
 
 type
-  TPathDetalizeProviderMailRu = class(TPathDetalizeProviderListEntity)
+  TPathDetalizeProviderMailRu = class(TInterfacedObject, IPathDetalizeProvider)
   private
     FFactory: IVectorItmesFactory;
     FBaseUrl: string;
@@ -42,56 +42,12 @@ type
     function GetPath(
       const ASource: ILonLatPath;
       var AComment: string
-    ): ILonLatPath; override;
+    ): ILonLatPath;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ALanguageManager: ILanguageManager;
       const AProxyConfig: IProxyConfig;
       const AFactory: IVectorItmesFactory;
       const ABaseUrl: string
-    );
-  end;
-
-type
-  TPathDetalizeProviderMailRuShortest = class(TPathDetalizeProviderMailRu)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-type
-  TPathDetalizeProviderMailRuFastest = class(TPathDetalizeProviderMailRu)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-type
-  TPathDetalizeProviderMailRuFastestWithTraffic = class(TPathDetalizeProviderMailRu)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -115,14 +71,12 @@ uses
 { TPathDetalizeProviderMailRu }
 
 constructor TPathDetalizeProviderMailRu.Create(
-  const AGUID: TGUID;
-  const ALanguageManager: ILanguageManager;
   const AProxyConfig: IProxyConfig;
   const AFactory: IVectorItmesFactory;
   const ABaseUrl: string
 );
 begin
-  inherited Create(AGUID, ALanguageManager);
+  inherited Create;
   FBaseUrl := ABaseUrl;
   FProxyConfig := AProxyConfig;
   FFactory := AFactory;
@@ -231,102 +185,6 @@ begin
   ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute;
   ms := 0;
   Result := dd + EncodeTime(hh, mm, ss, ms);
-end;
-
-{ TPathDetalizeProviderMailRuShortest }
-
-constructor TPathDetalizeProviderMailRuShortest.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderMailRuShortest,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
-  );
-end;
-
-function TPathDetalizeProviderMailRuShortest.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Shortest) with Maps@mail.ru');
-end;
-
-function TPathDetalizeProviderMailRuShortest.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Shortest) with Maps@mail.ru');
-end;
-
-function TPathDetalizeProviderMailRuShortest.GetMenuItemNameTranslated: string;
-begin
-  Result := _('Maps@mail.ru') + '|0020~\' + _('By Car (Shortest)') + '|0010';
-end;
-
-{ TPathDetalizeProviderMailRuFastest }
-
-constructor TPathDetalizeProviderMailRuFastest.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderMailRuFastest,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
-  );
-end;
-
-function TPathDetalizeProviderMailRuFastest.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Fastest) with Maps@mail.ru');
-end;
-
-function TPathDetalizeProviderMailRuFastest.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Fastest) with Maps@mail.ru');
-end;
-
-function TPathDetalizeProviderMailRuFastest.GetMenuItemNameTranslated: string;
-begin
-  Result := _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest)') + '|0020';
-end;
-
-{ TPathDetalizeProviderMailRuFastestWithTraffic }
-
-constructor TPathDetalizeProviderMailRuFastestWithTraffic.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderMailRuFastestWithTraffic,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
-  );
-end;
-
-function TPathDetalizeProviderMailRuFastestWithTraffic.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Fastest with traffic) with Maps@mail.ru');
-end;
-
-function TPathDetalizeProviderMailRuFastestWithTraffic.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Fastest with traffic) with Maps@mail.ru');
-end;
-
-function TPathDetalizeProviderMailRuFastestWithTraffic.GetMenuItemNameTranslated: string;
-begin
-  Result := _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest with traffic)') + '|0030';
 end;
 
 end.

@@ -25,54 +25,66 @@ interface
 uses
   i_JclNotify,
   i_LanguageManager,
+  i_StringConfigDataElement,
   i_Sensor,
   i_SensorList,
+  i_JclListenerNotifierLinksList,
   u_UserInterfaceItemBase,
   u_ConfigDataElementBase;
 
 type
-  TSensorBase = class(TUserInterfaceItemBase, ISensor, ISensorListEntity)
+  TSensorListEntity = class(TUserInterfaceItemBase, ISensorListEntity)
+  private
+    FSensor: ISensor;
+    FSensorTypeIID: TGUID;
+  private
+    function GetSensor: ISensor;
+    function GetSensorTypeIID: TGUID;
+  public
+    constructor Create(
+      const AGUID: TGUID;
+      const ACaption: IStringConfigDataElement;
+      const ADescription: IStringConfigDataElement;
+      const AMenuItemName: IStringConfigDataElement;
+      const ASensor: ISensor;
+      const ASensorTypeIID: TGUID
+    );
+  end;
+
+  TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
   private
     FCanReset: Boolean;
-    FSensorTypeIID: TGUID;
 
     FDataUpdateNotifier: IJclNotifier;
+    FLinksList: IJclListenerNotifierLinksList;
   protected
+    property LinksList: IJclListenerNotifierLinksList read FLinksList;
     procedure NotifyDataUpdate;
   protected
     function CanReset: Boolean;
     procedure Reset; virtual;
-    function GetSensorTypeIID: TGUID;
     function GetDataUpdateNotifier: IJclNotifier;
-    function GetSensor: ISensor;
   public
-    constructor Create(
-      const AGUID: TGUID;
-      ACanReset: Boolean;
-      const ASensorTypeIID: TGUID;
-      const ALanguageManager: ILanguageManager
-    );
+    constructor Create(ACanReset: Boolean);
   end;
 
 implementation
 
 uses
-  u_JclNotify;
+  u_JclNotify,
+  u_JclListenerNotifierLinksList;
 
 { TSensorBase }
 
 constructor TSensorBase.Create(
-  const AGUID: TGUID;
-  ACanReset: Boolean;
-  const ASensorTypeIID: TGUID;
-  const ALanguageManager: ILanguageManager
+  ACanReset: Boolean
 );
 begin
-  inherited Create(AGUID, ALanguageManager);
+  inherited Create;
   FCanReset := ACanReset;
-  FSensorTypeIID := ASensorTypeIID;
-
   FDataUpdateNotifier := TJclBaseNotifier.Create;
+  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.ActivateLinks;
 end;
 
 function TSensorBase.CanReset: Boolean;
@@ -85,16 +97,6 @@ begin
   Result := FDataUpdateNotifier;
 end;
 
-function TSensorBase.GetSensor: ISensor;
-begin
-  Result := Self;
-end;
-
-function TSensorBase.GetSensorTypeIID: TGUID;
-begin
-  Result := FSensorTypeIID;
-end;
-
 procedure TSensorBase.NotifyDataUpdate;
 begin
   FDataUpdateNotifier.Notify(nil);
@@ -102,6 +104,30 @@ end;
 
 procedure TSensorBase.Reset;
 begin
+end;
+
+{ TSensorListEntity }
+
+constructor TSensorListEntity.Create(
+  const AGUID: TGUID;
+  const ACaption, ADescription, AMenuItemName: IStringConfigDataElement;
+  const ASensor: ISensor;
+  const ASensorTypeIID: TGUID
+);
+begin
+  inherited Create(AGUID, ACaption, ADescription, AMenuItemName);
+  FSensor := ASensor;
+  FSensorTypeIID := ASensorTypeIID;
+end;
+
+function TSensorListEntity.GetSensor: ISensor;
+begin
+  Result := FSensor;
+end;
+
+function TSensorListEntity.GetSensorTypeIID: TGUID;
+begin
+  Result := FSensorTypeIID;
 end;
 
 end.

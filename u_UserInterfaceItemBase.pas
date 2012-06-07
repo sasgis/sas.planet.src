@@ -25,23 +25,19 @@ interface
 uses
   i_JclListenerNotifierLinksList,
   i_LanguageManager,
+  i_StringConfigDataElement,
   u_ConfigDataElementBase;
 
 type
   TUserInterfaceItemBase = class(TConfigDataElementBaseEmptySaveLoad)
   private
     FGUID: TGUID;
-    FCaption: string;
-    FDescription: string;
-    FMenuItemName: string;
+    FCaption: IStringConfigDataElement;
+    FDescription: IStringConfigDataElement;
+    FMenuItemName: IStringConfigDataElement;
 
     FLinksList: IJclListenerNotifierLinksList;
-    procedure OnLangChange;
   protected
-    function GetCaptionTranslated: string; virtual; abstract;
-    function GetDescriptionTranslated: string; virtual; abstract;
-    function GetMenuItemNameTranslated: string; virtual; abstract;
-
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
   protected
     function GetGUID: TGUID;
@@ -51,7 +47,9 @@ type
   public
     constructor Create(
       const AGUID: TGUID;
-      const ALanguageManager: ILanguageManager
+      const ACaption: IStringConfigDataElement;
+      const ADescription: IStringConfigDataElement;
+      const AMenuItemName: IStringConfigDataElement
     );
   end;
 
@@ -65,39 +63,28 @@ uses
 
 constructor TUserInterfaceItemBase.Create(
   const AGUID: TGUID;
-  const ALanguageManager: ILanguageManager
+  const ACaption: IStringConfigDataElement;
+  const ADescription: IStringConfigDataElement;
+  const AMenuItemName: IStringConfigDataElement
 );
 begin
   inherited Create;
   FGUID := AGUID;
-
+  FCaption := ACaption;
+  FDescription := ADescription;
+  FMenuItemName := AMenuItemName;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLangChange),
-    ALanguageManager.GetChangeNotifier
-  );
-  OnLangChange;
 end;
 
 function TUserInterfaceItemBase.GetCaption: string;
 begin
-  LockRead;
-  try
-    Result := FCaption;
-  finally
-    UnlockRead;
-  end;
+  Result := FCaption.Value;
 end;
 
 function TUserInterfaceItemBase.GetDescription: string;
 begin
-  LockRead;
-  try
-    Result := FDescription;
-  finally
-    UnlockRead;
-  end;
+  Result := FDescription.Value;
 end;
 
 function TUserInterfaceItemBase.GetGUID: TGUID;
@@ -107,25 +94,7 @@ end;
 
 function TUserInterfaceItemBase.GetMenuItemName: string;
 begin
-  LockRead;
-  try
-    Result := FMenuItemName;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TUserInterfaceItemBase.OnLangChange;
-begin
-  LockWrite;
-  try
-    FCaption := GetCaptionTranslated;
-    FDescription := GetDescriptionTranslated;
-    FMenuItemName := GetMenuItemNameTranslated;
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
+  Result := FMenuItemName.Value;
 end;
 
 end.

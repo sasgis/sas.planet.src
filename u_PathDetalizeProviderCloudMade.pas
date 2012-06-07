@@ -31,113 +31,33 @@ uses
   i_ProxySettings,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
-  u_PathDetalizeProviderListEntity;
+  i_PathDetalizeProvider;
 
 type
   TRouteVehicle = (car, foot, bicycle);
   TRouteCalcType = (fastest, shortest);
 
 type
-  TPathDetalizeProviderCloudMade = class(TPathDetalizeProviderListEntity)
+  TPathDetalizeProviderCloudMade = class(TInterfacedObject, IPathDetalizeProvider)
   private
     FFactory: IVectorItmesFactory;
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
     FProxyConfig: IProxyConfig;
-  protected
+  private
     function SecondToTime(const Seconds: Cardinal): Double;
-  protected { IPathDetalizeProvider }
+  private { IPathDetalizeProvider }
     function GetPath(
       const ASource: ILonLatPath;
       var AComment: string
-    ): ILonLatPath; override;
+    ): ILonLatPath;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ALanguageManager: ILanguageManager;
       const AProxyConfig: IProxyConfig;
       const AFactory: IVectorItmesFactory;
       AVehicle: TRouteVehicle;
       ARouteCalcType: TRouteCalcType
-    );
-  end;
-
-  TPathDetalizeProviderCloudMadeFastestByCar = class(TPathDetalizeProviderCloudMade)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-  TPathDetalizeProviderCloudMadeFastestByFoot = class(TPathDetalizeProviderCloudMade)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-  TPathDetalizeProviderCloudMadeFastestByBicycle = class(TPathDetalizeProviderCloudMade)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-  TPathDetalizeProviderCloudMadeShortestByCar = class(TPathDetalizeProviderCloudMade)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-  TPathDetalizeProviderCloudMadeShortestByFoot = class(TPathDetalizeProviderCloudMade)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
-    );
-  end;
-
-  TPathDetalizeProviderCloudMadeShortestByBicycle = class(TPathDetalizeProviderCloudMade)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AFactory: IVectorItmesFactory
     );
   end;
 
@@ -157,15 +77,13 @@ uses
 { TPathDetalizeProviderCloudMade }
 
 constructor TPathDetalizeProviderCloudMade.Create(
-  const AGUID: TGUID;
-  const ALanguageManager: ILanguageManager;
   const AProxyConfig: IProxyConfig;
   const AFactory: IVectorItmesFactory;
   AVehicle: TRouteVehicle;
   ARouteCalcType: TRouteCalcType
 );
 begin
-  inherited Create(AGUID, ALanguageManager);
+  inherited Create;
   FBaseUrl := 'http://routes.cloudmade.com/BC9A493B41014CAABB98F0471D759707/api/0.3/';
   FVehicle := AVehicle;
   FRouteCalcType := ARouteCalcType;
@@ -298,204 +216,6 @@ begin
   ss := ((Seconds mod SecPerDay) mod SecPerHour) mod SecPerMinute;
   ms := 0;
   Result := dd + EncodeTime(hh, mm, ss, ms);
-end;
-
-{ TPathDetalizeProviderCloudMadeFastestByCar }
-
-constructor TPathDetalizeProviderCloudMadeFastestByCar.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderCloudMadeFastestByCar,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    car,
-    fastest
-  );
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByCar.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Fastest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByCar.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Fastest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByCar.GetMenuItemNameTranslated: string;
-begin
-  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010';
-end;
-
-{ TPathDetalizeProviderCloudMadeFastestByFoot }
-
-constructor TPathDetalizeProviderCloudMadeFastestByFoot.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderCloudMadeFastestByFoot,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    foot,
-    fastest
-  );
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByFoot.GetCaptionTranslated: string;
-begin
-  Result := _('By foot (Fastest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByFoot.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by foot (Fastest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByFoot.GetMenuItemNameTranslated: string;
-begin
-  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Fastest)') + '|0020';
-end;
-
-{ TPathDetalizeProviderCloudMadeFastestByBicycle }
-
-constructor TPathDetalizeProviderCloudMadeFastestByBicycle.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderCloudMadeFastestByBicycle,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    bicycle,
-    fastest
-  );
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByBicycle.GetCaptionTranslated: string;
-begin
-  Result := _('By bicycle (Fastest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByBicycle.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by bicycle (Fastest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeFastestByBicycle.GetMenuItemNameTranslated: string;
-begin
-  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Fastest)') + '|0030';
-end;
-
-{ TPathDetalizeProviderCloudMadeShortestByCar }
-
-constructor TPathDetalizeProviderCloudMadeShortestByCar.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderCloudMadeShortestByCar,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    car,
-    shortest
-  );
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByCar.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Shortest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByCar.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Shortest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByCar.GetMenuItemNameTranslated: string;
-begin
-  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Shortest)') + '|0040';
-end;
-
-{ TPathDetalizeProviderCloudMadeShortestByFoot }
-
-constructor TPathDetalizeProviderCloudMadeShortestByFoot.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderCloudMadeShortestByFoot,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    foot,
-    shortest
-  );
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByFoot.GetCaptionTranslated: string;
-begin
-  Result := _('By foot (Shortest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByFoot.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by foot (Shortest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByFoot.GetMenuItemNameTranslated: string;
-begin
-  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Shortest)') + '|0050';
-end;
-
-{ TPathDetalizeProviderCloudMadeShortestByBicycle }
-
-constructor TPathDetalizeProviderCloudMadeShortestByBicycle.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AFactory: IVectorItmesFactory
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderCloudMadeShortestByBicycle,
-    ALanguageManager,
-    AProxyConfig,
-    AFactory,
-    bicycle,
-    shortest
-  );
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByBicycle.GetCaptionTranslated: string;
-begin
-  Result := _('By bicycle (Shortest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByBicycle.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by bicycle (Shortest) with cloudmade.com');
-end;
-
-function TPathDetalizeProviderCloudMadeShortestByBicycle.GetMenuItemNameTranslated: string;
-begin
-  Result := _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Shortest)') + '|0060';
 end;
 
 end.

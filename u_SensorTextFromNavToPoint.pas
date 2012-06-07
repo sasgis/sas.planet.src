@@ -44,10 +44,6 @@ type
     procedure OnPosChanged;
     procedure OnNavToPointChanged;
   protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  protected
     function GetText: string;
   public
     constructor Create(
@@ -75,7 +71,8 @@ constructor TSensorTextFromNavToPoint.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(CSensorDistToMarkGUID, False, ISensorText, ALanguageManager);
+  //CSensorDistToMarkGUID,
+  inherited Create(False);
   FViewPortState := AViewPortState;
   FNavigationToPoint := ANavigationToPoint;
   FValueConverterConfig := AValueConverterConfig;
@@ -98,21 +95,21 @@ begin
   OnConverterConfigChange;
 end;
 
-function TSensorTextFromNavToPoint.GetCaptionTranslated: string;
-begin
-  Result := SAS_STR_SensorNavToPointCaption;
-end;
-
-function TSensorTextFromNavToPoint.GetDescriptionTranslated: string;
-begin
-  Result := SAS_STR_SensorNavToPointDescription;
-end;
-
-function TSensorTextFromNavToPoint.GetMenuItemNameTranslated: string;
-begin
-  Result := SAS_STR_SensorNavToPointMenuItemName;
-end;
-
+//function TSensorTextFromNavToPoint.GetCaptionTranslated: string;
+//begin
+//  Result := SAS_STR_SensorNavToPointCaption;
+//end;
+//
+//function TSensorTextFromNavToPoint.GetDescriptionTranslated: string;
+//begin
+//  Result := SAS_STR_SensorNavToPointDescription;
+//end;
+//
+//function TSensorTextFromNavToPoint.GetMenuItemNameTranslated: string;
+//begin
+//  Result := SAS_STR_SensorNavToPointMenuItemName;
+//end;
+//
 function TSensorTextFromNavToPoint.GetText: string;
 var
   VValue: Double;

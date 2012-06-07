@@ -722,6 +722,7 @@ uses
   i_MapAttachmentsInfo,
   i_LanguageManager,
   i_VectorDataItemSimple,
+  i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
@@ -5358,6 +5359,7 @@ end;
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
   VResult: ILonLatPath;
+  VEntity: IPathDetalizeProviderListEntity;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
   VInterface: IInterface;
@@ -5365,7 +5367,8 @@ var
 begin
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
     VInterface := IInterface(TTBXItem(Sender).tag);
-    if Supports(VInterface, IPathDetalizeProvider, VProvider) then begin
+    if Supports(VInterface, IPathDetalizeProviderListEntity, VEntity) then begin
+      VProvider := VEntity.GetProvider;
       VIsError := True;
       try
         VResult := VProvider.GetPath(VPathOnMapEdit.Path, FMarshrutComment);

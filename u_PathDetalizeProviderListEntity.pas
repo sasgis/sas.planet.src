@@ -25,18 +25,24 @@ interface
 uses
   i_PathDetalizeProvider,
   i_VectorItemLonLat,
-  u_UserInterfaceItemBase,
-  i_PathDetalizeProviderList;
+  i_StringConfigDataElement,
+  i_PathDetalizeProviderList,
+  u_UserInterfaceItemBase;
 
 type
-  TPathDetalizeProviderListEntity = class(TUserInterfaceItemBase, IPathDetalizeProviderListEntity, IPathDetalizeProvider)
-  protected { IPathDetalizeProviderListEntity }
+  TPathDetalizeProviderListEntity = class(TUserInterfaceItemBase, IPathDetalizeProviderListEntity)
+  private
+    FProvider: IPathDetalizeProvider;
+  private
     function GetProvider: IPathDetalizeProvider;
-  protected { IPathDetalizeProvider }
-    function GetPath(
-      const ASource: ILonLatPath;
-      var AComment: string
-    ): ILonLatPath; virtual; abstract;
+  public
+    constructor Create(
+      const AGUID: TGUID;
+      const ACaption: IStringConfigDataElement;
+      const ADescription: IStringConfigDataElement;
+      const AMenuItemName: IStringConfigDataElement;
+      const AProvider: IPathDetalizeProvider
+    );
   end;
 
 
@@ -44,9 +50,21 @@ implementation
 
 { TPathDetalizeProviderListEntity }
 
+constructor TPathDetalizeProviderListEntity.Create(
+  const AGUID: TGUID;
+  const ACaption: IStringConfigDataElement;
+  const ADescription: IStringConfigDataElement;
+  const AMenuItemName: IStringConfigDataElement;
+  const AProvider: IPathDetalizeProvider
+);
+begin
+  inherited Create(AGUID, ACaption, ADescription, AMenuItemName);
+  FProvider := AProvider;
+end;
+
 function TPathDetalizeProviderListEntity.GetProvider: IPathDetalizeProvider;
 begin
-  Result := Self;
+  Result := FProvider;
 end;
 
 end.

@@ -36,10 +36,6 @@ type
     FTimer: TTimer;
     procedure OnTimer(Sender: TObject);
   protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  protected
     function GetText: string;
   public
     constructor Create(
@@ -59,7 +55,8 @@ uses
 
 constructor TSensorBatteryStatus.Create(const ALanguageManager: ILanguageManager);
 begin
-  inherited Create(CSensorBatteryGUID, False, ISensorText, ALanguageManager);
+  //CSensorBatteryGUID,
+  inherited Create(False);
   FStatusText := '-';
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 1000;
@@ -73,21 +70,21 @@ begin
   inherited;
 end;
 
-function TSensorBatteryStatus.GetCaptionTranslated: string;
-begin
-  Result := SAS_STR_SensorBatteryStatusCaption;
-end;
-
-function TSensorBatteryStatus.GetDescriptionTranslated: string;
-begin
-  Result := SAS_STR_SensorBatteryStatusDescription;
-end;
-
-function TSensorBatteryStatus.GetMenuItemNameTranslated: string;
-begin
-  Result := SAS_STR_SensorBatteryStatusMenuItemName;
-end;
-
+//function TSensorBatteryStatus.GetCaptionTranslated: string;
+//begin
+//  Result := SAS_STR_SensorBatteryStatusCaption;
+//end;
+//
+//function TSensorBatteryStatus.GetDescriptionTranslated: string;
+//begin
+//  Result := SAS_STR_SensorBatteryStatusDescription;
+//end;
+//
+//function TSensorBatteryStatus.GetMenuItemNameTranslated: string;
+//begin
+//  Result := SAS_STR_SensorBatteryStatusMenuItemName;
+//end;
+//
 function TSensorBatteryStatus.GetText: string;
 begin
   LockRead;

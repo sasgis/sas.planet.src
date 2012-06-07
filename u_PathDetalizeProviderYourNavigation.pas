@@ -30,10 +30,10 @@ uses
   i_VectorDataFactory,
   i_LanguageManager,
   i_ProxySettings,
-  u_PathDetalizeProviderListEntity;
+  i_PathDetalizeProvider;
 
 type
-  TPathDetalizeProviderYourNavigation = class(TPathDetalizeProviderListEntity)
+  TPathDetalizeProviderYourNavigation = class(TInterfacedObject, IPathDetalizeProvider)
   private
     FFactory: IVectorItmesFactory;
     FVectorDataFactory: IVectorDataFactory;
@@ -44,80 +44,14 @@ type
     function GetPath(
       const ASource: ILonLatPath;
       var AComment: string
-    ): ILonLatPath; override;
+    ): ILonLatPath;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ALanguageManager: ILanguageManager;
       const AProxyConfig: IProxyConfig;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItmesFactory;
       const AKmlLoader: IVectorDataLoader;
       const ABaseUrl: string
-    );
-  end;
-
-type
-  TPathDetalizeProviderYourNavigationFastestByCar = class(TPathDetalizeProviderYourNavigation)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItmesFactory;
-      const AKmlLoader: IVectorDataLoader
-    );
-  end;
-
-type
-  TPathDetalizeProviderYourNavigationShortestByCar = class(TPathDetalizeProviderYourNavigation)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItmesFactory;
-      const AKmlLoader: IVectorDataLoader
-    );
-  end;
-
-type
-  TPathDetalizeProviderYourNavigationFastestByBicycle = class(TPathDetalizeProviderYourNavigation)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItmesFactory;
-      const AKmlLoader: IVectorDataLoader
-    );
-  end;
-
-type
-  TPathDetalizeProviderYourNavigationShortestByBicycle = class(TPathDetalizeProviderYourNavigation)
-  protected
-    function GetCaptionTranslated: string; override;
-    function GetDescriptionTranslated: string; override;
-    function GetMenuItemNameTranslated: string; override;
-  public
-    constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
-      const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItmesFactory;
-      const AKmlLoader: IVectorDataLoader
     );
   end;
 
@@ -138,8 +72,6 @@ uses
 { TPathDetalizeProviderYourNavigation }
 
 constructor TPathDetalizeProviderYourNavigation.Create(
-  const AGUID: TGUID;
-  const ALanguageManager: ILanguageManager;
   const AProxyConfig: IProxyConfig;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItmesFactory;
@@ -147,7 +79,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   const ABaseUrl: string
 );
 begin
-  inherited Create(AGUID, ALanguageManager);
+  inherited Create;
   FBaseUrl := ABaseUrl;
   FProxyConfig := AProxyConfig;
   FVectorDataFactory := AVectorDataFactory;
@@ -213,150 +145,6 @@ begin
   if not conerr then begin
     Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
   end;
-end;
-
-{ TPathDetalizeProviderYourNavigationFastestByCar }
-
-constructor TPathDetalizeProviderYourNavigationFastestByCar.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItmesFactory;
-  const AKmlLoader: IVectorDataLoader
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderYourNavigationFastestByCar,
-    ALanguageManager,
-    AProxyConfig,
-    AVectorDataFactory,
-    AFactory,
-    AKmlLoader,
-    'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
-  );
-end;
-
-function TPathDetalizeProviderYourNavigationFastestByCar.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Fastest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationFastestByCar.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Fastest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationFastestByCar.GetMenuItemNameTranslated: string;
-begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Fastest)') + '|0010';
-end;
-
-{ TPathDetalizeProviderYourNavigationShortestByCar }
-
-constructor TPathDetalizeProviderYourNavigationShortestByCar.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItmesFactory;
-  const AKmlLoader: IVectorDataLoader
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderYourNavigationShortestByCar,
-    ALanguageManager,
-    AProxyConfig,
-    AVectorDataFactory,
-    AFactory,
-    AKmlLoader,
-    'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
-  );
-end;
-
-function TPathDetalizeProviderYourNavigationShortestByCar.GetCaptionTranslated: string;
-begin
-  Result := _('By car (Shortest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationShortestByCar.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by car (Shortest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationShortestByCar.GetMenuItemNameTranslated: string;
-begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Shortest)') + '|0020';
-end;
-
-{ TPathDetalizeProviderYourNavigationFastestByBicycle }
-
-constructor TPathDetalizeProviderYourNavigationFastestByBicycle.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItmesFactory;
-  const AKmlLoader: IVectorDataLoader
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderYourNavigationFastestByBicycle,
-    ALanguageManager,
-    AProxyConfig,
-    AVectorDataFactory,
-    AFactory,
-    AKmlLoader,
-    'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
-  );
-end;
-
-function TPathDetalizeProviderYourNavigationFastestByBicycle.GetCaptionTranslated: string;
-begin
-  Result := _('By bicycle (Fastest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationFastestByBicycle.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by bicycle (Fastest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationFastestByBicycle.GetMenuItemNameTranslated: string;
-begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Fastest)') + '|0030';
-end;
-
-{ TPathDetalizeProviderYourNavigationShortestByBicycle }
-
-constructor TPathDetalizeProviderYourNavigationShortestByBicycle.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
-  const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItmesFactory;
-  const AKmlLoader: IVectorDataLoader
-);
-begin
-  inherited Create(
-    CPathDetalizeProviderYourNavigationShortestByBicycle,
-    ALanguageManager,
-    AProxyConfig,
-    AVectorDataFactory,
-    AFactory,
-    AKmlLoader,
-    'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
-  );
-end;
-
-function TPathDetalizeProviderYourNavigationShortestByBicycle.GetCaptionTranslated: string;
-begin
-  Result := _('By bicycle (Shortest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationShortestByBicycle.GetDescriptionTranslated: string;
-begin
-  Result := _('Detalize route by bicycle (Shortest) with yournavigation.org');
-end;
-
-function TPathDetalizeProviderYourNavigationShortestByBicycle.GetMenuItemNameTranslated: string;
-begin
-  Result := _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Shortest)') + '|0040';
 end;
 
 end.

@@ -51,7 +51,6 @@ type
     function GetText: string;
   public
     constructor Create(
-      const AGUID: TGUID;
       ACanReset: Boolean;
       const ALanguageManager: ILanguageManager;
       const AGPSRecorder: IGPSRecorder;
@@ -80,14 +79,13 @@ uses
 { TSensorTextFromGPSRecorder }
 
 constructor TSensorTextFromGPSRecorder.Create(
-  const AGUID: TGUID;
   ACanReset: Boolean;
   const ALanguageManager: ILanguageManager;
   const AGPSRecorder: IGPSRecorder;
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AGUID, ACanReset, ISensorText, ALanguageManager);
+  inherited Create(ACanReset);
   FGPSRecorder := AGPSRecorder;
   FValueConverterConfig := AValueConverterConfig;
 
