@@ -34,6 +34,7 @@ uses
   i_JclNotify,
   i_JclListenerNotifierLinksList,
   i_Bitmap32Static,
+  i_ValueToStringConverter,
   i_SensorList,
   i_Sensor;
 
@@ -101,7 +102,6 @@ type
     FSensor: ISensorText;
     FlblValue: TTBXLabel;
     FLastText: string;
-
   protected
     procedure CreatePanel; override;
     procedure UpdateDataView; override;
@@ -110,6 +110,116 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: IJclNotifier;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
+  TSensorViewSpeedTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FValueConverterConfig: IValueToStringConverterConfig;
+    FSensor: ISensorSpeed;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
+  TSensorViewLengthTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FValueConverterConfig: IValueToStringConverterConfig;
+    FSensor: ISensorLength;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
+  TSensorViewDegreesTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FValueConverterConfig: IValueToStringConverterConfig;
+    FSensor: ISensorDegrees;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
+  TSensorViewTimeTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FValueConverterConfig: IValueToStringConverterConfig;
+    FSensor: ISensorTime;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
+  TSensorViewPositionTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FValueConverterConfig: IValueToStringConverterConfig;
+    FSensor: ISensorPosition;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -144,9 +254,11 @@ implementation
 uses
   Graphics,
   Controls,
+  Math,
   SysUtils,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
+  u_GeoToStr,
   u_ResStrings;
 
 { TSensorViewTBXPanelBase }
@@ -477,6 +589,241 @@ begin
     FBitmap := VBitmap;
     FImage.Bitmap.Assign(VBitmap.Bitmap);
   end;
+end;
+
+{ TSensorViewSpeedTBXPanel }
+
+constructor TSensorViewSpeedTBXPanel.Create(
+  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FValueConverterConfig := AValueConverterConfig;
+  if not Supports(FListEntity.GetSensor, ISensorSpeed, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewSpeedTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewSpeedTBXPanel.UpdateDataView;
+var
+  VText: string;
+begin
+  VText := FValueConverterConfig.GetStatic.SpeedConvert(FSensor.GetValue);
+  FlblValue.Caption := VText;
+end;
+
+{ TSensorViewLengthTBXPanel }
+
+constructor TSensorViewLengthTBXPanel.Create(
+  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FValueConverterConfig := AValueConverterConfig;
+  if not Supports(FListEntity.GetSensor, ISensorLength, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewLengthTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewLengthTBXPanel.UpdateDataView;
+var
+  VText: string;
+begin
+  VText := FValueConverterConfig.GetStatic.DistConvert(FSensor.GetValue);
+  FlblValue.Caption := VText;
+end;
+
+{ TSensorViewDegreesTBXPanel }
+
+constructor TSensorViewDegreesTBXPanel.Create(
+  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FValueConverterConfig := AValueConverterConfig;
+  if not Supports(FListEntity.GetSensor, ISensorDegrees, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewDegreesTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewDegreesTBXPanel.UpdateDataView;
+var
+  VText: string;
+begin
+  VText := RoundEx(FSensor.GetValue, 2) + '°';
+  FlblValue.Caption := VText;
+end;
+
+{ TSensorViewTimeTBXPanel }
+
+constructor TSensorViewTimeTBXPanel.Create(const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig; const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FValueConverterConfig := AValueConverterConfig;
+  if not Supports(FListEntity.GetSensor, ISensorTime, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewTimeTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewTimeTBXPanel.UpdateDataView;
+var
+  VValue: TDateTime;
+  VText: string;
+begin
+  VValue := FSensor.GetValue;
+  if IsNan(VValue) or (VValue = 0) then begin
+    VText := '';
+  end else begin
+    VText := FormatDateTime('hh:nn:ss', VValue);
+  end;
+  FlblValue.Caption := VText;
+end;
+
+{ TSensorViewPositionTBXPanel }
+
+constructor TSensorViewPositionTBXPanel.Create(
+  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FValueConverterConfig := AValueConverterConfig;
+  if not Supports(FListEntity.GetSensor, ISensorPosition, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewPositionTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewPositionTBXPanel.UpdateDataView;
+var
+  VText: string;
+begin
+  VText := FValueConverterConfig.GetStatic.LonLatConvert(FSensor.GetValue);
+  FlblValue.Caption := VText;
 end;
 
 end.

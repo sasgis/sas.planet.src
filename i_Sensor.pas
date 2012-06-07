@@ -23,6 +23,7 @@ unit i_Sensor;
 interface
 
 uses
+  t_GeoTypes,
   i_JclNotify,
   i_Bitmap32Static,
   i_ConfigDataElement;
@@ -38,6 +39,31 @@ type
   ISensorText = interface(ISensor)
     ['{9FBEF687-7C1E-4BA6-85D7-ECD16E2F1A7A}']
     function GetText: string;
+  end;
+
+  ISensorSpeed = interface(ISensor)
+    ['{43055AE6-0FBA-47C8-B015-151BC383A7C5}']
+    function GetValue: Double;
+  end;
+
+  ISensorLength = interface(ISensor)
+    ['{E868E131-E588-4342-A7C9-73FBCC96AE69}']
+    function GetValue: Double;
+  end;
+
+  ISensorDegrees = interface(ISensor)
+    ['{4F08BE78-6584-46AC-B446-4F8DA851BD29}']
+    function GetValue: Double;
+  end;
+
+  ISensorTime = interface(ISensor)
+    ['{54A35D81-DB40-44EE-993E-D64BA01A3FC1}']
+    function GetValue: TDateTime;
+  end;
+
+  ISensorPosition = interface(ISensor)
+    ['{43055AE6-0FBA-47C8-B015-151BC383A7C5}']
+    function GetValue: TDoublePoint;
   end;
 
   ISensorBitmap = interface(ISensor)
