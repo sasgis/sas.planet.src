@@ -29,6 +29,7 @@ uses
   TB2Dock,
   i_JclNotify,
   i_GUIDSet,
+  i_ValueToStringConverter,
   i_SensorList,
   i_SensorViewListGenerator;
 
@@ -36,6 +37,7 @@ type
   TSensorViewListGeneratorStuped = class(TInterfacedObject, ISensorViewListGenerator)
   private
     FTimerNoifier: IJclNotifier;
+    FValueConverterConfig: IValueToStringConverterConfig;
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
@@ -54,6 +56,7 @@ type
   public
     constructor Create(
       const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -91,6 +94,113 @@ begin
         VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
           TSensorViewTextTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorSpeed) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewSpeedTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FValueConverterConfig,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorLength) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewLengthTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FValueConverterConfig,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDegrees) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewDegreesTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FValueConverterConfig,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorTime) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewTimeTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FValueConverterConfig,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorPosition) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewPositionTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FValueConverterConfig,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorBitmap) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewBitmapTBXPanel.Create(
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
@@ -150,6 +260,7 @@ end;
 
 constructor TSensorViewListGeneratorStuped.Create(
   const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -159,6 +270,7 @@ constructor TSensorViewListGeneratorStuped.Create(
 begin
   inherited Create;
   FTimerNoifier := ATimerNoifier;
+  FValueConverterConfig := AValueConverterConfig;
   FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;

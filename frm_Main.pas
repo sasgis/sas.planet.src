@@ -939,6 +939,7 @@ begin
   VSensorViewGenerator :=
     TSensorViewListGeneratorStuped.Create(
       GState.GUISyncronizedTimerNotifier,
+      GState.ValueToStringConverterConfig,
       Self,
       TBXDock1,
       NSensors,
