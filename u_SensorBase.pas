@@ -24,6 +24,7 @@ interface
 
 uses
   SysUtils,
+  t_GeoTypes,
   i_JclNotify,
   i_LanguageManager,
   i_StringConfigDataElement,
@@ -90,6 +91,54 @@ type
     );
   end;
 
+  TSensorDateTimeValue = class(TSensorBase)
+  private
+    FLastValue: TDateTime;
+    procedure OnDataChanged;
+    function ValueChanged(const AOld, ANew: TDateTime): Boolean;
+  protected
+    function GetCurrentValue: TDateTime; virtual; abstract;
+  protected
+    function GetValue: TDateTime;
+  public
+    constructor Create(
+      ACanReset: Boolean;
+      const ADataChangeNotifier: IJclNotifier
+    );
+  end;
+
+  TSensorPosititonValue = class(TSensorBase)
+  private
+    FLastValue: TDoublePoint;
+    procedure OnDataChanged;
+    function ValueChanged(const AOld, ANew: TDoublePoint): Boolean;
+  protected
+    function GetCurrentValue: TDoublePoint; virtual; abstract;
+  protected
+    function GetValue: TDoublePoint;
+  public
+    constructor Create(
+      ACanReset: Boolean;
+      const ADataChangeNotifier: IJclNotifier
+    );
+  end;
+
+  TSensorTextValue = class(TSensorBase)
+  private
+    FLastValue: string;
+    procedure OnDataChanged;
+    function ValueChanged(const AOld, ANew: string): Boolean;
+  protected
+    function GetCurrentValue: string; virtual; abstract;
+  protected
+    function GetText: string;
+  public
+    constructor Create(
+      ACanReset: Boolean;
+      const ADataChangeNotifier: IJclNotifier
+    );
+  end;
+
 implementation
 
 uses
@@ -97,6 +146,7 @@ uses
   u_JclNotify,
   u_NotifyEventListener,
   u_JclListenerNotifierLinksList,
+  u_GeoFun,
   u_Synchronizer;
 
 { TSensorBase }
@@ -205,7 +255,7 @@ var
   VNeedNotify: Boolean;
 begin
   VNeedNotify := False;
-  VValue := GetValue;
+  VValue := GetCurrentValue;
   LockWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
@@ -234,6 +284,163 @@ begin
   end else begin
     Result := True;
   end;
+end;
+
+{ TSensorDateTimeValue }
+
+constructor TSensorDateTimeValue.Create(ACanReset: Boolean;
+  const ADataChangeNotifier: IJclNotifier);
+begin
+  inherited Create(ACanReset);
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
+    ADataChangeNotifier
+  );
+end;
+
+function TSensorDateTimeValue.GetValue: TDateTime;
+begin
+  LockRead;
+  try
+    Result := FLastValue;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TSensorDateTimeValue.OnDataChanged;
+var
+  VValue: TDateTime;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := GetCurrentValue;
+  LockWrite;
+  try
+    if ValueChanged(FLastValue, VValue) then begin
+      FLastValue := VValue;
+      VNeedNotify := True;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VNeedNotify then begin
+    NotifyDataUpdate;
+  end;
+end;
+
+function TSensorDateTimeValue.ValueChanged(const AOld,
+  ANew: TDateTime): Boolean;
+var
+  VOldIsNan: Boolean;
+  VNewIsNan: Boolean;
+begin
+  VOldIsNan := IsNan(AOld);
+  VNewIsNan := IsNan(ANew);
+  if VOldIsNan and VNewIsNan then begin
+    Result := False;
+  end else if (not VOldIsNan) and (not VNewIsNan) then begin
+    Result := (Abs(AOld - ANew) > 0.000001);
+  end else begin
+    Result := True;
+  end;
+end;
+
+{ TSensorPosititonValue }
+
+constructor TSensorPosititonValue.Create(ACanReset: Boolean;
+  const ADataChangeNotifier: IJclNotifier);
+begin
+  inherited Create(ACanReset);
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
+    ADataChangeNotifier
+  );
+end;
+
+function TSensorPosititonValue.GetValue: TDoublePoint;
+begin
+  LockRead;
+  try
+    Result := FLastValue;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TSensorPosititonValue.OnDataChanged;
+var
+  VValue: TDoublePoint;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := GetCurrentValue;
+  LockWrite;
+  try
+    if ValueChanged(FLastValue, VValue) then begin
+      FLastValue := VValue;
+      VNeedNotify := True;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VNeedNotify then begin
+    NotifyDataUpdate;
+  end;
+end;
+
+function TSensorPosititonValue.ValueChanged(const AOld,
+  ANew: TDoublePoint): Boolean;
+begin
+  Result := not DoublePointsEqual(AOld, ANew);
+end;
+
+{ TSensorTextValue }
+
+constructor TSensorTextValue.Create(ACanReset: Boolean;
+  const ADataChangeNotifier: IJclNotifier);
+begin
+  inherited Create(ACanReset);
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
+    ADataChangeNotifier
+  );
+end;
+
+function TSensorTextValue.GetText: string;
+begin
+  LockRead;
+  try
+    Result := FLastValue;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TSensorTextValue.OnDataChanged;
+var
+  VValue: string;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := GetCurrentValue;
+  LockWrite;
+  try
+    if ValueChanged(FLastValue, VValue) then begin
+      FLastValue := VValue;
+      VNeedNotify := True;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VNeedNotify then begin
+    NotifyDataUpdate;
+  end;
+end;
+
+function TSensorTextValue.ValueChanged(const AOld, ANew: string): Boolean;
+begin
+  Result := AOld <> ANew;
 end;
 
 end.
