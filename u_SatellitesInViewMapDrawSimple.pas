@@ -94,8 +94,7 @@ type
       ABitmap: TBitmap32;
       const ACenter: TPoint;
       ARadius: Integer;
-      const ASatellites: IGPSSatellitesInView;
-      AGPSEnabled: Boolean
+      const ASatellites: IGPSSatellitesInView
     );
     procedure DrawSignalBars(
       ABitmap: TBitmap32;
@@ -108,8 +107,7 @@ type
   protected
     procedure Draw(
       ABitmap: TBitmap32;
-      const ASatellites: IGPSSatellitesInView;
-      const AGPSEnabled: Boolean
+      const ASatellites: IGPSSatellitesInView
     );
   public
     constructor Create;
@@ -168,8 +166,7 @@ end;
 
 procedure TSatellitesInViewMapDrawSimple.Draw(
   ABitmap: TBitmap32;
-  const ASatellites: IGPSSatellitesInView;
-  const AGPSEnabled: Boolean
+  const ASatellites: IGPSSatellitesInView
 );
 var
   VRowCount: Integer;
@@ -191,7 +188,7 @@ begin
     end;
     DrawEmptySignalBars(ABitmap, VRowCount, VBarHeight, VWidth, VHorizSpace);
     if VRadius > 0 then begin
-      DrawSkyMap(ABitmap, VCenter, VRadius, ASatellites, AGPSEnabled);
+      DrawSkyMap(ABitmap, VCenter, VRadius, ASatellites);
     end;
     DrawSignalBars(ABitmap, VRowCount, VBarHeight, VWidth, VHorizSpace, ASatellites);
   finally
@@ -396,8 +393,7 @@ procedure TSatellitesInViewMapDrawSimple.DrawSkyMap(
   ABitmap: TBitmap32;
   const ACenter: TPoint;
   ARadius: Integer;
-  const ASatellites: IGPSSatellitesInView;
-  AGPSEnabled: Boolean
+  const ASatellites: IGPSSatellitesInView
 );
 var
   VSatFixed: Boolean;
@@ -414,7 +410,7 @@ var
   // VCountForAllTalkerIDs: Byte;
   VTalkerIDCount, i: Byte;
 begin
-  if (not AGPSEnabled) or (not Assigned(ASatellites)) then begin
+  if not Assigned(ASatellites) then begin
     DrawEmptySkyMap(ABitmap, ACenter, ARadius);
     Exit;
   end;

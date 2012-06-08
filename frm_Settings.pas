@@ -311,6 +311,7 @@ uses
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
+  i_GPS,
   vsagps_public_base,
   vsagps_public_tracks,
 {$if defined(VSAGPS_AS_DLL)}
@@ -970,8 +971,14 @@ begin
 end;
 
 procedure TfrmSettings.SatellitePaint;
+var
+  VSatellites: IGPSSatellitesInView;
 begin
-  GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, GState.GPSRecorder.CurrentPosition.Satellites, GState.GPSConfig.GPSEnabled);
+  VSatellites := nil;
+  if GState.GPSConfig.GPSEnabled then begin
+    VSatellites := GState.GPSRecorder.CurrentPosition.Satellites;
+  end;
+  GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, VSatellites);
 end;
 
 procedure TfrmSettings.SatellitePaintBoxResize(Sender: TObject);

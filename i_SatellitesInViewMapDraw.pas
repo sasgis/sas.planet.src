@@ -31,8 +31,7 @@ type
     ['{31DF984C-0BA5-4B05-8AEA-36D68A60C323}']
     procedure Draw(
       ABitmap: TBitmap32;
-      const ASatellites: IGPSSatellitesInView;
-      const AGPSEnabled: Boolean
+      const ASatellites: IGPSSatellitesInView
     );
   end;
 
