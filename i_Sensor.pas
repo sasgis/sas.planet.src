@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_JclNotify,
-  i_Bitmap32Static,
+  i_GPS,
   i_ConfigDataElement;
 
 type
@@ -66,10 +66,10 @@ type
     function GetValue: TDoublePoint;
   end;
 
-  ISensorBitmap = interface(ISensor)
+  ISensorGPSSatellites = interface(ISensor)
     ['{6A1BB26A-13DE-4533-BA3F-188769BF71D6}']
-    function GetBitmap: IBitmap32Static;
-    property Bitmap: IBitmap32Static read GetBitmap;
+    function GetInfo: IGPSSatellitesInView;
+    property Info: IGPSSatellitesInView read GetInfo;
   end;
 
   ISensorViewConfig = interface(IConfigDataElement)

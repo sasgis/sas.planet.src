@@ -33,7 +33,7 @@ uses
   TBXControls,
   i_JclNotify,
   i_JclListenerNotifierLinksList,
-  i_Bitmap32Static,
+  i_SatellitesInViewMapDraw,
   i_ValueToStringConverter,
   i_SensorList,
   i_Sensor;
@@ -228,11 +228,11 @@ type
     );
   end;
 
-  TSensorViewBitmapTBXPanel = class(TSensorViewTBXPanelBase)
+  TSensorViewGPSSatellitesTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FSensor: ISensorBitmap;
+    FMapDraw: ISatellitesInViewMapDraw;
+    FSensor: ISensorGPSSatellites;
     FImage: TImage32;
-    FBitmap: IBitmap32Static;
   protected
     procedure CreatePanel; override;
     procedure UpdateDataView; override;
@@ -241,6 +241,7 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: IJclNotifier;
+      const AMapDraw: ISatellitesInViewMapDraw;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -256,6 +257,7 @@ uses
   Controls,
   Math,
   SysUtils,
+  i_GPS,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
   u_GeoToStr,
@@ -547,10 +549,11 @@ end;
 
 { TSensorViewBitmapTBXPanel }
 
-constructor TSensorViewBitmapTBXPanel.Create(
+constructor TSensorViewGPSSatellitesTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
+  const AMapDraw: ISatellitesInViewMapDraw;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -558,13 +561,14 @@ constructor TSensorViewBitmapTBXPanel.Create(
   AImageIndexReset: TImageIndex
 );
 begin
-  inherited;
-  if not Supports(FListEntity.GetSensor, ISensorBitmap, FSensor) then begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FMapDraw := AMapDraw;
+  if not Supports(FListEntity.GetSensor, ISensorGPSSatellites, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
 end;
 
-procedure TSensorViewBitmapTBXPanel.CreatePanel;
+procedure TSensorViewGPSSatellitesTBXPanel.CreatePanel;
 begin
   inherited;
   FImage := TImage32.Create(FBar);
@@ -580,15 +584,12 @@ begin
   FBar.ClientAreaHeight := FImage.Top + FImage.Height + 2;
 end;
 
-procedure TSensorViewBitmapTBXPanel.UpdateDataView;
+procedure TSensorViewGPSSatellitesTBXPanel.UpdateDataView;
 var
-  VBitmap: IBitmap32Static;
+  VSatellites: IGPSSatellitesInView;
 begin
-  VBitmap := FSensor.Bitmap;
-  if FBitmap <> VBitmap then begin
-    FBitmap := VBitmap;
-    FImage.Bitmap.Assign(VBitmap.Bitmap);
-  end;
+  VSatellites := FSensor.Info;
+  FMapDraw.Draw(FImage.Bitmap, VSatellites);
 end;
 
 { TSensorViewSpeedTBXPanel }

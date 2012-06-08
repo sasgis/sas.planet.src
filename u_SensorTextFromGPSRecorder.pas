@@ -121,10 +121,10 @@ begin
   LockWrite;
   try
     FValueConverter := FValueConverterConfig.GetStatic;
-    SetChanged;
   finally
     UnlockWrite;
   end;
+  NotifyDataUpdate;
 end;
 
 procedure TSensorTextFromGPSRecorder.OnRecorderChanged;

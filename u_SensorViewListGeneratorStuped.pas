@@ -73,6 +73,7 @@ uses
   u_GUIDInterfaceSet,
   c_SensorsGUIDSimple,
   i_Sensor,
+  u_SatellitesInViewMapDrawSimple,
   u_SensorViewTextTBXPanel,
   u_SensorViewConfigSimple;
 
@@ -195,15 +196,16 @@ begin
           );
         AResult.Add(VGUID, VSensorView);
       end;
-    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorBitmap) then begin
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorGPSSatellites) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
         VSensorViewConfig := TSensorViewConfigSimple.Create;
         VSensorView :=
-          TSensorViewBitmapTBXPanel.Create(
+          TSensorViewGPSSatellitesTBXPanel.Create(
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
+            TSatellitesInViewMapDrawSimple.Create,
             FOwner,
             FDefaultDoc,
             FParentMenu,
