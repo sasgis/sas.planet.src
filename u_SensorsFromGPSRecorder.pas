@@ -224,7 +224,6 @@ constructor TSensorFromGPSRecorderLastSpeed.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorLastSpeedGUID,
   inherited Create(
     False,
     ALanguageManager,
@@ -232,21 +231,6 @@ begin
     AValueConverterConfig
   );
 end;
-
-//function TSensorFromGPSRecorderLastSpeed.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderLastSpeedCaption;
-//end;
-//
-//function TSensorFromGPSRecorderLastSpeed.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderLastSpeedDescription;
-//end;
-//
-//function TSensorFromGPSRecorderLastSpeed.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderLastSpeedMenuItemName;
-//end;
 
 function TSensorFromGPSRecorderLastSpeed.GetValue: Double;
 begin
@@ -266,7 +250,6 @@ constructor TSensorFromGPSRecorderAvgSpeed.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorAvgSpeedGUID,
   inherited Create(
     True,
     ALanguageManager,
@@ -275,21 +258,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderAvgSpeed.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderAvgSpeedCaption;
-//end;
-//
-//function TSensorFromGPSRecorderAvgSpeed.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderAvgSpeedDescription;
-//end;
-//
-//function TSensorFromGPSRecorderAvgSpeed.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderAvgSpeedMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderAvgSpeed.GetValue: Double;
 begin
   Result := GPSRecorder.AvgSpeed;
@@ -314,7 +282,6 @@ constructor TSensorFromGPSRecorderMaxSpeed.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorMaxSpeedGUID,
   inherited Create(
     True,
     ALanguageManager,
@@ -323,21 +290,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderMaxSpeed.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderMaxSpeedCaption;
-//end;
-//
-//function TSensorFromGPSRecorderMaxSpeed.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderMaxSpeedDescription;
-//end;
-//
-//function TSensorFromGPSRecorderMaxSpeed.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderMaxSpeedMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderMaxSpeed.GetValue: Double;
 begin
   Result := GPSRecorder.MaxSpeed;
@@ -362,7 +314,6 @@ constructor TSensorFromGPSRecorderDist.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorDistGUID,
   inherited Create(
     True,
     ALanguageManager,
@@ -371,21 +322,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderDist.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderDistCaption;
-//end;
-//
-//function TSensorFromGPSRecorderDist.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderDistDescription;
-//end;
-//
-//function TSensorFromGPSRecorderDist.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderDistMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderDist.GetValue: Double;
 begin
   Result := GPSRecorder.Dist;
@@ -410,7 +346,6 @@ constructor TSensorFromGPSRecorderOdometer1.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorOdometer1GUID,
   inherited Create(
     True,
     ALanguageManager,
@@ -419,21 +354,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderOdometer1.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderOdometer1Caption;
-//end;
-//
-//function TSensorFromGPSRecorderOdometer1.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderOdometer1Description;
-//end;
-//
-//function TSensorFromGPSRecorderOdometer1.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderOdometer1MenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderOdometer1.GetValue: Double;
 begin
   Result := GPSRecorder.Odometer1;
@@ -458,7 +378,6 @@ constructor TSensorFromGPSRecorderOdometer2.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorOdometer2GUID,
   inherited Create(
     True,
     ALanguageManager,
@@ -467,21 +386,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderOdometer2.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderOdometer2Caption;
-//end;
-//
-//function TSensorFromGPSRecorderOdometer2.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderOdometer2Description;
-//end;
-//
-//function TSensorFromGPSRecorderOdometer2.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderOdometer2MenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderOdometer2.GetValue: Double;
 begin
   Result := GPSRecorder.Odometer2;
@@ -506,7 +410,6 @@ constructor TSensorFromGPSRecorderAltitude.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorLastAltitudeGUID,
   inherited Create(
     False,
     ALanguageManager,
@@ -515,21 +418,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderAltitude.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderAltitudeCaption;
-//end;
-//
-//function TSensorFromGPSRecorderAltitude.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderAltitudeDescription;
-//end;
-//
-//function TSensorFromGPSRecorderAltitude.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderAltitudeMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderAltitude.GetValue: Double;
 begin
   Result := GPSRecorder.LastAltitude;
@@ -548,7 +436,6 @@ constructor TSensorFromGPSRecorderHeading.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorHeadingGUID,
   inherited Create(
     False,
     ALanguageManager,
@@ -557,21 +444,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderHeading.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderHeadingCaption;
-//end;
-//
-//function TSensorFromGPSRecorderHeading.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderHeadingDescription;
-//end;
-//
-//function TSensorFromGPSRecorderHeading.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderHeadingMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderHeading.GetValue: Double;
 begin
   Result := GPSRecorder.LastHeading;
@@ -590,7 +462,6 @@ constructor TSensorFromGPSRecorderHDOP.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorHDOPGUID,
   inherited Create(
     FALSE,
     ALanguageManager,
@@ -599,21 +470,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderHDOP.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderHDOPCaption;
-//end;
-//
-//function TSensorFromGPSRecorderHDOP.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderHDOPDescription;
-//end;
-//
-//function TSensorFromGPSRecorderHDOP.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderHDOPMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderHDOP.GetValue: Double;
 var
   VPosition: IGPSPosition;
@@ -635,7 +491,6 @@ constructor TSensorFromGPSRecorderVDOP.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorVDOPGUID,
   inherited Create(
     FALSE,
     ALanguageManager,
@@ -644,21 +499,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderVDOP.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderVDOPCaption;
-//end;
-//
-//function TSensorFromGPSRecorderVDOP.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderVDOPDescription;
-//end;
-//
-//function TSensorFromGPSRecorderVDOP.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderVDOPMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderVDOP.GetValue: Double;
 var
   VPosition: IGPSPosition;
@@ -680,7 +520,6 @@ constructor TSensorFromGPSRecorderUTCTime.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorUTCTimeGUID,
   inherited Create(
     FALSE,
     ALanguageManager,
@@ -689,21 +528,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderUTCTime.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderUTCTimeCaption;
-//end;
-//
-//function TSensorFromGPSRecorderUTCTime.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderUTCTimeDescription;
-//end;
-//
-//function TSensorFromGPSRecorderUTCTime.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderUTCTimeMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderUTCTime.GetValue: Double;
 var
   VPosition: IGPSPosition;
@@ -722,7 +546,6 @@ constructor TSensorFromGPSRecorderLocalTime.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorLocalTimeGUID,
   inherited Create(
     TRUE,
     ALanguageManager,
@@ -731,21 +554,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderLocalTime.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderLocalTimeCaption;
-//end;
-//
-//function TSensorFromGPSRecorderLocalTime.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderLocalTimeDescription;
-//end;
-//
-//function TSensorFromGPSRecorderLocalTime.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderLocalTimeMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderLocalTime.GetValue: Double;
 var
   VPosition: IGPSPosition;
@@ -773,7 +581,6 @@ constructor TSensorFromGPSRecorderDGPS.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorDGPSGUID,
   inherited Create(
     TRUE,
     ALanguageManager,
@@ -782,21 +589,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderDGPS.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderDGPSCaption;
-//end;
-//
-//function TSensorFromGPSRecorderDGPS.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderDGPSDescription;
-//end;
-//
-//function TSensorFromGPSRecorderDGPS.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderDGPSMenuItemName;
-//end;
-//
 function TSensorFromGPSRecorderDGPS.GetValue: Double;
 var
   VPosition: IGPSPosition;
@@ -863,7 +655,6 @@ constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-//    CSensorGPSUnitInfoGUID,
   inherited Create(
     TRUE,
     ALanguageManager,
@@ -872,21 +663,6 @@ begin
   );
 end;
 
-//function TSensorFromGPSRecorderGPSUnitInfo.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderGPSUnitInfoCaption;
-//end;
-//
-//function TSensorFromGPSRecorderGPSUnitInfo.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderGPSUnitInfoDescription;
-//end;
-//
-//function TSensorFromGPSRecorderGPSUnitInfo.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorGPSRecorderGPSUnitInfoMenuItemName;
-//end;
-//
 procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;
 begin
   inherited;

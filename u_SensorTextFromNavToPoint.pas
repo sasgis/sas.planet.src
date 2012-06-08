@@ -71,7 +71,6 @@ constructor TSensorTextFromNavToPoint.Create(
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 begin
-  //CSensorDistToMarkGUID,
   inherited Create(False);
   FViewPortState := AViewPortState;
   FNavigationToPoint := ANavigationToPoint;
@@ -95,21 +94,6 @@ begin
   OnConverterConfigChange;
 end;
 
-//function TSensorTextFromNavToPoint.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorNavToPointCaption;
-//end;
-//
-//function TSensorTextFromNavToPoint.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorNavToPointDescription;
-//end;
-//
-//function TSensorTextFromNavToPoint.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorNavToPointMenuItemName;
-//end;
-//
 function TSensorTextFromNavToPoint.GetText: string;
 var
   VValue: Double;

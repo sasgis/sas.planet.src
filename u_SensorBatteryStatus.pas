@@ -55,7 +55,6 @@ uses
 
 constructor TSensorBatteryStatus.Create(const ALanguageManager: ILanguageManager);
 begin
-  //CSensorBatteryGUID,
   inherited Create(False);
   FStatusText := '-';
   FTimer := TTimer.Create(nil);
@@ -70,21 +69,6 @@ begin
   inherited;
 end;
 
-//function TSensorBatteryStatus.GetCaptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorBatteryStatusCaption;
-//end;
-//
-//function TSensorBatteryStatus.GetDescriptionTranslated: string;
-//begin
-//  Result := SAS_STR_SensorBatteryStatusDescription;
-//end;
-//
-//function TSensorBatteryStatus.GetMenuItemNameTranslated: string;
-//begin
-//  Result := SAS_STR_SensorBatteryStatusMenuItemName;
-//end;
-//
 function TSensorBatteryStatus.GetText: string;
 begin
   LockRead;
