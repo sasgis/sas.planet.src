@@ -160,6 +160,24 @@ begin
           );
         AResult.Add(VGUID, VSensorView);
       end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDouble) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewDoubleTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FValueConverterConfig,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorTime) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin

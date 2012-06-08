@@ -184,6 +184,28 @@ type
     );
   end;
 
+  TSensorViewDoubleTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FValueConverterConfig: IValueToStringConverterConfig;
+    FSensor: ISensorDouble;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const AValueConverterConfig: IValueToStringConverterConfig;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
   TSensorViewTimeTBXPanel = class(TSensorViewTBXPanelBase)
   private
     FValueConverterConfig: IValueToStringConverterConfig;
@@ -824,6 +846,52 @@ var
   VText: string;
 begin
   VText := FValueConverterConfig.GetStatic.LonLatConvert(FSensor.GetValue);
+  FlblValue.Caption := VText;
+end;
+
+{ TSensorViewDoubleTBXPanel }
+
+constructor TSensorViewDoubleTBXPanel.Create(
+  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  const AValueConverterConfig: IValueToStringConverterConfig;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  FValueConverterConfig := AValueConverterConfig;
+  if not Supports(FListEntity.GetSensor, ISensorDouble, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+end;
+
+procedure TSensorViewDoubleTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewDoubleTBXPanel.UpdateDataView;
+var
+  VText: string;
+begin
+  VText := RoundEx(FSensor.GetValue, 1);
   FlblValue.Caption := VText;
 end;
 

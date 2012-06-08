@@ -41,6 +41,11 @@ type
     function GetText: string;
   end;
 
+  ISensorDouble = interface(ISensor)
+    ['{3E23DA37-C873-4A85-A968-DA632D272D31}']
+    function GetValue: Double;
+  end;
+
   ISensorSpeed = interface(ISensor)
     ['{43055AE6-0FBA-47C8-B015-151BC383A7C5}']
     function GetValue: Double;
