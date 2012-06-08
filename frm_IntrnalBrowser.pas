@@ -67,10 +67,6 @@ type
     procedure imgViewImageClick(Sender: TObject);
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
   private
-    FParserThread: TBaseTileDownloaderThread;
-    procedure KillParserThread;
-    procedure WMPARSER_THREAD_FINISHED(var m: TMessage); message WM_PARSER_THREAD_FINISHED;
-  private
     FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
     FContentTypeManager: IContentTypeManager;
@@ -90,9 +86,6 @@ type
 
     procedure showmessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
-
-    procedure ShowHTMLDescrWithParser(const ACaption, AText: string;
-                                      const AParserProc: TMapAttachmentsInfoParserProc);
   end;
 
 implementation
@@ -103,16 +96,6 @@ uses
   u_ResStrings;
 
 {$R *.dfm}
-
-type
-  TMapAttachmentsInfoParserThread = class(TBaseTileDownloaderThread)
-  private
-    FParserSourceText: String;
-    FParserProc: TMapAttachmentsInfoParserProc;
-    FForm: TfrmIntrnalBrowser;
-  protected
-    procedure Execute; override;
-  end;
 
 { TfrmIntrnalBrowser }
  
@@ -185,7 +168,6 @@ end;
 procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   EmbeddedWB1.Stop;
-  KillParserThread;
 end;
 
 procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
@@ -200,14 +182,6 @@ end;
 procedure TfrmIntrnalBrowser.imgViewImageClick(Sender: TObject);
 begin
   ResetImageView(FALSE);
-end;
-
-procedure TfrmIntrnalBrowser.KillParserThread;
-begin
-  if (FParserThread<>nil) then begin
-    FParserThread.Terminate;
-    FreeAndNil(FParserThread);
-  end;
 end;
 
 procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
@@ -254,61 +228,6 @@ begin
   Caption := StupedHtmlToTextConverter(VCaption);
 end;
 
-procedure TfrmIntrnalBrowser.ShowHTMLDescrWithParser(const ACaption, AText: string;
-                                                     const AParserProc: TMapAttachmentsInfoParserProc);
-var
-  VText: String;
-  VOnlyCheckAllowRunImmediately: Boolean;
-  VError: Boolean;
-begin
-  // kill prev call
-  KillParserThread;
-
-  EmbeddedWB1.GoAboutBlank;
-  Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
-
-  VError:=FALSE;
-
-  if Assigned(AParserProc) then begin
-    // if in cache - show immediately
-    VOnlyCheckAllowRunImmediately := TRUE;
-    try
-      VText := AText;
-      AParserProc(Self, VText, VOnlyCheckAllowRunImmediately);
-      if (not VOnlyCheckAllowRunImmediately) then begin
-        // cannot wait for download - show stub
-        VText := SAS_STR_WiteLoad;
-      end;
-    except
-      // on except
-      on E: Exception do begin
-        VText := E.ClassName + ': ' + E.Message;
-        VError := TRUE;
-      end;
-    end;
-  end else
-    VText := AText;
-
-  EmbeddedWB1.HTMLCode.Text := VText;
-  Application.ProcessMessages;
-  SetGoodCaption(ACaption);
-  ResetImageView(FALSE);
-  Self.Show;
-
-  // parse after show in thread
-  if (not VError) then
-  if Assigned(AParserProc) then begin
-    FParserThread := TMapAttachmentsInfoParserThread.Create(TRUE);
-    with TMapAttachmentsInfoParserThread(FParserThread) do begin
-      FParserSourceText := AText;
-      FParserProc := AParserProc;
-      FForm := Self;
-    end;
-    FParserThread.FreeOnTerminate:=FALSE;
-    FParserThread.Resume;
-  end;
-end;
-
 procedure TfrmIntrnalBrowser.showmessage(const ACaption,AText: string);
 begin
   EmbeddedWB1.GoAboutBlank;
@@ -317,15 +236,6 @@ begin
   SetGoodCaption(ACaption);
   ResetImageView(FALSE);
   show;
-end;
-
-procedure TfrmIntrnalBrowser.WMPARSER_THREAD_FINISHED(var m: TMessage);
-begin
- if (FParserThread<>nil) then begin
-    if (not FParserThread.Terminated) then
-      EmbeddedWB1.HTMLCode.Text := TMapAttachmentsInfoParserThread(FParserThread).FParserSourceText;
-    KillParserThread;
-  end;
 end;
 
 procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
@@ -368,29 +278,6 @@ begin
   FConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;
   Self.OnResize := FormResize;
-end;
-
-{ TMapAttachmentsInfoParserThread }
-
-procedure TMapAttachmentsInfoParserThread.Execute;
-var VOnlyCheckAllowRunImmediately: Boolean;
-begin
-  //inherited;
-
-  // download and parse
-  if (Self<>nil) and (not Self.Terminated) then
-  try
-    // full download
-    VOnlyCheckAllowRunImmediately := FALSE;
-    FParserProc(Self, FParserSourceText, VOnlyCheckAllowRunImmediately);
-  except
-    on E: Exception do
-      FParserSourceText := E.Classname + ': ' + E.Message;
-  end;
-
-  // notify form (show page)
-  if (Self<>nil) and (not Self.Terminated) then
-    PostMessage(FForm.Handle, WM_PARSER_THREAD_FINISHED, 0, 0);
 end;
 
 end.

@@ -121,12 +121,8 @@ begin
         exit;
       end;
       // try to delete
-      if (FForAttachments or (not DelBytes) or (DelBytesNum = FMapType.TileSize(VTile, FZoom))) then begin
-        // for attachments - may delete many files
-        if FForAttachments then begin
-          VDeletedCount := VDeletedCount + FMapType.DeleteAttachments(VTile, FZoom, DelBytes, DelBytesNum);
-        end else if FMapType.DeleteTile(VTile, FZoom) then begin
-          // for map - delete single file
+      if (not DelBytes) or (DelBytesNum = FMapType.TileSize(VTile, FZoom)) then begin
+        if FMapType.DeleteTile(VTile, FZoom) then begin
           inc(VDeletedCount);
         end;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);

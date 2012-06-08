@@ -53,8 +53,8 @@ uses
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_MapAbilitiesConfig,
-  t_MapAttachments,
-  i_MapAttachmentsInfo,
+  
+  
   i_MapAttachmentsFactory,
   i_MapVersionInfo,
   i_SimpleTileStorageConfig,
@@ -72,7 +72,7 @@ uses
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
   u_GlobalCahceConfig,
-  u_BaseTileDownloaderThread,
+  
   u_TileStorageAbstract;
 
 type
@@ -194,18 +194,6 @@ type
       const AXY: TPoint;
       Azoom: byte
     ): Boolean;
-    function DeleteAttachments(
-      const AXY: TPoint;
-      const Azoom: byte;
-      const ADelBytes: Boolean;
-      const ADelBytesNum: Integer
-    ): Integer;
-    function DownloadAttachments(
-      const AXY: TPoint;
-      const Azoom: byte;
-      const ACountersPtr: PMapAttachmentsCounters;
-      const AThread: TBaseTileDownloaderThread
-    ): Boolean;
     procedure SaveTileSimple(
       const AXY: TPoint;
       Azoom: byte;
@@ -247,11 +235,6 @@ type
 
     function GetLanguageManager: ILanguageManager;
     // parse vector object description
-    procedure MapAttachmentsInfoParser(
-      Sender: TObject;
-      var ADescr: String;
-      var AOnlyCheckAllowRunImmediately: Boolean
-    );
 
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
@@ -311,11 +294,11 @@ uses
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
-  u_TileRequestBuilderHelpers,
+  
   u_MemTileCache,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
-  u_MapAttachmentsPascalScript,
+  
   u_TileIteratorByRect,
   u_VectorDataFactorySimple,
   u_HtmlToHintTextConverterStuped,
@@ -624,56 +607,6 @@ var
 begin
   VTileInfo := FStorage.GetTileInfo(AXY, Azoom, FVersionConfig.Version);
   Result := VTileInfo.GetIsExists;
-end;
-
-function TMapType.DeleteAttachments(
-  const AXY: TPoint;
-  const Azoom: byte;
-  const ADelBytes: Boolean;
-  const ADelBytesNum: Integer
-): Integer;
-var
-  VKml: IVectorDataItemList;
-  VSimpleAttach: IVectorDataItemSimple;
-  VMapAttachmentsInfo: IMapAttachmentsInfo;
-  VDesc, VNumber, VSubCache, VFullPath: String;
-  i, j: Integer;
-  VVersion: IMapVersionInfo;
-begin
-  Result := 0;
-  // get file from storage
-  // FStorage.GetTileFileName(AXY, Azoom, FVersionConfig.GetStatic);
-  VKml := Self.LoadKmlTileFromStorage(AXY, Azoom, VVersion);
-  if Assigned(VKml) then begin
-    if (VKml.Count > 0) then begin
-      for i := 0 to VKml.Count - 1 do begin
-        // get item description (full text)
-        VSimpleAttach := VKml.GetItem(i);
-        if Assigned(VSimpleAttach) then begin
-          VMapAttachmentsInfo := Self.Zmp.MapAttachmentsInfo;
-          VDesc := VSimpleAttach.Desc;
-          if (Length(VDesc) > 0) and Assigned(VMapAttachmentsInfo) then begin
-            // parse description
-            VNumber := GetNumberAfter(VMapAttachmentsInfo.GetParseNumberAfter, VDesc);
-            if (Length(VNumber) > 0) then begin
-              VSubCache := GetDiv3Path(VNumber);
-              // 0 just for default values - starts from 1
-              for j := 1 to VMapAttachmentsInfo.MaxSubIndex do begin
-                if VMapAttachmentsInfo.GetEnabled(j) then begin
-                  // foreach cache item for single attachment
-                  VFullPath := VMapAttachmentsInfo.GetNameInCache(j) + VSubCache + VNumber + VMapAttachmentsInfo.GetExt(j);
-                  // delete attached file (what about ADelBytesNum?)
-                  if DeleteFile(VFullPath) then begin
-                    Inc(Result);
-                  end;
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-  end;
 end;
 
 function TMapType.DeleteTile(

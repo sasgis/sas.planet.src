@@ -141,7 +141,6 @@ type
       const AForAttachments: Boolean
     );
   protected
-    function Exec_Download_Attachments(const ATile: TPoint): Boolean;
     procedure Execute; override;
   public
     constructor Create(
@@ -190,7 +189,7 @@ implementation
 uses
   SysUtils,
   Types,
-  t_MapAttachments,
+  
   i_DownloadResult,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
@@ -631,15 +630,9 @@ begin
               if (FLog <> nil) then begin
                 FLog.WriteText(FRES_FileBeCreateTime, 0);
               end;
-              if (not FForAttachments) then begin
-                FLastSuccessfulPoint := VTile;
-                FLastProcessedPoint := VTile;
-                FGoToNextTile := True;
-              end else if Exec_Download_Attachments(VTile) then begin
-                FLastSuccessfulPoint := VTile;
-                FLastProcessedPoint := VTile;
-                FGoToNextTile := True;
-              end;
+              FLastSuccessfulPoint := VTile;
+              FLastProcessedPoint := VTile;
+              FGoToNextTile := True;
             end else begin
               try
                 if (not (FSecondLoadTNE)) and
@@ -680,11 +673,7 @@ begin
             end;
           end else begin
             FLog.WriteText(FRES_FileExistsShort, 0);
-            if (not FForAttachments) then begin
-              FGoToNextTile := True;
-            end else if Exec_Download_Attachments(VTile) then begin
-              FGotoNextTile := True;
-            end;
+            FGoToNextTile := True;
           end;
           if FGoToNextTile then begin
             inc(FProcessed);
@@ -704,63 +693,6 @@ begin
   if not Terminated then begin
     FLog.WriteText(FRES_ProcessFilesComplete, 0);
     FFinished := true;
-  end;
-end;
-
-function TThreadDownloadTiles.Exec_Download_Attachments(const ATile: TPoint): Boolean;
-var
-  VMapAttachmentsCounters: TMapAttachmentsCounters;
-  VAttachmentsResultInfo: String;
-
-  procedure _Add_Info_If_Positive(
-  const APrefix: String;
-  const AValue: UInt64
-  );
-  begin
-    if (AValue > 0) then begin
-      if (Length(VAttachmentsResultInfo) > 0) then begin
-        VAttachmentsResultInfo := VAttachmentsResultInfo + ', ';
-      end;
-      VAttachmentsResultInfo := VAttachmentsResultInfo + APrefix + ': ' + IntToStr(AValue);
-    end;
-  end;
-
-begin
-  Result := TRUE;
-
-  if (not FForAttachments) then begin
-    Exit;
-  end;
-
-  if (FLog <> nil) then begin
-    FLog.WriteText(FRES_LoadAttachmentsBegin, 0);
-  end;
-  try
-    // if true - at least one attachment has been downloaded
-    if FMapType.DownloadAttachments(ATile, Fzoom, @VMapAttachmentsCounters, Self) then begin
-      FDownloadInfo.Add(0, VMapAttachmentsCounters.ac_Size);
-    end;
-
-    // if any of attachment has been cancelled - don't step to the next tile
-    if (VMapAttachmentsCounters.ac_Cancelled > 0) then begin
-      Result := FALSE;
-    end;
-  finally
-    VAttachmentsResultInfo := '';
-
-    // add parts to info
-    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Downloaded, VMapAttachmentsCounters.ac_Downloaded);
-    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Skipped, VMapAttachmentsCounters.ac_Skipped);
-    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Failed, VMapAttachmentsCounters.ac_Failed);
-    _Add_Info_If_Positive(FRES_LoadAttachmentsEnd_Cancelled, VMapAttachmentsCounters.ac_Cancelled);
-
-    if (0 = Length(VAttachmentsResultInfo)) then begin
-      VAttachmentsResultInfo := FRES_LoadAttachmentsEnd_Nothing;
-    end; // no attachments at all
-
-    if (FLog <> nil) then begin
-      FLog.WriteText(VAttachmentsResultInfo, 0);
-    end;
   end;
 end;
 
@@ -847,36 +779,18 @@ begin
       if (FLog <> nil) then begin
         FLog.WriteText('(Ok!)', 0);
       end;
-      if (not FForAttachments) then begin
-        // common behaviour
-        FLastSuccessfulPoint := AResult.Request.Tile;
-        FGoToNextTile := True;
-        if FDownloadInfo <> nil then begin
-          FDownloadInfo.Add(1, VResultOk.Data.Size);
-        end;
-      end else if Exec_Download_Attachments(AResult.Request.Tile) then begin
-        // attachments downloaded
-        FLastSuccessfulPoint := AResult.Request.Tile;
-        FGoToNextTile := True;
-        if FDownloadInfo <> nil then begin
-          FDownloadInfo.Add(1, VResultOk.Data.Size);
-        end;
-      end else begin
-        // wait on current tile - just sum size
-        FDownloadInfo.Add(0, VResultOk.Data.Size);
+      FLastSuccessfulPoint := AResult.Request.Tile;
+      FGoToNextTile := True;
+      if FDownloadInfo <> nil then begin
+        FDownloadInfo.Add(1, VResultOk.Data.Size);
       end;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
       // same file size - assuming file the same (but download attachments)
       if (FLog <> nil) then begin
         FLog.WriteText(FRES_FileBeCreateLen, 0);
       end;
-      if (not FForAttachments) then begin
-        FLastSuccessfulPoint := AResult.Request.Tile;
-        FGoToNextTile := True;
-      end else if Exec_Download_Attachments(AResult.Request.Tile) then begin
-        FLastSuccessfulPoint := AResult.Request.Tile;
-        FGotoNextTile := True;
-      end;
+      FLastSuccessfulPoint := AResult.Request.Tile;
+      FGoToNextTile := True;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
       FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime, [FProxyAuthErrorSleepTime div 1000]), 10);
       SleepCancelable(FProxyAuthErrorSleepTime);

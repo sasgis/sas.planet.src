@@ -8,7 +8,6 @@ uses
   i_LanguageManager,
   i_WindowPositionConfig,
   i_ContentTypeManager,
-  i_MapAttachmentsInfo,
   frm_IntrnalBrowser;
 
 type
@@ -25,10 +24,6 @@ type
     { IInternalBrowser }
     procedure ShowMessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
-    procedure ShowHTMLDescrWithParser(
-      const ACaption, AText: string;
-      const AParserProc: TMapAttachmentsInfoParserProc
-    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -87,19 +82,10 @@ begin
   end;
 end;
 
-procedure TInternalBrowserByForm.ShowHTMLDescrWithParser(
-  const ACaption, AText: string;
-  const AParserProc: TMapAttachmentsInfoParserProc
-);
-begin
-  SafeCreateInternal;
-  FfrmInternalBrowser.ShowHTMLDescrWithParser(ACaption, AText, AParserProc);
-end;
-
 procedure TInternalBrowserByForm.ShowMessage(const ACaption, AText: string);
 begin
   SafeCreateInternal;
-  FfrmInternalBrowser.ShowHTMLDescrWithParser(ACaption, AText, nil);
+  FfrmInternalBrowser.showmessage(ACaption, AText);
 end;
 
 end.

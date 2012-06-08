@@ -46,12 +46,6 @@ type
     function GetUseDel: Boolean; stdcall;
   end;
 
-  TMapAttachmentsInfoParserProc = procedure(
-      Sender: TObject;
-      var ADescr: String;
-      var AOnlyCheckAllowRunImmediately: Boolean
-    ) of object;
-
 implementation
 
 end.

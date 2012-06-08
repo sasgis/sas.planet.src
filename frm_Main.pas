@@ -4327,23 +4327,6 @@ var
   VWikiItem: IVectorDataItemSimple;
   VPrevTick, VCurrTick, VFr: int64;
   VWikiLayerGUID: TGUID;
-
-  procedure _ShowInternalBrowser;
-  var
-    Vdescr: String;
-    VMapType: IMapType;
-    VDescrParserProc: TMapAttachmentsInfoParserProc;
-  begin
-    VDescrParserProc := nil;
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VWikiLayerGUID);
-    if Assigned(VMapType) then
-    if Assigned(VMapType.MapType) then
-    if Assigned(VMapType.MapType.Zmp.MapAttachmentsInfo) then
-      VDescrParserProc := VMapType.MapType.MapAttachmentsInfoParser ; // only for maps with attachments
-    // show
-    Vdescr:=VPWL.descr;
-    GState.InternalBrowser.ShowHTMLDescrWithParser(VPWL.name, Vdescr, VDescrParserProc);
-  end;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -4497,7 +4480,7 @@ begin
 
       if VPWL.find  then begin
         if VPWL.descr <> '' then begin
-          _ShowInternalBrowser;
+          GState.InternalBrowser.ShowMessage(VPWL.name, VPWL.descr);
         end;
       end;
     end;
