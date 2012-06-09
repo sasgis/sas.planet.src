@@ -54,7 +54,8 @@ type
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: ITTLCheckNotifier;
-    FTTLListener: ITTLCheckListener;
+    FBDBTTLListener: ITTLCheckListener;
+    FMemCacheTTLListener: ITTLCheckListener;
     FTileInfoMemCache: TTileInfoBasicMemCache;
     {$IFDEF WITH_PERF_COUNTER}
     FPerfCounterList: IInternalPerformanceCounterList;
@@ -66,6 +67,7 @@ type
     FSaveTNECounter: IInternalPerformanceCounter;
     {$ENDIF}
     procedure OnMapSettingsEdit(Sender: TObject);
+    procedure OnTTLSync(Sender: TObject);
   public
     constructor Create(
       const AGCList: ITTLCheckNotifier;
@@ -189,31 +191,47 @@ begin
     FCacheConfig.BasePath,
     AConfig.CoordConverter.Datum.EPSG
   );
-  FTTLListener := TTTLCheckListener.Create(
+
+  FBDBTTLListener := TTTLCheckListener.Create(
     FHelper.Sync,
     CBDBSync,
     CBDBSyncCheckInterval
   );
+
+  FMemCacheTTLListener := TTTLCheckListener.Create(
+    Self.OnTTLSync,
+    CBDBSync,
+    CBDBSyncCheckInterval
+  );
+
   FGCList := AGCList;
-  FGCList.Add(FTTLListener);
+  FGCList.Add(FBDBTTLListener);
+  FGCList.Add(FMemCacheTTLListener);
 
   FTileInfoMemCache := TTileInfoBasicMemCache.Create(100, 30000);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
-  FTileInfoMemCache.Free;
   if Assigned(FGCList) then begin
-    FGCList.Remove(FTTLListener);
+    FGCList.Remove(FMemCacheTTLListener);
+    FGCList.Remove(FBDBTTLListener);
     FGCList := nil;
   end;
-  FTTLListener := nil;
+  FBDBTTLListener := nil;
+  FMemCacheTTLListener := nil;
+  FTileInfoMemCache.Free;
   FreeAndNil(FHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FreeAndNil(FCacheConfig);
   FTileNotExistsTileInfo := nil;
   inherited;
+end;
+
+procedure TTileStorageBerkeleyDB.OnTTLSync(Sender: TObject);
+begin
+  FTileInfoMemCache.ClearByTTL;
 end;
 
 procedure TTileStorageBerkeleyDB.OnMapSettingsEdit(Sender: TObject);
@@ -271,15 +289,14 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
+  Result := FTileInfoMemCache.Get(AXY, AZoom);
+  if Result <> nil then begin
+    Exit;
+  end;
   {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FGetTileInfoCounter.StartOperation;
   try
   {$ENDIF}
-    Result := FTileInfoMemCache.Get(AXY, AZoom);
-    if Result <> nil then begin
-      Exit;
-    end;
-
     Result := FTileNotExistsTileInfo;
     if StorageStateStatic.ReadAccess <> asDisabled then begin
 
@@ -476,7 +493,18 @@ begin
           AData
         );
         if VResult then begin
-          FTileInfoMemCache.Remove(AXY, AZoom);
+          FTileInfoMemCache.Add(
+            AXY,
+            AZoom,
+            AVersionInfo,
+            TTileInfoBasicExistsWithTile.Create(
+              Now,
+              AData,
+              AData.Size,
+              AVersionInfo,
+              FMainContentType
+            )
+          );
           NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
       end;
@@ -518,7 +546,12 @@ begin
           nil
         );
         if VResult then begin
-          FTileInfoMemCache.Remove(AXY, AZoom);
+          FTileInfoMemCache.Add(
+            AXY,
+            AZoom,
+            AVersionInfo,
+            TTileInfoBasicTNE.Create(Now, AVersionInfo)
+          );
           NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
       end;
@@ -564,7 +597,12 @@ begin
         Result := False;
       end;
       if Result then begin
-        FTileInfoMemCache.Remove(AXY, AZoom);
+        FTileInfoMemCache.Add(
+          AXY,
+          AZoom,
+          AVersionInfo,
+          TTileInfoBasicNotExists.Create(0, AVersionInfo)
+        );
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;

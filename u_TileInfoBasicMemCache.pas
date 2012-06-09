@@ -42,6 +42,8 @@ type
     ): ITileInfoBasic;
 
     procedure Clear;
+
+    procedure ClearByTTL;
   end;
 
 implementation
@@ -179,7 +181,7 @@ begin
          (VTile.TileXY.Y = AXY.Y) and
          (VTile.TileZoom = AZoom)
       then begin
-        if (VTile.TileTTL > GetTickCount) then begin
+        if (VTile.TileTTL < GetTickCount) then begin
           Dispose(PTileInfoCacheRec(FList.Items[I]));
           FList.Delete(I);
         end else begin
@@ -198,10 +200,38 @@ procedure TTileInfoBasicMemCache.Clear;
 var
   I: Integer;
 begin
-  for I := 0 to FList.Count - 1 do begin
-    Dispose(PTileInfoCacheRec(FList.Items[I]));
+  FCS.Acquire;
+  try
+    for I := 0 to FList.Count - 1 do begin
+      Dispose(PTileInfoCacheRec(FList.Items[I]));
+    end;
+    FList.Clear;
+  finally
+    FCS.Release;
   end;
-  FList.Clear;
+end;
+
+procedure TTileInfoBasicMemCache.ClearByTTL;
+var
+  I: Integer;
+  VTile: PTileInfoCacheRec;
+begin
+  FCS.Acquire;
+  try
+    I := 0;
+    while I < FList.Count do begin
+      VTile := PTileInfoCacheRec(FList.Items[I]);
+      if (VTile.TileTTL < GetTickCount) then begin
+        Dispose(VTile);
+        FList.Delete(I);
+      end else begin
+        Inc(I);
+      end;
+    end;
+    FList.Pack;
+  finally
+    FCS.Release;
+  end;
 end;
 
 end.
