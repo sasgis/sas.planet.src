@@ -18,82 +18,23 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileFileNameSAS;
+unit i_TileFileNameParser;
 
 interface
 
 uses
-  Types,
-  i_TileFileNameParser,
-  i_TileFileNameGenerator;
+  Types;
 
 type
-  TTileFileNameSAS = class(
-    TInterfacedObject,
-    ITileFileNameParser,
-    ITileFileNameGenerator
-  )
-  protected
-    function GetTileFileName(
-      AXY: TPoint;
-      AZoom: Byte
-    ): string;
-
+  ITileFileNameParser = interface
+    ['{92C64DB6-63B2-478D-A21A-80555EA0A493}']
     function GetTilePoint(
       const ATileFileName: string;
       out ATileXY: TPoint;
       out ATileZoom: Byte
     ): Boolean;
-  end;
+  end;   
 
 implementation
 
-uses
-  RegExpr,
-  SysUtils;
-
-const
-  c_SAS_Expr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\[xX](\d+)\\\d+\\[yY](\d+)(\..+)?$';
-
-{ TTileFileNameSAS }
-
-function TTileFileNameSAS.GetTileFileName(
-  AXY: TPoint;
-  AZoom: Byte
-): string;
-begin
-  result := format('z%d' + PathDelim + '%d' + PathDelim + 'x%d' + PathDelim + '%d' + PathDelim + 'y%d', [
-    AZoom + 1,
-    AXY.x shr 10,
-    AXY.x,
-    AXY.y shr 10,
-    AXY.y
-    ]);
-end;
-
-function TTileFileNameSAS.GetTilePoint(
-  const ATileFileName: string;
-  out ATileXY: TPoint;
-  out ATileZoom: Byte
-): Boolean;
-var
-  VRegExpr: TRegExpr;
-begin
-  VRegExpr := TRegExpr.Create;
-  try
-    VRegExpr.Expression := c_SAS_Expr;
-    if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
-      ATileXY.X := StrToInt(VRegExpr.Match[3]);
-      ATileXY.Y := StrToInt(VRegExpr.Match[4]);
-      Result := True;
-    end else begin
-      Result := False;
-    end;
-  finally
-    VRegExpr.Free;
-  end;
-end;
-
 end.
- 

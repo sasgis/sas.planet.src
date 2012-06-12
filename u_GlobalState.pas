@@ -38,6 +38,7 @@ uses
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
+  i_TileFileNameParsersList,
   i_ContentTypeManager,
   i_VectorDataLoader,
   i_CoordConverterFactory,
@@ -106,6 +107,7 @@ type
     FGlobalAppConfig: IGlobalAppConfig;
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
+    FTileNameParser: ITileFileNameParsersList;
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IMapCalibrationList;
@@ -169,6 +171,7 @@ type
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
+    property TileNameParser: ITileFileNameParsersList read FTileNameParser;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
@@ -299,6 +302,7 @@ uses
   u_InternalDomainInfoProviderByMapTypeList,
   u_InternalDomainInfoProviderByDataProvider,
   u_GlobalInternetState,
+  u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
 { TGlobalState }
@@ -410,6 +414,8 @@ begin
   FViewConfig := TGlobalViewMainConfig.Create;
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
+  FTileNameParser := TTileFileNameParsersSimpleList.Create(FCacheConfig);
+
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorItmesFactory,
@@ -645,6 +651,7 @@ begin
     FMainMemCacheConfig,
     FCacheConfig,
     FTileNameGenerator,
+    FTileNameParser,
     FGCThread.List,
     FAppClosingNotifier,
     FInetConfig,

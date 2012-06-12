@@ -18,82 +18,34 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileFileNameSAS;
+unit i_CacheConverterProgressInfo;
 
 interface
 
-uses
-  Types,
-  i_TileFileNameParser,
-  i_TileFileNameGenerator;
-
 type
-  TTileFileNameSAS = class(
-    TInterfacedObject,
-    ITileFileNameParser,
-    ITileFileNameGenerator
-  )
-  protected
-    function GetTileFileName(
-      AXY: TPoint;
-      AZoom: Byte
-    ): string;
+  ICacheConverterProgressInfo = interface
+    ['{B5F0E45C-D55B-45D8-A4A5-72630ED002B1}']
+    function GetTilesProcessed: Int64;
+    procedure SetTilesProcessed(const AValue: Int64);
+    property TilesProcessed: Int64 read GetTilesProcessed write SetTilesProcessed;
 
-    function GetTilePoint(
-      const ATileFileName: string;
-      out ATileXY: TPoint;
-      out ATileZoom: Byte
-    ): Boolean;
+    function GetTilesSkipped: Int64;
+    procedure SetTilesSkipped(const AValue: Int64);
+    property TilesSkipped: Int64 read GetTilesSkipped write SetTilesSkipped;
+
+    function GetTilesSize: Int64;
+    procedure SetTilesSize(const AValue: Int64);
+    property TilesSize: Int64 read GetTilesSize write SetTilesSize;
+
+    function GetLastTileName: string;
+    procedure SetLastTileName(const AValue: string);
+    property LastTileName: string read GetLastTileName write SetLastTileName;
+
+    function GetIsFinished: Boolean;
+    procedure SetIsFinished(const AValue: Boolean);
+    property Finished: Boolean read GetIsFinished write SetIsFinished;
   end;
 
 implementation
 
-uses
-  RegExpr,
-  SysUtils;
-
-const
-  c_SAS_Expr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\[xX](\d+)\\\d+\\[yY](\d+)(\..+)?$';
-
-{ TTileFileNameSAS }
-
-function TTileFileNameSAS.GetTileFileName(
-  AXY: TPoint;
-  AZoom: Byte
-): string;
-begin
-  result := format('z%d' + PathDelim + '%d' + PathDelim + 'x%d' + PathDelim + '%d' + PathDelim + 'y%d', [
-    AZoom + 1,
-    AXY.x shr 10,
-    AXY.x,
-    AXY.y shr 10,
-    AXY.y
-    ]);
-end;
-
-function TTileFileNameSAS.GetTilePoint(
-  const ATileFileName: string;
-  out ATileXY: TPoint;
-  out ATileZoom: Byte
-): Boolean;
-var
-  VRegExpr: TRegExpr;
-begin
-  VRegExpr := TRegExpr.Create;
-  try
-    VRegExpr.Expression := c_SAS_Expr;
-    if VRegExpr.Exec(ATileFileName) then begin
-      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
-      ATileXY.X := StrToInt(VRegExpr.Match[3]);
-      ATileXY.Y := StrToInt(VRegExpr.Match[4]);
-      Result := True;
-    end else begin
-      Result := False;
-    end;
-  finally
-    VRegExpr.Free;
-  end;
-end;
-
 end.
- 

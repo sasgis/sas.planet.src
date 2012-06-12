@@ -41,6 +41,7 @@ uses
   i_InvisibleBrowser,
   i_DownloadResultTextProvider,
   i_TileFileNameGeneratorsList,
+  i_TileFileNameParsersList,
   i_ProjConverter,
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
@@ -80,6 +81,7 @@ type
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: TGlobalCahceConfig;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const ATileNameParserList: ITileFileNameParsersList;
       const AGCList: ITTLCheckNotifier;
       const AAppClosingNotifier: IJclNotifier;
       const AInetConfig: IInetConfig;
@@ -188,6 +190,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: TGlobalCahceConfig;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const ATileNameParserList: ITileFileNameParsersList;
   const AGCList: ITTLCheckNotifier;
   const AAppClosingNotifier: IJclNotifier;
   const AInetConfig: IInetConfig;
@@ -246,6 +249,7 @@ begin
           AMainMemCacheConfig,
           AGlobalCacheConfig,
           ATileNameGeneratorList,
+          ATileNameParserList,
           AGCList,
           AAppClosingNotifier,
           AInetConfig,

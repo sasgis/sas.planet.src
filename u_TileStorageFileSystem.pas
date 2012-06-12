@@ -36,9 +36,11 @@ uses
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
+  i_TileFileNameParsersList,
   i_TileFileNameGeneratorsList,
   i_ContentTypeManager,
   i_InternalPerformanceCounter,
+  i_TileFileNameParser,
   u_GlobalCahceConfig,
   u_MapTypeCacheConfig,
   u_TileStorageAbstract;
@@ -55,6 +57,7 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FFormatSettings: TFormatSettings;
     FTileNotExistsTileInfo: ITileInfoBasic;
+    FTileFileNameParser: ITileFileNameParser;
     {$IFDEF WITH_PERF_COUNTER}
     FPerfCounterList: IInternalPerformanceCounterList;
     FGetTileInfoCounter: IInternalPerformanceCounter;
@@ -74,6 +77,7 @@ type
       const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const ATileNameParserList: ITileFileNameParsersList;
       const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -140,19 +144,31 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AColorer: IFillingMapColorer
     ): boolean; override;
+
+    procedure Scan(
+      const AOnTileStorageScan: TOnTileStorageScan;
+      const AIgnoreTNE: Boolean;
+      const ARemoveTileAfterProcess: Boolean
+    ); override;
   end;
 
 implementation
 
 uses
+  WideStrings,
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
+  i_FileNameIterator,
   u_TileRectInfoShort,
   u_BinaryDataByMemStream,
   u_MapVersionFactorySimpleString,
   u_TileStorageTypeAbilities,
   u_TileIteratorByRect,
+  u_FileNameIteratorFolderWithSubfolders,
+  u_FoldersIteratorRecursiveByLevels,
+  u_FileNameIteratorInFolderByMaskList,
+  u_TreeFolderRemover,
   u_TileInfoBasic;
 
 { TTileStorageFileSystem }
@@ -161,9 +177,12 @@ constructor TTileStorageFileSystem.Create(
   const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const ATileNameParserList: ITileFileNameParsersList;
   const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList
 );
+var
+  VCacheType: Byte;
 begin
   inherited Create(
     TTileStorageTypeAbilitiesFileFolder.Create,
@@ -182,6 +201,13 @@ begin
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
+
+  VCacheType := AConfig.CacheTypeCode;
+  if VCacheType = c_File_Cache_Id_DEFAULT then begin
+    VCacheType := AGlobalCacheConfig.DefCache;
+  end;
+  FTileFileNameParser := ATileNameParserList.GetParser(VCacheType);
+
   {$IFDEF WITH_PERF_COUNTER}
   FPerfCounterList := APerfCounterList.CreateAndAddNewSubList('FileSystem');
   FGetTileInfoCounter := FPerfCounterList.CreateAndAddNewCounter('GetTileInfo');
@@ -196,6 +222,7 @@ end;
 destructor TTileStorageFileSystem.Destroy;
 begin
   FreeAndNil(FCacheConfig);
+  FTileFileNameParser := nil;
   inherited;
 end;
 
@@ -787,6 +814,85 @@ begin
     FSaveTNECounter.FinishOperation(VCounterContext);
   end;
   {$ENDIF}
+end;
+
+procedure TTileStorageFileSystem.Scan(
+  const AOnTileStorageScan: TOnTileStorageScan;
+  const AIgnoreTNE: Boolean;
+  const ARemoveTileAfterProcess: Boolean
+);
+const
+  cMaxFolderDepth = 100;
+var
+  VTileXY: TPoint;
+  VTileZoom: Byte;
+  VTileFileName: string;
+  VTileFileNameW: WideString;
+  VTileInfoBasic: ITileInfoBasic;
+  VTileBinData: IBinaryData;
+  VProcessFileMasks: TWideStringList;
+  VFilesIterator: IFileNameIterator;
+  VFoldersIteratorFactory: IFileNameIteratorFactory;
+  VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+  VAbort: Boolean;
+begin
+  VProcessFileMasks := TWideStringList.Create;
+  try
+    VProcessFileMasks.Add('*' + FMainContentType.GetDefaultExt);
+    if not AIgnoreTNE then begin
+      VProcessFileMasks.Add('*.tne');
+    end;
+
+    VFoldersIteratorFactory :=
+      TFoldersIteratorRecursiveByLevelsFactory.Create(cMaxFolderDepth);
+
+    VFilesInFolderIteratorFactory :=
+      TFileNameIteratorInFolderByMaskListFactory.Create(VProcessFileMasks, True);
+
+    VFilesIterator := TFileNameIteratorFolderWithSubfolders.Create(
+      FCacheConfig.BasePath,
+      '',
+      VFoldersIteratorFactory,
+      VFilesInFolderIteratorFactory
+    );
+
+    VAbort := False;
+
+    while VFilesIterator.Next(VTileFileNameW) do begin
+      VTileFileName := WideCharToString(PWideChar(VTileFileNameW));
+      if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
+        VTileBinData := Self.LoadTile(VTileXY, VTileZoom, nil, VTileInfoBasic);
+        VAbort :=
+          not AOnTileStorageScan(
+            Self,
+            VTileFileName,
+            VTileXY,
+            VTileZoom,
+            VTileInfoBasic,
+            VTileBinData
+          );
+        if (not VAbort and ARemoveTileAfterProcess) then begin
+          if VTileInfoBasic.IsExists then begin
+            Self.DeleteTile(VTileXY, VTileZoom, nil);
+          end else if VTileInfoBasic.IsExistsTNE then begin
+            Self.DeleteTNE(VTileXY, VTileZoom, nil);
+          end;
+        end;
+      end else begin
+        VAbort := True;
+      end;
+      if VAbort then begin
+        Break;
+      end;
+    end;
+
+    if (not VAbort and ARemoveTileAfterProcess) then begin
+      FullRemoveDir(FCacheConfig.BasePath, True, False, True);
+    end;
+
+  finally
+    VProcessFileMasks.Free;
+  end;
 end;
 
 end.

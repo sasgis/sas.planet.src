@@ -64,6 +64,7 @@ uses
   i_CoordConverterFactory,
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
+  i_TileFileNameParsersList,
   i_TileRectUpdateNotifier,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
@@ -277,6 +278,7 @@ type
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: TGlobalCahceConfig;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+      const ATileNameParserList: ITileFileNameParsersList;
       const AGCList: ITTLCheckNotifier;
       const AAppClosingNotifier: IJclNotifier;
       const AInetConfig: IInetConfig;
@@ -328,6 +330,7 @@ constructor TMapType.Create(
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: TGlobalCahceConfig;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
+  const ATileNameParserList: ITileFileNameParsersList;
   const AGCList: ITTLCheckNotifier;
   const AAppClosingNotifier: IJclNotifier;
   const AInetConfig: IInetConfig;
@@ -391,7 +394,15 @@ begin
   end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GC then begin
     FStorage := TTileStorageGC.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
-    FStorage := TTileStorageFileSystem.Create(FStorageConfig, AGlobalCacheConfig, ATileNameGeneratorList, FContentTypeManager, FPerfCounterList);
+    FStorage :=
+      TTileStorageFileSystem.Create(
+        FStorageConfig,
+        AGlobalCacheConfig,
+        ATileNameGeneratorList,
+        ATileNameParserList,
+        FContentTypeManager,
+        FPerfCounterList
+      );
   end;
   FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin

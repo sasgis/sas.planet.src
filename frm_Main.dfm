@@ -383,6 +383,16 @@ object frmMain: TfrmMain
           Caption = ''
           Hint = ''
         end
+        object tbitmCacheManager: TTBXItem
+          Images = MenusImageList
+          OnClick = tbitmCacheManagerClick
+          Caption = 'Cache Manager'
+          Hint = ''
+        end
+        object TBXSeparatorCacheManager: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
         object tbitmQuit: TTBXItem
           ImageIndex = 29
           Images = MenusImageList

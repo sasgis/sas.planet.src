@@ -52,6 +52,15 @@ type
       const ARangeFillingMapInfo: PRangeFillingMapInfo
     ): Boolean of object;
 
+  TOnTileStorageScan = function(
+    Sender: TObject;
+    const ATileNameInCache: string;
+    const ATileXY: TPoint;
+    const ATileZoom: Byte;
+    const ATileInfo: ITileInfoBasic;
+    const ATileBinaryData: IBinaryData
+  ): Boolean of object;
+
   TTileStorageAbstract = class
   private
     FConfig: ISimpleTileStorageConfig;
@@ -158,6 +167,12 @@ type
     ): boolean; virtual;
 
     function GetRangeFillingMapItemSize: SmallInt; virtual;
+
+    procedure Scan(
+      const AOnTileStorageScan: TOnTileStorageScan;
+      const AIgnoreTNE: Boolean;
+      const ARemoveTileAfterProcess: Boolean
+    ); virtual;
 
     property State: IStorageStateChangeble read FStorageState;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
@@ -525,6 +540,16 @@ begin
   finally
     FStorageStateStaticCS.EndWrite;
   end;
+end;
+
+procedure TTileStorageAbstract.Scan(
+  const AOnTileStorageScan: TOnTileStorageScan;
+  const AIgnoreTNE: Boolean;
+  const ARemoveTileAfterProcess: Boolean
+);
+begin
+  // You mast override Scan method in custom tile storage, if you need it
+  raise Exception.Create('Operation not supported on this tile storage type!');
 end;
 
 end.

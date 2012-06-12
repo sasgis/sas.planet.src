@@ -126,6 +126,7 @@ uses
   frm_RegionProcess,
   frm_DGAvailablePic,
   frm_MarksExplorer,
+  frm_CacheManager,
   frm_GoTo;
 
 type
@@ -194,6 +195,7 @@ type
     NZoomOut: TTBXItem;
     tbitmGoToModal: TTBXItem;
     NCalcRast: TTBXItem;
+    tbitmCacheManager: TTBXItem;
     tbitmQuit: TTBXItem;
     tbitmGPSTrackSaveToMarks: TTBXItem;
     TBItemDelTrack: TTBXItem;
@@ -557,6 +559,7 @@ type
     procedure tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
+    procedure tbitmCacheManagerClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -618,6 +621,7 @@ type
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
+    FfrmCacheManager: TfrmCacheManager;
     FfrmMarksExplorer: TfrmMarksExplorer;
     FfrmAbout: TfrmAbout;
 
@@ -813,6 +817,17 @@ begin
       GState.MarksDB.MarksDb,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState,
+      GState.ValueToStringConverterConfig
+    );
+
+  FfrmCacheManager :=
+    TfrmCacheManager.Create(
+      GState.LanguageManager,
+      GState.AppClosingNotifier,
+      GState.GUISyncronizedTimerNotifier,
+      GState.GCThread.List,
+      GState.ContentTypeManager,
+      GState.PerfCounterList,
       GState.ValueToStringConverterConfig
     );
 
@@ -1979,6 +1994,7 @@ begin
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FfrmGoTo);
   FreeAndNil(FfrmSettings);
+  FreeAndNil(FfrmCacheManager);
   FreeAndNil(FfrmMarksExplorer);
   inherited;
 end;
@@ -5488,6 +5504,11 @@ procedure TfrmMain.TrayItemQuitClick(Sender: TObject);
 begin
   TrayIcon.Visible := False;
   Close;
+end;
+
+procedure TfrmMain.tbitmCacheManagerClick(Sender: TObject);
+begin
+  FfrmCacheManager.Show;
 end;
 
 end.
