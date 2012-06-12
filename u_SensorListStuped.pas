@@ -75,7 +75,7 @@ var
 begin
   inherited Create;
 
-  VSensor := TSensorFromGPSRecorderLastSpeed.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderLastSpeed.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -98,11 +98,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorSpeed
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderAvgSpeed.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderAvgSpeed.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -125,11 +125,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorSpeed
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderMaxSpeed.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderMaxSpeed.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -152,11 +152,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorSpeed
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderDist.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderDist.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -179,11 +179,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDistance
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderOdometer1.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderOdometer1.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -206,11 +206,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDistance
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderOdometer2.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderOdometer2.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -233,11 +233,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDistance
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorTextFromNavToPoint.Create(ALanguageManager, AViewPortState, ANavigationToPoint, AValueConverterConfig);
+  VSensor := TSensorTextFromNavToPoint.Create(AViewPortState, ANavigationToPoint);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -260,7 +260,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDistance
      );
   Self.Add(VEntity);
 
@@ -291,7 +291,7 @@ begin
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderAltitude.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderAltitude.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -314,11 +314,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDistance
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderHeading.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderHeading.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -341,11 +341,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDegrees
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderHDOP.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderHDOP.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -368,11 +368,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDouble
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderVDOP.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderVDOP.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -395,11 +395,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorDouble
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderUTCTime.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderUTCTime.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -422,11 +422,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorTime
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderLocalTime.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderLocalTime.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -449,11 +449,11 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorTime
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderDGPS.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderDGPS.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -480,7 +480,7 @@ begin
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderGPSUnitInfo.Create(ALanguageManager, AGPSRecorder, AValueConverterConfig);
+  VSensor := TSensorFromGPSRecorderGPSUnitInfo.Create(AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,

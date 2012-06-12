@@ -53,20 +53,14 @@ type
     );
   end;
 
-  TSensorBase = class(TInterfacedObject, ISensor)
+  TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
   private
     FCanReset: Boolean;
-
-    FLock: IReadWriteSync;
     FDataUpdateNotifier: IJclNotifier;
     FLinksList: IJclListenerNotifierLinksList;
   protected
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
     procedure NotifyDataUpdate;
-    procedure LockRead;
-    procedure LockWrite;
-    procedure UnlockRead;
-    procedure UnlockWrite; 
   protected
     function CanReset: Boolean;
     procedure Reset; virtual;
@@ -158,7 +152,6 @@ begin
   inherited Create;
   FCanReset := ACanReset;
 
-  FLock := MakeSyncRW_Var(Self);
   FDataUpdateNotifier := TJclBaseNotifier.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
@@ -174,16 +167,6 @@ begin
   Result := FDataUpdateNotifier;
 end;
 
-procedure TSensorBase.LockRead;
-begin
-  FLock.BeginRead;
-end;
-
-procedure TSensorBase.LockWrite;
-begin
-  FLock.BeginWrite;
-end;
-
 procedure TSensorBase.NotifyDataUpdate;
 begin
   FDataUpdateNotifier.Notify(nil);
@@ -191,16 +174,6 @@ end;
 
 procedure TSensorBase.Reset;
 begin
-end;
-
-procedure TSensorBase.UnlockRead;
-begin
-  FLock.EndRead;
-end;
-
-procedure TSensorBase.UnlockWrite;
-begin
-  FLock.EndWrite
 end;
 
 { TSensorListEntity }

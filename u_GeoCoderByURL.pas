@@ -42,6 +42,7 @@ type
     function GetListByText(
       const ALocalConverter: ILocalCoordConverter;
       const astr:string ; Var AList:IInterfaceList): boolean;
+    function deg2strvalue( aDeg:Double; Alat,NeedChar:boolean):string;
   protected
     function PrepareRequest(
       const ASearch: WideString;
@@ -72,6 +73,7 @@ uses
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
+  t_CommonTypes,
   i_GeoCoder,
   u_ResStrings,
   u_DownloadRequest,
@@ -232,6 +234,7 @@ begin
          delitel := Power(10,length(VText));
       end else Result:=false;
      end;
+     if (gms>delitel) and (delitel>1) then gms := 0;
      if res<0 then begin
        res:=res-gms/delitel;
      end else begin
@@ -245,22 +248,43 @@ begin
   end;
 end;
 
-function deg2strvalue( aDeg:Double; Alat,NeedChar:boolean):string;
+function TGeoCoderByURL.deg2strvalue( aDeg:Double; Alat,NeedChar:boolean):string;
 var
-  Vmin :integer;
-  VDegScale : Double;
+  VDegr: Double;
+  VInt: Integer;
+  VValue: Integer;
 begin
-   VDegScale := abs(aDeg);
-   result := IntToStr(Trunc(VDegScale)) + '°';
-   VDegScale := Frac(VDegScale) * 60;
-   Vmin := Trunc(VDegScale);
-   if Vmin < 10 then begin
-     result := result + '0' + IntToStr(Vmin) + '''';
-   end else begin
-     result := result + IntToStr(Vmin) + '''';
-   end;
-   VDegScale := Frac(VDegScale) * 60;
-   result := result + FormatFloat('00.00', VDegScale) + '"';
+  VDegr := abs(ADeg);
+
+  case FValueToStringConverterConfig.DegrShowFormat of
+    dshCharDegrMinSec, dshSignDegrMinSec: begin
+      VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
+      VInt := Trunc(VValue / (60 * 60 * 100));
+      VValue := VValue - VInt * (60 * 60 * 100);
+      result := IntToStr(VInt) + '°';
+
+      VInt := Trunc(VValue / (60 * 100));
+      VValue := VValue - VInt * (60 * 100);
+
+      if VInt < 10 then begin
+        Result := result + '0' + IntToStr(VInt) + '''';
+      end else begin
+        Result := result + IntToStr(VInt) + '''';
+      end;
+
+      Result := Result + FormatFloat('00.00', VValue / 100) + '"';
+    end;
+    dshCharDegrMin, dshSignDegrMin: begin
+      VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
+      VInt := Trunc(VValue / (60 * 10000));
+      VValue := VValue - VInt * (60 * 10000);
+      Result := IntToStr(VInt) + '°';
+      Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
+    end;
+    dshCharDegr, dshSignDegr: begin
+      Result := FormatFloat('0.000000', VDegr) + '°';
+    end;
+  end;
 
    if NeedChar then
     if Alat then begin
@@ -900,6 +924,7 @@ var
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
 begin
+ result := nil;
  VLinkErr := false;
  VList := TInterfaceList.Create;
  VFormatSettings.DecimalSeparator := '.';

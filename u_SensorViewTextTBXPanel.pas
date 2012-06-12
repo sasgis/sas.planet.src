@@ -143,7 +143,7 @@ type
   TSensorViewLengthTBXPanel = class(TSensorViewTBXPanelBase)
   private
     FValueConverterConfig: IValueToStringConverterConfig;
-    FSensor: ISensorLength;
+    FSensor: ISensorDistance;
     FlblValue: TTBXLabel;
   protected
     procedure CreatePanel; override;
@@ -671,7 +671,7 @@ constructor TSensorViewLengthTBXPanel.Create(
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverterConfig := AValueConverterConfig;
-  if not Supports(FListEntity.GetSensor, ISensorLength, FSensor) then begin
+  if not Supports(FListEntity.GetSensor, ISensorDistance, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
 end;

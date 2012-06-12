@@ -42,6 +42,7 @@ uses
   i_ContentTypeManager,
   i_VectorDataLoader,
   i_CoordConverterFactory,
+  i_BatteryStatus,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
   i_GSMGeoCodeConfig,
@@ -154,6 +155,7 @@ type
     FAppClosingNotifier: IJclNotifier;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
+    FBatteryStatus: IBatteryStatus;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
@@ -214,6 +216,7 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
+    property BatteryStatus: IBatteryStatus read FBatteryStatus;
 
     constructor Create;
     destructor Destroy; override;
@@ -284,6 +287,7 @@ uses
   u_ProjConverterFactory,
   u_PathConfig,
   u_ThreadConfig,
+  u_BatteryStatus,
   u_ZmpConfig,
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
@@ -545,6 +549,7 @@ begin
       FGlobalAppConfig,
       FPerfCounterList
     );
+  FBatteryStatus := TBatteryStatus.Create;
 end;
 
 destructor TGlobalState.Destroy;

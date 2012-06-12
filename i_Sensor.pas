@@ -29,7 +29,7 @@ uses
   i_ConfigDataElement;
 
 type
-  ISensor = interface
+  ISensor = interface(IConfigDataElement)
     ['{EFD30054-5F65-49DF-8EB9-A4EF816D05D2}']
     function CanReset: Boolean;
     procedure Reset;
@@ -51,7 +51,7 @@ type
     function GetValue: Double;
   end;
 
-  ISensorLength = interface(ISensor)
+  ISensorDistance = interface(ISensor)
     ['{E868E131-E588-4342-A7C9-73FBCC96AE69}']
     function GetValue: Double;
   end;
