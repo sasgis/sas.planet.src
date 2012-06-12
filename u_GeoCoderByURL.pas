@@ -234,7 +234,7 @@ begin
          delitel := Power(10,length(VText));
       end else Result:=false;
      end;
-     if (gms>delitel) and (delitel>1) then gms := delitel;
+     if (gms>delitel) and (delitel>1) then gms := 0;
      if res<0 then begin
        res:=res-gms/delitel;
      end else begin
