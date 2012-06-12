@@ -21,9 +21,13 @@ type
     function GetStatic: IBatteryStatusStatic;
   public
     constructor Create();
+    destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  u_Synchronizer;
 
 type
   TBatteryStatusStatic = class(TInterfacedObject, IBatteryStatusStatic)
@@ -85,11 +89,18 @@ end;
 constructor TBatteryStatus.Create;
 begin
   inherited Create;
+  FLock := MakeSyncObj(Self);
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 1000;
   FTimer.OnTimer := Self.OnTimer;
   OnTimer(nil);
   FTimer.Enabled := True;
+end;
+
+destructor TBatteryStatus.Destroy;
+begin
+  FreeAndNil(FTimer);
+  inherited;
 end;
 
 function TBatteryStatus.GetStatic: IBatteryStatusStatic;
@@ -111,6 +122,7 @@ begin
   GetSystemPowerStatus(sps);
   VStatic := GetStatic;
   VChanged :=
+    (VStatic = nil) or
     (sps.ACLineStatus <> VStatic.ACLineStatus) or
     (sps.BatteryFlag <> VStatic.BatteryFlag) or
     (sps.BatteryLifePercent <> VStatic.BatteryLifePercent) or
