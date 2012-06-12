@@ -363,6 +363,7 @@ uses
   u_GeoCoderByRosreestr in 'u_GeoCoderByRosreestr.pas',
   u_GeoCoderByNavitel in 'u_GeoCoderByNavitel.pas',
   u_GeoCoderByURL in 'u_GeoCoderByURL.pas',
+  u_GeoCoderByOSM in 'u_GeoCoderByOSM.pas',
   i_LayerBitmapClearStrategy in 'i_LayerBitmapClearStrategy.pas',
   u_LayerBitmapClearStrategy in 'u_LayerBitmapClearStrategy.pas',
   u_LayerBitmapClearStrategyFactory in 'u_LayerBitmapClearStrategyFactory.pas',
