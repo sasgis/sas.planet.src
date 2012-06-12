@@ -24,12 +24,12 @@ interface
 
 uses
   ActiveX,
-  u_ConfigDataElementBase,
   i_GUIDSet,
-  i_SensorList;
+  i_SensorList,
+  u_ConfigDataElementComplexBase;
 
 type
-  TSensorListBase = class(TConfigDataElementBaseEmptySaveLoad, ISensorList)
+  TSensorListBase = class(TConfigDataElementComplexBase, ISensorList)
   private
     FList: IGUIDInterfaceSet;
   protected { ISensorList }
@@ -60,6 +60,7 @@ begin
   try
     if not FList.IsExists(AItem.GUID) then begin
       FList.Add(AItem.GUID, AItem);
+      inherited Add(AItem.GetSensor);
       SetChanged;
     end;
   finally

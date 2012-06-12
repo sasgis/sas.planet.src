@@ -24,161 +24,88 @@ interface
 
 uses
   i_GPSRecorder,
-  i_ValueToStringConverter,
-  i_LanguageManager,
-  i_Sensor,
   u_SensorBase;
 
 type
-  TSensorTextFromGPSRecorder = class(TSensorBase, ISensorText)
+  TSensorDoubeleValueFromGPSRecorder = class(TSensorDoubeleValue)
   private
     FGPSRecorder: IGPSRecorder;
-    FValueConverterConfig: IValueToStringConverterConfig;
-    FValueConverter: IValueToStringConverter;
-
-    FLastValue: Double;
-    procedure OnConverterConfigChange;
-    procedure OnRecorderChanged;
   protected
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
-    property ValueConverter: IValueToStringConverter read FValueConverter;
-
-    function ValueChanged(const AOld, ANew: Double): Boolean; virtual;
-
-    function ValueToText(const AValue: Double): string; virtual; abstract;
-    function GetValue: Double; virtual; abstract;
-  protected
-    function GetText: string;
   public
     constructor Create(
       ACanReset: Boolean;
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorTimeFromGPSRecorder = class(TSensorTextFromGPSRecorder)
+  TSensorDateTimeValueFromGPSRecorder = class(TSensorDateTimeValue)
+  private
+    FGPSRecorder: IGPSRecorder;
   protected
-    function ValueChanged(const AOld, ANew: Double): Boolean; override;
-    function ValueToText(const AValue: Double): string; override;
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
+  public
+    constructor Create(
+      ACanReset: Boolean;
+      const AGPSRecorder: IGPSRecorder
+    );
   end;
 
-  TSensorSimpleTextFromGPSRecorder = class(TSensorTextFromGPSRecorder)
+  TSensorTextValueFromGPSRecorder = class(TSensorTextValue)
+  private
+    FGPSRecorder: IGPSRecorder;
   protected
-    function ValueChanged(const AOld, ANew: Double): Boolean; override;
-    function GetValue: Double; override;
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
+  public
+    constructor Create(
+      ACanReset: Boolean;
+      const AGPSRecorder: IGPSRecorder
+    );
   end;
 
 implementation
 
 uses
-  SysUtils,
-  u_NotifyEventListener;
+  SysUtils;
 
-{ TSensorTextFromGPSRecorder }
+{ TSensorDoubeleValueFromGPSRecorder }
 
-constructor TSensorTextFromGPSRecorder.Create(
+constructor TSensorDoubeleValueFromGPSRecorder.Create(
   ACanReset: Boolean;
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(ACanReset);
+  inherited Create(
+    ACanReset,
+    AGPSRecorder.ChangeNotifier
+  );
   FGPSRecorder := AGPSRecorder;
-  FValueConverterConfig := AValueConverterConfig;
+end;
 
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnRecorderChanged),
-    FGPSRecorder.GetChangeNotifier
+{ TSensorDateTimeValueFromGPSRecorder }
+
+constructor TSensorDateTimeValueFromGPSRecorder.Create(
+  ACanReset: Boolean;
+  const AGPSRecorder: IGPSRecorder
+);
+begin
+  inherited Create(
+    ACanReset,
+    AGPSRecorder.ChangeNotifier
   );
+  FGPSRecorder := AGPSRecorder;
+end;
 
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConverterConfigChange),
-    FValueConverterConfig.GetChangeNotifier
+{ TSensorTextValueFromGPSRecorder }
+
+constructor TSensorTextValueFromGPSRecorder.Create(ACanReset: Boolean;
+  const AGPSRecorder: IGPSRecorder);
+begin
+  inherited Create(
+    ACanReset,
+    AGPSRecorder.ChangeNotifier
   );
-
-  OnConverterConfigChange;
-  OnRecorderChanged;
-end;
-
-function TSensorTextFromGPSRecorder.GetText: string;
-var
-  VValue: Double;
-begin
-  LockRead;
-  try
-    VValue := FLastValue;
-    Result := ValueToText(VValue);
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TSensorTextFromGPSRecorder.OnConverterConfigChange;
-begin
-  LockWrite;
-  try
-    FValueConverter := FValueConverterConfig.GetStatic;
-  finally
-    UnlockWrite;
-  end;
-  NotifyDataUpdate;
-end;
-
-procedure TSensorTextFromGPSRecorder.OnRecorderChanged;
-var
-  VValue: Double;
-  VNeedNotify: Boolean;
-begin
-  VNeedNotify := False;
-  VValue := GetValue;
-  LockWrite;
-  try
-    if ValueChanged(FLastValue, VValue) then begin
-      FLastValue := VValue;
-      VNeedNotify := True;
-    end;
-  finally
-    UnlockWrite;
-  end;
-  if VNeedNotify then begin
-    NotifyDataUpdate;
-  end;
-end;
-
-function TSensorTextFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
-begin
-  Result := (Abs(AOld - ANew) > 0.001);
-end;
-
-{ TSensorSimpleTextFromGPSRecorder }
-
-function TSensorSimpleTextFromGPSRecorder.GetValue: Double;
-begin
-  Result := 0;
-end;
-
-function TSensorSimpleTextFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
-begin
-  Result := TRUE;
-end;
-
-{ TSensorTimeFromGPSRecorder }
-
-function TSensorTimeFromGPSRecorder.ValueChanged(const AOld, ANew: Double): Boolean;
-begin
-  Result := TRUE;
-end;
-
-function TSensorTimeFromGPSRecorder.ValueToText(const AValue: Double): string;
-begin
-  if (0 = AValue) then begin
-    Result := '';
-  end else begin
-    Result := FormatDateTime('hh:nn:ss', AValue);
-  end;
+  FGPSRecorder := AGPSRecorder;
 end;
 
 end.

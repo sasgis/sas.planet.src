@@ -124,7 +124,7 @@ begin
           );
         AResult.Add(VGUID, VSensorView);
       end;
-    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorLength) then begin
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDistance) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
         VSensorViewConfig := TSensorViewConfigSimple.Create;

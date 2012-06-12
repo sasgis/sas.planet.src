@@ -46,6 +46,7 @@ type
     property SensorTypeIID: TGUID read GetSensorTypeIID;
 
     function GetSensor: ISensor;
+    property Sensor: ISensor read GetSensor;
   end;
 
   ISensorList = interface(IConfigDataElement)

@@ -24,193 +24,149 @@ interface
 
 uses
   i_GPSRecorder,
-  i_ValueToStringConverter,
-  i_LanguageManager,
+  i_Sensor,
   u_SensorTextFromGPSRecorder;
 
 type
-  TSensorFromGPSRecorderLastSpeed = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderLastSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderAvgSpeed = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderAvgSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderMaxSpeed = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderMaxSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderDist = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderDist = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderOdometer1 = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderOdometer1 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderOdometer2 = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderOdometer2 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderAltitude = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderAltitude = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderHeading = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderHeading = class(TSensorDoubeleValueFromGPSRecorder, ISensorDegrees)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderHDOP = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderHDOP = class(TSensorDoubeleValueFromGPSRecorder, ISensorDouble)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderVDOP = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderVDOP = class(TSensorDoubeleValueFromGPSRecorder, ISensorDouble)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
+    function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderUTCTime = class(TSensorTimeFromGPSRecorder)
+  TSensorFromGPSRecorderUTCTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
   protected
-    function GetValue: Double; override;
+    function GetCurrentValue: TDateTime; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderLocalTime = class(TSensorTimeFromGPSRecorder)
+  TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
   protected
-    function GetValue: Double; override;
+    function GetCurrentValue: TDateTime; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderDGPS = class(TSensorTextFromGPSRecorder)
+  TSensorFromGPSRecorderDGPS = class(TSensorTextValueFromGPSRecorder, ISensorText)
   protected
-    function ValueToText(const AValue: Double): string; override;
-    function GetValue: Double; override;
-    function ValueChanged(const AOld, ANew: Double): Boolean; override;
+    function GetCurrentValue: string; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
 
-  TSensorFromGPSRecorderGPSUnitInfo = class(TSensorSimpleTextFromGPSRecorder)
+  TSensorFromGPSRecorderGPSUnitInfo = class(TSensorTextValueFromGPSRecorder, ISensorText)
   protected
-    function ValueToText(const AValue: Double): string; override;
+    function GetCurrentValue: string; override;
     procedure Reset; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AGPSRecorder: IGPSRecorder;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AGPSRecorder: IGPSRecorder
     );
   end;
-
 
 implementation
 
 uses
   SysUtils,
-  c_SensorsGUIDSimple,
   i_GPS,
-  u_ResStrings,
   u_GeoToStr,
   vsagps_public_base,
   vsagps_public_position,
@@ -219,46 +175,27 @@ uses
 { TSensorFromGPSRecorderLastSpeed }
 
 constructor TSensorFromGPSRecorderLastSpeed.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
-);
+  const AGPSRecorder: IGPSRecorder
+ );
 begin
-  inherited Create(
-    False,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(False, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderLastSpeed.GetValue: Double;
+function TSensorFromGPSRecorderLastSpeed.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastSpeed;
-end;
-
-function TSensorFromGPSRecorderLastSpeed.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 2);
 end;
 
 { TSensorFromGPSRecorderAvgSpeed }
 
 constructor TSensorFromGPSRecorderAvgSpeed.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    True,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderAvgSpeed.GetValue: Double;
+function TSensorFromGPSRecorderAvgSpeed.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.AvgSpeed;
 end;
@@ -269,28 +206,16 @@ begin
   GPSRecorder.ResetAvgSpeed;
 end;
 
-function TSensorFromGPSRecorderAvgSpeed.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 2);
-end;
-
 { TSensorFromGPSRecorderMaxSpeed }
 
 constructor TSensorFromGPSRecorderMaxSpeed.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    True,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderMaxSpeed.GetValue: Double;
+function TSensorFromGPSRecorderMaxSpeed.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.MaxSpeed;
 end;
@@ -301,28 +226,16 @@ begin
   GPSRecorder.ResetMaxSpeed;
 end;
 
-function TSensorFromGPSRecorderMaxSpeed.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 2);
-end;
-
 { TSensorFromGPSRecorderDist }
 
 constructor TSensorFromGPSRecorderDist.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    True,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderDist.GetValue: Double;
+function TSensorFromGPSRecorderDist.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.Dist;
 end;
@@ -333,28 +246,16 @@ begin
   GPSRecorder.ResetDist;
 end;
 
-function TSensorFromGPSRecorderDist.ValueToText(const AValue: Double): string;
-begin
-  Result := ValueConverter.DistConvert(AValue);
-end;
-
 { TSensorFromGPSRecorderOdometer1 }
 
 constructor TSensorFromGPSRecorderOdometer1.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    True,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderOdometer1.GetValue: Double;
+function TSensorFromGPSRecorderOdometer1.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.Odometer1;
 end;
@@ -365,28 +266,16 @@ begin
   GPSRecorder.ResetOdometer1;
 end;
 
-function TSensorFromGPSRecorderOdometer1.ValueToText(const AValue: Double): string;
-begin
-  Result := ValueConverter.DistConvert(AValue);
-end;
-
 { TSensorFromGPSRecorderOdometer2 }
 
 constructor TSensorFromGPSRecorderOdometer2.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    True,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderOdometer2.GetValue: Double;
+function TSensorFromGPSRecorderOdometer2.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.Odometer2;
 end;
@@ -397,80 +286,44 @@ begin
   GPSRecorder.ResetOdometer2;
 end;
 
-function TSensorFromGPSRecorderOdometer2.ValueToText(const AValue: Double): string;
-begin
-  Result := ValueConverter.DistConvert(AValue);
-end;
-
 { TSensorFromGPSRecorderAltitude }
 
 constructor TSensorFromGPSRecorderAltitude.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    False,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(False, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderAltitude.GetValue: Double;
+function TSensorFromGPSRecorderAltitude.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastAltitude;
-end;
-
-function TSensorFromGPSRecorderAltitude.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 2);
 end;
 
 { TSensorFromGPSRecorderHeading }
 
 constructor TSensorFromGPSRecorderHeading.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    False,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(False, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderHeading.GetValue: Double;
+function TSensorFromGPSRecorderHeading.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastHeading;
-end;
-
-function TSensorFromGPSRecorderHeading.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 2) + '°';
 end;
 
 { TSensorFromGPSRecorderHDOP }
 
 constructor TSensorFromGPSRecorderHDOP.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    FALSE,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(False, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderHDOP.GetValue: Double;
+function TSensorFromGPSRecorderHDOP.GetCurrentValue: Double;
 var
   VPosition: IGPSPosition;
 begin
@@ -478,28 +331,16 @@ begin
   Result := VPosition.GetPosParams^.HDOP;
 end;
 
-function TSensorFromGPSRecorderHDOP.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 1);
-end;
-
 { TSensorFromGPSRecorderVDOP }
 
 constructor TSensorFromGPSRecorderVDOP.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    FALSE,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(False, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderVDOP.GetValue: Double;
+function TSensorFromGPSRecorderVDOP.GetCurrentValue: Double;
 var
   VPosition: IGPSPosition;
 begin
@@ -507,28 +348,16 @@ begin
   Result := VPosition.GetPosParams^.VDOP;
 end;
 
-function TSensorFromGPSRecorderVDOP.ValueToText(const AValue: Double): string;
-begin
-  Result := RoundEx(AValue, 1);
-end;
-
 { TSensorFromGPSRecorderUTCTime }
 
 constructor TSensorFromGPSRecorderUTCTime.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    FALSE,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(False, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderUTCTime.GetValue: Double;
+function TSensorFromGPSRecorderUTCTime.GetCurrentValue: TDateTime;
 var
   VPosition: IGPSPosition;
 begin
@@ -541,20 +370,13 @@ end;
 { TSensorFromGPSRecorderLocalTime }
 
 constructor TSensorFromGPSRecorderLocalTime.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    TRUE,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderLocalTime.GetValue: Double;
+function TSensorFromGPSRecorderLocalTime.GetCurrentValue: TDateTime;
 var
   VPosition: IGPSPosition;
 begin
@@ -576,47 +398,24 @@ end;
 { TSensorFromGPSRecorderDGPS }
 
 constructor TSensorFromGPSRecorderDGPS.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    TRUE,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
 end;
 
-function TSensorFromGPSRecorderDGPS.GetValue: Double;
+function TSensorFromGPSRecorderDGPS.GetCurrentValue: string;
 var
   VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  Result := Double(VPosition.GetPosParams^.DGPS);
-end;
-
-procedure TSensorFromGPSRecorderDGPS.Reset;
-begin
-  inherited;
-  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
-end;
-
-function TSensorFromGPSRecorderDGPS.ValueChanged(const AOld, ANew: Double): Boolean;
-begin
-  Result := (not CompareMem(@AOld, @ANew, sizeof(Double)));
-end;
-
-function TSensorFromGPSRecorderDGPS.ValueToText(const AValue: Double): string;
-begin
-  with TSingleDGPSData(AValue) do begin
+  with VPosition.GetPosParams^.DGPS do begin
     case Nmea23_Mode of
       'A': begin
         Result := 'A';
       end; //'Autonomous';
       'D': begin
-        Result := SAS_STR_Yes;
+        Result := 'DGPS';
       end; //'DGPS';
       'E': begin
         Result := 'DR';
@@ -628,7 +427,7 @@ begin
         Result := 'PPS';
       end; //'PPS';
     else begin
-      Result := SAS_STR_No;
+      Result := 'N';
     end; //#0 if no data or 'N' = Not Valid
     end;
 
@@ -647,31 +446,30 @@ begin
   end;
 end;
 
+procedure TSensorFromGPSRecorderDGPS.Reset;
+begin
+  inherited;
+  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
+end;
+
 { TSensorFromGPSRecorderGPSUnitInfo }
 
 constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
-  const ALanguageManager: ILanguageManager;
-  const AGPSRecorder: IGPSRecorder;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    TRUE,
-    ALanguageManager,
-    AGPSRecorder,
-    AValueConverterConfig
-  );
+  inherited Create(True, AGPSRecorder);
+end;
+
+function TSensorFromGPSRecorderGPSUnitInfo.GetCurrentValue: string;
+begin
+  Result := GPSRecorder.GPSUnitInfo;
 end;
 
 procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;
 begin
   inherited;
   GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
-end;
-
-function TSensorFromGPSRecorderGPSUnitInfo.ValueToText(const AValue: Double): string;
-begin
-  Result := GPSRecorder.GPSUnitInfo;
 end;
 
 end.

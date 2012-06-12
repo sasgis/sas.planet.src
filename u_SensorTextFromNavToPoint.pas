@@ -23,58 +23,55 @@ unit u_SensorTextFromNavToPoint;
 interface
 
 uses
+  i_JclNotify,
   i_NavigationToPoint,
   i_ViewPortState,
-  i_ValueToStringConverter,
-  i_LocalCoordConverter,
   i_LanguageManager,
   i_Sensor,
   u_SensorBase;
 
 type
-  TSensorTextFromNavToPoint = class(TSensorBase, ISensorText)
+  TSensorTextFromNavToPoint = class(TSensorDoubeleValue, ISensorDistance)
   private
     FViewPortState: IViewPortState;
     FNavigationToPoint: INavigationToPoint;
-    FVisualConverter: ILocalCoordConverter;
-    FValueConverterConfig: IValueToStringConverterConfig;
-    FValueConverter: IValueToStringConverter;
 
-    procedure OnConverterConfigChange;
+    FSourceDataUpdateNotifier: IJclNotifier;
+
     procedure OnPosChanged;
     procedure OnNavToPointChanged;
   protected
-    function GetText: string;
+    function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
       const AViewPortState: IViewPortState;
-      const ANavigationToPoint: INavigationToPoint;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const ANavigationToPoint: INavigationToPoint
     );
   end;
 
 implementation
 
 uses
-  c_SensorsGUIDSimple,
+  Math,
   t_GeoTypes,
+  i_CoordConverter,
+  i_LocalCoordConverter,
   u_NotifyEventListener,
+  u_JclNotify,
   u_ResStrings;
 
 { TSensorTextFromNavToPoint }
 
 constructor TSensorTextFromNavToPoint.Create(
-  const ALanguageManager: ILanguageManager;
   const AViewPortState: IViewPortState;
-  const ANavigationToPoint: INavigationToPoint;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const ANavigationToPoint: INavigationToPoint
 );
 begin
-  inherited Create(False);
+  FSourceDataUpdateNotifier := TJclBaseNotifier.Create;
+  inherited Create(False, FSourceDataUpdateNotifier);
   FViewPortState := AViewPortState;
   FNavigationToPoint := ANavigationToPoint;
-  FValueConverterConfig := AValueConverterConfig;
+
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChanged),
@@ -85,71 +82,46 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnNavToPointChanged),
     FNavigationToPoint.GetChangeNotifier
   );
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConverterConfigChange),
-    FValueConverterConfig.GetChangeNotifier
-  );
-
-  OnConverterConfigChange;
 end;
 
-function TSensorTextFromNavToPoint.GetText: string;
+function TSensorTextFromNavToPoint.GetCurrentValue: Double;
 var
+  VVisualConverter: ILocalCoordConverter;
+  VGeoConverter: ICoordConverter;
   VValue: Double;
   VNavActive: Boolean;
   VNavLonLat: TDoublePoint;
   VCenterLonLat: TDoublePoint;
 begin
-  LockRead;
-  try
-    Result := '-';
-    if FVisualConverter <> nil then begin
-      FNavigationToPoint.LockRead;
-      try
-        VNavActive := FNavigationToPoint.IsActive;
-        VNavLonLat := FNavigationToPoint.LonLat;
-      finally
-        FNavigationToPoint.UnlockRead;
-      end;
-      if VNavActive then begin
-        VCenterLonLat := FVisualConverter.GetCenterLonLat;
-        FVisualConverter.GetGeoConverter.CheckLonLatPos(VNavLonLat);
-        FVisualConverter.GetGeoConverter.CheckLonLatPos(VCenterLonLat);
-        VValue := FVisualConverter.GetGeoConverter.Datum.CalcDist(VNavLonLat, VCenterLonLat);
-        Result := FValueConverter.DistConvert(VValue);
-      end;
+  VVisualConverter := FViewPortState.GetVisualCoordConverter;
+  Result := NaN;
+  if VVisualConverter <> nil then begin
+    FNavigationToPoint.LockRead;
+    try
+      VNavActive := FNavigationToPoint.IsActive;
+      VNavLonLat := FNavigationToPoint.LonLat;
+    finally
+      FNavigationToPoint.UnlockRead;
     end;
-  finally
-    UnlockRead;
-  end;
-end;
+    if VNavActive then begin
+      VGeoConverter := VVisualConverter.GeoConverter;
 
-procedure TSensorTextFromNavToPoint.OnConverterConfigChange;
-begin
-  LockWrite;
-  try
-    FValueConverter := FValueConverterConfig.GetStatic;
-  finally
-    UnlockWrite;
+      VCenterLonLat := VVisualConverter.GetCenterLonLat;
+      VGeoConverter.CheckLonLatPos(VNavLonLat);
+      VGeoConverter.CheckLonLatPos(VCenterLonLat);
+      Result := VGeoConverter.Datum.CalcDist(VNavLonLat, VCenterLonLat);
+    end;
   end;
-  NotifyDataUpdate;
 end;
 
 procedure TSensorTextFromNavToPoint.OnNavToPointChanged;
 begin
-  NotifyDataUpdate;
+  FSourceDataUpdateNotifier.Notify(nil);
 end;
 
 procedure TSensorTextFromNavToPoint.OnPosChanged;
 begin
-  LockWrite;
-  try
-    FVisualConverter := FViewPortState.GetVisualCoordConverter;
-    NotifyDataUpdate;
-  finally
-    UnlockWrite;
-  end;
+  FSourceDataUpdateNotifier.Notify(nil);
 end;
 
 end.
