@@ -31,7 +31,6 @@ uses
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_VectorDataFactory,
-  i_ProxySettings,
   i_PathDetalizeProvider;
 
 type
@@ -64,7 +63,6 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   i_DownloadRequest,
   i_DownloadResult,
@@ -73,8 +71,7 @@ uses
   u_DoublePointsAggregator,
   u_DownloadRequest,
   u_GeoToStr,
-  i_VectorDataItemSimple,
-  u_InetFunc;
+  i_VectorDataItemSimple;
 
 { TPathDetalizeProviderYourNavigation }
 

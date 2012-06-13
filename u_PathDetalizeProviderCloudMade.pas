@@ -69,7 +69,6 @@ type
 implementation
 
 uses
-  Classes,
   i_DownloadRequest,
   i_DownloadResult,
   i_EnumDoublePoint,
@@ -77,8 +76,7 @@ uses
   u_DoublePointsAggregator,
   u_GeoToStr,
   u_DownloadRequest,
-  u_ResStrings,
-  u_InetFunc;
+  u_ResStrings;
 
 { TPathDetalizeProviderCloudMade }
 

@@ -29,7 +29,6 @@ uses
   i_Downloader,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
-  i_ProxySettings,
   i_PathDetalizeProvider;
 
 type
@@ -60,7 +59,6 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   StrUtils,
   DateUtils,
@@ -72,8 +70,7 @@ uses
   u_GeoFun,
   u_DownloadRequest,
   u_GeoToStr,
-  u_ResStrings,
-  u_InetFunc;
+  u_ResStrings;
 
 { TPathDetalizeProviderMailRu }
 
