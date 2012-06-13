@@ -79,6 +79,26 @@ type
   protected
     function GetValue: Double;
   public
+    procedure AfterConstruction; override;
+  public
+    constructor Create(
+      ACanReset: Boolean;
+      const ADataChangeNotifier: IJclNotifier
+    );
+  end;
+
+  TSensorByteValue = class(TSensorBase)
+  private
+    FLastValue: Byte;
+    procedure OnDataChanged;
+    function ValueChanged(const AOld, ANew: Byte): Boolean;
+  protected
+    function GetCurrentValue: Byte; virtual; abstract;
+  protected
+    function GetValue: Byte;
+  public
+    procedure AfterConstruction; override;
+  public
     constructor Create(
       ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
@@ -94,6 +114,8 @@ type
     function GetCurrentValue: TDateTime; virtual; abstract;
   protected
     function GetValue: TDateTime;
+  public
+    procedure AfterConstruction; override;
   public
     constructor Create(
       ACanReset: Boolean;
@@ -111,6 +133,8 @@ type
   protected
     function GetValue: TDoublePoint;
   public
+    procedure AfterConstruction; override;
+  public
     constructor Create(
       ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
@@ -126,6 +150,8 @@ type
     function GetCurrentValue: string; virtual; abstract;
   protected
     function GetText: string;
+  public
+    procedure AfterConstruction; override;
   public
     constructor Create(
       ACanReset: Boolean;
@@ -202,6 +228,12 @@ end;
 
 { TSensorDoubeleValue }
 
+procedure TSensorDoubeleValue.AfterConstruction;
+begin
+  inherited;
+  OnDataChanged;
+end;
+
 constructor TSensorDoubeleValue.Create(ACanReset: Boolean;
   const ADataChangeNotifier: IJclNotifier);
 begin
@@ -260,6 +292,12 @@ begin
 end;
 
 { TSensorDateTimeValue }
+
+procedure TSensorDateTimeValue.AfterConstruction;
+begin
+  inherited;
+  OnDataChanged;
+end;
 
 constructor TSensorDateTimeValue.Create(ACanReset: Boolean;
   const ADataChangeNotifier: IJclNotifier);
@@ -321,6 +359,12 @@ end;
 
 { TSensorPosititonValue }
 
+procedure TSensorPosititonValue.AfterConstruction;
+begin
+  inherited;
+  OnDataChanged;
+end;
+
 constructor TSensorPosititonValue.Create(ACanReset: Boolean;
   const ADataChangeNotifier: IJclNotifier);
 begin
@@ -370,6 +414,12 @@ end;
 
 { TSensorTextValue }
 
+procedure TSensorTextValue.AfterConstruction;
+begin
+  inherited;
+  OnDataChanged;
+end;
+
 constructor TSensorTextValue.Create(ACanReset: Boolean;
   const ADataChangeNotifier: IJclNotifier);
 begin
@@ -412,6 +462,60 @@ begin
 end;
 
 function TSensorTextValue.ValueChanged(const AOld, ANew: string): Boolean;
+begin
+  Result := AOld <> ANew;
+end;
+
+{ TSensorByteValue }
+
+procedure TSensorByteValue.AfterConstruction;
+begin
+  inherited;
+  OnDataChanged;
+end;
+
+constructor TSensorByteValue.Create(ACanReset: Boolean;
+  const ADataChangeNotifier: IJclNotifier);
+begin
+  inherited Create(ACanReset);
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
+    ADataChangeNotifier
+  );
+end;
+
+function TSensorByteValue.GetValue: Byte;
+begin
+  LockRead;
+  try
+    Result := FLastValue;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TSensorByteValue.OnDataChanged;
+var
+  VValue: Byte;
+  VNeedNotify: Boolean;
+begin
+  VNeedNotify := False;
+  VValue := GetCurrentValue;
+  LockWrite;
+  try
+    if ValueChanged(FLastValue, VValue) then begin
+      FLastValue := VValue;
+      VNeedNotify := True;
+    end;
+  finally
+    UnlockWrite;
+  end;
+  if VNeedNotify then begin
+    NotifyDataUpdate;
+  end;
+end;
+
+function TSensorByteValue.ValueChanged(const AOld, ANew: Byte): Boolean;
 begin
   Result := AOld <> ANew;
 end;

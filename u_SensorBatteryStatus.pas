@@ -26,22 +26,20 @@ uses
   Windows,
   ExtCtrls,
   i_LanguageManager,
+  i_BatteryStatus,
   i_Sensor,
   u_SensorBase;
 
 type
-  TSensorBatteryStatus = class(TSensorBase, ISensorText)
+  TSensorBatteryStatus = class(TSensorByteValue, ISensorBatteryLifePercent)
   private
-    FStatusText: string;
-    FTimer: TTimer;
-    procedure OnTimer(Sender: TObject);
+    FBatteryStatus: IBatteryStatus;
   protected
-    function GetText: string;
+    function GetCurrentValue: Byte; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager
+      const ABatteryStatus: IBatteryStatus
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -53,70 +51,36 @@ uses
 
 { TSensorBatteryStatus }
 
-constructor TSensorBatteryStatus.Create(const ALanguageManager: ILanguageManager);
+constructor TSensorBatteryStatus.Create(const ABatteryStatus: IBatteryStatus);
 begin
-  inherited Create(False);
-  FStatusText := '-';
-  FTimer := TTimer.Create(nil);
-  FTimer.Interval := 1000;
-  FTimer.OnTimer := Self.OnTimer;
-  FTimer.Enabled := True;
+  inherited Create(False, ABatteryStatus.ChangeNotifier);
+  FBatteryStatus := ABatteryStatus;
 end;
 
-destructor TSensorBatteryStatus.Destroy;
-begin
-  FreeAndNil(FTimer);
-  inherited;
-end;
-
-function TSensorBatteryStatus.GetText: string;
-begin
-  LockRead;
-  try
-    Result := FStatusText
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TSensorBatteryStatus.OnTimer(Sender: TObject);
+function TSensorBatteryStatus.GetCurrentValue: Byte;
 var
-  sps: _SYSTEM_POWER_STATUS;
-  VResult: string;
-  VDataUpdate: Boolean;
+  VState: IBatteryStatusStatic;
 begin
-  GetSystemPowerStatus(sps);
-  if sps.ACLineStatus = 0 then begin
-    case sps.BatteryFlag of
-      128: begin
-        VResult := SAS_STR_BattaryStateOnLine;
+  VState := FBatteryStatus.GetStatic;
+  Result := 255;
+  if VState <> nil then begin
+    if VState.ACLineStatus = 0 then begin
+      case VState.BatteryFlag of
+        128: begin
+          Result := 200;
+        end;
+        8: begin
+          Result := 101;
+        end;
+      else begin
+        if VState.BatteryLifePercent <= 100  then begin
+          Result := VState.BatteryLifePercent;
+        end;
       end;
-      8: begin
-        VResult := SAS_STR_BattaryStateCharge;
       end;
-    else begin
-      if sps.BatteryLifePercent = 255 then begin
-        VResult := SAS_STR_BattaryStateUnknown;
-      end else begin
-        VResult := inttostr(sps.BatteryLifePercent) + '%';
-      end;
+    end else begin
+      Result := 200;
     end;
-    end;
-  end else begin
-    VResult := SAS_STR_BattaryStateOnLine;
-  end;
-  VDataUpdate := False;
-  LockWrite;
-  try
-    if FStatusText <> VResult then begin
-      FStatusText := VResult;
-      VDataUpdate := True;
-    end;
-  finally
-    UnlockWrite;
-  end;
-  if VDataUpdate then begin
-    NotifyDataUpdate;
   end;
 end;
 

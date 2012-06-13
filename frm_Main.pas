@@ -955,6 +955,7 @@ begin
     TSensorViewListGeneratorStuped.Create(
       GState.GUISyncronizedTimerNotifier,
       GState.ValueToStringConverterConfig,
+      GState.LanguageManager,
       Self,
       TBXDock1,
       NSensors,

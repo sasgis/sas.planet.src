@@ -37,6 +37,7 @@ type
     FMenuItemName: IStringConfigDataElement;
 
     FLinksList: IJclListenerNotifierLinksList;
+    procedure OnTextChange;
   protected
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
   protected
@@ -74,6 +75,19 @@ begin
   FDescription := ADescription;
   FMenuItemName := AMenuItemName;
   FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnTextChange),
+    FCaption.ChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnTextChange),
+    FDescription.ChangeNotifier
+  );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnTextChange),
+    FMenuItemName.ChangeNotifier
+  );
+
   FLinksList.ActivateLinks;
 end;
 
@@ -95,6 +109,16 @@ end;
 function TUserInterfaceItemBase.GetMenuItemName: string;
 begin
   Result := FMenuItemName.Value;
+end;
+
+procedure TUserInterfaceItemBase.OnTextChange;
+begin
+  LockWrite;
+  try
+    SetChanged;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 end.

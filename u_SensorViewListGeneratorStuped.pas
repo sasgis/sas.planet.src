@@ -30,6 +30,7 @@ uses
   i_JclNotify,
   i_GUIDSet,
   i_ValueToStringConverter,
+  i_LanguageManager,
   i_SensorList,
   i_SensorViewListGenerator;
 
@@ -38,6 +39,7 @@ type
   private
     FTimerNoifier: IJclNotifier;
     FValueConverterConfig: IValueToStringConverterConfig;
+    FLanguageManager: ILanguageManager;
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
     FParentMenu: TTBCustomItem;
@@ -57,6 +59,7 @@ type
     constructor Create(
       const ATimerNoifier: IJclNotifier;
       const AValueConverterConfig: IValueToStringConverterConfig;
+      const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -142,6 +145,24 @@ begin
           );
         AResult.Add(VGUID, VSensorView);
       end;
+    end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorBatteryLifePercent) then begin
+      VGUID := ASensor.GUID;
+      if not AResult.IsExists(VGUID) then begin
+        VSensorViewConfig := TSensorViewConfigSimple.Create;
+        VSensorView :=
+          TSensorViewBatteryLifePercentTBXPanel.Create(
+            ASensor,
+            VSensorViewConfig,
+            FTimerNoifier,
+            FLanguageManager,
+            FOwner,
+            FDefaultDoc,
+            FParentMenu,
+            FImages,
+            FImageIndexReset
+          );
+        AResult.Add(VGUID, VSensorView);
+      end;
     end else if IsEqualGUID(ASensor.GetSensorTypeIID, ISensorDegrees) then begin
       VGUID := ASensor.GUID;
       if not AResult.IsExists(VGUID) then begin
@@ -151,7 +172,6 @@ begin
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
-            FValueConverterConfig,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -169,7 +189,6 @@ begin
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
-            FValueConverterConfig,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -281,6 +300,7 @@ end;
 constructor TSensorViewListGeneratorStuped.Create(
   const ATimerNoifier: IJclNotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
+  const ALanguageManager: ILanguageManager;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -291,6 +311,7 @@ begin
   inherited Create;
   FTimerNoifier := ATimerNoifier;
   FValueConverterConfig := AValueConverterConfig;
+  FLanguageManager := ALanguageManager;
   FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;
   FParentMenu := AParentMenu;

@@ -27,6 +27,7 @@ uses
   i_ViewPortState,
   i_GPSRecorder,
   i_ValueToStringConverter,
+  i_BatteryStatus,
   i_LanguageManager,
   u_SensorListBase;
 
@@ -38,6 +39,7 @@ type
       const AViewPortState: IViewPortState;
       const ANavigationToPoint: INavigationToPoint;
       const AGPSRecorder: IGPSRecorder;
+      const ABatteryStatus: IBatteryStatus;
       const AValueConverterConfig: IValueToStringConverterConfig
     );
   end;
@@ -64,6 +66,7 @@ constructor TSensorListStuped.Create(
   const AViewPortState: IViewPortState;
   const ANavigationToPoint: INavigationToPoint;
   const AGPSRecorder: IGPSRecorder;
+  const ABatteryStatus: IBatteryStatus;
   const AValueConverterConfig: IValueToStringConverterConfig
 );
 var
@@ -264,7 +267,7 @@ begin
      );
   Self.Add(VEntity);
 
-  VSensor := TSensorBatteryStatus.Create(ALanguageManager);
+  VSensor := TSensorBatteryStatus.Create(ABatteryStatus);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager,
@@ -287,7 +290,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      ISensorBatteryLifePercent
      );
   Self.Add(VEntity);
 

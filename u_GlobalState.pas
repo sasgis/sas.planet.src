@@ -216,7 +216,6 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
-    property BatteryStatus: IBatteryStatus read FBatteryStatus;
 
     constructor Create;
     destructor Destroy; override;
@@ -687,6 +686,7 @@ begin
       FMainFormConfig.ViewPortState,
       FMainFormConfig.NavToPoint,
       FGPSRecorder,
+      FBatteryStatus,
       FValueToStringConverterConfig
     );
 

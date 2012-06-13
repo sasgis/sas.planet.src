@@ -46,6 +46,15 @@ type
     function GetValue: Double;
   end;
 
+  ISensorBatteryLifePercent = interface(ISensor)
+    ['{F686AF94-BC3B-46B7-8096-5A6DDDE18F11}']
+    // 0 - 100 BattaryLifePercent
+    // 101 BattaryStateCharge
+    // 200 BattaryStateOnLine
+    // 255 BattaryStateUnknown
+    function GetValue: Byte;
+  end;
+
   ISensorSpeed = interface(ISensor)
     ['{43055AE6-0FBA-47C8-B015-151BC383A7C5}']
     function GetValue: Double;

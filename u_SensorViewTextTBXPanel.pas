@@ -33,6 +33,7 @@ uses
   TBXControls,
   i_JclNotify,
   i_JclListenerNotifierLinksList,
+  i_LanguageManager,
   i_SatellitesInViewMapDraw,
   i_ValueToStringConverter,
   i_SensorList,
@@ -140,6 +141,27 @@ type
     );
   end;
 
+  TSensorViewBatteryLifePercentTBXPanel = class(TSensorViewTBXPanelBase)
+  private
+    FSensor: ISensorBatteryLifePercent;
+    FlblValue: TTBXLabel;
+  protected
+    procedure CreatePanel; override;
+    procedure UpdateDataView; override;
+  public
+    constructor Create(
+      const AListEntity: ISensorListEntity;
+      const AConfig: ISensorViewConfig;
+      const ATimerNoifier: IJclNotifier;
+      const ALanguageManager: ILanguageManager;
+      AOwner: TComponent;
+      ADefaultDoc: TTBDock;
+      AParentMenu: TTBCustomItem;
+      AImages: TCustomImageList;
+      AImageIndexReset: TImageIndex
+    );
+  end;
+
   TSensorViewLengthTBXPanel = class(TSensorViewTBXPanelBase)
   private
     FValueConverterConfig: IValueToStringConverterConfig;
@@ -164,7 +186,6 @@ type
 
   TSensorViewDegreesTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverterConfig: IValueToStringConverterConfig;
     FSensor: ISensorDegrees;
     FlblValue: TTBXLabel;
   protected
@@ -175,7 +196,6 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: IJclNotifier;
-      const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -186,7 +206,6 @@ type
 
   TSensorViewDoubleTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverterConfig: IValueToStringConverterConfig;
     FSensor: ISensorDouble;
     FlblValue: TTBXLabel;
   protected
@@ -197,7 +216,6 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: IJclNotifier;
-      const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -628,6 +646,10 @@ begin
   if not Supports(FListEntity.GetSensor, ISensorSpeed, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
+    FValueConverterConfig.ChangeNotifier
+  );
 end;
 
 procedure TSensorViewSpeedTBXPanel.CreatePanel;
@@ -674,6 +696,10 @@ begin
   if not Supports(FListEntity.GetSensor, ISensorDistance, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
+    FValueConverterConfig.ChangeNotifier
+  );
 end;
 
 procedure TSensorViewLengthTBXPanel.CreatePanel;
@@ -711,12 +737,10 @@ end;
 constructor TSensorViewDegreesTBXPanel.Create(
   const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
-  const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
   AImages: TCustomImageList; AImageIndexReset: TImageIndex);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverterConfig := AValueConverterConfig;
   if not Supports(FListEntity.GetSensor, ISensorDegrees, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
@@ -765,6 +789,10 @@ begin
   if not Supports(FListEntity.GetSensor, ISensorTime, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
+    FValueConverterConfig.ChangeNotifier
+  );
 end;
 
 procedure TSensorViewTimeTBXPanel.CreatePanel;
@@ -817,6 +845,10 @@ begin
   if not Supports(FListEntity.GetSensor, ISensorPosition, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
+    FValueConverterConfig.ChangeNotifier
+  );
 end;
 
 procedure TSensorViewPositionTBXPanel.CreatePanel;
@@ -854,12 +886,10 @@ end;
 constructor TSensorViewDoubleTBXPanel.Create(
   const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
-  const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
   AImages: TCustomImageList; AImageIndexReset: TImageIndex);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverterConfig := AValueConverterConfig;
   if not Supports(FListEntity.GetSensor, ISensorDouble, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
@@ -892,6 +922,70 @@ var
   VText: string;
 begin
   VText := RoundEx(FSensor.GetValue, 1);
+  FlblValue.Caption := VText;
+end;
+
+{ TSensorViewBatteryLifePercentTBXPanel }
+
+constructor TSensorViewBatteryLifePercentTBXPanel.Create(
+  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
+  const ALanguageManager: ILanguageManager;
+  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList; AImageIndexReset: TImageIndex
+);
+begin
+  inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
+  if not Supports(FListEntity.GetSensor, ISensorBatteryLifePercent, FSensor) then begin
+    raise Exception.Create('Неподдерживаемый тип сенсора');
+  end;
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
+    ALanguageManager.ChangeNotifier
+  );
+end;
+
+procedure TSensorViewBatteryLifePercentTBXPanel.CreatePanel;
+begin
+  inherited;
+  FlblValue := TTBXLabel.Create(FBar);
+
+  FlblValue.Parent := FBar;
+  FlblValue.AutoSize := True;
+  FlblValue.Left := 0;
+  FlblValue.Top := 17;
+  FlblValue.Width := 150;
+  FlblValue.Height := 15;
+  FlblValue.Align := alTop;
+  FlblValue.Font.Height := -16;
+  FlblValue.Font.Name := 'Arial';
+  FlblValue.Font.Style := [fsBold];
+  FlblValue.ParentFont := False;
+  FlblValue.Wrapping := twEndEllipsis;
+  FlblValue.Caption := '';
+
+  FBar.ClientAreaHeight := FlblValue.Top + FlblValue.Height + 2;
+end;
+
+procedure TSensorViewBatteryLifePercentTBXPanel.UpdateDataView;
+var
+  VText: string;
+  VValue: Byte;
+begin
+  VValue := FSensor.GetValue;
+  case VValue of
+    0..100: begin
+      VText := inttostr(VValue) + '%';
+    end;
+    101: begin
+      VText := SAS_STR_BattaryStateCharge;
+    end;
+    200: begin
+      VText := SAS_STR_BattaryStateOnLine;
+    end;
+  else
+    VText := SAS_STR_BattaryStateUnknown;
+  end;
   FlblValue.Caption := VText;
 end;
 
