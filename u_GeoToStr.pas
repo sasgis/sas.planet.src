@@ -50,6 +50,8 @@ end;
 function str2r(inp:string):Double;
 var p:integer;
 begin
+ if length(inp)=0 then result := 0 else
+ begin
  p:=System.pos(DecimalSeparator,inp);
  if p=0 then begin
               if DecimalSeparator='.' then p:=System.pos(',',inp)
@@ -57,6 +59,7 @@ begin
               inp[p]:=DecimalSeparator;
              end;
  result:=strtofloat(inp);
+ end;
 end;
 
 
