@@ -509,7 +509,9 @@ begin
   FPathDetalizeList :=
     TPathDetalizeProviderListSimple.Create(
       FLanguageManager,
-      FInetConfig.ProxyConfig,
+      FInetConfig,
+      FGCThread.List,
+      TDownloadResultFactory.Create(FDownloadResultTextProvider),
       TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
       FVectorItmesFactory,
       VKmlLoader

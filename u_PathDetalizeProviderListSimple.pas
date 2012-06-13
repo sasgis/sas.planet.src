@@ -24,7 +24,9 @@ interface
 
 uses
   i_LanguageManager,
-  i_ProxySettings,
+  i_InetConfig,
+  i_TTLCheckNotifier,
+  i_DownloadResultFactory,
   i_VectorDataFactory,
   i_VectorItmesFactory,
   i_VectorDataLoader,
@@ -35,7 +37,9 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AProxyConfig: IProxyConfig;
+      const AInetConfig: IInetConfig;
+      const AGCList: ITTLCheckNotifier;
+      const AResultFactory: IDownloadResultFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItmesFactory;
       const AKmlLoader: IVectorDataLoader
@@ -48,9 +52,11 @@ uses
   gnugettext,
   c_PathDetalizeProvidersGUID,
   i_StringConfigDataElement,
+  i_Downloader,
   i_PathDetalizeProvider,
   i_PathDetalizeProviderList,
   u_StringConfigDataElementWithDefByGetText,
+  u_DownloaderHttpWithTTL,
   u_PathDetalizeProviderListEntity,
   u_PathDetalizeProviderYourNavigation,
   u_PathDetalizeProviderMailRu,
@@ -60,7 +66,9 @@ uses
 
 constructor TPathDetalizeProviderListSimple.Create(
   const ALanguageManager: ILanguageManager;
-  const AProxyConfig: IProxyConfig;
+  const AInetConfig: IInetConfig;
+  const AGCList: ITTLCheckNotifier;
+  const AResultFactory: IDownloadResultFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItmesFactory;
   const AKmlLoader: IVectorDataLoader
@@ -71,6 +79,7 @@ var
   VDescription: IStringConfigDataElement;
   VMenuItemName: IStringConfigDataElement;
   VProvider: IPathDetalizeProvider;
+  VDownloader: IDownloader;
 begin
   inherited Create;
   VCaption :=
@@ -90,7 +99,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
     );
@@ -121,7 +130,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
     );
@@ -155,7 +164,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
     );
@@ -186,7 +195,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -219,7 +228,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -252,7 +261,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -285,7 +294,7 @@ begin
     );
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AProxyConfig,
+      AInetConfig.ProxyConfig,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -316,9 +325,11 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
-      AProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       car,
       fastest
@@ -348,9 +359,11 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Fastest)') + '|0020'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
-      AProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       foot,
       fastest
@@ -380,9 +393,11 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Fastest)') + '|0030'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
-      AProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       bicycle,
       fastest
@@ -412,9 +427,11 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Shortest)') + '|0040'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
-      AProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       car,
       shortest
@@ -444,9 +461,11 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Shortest)') + '|0050'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
-      AProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       foot,
       shortest
@@ -476,9 +495,11 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Shortest)') + '|0060'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
-      AProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       bicycle,
       shortest
