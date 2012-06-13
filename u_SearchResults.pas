@@ -120,15 +120,12 @@ var
   LengthFSearchItems: integer;
   VItemForGoTo: IGeoCodePlacemark;
 begin
+  FSearchWindow.Hide;
   ClearSearchResults;
   VItemForGoTo := nil;
   VEnum := ASearchResult.GetPlacemarks;
 
   FLastSearchResults.ClearGeoCodeResult;
-  if ASearchResult.GetPlacemarksCount > 1 then begin
-    FSearchWindow.Show;
-    FLastSearchResults.GeoCodeResult := ASearchResult;
-  end;
 
   while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
     if VItemForGoTo = nil then begin
@@ -149,6 +146,12 @@ begin
       FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;
     end;
   end;
+
+  if ASearchResult.GetPlacemarksCount > 1 then begin
+    FSearchWindow.Show;
+    FLastSearchResults.GeoCodeResult := ASearchResult;
+  end;
+
   if ASearchResult.GetResultCode in [200, 203] then begin
     if VItemForGoTo = nil then begin
       ShowMessage(SAS_STR_notfound);
