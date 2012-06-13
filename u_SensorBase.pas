@@ -54,14 +54,11 @@ type
 
   TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
   private
-    FDataUpdateNotifier: IJclNotifier;
     FLinksList: IJclListenerNotifierLinksList;
   protected
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
-    procedure NotifyDataUpdate;
   protected
     function GetSensorTypeIID: TGUID; virtual; abstract;
-    function GetDataUpdateNotifier: IJclNotifier;
   public
     constructor Create;
   end;
@@ -166,19 +163,8 @@ constructor TSensorBase.Create;
 begin
   inherited Create;
 
-  FDataUpdateNotifier := TJclBaseNotifier.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
-end;
-
-function TSensorBase.GetDataUpdateNotifier: IJclNotifier;
-begin
-  Result := FDataUpdateNotifier;
-end;
-
-procedure TSensorBase.NotifyDataUpdate;
-begin
-  FDataUpdateNotifier.Notify(nil);
 end;
 
 { TSensorListEntity }
@@ -236,21 +222,16 @@ end;
 procedure TSensorDoubeleValue.OnDataChanged;
 var
   VValue: Double;
-  VNeedNotify: Boolean;
 begin
-  VNeedNotify := False;
   VValue := GetCurrentValue;
   LockWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      VNeedNotify := True;
+      SetChanged;
     end;
   finally
     UnlockWrite;
-  end;
-  if VNeedNotify then begin
-    NotifyDataUpdate;
   end;
 end;
 
@@ -302,21 +283,16 @@ end;
 procedure TSensorDateTimeValue.OnDataChanged;
 var
   VValue: TDateTime;
-  VNeedNotify: Boolean;
 begin
-  VNeedNotify := False;
   VValue := GetCurrentValue;
   LockWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      VNeedNotify := True;
+      SetChanged;
     end;
   finally
     UnlockWrite;
-  end;
-  if VNeedNotify then begin
-    NotifyDataUpdate;
   end;
 end;
 
@@ -369,21 +345,16 @@ end;
 procedure TSensorPosititonValue.OnDataChanged;
 var
   VValue: TDoublePoint;
-  VNeedNotify: Boolean;
 begin
-  VNeedNotify := False;
   VValue := GetCurrentValue;
   LockWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      VNeedNotify := True;
+      SetChanged;
     end;
   finally
     UnlockWrite;
-  end;
-  if VNeedNotify then begin
-    NotifyDataUpdate;
   end;
 end;
 
@@ -425,21 +396,16 @@ end;
 procedure TSensorTextValue.OnDataChanged;
 var
   VValue: string;
-  VNeedNotify: Boolean;
 begin
-  VNeedNotify := False;
   VValue := GetCurrentValue;
   LockWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      VNeedNotify := True;
+      SetChanged;
     end;
   finally
     UnlockWrite;
-  end;
-  if VNeedNotify then begin
-    NotifyDataUpdate;
   end;
 end;
 
@@ -479,21 +445,16 @@ end;
 procedure TSensorByteValue.OnDataChanged;
 var
   VValue: Byte;
-  VNeedNotify: Boolean;
 begin
-  VNeedNotify := False;
   VValue := GetCurrentValue;
   LockWrite;
   try
     if ValueChanged(FLastValue, VValue) then begin
       FLastValue := VValue;
-      VNeedNotify := True;
+      SetChanged;
     end;
   finally
     UnlockWrite;
-  end;
-  if VNeedNotify then begin
-    NotifyDataUpdate;
   end;
 end;
 

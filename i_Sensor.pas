@@ -33,8 +33,6 @@ type
     ['{EFD30054-5F65-49DF-8EB9-A4EF816D05D2}']
     function GetSensorTypeIID: TGUID;
     property SensorTypeIID: TGUID read GetSensorTypeIID;
-
-    function GetDataUpdateNotifier: IJclNotifier;
   end;
 
   ISensorResetable = interface

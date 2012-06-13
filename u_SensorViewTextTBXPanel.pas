@@ -343,12 +343,12 @@ begin
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorChange),
-    FListEntity.GetChangeNotifier
+    FListEntity.ChangeNotifier
   );
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
-    FSensor.GetDataUpdateNotifier
+    FSensor.ChangeNotifier
   );
 
   CreatePanel;
