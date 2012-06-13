@@ -31,7 +31,9 @@ uses
 type
   TGeoCoderLocalBasic = class(TInterfacedObject, IGeoCoder)
   protected
-    function ParseResultToPlacemarksList(
+    function DoSearch(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASearch: WideString
     ): IInterfaceList; virtual; abstract;
 
@@ -77,7 +79,9 @@ begin
     Exit;
   end;
   VList :=
-   ParseResultToPlacemarksList(
+   DoSearch(
+   ACancelNotifier,
+   AOperationID,
    ASearch
    );
   Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList);

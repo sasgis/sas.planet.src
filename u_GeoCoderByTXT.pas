@@ -37,13 +37,17 @@ type
   private
     FLock: IReadWriteSync;
   procedure SearchInTXTFile(
+    const ACancelNotifier: IOperationNotifier;
+    AOperationID: Integer;
     const AFile : string ;
     const ASearch : widestring;
     Vlist : IInterfaceList;
     var Vcnt : integer
   );
   protected
-    function ParseResultToPlacemarksList(
+    function DoSearch(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASearch: WideString
     ): IInterfaceList; override;
   public
@@ -117,6 +121,8 @@ result := skip;
 end;
 
 procedure TGeoCoderByTXT.SearchInTXTFile(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
   Vlist : IInterfaceList;
@@ -145,13 +151,12 @@ begin
      try
       SetLength(Vstr,VStream.Size);
       VStream.ReadBuffer(VStr[1],VStream.Size);
-      VStream := nil;
      finally
     FLock.EndRead;
     end;
    finally
-   VStream.Free;
    end;
+  VStream.Free;
   Vstr := AnsiUpperCase(Vstr);
   // ищем вхождение, затем бежим назад до начала блока
   i:=1;
@@ -161,7 +166,10 @@ begin
     k := PosEx(#$A, VStr, i); // конец блока найденных данных.
     l := i;
     while (copy(Vstr,l,1)<>#$A) and (l>0) do dec(l); // начало блока с найденными данными
-     V_StrData := Copy(VStr, l+1 , k-l);
+    V_StrData := Copy(VStr, l+1 , k-l);
+    if Vcnt mod 5 =0 then
+     if ACancelNotifier.IsOperationCanceled(AOperationID) then
+       Exit;
      sdesc := '';
      sdesc := sdesc + GetNsubstring(V_StrData,#09,18) + #$D#$A;
      sdesc := sdesc + GetNsubstring(V_StrData,#09,2) + #$D#$A;
@@ -171,6 +179,7 @@ begin
      slat := GetNsubstring(V_StrData,#09,5);
      slon := GetNsubstring(V_StrData,#09,6);
     if (slat='') or (slon='') then VLinkErr := true;
+
     if VLinkErr <> true then begin
      try
        VPoint.Y := StrToFloat(slat, VFormatSettings);
@@ -202,7 +211,9 @@ begin
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
 end;
 
-function TGeoCoderByTXT.ParseResultToPlacemarksList(
+function TGeoCoderByTXT.DoSearch(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const ASearch: WideString
 ): IInterfaceList;
 var
@@ -221,7 +232,10 @@ begin
       continue;
     end;
     vpath:= VFolder+SearchRec.Name;
-    SearchInTXTFile(Vpath , Asearch , vlist , Vcnt);
+    SearchInTXTFile(ACancelNotifier, AOperationID, Vpath , Asearch , vlist , Vcnt);
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Exit;
+    end;
   until FindNext(SearchRec) <> 0;
  end;
  Result := VList;

@@ -37,13 +37,17 @@ type
   private
     FLock: IReadWriteSync;
   procedure SearchInMapFile(
+   const ACancelNotifier: IOperationNotifier;
+   AOperationID: Integer;
    const AFile : string ;
    const ASearch : widestring;
    Alist : IInterfaceList;
    var Acnt : integer
    );
   protected
-    function ParseResultToPlacemarksList(
+    function DoSearch(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASearch: WideString
     ): IInterfaceList; override;
 
@@ -478,6 +482,8 @@ result := skip;
 end;
 
 procedure TGeoCoderByPolishMap.SearchInMapFile(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
   Alist : IInterfaceList;
@@ -518,13 +524,12 @@ begin
      try
       SetLength(Vstr,VStream.Size);
       VStream.ReadBuffer(VStr[1],VStream.Size);
-      VStream := nil;
      finally
     FLock.EndRead;
     end;
    finally
-   VStream.Free;
    end;
+  VStream.Free;
 
   Vstr := AnsiUpperCase(Vstr);
 
@@ -540,6 +545,9 @@ begin
    sname := (Copy(VStr, i + 1, j - (i + 1)));
    VTemplist.add(sname);
   end;// заполнили массив городов, если они заданы в начале файла
+  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    Exit;
+  end;
   if VTemplist.Count>0 then VCityList := TStringListStatic.CreateWithOwn(VTemplist);
   // ищем вхождение, затем бежим назад до начала блока
   if k=0 then i:=1 else i := k;
@@ -636,6 +644,9 @@ begin
 
     if (slat='') or (slon='') then VLinkErr := true;
     if V_Label='' then VLinkErr := true;
+    if Acnt mod 5 =0 then
+     if ACancelNotifier.IsOperationCanceled(AOperationID) then
+       Exit;
 
     if VLinkErr <> true then begin
      try
@@ -684,7 +695,9 @@ begin
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
 end;
 
-function TGeoCoderByPolishMap.ParseResultToPlacemarksList(
+function TGeoCoderByPolishMap.DoSearch(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const ASearch: WideString
   ): IInterfaceList;
 var
@@ -703,7 +716,10 @@ begin
       continue;
     end;
     vpath:= VFolder+SearchRec.Name;
-    SearchInMapFile(Vpath , Asearch , vlist , Vcnt);
+    SearchInMapFile(ACancelNotifier, AOperationID, Vpath , Asearch , vlist , Vcnt);
+    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+      Exit;
+    end;
   until FindNext(SearchRec) <> 0;
  end;
  Result := VList;
