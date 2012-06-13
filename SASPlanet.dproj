@@ -653,6 +653,7 @@
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
+    <DCCReference Include="u_GeoCoderLocalBasic.pas" />
     <DCCReference Include="u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
     <DCCReference Include="u_GeoCoderByNavitel.pas" />
@@ -661,6 +662,8 @@
     <DCCReference Include="u_GeoCoderByWikimapia.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
     <DCCReference Include="u_GeoCoderByOSM.pas" />
+    <DCCReference Include="u_GeoCoderByTXT.pas" />
+    <DCCReference Include="u_GeoCoderByPolishMap.pas" />
     <DCCReference Include="u_GeoCodeResult.pas" />
     <DCCReference Include="u_GeoCoderListBase.pas" />
     <DCCReference Include="u_GeoCoderListEntity.pas" />

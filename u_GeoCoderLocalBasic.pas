@@ -18,21 +18,70 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit c_GeoCoderGUIDSimple;
+unit u_GeoCoderLocalBasic;
 
 interface
 
-const
-  CGeoCoderGoogleGUID: TGUID = '{012C3CBF-9EDF-44F1-B728-346C9585A95C}';
-  CGeoCoderYandexGUID: TGUID = '{67496A88-0531-4C1D-9FF1-81F20683B38B}';
-  CGeoCoder2GISGUID: TGUID = '{B0D90300-565D-4152-9642-7BE3DDDA391B}';
-  CGeoCoderOSMGUID: TGUID = '{2CF10192-3F54-4E0E-9B4E-9957BBF599E6}';
-  CGeoCoderWikiMapiaGUID: TGUID = '{C1761C40-58A9-4128-B079-1AD1F5513B4F}';
-  CGeoCoderRosreestrGUID: TGUID = '{0E2A7AC4-6432-4676-BB57-B8E4AE59434B}';
-  CGeoCoderNavitelGUID: TGUID = '{5E6211D2-155B-4A9C-BB8F-A152A3CBF45C}';
-  CGeoCoderURLGUID: TGUID = '{AE546F70-2808-447E-8B71-6DF5087DE114}';
-  CGeoCoderPolishMapGUID: TGUID = '{2E208428-71FE-42CF-BA1C-5AFD811DA7D5}';
-  CGeoCoderGeonamesTXTGUID: TGUID = '{FCB5A7BA-D369-414B-A0E8-855C2CCFD11C}';
+uses
+  Classes,
+  i_OperationNotifier,
+  i_GeoCoder,
+  i_LocalCoordConverter;
+
+type
+  TGeoCoderLocalBasic = class(TInterfacedObject, IGeoCoder)
+  protected
+    function ParseResultToPlacemarksList(
+      const ASearch: WideString
+    ): IInterfaceList; virtual; abstract;
+
+  protected
+    function GetLocations(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
+    ): IGeoCodeResult; safecall;
+
+  public
+    constructor Create(
+    );
+  end;
+
 implementation
+
+uses
+  u_GeoCodeResult;
+
+{ TGeoCoderLocalBasic }
+
+constructor TGeoCoderLocalBasic.Create();
+begin
+  inherited Create;
+end;
+
+function TGeoCoderLocalBasic.GetLocations(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IGeoCodeResult;
+var
+  VList: IInterfaceList;
+  VResultCode: Integer;
+begin
+  VResultCode := 200;
+  VList := nil;
+  Result := nil;
+  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    Exit;
+  end;
+  VList :=
+   ParseResultToPlacemarksList(
+   ASearch
+   );
+  Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList);
+end;
+
 
 end.

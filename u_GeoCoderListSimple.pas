@@ -39,7 +39,6 @@ type
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
   end;
-
 implementation
 
 uses
@@ -53,7 +52,9 @@ uses
   u_GeoCoderByWikiMapia,
   u_GeoCoderByRosreestr,
   u_GeoCoderByNavitel,
-  u_GeoCoderByURL;
+  u_GeoCoderByURL,
+  u_GeoCoderByPolishMap,
+  u_GeoCoderByTXT;
 
 { TGeoCoderListSimple }
 
@@ -131,6 +132,27 @@ begin
     );
   Add(VItem);
 
+  try
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderPolishMapGUID,
+      'Offline search (*.mp)',
+      TGeoCoderByPolishMap.Create()
+    );
+  Add(VItem);
+  Except
+  end;
+
+  try
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderGeoNamesTXTGUID,
+      'Offline search (*.txt)',
+      TGeoCoderByTXT.Create()
+    );
+  Add(VItem);
+  Except
+  end;
 
 end;
 
