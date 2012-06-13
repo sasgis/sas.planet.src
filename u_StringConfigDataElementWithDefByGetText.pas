@@ -3,10 +3,6 @@ unit u_StringConfigDataElementWithDefByGetText;
 interface
 
 uses
-  i_JclNotify,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
-  i_StringConfigDataElement,
   i_LanguageManager,
   u_StringConfigDataElementWithDefBase;
 
@@ -34,8 +30,7 @@ type
 implementation
 
 uses
-  gnugettext,
-  u_NotifyEventListener;
+  gnugettext;
 
 { TStringConfigDataElementWithDefByGetText }
 

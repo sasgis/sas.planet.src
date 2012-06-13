@@ -26,7 +26,6 @@ uses
   i_JclNotify,
   i_NavigationToPoint,
   i_ViewPortState,
-  i_LanguageManager,
   i_Sensor,
   u_SensorBase;
 
@@ -57,8 +56,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   u_NotifyEventListener,
-  u_JclNotify,
-  u_ResStrings;
+  u_JclNotify;
 
 { TSensorTextFromNavToPoint }
 
@@ -88,7 +86,6 @@ function TSensorTextFromNavToPoint.GetCurrentValue: Double;
 var
   VVisualConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
-  VValue: Double;
   VNavActive: Boolean;
   VNavLonLat: TDoublePoint;
   VCenterLonLat: TDoublePoint;

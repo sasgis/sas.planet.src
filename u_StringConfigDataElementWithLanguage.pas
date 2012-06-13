@@ -23,10 +23,6 @@ unit u_StringConfigDataElementWithLanguage;
 interface
 
 uses
-  i_JclNotify,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
-  i_StringConfigDataElement,
   i_StringByLanguage,
   i_LanguageManager,
   u_StringConfigDataElementWithDefBase;
@@ -47,11 +43,7 @@ type
     );
   end;
 
-
 implementation
-
-uses
-  u_NotifyEventListener;
 
 { TStringConfigDataElementWithLanguage }
 

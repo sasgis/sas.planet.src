@@ -27,7 +27,6 @@ uses
   SysUtils,
   DateUtils,
   t_GeoTypes,
-  i_LanguageManager,
   i_ProxySettings,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -65,8 +64,6 @@ implementation
 
 uses
   Classes,
-  gnugettext,
-  c_PathDetalizeProvidersGUID,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,

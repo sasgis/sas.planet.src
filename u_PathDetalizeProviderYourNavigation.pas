@@ -28,7 +28,6 @@ uses
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_VectorDataFactory,
-  i_LanguageManager,
   i_ProxySettings,
   i_PathDetalizeProvider;
 
@@ -60,8 +59,6 @@ implementation
 uses
   Classes,
   SysUtils,
-  gnugettext,
-  c_PathDetalizeProvidersGUID,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,

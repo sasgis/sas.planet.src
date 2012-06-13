@@ -24,7 +24,6 @@ interface
 
 uses
   i_JclListenerNotifierLinksList,
-  i_LanguageManager,
   i_StringConfigDataElement,
   u_ConfigDataElementBase;
 

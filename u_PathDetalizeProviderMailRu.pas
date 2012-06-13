@@ -24,7 +24,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_LanguageManager,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ProxySettings,
@@ -58,8 +57,6 @@ uses
   SysUtils,
   StrUtils,
   DateUtils,
-  gnugettext,
-  c_PathDetalizeProvidersGUID,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,

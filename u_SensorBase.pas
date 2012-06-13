@@ -26,7 +26,6 @@ uses
   SysUtils,
   t_GeoTypes,
   i_JclNotify,
-  i_LanguageManager,
   i_StringConfigDataElement,
   i_Sensor,
   i_SensorList,
@@ -166,8 +165,7 @@ uses
   u_JclNotify,
   u_NotifyEventListener,
   u_JclListenerNotifierLinksList,
-  u_GeoFun,
-  u_Synchronizer;
+  u_GeoFun;
 
 { TSensorBase }
 

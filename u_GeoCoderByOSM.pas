@@ -52,15 +52,12 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  forms,
-  dialogs,
   XMLIntf,
   msxmldom,
   XMLDoc,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
-  u_GeoTostr,
   u_ResStrings,
   u_GeoCodePlacemark;
 

@@ -23,9 +23,6 @@ unit u_SensorBatteryStatus;
 interface
 
 uses
-  Windows,
-  ExtCtrls,
-  i_LanguageManager,
   i_BatteryStatus,
   i_Sensor,
   u_SensorBase;
@@ -45,9 +42,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  c_SensorsGUIDSimple,
-  u_ResStrings;
+  SysUtils;
 
 { TSensorBatteryStatus }
 

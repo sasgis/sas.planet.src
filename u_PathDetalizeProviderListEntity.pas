@@ -24,7 +24,6 @@ interface
 
 uses
   i_PathDetalizeProvider,
-  i_VectorItemLonLat,
   i_StringConfigDataElement,
   i_PathDetalizeProviderList,
   u_UserInterfaceItemBase;
