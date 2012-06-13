@@ -48,7 +48,7 @@ uses
 
 constructor TSensorBatteryStatus.Create(const ABatteryStatus: IBatteryStatus);
 begin
-  inherited Create(False, ABatteryStatus.ChangeNotifier);
+  inherited Create(ABatteryStatus.ChangeNotifier);
   FBatteryStatus := ABatteryStatus;
 end;
 

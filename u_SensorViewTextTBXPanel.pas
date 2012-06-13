@@ -372,7 +372,7 @@ end;
 
 procedure TSensorViewTBXPanelBase.CreateMenu;
 begin
-  if FSensor.CanReset then begin
+  if Supports(FSensor, ISensorResetable) then begin
     FVisibleItemWithReset := TTBXSubmenuItem.Create(FBar);
     FVisibleItemWithReset.DropdownCombo := True;
     FVisibleItem := FVisibleItemWithReset;
@@ -423,7 +423,7 @@ begin
   FpnlTop.Height := 18;
   FpnlTop.Align := alTop;
 
-  if FSensor.CanReset then begin
+  if Supports(FSensor, ISensorResetable) then begin
     FbtnReset := TTBXButton.Create(FBar);
     FbtnReset.Parent := FpnlTop;
     FbtnReset.Left := 133;
@@ -487,10 +487,12 @@ begin
 end;
 
 procedure TSensorViewTBXPanelBase.OnResetClick(Sender: TObject);
+var
+  VSensorResetable: ISensorResetable;
 begin
-  if FSensor.CanReset then begin
+  if Supports(FSensor, ISensorResetable, VSensorResetable) then begin
     if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor), pchar(SAS_MSG_coution), 36) = IDYES) then begin
-      FSensor.Reset;
+      VSensorResetable.Reset;
       OnTimer;
     end;
   end;

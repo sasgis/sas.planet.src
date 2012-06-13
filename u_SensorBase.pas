@@ -54,18 +54,15 @@ type
 
   TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
   private
-    FCanReset: Boolean;
     FDataUpdateNotifier: IJclNotifier;
     FLinksList: IJclListenerNotifierLinksList;
   protected
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
     procedure NotifyDataUpdate;
   protected
-    function CanReset: Boolean;
-    procedure Reset; virtual;
     function GetDataUpdateNotifier: IJclNotifier;
   public
-    constructor Create(ACanReset: Boolean);
+    constructor Create;
   end;
 
   TSensorDoubeleValue = class(TSensorBase)
@@ -81,7 +78,6 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
     );
   end;
@@ -99,7 +95,6 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
     );
   end;
@@ -117,7 +112,6 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
     );
   end;
@@ -135,7 +129,6 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
     );
   end;
@@ -153,7 +146,6 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      ACanReset: Boolean;
       const ADataChangeNotifier: IJclNotifier
     );
   end;
@@ -169,21 +161,13 @@ uses
 
 { TSensorBase }
 
-constructor TSensorBase.Create(
-  ACanReset: Boolean
-);
+constructor TSensorBase.Create;
 begin
   inherited Create;
-  FCanReset := ACanReset;
 
   FDataUpdateNotifier := TJclBaseNotifier.Create;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
-end;
-
-function TSensorBase.CanReset: Boolean;
-begin
-  Result := FCanReset;
 end;
 
 function TSensorBase.GetDataUpdateNotifier: IJclNotifier;
@@ -194,10 +178,6 @@ end;
 procedure TSensorBase.NotifyDataUpdate;
 begin
   FDataUpdateNotifier.Notify(nil);
-end;
-
-procedure TSensorBase.Reset;
-begin
 end;
 
 { TSensorListEntity }
@@ -232,10 +212,10 @@ begin
   OnDataChanged;
 end;
 
-constructor TSensorDoubeleValue.Create(ACanReset: Boolean;
+constructor TSensorDoubeleValue.Create(
   const ADataChangeNotifier: IJclNotifier);
 begin
-  inherited Create(ACanReset);
+  inherited Create;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
     ADataChangeNotifier
@@ -297,10 +277,11 @@ begin
   OnDataChanged;
 end;
 
-constructor TSensorDateTimeValue.Create(ACanReset: Boolean;
-  const ADataChangeNotifier: IJclNotifier);
+constructor TSensorDateTimeValue.Create(
+  const ADataChangeNotifier: IJclNotifier
+);
 begin
-  inherited Create(ACanReset);
+  inherited Create;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
     ADataChangeNotifier
@@ -363,10 +344,11 @@ begin
   OnDataChanged;
 end;
 
-constructor TSensorPosititonValue.Create(ACanReset: Boolean;
-  const ADataChangeNotifier: IJclNotifier);
+constructor TSensorPosititonValue.Create(
+  const ADataChangeNotifier: IJclNotifier
+);
 begin
-  inherited Create(ACanReset);
+  inherited Create;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
     ADataChangeNotifier
@@ -418,10 +400,11 @@ begin
   OnDataChanged;
 end;
 
-constructor TSensorTextValue.Create(ACanReset: Boolean;
-  const ADataChangeNotifier: IJclNotifier);
+constructor TSensorTextValue.Create(
+  const ADataChangeNotifier: IJclNotifier
+);
 begin
-  inherited Create(ACanReset);
+  inherited Create;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
     ADataChangeNotifier
@@ -472,10 +455,10 @@ begin
   OnDataChanged;
 end;
 
-constructor TSensorByteValue.Create(ACanReset: Boolean;
+constructor TSensorByteValue.Create(
   const ADataChangeNotifier: IJclNotifier);
 begin
-  inherited Create(ACanReset);
+  inherited Create;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
     ADataChangeNotifier

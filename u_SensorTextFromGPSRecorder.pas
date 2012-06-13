@@ -34,7 +34,6 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
   public
     constructor Create(
-      ACanReset: Boolean;
       const AGPSRecorder: IGPSRecorder
     );
   end;
@@ -46,7 +45,6 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
   public
     constructor Create(
-      ACanReset: Boolean;
       const AGPSRecorder: IGPSRecorder
     );
   end;
@@ -58,7 +56,6 @@ type
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
   public
     constructor Create(
-      ACanReset: Boolean;
       const AGPSRecorder: IGPSRecorder
     );
   end;
@@ -71,40 +68,29 @@ uses
 { TSensorDoubeleValueFromGPSRecorder }
 
 constructor TSensorDoubeleValueFromGPSRecorder.Create(
-  ACanReset: Boolean;
   const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    ACanReset,
-    AGPSRecorder.ChangeNotifier
-  );
+  inherited Create(AGPSRecorder.ChangeNotifier);
   FGPSRecorder := AGPSRecorder;
 end;
 
 { TSensorDateTimeValueFromGPSRecorder }
 
 constructor TSensorDateTimeValueFromGPSRecorder.Create(
-  ACanReset: Boolean;
   const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(
-    ACanReset,
-    AGPSRecorder.ChangeNotifier
-  );
+  inherited Create(AGPSRecorder.ChangeNotifier);
   FGPSRecorder := AGPSRecorder;
 end;
 
 { TSensorTextValueFromGPSRecorder }
 
-constructor TSensorTextValueFromGPSRecorder.Create(ACanReset: Boolean;
+constructor TSensorTextValueFromGPSRecorder.Create(
   const AGPSRecorder: IGPSRecorder);
 begin
-  inherited Create(
-    ACanReset,
-    AGPSRecorder.ChangeNotifier
-  );
+  inherited Create(AGPSRecorder.ChangeNotifier);
   FGPSRecorder := AGPSRecorder;
 end;
 

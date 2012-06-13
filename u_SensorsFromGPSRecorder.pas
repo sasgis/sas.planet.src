@@ -31,135 +31,79 @@ type
   TSensorFromGPSRecorderLastSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
   protected
     function GetCurrentValue: Double; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
   end;
 
-  TSensorFromGPSRecorderAvgSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
+  TSensorFromGPSRecorderAvgSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed, ISensorResetable)
   protected
     function GetCurrentValue: Double; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
-  TSensorFromGPSRecorderMaxSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
+  TSensorFromGPSRecorderMaxSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed, ISensorResetable)
   protected
     function GetCurrentValue: Double; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
-  TSensorFromGPSRecorderDist = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
+  TSensorFromGPSRecorderDist = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance, ISensorResetable)
   protected
     function GetCurrentValue: Double; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
-  TSensorFromGPSRecorderOdometer1 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
+  TSensorFromGPSRecorderOdometer1 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance, ISensorResetable)
   protected
     function GetCurrentValue: Double; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
-  TSensorFromGPSRecorderOdometer2 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
+  TSensorFromGPSRecorderOdometer2 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance, ISensorResetable)
   protected
     function GetCurrentValue: Double; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
   TSensorFromGPSRecorderAltitude = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
   protected
     function GetCurrentValue: Double; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
   end;
 
   TSensorFromGPSRecorderHeading = class(TSensorDoubeleValueFromGPSRecorder, ISensorDegrees)
   protected
     function GetCurrentValue: Double; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
   end;
 
   TSensorFromGPSRecorderHDOP = class(TSensorDoubeleValueFromGPSRecorder, ISensorDouble)
   protected
     function GetCurrentValue: Double; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
   end;
 
   TSensorFromGPSRecorderVDOP = class(TSensorDoubeleValueFromGPSRecorder, ISensorDouble)
   protected
     function GetCurrentValue: Double; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
   end;
 
   TSensorFromGPSRecorderUTCTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
   protected
     function GetCurrentValue: TDateTime; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
   end;
 
-  TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
+  TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
   protected
     function GetCurrentValue: TDateTime; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
-  TSensorFromGPSRecorderDGPS = class(TSensorTextValueFromGPSRecorder, ISensorText)
+  TSensorFromGPSRecorderDGPS = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
   protected
     function GetCurrentValue: string; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
-  TSensorFromGPSRecorderGPSUnitInfo = class(TSensorTextValueFromGPSRecorder, ISensorText)
+  TSensorFromGPSRecorderGPSUnitInfo = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
   protected
     function GetCurrentValue: string; override;
-    procedure Reset; override;
-  public
-    constructor Create(
-      const AGPSRecorder: IGPSRecorder
-    );
+    procedure Reset;
   end;
 
 implementation
@@ -174,26 +118,12 @@ uses
 
 { TSensorFromGPSRecorderLastSpeed }
 
-constructor TSensorFromGPSRecorderLastSpeed.Create(
-  const AGPSRecorder: IGPSRecorder
- );
-begin
-  inherited Create(False, AGPSRecorder);
-end;
-
 function TSensorFromGPSRecorderLastSpeed.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastSpeed;
 end;
 
 { TSensorFromGPSRecorderAvgSpeed }
-
-constructor TSensorFromGPSRecorderAvgSpeed.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderAvgSpeed.GetCurrentValue: Double;
 begin
@@ -208,13 +138,6 @@ end;
 
 { TSensorFromGPSRecorderMaxSpeed }
 
-constructor TSensorFromGPSRecorderMaxSpeed.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
-
 function TSensorFromGPSRecorderMaxSpeed.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.MaxSpeed;
@@ -227,13 +150,6 @@ begin
 end;
 
 { TSensorFromGPSRecorderDist }
-
-constructor TSensorFromGPSRecorderDist.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderDist.GetCurrentValue: Double;
 begin
@@ -248,13 +164,6 @@ end;
 
 { TSensorFromGPSRecorderOdometer1 }
 
-constructor TSensorFromGPSRecorderOdometer1.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
-
 function TSensorFromGPSRecorderOdometer1.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.Odometer1;
@@ -267,13 +176,6 @@ begin
 end;
 
 { TSensorFromGPSRecorderOdometer2 }
-
-constructor TSensorFromGPSRecorderOdometer2.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderOdometer2.GetCurrentValue: Double;
 begin
@@ -288,13 +190,6 @@ end;
 
 { TSensorFromGPSRecorderAltitude }
 
-constructor TSensorFromGPSRecorderAltitude.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(False, AGPSRecorder);
-end;
-
 function TSensorFromGPSRecorderAltitude.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastAltitude;
@@ -302,26 +197,12 @@ end;
 
 { TSensorFromGPSRecorderHeading }
 
-constructor TSensorFromGPSRecorderHeading.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(False, AGPSRecorder);
-end;
-
 function TSensorFromGPSRecorderHeading.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastHeading;
 end;
 
 { TSensorFromGPSRecorderHDOP }
-
-constructor TSensorFromGPSRecorderHDOP.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(False, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderHDOP.GetCurrentValue: Double;
 var
@@ -333,13 +214,6 @@ end;
 
 { TSensorFromGPSRecorderVDOP }
 
-constructor TSensorFromGPSRecorderVDOP.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(False, AGPSRecorder);
-end;
-
 function TSensorFromGPSRecorderVDOP.GetCurrentValue: Double;
 var
   VPosition: IGPSPosition;
@@ -349,13 +223,6 @@ begin
 end;
 
 { TSensorFromGPSRecorderUTCTime }
-
-constructor TSensorFromGPSRecorderUTCTime.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(False, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderUTCTime.GetCurrentValue: TDateTime;
 var
@@ -368,13 +235,6 @@ begin
 end;
 
 { TSensorFromGPSRecorderLocalTime }
-
-constructor TSensorFromGPSRecorderLocalTime.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderLocalTime.GetCurrentValue: TDateTime;
 var
@@ -396,13 +256,6 @@ begin
 end;
 
 { TSensorFromGPSRecorderDGPS }
-
-constructor TSensorFromGPSRecorderDGPS.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderDGPS.GetCurrentValue: string;
 var
@@ -453,13 +306,6 @@ begin
 end;
 
 { TSensorFromGPSRecorderGPSUnitInfo }
-
-constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
-  const AGPSRecorder: IGPSRecorder
-);
-begin
-  inherited Create(True, AGPSRecorder);
-end;
 
 function TSensorFromGPSRecorderGPSUnitInfo.GetCurrentValue: string;
 begin
