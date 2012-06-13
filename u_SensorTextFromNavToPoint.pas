@@ -40,6 +40,7 @@ type
     procedure OnPosChanged;
     procedure OnNavToPointChanged;
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
   public
     constructor Create(
@@ -109,6 +110,11 @@ begin
       Result := VGeoConverter.Datum.CalcDist(VNavLonLat, VCenterLonLat);
     end;
   end;
+end;
+
+function TSensorTextFromNavToPoint.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDistance;
 end;
 
 procedure TSensorTextFromNavToPoint.OnNavToPointChanged;

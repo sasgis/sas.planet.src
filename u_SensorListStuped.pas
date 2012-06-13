@@ -101,7 +101,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorSpeed
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -128,7 +128,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorSpeed
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -155,7 +155,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorSpeed
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -182,7 +182,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDistance
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -209,7 +209,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDistance
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -236,7 +236,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDistance
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -263,7 +263,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDistance
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -290,7 +290,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorBatteryLifePercent
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -317,7 +317,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDistance
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -344,7 +344,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDegrees
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -371,7 +371,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDouble
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -398,7 +398,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorDouble
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -425,7 +425,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorTime
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -452,7 +452,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorTime
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -479,7 +479,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 
@@ -506,7 +506,7 @@ begin
       VDescription,
       VMenuItemName,
       VSensor,
-      ISensorText
+      VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
 end;

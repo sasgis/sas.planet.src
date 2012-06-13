@@ -30,78 +30,92 @@ uses
 type
   TSensorFromGPSRecorderLastSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
   end;
 
   TSensorFromGPSRecorderAvgSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderMaxSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderDist = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderOdometer1 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderOdometer2 = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderAltitude = class(TSensorDoubeleValueFromGPSRecorder, ISensorDistance)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
   end;
 
   TSensorFromGPSRecorderHeading = class(TSensorDoubeleValueFromGPSRecorder, ISensorDegrees)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
   end;
 
   TSensorFromGPSRecorderHDOP = class(TSensorDoubeleValueFromGPSRecorder, ISensorDouble)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
   end;
 
   TSensorFromGPSRecorderVDOP = class(TSensorDoubeleValueFromGPSRecorder, ISensorDouble)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Double; override;
   end;
 
   TSensorFromGPSRecorderUTCTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: TDateTime; override;
   end;
 
   TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: TDateTime; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderDGPS = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: string; override;
     procedure Reset;
   end;
 
   TSensorFromGPSRecorderGPSUnitInfo = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: string; override;
     procedure Reset;
   end;
@@ -123,11 +137,21 @@ begin
   Result := GPSRecorder.LastSpeed;
 end;
 
+function TSensorFromGPSRecorderLastSpeed.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorSpeed;
+end;
+
 { TSensorFromGPSRecorderAvgSpeed }
 
 function TSensorFromGPSRecorderAvgSpeed.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.AvgSpeed;
+end;
+
+function TSensorFromGPSRecorderAvgSpeed.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorSpeed;
 end;
 
 procedure TSensorFromGPSRecorderAvgSpeed.Reset;
@@ -143,6 +167,11 @@ begin
   Result := GPSRecorder.MaxSpeed;
 end;
 
+function TSensorFromGPSRecorderMaxSpeed.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorSpeed;
+end;
+
 procedure TSensorFromGPSRecorderMaxSpeed.Reset;
 begin
   inherited;
@@ -154,6 +183,11 @@ end;
 function TSensorFromGPSRecorderDist.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.Dist;
+end;
+
+function TSensorFromGPSRecorderDist.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDistance;
 end;
 
 procedure TSensorFromGPSRecorderDist.Reset;
@@ -169,6 +203,11 @@ begin
   Result := GPSRecorder.Odometer1;
 end;
 
+function TSensorFromGPSRecorderOdometer1.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDistance;
+end;
+
 procedure TSensorFromGPSRecorderOdometer1.Reset;
 begin
   inherited;
@@ -180,6 +219,11 @@ end;
 function TSensorFromGPSRecorderOdometer2.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.Odometer2;
+end;
+
+function TSensorFromGPSRecorderOdometer2.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDistance;
 end;
 
 procedure TSensorFromGPSRecorderOdometer2.Reset;
@@ -195,11 +239,21 @@ begin
   Result := GPSRecorder.LastAltitude;
 end;
 
+function TSensorFromGPSRecorderAltitude.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDistance;
+end;
+
 { TSensorFromGPSRecorderHeading }
 
 function TSensorFromGPSRecorderHeading.GetCurrentValue: Double;
 begin
   Result := GPSRecorder.LastHeading;
+end;
+
+function TSensorFromGPSRecorderHeading.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDegrees;
 end;
 
 { TSensorFromGPSRecorderHDOP }
@@ -212,6 +266,11 @@ begin
   Result := VPosition.GetPosParams^.HDOP;
 end;
 
+function TSensorFromGPSRecorderHDOP.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDouble;
+end;
+
 { TSensorFromGPSRecorderVDOP }
 
 function TSensorFromGPSRecorderVDOP.GetCurrentValue: Double;
@@ -220,6 +279,11 @@ var
 begin
   VPosition := GPSRecorder.CurrentPosition;
   Result := VPosition.GetPosParams^.VDOP;
+end;
+
+function TSensorFromGPSRecorderVDOP.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorDouble;
 end;
 
 { TSensorFromGPSRecorderUTCTime }
@@ -232,6 +296,11 @@ begin
   with VPosition.GetPosParams^ do begin
     Result := (UTCDate + UTCTime);
   end;
+end;
+
+function TSensorFromGPSRecorderUTCTime.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorTime;
 end;
 
 { TSensorFromGPSRecorderLocalTime }
@@ -247,6 +316,11 @@ begin
   if (0 <> Result) then begin
     Result := SystemTimeToLocalTime(Result);
   end;
+end;
+
+function TSensorFromGPSRecorderLocalTime.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorTime;
 end;
 
 procedure TSensorFromGPSRecorderLocalTime.Reset;
@@ -299,6 +373,11 @@ begin
   end;
 end;
 
+function TSensorFromGPSRecorderDGPS.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorText;
+end;
+
 procedure TSensorFromGPSRecorderDGPS.Reset;
 begin
   inherited;
@@ -310,6 +389,11 @@ end;
 function TSensorFromGPSRecorderGPSUnitInfo.GetCurrentValue: string;
 begin
   Result := GPSRecorder.GPSUnitInfo;
+end;
+
+function TSensorFromGPSRecorderGPSUnitInfo.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorText;
 end;
 
 procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;

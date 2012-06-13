@@ -60,6 +60,7 @@ type
     property LinksList: IJclListenerNotifierLinksList read FLinksList;
     procedure NotifyDataUpdate;
   protected
+    function GetSensorTypeIID: TGUID; virtual; abstract;
     function GetDataUpdateNotifier: IJclNotifier;
   public
     constructor Create;

@@ -32,6 +32,7 @@ type
   private
     FBatteryStatus: IBatteryStatus;
   protected
+    function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: Byte; override;
   public
     constructor Create(
@@ -77,6 +78,11 @@ begin
       Result := 200;
     end;
   end;
+end;
+
+function TSensorBatteryStatus.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorBatteryLifePercent;
 end;
 
 end.
