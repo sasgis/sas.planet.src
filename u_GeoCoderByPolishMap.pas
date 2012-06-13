@@ -52,7 +52,7 @@ type
     ): IInterfaceList; override;
 
   public
-    constructor Create();
+  constructor Create();
   end;
 
 implementation
@@ -514,23 +514,20 @@ var
  VStream: TFileStream;
 begin
  V_Type := -1;
- VStream := TFileStream.Create(AFile, fmOpenRead);
  VFormatSettings.DecimalSeparator := '.';
  VSearch := AnsiUpperCase(ASearch);
- while PosEx('  ',VSearch)>0 do VSearch := ReplaceStr(VSearch,'  ',' ');
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
-    try
-    FLock.BeginRead;
-     try
-      SetLength(Vstr,VStream.Size);
-      VStream.ReadBuffer(VStr[1],VStream.Size);
-     finally
-    FLock.EndRead;
-    end;
+ FLock.BeginRead;
+ try
+  VStream := TFileStream.Create(AFile, fmOpenRead);
+   try
+    SetLength(Vstr,VStream.Size);
+    VStream.ReadBuffer(VStr[1],VStream.Size);
    finally
+   VStream.Free;
    end;
-  VStream.Free;
-
+  finally
+  FLock.EndRead;
+ end;
   Vstr := AnsiUpperCase(Vstr);
 
   i := PosEx('[CITIES]', VStr);
@@ -691,8 +688,10 @@ end;
 
 constructor TGeoCoderByPolishMap.Create();
 begin
-  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then 
+   inherited Create;
+   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
+  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 function TGeoCoderByPolishMap.DoSearch(
@@ -706,8 +705,11 @@ vpath : string;
 Vcnt : integer;
 VFolder: string;
 SearchRec: TSearchRec;
+MySearch : string;
 begin
  Vcnt := 1;
+ MySearch := Asearch;
+ while PosEx('  ',MySearch)>0 do MySearch := ReplaceStr(MySearch,'  ',' ');
  VList := TInterfaceList.Create;
  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp\');
  if FindFirst(VFolder + '*.mp', faAnyFile, SearchRec) = 0 then begin
@@ -716,7 +718,7 @@ begin
       continue;
     end;
     vpath:= VFolder+SearchRec.Name;
-    SearchInMapFile(ACancelNotifier, AOperationID, Vpath , Asearch , vlist , Vcnt);
+    SearchInMapFile(ACancelNotifier, AOperationID, Vpath , MySearch, vlist , Vcnt);
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
     end;

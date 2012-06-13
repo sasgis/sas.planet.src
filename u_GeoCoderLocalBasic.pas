@@ -46,8 +46,6 @@ type
     ): IGeoCodeResult; safecall;
 
   public
-    constructor Create(
-    );
   end;
 
 implementation
@@ -56,11 +54,6 @@ uses
   u_GeoCodeResult;
 
 { TGeoCoderLocalBasic }
-
-constructor TGeoCoderLocalBasic.Create();
-begin
-  inherited Create;
-end;
 
 function TGeoCoderLocalBasic.GetLocations(
   const ACancelNotifier: IOperationNotifier;

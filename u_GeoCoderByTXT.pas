@@ -141,22 +141,20 @@ var
  Skip: boolean;
  VStream: TFileStream;
 begin
- VStream := TFileStream.Create(AFile, fmOpenRead);
  VFormatSettings.DecimalSeparator := '.';
  VSearch := AnsiUpperCase(ASearch);
- while PosEx('  ',VSearch)>0 do VSearch := ReplaceStr(VSearch,'  ',' ');
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
-    try
-    FLock.BeginRead;
-     try
-      SetLength(Vstr,VStream.Size);
-      VStream.ReadBuffer(VStr[1],VStream.Size);
-     finally
-    FLock.EndRead;
-    end;
+ FLock.BeginRead;
+ try
+  VStream := TFileStream.Create(AFile, fmOpenRead);
+   try
+    SetLength(Vstr,VStream.Size);
+    VStream.ReadBuffer(VStr[1],VStream.Size);
    finally
+   VStream.Free;
    end;
-  VStream.Free;
+  finally
+  FLock.EndRead;
+ end;
   Vstr := AnsiUpperCase(Vstr);
   // ищем вхождение, затем бежим назад до начала блока
   i:=1;
@@ -207,8 +205,10 @@ end;
 
 constructor TGeoCoderByTXT.Create();
 begin
+  inherited Create;
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
+  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 function TGeoCoderByTXT.DoSearch(
@@ -222,8 +222,11 @@ vpath : string;
 Vcnt : integer;
 VFolder: string;
 SearchRec: TSearchRec;
+MySearch : string;
 begin
  Vcnt := 1;
+ MySearch := Asearch;
+ while PosEx('  ',MySearch)>0 do MySearch := ReplaceStr(MySearch,'  ',' ');
  VList := TInterfaceList.Create;
  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt\');
  if FindFirst(VFolder + '*.txt', faAnyFile, SearchRec) = 0 then begin
@@ -232,7 +235,7 @@ begin
       continue;
     end;
     vpath:= VFolder+SearchRec.Name;
-    SearchInTXTFile(ACancelNotifier, AOperationID, Vpath , Asearch , vlist , Vcnt);
+    SearchInTXTFile(ACancelNotifier, AOperationID, Vpath , MySearch, vlist , Vcnt);
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Exit;
     end;
