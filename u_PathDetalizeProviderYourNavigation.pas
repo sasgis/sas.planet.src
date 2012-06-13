@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_OperationNotifier,
   i_VectorDataLoader,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -41,6 +42,8 @@ type
     FKmlLoader: IVectorDataLoader;
   protected { IPathDetalizeProvider }
     function GetPath(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
     ): ILonLatPath;
@@ -85,6 +88,8 @@ begin
 end;
 
 function TPathDetalizeProviderYourNavigation.GetPath(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const ASource: ILonLatPath;
   var AComment: string
 ): ILonLatPath;

@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_OperationNotifier,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ProxySettings,
@@ -39,6 +40,8 @@ type
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
     function GetPath(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
     ): ILonLatPath;
@@ -80,6 +83,8 @@ begin
 end;
 
 function TPathDetalizeProviderMailRu.GetPath(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const ASource: ILonLatPath;
   var AComment: string
 ): ILonLatPath;

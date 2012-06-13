@@ -27,6 +27,7 @@ uses
   SysUtils,
   DateUtils,
   t_GeoTypes,
+  i_OperationNotifier,
   i_ProxySettings,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -48,6 +49,8 @@ type
     function SecondToTime(const Seconds: Cardinal): Double;
   private { IPathDetalizeProvider }
     function GetPath(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
     ): ILonLatPath;
@@ -89,6 +92,8 @@ begin
 end;
 
 function TPathDetalizeProviderCloudMade.GetPath(
+  const ACancelNotifier: IOperationNotifier;
+  AOperationID: Integer;
   const ASource: ILonLatPath;
   var AComment: string
 ): ILonLatPath;

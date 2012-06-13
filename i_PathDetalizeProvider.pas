@@ -23,12 +23,15 @@ unit i_PathDetalizeProvider;
 interface
 
 uses
+  i_OperationNotifier,
   i_VectorItemLonLat;
 
 type
   IPathDetalizeProvider = interface
     ['{93696D0E-A464-4136-8CCE-E70BF48CA918}']
     function GetPath(
+      const ACancelNotifier: IOperationNotifier;
+      AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
     ): ILonLatPath;

@@ -5382,6 +5382,7 @@ var
   VIsError: Boolean;
   VInterface: IInterface;
   VPathOnMapEdit: IPathOnMapEdit;
+  VOperationNotifier: IOperationNotifier;
 begin
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
     VInterface := IInterface(TTBXItem(Sender).tag);
@@ -5389,7 +5390,14 @@ begin
       VProvider := VEntity.GetProvider;
       VIsError := True;
       try
-        VResult := VProvider.GetPath(VPathOnMapEdit.Path, FMarshrutComment);
+        VOperationNotifier := TOperationNotifier.Create;
+        VResult :=
+          VProvider.GetPath(
+            VOperationNotifier,
+            VOperationNotifier.CurrentOperation,
+            VPathOnMapEdit.Path,
+            FMarshrutComment
+          );
         VIsError := (VResult = nil);
       except
         on E: Exception do begin
