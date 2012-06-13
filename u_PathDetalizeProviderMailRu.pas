@@ -25,6 +25,8 @@ interface
 uses
   t_GeoTypes,
   i_OperationNotifier,
+  i_InetConfig,
+  i_Downloader,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ProxySettings,
@@ -35,7 +37,8 @@ type
   private
     FFactory: IVectorItmesFactory;
     FBaseUrl: string;
-    FProxyConfig: IProxyConfig;
+    FDownloader: IDownloader;
+    FInetConfig: IInetConfig;
 
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
@@ -47,7 +50,8 @@ type
     ): ILonLatPath;
   public
     constructor Create(
-      const AProxyConfig: IProxyConfig;
+      const AInetConfig: IInetConfig;
+      const ADownloader: IDownloader;
       const AFactory: IVectorItmesFactory;
       const ABaseUrl: string
     );
@@ -60,10 +64,13 @@ uses
   SysUtils,
   StrUtils,
   DateUtils,
+  i_DownloadRequest,
+  i_DownloadResult,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_GeoFun,
+  u_DownloadRequest,
   u_GeoToStr,
   u_ResStrings,
   u_InetFunc;
@@ -71,14 +78,16 @@ uses
 { TPathDetalizeProviderMailRu }
 
 constructor TPathDetalizeProviderMailRu.Create(
-  const AProxyConfig: IProxyConfig;
+  const AInetConfig: IInetConfig;
+  const ADownloader: IDownloader;
   const AFactory: IVectorItmesFactory;
   const ABaseUrl: string
 );
 begin
   inherited Create;
   FBaseUrl := ABaseUrl;
-  FProxyConfig := AProxyConfig;
+  FDownloader := ADownloader;
+  FInetConfig := AInetConfig;
   FFactory := AFactory;
 end;
 
@@ -89,7 +98,6 @@ function TPathDetalizeProviderMailRu.GetPath(
   var AComment: string
 ): ILonLatPath;
 var
-  ms: TMemoryStream;
   pathstr, timeT1: string;
   url: string;
   i, posit, posit2, endpos, dd, seconds, meters: integer;
@@ -97,6 +105,9 @@ var
   VPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
   VPointsAggregator: IDoublePointsAggregator;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
 begin
   Result := nil;
   url := FBaseUrl;
@@ -110,65 +121,61 @@ begin
     url := url + '&x' + inttostr(i) + '=' + R2StrPoint(VPoint.x) + '&y' + inttostr(i) + '=' + R2StrPoint(VPoint.y);
     Inc(i);
   end;
-  ms := TMemoryStream.Create;
-  try
-    if GetStreamFromURL(ms, url, 'text/javascript; charset=utf-8', FProxyConfig.GetStatic) > 0 then begin
-      ms.Position := 0;
-      SetLength(pathstr, ms.Size);
-      ms.ReadBuffer(pathstr[1], ms.Size);
-      VPointsAggregator := TDoublePointsAggregator.Create;
-      meters := 0;
-      seconds := 0;
+  VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
+  VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+    SetLength(pathstr, VResultOk.Data.Size);
+    Move(VResultOk.Data.Buffer^, pathstr[1], VResultOk.Data.Size);
+    VPointsAggregator := TDoublePointsAggregator.Create;
+    meters := 0;
+    seconds := 0;
 
-      try
-        posit := PosEx('"totalLength"', pathstr, 1);
-        While (posit > 0) do begin
-          try
-            posit2 := PosEx('"', pathstr, posit + 17);
-            meters := meters + strtoint(copy(pathstr, posit + 17, posit2 - (posit + 17)));
-            posit := PosEx('"totalTime"', pathstr, posit);
-            posit2 := PosEx('"', pathstr, posit + 15);
-            seconds := seconds + strtoint(copy(pathstr, posit + 15, posit2 - (posit + 15)));
-          except
-          end;
-          posit := PosEx('"points"', pathstr, posit);
-          endpos := PosEx(']', pathstr, posit);
-          while (posit > 0) and (posit < endpos) do begin
-            try
-              posit := PosEx('"x" : "', pathstr, posit);
-              posit2 := PosEx('", "y" : "', pathstr, posit);
-              VPoint.X := str2r(copy(pathstr, posit + 7, posit2 - (posit + 7)));
-              posit := PosEx('"', pathstr, posit2 + 10);
-              VPoint.y := str2r(copy(pathstr, posit2 + 10, posit - (posit2 + 10)));
-              posit := PosEx('{', pathstr, posit);
-            except
-              VPoint := CEmptyDoublePoint;
-            end;
-            if not PointIsEmpty(VPoint) then begin
-              VPointsAggregator.Add(VPoint);
-            end;
-          end;
-          posit := PosEx('"totalLength"', pathstr, posit);
+    try
+      posit := PosEx('"totalLength"', pathstr, 1);
+      While (posit > 0) do begin
+        try
+          posit2 := PosEx('"', pathstr, posit + 17);
+          meters := meters + strtoint(copy(pathstr, posit + 17, posit2 - (posit + 17)));
+          posit := PosEx('"totalTime"', pathstr, posit);
+          posit2 := PosEx('"', pathstr, posit + 15);
+          seconds := seconds + strtoint(copy(pathstr, posit + 15, posit2 - (posit + 15)));
+        except
         end;
-      except
+        posit := PosEx('"points"', pathstr, posit);
+        endpos := PosEx(']', pathstr, posit);
+        while (posit > 0) and (posit < endpos) do begin
+          try
+            posit := PosEx('"x" : "', pathstr, posit);
+            posit2 := PosEx('", "y" : "', pathstr, posit);
+            VPoint.X := str2r(copy(pathstr, posit + 7, posit2 - (posit + 7)));
+            posit := PosEx('"', pathstr, posit2 + 10);
+            VPoint.y := str2r(copy(pathstr, posit2 + 10, posit - (posit2 + 10)));
+            posit := PosEx('{', pathstr, posit);
+          except
+            VPoint := CEmptyDoublePoint;
+          end;
+          if not PointIsEmpty(VPoint) then begin
+            VPointsAggregator.Add(VPoint);
+          end;
+        end;
+        posit := PosEx('"totalLength"', pathstr, posit);
       end;
-      Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
-      if meters > 1000 then begin
-        AComment := SAS_STR_MarshLen + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
-      end else begin
-        AComment := SAS_STR_MarshLen + inttostr(meters) + ' ' + SAS_UNITS_m;
-      end;
-      DateT1 := SecondToTime(seconds);
-      dd := DaysBetween(0, DateT1);
-      timeT1 := '';
-      if dd > 0 then begin
-        timeT1 := inttostr(dd) + ' дней, ';
-      end;
-      timeT1 := timeT1 + TimeToStr(DateT1);
-      AComment := AComment + #13#10 + SAS_STR_Marshtime + timeT1;
+    except
     end;
-  finally
-    ms.Free;
+    Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+    if meters > 1000 then begin
+      AComment := SAS_STR_MarshLen + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
+    end else begin
+      AComment := SAS_STR_MarshLen + inttostr(meters) + ' ' + SAS_UNITS_m;
+    end;
+    DateT1 := SecondToTime(seconds);
+    dd := DaysBetween(0, DateT1);
+    timeT1 := '';
+    if dd > 0 then begin
+      timeT1 := inttostr(dd) + ' дней, ';
+    end;
+    timeT1 := timeT1 + TimeToStr(DateT1);
+    AComment := AComment + #13#10 + SAS_STR_Marshtime + timeT1;
   end;
 end;
 

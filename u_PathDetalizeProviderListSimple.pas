@@ -97,9 +97,11 @@ begin
       ALanguageManager,
       _('Maps@mail.ru') + '|0020~\' + _('By Car (Shortest)') + '|0010'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
     );
@@ -128,9 +130,11 @@ begin
       ALanguageManager,
       _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest)') + '|0020'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
     );
@@ -162,9 +166,11 @@ begin
       False,
       _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest with traffic)') + '|0030'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
     );
@@ -193,9 +199,11 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Fastest)') + '|0010'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -226,9 +234,11 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Shortest)') + '|0020'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -259,9 +269,11 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Fastest)') + '|0030'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,
@@ -292,9 +304,11 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Shortest)') + '|0040'
     );
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
-      AInetConfig.ProxyConfig,
+      AInetConfig,
+      VDownloader,
       AVectorDataFactory,
       AFactory,
       AKmlLoader,

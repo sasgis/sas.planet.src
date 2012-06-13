@@ -25,6 +25,8 @@ interface
 uses
   t_GeoTypes,
   i_OperationNotifier,
+  i_InetConfig,
+  i_Downloader,
   i_VectorDataLoader,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -38,8 +40,9 @@ type
     FFactory: IVectorItmesFactory;
     FVectorDataFactory: IVectorDataFactory;
     FBaseUrl: string;
-    FProxyConfig: IProxyConfig;
     FKmlLoader: IVectorDataLoader;
+    FDownloader: IDownloader;
+    FInetConfig: IInetConfig;
   protected { IPathDetalizeProvider }
     function GetPath(
       const ACancelNotifier: IOperationNotifier;
@@ -49,7 +52,8 @@ type
     ): ILonLatPath;
   public
     constructor Create(
-      const AProxyConfig: IProxyConfig;
+      const AInetConfig: IInetConfig;
+      const ADownloader: IDownloader;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItmesFactory;
       const AKmlLoader: IVectorDataLoader;
@@ -62,9 +66,12 @@ implementation
 uses
   Classes,
   SysUtils,
+  i_DownloadRequest,
+  i_DownloadResult,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
+  u_DownloadRequest,
   u_GeoToStr,
   i_VectorDataItemSimple,
   u_InetFunc;
@@ -72,7 +79,8 @@ uses
 { TPathDetalizeProviderYourNavigation }
 
 constructor TPathDetalizeProviderYourNavigation.Create(
-  const AProxyConfig: IProxyConfig;
+  const AInetConfig: IInetConfig;
+  const ADownloader: IDownloader;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItmesFactory;
   const AKmlLoader: IVectorDataLoader;
@@ -81,7 +89,8 @@ constructor TPathDetalizeProviderYourNavigation.Create(
 begin
   inherited Create;
   FBaseUrl := ABaseUrl;
-  FProxyConfig := AProxyConfig;
+  FDownloader := ADownloader;
+  FInetConfig := AInetConfig;
   FVectorDataFactory := AVectorDataFactory;
   FFactory := AFactory;
   FKmlLoader := AKmlLoader;
@@ -94,7 +103,6 @@ function TPathDetalizeProviderYourNavigation.GetPath(
   var AComment: string
 ): ILonLatPath;
 var
-  ms: TMemoryStream;
   url: string;
   kml: IVectorDataItemList;
   conerr: boolean;
@@ -104,45 +112,44 @@ var
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
   VLine: ILonLatPathLine;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
 begin
   Result := nil;
   AComment := '';
-  ms := TMemoryStream.Create;
-  try
-    url := FBaseUrl;
-    conerr := false;
-    VPointsAggregator := TDoublePointsAggregator.Create;
-    VEnum := ASource.GetEnum;
-    if VEnum.Next(VPrevPoint) then begin
-      while VEnum.Next(VCurrPoint) do begin
-        if conerr then begin
-          Continue;
-        end;
-        url := url + '&flat=' + R2StrPoint(VPrevPoint.y) + '&flon=' + R2StrPoint(VPrevPoint.x) +
-          '&tlat=' + R2StrPoint(VCurrPoint.y) + '&tlon=' + R2StrPoint(VCurrPoint.x);
-        if GetStreamFromURL(ms, url, 'text/xml', FProxyConfig.GetStatic) > 0 then begin
-          kml := FKmlLoader.LoadFromStream(ms, FVectorDataFactory);
-          if kml <> nil then begin
-            ms.SetSize(0);
-            if kml.Count > 0 then begin
-              if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
-                if VItem.Line.Count > 0 then begin
-                  VLine := VItem.Line.Item[0];
-                  if VLine.Count > 0 then begin
-                    VPointsAggregator.AddPoints(VLine.Points, VLine.Count);
-                  end;
+  url := FBaseUrl;
+  conerr := false;
+  VPointsAggregator := TDoublePointsAggregator.Create;
+  VEnum := ASource.GetEnum;
+  if VEnum.Next(VPrevPoint) then begin
+    while VEnum.Next(VCurrPoint) do begin
+      if conerr then begin
+        Continue;
+      end;
+      url := url + '&flat=' + R2StrPoint(VPrevPoint.y) + '&flon=' + R2StrPoint(VPrevPoint.x) +
+        '&tlat=' + R2StrPoint(VCurrPoint.y) + '&tlon=' + R2StrPoint(VCurrPoint.x);
+      VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
+      VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+        kml := FKmlLoader.Load(VResultOk.Data, FVectorDataFactory);
+        if kml <> nil then begin
+          if kml.Count > 0 then begin
+            if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
+              if VItem.Line.Count > 0 then begin
+                VLine := VItem.Line.Item[0];
+                if VLine.Count > 0 then begin
+                  VPointsAggregator.AddPoints(VLine.Points, VLine.Count);
                 end;
               end;
             end;
           end;
-        end else begin
-          conerr := true;
         end;
-        VPrevPoint := VCurrPoint;
+      end else begin
+        conerr := true;
       end;
+      VPrevPoint := VCurrPoint;
     end;
-  finally
-    ms.Free;
   end;
   if not conerr then begin
     Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
