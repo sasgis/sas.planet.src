@@ -721,7 +721,6 @@ uses
   i_MouseHandler in 'i_MouseHandler.pas',
   u_MouseState in 'u_MouseState.pas',
   i_GPSRecorder in 'i_GPSRecorder.pas',
-  u_GPSRecorderStuped in 'u_GPSRecorderStuped.pas',
   u_GPSRecorder in 'u_GPSRecorder.pas',
   i_GPS in 'i_GPS.pas',
   i_GPSPositionFactory in 'i_GPSPositionFactory.pas',

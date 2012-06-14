@@ -274,7 +274,7 @@ uses
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
   u_GlobalDownloadConfig,
-  u_GPSRecorderStuped,
+  u_GPSRecorder,
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
@@ -407,7 +407,7 @@ begin
   FGPSConfig := TGPSConfig.Create(FTrackPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorder :=
-    TGPSRecorderStuped.Create(
+    TGPSRecorder.Create(
       FVectorItmesFactory,
       TDatum.Create(3395, 6378137, 6356752),
       FGPSPositionFactory

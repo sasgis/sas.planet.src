@@ -686,7 +686,6 @@
     <DCCReference Include="u_GPSPositionFactory.pas" />
     <DCCReference Include="u_GPSPositionStatic.pas" />
     <DCCReference Include="u_GPSRecorder.pas" />
-    <DCCReference Include="u_GPSRecorderStuped.pas" />
     <DCCReference Include="u_GPSSatelliteInfo.pas" />
     <DCCReference Include="u_GPSSatellitesInView.pas" />
     <DCCReference Include="u_GPSState.pas" />
