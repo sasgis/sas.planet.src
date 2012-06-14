@@ -344,22 +344,18 @@ var
   VElement: ITileMatrixElement;
   VBitmap: IBitmap32Static;
   VCounterContext: TInternalPerformanceCounterContext;
+  VId: Integer;
 begin
   VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect);
   while VTileIterator.Next(VTile) do begin
     VElement := ATileMatrix.GetElementByTile(VTile);
     if VElement <> nil then begin
-      if not VElement.IsReady then begin
+      VId := VElement.ExpectedID;
+      if VElement.ReadyID <> VId then begin
         VCounterContext := FOneTilePrepareCounter.StartOperation;
         try
           VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VElement.LocalConverter);
-          if (VBitmap <> nil) or ((VBitmap = nil) and (VElement.Bitmap <> nil)) then begin
-            VElement.Bitmap := VBitmap;
-            VElement.IsReady := True;
-            SetNeedUpdateLayer;
-          end else begin
-            VElement.IsReady := True;
-          end;
+          VElement.UpdateBitmap(VId, VBitmap);
         finally
           FOneTilePrepareCounter.FinishOperation(VCounterContext);
         end;
@@ -480,7 +476,7 @@ begin
       for j := 0 to VTileRect.Bottom - VTileRect.Top - 1 do begin
         VElement := ATileMatrix.Items[i, j];
         if VElement <> nil then begin
-          VElement.IsReady := False;
+          VElement.IncExpectedID;
         end;
       end;
     end;

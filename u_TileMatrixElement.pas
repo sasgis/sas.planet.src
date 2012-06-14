@@ -17,17 +17,18 @@ type
     FTile: TPoint;
     FLocalConverter: ILocalCoordConverter;
 
-    FIsReady: Boolean;
+    FReadyID: Integer;
+    FExpectedID: Integer;
     FBitmap: IBitmap32Static;
   private
     function GetTile: TPoint;
     function GetLocalConverter: ILocalCoordConverter;
-
-    function GetIsReady: Boolean;
-    procedure SetIsReady(AValue: Boolean);
-
+    function GetReadyID: Integer;
+    function GetExpectedID: Integer;
     function GetBitmap: IBitmap32Static;
-    procedure SetBitmap(const AValue: IBitmap32Static);
+
+    procedure IncExpectedID;
+    procedure UpdateBitmap(AID: Integer; const ABitmap: IBitmap32Static);
   public
     constructor Create(
       const ATile: TPoint;
@@ -59,7 +60,8 @@ begin
   FLocalConverter := ALocalConverter;
   FBitmap := ABitmap;
   FSync := MakeSyncRW_Var(Self);
-  FIsReady := False;
+  FReadyID := 0;
+  FExpectedID := 1;
   VZoom := FLocalConverter.Zoom;
   VConverter := FLocalConverter.GeoConverter;
   VMapPixelRect := FLocalConverter.GetRectInMapPixel;
@@ -76,11 +78,11 @@ begin
   end;
 end;
 
-function TTileMatrixElement.GetIsReady: Boolean;
+function TTileMatrixElement.GetExpectedID: Integer;
 begin
   FSync.BeginRead;
   try
-    Result := FIsReady;
+    Result := FExpectedID;
   finally
     FSync.EndRead;
   end;
@@ -91,26 +93,40 @@ begin
   Result := FLocalConverter;
 end;
 
+function TTileMatrixElement.GetReadyID: Integer;
+begin
+  FSync.BeginRead;
+  try
+    Result := FReadyID;
+  finally
+    FSync.EndRead;
+  end;
+end;
+
 function TTileMatrixElement.GetTile: TPoint;
 begin
   Result := FTile;
 end;
 
-procedure TTileMatrixElement.SetBitmap(const AValue: IBitmap32Static);
+procedure TTileMatrixElement.IncExpectedID;
 begin
   FSync.BeginWrite;
   try
-    FBitmap := AValue;
+    Inc(FExpectedID);
   finally
     FSync.EndWrite;
   end;
 end;
 
-procedure TTileMatrixElement.SetIsReady(AValue: Boolean);
+procedure TTileMatrixElement.UpdateBitmap(
+  AID: Integer;
+  const ABitmap: IBitmap32Static
+);
 begin
   FSync.BeginWrite;
   try
-    FIsReady := AValue;
+    FReadyID := AID;
+    FBitmap := ABitmap;
   finally
     FSync.EndWrite;
   end;

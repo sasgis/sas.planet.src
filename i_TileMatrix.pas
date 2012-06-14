@@ -16,13 +16,17 @@ type
     function GetLocalConverter: ILocalCoordConverter;
     property LocalConverter: ILocalCoordConverter read GetLocalConverter;
 
-    function GetIsReady: Boolean;
-    procedure SetIsReady(AValue: Boolean);
-    property IsReady: Boolean read GetIsReady write SetIsReady;
+    function GetReadyID: Integer;
+    property ReadyID: Integer read GetReadyID;
+
+    function GetExpectedID: Integer;
+    property ExpectedID: Integer read GetExpectedID;
+
+    procedure IncExpectedID;
+    procedure UpdateBitmap(AID: Integer; const ABitmap: IBitmap32Static);
 
     function GetBitmap: IBitmap32Static;
-    procedure SetBitmap(const AValue: IBitmap32Static);
-    property Bitmap: IBitmap32Static read GetBitmap write SetBitmap;
+    property Bitmap: IBitmap32Static read GetBitmap;
   end;
 
   ITileMatrix = interface
