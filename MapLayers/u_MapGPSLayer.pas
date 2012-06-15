@@ -84,9 +84,12 @@ uses
   SysUtils,
   GR32_Resamplers,
   i_CoordConverter,
+  i_Bitmap32Static,
+  i_BitmapLayerProvider,
   i_TileIterator,
   u_GeoFun,
   u_NotifyEventListener,
+  u_BitmapLayerProviderByTrackPath,
   u_TileIteratorSpiralByRect;
 
 { TMapGPSLayer }
@@ -176,6 +179,9 @@ var
   VCurrTileOnBitmapRect: TRect;
   VCounterContext: TInternalPerformanceCounterContext;
   VEnum: IEnumGPSTrackPoint;
+  VProvider: IBitmapLayerProvider;
+  VBitmapStatic: IBitmap32Static;
+  VTileConverter: ILocalCoordConverter;
 begin
   inherited;
   FConfig.LockRead;
@@ -192,10 +198,12 @@ begin
     VCounterContext := FGetTrackCounter.StartOperation;
     try
       VEnum := FGPSRecorder.LastPoints(VPointsCount);
-      VPointsCount :=
-        PrepareProjectedPointsByEnum(
+      VProvider :=
+        TBitmapLayerProviderByTrackPath.Create(
           VPointsCount,
-          VLocalConverter,
+          VLineWidth,
+          VTrackColorer,
+          VLocalConverter.ProjectionInfo,
           VEnum
         );
     finally
@@ -218,40 +226,40 @@ begin
             if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
               break;
             end;
-            VCurrTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-
-            VTilePixelsToDraw.TopLeft := Point(0, 0);
-            VTilePixelsToDraw.Right := VCurrTilePixelRect.Right - VCurrTilePixelRect.Left;
-            VTilePixelsToDraw.Bottom := VCurrTilePixelRect.Bottom - VCurrTilePixelRect.Top;
-
+            VTileConverter := ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
+            VCurrTilePixelRect := VTileConverter.GetRectInMapPixel;
             VCurrTileOnBitmapRect := VLocalConverter.MapRect2LocalRect(VCurrTilePixelRect);
 
-            VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
-            VTileToDrawBmp.Clear(0);
-            DrawPath(
-              AOperationID,
-              ACancelNotifier,
-              VTileToDrawBmp,
-              ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
-              VTrackColorer,
-              VLineWidth,
-              VPointsCount
-            );
-
+            VBitmapStatic :=
+              VProvider.GetBitmapRect(
+                AOperationID,
+                ACancelNotifier,
+                VTileConverter
+              );
             Layer.Bitmap.Lock;
             try
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 break;
               end;
-              BlockTransfer(
-                Layer.Bitmap,
-                VCurrTileOnBitmapRect.Left,
-                VCurrTileOnBitmapRect.Top,
-                Layer.Bitmap.ClipRect,
-                VTileToDrawBmp,
-                VTilePixelsToDraw,
-                dmOpaque
-              );
+              if VBitmapStatic <> nil then begin
+                BlockTransfer(
+                  Layer.Bitmap,
+                  VCurrTileOnBitmapRect.Left,
+                  VCurrTileOnBitmapRect.Top,
+                  Layer.Bitmap.ClipRect,
+                  VTileToDrawBmp,
+                  VTilePixelsToDraw,
+                  dmOpaque
+                );
+              end else begin
+                Layer.Bitmap.FillRectS(
+                  VCurrTileOnBitmapRect.Left,
+                  VCurrTileOnBitmapRect.Top,
+                  VCurrTileOnBitmapRect.Right,
+                  VCurrTileOnBitmapRect.Bottom,
+                  0
+                );
+              end;
               SetBitmapChanged;
             finally
               Layer.Bitmap.UnLock;
