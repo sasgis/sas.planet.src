@@ -635,6 +635,7 @@ uses
   i_PolygonLayerConfig in 'i_PolygonLayerConfig.pas',
   u_PolygonLayerConfig in 'u_PolygonLayerConfig.pas',
   i_CalcLineLayerConfig in 'i_CalcLineLayerConfig.pas',
+  u_CalcLineLayerCaptionsConfig in 'u_CalcLineLayerCaptionsConfig.pas',
   u_CalcLineLayerConfig in 'u_CalcLineLayerConfig.pas',
   i_SelectionRectLayerConfig in 'i_SelectionRectLayerConfig.pas',
   u_SelectionRectLayerConfig in 'u_SelectionRectLayerConfig.pas',

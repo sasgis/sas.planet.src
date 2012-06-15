@@ -24,35 +24,11 @@ interface
 
 uses
   GR32,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_PolyLineLayerConfig,
   i_CalcLineLayerConfig,
-  u_ConfigDataElementBase,
   u_ConfigDataElementComplexBase;
 
 type
-  TCalcLineLayerCaptionsConfig = class(TConfigDataElementBase, ICalcLineLayerCaptionsConfig)
-  private
-    FLenShow: Boolean;
-    FTextColor: TColor32;
-    FTextBGColor: TColor32;
-  protected
-    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
-    function GetLenShow: Boolean;
-    procedure SetLenShow(const AValue: Boolean);
-
-    function GetTextColor: TColor32;
-    procedure SetTextColor(const AValue: TColor32);
-
-    function GetTextBGColor: TColor32;
-    procedure SetTextBGColor(const AValue: TColor32);
-  public
-    constructor Create;
-  end;
-
   TCalcLineLayerConfig = class(TConfigDataElementComplexBase, ICalcLineLayerConfig)
   private
     FLineConfig: ILineLayerConfig;
@@ -71,117 +47,8 @@ implementation
 
 uses
   u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_ConfigProviderHelpers,
-  u_PolyLineLayerConfig;
-
-{ TCalcLineLayerConfig }
-
-constructor TCalcLineLayerCaptionsConfig.Create;
-begin
-  inherited;
-  LockWrite;
-  try
-    SetLenShow(True);
-
-    SetTextColor(clBlack32);
-    SetTextBGColor(SetAlpha(ClWhite32, 110));
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TCalcLineLayerCaptionsConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
-begin
-  inherited;
-  if AConfigData <> nil then begin
-    FLenShow := AConfigData.ReadBool('LenShow', FLenShow);
-
-    FTextColor := ReadColor32(AConfigData, 'TextColor', FTextColor);
-    FTextBGColor := ReadColor32(AConfigData, 'TextBGColor', FTextBGColor);
-
-    SetChanged;
-  end;
-end;
-
-procedure TCalcLineLayerCaptionsConfig.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
-begin
-  inherited;
-  AConfigData.WriteBool('LenShow', FLenShow);
-
-  WriteColor32(AConfigData, 'TextColor', FTextColor);
-  WriteColor32(AConfigData, 'TextBGColor', FTextBGColor);
-end;
-
-function TCalcLineLayerCaptionsConfig.GetLenShow: Boolean;
-begin
-  LockRead;
-  try
-    Result := FLenShow;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TCalcLineLayerCaptionsConfig.GetTextBGColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FTextBGColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TCalcLineLayerCaptionsConfig.GetTextColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FTextColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TCalcLineLayerCaptionsConfig.SetLenShow(const AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FLenShow <> AValue then begin
-      FLenShow := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TCalcLineLayerCaptionsConfig.SetTextBGColor(const AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FTextBGColor <> AValue then begin
-      FTextBGColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TCalcLineLayerCaptionsConfig.SetTextColor(const AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FTextColor <> AValue then begin
-      FTextColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
+  u_PolyLineLayerConfig,
+  u_CalcLineLayerCaptionsConfig;
 
 { TCalcLineLayerConfig }
 
