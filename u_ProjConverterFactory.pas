@@ -110,6 +110,7 @@ type
 
 constructor TProjDLLHolder.Create(const ADllFullName: string);
 begin
+  inherited Create;
   // try to load library
   FDLLHandle := LoadLibrary(PChar(ADllFullName));
   if (FDLLHandle<>0) then begin
@@ -181,15 +182,18 @@ type
     function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint;
     function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint;
   public
-    constructor Create(ADllHolder: IProjDLLHolder; AprojPJ: PProjPJ);
+    constructor Create(const ADllHolder: IProjDLLHolder; AprojPJ: PProjPJ);
     destructor Destroy; override;
   end;
 
 { TProjConverterByDll }
 
-constructor TProjConverterByDll.Create(ADllHolder: IProjDLLHolder;
-  AprojPJ: PProjPJ);
+constructor TProjConverterByDll.Create(
+  const ADllHolder: IProjDLLHolder;
+  AprojPJ: PProjPJ
+);
 begin
+  inherited Create;
   Assert(ADllHolder <> nil);
   FDllHolder := ADllHolder;
   Assert(AprojPJ <> nil);
@@ -234,6 +238,7 @@ end;
 
 constructor TProjConverterFactory.Create;
 begin
+  inherited Create;
   FSync := MakeSyncRW_Std(Self, FALSE);
   FDllFailed := False;
 end;

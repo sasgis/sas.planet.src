@@ -58,8 +58,8 @@ type
       AJNXVersion: integer;
       AZorder: integer;
       AProductID: integer;
-      AJpgQuality: IStringListStatic;
-      ALevelsDesc: IStringListStatic;
+      const AJpgQuality: IStringListStatic;
+      const ALevelsDesc: IStringListStatic;
       const AMapList: IMapTypeListStatic;
       const ALayerList: IMapTypeListStatic;
       const AScaleArr: TByteDynArray
@@ -96,12 +96,11 @@ constructor TThreadExportToJnx.Create(
   AJNXVersion: integer;
   AZorder: integer;
   AProductID: integer;
-  AJpgQuality: IStringListStatic;
-  ALevelsDesc: IStringListStatic;
+  const AJpgQuality: IStringListStatic;
+  const ALevelsDesc: IStringListStatic;
   const AMapList: IMapTypeListStatic;
   const ALayerList: IMapTypeListStatic;
   const AScaleArr: TByteDynArray
-
 );
 begin
   inherited Create(

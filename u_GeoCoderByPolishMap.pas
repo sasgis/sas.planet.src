@@ -452,8 +452,8 @@ if ASection = 'POLYLINE' then begin
 end;
 end;
 function ItemExist(
-  AValue:IGeoCodePlacemark;
-  AList:igeocoderesult
+  const AValue: IGeoCodePlacemark;
+  const AList: igeocoderesult
   ):boolean;
 var
 i: Cardinal;

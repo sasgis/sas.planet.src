@@ -91,8 +91,8 @@ result := copy(A_String,j+1,(i-j-1));
 end;
 
 function ItemExist(
-  AValue:IGeoCodePlacemark;
-  AList:igeocoderesult
+  const AValue: IGeoCodePlacemark;
+  const AList: igeocoderesult
   ):boolean;
 var
 i: Cardinal;
