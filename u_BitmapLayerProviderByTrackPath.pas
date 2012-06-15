@@ -234,7 +234,8 @@ function TBitmapLayerProviderByTrackPath.GetBitmapRect(
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
-  VTargetRect: TRect;
+  VLocalRect: TRect;
+  VTargetRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VConverter: ICoordConverter;
   VZoom: Byte;
@@ -243,11 +244,11 @@ var
 begin
   Result := nil;
   if not FRectIsEmpty then begin
+    VLocalRect := ALocalConverter.GetLocalRect;
     VZoom := ALocalConverter.GetZoom;
     VConverter := ALocalConverter.GetGeoConverter;
-    VTargetRect := ALocalConverter.GetRectInMapPixel;
-    VConverter.CheckPixelRect(VTargetRect, VZoom);
-    VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
+    VConverter.CheckPixelRectFloat(VTargetRect, VZoom);
+    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
     if IntersecLonLatRect(VIntersectRect, FLonLatRect, VLonLatRect) then begin
       VBitmap := TCustomBitmap32.Create;
       try
@@ -316,7 +317,6 @@ begin
       if FRectIsEmpty then begin
         FLonLatRect.TopLeft := VPoint.Point;
         FLonLatRect.BottomRight := VPoint.Point;
-        FRectIsEmpty := False;
       end else begin
         if FLonLatRect.Left > VPoint.Point.X then begin
           FLonLatRect.Left := VPoint.Point.X;
@@ -328,7 +328,7 @@ begin
           FLonLatRect.Right := VPoint.Point.X;
         end;
         if FLonLatRect.Bottom > VPoint.Point.Y then begin
-          FLonLatRect.Bottom := VPoint.Point.Y;
+          FLonLatRect.Left := VPoint.Point.Y;
         end;
       end;
       VPoint.Point := VGeoConverter.LonLat2PixelPosFloat(VPoint.Point, VZoom);
