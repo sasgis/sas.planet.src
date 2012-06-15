@@ -4322,7 +4322,7 @@ begin
       VWikiLayerGUID:=GUID_NULL;
 
       VWikiItem := nil;
-      FWikiLayer.MouseOnRegWithGUID(Point(x,y), VWikiItem, VMarkS, VWikiLayerGUID);
+      VWikiItem := FWikiLayer.MouseOnRegWithGUID(Point(x,y), VMarkS, VWikiLayerGUID);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
@@ -4512,7 +4512,7 @@ begin
     VItemFound := False;
     VItemS := 0;
     VWikiItem := nil;
-    FWikiLayer.MouseOnReg(VMousePos, VWikiItem, VMarkS);
+    VWikiItem := FWikiLayer.MouseOnReg(VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;

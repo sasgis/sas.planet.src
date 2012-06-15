@@ -162,9 +162,8 @@ type
     function MouseOnElements(
       const ACopiedElements: IInterfaceList;
       const xy: TPoint;
-      var AItem: IVectorDataItemSimple;
       var AItemS: Double
-    ): Boolean;
+    ): IVectorDataItemSimple;
 
   protected
     procedure DrawBitmap(
@@ -193,22 +192,19 @@ type
     procedure SendTerminateToThreads; override;
 
     // helper
-    procedure MouseOnReg(
+    function MouseOnReg(
       const xy: TPoint;
-      out AItem: IVectorDataItemSimple;
       out AItemS: Double
-    ); overload;
-    procedure MouseOnReg(
-      const xy: TPoint;
-      out AItem: IVectorDataItemSimple
-    ); overload;
+    ): IVectorDataItemSimple; overload;
+    function MouseOnReg(
+      const xy: TPoint
+    ): IVectorDataItemSimple; overload;
 
-    procedure MouseOnRegWithGUID(
+    function MouseOnRegWithGUID(
       const xy: TPoint;
-      out AItem: IVectorDataItemSimple;
       out AItemS: Double;
       out ALayerGUID: TGUID
-    );
+    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -1021,21 +1017,20 @@ begin
   FAllElements.ClearMapElements;
 end;
 
-procedure TWikiLayer.MouseOnReg(
+function TWikiLayer.MouseOnReg(
   const xy: TPoint;
-  out AItem: IVectorDataItemSimple;
   out AItemS: Double
-);
+): IVectorDataItemSimple;
 var
   VElements: IInterfaceList;
 begin
-  AItem := nil;
+  Result := nil;
   AItemS := 0;
   // single call on ALL elements
   VElements := TInterfaceList.Create;
   try
     FAllElements.CopyMapElementsToList(TRUE, TRUE, VElements);
-    MouseOnElements(VElements, xy, AItem, AItemS);
+    Result := MouseOnElements(VElements, xy, AItemS);
   finally
     VElements := nil;
   end;
@@ -1044,9 +1039,8 @@ end;
 function TWikiLayer.MouseOnElements(
   const ACopiedElements: IInterfaceList;
   const xy: TPoint;
-  var AItem: IVectorDataItemSimple;
   var AItemS: Double
-): Boolean;
+): IVectorDataItemSimple;
 var
   VRect: TRect;
   VLocalConverter: ILocalCoordConverter;
@@ -1065,7 +1059,7 @@ var
   VSquare: Double;
 begin
   // return TRUE if breaks loop
-  Result := FALSE;
+  Result := nil;
 
   // if has elements
   if ACopiedElements.Count > 0 then begin
@@ -1088,26 +1082,23 @@ begin
       VItem := IVectorDataItemSimple(Pointer(ACopiedElements[i]));
       if IsIntersecLonLatRect(VLonLatRect, VItem.LLRect) then begin
         if Supports(VItem, IVectorDataItemPoint) then begin
-          AItem := VItem;
+          Result := VItem;
           AItemS := 0;
-          Result := TRUE;
           Exit;
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
           VProjectdPath := GetProjectedPath(VItemLine, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
           if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
-            AItem := VItem;
+            Result := VItem;
             AItemS := 0;
-            Result := TRUE;
             Exit;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
           VProjectdPolygon := GetProjectedPolygon(VItemPoly, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
           if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
             VSquare := VProjectdPolygon.CalcArea;
-            if (AItem = nil) or (VSquare < AItemS) then begin
-              AItem := VItem;
+            if (Result = nil) or (VSquare < AItemS) then begin
+              Result := VItem;
               AItemS := VSquare;
-              Result := TRUE;
             end;
           end;
         end;
@@ -1116,29 +1107,26 @@ begin
   end;
 end;
 
-procedure TWikiLayer.MouseOnReg(
-  const xy: TPoint;
-  out AItem: IVectorDataItemSimple
-);
+function TWikiLayer.MouseOnReg(
+  const xy: TPoint
+): IVectorDataItemSimple;
 var
   VItemS: Double;
 begin
-  MouseOnReg(xy, AItem, VItemS);
+  Result := MouseOnReg(xy, VItemS);
 end;
 
-procedure TWikiLayer.MouseOnRegWithGUID(
+function TWikiLayer.MouseOnRegWithGUID(
   const xy: TPoint;
-  out AItem: IVectorDataItemSimple;
   out AItemS: Double;
   out ALayerGUID: TGUID
-);
+): IVectorDataItemSimple;
 var
   VElements: IInterfaceList;
   VEnumGUID: IEnumGUID;
-  VResult: Boolean;
   celtFetched: Cardinal;
 begin
-  AItem := nil;
+  Result := nil;
   ALayerGUID := GUID_NULL;
   AItemS := 0;
 
@@ -1151,8 +1139,8 @@ begin
         while (S_OK = VEnumGUID.Next(1, ALayerGUID, celtFetched)) do begin
           VElements.Clear;
           CopyMapElements(FAllElements.GetMapElementsWithGUID(ALayerGUID), VElements);
-          VResult := MouseOnElements(VElements, xy, AItem, AItemS);
-          if VResult then begin
+          Result := MouseOnElements(VElements, xy, AItemS);
+          if Result <> nil then begin
             Exit;
           end;
         end;
@@ -1167,7 +1155,7 @@ begin
     // without guid
     VElements.Clear;
     CopyMapElements(FAllElements.GetMapElementsWithoutGUID, VElements);
-    MouseOnElements(VElements, xy, AItem, AItemS);
+    Result := MouseOnElements(VElements, xy, AItemS);
   finally
     VElements := nil;
   end;
