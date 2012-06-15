@@ -155,7 +155,7 @@ begin
   finally
   FLock.EndRead;
  end;
-  Vstr := AnsiUpperCase(Vstr);
+  Vstr := AnsiUpperCase(utf8toansi(Vstr));
   // ищем вхождение, затем бежим назад до начала блока
   i:=1;
   while (PosEx(VSearch, VStr, i)>i) {and (i>0) }do begin
@@ -188,7 +188,7 @@ begin
       sname := inttostr(Vcnt)+') '+ASearch;
       sdesc := sdesc + #$D#$A +'[ ' + slon + ' , ' + slat + ' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
-      sfulldesc := sname + #$D#$A+ sdesc;
+      sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
 
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
       // если закометировать условие то не будет производиться фильтрация одинаковых элементов
