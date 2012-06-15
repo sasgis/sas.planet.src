@@ -4318,8 +4318,7 @@ begin
         VPWL.S := VMarkS;
       end;
 
-      VWikiItem := nil;
-      FLayerSearchResults.MouseOnReg(Point(x,y), VWikiItem, VMarkS);
+      VWikiItem := FLayerSearchResults.MouseOnReg(Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
@@ -4507,8 +4506,7 @@ begin
       VItemHint := VWikiItem.GetHintText;
     end;
 
-    VWikiItem := nil;
-    FLayerSearchResults.MouseOnReg(VMousePos, VWikiItem, VMarkS);
+    VWikiItem := FLayerSearchResults.MouseOnReg(VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;

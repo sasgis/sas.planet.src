@@ -36,11 +36,10 @@ type
   public
     procedure StartThreads; override;
   public
-    procedure MouseOnReg(
+    function MouseOnReg(
       const xy: TPoint;
-      out AItem: IVectorDataItemSimple;
       out AItemS: Double
-    );
+    ): IVectorDataItemSimple;
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
@@ -150,11 +149,10 @@ begin
   end;
 end;
 
-procedure TSearchResultsLayer.MouseOnReg(
+function TSearchResultsLayer.MouseOnReg(
   const xy: TPoint;
-  out AItem: IVectorDataItemSimple;
   out AItemS: Double
-);
+): IVectorDataItemSimple;
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -170,7 +168,7 @@ var
   VMarker: IBitmapMarker;
   VSearchResults: IGeoCodeResult;
 begin
-  AItem := nil;
+  Result := nil;
   AItemS := 0;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
@@ -190,7 +188,7 @@ begin
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin
-        AItem :=
+        Result :=
           TVectorDataItemPoint.Create(
             THtmlToHintTextConverterStuped.Create,
             VPlacemark.GetAddress + #13#10 + VPlacemark.GetDesc,
