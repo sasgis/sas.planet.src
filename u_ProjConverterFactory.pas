@@ -21,7 +21,7 @@ type
     function GetByEPSG(const AEPSG: Integer): IProjConverter;
     function GetByInitString(const AArgs: String): IProjConverter;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation

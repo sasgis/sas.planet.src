@@ -51,7 +51,7 @@ type
       const ASearch: WideString
     ): IInterfaceList; override;
   public
-    constructor Create();
+    constructor Create;
   end;
 
 implementation
@@ -203,7 +203,7 @@ begin
   end;
 end;
 
-constructor TGeoCoderByTXT.Create();
+constructor TGeoCoderByTXT.Create;
 begin
   inherited Create;
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then

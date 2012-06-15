@@ -20,7 +20,7 @@ type
   protected
     function GetStatic: IBatteryStatusStatic;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

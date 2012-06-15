@@ -52,7 +52,7 @@ type
     ): IInterfaceList; override;
 
   public
-  constructor Create();
+  constructor Create;
   end;
 
 implementation
@@ -686,7 +686,7 @@ begin
   end;
 end;
 
-constructor TGeoCoderByPolishMap.Create();
+constructor TGeoCoderByPolishMap.Create;
 begin
    inherited Create;
    if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then

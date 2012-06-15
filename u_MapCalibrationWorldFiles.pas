@@ -170,13 +170,16 @@ var
   VprojInfo: String;
 begin
   AuxXmkfile := TMemoryStream.create;
-  VStr := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
-  VprojInfo := GetProj(AConverter);
-  VStr := VStr + AnsiToUtf8(VprojInfo);
-  VStr := VStr + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
-  AuxXmkfile.Write(VStr[1], length(VStr));
-  AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
+  try
+    VStr := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
+    VprojInfo := GetProj(AConverter);
+    VStr := VStr + AnsiToUtf8(VprojInfo);
+    VStr := VStr + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
+    AuxXmkfile.Write(VStr[1], length(VStr));
+    AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
+  finally
   AuxXmkfile.Free;
+  end;
 end;
 
 procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
