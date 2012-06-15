@@ -8,6 +8,71 @@ uses
   i_EnumDoublePoint;
 
 type
+  TEnumDoublePointClipByRect = class(TInterfacedObject, IEnumDoublePoint)
+  private
+    FEnum: IEnumDoublePoint;
+  private
+    function Next(out APoint: TDoublePoint): Boolean;
+  public
+    constructor Create(
+      AClosed: Boolean;
+      const ARect: TDoubleRect;
+      const ASourceEnum: IEnumDoublePoint
+    );
+  end;
+
+  TEnumProjectedPointClipByRect = class(TEnumDoublePointClipByRect, IEnumProjectedPoint)
+  public
+    constructor Create(
+      AClosed: Boolean;
+      const ARect: TDoubleRect;
+      const ASourceEnum: IEnumProjectedPoint
+    );
+  end;
+
+  TEnumLocalPointClipByRect = class(TEnumDoublePointClipByRect, IEnumLocalPoint)
+  public
+    constructor Create(
+      AClosed: Boolean;
+      const ARect: TDoubleRect;
+      const ASourceEnum: IEnumLocalPoint
+    );
+  end;
+
+  TDoublePointFilterClipByRect = class(TInterfacedObject, IDoublePointFilter)
+  private
+    FClosed: Boolean;
+    FRect: TDoubleRect;
+  private
+    function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
+  public
+    constructor Create(
+      AClosed: Boolean;
+      const ARect: TDoubleRect
+    );
+  end;
+
+  TProjectedPointFilterClipByRect = class(TInterfacedObject, IProjectedPointFilter)
+  private
+    FClosed: Boolean;
+    FRect: TDoubleRect;
+  private
+    function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
+  public
+    constructor Create(
+      AClosed: Boolean;
+      const ARect: TDoubleRect
+    );
+  end;
+
+
+implementation
+
+uses
+  u_GeoFun,
+  u_EnumDoublePointClosePoly;
+
+type
   TEnumDoublePointClipByLineAbstract = class(TInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint, IEnumLocalPoint)
   private
     FSourceEnum: IEnumDoublePoint;
@@ -72,70 +137,6 @@ type
   protected
     function GetPointCode(const APoint: TDoublePoint): Byte; override;
   end;
-
-  TEnumDoublePointClipByRect = class(TInterfacedObject, IEnumDoublePoint)
-  private
-    FEnum: IEnumDoublePoint;
-  private
-    function Next(out APoint: TDoublePoint): Boolean;
-  public
-    constructor Create(
-      AClosed: Boolean;
-      const ARect: TDoubleRect;
-      const ASourceEnum: IEnumDoublePoint
-    );
-  end;
-
-  TEnumProjectedPointClipByRect = class(TEnumDoublePointClipByRect, IEnumProjectedPoint)
-  public
-    constructor Create(
-      AClosed: Boolean;
-      const ARect: TDoubleRect;
-      const ASourceEnum: IEnumProjectedPoint
-    );
-  end;
-
-  TEnumLocalPointClipByRect = class(TEnumDoublePointClipByRect, IEnumLocalPoint)
-  public
-    constructor Create(
-      AClosed: Boolean;
-      const ARect: TDoubleRect;
-      const ASourceEnum: IEnumLocalPoint
-    );
-  end;
-
-  TDoublePointFilterClipByRect = class(TInterfacedObject, IDoublePointFilter)
-  private
-    FClosed: Boolean;
-    FRect: TDoubleRect;
-  private
-    function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
-  public
-    constructor Create(
-      AClosed: Boolean;
-      const ARect: TDoubleRect
-    );
-  end;
-
-  TProjectedPointFilterClipByRect = class(TInterfacedObject, IProjectedPointFilter)
-  private
-    FClosed: Boolean;
-    FRect: TDoubleRect;
-  private
-    function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
-  public
-    constructor Create(
-      AClosed: Boolean;
-      const ARect: TDoubleRect
-    );
-  end;
-
-
-implementation
-
-uses
-  u_GeoFun,
-  u_EnumDoublePointClosePoly;
 
 { TEnumDoublePointClipByLineAbstract }
 

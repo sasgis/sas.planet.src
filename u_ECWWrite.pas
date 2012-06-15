@@ -58,9 +58,6 @@ type
       SizeUnits: TCellSizeUnits;
       CellIncrementX, CellIncrementY, OriginX, OriginY: double
     ): integer;
-    property ReadDelegate: TEcwRead read FReadDelegate;
-    property OperationID: Integer read FOperationID;
-    property CancelNotifier: IOperationNotifier read FCancelNotifier;
   end;
 
 implementation
@@ -85,7 +82,7 @@ var
   VECWWrite: TECWWrite;
 begin
   VECWWrite := TECWWrite(pClient.pClientData);
-  Result := VECWWrite.ReadDelegate(
+  Result := VECWWrite.FReadDelegate(
     nNextLine,
     PlineRGB(PPtr(InputArray)[0]),
     PlineRGB(PPtr(InputArray)[1]),
@@ -98,7 +95,7 @@ var
   VECWWrite: TECWWrite;
 begin
   VECWWrite := TECWWrite(pClient.pClientData);
-  Result := VECWWrite.CancelNotifier.IsOperationCanceled(VECWWrite.OperationID);
+  Result := VECWWrite.FCancelNotifier.IsOperationCanceled(VECWWrite.FOperationID);
 end;
 
 function TECWWrite.Encode(
