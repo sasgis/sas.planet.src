@@ -69,9 +69,6 @@ type
     function GetLoadDate: TDateTime;
     property LoadDate: TDateTime read GetLoadDate;
 
-    function GetTileData: IBinaryData;
-    property TileData: IBinaryData read GetTileData;
-
     function GetSize: Cardinal;
     property Size: Cardinal read GetSize;
 
@@ -82,6 +79,11 @@ type
     property ContentType: IContentTypeInfoBasic read GetContentType;
   end;
 
+  ITileInfoWithData = interface(ITileInfoBasic)
+    ['{A268209A-DE1A-442E-AE25-6B6284080092}']
+    function GetTileData: IBinaryData;
+    property TileData: IBinaryData read GetTileData;
+  end;
 
 implementation
 

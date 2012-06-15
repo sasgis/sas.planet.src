@@ -84,13 +84,16 @@ end;
 function TFillingMapColorerSimple.GetColor(const ATileInfo: ITileInfoBasic): TColor32;
 var
   VTileInfo: TTileInfo;
+  VInfoWithData: ITileInfoWithData;
 begin
   try
     VTileInfo.FLoadDate := ATileInfo.LoadDate;
     VTileInfo.FSize := ATileInfo.Size;
     VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
     VTileInfo.FContentType := ATileInfo.ContentType;
-    VTileInfo.FData := ATileInfo.TileData;
+    if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
+      VTileInfo.FData := VInfoWithData.TileData;
+    end;
     if ATileInfo.IsExists then begin
       VTileInfo.FInfoType := titExists;
     end else if ATileInfo.IsExistsTNE then begin

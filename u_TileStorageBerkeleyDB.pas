@@ -321,7 +321,6 @@ begin
             Result := TTileInfoBasicExistsWithTile.Create(
               VData.TileDate,
               VTileData,
-              VTileData.Size,
               MapVersionFactory.CreateByStoreString(WideString(VData.TileVer)),
               FContentTypeManager.GetInfo(WideString(VData.TileMIME))
             );
@@ -443,6 +442,8 @@ function TTileStorageBerkeleyDB.LoadTile(
 var
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
+var
+  VInfoWithData: ITileInfoWithData;
 begin
   {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FLoadTileCounter.StartOperation;
@@ -453,7 +454,9 @@ begin
     if StorageStateStatic.ReadAccess <> asDisabled then begin
       ATileInfo := GetTileInfo(AXY, AZoom, AVersionInfo);
       if ATileInfo.IsExists then begin
-        Result := ATileInfo.TileData;
+        if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
+          Result := VInfoWithData.TileData;
+        end;
       end;
     end;
   {$IFDEF WITH_PERF_COUNTER}
@@ -500,7 +503,6 @@ begin
             TTileInfoBasicExistsWithTile.Create(
               Now,
               AData,
-              AData.Size,
               AVersionInfo,
               FMainContentType
             )

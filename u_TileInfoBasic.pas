@@ -29,18 +29,13 @@ uses
   i_TileInfoBasic;
 
 type
-  TTileInfoBasicBase = class(TInterfacedObject, ITileInfoBasic)
+  TTileInfoBasicBase = class(TInterfacedObject)
   private
     FDate: TDateTime;
     FVersionInfo: IMapVersionInfo;
   protected
-    function GetIsExists: Boolean; virtual; abstract;
-    function GetIsExistsTNE: Boolean; virtual; abstract;
     function GetLoadDate: TDateTime;
-    function GetTileData: IBinaryData; virtual;
-    function GetSize: Cardinal; virtual; abstract;
     function GetVersionInfo: IMapVersionInfo;
-    function GetContentType: IContentTypeInfoBasic; virtual; abstract;
   public
     constructor Create(
       const ADate: TDateTime;
@@ -48,31 +43,31 @@ type
     );
   end;
 
-  TTileInfoBasicNotExists = class(TTileInfoBasicBase)
+  TTileInfoBasicNotExists = class(TTileInfoBasicBase, ITileInfoBasic)
   protected
-    function GetIsExists: Boolean; override;
-    function GetIsExistsTNE: Boolean; override;
-    function GetSize: Cardinal; override;
-    function GetContentType: IContentTypeInfoBasic; override;
+    function GetIsExists: Boolean;
+    function GetIsExistsTNE: Boolean;
+    function GetSize: Cardinal;
+    function GetContentType: IContentTypeInfoBasic;
   end;
 
-  TTileInfoBasicTNE = class(TTileInfoBasicBase)
+  TTileInfoBasicTNE = class(TTileInfoBasicBase, ITileInfoBasic)
   protected
-    function GetIsExists: Boolean; override;
-    function GetIsExistsTNE: Boolean; override;
-    function GetSize: Cardinal; override;
-    function GetContentType: IContentTypeInfoBasic; override;
+    function GetIsExists: Boolean;
+    function GetIsExistsTNE: Boolean;
+    function GetSize: Cardinal;
+    function GetContentType: IContentTypeInfoBasic;
   end;
 
-  TTileInfoBasicExists = class(TTileInfoBasicBase)
+  TTileInfoBasicExists = class(TTileInfoBasicBase, ITileInfoBasic)
   private
     FSize: Cardinal;
     FContentType: IContentTypeInfoBasic;
   protected
-    function GetIsExists: Boolean; override;
-    function GetIsExistsTNE: Boolean; override;
-    function GetSize: Cardinal; override;
-    function GetContentType: IContentTypeInfoBasic; override;
+    function GetIsExists: Boolean;
+    function GetIsExistsTNE: Boolean;
+    function GetSize: Cardinal;
+    function GetContentType: IContentTypeInfoBasic;
   public
     constructor Create(
       const ADate: TDateTime;
@@ -82,16 +77,20 @@ type
     );
   end;
 
-  TTileInfoBasicExistsWithTile = class(TTileInfoBasicExists)
+  TTileInfoBasicExistsWithTile = class(TTileInfoBasicBase, ITileInfoBasic, ITileInfoWithData)
   private
+    FContentType: IContentTypeInfoBasic;
     FTileData: IBinaryData;
   protected
-    function GetTileData: IBinaryData; override;
+    function GetTileData: IBinaryData;
+    function GetIsExists: Boolean;
+    function GetIsExistsTNE: Boolean;
+    function GetSize: Cardinal;
+    function GetContentType: IContentTypeInfoBasic;
   public
     constructor Create(
       const ADate: TDateTime;
       const ATileData: IBinaryData;
-      ASize: Cardinal;
       const AVersionInfo: IMapVersionInfo;
       const AContentType: IContentTypeInfoBasic
     );
@@ -120,11 +119,6 @@ end;
 function TTileInfoBasicBase.GetVersionInfo: IMapVersionInfo;
 begin
   Result := FVersionInfo;
-end;
-
-function TTileInfoBasicBase.GetTileData: IBinaryData;
-begin
-  Result := nil;
 end;
 
 { TTileInfoBasicTNE }
@@ -188,12 +182,12 @@ end;
 constructor TTileInfoBasicExistsWithTile.Create(
   const ADate: TDateTime;
   const ATileData: IBinaryData;
-  ASize: Cardinal;
   const AVersionInfo: IMapVersionInfo;
   const AContentType: IContentTypeInfoBasic
 );
 begin
-  inherited Create(ADate, ASize, AVersionInfo, AContentType);
+  inherited Create(ADate, AVersionInfo);
+  FContentType := AContentType;
   FTileData := ATileData;
 end;
 
@@ -201,6 +195,26 @@ destructor TTileInfoBasicExistsWithTile.Destroy;
 begin
   FTileData := nil;
   inherited;
+end;
+
+function TTileInfoBasicExistsWithTile.GetContentType: IContentTypeInfoBasic;
+begin
+  Result := FContentType;
+end;
+
+function TTileInfoBasicExistsWithTile.GetIsExists: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileInfoBasicExistsWithTile.GetIsExistsTNE: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileInfoBasicExistsWithTile.GetSize: Cardinal;
+begin
+  Result := FTileData.Size;
 end;
 
 function TTileInfoBasicExistsWithTile.GetTileData: IBinaryData;
