@@ -185,7 +185,7 @@ var
   VPolygon: TPolygon32;
   i: Integer;
   VPointsProcessedCount: Integer;
-  VEnum: IEnumDoublePoint;
+  VEnum: IEnumLocalPoint;
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
@@ -214,16 +214,17 @@ begin
             if IntersecProjectedRect(VIntersectRect, VMapRect, VLine.Bounds) then begin
               FPreparedPointsAggreagtor.Clear;
               VEnum :=
-                TEnumLocalPointFilterEqual.Create(
-                  TEnumLocalPointClipByRect.Create(
-                    False,
-                    VRectWithDelta,
-                    TEnumDoublePointMapPixelToLocalPixel.Create(
-                      ALocalConverter,
-                      VLine.GetEnum
-                    )
-                  )
+                TEnumDoublePointMapPixelToLocalPixel.Create(
+                  ALocalConverter,
+                  VLine.GetEnum
                 );
+              VEnum :=
+                TEnumLocalPointClipByRect.Create(
+                  False,
+                  VRectWithDelta,
+                  VEnum
+                );
+              VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
               while VEnum.Next(VPoint) do begin
                 FPreparedPointsAggreagtor.Add(VPoint);
               end;
@@ -292,7 +293,7 @@ var
   VPolygon: TPolygon32;
   i: Integer;
   VPointsProcessedCount: Integer;
-  VEnum: IEnumDoublePoint;
+  VEnum: IEnumLocalPoint;
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
@@ -320,18 +321,18 @@ begin
             if IntersecProjectedRect(VIntersectRect, VMapRect, VLine.Bounds) then begin
               FPreparedPointsAggreagtor.Clear;
               VEnum :=
-                TEnumDoublePointClosePoly.Create(
-                  TEnumLocalPointFilterEqual.Create(
-                    TEnumLocalPointClipByRect.Create(
-                      True,
-                      VRectWithDelta,
-                      TEnumDoublePointMapPixelToLocalPixel.Create(
-                        ALocalConverter,
-                        VLine.GetEnum
-                      )
-                    )
-                  )
+                TEnumDoublePointMapPixelToLocalPixel.Create(
+                  ALocalConverter,
+                  VLine.GetEnum
                 );
+              VEnum :=
+                TEnumLocalPointClipByRect.Create(
+                  True,
+                  VRectWithDelta,
+                  VEnum
+                );
+              VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
+              VEnum := TEnumLocalPointClosePoly.Create(VEnum);
               while VEnum.Next(VPoint) do begin
                 FPreparedPointsAggreagtor.Add(VPoint);
               end;
