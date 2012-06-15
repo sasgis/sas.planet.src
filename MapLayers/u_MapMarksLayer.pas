@@ -100,15 +100,13 @@ type
     );
     destructor Destroy; override;
 
-    procedure MouseOnReg(
+    function MouseOnReg(
       const xy: TPoint;
-      out AMark: IMark;
       out AMarkS: Double
-    ); overload;
-    procedure MouseOnReg(
-      const xy: TPoint;
-      out AMark: IMark
-    ); overload;
+    ): IMark; overload;
+    function MouseOnReg(
+      const xy: TPoint
+    ): IMark; overload;
 
     function GetIntersection(
       const ACurrLonLat: TDoublePoint;
@@ -325,11 +323,10 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(
+function TMapMarksLayer.MouseOnReg(
   const xy: TPoint;
-  out AMark: IMark;
   out AMarkS: Double
-);
+): IMark;
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -350,9 +347,9 @@ var
   VProjectdPath: IProjectedPath;
   VProjectdPolygon: IProjectedPolygon;
 begin
+  Result := nil;
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
-    AMark := nil;
     AMarkS := 0;
 
     FMarksSubsetCS.BeginRead;
@@ -380,14 +377,14 @@ begin
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
           if IsIntersecLonLatRect(VLonLatRect, VMark.LLRect) then begin
             if Supports(VMark, IMarkPoint) then begin
-              AMark := VMark;
+              Result := VMark;
               AMarkS := 0;
               exit;
             end else begin
               if Supports(VMark, IMarkLine, VMarkLine) then begin
                 VProjectdPath := GetProjectedPath(VMarkLine, VLocalConverter.ProjectionInfo);
                 if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
-                  AMark := VMark;
+                  Result := VMark;
                   AMarkS := 0;
                   exit;
                 end;
@@ -396,8 +393,8 @@ begin
                 if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                   VProjectdPolygon.IsPointOnBorder(VPixelPos, (VMarkPoly.LineWidth / 2) + 3) then begin
                   VSquare := VProjectdPolygon.CalcArea;
-                  if (AMark = nil) or (VSquare < AMarkS) then begin
-                    AMark := VMark;
+                  if (Result = nil) or (VSquare < AMarkS) then begin
+                    Result := VMark;
                     AMarkS := VSquare;
                   end;
                 end;
@@ -483,14 +480,13 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.MouseOnReg(
-  const xy: TPoint;
-  out AMark: IMark
-);
+function TMapMarksLayer.MouseOnReg(
+  const xy: TPoint
+): IMark;
 var
   VMarkS: Double;
 begin
-  MouseOnReg(xy, AMark, VMarkS);
+  Result := MouseOnReg(xy, VMarkS);
 end;
 
 function TMapMarksLayer.GetIntersection(
