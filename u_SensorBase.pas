@@ -23,7 +23,6 @@ unit u_SensorBase;
 interface
 
 uses
-  SysUtils,
   t_GeoTypes,
   i_JclNotify,
   i_StringConfigDataElement,
@@ -152,7 +151,6 @@ implementation
 
 uses
   Math,
-  u_JclNotify,
   u_NotifyEventListener,
   u_JclListenerNotifierLinksList,
   u_GeoFun;

@@ -24,7 +24,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_JclNotify,
   i_GPS,
   i_ConfigDataElement;
 

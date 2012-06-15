@@ -5,10 +5,8 @@ interface
 uses
   Windows,
   GR32,
-  GR32_Polygons,
   GR32_Image,
   i_JclNotify,
-  t_GeoTypes,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -56,14 +54,11 @@ type
 implementation
 
 uses
-  Classes,
-  SysUtils,
   GR32_Resamplers,
   i_CoordConverter,
   i_Bitmap32Static,
   i_BitmapLayerProvider,
   i_TileIterator,
-  u_GeoFun,
   u_NotifyEventListener,
   u_BitmapLayerProviderByTrackPath,
   u_TileIteratorSpiralByRect;
