@@ -25,6 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_JclNotify,
+  i_GPS,
   i_StringConfigDataElement,
   i_Sensor,
   i_SensorList,
@@ -139,6 +140,23 @@ type
     function GetCurrentValue: string; virtual; abstract;
   protected
     function GetText: string;
+  public
+    procedure AfterConstruction; override;
+  public
+    constructor Create(
+      const ADataChangeNotifier: IJclNotifier
+    );
+  end;
+
+  TSensorGPSSatellitesValue = class(TSensorBase)
+  private
+    FLastValue: IGPSSatellitesInView;
+    procedure OnDataChanged;
+    function ValueChanged(const AOld, ANew: IGPSSatellitesInView): Boolean;
+  protected
+    function GetCurrentValue: IGPSSatellitesInView; virtual; abstract;
+  protected
+    function GetInfo: IGPSSatellitesInView;
   public
     procedure AfterConstruction; override;
   public
@@ -457,6 +475,57 @@ begin
 end;
 
 function TSensorByteValue.ValueChanged(const AOld, ANew: Byte): Boolean;
+begin
+  Result := AOld <> ANew;
+end;
+
+{ TSensorGPSSatellitesValue }
+
+procedure TSensorGPSSatellitesValue.AfterConstruction;
+begin
+  inherited;
+  OnDataChanged;
+end;
+
+constructor TSensorGPSSatellitesValue.Create(
+  const ADataChangeNotifier: IJclNotifier);
+begin
+  inherited Create;
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnDataChanged),
+    ADataChangeNotifier
+  );
+end;
+
+function TSensorGPSSatellitesValue.GetInfo: IGPSSatellitesInView;
+begin
+  LockRead;
+  try
+    Result := FLastValue;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TSensorGPSSatellitesValue.OnDataChanged;
+var
+  VValue: IGPSSatellitesInView;
+begin
+  VValue := GetCurrentValue;
+  LockWrite;
+  try
+    if ValueChanged(FLastValue, VValue) then begin
+      FLastValue := VValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+function TSensorGPSSatellitesValue.ValueChanged(
+  const AOld, ANew: IGPSSatellitesInView
+): Boolean;
 begin
   Result := AOld <> ANew;
 end;

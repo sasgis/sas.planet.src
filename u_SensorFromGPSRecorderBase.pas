@@ -60,6 +60,17 @@ type
     );
   end;
 
+  TSensorGPSSatellitesValueFromGPSRecorder = class(TSensorGPSSatellitesValue)
+  private
+    FGPSRecorder: IGPSRecorder;
+  protected
+    property GPSRecorder: IGPSRecorder read FGPSRecorder;
+  public
+    constructor Create(
+      const AGPSRecorder: IGPSRecorder
+    );
+  end;
+
 implementation
 
 uses
@@ -88,6 +99,15 @@ end;
 { TSensorTextValueFromGPSRecorder }
 
 constructor TSensorTextValueFromGPSRecorder.Create(
+  const AGPSRecorder: IGPSRecorder);
+begin
+  inherited Create(AGPSRecorder.ChangeNotifier);
+  FGPSRecorder := AGPSRecorder;
+end;
+
+{ TSensorGPSSatellitesValueFromGPSRecorder }
+
+constructor TSensorGPSSatellitesValueFromGPSRecorder.Create(
   const AGPSRecorder: IGPSRecorder);
 begin
   inherited Create(AGPSRecorder.ChangeNotifier);

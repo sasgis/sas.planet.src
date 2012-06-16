@@ -23,6 +23,7 @@ unit u_SensorsFromGPSRecorder;
 interface
 
 uses
+  i_GPS,
   i_GPSRecorder,
   i_Sensor,
   u_SensorFromGPSRecorderBase;
@@ -120,11 +121,16 @@ type
     procedure Reset;
   end;
 
+  TSensorFromGPSRecorderGPSSatellites = class(TSensorGPSSatellitesValueFromGPSRecorder, ISensorGPSSatellites)
+  protected
+    function GetSensorTypeIID: TGUID; override;
+    function GetCurrentValue: IGPSSatellitesInView; override;
+  end;
+
 implementation
 
 uses
   SysUtils,
-  i_GPS,
   u_GeoToStr,
   vsagps_public_base,
   vsagps_public_position,
@@ -400,6 +406,24 @@ procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;
 begin
   inherited;
   GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
+end;
+
+{ TSensorFromGPSRecorderGPSSatellites }
+
+function TSensorFromGPSRecorderGPSSatellites.GetCurrentValue: IGPSSatellitesInView;
+var
+  VPosition: IGPSPosition;
+begin
+  Result := nil;
+  VPosition := GPSRecorder.CurrentPosition;
+  if VPosition <> nil then begin
+    Result := VPosition.Satellites;
+  end;
+end;
+
+function TSensorFromGPSRecorderGPSSatellites.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorGPSSatellites;
 end;
 
 end.
