@@ -366,6 +366,7 @@ uses
   u_GeoCoderByRosreestr in 'u_GeoCoderByRosreestr.pas',
   u_GeoCoderByNavitel in 'u_GeoCoderByNavitel.pas',
   u_GeoCoderByURL in 'u_GeoCoderByURL.pas',
+  u_GeoCoderByCoord in 'u_GeoCoderByCoord.pas',
   u_GeoCoderByOSM in 'u_GeoCoderByOSM.pas',
   u_GeoCoderByPolishMap in 'u_GeoCoderByPolishMap.pas',
   u_GeoCoderByTXT in 'u_GeoCoderByTXT.pas',

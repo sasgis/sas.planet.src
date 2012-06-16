@@ -665,6 +665,7 @@
     <DCCReference Include="u_GeoCoderByNavitel.pas" />
     <DCCReference Include="u_GeoCoderByRosreestr.pas" />
     <DCCReference Include="u_GeoCoderByURL.pas" />
+    <DCCReference Include="u_GeoCoderByCoord.pas" />
     <DCCReference Include="u_GeoCoderByWikimapia.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
     <DCCReference Include="u_GeoCoderByOSM.pas" />
