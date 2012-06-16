@@ -119,6 +119,7 @@ type
       const AMarkLine: IMarkLine;
       const AProjection: IProjectionInfo
     ): boolean; overload;
+    procedure Redraw; override;
   end;
 
 implementation
@@ -558,6 +559,11 @@ begin
   finally
     ViewUpdateUnlock;
   end;
+end;
+
+procedure TMapMarksLayer.Redraw;
+begin
+  inherited;
 end;
 
 procedure TMapMarksLayer.StartThreads;
