@@ -273,7 +273,6 @@ type
     procedure btnGPSSwitchClick(Sender: TObject);
     procedure btnImageProcessResetClick(Sender: TObject);
   private
-    FShortCutManager: TShortcutManager;
     FOnSave: TNotifyEvent;
     FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
@@ -336,14 +335,17 @@ begin
   inherited Create(ALanguageManager);
   FAutodetecting:=FALSE;
   FMapTypeEditor := AMapTypeEditor;
-  FShortCutManager := AShortCutManager;
   FOnSave := AOnSave;
   FLinksList := TJclListenerNotifierLinksList.Create;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
     GState.GPSpar.DataReciveNotifier
   );
-  frShortCutList := TfrShortCutList.Create(ALanguageManager);
+  frShortCutList :=
+    TfrShortCutList.Create(
+      ALanguageManager,
+      AShortCutManager
+    );
   frMapsList :=
     TfrMapsList.Create(
       ALanguageManager,
@@ -916,7 +918,6 @@ begin
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- frShortCutList.SetShortCutManager(FShortCutManager);
  SatellitePaint;
 end;
 

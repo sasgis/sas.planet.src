@@ -52,9 +52,9 @@ type
     procedure LoadList(AList: TStrings);
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager
+      const ALanguageManager: ILanguageManager;
+      AShortCutManager: TShortcutManager
     ); reintroduce;
-    procedure SetShortCutManager(AShortCutManager: TShortcutManager);
     procedure CancelChanges;
     procedure ApplyChanges;
     procedure RefreshTranslation; override;
@@ -84,11 +84,17 @@ begin
 end;
 
 constructor TfrShortCutList.Create(
-  const ALanguageManager: ILanguageManager
+  const ALanguageManager: ILanguageManager;
+  AShortCutManager: TShortcutManager
 );
 begin
   inherited Create(ALanguageManager);
+  FShortCutManager := AShortCutManager;
   FShortCutEdit := TShortCutModalEditByForm.Create(ALanguageManager);
+
+  if FShortCutManager <> nil then begin
+    LoadList(lstShortCutList.Items);
+  end;
 end;
 
 procedure TfrShortCutList.LoadList(AList: TStrings);
@@ -190,17 +196,6 @@ begin
   if FShortCutManager <> nil then begin
     FShortCutManager.CancelChanges;
     LoadList(lstShortCutList.Items);
-  end;
-end;
-
-procedure TfrShortCutList.SetShortCutManager(
-  AShortCutManager: TShortcutManager);
-begin
-  if FShortCutManager <> AShortCutManager then begin
-    FShortCutManager := AShortCutManager;
-    if FShortCutManager <> nil then begin
-      LoadList(lstShortCutList.Items);
-    end;
   end;
 end;
 
