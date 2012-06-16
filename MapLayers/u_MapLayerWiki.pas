@@ -457,6 +457,7 @@ var
   VTilePixelsToDraw: TRect;
   { Прямоугольник пикселов в которые будет скопирован текущий тайл }
   VCurrTileOnBitmapRect: TRect;
+  VTileConverter: ILocalCoordConverter;
 begin
   FConfig.LockRead;
   try
@@ -492,12 +493,13 @@ begin
 
           VTileToDrawBmp.SetSize(VTilePixelsToDraw.Right, VTilePixelsToDraw.Bottom);
           VTileToDrawBmp.Clear(0);
+          VTileConverter := ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert);
           GetBitmapRect(
             AOperationID,
             ACancelNotifier,
             AElments,
             VTileToDrawBmp,
-            ConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert),
+            VTileConverter,
             VColorMain,
             VColorBG,
             VPointColor
