@@ -746,27 +746,27 @@ procedure TWikiLayer.DrawBitmap(
   const ACancelNotifier: IOperationNotifier
 );
 var
-  VLocalConverter: ILocalCoordConverter;
+  VBitmapConverter: ILocalCoordConverter;
   VList: IInterfaceList;
   VMapPixelRect: TDoubleRect;
 begin
   inherited;
-  VLocalConverter := LayerCoordConverter;
-  if VLocalConverter <> nil then begin
-    VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+  VBitmapConverter := LayerCoordConverter;
+  if VBitmapConverter <> nil then begin
+    VMapPixelRect := VBitmapConverter.GetRectInMapPixelFloat;
     FLinesClipRect.Left := VMapPixelRect.Left - 10;
     FLinesClipRect.Top := VMapPixelRect.Top - 10;
     FLinesClipRect.Right := VMapPixelRect.Right + 10;
     FLinesClipRect.Bottom := VMapPixelRect.Bottom + 10;
     ElementsClear;
     FProjectedCache.Clear;
-    PrepareWikiElements(AOperationID, ACancelNotifier, VLocalConverter);
+    PrepareWikiElements(AOperationID, ACancelNotifier, VBitmapConverter);
     VList := TInterfaceList.Create;
     // copy all elements into
     FAllElements.CopyMapElementsToList(TRUE, TRUE, VList);
     // work
     if VList.Count > 0 then begin
-      ProcessDraw(AOperationID, ACancelNotifier, VList, VLocalConverter);
+      ProcessDraw(AOperationID, ACancelNotifier, VList, VBitmapConverter);
     end else begin
       Layer.Bitmap.Lock;
       try

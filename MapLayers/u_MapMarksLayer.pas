@@ -98,7 +98,6 @@ type
       const AConfig: IMarksLayerConfig;
       AMarkDB: TMarksSystem
     );
-    destructor Destroy; override;
 
     function MouseOnReg(
       const xy: TPoint;
@@ -120,7 +119,6 @@ type
       const AMarkLine: IMarkLine;
       const AProjection: IProjectionInfo
     ): boolean; overload;
-    procedure Redraw; override;
   end;
 
 implementation
@@ -188,12 +186,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.MarksDrawConfig.GetChangeNotifier
   );
-end;
-
-destructor TMapMarksLayer.Destroy;
-begin
-  FMarksSubsetCS := nil;
-  inherited;
 end;
 
 procedure TMapMarksLayer.DrawBitmap(
@@ -566,11 +558,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-end;
-
-procedure TMapMarksLayer.Redraw;
-begin
-  inherited;
 end;
 
 procedure TMapMarksLayer.StartThreads;
