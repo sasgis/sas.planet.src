@@ -58,9 +58,8 @@ type
     function LoadTile(
       const AXY: TPoint;
       Azoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      out ATileInfo: ITileInfoBasic
-    ): IBinaryData;
+      const AVersionInfo: IMapVersionInfo
+    ): ITileInfoWithData;
     function DeleteTile(
       const AXY: TPoint;
       Azoom: byte;
