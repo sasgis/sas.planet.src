@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_SensorTextFromGPSRecorder;
+unit u_SensorFromGPSRecorderBase;
 
 interface
 

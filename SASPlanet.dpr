@@ -549,7 +549,7 @@ uses
   u_SensorListStuped in 'u_SensorListStuped.pas',
   u_SensorViewTextTBXPanel in 'u_SensorViewTextTBXPanel.pas',
   u_SensorBase in 'u_SensorBase.pas',
-  u_SensorTextFromGPSRecorder in 'u_SensorTextFromGPSRecorder.pas',
+  u_SensorFromGPSRecorderBase in 'u_SensorFromGPSRecorderBase.pas',
   u_SensorsFromGPSRecorder in 'u_SensorsFromGPSRecorder.pas',
   u_SensorTextFromNavToPoint in 'u_SensorTextFromNavToPoint.pas',
   u_SensorBatteryStatus in 'u_SensorBatteryStatus.pas',

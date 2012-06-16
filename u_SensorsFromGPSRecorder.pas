@@ -25,7 +25,7 @@ interface
 uses
   i_GPSRecorder,
   i_Sensor,
-  u_SensorTextFromGPSRecorder;
+  u_SensorFromGPSRecorderBase;
 
 type
   TSensorFromGPSRecorderLastSpeed = class(TSensorDoubeleValueFromGPSRecorder, ISensorSpeed)
