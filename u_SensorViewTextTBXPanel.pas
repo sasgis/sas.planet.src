@@ -273,6 +273,7 @@ type
     FMapDraw: ISatellitesInViewMapDraw;
     FSensor: ISensorGPSSatellites;
     FImage: TImage32;
+    procedure ImageResize(Sender: TObject);
   protected
     procedure CreatePanel; override;
     procedure UpdateDataView; override;
@@ -620,10 +621,24 @@ begin
   FImage.Left := 0;
   FImage.Top := 17;
   FImage.Width := 150;
-  FImage.Height := 15;
-  FImage.Align := alTop;
+  FImage.Height := 45;
+  FImage.Align := alClient;
+  FImage.BitmapAlign := baTopLeft;
+  FImage.Bitmap.SetSizeFrom(FImage);
+  FImage.OnResize := ImageResize;
 
   FBar.ClientAreaHeight := FImage.Top + FImage.Height + 2;
+end;
+
+procedure TSensorViewGPSSatellitesTBXPanel.ImageResize(Sender: TObject);
+begin
+  FImage.Bitmap.Lock;
+  try
+    FImage.Bitmap.SetSizeFrom(FImage);
+    UpdateDataView;
+  finally
+    FImage.Bitmap.Unlock;
+  end;
 end;
 
 procedure TSensorViewGPSSatellitesTBXPanel.UpdateDataView;
@@ -631,7 +646,12 @@ var
   VSatellites: IGPSSatellitesInView;
 begin
   VSatellites := FSensor.Info;
-  FMapDraw.Draw(FImage.Bitmap, VSatellites);
+  FImage.Bitmap.Lock;
+  try
+    FMapDraw.Draw(FImage.Bitmap, VSatellites);
+  finally
+    FImage.Bitmap.Unlock;
+  end;
 end;
 
 { TSensorViewSpeedTBXPanel }

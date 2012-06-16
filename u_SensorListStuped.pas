@@ -509,6 +509,33 @@ begin
       VSensor.SensorTypeIID
      );
   Self.Add(VEntity);
+
+  VSensor := TSensorFromGPSRecorderGPSSatellites.Create(AGPSRecorder);
+  VCaption :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_SensorGPSRecorderGPSSatellitesCaption
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_SensorGPSRecorderGPSSatellitesDescription
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager,
+      @SAS_STR_SensorGPSRecorderGPSSatellitesMenuItemName
+    );
+  VEntity :=
+    TSensorListEntity.Create(
+      CSensorGPSSatellitesGUID,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VSensor,
+      VSensor.SensorTypeIID
+     );
+  Self.Add(VEntity);
 end;
 
 end.

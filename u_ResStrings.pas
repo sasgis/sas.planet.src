@@ -243,6 +243,10 @@ ResourceString
   SAS_STR_SensorGPSRecorderGPSUnitInfoDescription = 'Shows GPS Unit info';
   SAS_STR_SensorGPSRecorderGPSUnitInfoMenuItemName = 'Unit info'; // DGPS
 
+  SAS_STR_SensorGPSRecorderGPSSatellitesCaption = 'Satellite Signal Strength:';
+  SAS_STR_SensorGPSRecorderGPSSatellitesDescription = 'Shows Satellite Signal Strength bars';
+  SAS_STR_SensorGPSRecorderGPSSatellitesMenuItemName = 'Satellite Signal Strength'; // DGPS
+
   SAS_STR_GoogleSearchLanguage = '&hl=en';
 
   SAS_UNITS_kb = 'KB';
