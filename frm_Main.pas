@@ -4901,6 +4901,8 @@ begin
     'http://www.openstreetmap.org/?lat=' +
     R2StrPoint(VLonLat.y) +
     '&lon=' + R2StrPoint(VLonLat.x) +
+    '&mlat=' + R2StrPoint(VLonLat.y) +
+    '&mlon=' + R2StrPoint(VLonLat.x) +
     '&zoom=' + inttostr(VZoom)
   );
 end;
