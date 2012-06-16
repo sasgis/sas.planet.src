@@ -120,7 +120,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 238
+      Left = 230
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -152,7 +152,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 365
+      Left = 363
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -163,7 +163,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 536
+      Left = 534
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -463,12 +463,6 @@ object frmMain: TfrmMain
             OnClick = NSensorsClick
             Caption = 'Sensors'
             Hint = ''
-            object NSignalStrengthBar: TTBXVisibilityToggleItem
-              Control = TBXSignalStrengthBar
-              Images = MenusImageList
-              Caption = 'Satellite Signal Strength'
-              Hint = ''
-            end
           end
           object TBXSeparatorItem18: TTBXSeparatorItem
             Caption = ''
@@ -1252,7 +1246,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 399
+      Left = 429
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1278,7 +1272,7 @@ object frmMain: TfrmMain
       end
     end
     object FillDates: TTBXToolbar
-      Left = 610
+      Left = 629
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
@@ -1330,8 +1324,8 @@ object frmMain: TfrmMain
         OnChange = DateTimePicker1Change
       end
       object DateTimePicker2: TDateTimePicker
-        Left = 141
-        Top = 0
+        Left = 203
+        Top = 21
         Width = 81
         Height = 21
         Date = 40830.496065717590000000
@@ -1459,7 +1453,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 170
-        Height = 551
+        Height = 549
         Align = alClient
         AutoSize = True
         BevelOuter = bvNone
@@ -1474,7 +1468,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 9
           Width = 170
-          Height = 542
+          Height = 540
           HorzScrollBar.Visible = False
           VertScrollBar.Smooth = True
           VertScrollBar.Tracking = True
@@ -1555,7 +1549,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 112
+        Top = 114
         Width = 61
         Height = 22
         MaxValue = 100000
@@ -1601,33 +1595,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 0
           Width = 160
-          Height = 36
-          object TBXSignalStrengthBar: TTBXToolWindow
-            Left = 0
-            Top = 0
-            Hint = 'Signal-to-noise ratio for satellites in use'
-            Align = alTop
-            ClientAreaHeight = 32
-            ClientAreaWidth = 150
-            DockPos = 6
-            DockRow = 10
-            Stretch = True
-            TabOrder = 0
-            DesignSize = (
-              150
-              32)
-            Caption = 'Satellite Signal Strength'
-            object TBXLabel5: TTBXLabel
-              Left = 0
-              Top = 0
-              Width = 145
-              Height = 13
-              Anchors = [akLeft, akTop, akRight]
-              AutoSize = False
-              Wrapping = twEndEllipsis
-              Caption = 'Satellite Signal Strength:'
-            end
-          end
+          Height = 9
         end
       end
     end

@@ -56,7 +56,6 @@ uses
   TBXToolPals,
   TBX,
   TBXDkPanels,
-  TBXControls,
   TBXExtItems,
   TBXGraphics,
   TBXSASTheme,
@@ -342,7 +341,6 @@ type
     TBXVisibilityToggleItem1: TTBXVisibilityToggleItem;
     TBXVisibilityToggleItem2: TTBXVisibilityToggleItem;
     TBXSeparatorItem13: TTBXSeparatorItem;
-    NSignalStrengthBar: TTBXVisibilityToggleItem;
     TBXSeparatorItem18: TTBXSeparatorItem;
     NBlock_toolbars: TTBXItem;
     TBXSeparatorItem19: TTBXSeparatorItem;
