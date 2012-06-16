@@ -269,6 +269,10 @@ begin
   VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
   VRect.BottomRight := VRect.TopLeft;
   if PtInRect(ALocalConverter.GetLocalRect, VRect.TopLeft) then begin
+    if not ABitmapInited then begin
+      InitBitmap(ATargetBmp, ALocalConverter);
+      ABitmapInited := True;
+    end;
     Dec(VRect.Left, 3);
     Dec(VRect.Top, 3);
     Inc(VRect.Right, 3);
@@ -439,7 +443,7 @@ begin
         VItem := IVectorDataItemSimple(FVectorItems[i]);
         if IsIntersecLonLatRect(VLLRect, VItem.LLRect) then begin
           if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
-            VIsEmpty := True;
+            VIsEmpty := False;
           end;
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             Break;
