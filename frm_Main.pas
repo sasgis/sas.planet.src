@@ -278,8 +278,6 @@ type
     TBCOORD: TTBXItem;
     TBPrevious: TTBXItem;
     TBLoadSelFromFile: TTBXItem;
-    TBXSignalStrengthBar: TTBXToolWindow;
-    TBXLabel5: TTBXLabel;
     TBGPSToPoint: TTBXSubmenuItem;
     TBGPSToPointCenter: TTBXItem;
     tbitmGPSToPointCenter: TTBXItem;
@@ -667,7 +665,6 @@ type
 
     procedure CopyStringToClipboard(const s: Widestring);
     procedure setalloperationfalse(newop: TAOperation);
-    procedure UpdateGPSSatellites(const APosition: IGPSPosition);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange;
@@ -2610,58 +2607,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.UpdateGPSSatellites(const APosition: IGPSPosition);
-var
-  bar_width,bar_height,bar_x1,bar_dy:integer;
-  VTalkerID_FixCount,VTalkerID_ALLCount,VCountForAllTalkerIDsFixed,i: Byte;
-  VSatFixed: Boolean;
-  VSatFixibility: TSingleSatFixibilityData;
-  VTalkerID: String;
-  VGPSSatellitesInView: IGPSSatellitesInView;
-begin
-  TBXSignalStrengthBar.Repaint;
-
-  VGPSSatellitesInView:=APosition.Satellites;
-
-  if (not Assigned(VGPSSatellitesInView)) then
-    Exit;
-
-  // total count of satellites (all constellations)
-  VCountForAllTalkerIDsFixed:=VGPSSatellitesInView.GetCountForAllTalkerIDs(TRUE);
-
-  if (0<VCountForAllTalkerIDsFixed) then
-  with TBXSignalStrengthBar do begin
-    Canvas.Lock;
-    try
-      Canvas.Pen.Color:=clBlack;
-      Canvas.Brush.Color:=clGreen;
-      bar_x1:=0;
-      bar_dy:=8;
-      bar_width:=((Width-15) div VCountForAllTalkerIDsFixed);
-
-      // main loop
-      VTalkerID:='';
-      while VGPSSatellitesInView.EnumerateTalkerID(VTalkerID) do begin
-        // counts
-        VTalkerID_FixCount := VGPSSatellitesInView.FixCount[VTalkerID];
-        VTalkerID_ALLCount := VGPSSatellitesInView.Count[VTalkerID];
-
-        // subloop
-        if (0<VTalkerID_FixCount) then
-        for i := 0 to VTalkerID_ALLCount-1 do
-        if VGPSSatellitesInView.GetAllSatelliteParams(i, VTalkerID, VSatFixed, @VSatFixibility) then
-        if VSatFixed then begin
-          bar_height:=trunc(14*((VSatFixibility.snr)/100));
-          Canvas.Rectangle(bar_x1+2,Height-bar_dy-bar_height,bar_x1+bar_width-2,Height-bar_dy);
-          inc(bar_x1,bar_width);
-        end;
-      end;
-    finally
-     Canvas.Unlock;
-    end;
-  end;
-end;
-
 procedure TfrmMain.zooming(ANewZoom:byte; const AMousePos: TPoint; move:boolean);
 var
   ts1,ts2,ts3,fr:int64;
@@ -3899,7 +3844,6 @@ end;
 procedure TfrmMain.GPSReceiverDisconnect;
 begin
   if FConfig.GPSBehaviour.SensorsAutoShow then TBXSensorsBar.Visible:=false;
-  if TBXSignalStrengthBar.Visible then UpdateGPSSatellites(GState.GPSRecorder.CurrentPosition);
   tbitmGPSConnect.Enabled := True;
   TBGPSconn.Enabled := True;
   tbitmGPSConnect.Checked:=false;
@@ -3924,9 +3868,6 @@ var
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
   VpPos := VPosition.GetPosParams;
-
-  if TBXSignalStrengthBar.Visible then
-    UpdateGPSSatellites(VPosition);
 
   // no position?
   if (not VpPos^.PositionOK) then
