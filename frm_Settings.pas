@@ -48,6 +48,7 @@ uses
   i_LanguageManager,
   u_MapType,
   u_ShortcutManager,
+  fr_GpsSatellites,
   fr_MapsList,
   fr_ShortCutList;
 
@@ -220,17 +221,6 @@ type
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
     GroupBox3: TGroupBox;
-    SatellitePaintBox: TImage32;
-    lblSatInfoVisible: TLabel;
-    lblSatInfoZeroSignal: TLabel;
-    lblSatInfoActive: TLabel;
-    shpSatInfoActive: TShape;
-    shpSatInfoVisible: TShape;
-    shpSatInfoZeroSignal: TShape;
-    pnlSatInfoLegend: TPanel;
-    pnlSatInfoActive: TPanel;
-    pnlSatInfoVisible: TPanel;
-    pnlSatInfoZeroSignal: TPanel;
     CBMinimizeToTray: TCheckBox;
     btnGPSAutodetectCOM: TButton;
     lbGPSDelimiter1: TLabel;
@@ -258,29 +248,26 @@ type
     procedure FormCreate(Sender: TObject);
     procedure TrBarGammaChange(Sender: TObject);
     procedure TrBarContrastChange(Sender: TObject);
-    procedure MapListCustomDrawSubItem(Sender: TCustomListView;
-      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
-      var DefaultDraw: Boolean);
     procedure chkUseIEProxyClick(Sender: TObject);
     procedure CBProxyusedClick(Sender: TObject);
     procedure CBLoginClick(Sender: TObject);
     procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
-    procedure SatellitePaintBoxResize(Sender: TObject);
     procedure tsGPSShow(Sender: TObject);
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnGPSSwitchClick(Sender: TObject);
     procedure btnImageProcessResetClick(Sender: TObject);
+    procedure tsGPSHide(Sender: TObject);
+    procedure FormHide(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IJclListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
     frMapsList: TfrMapsList;
+    frGpsSatellites: TfrGpsSatellites;
     FMapTypeEditor: IMapTypeConfigModalEdit;
     FAutodetecting: Boolean;
-    procedure SatellitePaint;
-    procedure GPSReceiverReceive;
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
@@ -308,9 +295,12 @@ uses
   Types,
   Menus,
   t_CommonTypes,
+  c_SensorsGUIDSimple,
   i_ProxySettings,
   i_InetConfig,
   i_GPS,
+  i_Sensor,
+  i_SensorList,
   vsagps_public_base,
   vsagps_public_tracks,
 {$if defined(VSAGPS_AS_DLL)}
@@ -331,16 +321,16 @@ constructor TfrmSettings.Create(
   const AMapTypeEditor: IMapTypeConfigModalEdit;
   AOnSave: TNotifyEvent
 );
+var
+  VSensorListEntity: ISensorListEntity;
+  VSensor: ISensor;
+  VSensorSatellites: ISensorGPSSatellites;
 begin
   inherited Create(ALanguageManager);
   FAutodetecting:=FALSE;
   FMapTypeEditor := AMapTypeEditor;
   FOnSave := AOnSave;
   FLinksList := TJclListenerNotifierLinksList.Create;
-  FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
-    GState.GPSpar.DataReciveNotifier
-  );
   frShortCutList :=
     TfrShortCutList.Create(
       ALanguageManager,
@@ -354,6 +344,20 @@ begin
       GState.MapType.GUIConfigList,
       AMapTypeEditor
     );
+  VSensorListEntity := GState.SensorList.Get(CSensorGPSSatellitesGUID);
+  if VSensorListEntity <> nil then begin
+    VSensor := VSensorListEntity.Sensor;
+    if Supports(VSensor, ISensorGPSSatellites, VSensorSatellites) then begin
+      frGpsSatellites :=
+        TfrGpsSatellites.Create(
+          ALanguageManager,
+          GState.GUISyncronizedTimerNotifier,
+          VSensorSatellites,
+          GState.SkyMapDraw,
+          True
+        );
+    end;
+  end;
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -547,7 +551,7 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
-  
+
  if CBCacheType.ItemIndex >= 0 then begin
   if CBCacheType.ItemIndex = 4 then begin
     // BDB
@@ -749,6 +753,7 @@ destructor TfrmSettings.Destroy;
 begin
   FreeAndNil(frShortCutList);
   FreeAndNil(frMapsList);
+  FreeAndNil(frGpsSatellites);
   inherited;
 end;
 
@@ -918,12 +923,9 @@ begin
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- SatellitePaint;
-end;
-
-procedure TfrmSettings.GPSReceiverReceive;
-begin
-  if Self.Visible then SatellitePaint;
+ if tsGPS.Visible then begin
+   tsGPSShow(nil);
+ end;
 end;
 
 procedure TfrmSettings.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -934,11 +936,17 @@ end;
 procedure TfrmSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
-  SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
   ComboBoxCOM.Items.Clear;
   for i:=1 to 64 do begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
     ComboBoxCOM.Items.Add('COM'+inttostr(i));
+  end;
+end;
+
+procedure TfrmSettings.FormHide(Sender: TObject);
+begin
+  if tsGPS.Visible then begin
+    tsGPSHide(nil);
   end;
 end;
 
@@ -948,48 +956,25 @@ begin
                            else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
 end;
 
+procedure TfrmSettings.tsGPSHide(Sender: TObject);
+begin
+  if frGpsSatellites <> nil then begin
+    frGpsSatellites.Parent := nil;
+    frGpsSatellites.Hide;
+  end;
+end;
+
 procedure TfrmSettings.tsGPSShow(Sender: TObject);
 begin
- pnlGPSLeft.Repaint;
+  if frGpsSatellites <> nil then begin
+    frGpsSatellites.Show;
+    frGpsSatellites.Parent := GroupBox3;
+  end;
 end;
 
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
-end;
-
-procedure TfrmSettings.MapListCustomDrawSubItem(Sender:TCustomListView; Item:TListItem; SubItem:Integer; State:TCustomDrawState; var DefaultDraw:Boolean);
-begin
- if item = nil then EXIT;
- if TMapType(Item.Data).GUIConfig.Separator then
-  begin
-   sender.canvas.Pen.Color:=clGray;
-   sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
-   sender.canvas.LineTo(sender.Column[0].Width,Item.DisplayRect(drBounds).Bottom-1);
-  end;
- if Item.Index mod 2 = 1 then sender.canvas.brush.Color:=cl3DLight
-                         else sender.canvas.brush.Color:=clwhite;
-end;
-
-procedure TfrmSettings.SatellitePaint;
-var
-  VSatellites: IGPSSatellitesInView;
-begin
-  VSatellites := nil;
-  if GState.GPSConfig.GPSEnabled then begin
-    VSatellites := GState.GPSRecorder.CurrentPosition.Satellites;
-  end;
-  GState.SkyMapDraw.Draw(SatellitePaintBox.Bitmap, VSatellites);
-end;
-
-procedure TfrmSettings.SatellitePaintBoxResize(Sender: TObject);
-begin
-  SatellitePaintBox.Bitmap.Lock;
-  try
-    SatellitePaintBox.Bitmap.SetSizeFrom(SatellitePaintBox);
-  finally
-    SatellitePaintBox.Bitmap.Unlock;
-  end;
 end;
 
 procedure TfrmSettings.SaveGPSConfig;
