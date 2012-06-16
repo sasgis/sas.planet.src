@@ -298,9 +298,11 @@ uses
   Controls,
   Math,
   SysUtils,
+  t_GeoTypes,
   i_GPS,
   u_JclListenerNotifierLinksList,
   u_NotifyEventListener,
+  u_GeoFun,
   u_GeoToStr,
   u_ResStrings;
 
@@ -698,9 +700,15 @@ end;
 
 procedure TSensorViewSpeedTBXPanel.UpdateDataView;
 var
+  VValue: Double;
   VText: string;
 begin
-  VText := FValueConverterConfig.GetStatic.SpeedConvert(FSensor.GetValue);
+  VValue := FSensor.GetValue;
+  if IsNan(VValue) then begin
+    VText := '~'
+  end else begin
+    VText := FValueConverterConfig.GetStatic.SpeedConvert(VValue);
+  end;
   FlblValue.Caption := VText;
 end;
 
@@ -748,9 +756,15 @@ end;
 
 procedure TSensorViewLengthTBXPanel.UpdateDataView;
 var
+  VValue: Double;
   VText: string;
 begin
-  VText := FValueConverterConfig.GetStatic.DistConvert(FSensor.GetValue);
+  VValue := FSensor.GetValue;
+  if IsNan(VValue) then begin
+    VText := '~'
+  end else begin
+    VText := FValueConverterConfig.GetStatic.DistConvert(FSensor.GetValue);
+  end;
   FlblValue.Caption := VText;
 end;
 
@@ -792,9 +806,15 @@ end;
 
 procedure TSensorViewDegreesTBXPanel.UpdateDataView;
 var
+  VValue: Double;
   VText: string;
 begin
-  VText := RoundEx(FSensor.GetValue, 2) + '°';
+  VValue := FSensor.GetValue;
+  if IsNan(VValue) then begin
+    VText := '~'
+  end else begin
+    VText := RoundEx(FSensor.GetValue, 2) + '°';
+  end;
   FlblValue.Caption := VText;
 end;
 
@@ -897,9 +917,15 @@ end;
 
 procedure TSensorViewPositionTBXPanel.UpdateDataView;
 var
+  VValue: TDoublePoint;
   VText: string;
 begin
-  VText := FValueConverterConfig.GetStatic.LonLatConvert(FSensor.GetValue);
+  VValue := FSensor.GetValue;
+  if PointIsEmpty(VValue) then begin
+    VText := '~';
+  end else begin
+    VText := FValueConverterConfig.GetStatic.LonLatConvert(FSensor.GetValue);
+  end;
   FlblValue.Caption := VText;
 end;
 
@@ -941,9 +967,15 @@ end;
 
 procedure TSensorViewDoubleTBXPanel.UpdateDataView;
 var
+  VValue: Double;
   VText: string;
 begin
-  VText := RoundEx(FSensor.GetValue, 1);
+  VValue := FSensor.GetValue;
+  if IsNan(VValue) then begin
+    VText := '~'
+  end else begin
+    VText := RoundEx(FSensor.GetValue, 1);
+  end;
   FlblValue.Caption := VText;
 end;
 
