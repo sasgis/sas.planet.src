@@ -3392,10 +3392,6 @@ object frmMain: TfrmMain
         Caption = 'Pathname to Tile in Cache'
         Hint = ''
       end
-      object TBXSubmenuItem1: TTBXSubmenuItem
-        Caption = ''
-        Hint = ''
-      end
     end
     object Nopendir: TTBXItem
       OnClick = NopendirClick

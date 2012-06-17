@@ -411,7 +411,6 @@ type
     nokiamapcreator1: TTBXItem;
     tbpmiVersions: TTBXSubmenuItem;
     tbpmiClearVersion: TTBXItem;
-    TBXSubmenuItem1: TTBXSubmenuItem;
     tbitmTileGrid1p: TTBXItem;
     tbitmTileGrid2p: TTBXItem;
     tbitmTileGrid3p: TTBXItem;
