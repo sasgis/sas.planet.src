@@ -48,7 +48,8 @@ type
     function DoSearch(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const ASearch: WideString
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
     constructor Create;
@@ -214,7 +215,8 @@ end;
 function TGeoCoderByTXT.DoSearch(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const ASearch: WideString
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
 ): IInterfaceList;
 var
 VList: IInterfaceList;

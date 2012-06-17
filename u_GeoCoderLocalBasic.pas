@@ -34,9 +34,9 @@ type
     function DoSearch(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const ASearch: WideString
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; virtual; abstract;
-
   protected
     function GetLocations(
       const ACancelNotifier: IOperationNotifier;
@@ -44,10 +44,7 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IGeoCodeResult; safecall;
-
-  public
   end;
-
 implementation
 
 uses
@@ -75,8 +72,12 @@ begin
    DoSearch(
    ACancelNotifier,
    AOperationID,
-   ASearch
+   ASearch,
+   ALocalConverter
    );
+  if VList = nil then begin
+    VList := TInterfaceList.Create;
+  end;   
   Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList);
 end;
 

@@ -54,7 +54,8 @@ uses
   u_GeoCoderByNavitel,
   u_GeoCoderByURL,
   u_GeoCoderByPolishMap,
-  u_GeoCoderByTXT;
+  u_GeoCoderByTXT,
+  u_GeoCoderByCoord;
 
 { TGeoCoderListSimple }
 
@@ -127,7 +128,7 @@ begin
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
-      'Link and URL',
+      'URL',
       TGeoCoderByURL.Create(AInetConfig, AGCList, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
@@ -153,6 +154,14 @@ begin
   Add(VItem);
   Except
   end;
+
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderCoordGUID,
+      'Coordinates',
+      TGeoCoderByCoord.Create(AValueToStringConverterConfig)
+    );
+  Add(VItem);
 
 end;
 
