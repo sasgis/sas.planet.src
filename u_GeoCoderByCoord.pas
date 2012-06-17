@@ -51,7 +51,8 @@ type
     function DoSearch(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const ASearch: WideString
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
     constructor Create(
@@ -747,7 +748,8 @@ end;
 function TGeoCoderByCoord.DoSearch(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
-  const ASearch: WideString
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
 ): IInterfaceList;
 var
  V2Search : string;
@@ -875,9 +877,9 @@ begin
         XYPoint.X:=ViLon;
         XYPoint.Y:=ViLat;
         sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
-        XYRect := FLocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
+        XYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
         XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-        VPoint := FLocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
+        VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
          sname := ASearch;
          if FValueToStringConverterConfig.IsLatitudeFirst = true then

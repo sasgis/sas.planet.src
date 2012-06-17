@@ -30,13 +30,12 @@ uses
 
 type
   TGeoCoderLocalBasic = class(TInterfacedObject, IGeoCoder)
-  public
-   FLocalConverter : ILocalCoordConverter;
   protected
     function DoSearch(
       const ACancelNotifier: IOperationNotifier;
       AOperationID: Integer;
-      const ASearch: WideString
+      const ASearch: WideString;
+      const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
@@ -66,7 +65,6 @@ begin
   VResultCode := 200;
   VList := nil;
   Result := nil;
-  FLocalConverter := ALocalConverter;
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
   end;
@@ -74,7 +72,8 @@ begin
    DoSearch(
    ACancelNotifier,
    AOperationID,
-   ASearch
+   ASearch,
+   ALocalConverter
    );
   if VList = nil then begin
     VList := TInterfaceList.Create;
