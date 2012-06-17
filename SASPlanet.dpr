@@ -451,6 +451,7 @@ uses
   u_SelectionLayer in 'MapLayers\u_SelectionLayer.pas',
   u_LayerScaleLine in 'MapLayers\u_LayerScaleLine.pas',
   u_MapGPSLayer in 'MapLayers\u_MapGPSLayer.pas',
+  u_MapGPSLayerNew in 'MapLayers\u_MapGPSLayerNew.pas',
   u_MapLayerShowError in 'MapLayers\u_MapLayerShowError.pas',
   u_MapLayerGoto in 'MapLayers\u_MapLayerGoto.pas',
   u_MapLayerGPSMarker in 'MapLayers\u_MapLayerGPSMarker.pas',
