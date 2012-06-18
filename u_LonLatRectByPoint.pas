@@ -16,6 +16,9 @@ type
     function GetRight: Double;
     function GetBottom: Double;
 
+    function GetTopLeft: TDoublePoint;
+    function GetBottomRight: TDoublePoint;
+
     function GetRect: TDoubleRect;
     function IsEqual(const ARect: TDoubleRect): Boolean; overload;
     function IsEqual(const ARect: ILonLatRect): Boolean; overload;
@@ -57,6 +60,11 @@ begin
   Result := FPoint.Y;
 end;
 
+function TLonLatRectByPoint.GetBottomRight: TDoublePoint;
+begin
+  Result := FPoint;
+end;
+
 function TLonLatRectByPoint.GetLeft: Double;
 begin
   Result := FPoint.X;
@@ -76,6 +84,11 @@ end;
 function TLonLatRectByPoint.GetTop: Double;
 begin
   Result := FPoint.Y;
+end;
+
+function TLonLatRectByPoint.GetTopLeft: TDoublePoint;
+begin
+  Result := FPoint;
 end;
 
 function TLonLatRectByPoint.IntersecWithRect(out AResultRect: TDoubleRect;

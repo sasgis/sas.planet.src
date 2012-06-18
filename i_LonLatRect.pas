@@ -17,6 +17,11 @@ type
     function GetBottom: Double;
     property Bottom: Double read GetBottom;
 
+    function GetTopLeft: TDoublePoint;
+    property TopLeft: TDoublePoint read GetTopLeft;
+    function GetBottomRight: TDoublePoint;
+    property BottomRight: TDoublePoint read GetBottomRight;
+
     function GetRect: TDoubleRect;
     property Rect: TDoubleRect read GetRect;
 
