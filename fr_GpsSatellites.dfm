@@ -1,11 +1,13 @@
 object frGpsSatellites: TfrGpsSatellites
   Left = 0
   Top = 0
-  Width = 322
-  Height = 406
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
   Visible = False
+  ExplicitWidth = 322
+  ExplicitHeight = 406
   object SatellitePaintBox: TImage32
     AlignWithMargins = True
     Left = 3
@@ -50,13 +52,12 @@ object frGpsSatellites: TfrGpsSatellites
         Left = 31
         Top = 3
         Width = 74
-        Height = 11
+        Height = 13
         Margins.Left = 10
         Margins.Top = 0
         Margins.Right = 0
         Align = alLeft
         Caption = 'Satellites in use'
-        ExplicitHeight = 13
       end
       object shpSatInfoActive: TShape
         AlignWithMargins = True
@@ -101,13 +102,12 @@ object frGpsSatellites: TfrGpsSatellites
         Left = 31
         Top = 3
         Width = 85
-        Height = 11
+        Height = 13
         Margins.Left = 10
         Margins.Top = 0
         Margins.Right = 0
         Align = alLeft
         Caption = 'Satellites in range'
-        ExplicitHeight = 13
       end
     end
     object pnlSatInfoZeroSignal: TPanel
@@ -125,13 +125,12 @@ object frGpsSatellites: TfrGpsSatellites
         Left = 31
         Top = 3
         Width = 104
-        Height = 11
+        Height = 13
         Margins.Left = 10
         Margins.Top = 0
         Margins.Right = 0
         Align = alLeft
         Caption = 'Satellites not in range'
-        ExplicitHeight = 13
       end
       object shpSatInfoZeroSignal: TShape
         AlignWithMargins = True

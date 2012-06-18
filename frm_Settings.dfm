@@ -31,12 +31,16 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Maps'
       ImageIndex = 8
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
     end
     object tsCache: TTabSheet
       Caption = 'Cache'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object flwpnlMemCache: TFlowPanel
@@ -641,6 +645,8 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Internet'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object pnlDownloadParams: TPanel
@@ -751,11 +757,10 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 17
+              Height = 13
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
-              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -860,6 +865,8 @@ object frmSettings: TfrmSettings
     object tsControl: TTabSheet
       Caption = 'Control'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object GroupBox1: TGroupBox
@@ -898,6 +905,8 @@ object frmSettings: TfrmSettings
     object tsView: TTabSheet
       Caption = 'View'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object grdpnlUI: TGridPanel
@@ -1041,12 +1050,11 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 23
+              Height = 13
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
               Layout = tlCenter
-              ExplicitHeight = 13
             end
             object CBoxLocal: TComboBox
               AlignWithMargins = True
@@ -1056,10 +1064,9 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               OnChange = CBoxLocalChange
-              ExplicitWidth = 254
             end
           end
           object pnlOptions: TPanel
@@ -1169,20 +1176,18 @@ object frmSettings: TfrmSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 23
-              Width = 311
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
               Top = 61
-              Width = 311
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1241,10 +1246,9 @@ object frmSettings: TfrmSettings
                 Left = 0
                 Top = 0
                 Width = 91
-                Height = 20
+                Height = 13
                 Align = alLeft
                 Caption = 'Image postprocess'
-                ExplicitHeight = 13
               end
               object btnImageProcessReset: TButton
                 Left = 290
@@ -1709,6 +1713,8 @@ object frmSettings: TfrmSettings
       ImageIndex = 4
       OnHide = tsGPSHide
       OnShow = tsGPSShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object pnlGPSLeft: TPanel
@@ -1748,7 +1754,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 68
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end
@@ -2082,6 +2088,8 @@ object frmSettings: TfrmSettings
     object tsWiki: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object grdpnlWiki: TGridPanel
@@ -2177,6 +2185,8 @@ object frmSettings: TfrmSettings
     object tsGSM: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 650
       ExplicitHeight = 387
       object pnlGSM: TPanel
@@ -2226,7 +2236,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end

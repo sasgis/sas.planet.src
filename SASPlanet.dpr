@@ -435,6 +435,7 @@ uses
   u_BitmapLayerProviderMapWithLayer in 'u_BitmapLayerProviderMapWithLayer.pas',
   u_BitmapLayerProviderForViewMaps in 'u_BitmapLayerProviderForViewMaps.pas',
   u_BitmapLayerProviderFillingMap in 'u_BitmapLayerProviderFillingMap.pas',
+  u_BitmapLayerProviderGridTiles in 'u_BitmapLayerProviderGridTiles.pas',
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',
   u_WindowLayerWithPos in 'MapLayers\u_WindowLayerWithPos.pas',
   u_WindowLayerBasicList in 'u_WindowLayerBasicList.pas',

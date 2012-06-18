@@ -566,6 +566,7 @@
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
+    <DCCReference Include="u_BitmapLayerProviderGridTiles.pas" />
     <DCCReference Include="u_BitmapLayerProviderInPolygon.pas" />
     <DCCReference Include="u_BitmapLayerProviderMapWithLayer.pas" />
     <DCCReference Include="u_BitmapLayerProviderSimpleForCombine.pas" />
