@@ -72,10 +72,10 @@ type
       const AResultList: IInterfaceList
     );
   private
-    procedure LockRead; virtual;
-    procedure LockWrite; virtual;
-    procedure UnlockRead; virtual;
-    procedure UnlockWrite; virtual;
+    procedure LockRead;
+    procedure LockWrite;
+    procedure UnlockRead;
+    procedure UnlockWrite;
   private
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;

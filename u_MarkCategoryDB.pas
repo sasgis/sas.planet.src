@@ -53,10 +53,10 @@ type
     function GetDbCode: Integer;
     procedure InitEmptyDS;
   protected
-    procedure LockRead; virtual;
-    procedure LockWrite; virtual;
-    procedure UnlockRead; virtual;
-    procedure UnlockWrite; virtual;
+    procedure LockRead;
+    procedure LockWrite;
+    procedure UnlockRead;
+    procedure UnlockWrite;
   protected
     function GetCategoryByName(const AName: string): IMarkCategory;
     function WriteCategory(const ACategory: IMarkCategory): IMarkCategory;
