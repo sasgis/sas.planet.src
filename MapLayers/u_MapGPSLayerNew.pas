@@ -86,6 +86,8 @@ begin
   FGPSRecorder := AGPSRecorder;
   FConfig := AConfig;
 
+  FGetTrackCounter := PerfList.CreateAndAddNewCounter('GetTrack');
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -125,17 +127,17 @@ begin
     VCounterContext := FGetTrackCounter.StartOperation;
     try
       VEnum := FGPSRecorder.LastPoints(VPointsCount);
-      Result :=
-        TBitmapLayerProviderByTrackPath.Create(
-          VPointsCount,
-          VLineWidth,
-          VTrackColorer,
-          ALayerConverter.ProjectionInfo,
-          VEnum
-        );
     finally
       FGetTrackCounter.FinishOperation(VCounterContext);
     end;
+    Result :=
+      TBitmapLayerProviderByTrackPath.Create(
+        VPointsCount,
+        VLineWidth,
+        VTrackColorer,
+        ALayerConverter.ProjectionInfo,
+        VEnum
+      );
   end;
 end;
 
