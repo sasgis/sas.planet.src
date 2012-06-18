@@ -1008,7 +1008,7 @@ begin
       // create or stop running
       if (nil=FVSAGPS_Logger) then begin
         // set path for new logger
-        VLoggerPath:=AConfig.LogPath;
+        VLoggerPath:=IncludeTrailingPathDelimiter(AConfig.LogPath);
         tCallbackFilter.seCallCallbackOnParams:=[tpTrkSrc];
         // create new
 {$if defined(VSAGPS_AS_DLL)}
