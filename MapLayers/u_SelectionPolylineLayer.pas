@@ -40,6 +40,7 @@ type
 implementation
 
 uses
+  i_DoublePointFilter,
   u_EnumDoublePointLine2Poly,
   u_NotifyEventListener;
 
@@ -81,14 +82,20 @@ function TSelectionPolylineShadowLayer.GetLine(
 ): ILonLatPolygon;
 var
   VLine: ILonLatPathWithSelected;
+  VFilter: ILonLatPointFilter;
 begin
   Result := nil;
   VLine := FLine;
   if VLine <> nil then begin
+    VFilter :=
+      TLonLatPointFilterLine2Poly.Create(
+        FRadius,
+        ALocalConverter.ProjectionInfo
+      );
     Result :=
       Factory.CreateLonLatPolygonByLonLatPathAndFilter(
         VLine,
-        TLonLatPointFilterLine2Poly.Create(FRadius, ALocalConverter.ProjectionInfo)
+        VFilter
       );
   end;
 end;
