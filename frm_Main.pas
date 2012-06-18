@@ -2306,8 +2306,8 @@ var
   VToolbarItem: TTBCustomItem;
   VItem: IGeoCoderListEntity;
 begin
-  Nbackload.Checked := GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtMap;
-  NbackloadLayer.Checked := GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtLayer;
+  Nbackload.Checked := FConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtMap;
+  NbackloadLayer.Checked := FConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtLayer;
   map.Color := GState.ViewConfig.BackGroundColor;
 
   NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
@@ -2316,7 +2316,7 @@ begin
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
-  NBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
+  NBlock_toolbars.Checked:=FConfig.ToolbarsLock.GetIsLock;
   tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
@@ -2384,6 +2384,7 @@ begin
   TBDockBottom.AllowDrag := not AValue;
   TBXDock1.AllowDrag := not AValue;
   TBXDockForSearch.AllowDrag := not AValue;
+  NBlock_toolbars.Checked := AValue;
 end;
 
 procedure TfrmMain.OnToolbarsLockChange;
@@ -2973,17 +2974,17 @@ end;
 
 procedure TfrmMain.NbackloadClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtMap := (Sender as TTBXItem).Checked;
+  FConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtMap := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NbackloadLayerClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtLayer := (Sender as TTBXItem).Checked;
+  FConfig.LayersConfig.MainMapLayerConfig.UsePrevZoomAtLayer := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.NBlock_toolbarsClick(Sender: TObject);
 begin
-  GState.MainFormConfig.ToolbarsLock.SetLock(NBlock_toolbars.Checked);
+  FConfig.ToolbarsLock.SetLock(NBlock_toolbars.Checked);
 end;
 
 procedure TfrmMain.NaddPointClick(Sender: TObject);
@@ -3663,7 +3664,7 @@ end;
 
 procedure TfrmMain.ShowMiniMapClick(Sender: TObject);
 begin
-  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.Visible := TTBXItem(Sender).Checked;
+  FConfig.LayersConfig.MiniMapLayerConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TfrmMain.ShowLineClick(Sender: TObject);
