@@ -104,6 +104,7 @@ uses
   u_LayerScaleLine,
   u_MapMarksLayer,
   u_MapGPSLayer,
+  u_MapGPSLayerNew,
   u_MapLayerNavToMark,
   u_MapLayerSearchResults,
   u_MapLayerFillingMap,
@@ -1202,20 +1203,36 @@ begin
         FMarkDBGUI.MarksDB
       );
     FLayersList.Add(FLayerMapMarks);
-    FLayersList.Add(
-      TMapGPSLayer.Create(
-        GState.PerfCounterList,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.ClearStrategyFactory,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.GPSTrackConfig,
-        GState.GPSRecorder
-      )
-    );
+    if FConfig.MainConfig.UseNewMainLayer then begin
+      FLayersList.Add(
+        TMapGPSLayerNew.Create(
+          GState.PerfCounterList,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.GUISyncronizedTimerNotifier,
+          FConfig.LayersConfig.GPSTrackConfig,
+          GState.GPSRecorder
+        )
+      );
+    end else begin
+      FLayersList.Add(
+        TMapGPSLayer.Create(
+          GState.PerfCounterList,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.ClearStrategyFactory,
+          GState.GUISyncronizedTimerNotifier,
+          FConfig.LayersConfig.GPSTrackConfig,
+          GState.GPSRecorder
+        )
+      );
+    end;
     FLayersList.Add(
       TMapLayerGPSMarker.Create(
         GState.PerfCounterList,
