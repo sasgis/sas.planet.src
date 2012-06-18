@@ -606,7 +606,7 @@ begin
   VID := Integer(AMarkPath);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     VLineWidth := AMarkPath.LineWidth;
-    VTestArrLenLonLatRect := AMarkPath.LLRect;
+    VTestArrLenLonLatRect := AMarkPath.LLRect.Rect;
     VGeoConverter := AProjectionInfo.GeoConverter;
     VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
     VTestArrLenPixelRect := VGeoConverter.LonLatRect2PixelRectFloat(VTestArrLenLonLatRect, AProjectionInfo.Zoom);
@@ -647,7 +647,7 @@ begin
   VID := Integer(AMarkPoly);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     VLineWidth := AMarkPoly.LineWidth;
-    VTestArrLenLonLatRect := AMarkPoly.LLRect;
+    VTestArrLenLonLatRect := AMarkPoly.LLRect.Rect;
     VGeoConverter := AProjectionInfo.GeoConverter;
     VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
     VTestArrLenPixelRect := VGeoConverter.LonLatRect2PixelRectFloat(VTestArrLenLonLatRect, AProjectionInfo.Zoom);

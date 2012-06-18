@@ -3635,7 +3635,7 @@ begin
   Try
     Poly := GState.LastSelectionInfo.Polygon;
     if Poly.Count > 0 then begin
-      VLonLatRect := Poly.Item[0].Bounds;
+      VLonLatRect := Poly.Item[0].Bounds.Rect;
     end else begin
       VLonLatRect.TopLeft := FConfig.ViewPortState.GetVisualCoordConverter.GetCenterLonLat;
       VLonLatRect.BottomRight := VLonLatRect.TopLeft;

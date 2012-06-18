@@ -172,6 +172,7 @@ uses
   GR32_Resamplers,
   u_Synchronizer,
   i_CoordConverter,
+  i_LonLatRect,
   i_TileIterator,
   i_EnumDoublePoint,
   i_BitmapLayerProvider,
@@ -258,18 +259,22 @@ procedure TWikiLayer.AddWikiElement(
 var
   VConverter: ICoordConverter;
   VSize: TPoint;
+  VRect: ILonLatRect;
   VLLRect: TDoubleRect;
   VBounds: TDoubleRect;
 begin
   if AData <> nil then begin
     VSize := ALocalConverter.GetLocalRectSize;
     VConverter := ALocalConverter.GetGeoConverter;
-    VLLRect := AData.LLRect;
-    VConverter.CheckLonLatRect(VLLRect);
-    VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
-    if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
-      if Supports(AData, IVectorDataItemPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
-        AElments.Add(AData);
+    VRect := AData.LLRect;
+    if VRect <> nil then begin
+      VLLRect := VRect.Rect;
+      VConverter.CheckLonLatRect(VLLRect);
+      VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
+      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
+        if Supports(AData, IVectorDataItemPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
+          AElments.Add(AData);
+        end;
       end;
     end;
   end;
@@ -855,7 +860,7 @@ begin
     // check element
     for i := 0 to ACopiedElements.Count - 1 do begin
       VItem := IVectorDataItemSimple(Pointer(ACopiedElements[i]));
-      if IsIntersecLonLatRect(VLonLatRect, VItem.LLRect) then begin
+      if VItem.LLRect.IsIntersecWithRect(VLonLatRect) then begin
         if Supports(VItem, IVectorDataItemPoint) then begin
           Result := VItem;
           AItemS := 0;

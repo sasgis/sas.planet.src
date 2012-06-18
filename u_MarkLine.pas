@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_LonLatRect,
   i_VectorItemLonLat,
   i_MarksSimple,
   i_MarkCategory,
@@ -34,12 +35,11 @@ uses
 type
   TMarkLine = class(TMarkFullBase, IMarkLine)
   private
-    FLLRect: TDoubleRect;
     FLine: ILonLatPath;
     FLineColor: TColor32;
     FLineWidth: Integer;
   protected
-    function GetLLRect: TDoubleRect; override;
+    function GetLLRect: ILonLatRect; override;
     function GetLine: ILonLatPath;
     function GetLineColor: TColor32;
     function GetLineWidth: Integer;
@@ -53,7 +53,6 @@ type
       AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALLRect: TDoubleRect;
       const ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
@@ -75,14 +74,12 @@ constructor TMarkLine.Create(
   AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALLRect: TDoubleRect;
   const ALine: ILonLatPath;
   ALineColor: TColor32;
   ALineWidth: Integer
 );
 begin
   inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
-  FLLRect := ALLRect;
   FLine := ALine;
   FLineColor := ALineColor;
   FLineWidth := ALineWidth;
@@ -98,9 +95,9 @@ begin
   FLine.GetEnum.Next(Result);
 end;
 
-function TMarkLine.GetLLRect: TDoubleRect;
+function TMarkLine.GetLLRect: ILonLatRect;
 begin
-  Result := FLLRect;
+  Result := FLine.Bounds;
 end;
 
 function TMarkLine.IsEqual(const AMark: IMark): Boolean;
@@ -115,7 +112,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not DoubleRectsEqual(FLLRect, VMarkPath.LLRect) then begin
+  if not FLine.Bounds.IsEqual(VMarkPath.LLRect) then begin
     Result := False;
     Exit;
   end;

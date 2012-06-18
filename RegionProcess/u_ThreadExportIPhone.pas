@@ -253,7 +253,7 @@ var
   VZoom: Integer;
 begin
   VZoom := FZooms[0];
-  VLLCenter := AGeoConvert.PixelPosFloat2LonLat(RectCenter(AGeoConvert.LonLatRect2PixelRectFloat(PolygLL.Bounds, VZoom)), VZoom);
+  VLLCenter := AGeoConvert.PixelPosFloat2LonLat(RectCenter(AGeoConvert.LonLatRect2PixelRectFloat(PolygLL.Bounds.Rect, VZoom)), VZoom);
   AssignFile(Plist, FExportPath + 'com.apple.Maps.plist');
   Rewrite(PList);
   Writeln(PList, '<plist>');

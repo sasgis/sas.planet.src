@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  i_LonLatRect,
   i_Datum,
   i_VectorItemLonLat;
 
@@ -12,21 +13,16 @@ type
   TLonLatLineBase = class(TInterfacedObject)
   private
     FCount: Integer;
-    FBounds: TDoubleRect;
+    FBounds: ILonLatRect;
     FPoints: array of TDoublePoint;
   private
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
   public
     constructor Create(
       AClosed: Boolean;
-      const ABounds: TDoubleRect;
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ); overload;
-    constructor Create(
-      AClosed: Boolean;
+      const ABounds: ILonLatRect;
       const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
@@ -39,6 +35,7 @@ type
     function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
+      const ABounds: ILonLatRect;
       const APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -52,6 +49,7 @@ type
     function CalcArea(const ADatum: IDatum): Double;
   public
     constructor Create(
+      const ABounds: ILonLatRect;
       const APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -67,36 +65,7 @@ uses
 
 constructor TLonLatLineBase.Create(
   AClosed: Boolean;
-  const APoints: PDoublePointArray;
-  ACount: Integer
-);
-var
-  VBounds: TDoubleRect;
-  i: Integer;
-begin
-  inherited Create;
-  VBounds.TopLeft := APoints[0];
-  VBounds.BottomRight := APoints[0];
-  for i := 1 to ACount - 1 do begin
-    if VBounds.Left > APoints[i].X then begin
-      VBounds.Left := APoints[i].X;
-    end;
-    if VBounds.Top < APoints[i].Y then begin
-      VBounds.Top := APoints[i].Y;
-    end;
-    if VBounds.Right < APoints[i].X then begin
-      VBounds.Right := APoints[i].X;
-    end;
-    if VBounds.Bottom > APoints[i].Y then begin
-      VBounds.Bottom := APoints[i].Y;
-    end;
-  end;
-  Create(AClosed, VBounds, APoints, ACount);
-end;
-
-constructor TLonLatLineBase.Create(
-  AClosed: Boolean;
-  const ABounds: TDoubleRect;
+  const ABounds: ILonLatRect;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
@@ -114,7 +83,7 @@ begin
   Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
 end;
 
-function TLonLatLineBase.GetBounds: TDoubleRect;
+function TLonLatLineBase.GetBounds: ILonLatRect;
 begin
   Result := FBounds;
 end;
@@ -148,11 +117,12 @@ begin
 end;
 
 constructor TLonLatPathLine.Create(
+  const ABounds: ILonLatRect;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
-  inherited Create(False, APoints, ACount);
+  inherited Create(False, ABounds,  APoints, ACount);
 end;
 
 function TLonLatPathLine.GetEnum: IEnumLonLatPoint;
@@ -175,7 +145,7 @@ begin
     Exit;
   end;
 
-  if not DoubleRectsEqual(FBounds, ALine.Bounds) then begin
+  if not FBounds.IsEqual(ALine.Bounds) then begin
     Result := False;
     Exit;
   end;
@@ -220,11 +190,12 @@ begin
 end;
 
 constructor TLonLatPolygonLine.Create(
+  const ABounds: ILonLatRect;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
-  inherited Create(True, APoints, ACount);
+  inherited Create(True, ABounds, APoints, ACount);
 end;
 
 function TLonLatPolygonLine.GetEnum: IEnumLonLatPoint;
@@ -247,7 +218,7 @@ begin
     Exit;
   end;
 
-  if not DoubleRectsEqual(FBounds, ALine.Bounds) then begin
+  if not FBounds.IsEqual(ALine.Bounds) then begin
     Result := False;
     Exit;
   end;

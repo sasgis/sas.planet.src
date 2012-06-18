@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_LonLatRect,
   i_VectorItemLonLat,
   i_MarksSimple,
   i_MarkCategory,
@@ -34,13 +35,12 @@ uses
 type
   TMarkPoly = class(TMarkFullBase, IMarkPoly)
   private
-    FLLRect: TDoubleRect;
     FLine: ILonLatPolygon;
     FBorderColor: TColor32;
     FFillColor: TColor32;
     FLineWidth: Integer;
   protected
-    function GetLLRect: TDoubleRect; override;
+    function GetLLRect: ILonLatRect; override;
     function GetLine: ILonLatPolygon;
     function GetBorderColor: TColor32;
     function GetFillColor: TColor32;
@@ -55,7 +55,6 @@ type
       AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALLRect: TDoubleRect;
       const ALine: ILonLatPolygon;
       ABorderColor: TColor32;
       AFillColor: TColor32;
@@ -78,14 +77,12 @@ constructor TMarkPoly.Create(
   AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALLRect: TDoubleRect;
   const ALine: ILonLatPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 );
 begin
   inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
-  FLLRect := ALLRect;
   FLine := ALine;
   FBorderColor := ABorderColor;
   FFillColor := AFillColor;
@@ -103,14 +100,17 @@ begin
 end;
 
 function TMarkPoly.GetGoToLonLat: TDoublePoint;
+var
+  VRect: TDoubleRect;
 begin
-  Result.X := (FLLRect.Left + FLLRect.Right) / 2;
-  Result.Y := (FLLRect.Top + FLLRect.Bottom) / 2;
+  VRect := FLine.Bounds.Rect;
+  Result.X := (VRect.Left + VRect.Right) / 2;
+  Result.Y := (VRect.Top + VRect.Bottom) / 2;
 end;
 
-function TMarkPoly.GetLLRect: TDoubleRect;
+function TMarkPoly.GetLLRect: ILonLatRect;
 begin
-  Result := FLLRect;
+  Result := FLine.Bounds;
 end;
 
 function TMarkPoly.IsEqual(const AMark: IMark): Boolean;
@@ -125,7 +125,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not DoubleRectsEqual(FLLRect, VMarkPoly.LLRect) then begin
+  if not FLine.Bounds.IsEqual(VMarkPoly.LLRect) then begin
     Result := False;
     Exit;
   end;

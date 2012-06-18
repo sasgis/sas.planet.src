@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
@@ -31,9 +32,9 @@ uses
 type
   TVectorDataItemPoint = class(TVectorDataItemBase, IVectorDataItemPoint)
   private
-    FPoint: TDoublePoint;
+    FLLRect: ILonLatRect;
   protected
-    function GetLLRect: TDoubleRect; override;
+    function GetLLRect: ILonLatRect; override;
     function GetPoint: TDoublePoint;
   public
     constructor Create(
@@ -45,6 +46,9 @@ type
   end;
 
 implementation
+
+uses
+  u_LonLatRectByPoint;
 
 { TVectorDataItemPoint }
 
@@ -59,18 +63,17 @@ begin
     AName,
     ADesc
   );
-  FPoint := APoint;
+  FLLRect := TLonLatRectByPoint.Create(APoint);
 end;
 
-function TVectorDataItemPoint.GetLLRect: TDoubleRect;
+function TVectorDataItemPoint.GetLLRect: ILonLatRect;
 begin
-  Result.TopLeft := FPoint;
-  Result.BottomRight := FPoint;
+  Result := FLLRect;
 end;
 
 function TVectorDataItemPoint.GetPoint: TDoublePoint;
 begin
-  Result := FPoint;
+  Result := FLLRect.TopLeft;
 end;
 
 end.

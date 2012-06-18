@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_VectorItemLonLat;
 
 type
@@ -35,8 +36,8 @@ type
     function GetDesc: string;
     property Desc: string read GetDesc;
 
-    function GetLLRect: TDoubleRect;
-    property LLRect: TDoubleRect read GetLLRect;
+    function GetLLRect: ILonLatRect;
+    property LLRect: ILonLatRect read GetLLRect;
 
     function GetHintText: string;
     function GetHintTextWithoutDesc: string;

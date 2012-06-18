@@ -68,7 +68,6 @@ type
       ACategoryId: Integer;
       const ACategory: ICategory;
       const ADesc: string;
-      const ARect: TDoubleRect;
       const ALine: ILonLatPath;
       ALineColor: TColor32;
       ALineWidth: Integer
@@ -80,7 +79,6 @@ type
       ACategoryId: Integer;
       const ACategory: ICategory;
       const ADesc: string;
-      const ARect: TDoubleRect;
       const ALine: ILonLatPolygon;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
@@ -245,7 +243,6 @@ begin
       VCategoryId,
       nil,
       ADesc,
-      ALine.Bounds,
       ALine,
       VTemplate.LineColor,
       VTemplate.LineWidth
@@ -330,7 +327,6 @@ begin
       VCategoryId,
       nil,
       ADesc,
-      ALine.Bounds,
       ALine,
       VTemplate.BorderColor,
       VTemplate.FillColor,
@@ -400,7 +396,6 @@ function TMarkFactory.CreateLine(
   ACategoryId: Integer;
   const ACategory: ICategory;
   const ADesc: string;
-  const ARect: TDoubleRect;
   const ALine: ILonLatPath;
   ALineColor: TColor32;
   ALineWidth: Integer
@@ -421,7 +416,6 @@ begin
       AVisible,
       VCategory,
       ADesc,
-      ARect,
       ALine,
       ALineColor,
       ALineWidth
@@ -435,7 +429,6 @@ function TMarkFactory.CreatePoly(
   ACategoryId: Integer;
   const ACategory: ICategory;
   const ADesc: string;
-  const ARect: TDoubleRect;
   const ALine: ILonLatPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
@@ -456,7 +449,6 @@ begin
       AVisible,
       VCategory,
       ADesc,
-      ARect,
       ALine,
       ABorderColor,
       AFillColor,
@@ -511,7 +503,6 @@ begin
             ACategoryId,
             nil,
             ADesc,
-            VPolygon.Bounds,
             VPolygon,
             AColor1,
             AColor2,
@@ -527,7 +518,6 @@ begin
             ACategoryId,
             nil,
             ADesc,
-            VPath.Bounds,
             VPath,
             AColor1,
             AScale1
@@ -583,7 +573,6 @@ begin
       VCategoryId,
       ASource.Category,
       VDesc,
-      ALine.Bounds,
       ALine,
       ASource.LineColor,
       ASource.LineWidth
@@ -617,7 +606,6 @@ begin
       VCategoryId,
       ASource.Category,
       ASource.Desc,
-      ALine.Bounds,
       ALine,
       ASource.BorderColor,
       ASource.FillColor,
@@ -717,7 +705,6 @@ begin
       VCategoryId,
       ACategory,
       ADesc,
-      ALine.Bounds,
       ALine,
       ALineColor,
       ALineWidth
@@ -762,7 +749,6 @@ begin
       VCategoryId,
       ACategory,
       ADesc,
-      ALine.Bounds,
       ALine,
       ABorderColor,
       AFillColor,

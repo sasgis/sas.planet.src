@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_VectorDataItemSimple,
   i_VectorItemLonLat,
   i_HtmlToHintTextConverter,
@@ -32,15 +33,15 @@ uses
 type
   TVectorDataItemPolygon = class(TVectorDataItemBase)
   private
-    FLLRect: TDoubleRect;
+    FLLRect: ILonLatRect;
   protected
-    function GetLLRect: TDoubleRect; override;
+    function GetLLRect: ILonLatRect; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
-      const ALLRect: TDoubleRect
+      const ALLRect: ILonLatRect
     );
   end;
 
@@ -80,14 +81,14 @@ implementation
 constructor TVectorDataItemPolygon.Create(
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
-  const ALLRect: TDoubleRect
+  const ALLRect: ILonLatRect
 );
 begin
   inherited Create(AHintConverter, AName, ADesc);
   FLLRect := ALLRect;
 end;
 
-function TVectorDataItemPolygon.GetLLRect: TDoubleRect;
+function TVectorDataItemPolygon.GetLLRect: ILonLatRect;
 begin
   Result := FLLRect;
 end;

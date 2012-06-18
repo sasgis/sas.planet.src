@@ -91,6 +91,7 @@ uses
   Dialogs,
   SysUtils,
   gnugettext,
+  i_LonLatRect,
   i_MarksSimple,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
@@ -180,6 +181,7 @@ function TProviderMapCombine.PrepareImageProvider(
   const AProjectedPolygon: IProjectedPolygon
 ): IBitmapLayerProvider;
 var
+  VRect: ILonLatRect;
   VLonLatRect: TDoubleRect;
   VZoom: Byte;
   VGeoConverter: ICoordConverter;
@@ -195,8 +197,8 @@ var
   VUseRecolor: Boolean;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
-
-  VLonLatRect := APolygon.Item[0].Bounds;
+  VRect := APolygon.Item[0].Bounds;
+  VLonLatRect := VRect.Rect;
   VGeoConverter := AProjectedPolygon.Projection.GeoConverter;
   VZoom := AProjectedPolygon.Projection.Zoom;
   VGeoConverter.CheckLonLatRect(VLonLatRect);

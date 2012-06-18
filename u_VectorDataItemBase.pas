@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple;
 
@@ -36,7 +37,7 @@ type
   protected
     function GetName: string;
     function GetDesc: string;
-    function GetLLRect: TDoubleRect; virtual; abstract;
+    function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetHintTextWithoutDesc: string;
     function GetInfoCaption: string;

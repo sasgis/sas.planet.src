@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_LonLatRect,
   i_MarksSimple,
   i_MarkCategory,
   i_MarksDbSmlInternal,
@@ -37,13 +38,13 @@ type
   private
     FPicName: string;
     FPic: IMarkPicture;
-    FPoint: TDoublePoint;
+    FLLRect: ILonLatRect;
     FTextColor: TColor32;
     FTextBgColor: TColor32;
     FFontSize: Integer;
     FMarkerSize: Integer;
   protected
-    function GetLLRect: TDoubleRect; override;
+    function GetLLRect: ILonLatRect; override;
     function GetPoint: TDoublePoint;
     function GetTextColor: TColor32;
     function GetTextBgColor: TColor32;
@@ -75,6 +76,7 @@ implementation
 
 uses
   SysUtils,
+  u_LonLatRectByPoint,
   u_GeoFun;
 
 { TMarkPoint }
@@ -96,7 +98,7 @@ begin
   inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
   FPicName := APicName;
   FPic := APic;
-  FPoint := APoint;
+  FLLRect := TLonLatRectByPoint.Create(APoint);
   FTextColor := ATextColor;
   FTextBgColor := ATextBgColor;
   FFontSize := AFontSize;
@@ -116,11 +118,11 @@ begin
     Result := True;
     Exit;
   end;
-  if not Supports(AMark, IMarkPoint, VMarkPoint) then begin
+  if not FLLRect.IsEqual(AMark.LLRect) then begin
     Result := False;
     Exit;
   end;
-  if not DoublePointsEqual(FPoint, VMarkPoint.Point) then begin
+  if not Supports(AMark, IMarkPoint, VMarkPoint) then begin
     Result := False;
     Exit;
   end;
@@ -158,13 +160,12 @@ end;
 
 function TMarkPoint.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FPoint;
+  Result := FLLRect.TopLeft;
 end;
 
-function TMarkPoint.GetLLRect: TDoubleRect;
+function TMarkPoint.GetLLRect: ILonLatRect;
 begin
-  Result.TopLeft := FPoint;
-  Result.BottomRight := FPoint;
+  Result := FLLRect;
 end;
 
 function TMarkPoint.GetPic: IMarkPicture;
@@ -179,7 +180,7 @@ end;
 
 function TMarkPoint.GetPoint: TDoublePoint;
 begin
-  Result := FPoint;
+  Result := FLLRect.TopLeft;
 end;
 
 function TMarkPoint.GetFontSize: Integer;

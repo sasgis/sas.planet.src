@@ -94,7 +94,7 @@ var
   VCurrPoint: TDoublePoint;
 begin
   result := false;
-  if LonLatPointInRect(ALonLat, ALine.Bounds) then begin
+  if ALine.Bounds.IsPointInRect(ALonLat) then begin
     VEnum := ALine.GetEnum;
     if VEnum.Next(VPrevPoint) then begin
       while VEnum.Next(VCurrPoint) do begin
@@ -115,7 +115,7 @@ var
   VArea: ILonLatPolygonLine;
 begin
   Result := False;
-  if LonLatPointInRect(ALonLat, FPolygon.Bounds) then begin
+  if FPolygon.Bounds.IsPointInRect(ALonLat) then begin
     for i := 0 to FPolygon.Count - 1 do begin
       VArea := FPolygon.Item[i];
       if IsPointFromPolygonLine(VArea, ALonLat) then begin

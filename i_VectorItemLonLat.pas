@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  i_LonLatRect,
   i_Datum;
 
 type
@@ -13,8 +14,8 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const ALine: ILonLatPathLine): Boolean;
 
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
+    function GetBounds: ILonLatRect;
+    property Bounds: ILonLatRect read GetBounds;
 
     function CalcLength(const ADatum: IDatum): Double;
 
@@ -30,8 +31,8 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const ALine: ILonLatPolygonLine): Boolean;
 
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
+    function GetBounds: ILonLatRect;
+    property Bounds: ILonLatRect read GetBounds;
 
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
@@ -48,8 +49,8 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APath: ILonLatPath): Boolean;
 
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
+    function GetBounds: ILonLatRect;
+    property Bounds: ILonLatRect read GetBounds;
 
     function CalcLength(const ADatum: IDatum): Double;
 
@@ -65,8 +66,8 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
 
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
+    function GetBounds: ILonLatRect;
+    property Bounds: ILonLatRect read GetBounds;
 
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;

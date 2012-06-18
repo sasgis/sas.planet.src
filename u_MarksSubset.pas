@@ -99,7 +99,7 @@ begin
   try
     for i := 0 to FList.Count - 1 do begin
       VMark := IMark(FList.Items[i]);
-      if IsIntersecLonLatRect(ARect, VMark.LLRect) then begin
+      if VMark.LLRect.IsIntersecWithRect(ARect) then begin
         VNewList.Add(VMark);
       end;
     end;

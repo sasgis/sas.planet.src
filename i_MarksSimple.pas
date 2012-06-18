@@ -26,6 +26,7 @@ uses
   ActiveX,
   GR32,
   t_GeoTypes,
+  i_LonLatRect,
   i_VectorItemLonLat,
   i_MarkCategory,
   i_MarkPicture;
@@ -45,8 +46,8 @@ type
     property Category: ICategory read GetCategory;
     function GetDesc: string;
     property Desc: string read GetDesc;
-    function GetLLRect: TDoubleRect;
-    property LLRect: TDoubleRect read GetLLRect;
+    function GetLLRect: ILonLatRect;
+    property LLRect: ILonLatRect read GetLLRect;
 
     function GetHintText: string;
     function GetInfoHTML: string;

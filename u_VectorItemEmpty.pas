@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_EnumDoublePoint,
   i_VectorItemLonLat,
   i_Datum;
@@ -11,7 +12,6 @@ uses
 type
   TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon)
   private
-    FBounds: TDoubleRect;
     FEnumLonLat: IEnumLonLatPoint;
   private
     function GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
@@ -20,7 +20,7 @@ type
     function GetEnumLonLat: IEnumLonLatPoint;
     function CalcAreaLonLat(const ADatum: IDatum): Double;
   private
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
     function GetCount: Integer;
     function CalcLength(const ADatum: IDatum): Double;
     function CalcPerimeter(const ADatum: IDatum): Double;
@@ -69,8 +69,6 @@ begin
   inherited Create;
   VEnum := TEnumDoublePointEmpty.Create;
   FEnumLonLat := VEnum;
-  FBounds.TopLeft := CEmptyDoublePoint;
-  FBounds.BottomRight := CEmptyDoublePoint;
 end;
 
 function TLineSetEmpty.CalcAreaLonLat(const ADatum: IDatum): Double;
@@ -88,9 +86,9 @@ begin
   Result := 0;
 end;
 
-function TLineSetEmpty.GetBounds: TDoubleRect;
+function TLineSetEmpty.GetBounds: ILonLatRect;
 begin
-  Result := FBounds;
+  Result := nil;
 end;
 
 function TLineSetEmpty.GetCount: Integer;

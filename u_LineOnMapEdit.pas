@@ -91,6 +91,7 @@ implementation
 
 uses
   i_Datum,
+  i_LonLatRect,
   u_GeoFun;
 
 type
@@ -117,7 +118,7 @@ type
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APath: ILonLatPath): Boolean;
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
     function CalcLength(const ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPathLine;
@@ -134,7 +135,7 @@ type
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
     function GetCount: Integer;
@@ -764,7 +765,7 @@ begin
   Result := FLine.CalcLength(ADatum);
 end;
 
-function TLonLatPathWithSelected.GetBounds: TDoubleRect;
+function TLonLatPathWithSelected.GetBounds: ILonLatRect;
 begin
   Result := FLine.Bounds;
 end;
@@ -851,7 +852,7 @@ begin
   Result := FLine.CalcPerimeter(ADatum);
 end;
 
-function TLonLatPolygonWithSelected.GetBounds: TDoubleRect;
+function TLonLatPolygonWithSelected.GetBounds: ILonLatRect;
 begin
   Result := FLine.Bounds;
 end;

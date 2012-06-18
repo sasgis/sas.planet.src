@@ -368,7 +368,7 @@ begin
         VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
         VMarksEnum := VMarksSubset.GetEnum;
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-          if IsIntersecLonLatRect(VLonLatRect, VMark.LLRect) then begin
+          if VMark.LLRect.IsIntersecWithRect(VLonLatRect) then begin
             if Supports(VMark, IMarkPoint) then begin
               Result := VMark;
               AMarkS := 0;

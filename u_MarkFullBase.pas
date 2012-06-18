@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_MarkCategory,
   i_MarksSimple,
@@ -36,7 +37,7 @@ type
     FDesc: string;
   protected
     function GetDesc: string;
-    function GetLLRect: TDoubleRect; virtual; abstract;
+    function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;

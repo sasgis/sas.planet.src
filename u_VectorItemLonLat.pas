@@ -5,6 +5,7 @@ interface
 uses
   Classes,
   t_GeoTypes,
+  i_LonLatRect,
   i_EnumDoublePoint,
   i_Datum,
   i_VectorItemLonLat;
@@ -13,13 +14,13 @@ type
   TLonLatLineSet = class(TInterfacedObject)
   private
     FList: IInterfaceList;
-    FBounds: TDoubleRect;
+    FBounds: ILonLatRect;
   private
     function GetCount: Integer;
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
   public
     constructor Create(
-      const ABounds: TDoubleRect;
+      const ABounds: ILonLatRect;
       const AList: IInterfaceList
     );
   end;
@@ -49,7 +50,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APath: ILonLatPath): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
     constructor Create(
@@ -66,7 +67,7 @@ type
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(const ADatum: IDatum): Double;
-    function GetBounds: TDoubleRect;
+    function GetBounds: ILonLatRect;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
     constructor Create(
@@ -83,7 +84,7 @@ uses
 { TLonLatLineSet }
 
 constructor TLonLatLineSet.Create(
-  const ABounds: TDoubleRect;
+  const ABounds: ILonLatRect;
   const AList: IInterfaceList
 );
 begin
@@ -92,7 +93,7 @@ begin
   FList := AList;
 end;
 
-function TLonLatLineSet.GetBounds: TDoubleRect;
+function TLonLatLineSet.GetBounds: ILonLatRect;
 begin
   Result := FBounds;
 end;
@@ -231,7 +232,7 @@ begin
   FLine := ALine;
 end;
 
-function TLonLatPathOneLine.GetBounds: TDoubleRect;
+function TLonLatPathOneLine.GetBounds: ILonLatRect;
 begin
   Result := FLine.Bounds;
 end;
@@ -282,7 +283,7 @@ begin
   FLine := ALine;
 end;
 
-function TLonLatPolygonOneLine.GetBounds: TDoubleRect;
+function TLonLatPolygonOneLine.GetBounds: ILonLatRect;
 begin
   Result := FLine.Bounds;
 end;
