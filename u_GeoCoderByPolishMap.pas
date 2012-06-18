@@ -513,6 +513,7 @@ var
  V_Type : integer;
  Skip: boolean;
  VStream: TFileStream;
+ V_EndOfLine : string;
 begin
  V_Type := -1;
  VFormatSettings.DecimalSeparator := '.';
@@ -529,8 +530,8 @@ begin
   finally
   FLock.EndRead;
  end;
+  if  PosEx(#$D#$A, VStr) > 0 then V_EndOfLine := #$D#$A else V_EndOfLine := #$A;
   Vstr := AnsiUpperCase(Vstr);
-
   i := PosEx('[CITIES]', VStr);
   k :=  PosEx('[END', VStr, i);
   VTempList := TStringList.Create;
@@ -539,7 +540,7 @@ begin
    j := i;
    i := PosEx('CITY', VStr, j);
    i := PosEx('=', VStr, i);
-   j := PosEx(#$D#$A+'REGIONIDX', VStr, i);
+   j := PosEx(V_EndOfLine+'REGIONIDX', VStr, i);
    sname := (Copy(VStr, i + 1, j - (i + 1)));
    VTemplist.add(sname);
   end;// заполнили массив городов, если они заданы в начале файла
@@ -568,7 +569,7 @@ begin
      i := PosEx('LABEL=' , VStr, l);
      if (i>0) then
       if (i<k) then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_Label := Copy(VStr, i+6 , j - (i+6));
        V_Label := ReplaceStr(V_Label,'~[0X1F]',' ');
       end else
@@ -577,7 +578,7 @@ begin
       i := PosEx('CITYIDX=', VStr, l);
       if i>0 then
       if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        vcity := Copy(Vstr, i + 8, j - (i + 8));
        if  strtoint(vcity)<VCityList.Count then
        V_CityName := VCityList.items[strtoint(vcity)-1]
@@ -588,7 +589,7 @@ begin
       i := PosEx('CITYNAME=', VStr, l);
       if i>0 then begin
        if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_CityName := Copy(Vstr, i + 9, j - (i + 9));
        end else
        V_CityName := '';
@@ -596,7 +597,7 @@ begin
 
       i := PosEx('REGIONNAME=', VStr, l);
       if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_RegionName := Copy(Vstr, i + 11, j - (i + 11));
       end else
       V_RegionName := '';
@@ -604,7 +605,7 @@ begin
       i := PosEx('COUNTRYNAME=', VStr, l);
       if i>0 then
       if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_CountryName := Copy(Vstr, i + 12, j - (i + 12));
       end else
       V_CountryName := '';
@@ -612,7 +613,7 @@ begin
       i := PosEx('TYPE=', VStr, l);
       if i>0 then
       if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_Type := strtoint(Copy(Vstr, i + 5, j - (i + 5)));
       end else
       V_Type  := -1;
@@ -620,7 +621,7 @@ begin
       i := PosEx('STREETDESC=', VStr, l);
       if i>0 then
       if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_StreetDesc := Copy(Vstr, i + 11, j - (i + 11));
       end else
       V_StreetDesc  := '';
@@ -628,7 +629,7 @@ begin
       i := PosEx('HOUSENUMBER=', VStr, l);
       if i>0 then
       if i<k then begin
-       j := PosEx(#$D#$A , VStr, i);
+       j := PosEx(V_EndOfLine  , VStr, i);
        V_HouseNumber := Copy(Vstr, i + 12, j - (i + 12));
       end else
       V_HouseNumber := '';
