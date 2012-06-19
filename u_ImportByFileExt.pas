@@ -38,6 +38,7 @@ type
     FImportKMZ: IImportFile;
     FImportHLG: IImportFile;
     FImportMP: IImportFile;
+    FImportSLS: IImportFile;
   protected
     function ProcessImport(
       const AFileName: string;
@@ -60,6 +61,7 @@ uses
   SysUtils,
   u_ImportKML,
   u_ImportHLG,
+  u_ImportSLS,
   u_ImportMpSimple;
 
 { TImportByFileExt }
@@ -80,6 +82,7 @@ begin
   FImportMP := TImportMpSimple.Create(AFactory);
   FImportKML := TImportKML.Create(AVectorDataFactory, AKmlLoader);
   FImportKMZ := TImportKML.Create(AVectorDataFactory, AKmzLoader);
+  FImportSLS := TImportSLS.Create(AFactory);
 end;
 
 function TImportByFileExt.ProcessImport(
@@ -103,6 +106,8 @@ begin
     Result := FImportHLG.ProcessImport(AFileName, AConfig);
   end else if ('.mp' = VExtLwr) then begin
     Result := FImportMP.ProcessImport(AFileName, AConfig);
+  end else if ('.sls' = VExtLwr) then begin
+    Result := FImportSLS.ProcessImport(AFileName, AConfig);
   end;
 end;
 

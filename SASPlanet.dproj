@@ -717,6 +717,7 @@
     <DCCReference Include="u_ImportHLG.pas" />
     <DCCReference Include="u_ImportKML.pas" />
     <DCCReference Include="u_ImportMpSimple.pas" />
+    <DCCReference Include="u_ImportSLS.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InetFunc.pas" />
