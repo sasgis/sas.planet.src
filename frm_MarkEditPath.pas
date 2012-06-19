@@ -23,6 +23,7 @@ unit frm_MarkEditPath;
 interface
 
 uses
+  Windows,
   SysUtils,
   Buttons,
   Classes,
@@ -64,9 +65,11 @@ type
     pnlDescription: TPanel;
     flwpnlStyle: TFlowPanel;
     pnlBottomButtons: TPanel;
+    btnSetAsTemplate: TButton;
     procedure btnOkClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure btnSetAsTemplateClick(Sender: TObject);
   private
     FCategoryDB: IMarkCategoryDB;
     FMarksDb: IMarksDb;
@@ -84,6 +87,10 @@ type
   end;
 
 implementation
+
+uses
+  i_MarkTemplate,
+  i_MarksFactoryConfig;
 
 {$R *.dfm}
 
@@ -157,6 +164,23 @@ end;
 procedure TfrmMarkEditPath.btnOkClick(Sender: TObject);
 begin
   ModalResult := mrOk;
+end;
+
+procedure TfrmMarkEditPath.btnSetAsTemplateClick(Sender: TObject);
+var
+  VConfig: IMarkLineTemplateConfig;
+  VTemplate: IMarkTemplateLine;
+begin
+  if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
+    VConfig := FMarksDb.Factory.Config.LineTemplateConfig;
+    VTemplate :=
+      VConfig.CreateTemplate(
+        frMarkCategory.GetCategory,
+        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
+        seWidth.Value
+      );
+    VConfig.DefaultTemplate := VTemplate;
+  end;
 end;
 
 procedure TfrmMarkEditPath.btnLineColorClick(Sender: TObject);

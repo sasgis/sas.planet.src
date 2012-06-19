@@ -23,6 +23,7 @@ unit frm_MarkEditPoint;
 interface
 
 uses
+  Windows,
   SysUtils,
   Classes,
   Controls,
@@ -91,6 +92,7 @@ type
     pnlTopMain: TPanel;
     pnlCategory: TPanel;
     pnlName: TPanel;
+    btnSetAsTemplate: TButton;
     procedure btnOkClick(Sender: TObject);
     procedure btnTextColorClick(Sender: TObject);
     procedure btnShadowColorClick(Sender: TObject);
@@ -101,6 +103,7 @@ type
     procedure drwgrdIconsMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
+    procedure btnSetAsTemplateClick(Sender: TObject);
   private
     FCategoryDB: IMarkCategoryDB;
     FMarksDb: IMarksDb;
@@ -130,7 +133,9 @@ implementation
 
 uses
   Math,
-  i_BitmapMarker;
+  i_BitmapMarker,
+  i_MarkTemplate,
+  i_MarksFactoryConfig;
 
 {$R *.dfm}
 
@@ -248,6 +253,26 @@ end;
 procedure TfrmMarkEditPoint.btnTextColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxTextColor.Selected:=ColorDialog1.Color;
+end;
+
+procedure TfrmMarkEditPoint.btnSetAsTemplateClick(Sender: TObject);
+var
+  VConfig: IMarkPointTemplateConfig;
+  VTemplate: IMarkTemplatePoint;
+begin
+  if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
+    VConfig := FMarksDb.Factory.Config.PointTemplateConfig;
+    VTemplate :=
+      VConfig.CreateTemplate(
+        FPic,
+        frMarkCategory.GetCategory,
+        SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
+        seFontSize.Value,
+        seIconSize.Value
+      );
+    VConfig.DefaultTemplate := VTemplate;
+  end;
 end;
 
 procedure TfrmMarkEditPoint.btnShadowColorClick(Sender: TObject);

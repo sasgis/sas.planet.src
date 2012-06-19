@@ -70,6 +70,19 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       TabOrder = 0
       OnClick = btnOkClick
     end
+    object btnSetAsTemplate: TButton
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 23
+      Height = 23
+      Hint = 'Set as default'
+      Align = alLeft
+      Caption = '~'
+      Default = True
+      TabOrder = 2
+      OnClick = btnSetAsTemplateClick
+    end
   end
   object grdpnlStyleRows: TGridPanel
     Left = 0
@@ -433,7 +446,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           Left = 3
           Top = 3
           Width = 31
-          Height = 24
+          Height = 21
           Align = alLeft
           Caption = 'Name:'
           Layout = tlCenter

@@ -23,6 +23,7 @@ unit frm_MarkCategoryEdit;
 interface
 
 uses
+  Windows,
   Classes,
   Controls,
   Forms,
@@ -50,6 +51,8 @@ type
     pnlBottomButtons: TPanel;
     flwpnlZooms: TFlowPanel;
     pnlName: TPanel;
+    btnSetAsTemplate: TButton;
+    procedure btnSetAsTemplateClick(Sender: TObject);
   private
     FFactory: IMarkCategoryFactory;
   public
@@ -63,9 +66,26 @@ type
 implementation
 
 uses
+  i_MarkCategoryFactoryConfig,
   u_ResStrings;
 
 {$R *.dfm}
+
+procedure TfrmMarkCategoryEdit.btnSetAsTemplateClick(Sender: TObject);
+var
+  VConfig: IMarkCategoryFactoryConfig;
+begin
+  if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
+    VConfig := FFactory.Config;
+    VConfig.LockWrite;
+    try
+      VConfig.AfterScale := EditS1.Value;
+      VConfig.BeforeScale := EditS2.Value;
+    finally
+      VConfig.UnlockWrite;
+    end;
+  end;
+end;
 
 constructor TfrmMarkCategoryEdit.Create(
   const ALanguageManager: ILanguageManager;

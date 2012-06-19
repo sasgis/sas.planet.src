@@ -60,17 +60,29 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       ModalResult = 2
       TabOrder = 1
     end
+    object btnSetAsTemplate: TButton
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 23
+      Height = 23
+      Hint = 'Set as default'
+      Align = alLeft
+      Caption = '~'
+      Default = True
+      TabOrder = 2
+      OnClick = btnSetAsTemplateClick
+    end
   end
   object pnlFill: TPanel
     Left = 0
-    Top = 251
+    Top = 248
     Width = 327
-    Height = 43
+    Height = 46
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitTop = 248
     object lblFill: TLabel
       AlignWithMargins = True
       Left = 3
@@ -84,7 +96,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     end
     object flwpnlFill: TFlowPanel
       Left = 0
-      Top = 13
+      Top = 16
       Width = 327
       Height = 30
       Align = alTop
@@ -94,7 +106,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       BevelKind = bkTile
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 19
       object lblFillColor: TLabel
         AlignWithMargins = True
         Left = 3
@@ -152,14 +163,13 @@ object frmMarkEditPoly: TfrmMarkEditPoly
   end
   object pnlLine: TPanel
     Left = 0
-    Top = 210
+    Top = 204
     Width = 327
-    Height = 41
+    Height = 44
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 207
     object lblLine: TLabel
       AlignWithMargins = True
       Left = 3
@@ -173,7 +183,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     end
     object flwpnlLine: TFlowPanel
       Left = 0
-      Top = 13
+      Top = 16
       Width = 327
       Height = 28
       Align = alTop
@@ -181,7 +191,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       AutoWrap = False
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 19
       object lblLineColor: TLabel
         AlignWithMargins = True
         Left = 3
@@ -261,13 +270,12 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     Left = 0
     Top = 52
     Width = 327
-    Height = 158
+    Height = 152
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 146
   end
   object pnlCategory: TPanel
     Left = 0
@@ -282,9 +290,10 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Left = 3
       Top = 3
       Width = 49
-      Height = 13
+      Height = 19
       Align = alLeft
       Caption = 'Category:'
+      ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
@@ -293,7 +302,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Width = 266
       Height = 21
       Align = alClient
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 0
       Text = 'New Category'
     end
@@ -311,9 +320,10 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Left = 3
       Top = 3
       Width = 31
-      Height = 13
+      Height = 21
       Align = alLeft
       Caption = 'Name:'
+      ExplicitHeight = 13
     end
     object edtName: TEdit
       AlignWithMargins = True

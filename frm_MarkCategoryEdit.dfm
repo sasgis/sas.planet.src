@@ -20,7 +20,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 13
     Align = alTop
     Caption = 'Visible on zooms:'
-    ExplicitWidth = 114
+    ExplicitWidth = 81
   end
   object Bevel5: TBevel
     Left = 0
@@ -76,6 +76,20 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       ModalResult = 1
       TabOrder = 1
     end
+    object btnSetAsTemplate: TButton
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 23
+      Height = 25
+      Hint = 'Set as default'
+      Align = alLeft
+      Caption = '~'
+      Default = True
+      TabOrder = 2
+      OnClick = btnSetAsTemplateClick
+      ExplicitHeight = 23
+    end
   end
   object flwpnlZooms: TFlowPanel
     Left = 0
@@ -89,13 +103,13 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 5
+      Width = 22
       Height = 13
       Caption = 'from'
     end
     object EditS1: TSpinEdit
       AlignWithMargins = True
-      Left = 14
+      Left = 31
       Top = 3
       Width = 41
       Height = 22
@@ -106,15 +120,15 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     end
     object Label4: TLabel
       AlignWithMargins = True
-      Left = 61
+      Left = 78
       Top = 3
-      Width = 13
+      Width = 10
       Height = 13
       Caption = 'to'
     end
     object EditS2: TSpinEdit
       AlignWithMargins = True
-      Left = 80
+      Left = 94
       Top = 3
       Width = 41
       Height = 22
@@ -136,7 +150,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 48
+      Width = 27
       Height = 21
       Align = alLeft
       Caption = 'Name'
@@ -145,9 +159,9 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     end
     object EditName: TEdit
       AlignWithMargins = True
-      Left = 57
+      Left = 36
       Top = 3
-      Width = 235
+      Width = 256
       Height = 21
       Align = alClient
       TabOrder = 0

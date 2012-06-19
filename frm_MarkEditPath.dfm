@@ -46,7 +46,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       Left = 3
       Top = 3
       Width = 31
-      Height = 24
+      Height = 21
       Align = alLeft
       Caption = 'Name:'
       Layout = tlCenter
@@ -174,6 +174,8 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
+    ExplicitLeft = 8
+    ExplicitTop = 299
     object btnOk: TButton
       AlignWithMargins = True
       Left = 173
@@ -198,6 +200,19 @@ object frmMarkEditPath: TfrmMarkEditPath
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
+    end
+    object btnSetAsTemplate: TButton
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 23
+      Height = 23
+      Hint = 'Set as default'
+      Align = alLeft
+      Caption = '~'
+      Default = True
+      TabOrder = 2
+      OnClick = btnSetAsTemplateClick
     end
   end
   object ColorDialog1: TColorDialog
