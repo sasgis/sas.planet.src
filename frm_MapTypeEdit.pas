@@ -84,6 +84,7 @@ type
     pnlDownloaderState: TPanel;
     lblDownloaderState: TLabel;
     mmoDownloadState: TMemo;
+    chkDownloadEnabled: TCheckBox;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -158,6 +159,7 @@ begin
     FmapType.StorageConfig.UnlockWrite;
   end;
   FMapType.VersionConfig.Version := FMapType.VersionConfig.VersionFactory.CreateByStoreString(edtVersion.Text);
+  FMapType.Abilities.UseDownload := chkDownloadEnabled.Checked;
 
   ModalResult := mrOk;
 end;
@@ -286,6 +288,7 @@ begin
   end else begin
     mmoDownloadState.Text := VDownloadState.DisableReason;
   end;
+  chkDownloadEnabled.Checked := FMapType.Abilities.UseDownload;
 
   // check storage write access
   if (FMapType.TileStorage.State.GetStatic.WriteAccess = asDisabled) then
