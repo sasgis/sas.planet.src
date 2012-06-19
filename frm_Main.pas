@@ -420,6 +420,7 @@ type
     terraserver1: TTBXItem;
     tbitmNavigationArrow: TTBXItem;
     tbitmProperties: TTBXItem;
+    tbitmFitToScreen: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -560,6 +561,7 @@ type
     procedure tbitmCacheManagerClick(Sender: TObject);
     procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
+    procedure tbitmFitToScreenClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3151,6 +3153,57 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbitmFitToScreenClick(Sender: TObject);
+var
+  VMark: IMark;
+  VLLRect: TDoubleRect;
+  VRelativeRect: TDoubleRect;
+  VVisualConverter: ILocalCoordConverter;
+  VCoordConverter: ICoordConverter;
+  VTargetZoom: Byte;
+  VCenterLonLat: TDoublePoint;
+  VScreenSize: TPoint;
+  VMarkMapRect: TRect;
+  VMarkMapSize: TPoint;
+  VZoom: Byte;
+begin
+  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  if VMark <> nil then begin
+    VLLRect := VMark.LLRect.Rect;
+    if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
+      VCenterLonLat.X := (VLLRect.Left + VLLRect.Right) / 2;
+      VCenterLonLat.Y := (VLLRect.Top + VLLRect.Bottom) / 2;
+
+      VVisualConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+      VCoordConverter := VVisualConverter.GeoConverter;
+      VScreenSize := VVisualConverter.GetLocalRectSize;
+
+      VCoordConverter.CheckLonLatRect(VLLRect);
+      VRelativeRect := VCoordConverter.LonLatRect2RelativeRect(VLLRect);
+      VTargetZoom := 23;
+      for VZoom := 1 to 23 do begin
+        VMarkMapRect := VCoordConverter.RelativeRect2PixelRect(VRelativeRect, VZoom);
+        VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
+        VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
+        if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
+          VTargetZoom := VZoom - 1;
+          Break;
+        end;
+      end;
+      FConfig.ViewPortState.LockWrite;
+      try
+        FConfig.ViewPortState.ChangeLonLat(VCenterLonLat);
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VTargetZoom);
+      finally
+        FConfig.ViewPortState.UnlockWrite;
+      end;
+    end else begin
+      VCenterLonLat := VLLRect.TopLeft;
+      FConfig.ViewPortState.ChangeLonLat(VCenterLonLat);
+    end;
+  end;
+end;
+
 procedure TfrmMain.NopendirClick(Sender: TObject);
 var
   VZoomCurr: Byte;
@@ -4102,7 +4155,8 @@ begin
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
       VMark := FLayerMapMarks.MouseOnReg(Point(x, y));
     end;
-    NMarkEdit.Visible := VMark <> nil;
+    NMarkEdit.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
+    tbitmFitToScreen.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
     tbitmProperties.Visible := VMark <> nil;
     NMarkExport.Visible := VMark <> nil;
     NMarkDel.Visible := VMark <> nil;
