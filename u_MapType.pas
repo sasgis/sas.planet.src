@@ -709,6 +709,7 @@ begin
   FTileDownloaderConfig.WriteConfig(ALocalConfig);
   FVersionConfig.WriteConfig(ALocalConfig);
   FStorageConfig.WriteConfig(ALocalConfig);
+  FAbilitiesConfig.WriteConfig(ALocalConfig);
 end;
 
 function TMapType.LoadBitmapTileFromStorage(
