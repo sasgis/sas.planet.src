@@ -419,6 +419,7 @@ type
     tbitmTileGrid5p: TTBXItem;
     terraserver1: TTBXItem;
     tbitmNavigationArrow: TTBXItem;
+    tbitmProperties: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -558,6 +559,7 @@ type
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCacheManagerClick(Sender: TObject);
     procedure tbitmNavigationArrowClick(Sender: TObject);
+    procedure tbitmPropertiesClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4101,6 +4103,7 @@ begin
       VMark := FLayerMapMarks.MouseOnReg(Point(x, y));
     end;
     NMarkEdit.Visible := VMark <> nil;
+    tbitmProperties.Visible := VMark <> nil;
     NMarkExport.Visible := VMark <> nil;
     NMarkDel.Visible := VMark <> nil;
     tbsprtMainPopUp0.Visible := VMark <> nil;
@@ -4913,6 +4916,21 @@ begin
  except
    PosFromGSM.Free;
  end;
+end;
+
+procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
+var
+  VMark: IMark;
+  VMarkModifed: IMark;
+begin
+  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  if VMark <> nil then begin
+    VMarkModifed := FMarkDBGUI.EditMarkModal(VMark);
+    if VMarkModifed <> nil then begin
+      GState.MarksDB.MarksDb.UpdateMark(VMark, VMarkModifed);
+      FLayerMapMarks.Redraw;
+    end;
+  end;
 end;
 
 procedure TfrmMain.tbitmShowDebugInfoClick(Sender: TObject);
