@@ -23,7 +23,8 @@ unit i_MarkCategoryFactory;
 interface
 
 uses
-  i_MarkCategory;
+  i_MarkCategory,
+  i_MarkCategoryFactoryConfig;
 
 type
   IMarkCategoryFactory = interface
@@ -40,6 +41,9 @@ type
       const ASource: IMarkCategory;
       AVisible: Boolean
     ): IMarkCategory;
+
+    function GetConfig: IMarkCategoryFactoryConfig;
+    property Config: IMarkCategoryFactoryConfig read GetConfig;
   end;
 
 implementation

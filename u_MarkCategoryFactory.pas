@@ -46,6 +46,7 @@ type
       const ASource: IMarkCategory;
       AVisible: Boolean
     ): IMarkCategory;
+    function GetConfig: IMarkCategoryFactoryConfig;
   protected
     function CreateCategory(
       AId: Integer;
@@ -122,6 +123,11 @@ begin
       VAfterScale,
       VBeforeScale
     );
+end;
+
+function TMarkCategoryFactory.GetConfig: IMarkCategoryFactoryConfig;
+begin
+  Result := FConfig;
 end;
 
 function TMarkCategoryFactory.Modify(
