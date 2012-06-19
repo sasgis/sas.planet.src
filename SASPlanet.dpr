@@ -489,6 +489,7 @@ uses
   u_TileFileNameES in 'u_TileFileNameES.pas',
   u_TileFileNameGM1 in 'u_TileFileNameGM1.pas',
   u_TileFileNameGM2 in 'u_TileFileNameGM2.pas',
+  u_TileFileNameGM3 in 'u_TileFileNameGM3.pas',
   u_TileFileNameBDB in 'u_TileFileNameBDB.pas',
   i_TileFileNameGeneratorsList in 'i_TileFileNameGeneratorsList.pas',
   u_TileStorageAbstract in 'u_TileStorageAbstract.pas',

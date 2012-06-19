@@ -923,6 +923,7 @@
     <DCCReference Include="u_TileFileNameGeneratorsSimpleList.pas" />
     <DCCReference Include="u_TileFileNameGM1.pas" />
     <DCCReference Include="u_TileFileNameGM2.pas" />
+    <DCCReference Include="u_TileFileNameGM3.pas" />
     <DCCReference Include="u_TileFileNameGMV.pas" />
     <DCCReference Include="u_TileFileNameParsersSimpleList.pas" />
     <DCCReference Include="u_TileFileNameSAS.pas" />

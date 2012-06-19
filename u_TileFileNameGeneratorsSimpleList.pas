@@ -48,7 +48,8 @@ uses
   u_TileFileNameGMV,
   u_TileFileNameES,
   u_TileFileNameGM1,
-  u_TileFileNameGM2;
+  u_TileFileNameGM2,
+  u_TileFileNameGM3;
 
 { TTileFileNameGeneratorsSimpleList }
 
@@ -58,12 +59,13 @@ constructor TTileFileNameGeneratorsSimpleList.Create(
 begin
   inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
-  SetLength(FItems, 5);
+  SetLength(FItems, 6);
   FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
   FItems[2] := TTileFileNameES.Create;
   FItems[3] := TTileFileNameGM1.Create;
   FItems[4] := TTileFileNameGM2.Create;
+  FItems[5] := TTileFileNameGM3.Create;
 end;
 
 destructor TTileFileNameGeneratorsSimpleList.Destroy;
@@ -107,6 +109,10 @@ begin
     c_File_Cache_Id_GM_Aux:
     begin
       Result := FItems[4];
+    end;
+    c_File_Cache_Id_GM_Bing:
+    begin
+      Result := FItems[5];
     end;
   else begin
     Result := FItems[3]; // as for GM

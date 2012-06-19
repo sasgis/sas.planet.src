@@ -240,7 +240,7 @@ begin
           VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.ESCpath) + VBasePath;
         end;
       end;
-      c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux: begin
+      c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing: begin
         if FGlobalCacheConfig.GMTilespath <> '' then begin
           VBasePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.GMTilespath) + VBasePath;
         end;
