@@ -276,29 +276,36 @@ begin
   end;
 end;
 
+const
+  ZoomIndexToScaleIndex: array [0..23] of integer = (
+    0, 1, 2, 3, 4, 5, 6, 8,
+    9, 11, 12, 14, 15, 17, 18, 20,
+    21, 23, 24, 26, 27, 29, 30, 32
+  );
+
 procedure TfrExportToJNX.CbbZoom2Change(Sender: TObject);
 begin
-  cbbscale2.ItemIndex := CbbZoom2.itemindex;
+  cbbscale2.ItemIndex := ZoomIndexToScaleIndex[CbbZoom2.itemindex];
 end;
 
 procedure TfrExportToJNX.CbbZoom3Change(Sender: TObject);
 begin
-  cbbscale3.ItemIndex := CbbZoom3.itemindex;
+  cbbscale3.ItemIndex := ZoomIndexToScaleIndex[CbbZoom3.itemindex];
 end;
 
 procedure TfrExportToJNX.CbbZoom4Change(Sender: TObject);
 begin
-  cbbscale4.ItemIndex := CbbZoom4.itemindex;
+  cbbscale4.ItemIndex := ZoomIndexToScaleIndex[CbbZoom4.itemindex];
 end;
 
 procedure TfrExportToJNX.CbbZoom5Change(Sender: TObject);
 begin
-  cbbscale5.ItemIndex := CbbZoom5.itemindex;
+  cbbscale5.ItemIndex := ZoomIndexToScaleIndex[CbbZoom5.itemindex];
 end;
 
 procedure TfrExportToJNX.CbbZoomChange(Sender: TObject);
 begin
-  cbbscale.ItemIndex := CbbZoom.itemindex;
+  cbbscale.ItemIndex := ZoomIndexToScaleIndex[CbbZoom.itemindex];
 end;
 
 procedure TfrExportToJNX.chbLayer2Click(Sender: TObject);
@@ -397,11 +404,11 @@ begin
     CbbZoom4.ItemIndex := AZoom;
     CbbZoom5.ItemIndex := AZoom;
 
-    cbbscale.ItemIndex := AZoom;
-    cbbscale2.ItemIndex := AZoom;
-    cbbscale3.ItemIndex := AZoom;
-    cbbscale4.ItemIndex := AZoom;
-    cbbscale5.ItemIndex := AZoom;
+    cbbscale.ItemIndex := ZoomIndexToScaleIndex[AZoom];
+    cbbscale2.ItemIndex := ZoomIndexToScaleIndex[AZoom];
+    cbbscale3.ItemIndex := ZoomIndexToScaleIndex[AZoom];
+    cbbscale4.ItemIndex := ZoomIndexToScaleIndex[AZoom];
+    cbbscale5.ItemIndex := ZoomIndexToScaleIndex[AZoom];
 
 //  cbbMap.Items.AddObject(SAS_STR_No,nil);
 //  cbbMap2.Items.AddObject(SAS_STR_No,nil);
