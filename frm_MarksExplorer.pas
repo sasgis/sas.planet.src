@@ -96,6 +96,19 @@ type
     btnOk: TButton;
     btnApply: TButton;
     lblMarksCount: TStaticText;
+    tbpmnCategories: TTBXPopupMenu;
+    tbitmAddCategory: TTBXItem;
+    tbitmEditCategory: TTBXItem;
+    tbitmDeleteCategory: TTBXItem;
+    tbsprtCategoriesPopUp: TTBXSeparatorItem;
+    tbitmExportCategory: TTBXItem;
+    tbpmnMarks: TTBXPopupMenu;
+    tbitmAddMark: TTBXItem;
+    tbitmEditMark: TTBXItem;
+    tbitmDeleteMark: TTBXItem;
+    tbsprtMarksPopUp: TTBXSeparatorItem;
+    tbitmExportMark: TTBXItem;
+    btnAddMark: TTBXItem;
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
@@ -118,7 +131,8 @@ type
     procedure btnOpSelectMarkClick(Sender: TObject);
     procedure btnNavOnMarkClick(Sender: TObject);
     procedure btnSaveMarkClick(Sender: TObject);
-    procedure TBXItem4Click(Sender: TObject);
+    procedure tbitmAddCategoryClick(Sender: TObject);
+    procedure tbitmAddMarkClick(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FCategoryList: IInterfaceList;
@@ -154,6 +168,8 @@ implementation
 
 uses
   i_ImportConfig,
+  i_MarkTemplate,
+  i_MarksFactoryConfig,
   u_ExportMarks2KML,
   u_GeoFun;
 
@@ -518,18 +534,6 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.TBXItem4Click(Sender: TObject);
-var
-  VCategory: IMarkCategory;
-begin
-  VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
-  VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
-  if VCategory <> nil then begin
-    FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
-    UpdateCategoryTree;
-  end;
-end;
-
 procedure TfrmMarksExplorer.btnNavOnMarkClick(Sender: TObject);
 var
   VMark: IMark;
@@ -690,6 +694,51 @@ begin
         UpdateMarksList;
       end;
     end;
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);
+var
+  VCategory: IMarkCategory;
+begin
+  VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
+  VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
+  if VCategory <> nil then begin
+    FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
+    UpdateCategoryTree;
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbitmAddMarkClick(Sender: TObject);
+var
+  VLonLat: TDoublePoint;
+  VPointTemplate: IMarkTemplatePoint;
+  VTemplateConfig: IMarkPointTemplateConfig;
+  VMark: IMark;
+  VCategory: ICategory;
+begin
+  VLonLat := FViewPortState.GetVisualCoordConverter.GetCenterLonLat;
+  VCategory := GetSelectedCategory;
+  VPointTemplate := nil;
+  if VCategory <> nil then begin
+    VTemplateConfig := FMarkDBGUI.MarksDB.MarksFactoryConfig.PointTemplateConfig;
+    VPointTemplate := VTemplateConfig.DefaultTemplate;
+    VPointTemplate :=
+      VTemplateConfig.CreateTemplate(
+        VPointTemplate.Pic,
+        VCategory,
+        VPointTemplate.TextColor,
+        VPointTemplate.TextBgColor,
+        VPointTemplate.FontSize,
+        VPointTemplate.MarkerSize
+      );
+  end;
+
+  VMark := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
+  VMark := FMarkDBGUI.EditMarkModal(VMark);
+  if VMark <> nil then begin
+    FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+    UpdateMarksList;
   end;
 end;
 

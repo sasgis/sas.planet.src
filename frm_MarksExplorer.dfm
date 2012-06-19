@@ -128,6 +128,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnClickCheck = MarksListBoxClickCheck
           Anchors = [akLeft, akTop, akRight, akBottom]
           ItemHeight = 13
+          PopupMenu = tbpmnMarks
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
@@ -163,6 +164,12 @@ object frmMarksExplorer: TfrmMarksExplorer
             Stretch = True
             TabOrder = 0
             UseThemeColor = False
+            object btnAddMark: TTBXItem
+              ImageIndex = 32
+              OnClick = tbitmAddMarkClick
+              Caption = ''
+              Hint = 'Create new placemark'
+            end
             object btnEditMark: TTBXItem
               ImageIndex = 31
               OnClick = btnEditMarkClick
@@ -250,6 +257,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Height = 278
           Align = alClient
           Indent = 19
+          PopupMenu = tbpmnCategories
           ReadOnly = True
           StateImages = imlStates
           TabOrder = 1
@@ -279,7 +287,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             UseThemeColor = False
             object BtnAddCategory: TTBXItem
               ImageIndex = 32
-              OnClick = TBXItem4Click
+              OnClick = tbitmAddCategoryClick
               Caption = ''
               Hint = 'Add'
             end
@@ -343,7 +351,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300080008000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300080024000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -457,6 +465,70 @@ object frmMarksExplorer: TfrmMarksExplorer
       Tag = 1
       Caption = 'Export visible placemarks'
       OnClick = btnExportClick
+    end
+  end
+  object tbpmnCategories: TTBXPopupMenu
+    Images = frmMain.MenusImageList
+    Left = 72
+    Top = 200
+    object tbitmAddCategory: TTBXItem
+      ImageIndex = 32
+      OnClick = tbitmAddCategoryClick
+      Caption = 'Add Category'
+      Hint = 'Add'
+    end
+    object tbitmEditCategory: TTBXItem
+      ImageIndex = 31
+      OnClick = BtnEditCategoryClick
+      Caption = 'Edit Category'
+      Hint = 'Edit'
+    end
+    object tbitmDeleteCategory: TTBXItem
+      ImageIndex = 30
+      OnClick = BtnDelKatClick
+      Caption = 'Delete Category'
+      Hint = 'Delete'
+    end
+    object tbsprtCategoriesPopUp: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object tbitmExportCategory: TTBXItem
+      OnClick = btnExportCategoryClick
+      Caption = 'Export Placemarks'
+      Hint = 'Export placemarks from selected category'
+    end
+  end
+  object tbpmnMarks: TTBXPopupMenu
+    Images = frmMain.MenusImageList
+    Left = 264
+    Top = 256
+    object tbitmAddMark: TTBXItem
+      ImageIndex = 32
+      OnClick = tbitmAddMarkClick
+      Caption = 'Add Placemark'
+      Hint = 'Add'
+    end
+    object tbitmEditMark: TTBXItem
+      ImageIndex = 31
+      OnClick = btnEditMarkClick
+      Caption = 'Edit Placemark'
+      Hint = 'Edit'
+    end
+    object tbitmDeleteMark: TTBXItem
+      ImageIndex = 30
+      OnClick = btnDelMarkClick
+      Caption = 'Delete Placemark'
+      Hint = 'Delete'
+    end
+    object tbsprtMarksPopUp: TTBXSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object tbitmExportMark: TTBXItem
+      OnClick = btnSaveMarkClick
+      Caption = 'Export Placemark'
+      Hint = 'Export selected placemark'
     end
   end
 end
