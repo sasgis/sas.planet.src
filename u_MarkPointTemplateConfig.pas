@@ -46,10 +46,8 @@ type
     function CreateTemplate(
       const APic: IMarkPicture;
       const ACategory: ICategory;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer;
-      AScale2: Integer
+      ATextColor, ATextBgColor: TColor32;
+      AFontSize, AMarkerSize: Integer
     ): IMarkTemplatePoint;
 
     function GetMarkPictureList: IMarkPictureList;
@@ -117,8 +115,8 @@ end;
 function TMarkPointTemplateConfig.CreateTemplate(
   const APic: IMarkPicture;
   const ACategory: ICategory;
-  AColor1, AColor2: TColor32;
-  AScale1, AScale2: Integer
+  ATextColor, ATextBgColor: TColor32;
+  AFontSize, AMarkerSize: Integer
 ): IMarkTemplatePoint;
 var
   VCategoryId: Integer;
@@ -135,10 +133,10 @@ begin
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      AColor1,
-      AColor2,
-      AScale1,
-      AScale2,
+      ATextColor,
+      ATextBgColor,
+      AFontSize,
+      AMarkerSize,
       APic
     );
 end;
