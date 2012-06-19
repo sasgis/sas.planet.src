@@ -120,6 +120,7 @@ type
     function GetDownloadSize: Double;
 
     constructor CreateInternal(
+      ACreatePaused: Boolean;
       const AAppClosingNotifier: IJclNotifier;
       const ALog: ILogSimple;
       AMapType: TMapType;
@@ -143,6 +144,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
+      ACreatePaused: Boolean;
       const AAppClosingNotifier: IJclNotifier;
       const ALog: ILogSimple;
       const APolygon: ILonLatPolygon;
@@ -201,6 +203,7 @@ uses
   u_ResStrings;
 
 constructor TThreadDownloadTiles.CreateInternal(
+  ACreatePaused: Boolean;
   const AAppClosingNotifier: IJclNotifier;
   const ALog: ILogSimple;
   AMapType: TMapType;
@@ -222,7 +225,7 @@ var
   VState: ITileDownloaderStateStatic;
 begin
   inherited Create(False);
-
+  FPausedByUser := ACreatePaused;
   FAppClosingNotifier := AAppClosingNotifier;
   FDownloadInfo := ADownloadInfo;
   FDownloadConfig := ADownloadConfig;
@@ -308,6 +311,7 @@ begin
 end;
 
 constructor TThreadDownloadTiles.Create(
+  ACreatePaused: Boolean;
   const AAppClosingNotifier: IJclNotifier;
   const ALog: ILogSimple;
   const APolygon: ILonLatPolygon;
@@ -322,6 +326,7 @@ constructor TThreadDownloadTiles.Create(
 );
 begin
   CreateInternal(
+    ACreatePaused,
     AAppClosingNotifier,
     ALog,
     Atypemap,
@@ -466,6 +471,7 @@ begin
     end;
   finally
     CreateInternal(
+      False,
       AAppClosingNotifier,
       ALog,
       VMapType,

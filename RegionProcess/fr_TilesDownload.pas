@@ -30,6 +30,9 @@ type
     function GetForAttachments: Boolean;
     property ForAttachments: Boolean read GetForAttachments;
 
+    function GetIsStartPaused: Boolean;
+    property IsStartPaused: Boolean read GetIsStartPaused;
+
     function GetIsIgnoreTne: Boolean;
     property IsIgnoreTne: Boolean read GetIsIgnoreTne;
 
@@ -72,6 +75,7 @@ type
     lblReplaceOlder: TLabel;
     lblMap: TLabel;
     Bevel1: TBevel;
+    chkStartPaused: TCheckBox;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
@@ -92,6 +96,7 @@ type
     function GetZoom: Byte;
   private
     function GetForAttachments: Boolean;
+    function GetIsStartPaused: Boolean;
     function GetIsIgnoreTne: Boolean;
     function GetIsReplace: Boolean;
     function GetIsReplaceIfDifSize: Boolean;
@@ -227,6 +232,11 @@ end;
 function TfrTilesDownload.GetIsReplaceIfOlder: Boolean;
 begin
   Result := chkReplaceOlder.Checked;
+end;
+
+function TfrTilesDownload.GetIsStartPaused: Boolean;
+begin
+  Result := chkStartPaused.Checked;
 end;
 
 function TfrTilesDownload.GetMapType: TMapType;

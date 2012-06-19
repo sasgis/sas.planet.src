@@ -186,6 +186,7 @@ begin
     );
   VLog := TLogSimpleProvider.Create(5000, 0);
   VThread := TThreadDownloadTiles.Create(
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused,
     FAppClosingNotifier,
     VLog,
     APolygon,

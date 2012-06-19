@@ -49,6 +49,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = 'Zoom:'
+        ExplicitWidth = 30
       end
       object cbbZoom: TComboBox
         Left = 5
@@ -94,7 +95,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = 'Map:'
-        ExplicitWidth = 57
+        ExplicitWidth = 24
       end
       object Bevel1: TBevel
         Left = 5
@@ -120,26 +121,28 @@ object frTilesDownload: TfrTilesDownload
       end
       object chkReplace: TCheckBox
         Left = 5
-        Top = 82
+        Top = 98
         Width = 382
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
         TabOrder = 1
         OnClick = chkReplaceClick
+        ExplicitTop = 82
       end
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
-        Top = 66
+        Top = 82
         Width = 382
         Height = 16
         Align = alTop
         Caption = 'Try to re-download missing tiles'
         TabOrder = 2
+        ExplicitTop = 66
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
-        Top = 98
+        Top = 114
         Width = 382
         Height = 40
         Align = alTop
@@ -148,6 +151,7 @@ object frTilesDownload: TfrTilesDownload
         BorderWidth = 3
         Padding.Left = 15
         TabOrder = 3
+        ExplicitTop = 98
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
@@ -169,7 +173,7 @@ object frTilesDownload: TfrTilesDownload
           object lblReplaceOlder: TLabel
             Left = 16
             Top = 0
-            Width = 113
+            Width = 95
             Height = 21
             Align = alLeft
             Caption = 'only created before'
@@ -187,7 +191,7 @@ object frTilesDownload: TfrTilesDownload
             OnClick = chkReplaceOlderClick
           end
           object dtpReplaceOlderDate: TDateTimePicker
-            Left = 129
+            Left = 111
             Top = 0
             Width = 81
             Height = 21
@@ -198,6 +202,15 @@ object frTilesDownload: TfrTilesDownload
             TabOrder = 1
           end
         end
+      end
+      object chkStartPaused: TCheckBox
+        Left = 5
+        Top = 66
+        Width = 382
+        Height = 16
+        Align = alTop
+        Caption = 'Start paused'
+        TabOrder = 4
       end
     end
   end
