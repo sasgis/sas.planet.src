@@ -76,7 +76,7 @@ type
 
     function GetDefaultTemplate: IMarkTemplatePoly;
     procedure SetDefaultTemplate(const AValue: IMarkTemplatePoly);
-    property TemplateDefault: IMarkTemplatePoly read GetDefaultTemplate write SetDefaultTemplate;
+    property DefaultTemplate: IMarkTemplatePoly read GetDefaultTemplate write SetDefaultTemplate;
 
     function GetNameGenerator: IMarkNameGenerator;
   end;

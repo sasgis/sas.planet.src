@@ -306,7 +306,7 @@ var
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
-    VTemplate := FConfig.PolyTemplateConfig.TemplateDefault;
+    VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
   end;
 
   VName := AName;
