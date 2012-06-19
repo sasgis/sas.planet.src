@@ -24,34 +24,73 @@ interface
 
 uses
   Types,
+  i_TileFileNameParser,
   i_TileFileNameGenerator;
 
 type
-  TTileFileNameGM1 = class(TInterfacedObject, ITileFileNameGenerator)
-  public
+  TTileFileNameGM1 = class(
+    TInterfacedObject,
+    ITileFileNameParser,
+    ITileFileNameGenerator
+  )
+  protected
     function GetTileFileName(
       AXY: TPoint;
-      Azoom: byte
+      AZoom: Byte
     ): string;
+
+    function GetTilePoint(
+      const ATileFileName: string;
+      out ATileXY: TPoint;
+      out ATileZoom: Byte
+    ): Boolean;
   end;
 
 implementation
 
 uses
+  RegExpr,
   SysUtils;
+
+const
+  c_GM1_Expr  = '^(.+\\)?[zZ](\d\d?)\\(\d+)\\(\d+)(\..+)?$';
 
 { TTileFileNameGM1 }
 
 function TTileFileNameGM1.GetTileFileName(
   AXY: TPoint;
-  Azoom: byte
+  AZoom: Byte
 ): string;
 begin
-  result := format('z%d' + PathDelim + '%d' + PathDelim + '%d', [
-    Azoom,
-    AXY.y,
-    AXY.x
+  Result := Format('z%d' + PathDelim + '%d' + PathDelim + '%d', [
+    AZoom,
+    AXY.Y,
+    AXY.X
     ]);
+end;
+
+function TTileFileNameGM1.GetTilePoint(
+  const ATileFileName: string;
+  out ATileXY: TPoint;
+  out ATileZoom: Byte
+): Boolean;
+var
+  VRegExpr: TRegExpr;
+begin
+  VRegExpr := TRegExpr.Create;
+  try
+    VRegExpr.Expression := c_GM1_Expr;
+    if VRegExpr.Exec(ATileFileName) then begin
+      ATileZoom := StrToInt(VRegExpr.Match[2]);
+      ATileXY.Y := StrToInt(VRegExpr.Match[3]); // (!) Y - first, X - last
+      ATileXY.X := StrToInt(VRegExpr.Match[4]);
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  finally
+    VRegExpr.Free;
+  end;
 end;
 
 end.

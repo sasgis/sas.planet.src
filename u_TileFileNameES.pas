@@ -24,36 +24,51 @@ interface
 
 uses
   Types,
+  i_TileFileNameParser,
   i_TileFileNameGenerator;
 
 type
-  TTileFileNameES = class(TInterfacedObject, ITileFileNameGenerator)
+  TTileFileNameES = class(
+    TInterfacedObject,
+    ITileFileNameParser,
+    ITileFileNameGenerator
+  )
   private
     class function FullInt(
-      i: Integer;
-      AZoom: byte
+      I: Integer;
+      AZoom: Byte
     ): string;
-  public
+  protected
     function GetTileFileName(
       AXY: TPoint;
-      Azoom: byte
+      AZoom: Byte
     ): string;
+
+    function GetTilePoint(
+      const ATileFileName: string;
+      out ATileXY: TPoint;
+      out ATileZoom: Byte
+    ): Boolean;
   end;
 
 implementation
 
 uses
+  RegExpr,
   StrUtils,
   SysUtils;
+
+const
+  c_ES_Expr = '^(.+\\)?(\d+)-(\d+)-(\d+)(\..+)?$';
 
 { TTileFileNameES }
 
 class function TTileFileNameES.FullInt(
-  i: Integer;
-  AZoom: byte
+  I: Integer;
+  AZoom: Byte
 ): string;
 begin
-  Result := IntToStr(i);
+  Result := IntToStr(I);
   if AZoom < 4 then begin
   end else if AZoom < 7 then begin
     Result := RightStr('0' + Result, 2);
@@ -72,28 +87,52 @@ end;
 
 function TTileFileNameES.GetTileFileName(
   AXY: TPoint;
-  Azoom: byte
+  AZoom: Byte
 ): string;
 var
   VZoomStr: string;
   VFileName: string;
 begin
   inherited;
-  if (Azoom >= 9) then begin
-    VZoomStr := IntToStr(Azoom + 1);
+  if (AZoom >= 9) then begin
+    VZoomStr := IntToStr(AZoom + 1);
   end else begin
-    VZoomStr := '0' + IntToStr(Azoom + 1);
+    VZoomStr := '0' + IntToStr(AZoom + 1);
   end;
   VFileName := VZoomStr + '-' + FullInt(AXY.X, AZoom) + '-' + FullInt(AXY.Y, AZoom);
-  if Azoom < 6 then begin
+  if AZoom < 6 then begin
     Result := VZoomStr + PathDelim;
-  end else if Azoom < 10 then begin
+  end else if AZoom < 10 then begin
     Result := VZoomStr + PathDelim +
-      Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + PathDelim;
+      Chr(60 + AZoom) + FullInt(AXY.X shr 5, AZoom - 5) + FullInt(AXY.Y shr 5, AZoom - 5) + PathDelim;
   end else begin
-    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9) + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + PathDelim + VZoomStr + PathDelim + Chr(60 + Azoom) + FullInt(AXY.X shr 5, Azoom - 5) + FullInt(AXY.Y shr 5, Azoom - 5) + PathDelim;
+    Result := '10' + '-' + FullInt(AXY.X shr (AZoom - 9), 9) + '-' + FullInt(AXY.Y shr (AZoom - 9), 9) + PathDelim + VZoomStr + PathDelim + Chr(60 + AZoom) + FullInt(AXY.X shr 5, AZoom - 5) + FullInt(AXY.Y shr 5, AZoom - 5) + PathDelim;
   end;
   Result := Result + VFileName;
+end;
+
+function TTileFileNameES.GetTilePoint(
+  const ATileFileName: string;
+  out ATileXY: TPoint;
+  out ATileZoom: Byte
+): Boolean;
+var
+  VRegExpr: TRegExpr;
+begin
+  VRegExpr := TRegExpr.Create;
+  try
+    VRegExpr.Expression := c_ES_Expr;
+    if VRegExpr.Exec(ATileFileName) then begin
+      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
+      ATileXY.X := StrToInt(VRegExpr.Match[3]);
+      ATileXY.Y := StrToInt(VRegExpr.Match[4]);
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  finally
+    VRegExpr.Free;
+  end;
 end;
 
 end.

@@ -24,42 +24,57 @@ interface
 
 uses
   Types,
+  i_TileFileNameParser,
   i_TileFileNameGenerator;
 
 type
-  TTileFileNameGMV = class(TInterfacedObject, ITileFileNameGenerator)
-  public
+  TTileFileNameGMV = class(
+    TInterfacedObject,
+    ITileFileNameParser,
+    ITileFileNameGenerator
+  )
+  protected
     function GetTileFileName(
       AXY: TPoint;
-      Azoom: byte
+      AZoom: Byte
     ): string;
+
+    function GetTilePoint(
+      const ATileFileName: string;
+      out ATileXY: TPoint;
+      out ATileZoom: Byte
+    ): Boolean;
   end;
 
 implementation
 
 uses
+  RegExpr,
   SysUtils;
+
+const
+  c_GMV_Expr = '^(.+\\)?([tT][tsqrTSQR]*)(\..+)?$';
 
 { TTileFileNameGMV }
 
 function TTileFileNameGMV.GetTileFileName(
   AXY: TPoint;
-  Azoom: byte
+  AZoom: Byte
 ): string;
 var
-  i: byte;
+  i: Byte;
   VMask: Integer;
   c: Char;
 begin
-  if (Azoom >= 9) then begin
-    Result := IntToStr(Azoom + 1);
+  if (AZoom >= 9) then begin
+    Result := IntToStr(AZoom + 1);
   end else begin
-    Result := '0' + IntToStr(Azoom + 1);
+    Result := '0' + IntToStr(AZoom + 1);
   end;
   Result := Result + PathDelim + 't';
-  if Azoom > 0 then begin
-    VMask := 1 shl (Azoom - 1);
-    for i := 1 to Azoom do begin
+  if AZoom > 0 then begin
+    VMask := 1 shl (AZoom - 1);
+    for i := 1 to AZoom do begin
       if (AXY.X and VMask) = 0 then begin
         if (AXY.Y and VMask) = 0 then begin
           c := 'q';
@@ -76,6 +91,59 @@ begin
       Result := Result + c;
       VMask := VMask shr 1;
     end;
+  end;
+end;
+
+function TTileFileNameGMV.GetTilePoint(
+  const ATileFileName: string;
+  out ATileXY: TPoint;
+  out ATileZoom: Byte
+): Boolean;
+
+  function TSQR2XY(const ATSQRStr: string): TPoint;
+  const
+    TSQR_CHARSET: set of char = ['t', 's', 'q', 'r', 'T', 'S', 'Q', 'R'];
+  var
+    I: integer;
+    EWrongNameText: string;
+  begin
+    Result := Point(0, 0);
+    EWrongNameText := 'Wrong name: ' + ATSQRStr;
+    if ((Length(ATSQRStr) = 0) or not (ATSQRStr[1] in TSQR_CHARSET)) then begin
+      raise Exception.Create(EWrongNameText);
+    end;
+    for I := 2 to Length(ATSQRStr) do begin
+      Result.X := Result.X * 2;
+      Result.Y := Result.Y * 2;
+      if not (ATSQRStr[I] in TSQR_CHARSET) then begin
+        raise Exception.Create(EWrongNameText);
+      end;
+      if ATSQRStr[I] in ['R', 'S', 'r', 's'] then begin
+        Inc(Result.X);
+      end;
+      if ATSQRStr[I] in ['T', 'S', 't', 's'] then begin
+        Inc(Result.Y);
+      end;
+    end;
+  end;
+
+var
+  VRegExpr: TRegExpr;
+  tsqr: string;
+begin
+  VRegExpr := TRegExpr.Create;
+  try
+    VRegExpr.Expression := c_GMV_Expr;
+    if VRegExpr.Exec(ATileFileName) then begin
+      tsqr := VRegExpr.Match[2];
+      ATileZoom := Length(tsqr) - 1;
+      ATileXY := TSQR2XY(tsqr);
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  finally
+    VRegExpr.Free;
   end;
 end;
 

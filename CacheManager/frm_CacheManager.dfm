@@ -69,12 +69,16 @@ object frmCacheManager: TfrmCacheManager
           TabOrder = 1
           Text = 'SAS.Planet'
           Items.Strings = (
-            'SAS.Planet')
+            'GoogleMV'
+            'SAS.Planet'
+            'EarthSlicer 1.95'
+            'GlobalMapper Tiles'
+            'GlobalMapper Aux')
         end
         object chkIgnoreTNE: TCheckBox
           Left = 319
           Top = 81
-          Width = 97
+          Width = 122
           Height = 17
           Caption = 'Ignore *.tne'
           TabOrder = 2
@@ -82,7 +86,7 @@ object frmCacheManager: TfrmCacheManager
         object chkRemove: TCheckBox
           Left = 447
           Top = 81
-          Width = 97
+          Width = 109
           Height = 17
           Caption = 'Remove tiles'
           TabOrder = 3
@@ -145,7 +149,6 @@ object frmCacheManager: TfrmCacheManager
           Width = 153
           Height = 21
           ItemHeight = 13
-          ItemIndex = 4
           TabOrder = 1
           Text = 'BerkeleyDB'
           Items.Strings = (
@@ -153,12 +156,13 @@ object frmCacheManager: TfrmCacheManager
             'SAS.Planet'
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
+            'GlobalMapper Aux'
             'BerkeleyDB')
         end
         object chkOverwrite: TCheckBox
           Left = 175
           Top = 81
-          Width = 128
+          Width = 381
           Height = 17
           Caption = 'Overwrite exist tiles'
           TabOrder = 2
@@ -208,6 +212,7 @@ object frmCacheManager: TfrmCacheManager
       Cancel = True
       Caption = 'Cancel'
       TabOrder = 1
+      OnClick = btnCanselClick
     end
     object chkCloseWithStart: TCheckBox
       AlignWithMargins = True

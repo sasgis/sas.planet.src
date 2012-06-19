@@ -64,11 +64,11 @@ begin
   inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
   SetLength(FItems, 5);
-  FItems[0] := nil; //TTileFileNameGMV.Create;
+  FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
-  FItems[2] := nil; //TTileFileNameES.Create;
-  FItems[3] := nil; //TTileFileNameGM1.Create;
-  FItems[4] := nil; //TTileFileNameGM2.Create;
+  FItems[2] := TTileFileNameES.Create;
+  FItems[3] := TTileFileNameGM1.Create;
+  FItems[4] := TTileFileNameGM2.Create;
 end;
 
 destructor TTileFileNameParsersSimpleList.Destroy;

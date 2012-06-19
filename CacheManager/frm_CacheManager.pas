@@ -71,6 +71,7 @@ type
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
+    procedure btnCanselClick(Sender: TObject);
   private
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: IJclNotifier;
@@ -129,8 +130,8 @@ begin
   FPerfCounterList := APerfCounterList;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
-  cbbCacheTypes.ItemIndex := 0; // SAS.Planet
-  cbbDestCacheTypes.ItemIndex := 4; // BerkeleyDB
+  cbbCacheTypes.ItemIndex := 1; // SAS.Planet
+  cbbDestCacheTypes.ItemIndex := 5; // BerkeleyDB
 end;
 
 destructor TfrmCacheManager.Destroy;
@@ -148,6 +149,11 @@ begin
   end;
 end;
 
+procedure TfrmCacheManager.btnCanselClick(Sender: TObject);
+begin
+  Self.Close;
+end;
+
 procedure TfrmCacheManager.btnSelectDestPathClick(Sender: TObject);
 var
   VPath: string;
@@ -163,7 +169,7 @@ begin
     ProcessCacheConverter;
   end;
   if chkCloseWithStart.Checked then begin
-    Self.Hide;
+    Self.Close;
   end;
 end;
 
@@ -176,7 +182,8 @@ procedure TfrmCacheManager.ProcessCacheConverter;
       1: Result := c_File_Cache_Id_SAS;
       2: Result := c_File_Cache_Id_ES;
       3: Result := c_File_Cache_Id_GM;
-      4: Result := c_File_Cache_Id_BDB;
+      4: Result := c_File_Cache_Id_GM_Aux;
+      5: Result := c_File_Cache_Id_BDB;
     else
       Result := c_File_Cache_Id_SAS;
     end;
@@ -198,7 +205,7 @@ begin
     edtPath.Text,
     edtDestPath.Text,
     edtDefExtention.Text,
-    c_File_Cache_Id_SAS, //TODO: GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex),
+    GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex),
     GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex),
     chkIgnoreTNE.Checked,
     chkRemove.Checked,
