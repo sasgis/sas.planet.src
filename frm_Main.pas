@@ -418,6 +418,7 @@ type
     tbitmTileGrid4p: TTBXItem;
     tbitmTileGrid5p: TTBXItem;
     terraserver1: TTBXItem;
+    tbitmNavigationArrow: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -556,6 +557,7 @@ type
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCacheManagerClick(Sender: TObject);
+    procedure tbitmNavigationArrowClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -650,6 +652,7 @@ type
     procedure OnToolbarsLockChange;
     procedure OnLineOnMapEditChange;
     procedure OnPathProvidesChange;
+    procedure OnNavToMarkChange;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
     procedure WMTIMECHANGE(var m: TMessage); message WM_TIMECHANGE;
@@ -1649,6 +1652,11 @@ begin
       FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
     );
 
+    FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnNavToMarkChange),
+      FConfig.NavToPoint.ChangeNotifier
+    );
+
     DateTimePicker1.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
     DateTimePicker2.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
 
@@ -1739,6 +1747,7 @@ begin
     ProcessPosChangeMessage;
     OnSearchhistoryChange;
     OnPathProvidesChange;
+    OnNavToMarkChange;
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
     FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
@@ -3692,6 +3701,22 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbitmNavigationArrowClick(Sender: TObject);
+var
+  VPoint: TDoublePoint;
+begin
+  if FConfig.NavToPoint.IsActive then begin
+    FConfig.NavToPoint.StopNav;
+  end else begin
+    VPoint := FConfig.NavToPoint.LonLat;
+    if PointIsEmpty(VPoint) then begin
+      ShowMessage('Use right-click on mark and choose Navigation to Mark');
+    end else begin
+      FConfig.NavToPoint.StartNavLonLat(VPoint);
+    end;
+  end;
+end;
+
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
   if (not ProgramClose)and(not ProgramStart)then begin
@@ -5408,6 +5433,11 @@ end;
 procedure TfrmMain.OnMinimize(Sender: TObject);
 begin
   PostMessage(Self.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+end;
+
+procedure TfrmMain.OnNavToMarkChange;
+begin
+  tbitmNavigationArrow.Checked := FConfig.NavToPoint.IsActive;
 end;
 
 procedure TfrmMain.OnPathProvidesChange;
