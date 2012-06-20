@@ -405,7 +405,7 @@ begin
       Exit;
     end;
     VGuid := StringToGUID(VGuids);
-    VZoom := ASLSSection.ReadInteger('zoom', 0);
+    VZoom := ASLSSection.ReadInteger('Zoom', 0);
     if VZoom > 0 then begin
       Dec(VZoom);
     end else begin
@@ -414,16 +414,16 @@ begin
       FFinished := true;
       Exit;
     end;
-    VReplaceExistTiles := ASLSSection.ReadBool('zamena', VReplaceExistTiles);
-    VCheckExistTileSize := ASLSSection.ReadBool('raz', VCheckExistTileSize);
-    VCheckExistTileDate := ASLSSection.ReadBool('zdate', VCheckExistTileDate);
-    VCheckTileDate := ASLSSection.ReadDate('FDate', VCheckTileDate);
-    VProcessedTileCount := ASLSSection.ReadInteger('scachano', VProcessedTileCount);
-    VProcessedSize := trunc(ASLSSection.ReadFloat('dwnb', 0) * 1024);
+    VReplaceExistTiles := ASLSSection.ReadBool('ReplaceExistTiles', VReplaceExistTiles);
+    VCheckExistTileSize := ASLSSection.ReadBool('CheckExistTileSize', VCheckExistTileSize);
+    VCheckExistTileDate := ASLSSection.ReadBool('CheckExistTileDate', VCheckExistTileDate);
+    VCheckTileDate := ASLSSection.ReadDate('CheckTileDate', VCheckTileDate);
+    VProcessedTileCount := ASLSSection.ReadInteger('ProcessedTileCount', VProcessedTileCount);
+    VProcessedSize := trunc(ASLSSection.ReadFloat('ProcessedSize', 0) * 1024);
 
-    VProcessed := ASLSSection.ReadInteger('obrab', VProcessed);
+    VProcessed := ASLSSection.ReadInteger('Processed', VProcessed);
     VSecondLoadTNE := ASLSSection.ReadBool('SecondLoadTNE', VSecondLoadTNE);
-    VElapsedTime := ASLSSection.ReadFloat('ElapsedTime', VProcessed);
+    VElapsedTime := ASLSSection.ReadFloat('ElapsedTime', VElapsedTime);
     if ADownloadConfig.IsUseSessionLastSuccess then begin
       VLastProcessedPoint.X := ASLSSection.ReadInteger('LastSuccessfulStartX', -1);
       VLastProcessedPoint.Y := ASLSSection.ReadInteger('LastSuccessfulStartY', -1);
@@ -527,15 +527,15 @@ var
   VPoint: TDoublePoint;
 begin
   ASLSSection.WriteString('MapGUID', GUIDToString(FMapType.Zmp.GUID));
-  ASLSSection.WriteInteger('zoom', Fzoom + 1);
-  ASLSSection.WriteBool('zamena', FReplaceExistTiles);
-  ASLSSection.WriteBool('raz', FCheckExistTileSize);
-  ASLSSection.WriteBool('zdate', FCheckExistTileDate);
-  ASLSSection.WriteDate('FDate', FCheckTileDate);
+  ASLSSection.WriteInteger('Zoom', Fzoom + 1);
+  ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
+  ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
+  ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
+  ASLSSection.WriteDate('CheckTileDate', FCheckTileDate);
   ASLSSection.WriteBool('SecondLoadTNE', FSecondLoadTNE);
-  ASLSSection.WriteInteger('scachano', FDownloadInfo.TileCount);
-  ASLSSection.WriteInteger('obrab', FProcessed);
-  ASLSSection.WriteFloat('dwnb', FDownloadInfo.Size / 1024);
+  ASLSSection.WriteInteger('ProcessedTileCount', FDownloadInfo.TileCount);
+  ASLSSection.WriteInteger('Processed', FProcessed);
+  ASLSSection.WriteFloat('ProcessedSize', FDownloadInfo.Size / 1024);
   ASLSSection.WriteInteger('StartX', FLastProcessedPoint.X);
   ASLSSection.WriteInteger('StartY', FLastProcessedPoint.Y);
   ASLSSection.WriteInteger('LastSuccessfulStartX', FLastSuccessfulPoint.X);
