@@ -501,7 +501,7 @@ function TPathOnMapEdit.IsEmpty: Boolean;
 begin
   LockRead;
   try
-    Result := FLine.Count > 0;
+    Result := FLine.Count = 0;
   finally
     UnlockRead;
   end;
@@ -619,7 +619,7 @@ function TPolygonOnMapEdit.IsEmpty: Boolean;
 begin
   LockRead;
   try
-    Result := FLine.Count > 0;
+    Result := FLine.Count = 0;
   finally
     UnlockRead;
   end;
