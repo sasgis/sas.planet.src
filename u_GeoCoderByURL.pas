@@ -507,8 +507,42 @@ begin
   XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
   VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
   slat := ReplaceStr(FloatToStr(VPoint.Y),',','.');
-  slon := ReplaceStr(FloatToStr(VPoint.X),',','.');  
+  slon := ReplaceStr(FloatToStr(VPoint.X),',','.');
  end;
+
+ // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
+ if RegExprGetMatchSubStr(Vlink,'/z[0-9]+/.+\.(png|jpg)+',0)<>''  then begin
+  sname := RegExprGetMatchSubStr(Vlink,'http://[0-9a-zа-я\.]+',0);
+  i := PosEx('/z', Vlink, 1);
+  if i>0 then begin
+   j := PosEx('/', Vlink, i+1);
+   slat := Copy(Vlink, i + 2, j - (i + 2));
+    try
+     vZoom := strtoint(slat);
+    except
+     vZoom := 0 ;
+    end;
+   i := PosEx('/', Vlink, j); // X значение
+   j := PosEx('/', Vlink, i+1);
+   slon := Copy(Vlink, i + 1, j - (i + 1));
+   Vilat := strtoint(slon);
+   i := j; // Y значение
+   j := PosEx('.', Vlink, i+1);
+   slat := Copy(Vlink, i + 1, j - (i + 1));
+   Vilon := strtoint(slat);
+   inc(VZoom); // зум отличается на 1
+   XYPoint.X:=ViLon;
+   XYPoint.Y:=ViLat;
+   sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#$D#$A;
+   XYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
+   XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+   VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
+   slat := ReplaceStr(FloatToStr(VPoint.Y),',','.');
+   slon := ReplaceStr(FloatToStr(VPoint.X),',','.');
+  end ;
+ end ;
+
+
 
  if sname <> '' then begin
   try
