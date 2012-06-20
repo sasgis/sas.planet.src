@@ -723,6 +723,7 @@ uses
   u_SensorViewListGeneratorStuped,
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
+  u_FullMapMouseCursorLayer,
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
   u_MapTypeIconsList,
@@ -1449,6 +1450,17 @@ begin
         FConfig.ViewPortState,
         FTileErrorLogProvider,
         GState.GUISyncronizedTimerNotifier
+      )
+    );
+    FLayersList.Add(
+      TFullMapMouseCursorLayer.Create(
+        GState.PerfCounterList,
+        map,
+        FConfig.ViewPortState,
+        FState,
+        GState.GUISyncronizedTimerNotifier,
+        FMouseState,
+        FConfig.LayersConfig.FullMapMouseCursorLayerConfig
       )
     );
     FLayersList.Add(
