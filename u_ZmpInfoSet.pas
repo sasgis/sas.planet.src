@@ -28,6 +28,7 @@ uses
   i_ZmpInfo,
   i_CoordConverterFactory,
   i_LanguageManager,
+  i_ContentTypeManager,
   i_FileNameIterator,
   i_ZmpConfig,
   i_ZmpInfoSet;
@@ -43,6 +44,7 @@ type
     constructor Create(
       const AZmpConfig: IZmpConfig;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const AContentTypeManager: IContentTypeManager;
       const ALanguageManager: ILanguageManager;
       const AFilesIterator: IFileNameIterator
     );
@@ -65,6 +67,7 @@ uses
 constructor TZmpInfoSet.Create(
   const AZmpConfig: IZmpConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const AContentTypeManager: IContentTypeManager;
   const ALanguageManager: ILanguageManager;
   const AFilesIterator: IFileNameIterator
 );
@@ -92,6 +95,7 @@ begin
           AZmpConfig,
           ALanguageManager,
           ACoordConverterFactory,
+          AContentTypeManager,
           VFileName,
           VZmpMapConfig,
           VMapTypeCount

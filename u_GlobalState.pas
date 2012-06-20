@@ -501,6 +501,7 @@ begin
     TZmpInfoSet.Create(
       FZmpConfig,
       FCoordConverterFactory,
+      FContentTypeManager,
       FLanguageManager,
       VFilesIterator
     );

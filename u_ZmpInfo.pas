@@ -37,6 +37,7 @@ uses
   i_LanguageManager,
   i_StringByLanguage,
   i_CoordConverterFactory,
+  i_ContentTypeManager,
   i_MapAbilitiesConfig,
   i_MapAttachmentsInfo,
   i_SimpleTileStorageConfig,
@@ -62,6 +63,7 @@ type
   private
     procedure LoadConfig(
       const ALangList: ILanguageListStatic;
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: IConfigDataProvider;
       const AConfigIni: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
@@ -71,6 +73,7 @@ type
       Apnum: Integer
     ): IBitmap32Static;
     procedure LoadIcons(
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
       Apnum: Integer
@@ -99,6 +102,7 @@ type
     constructor Create(
       const AGUID: TGUID;
       const ALanguageManager: ILanguageManager;
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: IConfigDataProvider;
       const AConfigIni: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
@@ -170,6 +174,7 @@ type
       const AZmpConfig: IZmpConfig;
       const ALanguageManager: ILanguageManager;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
       Apnum: Integer
@@ -189,6 +194,8 @@ uses
   gnugettext,
   i_BinaryData,
   u_Bitmap32Static,
+  i_BitmapTileSaveLoad,
+  i_ContentTypeInfo,
   u_StreamReadOnlyByBinaryData,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
@@ -251,6 +258,7 @@ end;
 constructor TZmpInfoGUI.Create(
   const AGUID: TGUID;
   const ALanguageManager: ILanguageManager;
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIni: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
@@ -262,7 +270,14 @@ begin
   inherited Create;
   FGUID := AGUID;
   VLangList := ALanguageManager.LanguageList;
-  LoadConfig(VLangList, AConfig, AConfigIni, AConfigIniParams, Apnum);
+  LoadConfig(
+    VLangList,
+    AContentTypeManager,
+    AConfig,
+    AConfigIni,
+    AConfigIniParams,
+    Apnum
+  );
 end;
 
 function TZmpInfoGUI.CreateDefaultIcon(Apnum: Integer): IBitmap32Static;
@@ -339,6 +354,7 @@ end;
 
 procedure TZmpInfoGUI.LoadConfig(
   const ALangList: ILanguageListStatic;
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIni: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
@@ -346,84 +362,112 @@ procedure TZmpInfoGUI.LoadConfig(
 );
 begin
   LoadUIParams(ALangList, AConfigIniParams, Apnum);
-  LoadIcons(AConfig, AConfigIniParams, Apnum);
+  LoadIcons(AContentTypeManager, AConfig, AConfigIniParams, Apnum);
   LoadInfo(ALangList, AConfig);
 end;
 
 procedure TZmpInfoGUI.LoadIcons(
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
-  procedure UpdateBMPTransp(ABitmap: TCustomBitmap32);
+  function UpdateBMPTransp(AMaskColor: TColor32; ABitmap: IBitmap32Static): IBitmap32Static;
   var
-    VTranspColor: TColor32;
-    VLine: PColor32Array;
+    VSourceLine: PColor32Array;
+    VTargetLine: PColor32Array;
     i: Integer;
     j: Integer;
+    VBitmap: TCustomBitmap32;
   begin
-    VTranspColor := Color32(255, 0, 255, 255);
-    for i := 0 to ABitmap.Height - 1 do begin
-      VLine := ABitmap.ScanLine[i];
-      for j := 0 to ABitmap.Width - 1 do begin
-        if VLine[j] = VTranspColor then begin
-          VLine[j] := 0;
+    Result := nil;
+    if ABitmap <> nil then begin
+      VBitmap := TCustomBitmap32.Create;
+      try
+        VBitmap.SetSizeFrom(ABitmap.Bitmap);
+        for i := 0 to ABitmap.Bitmap.Height - 1 do begin
+          VSourceLine := ABitmap.Bitmap.ScanLine[i];
+          VTargetLine := VBitmap.ScanLine[i];
+          for j := 0 to ABitmap.Bitmap.Width - 1 do begin
+            if VSourceLine[j] = AMaskColor then begin
+              VTargetLine[j] := 0;
+            end else begin
+              VTargetLine[j] := VSourceLine[j];
+            end;
+          end;
+        end;
+        Result := TBitmap32Static.CreateWithOwn(VBitmap);
+        VBitmap := nil;
+      finally
+        VBitmap.Free;
+      end;
+    end;
+
+  end;
+
+  function GetBitmap(
+    const AContentTypeManager: IContentTypeManager;
+    const AConfig: IConfigDataProvider;
+    const AConfigIniParams: IConfigDataProvider;
+    const ADefName: string;
+    const AIdent: string
+  ): IBitmap32Static;
+  var
+    VImageName: string;
+    VData: IBinaryData;
+    VExt: string;
+    VTypeInfo: IContentTypeInfoBasic;
+    VBitmapTypeInfo: IContentTypeInfoBitmap;
+    VLoader: IBitmapTileLoader;
+  begin
+    Result := nil;
+    VImageName := ADefName;
+    VImageName := AConfigIniParams.ReadString(AIdent, VImageName);
+    VData := AConfig.ReadBinary(VImageName);
+    if (VData <> nil) and (VData.Size > 0) then begin
+      VExt := LowerCase(ExtractFileExt(VImageName));
+      VTypeInfo := AContentTypeManager.GetInfoByExt(VExt);
+      if Supports(VTypeInfo, IContentTypeInfoBitmap, VBitmapTypeInfo) then begin
+        VLoader := VBitmapTypeInfo.GetLoader;
+        if VLoader <> nil then begin
+          Result := VLoader.Load(VData);
+          if Result <> nil then begin
+            if VExt = '.bmp' then begin
+              Result := UpdateBMPTransp(Color32(255, 0, 255, 255), Result);
+            end
+          end;
         end;
       end;
     end;
   end;
-
-var
-  VStream: TStream;
-  VBitmap: TCustomBitmap32;
-  VImageName: string;
-  VData: IBinaryData;
 begin
-  VBitmap := TCustomBitmap32.Create;
   try
-    try
-      VImageName := '24.bmp';
-      VImageName := AConfigIniParams.ReadString('BigIconName', VImageName);
-      VData := AConfig.ReadBinary(VImageName);
-      if VData <> nil then begin
-        VStream := TStreamReadOnlyByBinaryData.Create(VData);
-        try
-          VBitmap.LoadFromStream(VStream);
-          UpdateBMPTransp(VBitmap);
-          Fbmp24 := TBitmap32Static.CreateWithCopy(VBitmap);
-        finally
-          VStream.Free;
-        end;
-      end;
-    except
-    end;
-  finally
-    VBitmap.Free;
+    FBmp24 :=
+      GetBitmap(
+        AContentTypeManager,
+        AConfig,
+        AConfigIniParams,
+        '24.bmp',
+        'BigIconName'
+      );
+  except
+    FBmp24 := nil;
   end;
   if FBmp24 = nil then begin
     FBmp24 := CreateDefaultIcon(Apnum);
   end;
 
-  VBitmap := TCustomBitmap32.Create;
   try
-    try
-      VImageName := '18.bmp';
-      VImageName := AConfigIniParams.ReadString('SmallIconName', VImageName);
-      VData := AConfig.ReadBinary(VImageName);
-      if VData <> nil then begin
-        VStream := TStreamReadOnlyByBinaryData.Create(VData);
-        try
-          VBitmap.LoadFromStream(VStream);
-          UpdateBMPTransp(VBitmap);
-          FBmp18 := TBitmap32Static.CreateWithCopy(VBitmap);
-        finally
-          VStream.Free;
-        end;
-      end;
-    except
-    end;
-  finally
-    VBitmap.Free;
+    FBmp18 :=
+      GetBitmap(
+        AContentTypeManager,
+        AConfig,
+        AConfigIniParams,
+        '18.bmp',
+        'SmallIconName'
+      );
+  except
+    FBmp18 := nil;
   end;
   if FBmp18 = nil then begin
     FBmp18 := FBmp24;
@@ -496,6 +540,7 @@ constructor TZmpInfo.Create(
   const AZmpConfig: IZmpConfig;
   const ALanguageManager: ILanguageManager;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
   Apnum: Integer
@@ -514,7 +559,7 @@ begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
   LoadConfig(ACoordConverterFactory, ALanguageManager);
-  FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
+  FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, AContentTypeManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
 end;
 
 function TZmpInfo.GetAbilities: IMapAbilitiesConfigStatic;
