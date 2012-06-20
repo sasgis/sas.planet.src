@@ -408,6 +408,7 @@ type
     tbitmNavigationArrow: TTBXItem;
     tbitmProperties: TTBXItem;
     tbitmFitToScreen: TTBXItem;
+    tbitmEditLastSelection: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -546,6 +547,7 @@ type
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCacheManagerClick(Sender: TObject);
+    procedure tbitmEditLastSelectionClick(Sender: TObject);
     procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
     procedure tbitmFitToScreenClick(Sender: TObject);
@@ -5580,6 +5582,25 @@ end;
 procedure TfrmMain.tbitmCacheManagerClick(Sender: TObject);
 begin
   FfrmCacheManager.Show;
+end;
+
+procedure TfrmMain.tbitmEditLastSelectionClick(Sender: TObject);
+var
+  VPolygon: ILonLatPolygon;
+  VLineOnMapEdit: ILineOnMapEdit;
+  VPolygonOnMapEdit: IPolygonOnMapEdit;
+begin
+  VPolygon := GState.LastSelectionInfo.Polygon;
+  FState.State := ao_select_poly;
+  TBRectSave.ImageIndex:=13;
+  if VPolygon <> nil then begin
+    if VPolygon.Count > 0 then begin
+      VLineOnMapEdit := FLineOnMapEdit;
+      if Supports(VLineOnMapEdit, IPolygonOnMapEdit,  VPolygonOnMapEdit) then begin
+        VPolygonOnMapEdit.SetPolygon(VPolygon);
+      end;
+    end;
+  end;
 end;
 
 end.
