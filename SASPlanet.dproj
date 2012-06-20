@@ -217,6 +217,7 @@
     <DCCReference Include="i_EnumDoublePoint.pas" />
     <DCCReference Include="i_FillingMapColorer.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
+    <DCCReference Include="i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GeoCoderList.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
@@ -658,6 +659,7 @@
     <DCCReference Include="u_FillingMapLayerConfig.pas" />
     <DCCReference Include="u_FillingMapLayerConfigStatic.pas" />
     <DCCReference Include="u_FillingMapMapsConfig.pas" />
+    <DCCReference Include="u_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />

@@ -213,6 +213,8 @@ uses
   i_MiniMapLayerConfig in 'i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'u_MiniMapMapsConfig.pas',
   u_MiniMapLayerConfig in 'u_MiniMapLayerConfig.pas',
+  i_FullMapMouseCursorLayerConfig in 'i_FullMapMouseCursorLayerConfig.pas',
+  u_FullMapMouseCursorLayerConfig in 'u_FullMapMouseCursorLayerConfig.pas',
   u_PLTSimpleParser in 'u_PLTSimpleParser.pas',
   u_GeoFun in 'u_GeoFun.pas',
   i_EnumDoublePoint in 'i_EnumDoublePoint.pas',
