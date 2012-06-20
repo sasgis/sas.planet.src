@@ -3,6 +3,7 @@ unit u_FullMapMouseCursorLayerConfig;
 interface
 
 uses
+  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_FullMapMouseCursorLayerConfig,
@@ -11,9 +12,13 @@ uses
 type
   TFullMapMouseCursorLayerConfig = class(TConfigDataElementBase, IFullMapMouseCursorLayerConfig)
   private
+    FLineColor: TColor32;
     FEnabled: Boolean;
     FShowAlways: Boolean;
   private
+    function GetLineColor: TColor32;
+    procedure SetLineColor(AValue: TColor32);
+
     function GetEnabled: Boolean;
     procedure SetEnabled(AValue: Boolean);
 
@@ -28,11 +33,14 @@ type
 
 implementation
 
+uses
+  u_ConfigProviderHelpers;
 { TFullMapMouseCursorLayerConfig }
 
 constructor TFullMapMouseCursorLayerConfig.Create;
 begin
   inherited;
+  FLineColor := clWhite32;
   FEnabled := False;
   FShowAlways := False;
 end;
@@ -42,6 +50,7 @@ procedure TFullMapMouseCursorLayerConfig.DoReadConfig(
 begin
   inherited;
   if AConfigData <> nil then begin
+    FLineColor := ReadColor32(AConfigData, 'LineColor', FLineColor);
     FEnabled := AConfigData.ReadBool('Enabled', FEnabled);
     FShowAlways := AConfigData.ReadBool('ShowAlways', FShowAlways);
 
@@ -53,6 +62,7 @@ procedure TFullMapMouseCursorLayerConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
+  WriteColor32(AConfigData, 'LineColor', FLineColor);
   AConfigData.WriteBool('Enabled', FEnabled);
   AConfigData.WriteBool('ShowAlways', FShowAlways);
 end;
@@ -62,6 +72,16 @@ begin
   LockRead;
   try
     Result := FEnabled;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TFullMapMouseCursorLayerConfig.GetLineColor: TColor32;
+begin
+  LockRead;
+  try
+    Result := FLineColor;
   finally
     UnlockRead;
   end;
@@ -83,6 +103,19 @@ begin
   try
     if FEnabled <> AValue then begin
       FEnabled := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TFullMapMouseCursorLayerConfig.SetLineColor(AValue: TColor32);
+begin
+  LockWrite;
+  try
+    if FLineColor <> AValue then begin
+      FLineColor := AValue;
       SetChanged;
     end;
   finally
