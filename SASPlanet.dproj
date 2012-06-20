@@ -414,6 +414,7 @@
     <DCCReference Include="MapLayers\i_MapElementsGuidedList.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
+    <DCCReference Include="MapLayers\u_FullMapMouseCursorLayer.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
     <DCCReference Include="MapLayers\u_MapElementsGuidedList.pas" />

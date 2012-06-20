@@ -445,6 +445,7 @@ uses
   u_MiniMapLayer in 'MapLayers\u_MiniMapLayer.pas',
   u_CenterScale in 'MapLayers\u_CenterScale.pas',
   u_LayerStatBar in 'MapLayers\u_LayerStatBar.pas',
+  u_FullMapMouseCursorLayer in 'MapLayers\u_FullMapMouseCursorLayer.pas',
   u_MapLayerBasic in 'MapLayers\u_MapLayerBasic.pas',
   u_MapLayerTileGrid in 'MapLayers\u_MapLayerTileGrid.pas',
   u_MapLayerGrids in 'MapLayers\u_MapLayerGrids.pas',
