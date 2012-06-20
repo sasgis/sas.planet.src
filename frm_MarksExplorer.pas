@@ -256,8 +256,10 @@ var
   VMarkId: IMarkID;
   i: Integer;
   VSelectedIndex: Integer;
+  VTopIndex: Integer;
 begin
   VSelectedIndex := MarksListBox.ItemIndex;
+  VTopIndex := MarksListBox.TopIndex;
   MarksListBox.Clear;
   FMarksList := nil;
   VCategory := GetSelectedCategory;
@@ -273,6 +275,11 @@ begin
       if VSelectedIndex > 0 then begin
         if VSelectedIndex < MarksListBox.Count then begin
           MarksListBox.ItemIndex := VSelectedIndex;
+        end;
+      end;
+      if VTopIndex > 0 then begin
+        if VTopIndex < MarksListBox.Count then begin
+          MarksListBox.TopIndex := VTopIndex;
         end;
       end;
       lblMarksCount.Caption:='('+inttostr(MarksListBox.Count)+')';
