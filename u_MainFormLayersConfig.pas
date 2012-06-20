@@ -45,6 +45,7 @@ uses
   i_MainMapLayerConfig,
   i_GotoLayerConfig,
   i_ContentTypeManager,
+  i_FullMapMouseCursorLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;
 
@@ -71,6 +72,7 @@ type
     FMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     FFillingMapLayerConfig: IFillingMapLayerConfig;
     FGotoLayerConfig: IGotoLayerConfig;
+    FFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
   protected
     function GetMainMapLayerConfig: IMainMapLayerConfig;
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
@@ -92,6 +94,7 @@ type
     function GetMarkPolyLineLayerConfig: IMarkPolyLineLayerConfig;
     function GetFillingMapLayerConfig: IFillingMapLayerConfig;
     function GetGotoLayerConfig: IGotoLayerConfig;
+    function GetFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
   public
     constructor Create(
       const AContentTypeManager: IContentTypeManager;
@@ -123,6 +126,7 @@ uses
   u_MarkPolyLineLayerConfig,
   u_FillingMapLayerConfig,
   u_GotoLayerConfig,
+  u_FullMapMouseCursorLayerConfig,
   u_MapLayerNavToPointMarkerConfig;
 
 { TMainFormLayersConfig }
@@ -173,6 +177,8 @@ begin
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
   FGotoLayerConfig := TGotoLayerConfig.Create;
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));
+  FFullMapMouseCursorLayerConfig := TFullMapMouseCursorLayerConfig.Create;
+  Add(FFullMapMouseCursorLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FullMapMouseCursor'));
 end;
 
 function TMainFormLayersConfig.GetCalcLineLayerConfig: ICalcLineLayerConfig;
@@ -188,6 +194,11 @@ end;
 function TMainFormLayersConfig.GetFillingMapLayerConfig: IFillingMapLayerConfig;
 begin
   Result := FFillingMapLayerConfig;
+end;
+
+function TMainFormLayersConfig.GetFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
+begin
+  Result := FFullMapMouseCursorLayerConfig;
 end;
 
 function TMainFormLayersConfig.GetGotoLayerConfig: IGotoLayerConfig;

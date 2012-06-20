@@ -52,6 +52,7 @@ uses
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
   i_GotoLayerConfig,
+  i_FullMapMouseCursorLayerConfig,
   i_LastSearchResultConfig,
   i_MainMapLayerConfig,
   i_MapLayerGridsConfig;
@@ -150,6 +151,9 @@ type
 
     function GetGotoLayerConfig: IGotoLayerConfig;
     property GotoLayerConfig: IGotoLayerConfig read GetGotoLayerConfig;
+
+    function GetFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
+    property FullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig read GetFullMapMouseCursorLayerConfig;
   end;
 
   IMainFormConfig = interface(IConfigDataElement)
