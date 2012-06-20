@@ -269,6 +269,7 @@
     <DCCReference Include="i_LonLatRectUpdateNotifier.pas" />
     <DCCReference Include="i_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="i_MainFormConfig.pas" />
+    <DCCReference Include="i_MainFormState.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
     <DCCReference Include="i_MainMapLayerConfig.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
@@ -760,6 +761,7 @@
     <DCCReference Include="u_MainFormConfig.pas" />
     <DCCReference Include="u_MainFormLayersConfig.pas" />
     <DCCReference Include="u_MainFormMainConfig.pas" />
+    <DCCReference Include="u_MainFormState.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
     <DCCReference Include="u_MainMapLayerConfig.pas" />
     <DCCReference Include="u_MainMapsConfig.pas" />
