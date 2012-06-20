@@ -259,6 +259,7 @@ ResourceString
   SAS_UNITS_m = 'm';
   SAS_UNITS_m2 = 'm2';
   SAS_UNITS_km2 = 'km2';
+  SAS_UNITS_Ha = 'ha';
   SAS_UNITS_Secund = 'sec.';
 
 implementation

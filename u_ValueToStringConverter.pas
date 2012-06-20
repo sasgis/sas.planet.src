@@ -33,12 +33,14 @@ type
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
+    FAreaShowFormat: TAreaStrFormat;
     FUnitsKb: string;
     FUnitsMb: string;
     FUnitsGb: string;
     FUnitsKm: string;
     FUnitsMeters: string;
     FUnitsKmph: string;
+    FUnitsHa: string;
     FUnitsSqKm: string;
     FUnitsSqMeters: string;
     FEastMarker: string;
@@ -63,7 +65,8 @@ type
     constructor Create(
       ADistStrFormat: TDistStrFormat;
       AIsLatitudeFirst: Boolean;
-      ADegrShowFormat: TDegrShowFormat
+      ADegrShowFormat: TDegrShowFormat;
+      AAreaShowFormat: TAreaStrFormat
     );
   end;
 
@@ -78,13 +81,15 @@ uses
 constructor TValueToStringConverter.Create(
   ADistStrFormat: TDistStrFormat;
   AIsLatitudeFirst: Boolean;
-  ADegrShowFormat: TDegrShowFormat
+  ADegrShowFormat: TDegrShowFormat;
+  AAreaShowFormat: TAreaStrFormat
 );
 begin
   inherited Create;
   FDistStrFormat := ADistStrFormat;
   FIsLatitudeFirst := AIsLatitudeFirst;
   FDegrShowFormat := ADegrShowFormat;
+  FAreaShowFormat := AAreaShowFormat;
   FUnitsKb := SAS_UNITS_kb;
   FUnitsMb := SAS_UNITS_mb;
   FUnitsGb := SAS_UNITS_gb;
@@ -92,6 +97,7 @@ begin
   FUnitsMeters := SAS_UNITS_m;
   FUnitsKmph := SAS_UNITS_kmperh;
   FUnitsSqKm := SAS_UNITS_km2;
+  FUnitsHa := SAS_UNITS_Ha;
   FUnitsSqMeters := SAS_UNITS_m2;
   FNorthMarker := 'N';
   FEastMarker := 'E';
@@ -106,10 +112,35 @@ end;
 
 function TValueToStringConverter.AreaConvert(AAreaInSqm: Double): string;
 begin
-  if AAreaInSqm <= 1000000 then begin
-    Result := FormatFloat('0.00', AAreaInSqm) + ' ' + FUnitsSqMeters;
-  end else begin
-    Result := FormatFloat('0.00', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+  case FAreaShowFormat of
+    asfAuto: begin
+      if AAreaInSqm <= 1000000 then begin
+        Result := FormatFloat('0.00', AAreaInSqm) + ' ' + FUnitsSqMeters;
+      end else begin
+        Result := FormatFloat('0.00', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+      end;
+    end;
+    asfSqM: begin
+      if AAreaInSqm <= 100 then begin
+        Result := FormatFloat('0.00', AAreaInSqm) + ' ' + FUnitsSqMeters;
+      end else begin
+        Result := FormatFloat('0.', AAreaInSqm) + ' ' + FUnitsSqMeters;
+      end;
+    end;
+    asfSqKm: begin
+      if AAreaInSqm <= 1000000 then begin
+        Result := FormatFloat('0.000000', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+      end else begin
+        Result := FormatFloat('0.00', AAreaInSqm / 1000000) + ' ' + FUnitsSqKm;
+      end;
+    end;
+    asfHa: begin
+      if AAreaInSqm <= 1000000 then begin
+        Result := FormatFloat('0.0000', AAreaInSqm / 10000) + ' ' + FUnitsHa;
+      end else begin
+        Result := FormatFloat('0.00', AAreaInSqm / 10000) + ' ' + FUnitsHa;
+      end;
+    end;
   end;
 end;
 

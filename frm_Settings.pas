@@ -240,6 +240,9 @@ type
     pnlImageProcessTop: TPanel;
     btnImageProcessReset: TButton;
     lblImageProcessCaption: TLabel;
+    pnlAreaFormat: TPanel;
+    lblAreaFormat: TLabel;
+    cbbAreaFormat: TComboBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -570,6 +573,7 @@ begin
     GState.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
     GState.ValueToStringConverterConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
     GState.ValueToStringConverterConfig.DistStrFormat := TDistStrFormat(ComboBox1.ItemIndex);
+    GState.ValueToStringConverterConfig.AreaShowFormat := TAreaStrFormat(cbbAreaFormat.ItemIndex);
   finally
     GState.ValueToStringConverterConfig.UnlockWrite;
   end;
@@ -907,6 +911,7 @@ begin
     ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;
     CB_llstrType.ItemIndex:=byte(GState.ValueToStringConverterConfig.DegrShowFormat);
     ComboBox1.ItemIndex := byte(GState.ValueToStringConverterConfig.DistStrFormat);
+    cbbAreaFormat.ItemIndex := byte(GState.ValueToStringConverterConfig.AreaShowFormat);
   finally
     GState.ValueToStringConverterConfig.UnlockRead;
   end;

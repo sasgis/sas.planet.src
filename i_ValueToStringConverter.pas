@@ -55,6 +55,10 @@ type
     procedure SetDegrShowFormat(AValue: TDegrShowFormat);
     property DegrShowFormat: TDegrShowFormat read GetDegrShowFormat write SetDegrShowFormat;
 
+    function GetAreaShowFormat: TAreaStrFormat;
+    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
+    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat write SetAreaShowFormat;
+
     function GetStatic: IValueToStringConverter;
   end;
 

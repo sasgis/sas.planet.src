@@ -40,6 +40,7 @@ type
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
+    FAreaShowFormat: TAreaStrFormat;
     procedure OnDependentOnElementChange;
   protected
     function CreateStatic: IInterface; override;
@@ -55,6 +56,9 @@ type
 
     function GetDegrShowFormat: TDegrShowFormat;
     procedure SetDegrShowFormat(AValue: TDegrShowFormat);
+
+    function GetAreaShowFormat: TAreaStrFormat;
+    procedure SetAreaShowFormat(AValue: TAreaStrFormat);
 
     function GetStatic: IValueToStringConverter;
   public
@@ -77,6 +81,7 @@ begin
   FIsLatitudeFirst := True;
   FDistStrFormat := dsfKmAndM;
   FDegrShowFormat := dshCharDegrMinSec;
+  FAreaShowFormat := asfAuto;
   FDependentOnElement := ADependentOnElement;
   FDependentOnElementListener := TNotifyNoMmgEventListener.Create(Self.OnDependentOnElementChange);
   FDependentOnElement.GetChangeNotifier.Add(FDependentOnElementListener);
@@ -98,7 +103,8 @@ begin
     TValueToStringConverter.Create(
       FDistStrFormat,
       FIsLatitudeFirst,
-      FDegrShowFormat
+      FDegrShowFormat,
+      FAreaShowFormat
     );
   Result := VStatic;
 end;
@@ -112,6 +118,7 @@ begin
     FIsLatitudeFirst := AConfigData.ReadBool('FirstLat', FIsLatitudeFirst);
     FDistStrFormat := TDistStrFormat(AConfigData.ReadInteger('DistFormat', Integer(FDistStrFormat)));
     FDegrShowFormat := TDegrShowFormat(AConfigData.ReadInteger('DegrisShowFormat', Integer(FDegrShowFormat)));
+    FAreaShowFormat := TAreaStrFormat(AConfigData.ReadInteger('AreaShowFormat', Integer(FAreaShowFormat)));
     SetChanged;
   end;
 end;
@@ -124,6 +131,17 @@ begin
   AConfigData.WriteBool('FirstLat', FIsLatitudeFirst);
   AConfigData.WriteInteger('DistFormat', Integer(FDistStrFormat));
   AConfigData.WriteInteger('DegrisShowFormat', Integer(FDegrShowFormat));
+  AConfigData.WriteInteger('AreaShowFormat', Integer(FAreaShowFormat));
+end;
+
+function TValueToStringConverterConfig.GetAreaShowFormat: TAreaStrFormat;
+begin
+  LockRead;
+  try
+    Result := FAreaShowFormat;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TValueToStringConverterConfig.GetDegrShowFormat: TDegrShowFormat;
@@ -166,6 +184,20 @@ begin
   LockWrite;
   try
     SetChanged;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TValueToStringConverterConfig.SetAreaShowFormat(
+  AValue: TAreaStrFormat);
+begin
+  LockWrite;
+  try
+    if FAreaShowFormat <> AValue then begin
+      FAreaShowFormat := AValue;
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;
