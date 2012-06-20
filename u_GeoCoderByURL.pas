@@ -511,7 +511,8 @@ begin
  end;
 
  // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
- if RegExprGetMatchSubStr(Vlink,'/z[0-9]+/.+\.(png|jpg)+',0)<>''  then begin
+ if RegExprGetMatchSubStr(Vlink,'/z[0-9]+/.+\.(png|jpg)+',0)<>''  then
+ if sname = '' then begin
   sname := RegExprGetMatchSubStr(Vlink,'http://[0-9a-zà-ÿ\.]+',0);
   i := PosEx('/z', Vlink, 1);
   if i>0 then begin
@@ -542,6 +543,27 @@ begin
   end ;
  end ;
 
+ // http://wikimapia.org/d?lng=1&BBOX=42.84668,43.26121,42.89063,43.29320
+ // http://www.openstreetmap.org/?box=yes&bbox=41.73729%2C44.25345%2C41.73729%2C44.25345
+ if RegExprGetMatchSubStr(UpperCase(Vlink),'BBOX=([0-9]+.[0-9]+\,)+([0-9]+.[0-9]+)',0)<>''  then
+  if sname = '' then begin
+   sname := RegExprGetMatchSubStr(Vlink,'http://[0-9a-zà-ÿ\.]+',0);
+   i := PosEx('BBOX=', UpperCase(Vlink))+4;
+   j := PosEx(',', Vlink, i+1);
+   slon := Copy(Vlink, i + 1, j - (i + 1));
+   i := j;
+   j := PosEx(',', Vlink, i+1);
+   slat := Copy(Vlink, i + 1, j - (i + 1));
+   i := j;
+   j := PosEx(',', Vlink, i+1);
+   slon := FloatToStr((StrToFloat(Copy(Vlink, i + 1, j - (i + 1)),VFormatSettings)+StrToFloat(slon,VFormatSettings))/2);
+   i := j;
+   j := PosEx(',', Vlink, i+1);
+   if j=0 then j:=length(Vlink);   
+   slat := FloatToStr((StrToFloat(Copy(Vlink, i + 1, j - (i + 1)),VFormatSettings)+StrToFloat(slat,VFormatSettings))/2);
+   slat := ReplaceStr(slat,',','.');
+   slon := ReplaceStr(slon,',','.');
+  end;
 
 
  if sname <> '' then begin
