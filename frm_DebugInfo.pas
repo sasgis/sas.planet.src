@@ -146,14 +146,16 @@ var
 begin
   Result := AStartRaw;
   VEnum := AList.GetEunm;
-  VName := AParentName + '/';
-  while VEnum.Next(1, VUnknown, Addr(Vcnt)) = S_OK do begin
-    if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
-      if AddRowFromCounter(VName + VCounter.Name, Result, VCounter) then begin
-        Inc(Result);
+  if VEnum <> nil then begin
+    VName := AParentName + '/';
+    while VEnum.Next(1, VUnknown, Addr(Vcnt)) = S_OK do begin
+      if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
+        if AddRowFromCounter(VName + VCounter.Name, Result, VCounter) then begin
+          Inc(Result);
+        end;
+      end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
+        Result := AddRowsFromList(VName + VList.Name, Result, VList);
       end;
-    end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
-      Result := AddRowsFromList(VName + VList.Name, Result, VList);
     end;
   end;
 end;

@@ -368,11 +368,11 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-{$if defined(RELEASE)}
-  FPerfCounterList := TInternalPerformanceCounterFake.Create;
-{$else}
-  FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
-{$ifend}
+  if FGlobalAppConfig.IsShowDebugInfo then begin
+    FPerfCounterList := TInternalPerformanceCounterFake.Create;
+  end else begin
+    FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
+  end;
 
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
 
