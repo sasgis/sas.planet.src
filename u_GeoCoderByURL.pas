@@ -558,11 +558,17 @@ begin
    j := PosEx(',', Vlink, i+1);
    slon := FloatToStr((StrToFloat(Copy(Vlink, i + 1, j - (i + 1)),VFormatSettings)+StrToFloat(slon,VFormatSettings))/2);
    i := j;
-   j := PosEx(',', Vlink, i+1);
-   if j=0 then j:=length(Vlink);   
+   j := PosEx('&', Vlink, i+1);
+   if j=0 then j:=length(Vlink);
    slat := FloatToStr((StrToFloat(Copy(Vlink, i + 1, j - (i + 1)),VFormatSettings)+StrToFloat(slat,VFormatSettings))/2);
    slat := ReplaceStr(slat,',','.');
    slon := ReplaceStr(slon,',','.');
+   if (StrToFloat(slat,VFormatSettings)>360)or(StrToFloat(slon,VFormatSettings)>360) then
+   begin
+     meters_to_lonlat(StrToFloat(slon, VFormatSettings),StrToFloat(slat, VFormatSettings),slon,slat);
+     slat := ReplaceStr(slat,',','.');
+     slon := ReplaceStr(slon,',','.');
+   end;
   end;
 
 
