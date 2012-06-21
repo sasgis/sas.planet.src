@@ -47,9 +47,6 @@ type
 
   IMarkCategorySMLInternal = interface
     ['{08E68E71-FD75-4E7F-953F-485F034525AA}']
-    function GetDbCode: Integer;
-    property DbCode: Integer read GetDbCode;
-
     function GetId: integer; stdcall;
     property Id: integer read GetId;
   end;

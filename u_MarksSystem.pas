@@ -238,7 +238,7 @@ var
 begin
   VMarkIdList := FMarksDb.GetMarskIdListByCategory(ACategory);
   FMarksDb.UpdateMarksList(VMarkIdList, nil);
-  FCategoryDB.DeleteCategory(ACategory);
+  FCategoryDB.UpdateCategory(ACategory, nil);
 end;
 
 function TMarksSystem.GetVisibleCategories(AZoom: Byte): IInterfaceList;

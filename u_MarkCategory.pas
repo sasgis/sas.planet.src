@@ -29,26 +29,23 @@ uses
 type
   TMarkCategory = class(TInterfacedObject, ICategory, IMarkCategory, IMarkCategorySMLInternal)
   private
-    FDbCode: Integer;
     FId: Integer;
     FName: string;
     FVisible: Boolean;
     FAfterScale: integer;
     FBeforeScale: integer;
   protected
-    function GetDbCode: Integer;
     function GetId: integer; stdcall;
   protected
     function GetName: string; stdcall;
     function IsSame(const ACategory: ICategory): Boolean;
+    function IsEqual(const ACategory: ICategory): Boolean;
   protected
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;
-    function IsNew: Boolean;
   public
     constructor Create(
-      ADbCode: Integer;
       AId: Integer;
       const AName: string;
       AVisible: Boolean;
@@ -65,7 +62,6 @@ uses
 { TMarkCategory }
 
 constructor TMarkCategory.Create(
-  ADbCode: Integer;
   AId: Integer;
   const AName: string;
   AVisible: Boolean;
@@ -73,7 +69,6 @@ constructor TMarkCategory.Create(
 );
 begin
   inherited Create;
-  FDbCode := ADbCode;
   FId := AId;
   FName := AName;
   FVisible := AVisible;
@@ -91,11 +86,6 @@ begin
   Result := FBeforeScale;
 end;
 
-function TMarkCategory.GetDbCode: Integer;
-begin
-  Result := FDbCode;
-end;
-
 function TMarkCategory.GetId: integer;
 begin
   Result := FId;
@@ -111,9 +101,30 @@ begin
   Result := FVisible;
 end;
 
-function TMarkCategory.IsNew: Boolean;
+function TMarkCategory.IsEqual(const ACategory: ICategory): Boolean;
+var
+  VCategory: IMarkCategory;
 begin
-  Result := FId < 0;
+  if ACategory = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if ACategory = ICategory(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if ACategory.Name <> FName then begin
+    Result := False;
+    Exit;
+  end;
+  if Supports(ACategory, IMarkCategory, VCategory) then begin
+    Result :=
+      (VCategory.Visible = FVisible) and
+      (VCategory.AfterScale = FAfterScale) and
+      (VCategory.BeforeScale = FBeforeScale);
+  end else begin
+    Result := False;
+  end;
 end;
 
 function TMarkCategory.IsSame(const ACategory: ICategory): Boolean;

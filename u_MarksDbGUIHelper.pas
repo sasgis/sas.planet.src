@@ -174,7 +174,7 @@ begin
   FfrmMarkCategoryEdit :=
     TfrmMarkCategoryEdit.Create(
       ALanguageManager,
-      FMarksDB.CategoryDB.Factory
+      FMarksDB.CategoryDB
     );
   FfrmImportConfigEdit :=
     TfrmImportConfigEdit.Create(
@@ -208,7 +208,7 @@ begin
   VCategory := FMarksDB.CategoryDB.Factory.CreateNew(name);
   Result := FMarksDb.CategoryDB.GetCategoryByName(VCategory.Name);
   if Result = nil then begin
-    Result := FMarksDb.CategoryDB.WriteCategory(VCategory);
+    Result := FMarksDb.CategoryDB.UpdateCategory(nil, VCategory);
   end;
 end;
 

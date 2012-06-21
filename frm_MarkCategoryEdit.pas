@@ -32,6 +32,7 @@ uses
   Spin,
   i_LanguageManager,
   i_MarkCategory,
+  i_MarkCategoryDB,
   i_MarkCategoryFactory,
   u_CommonFormAndFrameParents;
 
@@ -54,12 +55,12 @@ type
     btnSetAsTemplate: TButton;
     procedure btnSetAsTemplateClick(Sender: TObject);
   private
-    FFactory: IMarkCategoryFactory;
+    FCategoryDB: IMarkCategoryDB;
   public
     function EditCategory(const ACategory: IMarkCategory): IMarkCategory;
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AFactory: IMarkCategoryFactory
+      const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
   end;
 
@@ -76,7 +77,7 @@ var
   VConfig: IMarkCategoryFactoryConfig;
 begin
   if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
-    VConfig := FFactory.Config;
+    VConfig := FCategoryDB.Factory.Config;
     VConfig.LockWrite;
     try
       VConfig.AfterScale := EditS1.Value;
@@ -89,17 +90,18 @@ end;
 
 constructor TfrmMarkCategoryEdit.Create(
   const ALanguageManager: ILanguageManager;
-  const AFactory: IMarkCategoryFactory
+  const ACategoryDB: IMarkCategoryDB
 );
 begin
   inherited Create(ALanguageManager);
-  FFactory := AFactory;
+  FCategoryDB := ACategoryDB;
 end;
 
 function TfrmMarkCategoryEdit.EditCategory(const ACategory: IMarkCategory): IMarkCategory;
 begin
   EditName.Text:=SAS_STR_NewPoly;
-  if ACategory.IsNew then begin
+
+  if FCategoryDB.GetCategoryIsNew(ACategory) then begin
     Self.Caption:=SAS_STR_AddNewCategory;
   end else begin
     Self.Caption:=SAS_STR_EditCategory;
@@ -109,7 +111,7 @@ begin
   EditS2.Value:=ACategory.BeforeScale;
   CBShow.Checked:=ACategory.visible;
   if ShowModal = mrOk then begin
-    Result := FFactory.Modify(
+    Result := FCategoryDB.Factory.Modify(
         ACategory,
         EditName.Text,
         CBShow.Checked,

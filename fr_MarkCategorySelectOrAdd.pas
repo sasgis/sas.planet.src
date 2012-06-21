@@ -96,7 +96,7 @@ begin
     VCategory := FCategoryDB.Factory.CreateNew(VCategoryText);
     Result := FCategoryDB.GetCategoryByName(VCategory.Name);
     if Result = nil then begin
-      Result := FCategoryDB.WriteCategory(VCategory);
+      Result := FCategoryDB.UpdateCategory(nil, VCategory);
     end;
   end;
   if Result <> nil then begin

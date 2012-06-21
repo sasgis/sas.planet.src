@@ -39,12 +39,12 @@ uses
   i_MarkFactory,
   i_MarksDb,
   i_MarksDbSmlInternal,
-  i_MarkFactorySmlInternal;
+  i_MarkFactorySmlInternal,
+  u_ConfigDataElementBase;
 
 type
-  TMarksDb = class(TInterfacedObject, IMarksDb, IMarksDbSmlInternal)
+  TMarksDb = class(TConfigDataElementBaseEmptySaveLoad, IMarksDb, IMarksDbSmlInternal)
   private
-    FSync: IReadWriteSync;
     FBasePath: IPathConfig;
     FCdsMarks: TClientDataSet;
     FFactoryDbInternal: IMarkFactorySmlInternal;
@@ -71,11 +71,6 @@ type
       AIgnoreVisible: Boolean;
       const AResultList: IInterfaceList
     );
-  private
-    procedure LockRead;
-    procedure LockWrite;
-    procedure UnlockRead;
-    procedure UnlockWrite;
   private
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
@@ -286,7 +281,6 @@ var
 begin
   inherited Create;
   FBasePath := ABasePath;
-  FSync := TMultiReadExclusiveWriteSynchronizer.Create;
   VFactory :=
     TMarkFactory.Create(
       AFactoryConfig,
@@ -300,6 +294,7 @@ begin
   FByCategoryList := TIDInterfaceList.Create;
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'CDSmarks';
+  FCdsMarks.DisableControls;
   InitEmptyDS(FCdsMarks);
 end;
 
@@ -310,30 +305,7 @@ begin
   FMarksList := nil;
   FFactory := nil;
   FFactoryDbInternal := nil;
-  FSync := nil;
   inherited;
-end;
-
-procedure TMarksDb.LockRead;
-begin
-  FSync.BeginRead;
-end;
-
-procedure TMarksDb.LockWrite;
-begin
-  FSync.BeginWrite;
-  FCdsMarks.DisableControls;
-end;
-
-procedure TMarksDb.UnlockRead;
-begin
-  FSync.EndRead;
-end;
-
-procedure TMarksDb.UnlockWrite;
-begin
-  FCdsMarks.EnableControls;
-  FSync.EndWrite;
 end;
 
 function TMarksDb._UpdateMark(
@@ -362,6 +334,12 @@ begin
   VOldMark := nil;
   if VIdOld >= 0 then begin
     VOldMark := IMark(FMarksList.GetByID(VIdOld));
+    if Supports(ANewMark, IMark, VMark) then begin
+      if (VOldMark <> nil) and VOldMark.IsEqual(VMark) then begin
+        Result := VOldMark;
+        Exit;
+      end;
+    end;
 
     FCdsMarks.Filtered := false;
     if FCdsMarks.Locate('id', VIdOld, []) then begin
@@ -377,12 +355,14 @@ begin
     end else begin
       FCdsMarks.Delete;
     end;
+    SetChanged;
   end else begin
     if Supports(ANewMark, IMark, VMark) then begin
       FCdsMarks.Insert;
       WriteCurrentMark(VMark);
       FCdsMarks.Post;
       Result := ReadCurrentMark;
+      SetChanged;
     end;
   end;
 
@@ -744,6 +724,7 @@ begin
           FCdsMarks.Edit;
           FCdsMarks.FieldByName('Visible').AsBoolean := ANewVisible;
           FCdsMarks.Post;
+          SetChanged;
         end;
         FCdsMarks.Next;
       end;
@@ -786,6 +767,7 @@ begin
           FCdsMarks.Edit;
           WriteCurrentMarkId(AMark);
           FCdsMarks.Post;
+          SetChanged;
         end;
         if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;

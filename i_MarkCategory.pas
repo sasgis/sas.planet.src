@@ -29,6 +29,7 @@ type
     property Name: string read GetName;
 
     function IsSame(const ACategory: ICategory): Boolean;
+    function IsEqual(const ACategory: ICategory): Boolean;
   end;
 
   IMarkCategory = interface(ICategory)
@@ -41,8 +42,6 @@ type
 
     function GetBeforeScale: integer; stdcall;
     property BeforeScale: integer read GetBeforeScale;
-
-    function IsNew: Boolean;
   end;
 
 implementation

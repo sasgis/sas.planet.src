@@ -31,8 +31,11 @@ type
   IMarkCategoryDB = interface
     ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
     function GetCategoryByName(const AName: string): IMarkCategory;
-    function WriteCategory(const ACategory: IMarkCategory): IMarkCategory;
-    procedure DeleteCategory(const ACategory: IMarkCategory);
+    function UpdateCategory(
+      const AOldCategory: IMarkCategory;
+      const ANewCategory: IMarkCategory
+    ): IMarkCategory;
+    function GetCategoryIsNew(const ACategory: IMarkCategory): Boolean;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);

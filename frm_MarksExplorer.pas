@@ -598,13 +598,14 @@ end;
 procedure TfrmMarksExplorer.CategoryTreeViewKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  VCategory: IMarkCategory;
+  VCategoryOld: IMarkCategory;
+  VCategoryNew: IMarkCategory;
 begin
   If key=VK_DELETE then begin
-    VCategory := GetSelectedCategory;
-    if VCategory <> nil then begin
-      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-        FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
+    VCategoryOld := GetSelectedCategory;
+    if VCategoryOld <> nil then begin
+      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategoryOld.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
+        FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategoryOld);
         UpdateCategoryTree;
         UpdateMarksList;
       end;
@@ -612,19 +613,21 @@ begin
   end;
 
   if Key=VK_SPACE then begin
-    VCategory := GetSelectedCategory;
-    if VCategory <> nil then begin
-      FCategoryList.Remove(VCategory);
+    VCategoryOld := GetSelectedCategory;
+    if VCategoryOld <> nil then begin
       if CategoryTreeView.Selected.StateIndex = 1 then begin
-        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, False);
+        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
         CategoryTreeView.Selected.StateIndex:=2;
       end else begin
-        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, True);
+        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
         CategoryTreeView.Selected.StateIndex:=1;
       end;
-      FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
-      FCategoryList.Add(VCategory);
-      CategoryTreeView.Selected.Data := Pointer(VCategory);
+      if not VCategoryOld.IsEqual(VCategoryNew) then begin
+        FCategoryList.Remove(VCategoryOld);
+        FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
+        FCategoryList.Add(VCategoryNew);
+        CategoryTreeView.Selected.Data := Pointer(VCategoryNew);
+      end;
     end;
   end;
 end;
@@ -632,37 +635,41 @@ end;
 procedure TfrmMarksExplorer.CategoryTreeViewMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  VCategory: IMarkCategory;
+  VCategoryOld: IMarkCategory;
+  VCategoryNew: IMarkCategory;
   VTreeNode: TTreeNode;
 begin
   if htOnStateIcon in CategoryTreeView.GetHitTestInfoAt(X,Y) then begin
     VTreeNode := CategoryTreeView.GetNodeAt(X,Y);
-    VCategory := IMarkCategory(VTreeNode.Data);
-    if VCategory <> nil then begin
-      FCategoryList.Remove(VCategory);
+    VCategoryOld := IMarkCategory(VTreeNode.Data);
+    if VCategoryOld <> nil then begin
       if VTreeNode.StateIndex=1 then begin
-        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, False);
+        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
         VTreeNode.StateIndex:=2;
       end else begin
-        VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategory, True);
+        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
         VTreeNode.StateIndex:=1;
       end;
-      FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
-      FCategoryList.Add(VCategory);
-      VTreeNode.Data := Pointer(VCategory);
+      if not VCategoryOld.IsEqual(VCategoryNew) then begin
+        FCategoryList.Remove(VCategoryOld);
+        FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
+        FCategoryList.Add(VCategoryNew);
+        VTreeNode.Data := Pointer(VCategoryNew);
+      end;
     end;
   end;
 end;
 
 procedure TfrmMarksExplorer.BtnEditCategoryClick(Sender: TObject);
 var
-  VCategory: IMarkCategory;
+  VCategoryOld: IMarkCategory;
+  VCategoryNew: IMarkCategory;
 begin
-  VCategory := GetSelectedCategory;
-  if VCategory <> nil then begin
-    VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
-    if VCategory <> nil then begin
-      FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
+  VCategoryOld := GetSelectedCategory;
+  if VCategoryOld <> nil then begin
+    VCategoryNew := FMarkDBGUI.EditCategoryModal(VCategoryOld);
+    if VCategoryNew <> nil then begin
+      FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
       UpdateCategoryTree;
     end;
   end;
@@ -711,7 +718,7 @@ begin
   VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
   VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
   if VCategory <> nil then begin
-    FMarkDBGUI.MarksDb.CategoryDB.WriteCategory(VCategory);
+    FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(nil, VCategory);
     UpdateCategoryTree;
   end;
 end;

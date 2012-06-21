@@ -32,7 +32,6 @@ type
   TMarkCategoryFactory = class(TInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)
   private
     FConfig: IMarkCategoryFactoryConfig;
-    FDbCode: Integer;
   protected
     function CreateNew(const AName: string): IMarkCategory;
     function Modify(
@@ -57,7 +56,6 @@ type
     ): IMarkCategory;
   public
     constructor Create(
-      const ADbCode: Integer;
       const AConfig: IMarkCategoryFactoryConfig
     );
   end;
@@ -72,12 +70,10 @@ uses
 { TMarkCategoryFactory }
 
 constructor TMarkCategoryFactory.Create(
-  const ADbCode: Integer;
   const AConfig: IMarkCategoryFactoryConfig
 );
 begin
   inherited Create;
-  FDbCode := ADbCode;
   FConfig := AConfig;
 end;
 
@@ -89,7 +85,6 @@ function TMarkCategoryFactory.CreateCategory(
 ): IMarkCategory;
 begin
   Result := TMarkCategory.Create(
-    FDbCode,
     AId,
     AName,
     AVisible,

@@ -34,12 +34,12 @@ uses
   i_MarkCategoryFactoryDbInternal,
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryDB,
-  i_MarkCategoryDBSmlInternal;
+  i_MarkCategoryDBSmlInternal,
+  u_ConfigDataElementBase;
 
 type
-  TMarkCategoryDB = class(TInterfacedObject, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
+  TMarkCategoryDB = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
-    FSync: IReadWriteSync;
     FDbCode: Integer;
     FBasePath: IPathConfig;
     FCdsKategory: TClientDataSet;
@@ -50,17 +50,14 @@ type
     procedure WriteCurrentCategory(const ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
-    function GetDbCode: Integer;
     procedure InitEmptyDS;
   protected
-    procedure LockRead;
-    procedure LockWrite;
-    procedure UnlockRead;
-    procedure UnlockWrite;
-  protected
     function GetCategoryByName(const AName: string): IMarkCategory;
-    function WriteCategory(const ACategory: IMarkCategory): IMarkCategory;
-    procedure DeleteCategory(const ACategory: IMarkCategory);
+    function UpdateCategory(
+      const AOldCategory: IMarkCategory;
+      const ANewCategory: IMarkCategory
+    ): IMarkCategory;
+    function GetCategoryIsNew(const ACategory: IMarkCategory): Boolean;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
@@ -97,20 +94,19 @@ begin
   inherited Create;
   FDbCode := Integer(Self);
   FBasePath := ABasePath;
-  FSync := TSimpleRWSync.Create;
   FList := TIDInterfaceList.Create;
-  VFactory := TMarkCategoryFactory.Create(GetDbCode, AFactoryConfig);
+  VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
   FCdsKategory := TClientDataSet.Create(nil);
   FCdsKategory.Name := 'CDSKategory';
+  FCdsKategory.DisableControls;
   InitEmptyDS;
 end;
 
 destructor TMarkCategoryDB.Destroy;
 begin
   FreeAndNil(FCdsKategory);
-  FSync := nil;
   FList := nil;
   FFactory := nil;
   FFactoryDbInternal := nil;
@@ -126,7 +122,6 @@ var
 begin
   AId := FCdsKategory.fieldbyname('id').AsInteger;
   VName := FCdsKategory.fieldbyname('name').AsString;
-  AId := FCdsKategory.fieldbyname('id').AsInteger;
   VVisible := FCdsKategory.FieldByName('visible').AsBoolean;
   VAfterScale := FCdsKategory.fieldbyname('AfterScale').AsInteger;
   VBeforeScale := FCdsKategory.fieldbyname('BeforeScale').AsInteger;
@@ -141,46 +136,78 @@ begin
   FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
-function TMarkCategoryDB.WriteCategory(const ACategory: IMarkCategory): IMarkCategory;
+function TMarkCategoryDB.UpdateCategory(
+  const AOldCategory: IMarkCategory;
+  const ANewCategory: IMarkCategory
+): IMarkCategory;
 var
-  VId: Integer;
-  VExists: Boolean;
+  VIdOld: Integer;
+  VIdNew: Integer;
+  VLocated: Boolean;
   VCategoryInternal: IMarkCategorySMLInternal;
+  VOldCategory: IMarkCategory;
 begin
-  VId := -1;
-  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    if GetDbCode = VCategoryInternal.DbCode then begin
-      VId := VCategoryInternal.Id;
-    end;
+  Result := nil;
+  Assert((AOldCategory <> nil) or (ANewCategory <> nil));
+  VIdOld := -1;
+  if Supports(AOldCategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+    VIdOld := VCategoryInternal.Id;
   end;
-  LockRead;
+  VIdNew := -1;
+  LockWrite;
   try
-    if VId < 0 then begin
-      VExists := False;
-    end else begin
-      VExists := FCdsKategory.Locate('id', VId, []);
+    VOldCategory := nil;
+    VLocated := False;
+    if VIdOld >= 0 then begin
+      VOldCategory := IMarkCategory(FList.GetByID(VIdOld));
+      if VOldCategory <> nil then begin
+        if VOldCategory.IsEqual(ANewCategory) then begin
+          Result := VOldCategory;
+          Exit;
+        end;
+      end;
+      VLocated := FCdsKategory.Locate('id', VIdOld, []);
     end;
-    if VExists then begin
-      FCdsKategory.Edit;
+    if VLocated then begin
+      if ANewCategory <> nil then begin
+        FCdsKategory.Edit;
+        WriteCurrentCategory(ANewCategory);
+        FCdsKategory.post;
+        SetChanged;
+        Result := ReadCurrentCategory(VIdNew);
+        Assert(Result <> nil);
+        Assert(VIdNew >= 0);
+        Assert(VIdNew = VIdOld);
+      end else begin
+        FCdsKategory.Delete;
+        SetChanged;
+      end;
     end else begin
       FCdsKategory.Insert;
+      WriteCurrentCategory(ANewCategory);
+      FCdsKategory.post;
+      Result := ReadCurrentCategory(VIdNew);
+      SetChanged;
+      Assert(Result <> nil);
+      Assert(VIdNew >= 0);
     end;
-    WriteCurrentCategory(ACategory);
-    FCdsKategory.post;
-    if not VExists then begin
-      VId := FCdsKategory.fieldbyname('id').AsInteger;
-      Result := FFactoryDbInternal.CreateCategory(
-        VId,
-        ACategory.Name,
-        ACategory.Visible,
-        ACategory.AfterScale,
-        ACategory.BeforeScale
-      );
+    if VIdOld >= 0 then begin
+      if VIdNew >= 0 then begin
+        if VIdNew <> VIdOld then begin
+          FList.Remove(VIdOld);
+          FList.Add(VIdNew, Result);
+        end else begin
+          FList.Replace(VIdOld, Result);
+        end;
+      end else begin
+        FList.Remove(VIdOld);
+      end;
     end else begin
-      Result := ACategory;
+      if VIdNew >= 0 then begin
+        FList.Add(VIdNew, Result);
+      end;
     end;
     SaveCategory2File;
-    FList.Replace(VId, Result);
   finally
     UnlockWrite;
   end;
@@ -205,41 +232,6 @@ begin
     '<ROWDATA></ROWDATA>' +
     '</DATAPACKET>';
   FCdsKategory.Open;
-end;
-
-procedure TMarkCategoryDB.DeleteCategory(const ACategory: IMarkCategory);
-var
-  VId: Integer;
-  VExist: Boolean;
-  VCategoryInternal: IMarkCategorySMLInternal;
-begin
-  VId := -1;
-  if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    if GetDbCode = VCategoryInternal.DbCode then begin
-      VId := VCategoryInternal.Id;
-    end;
-  end;
-  LockWrite;
-  try
-    VExist := False;
-    if VId >= 0 then begin
-      FCdsKategory.DisableControls;
-      try
-        if FCdsKategory.Locate('id', VId, []) then begin
-          FCdsKategory.Delete;
-          VExist := True;
-        end;
-      finally
-        FCdsKategory.EnableControls;
-      end;
-    end;
-    if VExist then begin
-      SaveCategory2File;
-      FList.Remove(VId);
-    end;
-  finally
-    UnlockWrite;
-  end;
 end;
 
 function TMarkCategoryDB.GetCategoryByID(id: integer): IMarkCategory;
@@ -276,9 +268,17 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetDbCode: Integer;
+function TMarkCategoryDB.GetCategoryIsNew(
+  const ACategory: IMarkCategory): Boolean;
+var
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  Result := FDbCode;
+  Result := True;
+  if ACategory <> nil then begin
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      Result := VCategoryInternal.Id >= 0;
+    end;
+  end;
 end;
 
 function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;
@@ -293,8 +293,6 @@ var
 begin
   LockWrite;
   try
-    FCdsKategory.DisableControls;
-    try
       FCdsKategory.Filtered := false;
       FCdsKategory.First;
       while not (FCdsKategory.Eof) do begin
@@ -307,22 +305,9 @@ begin
         end;
         FCdsKategory.Next;
       end;
-    finally
-      FCdsKategory.EnableControls;
-    end;
   finally
     UnlockWrite;
   end;
-end;
-
-procedure TMarkCategoryDB.UnlockRead;
-begin
-  FSync.EndRead;
-end;
-
-procedure TMarkCategoryDB.UnlockWrite;
-begin
-  FSync.EndWrite;
 end;
 
 function TMarkCategoryDB.GetCategoriesList: IInterfaceList;
@@ -372,8 +357,6 @@ begin
       CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
     end;
 
-    FCdsKategory.DisableControls;
-    try
       FCdsKategory.Filtered := false;
       FCdsKategory.First;
       while not (FCdsKategory.Eof) do begin
@@ -381,20 +364,7 @@ begin
         FList.Add(VId, VCategory);
         FCdsKategory.Next;
       end;
-    finally
-      FCdsKategory.EnableControls;
-    end;
   end;
-end;
-
-procedure TMarkCategoryDB.LockRead;
-begin
-  FSync.BeginRead;
-end;
-
-procedure TMarkCategoryDB.LockWrite;
-begin
-  FSync.BeginWrite;
 end;
 
 function TMarkCategoryDB.SaveCategory2File: boolean;
