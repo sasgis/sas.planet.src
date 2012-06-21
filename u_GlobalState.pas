@@ -368,12 +368,6 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-  if FGlobalAppConfig.IsShowDebugInfo then begin
-    FPerfCounterList := TInternalPerformanceCounterFake.Create;
-  end else begin
-    FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
-  end;
-
   FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
@@ -394,6 +388,13 @@ begin
   if VViewCnonfig <> nil then begin
     FGlobalAppConfig.ReadConfig(VViewCnonfig);
   end;
+
+  if FGlobalAppConfig.IsShowDebugInfo then begin
+    FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
+  end else begin
+    FPerfCounterList := TInternalPerformanceCounterFake.Create;
+  end;
+
   FDownloadConfig := TGlobalDownloadConfig.Create;
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
   FImageResamplerConfig :=
