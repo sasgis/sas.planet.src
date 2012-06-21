@@ -64,19 +64,12 @@ implementation
 
 uses
   Math,
-  ActiveX,
   windows,
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
   t_CommonTypes,
-  i_BinaryData,
-  i_StringlistStatic,
-  u_ResStrings,
   u_GeoCodePlacemark,
-  u_GeoCodeResult,
-  u_BinaryDataByMemStream,
-  u_StringListStatic,
   u_GeoToStr;
 
 { TGeoCoderByCoord }

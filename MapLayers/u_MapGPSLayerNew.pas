@@ -8,14 +8,9 @@ uses
   SysUtils,
   GR32_Image,
   i_JclNotify,
-  i_TileError,
-  i_BitmapPostProcessingConfig,
-  i_ActiveMapsConfig,
-  i_MainMapLayerConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
-  i_MapTypes,
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_MapLayerGPSTrackConfig,
@@ -55,11 +50,8 @@ type
 implementation
 
 uses
-  t_GeoTypes,
-  i_CoordConverter,
   u_NotifyEventListener,
-  u_BitmapLayerProviderByTrackPath,
-  u_Synchronizer;
+  u_BitmapLayerProviderByTrackPath;
 
 { TMapGPSLayerNew }
 

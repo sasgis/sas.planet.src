@@ -76,8 +76,7 @@ implementation
 
 uses
   SysUtils,
-  u_LonLatRectByPoint,
-  u_GeoFun;
+  u_LonLatRectByPoint;
 
 { TMarkPoint }
 

@@ -196,7 +196,6 @@ uses
   u_Bitmap32Static,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
-  u_StreamReadOnlyByBinaryData,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
   u_TileDownloaderConfigStatic,

@@ -45,7 +45,6 @@ type
 implementation
 
 uses
-  u_GeoFun,
   u_EnumUnknown;
 
 { TMarksSubset }

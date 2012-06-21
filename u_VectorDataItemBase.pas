@@ -23,7 +23,6 @@ unit u_VectorDataItemBase;
 interface
 
 uses
-  t_GeoTypes,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple;

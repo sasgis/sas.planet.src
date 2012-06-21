@@ -65,8 +65,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_GeoFun;
+  SysUtils;
 
 { TMarkFull }
 

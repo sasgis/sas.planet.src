@@ -23,7 +23,6 @@ unit u_VectorDataItemPolygon;
 interface
 
 uses
-  t_GeoTypes,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_VectorItemLonLat,

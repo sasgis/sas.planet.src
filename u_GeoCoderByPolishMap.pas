@@ -64,14 +64,11 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
-  i_BinaryData,
   i_StringlistStatic,
   u_ResStrings,
   u_GeoCodePlacemark,
   u_GeoCodeResult,
-  u_BinaryDataByMemStream,
-  u_StringListStatic,
-  u_GeoToStr;
+  u_StringListStatic;
 
 { TGeoCoderByPolishMap }
 

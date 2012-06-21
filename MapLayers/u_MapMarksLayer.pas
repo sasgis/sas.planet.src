@@ -138,7 +138,6 @@ uses
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByMarksSubset,
   u_NotifyEventListener,
-  u_GeoFun,
   u_TileIteratorSpiralByRect;
 
 { TMapMarksLayer }

@@ -4,7 +4,6 @@ interface
 
 uses
   Classes,
-  t_GeoTypes,
   i_LonLatRect,
   i_EnumDoublePoint,
   i_Datum,

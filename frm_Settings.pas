@@ -29,7 +29,6 @@ uses
   Controls,
   Forms,
   StdCtrls,
-  Graphics,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
@@ -40,13 +39,11 @@ uses
   urlmon,
   wininet,
   GR32,
-  GR32_Image,
   u_CommonFormAndFrameParents,
   i_JclListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
   i_LanguageManager,
-  u_MapType,
   u_ShortcutManager,
   fr_GpsSatellites,
   fr_MapsList,
@@ -296,12 +293,10 @@ implementation
 
 uses
   Types,
-  Menus,
   t_CommonTypes,
   c_SensorsGUIDSimple,
   i_ProxySettings,
   i_InetConfig,
-  i_GPS,
   i_Sensor,
   i_SensorList,
   vsagps_public_base,
@@ -312,7 +307,6 @@ uses
   vsagps_com_checker,
 {$ifend}
   u_JclListenerNotifierLinksList,
-  u_NotifyEventListener,
   u_GlobalState,
   u_ResStrings;
 
