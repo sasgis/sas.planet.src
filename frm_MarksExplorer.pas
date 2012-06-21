@@ -143,10 +143,13 @@ type
     FMarksShowConfig: IUsedMarksConfig;
     FViewPortState: IViewPortState;
     FNavToPoint: INavigationToPoint;
-    FOnNeedRedraw: TNotifyEvent;
     FCategoryDBListener: IJclListener;
+    FMarksDBListener: IJclListener;
+    FMarksShowConfigListener: IJclListener;
 
     procedure OnCategoryDbChanged;
+    procedure OnMarksDbChanged;
+    procedure OnMarksShowConfigChanged;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
@@ -161,7 +164,6 @@ type
       const ANavToPoint: INavigationToPoint;
       const AMarksShowConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper;
-      AOnNeedRedraw: TNotifyEvent;
       const AMapGoto: IMapViewGoto
     ); reintroduce;
     procedure EditMarks;
@@ -187,7 +189,6 @@ constructor TfrmMarksExplorer.Create(
   const ANavToPoint: INavigationToPoint;
   const AMarksShowConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper;
-  AOnNeedRedraw: TNotifyEvent;
   const AMapGoto: IMapViewGoto
 );
 begin
@@ -198,9 +199,10 @@ begin
   FMarksShowConfig := AMarksShowConfig;
   FViewPortState := AViewPortState;
   FNavToPoint := ANavToPoint;
-  FOnNeedRedraw := AOnNeedRedraw;
   MarksListBox.MultiSelect:=true;
   FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
+  FMarksDBListener := TNotifyNoMmgEventListener.Create(Self.OnMarksDbChanged);
+  FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
@@ -260,6 +262,7 @@ begin
   finally
     CategoryTreeView.OnChange := Self.CategoryTreeViewChange;
   end;
+  UpdateMarksList;
 end;
 
 procedure TfrmMarksExplorer.UpdateMarksList;
@@ -371,7 +374,6 @@ begin
       if VImportConfig <> nil then begin
         FImportFileByExt.ProcessImport(VFileName, VImportConfig);
       end;
-      UpdateMarksList;
     end;
   end;
 end;
@@ -384,7 +386,6 @@ begin
   if VCategory <> nil then begin
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
       FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
-      UpdateMarksList;
     end;
   end;
 end;
@@ -436,9 +437,6 @@ begin
   finally
     FMarksShowConfig.UnlockWrite;
   end;
-  if Assigned(FOnNeedRedraw) then begin
-    FOnNeedRedraw(nil);
-  end;
 end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
@@ -447,9 +445,7 @@ var
 begin
   VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
-    if FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle) then begin
-      UpdateMarksList;
-    end;
+    FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle);
   end;
 end;
 
@@ -472,7 +468,6 @@ begin
       VMark := FMarkDBGUI.EditMarkModal(VMark);
       if VMark <> nil then begin
         FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
-        UpdateMarksList;
       end;
     end else begin
       VImportConfig := FMarkDBGUI.MarksMultiEditModal(GetSelectedCategory);
@@ -534,7 +529,6 @@ begin
           if (VMarksList<>nil) then begin
             FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarksList);
           end;
-          UpdateMarksList;
         end;
       end;
     end;
@@ -616,7 +610,6 @@ begin
     if VCategoryOld <> nil then begin
       if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategoryOld.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
         FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategoryOld);
-        UpdateMarksList;
       end;
     end;
   end;
@@ -712,9 +705,7 @@ begin
   If key=VK_DELETE then begin
     VMarkId := GetSelectedMarkId;
     if VMarkId <> nil then begin
-      if FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle) then begin
-        UpdateMarksList;
-      end;
+      FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle);
     end;
   end;
 end;
@@ -722,6 +713,27 @@ end;
 procedure TfrmMarksExplorer.OnCategoryDbChanged;
 begin
   UpdateCategoryTree;
+end;
+
+procedure TfrmMarksExplorer.OnMarksDbChanged;
+begin
+  UpdateMarksList;
+end;
+
+procedure TfrmMarksExplorer.OnMarksShowConfigChanged;
+var
+  VMarksConfig: IUsedMarksConfigStatic;
+begin
+  VMarksConfig := FMarksShowConfig.GetStatic;
+  if VMarksConfig.IsUseMarks then begin
+    if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
+      rgMarksShowMode.ItemIndex := 1;
+    end else begin
+      rgMarksShowMode.ItemIndex := 0;
+    end;
+  end else begin
+    rgMarksShowMode.ItemIndex := 2;
+  end;
 end;
 
 procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);
@@ -764,7 +776,6 @@ begin
   VMark := FMarkDBGUI.EditMarkModal(VMark);
   if VMark <> nil then begin
     FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
-    UpdateMarksList;
   end;
 end;
 
@@ -786,6 +797,8 @@ begin
   UpdateMarksList;
   btnNavOnMark.Checked:= FNavToPoint.IsActive;
   FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
+  FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Add(FMarksDBListener);
+  FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
   try
     VModalResult := ShowModal;
     if VModalResult = mrOk then begin
@@ -793,6 +806,8 @@ begin
     end;
   finally
     FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
+    FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Remove(FMarksDBListener);
+    FMarksShowConfig.ChangeNotifier.Remove(FMarksShowConfigListener);
     CategoryTreeView.OnChange:=nil;
     CategoryTreeView.Items.Clear;
     MarksListBox.Clear;
@@ -819,19 +834,8 @@ begin
 end;
 
 procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
-var
-  VMarksConfig: IUsedMarksConfigStatic;
 begin
-  VMarksConfig := FMarksShowConfig.GetStatic;
-  if VMarksConfig.IsUseMarks then begin
-    if VMarksConfig.IgnoreCategoriesVisible and VMarksConfig.IgnoreMarksVisible then begin
-      rgMarksShowMode.ItemIndex := 1;
-    end else begin
-      rgMarksShowMode.ItemIndex := 0;
-    end;
-  end else begin
-    rgMarksShowMode.ItemIndex := 2;
-  end;
+  OnMarksShowConfigChanged
 end;
 
 procedure TfrmMarksExplorer.CheckBox1Click(Sender: TObject);
@@ -843,7 +847,6 @@ begin
   if VCategory <> nil then begin
     VNewVisible := CheckBox1.Checked;
     FMarkDBGUI.MarksDB.MarksDb.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
-    UpdateMarksList;
   end;
 end;
 

@@ -76,6 +76,7 @@ type
     ): IProjectedPolygon;
 
     procedure OnConfigChange;
+    procedure OnMarksDbChange;
     function GetMarksSubset(const ALocalConverter: ILocalCoordConverter): IMarksSubset;
   protected
     procedure DrawBitmap(
@@ -119,7 +120,6 @@ type
       const AMarkLine: IMarkLine;
       const AProjection: IProjectionInfo
     ): boolean; overload;
-    procedure Redraw; override;
   end;
 
 implementation
@@ -186,6 +186,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.MarksDrawConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
+    FMarkDB.MarksDb.ChangeNotifier
   );
 end;
 
@@ -561,9 +565,9 @@ begin
   end;
 end;
 
-procedure TMapMarksLayer.Redraw;
+procedure TMapMarksLayer.OnMarksDbChange;
 begin
-  inherited;
+  Redraw;
 end;
 
 procedure TMapMarksLayer.StartThreads;

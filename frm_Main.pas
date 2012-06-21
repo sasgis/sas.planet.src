@@ -682,7 +682,6 @@ type
     procedure TBXSelectSrchClick(Sender: TObject);
     procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
-    procedure LayerMapMarksRedraw(Sender: TObject);
     function ConvLatLon2Scale(const Astr:string):Double;
     function Deg2Strvalue(const aDeg:Double):string;
   public
@@ -1728,7 +1727,6 @@ begin
         FConfig.NavToPoint,
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
         FMarkDBGUI,
-        Self.LayerMapMarksRedraw,
         FMapGoto
       );
 
@@ -3042,7 +3040,6 @@ begin
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if FMarkDBGUI.AddNewPointModal(VMouseLonLat) then begin
     FState.State := ao_movemap;
-    FLayerMapMarks.Redraw;
   end;
 end;
 
@@ -3787,7 +3784,6 @@ begin
   if VAllPoints.Count > 0 then begin
     if FMarkDBGUI.SaveLineModal(nil, VAllPoints, '') then begin
       FState.State := ao_movemap;
-      FLayerMapMarks.Redraw;
     end;
   end else begin
     ShowMessage(SAS_ERR_Nopoints);
@@ -3896,7 +3892,6 @@ begin
       VMarkModifed := FMarkDBGUI.EditMarkModal(VMark);
       if VMarkModifed <> nil then begin
         GState.MarksDB.MarksDb.UpdateMark(VMark, VMarkModifed);
-        FLayerMapMarks.Redraw;
       end;
     end else if Supports(VMark, IMarkLine, VMarkLine) then begin
       FEditMarkLine := VMarkLine;
@@ -3931,7 +3926,6 @@ begin
   VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     if FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle) then
-      FLayerMapMarks.Redraw;
   end;
 end;
 
@@ -4195,7 +4189,6 @@ begin
     if (FState.State = ao_edit_point) then begin
       if(FMarkDBGUI.AddNewPointModal(VClickLonLat)) then begin
         FState.State := ao_movemap;
-        FLayerMapMarks.Redraw;
       end;
     end;
     exit;
@@ -4744,7 +4737,6 @@ begin
   end;
   if VResult then begin
     FState.State := ao_movemap;
-    FLayerMapMarks.Redraw;
   end;
 end;
 
@@ -4761,11 +4753,6 @@ end;
 procedure TfrmMain.tbitmPlacemarkManagerClick(Sender: TObject);
 begin
   FfrmMarksExplorer.EditMarks;
-end;
-
-procedure TfrmMain.LayerMapMarksRedraw(Sender: TObject);
-begin
-  FLayerMapMarks.Redraw;
 end;
 
 procedure TfrmMain.NMarkNavClick(Sender: TObject);
@@ -4998,7 +4985,6 @@ begin
 
   if FMarkDBGUI.AddNewPointModal(VLonLat) then begin
     FState.State := ao_movemap;
-    FLayerMapMarks.Redraw;
   end;
 end;
 
@@ -5024,7 +5010,6 @@ begin
     VMarkModifed := FMarkDBGUI.EditMarkModal(VMark);
     if VMarkModifed <> nil then begin
       GState.MarksDB.MarksDb.UpdateMark(VMark, VMarkModifed);
-      FLayerMapMarks.Redraw;
     end;
   end;
 end;

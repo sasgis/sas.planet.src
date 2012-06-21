@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_JclNotify,
   t_GeoTypes,
   i_MarkCategory,
   i_MarkFactory,
@@ -68,6 +69,9 @@ type
       const ACategory: ICategory;
       AIgnoreVisible: Boolean
     ): IMarksSubset; overload;
+
+    function GetChangeNotifier: IJclNotifier;
+    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
 
     function GetFactory: IMarkFactory;
     property Factory: IMarkFactory read GetFactory;
