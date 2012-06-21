@@ -34,12 +34,13 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
-  ImgList, 
-  TB2Dock, 
+  ImgList,
+  TB2Dock,
   TB2Toolbar,
   TB2Item,
   TBX,
   TBXControls,
+  i_JclNotify,
   u_ResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
@@ -143,6 +144,9 @@ type
     FViewPortState: IViewPortState;
     FNavToPoint: INavigationToPoint;
     FOnNeedRedraw: TNotifyEvent;
+    FCategoryDBListener: IJclListener;
+
+    procedure OnCategoryDbChanged;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
@@ -171,6 +175,7 @@ uses
   i_MarkTemplate,
   i_MarksFactoryConfig,
   u_ExportMarks2KML,
+  u_NotifyEventListener,
   u_GeoFun;
 
 {$R *.dfm}
@@ -195,11 +200,13 @@ begin
   FNavToPoint := ANavToPoint;
   FOnNeedRedraw := AOnNeedRedraw;
   MarksListBox.MultiSelect:=true;
+  FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
   procedure AddTreeSubItems(
     const ATree: IStaticTreeItem;
+    const ASelectedCategory: ICategory;
     AParentNode: TTreeNode;
     ATreeItems: TTreeNodes
   );
@@ -225,13 +232,18 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
         end else begin
           VNode.StateIndex := 2;
         end;
+        if VCategory.IsSame(ASelectedCategory) then begin
+          VNode.Selected := True;
+        end;
       end;
-      AddTreeSubItems(VTree, VNode, ATreeItems);
+      AddTreeSubItems(VTree, ASelectedCategory, VNode, ATreeItems);
     end;
   end;
 var
   VTree: IStaticTreeItem;
+  VSelectedCategory: ICategory;
 begin
+  VSelectedCategory := GetSelectedCategory;
   FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
   VTree := FMarkDBGUI.MarksDB.CategoryListToStaticTree(FCategoryList);
   CategoryTreeView.OnChange:=nil;
@@ -240,7 +252,7 @@ begin
     try
       CategoryTreeView.SortType := stNone;
       CategoryTreeView.Items.Clear;
-      AddTreeSubItems(VTree, nil, CategoryTreeView.Items);
+      AddTreeSubItems(VTree, VSelectedCategory, nil, CategoryTreeView.Items);
       CategoryTreeView.SortType:=stText;
     finally
       CategoryTreeView.Items.EndUpdate;
@@ -359,7 +371,6 @@ begin
       if VImportConfig <> nil then begin
         FImportFileByExt.ProcessImport(VFileName, VImportConfig);
       end;
-      UpdateCategoryTree;
       UpdateMarksList;
     end;
   end;
@@ -373,7 +384,6 @@ begin
   if VCategory <> nil then begin
     if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
       FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
-      CategoryTreeView.Items.Delete(CategoryTreeView.Selected);
       UpdateMarksList;
     end;
   end;
@@ -606,7 +616,6 @@ begin
     if VCategoryOld <> nil then begin
       if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategoryOld.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
         FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategoryOld);
-        UpdateCategoryTree;
         UpdateMarksList;
       end;
     end;
@@ -670,7 +679,6 @@ begin
     VCategoryNew := FMarkDBGUI.EditCategoryModal(VCategoryOld);
     if VCategoryNew <> nil then begin
       FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
-      UpdateCategoryTree;
     end;
   end;
 end;
@@ -711,6 +719,11 @@ begin
   end;
 end;
 
+procedure TfrmMarksExplorer.OnCategoryDbChanged;
+begin
+  UpdateCategoryTree;
+end;
+
 procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);
 var
   VCategory: IMarkCategory;
@@ -719,7 +732,6 @@ begin
   VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
   if VCategory <> nil then begin
     FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(nil, VCategory);
-    UpdateCategoryTree;
   end;
 end;
 
@@ -763,7 +775,6 @@ begin
   if CategoryTreeView.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
     FMarkDBGUI.MarksDB.CategoryDB.SetAllCategoriesVisible(VNewVisible);
-    UpdateCategoryTree;
   end;
 end;
 
@@ -774,12 +785,14 @@ begin
   UpdateCategoryTree;
   UpdateMarksList;
   btnNavOnMark.Checked:= FNavToPoint.IsActive;
+  FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
   try
     VModalResult := ShowModal;
     if VModalResult = mrOk then begin
       btnApplyClick(nil);
     end;
   finally
+    FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
     CategoryTreeView.OnChange:=nil;
     CategoryTreeView.Items.Clear;
     MarksListBox.Clear;

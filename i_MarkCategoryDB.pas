@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_JclNotify,
   i_MarkCategory,
   i_MarkCategoryFactory;
 
@@ -42,6 +43,9 @@ type
 
     function GetFactory: IMarkCategoryFactory;
     property Factory: IMarkCategoryFactory read GetFactory;
+
+    function GetChangeNotifier: IJclNotifier;
+    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
   end;
 
 implementation
