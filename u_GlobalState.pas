@@ -47,6 +47,7 @@ uses
   i_ProxySettings,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
+  i_WindowPositionConfig,
   i_GlobalAppConfig,
   i_BitmapPostProcessingConfig,
   i_ValueToStringConverter,
@@ -150,6 +151,7 @@ type
     FPathDetalizeList: IPathDetalizeProviderList;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
     FInvisibleBrowser: IInvisibleBrowser;
+    FInternalBrowserConfig: IWindowPositionConfig;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
     FAppClosingNotifier: IJclNotifier;
@@ -291,6 +293,7 @@ uses
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
+  u_WindowPositionConfig,
   u_HtmlToHintTextConverterStuped,
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
@@ -431,6 +434,8 @@ begin
     FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
   end;
 
+  FInternalBrowserConfig := TWindowPositionConfig.Create(Rect(0, 0, 0, 0));
+  
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
 
@@ -544,6 +549,7 @@ begin
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FLanguageManager,
+      FInternalBrowserConfig,
       FInetConfig.ProxyConfig,
       FContentTypeManager
     );
@@ -693,7 +699,7 @@ begin
       FBatteryStatus,
       FValueToStringConverterConfig
     );
-
+  FInternalBrowserConfig.ReadConfig(MainConfigProvider.GetSubItem('InternalBrowser'));
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
@@ -742,6 +748,7 @@ begin
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
+  FInternalBrowserConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('InternalBrowser'));
   FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FGlobalAppConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));

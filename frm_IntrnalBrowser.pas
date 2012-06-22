@@ -34,9 +34,11 @@ uses
   EmbeddedWB,
   SHDocVw_EWB,
   GR32_Image,
+  i_JclNotify,
   u_CommonFormAndFrameParents,
   u_BaseTileDownloaderThread,
   i_MapAttachmentsInfo,
+  i_WindowPositionConfig,
   i_ContentTypeManager,
   i_LanguageManager,
   i_ProxySettings;
@@ -48,6 +50,7 @@ type
   TfrmIntrnalBrowser = class(TFormWitghLanguageManager)
     EmbeddedWB1: TEmbeddedWB;
     imgViewImage: TImgView32;
+    procedure FormDestroy(Sender: TObject);
     procedure EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB;
       var hwnd: HWND; var szUserName, szPassWord: WideString;
       var Rezult: HRESULT);
@@ -58,20 +61,29 @@ type
     procedure EmbeddedWB1BeforeNavigate2(ASender: TObject;
       const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
       Headers: OleVariant; var Cancel: WordBool);
+    procedure FormHide(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure imgViewImageClick(Sender: TObject);
+    Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
   private
     FParserThread: TBaseTileDownloaderThread;
     procedure KillParserThread;
     procedure WMPARSER_THREAD_FINISHED(var m: TMessage); message WM_PARSER_THREAD_FINISHED;
   private
     FProxyConfig: IProxyConfig;
+    FConfig: IWindowPositionConfig;
     FContentTypeManager: IContentTypeManager;
+
+    FConfigListener: IJclListener;
+    procedure OnConfigChange;
     procedure SetGoodCaption(const ACaption: String);
     function OpenLocalImage(const AFilename: WideString): Boolean;
     procedure ResetImageView(const AForImage: Boolean);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
       const AContentTypeManager: IContentTypeManager
     ); reintroduce;
@@ -87,6 +99,7 @@ implementation
 
 uses
   u_HtmlToHintTextConverterStuped,
+  u_NotifyEventListener,
   u_ResStrings;
 
 {$R *.dfm}
@@ -105,13 +118,27 @@ type
  
 constructor TfrmIntrnalBrowser.Create(
   const ALanguageManager: ILanguageManager;
+  const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
   const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create(ALanguageManager);
+  FConfig := AConfig;
   FContentTypeManager := AContentTypeManager;
   FProxyConfig := AProxyConfig;
+
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+end;
+
+procedure TfrmIntrnalBrowser.FormDestroy(Sender: TObject);
+begin
+  if FConfig <> nil then begin
+    if FConfigListener <> nil then begin
+      FConfig.ChangeNotifier.Remove(FConfigListener);
+      FConfigListener := nil;
+    end;
+  end;
 end;
 
 procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
@@ -163,6 +190,10 @@ end;
 
 procedure TfrmIntrnalBrowser.FormCreate(Sender: TObject);
 begin
+  if IsRectEmpty(FConfig.BoundsRect) then begin
+    FConfig.SetWindowPosition(Self.BoundsRect);
+  end;
+
   EmbeddedWB1.Navigate('about:blank');
 end;
 
@@ -186,6 +217,16 @@ begin
   ResetImageView(FALSE);
   show;
   EmbeddedWB1.Navigate(AUrl);
+end;
+
+procedure TfrmIntrnalBrowser.OnConfigChange;
+var
+  VRect: TRect;
+begin
+  VRect := FConfig.BoundsRect;
+  if not EqualRect(BoundsRect, VRect) then begin
+    BoundsRect :=VRect;
+  end;
 end;
 
 function TfrmIntrnalBrowser.OpenLocalImage(const AFilename: WideString): Boolean;
@@ -299,6 +340,34 @@ begin
         ResetImageView(FALSE);
     end;
   end;
+end;
+
+procedure TfrmIntrnalBrowser.FormHide(Sender: TObject);
+begin
+  Self.OnResize := nil;
+  FConfig.ChangeNotifier.Remove(FConfigListener);
+end;
+
+procedure TfrmIntrnalBrowser.FormMove(var Msg: TWMMove);
+begin
+  Inherited;
+  if Assigned(Self.OnResize) then begin
+    Self.OnResize(Self);
+  end;
+end;
+
+procedure TfrmIntrnalBrowser.FormResize(Sender: TObject);
+begin
+  if Self.WindowState = wsNormal then begin
+    FConfig.SetWindowPosition(BoundsRect);
+  end;
+end;
+
+procedure TfrmIntrnalBrowser.FormShow(Sender: TObject);
+begin
+  FConfig.ChangeNotifier.Add(FConfigListener);
+  OnConfigChange;
+  Self.OnResize := FormResize;
 end;
 
 { TMapAttachmentsInfoParserThread }

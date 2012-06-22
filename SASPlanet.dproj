@@ -409,6 +409,7 @@
     <DCCReference Include="i_VectorItemProjected.pas" />
     <DCCReference Include="i_VectorItmesFactory.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
+    <DCCReference Include="i_WindowPositionConfig.pas" />
     <DCCReference Include="i_ZmpConfig.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="i_ZmpInfoSet.pas" />
@@ -998,6 +999,7 @@
     <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItmesFactorySimple.pas" />
     <DCCReference Include="u_WindowLayerBasicList.pas" />
+    <DCCReference Include="u_WindowPositionConfig.pas" />
     <DCCReference Include="u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="u_ZmpConfig.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />

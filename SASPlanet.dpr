@@ -688,6 +688,8 @@ uses
   u_MapLayerNavToPointMarkerConfig in 'u_MapLayerNavToPointMarkerConfig.pas',
   i_DownloadUIConfig in 'i_DownloadUIConfig.pas',
   u_DownloadUIConfig in 'u_DownloadUIConfig.pas',
+  i_WindowPositionConfig in 'i_WindowPositionConfig.pas',
+  u_WindowPositionConfig in 'u_WindowPositionConfig.pas',
   i_MainWindowPosition in 'i_MainWindowPosition.pas',
   u_MainWindowPositionConfig in 'u_MainWindowPositionConfig.pas',
   u_MainWindowToolbarsLock in 'u_MainWindowToolbarsLock.pas',

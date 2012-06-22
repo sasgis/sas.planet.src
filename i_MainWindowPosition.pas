@@ -30,12 +30,17 @@ type
   IMainWindowPosition = interface(IConfigDataElement)
     ['{BD5C5719-02CB-4364-A670-B1DD75A5BAEE}']
     function GetIsFullScreen: Boolean;
-    function GetIsMaximized: Boolean;
-    function GetBoundsRect: TRect;
+    property IsFullScreen: Boolean read GetIsFullScreen;
     procedure SetFullScreen;
     procedure SetNoFullScreen;
+
+    function GetIsMaximized: Boolean;
+    property IsMaximized: Boolean read GetIsMaximized;
     procedure SetMaximized;
     procedure SetNormalWindow;
+
+    function GetBoundsRect: TRect;
+    property BoundsRect: TRect read GetBoundsRect;
     procedure SetWindowPosition(const ARect: TRect);
   end;
 

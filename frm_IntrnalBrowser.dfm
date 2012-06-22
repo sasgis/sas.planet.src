@@ -8,9 +8,12 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
   ParentFont = True
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poDefault
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object EmbeddedWB1: TEmbeddedWB

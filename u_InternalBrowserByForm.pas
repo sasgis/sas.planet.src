@@ -6,6 +6,7 @@ uses
   i_ProxySettings,
   i_InternalBrowser,
   i_LanguageManager,
+  i_WindowPositionConfig,
   i_ContentTypeManager,
   i_MapAttachmentsInfo,
   frm_IntrnalBrowser;
@@ -16,6 +17,7 @@ type
     FLanguageManager: ILanguageManager;
     FProxyConfig: IProxyConfig;
     FContentTypeManager: IContentTypeManager;
+    FConfig: IWindowPositionConfig;
     FfrmInternalBrowser: TfrmIntrnalBrowser;
   private
     procedure SafeCreateInternal;
@@ -30,6 +32,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
       const AContentTypeManager: IContentTypeManager
     );
@@ -45,12 +48,14 @@ uses
 
 constructor TInternalBrowserByForm.Create(
   const ALanguageManager: ILanguageManager;
+  const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
   const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create;
   FLanguageManager := ALanguageManager;
+  FConfig := AConfig;
   FProxyConfig := AProxyConfig;
   FContentTypeManager := AContentTypeManager;
 end;
@@ -72,7 +77,13 @@ end;
 procedure TInternalBrowserByForm.SafeCreateInternal;
 begin
   if FfrmInternalBrowser = nil then begin
-    FfrmInternalBrowser := TfrmIntrnalBrowser.Create(FLanguageManager, FProxyConfig, FContentTypeManager);
+    FfrmInternalBrowser :=
+      TfrmIntrnalBrowser.Create(
+        FLanguageManager,
+        FConfig,
+        FProxyConfig,
+        FContentTypeManager
+      );
   end;
 end;
 
