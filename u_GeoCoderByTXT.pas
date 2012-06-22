@@ -27,6 +27,7 @@ uses
   sysutils,
   i_OperationNotifier,
   i_LocalCoordConverter,
+  i_ValueToStringConverter,
   u_GeoCoderLocalBasic;
 
 type
@@ -35,6 +36,7 @@ type
 
   TGeoCoderByTXT = class(TGeoCoderLocalBasic)
   private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLock: IReadWriteSync;
   procedure SearchInTXTFile(
     const ACancelNotifier: IOperationNotifier;
@@ -52,7 +54,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
-    constructor Create;
+    constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
   end;
 
 implementation
@@ -62,6 +64,7 @@ uses
   windows,
   StrUtils,
   t_GeoTypes,
+  t_CommonTypes,
   i_GeoCoder,
   u_ResStrings,
   u_GeoCodePlacemark,
@@ -136,7 +139,9 @@ var
  V_StrData : string;
  Skip: boolean;
  VStream: TFileStream;
+ VValueConverter: IValueToStringConverter;
 begin
+ VValueConverter := FValueToStringConverterConfig.GetStatic;
  VFormatSettings.DecimalSeparator := '.';
  VSearch := AnsiUpperCase(ASearch);
  FLock.BeginRead;
@@ -182,7 +187,7 @@ begin
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
       sname := inttostr(Vcnt)+') '+ASearch;
-      sdesc := sdesc + #$D#$A +'[ ' + slon + ' , ' + slat + ' ]';
+      sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
 
@@ -205,6 +210,7 @@ begin
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
 function TGeoCoderByTXT.DoSearch(

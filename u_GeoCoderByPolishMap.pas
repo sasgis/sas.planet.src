@@ -27,6 +27,7 @@ uses
   sysutils,
   i_OperationNotifier,
   i_LocalCoordConverter,
+  i_ValueToStringConverter,
   u_GeoCoderLocalBasic;
 
 type
@@ -35,6 +36,7 @@ type
 
   TGeoCoderByPolishMap = class(TGeoCoderLocalBasic)
   private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLock: IReadWriteSync;
   procedure SearchInMapFile(
    const ACancelNotifier: IOperationNotifier;
@@ -53,7 +55,7 @@ type
     ): IInterfaceList; override;
 
   public
-  constructor Create;
+    constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
   end;
 
 implementation
@@ -63,6 +65,7 @@ uses
   windows,
   StrUtils,
   t_GeoTypes,
+  t_CommonTypes,
   i_GeoCoder,
   i_StringlistStatic,
   u_ResStrings,
@@ -511,6 +514,7 @@ var
  Skip: boolean;
  VStream: TFileStream;
  V_EndOfLine : string;
+ VValueConverter: IValueToStringConverter;
 begin
  V_Type := -1;
  VFormatSettings.DecimalSeparator := '.';
@@ -658,9 +662,13 @@ begin
       if V_RegionName <> '' then sdesc := sdesc + V_RegionName;
       if V_CityName <> '' then sdesc := sdesc + #$D#$A+ V_CityName ;
       if sdesc <> '' then sdesc := sdesc + #$D#$A;
-      sdesc := sdesc + '[ ' + slon + ' , ' + slat + ' ]';
+      VValueConverter := FValueToStringConverterConfig.GetStatic;
+      sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
+
+
+
 
       if V_HouseNumber <>'' then sname := inttostr(Acnt)+') '+V_StreetDesc+' ¹'+V_HouseNumber;
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -691,6 +699,7 @@ begin
    if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
 function TGeoCoderByPolishMap.DoSearch(
