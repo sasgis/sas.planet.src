@@ -210,6 +210,7 @@ begin
       Caption:=SAS_STR_EditMark;
     end;
     DrawFromMarkIcons(imgIcon.canvas, AMark.Pic, bounds(4,4,36,36));
+    imgIcon.Hint := FPic.GetName;
     frLonLatPoint.LonLat := AMark.Point;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
@@ -357,6 +358,7 @@ begin
    FPic := VPictureList.Get(i);
    imgIcon.Canvas.FillRect(imgIcon.Canvas.ClipRect);
    DrawFromMarkIcons(imgIcon.Canvas, FPic, bounds(5,5,36,36));
+   imgIcon.Hint := FPic.GetName;
    drwgrdIcons.Visible:=false;
  end;
 end;
