@@ -190,6 +190,10 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
     FMarkDB.MarksDb.ChangeNotifier
   );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
+    FMarkDB.CategoryDB.ChangeNotifier
+  );
 end;
 
 procedure TMapMarksLayer.DrawBitmap(
