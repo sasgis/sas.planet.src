@@ -43,7 +43,6 @@ type
     ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
-    function GetMarkIsNew(const AMark: IMark): Boolean;
 
     function GetAllMarskIdList: IInterfaceList;
     function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;

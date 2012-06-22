@@ -126,7 +126,7 @@ type
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(const AMark: IMarkPoint): IMarkPoint;
+    function EditMark(const AMark: IMarkPoint; ANewMark: Boolean): IMarkPoint;
   end;
 
 implementation
@@ -175,7 +175,7 @@ begin
   inherited;
 end;
 
-function TfrmMarkEditPoint.EditMark(const AMark: IMarkPoint): IMarkPoint;
+function TfrmMarkEditPoint.EditMark(const AMark: IMarkPoint; ANewMark: Boolean): IMarkPoint;
 var
   VPicCount: Integer;
   VColCount: Integer;
@@ -204,7 +204,7 @@ begin
   chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
   frMarkCategory.Init(AMark.Category);
   try
-    if FMarksDb.GetMarkIsNew(AMark) then begin
+    if ANewMark then begin
       Caption:=SAS_STR_AddNewMark;
     end else begin
       Caption:=SAS_STR_EditMark;

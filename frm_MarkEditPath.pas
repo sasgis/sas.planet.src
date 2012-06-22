@@ -83,7 +83,7 @@ type
       const AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(const AMark: IMarkLine): IMarkLine;
+    function EditMark(const AMark: IMarkLine; ANewMark: Boolean): IMarkLine;
   end;
 
 implementation
@@ -120,7 +120,7 @@ begin
   inherited;
 end;
 
-function TfrmMarkEditPath.EditMark(const AMark: IMarkLine): IMarkLine;
+function TfrmMarkEditPath.EditMark(const AMark: IMarkLine; ANewMark: Boolean): IMarkLine;
 begin
   frMarkCategory.Init(AMark.Category);
   try
@@ -130,10 +130,10 @@ begin
     seWidth.Value:=AMark.LineWidth;
     clrbxLineColor.Selected:=WinColor(AMark.LineColor);
     chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
-    if FMarksDb.GetMarkIsNew(AMark) then begin
-      Caption:=SAS_STR_AddNewPath;
+    if ANewMark then begin
+      Caption := SAS_STR_AddNewPath;
     end else begin
-      Caption:=SAS_STR_EditPath;
+      Caption := SAS_STR_EditPath;
     end;
     if ShowModal=mrOk then begin
       Result := FMarksDb.Factory.ModifyLine(

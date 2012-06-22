@@ -1494,7 +1494,7 @@ object frmMain: TfrmMain
     object TBEditPath: TTBXToolbar
       Left = 0
       Top = 244
-      DockPos = 221
+      DockPos = 240
       TabOrder = 2
       OnClose = TBEditPathClose
       object TBEditPathDel: TTBXItem
@@ -1552,12 +1552,18 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = 'Manage Selection'
       end
-      object TBEditPathSave: TTBXItem
+      object tbitmSaveMark: TTBXSubmenuItem
+        DropdownCombo = True
         ImageIndex = 25
         Images = MenusImageList
         OnClick = TBEditPathSaveClick
         Caption = ''
         Hint = 'Add to Database'
+        object tbitmSaveMarkAsNew: TTBXItem
+          OnClick = tbitmSaveMarkAsNewClick
+          Caption = 'Save as new'
+          Hint = 'Save placemark in Database as new'
+        end
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0

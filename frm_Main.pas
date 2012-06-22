@@ -356,7 +356,6 @@ type
     TBEditSelectPolylineRadiusCap2: TTBXLabelItem;
     TBEditPathMarsh: TTBXSubmenuItem;
     TBEditPathOk: TTBXItem;
-    TBEditPathSave: TTBXItem;
     TBEditSelectPolylineRadius: TSpinEdit;
     tbitmShowMarkCaption: TTBXItem;
     NMarksGroup: TTBGroupItem;
@@ -411,6 +410,8 @@ type
     tbitmFitToScreen: TTBXItem;
     tbitmEditLastSelection: TTBXItem;
     tbitmHideThisMark: TTBXItem;
+    tbitmSaveMark: TTBXSubmenuItem;
+    tbitmSaveMarkAsNew: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -554,6 +555,7 @@ type
     procedure tbitmPropertiesClick(Sender: TObject);
     procedure tbitmFitToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
+    procedure tbitmSaveMarkAsNewClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2192,9 +2194,13 @@ begin
   TBAdd_Line.Checked := VNewState=ao_edit_line;
   TBAdd_Poly.Checked := VNewState=ao_edit_Poly;
   TBEditPath.Visible := false;
-  TBEditPathSave.Visible :=
+  tbitmSaveMark.Visible :=
     (VNewState=ao_Edit_line)or
     (VNewState=ao_Edit_Poly);
+  tbitmSaveMark.DropdownCombo :=
+    ((VNewState=ao_Edit_line) and (FEditMarkLine <> nil))or
+    ((VNewState=ao_Edit_Poly) and (FEditMarkPoly <> nil));
+  tbitmSaveMarkAsNew.Visible := tbitmSaveMark.DropdownCombo;
   TBEditPathOk.Visible :=
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
@@ -4803,6 +4809,30 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbitmSaveMarkAsNewClick(Sender: TObject);
+var
+  VResult: boolean;
+  VPathEdit: IPathOnMapEdit;
+  VPolygonEdit: IPolygonOnMapEdit;
+begin
+  VResult := false;
+  case FState.State of
+    ao_edit_poly: begin
+      if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
+        VResult := FMarkDBGUI.SavePolyModal(FEditMarkPoly, VPolygonEdit.Polygon, True);
+      end;
+    end;
+    ao_edit_line: begin
+      if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
+        VResult := FMarkDBGUI.SaveLineModal(FEditMarkLine, VPathEdit.Path, FMarshrutComment, True);
+      end;
+    end;
+  end;
+  if VResult then begin
+    FState.State := ao_movemap;
+  end;
+end;
+
 procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
 begin
   FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw := TBEditMagnetDraw.Checked;
@@ -5070,7 +5100,7 @@ var
 begin
   VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
-    VMarkModifed := FMarkDBGUI.EditMarkModal(VMark);
+    VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False);
     if VMarkModifed <> nil then begin
       GState.MarksDB.MarksDb.UpdateMark(VMark, VMarkModifed);
     end;

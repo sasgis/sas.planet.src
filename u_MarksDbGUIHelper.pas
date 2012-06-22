@@ -93,7 +93,7 @@ type
       const AConverter: ICoordConverter;
       AHandle: THandle
     );
-    function EditMarkModal(const AMark: IMark): IMark;
+    function EditMarkModal(const AMark: IMark; ANewMark: Boolean): IMark;
     function EditCategoryModal(const ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
     function SavePointModal(
@@ -102,12 +102,14 @@ type
     ): Boolean;
     function SavePolyModal(
       const AMark: IMarkPoly;
-      const ALine: ILonLatPolygon
+      const ALine: ILonLatPolygon;
+      AAsNewMark: Boolean = false
     ): Boolean;
     function SaveLineModal(
       const AMark: IMarkLine;
       const ALine: ILonLatPath;
-      const ADescription: string
+      const ADescription: string;
+      AAsNewMark: Boolean = false
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
@@ -222,7 +224,7 @@ var
 begin
   Result := False;
   VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
-  VMark := FfrmMarkEditPoint.EditMark(VMark);
+  VMark := FfrmMarkEditPoint.EditMark(VMark, True);
   if VMark <> nil then begin
     FMarksDb.MarksDb.UpdateMark(nil, VMark);
     Result := True;
@@ -287,7 +289,7 @@ begin
   Result := FfrmMarkCategoryEdit.EditCategory(ACategory);
 end;
 
-function TMarksDbGUIHelper.EditMarkModal(const AMark: IMark): IMark;
+function TMarksDbGUIHelper.EditMarkModal(const AMark: IMark; ANewMark: Boolean): IMark;
 var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
@@ -295,11 +297,11 @@ var
 begin
   Result := nil;
   if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-    Result := FfrmMarkEditPoint.EditMark(VMarkPoint);
+    Result := FfrmMarkEditPoint.EditMark(VMarkPoint, ANewMark);
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
-    Result := FfrmMarkEditPath.EditMark(VMarkLine);
+    Result := FfrmMarkEditPath.EditMark(VMarkLine, ANewMark);
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    Result := FfrmMarkEditPoly.EditMark(VMarkPoly);
+    Result := FfrmMarkEditPoly.EditMark(VMarkPoly, ANewMark);
   end;
 end;
 
@@ -405,21 +407,31 @@ end;
 function TMarksDbGUIHelper.SaveLineModal(
   const AMark: IMarkLine;
   const ALine: ILonLatPath;
-  const ADescription: string
+  const ADescription: string;
+  AAsNewMark: Boolean
 ): Boolean;
 var
   VMark: IMarkLine;
+  VSourceMark: IMarkLine;
+  VNewMark: Boolean;
 begin
   Result := False;
   if AMark <> nil then begin
     VMark := FMarksDB.MarksDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
+    VNewMark := AAsNewMark;
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ALine, '', ADescription);
+    VNewMark := True;
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPath.EditMark(VMark);
+    VMark := FfrmMarkEditPath.EditMark(VMark, VNewMark);
     if VMark <> nil then begin
-      FMarksDb.MarksDb.UpdateMark(AMark, VMark);
+      if AAsNewMark then begin
+        VSourceMark := nil;
+      end else begin
+        VSourceMark := AMark;
+      end;
+      FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
       Result := True;
     end;
   end;
@@ -431,15 +443,18 @@ function TMarksDbGUIHelper.SavePointModal(
 ): Boolean;
 var
   VMark: IMarkPoint;
+  VNewMark: Boolean;
 begin
   Result := False;
   if AMark <> nil then begin
     VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoint(AMark, ALonLat);
+    VNewMark := False;
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
+    VNewMark := True;
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPoint.EditMark(VMark);
+    VMark := FfrmMarkEditPoint.EditMark(VMark, VNewMark);
     if VMark <> nil then begin
       FMarksDb.MarksDb.UpdateMark(AMark, VMark);
       Result := True;
@@ -449,21 +464,31 @@ end;
 
 function TMarksDbGUIHelper.SavePolyModal(
   const AMark: IMarkPoly;
-  const ALine: ILonLatPolygon
+  const ALine: ILonLatPolygon;
+  AAsNewMark: Boolean
 ): Boolean;
 var
   VMark: IMarkPoly;
+  VSourceMark: IMarkPoly;
+  VNewMark: Boolean;
 begin
   Result := False;
   if AMark <> nil then begin
     VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoly(AMark, ALine);
+    VNewMark := AAsNewMark;
   end else begin
     VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ALine, '', '');
+    VNewMark := True;
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPoly.EditMark(VMark);
+    VMark := FfrmMarkEditPoly.EditMark(VMark, VNewMark);
     if VMark <> nil then begin
-      FMarksDb.MarksDb.UpdateMark(AMark, VMark);
+      if AAsNewMark then begin
+        VSourceMark := nil;
+      end else begin
+        VSourceMark := AMark;
+      end;
+      FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
       Result := True;
     end;
   end;

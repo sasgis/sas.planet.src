@@ -465,7 +465,7 @@ begin
   if VMarkIdList <> nil then begin
     if VMarkIdList.Count=1 then begin
       VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
-      VMark := FMarkDBGUI.EditMarkModal(VMark);
+      VMark := FMarkDBGUI.EditMarkModal(VMark, False);
       if VMark <> nil then begin
         FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
       end;
@@ -773,7 +773,7 @@ begin
   end;
 
   VMark := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
-  VMark := FMarkDBGUI.EditMarkModal(VMark);
+  VMark := FMarkDBGUI.EditMarkModal(VMark, True);
   if VMark <> nil then begin
     FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
   end;
