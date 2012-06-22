@@ -57,7 +57,7 @@ type
   private
     FCategoryDB: IMarkCategoryDB;
   public
-    function EditCategory(const ACategory: IMarkCategory): IMarkCategory;
+    function EditCategory(const ACategory: IMarkCategory; AIsNewMark: Boolean): IMarkCategory;
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const ACategoryDB: IMarkCategoryDB
@@ -97,11 +97,11 @@ begin
   FCategoryDB := ACategoryDB;
 end;
 
-function TfrmMarkCategoryEdit.EditCategory(const ACategory: IMarkCategory): IMarkCategory;
+function TfrmMarkCategoryEdit.EditCategory(const ACategory: IMarkCategory; AIsNewMark: Boolean): IMarkCategory;
 begin
   EditName.Text:=SAS_STR_NewPoly;
 
-  if FCategoryDB.GetCategoryIsNew(ACategory) then begin
+  if AIsNewMark then begin
     Self.Caption:=SAS_STR_AddNewCategory;
   end else begin
     Self.Caption:=SAS_STR_EditCategory;

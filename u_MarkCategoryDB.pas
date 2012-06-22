@@ -57,7 +57,6 @@ type
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
-    function GetCategoryIsNew(const ACategory: IMarkCategory): Boolean;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
@@ -265,19 +264,6 @@ begin
     end;
   finally
     UnlockRead;
-  end;
-end;
-
-function TMarkCategoryDB.GetCategoryIsNew(
-  const ACategory: IMarkCategory): Boolean;
-var
-  VCategoryInternal: IMarkCategorySMLInternal;
-begin
-  Result := True;
-  if ACategory <> nil then begin
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      Result := VCategoryInternal.Id >= 0;
-    end;
   end;
 end;
 

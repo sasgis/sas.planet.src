@@ -669,7 +669,7 @@ var
 begin
   VCategoryOld := GetSelectedCategory;
   if VCategoryOld <> nil then begin
-    VCategoryNew := FMarkDBGUI.EditCategoryModal(VCategoryOld);
+    VCategoryNew := FMarkDBGUI.EditCategoryModal(VCategoryOld, False);
     if VCategoryNew <> nil then begin
       FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
     end;
@@ -741,7 +741,7 @@ var
   VCategory: IMarkCategory;
 begin
   VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
-  VCategory := FMarkDBGUI.EditCategoryModal(VCategory);
+  VCategory := FMarkDBGUI.EditCategoryModal(VCategory, True);
   if VCategory <> nil then begin
     FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(nil, VCategory);
   end;

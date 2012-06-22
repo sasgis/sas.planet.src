@@ -96,7 +96,7 @@ type
       const AMarksDb: IMarksDb
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(const AMark: IMarkPoly; ANewMark: Boolean): IMarkPoly;
+    function EditMark(const AMark: IMarkPoly; AIsNewMark: Boolean): IMarkPoly;
   end;
 
 implementation
@@ -133,7 +133,7 @@ begin
   inherited;
 end;
 
-function TfrmMarkEditPoly.EditMark(const AMark: IMarkPoly; ANewMark: Boolean): IMarkPoly;
+function TfrmMarkEditPoly.EditMark(const AMark: IMarkPoly; AIsNewMark: Boolean): IMarkPoly;
 begin
   frMarkCategory.Init(AMark.Category);
   try
@@ -145,7 +145,7 @@ begin
     clrbxLineColor.Selected:=WinColor(AMark.BorderColor);
     clrbxFillColor.Selected:=WinColor(AMark.FillColor);
     chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
-    if ANewMark then begin
+    if AIsNewMark then begin
       Caption:=SAS_STR_AddNewPoly;
     end else begin
       Caption:=SAS_STR_EditPoly;

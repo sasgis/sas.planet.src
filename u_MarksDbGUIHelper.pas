@@ -93,8 +93,8 @@ type
       const AConverter: ICoordConverter;
       AHandle: THandle
     );
-    function EditMarkModal(const AMark: IMark; ANewMark: Boolean): IMark;
-    function EditCategoryModal(const ACategory: IMarkCategory): IMarkCategory;
+    function EditMarkModal(const AMark: IMark; AIsNewMark: Boolean): IMark;
+    function EditCategoryModal(const ACategory: IMarkCategory; AIsNewMark: Boolean): IMarkCategory;
     function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
     function SavePointModal(
       const AMark: IMarkPoint;
@@ -283,13 +283,13 @@ begin
 end;
 
 function TMarksDbGUIHelper.EditCategoryModal(
-  const ACategory: IMarkCategory
+  const ACategory: IMarkCategory; AIsNewMark: Boolean
 ): IMarkCategory;
 begin
-  Result := FfrmMarkCategoryEdit.EditCategory(ACategory);
+  Result := FfrmMarkCategoryEdit.EditCategory(ACategory, AIsNewMark);
 end;
 
-function TMarksDbGUIHelper.EditMarkModal(const AMark: IMark; ANewMark: Boolean): IMark;
+function TMarksDbGUIHelper.EditMarkModal(const AMark: IMark; AIsNewMark: Boolean): IMark;
 var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
@@ -297,11 +297,11 @@ var
 begin
   Result := nil;
   if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-    Result := FfrmMarkEditPoint.EditMark(VMarkPoint, ANewMark);
+    Result := FfrmMarkEditPoint.EditMark(VMarkPoint, AIsNewMark);
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
-    Result := FfrmMarkEditPath.EditMark(VMarkLine, ANewMark);
+    Result := FfrmMarkEditPath.EditMark(VMarkLine, AIsNewMark);
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    Result := FfrmMarkEditPoly.EditMark(VMarkPoly, ANewMark);
+    Result := FfrmMarkEditPoly.EditMark(VMarkPoly, AIsNewMark);
   end;
 end;
 

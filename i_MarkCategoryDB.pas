@@ -36,7 +36,6 @@ type
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
-    function GetCategoryIsNew(const ACategory: IMarkCategory): Boolean;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
