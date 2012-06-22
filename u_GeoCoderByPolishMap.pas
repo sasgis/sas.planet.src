@@ -65,7 +65,6 @@ uses
   windows,
   StrUtils,
   t_GeoTypes,
-  t_CommonTypes,
   i_GeoCoder,
   i_StringlistStatic,
   u_ResStrings,

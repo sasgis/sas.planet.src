@@ -9,9 +9,7 @@ uses
   i_InternalPerformanceCounter,
   i_BitmapMarker,
   i_ViewPortState,
-  i_MapViewGoto,
   i_LocalCoordConverter,
-  i_GotoLayerConfig,
   i_PointOnMapEdit,
   u_MapLayerBasic;
 
@@ -43,8 +41,6 @@ implementation
 
 uses
   Types,
-  Math,
-  SysUtils,
   GR32_Resamplers,
   i_JclNotify,
   i_CoordConverter,

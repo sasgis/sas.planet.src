@@ -64,7 +64,6 @@ uses
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
-  t_CommonTypes,
   u_GeoCodePlacemark,
   u_GeoToStr;
 

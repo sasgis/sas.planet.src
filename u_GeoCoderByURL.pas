@@ -73,15 +73,12 @@ implementation
 uses
   windows,
   SysUtils,
-  Math,
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
-  t_CommonTypes,
   u_ResStrings,
   u_DownloadRequest,
-  u_GeoCodePlacemark,
-  u_GeoToStr;
+  u_GeoCodePlacemark;
 
 { TGeoCoderByExtLink }
 
