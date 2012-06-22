@@ -65,14 +65,18 @@ type
       AStrings: TStrings
     );
 
-    function DeleteMarkModal(
+    procedure DeleteMarkModal(
       const AMarkID: IMarkID;
       handle: THandle
-    ): boolean;
-    function DeleteMarksModal(
+    );
+    procedure DeleteMarksModal(
       const AMarkIDList: IInterfaceList;
       handle: THandle
-    ): boolean;
+    );
+    procedure DeleteCategoryModal(
+      const ACategory: IMarkCategory;
+      handle: THandle
+    );
     function OperationMark(
       const AMark: IMark;
       const AProjection: IProjectionInfo
@@ -246,37 +250,61 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.DeleteMarkModal(
-  const AMarkID: IMarkID;
-  handle: THandle
-): boolean;
+procedure TMarksDbGUIHelper.DeleteCategoryModal(const ACategory: IMarkCategory;
+  handle: THandle);
+var
+  VMessage: string;
 begin
-  Result := false;
-  if AMarkID <> nil then begin
-    if MessageBox(handle, pchar(SAS_MSG_youasure + ' "' + AMarkID.name + '"'), pchar(SAS_MSG_coution), 36) = IDYES then begin
-      result := FMarksDb.MarksDb.UpdateMark(AMarkID, nil) = nil;
+  if ACategory <> nil then begin
+    VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
+    if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
+      FMarksDb.DeleteCategoryWithMarks(ACategory);
     end;
   end;
 end;
 
-function TMarksDbGUIHelper.DeleteMarksModal(
+procedure TMarksDbGUIHelper.DeleteMarkModal(
+  const AMarkID: IMarkID;
+  handle: THandle
+);
+var
+  VMark: IMark;
+  VMessage: string;
+begin
+  if AMarkID <> nil then begin
+    VMark := FMarksDB.MarksDb.GetMarkByID(AMarkID);
+    if VMark <> nil then begin
+      if Supports(VMark, IMarkPoint) then begin
+        VMessage := SAS_MSG_DeleteMarkPointAsk;
+      end else if Supports(VMark, IMarkLine) then begin
+        VMessage := SAS_MSG_DeleteMarkPathAsk;
+      end else if Supports(VMark, IMarkPoly) then begin
+        VMessage := SAS_MSG_DeleteMarkPolyAsk;
+      end;
+      VMessage := Format(VMessage, [AMarkID.name]);
+      if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
+        FMarksDb.MarksDb.UpdateMark(AMarkID, nil);
+      end;
+    end;
+  end;
+end;
+
+procedure TMarksDbGUIHelper.DeleteMarksModal(
   const AMarkIDList: IInterfaceList;
   handle: THandle
-): boolean;
+);
 var
   VMark: IMarkId;
+  VMessage: string;
 begin
-  Result := false;
-  if AMarkIDList <> nil then begin
+  if (AMarkIDList <> nil) and (AMarkIDList.Count >0) then begin
     if AMarkIDList.Count = 1 then begin
       VMark := IMarkId(AMarkIDList[0]);
-      if MessageBox(handle, pchar(SAS_MSG_youasure + ' "' + VMark.name + '"'), pchar(SAS_MSG_coution), 36) = IDYES then begin
-        result := FMarksDb.MarksDb.UpdateMark(VMark, nil) = nil;
-      end;
+      DeleteMarkModal(VMark, handle);
     end else begin
-      if MessageBox(handle, pchar(SAS_MSG_youasure), pchar(SAS_MSG_coution), 36) = IDYES then begin
+      VMessage := Format(SAS_MSG_DeleteManyMarksAsk, [AMarkIDList.Count]);
+      if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMarksList(AMarkIDList, nil);
-        result := true;
       end;
     end;
   end;

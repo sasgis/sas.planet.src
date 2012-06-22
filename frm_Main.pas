@@ -3978,7 +3978,7 @@ var
 begin
   VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
-    if FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle) then
+    FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle);
   end;
 end;
 

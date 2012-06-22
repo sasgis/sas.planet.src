@@ -384,9 +384,7 @@ var
 begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
-    if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategory.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-      FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategory);
-    end;
+    FMarkDBGUI.DeleteCategoryModal(VCategory, Self.Handle);
   end;
 end;
 
@@ -608,9 +606,7 @@ begin
   If key=VK_DELETE then begin
     VCategoryOld := GetSelectedCategory;
     if VCategoryOld <> nil then begin
-      if MessageBox(Self.handle,pchar(SAS_MSG_youasure+' "'+VCategoryOld.name+'"'),pchar(SAS_MSG_coution),36)=IDYES then begin
-        FMarkDBGUI.MarksDb.DeleteCategoryWithMarks(VCategoryOld);
-      end;
+      FMarkDBGUI.DeleteCategoryModal(VCategoryOld, Self.Handle);
     end;
   end;
 

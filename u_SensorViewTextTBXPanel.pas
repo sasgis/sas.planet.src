@@ -494,7 +494,7 @@ var
   VSensorResetable: ISensorResetable;
 begin
   if Supports(FSensor, ISensorResetable, VSensorResetable) then begin
-    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_youasurerefrsensor), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+    if (MessageBox(TWinControl(FOwner).Handle, pchar(SAS_MSG_ResetSensorAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
       VSensorResetable.Reset;
       OnTimer;
     end;
