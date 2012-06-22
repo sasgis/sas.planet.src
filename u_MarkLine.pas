@@ -127,7 +127,7 @@ begin
     Result := False;
     Exit;
   end;
-  if FLine.IsSame(VMarkPath.Line) then begin
+  if not FLine.IsSame(VMarkPath.Line) then begin
     Result := False;
     Exit;
   end;

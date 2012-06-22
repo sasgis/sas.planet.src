@@ -144,7 +144,7 @@ begin
     Result := False;
     Exit;
   end;
-  if FLine.IsSame(VMarkPoly.Line) then begin
+  if not FLine.IsSame(VMarkPoly.Line) then begin
     Result := False;
     Exit;
   end;
