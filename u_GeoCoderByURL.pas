@@ -268,9 +268,7 @@ begin
   except
     raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
   end;
-  if FValueToStringConverterConfig.IsLatitudeFirst = true then
-   sdesc := sdesc + '[ '+VValueConverter.LatConvert(VPoint.y)+' '+VValueConverter.LonConvert(VPoint.x)+' ]' else
-     sdesc := sdesc + '[ '+VValueConverter.LonConvert(VPoint.x)+' '+VValueConverter.LatConvert(VPoint.y)+' ]';
+  sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
   sfulldesc := '<a href=' + Astr + '>' +Astr+ '</a><br>' + ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
   VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
   Result := VPlace;
@@ -534,9 +532,7 @@ begin
   except
     raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
   end;
-  if FValueToStringConverterConfig.IsLatitudeFirst = true then
-   sdesc := sdesc + '[ '+VValueConverter.LatConvert(VPoint.y)+' '+VValueConverter.LonConvert(VPoint.x)+' ]' else
-     sdesc := sdesc + '[ '+VValueConverter.LonConvert(VPoint.x)+' '+VValueConverter.LatConvert(VPoint.y)+' ]';
+  sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
   sfulldesc := '<a href=' + Astr + '>' +Astr+ '</a><br>' + ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
   VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
   Result := VPlace;

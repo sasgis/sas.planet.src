@@ -187,9 +187,7 @@ begin
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
       sname := inttostr(Vcnt)+') '+ASearch;
-      if FValueToStringConverterConfig.IsLatitudeFirst = true then
-         sdesc := sdesc + '[ '+VValueConverter.LatConvert(VPoint.y)+' '+VValueConverter.LonConvert(VPoint.x)+' ]' else
-          sdesc := sdesc + '[ '+VValueConverter.LonConvert(VPoint.x)+' '+VValueConverter.LatConvert(VPoint.y)+' ]';
+      sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
 

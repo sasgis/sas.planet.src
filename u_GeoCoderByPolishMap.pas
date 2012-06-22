@@ -663,9 +663,7 @@ begin
       if V_CityName <> '' then sdesc := sdesc + #$D#$A+ V_CityName ;
       if sdesc <> '' then sdesc := sdesc + #$D#$A;
       VValueConverter := FValueToStringConverterConfig.GetStatic;
-      if FValueToStringConverterConfig.IsLatitudeFirst = true then
-         sdesc := sdesc + '[ '+VValueConverter.LatConvert(VPoint.y)+' '+VValueConverter.LonConvert(VPoint.x)+' ]' else
-          sdesc := sdesc + '[ '+VValueConverter.LonConvert(VPoint.x)+' '+VValueConverter.LatConvert(VPoint.y)+' ]';
+      sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
 
