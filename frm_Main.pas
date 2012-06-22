@@ -410,6 +410,7 @@ type
     tbitmProperties: TTBXItem;
     tbitmFitToScreen: TTBXItem;
     tbitmEditLastSelection: TTBXItem;
+    tbitmHideThisMark: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -552,6 +553,7 @@ type
     procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
     procedure tbitmFitToScreenClick(Sender: TObject);
+    procedure tbitmHideThisMarkClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3211,6 +3213,17 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbitmHideThisMarkClick(Sender: TObject);
+var
+  VMark: IMark;
+  VMarkId: IMarkID;
+begin
+  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  if Supports(VMark, IMarkID, VMarkId) then begin
+    FMarkDBGUI.MarksDB.MarksDb.SetMarkVisibleByID(VMarkId, False);
+  end;
+end;
+
 procedure TfrmMain.tbitmFitToScreenClick(Sender: TObject);
 var
   VMark: IMark;
@@ -4235,6 +4248,12 @@ begin
     end;
     NMarkEdit.Visible := VMark <> nil;
     tbitmFitToScreen.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
+    if VMark <> nil then begin
+      tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
+    end else begin
+      tbitmHideThisMark.Visible := False;
+    end;
+
     tbitmProperties.Visible := VMark <> nil;
     NMarkExport.Visible := VMark <> nil;
     NMarkDel.Visible := VMark <> nil;

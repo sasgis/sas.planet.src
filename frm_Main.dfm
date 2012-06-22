@@ -3317,6 +3317,11 @@ object frmMain: TfrmMain
       Caption = 'Fit to Screen'
       Hint = ''
     end
+    object tbitmHideThisMark: TTBXItem
+      OnClick = tbitmHideThisMarkClick
+      Caption = 'Hide'
+      Hint = ''
+    end
     object tbsprtMainPopUp0: TTBXSeparatorItem
       Caption = ''
       Hint = ''
