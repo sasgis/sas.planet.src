@@ -4648,6 +4648,7 @@ begin
      (not FMapMoving) and
      ((VMousePos.x<>VLastMouseMove.X)or(VMousePos.y<>VLastMouseMove.y)) and
      (FConfig.MainConfig.ShowHintOnMarks)and
+     ((not FConfig.MainConfig.ShowHintOnlyInMapMoveMode) or (FState.State = ao_movemap)) and
      _AllowShowHint then begin
     // show hint
     VItemFound := False;

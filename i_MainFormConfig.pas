@@ -77,6 +77,10 @@ type
     procedure SetShowHintOnMarks(AValue: Boolean);
     property ShowHintOnMarks: Boolean read GetShowHintOnMarks write SetShowHintOnMarks;
 
+    function GetShowHintOnlyInMapMoveMode: Boolean;
+    procedure SetShowHintOnlyInMapMoveMode(AValue: Boolean);
+    property ShowHintOnlyInMapMoveMode: Boolean read GetShowHintOnlyInMapMoveMode write SetShowHintOnlyInMapMoveMode;
+
     function GetRuller: IBitmap32Static;
     property Ruller: IBitmap32Static read GetRuller;
 

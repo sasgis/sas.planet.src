@@ -37,6 +37,7 @@ type
     FShowMapName: Boolean;
     FMouseScrollInvert: Boolean;
     FShowHintOnMarks: Boolean;
+    FShowHintOnlyInMapMoveMode: Boolean;
     FUseNewMainLayer: Boolean;
 
     FRullerFileName: string;
@@ -55,6 +56,9 @@ type
 
     function GetShowHintOnMarks: Boolean;
     procedure SetShowHintOnMarks(AValue: Boolean);
+
+    function GetShowHintOnlyInMapMoveMode: Boolean;
+    procedure SetShowHintOnlyInMapMoveMode(AValue: Boolean);
 
     function GetUseNewMainLayer: Boolean;
 
@@ -82,6 +86,7 @@ begin
   FShowMapName := True;
   FMouseScrollInvert := False;
   FShowHintOnMarks := True;
+  FShowHintOnlyInMapMoveMode := False;
   FUseNewMainLayer := False;
   FRuller := nil;
   FTumbler := nil;
@@ -97,6 +102,7 @@ begin
     FShowMapName := AConfigData.ReadBool('ShowMapNameOnPanel', FShowMapName);
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
+    FShowHintOnlyInMapMoveMode := AConfigData.ReadBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
     FUseNewMainLayer := AConfigData.ReadBool('UseNewMainLayer', FUseNewMainLayer);
 
     FRuller := ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
@@ -114,6 +120,7 @@ begin
   AConfigData.WriteBool('ShowMapNameOnPanel', FShowMapName);
   AConfigData.WriteBool('MouseScrollInvert', FMouseScrollInvert);
   AConfigData.WriteBool('ShowHintOnMarks', FShowHintOnMarks);
+  AConfigData.WriteBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
 end;
 
 function TMainFormMainConfig.GetMouseScrollInvert: Boolean;
@@ -131,6 +138,16 @@ begin
   LockRead;
   try
     Result := FRuller;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormMainConfig.GetShowHintOnlyInMapMoveMode: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowHintOnlyInMapMoveMode;
   finally
     UnlockRead;
   end;
@@ -182,6 +199,19 @@ begin
   try
     if FMouseScrollInvert <> AValue then begin
       FMouseScrollInvert := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetShowHintOnlyInMapMoveMode(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowHintOnlyInMapMoveMode <> AValue then begin
+      FShowHintOnlyInMapMoveMode := AValue;
       SetChanged;
     end;
   finally
