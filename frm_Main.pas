@@ -83,6 +83,7 @@ uses
   i_MainWindowPosition,
   i_SelectionRect,
   i_LineOnMapEdit,
+  i_PointOnMapEdit,
   i_PathDetalizeProvider,
   i_MapTypeIconsList,
   i_MessageHandler,
@@ -591,6 +592,7 @@ type
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
+    FEditMarkPoint: IMarkPoint;
     FEditMarkLine: IMarkLine;
     FEditMarkPoly: IMarkPoly;
     FState: IMainFormState;
@@ -599,6 +601,7 @@ type
 
     FLineOnMapEdit: ILineOnMapEdit;
     FLineOnMapByOperation: array [TStateEnum] of ILineOnMapEdit;
+    FPointOnMapEdit: IPointOnMapEdit;
     FSelectionRect: ISelectionRect;
     FMarkDBGUI: TMarksDbGUIHelper;
 
@@ -714,6 +717,7 @@ uses
   i_ValueToStringConverter,
   i_GUIDListStatic,
   i_ActiveMapsConfig,
+  i_BitmapMarker,
   i_MapAttachmentsInfo,
   i_LanguageManager,
   i_VectorDataItemSimple,
@@ -725,6 +729,8 @@ uses
   u_FullMapMouseCursorLayer,
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
+  u_PointOnMapEdit,
+  u_PointOnMapEditLayer,
   u_MapTypeIconsList,
   u_SelectionRect,
   u_KeyMovingHandler,
@@ -883,6 +889,8 @@ begin
   FLineOnMapByOperation[ao_select_poly] := TPolygonOnMapEdit.Create(GState.VectorItmesFactory);
   FLineOnMapByOperation[ao_select_line] := TPathOnMapEdit.Create(GState.VectorItmesFactory);
 
+  FPointOnMapEdit := TPointOnMapEdit.Create;
+
   FSelectionRect :=
     TSelectionRect.Create(
       FConfig.ViewPortState,
@@ -979,7 +987,7 @@ procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   FSensorViewList := nil;
 end;
-        
+
 function TfrmMain.ConvLatLon2Scale(const Astr:string):Double;
 var rest: boolean;
   res: Double;
@@ -1065,6 +1073,7 @@ var
   VScale: Integer;
   VDegScale: Double;
   VZoom: Byte;
+  VMarkerProvider: IBitmapMarkerProviderChangeable;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1408,19 +1417,20 @@ begin
         )
       );
     FLayersList.Add(FLayerSearchResults);
+    VMarkerProvider := TBitmapMarkerProviderChangeableFaked.Create(
+      TBitmapMarkerProviderStaticFromDataProvider.Create(
+        GState.ResourceProvider,
+        GState.ContentTypeManager,
+        'ICONIII.png',
+        DoublePoint(7, 6)
+      )
+    );
     FLayersList.Add(
       TGotoLayer.Create(
         GState.PerfCounterList,
         map,
         FConfig.ViewPortState,
-        TBitmapMarkerProviderChangeableFaked.Create(
-          TBitmapMarkerProviderStaticFromDataProvider.Create(
-            GState.ResourceProvider,
-            GState.ContentTypeManager,
-            'ICONIII.png',
-            DoublePoint(7, 6)
-          )
-        ),
+        VMarkerProvider,
         FMapGoto,
         FConfig.LayersConfig.GotoLayerConfig
       )
@@ -1449,6 +1459,23 @@ begin
         FConfig.ViewPortState,
         FTileErrorLogProvider,
         GState.GUISyncronizedTimerNotifier
+      )
+    );
+    VMarkerProvider := TBitmapMarkerProviderChangeableFaked.Create(
+      TBitmapMarkerProviderStaticFromDataProvider.Create(
+        GState.ResourceProvider,
+        GState.ContentTypeManager,
+        'ICONIII.png',
+        DoublePoint(7, 6)
+      )
+    );
+    FLayersList.Add(
+      TPointOnMapEditLayer.Create(
+        GState.PerfCounterList,
+        map,
+        FConfig.ViewPortState,
+        VMarkerProvider,
+        FPointOnMapEdit
       )
     );
     FLayersList.Add(
@@ -2182,6 +2209,11 @@ begin
   if FLineOnMapEdit <> nil then begin
     FLineOnMapEdit.Clear;
   end;
+
+  if VNewState <> ao_edit_point then begin
+    FPointOnMapEdit.Clear;
+  end;
+
   FLineOnMapEdit := FLineOnMapByOperation[VNewState];
   if VNewState=ao_select_line then begin
    TBEditSelectPolylineRadius.Value :=
@@ -2199,6 +2231,9 @@ begin
   end;
   if VNewState <> ao_edit_poly then begin
     FEditMarkPoly := nil;
+  end;
+  if VNewState <> ao_edit_point then begin
+    FEditMarkPoint := nil;
   end;
 end;
 
@@ -3849,6 +3884,7 @@ end;
 
 procedure TfrmMain.TBAdd_PointClick(Sender: TObject);
 begin
+  FEditMarkPoint := nil;
   if FState.State <> ao_edit_point then begin
     FState.State := ao_edit_point;
   end else begin
@@ -3879,7 +3915,6 @@ end;
 procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
   VMark: IMark;
-  VMarkModifed: IMark;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
@@ -3889,10 +3924,9 @@ begin
   VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      VMarkModifed := FMarkDBGUI.EditMarkModal(VMark);
-      if VMarkModifed <> nil then begin
-        GState.MarksDB.MarksDb.UpdateMark(VMark, VMarkModifed);
-      end;
+      FEditMarkPoint := VMarkPoint;
+      FState.State := ao_edit_point;
+      FPointOnMapEdit.Point := VMarkPoint.Point;
     end else if Supports(VMark, IMarkLine, VMarkLine) then begin
       FEditMarkLine := VMarkLine;
       FState.State := ao_edit_line;
@@ -4187,9 +4221,8 @@ begin
       end;
     end;
     if (FState.State = ao_edit_point) then begin
-      if(FMarkDBGUI.AddNewPointModal(VClickLonLat)) then begin
-        FState.State := ao_movemap;
-      end;
+      FPointOnMapEdit.Point := VClickLonLat;
+      movepoint:=true;
     end;
     exit;
   end;
@@ -4200,7 +4233,7 @@ begin
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
       VMark := FLayerMapMarks.MouseOnReg(Point(x, y));
     end;
-    NMarkEdit.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
+    NMarkEdit.Visible := VMark <> nil;
     tbitmFitToScreen.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
     tbitmProperties.Visible := VMark <> nil;
     NMarkExport.Visible := VMark <> nil;
@@ -4337,6 +4370,14 @@ begin
         Exit;
       end;
     end;
+    if (FState.State = ao_edit_point) then begin
+      FPointOnMapEdit.Point := VLonLat;
+      if(FMarkDBGUI.SavePointModal(FEditMarkPoint, FPointOnMapEdit.Point)) then begin
+        FState.State := ao_movemap;
+      end;
+      movepoint:=false;
+      Exit;
+    end;
     if FState.State=ao_select_rect then begin
       VSelectionFinished := False;
       FSelectionRect.LockWrite;
@@ -4363,7 +4404,7 @@ begin
   end;
 
   movepoint:=false;
-
+  
   if (((FState.State<>ao_movemap)and(Button=mbLeft))or
      ((FState.State=ao_movemap)and(Button=mbRight))) then exit;
 
@@ -4511,6 +4552,9 @@ begin
     end;
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;
+  end;
+  if (FState.State = ao_edit_point) and movepoint then begin
+    FPointOnMapEdit.Point := VLonLat;
   end;
   if (FState.State=ao_select_rect) then begin
     FSelectionRect.LockWrite;
