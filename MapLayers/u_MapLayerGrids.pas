@@ -52,6 +52,7 @@ uses
   u_GeoFun,
   u_NotifyEventListener,
   u_GeoToStr,
+  RegExprUtils,
   StrUtils;
 
 const
@@ -247,6 +248,9 @@ begin
           if copy(ListName, length(ListName) - 2, 3) = '00''' then begin
             ListName := ReplaceStr(ListName, '00''', '');
           end;
+          ListName := RegExprReplaceMatchSubStr(ListName,'\0+\°','°');
+          ListName := ReplaceStr(ListName, ',°', '°');
+
           twidth := Layer.bitmap.TextWidth(ListName);
           Layer.bitmap.RenderTextW(
             VTextPos2.Left - twidth div 2,
@@ -269,6 +273,9 @@ begin
           if copy(ListName, length(ListName) - 2, 3) = '00''' then begin
             ListName := ReplaceStr(ListName, '00''', '');
           end;
+          ListName := RegExprReplaceMatchSubStr(ListName,'\0+\°','°');
+          ListName := ReplaceStr(ListName, ',°', '°');
+
           theight := Layer.bitmap.TextHeight(ListName);
           Layer.bitmap.RenderTextW(
             VTextPos2.Right + 2,
