@@ -35,14 +35,11 @@ type
   TGeoCoderByCoord = class(TGeoCoderLocalBasic)
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueConverter : IValueToStringConverter;
     function PosStr2List(
       const Apos1,Apos2: string;
       var AAList: IInterfaceList
     ) : boolean;
-    function deg2strvalue(
-      aDeg:Double;
-      Alat,NeedChar:boolean
-    ):string;
     function GenShtab2Pos(
       const AStr: string;
       var AAList: IInterfaceList
@@ -234,51 +231,6 @@ begin
   end;
 end;
 
-function TGeoCoderByCoord.deg2strvalue( aDeg:Double; Alat,NeedChar:boolean):string;
-var
-  VDegr: Double;
-  VInt: Integer;
-  VValue: Integer;
-begin
-  VDegr := abs(ADeg);
-
-  case FValueToStringConverterConfig.DegrShowFormat of
-    dshCharDegrMinSec, dshSignDegrMinSec: begin
-      VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
-      VInt := Trunc(VValue / (60 * 60 * 100));
-      VValue := VValue - VInt * (60 * 60 * 100);
-      result := IntToStr(VInt) + '°';
-
-      VInt := Trunc(VValue / (60 * 100));
-      VValue := VValue - VInt * (60 * 100);
-
-      if VInt < 10 then begin
-        Result := result + '0' + IntToStr(VInt) + '''';
-      end else begin
-        Result := result + IntToStr(VInt) + '''';
-      end;
-
-      Result := Result + FormatFloat('00.00', VValue / 100) + '"';
-    end;
-    dshCharDegrMin, dshSignDegrMin: begin
-      VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
-      VInt := Trunc(VValue / (60 * 10000));
-      VValue := VValue - VInt * (60 * 10000);
-      Result := IntToStr(VInt) + '°';
-      Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
-    end;
-    dshCharDegr, dshSignDegr: begin
-      Result := FormatFloat('0.000000', VDegr) + '°';
-    end;
-  end;
-
-   if NeedChar then
-    if Alat then begin
-    if aDeg>0 then Result := 'N'+ Result else Result := 'S'+ Result ;
-    end else
-    if aDeg>0 then Result := 'E'+ Result else Result := 'W'+ Result ;
-end;
-
 function TGeoCoderByCoord.PosStr2List(const Apos1,Apos2: string; var AAList: IInterfaceList) : boolean;
 var
  VBLat1, VBlon1: boolean;
@@ -307,9 +259,9 @@ begin
       if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
         sname := apos1+' '+apos2;
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
-         if FValueToStringConverterConfig.IsLatitudeFirst = true then
-         sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-          sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+        if FValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+          sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
          AAList.Add(VPlace);
@@ -326,8 +278,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -341,8 +293,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -359,8 +311,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -374,8 +326,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -397,8 +349,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -412,8 +364,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -428,8 +380,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -443,8 +395,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -465,8 +417,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -480,8 +432,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -496,8 +448,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -511,8 +463,8 @@ begin
          ((VDLAT<0)and(VDLON<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
           inc(Vcounter);sname := inttostr(vcounter)+'.) '+apos1+' '+apos2;
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-          sdesc := '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+             sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+              sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -529,6 +481,7 @@ constructor TGeoCoderByCoord.Create(
 begin
   inherited Create();
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueConverter := FValueToStringConverterConfig.GetStatic;
 end;
 
 function TGeoCoderByCoord.GenShtab2Pos(
@@ -726,8 +679,8 @@ result:= false;
          VPoint.X:=VDLat;
          if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
           if FValueToStringConverterConfig.IsLatitudeFirst = true then
-            sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-            sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+             sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+              sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
@@ -876,8 +829,8 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
          sname := ASearch;
          if FValueToStringConverterConfig.IsLatitudeFirst = true then
-           sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
-           sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
+           sdesc := sdesc + '[ '+FValueConverter.LatConvert(VPoint.y)+' '+FValueConverter.LonConvert(VPoint.x)+' ]' else
+            sdesc := sdesc + '[ '+FValueConverter.LonConvert(VPoint.x)+' '+FValueConverter.LatConvert(VPoint.y)+' ]';
          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
          VList.Add(VPlace);
