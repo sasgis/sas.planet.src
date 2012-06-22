@@ -138,7 +138,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderPolishMapGUID,
       'Offline search (*.mp)',
-      TGeoCoderByPolishMap.Create()
+      TGeoCoderByPolishMap.Create(AValueToStringConverterConfig)
     );
   Add(VItem);
   Except
@@ -149,7 +149,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderGeoNamesTXTGUID,
       'Offline search (*.txt)',
-      TGeoCoderByTXT.Create()
+      TGeoCoderByTXT.Create(AValueToStringConverterConfig)
     );
   Add(VItem);
   Except

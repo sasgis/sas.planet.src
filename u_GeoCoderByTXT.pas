@@ -27,6 +27,7 @@ uses
   sysutils,
   i_OperationNotifier,
   i_LocalCoordConverter,
+  i_ValueToStringConverter,
   u_GeoCoderLocalBasic;
 
 type
@@ -35,7 +36,12 @@ type
 
   TGeoCoderByTXT = class(TGeoCoderLocalBasic)
   private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLock: IReadWriteSync;
+    function deg2strvalue(
+      aDeg: Double;
+      Alat, NeedChar: boolean
+      ):string;
   procedure SearchInTXTFile(
     const ACancelNotifier: IOperationNotifier;
     AOperationID: Integer;
@@ -52,7 +58,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; override;
   public
-    constructor Create;
+    constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
   end;
 
 implementation
@@ -62,6 +68,7 @@ uses
   windows,
   StrUtils,
   t_GeoTypes,
+  t_CommonTypes,
   i_GeoCoder,
   u_ResStrings,
   u_GeoCodePlacemark,
@@ -84,6 +91,51 @@ while (i<>0) and (cnt<N) do
  end;
 if (cnt>=n)and(i=0) then i:=length(A_String)+1;
 result := copy(A_String,j+1,(i-j-1));
+end;
+
+function TGeoCoderByTXT.deg2strvalue( aDeg:Double; Alat,NeedChar:boolean):string;
+var
+  VDegr: Double;
+  VInt: Integer;
+  VValue: Integer;
+begin
+  VDegr := abs(ADeg);
+
+  case FValueToStringConverterConfig.DegrShowFormat of
+    dshCharDegrMinSec, dshSignDegrMinSec: begin
+      VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
+      VInt := Trunc(VValue / (60 * 60 * 100));
+      VValue := VValue - VInt * (60 * 60 * 100);
+      result := IntToStr(VInt) + '°';
+
+      VInt := Trunc(VValue / (60 * 100));
+      VValue := VValue - VInt * (60 * 100);
+
+      if VInt < 10 then begin
+        Result := result + '0' + IntToStr(VInt) + '''';
+      end else begin
+        Result := result + IntToStr(VInt) + '''';
+      end;
+
+      Result := Result + FormatFloat('00.00', VValue / 100) + '"';
+    end;
+    dshCharDegrMin, dshSignDegrMin: begin
+      VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
+      VInt := Trunc(VValue / (60 * 10000));
+      VValue := VValue - VInt * (60 * 10000);
+      Result := IntToStr(VInt) + '°';
+      Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
+    end;
+    dshCharDegr, dshSignDegr: begin
+      Result := FormatFloat('0.000000', VDegr) + '°';
+    end;
+  end;
+
+   if NeedChar then
+    if Alat then begin
+    if aDeg>0 then Result := 'N'+ Result else Result := 'S'+ Result ;
+    end else
+    if aDeg>0 then Result := 'E'+ Result else Result := 'W'+ Result ;
 end;
 
 function ItemExist(
@@ -182,7 +234,9 @@ begin
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
       sname := inttostr(Vcnt)+') '+ASearch;
-      sdesc := sdesc + #$D#$A +'[ ' + slon + ' , ' + slat + ' ]';
+      if FValueToStringConverterConfig.IsLatitudeFirst = true then
+         sdesc := sdesc + '[ '+deg2strvalue(VPoint.Y,true,true)+' '+deg2strvalue(VPoint.X,false,true)+' ]' else
+          sdesc := sdesc + '[ '+deg2strvalue(VPoint.X,false,true)+' '+deg2strvalue(VPoint.Y,true,true)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
 
@@ -205,6 +259,7 @@ begin
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
 function TGeoCoderByTXT.DoSearch(
