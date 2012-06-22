@@ -133,7 +133,7 @@ var
   VForAttachments: Boolean;
 begin
   inherited;
-  if (Application.MessageBox(pchar(SAS_MSG_youasure), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+  if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
 
     VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
     VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;

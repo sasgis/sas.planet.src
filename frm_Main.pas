@@ -3399,6 +3399,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
+  VMessage: string;
 begin
   if TMenuItem(sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(sender).Tag);
@@ -3415,7 +3416,8 @@ begin
     if VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat) then begin
       VTile := VMapType.GeoConvert.LonLat2TilePos(VMouseLonLat, VZoomCurr);
       s:=VMapType.GetTileShowName(VTile, VZoomCurr);
-      if (MessageBox(handle,pchar(SAS_MSG_youasure+' '+s+'?'),pchar(SAS_MSG_coution),36)=IDYES) then begin
+      VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [s]);
+      if (MessageBox(handle,pchar(VMessage),pchar(SAS_MSG_coution),36)=IDYES) then begin
         VMapType.DeleteTile(VTile, VZoomCurr);
       end;
     end;

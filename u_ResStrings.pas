@@ -26,7 +26,6 @@ ResourceString
   SAS_MSG_need_reload_application_curln = 'SAS.Planet must be restarted for the changes to take effect';
 
   SAS_MSG_coution = 'Attention!';
-  SAS_MSG_youasure = 'Are you sure?';
 
   SAS_MSG_DeleteMarkCategoryAsk = 'Are you sure you want to delete category with name "%0:s"?';
   SAS_MSG_DeleteMarkPointAsk = 'Are you sure you want to delete point with name "%0:s"?';
@@ -34,6 +33,9 @@ ResourceString
   SAS_MSG_DeleteMarkPolyAsk = 'Are you sure you want to delete polygon with name "%0:s"?';
   SAS_MSG_DeleteManyMarksAsk = 'Are you sure you want to delete %0:d placemarks?';
 
+
+  SAS_MSG_DeleteTileOneTileAsk = 'Are you sure you want to delete tile with name "%0:s"?';
+  SAS_MSG_DeleteTilesInRegionAsk = 'Are you sure you want to delete tiles in selected region?';
 
   SAS_MSG_ResetSensorAsk = 'Are you sure you want to reset sensor?';
   SAS_MSG_FileExists = 'Tile %0:s is available in cache.'#13#10 +
