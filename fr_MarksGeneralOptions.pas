@@ -80,6 +80,9 @@ implementation
 
 uses
   i_MarkPicture,
+  i_MarkTemplate,
+  i_MarkFactory,
+  i_MarksFactoryConfig,
   i_BitmapMarker;
 
 {$R *.dfm}
@@ -87,14 +90,53 @@ procedure TfrMarksGeneralOptions.Init(const AMarksDb: IMarksDb);
 var
   VPictureList: IMarkPictureList;
   i: Integer;
+  VFactory: IMarkFactory;
+  VConfig: IMarksFactoryConfig;
+  VPointTemplate: IMarkTemplatePoint;
+  VPic: IMarkPicture;
+  VPathTemplate: IMarkTemplateLine;
+  VPolyTemplate: IMarkTemplatePoly;
 begin
-  VPictureList := AMarksDb.Factory.MarkPictureList;
-  cbbPointIcon.Items.Clear;
-  for i := 0 to VPictureList.Count - 1 do begin
-    cbbPointIcon.Items.AddObject(VPictureList.GetName(i), Pointer(VPictureList.Get(i)));
+  VFactory := AMarksDb.Factory;
+  VConfig := VFactory.Config;
+  VPictureList := VFactory.MarkPictureList;
+  VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
+
+  clrbxPointTextColor.Color := WinColor(VPointTemplate.TextColor);
+  clrbxPointShadowColor.Color := WinColor(VPointTemplate.TextBgColor);
+  sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.TextColor)/255*100);
+  sePointFontSize.Value := VPointTemplate.FontSize;
+  sePointIconSize.Value := VPointTemplate.MarkerSize;
+
+  cbbPointIcon.Items.BeginUpdate;
+  try
+    cbbPointIcon.Items.Clear;
+    for i := 0 to VPictureList.Count - 1 do begin
+      VPic := VPictureList.Get(i);
+      cbbPointIcon.Items.AddObject(VPictureList.GetName(i), Pointer(VPic));
+      if VPic = VPointTemplate.Pic then begin
+        cbbPointIcon.ItemIndex := i;
+      end;
+    end;
+    if cbbPointIcon.ItemIndex < 0 then begin
+      cbbPointIcon.ItemIndex := 0;
+    end;
+  finally
+    cbbPointIcon.Items.EndUpdate;
   end;
   cbbPointIcon.Repaint;
-  cbbPointIcon.ItemIndex:=0;
+  VPathTemplate := VConfig.LineTemplateConfig.DefaultTemplate;
+  clrbxLineColor.Color := WinColor(VPathTemplate.LineColor);
+  seLineTransp.Value := 100-round(AlphaComponent(VPathTemplate.LineColor)/255*100);
+  seLineWidth.Value := VPathTemplate.LineWidth;
+
+  VPolyTemplate := VConfig.PolyTemplateConfig.DefaultTemplate;
+
+  clrbxPolyLineColor.Color := WinColor(VPolyTemplate.BorderColor);
+  sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.BorderColor)/255*100);
+  clrbxPolyFillColor.Color := WinColor(VPolyTemplate.FillColor);
+  sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillColor)/255*100);
+  sePolyLineWidth.Value := VPolyTemplate.LineWidth;
 end;
 
 procedure TfrMarksGeneralOptions.Clear;
