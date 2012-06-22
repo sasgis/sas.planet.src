@@ -50,8 +50,6 @@ type
     );
   end;
 
-
-
 implementation
 
 uses

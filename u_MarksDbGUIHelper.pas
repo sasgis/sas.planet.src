@@ -96,6 +96,10 @@ type
     function EditMarkModal(const AMark: IMark): IMark;
     function EditCategoryModal(const ACategory: IMarkCategory): IMarkCategory;
     function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
+    function SavePointModal(
+      const AMark: IMarkPoint;
+      const ALonLat: TDoublePoint
+    ): Boolean;
     function SavePolyModal(
       const AMark: IMarkPoly;
       const ALine: ILonLatPolygon
@@ -414,6 +418,28 @@ begin
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPath.EditMark(VMark);
+    if VMark <> nil then begin
+      FMarksDb.MarksDb.UpdateMark(AMark, VMark);
+      Result := True;
+    end;
+  end;
+end;
+
+function TMarksDbGUIHelper.SavePointModal(
+  const AMark: IMarkPoint;
+  const ALonLat: TDoublePoint
+): Boolean;
+var
+  VMark: IMarkPoint;
+begin
+  Result := False;
+  if AMark <> nil then begin
+    VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoint(AMark, ALonLat);
+  end else begin
+    VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
+  end;
+  if VMark <> nil then begin
+    VMark := FfrmMarkEditPoint.EditMark(VMark);
     if VMark <> nil then begin
       FMarksDb.MarksDb.UpdateMark(AMark, VMark);
       Result := True;

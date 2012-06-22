@@ -138,6 +138,10 @@ type
       ALineWidth: Integer
     ): IMarkPoly;
 
+    function SimpleModifyPoint(
+      const ASource: IMarkPoint;
+      const ALonLat: TDoublePoint
+    ): IMarkPoint;
     function SimpleModifyLine(
       const ASource: IMarkLine;
       const ALine: ILonLatPath;
@@ -576,6 +580,45 @@ begin
       ALine,
       ASource.LineColor,
       ASource.LineWidth
+    );
+end;
+
+function TMarkFactory.SimpleModifyPoint(
+  const ASource: IMarkPoint;
+  const ALonLat: TDoublePoint
+): IMarkPoint;
+var
+  VVisible: Boolean;
+  VId: Integer;
+  VCategoryId: Integer;
+  VPicName: string;
+  VMarkInternal: IMarkPointSMLInternal;
+begin
+  VVisible := True;
+  VId := -1;
+  VCategoryId := -1;
+  if Supports(ASource, IMarkPointSMLInternal, VMarkInternal) then begin
+    VVisible := VMarkInternal.Visible;
+    VId := VMarkInternal.Id;
+    VCategoryId := VMarkInternal.CategoryId;
+    VPicName := VMarkInternal.PicName;
+  end;
+
+  Result :=
+    CreatePoint(
+      VId,
+      ASource.Name,
+      VVisible,
+      VPicName,
+      ASource.Pic,
+      VCategoryId,
+      ASource.Category,
+      ASource.Desc,
+      ALonLat,
+      ASource.TextColor,
+      ASource.TextBgColor,
+      ASource.FontSize,
+      ASource.MarkerSize
     );
 end;
 

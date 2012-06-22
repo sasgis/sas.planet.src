@@ -89,6 +89,10 @@ type
       ALineWidth: Integer
     ): IMarkPoly;
 
+    function SimpleModifyPoint(
+      const ASource: IMarkPoint;
+      const ALonLat: TDoublePoint
+    ): IMarkPoint;
     function SimpleModifyLine(
       const ASource: IMarkLine;
       const ALine: ILonLatPath;
