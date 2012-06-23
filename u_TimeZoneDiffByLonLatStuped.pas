@@ -479,8 +479,8 @@ var
   VPoint: TDoublePoint;
 begin
   for i := 0 to ALength - 1 do begin
-    VPoint.X := SmallInt(Pointer(Integer(ASmallIntPolygon) + SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 0)^) / 100;
-    VPoint.Y := SmallInt(Pointer(Integer(ASmallIntPolygon) + SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 1)^) / 100;
+    VPoint.X := SmallInt(Pointer(Cardinal(ASmallIntPolygon) + SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 0)^) / 100;
+    VPoint.Y := SmallInt(Pointer(Cardinal(ASmallIntPolygon) + SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 1)^) / 100;
     AAggregator.Add(VPoint);
   end;
 end;

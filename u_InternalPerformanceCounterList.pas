@@ -168,7 +168,7 @@ end;
 
 function TInternalPerformanceCounterFake.GetId: Integer;
 begin
-  Result := Integer(Pointer(Self));
+  Result := Integer(Self);
 end;
 
 function TInternalPerformanceCounterFake.GetName: string;

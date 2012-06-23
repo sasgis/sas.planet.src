@@ -182,7 +182,7 @@ begin
     end;
     PreparePixleLine(
       VSourceLine,
-      Pointer(Integer(FPreparedData[i]) + VIntersectionAtPrepared.Left * FBytesPerPixel),
+      Pointer(Cardinal(FPreparedData[i]) + VIntersectionAtPrepared.Left * FBytesPerPixel),
       VBitmapRect.Right - VBitmapRect.Left
     );
   end;

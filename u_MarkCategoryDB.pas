@@ -40,7 +40,6 @@ uses
 type
   TMarkCategoryDB = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
-    FDbCode: Integer;
     FBasePath: IPathConfig;
     FCdsKategory: TClientDataSet;
     FList: IIDInterfaceList;
@@ -91,7 +90,6 @@ var
   VFactory: TMarkCategoryFactory;
 begin
   inherited Create;
-  FDbCode := Integer(Self);
   FBasePath := ABasePath;
   FList := TIDInterfaceList.Create;
   VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
