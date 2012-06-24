@@ -23,8 +23,7 @@ unit u_BaseTileDownloaderThread;
 interface
 
 uses
-  Classes,
-  SysUtils;
+  Classes;
 
 type
   TBaseTileDownloaderThread = class(TThread)

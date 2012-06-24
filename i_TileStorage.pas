@@ -23,7 +23,6 @@ unit i_TileStorage;
 interface
 
 uses
-  Classes,
   GR32,
   i_BinaryData,
   i_TileRectUpdateNotifier,

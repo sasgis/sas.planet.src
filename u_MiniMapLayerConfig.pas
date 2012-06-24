@@ -92,7 +92,6 @@ implementation
 
 uses
   Classes,
-  SysUtils,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigProviderHelpers,

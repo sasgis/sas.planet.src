@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  Types,
   Classes,
   GR32,
   GR32_Image,

@@ -119,9 +119,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(

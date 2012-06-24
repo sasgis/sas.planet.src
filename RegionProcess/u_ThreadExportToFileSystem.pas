@@ -3,7 +3,6 @@ unit u_ThreadExportToFileSystem;
 interface
 
 uses
-  Windows,
   Types,
   SysUtils,
   Classes,

@@ -24,7 +24,6 @@ interface
 
 uses
   Classes,
-  SysUtils,
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataFactory,
