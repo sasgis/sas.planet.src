@@ -73,9 +73,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TSensorDoubeleValueFromGPSRecorder }
 
 constructor TSensorDoubeleValueFromGPSRecorder.Create(

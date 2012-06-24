@@ -23,7 +23,6 @@ unit u_AvailPicsDG;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   u_AvailPicsAbstract;

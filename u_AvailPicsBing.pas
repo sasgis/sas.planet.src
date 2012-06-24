@@ -23,7 +23,6 @@ unit u_AvailPicsBing;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   u_AvailPicsAbstract;

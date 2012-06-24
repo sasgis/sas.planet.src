@@ -32,8 +32,7 @@ uses
   i_ConfigDataProvider,
   u_ConfigDataProviderByIniFile,
   i_DoublePointsAggregator,
-  u_DoublePointsAggregator,
-  u_GeoToStr;
+  u_DoublePointsAggregator;
 
 { TImportHLG }
 

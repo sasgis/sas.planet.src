@@ -42,9 +42,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TSensorBatteryStatus }
 
 constructor TSensorBatteryStatus.Create(const ABatteryStatus: IBatteryStatus);

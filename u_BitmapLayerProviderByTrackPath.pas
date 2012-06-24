@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderByTrackPath;
 interface
 
 uses
-  Types,
   GR32,
   GR32_Polygons,
   t_GeoTypes,

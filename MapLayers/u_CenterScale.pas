@@ -3,7 +3,6 @@ unit u_CenterScale;
 interface
 
 uses
-  Types,
   GR32,
   GR32_Image,
   i_BitmapMarker,

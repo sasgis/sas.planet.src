@@ -62,8 +62,6 @@ type
 implementation
 
 uses
-  Classes,
-  StrUtils,
   SysUtils,
   ActiveX,
   c_ZeroGUID,

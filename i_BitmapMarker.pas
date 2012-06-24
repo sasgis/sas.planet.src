@@ -23,7 +23,6 @@ unit i_BitmapMarker;
 interface
 
 uses
-  Types,
   GR32,
   i_JclNotify,
   t_GeoTypes,
