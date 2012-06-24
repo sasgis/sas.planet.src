@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderFillingMap;
 interface
 
 uses
-  Types,
   i_OperationNotifier,
   i_Bitmap32Static,
   i_LocalCoordConverter,

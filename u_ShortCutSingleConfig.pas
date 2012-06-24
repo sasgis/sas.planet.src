@@ -57,7 +57,6 @@ type
 implementation
 
 uses
-  SysUtils,
   Graphics,
   GR32,
   u_Bitmap32Static;

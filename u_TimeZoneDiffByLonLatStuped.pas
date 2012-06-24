@@ -12,6 +12,12 @@ uses
   i_TimeZoneDiffByLonLat;
 
 type
+  PSmallIntPoint = ^TSmallIntPoint;
+  TSmallIntPoint = packed record
+    X: Smallint;
+    Y: Smallint;
+  end;
+
   ITimeZonePointCheck = interface(ITimeZone)
     ['{8C51B27B-1257-4A55-AA03-C8041027A090}']
     function IsPointFromThis(const ALonLat: TDoublePoint): Boolean;
@@ -42,7 +48,7 @@ type
     FTimeZoneList: IInterfaceList;
     procedure AddFromSmallIntArray(
       const AAggregator: IDoublePointsAggregator;
-      ASmallIntPolygon: Pointer;
+      ASmallIntPolygon: PSmallIntPoint;
       ALength: Integer
     );
   protected
@@ -471,17 +477,20 @@ end;
 
 procedure TTimeZoneDiffByLonLatStuped.AddFromSmallIntArray(
   const AAggregator: IDoublePointsAggregator;
-  ASmallIntPolygon: Pointer;
+  ASmallIntPolygon: PSmallIntPoint;
   ALength: Integer
 );
 var
   i: Integer;
+  VSmallIntPoint: PSmallIntPoint;
   VPoint: TDoublePoint;
 begin
+  VSmallIntPoint := ASmallIntPolygon;
   for i := 0 to ALength - 1 do begin
-    VPoint.X := SmallInt(Pointer(Cardinal(ASmallIntPolygon) + Cardinal(SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 0))^) / 100;
-    VPoint.Y := SmallInt(Pointer(Cardinal(ASmallIntPolygon) + Cardinal(SizeOf(SmallInt) * 2 * i + SizeOf(SmallInt) * 1))^) / 100;
+    VPoint.X := VSmallIntPoint.X / 100;
+    VPoint.Y := VSmallIntPoint.Y / 100;
     AAggregator.Add(VPoint);
+    Inc(VSmallIntPoint);
   end;
 end;
 

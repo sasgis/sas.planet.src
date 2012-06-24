@@ -41,7 +41,6 @@ uses
   TBX,
   TBXControls,
   i_JclNotify,
-  u_ResStrings,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_LanguageManager,

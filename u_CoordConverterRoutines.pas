@@ -37,7 +37,6 @@ function Ellipsoid_Metr2LonLat(
 implementation
 
 uses
-  SysUtils,
   Math;
 
 const

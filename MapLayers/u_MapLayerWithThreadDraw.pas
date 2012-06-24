@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  Classes,
   GR32,
   GR32_Image,
   i_JclNotify,

@@ -62,9 +62,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TBitmapMarker }
 
 constructor TBitmapMarker.Create(

@@ -23,8 +23,6 @@ unit u_MapAttachmentsPascalScript;
 interface
 
 uses
-  Classes,
-  Windows,
   SysUtils,
   uPSRuntime,
   uPSCompiler,

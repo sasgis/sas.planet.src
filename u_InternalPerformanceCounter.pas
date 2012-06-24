@@ -23,7 +23,6 @@ unit u_InternalPerformanceCounter;
 interface
 
 uses
-  Windows,
   i_InternalPerformanceCounter;
 
 type
@@ -86,7 +85,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_QueryPerfCounter;
 
 { TInternalPerformanceCounter }

@@ -85,7 +85,6 @@ implementation
 
 uses
   Types,
-  Classes,
   u_Synchronizer,
   t_GeoTypes,
   i_TileIterator,

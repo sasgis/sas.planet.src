@@ -23,7 +23,6 @@ unit u_AvailPicsAbstract;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   i_LocalCoordConverter,

@@ -62,9 +62,8 @@ type
 implementation
 
 uses
-  Classes,
-  StrUtils,
   SysUtils,
+  StrUtils,
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,

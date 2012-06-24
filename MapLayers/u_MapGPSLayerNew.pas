@@ -4,8 +4,6 @@ interface
 
 uses
   Windows,
-  Types,
-  SysUtils,
   GR32_Image,
   i_JclNotify,
   i_LocalCoordConverter,

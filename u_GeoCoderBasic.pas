@@ -23,7 +23,6 @@ unit u_GeoCoderBasic;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   i_OperationNotifier,

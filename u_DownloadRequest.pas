@@ -3,7 +3,6 @@ unit u_DownloadRequest;
 interface
 
 uses
-  Classes,
   i_InetConfig,
   i_BinaryData,
   i_DownloadRequest;
@@ -41,9 +40,6 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
 
 { TDownloadRequest }
 

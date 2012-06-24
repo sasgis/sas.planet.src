@@ -3,7 +3,6 @@ unit u_ThreadMapCombineECW;
 interface
 
 uses
-  Types,
   SysUtils,
   Classes,
   GR32,
