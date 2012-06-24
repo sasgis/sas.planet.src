@@ -43,7 +43,7 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrmProgressCacheConverter = class(TCommonFormParent)
+  TfrmProgressCacheConverter = class(TFormWitghLanguageManager)
     pnlBottom: TPanel;
     btnQuit: TButton;
     btnPause: TButton;
@@ -109,7 +109,7 @@ constructor TfrmProgressCacheConverter.Create(
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(Application);
+  inherited Create(ALanguageManager);
   FConverterThread := AConverterThread;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
@@ -169,7 +169,7 @@ end;
 
 procedure TfrmProgressCacheConverter.btnMinimizeClick(Sender: TObject);
 begin
-  //Self.WindowState := wsMinimized; //?? it not work proper
+  Self.WindowState := wsMinimized;
 end;
 
 procedure TfrmProgressCacheConverter.btnPauseClick(Sender: TObject);

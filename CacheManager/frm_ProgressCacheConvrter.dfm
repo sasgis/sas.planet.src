@@ -1,19 +1,17 @@
 object frmProgressCacheConverter: TfrmProgressCacheConverter
   Left = 0
   Top = 0
-  BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSizeToolWin
   Caption = 'Please wait...'
   ClientHeight = 114
   ClientWidth = 315
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poScreenCenter
+  ScreenSnap = True
+  ShowHint = True
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyUp = FormKeyUp
@@ -118,9 +116,6 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 4
-    ExplicitTop = 189
-    ExplicitWidth = 320
     object btnQuit: TButton
       AlignWithMargins = True
       Left = 231
@@ -131,7 +126,6 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
       Caption = 'Quit'
       TabOrder = 0
       OnClick = btnQuitClick
-      ExplicitLeft = 242
     end
     object btnPause: TButton
       AlignWithMargins = True
@@ -143,7 +137,6 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
       Caption = 'Pause'
       TabOrder = 1
       OnClick = btnPauseClick
-      ExplicitLeft = 161
     end
     object btnMinimize: TButton
       AlignWithMargins = True
