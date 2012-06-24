@@ -47,7 +47,25 @@ type
     procedure RemoveListener(AListener: IJclListener); stdcall;
   public
     constructor Create;
-    destructor Destroy; override;
+  end;
+
+  IOneOperationNotifierInternal = interface(IOneOperationNotifier)
+    procedure ExecuteOperation;
+  end;
+
+  TOneOperationNotifier = class(TInterfacedObject, IOneOperationNotifier, IOneOperationNotifierInternal)
+  private
+    FNotifier: IJclNotifier;
+    FCS: IReadWriteSync;
+  protected
+    procedure ExecuteOperation;
+  protected
+    function GetIsExecuted: Boolean;
+
+    procedure AddListener(AListener: IJclListener); stdcall;
+    procedure RemoveListener(AListener: IJclListener); stdcall;
+  public
+    constructor Create;
   end;
 
 implementation
@@ -64,12 +82,6 @@ begin
   FCS := MakeSyncRW_Std(Self, TRUE);
   FNotifier := TJclBaseNotifier.Create;
   FCurrentOperationID := 0;
-end;
-
-destructor TOperationNotifier.Destroy;
-begin
-  FCS := nil;
-  inherited Destroy;
 end;
 
 procedure TOperationNotifier.AddListener(AListener: IJclListener);
@@ -120,6 +132,64 @@ begin
   try
     // sync internally
     FNotifier.Remove(AListener);
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+{ TOneOperationNotifier }
+
+constructor TOneOperationNotifier.Create;
+begin
+  FCS := MakeSyncRW_Std(Self, TRUE);
+  FNotifier := TJclBaseNotifier.Create;
+end;
+
+procedure TOneOperationNotifier.AddListener(AListener: IJclListener);
+begin
+  FCS.BeginRead;
+  try
+    if FNotifier <> nil then begin
+      // sync internally
+      FNotifier.Add(AListener);
+    end;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TOneOperationNotifier.ExecuteOperation;
+var
+  VNotifier: IJclNotifier;
+begin
+  FCS.BeginWrite;
+  try
+    VNotifier := FNotifier;
+    FNotifier := nil;
+  finally
+    FCS.EndWrite;
+  end;
+  VNotifier.Notify(nil);
+end;
+
+function TOneOperationNotifier.GetIsExecuted: Boolean;
+begin
+  FCS.BeginRead;
+  try
+    Result := FNotifier = nil;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TOneOperationNotifier.RemoveListener(AListener: IJclListener);
+begin
+  FCS.BeginRead;
+  try
+    if FNotifier <> nil then begin
+      // sync internally
+      FNotifier.Remove(AListener);
+    end;
   finally
     FCS.EndRead;
   end;

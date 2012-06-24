@@ -37,6 +37,15 @@ type
     procedure RemoveListener(AListener: IJclListener); stdcall;
   end;
 
+  IOneOperationNotifier = interface
+    ['{EA058BC8-6764-412B-93A5-F1AB4032C38F}']
+    function GetIsExecuted: Boolean;
+    property IsExecuted: Boolean read GetIsExecuted;
+
+    procedure AddListener(AListener: IJclListener); stdcall;
+    procedure RemoveListener(AListener: IJclListener); stdcall;
+  end;
+
 implementation
 
 end.
