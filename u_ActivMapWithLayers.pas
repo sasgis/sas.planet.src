@@ -63,6 +63,7 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,
