@@ -34,6 +34,8 @@ uses
   u_TileStorageBerkeleyDBRecParser;
 
 type
+  TPointArray = array of TPoint;
+
   TTileStorageBerkeleyDBHelper = class(TObject)
   private
     FEnv: TBerkeleyDBEnv;
@@ -103,6 +105,13 @@ type
     ): Boolean;
 
     procedure Sync(Sender: TObject);
+
+    function GetTileExistsArray(
+      const ADataBase: string;
+      const ATileZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      out ATileExistsArray: TPointArray
+    ): Boolean;
   end;
 
 implementation
@@ -485,6 +494,48 @@ begin
     end;
     FEnv.CheckPoint(nil);
   end;
+end;
+
+function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
+  const ADataBase: string;
+  const ATileZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
+  out ATileExistsArray: TPointArray
+): Boolean;
+var
+  VKey: TBDBKey;
+  VRawKey: Pointer;
+  VBDB: TBerkeleyDB;
+  VList: TList;
+  I: Integer;
+begin
+  Result := False;
+  FEvent.WaitFor(INFINITE);
+  VBDB := FPool.Acquire(ADataBase);
+  try
+    if Assigned(VBDB) then begin
+      VList := TList.Create;
+      try
+        if VBDB.GetKeyExistsList(SizeOf(TBDBKey), VList) then begin
+          SetLength(ATileExistsArray, VList.Count);
+          for I := 0 to VList.Count - 1 do begin
+            VRawKey := VList.Items[I];
+            try
+              VKey := TBDBKey(VRawKey^);
+              ATileExistsArray[I] := KeyToPoint(VKey);
+            finally
+              FreeMem(VRawKey);
+            end;
+          end;
+        end;
+      finally
+        VList.Free;
+      end;
+    end;
+  finally
+    FPool.Release(VBDB);
+  end;
+
 end;
 
 end.

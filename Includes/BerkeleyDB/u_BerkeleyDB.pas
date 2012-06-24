@@ -23,6 +23,7 @@ unit u_BerkeleyDB;
 interface
 
 uses
+  Classes,
   SysUtils,
   SyncObjs,
   libdb51;
@@ -99,6 +100,11 @@ type
     ): Boolean;
 
     function Sync(): Boolean;
+
+    function GetKeyExistsList(
+      const AKeySize: Cardinal;
+      out AKeyList: TList
+    ): Boolean;
 
     property FileName: string read FFileName write FFileName;
     property AppData: Pointer read FAppData write FAppData;
@@ -267,6 +273,7 @@ begin
   if FTXN = nil then begin
     CheckBDB(FENV.txn_begin(FENV, nil, @FTXN, 0));
   end;
+  Inc(FTXNCommitCount);
   Result := FTXN;
 end;
 
@@ -337,7 +344,6 @@ begin
       dbtData.size := ADataSize;
       txn := GetTransaction;
       Result := CheckAndNotExistsBDB(FDB.put(FDB, txn, @dbtKey, @dbtData, 0));
-      Inc(FTXNCommitCount);
       VOnCheckPointAllow := Result;
     end;
   finally
@@ -390,7 +396,6 @@ begin
       dbtKey.size := AKeySize;
       txn := GetTransaction;
       Result := CheckAndFoundBDB(FDB.del(FDB, txn, @dbtKey, 0));
-      Inc(FTXNCommitCount);
       VOnCheckPointAllow := Result;
     end;
   finally
@@ -411,6 +416,51 @@ begin
       CommitTransaction;
       CheckBDB(FDB.sync(FDB, 0));
       Result := True; 
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+function TBerkeleyDB.GetKeyExistsList(
+  const AKeySize: Cardinal;
+  out AKeyList: TList
+): Boolean;
+var
+  dbtKey, dbtData: DBT;
+  txn: PDB_TXN;
+  dbc: PDBC;
+begin
+  FCS.Acquire;
+  try
+    Result := False;
+    AKeyList.Clear;
+    if FDBEnabled then begin
+      txn := GetTransaction;
+      CheckBDB(FDB.cursor(FDB, txn, @dbc, 0));
+      try
+        repeat
+          FillChar(dbtKey, Sizeof(DBT), 0);
+          FillChar(dbtData, Sizeof(DBT), 0);
+
+          dbtKey.flags := DB_DBT_MALLOC;
+          dbtData.size := 0;
+          dbtData.flags := DB_DBT_USERMEM;
+
+          if dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT) = DB_BUFFER_SMALL then begin
+            if (dbtKey.data <> nil) and (dbtKey.size = AKeySize) then begin
+              AKeyList.Add(dbtKey.data);
+            end else begin
+              Break;
+            end;
+          end else begin
+            Break;
+          end;
+        until False;
+      finally
+        CheckBDBandNil(dbc.close(dbc), dbc);
+      end;
+      Result := AKeyList.Count > 0;
     end;
   finally
     FCS.Release;

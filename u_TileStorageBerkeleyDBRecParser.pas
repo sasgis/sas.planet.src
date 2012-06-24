@@ -60,6 +60,8 @@ const
 
 function PointToKey(APoint: TPoint): TBDBKey;
 
+function KeyToPoint(const AKey: TBDBKey): TPoint;
+
 function PBDBDataToMemStream(
     AData: PBDBData;
     out AStream: TMemoryStream
@@ -135,6 +137,11 @@ begin
   end;
   Result.TileX := Swap32(Result.TileX);
   Result.TileY := Swap32(Result.TileY);
+end;
+
+function KeyToPoint(const AKey: TBDBKey): TPoint;
+begin
+  {$MESSAGE 'function KeyToPoint in TODO list'}
 end;
 
 function PBDBDataToMemStream(

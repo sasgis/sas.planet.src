@@ -24,21 +24,36 @@ interface
 
 uses
   Types,
+  i_TileFileNameParser,
   i_TileFileNameGenerator;
 
 type
-  TTileFileNameBDB = class(TInterfacedObject, ITileFileNameGenerator)
-  public
+  TTileFileNameBDB = class(
+    TInterfacedObject,
+    ITileFileNameParser,
+    ITileFileNameGenerator
+  )
+  protected
     function GetTileFileName(
       AXY: TPoint;
       AZoom: Byte
     ): string;
+
+    function GetTilePoint(
+      const ATileFileName: string;
+      out ATileXY: TPoint;
+      out ATileZoom: Byte
+    ): Boolean;
   end;
 
 implementation
 
 uses
+  RegExpr,
   SysUtils;
+
+const
+  c_BDB_Expr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\\d+\\(\d+)\.(\d+)(\..+)?$';
 
 { TTileFileNameBDB }
 
@@ -60,6 +75,30 @@ begin
       AXY.y shr 8
     ]
   );
+end;
+
+function TTileFileNameBDB.GetTilePoint(
+  const ATileFileName: string;
+  out ATileXY: TPoint;
+  out ATileZoom: Byte
+): Boolean;
+var
+  VRegExpr: TRegExpr;
+begin
+  VRegExpr := TRegExpr.Create;
+  try
+    VRegExpr.Expression := c_BDB_Expr;
+    if VRegExpr.Exec(ATileFileName) then begin
+      ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
+      ATileXY.X := StrToInt(VRegExpr.Match[3]) shl 8;
+      ATileXY.Y := StrToInt(VRegExpr.Match[4]) shl 8;
+      Result := True;
+    end else begin
+      Result := False;
+    end;
+  finally
+    VRegExpr.Free;
+  end;
 end;
 
 end.
