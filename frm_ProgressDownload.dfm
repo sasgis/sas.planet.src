@@ -152,30 +152,24 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 112
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Process not more than:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 1
-        ExplicitTop = 1
-        ExplicitHeight = 13
       end
       object lblToProcessValue: TLabel
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 315
-        ExplicitTop = 119
-        ExplicitHeight = 13
       end
     end
     object pnlProcessed: TPanel
@@ -192,30 +186,24 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 78
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Processed total:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 6
-        ExplicitTop = 154
-        ExplicitHeight = 13
       end
       object lblProcessedValue: TLabel
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 315
-        ExplicitTop = 138
-        ExplicitHeight = 13
       end
     end
     object pnlDownloaded: TPanel
@@ -233,30 +221,24 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 88
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Downloaded total:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 8
-        ExplicitTop = 173
-        ExplicitHeight = 13
       end
       object lblDownloadedValue: TLabel
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 315
-        ExplicitTop = 150
-        ExplicitHeight = 13
       end
     end
     object pnlSizeToFinish: TPanel
@@ -274,30 +256,24 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 105
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Approx. to download:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 8
-        ExplicitTop = 156
-        ExplicitHeight = 13
       end
       object lblSizeToFinishValue: TLabel
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 315
-        ExplicitTop = 185
-        ExplicitHeight = 13
       end
     end
     object pnlTimeToFinish: TPanel
@@ -315,30 +291,24 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 75
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Time remaining:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 7
-        ExplicitTop = 183
-        ExplicitHeight = 13
       end
       object lblTimeToFinishValue: TLabel
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitLeft = 315
-        ExplicitTop = 169
-        ExplicitHeight = 13
       end
     end
   end

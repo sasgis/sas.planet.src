@@ -3,7 +3,6 @@ unit u_ExportProviderYaMobileV4;
 interface
 
 uses
-  Controls,
   Forms,
   i_JclNotify,
   i_LanguageManager,

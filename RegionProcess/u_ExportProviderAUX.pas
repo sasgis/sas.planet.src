@@ -3,7 +3,6 @@ unit u_ExportProviderAUX;
 interface
 
 uses
-  Controls,
   Forms,
   i_JclNotify,
   i_LanguageManager,

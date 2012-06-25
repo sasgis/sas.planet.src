@@ -3,7 +3,6 @@ unit u_ExportProviderZip;
 interface
 
 uses
-  Controls,
   Forms,
   i_JclNotify,
   i_LanguageManager,

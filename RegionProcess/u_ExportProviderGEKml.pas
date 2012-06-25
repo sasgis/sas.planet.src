@@ -3,7 +3,6 @@ unit u_ExportProviderGEKml;
 interface
 
 uses
-  Controls,
   Forms,
   i_JclNotify,
   i_VectorItemLonLat,

@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  Controls,
   Forms,
   i_JclNotify,
   i_LanguageManager,

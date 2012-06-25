@@ -23,9 +23,7 @@ unit u_ProviderTilesDownload;
 interface
 
 uses
-  Windows, // for inline AnsiSameText
   Forms,
-  Controls,
   i_JclNotify,
   i_MapTypes,
   i_VectorItemLonLat,

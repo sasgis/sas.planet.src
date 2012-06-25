@@ -5,7 +5,6 @@ interface
 uses
   Windows,
   Forms,
-  Controls,
   t_GeoTypes,
   i_JclNotify,
   i_OperationNotifier,

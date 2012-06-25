@@ -3,7 +3,6 @@ unit u_ExportProviderJNX;
 interface
 
 uses
-  Controls,
   Forms,
   i_JclNotify,
   i_VectorItemLonLat,
@@ -48,7 +47,6 @@ implementation
 uses
   Types,
   SysUtils,
-  Classes,
   i_RegionProcessParamsFrame,
   u_OperationNotifier,
   u_RegionProcessProgressInfo,

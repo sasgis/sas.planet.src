@@ -3,7 +3,6 @@ unit u_ExportProviderOgf2;
 interface
 
 uses
-  Controls,
   Forms,
   i_JclNotify,
   i_VectorItemLonLat,
@@ -50,7 +49,6 @@ implementation
 uses
   Types,
   SysUtils,
-  Classes,
   i_RegionProcessParamsFrame,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,

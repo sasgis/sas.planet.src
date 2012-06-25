@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  Controls,
   Forms,
   i_JclNotify,
   i_LanguageManager,
