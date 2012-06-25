@@ -20,7 +20,7 @@ type
     function GetBoundsRect: TRect;
     procedure SetWindowPosition(const ARect: TRect);
   public
-    constructor Create(const AStartRect: TRect);
+    constructor Create;
   end;
 
 
@@ -28,10 +28,10 @@ implementation
 
 { TWindowPositionConfig }
 
-constructor TWindowPositionConfig.Create(const AStartRect: TRect);
+constructor TWindowPositionConfig.Create;
 begin
   inherited Create;
-  FBoundsRect := AStartRect;
+  FBoundsRect := Rect(0, 0, 0, 0);
 end;
 
 procedure TWindowPositionConfig.DoReadConfig(

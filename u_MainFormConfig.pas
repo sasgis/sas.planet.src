@@ -37,6 +37,7 @@ uses
   i_ContentTypeManager,
   i_GeoCoderList,
   i_DownloadUIConfig,
+  i_WindowPositionConfig,
   i_InternalPerformanceCounter,
   I_LastSearchResultConfig,
   u_ConfigDataElementComplexBase;
@@ -57,6 +58,7 @@ type
     FMapZoomingConfig: IMapZoomingConfig;
     FMapMovingConfig: IMapMovingConfig;
     FLastSearchResultConfig: ILastSearchResultConfig;
+    FMarksExplorerWindowConfig: IWindowPositionConfig;
   protected
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
@@ -71,6 +73,7 @@ type
     function GetMapZoomingConfig: IMapZoomingConfig;
     function GetMapMovingConfig: IMapMovingConfig;
     function GetLastSearchResultConfig: ILastSearchResultConfig;
+    function GetMarksExplorerWindowConfig: IWindowPositionConfig;
   public
     constructor Create(
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -99,6 +102,7 @@ uses
   u_DownloadUIConfig,
   u_KeyMovingConfig,
   u_MainFormMainConfig,
+  u_WindowPositionConfig,
   u_LastSearchResultConfig;
 
 { TMainFormConfig }
@@ -139,6 +143,8 @@ begin
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
   FLastSearchResultConfig := TLastSearchResultConfig.create;
   Add(FLastSearchResultConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSearchResult'));
+  FMarksExplorerWindowConfig := TWindowPositionConfig.Create;
+  Add(FMarksExplorerWindowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorerWindow'));
 end;
 
 function TMainFormConfig.GetDownloadUIConfig: IDownloadUIConfig;
@@ -179,6 +185,11 @@ end;
 function TMainFormConfig.GetMapZoomingConfig: IMapZoomingConfig;
 begin
   Result := FMapZoomingConfig;
+end;
+
+function TMainFormConfig.GetMarksExplorerWindowConfig: IWindowPositionConfig;
+begin
+  Result := FMarksExplorerWindowConfig;
 end;
 
 function TMainFormConfig.GetMapMovingConfig: IMapMovingConfig;

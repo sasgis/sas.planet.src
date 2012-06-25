@@ -28,6 +28,7 @@ uses
   Classes,
   Controls,
   ComCtrls,
+  Messages,
   Menus,
   Forms,
   Dialogs,
@@ -48,6 +49,7 @@ uses
   i_NavigationToPoint,
   i_UsedMarksConfig,
   i_MapViewGoto,
+  i_WindowPositionConfig,
   i_ImportFile,
   i_MarksSimple,
   i_MarkCategory,
@@ -69,7 +71,6 @@ type
     pnlMain: TPanel;
     splCatMarks: TSplitter;
     btnExport: TTBXButton;
-    ExportDialog: TSaveDialog;
     PopupExport: TPopupMenu;
     NExportAll: TMenuItem;
     NExportVisible: TMenuItem;
@@ -109,6 +110,8 @@ type
     tbsprtMarksPopUp: TTBXSeparatorItem;
     tbitmExportMark: TTBXItem;
     btnAddMark: TTBXItem;
+    pnlMarksBottom: TPanel;
+    procedure FormCreate(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
@@ -131,8 +134,12 @@ type
     procedure btnOpSelectMarkClick(Sender: TObject);
     procedure btnNavOnMarkClick(Sender: TObject);
     procedure btnSaveMarkClick(Sender: TObject);
+    procedure FormHide(Sender: TObject);
     procedure tbitmAddCategoryClick(Sender: TObject);
     procedure tbitmAddMarkClick(Sender: TObject);
+    Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
+    procedure FormResize(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FCategoryList: IInterfaceList;
@@ -140,15 +147,19 @@ type
     FMarkDBGUI: TMarksDbGUIHelper;
     FImportFileByExt: IImportFile;
     FMarksShowConfig: IUsedMarksConfig;
+    FWindowConfig: IWindowPositionConfig;
     FViewPortState: IViewPortState;
     FNavToPoint: INavigationToPoint;
+
     FCategoryDBListener: IJclListener;
     FMarksDBListener: IJclListener;
     FMarksShowConfigListener: IJclListener;
+    FConfigListener: IJclListener;
 
     procedure OnCategoryDbChanged;
     procedure OnMarksDbChanged;
     procedure OnMarksShowConfigChanged;
+    procedure OnConfigChange;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
@@ -161,10 +172,12 @@ type
       const AImportFileByExt: IImportFile;
       const AViewPortState: IViewPortState;
       const ANavToPoint: INavigationToPoint;
+      const AWindowConfig: IWindowPositionConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper;
       const AMapGoto: IMapViewGoto
     ); reintroduce;
+    destructor Destroy; override;
     procedure EditMarks;
   end;
 
@@ -183,6 +196,7 @@ constructor TfrmMarksExplorer.Create(
   const AImportFileByExt: IImportFile;
   const AViewPortState: IViewPortState;
   const ANavToPoint: INavigationToPoint;
+  const AWindowConfig: IWindowPositionConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper;
   const AMapGoto: IMapViewGoto
@@ -192,6 +206,7 @@ begin
   FMarkDBGUI := AMarkDBGUI;
   FMapGoto := AMapGoto;
   FImportFileByExt := AImportFileByExt;
+  FWindowConfig := AWindowConfig;
   FMarksShowConfig := AMarksShowConfig;
   FViewPortState := AViewPortState;
   FNavToPoint := ANavToPoint;
@@ -199,6 +214,25 @@ begin
   FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
   FMarksDBListener := TNotifyNoMmgEventListener.Create(Self.OnMarksDbChanged);
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+end;
+
+procedure TfrmMarksExplorer.FormCreate(Sender: TObject);
+begin
+  if IsRectEmpty(FWindowConfig.BoundsRect) then begin
+    FWindowConfig.SetWindowPosition(Self.BoundsRect);
+  end;
+end;
+
+destructor TfrmMarksExplorer.Destroy;
+begin
+  if FWindowConfig <> nil then begin
+    if FConfigListener <> nil then begin
+      FWindowConfig.ChangeNotifier.Remove(FConfigListener);
+      FConfigListener := nil;
+    end;
+  end;
+  inherited;
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
@@ -678,6 +712,16 @@ begin
   UpdateCategoryTree;
 end;
 
+procedure TfrmMarksExplorer.OnConfigChange;
+var
+  VRect: TRect;
+begin
+  VRect := FWindowConfig.BoundsRect;
+  if not EqualRect(BoundsRect, VRect) then begin
+    BoundsRect := VRect;
+  end;
+end;
+
 procedure TfrmMarksExplorer.OnMarksDbChanged;
 begin
   UpdateMarksList;
@@ -784,6 +828,14 @@ begin
   OnMarksShowConfigChanged
 end;
 
+procedure TfrmMarksExplorer.FormMove(var Msg: TWMMove);
+begin
+  Inherited;
+  if Assigned(Self.OnResize) then begin
+    Self.OnResize(Self);
+  end;
+end;
+
 procedure TfrmMarksExplorer.CheckBox1Click(Sender: TObject);
 var
   VNewVisible: Boolean;
@@ -794,6 +846,26 @@ begin
     VNewVisible := CheckBox1.Checked;
     FMarkDBGUI.MarksDB.MarksDb.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
   end;
+end;
+
+procedure TfrmMarksExplorer.FormHide(Sender: TObject);
+begin
+  Self.OnResize := nil;
+  FWindowConfig.ChangeNotifier.Remove(FConfigListener);
+end;
+
+procedure TfrmMarksExplorer.FormResize(Sender: TObject);
+begin
+  if Self.WindowState = wsNormal then begin
+    FWindowConfig.SetWindowPosition(BoundsRect);
+  end;
+end;
+
+procedure TfrmMarksExplorer.FormShow(Sender: TObject);
+begin
+  FWindowConfig.ChangeNotifier.Add(FConfigListener);
+  OnConfigChange;
+  Self.OnResize := FormResize;
 end;
 
 end.

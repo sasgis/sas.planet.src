@@ -1756,6 +1756,7 @@ begin
         GState.ImportFileByExt,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
+        FConfig.MarksExplorerWindowConfig,
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
         FMarkDBGUI,
         FMapGoto

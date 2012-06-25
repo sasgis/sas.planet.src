@@ -434,7 +434,7 @@ begin
     FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
   end;
 
-  FInternalBrowserConfig := TWindowPositionConfig.Create(Rect(0, 0, 0, 0));
+  FInternalBrowserConfig := TWindowPositionConfig.Create;
   
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');

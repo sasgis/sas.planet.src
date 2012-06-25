@@ -52,6 +52,7 @@ uses
   i_FillingMapLayerConfig,
   i_DownloadUIConfig,
   i_GotoLayerConfig,
+  i_WindowPositionConfig,
   i_FullMapMouseCursorLayerConfig,
   i_LastSearchResultConfig,
   i_MainMapLayerConfig,
@@ -200,6 +201,9 @@ type
 
     function GetLastSearchResultConfig: ILastSearchResultConfig;
     property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
+
+    function GetMarksExplorerWindowConfig: IWindowPositionConfig;
+    property MarksExplorerWindowConfig: IWindowPositionConfig read GetMarksExplorerWindowConfig;
   end;
 
 implementation
