@@ -166,7 +166,6 @@ type
       const AMapGoto: IMapViewGoto
     ); reintroduce;
     procedure EditMarks;
-    procedure ExportMark(const AMark: IMark);
   end;
 
 implementation
@@ -175,9 +174,7 @@ uses
   i_ImportConfig,
   i_MarkTemplate,
   i_MarksFactoryConfig,
-  u_ExportMarks2KML,
-  u_NotifyEventListener,
-  u_GeoFun;
+  u_NotifyEventListener;
 
 {$R *.dfm}
 
@@ -389,27 +386,16 @@ end;
 
 procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
 var
-  KMLExport:TExportMarks2KML;
   VCategoryList: IInterfaceList;
-  VMarksSubset: IMarksSubset;
   VOnlyVisible: Boolean;
 begin
-  KMLExport:=TExportMarks2KML.Create;
-  try
-    if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-      VOnlyVisible := (TComponent(Sender).tag = 1);
-      if VOnlyVisible then begin
-        VCategoryList := FMarkDBGUI.MarksDb.GetVisibleCategoriesIgnoreZoom;
-      end else begin
-        VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
-      end;
-      VMarksSubset := FMarkDBGUI.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategoryList, (not VOnlyVisible));
-
-      KMLExport.ExportToKML(VCategoryList, VMarksSubset, ExportDialog.FileName);
-    end;
-  finally
-    KMLExport.free;
+  VOnlyVisible := (TComponent(Sender).tag = 1);
+  if VOnlyVisible then begin
+    VCategoryList := FMarkDBGUI.MarksDb.GetVisibleCategoriesIgnoreZoom;
+  end else begin
+    VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
   end;
+  FMarkDBGUI.ExportCategoryList(VCategoryList, not VOnlyVisible);
 end;
 
 procedure TfrmMarksExplorer.btnApplyClick(Sender: TObject);
@@ -574,21 +560,12 @@ end;
 
 procedure TfrmMarksExplorer.btnSaveMarkClick(Sender: TObject);
 var
-  KMLExport:TExportMarks2KML;
   VMark: IMark;
 begin
-    VMark := GetSelectedMarkFull;
-    if VMark <> nil then begin
-      KMLExport:=TExportMarks2KML.Create;
-      try
-        ExportDialog.FileName:=VMark.name;
-        if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-          KMLExport.ExportMarkToKML(VMark, ExportDialog.FileName);
-        end;
-      finally
-        KMLExport.free;
-      end;
-    end;
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    FMarkDBGUI.ExportMark(VMark);
+  end;
 end;
 
 procedure TfrmMarksExplorer.CategoryTreeViewChange(Sender: TObject; Node: TTreeNode);
@@ -673,22 +650,13 @@ end;
 
 procedure TfrmMarksExplorer.btnExportCategoryClick(Sender: TObject);
 var
-  KMLExport: TExportMarks2KML;
   VCategory: IMarkCategory;
-  VMarksSubset: IMarksSubset;
+  VOnlyVisible: Boolean;
 begin
   VCategory := GetSelectedCategory;
   if VCategory<>nil then begin
-    KMLExport:=TExportMarks2KML.Create;
-    try
-      ExportDialog.FileName:=StringReplace(VCategory.name,'\','-',[rfReplaceAll]);
-      if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-        VMarksSubset := FMarkDBGUI.MarksDb.MarksDb.GetMarksSubset(DoubleRect(-180,90,180,-90), VCategory, (not TComponent(Sender).tag=1));
-        KMLExport.ExportCategoryToKML(VCategory, VMarksSubset, ExportDialog.FileName);
-      end;
-    finally
-      KMLExport.free;
-    end;
+    VOnlyVisible := (TComponent(Sender).tag = 1);
+    FMarkDBGUI.ExportCategory(VCategory, not VOnlyVisible);
   end;
 end;
 
@@ -808,23 +776,6 @@ begin
     MarksListBox.Clear;
     FCategoryList := nil;
     FMarksList := nil;
-  end;
-end;
-
-procedure TfrmMarksExplorer.ExportMark(const AMark: IMark);
-var
-  KMLExport:TExportMarks2KML;
-begin
-  if AMark <> nil then begin
-    KMLExport:=TExportMarks2KML.Create;
-    try
-      ExportDialog.FileName := AMark.Name;
-      if (ExportDialog.Execute)and(ExportDialog.FileName<>'') then begin
-        KMLExport.ExportMarkToKML(AMark, ExportDialog.FileName);
-      end;
-    finally
-      KMLExport.free;
-    end;
   end;
 end;
 

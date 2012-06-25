@@ -3970,7 +3970,7 @@ var
 begin
   VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
-    FfrmMarksExplorer.ExportMark(VMark);
+    FMarkDBGUI.ExportMark(VMark);
   end;
 end;
 

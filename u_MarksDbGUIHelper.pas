@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Classes,
+  Dialogs,
   t_GeoTypes,
   i_PathConfig,
   i_LanguageManager,
@@ -59,6 +60,7 @@ type
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
+    FExportDialog: TSaveDialog;
   public
     procedure MarksListToStrings(
       const AList: IInterfaceList;
@@ -117,6 +119,9 @@ type
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
+    procedure ExportMark(const AMark: IMark);
+    procedure ExportCategory(const AMarkCategory: IMarkCategory; AIgnoreMarksVisible: Boolean);
+    procedure ExportCategoryList(ACategoryList: IInterfaceList; AIgnoreMarksVisible: Boolean);
 
     property MarksDB: TMarksSystem read FMarksDB;
   public
@@ -136,9 +141,11 @@ implementation
 
 uses
   SysUtils,
-  Dialogs,
+  gnugettext,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
+  u_ExportMarks2KML,
+  u_GeoFun,
   u_GeoToStr;
 
 { TMarksDbGUIHelper }
@@ -198,6 +205,13 @@ begin
       FMarksDB.CategoryDB,
       FMarksDB.MarksDb
     );
+  FExportDialog := TSaveDialog.Create(nil);
+
+  //ExportDialog
+  FExportDialog.Name := 'ExportDialog';
+  FExportDialog.DefaultExt := '.kmz';
+  FExportDialog.Filter := _('Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup Language (kml)|*.kml');
+  FExportDialog.Options := [ofOverwritePrompt, ofHideReadOnly,ofEnableSizing];
 end;
 
 destructor TMarksDbGUIHelper.Destroy;
@@ -208,6 +222,7 @@ begin
   FreeAndNil(FfrmMarkCategoryEdit);
   FreeAndNil(FfrmImportConfigEdit);
   FreeAndNil(FfrmMarksMultiEdit);
+  FreeAndNil(FExportDialog);
   inherited;
 end;
 
@@ -336,6 +351,82 @@ end;
 function TMarksDbGUIHelper.EditModalImportConfig: IImportConfig;
 begin
   Result := FfrmImportConfigEdit.GetImportConfig;
+end;
+
+procedure TMarksDbGUIHelper.ExportCategory(const AMarkCategory: IMarkCategory; AIgnoreMarksVisible: Boolean);
+var
+  KMLExport: TExportMarks2KML;
+  VMarksSubset: IMarksSubset;
+  VFileName: string;
+begin
+  if AMarkCategory<>nil then begin
+    FExportDialog.FileName := StringReplace(AMarkCategory.name,'\','-',[rfReplaceAll]);
+    if FExportDialog.Execute then begin
+      VFileName := FExportDialog.FileName;
+      if VFileName <>  '' then begin
+        KMLExport:=TExportMarks2KML.Create;
+        try
+          VMarksSubset :=
+            FMarksDb.MarksDb.GetMarksSubset(
+              DoubleRect(-180,90,180,-90),
+              AMarkCategory,
+              AIgnoreMarksVisible
+            );
+          KMLExport.ExportCategoryToKML(AMarkCategory, VMarksSubset, VFileName);
+        finally
+          KMLExport.free;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TMarksDbGUIHelper.ExportCategoryList(ACategoryList: IInterfaceList; AIgnoreMarksVisible: Boolean);
+var
+  KMLExport: TExportMarks2KML;
+  VMarksSubset: IMarksSubset;
+  VFileName: string;
+begin
+  if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
+    if FExportDialog.Execute then begin
+      VFileName := FExportDialog.FileName;
+      if VFileName <>  '' then begin
+        KMLExport:=TExportMarks2KML.Create;
+        try
+          VMarksSubset :=
+            FMarksDb.MarksDb.GetMarksSubset(
+              DoubleRect(-180,90,180,-90),
+              ACategoryList,
+              AIgnoreMarksVisible
+            );
+          KMLExport.ExportToKML(ACategoryList, VMarksSubset, VFileName);
+        finally
+          KMLExport.free;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TMarksDbGUIHelper.ExportMark(const AMark: IMark);
+var
+  KMLExport: TExportMarks2KML;
+  VFileName: string;
+begin
+  if AMark <> nil then begin
+    FExportDialog.FileName := StringReplace(AMark.Name,'\','-',[rfReplaceAll]);
+    if FExportDialog.Execute then begin
+      VFileName := FExportDialog.FileName;
+      if VFileName <>  '' then begin
+        KMLExport:=TExportMarks2KML.Create;
+        try
+          KMLExport.ExportMarkToKML(AMark, VFileName);
+        finally
+          KMLExport.free;
+        end;
+      end;
+    end;
+  end;
 end;
 
 function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
