@@ -2,12 +2,13 @@ object frmMarksExplorer: TfrmMarksExplorer
   Left = 341
   Top = 186
   Caption = 'Placemark Manager'
-  ClientHeight = 408
+  ClientHeight = 483
   ClientWidth = 545
   Color = clBtnFace
   Constraints.MinHeight = 309
   Constraints.MinWidth = 406
   ParentFont = True
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poDefault
   ShowHint = True
@@ -21,100 +22,25 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 0
     Top = 0
     Width = 545
-    Height = 333
+    Height = 408
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 577
-    ExplicitHeight = 352
-    object pnlButtons: TPanel
-      AlignWithMargins = True
-      Left = 465
-      Top = 3
-      Width = 77
-      Height = 327
-      Align = alRight
-      BevelOuter = bvNone
-      TabOrder = 0
-      ExplicitLeft = 497
-      ExplicitHeight = 346
-      object btnExport: TTBXButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 303
-        Width = 71
-        Height = 21
-        Align = alBottom
-        DropDownCombo = True
-        DropDownMenu = PopupExport
-        ImageIndex = 0
-        TabOrder = 0
-        OnClick = btnExportClick
-        ExplicitTop = 322
-        Caption = 'Export'
-      end
-      object btnImport: TTBXButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 276
-        Width = 71
-        Height = 21
-        Align = alBottom
-        ImageIndex = 0
-        TabOrder = 1
-        OnClick = btnImportClick
-        ExplicitTop = 295
-        Caption = 'Import'
-      end
-      object btnCancel: TButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 34
-        Width = 71
-        Height = 25
-        Align = alTop
-        Cancel = True
-        Caption = 'Cancel'
-        ModalResult = 2
-        TabOrder = 2
-      end
-      object btnOk: TButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 71
-        Height = 25
-        Align = alTop
-        Caption = 'Ok'
-        ModalResult = 1
-        TabOrder = 3
-      end
-      object btnApply: TButton
-        AlignWithMargins = True
-        Left = 3
-        Top = 65
-        Width = 71
-        Height = 25
-        Align = alTop
-        Caption = 'Apply'
-        TabOrder = 4
-        OnClick = btnApplyClick
-      end
-    end
+    ExplicitHeight = 333
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 462
-      Height = 333
+      Width = 545
+      Height = 408
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 1
-      ExplicitWidth = 494
-      ExplicitHeight = 352
+      TabOrder = 0
+      ExplicitWidth = 462
+      ExplicitHeight = 333
       object splCatMarks: TSplitter
         Left = 181
         Top = 0
-        Height = 333
+        Height = 408
         ExplicitLeft = 237
         ExplicitTop = 14
         ExplicitHeight = 331
@@ -122,21 +48,19 @@ object frmMarksExplorer: TfrmMarksExplorer
       object grpMarks: TGroupBox
         Left = 184
         Top = 0
-        Width = 278
-        Height = 333
+        Width = 361
+        Height = 408
         Align = alClient
         Caption = 'Placemarks'
         TabOrder = 0
-        ExplicitLeft = 185
-        ExplicitTop = 6
-        ExplicitWidth = 310
-        ExplicitHeight = 352
+        ExplicitWidth = 278
+        ExplicitHeight = 333
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
           Top = 46
-          Width = 268
-          Height = 262
+          Width = 351
+          Height = 337
           OnClickCheck = MarksListBoxClickCheck
           Align = alClient
           ItemHeight = 13
@@ -144,17 +68,17 @@ object frmMarksExplorer: TfrmMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitWidth = 300
-          ExplicitHeight = 278
+          ExplicitWidth = 268
+          ExplicitHeight = 262
         end
         object TBXDockMark: TTBXDock
           Left = 2
           Top = 15
-          Width = 274
+          Width = 357
           Height = 28
           AllowDrag = False
           UseParentBackground = True
-          ExplicitWidth = 306
+          ExplicitWidth = 274
           object TBXToolbar1: TTBXToolbar
             Left = 0
             Top = 0
@@ -224,14 +148,14 @@ object frmMarksExplorer: TfrmMarksExplorer
         end
         object pnlMarksBottom: TPanel
           Left = 2
-          Top = 311
-          Width = 274
+          Top = 386
+          Width = 357
           Height = 20
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitTop = 330
-          ExplicitWidth = 306
+          ExplicitTop = 311
+          ExplicitWidth = 274
           object CheckBox1: TCheckBox
             AlignWithMargins = True
             Left = 3
@@ -244,12 +168,13 @@ object frmMarksExplorer: TfrmMarksExplorer
             OnClick = CheckBox1Click
           end
           object lblMarksCount: TStaticText
-            Left = 270
+            Left = 353
             Top = 0
             Width = 4
             Height = 20
             Align = alRight
             TabOrder = 1
+            ExplicitLeft = 270
           end
         end
       end
@@ -258,32 +183,32 @@ object frmMarksExplorer: TfrmMarksExplorer
         Left = 3
         Top = 0
         Width = 178
-        Height = 333
+        Height = 408
         Margins.Top = 0
         Margins.Right = 0
         Margins.Bottom = 0
         Align = alLeft
         Caption = 'Placemark Categories'
         TabOrder = 1
-        ExplicitHeight = 352
+        ExplicitHeight = 333
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
-          Top = 311
+          Top = 386
           Width = 168
           Height = 17
           Align = alBottom
           Caption = 'All'
           TabOrder = 0
           OnClick = CheckBox2Click
-          ExplicitTop = 330
+          ExplicitTop = 311
         end
         object CategoryTreeView: TTreeView
           AlignWithMargins = True
           Left = 5
           Top = 46
           Width = 168
-          Height = 259
+          Height = 334
           Align = alClient
           Indent = 19
           PopupMenu = tbpmnCategories
@@ -293,7 +218,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnChange = CategoryTreeViewChange
           OnKeyUp = CategoryTreeViewKeyUp
           OnMouseUp = CategoryTreeViewMouseUp
-          ExplicitHeight = 278
+          ExplicitHeight = 259
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -348,23 +273,75 @@ object frmMarksExplorer: TfrmMarksExplorer
       end
     end
   end
-  object rgMarksShowMode: TRadioGroup
-    AlignWithMargins = True
-    Left = 3
-    Top = 336
-    Width = 539
-    Height = 69
+  object pnlBottom: TPanel
+    Left = 0
+    Top = 408
+    Width = 545
+    Height = 75
     Align = alBottom
-    Ctl3D = True
-    ItemIndex = 0
-    Items.Strings = (
-      'Show only selected placemarks'
-      'Show all placemarks'
-      'Hide placemarks')
-    ParentCtl3D = False
+    BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 355
-    ExplicitWidth = 571
+    object rgMarksShowMode: TRadioGroup
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 447
+      Height = 69
+      Align = alClient
+      Ctl3D = True
+      ItemIndex = 0
+      Items.Strings = (
+        'Show only selected placemarks'
+        'Show all placemarks'
+        'Hide placemarks')
+      ParentCtl3D = False
+      TabOrder = 0
+      OnClick = rgMarksShowModeClick
+      ExplicitLeft = 4
+      ExplicitTop = 4
+      ExplicitWidth = 171
+      ExplicitHeight = 80
+    end
+    object pnlButtons: TPanel
+      AlignWithMargins = True
+      Left = 456
+      Top = 3
+      Width = 86
+      Height = 69
+      Align = alRight
+      BevelOuter = bvNone
+      TabOrder = 1
+      object btnExport: TTBXButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 80
+        Height = 21
+        Align = alTop
+        DropDownCombo = True
+        DropDownMenu = PopupExport
+        ImageIndex = 0
+        TabOrder = 0
+        OnClick = btnExportClick
+        ExplicitTop = 365
+        ExplicitWidth = 71
+        Caption = 'Export'
+      end
+      object btnImport: TTBXButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 30
+        Width = 80
+        Height = 21
+        Align = alTop
+        ImageIndex = 0
+        TabOrder = 1
+        OnClick = btnImportClick
+        ExplicitTop = 338
+        ExplicitWidth = 71
+        Caption = 'Import'
+      end
+    end
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'

@@ -4849,7 +4849,7 @@ end;
 
 procedure TfrmMain.tbitmPlacemarkManagerClick(Sender: TObject);
 begin
-  FfrmMarksExplorer.EditMarks;
+  FfrmMarksExplorer.Visible := not FfrmMarksExplorer.Visible;
 end;
 
 procedure TfrmMain.NMarkNavClick(Sender: TObject);

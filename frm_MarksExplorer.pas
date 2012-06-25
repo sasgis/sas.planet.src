@@ -93,9 +93,6 @@ type
     TBXSeparatorItem3: TTBXSeparatorItem;
     BtnEditCategory: TTBXItem;
     btnExportCategory: TTBXItem;
-    btnCancel: TButton;
-    btnOk: TButton;
-    btnApply: TButton;
     lblMarksCount: TStaticText;
     tbpmnCategories: TTBXPopupMenu;
     tbitmAddCategory: TTBXItem;
@@ -111,6 +108,7 @@ type
     tbitmExportMark: TTBXItem;
     btnAddMark: TTBXItem;
     pnlMarksBottom: TPanel;
+    pnlBottom: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -126,7 +124,6 @@ type
     procedure btnExportClick(Sender: TObject);
     procedure btnExportCategoryClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
-    procedure btnApplyClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure btnEditMarkClick(Sender: TObject);
     procedure btnDelMarkClick(Sender: TObject);
@@ -140,6 +137,7 @@ type
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure rgMarksShowModeClick(Sender: TObject);
   private
     FMapGoto: IMapViewGoto;
     FCategoryList: IInterfaceList;
@@ -178,7 +176,6 @@ type
       const AMapGoto: IMapViewGoto
     ); reintroduce;
     destructor Destroy; override;
-    procedure EditMarks;
   end;
 
 implementation
@@ -430,30 +427,6 @@ begin
     VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
   end;
   FMarkDBGUI.ExportCategoryList(VCategoryList, not VOnlyVisible);
-end;
-
-procedure TfrmMarksExplorer.btnApplyClick(Sender: TObject);
-begin
-  FMarksShowConfig.LockWrite;
-  try
-    case rgMarksShowMode.ItemIndex of
-      0: begin
-        FMarksShowConfig.IsUseMarks := True;
-        FMarksShowConfig.IgnoreCategoriesVisible := False;
-        FMarksShowConfig.IgnoreMarksVisible := False;
-
-      end;
-      1: begin
-        FMarksShowConfig.IsUseMarks := True;
-        FMarksShowConfig.IgnoreCategoriesVisible := True;
-        FMarksShowConfig.IgnoreMarksVisible := True;
-      end;
-    else
-      FMarksShowConfig.IsUseMarks := False;
-    end;
-  finally
-    FMarksShowConfig.UnlockWrite;
-  end;
 end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
@@ -796,33 +769,6 @@ begin
   end;
 end;
 
-procedure TfrmMarksExplorer.EditMarks;
-var
-  VModalResult: Integer;
-begin
-  UpdateCategoryTree;
-  UpdateMarksList;
-  btnNavOnMark.Checked:= FNavToPoint.IsActive;
-  FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
-  FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Add(FMarksDBListener);
-  FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
-  try
-    VModalResult := ShowModal;
-    if VModalResult = mrOk then begin
-      btnApplyClick(nil);
-    end;
-  finally
-    FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
-    FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Remove(FMarksDBListener);
-    FMarksShowConfig.ChangeNotifier.Remove(FMarksShowConfigListener);
-    CategoryTreeView.OnChange:=nil;
-    CategoryTreeView.Items.Clear;
-    MarksListBox.Clear;
-    FCategoryList := nil;
-    FMarksList := nil;
-  end;
-end;
-
 procedure TfrmMarksExplorer.FormActivate(Sender: TObject);
 begin
   OnMarksShowConfigChanged
@@ -852,6 +798,14 @@ procedure TfrmMarksExplorer.FormHide(Sender: TObject);
 begin
   Self.OnResize := nil;
   FWindowConfig.ChangeNotifier.Remove(FConfigListener);
+  FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
+  FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Remove(FMarksDBListener);
+  FMarksShowConfig.ChangeNotifier.Remove(FMarksShowConfigListener);
+  CategoryTreeView.OnChange:=nil;
+  CategoryTreeView.Items.Clear;
+  MarksListBox.Clear;
+  FCategoryList := nil;
+  FMarksList := nil;
 end;
 
 procedure TfrmMarksExplorer.FormResize(Sender: TObject);
@@ -863,9 +817,39 @@ end;
 
 procedure TfrmMarksExplorer.FormShow(Sender: TObject);
 begin
+  UpdateCategoryTree;
+  UpdateMarksList;
+  btnNavOnMark.Checked:= FNavToPoint.IsActive;
+  FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
+  FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Add(FMarksDBListener);
+  FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
   FWindowConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;
   Self.OnResize := FormResize;
+end;
+
+procedure TfrmMarksExplorer.rgMarksShowModeClick(Sender: TObject);
+begin
+  FMarksShowConfig.LockWrite;
+  try
+    case rgMarksShowMode.ItemIndex of
+      0: begin
+        FMarksShowConfig.IsUseMarks := True;
+        FMarksShowConfig.IgnoreCategoriesVisible := False;
+        FMarksShowConfig.IgnoreMarksVisible := False;
+
+      end;
+      1: begin
+        FMarksShowConfig.IsUseMarks := True;
+        FMarksShowConfig.IgnoreCategoriesVisible := True;
+        FMarksShowConfig.IgnoreMarksVisible := True;
+      end;
+    else
+      FMarksShowConfig.IsUseMarks := False;
+    end;
+  finally
+    FMarksShowConfig.UnlockWrite;
+  end;
 end;
 
 end.
