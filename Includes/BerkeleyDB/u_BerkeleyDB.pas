@@ -444,10 +444,12 @@ begin
           FillChar(dbtData, Sizeof(DBT), 0);
 
           dbtKey.flags := DB_DBT_MALLOC;
-          dbtData.size := 0;
-          dbtData.flags := DB_DBT_USERMEM;
 
-          if dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT) = DB_BUFFER_SMALL then begin
+          dbtData.dlen := 0;
+          dbtData.doff := 0;
+          dbtData.flags := DB_DBT_PARTIAL;
+
+          if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
             if (dbtKey.data <> nil) and (dbtKey.size = AKeySize) then begin
               AKeyList.Add(dbtKey.data);
             end else begin

@@ -505,6 +505,7 @@ function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
 var
   VKey: TBDBKey;
   VRawKey: Pointer;
+  VValidKeyCount: Integer;
   VBDB: TBerkeleyDB;
   VList: TList;
   I: Integer;
@@ -518,15 +519,21 @@ begin
       try
         if VBDB.GetKeyExistsList(SizeOf(TBDBKey), VList) then begin
           SetLength(ATileExistsArray, VList.Count);
+          VValidKeyCount := 0;
           for I := 0 to VList.Count - 1 do begin
             VRawKey := VList.Items[I];
             try
               VKey := TBDBKey(VRawKey^);
-              ATileExistsArray[I] := KeyToPoint(VKey);
+              if (VKey.TileX <> CBDBMetaKeyX) and (VKey.TileY <> CBDBMetaKeyY) then begin
+                ATileExistsArray[VValidKeyCount] := KeyToPoint(VKey);
+                Inc(VValidKeyCount);
+              end;
             finally
               FreeMem(VRawKey);
             end;
           end;
+          SetLength(ATileExistsArray, VValidKeyCount);
+          Result := VValidKeyCount > 0;
         end;
       finally
         VList.Free;
@@ -534,8 +541,7 @@ begin
     end;
   finally
     FPool.Release(VBDB);
-  end;
-
+  end; 
 end;
 
 end.

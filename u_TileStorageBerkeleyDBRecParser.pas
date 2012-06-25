@@ -95,21 +95,17 @@ const
   CBDBRecVersion = #03;
   CBDBRecMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', CBDBRecVersion);      //TiLe Data
 
+procedure SetBit(var ADest: Cardinal; const ABit: Integer); inline;
+begin
+  ADest := ADest or (Cardinal(1) shl ABit);
+end;
+
+function Swap32(Value: Cardinal): Cardinal; assembler;
+asm
+  bswap eax
+end;
+
 function PointToKey(APoint: TPoint): TBDBKey;
-
-  procedure SetBit(
-  var ADest: Cardinal;
-    ABit: Integer
-  ); inline;
-  begin
-    ADest := ADest or (Cardinal(1) shl ABit);
-  end;
-
-  function Swap32(Value: Cardinal): Cardinal; assembler;
-  asm
-    bswap eax
-  end;
-
 var
   I: Integer;
   VSetX, VSetY: Boolean;
@@ -140,8 +136,31 @@ begin
 end;
 
 function KeyToPoint(const AKey: TBDBKey): TPoint;
+
+  procedure ValueToPoint(const AValue: Cardinal; AOffset: Integer; out APoint: TPoint);
+  var
+    I: Integer;
+    VPoint: TBDBKey;
+  begin
+    VPoint.TileX := APoint.X;
+    VPoint.TileY := APoint.Y;
+    for I := 0 to 31 do begin
+      if ((AValue shr I) and 1) = 1 then begin
+        if (I mod 2 = 0) then begin
+          SetBit(VPoint.TileX, (I + AOffset) div 2);
+        end else begin
+          SetBit(VPoint.TileY, (I + AOffset - 1) div 2);
+        end;
+      end;
+    end;
+    APoint.X := VPoint.TileX;
+    APoint.Y := VPoint.TileY;
+  end;
+
 begin
-  {$MESSAGE 'function KeyToPoint in TODO list'}
+  Result := Point(0, 0);
+  ValueToPoint(Swap32(AKey.TileY), 0,  Result);
+  ValueToPoint(Swap32(AKey.TileX), 32, Result);
 end;
 
 function PBDBDataToMemStream(

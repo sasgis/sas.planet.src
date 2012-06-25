@@ -73,7 +73,8 @@ object frmCacheManager: TfrmCacheManager
             'SAS.Planet'
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
-            'GlobalMapper Aux')
+            'GlobalMapper Aux'
+            'BerkeleyDB')
         end
         object chkIgnoreTNE: TCheckBox
           Left = 319
