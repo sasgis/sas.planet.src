@@ -29,7 +29,7 @@ object frmProgressDownload: TfrmProgressDownload
     DesignSize = (
       328
       219)
-    object LabelValue0: TLabel
+    object lblToProcessValue: TLabel
       Left = 315
       Top = 90
       Width = 6
@@ -42,7 +42,7 @@ object frmProgressDownload: TfrmProgressDownload
       Layout = tlCenter
       ExplicitTop = 119
     end
-    object LabelValue1: TLabel
+    object lblProcessedValue: TLabel
       Left = 315
       Top = 109
       Width = 6
@@ -55,7 +55,7 @@ object frmProgressDownload: TfrmProgressDownload
       Layout = tlCenter
       ExplicitTop = 138
     end
-    object LabelValue2: TLabel
+    object lblDownloadedValue: TLabel
       Left = 315
       Top = 121
       Width = 6
@@ -68,7 +68,7 @@ object frmProgressDownload: TfrmProgressDownload
       Layout = tlCenter
       ExplicitTop = 150
     end
-    object LabelValue3: TLabel
+    object lblTimeToFinishValue: TLabel
       Left = 315
       Top = 140
       Width = 6
@@ -81,7 +81,7 @@ object frmProgressDownload: TfrmProgressDownload
       Layout = tlCenter
       ExplicitTop = 169
     end
-    object LabelName0: TLabel
+    object lblToProcess: TLabel
       Left = 8
       Top = 92
       Width = 112
@@ -92,7 +92,7 @@ object frmProgressDownload: TfrmProgressDownload
       ParentBiDiMode = False
       Layout = tlCenter
     end
-    object LabelName1: TLabel
+    object lblProcessed: TLabel
       Left = 8
       Top = 108
       Width = 78
@@ -103,7 +103,7 @@ object frmProgressDownload: TfrmProgressDownload
       ParentBiDiMode = False
       Layout = tlCenter
     end
-    object LabelName2: TLabel
+    object lblDownloaded: TLabel
       Left = 8
       Top = 124
       Width = 88
@@ -114,8 +114,8 @@ object frmProgressDownload: TfrmProgressDownload
       ParentBiDiMode = False
       Layout = tlCenter
     end
-    object LabelName3: TLabel
-      Left = 8
+    object lblTimeToFinish: TLabel
+      Left = 7
       Top = 140
       Width = 75
       Height = 13
@@ -125,7 +125,7 @@ object frmProgressDownload: TfrmProgressDownload
       ParentBiDiMode = False
       Layout = tlCenter
     end
-    object LabelName4: TLabel
+    object lblSizeToFinish: TLabel
       Left = 8
       Top = 156
       Width = 105
@@ -136,7 +136,7 @@ object frmProgressDownload: TfrmProgressDownload
       ParentBiDiMode = False
       Layout = tlCenter
     end
-    object LabelValue4: TLabel
+    object lblSizeToFinishValue: TLabel
       Left = 315
       Top = 156
       Width = 6
@@ -149,7 +149,7 @@ object frmProgressDownload: TfrmProgressDownload
       Layout = tlCenter
       ExplicitTop = 185
     end
-    object Memo1: TMemo
+    object mmoLog: TMemo
       Left = 8
       Top = 8
       Width = 313
@@ -170,8 +170,7 @@ object frmProgressDownload: TfrmProgressDownload
       AutoSize = True
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 2
-      object Button2: TButton
+      object btnClose: TButton
         AlignWithMargins = True
         Left = 242
         Top = 3
@@ -180,9 +179,9 @@ object frmProgressDownload: TfrmProgressDownload
         Align = alRight
         Caption = 'Quit'
         TabOrder = 0
-        OnClick = Button2Click
+        OnClick = btnCloseClick
       end
-      object Button1: TButton
+      object btnPause: TButton
         AlignWithMargins = True
         Left = 161
         Top = 3
@@ -191,9 +190,9 @@ object frmProgressDownload: TfrmProgressDownload
         Align = alRight
         Caption = 'Pause'
         TabOrder = 1
-        OnClick = Button1Click
+        OnClick = btnPauseClick
       end
-      object ButtonSave: TButton
+      object btnSave: TButton
         AlignWithMargins = True
         Left = 80
         Top = 3
@@ -203,9 +202,9 @@ object frmProgressDownload: TfrmProgressDownload
         Align = alRight
         Caption = 'Save'
         TabOrder = 2
-        OnClick = ButtonSaveClick
+        OnClick = btnSaveClick
       end
-      object Button3: TButton
+      object btnMinimize: TButton
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -214,7 +213,7 @@ object frmProgressDownload: TfrmProgressDownload
         Align = alLeft
         Caption = 'Minimize'
         TabOrder = 3
-        OnClick = Button3Click
+        OnClick = btnMinimizeClick
       end
     end
     object pnlProgress: TPanel
@@ -230,7 +229,6 @@ object frmProgressDownload: TfrmProgressDownload
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitTop = 169
     end
   end
   object SaveSessionDialog: TSaveDialog
