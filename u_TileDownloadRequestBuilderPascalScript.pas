@@ -117,6 +117,7 @@ implementation
 
 uses
   t_GeoTypes,
+  i_SimpleHttpDownloader,
   u_NotifyEventListener,
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
@@ -296,6 +297,7 @@ var
   VZoom: Byte;
   VAccept: string;
   VUseDownloader: Boolean;
+  VSimpleDownloader: ISimpleHttpDownloader;
 begin
   VTile := ASource.Tile;
   VZoom := ASource.Zoom;
@@ -356,13 +358,14 @@ begin
   FpLang.Data := FLang;
   if FDownloader <> nil then begin
     if VUseDownloader then begin
-      FpDownloader.Data :=
+      VSimpleDownloader :=
         TSimpleHttpDownloader.Create(
           FDownloader,
           ADownloaderConfig.InetConfigStatic,
           ACancelNotifier,
           AOperationID
         );
+      FpDownloader.Data := VSimpleDownloader;
     end;
   end else begin
     FpDownloader.Data := nil;
