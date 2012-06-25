@@ -75,6 +75,7 @@ uses
   LibJpegRead,
   LibJpegWrite,
   u_Bitmap32Static,
+  u_StreamReadOnlyByBinaryData,
   u_BinaryDataByMemStream;
 
 type
@@ -106,15 +107,14 @@ function TLibJpegTileLoader.Load(const AData: IBinaryData): IBitmap32Static;
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegReader;
-  VStream: TMemoryStream;
+  VStream: TStream;
   VBitmap: TCustomBitmap32;
 begin
   Result := nil;
   VCounterContext := FLoadStreamCounter.StartOperation;
   try
-    VStream := TMemoryStream.Create;
+    VStream := TStreamReadOnlyByBinaryData.Create(AData);
     try
-      VStream.WriteBuffer(AData.Buffer^, AData.Size);
       VStream.Position := 0;
       VJpeg := TJpegReader.Create(VStream);
       try
