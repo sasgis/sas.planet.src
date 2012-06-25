@@ -69,7 +69,7 @@ uses
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap,
-  u_Synchronizer,
+  u_BitmapTileVampyreSaver,
   u_Bitmap32Static;
 
 { TVampyreBasicBitmapTileLoader }
@@ -80,7 +80,7 @@ constructor TVampyreBasicBitmapTileLoader.Create(
 );
 begin
   inherited Create;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := GetVampireGlobalLock;
   FMetadata := TMetadata.Create;
   FFormat := AFormatClass.Create(FMetadata);
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadStream');

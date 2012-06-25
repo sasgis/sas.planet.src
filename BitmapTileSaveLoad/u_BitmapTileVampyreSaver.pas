@@ -93,6 +93,8 @@ type
     );
   end;
 
+function GetVampireGlobalLock: IReadWriteSync;
+
 implementation
 
 uses
@@ -101,8 +103,15 @@ uses
   ImagingJpeg,
   ImagingGif,
   ImagingBitmap,
-  u_Synchronizer,
   u_BinaryDataByMemStream;
+
+var
+  GVampireGlobalLock: IReadWriteSync;
+
+function GetVampireGlobalLock: IReadWriteSync;
+begin
+  Result := GVampireGlobalLock;
+end;
 
 { TVampyreBasicBitmapTileSaver }
 
@@ -113,7 +122,7 @@ constructor TVampyreBasicBitmapTileSaver.CreateWithMeta(
 );
 begin
   inherited Create;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := GetVampireGlobalLock;
   FMetadata := AMeta;
   FFormat := AFormat;
   if APerfCounterList = nil then begin
@@ -318,5 +327,8 @@ begin
   VFormat.Quality := ACompressionQuality;
   inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
 end;
-
+initialization
+  GVampireGlobalLock := TSimpleRWSync.Create;
+finalization
+  GVampireGlobalLock := nil;
 end.
