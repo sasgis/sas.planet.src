@@ -2514,19 +2514,21 @@ begin
       if not Handled then begin
         case Msg.message of
           WM_MOUSEWHEEL: begin
-            if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
-            VZoom := FConfig.ViewPortState.GetCurrentZoom;
-            if Msg.wParam<0 then begin
-              VNewZoom := VZoom-z;
-            end else begin
-              VNewZoom := VZoom+z;
+            if not FConfig.MainConfig.DisableZoomingByMouseScroll then begin
+              if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
+              VZoom := FConfig.ViewPortState.GetCurrentZoom;
+              if Msg.wParam<0 then begin
+                VNewZoom := VZoom-z;
+              end else begin
+                VNewZoom := VZoom+z;
+              end;
+              if VNewZoom < 0 then VNewZoom := 0;
+              zooming(
+                VNewZoom,
+                FMouseState.CurentPos,
+                FConfig.MapZoomingConfig.ZoomingAtMousePos
+              );
             end;
-            if VNewZoom < 0 then VNewZoom := 0;
-            zooming(
-              VNewZoom,
-              FMouseState.CurentPos,
-              FConfig.MapZoomingConfig.ZoomingAtMousePos
-            );
           end;
         end;
       end;

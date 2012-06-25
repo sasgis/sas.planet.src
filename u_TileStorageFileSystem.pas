@@ -70,7 +70,8 @@ type
     procedure CreateDirIfNotExists(const APath: string);
     function GetTileInfoByPath(
       const APath: string;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      AIsLoadIfExists: Boolean
     ): ITileInfoBasic;
   public
     constructor Create(
@@ -341,7 +342,8 @@ end;
 
 function TTileStorageFileSystem.GetTileInfoByPath(
   const APath: string;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  AIsLoadIfExists: Boolean
 ): ITileInfoBasic;
 var
   VInfo: WIN32_FILE_ATTRIBUTE_DATA;
@@ -381,18 +383,40 @@ var
       end;
     end;
   end;
-
+var
+  VMemStream: TMemoryStream;
+  VBinaryData: IBinaryData;
 begin
   FLock.BeginRead;
   try
     if _GetAttributesEx(APath) then begin
       // tile exists
-      Result := TTileInfoBasicExists.Create(
-        _GetFileDateTime,
-        VInfo.nFileSizeLow,
-        nil,
-        FMainContentType
-      );
+      if AIsLoadIfExists then begin
+
+        VMemStream := TMemoryStream.Create;
+        try
+          VMemStream.LoadFromFile(APath);
+          VBinaryData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+          VMemStream := nil;
+        finally
+          VMemStream.Free;
+        end;
+        Result :=
+          TTileInfoBasicExistsWithTile.Create(
+            _GetFileDateTime,
+            VBinaryData,
+            nil,
+            FMainContentType
+          );
+      end else begin
+        Result :=
+          TTileInfoBasicExists.Create(
+            _GetFileDateTime,
+            VInfo.nFileSizeLow,
+            nil,
+            FMainContentType
+          );
+      end;
     end else if _GetAttributesEx(ChangeFileExt(APath, '.tne')) then begin
       // tne exists
       Result := TTileInfoBasicTNE.Create(_GetFileDateTime, nil);
@@ -553,7 +577,7 @@ begin
   {$ENDIF}
     if StorageStateStatic.ReadAccess <> asDisabled then begin
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-      Result := GetTileInfoByPath(VPath, AVersionInfo);
+      Result := GetTileInfoByPath(VPath, AVersionInfo, False);
     end;
   {$IFDEF WITH_PERF_COUNTER}
   finally
@@ -631,7 +655,7 @@ begin
           end;
 
           if VFolderExists then begin
-            VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo);
+            VTileInfo := GetTileInfoByPath(VFileName, AVersionInfo, False);
           end else begin
             VTileInfo := FTileNotExistsTileInfo;
           end;
@@ -691,7 +715,7 @@ function TTileStorageFileSystem.LoadTile(
 ): IBinaryData;
 var
   VPath: String;
-  VMemStream: TMemoryStream;
+  VInfoWithData: ITileInfoWithData;
 {$IFDEF WITH_PERF_COUNTER}
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -704,21 +728,10 @@ begin
     Result := nil;
     if StorageStateStatic.ReadAccess <> asDisabled then begin
       VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
-      ATileInfo := GetTileInfoByPath(VPath, AVersionInfo);
+      ATileInfo := GetTileInfoByPath(VPath, AVersionInfo, True);
       if ATileInfo.GetIsExists then begin
-        VMemStream := TMemoryStream.Create;
-        try
-          FLock.BeginRead;
-          try
-            VMemStream.LoadFromFile(VPath);
-            Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-            // owned successfully
-            VMemStream := nil;
-          finally
-            FLock.EndRead;
-          end;
-        finally
-          VMemStream.Free;
+        if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
+          Result := VInfoWithData.TileData;
         end;
       end;
     end;

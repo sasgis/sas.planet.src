@@ -65,6 +65,10 @@ type
     procedure SetShowMapName(AValue: Boolean);
     property ShowMapName: Boolean read GetShowMapName write SetShowMapName;
 
+    function GetDisableZoomingByMouseScroll: Boolean;
+    procedure SetDisableZoomingByMouseScroll(AValue: Boolean);
+    property DisableZoomingByMouseScroll: Boolean read GetDisableZoomingByMouseScroll write SetDisableZoomingByMouseScroll;
+
     //Инвертировать направление при зуме колесом мышки
     function GetMouseScrollInvert: Boolean;
     procedure SetMouseScrollInvert(AValue: Boolean);
