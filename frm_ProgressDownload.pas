@@ -62,6 +62,12 @@ type
     btnClose: TButton;
     pnlBottom: TPanel;
     pnlProgress: TPanel;
+    chkAutoCloseWhenFinish: TCheckBox;
+    pnlToProcess: TPanel;
+    pnlProcessed: TPanel;
+    pnlDownloaded: TPanel;
+    pnlSizeToFinish: TPanel;
+    pnlTimeToFinish: TPanel;
     procedure btnCloseClick(Sender: TObject);
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
@@ -220,6 +226,9 @@ begin
       FProgress.Progress1 := FDownloadThread.Processed;
       FProgress.Progress2 := FDownloadThread.Downloaded;
       Repaint;
+      if chkAutoCloseWhenFinish.Checked then begin
+        btnCloseClick(nil);
+      end;
     end;
   end else begin
     UpdateMemoProgressForm;
