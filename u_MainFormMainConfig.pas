@@ -35,6 +35,7 @@ type
   private
     FContentTypeManager: IContentTypeManager;
     FShowMapName: Boolean;
+    FDisableZoomingByMouseScroll: Boolean;
     FMouseScrollInvert: Boolean;
     FShowHintOnMarks: Boolean;
     FShowHintOnlyInMapMoveMode: Boolean;
@@ -50,6 +51,9 @@ type
   protected
     function GetShowMapName: Boolean;
     procedure SetShowMapName(AValue: Boolean);
+
+    function GetDisableZoomingByMouseScroll: Boolean;
+    procedure SetDisableZoomingByMouseScroll(AValue: Boolean);
 
     function GetMouseScrollInvert: Boolean;
     procedure SetMouseScrollInvert(AValue: Boolean);
@@ -85,6 +89,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FShowMapName := True;
   FMouseScrollInvert := False;
+  FMouseScrollInvert := False;
   FShowHintOnMarks := True;
   FShowHintOnlyInMapMoveMode := False;
   FUseNewMainLayer := False;
@@ -100,6 +105,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FShowMapName := AConfigData.ReadBool('ShowMapNameOnPanel', FShowMapName);
+    FDisableZoomingByMouseScroll := AConfigData.ReadBool('DisableZoomingByMouseScroll', FDisableZoomingByMouseScroll);
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     FShowHintOnlyInMapMoveMode := AConfigData.ReadBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
@@ -118,9 +124,20 @@ procedure TMainFormMainConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('ShowMapNameOnPanel', FShowMapName);
+  AConfigData.WriteBool('DisableZoomingByMouseScroll', FDisableZoomingByMouseScroll);
   AConfigData.WriteBool('MouseScrollInvert', FMouseScrollInvert);
   AConfigData.WriteBool('ShowHintOnMarks', FShowHintOnMarks);
   AConfigData.WriteBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
+end;
+
+function TMainFormMainConfig.GetDisableZoomingByMouseScroll: Boolean;
+begin
+  LockRead;
+  try
+    Result := FDisableZoomingByMouseScroll;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMainFormMainConfig.GetMouseScrollInvert: Boolean;
@@ -190,6 +207,19 @@ begin
     Result := FUseNewMainLayer;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetDisableZoomingByMouseScroll(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FDisableZoomingByMouseScroll <> AValue then begin
+      FDisableZoomingByMouseScroll := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
