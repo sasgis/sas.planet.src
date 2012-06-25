@@ -412,6 +412,8 @@ type
     tbitmHideThisMark: TTBXItem;
     tbitmSaveMark: TTBXSubmenuItem;
     tbitmSaveMarkAsNew: TTBXItem;
+    tbxpmnSearchResult: TTBXPopupMenu;
+    tbitmCopySearchResultCoordinates: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -550,6 +552,7 @@ type
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCacheManagerClick(Sender: TObject);
+    procedure tbitmCopySearchResultCoordinatesClick(Sender: TObject);
     procedure tbitmEditLastSelectionClick(Sender: TObject);
     procedure tbitmNavigationArrowClick(Sender: TObject);
     procedure tbitmPropertiesClick(Sender: TObject);
@@ -989,6 +992,10 @@ end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
+  if tbxpmnSearchResult.Tag <> 0 then begin
+    IInterface(tbxpmnSearchResult.Tag)._Release;
+    tbxpmnSearchResult.Tag := 0;
+  end;
   FSensorViewList := nil;
 end;
 
@@ -1813,6 +1820,7 @@ begin
       FMapGoto,
       ScrollBoxSearchWindow,
       TBSearchWindow,
+      tbxpmnSearchResult,
       GState.ValueToStringConverterConfig,
       FConfig.LastSearchResultConfig,
       FConfig.ViewPortState
@@ -5201,6 +5209,10 @@ end;
 procedure TfrmMain.TBSearchWindowClose(Sender: TObject);
 begin
   FConfig.LastSearchResultConfig.ClearGeoCodeResult;
+  if tbxpmnSearchResult.Tag <> 0 then begin
+    IInterface(tbxpmnSearchResult.Tag)._Release;
+    tbxpmnSearchResult.Tag := 0;
+  end;
 end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);
@@ -5678,6 +5690,18 @@ end;
 procedure TfrmMain.tbitmCacheManagerClick(Sender: TObject);
 begin
   FfrmCacheManager.Show;
+end;
+
+procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
+var
+  VStr: WideString;
+  VPlacemark: IGeoCodePlacemark;
+begin
+  if tbxpmnSearchResult.Tag <> 0 then begin
+    VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
+    VStr := GState.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint);
+    CopyStringToClipboard(VStr);
+  end;
 end;
 
 procedure TfrmMain.tbitmEditLastSelectionClick(Sender: TObject);

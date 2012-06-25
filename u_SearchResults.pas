@@ -25,6 +25,7 @@ interface
 uses
   Dialogs,
   Controls,
+  Menus,
   i_MapViewGoto,
   i_ViewPortState,
   i_ValueToStringConverter,
@@ -42,6 +43,7 @@ type
     FIntrnalBrowser: IInternalBrowser;
     FDrawParent: TWinControl;
     FSearchWindow: TWinControl;
+    FPopUp: TPopupMenu;
     FValueConverterConfig: IValueToStringConverterConfig;
     FLastSearchResults: ILastSearchResultConfig;
     FSearchItems: array of TfrSearchResultsItem;
@@ -57,6 +59,7 @@ type
       const AMapGoto: IMapViewGoto;
       ADrawParent: TWinControl;
       ASearchWindow: TWinControl;
+      APopUp: TPopupMenu;
       const AValueConverterConfig: IValueToStringConverterConfig;
       const ALastSearchResults: ILastSearchResultConfig;
       const AViewPortState: IViewPortState
@@ -77,12 +80,14 @@ constructor TSearchResultPresenterOnPanel.Create(
   const AMapGoto: IMapViewGoto;
   ADrawParent: TWinControl;
   ASearchWindow: TWinControl;
+  APopUp: TPopupMenu;
   const AValueConverterConfig: IValueToStringConverterConfig;
   const ALastSearchResults: ILastSearchResultConfig;
   const AViewPortState: IViewPortState
 );
 begin
   inherited Create;
+  FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
   FMapGoto := AMapGoto;
   FValueConverterConfig := AValueConverterConfig;
@@ -137,6 +142,7 @@ begin
       TfrSearchResultsItem.Create(
         nil,
         FDrawParent,
+        FPopUp,
         VPlacemark,
         FViewPortState,
         FIntrnalBrowser,

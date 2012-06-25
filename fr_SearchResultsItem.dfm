@@ -2,13 +2,14 @@ object frSearchResultsItem: TfrSearchResultsItem
   Left = 0
   Top = 0
   Width = 451
-  Height = 64
+  Height = 70
   Align = alTop
   AutoSize = True
   Color = clWhite
   ParentBackground = False
   ParentColor = False
   TabOrder = 0
+  OnContextPopup = FrameContextPopup
   object Bevel1: TBevel
     AlignWithMargins = True
     Left = 3
@@ -59,7 +60,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 39
     object LabelFullDesc: TLabel
       AlignWithMargins = True
       Left = 376

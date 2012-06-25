@@ -3551,4 +3551,13 @@ object frmMain: TfrmMain
       Hint = ''
     end
   end
+  object tbxpmnSearchResult: TTBXPopupMenu
+    Left = 160
+    Top = 264
+    object tbitmCopySearchResultCoordinates: TTBXItem
+      OnClick = tbitmCopySearchResultCoordinatesClick
+      Caption = 'Copy coordinates'
+      Hint = ''
+    end
+  end
 end

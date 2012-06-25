@@ -23,8 +23,10 @@ unit fr_SearchResultsItem;
 interface
 
 uses
+  Types,
   Forms,
   Controls,
+  Menus,
   ExtCtrls,
   StdCtrls,
   i_GeoCoder,
@@ -42,6 +44,8 @@ type
     LabelFullDesc: TLabel;
     Bevel1: TBevel;
     LabelCaption: TLabel;
+    procedure FrameContextPopup(Sender: TObject; MousePos: TPoint; var Handled:
+        Boolean);
     procedure LabelFullDescMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure LabelCaptionClick(Sender: TObject);
@@ -51,10 +55,12 @@ type
     FViewPortState: IViewPortState;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
+    FPopUp: TPopupMenu;
   public
     constructor Create(
       AOwner: TComponent;
       AParent:TWinControl;
+      APopUp: TPopupMenu;
       const APlacemark: IGeoCodePlacemark;
       const AViewPortState: IViewPortState;
       const AIntrnalBrowser: IInternalBrowser;
@@ -68,6 +74,7 @@ implementation
 constructor TfrSearchResultsItem.Create(
   AOwner: TComponent;
   AParent:TWinControl;
+  APopUp: TPopupMenu;
   const APlacemark: IGeoCodePlacemark;
   const AViewPortState: IViewPortState;
   const AIntrnalBrowser: IInternalBrowser;
@@ -77,6 +84,7 @@ begin
   inherited Create(AOwner);
   Parent:=AParent;
   FPlacemark:=APlacemark;
+  FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
   LabelCaption.Caption:=FPlacemark.GetAddress;
   LabelDesc.Caption:=FPlacemark.GetDesc;
@@ -84,6 +92,26 @@ begin
   FViewPortState := AViewPortState;
   PanelFullDesc.Visible:=FPlacemark.GetFullDesc<>'';
   PanelDesc.Visible:=FPlacemark.GetDesc<>'';
+end;
+
+procedure TfrSearchResultsItem.FrameContextPopup(
+  Sender: TObject;
+  MousePos: TPoint;
+  var Handled: Boolean
+);
+var
+  VPoint: TPoint;
+begin
+  if FPopUp <> nil then begin
+    if FPopUp.Tag <> 0 then begin
+      IInterface(FPopUp.Tag)._Release;
+    end;
+    FPopUp.Tag := Integer(FPlacemark);
+    IInterface(FPopUp.Tag)._AddRef;
+    VPoint := ClientToScreen(MousePos);
+    FPopUp.Popup(VPoint.X, VPoint.Y);
+    Handled := True;
+  end;
 end;
 
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
