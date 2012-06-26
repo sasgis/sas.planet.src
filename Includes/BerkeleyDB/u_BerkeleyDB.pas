@@ -271,7 +271,15 @@ begin
     CommitTransaction;
   end;
   if FTXN = nil then begin
-    CheckBDB(FENV.txn_begin(FENV, nil, @FTXN, 0));
+    (*
+       Отключено до победы над эксепшеном при построении карты заполнения или
+       конвертировании кэша
+
+       Exception class EBerkeleyDBExeption with message
+       'BerkeleyDB: Lock table is out of available object entries'.
+
+       CheckBDB(FENV.txn_begin(FENV, nil, @FTXN, 0));
+    *)
   end;
   Inc(FTXNCommitCount);
   Result := FTXN;
