@@ -190,6 +190,18 @@ begin
       l := length(sname);
       while (copy(sname,l,1)<>',') and (l>0) do dec(l);
       sname := copy(sname,l+1,length(sname)-l);
+      if PosEx('?',sname)>0 then begin
+       l := length(sname);
+       while (copy(sname,l,1)<>#09) and (l>0) do dec(l);
+       i := PosEx(VSearch , V_StrData);
+       l := PosEx(#09 , V_StrData,i);
+       sname := Copy(V_StrData, i, l - i);
+       if  PosEx(',',sname)>0 then begin
+         i:=0;
+         l := PosEx(',' , sname);
+        sname := Copy(sname, i, l - (i+1));
+       end;
+      end;
 
       sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
