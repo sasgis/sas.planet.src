@@ -451,34 +451,34 @@ if ASection = 'POLYLINE' then begin
  end;
 end;
 end;
+
 function ItemExist(
   const AValue: IGeoCodePlacemark;
-  const AList: igeocoderesult
-  ):boolean;
+  const AList: IInterfaceList
+):boolean;
 var
-i: Cardinal;
-skip : boolean;
-VPlacemark: IGeoCodePlacemark;
-VEnum: IEnumUnknown;
-j : integer;
-str1,str2 : string;
+  i: Integer;
+  VPlacemark: IGeoCodePlacemark;
+  j : integer;
+  str1,str2 : string;
 begin
- skip := false;
- venum := Alist.GetPlacemarks;
- i := 0;
-  while (VEnum.Next(1, VPlacemark, @i) = S_OK )and( skip = false )do
-  begin
-   j:= posex(')',VPlacemark.GetAddress);
-   str1 := copy(VPlacemark.GetAddress,j,length(VPlacemark.GetAddress)-(j+1));
-   j:= posex(')',Avalue.GetAddress);
-   str2 := copy(Avalue.GetAddress,j,length(Avalue.GetAddress)-(j+1));
-   if str1=str2 then
-    if
-      abs(VPlacemark.GetPoint.x-avalue.GetPoint.x) +
-      abs(VPlacemark.GetPoint.Y-avalue.GetPoint.Y) < 0.05  then
-    skip := true
+  Result := false;
+  for i := 0 to AList.Count - 1 do begin
+    VPlacemark := IGeoCodePlacemark(AList.Items[i]);
+    j:= posex(')',VPlacemark.GetAddress);
+    str1 := copy(VPlacemark.GetAddress,j,length(VPlacemark.GetAddress)-(j+1));
+    j:= posex(')',Avalue.GetAddress);
+    str2 := copy(Avalue.GetAddress,j,length(Avalue.GetAddress)-(j+1));
+    if str1=str2 then begin
+      if
+        abs(VPlacemark.GetPoint.x-avalue.GetPoint.x) +
+        abs(VPlacemark.GetPoint.Y-avalue.GetPoint.Y) < 0.05
+      then begin
+        Result := true;
+        Break;
+      end;
+    end;
   end;
-result := skip;
 end;
 
 procedure TGeoCoderByPolishMap.SearchInMapFile(
@@ -681,7 +681,7 @@ begin
       V_Type := -1;
 
       // если закометировать условие то не будет производитьс€ фильтраци€ одинаковых элементов
-      skip := ItemExist(Vplace,TGeoCodeResult.Create(VSearch, 200, '', AList));
+      skip := ItemExist(Vplace,AList);
       if skip = false then
        begin
         inc(Acnt);

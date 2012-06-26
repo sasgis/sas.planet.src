@@ -43,8 +43,8 @@ type
     AOperationID: Integer;
     const AFile : string ;
     const ASearch : widestring;
-    Vlist : IInterfaceList;
-    var Vcnt : integer
+    Alist : IInterfaceList;
+    var Acnt : integer
   );
   protected
     function DoSearch(
@@ -90,32 +90,31 @@ end;
 
 function ItemExist(
   const AValue: IGeoCodePlacemark;
-  const AList: igeocoderesult
-  ):boolean;
+  const AList: IInterfaceList
+):boolean;
 var
-i: Cardinal;
-skip : boolean;
-VPlacemark: IGeoCodePlacemark;
-VEnum: IEnumUnknown;
-j : integer;
-str1,str2 : string;
+  i: Integer;
+  VPlacemark: IGeoCodePlacemark;
+  j : integer;
+  str1,str2 : string;
 begin
- skip := false;
- venum := Alist.GetPlacemarks;
- i := 0;
-  while (VEnum.Next(1, VPlacemark, @i) = S_OK )and( skip = false )do
-  begin
-   j:= posex(')',VPlacemark.GetAddress);
-   str1 := copy(VPlacemark.GetAddress,j,length(VPlacemark.GetAddress)-(j+1));
-   j:= posex(')',Avalue.GetAddress);
-   str2 := copy(Avalue.GetAddress,j,length(Avalue.GetAddress)-(j+1));
-   if str1=str2 then
-    if
-      abs(VPlacemark.GetPoint.x-avalue.GetPoint.x) +
-      abs(VPlacemark.GetPoint.Y-avalue.GetPoint.Y) < 0.05  then
-    skip := true
+  Result := false;
+  for i := 0 to AList.Count - 1 do begin
+    VPlacemark := IGeoCodePlacemark(AList.Items[i]);
+    j:= posex(')',VPlacemark.GetAddress);
+    str1 := copy(VPlacemark.GetAddress,j,length(VPlacemark.GetAddress)-(j+1));
+    j:= posex(')',Avalue.GetAddress);
+    str2 := copy(Avalue.GetAddress,j,length(Avalue.GetAddress)-(j+1));
+    if str1=str2 then begin
+      if
+        abs(VPlacemark.GetPoint.x-avalue.GetPoint.x) +
+        abs(VPlacemark.GetPoint.Y-avalue.GetPoint.Y) < 0.05
+      then begin
+        Result := true;
+        Break;
+      end;
+    end;
   end;
-result := skip;
 end;
 
 procedure TGeoCoderByTXT.SearchInTXTFile(
@@ -123,8 +122,8 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
-  Vlist : IInterfaceList;
-  var Vcnt : integer
+  Alist : IInterfaceList;
+  var Acnt : integer
   );
 var
  VFormatSettings : TFormatSettings;
@@ -165,7 +164,7 @@ begin
     l := i;
     while (copy(Vstr,l,1)<>#$A) and (l>0) do dec(l); // начало блока с найденными данными
     V_StrData := Copy(VStr, l+1 , k-l);
-    if Vcnt mod 5 =0 then
+    if Acnt mod 5 =0 then
      if ACancelNotifier.IsOperationCanceled(AOperationID) then
        Exit;
      sdesc := '';
@@ -185,18 +184,18 @@ begin
      except
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
-      sname := inttostr(Vcnt)+') '+ASearch;
+      sname := inttostr(Acnt)+') '+ASearch;
       sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
 
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
       // если закометировать условие то не будет производиться фильтрация одинаковых элементов
-      skip := ItemExist(Vplace,TGeoCodeResult.Create(VSearch, 200, '', VList));
+      skip := ItemExist(Vplace, Alist);
       if skip = false then
        begin
-        inc(Vcnt);
-        VList.Add(VPlace);
+        inc(Acnt);
+        Alist.Add(VPlace);
        end;
     end;
     i:=k;

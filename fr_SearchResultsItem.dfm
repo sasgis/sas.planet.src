@@ -35,7 +35,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 7
       Height = 16
       Cursor = crHandPoint
       Align = alTop
@@ -48,7 +48,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnClick = LabelCaptionClick
-      ExplicitWidth = 7
     end
   end
   object PanelFullDesc: TPanel
@@ -65,7 +64,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       Left = 376
       Top = 3
       Width = 72
-      Height = 14
+      Height = 13
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -77,7 +76,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Style = [fsUnderline]
       ParentFont = False
       OnMouseUp = LabelFullDescMouseUp
-      ExplicitHeight = 13
     end
   end
   object PanelDesc: TPanel
@@ -93,7 +91,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 6
       Height = 14
       Align = alTop
       Caption = '_'
@@ -105,7 +103,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnDblClick = LabelDescDblClick
-      ExplicitWidth = 6
     end
   end
 end
