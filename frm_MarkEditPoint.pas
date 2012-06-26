@@ -210,7 +210,11 @@ begin
       Caption:=SAS_STR_EditMark;
     end;
     DrawFromMarkIcons(imgIcon.canvas, AMark.Pic, bounds(4,4,36,36));
-    imgIcon.Hint := FPic.GetName;
+    if FPic <> nil then begin
+      imgIcon.Hint := FPic.GetName;
+    end else begin
+      imgIcon.Hint := '';
+    end;
     frLonLatPoint.LonLat := AMark.Point;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
@@ -351,16 +355,20 @@ var
   ACol,ARow: Integer;
   VPictureList: IMarkPictureList;
 begin
- drwgrdIcons.MouseToCell(X,Y,ACol,ARow);
- i:=(ARow*drwgrdIcons.ColCount)+ACol;
- VPictureList := FMarksDb.Factory.MarkPictureList;
- if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
-   FPic := VPictureList.Get(i);
-   imgIcon.Canvas.FillRect(imgIcon.Canvas.ClipRect);
-   DrawFromMarkIcons(imgIcon.Canvas, FPic, bounds(5,5,36,36));
-   imgIcon.Hint := FPic.GetName;
-   drwgrdIcons.Visible:=false;
- end;
+  drwgrdIcons.MouseToCell(X,Y,ACol,ARow);
+  i:=(ARow*drwgrdIcons.ColCount)+ACol;
+  VPictureList := FMarksDb.Factory.MarkPictureList;
+  if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
+    FPic := VPictureList.Get(i);
+    imgIcon.Canvas.FillRect(imgIcon.Canvas.ClipRect);
+    DrawFromMarkIcons(imgIcon.Canvas, FPic, bounds(5,5,36,36));
+    if FPic <> nil then begin
+      imgIcon.Hint := FPic.GetName;
+    end else begin
+      imgIcon.Hint := '';
+    end;
+    drwgrdIcons.Visible:=false;
+  end;
 end;
 
 end.
