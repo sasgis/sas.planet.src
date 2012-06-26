@@ -184,7 +184,13 @@ begin
      except
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
-      sname := inttostr(Acnt)+') '+ASearch;
+
+      sname := GetNsubstring(V_StrData,#09,4);
+      if sname ='' then sname := GetNsubstring(V_StrData,#09,3);
+      l := length(sname);
+      while (copy(sname,l,1)<>',') and (l>0) do dec(l);
+      sname := copy(sname,l+1,length(sname)-l);
+
       sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
