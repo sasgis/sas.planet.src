@@ -124,6 +124,7 @@ var
   i: Cardinal;
   LengthFSearchItems: integer;
   VItemForGoTo: IGeoCodePlacemark;
+  VCnt: Integer;
 begin
   ClearSearchResults;
   VItemForGoTo := nil;
@@ -136,6 +137,7 @@ begin
     FLastSearchResults.GeoCodeResult := ASearchResult;
   end;
 
+  VCnt := 0;
   while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
     if VItemForGoTo = nil then begin
       VItemForGoTo := VPlacemark;
@@ -155,6 +157,10 @@ begin
     if LengthFSearchItems > 0 then begin
       FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;
     end;
+    Inc(VCnt);
+    if VCnt > 100 then begin
+      Break;
+    end;
   end;
 
   if ASearchResult.GetResultCode in [200, 203] then begin
@@ -162,11 +168,6 @@ begin
       ShowMessage(SAS_STR_notfound);
     end else begin
       FMapGoto.GotoPos(VItemForGoTo.GetPoint, AZoom);
-      if ASearchResult.GetPlacemarksCount = 1 then begin
-        if ASearchResult.GetResultCode = 200 then begin
-          ShowMessage(SAS_STR_foundplace + ' "' + VItemForGoTo.GetAddress + '"');
-        end;
-      end;
     end;
   end else begin
     case ASearchResult.GetResultCode of
