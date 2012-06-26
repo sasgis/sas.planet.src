@@ -414,6 +414,8 @@ type
     tbitmSaveMarkAsNew: TTBXItem;
     tbxpmnSearchResult: TTBXPopupMenu;
     tbitmCopySearchResultCoordinates: TTBXItem;
+    tbitmCopySearchResultDescription: TTBXItem;
+    tbitmCreatePlaceMarkBySearchResult: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -559,6 +561,8 @@ type
     procedure tbitmFitToScreenClick(Sender: TObject);
     procedure tbitmHideThisMarkClick(Sender: TObject);
     procedure tbitmSaveMarkAsNewClick(Sender: TObject);
+    procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
+    procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
   private
     FLinksList: IJclListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5701,6 +5705,46 @@ begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
     VStr := GState.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint);
     CopyStringToClipboard(VStr);
+  end;
+end;
+
+procedure TfrmMain.tbitmCopySearchResultDescriptionClick(Sender: TObject);
+var
+  VStr: WideString;
+  VPlacemark: IGeoCodePlacemark;
+begin
+  if tbxpmnSearchResult.Tag <> 0 then begin
+    VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
+    VStr := VPlacemark.GetFullDesc;
+    if VStr = '' then begin
+      VStr := VPlacemark.GetDesc;
+    end;
+    CopyStringToClipboard(VStr);
+  end;
+end;
+
+procedure TfrmMain.tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
+var
+  VStr: WideString;
+  VPlacemark: IGeoCodePlacemark;
+  VMark: IMark;
+begin
+  if tbxpmnSearchResult.Tag <> 0 then begin
+    VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
+    VStr := VPlacemark.GetFullDesc;
+    if VStr = '' then begin
+      VStr := VPlacemark.GetDesc;
+    end;
+    VMark :=
+      FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(
+        VPlacemark.GetPoint,
+        VPlacemark.GetAddress,
+        VStr
+      );
+    VMark := FMarkDBGUI.EditMarkModal(VMark, True);
+    if VMark <> nil then begin
+      FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+    end;
   end;
 end;
 

@@ -1417,7 +1417,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1437,7 +1437,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -3557,6 +3557,16 @@ object frmMain: TfrmMain
     object tbitmCopySearchResultCoordinates: TTBXItem
       OnClick = tbitmCopySearchResultCoordinatesClick
       Caption = 'Copy coordinates'
+      Hint = ''
+    end
+    object tbitmCopySearchResultDescription: TTBXItem
+      OnClick = tbitmCopySearchResultDescriptionClick
+      Caption = 'Copy description'
+      Hint = ''
+    end
+    object tbitmCreatePlaceMarkBySearchResult: TTBXItem
+      OnClick = tbitmCreatePlaceMarkBySearchResultClick
+      Caption = 'Create placemark'
       Hint = ''
     end
   end
