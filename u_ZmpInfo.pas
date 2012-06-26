@@ -113,6 +113,7 @@ type
   TZmpInfo = class(TInterfacedObject, IZmpInfo)
   private
     FGUID: TGUID;
+    FLicense: IStringByLanguage;
     FFileName: string;
     FVersionConfig: IMapVersionInfo;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
@@ -157,6 +158,7 @@ type
     { IZmpInfo }
     function GetGUID: TGUID;
     function GetGUI: IZmpInfoGUI;
+    function GetLicense: IStringByLanguage;
     function GetFileName: string;
     function GetVersionConfig: IMapVersionInfo;
     function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfigStatic;
@@ -559,6 +561,7 @@ begin
   end;
   LoadConfig(ACoordConverterFactory, ALanguageManager);
   FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, AContentTypeManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
+  FLicense := InternalMakeStringByLanguage(ALanguageManager.LanguageList, AConfig, 'License', '');
 end;
 
 function TZmpInfo.GetAbilities: IMapAbilitiesConfigStatic;
@@ -594,6 +597,11 @@ end;
 function TZmpInfo.GetGUID: TGUID;
 begin
   Result := FGUID;
+end;
+
+function TZmpInfo.GetLicense: IStringByLanguage;
+begin
+  Result := FLicense;
 end;
 
 function TZmpInfo.GetMapAttachmentsInfo: IMapAttachmentsInfo;

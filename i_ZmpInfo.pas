@@ -79,6 +79,9 @@ type
     function GetFileName: string;
     property FileName: string read GetFileName;
 
+    function GetLicense: IStringByLanguage;
+    property License: IStringByLanguage read GetLicense;
+
     function GetGUI: IZmpInfoGUI;
     property GUI: IZmpInfoGUI read GetGUI;
 
