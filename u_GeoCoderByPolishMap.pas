@@ -655,7 +655,7 @@ begin
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
       sdesc := '';
-      sname := inttostr(Acnt)+') '+V_Label;
+      sname := V_Label;
       if V_Type<> -1 then sdesc := getType(V_SectionType,V_Type)+ #$D#$A;
       if V_CountryName <> '' then sdesc := sdesc + V_CountryName + ', ' else sdesc := '';
       if V_RegionName <> '' then sdesc := sdesc + V_RegionName;
@@ -669,7 +669,7 @@ begin
 
 
 
-      if V_HouseNumber <>'' then sname := inttostr(Acnt)+') '+V_StreetDesc+' ¹'+V_HouseNumber;
+      if V_HouseNumber <>'' then sname := V_StreetDesc+' ¹'+V_HouseNumber;
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
 
       V_Label := '';

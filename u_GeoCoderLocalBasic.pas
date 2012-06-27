@@ -52,6 +52,62 @@ uses
 
 { TGeoCoderLocalBasic }
 
+procedure QuickSort(
+  var AList:IInterfaceList;
+  var ADist: array of Double;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Double;
+    TD: Double;
+
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := ADist[(L + R) shr 1];
+      repeat
+        while ADist[I] < P do begin
+          Inc(I);
+        end;
+        while ADist[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          TD := ADist[I];
+
+          ADist[I] := ADist[J];
+          ADist[J] := TD;
+          AList.Exchange(i,j);
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AList, ADist, L, J);
+      end;
+      L := I;
+    until I >= R;
+end;
+
+procedure SortIt(
+  var AList:IInterfaceList;
+  const ALocalConverter: ILocalCoordConverter
+    );
+var
+  i: integer;
+  VMark: IGeoCodePlacemark;
+  VDistArr: array of Double;
+begin
+   setlength(VDistArr,Alist.Count);
+   for i := 0 to Alist.GetCount-1 do begin
+      VMark := IGeoCodePlacemark(AList.Items[i]);
+      VDistArr[i]:=ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat,VMark.GetPoint);
+   end;
+  QuickSort(AList,VDistArr,0,Alist.GetCount-1);
+end;
+
 function TGeoCoderLocalBasic.GetLocations(
   const ACancelNotifier: IOperationNotifier;
   AOperationID: Integer;
@@ -77,7 +133,10 @@ begin
    );
   if VList = nil then begin
     VList := TInterfaceList.Create;
-  end;   
+  end;
+
+  if Vlist.GetCount>1 then SortIt(Vlist ,ALocalConverter);
+
   Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList);
 end;
 
