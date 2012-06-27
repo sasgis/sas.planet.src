@@ -290,6 +290,7 @@
     <DCCReference Include="i_MapTypeGUIConfigList.pas" />
     <DCCReference Include="i_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
+    <DCCReference Include="i_MapTypeListChangeable.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionInfo.pas" />
@@ -334,6 +335,7 @@
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
     <DCCReference Include="i_RegionProcessProgressInfo.pas" />
+    <DCCReference Include="i_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_ScaleLineConfig.pas" />
     <DCCReference Include="i_SearchResultPresenter.pas" />
@@ -803,6 +805,7 @@
     <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
     <DCCReference Include="u_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
+    <DCCReference Include="u_MapTypeListChangeableActiveBitmapLayers.pas" />
     <DCCReference Include="u_MapTypeListStatic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
@@ -872,6 +875,7 @@
     <DCCReference Include="u_ReadWriteStateInternal.pas" />
     <DCCReference Include="u_ReadWriteStateStatic.pas" />
     <DCCReference Include="u_RegionProcessProgressInfo.pas" />
+    <DCCReference Include="u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="u_ResStrings.pas" />
     <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
