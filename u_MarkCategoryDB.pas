@@ -274,9 +274,11 @@ procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VCategory: IMarkCategory;
   VId: Integer;
+  VChanged: Boolean;
 begin
   LockWrite;
   try
+      VChanged := False;
       FCdsKategory.Filtered := false;
       FCdsKategory.First;
       while not (FCdsKategory.Eof) do begin
@@ -286,8 +288,12 @@ begin
           FCdsKategory.post;
           VCategory := ReadCurrentCategory(VId);
           FList.Replace(VId, VCategory);
+          VChanged := True;
         end;
         FCdsKategory.Next;
+      end;
+      if VChanged then begin
+        SetChanged;
       end;
   finally
     UnlockWrite;
