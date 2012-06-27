@@ -105,15 +105,19 @@ end;
 
 procedure TfrMapsList.btnMapInfoClick(Sender: TObject);
 var
-  VMap: TMapType;
+  VMapType: TMapType;
   VUrl: string;
+  VItem: TListItem;
 begin
-  VMap := TMapType(MapList.Selected.Data);
-  if VMap <> nil then begin
-    VUrl := VMap.GUIConfig.InfoUrl.Value;
-    if VUrl <> '' then begin
-      VUrl := CZmpInfoInternalURL + GUIDToString(VMap.Zmp.GUID) + VUrl;
-      FInternalBrowser.Navigate(VMap.Zmp.FileName, VUrl);
+  VItem := MapList.Selected;
+  if VItem <> nil then begin
+    VMapType := TMapType(VItem.Data);
+    if VMapType <> nil then begin
+      VUrl := VMapType.GUIConfig.InfoUrl.Value;
+      if VUrl <> '' then begin
+        VUrl := CZmpInfoInternalURL + GUIDToString(VMapType.Zmp.GUID) + VUrl;
+        FInternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
+      end;
     end;
   end;
 end;
@@ -135,11 +139,15 @@ end;
 procedure TfrMapsList.Button15Click(Sender: TObject);
 var
   VMapType: TMapType;
+  VItem: TListItem;
 begin
-  VMapType := TMapType(MapList.Selected.Data);
-  if VMapType <> nil then begin
-    if FMapTypeEditor.EditMap(VMapType) then begin
-      UpdateList;
+  VItem := MapList.Selected;
+  if VItem <> nil then begin
+    VMapType := TMapType(VItem.Data);
+    if VMapType <> nil then begin
+      if FMapTypeEditor.EditMap(VMapType) then begin
+        UpdateList;
+      end;
     end;
   end;
 end;
