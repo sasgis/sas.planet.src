@@ -69,7 +69,7 @@ type
       const ATileZoom: Byte;
       const ATileDate: TDateTime;
       const AVersionInfo: IMapVersionInfo;
-      ATileContetType: PWideChar;
+      const ATileContetType: PWideChar;
       const AData: IBinaryData
     ): Boolean;
 
@@ -85,8 +85,10 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      out ATileStream: TMemoryStream;
-      out ABDBData: TBDBData
+      out ATileBinaryData: IBinaryData;
+      out ATileVersion: WideString;
+      out ATileContentType: WideString;
+      out ATileDate: TDateTime
     ): Boolean;
 
     function TileExists(
@@ -101,7 +103,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      out ABDBData: TBDBData
+      out ATileDate: TDateTime
     ): Boolean;
 
     procedure Sync(Sender: TObject);
@@ -119,7 +121,8 @@ implementation
 uses
   Windows,
   SysUtils,
-  libdb51;
+  libdb51,
+  u_BinaryData;
 
 const
   CPageSize = 1024; // 1k
@@ -305,7 +308,7 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   const ATileZoom: Byte;
   const ATileDate: TDateTime;
   const AVersionInfo: IMapVersionInfo;
-  ATileContetType: PWideChar;
+  const ATileContetType: PWideChar;
   const AData: IBinaryData
 ): Boolean;
 var
@@ -391,14 +394,17 @@ function TTileStorageBerkeleyDBHelper.LoadTile(
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  out ATileStream: TMemoryStream;
-  out ABDBData: TBDBData
+  out ATileBinaryData: IBinaryData;
+  out ATileVersion: WideString;
+  out ATileContentType: WideString;
+  out ATileDate: TDateTime
 ): Boolean;
 var
   VKey: TBDBKey;
   VBDB: TBerkeleyDB;
   VRawData: Pointer;
   VRawDataSize: Cardinal;
+  VBDBData: TBDBData;
 begin
   Result := False;
   FEvent.WaitFor(INFINITE);
@@ -410,15 +416,22 @@ begin
       if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
         if (VRawData <> nil) and (VRawDataSize > 0) then
         try
-          if PRawDataToPBDBData(VRawData, VRawDataSize, @ABDBData) then begin
-            if (ABDBData.TileSize > 0) and (ABDBData.TileBody <> nil) then begin
-              ATileStream.Position := 0;
-              Result := ATileStream.Write(ABDBData.TileBody^, ABDBData.TileSize) = Integer(ABDBData.TileSize);
-              ATileStream.Position := 0;
+          if PRawDataToPBDBData(VRawData, VRawDataSize, @VBDBData) then begin
+            if (VBDBData.TileSize > 0) and (VBDBData.TileBody <> nil) then begin
+              ATileBinaryData :=
+                TBinaryData.Create(
+                  VBDBData.TileSize,
+                  VBDBData.TileBody,
+                  False
+                );
+              ATileVersion := VBDBData.TileVer;
+              ATileContentType := VBDBData.TileMIME;
+              ATileDate := VBDBData.TileDate;
+              Result := True;
             end;
           end;
         finally
-          FreeMem(VRawData);
+          FreeMemory(VRawData);
         end;
       end;
     end;
@@ -456,13 +469,14 @@ function TTileStorageBerkeleyDBHelper.IsTNEFound(
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  out ABDBData: TBDBData
+  out ATileDate: TDateTime
 ): Boolean;
 var
   VKey: TBDBKey;
   VBDB: TBerkeleyDB;
   VRawData: Pointer;
   VRawDataSize: Cardinal;
+  VBDBData: TBDBData;
 begin
   Result := False;
   FEvent.WaitFor(INFINITE);
@@ -474,9 +488,12 @@ begin
       if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
         if (VRawData <> nil) and (VRawDataSize > 0) then
         try
-          Result := PRawDataToPBDBData(VRawData, VRawDataSize, @ABDBData);
+          if PRawDataToPBDBData(VRawData, VRawDataSize, @VBDBData) then begin
+            ATileDate := VBDBData.TileDate;
+            Result := True;
+          end;
         finally
-          FreeMem(VRawData);
+          FreeMemory(VRawData);
         end;
       end;
     end;
@@ -529,7 +546,7 @@ begin
                 Inc(VValidKeyCount);
               end;
             finally
-              FreeMem(VRawKey);
+              FreeMemory(VRawKey);
             end;
           end;
           SetLength(ATileExistsArray, VValidKeyCount);

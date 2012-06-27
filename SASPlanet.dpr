@@ -36,6 +36,7 @@ uses
   u_TimeZoneDiffByLonLatStuped in 'u_TimeZoneDiffByLonLatStuped.pas',
   c_TimeZones in 'c_TimeZones.pas',
   i_BinaryData in 'i_BinaryData.pas',
+  u_BinaryData in 'u_BinaryData.pas',
   u_BinaryDataByMemStream in 'u_BinaryDataByMemStream.pas',
   i_LonLatRect in 'i_LonLatRect.pas',
   u_LonLatRect in 'u_LonLatRect.pas',

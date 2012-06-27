@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_TileInfoBasicMemCache;
 
 interface
@@ -96,7 +116,7 @@ begin
   try
     VOldestItem := -1;
     VMinTTL := $FFFFFFFF;
-    VReplaceOld := (FMaxTileInfoCounts >= FList.Count);
+    VReplaceOld := (FMaxTileInfoCounts < FList.Count);
 
     for I := 0 to FList.Count - 1 do begin
       VTile := PTileInfoCacheRec(FList.Items[I]);
@@ -117,8 +137,11 @@ begin
     end;
 
     if VReplaceOld then begin
-      if (FList.Count > 0) and (FList.Count < VOldestItem) then begin
-        Dispose(PTileInfoCacheRec(FList.Items[VOldestItem]));
+      if (FList.Count > 0) and (FList.Count > VOldestItem) then begin
+        VTile := PTileInfoCacheRec(FList.Items[VOldestItem]);
+        VTile.TileVersionInfo := nil;
+        VTile.TileInfoBasic := nil;
+        Dispose(VTile);
         FList.Delete(VOldestItem);
       end;
     end;
@@ -153,7 +176,10 @@ begin
          (VTile.TileXY.Y = AXY.Y) and
          (VTile.TileZoom = AZoom)
       then begin
-        Dispose(PTileInfoCacheRec(FList.Items[I]));
+        VTile := PTileInfoCacheRec(FList.Items[I]);
+        VTile.TileVersionInfo := nil;
+        VTile.TileInfoBasic := nil;
+        Dispose(VTile);
         FList.Delete(I);
         Break;
       end;
@@ -181,7 +207,10 @@ begin
          (VTile.TileZoom = AZoom)
       then begin
         if (VTile.TileTTL < GetTickCount) then begin
-          Dispose(PTileInfoCacheRec(FList.Items[I]));
+          VTile := PTileInfoCacheRec(FList.Items[I]);
+          VTile.TileVersionInfo := nil;
+          VTile.TileInfoBasic := nil;
+          Dispose(VTile);
           FList.Delete(I);
         end else begin
           VTile.TileTTL := GetTickCount + FTileInfoTTL;
@@ -198,11 +227,15 @@ end;
 procedure TTileInfoBasicMemCache.Clear;
 var
   I: Integer;
+  VTile: PTileInfoCacheRec;
 begin
   FCS.Acquire;
   try
     for I := 0 to FList.Count - 1 do begin
-      Dispose(PTileInfoCacheRec(FList.Items[I]));
+      VTile := PTileInfoCacheRec(FList.Items[I]);
+      VTile.TileVersionInfo := nil;
+      VTile.TileInfoBasic := nil;
+      Dispose(VTile);
     end;
     FList.Clear;
   finally
@@ -221,6 +254,9 @@ begin
     while I < FList.Count do begin
       VTile := PTileInfoCacheRec(FList.Items[I]);
       if (VTile.TileTTL < GetTickCount) then begin
+        VTile := PTileInfoCacheRec(FList.Items[I]);
+        VTile.TileVersionInfo := nil;
+        VTile.TileInfoBasic := nil;
         Dispose(VTile);
         FList.Delete(I);
       end else begin

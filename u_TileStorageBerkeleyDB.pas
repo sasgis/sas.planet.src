@@ -295,9 +295,10 @@ function TTileStorageBerkeleyDB.GetTileInfo(
 var
   VPath: string;
   VResult: Boolean;
-  VData: TBDBData;
-  VStream: TMemoryStream;
-  VTileData: IBinaryData;
+  VTileBinaryData: IBinaryData;
+  VTileVersion: WideString;
+  VTileContentType: WideString;
+  VTileDate: TDateTime;
 {$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
@@ -318,28 +319,26 @@ begin
       VResult := False;
 
       if FileExists(VPath) then begin
-        VStream := TMemoryStream.Create;
-        try
-          VResult := FHelper.LoadTile(
-            VPath,
-            AXY,
-            AZoom,
-            AVersionInfo,
-            VStream,
-            VData
+
+        VResult := FHelper.LoadTile(
+          VPath,
+          AXY,
+          AZoom,
+          AVersionInfo,
+          VTileBinaryData,
+          VTileVersion,
+          VTileContentType,
+          VTileDate
+        );
+
+        if VResult then begin
+
+          Result := TTileInfoBasicExistsWithTile.Create(
+            VTileDate,
+            VTileBinaryData,
+            MapVersionFactory.CreateByStoreString(VTileVersion),
+            FContentTypeManager.GetInfo(VTileContentType)
           );
-          if VResult then begin
-            VTileData := TBinaryDataByMemStream.CreateWithOwn(VStream);
-            VStream := nil;
-            Result := TTileInfoBasicExistsWithTile.Create(
-              VData.TileDate,
-              VTileData,
-              MapVersionFactory.CreateByStoreString(WideString(VData.TileVer)),
-              FContentTypeManager.GetInfo(WideString(VData.TileMIME))
-            );
-          end;
-        finally
-          VStream.Free;
         end;
       end;
 
@@ -351,10 +350,10 @@ begin
             AXY,
             AZoom,
             AVersionInfo,
-            VData
+            VTileDate
           );
           if VResult then begin
-            Result := TTileInfoBasicTNE.Create(VData.TileDate, AVersionInfo);
+            Result := TTileInfoBasicTNE.Create(VTileDate, AVersionInfo);
           end;
         end;
       end;

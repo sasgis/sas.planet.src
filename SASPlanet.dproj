@@ -564,6 +564,7 @@
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BaseTileDownloaderThread.pas" />
     <DCCReference Include="u_BatteryStatus.pas" />
+    <DCCReference Include="u_BinaryData.pas" />
     <DCCReference Include="u_BinaryDataByMemStream.pas" />
     <DCCReference Include="u_Bitmap32Static.pas" />
     <DCCReference Include="u_BitmapGeo.pas" />
