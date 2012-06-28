@@ -330,6 +330,8 @@
     <DCCReference Include="i_ProjConverter.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
+    <DCCReference Include="i_ReadWriteState.pas" />
+    <DCCReference Include="i_ReadWriteStateInternal.pas" />
     <DCCReference Include="i_RegionProcessProgressInfo.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_ScaleLineConfig.pas" />
@@ -865,6 +867,8 @@
     <DCCReference Include="u_ProjectedSingleLine.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
+    <DCCReference Include="u_ReadWriteStateInternal.pas" />
+    <DCCReference Include="u_ReadWriteStateStatic.pas" />
     <DCCReference Include="u_RegionProcessProgressInfo.pas" />
     <DCCReference Include="u_ResStrings.pas" />
     <DCCReference Include="u_SASMainConfigProvider.pas" />
