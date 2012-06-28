@@ -86,6 +86,7 @@ type
     procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
+    procedure FitRectToScreen(const ALonLatRect: TDoubleRect);
 
     procedure MoveTo(const Pnt: TPoint);
     procedure ScaleTo(
@@ -149,6 +150,52 @@ begin
   FScaleChangeNotifier := nil;
   FVisibleCoordConverterFactory := nil;
   inherited;
+end;
+
+procedure TMapViewPortState.FitRectToScreen(const ALonLatRect: TDoubleRect);
+var
+  VCenterLonLat: TDoublePoint;
+  VLLRect: TDoubleRect;
+  VCoordConverter: ICoordConverter;
+  VScreenSize: TPoint;
+  VRelativeRect: TDoubleRect;
+  VTargetZoom: Byte;
+  VZoom: Byte;
+  VMarkMapRect: TRect;
+  VMarkMapSize: TPoint;
+begin
+  if PointIsEmpty(ALonLatRect.TopLeft) or PointIsEmpty(ALonLatRect.BottomRight) then begin
+    Exit;
+  end;
+  if DoublePointsEqual(ALonLatRect.TopLeft, ALonLatRect.BottomRight) then begin
+    Exit;
+  end;
+  VCenterLonLat.X := (ALonLatRect.Left + ALonLatRect.Right) / 2;
+  VCenterLonLat.Y := (ALonLatRect.Top + ALonLatRect.Bottom) / 2;
+  VLLRect := ALonLatRect;
+  LockWrite;
+  try
+    VCoordConverter := FActiveCoordConverter;
+    VScreenSize := FViewSize;
+
+    VCoordConverter.CheckLonLatRect(VLLRect);
+    VRelativeRect := VCoordConverter.LonLatRect2RelativeRect(VLLRect);
+
+    VTargetZoom := 23;
+    for VZoom := 1 to 23 do begin
+      VMarkMapRect := VCoordConverter.RelativeRect2PixelRect(VRelativeRect, VZoom);
+      VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
+      VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
+      if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
+        VTargetZoom := VZoom - 1;
+        Break;
+      end;
+    end;
+    ChangeLonLat(VCenterLonLat);
+    ChangeZoomWithFreezeAtCenter(VTargetZoom);
+  finally
+    UnlockWrite;
+  end;
 end;
 
 procedure TMapViewPortState.ChangeLonLat(const ALonLat: TDoublePoint);
