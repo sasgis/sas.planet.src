@@ -813,7 +813,7 @@ begin
           DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
           VFileStream := TFileStream.Create(VPath, fmCreate);
           try
-            VFileStream.Write(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
+            VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
           finally
             VFileStream.Free;
           end;

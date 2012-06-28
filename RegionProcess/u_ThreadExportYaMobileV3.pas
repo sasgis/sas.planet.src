@@ -288,19 +288,19 @@ begin
 
   VYaMobileStream := TFileStream.Create(VYaMobileFile, fmOpenReadWrite or fmShareExclusive);
   try
-    VYaMobileStream.Read(VHead, Length(VHead));
+    VYaMobileStream.ReadBuffer(VHead, Length(VHead));
     VTableOffset := (VHead[6] or (VHead[7] shl 8) or (VHead[8] shl 16) or (VHead[9] shl 24));
     VTablePos := TileToTablePos(ATile) * 6 + sm_xy * 6;
     VTileOffset := VYaMobileStream.Size;
     VTileSize := ATileStream.Size;
     VYaMobileStream.Position := VTableOffset + VTablePos;
-    VYaMobileStream.Read(VExistsTileOffset, 4);
+    VYaMobileStream.ReadBuffer(VExistsTileOffset, 4);
     if (VExistsTileOffset = 0) or AReplace then begin
       VYaMobileStream.Position := VTableOffset + VTablePos;
-      VYaMobileStream.Write(VTileOffset, 4);
-      VYaMobileStream.Write(VTileSize, 2);
+      VYaMobileStream.WriteBuffer(VTileOffset, 4);
+      VYaMobileStream.WriteBuffer(VTileSize, 2);
       VYaMobileStream.Position := VYaMobileStream.Size;
-      VYaMobileStream.Write(ATileStream.Memory^, VTileSize);
+      VYaMobileStream.WriteBuffer(ATileStream.Memory^, VTileSize);
     end;
   finally
     VYaMobileStream.Free;
