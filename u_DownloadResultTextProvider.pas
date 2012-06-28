@@ -151,7 +151,7 @@ begin
   FMessageLoadErrorByErrorCode := _('Download error. Error code %d');
   FMessageLoadErrorByStatusCode := _('Download error. Status code %d');
   FMessageLoadErrorByUnknownStatusCode := _('Download error. Unknown status code %d');
-  FMessageNoConnetctToServerByErrorCode := _('Connct to server error. Error code %d');
+  FMessageNoConnetctToServerByErrorCode := _('Connect to server error. Error code %d');
   FMessageUnexpectedProxyAuth := _('Unexpected proxy authorization');
 end;
 
