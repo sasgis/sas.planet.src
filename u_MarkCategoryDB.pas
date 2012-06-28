@@ -35,12 +35,16 @@ uses
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryDB,
   i_MarkCategoryDBSmlInternal,
+  i_ReadWriteStateInternal,
   u_ConfigDataElementBase;
 
 type
   TMarkCategoryDB = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
     FBasePath: IPathConfig;
+    FStateInternal: IReadWriteStateInternal;
+
+    FStream: TStream;
     FCdsKategory: TClientDataSet;
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
@@ -67,6 +71,7 @@ type
     function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
+      const AStateInternal: IReadWriteStateInternal;
       const ABasePath: IPathConfig;
       const AFactoryConfig: IMarkCategoryFactoryConfig
     );
@@ -77,12 +82,14 @@ implementation
 
 uses
   DB,
+  t_CommonTypes,
   i_EnumID,
   u_IDInterfaceList,
   i_MarksDbSmlInternal,
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
+  const AStateInternal: IReadWriteStateInternal;
   const ABasePath: IPathConfig;
   const AFactoryConfig: IMarkCategoryFactoryConfig
 );
@@ -91,6 +98,7 @@ var
 begin
   inherited Create;
   FBasePath := ABasePath;
+  FStateInternal := AStateInternal;
   FList := TIDInterfaceList.Create;
   VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FFactoryDbInternal := VFactory;
@@ -103,6 +111,7 @@ end;
 
 destructor TMarkCategoryDB.Destroy;
 begin
+  FreeAndNil(FStream);
   FreeAndNil(FCdsKategory);
   FList := nil;
   FFactory := nil;
@@ -335,47 +344,134 @@ var
   VFileName: string;
   VCategory: IMarkCategory;
   VId: Integer;
+  XML: string;
+  VStream: TFileStream;
 begin
   VFileName := GetMarksCategoryFileName;
-  if FileExists(VFileName) then begin
+  FStateInternal.LockWrite;
+  try
+    LockWrite;
     try
-      FCdsKategory.LoadFromFile(VFileName);
-    except
       InitEmptyDS;
-    end;
-    if FCdsKategory.RecordCount > 0 then begin
-      CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
-    end;
+      FList.Clear;
+      if FStateInternal.ReadAccess <> asDisabled then begin
+        VStream := nil;
+        try
+          if FileExists(VFileName) then begin
+            if FStateInternal.WriteAccess <> asDisabled then begin
+              try
+                VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
+                FStateInternal.WriteAccess := asEnabled;
+              except
+                VStream := nil;
+                FStateInternal.WriteAccess := asDisabled;
+              end;
+            end;
+            if VStream = nil then begin
+              try
+                VStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
+                FStateInternal.ReadAccess := asEnabled;
+              except
+                FStateInternal.ReadAccess := asDisabled;
+                VStream := nil;
+              end;
+            end;
+            if VStream <> nil then begin
+              try
+                SetLength(XML, VStream.Size);
+                VStream.ReadBuffer(XML[1], length(XML));
+              except
+                FStateInternal.ReadAccess := asDisabled;
+                VStream.Free;
+                VStream := nil;
+              end;
+            end;
 
-      FCdsKategory.Filtered := false;
-      FCdsKategory.First;
-      while not (FCdsKategory.Eof) do begin
-        VCategory := ReadCurrentCategory(VId);
-        FList.Add(VId, VCategory);
-        FCdsKategory.Next;
+            if length(XML) > 0 then begin
+              try
+                FCdsKategory.XMLData := XML;
+              except
+                InitEmptyDS;
+              end;
+            end;
+
+            if FCdsKategory.RecordCount > 0 then begin
+              if FStateInternal.WriteAccess = asEnabled then begin
+                CopyFile(PChar(VFileName), PChar(GetMarksCategoryBackUpFileName), false);
+              end;
+            end;
+
+            FCdsKategory.Filtered := false;
+            FCdsKategory.First;
+            while not (FCdsKategory.Eof) do begin
+              VCategory := ReadCurrentCategory(VId);
+              FList.Add(VId, VCategory);
+              FCdsKategory.Next;
+            end;
+          end else begin
+            if FStateInternal.WriteAccess <> asDisabled then begin
+              try
+                VStream := TFileStream.Create(VFileName, fmCreate);
+                VStream.Free;
+                VStream := nil;
+              except
+                FStateInternal.WriteAccess := asDisabled;
+                VStream := nil;
+              end;
+              if FStateInternal.WriteAccess <> asDisabled then begin
+                try
+                  VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
+                  FStateInternal.WriteAccess := asEnabled;
+                except
+                  VStream := nil;
+                  FStateInternal.WriteAccess := asDisabled;
+                end;
+              end;
+            end;
+          end;
+          if FStream <> nil then begin
+            FreeAndNil(FStream);
+          end;
+          if FStateInternal.WriteAccess = asEnabled then begin
+            FStream := VStream;
+            VStream := nil;
+          end;
+        finally
+          VStream.Free;
+        end;
       end;
+    finally
+      UnlockWrite;
+    end;
+  finally
+    FStateInternal.UnlockWrite;
   end;
 end;
 
 function TMarkCategoryDB.SaveCategory2File: boolean;
 var
-  VStream: TFileStream;
   XML: string;
 begin
   result := true;
   try
-    VStream := TFileStream.Create(GetMarksCategoryFileName, fmCreate);
+    FStateInternal.LockRead;
     try
-      LockRead;
-      try
-        FCdsKategory.MergeChangeLog;
-        XML := FCdsKategory.XMLData;
-        VStream.Write(XML[1], length(XML));
-      finally
-        UnlockRead;
+      if FStateInternal.WriteAccess = asEnabled then begin
+        LockRead;
+        try
+          if FStream <> nil then begin
+            FCdsKategory.MergeChangeLog;
+            XML := FCdsKategory.XMLData;
+            FStream.Size := length(XML);
+            FStream.Position := 0;
+            FStream.WriteBuffer(XML[1], length(XML));
+          end;
+        finally
+          UnlockRead;
+        end;
       end;
     finally
-      VStream.Free;
+      FStateInternal.UnlockRead;
     end;
   except
     result := false;

@@ -26,7 +26,6 @@ object frmMarksExplorer: TfrmMarksExplorer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 333
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -35,8 +34,6 @@ object frmMarksExplorer: TfrmMarksExplorer
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 462
-      ExplicitHeight = 333
       object splCatMarks: TSplitter
         Left = 181
         Top = 0
@@ -53,8 +50,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alClient
         Caption = 'Placemarks'
         TabOrder = 0
-        ExplicitWidth = 278
-        ExplicitHeight = 333
         object MarksListBox: TCheckListBox
           AlignWithMargins = True
           Left = 5
@@ -68,8 +63,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Sorted = True
           TabOrder = 0
           OnKeyUp = MarksListBoxKeyUp
-          ExplicitWidth = 268
-          ExplicitHeight = 262
         end
         object TBXDockMark: TTBXDock
           Left = 2
@@ -78,7 +71,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Height = 28
           AllowDrag = False
           UseParentBackground = True
-          ExplicitWidth = 274
           object TBXToolbar1: TTBXToolbar
             Left = 0
             Top = 0
@@ -154,8 +146,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 2
-          ExplicitTop = 311
-          ExplicitWidth = 274
           object CheckBox1: TCheckBox
             AlignWithMargins = True
             Left = 3
@@ -171,10 +161,9 @@ object frmMarksExplorer: TfrmMarksExplorer
             Left = 353
             Top = 0
             Width = 4
-            Height = 20
+            Height = 4
             Align = alRight
             TabOrder = 1
-            ExplicitLeft = 270
           end
         end
       end
@@ -190,7 +179,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alLeft
         Caption = 'Placemark Categories'
         TabOrder = 1
-        ExplicitHeight = 333
         object CheckBox2: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -201,7 +189,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           Caption = 'All'
           TabOrder = 0
           OnClick = CheckBox2Click
-          ExplicitTop = 311
         end
         object CategoryTreeView: TTreeView
           AlignWithMargins = True
@@ -218,7 +205,6 @@ object frmMarksExplorer: TfrmMarksExplorer
           OnChange = CategoryTreeViewChange
           OnKeyUp = CategoryTreeViewKeyUp
           OnMouseUp = CategoryTreeViewMouseUp
-          ExplicitHeight = 259
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -285,7 +271,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 447
+      Width = 415
       Height = 69
       Align = alClient
       Ctl3D = True
@@ -297,25 +283,45 @@ object frmMarksExplorer: TfrmMarksExplorer
       ParentCtl3D = False
       TabOrder = 0
       OnClick = rgMarksShowModeClick
-      ExplicitLeft = 4
-      ExplicitTop = 4
-      ExplicitWidth = 171
-      ExplicitHeight = 80
+      ExplicitWidth = 447
     end
     object pnlButtons: TPanel
       AlignWithMargins = True
-      Left = 456
+      Left = 424
       Top = 3
-      Width = 86
+      Width = 118
       Height = 69
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
+      object lblReadOnly: TLabel
+        Left = 0
+        Top = 54
+        Width = 118
+        Height = 15
+        Align = alClient
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'Read only mode'
+        Color = clActiveCaption
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentColor = False
+        ParentFont = False
+        Layout = tlCenter
+        ExplicitLeft = 29
+        ExplicitTop = 32
+        ExplicitWidth = 57
+        ExplicitHeight = 13
+      end
       object btnExport: TTBXButton
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 80
+        Width = 112
         Height = 21
         Align = alTop
         DropDownCombo = True
@@ -323,22 +329,20 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 0
         OnClick = btnExportClick
-        ExplicitTop = 365
-        ExplicitWidth = 71
+        ExplicitWidth = 80
         Caption = 'Export'
       end
       object btnImport: TTBXButton
         AlignWithMargins = True
         Left = 3
         Top = 30
-        Width = 80
+        Width = 112
         Height = 21
         Align = alTop
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnImportClick
-        ExplicitTop = 338
-        ExplicitWidth = 71
+        ExplicitWidth = 80
         Caption = 'Import'
       end
     end
@@ -360,7 +364,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300080024000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300080038000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -30,6 +30,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_VectorItmesFactory,
+  i_ReadWriteState,
   i_MarksSimple,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
@@ -48,6 +49,8 @@ type
   private
     FBasePath: IPathConfig;
     FMarksFactoryConfig: IMarksFactoryConfig;
+    FState: IReadWriteStateChangeble;
+
     FMarksDb: IMarksDb;
     FMarksDbInternal: IMarksDbSmlInternal;
     FCategoryDB: IMarkCategoryDB;
@@ -68,6 +71,7 @@ type
     procedure ReadConfig(const AConfigData: IConfigDataProvider);
     procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
 
+    property State: IReadWriteStateChangeble read FState;
     property MarksDb: IMarksDb read FMarksDb;
     property CategoryDB: IMarkCategoryDB read FCategoryDB;
     property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
@@ -86,6 +90,7 @@ implementation
 uses
   ActiveX,
   u_StaticTreeBuilderBase,
+  u_ReadWriteStateInternal,
   u_MarksDb,
   u_MarkCategoryDB,
   u_MarksFactoryConfig;
@@ -189,10 +194,13 @@ constructor TMarksSystem.Create(
 var
   VCategoryDb: TMarkCategoryDB;
   VMarksDb: TMarksDb;
+  VState: TReadWriteStateInternal;
 begin
   inherited Create;
   FBasePath := ABasePath;
-  VCategoryDB := TMarkCategoryDB.Create(FBasePath, ACategoryFactoryConfig);
+  VState := TReadWriteStateInternal.Create;
+  FState := VState;
+  VCategoryDB := TMarkCategoryDB.Create(VState, FBasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig :=
@@ -203,6 +211,7 @@ begin
     );
   VMarksDb :=
     TMarksDb.Create(
+      VState,
       ABasePath,
       FCategoryDBInternal,
       AVectorItmesFactory,

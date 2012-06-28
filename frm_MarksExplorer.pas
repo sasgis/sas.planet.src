@@ -109,6 +109,7 @@ type
     btnAddMark: TTBXItem;
     pnlMarksBottom: TPanel;
     pnlBottom: TPanel;
+    lblReadOnly: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure MarksListBoxClickCheck(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -153,11 +154,13 @@ type
     FMarksDBListener: IJclListener;
     FMarksShowConfigListener: IJclListener;
     FConfigListener: IJclListener;
+    FMarksSystemStateListener: IJclListener;
 
     procedure OnCategoryDbChanged;
     procedure OnMarksDbChanged;
     procedure OnMarksShowConfigChanged;
     procedure OnConfigChange;
+    procedure OnMarkSystemStateChanged;
     procedure UpdateCategoryTree;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
@@ -181,6 +184,7 @@ type
 implementation
 
 uses
+  t_CommonTypes,
   i_ImportConfig,
   i_MarkTemplate,
   i_MarksFactoryConfig,
@@ -212,6 +216,7 @@ begin
   FMarksDBListener := TNotifyNoMmgEventListener.Create(Self.OnMarksDbChanged);
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FMarksSystemStateListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemStateChanged);
 end;
 
 procedure TfrmMarksExplorer.FormCreate(Sender: TObject);
@@ -716,6 +721,11 @@ begin
   end;
 end;
 
+procedure TfrmMarksExplorer.OnMarkSystemStateChanged;
+begin
+  lblReadOnly.Visible := FMarkDBGUI.MarksDB.State.GetStatic.WriteAccess = asDisabled;
+end;
+
 procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);
 var
   VCategory: IMarkCategory;
@@ -801,6 +811,7 @@ begin
   FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
   FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Remove(FMarksDBListener);
   FMarksShowConfig.ChangeNotifier.Remove(FMarksShowConfigListener);
+  FMarkDBGUI.MarksDB.State.ChangeNotifier.Remove(FMarksSystemStateListener);
   CategoryTreeView.OnChange:=nil;
   CategoryTreeView.Items.Clear;
   MarksListBox.Clear;
@@ -823,8 +834,10 @@ begin
   FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
   FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Add(FMarksDBListener);
   FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
+  FMarkDBGUI.MarksDB.State.ChangeNotifier.Add(FMarksSystemStateListener);
   FWindowConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;
+  OnMarkSystemStateChanged;
   Self.OnResize := FormResize;
 end;
 
