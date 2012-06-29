@@ -676,11 +676,11 @@ procedure TfrmSettings.Button4Click(Sender: TObject);
 begin
  if (sender as TButton).Tag=1 then OldCpath.Text:='cache_old' + PathDelim;
  if (sender as TButton).Tag=2 then NewCpath.Text:='cache' + PathDelim;
- if (sender as TButton).Tag=3 then NewCpath.Text:='cache_es' + PathDelim;
+ if (sender as TButton).Tag=3 then ESCpath.Text:='cache_es' + PathDelim;
  if (sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt' + PathDelim;
  if (sender as TButton).Tag=5 then GECachepath.Text:='cache_ge' + PathDelim;
  if (sender as TButton).Tag=6 then edtBDBCachePath.Text:='cache_db' + PathDelim;
- if (sender as TButton).Tag=7 then edtGCCachePath.Text:='';
+ if (sender as TButton).Tag=7 then edtGCCachePath.Text:='cache_gc' + PathDelim;
 end;
 
 procedure TfrmSettings.Button5Click(Sender: TObject);
