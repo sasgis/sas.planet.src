@@ -174,13 +174,13 @@ begin
       while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
         VItem := VLayersSet.GetMapTypeByGUID(VGUID);
         if VItem.MapType.IsBitmapTiles then begin
-          VZOrder := VItem.MapType.GUIConfig.LayerZOrder;
+          VZOrder := VItem.MapType.LayerDrawConfig.LayerZOrder;
           Inc(VLayersCount);
           SetLength(VLayers, VLayersCount);
           VIndex := 0;
           if VLayersCount > 1 then begin
             for i := VLayersCount - 2 downto 0 do begin
-              if VLayers[i].MapType.GUIConfig.LayerZOrder > VZOrder then begin
+              if VLayers[i].MapType.LayerDrawConfig.LayerZOrder > VZOrder then begin
                 VLayers[i + 1] := VLayers[i];
               end else begin
                 VIndex := i + 1;

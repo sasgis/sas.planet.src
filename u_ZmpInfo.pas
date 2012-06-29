@@ -58,7 +58,6 @@ type
     FBmp24: IBitmap32Static;
     FHotKey: TShortCut;
     FSeparator: Boolean;
-    FLayerZOrder: Integer;
     FEnabled: Boolean;
   private
     procedure LoadConfig(
@@ -95,7 +94,6 @@ type
     function GetBmp24: IBitmap32Static;
     function GetHotKey: TShortCut;
     function GetSeparator: Boolean;
-    function GetLayerZOrder: Integer;
     function GetParentSubMenu: IStringByLanguage;
     function GetEnabled: Boolean;
   public
@@ -113,6 +111,7 @@ type
   TZmpInfo = class(TInterfacedObject, IZmpInfo)
   private
     FGUID: TGUID;
+    FLayerZOrder: Integer;
     FLicense: IStringByLanguage;
     FFileName: string;
     FVersionConfig: IMapVersionInfo;
@@ -158,6 +157,7 @@ type
     { IZmpInfo }
     function GetGUID: TGUID;
     function GetGUI: IZmpInfoGUI;
+    function GetLayerZOrder: Integer;
     function GetLicense: IStringByLanguage;
     function GetFileName: string;
     function GetVersionConfig: IMapVersionInfo;
@@ -326,11 +326,6 @@ end;
 function TZmpInfoGUI.GetInfoUrl: IStringByLanguage;
 begin
   Result := FInfoUrl;
-end;
-
-function TZmpInfoGUI.GetLayerZOrder: Integer;
-begin
-  Result := FLayerZOrder;
 end;
 
 function TZmpInfoGUI.GetName: IStringByLanguage;
@@ -530,7 +525,6 @@ begin
   FHotKey := AConfig.ReadInteger('DefHotKey', 0);
   FHotKey := AConfig.ReadInteger('HotKey', FHotKey);
   FSeparator := AConfig.ReadBool('separator', false);
-  FLayerZOrder := AConfig.ReadInteger('LayerZOrder', 0);
   FEnabled := AConfig.ReadBool('Enabled', true);
   FSortIndex := AConfig.ReadInteger('pnum', -1);
 end;
@@ -561,7 +555,8 @@ begin
   end;
   LoadConfig(ACoordConverterFactory, ALanguageManager);
   FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, AContentTypeManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
-  FLicense := InternalMakeStringByLanguage(ALanguageManager.LanguageList, AConfig, 'License', '');
+  FLicense := InternalMakeStringByLanguage(ALanguageManager.LanguageList, FConfigIniParams, 'License', '');
+  FLayerZOrder := FConfigIniParams.ReadInteger('LayerZOrder', 0);
 end;
 
 function TZmpInfo.GetAbilities: IMapAbilitiesConfigStatic;
@@ -597,6 +592,11 @@ end;
 function TZmpInfo.GetGUID: TGUID;
 begin
   Result := FGUID;
+end;
+
+function TZmpInfo.GetLayerZOrder: Integer;
+begin
+  Result := FLayerZOrder;
 end;
 
 function TZmpInfo.GetLicense: IStringByLanguage;

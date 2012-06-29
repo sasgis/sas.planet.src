@@ -34,7 +34,6 @@ type
     FSortIndex: Integer;
     FHotKey: TShortCut;
     FSeparator: Boolean;
-    FLayerZOrder: Integer;
     FParentSubMenu: string;
     FEnabled: Boolean;
     FInfoUrl: string;
@@ -45,7 +44,6 @@ type
     function GetSortIndex: Integer;
     function GetHotKey: TShortCut;
     function GetSeparator: Boolean;
-    function GetLayerZOrder: Integer;
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
     function GetInfoUrl: string;
@@ -57,7 +55,6 @@ type
       ASortIndex: Integer;
       AHotKey: TShortCut;
       ASeparator: Boolean;
-      ALayerZOrder: Integer;
       const AParentSubMenu: string;
       AEnabled: Boolean;
       const AInfoUrl: string;
@@ -75,7 +72,6 @@ constructor TMapTypeGUIConfigStatic.Create(
   ASortIndex: Integer;
   AHotKey: TShortCut;
   ASeparator: Boolean;
-  ALayerZOrder: Integer;
   const AParentSubMenu: string;
   AEnabled: Boolean;
   const AInfoUrl: string;
@@ -88,7 +84,6 @@ begin
   FSortIndex := ASortIndex;
   FHotKey := AHotKey;
   FSeparator := ASeparator;
-  FLayerZOrder := ALayerZOrder;
   FParentSubMenu := AParentSubMenu;
   FEnabled := AEnabled;
   FInfoUrl := AInfoUrl;
@@ -119,11 +114,6 @@ end;
 function TMapTypeGUIConfigStatic.GetInfoUrl: string;
 begin
   Result := FInfoUrl;
-end;
-
-function TMapTypeGUIConfigStatic.GetLayerZOrder: Integer;
-begin
-  Result := FLayerZOrder;
 end;
 
 function TMapTypeGUIConfigStatic.GetName: string;

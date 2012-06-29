@@ -52,9 +52,6 @@ type
     function GetSeparator: Boolean;
     property Separator: Boolean read GetSeparator;
 
-    function GetLayerZOrder: Integer;
-    property LayerZOrder: Integer read GetLayerZOrder;
-
     function GetParentSubMenu: IStringByLanguage;
     property ParentSubMenu: IStringByLanguage read GetParentSubMenu;
 
@@ -84,6 +81,9 @@ type
 
     function GetGUI: IZmpInfoGUI;
     property GUI: IZmpInfoGUI read GetGUI;
+
+    function GetLayerZOrder: Integer;
+    property LayerZOrder: Integer read GetLayerZOrder;
 
     function GetVersionConfig: IMapVersionInfo;
     property VersionConfig: IMapVersionInfo read GetVersionConfig;

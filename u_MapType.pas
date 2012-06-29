@@ -37,6 +37,7 @@ uses
   i_ConfigDataWriteProvider,
   i_OperationNotifier,
   i_LocalCoordConverter,
+  i_LayerDrawConfig,
   i_TileObjCache,
   i_TileDownloaderConfig,
   i_LanguageManager,
@@ -100,6 +101,7 @@ type
     FContentTypeManager: IContentTypeManager;
     FGlobalDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
+    FLayerDrawConfig: ILayerDrawConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FMapAttachmentsFactory: IMapAttachmentsFactory;
     FStorageConfig: ISimpleTileStorageConfig;
@@ -266,6 +268,7 @@ type
     property TileDownloadSubsystem: ITileDownloadSubsystem read FTileDownloadSubsystem;
     property TileStorage: TTileStorageAbstract read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
+    property LayerDrawConfig: ILayerDrawConfig read FLayerDrawConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
@@ -305,6 +308,7 @@ uses
   i_TileInfoBasic,
   i_TileIterator,
   u_Bitmap32Static,
+  u_LayerDrawConfig,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
@@ -357,6 +361,7 @@ begin
       ALanguageManager,
       FZmp.GUI
     );
+  FLayerDrawConfig := TLayerDrawConfig.Create(FZmp);
   FMapAttachmentsFactory := nil;
   FLanguageManager := ALanguageManager;
   FImageResamplerConfig := AImageResamplerConfig;
@@ -377,6 +382,7 @@ begin
     );
 
   FGUIConfig.ReadConfig(AConfig);
+  FLayerDrawConfig.ReadConfig(AConfig);
   FStorageConfig.ReadConfig(AConfig);
   FAbilitiesConfig.ReadConfig(AConfig);
   FVersionConfig.ReadConfig(AConfig);
@@ -705,6 +711,7 @@ end;
 procedure TMapType.SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
 begin
   FGUIConfig.WriteConfig(ALocalConfig);
+  FLayerDrawConfig.WriteConfig(ALocalConfig);
   FTileDownloadRequestBuilderConfig.WriteConfig(ALocalConfig);
   FTileDownloaderConfig.WriteConfig(ALocalConfig);
   FVersionConfig.WriteConfig(ALocalConfig);
