@@ -12,7 +12,7 @@ uses
 type
   TListenerRecord = record
     Listener: IJclListener;
-    Rect: TDoubleRect;
+    Rect: ILonLatRect;
   end;
 
   TLonLatRectUpdateNotifier = class(TInterfacedObject, ILonLatRectUpdateNotifier, ILonLatRectUpdateNotifierInternal)
@@ -24,7 +24,7 @@ type
   private
     procedure Add(
       const AListener: IJclListener;
-      const ARect: TDoubleRect
+      const ARect: ILonLatRect
     ); stdcall;
     procedure Remove(const AListener: IJclListener); stdcall;
   private
@@ -63,7 +63,7 @@ end;
 
 procedure TLonLatRectUpdateNotifier.Add(
   const AListener: IJclListener;
-  const ARect: TDoubleRect
+  const ARect: ILonLatRect
 );
 var
   i: Integer;
@@ -110,7 +110,7 @@ begin
   FSynchronizer.BeginRead;
   try
     for i := 0 to FCount - 1 do begin
-      if IsIntersecLonLatRect(FList[i].Rect, ARect) then begin
+      if (FList[i].Rect = nil) or FList[i].Rect.IsIntersecWithRect(ARect) then begin
         if VRect = nil then begin
           VRect := TLonLatRect.Create(ARect);
         end;
@@ -129,7 +129,7 @@ begin
   FSynchronizer.BeginRead;
   try
     for i := 0 to FCount - 1 do begin
-      if ARect.IsIntersecWithRect(FList[i].Rect) then begin
+      if (FList[i].Rect = nil) or FList[i].Rect.IsIntersecWithRect(ARect) then begin
         FList[i].Listener.Notification(ARect);
       end;
     end;
@@ -155,6 +155,7 @@ begin
     end;
     if VIndex >= 0 then begin
       FList[VIndex].Listener := nil;
+      FList[VIndex].Rect := nil;
       Dec(FCount);
       if VIndex < FCount then begin
         System.Move(
@@ -163,6 +164,7 @@ begin
           (FCount - VIndex) * SizeOf(TListenerRecord)
         );
         Pointer(FList[FCount].Listener) := nil;
+        Pointer(FList[FCount].Rect) := nil;
       end;
     end;
   finally

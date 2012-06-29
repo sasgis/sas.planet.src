@@ -12,7 +12,7 @@ type
     ['{BE8DACC7-D94E-408A-A202-985D6DAC682A}']
     procedure Add(
       const AListener: IJclListener;
-      const ARect: TDoubleRect
+      const ARect: ILonLatRect
     ); stdcall;
     procedure Remove(const AListener: IJclListener); stdcall;
   end;
