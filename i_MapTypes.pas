@@ -38,6 +38,7 @@ type
 
   IMapTypeSet = interface
     ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
+    function IsEqual(AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
     function GetCount: Integer;

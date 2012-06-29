@@ -31,6 +31,7 @@ type
   TMapTypeSet = class(TInterfacedObject, IMapTypeSet)
   private
     FList: IGUIDInterfaceSet;
+    function IsEqual(AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
     function GetCount: Integer;
@@ -85,6 +86,34 @@ end;
 function TMapTypeSet.GetMapTypeByGUID(const AGUID: TGUID): IMapType;
 begin
   Result := Flist.GetByGUID(AGUID) as IMapType;
+end;
+
+function TMapTypeSet.IsEqual(AValue: IMapTypeSet): Boolean;
+var
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  i: Cardinal;
+begin
+  if AValue = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if AValue = IMapTypeSet(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if AValue.GetCount <> FList.Count then begin
+    Result := False;
+    Exit;
+  end;
+  VEnum := AValue.GetIterator;
+  while VEnum.Next(1, VGUID, i) = S_OK do begin
+    if not FList.IsExists(VGUID) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  Result := True;
 end;
 
 end.
