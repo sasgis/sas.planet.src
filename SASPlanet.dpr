@@ -618,6 +618,8 @@ uses
   u_KeyMovingConfig in 'u_KeyMovingConfig.pas',
   i_StringByLanguage in 'i_StringByLanguage.pas',
   u_StringByLanguageWithStaticList in 'u_StringByLanguageWithStaticList.pas',
+  i_LayerDrawConfig in 'i_LayerDrawConfig.pas',
+  u_LayerDrawConfig in 'u_LayerDrawConfig.pas',
   i_MapTypeGUIConfig in 'i_MapTypeGUIConfig.pas',
   u_MapTypeGUIConfigStatic in 'u_MapTypeGUIConfigStatic.pas',
   u_MapTypeGUIConfig in 'u_MapTypeGUIConfig.pas',
