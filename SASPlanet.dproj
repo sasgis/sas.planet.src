@@ -185,6 +185,7 @@
     <DCCReference Include="i_Bitmap32Static.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
+    <DCCReference Include="i_BitmapLayerProviderWithListener.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapMarkerProviderSimpleConfig.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
@@ -986,6 +987,7 @@
     <DCCReference Include="u_TileStorageTypeList.pas" />
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
+    <DCCReference Include="u_TileUpdateListenerToLonLat.pas" />
     <DCCReference Include="u_TimeZoneDiffByLonLatStuped.pas" />
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />
