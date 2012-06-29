@@ -356,6 +356,7 @@ begin
         try
           VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VElement.LocalConverter);
           VElement.UpdateBitmap(VId, VBitmap);
+          SetNeedUpdateLayer;
         finally
           FOneTilePrepareCounter.FinishOperation(VCounterContext);
         end;
@@ -369,8 +370,7 @@ end;
 
 procedure TTiledLayerWithThreadBase.OnTimer;
 begin
-  ViewUpdateLock;
-  ViewUpdateUnlock;
+  UpdateLayerIfNeed;
 end;
 
 procedure TTiledLayerWithThreadBase.PaintLayer(
