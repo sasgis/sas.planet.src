@@ -3,8 +3,6 @@ unit u_MapMainLayerNew;
 interface
 
 uses
-  Types,
-  SysUtils,
   GR32_Image,
   i_JclNotify,
   i_TileError,
@@ -61,15 +59,9 @@ type
 implementation
 
 uses
-  ActiveX,
-  t_GeoTypes,
-  i_TileRectUpdateNotifier,
-  i_CoordConverter,
   u_NotifyEventListener,
-  u_MapTypeListStatic,
   u_MapTypeListChangeableActiveBitmapLayers,
-  u_BitmapLayerProviderForViewMaps,
-  u_Synchronizer;
+  u_BitmapLayerProviderForViewMaps;
 
 { TMapMainLayerNew }
 
