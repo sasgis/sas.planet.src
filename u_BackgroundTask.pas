@@ -115,16 +115,13 @@ begin
     case VWaitResult of
       WAIT_OBJECT_0:
       begin
+        ResetEvent(FAllowExecuteHandle);
         VOperatonID := FCancelNotifier.CurrentOperation;
 
         ExecuteTask(VOperatonID, FCancelNotifier);
 
         if Terminated then begin
           Exit;
-        end;
-
-        if not FCancelNotifier.IsOperationCanceled(VOperatonID) then begin
-          ResetEvent(FAllowExecuteHandle);
         end;
       end;
     end;
