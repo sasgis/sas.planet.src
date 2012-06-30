@@ -304,6 +304,7 @@
     <DCCReference Include="i_MarkCategoryFactory.pas" />
     <DCCReference Include="i_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="i_MarkCategoryFactoryDbInternal.pas" />
+    <DCCReference Include="i_MarkerDrawable.pas" />
     <DCCReference Include="i_MarkFactory.pas" />
     <DCCReference Include="i_MarkFactorySmlInternal.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
@@ -822,6 +823,7 @@
     <DCCReference Include="u_MarkCategoryDB.pas" />
     <DCCReference Include="u_MarkCategoryFactory.pas" />
     <DCCReference Include="u_MarkCategoryFactoryConfig.pas" />
+    <DCCReference Include="u_MarkerDrawableByBitmapMarker.pas" />
     <DCCReference Include="u_MarkFactory.pas" />
     <DCCReference Include="u_MarkFullBase.pas" />
     <DCCReference Include="u_MarkId.pas" />

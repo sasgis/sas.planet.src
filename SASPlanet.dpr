@@ -735,6 +735,8 @@ uses
   u_BitmapGeo in 'u_BitmapGeo.pas',
   i_BitmapMarker in 'i_BitmapMarker.pas',
   u_BitmapMarker in 'u_BitmapMarker.pas',
+  i_MarkerDrawable in 'i_MarkerDrawable.pas',
+  u_MarkerDrawableByBitmapMarker in 'u_MarkerDrawableByBitmapMarker.pas',
   u_BitmapMarkerProviderStaticFromDataProvider in 'u_BitmapMarkerProviderStaticFromDataProvider.pas',
   u_BitmapMarkerProviderChangeableFaked in 'u_BitmapMarkerProviderChangeableFaked.pas',
   u_BitmapMarkerProviderSimpleArrow in 'u_BitmapMarkerProviderSimpleArrow.pas',
