@@ -73,6 +73,7 @@ type
       const APostProcessingConfig: IBitmapPostProcessingConfigStatic;
       const AErrorLogger: ITileErrorLogger
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -109,6 +110,12 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FErrorLogger := AErrorLogger;
   FListenerCS := MakeSyncObj(Self, True);
+end;
+
+destructor TBitmapLayerProviderForViewMaps.Destroy;
+begin
+  RemoveListener;
+  inherited;
 end;
 
 function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
@@ -359,6 +366,7 @@ begin
         FMainMapListener := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
       end;
       if (FLayersList <> nil) and (FLayersList.Count > 0) and (Length(FLayerListeners)=0) then begin
+        SetLength(FLayerListeners, FLayersList.Count);
         for i := 0 to FLayersList.Count - 1 do begin
           VMap := FLayersList.Items[i];
           if VMap <> nil then begin
