@@ -28,23 +28,14 @@ type
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapsConfig: IMainMapsConfig;
     FConfig: IMainMapLayerConfig;
-    FMainMap: IMapType;
-    FMainMapCS: IReadWriteSync;
-    FLayersSet: IMapTypeSet;
-    FLayersSetCS: IReadWriteSync;
+
+    FLayesList: IMapTypeListChangeable;
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     procedure OnMainMapChange;
-    procedure OnLayerSetChange;
+    procedure OnLayerListChange;
     procedure OnConfigChange;
-    function GetLayersSet: IMapTypeSet;
-    function GetMainMap: IMapType;
-    procedure SetLayersSet(const Value: IMapTypeSet);
-    procedure SetMainMap(const Value: IMapType);
-
-    property MainMap: IMapType read GetMainMap write SetMainMap;
-    property LayersSet: IMapTypeSet read GetLayersSet write SetLayersSet;
   protected
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
@@ -76,6 +67,7 @@ uses
   i_CoordConverter,
   u_NotifyEventListener,
   u_MapTypeListStatic,
+  u_MapTypeListChangeableActiveBitmapLayers,
   u_BitmapLayerProviderForViewMaps,
   u_Synchronizer;
 
@@ -111,8 +103,7 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FConfig := AConfig;
 
-  FMainMapCS := MakeSyncRW_Var(Self);
-  FLayersSetCS := MakeSyncRW_Var(Self);
+  FLayesList := TMapTypeListChangeableActiveBitmapLayers.Create(FMapsConfig.GetActiveBitmapLayersSet);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
@@ -120,8 +111,8 @@ begin
   );
 
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
-    FMapsConfig.GetActiveBitmapLayersSet.GetChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnLayerListChange),
+    FLayesList.ChangeNotifier
   );
 
   LinksList.Add(
@@ -140,59 +131,16 @@ function TMapMainLayerNew.CreateLayerProvider(
 ): IBitmapLayerProvider;
 var
   VMainMap: IMapType;
-  VLayersSet: IMapTypeSet;
   VUsePrevZoomAtMap, VUsePrevZoomAtLayer: Boolean;
   VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
-
-  VLayers: array of IMapType;
   VLayersList: IMapTypeListStatic;
-  VItem: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  VCnt: Cardinal;
-  i: Integer;
-  VLayersCount: Integer;
-  VZOrder: Integer;
-  VIndex: Integer;
 begin
-  VMainMap := MainMap;
-  VLayersSet := LayersSet;
+  VMainMap := FMapsConfig.GetSelectedMapType;
+  VLayersList := FLayesList.List;
   VUsePrevZoomAtMap := FUsePrevZoomAtMap;
   VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;
   VPostProcessingConfig := FPostProcessingConfig.GetStatic;
 
-  VLayersCount := 0;
-  try
-    if VLayersSet <> nil then begin
-      VEnum := VLayersSet.GetIterator;
-      while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
-        VItem := VLayersSet.GetMapTypeByGUID(VGUID);
-        if VItem.MapType.IsBitmapTiles then begin
-          VZOrder := VItem.MapType.LayerDrawConfig.LayerZOrder;
-          Inc(VLayersCount);
-          SetLength(VLayers, VLayersCount);
-          VIndex := 0;
-          if VLayersCount > 1 then begin
-            for i := VLayersCount - 2 downto 0 do begin
-              if VLayers[i].MapType.LayerDrawConfig.LayerZOrder > VZOrder then begin
-                VLayers[i + 1] := VLayers[i];
-              end else begin
-                VIndex := i + 1;
-                Break;
-              end;
-            end;
-          end;
-          VLayers[VIndex] := VItem;
-        end;
-      end;
-    end;
-    VLayersList := TMapTypeListStatic.Create(VLayers);
-  finally
-    for i := 0 to Length(VLayers) - 1 do begin
-      VLayers[i] := nil;
-    end;
-    VLayers := nil;
-  end;
   Result :=
     TBitmapLayerProviderForViewMaps.Create(
       VMainMap,
@@ -203,26 +151,6 @@ begin
       VPostProcessingConfig,
       FErrorLogger
     );
-end;
-
-function TMapMainLayerNew.GetLayersSet: IMapTypeSet;
-begin
-  FLayersSetCS.BeginRead;
-  try
-    Result := FLayersSet;
-  finally
-    FLayersSetCS.EndRead;
-  end;
-end;
-
-function TMapMainLayerNew.GetMainMap: IMapType;
-begin
-  FMainMapCS.BeginRead;
-  try
-    Result := FMainMap;
-  finally
-    FMainMapCS.EndRead;
-  end;
 end;
 
 procedure TMapMainLayerNew.OnConfigChange;
@@ -242,20 +170,10 @@ begin
   end;
 end;
 
-procedure TMapMainLayerNew.OnLayerSetChange;
-var
-  VNewLayersSet: IMapTypeSet;
+procedure TMapMainLayerNew.OnLayerListChange;
 begin
   ViewUpdateLock;
   try
-    VNewLayersSet := FMapsConfig.GetActiveBitmapLayersSet.GetSelectedMapsSet;
-
-    FLayersSetCS.BeginWrite;
-    try
-      FLayersSet := VNewLayersSet;
-    finally
-      FLayersSetCS.EndWrite;
-    end;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
@@ -263,52 +181,18 @@ begin
 end;
 
 procedure TMapMainLayerNew.OnMainMapChange;
-var
-  VOldMainMap: IMapType;
-  VNewMainMap: IMapType;
 begin
   ViewUpdateLock;
   try
-    VNewMainMap := FMapsConfig.GetSelectedMapType;
-
-    FMainMapCS.BeginWrite;
-    try
-      VOldMainMap := FMainMap;
-      FMainMap := VNewMainMap;
-    finally
-      FMainMapCS.EndWrite;
-    end;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
-procedure TMapMainLayerNew.SetLayersSet(const Value: IMapTypeSet);
-begin
-  FLayersSetCS.BeginWrite;
-  try
-    FLayersSet := Value;
-  finally
-    FLayersSetCS.EndWrite;
-  end;
-end;
-
-procedure TMapMainLayerNew.SetMainMap(const Value: IMapType);
-begin
-  FMainMapCS.BeginWrite;
-  try
-    FMainMap := Value;
-  finally
-    FMainMapCS.EndWrite;
-  end;
-end;
-
 procedure TMapMainLayerNew.StartThreads;
 begin
   OnConfigChange;
-  OnMainMapChange;
-  OnLayerSetChange;
   inherited;
 end;
 
