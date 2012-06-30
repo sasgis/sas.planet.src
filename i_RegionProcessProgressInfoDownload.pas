@@ -21,8 +21,8 @@ type
     function GetProcessed: Int64;
     property Processed: Int64 read GetProcessed;
 
-    function GetDownloadSize: Double;
-    property DownloadSize: Double read GetDownloadSize;
+    function GetDownloadSize: UInt64;
+    property DownloadSize: UInt64 read GetDownloadSize;
 
     function GetElapsedTime: TDateTime;
     property ElapsedTime: TDateTime read GetElapsedTime;
@@ -43,7 +43,7 @@ type
     procedure SetPaused;
     procedure SetStarted;
     procedure AddProcessedTile(const ATile: TPoint);
-    procedure AddDownloadedTile(const ATile: TPoint);
+    procedure AddDownloadedTile(const ATile: TPoint; const ASize: Cardinal);
     procedure SetTotalToProcess(AValue: Int64);
 
     function GetLog: ILogSimple;

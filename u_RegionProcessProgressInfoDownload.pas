@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_LogSimple,
   i_LogSimpleProvider,
   i_ConfigDataWriteProvider,
@@ -13,12 +14,17 @@ uses
 type
   TRegionProcessProgressInfoDownload = class(TInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfoDownload, IRegionProcessProgressInfoDownloadInternal)
   private
+    FCS: IReadWriteSync;
+    FLog: ILogSimple;
+    FLogProvider: ILogSimpleProvider;
     FProcessedRatio: Double;
     FFinished: Boolean;
     FElapsedTime: TDateTime;
     FStartTime: TDateTime;
     FTotalInRegion: Int64;
     FProcessed: Int64;
+    FDownloadedSize: UInt64;
+    FDownloadedCount: Int64;
     FLastProcessedPoint: TPoint;
     FLastSuccessfulPoint: TPoint;
   private
@@ -34,7 +40,7 @@ type
     function GetTotalToProcess: Int64;
     function GetDownloaded: Int64;
     function GetProcessed: Int64;
-    function GetDownloadSize: Double;
+    function GetDownloadSize: UInt64;
     function GetElapsedTime: TDateTime;
     function GetZoom: Byte;
     function GetLogProvider: ILogSimpleProvider;
@@ -46,7 +52,7 @@ type
     procedure SetPaused;
     procedure SetStarted;
     procedure AddProcessedTile(const ATile: TPoint);
-    procedure AddDownloadedTile(const ATile: TPoint);
+    procedure AddDownloadedTile(const ATile: TPoint; const ASize: Cardinal);
     procedure SetTotalToProcess(AValue: Int64);
     function GetLog: ILogSimple;
   public
@@ -57,23 +63,26 @@ implementation
 
 { TRegionProcessProgressInfoDownload }
 
+constructor TRegionProcessProgressInfoDownload.Create;
+begin
+  inherited Create;
+end;
+
 procedure TRegionProcessProgressInfoDownload.AddDownloadedTile(
-  const ATile: TPoint
+  const ATile: TPoint;
+  const ASize: Cardinal
 );
 begin
   FLastSuccessfulPoint := ATile;
+  Inc(FDownloadedSize, ASize);
+  Inc(FDownloadedCount);
   Inc(FProcessed);
 end;
 
 procedure TRegionProcessProgressInfoDownload.AddProcessedTile(
   const ATile: TPoint);
 begin
-
-end;
-
-constructor TRegionProcessProgressInfoDownload.Create;
-begin
-
+  FLastProcessedPoint := ATile;
 end;
 
 procedure TRegionProcessProgressInfoDownload.Finish;
@@ -83,37 +92,37 @@ end;
 
 function TRegionProcessProgressInfoDownload.GetDownloaded: Int64;
 begin
-
+  Result := FDownloadedCount
 end;
 
-function TRegionProcessProgressInfoDownload.GetDownloadSize: Double;
+function TRegionProcessProgressInfoDownload.GetDownloadSize: UInt64;
 begin
-
+  Result := FDownloadedSize;
 end;
 
 function TRegionProcessProgressInfoDownload.GetElapsedTime: TDateTime;
 begin
-
+  Result := FElapsedTime;
 end;
 
 function TRegionProcessProgressInfoDownload.GetFinished: Boolean;
 begin
-
+  Result := FFinished;
 end;
 
 function TRegionProcessProgressInfoDownload.GetLog: ILogSimple;
 begin
-
+  Result := FLog;
 end;
 
 function TRegionProcessProgressInfoDownload.GetLogProvider: ILogSimpleProvider;
 begin
-
+  Result := FLogProvider;
 end;
 
 function TRegionProcessProgressInfoDownload.GetProcessed: Int64;
 begin
-
+  Result := FProcessed;
 end;
 
 function TRegionProcessProgressInfoDownload.GetProcessedRatio: Double;
