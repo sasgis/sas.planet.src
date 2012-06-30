@@ -61,15 +61,12 @@ type
 implementation
 
 uses
-  ActiveX,
-  windows,
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
   i_StringlistStatic,
   u_ResStrings,
   u_GeoCodePlacemark,
-  u_GeoCodeResult,
   u_StringListStatic;
 
 { TGeoCoderByPolishMap }

@@ -60,14 +60,11 @@ type
 implementation
 
 uses
-  ActiveX,
-  windows,
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
-  u_GeoCodePlacemark,
-  u_GeoCodeResult;
+  u_GeoCodePlacemark;
 
 { TGeoCoderByTXT }
 

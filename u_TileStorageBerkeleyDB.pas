@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  Classes,
   SysUtils,
   i_BinaryData,
   i_SimpleTileStorageConfig,
@@ -148,13 +147,11 @@ uses
   i_TileIterator,
   i_FileNameIterator,
   i_TileFileNameParser,
-  u_BinaryDataByMemStream,
   u_MapVersionFactorySimpleString,
   u_TTLCheckListener,
   u_TileRectInfo,
   u_TileFileNameBDB,
   u_TileIteratorByRect,
-  u_TileStorageBerkeleyDBRecParser,
   u_TileStorageTypeAbilities,
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
