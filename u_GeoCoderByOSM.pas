@@ -52,9 +52,6 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  XMLIntf,
-  msxmldom,
-  XMLDoc,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
