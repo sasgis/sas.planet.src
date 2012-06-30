@@ -15,6 +15,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_MapTypes,
+  i_MapTypeListChangeable,
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ImageResamplerConfig,
@@ -27,7 +28,6 @@ type
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapsConfig: IMainMapsConfig;
     FConfig: IMainMapLayerConfig;
-    FTileChangeListener: IJclListener;
     FMainMap: IMapType;
     FMainMapCS: IReadWriteSync;
     FLayersSet: IMapTypeSet;
@@ -35,7 +35,6 @@ type
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    procedure OnTileChange(const AMsg: IInterface);
     procedure OnMainMapChange;
     procedure OnLayerSetChange;
     procedure OnConfigChange;
@@ -50,12 +49,8 @@ type
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
-    procedure SetLayerCoordConverter(
-      const AValue: ILocalCoordConverter
-    ); override;
   public
     procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -138,7 +133,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FPostProcessingConfig.GetChangeNotifier
   );
-  FTileChangeListener := TNotifyEventListener.Create(Self.OnTileChange);
 end;
 
 function TMapMainLayerNew.CreateLayerProvider(
@@ -250,19 +244,7 @@ end;
 
 procedure TMapMainLayerNew.OnLayerSetChange;
 var
-  VOldLayersSet: IMapTypeSet;
   VNewLayersSet: IMapTypeSet;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  cnt: Cardinal;
-  VNotifier: ITileRectUpdateNotifier;
-  VMap: IMapType;
-  VLocalConverter: ILocalCoordConverter;
-  VZoom: Byte;
-  VMapPixelRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VTileRect: TRect;
-  VMapConverter: ICoordConverter;
 begin
   ViewUpdateLock;
   try
@@ -270,49 +252,9 @@ begin
 
     FLayersSetCS.BeginWrite;
     try
-      VOldLayersSet := FLayersSet;
       FLayersSet := VNewLayersSet;
     finally
       FLayersSetCS.EndWrite;
-    end;
-
-    VLocalConverter := LayerCoordConverter;
-    if VLocalConverter <> nil then begin
-      VZoom := VLocalConverter.GetZoom;
-      if VOldLayersSet <> nil then begin
-        VEnum := VOldLayersSet.GetIterator;
-        while VEnum.Next(1, VGUID, cnt) = S_OK do begin
-          if (VNewLayersSet = nil) or (VNewLayersSet.GetMapTypeByGUID(VGUID) = nil) then begin
-            VMap := VOldLayersSet.GetMapTypeByGUID(VGUID);
-            if VMap <> nil then begin
-              VNotifier := VMap.MapType.NotifierByZoom[VZoom];
-              if VNotifier <> nil then begin
-                VNotifier.Remove(FTileChangeListener);
-              end;
-            end;
-          end;
-        end;
-      end;
-      if VNewLayersSet <> nil then begin
-        VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-        VLocalConverter.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-        VLonLatRect := VLocalConverter.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-        VEnum := VNewLayersSet.GetIterator;
-        while VEnum.Next(1, VGUID, cnt) = S_OK do begin
-          if (VOldLayersSet = nil) or (VOldLayersSet.GetMapTypeByGUID(VGUID) = nil) then begin
-            VMap := VNewLayersSet.GetMapTypeByGUID(VGUID);
-            if VMap <> nil then begin
-              VNotifier := VMap.MapType.NotifierByZoom[VZoom];
-              if VNotifier <> nil then begin
-                VMapConverter := VMap.MapType.GeoConvert;
-                VMapConverter.CheckLonLatRect(VLonLatRect);
-                VTileRect := VMapConverter.LonLatRect2TileRect(VLonLatRect, VZoom);
-                VNotifier.Add(FTileChangeListener, VTileRect);
-              end;
-            end;
-          end;
-        end;
-      end;
     end;
     SetNeedUpdateLayerProvider;
   finally
@@ -324,12 +266,6 @@ procedure TMapMainLayerNew.OnMainMapChange;
 var
   VOldMainMap: IMapType;
   VNewMainMap: IMapType;
-  VZoom: Byte;
-  VLocalConverter: ILocalCoordConverter;
-  VNotifier: ITileRectUpdateNotifier;
-  VMapPixelRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VTileRect: TRect;
 begin
   ViewUpdateLock;
   try
@@ -342,158 +278,9 @@ begin
     finally
       FMainMapCS.EndWrite;
     end;
-
-    if VOldMainMap <> VNewMainMap then begin
-      VLocalConverter := LayerCoordConverter;
-      if VLocalConverter <> nil then begin
-        VZoom := VLocalConverter.GetZoom;
-        if VOldMainMap <> nil then begin
-          VNotifier := VOldMainMap.MapType.NotifierByZoom[VZoom];
-          if VNotifier <> nil then begin
-            VNotifier.Remove(FTileChangeListener);
-          end;
-        end;
-        if VNewMainMap <> nil then begin
-          VNotifier := VNewMainMap.MapType.NotifierByZoom[VZoom];
-          if VNotifier <> nil then begin
-            VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
-            VLocalConverter.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-            VLonLatRect := VLocalConverter.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-            VNewMainMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-            VTileRect := VNewMainMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
-            VNotifier.Add(FTileChangeListener, VTileRect);
-          end;
-        end;
-      end;
-    end;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapMainLayerNew.OnTileChange(const AMsg: IInterface);
-begin
-  DelicateRedrawWithFullUpdate;
-end;
-
-procedure TMapMainLayerNew.SendTerminateToThreads;
-var
-  VZoom: Byte;
-  VMap: IMapType;
-  VNotifier: ITileRectUpdateNotifier;
-  VLayersSet: IMapTypeSet;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  cnt: Cardinal;
-begin
-  inherited;
-  if LayerCoordConverter <> nil then begin
-    VZoom := LayerCoordConverter.GetZoom;
-
-    VMap := MainMap;
-
-    if VMap <> nil then begin
-      VNotifier := VMap.MapType.NotifierByZoom[VZoom];
-      if VNotifier <> nil then begin
-        VNotifier.Remove(FTileChangeListener);
-      end;
-    end;
-
-    VLayersSet := LayersSet;
-
-    if VLayersSet <> nil then begin
-      VEnum := VLayersSet.GetIterator;
-      while VEnum.Next(1, VGUID, cnt) = S_OK do begin
-        VMap := VLayersSet.GetMapTypeByGUID(VGUID);
-        if VMap <> nil then begin
-          VNotifier := VMap.MapType.NotifierByZoom[VZoom];
-          if VNotifier <> nil then begin
-            VNotifier.Remove(FTileChangeListener);
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
-
-procedure TMapMainLayerNew.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
-var
-  VOldZoom: Byte;
-  VZoom: Byte;
-  VMap: IMapType;
-  VNotifier: ITileRectUpdateNotifier;
-  VLayersSet: IMapTypeSet;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  cnt: Cardinal;
-  VMapPixelRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VTileRect: TRect;
-begin
-  VOldZoom := 255;
-  if LayerCoordConverter <> nil then begin
-    VOldZoom := LayerCoordConverter.GetZoom;
-  end;
-  inherited;
-  VZoom := AValue.GetZoom;
-  if VZoom <> VOldZoom then begin
-    if VOldZoom <> 255 then begin
-      VMap := MainMap;
-
-      if VMap <> nil then begin
-        VNotifier := VMap.MapType.NotifierByZoom[VOldZoom];
-        if VNotifier <> nil then begin
-          VNotifier.Remove(FTileChangeListener);
-        end;
-      end;
-
-      VLayersSet := LayersSet;
-
-      if VLayersSet <> nil then begin
-        VEnum := VLayersSet.GetIterator;
-        while VEnum.Next(1, VGUID, cnt) = S_OK do begin
-          VMap := VLayersSet.GetMapTypeByGUID(VGUID);
-          if VMap <> nil then begin
-            VNotifier := VMap.MapType.NotifierByZoom[VOldZoom];
-            if VNotifier <> nil then begin
-              VNotifier.Remove(FTileChangeListener);
-            end;
-          end;
-        end;
-      end;
-    end;
-  end;
-  VMapPixelRect := AValue.GetRectInMapPixelFloat;
-  AValue.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-  VLonLatRect := AValue.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-
-  VMap := MainMap;
-
-  if VMap <> nil then begin
-    VNotifier := VMap.MapType.NotifierByZoom[VZoom];
-    if VNotifier <> nil then begin
-      VMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-      VTileRect := VMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
-      VNotifier.Add(FTileChangeListener, VTileRect);
-    end;
-  end;
-
-  VLayersSet := LayersSet;
-
-  if VLayersSet <> nil then begin
-    VEnum := VLayersSet.GetIterator;
-    while VEnum.Next(1, VGUID, cnt) = S_OK do begin
-      VMap := VLayersSet.GetMapTypeByGUID(VGUID);
-      if VMap <> nil then begin
-        VNotifier := VMap.MapType.NotifierByZoom[VZoom];
-        if VNotifier <> nil then begin
-          VMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-          VTileRect := VMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
-          VNotifier.Add(FTileChangeListener, VTileRect);
-        end;
-      end;
-    end;
   end;
 end;
 

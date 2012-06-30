@@ -37,6 +37,7 @@ type
     FLayer: TCustomLayer;
 
     FDrawTask: IBackgroundTask;
+    FRectUpdateListener: IJclListener;
 
     FBgDrawCounter: IInternalPerformanceCounter;
     FPrepareLayerProviderCounter: IInternalPerformanceCounter;
@@ -51,7 +52,6 @@ type
 
     procedure UpdateLayerIfNeed;
     procedure UpdateTileMatrixIfNeed;
-    procedure UpdateLayerProviderIfNeed;
 
     function GetTileMatrix: ITileMatrix;
     procedure SetTileMatrix(const Value: ITileMatrix);
@@ -79,6 +79,7 @@ type
       const ATileMatrix: ITileMatrix
     );
     procedure OnTimer;
+    procedure OnRectUpdate(const AMsg: IInterface);
     function GetLayerProvider: IBitmapLayerProvider;
     procedure SetLayerProvider(const Value: IBitmapLayerProvider);
     property LayerProvider: IBitmapLayerProvider read GetLayerProvider write SetLayerProvider;
@@ -97,7 +98,6 @@ type
     procedure DoUpdateTileMatrix; virtual;
 
     procedure SetNeedUpdateLayerProvider;
-    procedure DoRedrawWithUpdateProvider; virtual;
 
     procedure SetNeedUpdateLayer;
     procedure DoUpdateLayer; virtual;
@@ -127,12 +127,15 @@ implementation
 
 uses
   GR32_Resamplers,
+  t_GeoTypes,
   i_TileIterator,
   i_CoordConverter,
+  i_LonLatRect,
   i_Bitmap32Static,
   u_Synchronizer,
   u_NotifyEventListener,
   u_TileIteratorSpiralByRect,
+  i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,
   u_TileMatrixFactory,
   u_BackgroundTaskLayerDrawBase;
@@ -181,6 +184,7 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
+  FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
 end;
 
 function TTiledLayerWithThreadBase.CreteTileMatrix(
@@ -204,13 +208,6 @@ begin
   FDrawTask.StartExecute;
 end;
 
-procedure TTiledLayerWithThreadBase.DoRedrawWithUpdateProvider;
-begin
-  FDrawTask.StopExecute;
-  SetMatrixNotReady(TileMatrix);
-  LayerProvider := nil;
-end;
-
 procedure TTiledLayerWithThreadBase.DoUpdateLayer;
 begin
   FLayer.Changed;
@@ -220,12 +217,16 @@ procedure TTiledLayerWithThreadBase.DoUpdateTileMatrix;
 var
   VOldTileMatrix: ITileMatrix;
   VNewTileMatrix: ITileMatrix;
+  VProviderWithListener: IBitmapLayerProviderWithListener;
 begin
   VOldTileMatrix := TileMatrix;
   VNewTileMatrix := CreteTileMatrix(VOldTileMatrix, LayerCoordConverter);
   if VOldTileMatrix <> VNewTileMatrix then begin
     FDrawTask.StopExecute;
     SetTileMatrix(VNewTileMatrix);
+    if Supports(LayerProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
+      VProviderWithListener.SetListener(FRectUpdateListener, VNewTileMatrix.LocalConverter);
+    end;
     if FUpdateLayerProviderOnPosChange then begin
       SetNeedUpdateLayerProvider;
     end;
@@ -237,7 +238,6 @@ procedure TTiledLayerWithThreadBase.DoViewUpdate;
 begin
   inherited;
   UpdateTileMatrixIfNeed;
-  UpdateLayerProviderIfNeed;
   FDrawTask.StartExecute;
   UpdateLayerIfNeed;
 end;
@@ -290,6 +290,7 @@ procedure TTiledLayerWithThreadBase.OnPrepareTileMatrix(
 var
   VTileMatrix: ITileMatrix;
   VProvider: IBitmapLayerProvider;
+  VProviderWithListener: IBitmapLayerProviderWithListener;
   VLayerConverter: ILocalCoordConverter;
   VDelicateRedrawCounter: Integer;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -307,6 +308,14 @@ begin
     VLayerConverter := VTileMatrix.LocalConverter;
 
     VProvider := LayerProvider;
+    if InterlockedExchange(FUpdateLayerProviderCounter, 0) > 0 then begin
+      if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
+        VProviderWithListener.RemoveListener;
+        VProviderWithListener := nil;
+      end;
+      VProvider := nil;
+      LayerProvider := nil;
+    end;
     if VProvider = nil then begin
       VCounterContext := FPrepareLayerProviderCounter.StartOperation;
       try
@@ -316,6 +325,9 @@ begin
       end;
       if VProvider = nil then begin
         Exit;
+      end;
+      if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
+        VProviderWithListener.SetListener(FRectUpdateListener, VTileMatrix.LocalConverter);
       end;
       LayerProvider := VProvider;
     end;
@@ -329,6 +341,46 @@ begin
       FBgDrawCounter.FinishOperation(VCounterContext);
     end;
     VDelicateRedrawCounter := InterlockedExchange(FDelicateRedrawCounter, 0);
+  end;
+end;
+
+procedure TTiledLayerWithThreadBase.OnRectUpdate(const AMsg: IInterface);
+var
+  VLonLatRect: ILonLatRect;
+  VTileMatrix: ITileMatrix;
+  VTileRect: TRect;
+  VMapLonLatRect: TDoubleRect;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VTileRectToUpdate: TRect;
+  i, j: Integer;
+  VTile: TPoint;
+  VElement: ITileMatrixElement;
+begin
+  if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
+    VTileMatrix := TileMatrix;
+    if VTileMatrix <> nil then begin
+      VMapLonLatRect := VLonLatRect.Rect;
+      VConverter := VTileMatrix.LocalConverter.GeoConverter;
+      VZoom := VTileMatrix.LocalConverter.Zoom;
+      VConverter.CheckLonLatRect(VMapLonLatRect);
+      VTileRect := VConverter.LonLatRect2TileRect(VMapLonLatRect, VZoom);
+      if IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect) then begin
+        for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
+          VTile.Y := i;
+          for j := VTileRectToUpdate.Left to VTileRectToUpdate.Right - 1 do begin
+            VTile.X := j;
+            VElement := VTileMatrix.GetElementByTile(VTile);
+            if VElement <> nil then begin
+              VElement.IncExpectedID;
+            end;
+          end;
+        end;
+        DelicateRedraw;
+      end;
+    end;
+  end else begin
+    DelicateRedrawWithFullUpdate;
   end;
 end;
 
@@ -490,6 +542,8 @@ end;
 
 procedure TTiledLayerWithThreadBase.SetNeedUpdateLayerProvider;
 begin
+  FDrawTask.StopExecute;
+  SetMatrixNotReady(TileMatrix);
   InterlockedIncrement(FUpdateLayerProviderCounter);
 end;
 
@@ -534,13 +588,6 @@ procedure TTiledLayerWithThreadBase.UpdateLayerIfNeed;
 begin
   if InterlockedExchange(FLayerChangedCounter, 0) > 0 then begin
     DoUpdateLayer;
-  end;
-end;
-
-procedure TTiledLayerWithThreadBase.UpdateLayerProviderIfNeed;
-begin
-  if InterlockedExchange(FUpdateLayerProviderCounter, 0) > 0 then begin
-    DoRedrawWithUpdateProvider;
   end;
 end;
 
