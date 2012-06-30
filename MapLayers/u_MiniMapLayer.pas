@@ -248,7 +248,7 @@ uses
   u_NotifyEventListener,
   u_MapTypeListStatic,
   u_BitmapLayerProviderForViewMaps,
-  u_BackgroundTaskLayerDrawBase,
+  u_BackgroundTask,
   u_TileIteratorSpiralByRect,
   u_MapTypeMenuItemsGeneratorBasic;
 
@@ -297,7 +297,7 @@ begin
   CreateLayers(AParentMap);
 
   FDrawTask :=
-    TBackgroundTaskLayerDrawBase.Create(
+    TBackgroundTask.Create(
       AAppClosingNotifier,
       OnDrawBitmap,
       FConfig.ThreadConfig

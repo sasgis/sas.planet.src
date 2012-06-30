@@ -565,7 +565,6 @@
     <DCCReference Include="u_AvailPicsNMC.pas" />
     <DCCReference Include="u_AvailPicsTerra.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
-    <DCCReference Include="u_BackgroundTaskLayerDrawBase.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BaseTileDownloaderThread.pas" />

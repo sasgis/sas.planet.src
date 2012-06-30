@@ -138,7 +138,7 @@ uses
   i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,
   u_TileMatrixFactory,
-  u_BackgroundTaskLayerDrawBase;
+  u_BackgroundTask;
 
 
 { TTiledLayerWithThreadBase }
@@ -169,7 +169,7 @@ begin
   FOneTilePaintCounter := PerfList.CreateAndAddNewCounter('OneTilePaint');
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
 
-  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnPrepareTileMatrix, AThreadConfig);
+  FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnPrepareTileMatrix, AThreadConfig);
   FTileMatrixFactory :=
     TTileMatrixFactory.Create(
       AResamplerConfig,

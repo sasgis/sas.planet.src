@@ -83,7 +83,7 @@ implementation
 
 uses
   u_NotifyEventListener,
-  u_BackgroundTaskLayerDrawBase;
+  u_BackgroundTask;
 
 { TMapLayerWithThreadDraw }
 
@@ -101,7 +101,7 @@ begin
   inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
-  FDrawTask := TBackgroundTaskLayerDrawBase.Create(AAppClosingNotifier, OnDrawBitmap, AThreadConfig);
+  FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnDrawBitmap, AThreadConfig);
   FUpdateCounter := 0;
   FDelicateRedrawCounter := 0;
 

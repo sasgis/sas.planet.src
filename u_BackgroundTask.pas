@@ -32,9 +32,16 @@ uses
   u_InterfacedThread;
 
 type
+  TBackgroundTaskExecuteEvent =
+    procedure(
+      AOperationID: Integer;
+      const ACancelNotifier: IOperationNotifier
+    ) of object;
+
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
   private
     FAppClosingNotifier: IJclNotifier;
+    FOnExecute: TBackgroundTaskExecuteEvent;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FCancelNotifier: IOperationNotifier;
     FStopThreadHandle: THandle;
@@ -42,10 +49,6 @@ type
     FAppClosingListener: IJclListener;
     procedure OnAppClosing;
   protected
-    procedure ExecuteTask(
-      AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
-    ); virtual; abstract;
     procedure Execute; override;
     procedure Terminate; override;
     property CancelNotifier: IOperationNotifier read FCancelNotifier;
@@ -55,6 +58,7 @@ type
   public
     constructor Create(
       const AAppClosingNotifier: IJclNotifier;
+      AOnExecute: TBackgroundTaskExecuteEvent;
       const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
@@ -69,13 +73,16 @@ uses
 
 constructor TBackgroundTask.Create(
   const AAppClosingNotifier: IJclNotifier;
+  AOnExecute: TBackgroundTaskExecuteEvent;
   const AThreadConfig: IThreadConfig
 );
 var
   VOperationNotifier: TOperationNotifier;
 begin
   inherited Create(AThreadConfig);
+  FOnExecute := AOnExecute;
   FAppClosingNotifier := AAppClosingNotifier;
+  Assert(Assigned(FOnExecute));
   FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);
   VOperationNotifier := TOperationNotifier.Create;
@@ -118,7 +125,9 @@ begin
         ResetEvent(FAllowExecuteHandle);
         VOperatonID := FCancelNotifier.CurrentOperation;
 
-        ExecuteTask(VOperatonID, FCancelNotifier);
+        if Assigned(FOnExecute) then begin
+          FOnExecute(VOperatonID, FCancelNotifier);
+        end;
 
         if Terminated then begin
           Exit;

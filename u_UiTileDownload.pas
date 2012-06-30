@@ -96,7 +96,7 @@ uses
   u_NotifyEventListener,
   u_TTLCheckListener,
   u_TileIteratorSpiralByRect,
-  u_BackgroundTaskLayerDrawBase,
+  u_BackgroundTask,
   u_MapType,
   u_TileErrorInfo;
 
@@ -446,7 +446,7 @@ begin
 
       if (VVisualCoordConverter <> nil) then begin
         if VDownloadTask = nil then begin
-          VDownloadTask := TBackgroundTaskLayerDrawBase.Create(FAppClosingNotifier, DoProcessDownloadRequests, FConfig.ThreadConfig);
+          VDownloadTask := TBackgroundTask.Create(FAppClosingNotifier, DoProcessDownloadRequests, FConfig.ThreadConfig);
           VDownloadTask.Start;
           FDownloadTask := VDownloadTask;
         end;

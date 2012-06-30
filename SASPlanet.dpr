@@ -476,7 +476,6 @@ uses
   u_InterfacedThread in 'u_InterfacedThread.pas',
   i_BackgroundTask in 'i_BackgroundTask.pas',
   u_BackgroundTask in 'u_BackgroundTask.pas',
-  u_BackgroundTaskLayerDrawBase in 'u_BackgroundTaskLayerDrawBase.pas',
   u_MapLayerFillingMap in 'MapLayers\u_MapLayerFillingMap.pas',
   u_MapLayerFillingMapNew in 'MapLayers\u_MapLayerFillingMapNew.pas',
   i_MarkCategory in 'i_MarkCategory.pas',
