@@ -170,6 +170,7 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_TreeFolderRemover,
+  u_Synchronizer,
   u_TileInfoBasic;
 
 { TTileStorageFileSystem }
@@ -199,7 +200,7 @@ begin
   FFormatSettings.ListSeparator := ';';
   FFormatSettings.TwoDigitYearCenturyWindow := 50;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FLock := MakeSyncRW_Big(Self, False);
   FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
 

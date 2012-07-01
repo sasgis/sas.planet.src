@@ -47,12 +47,15 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TTTLCheckNotifier }
 
 constructor TTTLCheckNotifier.Create;
 begin
   inherited Create;
-  FSync := TMultiReadExclusiveWriteSynchronizer.Create;
+  FSync := MakeSyncRW_Big(Self, False);
   FList := TList.Create;
 end;
 
@@ -60,7 +63,6 @@ destructor TTTLCheckNotifier.Destroy;
 var
   i: integer;
 begin
-  FSync := nil;
   for i := 0 to FList.Count - 1 do begin
     ITTLCheckListener(FList.Items[i])._Release;
   end;
