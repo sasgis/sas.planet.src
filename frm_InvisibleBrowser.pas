@@ -67,7 +67,7 @@ constructor TfrmInvisibleBrowser.Create(
 begin
   inherited Create(ALanguageManager);
   FProxyConfig := AProxyConfig;
-  FCS := MakeSyncObj(Self, FALSE);
+  FCS := MakeSyncRW_Big(Self, False);
 end;
 
 destructor TfrmInvisibleBrowser.Destroy;

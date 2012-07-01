@@ -80,7 +80,7 @@ constructor TInterfacedThread.Create(const AConfig: IThreadConfig);
 begin
   inherited Create;
   FConfig := AConfig;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Var(Self, False);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FThread := TThread4InterfacedThread.Create(FConfig.Priority, Self.Execute);
   FThread.OnTerminate := Self.OnTerminate;

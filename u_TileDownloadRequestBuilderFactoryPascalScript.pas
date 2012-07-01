@@ -98,7 +98,7 @@ begin
   FScriptText := AScriptText;
   FProjFactory := AProjFactory;
 
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Std(Self, False);
   VState := TTileDownloaderStateInternal.Create;
   FStateInternal := VState;
   FState := VState;
