@@ -30,16 +30,6 @@ uses
   Windows,
   SysUtils;
 
-// deprecated functions (use generic functions instead)
-
-// can create TSynchronizerCS or TSynchronizerCSSC
-function MakeSyncObj(const ACreator: TObject; const AWithSpinLocks: Boolean = FALSE): IReadWriteSync;
-
-// can create TSynchronizerCSSC or TMultiReadExclusiveWriteSynchronizer
-function MakeSyncMulti(const ACreator: TObject): IReadWriteSync;
-
-
-
 // generic functions (Read and Write)
 
 // ARecursionAllowed SHOULD BE set to TRUE if you cannot assure work without recursion
@@ -363,22 +353,6 @@ type
 procedure RaiseNotAvailable(AClass: TClass);
 begin
   raise ESynchronizerNotAvailable.Create(AClass.ClassName);
-end;
-  
-// deprecated functions
-
-function MakeSyncObj(const ACreator: TObject; const AWithSpinLocks: Boolean): IReadWriteSync;
-begin
-  if AWithSpinLocks then begin
-    Result := TSynchronizerCSSC.Create(ACreator, 4096);
-  end else begin
-    Result := TSynchronizerCS.Create(ACreator);
-  end;
-end;
-
-function MakeSyncMulti(const ACreator: TObject): IReadWriteSync;
-begin
-  Result := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 // direct functions
