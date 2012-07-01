@@ -28,6 +28,7 @@ uses
   i_BinaryData,
   i_ConfigDataProvider,
   i_AntiBan,
+  i_SimpleFlag,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
@@ -40,8 +41,7 @@ type
     FUsePreloadPage: integer;
     FPreloadPage: string;
     FDownloadTilesCount: Longint;
-    FBanFlag: Boolean;
-    FBanCS: IReadWriteSync;
+    FBanFlag: ISimpleFlag;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan;
     procedure ExecOnBan(const ALastUrl: String);
@@ -61,7 +61,6 @@ type
       const AInvisibleBrowser: IInvisibleBrowser;
       const AConfig: IConfigDataProvider
     );
-    destructor Destroy; override;
   end;
 
 
@@ -70,7 +69,7 @@ implementation
 
 uses
   Classes,
-  u_Synchronizer,
+  u_SimpleFlagWithInterlock,
   u_InetFunc;
 
 type
@@ -118,25 +117,15 @@ var
 begin
   inherited Create;
   FInvisibleBrowser := AInvisibleBrowser;
-  FBanCS := MakeSyncObj(Self, TRUE);
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
   FPreloadPage := VParams.ReadString('PreloadPage', '');
-end;
-
-destructor TAntiBanStuped.Destroy;
-begin
-  FBanCS := nil;
-  inherited;
+  FBanFlag := TSimpleFlagWithInterlock.Create;
 end;
 
 procedure TAntiBanStuped.ExecOnBan(const ALastUrl: String);
 begin
-  FBanCS.BeginWrite;
-  if FBanFlag then begin
-    FBanFlag := false;
-    FBanCS.EndWrite;
-
+  if FBanFlag.CheckFlagAndReset then begin
     with TExecOnBan.Create do begin
       try
         Exec(ALastUrl);
@@ -144,8 +133,7 @@ begin
         Free;
       end;
     end;
-  end else begin
-    FBanCS.EndWrite;
+    FBanFlag.SetFlag;
   end;
 end;
 
@@ -183,12 +171,7 @@ begin
   if Supports(Result, IDownloadResultBanned) then begin
     ExecOnBan(ARequest.Url);
   end else if Supports(Result, IDownloadResultOk) then begin
-    FBanCS.BeginWrite;
-    try
-      FBanFlag := True;
-    finally
-      FBanCS.EndWrite;
-    end;
+    FBanFlag.SetFlag;
   end;
 end;
 
