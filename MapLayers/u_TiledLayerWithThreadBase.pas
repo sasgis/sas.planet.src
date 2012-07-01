@@ -16,6 +16,7 @@ uses
   i_BitmapLayerProvider,
   i_ImageResamplerConfig,
   i_ViewPortState,
+  i_SimpleFlag,
   i_TileMatrix,
   i_BackgroundTask,
   i_InternalPerformanceCounter,
@@ -45,10 +46,10 @@ type
     FOnPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintCounter: IInternalPerformanceCounter;
 
-    FDelicateRedrawCounter: Integer;
-    FLayerChangedCounter: Integer;
-    FUpdateLayerProviderCounter: Integer;
-    FTileMatrixChangeCounter: Integer;
+    FDelicateRedrawFlag: ISimpleFlag;
+    FLayerChangedFlag: ISimpleFlag;
+    FUpdateLayerProviderFlag: ISimpleFlag;
+    FTileMatrixChangeFlag: ISimpleFlag;
 
     procedure UpdateLayerIfNeed;
     procedure UpdateTileMatrixIfNeed;
@@ -131,6 +132,7 @@ uses
   i_TileIterator,
   i_CoordConverter,
   i_LonLatRect,
+  u_SimpleFlagWithInterlock,
   i_Bitmap32Static,
   u_Synchronizer,
   u_NotifyEventListener,
@@ -176,9 +178,10 @@ begin
       AConverterFactory
     );
 
-  FDelicateRedrawCounter := 0;
-  FLayerChangedCounter := 0;
-  FUpdateLayerProviderCounter := 0;
+  FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
+  FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
+  FUpdateLayerProviderFlag := TSimpleFlagWithInterlock.Create;
+  FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
@@ -197,14 +200,14 @@ end;
 
 procedure TTiledLayerWithThreadBase.DelicateRedraw;
 begin
-  InterlockedIncrement(FDelicateRedrawCounter);
+  FDelicateRedrawFlag.SetFlag;
   FDrawTask.StartExecute;
 end;
 
 procedure TTiledLayerWithThreadBase.DelicateRedrawWithFullUpdate;
 begin
   SetMatrixNotReady(TileMatrix);
-  InterlockedIncrement(FDelicateRedrawCounter);
+  FDelicateRedrawFlag.SetFlag;
   FDrawTask.StartExecute;
 end;
 
@@ -292,12 +295,12 @@ var
   VProvider: IBitmapLayerProvider;
   VProviderWithListener: IBitmapLayerProviderWithListener;
   VLayerConverter: ILocalCoordConverter;
-  VDelicateRedrawCounter: Integer;
+  VNeedRedraw: Boolean;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  InterlockedExchange(FDelicateRedrawCounter, 0);
-  VDelicateRedrawCounter := 1;
-  while VDelicateRedrawCounter > 0 do begin
+  FDelicateRedrawFlag.CheckFlagAndReset;
+  VNeedRedraw := True;
+  while VNeedRedraw do begin
     VTileMatrix := TileMatrix;
     if VTileMatrix = nil then begin
       Exit;
@@ -308,7 +311,7 @@ begin
     VLayerConverter := VTileMatrix.LocalConverter;
 
     VProvider := LayerProvider;
-    if InterlockedExchange(FUpdateLayerProviderCounter, 0) > 0 then begin
+    if FUpdateLayerProviderFlag.CheckFlagAndReset then begin
       if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
         VProviderWithListener.RemoveListener;
         VProviderWithListener := nil;
@@ -340,7 +343,7 @@ begin
     finally
       FBgDrawCounter.FinishOperation(VCounterContext);
     end;
-    VDelicateRedrawCounter := InterlockedExchange(FDelicateRedrawCounter, 0);
+    VNeedRedraw := FDelicateRedrawFlag.CheckFlagAndReset;
   end;
 end;
 
@@ -537,19 +540,19 @@ end;
 
 procedure TTiledLayerWithThreadBase.SetNeedUpdateLayer;
 begin
-  InterlockedIncrement(FLayerChangedCounter);
+  FLayerChangedFlag.SetFlag;
 end;
 
 procedure TTiledLayerWithThreadBase.SetNeedUpdateLayerProvider;
 begin
   FDrawTask.StopExecute;
   SetMatrixNotReady(TileMatrix);
-  InterlockedIncrement(FUpdateLayerProviderCounter);
+  FUpdateLayerProviderFlag.SetFlag;
 end;
 
 procedure TTiledLayerWithThreadBase.SetNeedUpdateTileMatrix;
 begin
-  InterlockedIncrement(FTileMatrixChangeCounter);
+  FTileMatrixChangeFlag.SetFlag;
 end;
 
 procedure TTiledLayerWithThreadBase.SetTileMatrix(const Value: ITileMatrix);
@@ -586,14 +589,14 @@ end;
 
 procedure TTiledLayerWithThreadBase.UpdateLayerIfNeed;
 begin
-  if InterlockedExchange(FLayerChangedCounter, 0) > 0 then begin
+  if FLayerChangedFlag.CheckFlagAndReset then begin
     DoUpdateLayer;
   end;
 end;
 
 procedure TTiledLayerWithThreadBase.UpdateTileMatrixIfNeed;
 begin
-  if InterlockedExchange(FTileMatrixChangeCounter, 0) > 0 then begin
+  if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     DoUpdateTileMatrix;
   end;
 end;
