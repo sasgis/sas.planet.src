@@ -1002,7 +1002,7 @@ var
   VLoggerPath: WideString;
   tCallbackFilter: TVSAGPS_LOGGER_GETVALUES_CALLBACK_FILTER;
 begin
-  if AConfig.NMEALog then begin
+  if Assigned(ALogConfig) and ALogConfig.AllowWriteLog(VTrackTypes) then begin
     LockLogger;
     try
       // create or stop running
@@ -1039,7 +1039,6 @@ begin
       // define log type(s)
       if Assigned(ALogConfig) then begin
         // get types
-        ALogConfig.AllowWriteLog(VTrackTypes);
         System.Exclude(VTrackTypes,ttGarmin);
         System.Exclude(VTrackTypes,ttNMEA);
       end else begin
