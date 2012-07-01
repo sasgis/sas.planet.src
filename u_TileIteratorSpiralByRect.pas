@@ -47,7 +47,7 @@ type
       ARad: Integer;
       AIndex: Integer
     ): TPoint;
-  protected
+  private
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
   public
@@ -71,7 +71,7 @@ begin
 
   FCenterPoint := APoint;
 
-  FMaxRadius := GetMaxRing(FCenterPoint, FTilesRect);
+  FMaxRadius := GetMaxRing(FCenterPoint, TilesRect);
 
   Reset;
 end;
@@ -79,10 +79,10 @@ end;
 function TTileIteratorSpiralByRect.CheckPoint(const APoint: TPoint): Boolean;
 begin
   Result :=
-    (APoint.X >= FTilesRect.Left) and
-    (APoint.Y >= FTilesRect.Top) and
-    (APoint.X < FTilesRect.Right) and
-    (APoint.Y < FTilesRect.Bottom);
+    (APoint.X >= TilesRect.Left) and
+    (APoint.Y >= TilesRect.Top) and
+    (APoint.X < TilesRect.Right) and
+    (APoint.Y < TilesRect.Bottom);
 end;
 
 constructor TTileIteratorSpiralByRect.Create(const ARect: TRect);
@@ -194,7 +194,7 @@ end;
 
 procedure TTileIteratorSpiralByRect.Reset;
 begin
-  FEOI := IsRectEmpty(FTilesRect);
+  FEOI := IsRectEmpty(TilesRect);
   FCurrentRing := 0;
   FIndexInRing := 0;
 end;

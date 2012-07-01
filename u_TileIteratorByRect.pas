@@ -28,9 +28,11 @@ uses
 
 type
   TTileIteratorByRectBase = class(TInterfacedObject)
-  protected
+  private
     FTilesTotal: Int64;
     FTilesRect: TRect;
+  protected
+    property TilesRect: TRect read FTilesRect;
     function GetTilesTotal: Int64;
     function GetTilesRect: TRect;
   public
@@ -38,9 +40,10 @@ type
   end;
 
   TTileIteratorByRect = class(TTileIteratorByRectBase, ITileIterator, ITileIteratorByRows)
-  protected
+  private
     FEOI: Boolean;
     FCurrent: TPoint;
+  private
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
   public
@@ -55,6 +58,12 @@ constructor TTileIteratorByRectBase.Create(const ARect: TRect);
 begin
   inherited Create;
   FTilesRect := ARect;
+  if IsRectEmpty(FTilesRect) then begin
+    FTilesTotal := 0;
+  end else begin
+    FTilesTotal := (FTilesRect.Right - FTilesRect.Left);
+    FTilesTotal := FTilesTotal * (FTilesRect.Bottom - FTilesRect.Top);
+  end;
 end;
 
 function TTileIteratorByRectBase.GetTilesRect: TRect;
@@ -82,10 +91,10 @@ begin
     Result := True;
     ATile := FCurrent;
     Inc(FCurrent.X);
-    if FCurrent.X >= FTilesRect.Right then begin
-      FCurrent.X := FTilesRect.Left;
+    if FCurrent.X >= TilesRect.Right then begin
+      FCurrent.X := TilesRect.Left;
       Inc(FCurrent.Y);
-      if FCurrent.Y >= FTilesRect.Bottom then begin
+      if FCurrent.Y >= TilesRect.Bottom then begin
         FEOI := True;
       end;
     end;
@@ -94,14 +103,11 @@ end;
 
 procedure TTileIteratorByRect.Reset;
 begin
-  if IsRectEmpty(FTilesRect) then begin
+  if IsRectEmpty(TilesRect) then begin
     FEOI := True;
-    FTilesTotal := 0;
   end else begin
     FEOI := False;
-    FTilesTotal := (FTilesRect.Right - FTilesRect.Left);
-    FTilesTotal := FTilesTotal * (FTilesRect.Bottom - FTilesRect.Top);
-    FCurrent := FTilesRect.TopLeft;
+    FCurrent := TilesRect.TopLeft;
   end;
 end;
 
