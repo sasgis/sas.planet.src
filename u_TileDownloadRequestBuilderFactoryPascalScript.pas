@@ -95,7 +95,6 @@ begin
   FCheker := ACheker;
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
-  FScriptText := AScriptText;
   FProjFactory := AProjFactory;
 
   FCS := MakeSyncRW_Std(Self, False);
@@ -103,8 +102,7 @@ begin
   FStateInternal := VState;
   FState := VState;
 
-  if FScriptText = '' then begin
-    FCompiledData := '';
+  if AScriptText = '' then begin
     FStateInternal.Disable('Empty script');
   end;
 end;
@@ -188,16 +186,14 @@ begin
               if VProjArgs <> '' then begin
                 FDefProjConverter := FProjFactory.GetByInitString(VProjArgs);
               end;
-              PreparePascalScript(FScriptText);
+              PreparePascalScript;
               FScriptInited := True;
             except
               on E: EPascalScriptCompileError do begin
                 FStateInternal.Disable(E.Message);
-                FCompiledData := '';
               end;
               on E: Exception do begin
                 FStateInternal.Disable('Unknown script compile error: ' + E.Message);
-                FCompiledData := '';
               end;
             end;
           end;
@@ -207,7 +203,7 @@ begin
       end;
       Result :=
         TTileDownloadRequestBuilderPascalScript.Create(
-          FCompiledData,
+          CompiledData,
           FConfig,
           FTileDownloaderConfig,
           ADownloader,

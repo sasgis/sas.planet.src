@@ -33,6 +33,7 @@ uses
   u_ResStrings;
 
 type
+  EPascalScriptEmptyScript = class(Exception);
   EPascalScriptCompileError = class(Exception);
   EPascalScriptRunError = class(Exception);
 
@@ -60,15 +61,16 @@ type
   end;
 
   TBaseFactoryPascalScript = class(TInterfacedObject)
-  protected
+  private
     FScriptText: string;
     FCompiledData: TbtString;
   protected
+    property CompiledData: TbtString read FCompiledData;
     function DoCompilerOnAuxUses(
       ACompiler: TBasePascalCompiler;
       const AName: string
     ): Boolean; virtual;
-    function PreparePascalScript(const APascalScript: String): Boolean;
+    function PreparePascalScript: Boolean;
   public
     constructor Create(const AScriptText: string);
   end;
@@ -271,6 +273,9 @@ begin
   inherited Create;
   FCompiledData := '';
   FScriptText := AScriptText;
+  if FScriptText = '' then begin
+    FCompiledData := '';
+  end;
 end;
 
 function TBaseFactoryPascalScript.DoCompilerOnAuxUses(
@@ -282,19 +287,27 @@ begin
   Result := FALSE;
 end;
 
-function TBaseFactoryPascalScript.PreparePascalScript(const APascalScript: String): Boolean;
+function TBaseFactoryPascalScript.PreparePascalScript: Boolean;
 var
   VCompiler: TBasePascalCompiler;
 begin
-  FScriptText := APascalScript;
-  VCompiler := TBasePascalCompiler.Create(APascalScript);
+  FCompiledData := '';
+  if FScriptText = '' then begin
+    raise EPascalScriptEmptyScript.Create('Empty script');
+  end;
   try
-    VCompiler.OnExternalProc := DllExternalProc;
-    VCompiler.OnAuxUses := DoCompilerOnAuxUses;
-    VCompiler.OnUses := CommonAppScriptOnUses;
-    Result := VCompiler.CompileAndGetOutput(FCompiledData);
-  finally
-    FreeAndNil(VCompiler);
+    VCompiler := TBasePascalCompiler.Create(FScriptText);
+    try
+      VCompiler.OnExternalProc := DllExternalProc;
+      VCompiler.OnAuxUses := DoCompilerOnAuxUses;
+      VCompiler.OnUses := CommonAppScriptOnUses;
+      Result := VCompiler.CompileAndGetOutput(FCompiledData);
+    finally
+      FreeAndNil(VCompiler);
+    end;
+  except
+    FCompiledData := '';
+    raise;
   end;
 end;
 

@@ -64,7 +64,7 @@ uses
 constructor TMapAttachmentsFactoryPascalScript.Create(const AScriptText: string);
 begin
   inherited;
-  PreparePascalScript(AScriptText);
+  PreparePascalScript;
 end;
 
 function TMapAttachmentsFactoryPascalScript.DoCompilerOnAuxUses(
@@ -113,7 +113,7 @@ end;
 
 function TMapAttachmentsFactoryPascalScript.GetCompiledData: String;
 begin
-  Result := FCompiledData;
+  Result := CompiledData;
 end;
 
 procedure RunParseAttachmentScript(
