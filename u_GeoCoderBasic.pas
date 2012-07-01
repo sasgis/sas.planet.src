@@ -43,7 +43,7 @@ type
   protected
     property Downloader: IDownloader read FDownloader;
     property InetSettings: IInetConfig read FInetSettings;
-    function PrepareRequestByURL(AUrl: string): IDownloadRequest;
+    function PrepareRequestByURL(const AUrl: string): IDownloadRequest;
     function URLEncode(const S: string): string;
     function PrepareRequest(
       const ASearch: WideString;
@@ -172,7 +172,7 @@ begin
   Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
 end;
 
-function TGeoCoderBasic.PrepareRequestByURL(AUrl: string): IDownloadRequest;
+function TGeoCoderBasic.PrepareRequestByURL(const AUrl: string): IDownloadRequest;
 begin
   Result := TDownloadRequest.Create(AUrl, '', FInetSettings.GetStatic);
 end;

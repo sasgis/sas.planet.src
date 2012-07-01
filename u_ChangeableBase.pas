@@ -18,9 +18,10 @@ type
     function GetAfterChangeNotifier: IJclNotifier;
   protected
     procedure DoBeforeChangeNotify; virtual;
-    procedure DoChangeNotify; virtual;
     procedure DoInChangeNotify; virtual;
     procedure DoAfterChangeNotify; virtual;
+
+    procedure DoChangeNotify; virtual;
   public
     constructor Create;
     destructor Destroy; override;
