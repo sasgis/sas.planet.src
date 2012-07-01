@@ -3,7 +3,6 @@ unit u_MapGPSLayer;
 interface
 
 uses
-  Windows,
   GR32,
   GR32_Image,
   i_JclNotify,

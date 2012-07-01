@@ -3,7 +3,6 @@ unit u_MapLayerBasic;
 interface
 
 uses
-  SysUtils,
   GR32,
   GR32_Layers,
   GR32_Image,
@@ -118,8 +117,7 @@ implementation
 
 uses
   Types,
-  u_SimpleFlagWithInterlock,
-  u_Synchronizer;
+  u_SimpleFlagWithInterlock;
 
 { TMapLayerBase }
 

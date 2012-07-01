@@ -3,7 +3,6 @@ unit u_TTLCheckListener;
 interface
 
 uses
-  Windows,
   Classes,
   i_SimpleFlag,
   i_TTLCheckListener;
