@@ -693,7 +693,7 @@ begin
   OnConfigChange;
   OnMainMapChange;
   OnLayerSetChange;
-  Visible := True;
+  Show;
 end;
 
 end.

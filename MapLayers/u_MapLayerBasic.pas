@@ -42,7 +42,7 @@ type
   protected
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure SetNeedRedraw; override;
-    procedure SetNeedUpdateLocation; virtual;
+    procedure SetNeedUpdateLocation;
     procedure DoViewUpdate; override;
   public
     constructor Create(

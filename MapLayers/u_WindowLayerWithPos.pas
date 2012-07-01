@@ -86,7 +86,7 @@ type
     FRedrawCounter: IInternalPerformanceCounter;
   protected
     function GetVisible: Boolean; virtual;
-    procedure SetVisible(const Value: Boolean); virtual;
+    procedure SetVisible(const Value: Boolean);
 
     procedure SetNeedRedraw; virtual;
 
@@ -135,7 +135,7 @@ type
     procedure UpdateLayerLocation; virtual;
     procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
   protected
-    procedure SetNeedUpdateLocation; virtual;
+    procedure SetNeedUpdateLocation;
     procedure SetNeedRedraw; override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoHide; override;

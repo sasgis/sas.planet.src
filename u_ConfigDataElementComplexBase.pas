@@ -78,7 +78,7 @@ type
     function CreateStatic: IInterface; virtual; abstract;
   protected
     procedure DoBeforeChangeNotify; override;
-    function GetStaticInternal: IInterface; virtual;
+    function GetStaticInternal: IInterface;
   public
     procedure AfterConstruction; override;
   public
