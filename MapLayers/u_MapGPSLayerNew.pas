@@ -11,6 +11,7 @@ uses
   i_BitmapLayerProvider,
   i_InternalPerformanceCounter,
   i_ViewPortState,
+  i_SimpleFlag,
   i_MapLayerGPSTrackConfig,
   i_GPSRecorder,
   i_ImageResamplerConfig,
@@ -23,7 +24,7 @@ type
     FGPSRecorder: IGPSRecorder;
 
     FGetTrackCounter: IInternalPerformanceCounter;
-    FGpsPosChangeCounter: Integer;
+    FGpsPosChangeFlag: ISimpleFlag;
     procedure OnConfigChange;
     procedure OnGPSRecorderChange;
     procedure OnTimer;
@@ -49,6 +50,7 @@ implementation
 
 uses
   u_NotifyEventListener,
+  u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderByTrackPath;
 
 { TMapGPSLayerNew }
@@ -77,6 +79,7 @@ begin
   FConfig := AConfig;
 
   FGetTrackCounter := PerfList.CreateAndAddNewCounter('GetTrack');
+  FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -90,8 +93,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnGPSRecorderChange),
     FGPSRecorder.GetChangeNotifier
   );
-
-  FGpsPosChangeCounter := 0;
 end;
 
 function TMapGPSLayerNew.CreateLayerProvider(
@@ -143,12 +144,12 @@ end;
 
 procedure TMapGPSLayerNew.OnGPSRecorderChange;
 begin
-  InterlockedIncrement(FGpsPosChangeCounter);
+  FGpsPosChangeFlag.SetFlag;
 end;
 
 procedure TMapGPSLayerNew.OnTimer;
 begin
-  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
+  if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
       SetNeedUpdateLayerProvider;

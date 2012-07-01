@@ -12,6 +12,7 @@ uses
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_TileError,
+  i_SimpleFlag,
   i_BitmapMarker,
   i_TileErrorLogProviedrStuped,
   u_MapType,
@@ -22,7 +23,7 @@ type
   private
     FLogProvider: ITileErrorLogProviedrStuped;
     FTimerNoifier: IJclNotifier;
-    FNeedUpdateCounter: Integer;
+    FNeedUpdateFlag: ISimpleFlag;
 
     FHideAfterTime: Cardinal;
     FErrorInfo: ITileErrorInfo;
@@ -57,6 +58,7 @@ uses
   i_CoordConverter,
   i_Bitmap32Static,
   u_NotifyEventListener,
+  u_SimpleFlagWithInterlock,
   u_BitmapMarker,
   u_Bitmap32Static,
   u_GeoFun;
@@ -76,6 +78,7 @@ begin
   FLogProvider := ALogProvider;
   FTimerNoifier := ATimerNoifier;
   FErrorInfo := nil;
+  FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnErrorRecive),
@@ -149,17 +152,15 @@ end;
 
 procedure TTileErrorInfoLayer.OnErrorRecive;
 begin
-  InterlockedIncrement(FNeedUpdateCounter);
+  FNeedUpdateFlag.SetFlag;
 end;
 
 procedure TTileErrorInfoLayer.OnTimer;
 var
-  VCounter: Integer;
   VCurrTime: Cardinal;
   VNeedHide: Boolean;
 begin
-  VCounter := InterlockedExchange(FNeedUpdateCounter, 0);
-  if VCounter > 0 then begin
+  if FNeedUpdateFlag.CheckFlagAndReset then begin
     ShowError(FLogProvider.GetLastErrorInfo);
   end else begin
     VNeedHide := True;

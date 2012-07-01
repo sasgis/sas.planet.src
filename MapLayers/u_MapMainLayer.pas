@@ -37,6 +37,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_ViewPortState,
+  i_SimpleFlag,
   i_ImageResamplerConfig,
   i_MainMapLayerConfig,
   i_BitmapPostProcessingConfig,
@@ -64,7 +65,7 @@ type
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-    FTileUpdateCounter: Integer;
+    FTileUpdateFlag: ISimpleFlag;
 
     procedure CreateBitmapProvider;
     procedure OnTileChange;
@@ -119,6 +120,7 @@ uses
   i_TileRectUpdateNotifier,
   u_NotifyEventListener,
   u_MapTypeListStatic,
+  u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderForViewMaps,
   u_TileIteratorSpiralByRect;
 
@@ -159,6 +161,9 @@ begin
   FLayersSetCS := MakeSyncRW_Var(Self);
   FBitmapProviderCS := MakeSyncRW_Var(Self);
 
+  FTileUpdateFlag := TSimpleFlagWithInterlock.Create;
+  FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
     FMapsConfig.GetActiveMap.GetChangeNotifier
@@ -182,8 +187,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
-  FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
-  FTileUpdateCounter := 0;
 end;
 
 procedure TMapMainLayer.CreateBitmapProvider;
@@ -532,12 +535,12 @@ end;
 
 procedure TMapMainLayer.OnTileChange;
 begin
-  InterlockedIncrement(FTileUpdateCounter);
+  FTileUpdateFlag.SetFlag;
 end;
 
 procedure TMapMainLayer.OnTimer;
 begin
-  if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
+  if FTileUpdateFlag.CheckFlagAndReset then begin
     DelicateRedraw;
   end;
 end;

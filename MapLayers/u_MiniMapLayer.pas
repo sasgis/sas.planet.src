@@ -46,6 +46,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_GlobalViewMainConfig,
   i_ViewPortState,
+  i_SimpleFlag,
   i_TileError,
   i_BitmapLayerProvider,
   i_MapTypeGUIConfigList,
@@ -92,7 +93,7 @@ type
     FBitmapProviderCS: IReadWriteSync;
 
     FDrawTask: IBackgroundTask;
-    FUpdateCounter: Integer;
+    FUpdateFlag: ISimpleFlag;
     FBgDrawCounter: IInternalPerformanceCounter;
     FClearStrategy: ILayerBitmapClearStrategy;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
@@ -243,6 +244,7 @@ uses
   u_Synchronizer,
   u_GeoFun,
   u_ResStrings,
+  u_SimpleFlagWithInterlock,
   i_TileIterator,
   i_Bitmap32Static,
   u_NotifyEventListener,
@@ -302,7 +304,7 @@ begin
       OnDrawBitmap,
       FConfig.ThreadConfig
     );
-  FUpdateCounter := 0;
+  FUpdateFlag := TSimpleFlagWithInterlock.Create;
 
   BuildPopUpMenu;
 
@@ -1162,7 +1164,7 @@ end;
 
 procedure TMiniMapLayer.OnTimer;
 begin
-  if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
+  if FUpdateFlag.CheckFlagAndReset then begin
     FLayer.Changed;
   end;
 end;
@@ -1209,7 +1211,7 @@ end;
 
 procedure TMiniMapLayer.SetBitmapChanged;
 begin
-  InterlockedIncrement(FUpdateCounter);
+  FUpdateFlag.SetFlag;
 end;
 
 procedure TMiniMapLayer.SetLayerCoordConverter(
