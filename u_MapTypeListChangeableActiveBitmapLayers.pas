@@ -147,7 +147,9 @@ begin
     for i := 0 to VCount - 1 do begin
       VZArray[i] := VLayers[i].MapType.LayerDrawConfig.LayerZOrder;
     end;
-    QuickSort(VLayers, VZArray, 0, VCount - 1);
+    if VCount > 1 then begin
+      QuickSort(VLayers, VZArray, 0, VCount - 1);
+    end;
     Result := IMapTypeListStatic(TMapTypeListStatic.Create(VLayers));
   finally
     for i := 0 to Length(VLayers) - 1 do begin
