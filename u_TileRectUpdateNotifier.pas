@@ -20,7 +20,7 @@ type
   private
     FGeoCoder: ICoordConverter;
     FZoom: Byte;
-    FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
+    FSynchronizer: IReadWriteSync;
     FCount: Integer;
     FList: array of TListenerRecord;
     function CalcGrowSize(AOldSize: Integer): Integer;
@@ -45,6 +45,9 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TTileRectUpdateNotifier }
 
 constructor TTileRectUpdateNotifier.Create(
@@ -55,7 +58,7 @@ begin
   inherited Create;
   FZoom := AZoom;
   FGeoCoder := AGeoCoder;
-  FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
+  FSynchronizer := MakeSyncRW_Big(Self, False);
 end;
 
 destructor TTileRectUpdateNotifier.Destroy;
@@ -67,7 +70,6 @@ begin
   end;
   FList := nil;
   FGeoCoder := nil;
-  FreeAndNil(FSynchronizer);
   inherited;
 end;
 

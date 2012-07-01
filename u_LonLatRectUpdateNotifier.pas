@@ -38,14 +38,15 @@ type
 implementation
 
 uses
-  u_LonLatRect;
+  u_LonLatRect,
+  u_Synchronizer;
 
 { TLonLatRectUpdateNotifier }
 
 constructor TLonLatRectUpdateNotifier.Create;
 begin
   inherited Create;
-  FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
+  FSynchronizer := MakeSyncRW_Big(Self, False);
 end;
 
 destructor TLonLatRectUpdateNotifier.Destroy;
@@ -56,7 +57,6 @@ begin
     FList[i].Listener := nil;
   end;
   FList := nil;
-  FSynchronizer := nil;
   inherited;
 end;
 

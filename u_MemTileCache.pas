@@ -49,7 +49,7 @@ type
     FTTLListener: ITTLCheckListener;
 
     FCacheList: TStringList;
-    FSync: TMultiReadExclusiveWriteSynchronizer;
+    FSync: IReadWriteSync;
     procedure OnChangeConfig;
     procedure OnTileStorageChange(const AMsg: IInterface);
     function GetMemCacheKey(
@@ -125,6 +125,7 @@ uses
   i_TileKey,
   i_TileRectUpdateNotifier,
   u_TTLCheckListener,
+  u_Synchronizer,
   u_NotifyEventListener;
 
 { TTileCacheBase }
@@ -159,7 +160,7 @@ begin
 
   FCacheList := TStringList.Create;
   FCacheList.Capacity := FConfig.MaxSize;
-  FSync := TMultiReadExclusiveWriteSynchronizer.Create;
+  FSync := MakeSyncRW_Big(Self, False);
   FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 40000, 1000);
   FGCList.Add(FTTLListener);
 end;
@@ -188,7 +189,6 @@ begin
   FTileStorage := nil;
 
   Clear;
-  FreeAndNil(FSync);
   FreeAndNil(FCacheList);
   inherited;
 end;
