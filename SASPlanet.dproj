@@ -954,7 +954,6 @@
     <DCCReference Include="u_TileGridConfig.pas" />
     <DCCReference Include="u_TileInfoBasic.pas" />
     <DCCReference Include="u_TileInfoBasicMemCache.pas" />
-    <DCCReference Include="u_TileIteratorAbstract.pas" />
     <DCCReference Include="u_TileIteratorByPolygon.pas" />
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />

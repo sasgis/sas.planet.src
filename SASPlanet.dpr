@@ -337,7 +337,6 @@ uses
   u_TileRectInfo in 'u_TileRectInfo.pas',
   u_TileRectInfoShort in 'u_TileRectInfoShort.pas',
   i_TileIterator in 'i_TileIterator.pas',
-  u_TileIteratorAbstract in 'u_TileIteratorAbstract.pas',
   u_TileIteratorByPolygon in 'u_TileIteratorByPolygon.pas',
   u_TileIteratorSpiralByRect in 'u_TileIteratorSpiralByRect.pas',
   u_TileIteratorByRect in 'u_TileIteratorByRect.pas',
