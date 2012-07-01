@@ -217,7 +217,7 @@ begin
   inherited Create;
   FGPSPositionFactory := APositionFactory;
 
-  FCSGPSData := MakeSyncObj(Self);
+  FCSGPSData := MakeSyncRW_Var(Self, False);
 
   FNotifiedTicks := 0;
   FGPSPosChanged := FALSE;
