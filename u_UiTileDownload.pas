@@ -135,7 +135,7 @@ begin
   FCancelEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
 
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Std(Self, False);
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
 
   FLinksList := TJclListenerNotifierLinksList.Create;
@@ -183,6 +183,7 @@ begin
   FCS.BeginWrite;
   try
     if FDownloadTask <> nil then begin
+      FDownloadTask.StopExecute;
       FDownloadTask.Terminate;
       FDownloadTask := nil;
     end;

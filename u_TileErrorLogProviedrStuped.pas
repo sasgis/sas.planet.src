@@ -55,7 +55,7 @@ uses
 constructor TTileErrorLogProviedrStuped.Create;
 begin
   inherited Create;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Var(Self, False);
   FNotifier := TJclBaseNotifier.Create;
 end;
 

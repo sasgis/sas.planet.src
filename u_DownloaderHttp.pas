@@ -143,7 +143,7 @@ begin
   FOpeningHandle := nil;
   FDisconnectByUser := 0;
   FDisconnectByServer := 0;
-  FCS := MakeSyncObj(Self, FALSE);
+  FCS := MakeSyncRW_Big(Self, FALSE);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpClient.OnStatusChange := DoOnALStatusChange;
   FHttpResponseHeader := TALHTTPResponseHeader.Create;

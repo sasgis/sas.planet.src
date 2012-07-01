@@ -581,7 +581,7 @@ begin
 
   Assert(AMultiUseCount + AFirstUseCount + AFirstOutCount < High(TItemIndex));
   VHashSizeInBit := AHashSizeInBit;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Var(Self, False);
 
   if VHashSizeInBit < 6 then begin
     VHashSizeInBit := 6;
