@@ -101,10 +101,12 @@ type
     );
 
     function MouseOnReg(
+      const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint;
       out AMarkS: Double
     ): IMark; overload;
     function MouseOnReg(
+      const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint
     ): IMark; overload;
 
@@ -324,6 +326,7 @@ begin
 end;
 
 function TMapMarksLayer.MouseOnReg(
+  const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint;
   out AMarkS: Double
 ): IMark;
@@ -336,7 +339,6 @@ var
   VMark: IMark;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
-  VVisualConverter: ILocalCoordConverter;
   VMarksSubset: IMarksSubset;
   VMarksEnum: IEnumUnknown;
   VSquare: Double;
@@ -368,11 +370,10 @@ begin
         VLocalConverter := LayerCoordConverter;
         VConverter := VLocalConverter.GetGeoConverter;
         VZoom := VLocalConverter.GetZoom;
-        VVisualConverter := ViewCoordConverter;
-        VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
+        VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
         VConverter.CheckPixelRectFloat(VMapRect, VZoom);
         VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-        VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
+        VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(xy);
         VMarksEnum := VMarksSubset.GetEnum;
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
           if VMark.LLRect.IsIntersecWithRect(VLonLatRect) then begin
@@ -481,12 +482,13 @@ begin
 end;
 
 function TMapMarksLayer.MouseOnReg(
+  const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint
 ): IMark;
 var
   VMarkS: Double;
 begin
-  Result := MouseOnReg(xy, VMarkS);
+  Result := MouseOnReg(AVisualConverter, xy, VMarkS);
 end;
 
 function TMapMarksLayer.GetIntersection(

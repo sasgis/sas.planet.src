@@ -37,6 +37,7 @@ type
     procedure StartThreads; override;
   public
     function MouseOnReg(
+      const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint;
       out AItemS: Double
     ): IVectorDataItemSimple;
@@ -112,7 +113,6 @@ var
   VConverter: ICoordConverter;
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
-  VVisualConverter: ILocalCoordConverter;
   VTargetPointFloat: TDoublePoint;
   VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
@@ -120,14 +120,13 @@ var
   i: integer;
   VSearchResults: IGeoCodeResult;
 begin
-  VVisualConverter := ViewCoordConverter;
-  VConverter := VVisualConverter.GetGeoConverter;
+  VConverter := ALocalConverter.GetGeoConverter;
   VMarker := FMarkerProviderStatic.GetMarker;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      VFixedOnView := VVisualConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
+      VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
       VTargetPointFloat :=
         DoublePoint(
           VFixedOnView.X - VMarker.AnchorPoint.X,
@@ -150,6 +149,7 @@ begin
 end;
 
 function TSearchResultsLayer.MouseOnReg(
+  const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint;
   out AItemS: Double
 ): IVectorDataItemSimple;
@@ -161,7 +161,6 @@ var
   VZoom: Byte;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
-  VVisualConverter: ILocalCoordConverter;
   i: integer;
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
@@ -180,11 +179,10 @@ begin
     VLocalConverter := LayerCoordConverter;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoom := VLocalConverter.GetZoom;
-    VVisualConverter := ViewCoordConverter;
-    VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
+    VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-    VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
+    VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(xy);
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin

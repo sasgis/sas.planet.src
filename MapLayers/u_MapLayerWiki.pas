@@ -117,6 +117,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     );
     function MouseOnElements(
+      const AVisualConverter: ILocalCoordConverter;
       const ACopiedElements: IInterfaceList;
       const xy: TPoint;
       var AItemS: Double
@@ -149,14 +150,17 @@ type
 
     // helper
     function MouseOnReg(
+      const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint;
       out AItemS: Double
     ): IVectorDataItemSimple; overload;
     function MouseOnReg(
+      const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint
     ): IVectorDataItemSimple; overload;
 
     function MouseOnRegWithGUID(
+      const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint;
       out AItemS: Double;
       out ALayerGUID: TGUID
@@ -794,6 +798,7 @@ begin
 end;
 
 function TWikiLayer.MouseOnReg(
+  const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint;
   out AItemS: Double
 ): IVectorDataItemSimple;
@@ -806,13 +811,14 @@ begin
   VElements := TInterfaceList.Create;
   try
     FAllElements.CopyMapElementsToList(TRUE, TRUE, VElements);
-    Result := MouseOnElements(VElements, xy, AItemS);
+    Result := MouseOnElements(AVisualConverter, VElements, xy, AItemS);
   finally
     VElements := nil;
   end;
 end;
 
 function TWikiLayer.MouseOnElements(
+  const AVisualConverter: ILocalCoordConverter;
   const ACopiedElements: IInterfaceList;
   const xy: TPoint;
   var AItemS: Double
@@ -822,7 +828,6 @@ var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VZoom: Byte;
-  VVisualConverter: ILocalCoordConverter;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;
@@ -839,19 +844,22 @@ begin
 
   // if has elements
   if ACopiedElements.Count > 0 then begin
+    VLocalConverter := LayerCoordConverter;
+    if not AVisualConverter.ProjectionInfo.GetIsSameProjectionInfo(VLocalConverter.ProjectionInfo) then begin
+      Exit;
+    end;
     // TODO: execute this only once (for multiple calls)
     VRect.Left := xy.X - 3;
     VRect.Top := xy.Y - 3;
     VRect.Right := xy.X + 3;
     VRect.Bottom := xy.Y + 3;
-    VLocalConverter := LayerCoordConverter;
+
     VConverter := VLocalConverter.GetGeoConverter;
     VZoom := VLocalConverter.GetZoom;
-    VVisualConverter := ViewCoordConverter;
-    VMapRect := VVisualConverter.LocalRect2MapRectFloat(VRect);
+    VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-    VPixelPos := VVisualConverter.LocalPixel2MapPixelFloat(xy);
+    VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(xy);
 
     // check element
     for i := 0 to ACopiedElements.Count - 1 do begin
@@ -884,15 +892,17 @@ begin
 end;
 
 function TWikiLayer.MouseOnReg(
+  const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint
 ): IVectorDataItemSimple;
 var
   VItemS: Double;
 begin
-  Result := MouseOnReg(xy, VItemS);
+  Result := MouseOnReg(AVisualConverter, xy, VItemS);
 end;
 
 function TWikiLayer.MouseOnRegWithGUID(
+  const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint;
   out AItemS: Double;
   out ALayerGUID: TGUID
@@ -915,7 +925,7 @@ begin
         while (S_OK = VEnumGUID.Next(1, ALayerGUID, celtFetched)) do begin
           VElements.Clear;
           CopyMapElements(FAllElements.GetMapElementsWithGUID(ALayerGUID), VElements);
-          Result := MouseOnElements(VElements, xy, AItemS);
+          Result := MouseOnElements(AVisualConverter, VElements, xy, AItemS);
           if Result <> nil then begin
             Exit;
           end;
@@ -931,7 +941,7 @@ begin
     // without guid
     VElements.Clear;
     CopyMapElements(FAllElements.GetMapElementsWithoutGUID, VElements);
-    Result := MouseOnElements(VElements, xy, AItemS);
+    Result := MouseOnElements(AVisualConverter, VElements, xy, AItemS);
   finally
     VElements := nil;
   end;

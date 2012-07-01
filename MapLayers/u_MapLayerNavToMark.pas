@@ -134,7 +134,6 @@ var
   VCrossDist: Double;
   VDistInPixel: Double;
   VAngle: Double;
-  VVisualConverter: ILocalCoordConverter;
   VTargetPointFloat: TDoublePoint;
   VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
@@ -142,24 +141,23 @@ var
   VMarkerProvider: IBitmapMarkerProvider;
   VMarkerWithDirectionProvider: IBitmapMarkerWithDirectionProvider;
 begin
-  VVisualConverter := ViewCoordConverter;
-  VConverter := VVisualConverter.GetGeoConverter;
-  VZoom := VVisualConverter.GetZoom;
-  VScreenCenterMapPos := VVisualConverter.GetCenterMapPixelFloat;
+  VConverter := ALocalConverter.GetGeoConverter;
+  VZoom := ALocalConverter.GetZoom;
+  VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
   VMarkMapPos := VConverter.LonLat2PixelPosFloat(FMarkPoint, VZoom);
   VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
   VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
   VCrossDist := FConfig.CrossDistInPixels;
   if VDistInPixel < VCrossDist then begin
-    VFixedOnView := VVisualConverter.LonLat2LocalPixelFloat(FMarkPoint);
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FMarkPoint);
     VMarker := FReachedMarker;
   end else begin
     VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
     VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
     VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
     VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
-    VFixedOnView := VVisualConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
+    VFixedOnView := ALocalConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
     VMarkerProvider := FArrowMarkerProviderStatic;
     if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
       VAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;

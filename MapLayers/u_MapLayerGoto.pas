@@ -154,7 +154,6 @@ procedure TGotoLayer.PaintLayer(
 );
 var
   VConverter: ICoordConverter;
-  VVisualConverter: ILocalCoordConverter;
   VGotoPos: IGotoPosStatic;
   VMarker: IBitmapMarker;
   VGotoLonLat: TDoublePoint;
@@ -164,12 +163,11 @@ var
 begin
   inherited;
   VGotoPos := FGotoPos;
-  VVisualConverter := ViewCoordConverter;
   VGotoLonLat := VGotoPos.LonLat;
   if not PointIsEmpty(VGotoLonLat) then begin
-    VConverter := VVisualConverter.GetGeoConverter;
+    VConverter := ALocalConverter.GetGeoConverter;
     VMarker := FMarker;
-    VFixedOnView := VVisualConverter.LonLat2LocalPixelFloat(VGotoLonLat);
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
     VTargetPointFloat :=
       DoublePoint(
         VFixedOnView.X - VMarker.AnchorPoint.X,

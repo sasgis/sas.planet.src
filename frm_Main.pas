@@ -3240,8 +3240,10 @@ procedure TfrmMain.tbitmHideThisMarkClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkId: IMarkID;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if Supports(VMark, IMarkID, VMarkId) then begin
     FMarkDBGUI.MarksDB.MarksDb.SetMarkVisibleByID(VMarkId, False);
   end;
@@ -3267,8 +3269,10 @@ procedure TfrmMain.tbitmFitMarkToScreenClick(Sender: TObject);
 var
   VMark: IMark;
   VLLRect: TDoubleRect;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     VLLRect := VMark.LLRect.Rect;
     if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
@@ -3939,8 +3943,10 @@ var
   VMarkPoly: IMarkPoly;
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
       FEditMarkPoint := VMarkPoint;
@@ -3965,8 +3971,10 @@ end;
 procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
   VMark: IMark;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     FMarkDBGUI.ExportMark(VMark);
   end;
@@ -3975,8 +3983,10 @@ end;
 procedure TfrmMain.NMarkDelClick(Sender: TObject);
 var
   VMark: IMark;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle);
   end;
@@ -3985,8 +3995,10 @@ end;
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMark;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetVisualCoordConverter.ProjectionInfo);
   end;
@@ -4212,7 +4224,7 @@ begin
           VMark := nil;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
              (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw) then begin
-            VMark := FLayerMapMarks.MouseOnReg(Point(x, y));
+            VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y));
           end;
           if VMark <> nil then begin
             if Supports(VMark, IMarkPoint, VMarkPoint) then begin
@@ -4250,7 +4262,7 @@ begin
   if (VIsClickInMap)and (Button=mbright)and(FState.State=ao_movemap) then begin
     VMark := nil;
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      VMark := FLayerMapMarks.MouseOnReg(Point(x, y));
+      VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y));
     end;
     NMarkEdit.Visible := VMark <> nil;
     tbitmFitMarkToScreen.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
@@ -4360,9 +4372,9 @@ begin
     end;
   end;
 
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   if not VMapMoving and (Button = mbLeft) then begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
@@ -4459,7 +4471,7 @@ begin
       VWikiLayerGUID:=GUID_NULL;
 
       VWikiItem := nil;
-      VWikiItem := FWikiLayer.MouseOnRegWithGUID(Point(x,y), VMarkS, VWikiLayerGUID);
+      VWikiItem := FWikiLayer.MouseOnRegWithGUID(VLocalConverter, Point(x,y), VMarkS, VWikiLayerGUID);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
@@ -4467,7 +4479,7 @@ begin
         VPWL.S := VMarkS;
       end;
 
-      VWikiItem := FLayerSearchResults.MouseOnReg(Point(x,y), VMarkS);
+      VWikiItem := FLayerSearchResults.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
@@ -4477,7 +4489,7 @@ begin
 
       VMark := nil;
       if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-        VMark := FLayerMapMarks.MouseOnReg(Point(x,y), VMarkS);
+        VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
       end;
 
       if VMark <> nil then begin
@@ -4563,7 +4575,7 @@ begin
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
        (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then
-      VMark := FLayerMapMarks.MouseOnReg(VMousePos);
+      VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos);
     if VMark <> nil then begin
       if Supports(VMark, IMarkPoint, VMarkPoint) then begin
         VLonLat := VMarkPoint.Point;
@@ -4652,14 +4664,14 @@ begin
     VItemFound := False;
     VItemS := 0;
     VWikiItem := nil;
-    VWikiItem := FWikiLayer.MouseOnReg(VMousePos, VMarkS);
+    VWikiItem := FWikiLayer.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;
       VItemHint := VWikiItem.GetHintText;
     end;
 
-    VWikiItem := FLayerSearchResults.MouseOnReg(VMousePos, VMarkS);
+    VWikiItem := FLayerSearchResults.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;
@@ -4668,7 +4680,7 @@ begin
 
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-      VMark := FLayerMapMarks.MouseOnReg(VMousePos, VMarkS);
+      VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
     if VMark <> nil then begin
       if (not VItemFound) or (not Supports(VMark, IMarkPoly)) or (VItemS >= VMarkS) then begin
         VItemFound := True;
@@ -4853,8 +4865,10 @@ procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
   LL:TDoublePoint;
   VMark: IMark;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       LL := VMark.GetGoToLonLat;
@@ -4897,8 +4911,10 @@ procedure TfrmMain.NMarksCalcsLenClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkLine: IMarkLine;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if Supports(VMark, IMarkLine, VMarkLine) then begin
     FMarkDBGUI.ShowMarkLength(VMarkLine, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -4908,8 +4924,10 @@ procedure TfrmMain.NMarksCalcsSqClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkPoly: IMarkPoly;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if Supports(VMark, IMarkPoly, VMarkPoly) then begin
     FMarkDBGUI.ShowMarkSq(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -4942,8 +4960,10 @@ procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkPoly: IMarkPoly;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if Supports(VMark, IMarkPoly, VMarkPoly) then begin
     FMarkDBGUI.ShowMarkLength(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -5098,8 +5118,10 @@ procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkModifed: IMark;
+  VLocalConverter: ILocalCoordConverter;
 begin
-  VMark := FLayerMapMarks.MouseOnReg(FMouseState.GetLastDownPos(mbRight));
+  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
   if VMark <> nil then begin
     VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False);
     if VMarkModifed <> nil then begin
