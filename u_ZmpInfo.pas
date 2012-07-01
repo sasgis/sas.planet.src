@@ -362,80 +362,80 @@ begin
   LoadInfo(ALangList, AConfig);
 end;
 
+function UpdateBMPTransp(AMaskColor: TColor32; ABitmap: IBitmap32Static): IBitmap32Static;
+var
+  VSourceLine: PColor32Array;
+  VTargetLine: PColor32Array;
+  i: Integer;
+  j: Integer;
+  VBitmap: TCustomBitmap32;
+begin
+  Result := nil;
+  if ABitmap <> nil then begin
+    VBitmap := TCustomBitmap32.Create;
+    try
+      VBitmap.SetSizeFrom(ABitmap.Bitmap);
+      for i := 0 to ABitmap.Bitmap.Height - 1 do begin
+        VSourceLine := ABitmap.Bitmap.ScanLine[i];
+        VTargetLine := VBitmap.ScanLine[i];
+        for j := 0 to ABitmap.Bitmap.Width - 1 do begin
+          if VSourceLine[j] = AMaskColor then begin
+            VTargetLine[j] := 0;
+          end else begin
+            VTargetLine[j] := VSourceLine[j];
+          end;
+        end;
+      end;
+      Result := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
+    finally
+      VBitmap.Free;
+    end;
+  end;
+end;
+
+function GetBitmap(
+  const AContentTypeManager: IContentTypeManager;
+  const AConfig: IConfigDataProvider;
+  const AConfigIniParams: IConfigDataProvider;
+  const ADefName: string;
+  const AIdent: string
+): IBitmap32Static;
+var
+  VImageName: string;
+  VData: IBinaryData;
+  VExt: string;
+  VTypeInfo: IContentTypeInfoBasic;
+  VBitmapTypeInfo: IContentTypeInfoBitmap;
+  VLoader: IBitmapTileLoader;
+begin
+  Result := nil;
+  VImageName := ADefName;
+  VImageName := AConfigIniParams.ReadString(AIdent, VImageName);
+  VData := AConfig.ReadBinary(VImageName);
+  if (VData <> nil) and (VData.Size > 0) then begin
+    VExt := LowerCase(ExtractFileExt(VImageName));
+    VTypeInfo := AContentTypeManager.GetInfoByExt(VExt);
+    if Supports(VTypeInfo, IContentTypeInfoBitmap, VBitmapTypeInfo) then begin
+      VLoader := VBitmapTypeInfo.GetLoader;
+      if VLoader <> nil then begin
+        Result := VLoader.Load(VData);
+        if Result <> nil then begin
+          if VExt = '.bmp' then begin
+            Result := UpdateBMPTransp(Color32(255, 0, 255, 255), Result);
+          end
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TZmpInfoGUI.LoadIcons(
   const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
   Apnum: Integer
 );
-  function UpdateBMPTransp(AMaskColor: TColor32; ABitmap: IBitmap32Static): IBitmap32Static;
-  var
-    VSourceLine: PColor32Array;
-    VTargetLine: PColor32Array;
-    i: Integer;
-    j: Integer;
-    VBitmap: TCustomBitmap32;
-  begin
-    Result := nil;
-    if ABitmap <> nil then begin
-      VBitmap := TCustomBitmap32.Create;
-      try
-        VBitmap.SetSizeFrom(ABitmap.Bitmap);
-        for i := 0 to ABitmap.Bitmap.Height - 1 do begin
-          VSourceLine := ABitmap.Bitmap.ScanLine[i];
-          VTargetLine := VBitmap.ScanLine[i];
-          for j := 0 to ABitmap.Bitmap.Width - 1 do begin
-            if VSourceLine[j] = AMaskColor then begin
-              VTargetLine[j] := 0;
-            end else begin
-              VTargetLine[j] := VSourceLine[j];
-            end;
-          end;
-        end;
-        Result := TBitmap32Static.CreateWithOwn(VBitmap);
-        VBitmap := nil;
-      finally
-        VBitmap.Free;
-      end;
-    end;
-
-  end;
-
-  function GetBitmap(
-    const AContentTypeManager: IContentTypeManager;
-    const AConfig: IConfigDataProvider;
-    const AConfigIniParams: IConfigDataProvider;
-    const ADefName: string;
-    const AIdent: string
-  ): IBitmap32Static;
-  var
-    VImageName: string;
-    VData: IBinaryData;
-    VExt: string;
-    VTypeInfo: IContentTypeInfoBasic;
-    VBitmapTypeInfo: IContentTypeInfoBitmap;
-    VLoader: IBitmapTileLoader;
-  begin
-    Result := nil;
-    VImageName := ADefName;
-    VImageName := AConfigIniParams.ReadString(AIdent, VImageName);
-    VData := AConfig.ReadBinary(VImageName);
-    if (VData <> nil) and (VData.Size > 0) then begin
-      VExt := LowerCase(ExtractFileExt(VImageName));
-      VTypeInfo := AContentTypeManager.GetInfoByExt(VExt);
-      if Supports(VTypeInfo, IContentTypeInfoBitmap, VBitmapTypeInfo) then begin
-        VLoader := VBitmapTypeInfo.GetLoader;
-        if VLoader <> nil then begin
-          Result := VLoader.Load(VData);
-          if Result <> nil then begin
-            if VExt = '.bmp' then begin
-              Result := UpdateBMPTransp(Color32(255, 0, 255, 255), Result);
-            end
-          end;
-        end;
-      end;
-    end;
-  end;
 begin
   try
     FBmp24 :=

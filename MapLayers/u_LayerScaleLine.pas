@@ -540,7 +540,7 @@ begin
     VValidLegendWidth,
     VHalfValue,
     VFullValue,
-    FLayer.Bitmap
+    Layer.Bitmap
   );
 end;
 

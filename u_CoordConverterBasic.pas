@@ -30,8 +30,9 @@ uses
 
 type
   TCoordConverterBasic = class(TCoordConverterAbstract, ICoordConverterSimple)
-  protected
+  private
     FValidLonLatRect: TDoubleRect;
+  protected
     function GetValidLonLatRect: TDoubleRect;
 
     procedure CheckZoomInternal(var AZoom: Byte); override;
