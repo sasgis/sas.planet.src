@@ -351,6 +351,7 @@
     <DCCReference Include="i_ShortCutModalEdit.pas" />
     <DCCReference Include="i_ShortCutSingleConfig.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
+    <DCCReference Include="i_SimpleFlag.pas" />
     <DCCReference Include="i_SimpleHttpDownloader.pas" />
     <DCCReference Include="i_SimpleTileStorageConfig.pas" />
     <DCCReference Include="i_StartUpLogoConfig.pas" />
@@ -901,6 +902,7 @@
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_ShortCutModalEditByForm.pas" />
     <DCCReference Include="u_ShortCutSingleConfig.pas" />
+    <DCCReference Include="u_SimpleFlagWithInterlock.pas" />
     <DCCReference Include="u_SimpleHttpDownloader.pas" />
     <DCCReference Include="u_SimpleTileStorageConfig.pas" />
     <DCCReference Include="u_SimpleTileStorageConfigStatic.pas" />
