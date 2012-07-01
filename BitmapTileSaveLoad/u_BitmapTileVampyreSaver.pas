@@ -23,7 +23,7 @@ type
     FPerfCounter: IInternalPerformanceCounter;
   protected
     procedure PrepareData(var AImage: TImageData); virtual;
-  protected
+  private
     procedure SaveToStream(
       ABtm: TCustomBitmap32;
       AStream: TStream

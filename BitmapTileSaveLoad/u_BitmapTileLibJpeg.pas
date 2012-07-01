@@ -33,7 +33,7 @@ uses
 
 type
   TLibJpegTileLoader = class(TInterfacedObject, IBitmapTileLoader)
-  protected
+  private
     FLoadStreamCounter: IInternalPerformanceCounter;
     function ReadLine(
       Sender: TObject;
@@ -41,32 +41,34 @@ type
       ALineSize: Cardinal;
       ALineNumber: Integer
     ): Boolean;
-  public
-    constructor Create(const APerfCounterList: IInternalPerformanceCounterList);
-    destructor Destroy; override;
+  private
     procedure LoadFromStream(
       AStream: TStream;
       ABtm: TCustomBitmap32
     );
     function Load(const AData: IBinaryData): IBitmap32Static;
+  public
+    constructor Create(const APerfCounterList: IInternalPerformanceCounterList);
+    destructor Destroy; override;
   end;
 
   TLibJpegTileSaver = class(TInterfacedObject, IBitmapTileSaver)
-  protected
+  private
     FCompressionQuality: Byte;
     function WriteLine(
       Sender: TObject;
       ALineNumber: Integer;
       out Abort: Boolean
     ): PByte;
-  public
-    constructor Create(ACompressionQuality: Byte);
-    destructor Destroy; override;
+  private
     procedure SaveToStream(
       ABtm: TCustomBitmap32;
       AStream: TStream
     );
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
+  public
+    constructor Create(ACompressionQuality: Byte);
+    destructor Destroy; override;
   end;
 
 implementation

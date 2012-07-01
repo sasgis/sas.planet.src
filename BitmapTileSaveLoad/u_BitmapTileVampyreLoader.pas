@@ -19,17 +19,18 @@ type
     FMetadata: TMetadata;
     FFormat: TImageFileFormat;
     FLoadStreamCounter: IInternalPerformanceCounter;
+  private
+    procedure LoadFromStream(
+      AStream: TStream;
+      ABtm: TCustomBitmap32
+    );
+    function Load(const AData: IBinaryData): IBitmap32Static;
   public
     constructor Create(
       AFormatClass: TImageFileFormatClass;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
-    procedure LoadFromStream(
-      AStream: TStream;
-      ABtm: TCustomBitmap32
-    );
-    function Load(const AData: IBinaryData): IBitmap32Static;
   end;
 
   TVampyreBasicBitmapTileLoaderPNG = class(TVampyreBasicBitmapTileLoader)
