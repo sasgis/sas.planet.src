@@ -153,7 +153,7 @@ begin
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
-  FCoordConverter := FConfig.GeoCoder as ICoordConverterSimple;
+  FCoordConverter := Config.GeoCoder as ICoordConverterSimple;
   PrepareCompiledScript(ACompiledData);
 
   OnLangChange;
@@ -326,13 +326,13 @@ begin
   FpConverter.Data := FCoordConverter;
 
   FpResultUrl.Data := '';
-  FConfig.LockRead;
+  Config.LockRead;
   try
-    FpGetURLBase.Data := FConfig.URLBase;
-    FpRequestHead.Data := FConfig.RequestHeader;
-    VUseDownloader := FConfig.IsUseDownloader;
+    FpGetURLBase.Data := Config.URLBase;
+    FpRequestHead.Data := Config.RequestHeader;
+    VUseDownloader := Config.IsUseDownloader;
   finally
-    FConfig.UnlockRead;
+    Config.UnlockRead;
   end;
 
   // TODO:  Заменить DefaultMIMEType на отдельную настройку

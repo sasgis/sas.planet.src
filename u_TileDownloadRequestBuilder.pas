@@ -35,8 +35,9 @@ type
   TTileDownloadRequestBuilder = class(TInterfacedObject, ITileDownloadRequestBuilder)
   private
     FCS: IReadWriteSync;
-  protected
     FConfig: ITileDownloadRequestBuilderConfig;
+  protected
+    property Config: ITileDownloadRequestBuilderConfig read FConfig;
     procedure Lock;
     procedure Unlock;
   protected
