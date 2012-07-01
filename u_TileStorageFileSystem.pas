@@ -341,6 +341,42 @@ begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom);
 end;
 
+function _GetAttributesEx(const AFileName: String; var AInfo: WIN32_FILE_ATTRIBUTE_DATA): Boolean;
+begin
+  Result := (GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @AInfo) <> FALSE);
+end;
+
+function _GetFileDateTime(var AInfo: WIN32_FILE_ATTRIBUTE_DATA): TDateTime;
+var
+  VSysTime: TSystemTime;
+  VFileTimePtr: PFileTime;
+begin
+  Result := 0;
+  VFileTimePtr := nil;
+
+  // last modified time (if exists)
+  if (AInfo.ftLastWriteTime.dwLowDateTime <> 0) and (AInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
+    VFileTimePtr := @(AInfo.ftLastWriteTime);
+  end;
+
+  // created time (if exists and greater)
+  if (AInfo.ftCreationTime.dwLowDateTime <> 0) and (AInfo.ftCreationTime.dwHighDateTime <> 0) then begin
+    if (nil = VFileTimePtr) or (CompareFileTime(AInfo.ftCreationTime, VFileTimePtr^) > 0) then begin
+      VFileTimePtr := @(AInfo.ftCreationTime);
+    end;
+  end;
+
+  // convert max value
+  if (nil <> VFileTimePtr) then begin
+    if (FileTimeToSystemTime(VFileTimePtr^, VSysTime) <> FALSE) then begin
+      try
+        Result := SystemTimeToDateTime(VSysTime);
+      except
+      end;
+    end;
+  end;
+end;
+
 function TTileStorageFileSystem.GetTileInfoByPath(
   const APath: string;
   const AVersionInfo: IMapVersionInfo;
@@ -348,49 +384,12 @@ function TTileStorageFileSystem.GetTileInfoByPath(
 ): ITileInfoBasic;
 var
   VInfo: WIN32_FILE_ATTRIBUTE_DATA;
-
-  function _GetAttributesEx(const AFileName: String): Boolean;
-  begin
-    Result := (GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @VInfo) <> FALSE);
-  end;
-
-  function _GetFileDateTime: TDateTime;
-  var
-    VSysTime: TSystemTime;
-    VFileTimePtr: PFileTime;
-  begin
-    Result := 0;
-    VFileTimePtr := nil;
-
-    // last modified time (if exists)
-    if (VInfo.ftLastWriteTime.dwLowDateTime <> 0) and (VInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
-      VFileTimePtr := @(VInfo.ftLastWriteTime);
-    end;
-
-    // created time (if exists and greater)
-    if (VInfo.ftCreationTime.dwLowDateTime <> 0) and (VInfo.ftCreationTime.dwHighDateTime <> 0) then begin
-      if (nil = VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^) > 0) then begin
-        VFileTimePtr := @(VInfo.ftCreationTime);
-      end;
-    end;
-
-    // convert max value
-    if (nil <> VFileTimePtr) then begin
-      if (FileTimeToSystemTime(VFileTimePtr^, VSysTime) <> FALSE) then begin
-        try
-          Result := SystemTimeToDateTime(VSysTime);
-        except
-        end;
-      end;
-    end;
-  end;
-var
   VMemStream: TMemoryStream;
   VBinaryData: IBinaryData;
 begin
   FLock.BeginRead;
   try
-    if _GetAttributesEx(APath) then begin
+    if _GetAttributesEx(APath, VInfo) then begin
       // tile exists
       if AIsLoadIfExists then begin
 
@@ -404,7 +403,7 @@ begin
         end;
         Result :=
           TTileInfoBasicExistsWithTile.Create(
-            _GetFileDateTime,
+            _GetFileDateTime(VInfo),
             VBinaryData,
             nil,
             FMainContentType
@@ -412,15 +411,15 @@ begin
       end else begin
         Result :=
           TTileInfoBasicExists.Create(
-            _GetFileDateTime,
+            _GetFileDateTime(VInfo),
             VInfo.nFileSizeLow,
             nil,
             FMainContentType
           );
       end;
-    end else if _GetAttributesEx(ChangeFileExt(APath, '.tne')) then begin
+    end else if _GetAttributesEx(ChangeFileExt(APath, '.tne'), VInfo) then begin
       // tne exists
-      Result := TTileInfoBasicTNE.Create(_GetFileDateTime, nil);
+      Result := TTileInfoBasicTNE.Create(_GetFileDateTime(VInfo), nil);
     end else begin
       // neither tile nor tne
       Result := FTileNotExistsTileInfo;
@@ -437,44 +436,6 @@ function TTileStorageFileSystem.GetTileRectInfo(
 ): ITileRectInfo;
 var
   VInfo: WIN32_FILE_ATTRIBUTE_DATA;
-
-  function _GetAttributesEx(const AFileName: String): Boolean;
-  begin
-    Result := (GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @VInfo) <> FALSE);
-  end;
-
-  function _GetFileDateTime: TDateTime;
-  var
-    VSysTime: TSystemTime;
-    VFileTimePtr: PFileTime;
-  begin
-    Result := 0;
-    VFileTimePtr := nil;
-
-    // last modified time (if exists)
-    if (VInfo.ftLastWriteTime.dwLowDateTime <> 0) and (VInfo.ftLastWriteTime.dwHighDateTime <> 0) then begin
-      VFileTimePtr := @(VInfo.ftLastWriteTime);
-    end;
-
-    // created time (if exists and greater)
-    if (VInfo.ftCreationTime.dwLowDateTime <> 0) and (VInfo.ftCreationTime.dwHighDateTime <> 0) then begin
-      if (nil = VFileTimePtr) or (CompareFileTime(VInfo.ftCreationTime, VFileTimePtr^) > 0) then begin
-        VFileTimePtr := @(VInfo.ftCreationTime);
-      end;
-    end;
-
-    // convert max value
-    if (nil <> VFileTimePtr) then begin
-      if (FileTimeToSystemTime(VFileTimePtr^, VSysTime) <> FALSE) then begin
-        try
-          Result := SystemTimeToDateTime(VSysTime);
-        except
-        end;
-      end;
-    end;
-  end;
-
-var
   VFileName: string;
   VRect: TRect;
   VZoom: Byte;
@@ -516,14 +477,14 @@ begin
               VPrevFolderExist := VFolderExists;
             end;
             if VFolderExists then begin
-              if _GetAttributesEx(VFileName) then begin
+              if _GetAttributesEx(VFileName, VInfo) then begin
                 // tile exists
-                VItems[VIndex].FLoadDate := _GetFileDateTime;
+                VItems[VIndex].FLoadDate := _GetFileDateTime(VInfo);
                 VItems[VIndex].FSize := VInfo.nFileSizeLow;
                 VItems[VIndex].FInfoType := titExists;
-              end else if _GetAttributesEx(ChangeFileExt(VFileName, '.tne')) then begin
+              end else if _GetAttributesEx(ChangeFileExt(VFileName, '.tne'), VInfo) then begin
                 // tne exists
-                VItems[VIndex].FLoadDate := _GetFileDateTime;
+                VItems[VIndex].FLoadDate := _GetFileDateTime(VInfo);
                 VItems[VIndex].FSize := 0;
                 VItems[VIndex].FInfoType := titTneExists;
               end else begin
