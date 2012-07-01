@@ -223,7 +223,7 @@ begin
      end;
      if minus and (res>0) then res:=-res;
      delitel:=delitel*60;
-    until (i=0)or(delitel>3600)or(result=false);
+    until (i=0)or(delitel>3600)or(not result);
   except
     result:=false;
   end;
@@ -325,9 +325,9 @@ begin
         end;
       end;
 
-     if VBLat1 or VBLat2 or VBLon1 or Vblon2 = False then begin // все 4 координаты не заданы конкретно
+     if not(VBLat1 or VBLat2 or VBLon1 or Vblon2) then begin // все 4 координаты не заданы конкретно
 
-        if FValueToStringConverterConfig.IsLatitudeFirst = true then
+        if FValueToStringConverterConfig.IsLatitudeFirst then
         begin
          VPoint.X := VDLon ; VPoint.Y := VDLat ;
         end else begin
@@ -387,7 +387,7 @@ begin
 //  и наоборот
       if vdlat <> vdlon  then begin
 
-        if FValueToStringConverterConfig.IsLatitudeFirst = true then
+        if FValueToStringConverterConfig.IsLatitudeFirst then
         begin
          VPoint.Y := VDLon ; VPoint.X := VDLat ;
         end else begin
@@ -509,14 +509,14 @@ begin
             VDlon := VDlon*(ord(temp_string[1])-64)*4 -2 else VcoordError := true;
        if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1); // убрали "-" если он был между разделителми
 
-       if VcoordError=false then begin // ВТОРОЕ ПОЛЕ
+       if not VcoordError then begin // ВТОРОЕ ПОЛЕ
          i := PosEx('-', V2Search, 1);
          if i=0 then  // не найден разделитель, может ввели К001 ?
          if length(v2search)>3 then VcoordError := true else begin
             i:=length(v2search)+1;
             end;
 
-         if VcoordError=false then begin
+         if not VcoordError then begin
            slat := copy(V2Search,1,i-1);
            VDLat := strtoint(slat)*6 - 180 -3;
            sname := sname + '-' + slat;
@@ -527,7 +527,7 @@ begin
        end; // ВТОРОЕ ПОЛЕ
 
 
-       if VcoordError=false then // ТРЕТЬЕ ПОЛЕ
+       if not VcoordError then // ТРЕТЬЕ ПОЛЕ
        if length(V2Search)>0 then begin
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
@@ -546,7 +546,7 @@ begin
         end;
 
         if V2Search<>'' then
-        if VcoordError = false then
+        if not VcoordError then
          if (PosEx('X', temp_string, 1)>0)or(PosEx('I', temp_string, 1)>0)or(PosEx('V', temp_string, 1)>0) then begin // 2 km
           j := RomanToDig(temp_string);
           if j<=36 then begin
@@ -558,7 +558,7 @@ begin
          end;
 
         if V2Search<>'' then
-        if VcoordError = false then
+        if not VcoordError then
          if ''= RegExprReplaceMatchSubStr(temp_string,'[0-9]','') then// 1 km
          begin
          j := strtoint(temp_string);
@@ -576,7 +576,7 @@ begin
 
        // L-37-143-А.jpg
        if V2Search<>'' then
-       if VcoordError=false then // ЧЕТВЕРТОЕ ПОЛЕ
+       if not VcoordError then // ЧЕТВЕРТОЕ ПОЛЕ
         if length(V2Search)>0 then begin
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
@@ -599,7 +599,7 @@ begin
 
        // L-37-143-А-б.jpg
        if V2Search<>'' then
-       if VcoordError=false then // ПЯТОЕ ПОЛЕ
+       if not VcoordError then // ПЯТОЕ ПОЛЕ
         if length(V2Search)>0 then begin
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
@@ -623,7 +623,7 @@ begin
 
        // L-37-143-А-б-1.jpg
        if V2Search<>'' then
-       if VcoordError=false then // ШЕСТОЕ ПОЛЕ
+       if not VcoordError then // ШЕСТОЕ ПОЛЕ
         if length(V2Search)>0 then begin
          i := PosEx('-', V2Search, 1);
          if i=0 then i:=length(v2search)+1;// не найден разделитель, может последнее поле?
@@ -648,7 +648,7 @@ begin
          if copy(V2Search,1,1)='-' then  V2Search := copy(V2Search,2,length(V2Search)-1);
        end; // ШЕСТОЕ ПОЛЕ
 
-       if VcoordError=false then begin // добавляем таки точку если всё ок
+       if not VcoordError then begin // добавляем таки точку если всё ок
          VPoint.Y:=VDLon;
          VPoint.X:=VDLat;
          if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
@@ -713,7 +713,7 @@ begin
     if j > 1 then begin // пробел дальше чем первый символ
       slat := Copy(V2Search,1,j-1); //первая половина
       slon := Copy(V2Search,j,Length(V2Search)-j+1); // вторая половина
-      if PosStr2List(slat,slon,VList)=false then VList := nil;
+      if not PosStr2List(slat,slon,VList) then VList := nil;
      end;
   end
   else
@@ -793,7 +793,7 @@ begin
          end;
        end;
 
-       if VcoordError = false then begin
+       if not VcoordError then begin
         XYPoint.X:=ViLon;
         XYPoint.Y:=ViLat;
         sdesc := 'z='+inttostr(vzoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#10#13;
@@ -810,7 +810,7 @@ begin
     end;
    end else
       begin      //0 пробелов  и не диск\сеть  ==  Генштаб???
-        if GenShtab2Pos(V2Search, VList)=false then VList := nil;
+        if not GenShtab2Pos(V2Search, VList) then VList := nil;
       end //0 пробелов  и не диск\сеть  и не Генштаб
   end else
   if i=2 then begin // 2 пробела
@@ -821,7 +821,7 @@ begin
       j := PosEx(' ',V2Search, j);
       slat := Copy(V2Search,1,j-1); //первая половина
       slon := Copy(V2Search,j+1,Length(V2Search)-j+1); // вторая половина
-      if PosStr2List(slat,slon,VList)=false then VList := nil;
+      if not PosStr2List(slat,slon,VList) then VList := nil;
   end else
   if i=5 then begin // 5 пробелов
       j := PosEx(' ',V2Search, 1)+1;
@@ -829,7 +829,7 @@ begin
       j := PosEx(' ',V2Search, j);
       slat := Copy(V2Search,1,j-1); //первая половина
       slon := Copy(V2Search,j+1,Length(V2Search)-j+1); // вторая половина
-      if PosStr2List(slat,slon,VList)=false then VList := nil;
+      if not PosStr2List(slat,slon,VList) then VList := nil;
   end ;
 
   Result := VList;

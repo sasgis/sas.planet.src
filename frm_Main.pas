@@ -1053,7 +1053,7 @@ begin
        res:=res+gms/delitel;
      end;
      delitel:=delitel*60;
-    until (i=0)or(delitel>3600)or(rest=false);
+    until (i=0)or(delitel>3600)or(not rest);
   except
     res := 0;
   end;
@@ -1563,21 +1563,22 @@ begin
 
 
     VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
-    if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible = True then begin
-    NGShScale10000.Checked := VScale = 10000;
-    NGShScale25000.Checked := VScale = 25000;
-    NGShScale50000.Checked := VScale = 50000;
-    NGShScale100000.Checked := VScale = 100000;
-    NGShScale200000.Checked := VScale = 200000;
-    NGShScale500000.Checked := VScale = 500000;
-    NGShScale1000000.Checked := VScale = 1000000;
-    NGShScale0.Checked := VScale = 0;
-    end else
-    NGShScale0.Checked := True;
+    if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
+      NGShScale10000.Checked := VScale = 10000;
+      NGShScale25000.Checked := VScale = 25000;
+      NGShScale50000.Checked := VScale = 50000;
+      NGShScale100000.Checked := VScale = 100000;
+      NGShScale200000.Checked := VScale = 200000;
+      NGShScale500000.Checked := VScale = 500000;
+      NGShScale1000000.Checked := VScale = 1000000;
+      NGShScale0.Checked := VScale = 0;
+    end else begin
+      NGShScale0.Checked := True;
+    end;
 
 
     VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
-    if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible = True then begin
+    if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
      if VDegScale = 12500000 then NDegScale10000.Checked := true else
      if VDegScale = 25000000 then NDegScale25000.Checked := true else
      if VDegScale = 50000000 then NDegScale50000.Checked := true else
@@ -3348,7 +3349,7 @@ var
   VTag: Double;
 begin
   TTBXItem(sender).checked := True;
-  if NDegScaleUser.Checked = true then
+  if NDegScaleUser.Checked then
     VTag := (ConvLatLon2Scale(NDegValue.text)*100000000)
   else
     VTag := TTBXItem(sender).Tag;

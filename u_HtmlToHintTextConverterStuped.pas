@@ -145,7 +145,7 @@ var
   var
     lIni, lFim: integer;
   begin
-    if (pInclui = False) then begin
+    if not pInclui then begin
       lIni := System.Pos(UpperCase(pAbre), UpperCase(pString)) + Length(pAbre);
       lFim := PosEx(UpperCase(pFecha), UpperCase(pString), lIni) + 1;
     end else begin

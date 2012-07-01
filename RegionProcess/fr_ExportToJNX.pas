@@ -864,27 +864,27 @@ var
 begin
   Result := nil;
   VCount := 0;
-  if ChMap1.Checked = true  then begin
+  if ChMap1.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := cbbscale.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap2.Checked = true  then begin
+  if ChMap2.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := cbbscale2.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap3.Checked = true  then begin
+  if ChMap3.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := cbbscale3.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap4.Checked = true  then begin
+  if ChMap4.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := cbbscale4.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap5.Checked = true  then begin
+  if ChMap5.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := cbbscale5.ItemIndex;
   end;
@@ -896,27 +896,27 @@ var
 begin
   Result := nil;
   VCount := 0;
-  if ChMap1.Checked = true  then begin
+  if ChMap1.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := CbbZoom.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap2.Checked = true  then begin
+  if ChMap2.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := CbbZoom2.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap3.Checked = true  then begin
+  if ChMap3.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := CbbZoom3.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap4.Checked = true  then begin
+  if ChMap4.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := CbbZoom4.ItemIndex;
       Inc(VCount);
   end;
-  if ChMap5.Checked = true  then begin
+  if ChMap5.Checked then begin
       SetLength(Result, VCount + 1);
       Result[VCount] := CbbZoom5.ItemIndex;
   end;

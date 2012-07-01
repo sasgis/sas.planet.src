@@ -680,7 +680,7 @@ begin
 
       // если закометировать условие то не будет производитьс€ фильтраци€ одинаковых элементов
       skip := ItemExist(Vplace,AList);
-      if skip = false then
+      if not skip then
        begin
         inc(Acnt);
         AList.Add(VPlace);

@@ -208,7 +208,7 @@ begin
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
       // если закометировать условие то не будет производитьс€ фильтраци€ одинаковых элементов
       skip := ItemExist(Vplace, Alist);
-      if skip = false then
+      if not skip then
        begin
         inc(Acnt);
         Alist.Add(VPlace);

@@ -134,7 +134,7 @@ begin
    end
    else ParseErr:=true; // дальше строку не разбираем ибо отсутствует наименование.
 
-   if ParseErr=false then begin // если нашли признак валидности данных
+   if not ParseErr then begin // если нашли признак валидности данных
     // делаем ссылку на описание если оно есть.
     j:=1;
     i:= PosEx('"CompanyMetaData":{"id":"', Buffer, 1);

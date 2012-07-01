@@ -180,7 +180,7 @@ begin
      end;
      if minus and (res>0) then res:=-res;
      delitel:=delitel*60;
-    until (i=0)or(delitel>3600)or(result=false);
+    until (i=0)or(delitel>3600)or(not result);
   except
     result:=false;
   end;
