@@ -119,9 +119,9 @@ type
   private
     FNeedUpdateLayerSizeFlag: ISimpleFlag;
     FNeedUpdateLocationFlag: ISimpleFlag;
-  protected
     FLayer: TBitmapLayer;
-
+  protected
+    property Layer: TBitmapLayer read FLayer;
 
     procedure SetNeedUpdateLayerSize; virtual;
 

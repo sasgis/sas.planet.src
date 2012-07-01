@@ -32,11 +32,15 @@ uses
 
 type
   TConfigDataProviderByIniFileSection = class(TInterfacedObject, IConfigDataProvider)
-  protected
+  private
     FIniFile: TCustomIniFile;
     FSection: string;
     FParent: IConfigDataProvider;
     FFormatSettings: TFormatSettings;
+  protected
+    property IniFile: TCustomIniFile read FIniFile;
+    property Section: string read FSection;
+    property FormatSettings: TFormatSettings read FFormatSettings;
     function GetSubItemSectionName(const AIdent: string): string;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;

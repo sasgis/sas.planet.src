@@ -86,11 +86,11 @@ begin
       VBitmap := FConfig.Bitmap;
       FMarker := VBitmap;
       if VBitmap <> nil then begin
-        FLayer.Bitmap.Assign(VBitmap.Bitmap);
+        Layer.Bitmap.Assign(VBitmap.Bitmap);
       end else begin
-        FLayer.Bitmap.Delete;
+        Layer.Bitmap.Delete;
       end;
-      FLayer.Bitmap.DrawMode := dmBlend;
+      Layer.Bitmap.DrawMode := dmBlend;
       SetNeedRedraw;
     end;
     SetVisible(FConfig.Visible);

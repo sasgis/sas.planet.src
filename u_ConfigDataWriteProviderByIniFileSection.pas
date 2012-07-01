@@ -81,25 +81,25 @@ uses
 procedure TConfigDataWriteProviderByIniFileSection.DeleteSubItem(
   const AIdent: string);
 begin
-  FIniFile.EraseSection(GetSubItemSectionName(AIdent));
+  IniFile.EraseSection(GetSubItemSectionName(AIdent));
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.DeleteValue(
   const AIdent: string);
 begin
-  FIniFile.DeleteKey(FSection, AIdent);
+  IniFile.DeleteKey(Section, AIdent);
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.DeleteValues;
 begin
-  FIniFile.EraseSection(FSection);
+  IniFile.EraseSection(Section);
 end;
 
 function TConfigDataWriteProviderByIniFileSection.GetOrCreateSubItem(
   const AIdent: string): IConfigDataWriteProvider;
 begin
   Result := TConfigDataWriteProviderByIniFileSection.Create(
-    FIniFile,
+    IniFile,
     GetSubItemSectionName(AIdent),
     Self
   );
@@ -114,7 +114,7 @@ var
 begin
   VStream := TStreamReadOnlyByBinaryData.Create(AValue);
   try
-    FIniFile.WriteBinaryStream(FSection, AIdent, VStream);
+    IniFile.WriteBinaryStream(Section, AIdent, VStream);
   finally
     VStream.Free;
   end;
@@ -125,7 +125,7 @@ procedure TConfigDataWriteProviderByIniFileSection.WriteBool(
   const AValue: Boolean
 );
 begin
-  FIniFile.WriteBool(FSection, AIdent, AValue);
+  IniFile.WriteBool(Section, AIdent, AValue);
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteDate(
@@ -133,7 +133,7 @@ procedure TConfigDataWriteProviderByIniFileSection.WriteDate(
   const AValue: TDateTime
 );
 begin
-  FIniFile.WriteString(FSection, AIdent, DateToStr(AValue, FFormatSettings));
+  IniFile.WriteString(Section, AIdent, DateToStr(AValue, FormatSettings));
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteDateTime(
@@ -141,7 +141,7 @@ procedure TConfigDataWriteProviderByIniFileSection.WriteDateTime(
   const AValue: TDateTime
 );
 begin
-  FIniFile.WriteString(FSection, AIdent, DateTimeToStr(AValue, FFormatSettings));
+  IniFile.WriteString(Section, AIdent, DateTimeToStr(AValue, FormatSettings));
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteFloat(
@@ -149,7 +149,7 @@ procedure TConfigDataWriteProviderByIniFileSection.WriteFloat(
   const AValue: Double
 );
 begin
-  FIniFile.WriteString(FSection, AIdent, FloatToStr(AValue, FFormatSettings));
+  IniFile.WriteString(Section, AIdent, FloatToStr(AValue, FormatSettings));
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteInteger(
@@ -157,13 +157,13 @@ procedure TConfigDataWriteProviderByIniFileSection.WriteInteger(
   const AValue: Integer
 );
 begin
-  FIniFile.WriteInteger(FSection, AIdent, AValue);
+  IniFile.WriteInteger(Section, AIdent, AValue);
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteString(const AIdent,
   AValue: string);
 begin
-  FIniFile.WriteString(FSection, AIdent, AValue);
+  IniFile.WriteString(Section, AIdent, AValue);
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteTime(
@@ -171,7 +171,7 @@ procedure TConfigDataWriteProviderByIniFileSection.WriteTime(
   const AValue: TDateTime
 );
 begin
-  FIniFile.WriteString(FSection, AIdent, TimeToStr(AValue, FFormatSettings));
+  IniFile.WriteString(Section, AIdent, TimeToStr(AValue, FormatSettings));
 end;
 
 end.

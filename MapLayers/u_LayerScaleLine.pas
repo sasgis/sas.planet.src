@@ -136,17 +136,17 @@ begin
     FConfig.GetChangeNotifier
   );
 
-  FLayer.Bitmap.Font.Name := FConfig.FontName;
-  FLayer.Bitmap.Font.Size := FConfig.FontSize;
+  Layer.Bitmap.Font.Name := FConfig.FontName;
+  Layer.Bitmap.Font.Size := FConfig.FontSize;
 
   FTmpBitmap := TBitmap32.Create;
-  FTmpBitmap.Font := FLayer.Bitmap.Font;
-  FTmpBitmap.Font.Size := FLayer.Bitmap.Font.Size;
+  FTmpBitmap.Font := Layer.Bitmap.Font;
+  FTmpBitmap.Font.Size := Layer.Bitmap.Font.Size;
 
   VSize.X := 400;
   VSize.Y := 400;
 
-  FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
+  Layer.Bitmap.SetSize(VSize.X, VSize.Y);
   DoUpdateLayerSize(VSize);
 end;
 
@@ -160,7 +160,7 @@ function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
 var
   VSize: TPoint;
 begin
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   Result.Left := 6;
   Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y - 6 - FConfig.BottomMargin;
   Result.Right := Result.Left + VSize.X;
@@ -233,7 +233,7 @@ end;
 procedure TLayerScaleLine.DoRedraw;
 begin
   inherited;
-  FLayer.Bitmap.Clear(0);
+  Layer.Bitmap.Clear(0);
   RedrawGorizontalScaleLegend;
   if FConfig.Extended then begin
     RedrawVerticalScaleLegend;
@@ -296,7 +296,7 @@ begin
     VValidLegendWidth,
     VHalfValue,
     VFullValue,
-    FLayer.Bitmap
+    Layer.Bitmap
   );
 end;
 

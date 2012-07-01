@@ -194,7 +194,6 @@ type
     property MainMap: IMapType read GetMainMap write SetMainMap;
     property LayersSet: IMapTypeSet read GetLayersSet write SetLayersSet;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
-    property Layer: TBitmapLayer read FLayer;
   protected
     function GetMapLayerLocationRect: TFloatRect; override;
     procedure DoShow; override;
@@ -295,7 +294,7 @@ begin
   FPopup.Name := 'PopupMiniMap';
   FPopup.Images := FIconsList.GetImageList;
 
-  FLayer.Bitmap.BeginUpdate;
+  Layer.Bitmap.BeginUpdate;
   CreateLayers(AParentMap);
 
   FDrawTask :=
@@ -424,14 +423,14 @@ end;
 procedure TMiniMapLayer.ClearLayerBitmap;
 begin
   if Visible then begin
-    FLayer.Bitmap.Lock;
+    Layer.Bitmap.Lock;
     try
       if FClearStrategy <> nil then begin
-        FClearStrategy.Clear(FLayer.Bitmap);
+        FClearStrategy.Clear(Layer.Bitmap);
         FClearStrategy := nil;
       end;
     finally
-      FLayer.Bitmap.UnLock;
+      Layer.Bitmap.UnLock;
     end;
   end;
 end;
@@ -457,7 +456,7 @@ begin
   VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
   VZoom := GetActualZoom(ANewVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
-  VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+  VLayerSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   VLocalTopLeftAtMapFloat :=
     DoublePoint(
       VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
@@ -801,7 +800,7 @@ var
   VSize: TPoint;
   VViewSize: TPoint;
 begin
-  VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   VViewSize := ViewCoordConverter.GetLocalRectSize;
   Result.Right := VViewSize.X;
   Result.Bottom := VViewSize.Y - FConfig.BottomMargin;
@@ -845,9 +844,9 @@ begin
       FParentMap.PopupMenu := FPopup;
     end;
     mbLeft: begin
-      VLayerSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+      VLayerSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
       VBitmapCenter := DoublePoint(VLayerSize.X / 2, VLayerSize.Y / 2);
-      Vlocation := FLayer.Location;
+      Vlocation := Layer.Location;
       VVisibleCenter.X := VBitmapCenter.X + Vlocation.Left;
       VVisibleCenter.Y := VBitmapCenter.Y + Vlocation.Top;
       FPosMoved := True;
@@ -869,10 +868,10 @@ var
   VLocation: TFloatRect;
 begin
   if FPosMoved then begin
-    VBitmapSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+    VBitmapSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
     VBitmapCenter := DoublePoint(VBitmapSize.X / 2, VBitmapSize.Y / 2);
 
-    VLocation := FLayer.Location;
+    VLocation := Layer.Location;
 
     VVisibleCenter.X := VLocation.Left + VBitmapCenter.X;
     VVisibleCenter.Y := VLocation.Top + VBitmapCenter.Y;
@@ -912,9 +911,9 @@ var
   VLonLat: TDoublePoint;
 begin
   if FPosMoved then begin
-    if FLayer.HitTest(X, Y) then begin
+    if Layer.HitTest(X, Y) then begin
       VBitmapCoordConverter := LayerCoordConverter;
-      Vlocation := FLayer.Location;
+      Vlocation := Layer.Location;
       VBitmapPos.X := X - Vlocation.Left;
       VBitmapPos.Y := Y - Vlocation.Top;
       VConverter := VBitmapCoordConverter.GetGeoConverter;
@@ -943,7 +942,7 @@ procedure TMiniMapLayer.LeftBorderMouseDown(
 begin
   if Button = mbLeft then begin
     FLeftBorderMoved := true;
-    FLeftBorderMovedClickDelta := FLayer.Location.Left - X;
+    FLeftBorderMovedClickDelta := Layer.Location.Left - X;
   end;
 end;
 
@@ -958,7 +957,7 @@ var
 begin
   if FLeftBorderMoved then begin
     VVisibleSize := ViewCoordConverter.GetLocalRectSize;
-    VNewWidth := Trunc(FLayer.Location.Right - X - FLeftBorderMovedClickDelta);
+    VNewWidth := Trunc(Layer.Location.Right - X - FLeftBorderMovedClickDelta);
     if VNewWidth < 40 then begin
       VNewWidth := 40;
     end;
@@ -1101,11 +1100,11 @@ begin
       FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-      FLayer.Bitmap.Lock;
+      Layer.Bitmap.Lock;
       try
-        FLayer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
+        Layer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       finally
-        FLayer.Bitmap.Unlock;
+        Layer.Bitmap.Unlock;
       end;
       SetVisible(FConfig.Visible);
       PosChange(ViewCoordConverter);
@@ -1165,7 +1164,7 @@ end;
 procedure TMiniMapLayer.OnTimer;
 begin
   if FUpdateFlag.CheckFlagAndReset then begin
-    FLayer.Changed;
+    Layer.Changed;
   end;
 end;
 
@@ -1221,18 +1220,18 @@ var
   VNewSize: TPoint;
 begin
   VNewSize := GetLayerSizeForView(AValue);
-  FLayer.Bitmap.Lock;
+  Layer.Bitmap.Lock;
   try
     if Visible then begin
-      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, FLayer.Bitmap, FClearStrategy);
+      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, Layer.Bitmap, FClearStrategy);
     end else begin
       FClearStrategy := nil;
     end;
-    if (FLayer.Bitmap.Width <> VNewSize.X) or (FLayer.Bitmap.Height <> VNewSize.Y) then begin
+    if (Layer.Bitmap.Width <> VNewSize.X) or (Layer.Bitmap.Height <> VNewSize.Y) then begin
       SetNeedUpdateLayerSize;
     end;
   finally
-    FLayer.Bitmap.Unlock;
+    Layer.Bitmap.Unlock;
   end;
   if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
@@ -1342,7 +1341,7 @@ var
 begin
   inherited;
   VBorderWidth := 5;
-  VBitmapSizeInPixel := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+  VBitmapSizeInPixel := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   FViewRectDrawLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
   if (FLeftBorder.Bitmap.Height <> VBitmapSizeInPixel.Y + VBorderWidth) then begin
     FLeftBorder.Bitmap.Lock;

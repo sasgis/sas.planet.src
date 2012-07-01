@@ -81,7 +81,7 @@ uses
 
 procedure TConfigDataWriteProviderByIniFile.DeleteSubItem(const AIdent: string);
 begin
-  FIniFile.EraseSection(AIdent);
+  IniFile.EraseSection(AIdent);
 end;
 
 procedure TConfigDataWriteProviderByIniFile.DeleteValue(const AIdent: string);
@@ -97,7 +97,7 @@ end;
 destructor TConfigDataWriteProviderByIniFile.Destroy;
 begin
   try
-    FIniFile.UpdateFile;
+    IniFile.UpdateFile;
   except
   end;
   inherited;
@@ -106,7 +106,7 @@ end;
 function TConfigDataWriteProviderByIniFile.GetOrCreateSubItem(
   const AIdent: string): IConfigDataWriteProvider;
 begin
-  Result := TConfigDataWriteProviderByIniFileSection.Create(FIniFile, AIdent, Self);
+  Result := TConfigDataWriteProviderByIniFileSection.Create(IniFile, AIdent, Self);
 end;
 
 procedure TConfigDataWriteProviderByIniFile.WriteBinary(

@@ -31,8 +31,10 @@ uses
 
 type
   TConfigDataProviderByIniFile = class(TInterfacedObject, IConfigDataProvider)
-  protected
+  private
     FIniFile: TCustomIniFile;
+  protected
+    property IniFile: TCustomIniFile read FIniFile;
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;

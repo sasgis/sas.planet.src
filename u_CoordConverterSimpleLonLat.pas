@@ -28,8 +28,9 @@ uses
 
 type
   TCoordConverterSimpleLonLat = class(TCoordConverterBasic)
-  protected
+  private
     FExct: Double;
+  protected
     function LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint; override;
     function Metr2LonLatInternal(const AMm: TDoublePoint): TDoublePoint; override;
     function LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;

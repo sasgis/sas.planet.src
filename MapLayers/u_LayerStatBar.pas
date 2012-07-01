@@ -126,8 +126,8 @@ function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
 begin
   Result.Left := 0;
   Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y;
-  Result.Right := Result.Left + FLayer.Bitmap.Width;
-  Result.Top := Result.Bottom - FLayer.Bitmap.Height;
+  Result.Right := Result.Left + Layer.Bitmap.Width;
+  Result.Top := Result.Bottom - Layer.Bitmap.Height;
 end;
 
 function TLayerStatBar.GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;
@@ -165,8 +165,8 @@ begin
   try
     FConfig.LockRead;
     try
-      FLayer.Bitmap.Font.Name := FConfig.FontName;
-      SetValidFontSize(FLayer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2));
+      Layer.Bitmap.Font.Name := FConfig.FontName;
+      SetValidFontSize(Layer.Bitmap.Font, FConfig.FontSize, (FConfig.Height - 2));
 
       FMinUpdate := FConfig.MinUpdateTickCount;
       FBgColor := FConfig.BgColor;
@@ -209,9 +209,9 @@ procedure TLayerStatBar.DoRedraw;
     ADrawLine: Boolean = True
   );
   begin
-    FLayer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
+    Layer.Bitmap.RenderText(AOffset.X, AOffset.Y, AText, FAALevel, FTextColor);
     if ADrawLine then begin
-      FLayer.Bitmap.LineS(AOffset.X - 10, 0, AOffset.X - 10, FLayer.Bitmap.Height, SetAlpha(clBlack32, 125));
+      Layer.Bitmap.LineS(AOffset.X - 10, 0, AOffset.X - 10, Layer.Bitmap.Height, SetAlpha(clBlack32, 125));
     end;
   end;
 
@@ -246,7 +246,7 @@ begin
     VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
-    VSize := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+    VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
     VMap := FMainMapsConfig.GetSelectedMapType.MapType;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
@@ -257,8 +257,8 @@ begin
     VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
     VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoomCurr);
 
-    FLayer.Bitmap.Clear(FBgColor);
-    FLayer.Bitmap.LineS(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
+    Layer.Bitmap.Clear(FBgColor);
+    Layer.Bitmap.LineS(0, 0, VSize.X, 0, SetAlpha(clBlack32, 255));
 
     VOffset.Y := 1;
     VOffset.X := -10;
@@ -273,14 +273,14 @@ begin
     end;
 
     if FConfig.ViewLonLatInfo then begin
-      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VString := VValueConverter.LonLatConvert(VLonLat);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
 
     if FConfig.ViewMetrPerPixInfo then begin
-      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VRad := VConverter.Datum.GetSpheroidRadiusA;
       VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
       VString := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLonLat.y * D2R))));
@@ -289,7 +289,7 @@ begin
     end;
 
     if FConfig.ViewTimeZoneTimeInfo then begin
-      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTimeTZ := GetTimeInLonLat(VLonLat);
       VString := TimeToStr(VTimeTZ);
       RenderText(VOffset, VString, VNeedSeparator);
@@ -297,7 +297,7 @@ begin
     end;
 
     if FConfig.ViewDownloadedInfo then begin
-      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTileName := VMap.GetTileShowName(VTile, VZoomCurr);
       VString := SAS_STR_load + ' ' +
         inttostr(FDownloadInfo.TileCount) +
@@ -307,18 +307,18 @@ begin
     end;
 
     if FConfig.ViewHttpQueueInfo then begin
-      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VString := SAS_STR_queue + ' ' + IntToStr(FGlobalInternetState.QueueCount);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
 
     if FConfig.ViewTilePathInfo then begin
-      VOffset.X := VOffset.X + FLayer.Bitmap.TextWidth(VString) + 20;
-      VTileNameWidthAviable := FLayer.Bitmap.Width - VOffset.X;
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
+      VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
       if Length(VTileName) > 0 then begin
         if VTileNameWidthAviable > 30 then begin
-          VTileNameWidth := FLayer.Bitmap.TextWidth(VTileName);
+          VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);
           if VTileNameWidthAviable < VTileNameWidth + 40 then begin
             SetLength(VShortTileName, 6);
             StrLCopy(PAnsiChar(VShortTileName), PAnsiChar(VTileName), 6);
@@ -327,7 +327,7 @@ begin
               RightStr(
               VTileName,
               Trunc(
-                (Length(VTileName) / VTileNameWidth) * (VTileNameWidthAviable - FLayer.Bitmap.TextWidth(VShortTileName) - 40)
+                (Length(VTileName) / VTileNameWidth) * (VTileNameWidthAviable - Layer.Bitmap.TextWidth(VShortTileName) - 40)
               )
             );
             VTileName := VShortTileName;
