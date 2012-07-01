@@ -64,6 +64,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   u_ResStrings,
+  u_Synchronizer,
   u_GeoCodePlacemark;
 
 { TGeoCoderByTXT }
@@ -222,7 +223,7 @@ begin
   inherited Create;
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FLock := MakeSyncRW_Std(Self, False);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 

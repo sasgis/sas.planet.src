@@ -66,6 +66,7 @@ uses
   i_GeoCoder,
   i_StringlistStatic,
   u_ResStrings,
+  u_Synchronizer
   u_GeoCodePlacemark,
   u_StringListStatic;
 
@@ -694,7 +695,7 @@ begin
    inherited Create;
    if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FLock := MakeSyncRW_Std(Self, false);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
