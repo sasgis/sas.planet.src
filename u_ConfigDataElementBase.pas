@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   SysUtils,
+  i_SimpleFlag,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
@@ -35,7 +36,7 @@ type
   private
     FLock: TMultiReadExclusiveWriteSynchronizer;
     FStopNotifyCounter: Longint;
-    FNeedNotify: Longint;
+    FChangedFlag: ISimpleFlag;
   protected
     procedure SetChanged;
     function CheckIsChangedAndReset: Boolean;
@@ -90,6 +91,7 @@ type
 implementation
 
 uses
+  u_SimpleFlagWithInterlock,
   u_Synchronizer;
 
 { TConfigDataElementBase }
@@ -98,6 +100,7 @@ constructor TConfigDataElementBase.Create;
 begin
   inherited;
   FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FChangedFlag := TSimpleFlagWithInterlock.Create;
   FStopNotifyCounter := 0;
 end;
 
@@ -110,7 +113,7 @@ end;
 procedure TConfigDataElementBase.AfterConstruction;
 begin
   inherited;
-  FNeedNotify := 0;
+  FChangedFlag.CheckFlagAndReset;
 end;
 
 procedure TConfigDataElementBase.BeforeDestruction;
@@ -121,7 +124,7 @@ end;
 
 function TConfigDataElementBase.CheckIsChangedAndReset: Boolean;
 begin
-  Result := InterlockedExchange(FNeedNotify, 0) <> 0;
+  Result := FChangedFlag.CheckFlagAndReset;
 end;
 
 procedure TConfigDataElementBase.LockRead;
@@ -147,7 +150,7 @@ end;
 
 procedure TConfigDataElementBase.SetChanged;
 begin
-  InterlockedIncrement(FNeedNotify);
+  FChangedFlag.SetFlag;
 end;
 
 procedure TConfigDataElementBase.StartNotify;

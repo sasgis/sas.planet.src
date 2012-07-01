@@ -5,13 +5,14 @@ interface
 uses
   Windows,
   Classes,
+  i_SimpleFlag,
   i_TTLCheckListener;
 
 type
   TTTLCheckListener = class(TInterfacedObject, ITTLCheckListener)
   private
     FOnTrimByTTL: TNotifyEvent;
-    FUseCounter: Integer;
+    FUseFlag: ISimpleFlag;
     FLastUseTime: Cardinal;
     FTTL: Cardinal;
     FCheckInterval: Cardinal;
@@ -28,6 +29,9 @@ type
 
 implementation
 
+uses
+  u_SimpleFlagWithInterlock;
+
 { TObjectWithTTLListener }
 
 constructor TTTLCheckListener.Create(
@@ -39,6 +43,8 @@ begin
   FOnTrimByTTL := AOnTrimByTTL;
   FTTL := ATTL;
   FCheckInterval := ACheckInterval;
+
+  FUseFlag := TSimpleFlagWithInterlock.Create;
   FLastUseTime := 0;
 end;
 
@@ -46,10 +52,8 @@ function TTTLCheckListener.CheckTTLAndGetNextCheckTime(
   ANow: Cardinal): Cardinal;
 var
   VCleanTime: Cardinal;
-  VCounter: Integer;
 begin
-  VCounter := InterlockedExchange(FUseCounter, 0);
-  if VCounter > 0 then begin
+  if FUseFlag.CheckFlagAndReset then begin
     FLastUseTime := ANow;
   end else begin
     if FLastUseTime <> 0 then begin
@@ -65,7 +69,7 @@ end;
 
 procedure TTTLCheckListener.UpdateUseTime;
 begin
-  InterlockedIncrement(FUseCounter);
+  FUseFlag.SetFlag;
 end;
 
 end.

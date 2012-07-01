@@ -10,6 +10,7 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
+  i_SimpleFlag,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
   i_BitmapMarker,
@@ -26,7 +27,7 @@ type
     FStopedMarkerProvider: IBitmapMarkerProviderChangeable;
     FStopedMarkerProviderStatic: IBitmapMarkerProvider;
 
-    FGpsPosChangeCounter: Integer;
+    FGpsPosChangeFlag: ISimpleFlag;
     FStopedMarker: IBitmapMarker;
     FMarker: IBitmapMarker;
 
@@ -69,6 +70,7 @@ uses
   i_GPS,
   vsagps_public_base,
   vsagps_public_position,
+  u_SimpleFlagWithInterlock,
   u_NotifyEventListener;
 
 { TMapLayerGPSMarker }
@@ -90,6 +92,8 @@ begin
   FMovedMarkerProvider := AMovedMarkerProvider;
   FStopedMarkerProvider := AStopedMarkerProvider;
 
+  FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
@@ -110,13 +114,11 @@ begin
     TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
     FGPSRecorder.GetChangeNotifier
   );
-
-  FGpsPosChangeCounter := 0;
 end;
 
 procedure TMapLayerGPSMarker.GPSReceiverReceive;
 begin
-  InterlockedIncrement(FGpsPosChangeCounter);
+  FGpsPosChangeFlag.SetFlag;
 end;
 
 procedure TMapLayerGPSMarker.OnConfigChange;
@@ -133,7 +135,7 @@ var
   VpPos: PSingleGPSData;
   VForceStoppedMarker: Boolean;
 begin
-  if InterlockedExchange(FGpsPosChangeCounter, 0) > 0 then begin
+  if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
       VGPSPosition := FGPSRecorder.CurrentPosition;
