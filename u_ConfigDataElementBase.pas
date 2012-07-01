@@ -34,7 +34,7 @@ uses
 type
   TConfigDataElementBase = class(TChangeableBase, IConfigDataElement)
   private
-    FLock: TMultiReadExclusiveWriteSynchronizer;
+    FLock: IReadWriteSync;
     FStopNotifyCounter: Longint;
     FChangedFlag: ISimpleFlag;
   protected
@@ -56,7 +56,6 @@ type
     procedure BeforeDestruction; override;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
   TConfigDataElementWithStaticBase = class(TConfigDataElementBase)
@@ -99,15 +98,9 @@ uses
 constructor TConfigDataElementBase.Create;
 begin
   inherited;
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FLock := MakeSyncRW_Big(Self, True);
   FChangedFlag := TSimpleFlagWithInterlock.Create;
   FStopNotifyCounter := 0;
-end;
-
-destructor TConfigDataElementBase.Destroy;
-begin
-  FreeAndNil(FLock);
-  inherited;
 end;
 
 procedure TConfigDataElementBase.AfterConstruction;
