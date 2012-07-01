@@ -26,22 +26,24 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
-  i_VectorItemProjected,
-  u_TileIteratorAbstract;
+  i_TileIterator,
+  i_VectorItemProjected;
 
 type
-  TTileIteratorByPolygon = class(TTileIteratorByPolygonAbstract)
+  TTileIteratorByPolygon = class(TInterfacedObject, ITileIterator)
   private
+    FProjected: IProjectedPolygon;
+    FCurrent: TPoint;
     FTilesRect: TRect;
     FTilesTotal: Int64;
     FLine: IProjectedPolygonLine;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
   protected
-    function GetTilesTotal: Int64; override;
-    function GetTilesRect: TRect; override;
-    function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset; override;
+    function GetTilesTotal: Int64;
+    function GetTilesRect: TRect;
+    function Next(out ATile: TPoint): Boolean;
+    procedure Reset;
   public
     constructor Create(
       const AProjected: IProjectedPolygon
@@ -59,9 +61,10 @@ var
   VBounds: TDoubleRect;
   VTile: TPoint;
 begin
-  inherited;
-  if Projected.Count > 0 then begin
-    FLine := Projected.Item[0];
+  inherited Create;
+  FProjected := AProjected;
+  if FProjected.Count > 0 then begin
+    FLine := FProjected.Item[0];
     VBounds := FLine.Bounds;
     FZoom := FLine.Projection.Zoom;
     FGeoConverter := FLine.Projection.GeoConverter;

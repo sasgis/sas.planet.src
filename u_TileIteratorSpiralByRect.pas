@@ -24,10 +24,11 @@ interface
 
 uses
   Types,
+  i_TileIterator,
   u_TileIteratorByRect;
 
 type
-  TTileIteratorSpiralByRect = class(TTileIteratorByRectBase)
+  TTileIteratorSpiralByRect = class(TTileIteratorByRectBase, ITileIterator)
   private
     FCenterPoint: TPoint;
     FMaxRadius: Integer;
@@ -47,14 +48,14 @@ type
       AIndex: Integer
     ): TPoint;
   protected
-    function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset; override;
+    function Next(out ATile: TPoint): Boolean;
+    procedure Reset;
   public
     constructor CreateWithCenter(
       const ARect: TRect;
       const APoint: TPoint
     );
-    constructor Create(const ARect: TRect); override;
+    constructor Create(const ARect: TRect);
   end;
 
 implementation

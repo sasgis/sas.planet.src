@@ -24,28 +24,27 @@ interface
 
 uses
   Types,
-  i_TileIterator,
-  u_TileIteratorAbstract;
+  i_TileIterator;
 
 type
-  TTileIteratorByRectBase = class(TTileIteratorAbstract)
+  TTileIteratorByRectBase = class(TInterfacedObject)
   protected
     FTilesTotal: Int64;
     FTilesRect: TRect;
-    function GetTilesTotal: Int64; override;
-    function GetTilesRect: TRect; override;
+    function GetTilesTotal: Int64;
+    function GetTilesRect: TRect;
   public
-    constructor Create(const ARect: TRect); virtual;
+    constructor Create(const ARect: TRect);
   end;
 
-  TTileIteratorByRect = class(TTileIteratorByRectBase, ITileIteratorByRows)
+  TTileIteratorByRect = class(TTileIteratorByRectBase, ITileIterator, ITileIteratorByRows)
   protected
     FEOI: Boolean;
     FCurrent: TPoint;
-    function Next(out ATile: TPoint): Boolean; override;
-    procedure Reset; override;
+    function Next(out ATile: TPoint): Boolean;
+    procedure Reset;
   public
-    constructor Create(const ARect: TRect); override;
+    constructor Create(const ARect: TRect);
   end;
 
 implementation
