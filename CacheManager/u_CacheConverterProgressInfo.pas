@@ -49,11 +49,6 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    property TilesProcessed: Int64 read GetTilesProcessed write SetTilesProcessed;
-    property TilesSkipped: Int64 read GetTilesSkipped write SetTilesSkipped;
-    property TilesSize: Int64 read GetTilesSize write SetTilesSize;
-    property LastTileName: string read GetLastTileName write SetLastTileName;
-    property Finished: Boolean read GetIsFinished write SetIsFinished;
   end;
 
 implementation
@@ -65,7 +60,7 @@ begin
   inherited Create;
   FCS := TCriticalSection.Create;
   FTilesProcessed := 0;
-  TilesSkipped := 0;
+  FTilesSkipped := 0;
   FTilesSize := 0;
   FLastTileName := '';
   FFinished := False;
