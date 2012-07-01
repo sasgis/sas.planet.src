@@ -11,6 +11,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
+  i_SimpleFlag,
   i_ImageResamplerConfig,
   i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
@@ -33,8 +34,7 @@ type
   private
     FLayer: TPositionedLayer;
 
-    FNeedUpdateLocation: Boolean;
-    FNeedUpdateLocationCS: IReadWriteSync;
+    FNeedUpdateLocationFlag: ISimpleFlag;
   protected
     function GetMapLayerLocationRect: TFloatRect; virtual;
     procedure UpdateLayerLocationIfNeed; virtual;
@@ -80,8 +80,7 @@ type
   TMapLayerBasic = class(TMapLayerBasicFullView)
   private
     FLayer: TBitmapLayer;
-    FNeedUpdateLayerSize: Boolean;
-    FNeedUpdateLayerSizeCS: IReadWriteSync;
+    FNeedUpdateLayerSizeFlag: ISimpleFlag;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     procedure SetNeedUpdateLayerSize; virtual;
@@ -113,14 +112,14 @@ type
       const AResamplerConfig: IImageResamplerConfig;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  u_Synchronizer,
-  Types;
+  Types,
+  u_SimpleFlagWithInterlock,
+  u_Synchronizer;
 
 { TMapLayerBase }
 
@@ -151,8 +150,7 @@ constructor TMapLayerBasicFullView.Create(
 begin
   inherited Create(APerfList, ALayer, AViewPortState);
   FLayer := ALayer;
-  FNeedUpdateLocationCS := MakeSyncFake(Self);
-  FNeedUpdateLocation := True;
+  FNeedUpdateLocationFlag := TSimpleFlagWithInterlock.Create;
 end;
 
 procedure TMapLayerBasicFullView.DoUpdateLayerLocation(
@@ -185,12 +183,7 @@ end;
 
 procedure TMapLayerBasicFullView.SetNeedUpdateLocation;
 begin
-  FNeedUpdateLocationCS.BeginWrite;
-  try
-    FNeedUpdateLocation := True;
-  finally
-    FNeedUpdateLocationCS.EndWrite;
-  end;
+  FNeedUpdateLocationFlag.SetFlag;
 end;
 
 procedure TMapLayerBasicFullView.SetViewCoordConverter(
@@ -206,31 +199,14 @@ end;
 procedure TMapLayerBasicFullView.UpdateLayerLocation;
 begin
   if Visible then begin
-    FNeedUpdateLocationCS.BeginWrite;
-    try
-      FNeedUpdateLocation := False;
-    finally
-      FNeedUpdateLocationCS.EndWrite;
-    end;
+    FNeedUpdateLocationFlag.CheckFlagAndReset;
     DoUpdateLayerLocation(GetMapLayerLocationRect);
   end;
 end;
 
 procedure TMapLayerBasicFullView.UpdateLayerLocationIfNeed;
-var
-  VNeed: Boolean;
 begin
-  VNeed := False;
-  FNeedUpdateLocationCS.BeginWrite;
-  try
-    if FNeedUpdateLocation then begin
-      FNeedUpdateLocation := False;
-      VNeed := True;
-    end;
-  finally
-    FNeedUpdateLocationCS.EndWrite;
-  end;
-  if VNeed then begin
+  if FNeedUpdateLocationFlag.CheckFlagAndReset then begin
     UpdateLayerLocation;
   end;
 end;
@@ -261,8 +237,7 @@ begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   inherited Create(APerfList, FLayer, AViewPortState);
   FLayer.Bitmap.DrawMode := dmBlend;
-  //  FLayer.Bitmap.Resampler := AResamplerConfig.GetActiveFactory.CreateResampler;
-  FNeedUpdateLayerSizeCS := MakeSyncFake(Self);
+  FNeedUpdateLayerSizeFlag := TSimpleFlagWithInterlock.Create;
 end;
 
 procedure TMapLayerBasic.DoViewUpdate;
@@ -307,18 +282,7 @@ end;
 
 procedure TMapLayerBasic.SetNeedUpdateLayerSize;
 begin
-  FNeedUpdateLayerSizeCS.BeginWrite;
-  try
-    FNeedUpdateLayerSize := True;
-  finally
-    FNeedUpdateLayerSizeCS.EndWrite;
-  end;
-end;
-
-destructor TMapLayerBasic.Destroy;
-begin
-  FNeedUpdateLayerSizeCS := nil;
-  inherited;
+  FNeedUpdateLayerSizeFlag.SetFlag;
 end;
 
 procedure TMapLayerBasic.DoHide;
@@ -356,30 +320,13 @@ end;
 
 procedure TMapLayerBasic.UpdateLayerSize;
 begin
-  FNeedUpdateLayerSizeCS.BeginWrite;
-  try
-    FNeedUpdateLayerSize := False;
-  finally
-    FNeedUpdateLayerSizeCS.EndWrite;
-  end;
+  FNeedUpdateLayerSizeFlag.CheckFlagAndReset;
   DoUpdateLayerSize(GetLayerSizeForView(LayerCoordConverter));
 end;
 
 procedure TMapLayerBasic.UpdateLayerSizeIfNeed;
-var
-  VNeed: Boolean;
 begin
-  VNeed := False;
-  FNeedUpdateLayerSizeCS.BeginWrite;
-  try
-    if FNeedUpdateLayerSize then begin
-      FNeedUpdateLayerSize := False;
-      VNeed := True;
-    end;
-  finally
-    FNeedUpdateLayerSizeCS.EndWrite;
-  end;
-  if VNeed then begin
+  if FNeedUpdateLayerSizeFlag.CheckFlagAndReset then begin
     UpdateLayerSize;
   end;
 end;
