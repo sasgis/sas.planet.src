@@ -23,7 +23,7 @@ unit u_CacheConverterProgressInfo;
 interface
 
 uses
-  SyncObjs,
+  SysUtils,
   i_CacheConverterProgressInfo;
 
 type
@@ -33,7 +33,7 @@ type
     FTilesSkipped: Int64;
     FTilesSize: Int64;
     FLastTileName: string;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
     FFinished: Boolean;
   protected
     function GetTilesProcessed: Int64;
@@ -48,17 +48,19 @@ type
     procedure SetIsFinished(const AValue: Boolean);
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  u_Synchronizer;
 
 { TCacheConverterProgressInfo }
 
 constructor TCacheConverterProgressInfo.Create;
 begin
   inherited Create;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncRW_Var(Self, False);
   FTilesProcessed := 0;
   FTilesSkipped := 0;
   FTilesSize := 0;
@@ -66,109 +68,103 @@ begin
   FFinished := False;
 end;
 
-destructor TCacheConverterProgressInfo.Destroy;
-begin
-  FCS.Free;
-  inherited Destroy;
-end;
-
 function TCacheConverterProgressInfo.GetTilesProcessed: Int64;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FTilesProcessed;
   finally
-    FCS.Release
+    FCS.EndRead
   end;
 end;
 
 procedure TCacheConverterProgressInfo.SetTilesProcessed(const AValue: Int64);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FTilesProcessed := AValue;
   finally
-    FCS.Release
+    FCS.EndWrite;
   end;
 end;
 
 function TCacheConverterProgressInfo.GetTilesSkipped: Int64;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FTilesSkipped;
   finally
-    FCS.Release
+    FCS.EndRead;
   end;
 end;
 
 procedure TCacheConverterProgressInfo.SetTilesSkipped(const AValue: Int64);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FTilesSkipped := AValue;
   finally
-    FCS.Release
+    FCS.EndWrite;
   end;
 end;
 
 function TCacheConverterProgressInfo.GetTilesSize: Int64;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FTilesSize;
   finally
-    FCS.Release
+    FCS.EndRead;
   end;
 end;
 
 procedure TCacheConverterProgressInfo.SetTilesSize(const AValue: Int64);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FTilesSize := AValue;
   finally
-    FCS.Release
+    FCS.EndWrite;
   end;
 end;
 
 function TCacheConverterProgressInfo.GetLastTileName: string;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FLastTileName;
   finally
-    FCS.Release
+    FCS.EndRead;
   end;
 end;
 
 procedure TCacheConverterProgressInfo.SetLastTileName(const AValue: string);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FLastTileName := AValue;
   finally
-    FCS.Release
+    FCS.EndWrite;
   end;
 end;
 
 function TCacheConverterProgressInfo.GetIsFinished: Boolean;
 begin
-  FCS.Acquire;
+  FCS.BeginRead;
   try
     Result := FFinished;
   finally
-    FCS.Release
+    FCS.EndRead;
   end;
 end;
 
 procedure TCacheConverterProgressInfo.SetIsFinished(const AValue: Boolean);
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     FFinished := AValue;
   finally
-    FCS.Release
+    FCS.EndWrite
   end;
 end;
 

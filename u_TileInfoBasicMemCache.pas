@@ -25,7 +25,7 @@ interface
 uses
   Windows,
   Classes,
-  SyncObjs,
+  SysUtils,
   i_MapVersionInfo,
   i_TileInfoBasic;
 
@@ -35,7 +35,7 @@ type
     FList: TList;
     FMaxTileInfoCounts: Integer;
     FTileInfoTTL: Cardinal;
-    FCS: TCriticalSection;
+    FCS: IReadWriteSync;
   public
     constructor Create(
       const AMaxTileInfoCounts: Integer;
@@ -67,6 +67,9 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 type
   TTileInfoCacheRec = record
     TileTTL: Cardinal;
@@ -85,7 +88,7 @@ constructor TTileInfoBasicMemCache.Create(
 );
 begin
   inherited Create;
-  FCS := TCriticalSection.Create;
+  FCS := MakeSyncRW_Var(Self, False);
   FList := TList.Create;
   FMaxTileInfoCounts := AMaxTileInfoCounts;
   FTileInfoTTL := ATileInfoTTL;
@@ -94,8 +97,7 @@ end;
 destructor TTileInfoBasicMemCache.Destroy;
 begin
   Self.Clear;
-  FList.Free;
-  FCS.Free;
+  FreeAndNil(FList);
   inherited Destroy;
 end;
 
@@ -112,7 +114,7 @@ var
   VOldestItem: Integer;
   VMinTTL: Cardinal;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     VOldestItem := -1;
     VMinTTL := $FFFFFFFF;
@@ -156,7 +158,7 @@ begin
 
     FList.Add(VTile);
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -168,7 +170,7 @@ var
   I: Integer;
   VTile: PTileInfoCacheRec;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     for I := 0 to FList.Count - 1 do begin
       VTile := PTileInfoCacheRec(FList.Items[I]);
@@ -185,7 +187,7 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -197,7 +199,7 @@ var
   I: Integer;
   VTile: PTileInfoCacheRec;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     Result := nil;
     for I := 0 to FList.Count - 1 do begin
@@ -220,7 +222,7 @@ begin
       end;
     end;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -229,7 +231,7 @@ var
   I: Integer;
   VTile: PTileInfoCacheRec;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     for I := 0 to FList.Count - 1 do begin
       VTile := PTileInfoCacheRec(FList.Items[I]);
@@ -239,7 +241,7 @@ begin
     end;
     FList.Clear;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
@@ -248,7 +250,7 @@ var
   I: Integer;
   VTile: PTileInfoCacheRec;
 begin
-  FCS.Acquire;
+  FCS.BeginWrite;
   try
     I := 0;
     while I < FList.Count do begin
@@ -265,7 +267,7 @@ begin
     end;
     FList.Pack;
   finally
-    FCS.Release;
+    FCS.EndWrite;
   end;
 end;
 
