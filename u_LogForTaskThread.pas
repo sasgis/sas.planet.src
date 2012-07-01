@@ -73,7 +73,7 @@ begin
   inherited Create;
   FMinLogLevel := AMinLogLevel;
   FMaxRowsCount := AMaxLinesCount;
-  FLock := MakeSyncObj(Self, TRUE);
+  FLock := MakeSyncRW_Std(Self, False);
   FList := TWideStringList.Create;
   FList.Capacity := FMaxRowsCount;
   for i := 0 to FMaxRowsCount - 1 do begin
@@ -101,7 +101,7 @@ var
 begin
   Result := '';
   if ALastId < FNextId then begin
-    FLock.BeginWrite;
+    FLock.BeginRead;
     try
       VNewRowsCount := FNextId - ALastId;
       if VNewRowsCount > AMaxRowsCount then begin
@@ -122,7 +122,7 @@ begin
       AcntLines := VNewRowsCount;
       ALastId := FNextId;
     finally
-      FLock.EndWrite;
+      FLock.EndRead;
     end;
   end else begin
     AcntLines := 0;

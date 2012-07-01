@@ -84,7 +84,7 @@ begin
   FName := AName;
   FLoader := ALoader;
 
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Sym(Self, False);
   FInited := 0;
 end;
 

@@ -62,7 +62,7 @@ constructor TTileDownloadRequestBuilder.Create(const AConfig: ITileDownloadReque
 begin
   inherited Create;
   FConfig := AConfig;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Big(Self, TRUE);
 end;
 
 destructor TTileDownloadRequestBuilder.Destroy;

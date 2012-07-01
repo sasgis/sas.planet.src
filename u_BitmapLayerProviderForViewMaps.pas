@@ -109,7 +109,7 @@ begin
   FUseCache := AUseCache;
   FPostProcessingConfig := APostProcessingConfig;
   FErrorLogger := AErrorLogger;
-  FListenerCS := MakeSyncObj(Self, True);
+  FListenerCS := MakeSyncRW_Var(Self, False);
 end;
 
 destructor TBitmapLayerProviderForViewMaps.Destroy;
@@ -254,29 +254,36 @@ begin
 end;
 
 procedure TBitmapLayerProviderForViewMaps.OnMapVersionChange;
+var
+  VListener: IJclListener;
 begin
   FListenerCS.BeginRead;
   try
-    if FListener <> nil then begin
-      FListener.Notification(nil);
-    end;
+    VListener := FListener;
   finally
     FListenerCS.EndRead;
+  end;
+  if VListener <> nil then begin
+    VListener.Notification(nil);
   end;
 end;
 
 procedure TBitmapLayerProviderForViewMaps.OnTileUpdate(const AMsg: IInterface);
 var
+  VListener: IJclListener;
   VLonLatRect: ILonLatRect;
 begin
-  if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
-    FListenerCS.BeginRead;
-    try
-      if FListener <> nil then begin
-        FListener.Notification(VLonLatRect);
-      end;
-    finally
-      FListenerCS.EndRead;
+  FListenerCS.BeginRead;
+  try
+    VListener := FListener;
+  finally
+    FListenerCS.EndRead;
+  end;
+  if VListener <> nil then begin
+    if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
+      VListener.Notification(VLonLatRect);
+    end else begin
+      VListener.Notification(nil);
     end;
   end;
 end;

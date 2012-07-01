@@ -153,7 +153,7 @@ end;
 constructor TARGBToPaletteConverter.Create;
 begin
   inherited;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Std(Self, False);
 end;
 
 destructor TARGBToPaletteConverter.Destroy;

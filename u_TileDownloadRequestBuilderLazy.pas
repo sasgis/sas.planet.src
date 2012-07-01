@@ -47,7 +47,7 @@ constructor TTileDownloadRequestBuilderLazy.Create(
 );
 begin
   inherited Create;
-  FBuilderCS := MakeSyncObj(Self, TRUE);
+  FBuilderCS := MakeSyncRW_Var(Self, False);
   FDownloader := ADownloader;
   FFactory := AFactory;
 end;

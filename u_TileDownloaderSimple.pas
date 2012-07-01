@@ -104,7 +104,7 @@ begin
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
 
-  FCS := MakeSyncObj(Self, FALSE);
+  FCS := MakeSyncRW_Std(Self, FALSE);
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);

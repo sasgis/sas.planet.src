@@ -120,7 +120,7 @@ begin
 
   FDataReceiveCounter := APerfCounterList.CreateAndAddNewCounter('GPS_Process');
   FLinksList := TJclListenerNotifierLinksList.Create;
-  FCS := MakeSyncObj(Self, TRUE);
+  FCS := MakeSyncRW_Var(Self, False);
   FModuleState := msDisconnected;
   FWasError := False;
   FWasTimeOut := False;

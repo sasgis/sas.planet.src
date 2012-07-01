@@ -56,7 +56,7 @@ begin
   inherited Create;
   FResultFactory := AResultFactory;
   FGCList := AGCList;
-  FCS := MakeSyncObj(Self, FALSE);
+  FCS := MakeSyncRW_Std(Self, FALSE);
   FTTLListener := TTTLCheckListener.Create(
     Self.OnTTLTrim,
     CHttpClientTTL,
