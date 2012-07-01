@@ -3,7 +3,6 @@ unit u_MapLayerWithThreadDraw;
 interface
 
 uses
-  Windows,
   GR32,
   GR32_Image,
   i_JclNotify,
@@ -15,6 +14,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
+  i_SimpleFlag,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -22,9 +22,9 @@ type
   TMapLayerWithThreadDraw = class(TMapLayerBasic)
   private
     FDrawTask: IBackgroundTask;
-    FUpdateCounter: Integer;
+    FUpdateViewFlag: ISimpleFlag;
     FBgDrawCounter: IInternalPerformanceCounter;
-    FDelicateRedrawCounter: Integer;
+    FDelicateRedrawFlag: ISimpleFlag;
     procedure OnDrawBitmap(
       AOperationID: Integer;
       const ACancelNotifier: IOperationNotifier
@@ -83,6 +83,7 @@ implementation
 
 uses
   u_NotifyEventListener,
+  u_SimpleFlagWithInterlock,
   u_BackgroundTask;
 
 { TMapLayerWithThreadDraw }
@@ -102,8 +103,8 @@ begin
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnDrawBitmap, AThreadConfig);
-  FUpdateCounter := 0;
-  FDelicateRedrawCounter := 0;
+  FUpdateViewFlag := TSimpleFlagWithInterlock.Create;
+  FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
@@ -133,11 +134,11 @@ procedure TMapLayerWithThreadDraw.OnDrawBitmap(
 );
 var
   VCounterContext: TInternalPerformanceCounterContext;
-  VDelicateRedrawCounter: Integer;
+  VNeedRedraw: Boolean;
 begin
-  InterlockedExchange(FDelicateRedrawCounter, 0);
-  VDelicateRedrawCounter := 1;
-  while VDelicateRedrawCounter > 0 do begin
+  FDelicateRedrawFlag.CheckFlagAndReset;
+  VNeedRedraw := True;
+  while VNeedRedraw do begin
     VCounterContext := FBgDrawCounter.StartOperation;
     try
       DrawBitmap(AOperationID, ACancelNotifier);
@@ -147,13 +148,13 @@ begin
       end;
     end;
 
-    VDelicateRedrawCounter := InterlockedExchange(FDelicateRedrawCounter, 0);
+    VNeedRedraw := FDelicateRedrawFlag.CheckFlagAndReset;
   end;
 end;
 
 procedure TMapLayerWithThreadDraw.OnTimer;
 begin
-  if InterlockedExchange(FUpdateCounter, 0) > 0 then begin
+  if FUpdateViewFlag.CheckFlagAndReset then begin
     Layer.Changed;
   end;
 end;
@@ -166,12 +167,12 @@ end;
 
 procedure TMapLayerWithThreadDraw.SetBitmapChanged;
 begin
-  InterlockedIncrement(FUpdateCounter);
+  FUpdateViewFlag.SetFlag;
 end;
 
 procedure TMapLayerWithThreadDraw.DelicateRedraw;
 begin
-  InterlockedIncrement(FDelicateRedrawCounter);
+  FDelicateRedrawFlag.SetFlag;
   FDrawTask.StartExecute;
 end;
 

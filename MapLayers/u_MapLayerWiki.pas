@@ -48,6 +48,7 @@ uses
   i_InternalPerformanceCounter,
   i_TileError,
   i_ViewPortState,
+  i_SimpleFlag,
   i_VectorDataItemSimple,
   i_MapElementsGuidedList,
   u_MapElementsGuidedList,
@@ -71,7 +72,7 @@ type
     FVectorMapsSetCS: IReadWriteSync;
     FLinesClipRect: TDoubleRect;
 
-    FTileUpdateCounter: Integer;
+    FTileUpdateFlag: ISimpleFlag;
     procedure OnTileChange;
     procedure OnTimer;
 
@@ -183,6 +184,7 @@ uses
   u_TileIteratorByRect,
   u_TileErrorInfo,
   u_ResStrings,
+  u_SimpleFlagWithInterlock,
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByVectorSubset,
   u_IdCacheSimpleThreadSafe,
@@ -240,7 +242,7 @@ begin
     ATimerNoifier
   );
   FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
-  FTileUpdateCounter := 0;
+  FTileUpdateFlag := TSimpleFlagWithInterlock.Create;
 
   FAllElements := TMapElementsGuidedList.Create;
 end;
@@ -574,12 +576,12 @@ end;
 
 procedure TWikiLayer.OnTileChange;
 begin
-  InterlockedIncrement(FTileUpdateCounter);
+  FTileUpdateFlag.SetFlag;
 end;
 
 procedure TWikiLayer.OnTimer;
 begin
-  if InterlockedExchange(FTileUpdateCounter, 0) > 0 then begin
+  if FTileUpdateFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
       SetNeedRedraw;

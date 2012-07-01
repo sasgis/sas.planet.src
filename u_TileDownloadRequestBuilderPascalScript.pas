@@ -37,6 +37,7 @@ uses
   i_LanguageManager,
   i_LastResponseInfo,
   i_ProjConverter,
+  i_SimpleFlag,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilderConfig,
   u_BasePascalCompiler,
@@ -56,7 +57,7 @@ type
     FLang: string;
     FLangManager: ILanguageManager;
     FLangListener: IJclListener;
-    FLangChangeCount: Integer;
+    FLangChangeFlag: ISimpleFlag;
 
     FPSExec: TBasePascalScriptExec;
     FpResultUrl: PPSVariantAString;
@@ -122,6 +123,7 @@ uses
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
   u_TileRequestBuilderHelpers,
+  u_SimpleFlagWithInterlock,
   u_ResStrings;
 
 { TTileRequestBuilderPascalScript }
@@ -145,6 +147,8 @@ begin
   FDefProjConverter := ADefProjConverter;
   FProjFactory := AProjFactory;
   FCheker := ACheker;
+
+  FLangChangeFlag := TSimpleFlagWithInterlock.Create;
 
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
@@ -170,7 +174,7 @@ end;
 
 procedure TTileDownloadRequestBuilderPascalScript.OnLangChange;
 begin
-  InterlockedIncrement(FLangChangeCount);
+  FLangChangeFlag.SetFlag;
 end;
 
 function TTileDownloadRequestBuilderPascalScript.BuildRequest(
@@ -352,7 +356,7 @@ begin
   end else begin
     FpVersion.Data := '';
   end;
-  if InterlockedExchange(FLangChangeCount, 0) > 0 then begin
+  if FLangChangeFlag.CheckFlagAndReset then begin
     FLang := FLangManager.GetCurrentLanguageCode;
   end;
   FpLang.Data := FLang;
