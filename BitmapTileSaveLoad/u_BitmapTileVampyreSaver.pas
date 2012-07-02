@@ -327,8 +327,10 @@ begin
   VFormat.Quality := ACompressionQuality;
   inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
 end;
+
 initialization
   GVampireGlobalLock := TSimpleRWSync.Create;
+
 finalization
   GVampireGlobalLock := nil;
 end.

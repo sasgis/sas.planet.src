@@ -22,7 +22,6 @@ uses
 type
   TThreadExportToJnx = class(TThreadExportAbstract)
   private
-//  FMapType: TMapType;
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -52,7 +51,6 @@ type
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
-      AMapType: TMapType;
       const AProductName: string;
       const AMapName: string;
       AJNXVersion: integer;
@@ -77,7 +75,6 @@ uses
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
-
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
@@ -90,7 +87,6 @@ constructor TThreadExportToJnx.Create(
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
-  AMapType: TMapType;
   const AProductName: string;
   const AMapName: string;
   AJNXVersion: integer;
@@ -111,7 +107,6 @@ begin
     Azoomarr
   );
   FTargetFile := ATargetFile;
-//FMapType := AMapType;
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
@@ -131,11 +126,11 @@ end;
 procedure TThreadExportToJnx.ProcessRegion;
 const
   ZoomToScale: array [0..32] of integer = (
-2446184, 2446184, 2446184, 2446184, 2446184, 2446184, 2446184, 1834628,
-1223072, 611526,  458642,  305758,  152877,  114657,  76437,   38218,
-28664,   19109,   9554,    7166,    4777,    2388,    1791,    1194,
-597,     448,     298,     149,     112,     75,      37,      28,
-19  );
+    2446184, 2446184, 2446184, 2446184, 2446184, 2446184, 2446184, 1834628,
+    1223072, 611526, 458642, 305758, 152877, 114657, 76437, 38218,
+    28664, 19109, 9554, 7166, 4777, 2388, 1791, 1194,
+    597, 448, 298, 149, 112, 75, 37, 28,
+    19);
 
 var
   i: integer;
@@ -179,9 +174,10 @@ begin
     VWriter.Version := FJNXVersion;
     VWriter.ZOrder := FZorder;
     VWriter.ProductID := FProductID;
-    
+
     for i := 0 to FMapList.Count - 1 do begin
-      VWriter.LevelScale[i] := ZoomToScale[FScaleArr[i]];;
+      VWriter.LevelScale[i] := ZoomToScale[FScaleArr[i]];
+      ;
       VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
       VWriter.LevelDescription[i] := FLevelsDesc.items[i * 3];
       VWriter.LevelName[i] := FLevelsDesc.Items[i * 3 + 1];
@@ -204,7 +200,6 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-//            VBitmapTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
             VBitmapTile := FMapList.Items[i].MapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
             if VBitmapTile <> nil then begin
               VData := VSaver.Save(VBitmapTile);

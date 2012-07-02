@@ -23,7 +23,10 @@ type
     property ExpectedID: Integer read GetExpectedID;
 
     procedure IncExpectedID;
-    procedure UpdateBitmap(AID: Integer; const ABitmap: IBitmap32Static);
+    procedure UpdateBitmap(
+      AID: Integer;
+      const ABitmap: IBitmap32Static
+    );
 
     function GetBitmap: IBitmap32Static;
     property Bitmap: IBitmap32Static read GetBitmap;

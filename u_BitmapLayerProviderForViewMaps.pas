@@ -22,7 +22,7 @@ type
     TInterfacedObject,
     IBitmapLayerProvider,
     IBitmapLayerProviderWithListener
-  )
+    )
   private
     FMainMap: IMapType;
     FLayersList: IMapTypeListStatic;
@@ -328,7 +328,9 @@ begin
 end;
 
 procedure TBitmapLayerProviderForViewMaps.SetListener(
-  const AListener: IJclListener; const ALocalConverter: ILocalCoordConverter);
+  const AListener: IJclListener;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VNotifier: ITileRectUpdateNotifier;
   i: Integer;
@@ -372,7 +374,7 @@ begin
         VMap := FMainMap;
         FMainMapListener := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
       end;
-      if (FLayersList <> nil) and (FLayersList.Count > 0) and (Length(FLayerListeners)=0) then begin
+      if (FLayersList <> nil) and (FLayersList.Count > 0) and (Length(FLayerListeners) = 0) then begin
         SetLength(FLayerListeners, FLayersList.Count);
         for i := 0 to FLayersList.Count - 1 do begin
           VMap := FLayersList.Items[i];

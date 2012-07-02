@@ -435,7 +435,7 @@ begin
   end;
 
   FInternalBrowserConfig := TWindowPositionConfig.Create;
-  
+
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
 

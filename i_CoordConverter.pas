@@ -44,8 +44,8 @@ type
 
     // метрические координаты
     function LonLat2Metr(const Ll: TDoublePoint): TDoublePoint; stdcall;
-    function Metr2LonLat(const Mm : TDoublePoint) : TDoublePoint; stdcall;
-    
+    function Metr2LonLat(const Mm: TDoublePoint): TDoublePoint; stdcall;
+
     // ¬озвращает количество тайлов в заданном зуме
     function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     // ¬озвращает общее количество пикселей на заданном зуме

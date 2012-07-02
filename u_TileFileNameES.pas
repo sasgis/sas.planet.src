@@ -32,7 +32,7 @@ type
     TInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
-  )
+    )
   private
     class function FullInt(
       I: Integer;

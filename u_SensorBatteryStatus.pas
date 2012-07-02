@@ -66,7 +66,7 @@ begin
           Result := 101;
         end;
       else begin
-        if VState.BatteryLifePercent <= 100  then begin
+        if VState.BatteryLifePercent <= 100 then begin
           Result := VState.BatteryLifePercent;
         end;
       end;

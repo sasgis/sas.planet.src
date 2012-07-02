@@ -95,7 +95,10 @@ const
   CBDBRecVersion = #03;
   CBDBRecMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', CBDBRecVersion);      //TiLe Data
 
-procedure SetBit(var ADest: Cardinal; const ABit: Integer); inline;
+procedure SetBit(
+  var ADest: Cardinal;
+  const ABit: Integer
+); inline;
 begin
   ADest := ADest or (Cardinal(1) shl ABit);
 end;
@@ -137,7 +140,11 @@ end;
 
 function KeyToPoint(const AKey: TBDBKey): TPoint;
 
-  procedure ValueToPoint(const AValue: Cardinal; AOffset: Integer; out APoint: TPoint);
+  procedure ValueToPoint(
+  const AValue: Cardinal;
+    AOffset: Integer;
+    out APoint: TPoint
+  );
   var
     I: Integer;
     VPoint: TBDBKey;
@@ -159,7 +166,7 @@ function KeyToPoint(const AKey: TBDBKey): TPoint;
 
 begin
   Result := Point(0, 0);
-  ValueToPoint(Swap32(AKey.TileY), 0,  Result);
+  ValueToPoint(Swap32(AKey.TileY), 0, Result);
   ValueToPoint(Swap32(AKey.TileX), 32, Result);
 end;
 

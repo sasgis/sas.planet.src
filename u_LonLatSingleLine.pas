@@ -122,7 +122,7 @@ constructor TLonLatPathLine.Create(
   ACount: Integer
 );
 begin
-  inherited Create(False, ABounds,  APoints, ACount);
+  inherited Create(False, ABounds, APoints, ACount);
 end;
 
 function TLonLatPathLine.GetEnum: IEnumLonLatPoint;

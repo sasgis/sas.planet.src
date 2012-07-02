@@ -248,7 +248,7 @@ begin
           if copy(ListName, length(ListName) - 2, 3) = '00''' then begin
             ListName := ReplaceStr(ListName, '00''', '');
           end;
-          ListName := RegExprReplaceMatchSubStr(ListName,'\0+\°','°');
+          ListName := RegExprReplaceMatchSubStr(ListName, '\0+\°', '°');
           ListName := ReplaceStr(ListName, ',°', '°');
 
           twidth := Layer.bitmap.TextWidth(ListName);
@@ -273,7 +273,7 @@ begin
           if copy(ListName, length(ListName) - 2, 3) = '00''' then begin
             ListName := ReplaceStr(ListName, '00''', '');
           end;
-          ListName := RegExprReplaceMatchSubStr(ListName,'\0+\°','°');
+          ListName := RegExprReplaceMatchSubStr(ListName, '\0+\°', '°');
           ListName := ReplaceStr(ListName, ',°', '°');
 
           theight := Layer.bitmap.TextHeight(ListName);

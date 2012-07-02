@@ -32,7 +32,7 @@ type
     TInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
-  )
+    )
   protected
     function GetTileFileName(
       AXY: TPoint;
@@ -53,7 +53,7 @@ uses
   SysUtils;
 
 const
-  c_GM2_Expr  = '^(.+\\)?[zZ](\d\d?)\\(\d+)_(\d+)(\..+)?$';
+  c_GM2_Expr = '^(.+\\)?[zZ](\d\d?)\\(\d+)_(\d+)(\..+)?$';
 
 { TTileFileNameGM2 }
 

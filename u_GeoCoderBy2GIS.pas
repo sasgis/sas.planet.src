@@ -124,8 +124,10 @@ begin
   end;
 end;
 
-function TGeoCoderBy2GIS.PrepareRequest(const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
+function TGeoCoderBy2GIS.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;

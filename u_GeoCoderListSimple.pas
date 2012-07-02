@@ -39,6 +39,7 @@ type
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
   end;
+
 implementation
 
 uses
@@ -134,24 +135,24 @@ begin
   Add(VItem);
 
   try
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoderPolishMapGUID,
-      'Offline search (*.mp)',
-      TGeoCoderByPolishMap.Create(AValueToStringConverterConfig)
-    );
-  Add(VItem);
+    VItem :=
+      TGeoCoderListEntity.Create(
+        CGeoCoderPolishMapGUID,
+        'Offline search (*.mp)',
+        TGeoCoderByPolishMap.Create(AValueToStringConverterConfig)
+      );
+    Add(VItem);
   Except
   end;
 
   try
-  VItem :=
-    TGeoCoderListEntity.Create(
-      CGeoCoderGeoNamesTXTGUID,
-      'Offline search (*.txt)',
-      TGeoCoderByTXT.Create(AValueToStringConverterConfig)
-    );
-  Add(VItem);
+    VItem :=
+      TGeoCoderListEntity.Create(
+        CGeoCoderGeoNamesTXTGUID,
+        'Offline search (*.txt)',
+        TGeoCoderByTXT.Create(AValueToStringConverterConfig)
+      );
+    Add(VItem);
   Except
   end;
 

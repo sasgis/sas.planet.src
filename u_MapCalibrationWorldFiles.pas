@@ -178,7 +178,7 @@ begin
     AuxXmkfile.Write(VStr[1], length(VStr));
     AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
   finally
-  AuxXmkfile.Free;
+    AuxXmkfile.Free;
   end;
 end;
 

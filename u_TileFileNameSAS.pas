@@ -32,7 +32,7 @@ type
     TInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
-  )
+    )
   protected
     function GetTileFileName(
       AXY: TPoint;
@@ -53,7 +53,7 @@ uses
   SysUtils;
 
 const
-  c_SAS_Expr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\[xX](\d+)\\\d+\\[yY](\d+)(\..+)?$';
+  c_SAS_Expr = '^(.+\\)?[zZ](\d\d?)\\\d+\\[xX](\d+)\\\d+\\[yY](\d+)(\..+)?$';
 
 { TTileFileNameSAS }
 

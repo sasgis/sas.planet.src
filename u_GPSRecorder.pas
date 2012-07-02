@@ -213,7 +213,8 @@ end;
 
 constructor TTrackPointsBlocksListStatic.CreateLastBlocks(
   const ASourceList: ITrackPointsBlocksListStatic;
-  const ALastBlockCount: Integer);
+  const ALastBlockCount: Integer
+);
 var
   i: Integer;
   VIndex: Integer;
@@ -225,7 +226,7 @@ begin
   if (ASourceList <> nil) and (ALastBlockCount > 0) then begin
     FCount := ASourceList.Count;
     if FCount > ALastBlockCount then begin
-      FCount := ALastBlockCount
+      FCount := ALastBlockCount;
     end;
   end else begin
     FCount := 0;

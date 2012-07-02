@@ -39,9 +39,6 @@ type
     function GetJNXVersion: Integer;
     property JNXVersion: Integer read GetJNXVersion;
 
-    function GetMapType: TMapType;
-    property MapType: TMapType read GetMapType;
-
     function GetZOrder: Integer;
     property ZOrder: Integer read GetZOrder;
 
@@ -63,7 +60,6 @@ type
   TfrExportToJNX = class(
       TFrame,
       IRegionProcessParamsFrameBase,
-      IRegionProcessParamsFrameOneMap,
       IRegionProcessParamsFrameZoomArray,
       IRegionProcessParamsFrameTargetPath,
       IRegionProcessParamsFrameExportToJNX
@@ -168,7 +164,6 @@ type
       const APolygon: ILonLatPolygon
     );
   private
-    function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
     function GetScaleArray: TByteDynArray;
     function GetPath: string;
@@ -408,18 +403,6 @@ begin
     cbbscale3.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale4.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale5.ItemIndex := ZoomIndexToScaleIndex[AZoom];
-
-//  cbbMap.Items.AddObject(SAS_STR_No,nil);
-//  cbbMap2.Items.AddObject(SAS_STR_No,nil);
-//  cbbMap3.Items.AddObject(SAS_STR_No,nil);
-//  cbbMap4.Items.AddObject(SAS_STR_No,nil);
-//  cbbMap5.Items.AddObject(SAS_STR_No,nil);
-
-//  cbbHyb.Items.AddObject(SAS_STR_No,nil);
-//  cbbHyb2.Items.AddObject(SAS_STR_No,nil);
-//  cbbHyb3.Items.AddObject(SAS_STR_No,nil);
-//  cbbHyb4.Items.AddObject(SAS_STR_No,nil);
-//  cbbHyb5.Items.AddObject(SAS_STR_No,nil);
 
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   For i := 0 to VGUIDList.Count-1 do begin
@@ -735,23 +718,6 @@ end;
 function TfrExportToJNX.GetMapName: string;
 begin
   Result := EmapName.Text;
-end;
-
-function TfrExportToJNX.GetMapType: TMapType;
-begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex])
-    else if cbbMap2.ItemIndex >= 0 then
-      Result := TMapType(cbbMap2.Items.Objects[cbbMap2.ItemIndex])
-      else if cbbMap3.ItemIndex >= 0 then
-        Result := TMapType(cbbMap3.Items.Objects[cbbMap3.ItemIndex])
-        else if cbbMap4.ItemIndex >= 0 then
-          Result := TMapType(cbbMap4.Items.Objects[cbbMap4.ItemIndex])
-            else if cbbMap5.ItemIndex >= 0 then
-              Result := TMapType(cbbMap5.Items.Objects[cbbMap5.ItemIndex]);
-
-  Assert(Result <> nil);
 end;
 
 function TfrExportToJNX.GetPath: string;

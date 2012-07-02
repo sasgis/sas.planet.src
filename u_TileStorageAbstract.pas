@@ -53,13 +53,13 @@ type
     ): Boolean of object;
 
   TOnTileStorageScan = function(
-    Sender: TObject;
-    const ATileNameInCache: string;
-    const ATileXY: TPoint;
-    const ATileZoom: Byte;
-    const ATileInfo: ITileInfoBasic;
-    const ATileBinaryData: IBinaryData
-  ): Boolean of object;
+      Sender: TObject;
+      const ATileNameInCache: string;
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const ATileInfo: ITileInfoBasic;
+      const ATileBinaryData: IBinaryData
+    ): Boolean of object;
 
   TTileStorageAbstract = class
   private

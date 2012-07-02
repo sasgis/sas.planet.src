@@ -109,7 +109,6 @@ procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
   path: string;
   Zoomarr: TByteDynArray;
-  VMapType: TMapType;
   VProductName: string;
   VMapName: string;
   VJNXVersion: integer;
@@ -123,18 +122,16 @@ var
   VMapList: IMapTypeListStatic;
   VLayerList: IMapTypeListStatic;
   VScaleArr: TByteDynArray;
-
 begin
   inherited;
 
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
-  VMapType := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapType;
   VLevelsDesc := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LevelsDesc;
   VProductName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductName;
   VMapName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapName;
-  VJpgQuality := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JpgQuality; 
+  VJpgQuality := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JpgQuality;
   VJNXVersion := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JNXVersion;
   VZorder := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ZOrder;
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
@@ -145,8 +142,8 @@ begin
   VCancelNotifierInternal := TOperationNotifier.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
-  
-  
+
+
   TfrmProgressSimple.Create(
     Application,
     FAppClosingNotifier,
@@ -165,7 +162,6 @@ begin
     path,
     APolygon,
     Zoomarr,
-    VMapType,
     VProductName,
     VMapName,
     VJNXVersion,

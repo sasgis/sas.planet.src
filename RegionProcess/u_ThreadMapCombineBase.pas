@@ -110,6 +110,7 @@ var
   VMapPieceSize: TPoint;
   VSizeInTile: TPoint;
   VCurrentFileName: string;
+  VStr: string;
 begin
   inherited;
   VMapSize := FTargetConverter.GetLocalRectSize;
@@ -124,14 +125,18 @@ begin
   VProcessTiles := VSizeInTile.X;
   VProcessTiles := VProcessTiles * VSizeInTile.Y;
 
-  ProgressInfo.SetCaption(Format(
-    SAS_STR_MapCombineProgressCaption,
-    [VMapSize.X, VMapSize.Y, FSplitCount.X * FSplitCount.Y]
-  ));
-  ProgressInfo.SetFirstLine(Format(
-    SAS_STR_MapCombineProgressLine0,
-    [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
-  ));
+  VStr :=
+    Format(
+      SAS_STR_MapCombineProgressCaption,
+      [VMapSize.X, VMapSize.Y, FSplitCount.X * FSplitCount.Y]
+    );
+  ProgressInfo.SetCaption(VStr);
+  VStr :=
+    Format(
+      SAS_STR_MapCombineProgressLine0,
+      [VSizeInTile.X, VSizeInTile.Y, VProcessTiles]
+    );
+  ProgressInfo.SetFirstLine(VStr);
   ProgressFormUpdateOnProgress(0);
   VMapPieceSize.X := VMapSize.X div FSplitCount.X;
   VMapPieceSize.Y := VMapSize.Y div FSplitCount.Y;

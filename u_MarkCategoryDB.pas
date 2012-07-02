@@ -287,23 +287,23 @@ var
 begin
   LockWrite;
   try
-      VChanged := False;
-      FCdsKategory.Filtered := false;
-      FCdsKategory.First;
-      while not (FCdsKategory.Eof) do begin
-        if FCdsKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
-          FCdsKategory.Edit;
-          FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
-          FCdsKategory.post;
-          VCategory := ReadCurrentCategory(VId);
-          FList.Replace(VId, VCategory);
-          VChanged := True;
-        end;
-        FCdsKategory.Next;
+    VChanged := False;
+    FCdsKategory.Filtered := false;
+    FCdsKategory.First;
+    while not (FCdsKategory.Eof) do begin
+      if FCdsKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
+        FCdsKategory.Edit;
+        FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
+        FCdsKategory.post;
+        VCategory := ReadCurrentCategory(VId);
+        FList.Replace(VId, VCategory);
+        VChanged := True;
       end;
-      if VChanged then begin
-        SetChanged;
-      end;
+      FCdsKategory.Next;
+    end;
+    if VChanged then begin
+      SetChanged;
+    end;
   finally
     UnlockWrite;
   end;

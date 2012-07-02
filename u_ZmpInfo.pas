@@ -362,7 +362,10 @@ begin
   LoadInfo(ALangList, AConfig);
 end;
 
-function UpdateBMPTransp(AMaskColor: TColor32; ABitmap: IBitmap32Static): IBitmap32Static;
+function UpdateBMPTransp(
+  AMaskColor: TColor32;
+  ABitmap: IBitmap32Static
+): IBitmap32Static;
 var
   VSourceLine: PColor32Array;
   VTargetLine: PColor32Array;
@@ -423,7 +426,7 @@ begin
         if Result <> nil then begin
           if VExt = '.bmp' then begin
             Result := UpdateBMPTransp(Color32(255, 0, 255, 255), Result);
-          end
+          end;
         end;
       end;
     end;

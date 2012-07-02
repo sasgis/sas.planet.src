@@ -13,6 +13,7 @@ uses
 
 type
   PSmallIntPoint = ^TSmallIntPoint;
+
   TSmallIntPoint = packed record
     X: Smallint;
     Y: Smallint;

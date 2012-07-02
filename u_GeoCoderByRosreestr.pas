@@ -190,8 +190,10 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByRosreestr.PrepareRequest(const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
+function TGeoCoderByRosreestr.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;

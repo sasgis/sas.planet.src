@@ -28,7 +28,10 @@ type
     function GetBitmap: IBitmap32Static;
 
     procedure IncExpectedID;
-    procedure UpdateBitmap(AID: Integer; const ABitmap: IBitmap32Static);
+    procedure UpdateBitmap(
+      AID: Integer;
+      const ABitmap: IBitmap32Static
+    );
   public
     constructor Create(
       const ATile: TPoint;

@@ -133,8 +133,10 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByWikiMapia.PrepareRequest(const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
+function TGeoCoderByWikiMapia.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;

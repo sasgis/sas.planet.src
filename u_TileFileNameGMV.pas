@@ -32,7 +32,7 @@ type
     TInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
-  )
+    )
   protected
     function GetTileFileName(
       AXY: TPoint;

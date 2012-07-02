@@ -484,6 +484,7 @@ procedure TTileStorageBerkeleyDB.SaveTile(
 var
   VPath: string;
   VResult: Boolean;
+  VTileInfo: ITileInfoBasic;
 {$IFDEF WITH_PERF_COUNTER}
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
@@ -505,16 +506,18 @@ begin
           AData
         );
         if VResult then begin
-          FTileInfoMemCache.Add(
-            AXY,
-            AZoom,
-            AVersionInfo,
+          VTileInfo :=
             TTileInfoBasicExistsWithTile.Create(
               Now,
               AData,
               AVersionInfo,
               FMainContentType
-            )
+            );
+          FTileInfoMemCache.Add(
+            AXY,
+            AZoom,
+            AVersionInfo,
+            VTileInfo
           );
           NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
@@ -713,20 +716,18 @@ begin
     while VFilesIterator.Next(VTileFileNameW) do begin
       VTileFileName := WideCharToString(PWideChar(VTileFileNameW));
       if VFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) and
-         FHelper.GetTileExistsArray(FCacheConfig.BasePath + VTileFileName, VTileZoom, nil, VTilesArray)
-      then begin
+        FHelper.GetTileExistsArray(FCacheConfig.BasePath + VTileFileName, VTileZoom, nil, VTilesArray) then begin
         for I := 0 to Length(VTilesArray) - 1 do begin
           VTileXY := VTilesArray[I];
           VTileBinData := Self.LoadTile(VTileXY, VTileZoom, nil, VTileInfoBasic);
-          VAbort :=
-            not AOnTileStorageScan(
-              Self,
-              VTileFileName,
-              VTileXY,
-              VTileZoom,
-              VTileInfoBasic,
-              VTileBinData
-            );
+          VAbort := not AOnTileStorageScan(
+            Self,
+            VTileFileName,
+            VTileXY,
+            VTileZoom,
+            VTileInfoBasic,
+            VTileBinData
+          );
           if (not VAbort and ARemoveTileAfterProcess) then begin
             if VTileInfoBasic.IsExists then begin
               Self.DeleteTile(VTileXY, VTileZoom, nil);

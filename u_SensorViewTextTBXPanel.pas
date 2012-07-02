@@ -659,11 +659,16 @@ end;
 { TSensorViewSpeedTBXPanel }
 
 constructor TSensorViewSpeedTBXPanel.Create(
-  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverterConfig := AValueConverterConfig;
@@ -705,7 +710,7 @@ var
 begin
   VValue := FSensor.GetValue;
   if IsNan(VValue) then begin
-    VText := '~'
+    VText := '~';
   end else begin
     VText := FValueConverterConfig.GetStatic.SpeedConvert(VValue);
   end;
@@ -715,11 +720,16 @@ end;
 { TSensorViewLengthTBXPanel }
 
 constructor TSensorViewLengthTBXPanel.Create(
-  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverterConfig := AValueConverterConfig;
@@ -761,7 +771,7 @@ var
 begin
   VValue := FSensor.GetValue;
   if IsNan(VValue) then begin
-    VText := '~'
+    VText := '~';
   end else begin
     VText := FValueConverterConfig.GetStatic.DistConvert(FSensor.GetValue);
   end;
@@ -771,10 +781,15 @@ end;
 { TSensorViewDegreesTBXPanel }
 
 constructor TSensorViewDegreesTBXPanel.Create(
-  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorDegrees, FSensor) then begin
@@ -811,7 +826,7 @@ var
 begin
   VValue := FSensor.GetValue;
   if IsNan(VValue) then begin
-    VText := '~'
+    VText := '~';
   end else begin
     VText := RoundEx(FSensor.GetValue, 2) + '°';
   end;
@@ -820,11 +835,17 @@ end;
 
 { TSensorViewTimeTBXPanel }
 
-constructor TSensorViewTimeTBXPanel.Create(const AListEntity: ISensorListEntity;
-  const AConfig: ISensorViewConfig; const ATimerNoifier: IJclNotifier;
+constructor TSensorViewTimeTBXPanel.Create(
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
+  const ATimerNoifier: IJclNotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverterConfig := AValueConverterConfig;
@@ -876,11 +897,16 @@ end;
 { TSensorViewPositionTBXPanel }
 
 constructor TSensorViewPositionTBXPanel.Create(
-  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   FValueConverterConfig := AValueConverterConfig;
@@ -932,10 +958,15 @@ end;
 { TSensorViewDoubleTBXPanel }
 
 constructor TSensorViewDoubleTBXPanel.Create(
-  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex);
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
+);
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
   if not Supports(FListEntity.GetSensor, ISensorDouble, FSensor) then begin
@@ -972,7 +1003,7 @@ var
 begin
   VValue := FSensor.GetValue;
   if IsNan(VValue) then begin
-    VText := '~'
+    VText := '~';
   end else begin
     VText := RoundEx(FSensor.GetValue, 1);
   end;
@@ -982,11 +1013,15 @@ end;
 { TSensorViewBatteryLifePercentTBXPanel }
 
 constructor TSensorViewBatteryLifePercentTBXPanel.Create(
-  const AListEntity: ISensorListEntity; const AConfig: ISensorViewConfig;
+  const AListEntity: ISensorListEntity;
+  const AConfig: ISensorViewConfig;
   const ATimerNoifier: IJclNotifier;
   const ALanguageManager: ILanguageManager;
-  AOwner: TComponent; ADefaultDoc: TTBDock; AParentMenu: TTBCustomItem;
-  AImages: TCustomImageList; AImageIndexReset: TImageIndex
+  AOwner: TComponent;
+  ADefaultDoc: TTBDock;
+  AParentMenu: TTBCustomItem;
+  AImages: TCustomImageList;
+  AImageIndexReset: TImageIndex
 );
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
@@ -1037,8 +1072,9 @@ begin
     200: begin
       VText := SAS_STR_BattaryStateOnLine;
     end;
-  else
+  else begin
     VText := SAS_STR_BattaryStateUnknown;
+  end;
   end;
   FlblValue.Caption := VText;
 end;

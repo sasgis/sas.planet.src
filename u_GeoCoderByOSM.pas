@@ -155,8 +155,10 @@ begin
   Result := VList;
 end;
 
-function TGeoCoderByOSM.PrepareRequest(const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
+function TGeoCoderByOSM.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;

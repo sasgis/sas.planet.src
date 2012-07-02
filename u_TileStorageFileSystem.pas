@@ -341,7 +341,10 @@ begin
   Result := FCacheConfig.GetTileFileName(AXY, Azoom);
 end;
 
-function _GetAttributesEx(const AFileName: String; var AInfo: WIN32_FILE_ATTRIBUTE_DATA): Boolean;
+function _GetAttributesEx(
+  const AFileName: String;
+  var AInfo: WIN32_FILE_ATTRIBUTE_DATA
+): Boolean;
 begin
   Result := (GetFileAttributesEx(PChar(AFileName), GetFileExInfoStandard, @AInfo) <> FALSE);
 end;
@@ -837,15 +840,14 @@ begin
       VTileFileName := WideCharToString(PWideChar(VTileFileNameW));
       if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
         VTileBinData := Self.LoadTile(VTileXY, VTileZoom, nil, VTileInfoBasic);
-        VAbort :=
-          not AOnTileStorageScan(
-            Self,
-            VTileFileName,
-            VTileXY,
-            VTileZoom,
-            VTileInfoBasic,
-            VTileBinData
-          );
+        VAbort := not AOnTileStorageScan(
+          Self,
+          VTileFileName,
+          VTileXY,
+          VTileZoom,
+          VTileInfoBasic,
+          VTileBinData
+        );
         if (not VAbort and ARemoveTileAfterProcess) then begin
           if VTileInfoBasic.IsExists then begin
             Self.DeleteTile(VTileXY, VTileZoom, nil);

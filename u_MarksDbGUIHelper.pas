@@ -99,8 +99,14 @@ type
       const AConverter: ICoordConverter;
       AHandle: THandle
     );
-    function EditMarkModal(const AMark: IMark; AIsNewMark: Boolean): IMark;
-    function EditCategoryModal(const ACategory: IMarkCategory; AIsNewMark: Boolean): IMarkCategory;
+    function EditMarkModal(
+      const AMark: IMark;
+      AIsNewMark: Boolean
+    ): IMark;
+    function EditCategoryModal(
+      const ACategory: IMarkCategory;
+      AIsNewMark: Boolean
+    ): IMarkCategory;
     function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
     function SavePointModal(
       const AMark: IMarkPoint;
@@ -120,8 +126,14 @@ type
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
     procedure ExportMark(const AMark: IMark);
-    procedure ExportCategory(const AMarkCategory: IMarkCategory; AIgnoreMarksVisible: Boolean);
-    procedure ExportCategoryList(ACategoryList: IInterfaceList; AIgnoreMarksVisible: Boolean);
+    procedure ExportCategory(
+      const AMarkCategory: IMarkCategory;
+      AIgnoreMarksVisible: Boolean
+    );
+    procedure ExportCategoryList(
+      ACategoryList: IInterfaceList;
+      AIgnoreMarksVisible: Boolean
+    );
 
     property MarksDB: TMarksSystem read FMarksDB;
   public
@@ -211,7 +223,7 @@ begin
   FExportDialog.Name := 'ExportDialog';
   FExportDialog.DefaultExt := '.kmz';
   FExportDialog.Filter := _('Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup Language (kml)|*.kml');
-  FExportDialog.Options := [ofOverwritePrompt, ofHideReadOnly,ofEnableSizing];
+  FExportDialog.Options := [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing];
 end;
 
 destructor TMarksDbGUIHelper.Destroy;
@@ -265,8 +277,10 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.DeleteCategoryModal(const ACategory: IMarkCategory;
-  handle: THandle);
+procedure TMarksDbGUIHelper.DeleteCategoryModal(
+  const ACategory: IMarkCategory;
+  handle: THandle
+);
 var
   VMessage: string;
 begin
@@ -312,7 +326,7 @@ var
   VMark: IMarkId;
   VMessage: string;
 begin
-  if (AMarkIDList <> nil) and (AMarkIDList.Count >0) then begin
+  if (AMarkIDList <> nil) and (AMarkIDList.Count > 0) then begin
     if AMarkIDList.Count = 1 then begin
       VMark := IMarkId(AMarkIDList[0]);
       DeleteMarkModal(VMark, handle);
@@ -326,13 +340,17 @@ begin
 end;
 
 function TMarksDbGUIHelper.EditCategoryModal(
-  const ACategory: IMarkCategory; AIsNewMark: Boolean
+  const ACategory: IMarkCategory;
+  AIsNewMark: Boolean
 ): IMarkCategory;
 begin
   Result := FfrmMarkCategoryEdit.EditCategory(ACategory, AIsNewMark);
 end;
 
-function TMarksDbGUIHelper.EditMarkModal(const AMark: IMark; AIsNewMark: Boolean): IMark;
+function TMarksDbGUIHelper.EditMarkModal(
+  const AMark: IMark;
+  AIsNewMark: Boolean
+): IMark;
 var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
@@ -353,22 +371,25 @@ begin
   Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
-procedure TMarksDbGUIHelper.ExportCategory(const AMarkCategory: IMarkCategory; AIgnoreMarksVisible: Boolean);
+procedure TMarksDbGUIHelper.ExportCategory(
+  const AMarkCategory: IMarkCategory;
+  AIgnoreMarksVisible: Boolean
+);
 var
   KMLExport: TExportMarks2KML;
   VMarksSubset: IMarksSubset;
   VFileName: string;
 begin
-  if AMarkCategory<>nil then begin
-    FExportDialog.FileName := StringReplace(AMarkCategory.name,'\','-',[rfReplaceAll]);
+  if AMarkCategory <> nil then begin
+    FExportDialog.FileName := StringReplace(AMarkCategory.name, '\', '-', [rfReplaceAll]);
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
-      if VFileName <>  '' then begin
-        KMLExport:=TExportMarks2KML.Create;
+      if VFileName <> '' then begin
+        KMLExport := TExportMarks2KML.Create;
         try
           VMarksSubset :=
             FMarksDb.MarksDb.GetMarksSubset(
-              DoubleRect(-180,90,180,-90),
+              DoubleRect(-180, 90, 180, -90),
               AMarkCategory,
               AIgnoreMarksVisible
             );
@@ -381,7 +402,10 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.ExportCategoryList(ACategoryList: IInterfaceList; AIgnoreMarksVisible: Boolean);
+procedure TMarksDbGUIHelper.ExportCategoryList(
+  ACategoryList: IInterfaceList;
+  AIgnoreMarksVisible: Boolean
+);
 var
   KMLExport: TExportMarks2KML;
   VMarksSubset: IMarksSubset;
@@ -390,12 +414,12 @@ begin
   if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
-      if VFileName <>  '' then begin
-        KMLExport:=TExportMarks2KML.Create;
+      if VFileName <> '' then begin
+        KMLExport := TExportMarks2KML.Create;
         try
           VMarksSubset :=
             FMarksDb.MarksDb.GetMarksSubset(
-              DoubleRect(-180,90,180,-90),
+              DoubleRect(-180, 90, 180, -90),
               ACategoryList,
               AIgnoreMarksVisible
             );
@@ -414,11 +438,11 @@ var
   VFileName: string;
 begin
   if AMark <> nil then begin
-    FExportDialog.FileName := StringReplace(AMark.Name,'\','-',[rfReplaceAll]);
+    FExportDialog.FileName := StringReplace(AMark.Name, '\', '-', [rfReplaceAll]);
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
-      if VFileName <>  '' then begin
-        KMLExport:=TExportMarks2KML.Create;
+      if VFileName <> '' then begin
+        KMLExport := TExportMarks2KML.Create;
         try
           KMLExport.ExportMarkToKML(AMark, VFileName);
         finally

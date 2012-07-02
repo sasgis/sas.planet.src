@@ -127,8 +127,10 @@ begin
   end;
 end;
 
-function TGeoCoderByGoogle.PrepareRequest(const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IDownloadRequest;
+function TGeoCoderByGoogle.PrepareRequest(
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IDownloadRequest;
 var
   VSearch: String;
   VConverter: ICoordConverter;
