@@ -112,7 +112,7 @@ begin
 
   Result :=
     CreateCategory(
-      -1,
+      CNotExistCategoryID,
       VName,
       True,
       VAfterScale,
@@ -146,7 +146,7 @@ begin
     FConfig.UnlockRead;
   end;
 
-  VId := -1;
+  VId := CNotExistCategoryID;
   if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
     VId := VCategoryInternal.Id;
   end;
@@ -169,7 +169,7 @@ var
   VId: Integer;
   VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := -1;
+  VId := CNotExistCategoryID;
   if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
     VId := VCategoryInternal.Id;
   end;

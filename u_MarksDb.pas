@@ -134,6 +134,7 @@ uses
   t_CommonTypes,
   i_EnumID,
   i_EnumDoublePoint,
+  i_MarkCategoryFactoryDbInternal,
   u_IDInterfaceList,
   i_DoublePointsAggregator,
   i_VectorItemLonLat,
@@ -334,7 +335,7 @@ var
   VCategoryIdNew: Integer;
 begin
   Result := nil;
-  VIdOld := -1;
+  VIdOld := CNotExistMarkID;
   if Supports(AOldMark, IMarkSMLInternal, VMarkInternal) then begin
     VIdOld := VMarkInternal.Id;
   end;
@@ -374,19 +375,19 @@ begin
     end;
   end;
 
-  VIdNew := -1;
+  VIdNew := CNotExistMarkID;
   if Supports(Result, IMarkSMLInternal, VMarkInternal) then begin
     VIdNew := VMarkInternal.Id;
   end;
 
-  VCategoryIdOld := -1;
+  VCategoryIdOld := CNotExistCategoryID;
   if VOldMark <> nil then begin
     if Supports(VOldMark.Category, IMarkCategorySMLInternal, VCategoryOld) then begin
       VCategoryIdOld := VCategoryOld.Id;
     end;
   end;
 
-  VCategoryIdNew := -1;
+  VCategoryIdNew := CNotExistCategoryID;
   if Result <> nil then begin
     if Supports(Result.Category, IMarkCategorySMLInternal, VCategoryNew) then begin
       VCategoryIdNew := VCategoryNew.Id;
@@ -602,7 +603,7 @@ var
   VPoint: TDoublePoint;
 begin
   VVisible := True;
-  VCategoryId := -1;
+  VCategoryId := CNotExistCategoryID;
   if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
     VVisible := VMarkVisible.Visible;
     VCategoryId := VMarkVisible.CategoryId;
@@ -653,7 +654,7 @@ var
 begin
   Result := nil;
   if AMarkId <> nil then begin
-    VId := -1;
+    VId := CNotExistMarkID;
     if Supports(AMarkId, IMarkSMLInternal, VMarkVisible) then begin
       VId := VMarkVisible.Id;
     end;
@@ -750,7 +751,7 @@ var
   VMarkInternal: IMarkSMLInternal;
 begin
   if AMark <> nil then begin
-    VId := -1;
+    VId := CNotExistMarkID;
     if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
       VId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
@@ -806,7 +807,7 @@ var
   VCategoryInternal: IMarkCategorySMLInternal;
 begin
   Assert(ACategory <> nil);
-  Result := -1;
+  Result := CNotExistCategoryID;
   if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
     Result := VCategoryInternal.Id;
   end;
@@ -1060,7 +1061,7 @@ begin
               if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
                 VIdNew := VMarkInternal.Id;
                 if VMark.Category = nil then begin
-                  VCategoryIdNew := -1;
+                  VCategoryIdNew := CNotExistCategoryID;
                 end else begin
                   VCategoryIdNew := VMarkInternal.CategoryId;
                 end;

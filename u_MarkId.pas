@@ -58,7 +58,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  i_MarkCategoryFactoryDbInternal;
 
 { TMarkId }
 
@@ -75,7 +76,7 @@ begin
   FName := AName;
   FId := AId;
   FCategory := ACategory;
-  FCategoryId := -1;
+  FCategoryId := CNotExistCategoryID;
   if FCategory <> nil then begin
     if Supports(FCategory, IMarkCategorySMLInternal, VCategory) then begin
       FCategoryId := VCategory.Id;

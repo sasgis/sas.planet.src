@@ -155,11 +155,11 @@ var
 begin
   Result := nil;
   Assert((AOldCategory <> nil) or (ANewCategory <> nil));
-  VIdOld := -1;
+  VIdOld := CNotExistCategoryID;
   if Supports(AOldCategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
     VIdOld := VCategoryInternal.Id;
   end;
-  VIdNew := -1;
+  VIdNew := CNotExistCategoryID;
   LockWrite;
   try
     VOldCategory := nil;

@@ -53,6 +53,9 @@ type
     ): IMarkID;
   end;
 
+const
+  CNotExistMarkID = -1;
+
 implementation
 
 end.

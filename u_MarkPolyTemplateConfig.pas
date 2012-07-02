@@ -63,6 +63,7 @@ uses
   SysUtils,
   i_StringConfigDataElement,
   i_MarksDbSmlInternal,
+  i_MarkCategoryFactoryDbInternal,
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
   u_ResStrings,
@@ -106,7 +107,7 @@ var
   VCategoryId: Integer;
   VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VCategoryId := -1;
+  VCategoryId := CNotExistCategoryID;
   if ACategory <> nil then begin
     if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
       VCategoryId := VCategoryInternal.Id;
@@ -134,7 +135,7 @@ var
   VTemplate: IMarkTemplatePoly;
 begin
   inherited;
-  VCategoryID := -1;
+  VCategoryID := CNotExistCategoryID;
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
@@ -167,7 +168,7 @@ var
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
-  VCategoryID := -1;
+  VCategoryID := CNotExistCategoryID;
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;

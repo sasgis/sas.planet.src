@@ -37,6 +37,9 @@ type
     ): IMarkCategory;
   end;
 
+const
+  CNotExistCategoryID = -1;
+  
 implementation
 
 end.
