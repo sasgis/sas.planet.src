@@ -36,8 +36,8 @@ type
     FNeedUpdateLocationFlag: ISimpleFlag;
   protected
     function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; virtual;
-    procedure UpdateLayerLocationIfNeed; virtual;
-    procedure UpdateLayerLocation; virtual;
+    procedure UpdateLayerLocationIfNeed;
+    procedure UpdateLayerLocation;
     procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
   protected
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
@@ -83,8 +83,8 @@ type
     FConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     procedure SetNeedUpdateLayerSize; virtual;
-    procedure UpdateLayerSize; virtual;
-    procedure UpdateLayerSizeIfNeed; virtual;
+    procedure UpdateLayerSize;
+    procedure UpdateLayerSizeIfNeed;
 
     procedure ClearLayerBitmap; virtual;
     procedure DoUpdateLayerSize(const ANewSize: TPoint); virtual;

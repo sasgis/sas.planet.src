@@ -84,8 +84,8 @@ type
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
-    procedure StartThreads; virtual;
-    procedure SendTerminateToThreads; virtual;
+    procedure StartThreads;
+    procedure SendTerminateToThreads;
 
     property ConnectingNotifier: INotifier read FConnectingNotifier;
     property ConnectedNotifier: INotifier read FConnectedNotifier;

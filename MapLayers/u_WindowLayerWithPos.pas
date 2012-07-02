@@ -92,19 +92,19 @@ type
 
     function GetVisibleForNewPos(const ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
 
-    procedure Show; virtual;
+    procedure Show;
     procedure DoShow; virtual;
-    procedure Hide; virtual;
+    procedure Hide; 
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
-    procedure RedrawIfNeed; virtual;
+    procedure RedrawIfNeed;
 
     property Layer: TCustomLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
-    procedure Redraw; virtual;
+    procedure Redraw;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -125,14 +125,14 @@ type
 
     procedure SetNeedUpdateLayerSize; virtual;
 
-    procedure UpdateLayerSize; virtual;
-    procedure UpdateLayerSizeIfNeed; virtual;
+    procedure UpdateLayerSize;
+    procedure UpdateLayerSizeIfNeed; 
     procedure DoUpdateLayerSize(const ANewSize: TPoint); virtual;
     function GetLayerSizeForView(const ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
     function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; virtual; abstract;
-    procedure UpdateLayerLocationIfNeed; virtual;
-    procedure UpdateLayerLocation; virtual;
+    procedure UpdateLayerLocationIfNeed;
+    procedure UpdateLayerLocation;
     procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
   protected
     procedure SetNeedUpdateLocation;
