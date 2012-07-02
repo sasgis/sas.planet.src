@@ -41,7 +41,7 @@ type
     procedure OnConfigChange;
     procedure OnTimerEvent;
   protected
-    function GetMapLayerLocationRect: TFloatRect; override;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure DoRedraw; override;
     function GetLayerSizeForView(
       const ANewVisualCoordConverter: ILocalCoordConverter
@@ -122,12 +122,14 @@ begin
   Result.Y := FConfig.Height;
 end;
 
-function TLayerStatBar.GetMapLayerLocationRect: TFloatRect;
+function TLayerStatBar.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 begin
-  Result.Left := 0;
-  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y;
-  Result.Right := Result.Left + Layer.Bitmap.Width;
-  Result.Top := Result.Bottom - Layer.Bitmap.Height;
+  if ANewVisualCoordConverter <> nil then begin
+    Result.Left := 0;
+    Result.Bottom := ANewVisualCoordConverter.GetLocalRectSize.Y;
+    Result.Right := Result.Left + Layer.Bitmap.Width;
+    Result.Top := Result.Bottom - Layer.Bitmap.Height;
+  end;
 end;
 
 function TLayerStatBar.GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;

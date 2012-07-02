@@ -93,7 +93,7 @@ type
     procedure SetLayerCoordConverter(
       const AValue: ILocalCoordConverter
     ); override;
-    function GetMapLayerLocationRect: TFloatRect; override;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure DoRedraw; override;
   public
     procedure StartThreads; override;
@@ -156,15 +156,17 @@ begin
   inherited Destroy;
 end;
 
-function TLayerScaleLine.GetMapLayerLocationRect: TFloatRect;
+function TLayerScaleLine.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 var
   VSize: TPoint;
 begin
-  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
-  Result.Left := 6;
-  Result.Bottom := ViewCoordConverter.GetLocalRectSize.Y - 6 - FConfig.BottomMargin;
-  Result.Right := Result.Left + VSize.X;
-  Result.Top := Result.Bottom - VSize.Y;
+  if ANewVisualCoordConverter <> nil then begin
+    VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+    Result.Left := 6;
+    Result.Bottom := ANewVisualCoordConverter.GetLocalRectSize.Y - 6 - FConfig.BottomMargin;
+    Result.Right := Result.Left + VSize.X;
+    Result.Top := Result.Bottom - VSize.Y;
+  end;
 end;
 
 procedure TLayerScaleLine.OnConfigChange;

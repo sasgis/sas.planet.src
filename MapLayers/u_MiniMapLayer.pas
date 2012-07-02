@@ -195,7 +195,7 @@ type
     property LayersSet: IMapTypeSet read GetLayersSet write SetLayersSet;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   protected
-    function GetMapLayerLocationRect: TFloatRect; override;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure DoShow; override;
     procedure DoHide; override;
     procedure DoRedraw; override;
@@ -795,17 +795,19 @@ begin
   end;
 end;
 
-function TMiniMapLayer.GetMapLayerLocationRect: TFloatRect;
+function TMiniMapLayer.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 var
   VSize: TPoint;
   VViewSize: TPoint;
 begin
-  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
-  VViewSize := ViewCoordConverter.GetLocalRectSize;
-  Result.Right := VViewSize.X;
-  Result.Bottom := VViewSize.Y - FConfig.BottomMargin;
-  Result.Left := Result.Right - VSize.X;
-  Result.Top := Result.Bottom - VSize.Y;
+  if ANewVisualCoordConverter <> nil then begin
+    VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+    VViewSize := ANewVisualCoordConverter.GetLocalRectSize;
+    Result.Right := VViewSize.X;
+    Result.Bottom := VViewSize.Y - FConfig.BottomMargin;
+    Result.Left := Result.Right - VSize.X;
+    Result.Top := Result.Bottom - VSize.Y;
+  end;
 end;
 
 procedure TMiniMapLayer.DoHide;

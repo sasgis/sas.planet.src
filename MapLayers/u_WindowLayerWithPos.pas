@@ -130,7 +130,7 @@ type
     procedure DoUpdateLayerSize(const ANewSize: TPoint); virtual;
     function GetLayerSizeForView(const ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected
-    function GetMapLayerLocationRect: TFloatRect; virtual; abstract;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; virtual; abstract;
     procedure UpdateLayerLocationIfNeed; virtual;
     procedure UpdateLayerLocation; virtual;
     procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
@@ -513,8 +513,11 @@ end;
 procedure TWindowLayerWithBitmap.SetViewCoordConverter(
   const AValue: ILocalCoordConverter
 );
+var
+  VLocalConverter: ILocalCoordConverter;
 begin
-  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+  VLocalConverter := ViewCoordConverter;
+  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
     SetNeedUpdateLocation;
   end;
   inherited;
@@ -524,7 +527,7 @@ procedure TWindowLayerWithBitmap.UpdateLayerLocation;
 begin
   if Visible then begin
     FNeedUpdateLocationFlag.CheckFlagAndReset;
-    DoUpdateLayerLocation(GetMapLayerLocationRect);
+    DoUpdateLayerLocation(GetMapLayerLocationRect(ViewCoordConverter));
   end;
 end;
 

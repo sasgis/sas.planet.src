@@ -35,7 +35,7 @@ type
 
     FNeedUpdateLocationFlag: ISimpleFlag;
   protected
-    function GetMapLayerLocationRect: TFloatRect; virtual;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; virtual;
     procedure UpdateLayerLocationIfNeed; virtual;
     procedure UpdateLayerLocation; virtual;
     procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
@@ -94,7 +94,7 @@ type
     property Layer: TBitmapLayer read FLayer;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   protected
-    function GetMapLayerLocationRect: TFloatRect; override;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure DoViewUpdate; override;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     function GetLayerCoordConverterByViewConverter(
@@ -164,10 +164,10 @@ begin
   UpdateLayerLocationIfNeed;
 end;
 
-function TMapLayerBasicFullView.GetMapLayerLocationRect: TFloatRect;
+function TMapLayerBasicFullView.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 begin
-  if ViewCoordConverter <> nil then begin
-    Result := FloatRect(ViewCoordConverter.GetLocalRect);
+  if ANewVisualCoordConverter <> nil then begin
+    Result := FloatRect(ANewVisualCoordConverter.GetLocalRect);
   end else begin
     Result := FloatRect(0, 0, 0, 0);
   end;
@@ -187,8 +187,11 @@ end;
 procedure TMapLayerBasicFullView.SetViewCoordConverter(
   const AValue: ILocalCoordConverter
 );
+var
+  VLocalConverter: ILocalCoordConverter;
 begin
-  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+  VLocalConverter := ViewCoordConverter;
+  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
     SetNeedUpdateLocation;
   end;
   inherited;
@@ -198,7 +201,7 @@ procedure TMapLayerBasicFullView.UpdateLayerLocation;
 begin
   if Visible then begin
     FNeedUpdateLocationFlag.CheckFlagAndReset;
-    DoUpdateLayerLocation(GetMapLayerLocationRect);
+    DoUpdateLayerLocation(GetMapLayerLocationRect(ViewCoordConverter));
   end;
 end;
 
@@ -244,18 +247,16 @@ begin
   inherited;
 end;
 
-function TMapLayerBasic.GetMapLayerLocationRect: TFloatRect;
+function TMapLayerBasic.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 var
   VBitmapOnMapRect: TDoubleRect;
   VBitmapOnVisualRect: TDoubleRect;
   VBitmapConverter: ILocalCoordConverter;
-  VVisualConverter: ILocalCoordConverter;
 begin
   VBitmapConverter := LayerCoordConverter;
-  VVisualConverter := ViewCoordConverter;
-  if (VBitmapConverter <> nil) and (VVisualConverter <> nil) then begin
+  if (VBitmapConverter <> nil) and (ANewVisualCoordConverter <> nil) then begin
     VBitmapOnMapRect := VBitmapConverter.GetRectInMapPixelFloat;
-    VBitmapOnVisualRect := VVisualConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
+    VBitmapOnVisualRect := ANewVisualCoordConverter.MapRectFloat2LocalRectFloat(VBitmapOnMapRect);
     Result := FloatRect(VBitmapOnVisualRect.Left, VBitmapOnVisualRect.Top, VBitmapOnVisualRect.Right, VBitmapOnVisualRect.Bottom);
   end else begin
     Result := FloatRect(0, 0, 0, 0);
@@ -387,8 +388,11 @@ end;
 procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(
   const AValue: ILocalCoordConverter
 );
+var
+  VLocalConverter: ILocalCoordConverter;
 begin
-  if (ViewCoordConverter = nil) or (not ViewCoordConverter.GetIsSameConverter(AValue)) then begin
+  VLocalConverter := ViewCoordConverter;
+  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
   inherited;

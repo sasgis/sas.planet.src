@@ -19,7 +19,7 @@ type
     FMarker: IBitmapMarker;
     procedure OnConfigChange;
   protected
-    function GetMapLayerLocationRect: TFloatRect; override;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
   public
     procedure StartThreads; override;
@@ -54,16 +54,16 @@ begin
   );
 end;
 
-function TCenterScale.GetMapLayerLocationRect: TFloatRect;
+function TCenterScale.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 var
   VSize: TPoint;
   VViewSize: TPoint;
   VBitmap: IBitmapMarker;
 begin
   VBitmap := FMarker;
-  if VBitmap <> nil then begin
+  if (VBitmap <> nil) and (ANewVisualCoordConverter <> nil) then begin
     VSize := VBitmap.BitmapSize;
-    VViewSize := ViewCoordConverter.GetLocalRectSize;
+    VViewSize := ANewVisualCoordConverter.GetLocalRectSize;
     Result.Left := VViewSize.X / 2 - VBitmap.AnchorPoint.X;
     Result.Top := VViewSize.Y / 2 - VBitmap.AnchorPoint.Y;
     Result.Right := Result.Left + VSize.X;
