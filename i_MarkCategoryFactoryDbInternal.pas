@@ -39,7 +39,7 @@ type
 
 const
   CNotExistCategoryID = -1;
-  
+
 implementation
 
 end.

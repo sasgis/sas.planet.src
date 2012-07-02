@@ -74,7 +74,7 @@ begin
       VPostData :=
         TBinaryDataByMemStream.CreateFromMem(
           Length(APostData),
-          @APostData[1]
+          Addr(APostData[1])
         );
       VRequest :=
         TDownloadPostRequest.Create(

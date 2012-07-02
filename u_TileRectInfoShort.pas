@@ -164,7 +164,7 @@ begin
       FVersionInfo,
       FContentType,
       FTileRect,
-      @FItems[0],
+      Addr(FItems[0]),
       ATileIterator
     );
 end;
