@@ -23,7 +23,6 @@ unit u_MarkPictureSimple;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   i_SimpleFlag,

@@ -23,7 +23,6 @@ unit u_NotifyEventListener;
 interface
 
 uses
-  Windows,
   i_JclNotify,
   i_SimpleFlag,
   u_JclNotify;
