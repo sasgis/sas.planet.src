@@ -27,7 +27,7 @@ uses
   SyncObjs,
   Classes,
   Types,
-  i_JclNotify,
+  i_Notify,
   i_TileError,
   i_ThreadConfig,
   i_TileRequestResult,

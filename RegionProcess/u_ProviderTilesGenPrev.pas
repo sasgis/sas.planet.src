@@ -5,7 +5,7 @@ interface
 uses
   Types,
   Forms,
-  i_JclNotify,
+  i_Notify,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,

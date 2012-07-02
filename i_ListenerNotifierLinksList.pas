@@ -18,15 +18,15 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_JclListenerNotifierLinksList;
+unit i_ListenerNotifierLinksList;
 
 interface
 
 uses
-  i_JclNotify;
+  i_Notify;
 
 type
-  IJclListenerNotifierLinksList = interface
+  IListenerNotifierLinksList = interface
     ['{B197E296-150C-4961-9370-1BF73F0B8BB6}']
     procedure Add(
       const AListener: IListener;
@@ -39,4 +39,5 @@ type
 implementation
 
 end.
+
 

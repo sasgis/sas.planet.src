@@ -6,7 +6,7 @@ uses
   Windows,
   Forms,
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier,
   i_LanguageManager,
   i_CoordConverter,

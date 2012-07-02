@@ -5,7 +5,7 @@ interface
 uses
   Types,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_TileKey,
   i_CoordConverter,
   i_TileRectUpdateNotifier;

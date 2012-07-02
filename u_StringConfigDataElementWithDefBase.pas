@@ -23,7 +23,7 @@ unit u_StringConfigDataElementWithDefBase;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_StringConfigDataElement,

@@ -8,7 +8,7 @@ uses
   GR32_Image,
   GR32_Layers,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_ThreadConfig,
   i_OperationNotifier,
   i_LocalCoordConverter,

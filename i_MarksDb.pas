@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_JclNotify,
+  i_Notify,
   t_GeoTypes,
   i_MarkCategory,
   i_MarkFactory,

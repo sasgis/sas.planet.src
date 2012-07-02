@@ -251,7 +251,6 @@
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_InvisibleBrowser.pas" />
     <DCCReference Include="i_ITileRequestProcessorPool.pas" />
-    <DCCReference Include="i_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
@@ -263,6 +262,7 @@
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
     <DCCReference Include="i_LayerDrawConfig.pas" />
     <DCCReference Include="i_LineOnMapEdit.pas" />
+    <DCCReference Include="i_ListenerNotifierLinksList.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
@@ -324,6 +324,7 @@
     <DCCReference Include="i_MouseHandler.pas" />
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
+    <DCCReference Include="i_Notify.pas" />
     <DCCReference Include="i_OperationNotifier.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
@@ -745,7 +746,6 @@
     <DCCReference Include="u_InternalPerformanceCounter.pas" />
     <DCCReference Include="u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas" />
-    <DCCReference Include="u_JclListenerNotifierLinksList.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
     <DCCReference Include="u_KmlInfoSimpleParser.pas" />
@@ -763,6 +763,7 @@
     <DCCReference Include="u_LayerBitmapClearStrategyFactory.pas" />
     <DCCReference Include="u_LayerDrawConfig.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
+    <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
@@ -857,6 +858,7 @@
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
+    <DCCReference Include="u_Notify.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_OperationNotifier.pas" />

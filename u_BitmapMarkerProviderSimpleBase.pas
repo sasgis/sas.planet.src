@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_BitmapMarker,
   i_BitmapMarkerProviderSimpleConfig;
 
@@ -101,7 +101,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_JclNotify,
+  u_Notify,
   u_NotifyEventListener,
   u_GeoFun;
 
@@ -206,7 +206,7 @@ begin
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigChangeListener);
 
-  FChangeNotifier := TJclBaseNotifier.Create;
+  FChangeNotifier := TBaseNotifier.Create;
   OnConfigChange;
 end;
 
@@ -249,5 +249,6 @@ begin
 end;
 
 end.
+
 
 

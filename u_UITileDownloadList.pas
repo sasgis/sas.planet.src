@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_JclNotify,
+  i_Notify,
   i_DownloadUIConfig,
   i_ViewPortState,
   i_ActiveMapsConfig,

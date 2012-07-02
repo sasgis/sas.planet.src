@@ -15,8 +15,8 @@ uses
   ExtCtrls,
   StdCtrls,
   GR32_Image,
-  i_JclNotify,
-  i_JclListenerNotifierLinksList,
+  i_Notify,
+  i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_Sensor,
   i_SatellitesInViewMapDraw,
@@ -40,7 +40,7 @@ type
     FGpsSatellitesSensor: ISensorGPSSatellites;
     FMapDraw: ISatellitesInViewMapDraw;
 
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
     FValueChangeId: Integer;
     FValueShowId: Integer;
 
@@ -61,7 +61,7 @@ implementation
 
 uses
   i_GPS,
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_NotifyEventListener;
 
 {$R *.dfm}
@@ -80,7 +80,7 @@ begin
 
   pnlSatInfoLegend.Visible := AShowLegend;
 
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
@@ -139,4 +139,6 @@ begin
 end;
 
 end.
+
+
 

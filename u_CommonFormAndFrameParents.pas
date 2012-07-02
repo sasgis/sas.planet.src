@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   Forms,
-  i_JclNotify,
+  i_Notify,
   i_LanguageManager;
 
 type

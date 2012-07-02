@@ -23,7 +23,7 @@ unit u_SensorTextFromNavToPoint;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_NavigationToPoint,
   i_ViewPortState,
   i_Sensor,
@@ -57,7 +57,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   u_NotifyEventListener,
-  u_JclNotify;
+  u_Notify;
 
 { TSensorTextFromNavToPoint }
 
@@ -66,7 +66,7 @@ constructor TSensorTextFromNavToPoint.Create(
   const ANavigationToPoint: INavigationToPoint
 );
 begin
-  FSourceDataUpdateNotifier := TJclBaseNotifier.Create;
+  FSourceDataUpdateNotifier := TBaseNotifier.Create;
   inherited Create(FSourceDataUpdateNotifier);
   FViewPortState := AViewPortState;
   FNavigationToPoint := ANavigationToPoint;
@@ -128,4 +128,5 @@ begin
 end;
 
 end.
+
 

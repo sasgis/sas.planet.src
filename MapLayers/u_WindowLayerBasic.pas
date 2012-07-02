@@ -4,15 +4,15 @@ interface
 
 uses
   i_InternalPerformanceCounter,
-  i_JclListenerNotifierLinksList;
+  i_ListenerNotifierLinksList;
 
 type
   TWindowLayerAbstract = class
   private
     FPerfList: IInternalPerformanceCounterList;
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
   protected
-    property LinksList: IJclListenerNotifierLinksList read FLinksList;
+    property LinksList: IListenerNotifierLinksList read FLinksList;
     property PerfList: IInternalPerformanceCounterList read FPerfList;
   public
     constructor Create(const APerfList: IInternalPerformanceCounterList);
@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  u_JclListenerNotifierLinksList;
+  u_ListenerNotifierLinksList;
 
 { TWindowLayerAbstract }
 
@@ -34,7 +34,7 @@ constructor TWindowLayerAbstract.Create(
 begin
   inherited Create;
   FPerfList := APerfList.CreateAndAddNewSubList(ClassName);
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
 end;
 
 destructor TWindowLayerAbstract.Destroy;
@@ -54,3 +54,5 @@ begin
 end;
 
 end.
+
+

@@ -3,7 +3,7 @@ unit i_BitmapLayerProviderWithListener;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_LocalCoordConverter,
   i_BitmapLayerProvider;
 

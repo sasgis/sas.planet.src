@@ -27,7 +27,7 @@ uses
   SyncObjs,
   Classes,
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_LogSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

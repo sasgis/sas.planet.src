@@ -23,7 +23,7 @@ unit u_BitmapMarkerProviderChangeableFaked;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_BitmapMarker;
 
 type
@@ -43,7 +43,7 @@ type
 implementation
 
 uses
-  u_JclNotify;
+  u_Notify;
 
 { TBitmapMarkerProviderChangeableFaked }
 
@@ -53,7 +53,7 @@ constructor TBitmapMarkerProviderChangeableFaked.Create(
 begin
   inherited Create;
   FProviderStatic := AProviderStatic;
-  FChangeNotifier := TJclBaseNotifierFaked.Create;
+  FChangeNotifier := TBaseNotifierFaked.Create;
 end;
 
 function TBitmapMarkerProviderChangeableFaked.GetChangeNotifier: INotifier;
@@ -67,4 +67,5 @@ begin
 end;
 
 end.
+
 

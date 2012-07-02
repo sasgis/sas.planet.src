@@ -27,7 +27,7 @@ uses
   Classes,
   SysUtils,
   GR32,
-  i_JclNotify,
+  i_Notify,
   i_BinaryData,
   i_FillingMapColorer,
   i_OperationNotifier,

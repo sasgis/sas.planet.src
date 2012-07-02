@@ -23,7 +23,7 @@ unit i_TileErrorLogProviedrStuped;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_TileError;
 
 type

@@ -23,36 +23,36 @@ unit u_NotifyEventListener;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_SimpleFlag,
-  u_JclNotify;
+  u_Notify;
 
 type
   TNotifyListenerNoMmgEvent = procedure of object;
   TNotifyListenerEvent = procedure(const AMsg: IInterface) of object;
 
-  TNotifyEventListener = class(TJclBaseListener, IListenerDisconnectable)
+  TNotifyEventListener = class(TInterfacedObject, IListener, IListenerDisconnectable)
   private
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
   protected
-    procedure Notification(const AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface);
   protected
-    procedure Disconnect; stdcall;
+    procedure Disconnect;
   public
     constructor Create(AEvent: TNotifyListenerEvent);
   end;
 
-  TNotifyNoMmgEventListener = class(TJclBaseListener)
+  TNotifyNoMmgEventListener = class(TInterfacedObject, IListener)
   private
     FEvent: TNotifyListenerNoMmgEvent;
   protected
-    procedure Notification(const AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface);
   public
     constructor Create(AEvent: TNotifyListenerNoMmgEvent);
   end;
 
-  TNotifyEventListenerSync = class(TJclBaseListener)
+  TNotifyEventListenerSync = class(TInterfacedObject, IListener)
   private
     FTimerNoifier: INotifier;
     FTimerListener: IListener;
@@ -61,7 +61,7 @@ type
     FEvent: TNotifyListenerNoMmgEvent;
     procedure OnTimer;
   protected
-    procedure Notification(const AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface);
   public
     constructor Create(
       const ATimerNoifier: INotifier;

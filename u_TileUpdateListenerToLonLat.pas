@@ -3,21 +3,28 @@ unit u_TileUpdateListenerToLonLat;
 interface
 
 uses
+  i_Notify,
+  i_SimpleFlag,
   i_CoordConverter,
   u_NotifyEventListener;
 
 type
-  TTileUpdateListenerToLonLat = class(TNotifyEventListener)
+  TTileUpdateListenerToLonLat = class(TInterfacedObject, IListener, IListenerDisconnectable)
   private
+    FDisconnectFlag: ISimpleFlag;
+    FEvent: TNotifyListenerEvent;
     FCoordConverter: ICoordConverter;
   protected
-    procedure Notification(const AMsg: IInterface); override;
+    procedure Notification(const AMsg: IInterface);
+  protected
+    procedure Disconnect;
   public
     constructor Create(
       const ACoordConverter: ICoordConverter;
       AEvent: TNotifyListenerEvent
     );
   end;
+
 implementation
 
 uses
@@ -25,7 +32,8 @@ uses
   SysUtils,
   i_TileKey,
   i_LonLatRect,
-  u_LonLatRect;
+  u_LonLatRect,
+  u_SimpleFlagWithInterlock;
 
 { TTileUpdateListenerToLonLat }
 
@@ -34,8 +42,16 @@ constructor TTileUpdateListenerToLonLat.Create(
   AEvent: TNotifyListenerEvent
 );
 begin
-  inherited Create(AEvent);
+  inherited Create;
+  FEvent := AEvent;
+  FDisconnectFlag := TSimpleFlagWithInterlock.Create;
+  Assert(Assigned(FEvent));
   FCoordConverter := ACoordConverter;
+end;
+
+procedure TTileUpdateListenerToLonLat.Disconnect;
+begin
+  FDisconnectFlag.SetFlag;
 end;
 
 procedure TTileUpdateListenerToLonLat.Notification(const AMsg: IInterface);
@@ -45,14 +61,16 @@ var
   VTile: TPoint;
   VZoom: Byte;
 begin
-  if Supports(AMsg, ITileKey, VTileKey) then begin
-    VTile := VTileKey.Tile;
-    VZoom := VTileKey.Zoom;
-    FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
-    VLonLatRect := TLonLatRect.Create(FCoordConverter.TilePos2LonLatRect(VTile, VZoom));
-    inherited Notification(VLonLatRect);
-  end else begin
-    inherited Notification(nil);
+  if not FDisconnectFlag.CheckFlag then begin
+    if Supports(AMsg, ITileKey, VTileKey) then begin
+      VTile := VTileKey.Tile;
+      VZoom := VTileKey.Zoom;
+      FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
+      VLonLatRect := TLonLatRect.Create(FCoordConverter.TilePos2LonLatRect(VTile, VZoom));
+      FEvent(VLonLatRect);
+    end else begin
+      FEvent(nil);
+    end;
   end;
 end;
 

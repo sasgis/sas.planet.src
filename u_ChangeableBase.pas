@@ -3,7 +3,7 @@ unit u_ChangeableBase;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_Changeable;
 
 type
@@ -30,16 +30,16 @@ type
 implementation
 
 uses
-  u_JclNotify;
+  u_Notify;
 
 { TChangeableBase }
 
 constructor TChangeableBase.Create;
 begin
   inherited Create;
-  FBeforeChangeNotifier := TJclBaseNotifier.Create;
-  FChangeNotifier := TJclBaseNotifier.Create;
-  FAfterChangeNotifier := TJclBaseNotifier.Create;
+  FBeforeChangeNotifier := TBaseNotifier.Create;
+  FChangeNotifier := TBaseNotifier.Create;
+  FAfterChangeNotifier := TBaseNotifier.Create;
 end;
 
 destructor TChangeableBase.Destroy;
@@ -91,4 +91,5 @@ begin
 end;
 
 end.
+
 

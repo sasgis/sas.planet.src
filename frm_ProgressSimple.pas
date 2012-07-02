@@ -31,7 +31,7 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
-  i_JclNotify,
+  i_Notify,
   i_RegionProcessProgressInfo,
   u_OperationNotifier,
   u_CommonFormAndFrameParents;

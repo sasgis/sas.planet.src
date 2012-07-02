@@ -27,7 +27,7 @@ uses
   SysUtils,
   uPSRuntime,
   uPSUtils,
-  i_JclNotify,
+  i_Notify,
   i_CoordConverter,
   i_OperationNotifier,
   i_TileDownloaderConfig,

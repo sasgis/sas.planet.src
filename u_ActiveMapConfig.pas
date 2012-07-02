@@ -25,7 +25,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_GUIDSet,
   i_MapTypes,
   i_ActiveMapsConfig,

@@ -25,7 +25,7 @@ interface
 uses
   Types,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
@@ -149,7 +149,7 @@ uses
   Windows,
   u_Synchronizer,
   ShLwApi,
-  u_JclNotify,
+  u_Notify,
   u_NotifyEventListener;
 
 { TMapTypeCacheConfigAbstract }
@@ -162,7 +162,7 @@ begin
   inherited Create;
   FConfig := AConfig;
   FGlobalCacheConfig := AGlobalCacheConfig;
-  FConfigChangeNotifier := TJclBaseNotifier.Create;
+  FConfigChangeNotifier := TBaseNotifier.Create;
 
   FGlobalSettingsListener := TNotifyNoMmgEventListener.Create(Self.OnSettingsEdit);
   FGlobalCacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);
@@ -449,5 +449,6 @@ begin
 end;
 
 end.
+
 
 

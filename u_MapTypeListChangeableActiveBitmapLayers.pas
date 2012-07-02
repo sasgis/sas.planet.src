@@ -3,7 +3,7 @@ unit u_MapTypeListChangeableActiveBitmapLayers;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeListChangeable,

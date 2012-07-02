@@ -25,7 +25,7 @@ interface
 uses
   SysUtils,
   Contnrs,
-  i_JclNotify,
+  i_Notify,
   i_Changeable,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

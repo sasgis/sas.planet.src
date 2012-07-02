@@ -24,7 +24,7 @@ interface
 
 uses
   Forms,
-  i_JclNotify,
+  i_Notify,
   i_MapTypes,
   i_VectorItemLonLat,
   i_VectorItmesFactory,

@@ -5,7 +5,7 @@ interface
 uses
   Types,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier,
   i_CoordConverter,
   i_Bitmap32Static,

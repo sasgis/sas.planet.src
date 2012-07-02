@@ -23,7 +23,7 @@ unit u_UserInterfaceItemBase;
 interface
 
 uses
-  i_JclListenerNotifierLinksList,
+  i_ListenerNotifierLinksList,
   i_StringConfigDataElement,
   u_ConfigDataElementBase;
 
@@ -35,10 +35,10 @@ type
     FDescription: IStringConfigDataElement;
     FMenuItemName: IStringConfigDataElement;
 
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
     procedure OnTextChange;
   protected
-    property LinksList: IJclListenerNotifierLinksList read FLinksList;
+    property LinksList: IListenerNotifierLinksList read FLinksList;
   protected
     function GetGUID: TGUID;
     function GetCaption: string;
@@ -56,7 +56,7 @@ type
 implementation
 
 uses
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_NotifyEventListener;
 
 { TUserInterfaceItemBase }
@@ -73,7 +73,7 @@ begin
   FCaption := ACaption;
   FDescription := ADescription;
   FMenuItemName := AMenuItemName;
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTextChange),
     FCaption.ChangeNotifier
@@ -121,3 +121,5 @@ begin
 end;
 
 end.
+
+

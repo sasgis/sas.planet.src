@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,

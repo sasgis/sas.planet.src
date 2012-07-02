@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_TileDownloaderConfig,
   i_TileDownloader,
   i_DownloadResultFactory,
@@ -56,7 +56,7 @@ uses
   u_Synchronizer,
   i_TileDownloadRequestBuilder,
   i_Downloader,
-  u_JclNotify,
+  u_Notify,
   u_NotifyEventListener,
   u_LastResponseInfo,
   u_TileDownloadRequestBuilderLazy,
@@ -85,7 +85,7 @@ begin
   FResultSaver := AResultSaver;
   FRequestBuilderFactory := ARequestBuilderFactory;
 
-  FChangeNotifier := TJclBaseNotifier.Create;
+  FChangeNotifier := TBaseNotifier.Create;
   FCS := MakeSyncRW_Var(Self);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
@@ -220,5 +220,6 @@ begin
 end;
 
 end.
+
 
 

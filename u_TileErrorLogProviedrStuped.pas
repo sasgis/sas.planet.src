@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_TileError,
   i_TileErrorLogProviedrStuped;
 
@@ -48,7 +48,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_JclNotify;
+  u_Notify;
 
 { TTileErrorLogProviedrStuped }
 
@@ -56,7 +56,7 @@ constructor TTileErrorLogProviedrStuped.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Var(Self, False);
-  FNotifier := TJclBaseNotifier.Create;
+  FNotifier := TBaseNotifier.Create;
 end;
 
 destructor TTileErrorLogProviedrStuped.Destroy;
@@ -93,4 +93,5 @@ begin
 end;
 
 end.
+
 

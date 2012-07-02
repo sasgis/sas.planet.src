@@ -40,7 +40,7 @@ uses
   wininet,
   GR32,
   u_CommonFormAndFrameParents,
-  i_JclListenerNotifierLinksList,
+  i_ListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
   i_LanguageManager,
@@ -262,7 +262,7 @@ type
     procedure FormHide(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
     frMapsList: TfrMapsList;
     frGpsSatellites: TfrGpsSatellites;
@@ -306,7 +306,7 @@ uses
 {$else}
   vsagps_com_checker,
 {$ifend}
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_GlobalState,
   u_ResStrings;
 
@@ -327,7 +327,7 @@ begin
   FAutodetecting:=FALSE;
   FMapTypeEditor := AMapTypeEditor;
   FOnSave := AOnSave;
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
   frShortCutList :=
     TfrShortCutList.Create(
       ALanguageManager,
@@ -1043,4 +1043,6 @@ begin
 end;
 
 end.
+
+
 

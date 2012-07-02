@@ -23,7 +23,7 @@ unit u_ValueToStringConverterConfig;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   t_CommonTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,

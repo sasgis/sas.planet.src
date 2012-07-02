@@ -57,7 +57,7 @@ uses
   Math,
   SysUtils,
   GR32_Resamplers,
-  i_JclNotify,
+  i_Notify,
   i_CoordConverter,
   u_NotifyEventListener,
   u_GeoFun;

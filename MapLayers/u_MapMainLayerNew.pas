@@ -4,7 +4,7 @@ interface
 
 uses
   GR32_Image,
-  i_JclNotify,
+  i_Notify,
   i_TileError,
   i_BitmapPostProcessingConfig,
   i_ActiveMapsConfig,

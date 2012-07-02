@@ -27,7 +27,7 @@ uses
   Classes,
   TB2Item,
   TBX,
-  i_JclNotify,
+  i_Notify,
   i_ActiveMapsConfig;
 
 type

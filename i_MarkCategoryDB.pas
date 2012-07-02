@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_JclNotify,
+  i_Notify,
   i_MarkCategory,
   i_MarkCategoryFactory;
 

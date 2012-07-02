@@ -32,7 +32,7 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
-  i_JclNotify,
+  i_Notify,
   t_GeoTypes,
   i_OperationNotifier,
   i_MapTypes,

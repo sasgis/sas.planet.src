@@ -23,7 +23,7 @@ unit u_DownloadResultTextProvider;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_LanguageManager,
   i_DownloadResultTextProvider;
 

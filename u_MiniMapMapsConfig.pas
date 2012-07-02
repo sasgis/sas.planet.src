@@ -23,7 +23,7 @@ unit u_MiniMapMapsConfig;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_ActiveMapsConfig,
   i_MapTypes,
   i_MiniMapLayerConfig,

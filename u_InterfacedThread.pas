@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_ThreadConfig,
   i_Thread;
 

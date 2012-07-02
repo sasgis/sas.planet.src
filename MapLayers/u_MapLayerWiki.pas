@@ -28,7 +28,7 @@ uses
   Classes,
   GR32,
   GR32_Image,
-  i_JclNotify,
+  i_Notify,
   u_MapType,
   u_MapLayerBasic,
   t_GeoTypes,

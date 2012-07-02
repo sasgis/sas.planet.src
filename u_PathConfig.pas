@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  i_JclNotify,
+  i_Notify,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_PathConfig,

@@ -23,8 +23,8 @@ unit u_NotifyWithGUIDEvent;
 interface
 
 uses
-  i_JclNotify,
-  u_JclNotify;
+  i_Notify,
+  u_Notify;
 
 type
   TNotifyWithGUIDEvent = procedure(const AGUID: TGUID) of object;
@@ -46,11 +46,11 @@ type
   end;
 
 type
-  TNotifyWithGUIDEventListener = class(TJclBaseListener)
+  TNotifyWithGUIDEventListener = class(TInterfacedObject, IListener)
   private
     FEvent: TNotifyWithGUIDEvent;
   protected
-    procedure Notification(const msg: IInterface); override;
+    procedure Notification(const msg: IInterface);
   public
     constructor Create(AEvent: TNotifyWithGUIDEvent);
   end;
@@ -62,7 +62,7 @@ type
   end;
 
 type
-  TNotifierWithGUID = class(TJclBaseNotifier, INotifierWithGUID)
+  TNotifierWithGUID = class(TBaseNotifier, INotifierWithGUID)
   protected
     procedure NotifyByGUID(const AGUID: TGUID); stdcall;
   end;
@@ -108,4 +108,5 @@ begin
 end;
 
 end.
+
 

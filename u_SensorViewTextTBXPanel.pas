@@ -31,8 +31,8 @@ uses
   TB2Dock,
   TBX,
   TBXControls,
-  i_JclNotify,
-  i_JclListenerNotifierLinksList,
+  i_Notify,
+  i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_SatellitesInViewMapDraw,
   i_ValueToStringConverter,
@@ -50,7 +50,7 @@ type
     FParentMenu: TTBCustomItem;
     FImages: TCustomImageList;
     FImageIndexReset: TImageIndex;
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
 
     FBar: TTBXToolWindow;
     FpnlTop: TTBXAlignmentPanel;
@@ -300,7 +300,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_GPS,
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_NotifyEventListener,
   u_GeoFun,
   u_GeoToStr,
@@ -332,7 +332,7 @@ begin
   FImages := AImages;
   FImageIndexReset := AImageIndexReset;
 
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -1080,4 +1080,6 @@ begin
 end;
 
 end.
+
+
 

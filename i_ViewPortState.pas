@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_JclNotify,
+  i_Notify,
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,

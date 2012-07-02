@@ -3,7 +3,7 @@ unit i_Changeable;
 interface
 
 uses
-  i_JclNotify;
+  i_Notify;
 
 type
   IChangeable = interface

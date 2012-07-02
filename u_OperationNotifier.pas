@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier;
 
 type
@@ -72,7 +72,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_JclNotify;
+  u_Notify;
 
 { TOperationNotifier }
 
@@ -80,7 +80,7 @@ constructor TOperationNotifier.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
-  FNotifier := TJclBaseNotifier.Create;
+  FNotifier := TBaseNotifier.Create;
   FCurrentOperationID := 0;
 end;
 
@@ -142,7 +142,7 @@ end;
 constructor TOneOperationNotifier.Create;
 begin
   FCS := MakeSyncRW_Std(Self, TRUE);
-  FNotifier := TJclBaseNotifier.Create;
+  FNotifier := TBaseNotifier.Create;
 end;
 
 procedure TOneOperationNotifier.AddListener(AListener: IListener);
@@ -196,5 +196,6 @@ begin
 end;
 
 end.
+
 
 

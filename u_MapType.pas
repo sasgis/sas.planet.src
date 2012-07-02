@@ -28,7 +28,7 @@ uses
   Classes,
   GR32,
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_Bitmap32Static,
   i_FillingMapColorer,
   i_ThreadConfig,

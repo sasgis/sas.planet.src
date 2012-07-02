@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier,
   i_CoordConverterFactory,
   i_CoordConverter,

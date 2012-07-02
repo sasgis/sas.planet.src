@@ -18,18 +18,18 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_JclListenerNotifierLinksList;
+unit u_ListenerNotifierLinksList;
 
 interface
 
 uses
   Classes,
   SysUtils,
-  i_JclNotify,
-  i_JclListenerNotifierLinksList;
+  i_Notify,
+  i_ListenerNotifierLinksList;
 
 type
-  TJclListenerNotifierLinksList = class(TInterfacedObject, IJclListenerNotifierLinksList)
+  TListenerNotifierLinksList = class(TInterfacedObject, IListenerNotifierLinksList)
   private
     FCS: IReadWriteSync;
     FLinksActive: Boolean;
@@ -57,9 +57,9 @@ implementation
 uses
   u_Synchronizer;
 
-{ TJclListenerNotifierLinksList }
+{ TListenerNotifierLinksList }
 
-constructor TJclListenerNotifierLinksList.Create;
+constructor TListenerNotifierLinksList.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Sym(Self, TRUE);
@@ -68,7 +68,7 @@ begin
   FLinksActive := False;
 end;
 
-destructor TJclListenerNotifierLinksList.Destroy;
+destructor TListenerNotifierLinksList.Destroy;
 begin
   FCS := nil;
   FListenerList := nil;
@@ -76,7 +76,7 @@ begin
   inherited;
 end;
 
-procedure TJclListenerNotifierLinksList.DoActivateLinks;
+procedure TListenerNotifierLinksList.DoActivateLinks;
 var
   i: Integer;
 begin
@@ -88,7 +88,7 @@ begin
   end;
 end;
 
-procedure TJclListenerNotifierLinksList.DoDeactivateLinks;
+procedure TListenerNotifierLinksList.DoDeactivateLinks;
 var
   i: Integer;
 begin
@@ -100,12 +100,12 @@ begin
   end;
 end;
 
-function TJclListenerNotifierLinksList.GetCount: Integer;
+function TListenerNotifierLinksList.GetCount: Integer;
 begin
   Result := FListenerList.Count;
 end;
 
-procedure TJclListenerNotifierLinksList.ActivateLink(AIndex: Integer);
+procedure TListenerNotifierLinksList.ActivateLink(AIndex: Integer);
 var
   VListener: IListener;
   VNotifier: INotifier;
@@ -118,7 +118,7 @@ begin
 end;
 
 
-procedure TJclListenerNotifierLinksList.ActivateLinks;
+procedure TListenerNotifierLinksList.ActivateLinks;
 begin
   FCS.BeginRead;
   try
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-procedure TJclListenerNotifierLinksList.Add(
+procedure TListenerNotifierLinksList.Add(
   const AListener: IListener;
   const ANotifier: INotifier
 );
@@ -149,7 +149,7 @@ begin
   end;
 end;
 
-procedure TJclListenerNotifierLinksList.DeactivateLink(AIndex: Integer);
+procedure TListenerNotifierLinksList.DeactivateLink(AIndex: Integer);
 var
   VListener: IListener;
   VNotifier: INotifier;
@@ -161,7 +161,7 @@ begin
   end;
 end;
 
-procedure TJclListenerNotifierLinksList.DeactivateLinks;
+procedure TListenerNotifierLinksList.DeactivateLinks;
 begin
   FCS.BeginRead;
   try
@@ -172,5 +172,7 @@ begin
 end;
 
 end.
+
+
 
 

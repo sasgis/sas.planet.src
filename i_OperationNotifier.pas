@@ -23,7 +23,7 @@ unit i_OperationNotifier;
 interface
 
 uses
-  i_JclNotify;
+  i_Notify;
 
 type
   IOperationNotifier = interface

@@ -31,7 +31,7 @@ uses
   Classes,
   IniFiles,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_GPSPositionFactory,
   i_LanguageManager,
   i_InetConfig,
@@ -239,7 +239,7 @@ uses
   {$IFDEF SasDebugWithJcl}
   Forms,
   {$ENDIF}
-  u_JclNotify,
+  u_Notify,
   c_InternalBrowser,
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
@@ -348,7 +348,7 @@ begin
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
 
-  FAppClosingNotifier := TJclBaseNotifier.Create;
+  FAppClosingNotifier := TBaseNotifier.Create;
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(
       FBaseConfigPath.FullPath,
@@ -371,7 +371,7 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-  FGUISyncronizedTimerNotifier := TJclBaseNotifier.Create;
+  FGUISyncronizedTimerNotifier := TBaseNotifier.Create;
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
   FGlobalInternetState := TGlobalInternetState.Create;
@@ -778,4 +778,5 @@ begin
 end;
 
 end.
+
 

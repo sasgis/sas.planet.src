@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier,
   i_TileRequest,
   i_MapVersionInfo;
@@ -42,7 +42,7 @@ type
 implementation
 
 uses
-  u_JclNotify;
+  u_Notify;
 
 { TTileRequest }
 
@@ -58,8 +58,8 @@ begin
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;
-  FFinishNotifier := TJclBaseNotifier.Create;
-  FStartNotifier := TJclBaseNotifier.Create;
+  FFinishNotifier := TBaseNotifier.Create;
+  FStartNotifier := TBaseNotifier.Create;
   FCancelNotifier := ACancelNotifier;
   FOperationID := AOperationID;
 end;
@@ -100,4 +100,5 @@ begin
 end;
 
 end.
+
 

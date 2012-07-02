@@ -60,11 +60,11 @@ uses
   TBXGraphics,
   TBXSASTheme,
   u_CommonFormAndFrameParents,
-  i_JclNotify,
+  i_Notify,
   i_GUIDSet,
   t_GeoTypes,
   t_FillingMapModes,
-  i_JclListenerNotifierLinksList,
+  i_ListenerNotifierLinksList,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_TileError,
@@ -566,7 +566,7 @@ type
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
     procedure tbitmFitEditToScreenClick(Sender: TObject);
   private
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
     FGpsPosChangeCounter: Integer;
     FCenterToGPSDelta: TDoublePoint;
@@ -718,7 +718,7 @@ uses
   c_ZeroGUID,
   c_SasVersion,
   c_InternalBrowser,
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_NotifyEventListener,
   i_Bitmap32Static,
@@ -848,7 +848,7 @@ begin
 
   LoadMapIconsList;
 
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnStateChange),
@@ -5778,6 +5778,8 @@ begin
 end;
 
 end.
+
+
 
 
 

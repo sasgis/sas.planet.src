@@ -23,7 +23,7 @@ unit i_GPSModule;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_GPS;
 
 type

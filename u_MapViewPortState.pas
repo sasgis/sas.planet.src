@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  i_JclNotify,
+  i_Notify,
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
@@ -109,7 +109,7 @@ implementation
 
 uses
   SysUtils,
-  u_JclNotify,
+  u_Notify,
   i_MapTypes,
   u_NotifyEventListener,
   u_GeoFun;
@@ -126,7 +126,7 @@ begin
   FPosChangeCounter := APerfCounterList.CreateAndAddNewCounter('PosChange');
   FScaleChangeCounter := APerfCounterList.CreateAndAddNewCounter('ScaleChange');
 
-  FScaleChangeNotifier := TJclBaseNotifier.Create;
+  FScaleChangeNotifier := TBaseNotifier.Create;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
   FMainCoordConverter := nil;
@@ -699,5 +699,6 @@ begin
 end;
 
 end.
+
 
 

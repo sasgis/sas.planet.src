@@ -27,7 +27,7 @@ uses
   ActiveX,
   Classes,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   t_GeoTypes,
   i_GPS,
   i_GPSPositionFactory,
@@ -208,7 +208,7 @@ implementation
 uses
   u_Synchronizer,
   vsagps_public_sats_info,
-  u_JclNotify;
+  u_Notify;
 
 { TGPSPositionUpdatable }
 
@@ -230,15 +230,15 @@ begin
   FSatellitesGL.Capacity := 24;
 
   FLastStaticPosition := nil;
-  FConnectErrorNotifier := TJclBaseNotifier.Create;
+  FConnectErrorNotifier := TBaseNotifier.Create;
 
-  FConnectingNotifier := TJclBaseNotifier.Create;
-  FConnectedNotifier := TJclBaseNotifier.Create;
-  FDisconnectingNotifier := TJclBaseNotifier.Create;
-  FDisconnectedNotifier := TJclBaseNotifier.Create;
+  FConnectingNotifier := TBaseNotifier.Create;
+  FConnectedNotifier := TBaseNotifier.Create;
+  FDisconnectingNotifier := TBaseNotifier.Create;
+  FDisconnectedNotifier := TBaseNotifier.Create;
 
-  FDataReciveNotifier := TJclBaseNotifier.Create;
-  FTimeOutNotifier := TJclBaseNotifier.Create;
+  FDataReciveNotifier := TBaseNotifier.Create;
+  FTimeOutNotifier := TBaseNotifier.Create;
 end;
 
 destructor TGPSModuleAbstract.Destroy;
@@ -891,4 +891,5 @@ begin
 end;
 
 end.
+
 

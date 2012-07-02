@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_JclNotify,
+  i_Notify,
   i_VectorItemLonLat,
   i_OperationNotifier,
   i_RegionProcessProgressInfo;

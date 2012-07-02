@@ -24,12 +24,12 @@ interface
 
 uses
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_GPS,
   i_StringConfigDataElement,
   i_Sensor,
   i_SensorList,
-  i_JclListenerNotifierLinksList,
+  i_ListenerNotifierLinksList,
   u_UserInterfaceItemBase,
   u_ConfigDataElementBase;
 
@@ -54,9 +54,9 @@ type
 
   TSensorBase = class(TConfigDataElementBaseEmptySaveLoad, ISensor)
   private
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
   protected
-    property LinksList: IJclListenerNotifierLinksList read FLinksList;
+    property LinksList: IListenerNotifierLinksList read FLinksList;
   protected
     function GetSensorTypeIID: TGUID; virtual; abstract;
   public
@@ -170,7 +170,7 @@ implementation
 uses
   Math,
   u_NotifyEventListener,
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_GeoFun;
 
 { TSensorBase }
@@ -179,7 +179,7 @@ constructor TSensorBase.Create;
 begin
   inherited Create;
 
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
   FLinksList.ActivateLinks;
 end;
 
@@ -531,4 +531,6 @@ begin
 end;
 
 end.
+
+
 

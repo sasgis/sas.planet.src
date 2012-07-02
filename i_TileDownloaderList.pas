@@ -3,7 +3,7 @@ unit i_TileDownloaderList;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_TileDownloader;
 
 type

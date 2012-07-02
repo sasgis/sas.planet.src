@@ -24,7 +24,7 @@ interface
 
 uses
   Windows,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier,
   i_ThreadConfig,
   i_BackgroundTask,

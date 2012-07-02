@@ -25,8 +25,8 @@ interface
 uses
   Windows,
   SysUtils,
-  i_JclNotify,
-  i_JclListenerNotifierLinksList,
+  i_Notify,
+  i_ListenerNotifierLinksList,
   i_GPSRecorder,
   i_GPSConfig,
   i_InternalPerformanceCounter,
@@ -47,7 +47,7 @@ type
     FGPSModuleByCOM: IGPSModuleByCOM;
 
     FCS: IReadWriteSync;
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
     FDataReciveNotifier: INotifier;
     FConnectingNotifier: INotifier;
     FConnectedNotifier: INotifier;
@@ -100,8 +100,8 @@ implementation
 
 uses
   i_GPS,
-  u_JclNotify,
-  u_JclListenerNotifierLinksList,
+  u_Notify,
+  u_ListenerNotifierLinksList,
   u_Synchronizer,
   u_NotifyEventListener;
 
@@ -119,7 +119,7 @@ begin
   FGPSModuleFactory := AGPSModuleFactory;
 
   FDataReceiveCounter := APerfCounterList.CreateAndAddNewCounter('GPS_Process');
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
   FCS := MakeSyncRW_Var(Self, False);
   FModuleState := msDisconnected;
   FWasError := False;
@@ -128,13 +128,13 @@ begin
   FInternalState := isDisconnected;
   FLastDataReceiveTick := 0;
 
-  FConnectingNotifier := TJclBaseNotifier.Create;
-  FConnectedNotifier := TJclBaseNotifier.Create;
-  FDisconnectingNotifier := TJclBaseNotifier.Create;
-  FDisconnectedNotifier := TJclBaseNotifier.Create;
-  FTimeOutNotifier := TJclBaseNotifier.Create;
-  FConnectErrorNotifier := TJclBaseNotifier.Create;
-  FDataReciveNotifier := TJclBaseNotifier.Create;
+  FConnectingNotifier := TBaseNotifier.Create;
+  FConnectedNotifier := TBaseNotifier.Create;
+  FDisconnectingNotifier := TBaseNotifier.Create;
+  FDisconnectedNotifier := TBaseNotifier.Create;
+  FTimeOutNotifier := TBaseNotifier.Create;
+  FConnectErrorNotifier := TBaseNotifier.Create;
+  FDataReciveNotifier := TBaseNotifier.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -479,4 +479,7 @@ begin
 end;
 
 end.
+
+
+
 

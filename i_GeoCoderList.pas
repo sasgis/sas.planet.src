@@ -24,7 +24,7 @@ interface
 
 uses
   ActiveX,
-  i_JclNotify,
+  i_Notify,
   i_GeoCoder;
 
 type

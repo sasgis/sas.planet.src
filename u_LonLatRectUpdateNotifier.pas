@@ -5,7 +5,7 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_LonLatRect,
   i_LonLatRectUpdateNotifier;
 

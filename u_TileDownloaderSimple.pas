@@ -6,7 +6,7 @@ uses
   Windows,
   SysUtils,
   SyncObjs,
-  i_JclNotify,
+  i_Notify,
   i_OperationNotifier,
   i_LastResponseInfo,
   i_Downloader,

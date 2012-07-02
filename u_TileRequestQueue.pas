@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_TileRequest,
   i_TileRequestQueue,
   i_TTLCheckListener,

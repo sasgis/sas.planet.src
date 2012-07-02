@@ -26,7 +26,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_MainMemCacheConfig,
   i_Bitmap32Static,
   i_MapVersionInfo,

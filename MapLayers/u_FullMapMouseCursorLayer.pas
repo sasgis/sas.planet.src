@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   GR32_Image,
-  i_JclNotify,
+  i_Notify,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_ViewPortState,

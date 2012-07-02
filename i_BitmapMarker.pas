@@ -24,7 +24,7 @@ interface
 
 uses
   GR32,
-  i_JclNotify,
+  i_Notify,
   t_GeoTypes,
   i_Bitmap32Static;
 

@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_Thread,
   i_ThreadConfig,
   i_TTLCheckListener,

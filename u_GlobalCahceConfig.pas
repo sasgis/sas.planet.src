@@ -23,7 +23,7 @@ unit u_GlobalCahceConfig;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
@@ -100,7 +100,7 @@ implementation
 
 uses
   SysUtils,
-  u_JclNotify;
+  u_Notify;
 
 { TGlobalCahceConfig }
 
@@ -111,7 +111,7 @@ begin
   inherited Create;
   FCacheGlobalPath := ACacheGlobalPath;
   FDefCache := c_File_Cache_Id_SAS;
-  FCacheChangeNotifier := TJclBaseNotifier.Create;
+  FCacheChangeNotifier := TBaseNotifier.Create;
   FOldCpath := 'cache_old' + PathDelim;
   FNewCpath := 'cache' + PathDelim;
   FESCpath := 'cache_ES' + PathDelim;
@@ -257,4 +257,5 @@ begin
 end;
 
 end.
+
 

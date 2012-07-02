@@ -24,7 +24,7 @@ interface
 
 uses
   ActiveX,
-  i_JclNotify,
+  i_Notify,
   i_GUIDListStatic,
   i_MapTypeHotKeyListStatic,
   i_MapTypeGUIConfigList,

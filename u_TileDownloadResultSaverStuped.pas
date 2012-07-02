@@ -6,7 +6,7 @@ uses
   Types,
   SysUtils,
   GR32,
-  i_JclNotify,
+  i_Notify,
   i_BinaryData,
   i_MapVersionInfo,
   i_ContentTypeInfo,

@@ -4,7 +4,7 @@ interface
 
 uses
   Forms,
-  i_JclNotify,
+  i_Notify,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_LanguageManager,

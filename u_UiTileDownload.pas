@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   t_CommonTypes,
   i_OperationNotifier,
   i_TTLCheckNotifier,
@@ -18,7 +18,7 @@ uses
   i_TileDownloaderState,
   i_GlobalInternetState,
   i_ViewPortState,
-  i_JclListenerNotifierLinksList,
+  i_ListenerNotifierLinksList,
   i_ActiveMapsConfig,
   i_LocalCoordConverter;
 
@@ -36,7 +36,7 @@ type
     FErrorLogger: ITileErrorLogger;
 
     FCS: IReadWriteSync;
-    FLinksList: IJclListenerNotifierLinksList;
+    FLinksList: IListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
     FTTLListener: ITTLCheckListener;
     FTileDownloadFinishListener: IListenerDisconnectable;
@@ -92,7 +92,7 @@ uses
   i_TileRequestResult,
   i_DownloadResult,
   i_CoordConverter,
-  u_JclListenerNotifierLinksList,
+  u_ListenerNotifierLinksList,
   u_NotifyEventListener,
   u_TTLCheckListener,
   u_TileIteratorSpiralByRect,
@@ -138,7 +138,7 @@ begin
   FCS := MakeSyncRW_Std(Self, False);
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
 
-  FLinksList := TJclListenerNotifierLinksList.Create;
+  FLinksList := TListenerNotifierLinksList.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -460,6 +460,8 @@ begin
 end;
 
 end.
+
+
 
 
 

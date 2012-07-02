@@ -41,7 +41,7 @@ uses
   TB2Item,
   TBX,
   TBXControls,
-  i_JclNotify,
+  i_Notify,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_LanguageManager,

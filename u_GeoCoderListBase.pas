@@ -25,7 +25,7 @@ interface
 uses
   SysUtils,
   ActiveX,
-  i_JclNotify,
+  i_Notify,
   i_GeoCoderList,
   i_GUIDSet;
 
@@ -50,7 +50,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_JclNotify,
+  u_Notify,
   u_GUIDInterfaceSet;
 
 { TGeoCoderListBase }
@@ -60,7 +60,7 @@ begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TGUIDInterfaceSet.Create(False);
-  FAddNotifier := TJclBaseNotifier.Create;
+  FAddNotifier := TBaseNotifier.Create;
 end;
 
 destructor TGeoCoderListBase.Destroy;
@@ -107,4 +107,5 @@ begin
 end;
 
 end.
+
 

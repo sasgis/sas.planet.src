@@ -23,7 +23,7 @@ unit i_TreeChangeable;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_StaticTreeItem;
 
 type

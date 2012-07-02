@@ -23,7 +23,7 @@ unit u_TreeByMapActiveMapsSet;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_StaticTreeItem,
   i_TreeChangeable,
   i_ActiveMapsConfig;
@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  u_JclNotify;
+  u_Notify;
 
 { TTreeByMapActiveMapsSet }
 
@@ -54,7 +54,7 @@ constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IActiveMapsSet);
 begin
   inherited Create;
   FMapsSet := AMapsSet;
-  FChangeNotifier := TJclBaseNotifier.Create;
+  FChangeNotifier := TBaseNotifier.Create;
   FStaticTree := CreateStatic;
 end;
 
@@ -74,4 +74,5 @@ begin
 end;
 
 end.
+
 

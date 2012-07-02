@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_ViewPortState,
   i_MapViewGoto;
 
@@ -67,7 +67,7 @@ implementation
 uses
   Math,
   SysUtils,
-  u_JclNotify,
+  u_Notify,
   u_GeoFun;
 
 { TMapViewGoto }
@@ -76,7 +76,7 @@ constructor TMapViewGoto.Create(const AViewPortState: IViewPortState);
 begin
   inherited Create;
   FViewPortState := AViewPortState;
-  FChangeNotifier := TJclBaseNotifier.Create;
+  FChangeNotifier := TBaseNotifier.Create;
   FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
 end;
 
@@ -136,4 +136,5 @@ begin
 end;
 
 end.
+
 

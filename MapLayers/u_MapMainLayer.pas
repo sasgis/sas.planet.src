@@ -27,7 +27,7 @@ uses
   SysUtils,
   GR32,
   GR32_Image,
-  i_JclNotify,
+  i_Notify,
   i_CoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,

@@ -7,7 +7,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_JclNotify,
+  i_Notify,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_ViewPortState,

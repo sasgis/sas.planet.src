@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_JclNotify;
+  i_Notify;
 
 type
   IGotoPosStatic = interface

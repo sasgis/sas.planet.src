@@ -4,7 +4,7 @@ interface
 
 uses
   Forms,
-  i_JclNotify,
+  i_Notify,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,

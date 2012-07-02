@@ -3,7 +3,7 @@ unit u_TileDownloaderWithQueue;
 interface
 
 uses
-  i_JclNotify,
+  i_Notify,
   i_ThreadConfig,
   i_TileRequest,
   i_TileRequestQueue,

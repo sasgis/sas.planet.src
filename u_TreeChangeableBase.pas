@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_JclNotify,
+  i_Notify,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
   i_TreeChangeable;
@@ -58,7 +58,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_JclNotify,
+  u_Notify,
   u_NotifyEventListener;
 
 { TTreeChangeableBase }
@@ -71,7 +71,7 @@ begin
   inherited Create;
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
-  FChangeNotifier := TJclBaseNotifier.Create;
+  FChangeNotifier := TBaseNotifier.Create;
   FCS := MakeSyncRW_Var(Self);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);
@@ -124,5 +124,6 @@ begin
 end;
 
 end.
+
 
 
