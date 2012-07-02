@@ -46,7 +46,7 @@ type
       TargetBitmap: TBitmap32
     );
     // gorizontal
-    procedure RedrawGorizontalScaleLegend;
+    procedure RedrawGorizontalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
     procedure DrawGorizontalScaleLegend(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
@@ -63,13 +63,16 @@ type
       AScalePos: Integer;
       ATargetBitmap: TBitmap32
     );
-    function GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
+    function GetMetersPerGorizontalLine(
+      const AVisualCoordConverter: ILocalCoordConverter;
+      ALineWidth: Integer
+    ): Double;
     procedure ModifyLenAndWidth(
       var ALen: Double;
       var AWidth: Integer
     );
     // vertical
-    procedure RedrawVerticalScaleLegend;
+    procedure RedrawVerticalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
     procedure DrawVerticalScaleLegend(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
@@ -85,6 +88,7 @@ type
       ATargetBitmap: TBitmap32
     );
     procedure GetMetersPerVerticalLine(
+      const AVisualCoordConverter: ILocalCoordConverter;
       ALineHeight: Integer;
       out AHalfLen: Double;
       out AFullLen: Double
@@ -233,18 +237,23 @@ begin
 end;
 
 procedure TLayerScaleLine.DoRedraw;
+var
+  VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
   Layer.Bitmap.Clear(0);
-  RedrawGorizontalScaleLegend;
-  if FConfig.Extended then begin
-    RedrawVerticalScaleLegend;
+  VVisualCoordConverter := LayerCoordConverter;
+  if VVisualCoordConverter <> nil then begin
+    RedrawGorizontalScaleLegend(VVisualCoordConverter);
+    if FConfig.Extended then begin
+      RedrawVerticalScaleLegend(VVisualCoordConverter);
+    end;
   end;
 end;
 
 {$REGION 'Gorizontal Scale Legend'}
 
-procedure TLayerScaleLine.RedrawGorizontalScaleLegend;
+procedure TLayerScaleLine.RedrawGorizontalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
 var
   VUnitsString: string;
   num: Double;
@@ -259,7 +268,7 @@ begin
 
   VValidLegendWidth := (FConfig.Width div 4) * 4;
 
-  num := GetMetersPerGorizontalLine(VValidLegendWidth);
+  num := GetMetersPerGorizontalLine(AVisualCoordConverter, VValidLegendWidth);
 
   if FConfig.NumbersFormat = slnfNice then begin
     ModifyLenAndWidth(Num, VValidLegendWidth);
@@ -385,18 +394,19 @@ begin
   ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
 end;
 
-function TLayerScaleLine.GetMetersPerGorizontalLine(ALineWidth: Integer): Double;
+function TLayerScaleLine.GetMetersPerGorizontalLine(
+  const AVisualCoordConverter: ILocalCoordConverter;
+  ALineWidth: Integer
+): Double;
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
   VStartPixel, VFinishPixel: TPoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
-  VVisualCoordConverter: ILocalCoordConverter;
 begin
-  VVisualCoordConverter := LayerCoordConverter;
-  VZoom := VVisualCoordConverter.GetZoom;
-  VConverter := VVisualCoordConverter.GetGeoConverter;
-  VStartPixel := PointFromDoublePoint(VVisualCoordConverter.GetCenterMapPixelFloat, prToTopLeft);
+  VZoom := AVisualCoordConverter.GetZoom;
+  VConverter := AVisualCoordConverter.GetGeoConverter;
+  VStartPixel := PointFromDoublePoint(AVisualCoordConverter.GetCenterMapPixelFloat, prToTopLeft);
   VFinishPixel := Point(VStartPixel.X + 1, VStartPixel.Y);
   VStartLonLat := VConverter.PixelPos2LonLat(VStartPixel, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(VFinishPixel, VZoom);
@@ -494,7 +504,7 @@ end;
 
 {$REGION 'Vertical Scale Legend'}
 
-procedure TLayerScaleLine.RedrawVerticalScaleLegend;
+procedure TLayerScaleLine.RedrawVerticalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
 var
   VUnitsString: string;
   VFullLenght, VHalfLenght: Double;
@@ -508,7 +518,7 @@ begin
 
   VValidLegendWidth := (FConfig.Width div 4) * 4;
 
-  GetMetersPerVerticalLine(VValidLegendWidth, VHalfLenght, VFullLenght);
+  GetMetersPerVerticalLine(AVisualCoordConverter, VValidLegendWidth, VHalfLenght, VFullLenght);
 
   if VFullLenght > 10000 then begin
     VFullLenght := VFullLenght / 1000;
@@ -623,6 +633,7 @@ begin
 end;
 
 procedure TLayerScaleLine.GetMetersPerVerticalLine(
+  const AVisualCoordConverter: ILocalCoordConverter;
   ALineHeight: Integer;
   out AHalfLen, AFullLen: Double
 );
@@ -631,15 +642,13 @@ var
   VCenterPixelXY: TPoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
-  VVisualCoordConverter: ILocalCoordConverter;
 begin
-  VVisualCoordConverter := LayerCoordConverter;
-  VZoom := VVisualCoordConverter.GetZoom;
-  VConverter := VVisualCoordConverter.GetGeoConverter;
+  VZoom := AVisualCoordConverter.GetZoom;
+  VConverter := AVisualCoordConverter.GetGeoConverter;
 
-  VCenterPixelXY := VVisualCoordConverter.LocalPixel2MapPixel(
-    VVisualCoordConverter.LonLat2LocalPixel(
-      VVisualCoordConverter.GetCenterLonLat
+  VCenterPixelXY := AVisualCoordConverter.LocalPixel2MapPixel(
+    AVisualCoordConverter.LonLat2LocalPixel(
+      AVisualCoordConverter.GetCenterLonLat
     )
   );
 
