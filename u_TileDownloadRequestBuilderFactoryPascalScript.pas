@@ -135,6 +135,7 @@ begin
 
     T := ACompiler.FindType('string');
     ACompiler.AddUsedVariable('ResultURL', t);
+    ACompiler.AddUsedVariable('PostData', t);
     ACompiler.AddUsedVariable('GetURLBase', t);
     ACompiler.AddUsedVariable('RequestHead', t);
     ACompiler.AddUsedVariable('ResponseHead', t);

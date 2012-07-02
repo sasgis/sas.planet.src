@@ -61,6 +61,7 @@ type
 
     FPSExec: TBasePascalScriptExec;
     FpResultUrl: PPSVariantAString;
+    FpPostData: PPSVariantAString;
     FpGetURLBase: PPSVariantAString;
     FpRequestHead: PPSVariantAString;
     FpResponseHead: PPSVariantAString;
@@ -118,7 +119,9 @@ implementation
 
 uses
   t_GeoTypes,
+  i_BinaryData,
   i_SimpleHttpDownloader,
+  u_BinaryDataByMemStream,
   u_NotifyEventListener,
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
@@ -185,6 +188,7 @@ function TTileDownloadRequestBuilderPascalScript.BuildRequest(
 ): ITileDownloadRequest;
 var
   VDownloaderConfig: ITileDownloaderConfigStatic;
+  VPostData: IBinaryData;
 begin
   Result := nil;
   if (ACancelNotifier <> nil) and (not ACancelNotifier.IsOperationCanceled(AOperationID)) then begin
@@ -208,14 +212,31 @@ begin
           raise;
         end;
         if FpResultUrl.Data <> '' then begin
-          Result :=
-            TTileDownloadRequest.Create(
-              FpResultUrl.Data,
-              FpRequestHead.Data,
-              VDownloaderConfig.InetConfigStatic,
-              FCheker,
-              ASource
-            );
+          if FpPostData.Data <> '' then begin
+              VPostData :=
+                TBinaryDataByMemStream.CreateFromMem(
+                  Length(FpPostData.Data),
+                  Addr(FpPostData.Data[1])
+                );
+              Result :=
+              TTileDownloadPostRequest.Create(
+                FpResultUrl.Data,
+                FpRequestHead.Data,
+                VPostData,
+                VDownloaderConfig.InetConfigStatic,
+                FCheker,
+                ASource
+              );
+          end else begin
+            Result :=
+              TTileDownloadRequest.Create(
+                FpResultUrl.Data,
+                FpRequestHead.Data,
+                VDownloaderConfig.InetConfigStatic,
+                FCheker,
+                ASource
+              );
+          end;
         end;
         FScriptBuffer := FpScriptBuffer.Data;
       end;
@@ -259,6 +280,7 @@ end;
 procedure TTileDownloadRequestBuilderPascalScript.RegisterAppVars;
 begin
   FpResultUrl := PPSVariantAString(FPSExec.GetVar2('ResultURL'));
+  FpPostData := PPSVariantAString(FPSExec.GetVar2('PostData'));
   FpGetURLBase := PPSVariantAString(FPSExec.GetVar2('GetURLBase'));
   FpGetURLBase.Data := '';
   FpRequestHead := PPSVariantAString(FPSExec.GetVar2('RequestHead'));
@@ -326,6 +348,7 @@ begin
   FpConverter.Data := FCoordConverter;
 
   FpResultUrl.Data := '';
+  FpPostData.Data := '';
   Config.LockRead;
   try
     FpGetURLBase.Data := Config.URLBase;

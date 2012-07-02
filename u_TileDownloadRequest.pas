@@ -23,6 +23,7 @@ unit u_TileDownloadRequest;
 interface
 
 uses
+  i_BinaryData,
   i_DownloadRequest,
   i_InetConfig,
   i_TileRequest,
@@ -37,18 +38,34 @@ type
     FInetConfig: IInetConfigStatic;
     FCheker: IDownloadChecker;
     FSource: ITileRequest;
-  protected
+  private
     function GetUrl: string;
     function GetRequestHeader: string;
     function GetInetConfig: IInetConfigStatic;
-  protected
+  private
     function GetSource: ITileRequest;
-  protected
+  private
     function GetChecker: IDownloadChecker;
   public
     constructor Create(
       const AUrl: string;
       const ARequestHeader: string;
+      const AInetConfig: IInetConfigStatic;
+      const ACheker: IDownloadChecker;
+      const ASource: ITileRequest
+    );
+  end;
+
+  TTileDownloadPostRequest = class(TTileDownloadRequest, IDownloadPostRequest)
+  private
+    FPostData: IBinaryData;
+  private
+    function GetPostData: IBinaryData;
+  public
+    constructor Create(
+      const AUrl: string;
+      const ARequestHeader: string;
+      const APostData: IBinaryData;
       const AInetConfig: IInetConfigStatic;
       const ACheker: IDownloadChecker;
       const ASource: ITileRequest
@@ -97,6 +114,28 @@ end;
 function TTileDownloadRequest.GetUrl: string;
 begin
   Result := FUrl;
+end;
+
+{ TTileDownloadPostRequest }
+
+constructor TTileDownloadPostRequest.Create(const AUrl, ARequestHeader: string;
+  const APostData: IBinaryData; const AInetConfig: IInetConfigStatic;
+  const ACheker: IDownloadChecker; const ASource: ITileRequest);
+begin
+  inherited Create(
+    AUrl,
+    ARequestHeader,
+    AInetConfig,
+    ACheker,
+    ASource
+  );
+  FPostData := APostData;
+  Assert(FPostData <> nil);
+end;
+
+function TTileDownloadPostRequest.GetPostData: IBinaryData;
+begin
+  Result := FPostData;
 end;
 
 end.
