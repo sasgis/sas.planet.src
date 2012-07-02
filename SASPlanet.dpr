@@ -229,6 +229,7 @@ uses
   i_DoublePointFilter in 'i_DoublePointFilter.pas',
   u_EnumDoublePointsByArray in 'u_EnumDoublePointsByArray.pas',
   u_EnumDoublePointFilterEqual in 'u_EnumDoublePointFilterEqual.pas',
+  u_EnumDoublePointClipInternal in 'u_EnumDoublePointClipInternal.pas',
   u_EnumDoublePointWithClip in 'u_EnumDoublePointWithClip.pas',
   u_EnumDoublePointFilterFirstSegment in 'u_EnumDoublePointFilterFirstSegment.pas',
   u_EnumDoublePointClosePoly in 'u_EnumDoublePointClosePoly.pas',

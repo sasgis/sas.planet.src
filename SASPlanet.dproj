@@ -656,6 +656,7 @@
     <DCCReference Include="u_ECWWrite.pas" />
     <DCCReference Include="u_EnumDoublePointByLineSet.pas" />
     <DCCReference Include="u_EnumDoublePointBySingleLine.pas" />
+    <DCCReference Include="u_EnumDoublePointClipInternal.pas" />
     <DCCReference Include="u_EnumDoublePointClosePoly.pas" />
     <DCCReference Include="u_EnumDoublePointFilterEqual.pas" />
     <DCCReference Include="u_EnumDoublePointFilterFirstSegment.pas" />
