@@ -52,7 +52,6 @@ uses
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
   u_ResStrings,
-  u_MapType,
   frm_ProgressSimple;
 
 

@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  Classes,
   i_JclNotify,
   i_SimpleFlag,
   u_JclNotify;
