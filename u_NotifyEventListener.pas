@@ -34,7 +34,7 @@ type
 
   TNotifyEventListener = class(TJclBaseListener, IJclListenerDisconnectable)
   private
-    FDisconnectCount: Integer;
+    FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
   protected
     procedure Notification(const AMsg: IInterface); override;
@@ -75,26 +75,26 @@ implementation
 
 uses
   u_SimpleFlagWithInterlock;
-  
+
 { TSimpleEventListener }
 
 constructor TNotifyEventListener.Create(AEvent: TNotifyListenerEvent);
 begin
   inherited Create;
   FEvent := AEvent;
-  FDisconnectCount := 0;
+  FDisconnectFlag := TSimpleFlagWithInterlock.Create;
   Assert(Assigned(FEvent));
 end;
 
 procedure TNotifyEventListener.Disconnect;
 begin
-  InterlockedIncrement(FDisconnectCount);
+  FDisconnectFlag.SetFlag;
 end;
 
 procedure TNotifyEventListener.Notification(const AMsg: IInterface);
 begin
   inherited;
-  if InterlockedCompareExchange(FDisconnectCount, 0, 0) = 0 then begin
+  if not FDisconnectFlag.CheckFlag then begin
     FEvent(AMsg);
   end;
 end;

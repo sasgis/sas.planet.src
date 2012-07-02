@@ -26,6 +26,7 @@ uses
   Windows,
   SysUtils,
   Classes,
+  i_SimpleFlag,
   i_BinaryData,
   i_BitmapMarker,
   i_BitmapTileSaveLoad,
@@ -42,7 +43,7 @@ type
     FSimpleMarkerProvider: IBitmapMarkerProvider;
     FSource: IBinaryData;
 
-    FInited: Integer;
+    FInitedFlag: ISimpleFlag;
     procedure InitPic;
   protected
     function GetMarker: IBitmapMarker;
@@ -69,6 +70,7 @@ uses
   t_GeoTypes,
   i_Bitmap32Static,
   u_BitmapMarker,
+  u_SimpleFlagWithInterlock,
   u_BinaryDataByMemStream,
   u_BitmapMarkerProviderStaticFromDataProvider;
 
@@ -85,7 +87,7 @@ begin
   FLoader := ALoader;
 
   FCS := MakeSyncRW_Sym(Self, False);
-  FInited := 0;
+  FInitedFlag := TSimpleFlagWithInterlock.Create;
 end;
 
 destructor TMarkPictureSimple.Destroy;
@@ -111,10 +113,10 @@ var
   VAnchor: TDoublePoint;
   VBaseMarker: IBitmapMarker;
 begin
-  if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
+  if not FInitedFlag.CheckFlag then begin
     FCS.BeginWrite;
     try
-      if InterlockedCompareExchange(FInited, 0, 0) = 0 then begin
+      if not FInitedFlag.CheckFlag then begin
         VMemStream := TMemoryStream.Create;
         try
           VMemStream.LoadFromFile(FFullFileName);
@@ -129,7 +131,7 @@ begin
         VAnchor.Y := VBitmap.Bitmap.Height;
         VBaseMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FSimpleMarkerProvider := TBitmapMarkerProviderStatic.Create(VBaseMarker);
-        InterlockedIncrement(FInited);
+        FInitedFlag.SetFlag;
       end;
     finally
       FCS.EndWrite;
