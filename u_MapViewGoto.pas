@@ -50,14 +50,14 @@ type
   private
     FViewPortState: IViewPortState;
     FLastGotoPos: IGotoPosStatic;
-    FChangeNotifier: IJclNotifier;
+    FChangeNotifier: INotifier;
   protected
     procedure GotoPos(
       const ALonLat: TDoublePoint;
       const AZoom: Byte
     );
     function GetLastGotoPos: IGotoPosStatic;
-    function GetChangeNotifier: IJclNotifier;
+    function GetChangeNotifier: INotifier;
   public
     constructor Create(const AViewPortState: IViewPortState);
   end;
@@ -80,7 +80,7 @@ begin
   FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
 end;
 
-function TMapViewGoto.GetChangeNotifier: IJclNotifier;
+function TMapViewGoto.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
@@ -136,3 +136,4 @@ begin
 end;
 
 end.
+

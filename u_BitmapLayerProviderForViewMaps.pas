@@ -27,12 +27,12 @@ type
     FMainMap: IMapType;
     FLayersList: IMapTypeListStatic;
 
-    FListener: IJclListener;
+    FListener: IListener;
     FListenLocalConverter: ILocalCoordConverter;
     FListenerCS: IReadWriteSync;
-    FMainMapListener: IJclListener;
-    FLayerListeners: array of IJclListener;
-    FVersionListener: IJclListener;
+    FMainMapListener: IListener;
+    FLayerListeners: array of IListener;
+    FVersionListener: IListener;
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
@@ -59,7 +59,7 @@ type
     ): IBitmap32Static;
   private
     procedure SetListener(
-      const AListener: IJclListener;
+      const AListener: IListener;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure RemoveListener;
@@ -255,7 +255,7 @@ end;
 
 procedure TBitmapLayerProviderForViewMaps.OnMapVersionChange;
 var
-  VListener: IJclListener;
+  VListener: IListener;
 begin
   FListenerCS.BeginRead;
   try
@@ -270,7 +270,7 @@ end;
 
 procedure TBitmapLayerProviderForViewMaps.OnTileUpdate(const AMsg: IInterface);
 var
-  VListener: IJclListener;
+  VListener: IListener;
   VLonLatRect: ILonLatRect;
 begin
   FListenerCS.BeginRead;
@@ -328,7 +328,7 @@ begin
 end;
 
 procedure TBitmapLayerProviderForViewMaps.SetListener(
-  const AListener: IJclListener;
+  const AListener: IListener;
   const ALocalConverter: ILocalCoordConverter
 );
 var
@@ -442,3 +442,4 @@ begin
 end;
 
 end.
+

@@ -39,7 +39,7 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AMainFormState: IMainFormState;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AMouseState: IMouseState;
       const AConfig: IFullMapMouseCursorLayerConfig
     );
@@ -57,7 +57,7 @@ constructor TFullMapMouseCursorLayer.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AMainFormState: IMainFormState;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AMouseState: IMouseState;
   const AConfig: IFullMapMouseCursorLayerConfig
 );
@@ -139,3 +139,4 @@ begin
 end;
 
 end.
+

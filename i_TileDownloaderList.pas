@@ -20,10 +20,11 @@ type
     ['{6271C038-A418-4FD8-B958-D1BA9B57A51F}']
     function GetStatic: ITileDownloaderListStatic;
 
-    function GetChangeNotifier: IJclNotifier;
-    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
+    function GetChangeNotifier: INotifier;
+    property ChangeNotifier: INotifier read GetChangeNotifier;
   end;
 
 implementation
 
 end.
+

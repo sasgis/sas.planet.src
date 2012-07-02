@@ -12,7 +12,7 @@ uses
 
 type
   TListenerRecord = record
-    Listener: IJclListener;
+    Listener: IListener;
     Rect: TRect;
   end;
 
@@ -29,10 +29,10 @@ type
     function GetZoom: Byte; stdcall;
 
     procedure Add(
-      const AListener: IJclListener;
+      const AListener: IListener;
       const ATileRect: TRect
     ); stdcall;
-    procedure Remove(const AListener: IJclListener); stdcall;
+    procedure Remove(const AListener: IListener); stdcall;
 
     procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;
   public
@@ -83,7 +83,7 @@ begin
 end;
 
 procedure TTileRectUpdateNotifier.Add(
-  const AListener: IJclListener;
+  const AListener: IListener;
   const ATileRect: TRect
 );
 var
@@ -125,7 +125,7 @@ begin
 end;
 
 procedure TTileRectUpdateNotifier.Remove(
-  const AListener: IJclListener
+  const AListener: IListener
 );
 var
   i: Integer;
@@ -177,3 +177,4 @@ begin
 end;
 
 end.
+

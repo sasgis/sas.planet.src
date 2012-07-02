@@ -33,12 +33,12 @@ type
   private
     FMapsSet: IActiveMapsSet;
     FStaticTree: IStaticTreeItem;
-    FChangeNotifier: IJclNotifier;
+    FChangeNotifier: INotifier;
   protected
     function CreateStatic: IStaticTreeItem;
   protected
     function GetStatic: IStaticTreeItem;
-    function GetChangeNotifier: IJclNotifier;
+    function GetChangeNotifier: INotifier;
   public
     constructor Create(const AMapsSet: IActiveMapsSet);
   end;
@@ -63,7 +63,7 @@ begin
   Result := nil;
 end;
 
-function TTreeByMapActiveMapsSet.GetChangeNotifier: IJclNotifier;
+function TTreeByMapActiveMapsSet.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
@@ -74,3 +74,4 @@ begin
 end;
 
 end.
+

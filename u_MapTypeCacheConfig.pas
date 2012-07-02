@@ -40,14 +40,14 @@ type
     FConfig: ISimpleTileStorageConfig;
 
     FGlobalCacheConfig: TGlobalCahceConfig;
-    FGlobalSettingsListener: IJclListener;
+    FGlobalSettingsListener: IListener;
     procedure OnSettingsEdit; virtual; abstract;
   protected
     FEffectiveCacheType: Byte;
     FBasePath: String;
     FFileNameGenerator: ITileFileNameGenerator;
 
-    FConfigChangeNotifier: IJclNotifier;
+    FConfigChangeNotifier: INotifier;
   public
     constructor Create(
       const AConfig: ISimpleTileStorageConfig;
@@ -59,7 +59,7 @@ type
       const Azoom: byte
     ): string; virtual;
 
-    property ConfigChangeNotifier: IJclNotifier read FConfigChangeNotifier;
+    property ConfigChangeNotifier: INotifier read FConfigChangeNotifier;
     property BasePath: string read FBasePath;
   end;
 
@@ -449,3 +449,5 @@ begin
 end;
 
 end.
+
+

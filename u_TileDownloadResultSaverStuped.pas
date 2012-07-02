@@ -34,7 +34,7 @@ type
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
 
-    FStorageStateListener: IJclListener;
+    FStorageStateListener: IListener;
 
     FState: ITileDownloaderStateChangeble;
     FStateInternal: ITileDownloaderStateInternal;
@@ -339,3 +339,4 @@ begin
 end;
 
 end.
+

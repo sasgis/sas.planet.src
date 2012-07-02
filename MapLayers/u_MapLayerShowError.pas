@@ -22,7 +22,7 @@ type
   TTileErrorInfoLayer = class(TMapLayerBasicNoBitmap)
   private
     FLogProvider: ITileErrorLogProviedrStuped;
-    FTimerNoifier: IJclNotifier;
+    FTimerNoifier: INotifier;
     FNeedUpdateFlag: ISimpleFlag;
 
     FHideAfterTime: Cardinal;
@@ -46,7 +46,7 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ALogProvider: ITileErrorLogProviedrStuped;
-      const ATimerNoifier: IJclNotifier
+      const ATimerNoifier: INotifier
     );
   end;
 
@@ -71,7 +71,7 @@ constructor TTileErrorInfoLayer.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ALogProvider: ITileErrorLogProviedrStuped;
-  const ATimerNoifier: IJclNotifier
+  const ATimerNoifier: INotifier
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -252,3 +252,4 @@ begin
 end;
 
 end.
+

@@ -65,7 +65,7 @@ type
     FProjectedCache: IIdCacheSimple;
     FPointsAgregatorThread: IDoublePointsAggregator;
     FPointsAgregatorGUI: IDoublePointsAggregator;
-    FTileChangeListener: IJclListener;
+    FTileChangeListener: IListener;
     FAllElements: IMapElementsGuidedList;
 
     FVectorMapsSet: IMapTypeSet;
@@ -134,7 +134,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AVectorItmesFactory: IVectorItmesFactory;
@@ -142,7 +142,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       const AErrorLogger: ITileErrorLogger;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AConfig: IKmlLayerConfig;
       const ALayersSet: IActiveMapsSet
     );
@@ -194,7 +194,7 @@ uses
 
 constructor TWikiLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AVectorItmesFactory: IVectorItmesFactory;
@@ -202,7 +202,7 @@ constructor TWikiLayer.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   const AErrorLogger: ITileErrorLogger;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AConfig: IKmlLayerConfig;
   const ALayersSet: IActiveMapsSet
 );
@@ -950,3 +950,5 @@ begin
 end;
 
 end.
+
+

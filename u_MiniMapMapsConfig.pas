@@ -33,9 +33,9 @@ type
   TMiniMapMapsConfig = class(TActivMapWithLayers, IMiniMapMapsConfig)
   private
     FActiveMiniMap: IMapType;
-    FSelectedMapChangeListener: IJclListener;
+    FSelectedMapChangeListener: IListener;
     FMainMapsConfig: IMainMapsConfig;
-    FMainMapChangeListener: IJclListener;
+    FMainMapChangeListener: IListener;
     function CreateMiniMapMapsSet: IMapTypeSet;
     function CreateMiniMapLayersSet: IMapTypeSet;
     procedure OnMainMapChange;
@@ -172,3 +172,4 @@ begin
 end;
 
 end.
+

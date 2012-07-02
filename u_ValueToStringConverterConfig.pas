@@ -35,7 +35,7 @@ type
   TValueToStringConverterConfig = class(TConfigDataElementWithStaticBase, IValueToStringConverterConfig)
   private
     FDependentOnElement: IConfigDataElement;
-    FDependentOnElementListener: IJclListener;
+    FDependentOnElementListener: IListener;
 
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;
@@ -245,3 +245,4 @@ begin
 end;
 
 end.
+

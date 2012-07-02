@@ -11,7 +11,7 @@ uses
 
 type
   TListenerRecord = record
-    Listener: IJclListener;
+    Listener: IListener;
     Rect: ILonLatRect;
   end;
 
@@ -23,10 +23,10 @@ type
     function CalcGrowSize(AOldSize: Integer): Integer;
   private
     procedure Add(
-      const AListener: IJclListener;
+      const AListener: IListener;
       const ARect: ILonLatRect
     ); stdcall;
-    procedure Remove(const AListener: IJclListener); stdcall;
+    procedure Remove(const AListener: IListener); stdcall;
   private
     procedure RectUpdateNotify(const ARect: ILonLatRect); overload; stdcall;
     procedure RectUpdateNotify(const ARect: TDoubleRect); overload; stdcall;
@@ -61,7 +61,7 @@ begin
 end;
 
 procedure TLonLatRectUpdateNotifier.Add(
-  const AListener: IJclListener;
+  const AListener: IListener;
   const ARect: ILonLatRect
 );
 var
@@ -137,7 +137,7 @@ begin
   end;
 end;
 
-procedure TLonLatRectUpdateNotifier.Remove(const AListener: IJclListener);
+procedure TLonLatRectUpdateNotifier.Remove(const AListener: IListener);
 var
   i: Integer;
   VIndex: Integer;
@@ -172,3 +172,4 @@ begin
 end;
 
 end.
+

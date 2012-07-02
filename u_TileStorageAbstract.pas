@@ -69,9 +69,9 @@ type
     FMaxValidZoom: Byte;
     FOnRangeFillingMap: TRangeFillingMapEvent;
     FNotifierByZoom: array of ITileRectUpdateNotifier;
-    FConfigListener: IJclListener;
+    FConfigListener: IListener;
     FStorageState: IStorageStateChangeble;
-    FStorageStateListener: IJclListener;
+    FStorageStateListener: IListener;
     FStorageStateStatic: IStorageStateStatic;
     FStorageStateStaticCS: IReadWriteSync;
     FStorageStateInternal: IStorageStateInternal;
@@ -553,3 +553,4 @@ begin
 end;
 
 end.
+

@@ -19,7 +19,7 @@ type
   TTileDownloaderList = class(TInterfacedObject, ITileDownloaderList)
   private
     FGCList: ITTLCheckNotifier;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FResultFactory: IDownloadResultFactory;
     FDownloadSystemState: ITileDownloaderStateChangeble;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -27,8 +27,8 @@ type
     FRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
 
     FChangeCounter: Integer;
-    FChangeNotifier: IJclNotifier;
-    FConfigListener: IJclListener;
+    FChangeNotifier: INotifier;
+    FConfigListener: IListener;
     FCS: IReadWriteSync;
 
     FStatic: ITileDownloaderListStatic;
@@ -36,11 +36,11 @@ type
     function CreateDownloader: ITileDownloader;
   protected
     function GetStatic: ITileDownloaderListStatic;
-    function GetChangeNotifier: IJclNotifier;
+    function GetChangeNotifier: INotifier;
   public
     constructor Create(
       const AGCList: ITTLCheckNotifier;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const AResultFactory: IDownloadResultFactory;
       const ADownloadSystemState: ITileDownloaderStateChangeble;
       const ATileDownloaderConfig: ITileDownloaderConfig;
@@ -68,7 +68,7 @@ uses
 
 constructor TTileDownloaderList.Create(
   const AGCList: ITTLCheckNotifier;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const AResultFactory: IDownloadResultFactory;
   const ADownloadSystemState: ITileDownloaderStateChangeble;
   const ATileDownloaderConfig: ITileDownloaderConfig;
@@ -136,7 +136,7 @@ begin
     );
 end;
 
-function TTileDownloaderList.GetChangeNotifier: IJclNotifier;
+function TTileDownloaderList.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
@@ -220,3 +220,5 @@ begin
 end;
 
 end.
+
+

@@ -88,14 +88,14 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AVectorItmesFactory: IVectorItmesFactory;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AConfig: IMarksLayerConfig;
       AMarkDB: TMarksSystem
     );
@@ -146,14 +146,14 @@ uses
 
 constructor TMapMarksLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AVectorItmesFactory: IVectorItmesFactory;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AConfig: IMarksLayerConfig;
   AMarkDB: TMarksSystem
 );
@@ -582,3 +582,4 @@ begin
 end;
 
 end.
+

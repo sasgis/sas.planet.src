@@ -45,12 +45,12 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
@@ -68,13 +68,13 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AThreadConfig: IThreadConfig
     );
   end;
@@ -90,12 +90,12 @@ uses
 
 constructor TMapLayerWithThreadDraw.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AThreadConfig: IThreadConfig
 );
 begin
@@ -201,13 +201,13 @@ end;
 
 constructor TMapLayerTiledWithThreadDraw.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AThreadConfig: IThreadConfig
 );
 begin
@@ -257,3 +257,4 @@ begin
 end;
 
 end.
+

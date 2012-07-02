@@ -14,8 +14,8 @@ type
   private
     FActiveMaps: IActiveMapsSet;
 
-    FZOrderListener: IJclListener;
-    FLayerSetListener: IJclListener;
+    FZOrderListener: IListener;
+    FLayerSetListener: IListener;
     FLayersSet: IMapTypeSet;
     procedure OnMapZOrderChanged;
     procedure OnLayerSetChanged;
@@ -218,3 +218,4 @@ begin
 end;
 
 end.
+

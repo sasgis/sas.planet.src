@@ -103,8 +103,8 @@ type
     procedure ExportREG(const APolyLL: ILonLatPolygon);
     procedure InitExportsList(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -117,8 +117,8 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -172,8 +172,8 @@ uses
 
 constructor TfrmRegionProcess.Create(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -378,8 +378,8 @@ end;
 
 procedure TfrmRegionProcess.InitExportsList(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -670,3 +670,4 @@ begin
 end;
 
 end.
+

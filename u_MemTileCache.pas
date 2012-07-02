@@ -42,10 +42,10 @@ type
   private
     FConfig: IMainMemCacheConfig;
     FGCList: ITTLCheckNotifier;
-    FConfigListener: IJclListener;
+    FConfigListener: IListener;
     FTileStorage: TTileStorageAbstract;
     FCoordConverter: ICoordConverter;
-    FStorageChangeListener: IJclListener;
+    FStorageChangeListener: IListener;
     FTTLListener: ITTLCheckListener;
 
     FCacheList: TStringList;
@@ -415,3 +415,4 @@ begin
 end;
 
 end.
+

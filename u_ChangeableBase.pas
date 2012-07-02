@@ -9,13 +9,13 @@ uses
 type
   TChangeableBase = class(TInterfacedObject, IChangeable)
   private
-    FBeforeChangeNotifier: IJclNotifier;
-    FChangeNotifier: IJclNotifier;
-    FAfterChangeNotifier: IJclNotifier;
+    FBeforeChangeNotifier: INotifier;
+    FChangeNotifier: INotifier;
+    FAfterChangeNotifier: INotifier;
   protected
-    function GetBeforeChangeNotifier: IJclNotifier;
-    function GetChangeNotifier: IJclNotifier;
-    function GetAfterChangeNotifier: IJclNotifier;
+    function GetBeforeChangeNotifier: INotifier;
+    function GetChangeNotifier: INotifier;
+    function GetAfterChangeNotifier: INotifier;
   protected
     procedure DoBeforeChangeNotify; virtual;
     procedure DoInChangeNotify; virtual;
@@ -75,19 +75,20 @@ begin
   FChangeNotifier.Notify(nil);
 end;
 
-function TChangeableBase.GetAfterChangeNotifier: IJclNotifier;
+function TChangeableBase.GetAfterChangeNotifier: INotifier;
 begin
   Result := FAfterChangeNotifier;
 end;
 
-function TChangeableBase.GetBeforeChangeNotifier: IJclNotifier;
+function TChangeableBase.GetBeforeChangeNotifier: INotifier;
 begin
   Result := FBeforeChangeNotifier;
 end;
 
-function TChangeableBase.GetChangeNotifier: IJclNotifier;
+function TChangeableBase.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
 
 end.
+

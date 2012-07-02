@@ -38,7 +38,7 @@ type
     FTerminated: Boolean;
     FStarted: Boolean;
     FFinished: Boolean;
-    FConfigListener: IJclListener;
+    FConfigListener: IListener;
     procedure OnTerminate(Sender: TObject);
     procedure OnConfigChange;
   protected
@@ -207,3 +207,4 @@ begin
 end;
 
 end.
+

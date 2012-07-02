@@ -35,7 +35,7 @@ type
     FParentMenu: TTBCustomItem;
     FLangIndex: Integer;
     FLanguageManager: ILanguageManager;
-    FListener: IJclListener;
+    FListener: IListener;
     procedure OnLangChange;
     procedure OnClickItem(Sender: TObject);
   public
@@ -103,3 +103,4 @@ begin
 end;
 
 end.
+

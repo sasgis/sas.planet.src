@@ -42,8 +42,8 @@ type
     procedure DoDeactivateLinks;
   protected
     procedure Add(
-      const AListener: IJclListener;
-      const ANotifier: IJclNotifier
+      const AListener: IListener;
+      const ANotifier: INotifier
     );
     procedure ActivateLinks;
     procedure DeactivateLinks;
@@ -107,11 +107,11 @@ end;
 
 procedure TJclListenerNotifierLinksList.ActivateLink(AIndex: Integer);
 var
-  VListener: IJclListener;
-  VNotifier: IJclNotifier;
+  VListener: IListener;
+  VNotifier: INotifier;
 begin
-  VListener := IJclListener(FListenerList.Items[AIndex]);
-  VNotifier := IJclNotifier(FNotifierList.Items[AIndex]);
+  VListener := IListener(FListenerList.Items[AIndex]);
+  VNotifier := INotifier(FNotifierList.Items[AIndex]);
   if (VListener <> nil) and (VNotifier <> nil) then begin
     VNotifier.Add(VListener);
   end;
@@ -129,8 +129,8 @@ begin
 end;
 
 procedure TJclListenerNotifierLinksList.Add(
-  const AListener: IJclListener;
-  const ANotifier: IJclNotifier
+  const AListener: IListener;
+  const ANotifier: INotifier
 );
 var
   VListenerIndex: Integer;
@@ -151,11 +151,11 @@ end;
 
 procedure TJclListenerNotifierLinksList.DeactivateLink(AIndex: Integer);
 var
-  VListener: IJclListener;
-  VNotifier: IJclNotifier;
+  VListener: IListener;
+  VNotifier: INotifier;
 begin
-  VListener := IJclListener(FListenerList.Items[AIndex]);
-  VNotifier := IJclNotifier(FNotifierList.Items[AIndex]);
+  VListener := IListener(FListenerList.Items[AIndex]);
+  VNotifier := INotifier(FNotifierList.Items[AIndex]);
   if (VListener <> nil) and (VNotifier <> nil) then begin
     VNotifier.Remove(VListener);
   end;
@@ -172,3 +172,5 @@ begin
 end;
 
 end.
+
+

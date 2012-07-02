@@ -43,10 +43,11 @@ type
     function GetFactory: IMarkCategoryFactory;
     property Factory: IMarkCategoryFactory read GetFactory;
 
-    function GetChangeNotifier: IJclNotifier;
-    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
+    function GetChangeNotifier: INotifier;
+    property ChangeNotifier: INotifier read GetChangeNotifier;
   end;
 
 implementation
 
 end.
+

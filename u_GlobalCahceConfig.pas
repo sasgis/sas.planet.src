@@ -46,7 +46,7 @@ type
     FBDBCachepath: string;
     FDBMSCachepath: string;
 
-    FCacheChangeNotifier: IJclNotifier;
+    FCacheChangeNotifier: INotifier;
     procedure SetDefCache(const Value: byte);
     procedure SetESCpath(const Value: string);
     procedure SetGECachepath(const Value: string);
@@ -80,7 +80,7 @@ type
     property DBMSCachepath: string read FDBMSCachepath write SetDBMSCachepath;
 
     property CacheGlobalPath: string read GetCacheGlobalPath;
-    property CacheChangeNotifier: IJclNotifier read FCacheChangeNotifier;
+    property CacheChangeNotifier: INotifier read FCacheChangeNotifier;
   end;
 
 const
@@ -257,3 +257,4 @@ begin
 end;
 
 end.
+

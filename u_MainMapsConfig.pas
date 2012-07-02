@@ -35,7 +35,7 @@ type
     FSelectedMapType: IMapType;
     FActiveBitmapLayersSet: IActiveMapsSet;
     FActiveKmlLayersSet: IActiveMapsSet;
-    FSelectedMapChangeListener: IJclListener;
+    FSelectedMapChangeListener: IListener;
     procedure OnSelectedChange(const AGUID: TGUID);
   protected
     function GetSelectedMapType: IMapType;
@@ -156,3 +156,4 @@ begin
 end;
 
 end.
+

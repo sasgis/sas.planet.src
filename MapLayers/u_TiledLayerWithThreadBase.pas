@@ -38,7 +38,7 @@ type
     FLayer: TCustomLayer;
 
     FDrawTask: IBackgroundTask;
-    FRectUpdateListener: IJclListener;
+    FRectUpdateListener: IListener;
 
     FBgDrawCounter: IInternalPerformanceCounter;
     FPrepareLayerProviderCounter: IInternalPerformanceCounter;
@@ -113,12 +113,12 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       AUpdateLayerProviderOnPosChange: Boolean;
       const AThreadConfig: IThreadConfig
     );
@@ -147,12 +147,12 @@ uses
 
 constructor TTiledLayerWithThreadBase.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   AUpdateLayerProviderOnPosChange: Boolean;
   const AThreadConfig: IThreadConfig
 );
@@ -602,3 +602,5 @@ begin
 end;
 
 end.
+
+

@@ -150,11 +150,11 @@ type
     FViewPortState: IViewPortState;
     FNavToPoint: INavigationToPoint;
 
-    FCategoryDBListener: IJclListener;
-    FMarksDBListener: IJclListener;
-    FMarksShowConfigListener: IJclListener;
-    FConfigListener: IJclListener;
-    FMarksSystemStateListener: IJclListener;
+    FCategoryDBListener: IListener;
+    FMarksDBListener: IListener;
+    FMarksShowConfigListener: IListener;
+    FConfigListener: IListener;
+    FMarksSystemStateListener: IListener;
 
     procedure OnCategoryDbChanged;
     procedure OnMarksDbChanged;
@@ -866,3 +866,4 @@ begin
 end;
 
 end.
+

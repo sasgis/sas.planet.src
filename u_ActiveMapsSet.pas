@@ -37,14 +37,14 @@ type
     FSingeMapsSet: IGUIDInterfaceSet;
     FSelectedMapsList: IMapTypeSet;
 
-    FMainMapChangeNotyfier: IJclNotifier;
-    FMainMapListener: IJclListener;
+    FMainMapChangeNotyfier: INotifier;
+    FMainMapListener: IListener;
 
-    FLayerSetSelectNotyfier: IJclNotifier;
-    FLayerSetUnselectNotyfier: IJclNotifier;
+    FLayerSetSelectNotyfier: INotifier;
+    FLayerSetUnselectNotyfier: INotifier;
 
-    FLayerSetSelectListener: IJclListener;
-    FLayerSetUnselectListener: IJclListener;
+    FLayerSetSelectListener: IListener;
+    FLayerSetUnselectListener: IListener;
 
     procedure OnMainMapChange(const AGUID: TGUID);
     procedure OnLayerSetSelectChange(const AGUID: TGUID);
@@ -58,9 +58,9 @@ type
     constructor Create(
       const AMapsSet: IMapTypeSet;
       const ASingeMapsList: IGUIDInterfaceSet;
-      const AMainMapChangeNotyfier: IJclNotifier;
-      const ALayerSetSelectNotyfier: IJclNotifier;
-      const ALayerSetUnselectNotyfier: IJclNotifier
+      const AMainMapChangeNotyfier: INotifier;
+      const ALayerSetSelectNotyfier: INotifier;
+      const ALayerSetUnselectNotyfier: INotifier
     );
     destructor Destroy; override;
   end;
@@ -77,7 +77,7 @@ uses
 constructor TActiveMapsSet.Create(
   const AMapsSet: IMapTypeSet;
   const ASingeMapsList: IGUIDInterfaceSet;
-  const AMainMapChangeNotyfier, ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier
+  const AMainMapChangeNotyfier, ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
 begin
   inherited Create;
@@ -243,3 +243,5 @@ begin
 end;
 
 end.
+
+

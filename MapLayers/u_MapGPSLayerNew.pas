@@ -34,12 +34,12 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AConfig: IMapLayerGPSTrackConfig;
       const AGPSRecorder: IGPSRecorder
     );
@@ -56,11 +56,11 @@ uses
 
 constructor TMapGPSLayerNew.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier; AParentMap: TImage32;
+  const AAppClosingNotifier: INotifier; AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: IJclNotifier; const AConfig: IMapLayerGPSTrackConfig;
+  const ATimerNoifier: INotifier; const AConfig: IMapLayerGPSTrackConfig;
   const AGPSRecorder: IGPSRecorder);
 begin
   inherited Create(
@@ -159,3 +159,4 @@ begin
 end;
 
 end.
+

@@ -56,7 +56,7 @@ type
 
     FLang: string;
     FLangManager: ILanguageManager;
-    FLangListener: IJclListener;
+    FLangListener: IListener;
     FLangChangeFlag: ISimpleFlag;
 
     FPSExec: TBasePascalScriptExec;
@@ -402,3 +402,4 @@ begin
 end;
 
 end.
+

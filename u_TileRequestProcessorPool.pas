@@ -22,11 +22,11 @@ type
     FThreadConfig: IThreadConfig;
     FDownloaderList: ITileDownloaderList;
     FGCList: ITTLCheckNotifier;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FTileRequestQueue: ITileRequestQueue;
 
     FTTLListener: ITTLCheckListener;
-    FDownloadersListListener: IJclListener;
+    FDownloadersListListener: IListener;
 
     FThreadArray: TArrayOfThread;
     FThreadArrayCS: IReadWriteSync;
@@ -39,7 +39,7 @@ type
     constructor Create(
       const AGCList: ITTLCheckNotifier;
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const ATileRequestQueue: ITileRequestQueue;
       const ADownloaderList: ITileDownloaderList
     );
@@ -60,7 +60,7 @@ uses
 constructor TTileRequestProcessorPool.Create(
   const AGCList: ITTLCheckNotifier;
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const ATileRequestQueue: ITileRequestQueue;
   const ADownloaderList: ITileDownloaderList
 );
@@ -181,3 +181,5 @@ begin
 end;
 
 end.
+
+

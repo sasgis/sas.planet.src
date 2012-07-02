@@ -18,10 +18,10 @@ type
     property Zoom: Byte read GetZoom;
 
     procedure Add(
-      const AListener: IJclListener;
+      const AListener: IListener;
       const ATileRect: TRect
     ); stdcall;
-    procedure Remove(const AListener: IJclListener); stdcall;
+    procedure Remove(const AListener: IListener); stdcall;
   end;
 
   ITileRectUpdateNotifierInternal = interface
@@ -32,3 +32,4 @@ type
 implementation
 
 end.
+

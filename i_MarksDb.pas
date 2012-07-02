@@ -69,8 +69,8 @@ type
       AIgnoreVisible: Boolean
     ): IMarksSubset; overload;
 
-    function GetChangeNotifier: IJclNotifier;
-    property ChangeNotifier: IJclNotifier read GetChangeNotifier;
+    function GetChangeNotifier: INotifier;
+    property ChangeNotifier: INotifier read GetChangeNotifier;
 
     function GetFactory: IMarkFactory;
     property Factory: IMarkFactory read GetFactory;
@@ -79,3 +79,4 @@ type
 implementation
 
 end.
+

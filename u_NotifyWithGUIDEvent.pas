@@ -56,7 +56,7 @@ type
   end;
 
 type
-  INotifierWithGUID = interface(IJclNotifier)
+  INotifierWithGUID = interface(INotifier)
     ['{7160ECC8-5A85-445C-8655-5E5574E60C88}']
     procedure NotifyByGUID(const AGUID: TGUID); stdcall;
   end;
@@ -108,3 +108,4 @@ begin
 end;
 
 end.
+

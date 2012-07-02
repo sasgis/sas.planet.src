@@ -39,7 +39,7 @@ uses
 type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
-    FScaleChangeNotifier: IJclNotifier;
+    FScaleChangeNotifier: INotifier;
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -56,7 +56,7 @@ type
 
     FPosChangeCounter: IInternalPerformanceCounter;
     FScaleChangeCounter: IInternalPerformanceCounter;
-    FMainMapChangeListener: IJclListener;
+    FMainMapChangeListener: IListener;
     procedure SetActiveCoordConverter;
     procedure CreateVisibleCoordConverter;
     procedure OnMainMapChange;
@@ -95,7 +95,7 @@ type
     ); overload;
     procedure ScaleTo(const AScale: Double); overload;
 
-    function GetScaleChangeNotifier: IJclNotifier;
+    function GetScaleChangeNotifier: INotifier;
   public
     constructor Create(
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -469,7 +469,7 @@ begin
   end;
 end;
 
-function TMapViewPortState.GetScaleChangeNotifier: IJclNotifier;
+function TMapViewPortState.GetScaleChangeNotifier: INotifier;
 begin
   Result := FScaleChangeNotifier;
 end;
@@ -699,3 +699,5 @@ begin
 end;
 
 end.
+
+

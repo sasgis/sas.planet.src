@@ -24,17 +24,17 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: IDownloader;
     FResultSaver: ITileDownloadResultSaver;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FLastResponseInfo: ILastResponseInfo;
 
     FDestroyNotifierInternal: IOperationNotifierInternal;
     FDestroyNotifier: IOperationNotifier;
     FDestroyOperationID: Integer;
 
-    FAppClosingListener: IJclListener;
+    FAppClosingListener: IListener;
     FCS: IReadWriteSync;
-    FCancelListener: IJclListener;
-    FConfigChangeListener: IJclListener;
+    FCancelListener: IListener;
+    FConfigChangeListener: IListener;
     FCancelEvent: TEvent;
     FWasConnectError: Boolean;
     FLastDownloadTime: Cardinal;
@@ -53,7 +53,7 @@ type
     );
   public
     constructor Create(
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AHttpDownloader: IDownloader;
@@ -77,7 +77,7 @@ uses
 { TITileDownloaderSimple }
 
 constructor TTileDownloaderSimple.Create(
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AHttpDownloader: IDownloader;
@@ -293,3 +293,5 @@ begin
 end;
 
 end.
+
+

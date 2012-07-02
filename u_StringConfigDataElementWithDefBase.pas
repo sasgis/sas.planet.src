@@ -40,7 +40,7 @@ type
 
     FDefValue: string;
     FValue: string;
-    FLangChangeListener: IJclListener;
+    FLangChangeListener: IListener;
     procedure OnLangChange;
   protected
     property LanguageManager: ILanguageManager read FLanguageManager;
@@ -182,3 +182,4 @@ begin
 end;
 
 end.
+

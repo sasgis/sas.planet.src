@@ -74,8 +74,8 @@ type
     procedure btnCanselClick(Sender: TObject);
   private
     FLanguageManager: ILanguageManager;
-    FAppClosingNotifier: IJclNotifier;
-    FTimerNoifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
+    FTimerNoifier: INotifier;
     FGCList: ITTLCheckNotifier;
     FContentTypeManager: IContentTypeManager;
     FPerfCounterList: IInternalPerformanceCounterList;
@@ -84,8 +84,8 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const AGCList: ITTLCheckNotifier;
       const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList;
@@ -113,8 +113,8 @@ uses
 
 constructor TfrmCacheManager.Create(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const AGCList: ITTLCheckNotifier;
   const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList;
@@ -228,3 +228,4 @@ begin
 end;
 
 end.
+

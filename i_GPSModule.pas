@@ -32,28 +32,29 @@ type
     function GetPosition: IGPSPosition; safecall;
     property Position: IGPSPosition read GetPosition;
 
-    function GetDataReciveNotifier: IJclNotifier; safecall;
-    property DataReciveNotifier: IJclNotifier read GetDataReciveNotifier;
+    function GetDataReciveNotifier: INotifier; safecall;
+    property DataReciveNotifier: INotifier read GetDataReciveNotifier;
 
-    function GetConnectingNotifier: IJclNotifier; safecall;
-    property ConnectingNotifier: IJclNotifier read GetConnectingNotifier;
+    function GetConnectingNotifier: INotifier; safecall;
+    property ConnectingNotifier: INotifier read GetConnectingNotifier;
 
-    function GetConnectedNotifier: IJclNotifier; safecall;
-    property ConnectedNotifier: IJclNotifier read GetConnectedNotifier;
+    function GetConnectedNotifier: INotifier; safecall;
+    property ConnectedNotifier: INotifier read GetConnectedNotifier;
 
-    function GetDisconnectingNotifier: IJclNotifier; safecall;
-    property DisconnectingNotifier: IJclNotifier read GetDisconnectingNotifier;
+    function GetDisconnectingNotifier: INotifier; safecall;
+    property DisconnectingNotifier: INotifier read GetDisconnectingNotifier;
 
-    function GetDisconnectedNotifier: IJclNotifier; safecall;
-    property DisconnectedNotifier: IJclNotifier read GetDisconnectedNotifier;
+    function GetDisconnectedNotifier: INotifier; safecall;
+    property DisconnectedNotifier: INotifier read GetDisconnectedNotifier;
 
-    function GetTimeOutNotifier: IJclNotifier; safecall;
-    property TimeOutNotifier: IJclNotifier read GetTimeOutNotifier;
+    function GetTimeOutNotifier: INotifier; safecall;
+    property TimeOutNotifier: INotifier read GetTimeOutNotifier;
 
-    function GetConnectErrorNotifier: IJclNotifier; safecall;
-    property ConnectErrorNotifier: IJclNotifier read GetConnectErrorNotifier;
+    function GetConnectErrorNotifier: INotifier; safecall;
+    property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
   end;
 
 implementation
 
 end.
+

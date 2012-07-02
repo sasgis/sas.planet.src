@@ -42,12 +42,12 @@ type
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FCoordConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
 
     FDestroyNotifierInternal: IOperationNotifierInternal;
     FDestroyNotifier: IOperationNotifier;
     FDestroyOperationID: Integer;
-    FAppClosingListener: IJclListener;
+    FAppClosingListener: IListener;
 
     FZmpDownloadEnabled: Boolean;
     FState: ITileDownloaderStateChangeble;
@@ -77,7 +77,7 @@ type
   public
     constructor Create(
       const AGCList: ITTLCheckNotifier;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const ACoordConverter: ICoordConverter;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALanguageManager: ILanguageManager;
@@ -127,7 +127,7 @@ const
 
 constructor TTileDownloadSubsystem.Create(
   const AGCList: ITTLCheckNotifier;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const ACoordConverter: ICoordConverter;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALanguageManager: ILanguageManager;
@@ -347,3 +347,5 @@ begin
 end;
 
 end.
+
+

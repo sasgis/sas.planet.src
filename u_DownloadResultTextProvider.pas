@@ -31,7 +31,7 @@ type
   TDownloadResultTextProvider = class(TInterfacedObject, IDownloadResultTextProvider)
   private
     FLangManager: ILanguageManager;
-    FLangListener: IJclListener;
+    FLangListener: IListener;
 
     FMessageBadContentType: string;
     FMessageBadProxyAuth: string;
@@ -156,3 +156,4 @@ begin
 end;
 
 end.
+

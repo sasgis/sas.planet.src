@@ -33,9 +33,9 @@ type
   TTreeChangeableBase = class(TInterfacedObject, ITreeChangeable)
   private
     FStaticTreeBuilder: IStaticTreeBuilder;
-    FConfigChangeListener: IJclListener;
-    FConfigChangeNotifier: IJclNotifier;
-    FChangeNotifier: IJclNotifier;
+    FConfigChangeListener: IListener;
+    FConfigChangeNotifier: INotifier;
+    FChangeNotifier: INotifier;
     FCS: IReadWriteSync;
 
     FStatic: IStaticTreeItem;
@@ -45,11 +45,11 @@ type
     function GetSource: IInterface; virtual; abstract;
   protected
     function GetStatic: IStaticTreeItem;
-    function GetChangeNotifier: IJclNotifier;
+    function GetChangeNotifier: INotifier;
   public
     constructor Create(
       const AStaticTreeBuilder: IStaticTreeBuilder;
-      const AConfigChangeNotifier: IJclNotifier
+      const AConfigChangeNotifier: INotifier
     );
     destructor Destroy; override;
   end;
@@ -65,7 +65,7 @@ uses
 
 constructor TTreeChangeableBase.Create(
   const AStaticTreeBuilder: IStaticTreeBuilder;
-  const AConfigChangeNotifier: IJclNotifier
+  const AConfigChangeNotifier: INotifier
 );
 begin
   inherited Create;
@@ -94,7 +94,7 @@ begin
   Result := FStaticTreeBuilder.BuildStatic(GetSource);
 end;
 
-function TTreeChangeableBase.GetChangeNotifier: IJclNotifier;
+function TTreeChangeableBase.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
@@ -124,3 +124,5 @@ begin
 end;
 
 end.
+
+

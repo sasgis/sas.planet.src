@@ -75,7 +75,7 @@ type
     FConfig: IWindowPositionConfig;
     FContentTypeManager: IContentTypeManager;
 
-    FConfigListener: IJclListener;
+    FConfigListener: IListener;
     procedure OnConfigChange;
     procedure SetGoodCaption(const ACaption: String);
     function OpenLocalImage(const AFilename: WideString): Boolean;
@@ -394,3 +394,4 @@ begin
 end;
 
 end.
+

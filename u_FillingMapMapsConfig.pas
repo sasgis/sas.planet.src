@@ -33,9 +33,9 @@ type
   TFillingMapMapsConfig = class(TMainActiveMap, IFillingMapMapsConfig)
   private
     FActualMap: IMapType;
-    FSelectedMapChangeListener: IJclListener;
+    FSelectedMapChangeListener: IListener;
     FMainMapsConfig: IMainMapsConfig;
-    FMainMapChangeListener: IJclListener;
+    FMainMapChangeListener: IListener;
     function CreateMapsSet: IMapTypeSet;
     procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
@@ -148,3 +148,4 @@ begin
 end;
 
 end.
+

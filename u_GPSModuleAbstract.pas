@@ -71,15 +71,15 @@ type
     FSatellitesGP: TSatellitesInternalList;
     FSatellitesGL: TSatellitesInternalList;
 
-    FDataReciveNotifier: IJclNotifier;
+    FDataReciveNotifier: INotifier;
 
-    FConnectingNotifier: IJclNotifier;
-    FConnectedNotifier: IJclNotifier;
-    FDisconnectingNotifier: IJclNotifier;
-    FDisconnectedNotifier: IJclNotifier;
+    FConnectingNotifier: INotifier;
+    FConnectedNotifier: INotifier;
+    FDisconnectingNotifier: INotifier;
+    FDisconnectedNotifier: INotifier;
 
-    FConnectErrorNotifier: IJclNotifier;
-    FTimeOutNotifier: IJclNotifier;
+    FConnectErrorNotifier: INotifier;
+    FTimeOutNotifier: INotifier;
   protected
     FSingleGPSData: TSingleGPSData;
     FFixSatsALL: TVSAGPS_FIX_ALL;
@@ -189,15 +189,15 @@ type
   protected
     function GetPosition: IGPSPosition; virtual; safecall;
 
-    function GetDataReciveNotifier: IJclNotifier; safecall;
+    function GetDataReciveNotifier: INotifier; safecall;
 
-    function GetConnectingNotifier: IJclNotifier; safecall;
-    function GetConnectedNotifier: IJclNotifier; safecall;
-    function GetDisconnectingNotifier: IJclNotifier; safecall;
-    function GetDisconnectedNotifier: IJclNotifier; safecall;
+    function GetConnectingNotifier: INotifier; safecall;
+    function GetConnectedNotifier: INotifier; safecall;
+    function GetDisconnectingNotifier: INotifier; safecall;
+    function GetDisconnectedNotifier: INotifier; safecall;
 
-    function GetConnectErrorNotifier: IJclNotifier; safecall;
-    function GetTimeOutNotifier: IJclNotifier; safecall;
+    function GetConnectErrorNotifier: INotifier; safecall;
+    function GetTimeOutNotifier: INotifier; safecall;
   public
     constructor Create(const APositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
@@ -264,32 +264,32 @@ begin
   inherited;
 end;
 
-function TGPSModuleAbstract.GetConnectErrorNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetConnectErrorNotifier: INotifier;
 begin
   Result := FConnectErrorNotifier;
 end;
 
-function TGPSModuleAbstract.GetConnectingNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetConnectingNotifier: INotifier;
 begin
   Result := FConnectingNotifier;
 end;
 
-function TGPSModuleAbstract.GetConnectedNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetConnectedNotifier: INotifier;
 begin
   Result := FConnectedNotifier;
 end;
 
-function TGPSModuleAbstract.GetDisconnectingNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetDisconnectingNotifier: INotifier;
 begin
   Result := FDisconnectingNotifier;
 end;
 
-function TGPSModuleAbstract.GetDisconnectedNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetDisconnectedNotifier: INotifier;
 begin
   Result := FDisconnectedNotifier;
 end;
 
-function TGPSModuleAbstract.GetDataReciveNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetDataReciveNotifier: INotifier;
 begin
   Result := FDataReciveNotifier;
 end;
@@ -348,7 +348,7 @@ begin
   end;
 end;
 
-function TGPSModuleAbstract.GetTimeOutNotifier: IJclNotifier;
+function TGPSModuleAbstract.GetTimeOutNotifier: INotifier;
 begin
   Result := FTimeOutNotifier;
 end;
@@ -891,3 +891,4 @@ begin
 end;
 
 end.
+

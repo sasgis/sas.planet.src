@@ -20,15 +20,15 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
-    FAppClosingNotifier: IJclNotifier;
-    FTimerNoifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
+    FTimerNoifier: INotifier;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -57,8 +57,8 @@ uses
 
 constructor TExportProviderGEKml.Create(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -144,3 +144,4 @@ begin
 end;
 
 end.
+

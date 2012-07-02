@@ -53,7 +53,7 @@ type
     FMapsConfig: IMainMapsConfig;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FConfig: IMainMapLayerConfig;
-    FTileChangeListener: IJclListener;
+    FTileChangeListener: IListener;
 
     FBitmapProvider: IBitmapLayerProvider;
     FBitmapProviderCS: IReadWriteSync;
@@ -91,7 +91,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
@@ -101,7 +101,7 @@ type
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AConfig: IMainMapLayerConfig;
       const AErrorLogger: ITileErrorLogger;
-      const ATimerNoifier: IJclNotifier
+      const ATimerNoifier: INotifier
     );
     destructor Destroy; override;
     procedure StartThreads; override;
@@ -128,7 +128,7 @@ uses
 
 constructor TMapMainLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
@@ -138,7 +138,7 @@ constructor TMapMainLayer.Create(
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AConfig: IMainMapLayerConfig;
   const AErrorLogger: ITileErrorLogger;
-  const ATimerNoifier: IJclNotifier
+  const ATimerNoifier: INotifier
 );
 begin
   inherited Create(
@@ -697,3 +697,5 @@ begin
 end;
 
 end.
+
+

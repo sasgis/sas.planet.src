@@ -32,12 +32,12 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AConfig: IFillingMapLayerConfig
     );
     procedure StartThreads; override;
@@ -57,12 +57,12 @@ uses
 
 constructor TMapLayerFillingMap.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AConfig: IFillingMapLayerConfig
 );
 begin
@@ -261,3 +261,4 @@ begin
 end;
 
 end.
+

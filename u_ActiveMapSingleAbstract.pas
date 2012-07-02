@@ -48,13 +48,13 @@ type
 type
   TActiveMapSingleMainMap = class(TActiveMapSingleAbstract)
   private
-    FMainMapChangeNotyfier: IJclNotifier;
-    FMainMapListener: IJclListener;
+    FMainMapChangeNotyfier: INotifier;
+    FMainMapListener: IListener;
     procedure OnMainMapChange(const AGUID: TGUID);
   public
     constructor Create(
       const AMapType: IMapType;
-      const AMainMapChangeNotyfier: IJclNotifier
+      const AMainMapChangeNotyfier: INotifier
     );
     destructor Destroy; override;
   end;
@@ -62,17 +62,17 @@ type
 type
   TActiveMapSingleLayer = class(TActiveMapSingleAbstract)
   private
-    FLayerSetSelectNotyfier: IJclNotifier;
-    FLayerSetUnselectNotyfier: IJclNotifier;
-    FLayerSetSelectListener: IJclListener;
-    FLayerSetUnselectListener: IJclListener;
+    FLayerSetSelectNotyfier: INotifier;
+    FLayerSetUnselectNotyfier: INotifier;
+    FLayerSetSelectListener: IListener;
+    FLayerSetUnselectListener: IListener;
     procedure OnLayerSetSelectChange(const AGUID: TGUID);
     procedure OnLayerSetUnselectChange(const AGUID: TGUID);
   public
     constructor Create(
       const AMapType: IMapType;
-      const ALayerSetSelectNotyfier: IJclNotifier;
-      const ALayerSetUnselectNotyfier: IJclNotifier
+      const ALayerSetSelectNotyfier: INotifier;
+      const ALayerSetUnselectNotyfier: INotifier
     );
     destructor Destroy; override;
   end;
@@ -135,7 +135,7 @@ end;
 
 constructor TActiveMapSingleMainMap.Create(
   const AMapType: IMapType;
-  const AMainMapChangeNotyfier: IJclNotifier
+  const AMainMapChangeNotyfier: INotifier
 );
 begin
   inherited Create(AMapType);
@@ -161,7 +161,7 @@ end;
 
 constructor TActiveMapSingleLayer.Create(
   const AMapType: IMapType;
-  const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: IJclNotifier
+  const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
 begin
   inherited Create(AMapType);
@@ -202,3 +202,5 @@ begin
 end;
 
 end.
+
+

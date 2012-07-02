@@ -50,7 +50,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AGpsSatellitesSensor: ISensorGPSSatellites;
       const AMapDraw: ISatellitesInViewMapDraw;
       AShowLegend: Boolean
@@ -68,7 +68,7 @@ uses
 
 constructor TfrGpsSatellites.Create(
   const ALanguageManager: ILanguageManager;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AGpsSatellitesSensor: ISensorGPSSatellites;
   const AMapDraw: ISatellitesInViewMapDraw;
   AShowLegend: Boolean
@@ -139,3 +139,4 @@ begin
 end;
 
 end.
+

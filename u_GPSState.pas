@@ -48,13 +48,13 @@ type
 
     FCS: IReadWriteSync;
     FLinksList: IJclListenerNotifierLinksList;
-    FDataReciveNotifier: IJclNotifier;
-    FConnectingNotifier: IJclNotifier;
-    FConnectedNotifier: IJclNotifier;
-    FDisconnectingNotifier: IJclNotifier;
-    FDisconnectedNotifier: IJclNotifier;
-    FTimeOutNotifier: IJclNotifier;
-    FConnectErrorNotifier: IJclNotifier;
+    FDataReciveNotifier: INotifier;
+    FConnectingNotifier: INotifier;
+    FConnectedNotifier: INotifier;
+    FDisconnectingNotifier: INotifier;
+    FDisconnectedNotifier: INotifier;
+    FTimeOutNotifier: INotifier;
+    FConnectErrorNotifier: INotifier;
 
     FModuleState: TModuleState;
     FWasError: Boolean;
@@ -80,20 +80,20 @@ type
       const AGPSModuleFactory: IGPSModuleByCOMFactory;
       const AConfig: IGPSConfig;
       const AGPSRecorder: IGPSRecorder;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
 
-    property ConnectingNotifier: IJclNotifier read FConnectingNotifier;
-    property ConnectedNotifier: IJclNotifier read FConnectedNotifier;
-    property DisconnectingNotifier: IJclNotifier read FDisconnectingNotifier;
-    property DisconnectedNotifier: IJclNotifier read FDisconnectedNotifier;
-    property TimeOutNotifier: IJclNotifier read FTimeOutNotifier;
-    property ConnectErrorNotifier: IJclNotifier read FConnectErrorNotifier;
-    property DataReciveNotifier: IJclNotifier read FDataReciveNotifier;
+    property ConnectingNotifier: INotifier read FConnectingNotifier;
+    property ConnectedNotifier: INotifier read FConnectedNotifier;
+    property DisconnectingNotifier: INotifier read FDisconnectingNotifier;
+    property DisconnectedNotifier: INotifier read FDisconnectedNotifier;
+    property TimeOutNotifier: INotifier read FTimeOutNotifier;
+    property ConnectErrorNotifier: INotifier read FConnectErrorNotifier;
+    property DataReciveNotifier: INotifier read FDataReciveNotifier;
   end;
 
 implementation
@@ -109,7 +109,7 @@ constructor TGPSpar.Create(
   const AGPSModuleFactory: IGPSModuleByCOMFactory;
   const AConfig: IGPSConfig;
   const AGPSRecorder: IGPSRecorder;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
@@ -479,3 +479,4 @@ begin
 end;
 
 end.
+

@@ -39,8 +39,8 @@ type
     FMapsSet: IMapTypeSet;
     FOrderedMapGUIDList: IGUIDListStatic;
     FHotKeyList: IMapTypeHotKeyListStatic;
-    FBeforeLangChangeListener: IJclListener;
-    FAfterLangChangeListener: IJclListener;
+    FBeforeLangChangeListener: IListener;
+    FAfterLangChangeListener: IListener;
     procedure OnBeforeLangChange;
     procedure OnAfterLangChange;
     function CreateHotKeyList: IMapTypeHotKeyListStatic;
@@ -218,3 +218,4 @@ begin
 end;
 
 end.
+

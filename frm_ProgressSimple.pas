@@ -47,20 +47,20 @@ type
   private
     FCancelNotifier: IOperationNotifierInternal;
     FProgressInfo: IRegionProcessProgressInfo;
-    FAppClosingNotifier: IJclNotifier;
-    FTimerNoifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
+    FTimerNoifier: INotifier;
 
     FRarProgress: TRarProgress;
-    FAppClosingListener: IJclListener;
-    FTimerListener: IJclListener;
+    FAppClosingListener: IListener;
+    FTimerListener: IListener;
     procedure OnTimer;
     procedure OnClose;
     procedure CancelOperation;
   public
     constructor Create(
       AOwner : TComponent;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const ACancelNotifier: IOperationNotifierInternal;
       const AProgressInfo: IRegionProcessProgressInfo
     ); reintroduce;
@@ -76,8 +76,8 @@ uses
 
 constructor TfrmProgressSimple.Create(
   AOwner : TComponent;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const ACancelNotifier: IOperationNotifierInternal;
   const AProgressInfo: IRegionProcessProgressInfo
 );
@@ -132,7 +132,7 @@ end;
 
 destructor TfrmProgressSimple.Destroy;
 var
-  VNotifier: IJclNotifier;
+  VNotifier: INotifier;
 begin
   VNotifier := FAppClosingNotifier;
   if VNotifier <> nil then begin
@@ -193,3 +193,5 @@ begin
 end;
 
 end.
+
+

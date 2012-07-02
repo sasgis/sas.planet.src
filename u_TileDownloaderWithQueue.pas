@@ -26,7 +26,7 @@ type
       const ATileDownloaderList: ITileDownloaderList;
       const AGCList: ITTLCheckNotifier;
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AQueueCapacity: Integer
     );
   end;
@@ -43,7 +43,7 @@ constructor TTileDownloaderWithQueue.Create(
   const ATileDownloaderList: ITileDownloaderList;
   const AGCList: ITTLCheckNotifier;
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AQueueCapacity: Integer
 );
 begin
@@ -71,3 +71,4 @@ begin
 end;
 
 end.
+

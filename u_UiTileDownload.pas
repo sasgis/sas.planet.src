@@ -27,7 +27,7 @@ type
   private
     FConfig: IDownloadUIConfig;
     FGCList: ITTLCheckNotifier;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FViewPortState: IViewPortState;
     FMapTypeActive: IActiveMapSingle;
@@ -39,7 +39,7 @@ type
     FLinksList: IJclListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
     FTTLListener: ITTLCheckListener;
-    FTileDownloadFinishListener: IJclListenerDisconnectable;
+    FTileDownloadFinishListener: IListenerDisconnectable;
     FDownloadState: ITileDownloaderStateChangeble;
 
     FUseDownload: TTileSource;
@@ -49,7 +49,7 @@ type
 
     FSemaphore: THandle;
     FCancelEventHandle: THandle;
-    FCancelListener: IJclListener;
+    FCancelListener: IListener;
     FMapActive: Boolean;
     FVisualCoordConverter: ILocalCoordConverter;
     FVisualCoordConverterCS: IReadWriteSync;
@@ -70,7 +70,7 @@ type
     constructor Create(
       const AConfig: IDownloadUIConfig;
       const AGCList: ITTLCheckNotifier;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: IViewPortState;
       const AMapTypeActive: IActiveMapSingle;
@@ -105,7 +105,7 @@ uses
 constructor TUiTileDownload.Create(
   const AConfig: IDownloadUIConfig;
   const AGCList: ITTLCheckNotifier;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: IViewPortState;
   const AMapTypeActive: IActiveMapSingle;
@@ -460,3 +460,6 @@ begin
 end;
 
 end.
+
+
+

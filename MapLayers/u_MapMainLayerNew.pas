@@ -43,7 +43,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
@@ -52,7 +52,7 @@ type
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AConfig: IMainMapLayerConfig;
       const AErrorLogger: ITileErrorLogger;
-      const ATimerNoifier: IJclNotifier
+      const ATimerNoifier: INotifier
     );
   end;
 
@@ -67,7 +67,7 @@ uses
 
 constructor TMapMainLayerNew.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
@@ -76,7 +76,7 @@ constructor TMapMainLayerNew.Create(
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AConfig: IMainMapLayerConfig;
   const AErrorLogger: ITileErrorLogger;
-  const ATimerNoifier: IJclNotifier
+  const ATimerNoifier: INotifier
 );
 begin
   inherited Create(
@@ -189,3 +189,4 @@ begin
 end;
 
 end.
+

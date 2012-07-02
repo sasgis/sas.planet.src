@@ -216,7 +216,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -227,7 +227,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AIconsList: IMapTypeIconsList;
       const AErrorLogger: ITileErrorLogger;
-      const ATimerNoifier: IJclNotifier
+      const ATimerNoifier: INotifier
     );
     destructor Destroy; override;
   end;
@@ -257,7 +257,7 @@ uses
 
 constructor TMiniMapLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -268,7 +268,7 @@ constructor TMiniMapLayer.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AIconsList: IMapTypeIconsList;
   const AErrorLogger: ITileErrorLogger;
-  const ATimerNoifier: IJclNotifier
+  const ATimerNoifier: INotifier
 );
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
@@ -1375,3 +1375,4 @@ begin
 end;
 
 end.
+

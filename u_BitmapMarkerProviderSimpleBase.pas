@@ -81,13 +81,13 @@ type
     FProviderClass: TBitmapMarkerProviderSimpleClass;
     FProviderStatic: IBitmapMarkerProvider;
 
-    FConfigChangeListener: IJclListener;
-    FChangeNotifier: IJclNotifier;
+    FConfigChangeListener: IListener;
+    FChangeNotifier: INotifier;
     FCS: IReadWriteSync;
     procedure OnConfigChange;
   protected
     function GetStatic: IBitmapMarkerProvider;
-    function GetChangeNotifier: IJclNotifier;
+    function GetChangeNotifier: INotifier;
   public
     constructor Create(
       AProviderClass: TBitmapMarkerProviderSimpleClass;
@@ -219,7 +219,7 @@ begin
   inherited;
 end;
 
-function TBitmapMarkerProviderChangeableWithConfig.GetChangeNotifier: IJclNotifier;
+function TBitmapMarkerProviderChangeableWithConfig.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
@@ -249,3 +249,5 @@ begin
 end;
 
 end.
+
+

@@ -76,7 +76,7 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const ADataChangeNotifier: IJclNotifier
+      const ADataChangeNotifier: INotifier
     );
   end;
 
@@ -93,7 +93,7 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const ADataChangeNotifier: IJclNotifier
+      const ADataChangeNotifier: INotifier
     );
   end;
 
@@ -110,7 +110,7 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const ADataChangeNotifier: IJclNotifier
+      const ADataChangeNotifier: INotifier
     );
   end;
 
@@ -127,7 +127,7 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const ADataChangeNotifier: IJclNotifier
+      const ADataChangeNotifier: INotifier
     );
   end;
 
@@ -144,7 +144,7 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const ADataChangeNotifier: IJclNotifier
+      const ADataChangeNotifier: INotifier
     );
   end;
 
@@ -161,7 +161,7 @@ type
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const ADataChangeNotifier: IJclNotifier
+      const ADataChangeNotifier: INotifier
     );
   end;
 
@@ -216,7 +216,7 @@ begin
 end;
 
 constructor TSensorDoubeleValue.Create(
-  const ADataChangeNotifier: IJclNotifier);
+  const ADataChangeNotifier: INotifier);
 begin
   inherited Create;
   LinksList.Add(
@@ -276,7 +276,7 @@ begin
 end;
 
 constructor TSensorDateTimeValue.Create(
-  const ADataChangeNotifier: IJclNotifier
+  const ADataChangeNotifier: INotifier
 );
 begin
   inherited Create;
@@ -338,7 +338,7 @@ begin
 end;
 
 constructor TSensorPosititonValue.Create(
-  const ADataChangeNotifier: IJclNotifier
+  const ADataChangeNotifier: INotifier
 );
 begin
   inherited Create;
@@ -389,7 +389,7 @@ begin
 end;
 
 constructor TSensorTextValue.Create(
-  const ADataChangeNotifier: IJclNotifier
+  const ADataChangeNotifier: INotifier
 );
 begin
   inherited Create;
@@ -439,7 +439,7 @@ begin
 end;
 
 constructor TSensorByteValue.Create(
-  const ADataChangeNotifier: IJclNotifier);
+  const ADataChangeNotifier: INotifier);
 begin
   inherited Create;
   LinksList.Add(
@@ -488,7 +488,7 @@ begin
 end;
 
 constructor TSensorGPSSatellitesValue.Create(
-  const ADataChangeNotifier: IJclNotifier);
+  const ADataChangeNotifier: INotifier);
 begin
   inherited Create;
   LinksList.Add(
@@ -531,3 +531,4 @@ begin
 end;
 
 end.
+

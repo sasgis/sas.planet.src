@@ -21,7 +21,7 @@ type
   public
     constructor Create(
       const AGCList: ITTLCheckNotifier;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const AConfig: IDownloadUIConfig;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: IViewPortState;
@@ -42,7 +42,7 @@ uses
 
 constructor TUITileDownloadList.Create(
   const AGCList: ITTLCheckNotifier;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const AConfig: IDownloadUIConfig;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: IViewPortState;
@@ -82,3 +82,4 @@ begin
 end;
 
 end.
+

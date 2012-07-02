@@ -37,7 +37,7 @@ type
 
   TFormWitghLanguageManager = class(TForm)
   private
-    FLanguageChangeListener: IJclListener;
+    FLanguageChangeListener: IListener;
     FLanguageManager: ILanguageManager;
     procedure OnLangChange;
   protected
@@ -49,7 +49,7 @@ type
 
   TCommonFrameParent = class(Forms.TFrame)
   private
-    FLanguageChangeListener: IJclListener;
+    FLanguageChangeListener: IListener;
     FLanguageManager: ILanguageManager;
     procedure OnLangChange;
   protected
@@ -143,3 +143,4 @@ begin
 end;
 
 end.
+

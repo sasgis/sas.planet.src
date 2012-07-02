@@ -42,7 +42,7 @@ uses
 type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
@@ -52,7 +52,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMainMapsConfig: IMainMapsConfig;
@@ -86,7 +86,7 @@ uses
 { TProviderTilesDownload }
 
 constructor TProviderTilesDownload.Create(
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMainMapsConfig: IMainMapsConfig;
@@ -209,3 +209,4 @@ begin
 end;
 
 end.
+

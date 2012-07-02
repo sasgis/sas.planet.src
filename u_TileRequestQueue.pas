@@ -19,10 +19,10 @@ type
   private
     FCapacity: Integer;
     FGCList: ITTLCheckNotifier;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
 
     FTTLListener: ITTLCheckListener;
-    FAppClosingListener: IJclListener;
+    FAppClosingListener: IListener;
 
     FCapasitySemaphore: THandle;
     FReadyRequestSemaphore: THandle;
@@ -44,7 +44,7 @@ type
   public
     constructor Create(
       const AGCList: ITTLCheckNotifier;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       ACapacity: Integer
     );
     destructor Destroy; override;
@@ -61,7 +61,7 @@ uses
 
 constructor TTileRequestQueue.Create(
   const AGCList: ITTLCheckNotifier;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   ACapacity: Integer
 );
 begin

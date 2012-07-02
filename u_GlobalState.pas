@@ -143,7 +143,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FGUISyncronizedTimer: TTimer;
-    FGUISyncronizedTimerNotifier: IJclNotifier;
+    FGUISyncronizedTimerNotifier: INotifier;
     FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FDownloadResultTextProvider: IDownloadResultTextProvider;
@@ -154,7 +154,7 @@ type
     FInternalBrowserConfig: IWindowPositionConfig;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
@@ -181,7 +181,7 @@ type
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
-    property AppClosingNotifier: IJclNotifier read FAppClosingNotifier;
+    property AppClosingNotifier: INotifier read FAppClosingNotifier;
     property MediaDataPath: IPathConfig read FMediaDataPath;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
@@ -191,7 +191,7 @@ type
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
-    property GUISyncronizedTimerNotifier: IJclNotifier read FGUISyncronizedTimerNotifier;
+    property GUISyncronizedTimerNotifier: INotifier read FGUISyncronizedTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
@@ -778,3 +778,4 @@ begin
 end;
 
 end.
+

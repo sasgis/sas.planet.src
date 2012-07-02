@@ -88,7 +88,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -110,7 +110,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -131,7 +131,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -152,7 +152,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -174,7 +174,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -195,7 +195,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -215,7 +215,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -236,7 +236,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -258,7 +258,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AValueConverterConfig: IValueToStringConverterConfig;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -281,7 +281,7 @@ type
     constructor Create(
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AMapDraw: ISatellitesInViewMapDraw;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -311,7 +311,7 @@ uses
 constructor TSensorViewTBXPanelBase.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -545,7 +545,7 @@ end;
 constructor TSensorViewTextTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -597,7 +597,7 @@ end;
 constructor TSensorViewGPSSatellitesTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AMapDraw: ISatellitesInViewMapDraw;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -661,7 +661,7 @@ end;
 constructor TSensorViewSpeedTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -722,7 +722,7 @@ end;
 constructor TSensorViewLengthTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -783,7 +783,7 @@ end;
 constructor TSensorViewDegreesTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -838,7 +838,7 @@ end;
 constructor TSensorViewTimeTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -899,7 +899,7 @@ end;
 constructor TSensorViewPositionTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -960,7 +960,7 @@ end;
 constructor TSensorViewDoubleTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -1015,7 +1015,7 @@ end;
 constructor TSensorViewBatteryLifePercentTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const ALanguageManager: ILanguageManager;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -1080,3 +1080,4 @@ begin
 end;
 
 end.
+

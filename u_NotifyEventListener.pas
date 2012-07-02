@@ -31,7 +31,7 @@ type
   TNotifyListenerNoMmgEvent = procedure of object;
   TNotifyListenerEvent = procedure(const AMsg: IInterface) of object;
 
-  TNotifyEventListener = class(TJclBaseListener, IJclListenerDisconnectable)
+  TNotifyEventListener = class(TJclBaseListener, IListenerDisconnectable)
   private
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
@@ -54,8 +54,8 @@ type
 
   TNotifyEventListenerSync = class(TJclBaseListener)
   private
-    FTimerNoifier: IJclNotifier;
-    FTimerListener: IJclListener;
+    FTimerNoifier: INotifier;
+    FTimerListener: IListener;
 
     FNeedNotifyFlag: ISimpleFlag;
     FEvent: TNotifyListenerNoMmgEvent;
@@ -64,7 +64,7 @@ type
     procedure Notification(const AMsg: IInterface); override;
   public
     constructor Create(
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       AEvent: TNotifyListenerNoMmgEvent
     );
     destructor Destroy; override;
@@ -101,7 +101,7 @@ end;
 { TNotifyEventListenerSync }
 
 constructor TNotifyEventListenerSync.Create(
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   AEvent: TNotifyListenerNoMmgEvent
 );
 begin
@@ -153,3 +153,6 @@ begin
 end;
 
 end.
+
+
+

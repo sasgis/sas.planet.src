@@ -34,13 +34,13 @@ type
   private
     FList: IGUIDInterfaceSet;
     FCS: IReadWriteSync;
-    FAddNotifier: IJclNotifier;
+    FAddNotifier: INotifier;
   protected
     procedure Add(const AItem: IGeoCoderListEntity);
   protected
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): IGeoCoderListEntity;
-    function GetAddNotifier: IJclNotifier;
+    function GetAddNotifier: INotifier;
   public
     constructor Create;
     destructor Destroy; override;
@@ -91,7 +91,7 @@ begin
   end;
 end;
 
-function TGeoCoderListBase.GetAddNotifier: IJclNotifier;
+function TGeoCoderListBase.GetAddNotifier: INotifier;
 begin
   Result := FAddNotifier;
 end;
@@ -107,3 +107,4 @@ begin
 end;
 
 end.
+

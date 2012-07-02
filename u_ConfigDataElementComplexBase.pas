@@ -37,7 +37,7 @@ type
   TConfigDataElementComplexBase = class(TConfigDataElementBase)
   private
     FList: TObjectList;
-    FItemChangeListener: IJclListener;
+    FItemChangeListener: IListener;
     procedure OnItemChange;
   protected
     procedure DoSubItemChange; virtual;
@@ -456,3 +456,4 @@ begin
 end;
 
 end.
+

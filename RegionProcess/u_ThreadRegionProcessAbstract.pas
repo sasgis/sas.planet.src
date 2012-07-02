@@ -13,7 +13,7 @@ type
   TThreadRegionProcessAbstract = class(TThread)
   private
     FOperationID: Integer;
-    FCancelListener: IJclListener;
+    FCancelListener: IListener;
     FProgressInfo: IRegionProcessProgressInfoInternal;
     FPolygLL: ILonLatPolygon;
 
@@ -111,3 +111,4 @@ begin
 end;
 
 end.
+

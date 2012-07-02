@@ -20,7 +20,7 @@ type
     FIsRelative: Boolean;
     FFullPath: string;
 
-    FBasePathListener: IJclListener;
+    FBasePathListener: IListener;
     procedure OnBasePathChange;
     procedure _UpdateFullPath;
     function IsRelativePath(const APath: string): Boolean;
@@ -250,3 +250,4 @@ begin
 end;
 
 end.
+

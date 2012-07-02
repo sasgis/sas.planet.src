@@ -15,16 +15,16 @@ type
     FTile: TPoint;
     FZoom: Byte;
     FVersionInfo: IMapVersionInfo;
-    FStartNotifier: IJclNotifier;
-    FFinishNotifier: IJclNotifier;
+    FStartNotifier: INotifier;
+    FFinishNotifier: INotifier;
     FCancelNotifier: IOperationNotifier;
     FOperationID: Integer;
   protected
     function GetTile: TPoint;
     function GetZoom: Byte;
     function GetVersionInfo: IMapVersionInfo;
-    function GetStartNotifier: IJclNotifier;
-    function GetFinishNotifier: IJclNotifier;
+    function GetStartNotifier: INotifier;
+    function GetFinishNotifier: INotifier;
     function GetCancelNotifier: IOperationNotifier;
     function GetOperationID: Integer;
   public
@@ -69,7 +69,7 @@ begin
   Result := FCancelNotifier;
 end;
 
-function TTileRequest.GetFinishNotifier: IJclNotifier;
+function TTileRequest.GetFinishNotifier: INotifier;
 begin
   Result := FFinishNotifier;
 end;
@@ -79,7 +79,7 @@ begin
   Result := FOperationID;
 end;
 
-function TTileRequest.GetStartNotifier: IJclNotifier;
+function TTileRequest.GetStartNotifier: INotifier;
 begin
   Result := FStartNotifier;
 end;
@@ -100,3 +100,4 @@ begin
 end;
 
 end.
+

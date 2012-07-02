@@ -30,10 +30,10 @@ type
   TBitmapMarkerProviderChangeableFaked = class(TInterfacedObject, IBitmapMarkerProviderChangeable)
   private
     FProviderStatic: IBitmapMarkerProvider;
-    FChangeNotifier: IJclNotifier;
+    FChangeNotifier: INotifier;
   protected
     function GetStatic: IBitmapMarkerProvider;
-    function GetChangeNotifier: IJclNotifier;
+    function GetChangeNotifier: INotifier;
   public
     constructor Create(
       const AProviderStatic: IBitmapMarkerProvider
@@ -56,7 +56,7 @@ begin
   FChangeNotifier := TJclBaseNotifierFaked.Create;
 end;
 
-function TBitmapMarkerProviderChangeableFaked.GetChangeNotifier: IJclNotifier;
+function TBitmapMarkerProviderChangeableFaked.GetChangeNotifier: INotifier;
 begin
   Result := FChangeNotifier;
 end;
@@ -67,3 +67,4 @@ begin
 end;
 
 end.
+

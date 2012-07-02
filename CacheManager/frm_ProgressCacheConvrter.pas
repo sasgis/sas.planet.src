@@ -64,10 +64,10 @@ type
     procedure btnQuitClick(Sender: TObject);
   private
     FConverterThread: TThreadCacheConverter;
-    FAppClosingNotifier: IJclNotifier;
-    FAppClosingListener: IJclListener;
-    FTimerNoifier: IJclNotifier;
-    FTimerListener: IJclListener;
+    FAppClosingNotifier: INotifier;
+    FAppClosingListener: IListener;
+    FTimerNoifier: INotifier;
+    FTimerListener: IListener;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FProgressInfo: ICacheConverterProgressInfo;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -80,8 +80,8 @@ type
     constructor Create(
       const AConverterThread: TThreadCacheConverter;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const ACancelNotifierInternal: IOperationNotifierInternal;
       const AProgressInfo: ICacheConverterProgressInfo;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -102,8 +102,8 @@ uses
 constructor TfrmProgressCacheConverter.Create(
   const AConverterThread: TThreadCacheConverter;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const ACancelNotifierInternal: IOperationNotifierInternal;
   const AProgressInfo: ICacheConverterProgressInfo;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -223,3 +223,5 @@ begin
 end;
 
 end.
+
+

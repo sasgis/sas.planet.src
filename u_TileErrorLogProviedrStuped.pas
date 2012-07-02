@@ -32,11 +32,11 @@ type
   TTileErrorLogProviedrStuped = class(TInterfacedObject, ITileErrorLogProviedrStuped, ITileErrorLogger)
   private
     FLastErrorInfo: ITileErrorInfo;
-    FNotifier: IJclNotifier;
+    FNotifier: INotifier;
     FCS: IReadWriteSync;
   protected
     function GetLastErrorInfo: ITileErrorInfo;
-    function GetNotifier: IJclNotifier;
+    function GetNotifier: INotifier;
   protected
     procedure LogError(const AValue: ITileErrorInfo);
   public
@@ -76,7 +76,7 @@ begin
   end;
 end;
 
-function TTileErrorLogProviedrStuped.GetNotifier: IJclNotifier;
+function TTileErrorLogProviedrStuped.GetNotifier: INotifier;
 begin
   Result := FNotifier;
 end;
@@ -93,3 +93,4 @@ begin
 end;
 
 end.
+

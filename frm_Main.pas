@@ -787,7 +787,7 @@ constructor TfrmMain.Create(AOwner: TComponent);
 var
   VLogger: TTileErrorLogProviedrStuped;
   VMouseState: TMouseState;
-  VLineOnMapEditChangeListener: IJclListener;
+  VLineOnMapEditChangeListener: IListener;
   VBitmapStatic: IBitmap32Static;
 begin
   inherited;
@@ -1084,9 +1084,9 @@ var
   param:string;
   VGUID: TGUID;
   VLonLat: TDoublePoint;
-  VMapLayersVsibleChangeListener: IJclListener;
-  VMainFormMainConfigChangeListener: IJclListener;
-  VGPSReceiverStateChangeListener: IJclListener;
+  VMapLayersVsibleChangeListener: IListener;
+  VMainFormMainConfigChangeListener: IListener;
+  VGPSReceiverStateChangeListener: IListener;
   VScale: Integer;
   VDegScale: Double;
   VZoom: Byte;
@@ -5778,6 +5778,7 @@ begin
 end;
 
 end.
+
 
 
 

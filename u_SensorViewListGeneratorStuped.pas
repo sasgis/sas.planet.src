@@ -37,7 +37,7 @@ uses
 type
   TSensorViewListGeneratorStuped = class(TInterfacedObject, ISensorViewListGenerator)
   private
-    FTimerNoifier: IJclNotifier;
+    FTimerNoifier: INotifier;
     FValueConverterConfig: IValueToStringConverterConfig;
     FLanguageManager: ILanguageManager;
     FOwner: TComponent;
@@ -57,7 +57,7 @@ type
     function CreateSensorViewList(const ASensorList: ISensorList): IGUIDInterfaceSet;
   public
     constructor Create(
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AValueConverterConfig: IValueToStringConverterConfig;
       const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
@@ -298,7 +298,7 @@ begin
 end;
 
 constructor TSensorViewListGeneratorStuped.Create(
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AValueConverterConfig: IValueToStringConverterConfig;
   const ALanguageManager: ILanguageManager;
   AOwner: TComponent;
@@ -350,3 +350,4 @@ begin
 end;
 
 end.
+

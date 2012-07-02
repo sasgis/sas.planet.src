@@ -38,8 +38,8 @@ type
     FMapsSet: IMapTypeSet;
     FSingeMapsList: IGUIDInterfaceSet;
   protected
-    FMainMapChangeNotyfier: IJclNotifier;
-    FMainMapListener: IJclListener;
+    FMainMapChangeNotyfier: INotifier;
+    FMainMapListener: IListener;
     procedure OnMainMapChange(const AGUID: TGUID);
   protected
     function GetSelectedGUID: TGUID;
@@ -47,7 +47,7 @@ type
     function GetMapsSet: IMapTypeSet;
   public
     constructor Create(
-      const AMainMapChangeNotyfier: IJclNotifier;
+      const AMainMapChangeNotyfier: INotifier;
       const ASingeMapsList: IGUIDInterfaceSet;
       const AMapsSet: IMapTypeSet
     );
@@ -63,7 +63,7 @@ uses
 { TActiveMapConfigNew }
 
 constructor TActiveMapConfig.Create(
-  const AMainMapChangeNotyfier: IJclNotifier;
+  const AMainMapChangeNotyfier: INotifier;
   const ASingeMapsList: IGUIDInterfaceSet;
   const AMapsSet: IMapTypeSet
 );
@@ -128,3 +128,5 @@ begin
 end;
 
 end.
+
+

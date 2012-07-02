@@ -11,10 +11,10 @@ type
   ILonLatRectUpdateNotifier = interface
     ['{BE8DACC7-D94E-408A-A202-985D6DAC682A}']
     procedure Add(
-      const AListener: IJclListener;
+      const AListener: IListener;
       const ARect: ILonLatRect
     ); stdcall;
-    procedure Remove(const AListener: IJclListener); stdcall;
+    procedure Remove(const AListener: IListener); stdcall;
   end;
 
   ILonLatRectUpdateNotifierInternal = interface
@@ -26,3 +26,4 @@ type
 implementation
 
 end.
+

@@ -34,7 +34,7 @@ type
   TActiveMapTBXItem = class(TTBXCustomItem)
   private
     FMapActive: IActiveMapSingle;
-    FListener: IJclListener;
+    FListener: IListener;
     procedure OnMapChangeState;
     procedure AdjustFont(
       Item: TTBCustomItem;
@@ -97,3 +97,4 @@ begin
 end;
 
 end.
+

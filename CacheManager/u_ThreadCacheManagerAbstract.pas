@@ -31,7 +31,7 @@ type
   TThreadCacheManagerAbstract = class(TThread)
   private
     FOperationID: Integer;
-    FCancelListener: IJclListener;
+    FCancelListener: IListener;
     FMessageForShow: string;
     FCancelNotifier: IOperationNotifier;
     procedure OnCancel;
@@ -117,3 +117,4 @@ begin
 end;
 
 end.
+

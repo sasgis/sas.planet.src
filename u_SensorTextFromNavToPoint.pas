@@ -35,7 +35,7 @@ type
     FViewPortState: IViewPortState;
     FNavigationToPoint: INavigationToPoint;
 
-    FSourceDataUpdateNotifier: IJclNotifier;
+    FSourceDataUpdateNotifier: INotifier;
 
     procedure OnPosChanged;
     procedure OnNavToPointChanged;
@@ -128,3 +128,4 @@ begin
 end;
 
 end.
+

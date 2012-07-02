@@ -35,7 +35,7 @@ type
   private
     FDefConfig: IMapAbilitiesConfigStatic;
     FStorageConfig: ISimpleTileStorageConfig;
-    FStorageConfigListener: IJclListener;
+    FStorageConfigListener: IListener;
 
     FIsShowOnSmMap: Boolean;
     FIsUseStick: Boolean;
@@ -290,3 +290,4 @@ begin
 end;
 
 end.
+

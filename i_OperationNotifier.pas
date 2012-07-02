@@ -33,8 +33,8 @@ type
 
     function IsOperationCanceled(AID: Integer): Boolean; stdcall;
 
-    procedure AddListener(AListener: IJclListener); stdcall;
-    procedure RemoveListener(AListener: IJclListener); stdcall;
+    procedure AddListener(AListener: IListener); stdcall;
+    procedure RemoveListener(AListener: IListener); stdcall;
   end;
 
   IOneOperationNotifier = interface
@@ -42,10 +42,11 @@ type
     function GetIsExecuted: Boolean;
     property IsExecuted: Boolean read GetIsExecuted;
 
-    procedure AddListener(AListener: IJclListener); stdcall;
-    procedure RemoveListener(AListener: IJclListener); stdcall;
+    procedure AddListener(AListener: IListener); stdcall;
+    procedure RemoveListener(AListener: IListener); stdcall;
   end;
 
 implementation
 
 end.
+

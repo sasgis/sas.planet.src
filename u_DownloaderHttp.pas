@@ -56,7 +56,7 @@ type
   TDownloaderHttp = class(TInterfacedObject, IDownloader)
   private
     FCS: IReadWriteSync;
-    FCancelListener: IJclListener;
+    FCancelListener: IListener;
     FHttpClient: TALWinInetHTTPClient;
     FHttpResponseHeader: TALHTTPResponseHeader;
     FHttpResponseBody: TMemoryStream;
@@ -664,3 +664,4 @@ begin
 end;
 
 end.
+

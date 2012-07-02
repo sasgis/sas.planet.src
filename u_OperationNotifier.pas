@@ -34,7 +34,7 @@ type
 
   TOperationNotifier = class(TInterfacedObject, IOperationNotifier, IOperationNotifierInternal)
   private
-    FNotifier: IJclNotifier;
+    FNotifier: INotifier;
     FCurrentOperationID: Integer;
     FCS: IReadWriteSync;
   protected
@@ -43,8 +43,8 @@ type
     function GetCurrentOperation: Integer; stdcall;
     function IsOperationCanceled(AID: Integer): Boolean; stdcall;
 
-    procedure AddListener(AListener: IJclListener); stdcall;
-    procedure RemoveListener(AListener: IJclListener); stdcall;
+    procedure AddListener(AListener: IListener); stdcall;
+    procedure RemoveListener(AListener: IListener); stdcall;
   public
     constructor Create;
   end;
@@ -55,15 +55,15 @@ type
 
   TOneOperationNotifier = class(TInterfacedObject, IOneOperationNotifier, IOneOperationNotifierInternal)
   private
-    FNotifier: IJclNotifier;
+    FNotifier: INotifier;
     FCS: IReadWriteSync;
   protected
     procedure ExecuteOperation;
   protected
     function GetIsExecuted: Boolean;
 
-    procedure AddListener(AListener: IJclListener); stdcall;
-    procedure RemoveListener(AListener: IJclListener); stdcall;
+    procedure AddListener(AListener: IListener); stdcall;
+    procedure RemoveListener(AListener: IListener); stdcall;
   public
     constructor Create;
   end;
@@ -84,7 +84,7 @@ begin
   FCurrentOperationID := 0;
 end;
 
-procedure TOperationNotifier.AddListener(AListener: IJclListener);
+procedure TOperationNotifier.AddListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -126,7 +126,7 @@ begin
   end;
 end;
 
-procedure TOperationNotifier.RemoveListener(AListener: IJclListener);
+procedure TOperationNotifier.RemoveListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -145,7 +145,7 @@ begin
   FNotifier := TJclBaseNotifier.Create;
 end;
 
-procedure TOneOperationNotifier.AddListener(AListener: IJclListener);
+procedure TOneOperationNotifier.AddListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -160,7 +160,7 @@ end;
 
 procedure TOneOperationNotifier.ExecuteOperation;
 var
-  VNotifier: IJclNotifier;
+  VNotifier: INotifier;
 begin
   FCS.BeginWrite;
   try
@@ -182,7 +182,7 @@ begin
   end;
 end;
 
-procedure TOneOperationNotifier.RemoveListener(AListener: IJclListener);
+procedure TOneOperationNotifier.RemoveListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -196,3 +196,5 @@ begin
 end;
 
 end.
+
+

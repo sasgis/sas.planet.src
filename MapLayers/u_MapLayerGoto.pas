@@ -73,7 +73,7 @@ constructor TGotoLayer.Create(
   const AConfig: IGotoLayerConfig
 );
 var
-  VListener: IJclListener;
+  VListener: IListener;
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FConfig := AConfig;
@@ -195,3 +195,4 @@ begin
 end;
 
 end.
+

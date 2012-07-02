@@ -57,7 +57,7 @@ type
       const AConfig: IStatBarConfig;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMouseState: IMouseState;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const ATimeZoneDiff: ITimeZoneDiffByLonLat;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
@@ -88,7 +88,7 @@ constructor TLayerStatBar.Create(
   const AConfig: IStatBarConfig;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMouseState: IMouseState;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const ATimeZoneDiff: ITimeZoneDiffByLonLat;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
@@ -345,3 +345,4 @@ begin
 end;
 
 end.
+

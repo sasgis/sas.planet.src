@@ -13,18 +13,18 @@ uses
 type
   TTileRequestQueueProcessorThread = class(TInterfacedThread)
   private
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FTileRequestQueue: ITileRequestQueue;
     FTileDownloaderSync: ITileDownloader;
 
-    FAppClosingListener: IJclListener;
+    FAppClosingListener: IListener;
     procedure OnAppClosing;
   protected
     procedure Execute; override;
   public
     constructor Create(
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const ATileRequestQueue: ITileRequestQueue;
       const ATileDownloaderSync: ITileDownloader
     );
@@ -40,7 +40,7 @@ uses
 
 constructor TTileRequestQueueProcessorThread.Create(
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const ATileRequestQueue: ITileRequestQueue;
   const ATileDownloaderSync: ITileDownloader
 );
@@ -84,3 +84,5 @@ begin
 end;
 
 end.
+
+

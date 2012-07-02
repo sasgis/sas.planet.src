@@ -283,7 +283,7 @@ type
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
       const AGCList: ITTLCheckNotifier;
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       const AInetConfig: IInetConfig;
       const AImageResamplerConfig: IImageResamplerConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -336,7 +336,7 @@ constructor TMapType.Create(
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
   const AGCList: ITTLCheckNotifier;
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   const AInetConfig: IInetConfig;
   const AImageResamplerConfig: IImageResamplerConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
@@ -1436,3 +1436,4 @@ begin
 end;
 
 end.
+

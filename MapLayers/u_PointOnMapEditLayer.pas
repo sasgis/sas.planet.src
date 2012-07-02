@@ -55,7 +55,7 @@ constructor TPointOnMapEditLayer.Create(
   const AMarkerProvider: IBitmapMarkerProviderChangeable;
   const APointOnMap: IPointOnMapEdit);
 var
-  VListener: IJclListener;
+  VListener: IListener;
 begin
   inherited Create(APerfList, AParentMap, AViewPortState);
   FPointOnMap := APointOnMap;
@@ -130,3 +130,4 @@ begin
 end;
 
 end.
+

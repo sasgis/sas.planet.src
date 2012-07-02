@@ -34,8 +34,8 @@ type
   TProviderMapCombine = class(TExportProviderAbstract)
   private
     FViewConfig: IGlobalViewMainConfig;
-    FAppClosingNotifier: IJclNotifier;
-    FTimerNoifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
+    FTimerNoifier: INotifier;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FMarksDB: TMarksSystem;
@@ -67,8 +67,8 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
-      const AAppClosingNotifier: IJclNotifier;
-      const ATimerNoifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
+      const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const AMarksShowConfig: IUsedMarksConfig;
@@ -118,8 +118,8 @@ constructor TProviderMapCombine.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
-  const AAppClosingNotifier: IJclNotifier;
-  const ATimerNoifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
+  const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const AMarksShowConfig: IUsedMarksConfig;
@@ -438,3 +438,4 @@ begin
 end;
 
 end.
+

@@ -18,7 +18,7 @@ type
     FTargetGeoConverter: ICoordConverter;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
 
-    FSourceChangeListener: IJclListener;
+    FSourceChangeListener: IListener;
     FCS: IReadWriteSync;
     FStatic: ILocalCoordConverter;
 
@@ -129,3 +129,4 @@ begin
 end;
 
 end.
+

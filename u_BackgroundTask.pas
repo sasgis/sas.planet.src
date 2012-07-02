@@ -40,13 +40,13 @@ type
 
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
   private
-    FAppClosingNotifier: IJclNotifier;
+    FAppClosingNotifier: INotifier;
     FOnExecute: TBackgroundTaskExecuteEvent;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FCancelNotifier: IOperationNotifier;
     FStopThreadHandle: THandle;
     FAllowExecuteHandle: THandle;
-    FAppClosingListener: IJclListener;
+    FAppClosingListener: IListener;
     procedure OnAppClosing;
   protected
     procedure Execute; override;
@@ -57,7 +57,7 @@ type
     procedure StopExecute;
   public
     constructor Create(
-      const AAppClosingNotifier: IJclNotifier;
+      const AAppClosingNotifier: INotifier;
       AOnExecute: TBackgroundTaskExecuteEvent;
       const AThreadConfig: IThreadConfig
     );
@@ -72,7 +72,7 @@ uses
 { TBackgroundTask }
 
 constructor TBackgroundTask.Create(
-  const AAppClosingNotifier: IJclNotifier;
+  const AAppClosingNotifier: INotifier;
   AOnExecute: TBackgroundTaskExecuteEvent;
   const AThreadConfig: IThreadConfig
 );
@@ -161,3 +161,5 @@ begin
 end;
 
 end.
+
+

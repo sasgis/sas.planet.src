@@ -51,7 +51,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const ATimerNoifier: IJclNotifier;
+      const ATimerNoifier: INotifier;
       const AConfig: IMapLayerGPSMarkerConfig;
       const AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
       const AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -78,7 +78,7 @@ constructor TMapLayerGPSMarker.Create(
   const APerfList: IInternalPerformanceCounterList;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const ATimerNoifier: IJclNotifier;
+  const ATimerNoifier: INotifier;
   const AConfig: IMapLayerGPSMarkerConfig;
   const AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
   const AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -219,3 +219,4 @@ begin
 end;
 
 end.
+

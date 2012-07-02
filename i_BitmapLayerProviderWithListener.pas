@@ -11,7 +11,7 @@ type
   IBitmapLayerProviderWithListener = interface(IBitmapLayerProvider)
     ['{95B7E0FF-1FD5-4239-BBDA-1535BF03A965}']
     procedure SetListener(
-      const AListener: IJclListener;
+      const AListener: IListener;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure RemoveListener;
@@ -20,3 +20,4 @@ type
 implementation
 
 end.
+

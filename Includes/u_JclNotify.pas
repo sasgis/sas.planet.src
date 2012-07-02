@@ -41,14 +41,14 @@ uses
 
   { The following classes provide a basic notifier/listener implementation. Note that using one of these classes does
     not imply the usage of the related classes; the notifier can be used in conjection with any class implementing
-    IJclListener and vice versa. }
+    IListener and vice versa. }
 type
-  TJclBaseListener = class (TInterfacedObject, IJclListener)
+  TJclBaseListener = class (TInterfacedObject, IListener)
   protected
     procedure Notification(const msg: IInterface); virtual; stdcall;
   end;
 
-  TJclBaseNotifier = class (TInterfacedObject, IJclNotifier)
+  TJclBaseNotifier = class (TInterfacedObject, INotifier)
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,16 +56,16 @@ type
     FListeners: TInterfaceList;
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
   protected
-    procedure Add(const listener: IJclListener); stdcall;
+    procedure Add(const listener: IListener); stdcall;
     procedure Notify(const msg: IInterface); stdcall;
-    procedure Remove(const listener: IJclListener); stdcall;
+    procedure Remove(const listener: IListener); stdcall;
   end;
 
-  TJclBaseNotifierFaked = class (TInterfacedObject, IJclNotifier)
+  TJclBaseNotifierFaked = class (TInterfacedObject, INotifier)
   protected
-    procedure Add(const listener: IJclListener); stdcall;
+    procedure Add(const listener: IListener); stdcall;
     procedure Notify(const msg: IInterface); stdcall;
-    procedure Remove(const listener: IJclListener); stdcall;
+    procedure Remove(const listener: IListener); stdcall;
   end;
 
 implementation
@@ -91,7 +91,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TJclBaseNotifier.Add(const listener: IJclListener);
+procedure TJclBaseNotifier.Add(const listener: IListener);
 begin
   FSynchronizer.BeginWrite;
   try
@@ -109,13 +109,13 @@ begin
   FSynchronizer.BeginRead;
   try
     for idx := 0 to FListeners.Count - 1 do
-      IJclListener(FListeners[idx]).Notification(msg);
+      IListener(FListeners[idx]).Notification(msg);
   finally
     FSynchronizer.EndRead;
   end;
 end;
 
-procedure TJclBaseNotifier.Remove(const listener: IJclListener);
+procedure TJclBaseNotifier.Remove(const listener: IListener);
 var
   idx: Integer;
 begin
@@ -138,7 +138,7 @@ end;
 
 { TJclBaseNotifierFaked }
 
-procedure TJclBaseNotifierFaked.Add(const listener: IJclListener);
+procedure TJclBaseNotifierFaked.Add(const listener: IListener);
 begin
   // do nothing;
 end;
@@ -148,9 +148,11 @@ begin
   // do nothing;
 end;
 
-procedure TJclBaseNotifierFaked.Remove(const listener: IJclListener);
+procedure TJclBaseNotifierFaked.Remove(const listener: IListener);
 begin
   // do nothing;
 end;
 
 end.
+
+

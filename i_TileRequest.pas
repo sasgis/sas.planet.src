@@ -20,11 +20,11 @@ type
     function GetVersionInfo: IMapVersionInfo;
     property VersionInfo: IMapVersionInfo read GetVersionInfo;
 
-    function GetStartNotifier: IJclNotifier;
-    property StartNotifier: IJclNotifier read GetStartNotifier;
+    function GetStartNotifier: INotifier;
+    property StartNotifier: INotifier read GetStartNotifier;
 
-    function GetFinishNotifier: IJclNotifier;
-    property FinishNotifier: IJclNotifier read GetFinishNotifier;
+    function GetFinishNotifier: INotifier;
+    property FinishNotifier: INotifier read GetFinishNotifier;
 
     function GetCancelNotifier: IOperationNotifier;
     property CancelNotifier: IOperationNotifier read GetCancelNotifier;
@@ -40,3 +40,4 @@ type
 implementation
 
 end.
+

@@ -62,10 +62,11 @@ type
     ); overload;
     procedure ScaleTo(const AScale: Double); overload;
 
-    function GetScaleChangeNotifier: IJclNotifier;
-    property ScaleChangeNotifier: IJclNotifier read GetScaleChangeNotifier;
+    function GetScaleChangeNotifier: INotifier;
+    property ScaleChangeNotifier: INotifier read GetScaleChangeNotifier;
   end;
 
 implementation
 
 end.
+
