@@ -106,6 +106,9 @@ type
     procedure InternalResumeLogger;
     procedure InternalStartLogger(const AConfig: IGPSModuleByCOMPortSettings;
                                   const ALogConfig: IGPSConfig);
+    function InternalGetLoggerState(const AConfig: IGPSModuleByCOMPortSettings;
+                                    const ALogConfig: IGPSConfig;
+                                    out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
     // to fill track log params
     procedure Do_VSAGPS_LOGGER_TRACKPARAMS_EVENT(const pLogger: Pointer;
                                                  const pATP: Pvsagps_AddTrackPoint;
@@ -431,6 +434,7 @@ var
   FGPSDevType: DWORD;
   VTimeout: DWORD;
   VFlyOnTrackSource: WideString;
+  VTrackTypes: TVSAGPS_TrackTypes;
 
   function _IsFlyOnTrackMode: Boolean;
   begin
@@ -490,10 +494,12 @@ begin
     if FGPSGPS_DevParams.wWorkerThreadTimeoutMSec>cWorkingThread_MaxDelay_Msec then
       FGPSGPS_DevParams.wWorkerThreadTimeoutMSec:=cWorkingThread_MaxDelay_Msec;
 
-    if (not AConfig.NMEALog) or (_IsFlyOnTrackMode) then
+    if _IsFlyOnTrackMode then
       FGPSGPS_DevParams.pLowLevelHandler:=nil
+    else if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then
+      FGPSGPS_DevParams.pLowLevelHandler:=rLowLevelHandler
     else
-      FGPSGPS_DevParams.pLowLevelHandler:=rLowLevelHandler;
+      FGPSGPS_DevParams.pLowLevelHandler:=nil;
 
     // reserved for fly-on-track mode
     if _IsFlyOnTrackMode then
@@ -950,6 +956,21 @@ begin
   end;
 end;
 
+function TGPSModuleByVSAGPS.InternalGetLoggerState(
+  const AConfig: IGPSModuleByCOMPortSettings;
+  const ALogConfig: IGPSConfig;
+  out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
+begin
+  if Assigned(ALogConfig) then
+    Result := ALogConfig.AllowWriteLog(ATrackTypes) and (ATrackTypes<>[])
+  else begin
+    Result := FALSE;
+    ATrackTypes := [];
+  end;
+  if not Result then
+    Result := Assigned(AConfig) and AConfig.NMEALog;
+end;
+
 procedure TGPSModuleByVSAGPS.InternalPrepareLoggerParams;
 begin
   ZeroMemory(@FVSAGPS_LOG_WRITER_PARAMS, sizeof(FVSAGPS_LOG_WRITER_PARAMS));
@@ -1002,7 +1023,7 @@ var
   VLoggerPath: WideString;
   tCallbackFilter: TVSAGPS_LOGGER_GETVALUES_CALLBACK_FILTER;
 begin
-  if Assigned(ALogConfig) and ALogConfig.AllowWriteLog(VTrackTypes) then begin
+  if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then begin
     LockLogger;
     try
       // create or stop running
@@ -1046,10 +1067,12 @@ begin
         VTrackTypes:=[];
       end;
 
-      if AConfig.USBGarmin then
-        System.Include(VTrackTypes,ttGarmin)
-      else
-        System.Include(VTrackTypes,ttNMEA);
+      if AConfig.NMEALog then begin
+        if AConfig.USBGarmin then
+          System.Include(VTrackTypes,ttGarmin)
+        else
+          System.Include(VTrackTypes,ttNMEA);
+      end;
 
       // create suspended
 {$if defined(VSAGPS_AS_DLL)}
