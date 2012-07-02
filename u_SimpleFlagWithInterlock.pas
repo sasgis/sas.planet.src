@@ -13,6 +13,7 @@ type
   private
     procedure SetFlag;
     function CheckFlagAndReset: Boolean;
+    function CheckFlag: Boolean;
   public
     constructor Create;
   end;
@@ -26,6 +27,11 @@ constructor TSimpleFlagWithInterlock.Create;
 begin
   inherited Create;
   FSetCount := 0;
+end;
+
+function TSimpleFlagWithInterlock.CheckFlag: Boolean;
+begin
+  Result := InterlockedCompareExchange(FSetCount, 0, 0) > 0;
 end;
 
 function TSimpleFlagWithInterlock.CheckFlagAndReset: Boolean;
