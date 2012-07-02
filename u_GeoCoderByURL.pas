@@ -521,6 +521,18 @@ begin
    end;
   end;
 
+ // http://чепецк.net/?zoom=15&lat=43.94165&lon=40.14849&layers=BFFFT
+ if  RegExprGetMatchSubStr(UpperCase(Vlink),'LAT=.+LON=',0)<>''  then
+  if sname = '' then begin
+   sname := RegExprGetMatchSubStr(Vlink,'http://[0-9a-zа-я\.]+',0);
+   i := PosEx('LAT=', UpperCase(Vlink), 1);
+   j := PosEx('&', Vlink, i);
+   slat := Copy(Vlink, i + 4, j - (i + 4));
+   i := PosEx('LON=', UpperCase(Vlink), j);
+   j := PosEx('&', Vlink, i);
+   if j = 0 then j := length(Vlink) +1;
+   slon := Copy(Vlink, i + 4, j - (i + 4));
+  end;
 
  if sname <> '' then begin
   try
