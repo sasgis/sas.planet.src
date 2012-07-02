@@ -190,6 +190,7 @@ implementation
 uses
   SysUtils,
   i_MarksDbSmlInternal,
+  i_MarkCategoryFactoryDbInternal,
   u_GeoFun,
   u_MarkId,
   u_MarkPoint,
@@ -234,14 +235,14 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VCategoryID := -1;
+  VCategoryID := CNotExistCategoryID;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
   Result :=
     CreateLine(
-      -1,
+      CNotExistMarkID,
       VName,
       True,
       VCategoryId,
@@ -274,14 +275,14 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VCategoryID := -1;
+  VCategoryID := CNotExistCategoryID;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
   Result :=
     CreatePoint(
-      -1,
+      CNotExistMarkID,
       VName,
       True,
       '',
@@ -318,14 +319,14 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VCategoryID := -1;
+  VCategoryID := CNotExistCategoryID;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
     VCategoryID := VTemplateSML.CategoryId;
   end;
 
   Result :=
     CreatePoly(
-      -1,
+      CNotExistMarkID,
       VName,
       True,
       VCategoryId,
@@ -557,8 +558,8 @@ var
   VMarkInternal: IMarkSMLInternal;
 begin
   VVisible := True;
-  VId := -1;
-  VCategoryId := -1;
+  VId := CNotExistMarkID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
     VVisible := VMarkInternal.Visible;
     VId := VMarkInternal.Id;
@@ -595,8 +596,8 @@ var
   VMarkInternal: IMarkPointSMLInternal;
 begin
   VVisible := True;
-  VId := -1;
-  VCategoryId := -1;
+  VId := CNotExistMarkID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(ASource, IMarkPointSMLInternal, VMarkInternal) then begin
     VVisible := VMarkInternal.Visible;
     VId := VMarkInternal.Id;
@@ -633,8 +634,8 @@ var
   VMarkInternal: IMarkSMLInternal;
 begin
   VVisible := True;
-  VId := -1;
-  VCategoryId := -1;
+  VId := CNotExistMarkID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
     VVisible := VMarkInternal.Visible;
     VId := VMarkInternal.Id;
@@ -677,7 +678,7 @@ var
   VMarkInternal: IMarkSMLInternal;
   VMarkPointInternal: IMarkPointSMLInternal;
 begin
-  VID := -1;
+  VID := CNotExistMarkID;
   if ASource <> nil then begin
     if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
       VID := VMarkInternal.Id;
@@ -686,7 +687,7 @@ begin
       VPicName := VMarkPointInternal.PicName;
     end;
   end;
-  VCategoryId := -1;
+  VCategoryId := CNotExistCategoryID;
   if ACategory <> nil then begin
     if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
       VCategoryId := VCategoryInternal.Id;
@@ -727,13 +728,13 @@ var
   VCategoryInternal: IMarkCategorySMLInternal;
   VMarkInternal: IMarkSMLInternal;
 begin
-  VID := -1;
+  VID := CNotExistMarkID;
   if ASource <> nil then begin
     if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
       VID := VMarkInternal.Id;
     end;
   end;
-  VCategoryId := -1;
+  VCategoryId := CNotExistCategoryID;
   if ACategory <> nil then begin
     if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
       VCategoryId := VCategoryInternal.Id;
@@ -771,13 +772,13 @@ var
   VCategoryInternal: IMarkCategorySMLInternal;
   VMarkInternal: IMarkSMLInternal;
 begin
-  VID := -1;
+  VID := CNotExistMarkID;
   if ASource <> nil then begin
     if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
       VID := VMarkInternal.Id;
     end;
   end;
-  VCategoryId := -1;
+  VCategoryId := CNotExistCategoryID;
   if ACategory <> nil then begin
     if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
       VCategoryId := VCategoryInternal.Id;
