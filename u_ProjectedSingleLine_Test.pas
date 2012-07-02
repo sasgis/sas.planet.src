@@ -28,7 +28,7 @@ uses
 
 procedure TestTProjectedPolygonLine.SetUp;
 var
-  VPoints: TArrayOfDoublePoint;
+  VPoints: array of TDoublePoint;
 begin
   inherited;
   SetLength(VPoints, 12);
@@ -48,7 +48,7 @@ begin
   FPolygon :=
     TProjectedPolygonLine.Create(
       nil,
-      @VPoints[0],
+      Addr(VPoints[0]),
       Length(VPoints)
     );
 end;

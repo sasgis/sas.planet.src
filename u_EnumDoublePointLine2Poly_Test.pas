@@ -17,7 +17,10 @@ type
     FZoom: Byte;
     FProjection: IProjectionInfo;
     FRadius: Double;
-    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumLonLatPoint;
+    function PrepareEnumByArray(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IEnumLonLatPoint;
   protected
     procedure SetUp; override;
   published
@@ -39,11 +42,13 @@ uses
 { TestTEnumDoublePointLine2Poly }
 
 function TestTEnumDoublePointLine2Poly.PrepareEnumByArray(
-  AData: TArrayOfDoublePoint): IEnumLonLatPoint;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IEnumLonLatPoint;
 var
   VDataEnum: IEnumLonLatPoint;
 begin
-  VDataEnum := TEnumLonLatPointsByArray.Create(@AData[0], Length(AData));
+  VDataEnum := TEnumLonLatPointsByArray.Create(APoints, ACount);
   Result := TEnumDoublePointLine2Poly.Create(VDataEnum, FRadius, FProjection);
 end;
 
@@ -61,8 +66,8 @@ end;
 
 procedure TestTEnumDoublePointLine2Poly.TestFivePoints;
 var
-  VSource: TArrayOfDoublePoint;
-  VResult: TArrayOfDoublePoint;
+  VSource: array of TDoublePoint;
+  VResult: array of TDoublePoint;
   i: Integer;
   VEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
@@ -85,7 +90,7 @@ begin
   VResult[8] := DoublePoint(11, 11.012791509);
   VResult[9] := DoublePoint(9.9870798298, 9.9998924829);
   VResult[10] := DoublePoint(10.000109176, 9.9872758672);
-  VEnum := PrepareEnumByArray(VSource);
+  VEnum := PrepareEnumByArray(@VSource[0], Length(VSource));
   for i := 0 to Length(VResult) - 1 do begin
     CheckTrue(VEnum.Next(VPoint));
     CheckDoublePointsEquals(VResult[i], VPoint, 0.0000001);
@@ -95,8 +100,8 @@ end;
 
 procedure TestTEnumDoublePointLine2Poly.TestTwoPoints;
 var
-  VSource: TArrayOfDoublePoint;
-  VResult: TArrayOfDoublePoint;
+  VSource: array of TDoublePoint;
+  VResult: array of TDoublePoint;
   i: Integer;
   VEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
@@ -110,7 +115,7 @@ begin
   VResult[2] := DoublePoint(10.999890824, 11.012682517);
   VResult[3] := DoublePoint(9.9870798298, 9.9998924829);
   VResult[4] := DoublePoint(10.000109176, 9.9872758672);
-  VEnum := PrepareEnumByArray(VSource);
+  VEnum := PrepareEnumByArray(@VSource[0], Length(VSource));
   for i := 0 to Length(VResult) - 1 do begin
     CheckTrue(VEnum.Next(VPoint));
     CheckDoublePointsEquals(VResult[i], VPoint, 0.0000001);

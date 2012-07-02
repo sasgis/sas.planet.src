@@ -40,11 +40,11 @@ type
     FOpId: Integer;
   protected
     procedure CreateByKey(
-      AKey: UInt64;
+      const AKey: UInt64;
       AData: Pointer;
       out Item: IInterface
     ); override;
-    function GetIndexByKey(AKey: UInt64): Integer; override;
+    function GetIndexByKey(const AKey: UInt64): Integer; override;
   private
     function GetByKey(AKey: UInt64): ISimple;
   public
@@ -131,7 +131,7 @@ begin
 end;
 
 procedure THashCacheWithQueuesTest.CreateByKey(
-  AKey: UInt64;
+  const AKey: UInt64;
   AData: Pointer;
   out Item: IInterface
 );
@@ -152,7 +152,7 @@ begin
   Result := VResult as ISimple;
 end;
 
-function THashCacheWithQueuesTest.GetIndexByKey(AKey: UInt64): Integer;
+function THashCacheWithQueuesTest.GetIndexByKey(const AKey: UInt64): Integer;
 begin
   Result := AKey and $3f;
 end;

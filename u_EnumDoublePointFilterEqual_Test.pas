@@ -16,7 +16,10 @@ uses
 type
   TestTEnumDoublePointFilterEqual = class(TTestCase)
   private
-    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumDoublePoint;
+    function PrepareEnumByArray(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IEnumDoublePoint;
   published
     procedure NoPoints;
     procedure OnePoint;
@@ -38,17 +41,19 @@ uses
 { TestTEnumDoublePointFilterEqual }
 
 function TestTEnumDoublePointFilterEqual.PrepareEnumByArray(
-  AData: TArrayOfDoublePoint): IEnumDoublePoint;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IEnumDoublePoint;
 var
   VDataEnum: IEnumDoublePoint;
 begin
-  VDataEnum := TEnumDoublePointsByArray.Create(@AData[0], Length(AData));
+  VDataEnum := TEnumDoublePointsByArray.Create(APoints, ACount);
   Result := TEnumDoublePointFilterEqual.Create(VDataEnum);
 end;
 
 procedure TestTEnumDoublePointFilterEqual.DeleteThreePoints;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -58,7 +63,7 @@ begin
   VData[2] := DoublePoint(2.4, 2.3);
   VData[3] := DoublePoint(2.1, 2.1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -67,7 +72,7 @@ end;
 
 procedure TestTEnumDoublePointFilterEqual.DeleteTwoPoints;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -77,7 +82,7 @@ begin
   VData[2] := DoublePoint(2.4, 2.3);
   VData[3] := DoublePoint(2, 0);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -88,25 +93,25 @@ end;
 
 procedure TestTEnumDoublePointFilterEqual.NoPoints;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 0);
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
   CheckFalse(VTestEnum.Next(VPoint));
 end;
 
 procedure TestTEnumDoublePointFilterEqual.OnePoint;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
   SetLength(VData, 1);
   VData[0] := DoublePoint(2, 2);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -115,7 +120,7 @@ end;
 
 procedure TestTEnumDoublePointFilterEqual.SimpleIfNeedDeletePoint;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -124,7 +129,7 @@ begin
   VData[1] := DoublePoint(2, 2);
   VData[2] := DoublePoint(2, 0);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -135,7 +140,7 @@ end;
 
 procedure TestTEnumDoublePointFilterEqual.SimpleIfNoDeletePoint;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -145,7 +150,7 @@ begin
   VData[2] := DoublePoint(2, 0);
   VData[3] := DoublePoint(2, 2);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -160,7 +165,7 @@ end;
 
 procedure TestTEnumDoublePointFilterEqual.TwoLines;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -171,7 +176,7 @@ begin
   VData[3] := CEmptyDoublePoint;
   VData[4] := DoublePoint(4, 4);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -188,7 +193,7 @@ end;
 
 procedure TestTEnumDoublePointFilterEqual.WithEmtyAtEnd;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -198,7 +203,7 @@ begin
   VData[2] := DoublePoint(2, 0);
   VData[3] := CEmptyDoublePoint;
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));

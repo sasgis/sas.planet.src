@@ -16,7 +16,10 @@ uses
 type
   TestTEnumDoublePointClipByLeftBorder = class(TTestCase)
   private
-    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumDoublePoint;
+    function PrepareEnumByArray(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IEnumDoublePoint;
   published
     procedure FirstPointOut;
     procedure FirstPointOnLine;
@@ -31,7 +34,10 @@ type
 
   TestTEnumDoublePointClipByRect = class(TTestCase)
   private
-    function PrepareEnumByArray(AData: TArrayOfDoublePoint): IEnumDoublePoint;
+    function PrepareEnumByArray(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IEnumDoublePoint;
   published
     procedure ClosedFirstPointOut;
     procedure ClosedSecondPointOut;
@@ -43,23 +49,26 @@ implementation
 
 uses
   u_GeoFun,
+  u_EnumDoublePointClipInternal,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointsByArray;
 
 { TestTEnumDoublePointClipByLeftBorder }
 
 function TestTEnumDoublePointClipByLeftBorder.PrepareEnumByArray(
-  AData: TArrayOfDoublePoint): IEnumDoublePoint;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IEnumDoublePoint;
 var
   VDataEnum: IEnumDoublePoint;
 begin
-  VDataEnum := TEnumDoublePointsByArray.Create(@AData[0], Length(AData));
+  VDataEnum := TEnumDoublePointsByArray.Create(APoints, ACount);
   Result := TEnumDoublePointClipByLeftBorder.Create(1, VDataEnum);
 end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.AllPointsIn;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -69,7 +78,7 @@ begin
   VData[2] := DoublePoint(2.4, 2.3);
   VData[3] := DoublePoint(2.1, 2.1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -84,7 +93,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.AllPointsOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -94,14 +103,14 @@ begin
   VData[2] := DoublePoint(0.4, 0.3);
   VData[3] := DoublePoint(0.1, 0.1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckFalse(VTestEnum.Next(VPoint));
 end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.FirstPointOnLine;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -111,7 +120,7 @@ begin
   VData[2] := DoublePoint(2.4, 2.3);
   VData[3] := DoublePoint(2.1, 2.1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -126,7 +135,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.FirstPointOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -136,7 +145,7 @@ begin
   VData[2] := DoublePoint(2.4, 2.3);
   VData[3] := DoublePoint(2.1, 2.1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, DoublePoint(1, 2)));
@@ -151,7 +160,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.LastPointOnLine;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -161,7 +170,7 @@ begin
   VData[2] := DoublePoint(2, 1);
   VData[3] := DoublePoint(1, 1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -176,7 +185,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.LastPointOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -186,7 +195,7 @@ begin
   VData[2] := DoublePoint(2, 1);
   VData[3] := DoublePoint(0, 1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -201,7 +210,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.TwoPointsIn;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -211,7 +220,7 @@ begin
   VData[2] := DoublePoint(2, 1);
   VData[3] := DoublePoint(0, 1);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, DoublePoint(1, 2)));
@@ -226,7 +235,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.SecondPointOnLine;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -235,7 +244,7 @@ begin
   VData[1] := DoublePoint(1, 1);
   VData[2] := DoublePoint(2, 2);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -248,7 +257,7 @@ end;
 
 procedure TestTEnumDoublePointClipByLeftBorder.SecondPointOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -257,7 +266,7 @@ begin
   VData[1] := DoublePoint(0, 2);
   VData[2] := DoublePoint(2, 4);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -274,7 +283,7 @@ end;
 
 procedure TestTEnumDoublePointClipByRect.ClosedAllPointsAround;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -285,7 +294,7 @@ begin
   VData[3] := DoublePoint(0, 10);
   VData[4] := DoublePoint(1, 0);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 0)));
@@ -302,7 +311,7 @@ end;
 
 procedure TestTEnumDoublePointClipByRect.ClosedAllPointsOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -312,14 +321,14 @@ begin
   VData[2] := DoublePoint(0, 1);
   VData[3] := DoublePoint(1, 0);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckFalse(VTestEnum.Next(VPoint));
 end;
 
 procedure TestTEnumDoublePointClipByRect.ClosedFirstPointOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -329,7 +338,7 @@ begin
   VData[2] := DoublePoint(3, 4);
   VData[3] := DoublePoint(1, 0);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, DoublePoint(2, 1)));
@@ -346,7 +355,7 @@ end;
 
 procedure TestTEnumDoublePointClipByRect.ClosedSecondPointOut;
 var
-  VData: TArrayOfDoublePoint;
+  VData: array of TDoublePoint;
   VTestEnum: IEnumDoublePoint;
   VPoint: TDoublePoint;
 begin
@@ -356,7 +365,7 @@ begin
   VData[2] := DoublePoint(3, 4);
   VData[3] := DoublePoint(4, 3);
 
-  VTestEnum := PrepareEnumByArray(VData);
+  VTestEnum := PrepareEnumByArray(@VData[0], Length(VData));
 
   CheckTrue(VTestEnum.Next(VPoint));
   CheckTrue(DoublePointsEqual(VPoint, VData[0]));
@@ -372,11 +381,13 @@ begin
 end;
 
 function TestTEnumDoublePointClipByRect.PrepareEnumByArray(
-  AData: TArrayOfDoublePoint): IEnumDoublePoint;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IEnumDoublePoint;
 var
   VDataEnum: IEnumDoublePoint;
 begin
-  VDataEnum := TEnumDoublePointsByArray.Create(@AData[0], Length(AData));
+  VDataEnum := TEnumDoublePointsByArray.Create(APoints, ACount);
   Result := TEnumDoublePointClipByRect.Create(True, DoubleRect(2, 0, 7, 5), VDataEnum);
 end;
 

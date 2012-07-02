@@ -17,7 +17,7 @@ type
   TestTVectorItmesFactorySimple = class(TTestCase)
   private
     FFactory: IVectorItmesFactory;
-    FPoints: TArrayOfDoublePoint;
+    FPoints: array of TDoublePoint;
   protected
     procedure SetUp; override;
   published
