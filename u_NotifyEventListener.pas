@@ -26,6 +26,7 @@ uses
   Windows,
   Classes,
   i_JclNotify,
+  i_SimpleFlag,
   u_JclNotify;
 
 type
@@ -55,16 +56,27 @@ type
 
   TNotifyEventListenerSync = class(TJclBaseListener)
   private
+    FTimerNoifier: IJclNotifier;
+    FTimerListener: IJclListener;
+
+    FNeedNotifyFlag: ISimpleFlag;
     FEvent: TNotifyListenerNoMmgEvent;
-    procedure DoEvent;
+    procedure OnTimer;
   protected
     procedure Notification(const AMsg: IInterface); override;
   public
-    constructor Create(AEvent: TNotifyListenerNoMmgEvent);
+    constructor Create(
+      const ATimerNoifier: IJclNotifier;
+      AEvent: TNotifyListenerNoMmgEvent
+    );
+    destructor Destroy; override;
   end;
 
 implementation
 
+uses
+  u_SimpleFlagWithInterlock;
+  
 { TSimpleEventListener }
 
 constructor TNotifyEventListener.Create(AEvent: TNotifyListenerEvent);
@@ -90,22 +102,42 @@ end;
 
 { TNotifyEventListenerSync }
 
-constructor TNotifyEventListenerSync.Create(AEvent: TNotifyListenerNoMmgEvent);
+constructor TNotifyEventListenerSync.Create(
+  const ATimerNoifier: IJclNotifier;
+  AEvent: TNotifyListenerNoMmgEvent
+);
 begin
   inherited Create;
+  FTimerNoifier :=  ATimerNoifier;
   FEvent := AEvent;
   Assert(Assigned(FEvent));
+  Assert(Assigned(FTimerNoifier));
+  FNeedNotifyFlag := TSimpleFlagWithInterlock.Create;
+  FTimerListener := TNotifyNoMmgEventListener.Create(Self.OnTimer);
+  FTimerNoifier.Add(FTimerListener);
 end;
 
-procedure TNotifyEventListenerSync.DoEvent;
+procedure TNotifyEventListenerSync.OnTimer;
 begin
-  FEvent;
+  if FNeedNotifyFlag.CheckFlagAndReset then begin
+    FEvent;
+  end;
+end;
+
+destructor TNotifyEventListenerSync.Destroy;
+begin
+  if FTimerNoifier <> nil then begin
+    FTimerNoifier.Remove(FTimerListener);
+    FTimerNoifier := nil;
+    FTimerListener := nil;
+  end;
+  inherited;
 end;
 
 procedure TNotifyEventListenerSync.Notification(const AMsg: IInterface);
 begin
   inherited;
-  TThread.Synchronize(nil, DoEvent);
+  FNeedNotifyFlag.SetFlag;
 end;
 
 { TNotifyNoMmgEventListener }
