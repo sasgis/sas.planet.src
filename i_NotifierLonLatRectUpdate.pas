@@ -18,7 +18,6 @@ type
   end;
 
   INotifierLonLatRectUpdateInternal = interface
-    ['{4B62C3A6-959C-4B6F-84B9-C4AF2B9AC87D}']
     procedure RectUpdateNotify(const ARect: ILonLatRect); stdcall; overload;
     procedure RectUpdateNotify(const ARect: TDoubleRect); stdcall; overload;
   end;

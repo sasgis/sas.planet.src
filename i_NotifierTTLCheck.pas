@@ -33,10 +33,10 @@ type
   end;
 
   INotifierTTLCheckInternal = interface(INotifierTTLCheck)
-    ['{0D0CC81E-2D3A-4196-8F16-88C4A43B1BC4}']
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;
+  
 implementation
 
 end.

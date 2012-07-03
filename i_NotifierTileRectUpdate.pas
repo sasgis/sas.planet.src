@@ -25,7 +25,6 @@ type
   end;
 
   INotifierTileRectUpdateInternal = interface
-    ['{86C0C887-1DD8-43B8-9B5A-0504B4BFA809}']
     procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;
   end;
 

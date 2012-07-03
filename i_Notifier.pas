@@ -13,7 +13,6 @@ type
   end;
 
   INotifierInternal = interface(INotifier)
-    ['{ADED3CD4-8131-422A-8009-A8CC49C07834}']
     procedure Notify(const AMsg: IInterface);
   end;
 
