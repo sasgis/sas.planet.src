@@ -5,7 +5,7 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
-  i_Notify,
+  i_Listener,
   i_LonLatRect,
   i_LonLatRectUpdateNotifier;
 
@@ -172,6 +172,7 @@ begin
 end;
 
 end.
+
 
 
 

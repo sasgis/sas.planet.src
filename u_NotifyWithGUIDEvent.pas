@@ -23,7 +23,7 @@ unit u_NotifyWithGUIDEvent;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   u_Notifier;
 
 type
@@ -58,13 +58,13 @@ type
 type
   INotifierWithGUID = interface(INotifier)
     ['{7160ECC8-5A85-445C-8655-5E5574E60C88}']
-    procedure NotifyByGUID(const AGUID: TGUID); stdcall;
+    procedure NotifyByGUID(const AGUID: TGUID);
   end;
 
 type
   TNotifierWithGUID = class(TNotifierBase, INotifierWithGUID)
   protected
-    procedure NotifyByGUID(const AGUID: TGUID); stdcall;
+    procedure NotifyByGUID(const AGUID: TGUID);
   end;
 
 implementation
@@ -108,5 +108,6 @@ begin
 end;
 
 end.
+
 
 

@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_Notify,
+  i_Notifier, 
   i_GPS,
   i_StringConfigDataElement,
   i_Sensor,
@@ -531,6 +531,7 @@ begin
 end;
 
 end.
+
 
 
 

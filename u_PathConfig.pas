@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_PathConfig,
@@ -250,4 +250,5 @@ begin
 end;
 
 end.
+
 

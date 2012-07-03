@@ -15,7 +15,7 @@ uses
   ExtCtrls,
   StdCtrls,
   GR32_Image,
-  i_Notify,
+  i_Notifier, 
   i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_Sensor,
@@ -139,6 +139,7 @@ begin
 end;
 
 end.
+
 
 
 

@@ -31,7 +31,7 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_RegionProcessProgressInfo,
   u_NotifierOperation,
   u_CommonFormAndFrameParents;
@@ -193,5 +193,6 @@ begin
 end;
 
 end.
+
 
 

@@ -34,7 +34,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  i_Notify,  
+  i_Notifier, i_Listener,  
   i_CacheConverterProgressInfo,
   i_LanguageManager,
   i_ValueToStringConverter,
@@ -223,5 +223,6 @@ begin
 end;
 
 end.
+
 
 

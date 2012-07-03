@@ -28,7 +28,7 @@ uses
   Classes,
   GR32,
   t_GeoTypes,
-  i_Notify,
+  i_Notifier, 
   i_Bitmap32Static,
   i_FillingMapColorer,
   i_ThreadConfig,
@@ -1436,4 +1436,5 @@ begin
 end;
 
 end.
+
 

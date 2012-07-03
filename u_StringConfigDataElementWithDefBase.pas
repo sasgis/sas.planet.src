@@ -23,7 +23,7 @@ unit u_StringConfigDataElementWithDefBase;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_StringConfigDataElement,
@@ -182,4 +182,5 @@ begin
 end;
 
 end.
+
 

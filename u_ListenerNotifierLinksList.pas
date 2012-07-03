@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   SysUtils,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ListenerNotifierLinksList;
 
 type
@@ -172,6 +172,7 @@ begin
 end;
 
 end.
+
 
 
 

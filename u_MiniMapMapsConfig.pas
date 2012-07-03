@@ -23,7 +23,7 @@ unit u_MiniMapMapsConfig;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ActiveMapsConfig,
   i_MapTypes,
   i_MiniMapLayerConfig,
@@ -172,4 +172,5 @@ begin
 end;
 
 end.
+
 

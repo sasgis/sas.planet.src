@@ -23,7 +23,7 @@ unit i_TreeChangeable;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, 
   i_StaticTreeItem;
 
 type
@@ -38,4 +38,5 @@ type
 implementation
 
 end.
+
 

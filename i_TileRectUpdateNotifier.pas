@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_Notify,
+  i_Listener,
   i_TileKey,
   i_CoordConverter;
 
@@ -32,6 +32,7 @@ type
 implementation
 
 end.
+
 
 
 

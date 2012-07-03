@@ -23,7 +23,7 @@ unit i_ListenerNotifierLinksList;
 interface
 
 uses
-  i_Notify;
+  i_Notifier, i_Listener;
 
 type
   IListenerNotifierLinksList = interface
@@ -39,5 +39,6 @@ type
 implementation
 
 end.
+
 
 

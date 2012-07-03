@@ -24,7 +24,7 @@ interface
 
 uses
   ActiveX,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_GUIDListStatic,
   i_MapTypeHotKeyListStatic,
   i_MapTypeGUIConfigList,
@@ -218,4 +218,5 @@ begin
 end;
 
 end.
+
 

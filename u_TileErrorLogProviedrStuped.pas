@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_Notify,
+  i_Notifier, 
   i_TileError,
   i_TileErrorLogProviedrStuped;
 
@@ -93,5 +93,6 @@ begin
 end;
 
 end.
+
 
 

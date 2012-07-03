@@ -23,7 +23,7 @@ unit i_TileErrorLogProviedrStuped;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, 
   i_TileError;
 
 type
@@ -36,4 +36,5 @@ type
 implementation
 
 end.
+
 

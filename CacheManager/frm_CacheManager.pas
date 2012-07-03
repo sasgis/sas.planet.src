@@ -35,7 +35,7 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
-  i_Notify,
+  i_Notifier, 
   i_LanguageManager,
   i_TTLCheckNotifier,
   i_ContentTypeManager,
@@ -228,4 +228,5 @@ begin
 end;
 
 end.
+
 

@@ -23,7 +23,7 @@ unit u_GlobalCahceConfig;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, 
   i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
@@ -259,5 +259,6 @@ begin
 end;
 
 end.
+
 
 

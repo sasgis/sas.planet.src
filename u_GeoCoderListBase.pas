@@ -25,7 +25,7 @@ interface
 uses
   SysUtils,
   ActiveX,
-  i_Notify,
+  i_Notifier, 
   i_GeoCoderList,
   i_GUIDSet;
 
@@ -107,5 +107,6 @@ begin
 end;
 
 end.
+
 
 

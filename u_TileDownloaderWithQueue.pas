@@ -3,7 +3,7 @@ unit u_TileDownloaderWithQueue;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, 
   i_ThreadConfig,
   i_TileRequest,
   i_TileRequestQueue,
@@ -71,4 +71,5 @@ begin
 end;
 
 end.
+
 

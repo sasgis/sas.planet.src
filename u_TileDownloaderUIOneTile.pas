@@ -27,7 +27,7 @@ uses
   SyncObjs,
   Classes,
   Types,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_TileError,
   i_ThreadConfig,
   i_TileRequestResult,
@@ -216,6 +216,7 @@ begin
 end;
 
 end.
+
 
 
 

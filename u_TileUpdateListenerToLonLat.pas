@@ -3,7 +3,7 @@ unit u_TileUpdateListenerToLonLat;
 interface
 
 uses
-  i_Notify,
+  i_Listener,
   i_SimpleFlag,
   i_CoordConverter,
   u_NotifyEventListener;
@@ -75,3 +75,4 @@ begin
 end;
 
 end.
+

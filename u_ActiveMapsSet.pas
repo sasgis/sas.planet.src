@@ -23,7 +23,7 @@ unit u_ActiveMapsSet;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   i_GUIDSet,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -243,5 +243,6 @@ begin
 end;
 
 end.
+
 
 

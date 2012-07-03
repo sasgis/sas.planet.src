@@ -25,7 +25,7 @@ interface
 uses
   SysUtils,
   Contnrs,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_Changeable,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -456,4 +456,5 @@ begin
 end;
 
 end.
+
 

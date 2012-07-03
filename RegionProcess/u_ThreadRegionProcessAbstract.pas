@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_Notify,
+  i_Listener,
   i_VectorItemLonLat,
   i_NotifierOperation,
   i_RegionProcessProgressInfo;
@@ -111,4 +111,5 @@ begin
 end;
 
 end.
+
 

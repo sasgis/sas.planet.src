@@ -41,7 +41,7 @@ uses
   TB2Item,
   TBX,
   TBXControls,
-  i_Notify,
+  i_Notifier, i_Listener,
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_LanguageManager,
@@ -866,4 +866,5 @@ begin
 end;
 
 end.
+
 

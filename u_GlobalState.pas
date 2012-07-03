@@ -31,7 +31,7 @@ uses
   Classes,
   IniFiles,
   SysUtils,
-  i_Notify,
+  i_Notifier, 
   i_GPSPositionFactory,
   i_LanguageManager,
   i_InetConfig,
@@ -782,5 +782,6 @@ begin
 end;
 
 end.
+
 
 

@@ -5,7 +5,7 @@ interface
 uses
   Types,
   SysUtils,
-  i_Notify,
+  i_Listener,
   i_TileKey,
   i_CoordConverter,
   i_TileRectUpdateNotifier;
@@ -177,6 +177,7 @@ begin
 end;
 
 end.
+
 
 
 

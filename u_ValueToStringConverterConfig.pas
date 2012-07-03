@@ -23,7 +23,7 @@ unit u_ValueToStringConverterConfig;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   t_CommonTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -245,4 +245,5 @@ begin
 end;
 
 end.
+
 

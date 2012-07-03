@@ -5,17 +5,17 @@ interface
 uses
   Classes,
   SysUtils,
-  i_Notify;
+  i_Notifier, i_Listener;
 
 type
   TNotifierBase = class (TInterfacedObject, INotifier, INotifierInternal)
   private
     FListeners: TInterfaceList;
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
-  private
+  protected
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
-  private
+  protected
     procedure Notify(const AMsg: IInterface);
   public
     constructor Create;
@@ -109,6 +109,7 @@ begin
 end;
 
 end.
+
 
 
 

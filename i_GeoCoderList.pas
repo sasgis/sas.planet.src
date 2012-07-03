@@ -24,7 +24,7 @@ interface
 
 uses
   ActiveX,
-  i_Notify,
+  i_Notifier, 
   i_GeoCoder;
 
 type
@@ -46,4 +46,5 @@ type
 implementation
 
 end.
+
 

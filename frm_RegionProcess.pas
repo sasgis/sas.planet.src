@@ -34,7 +34,7 @@ uses
   ExtCtrls,
   inifiles,
   ComCtrls,
-  i_Notify,
+  i_Notifier, 
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_LastSelectionInfo,
@@ -670,4 +670,5 @@ begin
 end;
 
 end.
+
 

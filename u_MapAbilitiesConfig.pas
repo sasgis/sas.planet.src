@@ -23,7 +23,7 @@ unit u_MapAbilitiesConfig;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapAbilitiesConfig,
@@ -290,4 +290,5 @@ begin
 end;
 
 end.
+
 

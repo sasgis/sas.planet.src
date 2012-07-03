@@ -42,7 +42,7 @@ implementation
 uses
   Types,
   GR32_Resamplers,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_CoordConverter,
   u_NotifyEventListener,
   u_GeoFun;
@@ -130,4 +130,5 @@ begin
 end;
 
 end.
+
 

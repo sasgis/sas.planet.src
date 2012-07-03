@@ -262,6 +262,7 @@
     <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
     <DCCReference Include="i_LayerDrawConfig.pas" />
     <DCCReference Include="i_LineOnMapEdit.pas" />
+    <DCCReference Include="i_Listener.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterChangeable.pas" />
@@ -324,8 +325,8 @@
     <DCCReference Include="i_MouseHandler.pas" />
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
+    <DCCReference Include="i_Notifier.pas" />
     <DCCReference Include="i_NotifierOperation.pas" />
-    <DCCReference Include="i_Notify.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />

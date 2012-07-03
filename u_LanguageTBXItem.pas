@@ -26,7 +26,7 @@ uses
   Classes,
   TB2Item,
   TBX,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_LanguageManager;
 
 type
@@ -103,4 +103,5 @@ begin
 end;
 
 end.
+
 

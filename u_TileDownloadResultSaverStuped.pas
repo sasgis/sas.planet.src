@@ -6,7 +6,7 @@ uses
   Types,
   SysUtils,
   GR32,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_BinaryData,
   i_MapVersionInfo,
   i_ContentTypeInfo,
@@ -339,4 +339,5 @@ begin
 end;
 
 end.
+
 

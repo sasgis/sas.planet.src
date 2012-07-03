@@ -60,7 +60,7 @@ uses
   TBXGraphics,
   TBXSASTheme,
   u_CommonFormAndFrameParents,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_GUIDSet,
   t_GeoTypes,
   t_FillingMapModes,
@@ -5778,6 +5778,7 @@ begin
 end;
 
 end.
+
 
 
 

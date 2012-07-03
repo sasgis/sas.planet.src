@@ -23,7 +23,7 @@ unit u_FillingMapMapsConfig;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ActiveMapsConfig,
   i_MapTypes,
   i_FillingMapLayerConfig,
@@ -148,4 +148,5 @@ begin
 end;
 
 end.
+
 

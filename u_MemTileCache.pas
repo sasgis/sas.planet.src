@@ -26,7 +26,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_MainMemCacheConfig,
   i_Bitmap32Static,
   i_MapVersionInfo,
@@ -415,4 +415,5 @@ begin
 end;
 
 end.
+
 

@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_Notify,
+  i_Listener,
   i_NotifierOperation;
 
 type
@@ -117,4 +117,5 @@ begin
 end;
 
 end.
+
 

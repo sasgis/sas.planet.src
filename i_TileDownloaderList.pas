@@ -3,7 +3,7 @@ unit i_TileDownloaderList;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, 
   i_TileDownloader;
 
 type
@@ -27,4 +27,5 @@ type
 implementation
 
 end.
+
 

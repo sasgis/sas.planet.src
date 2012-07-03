@@ -3,7 +3,7 @@ unit i_Changeable;
 interface
 
 uses
-  i_Notify;
+  i_Notifier;
 
 type
   IChangeable = interface
@@ -21,4 +21,5 @@ type
 implementation
 
 end.
+
 

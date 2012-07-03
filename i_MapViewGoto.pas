@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_Notify;
+  i_Notifier;
 
 type
   IGotoPosStatic = interface
@@ -56,4 +56,5 @@ type
 implementation
 
 end.
+
 

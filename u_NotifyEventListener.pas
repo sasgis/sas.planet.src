@@ -23,9 +23,8 @@ unit u_NotifyEventListener;
 interface
 
 uses
-  i_Notify,
-  i_SimpleFlag,
-  u_Notifier;
+  i_Notifier, i_Listener,
+  i_SimpleFlag;
 
 type
   TNotifyListenerNoMmgEvent = procedure of object;
@@ -153,6 +152,7 @@ begin
 end;
 
 end.
+
 
 
 

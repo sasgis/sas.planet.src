@@ -24,7 +24,7 @@ interface
 
 uses
   Windows,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_NotifierOperation,
   i_ThreadConfig,
   i_BackgroundTask,
@@ -161,5 +161,6 @@ begin
 end;
 
 end.
+
 
 

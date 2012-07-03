@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_BitmapMarker,
   i_BitmapMarkerProviderSimpleConfig;
 
@@ -249,6 +249,7 @@ begin
 end;
 
 end.
+
 
 
 

@@ -27,7 +27,7 @@ uses
   ActiveX,
   Classes,
   SysUtils,
-  i_Notify,
+  i_Notifier, 
   t_GeoTypes,
   i_GPS,
   i_GPSPositionFactory,
@@ -901,5 +901,6 @@ begin
 end;
 
 end.
+
 
 

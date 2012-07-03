@@ -23,7 +23,7 @@ unit i_NotifierOperation;
 interface
 
 uses
-  i_Notify;
+  i_Listener;
 
 type
   INotifierOperation = interface
@@ -49,6 +49,7 @@ type
 implementation
 
 end.
+
 
 
 

@@ -3,7 +3,7 @@ unit u_TileRequestQueueProcessorThread;
 interface
 
 uses
-  i_Notify,
+  i_Notifier, i_Listener,
   i_ThreadConfig,
   i_TileRequest,
   i_TileRequestQueue,
@@ -84,5 +84,6 @@ begin
 end;
 
 end.
+
 
 

@@ -7,7 +7,7 @@ uses
   ActiveX,
   GR32,
   GR32_Image,
-  i_Notify,
+  i_Notifier, 
   t_GeoTypes,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
@@ -208,3 +208,4 @@ begin
 end;
 
 end.
+

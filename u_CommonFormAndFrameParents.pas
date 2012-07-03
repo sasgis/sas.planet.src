@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   Forms,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_LanguageManager;
 
 type
@@ -143,4 +143,5 @@ begin
 end;
 
 end.
+
 

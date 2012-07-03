@@ -4,7 +4,7 @@ interface
 
 uses
   GR32_Image,
-  i_Notify,
+  i_Notifier, 
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
@@ -159,4 +159,5 @@ begin
 end;
 
 end.
+
 

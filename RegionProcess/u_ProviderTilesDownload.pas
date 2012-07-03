@@ -24,7 +24,7 @@ interface
 
 uses
   Forms,
-  i_Notify,
+  i_Notifier, 
   i_MapTypes,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -209,4 +209,5 @@ begin
 end;
 
 end.
+
 

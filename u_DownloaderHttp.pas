@@ -30,7 +30,7 @@ uses
   ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
-  i_Notify,
+  i_Listener,
   i_NotifierOperation,
   i_Downloader,
   i_InetConfig,
@@ -664,4 +664,5 @@ begin
 end;
 
 end.
+
 

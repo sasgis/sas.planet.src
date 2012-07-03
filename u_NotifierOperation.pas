@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_NotifierOperation;
 
 type
@@ -196,6 +196,7 @@ begin
 end;
 
 end.
+
 
 
 

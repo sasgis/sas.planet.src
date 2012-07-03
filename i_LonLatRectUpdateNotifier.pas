@@ -4,7 +4,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_Notify,
+  i_Listener,
   i_LonLatRect;
 
 type
@@ -26,6 +26,7 @@ type
 implementation
 
 end.
+
 
 
 

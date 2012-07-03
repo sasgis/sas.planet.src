@@ -6,7 +6,7 @@ uses
   Windows,
   Forms,
   t_GeoTypes,
-  i_Notify,
+  i_Notifier, 
   i_NotifierOperation,
   i_LanguageManager,
   i_CoordConverter,
@@ -438,4 +438,5 @@ begin
 end;
 
 end.
+
 

@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_Notify,
+  i_Notifier, i_Listener,
   i_TileDownloaderConfig,
   i_TileDownloader,
   i_DownloadResultFactory,
@@ -220,6 +220,7 @@ begin
 end;
 
 end.
+
 
 
 

@@ -34,7 +34,7 @@ uses
   EmbeddedWB,
   SHDocVw_EWB,
   GR32_Image,
-  i_Notify,
+  i_Notifier, i_Listener,
   u_CommonFormAndFrameParents,
   u_BaseTileDownloaderThread,
   i_MapAttachmentsInfo,
@@ -394,4 +394,5 @@ begin
 end;
 
 end.
+
 

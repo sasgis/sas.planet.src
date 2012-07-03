@@ -3,7 +3,7 @@ unit i_BitmapLayerProviderWithListener;
 interface
 
 uses
-  i_Notify,
+  i_Listener,
   i_LocalCoordConverter,
   i_BitmapLayerProvider;
 
@@ -20,4 +20,5 @@ type
 implementation
 
 end.
+
 
