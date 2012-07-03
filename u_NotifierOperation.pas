@@ -23,6 +23,7 @@ unit u_NotifierOperation;
 interface
 
 uses
+  Windows,
   SysUtils,
   i_Notifier,
   i_Listener,
@@ -37,7 +38,6 @@ type
   private
     FNotifier: INotifierInternal;
     FCurrentOperationID: Integer;
-    FCS: IReadWriteSync;
   protected
     procedure NextOperation;
   protected
@@ -80,62 +80,34 @@ uses
 constructor TNotifierOperation.Create;
 begin
   inherited Create;
-  FCS := MakeSyncRW_Std(Self, TRUE);
   FNotifier := TNotifierBase.Create;
   FCurrentOperationID := 0;
 end;
 
 procedure TNotifierOperation.AddListener(AListener: IListener);
 begin
-  FCS.BeginRead;
-  try
-    // sync internally
-    FNotifier.Add(AListener);
-  finally
-    FCS.EndRead;
-  end;
+  FNotifier.Add(AListener);
 end;
 
 function TNotifierOperation.IsOperationCanceled(AID: Integer): Boolean;
 begin
-  FCS.BeginRead;
-  try
-    Result := FCurrentOperationID <> AID;
-  finally
-    FCS.EndRead;
-  end;
+  Result := InterlockedCompareExchange(FCurrentOperationID, 0, 0) <> AID;
 end;
 
 function TNotifierOperation.GetCurrentOperation: Integer;
 begin
-  FCS.BeginRead;
-  try
-    Result := FCurrentOperationID;
-  finally
-    FCS.EndRead;
-  end;
+  Result := InterlockedCompareExchange(FCurrentOperationID, 0, 0);
 end;
 
 procedure TNotifierOperation.NextOperation;
 begin
-  FCS.BeginWrite;
-  try
-    Inc(FCurrentOperationID);
-    FNotifier.Notify(nil);
-  finally
-    FCS.EndWrite;
-  end;
+  InterlockedIncrement(FCurrentOperationID);
+  FNotifier.Notify(nil);
 end;
 
 procedure TNotifierOperation.RemoveListener(AListener: IListener);
 begin
-  FCS.BeginRead;
-  try
-    // sync internally
-    FNotifier.Remove(AListener);
-  finally
-    FCS.EndRead;
-  end;
+  FNotifier.Remove(AListener);
 end;
 
 { TNotifierOneOperation }
@@ -147,15 +119,18 @@ begin
 end;
 
 procedure TNotifierOneOperation.AddListener(AListener: IListener);
+var
+  VNotifier: INotifierInternal;
 begin
   FCS.BeginRead;
   try
-    if FNotifier <> nil then begin
-      // sync internally
-      FNotifier.Add(AListener);
-    end;
+    VNotifier := FNotifier;
   finally
     FCS.EndRead;
+  end;
+  if VNotifier <> nil then begin
+    // sync internally
+    VNotifier.Add(AListener);
   end;
 end;
 
@@ -170,7 +145,9 @@ begin
   finally
     FCS.EndWrite;
   end;
-  VNotifier.Notify(nil);
+  if VNotifier <> nil then begin
+    VNotifier.Notify(nil);
+  end;
 end;
 
 function TNotifierOneOperation.GetIsExecuted: Boolean;
@@ -184,15 +161,18 @@ begin
 end;
 
 procedure TNotifierOneOperation.RemoveListener(AListener: IListener);
+var
+  VNotifier: INotifierInternal;
 begin
   FCS.BeginRead;
   try
-    if FNotifier <> nil then begin
-      // sync internally
-      FNotifier.Remove(AListener);
-    end;
+    VNotifier := FNotifier;
   finally
     FCS.EndRead;
+  end;
+  if VNotifier <> nil then begin
+    // sync internally
+    VNotifier.Remove(AListener);
   end;
 end;
 
