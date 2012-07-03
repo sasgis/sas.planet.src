@@ -9,23 +9,25 @@ uses
 
 type
   TNotifierBase = class (TInterfacedObject, INotifier, INotifierInternal)
-  public
-    constructor Create;
-    destructor Destroy; override;
   private
     FListeners: TInterfaceList;
     FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
-  protected
-    procedure Add(const listener: IListener);
-    procedure Notify(const msg: IInterface);
-    procedure Remove(const listener: IListener);
+  private
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
+  private
+    procedure Notify(const AMsg: IInterface);
+  public
+    constructor Create;
+    destructor Destroy; override;
   end;
 
-  TNotifierFaked = class (TInterfacedObject, INotifier)
-  protected
-    procedure Add(const listener: IListener);
-    procedure Notify(const msg: IInterface);
-    procedure Remove(const listener: IListener);
+  TNotifierFaked = class (TInterfacedObject, INotifier, INotifierInternal)
+  private
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
+  private
+    procedure Notify(const AMsg: IInterface);
   end;
 
 implementation
@@ -51,37 +53,37 @@ begin
   inherited Destroy;
 end;
 
-procedure TNotifierBase.Add(const listener: IListener);
+procedure TNotifierBase.Add(const AListener: IListener);
 begin
   FSynchronizer.BeginWrite;
   try
-    if FListeners.IndexOf(listener) < 0 then
-      FListeners.Add(listener);
+    if FListeners.IndexOf(AListener) < 0 then
+      FListeners.Add(AListener);
   finally
     FSynchronizer.EndWrite;
   end;
 end;
 
-procedure TNotifierBase.Notify(const msg: IInterface);
+procedure TNotifierBase.Notify(const AMsg: IInterface);
 var
   idx: Integer;
 begin
   FSynchronizer.BeginRead;
   try
     for idx := 0 to FListeners.Count - 1 do
-      IListener(FListeners[idx]).Notification(msg);
+      IListener(FListeners[idx]).Notification(AMsg);
   finally
     FSynchronizer.EndRead;
   end;
 end;
 
-procedure TNotifierBase.Remove(const listener: IListener);
+procedure TNotifierBase.Remove(const AListener: IListener);
 var
   idx: Integer;
 begin
   FSynchronizer.BeginWrite;
   try
-    idx := FListeners.IndexOf(listener);
+    idx := FListeners.IndexOf(AListener);
     if idx >= 0 then
       FListeners.Delete(idx);
   finally
@@ -91,17 +93,17 @@ end;
 
 { TNotifierFaked }
 
-procedure TNotifierFaked.Add(const listener: IListener);
+procedure TNotifierFaked.Add(const AListener: IListener);
 begin
   // do nothing;
 end;
 
-procedure TNotifierFaked.Notify(const msg: IInterface);
+procedure TNotifierFaked.Notify(const AMsg: IInterface);
 begin
   // do nothing;
 end;
 
-procedure TNotifierFaked.Remove(const listener: IListener);
+procedure TNotifierFaked.Remove(const AListener: IListener);
 begin
   // do nothing;
 end;

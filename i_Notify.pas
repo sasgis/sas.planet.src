@@ -5,7 +5,7 @@ interface
 type
   IListener = interface
     ['{26A52ECC-4C22-4B71-BC88-D0EB98AF4ED5}']
-    procedure Notification(const msg: IInterface);
+    procedure Notification(const AMsg: IInterface);
   end;
 
   IListenerDisconnectable = interface(IListener)
@@ -15,13 +15,13 @@ type
 
   INotifier = interface
     ['{CAAD7814-DD04-497C-91AC-558C2D5BFF81}']
-    procedure Add(const listener: IListener);
-    procedure Remove(const listener: IListener);
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
   end;
 
   INotifierInternal = interface(INotifier)
     ['{ADED3CD4-8131-422A-8009-A8CC49C07834}']
-    procedure Notify(const msg: IInterface);
+    procedure Notify(const AMsg: IInterface);
   end;
 
 implementation
