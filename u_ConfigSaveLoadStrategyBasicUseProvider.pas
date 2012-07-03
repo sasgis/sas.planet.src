@@ -30,7 +30,7 @@ uses
 
 type
   TConfigSaveLoadStrategyBasicUseProvider = class(TInterfacedObject, IConfigSaveLoadStrategy)
-  protected
+  private
     procedure WriteConfig(
       const AProvider: IConfigDataWriteProvider;
       const AElement: IConfigDataElement

@@ -34,7 +34,7 @@ type
     FSource: IConfigDataProvider;
     FIdentRenamesList: TStringList;
     function GetDepreciatedName(const AIdent: string): string;
-  protected
+  private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(

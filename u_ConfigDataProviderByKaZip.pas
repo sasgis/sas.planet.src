@@ -34,7 +34,7 @@ type
   private
     FSourceFileName: string;
     FUnZip: TKAZip;
-  protected
+  private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(

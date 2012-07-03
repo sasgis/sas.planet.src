@@ -17,7 +17,7 @@ type
     FStatic: IBatteryStatusStatic;
 
     procedure OnTimer(Sender: TObject);
-  protected
+  private
     function GetStatic: IBatteryStatusStatic;
   public
     constructor Create;

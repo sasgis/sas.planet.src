@@ -34,7 +34,7 @@ type
   TDownloadResultFactory = class(TInterfacedObject, IDownloadResultFactory)
   private
     FTextProvider: IDownloadResultTextProvider;
-  protected
+  private
     function BuildCanceled(
       const ARequest: IDownloadRequest
     ): IDownloadResultCanceled;

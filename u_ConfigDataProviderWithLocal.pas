@@ -37,7 +37,7 @@ type
       const AIdent: string;
       out AUseMain, AUseLocal: Boolean
     ): string;
-  protected
+  private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(

@@ -33,7 +33,7 @@ type
     FRadiusA: Double;
     FRadiusB: Double;
     FExct: Double;
-  protected
+  private
     function GetEPSG: integer; stdcall;
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;

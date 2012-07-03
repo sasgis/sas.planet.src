@@ -45,7 +45,7 @@ type
       ANewSize: Cardinal
     ): Boolean;
     function IsNeedCheckTileSize(const ARequest: IDownloadRequest): Boolean;
-  protected
+  private
     function BeforeRequest(
       const AResultFactory: IDownloadResultFactory;
       const ARequest: IDownloadRequest

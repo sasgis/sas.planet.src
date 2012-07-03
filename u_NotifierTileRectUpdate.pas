@@ -24,7 +24,7 @@ type
     FCount: Integer;
     FList: array of TListenerRecord;
     function CalcGrowSize(AOldSize: Integer): Integer;
-  protected
+  private
     function GetGeoCoder: ICoordConverter; stdcall;
     function GetZoom: Byte; stdcall;
 

@@ -37,7 +37,7 @@ type
     FIsUseDownloader: Boolean;
     FDefaultProjConverterArgs: string;
     FGeoCoder: ICoordConverter;
-  protected
+  private
     function GetUrlBase: string;
     function GetRequestHeader: string;
     function GetIsUseDownloader: Boolean;
@@ -62,7 +62,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetUrlBase: string;
     procedure SetUrlBase(const AValue: string);
 

@@ -13,7 +13,7 @@ type
   TDownloaderFaked = class(TInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
-  protected
+  private
     function DoRequest(
       const ARequest: IDownloadRequest;
       const ACancelNotifier: INotifierOperation;

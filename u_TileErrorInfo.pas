@@ -34,7 +34,7 @@ type
     FZoom: Byte;
     FTile: TPoint;
     FErrorText: string;
-  protected
+  private
     function GetMapType: TMapType;
     function GetZoom: Byte;
     function GetTile: TPoint;

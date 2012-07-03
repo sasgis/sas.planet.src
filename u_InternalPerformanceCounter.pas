@@ -37,7 +37,7 @@ type
     FMin: Int64;
     FMax: Int64;
     FFreq: Int64;
-  protected
+  private
     function GetId: Integer;
     function GetName: string;
 
@@ -64,7 +64,7 @@ type
     FTotalTime: TDateTime;
     FMaxTime: TDateTime;
     FMinTime: TDateTime;
-  protected
+  private
     function GetId: Integer;
     function GetName: string;
     function GetCounter: Cardinal;

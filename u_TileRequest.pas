@@ -19,7 +19,7 @@ type
     FFinishNotifier: INotifierInternal;
     FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
-  protected
+  private
     function GetTile: TPoint;
     function GetZoom: Byte;
     function GetVersionInfo: IMapVersionInfo;

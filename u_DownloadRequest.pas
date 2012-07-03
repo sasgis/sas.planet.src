@@ -28,7 +28,7 @@ type
   TDownloadPostRequest = class(TDownloadRequest, IDownloadPostRequest)
   private
     FPostData: IBinaryData;
-  protected
+  private
     function GetPostData: IBinaryData;
   public
     constructor Create(

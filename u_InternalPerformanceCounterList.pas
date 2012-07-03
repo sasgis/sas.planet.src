@@ -39,7 +39,7 @@ type
       const AResultList: IIDInterfaceList;
       const ACounterList: IInternalPerformanceCounterList
     );
-  protected
+  private
     function GetName: string;
 
     function GetStaticDataList: IIDInterfaceList;
@@ -51,13 +51,14 @@ type
   end;
 
   TInternalPerformanceCounterFake = class(TInterfacedObject, IInternalPerformanceCounterList, IInternalPerformanceCounter)
-  protected
+  private
     { IInternalPerformanceCounterList }
     function GetName: string;
     function GetStaticDataList: IIDInterfaceList;
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
+  private
     { IInternalPerformanceCounter }
     function GetId: Integer;
     function StartOperation: TInternalPerformanceCounterContext;

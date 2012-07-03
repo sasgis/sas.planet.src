@@ -34,10 +34,10 @@ type
     FLastErrorInfo: ITileErrorInfo;
     FNotifier: INotifierInternal;
     FCS: IReadWriteSync;
-  protected
+  private
     function GetLastErrorInfo: ITileErrorInfo;
     function GetNotifier: INotifier;
-  protected
+  private
     procedure LogError(const AValue: ITileErrorInfo);
   public
     constructor Create;

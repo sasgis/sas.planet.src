@@ -29,7 +29,7 @@ type
   THtmlToHintTextConverterStuped = class(TInterfacedObject, IHtmlToHintTextConverter)
   private
     function HTML2Txt(OrigHTML: String): String;
-  protected
+  private
     function Convert(const AName, ADescription: string): string;
   end;
 

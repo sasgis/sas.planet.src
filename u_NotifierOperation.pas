@@ -34,9 +34,9 @@ type
   private
     FNotifier: INotifierInternal;
     FCurrentOperationID: Integer;
-  protected
+  private
     procedure NextOperation;
-  protected
+  private
     function GetCurrentOperation: Integer; stdcall;
     function IsOperationCanceled(AID: Integer): Boolean; stdcall;
 
@@ -50,9 +50,9 @@ type
   private
     FNotifier: INotifierInternal;
     FCS: IReadWriteSync;
-  protected
+  private
     procedure ExecuteOperation;
-  protected
+  private
     function GetIsExecuted: Boolean;
 
     procedure AddListener(AListener: IListener); stdcall;

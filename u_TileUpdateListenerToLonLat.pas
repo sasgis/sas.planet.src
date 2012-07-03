@@ -14,9 +14,9 @@ type
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
     FCoordConverter: ICoordConverter;
-  protected
+  private
     procedure Notification(const AMsg: IInterface);
-  protected
+  private
     procedure Disconnect;
   public
     constructor Create(

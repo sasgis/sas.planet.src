@@ -32,7 +32,7 @@ type
   TConfigDataProviderByFolder = class(TInterfacedObject, IConfigDataProvider)
   private
     FSourceFolderName: string;
-  protected
+  private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(

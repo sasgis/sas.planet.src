@@ -33,7 +33,7 @@ type
   private
     FSubItemName: string;
     FSubItem: IConfigDataProvider;
-  protected
+  private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(

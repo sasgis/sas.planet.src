@@ -34,7 +34,7 @@ type
     FTarget: TStringList;
     procedure ParseSubstList(const ASubstListText: string);
     procedure ParseSubstListItem(const ASubstListItemText: string);
-  protected
+  private
     function GetContentType(const ASource: string): string;
   public
     constructor Create(const AConfig: IConfigDataProvider);

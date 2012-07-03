@@ -33,7 +33,7 @@ type
   TConfigDataProviderByResources = class(TInterfacedObject, IConfigDataProvider)
   private
     FInstance: THandle;
-  protected
+  private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
     function ReadString(

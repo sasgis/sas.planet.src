@@ -92,8 +92,8 @@ type
     procedure DoGetRequest(const ARequest: IDownloadRequest);
     procedure DoHeadRequest(const ARequest: IDownloadHeadRequest);
     procedure DoPostRequest(const ARequest: IDownloadPostRequest);
-  protected
     procedure CheckGraceOff(Sender: Tobject);
+  private
     procedure DoOnALStatusChange(
       sender: Tobject;
       InternetStatus: DWord;

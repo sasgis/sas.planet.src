@@ -32,7 +32,7 @@ type
   TConfigSaveLoadStrategyBasicProviderSubItem = class(TInterfacedObject, IConfigSaveLoadStrategy)
   private
     FSubItemName: string;
-  protected
+  private
     procedure WriteConfig(
       const AProvider: IConfigDataWriteProvider;
       const AElement: IConfigDataElement

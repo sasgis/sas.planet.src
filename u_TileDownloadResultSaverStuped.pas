@@ -54,7 +54,7 @@ type
       const ACropRect: TRect;
       const ATileSize: TPoint
     );
-  protected
+  private
     function GetState: ITileDownloaderStateChangeble;
     procedure SaveDownloadResult(const AResult: IDownloadResult);
   public
