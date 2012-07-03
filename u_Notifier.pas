@@ -11,8 +11,8 @@ uses
 type
   TNotifierBase = class (TInterfacedObject, INotifier, INotifierInternal)
   private
-    FListeners: TInterfaceList;
-    FSynchronizer: TMultiReadExclusiveWriteSynchronizer;
+    FListeners: TList;
+    FSynchronizer: IReadWriteSync;
   protected
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
@@ -33,33 +33,40 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+
 { TNotifierBase }
 
 constructor TNotifierBase.Create;
 begin
   inherited Create;
-  FListeners := TInterfaceList.Create;
-  FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
+  FListeners := TList.Create;
+  FSynchronizer := MakeSyncRW_Std(Self, False);
 end;
 
 destructor TNotifierBase.Destroy;
+var
+  i: integer;
 begin
-  FSynchronizer.BeginWrite;
-  try
-    FreeAndNil(FListeners);
-  finally
-    FSynchronizer.EndWrite;
-    FreeAndNil(FSynchronizer);
+  for i := 0 to FListeners.Count - 1 do begin
+    IInterface(FListeners.Items[i])._Release;
   end;
-  inherited Destroy;
+  FreeAndNil(FListeners);
+  inherited;
 end;
 
 procedure TNotifierBase.Add(const AListener: IListener);
+var
+  idx: Integer;
 begin
   FSynchronizer.BeginWrite;
   try
-    if FListeners.IndexOf(AListener) < 0 then
-      FListeners.Add(AListener);
+    idx := FListeners.IndexOf(Pointer(AListener));
+    if idx < 0 then begin
+      FListeners.Add(Pointer(AListener));
+      AListener._AddRef;
+    end;
   finally
     FSynchronizer.EndWrite;
   end;
@@ -68,14 +75,21 @@ end;
 procedure TNotifierBase.Notify(const AMsg: IInterface);
 var
   idx: Integer;
+  VList: array of IListener;
 begin
   FSynchronizer.BeginRead;
   try
+    SetLength(VList, FListeners.Count);
     for idx := 0 to FListeners.Count - 1 do
-      IListener(FListeners[idx]).Notification(AMsg);
+      VList[idx] := IListener(Pointer(FListeners[idx]));
   finally
     FSynchronizer.EndRead;
   end;
+  for idx := 0 to Length(VList) - 1 do begin
+    VList[idx].Notification(AMsg);
+    VList[idx] := nil;
+  end;
+  VList := nil;
 end;
 
 procedure TNotifierBase.Remove(const AListener: IListener);
@@ -84,9 +98,11 @@ var
 begin
   FSynchronizer.BeginWrite;
   try
-    idx := FListeners.IndexOf(AListener);
-    if idx >= 0 then
+    idx := FListeners.IndexOf(Pointer(AListener));
+    if idx >= 0 then begin
       FListeners.Delete(idx);
+      AListener._Release;
+    end;
   finally
     FSynchronizer.EndWrite;
   end;
