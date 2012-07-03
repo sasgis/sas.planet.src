@@ -10,7 +10,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverter,
   i_ThreadConfig,
-  i_TTLCheckNotifier,
+  i_NotifierTTLCheck,
   i_ConfigDataProvider,
   i_ContentTypeManager,
   i_ContentTypeSubst,

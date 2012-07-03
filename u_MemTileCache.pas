@@ -32,8 +32,8 @@ uses
   i_Bitmap32Static,
   i_MapVersionInfo,
   i_VectorDataItemSimple,
-  i_TTLCheckListener,
-  i_TTLCheckNotifier,
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck,
   i_TileObjCache,
   i_CoordConverter,
   u_TileStorageAbstract;
@@ -124,7 +124,7 @@ implementation
 
 uses
   i_TileKey,
-  i_TileRectUpdateNotifier,
+  i_NotifierTileRectUpdate,
   u_TTLCheckListener,
   u_Synchronizer,
   u_NotifyEventListener;

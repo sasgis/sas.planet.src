@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TTLCheckListener;
+unit i_ListenerTTLCheck;
 
 interface
 

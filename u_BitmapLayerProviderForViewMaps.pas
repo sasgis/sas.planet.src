@@ -85,7 +85,7 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_TileObjCache,
-  i_TileRectUpdateNotifier,
+  i_NotifierTileRectUpdate,
   u_Bitmap32Static,
   u_NotifyEventListener,
   u_TileUpdateListenerToLonLat,

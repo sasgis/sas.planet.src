@@ -25,7 +25,7 @@ interface
 uses
   GR32,
   i_BinaryData,
-  i_TileRectUpdateNotifier,
+  i_NotifierTileRectUpdate,
   i_MapVersionInfo,
   i_StorageState,
   i_TileInfoBasic,

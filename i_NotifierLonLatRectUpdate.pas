@@ -1,4 +1,4 @@
-unit i_LonLatRectUpdateNotifier;
+unit i_NotifierLonLatRectUpdate;
 
 interface
 

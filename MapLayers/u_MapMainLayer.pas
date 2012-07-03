@@ -118,7 +118,7 @@ uses
   t_GeoTypes,
   i_Bitmap32Static,
   i_TileIterator,
-  i_TileRectUpdateNotifier,
+  i_NotifierTileRectUpdate,
   u_NotifyEventListener,
   u_MapTypeListStatic,
   u_SimpleFlagWithInterlock,

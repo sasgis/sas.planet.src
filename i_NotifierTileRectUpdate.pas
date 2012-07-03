@@ -1,4 +1,4 @@
-unit i_TileRectUpdateNotifier;
+unit i_NotifierTileRectUpdate;
 
 interface
 

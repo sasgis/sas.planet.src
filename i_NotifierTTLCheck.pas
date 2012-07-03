@@ -18,12 +18,12 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TTLCheckNotifier;
+unit i_NotifierTTLCheck;
 
 interface
 
 uses
-  i_TTLCheckListener;
+  i_ListenerTTLCheck;
 
 type
   INotifierTTLCheck = interface

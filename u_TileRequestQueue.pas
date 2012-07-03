@@ -9,8 +9,8 @@ uses
   i_Listener,
   i_TileRequest,
   i_TileRequestQueue,
-  i_TTLCheckListener,
-  i_TTLCheckNotifier;
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck;
 
 type
   TTileRequestQueue = class(TInterfacedObject, ITileRequestQueue)

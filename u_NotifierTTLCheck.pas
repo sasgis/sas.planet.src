@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TTLCheckNotifier;
+unit u_NotifierTTLCheck;
 
 interface
 
@@ -26,8 +26,8 @@ uses
   Windows,
   Classes,
   SysUtils,
-  i_TTLCheckListener,
-  i_TTLCheckNotifier;
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck;
 
 type
   TTTLCheckNotifier = class(TInterfacedObject, INotifierTTLCheck)

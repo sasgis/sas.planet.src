@@ -41,7 +41,7 @@ uses
   i_StorageState,
   i_StorageStateInternal,
   i_TileInfoBasic,
-  i_TileRectUpdateNotifier,
+  i_NotifierTileRectUpdate,
   t_RangeFillingMap,
   u_MapTypeCacheConfig;
 
@@ -190,7 +190,7 @@ uses
   u_NotifyEventListener,
   i_TileKey,
   u_TileKey,
-  u_TileRectUpdateNotifier,
+  u_NotifierTileRectUpdate,
   u_StorageStateInternal,
   u_TileIteratorByRect;
 

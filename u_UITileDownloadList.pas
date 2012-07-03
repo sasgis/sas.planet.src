@@ -8,7 +8,7 @@ uses
   i_DownloadUIConfig,
   i_ViewPortState,
   i_ActiveMapsConfig,
-  i_TTLCheckNotifier,
+  i_NotifierTTLCheck,
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_GlobalInternetState,

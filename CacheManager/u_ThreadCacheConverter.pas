@@ -26,7 +26,7 @@ uses
   Types,
   Classes,
   i_NotifierOperation,
-  i_TTLCheckNotifier,
+  i_NotifierTTLCheck,
   i_ContentTypeManager,
   i_TileFileNameParsersList,
   i_TileFileNameGeneratorsList,

@@ -25,7 +25,7 @@ interface
 uses
   Windows,
   Classes,
-  i_TTLCheckNotifier;
+  i_NotifierTTLCheck;
 
 type
   TGarbageCollectorThread = class(TThread)

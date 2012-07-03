@@ -1,4 +1,4 @@
-unit u_LonLatRectUpdateNotifier;
+unit u_NotifierLonLatRectUpdate;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   t_GeoTypes,
   i_Listener,
   i_LonLatRect,
-  i_LonLatRectUpdateNotifier;
+  i_NotifierLonLatRectUpdate;
 
 type
   TListenerRecord = record

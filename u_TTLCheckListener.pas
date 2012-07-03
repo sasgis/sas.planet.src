@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   i_SimpleFlag,
-  i_TTLCheckListener;
+  i_ListenerTTLCheck;
 
 type
   TTTLCheckListener = class(TInterfacedObject, IListenerTTLCheck)

@@ -180,7 +180,7 @@ uses
   i_TileIterator,
   i_BitmapLayerProvider,
   i_Bitmap32Static,
-  i_TileRectUpdateNotifier,
+  i_NotifierTileRectUpdate,
   u_NotifyEventListener,
   u_TileIteratorByRect,
   u_TileErrorInfo,

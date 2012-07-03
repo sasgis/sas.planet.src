@@ -12,7 +12,7 @@ uses
   i_DownloadResultFactory,
   i_TileDownloadResultSaver,
   i_TileDownloaderState,
-  i_TTLCheckNotifier,
+  i_NotifierTTLCheck,
   i_TileDownloadRequestBuilderFactory,
   i_TileDownloaderList;
 

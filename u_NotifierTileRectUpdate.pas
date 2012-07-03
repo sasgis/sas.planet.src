@@ -1,4 +1,4 @@
-unit u_TileRectUpdateNotifier;
+unit u_NotifierTileRectUpdate;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   i_Listener,
   i_TileKey,
   i_CoordConverter,
-  i_TileRectUpdateNotifier;
+  i_NotifierTileRectUpdate;
 
 type
   TListenerRecord = record

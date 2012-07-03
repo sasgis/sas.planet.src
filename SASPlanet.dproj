@@ -264,13 +264,13 @@
     <DCCReference Include="i_LineOnMapEdit.pas" />
     <DCCReference Include="i_Listener.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
+    <DCCReference Include="i_ListenerTTLCheck.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="i_LogSimple.pas" />
     <DCCReference Include="i_LogSimpleProvider.pas" />
     <DCCReference Include="i_LonLatRect.pas" />
-    <DCCReference Include="i_LonLatRectUpdateNotifier.pas" />
     <DCCReference Include="i_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="i_MainFormConfig.pas" />
     <DCCReference Include="i_MainFormState.pas" />
@@ -326,7 +326,10 @@
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_Notifier.pas" />
+    <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="i_NotifierOperation.pas" />
+    <DCCReference Include="i_NotifierTileRectUpdate.pas" />
+    <DCCReference Include="i_NotifierTTLCheck.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
@@ -391,7 +394,6 @@
     <DCCReference Include="i_TileMatrix.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
-    <DCCReference Include="i_TileRectUpdateNotifier.pas" />
     <DCCReference Include="i_TileRequest.pas" />
     <DCCReference Include="i_TileRequestQueue.pas" />
     <DCCReference Include="i_TileRequestResult.pas" />
@@ -406,8 +408,6 @@
     <DCCReference Include="i_TimeZoneList.pas" />
     <DCCReference Include="i_TrackWriter.pas" />
     <DCCReference Include="i_TreeChangeable.pas" />
-    <DCCReference Include="i_TTLCheckListener.pas" />
-    <DCCReference Include="i_TTLCheckNotifier.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
@@ -772,7 +772,6 @@
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_LonLatRect.pas" />
     <DCCReference Include="u_LonLatRectByPoint.pas" />
-    <DCCReference Include="u_LonLatRectUpdateNotifier.pas" />
     <DCCReference Include="u_LonLatSingleLine.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainFormBehaviourByGPSConfig.pas" />
@@ -860,7 +859,10 @@
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_Notifier.pas" />
+    <DCCReference Include="u_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="u_NotifierOperation.pas" />
+    <DCCReference Include="u_NotifierTileRectUpdate.pas" />
+    <DCCReference Include="u_NotifierTTLCheck.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_PathConfig.pas" />
@@ -968,7 +970,6 @@
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
     <DCCReference Include="u_TileRectInfo.pas" />
     <DCCReference Include="u_TileRectInfoShort.pas" />
-    <DCCReference Include="u_TileRectUpdateNotifier.pas" />
     <DCCReference Include="u_TileRequest.pas" />
     <DCCReference Include="u_TileRequestBuilderHelpers.pas" />
     <DCCReference Include="u_TileRequestProcessorPool.pas" />
@@ -999,7 +1000,6 @@
     <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />
     <DCCReference Include="u_TreeChangeableBase.pas" />
     <DCCReference Include="u_TTLCheckListener.pas" />
-    <DCCReference Include="u_TTLCheckNotifier.pas" />
     <DCCReference Include="u_UiTileDownload.pas" />
     <DCCReference Include="u_UITileDownloadList.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />

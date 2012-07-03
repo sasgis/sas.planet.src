@@ -10,7 +10,7 @@ uses
   i_TileDownloaderList,
   i_TileDownloader,
   i_ITileRequestProcessorPool,
-  i_TTLCheckNotifier;
+  i_NotifierTTLCheck;
 
 type
   TTileDownloaderWithQueue = class(TInterfacedObject, ITileDownloader)

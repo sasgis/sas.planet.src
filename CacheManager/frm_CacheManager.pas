@@ -37,7 +37,7 @@ uses
   ComCtrls,
   i_Notifier, 
   i_LanguageManager,
-  i_TTLCheckNotifier,
+  i_NotifierTTLCheck,
   i_ContentTypeManager,
   i_InternalPerformanceCounter,
   i_ValueToStringConverter,

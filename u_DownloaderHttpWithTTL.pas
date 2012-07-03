@@ -5,8 +5,8 @@ interface
 uses
   SysUtils,
   i_NotifierOperation,
-  i_TTLCheckListener,
-  i_TTLCheckNotifier,
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,

@@ -8,8 +8,8 @@ uses
   i_Listener,
   i_Thread,
   i_ThreadConfig,
-  i_TTLCheckListener,
-  i_TTLCheckNotifier,
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck,
   i_TileRequestQueue,
   i_TileDownloaderList,
   i_ITileRequestProcessorPool;
