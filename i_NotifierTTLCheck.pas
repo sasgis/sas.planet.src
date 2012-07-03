@@ -30,10 +30,13 @@ type
     ['{25465366-07F9-459A-9D54-1597E4BD6306}']
     procedure Add(const AListener: IListenerTTLCheck);
     procedure Remove(const AListener: IListenerTTLCheck);
+  end;
+
+  INotifierTTLCheckInternal = interface(INotifierTTLCheck)
+    ['{0D0CC81E-2D3A-4196-8F16-88C4A43B1BC4}']
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;
-
 implementation
 
 end.

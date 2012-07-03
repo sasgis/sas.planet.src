@@ -30,7 +30,7 @@ uses
   i_NotifierTTLCheck;
 
 type
-  TNotifierTTLCheck = class(TInterfacedObject, INotifierTTLCheck)
+  TNotifierTTLCheck = class(TInterfacedObject, INotifierTTLCheck, INotifierTTLCheckInternal)
   private
     FList: TList;
     FSync: IReadWriteSync;

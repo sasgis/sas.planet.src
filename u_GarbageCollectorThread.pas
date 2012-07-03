@@ -31,12 +31,13 @@ type
   TGarbageCollectorThread = class(TThread)
   private
     FList: INotifierTTLCheck;
+    FListInternal: INotifierTTLCheckInternal;
     FSleepTime: Cardinal;
   protected
     procedure Execute; override;
   public
     constructor Create(
-      const AList: INotifierTTLCheck;
+      const AList: INotifierTTLCheckInternal;
       ASleepTime: Cardinal
     );
     destructor Destroy; override;
@@ -46,12 +47,13 @@ type
 implementation
 
 constructor TGarbageCollectorThread.Create(
-  const AList: INotifierTTLCheck;
+  const AList: INotifierTTLCheckInternal;
   ASleepTime: Cardinal
 );
 begin
   inherited Create(false);
-  FList := AList;
+  FListInternal := AList;
+  FList := FListInternal;
   FSleepTime := ASleepTime;
 end;
 
@@ -70,8 +72,8 @@ begin
   while not Terminated do begin
     VNow := GetTickCount;
     if (VNextCheck = 0) or (VNextCheck <= VNow) or ((VNextCheck > (1 shl 30)) and (VNow < (1 shl 29))) then begin
-      FList.ProcessObjectsTrim;
-      VNextCheck := FList.GetNextCheck;
+      FListInternal.ProcessObjectsTrim;
+      VNextCheck := FListInternal.GetNextCheck;
       if Terminated then begin
         Break;
       end;

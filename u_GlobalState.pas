@@ -317,7 +317,7 @@ uses
 
 constructor TGlobalState.Create;
 var
-  VList: INotifierTTLCheck;
+  VList: INotifierTTLCheckInternal;
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
