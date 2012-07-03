@@ -204,7 +204,7 @@ constructor TTileStorageAbstract.Create(
 var
   VCount: Integer;
   i: Integer;
-  VNotifier: TTileRectUpdateNotifier;
+  VNotifier: TNotifierTileRectUpdate;
   VState: TStorageStateInternal;
 begin
   inherited Create;
@@ -232,7 +232,7 @@ begin
   SetLength(FNotifierByZoom, VCount);
   SetLength(FNotifierByZoomInternal, VCount);
   for i := 0 to VCount - 1 do begin
-    VNotifier := TTileRectUpdateNotifier.Create(FMinValidZoom + i, FConfig.CoordConverter);
+    VNotifier := TNotifierTileRectUpdate.Create(FMinValidZoom + i, FConfig.CoordConverter);
     FNotifierByZoom[i] := VNotifier;
     FNotifierByZoomInternal[i] := VNotifier;
   end;

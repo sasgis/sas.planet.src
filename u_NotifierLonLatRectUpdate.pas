@@ -15,7 +15,7 @@ type
     Rect: ILonLatRect;
   end;
 
-  TLonLatRectUpdateNotifier = class(TInterfacedObject, INotifierLonLatRectUpdate, INotifierLonLatRectUpdateInternal)
+  TNotifierLonLatRectUpdate = class(TInterfacedObject, INotifierLonLatRectUpdate, INotifierLonLatRectUpdateInternal)
   private
     FSynchronizer: IReadWriteSync;
     FCount: Integer;
@@ -41,15 +41,15 @@ uses
   u_LonLatRect,
   u_Synchronizer;
 
-{ TLonLatRectUpdateNotifier }
+{ TNotifierLonLatRectUpdate }
 
-constructor TLonLatRectUpdateNotifier.Create;
+constructor TNotifierLonLatRectUpdate.Create;
 begin
   inherited Create;
   FSynchronizer := MakeSyncRW_Big(Self, False);
 end;
 
-destructor TLonLatRectUpdateNotifier.Destroy;
+destructor TNotifierLonLatRectUpdate.Destroy;
 var
   i: Integer;
 begin
@@ -60,7 +60,7 @@ begin
   inherited;
 end;
 
-procedure TLonLatRectUpdateNotifier.Add(
+procedure TNotifierLonLatRectUpdate.Add(
   const AListener: IListener;
   const ARect: ILonLatRect
 );
@@ -92,7 +92,7 @@ begin
   end;
 end;
 
-function TLonLatRectUpdateNotifier.CalcGrowSize(AOldSize: Integer): Integer;
+function TNotifierLonLatRectUpdate.CalcGrowSize(AOldSize: Integer): Integer;
 begin
   if AOldSize < 8 then begin
     Result := 8;
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure TLonLatRectUpdateNotifier.RectUpdateNotify(const ARect: TDoubleRect);
+procedure TNotifierLonLatRectUpdate.RectUpdateNotify(const ARect: TDoubleRect);
 var
   i: Integer;
   VRect: ILonLatRect;
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-procedure TLonLatRectUpdateNotifier.RectUpdateNotify(const ARect: ILonLatRect);
+procedure TNotifierLonLatRectUpdate.RectUpdateNotify(const ARect: ILonLatRect);
 var
   i: Integer;
 begin
@@ -137,7 +137,7 @@ begin
   end;
 end;
 
-procedure TLonLatRectUpdateNotifier.Remove(const AListener: IListener);
+procedure TNotifierLonLatRectUpdate.Remove(const AListener: IListener);
 var
   i: Integer;
   VIndex: Integer;

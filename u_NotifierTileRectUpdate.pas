@@ -16,7 +16,7 @@ type
     Rect: TRect;
   end;
 
-  TTileRectUpdateNotifier = class(TInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
+  TNotifierTileRectUpdate = class(TInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
   private
     FGeoCoder: ICoordConverter;
     FZoom: Byte;
@@ -48,9 +48,9 @@ implementation
 uses
   u_Synchronizer;
 
-{ TTileRectUpdateNotifier }
+{ TNotifierTileRectUpdate }
 
-constructor TTileRectUpdateNotifier.Create(
+constructor TNotifierTileRectUpdate.Create(
   AZoom: Byte;
   const AGeoCoder: ICoordConverter
 );
@@ -61,7 +61,7 @@ begin
   FSynchronizer := MakeSyncRW_Big(Self, False);
 end;
 
-destructor TTileRectUpdateNotifier.Destroy;
+destructor TNotifierTileRectUpdate.Destroy;
 var
   i: Integer;
 begin
@@ -73,7 +73,7 @@ begin
   inherited;
 end;
 
-function TTileRectUpdateNotifier.CalcGrowSize(AOldSize: Integer): Integer;
+function TNotifierTileRectUpdate.CalcGrowSize(AOldSize: Integer): Integer;
 begin
   if AOldSize < 8 then begin
     Result := 8;
@@ -82,7 +82,7 @@ begin
   end;
 end;
 
-procedure TTileRectUpdateNotifier.Add(
+procedure TNotifierTileRectUpdate.Add(
   const AListener: IListener;
   const ATileRect: TRect
 );
@@ -114,17 +114,17 @@ begin
   end;
 end;
 
-function TTileRectUpdateNotifier.GetGeoCoder: ICoordConverter;
+function TNotifierTileRectUpdate.GetGeoCoder: ICoordConverter;
 begin
   Result := FGeoCoder;
 end;
 
-function TTileRectUpdateNotifier.GetZoom: Byte;
+function TNotifierTileRectUpdate.GetZoom: Byte;
 begin
   Result := FZoom;
 end;
 
-procedure TTileRectUpdateNotifier.Remove(
+procedure TNotifierTileRectUpdate.Remove(
   const AListener: IListener
 );
 var
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-procedure TTileRectUpdateNotifier.TileUpdateNotify(const ATileKey: ITileKey);
+procedure TNotifierTileRectUpdate.TileUpdateNotify(const ATileKey: ITileKey);
 var
   i: Integer;
   VTile: TPoint;
