@@ -39,7 +39,7 @@ type
     procedure OnTTLTrim(Sender: TObject);
     function GetOrInitArray: TArrayOfITileRequest;
     procedure OnClosing;
-  protected
+  private
     procedure Push(const ARequest: ITileRequest);
     function Pull: ITileRequest;
   public

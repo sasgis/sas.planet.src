@@ -56,7 +56,7 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; virtual; abstract;
-  protected
+  private
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;

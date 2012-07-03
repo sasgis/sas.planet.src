@@ -31,7 +31,7 @@ type
   TTileStorageTypeConfig = class(TConfigDataElementComplexBase, ITileStorageTypeConfig)
   private
     FPath: IPathConfig;
-  protected
+  private
     function GetBasePath: IPathConfig;
   public
     constructor Create(

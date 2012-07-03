@@ -19,7 +19,7 @@ type
     FDownloader: IDownloader;
     FBuilder: ITileDownloadRequestBuilder;
     FBuilderCS: IReadWriteSync;
-  protected
+  private
     function BuildRequest(
       const ASource: ITileRequest;
       const ALastResponseInfo: ILastResponseInfo;

@@ -34,7 +34,7 @@ type
     FTimeOut: Cardinal;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
-  protected
+  private
     function GetProxyConfigStatic: IProxyConfigStatic;
     function GetUserAgentString: string;
     function GetTimeOut: Cardinal;

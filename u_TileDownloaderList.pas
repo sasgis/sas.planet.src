@@ -35,7 +35,7 @@ type
     FStatic: ITileDownloaderListStatic;
     procedure OnConfigChange;
     function CreateDownloader: ITileDownloader;
-  protected
+  private
     function GetStatic: ITileDownloaderListStatic;
     function GetChangeNotifier: INotifier;
   public

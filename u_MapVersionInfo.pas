@@ -29,7 +29,7 @@ type
   TMapVersionInfo = class(TInterfacedObject, IMapVersionInfo)
   private
     FVersion: string;
-  protected
+  private
     function GetUrlString: string;
     function GetStoreString: string;
     function GetCaption: string;

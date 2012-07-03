@@ -52,7 +52,7 @@ type
     ): IInterfaceList; override;
   public
     constructor Create(
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
   end;
 

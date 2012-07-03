@@ -27,7 +27,7 @@ uses
 
 type
   TTileStorageTypeAbilitiesFileFolder = class(TInterfacedObject, IStorageTypeAbilities)
-  protected
+  private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: boolean;
@@ -35,7 +35,7 @@ type
   end;
 
   TTileStorageTypeAbilitiesGE = class(TInterfacedObject, IStorageTypeAbilities)
-  protected
+  private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: boolean;
@@ -43,7 +43,7 @@ type
   end;
 
   TTileStorageTypeAbilitiesBerkeleyDB = class(TInterfacedObject, IStorageTypeAbilities)
-  protected
+  private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: boolean;
@@ -51,7 +51,7 @@ type
   end;
 
   TTileStorageTypeAbilitiesDBMS = class(TInterfacedObject, IStorageTypeAbilities)
-  protected
+  private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: boolean;

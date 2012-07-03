@@ -54,7 +54,7 @@ type
       const ASourceConverter, ATargetConverter: ILocalCoordConverter;
       ASourceBitmap: TCustomBitmap32
     ): ILayerBitmapClearStrategy;
-  protected
+  private
     function GetStrategy(
       const ASourceConverter, ATargetConverter: ILocalCoordConverter;
       ASourceBitmap: TCustomBitmap32;

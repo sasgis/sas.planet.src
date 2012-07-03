@@ -38,7 +38,7 @@ type
     FExpectedMIMETypes: string;
     FDefaultMIMEType: string;
     FIteratorSubRectSize: TPoint;
-  protected
+  private
     function GetInetConfigStatic: IInetConfigStatic;
     function GetEnabled: Boolean;
     function GetWaitInterval: Cardinal;

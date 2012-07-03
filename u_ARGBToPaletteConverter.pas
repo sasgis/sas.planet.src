@@ -92,7 +92,7 @@ type
       ChannelMask: Byte;
       DstPal: PPalette32
     );
-  protected
+  private
     procedure Convert(var AImage: TImageData);
   public
     constructor Create;

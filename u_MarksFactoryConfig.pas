@@ -35,7 +35,7 @@ type
     FPointTemplateConfig: IMarkPointTemplateConfig;
     FLineTemplateConfig: IMarkLineTemplateConfig;
     FPolyTemplateConfig: IMarkPolyTemplateConfig;
-  protected
+  private
     function GetPointTemplateConfig: IMarkPointTemplateConfig;
     function GetLineTemplateConfig: IMarkLineTemplateConfig;
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;

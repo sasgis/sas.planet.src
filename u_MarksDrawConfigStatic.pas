@@ -34,7 +34,7 @@ type
     FUseSimpleDrawOrder: Boolean;
     FMagnetDraw: Boolean;
     FOverSizeRect: TRect;
-  protected
+  private
     function GetShowPointCaption: Boolean;
     function GetUseSolidCaptionBackground: Boolean;
     function GetUseSimpleDrawOrder: Boolean;

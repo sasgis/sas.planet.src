@@ -39,7 +39,7 @@ type
     FLine: IProjectedPolygonLine;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
-  protected
+  private
     function GetTilesTotal: Int64;
     function GetTilesRect: TRect;
     function Next(out ATile: TPoint): Boolean;

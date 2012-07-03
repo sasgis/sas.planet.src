@@ -32,7 +32,7 @@ type
   private
     FContentType: WideString;
     FDefaultExt: WideString;
-  protected
+  private
     function GetContentType: WideString;
     function GetDefaultExt: WideString;
   public
@@ -46,7 +46,7 @@ type
   private
     FLoader: IBitmapTileLoader;
     FSaver: IBitmapTileSaver;
-  protected
+  private
     function GetLoader: IBitmapTileLoader;
     function GetSaver: IBitmapTileSaver;
   public
@@ -62,7 +62,7 @@ type
   TContentTypeInfoKml = class(TContentTypeInfoBase, IContentTypeInfoVectorData)
   private
     FLoader: IVectorDataLoader;
-  protected
+  private
     function GetLoader: IVectorDataLoader;
   public
     constructor Create(

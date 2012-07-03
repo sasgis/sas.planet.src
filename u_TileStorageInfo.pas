@@ -39,7 +39,7 @@ type
     FAllowSave: boolean;
     FIsReadOnly: boolean;
     FCoordConverter: ICoordConverter;
-  protected
+  private
     function GetTypeInfo: IStorageTypeAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;

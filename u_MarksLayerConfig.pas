@@ -35,7 +35,7 @@ type
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
     FThreadConfig: IThreadConfig;
-  protected
+  private
     function GetMarksShowConfig: IUsedMarksConfig;
     function GetMarksDrawConfig: IMarksDrawConfig;
     function GetThreadConfig: IThreadConfig;

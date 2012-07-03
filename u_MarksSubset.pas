@@ -33,7 +33,7 @@ type
   TMarksSubset = class(TInterfacedObject, IMarksSubset)
   private
     FList: IInterfaceList;
-  protected
+  private
     function GetSubsetByLonLatRect(const ARect: TDoubleRect): IMarksSubset;
     function GetSubsetByCategory(const ACategory: ICategory): IMarksSubset;
     function GetEnum: IEnumUnknown;

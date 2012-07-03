@@ -44,7 +44,7 @@ type
   end;
 
   TTileInfoBasicNotExists = class(TTileInfoBasicBase, ITileInfoBasic)
-  protected
+  private
     function GetIsExists: Boolean;
     function GetIsExistsTNE: Boolean;
     function GetSize: Cardinal;
@@ -52,7 +52,7 @@ type
   end;
 
   TTileInfoBasicTNE = class(TTileInfoBasicBase, ITileInfoBasic)
-  protected
+  private
     function GetIsExists: Boolean;
     function GetIsExistsTNE: Boolean;
     function GetSize: Cardinal;
@@ -63,7 +63,7 @@ type
   private
     FSize: Cardinal;
     FContentType: IContentTypeInfoBasic;
-  protected
+  private
     function GetIsExists: Boolean;
     function GetIsExistsTNE: Boolean;
     function GetSize: Cardinal;
@@ -81,7 +81,7 @@ type
   private
     FContentType: IContentTypeInfoBasic;
     FTileData: IBinaryData;
-  protected
+  private
     function GetTileData: IBinaryData;
     function GetIsExists: Boolean;
     function GetIsExistsTNE: Boolean;

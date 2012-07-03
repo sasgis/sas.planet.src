@@ -34,7 +34,7 @@ type
 
     procedure OnTTLTrim(Sender: TObject);
     procedure OnDownloadersListChange;
-  protected
+  private
     procedure InitThreadsIfNeed;
   public
     constructor Create(

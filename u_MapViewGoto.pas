@@ -34,7 +34,7 @@ type
     FLonLat: TDoublePoint;
     FZoom: Byte;
     FGotoTime: TDateTime;
-  protected
+  private
     function GetLonLat: TDoublePoint;
     function GetZoom: Byte;
     function GetGotoTime: TDateTime;
@@ -51,7 +51,7 @@ type
     FViewPortState: IViewPortState;
     FLastGotoPos: IGotoPosStatic;
     FChangeNotifier: INotifierInternal;
-  protected
+  private
     procedure GotoPos(
       const ALonLat: TDoublePoint;
       const AZoom: Byte

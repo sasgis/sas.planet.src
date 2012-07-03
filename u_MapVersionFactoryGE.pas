@@ -39,7 +39,7 @@ type
     FVer: Word;
     FGEServer: String;
     FTileDate: String;
-  protected
+  private
     function GetUrlString: string;
     function GetStoreString: string;
     function GetCaption: string;

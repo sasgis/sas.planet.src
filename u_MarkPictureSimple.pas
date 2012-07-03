@@ -44,10 +44,10 @@ type
 
     FInitedFlag: ISimpleFlag;
     procedure InitPic;
-  protected
+  private
     function GetMarker: IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-  protected
+  private
     function GetName: string;
     function GetSource: IBinaryData;
 

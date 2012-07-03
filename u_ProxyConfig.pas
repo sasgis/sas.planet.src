@@ -37,7 +37,7 @@ type
     FUseLogin: boolean;
     FLogin: WideString;
     FPassword: WideString;
-  protected
+  private
     function GetUseIESettings: Boolean;
     function GetUseProxy: Boolean;
     function GetHost: WideString;
@@ -68,7 +68,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetUseIESettings: Boolean; safecall;
     procedure SetUseIESettings(AValue: Boolean);
 

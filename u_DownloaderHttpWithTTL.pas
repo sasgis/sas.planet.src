@@ -23,7 +23,7 @@ type
     FCS: IReadWriteSync;
     FDownloader: IDownloader;
     procedure OnTTLTrim(Sender: TObject);
-  protected
+  private
     function DoRequest(
       const ARequest: IDownloadRequest;
       const ACancelNotifier: INotifierOperation;

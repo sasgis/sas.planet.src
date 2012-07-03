@@ -56,7 +56,7 @@ type
     property KmlTypeList: TContentTypeListByKey read FKmlTypeList;
     property ConverterMatrix: TContentConverterMatrix read FConverterMatrix;
 
-  protected
+  private
     function GetInfo(const AType: WideString): IContentTypeInfoBasic;
     function GetInfoByExt(const AExt: WideString): IContentTypeInfoBasic;
     function GetIsBitmapType(const AType: WideString): Boolean;

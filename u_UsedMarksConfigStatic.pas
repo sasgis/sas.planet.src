@@ -31,7 +31,7 @@ type
     FIsUseMarks: Boolean;
     FIgnoreMarksVisible: Boolean;
     FIgnoreCategoriesVisible: Boolean;
-  protected
+  private
     function GetIsUseMarks: Boolean;
     function GetIgnoreCategoriesVisible: Boolean;
     function GetIgnoreMarksVisible: Boolean;

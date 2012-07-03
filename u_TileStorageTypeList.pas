@@ -42,7 +42,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetDefault: ITileStorageType;
     procedure SetDefaultByGUID(const AGUID: TGUID);
     function Get(const AGUID: TGUID): ITileStorageType;

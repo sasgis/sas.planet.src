@@ -46,7 +46,7 @@ type
     FMessageUnexpectedProxyAuth: string;
 
     procedure OnLangChange;
-  protected
+  private
     function GetMessageBadContentType: string;
     function GetMessageBadProxyAuth: string;
     function GetMessageBanned: string;

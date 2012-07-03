@@ -33,7 +33,7 @@ type
     FCS: IReadWriteSync;
     FTileCount: UInt64;
     FSize: UInt64;
-  protected
+  private
     function GetTileCount: UInt64;
     function GetSize: UInt64;
 

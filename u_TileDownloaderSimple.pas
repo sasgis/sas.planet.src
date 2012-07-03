@@ -48,7 +48,7 @@ type
     procedure OnAppClosing;
     procedure SleepCancelable(ATime: Cardinal);
     procedure SleepIfConnectErrorOrWaitInterval;
-  protected
+  private
     procedure Download(
       const ATileRequest: ITileRequest
     );

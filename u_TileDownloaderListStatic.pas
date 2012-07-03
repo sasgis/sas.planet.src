@@ -11,7 +11,7 @@ type
   private
     FList: array of ITileDownloader;
     FCount: Integer;
-  protected
+  private
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ITileDownloader;
   public

@@ -17,7 +17,7 @@ type
   private
     FQueue: ITileRequestQueue;
     FSyncTileRequestProcessorPull: ITileRequestProcessorPool;
-  protected
+  private
     procedure Download(
       const ATileRequest: ITileRequest
     );

@@ -32,7 +32,7 @@ type
     FGUID: TGUID;
     FStorageType: ITileStorageType;
     FCanUseAsDefault: Boolean;
-  protected
+  private
     function GetGUID: TGUID;
     function GetStorageType: ITileStorageType;
     function GetCanUseAsDefault: Boolean;

@@ -83,7 +83,7 @@ type
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
     ): IMarkPoly;
-  protected
+  private
     function CreateNewPoint(
       const APoint: TDoublePoint;
       const AName: string;
@@ -154,7 +154,7 @@ type
 
     function GetMarkPictureList: IMarkPictureList;
     function GetConfig: IMarksFactoryConfig;
-  protected
+  private
     function CreateMark(
       AID: Integer;
       const AName: string;
