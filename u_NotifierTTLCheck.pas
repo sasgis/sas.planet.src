@@ -115,8 +115,9 @@ procedure TNotifierTTLCheck.Remove(const AListener: IListenerTTLCheck);
 begin
   FSync.BeginWrite;
   try
-    FList.Remove(Pointer(AListener));
-    AListener._Release;
+    if FList.Remove(Pointer(AListener)) >= 0 then begin
+      AListener._Release;
+    end;
   finally
     FSync.EndWrite;
   end;
