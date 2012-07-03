@@ -71,20 +71,30 @@ type
     FSatellitesGP: TSatellitesInternalList;
     FSatellitesGL: TSatellitesInternalList;
 
-    FDataReciveNotifier: INotifier;
+    FDataReciveNotifier: INotifierInternal;
 
-    FConnectingNotifier: INotifier;
-    FConnectedNotifier: INotifier;
-    FDisconnectingNotifier: INotifier;
-    FDisconnectedNotifier: INotifier;
+    FConnectingNotifier: INotifierInternal;
+    FConnectedNotifier: INotifierInternal;
+    FDisconnectingNotifier: INotifierInternal;
+    FDisconnectedNotifier: INotifierInternal;
 
-    FConnectErrorNotifier: INotifier;
-    FTimeOutNotifier: INotifier;
+    FConnectErrorNotifier: INotifierInternal;
+    FTimeOutNotifier: INotifierInternal;
   protected
     FSingleGPSData: TSingleGPSData;
     FFixSatsALL: TVSAGPS_FIX_ALL;
     function GetSatellitesListByTalkerID(const ATalkerID: String): TSatellitesInternalList;
     function SerializeSatsInfo: String;
+  protected
+    property DataReciveNotifier: INotifierInternal read FDataReciveNotifier;
+
+    property ConnectingNotifier: INotifierInternal read FConnectingNotifier;
+    property ConnectedNotifier: INotifierInternal read FConnectedNotifier;
+    property DisconnectingNotifier: INotifierInternal read FDisconnectingNotifier;
+    property DisconnectedNotifier: INotifierInternal read FDisconnectedNotifier;
+
+    property ConnectErrorNotifier: INotifierInternal read FConnectErrorNotifier;
+    property TimeOutNotifier: INotifierInternal read FTimeOutNotifier;
   protected
     procedure _UpdateSpeedHeading(
       const ASpeed_KMH: Double;
@@ -442,13 +452,13 @@ begin
   if (ANotifyPosChanged and VGPSPosChanged) then begin
     // notify about position
     FNotifiedTicks := GetTickCount;
-    GetDataReciveNotifier.Notify(nil);
+    FDataReciveNotifier.Notify(nil);
   end else if (ANotifySatChanged and VGPSSatChanged) then begin
     // notify about sats
     VTicks := GetTickCount;
     if (VTicks > FNotifiedTicks + 2000) then begin
       FNotifiedTicks := VTicks;
-      GetDataReciveNotifier.Notify(nil);
+      FDataReciveNotifier.Notify(nil);
     end;
   end;
 end;

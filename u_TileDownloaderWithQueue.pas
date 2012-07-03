@@ -24,7 +24,7 @@ type
   public
     constructor Create(
       const ATileDownloaderList: ITileDownloaderList;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AThreadConfig: IThreadConfig;
       const AAppClosingNotifier: INotifier;
       AQueueCapacity: Integer
@@ -41,7 +41,7 @@ uses
 
 constructor TTileDownloaderWithQueue.Create(
   const ATileDownloaderList: ITileDownloaderList;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AThreadConfig: IThreadConfig;
   const AAppClosingNotifier: INotifier;
   AQueueCapacity: Integer

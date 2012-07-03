@@ -50,7 +50,7 @@ type
   private
     FViewPortState: IViewPortState;
     FLastGotoPos: IGotoPosStatic;
-    FChangeNotifier: INotifier;
+    FChangeNotifier: INotifierInternal;
   protected
     procedure GotoPos(
       const ALonLat: TDoublePoint;

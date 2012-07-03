@@ -30,23 +30,23 @@ uses
 type
   TGarbageCollectorThread = class(TThread)
   private
-    FList: ITTLCheckNotifier;
+    FList: INotifierTTLCheck;
     FSleepTime: Cardinal;
   protected
     procedure Execute; override;
   public
     constructor Create(
-      const AList: ITTLCheckNotifier;
+      const AList: INotifierTTLCheck;
       ASleepTime: Cardinal
     );
     destructor Destroy; override;
-    property List: ITTLCheckNotifier read FList;
+    property List: INotifierTTLCheck read FList;
   end;
 
 implementation
 
 constructor TGarbageCollectorThread.Create(
-  const AList: ITTLCheckNotifier;
+  const AList: INotifierTTLCheck;
   ASleepTime: Cardinal
 );
 begin

@@ -44,7 +44,7 @@ type
   TTileStorageDBMS = class(TTileStorageAbstract)
   private
     FContentTypeManager: IContentTypeManager;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FTTLListener: ITTLCheckListener;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FCacheConfig: TMapTypeCacheConfigDBMS;
@@ -109,7 +109,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       const AContentTypeManager: IContentTypeManager
@@ -277,7 +277,7 @@ end;
 { TTileStorageDBMS }
 
 constructor TTileStorageDBMS.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   const AContentTypeManager: IContentTypeManager

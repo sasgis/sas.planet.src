@@ -66,7 +66,7 @@ type
   public
     constructor Create(
       const AInetSettings: IInetConfig;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AResultFactory: IDownloadResultFactory
     );
   end;
@@ -85,7 +85,7 @@ uses
 
 constructor TGeoCoderBasic.Create(
   const AInetSettings: IInetConfig;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AResultFactory: IDownloadResultFactory
 );
 begin

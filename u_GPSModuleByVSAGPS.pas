@@ -586,18 +586,18 @@ begin
     gs_DoneDisconnected: begin
       _UpdateToEmptyPosition;
       if FRecvTimeoutOccured then
-        GetTimeOutNotifier.Notify(nil);
-      GetDisconnectedNotifier.Notify(nil);
+        TimeOutNotifier.Notify(nil);
+      DisconnectedNotifier.Notify(nil);
       DoGPSUnitInfoChanged(AUnitIndex, guik_ClearALL, ''); // reset unit info
     end;
     gs_ProcessConnecting:
-      GetConnectingNotifier.Notify(nil);
+      ConnectingNotifier.Notify(nil);
     gs_DoneConnected: begin
-      GetConnectedNotifier.Notify(nil);
+      ConnectedNotifier.Notify(nil);
       InternalResumeLogger;
     end;
     gs_ProcessDisconnecting:
-      GetDisconnectingNotifier.Notify(nil);
+      DisconnectingNotifier.Notify(nil);
     end;
   end;
 end;

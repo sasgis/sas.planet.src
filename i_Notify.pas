@@ -17,6 +17,10 @@ type
     ['{CAAD7814-DD04-497C-91AC-558C2D5BFF81}']
     procedure Add(const listener: IListener);
     procedure Remove(const listener: IListener);
+  end;
+
+  INotifierInternal = interface(INotifier)
+    ['{ADED3CD4-8131-422A-8009-A8CC49C07834}']
     procedure Notify(const msg: IInterface);
   end;
 

@@ -76,7 +76,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifier;
       const ACoordConverter: ICoordConverter;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -126,7 +126,7 @@ const
 { TTileDownloadSubsystem }
 
 constructor TTileDownloadSubsystem.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifier;
   const ACoordConverter: ICoordConverter;
   const ACoordConverterFactory: ICoordConverterFactory;

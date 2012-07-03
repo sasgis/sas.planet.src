@@ -26,7 +26,7 @@ type
   TUiTileDownload = class(TInterfacedObject)
   private
     FConfig: IDownloadUIConfig;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifier;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FViewPortState: IViewPortState;
@@ -69,7 +69,7 @@ type
   public
     constructor Create(
       const AConfig: IDownloadUIConfig;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifier;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: IViewPortState;
@@ -104,7 +104,7 @@ uses
 
 constructor TUiTileDownload.Create(
   const AConfig: IDownloadUIConfig;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifier;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: IViewPortState;

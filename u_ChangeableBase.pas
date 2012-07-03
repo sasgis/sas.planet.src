@@ -9,9 +9,9 @@ uses
 type
   TChangeableBase = class(TInterfacedObject, IChangeable)
   private
-    FBeforeChangeNotifier: INotifier;
-    FChangeNotifier: INotifier;
-    FAfterChangeNotifier: INotifier;
+    FBeforeChangeNotifier: INotifierInternal;
+    FChangeNotifier: INotifierInternal;
+    FAfterChangeNotifier: INotifierInternal;
   protected
     function GetBeforeChangeNotifier: INotifier;
     function GetChangeNotifier: INotifier;

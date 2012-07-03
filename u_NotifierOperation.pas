@@ -34,7 +34,7 @@ type
 
   TNotifierOperation = class(TInterfacedObject, INotifierOperation, INotifierOperationInternal)
   private
-    FNotifier: INotifier;
+    FNotifier: INotifierInternal;
     FCurrentOperationID: Integer;
     FCS: IReadWriteSync;
   protected
@@ -55,7 +55,7 @@ type
 
   TNotifierOneOperation = class(TInterfacedObject, INotifierOneOperation, INotifierOneOperationInternal)
   private
-    FNotifier: INotifier;
+    FNotifier: INotifierInternal;
     FCS: IReadWriteSync;
   protected
     procedure ExecuteOperation;
@@ -160,7 +160,7 @@ end;
 
 procedure TNotifierOneOperation.ExecuteOperation;
 var
-  VNotifier: INotifier;
+  VNotifier: INotifierInternal;
 begin
   FCS.BeginWrite;
   try

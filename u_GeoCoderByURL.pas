@@ -62,7 +62,7 @@ type
   public
     constructor Create(
       const AInetSettings: IInetConfig;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -90,7 +90,7 @@ begin
 end;
 
 constructor TGeoCoderByURL.Create(const AInetSettings: IInetConfig;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );

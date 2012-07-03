@@ -48,7 +48,7 @@ type
     FSourceIgnoreTne: Boolean;
     FSourceRemoveTiles: Boolean;
     FDestOverwriteTiles: Boolean;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
     FPerfCounterList: IInternalPerformanceCounterList;
     FProgressInfo: ICacheConverterProgressInfo;
@@ -87,7 +87,7 @@ type
       const ASourceIgnoreTne: Boolean;
       const ASourceRemoveTiles: Boolean;
       const ADestOverwriteTiles: Boolean;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AProgressInfo: ICacheConverterProgressInfo
@@ -125,7 +125,7 @@ constructor TThreadCacheConverter.Create(
   const ASourceIgnoreTne: Boolean;
   const ASourceRemoveTiles: Boolean;
   const ADestOverwriteTiles: Boolean;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AProgressInfo: ICacheConverterProgressInfo

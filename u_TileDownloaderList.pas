@@ -18,7 +18,7 @@ uses
 type
   TTileDownloaderList = class(TInterfacedObject, ITileDownloaderList)
   private
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifier;
     FResultFactory: IDownloadResultFactory;
     FDownloadSystemState: ITileDownloaderStateChangeble;
@@ -27,7 +27,7 @@ type
     FRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
 
     FChangeCounter: Integer;
-    FChangeNotifier: INotifier;
+    FChangeNotifier: INotifierInternal;
     FConfigListener: IListener;
     FCS: IReadWriteSync;
 
@@ -39,7 +39,7 @@ type
     function GetChangeNotifier: INotifier;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifier;
       const AResultFactory: IDownloadResultFactory;
       const ADownloadSystemState: ITileDownloaderStateChangeble;
@@ -67,7 +67,7 @@ uses
 { TTileDownloaderList }
 
 constructor TTileDownloaderList.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifier;
   const AResultFactory: IDownloadResultFactory;
   const ADownloadSystemState: ITileDownloaderStateChangeble;

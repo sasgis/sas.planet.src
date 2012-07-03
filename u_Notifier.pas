@@ -8,7 +8,7 @@ uses
   i_Notify;
 
 type
-  TNotifierBase = class (TInterfacedObject, INotifier)
+  TNotifierBase = class (TInterfacedObject, INotifier, INotifierInternal)
   public
     constructor Create;
     destructor Destroy; override;

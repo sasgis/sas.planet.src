@@ -143,6 +143,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FGUISyncronizedTimer: TTimer;
+    FGUISyncronizedTimerNotifierInternal: INotifierInternal;
     FGUISyncronizedTimerNotifier: INotifier;
     FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
@@ -155,6 +156,7 @@ type
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
     FAppClosingNotifier: INotifier;
+    FAppClosingNotifierInternal: INotifierInternal;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
@@ -315,7 +317,7 @@ uses
 
 constructor TGlobalState.Create;
 var
-  VList: ITTLCheckNotifier;
+  VList: INotifierTTLCheck;
   VViewCnonfig: IConfigDataProvider;
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
@@ -348,7 +350,8 @@ begin
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
 
-  FAppClosingNotifier := TNotifierBase.Create;
+  FAppClosingNotifierInternal := TNotifierBase.Create;
+  FAppClosingNotifier := FAppClosingNotifierInternal;
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(
       FBaseConfigPath.FullPath,
@@ -371,7 +374,8 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-  FGUISyncronizedTimerNotifier := TNotifierBase.Create;
+  FGUISyncronizedTimerNotifierInternal := TNotifierBase.Create;
+  FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
   FGlobalInternetState := TGlobalInternetState.Create;
@@ -723,7 +727,7 @@ end;
 
 procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);
 begin
-  FGUISyncronizedTimerNotifier.Notify(nil);
+  FGUISyncronizedTimerNotifierInternal.Notify(nil);
 end;
 
 procedure TGlobalState.SaveMainParams;
@@ -772,7 +776,7 @@ end;
 procedure TGlobalState.SendTerminateToThreads;
 begin
   FGUISyncronizedTimer.Enabled := False;
-  FAppClosingNotifier.Notify(nil);
+  FAppClosingNotifierInternal.Notify(nil);
   GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
 end;

@@ -35,7 +35,7 @@ type
     FViewPortState: IViewPortState;
     FNavigationToPoint: INavigationToPoint;
 
-    FSourceDataUpdateNotifier: INotifier;
+    FSourceDataUpdateNotifier: INotifierInternal;
 
     procedure OnPosChanged;
     procedure OnNavToPointChanged;

@@ -35,7 +35,7 @@ type
     FStaticTreeBuilder: IStaticTreeBuilder;
     FConfigChangeListener: IListener;
     FConfigChangeNotifier: INotifier;
-    FChangeNotifier: INotifier;
+    FChangeNotifier: INotifierInternal;
     FCS: IReadWriteSync;
 
     FStatic: IStaticTreeItem;

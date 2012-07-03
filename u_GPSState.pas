@@ -48,13 +48,13 @@ type
 
     FCS: IReadWriteSync;
     FLinksList: IListenerNotifierLinksList;
-    FDataReciveNotifier: INotifier;
-    FConnectingNotifier: INotifier;
-    FConnectedNotifier: INotifier;
-    FDisconnectingNotifier: INotifier;
-    FDisconnectedNotifier: INotifier;
-    FTimeOutNotifier: INotifier;
-    FConnectErrorNotifier: INotifier;
+    FDataReciveNotifier: INotifierInternal;
+    FConnectingNotifier: INotifierInternal;
+    FConnectedNotifier: INotifierInternal;
+    FDisconnectingNotifier: INotifierInternal;
+    FDisconnectedNotifier: INotifierInternal;
+    FTimeOutNotifier: INotifierInternal;
+    FConnectErrorNotifier: INotifierInternal;
 
     FModuleState: TModuleState;
     FWasError: Boolean;
@@ -75,6 +75,13 @@ type
     procedure OnConfigChange;
 
     procedure CreateModuleAndLinks;
+    function GetConnectedNotifier: INotifier;
+    function GetConnectErrorNotifier: INotifier;
+    function GetConnectingNotifier: INotifier;
+    function GetDataReciveNotifier: INotifier;
+    function GetDisconnectedNotifier: INotifier;
+    function GetDisconnectingNotifier: INotifier;
+    function GetTimeOutNotifier: INotifier;
   public
     constructor Create(
       const AGPSModuleFactory: IGPSModuleByCOMFactory;
@@ -87,13 +94,13 @@ type
     procedure StartThreads;
     procedure SendTerminateToThreads;
 
-    property ConnectingNotifier: INotifier read FConnectingNotifier;
-    property ConnectedNotifier: INotifier read FConnectedNotifier;
-    property DisconnectingNotifier: INotifier read FDisconnectingNotifier;
-    property DisconnectedNotifier: INotifier read FDisconnectedNotifier;
-    property TimeOutNotifier: INotifier read FTimeOutNotifier;
-    property ConnectErrorNotifier: INotifier read FConnectErrorNotifier;
-    property DataReciveNotifier: INotifier read FDataReciveNotifier;
+    property ConnectingNotifier: INotifier read GetConnectingNotifier;
+    property ConnectedNotifier: INotifier read GetConnectedNotifier;
+    property DisconnectingNotifier: INotifier read GetDisconnectingNotifier;
+    property DisconnectedNotifier: INotifier read GetDisconnectedNotifier;
+    property TimeOutNotifier: INotifier read GetTimeOutNotifier;
+    property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
+    property DataReciveNotifier: INotifier read GetDataReciveNotifier;
   end;
 
 implementation
@@ -156,6 +163,41 @@ begin
   FGPSModuleByCOM := nil;
   FCS := nil;
   inherited;
+end;
+
+function TGPSpar.GetConnectedNotifier: INotifier;
+begin
+  Result := FConnectedNotifier;
+end;
+
+function TGPSpar.GetConnectErrorNotifier: INotifier;
+begin
+  Result := FConnectErrorNotifier;
+end;
+
+function TGPSpar.GetConnectingNotifier: INotifier;
+begin
+  Result := FConnectingNotifier;
+end;
+
+function TGPSpar.GetDataReciveNotifier: INotifier;
+begin
+  Result := FDataReciveNotifier;
+end;
+
+function TGPSpar.GetDisconnectedNotifier: INotifier;
+begin
+  Result := FDisconnectedNotifier;
+end;
+
+function TGPSpar.GetDisconnectingNotifier: INotifier;
+begin
+  Result := FDisconnectingNotifier;
+end;
+
+function TGPSpar.GetTimeOutNotifier: INotifier;
+begin
+  Result := FTimeOutNotifier;
 end;
 
 procedure TGPSpar.CreateModuleAndLinks;

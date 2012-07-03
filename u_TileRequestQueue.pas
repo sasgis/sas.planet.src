@@ -18,7 +18,7 @@ type
     TArrayOfITileRequest = array of ITileRequest;
   private
     FCapacity: Integer;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifier;
 
     FTTLListener: ITTLCheckListener;
@@ -43,7 +43,7 @@ type
     function Pull: ITileRequest;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifier;
       ACapacity: Integer
     );
@@ -60,7 +60,7 @@ uses
 { TTileRequestQuery }
 
 constructor TTileRequestQueue.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifier;
   ACapacity: Integer
 );

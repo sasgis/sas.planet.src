@@ -82,7 +82,7 @@ type
     FProviderStatic: IBitmapMarkerProvider;
 
     FConfigChangeListener: IListener;
-    FChangeNotifier: INotifier;
+    FChangeNotifier: INotifierInternal;
     FCS: IReadWriteSync;
     procedure OnConfigChange;
   protected

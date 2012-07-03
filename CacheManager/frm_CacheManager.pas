@@ -76,7 +76,7 @@ type
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifier;
     FTimerNoifier: INotifier;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
     FPerfCounterList: IInternalPerformanceCounterList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -86,7 +86,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifier;
       const ATimerNoifier: INotifier;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -115,7 +115,7 @@ constructor TfrmCacheManager.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifier;
   const ATimerNoifier: INotifier;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AValueToStringConverterConfig: IValueToStringConverterConfig

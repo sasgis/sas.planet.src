@@ -52,7 +52,7 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FBDBTTLListener: ITTLCheckListener;
     FMemCacheTTLListener: ITTLCheckListener;
     FTileInfoMemCache: TTileInfoBasicMemCache;
@@ -69,7 +69,7 @@ type
     procedure OnTTLSync(Sender: TObject);
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
       const AContentTypeManager: IContentTypeManager;
@@ -162,7 +162,7 @@ uses
 { TTileStorageBerkeleyDB }
 
 constructor TTileStorageBerkeleyDB.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
   const AContentTypeManager: IContentTypeManager;

@@ -34,7 +34,7 @@ type
   private
     FList: IGUIDInterfaceSet;
     FCS: IReadWriteSync;
-    FAddNotifier: INotifier;
+    FAddNotifier: INotifierInternal;
   protected
     procedure Add(const AItem: IGeoCoderListEntity);
   protected

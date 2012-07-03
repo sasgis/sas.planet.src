@@ -32,7 +32,7 @@ type
   TTileErrorLogProviedrStuped = class(TInterfacedObject, ITileErrorLogProviedrStuped, ITileErrorLogger)
   private
     FLastErrorInfo: ITileErrorInfo;
-    FNotifier: INotifier;
+    FNotifier: INotifierInternal;
     FCS: IReadWriteSync;
   protected
     function GetLastErrorInfo: ITileErrorInfo;

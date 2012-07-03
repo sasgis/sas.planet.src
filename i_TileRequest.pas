@@ -20,11 +20,11 @@ type
     function GetVersionInfo: IMapVersionInfo;
     property VersionInfo: IMapVersionInfo read GetVersionInfo;
 
-    function GetStartNotifier: INotifier;
-    property StartNotifier: INotifier read GetStartNotifier;
+    function GetStartNotifier: INotifierInternal;
+    property StartNotifier: INotifierInternal read GetStartNotifier;
 
-    function GetFinishNotifier: INotifier;
-    property FinishNotifier: INotifier read GetFinishNotifier;
+    function GetFinishNotifier: INotifierInternal;
+    property FinishNotifier: INotifierInternal read GetFinishNotifier;
 
     function GetCancelNotifier: INotifierOperation;
     property CancelNotifier: INotifierOperation read GetCancelNotifier;

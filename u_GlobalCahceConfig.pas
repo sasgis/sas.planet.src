@@ -47,6 +47,7 @@ type
     FDBMSCachepath: string;
 
     FCacheChangeNotifier: INotifier;
+    FCacheChangeNotifierInternal: INotifierInternal;
     procedure SetDefCache(const Value: byte);
     procedure SetESCpath(const Value: string);
     procedure SetGECachepath(const Value: string);
@@ -111,7 +112,8 @@ begin
   inherited Create;
   FCacheGlobalPath := ACacheGlobalPath;
   FDefCache := c_File_Cache_Id_SAS;
-  FCacheChangeNotifier := TNotifierBase.Create;
+  FCacheChangeNotifierInternal := TNotifierBase.Create;
+  FCacheChangeNotifier := FCacheChangeNotifierInternal;
   FOldCpath := 'cache_old' + PathDelim;
   FNewCpath := 'cache' + PathDelim;
   FESCpath := 'cache_ES' + PathDelim;
@@ -181,7 +183,7 @@ procedure TGlobalCahceConfig.SetDBMSCachepath(const Value: string);
 begin
   if FDBMSCachepath <> Value then begin
     FDBMSCachepath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -195,7 +197,7 @@ begin
     c_File_Cache_Id_BDB] then begin
     if FDefCache <> Value then begin
       FDefCache := Value;
-      FCacheChangeNotifier.Notify(nil);
+      FCacheChangeNotifierInternal.Notify(nil);
     end;
   end;
 end;
@@ -204,7 +206,7 @@ procedure TGlobalCahceConfig.SetESCpath(const Value: string);
 begin
   if FESCpath <> Value then begin
     FESCpath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -212,7 +214,7 @@ procedure TGlobalCahceConfig.SetGCCachepath(const Value: string);
 begin
   if FGCCachepath <> Value then begin
     FGCCachepath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -220,7 +222,7 @@ procedure TGlobalCahceConfig.SetGECachepath(const Value: string);
 begin
   if FGECachepath <> Value then begin
     FGECachepath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -228,7 +230,7 @@ procedure TGlobalCahceConfig.SetBDBCachepath(const Value: string);
 begin
   if FBDBCachepath <> Value then begin
     FBDBCachepath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -236,7 +238,7 @@ procedure TGlobalCahceConfig.SetGMTilespath(const Value: string);
 begin
   if FGMTilespath <> Value then begin
     FGMTilespath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -244,7 +246,7 @@ procedure TGlobalCahceConfig.SetNewCPath(const Value: string);
 begin
   if FNewCPath <> Value then begin
     FNewCPath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 
@@ -252,7 +254,7 @@ procedure TGlobalCahceConfig.SetOldCPath(const Value: string);
 begin
   if FOldCPath <> Value then begin
     FOldCPath := Value;
-    FCacheChangeNotifier.Notify(nil);
+    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 

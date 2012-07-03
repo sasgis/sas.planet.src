@@ -20,7 +20,7 @@ type
     FList: IInterfaceList;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifier;
       const AConfig: IDownloadUIConfig;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -41,7 +41,7 @@ uses
 { TUITileDownloadList }
 
 constructor TUITileDownloadList.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifier;
   const AConfig: IDownloadUIConfig;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;

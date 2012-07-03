@@ -39,7 +39,7 @@ uses
 type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
-    FScaleChangeNotifier: INotifier;
+    FScaleChangeNotifier: INotifierInternal;
     FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverter: ILocalCoordConverter;
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;

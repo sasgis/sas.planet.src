@@ -17,7 +17,7 @@ type
   TDownloaderHttpWithTTL = class(TInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
 
     FTTLListener: ITTLCheckListener;
     FCS: IReadWriteSync;
@@ -31,7 +31,7 @@ type
     ): IDownloadResult;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
@@ -46,7 +46,7 @@ uses
 { TDownloaderHttpWithTTL }
 
 constructor TDownloaderHttpWithTTL.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AResultFactory: IDownloadResultFactory
 );
 const

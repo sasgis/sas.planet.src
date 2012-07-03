@@ -21,7 +21,7 @@ type
   private
     FThreadConfig: IThreadConfig;
     FDownloaderList: ITileDownloaderList;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifier;
     FTileRequestQueue: ITileRequestQueue;
 
@@ -37,7 +37,7 @@ type
     procedure InitThreadsIfNeed;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AThreadConfig: IThreadConfig;
       const AAppClosingNotifier: INotifier;
       const ATileRequestQueue: ITileRequestQueue;
@@ -58,7 +58,7 @@ uses
 { TTileRequestProcessorPool }
 
 constructor TTileRequestProcessorPool.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AThreadConfig: IThreadConfig;
   const AAppClosingNotifier: INotifier;
   const ATileRequestQueue: ITileRequestQueue;

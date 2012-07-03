@@ -38,7 +38,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AInetConfig: IInetConfig;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AResultFactory: IDownloadResultFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItmesFactory;
@@ -67,7 +67,7 @@ uses
 constructor TPathDetalizeProviderListSimple.Create(
   const ALanguageManager: ILanguageManager;
   const AInetConfig: IInetConfig;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AResultFactory: IDownloadResultFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItmesFactory;

@@ -26,7 +26,7 @@ uses
   i_TTLCheckListener;
 
 type
-  ITTLCheckNotifier = interface
+  INotifierTTLCheck = interface
     ['{25465366-07F9-459A-9D54-1597E4BD6306}']
     procedure Add(const AListener: ITTLCheckListener);
     procedure Remove(const AListener: ITTLCheckListener);
@@ -37,3 +37,4 @@ type
 implementation
 
 end.
+

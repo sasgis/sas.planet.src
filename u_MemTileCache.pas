@@ -41,7 +41,7 @@ type
   TMemTileCacheBase = class(TInterfacedObject)
   private
     FConfig: IMainMemCacheConfig;
-    FGCList: ITTLCheckNotifier;
+    FGCList: INotifierTTLCheck;
     FConfigListener: IListener;
     FTileStorage: TTileStorageAbstract;
     FCoordConverter: ICoordConverter;
@@ -81,7 +81,7 @@ type
     ): IInterface;
   public
     constructor Create(
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const ATileStorage: TTileStorageAbstract;
       const ACoordConverter: ICoordConverter;
       const AConfig: IMainMemCacheConfig
@@ -131,7 +131,7 @@ uses
 { TTileCacheBase }
 
 constructor TMemTileCacheBase.Create(
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const ATileStorage: TTileStorageAbstract;
   const ACoordConverter: ICoordConverter;
   const AConfig: IMainMemCacheConfig

@@ -82,7 +82,7 @@ type
       const AGlobalCacheConfig: TGlobalCahceConfig;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifier;
       const AInetConfig: IInetConfig;
       const AImageResamplerConfig: IImageResamplerConfig;
@@ -191,7 +191,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AGlobalCacheConfig: TGlobalCahceConfig;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifier;
   const AInetConfig: IInetConfig;
   const AImageResamplerConfig: IImageResamplerConfig;

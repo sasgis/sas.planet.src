@@ -34,7 +34,7 @@ type
   public
     constructor Create(
       const AInetConfig: IInetConfig;
-      const AGCList: ITTLCheckNotifier;
+      const AGCList: INotifierTTLCheck;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -62,7 +62,7 @@ uses
 
 constructor TGeoCoderListSimple.Create(
   const AInetConfig: IInetConfig;
-  const AGCList: ITTLCheckNotifier;
+  const AGCList: INotifierTTLCheck;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
