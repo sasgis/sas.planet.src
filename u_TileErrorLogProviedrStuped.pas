@@ -56,7 +56,7 @@ constructor TTileErrorLogProviedrStuped.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Var(Self, False);
-  FNotifier := TBaseNotifier.Create;
+  FNotifier := TNotifierBase.Create;
 end;
 
 destructor TTileErrorLogProviedrStuped.Destroy;

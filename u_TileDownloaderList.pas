@@ -85,7 +85,7 @@ begin
   FResultSaver := AResultSaver;
   FRequestBuilderFactory := ARequestBuilderFactory;
 
-  FChangeNotifier := TBaseNotifier.Create;
+  FChangeNotifier := TNotifierBase.Create;
   FCS := MakeSyncRW_Var(Self);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);

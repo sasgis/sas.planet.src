@@ -111,7 +111,7 @@ begin
   inherited Create;
   FCacheGlobalPath := ACacheGlobalPath;
   FDefCache := c_File_Cache_Id_SAS;
-  FCacheChangeNotifier := TBaseNotifier.Create;
+  FCacheChangeNotifier := TNotifierBase.Create;
   FOldCpath := 'cache_old' + PathDelim;
   FNewCpath := 'cache' + PathDelim;
   FESCpath := 'cache_ES' + PathDelim;

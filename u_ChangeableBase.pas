@@ -37,9 +37,9 @@ uses
 constructor TChangeableBase.Create;
 begin
   inherited Create;
-  FBeforeChangeNotifier := TBaseNotifier.Create;
-  FChangeNotifier := TBaseNotifier.Create;
-  FAfterChangeNotifier := TBaseNotifier.Create;
+  FBeforeChangeNotifier := TNotifierBase.Create;
+  FChangeNotifier := TNotifierBase.Create;
+  FAfterChangeNotifier := TNotifierBase.Create;
 end;
 
 destructor TChangeableBase.Destroy;

@@ -126,7 +126,7 @@ begin
   FPosChangeCounter := APerfCounterList.CreateAndAddNewCounter('PosChange');
   FScaleChangeCounter := APerfCounterList.CreateAndAddNewCounter('ScaleChange');
 
-  FScaleChangeNotifier := TBaseNotifier.Create;
+  FScaleChangeNotifier := TNotifierBase.Create;
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
   FMainCoordConverter := nil;

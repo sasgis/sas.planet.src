@@ -80,7 +80,7 @@ constructor TOperationNotifier.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
-  FNotifier := TBaseNotifier.Create;
+  FNotifier := TNotifierBase.Create;
   FCurrentOperationID := 0;
 end;
 
@@ -142,7 +142,7 @@ end;
 constructor TOneOperationNotifier.Create;
 begin
   FCS := MakeSyncRW_Std(Self, TRUE);
-  FNotifier := TBaseNotifier.Create;
+  FNotifier := TNotifierBase.Create;
 end;
 
 procedure TOneOperationNotifier.AddListener(AListener: IListener);

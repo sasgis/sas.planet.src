@@ -58,8 +58,8 @@ begin
   FTile := ATile;
   FZoom := AZoom;
   FVersionInfo := AVersionInfo;
-  FFinishNotifier := TBaseNotifier.Create;
-  FStartNotifier := TBaseNotifier.Create;
+  FFinishNotifier := TNotifierBase.Create;
+  FStartNotifier := TNotifierBase.Create;
   FCancelNotifier := ACancelNotifier;
   FOperationID := AOperationID;
 end;

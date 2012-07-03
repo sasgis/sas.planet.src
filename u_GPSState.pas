@@ -128,13 +128,13 @@ begin
   FInternalState := isDisconnected;
   FLastDataReceiveTick := 0;
 
-  FConnectingNotifier := TBaseNotifier.Create;
-  FConnectedNotifier := TBaseNotifier.Create;
-  FDisconnectingNotifier := TBaseNotifier.Create;
-  FDisconnectedNotifier := TBaseNotifier.Create;
-  FTimeOutNotifier := TBaseNotifier.Create;
-  FConnectErrorNotifier := TBaseNotifier.Create;
-  FDataReciveNotifier := TBaseNotifier.Create;
+  FConnectingNotifier := TNotifierBase.Create;
+  FConnectedNotifier := TNotifierBase.Create;
+  FDisconnectingNotifier := TNotifierBase.Create;
+  FDisconnectedNotifier := TNotifierBase.Create;
+  FTimeOutNotifier := TNotifierBase.Create;
+  FConnectErrorNotifier := TNotifierBase.Create;
+  FDataReciveNotifier := TNotifierBase.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

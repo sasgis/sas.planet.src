@@ -162,7 +162,7 @@ begin
   inherited Create;
   FConfig := AConfig;
   FGlobalCacheConfig := AGlobalCacheConfig;
-  FConfigChangeNotifier := TBaseNotifier.Create;
+  FConfigChangeNotifier := TNotifierBase.Create;
 
   FGlobalSettingsListener := TNotifyNoMmgEventListener.Create(Self.OnSettingsEdit);
   FGlobalCacheConfig.CacheChangeNotifier.Add(FGlobalSettingsListener);

@@ -230,15 +230,15 @@ begin
   FSatellitesGL.Capacity := 24;
 
   FLastStaticPosition := nil;
-  FConnectErrorNotifier := TBaseNotifier.Create;
+  FConnectErrorNotifier := TNotifierBase.Create;
 
-  FConnectingNotifier := TBaseNotifier.Create;
-  FConnectedNotifier := TBaseNotifier.Create;
-  FDisconnectingNotifier := TBaseNotifier.Create;
-  FDisconnectedNotifier := TBaseNotifier.Create;
+  FConnectingNotifier := TNotifierBase.Create;
+  FConnectedNotifier := TNotifierBase.Create;
+  FDisconnectingNotifier := TNotifierBase.Create;
+  FDisconnectedNotifier := TNotifierBase.Create;
 
-  FDataReciveNotifier := TBaseNotifier.Create;
-  FTimeOutNotifier := TBaseNotifier.Create;
+  FDataReciveNotifier := TNotifierBase.Create;
+  FTimeOutNotifier := TNotifierBase.Create;
 end;
 
 destructor TGPSModuleAbstract.Destroy;

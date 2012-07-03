@@ -71,7 +71,7 @@ begin
   inherited Create;
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
-  FChangeNotifier := TBaseNotifier.Create;
+  FChangeNotifier := TNotifierBase.Create;
   FCS := MakeSyncRW_Var(Self);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);

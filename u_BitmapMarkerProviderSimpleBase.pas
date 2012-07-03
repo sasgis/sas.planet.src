@@ -206,7 +206,7 @@ begin
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.GetChangeNotifier.Add(FConfigChangeListener);
 
-  FChangeNotifier := TBaseNotifier.Create;
+  FChangeNotifier := TNotifierBase.Create;
   OnConfigChange;
 end;
 

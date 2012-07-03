@@ -54,7 +54,7 @@ constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IActiveMapsSet);
 begin
   inherited Create;
   FMapsSet := AMapsSet;
-  FChangeNotifier := TBaseNotifier.Create;
+  FChangeNotifier := TNotifierBase.Create;
   FStaticTree := CreateStatic;
 end;
 

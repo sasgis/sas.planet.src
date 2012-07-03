@@ -348,7 +348,7 @@ begin
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
 
-  FAppClosingNotifier := TBaseNotifier.Create;
+  FAppClosingNotifier := TNotifierBase.Create;
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(
       FBaseConfigPath.FullPath,
@@ -371,7 +371,7 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-  FGUISyncronizedTimerNotifier := TBaseNotifier.Create;
+  FGUISyncronizedTimerNotifier := TNotifierBase.Create;
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
   FGlobalInternetState := TGlobalInternetState.Create;

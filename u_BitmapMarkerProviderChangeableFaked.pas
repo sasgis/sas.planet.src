@@ -53,7 +53,7 @@ constructor TBitmapMarkerProviderChangeableFaked.Create(
 begin
   inherited Create;
   FProviderStatic := AProviderStatic;
-  FChangeNotifier := TBaseNotifierFaked.Create;
+  FChangeNotifier := TNotifierFaked.Create;
 end;
 
 function TBitmapMarkerProviderChangeableFaked.GetChangeNotifier: INotifier;

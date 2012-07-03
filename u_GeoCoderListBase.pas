@@ -60,7 +60,7 @@ begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TGUIDInterfaceSet.Create(False);
-  FAddNotifier := TBaseNotifier.Create;
+  FAddNotifier := TNotifierBase.Create;
 end;
 
 destructor TGeoCoderListBase.Destroy;

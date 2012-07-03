@@ -62,7 +62,7 @@ type
   end;
 
 type
-  TNotifierWithGUID = class(TBaseNotifier, INotifierWithGUID)
+  TNotifierWithGUID = class(TNotifierBase, INotifierWithGUID)
   protected
     procedure NotifyByGUID(const AGUID: TGUID); stdcall;
   end;

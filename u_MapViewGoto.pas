@@ -76,7 +76,7 @@ constructor TMapViewGoto.Create(const AViewPortState: IViewPortState);
 begin
   inherited Create;
   FViewPortState := AViewPortState;
-  FChangeNotifier := TBaseNotifier.Create;
+  FChangeNotifier := TNotifierBase.Create;
   FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
 end;
 

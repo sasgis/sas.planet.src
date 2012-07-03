@@ -8,7 +8,7 @@ uses
   i_Notify;
 
 type
-  TBaseNotifier = class (TInterfacedObject, INotifier)
+  TNotifierBase = class (TInterfacedObject, INotifier)
   public
     constructor Create;
     destructor Destroy; override;
@@ -21,7 +21,7 @@ type
     procedure Remove(const listener: IListener);
   end;
 
-  TBaseNotifierFaked = class (TInterfacedObject, INotifier)
+  TNotifierFaked = class (TInterfacedObject, INotifier)
   protected
     procedure Add(const listener: IListener);
     procedure Notify(const msg: IInterface);
@@ -30,16 +30,16 @@ type
 
 implementation
 
-{ TBaseNotifier }
+{ TNotifierBase }
 
-constructor TBaseNotifier.Create;
+constructor TNotifierBase.Create;
 begin
   inherited Create;
   FListeners := TInterfaceList.Create;
   FSynchronizer := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
-destructor TBaseNotifier.Destroy;
+destructor TNotifierBase.Destroy;
 begin
   FSynchronizer.BeginWrite;
   try
@@ -51,7 +51,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TBaseNotifier.Add(const listener: IListener);
+procedure TNotifierBase.Add(const listener: IListener);
 begin
   FSynchronizer.BeginWrite;
   try
@@ -62,7 +62,7 @@ begin
   end;
 end;
 
-procedure TBaseNotifier.Notify(const msg: IInterface);
+procedure TNotifierBase.Notify(const msg: IInterface);
 var
   idx: Integer;
 begin
@@ -75,7 +75,7 @@ begin
   end;
 end;
 
-procedure TBaseNotifier.Remove(const listener: IListener);
+procedure TNotifierBase.Remove(const listener: IListener);
 var
   idx: Integer;
 begin
@@ -89,24 +89,26 @@ begin
   end;
 end;
 
-{ TBaseNotifierFaked }
+{ TNotifierFaked }
 
-procedure TBaseNotifierFaked.Add(const listener: IListener);
+procedure TNotifierFaked.Add(const listener: IListener);
 begin
   // do nothing;
 end;
 
-procedure TBaseNotifierFaked.Notify(const msg: IInterface);
+procedure TNotifierFaked.Notify(const msg: IInterface);
 begin
   // do nothing;
 end;
 
-procedure TBaseNotifierFaked.Remove(const listener: IListener);
+procedure TNotifierFaked.Remove(const listener: IListener);
 begin
   // do nothing;
 end;
 
 end.
+
+
 
 
 

@@ -66,7 +66,7 @@ constructor TSensorTextFromNavToPoint.Create(
   const ANavigationToPoint: INavigationToPoint
 );
 begin
-  FSourceDataUpdateNotifier := TBaseNotifier.Create;
+  FSourceDataUpdateNotifier := TNotifierBase.Create;
   inherited Create(FSourceDataUpdateNotifier);
   FViewPortState := AViewPortState;
   FNavigationToPoint := ANavigationToPoint;
