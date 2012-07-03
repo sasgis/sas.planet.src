@@ -28,8 +28,8 @@ uses
 type
   INotifierTTLCheck = interface
     ['{25465366-07F9-459A-9D54-1597E4BD6306}']
-    procedure Add(const AListener: ITTLCheckListener);
-    procedure Remove(const AListener: ITTLCheckListener);
+    procedure Add(const AListener: IListenerTTLCheck);
+    procedure Remove(const AListener: IListenerTTLCheck);
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   end;
@@ -37,3 +37,4 @@ type
 implementation
 
 end.
+

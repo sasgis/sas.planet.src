@@ -23,7 +23,7 @@ unit i_TTLCheckListener;
 interface
 
 type
-  ITTLCheckListener = interface
+  IListenerTTLCheck = interface
     ['{1DA8EB6F-499D-4FB7-9E3F-5AC865E7D044}']
     function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
     procedure UpdateUseTime;
@@ -32,3 +32,4 @@ type
 implementation
 
 end.
+

@@ -45,7 +45,7 @@ type
   private
     FContentTypeManager: IContentTypeManager;
     FGCList: INotifierTTLCheck;
-    FTTLListener: ITTLCheckListener;
+    FTTLListener: IListenerTTLCheck;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FCacheConfig: TMapTypeCacheConfigDBMS;
     FMainContentType: IContentTypeInfoBasic;

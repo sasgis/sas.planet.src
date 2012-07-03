@@ -26,7 +26,7 @@ type
     FAppClosingNotifier: INotifier;
     FTileRequestQueue: ITileRequestQueue;
 
-    FTTLListener: ITTLCheckListener;
+    FTTLListener: IListenerTTLCheck;
     FDownloadersListListener: IListener;
 
     FThreadArray: TArrayOfThread;

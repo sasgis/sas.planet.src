@@ -39,7 +39,7 @@ type
     FCS: IReadWriteSync;
     FLinksList: IListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
-    FTTLListener: ITTLCheckListener;
+    FTTLListener: IListenerTTLCheck;
     FTileDownloadFinishListener: IListenerDisconnectable;
     FDownloadState: ITileDownloaderStateChangeble;
 

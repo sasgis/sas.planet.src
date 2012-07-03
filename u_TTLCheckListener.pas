@@ -8,7 +8,7 @@ uses
   i_TTLCheckListener;
 
 type
-  TTTLCheckListener = class(TInterfacedObject, ITTLCheckListener)
+  TTTLCheckListener = class(TInterfacedObject, IListenerTTLCheck)
   private
     FOnTrimByTTL: TNotifyEvent;
     FUseFlag: ISimpleFlag;

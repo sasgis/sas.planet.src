@@ -53,8 +53,8 @@ type
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: INotifierTTLCheck;
-    FBDBTTLListener: ITTLCheckListener;
-    FMemCacheTTLListener: ITTLCheckListener;
+    FBDBTTLListener: IListenerTTLCheck;
+    FMemCacheTTLListener: IListenerTTLCheck;
     FTileInfoMemCache: TTileInfoBasicMemCache;
     {$IFDEF WITH_PERF_COUNTER}
     FPerfCounterList: IInternalPerformanceCounterList;

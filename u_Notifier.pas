@@ -5,7 +5,8 @@ interface
 uses
   Classes,
   SysUtils,
-  i_Notifier, i_Listener;
+  i_Notifier,
+  i_Listener;
 
 type
   TNotifierBase = class (TInterfacedObject, INotifier, INotifierInternal)

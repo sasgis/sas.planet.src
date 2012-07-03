@@ -22,7 +22,7 @@ type
     FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifier;
 
-    FTTLListener: ITTLCheckListener;
+    FTTLListener: IListenerTTLCheck;
     FAppClosingListener: IListener;
 
     FCapasitySemaphore: THandle;

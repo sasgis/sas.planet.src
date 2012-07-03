@@ -19,7 +19,7 @@ type
     FResultFactory: IDownloadResultFactory;
     FGCList: INotifierTTLCheck;
 
-    FTTLListener: ITTLCheckListener;
+    FTTLListener: IListenerTTLCheck;
     FCS: IReadWriteSync;
     FDownloader: IDownloader;
     procedure OnTTLTrim(Sender: TObject);

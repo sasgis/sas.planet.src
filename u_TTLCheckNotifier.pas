@@ -36,8 +36,8 @@ type
     FSync: IReadWriteSync;
     FNextCheck: Cardinal;
   private
-    procedure Add(const AListener: ITTLCheckListener);
-    procedure Remove(const AListener: ITTLCheckListener);
+    procedure Add(const AListener: IListenerTTLCheck);
+    procedure Remove(const AListener: IListenerTTLCheck);
     procedure ProcessObjectsTrim;
     function GetNextCheck: Cardinal;
   public
@@ -64,13 +64,13 @@ var
   i: integer;
 begin
   for i := 0 to FList.Count - 1 do begin
-    ITTLCheckListener(FList.Items[i])._Release;
+    IListenerTTLCheck(FList.Items[i])._Release;
   end;
   FreeAndNil(FList);
   inherited;
 end;
 
-procedure TTTLCheckNotifier.Add(const AListener: ITTLCheckListener);
+procedure TTTLCheckNotifier.Add(const AListener: IListenerTTLCheck);
 begin
   FSync.BeginWrite;
   try
@@ -90,7 +90,7 @@ procedure TTTLCheckNotifier.ProcessObjectsTrim;
 var
   i: integer;
   VNow: Cardinal;
-  VObj: ITTLCheckListener;
+  VObj: IListenerTTLCheck;
   VNextCheck: Cardinal;
   VObjNextCheck: Cardinal;
 begin
@@ -99,7 +99,7 @@ begin
   FSync.BeginRead;
   try
     for i := 0 to FList.Count - 1 do begin
-      VObj := ITTLCheckListener(FList.Items[i]);
+      VObj := IListenerTTLCheck(FList.Items[i]);
       VObjNextCheck := VObj.CheckTTLAndGetNextCheckTime(VNow);
       if (VNextCheck <= 0) or (VNextCheck > VObjNextCheck) then begin
         VNextCheck := VObjNextCheck;
@@ -111,7 +111,7 @@ begin
   end;
 end;
 
-procedure TTTLCheckNotifier.Remove(const AListener: ITTLCheckListener);
+procedure TTTLCheckNotifier.Remove(const AListener: IListenerTTLCheck);
 begin
   FSync.BeginWrite;
   try
@@ -123,3 +123,4 @@ begin
 end;
 
 end.
+

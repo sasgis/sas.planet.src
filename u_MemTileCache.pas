@@ -47,7 +47,7 @@ type
     FTileStorage: TTileStorageAbstract;
     FCoordConverter: ICoordConverter;
     FStorageChangeListener: IListener;
-    FTTLListener: ITTLCheckListener;
+    FTTLListener: IListenerTTLCheck;
 
     FCacheList: TStringList;
     FSync: IReadWriteSync;
