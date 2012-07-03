@@ -95,12 +95,17 @@ end;
 procedure TNotifierBase.Remove(const AListener: IListener);
 var
   idx: Integer;
+  VLastIndex: Integer;
 begin
   FSynchronizer.BeginWrite;
   try
     idx := FListeners.IndexOf(Pointer(AListener));
     if idx >= 0 then begin
-      FListeners.Delete(idx);
+      VLastIndex := FListeners.Count - 1;
+      if idx < VLastIndex then begin
+        FListeners[idx] :=  FListeners[VLastIndex];
+      end;
+      FListeners.Delete(VLastIndex);
       AListener._Release;
     end;
   finally
