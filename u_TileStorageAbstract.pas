@@ -68,21 +68,21 @@ type
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FOnRangeFillingMap: TRangeFillingMapEvent;
-    FNotifierByZoom: array of ITileRectUpdateNotifier;
+    FNotifierByZoom: array of INotifierTileRectUpdate;
     FConfigListener: IListener;
     FStorageState: IStorageStateChangeble;
     FStorageStateListener: IListener;
     FStorageStateStatic: IStorageStateStatic;
     FStorageStateStaticCS: IReadWriteSync;
     FStorageStateInternal: IStorageStateInternal;
-    FNotifierByZoomInternal: array of ITileRectUpdateNotifierInternal;
-    function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
+    FNotifierByZoomInternal: array of INotifierTileRectUpdateInternal;
+    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
     function GetNotifierByZoomInternal(
-      AZoom: Byte): ITileRectUpdateNotifierInternal;
+      AZoom: Byte): INotifierTileRectUpdateInternal;
     procedure OnStateChange;
     procedure OnConfigChange;
     function GetStorageStateStatic: IStorageStateStatic;
-    property NotifierByZoomInternal[AZoom: Byte]: ITileRectUpdateNotifierInternal read GetNotifierByZoomInternal;
+    property NotifierByZoomInternal[AZoom: Byte]: INotifierTileRectUpdateInternal read GetNotifierByZoomInternal;
   protected
     procedure NotifyTileUpdate(
       const ATile: TPoint;
@@ -176,7 +176,7 @@ type
 
     property State: IStorageStateChangeble read FStorageState;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
-    property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
+    property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
   end;
 
 implementation
@@ -268,7 +268,7 @@ end;
 
 function TTileStorageAbstract.GetNotifierByZoom(
   AZoom: Byte
-): ITileRectUpdateNotifier;
+): INotifierTileRectUpdate;
 begin
   Result := nil;
   if (AZoom >= FMinValidZoom) and (AZoom <= FMaxValidZoom) then begin
@@ -277,7 +277,7 @@ begin
 end;
 
 function TTileStorageAbstract.GetNotifierByZoomInternal(
-  AZoom: Byte): ITileRectUpdateNotifierInternal;
+  AZoom: Byte): INotifierTileRectUpdateInternal;
 begin
   Result := FNotifierByZoomInternal[AZoom - FMinValidZoom];
 end;
@@ -491,7 +491,7 @@ procedure TTileStorageAbstract.NotifyTileUpdate(
 );
 var
   VKey: ITileKey;
-  VNotifier: ITileRectUpdateNotifierInternal;
+  VNotifier: INotifierTileRectUpdateInternal;
 begin
   VNotifier := NotifierByZoomInternal[AZoom];
   if VNotifier <> nil then begin

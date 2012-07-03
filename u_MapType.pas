@@ -139,7 +139,7 @@ type
       AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
+    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
   public
     function AllowListOfTileVersions: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
@@ -273,7 +273,7 @@ type
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
-    property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
+    property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
 
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -597,7 +597,7 @@ begin
   end;
 end;
 
-function TMapType.GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
+function TMapType.GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
 begin
   Result := FStorage.NotifierByZoom[AZoom];
 end;

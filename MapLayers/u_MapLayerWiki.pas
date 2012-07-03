@@ -508,7 +508,7 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   cnt: Cardinal;
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
   VMap: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VZoom: Byte;
@@ -595,7 +595,7 @@ procedure TWikiLayer.SendTerminateToThreads;
 var
   VZoom: Byte;
   VMap: IMapType;
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
   VLayersSet: IMapTypeSet;
   VEnum: IEnumGUID;
   VGUID: TGUID;
@@ -632,7 +632,7 @@ var
   VOldZoom: Byte;
   VZoom: Byte;
   VMap: IMapType;
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
   VLayersSet: IMapTypeSet;
   VEnum: IEnumGUID;
   VGUID: TGUID;

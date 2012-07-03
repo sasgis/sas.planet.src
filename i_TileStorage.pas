@@ -37,8 +37,8 @@ type
     function GetInfo: ITileStorageInfo;
     property Info: ITileStorageInfo read GetInfo;
 
-    function GetNotifierByZoom(AZoom: Byte): ITileRectUpdateNotifier;
-    property NotifierByZoom[AZoom: Byte]: ITileRectUpdateNotifier read GetNotifierByZoom;
+    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
+    property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
 
     function GetState: IStorageStateChangeble;
     property State: IStorageStateChangeble read GetState;

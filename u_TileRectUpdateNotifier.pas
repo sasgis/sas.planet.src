@@ -16,7 +16,7 @@ type
     Rect: TRect;
   end;
 
-  TTileRectUpdateNotifier = class(TInterfacedObject, ITileRectUpdateNotifier, ITileRectUpdateNotifierInternal)
+  TTileRectUpdateNotifier = class(TInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
   private
     FGeoCoder: ICoordConverter;
     FZoom: Byte;
@@ -177,4 +177,6 @@ begin
 end;
 
 end.
+
+
 

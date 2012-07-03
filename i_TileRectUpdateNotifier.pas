@@ -9,7 +9,7 @@ uses
   i_CoordConverter;
 
 type
-  ITileRectUpdateNotifier = interface
+  INotifierTileRectUpdate = interface
     ['{63FC7494-8ECF-42BE-A516-3908337F77CE}']
     function GetGeoCoder: ICoordConverter; stdcall;
     property GeoCoder: ICoordConverter read GetGeoCoder;
@@ -24,7 +24,7 @@ type
     procedure Remove(const AListener: IListener); stdcall;
   end;
 
-  ITileRectUpdateNotifierInternal = interface
+  INotifierTileRectUpdateInternal = interface
     ['{86C0C887-1DD8-43B8-9B5A-0504B4BFA809}']
     procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;
   end;
@@ -32,4 +32,6 @@ type
 implementation
 
 end.
+
+
 

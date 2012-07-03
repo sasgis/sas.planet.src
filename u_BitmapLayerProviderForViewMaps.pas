@@ -290,7 +290,7 @@ end;
 
 procedure TBitmapLayerProviderForViewMaps.RemoveListener;
 var
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
   i: Integer;
   VMap: IMapType;
   VZoom: Byte;
@@ -332,7 +332,7 @@ procedure TBitmapLayerProviderForViewMaps.SetListener(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
   i: Integer;
   VMap: IMapType;
   VZoom: Byte;

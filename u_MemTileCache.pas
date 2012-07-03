@@ -138,7 +138,7 @@ constructor TMemTileCacheBase.Create(
 );
 var
   i: Integer;
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
 begin
   inherited Create;
   FConfig := AConfig;
@@ -168,7 +168,7 @@ end;
 destructor TMemTileCacheBase.Destroy;
 var
   i: Integer;
-  VNotifier: ITileRectUpdateNotifier;
+  VNotifier: INotifierTileRectUpdate;
 begin
   FConfig.GetChangeNotifier.Remove(FConfigListener);
   FConfigListener := nil;
