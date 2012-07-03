@@ -46,6 +46,7 @@ type
 implementation
 
 uses
+  Classes,
   u_Synchronizer;
 
 { TNotifierTileRectUpdate }
@@ -145,11 +146,8 @@ begin
       FList[VIndex].Listener := nil;
       Dec(FCount);
       if VIndex < FCount then begin
-        System.Move(
-          FList[VIndex + 1],
-          FList[VIndex],
-          (FCount - VIndex) * SizeOf(TListenerRecord)
-        );
+        Pointer(FList[VIndex].Listener) := Pointer(FList[FCount].Listener);
+        FList[VIndex].Rect := FList[FCount].Rect;
         Pointer(FList[FCount].Listener) := nil;
       end;
     end;
@@ -162,17 +160,34 @@ procedure TNotifierTileRectUpdate.TileUpdateNotify(const ATileKey: ITileKey);
 var
   i: Integer;
   VTile: TPoint;
+  VList: TList;
+  VListener: IListener;
 begin
-  FSynchronizer.BeginRead;
+  VList := TList.Create;
   try
+    VList.Capacity := 8;
     VTile := ATileKey.Tile;
-    for i := 0 to FCount - 1 do begin
-      if PtInRect(FList[i].Rect, VTile) then begin
-        FList[i].Listener.Notification(ATileKey);
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FCount - 1 do begin
+        if PtInRect(FList[i].Rect, VTile) then begin
+          FList[i].Listener._AddRef;
+          VList.Add(Pointer(FList[i].Listener));
+        end;
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      for i := 0 to VList.Count - 1 do begin
+        VListener := IListener(VList[i]);
+        VListener.Notification(ATileKey);
+        VListener._Release;
+        VListener := nil;
       end;
     end;
   finally
-    FSynchronizer.EndRead;
+    VList.Free;
   end;
 end;
 

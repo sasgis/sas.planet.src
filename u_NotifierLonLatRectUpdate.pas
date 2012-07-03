@@ -111,7 +111,7 @@ var
 begin
   VList := TList.Create;
   try
-    VList.Capacity := 10;
+    VList.Capacity := 8;
     FSynchronizer.BeginRead;
     try
       for i := 0 to FCount - 1 do begin
