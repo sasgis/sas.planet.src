@@ -35,9 +35,9 @@ type
   private
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
-  protected
+  private
     procedure Notification(const AMsg: IInterface);
-  protected
+  private
     procedure Disconnect;
   public
     constructor Create(AEvent: TNotifyListenerEvent);
@@ -46,7 +46,7 @@ type
   TNotifyNoMmgEventListener = class(TInterfacedObject, IListener)
   private
     FEvent: TNotifyListenerNoMmgEvent;
-  protected
+  private
     procedure Notification(const AMsg: IInterface);
   public
     constructor Create(AEvent: TNotifyListenerNoMmgEvent);
@@ -60,7 +60,7 @@ type
     FNeedNotifyFlag: ISimpleFlag;
     FEvent: TNotifyListenerNoMmgEvent;
     procedure OnTimer;
-  protected
+  private
     procedure Notification(const AMsg: IInterface);
   public
     constructor Create(

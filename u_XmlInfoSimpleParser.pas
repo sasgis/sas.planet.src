@@ -44,13 +44,13 @@ type
     FFactory: IVectorItmesFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FFormat: TFormatSettings;
-  protected
+  private
     procedure Internal_ParseXML_UserProc(
       const pUserAuxPointer: Pointer;
       const pPX_Result: Pvsagps_XML_ParserResult;
       const pPX_State: Pvsagps_XML_ParserState
     );
-  protected
+  private
     function LoadFromStream(
       AStream: TStream;
       const AFactory: IVectorDataFactory

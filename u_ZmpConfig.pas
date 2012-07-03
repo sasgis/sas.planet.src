@@ -32,11 +32,10 @@ type
   TZmpConfig = class(TConfigDataElementComplexBase, IZmpConfig)
   private
     FMaxConnectToServerCount: Cardinal;
-
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetMaxConnectToServerCount: Cardinal;
     procedure SetMaxConnectToServerCount(AValue: Cardinal);
   public

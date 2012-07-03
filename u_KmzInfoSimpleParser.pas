@@ -29,21 +29,22 @@ uses
   i_VectorDataItemSimple,
   i_VectorItmesFactory,
   i_InternalPerformanceCounter,
-  u_KmlInfoSimpleParser;
+  i_VectorDataLoader;
 
 type
-  TKmzInfoSimpleParser = class(TKmlInfoSimpleParser)
+  TKmzInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
   private
+    FKmlParser: IVectorDataLoader;
     FLoadKmzStreamCounter: IInternalPerformanceCounter;
-  protected
+  private
     function LoadFromStream(
       AStream: TStream;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList; override;
+    ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList; override;
+    ): IVectorDataItemList;
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;
@@ -56,6 +57,7 @@ implementation
 uses
   SysUtils,
   KAZip,
+  u_KmlInfoSimpleParser,
   u_StreamReadOnlyByBinaryData;
 
 { TKmzInfoSimpleParser }
@@ -67,8 +69,9 @@ constructor TKmzInfoSimpleParser.Create(
 var
   VPerfCounterList: IInternalPerformanceCounterList;
 begin
+  inherited Create;
   VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('KmzLoader');
-  inherited Create(AFactory, VPerfCounterList);
+  FKmlParser := TKmlInfoSimpleParser.Create(AFactory, VPerfCounterList);
   FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
 end;
 
@@ -125,7 +128,7 @@ begin
               VIndex := 0;
             end;
             UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
-            Result := inherited LoadFromStream(VStreamKml, AFactory);
+            Result := FKmlParser.LoadFromStream(VStreamKml, AFactory);
           finally
             VStreamKml.Free;
           end;

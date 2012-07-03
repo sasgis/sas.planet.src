@@ -38,7 +38,7 @@ type
     FCutSize: TPoint;
     FCutTile: TPoint;
     FCutToSkip: String;
-  protected
+  private
     // crop image
     function GetIsCropOnDownload: Boolean;
     function GetCropRect: TRect;

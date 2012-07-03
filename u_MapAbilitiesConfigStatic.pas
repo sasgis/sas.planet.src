@@ -33,7 +33,7 @@ type
     FIsUseStick: Boolean;
     FIsUseGenPrevious: Boolean;
     FUseDownload: Boolean;
-  protected
+  private
     function GetIsLayer: Boolean;
     function GetIsShowOnSmMap: Boolean;
     function GetIsUseStick: Boolean;

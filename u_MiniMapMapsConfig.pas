@@ -42,7 +42,7 @@ type
     procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActiveMiniMap(const AValue: IMapType);
-  protected
+  private
     function GetActiveMiniMap: IMapType;
   public
     constructor Create(const AMapsConfig: IMainMapsConfig);

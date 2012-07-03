@@ -38,7 +38,7 @@ type
     FAllowDelete: boolean;
     FAllowAdd: boolean;
     FAllowReplace: boolean;
-  protected
+  private
     function GetCoordConverter: ICoordConverter;
     function GetCacheTypeCode: Integer;
     function GetNameInCache: string;

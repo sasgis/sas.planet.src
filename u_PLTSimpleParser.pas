@@ -47,7 +47,7 @@ type
       const Smb: string;
       WordNmbr: Byte
     ): string;
-  protected
+  private
     function LoadFromStream(
       AStream: TStream;
       const AFactory: IVectorDataFactory

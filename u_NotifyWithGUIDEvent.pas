@@ -39,7 +39,7 @@ type
   TNotificationMessageWithGUID = class(TInterfacedObject, INotificationMessageWithGUID)
   private
     FGUID: TGUID;
-  protected
+  private
     function GetGUID: TGUID;
   public
     constructor Create(const AGUID: TGUID);
@@ -49,7 +49,7 @@ type
   TNotifyWithGUIDEventListener = class(TInterfacedObject, IListener)
   private
     FEvent: TNotifyWithGUIDEvent;
-  protected
+  private
     procedure Notification(const msg: IInterface);
   public
     constructor Create(AEvent: TNotifyWithGUIDEvent);

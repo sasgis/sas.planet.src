@@ -86,7 +86,7 @@ type
       const ALangList: ILanguageListStatic;
       const AConfig: IConfigDataProvider
     );
-  protected
+  private
     function GetName: IStringByLanguage;
     function GetSortIndex: Integer;
     function GetInfoUrl: IStringByLanguage;
@@ -153,7 +153,7 @@ type
       const AConfig: IConfigDataProvider
     );
     procedure LoadTileDownloaderConfig(const AConfig: IConfigDataProvider);
-  protected
+  private
     { IZmpInfo }
     function GetGUID: TGUID;
     function GetGUI: IZmpInfoGUI;

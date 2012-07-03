@@ -30,7 +30,7 @@ type
   TLastResponseInfo = class(TConfigDataElementBaseEmptySaveLoad, ILastResponseInfo)
   private
     FResponseHead: string;
-  protected
+  private
     function GetResponseHead: string;
     procedure SetResponseHead(const AValue: string);
   end;

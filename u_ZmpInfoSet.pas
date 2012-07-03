@@ -37,7 +37,7 @@ type
   TZmpInfoSet = class(TInterfacedObject, IZmpInfoSet)
   private
     FList: IGUIDInterfaceSet;
-  protected
+  private
     function GetZmpByGUID(const AGUID: TGUID): IZmpInfo;
     function GetIterator: IEnumGUID;
   public

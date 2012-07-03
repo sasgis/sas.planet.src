@@ -82,15 +82,15 @@ type
       const APointsAggregator: IDoublePointsAggregator;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemSimple;
-  protected
+  private
     function LoadFromStream(
       AStream: TStream;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList; virtual;
+    ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList; virtual;
+    ): IVectorDataItemList;
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;

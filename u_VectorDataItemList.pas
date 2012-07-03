@@ -30,7 +30,7 @@ type
   TVectorDataItemList = class(TInterfacedObject, IVectorDataItemList)
   private
     FList: IInterfaceList;
-  protected
+  private
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IVectorDataItemSimple;
   public

@@ -31,7 +31,7 @@ type
   TMapElementsGuidedList = class(TGUIDInterfaceSet, IMapElementsGuidedList) // TInterfacedObject, IInterfaceList
   private
     FListWithoutGUID: IInterfaceList;
-  protected
+  private
     { IMapElementsGuidedList }
     function GetMapElementsWithGUID(const AGUID: TGUID): IInterfaceList;
     function GetMapElementsWithoutGUID: IInterfaceList;
