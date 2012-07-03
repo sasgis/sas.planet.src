@@ -38,6 +38,7 @@ type
 implementation
 
 uses
+  Classes,
   u_LonLatRect,
   u_Synchronizer;
 
@@ -105,35 +106,67 @@ procedure TNotifierLonLatRectUpdate.RectUpdateNotify(const ARect: TDoubleRect);
 var
   i: Integer;
   VRect: ILonLatRect;
+  VList: TList;
+  VListener: IListener;
 begin
-  FSynchronizer.BeginRead;
+  VList := TList.Create;
   try
-    for i := 0 to FCount - 1 do begin
-      if (FList[i].Rect = nil) or FList[i].Rect.IsIntersecWithRect(ARect) then begin
-        if VRect = nil then begin
-          VRect := TLonLatRect.Create(ARect);
+    VList.Capacity := 10;
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FCount - 1 do begin
+        if (FList[i].Rect = nil) or FList[i].Rect.IsIntersecWithRect(ARect) then begin
+          FList[i].Listener._AddRef;
+          VList.Add(Pointer(FList[i].Listener));
         end;
-        FList[i].Listener.Notification(VRect);
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      VRect := TLonLatRect.Create(ARect);
+      for i := 0 to VList.Count - 1 do begin
+        VListener := IListener(VList[i]);
+        VListener.Notification(VRect);
+        VListener._Release;
+        VListener := nil;
       end;
     end;
   finally
-    FSynchronizer.EndRead;
+    VList.Free;
   end;
 end;
 
 procedure TNotifierLonLatRectUpdate.RectUpdateNotify(const ARect: ILonLatRect);
 var
   i: Integer;
+  VList: TList;
+  VListener: IListener;
 begin
-  FSynchronizer.BeginRead;
+  VList := TList.Create;
   try
-    for i := 0 to FCount - 1 do begin
-      if (FList[i].Rect = nil) or FList[i].Rect.IsIntersecWithRect(ARect) then begin
-        FList[i].Listener.Notification(ARect);
+    VList.Capacity := 10;
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FCount - 1 do begin
+        if (FList[i].Rect = nil) or FList[i].Rect.IsIntersecWithRect(ARect) then begin
+          FList[i].Listener._AddRef;
+          VList.Add(Pointer(FList[i].Listener));
+        end;
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      for i := 0 to VList.Count - 1 do begin
+        VListener := IListener(VList[i]);
+        VListener.Notification(ARect);
+        VListener._Release;
+        VListener := nil;
       end;
     end;
   finally
-    FSynchronizer.EndRead;
+    VList.Free;
   end;
 end;
 
@@ -157,11 +190,8 @@ begin
       FList[VIndex].Rect := nil;
       Dec(FCount);
       if VIndex < FCount then begin
-        System.Move(
-          FList[VIndex + 1],
-          FList[VIndex],
-          (FCount - VIndex) * SizeOf(TListenerRecord)
-        );
+        Pointer(FList[VIndex].Listener) := Pointer(FList[FCount].Listener);
+        Pointer(FList[VIndex].Rect) := Pointer(FList[FCount].Rect);
         Pointer(FList[FCount].Listener) := nil;
         Pointer(FList[FCount].Rect) := nil;
       end;
