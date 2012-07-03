@@ -154,9 +154,9 @@ begin
   inherited;
   VTilesToProcess := 0;
   VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
-  SetLength(VTileIterators, Length(FZooms));
+  SetLength(VTileIterators, Length(FZoomList));
   for i := 0 to FMapList.Count - 1 do begin
-    VZoom := FZooms[i];
+    VZoom := FZoomList[i];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
@@ -168,7 +168,7 @@ begin
 
   VWriter := TMultiVolumeJNXWriter.Create(FTargetFile);
   try
-    VWriter.Levels := Length(FZooms);
+    VWriter.Levels := Length(FZoomList);
     VWriter.ProductName := FProductName;
     VWriter.MapName := FmapName;
     VWriter.Version := FJNXVersion;
@@ -192,7 +192,7 @@ begin
       try
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-        for i := 0 to Length(FZooms) - 1 do begin
+        for i := 0 to Length(FZoomList) - 1 do begin
           VSaver := TVampyreBasicBitmapTileSaverJPG.Create(strtoint(FJpgQuality.Items[i]));
           VZoom := FZoomList[i];
           VTileIterator := VTileIterators[i];
@@ -236,7 +236,7 @@ begin
         VStringStream.Free;
       end;
     finally
-      for i := 0 to Length(FZooms) - 1 do begin
+      for i := 0 to Length(FZoomList) - 1 do begin
         VTileIterators[i] := nil;
       end;
       VTileIterators := nil;
