@@ -54,7 +54,7 @@ type
     ): IBitmapLayerProvider;
     function PreparePolygon(const APolygon: ILonLatPolygon): IProjectedPolygon;
     procedure PrepareProcessInfo(
-      out ACancelNotifier: IOperationNotifier;
+      out ACancelNotifier: INotifierOperation;
       out AOperationID: Integer;
       out AProgressInfo: IRegionProcessProgressInfoInternal
     );
@@ -280,7 +280,7 @@ begin
 end;
 
 procedure TProviderMapCombine.PrepareProcessInfo(
-  out ACancelNotifier: IOperationNotifier;
+  out ACancelNotifier: INotifierOperation;
   out AOperationID: Integer;
   out AProgressInfo: IRegionProcessProgressInfoInternal
 );
@@ -343,7 +343,7 @@ var
   VMapSize: TPoint;
   VMapPieceSize: TPoint;
   VKmzImgesCount: TPoint;
-  VCancelNotifier: IOperationNotifier;
+  VCancelNotifier: INotifierOperation;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
 begin

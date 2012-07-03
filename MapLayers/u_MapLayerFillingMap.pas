@@ -24,7 +24,7 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ); override;
     function GetVisibleForNewPos(
       const ANewVisualCoordConverter: ILocalCoordConverter
@@ -92,7 +92,7 @@ end;
 
 procedure TMapLayerFillingMap.DrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VZoom: Byte;

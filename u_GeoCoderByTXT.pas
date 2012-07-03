@@ -39,7 +39,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLock: IReadWriteSync;
   procedure SearchInTXTFile(
-    const ACancelNotifier: IOperationNotifier;
+    const ACancelNotifier: INotifierOperation;
     AOperationID: Integer;
     const AFile : string ;
     const ASearch : widestring;
@@ -48,7 +48,7 @@ type
   );
   protected
     function DoSearch(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
@@ -116,7 +116,7 @@ begin
 end;
 
 procedure TGeoCoderByTXT.SearchInTXTFile(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
@@ -228,7 +228,7 @@ begin
 end;
 
 function TGeoCoderByTXT.DoSearch(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter

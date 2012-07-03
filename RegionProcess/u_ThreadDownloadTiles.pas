@@ -100,7 +100,7 @@ type
     FRES_ProcessFilesComplete: string;
 
 
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FFinishEvent: TEvent;
     FTileDownloadFinishListener: IListenerDisconnectable;

@@ -102,7 +102,7 @@ type
     );
     function DoRequest(
       const ARequest: IDownloadRequest;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     ): IDownloadResult;
   public
@@ -282,7 +282,7 @@ end;
 
 function TDownloaderHttp.DoRequest(
   const ARequest: IDownloadRequest;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer
 ): IDownloadResult;
 var

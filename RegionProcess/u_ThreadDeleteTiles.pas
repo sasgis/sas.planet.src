@@ -50,7 +50,7 @@ type
     );
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: ILonLatPolygon;
@@ -70,7 +70,7 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: ILonLatPolygon;

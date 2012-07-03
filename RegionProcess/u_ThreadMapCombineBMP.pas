@@ -19,7 +19,7 @@ type
   protected
     procedure SaveRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverter: ILocalCoordConverter;
@@ -36,7 +36,7 @@ uses
 
 procedure TThreadMapCombineBMP.SaveRect(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverter: ILocalCoordConverter;

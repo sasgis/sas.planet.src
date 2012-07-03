@@ -42,7 +42,7 @@ type
   TThreadCacheConverter = class(TThreadCacheManagerAbstract)
   private
     FOperationID: Integer;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     FSourceTileStorage: TTileStorageAbstract;
     FDestTileStorage: TTileStorageAbstract;
     FSourceIgnoreTne: Boolean;
@@ -77,7 +77,7 @@ type
     procedure Process; override;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASourcePath: string;
       const ADestPath: string;
@@ -115,7 +115,7 @@ uses
 { TThreadCacheConverter }
 
 constructor TThreadCacheConverter.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ASourcePath: string;
   const ADestPath: string;

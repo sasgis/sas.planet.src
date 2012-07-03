@@ -38,7 +38,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
@@ -62,7 +62,7 @@ uses
 { TGeoCoderByOSM }
 
 function TGeoCoderByWikiMapia.ParseResultToPlacemarksList(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
   const ASearch: WideString;

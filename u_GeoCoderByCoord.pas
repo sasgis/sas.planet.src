@@ -45,7 +45,7 @@ type
     ):boolean;
   protected
     function DoSearch(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
@@ -664,7 +664,7 @@ end;
 
 
 function TGeoCoderByCoord.DoSearch(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter

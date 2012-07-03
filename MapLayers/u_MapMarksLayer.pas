@@ -81,7 +81,7 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ); override;
   public
     procedure StartThreads; override;
@@ -200,7 +200,7 @@ end;
 
 procedure TMapMarksLayer.DrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VBitmapTile: IBitmap32Static;

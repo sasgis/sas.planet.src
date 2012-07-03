@@ -17,7 +17,7 @@ type
     FVersionInfo: IMapVersionInfo;
     FStartNotifier: INotifier;
     FFinishNotifier: INotifier;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
   protected
     function GetTile: TPoint;
@@ -25,14 +25,14 @@ type
     function GetVersionInfo: IMapVersionInfo;
     function GetStartNotifier: INotifier;
     function GetFinishNotifier: INotifier;
-    function GetCancelNotifier: IOperationNotifier;
+    function GetCancelNotifier: INotifierOperation;
     function GetOperationID: Integer;
   public
     constructor Create(
       const ATile: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     );
   end;
@@ -50,7 +50,7 @@ constructor TTileRequest.Create(
   const ATile: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer
 );
 begin
@@ -64,7 +64,7 @@ begin
   FOperationID := AOperationID;
 end;
 
-function TTileRequest.GetCancelNotifier: IOperationNotifier;
+function TTileRequest.GetCancelNotifier: INotifierOperation;
 begin
   Result := FCancelNotifier;
 end;

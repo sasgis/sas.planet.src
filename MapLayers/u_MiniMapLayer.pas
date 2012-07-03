@@ -177,14 +177,14 @@ type
     procedure OnLayerSetChange;
     procedure OnDrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     );
     procedure OnTimer;
 
     procedure SetBitmapChanged;
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     );
     procedure ClearLayerBitmap;
     function GetLayersSet: IMapTypeSet;
@@ -665,7 +665,7 @@ end;
 
 procedure TMiniMapLayer.DrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VBitmapTile: IBitmap32Static;
@@ -1122,7 +1122,7 @@ end;
 
 procedure TMiniMapLayer.OnDrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VCounterContext: TInternalPerformanceCounterContext;

@@ -24,7 +24,7 @@ type
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
@@ -47,7 +47,7 @@ uses
 { TThreadExportToAUX }
 
 constructor TThreadExportToAUX.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;

@@ -35,7 +35,7 @@ type
   TBackgroundTaskExecuteEvent =
     procedure(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ) of object;
 
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
@@ -43,7 +43,7 @@ type
     FAppClosingNotifier: INotifier;
     FOnExecute: TBackgroundTaskExecuteEvent;
     FCancelNotifierInternal: IOperationNotifierInternal;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     FStopThreadHandle: THandle;
     FAllowExecuteHandle: THandle;
     FAppClosingListener: IListener;
@@ -51,7 +51,7 @@ type
   protected
     procedure Execute; override;
     procedure Terminate; override;
-    property CancelNotifier: IOperationNotifier read FCancelNotifier;
+    property CancelNotifier: INotifierOperation read FCancelNotifier;
   protected
     procedure StartExecute;
     procedure StopExecute;

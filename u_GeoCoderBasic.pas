@@ -50,7 +50,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; virtual; abstract;
     function ParseResultToPlacemarksList(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
@@ -58,7 +58,7 @@ type
     ): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
@@ -95,7 +95,7 @@ begin
 end;
 
 function TGeoCoderBasic.GetLocations(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter

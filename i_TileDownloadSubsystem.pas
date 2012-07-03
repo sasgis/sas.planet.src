@@ -12,7 +12,7 @@ type
   ITileDownloadSubsystem = interface
     ['{06FFC386-43A0-4308-B294-58F8CF429BCB}']
     function GetRequest(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
       Azoom: byte;

@@ -45,7 +45,7 @@ type
     FAppClosingNotifier: INotifier;
 
     FDestroyNotifierInternal: IOperationNotifierInternal;
-    FDestroyNotifier: IOperationNotifier;
+    FDestroyNotifier: INotifierOperation;
     FDestroyOperationID: Integer;
     FAppClosingListener: IListener;
 
@@ -59,7 +59,7 @@ type
     procedure OnAppClosing;
   protected
     function GetRequest(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
       Azoom: byte;
@@ -291,7 +291,7 @@ begin
 end;
 
 function TTileDownloadSubsystem.GetRequest(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AXY: TPoint;
   Azoom: byte;

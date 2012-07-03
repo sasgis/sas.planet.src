@@ -38,7 +38,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
@@ -64,7 +64,7 @@ uses
 { TGeoCoderByGoogle }
 
 function TGeoCoderByGoogle.ParseResultToPlacemarksList(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
   const ASearch: WideString;

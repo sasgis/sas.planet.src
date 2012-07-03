@@ -26,7 +26,7 @@ uses
   i_Notify;
 
 type
-  IOperationNotifier = interface
+  INotifierOperation = interface
     ['{96D3C3D0-7B07-4F63-AE3D-6E32516AE56B}']
     function GetCurrentOperation: Integer; stdcall;
     property CurrentOperation: Integer read GetCurrentOperation;
@@ -37,7 +37,7 @@ type
     procedure RemoveListener(AListener: IListener); stdcall;
   end;
 
-  IOneOperationNotifier = interface
+  INotifierOneOperation = interface
     ['{EA058BC8-6764-412B-93A5-F1AB4032C38F}']
     function GetIsExecuted: Boolean;
     property IsExecuted: Boolean read GetIsExecuted;
@@ -49,4 +49,6 @@ type
 implementation
 
 end.
+
+
 

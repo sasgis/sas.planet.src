@@ -28,7 +28,7 @@ type
     FLastResponseInfo: ILastResponseInfo;
 
     FDestroyNotifierInternal: IOperationNotifierInternal;
-    FDestroyNotifier: IOperationNotifier;
+    FDestroyNotifier: INotifierOperation;
     FDestroyOperationID: Integer;
 
     FAppClosingListener: IListener;

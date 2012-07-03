@@ -37,7 +37,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
@@ -61,7 +61,7 @@ uses
   i_CoordConverter;
 
 constructor TThreadExportKML.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;

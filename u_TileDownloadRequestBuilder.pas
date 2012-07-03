@@ -44,7 +44,7 @@ type
     function BuildRequest(
       const ASource: ITileRequest;
       const ALastResponseInfo: ILastResponseInfo;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     ): ITileDownloadRequest; virtual; abstract;
   public

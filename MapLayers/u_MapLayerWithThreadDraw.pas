@@ -27,13 +27,13 @@ type
     FDelicateRedrawFlag: ISimpleFlag;
     procedure OnDrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     );
     procedure OnTimer;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ); virtual; abstract;
     procedure SetBitmapChanged;
     property DrawTask: IBackgroundTask read FDrawTask;
@@ -130,7 +130,7 @@ end;
 
 procedure TMapLayerWithThreadDraw.OnDrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VCounterContext: TInternalPerformanceCounterContext;

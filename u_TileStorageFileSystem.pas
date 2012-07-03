@@ -137,7 +137,7 @@ type
 
     function LoadFillingMap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       btm: TCustomBitmap32;
       const AXY: TPoint;
       Azoom: byte;
@@ -553,7 +553,7 @@ end;
 
 function TTileStorageFileSystem.LoadFillingMap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   btm: TCustomBitmap32;
   const AXY: TPoint;
   Azoom, ASourceZoom: byte;

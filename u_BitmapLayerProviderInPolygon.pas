@@ -18,7 +18,7 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
@@ -48,7 +48,7 @@ end;
 
 function TBitmapLayerProviderInPolygon.GetBitmapRect(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 begin

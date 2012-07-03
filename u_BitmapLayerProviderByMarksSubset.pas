@@ -66,7 +66,7 @@ type
 
     function DrawSubset(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AMarksSubset: IMarksSubset;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
@@ -96,7 +96,7 @@ type
   protected
     function GetBitmapRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
@@ -478,7 +478,7 @@ end;
 
 function TBitmapLayerProviderByMarksSubset.DrawSubset(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AMarksSubset: IMarksSubset;
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter
@@ -552,7 +552,7 @@ end;
 
 function TBitmapLayerProviderByMarksSubset.GetBitmapRect(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var

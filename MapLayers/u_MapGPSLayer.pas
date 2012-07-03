@@ -32,7 +32,7 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ); override;
   public
     procedure StartThreads; override;
@@ -112,7 +112,7 @@ end;
 
 procedure TMapGPSLayer.DrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VTrackColorer: ITrackColorerStatic;

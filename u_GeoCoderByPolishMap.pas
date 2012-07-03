@@ -39,7 +39,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLock: IReadWriteSync;
   procedure SearchInMapFile(
-   const ACancelNotifier: IOperationNotifier;
+   const ACancelNotifier: INotifierOperation;
    AOperationID: Integer;
    const AFile : string ;
    const ASearch : widestring;
@@ -48,7 +48,7 @@ type
    );
   protected
     function DoSearch(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
@@ -480,7 +480,7 @@ begin
 end;
 
 procedure TGeoCoderByPolishMap.SearchInMapFile(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
@@ -700,7 +700,7 @@ begin
 end;
 
 function TGeoCoderByPolishMap.DoSearch(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter

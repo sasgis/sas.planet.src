@@ -90,7 +90,7 @@ type
       const ALastResponseInfo: ILastResponseInfo;
       const ADownloaderConfig: ITileDownloaderConfigStatic;
       const ASource: ITileRequest;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     );
     procedure OnLangChange;
@@ -98,7 +98,7 @@ type
     function BuildRequest(
       const ASource: ITileRequest;
       const ALastResponseInfo: ILastResponseInfo;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     ): ITileDownloadRequest; override;
   public
@@ -183,7 +183,7 @@ end;
 function TTileDownloadRequestBuilderPascalScript.BuildRequest(
   const ASource: ITileRequest;
   const ALastResponseInfo: ILastResponseInfo;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer
 ): ITileDownloadRequest;
 var
@@ -313,7 +313,7 @@ procedure TTileDownloadRequestBuilderPascalScript.SetVar(
   const ALastResponseInfo: ILastResponseInfo;
   const ADownloaderConfig: ITileDownloaderConfigStatic;
   const ASource: ITileRequest;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer
 );
 var

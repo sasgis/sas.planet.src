@@ -43,12 +43,12 @@ type
   private
     FReadDelegate: TEcwRead;
     FOperationID: Integer;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
   public
     constructor Create;
     function Encode(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const FileName: string;
       Width, Height: cardinal;
       CompressRatio: Single;
@@ -100,7 +100,7 @@ end;
 
 function TECWWrite.Encode(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const FileName: string;
   Width, Height: cardinal;
   CompressRatio: Single;

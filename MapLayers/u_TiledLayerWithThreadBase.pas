@@ -60,12 +60,12 @@ type
     procedure SetMatrixNotReady(const ATileMatrix: ITileMatrix);
     procedure OnPrepareTileMatrix(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     );
 
     procedure PrepareTileMatrix(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ATileMatrix: ITileMatrix;
       const ALayerProvider: IBitmapLayerProvider
     );
@@ -288,7 +288,7 @@ end;
 
 procedure TTiledLayerWithThreadBase.OnPrepareTileMatrix(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VTileMatrix: ITileMatrix;
@@ -389,7 +389,7 @@ end;
 
 procedure TTiledLayerWithThreadBase.PrepareTileMatrix(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ATileMatrix: ITileMatrix;
   const ALayerProvider: IBitmapLayerProvider
 );

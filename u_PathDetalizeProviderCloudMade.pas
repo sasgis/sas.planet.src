@@ -51,7 +51,7 @@ type
     function SecondToTime(const Seconds: Cardinal): Double;
   private { IPathDetalizeProvider }
     function GetPath(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
@@ -98,7 +98,7 @@ begin
 end;
 
 function TPathDetalizeProviderCloudMade.GetPath(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASource: ILonLatPath;
   var AComment: string

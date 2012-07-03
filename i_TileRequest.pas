@@ -26,8 +26,8 @@ type
     function GetFinishNotifier: INotifier;
     property FinishNotifier: INotifier read GetFinishNotifier;
 
-    function GetCancelNotifier: IOperationNotifier;
-    property CancelNotifier: IOperationNotifier read GetCancelNotifier;
+    function GetCancelNotifier: INotifierOperation;
+    property CancelNotifier: INotifierOperation read GetCancelNotifier;
 
     function GetOperationID: Integer;
     property OperationID: Integer read GetOperationID;

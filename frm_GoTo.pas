@@ -183,7 +183,7 @@ var
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
-  VNotifier: IOperationNotifier;
+  VNotifier: INotifierOperation;
 begin
   VLocalConverter := FViewPortState.GetVisualCoordConverter;
   if pgcSearchType.ActivePage = tsPlaceMarks then begin

@@ -61,7 +61,7 @@ type
     procedure OnCancel;
     procedure DoProcessDownloadRequests(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     );
     procedure RetartDownloadIfNeed;
     procedure OnTileDownloadFinish(const AMsg: IInterface);
@@ -262,7 +262,7 @@ end;
 
 procedure TUiTileDownload.DoProcessDownloadRequests(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VIterator: ITileIterator;

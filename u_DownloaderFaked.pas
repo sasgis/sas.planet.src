@@ -16,7 +16,7 @@ type
   protected
     function DoRequest(
       const ARequest: IDownloadRequest;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     ): IDownloadResult;
   public
@@ -38,7 +38,7 @@ end;
 
 function TDownloaderFaked.DoRequest(
   const ARequest: IDownloadRequest;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer
 ): IDownloadResult;
 begin

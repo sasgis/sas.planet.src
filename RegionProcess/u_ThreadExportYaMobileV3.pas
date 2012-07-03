@@ -57,7 +57,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -94,7 +94,7 @@ const
   YaHeaderSize: integer = 1024;
 
 constructor TThreadExportYaMobileV3.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;

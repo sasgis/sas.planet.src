@@ -18,7 +18,7 @@ type
     FPolygLL: ILonLatPolygon;
 
     FMessageForShow: string;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     procedure OnCancel;
     procedure SynShowMessage;
     procedure ShowMessageSync(const AMessage: string);
@@ -26,13 +26,13 @@ type
     procedure ProcessRegion; virtual; abstract;
     procedure Execute; override;
 
-    property CancelNotifier: IOperationNotifier read FCancelNotifier;
+    property CancelNotifier: INotifierOperation read FCancelNotifier;
     property OperationID: Integer read FOperationID;
     property ProgressInfo: IRegionProcessProgressInfoInternal read FProgressInfo;
     property PolygLL: ILonLatPolygon read FPolygLL;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon
@@ -48,7 +48,7 @@ uses
   u_NotifyEventListener;
 
 constructor TThreadRegionProcessAbstract.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon

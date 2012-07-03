@@ -43,7 +43,7 @@ type
     procedure OnTileUpdate(const AMsg: IInterface);
     function GetBitmapByMapType(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ATile: TPoint;
       Azoom: byte;
       const ACoordConverterTarget: ICoordConverter;
@@ -54,7 +54,7 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   private
@@ -120,7 +120,7 @@ end;
 
 function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ATile: TPoint;
   Azoom: byte;
   const ACoordConverterTarget: ICoordConverter;
@@ -206,7 +206,7 @@ end;
 
 function TBitmapLayerProviderForViewMaps.GetBitmapRect(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var

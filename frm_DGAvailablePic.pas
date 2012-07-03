@@ -248,7 +248,7 @@ var
   VDownloadResultError: IDownloadResultError;
   VDownloadResultDataNotExists: IDownloadResultDataNotExists;
   VResultOk: IDownloadResultOk;
-  VCancelNotifier: IOperationNotifier;
+  VCancelNotifier: INotifierOperation;
 begin
   Result:=FALSE;
   try

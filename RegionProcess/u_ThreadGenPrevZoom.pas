@@ -38,7 +38,7 @@ type
     procedure ProgressFormUpdateOnProgress(const AProcessed, AToProcess: Int64);
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -68,7 +68,7 @@ uses
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;

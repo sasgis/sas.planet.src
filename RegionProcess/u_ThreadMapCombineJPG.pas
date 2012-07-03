@@ -33,7 +33,7 @@ type
   protected
     procedure SaveRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverter: ILocalCoordConverter;
@@ -41,7 +41,7 @@ type
     ); override;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
@@ -66,7 +66,7 @@ uses
 { TThreadMapCombineJPG }
 
 constructor TThreadMapCombineJPG.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
@@ -96,7 +96,7 @@ end;
 
 procedure TThreadMapCombineJPG.SaveRect(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverter: ILocalCoordConverter;

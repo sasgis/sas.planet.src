@@ -36,7 +36,7 @@ type
     procedure ClearBuffer;
     procedure PrepareBufferData(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AConverter: ILocalCoordConverter
     );
   protected
@@ -50,7 +50,7 @@ type
     function GetBytesPerPixel: Integer;
     function GetLine(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       ALine: Integer
     ): Pointer;
   public
@@ -205,7 +205,7 @@ end;
 
 function TImageLineProviderAbstract.GetLine(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   ALine: Integer
 ): Pointer;
 var
@@ -242,7 +242,7 @@ end;
 
 procedure TImageLineProviderAbstract.PrepareBufferData(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AConverter: ILocalCoordConverter
 );
 var

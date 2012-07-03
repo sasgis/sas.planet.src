@@ -38,7 +38,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
@@ -70,7 +70,7 @@ begin
 end;
 
 function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
   const ASearch: WideString;

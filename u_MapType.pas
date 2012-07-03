@@ -229,7 +229,7 @@ type
 
     function GetFillingMapBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter;
       ASourceZoom: byte;
       const AColorer: IFillingMapColorer
@@ -237,7 +237,7 @@ type
 
     function LoadFillingMap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       btm: TCustomBitmap32;
       const AXY: TPoint;
       Azoom: byte;
@@ -827,7 +827,7 @@ end;
 
 function TMapType.LoadFillingMap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   btm: TCustomBitmap32;
   const AXY: TPoint;
   Azoom, ASourceZoom: byte;
@@ -866,7 +866,7 @@ end;
 
 function TMapType.GetFillingMapBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter;
   ASourceZoom: byte;
   const AColorer: IFillingMapColorer

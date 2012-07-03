@@ -38,7 +38,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
@@ -485,7 +485,7 @@ case t of
 end;
 
 function TGeoCoderByNavitel.ParseResultToPlacemarksList(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AResult: IDownloadResultOk;
   const ASearch: WideString;

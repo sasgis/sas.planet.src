@@ -33,17 +33,17 @@ type
     FOperationID: Integer;
     FCancelListener: IListener;
     FMessageForShow: string;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     procedure OnCancel;
     procedure SynShowMessage;
     procedure ShowMessageSync(const AMessage: string);
   protected
     procedure Process; virtual; abstract;
     procedure Execute; override;
-    property CancelNotifier: IOperationNotifier read FCancelNotifier;
+    property CancelNotifier: INotifierOperation read FCancelNotifier;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer
     );
     destructor Destroy; override;
@@ -59,7 +59,7 @@ uses
 { TThreadCacheManagerAbstract }
 
 constructor TThreadCacheManagerAbstract.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer
 );
 begin

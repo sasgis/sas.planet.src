@@ -50,7 +50,7 @@ type
   IGeoCoder = interface
     ['{D9293293-080A-44B7-92F8-3093D35A551B}']
     function GetLocations(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter

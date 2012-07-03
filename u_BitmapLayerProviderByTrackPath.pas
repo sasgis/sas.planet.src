@@ -43,7 +43,7 @@ type
     );
     function DrawPath(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const ATrackColorer: ITrackColorerStatic;
@@ -53,7 +53,7 @@ type
   private
     function GetBitmapRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   public
@@ -106,7 +106,7 @@ end;
 
 function TBitmapLayerProviderByTrackPath.DrawPath(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const ATrackColorer: ITrackColorerStatic;
@@ -229,7 +229,7 @@ end;
 
 function TBitmapLayerProviderByTrackPath.GetBitmapRect(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var

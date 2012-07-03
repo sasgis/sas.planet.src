@@ -5265,7 +5265,7 @@ var
   VResult: IGeoCodeResult;
   VLocalConverter: ILocalCoordConverter;
   VText: string;
-  VNotifier: IOperationNotifier;
+  VNotifier: INotifierOperation;
 begin
   VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
@@ -5283,7 +5283,7 @@ var
   VItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;
   VText: string;
-  VNotifier: IOperationNotifier;
+  VNotifier: INotifierOperation;
 begin
   if Sender is TTBCustomItem then begin
     VToolbarItem := TTBCustomItem(Sender);
@@ -5563,7 +5563,7 @@ var
   VIsError: Boolean;
   VInterface: IInterface;
   VPathOnMapEdit: IPathOnMapEdit;
-  VOperationNotifier: IOperationNotifier;
+  VOperationNotifier: INotifierOperation;
 begin
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
     VInterface := IInterface(TTBXItem(Sender).tag);

@@ -32,14 +32,14 @@ type
   TGeoCoderLocalBasic = class(TInterfacedObject, IGeoCoder)
   protected
     function DoSearch(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; virtual; abstract;
   protected
     function GetLocations(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
@@ -109,7 +109,7 @@ begin
 end;
 
 function TGeoCoderLocalBasic.GetLocations(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter

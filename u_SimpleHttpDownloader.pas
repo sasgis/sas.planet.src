@@ -13,7 +13,7 @@ type
   private
     FDownloader: IDownloader;
     FInetConfig: IInetConfigStatic;
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
   protected
     function DoHttpRequest(
@@ -24,7 +24,7 @@ type
     constructor Create(
       const ADownloader: IDownloader;
       const AInetConfig: IInetConfigStatic;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer
     );
   end;
@@ -44,7 +44,7 @@ uses
 constructor TSimpleHttpDownloader.Create(
   const ADownloader: IDownloader;
   const AInetConfig: IInetConfigStatic;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer
 );
 begin

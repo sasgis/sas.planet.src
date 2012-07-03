@@ -32,7 +32,7 @@ type
     ['{A4E2AEE1-1747-46F1-9836-173AFB62CCF9}']
     function GetBitmapRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
   end;

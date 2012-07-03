@@ -84,7 +84,7 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ); override;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoRedraw; override;
@@ -279,7 +279,7 @@ end;
 
 procedure TMapMainLayer.DrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VBitmapTile: IBitmap32Static;

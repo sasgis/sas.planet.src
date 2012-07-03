@@ -99,21 +99,21 @@ type
     );
     procedure AddElementsFromMap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AElments: IInterfaceList;
       Alayer: TMapType;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure PrepareWikiElements(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure OnConfigChange;
     procedure OnLayerSetChange;
     procedure ProcessDraw(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AElments: IInterfaceList;
       const ALocalConverter: ILocalCoordConverter
     );
@@ -127,7 +127,7 @@ type
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier
+      const ACancelNotifier: INotifierOperation
     ); override;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoHide; override;
@@ -284,7 +284,7 @@ end;
 
 procedure TWikiLayer.AddElementsFromMap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AElments: IInterfaceList;
   Alayer: TMapType;
   const ALocalConverter: ILocalCoordConverter
@@ -350,7 +350,7 @@ end;
 
 procedure TWikiLayer.PrepareWikiElements(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 );
 var
@@ -387,7 +387,7 @@ end;
 
 procedure TWikiLayer.ProcessDraw(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   const AElments: IInterfaceList;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -705,7 +705,7 @@ end;
 
 procedure TWikiLayer.DrawBitmap(
   AOperationID: Integer;
-  const ACancelNotifier: IOperationNotifier
+  const ACancelNotifier: INotifierOperation
 );
 var
   VBitmapConverter: ILocalCoordConverter;

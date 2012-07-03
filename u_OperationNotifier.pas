@@ -28,11 +28,11 @@ uses
   i_OperationNotifier;
 
 type
-  IOperationNotifierInternal = interface(IOperationNotifier)
+  IOperationNotifierInternal = interface(INotifierOperation)
     procedure NextOperation;
   end;
 
-  TOperationNotifier = class(TInterfacedObject, IOperationNotifier, IOperationNotifierInternal)
+  TOperationNotifier = class(TInterfacedObject, INotifierOperation, IOperationNotifierInternal)
   private
     FNotifier: INotifier;
     FCurrentOperationID: Integer;
@@ -49,11 +49,11 @@ type
     constructor Create;
   end;
 
-  IOneOperationNotifierInternal = interface(IOneOperationNotifier)
+  IOneOperationNotifierInternal = interface(INotifierOneOperation)
     procedure ExecuteOperation;
   end;
 
-  TOneOperationNotifier = class(TInterfacedObject, IOneOperationNotifier, IOneOperationNotifierInternal)
+  TOneOperationNotifier = class(TInterfacedObject, INotifierOneOperation, IOneOperationNotifierInternal)
   private
     FNotifier: INotifier;
     FCS: IReadWriteSync;
@@ -196,6 +196,8 @@ begin
 end;
 
 end.
+
+
 
 
 

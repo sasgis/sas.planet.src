@@ -44,7 +44,7 @@ type
     FInetConfig: IInetConfig;
   protected { IPathDetalizeProvider }
     function GetPath(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
@@ -94,7 +94,7 @@ begin
 end;
 
 function TPathDetalizeProviderYourNavigation.GetPath(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASource: ILonLatPath;
   var AComment: string

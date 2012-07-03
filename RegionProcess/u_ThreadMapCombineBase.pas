@@ -31,7 +31,7 @@ type
     procedure ProgressFormUpdateOnProgress(AProgress: Double);
     procedure SaveRect(
       AOperationID: Integer;
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverter: ILocalCoordConverter;
@@ -41,7 +41,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
@@ -63,7 +63,7 @@ uses
 { TMapCombineThreadBase }
 
 constructor TThreadMapCombineBase.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;

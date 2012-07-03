@@ -42,7 +42,7 @@ type
     function SecondToTime(const Seconds: Cardinal): Double;
   protected { IPathDetalizeProvider }
     function GetPath(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const ASource: ILonLatPath;
       var AComment: string
@@ -89,7 +89,7 @@ begin
 end;
 
 function TPathDetalizeProviderMailRu.GetPath(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const ASource: ILonLatPath;
   var AComment: string

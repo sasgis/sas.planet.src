@@ -50,7 +50,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -88,7 +88,7 @@ const
 { TThreadExportToOgf2 }
 
 constructor TThreadExportToOgf2.Create(
-  const ACancelNotifier: IOperationNotifier;
+  const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;

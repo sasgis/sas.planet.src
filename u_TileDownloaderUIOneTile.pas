@@ -49,7 +49,7 @@ type
     FTile: TPoint;
     FZoom: Byte;
 
-    FCancelNotifier: IOperationNotifier;
+    FCancelNotifier: INotifierOperation;
     FCancelNotifierInternal: IOperationNotifierInternal;
     FFinishEvent: TEvent;
     FTileDownloadFinishListener: IListenerDisconnectable;

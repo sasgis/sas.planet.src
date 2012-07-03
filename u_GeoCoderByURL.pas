@@ -45,7 +45,7 @@ type
       ):IGeoCodePlacemark;
     function GetPointFromShortLink(
       const Astr,AhttpData: string;
-      const ACancelNotifier: IOperationNotifier; AOperationID: Integer
+      const ACancelNotifier: INotifierOperation; AOperationID: Integer
       ):IGeoCodePlacemark;
   protected
     function PrepareRequest(
@@ -53,7 +53,7 @@ type
       const ALocalConverter: ILocalCoordConverter
       ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
-      const ACancelNotifier: IOperationNotifier;
+      const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
@@ -101,7 +101,7 @@ end;
 
 function TGeoCoderByURL.GetPointFromShortLink(
   const Astr,AhttpData: string;
-  const ACancelNotifier: IOperationNotifier; AOperationID: Integer
+  const ACancelNotifier: INotifierOperation; AOperationID: Integer
   ):IGeoCodePlacemark;
 var
  VPlace : IGeoCodePlacemark;
@@ -551,7 +551,7 @@ begin
 end;
 
 function TGeoCoderByURL.ParseResultToPlacemarksList(
-  const ACancelNotifier: IOperationNotifier; AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation; AOperationID: Integer;
   const AResult: IDownloadResultOk; const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter): IInterfaceList;
 var
