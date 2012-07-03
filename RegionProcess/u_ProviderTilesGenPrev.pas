@@ -54,6 +54,7 @@ uses
   GR32,
   i_ImageResamplerFactory,
   i_RegionProcessParamsFrame,
+  i_NotifierOperation,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadGenPrevZoom,

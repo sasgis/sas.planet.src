@@ -34,10 +34,12 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  i_Notifier, i_Listener,  
+  i_Notifier,
+  i_Listener,  
   i_CacheConverterProgressInfo,
   i_LanguageManager,
   i_ValueToStringConverter,
+  i_NotifierOperation,
   u_NotifierOperation,
   u_ThreadCacheConverter,
   u_CommonFormAndFrameParents;

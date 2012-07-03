@@ -30,10 +30,6 @@ uses
   i_NotifierOperation;
 
 type
-  INotifierOperationInternal = interface(INotifierOperation)
-    procedure NextOperation;
-  end;
-
   TNotifierOperation = class(TInterfacedObject, INotifierOperation, INotifierOperationInternal)
   private
     FNotifier: INotifierInternal;
@@ -48,10 +44,6 @@ type
     procedure RemoveListener(AListener: IListener); stdcall;
   public
     constructor Create;
-  end;
-
-  INotifierOneOperationInternal = interface(INotifierOneOperation)
-    procedure ExecuteOperation;
   end;
 
   TNotifierOneOperation = class(TInterfacedObject, INotifierOneOperation, INotifierOneOperationInternal)

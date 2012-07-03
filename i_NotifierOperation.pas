@@ -37,6 +37,10 @@ type
     procedure RemoveListener(AListener: IListener); stdcall;
   end;
 
+  INotifierOperationInternal = interface(INotifierOperation)
+    procedure NextOperation;
+  end;
+
   INotifierOneOperation = interface
     ['{EA058BC8-6764-412B-93A5-F1AB4032C38F}']
     function GetIsExecuted: Boolean;
@@ -44,6 +48,10 @@ type
 
     procedure AddListener(AListener: IListener); stdcall;
     procedure RemoveListener(AListener: IListener); stdcall;
+  end;
+
+  INotifierOneOperationInternal = interface(INotifierOneOperation)
+    procedure ExecuteOperation;
   end;
 
 implementation

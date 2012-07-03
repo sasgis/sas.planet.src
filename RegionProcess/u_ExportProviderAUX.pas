@@ -44,6 +44,7 @@ implementation
 uses
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_NotifierOperation,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_VectorItemProjected,

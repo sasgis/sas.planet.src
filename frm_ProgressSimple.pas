@@ -31,8 +31,10 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_RegionProcessProgressInfo,
+  i_NotifierOperation,
   u_NotifierOperation,
   u_CommonFormAndFrameParents;
 

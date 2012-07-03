@@ -48,6 +48,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_NotifierOperation,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
