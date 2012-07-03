@@ -15,7 +15,7 @@ type
     Rect: ILonLatRect;
   end;
 
-  TLonLatRectUpdateNotifier = class(TInterfacedObject, ILonLatRectUpdateNotifier, ILonLatRectUpdateNotifierInternal)
+  TLonLatRectUpdateNotifier = class(TInterfacedObject, INotifierLonLatRectUpdate, INotifierLonLatRectUpdateInternal)
   private
     FSynchronizer: IReadWriteSync;
     FCount: Integer;
@@ -172,4 +172,6 @@ begin
 end;
 
 end.
+
+
 
