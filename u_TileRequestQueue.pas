@@ -80,7 +80,7 @@ begin
   FStopThreadEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FRequestArrayCS := MakeSyncRW_Std(Self);
 
-  FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 100000, 1000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 100000, 1000);
   FGCList.Add(FTTLListener);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClosing);
   FAppClosingNotifier.Add(FAppClosingListener);

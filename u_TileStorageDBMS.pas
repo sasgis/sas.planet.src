@@ -315,7 +315,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FMainContentType := FContentTypeManager.GetInfoByExt(Config.TileFileExt);
 
-  FTTLListener := TTTLCheckListener.Create(Self.SyncTTL, CBDBSync, CBDBSyncCheckInterval);
+  FTTLListener := TListenerTTLCheck.Create(Self.SyncTTL, CBDBSync, CBDBSyncCheckInterval);
   FGCList.Add(FTTLListener);
 
   // do not check result here

@@ -79,7 +79,7 @@ begin
   FDownloadersListListener := TNotifyNoMmgEventListener.Create(Self.OnDownloadersListChange);
   FDownloaderList.ChangeNotifier.Add(FDownloadersListListener);
 
-  FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 60000, 1000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 60000, 1000);
   FGCList.Add(FTTLListener);
 
   OnDownloadersListChange;

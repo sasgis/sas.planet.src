@@ -30,7 +30,7 @@ uses
   i_NotifierTTLCheck;
 
 type
-  TTTLCheckNotifier = class(TInterfacedObject, INotifierTTLCheck)
+  TNotifierTTLCheck = class(TInterfacedObject, INotifierTTLCheck)
   private
     FList: TList;
     FSync: IReadWriteSync;
@@ -50,16 +50,16 @@ implementation
 uses
   u_Synchronizer;
 
-{ TTTLCheckNotifier }
+{ TNotifierTTLCheck }
 
-constructor TTTLCheckNotifier.Create;
+constructor TNotifierTTLCheck.Create;
 begin
   inherited Create;
   FSync := MakeSyncRW_Big(Self, False);
   FList := TList.Create;
 end;
 
-destructor TTTLCheckNotifier.Destroy;
+destructor TNotifierTTLCheck.Destroy;
 var
   i: integer;
 begin
@@ -70,7 +70,7 @@ begin
   inherited;
 end;
 
-procedure TTTLCheckNotifier.Add(const AListener: IListenerTTLCheck);
+procedure TNotifierTTLCheck.Add(const AListener: IListenerTTLCheck);
 begin
   FSync.BeginWrite;
   try
@@ -81,12 +81,12 @@ begin
   end;
 end;
 
-function TTTLCheckNotifier.GetNextCheck: Cardinal;
+function TNotifierTTLCheck.GetNextCheck: Cardinal;
 begin
   Result := FNextCheck;
 end;
 
-procedure TTTLCheckNotifier.ProcessObjectsTrim;
+procedure TNotifierTTLCheck.ProcessObjectsTrim;
 var
   i: integer;
   VNow: Cardinal;
@@ -111,7 +111,7 @@ begin
   end;
 end;
 
-procedure TTTLCheckNotifier.Remove(const AListener: IListenerTTLCheck);
+procedure TNotifierTTLCheck.Remove(const AListener: IListenerTTLCheck);
 begin
   FSync.BeginWrite;
   try

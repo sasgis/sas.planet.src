@@ -471,7 +471,7 @@ begin
     VKmlLoader,
     VKmzLoader
   );
-  VList := TTTLCheckNotifier.Create;
+  VList := TNotifierTTLCheck.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);

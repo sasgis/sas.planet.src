@@ -167,7 +167,7 @@ begin
   OnMapTypeActiveChange;
   OnPosChange;
 
-  FTTLListener := TTTLCheckListener.Create(Self.OnTTLTrim, 30000, 1000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000, 1000);
   FGCList.Add(FTTLListener);
 end;
 

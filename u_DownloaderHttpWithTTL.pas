@@ -57,7 +57,7 @@ begin
   FResultFactory := AResultFactory;
   FGCList := AGCList;
   FCS := MakeSyncRW_Std(Self, FALSE);
-  FTTLListener := TTTLCheckListener.Create(
+  FTTLListener := TListenerTTLCheck.Create(
     Self.OnTTLTrim,
     CHttpClientTTL,
     CHttpClientTTLCheckInterval

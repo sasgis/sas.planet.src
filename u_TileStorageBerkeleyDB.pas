@@ -202,13 +202,13 @@ begin
     AConfig.CoordConverter.Datum.EPSG
   );
 
-  FBDBTTLListener := TTTLCheckListener.Create(
+  FBDBTTLListener := TListenerTTLCheck.Create(
     FHelper.Sync,
     CBDBSync,
     CBDBSyncCheckInterval
   );
 
-  FMemCacheTTLListener := TTTLCheckListener.Create(
+  FMemCacheTTLListener := TListenerTTLCheck.Create(
     Self.OnTTLSync,
     CBDBSync,
     CBDBSyncCheckInterval

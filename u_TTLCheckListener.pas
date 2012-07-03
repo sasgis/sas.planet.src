@@ -8,7 +8,7 @@ uses
   i_ListenerTTLCheck;
 
 type
-  TTTLCheckListener = class(TInterfacedObject, IListenerTTLCheck)
+  TListenerTTLCheck = class(TInterfacedObject, IListenerTTLCheck)
   private
     FOnTrimByTTL: TNotifyEvent;
     FUseFlag: ISimpleFlag;
@@ -31,9 +31,9 @@ implementation
 uses
   u_SimpleFlagWithInterlock;
 
-{ TObjectWithTTLListener }
+{ TListenerTTLCheck }
 
-constructor TTTLCheckListener.Create(
+constructor TListenerTTLCheck.Create(
   AOnTrimByTTL: TNotifyEvent;
   ATTL, ACheckInterval: Cardinal
 );
@@ -47,7 +47,7 @@ begin
   FLastUseTime := 0;
 end;
 
-function TTTLCheckListener.CheckTTLAndGetNextCheckTime(
+function TListenerTTLCheck.CheckTTLAndGetNextCheckTime(
   ANow: Cardinal): Cardinal;
 var
   VCleanTime: Cardinal;
@@ -66,7 +66,7 @@ begin
   Result := ANow + FCheckInterval;
 end;
 
-procedure TTTLCheckListener.UpdateUseTime;
+procedure TListenerTTLCheck.UpdateUseTime;
 begin
   FUseFlag.SetFlag;
 end;
