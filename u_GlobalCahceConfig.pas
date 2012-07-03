@@ -100,7 +100,7 @@ implementation
 
 uses
   SysUtils,
-  u_Notify;
+  u_Notifier;
 
 { TGlobalCahceConfig }
 

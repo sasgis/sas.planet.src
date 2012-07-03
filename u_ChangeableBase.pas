@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-  u_Notify;
+  u_Notifier;
 
 { TChangeableBase }
 

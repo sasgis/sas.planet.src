@@ -208,7 +208,7 @@ implementation
 uses
   u_Synchronizer,
   vsagps_public_sats_info,
-  u_Notify;
+  u_Notifier;
 
 { TGPSPositionUpdatable }
 

@@ -58,7 +58,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_Notify,
+  u_Notifier,
   u_NotifyEventListener;
 
 { TTreeChangeableBase }

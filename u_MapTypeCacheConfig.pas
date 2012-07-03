@@ -149,7 +149,7 @@ uses
   Windows,
   u_Synchronizer,
   ShLwApi,
-  u_Notify,
+  u_Notifier,
   u_NotifyEventListener;
 
 { TMapTypeCacheConfigAbstract }

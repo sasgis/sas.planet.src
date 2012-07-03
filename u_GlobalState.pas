@@ -239,7 +239,7 @@ uses
   {$IFDEF SasDebugWithJcl}
   Forms,
   {$ENDIF}
-  u_Notify,
+  u_Notifier,
   c_InternalBrowser,
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,

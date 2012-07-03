@@ -57,7 +57,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   u_NotifyEventListener,
-  u_Notify;
+  u_Notifier;
 
 { TSensorTextFromNavToPoint }
 

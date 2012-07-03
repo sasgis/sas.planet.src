@@ -1,4 +1,4 @@
-unit u_Notify;
+unit u_Notifier;
 
 interface
 

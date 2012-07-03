@@ -67,7 +67,7 @@ implementation
 uses
   Math,
   SysUtils,
-  u_Notify,
+  u_Notifier,
   u_GeoFun;
 
 { TMapViewGoto }

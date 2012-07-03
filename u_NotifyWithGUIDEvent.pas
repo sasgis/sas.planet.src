@@ -24,7 +24,7 @@ interface
 
 uses
   i_Notify,
-  u_Notify;
+  u_Notifier;
 
 type
   TNotifyWithGUIDEvent = procedure(const AGUID: TGUID) of object;

@@ -12,7 +12,7 @@ uses
   XPMan,
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_Notify in 'i_Notify.pas',
-  u_Notify in 'u_Notify.pas',
+  u_Notifier in 'u_Notifier.pas',
   i_ListenerNotifierLinksList in 'i_ListenerNotifierLinksList.pas',
   u_ListenerNotifierLinksList in 'u_ListenerNotifierLinksList.pas',
   c_SasVersion in 'c_SasVersion.pas',

@@ -56,7 +56,7 @@ uses
   u_Synchronizer,
   i_TileDownloadRequestBuilder,
   i_Downloader,
-  u_Notify,
+  u_Notifier,
   u_NotifyEventListener,
   u_LastResponseInfo,
   u_TileDownloadRequestBuilderLazy,

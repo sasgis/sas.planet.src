@@ -100,7 +100,7 @@ implementation
 
 uses
   i_GPS,
-  u_Notify,
+  u_Notifier,
   u_ListenerNotifierLinksList,
   u_Synchronizer,
   u_NotifyEventListener;

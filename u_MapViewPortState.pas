@@ -109,7 +109,7 @@ implementation
 
 uses
   SysUtils,
-  u_Notify,
+  u_Notifier,
   i_MapTypes,
   u_NotifyEventListener,
   u_GeoFun;

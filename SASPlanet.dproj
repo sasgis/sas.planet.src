@@ -858,7 +858,7 @@
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
-    <DCCReference Include="u_Notify.pas" />
+    <DCCReference Include="u_Notifier.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_OperationNotifier.pas" />

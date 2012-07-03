@@ -25,7 +25,7 @@ interface
 uses
   i_Notify,
   i_SimpleFlag,
-  u_Notify;
+  u_Notifier;
 
 type
   TNotifyListenerNoMmgEvent = procedure of object;
