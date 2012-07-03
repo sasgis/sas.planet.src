@@ -72,8 +72,7 @@ begin
   while not Terminated do begin
     VNow := GetTickCount;
     if (VNextCheck = 0) or (VNextCheck <= VNow) or ((VNextCheck > (1 shl 30)) and (VNow < (1 shl 29))) then begin
-      FListInternal.ProcessObjectsTrim;
-      VNextCheck := FListInternal.GetNextCheck;
+      VNextCheck := FListInternal.ProcessCheckAndGetNextTime;
       if Terminated then begin
         Break;
       end;

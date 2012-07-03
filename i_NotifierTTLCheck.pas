@@ -33,8 +33,7 @@ type
   end;
 
   INotifierTTLCheckInternal = interface(INotifierTTLCheck)
-    procedure ProcessObjectsTrim;
-    function GetNextCheck: Cardinal;
+    function ProcessCheckAndGetNextTime: Cardinal;
   end;
   
 implementation

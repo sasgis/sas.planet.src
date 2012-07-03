@@ -34,12 +34,10 @@ type
   private
     FList: TList;
     FSync: IReadWriteSync;
-    FNextCheck: Cardinal;
   private
     procedure Add(const AListener: IListenerTTLCheck);
     procedure Remove(const AListener: IListenerTTLCheck);
-    procedure ProcessObjectsTrim;
-    function GetNextCheck: Cardinal;
+    function ProcessCheckAndGetNextTime: Cardinal;
   public
     constructor Create;
     destructor Destroy; override;
@@ -80,32 +78,24 @@ begin
     FSync.EndWrite;
   end;
 end;
-
-function TNotifierTTLCheck.GetNextCheck: Cardinal;
-begin
-  Result := FNextCheck;
-end;
-
-procedure TNotifierTTLCheck.ProcessObjectsTrim;
+function TNotifierTTLCheck.ProcessCheckAndGetNextTime: Cardinal;
 var
   i: integer;
   VNow: Cardinal;
   VObj: IListenerTTLCheck;
-  VNextCheck: Cardinal;
   VObjNextCheck: Cardinal;
 begin
+  Result := 0;
   VNow := GetTickCount;
-  VNextCheck := 0;
   FSync.BeginRead;
   try
     for i := 0 to FList.Count - 1 do begin
       VObj := IListenerTTLCheck(FList.Items[i]);
       VObjNextCheck := VObj.CheckTTLAndGetNextCheckTime(VNow);
-      if (VNextCheck <= 0) or (VNextCheck > VObjNextCheck) then begin
-        VNextCheck := VObjNextCheck;
+      if (Result <= 0) or (Result > VObjNextCheck) then begin
+        Result := VObjNextCheck;
       end;
     end;
-    FNextCheck := VNextCheck;
   finally
     FSync.EndRead;
   end;
