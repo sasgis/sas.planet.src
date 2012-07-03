@@ -33,7 +33,7 @@ type
     FName: string;
     FGroupName: string;
     FSubItems: IInterfaceList;
-  protected
+  private
     function GetData: IInterface;
     function GetName: string;
     function GetGroupName: string;

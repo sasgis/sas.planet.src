@@ -37,7 +37,7 @@ type
     FAddNotifier: INotifierInternal;
   protected
     procedure Add(const AItem: IGeoCoderListEntity);
-  protected
+  private
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): IGeoCoderListEntity;
     function GetAddNotifier: INotifier;

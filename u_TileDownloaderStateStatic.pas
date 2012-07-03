@@ -10,7 +10,7 @@ type
   private
     FEnabled: Boolean;
     FReason: string;
-  protected
+  private
     function GetEnabled: Boolean;
     function GetDisableReason: string;
   public

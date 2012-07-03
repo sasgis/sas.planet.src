@@ -34,13 +34,13 @@ type
     FVisible: Boolean;
     FAfterScale: integer;
     FBeforeScale: integer;
-  protected
+  private
     function GetId: integer; stdcall;
-  protected
+  private
     function GetName: string; stdcall;
     function IsSame(const ACategory: ICategory): Boolean;
     function IsEqual(const ACategory: ICategory): Boolean;
-  protected
+  private
     function GetVisible: boolean; stdcall;
     function GetAfterScale: integer; stdcall;
     function GetBeforeScale: integer; stdcall;

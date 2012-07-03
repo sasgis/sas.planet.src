@@ -37,7 +37,7 @@ type
       const AFactory: IImageResamplerFactory;
       const ACaption: string
     );
-  protected
+  private
     function Count: Integer;
     function Get(AIndex: Integer): IImageResamplerFactory;
     function GetCaption(AIndex: Integer): string;

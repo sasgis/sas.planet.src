@@ -30,7 +30,7 @@ type
   TMapCalibrationListByInterfaceList = class(TInterfacedObject, IMapCalibrationList)
   private
     FList: IInterfaceList;
-  protected
+  private
     function GetCount: Integer;
     function Get(AIndex: Integer): IMapCalibration;
   public

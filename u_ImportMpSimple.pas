@@ -37,7 +37,7 @@ type
       const AData: string;
       const APointsAggregator: IDoublePointsAggregator
     );
-  protected
+  private
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig

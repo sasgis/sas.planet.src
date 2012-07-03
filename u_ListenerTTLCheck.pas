@@ -15,7 +15,7 @@ type
     FLastUseTime: Cardinal;
     FTTL: Cardinal;
     FCheckInterval: Cardinal;
-  protected
+  private
     function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
     procedure UpdateUseTime;
   public

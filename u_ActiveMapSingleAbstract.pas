@@ -35,10 +35,10 @@ type
     FMapType: IMapType;
     FMapGUID: TGUID;
     FIsActive: Boolean;
-  protected
+  private
     procedure SetIsActive(AValue: Boolean);
     property MapGUID: TGUID read FMapGUID;
-  protected
+  private
     function GetMapType: IMapType;
     function GetIsActive: Boolean;
   public

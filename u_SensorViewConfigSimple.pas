@@ -30,7 +30,7 @@ type
   TSensorViewConfigSimple = class(TConfigDataElementBaseEmptySaveLoad, ISensorViewConfig)
   private
     FVisible: Boolean;
-  protected
+  private
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
   public

@@ -33,7 +33,7 @@ type
     ITileFileNameParser,
     ITileFileNameGenerator
   )
-  protected
+  private
     function GetTileFileName(
       AXY: TPoint;
       AZoom: Byte

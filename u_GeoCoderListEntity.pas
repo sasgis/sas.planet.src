@@ -32,7 +32,7 @@ type
     FGUID: TGUID;
     FCaption: WideString;
     FGeoCoder: IGeoCoder;
-  protected
+  private
     function GetGUID: TGUID;
     function GetCaption: WideString;
     function GetGeoCoder: IGeoCoder;

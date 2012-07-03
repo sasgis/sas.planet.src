@@ -32,7 +32,7 @@ type
   TMarkCategoryFactory = class(TInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)
   private
     FConfig: IMarkCategoryFactoryConfig;
-  protected
+  private
     function CreateNew(const AName: string): IMarkCategory;
     function Modify(
       const ASource: IMarkCategory;
@@ -46,7 +46,7 @@ type
       AVisible: Boolean
     ): IMarkCategory;
     function GetConfig: IMarkCategoryFactoryConfig;
-  protected
+  private
     function CreateCategory(
       AId: Integer;
       const AName: string;

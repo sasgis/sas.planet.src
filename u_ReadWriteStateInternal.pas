@@ -15,7 +15,7 @@ type
     FWriteAccess: TAccesState;
   protected
     function CreateStatic: IInterface; override;
-  protected
+  private
     function GetReadAccess: TAccesState;
     procedure SetReadAccess(AValue: TAccesState);
 

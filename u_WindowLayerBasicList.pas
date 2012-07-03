@@ -33,10 +33,9 @@ type
     FList: TList;
     FPerfList: IInternalPerformanceCounterList;
     function GetCount: Integer;
-  protected
+  private
     function Get(AIndex: Integer): TWindowLayerAbstract;
     property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
-    property Count: Integer read GetCount;
   public
     constructor Create(const AParentPerfList: IInternalPerformanceCounterList);
     destructor Destroy; override;

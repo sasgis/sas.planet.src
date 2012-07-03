@@ -29,19 +29,19 @@ uses
 
 type
   TImageResamplerFactoryLinear = class(TInterfacedObject, IImageResamplerFactory)
-  protected
+  private
     function CreateResampler: TCustomResampler;
   end;
 
   TImageResamplerFactoryNearest = class(TInterfacedObject, IImageResamplerFactory)
-  protected
+  private
     function CreateResampler: TCustomResampler;
   end;
 
   TImageResamplerFactoryKernel = class(TInterfacedObject, IImageResamplerFactory)
   private
     FKernelClass: TCustomKernelClass;
-  protected
+  private
     function CreateResampler: TCustomResampler;
   public
     constructor Create(AKernelClass: TCustomKernelClass);

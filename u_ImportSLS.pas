@@ -11,7 +11,7 @@ type
   TImportSLS = class(TInterfacedObject, IImportFile)
   private
     FFactory: IVectorItmesFactory;
-  protected
+  private
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig

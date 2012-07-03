@@ -58,7 +58,7 @@ type
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     function GetScriptText(const AConfig: IConfigDataProvider): string;
     procedure OnAppClosing;
-  protected
+  private
     function GetRequest(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;

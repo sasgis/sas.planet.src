@@ -32,7 +32,7 @@ type
   TPathDetalizeProviderListBase = class(TConfigDataElementBaseEmptySaveLoad, IPathDetalizeProviderList)
   private
     FList: IGUIDInterfaceSet;
-  protected { IPathDetalizeProviderList }
+  private
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): IPathDetalizeProviderListEntity;
   protected

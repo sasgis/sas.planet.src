@@ -38,7 +38,7 @@ type
       I: Integer;
       AZoom: Byte
     ): string;
-  protected
+  private
     function GetTileFileName(
       AXY: TPoint;
       AZoom: Byte

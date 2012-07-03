@@ -53,7 +53,7 @@ type
       const ASensorList: ISensorList;
       const AResult: IGUIDInterfaceSet
     );
-  protected
+  private
     function CreateSensorViewList(const ASensorList: ISensorList): IGUIDInterfaceSet;
   public
     constructor Create(

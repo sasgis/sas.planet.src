@@ -14,7 +14,7 @@ type
     FDeleteAccess: TAccesState;
     FAddAccess: TAccesState;
     FReplaceAccess: TAccesState;
-  protected
+  private
     function GetReadAccess: TAccesState;
     function GetWriteAccess: TAccesState;
     function GetDeleteAccess: TAccesState;

@@ -16,7 +16,7 @@ type
     FMapAbilitiesConfig: IMapAbilitiesConfig;
   protected
     function CreateStatic: IInterface; override;
-  protected
+  private
     function GetStatic: ITileDownloaderStateStatic;
   public
     constructor Create(

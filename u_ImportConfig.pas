@@ -34,7 +34,7 @@ type
     FTemplateNewPoint: IMarkTemplatePoint;
     FTemplateNewLine: IMarkTemplateLine;
     FTemplateNewPoly: IMarkTemplatePoly;
-  protected
+  private
     function GetMarkDB: IMarksDb;
     function GetTemplateNewPoint: IMarkTemplatePoint;
     function GetTemplateNewLine: IMarkTemplateLine;

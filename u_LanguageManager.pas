@@ -43,7 +43,7 @@ type
     procedure DoBeforeChangeNotify; override;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetCurrentLanguageCode: string;
     procedure SetCurrentLanguageCode(const ACode: string);
 

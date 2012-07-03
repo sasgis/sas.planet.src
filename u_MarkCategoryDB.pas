@@ -54,7 +54,7 @@ type
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
     procedure InitEmptyDS;
-  protected
+  private
     function GetCategoryByName(const AName: string): IMarkCategory;
     function UpdateCategory(
       const AOldCategory: IMarkCategory;
@@ -65,7 +65,7 @@ type
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
 
     function GetFactory: IMarkCategoryFactory;
-  protected
+  private
     function SaveCategory2File: boolean;
     procedure LoadCategoriesFromFile;
     function GetCategoryByID(id: integer): IMarkCategory;

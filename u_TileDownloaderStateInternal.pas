@@ -29,7 +29,7 @@ type
     FReason: string;
   protected
     function CreateStatic: IInterface; override;
-  protected
+  private
     function GetEnabled: Boolean;
     function GetDisableReason: string;
 

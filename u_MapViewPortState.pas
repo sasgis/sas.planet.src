@@ -67,10 +67,9 @@ type
     procedure DoChangeNotify; override;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetMainCoordConverter: ICoordConverter;
     procedure SetMainCoordConverter(const AValue: ICoordConverter);
-    property MainCoordConverter: ICoordConverter read GetMainCoordConverter write SetMainCoordConverter;
 
     function GetCurrentCoordConverter: ICoordConverter;
     function GetCurrentZoom: Byte;

@@ -42,7 +42,7 @@ type
     FKmlLoader: IVectorDataLoader;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
-  protected { IPathDetalizeProvider }
+  private
     function GetPath(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;

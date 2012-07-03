@@ -31,9 +31,8 @@ type
   private
     FSortedByCode: TStringList;
     FList: TStringList;
-  protected
+  private
     function GetCount: Integer;
-    property Count: Integer read GetCount;
 
     function GetCode(AIndex: Integer): string;
     function FindCode(

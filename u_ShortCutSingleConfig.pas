@@ -42,7 +42,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetCaption: String;
     function GetIconBitmap: IBitmap32Static;
     function GetShortCut: TShortCut;

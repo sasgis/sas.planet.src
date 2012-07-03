@@ -40,7 +40,7 @@ type
     FInetConfig: IInetConfig;
 
     function SecondToTime(const Seconds: Cardinal): Double;
-  protected { IPathDetalizeProvider }
+  private
     function GetPath(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;

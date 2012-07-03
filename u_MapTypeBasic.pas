@@ -30,7 +30,7 @@ type
   TMapTypeBasic = class(TInterfacedObject, IMapType)
   private
     FMapType: TMapType;
-  protected
+  private
     function GetMapType: TMapType;
     function GetGUID: TGUID;
   public

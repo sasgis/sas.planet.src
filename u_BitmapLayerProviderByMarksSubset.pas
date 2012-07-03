@@ -93,7 +93,7 @@ type
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
     );
-  protected
+  private
     function GetBitmapRect(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;

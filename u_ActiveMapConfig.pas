@@ -38,11 +38,11 @@ type
     FSelectedGUID: TGUID;
     FMapsSet: IMapTypeSet;
     FSingeMapsList: IGUIDInterfaceSet;
-  protected
+  private
     FMainMapChangeNotyfier: INotifier;
     FMainMapListener: IListener;
     procedure OnMainMapChange(const AGUID: TGUID);
-  protected
+  private
     function GetSelectedGUID: TGUID;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetMapsSet: IMapTypeSet;

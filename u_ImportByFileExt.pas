@@ -39,7 +39,7 @@ type
     FImportHLG: IImportFile;
     FImportMP: IImportFile;
     FImportSLS: IImportFile;
-  protected
+  private
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig

@@ -50,7 +50,7 @@ type
     procedure OnMainMapChange(const AGUID: TGUID);
     procedure OnLayerSetSelectChange(const AGUID: TGUID);
     procedure OnLayerSetUnselectChange(const AGUID: TGUID);
-  protected
+  private
     function IsGUIDSelected(const AMapGUID: TGUID): Boolean;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetSelectedMapsSet: IMapTypeSet;

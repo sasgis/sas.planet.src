@@ -11,7 +11,7 @@ type
   private
     FReadAccess: TAccesState;
     FWriteAccess: TAccesState;
-  protected
+  private
     function GetReadAccess: TAccesState;
     function GetWriteAccess: TAccesState;
   public

@@ -32,7 +32,7 @@ type
   TSensorListBase = class(TConfigDataElementComplexBase, ISensorList)
   private
     FList: IGUIDInterfaceSet;
-  protected { ISensorList }
+  private
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): ISensorListEntity;
   protected
