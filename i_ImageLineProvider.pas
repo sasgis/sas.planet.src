@@ -3,7 +3,7 @@ unit i_ImageLineProvider;
 interface
 
 uses
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LocalCoordConverter;
 
 type

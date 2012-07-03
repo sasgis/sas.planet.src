@@ -5,7 +5,7 @@ interface
 uses
   Types,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_CoordConverterFactory,
   i_CoordConverter,
   i_ThreadConfig,
@@ -32,7 +32,7 @@ uses
   i_InvisibleBrowser,
   i_ProjConverter,
   i_TileDownloadSubsystem,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_TileStorageAbstract;
 
 type

@@ -13,7 +13,7 @@ uses
   i_VectorDataItemSimple,
   i_IdCacheSimple,
   i_LocalCoordConverter,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_VectorItemProjected,
   i_VectorItmesFactory,
   i_DoublePointsAggregator,

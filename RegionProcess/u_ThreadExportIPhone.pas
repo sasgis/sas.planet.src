@@ -9,7 +9,7 @@ uses
   Classes,
   AlSqlite3Wrapper,
   GR32,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,

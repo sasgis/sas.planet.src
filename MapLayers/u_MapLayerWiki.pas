@@ -33,7 +33,7 @@ uses
   u_MapLayerBasic,
   t_GeoTypes,
   i_MapTypes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_ActiveMapsConfig,
   i_ProjectionInfo,
   i_VectorItemProjected,

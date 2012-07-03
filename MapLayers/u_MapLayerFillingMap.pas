@@ -6,7 +6,7 @@ uses
   GR32,
   GR32_Image,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,

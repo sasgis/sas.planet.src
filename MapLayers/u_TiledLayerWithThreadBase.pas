@@ -10,7 +10,7 @@ uses
   SysUtils,
   i_Notify,
   i_ThreadConfig,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,

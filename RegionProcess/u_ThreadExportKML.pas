@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   GR32,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,

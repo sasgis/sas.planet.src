@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   i_Notify,
-  i_OperationNotifier;
+  i_NotifierOperation;
 
 type
   TThreadCacheManagerAbstract = class(TThread)

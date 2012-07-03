@@ -24,7 +24,7 @@ interface
 
 uses
   SysUtils,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_TileRequest,
   i_TileDownloadRequestBuilder,
   i_LastResponseInfo,

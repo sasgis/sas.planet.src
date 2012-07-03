@@ -7,7 +7,7 @@ uses
   SysUtils,
   i_Notify,
   t_CommonTypes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_TTLCheckNotifier,
   i_TTLCheckListener,
   i_DownloadUIConfig,

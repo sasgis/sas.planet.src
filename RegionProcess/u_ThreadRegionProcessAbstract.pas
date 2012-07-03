@@ -6,7 +6,7 @@ uses
   Classes,
   i_Notify,
   i_VectorItemLonLat,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo;
 
 type

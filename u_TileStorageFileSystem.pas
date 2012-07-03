@@ -30,7 +30,7 @@ uses
   GR32,
   i_BinaryData,
   i_FillingMapColorer,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_SimpleTileStorageConfig,
   i_CoordConverter,
   i_MapVersionInfo,

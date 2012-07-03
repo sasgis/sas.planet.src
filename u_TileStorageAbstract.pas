@@ -30,7 +30,7 @@ uses
   i_Notify,
   i_BinaryData,
   i_FillingMapColorer,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_CoordConverter,
   i_SimpleTileStorageConfig,
   i_ContentTypeInfo,

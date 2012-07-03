@@ -31,7 +31,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LayerBitmapClearStrategy,
   i_LocalCoordConverter,
   i_MapTypes,

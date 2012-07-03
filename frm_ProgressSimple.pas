@@ -33,7 +33,7 @@ uses
   RarProgress,
   i_Notify,
   i_RegionProcessProgressInfo,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_CommonFormAndFrameParents;
 
 type

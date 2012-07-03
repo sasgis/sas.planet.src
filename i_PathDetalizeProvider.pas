@@ -23,7 +23,7 @@ unit i_PathDetalizeProvider;
 interface
 
 uses
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_VectorItemLonLat;
 
 type

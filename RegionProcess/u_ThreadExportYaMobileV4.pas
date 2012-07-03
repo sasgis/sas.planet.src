@@ -10,7 +10,7 @@ uses
   GR32,
   YaMobileCache,
   i_VectorItemLonLat,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_BitmapTileSaveLoad,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,

@@ -29,7 +29,7 @@ uses
   uPSUtils,
   i_Notify,
   i_CoordConverter,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_TileDownloaderConfig,
   i_TileRequest,
   i_Downloader,

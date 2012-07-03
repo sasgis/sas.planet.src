@@ -47,7 +47,7 @@ implementation
 uses
   Types,
   SysUtils,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   i_TileFileNameGenerator,

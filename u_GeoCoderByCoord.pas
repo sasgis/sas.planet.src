@@ -26,7 +26,7 @@ uses
   Classes,
   sysutils,
   i_GeoCoder,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
   u_GeoCoderLocalBasic;

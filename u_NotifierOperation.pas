@@ -18,14 +18,14 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_OperationNotifier;
+unit u_NotifierOperation;
 
 interface
 
 uses
   SysUtils,
   i_Notify,
-  i_OperationNotifier;
+  i_NotifierOperation;
 
 type
   INotifierOperationInternal = interface(INotifierOperation)

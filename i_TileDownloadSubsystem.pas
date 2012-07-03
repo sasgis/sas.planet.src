@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_TileRequest,
   i_TileDownloaderState;
 

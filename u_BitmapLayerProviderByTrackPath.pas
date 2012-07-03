@@ -6,7 +6,7 @@ uses
   GR32,
   GR32_Polygons,
   t_GeoTypes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_ProjectionInfo,
   i_Bitmap32Static,
   i_LocalCoordConverter,

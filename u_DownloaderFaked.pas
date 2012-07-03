@@ -3,7 +3,7 @@ unit u_DownloaderFaked;
 interface
 
 uses
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,

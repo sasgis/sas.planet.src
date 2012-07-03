@@ -28,7 +28,7 @@ uses
   GR32_Image,
   i_Notify,
   t_GeoTypes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
   i_UsedMarksConfig,

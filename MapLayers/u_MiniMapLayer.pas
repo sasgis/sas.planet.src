@@ -34,7 +34,7 @@ uses
   GR32_Layers,
   i_Notify,
   t_GeoTypes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_MapTypes,
   i_MapTypeIconsList,
   i_ActiveMapsConfig,

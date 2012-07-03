@@ -26,7 +26,7 @@ uses
   Windows,
   SysUtils,
   Classes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_VectorItemProjected,

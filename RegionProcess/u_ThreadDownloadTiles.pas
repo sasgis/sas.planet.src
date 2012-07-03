@@ -31,7 +31,7 @@ uses
   i_LogSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_CoordConverterFactory,
   i_GlobalDownloadConfig,
   i_TileRequestResult,
@@ -42,7 +42,7 @@ uses
   i_MapTypes,
   u_MapType,
   u_BaseTileDownloaderThread,
-  u_OperationNotifier;
+  u_NotifierOperation;
 
 type
   TThreadDownloadTiles = class(TBaseTileDownloaderThread)

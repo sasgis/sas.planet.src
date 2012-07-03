@@ -52,7 +52,7 @@ uses
   i_RegionProcessParamsFrame,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToOgf2,
   u_ResStrings,

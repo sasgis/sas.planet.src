@@ -6,7 +6,7 @@ uses
   Types,
   SysUtils,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_CoordConverter,
   i_Bitmap32Static,
   i_LocalCoordConverter,

@@ -31,7 +31,7 @@ uses
   ALHttpClient,
   ALWinInetHttpClient,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_Downloader,
   i_InetConfig,
   i_ProxySettings,

@@ -102,7 +102,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
   frm_ProgressCacheConvrter,   
   i_CacheConverterProgressInfo,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_GlobalCahceConfig,
   u_ThreadCacheConverter,
   u_CacheConverterProgressInfo;

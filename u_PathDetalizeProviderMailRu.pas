@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_InetConfig,
   i_Downloader,
   i_VectorItemLonLat,

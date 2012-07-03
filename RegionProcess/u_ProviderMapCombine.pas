@@ -7,7 +7,7 @@ uses
   Forms,
   t_GeoTypes,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LanguageManager,
   i_CoordConverter,
   i_LocalCoordConverter,
@@ -105,7 +105,7 @@ uses
   u_ThreadMapCombineJPG,
   u_ThreadMapCombineKMZ,
   u_ThreadMapCombinePNG,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ResStrings,
   frm_ProgressSimple;

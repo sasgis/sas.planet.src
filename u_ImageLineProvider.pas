@@ -5,7 +5,7 @@ interface
 uses
   Types,
   GR32,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_Bitmap32Static,
   i_CoordConverter,
   i_LocalCoordConverter,

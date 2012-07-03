@@ -25,7 +25,7 @@ interface
 uses
   SysUtils,
   Classes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_InetConfig,
   i_TTLCheckNotifier,
   i_DownloadResultFactory,

@@ -38,7 +38,7 @@ uses
   i_CacheConverterProgressInfo,
   i_LanguageManager,
   i_ValueToStringConverter,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_ThreadCacheConverter,
   u_CommonFormAndFrameParents;
 

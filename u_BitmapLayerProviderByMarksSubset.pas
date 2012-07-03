@@ -31,7 +31,7 @@ uses
   i_ProjectionInfo,
   i_IdCacheSimple,
   i_LocalCoordConverter,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_Bitmap32Static,
   i_MarksDrawConfig,
   i_MarkPicture,

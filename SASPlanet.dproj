@@ -324,8 +324,8 @@
     <DCCReference Include="i_MouseHandler.pas" />
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
+    <DCCReference Include="i_NotifierOperation.pas" />
     <DCCReference Include="i_Notify.pas" />
-    <DCCReference Include="i_OperationNotifier.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
@@ -859,9 +859,9 @@
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_Notifier.pas" />
+    <DCCReference Include="u_NotifierOperation.pas" />
     <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
-    <DCCReference Include="u_OperationNotifier.pas" />
     <DCCReference Include="u_PathConfig.pas" />
     <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
     <DCCReference Include="u_PathDetalizeProviderListBase.pas" />

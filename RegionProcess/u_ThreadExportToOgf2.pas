@@ -6,7 +6,7 @@ uses
   Types,
   SysUtils,
   Classes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_BinaryData,

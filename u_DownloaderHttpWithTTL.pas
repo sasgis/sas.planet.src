@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_TTLCheckListener,
   i_TTLCheckNotifier,
   i_DownloadRequest,

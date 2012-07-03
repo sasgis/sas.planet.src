@@ -9,7 +9,7 @@ uses
   KAZip,
   GR32,
   i_CoordConverterFactory,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_VectorItmesFactory,
   i_VectorItemLonLat,

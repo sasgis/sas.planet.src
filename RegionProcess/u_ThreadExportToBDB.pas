@@ -29,7 +29,7 @@ uses
   Classes,
   i_MapVersionInfo,
   i_VectorItemLonLat,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItmesFactory,

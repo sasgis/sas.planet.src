@@ -8,7 +8,7 @@ uses
   i_Notify,
   i_ThreadConfig,
   i_BackgroundTask,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_ImageResamplerConfig,
   i_LayerBitmapClearStrategy,
   i_LocalCoordConverter,

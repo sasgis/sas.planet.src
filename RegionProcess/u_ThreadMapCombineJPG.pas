@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   LibJpegWrite,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_MapCalibration,

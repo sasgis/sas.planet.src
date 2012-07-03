@@ -10,7 +10,7 @@ uses
   GR32,
   u_MapType,
   u_ResStrings,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,

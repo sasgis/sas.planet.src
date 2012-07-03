@@ -26,7 +26,7 @@ uses
   SysUtils,
   LibECW,
   t_GeoTypes,
-  i_OperationNotifier;
+  i_NotifierOperation;
 
 type
   TlineRGB = array[0..0] of single;

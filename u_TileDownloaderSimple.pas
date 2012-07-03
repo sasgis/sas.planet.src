@@ -7,7 +7,7 @@ uses
   SysUtils,
   SyncObjs,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LastResponseInfo,
   i_Downloader,
   i_TileRequest,
@@ -15,7 +15,7 @@ uses
   i_TileDownloaderConfig,
   i_TileDownloader,
   i_TileDownloadRequestBuilder,
-  u_OperationNotifier;
+  u_NotifierOperation;
 
 type
   TTileDownloaderSimple = class(TInterfacedObject, ITileDownloader)

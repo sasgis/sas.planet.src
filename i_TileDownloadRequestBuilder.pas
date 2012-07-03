@@ -23,7 +23,7 @@ unit i_TileDownloadRequestBuilder;
 interface
 
 uses
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_TileRequest,
   i_LastResponseInfo,
   i_TileDownloadRequest;

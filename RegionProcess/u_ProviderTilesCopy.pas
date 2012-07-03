@@ -49,7 +49,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
   u_ThreadExportToBDB,

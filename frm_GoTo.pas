@@ -98,8 +98,8 @@ uses
   ActiveX,
   i_GeoCoderList,
   i_MarksSimple,
-  i_OperationNotifier,
-  u_OperationNotifier,
+  i_NotifierOperation,
+  u_NotifierOperation,
   u_GeoCodeResult,
   u_GeoCodePlacemark;
 

@@ -7,7 +7,7 @@ uses
   Classes,
   GR32,
   i_LocalCoordConverter,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_MapCalibration,

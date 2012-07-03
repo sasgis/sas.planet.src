@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_OperationNotifier;
+unit i_NotifierOperation;
 
 interface
 

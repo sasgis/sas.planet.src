@@ -31,10 +31,10 @@ uses
   i_TileError,
   i_ThreadConfig,
   i_TileRequestResult,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_BaseTileDownloaderThread,
   u_MapType;
 

@@ -25,10 +25,10 @@ interface
 uses
   Windows,
   i_Notify,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_ThreadConfig,
   i_BackgroundTask,
-  u_OperationNotifier,
+  u_NotifierOperation,
   u_InterfacedThread;
 
 type

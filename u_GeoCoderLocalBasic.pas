@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_GeoCoder,
   i_LocalCoordConverter;
 

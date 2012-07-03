@@ -35,7 +35,7 @@ uses
   i_ContentTypeInfo,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_OperationNotifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_LayerDrawConfig,
   i_TileObjCache,
