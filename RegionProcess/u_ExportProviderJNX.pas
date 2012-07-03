@@ -113,7 +113,7 @@ var
   VZorder: integer;
   VProductID: integer;
   VJpgQuality: IStringListStatic;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VLevelsDesc: IStringListStatic;
@@ -137,7 +137,7 @@ begin
   VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
   VLayerList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LayerList;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

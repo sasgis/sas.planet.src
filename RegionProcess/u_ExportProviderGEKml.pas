@@ -105,7 +105,7 @@ var
   VMapType: TMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
@@ -116,7 +116,7 @@ begin
   RelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
   NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

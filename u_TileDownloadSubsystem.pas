@@ -44,7 +44,7 @@ type
     FVersionConfig: IMapVersionConfig;
     FAppClosingNotifier: INotifier;
 
-    FDestroyNotifierInternal: IOperationNotifierInternal;
+    FDestroyNotifierInternal: INotifierOperationInternal;
     FDestroyNotifier: INotifierOperation;
     FDestroyOperationID: Integer;
     FAppClosingListener: IListener;
@@ -152,7 +152,7 @@ constructor TTileDownloadSubsystem.Create(
 var
   VDownloaderList: ITileDownloaderList;
   VDownloadChecker: IDownloadChecker;
-  VOperationNotifier: TOperationNotifier;
+  VOperationNotifier: TNotifierOperation;
 begin
   inherited Create;
   FCoordConverter := ACoordConverter;
@@ -161,7 +161,7 @@ begin
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FAppClosingNotifier := AAppClosingNotifier;
 
-  VOperationNotifier := TOperationNotifier.Create;
+  VOperationNotifier := TNotifierOperation.Create;
   FDestroyNotifierInternal := VOperationNotifier;
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;

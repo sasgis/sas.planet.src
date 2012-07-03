@@ -42,7 +42,7 @@ type
   private
     FAppClosingNotifier: INotifier;
     FOnExecute: TBackgroundTaskExecuteEvent;
-    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifierInternal: INotifierOperationInternal;
     FCancelNotifier: INotifierOperation;
     FStopThreadHandle: THandle;
     FAllowExecuteHandle: THandle;
@@ -77,7 +77,7 @@ constructor TBackgroundTask.Create(
   const AThreadConfig: IThreadConfig
 );
 var
-  VOperationNotifier: TOperationNotifier;
+  VOperationNotifier: TNotifierOperation;
 begin
   inherited Create(AThreadConfig);
   FOnExecute := AOnExecute;
@@ -85,7 +85,7 @@ begin
   Assert(Assigned(FOnExecute));
   FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);
-  VOperationNotifier := TOperationNotifier.Create;
+  VOperationNotifier := TNotifierOperation.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
 

@@ -114,7 +114,7 @@ var
   typemaparr: array of TMapType;
   comprSat, comprMap: byte;
   Replace: boolean;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
@@ -130,7 +130,7 @@ begin
   comprMap := FFrame.seMapCompress.Value;
   Replace := FFrame.chkReplaseTiles.Checked;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

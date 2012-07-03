@@ -254,7 +254,7 @@ begin
   try
     VDownloaderHttp:=TDownloaderHttp.Create(FForm.FResultFactory);
     VRequest:=TDownloadRequest.Create(FLinkToService, '', FInetConfig.GetStatic);
-    VCancelNotifier:=TOperationNotifier.Create;
+    VCancelNotifier:=TNotifierOperation.Create;
 
     // download
     VResult:=VDownloaderHttp.DoRequest(VRequest, VCancelNotifier, VCancelNotifier.CurrentOperation);

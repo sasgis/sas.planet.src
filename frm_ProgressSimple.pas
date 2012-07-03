@@ -45,7 +45,7 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoInfoChange(Sender: TObject);
   private
-    FCancelNotifier: IOperationNotifierInternal;
+    FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfo;
     FAppClosingNotifier: INotifier;
     FTimerNoifier: INotifier;
@@ -61,7 +61,7 @@ type
       AOwner : TComponent;
       const AAppClosingNotifier: INotifier;
       const ATimerNoifier: INotifier;
-      const ACancelNotifier: IOperationNotifierInternal;
+      const ACancelNotifier: INotifierOperationInternal;
       const AProgressInfo: IRegionProcessProgressInfo
     ); reintroduce;
     destructor Destroy; override;
@@ -78,7 +78,7 @@ constructor TfrmProgressSimple.Create(
   AOwner : TComponent;
   const AAppClosingNotifier: INotifier;
   const ATimerNoifier: INotifier;
-  const ACancelNotifier: IOperationNotifierInternal;
+  const ACancelNotifier: INotifierOperationInternal;
   const AProgressInfo: IRegionProcessProgressInfo
 );
 begin

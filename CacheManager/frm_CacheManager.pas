@@ -190,13 +190,13 @@ procedure TfrmCacheManager.ProcessCacheConverter;
   end;
 var
   VProgressInfo: ICacheConverterProgressInfo;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VConverterThread: TThreadCacheConverter;
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
   VConverterThread := TThreadCacheConverter.Create(

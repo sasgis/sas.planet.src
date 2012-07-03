@@ -126,7 +126,7 @@ var
   VDelSize: Cardinal;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VForAttachments: Boolean;
@@ -153,7 +153,7 @@ begin
         APolygon
       );
 
-    VCancelNotifierInternal := TOperationNotifier.Create;
+    VCancelNotifierInternal := TNotifierOperation.Create;
     VOperationID := VCancelNotifierInternal.CurrentOperation;
     VProgressInfo := TRegionProcessProgressInfo.Create;
 

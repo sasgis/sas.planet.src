@@ -28,11 +28,11 @@ uses
   i_OperationNotifier;
 
 type
-  IOperationNotifierInternal = interface(INotifierOperation)
+  INotifierOperationInternal = interface(INotifierOperation)
     procedure NextOperation;
   end;
 
-  TOperationNotifier = class(TInterfacedObject, INotifierOperation, IOperationNotifierInternal)
+  TNotifierOperation = class(TInterfacedObject, INotifierOperation, INotifierOperationInternal)
   private
     FNotifier: INotifier;
     FCurrentOperationID: Integer;
@@ -49,11 +49,11 @@ type
     constructor Create;
   end;
 
-  IOneOperationNotifierInternal = interface(INotifierOneOperation)
+  INotifierOneOperationInternal = interface(INotifierOneOperation)
     procedure ExecuteOperation;
   end;
 
-  TOneOperationNotifier = class(TInterfacedObject, INotifierOneOperation, IOneOperationNotifierInternal)
+  TNotifierOneOperation = class(TInterfacedObject, INotifierOneOperation, INotifierOneOperationInternal)
   private
     FNotifier: INotifier;
     FCS: IReadWriteSync;
@@ -74,9 +74,9 @@ uses
   u_Synchronizer,
   u_Notifier;
 
-{ TOperationNotifier }
+{ TNotifierOperation }
 
-constructor TOperationNotifier.Create;
+constructor TNotifierOperation.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
@@ -84,7 +84,7 @@ begin
   FCurrentOperationID := 0;
 end;
 
-procedure TOperationNotifier.AddListener(AListener: IListener);
+procedure TNotifierOperation.AddListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -95,7 +95,7 @@ begin
   end;
 end;
 
-function TOperationNotifier.IsOperationCanceled(AID: Integer): Boolean;
+function TNotifierOperation.IsOperationCanceled(AID: Integer): Boolean;
 begin
   FCS.BeginRead;
   try
@@ -105,7 +105,7 @@ begin
   end;
 end;
 
-function TOperationNotifier.GetCurrentOperation: Integer;
+function TNotifierOperation.GetCurrentOperation: Integer;
 begin
   FCS.BeginRead;
   try
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure TOperationNotifier.NextOperation;
+procedure TNotifierOperation.NextOperation;
 begin
   FCS.BeginWrite;
   try
@@ -126,7 +126,7 @@ begin
   end;
 end;
 
-procedure TOperationNotifier.RemoveListener(AListener: IListener);
+procedure TNotifierOperation.RemoveListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -137,15 +137,15 @@ begin
   end;
 end;
 
-{ TOneOperationNotifier }
+{ TNotifierOneOperation }
 
-constructor TOneOperationNotifier.Create;
+constructor TNotifierOneOperation.Create;
 begin
   FCS := MakeSyncRW_Std(Self, TRUE);
   FNotifier := TNotifierBase.Create;
 end;
 
-procedure TOneOperationNotifier.AddListener(AListener: IListener);
+procedure TNotifierOneOperation.AddListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-procedure TOneOperationNotifier.ExecuteOperation;
+procedure TNotifierOneOperation.ExecuteOperation;
 var
   VNotifier: INotifier;
 begin
@@ -172,7 +172,7 @@ begin
   VNotifier.Notify(nil);
 end;
 
-function TOneOperationNotifier.GetIsExecuted: Boolean;
+function TNotifierOneOperation.GetIsExecuted: Boolean;
 begin
   FCS.BeginRead;
   try
@@ -182,7 +182,7 @@ begin
   end;
 end;
 
-procedure TOneOperationNotifier.RemoveListener(AListener: IListener);
+procedure TNotifierOneOperation.RemoveListener(AListener: IListener);
 begin
   FCS.BeginRead;
   try
@@ -196,6 +196,10 @@ begin
 end;
 
 end.
+
+
+
+
 
 
 

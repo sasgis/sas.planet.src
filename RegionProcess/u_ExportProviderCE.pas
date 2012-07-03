@@ -113,7 +113,7 @@ var
   VComent: string;
   VRecoverInfo: boolean;
 
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
@@ -124,7 +124,7 @@ begin
   VComent := (ParamsFrame as IRegionProcessParamsFrameExportToCE).Coment;
   VRecoverInfo := (ParamsFrame as IRegionProcessParamsFrameExportToCE).IsAddRecoverInfo;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

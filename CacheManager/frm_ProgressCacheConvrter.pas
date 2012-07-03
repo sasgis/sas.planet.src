@@ -68,7 +68,7 @@ type
     FAppClosingListener: IListener;
     FTimerNoifier: INotifier;
     FTimerListener: IListener;
-    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifierInternal: INotifierOperationInternal;
     FProgressInfo: ICacheConverterProgressInfo;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FThreadPaused: Boolean;
@@ -82,7 +82,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifier;
       const ATimerNoifier: INotifier;
-      const ACancelNotifierInternal: IOperationNotifierInternal;
+      const ACancelNotifierInternal: INotifierOperationInternal;
       const AProgressInfo: ICacheConverterProgressInfo;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
@@ -104,7 +104,7 @@ constructor TfrmProgressCacheConverter.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifier;
   const ATimerNoifier: INotifier;
-  const ACancelNotifierInternal: IOperationNotifierInternal;
+  const ACancelNotifierInternal: INotifierOperationInternal;
   const AProgressInfo: ICacheConverterProgressInfo;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );

@@ -123,7 +123,7 @@ var
   comprSat, comprMap, comprHyb: byte;
   Replace: boolean;
   VActiveMapIndex: Integer;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
@@ -155,7 +155,7 @@ begin
   comprHyb := FFrame.seHybrCompress.Value;
   Replace := FFrame.chkAppendTilse.Checked;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

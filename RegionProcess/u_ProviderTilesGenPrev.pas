@@ -115,7 +115,7 @@ var
   VInZooms: TByteDynArray;
   VMapType: TMapType;
   VResampler: IImageResamplerFactory;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VBgColor: TColor32;
@@ -130,7 +130,7 @@ begin
     VBgColor := Color32(FViewConfig.BackGroundColor);
   end;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

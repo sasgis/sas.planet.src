@@ -101,7 +101,7 @@ type
 
 
     FCancelNotifier: INotifierOperation;
-    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifierInternal: INotifierOperationInternal;
     FFinishEvent: TEvent;
     FTileDownloadFinishListener: IListenerDisconnectable;
 
@@ -221,7 +221,7 @@ constructor TThreadDownloadTiles.CreateInternal(
   const AForAttachments: Boolean
 );
 var
-  VOperationNotifier: TOperationNotifier;
+  VOperationNotifier: TNotifierOperation;
   VState: ITileDownloaderStateStatic;
 begin
   inherited Create(False);
@@ -300,7 +300,7 @@ begin
 
   PrepareStrings;
 
-  VOperationNotifier := TOperationNotifier.Create;
+  VOperationNotifier := TNotifierOperation.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
   FFinishEvent := TEvent.Create;

@@ -27,7 +27,7 @@ type
     FAppClosingNotifier: INotifier;
     FLastResponseInfo: ILastResponseInfo;
 
-    FDestroyNotifierInternal: IOperationNotifierInternal;
+    FDestroyNotifierInternal: INotifierOperationInternal;
     FDestroyNotifier: INotifierOperation;
     FDestroyOperationID: Integer;
 
@@ -85,7 +85,7 @@ constructor TTileDownloaderSimple.Create(
   const ALastResponseInfo: ILastResponseInfo
 );
 var
-  VOperationNotifier: TOperationNotifier;
+  VOperationNotifier: TNotifierOperation;
 begin
   inherited Create;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -96,7 +96,7 @@ begin
   FLastResponseInfo := ALastResponseInfo;
   Assert(FResultSaver <> nil);
 
-  VOperationNotifier := TOperationNotifier.Create;
+  VOperationNotifier := TNotifierOperation.Create;
   FDestroyNotifierInternal := VOperationNotifier;
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;

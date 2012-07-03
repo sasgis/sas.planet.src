@@ -114,7 +114,7 @@ end;
 procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon);
 var
   VTargetFile: string;
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VImageProvider: IBitmapLayerProvider;
@@ -130,7 +130,7 @@ begin
   VSaver := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).Saver;
   VTileSize := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).TileSize;
 
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

@@ -285,10 +285,10 @@ procedure TProviderMapCombine.PrepareProcessInfo(
   out AProgressInfo: IRegionProcessProgressInfoInternal
 );
 var
-  VCancelNotifierInternal: IOperationNotifierInternal;
+  VCancelNotifierInternal: INotifierOperationInternal;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
-  VCancelNotifierInternal := TOperationNotifier.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create;
   ACancelNotifier := VCancelNotifierInternal;
   AOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;

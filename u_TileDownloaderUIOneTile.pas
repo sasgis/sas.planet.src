@@ -50,7 +50,7 @@ type
     FZoom: Byte;
 
     FCancelNotifier: INotifierOperation;
-    FCancelNotifierInternal: IOperationNotifierInternal;
+    FCancelNotifierInternal: INotifierOperationInternal;
     FFinishEvent: TEvent;
     FTileDownloadFinishListener: IListenerDisconnectable;
 
@@ -96,7 +96,7 @@ constructor TTileDownloaderUIOneTile.Create(
   const AErrorLogger: ITileErrorLogger
 );
 var
-  VOperationNotifier: TOperationNotifier;
+  VOperationNotifier: TNotifierOperation;
 begin
   inherited Create(False);
   FPausedByUser := FALSE;
@@ -110,7 +110,7 @@ begin
   Priority := AThreadConfig.Priority;
   FreeOnTerminate := True;
 
-  VOperationNotifier := TOperationNotifier.Create;
+  VOperationNotifier := TNotifierOperation.Create;
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
   FFinishEvent := TEvent.Create;
