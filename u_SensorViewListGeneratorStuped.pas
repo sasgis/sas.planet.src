@@ -27,7 +27,7 @@ uses
   ImgList,
   TB2Item,
   TB2Dock,
-  i_Notifier, 
+  i_Notifier,
   i_GUIDSet,
   i_ValueToStringConverter,
   i_LanguageManager,
@@ -350,5 +350,3 @@ begin
 end;
 
 end.
-
-

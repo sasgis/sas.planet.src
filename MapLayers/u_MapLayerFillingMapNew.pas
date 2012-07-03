@@ -4,7 +4,7 @@ interface
 
 uses
   GR32_Image,
-  i_Notifier, 
+  i_Notifier,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -128,5 +128,3 @@ begin
 end;
 
 end.
-
-

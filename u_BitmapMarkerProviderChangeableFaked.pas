@@ -23,7 +23,7 @@ unit u_BitmapMarkerProviderChangeableFaked;
 interface
 
 uses
-  i_Notifier, 
+  i_Notifier,
   i_BitmapMarker;
 
 type
@@ -67,6 +67,3 @@ begin
 end;
 
 end.
-
-
-

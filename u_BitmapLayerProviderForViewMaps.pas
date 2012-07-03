@@ -5,7 +5,8 @@ interface
 uses
   Types,
   SysUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_NotifierOperation,
   i_CoordConverter,
   i_Bitmap32Static,
@@ -442,5 +443,3 @@ begin
 end;
 
 end.
-
-

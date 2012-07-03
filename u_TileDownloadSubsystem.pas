@@ -4,7 +4,8 @@ interface
 
 uses
   Types,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_NotifierOperation,
   i_CoordConverterFactory,
   i_CoordConverter,
@@ -347,6 +348,3 @@ begin
 end;
 
 end.
-
-
-

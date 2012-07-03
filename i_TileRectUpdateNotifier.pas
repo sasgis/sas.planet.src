@@ -32,7 +32,3 @@ type
 implementation
 
 end.
-
-
-
-

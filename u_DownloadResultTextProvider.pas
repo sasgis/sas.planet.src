@@ -23,7 +23,8 @@ unit u_DownloadResultTextProvider;
 interface
 
 uses
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_LanguageManager,
   i_DownloadResultTextProvider;
 
@@ -156,5 +157,3 @@ begin
 end;
 
 end.
-
-

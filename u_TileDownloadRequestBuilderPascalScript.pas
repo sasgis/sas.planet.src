@@ -27,7 +27,8 @@ uses
   SysUtils,
   uPSRuntime,
   uPSUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_CoordConverter,
   i_NotifierOperation,
   i_TileDownloaderConfig,
@@ -213,12 +214,12 @@ begin
         end;
         if FpResultUrl.Data <> '' then begin
           if FpPostData.Data <> '' then begin
-              VPostData :=
-                TBinaryDataByMemStream.CreateFromMem(
-                  Length(FpPostData.Data),
-                  Addr(FpPostData.Data[1])
-                );
-              Result :=
+            VPostData :=
+              TBinaryDataByMemStream.CreateFromMem(
+                Length(FpPostData.Data),
+                Addr(FpPostData.Data[1])
+              );
+            Result :=
               TTileDownloadPostRequest.Create(
                 FpResultUrl.Data,
                 FpRequestHead.Data,
@@ -402,5 +403,3 @@ begin
 end;
 
 end.
-
-

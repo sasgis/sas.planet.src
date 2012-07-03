@@ -23,7 +23,7 @@ unit u_TreeByMapActiveMapsSet;
 interface
 
 uses
-  i_Notifier, 
+  i_Notifier,
   i_StaticTreeItem,
   i_TreeChangeable,
   i_ActiveMapsConfig;
@@ -74,6 +74,3 @@ begin
 end;
 
 end.
-
-
-

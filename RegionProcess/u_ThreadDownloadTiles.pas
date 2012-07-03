@@ -27,7 +27,8 @@ uses
   SyncObjs,
   Classes,
   t_GeoTypes,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_LogSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -912,7 +913,3 @@ begin
 end;
 
 end.
-
-
-
-

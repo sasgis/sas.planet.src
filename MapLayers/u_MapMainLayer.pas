@@ -27,7 +27,8 @@ uses
   SysUtils,
   GR32,
   GR32_Image,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_CoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -697,6 +698,3 @@ begin
 end;
 
 end.
-
-
-

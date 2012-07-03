@@ -21,5 +21,3 @@ type
 implementation
 
 end.
-
-

@@ -24,7 +24,7 @@ interface
 
 uses
   GR32,
-  i_Notifier, 
+  i_Notifier,
   t_GeoTypes,
   i_Bitmap32Static;
 
@@ -70,5 +70,3 @@ type
 implementation
 
 end.
-
-

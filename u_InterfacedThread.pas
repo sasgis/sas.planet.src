@@ -25,7 +25,8 @@ interface
 uses
   Classes,
   SysUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_ThreadConfig,
   i_Thread;
 
@@ -207,5 +208,3 @@ begin
 end;
 
 end.
-
-

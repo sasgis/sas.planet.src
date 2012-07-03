@@ -28,7 +28,8 @@ uses
   Classes,
   GR32,
   GR32_Image,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   u_MapType,
   u_MapLayerBasic,
   t_GeoTypes,
@@ -950,6 +951,3 @@ begin
 end;
 
 end.
-
-
-

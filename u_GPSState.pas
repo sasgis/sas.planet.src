@@ -25,7 +25,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_Notifier, 
+  i_Notifier,
   i_ListenerNotifierLinksList,
   i_GPSRecorder,
   i_GPSConfig,
@@ -521,8 +521,3 @@ begin
 end;
 
 end.
-
-
-
-
-

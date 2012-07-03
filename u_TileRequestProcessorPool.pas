@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_Thread,
   i_ThreadConfig,
   i_TTLCheckListener,
@@ -181,6 +182,3 @@ begin
 end;
 
 end.
-
-
-

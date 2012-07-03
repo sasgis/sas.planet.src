@@ -5,7 +5,7 @@ interface
 uses
   GR32,
   GR32_Image,
-  i_Notifier, 
+  i_Notifier,
   i_ThreadConfig,
   i_BackgroundTask,
   i_NotifierOperation,
@@ -257,5 +257,3 @@ begin
 end;
 
 end.
-
-

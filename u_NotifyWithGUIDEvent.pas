@@ -23,7 +23,8 @@ unit u_NotifyWithGUIDEvent;
 interface
 
 uses
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   u_Notifier;
 
 type
@@ -108,6 +109,3 @@ begin
 end;
 
 end.
-
-
-

@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -129,5 +130,3 @@ begin
 end;
 
 end.
-
-

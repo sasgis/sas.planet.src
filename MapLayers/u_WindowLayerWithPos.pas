@@ -94,7 +94,7 @@ type
 
     procedure Show;
     procedure DoShow; virtual;
-    procedure Hide; 
+    procedure Hide;
     procedure DoHide; virtual;
     procedure DoRedraw; virtual; abstract;
     procedure RedrawIfNeed;
@@ -126,7 +126,7 @@ type
     procedure SetNeedUpdateLayerSize; virtual;
 
     procedure UpdateLayerSize;
-    procedure UpdateLayerSizeIfNeed; 
+    procedure UpdateLayerSizeIfNeed;
     procedure DoUpdateLayerSize(const ANewSize: TPoint); virtual;
     function GetLayerSizeForView(const ANewVisualCoordConverter: ILocalCoordConverter): TPoint; virtual; abstract;
   protected

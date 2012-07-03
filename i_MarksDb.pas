@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_Notifier, 
+  i_Notifier,
   t_GeoTypes,
   i_MarkCategory,
   i_MarkFactory,
@@ -79,5 +79,3 @@ type
 implementation
 
 end.
-
-

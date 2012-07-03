@@ -3,7 +3,7 @@ unit u_ChangeableBase;
 interface
 
 uses
-  i_Notifier, 
+  i_Notifier,
   i_Changeable;
 
 type
@@ -91,6 +91,3 @@ begin
 end;
 
 end.
-
-
-

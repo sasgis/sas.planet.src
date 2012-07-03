@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_Notifier, 
+  i_Notifier,
   i_NotifierOperation,
   i_TileRequest,
   i_MapVersionInfo;
@@ -100,6 +100,3 @@ begin
 end;
 
 end.
-
-
-

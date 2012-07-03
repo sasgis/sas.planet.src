@@ -6,7 +6,8 @@ uses
   Windows,
   SysUtils,
   SyncObjs,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_NotifierOperation,
   i_LastResponseInfo,
   i_Downloader,
@@ -293,6 +294,3 @@ begin
 end;
 
 end.
-
-
-

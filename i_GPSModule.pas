@@ -23,7 +23,7 @@ unit i_GPSModule;
 interface
 
 uses
-  i_Notifier, 
+  i_Notifier,
   i_GPS;
 
 type
@@ -57,5 +57,3 @@ type
 implementation
 
 end.
-
-

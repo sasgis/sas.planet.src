@@ -24,7 +24,8 @@ interface
 
 uses
   SysUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
   i_TreeChangeable;
@@ -124,7 +125,3 @@ begin
 end;
 
 end.
-
-
-
-

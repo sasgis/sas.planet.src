@@ -28,7 +28,7 @@ uses
   Classes,
   GR32,
   t_GeoTypes,
-  i_Notifier, 
+  i_Notifier,
   i_Bitmap32Static,
   i_FillingMapColorer,
   i_ThreadConfig,
@@ -1396,7 +1396,7 @@ var
           if ADownload then begin
             // download now
             VFullUrl := VMapAttachmentsInfo.GetDefURLBase(j) + VNumber + VMapAttachmentsInfo.GetExt(j);
-//            DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j)); //TODO: Исправить когда-нибудь
+            //            DownloadFileToLocal(VFullUrl, VFullPath, VMapAttachmentsInfo.GetContentType(j)); //TODO: Исправить когда-нибудь
           end else begin
             // cannot show immediately
             Result := FALSE;
@@ -1436,5 +1436,3 @@ begin
 end;
 
 end.
-
-

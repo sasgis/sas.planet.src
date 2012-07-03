@@ -27,7 +27,8 @@ uses
   Classes,
   SysUtils,
   GR32,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_BinaryData,
   i_FillingMapColorer,
   i_NotifierOperation,
@@ -553,5 +554,3 @@ begin
 end;
 
 end.
-
-

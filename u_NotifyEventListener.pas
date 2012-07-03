@@ -23,7 +23,8 @@ unit u_NotifyEventListener;
 interface
 
 uses
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_SimpleFlag;
 
 type
@@ -105,7 +106,7 @@ constructor TNotifyEventListenerSync.Create(
 );
 begin
   inherited Create;
-  FTimerNoifier :=  ATimerNoifier;
+  FTimerNoifier := ATimerNoifier;
   FEvent := AEvent;
   Assert(Assigned(FEvent));
   Assert(Assigned(FTimerNoifier));
@@ -152,7 +153,3 @@ begin
 end;
 
 end.
-
-
-
-

@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_Notifier, 
+  i_Notifier,
   i_DownloadUIConfig,
   i_ViewPortState,
   i_ActiveMapsConfig,
@@ -82,5 +82,3 @@ begin
 end;
 
 end.
-
-

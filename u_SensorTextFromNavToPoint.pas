@@ -23,7 +23,7 @@ unit u_SensorTextFromNavToPoint;
 interface
 
 uses
-  i_Notifier, 
+  i_Notifier,
   i_NavigationToPoint,
   i_ViewPortState,
   i_Sensor,
@@ -128,6 +128,3 @@ begin
 end;
 
 end.
-
-
-

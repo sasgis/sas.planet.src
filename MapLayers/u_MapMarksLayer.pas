@@ -26,7 +26,7 @@ uses
   SysUtils,
   GR32,
   GR32_Image,
-  i_Notifier, 
+  i_Notifier,
   t_GeoTypes,
   i_NotifierOperation,
   i_ImageResamplerConfig,
@@ -582,5 +582,3 @@ begin
 end;
 
 end.
-
-

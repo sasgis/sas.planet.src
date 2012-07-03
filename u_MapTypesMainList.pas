@@ -25,7 +25,7 @@ interface
 uses
   ActiveX,
   SysUtils,
-  i_Notifier, 
+  i_Notifier,
   i_InternalPerformanceCounter,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -329,5 +329,3 @@ begin
 end;
 
 end.
-
-

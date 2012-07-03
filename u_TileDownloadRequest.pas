@@ -118,9 +118,13 @@ end;
 
 { TTileDownloadPostRequest }
 
-constructor TTileDownloadPostRequest.Create(const AUrl, ARequestHeader: string;
-  const APostData: IBinaryData; const AInetConfig: IInetConfigStatic;
-  const ACheker: IDownloadChecker; const ASource: ITileRequest);
+constructor TTileDownloadPostRequest.Create(
+  const AUrl, ARequestHeader: string;
+  const APostData: IBinaryData;
+  const AInetConfig: IInetConfigStatic;
+  const ACheker: IDownloadChecker;
+  const ASource: ITileRequest
+);
 begin
   inherited Create(
     AUrl,

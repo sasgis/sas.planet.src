@@ -24,7 +24,8 @@ interface
 
 uses
   Types,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
@@ -699,7 +700,3 @@ begin
 end;
 
 end.
-
-
-
-

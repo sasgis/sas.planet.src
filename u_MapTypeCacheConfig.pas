@@ -25,7 +25,8 @@ interface
 uses
   Types,
   SysUtils,
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_SimpleTileStorageConfig,
   i_TileFileNameGeneratorsList,
   u_GlobalCahceConfig,
@@ -449,7 +450,3 @@ begin
 end;
 
 end.
-
-
-
-

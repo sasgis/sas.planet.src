@@ -23,7 +23,8 @@ unit u_MainMapsConfig;
 interface
 
 uses
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_ActiveMapsConfig,
   i_MapTypes,
   u_ActivMapWithLayers;
@@ -156,5 +157,3 @@ begin
 end;
 
 end.
-
-

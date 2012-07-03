@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_Notifier, 
+  i_Notifier,
   i_MarkCategory,
   i_MarkCategoryFactory;
 
@@ -50,5 +50,3 @@ type
 implementation
 
 end.
-
-

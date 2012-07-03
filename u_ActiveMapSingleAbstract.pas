@@ -23,7 +23,8 @@ unit u_ActiveMapSingleAbstract;
 interface
 
 uses
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_MapTypes,
   i_ActiveMapsConfig,
   u_ConfigDataElementBase;
@@ -202,6 +203,3 @@ begin
 end;
 
 end.
-
-
-

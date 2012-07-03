@@ -4,7 +4,7 @@ interface
 
 uses
   Forms,
-  i_Notifier, 
+  i_Notifier,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_LanguageManager,
@@ -144,5 +144,3 @@ begin
 end;
 
 end.
-
-

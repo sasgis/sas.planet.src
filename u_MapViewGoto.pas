@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_Notifier, 
+  i_Notifier,
   i_ViewPortState,
   i_MapViewGoto;
 
@@ -136,6 +136,3 @@ begin
 end;
 
 end.
-
-
-

@@ -31,7 +31,7 @@ uses
   TB2Dock,
   TBX,
   TBXControls,
-  i_Notifier, 
+  i_Notifier,
   i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_SatellitesInViewMapDraw,
@@ -1080,7 +1080,3 @@ begin
 end;
 
 end.
-
-
-
-
