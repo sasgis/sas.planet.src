@@ -41,7 +41,7 @@ type
     procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActualMap(const AValue: IMapType);
-  protected
+  private
     function GetActualMap: IMapType;
   public
     constructor Create(const AMapsConfig: IMainMapsConfig);

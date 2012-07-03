@@ -51,7 +51,7 @@ type
     function DegrToStr(ADegr: Double): string;
     function GetLatitudeMarker(ADegr: Double): string;
     function GetLongitudeMarker(ADegr: Double): string;
-  protected
+  private
     function DataSizeConvert(ASizeInKb: Double): string;
     function DistConvert(ADistInMeters: Double): string;
     function DistPerPixelConvert(ADistPerPixelInMeters: Double): string;

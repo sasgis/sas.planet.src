@@ -47,7 +47,7 @@ type
       const APoint1, APoint2: TDoublePoint;
       Shift: TShiftState
     ): TDoubleRect;
-  protected
+  private
     function IsEmpty: Boolean;
     procedure SetNextPoint(
       const ALonLat: TDoublePoint;

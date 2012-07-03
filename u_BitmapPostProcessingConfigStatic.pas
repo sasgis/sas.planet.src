@@ -34,7 +34,7 @@ type
     FGammaN: Integer;
     FContrastN: Integer;
     procedure ProcessBitmap(const Bitmap: TCustomBitmap32);
-  protected
+  private
     function GetInvertColor: boolean;
     function GetGammaN: Integer;
     function GetContrastN: Integer;

@@ -15,7 +15,7 @@ type
     FLanguageManager: ILanguageManager;
     FEditCounter: Longint;
     FfrmShortCutEdit: TfrmShortCutEdit;
-  protected
+  private
     function EditShortCut(const AShortCutInfo: IShortCutSingleConfig): Boolean;
   public
     constructor Create(

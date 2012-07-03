@@ -35,7 +35,7 @@ type
     FLastTileName: string;
     FCS: IReadWriteSync;
     FFinished: Boolean;
-  protected
+  private
     function GetTilesProcessed: Int64;
     procedure SetTilesProcessed(const AValue: Int64);
     function GetTilesSkipped: Int64;

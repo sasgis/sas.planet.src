@@ -39,7 +39,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetIsActive: Boolean;
     function GetMarkId: IMarkID;
     function GetLonLat: TDoublePoint;

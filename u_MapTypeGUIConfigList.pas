@@ -48,7 +48,7 @@ type
     function CreateOrderedList: IGUIDListStatic;
   protected
     procedure DoBeforeChangeNotify; override;
-  protected
+  private
     function GetOrderedMapGUIDList: IGUIDListStatic;
     function GetHotKeyList: IMapTypeHotKeyListStatic;
   public

@@ -45,7 +45,7 @@ type
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
     FColorer: IFillingMapColorer;
-  protected
+  private
     function GetVisible: Boolean;
     function GetSourceMap: IMapType;
     function GetUseRelativeZoom: Boolean;

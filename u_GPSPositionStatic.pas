@@ -32,7 +32,7 @@ type
   private
     FSingleGPSData: TSingleGPSData;
     FSatellites: IGPSSatellitesInView;
-  protected
+  private
     function GetPosParams: PSingleGPSData; stdcall;
 
     function GetTracksParams(

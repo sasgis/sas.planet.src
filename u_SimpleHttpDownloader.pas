@@ -15,7 +15,7 @@ type
     FInetConfig: IInetConfigStatic;
     FCancelNotifier: INotifierOperation;
     FOperationID: Integer;
-  protected
+  private
     function DoHttpRequest(
       const ARequestUrl, ARequestHeader, APostData: string;
       out AResponseHeader, AResponseData: string

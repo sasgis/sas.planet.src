@@ -31,7 +31,7 @@ type
   TIeEmbeddedProtocolFactory = class(TInterfacedObject, IClassFactory)
   private
     FDomainList: IInternalDomainInfoProviderList;
-  protected
+  private
     { IClassFactory }
     function CreateInstance(
       const unkOuter: IUnknown;

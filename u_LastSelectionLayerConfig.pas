@@ -37,7 +37,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
   public

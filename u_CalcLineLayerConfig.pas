@@ -34,7 +34,7 @@ type
     FLineConfig: ILineLayerConfig;
     FPointsConfig: IPointsSetLayerConfig;
     FCaptionConfig: ICalcLineLayerCaptionsConfig;
-  protected
+  private
     function GetLineConfig: ILineLayerConfig;
     function GetPointsConfig: IPointsSetLayerConfig;
     function GetCaptionConfig: ICalcLineLayerCaptionsConfig;

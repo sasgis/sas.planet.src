@@ -38,7 +38,7 @@ type
     FUSBGarmin: Boolean;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
-  protected
+  private
     function GetPort: DWORD; safecall;
     function GetBaudRate: DWORD; safecall;
     function GetConnectionTimeout: DWORD; safecall;

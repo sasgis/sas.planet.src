@@ -33,7 +33,7 @@ type
   private
     FLineConfig: IPolygonLayerConfig;
     FPointsConfig: IPointsSetLayerConfig;
-  protected
+  private
     function GetLineConfig: IPolygonLayerConfig;
     function GetPointsConfig: IPointsSetLayerConfig;
   public

@@ -32,7 +32,7 @@ type
     FTileGrid: ITileGridConfig;
     FGenShtabGrid: IGenShtabGridConfig;
     FDegreeGrid: IDegreeGridConfig;
-  protected
+  private
     function GetTileGrid: ITileGridConfig;
     function GetGenShtabGrid: IGenShtabGridConfig;
     function GetDegreeGrid: IDegreeGridConfig;

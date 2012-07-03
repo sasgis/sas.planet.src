@@ -68,9 +68,6 @@ type
     procedure btnPolyFillColorClick(Sender: TObject);
     procedure cbbPointIconDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
-  private
-  protected
-    { Private declarations }
   public
     procedure Init(const AMarksDb: IMarksDb);
     procedure Clear;

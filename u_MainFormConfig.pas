@@ -59,7 +59,7 @@ type
     FMapMovingConfig: IMapMovingConfig;
     FLastSearchResultConfig: ILastSearchResultConfig;
     FMarksExplorerWindowConfig: IWindowPositionConfig;
-  protected
+  private
     function GetMainConfig: IMainFormMainConfig;
     function GetLayersConfig: IMainFormLayersConfig;
     function GetToolbarsLock: IMainWindowToolbarsLock;

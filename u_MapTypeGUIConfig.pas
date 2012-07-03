@@ -48,7 +48,7 @@ type
     function CreateStatic: IInterface; override;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetName: IStringConfigDataElement;
 
     function GetSortIndex: Integer;

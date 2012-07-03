@@ -32,7 +32,6 @@ type
   private
     FList: TList;
     FPerfList: IInternalPerformanceCounterList;
-    function GetCount: Integer;
   private
     function Get(AIndex: Integer): TWindowLayerAbstract;
     property Items[Index: Integer]: TWindowLayerAbstract read Get; default;
@@ -79,11 +78,6 @@ end;
 function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerAbstract;
 begin
   Result := TWindowLayerAbstract(FList.Items[AIndex]);
-end;
-
-function TWindowLayerBasicList.GetCount: Integer;
-begin
-  Result := FList.Count;
 end;
 
 procedure TWindowLayerBasicList.SendTerminateToThreads;

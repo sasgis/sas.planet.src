@@ -58,7 +58,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetPointFillColor: TColor32;
     procedure SetPointFillColor(AValue: TColor32);
 

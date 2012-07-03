@@ -41,7 +41,7 @@ type
       AItemsTI: PUnknownList;
       var AItemsIfaceTI: IInterfaceList
     );
-  protected
+  private
     function GetCount(const ATalkerID: String): Byte; stdcall;
     function GetFixCount(const ATalkerID: String): Byte; stdcall;
     function GetItem(

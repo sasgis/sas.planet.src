@@ -43,7 +43,7 @@ type
     FWasSecondKeyPress: Boolean;
     FMapMoveAnimtion: Boolean;
     FMoveVector: TPoint;
-  protected
+  private
     procedure MapMoveAnimate;
     procedure DoMessageEvent(
       var Msg: TMsg;

@@ -35,7 +35,7 @@ type
     FBitmap: IBitmap32Static;
     FBitmapSize: TPoint;
     FAnchorPoint: TDoublePoint;
-  protected
+  private
     function GetBitmapSize: TPoint;
     function GetBitmap: TCustomBitmap32;
     function GetAnchorPoint: TDoublePoint;
@@ -49,7 +49,7 @@ type
   TBitmapMarkerWithDirection = class(TBitmapMarker, IBitmapMarkerWithDirection)
   private
     FDirection: Double;
-  protected
+  private
     function GetDirection: Double;
   public
     constructor Create(

@@ -38,7 +38,7 @@ type
     FSpeed: Double;
     FMinSpeedColor: TColor32;
     FMaxSpeedColor: TColor32;
-  protected
+  private
     function GetSpeed: Double;
     function GetMinSpeedColor: TColor32;
     function GetMaxSpeedColor: TColor32;
@@ -59,7 +59,7 @@ type
       AColorMin, AColorMax: TColor32;
       ASpeedMin, ASpeedMax, ASpeed: Double
     ): TColor32;
-  protected
+  private
     function GetColorForSpeed(ASpeed: Double): TColor32;
   public
     constructor Create(AList: IInterfaceList);
@@ -74,7 +74,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetStatic: ITrackColorerStatic;
 
     function GetSpeedRangeCount: Integer;
@@ -100,7 +100,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 

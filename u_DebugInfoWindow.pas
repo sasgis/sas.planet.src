@@ -14,7 +14,7 @@ type
     FPerfCounterList: IInternalPerformanceCounterList;
     FAppConfig: IGlobalAppConfig;
     FfrmDebugInfo: TfrmDebugInfo;
-  protected
+  private
     procedure Show;
   public
     constructor Create(

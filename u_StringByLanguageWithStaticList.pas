@@ -30,7 +30,7 @@ type
   TStringByLanguageWithStaticList = class(TInterfacedObject, IStringByLanguage)
   private
     FValueList: TStringList;
-  protected
+  private
     function GetString(ALangIndex: Integer): string;
     function GetDefault: string;
   public

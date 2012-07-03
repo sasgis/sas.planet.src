@@ -39,7 +39,7 @@ type
   private
     FGlobalCacheConfig: TGlobalCahceConfig;
     FItems: array of ITileFileNameParser;
-  protected
+  private
     function GetParser(const ACacheType: Byte): ITileFileNameParser;
   public
     constructor Create(const AGlobalCacheConfig: TGlobalCahceConfig);

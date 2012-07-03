@@ -32,7 +32,7 @@ type
   TMapTypeHotKeyListStatic = class(TInterfacedObject, IMapTypeHotKeyListStatic)
   private
     FList: IIDInterfaceList;
-  protected
+  private
     function GetMapTypeGUIDByHotKey(AHotKey: TShortCut): IMapType;
   public
     constructor Create(

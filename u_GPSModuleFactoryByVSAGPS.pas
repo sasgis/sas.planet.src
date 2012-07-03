@@ -31,7 +31,7 @@ type
   TGPSModuleFactoryByVSAGPS = class(TInterfacedObject, IGPSModuleByCOMFactory)
   private
     FGPSPositionFactory: IGPSPositionFactory;
-  protected
+  private
     function CreateGPSModule: IGPSModuleByCOM;
   public
     constructor Create(const AGPSPositionFactory: IGPSPositionFactory);

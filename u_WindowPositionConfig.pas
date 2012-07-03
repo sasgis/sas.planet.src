@@ -16,7 +16,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetBoundsRect: TRect;
     procedure SetWindowPosition(const ARect: TRect);
   public

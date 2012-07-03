@@ -30,7 +30,7 @@ type
   TInternalDomainInfoProviderList = class(TInterfacedObject, IInternalDomainInfoProviderList)
   private
     FList: TStringList;
-  protected
+  private
     function GetByName(const AName: string): IInternalDomainInfoProvider;
   public
     constructor Create;

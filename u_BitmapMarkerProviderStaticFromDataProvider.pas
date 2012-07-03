@@ -37,7 +37,7 @@ type
       const ASourceMarker: IBitmapMarker;
       ASize: Integer
     ): IBitmapMarker;
-  protected
+  private
     function GetMarker: IBitmapMarker;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;
   public
@@ -70,7 +70,7 @@ type
       ASize: Integer;
       const AAngle: Double
     ): IBitmapMarkerWithDirection;
-  protected
+  private
     function GetMarker: IBitmapMarker;
     function GetMarkerWithRotation(const AAngle: Double): IBitmapMarkerWithDirection;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker;

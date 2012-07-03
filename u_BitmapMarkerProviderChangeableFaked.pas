@@ -31,7 +31,7 @@ type
   private
     FProviderStatic: IBitmapMarkerProvider;
     FChangeNotifier: INotifier;
-  protected
+  private
     function GetStatic: IBitmapMarkerProvider;
     function GetChangeNotifier: INotifier;
   public

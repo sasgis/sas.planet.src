@@ -104,7 +104,7 @@ type
       AHorizSpace: Integer;
       const ASatellites: IGPSSatellitesInView
     );
-  protected
+  private
     procedure Draw(
       ABitmap: TBitmap32;
       const ASatellites: IGPSSatellitesInView

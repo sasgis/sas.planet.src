@@ -32,7 +32,7 @@ type
     FMarkerSize: Integer;
     FMarkerColor: TColor32;
     FBorderColor: TColor32;
-  protected
+  private
     function GetMarkerSize: Integer;
     function GetMarkerColor: TColor32;
     function GetBorderColor: TColor32;

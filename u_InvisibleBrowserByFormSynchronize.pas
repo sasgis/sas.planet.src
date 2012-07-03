@@ -16,7 +16,7 @@ type
     FProxyConfig: IProxyConfig;
     FLanguageManager: ILanguageManager;
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
-  protected
+  private
     procedure NavigateAndWait(const AUrl: WideString);
   public
     constructor Create(

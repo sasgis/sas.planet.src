@@ -37,7 +37,7 @@ type
     FPositionEmpty: IGPSPosition;
     FExecuteGPSCommandEvent: TExecuteGPSCommandEvent;
     FGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event;
-  protected
+  private
     function BuildSatelliteInfo(
       const AData: PSingleSatFixibilityData;
       const ASky: PSingleSatSkyData

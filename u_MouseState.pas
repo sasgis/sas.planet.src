@@ -62,7 +62,7 @@ type
     procedure SetCurrentPos(
       const APosition: TPoint
     );
-  protected
+  private
     function GetCurentPos: TPoint;
     function GetCurentSpeed: TDoublePoint;
     function GetCurrentShift: TShiftState;
@@ -71,7 +71,7 @@ type
     function GetLastDownPos(AButton: TMouseButton): TPoint;
     function GetLastUpShift(AButton: TMouseButton): TShiftState;
     function GetLastUpPos(AButton: TMouseButton): TPoint;
-  protected
+  private
     procedure OnMouseMove(
       AShift: TShiftState;
       const APosition: TPoint

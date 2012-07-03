@@ -35,7 +35,7 @@ type
     FLanguageManager: ILanguageManager;
     FEditCounter: Longint;
     FfrmMapTypeEdit: TfrmMapTypeEdit;
-  protected
+  private
     function EditMap(AMapType: TMapType): Boolean;
   public
     constructor Create(

@@ -73,7 +73,7 @@ type
     FFillingMapLayerConfig: IFillingMapLayerConfig;
     FGotoLayerConfig: IGotoLayerConfig;
     FFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
-  protected
+  private
     function GetMainMapLayerConfig: IMainMapLayerConfig;
     function GetMapLayerGridsConfig: IMapLayerGridsConfig;
     function GetStatBar: IStatBarConfig;

@@ -47,7 +47,7 @@ type
     FValueConverterConfig: IValueToStringConverterConfig;
     FLastSearchResults: ILastSearchResultConfig;
     FSearchItems: array of TfrSearchResultsItem;
-  protected
+  private
     procedure ClearSearchResults;
     procedure ShowSearchResults(
       const ASearchResult: IGeoCodeResult;

@@ -88,7 +88,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-
+  private
     function GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
     procedure ReGenerateGPSUnitInfo;
     procedure DoGPSUnitInfoChanged(
@@ -96,7 +96,7 @@ type
       const AUnitIndex: Byte;
       const AKind: TVSAGPS_UNIT_INFO_Kind
     );
-  protected
+  private
     procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
     procedure ClearTrack;

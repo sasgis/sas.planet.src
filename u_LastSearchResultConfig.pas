@@ -32,7 +32,7 @@ type
   private
     FIsActive: Boolean;
     FGeoCodeResult: IGeoCodeResult;
-  protected
+  private
     function GetIsActive: Boolean;
     function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);

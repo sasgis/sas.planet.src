@@ -42,6 +42,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
+  private
     procedure InternalApplyLogWrite(const AValues: Byte);
     function InternalGetLogWriteAsInt: Byte;
     procedure InternalSetWriteLogValue(
@@ -49,7 +50,7 @@ type
       const AValue: Boolean
     );
     function InternalGetWriteLogValue(out ATrackTypes: TVSAGPS_TrackTypes): Boolean;
-  protected
+  private
     function GetGPSEnabled: Boolean;
     procedure SetGPSEnabled(const AValue: Boolean);
 

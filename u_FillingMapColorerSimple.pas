@@ -28,7 +28,7 @@ type
       const ARangeItemPtr: Pointer;
       const ARangeItemLen: SmallInt
     ): TColor32;
-  protected
+  private
     function GetColor(const ATileInfo: ITileInfoBasic): TColor32; overload;
     function GetColor(const ATileInfo: TTileInfo): TColor32; overload;
     function GetRangeColor(

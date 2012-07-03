@@ -39,7 +39,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetFillColor: TColor32;
     procedure SetFillColor(AValue: TColor32);
 

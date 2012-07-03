@@ -21,7 +21,7 @@ type
     FfrmInternalBrowser: TfrmIntrnalBrowser;
   private
     procedure SafeCreateInternal;
-  protected
+  private
     { IInternalBrowser }
     procedure ShowMessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);

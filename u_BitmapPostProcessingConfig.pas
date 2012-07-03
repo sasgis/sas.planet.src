@@ -39,7 +39,7 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  protected
+  private
     function GetInvertColor: boolean;
     procedure SetInvertColor(const AValue: boolean);
     function GetGammaN: Integer;

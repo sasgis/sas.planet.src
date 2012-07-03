@@ -32,7 +32,7 @@ type
   private
     FLineConfig: ILineLayerConfig;
     FPointsConfig: IPointsSetLayerConfig;
-  protected
+  private
     function GetLineConfig: ILineLayerConfig;
     function GetPointsConfig: IPointsSetLayerConfig;
   public

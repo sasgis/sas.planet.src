@@ -39,7 +39,7 @@ type
     FInfoUrl: string;
     FBmp18: IBitmap32Static;
     FBmp24: IBitmap32Static;
-  protected
+  private
     function GetName: string;
     function GetSortIndex: Integer;
     function GetHotKey: TShortCut;

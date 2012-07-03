@@ -31,7 +31,7 @@ type
   private
     FSingleSatFixibilityData: TSingleSatFixibilityData;
     FSingleSatSkyData: TSingleSatSkyData;
-  protected
+  private
     procedure GetBaseSatelliteParams(AParams: PSingleSatFixibilityData); stdcall;
     procedure GetSkySatelliteParams(AParams: PSingleSatSkyData); stdcall;
   public

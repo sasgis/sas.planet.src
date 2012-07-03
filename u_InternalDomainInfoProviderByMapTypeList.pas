@@ -55,7 +55,7 @@ type
       const AFileName: string;
       out AContentType: string
     ): IBinaryData;
-  protected
+  private
     function LoadBinaryByFilePath(
       const AFilePath: string;
       out AContentType: string
