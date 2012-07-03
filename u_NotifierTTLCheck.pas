@@ -82,22 +82,26 @@ function TNotifierTTLCheck.ProcessCheckAndGetNextTime: Cardinal;
 var
   i: integer;
   VNow: Cardinal;
-  VObj: IListenerTTLCheck;
   VObjNextCheck: Cardinal;
+  VList: array of IListenerTTLCheck;
 begin
   Result := 0;
   VNow := GetTickCount;
   FSync.BeginRead;
   try
+    SetLength(VList, FList.Count);
     for i := 0 to FList.Count - 1 do begin
-      VObj := IListenerTTLCheck(FList.Items[i]);
-      VObjNextCheck := VObj.CheckTTLAndGetNextCheckTime(VNow);
-      if (Result <= 0) or (Result > VObjNextCheck) then begin
-        Result := VObjNextCheck;
-      end;
+      VList[i] := IListenerTTLCheck(Pointer(FList[i]));
+
     end;
   finally
     FSync.EndRead;
+  end;
+  for i := 0 to Length(VList) - 1 do begin
+    VObjNextCheck := VList[i].CheckTTLAndGetNextCheckTime(VNow);
+    if (Result <= 0) or (Result > VObjNextCheck) then begin
+      Result := VObjNextCheck;
+    end;
   end;
 end;
 
