@@ -13,10 +13,10 @@ type
   private
     FListeners: TList;
     FSynchronizer: IReadWriteSync;
-  protected
+  private
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
-  protected
+  private
     procedure Notify(const AMsg: IInterface);
   public
     constructor Create;

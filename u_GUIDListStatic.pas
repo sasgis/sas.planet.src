@@ -29,7 +29,7 @@ type
   TGUIDListStatic = class(TInterfacedObject, IGUIDListStatic)
   private
     FList: array of TGUID;
-  protected
+  private
     function GetItem(AIndex: Integer): TGUID;
     function GetCount: Integer;
   public

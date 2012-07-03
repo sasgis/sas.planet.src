@@ -30,7 +30,7 @@ type
   TZmpFileNamesIteratorFactory = class(TInterfacedObject, IFileNameIteratorFactory)
   private
     FFactory: IFileNameIteratorFactory;
-  protected
+  private
     function CreateIterator(
       const ARootFolderName: WideString;
       const AFolderNameFromRoot: WideString

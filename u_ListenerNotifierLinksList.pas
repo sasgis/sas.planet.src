@@ -40,7 +40,7 @@ type
     procedure DeactivateLink(AIndex: Integer);
     procedure DoActivateLinks;
     procedure DoDeactivateLinks;
-  protected
+  private
     procedure Add(
       const AListener: IListener;
       const ANotifier: INotifier

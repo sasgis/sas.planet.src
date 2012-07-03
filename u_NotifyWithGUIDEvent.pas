@@ -24,8 +24,7 @@ interface
 
 uses
   i_Notifier,
-  i_Listener,
-  u_Notifier;
+  i_Listener;
 
 type
   TNotifyWithGUIDEvent = procedure(const AGUID: TGUID) of object;
@@ -63,12 +62,22 @@ type
   end;
 
 type
-  TNotifierWithGUID = class(TNotifierBase, INotifierWithGUID)
-  protected
+  TNotifierWithGUID = class(TInterfacedObject, INotifier, INotifierWithGUID)
+  private
+    FNotifier: INotifierInternal;
+  private
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
+  private
     procedure NotifyByGUID(const AGUID: TGUID);
+  public
+    constructor Create;
   end;
 
 implementation
+
+uses
+  u_Notifier;
 
 { TNotificationMessageWithGUID }
 
@@ -100,12 +109,28 @@ end;
 
 { TNotifierWithGUID }
 
+constructor TNotifierWithGUID.Create;
+begin
+  inherited Create;
+  FNotifier := TNotifierBase.Create;
+end;
+
+procedure TNotifierWithGUID.Add(const AListener: IListener);
+begin
+  FNotifier.Add(AListener);
+end;
+
 procedure TNotifierWithGUID.NotifyByGUID(const AGUID: TGUID);
 var
   msg: INotificationMessageWithGUID;
 begin
   msg := TNotificationMessageWithGUID.Create(AGUID);
-  Notify(msg);
+  FNotifier.Notify(msg);
+end;
+
+procedure TNotifierWithGUID.Remove(const AListener: IListener);
+begin
+  FNotifier.Remove(AListener);
 end;
 
 end.
