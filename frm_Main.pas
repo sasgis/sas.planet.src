@@ -720,7 +720,7 @@ uses
   c_InternalBrowser,
   u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   i_Bitmap32Static,
   i_MapTypes,
   i_GeoCoderList,

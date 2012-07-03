@@ -109,7 +109,7 @@ uses
   i_TileDownloadRequest,
   i_TileDownloaderList,
   i_DownloadChecker,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileRequest,
   u_TileDownloaderList,
   u_AntiBanStuped,

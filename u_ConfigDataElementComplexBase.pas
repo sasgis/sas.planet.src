@@ -91,7 +91,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 type
   TSubItemInfoBase = class

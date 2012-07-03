@@ -200,7 +200,7 @@ uses
   u_DownloadInfoSimple,
   u_TileIteratorByPolygon,
   u_DoublePointsAggregator,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_ResStrings;
 
 constructor TThreadDownloadTiles.CreateInternal(

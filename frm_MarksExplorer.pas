@@ -188,7 +188,7 @@ uses
   i_ImportConfig,
   i_MarkTemplate,
   i_MarksFactoryConfig,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 {$R *.dfm}
 

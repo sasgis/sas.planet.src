@@ -148,7 +148,7 @@ uses
   i_FileNameIterator,
   i_TileFileNameParser,
   u_MapVersionFactorySimpleString,
-  u_TTLCheckListener,
+  u_ListenerTTLCheck,
   u_TileRectInfo,
   u_TileFileNameBDB,
   u_TileIteratorByRect,

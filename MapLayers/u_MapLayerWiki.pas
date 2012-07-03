@@ -181,7 +181,7 @@ uses
   i_BitmapLayerProvider,
   i_Bitmap32Static,
   i_NotifierTileRectUpdate,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileIteratorByRect,
   u_TileErrorInfo,
   u_ResStrings,

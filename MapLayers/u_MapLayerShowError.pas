@@ -57,7 +57,7 @@ uses
   GR32_Resamplers,
   i_CoordConverter,
   i_Bitmap32Static,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_BitmapMarker,
   u_Bitmap32Static,

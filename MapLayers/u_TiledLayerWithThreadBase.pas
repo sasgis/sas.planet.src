@@ -136,7 +136,7 @@ uses
   u_SimpleFlagWithInterlock,
   i_Bitmap32Static,
   u_Synchronizer,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileIteratorSpiralByRect,
   i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,

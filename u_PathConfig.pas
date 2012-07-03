@@ -50,7 +50,7 @@ implementation
 uses
   SysUtils,
   ShLwApi,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TPathConfig }
 

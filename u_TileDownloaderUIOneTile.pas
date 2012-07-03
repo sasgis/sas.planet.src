@@ -83,7 +83,7 @@ uses
   SysUtils,
   i_TileRequest,
   i_DownloadResult,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileErrorInfo;
 
 constructor TTileDownloaderUIOneTile.Create(

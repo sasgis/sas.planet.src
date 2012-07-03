@@ -177,7 +177,7 @@ uses
   u_MapVersionInfo,
   u_Synchronizer,
   vsagps_public_sysutils,
-  u_TTLCheckListener,
+  u_ListenerTTLCheck,
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
 

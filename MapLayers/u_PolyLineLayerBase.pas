@@ -256,7 +256,7 @@ uses
   i_CoordConverter,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,

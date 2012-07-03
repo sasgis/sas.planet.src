@@ -54,7 +54,7 @@ implementation
 uses
   ActiveX,
   c_ZeroGUID,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_NotifyWithGUIDEvent,
   u_MapTypeBasic,
   u_MapTypeSet;

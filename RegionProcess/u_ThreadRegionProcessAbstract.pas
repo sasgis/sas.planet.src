@@ -45,7 +45,7 @@ implementation
 uses
   SysUtils,
   Dialogs,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 constructor TThreadRegionProcessAbstract.Create(
   const ACancelNotifier: INotifierOperation;

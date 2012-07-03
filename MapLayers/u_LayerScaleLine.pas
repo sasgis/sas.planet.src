@@ -117,7 +117,7 @@ uses
   SysUtils,
   GR32_Resamplers,
   i_CoordConverter,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_ResStrings,
   u_GeoFun,
   t_GeoTypes;

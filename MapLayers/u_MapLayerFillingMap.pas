@@ -50,7 +50,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileIteratorSpiralByRect;
 
 { TMapLayerFillingMap }

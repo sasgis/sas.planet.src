@@ -72,7 +72,7 @@ uses
   StrUtils,
   Graphics,
   i_CoordConverter,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_ResStrings,
   u_MapType;
 

@@ -125,9 +125,9 @@ implementation
 uses
   i_TileKey,
   i_NotifierTileRectUpdate,
-  u_TTLCheckListener,
+  u_ListenerTTLCheck,
   u_Synchronizer,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TTileCacheBase }
 

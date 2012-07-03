@@ -56,7 +56,7 @@ uses
   Types,
   GR32_Resamplers,
   i_CoordConverter,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun;
 
 { TSearchResultsLayer }

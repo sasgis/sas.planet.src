@@ -40,7 +40,7 @@ implementation
 
 uses
   i_CoordConverter,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TMapLayerTileGrid }
 

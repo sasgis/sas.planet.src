@@ -34,7 +34,7 @@ implementation
 
 uses
   ActiveX,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_MapTypeListStatic;
 
 { TMapTypeListChangeableActiveBitmapLayers }

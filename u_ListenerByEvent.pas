@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_NotifyEventListener;
+unit u_ListenerByEvent;
 
 interface
 

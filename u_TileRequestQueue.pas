@@ -55,8 +55,8 @@ implementation
 
 uses
   u_Synchronizer,
-  u_NotifyEventListener,
-  u_TTLCheckListener;
+  u_ListenerByEvent,
+  u_ListenerTTLCheck;
 
 { TTileRequestQuery }
 

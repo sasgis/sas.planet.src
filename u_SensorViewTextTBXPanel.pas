@@ -301,7 +301,7 @@ uses
   t_GeoTypes,
   i_GPS,
   u_ListenerNotifierLinksList,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun,
   u_GeoToStr,
   u_ResStrings;

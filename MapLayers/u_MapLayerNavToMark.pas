@@ -57,7 +57,7 @@ uses
   GR32_Resamplers,
   i_CoordConverter,
   u_GeoFun,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TNavToMarkLayer }
 

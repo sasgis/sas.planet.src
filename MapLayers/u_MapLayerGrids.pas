@@ -50,7 +50,7 @@ uses
   SysUtils,
   i_CoordConverter,
   u_GeoFun,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoToStr,
   RegExprUtils,
   StrUtils;

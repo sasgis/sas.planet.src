@@ -59,7 +59,7 @@ uses
   i_Bitmap32Static,
   i_BitmapLayerProvider,
   i_TileIterator,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderByTrackPath,
   u_TileIteratorSpiralByRect;

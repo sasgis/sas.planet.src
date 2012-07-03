@@ -103,7 +103,7 @@ implementation
 uses
   u_Synchronizer,
   u_Notifier,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun;
 
 const

@@ -52,8 +52,8 @@ implementation
 uses
   u_Synchronizer,
   i_TileDownloader,
-  u_NotifyEventListener,
-  u_TTLCheckListener,
+  u_ListenerByEvent,
+  u_ListenerTTLCheck,
   u_TileRequestQueueProcessorThread;
 
 { TTileRequestProcessorPool }

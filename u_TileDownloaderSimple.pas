@@ -72,7 +72,7 @@ uses
   i_DownloadResult,
   i_TileDownloadRequest,
   i_TileRequestResult,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileRequestResult;
 
 { TITileDownloaderSimple }

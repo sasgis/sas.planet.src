@@ -86,7 +86,7 @@ uses
   i_Datum,
   i_CoordConverter,
   i_EnumDoublePoint,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun,
   u_DoublePointsAggregator,
   u_ResStrings;

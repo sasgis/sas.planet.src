@@ -57,7 +57,7 @@ implementation
 
 uses
   u_ListenerNotifierLinksList,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TUserInterfaceItemBase }
 

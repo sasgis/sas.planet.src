@@ -6,7 +6,7 @@ uses
   i_Listener,
   i_SimpleFlag,
   i_CoordConverter,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 type
   TTileUpdateListenerToLonLat = class(TInterfacedObject, IListener, IListenerDisconnectable)

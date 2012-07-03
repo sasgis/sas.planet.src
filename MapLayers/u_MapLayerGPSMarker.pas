@@ -70,7 +70,7 @@ uses
   vsagps_public_base,
   vsagps_public_position,
   u_SimpleFlagWithInterlock,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TMapLayerGPSMarker }
 

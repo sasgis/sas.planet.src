@@ -99,7 +99,7 @@ implementation
 
 uses
   u_HtmlToHintTextConverterStuped,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_ResStrings;
 
 {$R *.dfm}

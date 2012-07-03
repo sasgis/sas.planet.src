@@ -62,7 +62,7 @@ implementation
 uses
   i_GPS,
   u_ListenerNotifierLinksList,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 {$R *.dfm}
 

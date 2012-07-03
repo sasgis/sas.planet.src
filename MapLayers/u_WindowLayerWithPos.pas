@@ -161,7 +161,7 @@ uses
   Types,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TWindowLayerWithPosBase }
 

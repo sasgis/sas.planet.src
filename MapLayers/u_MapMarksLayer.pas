@@ -139,7 +139,7 @@ uses
   u_IdCacheSimpleThreadSafe,
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByMarksSubset,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileIteratorSpiralByRect;
 
 { TMapMarksLayer }

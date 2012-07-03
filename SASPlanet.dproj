@@ -764,7 +764,9 @@
     <DCCReference Include="u_LayerBitmapClearStrategyFactory.pas" />
     <DCCReference Include="u_LayerDrawConfig.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
+    <DCCReference Include="u_ListenerByEvent.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
+    <DCCReference Include="u_ListenerTTLCheck.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
@@ -863,7 +865,6 @@
     <DCCReference Include="u_NotifierOperation.pas" />
     <DCCReference Include="u_NotifierTileRectUpdate.pas" />
     <DCCReference Include="u_NotifierTTLCheck.pas" />
-    <DCCReference Include="u_NotifyEventListener.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_PathConfig.pas" />
     <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
@@ -999,7 +1000,6 @@
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />
     <DCCReference Include="u_TreeChangeableBase.pas" />
-    <DCCReference Include="u_TTLCheckListener.pas" />
     <DCCReference Include="u_UiTileDownload.pas" />
     <DCCReference Include="u_UITileDownloadList.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />

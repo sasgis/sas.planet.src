@@ -110,7 +110,7 @@ uses
   u_Notifier,
   u_ListenerNotifierLinksList,
   u_Synchronizer,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 constructor TGPSpar.Create(
   const AGPSModuleFactory: IGPSModuleByCOMFactory;

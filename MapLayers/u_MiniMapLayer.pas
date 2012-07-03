@@ -246,7 +246,7 @@ uses
   u_SimpleFlagWithInterlock,
   i_TileIterator,
   i_Bitmap32Static,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_MapTypeListStatic,
   u_BitmapLayerProviderForViewMaps,
   u_BackgroundTask,

@@ -60,7 +60,7 @@ implementation
 uses
   u_Synchronizer,
   u_Notifier,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TTreeChangeableBase }
 

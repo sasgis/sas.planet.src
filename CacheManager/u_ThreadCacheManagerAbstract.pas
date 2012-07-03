@@ -54,7 +54,7 @@ implementation
 uses
   Dialogs,
   SysUtils,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TThreadCacheManagerAbstract }
 

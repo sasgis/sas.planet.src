@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderByTrackPath;
 

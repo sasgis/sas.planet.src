@@ -50,7 +50,7 @@ implementation
 uses
   SysUtils,
   i_CoordConverter,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun;
 
 { TSelectionRectLayer }

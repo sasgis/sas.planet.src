@@ -71,7 +71,7 @@ type
 implementation
 
 uses
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_ValueToStringConverter;
 
 { TValueToStringConverterConfig }

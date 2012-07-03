@@ -187,7 +187,7 @@ uses
   t_CommonTypes,
   t_GeoTypes,
   i_TileIterator,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   i_TileKey,
   u_TileKey,
   u_NotifierTileRectUpdate,

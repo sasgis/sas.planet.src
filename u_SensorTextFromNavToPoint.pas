@@ -56,7 +56,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_Notifier;
 
 { TSensorTextFromNavToPoint }

@@ -123,7 +123,7 @@ uses
   i_BinaryData,
   i_SimpleHttpDownloader,
   u_BinaryDataByMemStream,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
   u_TileRequestBuilderHelpers,

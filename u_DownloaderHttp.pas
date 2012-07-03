@@ -116,7 +116,7 @@ implementation
 
 uses
   i_BinaryData,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_Synchronizer,
   u_StreamReadOnlyByBinaryData,
   u_BinaryDataByMemStream;

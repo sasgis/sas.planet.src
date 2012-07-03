@@ -42,7 +42,7 @@ implementation
 uses
   i_DoublePointFilter,
   u_EnumDoublePointLine2Poly,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TSelectionPolylineShadowLayer }
 

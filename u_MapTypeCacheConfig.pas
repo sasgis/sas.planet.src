@@ -151,7 +151,7 @@ uses
   u_Synchronizer,
   ShLwApi,
   u_Notifier,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TMapTypeCacheConfigAbstract }
 

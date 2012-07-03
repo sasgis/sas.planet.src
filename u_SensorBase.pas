@@ -169,7 +169,7 @@ implementation
 
 uses
   Math,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_ListenerNotifierLinksList,
   u_GeoFun;
 

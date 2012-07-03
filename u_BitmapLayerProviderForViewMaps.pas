@@ -87,7 +87,7 @@ uses
   i_TileObjCache,
   i_NotifierTileRectUpdate,
   u_Bitmap32Static,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_Synchronizer,
   u_TileErrorInfo;

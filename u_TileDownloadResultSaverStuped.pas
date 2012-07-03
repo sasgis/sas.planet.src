@@ -82,7 +82,7 @@ uses
   i_BitmapTileSaveLoad,
   i_TileRequest,
   i_TileDownloadRequest,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_Bitmap32Static,
   u_ResStrings;
 

@@ -58,7 +58,7 @@ uses
   i_TileDownloadRequestBuilder,
   i_Downloader,
   u_Notifier,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_LastResponseInfo,
   u_TileDownloadRequestBuilderLazy,
   u_DownloaderHttpWithTTL,

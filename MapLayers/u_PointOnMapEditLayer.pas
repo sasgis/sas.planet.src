@@ -44,7 +44,7 @@ uses
   GR32_Resamplers,
   i_Notifier, i_Listener,
   i_CoordConverter,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_GeoFun;
 
 { TPointOnMapEditLayer }

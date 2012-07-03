@@ -119,7 +119,7 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_NotifierTileRectUpdate,
-  u_NotifyEventListener,
+  u_ListenerByEvent,
   u_MapTypeListStatic,
   u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderForViewMaps,

@@ -68,7 +68,7 @@ implementation
 
 uses
   gnugettext,
-  u_NotifyEventListener;
+  u_ListenerByEvent;
 
 { TDownloadResultTextProvider }
 
