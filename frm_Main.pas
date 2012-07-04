@@ -4326,7 +4326,6 @@ var
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
   VPrevTick, VCurrTick, VFr: int64;
-  VWikiLayerGUID: TGUID;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -4445,10 +4444,8 @@ begin
       VPWL.descr := '';
       VPWL.S := 0;
 
-      VWikiLayerGUID:=GUID_NULL;
-
       VWikiItem := nil;
-      VWikiItem := FWikiLayer.MouseOnRegWithGUID(VLocalConverter, Point(x,y), VMarkS, VWikiLayerGUID);
+      VWikiItem := FWikiLayer.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
         VPWL.find := True;
         VPWL.name := VWikiItem.Name;
