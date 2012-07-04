@@ -23,31 +23,32 @@ unit i_NotifierOperation;
 interface
 
 uses
+  i_Notifier,
   i_Listener;
 
 type
   INotifierOperation = interface
     ['{96D3C3D0-7B07-4F63-AE3D-6E32516AE56B}']
-    function GetCurrentOperation: Integer; stdcall;
+    function GetCurrentOperation: Integer;
     property CurrentOperation: Integer read GetCurrentOperation;
 
-    function IsOperationCanceled(AID: Integer): Boolean; stdcall;
+    function IsOperationCanceled(AID: Integer): Boolean;
 
-    procedure AddListener(AListener: IListener); stdcall;
-    procedure RemoveListener(AListener: IListener); stdcall;
+    procedure AddListener(const AListener: IListener);
+    procedure RemoveListener(const AListener: IListener);
   end;
 
   INotifierOperationInternal = interface(INotifierOperation)
     procedure NextOperation;
   end;
 
-  INotifierOneOperation = interface
+  INotifierOneOperation = interface(INotifier)
     ['{EA058BC8-6764-412B-93A5-F1AB4032C38F}']
     function GetIsExecuted: Boolean;
     property IsExecuted: Boolean read GetIsExecuted;
 
-    procedure AddListener(AListener: IListener); stdcall;
-    procedure RemoveListener(AListener: IListener); stdcall;
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
   end;
 
   INotifierOneOperationInternal = interface(INotifierOneOperation)

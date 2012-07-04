@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_Notifier,
+  i_NotifierOperation,
   i_DownloadUIConfig,
   i_ViewPortState,
   i_ActiveMapsConfig,
@@ -21,7 +21,7 @@ type
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AConfig: IDownloadUIConfig;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: IViewPortState;
@@ -42,7 +42,7 @@ uses
 
 constructor TUITileDownloadList.Create(
   const AGCList: INotifierTTLCheck;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AConfig: IDownloadUIConfig;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: IViewPortState;

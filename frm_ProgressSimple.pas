@@ -35,7 +35,6 @@ uses
   i_Listener,
   i_RegionProcessProgressInfo,
   i_NotifierOperation,
-  u_NotifierOperation,
   u_CommonFormAndFrameParents;
 
 type
@@ -49,7 +48,7 @@ type
   private
     FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfo;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
 
     FRarProgress: TRarProgress;
@@ -61,7 +60,7 @@ type
   public
     constructor Create(
       AOwner : TComponent;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const ACancelNotifier: INotifierOperationInternal;
       const AProgressInfo: IRegionProcessProgressInfo
@@ -78,7 +77,7 @@ uses
 
 constructor TfrmProgressSimple.Create(
   AOwner : TComponent;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const ACancelNotifier: INotifierOperationInternal;
   const AProgressInfo: IRegionProcessProgressInfo

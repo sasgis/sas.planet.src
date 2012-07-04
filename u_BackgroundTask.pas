@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  i_Notifier,
   i_Listener,
   i_NotifierOperation,
   i_ThreadConfig,
@@ -41,7 +40,7 @@ type
 
   TBackgroundTask = class(TInterfacedThread, IBackgroundTask)
   private
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FOnExecute: TBackgroundTaskExecuteEvent;
     FCancelNotifierInternal: INotifierOperationInternal;
     FCancelNotifier: INotifierOperation;
@@ -58,7 +57,7 @@ type
     procedure StopExecute;
   public
     constructor Create(
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       AOnExecute: TBackgroundTaskExecuteEvent;
       const AThreadConfig: IThreadConfig
     );
@@ -73,7 +72,7 @@ uses
 { TBackgroundTask }
 
 constructor TBackgroundTask.Create(
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   AOnExecute: TBackgroundTaskExecuteEvent;
   const AThreadConfig: IThreadConfig
 );
@@ -92,6 +91,9 @@ begin
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TBackgroundTask.Destroy;

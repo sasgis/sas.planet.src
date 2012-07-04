@@ -216,7 +216,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -257,7 +257,7 @@ uses
 
 constructor TMiniMapLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;

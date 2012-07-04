@@ -5,6 +5,7 @@ interface
 uses
   Forms,
   i_Notifier,
+  i_NotifierOperation,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
@@ -22,14 +23,14 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -48,7 +49,6 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
-  i_NotifierOperation,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
@@ -60,7 +60,7 @@ uses
 
 constructor TExportProviderJNX.Create(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;

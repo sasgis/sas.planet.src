@@ -37,16 +37,16 @@ type
   private
     procedure NextOperation;
   private
-    function GetCurrentOperation: Integer; stdcall;
-    function IsOperationCanceled(AID: Integer): Boolean; stdcall;
+    function GetCurrentOperation: Integer;
+    function IsOperationCanceled(AID: Integer): Boolean;
 
-    procedure AddListener(AListener: IListener); stdcall;
-    procedure RemoveListener(AListener: IListener); stdcall;
+    procedure AddListener(const AListener: IListener);
+    procedure RemoveListener(const AListener: IListener);
   public
     constructor Create;
   end;
 
-  TNotifierOneOperation = class(TInterfacedObject, INotifierOneOperation, INotifierOneOperationInternal)
+  TNotifierOneOperation = class(TInterfacedObject, INotifier, INotifierOneOperation, INotifierOneOperationInternal)
   private
     FExecutedCount: Integer;
     FNotifier: INotifierInternal;
@@ -56,8 +56,8 @@ type
   private
     function GetIsExecuted: Boolean;
 
-    procedure AddListener(AListener: IListener); stdcall;
-    procedure RemoveListener(AListener: IListener); stdcall;
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
   public
     constructor Create;
   end;
@@ -77,7 +77,7 @@ begin
   FCurrentOperationID := 0;
 end;
 
-procedure TNotifierOperation.AddListener(AListener: IListener);
+procedure TNotifierOperation.AddListener(const AListener: IListener);
 begin
   FNotifier.Add(AListener);
 end;
@@ -98,7 +98,7 @@ begin
   FNotifier.Notify(nil);
 end;
 
-procedure TNotifierOperation.RemoveListener(AListener: IListener);
+procedure TNotifierOperation.RemoveListener(const AListener: IListener);
 begin
   FNotifier.Remove(AListener);
 end;
@@ -112,7 +112,7 @@ begin
   FExecutedCount := 0;
 end;
 
-procedure TNotifierOneOperation.AddListener(AListener: IListener);
+procedure TNotifierOneOperation.Add(const AListener: IListener);
 var
   VNotifier: INotifierInternal;
 begin
@@ -153,7 +153,7 @@ begin
   Result := InterlockedCompareExchange(FExecutedCount, 0, 0) <> 0;
 end;
 
-procedure TNotifierOneOperation.RemoveListener(AListener: IListener);
+procedure TNotifierOneOperation.Remove(const AListener: IListener);
 var
   VNotifier: INotifierInternal;
 begin

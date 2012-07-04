@@ -135,7 +135,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AVectorItmesFactory: IVectorItmesFactory;
@@ -195,7 +195,7 @@ uses
 
 constructor TWikiLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AVectorItmesFactory: IVectorItmesFactory;

@@ -5,6 +5,7 @@ interface
 uses
   GR32_Image,
   i_Notifier,
+  i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -33,7 +34,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
@@ -53,7 +54,7 @@ uses
 
 constructor TMapLayerFillingMapNew.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;

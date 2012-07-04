@@ -114,7 +114,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
@@ -148,7 +148,7 @@ uses
 
 constructor TTiledLayerWithThreadBase.Create(
   const APerfList: IInternalPerformanceCounterList;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;

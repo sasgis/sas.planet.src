@@ -42,7 +42,7 @@ uses
 type
   TTileDownloaderUIOneTile = class(TBaseTileDownloaderThread)
   private
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FErrorLogger: ITileErrorLogger;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
@@ -66,7 +66,7 @@ type
   public
     constructor Create(
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AXY: TPoint;
       AZoom: byte;
       AMapType: TMapType;
@@ -88,7 +88,7 @@ uses
 
 constructor TTileDownloaderUIOneTile.Create(
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AXY: TPoint;
   AZoom: byte;
   AMapType: TMapType;

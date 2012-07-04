@@ -40,7 +40,6 @@ uses
   i_LanguageManager,
   i_ValueToStringConverter,
   i_NotifierOperation,
-  u_NotifierOperation,
   u_ThreadCacheConverter,
   u_CommonFormAndFrameParents;
 
@@ -66,7 +65,7 @@ type
     procedure btnQuitClick(Sender: TObject);
   private
     FConverterThread: TThreadCacheConverter;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FAppClosingListener: IListener;
     FTimerNoifier: INotifier;
     FTimerListener: IListener;
@@ -82,7 +81,7 @@ type
     constructor Create(
       const AConverterThread: TThreadCacheConverter;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const ACancelNotifierInternal: INotifierOperationInternal;
       const AProgressInfo: ICacheConverterProgressInfo;
@@ -104,7 +103,7 @@ uses
 constructor TfrmProgressCacheConverter.Create(
   const AConverterThread: TThreadCacheConverter;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const ACancelNotifierInternal: INotifierOperationInternal;
   const AProgressInfo: ICacheConverterProgressInfo;

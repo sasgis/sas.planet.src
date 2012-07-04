@@ -36,6 +36,7 @@ uses
   ExtCtrls,
   ComCtrls,
   i_Notifier, 
+  i_NotifierOperation,
   i_LanguageManager,
   i_NotifierTTLCheck,
   i_ContentTypeManager,
@@ -74,7 +75,7 @@ type
     procedure btnCanselClick(Sender: TObject);
   private
     FLanguageManager: ILanguageManager;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
@@ -84,7 +85,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
@@ -102,7 +103,6 @@ uses
   {$WARN UNIT_PLATFORM ON}
   frm_ProgressCacheConvrter,   
   i_CacheConverterProgressInfo,
-  i_NotifierOperation,
   u_NotifierOperation,
   u_GlobalCahceConfig,
   u_ThreadCacheConverter,
@@ -114,7 +114,7 @@ uses
 
 constructor TfrmCacheManager.Create(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;

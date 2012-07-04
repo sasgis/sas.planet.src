@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  i_Notifier,
+  i_NotifierOperation,
   i_Listener,
   i_TileRequest,
   i_TileRequestQueue,
@@ -20,7 +20,7 @@ type
   private
     FCapacity: Integer;
     FGCList: INotifierTTLCheck;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
 
     FTTLListener: IListenerTTLCheck;
     FAppClosingListener: IListener;
@@ -45,7 +45,7 @@ type
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       ACapacity: Integer
     );
     destructor Destroy; override;
@@ -62,7 +62,7 @@ uses
 
 constructor TTileRequestQueue.Create(
   const AGCList: INotifierTTLCheck;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   ACapacity: Integer
 );
 begin
@@ -84,6 +84,9 @@ begin
   FGCList.Add(FTTLListener);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnClosing;
+  end;
 end;
 
 destructor TTileRequestQueue.Destroy;

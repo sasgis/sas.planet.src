@@ -3,7 +3,7 @@ unit u_TileRequestQueueProcessorThread;
 interface
 
 uses
-  i_Notifier,
+  i_NotifierOperation,
   i_Listener,
   i_ThreadConfig,
   i_TileRequest,
@@ -14,7 +14,7 @@ uses
 type
   TTileRequestQueueProcessorThread = class(TInterfacedThread)
   private
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FTileRequestQueue: ITileRequestQueue;
     FTileDownloaderSync: ITileDownloader;
 
@@ -25,7 +25,7 @@ type
   public
     constructor Create(
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATileRequestQueue: ITileRequestQueue;
       const ATileDownloaderSync: ITileDownloader
     );
@@ -41,7 +41,7 @@ uses
 
 constructor TTileRequestQueueProcessorThread.Create(
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATileRequestQueue: ITileRequestQueue;
   const ATileDownloaderSync: ITileDownloader
 );

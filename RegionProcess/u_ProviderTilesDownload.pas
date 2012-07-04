@@ -24,7 +24,7 @@ interface
 
 uses
   Forms,
-  i_Notifier,
+  i_NotifierOperation,
   i_MapTypes,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -42,7 +42,7 @@ uses
 type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
@@ -52,7 +52,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMainMapsConfig: IMainMapsConfig;
@@ -86,7 +86,7 @@ uses
 { TProviderTilesDownload }
 
 constructor TProviderTilesDownload.Create(
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMainMapsConfig: IMainMapsConfig;

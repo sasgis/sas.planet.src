@@ -48,7 +48,7 @@ uses
 type
   TThreadDownloadTiles = class(TBaseTileDownloaderThread)
   private
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FMapType: TMapType;
     FDownloadInfo: IDownloadInfoSimple;
     FPolygLL: ILonLatPolygon;
@@ -122,7 +122,7 @@ type
 
     constructor CreateInternal(
       ACreatePaused: Boolean;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ALog: ILogSimple;
       AMapType: TMapType;
       AZoom: byte;
@@ -146,7 +146,7 @@ type
   public
     constructor Create(
       ACreatePaused: Boolean;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ALog: ILogSimple;
       const APolygon: ILonLatPolygon;
       const APolyProjected: IProjectedPolygon;
@@ -162,7 +162,7 @@ type
       const AForAttachments: Boolean
     );
     constructor CreateFromSls(
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AVectorItmesFactory: IVectorItmesFactory;
       const ALog: ILogSimple;
       const AFullMapsSet: IMapTypeSet;
@@ -205,7 +205,7 @@ uses
 
 constructor TThreadDownloadTiles.CreateInternal(
   ACreatePaused: Boolean;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ALog: ILogSimple;
   AMapType: TMapType;
   AZoom: byte;
@@ -313,7 +313,7 @@ end;
 
 constructor TThreadDownloadTiles.Create(
   ACreatePaused: Boolean;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ALog: ILogSimple;
   const APolygon: ILonLatPolygon;
   const APolyProjected: IProjectedPolygon;
@@ -349,7 +349,7 @@ begin
 end;
 
 constructor TThreadDownloadTiles.CreateFromSls(
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AVectorItmesFactory: IVectorItmesFactory;
   const ALog: ILogSimple;
   const AFullMapsSet: IMapTypeSet;

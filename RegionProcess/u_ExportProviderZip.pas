@@ -5,6 +5,7 @@ interface
 uses
   Forms,
   i_Notifier,
+  i_NotifierOperation,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -22,14 +23,14 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -49,7 +50,6 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
-  i_NotifierOperation,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
@@ -62,7 +62,7 @@ uses
 
 constructor TExportProviderZip.Create(
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;

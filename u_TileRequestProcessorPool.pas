@@ -5,6 +5,7 @@ interface
 uses
   SysUtils,
   i_Notifier,
+  i_NotifierOperation,
   i_Listener,
   i_Thread,
   i_ThreadConfig,
@@ -23,7 +24,7 @@ type
     FThreadConfig: IThreadConfig;
     FDownloaderList: ITileDownloaderList;
     FGCList: INotifierTTLCheck;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FTileRequestQueue: ITileRequestQueue;
 
     FTTLListener: IListenerTTLCheck;
@@ -40,7 +41,7 @@ type
     constructor Create(
       const AGCList: INotifierTTLCheck;
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATileRequestQueue: ITileRequestQueue;
       const ADownloaderList: ITileDownloaderList
     );
@@ -61,7 +62,7 @@ uses
 constructor TTileRequestProcessorPool.Create(
   const AGCList: INotifierTTLCheck;
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATileRequestQueue: ITileRequestQueue;
   const ADownloaderList: ITileDownloaderList
 );

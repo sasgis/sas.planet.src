@@ -25,7 +25,7 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FHttpDownloader: IDownloader;
     FResultSaver: ITileDownloadResultSaver;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FLastResponseInfo: ILastResponseInfo;
 
     FDestroyNotifierInternal: INotifierOperationInternal;
@@ -54,7 +54,7 @@ type
     );
   public
     constructor Create(
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AHttpDownloader: IDownloader;
@@ -78,7 +78,7 @@ uses
 { TITileDownloaderSimple }
 
 constructor TTileDownloaderSimple.Create(
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AHttpDownloader: IDownloader;

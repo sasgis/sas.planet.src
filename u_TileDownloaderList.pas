@@ -6,6 +6,7 @@ uses
   Windows,
   SysUtils,
   i_Notifier,
+  i_NotifierOperation,
   i_Listener,
   i_TileDownloaderConfig,
   i_TileDownloader,
@@ -20,7 +21,7 @@ type
   TTileDownloaderList = class(TInterfacedObject, ITileDownloaderList)
   private
     FGCList: INotifierTTLCheck;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FResultFactory: IDownloadResultFactory;
     FDownloadSystemState: ITileDownloaderStateChangeble;
     FTileDownloaderConfig: ITileDownloaderConfig;
@@ -41,7 +42,7 @@ type
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AResultFactory: IDownloadResultFactory;
       const ADownloadSystemState: ITileDownloaderStateChangeble;
       const ATileDownloaderConfig: ITileDownloaderConfig;
@@ -69,7 +70,7 @@ uses
 
 constructor TTileDownloaderList.Create(
   const AGCList: INotifierTTLCheck;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AResultFactory: IDownloadResultFactory;
   const ADownloadSystemState: ITileDownloaderStateChangeble;
   const ATileDownloaderConfig: ITileDownloaderConfig;

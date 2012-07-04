@@ -32,6 +32,7 @@ uses
   IniFiles,
   SysUtils,
   i_Notifier,
+  i_NotifierOperation,
   i_GPSPositionFactory,
   i_LanguageManager,
   i_InetConfig,
@@ -155,8 +156,10 @@ type
     FInternalBrowserConfig: IWindowPositionConfig;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
-    FAppClosingNotifier: INotifier;
-    FAppClosingNotifierInternal: INotifierInternal;
+    FAppStartedNotifier: INotifierOneOperation;
+    FAppStartedNotifierInternal: INotifierOneOperationInternal;
+    FAppClosingNotifier: INotifierOneOperation;
+    FAppClosingNotifierInternal: INotifierOneOperationInternal;
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
@@ -183,7 +186,8 @@ type
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
-    property AppClosingNotifier: INotifier read FAppClosingNotifier;
+    property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
+    property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
     property MediaDataPath: IPathConfig read FMediaDataPath;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
@@ -242,6 +246,7 @@ uses
   Forms,
   {$ENDIF}
   u_Notifier,
+  u_NotifierOperation,
   c_InternalBrowser,
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
@@ -350,7 +355,9 @@ begin
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
 
-  FAppClosingNotifierInternal := TNotifierBase.Create;
+  FAppStartedNotifierInternal := TNotifierOneOperation.Create;
+  FAppStartedNotifier := FAppStartedNotifierInternal;
+  FAppClosingNotifierInternal := TNotifierOneOperation.Create;
   FAppClosingNotifier := FAppClosingNotifierInternal;
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(
@@ -633,6 +640,7 @@ end;
 
 procedure TGlobalState.StartThreads;
 begin
+  FAppStartedNotifierInternal.ExecuteOperation;
   if FGlobalAppConfig.IsSendStatistic then begin
     FInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
   end;
@@ -776,7 +784,7 @@ end;
 procedure TGlobalState.SendTerminateToThreads;
 begin
   FGUISyncronizedTimer.Enabled := False;
-  FAppClosingNotifierInternal.Notify(nil);
+  FAppClosingNotifierInternal.ExecuteOperation;
   GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
 end;

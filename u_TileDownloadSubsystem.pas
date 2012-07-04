@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  i_Notifier,
   i_Listener,
   i_NotifierOperation,
   i_CoordConverterFactory,
@@ -43,7 +42,7 @@ type
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FCoordConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
 
     FDestroyNotifierInternal: INotifierOperationInternal;
     FDestroyNotifier: INotifierOperation;
@@ -78,7 +77,7 @@ type
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ACoordConverter: ICoordConverter;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALanguageManager: ILanguageManager;
@@ -128,7 +127,7 @@ const
 
 constructor TTileDownloadSubsystem.Create(
   const AGCList: INotifierTTLCheck;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverter: ICoordConverter;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALanguageManager: ILanguageManager;

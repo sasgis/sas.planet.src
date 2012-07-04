@@ -3,7 +3,7 @@ unit u_TileDownloaderWithQueue;
 interface
 
 uses
-  i_Notifier,
+  i_NotifierOperation,
   i_ThreadConfig,
   i_TileRequest,
   i_TileRequestQueue,
@@ -26,7 +26,7 @@ type
       const ATileDownloaderList: ITileDownloaderList;
       const AGCList: INotifierTTLCheck;
       const AThreadConfig: IThreadConfig;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       AQueueCapacity: Integer
     );
   end;
@@ -43,7 +43,7 @@ constructor TTileDownloaderWithQueue.Create(
   const ATileDownloaderList: ITileDownloaderList;
   const AGCList: INotifierTTLCheck;
   const AThreadConfig: IThreadConfig;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   AQueueCapacity: Integer
 );
 begin

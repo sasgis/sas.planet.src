@@ -28,7 +28,6 @@ uses
   Classes,
   GR32,
   t_GeoTypes,
-  i_Notifier,
   i_Bitmap32Static,
   i_FillingMapColorer,
   i_ThreadConfig,
@@ -283,7 +282,7 @@ type
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
       const AGCList: INotifierTTLCheck;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
       const AImageResamplerConfig: IImageResamplerConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -336,7 +335,7 @@ constructor TMapType.Create(
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
   const AGCList: INotifierTTLCheck;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
   const AImageResamplerConfig: IImageResamplerConfig;
   const ADownloadConfig: IGlobalDownloadConfig;

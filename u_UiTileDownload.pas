@@ -28,7 +28,7 @@ type
   private
     FConfig: IDownloadUIConfig;
     FGCList: INotifierTTLCheck;
-    FAppClosingNotifier: INotifier;
+    FAppClosingNotifier: INotifierOneOperation;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FViewPortState: IViewPortState;
     FMapTypeActive: IActiveMapSingle;
@@ -71,7 +71,7 @@ type
     constructor Create(
       const AConfig: IDownloadUIConfig;
       const AGCList: INotifierTTLCheck;
-      const AAppClosingNotifier: INotifier;
+      const AAppClosingNotifier: INotifierOneOperation;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: IViewPortState;
       const AMapTypeActive: IActiveMapSingle;
@@ -106,7 +106,7 @@ uses
 constructor TUiTileDownload.Create(
   const AConfig: IDownloadUIConfig;
   const AGCList: INotifierTTLCheck;
-  const AAppClosingNotifier: INotifier;
+  const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: IViewPortState;
   const AMapTypeActive: IActiveMapSingle;
