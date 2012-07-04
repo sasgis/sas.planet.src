@@ -23,7 +23,6 @@ type
 
     FLastPos: TPoint;
     FColor: TColor32;
-    procedure OnMainFormStateChange;
     procedure OnConfigChange;
     procedure OnTimerEvent;
   protected
@@ -72,32 +71,27 @@ begin
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnMainFormStateChange),
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FMainFormState.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimerEvent),
     ATimerNoifier
   );
-  Layer.Visible := True;
 end;
 
 procedure TFullMapMouseCursorLayer.OnConfigChange;
 begin
   FColor := FConfig.LineColor;
-  if FConfig.Enabled then begin
-    if (FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways) then begin
-      Redraw;
+  ViewUpdateLock;
+  try
+    if FConfig.Enabled and ((FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways)) then begin
+      Show;
+    end else begin
+      Hide;
     end;
-  end;
-end;
-
-procedure TFullMapMouseCursorLayer.OnMainFormStateChange;
-begin
-  if FConfig.Enabled then begin
-    if (FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways) then begin
-      Redraw;
-    end;
+  finally
+    ViewUpdateUnlock;
   end;
 end;
 
@@ -105,12 +99,10 @@ procedure TFullMapMouseCursorLayer.OnTimerEvent;
 var
   VPos: TPoint;
 begin
-  if FConfig.Enabled then begin
-    if (FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways) then begin
-      VPos := FMouseState.CurentPos;
-      if (VPos.X <> FLastPos.X) or (VPos.Y <> FLastPos.Y) then begin
-        Layer.Changed;
-      end;
+  if Visible then begin
+    VPos := FMouseState.CurentPos;
+    if (VPos.X <> FLastPos.X) or (VPos.Y <> FLastPos.Y) then begin
+      Layer.Changed;
     end;
   end;
 end;
@@ -122,14 +114,10 @@ var
   VPos: TPoint;
 begin
   inherited;
-  if FConfig.Enabled then begin
-    if (FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways) then begin
-      VPos := FMouseState.CurentPos;
-      ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, FColor);
-      ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, FColor);
-      FLastPos := VPos;
-    end;
-  end;
+  VPos := FMouseState.CurentPos;
+  ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, FColor);
+  ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, FColor);
+  FLastPos := VPos;
 end;
 
 procedure TFullMapMouseCursorLayer.StartThreads;
