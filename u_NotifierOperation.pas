@@ -48,6 +48,7 @@ type
 
   TNotifierOneOperation = class(TInterfacedObject, INotifierOneOperation, INotifierOneOperationInternal)
   private
+    FExecutedCount: Integer;
     FNotifier: INotifierInternal;
     FCS: IReadWriteSync;
   private
@@ -108,21 +109,24 @@ constructor TNotifierOneOperation.Create;
 begin
   FCS := MakeSyncRW_Std(Self, TRUE);
   FNotifier := TNotifierBase.Create;
+  FExecutedCount := 0;
 end;
 
 procedure TNotifierOneOperation.AddListener(AListener: IListener);
 var
   VNotifier: INotifierInternal;
 begin
-  FCS.BeginRead;
-  try
-    VNotifier := FNotifier;
-  finally
-    FCS.EndRead;
-  end;
-  if VNotifier <> nil then begin
-    // sync internally
-    VNotifier.Add(AListener);
+  if not GetIsExecuted then begin
+    FCS.BeginRead;
+    try
+      VNotifier := FNotifier;
+    finally
+      FCS.EndRead;
+    end;
+    if VNotifier <> nil then begin
+      // sync internally
+      VNotifier.Add(AListener);
+    end;
   end;
 end;
 
@@ -130,41 +134,40 @@ procedure TNotifierOneOperation.ExecuteOperation;
 var
   VNotifier: INotifierInternal;
 begin
-  FCS.BeginWrite;
-  try
-    VNotifier := FNotifier;
-    FNotifier := nil;
-  finally
-    FCS.EndWrite;
-  end;
-  if VNotifier <> nil then begin
-    VNotifier.Notify(nil);
+  if InterlockedIncrement(FExecutedCount) = 1 then begin
+    FCS.BeginWrite;
+    try
+      VNotifier := FNotifier;
+      FNotifier := nil;
+    finally
+      FCS.EndWrite;
+    end;
+    if VNotifier <> nil then begin
+      VNotifier.Notify(nil);
+    end;
   end;
 end;
 
 function TNotifierOneOperation.GetIsExecuted: Boolean;
 begin
-  FCS.BeginRead;
-  try
-    Result := FNotifier = nil;
-  finally
-    FCS.EndRead;
-  end;
+  Result := InterlockedCompareExchange(FExecutedCount, 0, 0) <> 0;
 end;
 
 procedure TNotifierOneOperation.RemoveListener(AListener: IListener);
 var
   VNotifier: INotifierInternal;
 begin
-  FCS.BeginRead;
-  try
-    VNotifier := FNotifier;
-  finally
-    FCS.EndRead;
-  end;
-  if VNotifier <> nil then begin
-    // sync internally
-    VNotifier.Remove(AListener);
+  if not GetIsExecuted then begin
+    FCS.BeginRead;
+    try
+      VNotifier := FNotifier;
+    finally
+      FCS.EndRead;
+    end;
+    if VNotifier <> nil then begin
+      // sync internally
+      VNotifier.Remove(AListener);
+    end;
   end;
 end;
 
