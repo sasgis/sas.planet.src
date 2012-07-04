@@ -29,6 +29,7 @@ type
     function GetVisibleForNewPos(
       const ANewVisualCoordConverter: ILocalCoordConverter
     ): Boolean; override;
+    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -41,7 +42,6 @@ type
       const ATimerNoifier: INotifier;
       const AConfig: IFillingMapLayerConfig
     );
-    procedure StartThreads; override;
   end;
 
 implementation

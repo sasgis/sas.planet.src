@@ -83,7 +83,6 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
     ); override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

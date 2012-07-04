@@ -42,6 +42,8 @@ type
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
     procedure DoRedraw; override;
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -55,8 +57,6 @@ type
       const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
   end;
 
   TMapLayerTiledWithThreadDraw = class(TMapLayerWithThreadDraw)

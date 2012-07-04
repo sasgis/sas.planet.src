@@ -40,7 +40,6 @@ type
     property PreparedPointsAggreagtor: IDoublePointsAggregator read FPreparedPointsAggreagtor;
     procedure OnConfigChange;
     procedure DoConfigChange; virtual;
-  public
     procedure StartThreads; override;
   public
     constructor Create(
@@ -203,7 +202,6 @@ type
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
     ); override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

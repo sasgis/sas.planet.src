@@ -36,7 +36,6 @@ type
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
     ); override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

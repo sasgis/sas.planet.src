@@ -29,7 +29,6 @@ type
       const ASource: ITileMatrix;
       const ANewConverter: ILocalCoordConverter
     ): ITileMatrix; override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

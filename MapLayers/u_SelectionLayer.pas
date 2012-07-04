@@ -27,7 +27,6 @@ type
   protected
     function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
     procedure DoConfigChange; override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

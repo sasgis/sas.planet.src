@@ -132,6 +132,8 @@ type
     ); override;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoHide; override;
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -148,8 +150,6 @@ type
       const AConfig: IKmlLayerConfig;
       const ALayersSet: IActiveMapsSet
     );
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
 
     // helper
     function MouseOnReg(

@@ -54,6 +54,8 @@ type
 
     procedure ScaleChange(const ANewVisualCoordConverter: ILocalCoordConverter);
   protected
+    procedure StartThreads; override;
+  protected
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); virtual;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); virtual;
 
@@ -77,7 +79,6 @@ type
     );
     destructor Destroy; override;
 
-    procedure StartThreads; override;
   end;
 
   TWindowLayerBasic = class(TWindowLayerWithPosBase)

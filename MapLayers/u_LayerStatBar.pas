@@ -48,7 +48,6 @@ type
       const ANewVisualCoordConverter: ILocalCoordConverter
     ): TPoint; override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

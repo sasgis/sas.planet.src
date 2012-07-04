@@ -22,7 +22,6 @@ type
   protected
     function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

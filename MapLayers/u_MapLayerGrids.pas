@@ -31,7 +31,6 @@ type
     function GetVisibleForNewPos(
       const ANewVisualCoordConverter: ILocalCoordConverter
     ): Boolean; override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

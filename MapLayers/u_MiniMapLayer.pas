@@ -210,7 +210,6 @@ type
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure SetNeedRedraw; override;
     procedure SetNeedUpdateLayerSize; override;
-  public
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
   public

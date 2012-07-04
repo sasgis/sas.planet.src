@@ -104,13 +104,12 @@ type
     procedure SetNeedUpdateLayer;
     procedure DoUpdateLayer; virtual;
   protected
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
     property TileMatrix: ITileMatrix read GetTileMatrix;
-  public
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;

@@ -72,6 +72,7 @@ type
   protected
     procedure DoRedraw; override;
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
+    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -80,7 +81,6 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState
     );
-    procedure StartThreads; override;
   end;
 
   TMapLayerBasic = class(TMapLayerBasicFullView)

@@ -39,7 +39,6 @@ type
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(

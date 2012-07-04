@@ -89,6 +89,8 @@ type
     ); override;
     procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoRedraw; override;
+    procedure StartThreads; override;
+    procedure SendTerminateToThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -106,8 +108,6 @@ type
       const ATimerNoifier: INotifier
     );
     destructor Destroy; override;
-    procedure StartThreads; override;
-    procedure SendTerminateToThreads; override;
   end;
 
 implementation

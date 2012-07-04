@@ -100,7 +100,6 @@ type
     ); override;
     function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
     procedure DoRedraw; override;
-  public
     procedure StartThreads; override;
   public
     constructor Create(
