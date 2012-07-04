@@ -5,7 +5,8 @@ interface
 uses
   GR32,
   GR32_Image,
-  i_Notifier, 
+  i_Notifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_ViewPortState,
@@ -35,6 +36,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AMainFormState: IMainFormState;
@@ -53,6 +56,8 @@ uses
 
 constructor TFullMapMouseCursorLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AMainFormState: IMainFormState;
@@ -61,7 +66,13 @@ constructor TFullMapMouseCursorLayer.Create(
   const AConfig: IFullMapMouseCursorLayerConfig
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FConfig := AConfig;
   FMainFormState := AMainFormState;
   FMouseState := AMouseState;

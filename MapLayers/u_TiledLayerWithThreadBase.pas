@@ -114,6 +114,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
@@ -148,6 +149,7 @@ uses
 
 constructor TTiledLayerWithThreadBase.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
@@ -158,7 +160,13 @@ constructor TTiledLayerWithThreadBase.Create(
   const AThreadConfig: IThreadConfig
 );
 begin
-  inherited Create(APerfList, AViewPortState, True);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AViewPortState,
+    True
+  );
   FUpdateLayerProviderOnPosChange := AUpdateLayerProviderOnPosChange;
   FLayer := TCustomLayer.Create(AParentMap.Layers);
   FImageResamplerConfig := AResamplerConfig;

@@ -39,8 +39,6 @@ type
     constructor Create(const AParentPerfList: IInternalPerformanceCounterList);
     destructor Destroy; override;
     function Add(AItem: TWindowLayerAbstract): Integer;
-    procedure StartThreads;
-    procedure SendTerminateToThreads;
   end;
 
 implementation
@@ -78,24 +76,6 @@ end;
 function TWindowLayerBasicList.Get(AIndex: Integer): TWindowLayerAbstract;
 begin
   Result := TWindowLayerAbstract(FList.Items[AIndex]);
-end;
-
-procedure TWindowLayerBasicList.SendTerminateToThreads;
-var
-  i: Integer;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    Items[i].SendTerminateToThreads;
-  end;
-end;
-
-procedure TWindowLayerBasicList.StartThreads;
-var
-  i: Integer;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    Items[i].StartThreads;
-  end;
 end;
 
 end.

@@ -45,6 +45,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
@@ -68,6 +69,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
@@ -90,6 +92,7 @@ uses
 
 constructor TMapLayerWithThreadDraw.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
@@ -99,7 +102,15 @@ constructor TMapLayerWithThreadDraw.Create(
   const AThreadConfig: IThreadConfig
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState, AResamplerConfig, AConverterFactory);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState,
+    AResamplerConfig,
+    AConverterFactory
+  );
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
   FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnDrawBitmap, AThreadConfig);
@@ -201,6 +212,7 @@ end;
 
 constructor TMapLayerTiledWithThreadDraw.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
@@ -213,6 +225,7 @@ constructor TMapLayerTiledWithThreadDraw.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
     AViewPortState,

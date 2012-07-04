@@ -7,6 +7,7 @@ uses
   GR32_Layers,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
@@ -24,6 +25,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       ALayer: TCustomLayer;
       const AViewPortState: IViewPortState
     );
@@ -47,6 +50,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       ALayer: TPositionedLayer;
       const AViewPortState: IViewPortState
     );
@@ -70,6 +75,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState
     );
@@ -106,6 +113,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
@@ -123,11 +132,20 @@ uses
 
 constructor TMapLayerBase.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   ALayer: TCustomLayer;
   const AViewPortState: IViewPortState
 );
 begin
-  inherited Create(APerfList, ALayer, AViewPortState, True);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    ALayer,
+    AViewPortState,
+    True
+  );
 end;
 
 procedure TMapLayerBase.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
@@ -142,11 +160,19 @@ end;
 
 constructor TMapLayerBasicFullView.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   ALayer: TPositionedLayer;
   const AViewPortState: IViewPortState
 );
 begin
-  inherited Create(APerfList, ALayer, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    ALayer,
+    AViewPortState
+  );
   FLayer := ALayer;
   FNeedUpdateLocationFlag := TSimpleFlagWithInterlock.Create;
 end;
@@ -228,6 +254,8 @@ end;
 
 constructor TMapLayerBasic.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
@@ -236,7 +264,13 @@ constructor TMapLayerBasic.Create(
 begin
   FConverterFactory := ACoordConverterFactory;
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(APerfList, FLayer, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    FLayer,
+    AViewPortState
+  );
   FLayer.Bitmap.DrawMode := dmBlend;
   FNeedUpdateLayerSizeFlag := TSimpleFlagWithInterlock.Create;
 end;
@@ -352,11 +386,19 @@ end;
 
 constructor TMapLayerBasicNoBitmap.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState
 );
 begin
-  inherited Create(APerfList, TCustomLayer.Create(AParentMap.Layers), AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    TCustomLayer.Create(AParentMap.Layers),
+    AViewPortState
+  );
   FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
 end;
 

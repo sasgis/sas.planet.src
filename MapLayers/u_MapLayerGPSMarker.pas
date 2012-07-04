@@ -5,8 +5,9 @@ interface
 uses
   GR32,
   GR32_Image,
-  i_Notifier,
   t_GeoTypes,
+  i_Notifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
@@ -49,6 +50,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ATimerNoifier: INotifier;
@@ -76,6 +79,8 @@ uses
 
 constructor TMapLayerGPSMarker.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ATimerNoifier: INotifier;
@@ -85,7 +90,13 @@ constructor TMapLayerGPSMarker.Create(
   const AGPSRecorder: IGPSRecorder
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   FMovedMarkerProvider := AMovedMarkerProvider;

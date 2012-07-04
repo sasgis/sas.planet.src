@@ -4,6 +4,7 @@ interface
 
 uses
   GR32_Image,
+  i_NotifierOperation,
   i_ViewPortState,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
@@ -31,6 +32,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AVectorItmesFactory: IVectorItmesFactory;
@@ -49,6 +52,8 @@ uses
 
 constructor TSelectionLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AVectorItmesFactory: IVectorItmesFactory;
@@ -58,6 +63,8 @@ constructor TSelectionLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AVectorItmesFactory,

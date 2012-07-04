@@ -8,6 +8,7 @@ uses
   GR32_Image,
   i_Notifier,
   t_GeoTypes,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_NavigationToPoint,
@@ -40,6 +41,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ANavToPoint: INavigationToPoint;
@@ -63,6 +66,8 @@ uses
 
 constructor TNavToMarkLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ANavToPoint: INavigationToPoint;
@@ -71,7 +76,13 @@ constructor TNavToMarkLayer.Create(
   const AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FNavToPoint := ANavToPoint;
   FArrowMarkerProvider := AArrowMarkerProvider;
   FReachedMarkerProvider := AReachedMarkerProvider;

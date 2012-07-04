@@ -8,6 +8,7 @@ uses
   GR32_Transforms,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_ViewPortState,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
@@ -44,6 +45,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -115,6 +118,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -132,6 +137,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -150,6 +157,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -199,6 +208,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -220,6 +231,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -242,6 +255,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
@@ -266,6 +281,8 @@ uses
 
 constructor TLineLayerBase.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
@@ -274,6 +291,8 @@ constructor TLineLayerBase.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState
   );
@@ -476,6 +495,8 @@ end;
 
 constructor TPolygonLayerBase.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
@@ -484,6 +505,8 @@ constructor TPolygonLayerBase.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AFactory,
@@ -661,6 +684,8 @@ end;
 
 constructor TPathEditLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
@@ -670,6 +695,8 @@ constructor TPathEditLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AFactory,
@@ -711,6 +738,8 @@ end;
 
 constructor TPolygonEditLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
@@ -720,6 +749,8 @@ constructor TPolygonEditLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AFactory,
@@ -766,6 +797,8 @@ end;
 
 constructor TPointsSetLayerBase.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
@@ -774,6 +807,8 @@ constructor TPointsSetLayerBase.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState
   );
@@ -920,6 +955,8 @@ end;
 
 constructor TPathEditPointsSetLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
@@ -929,6 +966,8 @@ constructor TPathEditPointsSetLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AFactory,
@@ -1022,7 +1061,9 @@ end;
 
 constructor TPolygonEditPointsSetLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
-  AParentMap: TImage32;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
+ AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
@@ -1031,6 +1072,8 @@ constructor TPolygonEditPointsSetLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AFactory,

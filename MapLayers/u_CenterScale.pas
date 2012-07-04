@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   GR32_Image,
+  i_NotifierOperation,
   i_BitmapMarker,
   i_LocalCoordConverter,
   i_ViewPortState,
@@ -26,6 +27,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AConfig: ICenterScaleConfig
@@ -41,12 +44,20 @@ uses
 
 constructor TCenterScale.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AConfig: ICenterScaleConfig
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FConfig := AConfig;
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

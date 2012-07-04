@@ -8,6 +8,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_Notifier,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_ViewPortState,
@@ -43,6 +44,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ALogProvider: ITileErrorLogProviedrStuped;
@@ -68,13 +71,21 @@ uses
 
 constructor TTileErrorInfoLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ALogProvider: ITileErrorLogProviedrStuped;
   const ATimerNoifier: INotifier
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FLogProvider := ALogProvider;
   FTimerNoifier := ATimerNoifier;
   FErrorInfo := nil;

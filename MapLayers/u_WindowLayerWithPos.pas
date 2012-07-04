@@ -28,6 +28,7 @@ uses
   GR32,
   GR32_Layers,
   GR32_Image,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_ViewPortState,
   i_SimpleFlag,
@@ -69,6 +70,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AViewPortState: IViewPortState;
       AListenScaleChange: Boolean
     );
@@ -108,6 +111,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       ALayer: TCustomLayer;
       const AViewPortState: IViewPortState;
       AListenScaleChange: Boolean
@@ -144,6 +149,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState
     );
@@ -167,11 +174,13 @@ uses
 
 constructor TWindowLayerWithPosBase.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AViewPortState: IViewPortState;
   AListenScaleChange: Boolean
 );
 begin
-  inherited Create(APerfList);
+  inherited Create(APerfList, AAppStartedNotifier, AAppClosingNotifier);
   FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
@@ -316,12 +325,20 @@ end;
 
 constructor TWindowLayerBasic.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   ALayer: TCustomLayer;
   const AViewPortState: IViewPortState;
   AListenScaleChange: Boolean
 );
 begin
-  inherited Create(APerfList, AViewPortState, AListenScaleChange);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AViewPortState,
+    AListenScaleChange
+  );
   FLayer := ALayer;
   FRedrawCounter := PerfList.CreateAndAddNewCounter('Redraw');
 
@@ -441,12 +458,21 @@ end;
 
 constructor TWindowLayerWithBitmap.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState
 );
 begin
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  inherited Create(APerfList, FLayer, AViewPortState, True);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    FLayer,
+    AViewPortState,
+    True
+  );
 
   FNeedUpdateLayerSizeFlag := TSimpleFlagWithInterlock.Create;
   FNeedUpdateLocationFlag := TSimpleFlagWithInterlock.Create;

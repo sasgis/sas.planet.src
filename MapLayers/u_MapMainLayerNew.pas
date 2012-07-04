@@ -44,6 +44,7 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
@@ -68,6 +69,7 @@ uses
 
 constructor TMapMainLayerNew.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
@@ -82,6 +84,7 @@ constructor TMapMainLayerNew.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
     AViewPortState,

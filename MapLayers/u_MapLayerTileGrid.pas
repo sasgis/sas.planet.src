@@ -6,6 +6,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_ViewPortState,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
@@ -30,6 +31,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AConfig: ITileGridConfig
@@ -46,12 +49,20 @@ uses
 
 constructor TMapLayerTileGrid.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AConfig: ITileGridConfig
 );
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FConfig := AConfig;
 
   LinksList.Add(

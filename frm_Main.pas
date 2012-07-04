@@ -1125,6 +1125,7 @@ begin
       FLayersList.Add(
         TMapMainLayerNew.Create(
           GState.PerfCounterList,
+          GState.AppStartedNotifier,
           GState.AppClosingNotifier,
           map,
           FConfig.ViewPortState,
@@ -1141,6 +1142,7 @@ begin
       FLayersList.Add(
         TMapMainLayer.Create(
           GState.PerfCounterList,
+          GState.AppStartedNotifier,
           GState.AppClosingNotifier,
           map,
           FConfig.ViewPortState,
@@ -1158,6 +1160,8 @@ begin
     FLayersList.Add(
       TMapLayerGrids.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.ImageResamplerConfig,
@@ -1169,6 +1173,8 @@ begin
     FLayersList.Add(
       TMapLayerTileGrid.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
@@ -1177,6 +1183,7 @@ begin
     FWikiLayer :=
       TWikiLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
@@ -1194,6 +1201,7 @@ begin
       FLayersList.Add(
         TMapLayerFillingMapNew.Create(
           GState.PerfCounterList,
+          GState.AppStartedNotifier,
           GState.AppClosingNotifier,
           map,
           FConfig.ViewPortState,
@@ -1207,6 +1215,7 @@ begin
       FLayersList.Add(
         TMapLayerFillingMap.Create(
           GState.PerfCounterList,
+          GState.AppStartedNotifier,
           GState.AppClosingNotifier,
           map,
           FConfig.ViewPortState,
@@ -1220,6 +1229,7 @@ begin
     FLayerMapMarks:=
       TMapMarksLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
@@ -1236,6 +1246,7 @@ begin
       FLayersList.Add(
         TMapGPSLayerNew.Create(
           GState.PerfCounterList,
+          GState.AppStartedNotifier,
           GState.AppClosingNotifier,
           map,
           FConfig.ViewPortState,
@@ -1250,6 +1261,7 @@ begin
       FLayersList.Add(
         TMapGPSLayer.Create(
           GState.PerfCounterList,
+          GState.AppStartedNotifier,
           GState.AppClosingNotifier,
           map,
           FConfig.ViewPortState,
@@ -1265,6 +1277,8 @@ begin
     FLayersList.Add(
       TMapLayerGPSMarker.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.GUISyncronizedTimerNotifier,
@@ -1283,6 +1297,8 @@ begin
     FLayersList.Add(
       TSelectionLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1293,6 +1309,8 @@ begin
     FLayersList.Add(
       TPathEditLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1303,6 +1321,8 @@ begin
     FLayersList.Add(
       TPathEditPointsSetLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1313,6 +1333,8 @@ begin
     FLayersList.Add(
       TCalcLineLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
@@ -1323,6 +1345,8 @@ begin
     FLayersList.Add(
       TPathEditLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1333,6 +1357,8 @@ begin
     FLayersList.Add(
       TPathEditPointsSetLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1343,6 +1369,8 @@ begin
     FLayersList.Add(
       TPolygonEditLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1353,6 +1381,8 @@ begin
     FLayersList.Add(
       TPolygonEditPointsSetLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1363,6 +1393,8 @@ begin
     FLayersList.Add(
       TPolygonEditLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1373,6 +1405,8 @@ begin
     FLayersList.Add(
       TPolygonEditPointsSetLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1384,6 +1418,8 @@ begin
     FLayersList.Add(
       TSelectionPolylineShadowLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1394,6 +1430,8 @@ begin
     FLayersList.Add(
       TPathEditLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1404,6 +1442,8 @@ begin
     FLayersList.Add(
       TPathEditPointsSetLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
@@ -1415,6 +1455,8 @@ begin
     FLayersList.Add(
       TSelectionRectLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FSelectionRect,
@@ -1424,6 +1466,8 @@ begin
     FLayerSearchResults :=
       TSearchResultsLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FConfig.LastSearchResultConfig,
@@ -1448,6 +1492,8 @@ begin
     FLayersList.Add(
       TGotoLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         VMarkerProvider,
@@ -1458,6 +1504,8 @@ begin
     FLayersList.Add(
       TNavToMarkLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
@@ -1475,6 +1523,8 @@ begin
     FLayersList.Add(
       TTileErrorInfoLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FTileErrorLogProvider,
@@ -1492,6 +1542,8 @@ begin
     FLayersList.Add(
       TPointOnMapEditLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         VMarkerProvider,
@@ -1501,6 +1553,8 @@ begin
     FLayersList.Add(
       TFullMapMouseCursorLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FState,
@@ -1512,6 +1566,8 @@ begin
     FLayersList.Add(
       TCenterScale.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.CenterScaleConfig
@@ -1520,6 +1576,8 @@ begin
     FLayersList.Add(
       TLayerScaleLine.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.ScaleLineConfig
@@ -1528,6 +1586,8 @@ begin
     FLayersList.Add(
       TLayerStatBar.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.StatBar,
@@ -1543,6 +1603,7 @@ begin
     FLayersList.Add(
       TMiniMapLayer.Create(
         GState.PerfCounterList,
+        GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
@@ -1784,7 +1845,6 @@ begin
       );
 
     FLinksList.ActivateLinks;
-    FLayersList.StartThreads;
     GState.StartThreads;
     
     FUIDownload :=
@@ -2043,7 +2103,6 @@ begin
   ProgramClose:=true;
   FLinksList.DeactivateLinks;
   GState.SendTerminateToThreads;
-  FLayersList.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
     if (Screen.Forms[i]<>Application.MainForm)and(Screen.Forms[i].Visible) then begin
       Screen.Forms[i].Close;

@@ -8,6 +8,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_ViewPortState,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
@@ -70,6 +71,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ALineOnMapEdit: IPathOnMapEdit;
@@ -95,6 +98,8 @@ uses
 
 constructor TCalcLineLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ALineOnMapEdit: IPathOnMapEdit;
@@ -104,6 +109,8 @@ constructor TCalcLineLayer.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState
   );

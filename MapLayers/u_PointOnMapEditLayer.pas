@@ -6,6 +6,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_BitmapMarker,
   i_ViewPortState,
@@ -30,6 +31,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -50,14 +53,23 @@ uses
 { TPointOnMapEditLayer }
 
 constructor TPointOnMapEditLayer.Create(
-  const APerfList: IInternalPerformanceCounterList; AParentMap: TImage32;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AMarkerProvider: IBitmapMarkerProviderChangeable;
   const APointOnMap: IPointOnMapEdit);
 var
   VListener: IListener;
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FPointOnMap := APointOnMap;
   FMarkerProvider := AMarkerProvider;
 

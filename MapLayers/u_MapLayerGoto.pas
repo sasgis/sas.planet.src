@@ -6,6 +6,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_BitmapMarker,
   i_ViewPortState,
@@ -42,6 +43,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -67,6 +70,8 @@ uses
 
 constructor TGotoLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AMarkerProvider: IBitmapMarkerProviderChangeable;
@@ -76,7 +81,13 @@ constructor TGotoLayer.Create(
 var
   VListener: IListener;
 begin
-  inherited Create(APerfList, AParentMap, AViewPortState);
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    AViewPortState
+  );
   FConfig := AConfig;
   FMarkerProvider := AMarkerProvider;
   FMapGoto := AMapGoto;

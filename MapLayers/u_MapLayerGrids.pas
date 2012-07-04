@@ -7,6 +7,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
@@ -35,6 +36,8 @@ type
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
@@ -62,6 +65,8 @@ const
 
 constructor TMapLayerGrids.Create(
   const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
@@ -72,6 +77,8 @@ constructor TMapLayerGrids.Create(
 begin
   inherited Create(
     APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
     AParentMap,
     AViewPortState,
     AResamplerConfig,
