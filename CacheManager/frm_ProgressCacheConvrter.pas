@@ -118,14 +118,17 @@ begin
   FProgressInfo := AProgressInfo;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
-  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
-  FAppClosingNotifier.Add(FAppClosingListener);
-
   FTimerListener := TNotifyNoMmgEventListener.Create(Self.OnTimerTick);
   FTimerNoifier.Add(FTimerListener);
 
   FThreadPaused := False;
   FFinished := False;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TfrmProgressCacheConverter.Destroy;

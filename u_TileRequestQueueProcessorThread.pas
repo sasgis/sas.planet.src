@@ -53,6 +53,9 @@ begin
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TTileRequestQueueProcessorThread.Destroy;

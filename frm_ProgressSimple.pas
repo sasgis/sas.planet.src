@@ -123,7 +123,11 @@ begin
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClose);
 
   FTimerNoifier.Add(FTimerListener);
+
   FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnClose;
+  end;
 end;
 
 procedure TfrmProgressSimple.FormCreate(Sender: TObject);

@@ -119,6 +119,9 @@ begin
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TTileDownloaderUIOneTile.Destroy;

@@ -166,9 +166,6 @@ begin
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;
 
-  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
-  FAppClosingNotifier.Add(FAppClosingListener);
-
   FZmpDownloadEnabled := AZmpTileDownloaderConfig.Enabled;
 
   if FZmpDownloadEnabled then begin
@@ -239,6 +236,11 @@ begin
 
   end;
 
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TTileDownloadSubsystem.Destroy;

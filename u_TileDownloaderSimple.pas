@@ -102,15 +102,18 @@ begin
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;
 
-  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
-  FAppClosingNotifier.Add(FAppClosingListener);
-
   FCS := MakeSyncRW_Std(Self, FALSE);
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FTileDownloaderConfig.ChangeNotifier.Add(FConfigChangeListener);
   FWasConnectError := False;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TTileDownloaderSimple.Destroy;
