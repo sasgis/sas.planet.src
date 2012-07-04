@@ -547,6 +547,8 @@ type
     procedure NShowFillDatesClick(Sender: TObject);
     procedure DateTimePicker1Change(Sender: TObject);
     procedure DateTimePicker2Change(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta:
+        Integer; MousePos: TPoint; var Handled: Boolean);
     procedure NDegScale0Click(Sender: TObject);
     procedure NDegValueAcceptText(Sender: TObject; var NewText: string;
       var Accept: Boolean);
@@ -2523,35 +2525,10 @@ end;
 
 //Обработка нажатий кнопоки и калесика
 procedure TfrmMain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
-var
-  z: integer;
-  VZoom: Byte;
-  VNewZoom: integer;
 begin
   if Active then begin
     if not FMapZoomAnimtion then begin
       FKeyMovingHandler.DoMessageEvent(Msg, Handled);
-      if not Handled then begin
-        case Msg.message of
-          WM_MOUSEWHEEL: begin
-            if not FConfig.MainConfig.DisableZoomingByMouseScroll then begin
-              if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
-              VZoom := FConfig.ViewPortState.GetCurrentZoom;
-              if Msg.wParam<0 then begin
-                VNewZoom := VZoom-z;
-              end else begin
-                VNewZoom := VZoom+z;
-              end;
-              if VNewZoom < 0 then VNewZoom := 0;
-              zooming(
-                VNewZoom,
-                FMouseState.CurentPos,
-                FConfig.MapZoomingConfig.ZoomingAtMousePos
-              );
-            end;
-          end;
-        end;
-      end;
     end;
   end;
 end;
@@ -4840,6 +4817,39 @@ procedure TfrmMain.AdjustFont(Item: TTBCustomItem;
 begin
  if TTBXItem(Item).Checked then TTBXItem(Item).FontSettings.Bold:=tsTrue
                            else TTBXItem(Item).FontSettings.Bold:=tsDefault;
+end;
+
+procedure TfrmMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+    WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+var
+  z: integer;
+  VZoom: Byte;
+  VNewZoom: integer;
+  VMousePos: TPoint;
+begin
+  if not Handled then begin
+    if not FConfig.MainConfig.DisableZoomingByMouseScroll then begin
+      if PtInRect(map.BoundsRect, Self.ScreenToClient(MousePos)) then begin
+        if not FMapZoomAnimtion then begin
+          VMousePos := map.ScreenToClient(MousePos);
+          if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;
+          VZoom := FConfig.ViewPortState.GetCurrentZoom;
+          if WheelDelta<0 then begin
+            VNewZoom := VZoom-z;
+          end else begin
+            VNewZoom := VZoom+z;
+          end;
+          if VNewZoom < 0 then VNewZoom := 0;
+          zooming(
+            VNewZoom,
+            VMousePos,
+            FConfig.MapZoomingConfig.ZoomingAtMousePos
+          );
+        end;
+        Handled := True;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.TBfillMapAsMainClick(Sender: TObject);
