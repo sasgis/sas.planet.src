@@ -605,6 +605,7 @@ type
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
+    FSelectedMark: IMark;
     FEditMarkPoint: IMarkPoint;
     FEditMarkLine: IMarkLine;
     FEditMarkPoly: IMarkPoly;
@@ -3245,10 +3246,8 @@ procedure TfrmMain.tbitmHideThisMarkClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkId: IMarkID;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if Supports(VMark, IMarkID, VMarkId) then begin
     FMarkDBGUI.MarksDB.MarksDb.SetMarkVisibleByID(VMarkId, False);
   end;
@@ -3274,10 +3273,8 @@ procedure TfrmMain.tbitmFitMarkToScreenClick(Sender: TObject);
 var
   VMark: IMark;
   VLLRect: TDoubleRect;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     VLLRect := VMark.LLRect.Rect;
     if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
@@ -3948,10 +3945,8 @@ var
   VMarkPoly: IMarkPoly;
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
       FEditMarkPoint := VMarkPoint;
@@ -3976,10 +3971,8 @@ end;
 procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
   VMark: IMark;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     FMarkDBGUI.ExportMark(VMark);
   end;
@@ -3988,10 +3981,8 @@ end;
 procedure TfrmMain.NMarkDelClick(Sender: TObject);
 var
   VMark: IMark;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle);
   end;
@@ -4000,10 +3991,8 @@ end;
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMark;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetVisualCoordConverter.ProjectionInfo);
   end;
@@ -4039,7 +4028,6 @@ end;
 
 procedure TfrmMain.DigitalGlobe1Click(Sender: TObject);
 begin
-  // MainPopupMenu.PopupPoint
   SafeCreateDGAvailablePic(FMouseState.GetLastDownPos(mbRight));
 end;
 
@@ -4269,47 +4257,12 @@ begin
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
       VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y));
     end;
-    NMarkEdit.Visible := VMark <> nil;
-    tbitmFitMarkToScreen.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
-    if VMark <> nil then begin
-      tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
-    end else begin
-      tbitmHideThisMark.Visible := False;
-    end;
-
-    tbitmProperties.Visible := VMark <> nil;
-    NMarkExport.Visible := VMark <> nil;
-    NMarkDel.Visible := VMark <> nil;
-    tbsprtMainPopUp0.Visible := VMark <> nil;
-    NMarkOper.Visible := VMark <> nil;
-    NMarkNav.Visible := VMark <> nil;
-    if (VMark <> nil) then begin
-      if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-        NMarksCalcs.Visible := false;
-      end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-        NMarksCalcsSq.Visible := False;
-        NMarksCalcsPer.Visible := False;
-        NMarksCalcsLen.Visible:= True;
-        NMarksCalcs.Visible := True;
-      end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-        NMarksCalcsSq.Visible := True;
-        NMarksCalcsPer.Visible := True;
-        NMarksCalcsLen.Visible:= False;
-        NMarksCalcs.Visible := True;
-      end;
-      NMarksCalcs.Visible := true;
-    end else begin
-      NMarksCalcs.Visible := false;
-    end;
-    if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
-      NMarkNav.Checked:=true
-    end else begin
-      NMarkNav.Checked:=false;
-    end;
+    FSelectedMark := VMark;
     map.PopupMenu:=MainPopupMenu;
   end else begin
     FMapMoving:=true;
     FMapMovingButton := Button;
+    FSelectedMark := nil;
     map.PopupMenu:=nil;
   end;
 end;
@@ -4870,10 +4823,8 @@ procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
   LL:TDoublePoint;
   VMark: IMark;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       LL := VMark.GetGoToLonLat;
@@ -4916,10 +4867,8 @@ procedure TfrmMain.NMarksCalcsLenClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkLine: IMarkLine;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if Supports(VMark, IMarkLine, VMarkLine) then begin
     FMarkDBGUI.ShowMarkLength(VMarkLine, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -4929,10 +4878,8 @@ procedure TfrmMain.NMarksCalcsSqClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkPoly: IMarkPoly;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if Supports(VMark, IMarkPoly, VMarkPoly) then begin
     FMarkDBGUI.ShowMarkSq(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -4965,10 +4912,8 @@ procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkPoly: IMarkPoly;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if Supports(VMark, IMarkPoly, VMarkPoly) then begin
     FMarkDBGUI.ShowMarkLength(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
   end;
@@ -5123,10 +5068,8 @@ procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkModifed: IMark;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
-  VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, FMouseState.GetLastDownPos(mbRight));
+  VMark := FSelectedMark;
   if VMark <> nil then begin
     VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False);
     if VMarkModifed <> nil then begin
@@ -5475,7 +5418,49 @@ var
   VMenuItem: TTBXItem;
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
+  VMark: IMark;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
 begin
+  VMark := FSelectedMark;
+  NMarkEdit.Visible := VMark <> nil;
+  tbitmFitMarkToScreen.Visible := Supports(VMark, IMarkLine) or Supports(VMark, IMarkPoly);
+  if VMark <> nil then begin
+    tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
+  end else begin
+    tbitmHideThisMark.Visible := False;
+  end;
+
+  tbitmProperties.Visible := VMark <> nil;
+  NMarkExport.Visible := VMark <> nil;
+  NMarkDel.Visible := VMark <> nil;
+  tbsprtMainPopUp0.Visible := VMark <> nil;
+  NMarkOper.Visible := VMark <> nil;
+  NMarkNav.Visible := VMark <> nil;
+  if (VMark <> nil) then begin
+    if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+      NMarksCalcs.Visible := false;
+    end else if Supports(VMark, IMarkLine, VMarkLine) then begin
+      NMarksCalcsSq.Visible := False;
+      NMarksCalcsPer.Visible := False;
+      NMarksCalcsLen.Visible:= True;
+      NMarksCalcs.Visible := True;
+    end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+      NMarksCalcsSq.Visible := True;
+      NMarksCalcsPer.Visible := True;
+      NMarksCalcsLen.Visible:= False;
+      NMarksCalcs.Visible := True;
+    end;
+    NMarksCalcs.Visible := true;
+  end else begin
+    NMarksCalcs.Visible := false;
+  end;
+  if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
+    NMarkNav.Checked:=true
+  end else begin
+    NMarkNav.Checked:=false;
+  end;
   ldm.Visible:=false;
   dlm.Visible:=false;
   TBOpenDirLayer.Visible:=false;
