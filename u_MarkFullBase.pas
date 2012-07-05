@@ -26,12 +26,13 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
+  i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarksSimple,
   u_MarkId;
 
 type
-  TMarkFullBase = class(TMarkId, IMark)
+  TMarkFullBase = class(TMarkId, IVectorDataItemSimple, IMark)
   private
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
@@ -40,6 +41,7 @@ type
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;
+    function GetInfoCaption: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function IsEqual(const AMark: IMark): Boolean; virtual;
   public
@@ -83,6 +85,11 @@ end;
 function TMarkFullBase.GetHintText: string;
 begin
   Result := FHintConverter.Convert(GetName, FDesc);
+end;
+
+function TMarkFullBase.GetInfoCaption: string;
+begin
+  Result := GetName;
 end;
 
 function TMarkFullBase.GetInfoHTML: string;

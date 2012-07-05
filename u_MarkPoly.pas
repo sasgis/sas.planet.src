@@ -27,13 +27,14 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
   i_MarksSimple,
   i_MarkCategory,
   i_HtmlToHintTextConverter,
   u_MarkFullBase;
 
 type
-  TMarkPoly = class(TMarkFullBase, IMarkPoly)
+  TMarkPoly = class(TMarkFullBase, IVectorDataItemPoly, IMarkPoly)
   private
     FLine: ILonLatPolygon;
     FBorderColor: TColor32;

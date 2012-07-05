@@ -4723,7 +4723,7 @@ begin
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;
-      VItemHint := VWikiItem.GetHintTextWithoutDesc;
+      VItemHint := VWikiItem.GetHintText;
     end;
 
     VMark := nil;

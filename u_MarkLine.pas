@@ -27,13 +27,14 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
   i_MarksSimple,
   i_MarkCategory,
   i_HtmlToHintTextConverter,
   u_MarkFullBase;
 
 type
-  TMarkLine = class(TMarkFullBase, IMarkLine)
+  TMarkLine = class(TMarkFullBase, IVectorDataItemLine, IMarkLine)
   private
     FLine: ILonLatPath;
     FLineColor: TColor32;

@@ -28,6 +28,7 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkPicture;
 
@@ -38,19 +39,11 @@ type
     property Name: string read GetName;
   end;
 
-  IMark = interface
+  IMark = interface(IVectorDataItemSimple)
     ['{52794019-3681-4C92-B50F-0853D5B070DE}']
-    function GetName: string;
-    property Name: string read GetName;
     function GetCategory: ICategory;
     property Category: ICategory read GetCategory;
-    function GetDesc: string;
-    property Desc: string read GetDesc;
-    function GetLLRect: ILonLatRect;
-    property LLRect: ILonLatRect read GetLLRect;
 
-    function GetHintText: string;
-    function GetInfoHTML: string;
     function IsSameId(const AMarkId: IMarkID): Boolean;
     function IsEqual(const AMark: IMark): Boolean;
     function GetGoToLonLat: TDoublePoint;

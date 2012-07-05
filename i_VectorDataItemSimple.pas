@@ -40,7 +40,6 @@ type
     property LLRect: ILonLatRect read GetLLRect;
 
     function GetHintText: string;
-    function GetHintTextWithoutDesc: string;
     function GetInfoHTML: string;
     function GetInfoCaption: string;
   end;

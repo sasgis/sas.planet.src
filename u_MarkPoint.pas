@@ -27,6 +27,7 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_MarksSimple,
+  i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarksDbSmlInternal,
   i_MarkPicture,
@@ -34,7 +35,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkPoint = class(TMarkFullBase, IMarkPoint, IMarkPointSMLInternal)
+  TMarkPoint = class(TMarkFullBase, IVectorDataItemPoint, IMarkPoint, IMarkPointSMLInternal)
   private
     FPicName: string;
     FPic: IMarkPicture;

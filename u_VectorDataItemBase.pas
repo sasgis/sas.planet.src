@@ -38,7 +38,6 @@ type
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
-    function GetHintTextWithoutDesc: string;
     function GetInfoCaption: string;
     function GetInfoHTML: string;
   public
@@ -70,11 +69,6 @@ begin
 end;
 
 function TVectorDataItemBase.GetHintText: string;
-begin
-  Result := FHintConverter.Convert(FName, FDesc);
-end;
-
-function TVectorDataItemBase.GetHintTextWithoutDesc: string;
 begin
   Result := FHintConverter.Convert(FName, '');
 end;
