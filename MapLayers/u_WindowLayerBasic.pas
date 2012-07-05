@@ -9,7 +9,7 @@ uses
   i_ListenerNotifierLinksList;
 
 type
-  TWindowLayerAbstract = class
+  TWindowLayerAbstract = class(TInterfacedObject)
   private
     FPerfList: IInternalPerformanceCounterList;
     FAppStartedNotifier: INotifierOneOperation;

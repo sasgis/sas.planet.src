@@ -218,6 +218,7 @@
     <DCCReference Include="i_EnumDoublePoint.pas" />
     <DCCReference Include="i_FillingMapColorer.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
+    <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="i_GeoCoder.pas" />
     <DCCReference Include="i_GeoCoderList.pas" />
@@ -1017,7 +1018,6 @@
     <DCCReference Include="u_VectorItemLonLat.pas" />
     <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItmesFactorySimple.pas" />
-    <DCCReference Include="u_WindowLayerBasicList.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
     <DCCReference Include="u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="u_ZmpConfig.pas" />

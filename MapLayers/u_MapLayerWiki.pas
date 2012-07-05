@@ -50,13 +50,14 @@ uses
   i_TileError,
   i_ViewPortState,
   i_SimpleFlag,
+  i_FindVectorItems,
   i_VectorDataItemSimple,
   i_MapElementsGuidedList,
   u_MapElementsGuidedList,
   u_MapLayerWithThreadDraw;
 
 type
-  TWikiLayer = class(TMapLayerTiledWithThreadDraw)
+  TWikiLayer = class(TMapLayerTiledWithThreadDraw, IFindVectorItems)
   private
     FConfig: IKmlLayerConfig;
     FVectorItmesFactory: IVectorItmesFactory;
@@ -134,6 +135,12 @@ type
     procedure DoHide; override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
+  private
+    function FindItem(
+      const AVisualConverter: ILocalCoordConverter;
+      const ALocalPoint: TPoint;
+      out AItemS: Double
+    ): IVectorDataItemSimple; overload;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -150,13 +157,6 @@ type
       const AConfig: IKmlLayerConfig;
       const ALayersSet: IActiveMapsSet
     );
-
-    // helper
-    function MouseOnReg(
-      const AVisualConverter: ILocalCoordConverter;
-      const xy: TPoint;
-      out AItemS: Double
-    ): IVectorDataItemSimple; overload;
   end;
 
 implementation
@@ -792,9 +792,9 @@ begin
   FAllElements.ClearMapElements;
 end;
 
-function TWikiLayer.MouseOnReg(
+function TWikiLayer.FindItem(
   const AVisualConverter: ILocalCoordConverter;
-  const xy: TPoint;
+  const ALocalPoint: TPoint;
   out AItemS: Double
 ): IVectorDataItemSimple;
 var
@@ -806,7 +806,7 @@ begin
   VElements := TInterfaceList.Create;
   try
     FAllElements.CopyMapElementsToList(TRUE, TRUE, VElements);
-    Result := MouseOnElements(AVisualConverter, VElements, xy, AItemS);
+    Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint, AItemS);
   finally
     VElements := nil;
   end;

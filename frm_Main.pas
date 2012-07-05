@@ -94,7 +94,7 @@ uses
   i_MapViewGoto,
   i_StaticTreeItem,
   i_MenuGeneratorByTree,
-  u_WindowLayerBasicList,
+  i_FindVectorItems,
   u_GeoFun,
   u_MapLayerWiki,
   u_MapType,
@@ -580,9 +580,9 @@ type
     FMarshrutComment: string;
     movepoint: boolean;
 
-    FWikiLayer: TWikiLayer;
-    FLayerMapMarks: TMapMarksLayer;
-    FLayerSearchResults: TSearchResultsLayer;
+    FWikiLayer: IFindVectorItems;
+    FLayerMapMarks: IFindVectorItems;
+    FLayerSearchResults: IFindVectorItems;
     FUIDownload: IInterface;
 
     ProgramStart: Boolean;
@@ -600,7 +600,7 @@ type
     FNLayerInfoItemList: IGUIDObjectSet; //Пункт контекстного меню информация о слое
 
     FShortCutManager: TShortcutManager;
-    FLayersList: TWindowLayerBasicList;
+    FLayersList: IInterfaceList;
 
     FSearchPresenter: ISearchResultPresenter;
     FMapMoving: Boolean;
@@ -886,7 +886,7 @@ begin
   FNCopyLinkItemList := TGUIDObjectSet.Create(False);
   FNLayerInfoItemList := TGUIDObjectSet.Create(False);
 
-  FLayersList := TWindowLayerBasicList.Create(GState.PerfCounterList);
+  FLayersList := TInterfaceList.Create;
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnWinPositionChange),
@@ -2113,7 +2113,11 @@ begin
   Application.ProcessMessages;
   SaveConfig(nil);
   Application.ProcessMessages;
-  FreeAndNil(FLayersList);
+  FWikiLayer := nil;
+  FLayerMapMarks := nil;
+  FLayerSearchResults := nil;
+  FLayersList := nil;
+
   FreeAndNil(FShortCutManager);
   FreeAndNil(FMarkDBGUI);
 end;
@@ -4319,7 +4323,7 @@ begin
           VMagnetPoint := CEmptyDoublePoint;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
              (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw) then begin
-            VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y), VMarkS);
+            VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
           end;
           if VWikiItem <> nil then begin
             if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
@@ -4360,7 +4364,7 @@ begin
   if (VIsClickInMap)and (Button=mbright)and(FState.State=ao_movemap) then begin
     VWikiItem := nil;
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y), VMarkS);
+      VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
     end;
     if not Supports(VWikiItem, IMark, FSelectedMark) then begin
       FSelectedMark := nil;
@@ -4518,7 +4522,7 @@ begin
       VItemArea := 0;
 
       VWikiItem := nil;
-      VWikiItem := FWikiLayer.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
+      VWikiItem := FWikiLayer.FindItem(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
         VItemIsFound := True;
         VItemCaption := VWikiItem.GetInfoCaption;
@@ -4526,7 +4530,7 @@ begin
         VItemArea := VMarkS;
       end;
 
-      VWikiItem := FLayerSearchResults.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
+      VWikiItem := FLayerSearchResults.FindItem(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
         VItemIsFound := True;
         VItemCaption := VWikiItem.GetInfoCaption;
@@ -4536,7 +4540,7 @@ begin
 
       VWikiItem := nil;
       if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-        VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
+        VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x,y), VMarkS);
       end;
 
       if VWikiItem <> nil then begin
@@ -4622,7 +4626,7 @@ begin
     VWikiItem := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
        (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then begin
-      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
+      VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
     end;
     if VWikiItem <> nil then begin
       if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
@@ -4713,14 +4717,14 @@ begin
     VItemFound := False;
     VItemS := 0;
     VWikiItem := nil;
-    VWikiItem := FWikiLayer.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
+    VWikiItem := FWikiLayer.FindItem(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;
       VItemHint := VWikiItem.GetHintText;
     end;
 
-    VWikiItem := FLayerSearchResults.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
+    VWikiItem := FLayerSearchResults.FindItem(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       VItemFound := True;
       VItemS := VMarkS;
@@ -4729,7 +4733,7 @@ begin
 
     VWikiItem := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
-      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
+      VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
       if (not VItemFound) or (not Supports(VWikiItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
         VItemFound := True;

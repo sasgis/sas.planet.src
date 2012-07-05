@@ -46,11 +46,12 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
+  i_FindVectorItems,
   u_MarksSystem,
   u_MapLayerWithThreadDraw;
 
 type
-  TMapMarksLayer = class(TMapLayerTiledWithThreadDraw)
+  TMapMarksLayer = class(TMapLayerTiledWithThreadDraw, IFindVectorItems)
   private
     FConfig: IMarksLayerConfig;
     FConfigStatic: IUsedMarksConfigStatic;
@@ -85,6 +86,12 @@ type
       const ACancelNotifier: INotifierOperation
     ); override;
     procedure StartThreads; override;
+  private
+    function FindItem(
+      const AVisualConverter: ILocalCoordConverter;
+      const ALocalPoint: TPoint;
+      out AMarkS: Double
+    ): IVectorDataItemSimple;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -100,12 +107,6 @@ type
       const AConfig: IMarksLayerConfig;
       AMarkDB: TMarksSystem
     );
-
-    function MouseOnReg(
-      const AVisualConverter: ILocalCoordConverter;
-      const xy: TPoint;
-      out AMarkS: Double
-    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -311,9 +312,9 @@ begin
   end;
 end;
 
-function TMapMarksLayer.MouseOnReg(
+function TMapMarksLayer.FindItem(
   const AVisualConverter: ILocalCoordConverter;
-  const xy: TPoint;
+  const ALocalPoint: TPoint;
   out AMarkS: Double
 ): IVectorDataItemSimple;
 var
@@ -349,17 +350,17 @@ begin
 
     if VMarksSubset <> nil then begin
       if not VMarksSubset.IsEmpty then begin
-        VRect.Left := xy.X - 8;
-        VRect.Top := xy.Y - 16;
-        VRect.Right := xy.X + 8;
-        VRect.Bottom := xy.Y + 16;
+        VRect.Left := ALocalPoint.X - 8;
+        VRect.Top := ALocalPoint.Y - 16;
+        VRect.Right := ALocalPoint.X + 8;
+        VRect.Bottom := ALocalPoint.Y + 16;
         VLocalConverter := LayerCoordConverter;
         VConverter := VLocalConverter.GetGeoConverter;
         VZoom := VLocalConverter.GetZoom;
         VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
         VConverter.CheckPixelRectFloat(VMapRect, VZoom);
         VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-        VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(xy);
+        VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
         VMarksEnum := VMarksSubset.GetEnum;
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
           if VMark.LLRect.IsIntersecWithRect(VLonLatRect) then begin
