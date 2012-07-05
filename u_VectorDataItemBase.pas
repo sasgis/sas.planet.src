@@ -71,6 +71,9 @@ end;
 function TVectorDataItemBase.GetHintText: string;
 begin
   Result := FHintConverter.Convert(FName, '');
+  if Result = '' then begin
+    Result := FHintConverter.Convert(FName, FDesc);
+  end;
 end;
 
 function TVectorDataItemBase.GetInfoCaption: string;
