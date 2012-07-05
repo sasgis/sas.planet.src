@@ -1497,6 +1497,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
+        GState.GUISyncronizedTimerNotifier,
         FConfig.ViewPortState,
         VMarkerProvider,
         FMapGoto,

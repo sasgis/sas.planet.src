@@ -6,6 +6,7 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
+  i_Notifier,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_BitmapMarker,
@@ -26,14 +27,10 @@ type
     FMarkerProviderStatic: IBitmapMarkerProvider;
     FMarker: IBitmapMarker;
 
-    FGotoPos: IGotoPosStatic;
-    FShowTimeDelta: TDateTime;
-
+    procedure OnTimer;
     procedure OnConfigChange;
+    function GetIsVisible: Boolean;
   protected
-    function GetVisibleForNewPos(
-      const ANewVisualCoordConverter: ILocalCoordConverter
-    ): Boolean; override;
     procedure PaintLayer(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
@@ -45,6 +42,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
+      const ATimerNoifier: INotifier;
       const AViewPortState: IViewPortState;
       const AMarkerProvider: IBitmapMarkerProviderChangeable;
       const AMapGoto: IMapViewGoto;
@@ -59,7 +57,6 @@ uses
   Math,
   SysUtils,
   GR32_Resamplers,
-  i_Notifier,
   i_Listener,
   i_CoordConverter,
   u_ListenerByEvent,
@@ -72,6 +69,7 @@ constructor TGotoLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
+  const ATimerNoifier: INotifier;
   const AViewPortState: IViewPortState;
   const AMarkerProvider: IBitmapMarkerProviderChangeable;
   const AMapGoto: IMapViewGoto;
@@ -106,20 +104,23 @@ begin
     VListener,
     FMapGoto.GetChangeNotifier
   );
+
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    ATimerNoifier
+  );
 end;
 
-function TGotoLayer.GetVisibleForNewPos(
-  const ANewVisualCoordConverter: ILocalCoordConverter
-): Boolean;
+function TGotoLayer.GetIsVisible: Boolean;
 var
   VCurrTime: TDateTime;
   VGotoTime: TDateTime;
   VTimeDelta: Double;
   VGotoPos: IGotoPosStatic;
   VGotoLonLat: TDoublePoint;
-  VFixedOnView: TDoublePoint;
+  VShowTimeDelta: TDateTime;
 begin
-  VGotoPos := FGotoPos;
+  VGotoPos := FMapGoto.LastGotoPos;
   Result := False;
   if VGotoPos <> nil then begin
     VGotoTime := VGotoPos.GotoTime;
@@ -128,12 +129,10 @@ begin
       if not PointIsEmpty(VGotoLonLat) then begin
         VCurrTime := Now;
         if (VGotoTime <= VCurrTime) then begin
+          VShowTimeDelta := (FConfig.ShowTickCount / 1000) / 60 / 60 / 24;
           VTimeDelta := VCurrTime - VGotoTime;
-          if (VTimeDelta < FShowTimeDelta) then begin
-            VFixedOnView := ANewVisualCoordConverter.LonLat2LocalPixelFloat(VGotoLonLat);
-            if PixelPointInRect(VFixedOnView, DoubleRect(ANewVisualCoordConverter.GetLocalRect)) then begin
-              Result := True;
-            end;
+          if (VTimeDelta < VShowTimeDelta) then begin
+            Result := True;
           end;
         end;
       end;
@@ -145,17 +144,24 @@ procedure TGotoLayer.OnConfigChange;
 var
   VMarker: IBitmapMarker;
 begin
-  FGotoPos := FMapGoto.LastGotoPos;
   FMarkerProviderStatic := FMarkerProvider.GetStatic;
   VMarker := FMarkerProviderStatic.GetMarker;
   FMarker := VMarker;
   ViewUpdateLock;
   try
-    FShowTimeDelta := (FConfig.ShowTickCount / 1000) / 60 / 60 / 24;
-    SetVisible(GetVisibleForNewPos(LayerCoordConverter));
+    SetVisible(GetIsVisible);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
+  end;
+end;
+
+procedure TGotoLayer.OnTimer;
+begin
+  if Visible then begin
+    if not GetIsVisible then begin
+      Hide;
+    end;
   end;
 end;
 
@@ -173,7 +179,12 @@ var
   VTargetPointFloat: TDoublePoint;
 begin
   inherited;
-  VGotoPos := FGotoPos;
+  VGotoPos := FMapGoto.LastGotoPos;
+
+  if VGotoPos = nil then begin
+    Exit;
+  end;
+
   VGotoLonLat := VGotoPos.LonLat;
   if not PointIsEmpty(VGotoLonLat) then begin
     VConverter := ALocalConverter.GetGeoConverter;
