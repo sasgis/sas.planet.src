@@ -172,7 +172,6 @@ var
   VPixelPos: TDoublePoint;
   VZoom: Byte;
   VMapRect: TDoubleRect;
-  VLocalConverter: ILocalCoordConverter;
   i: integer;
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
@@ -188,9 +187,8 @@ begin
     VRect.Top := ALocalPoint.Y - (VMarker.Bitmap.Height div 2);
     VRect.Right := ALocalPoint.X + (VMarker.Bitmap.Width div 2);
     VRect.Bottom := ALocalPoint.Y + (VMarker.Bitmap.Height div 2);
-    VLocalConverter := LayerCoordConverter;
-    VConverter := VLocalConverter.GetGeoConverter;
-    VZoom := VLocalConverter.GetZoom;
+    VConverter := AVisualConverter.GetGeoConverter;
+    VZoom := AVisualConverter.GetZoom;
     VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
