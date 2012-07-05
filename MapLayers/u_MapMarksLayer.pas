@@ -40,6 +40,7 @@ uses
   i_CoordConverter,
   i_VectorItmesFactory,
   i_VectorItemProjected,
+  i_VectorDataItemSimple,
   i_IdCacheSimple,
   i_DoublePointsAggregator,
   i_LocalCoordConverter,
@@ -104,11 +105,11 @@ type
       const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint;
       out AMarkS: Double
-    ): IMark; overload;
+    ): IVectorDataItemSimple; overload;
     function MouseOnReg(
       const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint
-    ): IMark; overload;
+    ): IVectorDataItemSimple; overload;
   end;
 
 implementation
@@ -318,7 +319,7 @@ function TMapMarksLayer.MouseOnReg(
   const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint;
   out AMarkS: Double
-): IMark;
+): IVectorDataItemSimple;
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -473,7 +474,7 @@ end;
 function TMapMarksLayer.MouseOnReg(
   const AVisualConverter: ILocalCoordConverter;
   const xy: TPoint
-): IMark;
+): IVectorDataItemSimple;
 var
   VMarkS: Double;
 begin
