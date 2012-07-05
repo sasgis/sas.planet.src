@@ -19,9 +19,6 @@ type
     FConfig: ITileGridConfig;
     procedure OnConfigChange;
   protected
-    function GetVisibleForNewPos(
-      const ANewVisualCoordConverter: ILocalCoordConverter
-    ): Boolean; override;
     procedure PaintLayer(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
@@ -70,44 +67,12 @@ begin
   );
 end;
 
-function TMapLayerTileGrid.GetVisibleForNewPos(
-  const ANewVisualCoordConverter: ILocalCoordConverter
-): Boolean;
-var
-  VConverter: ILocalCoordConverter;
-  VGeoConverter: ICoordConverter;
-  VZoom: Byte;
-  VTileGridZoom: Byte;
-begin
-  Result := false;
-  VConverter := ANewVisualCoordConverter;
-  if VConverter <> nil then begin
-    VGeoConverter := VConverter.GetGeoConverter;
-    VZoom := VConverter.GetZoom;
-    FConfig.LockRead;
-    try
-      if FConfig.Visible then begin
-        if FConfig.UseRelativeZoom then begin
-          VTileGridZoom := VZoom + FConfig.Zoom;
-        end else begin
-          VTileGridZoom := FConfig.Zoom;
-        end;
-        if VGeoConverter.CheckZoom(VTileGridZoom) then begin
-          Result := (VTileGridZoom >= VZoom - 2) and (VTileGridZoom <= VZoom + 5);
-        end;
-      end;
-    finally
-      FConfig.UnlockRead;
-    end;
-  end;
-end;
-
 procedure TMapLayerTileGrid.OnConfigChange;
 begin
   ViewUpdateLock;
   try
+    SetVisible(FConfig.Visible);
     SetNeedRedraw;
-    SetVisible(GetVisibleForNewPos(ViewCoordConverter))
   finally
     ViewUpdateUnlock;
   end;
@@ -148,6 +113,14 @@ begin
     end;
   finally
     FConfig.UnlockRead;
+  end;
+
+  if VVisible then begin
+    if VGeoConvert.CheckZoom(VGridZoom) then begin
+      VVisible := (VGridZoom >= VCurrentZoom - 2) and (VGridZoom <= VCurrentZoom + 5);
+    end else begin
+      VVisible := False;
+    end;
   end;
   if VVisible then begin
     VLocalRect := ALocalConverter.GetLocalRect;
