@@ -149,8 +149,11 @@ begin
 end;
 
 procedure TMapLayerBase.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
+var
+  VLocalConverter: ILocalCoordConverter;
 begin
-  if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
+  VLocalConverter := LayerCoordConverter;
+  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
   inherited;

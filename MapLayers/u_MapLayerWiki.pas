@@ -593,10 +593,12 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   cnt: Cardinal;
+  VLocalConverter: ILocalCoordConverter;
 begin
   inherited;
-  if LayerCoordConverter <> nil then begin
-    VZoom := LayerCoordConverter.GetZoom;
+  VLocalConverter := LayerCoordConverter;
+  if VLocalConverter <> nil then begin
+    VZoom := VLocalConverter.GetZoom;
 
     FVectorMapsSetCS.BeginRead;
     try
@@ -633,10 +635,12 @@ var
   VMapPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VTileRect: TRect;
+  VLocalConverter: ILocalCoordConverter;
 begin
   VOldZoom := 255;
-  if LayerCoordConverter <> nil then begin
-    VOldZoom := LayerCoordConverter.GetZoom;
+  VLocalConverter := LayerCoordConverter;
+  if VLocalConverter <> nil then begin
+    VOldZoom := VLocalConverter.GetZoom;
   end;
   inherited;
   VZoom := AValue.GetZoom;

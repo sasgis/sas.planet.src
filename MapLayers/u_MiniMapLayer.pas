@@ -1227,12 +1227,14 @@ procedure TMiniMapLayer.SetLayerCoordConverter(
 );
 var
   VNewSize: TPoint;
+  VLocalConverter: ILocalCoordConverter;
 begin
+  VLocalConverter := LayerCoordConverter;
   VNewSize := GetLayerSizeForView(AValue);
   Layer.Bitmap.Lock;
   try
     if Visible then begin
-      FClearStrategy := FClearStrategyFactory.GetStrategy(LayerCoordConverter, AValue, Layer.Bitmap, FClearStrategy);
+      FClearStrategy := FClearStrategyFactory.GetStrategy(VLocalConverter, AValue, Layer.Bitmap, FClearStrategy);
     end else begin
       FClearStrategy := nil;
     end;
@@ -1242,7 +1244,7 @@ begin
   finally
     Layer.Bitmap.Unlock;
   end;
-  if (LayerCoordConverter = nil) or (not LayerCoordConverter.GetIsSameConverter(AValue)) then begin
+  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
     SetNeedRedraw;
   end;
   SetNeedUpdateLocation;
