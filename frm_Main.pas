@@ -728,6 +728,7 @@ uses
   i_MapTypes,
   i_GeoCoderList,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_VectorItemLonLat,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
@@ -737,6 +738,7 @@ uses
   i_MapAttachmentsInfo,
   i_LanguageManager,
   i_VectorDataItemSimple,
+  i_EnumDoublePoint,
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
   u_SensorViewListGeneratorStuped,
@@ -4196,6 +4198,67 @@ begin
   FMapTypeEditor.EditMap(VMapType);
 end;
 
+function GetPolygonNearesPoint(
+  const AMarkPoly: IMarkPoly;
+  const AProjection: IProjectionInfo;
+  const ACurrLonLat: TDoublePoint
+): TDoublePoint;
+var
+  r: double;
+  VConverter: ICoordConverter;
+  VZoom: byte;
+  VEnum: IEnumLonLatPoint;
+  VLonLatPoint: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VCurrPixel: TDoublePoint;
+begin
+  Result := CEmptyDoublePoint;
+  VZoom := AProjection.Zoom;
+  VConverter := AProjection.GeoConverter;
+  r := (AMarkPoly.LineWidth / 2) + 3;
+  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
+  VEnum := AMarkPoly.Line.GetEnum;
+  while VEnum.Next(VLonLatPoint) do begin
+    VConverter.CheckLonLatPos(VLonLatPoint);
+    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
+      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
+      Result := VLonLatPoint;
+      exit;
+    end;
+  end;
+end;
+function GetPathNearesPoint(
+  const AMarkLine: IMarkLine;
+  const AProjection: IProjectionInfo;
+  const ACurrLonLat: TDoublePoint
+): TDoublePoint;
+var
+  r: double;
+  VConverter: ICoordConverter;
+  VZoom: byte;
+  VEnum: IEnumLonLatPoint;
+  VLonLatPoint: TDoublePoint;
+  VMapPoint: TDoublePoint;
+  VCurrPixel: TDoublePoint;
+begin
+  VZoom := AProjection.Zoom;
+  VConverter := AProjection.GeoConverter;
+  Result := CEmptyDoublePoint;
+  r := (AMarkLine.LineWidth / 2) + 3;
+  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
+  VEnum := AMarkLine.Line.GetEnum;
+  while VEnum.Next(VLonLatPoint) do begin
+    VConverter.CheckLonLatPos(VLonLatPoint);
+    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
+    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
+      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
+      Result := VLonLatPoint;
+      exit;
+    end;
+  end;
+end;
+
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
@@ -4212,6 +4275,7 @@ var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
+  VMagnetPoint: TDoublePoint;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -4251,20 +4315,24 @@ begin
         VClickLonLatRect := VConverter.PixelRectFloat2LonLatRect(VClickMapRect, VZoom);
         if not FLineOnMapEdit.SelectPointInLonLatRect(VClickLonLatRect) then begin
           VMark := nil;
+          VMagnetPoint := CEmptyDoublePoint;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
              (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw) then begin
             VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y));
           end;
           if VMark <> nil then begin
             if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-              VClickLonLat := VMarkPoint.Point;
+              VMagnetPoint := VMarkPoint.Point;
             end;
             if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-              FLayerMapMarks.GetIntersection(VClickLonLat,VClickLonLat, VMarkPoly, VLocalConverter.ProjectionInfo)
+              VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VClickLonLat);
             end;
             if Supports(VMark, IMarkLine, VMarkLine) then begin
-              FLayerMapMarks.GetIntersection(VClickLonLat,VClickLonLat, VMarkLine, VLocalConverter.ProjectionInfo)
+              VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VClickLonLat);
             end;
+          end;
+          if not PointIsEmpty(VMagnetPoint) then begin
+            VClickLonLat := VMagnetPoint;
           end;
           FLineOnMapEdit.InsertPoint(VClickLonLat);
         end;
@@ -4506,6 +4574,7 @@ var
   VMarkPoint: IMarkPoint;
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
+  VMagnetPoint: TDoublePoint;
 
   function _AllowShowHint: Boolean;
   var
@@ -4546,20 +4615,25 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (FLineOnMapEdit <> nil) and (movepoint) then begin
+    VMagnetPoint := CEmptyDoublePoint;
     VMark := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
-       (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then
+       (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then begin
       VMark := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos);
+    end;
     if VMark <> nil then begin
       if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-        VLonLat := VMarkPoint.Point;
+        VMagnetPoint := VMarkPoint.Point;
       end;
       if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-        FLayerMapMarks.GetIntersection(VLonLat,VLonLat, VMarkPoly, VLocalConverter.ProjectionInfo)
+        VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
       end;
       if Supports(VMark, IMarkLine, VMarkLine) then begin
-        FLayerMapMarks.GetIntersection(VLonLat,VLonLat, VMarkLine, VLocalConverter.ProjectionInfo)
+        VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
       end;
+    end;
+    if not PointIsEmpty(VMagnetPoint) then begin
+      VLonLat := VMagnetPoint;
     end;
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;

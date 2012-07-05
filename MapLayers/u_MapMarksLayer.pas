@@ -109,19 +109,6 @@ type
       const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint
     ): IMark; overload;
-
-    function GetIntersection(
-      const ACurrLonLat: TDoublePoint;
-      var AIntersectionLonLat: TDoublePoint;
-      const AMarkPoly: IMarkPoly;
-      const AProjection: IProjectionInfo
-    ): boolean; overload;
-    function GetIntersection(
-      const ACurrLonLat: TDoublePoint;
-      var AIntersectionLonLat: TDoublePoint;
-      const AMarkLine: IMarkLine;
-      const AProjection: IProjectionInfo
-    ): boolean; overload;
   end;
 
 implementation
@@ -491,72 +478,6 @@ var
   VMarkS: Double;
 begin
   Result := MouseOnReg(AVisualConverter, xy, VMarkS);
-end;
-
-function TMapMarksLayer.GetIntersection(
-  const ACurrLonLat: TDoublePoint;
-  var AIntersectionLonLat: TDoublePoint;
-  const AMarkPoly: IMarkPoly;
-  const AProjection: IProjectionInfo
-): boolean;
-var
-  r: double;
-  VConverter: ICoordConverter;
-  VZoom: byte;
-  VEnum: IEnumLonLatPoint;
-  VLonLatPoint: TDoublePoint;
-  VMapPoint: TDoublePoint;
-  VCurrPixel: TDoublePoint;
-begin
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
-  Result := False;
-  r := (AMarkPoly.LineWidth / 2) + 3;
-  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
-  VEnum := AMarkPoly.Line.GetEnum;
-  while VEnum.Next(VLonLatPoint) do begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
-      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
-      AIntersectionLonLat := VLonLatPoint;
-      Result := true;
-      exit;
-    end;
-  end;
-end;
-
-function TMapMarksLayer.GetIntersection(
-  const ACurrLonLat: TDoublePoint;
-  var AIntersectionLonLat: TDoublePoint;
-  const AMarkLine: IMarkLine;
-  const AProjection: IProjectionInfo
-): Boolean;
-var
-  r: double;
-  VConverter: ICoordConverter;
-  VZoom: byte;
-  VEnum: IEnumLonLatPoint;
-  VLonLatPoint: TDoublePoint;
-  VMapPoint: TDoublePoint;
-  VCurrPixel: TDoublePoint;
-begin
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
-  Result := False;
-  r := (AMarkLine.LineWidth / 2) + 3;
-  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
-  VEnum := AMarkLine.Line.GetEnum;
-  while VEnum.Next(VLonLatPoint) do begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
-      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
-      AIntersectionLonLat := VLonLatPoint;
-      Result := true;
-      exit;
-    end;
-  end;
 end;
 
 procedure TMapMarksLayer.OnConfigChange;
