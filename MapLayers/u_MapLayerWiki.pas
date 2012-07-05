@@ -161,13 +161,6 @@ type
       const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint
     ): IVectorDataItemSimple; overload;
-
-    function MouseOnRegWithGUID(
-      const AVisualConverter: ILocalCoordConverter;
-      const xy: TPoint;
-      out AItemS: Double;
-      out ALayerGUID: TGUID
-    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -905,52 +898,6 @@ var
   VItemS: Double;
 begin
   Result := MouseOnReg(AVisualConverter, xy, VItemS);
-end;
-
-function TWikiLayer.MouseOnRegWithGUID(
-  const AVisualConverter: ILocalCoordConverter;
-  const xy: TPoint;
-  out AItemS: Double;
-  out ALayerGUID: TGUID
-): IVectorDataItemSimple;
-var
-  VElements: IInterfaceList;
-  VEnumGUID: IEnumGUID;
-  celtFetched: Cardinal;
-begin
-  Result := nil;
-  ALayerGUID := GUID_NULL;
-  AItemS := 0;
-
-  VElements := TInterfaceList.Create;
-  try
-    // loop through guided
-    VEnumGUID := FAllElements.GetGUIDEnum;
-    try
-      if Assigned(VEnumGUID) then begin
-        while (S_OK = VEnumGUID.Next(1, ALayerGUID, celtFetched)) do begin
-          VElements.Clear;
-          CopyMapElements(FAllElements.GetMapElementsWithGUID(ALayerGUID), VElements);
-          Result := MouseOnElements(AVisualConverter, VElements, xy, AItemS);
-          if Result <> nil then begin
-            Exit;
-          end;
-        end;
-      end;
-    finally
-      VEnumGUID := nil;
-    end;
-
-    // no guid at all
-    ALayerGUID := GUID_NULL;
-
-    // without guid
-    VElements.Clear;
-    CopyMapElements(FAllElements.GetMapElementsWithoutGUID, VElements);
-    Result := MouseOnElements(AVisualConverter, VElements, xy, AItemS);
-  finally
-    VElements := nil;
-  end;
 end;
 
 end.
