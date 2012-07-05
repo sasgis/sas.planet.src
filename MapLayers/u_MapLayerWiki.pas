@@ -157,10 +157,6 @@ type
       const xy: TPoint;
       out AItemS: Double
     ): IVectorDataItemSimple; overload;
-    function MouseOnReg(
-      const AVisualConverter: ILocalCoordConverter;
-      const xy: TPoint
-    ): IVectorDataItemSimple; overload;
   end;
 
 implementation
@@ -888,16 +884,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TWikiLayer.MouseOnReg(
-  const AVisualConverter: ILocalCoordConverter;
-  const xy: TPoint
-): IVectorDataItemSimple;
-var
-  VItemS: Double;
-begin
-  Result := MouseOnReg(AVisualConverter, xy, VItemS);
 end;
 
 end.

@@ -105,11 +105,7 @@ type
       const AVisualConverter: ILocalCoordConverter;
       const xy: TPoint;
       out AMarkS: Double
-    ): IVectorDataItemSimple; overload;
-    function MouseOnReg(
-      const AVisualConverter: ILocalCoordConverter;
-      const xy: TPoint
-    ): IVectorDataItemSimple; overload;
+    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -469,16 +465,6 @@ begin
         FPointsAgregator
       );
   end;
-end;
-
-function TMapMarksLayer.MouseOnReg(
-  const AVisualConverter: ILocalCoordConverter;
-  const xy: TPoint
-): IVectorDataItemSimple;
-var
-  VMarkS: Double;
-begin
-  Result := MouseOnReg(AVisualConverter, xy, VMarkS);
 end;
 
 procedure TMapMarksLayer.OnConfigChange;

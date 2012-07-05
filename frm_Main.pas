@@ -4276,6 +4276,7 @@ var
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
   VMagnetPoint: TDoublePoint;
+  VMarkS: Double;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -4318,7 +4319,7 @@ begin
           VMagnetPoint := CEmptyDoublePoint;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
              (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw) then begin
-            VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y));
+            VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y), VMarkS);
           end;
           if VWikiItem <> nil then begin
             if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
@@ -4359,7 +4360,7 @@ begin
   if (VIsClickInMap)and (Button=mbright)and(FState.State=ao_movemap) then begin
     VWikiItem := nil;
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y));
+      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, Point(x, y), VMarkS);
     end;
     if not Supports(VWikiItem, IMark, FSelectedMark) then begin
       FSelectedMark := nil;
@@ -4621,7 +4622,7 @@ begin
     VWikiItem := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
        (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then begin
-      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos);
+      VWikiItem := FLayerMapMarks.MouseOnReg(VLocalConverter, VMousePos, VMarkS);
     end;
     if VWikiItem <> nil then begin
       if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
