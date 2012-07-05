@@ -4376,7 +4376,10 @@ end;
 procedure TfrmMain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
-  VPWL:TResObj;
+  VItemIsFound: boolean;
+  VItemArea: Double;
+  VItemCaption: string;
+  VItemHTML: string;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
@@ -4508,26 +4511,26 @@ begin
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
     if (FState.State=ao_movemap)and(button=mbLeft) then begin
-      VPWL.find := False;
-      VPWL.name := '';
-      VPWL.descr := '';
-      VPWL.S := 0;
+      VItemIsFound := False;
+      VItemCaption := '';
+      VItemHTML := '';
+      VItemArea := 0;
 
       VWikiItem := nil;
       VWikiItem := FWikiLayer.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
-        VPWL.find := True;
-        VPWL.name := VWikiItem.GetInfoCaption;
-        VPWL.descr := VWikiItem.GetInfoHTML;
-        VPWL.S := VMarkS;
+        VItemIsFound := True;
+        VItemCaption := VWikiItem.GetInfoCaption;
+        VItemHTML := VWikiItem.GetInfoHTML;
+        VItemArea := VMarkS;
       end;
 
       VWikiItem := FLayerSearchResults.MouseOnReg(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
-        VPWL.find := True;
-        VPWL.name := VWikiItem.GetInfoCaption;
-        VPWL.descr := VWikiItem.GetInfoHTML;
-        VPWL.S := VMarkS;
+        VItemIsFound := True;
+        VItemCaption := VWikiItem.GetInfoCaption;
+        VItemHTML := VWikiItem.GetInfoHTML;
+        VItemArea := VMarkS;
       end;
 
       VWikiItem := nil;
@@ -4536,17 +4539,16 @@ begin
       end;
 
       if VWikiItem <> nil then begin
-        if (not VPWL.find) or (not Supports(VWikiItem, IMarkPoly)) or (VPWL.S >= VMarkS) then begin
-          VPWL.find := True;
-          VPWL.name := VWikiItem.GetInfoCaption;
-          VPWL.descr := VWikiItem.GetInfoHTML;
-          VPWL.S := VMarkS;
+        if (not VItemIsFound) or (not Supports(VWikiItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
+          VItemIsFound := True;
+          VItemCaption := VWikiItem.GetInfoCaption;
+          VItemHTML := VWikiItem.GetInfoHTML;
         end;
       end;
 
-      if VPWL.find  then begin
-        if VPWL.descr <> '' then begin
-          GState.InternalBrowser.ShowMessage(VPWL.name, VPWL.descr);
+      if VItemIsFound  then begin
+        if VItemHTML <> '' then begin
+          GState.InternalBrowser.ShowMessage(VItemCaption, VItemHTML);
         end;
       end;
     end;

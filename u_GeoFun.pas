@@ -28,13 +28,6 @@ uses
   t_GeoTypes,
   i_CoordConverter;
 
-type
-  TResObj = record
-   find:boolean;
-   S:Double;
-   name:String;
-   descr:String;
-  end;
   function CalcAngleDelta(const ADerg1, ADegr2: Double): Double;
 
   function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
