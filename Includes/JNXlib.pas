@@ -1,8 +1,8 @@
 unit JNXLib;
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.5
-  Date:    2012.05.18
+  Version: 1.6
+  Date:    2012.07.03
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -44,6 +44,8 @@ uses
 const
   MAX_LEVELS = 5;
   MAX_TILES  = 50000;
+  MAX_FILE_SIZE = $100000000;
+
   JNX3_ZORDER = 30;
   META_BLOCK_VERSION = 9;
   JNX_EOF_SIGNATURE = 'BirdsEye';
@@ -192,6 +194,7 @@ type
     procedure InitHeader;
   public
     procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True); virtual; abstract;
+    function CanAcceptTile(LevelIndex, TileLength: integer): boolean; virtual;
   end;
 
   TSimpleJNXWriter = class(TBaseJNXWriter)
@@ -220,6 +223,7 @@ type
     procedure WriteTilesInfo;
   public
     procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True); override;
+    function CanAcceptTile(LevelIndex, TileLength: integer): boolean; override;
   end;
 
   TMultiVolumeJNXWriter = class(TBaseJNXWriter)
@@ -230,8 +234,8 @@ type
     FTotalTileCount: array [0..MAX_LEVELS-1] of integer;
     FVolumes: array of TBaseJNXWriter;
     FVolumesAllocated: boolean;
-    FVolumesLevelMapping: array of array [0..MAX_LEVELS-1] of integer;
     FCurrentVolumeIndex: array [0..MAX_LEVELS-1] of integer;
+    FFirstVolumePath: String;
 
     procedure OpenFile(const Path: String); override;
 
@@ -243,6 +247,8 @@ type
     procedure SetTileCount(l: integer; const Value: integer); override;
 
     procedure AllocateVolumes;
+    procedure AllocateSingleVolume(Index: integer);
+    function GetVolumeName(Index: integer): String;
   public
     destructor Destroy; override;
 
@@ -611,6 +617,12 @@ end;
 
 { TBaseJNXWriter }
 
+function TBaseJNXWriter.CanAcceptTile(LevelIndex,
+  TileLength: integer): boolean;
+begin
+  Result := True;
+end;
+
 procedure TBaseJNXWriter.InitHeader;
 begin
   FillChar(FHeader, SizeOf(FHeader), 0);
@@ -812,6 +824,9 @@ var
 begin
   WriteFileHeaders(True);
 
+  if not CanAcceptTile(Level, Length(JpegString)) then
+    Raise EJNXException.Create('JNX file is too large to accept more tiles.');
+
   TileIndex := FLevels[Level].TileCount;
 
   FTiles[Level, TileIndex].TileBounds := Bounds;
@@ -837,89 +852,78 @@ begin
   inc(FLevels[Level].TileCount);
 end;
 
+function TSimpleJNXWriter.CanAcceptTile(LevelIndex, TileLength: integer): boolean;
+begin
+  Result :=
+    (LevelIndex < Levels) and (LevelInfo[LevelIndex].TileCount < TileCount[LevelIndex]) and
+    (int64(FNextPictureOffset) + int64(TileLength - 2 + Length(JNX_EOF_SIGNATURE)) < MAX_FILE_SIZE);
+end;
+
 { TMultiVolumeJNXWriter }
+
+procedure TMultiVolumeJNXWriter.AllocateSingleVolume(Index: integer);
+var
+  VolFileName: String;
+  l: integer;
+begin
+  if Length(FVolumes) > Index then
+    exit;
+
+  SetLength(FVolumes, Index + 1);
+
+  if Index > 0 then
+    VolFileName := GetVolumeName(Index)
+  else
+    VolFileName := FFirstVolumePath;
+
+  FVolumes[Index] := TSimpleJNXWriter.Create(VolFileName);
+  FVolumes[Index].Version     := Version;
+  FVolumes[Index].ProductID   := ProductID;
+  FVolumes[Index].ZOrder      := ZOrder;
+  FVolumes[Index].ProductName := ProductName;
+  FVolumes[Index].MapName     := MapName;
+  FVolumes[Index].Levels      := Levels;
+
+  for l:=0 to Levels - 1 do
+  begin
+    FVolumes[Index].LevelScale[l]       := LevelScale[l];
+    FVolumes[Index].LevelName[l]        := LevelName[l];
+    FVolumes[Index].LevelDescription[l] := LevelDescription[l];
+    FVolumes[Index].LevelCopyright[l]   := LevelCopyright[l];
+    FVolumes[Index].LevelZoom[l]        := LevelZoom[l];
+    FVolumes[Index].TileCount[l]        := Min(TileCount[l], MAX_TILES);
+  end;
+end;
 
 procedure TMultiVolumeJNXWriter.AllocateVolumes;
 var
-  MaxTiles: integer;
-  VolCount: integer;
-  i, l: integer;
-  VolFileName: String;
-  TilesToDistribute: array [0..MAX_LEVELS - 1] of integer;
-  NonEmptyLevels: integer;
-  LevelIndex: integer;
-  TilesOnLevel: integer;
+  l: integer;
 begin
   if FVolumesAllocated then
     exit;
 
   FVolumesAllocated := True;
 
-  MaxTiles := 0;
-  for i:=0 to MAX_LEVELS - 1 do
-  begin
-    MaxTiles := Max(MaxTiles, FTotalTileCount[i]);
-    TilesToDistribute[i] := FTotalTileCount[i];
-  end;
-
-  VolCount := (MaxTiles - 1) div MAX_TILES + 1;
-
-  SetLength(FVolumes, VolCount);
-  SetLength(FVolumesLevelMapping, VolCount);
-
-
-  for i:=0 to VolCount - 1 do
-  begin
-    NonEmptyLevels := 0;
-    for l:=0 to MAX_LEVELS - 1 do
-    begin
-      FVolumesLevelMapping[i, l] := -1;
-
-      if TilesToDistribute[l] > 0 then
-        inc(NonEmptyLevels);
-    end;
-
-    VolFileName := FBasePath;
-    if VolCount > 1 then
-      VolFileName := VolFileName + '_Part' + Format('%.2d', [i + 1]);
-    VolFileName := VolFileName + '.jnx';
-
-    FVolumes[i] := TSimpleJNXWriter.Create(VolFileName);
-    FVolumes[i].Version     := Version;
-    FVolumes[i].ProductID   := ProductID;
-    FVolumes[i].ZOrder      := ZOrder;
-    FVolumes[i].ProductName := ProductName;
-    FVolumes[i].MapName     := MapName;
-    FVolumes[i].Levels      := NonEmptyLevels;
-
-    LevelIndex := 0;
-    for l:=0 to MAX_LEVELS - 1 do
-    begin
-      TilesOnLevel := Min(TilesToDistribute[l], MAX_TILES);
-      if TilesOnLevel > 0 then
-      begin
-        FVolumesLevelMapping[i, l] := LevelIndex;
-
-        FVolumes[i].LevelScale[LevelIndex]       := LevelScale[l];
-        FVolumes[i].LevelName[LevelIndex]        := LevelName[l];
-        FVolumes[i].LevelDescription[LevelIndex] := LevelDescription[l];
-        FVolumes[i].LevelCopyright[LevelIndex]   := LevelCopyright[l];
-        FVolumes[i].LevelZoom[LevelIndex]        := LevelZoom[l];
-        FVolumes[i].TileCount[LevelIndex]        := TilesOnLevel;
-
-        inc(LevelIndex);
-        dec(TilesToDistribute[l], TilesOnLevel);
-      end;
-    end;
-  end;
+  AllocateSingleVolume(0);
+  for l:=0 to Levels - 1 do
+    FCurrentVolumeIndex[l] := 0;
 end;
 
 destructor TMultiVolumeJNXWriter.Destroy;
 var
   i: integer;
+  NewName: String;
 begin
   for i:=0 to High(FVolumes) do
     FreeAndNil(FVolumes[i]);
+
+  if Length(FVolumes) > 1 then
+  begin
+    NewName := GetVolumeName(0);
+    if FileExists(NewName) then
+      SysUtils.DeleteFile(NewName);
+    RenameFile(FFirstVolumePath, NewName);
+  end;
 
   inherited;
 end;
@@ -944,11 +948,17 @@ begin
   Result := Nil;
 end;
 
+function TMultiVolumeJNXWriter.GetVolumeName(Index: integer): String;
+begin
+  Result := FBasePath + '_Part' + Format('%.2d', [Index + 1]) + '.jnx';
+end;
+
 procedure TMultiVolumeJNXWriter.OpenFile(const Path: String);
 begin
   inherited;
 
   FBasePath := ChangeFileExt(Path, '');
+  FFirstVolumePath := FBasePath + '.jnx';
 end;
 
 procedure TMultiVolumeJNXWriter.SetTileCount(l: integer;
@@ -962,18 +972,24 @@ procedure TMultiVolumeJNXWriter.WriteTile(Level, PicWidth,
   AdjustMapBounds: boolean);
 var
   VolumeIndex: integer;
-  LevelIndex: integer;
+  NextVolumeFound: boolean;
 begin
   AllocateVolumes;
 
-  VolumeIndex := FCurrentVolumeIndex[Level];
-  LevelIndex := FVolumesLevelMapping[VolumeIndex][Level];
+  repeat
+    VolumeIndex := FCurrentVolumeIndex[Level];
+    NextVolumeFound := FVolumes[VolumeIndex].CanAcceptTile(Level, Length(JpegString));
 
-  FVolumes[VolumeIndex].WriteTile(LevelIndex, PicWidth, PicHeight, Bounds, JpegString, AdjustMapBounds);
+    if not NextVolumeFound then
+    begin
+      inc(VolumeIndex);
+      inc(FCurrentVolumeIndex[Level]);
+      if VolumeIndex = Length(FVolumes) then
+        AllocateSingleVolume(VolumeIndex);
+    end;
+  until NextVolumeFound;
 
-  // Moving to the next volume, if the current one is completely filled.
-  if FVolumes[VolumeIndex].LevelInfo[LevelIndex].TileCount = MAX_TILES then
-    inc(FCurrentVolumeIndex[Level]);
+  FVolumes[VolumeIndex].WriteTile(Level, PicWidth, PicHeight, Bounds, JpegString, AdjustMapBounds);
 end;
 
 initialization
