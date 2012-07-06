@@ -123,15 +123,15 @@ begin
   end;
   cbbPointIcon.Repaint;
   VPathTemplate := VConfig.LineTemplateConfig.DefaultTemplate;
-  clrbxLineColor.Color := WinColor(VPathTemplate.LineColor);
+  clrbxLineColor.Selected := WinColor(VPathTemplate.LineColor);
   seLineTransp.Value := 100-round(AlphaComponent(VPathTemplate.LineColor)/255*100);
   seLineWidth.Value := VPathTemplate.LineWidth;
 
   VPolyTemplate := VConfig.PolyTemplateConfig.DefaultTemplate;
 
-  clrbxPolyLineColor.Color := WinColor(VPolyTemplate.BorderColor);
+  clrbxPolyLineColor.Selected := WinColor(VPolyTemplate.BorderColor);
   sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.BorderColor)/255*100);
-  clrbxPolyFillColor.Color := WinColor(VPolyTemplate.FillColor);
+  clrbxPolyFillColor.Selected := WinColor(VPolyTemplate.FillColor);
   sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillColor)/255*100);
   sePolyLineWidth.Value := VPolyTemplate.LineWidth;
 end;
