@@ -56,7 +56,7 @@ implementation
 
 constructor TGlobalDownloadConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FIsGoNextTileIfDownloadError := True;
   FIsUseSessionLastSuccess := True;
   FIsSaveTileNotExists := True;

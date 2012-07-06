@@ -70,7 +70,7 @@ uses
 
 constructor TDownloadUIConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FUseDownload := tsCacheInternet;
   FTilesOut := 0;
   FTileMaxAgeInInternet := 1 / 24 / 60;

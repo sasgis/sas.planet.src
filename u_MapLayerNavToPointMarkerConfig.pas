@@ -62,7 +62,7 @@ constructor TMapLayerNavToPointMarkerConfig.Create;
 var
   VMarkerProvider: IBitmapMarkerProviderSimpleConfigStatic;
 begin
-  inherited;
+  inherited Create;
   FCrossDistInPixels := 100;
 
   VMarkerProvider :=

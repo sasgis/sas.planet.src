@@ -52,7 +52,7 @@ uses
 
 constructor TSelectionPolygonLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FLineConfig := TPolygonLayerConfig.Create;
   FLineConfig.LineColor := SetAlpha(clBlue32, 180);
   FLineConfig.FillColor := SetAlpha(clWhite32, 40);

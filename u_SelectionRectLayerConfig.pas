@@ -75,7 +75,7 @@ var
   i: Integer;
   VColorComponent: Byte;
 begin
-  inherited;
+  inherited Create;
   FFillColor := SetAlpha(clWhite32, 20);
   FBorderColor := SetAlpha(clBlue32, 150);
   FFontSize := 11;

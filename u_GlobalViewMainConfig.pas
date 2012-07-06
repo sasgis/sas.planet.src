@@ -49,7 +49,7 @@ implementation
 
 constructor TGlobalViewMainConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FBackGroundColor := clSilver;
 end;
 

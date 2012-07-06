@@ -60,7 +60,7 @@ implementation
 
 constructor TMapMovingConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FAnimateMove := True;
   FAnimateMoveTime := 600;
   FAnimateMaxStartSpeed := 4000;

@@ -51,7 +51,7 @@ uses
 
 constructor TTileDownloaderStateInternal.Create;
 begin
-  inherited;
+  inherited Create;
   FEnabled := True;
 end;
 

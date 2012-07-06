@@ -50,7 +50,7 @@ uses
 
 constructor TMarkPolyLineLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FLineConfig := TLineLayerConfig.Create;
   FLineConfig.LineColor := SetAlpha(ClRed32, 150);
   FLineConfig.LineWidth := 3;

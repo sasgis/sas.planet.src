@@ -86,7 +86,7 @@ uses
 
 constructor TPointsSetLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FPointFillColor := SetAlpha(clYellow32, 150);
   FPointRectColor := SetAlpha(ClRed32, 150);
   FPointFirstColor := SetAlpha(ClGreen32, 255);
@@ -239,7 +239,7 @@ end;
 
 constructor TLineLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FLineColor := SetAlpha(ClRed32, 150);
   FLineWidth := 3;
 end;

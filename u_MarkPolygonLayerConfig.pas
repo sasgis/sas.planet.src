@@ -52,7 +52,7 @@ uses
 
 constructor TMarkPolygonLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FLineConfig := TPolygonLayerConfig.Create;
   FLineConfig.LineColor := SetAlpha(ClRed32, 150);
   FLineConfig.LineWidth := 3;

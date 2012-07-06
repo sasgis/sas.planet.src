@@ -52,7 +52,7 @@ uses
 
 constructor TMapLayerGridsConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FTileGrid := TTileGridConfig.Create;
   Add(FTileGrid, TConfigSaveLoadStrategyBasicProviderSubItem.Create('TileGrid'));
   FGenShtabGrid := TGenShtabGridConfig.Create;

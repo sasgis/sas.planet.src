@@ -60,7 +60,7 @@ implementation
 
 constructor TKeyMovingConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FFirstKeyPressDelta := 30;
   FMinPixelPerSecond := 20;
   FMaxPixelPerSecond := 1024;

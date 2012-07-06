@@ -60,7 +60,7 @@ uses
 
 constructor TBitmapPostProcessingConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FInvertColor := False;
   FContrastN := 0;
   FGammaN := 50;

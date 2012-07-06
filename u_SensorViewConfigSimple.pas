@@ -44,7 +44,7 @@ implementation
 
 constructor TSensorViewConfigSimple.Create;
 begin
-  inherited;
+  inherited Create;
   FVisible := True;
 end;
 

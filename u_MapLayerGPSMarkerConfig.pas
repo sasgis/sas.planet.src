@@ -63,7 +63,7 @@ constructor TMapLayerGPSMarkerConfig.Create;
 var
   VMarkerProvider: IBitmapMarkerProviderSimpleConfigStatic;
 begin
-  inherited;
+  inherited Create;
   FMinMoveSpeed := 1;
 
   VMarkerProvider :=

@@ -48,7 +48,7 @@ implementation
 
 constructor TGotoLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FShowTickCount := 20000;
 end;
 

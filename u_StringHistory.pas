@@ -59,7 +59,7 @@ uses
 
 constructor TStringHistory.Create;
 begin
-  inherited;
+  inherited Create;
   FList := TStringList.Create;
   FList.Capacity := 10;
 end;

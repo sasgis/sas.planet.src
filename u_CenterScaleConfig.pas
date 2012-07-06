@@ -63,7 +63,7 @@ uses
 
 constructor TCenterScaleConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FVisible := False;
   CreateBitmap;
 end;

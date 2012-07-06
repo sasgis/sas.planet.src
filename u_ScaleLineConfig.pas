@@ -87,7 +87,7 @@ const
 
 constructor TScaleLineConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FVisible := True;
   FExtended := False;
   FWidth := 256;

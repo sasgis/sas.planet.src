@@ -60,7 +60,7 @@ uses
 
 constructor TBaseGridConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FVisible := False;
   FShowText := True;
   FGridColor := SetAlpha(clWhite32, 150);

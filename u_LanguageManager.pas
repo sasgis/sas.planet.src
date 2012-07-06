@@ -77,7 +77,7 @@ uses
 
 constructor TLanguageManager.Create;
 begin
-  inherited;
+  inherited Create;
   FNames := TStringList.Create;
   FDefaultLangCode := 'en';
   SetTranslateIgnore;

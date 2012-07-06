@@ -56,7 +56,7 @@ implementation
 
 constructor TMapZoomingConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FZoomingAtMousePos := True;
   FAnimateZoom := True;
   FAnimateZoomTime := 320;

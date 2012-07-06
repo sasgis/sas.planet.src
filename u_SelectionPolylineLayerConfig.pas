@@ -73,7 +73,7 @@ uses
 
 constructor TSelectionPolylineLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FLineConfig := TLineLayerConfig.Create;
   FLineConfig.LineColor := SetAlpha(clBlue32, 180);
 

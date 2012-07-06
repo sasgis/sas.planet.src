@@ -105,7 +105,7 @@ uses
 
 constructor TStatBarConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FVisible := True;
   FHeight := 17;
   FMinUpdateTickCount := 200;

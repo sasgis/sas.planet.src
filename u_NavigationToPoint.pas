@@ -60,7 +60,7 @@ implementation
 
 constructor TNavigationToPoint.Create;
 begin
-  inherited;
+  inherited Create;
   FIsActive := False;
   FMarkId := nil;
 end;

@@ -50,7 +50,7 @@ uses
 
 constructor TPathDetalizeProviderListBase.Create;
 begin
-  inherited;
+  inherited Create;
   FList := TGUIDInterfaceSet.Create(False);
 end;
 

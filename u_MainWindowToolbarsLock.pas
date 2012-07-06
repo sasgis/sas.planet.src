@@ -49,7 +49,7 @@ implementation
 
 constructor TMainWindowToolbarsLock.Create;
 begin
-  inherited;
+  inherited Create;
   FIsLock := False;
 end;
 

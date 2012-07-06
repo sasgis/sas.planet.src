@@ -56,7 +56,7 @@ implementation
 
 constructor TGlobalAppConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FIsShowIconInTray := False;
 
   {$IFDEF DEBUG}

@@ -72,7 +72,7 @@ uses
 
 constructor TMarksDrawConfig.Create;
 begin
-  inherited;
+  inherited Create;
 
   FShowPointCaption := True;
   FUseSimpleDrawOrder := false;

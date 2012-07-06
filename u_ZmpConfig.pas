@@ -48,7 +48,7 @@ implementation
 
 constructor TZmpConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FMaxConnectToServerCount := 4;
 end;
 

@@ -98,7 +98,7 @@ implementation
 
 constructor TProxyConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FUseIESettings := True;
   FUseProxy := False;
   FUseLogin := False;

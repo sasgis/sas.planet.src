@@ -61,7 +61,7 @@ uses
 
 constructor TCalcLineLayerCaptionsConfig.Create;
 begin
-  inherited;
+  inherited Create;
   LockWrite;
   try
     SetLenShow(True);

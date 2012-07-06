@@ -67,7 +67,7 @@ uses
 
 constructor TKmlLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FMainColor := clWhite32;
   FShadowColor := clBlack32;
   FPointColor := SetAlpha(clWhite32, 170);

@@ -39,7 +39,7 @@ uses
 
 constructor TFullMapMouseCursorLayerConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FLineColor := clWhite32;
   FEnabled := False;
   FShowAlways := False;

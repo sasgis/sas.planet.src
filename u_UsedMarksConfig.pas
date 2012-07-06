@@ -63,7 +63,7 @@ uses
 
 constructor TUsedMarksConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FIsUseMarks := True;
   FIgnoreMarksVisible := False;
   FIgnoreCategoriesVisible := False;

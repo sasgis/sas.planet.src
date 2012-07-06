@@ -73,7 +73,7 @@ uses
 
 constructor TInetConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FUserAgentString := 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)';
   FTimeOut := 40000;
   FSleepOnResetConnection := 30000;

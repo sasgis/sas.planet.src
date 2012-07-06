@@ -447,7 +447,7 @@ end;
 
 constructor TMapLayerGPSTrackConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FVisible := True;
   FLineWidth := 5;
   FLastPointCount := 5000;

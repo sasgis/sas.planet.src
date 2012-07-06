@@ -60,7 +60,7 @@ implementation
 
 constructor TMainFormBehaviourByGPSConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FMapMove := True;
   FMapMoveCentered := False;
   FMinMoveDelta := 10;

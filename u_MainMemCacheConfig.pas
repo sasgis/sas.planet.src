@@ -51,7 +51,7 @@ const
 
 constructor TMainMemCacheConfig.Create;
 begin
-  inherited;
+  inherited Create;
   FMaxSize := 100;
 end;
 
