@@ -99,8 +99,8 @@ begin
   VPictureList := VFactory.MarkPictureList;
   VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
 
-  clrbxPointTextColor.Color := WinColor(VPointTemplate.TextColor);
-  clrbxPointShadowColor.Color := WinColor(VPointTemplate.TextBgColor);
+  clrbxPointTextColor.Selected := WinColor(VPointTemplate.TextColor);
+  clrbxPointShadowColor.Selected := WinColor(VPointTemplate.TextBgColor);
   sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.TextColor)/255*100);
   sePointFontSize.Value := VPointTemplate.FontSize;
   sePointIconSize.Value := VPointTemplate.MarkerSize;
