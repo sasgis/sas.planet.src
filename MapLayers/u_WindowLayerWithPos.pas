@@ -94,8 +94,6 @@ type
 
     procedure SetNeedRedraw; virtual;
 
-    function GetVisibleForNewPos(const ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
-
     procedure Show;
     procedure DoShow; virtual;
     procedure Hide;
@@ -106,7 +104,6 @@ type
     property Layer: TCustomLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
-    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure DoViewUpdate; override;
     procedure Redraw;
   public
@@ -404,13 +401,6 @@ begin
   Result := FVisible;
 end;
 
-function TWindowLayerBasic.GetVisibleForNewPos(
-  const ANewVisualCoordConverter: ILocalCoordConverter
-): Boolean;
-begin
-  Result := FVisible;
-end;
-
 procedure TWindowLayerBasic.Redraw;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -431,14 +421,6 @@ begin
   if FNeedRedrawFlag.CheckFlagAndReset then begin
     Redraw;
   end;
-end;
-
-procedure TWindowLayerBasic.SetLayerCoordConverter(
-  const AValue: ILocalCoordConverter
-);
-begin
-  SetVisible(GetVisibleForNewPos(AValue));
-  inherited;
 end;
 
 procedure TWindowLayerBasic.SetNeedRedraw;

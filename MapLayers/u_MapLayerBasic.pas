@@ -89,6 +89,8 @@ type
     FNeedUpdateLayerSizeFlag: ISimpleFlag;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
+    function GetVisibleForNewPos(const ANewVisualCoordConverter: ILocalCoordConverter): Boolean; virtual;
+
     procedure SetNeedUpdateLayerSize; virtual;
     procedure UpdateLayerSize;
     procedure UpdateLayerSizeIfNeed;
@@ -300,10 +302,17 @@ begin
   end;
 end;
 
+function TMapLayerBasic.GetVisibleForNewPos(
+  const ANewVisualCoordConverter: ILocalCoordConverter): Boolean;
+begin
+  Result := Visible;
+end;
+
 procedure TMapLayerBasic.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
 var
   VNewSize: TPoint;
 begin
+  SetVisible(GetVisibleForNewPos(AValue));
   VNewSize := GetLayerSizeForView(AValue);
   Layer.Bitmap.Lock;
   try
