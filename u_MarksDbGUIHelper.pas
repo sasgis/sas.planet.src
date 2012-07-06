@@ -34,7 +34,7 @@ uses
   i_VectorItmesFactory,
   i_ValueToStringConverter,
   i_VectorItemLonLat,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_MarksSimple,
   i_MarkCategory,
   i_ImportConfig,
@@ -141,7 +141,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
       AMarksDB: TMarksSystem;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorItmesFactory: IVectorItmesFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
@@ -166,7 +166,7 @@ constructor TMarksDbGUIHelper.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
   AMarksDB: TMarksSystem;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorItmesFactory: IVectorItmesFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess

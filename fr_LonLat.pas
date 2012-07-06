@@ -37,7 +37,7 @@ uses
   i_LocalCoordConverter,
   t_GeoTypes,
   i_ValueToStringConverter,
-  i_ViewPortState;
+  i_LocalCoordConverterChangeable;
 
 type
   TTileSelectStyle = (tssCenter, tssTopLeft, tssBottomRight);
@@ -62,7 +62,7 @@ type
     procedure cbbCoordTypeSelect(Sender: TObject);
   private
     FCoordinates: TDoublePoint;
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
@@ -71,7 +71,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
@@ -107,7 +107,7 @@ end;
 
 constructor TfrLonLat.Create(
   const ALanguageManager: ILanguageManager;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   ATileSelectStyle: TTileSelectStyle
 );
@@ -207,7 +207,7 @@ begin
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
-        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
+        VLocalConverter :=  FViewPortState.GetStatic;
         VZoom := cbbZoom.ItemIndex;
         VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
         Result := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
@@ -219,7 +219,7 @@ begin
         except
           ShowMessage(SAS_ERR_CoordinatesInput);
         end;
-        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
+        VLocalConverter :=  FViewPortState.GetStatic;
         VZoom := cbbZoom.ItemIndex;
 
         case FTileSelectStyle of
@@ -243,7 +243,8 @@ var
 begin
   FCoordinates:=Value;
   VValueConverter := FValueToStringConverterConfig.GetStatic;
-  CurrZoom:=FViewPortState.GetCurrentZoom;
+  VLocalConverter :=  FViewPortState.GetStatic;
+  CurrZoom := VLocalConverter.Zoom;
   cbbZoom.ItemIndex:=CurrZoom;
   if cbbCoordType.ItemIndex=-1 then begin
     cbbCoordType.ItemIndex:=0;
@@ -255,13 +256,11 @@ begin
         edtLat.Text:=VValueConverter.LatConvert(Value.y);
       end;
    1: begin
-        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYPoint:=VLocalConverter.GetGeoConverter.LonLat2PixelPos(Value,CurrZoom);
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);
       end;
    2: begin
-        VLocalConverter :=  FViewPortState.GetVisualCoordConverter;
         XYPoint:=VLocalConverter.GetGeoConverter.LonLat2TilePos(Value,CurrZoom);
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);

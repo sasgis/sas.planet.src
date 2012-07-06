@@ -27,7 +27,7 @@ uses
   Controls,
   Menus,
   i_MapViewGoto,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_LastSearchResultConfig,
   i_GeoCoder,
@@ -39,7 +39,7 @@ type
   TSearchResultPresenterOnPanel = class(TInterfacedObject, ISearchResultPresenter)
   private
     FMapGoto: IMapViewGoto;
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FIntrnalBrowser: IInternalBrowser;
     FDrawParent: TWinControl;
     FSearchWindow: TWinControl;
@@ -62,7 +62,7 @@ type
       APopUp: TPopupMenu;
       const AValueConverterConfig: IValueToStringConverterConfig;
       const ALastSearchResults: ILastSearchResultConfig;
-      const AViewPortState: IViewPortState
+      const AViewPortState: ILocalCoordConverterChangeable
     );
     destructor Destroy; override;
   end;
@@ -83,7 +83,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   APopUp: TPopupMenu;
   const AValueConverterConfig: IValueToStringConverterConfig;
   const ALastSearchResults: ILastSearchResultConfig;
-  const AViewPortState: IViewPortState
+  const AViewPortState: ILocalCoordConverterChangeable
 );
 begin
   inherited Create;

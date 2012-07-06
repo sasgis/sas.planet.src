@@ -45,7 +45,7 @@ uses
   u_CommonFormAndFrameParents,
   t_GeoTypes,
   i_LanguageManager,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_NavigationToPoint,
   i_UsedMarksConfig,
   i_MapViewGoto,
@@ -147,7 +147,7 @@ type
     FImportFileByExt: IImportFile;
     FMarksShowConfig: IUsedMarksConfig;
     FWindowConfig: IWindowPositionConfig;
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FNavToPoint: INavigationToPoint;
 
     FCategoryDBListener: IListener;
@@ -171,7 +171,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AImportFileByExt: IImportFile;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const ANavToPoint: INavigationToPoint;
       const AWindowConfig: IWindowPositionConfig;
       const AMarksShowConfig: IUsedMarksConfig;
@@ -195,7 +195,7 @@ uses
 constructor TfrmMarksExplorer.Create(
   const ALanguageManager: ILanguageManager;
   const AImportFileByExt: IImportFile;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const ANavToPoint: INavigationToPoint;
   const AWindowConfig: IWindowPositionConfig;
   const AMarksShowConfig: IUsedMarksConfig;
@@ -536,7 +536,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetCurrentZoom);
+    FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
   end;
 end;
 
@@ -564,7 +564,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if FMarkDBGUI.OperationMark(VMark, FViewPortState.GetVisualCoordConverter.ProjectionInfo) then begin
+    if FMarkDBGUI.OperationMark(VMark, FViewPortState.GetStatic.ProjectionInfo) then begin
       ModalResult := mrOk;
     end;
   end;
@@ -745,7 +745,7 @@ var
   VMark: IMark;
   VCategory: ICategory;
 begin
-  VLonLat := FViewPortState.GetVisualCoordConverter.GetCenterLonLat;
+  VLonLat := FViewPortState.GetStatic.GetCenterLonLat;
   VCategory := GetSelectedCategory;
   VPointTemplate := nil;
   if VCategory <> nil then begin

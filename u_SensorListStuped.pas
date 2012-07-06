@@ -24,7 +24,7 @@ interface
 
 uses
   i_NavigationToPoint,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_GPSRecorder,
   i_ValueToStringConverter,
   i_BatteryStatus,
@@ -36,7 +36,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const ANavigationToPoint: INavigationToPoint;
       const AGPSRecorder: IGPSRecorder;
       const ABatteryStatus: IBatteryStatus;
@@ -63,7 +63,7 @@ uses
 
 constructor TSensorListStuped.Create(
   const ALanguageManager: ILanguageManager;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const ANavigationToPoint: INavigationToPoint;
   const AGPSRecorder: IGPSRecorder;
   const ABatteryStatus: IBatteryStatus;

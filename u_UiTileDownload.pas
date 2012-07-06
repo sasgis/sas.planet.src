@@ -18,7 +18,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_TileDownloaderState,
   i_GlobalInternetState,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_ListenerNotifierLinksList,
   i_ActiveMapsConfig,
   i_LocalCoordConverter;
@@ -30,7 +30,7 @@ type
     FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifierOneOperation;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FMapTypeActive: IActiveMapSingle;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
@@ -73,7 +73,7 @@ type
       const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifierOneOperation;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AMapTypeActive: IActiveMapSingle;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
@@ -108,7 +108,7 @@ constructor TUiTileDownload.Create(
   const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AMapTypeActive: IActiveMapSingle;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
@@ -241,7 +241,7 @@ var
 begin
   VConverter :=
     FConverterFactory.CreateBySourceWithStableTileRectAndOtherGeo(
-      FViewPortState.GetVisualCoordConverter,
+      FViewPortState.GetStatic,
       FMapTypeActive.GetMapType.MapType.GeoConvert
     );
   VNeedRestart := False;

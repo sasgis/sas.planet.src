@@ -187,12 +187,12 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
-    FViewPortState.GetChangeNotifier
+    FViewPortState.Position.ChangeNotifier
   );
   if AListenScaleChange then begin
     LinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnViewPortScaleChange),
-      FViewPortState.ScaleChangeNotifier
+      FViewPortState.View.ChangeNotifier
     );
   end;
 end;
@@ -209,7 +209,7 @@ end;
 
 procedure TWindowLayerWithPosBase.OnViewPortPosChange;
 begin
-  PosChange(FViewPortState.GetVisualCoordConverter);
+  PosChange(FViewPortState.Position.GetStatic);
 end;
 
 procedure TWindowLayerWithPosBase.PosChange(
@@ -227,7 +227,7 @@ end;
 
 procedure TWindowLayerWithPosBase.OnViewPortScaleChange;
 begin
-  ScaleChange(FViewPortState.GetVisualCoordConverter);
+  ScaleChange(FViewPortState.View.GetStatic);
 end;
 
 procedure TWindowLayerWithPosBase.ScaleChange(

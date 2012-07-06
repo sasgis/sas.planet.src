@@ -35,7 +35,7 @@ uses
   i_LanguageManager,
   i_MarksDb,
   i_MainGeoCoderConfig,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_GeoCoder,
   i_LocalCoordConverter,
@@ -63,7 +63,7 @@ type
   private
     FMarksDb: IMarksDb;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
@@ -82,7 +82,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMarksDb: IMarksDb;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -185,7 +185,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VNotifier: INotifierOperation;
 begin
-  VLocalConverter := FViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FViewPortState.GetStatic;
   if pgcSearchType.ActivePage = tsPlaceMarks then begin
     VIndex := cbbAllMarks.ItemIndex;
     if VIndex >= 0 then begin
@@ -229,7 +229,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
    frLonLatPoint.Parent := tsCoordinates;
-  VLocalConverter := FViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FViewPortState.GetStatic;
   AZoom := VLocalConverter.GetZoom;
   cbbZoom.ItemIndex := Azoom;
   frLonLatPoint.LonLat := VLocalConverter.GetCenterLonLat;
@@ -265,7 +265,7 @@ constructor TfrmGoTo.Create(
   const ALanguageManager: ILanguageManager;
   const AMarksDb: IMarksDb;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin

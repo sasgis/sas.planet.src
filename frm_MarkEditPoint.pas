@@ -42,7 +42,7 @@ uses
   u_ResStrings,
   i_LanguageManager,
   i_PathConfig,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
@@ -122,7 +122,7 @@ type
       const AMediaPath: IPathConfig;
       const ACategoryDB: IMarkCategoryDB;
       const AMarksDb: IMarksDb;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -144,7 +144,7 @@ constructor TfrmMarkEditPoint.Create(
   const AMediaPath: IPathConfig;
   const ACategoryDB: IMarkCategoryDB;
   const AMarksDb: IMarksDb;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin

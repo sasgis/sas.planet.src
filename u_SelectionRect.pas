@@ -26,14 +26,14 @@ uses
   Classes,
   t_GeoTypes,
   i_SelectionRect,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_MapLayerGridsConfig,
   u_ConfigDataElementBase;
 
 type
   TSelectionRect = class(TConfigDataElementBaseEmptySaveLoad, ISelectionRect)
   private
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FTileGridConfig: ITileGridConfig;
     FGenShtabGridConfig: IGenShtabGridConfig;
     FDegreeGridConfig: IDegreeGridConfig;
@@ -57,7 +57,7 @@ type
     function GetRect: TDoubleRect;
   public
     constructor Create(
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const ATileGridConfig: ITileGridConfig;
       const AGenShtabGridConfig: IGenShtabGridConfig;
       const ADegreeGridConfig: IDegreeGridConfig
@@ -74,7 +74,7 @@ uses
 { TSelectionRect }
 
 constructor TSelectionRect.Create(
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const ATileGridConfig: ITileGridConfig;
   const AGenShtabGridConfig: IGenShtabGridConfig;
   const ADegreeGridConfig: IDegreeGridConfig
@@ -117,7 +117,7 @@ var
   VTemp: Double;
   VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FViewPortState.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
 
   Result.TopLeft := APoint1;

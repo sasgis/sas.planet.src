@@ -30,7 +30,7 @@ uses
   ExtCtrls,
   StdCtrls,
   i_GeoCoder,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_MapViewGoto,
   i_InternalBrowser,
   Classes;
@@ -52,7 +52,7 @@ type
     procedure LabelDescDblClick(Sender: TObject);
   private
     FPlacemark: IGeoCodePlacemark;
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
     FPopUp: TPopupMenu;
@@ -62,7 +62,7 @@ type
       AParent:TWinControl;
       APopUp: TPopupMenu;
       const APlacemark: IGeoCodePlacemark;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto
     ); reintroduce;
@@ -76,7 +76,7 @@ constructor TfrSearchResultsItem.Create(
   AParent:TWinControl;
   APopUp: TPopupMenu;
   const APlacemark: IGeoCodePlacemark;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto
 );
@@ -116,12 +116,12 @@ end;
 
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
 begin
-  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetCurrentZoom);
+  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetStatic.Zoom);
 end;
 
 procedure TfrSearchResultsItem.LabelDescDblClick(Sender: TObject);
 begin
-  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetCurrentZoom);
+  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetStatic.Zoom);
 end;
 
 procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;

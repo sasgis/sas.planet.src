@@ -34,7 +34,7 @@ uses
   t_GeoTypes,
   i_LanguageManager,
   i_ValueToStringConverter,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   fr_LonLat;
 
 type
@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -68,7 +68,7 @@ uses
 
 constructor TfrmLonLatRectEdit.Create(
   const ALanguageManager: ILanguageManager;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin

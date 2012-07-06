@@ -25,14 +25,14 @@ interface
 uses
   i_Notifier,
   i_NavigationToPoint,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_Sensor,
   u_SensorBase;
 
 type
   TSensorTextFromNavToPoint = class(TSensorDoubeleValue, ISensorDistance)
   private
-    FViewPortState: IViewPortState;
+    FViewPortState: ILocalCoordConverterChangeable;
     FNavigationToPoint: INavigationToPoint;
 
     FSourceDataUpdateNotifier: INotifierInternal;
@@ -44,7 +44,7 @@ type
     function GetCurrentValue: Double; override;
   public
     constructor Create(
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const ANavigationToPoint: INavigationToPoint
     );
   end;
@@ -62,7 +62,7 @@ uses
 { TSensorTextFromNavToPoint }
 
 constructor TSensorTextFromNavToPoint.Create(
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const ANavigationToPoint: INavigationToPoint
 );
 begin
@@ -91,7 +91,7 @@ var
   VNavLonLat: TDoublePoint;
   VCenterLonLat: TDoublePoint;
 begin
-  VVisualConverter := FViewPortState.GetVisualCoordConverter;
+  VVisualConverter := FViewPortState.GetStatic;
   Result := NaN;
   if VVisualConverter <> nil then begin
     FNavigationToPoint.LockRead;

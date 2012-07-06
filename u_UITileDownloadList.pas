@@ -6,7 +6,7 @@ uses
   Classes,
   i_NotifierOperation,
   i_DownloadUIConfig,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_ActiveMapsConfig,
   i_NotifierTTLCheck,
   i_LocalCoordConverterFactorySimpe,
@@ -24,7 +24,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AConfig: IDownloadUIConfig;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AViewPortState: IViewPortState;
+      const AViewPortState: ILocalCoordConverterChangeable;
       const AMapsSet: IActiveMapsSet;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
@@ -45,7 +45,7 @@ constructor TUITileDownloadList.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AConfig: IDownloadUIConfig;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AViewPortState: IViewPortState;
+  const AViewPortState: ILocalCoordConverterChangeable;
   const AMapsSet: IActiveMapsSet;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;

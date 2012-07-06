@@ -834,7 +834,7 @@ begin
       GState.LanguageManager,
       GState.MarksDB.MarksDb,
       FConfig.MainGeoCoderConfig,
-      FConfig.ViewPortState,
+      FConfig.ViewPortState.Position,
       GState.ValueToStringConverterConfig
     );
 
@@ -911,7 +911,7 @@ begin
 
   FSelectionRect :=
     TSelectionRect.Create(
-      FConfig.ViewPortState,
+      FConfig.ViewPortState.Position,
       FConfig.LayersConfig.MapLayerGridsConfig.TileGrid,
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid,
       FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid
@@ -992,7 +992,7 @@ begin
       GState.LanguageManager,
       GState.MediaDataPath,
       GState.MarksDB,
-      FConfig.ViewPortState,
+      FConfig.ViewPortState.Position,
       GState.VectorItmesFactory,
       GState.ValueToStringConverterConfig,
       FFormRegionProcess
@@ -1839,7 +1839,7 @@ begin
       TfrmMarksExplorer.Create(
         GState.LanguageManager,
         GState.ImportFileByExt,
-        FConfig.ViewPortState,
+        FConfig.ViewPortState.Position,
         FConfig.NavToPoint,
         FConfig.MarksExplorerWindowConfig,
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
@@ -1856,7 +1856,7 @@ begin
         GState.AppClosingNotifier,
         FConfig.DownloadUIConfig,
         GState.LocalConverterFactory,
-        FConfig.ViewPortState,
+        FConfig.ViewPortState.Position,
         FConfig.MainMapsConfig.GetAllActiveMapsSet,
         GState.DownloadInfo,
         GState.GlobalInternetState,
@@ -1900,7 +1900,7 @@ begin
       tbxpmnSearchResult,
       GState.ValueToStringConverterConfig,
       FConfig.LastSearchResultConfig,
-      FConfig.ViewPortState
+      FConfig.ViewPortState.Position
     );
 
   VEnum := FConfig.MainGeoCoderConfig.GetList.GetGUIDEnum;
@@ -2187,7 +2187,7 @@ var
   VPosition: IGPSPosition;
   VpPos: PSingleGPSData;
 begin
-  VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VConverter := FConfig.ViewPortState.Position.GetStatic;
   VZoomCurr := VConverter.GetZoom;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
@@ -2960,7 +2960,7 @@ begin
   VMapType:=FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   if VMapType.AllowListOfTileVersions then begin
     // to lonlat
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMousePos := MainPopupMenu.PopupPoint;
@@ -3020,7 +3020,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -3141,7 +3141,7 @@ var
   VZoomCurr: Byte;
   VMouseLonLat: TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -3164,7 +3164,7 @@ var
   VTile: TPoint;
   VBitmapTile: IBitmap32Static;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
@@ -3201,7 +3201,7 @@ var
   VConverter: ICoordConverter;
   VMouseMapPoint: TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -3223,7 +3223,7 @@ var
 begin
   VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   if VMapType.StorageConfig.IsStoreFileCache then begin
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
@@ -3256,7 +3256,7 @@ begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
@@ -3340,7 +3340,7 @@ var
 begin
   VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   if VMapType.StorageConfig.IsStoreFileCache then begin
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
@@ -3373,7 +3373,7 @@ begin
   end;
 
   if VMapType.StorageConfig.IsStoreFileCache then begin
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
     VConverter := VLocalConverter.GetGeoConverter;
@@ -3454,7 +3454,7 @@ begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
 
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
@@ -3832,7 +3832,7 @@ begin
   VSelLonLat:=
     TfrmLonLatRectEdit.Create(
       GState.LanguageManager,
-      FConfig.ViewPortState,
+      FConfig.ViewPortState.Position,
       GState.ValueToStringConverterConfig
     );
   Try
@@ -3840,7 +3840,7 @@ begin
     if Poly.Count > 0 then begin
       VLonLatRect := Poly.Item[0].Bounds.Rect;
     end else begin
-      VLonLatRect.TopLeft := FConfig.ViewPortState.GetVisualCoordConverter.GetCenterLonLat;
+      VLonLatRect.TopLeft := FConfig.ViewPortState.Position.GetStatic.GetCenterLonLat;
       VLonLatRect.BottomRight := VLonLatRect.TopLeft;
     end;
     if VSelLonLat.Execute(VLonLatRect) Then Begin
@@ -4037,7 +4037,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.GetVisualCoordConverter.ProjectionInfo);
+    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.Position.GetStatic.ProjectionInfo);
   end;
 end;
 
@@ -4057,7 +4057,7 @@ begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
   end;
   if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -4130,7 +4130,7 @@ begin
         VGPSNewPos.X := VpPos^.PositionLon;
         VGPSNewPos.Y := VpPos^.PositionLat;
         if VMapMoveCentred then begin
-          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+          VConverter := FConfig.ViewPortState.Position.GetStatic;
           VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
           VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
           VPointDelta.X := VCenterMapPoint.X - VGPSMapPoint.X;
@@ -4140,7 +4140,7 @@ begin
             FConfig.ViewPortState.ChangeLonLat(VGPSNewPos);
           end;
         end else begin
-          VConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+          VConverter := FConfig.ViewPortState.Position.GetStatic;
           VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSNewPos, VConverter.GetZoom);
           if PixelPointInRect(VGPSMapPoint, VConverter.GetRectInMapPixelFloat) then  begin
             VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -4301,7 +4301,7 @@ begin
     exit;
   end;
   Screen.ActiveForm.SetFocusedControl(map);
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
@@ -4426,7 +4426,7 @@ begin
     end;
   end;
 
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   if not VMapMoving and (Button = mbLeft) then begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
     VConverter := VLocalConverter.GetGeoConverter;
@@ -4616,7 +4616,7 @@ begin
   if (FMapZoomAnimtion)or(ssDouble in Shift) then begin
     exit;
   end;
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoomCurr := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
@@ -4793,7 +4793,7 @@ var
 begin
   if SaveLink.Execute then begin
     VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
-    VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
     param:=' '+GUIDToString(VMapType.Zmp.GUID)+' '+IntToStr(VZoomCurr + 1)+' '+FloatToStr(VLonLat.x)+' '+FloatToStr(VLonLat.y);
@@ -5022,7 +5022,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5073,7 +5073,7 @@ begin
                 VPath,
                 TLonLatPointFilterLine2Poly.Create(
                   FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
-                  FConfig.ViewPortState.GetVisualCoordConverter.ProjectionInfo
+                  FConfig.ViewPortState.Position.GetStatic.ProjectionInfo
                 )
               );
             FState.State := ao_movemap;
@@ -5120,7 +5120,7 @@ begin
       GState.LanguageManager,
       GState.InetConfig);
   // link to position    
-  FfrmDGAvailablePic.ShowInfo(AVisualPoint, FConfig.ViewPortState.GetVisualCoordConverter);
+  FfrmDGAvailablePic.ShowInfo(AVisualPoint, FConfig.ViewPortState.Position.GetStatic);
 end;
 
 procedure TfrmMain.SaveConfig(Sender: TObject);
@@ -5173,7 +5173,7 @@ begin
     VLonLat.X := VpPos^.PositionLon;
     VLonLat.Y := VpPos^.PositionLat;
   end else begin
-    VLonLat := FConfig.ViewPortState.GetVisualCoordConverter.GetCenterLonLat;
+    VLonLat := FConfig.ViewPortState.Position.GetStatic.GetCenterLonLat;
   end;
 
   if FMarkDBGUI.AddNewPointModal(VLonLat) then begin
@@ -5225,7 +5225,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5280,7 +5280,7 @@ var
   VPolygon: ILonLatPolygon;
 begin
   TBRectSave.ImageIndex:=20;
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMapRect := VLocalConverter.GetRectInMapPixelFloat;
@@ -5339,7 +5339,7 @@ var
   VText: string;
   VNotifier: INotifierOperation;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
   VText := Trim(NewText);
   VNotifier := TNotifierOperation.Create;
@@ -5361,7 +5361,7 @@ begin
     VToolbarItem := TTBCustomItem(Sender);
     VItem := IGeoCoderListEntity(VToolbarItem.Tag);
     if VItem <> nil then begin
-      VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+      VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
       VText := Trim(NewText);
       VNotifier := TNotifierOperation.Create;
       VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
@@ -5389,7 +5389,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5411,7 +5411,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5433,7 +5433,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5455,7 +5455,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5478,7 +5478,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -5501,7 +5501,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat:TDoublePoint;
 begin
-  VLocalConverter := FConfig.ViewPortState.GetVisualCoordConverter;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoom := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));

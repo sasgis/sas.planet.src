@@ -28,6 +28,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_ConfigDataElement;
 
 type
@@ -40,8 +41,11 @@ type
     function GetCurrentCoordConverter: ICoordConverter;
     function GetCurrentZoom: Byte;
 
-    function GetVisualCoordConverter: ILocalCoordConverter;
+    function GetPosition: ILocalCoordConverterChangeable;
+    property Position: ILocalCoordConverterChangeable read GetPosition;
 
+    function GetView: ILocalCoordConverterChangeable;
+    property View: ILocalCoordConverterChangeable read GetView;
 
     procedure ChangeViewSize(const ANewSize: TPoint);
     procedure ChangeMapPixelByDelta(const ADelta: TDoublePoint);
@@ -61,9 +65,6 @@ type
       const ACenterPoint: TPoint
     ); overload;
     procedure ScaleTo(const AScale: Double); overload;
-
-    function GetScaleChangeNotifier: INotifier;
-    property ScaleChangeNotifier: INotifier read GetScaleChangeNotifier;
   end;
 
 implementation
