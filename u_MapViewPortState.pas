@@ -511,7 +511,7 @@ begin
     VLonLat.Y := AConfigData.ReadFloat('Y', VLonLat.Y);
     VGeoConverter.CheckLonLatPos(VLonLat);
 
-    VPixelPos := VGeoConverter.LonLat2PixelPosFloat(VLonLat, VLocalConverter.Zoom);
+    VPixelPos := VGeoConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
     VLocalConverterNew :=
       CreateVisibleCoordConverter(
         VGeoConverter,
@@ -519,7 +519,7 @@ begin
         DoublePoint(0, 0),
         FBaseScale,
         VPixelPos,
-        VLocalConverter.Zoom
+        VZoom
       );
     FPosition.SetConverter(VLocalConverterNew);
     FView.SetConverter(VLocalConverterNew);
