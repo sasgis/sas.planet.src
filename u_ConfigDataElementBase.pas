@@ -55,7 +55,7 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
   public
-    constructor Create;
+    constructor Create(AChangedFlag: ISimpleFlag = nil; ALock: IReadWriteSync = nil);
   end;
 
   TConfigDataElementWithStaticBase = class(TConfigDataElementBase)
@@ -70,7 +70,7 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create;
+    constructor Create(AChangedFlag: ISimpleFlag = nil; ALock: IReadWriteSync = nil);
     destructor Destroy; override;
   end;
 
@@ -95,11 +95,17 @@ uses
 
 { TConfigDataElementBase }
 
-constructor TConfigDataElementBase.Create;
+constructor TConfigDataElementBase.Create(AChangedFlag: ISimpleFlag; ALock: IReadWriteSync);
 begin
-  inherited;
-  FLock := MakeSyncRW_Big(Self, True);
-  FChangedFlag := TSimpleFlagWithInterlock.Create;
+  inherited Create;
+  FLock := ALock;
+  if FLock = nil then begin
+    FLock := MakeSyncRW_Big(Self, True);
+  end;
+  FChangedFlag := AChangedFlag;
+  if FChangedFlag = nil then begin
+    FChangedFlag := TSimpleFlagWithInterlock.Create;
+  end;
   FStopNotifyCounter := 0;
 end;
 
@@ -194,7 +200,7 @@ begin
   FStatic := CreateStatic;
 end;
 
-constructor TConfigDataElementWithStaticBase.Create;
+constructor TConfigDataElementWithStaticBase.Create(AChangedFlag: ISimpleFlag; ALock: IReadWriteSync);
 begin
   inherited;
   FStaticCS := MakeSyncRW_Var(Self);

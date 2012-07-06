@@ -25,6 +25,7 @@ interface
 uses
   SysUtils,
   Contnrs,
+  i_SimpleFlag,
   i_Notifier,
   i_Listener,
   i_Changeable,
@@ -67,7 +68,7 @@ type
     procedure LockRead; override;
     procedure UnlockRead; override;
   public
-    constructor Create;
+    constructor Create(AChangedFlag: ISimpleFlag = nil; ALock: IReadWriteSync = nil);
     destructor Destroy; override;
   end;
 
@@ -83,7 +84,7 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create;
+    constructor Create(AChangedFlag: ISimpleFlag = nil; ALock: IReadWriteSync = nil);
     destructor Destroy; override;
   end;
 
