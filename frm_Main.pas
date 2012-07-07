@@ -1671,7 +1671,7 @@ begin
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.ProcessPosChangeMessage),
-      FConfig.ViewPortState.GetChangeNotifier
+      FConfig.ViewPortState.Position.GetChangeNotifier
     );
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
