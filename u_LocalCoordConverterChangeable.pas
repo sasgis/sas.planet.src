@@ -6,33 +6,25 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
+  i_SimpleFlag,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  u_ChangeableBase;
+  u_ConfigDataElementBase;
 
 type
-  TLocalCoordConverterChangeable = class(TChangeableBase, ILocalCoordConverterChangeable)
+  TLocalCoordConverterChangeable = class(TConfigDataElementBaseEmptySaveLoad, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
   private
-    FSource: ILocalCoordConverterChangeable;
-    FTargetGeoConverter: ICoordConverter;
-    FConverterFactory: ILocalCoordConverterFactorySimpe;
-
-    FSourceChangeListener: IListener;
-    FCS: IReadWriteSync;
-    FStatic: ILocalCoordConverter;
-
-    procedure OnSourceChange;
+    FConverter: ILocalCoordConverter;
   private
     function GetStatic: ILocalCoordConverter;
+    procedure SetConverter(AValue: ILocalCoordConverter);
   public
     constructor Create(
-      const ASource: ILocalCoordConverterChangeable;
-      const ATargetGeoConverter: ICoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AChangedFlag: ISimpleFlag;
+      const ASource: ILocalCoordConverter
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -44,88 +36,39 @@ uses
 { TLocalCoordConverterChangeable }
 
 constructor TLocalCoordConverterChangeable.Create(
-  const ASource: ILocalCoordConverterChangeable;
-  const ATargetGeoConverter: ICoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AChangedFlag: ISimpleFlag;
+  const ASource: ILocalCoordConverter
 );
 begin
-  inherited Create;
-  FSource := ASource;
-  FTargetGeoConverter := ATargetGeoConverter;
-  FConverterFactory := AConverterFactory;
-
-  FCS := MakeSyncRW_Var(Self);
-
-  FSourceChangeListener := TNotifyNoMmgEventListener.Create(Self.OnSourceChange);
-  FSource.ChangeNotifier.Add(FSourceChangeListener);
-end;
-
-destructor TLocalCoordConverterChangeable.Destroy;
-begin
-  if FSource <> nil then begin
-    FSource.ChangeNotifier.Remove(FSourceChangeListener);
-    FSource := nil;
-    FSourceChangeListener := nil;
-  end;
-
-  FCS := nil;
-  inherited;
+  inherited Create(AChangedFlag);
+  FConverter := ASource;
 end;
 
 function TLocalCoordConverterChangeable.GetStatic: ILocalCoordConverter;
 begin
-  FCS.BeginRead;
+  LockRead;
   Try
-    Result := FStatic;
+    Result := FConverter;
   Finally
-    FCS.EndRead;
+    UnlockRead;
   End;
 end;
 
-procedure TLocalCoordConverterChangeable.OnSourceChange;
-var
-  VSource: ILocalCoordConverter;
-  VConverter: ILocalCoordConverter;
-  VNeedNotify: Boolean;
+procedure TLocalCoordConverterChangeable.SetConverter(
+  AValue: ILocalCoordConverter);
 begin
-  VSource := FSource.GetStatic;
-  if VSource <> nil then begin
-    if FTargetGeoConverter = nil then begin
-      VConverter :=
-        FConverterFactory.CreateBySourceWithStableTileRect(
-          VSource
-        );
-    end else begin
-      VConverter :=
-        FConverterFactory.CreateBySourceWithStableTileRectAndOtherGeo(
-          VSource,
-          FTargetGeoConverter
-        );
-    end;
-  end else begin
-    VConverter := nil;
+  if AValue = nil then begin
+    Exit;
   end;
-  VNeedNotify := False;
 
-  FCS.BeginWrite;
+  LockWrite;
   try
-    if FStatic = nil then begin
-      if VConverter <> nil then begin
-        FStatic := VConverter;
-        VNeedNotify := True;
-      end;
-    end else begin
-      if not FStatic.GetIsSameConverter(VConverter) then begin
-        FStatic := VConverter;
-        VNeedNotify := True;
-      end;
+    if not FConverter.GetIsSameConverter(AValue) then begin
+      FConverter := AValue;
+      SetChanged;
     end;
   finally
-    FCS.EndWrite;
-  end;
-
-  if VNeedNotify then begin
-    DoChangeNotify;
+    UnlockWrite;
   end;
 end;
 

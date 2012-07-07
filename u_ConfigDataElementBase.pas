@@ -35,11 +35,10 @@ type
   TConfigDataElementBase = class(TChangeableBase, IConfigDataElement)
   private
     FLock: IReadWriteSync;
-    FStopNotifyCounter: Longint;
+    FStopNotifyCounter: ICounter;
     FChangedFlag: ISimpleFlag;
   protected
     procedure SetChanged;
-    function CheckIsChangedAndReset: Boolean;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); virtual; abstract;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); virtual; abstract;
   protected
@@ -55,7 +54,7 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
   public
-    constructor Create(AChangedFlag: ISimpleFlag = nil; ALock: IReadWriteSync = nil);
+    constructor Create(const AChangedFlag: ISimpleFlag = nil; const AStopNotifyCounter: ICounter = nil; const ALock: IReadWriteSync = nil);
   end;
 
   TConfigDataElementWithStaticBase = class(TConfigDataElementBase)
@@ -70,7 +69,7 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create(AChangedFlag: ISimpleFlag = nil; ALock: IReadWriteSync = nil);
+    constructor Create(const AChangedFlag: ISimpleFlag = nil; const AStopNotifyCounter: ICounter = nil; const ALock: IReadWriteSync = nil);
     destructor Destroy; override;
   end;
 
@@ -95,7 +94,7 @@ uses
 
 { TConfigDataElementBase }
 
-constructor TConfigDataElementBase.Create(AChangedFlag: ISimpleFlag; ALock: IReadWriteSync);
+constructor TConfigDataElementBase.Create(const AChangedFlag: ISimpleFlag; const AStopNotifyCounter: ICounter; const ALock: IReadWriteSync);
 begin
   inherited Create;
   FLock := ALock;
@@ -106,7 +105,10 @@ begin
   if FChangedFlag = nil then begin
     FChangedFlag := TSimpleFlagWithInterlock.Create;
   end;
-  FStopNotifyCounter := 0;
+  FStopNotifyCounter := AStopNotifyCounter;
+  if FStopNotifyCounter = nil then begin
+    FStopNotifyCounter := TCounterInterlock.Create;
+  end;
 end;
 
 procedure TConfigDataElementBase.AfterConstruction;
@@ -119,11 +121,6 @@ procedure TConfigDataElementBase.BeforeDestruction;
 begin
   inherited;
   StopNotify;
-end;
-
-function TConfigDataElementBase.CheckIsChangedAndReset: Boolean;
-begin
-  Result := FChangedFlag.CheckFlagAndReset;
 end;
 
 procedure TConfigDataElementBase.LockRead;
@@ -156,9 +153,9 @@ procedure TConfigDataElementBase.StartNotify;
 var
   VCouner: Longint;
 begin
-  VCouner := InterlockedDecrement(FStopNotifyCounter);
+  VCouner := FStopNotifyCounter.Dec;
   if VCouner = 0 then begin
-    if CheckIsChangedAndReset then begin
+    if FChangedFlag.CheckFlagAndReset then begin
       DoChangeNotify;
     end;
   end;
@@ -166,7 +163,7 @@ end;
 
 procedure TConfigDataElementBase.StopNotify;
 begin
-  InterlockedIncrement(FStopNotifyCounter);
+  FStopNotifyCounter.Inc;
 end;
 
 procedure TConfigDataElementBase.UnlockRead;
@@ -200,7 +197,7 @@ begin
   FStatic := CreateStatic;
 end;
 
-constructor TConfigDataElementWithStaticBase.Create(AChangedFlag: ISimpleFlag; ALock: IReadWriteSync);
+constructor TConfigDataElementWithStaticBase.Create(const AChangedFlag: ISimpleFlag; const AStopNotifyCounter: ICounter; const ALock: IReadWriteSync);
 begin
   inherited;
   FStaticCS := MakeSyncRW_Var(Self);
