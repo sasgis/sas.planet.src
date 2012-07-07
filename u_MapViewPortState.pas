@@ -27,6 +27,7 @@ uses
   i_Notifier,
   i_Listener,
   t_GeoTypes,
+  i_SimpleFlag,
   i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -45,6 +46,8 @@ type
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapConfig: IMainActiveMap;
 
+    FChangedFlag: ISimpleFlag;
+    FStopNotifyCounter: ICounter;
     FPosition: ILocalCoordConverterChangeableInternal;
     FView: ILocalCoordConverterChangeableInternal;
 
@@ -67,8 +70,11 @@ type
     procedure OnMainMapChange;
   protected
     procedure DoChangeNotify; override;
+    procedure DoInChangeNotify; override;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
+    procedure StopNotify; override;
+    procedure StartNotify; override;
   private
     function GetMainCoordConverter: ICoordConverter;
     procedure SetMainCoordConverter(const AValue: ICoordConverter);
@@ -113,6 +119,7 @@ uses
   u_Notifier,
   i_MapTypes,
   u_ListenerByEvent,
+  u_SimpleFlagWithInterlock,
   u_LocalCoordConverterChangeable,
   u_GeoFun;
 
@@ -128,8 +135,12 @@ var
   VLocalConverter: ILocalCoordConverter;
   VCenterPoint: TDoublePoint;
   VZoom: Byte;
+  VPositionChangedFlag: ISimpleFlag;
+  VViewChangedFlag: ISimpleFlag;
 begin
-  inherited Create;
+  FChangedFlag := TSimpleFlagWithInterlock.Create;
+  FStopNotifyCounter := TCounterInterlock.Create;
+  inherited Create(FChangedFlag, FStopNotifyCounter);
   FPosChangeCounter := APerfCounterList.CreateAndAddNewCounter('PosChange');
   FScaleChangeCounter := APerfCounterList.CreateAndAddNewCounter('ScaleChange');
 
@@ -155,8 +166,10 @@ begin
       VCenterPoint,
       VZoom
     );
-  FPosition := TLocalCoordConverterChangeable.Create(VLocalConverter);
-  FView := TLocalCoordConverterChangeable.Create(VLocalConverter);
+  VPositionChangedFlag := TSimpleFlagWithParent.Create(FChangedFlag);
+  FPosition := TLocalCoordConverterChangeable.Create(VPositionChangedFlag, VLocalConverter);
+  VViewChangedFlag := TSimpleFlagWithParent.Create(FChangedFlag);
+  FView := TLocalCoordConverterChangeable.Create(VViewChangedFlag, VLocalConverter);
   FMainMapConfig.GetChangeNotifier.Add(FMainMapChangeListener);
 end;
 
@@ -247,7 +260,7 @@ begin
     VGeoConverter := VLocalConverter.GeoConverter;
     VGeoConverter.CheckLonLatPos(VLonLat);
     VPixelPos := VGeoConverter.LonLat2PixelPosFloat(VLonLat, VLocalConverter.Zoom);
-    VLocalConverter :=
+    VLocalConverterNew :=
       CreateVisibleCoordConverter(
         VGeoConverter,
         VLocalConverter.GetLocalRectSize,
@@ -283,7 +296,7 @@ begin
     VNewPos.Y := VCenterPos.Y + ADelta.Y / FBaseScale.Y;
 
     VGeoConverter.CheckPixelPosFloatStrict(VNewPos, VZoom, True);
-    VLocalConverter :=
+    VLocalConverterNew :=
       CreateVisibleCoordConverter(
         VGeoConverter,
         VLocalConverter.GetLocalRectSize,
@@ -489,6 +502,13 @@ begin
   finally
     FPosChangeCounter.FinishOperation(VCounterContext);
   end;
+end;
+
+procedure TMapViewPortState.DoInChangeNotify;
+begin
+  FPosition.StartNotify;
+  FView.StartNotify;
+  inherited;
 end;
 
 procedure TMapViewPortState.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -762,6 +782,28 @@ begin
   finally
     UnlockWrite;
   end;
+end;
+
+procedure TMapViewPortState.StartNotify;
+begin
+  if FStopNotifyCounter.Dec = 0 then begin
+    if FChangedFlag.CheckFlagAndReset then begin
+      DoChangeNotify;
+    end else begin
+      FPosition.StartNotify;
+      FView.StartNotify;
+    end;
+  end else begin
+    FPosition.StartNotify;
+    FView.StartNotify;
+  end;
+end;
+
+procedure TMapViewPortState.StopNotify;
+begin
+  inherited;
+  FPosition.StopNotify;
+  FView.StopNotify;
 end;
 
 end.
