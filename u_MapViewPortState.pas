@@ -561,41 +561,45 @@ procedure TMapViewPortState.ScaleTo(
 var
   VVisiblePointFixed: TDoublePoint;
   VMapPointFixed: TDoublePoint;
-  VNewVisualPoint: TDoublePoint;
   VNewMapScale: Double;
-  VNewVisibleMove: TDoublePoint;
   VViewCenter: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
   VCenterPos: TDoublePoint;
   VZoom: Byte;
+  VCenterPosNew: TDoublePoint;
+  VLocalRect: TRect;
 begin
   VVisiblePointFixed := DoublePoint(ACenterPoint);
   LockWrite;
   try
     VLocalConverter := FPosition.GetStatic;
-    VZoom := VLocalConverter.Zoom;
-    VGeoConverter := VLocalConverter.GeoConverter;
-    VNewMapScale := FBaseScale * AScale;
-    VMapPointFixed := VLocalConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
-    VViewCenter := RectCenter(VLocalConverter.GetLocalRect);
-    VCenterPos := VLocalConverter.GetCenterMapPixelFloat;
-    VNewVisualPoint.X := (VMapPointFixed.X - VCenterPos.X) * VNewMapScale + VViewCenter.X;
-    VNewVisualPoint.Y := (VMapPointFixed.Y - VCenterPos.Y) * VNewMapScale + VViewCenter.Y;
-    VGeoConverter.CheckPixelPosFloatStrict(VNewVisualPoint, VZoom, False);
+    if Abs(AScale - 1) < 0.001 then begin
+      VLocalConverterNew := VLocalConverter;
+    end else begin
+      VZoom := VLocalConverter.Zoom;
+      VGeoConverter := VLocalConverter.GeoConverter;
+      VNewMapScale := FBaseScale * AScale;
+      VMapPointFixed := VLocalConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
+      VGeoConverter.CheckPixelPosFloatStrict(VMapPointFixed, VZoom, False);
+      VVisiblePointFixed := VLocalConverter.MapPixelFloat2LocalPixelFloat(VMapPointFixed);
+      VLocalRect := VLocalConverter.GetLocalRect;
+      VViewCenter := RectCenter(VLocalRect);
+      VCenterPos := VLocalConverter.GetCenterMapPixelFloat;
+      VCenterPosNew.X := VMapPointFixed.X + ((VLocalRect.Right - VLocalRect.Left) / 2 - VVisiblePointFixed.X) / VNewMapScale;
+      VCenterPosNew.Y := VMapPointFixed.Y + ((VLocalRect.Bottom - VLocalRect.Top) / 2 - VVisiblePointFixed.Y) / VNewMapScale;
 
-    VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
-    VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
-    VLocalConverterNew :=
-      CreateVisibleCoordConverter(
-        VGeoConverter,
-        VLocalConverter.GetLocalRectSize,
-        VNewVisibleMove,
-        VNewMapScale,
-        VNewVisualPoint,
-        VZoom
-      );
+      VLocalConverterNew :=
+        CreateVisibleCoordConverter(
+          VGeoConverter,
+          VLocalConverter.GetLocalRectSize,
+          DoublePoint(0, 0),
+          VNewMapScale,
+          VCenterPosNew,
+          VZoom
+        );
+    end;
     FView.SetConverter(VLocalConverterNew);
   finally
     UnlockWrite;

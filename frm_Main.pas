@@ -2827,7 +2827,6 @@ begin
         end;
         Scale := 1;
         FConfig.ViewPortState.ScaleTo(Scale, AFreezePos);
-        Assert(FConfig.ViewPortState.Position.GetStatic.GetIsSameConverter(FConfig.ViewPortState.View.GetStatic));
       end;
     end;
   finally
