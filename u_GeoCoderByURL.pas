@@ -160,13 +160,25 @@ begin
 
  if PosEx('binged.it', Vlink, 1) > 0then begin
   sname := 'bing';
-  Vlink := AhttpData;
-  i := PosEx('cp=', Vlink, 1);
-  j := PosEx('~', Vlink, i);
-  slat := Copy(Vlink, i + 3, j - (i + 3));
-  i := j;
-  j := PosEx('&', Vlink, i);
-  slon := Copy(Vlink, i + 1, j - (i + 1));
+  Vlink := ReplaceStr(AhttpData,'%2c',',');
+  if RegExprGetMatchSubStr(Vlink,'bing\.com\..+cp=[0-9]+', 0) <> '' then begin
+   i := PosEx('cp=', Vlink, 1);
+   j := PosEx('~', Vlink, i);
+   slat := Copy(Vlink, i + 3, j - (i + 3));
+   i := j;
+   j := PosEx('&', Vlink, i);
+   slon := Copy(Vlink, i + 1, j - (i + 1));
+  end;
+  if RegExprGetMatchSubStr(Vlink,'where1=[0-9]+', 0) <> '' then begin
+   i := PosEx('where1=', Vlink, 1);
+   j := PosEx(',', Vlink, i);
+   slat := Copy(Vlink, i + 7, j - (i + 7));
+   i := j+1;
+   j := PosEx('"', Vlink, i);
+   slon := Copy(Vlink, i + 1, j - (i + 1));
+   slon := ReplaceStr(slon,',','.');
+   slat := ReplaceStr(slat,',','.');
+  end;
  end;
 
  if PosEx('osm.org', Vlink, 1) > 0then begin
