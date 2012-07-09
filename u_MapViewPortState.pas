@@ -97,8 +97,7 @@ type
     procedure ScaleTo(
       const AScale: Double;
       const ACenterPoint: TPoint
-    ); overload;
-    procedure ScaleTo(const AScale: Double); overload;
+    );
   public
     constructor Create(
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -603,53 +602,8 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ScaleTo(const AScale: Double);
-var
-  VVisiblePointFixed: TDoublePoint;
-  VMapPointFixed: TDoublePoint;
-  VNewVisualPoint: TDoublePoint;
-  VViewCenter: TDoublePoint;
-  VNewMapScale: Double;
-  VNewVisibleMove: TDoublePoint;
-  VLocalConverter: ILocalCoordConverter;
-  VLocalConverterNew: ILocalCoordConverter;
-  VGeoConverter: ICoordConverter;
-  VCenterPos: TDoublePoint;
-begin
-  LockWrite;
-  try
-    VLocalConverter := FPosition.GetStatic;
-    VGeoConverter := VLocalConverter.GeoConverter;
-    VViewCenter := RectCenter(VLocalConverter.GetLocalRect);
-    VVisiblePointFixed.X := VViewCenter.X;
-    VVisiblePointFixed.Y := VViewCenter.Y;
-    VCenterPos := VLocalConverter.GetCenterMapPixelFloat;
-    VMapPointFixed := VLocalConverter.LocalPixelFloat2MapPixelFloat(VVisiblePointFixed);
-
-    VNewMapScale := FBaseScale * AScale;
-
-    VNewVisualPoint.X := (VMapPointFixed.X - VCenterPos.X) * VNewMapScale + VViewCenter.X;
-    VNewVisualPoint.Y := (VMapPointFixed.Y - VCenterPos.Y) * VNewMapScale + VViewCenter.Y;
-    VNewVisibleMove.X := VNewVisualPoint.X - VVisiblePointFixed.X;
-    VNewVisibleMove.Y := VNewVisualPoint.Y - VVisiblePointFixed.Y;
-    VLocalConverterNew :=
-      CreateVisibleCoordConverter(
-        VGeoConverter,
-        VLocalConverter.GetLocalRectSize,
-        VNewVisibleMove,
-        VNewMapScale,
-        VNewVisualPoint,
-        VLocalConverter.Zoom
-      );
-    FView.SetConverter(VLocalConverterNew);
-  finally
-    UnlockWrite;
-  end;
-end;
-
 procedure TMapViewPortState._SetActiveCoordConverter;
 var
-  VCenterLonLat: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;

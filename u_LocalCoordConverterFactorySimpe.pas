@@ -79,6 +79,10 @@ type
       const ASource: ILocalCoordConverter;
       const AConverter: ICoordConverter
     ): ILocalCoordConverter;
+    function ChangeZoomAndScaleSaveRelativeRect(
+      const ASource: ILocalCoordConverter;
+      const AZoom: Byte
+    ): ILocalCoordConverter;
 
     function CreateForTile(
       const ATile: TPoint;
@@ -302,6 +306,55 @@ begin
       VLocalRect,
       VZoom,
       AConverter,
+      VScale,
+      VTopLefAtMap
+    );
+end;
+
+function TLocalCoordConverterFactorySimpe.ChangeZoomAndScaleSaveRelativeRect(
+  const ASource: ILocalCoordConverter; const AZoom: Byte): ILocalCoordConverter;
+var
+  VZoomOld: Byte;
+  VZoomNew: Byte;
+  VConverter: ICoordConverter;
+  VLocalRect: TRect;
+  VScale: Double;
+  VMapPixelRectOld: TDoubleRect;
+  VMapPixelRectNew: TDoubleRect;
+  VMapLocalRect: TDoubleRect;
+  VMapRelativeRect: TDoubleRect;
+  VCenterRelative: TDoublePoint;
+  VCenterMapPixelNew: TDoublePoint;
+  VTopLefAtMap: TDoublePoint;
+begin
+  VZoomOld := ASource.Zoom;
+  VZoomNew := AZoom;
+  VConverter := ASource.GeoConverter;
+  VConverter.CheckZoom(VZoomNew);
+  if VZoomOld = VZoomNew then begin
+    Result := ASource;
+    Exit;
+  end;
+
+  VMapPixelRectOld := ASource.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapPixelRectOld, VZoomOld);
+  VMapLocalRect := ASource.MapRectFloat2LocalRectFloat(VMapPixelRectOld);
+  VMapRelativeRect := VConverter.PixelRectFloat2RelativeRect(VMapPixelRectOld, VZoomOld);
+  VMapPixelRectNew := VConverter.RelativeRect2PixelRectFloat(VMapRelativeRect, VZoomNew);
+
+  VScale := (VMapPixelRectNew.Right - VMapPixelRectNew.Left) / (VMapPixelRectOld.Right - VMapPixelRectOld.Left);
+
+  VCenterRelative := VConverter.PixelPosFloat2Relative(ASource.GetCenterMapPixelFloat, VZoomOld);
+  VCenterMapPixelNew := VConverter.Relative2PixelPosFloat(VCenterRelative, VZoomNew);
+
+  VTopLefAtMap.X := VCenterMapPixelNew.X - ((VLocalRect.Right - VLocalRect.Left) / 2) / VScale;
+  VTopLefAtMap.Y := VCenterMapPixelNew.Y - ((VLocalRect.Bottom - VLocalRect.Top) / 2) / VScale;
+
+  Result :=
+    CreateConverter(
+      VLocalRect,
+      VZoomNew,
+      VConverter,
       VScale,
       VTopLefAtMap
     );

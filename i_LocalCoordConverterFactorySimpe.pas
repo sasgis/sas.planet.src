@@ -75,6 +75,10 @@ type
       const ASource: ILocalCoordConverter;
       const AConverter: ICoordConverter
     ): ILocalCoordConverter;
+    function ChangeZoomAndScaleSaveRelativeRect(
+      const ASource: ILocalCoordConverter;
+      const AZoom: Byte
+    ): ILocalCoordConverter;
 
     function CreateForTile(
       const ATile: TPoint;

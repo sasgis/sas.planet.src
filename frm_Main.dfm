@@ -284,7 +284,7 @@ object frmMain: TfrmMain
           ImageIndex = 23
           Images = MenusImageList
           ShortCut = 33
-          OnClick = TBZoomInClick
+          OnClick = NzoomInClick
           Caption = 'Zoom In'
           Hint = ''
         end
@@ -292,7 +292,7 @@ object frmMain: TfrmMain
           ImageIndex = 24
           Images = MenusImageList
           ShortCut = 34
-          OnClick = TBZoom_outClick
+          OnClick = NZoomOutClick
           Caption = 'Zoom Out'
           Hint = ''
         end
@@ -1376,7 +1376,7 @@ object frmMain: TfrmMain
         Images = MenusImageList
         MinHeight = 29
         MinWidth = 29
-        OnClick = TBZoomInClick
+        OnClick = NzoomInClick
         Caption = ''
         Hint = 'Zoom In'
       end
@@ -1402,7 +1402,7 @@ object frmMain: TfrmMain
         Images = MenusImageList
         MinHeight = 29
         MinWidth = 29
-        OnClick = TBZoom_outClick
+        OnClick = NZoomOutClick
         Caption = ''
         Hint = 'Zoom Out'
       end
@@ -1418,7 +1418,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 24
+        Left = 8
         Top = 221
         Width = 14
         Height = 13
@@ -1438,7 +1438,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 18
+        Left = 2
         Top = 32
         Width = 25
         Height = 153

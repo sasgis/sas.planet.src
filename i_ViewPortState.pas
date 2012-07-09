@@ -63,8 +63,7 @@ type
     procedure ScaleTo(
       const AScale: Double;
       const ACenterPoint: TPoint
-    ); overload;
-    procedure ScaleTo(const AScale: Double); overload;
+    );
   end;
 
 implementation
