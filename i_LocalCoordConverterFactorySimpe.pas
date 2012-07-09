@@ -35,7 +35,7 @@ type
       const ALocalRect: TRect;
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter;
-      const AMapScale: TDoublePoint;
+      const AMapScale: Double;
       const ALocalTopLeftAtMap: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
@@ -44,6 +44,38 @@ type
       const AGeoConverter: ICoordConverter;
       const ALocalTopLeftAtMap: TPoint
     ): ILocalCoordConverter;
+
+    function ChangeCenterLonLat(
+      const ASource: ILocalCoordConverter;
+      const ALonLat: TDoublePoint
+    ): ILocalCoordConverter;
+    function ChangeCenterLonLatAndZoom(
+      const ASource: ILocalCoordConverter;
+      AZoom: Byte;
+      const ALonLat: TDoublePoint
+    ): ILocalCoordConverter;
+    function ChangeByMapPixelDelta(
+      const ASource: ILocalCoordConverter;
+      const ADelta: TDoublePoint
+    ): ILocalCoordConverter;
+    function ChangeCenterToLocalPoint(
+      const ASource: ILocalCoordConverter;
+      const AVisualPoint: TPoint
+    ): ILocalCoordConverter;
+    function ChangeZoomWithFreezeAtVisualPoint(
+      const ASource: ILocalCoordConverter;
+      const AZoom: Byte;
+      const AFreezePoint: TPoint
+    ): ILocalCoordConverter;
+    function ChangeZoomWithFreezeAtCenter(
+      const ASource: ILocalCoordConverter;
+      const AZoom: Byte
+    ): ILocalCoordConverter;
+    function ChangeConverter(
+      const ASource: ILocalCoordConverter;
+      const AConverter: ICoordConverter
+    ): ILocalCoordConverter;
+
     function CreateForTile(
       const ATile: TPoint;
       const AZoom: Byte;

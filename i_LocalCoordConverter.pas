@@ -36,6 +36,7 @@ type
     function GetProjectionInfo: IProjectionInfo;
     property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
 
+    function GetScale: Double;
     function GetLocalRect: TRect;
     function GetLocalRectSize: TPoint;
     function GetRectInMapPixel: TRect;
