@@ -409,24 +409,35 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VId: Integer;
 begin
-  VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect);
-  while VTileIterator.Next(VTile) do begin
-    VElement := ATileMatrix.GetElementByTile(VTile);
-    if VElement <> nil then begin
-      VId := VElement.ExpectedID;
-      if VElement.ReadyID <> VId then begin
-        VCounterContext := FOneTilePrepareCounter.StartOperation;
-        try
-          VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VElement.LocalConverter);
-          VElement.UpdateBitmap(VId, VBitmap);
-          SetNeedUpdateLayer;
-        finally
-          FOneTilePrepareCounter.FinishOperation(VCounterContext);
+  if ALayerProvider <> nil then begin
+    VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect);
+    while VTileIterator.Next(VTile) do begin
+      VElement := ATileMatrix.GetElementByTile(VTile);
+      if VElement <> nil then begin
+        VId := VElement.ExpectedID;
+        if VElement.ReadyID <> VId then begin
+          VCounterContext := FOneTilePrepareCounter.StartOperation;
+          try
+            VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VElement.LocalConverter);
+            VElement.UpdateBitmap(VId, VBitmap);
+            SetNeedUpdateLayer;
+          finally
+            FOneTilePrepareCounter.FinishOperation(VCounterContext);
+          end;
         end;
       end;
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Exit;
+      end;
     end;
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
+  end else begin
+    VTileIterator := TTileIteratorSpiralByRect.Create(ATileMatrix.TileRect);
+    while VTileIterator.Next(VTile) do begin
+      VElement := ATileMatrix.GetElementByTile(VTile);
+      if VElement <> nil then begin
+        VId := VElement.ExpectedID;
+        VElement.UpdateBitmap(VId, nil);
+      end;
     end;
   end;
 end;

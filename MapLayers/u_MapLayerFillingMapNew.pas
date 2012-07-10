@@ -25,10 +25,6 @@ type
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
-    function CreteTileMatrix(
-      const ASource: ITileMatrix;
-      const ANewConverter: ILocalCoordConverter
-    ): ITileMatrix; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -90,27 +86,15 @@ function TMapLayerFillingMapNew.CreateLayerProvider(
 var
   VConfig: IFillingMapLayerConfigStatic;
 begin
-  VConfig := FConfig.GetStatic;
-
-  Result :=
-    TBitmapLayerProviderFillingMap.Create(
-      VConfig.SourceMap,
-      VConfig.GetActualZoom(ALayerConverter),
-      VConfig.Colorer
-    );
-end;
-
-function TMapLayerFillingMapNew.CreteTileMatrix(
-  const ASource: ITileMatrix;
-  const ANewConverter: ILocalCoordConverter
-): ITileMatrix;
-var
-  VConfig: IFillingMapLayerConfigStatic;
-begin
   Result := nil;
   VConfig := FConfig.GetStatic;
   if VConfig.Visible then begin
-    Result := inherited CreteTileMatrix(ASource, ANewConverter);
+    Result :=
+      TBitmapLayerProviderFillingMap.Create(
+        VConfig.SourceMap,
+        VConfig.GetActualZoom(ALayerConverter),
+        VConfig.Colorer
+      );
   end;
 end;
 
