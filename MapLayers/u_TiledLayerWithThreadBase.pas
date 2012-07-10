@@ -45,7 +45,9 @@ type
     FPrepareLayerProviderCounter: IInternalPerformanceCounter;
     FOneTilePrepareCounter: IInternalPerformanceCounter;
     FOnPaintCounter: IInternalPerformanceCounter;
+    FOnMeasuringPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintCounter: IInternalPerformanceCounter;
+    FTileMatrixUpdateCounter: IInternalPerformanceCounter;
 
     FDelicateRedrawFlag: ISimpleFlag;
     FLayerChangedFlag: ISimpleFlag;
@@ -89,10 +91,6 @@ type
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; virtual; abstract;
-    function CreteTileMatrix(
-      const ASource: ITileMatrix;
-      const ANewConverter: ILocalCoordConverter
-    ): ITileMatrix; virtual;
     procedure DelicateRedraw;
     procedure DelicateRedrawWithFullUpdate;
 
@@ -176,8 +174,10 @@ begin
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   FOneTilePrepareCounter := PerfList.CreateAndAddNewCounter('OneTilePrepare');
   FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
+  FOnMeasuringPaintCounter := PerfList.CreateAndAddNewCounter('OnMeasuringPaint');
   FOneTilePaintCounter := PerfList.CreateAndAddNewCounter('OneTilePaint');
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
+  FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
 
   FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnPrepareTileMatrix, AThreadConfig);
   FTileMatrixFactory :=
@@ -196,14 +196,6 @@ begin
     ATimerNoifier
   );
   FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
-end;
-
-function TTiledLayerWithThreadBase.CreteTileMatrix(
-  const ASource: ITileMatrix;
-  const ANewConverter: ILocalCoordConverter
-): ITileMatrix;
-begin
-  Result := FTileMatrixFactory.BuildNewMatrix(ASource, ANewConverter);
 end;
 
 procedure TTiledLayerWithThreadBase.DelicateRedraw;
@@ -231,7 +223,7 @@ var
   VProviderWithListener: IBitmapLayerProviderWithListener;
 begin
   VOldTileMatrix := TileMatrix;
-  VNewTileMatrix := CreteTileMatrix(VOldTileMatrix, LayerCoordConverter);
+  VNewTileMatrix := FTileMatrixFactory.BuildNewMatrix(VOldTileMatrix, LayerCoordConverter);
   if VOldTileMatrix <> VNewTileMatrix then begin
     FDrawTask.StopExecute;
     SetTileMatrix(VNewTileMatrix);
@@ -280,16 +272,23 @@ procedure TTiledLayerWithThreadBase.OnPaintLayer(
 var
   VTileMatrix: ITileMatrix;
   VLocalConverter: ILocalCoordConverter;
+  VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   VLocalConverter := ViewCoordConverter;
   VTileMatrix := TileMatrix;
   if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
-    VCounterContext := FOnPaintCounter.StartOperation;
+    if Buffer.MeasuringMode then begin
+      VCounter := FOnMeasuringPaintCounter;
+    end else begin
+      VCounter := FOnPaintCounter;
+    end;
+
+    VCounterContext := VCounter.StartOperation;
     try
       PaintLayer(Buffer, VLocalConverter, VTileMatrix);
     finally
-      FOnPaintCounter.FinishOperation(VCounterContext);
+      VCounter.FinishOperation(VCounterContext);
     end;
   end;
 end;
@@ -614,9 +613,16 @@ begin
 end;
 
 procedure TTiledLayerWithThreadBase.UpdateTileMatrixIfNeed;
+var
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
-    DoUpdateTileMatrix;
+    VCounterContext := FTileMatrixUpdateCounter.StartOperation;
+    try
+      DoUpdateTileMatrix;
+    finally
+      FTileMatrixUpdateCounter.FinishOperation(VCounterContext);
+    end;
   end;
 end;
 
