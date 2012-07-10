@@ -54,6 +54,7 @@ type
 
   TLibJpegTileSaver = class(TInterfacedObject, IBitmapTileSaver)
   private
+    FSaveCounter: IInternalPerformanceCounter;
     FCompressionQuality: Byte;
     function WriteLine(
       Sender: TObject;
@@ -67,7 +68,7 @@ type
     );
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   public
-    constructor Create(ACompressionQuality: Byte);
+    constructor Create(ACompressionQuality: Byte; const APerfCounterList: IInternalPerformanceCounterList);
     destructor Destroy; override;
   end;
 
@@ -208,9 +209,10 @@ end;
 
 { TLibJpegTileSaver }
 
-constructor TLibJpegTileSaver.Create(ACompressionQuality: Byte);
+constructor TLibJpegTileSaver.Create(ACompressionQuality: Byte; const APerfCounterList: IInternalPerformanceCounterList);
 begin
   inherited Create;
+  FSaveCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/SaveStream');
   FCompressionQuality := ACompressionQuality;
 end;
 
@@ -221,16 +223,59 @@ end;
 
 function TLibJpegTileSaver.Save(const ABitmap: IBitmap32Static): IBinaryData;
 var
+  VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegWriter;
   VAppData: TWriterAppData;
   VMemStream: TMemoryStream;
 begin
   Result := nil;
-  VMemStream := TMemoryStream.Create;
+  VCounterContext := FSaveCounter.StartOperation;
   try
-    VJpeg := TJpegWriter.Create(VMemStream);
+    VMemStream := TMemoryStream.Create;
     try
-      VAppData.Bitmap := ABitmap.Bitmap;
+      VJpeg := TJpegWriter.Create(VMemStream);
+      try
+        VAppData.Bitmap := ABitmap.Bitmap;
+        GetMem(VAppData.Line, VAppData.Bitmap.Width * 3);
+        try
+          VJpeg.Width := VAppData.Bitmap.Width;
+          VJpeg.Height := VAppData.Bitmap.Height;
+          VJpeg.Quality := FCompressionQuality;
+          VJpeg.AppData := @VAppData;
+          if not VJpeg.Compress(Self.WriteLine) then begin
+            raise Exception.Create('Jpeg compression error!');
+          end;
+          VMemStream.Position := 0;
+        finally
+          FreeMem(VAppData.Line);
+        end;
+      finally
+        VJpeg.Free;
+      end;
+      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VMemStream := nil;
+    finally
+      VMemStream.Free;
+    end;
+  finally
+    FSaveCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+procedure TLibJpegTileSaver.SaveToStream(
+  ABtm: TCustomBitmap32;
+  AStream: TStream
+);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+  VJpeg: TJpegWriter;
+  VAppData: TWriterAppData;
+begin
+  VCounterContext := FSaveCounter.StartOperation;
+  try
+    VJpeg := TJpegWriter.Create(AStream);
+    try
+      VAppData.Bitmap := ABtm;
       GetMem(VAppData.Line, VAppData.Bitmap.Width * 3);
       try
         VJpeg.Width := VAppData.Bitmap.Width;
@@ -240,46 +285,15 @@ begin
         if not VJpeg.Compress(Self.WriteLine) then begin
           raise Exception.Create('Jpeg compression error!');
         end;
-        VMemStream.Position := 0;
+        AStream.Position := 0;
       finally
         FreeMem(VAppData.Line);
       end;
     finally
       VJpeg.Free;
     end;
-    Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-    VMemStream := nil;
   finally
-    VMemStream.Free;
-  end;
-end;
-
-procedure TLibJpegTileSaver.SaveToStream(
-  ABtm: TCustomBitmap32;
-  AStream: TStream
-);
-var
-  VJpeg: TJpegWriter;
-  VAppData: TWriterAppData;
-begin
-  VJpeg := TJpegWriter.Create(AStream);
-  try
-    VAppData.Bitmap := ABtm;
-    GetMem(VAppData.Line, VAppData.Bitmap.Width * 3);
-    try
-      VJpeg.Width := VAppData.Bitmap.Width;
-      VJpeg.Height := VAppData.Bitmap.Height;
-      VJpeg.Quality := FCompressionQuality;
-      VJpeg.AppData := @VAppData;
-      if not VJpeg.Compress(Self.WriteLine) then begin
-        raise Exception.Create('Jpeg compression error!');
-      end;
-      AStream.Position := 0;
-    finally
-      FreeMem(VAppData.Line);
-    end;
-  finally
-    VJpeg.Free;
+    FSaveCounter.FinishOperation(VCounterContext);
   end;
 end;
 
