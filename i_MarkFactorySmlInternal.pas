@@ -37,7 +37,6 @@ type
       const APicName: string;
       ACategoryId: Integer;
       const ADesc: string;
-      const ARect: TDoubleRect;
       const APoints: PDoublePointArray;
       APointCount: Integer;
       AColor1: TColor32;

@@ -162,7 +162,6 @@ type
       const APicName: string;
       ACategoryId: Integer;
       const ADesc: string;
-      const ARect: TDoubleRect;
       const APoints: PDoublePointArray;
       APointCount: Integer;
       AColor1: TColor32;
@@ -468,7 +467,6 @@ function TMarkFactory.CreateMark(
   const APicName: string;
   ACategoryId: Integer;
   const ADesc: string;
-  const ARect: TDoubleRect;
   const APoints: PDoublePointArray;
   APointCount: Integer;
   AColor1, AColor2: TColor32;
@@ -481,52 +479,58 @@ begin
   Result := nil;
   if APointCount > 0 then begin
     if APointCount = 1 then begin
-      Result :=
-        CreatePoint(
-          AId,
-          AName,
-          AVisible,
-          APicName,
-          nil,
-          ACategoryId,
-          nil,
-          ADesc,
-          APoints[0],
-          AColor1,
-          AColor2,
-          AScale1,
-          AScale2
-        );
+      if not PointIsEmpty(APoints[0]) then begin
+        Result :=
+          CreatePoint(
+            AId,
+            AName,
+            AVisible,
+            APicName,
+            nil,
+            ACategoryId,
+            nil,
+            ADesc,
+            APoints[0],
+            AColor1,
+            AColor2,
+            AScale1,
+            AScale2
+          );
+      end;
     end else begin
       if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
         VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount);
-        Result :=
-          CreatePoly(
-            AId,
-            AName,
-            AVisible,
-            ACategoryId,
-            nil,
-            ADesc,
-            VPolygon,
-            AColor1,
-            AColor2,
-            AScale1
-          );
+        if VPolygon.Count <> 0 then begin
+          Result :=
+            CreatePoly(
+              AId,
+              AName,
+              AVisible,
+              ACategoryId,
+              nil,
+              ADesc,
+              VPolygon,
+              AColor1,
+              AColor2,
+              AScale1
+            );
+        end;
       end else begin
         VPath := FFactory.CreateLonLatPath(APoints, APointCount);
-        Result :=
-          CreateLine(
-            AId,
-            AName,
-            AVisible,
-            ACategoryId,
-            nil,
-            ADesc,
-            VPath,
-            AColor1,
-            AScale1
-          );
+        if VPath.Count <> 0 then begin
+          Result :=
+            CreateLine(
+              AId,
+              AName,
+              AVisible,
+              ACategoryId,
+              nil,
+              ADesc,
+              VPath,
+              AColor1,
+              AScale1
+            );
+        end;
       end;
     end;
   end;

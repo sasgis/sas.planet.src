@@ -130,6 +130,7 @@ implementation
 
 uses
   DB,
+  Math,
   GR32,
   t_CommonTypes,
   i_EnumID,
@@ -153,6 +154,9 @@ procedure Blob2ExtArr(
   Blobfield: Tfield;
   const AAggregator: IDoublePointsAggregator
 );
+const
+  CMaxDegres: Extended = 360;
+  CMinDegres: Extended = -360;
 var
   VSize: Integer;
   VPointsCount: Integer;
@@ -160,6 +164,7 @@ var
   VStream: TStream;
   i: Integer;
   VPoint: TExtendedPoint;
+  VDoublePoint: TDoublePoint;
 begin
   VField := TBlobfield(BlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
@@ -168,7 +173,18 @@ begin
     VPointsCount := VSize div SizeOf(TExtendedPoint);
     for i := 0 to VPointsCount - 1 do begin
       VStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
-      AAggregator.Add(DoublePoint(VPoint.X, VPoint.Y));
+      try
+        if IsNan(VPoint.X) or IsNan(VPoint.Y) then begin
+          VDoublePoint := CEmptyDoublePoint;
+        end else if (Min(VPoint.X, CMaxDegres) >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
+          VDoublePoint := CEmptyDoublePoint;
+        end else begin
+          VDoublePoint := DoublePoint(VPoint.X, VPoint.Y);
+        end;
+      except
+        VDoublePoint := CEmptyDoublePoint;
+      end;
+      AAggregator.Add(VDoublePoint);
     end;
   finally
     VStream.Free;
@@ -543,7 +559,6 @@ var
   VPoints: IDoublePointsAggregator;
   VCategoryId: Integer;
   VDesc: string;
-  VLLRect: TDoubleRect;
   VColor1: TColor32;
   VColor2: TColor32;
   VScale1: Integer;
@@ -556,10 +571,6 @@ begin
   Blob2ExtArr(FCdsMarks.FieldByName('LonLatArr'), VPoints);
   VCategoryId := FCdsMarks.FieldByName('categoryid').AsInteger;
   VDesc := FCdsMarks.FieldByName('descr').AsString;
-  VLLRect.Left := FCdsMarks.FieldByName('LonL').AsFloat;
-  VLLRect.Top := FCdsMarks.FieldByName('LatT').AsFloat;
-  VLLRect.Right := FCdsMarks.FieldByName('LonR').AsFloat;
-  VLLRect.Bottom := FCdsMarks.FieldByName('LatB').AsFloat;
   VPicName := FCdsMarks.FieldByName('PicName').AsString;
   VColor1 := TColor32(FCdsMarks.FieldByName('Color1').AsInteger);
   VColor2 := TColor32(FCdsMarks.FieldByName('Color2').AsInteger);
@@ -574,7 +585,6 @@ begin
       VPicName,
       VCategoryId,
       VDesc,
-      VLLRect,
       VPoints.Points,
       VPoints.Count,
       VColor1,
