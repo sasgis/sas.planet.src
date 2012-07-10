@@ -176,7 +176,7 @@ begin
       try
         if IsNan(VPoint.X) or IsNan(VPoint.Y) then begin
           VDoublePoint := CEmptyDoublePoint;
-        end else if (Min(VPoint.X, CMaxDegres) >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
+        end else if (VPoint.X >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
           VDoublePoint := CEmptyDoublePoint;
         end else begin
           VDoublePoint := DoublePoint(VPoint.X, VPoint.Y);
