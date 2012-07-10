@@ -445,6 +445,8 @@ begin
             VCurPos := VNumEndPos;
             Inc(VCurPos);
           end;
+        end else begin
+          VCurPos := VLastPos;
         end;
       end;
     end;
