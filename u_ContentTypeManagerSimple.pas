@@ -58,6 +58,7 @@ implementation
 
 uses
   Classes,
+  i_BitmapTileSaveLoad,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
@@ -93,17 +94,21 @@ procedure TContentTypeManagerSimple.InitLists(
 );
 var
   VContentType: IContentTypeInfoBasic;
+  VLoader: IBitmapTileLoader;
+  VSaver: IBitmapTileSaver;
 begin
+  {$IFNDEF NATIVE_LIBJPEG}
+  VLoader := TVampyreBasicBitmapTileLoaderJPEG.Create(ALoadPerfCounterList);
+  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(85, ASavePerfCounterList);
+  {$ELSE}
+  VLoader := TLibJpegTileLoader.Create(ALoadPerfCounterList);
+  VSaver := TLibJpegTileSaver.Create(85, ASavePerfCounterList);
+  {$ENDIF}
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
-    {$IFNDEF NATIVE_LIBJPEG}
-    TVampyreBasicBitmapTileLoaderJPEG.Create(ALoadPerfCounterList),
-    TVampyreBasicBitmapTileSaverJPG.Create(85, ASavePerfCounterList)
-    {$ELSE}
-    TLibJpegTileLoader.Create(ALoadPerfCounterList),
-    TLibJpegTileSaver.Create(85, ASavePerfCounterList)
-    {$ENDIF}
+    VLoader,
+    VSaver
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/jpeg');
