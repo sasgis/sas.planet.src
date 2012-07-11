@@ -54,8 +54,6 @@ type
 
 implementation
 
-{.$DEFINE NATIVE_LIBJPEG}
-
 uses
   Classes,
   i_BitmapTileSaveLoad,
@@ -64,9 +62,7 @@ uses
   u_ContentConverterKml2Kmz,
   u_BitmapTileVampyreLoader,
   u_BitmapTileVampyreSaver,
-  {$IFDEF NATIVE_LIBJPEG}
   u_BitmapTileLibJpeg,
-  {$ENDIF}
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_ContentConverterBase,
@@ -97,13 +93,8 @@ var
   VLoader: IBitmapTileLoader;
   VSaver: IBitmapTileSaver;
 begin
-  {$IFNDEF NATIVE_LIBJPEG}
-  VLoader := TVampyreBasicBitmapTileLoaderJPEG.Create(ALoadPerfCounterList);
-  VSaver := TVampyreBasicBitmapTileSaverJPG.Create(85, ASavePerfCounterList);
-  {$ELSE}
   VLoader := TLibJpegTileLoader.Create(ALoadPerfCounterList);
   VSaver := TLibJpegTileSaver.Create(85, ASavePerfCounterList);
-  {$ENDIF}
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
