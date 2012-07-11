@@ -335,7 +335,7 @@ function TJpegWriter.DoComp62(
 ): Boolean;
 var
   I: Integer;
-  VLine: Pointer;
+  VLine: PByte;
   VSize: Integer;
   VAborted: Boolean;
   VStreamPos: Int64;
@@ -375,8 +375,8 @@ begin
                 Break; // abort by user
               end;
             end else if Assigned(VMemoryStream) then begin
-              VMemoryStream.Position := VStreamPos + VSize * I;
               VLine := VMemoryStream.Memory;
+              Inc(VLine, (VStreamPos + VSize * I));
             end else if Assigned(AInPutStream) then begin
               AInPutStream.Position := VStreamPos + VSize * I;
               AInPutStream.ReadBuffer(VLine^, VSize);
@@ -445,7 +445,7 @@ function TJpegWriter.DoComp8(
 ): Boolean;
 var
   I: Integer;
-  VLine: Pointer;
+  VLine: PByte;
   VSize: Integer;
   VAborted: Boolean;
   VStreamPos: Int64;
@@ -485,8 +485,8 @@ begin
                 Break; // abort by user
               end;
             end else if Assigned(VMemoryStream) then begin
-              VMemoryStream.Position := VStreamPos + VSize * I;
               VLine := VMemoryStream.Memory;
+              Inc(VLine, (VStreamPos + VSize * I));
             end else if Assigned(AInPutStream) then begin
               AInPutStream.Position := VStreamPos + VSize * I;
               AInPutStream.ReadBuffer(VLine^, VSize);
