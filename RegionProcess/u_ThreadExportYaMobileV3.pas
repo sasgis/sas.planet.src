@@ -10,6 +10,7 @@ uses
   GR32,
   u_MapType,
   u_ResStrings,
+  i_BinaryData,
   i_NotifierOperation,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
@@ -50,7 +51,7 @@ type
       const ATile: TPoint;
       AZoom, AMapType, sm_xy: Byte;
       const AExportPath: string;
-      ATileStream: TMemoryStream;
+      const AData: IBinaryData;
       AReplace: Boolean
     );
   protected
@@ -85,6 +86,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_LocalCoordConverter,
+  u_Bitmap32Static,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
   u_BitmapTileVampyreSaver,
@@ -260,7 +262,7 @@ procedure TThreadExportYaMobileV3.WriteTileToYaCache(
   const ATile: TPoint;
   AZoom, AMapType, sm_xy: Byte;
   const AExportPath: string;
-  ATileStream: TMemoryStream;
+  const AData: IBinaryData;
   AReplace: Boolean
 );
 var
@@ -292,7 +294,7 @@ begin
     VTableOffset := (VHead[6] or (VHead[7] shl 8) or (VHead[8] shl 16) or (VHead[9] shl 24));
     VTablePos := TileToTablePos(ATile) * 6 + sm_xy * 6;
     VTileOffset := VYaMobileStream.Size;
-    VTileSize := ATileStream.Size;
+    VTileSize := AData.Size;
     VYaMobileStream.Position := VTableOffset + VTablePos;
     VYaMobileStream.ReadBuffer(VExistsTileOffset, 4);
     if (VExistsTileOffset = 0) or AReplace then begin
@@ -300,7 +302,7 @@ begin
       VYaMobileStream.WriteBuffer(VTileOffset, 4);
       VYaMobileStream.WriteBuffer(VTileSize, 2);
       VYaMobileStream.Position := VYaMobileStream.Size;
-      VYaMobileStream.WriteBuffer(ATileStream.Memory^, VTileSize);
+      VYaMobileStream.WriteBuffer(AData.Buffer^, VTileSize);
     end;
   finally
     VYaMobileStream.Free;
@@ -313,7 +315,6 @@ var
   VZoom: Byte;
   VBitmapTile: IBitmap32Static;
   bmp32crop: TCustomBitmap32;
-  TileStream: TMemoryStream;
   tc: cardinal;
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
@@ -322,14 +323,14 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileConverter: ILocalCoordConverter;
+  VStaticBitmapCrop: IBitmap32Static;
+  VDataToSave: IBinaryData;
 begin
   inherited;
   bmp32crop := TCustomBitmap32.Create;
   try
     hxyi := 1;
     sizeim := 128;
-    TileStream := TMemoryStream.Create;
-    try
       bmp32crop.Width := sizeim;
       bmp32crop.Height := sizeim;
       VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
@@ -382,15 +383,15 @@ begin
                       bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                       dmOpaque
                     );
-                    TileStream.Clear;
-                    FTasks[j].FSaver.SaveToStream(bmp32crop, TileStream);
+                    VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(bmp32crop);
+                    VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
                     WriteTileToYaCache(
                       VTile,
                       VZoom,
                       FTasks[j].FMapId,
                       (yi * 2) + xi,
                       FExportPath,
-                      TileStream,
+                      VDataToSave,
                       FIsReplace
                     );
                   end;
@@ -410,9 +411,6 @@ begin
         end;
       end;
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    finally
-      TileStream.Free;
-    end;
   finally
     bmp32crop.Free;
   end;

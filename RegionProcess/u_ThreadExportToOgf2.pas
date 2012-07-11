@@ -77,6 +77,7 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_VectorItemProjected,
+  u_Bitmap32Static,
   u_BinaryDataByMemStream,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
@@ -151,7 +152,7 @@ function TThreadExportToOgf2.GetMapPreview(
 ): IBinaryData;
 var
   VBitmap: TCustomBitmap32;
-  VStream: TMemoryStream;
+  VBitmapStatic: IBitmap32Static;
 begin
   VBitmap := TCustomBitmap32.Create;
   try
@@ -163,15 +164,9 @@ begin
     VBitmap.SetSize(AMapPreviewWidth, AMapPreviewHeight);
     VBitmap.Clear(cBackGroundColor);
 
-    VStream := TMemoryStream.Create;
-    try
-      ABitmapSaver.SaveToStream(VBitmap, VStream);
-      VStream.Position := 0;
-      Result := TBinaryDataByMemStream.CreateWithOwn(VStream);
-      VStream := nil;
-    finally
-      VStream.Free;
-    end;
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
+    Result := ABitmapSaver.Save(VBitmapStatic);
   finally
     VBitmap.Free;
   end;
@@ -182,21 +177,15 @@ function TThreadExportToOgf2.GetEmptyTile(
 ): IBinaryData;
 var
   VBitmap: TCustomBitmap32;
-  VStream: TMemoryStream;
+  VBitmapStatic: IBitmap32Static;
 begin
   VBitmap := TCustomBitmap32.Create;
   try
-    VStream := TMemoryStream.Create;
-    try
-      VBitmap.SetSize(FOgf2TileWidth, FOgf2TileHeight);
-      VBitmap.Clear(cBackGroundColor);
-      ABitmapSaver.SaveToStream(VBitmap, VStream);
-      VStream.Position := 0;
-      Result := TBinaryDataByMemStream.CreateWithOwn(VStream);
-      VStream := nil;
-    finally
-      VStream.Free;
-    end;
+    VBitmap.SetSize(FOgf2TileWidth, FOgf2TileHeight);
+    VBitmap.Clear(cBackGroundColor);
+    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
+    Result := ABitmapSaver.Save(VBitmapStatic);
   finally
     VBitmap.Free;
   end;
@@ -209,7 +198,6 @@ var
   VPreviewImageHeight: Integer;
   VPreviewImageData: IBinaryData;
   VEmptyTile: IBinaryData;
-  VTileStream: TMemoryStream;
   VBitmap: TCustomBitmap32;
   VBitmapTile: IBitmap32Static;
   VZoom: Byte;
@@ -226,6 +214,8 @@ var
   VPixelRect: TRect;
   VTileRect: TRect;
   I, J: Integer;
+  VStaticBitmapCrop: IBitmap32Static;
+  VDataToSave: IBinaryData;
 begin
   inherited;
   VTilesProcessed := 0;
@@ -269,8 +259,6 @@ begin
 
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
-    VTileStream := TMemoryStream.Create;
-    try
       VPreviewImageData :=
         GetMapPreview(
           VSaver,
@@ -330,15 +318,14 @@ begin
                         dmOpaque
                       );
 
-                      VTileStream.Clear;
-                      VSaver.SaveToStream(VBitmap, VTileStream);
-                      VTileStream.Position := 0;
+                      VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(VBitmap);
+                      VDataToSave := VSaver.Save(VStaticBitmapCrop);
 
                       VWriter.Add(
                         (VTile.X * 2) + I,
                         (VTile.Y * 2) + J,
-                        VTileStream.Memory,
-                        VTileStream.Size
+                        VDataToSave.Buffer,
+                        VDataToSave.Size
                       );
                     end else begin
                       VWriter.AddEmpty(
@@ -368,9 +355,6 @@ begin
           VOfg2FileStream.Free;
         end;
       end;
-    finally
-      VTileStream.Free;
-    end;
   finally
     VTileIterator := nil;
   end;

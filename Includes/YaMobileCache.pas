@@ -6,11 +6,12 @@ uses
   Windows,
   SysUtils,
   Classes,
-  MD5;
+  MD5,
+  i_BinaryData;
 
 type
   TTileStream = record
-    Data: TMemoryStream;
+    Data: IBinaryData;
     Point: TPoint;
     Zoom: Byte;
     MapVersion: Word;
@@ -521,8 +522,7 @@ var
   I: Integer;
 begin
   ZeroMemory(@VTileData, SizeOf(TYaMobileTileData));
-  ATile.Data.Position := 0;
-  MD5 := MD5Buffer(ATile.Data.Memory, ATile.Data.Size);
+  MD5 := MD5Buffer(ATile.Data.Buffer^, ATile.Data.Size);
   VTileData.Magic := StrToMagic('YTLD');
   VTileData.ElementsCount := 1;
   VTileData.FormatVersion := 1;
@@ -534,7 +534,7 @@ begin
   VTileData.ElementsTable[0].DataID := 0;
   VTileData.ElementsTable[0].DataSize := ATile.Data.Size;
   GetMem(VTileData.Data, ATile.Data.Size);
-  ATile.Data.Read(VTileData.Data^, ATile.Data.Size);
+  Move(ATile.Data.Buffer^, VTileData.Data, ATile.Data.Size);
   Result := VTileData;
 end;
 

@@ -38,10 +38,6 @@ type
 
   IBitmapTileSaver = interface
     ['{00853113-0F3E-441D-974E-CCBC2F5C6E10}']
-    procedure SaveToStream(
-      ABtm: TCustomBitmap32;
-      AStream: TStream
-    );
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   end;
 

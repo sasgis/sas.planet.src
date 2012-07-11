@@ -9,6 +9,7 @@ uses
   Classes,
   GR32,
   YaMobileCache,
+  i_BinaryData,
   i_VectorItemLonLat,
   i_NotifierOperation,
   i_BitmapTileSaveLoad,
@@ -47,7 +48,7 @@ type
     ): Boolean;
     procedure CloseCacheFiles;
     procedure AddTileToCache(
-      ATileData: TMemoryStream;
+      const AData: IBinaryData;
       const ATilePoint: TPoint;
       AZoom: Byte;
       AMapID: Integer
@@ -83,6 +84,7 @@ uses
   i_Bitmap32Static,
   i_VectorItemProjected,
   i_TileIterator,
+  u_Bitmap32Static,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
   u_ARGBToPaletteConverter,
@@ -223,7 +225,7 @@ begin
 end;
 
 procedure TThreadExportYaMobileV4.AddTileToCache(
-  ATileData: TMemoryStream;
+  const AData: IBinaryData;
   const ATilePoint: TPoint;
   AZoom: Byte;
   AMapID: Integer
@@ -233,16 +235,16 @@ var
   VCacheFile: TYaMobileCacheFile;
   VTileData: TTileStream;
 begin
-  if Assigned(ATileData) then begin
+  if Assigned(AData) then begin
     VCacheFile := nil;
     VCacheFilePath := GetFilePath(FExportPath, ATilePoint, AZoom, AMapID);
     if OpenCacheFile(VCacheFilePath, VCacheFile) then begin
-      ATileData.Position := 0;
-      VTileData.Data := ATileData;
+      VTileData.Data := AData;
       VTileData.Point := Types.Point(ATilePoint.X mod 128, ATilePoint.Y mod 128);
       VTileData.Zoom := AZoom;
       VTileData.MapVersion := 1;
       VCacheFile.AddTile(VTileData);
+      VTileData.Data := nil;
     end;
   end;
 end;
@@ -301,7 +303,6 @@ var
   VZoom: Byte;
   VBitmapTile: IBitmap32Static;
   bmp32crop: TCustomBitmap32;
-  TileStream: TMemoryStream;
   tc: cardinal;
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
@@ -309,12 +310,12 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VStaticBitmapCrop: IBitmap32Static;
+  VDataToSave: IBinaryData;
 begin
   inherited;
   hxyi := 1;
   sizeim := 128;
-  TileStream := TMemoryStream.Create;
-  try
     bmp32crop := TCustomBitmap32.Create;
     try
       bmp32crop.Width := sizeim;
@@ -371,10 +372,10 @@ begin
                         bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                         dmOpaque
                       );
-                      TileStream.Clear;
-                      FTasks[j].FSaver.SaveToStream(bmp32crop, TileStream);
+                      VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(bmp32crop);
+                      VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
                       AddTileToCache(
-                        TileStream,
+                        VDataToSave,
                         Types.Point(2 * VTile.X + Xi, 2 * VTile.Y + Yi),
                         VZoom,
                         FTasks[j].FMapId
@@ -402,9 +403,6 @@ begin
     finally
       bmp32crop.Free;
     end;
-  finally
-    TileStream.Free;
-  end;
 end;
 
 end.

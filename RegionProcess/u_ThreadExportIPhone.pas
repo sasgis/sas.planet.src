@@ -11,6 +11,7 @@ uses
   GR32,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
+  i_BinaryData,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
@@ -49,7 +50,7 @@ type
     procedure WriteTileToSQLite3(
       const AXY: TPoint;
       AZoom: Integer;
-      AMemStream: TMemoryStream;
+      const AData: IBinaryData;
       AFlags: Integer
     );
   protected
@@ -88,6 +89,7 @@ uses
   u_ResStrings,
   i_VectorItemProjected,
   i_TileIterator,
+  u_Bitmap32Static,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
   u_BitmapTileVampyreSaver;
@@ -204,7 +206,7 @@ end;
 procedure TThreadExportIPhone.WriteTileToSQLite3(
   const AXY: TPoint;
   AZoom: Integer;
-  AMemStream: TMemoryStream;
+  const AData: IBinaryData;
   AFlags: Integer
 );
 var
@@ -218,7 +220,7 @@ begin
     '"' + IntToStr(AXY.X) + '",' +
     '"' + IntToStr(AXY.Y) + '",' +
     '"' + IntToStr(AFlags) + '",' +
-    '"' + IntToStr(AMemStream.Size) + '"' +
+    '"' + IntToStr(AData.Size) + '"' +
     ')';
   CheckSQLiteAPIError(
     FSQLite3Lib.sqlite3_prepare_v2(
@@ -230,13 +232,12 @@ begin
     ) <> SQLITE_OK
   );
   try
-    AMemStream.Position := 0;
     CheckSQLiteAPIError(
       FSQLite3Lib.sqlite3_bind_blob(
       stmt,
       1,
-      AMemStream.Memory,
-      AMemStream.Size,
+      AData.Buffer,
+      AData.Size,
       SQLITE_STATIC
       ) <> SQLITE_OK
     );
@@ -298,11 +299,12 @@ procedure TThreadExportIPhone.ProcessRegion;
 var
   VZoom: byte;
   i, j, xi, yi, hxyi, sizeim: integer;
-  VTileStream: TMemoryStream;
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VBitmapTile: IBitmap32Static;
   Vbmp32crop: TCustomBitmap32;
+  VStaticBitmapCrop: IBitmap32Static;
+  VDataToSave: IBinaryData;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VDatabaseName: string;
@@ -324,7 +326,6 @@ begin
     sizeim := 64;
   end;
 
-  VTileStream := TMemoryStream.Create;
   Vbmp32crop := TCustomBitmap32.Create;
   try
     Vbmp32crop.Width := sizeim;
@@ -446,12 +447,12 @@ begin
                             bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                             dmOpaque
                           );
-                          VTileStream.Clear;
-                          FTasks[j].FSaver.SaveToStream(Vbmp32crop, VTileStream);
+                          VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(Vbmp32crop);
+                          VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
                           WriteTileToSQLite3(
                             Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),
                             VZoom + 1,
-                            VTileStream,
+                            VDataToSave,
                             FTasks[j].FFlag
                           );
                         end;
@@ -489,7 +490,6 @@ begin
       VTileIterators := nil;
     end;
   finally
-    VTileStream.Free;
     Vbmp32crop.Free;
   end;
 end;
