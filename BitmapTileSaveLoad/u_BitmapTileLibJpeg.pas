@@ -42,10 +42,10 @@ type
       ALineNumber: Integer
     ): Boolean;
   private
-    procedure LoadFromStream(
-      AStream: TStream;
-      ABtm: TCustomBitmap32
-    );
+//    procedure LoadFromStream(
+//      AStream: TStream;
+//      ABtm: TCustomBitmap32
+//    );
     function Load(const AData: IBinaryData): IBitmap32Static;
   public
     constructor Create(const APerfCounterList: IInternalPerformanceCounterList);
@@ -149,36 +149,36 @@ begin
   end;
 end;
 
-procedure TLibJpegTileLoader.LoadFromStream(
-  AStream: TStream;
-  ABtm: TCustomBitmap32
-);
-var
-  VCounterContext: TInternalPerformanceCounterContext;
-  VJpeg: TJpegReader;
-begin
-  VCounterContext := FLoadStreamCounter.StartOperation;
-  try
-    VJpeg := TJpegReader.Create(AStream);
-    try
-      if VJpeg.ReadHeader() then begin
-        ABtm.Width := VJpeg.Width;
-        ABtm.Height := VJpeg.Height;
-        VJpeg.AppData := @ABtm;
-        if not VJpeg.Decompress(Self.ReadLine) then begin
-          ABtm.Clear;
-          raise Exception.Create('Jpeg decompress error!');
-        end;
-      end else begin
-        raise Exception.Create('Jpeg open error!');
-      end;
-    finally
-      VJpeg.Free;
-    end;
-  finally
-    FLoadStreamCounter.FinishOperation(VCounterContext);
-  end;
-end;
+//procedure TLibJpegTileLoader.LoadFromStream(
+//  AStream: TStream;
+//  ABtm: TCustomBitmap32
+//);
+//var
+//  VCounterContext: TInternalPerformanceCounterContext;
+//  VJpeg: TJpegReader;
+//begin
+//  VCounterContext := FLoadStreamCounter.StartOperation;
+//  try
+//    VJpeg := TJpegReader.Create(AStream);
+//    try
+//      if VJpeg.ReadHeader() then begin
+//        ABtm.Width := VJpeg.Width;
+//        ABtm.Height := VJpeg.Height;
+//        VJpeg.AppData := @ABtm;
+//        if not VJpeg.Decompress(Self.ReadLine) then begin
+//          ABtm.Clear;
+//          raise Exception.Create('Jpeg decompress error!');
+//        end;
+//      end else begin
+//        raise Exception.Create('Jpeg open error!');
+//      end;
+//    finally
+//      VJpeg.Free;
+//    end;
+//  finally
+//    FLoadStreamCounter.FinishOperation(VCounterContext);
+//  end;
+//end;
 
 function TLibJpegTileLoader.ReadLine(
   Sender: TObject;
