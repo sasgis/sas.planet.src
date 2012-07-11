@@ -76,6 +76,7 @@ uses
   i_CoordConverter,
   u_ListenerByEvent,
   u_ResStrings,
+  u_GeoFun,
   u_MapType;
 
 const
@@ -263,7 +264,11 @@ begin
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VMap.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
-    VTile := VMap.GeoConvert.PixelPosFloat2TilePos(VMapPoint, VZoomCurr);
+    VTile :=
+      PointFromDoublePoint(
+        VMap.GeoConvert.PixelPosFloat2TilePosFloat(VMapPoint, VZoomCurr),
+        prToTopLeft
+      );
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
