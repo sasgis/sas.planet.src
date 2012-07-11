@@ -240,10 +240,6 @@ type
     function Relative2LonLat(const XY: TDoublePoint): TDoublePoint; stdcall;//TODO: Автотест
 
     // Преобразует прямоугольник с относительными координатами в прямоугольник пикселов
-    function RelativeRect2PixelRect(
-      const XY: TDoubleRect;
-      const Azoom: byte
-    ): TRect; stdcall; //UnSafe
     function RelativeRect2PixelRectFloat(
       const XY: TDoubleRect;
       const Azoom: byte
