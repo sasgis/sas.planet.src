@@ -103,10 +103,6 @@ type
       const Azoom: byte
     ): TDoublePoint; stdcall;//TODO: Автотест
 
-    function PixelPosFloat2TilePos(
-      const XY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall; //UnSafe //TODO: Автотест
     function PixelPosFloat2TilePosFloat(
       const XY: TDoublePoint;
       const Azoom: byte

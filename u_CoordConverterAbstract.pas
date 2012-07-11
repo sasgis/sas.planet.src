@@ -114,10 +114,6 @@ type
       Azoom: byte
     ): TDoublePoint; virtual; stdcall; abstract;
 
-    function PixelPosFloat2TilePosInternal(
-      const XY: TDoublePoint;
-      Azoom: byte
-    ): TPoint; virtual; stdcall; abstract;
     function PixelPosFloat2TilePosFloatInternal(
       const XY: TDoublePoint;
       Azoom: byte
@@ -347,10 +343,6 @@ type
       const Azoom: byte
     ): TDoublePoint; stdcall;
 
-    function PixelPosFloat2TilePos(
-      const XY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall;
     function PixelPosFloat2TilePosFloat(
       const XY: TDoublePoint;
       const Azoom: byte
@@ -1086,20 +1078,6 @@ begin
   VZoom := AZoom;
   CheckPixelPosFloatInternal(VXY, VZoom);
   Result := PixelPosFloat2RelativeInternal(VXY, Vzoom);
-end;
-
-function TCoordConverterAbstract.PixelPosFloat2TilePos(
-  const XY: TDoublePoint;
-  const Azoom: byte
-): TPoint;
-var
-  VXY: TDoublePoint;
-  VZoom: Byte;
-begin
-  VXY := XY;
-  VZoom := AZoom;
-  CheckPixelPosFloatInternal(VXY, VZoom);
-  Result := PixelPosFloat2TilePosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.PixelPosFloat2TilePosFloat(
