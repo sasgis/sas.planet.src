@@ -13,7 +13,7 @@ type
   end;
 
   ILocalCoordConverterChangeableInternal = interface(ILocalCoordConverterChangeable)
-    procedure SetConverter(AValue: ILocalCoordConverter);
+    procedure SetConverter(const AValue: ILocalCoordConverter);
     procedure StopNotify;
     procedure StartNotify;
   end;

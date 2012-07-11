@@ -364,7 +364,7 @@ end;
 
 function UpdateBMPTransp(
   AMaskColor: TColor32;
-  ABitmap: IBitmap32Static
+  const ABitmap: IBitmap32Static
 ): IBitmap32Static;
 var
   VSourceLine: PColor32Array;

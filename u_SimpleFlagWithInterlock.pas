@@ -27,7 +27,7 @@ type
     function CheckFlagAndReset: Boolean;
     function CheckFlag: Boolean;
   public
-    constructor Create(AParent: ISimpleFlag);
+    constructor Create(const AParent: ISimpleFlag);
   end;
 
   TCounterInterlock = class(TInterfacedObject, ICounter)
@@ -97,7 +97,7 @@ end;
 
 { TSimpleFlagWithParent }
 
-constructor TSimpleFlagWithParent.Create(AParent: ISimpleFlag);
+constructor TSimpleFlagWithParent.Create(const AParent: ISimpleFlag);
 begin
   inherited Create;
   FParent := AParent;

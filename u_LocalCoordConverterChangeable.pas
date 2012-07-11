@@ -16,7 +16,7 @@ type
     FChangeCounter: IInternalPerformanceCounter;
   private
     function GetStatic: ILocalCoordConverter;
-    procedure SetConverter(AValue: ILocalCoordConverter);
+    procedure SetConverter(const AValue: ILocalCoordConverter);
   protected
     procedure DoChangeNotify; override;
   public
@@ -65,7 +65,7 @@ begin
 end;
 
 procedure TLocalCoordConverterChangeable.SetConverter(
-  AValue: ILocalCoordConverter);
+  const AValue: ILocalCoordConverter);
 begin
   if AValue = nil then begin
     Exit;

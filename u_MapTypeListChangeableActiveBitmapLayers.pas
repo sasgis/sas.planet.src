@@ -25,7 +25,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
-      AActiveMaps: IActiveMapsSet
+      const AActiveMaps: IActiveMapsSet
     );
     destructor Destroy; override;
   end;
@@ -40,7 +40,7 @@ uses
 { TMapTypeListChangeableActiveBitmapLayers }
 
 constructor TMapTypeListChangeableActiveBitmapLayers.Create(
-  AActiveMaps: IActiveMapsSet);
+  const AActiveMaps: IActiveMapsSet);
 begin
   inherited Create;
   FActiveMaps := AActiveMaps;
