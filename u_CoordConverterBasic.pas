@@ -252,10 +252,6 @@ type
     ): TDoublePoint; override;
 
     function LonLatRect2RelativeRectInternal(const XY: TDoubleRect): TDoubleRect; override;
-    function LonLatRect2PixelRectInternal(
-      const XY: TDoubleRect;
-      Azoom: byte
-    ): TRect; override;
     function LonLatRect2PixelRectFloatInternal(
       const XY: TDoubleRect;
       Azoom: byte
@@ -1444,18 +1440,6 @@ begin
     RelativeRect2PixelRectFloatInternal(
       LonLatRect2RelativeRectInternal(XY),
       Azoom
-    );
-end;
-
-function TCoordConverterBasic.LonLatRect2PixelRectInternal(
-  const XY: TDoubleRect;
-  Azoom: byte
-): TRect;
-begin
-  Result :=
-    RectFromDoubleRect(
-      RelativeRect2PixelRectFloatInternal(LonLatRect2RelativeRectInternal(XY), Azoom),
-      rrToTopLeft
     );
 end;
 

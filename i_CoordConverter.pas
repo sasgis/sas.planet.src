@@ -267,10 +267,6 @@ type
 
     // Преобразует прямоугольник в географических коодинатах в относительные координаты на карте
     function LonLatRect2RelativeRect(const XY: TDoubleRect): TDoubleRect; stdcall;//TODO: Автотест
-    function LonLatRect2PixelRect(
-      const XY: TDoubleRect;
-      const Azoom: byte
-    ): TRect; stdcall; //UnSafe//TODO: Автотест
     function LonLatRect2PixelRectFloat(
       const XY: TDoubleRect;
       const Azoom: byte
