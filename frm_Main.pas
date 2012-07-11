@@ -3162,7 +3162,11 @@ begin
   VMapType := FConfig.MainMapsConfig.GetSelectedMapType.MapType;
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
-  VTile := VConverter.PixelPosFloat2TilePos(VMouseMapPoint, VZoomCurr);
+  VTile :=
+    PointFromDoublePoint(
+      VConverter.PixelPosFloat2TilePosFloat(VMouseMapPoint, VZoomCurr),
+      prToTopLeft
+    );
   VBitmapTile := VMapType.LoadTileUni(VTile, VZoomCurr, VConverter, True, True, False);
   if VBitmapTile <> nil then begin
     btm := TBitmap32.Create;
