@@ -24,7 +24,8 @@ type
     function GetNextEnum: IEnumDoublePoint; virtual; abstract;
   private
     function Next(out APoint: TDoublePoint): Boolean;
-    constructor Create(
+  private
+    constructor CreateInternal(
       const ALineSet: IInterface;
       ALineCount: Integer;
       AClosed: Boolean
@@ -80,7 +81,7 @@ uses
 
 { TEnumDoublePointByLineSetBase }
 
-constructor TEnumDoublePointByLineSetBase.Create(
+constructor TEnumDoublePointByLineSetBase.CreateInternal(
   const ALineSet: IInterface;
   ALineCount: Integer;
   AClosed: Boolean
@@ -140,7 +141,7 @@ end;
 
 constructor TEnumLonLatPointByPath.Create(const ALineSet: ILonLatPath);
 begin
-  inherited Create(ALineSet, ALineSet.Count, False);
+  inherited CreateInternal(ALineSet, ALineSet.Count, False);
 end;
 
 function TEnumLonLatPointByPath.GetNextEnum: IEnumDoublePoint;
@@ -152,7 +153,7 @@ end;
 
 constructor TEnumLonLatPointByPolygon.Create(const ALineSet: ILonLatPolygon);
 begin
-  inherited Create(ALineSet, ALineSet.Count, True);
+  inherited CreateInternal(ALineSet, ALineSet.Count, True);
 end;
 
 function TEnumLonLatPointByPolygon.GetNextEnum: IEnumDoublePoint;
@@ -164,7 +165,7 @@ end;
 
 constructor TEnumProjectedPointByPath.Create(const ALineSet: IProjectedPath);
 begin
-  inherited Create(ALineSet, ALineSet.Count, False);
+  inherited CreateInternal(ALineSet, ALineSet.Count, False);
 end;
 
 function TEnumProjectedPointByPath.GetNextEnum: IEnumDoublePoint;
@@ -176,7 +177,7 @@ end;
 
 constructor TEnumProjectedPointByPolygon.Create(const ALineSet: IProjectedPolygon);
 begin
-  inherited Create(ALineSet, ALineSet.Count, True);
+  inherited CreateInternal(ALineSet, ALineSet.Count, True);
 end;
 
 function TEnumProjectedPointByPolygon.GetNextEnum: IEnumDoublePoint;
@@ -188,7 +189,7 @@ end;
 
 constructor TEnumLocalPointByPath.Create(const ALineSet: ILocalPath);
 begin
-  inherited Create(ALineSet, ALineSet.Count, False);
+  inherited CreateInternal(ALineSet, ALineSet.Count, False);
 end;
 
 function TEnumLocalPointByPath.GetNextEnum: IEnumDoublePoint;
@@ -200,7 +201,7 @@ end;
 
 constructor TEnumLocalPointByPolygon.Create(const ALineSet: ILocalPolygon);
 begin
-  inherited Create(ALineSet, ALineSet.Count, True);
+  inherited CreateInternal(ALineSet, ALineSet.Count, True);
 end;
 
 function TEnumLocalPointByPolygon.GetNextEnum: IEnumDoublePoint;
