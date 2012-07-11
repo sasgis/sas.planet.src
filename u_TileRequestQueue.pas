@@ -145,7 +145,7 @@ var
   VRequestArray: TArrayOfITileRequest;
 begin
   VSize := InterlockedCompareExchange(FSize, 0, 0);
-  if VSize > 0 then begin
+  if VSize = 0 then begin
     FRequestArrayCS.BeginWrite;
     try
       VRequestArray := FRequestArray;
