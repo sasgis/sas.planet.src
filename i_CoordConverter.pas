@@ -213,10 +213,6 @@ type
       const Azoom: byte
     ): TDoubleRect; stdcall;//TODO: Автотест
 
-    function TileRectFloat2PixelRect(
-      const XY: TDoubleRect;
-      const AZoom: byte
-    ): TRect; stdcall; //UnSafe//TODO: Автотест
     function TileRectFloat2PixelRectFloat(
       const XY: TDoubleRect;
       const AZoom: byte

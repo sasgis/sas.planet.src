@@ -209,10 +209,6 @@ type
       Azoom: byte
     ): TDoubleRect; override;
 
-    function TileRectFloat2PixelRectInternal(
-      const XY: TDoubleRect;
-      AZoom: byte
-    ): TRect; override;
     function TileRectFloat2PixelRectFloatInternal(
       const XY: TDoubleRect;
       AZoom: byte
@@ -1353,17 +1349,6 @@ begin
   Result.Top := XY.Top * 256;
   Result.Right := XY.Right * 256;
   Result.Bottom := XY.Bottom * 256;
-end;
-
-function TCoordConverterBasic.TileRectFloat2PixelRectInternal(
-  const XY: TDoubleRect;
-  AZoom: byte
-): TRect;
-var
-  VPixelRect: TDoubleRect;
-begin
-  VPixelRect := TileRectFloat2PixelRectFloatInternal(XY, AZoom);
-  Result := RectFromDoubleRect(VPixelRect, rrToTopLeft);
 end;
 
 function TCoordConverterBasic.TileRectFloat2RelativeRectInternal(
