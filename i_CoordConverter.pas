@@ -271,10 +271,6 @@ type
       const XY: TDoubleRect;
       const Azoom: byte
     ): TDoubleRect; stdcall;//TODO: Автотест
-    function LonLatRect2TileRect(
-      const XY: TDoubleRect;
-      const Azoom: byte
-    ): TRect; stdcall; //UnSafe//TODO: Автотест
     function LonLatRect2TileRectFloat(
       const XY: TDoubleRect;
       const Azoom: byte

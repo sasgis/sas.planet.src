@@ -256,10 +256,6 @@ type
       const XY: TDoubleRect;
       Azoom: byte
     ): TDoubleRect; override;
-    function LonLatRect2TileRectInternal(
-      const XY: TDoubleRect;
-      Azoom: byte
-    ): TRect; override;
     function LonLatRect2TileRectFloatInternal(
       const XY: TDoubleRect;
       Azoom: byte
@@ -1452,18 +1448,6 @@ begin
     RelativeRect2TileRectFloatInternal(
       LonLatRect2RelativeRectInternal(XY),
       Azoom
-    );
-end;
-
-function TCoordConverterBasic.LonLatRect2TileRectInternal(
-  const XY: TDoubleRect;
-  Azoom: byte
-): TRect;
-begin
-  Result :=
-    RectFromDoubleRect(
-      RelativeRect2TileRectFloatInternal(LonLatRect2RelativeRectInternal(XY), Azoom),
-      rrToTopLeft
     );
 end;
 

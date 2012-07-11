@@ -261,10 +261,6 @@ type
       const XY: TDoubleRect;
       Azoom: byte
     ): TDoubleRect; virtual; stdcall; abstract;
-    function LonLatRect2TileRectInternal(
-      const XY: TDoubleRect;
-      Azoom: byte
-    ): TRect; virtual; stdcall; abstract;
     function LonLatRect2TileRectFloatInternal(
       const XY: TDoubleRect;
       Azoom: byte
@@ -429,10 +425,6 @@ type
       const XY: TDoubleRect;
       const Azoom: byte
     ): TDoubleRect; stdcall;
-    function LonLatRect2TileRect(
-      const AXY: TDoubleRect;
-      const Azoom: byte
-    ): TRect; stdcall;
     function LonLatRect2TileRectFloat(
       const XY: TDoubleRect;
       const Azoom: byte
@@ -1146,21 +1138,6 @@ begin
   VZoom := AZoom;
   CheckTileRectFloatInternal(VXY, VZoom);
   Result := TileRectFloat2RelativeRectInternal(VXY, Vzoom);
-end;
-
-function TCoordConverterAbstract.LonLatRect2TileRect(
-  const AXY: TDoubleRect;
-  const Azoom: byte
-): TRect;
-var
-  VXY: TDoubleRect;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  CheckLonLatRectInternal(VXY);
-  CheckZoomInternal(VZoom);
-  Result := LonLatRect2TileRectInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLatRect2TileRectFloat(
