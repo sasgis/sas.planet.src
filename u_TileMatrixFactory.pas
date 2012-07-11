@@ -337,7 +337,11 @@ begin
   VZoom := ANewConverter.Zoom;
   VZoomSource := ASource.LocalConverter.Zoom;
   VRelativeRectSource := VConverter.TileRect2RelativeRect(ASource.TileRect, VZoomSource);
-  VTileRectSourceAtTarget := VConverter.RelativeRect2TileRect(VRelativeRectSource, VZoom);
+  VTileRectSourceAtTarget :=
+    RectFromDoubleRect(
+      VConverter.RelativeRect2TileRectFloat(VRelativeRectSource, VZoom),
+      rrToTopLeft
+    );
   if not IntersectRect(VIntersectRect, ATileRect, VTileRectSourceAtTarget) then begin
     Result := BuildEmpty(ATileRect, ANewConverter);
   end else begin

@@ -90,7 +90,11 @@ begin
   VGeoConvert.CheckPixelRectFloat(VMapRect, VCurrentZoom);
 
   VRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VMapRect, VCurrentZoom);
-  VTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VGridZoom);
+  VTilesRect :=
+    RectFromDoubleRect(
+      VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, VGridZoom),
+      rrToTopLeft
+    );
 
   VTilesLineRect.Left := VTilesRect.Left;
   VTilesLineRect.Right := VTilesRect.Right;

@@ -198,7 +198,11 @@ begin
             end;
 
             VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);
-            VRectOfSubTiles := VGeoConvert.RelativeRect2TileRect(VRelativeRect, VZoomPrev);
+            VRectOfSubTiles :=
+              RectFromDoubleRect(
+                VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, VZoomPrev),
+                rrToTopLeft
+              );
             VSubTileIterator := TTileIteratorByRect.Create(VRectOfSubTiles);
             VSubTileCount := VSubTileIterator.TilesTotal;
             VSubTilesSavedCount := 0;

@@ -736,7 +736,11 @@ begin
       VSourceConverter.CheckLonLatRect(VLonLatRect);
       VSourceRelativeRect := VSourceConverter.LonLatRect2RelativeRect(VLonLatRect);
     end;
-    VSourceTileRect := VSourceConverter.RelativeRect2TileRect(VSourceRelativeRect, ASourceZoom);
+    VSourceTileRect :=
+      RectFromDoubleRect(
+        VSourceConverter.RelativeRect2TileRectFloat(VSourceRelativeRect, ASourceZoom),
+        rrToTopLeft
+      );
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);

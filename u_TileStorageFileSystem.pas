@@ -597,7 +597,11 @@ begin
       btm.Clear(0);
 
       VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
-      VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+      VSourceTilesRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, ASourceZoom),
+          rrToTopLeft
+        );
       VPrevFolderName := '';
       VPrevFolderExist := False;
       begin

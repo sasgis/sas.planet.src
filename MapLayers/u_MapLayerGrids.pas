@@ -520,7 +520,11 @@ begin
       VGeoConvert.CheckPixelRectFloat(VLoadedRect, VCurrentZoom);
 
       VLoadedRelativeRect := VGeoConvert.PixelRectFloat2RelativeRect(VLoadedRect, VCurrentZoom);
-      VTilesRect := VGeoConvert.RelativeRect2TileRect(VLoadedRelativeRect, VGridZoom);
+      VTilesRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2TileRectFloat(VLoadedRelativeRect, VGridZoom),
+          rrToTopLeft
+        );
       for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
         VTileIndex.Y := i;
         for j := VTilesRect.Left to VTilesRect.Right - 1 do begin

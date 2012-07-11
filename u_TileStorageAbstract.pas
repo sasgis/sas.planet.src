@@ -388,7 +388,11 @@ begin
       btm.Clear(0);
 
       VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
-      VSourceTilesRect := VGeoConvert.RelativeRect2TileRect(VRelativeRect, ASourceZoom);
+      VSourceTilesRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, ASourceZoom),
+          rrToTopLeft
+        );
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left)) or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
 
       if Assigned(FOnRangeFillingMap) and (ASourceZoom > Azoom) then begin
