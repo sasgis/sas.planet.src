@@ -46,7 +46,7 @@ type
     FLayerCoordConverter: ILocalCoordConverter;
     FLayerCoordConverterCS: IReadWriteSync;
 
-    FViewUpdateLock: Integer;
+    FViewUpdateLockCounter: ICounter;
     procedure OnViewPortPosChange;
     procedure OnViewPortScaleChange;
     function GetLayerCoordConverter: ILocalCoordConverter;
@@ -179,11 +179,11 @@ constructor TWindowLayerWithPosBase.Create(
 );
 begin
   inherited Create(APerfList, AAppStartedNotifier, AAppClosingNotifier);
-  FViewUpdateLock := 0;
   FViewPortState := AViewPortState;
 
   FViewCoordConverterCS := MakeSyncRW_Var(Self);
   FLayerCoordConverterCS := MakeSyncRW_Var(Self);
+  FViewUpdateLockCounter := TCounterInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
@@ -305,14 +305,14 @@ end;
 
 procedure TWindowLayerWithPosBase.ViewUpdateLock;
 begin
-  InterlockedIncrement(FViewUpdateLock);
+  FViewUpdateLockCounter.Inc;
 end;
 
 procedure TWindowLayerWithPosBase.ViewUpdateUnlock;
 var
   VLockCount: Integer;
 begin
-  VLockCount := InterlockedDecrement(FViewUpdateLock);
+  VLockCount := FViewUpdateLockCounter.Dec;
   Assert(VLockCount >= 0);
   if VLockCount = 0 then begin
     DoViewUpdate;
