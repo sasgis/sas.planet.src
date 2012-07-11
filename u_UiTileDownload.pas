@@ -99,6 +99,7 @@ uses
   u_TileIteratorSpiralByRect,
   u_BackgroundTask,
   u_MapType,
+  u_GeoFun,
   u_TileErrorInfo;
 
 { TUiTileDownload }
@@ -308,7 +309,11 @@ begin
       VLonLatRectInMap := VLonLatRect;
       VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
 
-      VMapTileRect := VMapGeoConverter.LonLatRect2TileRect(VLonLatRectInMap, VZoom);
+      VMapTileRect :=
+        RectFromDoubleRect(
+          VMapGeoConverter.LonLatRect2TileRectFloat(VLonLatRectInMap, VZoom),
+          rrOutside
+        );
       Dec(VMapTileRect.Left, FTilesOut);
       Dec(VMapTileRect.Top, FTilesOut);
       Inc(VMapTileRect.Right, FTilesOut);

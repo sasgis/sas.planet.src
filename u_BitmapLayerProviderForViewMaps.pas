@@ -90,6 +90,7 @@ uses
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_Synchronizer,
+  u_GeoFun,
   u_TileErrorInfo;
 
 { TBitmapLayerProviderForViewMaps }
@@ -414,7 +415,11 @@ begin
             VConverter := VMap.MapType.GeoConvert;
             VMapLonLatRect := VLonLatRect;
             VConverter.CheckLonLatRect(VMapLonLatRect);
-            VTileRect := VConverter.LonLatRect2TileRect(VMapLonLatRect, VZoom);
+            VTileRect :=
+              RectFromDoubleRect(
+                VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
+                rrToTopLeft
+              );
             VNotifier.Add(FMainMapListener, VTileRect);
           end;
         end;
@@ -427,7 +432,11 @@ begin
                 VConverter := VMap.MapType.GeoConvert;
                 VMapLonLatRect := VLonLatRect;
                 VConverter.CheckLonLatRect(VMapLonLatRect);
-                VTileRect := VConverter.LonLatRect2TileRect(VMapLonLatRect, VZoom);
+                VTileRect :=
+                  RectFromDoubleRect(
+                    VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
+                    rrToTopLeft
+                  );
                 VNotifier.Add(FLayerListeners[i], VTileRect);
               end;
             end;

@@ -175,6 +175,7 @@ uses
   u_TileIteratorByRect,
   u_TileErrorInfo,
   u_ResStrings,
+  u_GeoFun,
   u_SimpleFlagWithInterlock,
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByVectorSubset,
@@ -304,7 +305,11 @@ begin
   VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
 
   VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
-  VTileSourceRect := VSourceGeoConvert.LonLatRect2TileRect(VSourceLonLatRect, VZoom);
+  VTileSourceRect :=
+    RectFromDoubleRect(
+      VSourceGeoConvert.LonLatRect2TileRectFloat(VSourceLonLatRect, VZoom),
+      rrToTopLeft
+    );
   VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
 
   while VTileIterator.Next(VTile) do begin
@@ -552,7 +557,11 @@ begin
               if VNotifier <> nil then begin
                 VMapConverter := VMap.MapType.GeoConvert;
                 VMapConverter.CheckLonLatRect(VLonLatRect);
-                VTileRect := VMapConverter.LonLatRect2TileRect(VLonLatRect, VZoom);
+                VTileRect :=
+                  RectFromDoubleRect(
+                    VMapConverter.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+                    rrToTopLeft
+                  );
                 VNotifier.Add(FTileChangeListener, VTileRect);
               end;
             end;
@@ -686,7 +695,11 @@ begin
         VNotifier := VMap.MapType.NotifierByZoom[VZoom];
         if VNotifier <> nil then begin
           VMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-          VTileRect := VMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+          VTileRect :=
+            RectFromDoubleRect(
+              VMap.MapType.GeoConvert.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+              rrToTopLeft
+            );
           VNotifier.Add(FTileChangeListener, VTileRect);
         end;
       end;

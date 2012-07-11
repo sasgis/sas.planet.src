@@ -121,6 +121,7 @@ uses
   i_TileIterator,
   i_NotifierTileRectUpdate,
   u_ListenerByEvent,
+  u_GeoFun,
   u_MapTypeListStatic,
   u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderForViewMaps,
@@ -473,7 +474,11 @@ begin
               if VNotifier <> nil then begin
                 VMapConverter := VMap.MapType.GeoConvert;
                 VMapConverter.CheckLonLatRect(VLonLatRect);
-                VTileRect := VMapConverter.LonLatRect2TileRect(VLonLatRect, VZoom);
+                VTileRect :=
+                  RectFromDoubleRect(
+                    VMapConverter.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+                    rrToTopLeft
+                  );
                 VNotifier.Add(FTileChangeListener, VTileRect);
               end;
             end;
@@ -526,7 +531,11 @@ begin
           VLocalConverter.GetGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
           VLonLatRect := VLocalConverter.GetGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
           VNewMainMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-          VTileRect := VNewMainMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+          VTileRect :=
+            RectFromDoubleRect(
+              VNewMainMap.MapType.GeoConvert.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+              rrToTopLeft
+            );
           VNotifier.Add(FTileChangeListener, VTileRect);
         end;
       end;
@@ -652,7 +661,11 @@ begin
     VNotifier := VMap.MapType.NotifierByZoom[VZoom];
     if VNotifier <> nil then begin
       VMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-      VTileRect := VMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+      VTileRect :=
+        RectFromDoubleRect(
+          VMap.MapType.GeoConvert.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+          rrToTopLeft
+        );
       VNotifier.Add(FTileChangeListener, VTileRect);
     end;
   end;
@@ -667,7 +680,11 @@ begin
         VNotifier := VMap.MapType.NotifierByZoom[VZoom];
         if VNotifier <> nil then begin
           VMap.MapType.GeoConvert.CheckLonLatRect(VLonLatRect);
-          VTileRect := VMap.MapType.GeoConvert.LonLatRect2TileRect(VLonLatRect, VZoom);
+          VTileRect :=
+            RectFromDoubleRect(
+              VMap.MapType.GeoConvert.LonLatRect2TileRectFloat(VLonLatRect, VZoom),
+              rrToTopLeft
+            );
           VNotifier.Add(FTileChangeListener, VTileRect);
         end;
       end;

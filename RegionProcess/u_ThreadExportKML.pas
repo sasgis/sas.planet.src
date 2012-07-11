@@ -57,6 +57,7 @@ uses
   u_GeoToStr,
   i_TileIterator,
   u_TileIteratorByPolygon,
+  u_GeoFun,
   i_VectorItemProjected,
   i_CoordConverter;
 
@@ -136,7 +137,11 @@ begin
   end;
   if level < Length(FZooms) then begin
     VZoom := FZooms[level];
-    VTileRect := FMapType.GeoConvert.LonLatRect2TileRect(VExtRect, VZoom);
+    VTileRect :=
+      RectFromDoubleRect(
+        FMapType.GeoConvert.RelativeRect2TileRectFloat(FMapType.GeoConvert.TilePos2RelativeRect(ATile, AZoom), VZoom),
+        rrClosest
+      );
     for xi := VTileRect.Left to VTileRect.Right - 1 do begin
       for yi := VTileRect.Top to VTileRect.Bottom - 1 do begin
         KmlFileWrite(Point(xi, yi), VZoom, level + 1);
