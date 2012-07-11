@@ -139,6 +139,7 @@ uses
   u_TileIteratorSpiralByRect,
   i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,
+  u_GeoFun,
   u_BackgroundTask;
 
 
@@ -370,7 +371,7 @@ begin
       VConverter := VTileMatrix.LocalConverter.GeoConverter;
       VZoom := VTileMatrix.LocalConverter.Zoom;
       VConverter.CheckLonLatRect(VMapLonLatRect);
-      VTileRect := VConverter.LonLatRect2TileRect(VMapLonLatRect, VZoom);
+      VTileRect := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom), rrOutside);
       if IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect) then begin
         for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
           VTile.Y := i;
