@@ -85,13 +85,13 @@ type
     );
   end;
 
-//  TVampyreBasicBitmapTileSaverJPG = class(TVampyreBasicBitmapTileSaver)
-//  public
-//    constructor Create(
-//      ACompressionQuality: Byte;
-//      const APerfCounterList: IInternalPerformanceCounterList = nil
-//    );
-//  end;
+  TVampyreBasicBitmapTileSaverJPG = class(TVampyreBasicBitmapTileSaver)
+  public
+    constructor Create(
+      ACompressionQuality: Byte;
+      const APerfCounterList: IInternalPerformanceCounterList = nil
+    );
+  end;
 
 function GetVampireGlobalLock: IReadWriteSync;
 
@@ -100,7 +100,7 @@ implementation
 uses
   ImagingGraphics32,
   ImagingNetworkGraphics,
-//  ImagingJpeg,
+  ImagingJpeg,
   ImagingGif,
   ImagingBitmap,
   u_BinaryDataByMemStream;
@@ -314,19 +314,19 @@ end;
 
 { TVampyreBasicBitmapTileSaverJPG }
 
-//constructor TVampyreBasicBitmapTileSaverJPG.Create(
-//  ACompressionQuality: byte;
-//  const APerfCounterList: IInternalPerformanceCounterList = nil
-//);
-//var
-//  VFormat: TJpegFileFormat;
-//  VMeta: TMetadata;
-//begin
-//  VMeta := TMetadata.Create;
-//  VFormat := TJpegFileFormat.Create(VMeta);
-//  VFormat.Quality := ACompressionQuality;
-//  inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
-//end;
+constructor TVampyreBasicBitmapTileSaverJPG.Create(
+  ACompressionQuality: byte;
+  const APerfCounterList: IInternalPerformanceCounterList = nil
+);
+var
+  VFormat: TJpegFileFormat;
+  VMeta: TMetadata;
+begin
+  VMeta := TMetadata.Create;
+  VFormat := TJpegFileFormat.Create(VMeta);
+  VFormat.Quality := ACompressionQuality;
+  inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
+end;
 
 initialization
   GVampireGlobalLock := TSimpleRWSync.Create;

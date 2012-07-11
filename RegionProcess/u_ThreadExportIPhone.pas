@@ -90,7 +90,6 @@ uses
   i_TileIterator,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
-  u_BitmapTileJpegLoadSave,
   u_BitmapTileVampyreSaver;
 
 constructor TThreadExportIPhone.Create(
@@ -147,7 +146,7 @@ begin
       FActiveMapIndex := VTaskIndex;
     end;
     FTasks[VTaskIndex].FFlag := 3;
-    FTasks[VTaskIndex].FSaver := TBitmapTileJpegLoadSave.Create(Acsat);
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],
@@ -179,7 +178,7 @@ begin
       FActiveMapIndex := VTaskIndex;
     end;
     FTasks[VTaskIndex].FFlag := 6;
-    FTasks[VTaskIndex].FSaver := TBitmapTileJpegLoadSave.Create(Achib);
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Achib);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],

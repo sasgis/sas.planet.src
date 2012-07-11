@@ -20,10 +20,10 @@ type
     FFormat: TImageFileFormat;
     FLoadStreamCounter: IInternalPerformanceCounter;
   private
-//    procedure LoadFromStream(
-//      AStream: TStream;
-//      ABtm: TCustomBitmap32
-//    );
+    procedure LoadFromStream(
+      AStream: TStream;
+      ABtm: TCustomBitmap32
+    );
     function Load(const AData: IBinaryData): IBitmap32Static;
   public
     constructor Create(
@@ -54,19 +54,19 @@ type
     );
   end;
 
-//  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
-//  public
-//    constructor Create(
-//      const APerfCounterList: IInternalPerformanceCounterList
-//    );
-//  end;
+  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
+  public
+    constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
+  end;
 
 implementation
 
 uses
   ImagingTypes,
   ImagingGraphics32,
-//  ImagingJpeg,
+  ImagingJpeg,
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap,
@@ -143,46 +143,46 @@ begin
   end;
 end;
 
-//procedure TVampyreBasicBitmapTileLoader.LoadFromStream(
-//  AStream: TStream;
-//  ABtm: TCustomBitmap32
-//);
-//var
-//  VImage: TImageData;
-//  IArray: TDynImageDataArray;
-//  I: LongInt;
-//  VCounterContext: TInternalPerformanceCounterContext;
-//begin
-//  VCounterContext := FLoadStreamCounter.StartOperation;
-//  try
-//    InitImage(VImage);
-//    try
-//      FCS.BeginWrite;
-//      try
-//        if not FFormat.LoadFromStream(AStream, IArray, True) then begin
-//          raise Exception.Create('Ошибка загрузки файла');
-//        end;
-//      finally
-//        FCS.EndWrite;
-//      end;
-//
-//      if Length(IArray) = 0 then begin
-//        raise Exception.Create('В файле не найдено изображений');
-//      end;
-//
-//      VImage := IArray[0];
-//      for I := 1 to Length(IArray) - 1 do begin
-//        FreeImage(IArray[I]);
-//      end;
-//
-//      ConvertImageDataToBitmap32(VImage, ABtm);
-//    finally
-//      FreeImage(VImage);
-//    end;
-//  finally
-//    FLoadStreamCounter.FinishOperation(VCounterContext);
-//  end;
-//end;
+procedure TVampyreBasicBitmapTileLoader.LoadFromStream(
+  AStream: TStream;
+  ABtm: TCustomBitmap32
+);
+var
+  VImage: TImageData;
+  IArray: TDynImageDataArray;
+  I: LongInt;
+  VCounterContext: TInternalPerformanceCounterContext;
+begin
+  VCounterContext := FLoadStreamCounter.StartOperation;
+  try
+    InitImage(VImage);
+    try
+      FCS.BeginWrite;
+      try
+        if not FFormat.LoadFromStream(AStream, IArray, True) then begin
+          raise Exception.Create('Ошибка загрузки файла');
+        end;
+      finally
+        FCS.EndWrite;
+      end;
+
+      if Length(IArray) = 0 then begin
+        raise Exception.Create('В файле не найдено изображений');
+      end;
+
+      VImage := IArray[0];
+      for I := 1 to Length(IArray) - 1 do begin
+        FreeImage(IArray[I]);
+      end;
+
+      ConvertImageDataToBitmap32(VImage, ABtm);
+    finally
+      FreeImage(VImage);
+    end;
+  finally
+    FLoadStreamCounter.FinishOperation(VCounterContext);
+  end;
+end;
 
 { TVampyreBasicBitmapTileLoaderPNG }
 
@@ -213,11 +213,11 @@ end;
 
 { TVampyreBasicBitmapTileLoaderJPEG }
 
-//constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
-//  const APerfCounterList: IInternalPerformanceCounterList
-//);
-//begin
-//  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
-//end;
+constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
+  const APerfCounterList: IInternalPerformanceCounterList
+);
+begin
+  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
+end;
 
 end.

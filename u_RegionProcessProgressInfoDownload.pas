@@ -2,8 +2,6 @@ unit u_RegionProcessProgressInfoDownload;
 
 interface
 
- {$HINTS OFF} //TODO: fix all
-
 uses
   Types,
   SysUtils,
@@ -24,7 +22,6 @@ type
     FElapsedTime: TDateTime;
     FStartTime: TDateTime;
     FTotalInRegion: Int64;
-    FZoom: Byte;
     FProcessed: Int64;
     FDownloadedSize: UInt64;
     FDownloadedCount: Int64;
@@ -130,17 +127,17 @@ end;
 
 function TRegionProcessProgressInfoDownload.GetProcessedRatio: Double;
 begin
-  Result := FProcessedRatio;
+
 end;
 
 function TRegionProcessProgressInfoDownload.GetTotalToProcess: Int64;
 begin
-  Result := FTotalInRegion;
+
 end;
 
 function TRegionProcessProgressInfoDownload.GetZoom: Byte;
 begin
-  Result := FZoom;
+
 end;
 
 procedure TRegionProcessProgressInfoDownload.Pause;

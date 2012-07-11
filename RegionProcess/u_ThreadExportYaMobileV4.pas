@@ -86,7 +86,6 @@ uses
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
   u_ARGBToPaletteConverter,
-  u_BitmapTileJpegLoadSave,
   u_BitmapTileVampyreSaver;
 
 { TThreadExportYaMobileV4 }
@@ -143,7 +142,7 @@ begin
       FTasks[VTaskIndex].FMapId := 10;
       FTasks[VTaskIndex].FMapName := Atypemaparr[0].GUIConfig.Name.Value;
     end;
-    FTasks[VTaskIndex].FSaver := TBitmapTileJpegLoadSave.Create(Acsat);
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],

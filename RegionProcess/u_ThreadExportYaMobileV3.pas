@@ -88,7 +88,6 @@ uses
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
   u_BitmapTileVampyreSaver,
-  u_BitmapTileJpegLoadSave,
   u_ARGBToPaletteConverter;
 
 const
@@ -139,7 +138,7 @@ begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 2;
-    FTasks[VTaskIndex].FSaver := TBitmapTileJpegLoadSave.Create(Acsat);
+    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],

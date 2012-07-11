@@ -39,7 +39,7 @@ type
     function GetUseSolidCaptionBackground: Boolean;
     function GetUseSimpleDrawOrder: Boolean;
     function GetOverSizeRect: TRect;
-//    function GerMagnetDraw: Boolean;
+    function GerMagnetDraw: Boolean;
   public
     constructor Create(
       AShowPointCaption: Boolean;
@@ -90,9 +90,9 @@ begin
   Result := FUseSolidCaptionBackground;
 end;
 
-//function TMarksDrawConfigStatic.GerMagnetDraw: Boolean;
-//begin
-//  Result := FMagnetDraw;
-//end;
+function TMarksDrawConfigStatic.GerMagnetDraw: Boolean;
+begin
+  Result := FMagnetDraw;
+end;
 
 end.

@@ -108,7 +108,6 @@ uses
   i_VectorItemProjected,
   u_GeoFun,
   u_BitmapTileVampyreSaver,
-  u_BitmapTileJpegLoadSave,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 
@@ -254,7 +253,7 @@ begin
     end;
   else begin
     VJpegQuality := seJpgQuality.Value;
-    Result := TBitmapTileJpegLoadSave.Create(VJpegQuality);
+    Result := TVampyreBasicBitmapTileSaverJPG.Create(VJpegQuality);
   end;
   end;
 end;
