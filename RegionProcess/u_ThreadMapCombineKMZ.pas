@@ -54,6 +54,7 @@ uses
   i_CoordConverter,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
+  u_BitmapTileJpegLoadSave,
   u_StreamReadOnlyByBinaryData,
   u_GeoToStr;
 
@@ -131,7 +132,7 @@ begin
   iWidth := VMapPieceSize.X div (nim.X);
   iHeight := VMapPieceSize.y div (nim.Y);
 
-  JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(FQuality);
+  JPGSaver := TBitmapTileJpegLoadSave.Create(FQuality);
 
   VKmzFileNameOnly := ExtractFileName(AFileName);
   Zip := TKaZip.Create(nil);

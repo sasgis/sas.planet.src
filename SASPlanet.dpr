@@ -259,6 +259,7 @@ uses
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   u_BitmapTileLibJpeg in 'BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas',
+  u_BitmapTileJpegLoadSave in 'BitmapTileSaveLoad\u_BitmapTileJpegLoadSave.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
   i_MapVersionInfo in 'i_MapVersionInfo.pas',
   u_MapVersionInfo in 'u_MapVersionInfo.pas',

@@ -75,6 +75,7 @@ uses
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
   u_BitmapTileVampyreSaver,
+  u_BitmapTileJpegLoadSave,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
@@ -193,7 +194,7 @@ begin
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FZoomList) - 1 do begin
-          VSaver := TVampyreBasicBitmapTileSaverJPG.Create(strtoint(FJpgQuality.Items[i]));
+          VSaver :=TBitmapTileJpegLoadSave.Create(strtoint(FJpgQuality.Items[i]));
           VZoom := FZoomList[i];
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin

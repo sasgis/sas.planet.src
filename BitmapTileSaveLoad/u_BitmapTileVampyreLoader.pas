@@ -54,12 +54,12 @@ type
     );
   end;
 
-  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
-  public
-    constructor Create(
-      const APerfCounterList: IInternalPerformanceCounterList
-    );
-  end;
+//  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
+//  public
+//    constructor Create(
+//      const APerfCounterList: IInternalPerformanceCounterList
+//    );
+//  end;
 
 implementation
 
@@ -213,11 +213,11 @@ end;
 
 { TVampyreBasicBitmapTileLoaderJPEG }
 
-constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
-);
-begin
-  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
-end;
+//constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
+//  const APerfCounterList: IInternalPerformanceCounterList
+//);
+//begin
+//  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
+//end;
 
 end.
