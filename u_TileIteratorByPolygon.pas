@@ -52,6 +52,9 @@ type
 
 implementation
 
+uses
+  u_GeoFun;
+
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
@@ -68,7 +71,11 @@ begin
     VBounds := FLine.Bounds;
     FZoom := FLine.Projection.Zoom;
     FGeoConverter := FLine.Projection.GeoConverter;
-    FTilesRect := FGeoConverter.PixelRectFloat2TileRect(VBounds, FZoom);
+    FTilesRect :=
+      RectFromDoubleRect(
+        FGeoConverter.PixelRectFloat2TileRectFloat(VBounds, FZoom),
+        rrOutside
+      );
 
     Reset;
     FTilesTotal := 0;
