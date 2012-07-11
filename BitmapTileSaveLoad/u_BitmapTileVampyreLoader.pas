@@ -66,7 +66,7 @@ implementation
 uses
   ImagingTypes,
   ImagingGraphics32,
-  ImagingJpeg,
+//  ImagingJpeg,
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap,
