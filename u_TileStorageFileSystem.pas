@@ -170,6 +170,7 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_TreeFolderRemover,
+  u_GeoFun,
   u_Synchronizer,
   u_TileInfoBasic;
 
@@ -631,7 +632,11 @@ begin
               break;
             end;
             VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-            VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+            VSourceTilePixels :=
+              RectFromDoubleRect(
+                VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, Azoom),
+                rrToTopLeft
+              );
             if VSourceTilePixels.Left < VPixelsRect.Left then begin
               VSourceTilePixels.Left := VPixelsRect.Left;
             end;

@@ -64,6 +64,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   u_Bitmap32Static,
+  u_GeoFun,
   u_TileIteratorByPolygon,
   u_TileIteratorByRect;
 
@@ -210,7 +211,11 @@ begin
                 VSubTileBounds.Left := 0;
                 VSubTileBounds.Top := 0;
                 VRelativeRect := VGeoConvert.TilePos2RelativeRect(VSubTile, VZoomPrev);
-                VSubTileInTargetBounds := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, VZoom);
+                VSubTileInTargetBounds :=
+                  RectFromDoubleRect(
+                    VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, VZoom),
+                    rrToTopLeft
+                  );
                 VSubTileInTargetBounds.Left := VSubTileInTargetBounds.Left - VCurrentTilePixelRect.Left;
                 VSubTileInTargetBounds.Top := VSubTileInTargetBounds.Top - VCurrentTilePixelRect.Top;
                 VSubTileInTargetBounds.Right := VSubTileInTargetBounds.Right - VCurrentTilePixelRect.Left;

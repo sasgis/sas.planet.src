@@ -174,7 +174,11 @@ begin
   VMapRectTargetValid := VMapRectTarget;
   VConverterTarget.CheckPixelRect(VMapRectTargetValid, VZoomTarget);
   VRelativeRect := VConverterTarget.PixelRect2RelativeRect(VMapRectTargetValid, VZoomTarget);
-  VMapRectValidTargetAtSource := VConverterSource.RelativeRect2PixelRect(VRelativeRect, VZoomSource);
+  VMapRectValidTargetAtSource :=
+    RectFromDoubleRect(
+      VConverterSource.RelativeRect2PixelRectFloat(VRelativeRect, VZoomSource),
+      rrToTopLeft
+    );
 
   if not IntersectRect(VMapRectValidTargetAtSource, VMapRectValidTargetAtSource, VMapRectSource) then begin
     Result := FSimpleClearStrategy;
@@ -182,7 +186,11 @@ begin
     VCounterContext := FZoomChangeCreateCounter.StartOperation;
     try
       VRelativeRect := VConverterSource.PixelRect2RelativeRect(VMapRectValidTargetAtSource, VZoomSource);
-      VMapRectValidTargetCropped := VConverterTarget.RelativeRect2PixelRect(VRelativeRect, VZoomTarget);
+      VMapRectValidTargetCropped :=
+        RectFromDoubleRect(
+          VConverterTarget.RelativeRect2PixelRectFloat(VRelativeRect, VZoomTarget),
+          rrToTopLeft
+        );
 
       VSourceRect := VMapRectValidTargetAtSource;
       Dec(VSourceRect.Left, VMapRectSource.Left);

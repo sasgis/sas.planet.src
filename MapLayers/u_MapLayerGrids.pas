@@ -526,7 +526,11 @@ begin
         for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
           VTileIndex.X := j;
           VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, VGridZoom);
-          VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+          VTileRect :=
+            RectFromDoubleRect(
+              VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+              rrToTopLeft
+            );
           VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
           VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
 

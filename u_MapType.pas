@@ -927,7 +927,11 @@ begin
         VTileTargetBounds.Bottom := VTargetTilePixelRect.Bottom - VTargetTilePixelRect.Top;
 
         VSourceTilePixelRect := FCoordConverter.TilePos2PixelRect(VTileParent, VParentZoom);
-        VTargetTilePixelRect := FCoordConverter.RelativeRect2PixelRect(VRelativeRect, VParentZoom);
+        VTargetTilePixelRect :=
+          RectFromDoubleRect(
+            FCoordConverter.RelativeRect2PixelRectFloat(VRelativeRect, VParentZoom),
+            rrToTopLeft
+          );
         VTileSourceBounds.Left := VTargetTilePixelRect.Left - VSourceTilePixelRect.Left;
         VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
         VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;

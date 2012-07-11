@@ -39,7 +39,8 @@ implementation
 
 uses
   i_CoordConverter,
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_GeoFun;
 
 { TMapLayerTileGrid }
 
@@ -137,7 +138,11 @@ begin
       VTilesLineRect.Bottom := i;
 
       VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+          rrToTopLeft
+        );
       VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
       VTileScreenRect.Left := VLocalRect.Left;
@@ -164,7 +169,11 @@ begin
       VTilesLineRect.Right := j;
 
       VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+          rrToTopLeft
+        );
       VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
       VTileScreenRect.Top := VLocalRect.Top;

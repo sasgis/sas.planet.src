@@ -194,8 +194,8 @@ var
   VRelativeRect: TDoubleRect;
   VTargetZoom: Byte;
   VZoom: Byte;
-  VMarkMapRect: TRect;
-  VMarkMapSize: TPoint;
+  VMarkMapRect: TDoubleRect;
+  VMarkMapSize: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;
 begin
@@ -219,7 +219,7 @@ begin
 
     VTargetZoom := 23;
     for VZoom := 1 to 23 do begin
-      VMarkMapRect := VGeoConverter.RelativeRect2PixelRect(VRelativeRect, VZoom);
+      VMarkMapRect := VGeoConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoom);
       VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
       VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
       if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin

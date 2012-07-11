@@ -91,16 +91,18 @@ var
   VTargetZoom: Byte;
   VResultSourceMapPixelRect: TRect;
   VResultTargetMapPixelRect: TRect;
+  VRelativeRect: TDoubleRect;
 begin
   VConverter := ASourceConverter.GeoConverter;
   Assert(VConverter.IsSameConverter(ATargetConverter.GeoConverter));
   VSourceZoom := ASourceConverter.Zoom;
   VTargetZoom := ATargetConverter.Zoom;
   VTargetMapPixelRect := ATargetConverter.GetRectInMapPixel;
+  VRelativeRect := VConverter.PixelRect2RelativeRect(VTargetMapPixelRect, VTargetZoom);
   VTargetAtSourceMapPixelRect :=
-    VConverter.RelativeRect2PixelRect(
-      VConverter.PixelRect2RelativeRect(VTargetMapPixelRect, VTargetZoom),
-      VSourceZoom
+    RectFromDoubleRect(
+      VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VSourceZoom),
+      rrToTopLeft
     );
   VSourceMapPixelRect := ASourceConverter.GetRectInMapPixel;
   VResultSourceMapPixelRect.Left := VSourceMapPixelRect.Left;
@@ -123,10 +125,11 @@ begin
     VResultSourceMapPixelRect.Bottom := VTargetAtSourceMapPixelRect.Bottom;
   end;
 
+  VRelativeRect := VConverter.PixelRect2RelativeRect(VResultSourceMapPixelRect, VSourceZoom);
   VResultTargetMapPixelRect :=
-    VConverter.RelativeRect2PixelRect(
-      VConverter.PixelRect2RelativeRect(VResultSourceMapPixelRect, VSourceZoom),
-      VTargetZoom
+    RectFromDoubleRect(
+      VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VTargetZoom),
+      rrToTopLeft
     );
   ASourceRect := ASourceConverter.MapRect2LocalRect(VResultSourceMapPixelRect);
   ATargetRect := ATargetConverter.MapRect2LocalRect(VResultTargetMapPixelRect);

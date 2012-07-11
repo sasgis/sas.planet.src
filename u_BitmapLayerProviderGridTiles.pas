@@ -37,7 +37,8 @@ implementation
 
 uses
   t_GeoTypes,
-  i_CoordConverter;
+  i_CoordConverter,
+  u_GeoFun;
 
 { TBitmapLayerProviderGridTiles }
 
@@ -100,7 +101,11 @@ begin
       VTilesLineRect.Bottom := i;
 
       VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+          rrToTopLeft
+        );
       VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
       VTileScreenRect.Left := VLocalRect.Left;
@@ -127,7 +132,11 @@ begin
       VTilesLineRect.Right := j;
 
       VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, VGridZoom);
-      VTileRect := VGeoConvert.RelativeRect2PixelRect(VTileRelativeRect, VCurrentZoom);
+      VTileRect :=
+        RectFromDoubleRect(
+          VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+          rrToTopLeft
+        );
       VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
       VTileScreenRect.Top := VLocalRect.Top;

@@ -190,6 +190,7 @@ uses
   u_ListenerByEvent,
   i_TileKey,
   u_TileKey,
+  u_GeoFun,
   u_NotifierTileRectUpdate,
   u_StorageStateInternal,
   u_TileIteratorByRect;
@@ -333,7 +334,11 @@ var
     VSourceTilePixels: TRect;
   begin
     VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
-    VSourceTilePixels := VGeoConvert.RelativeRect2PixelRect(VRelativeRect, Azoom);
+    VSourceTilePixels :=
+      RectFromDoubleRect(
+        VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, Azoom),
+        rrToTopLeft
+      );
     if VSourceTilePixels.Left < VPixelsRect.Left then begin
       VSourceTilePixels.Left := VPixelsRect.Left;
     end;
