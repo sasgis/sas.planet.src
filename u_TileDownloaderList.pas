@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
+  i_SimpleFlag,
   i_Notifier,
   i_NotifierOperation,
   i_Listener,
@@ -28,7 +29,7 @@ type
     FResultSaver: ITileDownloadResultSaver;
     FRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
 
-    FChangeCounter: Integer;
+    FChangeCounter: ICounter;
     FChangeNotifier: INotifierInternal;
     FConfigListener: IListener;
     FCS: IReadWriteSync;
@@ -59,6 +60,7 @@ uses
   i_TileDownloadRequestBuilder,
   i_Downloader,
   u_Notifier,
+  u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
   u_LastResponseInfo,
   u_TileDownloadRequestBuilderLazy,
@@ -89,6 +91,7 @@ begin
 
   FChangeNotifier := TNotifierBase.Create;
   FCS := MakeSyncRW_Var(Self);
+  FChangeCounter := TCounterInterlock.Create;
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
 
@@ -164,7 +167,7 @@ var
   VState: ITileDownloaderStateStatic;
   VCounter: Integer;
 begin
-  VCounter := InterlockedIncrement(FChangeCounter);
+  VCounter := FChangeCounter.Inc;
   VStatic := GetStatic;
   VCount := FTileDownloaderConfig.MaxConnectToServerCount;
   VState := FDownloadSystemState.GetStatic;
@@ -179,7 +182,7 @@ begin
 
   if VOldCount <> VCount then begin
     SetLength(VList, VCount);
-    if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
+    if not FChangeCounter.CheckEqual(VCounter) then begin
       Exit;
     end;
     VCountForCopy := VOldCount;
@@ -191,12 +194,12 @@ begin
     end;
     for i := VCountForCopy to VCount - 1 do begin
       VList[i] := CreateDownloader;
-      if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
+      if  not FChangeCounter.CheckEqual(VCounter) then begin
         Exit;
       end;
     end;
     VStatic := TTileDownloaderListStatic.Create(VList);
-    if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
+    if  not FChangeCounter.CheckEqual(VCounter) then begin
       Exit;
     end;
     FCS.BeginWrite;
@@ -209,7 +212,7 @@ begin
   end else if VStatic = nil then begin
     SetLength(VList, 0);
     VStatic := TTileDownloaderListStatic.Create(VList);
-    if InterlockedCompareExchange(FChangeCounter, VCounter, VCounter) <> VCounter then begin
+    if  not FChangeCounter.CheckEqual(VCounter) then begin
       Exit;
     end;
     FCS.BeginWrite;

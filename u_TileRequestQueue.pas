@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
+  i_SimpleFlag,
   i_NotifierOperation,
   i_Listener,
   i_TileRequest,
@@ -29,7 +30,7 @@ type
     FReadyRequestSemaphore: THandle;
     FStopThreadEventHandle: THandle;
 
-    FSize: Integer;
+    FSizeCounter: ICounter;
     FHeadIndex: Integer;
     FTailIndex: Integer;
 
@@ -55,6 +56,7 @@ implementation
 
 uses
   u_Synchronizer,
+  u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
   u_ListenerTTLCheck;
 
@@ -71,7 +73,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FCapacity := ACapacity;
 
-  FSize := 0;
+  FSizeCounter := TCounterInterlock.Create;
   FHeadIndex := 0;
   FTailIndex := 0;
 
@@ -144,7 +146,7 @@ var
   i: Integer;
   VRequestArray: TArrayOfITileRequest;
 begin
-  VSize := InterlockedCompareExchange(FSize, 0, 0);
+  VSize := FSizeCounter.GetValue;
   if VSize = 0 then begin
     FRequestArrayCS.BeginWrite;
     try
@@ -176,9 +178,9 @@ begin
   case VWaitResult of
     WAIT_OBJECT_0: begin
       FTTLListener.UpdateUseTime;
-      VSize := InterlockedDecrement(FSize);
+      VSize := FSizeCounter.Dec;
       if VSize < 0 then begin
-        InterlockedIncrement(FSize);
+        FSizeCounter.Inc;
         raise Exception.Create('Почему-то пусто, а должно что-то быть');
       end;
       VIndex := InterlockedIncrement(FHeadIndex);
@@ -205,9 +207,9 @@ begin
   case VWaitResult of
     WAIT_OBJECT_0: begin
       FTTLListener.UpdateUseTime;
-      VSize := InterlockedIncrement(FSize);
+      VSize := FSizeCounter.Inc;
       if VSize > FCapacity then begin
-        InterlockedDecrement(FSize);
+        FSizeCounter.Dec;
         raise Exception.Create('Полностью заполнено. Странно.');
       end;
       VIndex := InterlockedIncrement(FTailIndex);
