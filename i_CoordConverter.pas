@@ -227,10 +227,6 @@ type
     ): TDoubleRect; stdcall;//TODO: Автотест
 
     // Перобразует относительные координаты на карте в координаты пиксела
-    function Relative2PixelPos(
-      const XY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall; //UnSafe
     function Relative2PixelPosFloat(
       const XY: TDoublePoint;
       const Azoom: byte

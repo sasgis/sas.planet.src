@@ -225,10 +225,6 @@ type
       Azoom: byte
     ): TDoubleRect; virtual; stdcall; abstract;
 
-    function Relative2PixelPosInternal(
-      const XY: TDoublePoint;
-      Azoom: byte
-    ): TPoint; virtual; stdcall; abstract;
     function Relative2PixelPosFloatInternal(
       const XY: TDoublePoint;
       Azoom: byte
@@ -478,10 +474,6 @@ type
       const Azoom: byte
     ): TDoubleRect; stdcall;
 
-    function Relative2PixelPos(
-      const AXY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall;
     function Relative2PixelPosFloat(
       const AXY: TDoublePoint;
       const Azoom: byte
@@ -707,21 +699,6 @@ begin
   VXY := AXY;
   CheckRelativePosInternal(VXY);
   Result := Relative2LonLatInternal(VXY);
-end;
-
-function TCoordConverterAbstract.Relative2PixelPos(
-  const AXY: TDoublePoint;
-  const Azoom: byte
-): TPoint;
-var
-  VXY: TDoublePoint;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  CheckRelativePosInternal(VXY);
-  CheckZoomInternal(VZoom);
-  Result := Relative2PixelPosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.Relative2PixelPosFloat(
