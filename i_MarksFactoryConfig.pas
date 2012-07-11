@@ -54,8 +54,8 @@ type
     ['{0F7596F4-1BA2-4581-9509-77627F50B1AF}']
     function CreateTemplate(
       const ACategory: ICategory;
-      AColor1: TColor32;
-      AScale1: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
@@ -69,9 +69,9 @@ type
     ['{149D8DC1-7848-4D34-ABCA-2B7F8D3A22EF}']
     function CreateTemplate(
       const ACategory: ICategory;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer
+      ABorderColor: TColor32;
+      AFillColor: TColor32;
+      ALineWidth: Integer
     ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;

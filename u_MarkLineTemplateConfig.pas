@@ -43,8 +43,8 @@ type
   protected
     function CreateTemplate(
       const ACategory: ICategory;
-      AColor1: TColor32;
-      AScale1: Integer
+      ALineColor: TColor32;
+      ALineWidth: Integer
     ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
@@ -97,8 +97,8 @@ end;
 
 function TMarkLineTemplateConfig.CreateTemplate(
   const ACategory: ICategory;
-  AColor1: TColor32;
-  AScale1: Integer
+  ALineColor: TColor32;
+  ALineWidth: Integer
 ): IMarkTemplateLine;
 var
   VCategoryId: Integer;
@@ -115,8 +115,8 @@ begin
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      AColor1,
-      AScale1
+      ALineColor,
+      ALineWidth
     );
 end;
 
