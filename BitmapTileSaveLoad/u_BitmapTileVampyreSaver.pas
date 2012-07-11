@@ -24,10 +24,6 @@ type
   protected
     procedure PrepareData(var AImage: TImageData); virtual;
   private
-    procedure SaveToStream(
-      ABtm: TCustomBitmap32;
-      AStream: TStream
-    );
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   public
     constructor CreateWithMeta(
@@ -195,45 +191,6 @@ begin
         VMemStream := nil;
       finally
         VMemStream.Free;
-      end;
-    finally
-      FreeImage(VImage);
-    end;
-  finally
-    if FPerfCounter <> nil then begin
-      FPerfCounter.FinishOperation(VCounterContext);
-    end;
-  end;
-end;
-
-procedure TVampyreBasicBitmapTileSaver.SaveToStream(
-  ABtm: TCustomBitmap32;
-  AStream: TStream
-);
-var
-  VImage: TImageData;
-  IArray: TDynImageDataArray;
-  VCounterContext: TInternalPerformanceCounterContext;
-begin
-  if FPerfCounter <> nil then begin
-    VCounterContext := FPerfCounter.StartOperation;
-  end else begin
-    VCounterContext := 0;
-  end;
-  try
-    InitImage(VImage);
-    try
-      ConvertBitmap32ToImageData(ABtm, VImage);
-      PrepareData(VImage);
-      SetLength(IArray, 1);
-      IArray[0] := VImage;
-      FCS.BeginWrite;
-      try
-        if not FFormat.SaveToStream(AStream, IArray, True) then begin
-          raise Exception.Create('Ошибка записи файла');
-        end;
-      finally
-        FCS.EndWrite;
       end;
     finally
       FreeImage(VImage);
