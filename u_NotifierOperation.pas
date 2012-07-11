@@ -107,6 +107,7 @@ end;
 
 constructor TNotifierOneOperation.Create;
 begin
+  inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FNotifier := TNotifierBase.Create;
   FExecutedCount := 0;
