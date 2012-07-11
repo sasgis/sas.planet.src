@@ -32,20 +32,17 @@ type
     FShowPointCaption: Boolean;
     FUseSolidCaptionBackground: Boolean;
     FUseSimpleDrawOrder: Boolean;
-    FMagnetDraw: Boolean;
     FOverSizeRect: TRect;
   private
     function GetShowPointCaption: Boolean;
     function GetUseSolidCaptionBackground: Boolean;
     function GetUseSimpleDrawOrder: Boolean;
     function GetOverSizeRect: TRect;
-    function GerMagnetDraw: Boolean;
   public
     constructor Create(
       AShowPointCaption: Boolean;
       AUseSolidCaptionBackground: Boolean;
       AUseSimpleDrawOrder: Boolean;
-      AMagnetDraw: Boolean;
       AOverSizeRect: TRect
     );
   end;
@@ -58,7 +55,6 @@ constructor TMarksDrawConfigStatic.Create(
   AShowPointCaption: Boolean;
   AUseSolidCaptionBackground: Boolean;
   AUseSimpleDrawOrder: Boolean;
-  AMagnetDraw: Boolean;
   AOverSizeRect: TRect
 );
 begin
@@ -67,7 +63,6 @@ begin
   FUseSolidCaptionBackground := AUseSolidCaptionBackground;
   FUseSimpleDrawOrder := AUseSimpleDrawOrder;
   FOverSizeRect := AOverSizeRect;
-  FMagnetDraw := AMagnetDraw;
 end;
 
 function TMarksDrawConfigStatic.GetOverSizeRect: TRect;
@@ -88,11 +83,6 @@ end;
 function TMarksDrawConfigStatic.GetUseSolidCaptionBackground: Boolean;
 begin
   Result := FUseSolidCaptionBackground;
-end;
-
-function TMarksDrawConfigStatic.GerMagnetDraw: Boolean;
-begin
-  Result := FMagnetDraw;
 end;
 
 end.

@@ -40,6 +40,7 @@ type
     FShowHintOnMarks: Boolean;
     FShowHintOnlyInMapMoveMode: Boolean;
     FUseNewMainLayer: Boolean;
+    FMagnetDraw: Boolean;
 
     FRullerFileName: string;
     FRuller: IBitmap32Static;
@@ -64,6 +65,9 @@ type
     function GetShowHintOnlyInMapMoveMode: Boolean;
     procedure SetShowHintOnlyInMapMoveMode(AValue: Boolean);
 
+    function GetMagnetDraw: Boolean;
+    procedure SetMagnetDraw(AValue: Boolean);
+
     function GetUseNewMainLayer: Boolean;
 
     function GetRuller: IBitmap32Static;
@@ -86,6 +90,7 @@ constructor TMainFormMainConfig.Create(
 );
 begin
   inherited Create;
+  FMagnetDraw := True;
   FContentTypeManager := AContentTypeManager;
   FShowMapName := True;
   FMouseScrollInvert := False;
@@ -110,6 +115,7 @@ begin
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     FShowHintOnlyInMapMoveMode := AConfigData.ReadBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
     FUseNewMainLayer := AConfigData.ReadBool('UseNewMainLayer', FUseNewMainLayer);
+    FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
 
     FRuller := ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
     FTumbler := ReadBitmapByFileRef(AConfigData, FTumblerFileName, FContentTypeManager, FTumbler);
@@ -128,6 +134,7 @@ begin
   AConfigData.WriteBool('MouseScrollInvert', FMouseScrollInvert);
   AConfigData.WriteBool('ShowHintOnMarks', FShowHintOnMarks);
   AConfigData.WriteBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
+  AConfigData.WriteBool('MagnetDraw', FMagnetDraw);
 end;
 
 function TMainFormMainConfig.GetDisableZoomingByMouseScroll: Boolean;
@@ -135,6 +142,16 @@ begin
   LockRead;
   try
     Result := FDisableZoomingByMouseScroll;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormMainConfig.GetMagnetDraw: Boolean;
+begin
+  LockRead;
+  try
+    Result := FMagnetDraw;
   finally
     UnlockRead;
   end;
@@ -216,6 +233,19 @@ begin
   try
     if FDisableZoomingByMouseScroll <> AValue then begin
       FDisableZoomingByMouseScroll := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetMagnetDraw(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FMagnetDraw <> AValue then begin
+      FMagnetDraw := AValue;
       SetChanged;
     end;
   finally

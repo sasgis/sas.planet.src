@@ -86,6 +86,10 @@ type
     procedure SetShowHintOnlyInMapMoveMode(AValue: Boolean);
     property ShowHintOnlyInMapMoveMode: Boolean read GetShowHintOnlyInMapMoveMode write SetShowHintOnlyInMapMoveMode;
 
+    function GetMagnetDraw: Boolean;
+    procedure SetMagnetDraw(AValue: Boolean);
+    property MagnetDraw: Boolean read GetMagnetDraw write SetMagnetDraw;
+
     function GetRuller: IBitmap32Static;
     property Ruller: IBitmap32Static read GetRuller;
 

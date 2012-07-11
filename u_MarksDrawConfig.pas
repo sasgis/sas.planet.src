@@ -36,7 +36,6 @@ type
     FUseSolidCaptionBackground: Boolean;
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
-    FMagnetDraw: Boolean;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -54,9 +53,6 @@ type
 
     function GetOverSizeRect: TRect;
     procedure SetOverSizeRect(AValue: TRect);
-
-    function GetMagnetDraw: Boolean;
-    procedure SetMagnetDraw(AValue: Boolean);
 
     function GetStatic: IMarksDrawConfigStatic;
   public
@@ -89,7 +85,6 @@ begin
       FShowPointCaption,
       FUseSolidCaptionBackground,
       FUseSimpleDrawOrder,
-      FMagnetDraw,
       FOverSizeRect
     );
   Result := VStatic;
@@ -102,7 +97,6 @@ begin
     FShowPointCaption := AConfigData.ReadBool('ShowPointCaption', FShowPointCaption);
     FUseSolidCaptionBackground := AConfigData.ReadBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
     FUseSimpleDrawOrder := AConfigData.ReadBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
-    FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
     FOverSizeRect.Left := AConfigData.ReadInteger('OverSizeRect.Left', FOverSizeRect.Left);
     FOverSizeRect.Top := AConfigData.ReadInteger('OverSizeRect.Top', FOverSizeRect.Top);
     FOverSizeRect.Right := AConfigData.ReadInteger('OverSizeRect.Right', FOverSizeRect.Right);
@@ -117,7 +111,6 @@ begin
   AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);
   AConfigData.WriteBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
   AConfigData.WriteBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
-  AConfigData.WriteBool('MagnetDraw', FMagnetDraw);
   AConfigData.WriteInteger('OverSizeRect.Left', FOverSizeRect.Left);
   AConfigData.WriteInteger('OverSizeRect.Top', FOverSizeRect.Top);
   AConfigData.WriteInteger('OverSizeRect.Right', FOverSizeRect.Right);
@@ -159,16 +152,6 @@ begin
   LockRead;
   try
     Result := FUseSolidCaptionBackground;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMarksDrawConfig.GetMagnetDraw: Boolean;
-begin
-  LockRead;
-  try
-    Result := FMagnetDraw;
   finally
     UnlockRead;
   end;
@@ -224,19 +207,6 @@ begin
   try
     if FUseSolidCaptionBackground <> AValue then begin
       FUseSolidCaptionBackground := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMarksDrawConfig.SetMagnetDraw(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FMagnetDraw <> AValue then begin
-      FMagnetDraw := AValue;
       SetChanged;
     end;
   finally

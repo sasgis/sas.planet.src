@@ -2297,6 +2297,8 @@ begin
     (VNewState=ao_Edit_Poly)or
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
+  TBEditMagnetDraw.Checked := FConfig.MainConfig.MagnetDraw;
+
   TBEditSelectPolylineRadius.Visible:=VNewState=ao_select_line;
   TBEditSelectPolylineRadiusCap1.Visible:=VNewState=ao_select_line;
   TBEditSelectPolylineRadiusCap2.Visible:=VNewState=ao_select_line;
@@ -2460,7 +2462,6 @@ begin
   tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
-  TBEditMagnetDraw.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw;
 
   if FConfig.MainConfig.ShowMapName then begin
     TBSMB.Caption := FConfig.MainMapsConfig.GetSelectedMapType.MapType.GUIConfig.Name.Value;
@@ -4345,7 +4346,7 @@ begin
           VWikiItem := nil;
           VMagnetPoint := CEmptyDoublePoint;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
-             (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw) then begin
+             (FConfig.MainConfig.MagnetDraw) then begin
             VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
           end;
           if VWikiItem <> nil then begin
@@ -4652,7 +4653,7 @@ begin
     VMagnetPoint := CEmptyDoublePoint;
     VWikiItem := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
-       (FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw)  then begin
+       (FConfig.MainConfig.MagnetDraw)  then begin
       VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
     end;
     if VWikiItem <> nil then begin
@@ -4928,7 +4929,7 @@ end;
 
 procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
 begin
-  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.MagnetDraw := TBEditMagnetDraw.Checked;
+  FConfig.MainConfig.MagnetDraw := TBEditMagnetDraw.Checked;
 end;
 
 procedure TfrmMain.TBEditPathClose(Sender: TObject);
