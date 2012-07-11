@@ -24,10 +24,8 @@ interface
 
 uses
   Types,
-  i_Notifier,
   t_GeoTypes,
   i_CoordConverter,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_ConfigDataElement;
 

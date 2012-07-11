@@ -23,7 +23,6 @@ unit u_ConfigDataElementBase;
 interface
 
 uses
-  Windows,
   SysUtils,
   i_SimpleFlag,
   i_ConfigDataProvider,

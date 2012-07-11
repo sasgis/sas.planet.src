@@ -26,7 +26,6 @@ uses
   ActiveX,
   GR32,
   t_GeoTypes,
-  i_LonLatRect,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
   i_MarkCategory,

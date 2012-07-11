@@ -3,15 +3,10 @@ unit u_LocalCoordConverterChangeable;
 interface
 
 uses
-  SysUtils,
-  i_Notifier,
-  i_Listener,
   i_SimpleFlag,
   i_InternalPerformanceCounter,
-  i_CoordConverter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 
 type
@@ -33,10 +28,6 @@ type
   end;
 
 implementation
-
-uses
-  u_Synchronizer,
-  u_ListenerByEvent;
 
 { TLocalCoordConverterChangeable }
 

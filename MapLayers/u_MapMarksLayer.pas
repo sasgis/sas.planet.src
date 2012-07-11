@@ -119,7 +119,6 @@ uses
   GR32_Resamplers,
   i_TileIterator,
   i_Bitmap32Static,
-  i_EnumDoublePoint,
   i_BitmapLayerProvider,
   u_IdCacheSimpleThreadSafe,
   u_DoublePointsAggregator,

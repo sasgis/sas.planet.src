@@ -733,7 +733,6 @@ uses
   i_GUIDListStatic,
   i_ActiveMapsConfig,
   i_BitmapMarker,
-  i_MapAttachmentsInfo,
   i_LanguageManager,
   i_VectorDataItemSimple,
   i_EnumDoublePoint,

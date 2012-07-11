@@ -111,7 +111,6 @@ implementation
 
 uses
   SysUtils,
-  u_Notifier,
   i_MapTypes,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
