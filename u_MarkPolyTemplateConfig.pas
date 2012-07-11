@@ -43,9 +43,9 @@ type
   protected
     function CreateTemplate(
       const ACategory: ICategory;
-      AColor1: TColor32;
-      AColor2: TColor32;
-      AScale1: Integer
+      ABorderColor: TColor32;
+      AFillColor: TColor32;
+      ALineWidth: Integer
     ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;
@@ -99,9 +99,9 @@ end;
 
 function TMarkPolyTemplateConfig.CreateTemplate(
   const ACategory: ICategory;
-  AColor1: TColor32;
-  AColor2: TColor32;
-  AScale1: Integer
+  ABorderColor: TColor32;
+  AFillColor: TColor32;
+  ALineWidth: Integer
 ): IMarkTemplatePoly;
 var
   VCategoryId: Integer;
@@ -118,9 +118,9 @@ begin
       CategoryDb,
       NameGenerator,
       VCategoryId,
-      AColor1,
-      AColor2,
-      AScale1
+      ABorderColor,
+      AFillColor,
+      ALineWidth
     );
 end;
 
