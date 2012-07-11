@@ -366,8 +366,8 @@ begin
     VAccept := '*/*';
   end;
 
-  SetHeaderValue(FpRequestHead.Data, 'Accept', VAccept);
-  SetHeaderValue(FpRequestHead.Data, 'User-Agent', ADownloaderConfig.InetConfigStatic.UserAgentString);
+  FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'Accept', VAccept);
+  FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'User-Agent', ADownloaderConfig.InetConfigStatic.UserAgentString);
 
   if ALastResponseInfo <> nil then begin
     FpResponseHead.Data := ALastResponseInfo.ResponseHead;
