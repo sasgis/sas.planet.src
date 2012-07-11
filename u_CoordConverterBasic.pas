@@ -183,10 +183,6 @@ type
       Azoom: byte
     ): TDoubleRect; override;
 
-    function TilePosFloat2PixelPosInternal(
-      const XY: TDoublePoint;
-      Azoom: byte
-    ): TPoint; override;
     function TilePosFloat2PixelPosFloatInternal(
       const XY: TDoublePoint;
       Azoom: byte
@@ -1286,17 +1282,6 @@ function TCoordConverterBasic.TilePosFloat2PixelPosFloatInternal(
 begin
   Result.X := XY.X * 256;
   Result.Y := XY.Y * 256;
-end;
-
-function TCoordConverterBasic.TilePosFloat2PixelPosInternal(
-  const XY: TDoublePoint;
-  Azoom: byte
-): TPoint;
-var
-  VPixelPos: TDoublePoint;
-begin
-  VPixelPos := TilePosFloat2PixelPosFloatInternal(XY, Azoom);
-  Result := PointFromDoublePoint(VPixelPos, prToTopLeft);
 end;
 
 function TCoordConverterBasic.TilePosFloat2RelativeInternal(

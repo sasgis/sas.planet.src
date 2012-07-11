@@ -186,10 +186,6 @@ type
       Azoom: byte
     ): TDoubleRect; virtual; stdcall; abstract;
 
-    function TilePosFloat2PixelPosInternal(
-      const XY: TDoublePoint;
-      Azoom: byte
-    ): TPoint; virtual; stdcall; abstract;
     function TilePosFloat2PixelPosFloatInternal(
       const XY: TDoublePoint;
       Azoom: byte
@@ -411,10 +407,6 @@ type
       const Azoom: byte
     ): TDoubleRect; stdcall;
 
-    function TilePosFloat2PixelPos(
-      const XY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall;
     function TilePosFloat2PixelPosFloat(
       const XY: TDoublePoint;
       const Azoom: byte
@@ -862,20 +854,6 @@ begin
   VZoom := AZoom;
   CheckTilePosFloatInternal(VXY, VZoom);
   Result := TilePosFloat2LonLatInternal(VXY, Vzoom);
-end;
-
-function TCoordConverterAbstract.TilePosFloat2PixelPos(
-  const XY: TDoublePoint;
-  const Azoom: byte
-): TPoint;
-var
-  VXY: TDoublePoint;
-  VZoom: Byte;
-begin
-  VXY := XY;
-  VZoom := AZoom;
-  CheckTilePosFloatInternal(VXY, VZoom);
-  Result := TilePosFloat2PixelPosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.TilePosFloat2PixelPosFloat(
