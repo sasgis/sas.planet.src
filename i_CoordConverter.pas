@@ -253,10 +253,6 @@ type
     function RelativeRect2LonLatRect(const XY: TDoubleRect): TDoubleRect; stdcall;//TODO: Автотест
 
     // Преобразует георафические координаты в координаты пиксела на заданном зуме накрывающего данные координаты
-    function LonLat2PixelPos(
-      const Ll: TDoublePoint;
-      const Azoom: byte
-    ): Tpoint; stdcall; //UnSafe//TODO: Автотест
     function LonLat2PixelPosFloat(
       const Ll: TDoublePoint;
       const Azoom: byte

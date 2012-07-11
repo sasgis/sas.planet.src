@@ -242,10 +242,6 @@ type
     function RelativeRect2LonLatRectInternal(const XY: TDoubleRect): TDoubleRect; override;
 
 
-    function LonLat2PixelPosInternal(
-      const Ll: TDoublePoint;
-      Azoom: byte
-    ): Tpoint; override;
     function LonLat2PixelPosFloatInternal(
       const Ll: TDoublePoint;
       Azoom: byte
@@ -381,7 +377,7 @@ begin
   if Azoom > 23 then begin
     VZoom := VZoom - 8;
     CheckZoomInternal(VZoom);
-    Result := LonLat2PixelPosInternal(VXY, Vzoom);
+    Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft)
   end else begin
     CheckZoomInternal(VZoom);
     Result := LonLat2TilePosInternal(VXY, Vzoom);
@@ -1418,14 +1414,6 @@ end;
 
 //------------------------------------------------------------------------------
 // LonLatPos
-function TCoordConverterBasic.LonLat2PixelPosInternal(
-  const Ll: TDoublePoint;
-  Azoom: byte
-): Tpoint;
-begin
-  Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(LonLat2RelativeInternal(LL), AZoom), prToTopLeft);
-end;
-
 function TCoordConverterBasic.LonLat2PixelPosFloatInternal(
   const Ll: TDoublePoint;
   Azoom: byte

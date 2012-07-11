@@ -246,10 +246,6 @@ type
     ): TDoubleRect; virtual; stdcall; abstract;
 
 
-    function LonLat2PixelPosInternal(
-      const Ll: TDoublePoint;
-      Azoom: byte
-    ): Tpoint; virtual; stdcall; abstract;
     function LonLat2PixelPosFloatInternal(
       const Ll: TDoublePoint;
       Azoom: byte
@@ -426,10 +422,6 @@ type
       const Azoom: byte
     ): TDoubleRect; stdcall;
 
-    function LonLat2PixelPos(
-      const AXY: TDoublePoint;
-      const Azoom: byte
-    ): Tpoint; stdcall;
     function LonLat2PixelPosFloat(
       const AXY: TDoublePoint;
       const Azoom: byte
@@ -700,20 +692,6 @@ begin
   VXY := AXY;
   CheckLonLatPosInternal(VXY);
   Result := LonLat2MetrInternal(VXY);
-end;
-
-function TCoordConverterAbstract.LonLat2PixelPos(
-  const AXY: TDoublePoint;
-  const Azoom: byte
-): Tpoint;
-var
-  VXY: TDoublePoint;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  CheckLonLatPosInternal(VXY);
-  Result := LonLat2PixelPosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLat2PixelPosFloat(

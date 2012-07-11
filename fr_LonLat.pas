@@ -256,12 +256,20 @@ begin
         edtLat.Text:=VValueConverter.LatConvert(Value.y);
       end;
    1: begin
-        XYPoint:=VLocalConverter.GetGeoConverter.LonLat2PixelPos(Value,CurrZoom);
+        XYPoint:=
+          PointFromDoublePoint(
+            VLocalConverter.GetGeoConverter.LonLat2PixelPosFloat(Value,CurrZoom),
+            prToTopLeft
+          );
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);
       end;
    2: begin
-        XYPoint:=VLocalConverter.GetGeoConverter.LonLat2TilePos(Value,CurrZoom);
+        XYPoint:=
+          PointFromDoublePoint(
+            VLocalConverter.GetGeoConverter.LonLat2TilePosFloat(Value,CurrZoom),
+            prToTopLeft
+          );
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);
       end;
