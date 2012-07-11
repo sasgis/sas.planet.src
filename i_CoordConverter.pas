@@ -245,10 +245,6 @@ type
       const Azoom: byte
     ): TDoubleRect; stdcall;
     // Преобразует прямоугольник с относительными координатами в прямоугольник тайлов
-    function RelativeRect2TileRect(
-      const XY: TDoubleRect;
-      const Azoom: byte
-    ): TRect; stdcall; //UnSafe
     function RelativeRect2TileRectFloat(
       const XY: TDoubleRect;
       const Azoom: byte

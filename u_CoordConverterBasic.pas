@@ -235,10 +235,6 @@ type
       const XY: TDoubleRect;
       Azoom: byte
     ): TDoubleRect; override;
-    function RelativeRect2TileRectInternal(
-      const XY: TDoubleRect;
-      Azoom: byte
-    ): TRect; override;
     function RelativeRect2TileRectFloatInternal(
       const XY: TDoubleRect;
       Azoom: byte
@@ -1404,14 +1400,6 @@ begin
   Result.Bottom := XY.Bottom * VPixelsAtZoom;
 end;
 
-function TCoordConverterBasic.RelativeRect2TileRectInternal(
-  const XY: TDoubleRect;
-  Azoom: byte
-): TRect;
-begin
-  Result := RectFromDoubleRect(RelativeRect2TileRectFloatInternal(XY, Azoom), rrToTopLeft);
-end;
-
 function TCoordConverterBasic.RelativeRect2TileRectFloatInternal(
   const XY: TDoubleRect;
   Azoom: byte
@@ -1513,9 +1501,9 @@ function TCoordConverterBasic.LonLatRect2TileRectInternal(
 ): TRect;
 begin
   Result :=
-    RelativeRect2TileRectInternal(
-      LonLatRect2RelativeRectInternal(XY),
-      Azoom
+    RectFromDoubleRect(
+      RelativeRect2TileRectFloatInternal(LonLatRect2RelativeRectInternal(XY), Azoom),
+      rrToTopLeft
     );
 end;
 
