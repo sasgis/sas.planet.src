@@ -232,10 +232,6 @@ type
       const Azoom: byte
     ): TDoublePoint; stdcall;//TODO: Автотест
     // Перобразует относительные координаты на карте в координаты тайла
-    function Relative2TilePos(
-      const XY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall; //UnSafe
     function Relative2TilePosFloat(
       const XY: TDoublePoint;
       const Azoom: byte

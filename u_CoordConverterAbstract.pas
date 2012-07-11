@@ -229,10 +229,6 @@ type
       const XY: TDoublePoint;
       Azoom: byte
     ): TDoublePoint; virtual; stdcall; abstract;
-    function Relative2TilePosInternal(
-      const XY: TDoublePoint;
-      Azoom: byte
-    ): TPoint; virtual; stdcall; abstract;
     function Relative2TilePosFloatInternal(
       const XY: TDoublePoint;
       Azoom: byte
@@ -478,10 +474,6 @@ type
       const AXY: TDoublePoint;
       const Azoom: byte
     ): TDoublePoint; stdcall;
-    function Relative2TilePos(
-      const AXY: TDoublePoint;
-      const Azoom: byte
-    ): TPoint; stdcall;
     function Relative2TilePosFloat(
       const AXY: TDoublePoint;
       const Azoom: byte
@@ -861,21 +853,6 @@ begin
   VXY := AXY;
   CheckLonLatRectInternal(VXY);
   Result := LonLatRect2RelativeRectInternal(VXY);
-end;
-
-function TCoordConverterAbstract.Relative2TilePos(
-  const AXY: TDoublePoint;
-  const Azoom: byte
-): TPoint;
-var
-  VXY: TDoublePoint;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  CheckRelativePosInternal(VXY);
-  CheckZoomInternal(VZoom);
-  Result := Relative2TilePosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.Relative2TilePosFloat(
