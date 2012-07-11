@@ -23,7 +23,6 @@ unit u_AntiBanStuped;
 interface
 
 uses
-  Windows,
   SysUtils,
   i_BinaryData,
   i_ConfigDataProvider,

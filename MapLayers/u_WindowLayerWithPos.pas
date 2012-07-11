@@ -23,7 +23,6 @@ unit u_WindowLayerWithPos;
 interface
 
 uses
-  Windows,
   SysUtils,
   GR32,
   GR32_Layers,

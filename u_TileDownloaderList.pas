@@ -3,7 +3,6 @@ unit u_TileDownloaderList;
 interface
 
 uses
-  Windows,
   SysUtils,
   i_SimpleFlag,
   i_Notifier,
