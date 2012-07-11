@@ -36,6 +36,8 @@ type
   private
     function Inc: Integer;
     function Dec: Integer;
+    function GetValue: Integer;
+    function CheckEqual(AValue: Integer): Boolean;
   public
     constructor Create;
   end;
@@ -67,6 +69,11 @@ end;
 
 { TCounterInterlock }
 
+function TCounterInterlock.CheckEqual(AValue: Integer): Boolean;
+begin
+  Result := InterlockedCompareExchange(FCount, AValue, AValue) = AValue;
+end;
+
 constructor TCounterInterlock.Create;
 begin
   inherited Create;
@@ -76,6 +83,11 @@ end;
 function TCounterInterlock.Dec: Integer;
 begin
   Result := InterlockedDecrement(FCount);
+end;
+
+function TCounterInterlock.GetValue: Integer;
+begin
+  Result := InterlockedCompareExchange(FCount, 0, 0);
 end;
 
 function TCounterInterlock.Inc: Integer;

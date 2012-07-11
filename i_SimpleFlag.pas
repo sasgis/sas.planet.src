@@ -14,6 +14,8 @@ type
     ['{D331EC1E-05DD-4231-8F56-FD1B11AA06D1}']
     function Inc: Integer;
     function Dec: Integer;
+    function GetValue: Integer;
+    function CheckEqual(AValue: Integer): Boolean;
   end;
 
 implementation
