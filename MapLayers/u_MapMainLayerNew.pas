@@ -60,6 +60,8 @@ type
 implementation
 
 uses
+  i_TileMatrix,
+  u_TileMatrixFactory,
   u_ListenerByEvent,
   u_MapTypeListChangeableActiveBitmapLayers,
   u_BitmapLayerProviderForViewMaps;
@@ -80,13 +82,21 @@ constructor TMapMainLayerNew.Create(
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifier
 );
+var
+  VTileMatrixFactory: ITileMatrixFactory;
 begin
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      AResamplerConfig,
+      AConverterFactory
+    );
   inherited Create(
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
     AViewPortState,
+    VTileMatrixFactory,
     AResamplerConfig,
     AConverterFactory,
     ATimerNoifier,

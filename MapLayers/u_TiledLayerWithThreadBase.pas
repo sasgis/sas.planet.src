@@ -115,6 +115,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
+      const ATileMatrixFactory: ITileMatrixFactory;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
@@ -138,7 +139,6 @@ uses
   u_TileIteratorSpiralByRect,
   i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,
-  u_TileMatrixFactory,
   u_BackgroundTask;
 
 
@@ -150,6 +150,7 @@ constructor TTiledLayerWithThreadBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
+  const ATileMatrixFactory: ITileMatrixFactory;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifier;
@@ -167,6 +168,7 @@ begin
   FUpdateLayerProviderOnPosChange := AUpdateLayerProviderOnPosChange;
   FLayer := TCustomLayer.Create(AParentMap.Layers);
   FImageResamplerConfig := AResamplerConfig;
+  FTileMatrixFactory := ATileMatrixFactory;
 
   FLayerProviderCS := MakeSyncRW_Var(Self);
   FTileMatrixCS := MakeSyncRW_Var(Self);
@@ -180,12 +182,6 @@ begin
   FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
 
   FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnPrepareTileMatrix, AThreadConfig);
-  FTileMatrixFactory :=
-    TTileMatrixFactory.Create(
-      AResamplerConfig,
-      AConverterFactory
-    );
-
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
   FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
   FUpdateLayerProviderFlag := TSimpleFlagWithInterlock.Create;

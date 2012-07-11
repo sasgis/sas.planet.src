@@ -12,7 +12,6 @@ uses
   i_BitmapLayerProvider,
   i_ImageResamplerConfig,
   i_ViewPortState,
-  i_TileMatrix,
   i_FillingMapLayerConfig,
   u_TiledLayerWithThreadBase;
 
@@ -43,6 +42,8 @@ type
 implementation
 
 uses
+  i_TileMatrix,
+  u_TileMatrixFactory,
   u_ListenerByEvent,
   u_BitmapLayerProviderFillingMap;
 
@@ -59,13 +60,21 @@ constructor TMapLayerFillingMapNew.Create(
   const ATimerNoifier: INotifier;
   const AConfig: IFillingMapLayerConfig
 );
+var
+  VTileMatrixFactory: ITileMatrixFactory;
 begin
+  VTileMatrixFactory :=
+    TTileMatrixFactory.Create(
+      AResamplerConfig,
+      AConverterFactory
+    );
   inherited Create(
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
     AViewPortState,
+    VTileMatrixFactory,
     AResamplerConfig,
     AConverterFactory,
     ATimerNoifier,
