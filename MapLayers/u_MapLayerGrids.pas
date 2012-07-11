@@ -140,7 +140,6 @@ var
   VLoadedRect: TDoubleRect;
   VLoadedLonLatRect: TDoubleRect;
   VGridLonLatRect: TDoubleRect;
-  VGridRect: TRect;
   VDrawLonLatRect: TDoubleRect;
   VDrawRectFloat: TDoubleRect;
   VDrawScreenRect: TRect;
@@ -189,7 +188,6 @@ begin
   VGridLonLatRect.Right := VLoadedLonLatRect.Right + z.X;
   VGridLonLatRect.Bottom := VLoadedLonLatRect.Bottom - z.Y;
   VGeoConvert.CheckLonLatRect(VGridLonLatRect);
-  VGridRect := VGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoom);
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
   VDrawLonLatRect.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);
   VDrawRectFloat := VGeoConvert.LonLatRect2PixelRectFloat(VDrawLonLatRect, VZoom);
@@ -309,7 +307,6 @@ var
   VLoadedRect: TDoubleRect;
   VLoadedLonLatRect: TDoubleRect;
   VGridLonLatRect: TDoubleRect;
-  VGridRect: TRect;
   VDrawLonLatRect: TDoubleRect;
   VDrawRectFloat: TDoubleRect;
   VDrawScreenRect: TRect;
@@ -354,8 +351,6 @@ begin
   VGridLonLatRect.Left := VGridLonLatRect.Left - (round(VGridLonLatRect.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
   VGridLonLatRect.Top := VGridLonLatRect.Top - (round(VGridLonLatRect.Top * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
   VGridLonLatRect.Bottom := VGridLonLatRect.Bottom - (round(VGridLonLatRect.Bottom * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
-
-  VGridRect := VGeoConvert.LonLatRect2PixelRect(VGridLonLatRect, VZoom);
 
   VDrawLonLatRect.TopLeft := VGridLonLatRect.TopLeft;
   VDrawLonLatRect.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Bottom);

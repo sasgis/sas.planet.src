@@ -52,6 +52,7 @@ uses
   i_CoordConverter,
   i_TileIterator,
   u_ListenerByEvent,
+  u_GeoFun,
   u_TileIteratorSpiralByRect;
 
 { TMapLayerFillingMap }
@@ -172,7 +173,11 @@ begin
         VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
         VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
         VSourceGeoConvert.CheckLonLatRect(VSourceLonLatRect);
-        VPixelSourceRect := VSourceGeoConvert.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
+        VPixelSourceRect :=
+          RectFromDoubleRect(
+            VSourceGeoConvert.LonLatRect2PixelRectFloat(VSourceLonLatRect, VZoom),
+            rrToTopLeft
+          );
         VTileSourceRect := VSourceGeoConvert.PixelRect2TileRect(VPixelSourceRect, VZoom);
         VTileIterator := TTileIteratorSpiralByRect.Create(VTileSourceRect);
         while VTileIterator.Next(VTile) do begin
@@ -209,7 +214,11 @@ begin
           end else begin
             VLonLatRect := VSourceGeoConvert.PixelRect2LonLatRect(VCurrTilePixelRectSource, VZoom);
             VGeoConvert.CheckLonLatRect(VLonLatRect);
-            VCurrTilePixelRect := VGeoConvert.LonLatRect2PixelRect(VLonLatRect, VZoom);
+            VCurrTilePixelRect :=
+              RectFromDoubleRect(
+                VGeoConvert.LonLatRect2PixelRectFloat(VLonLatRect, VZoom),
+                rrToTopLeft
+              );
           end;
 
           VCurrTilePixelRectAtBitmap := VLocalConverter.MapRect2LocalRect(VCurrTilePixelRect);

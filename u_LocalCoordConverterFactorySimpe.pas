@@ -105,6 +105,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_LocalCoordConverter;
 
 { TLocalCoordConverterFactorySimpe }
@@ -526,7 +527,11 @@ begin
   VSourceLonLatRect := VConverter.PixelRect2LonLatRect(VSourcePixelRect, VZoom);
   AGeoConverter.CheckZoom(VZoom);
   AGeoConverter.CheckLonLatRect(VSourceLonLatRect);
-  VSourcePixelRect := AGeoConverter.LonLatRect2PixelRect(VSourceLonLatRect, VZoom);
+  VSourcePixelRect :=
+    RectFromDoubleRect(
+      AGeoConverter.LonLatRect2PixelRectFloat(VSourceLonLatRect, VZoom),
+      rrToTopLeft
+    );
 
   VViewSize.X := VSourcePixelRect.Right - VSourcePixelRect.Left;
   VViewSize.Y := VSourcePixelRect.Bottom - VSourcePixelRect.Top;

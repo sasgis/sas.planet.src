@@ -1144,7 +1144,11 @@ begin
     ACoordConverterTarget.CheckPixelRect(VPixelRectTarget, VZoom);
     VLonLatRectTarget := ACoordConverterTarget.PixelRect2LonLatRect(VPixelRectTarget, VZoom);
     FCoordConverter.CheckLonLatRect(VLonLatRectTarget);
-    VPixelRectOfTargetPixelRectInSource := FCoordConverter.LonLatRect2PixelRect(VLonLatRectTarget, VZoom);
+    VPixelRectOfTargetPixelRectInSource :=
+      RectFromDoubleRect(
+        FCoordConverter.LonLatRect2PixelRectFloat(VLonLatRectTarget, VZoom),
+        rrToTopLeft
+      );
     VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, VZoom);
     VSpr := LoadBtimap(VPixelRectOfTargetPixelRectInSource, VZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
     if VSpr <> nil then begin
