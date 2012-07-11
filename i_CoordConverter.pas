@@ -258,10 +258,6 @@ type
       const Azoom: byte
     ): TDoublePoint; stdcall;
     // Преобразует георафические координаты в позицию тайла на заданном зуме накрывающего данные координаты
-    function LonLat2TilePos(
-      const Ll: TDoublePoint;
-      const Azoom: byte
-    ): Tpoint; stdcall; //UnSafe//TODO: Автотест
     function LonLat2TilePosFloat(
       const Ll: TDoublePoint;
       const Azoom: byte

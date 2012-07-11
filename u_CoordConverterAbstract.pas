@@ -250,10 +250,6 @@ type
       const Ll: TDoublePoint;
       Azoom: byte
     ): TDoublePoint; virtual; stdcall; abstract;
-    function LonLat2TilePosInternal(
-      const Ll: TDoublePoint;
-      Azoom: byte
-    ): Tpoint; virtual; stdcall; abstract;
     function LonLat2TilePosFloatInternal(
       const Ll: TDoublePoint;
       Azoom: byte
@@ -426,10 +422,6 @@ type
       const AXY: TDoublePoint;
       const Azoom: byte
     ): TDoublePoint; stdcall;
-    function LonLat2TilePos(
-      const AXY: TDoublePoint;
-      const Azoom: byte
-    ): Tpoint; stdcall;
     function LonLat2TilePosFloat(
       const AXY: TDoublePoint;
       const Azoom: byte
@@ -1067,21 +1059,6 @@ begin
   VZoom := AZoom;
   CheckTilePosInternal(VXY, VZoom);
   Result := TilePos2PixelPosInternal(VXY, Vzoom);
-end;
-
-function TCoordConverterAbstract.LonLat2TilePos(
-  const AXY: TDoublePoint;
-  const Azoom: byte
-): Tpoint;
-var
-  VXY: TDoublePoint;
-  VZoom: Byte;
-begin
-  VXY := AXY;
-  VZoom := AZoom;
-  CheckLonLatPosInternal(VXY);
-  CheckZoomInternal(VZoom);
-  Result := LonLat2TilePosInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.LonLat2TilePosFloat(
