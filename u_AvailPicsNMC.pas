@@ -67,6 +67,7 @@ uses
   t_GeoTypes,
   u_ResStrings,
   u_GeoToStr,
+  u_GeoFun,
   t_ETS_Tiles,
   u_ETS_Tiles,
   xmldom,
@@ -415,7 +416,11 @@ begin
   end;
 
   // get tile coords (use decremented zoom)
-  VTilePos := FLocalConverter.GeoConverter.LonLat2TilePos(FTileInfoPtr.LonLat, VXYZ.z);
+  VTilePos :=
+    PointFromDoublePoint(
+      FLocalConverter.GeoConverter.LonLat2TilePosFloat(FTileInfoPtr.LonLat, VXYZ.z),
+      prToTopLeft
+    );
   VXYZ.x := VTilePos.X; // 5372
   VXYZ.y := VTilePos.Y; // 2359
 
