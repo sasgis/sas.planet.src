@@ -144,10 +144,6 @@ type
       AZoom: byte
     ): TDoubleRect; virtual; stdcall; abstract;
 
-    function PixelRectFloat2TileRectInternal(
-      const XY: TDoubleRect;
-      AZoom: byte
-    ): TRect; virtual; stdcall; abstract;
     function PixelRectFloat2TileRectFloatInternal(
       const XY: TDoubleRect;
       AZoom: byte
@@ -373,10 +369,6 @@ type
       const AZoom: byte
     ): TDoubleRect; stdcall;
 
-    function PixelRectFloat2TileRect(
-      const XY: TDoubleRect;
-      const AZoom: byte
-    ): TRect; stdcall;
     function PixelRectFloat2TileRectFloat(
       const XY: TDoubleRect;
       const AZoom: byte
@@ -1163,20 +1155,6 @@ begin
   VZoom := AZoom;
   CheckPixelRectFloatInternal(VXY, VZoom);
   Result := PixelRectFloat2RelativeRectInternal(VXY, Vzoom);
-end;
-
-function TCoordConverterAbstract.PixelRectFloat2TileRect(
-  const XY: TDoubleRect;
-  const AZoom: byte
-): TRect;
-var
-  VXY: TDoubleRect;
-  VZoom: Byte;
-begin
-  VXY := XY;
-  VZoom := AZoom;
-  CheckPixelRectFloatInternal(VXY, VZoom);
-  Result := PixelRectFloat2TileRectInternal(VXY, Vzoom);
 end;
 
 function TCoordConverterAbstract.PixelRectFloat2TileRectFloat(
