@@ -31,8 +31,8 @@ type
     FStopThreadEventHandle: THandle;
 
     FSizeCounter: ICounter;
-    FHeadIndex: Integer;
-    FTailIndex: Integer;
+    FHeadIndex: ICounter;
+    FTailIndex: ICounter;
 
     FRequestArray: TArrayOfITileRequest;
     FRequestArrayCS: IReadWriteSync;
@@ -74,8 +74,8 @@ begin
   FCapacity := ACapacity;
 
   FSizeCounter := TCounterInterlock.Create;
-  FHeadIndex := 0;
-  FTailIndex := 0;
+  FHeadIndex := TCounterInterlock.Create;
+  FTailIndex := TCounterInterlock.Create;
 
   FCapasitySemaphore := CreateSemaphore(nil, ACapacity, ACapacity, nil);
   FReadyRequestSemaphore := CreateSemaphore(nil, 0, ACapacity, nil);
@@ -183,7 +183,7 @@ begin
         FSizeCounter.Inc;
         raise Exception.Create('Почему-то пусто, а должно что-то быть');
       end;
-      VIndex := InterlockedIncrement(FHeadIndex);
+      VIndex := FHeadIndex.Inc;
       VIndex := VIndex mod FCapacity;
       VArray := GetOrInitArray;
       Result := VArray[VIndex];
@@ -212,7 +212,7 @@ begin
         FSizeCounter.Dec;
         raise Exception.Create('Полностью заполнено. Странно.');
       end;
-      VIndex := InterlockedIncrement(FTailIndex);
+      VIndex := FTailIndex.Inc;
       VIndex := VIndex mod FCapacity;
       VArray := GetOrInitArray;
       VArray[VIndex] := ARequest;

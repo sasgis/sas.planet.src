@@ -32,6 +32,7 @@ uses
   TBX,
   TBXControls,
   i_Notifier,
+  i_SimpleFlag,
   i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_SatellitesInViewMapDraw,
@@ -61,7 +62,7 @@ type
     FVisibleItem: TTBXCustomItem;
     FVisibleItemWithReset: TTBXSubmenuItem;
 
-    FValueChangeId: Integer;
+    FValueChangeCounter: ICounter;
     FValueShowId: Integer;
 
     function GuidToComponentName(
@@ -300,6 +301,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_GPS,
+  u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList,
   u_ListenerByEvent,
   u_GeoFun,
@@ -324,7 +326,7 @@ begin
   FSensor := FListEntity.GetSensor;
   FConfig := AConfig;
   FOwner := AOwner;
-  FValueChangeId := 0;
+  FValueChangeCounter := TCounterInterlock.Create;
   FValueShowId := 0;
   Assert(FOwner is TWinControl);
   FDefaultDoc := ADefaultDoc;
@@ -508,15 +510,18 @@ end;
 
 procedure TSensorViewTBXPanelBase.OnSensorDataUpdate;
 begin
-  InterlockedIncrement(FValueChangeId);
+  FValueChangeCounter.Inc;
 end;
 
 procedure TSensorViewTBXPanelBase.OnTimer;
+var
+  VId: Integer;
 begin
   if FConfig.Visible then begin
-    if FValueChangeId <> FValueShowId then begin
+    VId := FValueChangeCounter.GetValue;
+    if VId <> FValueShowId then begin
       UpdateDataView;
-      FValueShowId := FValueChangeId;
+      FValueShowId := VId;
     end;
   end;
 end;

@@ -15,7 +15,8 @@ uses
   ExtCtrls,
   StdCtrls,
   GR32_Image,
-  i_Notifier, 
+  i_SimpleFlag,
+  i_Notifier,
   i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_Sensor,
@@ -41,7 +42,7 @@ type
     FMapDraw: ISatellitesInViewMapDraw;
 
     FLinksList: IListenerNotifierLinksList;
-    FValueChangeId: Integer;
+    FValueChangeCounter: ICounter;
     FValueShowId: Integer;
 
     procedure OnSensorDataUpdate;
@@ -61,6 +62,7 @@ implementation
 
 uses
   i_GPS,
+  u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList,
   u_ListenerByEvent;
 
@@ -81,6 +83,7 @@ begin
   pnlSatInfoLegend.Visible := AShowLegend;
 
   FLinksList := TListenerNotifierLinksList.Create;
+  FValueChangeCounter := TCounterInterlock.Create;
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
@@ -98,7 +101,7 @@ end;
 
 procedure TfrGpsSatellites.OnSensorDataUpdate;
 begin
-  InterlockedIncrement(FValueChangeId);
+  FValueChangeCounter.Inc;
 end;
 
 procedure TfrGpsSatellites.OnTimer;
@@ -106,7 +109,7 @@ var
   VId: Integer;
 begin
   if Self.Visible then begin
-    VId := FValueChangeId;
+    VId := FValueChangeCounter.GetValue;
     if VId <> FValueShowId then begin
       UpdateDataView;
       FValueShowId := VId;

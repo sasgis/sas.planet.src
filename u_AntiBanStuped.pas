@@ -40,7 +40,7 @@ type
     FInvisibleBrowser: IInvisibleBrowser;
     FUsePreloadPage: integer;
     FPreloadPage: string;
-    FDownloadTilesCount: Longint;
+    FDownloadTilesCounter: ICounter;
     FBanFlag: ISimpleFlag;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan;
@@ -117,6 +117,7 @@ var
 begin
   inherited Create;
   FInvisibleBrowser := AInvisibleBrowser;
+  FDownloadTilesCounter := TCounterInterlock.Create;
   VParams := AConfig.GetSubItem('params.txt').GetSubItem('PARAMS');
   FUsePreloadPage := VParams.ReadInteger('UsePreloadPage', 0);
   FPreloadPage := VParams.ReadString('PreloadPage', '');
@@ -142,7 +143,7 @@ var
   cnt: Integer;
   RunAntiBan: Boolean;
 begin
-  cnt := InterlockedIncrement(FDownloadTilesCount);
+  cnt := FDownloadTilesCounter.Inc;
   if (FUsePreloadPage > 0) then begin
     if (FUsePreloadPage > 1) then begin
       RunAntiBan := (cnt mod FUsePreloadPage) = 0;
