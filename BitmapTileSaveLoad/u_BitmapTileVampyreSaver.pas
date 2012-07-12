@@ -7,7 +7,6 @@ uses
   SysUtils,
   Imaging,
   ImagingTypes,
-  GR32,
   i_BinaryData,
   i_Bitmap32Static,
   i_ARGBToPaletteConverter,

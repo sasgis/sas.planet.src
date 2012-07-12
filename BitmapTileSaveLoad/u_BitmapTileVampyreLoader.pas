@@ -3,7 +3,6 @@ unit u_BitmapTileVampyreLoader;
 interface
 
 uses
-  Classes,
   SysUtils,
   Imaging,
   GR32,

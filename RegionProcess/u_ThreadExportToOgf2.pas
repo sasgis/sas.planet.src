@@ -78,7 +78,6 @@ uses
   i_TileIterator,
   i_VectorItemProjected,
   u_Bitmap32Static,
-  u_BinaryDataByMemStream,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
   u_GeoFun;

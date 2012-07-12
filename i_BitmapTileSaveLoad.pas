@@ -23,8 +23,6 @@ unit i_BitmapTileSaveLoad;
 interface
 
 uses
-  Classes,
-  GR32,
   i_BinaryData,
   i_Bitmap32Static;
 
