@@ -43,13 +43,13 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetFileName: string;
-    procedure SetFileName(AValue: string);
+    procedure SetFileName(const AValue: string);
 
     function GetAnchorType: TAnchorType;
-    procedure SetAnchorType(AValue: TAnchorType);
+    procedure SetAnchorType(const AValue: TAnchorType);
 
     function GetFixedPoint: TDoublePoint;
-    procedure SetFixedPoint(AValue: TDoublePoint);
+    procedure SetFixedPoint(const AValue: TDoublePoint);
 
     function GetStatic: IMarkerFromFileConfigStatic;
   public
@@ -146,7 +146,7 @@ begin
   Result := IMarkerFromFileConfigStatic(GetStaticInternal);
 end;
 
-procedure TMarkerFromFileConfig.SetAnchorType(AValue: TAnchorType);
+procedure TMarkerFromFileConfig.SetAnchorType(const AValue: TAnchorType);
 begin
   LockWrite;
   try
@@ -159,7 +159,7 @@ begin
   end;
 end;
 
-procedure TMarkerFromFileConfig.SetFileName(AValue: string);
+procedure TMarkerFromFileConfig.SetFileName(const AValue: string);
 begin
   LockWrite;
   try
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-procedure TMarkerFromFileConfig.SetFixedPoint(AValue: TDoublePoint);
+procedure TMarkerFromFileConfig.SetFixedPoint(const AValue: TDoublePoint);
 begin
   LockWrite;
   try

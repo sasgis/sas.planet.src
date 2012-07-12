@@ -38,9 +38,9 @@ type
     function GetFixedPoint: TDoublePoint;
   public
     constructor Create(
-      AFileName: string;
-      AAnchorType: TAnchorType;
-      AFixedPoint: TDoublePoint
+      const AFileName: string;
+      const AAnchorType: TAnchorType;
+      const AFixedPoint: TDoublePoint
     );
   end;
 
@@ -49,8 +49,11 @@ implementation
 
 { TMarkerFromFileConfigStatic }
 
-constructor TMarkerFromFileConfigStatic.Create(AFileName: string;
-  AAnchorType: TAnchorType; AFixedPoint: TDoublePoint);
+constructor TMarkerFromFileConfigStatic.Create(
+  const AFileName: string;
+  const AAnchorType: TAnchorType;
+  const AFixedPoint: TDoublePoint
+);
 begin
   inherited Create;
   FFileName := AFileName;

@@ -57,15 +57,15 @@ type
   IMarkerFromFileConfig = interface(IConfigDataElement)
     ['{77A05655-3105-400E-90A2-CF24DE062F0A}']
     function GetFileName: string;
-    procedure SetFileName(AValue: string);
+    procedure SetFileName(const AValue: string);
     property FileName: string read GetFileName write SetFileName;
 
     function GetAnchorType: TAnchorType;
-    procedure SetAnchorType(AValue: TAnchorType);
+    procedure SetAnchorType(const AValue: TAnchorType);
     property AnchorType: TAnchorType read GetAnchorType write SetAnchorType;
 
     function GetFixedPoint: TDoublePoint;
-    procedure SetFixedPoint(AValue: TDoublePoint);
+    procedure SetFixedPoint(const AValue: TDoublePoint);
     property FixedPoint: TDoublePoint read GetFixedPoint write SetFixedPoint;
 
     function GetStatic: IMarkerFromFileConfigStatic;
