@@ -24,7 +24,7 @@ interface
 
 uses
   i_ConfigDataElement,
-  i_BitmapMarkerProviderSimpleConfig;
+  i_MarkerSimpleConfig;
 
 type
   IMapLayerGPSMarkerConfig = interface(IConfigDataElement)

@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_BitmapMarkerProviderSimpleConfig;
+unit u_MarkerSimpleConfig;
 
 interface
 
@@ -26,7 +26,7 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_BitmapMarkerProviderSimpleConfig,
+  i_MarkerSimpleConfig,
   u_ConfigDataElementBase;
 
 type
@@ -60,7 +60,7 @@ implementation
 
 uses
   u_ConfigProviderHelpers,
-  u_BitmapMarkerProviderSimpleConfigStatic;
+  u_MarkerSimpleConfigStatic;
 
 { TMarkerSimpleConfig }
 

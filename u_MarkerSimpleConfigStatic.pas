@@ -18,13 +18,13 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_BitmapMarkerProviderSimpleConfigStatic;
+unit u_MarkerSimpleConfigStatic;
 
 interface
 
 uses
   GR32,
-  i_BitmapMarkerProviderSimpleConfig;
+  i_MarkerSimpleConfig;
 
 type
   TMarkerSimpleConfigStatic = class(TInterfacedObject, IMarkerSimpleConfigStatic)

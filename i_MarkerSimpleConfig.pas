@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_BitmapMarkerProviderSimpleConfig;
+unit i_MarkerSimpleConfig;
 
 interface
 

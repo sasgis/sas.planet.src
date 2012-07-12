@@ -27,7 +27,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGPSMarkerConfig,
-  i_BitmapMarkerProviderSimpleConfig,
+  i_MarkerSimpleConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -53,8 +53,8 @@ type
 implementation
 
 uses
-  u_BitmapMarkerProviderSimpleConfig,
-  u_BitmapMarkerProviderSimpleConfigStatic,
+  u_MarkerSimpleConfig,
+  u_MarkerSimpleConfigStatic,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TMapLayerGPSMarkerConfig }

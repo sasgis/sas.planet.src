@@ -27,7 +27,7 @@ uses
   i_Notifier,
   i_Listener,
   i_BitmapMarker,
-  i_BitmapMarkerProviderSimpleConfig;
+  i_MarkerSimpleConfig;
 
 type
   TBitmapMarkerProviderSimpleAbstract = class(TInterfacedObject, IBitmapMarkerProvider)

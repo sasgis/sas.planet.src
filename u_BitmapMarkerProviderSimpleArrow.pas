@@ -26,7 +26,7 @@ uses
   Types,
   GR32,
   i_BitmapMarker,
-  i_BitmapMarkerProviderSimpleConfig,
+  i_MarkerSimpleConfig,
   u_BitmapMarkerProviderSimpleBase;
 
 type

@@ -187,7 +187,6 @@
     <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapLayerProviderWithListener.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
-    <DCCReference Include="i_BitmapMarkerProviderSimpleConfig.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
@@ -307,6 +306,7 @@
     <DCCReference Include="i_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="i_MarkerDrawable.pas" />
+    <DCCReference Include="i_MarkerSimpleConfig.pas" />
     <DCCReference Include="i_MarkFactory.pas" />
     <DCCReference Include="i_MarkFactorySmlInternal.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
@@ -592,8 +592,6 @@
     <DCCReference Include="u_BitmapMarkerProviderChangeableFaked.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleArrow.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleBase.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderSimpleConfig.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderSimpleConfigStatic.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleCross.pas" />
     <DCCReference Include="u_BitmapMarkerProviderSimpleSquare.pas" />
     <DCCReference Include="u_BitmapMarkerProviderStaticFromDataProvider.pas" />
@@ -830,6 +828,8 @@
     <DCCReference Include="u_MarkCategoryFactory.pas" />
     <DCCReference Include="u_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="u_MarkerDrawableByBitmapMarker.pas" />
+    <DCCReference Include="u_MarkerSimpleConfig.pas" />
+    <DCCReference Include="u_MarkerSimpleConfigStatic.pas" />
     <DCCReference Include="u_MarkFactory.pas" />
     <DCCReference Include="u_MarkFullBase.pas" />
     <DCCReference Include="u_MarkId.pas" />
