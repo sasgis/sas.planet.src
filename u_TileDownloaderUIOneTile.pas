@@ -83,6 +83,7 @@ uses
   SysUtils,
   i_TileRequest,
   i_DownloadResult,
+  u_ReadableThreadNames,
   u_ListenerByEvent,
   u_TileErrorInfo;
 
@@ -142,6 +143,7 @@ var
   VOperationID: Integer;
   VRequest: ITileRequest;
 begin
+  SetCurrentThreadName(Self.ClassName);
   Randomize;
   if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
     VOperationID := FCancelNotifier.CurrentOperation;

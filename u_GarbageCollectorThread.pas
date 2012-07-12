@@ -46,6 +46,9 @@ type
 
 implementation
 
+uses
+  u_ReadableThreadNames;
+
 constructor TGarbageCollectorThread.Create(
   const AList: INotifierTTLCheckInternal;
   ASleepTime: Cardinal
@@ -68,6 +71,7 @@ var
   VNextCheck: Cardinal;
   VNow: Cardinal;
 begin
+  SetCurrentThreadName(Self.ClassName);
   VNextCheck := 0;
   while not Terminated do begin
     VNow := GetTickCount;
