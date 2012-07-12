@@ -113,7 +113,12 @@ begin
   );
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   Layer.Bitmap.BeginUpdate;
-  FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnDrawBitmap, AThreadConfig);
+  FDrawTask := TBackgroundTask.Create(
+    AAppClosingNotifier,
+    Self.OnDrawBitmap,
+    AThreadConfig,
+    Self.ClassName
+  );
   FUpdateViewFlag := TSimpleFlagWithInterlock.Create;
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
 

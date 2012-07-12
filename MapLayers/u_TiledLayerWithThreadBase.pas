@@ -182,7 +182,12 @@ begin
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
   FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
 
-  FDrawTask := TBackgroundTask.Create(AAppClosingNotifier, OnPrepareTileMatrix, AThreadConfig);
+  FDrawTask := TBackgroundTask.Create(
+    AAppClosingNotifier,
+    OnPrepareTileMatrix,
+    AThreadConfig,
+    Self.ClassName
+  );
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
   FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
   FUpdateLayerProviderFlag := TSimpleFlagWithInterlock.Create;

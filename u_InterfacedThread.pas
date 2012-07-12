@@ -49,7 +49,10 @@ type
     procedure Start; virtual;
     procedure Terminate; virtual;
   public
-    constructor Create(const AConfig: IThreadConfig);
+    constructor Create(
+      const AConfig: IThreadConfig;
+      const ADebugName: string = ''
+    );
     destructor Destroy; override;
   end;
 
@@ -57,6 +60,7 @@ implementation
 
 uses
   u_ListenerByEvent,
+  u_ReadableThreadNames,
   u_Synchronizer;
 
 type
@@ -64,12 +68,14 @@ type
   private
     FRef: IInterface;
     FExec: TThreadMethod;
+    FDebugName: string;
   protected
     procedure DoTerminate; override;
     procedure Execute; override;
   public
     constructor Create(
       APriority: TThreadPriority;
+      const ADebugName: string;
       AExec: TThreadMethod
     );
     procedure Start(const ARef: IInterface);
@@ -77,13 +83,20 @@ type
 
 { TInterfacedThread }
 
-constructor TInterfacedThread.Create(const AConfig: IThreadConfig);
+constructor TInterfacedThread.Create(
+  const AConfig: IThreadConfig;
+  const ADebugName: string = ''
+);
 begin
   inherited Create;
   FConfig := AConfig;
   FCS := MakeSyncRW_Var(Self, False);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
-  FThread := TThread4InterfacedThread.Create(FConfig.Priority, Self.Execute);
+  FThread := TThread4InterfacedThread.Create(
+    FConfig.Priority,
+    ADebugName,
+    Self.Execute
+  );
   FThread.OnTerminate := Self.OnTerminate;
   FTerminated := False;
   FStarted := False;
@@ -176,10 +189,12 @@ end;
 
 constructor TThread4InterfacedThread.Create(
   APriority: TThreadPriority;
+  const ADebugName: string;
   AExec: TThreadMethod
 );
 begin
   inherited Create(True);
+  FDebugName := ADebugName;
   Self.Priority := APriority;
   Self.FreeOnTerminate := True;
   FExec := AExec;
@@ -194,6 +209,7 @@ end;
 procedure TThread4InterfacedThread.Execute;
 begin
   inherited;
+  SetCurrentThreadName(FDebugName);
   if not Terminated then begin
     FExec;
   end;

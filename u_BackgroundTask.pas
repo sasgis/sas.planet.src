@@ -59,7 +59,8 @@ type
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
       AOnExecute: TBackgroundTaskExecuteEvent;
-      const AThreadConfig: IThreadConfig
+      const AThreadConfig: IThreadConfig;
+      const AThreadDebugName: string
     );
     destructor Destroy; override;
   end;
@@ -74,12 +75,13 @@ uses
 constructor TBackgroundTask.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AOnExecute: TBackgroundTaskExecuteEvent;
-  const AThreadConfig: IThreadConfig
+  const AThreadConfig: IThreadConfig;
+  const AThreadDebugName: string
 );
 var
   VOperationNotifier: TNotifierOperation;
 begin
-  inherited Create(AThreadConfig);
+  inherited Create(AThreadConfig, AThreadDebugName);
   FOnExecute := AOnExecute;
   FAppClosingNotifier := AAppClosingNotifier;
   Assert(Assigned(FOnExecute));

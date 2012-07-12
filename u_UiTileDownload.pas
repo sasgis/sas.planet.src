@@ -453,7 +453,12 @@ begin
 
       if (VVisualCoordConverter <> nil) then begin
         if VDownloadTask = nil then begin
-          VDownloadTask := TBackgroundTask.Create(FAppClosingNotifier, DoProcessDownloadRequests, FConfig.ThreadConfig);
+          VDownloadTask := TBackgroundTask.Create(
+            FAppClosingNotifier,
+            Self.DoProcessDownloadRequests,
+            FConfig.ThreadConfig,
+            Self.ClassName
+          );
           VDownloadTask.Start;
           FDownloadTask := VDownloadTask;
         end;

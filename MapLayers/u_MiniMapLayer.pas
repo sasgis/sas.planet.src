@@ -308,7 +308,8 @@ begin
     TBackgroundTask.Create(
       AAppClosingNotifier,
       OnDrawBitmap,
-      FConfig.ThreadConfig
+      FConfig.ThreadConfig,
+      Self.ClassName
     );
   FUpdateFlag := TSimpleFlagWithInterlock.Create;
 
