@@ -33,8 +33,8 @@ type
   TCenterScaleConfig = class(TConfigDataElementBase, ICenterScaleConfig)
   private
     FVisible: Boolean;
-    FBitmap: IBitmapMarker;
-    procedure CreateBitmap;
+    FBitmapProvider: IBitmapMarkerProviderChangeable;
+    function CreateBitmapMarker: IBitmapMarker;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -42,8 +42,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(const AValue: Boolean);
 
-    function GetBitmap: IBitmapMarker;
-    procedure SetBitmap(const AValue: IBitmapMarker);
+    function GetBitmapProvider: IBitmapMarkerProviderChangeable;
   public
     constructor Create;
   end;
@@ -57,18 +56,25 @@ uses
   i_Bitmap32Static,
   u_GeoFun,
   u_BitmapMarker,
+  u_BitmapMarkerProviderChangeableFaked,
+  u_BitmapMarkerProviderStaticFromDataProvider,
   u_Bitmap32Static;
 
 { TCenterScaleConfig }
 
 constructor TCenterScaleConfig.Create;
+var
+  VBitmap: IBitmapMarker;
+  VBitmapProvider: IBitmapMarkerProvider;
 begin
   inherited Create;
   FVisible := False;
-  CreateBitmap;
+  VBitmap := CreateBitmapMarker;
+  VBitmapProvider := TBitmapMarkerProviderStatic.Create(VBitmap);
+  FBitmapProvider := TBitmapMarkerProviderChangeableFaked.Create(VBitmapProvider);
 end;
 
-procedure TCenterScaleConfig.CreateBitmap;
+function TCenterScaleConfig.CreateBitmapMarker: IBitmapMarker;
 var
   VBitmap: TBitmap32;
   VHalfSize: TPoint;
@@ -82,6 +88,7 @@ var
   VDigitsOffset: Integer;
   VBitmapStatic: IBitmap32Static;
 begin
+  Result := nil;
   VBitmap := TBitmap32.Create;
   try
     VRadius := 115;
@@ -121,7 +128,7 @@ begin
       inc(i, 5);
     end;
     VBitmapStatic := TBitmap32Static.CreateWithCopy(VBitmap);
-    FBitmap := TBitmapMarker.Create(VBitmapStatic, DoublePoint(VHalfSize));
+    Result := TBitmapMarker.Create(VBitmapStatic, DoublePoint(VHalfSize));
   finally
     VBitmap.Free;
   end;
@@ -132,7 +139,6 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('Visible', FVisible);
-    CreateBitmap;
     SetChanged;
   end;
 end;
@@ -145,14 +151,9 @@ begin
   AConfigData.WriteBool('Visible', FVisible);
 end;
 
-function TCenterScaleConfig.GetBitmap: IBitmapMarker;
+function TCenterScaleConfig.GetBitmapProvider: IBitmapMarkerProviderChangeable;
 begin
-  LockRead;
-  try
-    Result := FBitmap;
-  finally
-    UnlockRead;
-  end;
+  Result := FBitmapProvider;
 end;
 
 function TCenterScaleConfig.GetVisible: Boolean;
@@ -162,19 +163,6 @@ begin
     Result := FVisible;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TCenterScaleConfig.SetBitmap(const AValue: IBitmapMarker);
-begin
-  LockWrite;
-  try
-    if FBitmap <> AValue then begin
-      FBitmap := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
   end;
 end;
 

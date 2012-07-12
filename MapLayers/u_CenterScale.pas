@@ -5,23 +5,26 @@ interface
 uses
   GR32,
   GR32_Image,
+  GR32_Layers,
   i_NotifierOperation,
   i_BitmapMarker,
   i_LocalCoordConverter,
-  i_ViewPortState,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_CenterScaleConfig,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasic;
 
 type
-  TCenterScale = class(TWindowLayerFixedSizeWithBitmap)
+  TCenterScale = class(TWindowLayerAbstract)
   private
     FConfig: ICenterScaleConfig;
-    FMarker: IBitmapMarker;
+    FLayer: TBitmapLayer;
+    FPosition: ILocalCoordConverterChangeable;
+
     procedure OnConfigChange;
+    procedure OnPosChange;
+    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
   protected
-    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
-    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -29,7 +32,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const APosition: ILocalCoordConverterChangeable;
       const AConfig: ICenterScaleConfig
     );
   end;
@@ -46,21 +49,27 @@ constructor TCenterScale.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const APosition: ILocalCoordConverterChangeable;
   const AConfig: ICenterScaleConfig
 );
 begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier,
-    AParentMap,
-    AViewPortState
+    AAppClosingNotifier
   );
   FConfig := AConfig;
+  FPosition := APosition;
+
+  FLayer := TBitmapLayer.Create(AParentMap.Layers);
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FConfig.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnPosChange),
+    FPosition.ChangeNotifier
   );
 end;
 
@@ -70,8 +79,8 @@ var
   VViewSize: TPoint;
   VBitmap: IBitmapMarker;
 begin
-  VBitmap := FMarker;
-  if (VBitmap <> nil) and (ANewVisualCoordConverter <> nil) then begin
+  VBitmap := FConfig.BitmapProvider.GetStatic.GetMarker;
+  if (VBitmap <> nil) and (ANewVisualCoordConverter <> nil) and FLayer.Visible then begin
     VSize := VBitmap.BitmapSize;
     VViewSize := ANewVisualCoordConverter.GetLocalRectSize;
     Result.Left := VViewSize.X / 2 - VBitmap.AnchorPoint.X;
@@ -88,31 +97,27 @@ end;
 
 procedure TCenterScale.OnConfigChange;
 var
+  VVisible: Boolean;
   VBitmap: IBitmapMarker;
 begin
-  ViewUpdateLock;
-  try
-    if FConfig.Visible then begin
-      VBitmap := FConfig.Bitmap;
-      FMarker := VBitmap;
-      if VBitmap <> nil then begin
-        Layer.Bitmap.Assign(VBitmap.Bitmap);
-      end else begin
-        Layer.Bitmap.Delete;
-      end;
-      Layer.Bitmap.DrawMode := dmBlend;
-      SetNeedRedraw;
-    end;
-    SetVisible(FConfig.Visible);
-  finally
-    ViewUpdateUnlock;
+  VVisible := FConfig.Visible;
+  VBitmap := FConfig.BitmapProvider.GetStatic.GetMarker;
+  if VVisible and (VBitmap <> nil) then begin
+    FLayer.Bitmap.Assign(VBitmap.Bitmap);
+    FLayer.Bitmap.DrawMode := dmBlend;
+    FLayer.Location := GetMapLayerLocationRect(FPosition.GetStatic);
+    FLayer.Visible := True;
+  end else begin
+    FLayer.Visible := False;
+    FLayer.Bitmap.Delete;
   end;
 end;
 
-procedure TCenterScale.SetViewCoordConverter(const AValue: ILocalCoordConverter);
+procedure TCenterScale.OnPosChange;
 begin
-  inherited;
-  SetNeedUpdateLocation;
+  if FLayer.Visible then begin
+    FLayer.Location := GetMapLayerLocationRect(FPosition.GetStatic);
+  end;
 end;
 
 procedure TCenterScale.StartThreads;

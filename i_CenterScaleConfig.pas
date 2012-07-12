@@ -33,9 +33,8 @@ type
     procedure SetVisible(const AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
 
-    function GetBitmap: IBitmapMarker;
-    procedure SetBitmap(const AValue: IBitmapMarker);
-    property Bitmap: IBitmapMarker read GetBitmap write SetBitmap;
+    function GetBitmapProvider: IBitmapMarkerProviderChangeable;
+    property BitmapProvider: IBitmapMarkerProviderChangeable read GetBitmapProvider;
   end;
 
 implementation

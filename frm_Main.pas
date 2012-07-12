@@ -1569,7 +1569,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState,
+        FConfig.ViewPortState.Position,
         FConfig.LayersConfig.CenterScaleConfig
       )
     );
