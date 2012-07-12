@@ -32,14 +32,14 @@ uses
 type
   TBitmapMarkerProviderSimpleAbstract = class(TInterfacedObject, IBitmapMarkerProvider)
   private
-    FConfig: IBitmapMarkerProviderSimpleConfigStatic;
+    FConfig: IMarkerSimpleConfigStatic;
   protected
-    property Config: IBitmapMarkerProviderSimpleConfigStatic read FConfig;
+    property Config: IMarkerSimpleConfigStatic read FConfig;
   protected
     function GetMarker: IBitmapMarker; virtual; abstract;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker; virtual; abstract;
   public
-    constructor CreateProvider(const AConfig: IBitmapMarkerProviderSimpleConfigStatic); virtual;
+    constructor CreateProvider(const AConfig: IMarkerSimpleConfigStatic); virtual;
   end;
 
   TBitmapMarkerProviderSimpleBase = class(TBitmapMarkerProviderSimpleAbstract)
@@ -51,7 +51,7 @@ type
     function GetMarker: IBitmapMarker; override;
     function GetMarkerBySize(ASize: Integer): IBitmapMarker; override;
   public
-    constructor CreateProvider(const AConfig: IBitmapMarkerProviderSimpleConfigStatic); override;
+    constructor CreateProvider(const AConfig: IMarkerSimpleConfigStatic); override;
   end;
 
   TBitmapMarkerWithDirectionProviderSimpleBase = class(TBitmapMarkerProviderSimpleAbstract, IBitmapMarkerWithDirectionProvider)
@@ -71,14 +71,14 @@ type
       ASize: Integer
     ): IBitmapMarkerWithDirection;
   public
-    constructor CreateProvider(const AConfig: IBitmapMarkerProviderSimpleConfigStatic); override;
+    constructor CreateProvider(const AConfig: IMarkerSimpleConfigStatic); override;
   end;
 
   TBitmapMarkerProviderSimpleClass = class of TBitmapMarkerProviderSimpleAbstract;
 
   TBitmapMarkerProviderChangeableWithConfig = class(TInterfacedObject, IBitmapMarkerProviderChangeable)
   private
-    FConfig: IBitmapMarkerProviderSimpleConfig;
+    FConfig: IMarkerSimpleConfig;
     FProviderClass: TBitmapMarkerProviderSimpleClass;
     FProviderStatic: IBitmapMarkerProvider;
 
@@ -92,7 +92,7 @@ type
   public
     constructor Create(
       AProviderClass: TBitmapMarkerProviderSimpleClass;
-      const AConfig: IBitmapMarkerProviderSimpleConfig
+      const AConfig: IMarkerSimpleConfig
     );
     destructor Destroy; override;
   end;
@@ -112,7 +112,7 @@ const
 { TBitmapMarkerProviderSimpleAbstract }
 
 constructor TBitmapMarkerProviderSimpleAbstract.CreateProvider(
-  const AConfig: IBitmapMarkerProviderSimpleConfigStatic
+  const AConfig: IMarkerSimpleConfigStatic
 );
 begin
   inherited Create;
@@ -122,7 +122,7 @@ end;
 { TBitmapMarkerProviderSimpleBase }
 
 constructor TBitmapMarkerProviderSimpleBase.CreateProvider(
-  const AConfig: IBitmapMarkerProviderSimpleConfigStatic
+  const AConfig: IMarkerSimpleConfigStatic
 );
 begin
   inherited;
@@ -147,7 +147,7 @@ end;
 { TBitmapMarkerWithDirectionProviderSimpleBase }
 
 constructor TBitmapMarkerWithDirectionProviderSimpleBase.CreateProvider(
-  const AConfig: IBitmapMarkerProviderSimpleConfigStatic
+  const AConfig: IMarkerSimpleConfigStatic
 );
 begin
   inherited;
@@ -196,7 +196,7 @@ end;
 
 constructor TBitmapMarkerProviderChangeableWithConfig.Create(
   AProviderClass: TBitmapMarkerProviderSimpleClass;
-  const AConfig: IBitmapMarkerProviderSimpleConfig
+  const AConfig: IMarkerSimpleConfig
 );
 begin
   inherited Create;
@@ -250,3 +250,5 @@ begin
 end;
 
 end.
+
+

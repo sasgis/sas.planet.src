@@ -33,13 +33,14 @@ type
     procedure SetCrossDistInPixels(AValue: Double);
     property CrossDistInPixels: Double read GetCrossDistInPixels write SetCrossDistInPixels;
 
-    function GetArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    property ArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetArrowMarkerConfig;
+    function GetArrowMarkerConfig: IMarkerSimpleConfig;
+    property ArrowMarkerConfig: IMarkerSimpleConfig read GetArrowMarkerConfig;
 
-    function GetReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    property ReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetReachedMarkerConfig;
+    function GetReachedMarkerConfig: IMarkerSimpleConfig;
+    property ReachedMarkerConfig: IMarkerSimpleConfig read GetReachedMarkerConfig;
   end;
 
 implementation
 
 end.
+

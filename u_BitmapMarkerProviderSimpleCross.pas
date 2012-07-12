@@ -48,7 +48,7 @@ uses
 
 function TBitmapMarkerProviderSimpleCross.CreateMarker(ASize: Integer): IBitmapMarker;
 var
-  VConfig: IBitmapMarkerProviderSimpleConfigStatic;
+  VConfig: IMarkerSimpleConfigStatic;
   VBitmap: TCustomBitmap32;
   VSize: TPoint;
   VPolygon: TPolygon32;
@@ -103,3 +103,4 @@ begin
 end;
 
 end.
+

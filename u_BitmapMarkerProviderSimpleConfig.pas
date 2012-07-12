@@ -30,9 +30,9 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TBitmapMarkerProviderSimpleConfig = class(TConfigDataElementWithStaticBase, IBitmapMarkerProviderSimpleConfig)
+  TMarkerSimpleConfig = class(TConfigDataElementWithStaticBase, IMarkerSimpleConfig)
   private
-    FDefault: IBitmapMarkerProviderSimpleConfigStatic;
+    FDefault: IMarkerSimpleConfigStatic;
     FMarkerSize: Integer;
     FMarkerColor: TColor32;
     FBorderColor: TColor32;
@@ -51,9 +51,9 @@ type
     function GetBorderColor: TColor32;
     procedure SetBorderColor(AValue: TColor32);
 
-    function GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
+    function GetStatic: IMarkerSimpleConfigStatic;
   public
-    constructor Create(const ADefault: IBitmapMarkerProviderSimpleConfigStatic);
+    constructor Create(const ADefault: IMarkerSimpleConfigStatic);
   end;
 
 implementation
@@ -62,10 +62,10 @@ uses
   u_ConfigProviderHelpers,
   u_BitmapMarkerProviderSimpleConfigStatic;
 
-{ TBitmapMarkerProviderSimpleConfig }
+{ TMarkerSimpleConfig }
 
-constructor TBitmapMarkerProviderSimpleConfig.Create(
-  const ADefault: IBitmapMarkerProviderSimpleConfigStatic
+constructor TMarkerSimpleConfig.Create(
+  const ADefault: IMarkerSimpleConfigStatic
 );
 begin
   inherited Create;
@@ -75,12 +75,12 @@ begin
   FBorderColor := FDefault.BorderColor;
 end;
 
-function TBitmapMarkerProviderSimpleConfig.CreateStatic: IInterface;
+function TMarkerSimpleConfig.CreateStatic: IInterface;
 var
-  VStatic: IBitmapMarkerProviderSimpleConfigStatic;
+  VStatic: IMarkerSimpleConfigStatic;
 begin
   VStatic :=
-    TBitmapMarkerProviderSimpleConfigStatic.Create(
+    TMarkerSimpleConfigStatic.Create(
       FMarkerSize,
       FMarkerColor,
       FBorderColor
@@ -88,7 +88,7 @@ begin
   Result := VStatic;
 end;
 
-procedure TBitmapMarkerProviderSimpleConfig.DoReadConfig(
+procedure TMarkerSimpleConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 begin
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-procedure TBitmapMarkerProviderSimpleConfig.DoWriteConfig(
+procedure TMarkerSimpleConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
 begin
@@ -111,7 +111,7 @@ begin
   WriteColor32(AConfigData, 'BorderColor', FBorderColor);
 end;
 
-function TBitmapMarkerProviderSimpleConfig.GetBorderColor: TColor32;
+function TMarkerSimpleConfig.GetBorderColor: TColor32;
 begin
   LockRead;
   try
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderSimpleConfig.GetMarkerColor: TColor32;
+function TMarkerSimpleConfig.GetMarkerColor: TColor32;
 begin
   LockRead;
   try
@@ -131,7 +131,7 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderSimpleConfig.GetMarkerSize: Integer;
+function TMarkerSimpleConfig.GetMarkerSize: Integer;
 begin
   LockRead;
   try
@@ -141,12 +141,12 @@ begin
   end;
 end;
 
-function TBitmapMarkerProviderSimpleConfig.GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
+function TMarkerSimpleConfig.GetStatic: IMarkerSimpleConfigStatic;
 begin
-  Result := IBitmapMarkerProviderSimpleConfigStatic(GetStaticInternal);
+  Result := IMarkerSimpleConfigStatic(GetStaticInternal);
 end;
 
-procedure TBitmapMarkerProviderSimpleConfig.SetBorderColor(AValue: TColor32);
+procedure TMarkerSimpleConfig.SetBorderColor(AValue: TColor32);
 begin
   LockWrite;
   try
@@ -159,7 +159,7 @@ begin
   end;
 end;
 
-procedure TBitmapMarkerProviderSimpleConfig.SetMarkerColor(AValue: TColor32);
+procedure TMarkerSimpleConfig.SetMarkerColor(AValue: TColor32);
 begin
   LockWrite;
   try
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-procedure TBitmapMarkerProviderSimpleConfig.SetMarkerSize(AValue: Integer);
+procedure TMarkerSimpleConfig.SetMarkerSize(AValue: Integer);
 begin
   LockWrite;
   try
@@ -186,3 +186,7 @@ begin
 end;
 
 end.
+
+
+
+

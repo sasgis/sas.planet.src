@@ -47,7 +47,7 @@ uses
 
 function TBitmapMarkerProviderSimpleSquare.CreateMarker(ASize: Integer): IBitmapMarker;
 var
-  VConfig: IBitmapMarkerProviderSimpleConfigStatic;
+  VConfig: IMarkerSimpleConfigStatic;
   VBitmap: TCustomBitmap32;
   VSize: TPoint;
   VCenterPoint: TDoublePoint;
@@ -80,3 +80,4 @@ begin
 end;
 
 end.
+

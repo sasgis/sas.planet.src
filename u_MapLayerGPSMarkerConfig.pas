@@ -34,8 +34,8 @@ type
   TMapLayerGPSMarkerConfig = class(TConfigDataElementComplexBase, IMapLayerGPSMarkerConfig)
   private
     FMinMoveSpeed: Double;
-    FMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    FStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    FMovedMarkerConfig: IMarkerSimpleConfig;
+    FStopedMarkerConfig: IMarkerSimpleConfig;
 
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -44,8 +44,8 @@ type
     function GetMinMoveSpeed: Double;
     procedure SetMinMoveSpeed(AValue: Double);
 
-    function GetMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    function GetStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    function GetMovedMarkerConfig: IMarkerSimpleConfig;
+    function GetStopedMarkerConfig: IMarkerSimpleConfig;
   public
     constructor Create;
   end;
@@ -61,27 +61,27 @@ uses
 
 constructor TMapLayerGPSMarkerConfig.Create;
 var
-  VMarkerProvider: IBitmapMarkerProviderSimpleConfigStatic;
+  VMarkerProvider: IMarkerSimpleConfigStatic;
 begin
   inherited Create;
   FMinMoveSpeed := 1;
 
   VMarkerProvider :=
-    TBitmapMarkerProviderSimpleConfigStatic.Create(
+    TMarkerSimpleConfigStatic.Create(
       25,
       SetAlpha(clRed32, 150),
       SetAlpha(clBlack32, 200)
     );
-  FMovedMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
+  FMovedMarkerConfig := TMarkerSimpleConfig.Create(VMarkerProvider);
   Add(FMovedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerMoved'));
 
   VMarkerProvider :=
-    TBitmapMarkerProviderSimpleConfigStatic.Create(
+    TMarkerSimpleConfigStatic.Create(
       10,
       SetAlpha(clRed32, 200),
       SetAlpha(clBlack32, 200)
     );
-  FStopedMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
+  FStopedMarkerConfig := TMarkerSimpleConfig.Create(VMarkerProvider);
   Add(FStopedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerStoped'));
 end;
 
@@ -114,12 +114,12 @@ begin
   end;
 end;
 
-function TMapLayerGPSMarkerConfig.GetMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+function TMapLayerGPSMarkerConfig.GetMovedMarkerConfig: IMarkerSimpleConfig;
 begin
   Result := FMovedMarkerConfig;
 end;
 
-function TMapLayerGPSMarkerConfig.GetStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+function TMapLayerGPSMarkerConfig.GetStopedMarkerConfig: IMarkerSimpleConfig;
 begin
   Result := FStopedMarkerConfig;
 end;
@@ -138,3 +138,7 @@ begin
 end;
 
 end.
+
+
+
+

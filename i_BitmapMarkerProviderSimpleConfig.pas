@@ -27,7 +27,7 @@ uses
   i_ConfigDataElement;
 
 type
-  IBitmapMarkerProviderSimpleConfigStatic = interface
+  IMarkerSimpleConfigStatic = interface
     ['{EBE59B49-48A8-4657-AF1D-9C0951D5AEA9}']
     function GetMarkerSize: Integer;
     property MarkerSize: Integer read GetMarkerSize;
@@ -39,7 +39,7 @@ type
     property BorderColor: TColor32 read GetBorderColor;
   end;
 
-  IBitmapMarkerProviderSimpleConfig = interface(IConfigDataElement)
+  IMarkerSimpleConfig = interface(IConfigDataElement)
     ['{77A05655-3105-400E-90A2-CF24DE062F0A}']
     function GetMarkerSize: Integer;
     procedure SetMarkerSize(AValue: Integer);
@@ -53,9 +53,11 @@ type
     procedure SetBorderColor(AValue: TColor32);
     property BorderColor: TColor32 read GetBorderColor write SetBorderColor;
 
-    function GetStatic: IBitmapMarkerProviderSimpleConfigStatic;
+    function GetStatic: IMarkerSimpleConfigStatic;
   end;
 
 implementation
 
 end.
+
+

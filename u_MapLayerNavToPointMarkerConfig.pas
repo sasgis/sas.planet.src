@@ -34,8 +34,8 @@ type
   TMapLayerNavToPointMarkerConfig = class(TConfigDataElementComplexBase, IMapLayerNavToPointMarkerConfig)
   private
     FCrossDistInPixels: Double;
-    FArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    FReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    FArrowMarkerConfig: IMarkerSimpleConfig;
+    FReachedMarkerConfig: IMarkerSimpleConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -43,8 +43,8 @@ type
     function GetCrossDistInPixels: Double;
     procedure SetCrossDistInPixels(AValue: Double);
 
-    function GetArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    function GetReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+    function GetArrowMarkerConfig: IMarkerSimpleConfig;
+    function GetReachedMarkerConfig: IMarkerSimpleConfig;
   public
     constructor Create;
   end;
@@ -60,27 +60,27 @@ uses
 
 constructor TMapLayerNavToPointMarkerConfig.Create;
 var
-  VMarkerProvider: IBitmapMarkerProviderSimpleConfigStatic;
+  VMarkerProvider: IMarkerSimpleConfigStatic;
 begin
   inherited Create;
   FCrossDistInPixels := 100;
 
   VMarkerProvider :=
-    TBitmapMarkerProviderSimpleConfigStatic.Create(
+    TMarkerSimpleConfigStatic.Create(
       25,
       SetAlpha(clRed32, 150),
       SetAlpha(clBlack32, 200)
     );
-  FArrowMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
+  FArrowMarkerConfig := TMarkerSimpleConfig.Create(VMarkerProvider);
   Add(FArrowMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ArrowMarker'));
 
   VMarkerProvider :=
-    TBitmapMarkerProviderSimpleConfigStatic.Create(
+    TMarkerSimpleConfigStatic.Create(
       20,
       SetAlpha(clRed32, 200),
       SetAlpha(clBlack32, 200)
     );
-  FReachedMarkerConfig := TBitmapMarkerProviderSimpleConfig.Create(VMarkerProvider);
+  FReachedMarkerConfig := TMarkerSimpleConfig.Create(VMarkerProvider);
   Add(FReachedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ReachedPointMarker'));
 end;
 
@@ -103,12 +103,12 @@ begin
   AConfigData.WriteFloat('CrossDistInPixels', FCrossDistInPixels);
 end;
 
-function TMapLayerNavToPointMarkerConfig.GetArrowMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+function TMapLayerNavToPointMarkerConfig.GetArrowMarkerConfig: IMarkerSimpleConfig;
 begin
   Result := FArrowMarkerConfig;
 end;
 
-function TMapLayerNavToPointMarkerConfig.GetReachedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
+function TMapLayerNavToPointMarkerConfig.GetReachedMarkerConfig: IMarkerSimpleConfig;
 begin
   Result := FReachedMarkerConfig;
 end;
@@ -137,3 +137,7 @@ begin
 end;
 
 end.
+
+
+
+

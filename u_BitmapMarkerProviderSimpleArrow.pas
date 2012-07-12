@@ -55,7 +55,7 @@ function TBitmapMarkerProviderSimpleArrow.CreateMarker(
   ADirection: Double
 ): IBitmapMarkerWithDirection;
 var
-  VConfig: IBitmapMarkerProviderSimpleConfigStatic;
+  VConfig: IMarkerSimpleConfigStatic;
   VBitmap: TCustomBitmap32;
   VSize: TPoint;
   VPolygon: TPolygon32;
@@ -106,3 +106,4 @@ begin
 end;
 
 end.
+

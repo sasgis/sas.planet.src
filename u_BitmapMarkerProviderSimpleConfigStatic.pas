@@ -27,7 +27,7 @@ uses
   i_BitmapMarkerProviderSimpleConfig;
 
 type
-  TBitmapMarkerProviderSimpleConfigStatic = class(TInterfacedObject, IBitmapMarkerProviderSimpleConfigStatic)
+  TMarkerSimpleConfigStatic = class(TInterfacedObject, IMarkerSimpleConfigStatic)
   private
     FMarkerSize: Integer;
     FMarkerColor: TColor32;
@@ -46,9 +46,9 @@ type
 
 implementation
 
-{ TBitmapMarkerProviderSimpleConfigStatic }
+{ TMarkerSimpleConfigStatic }
 
-constructor TBitmapMarkerProviderSimpleConfigStatic.Create(
+constructor TMarkerSimpleConfigStatic.Create(
   AMarkerSize: Integer;
   AMarkerColor, ABorderColor: TColor32
 );
@@ -59,19 +59,21 @@ begin
   FBorderColor := ABorderColor;
 end;
 
-function TBitmapMarkerProviderSimpleConfigStatic.GetBorderColor: TColor32;
+function TMarkerSimpleConfigStatic.GetBorderColor: TColor32;
 begin
   Result := FBorderColor;
 end;
 
-function TBitmapMarkerProviderSimpleConfigStatic.GetMarkerColor: TColor32;
+function TMarkerSimpleConfigStatic.GetMarkerColor: TColor32;
 begin
   Result := FMarkerColor;
 end;
 
-function TBitmapMarkerProviderSimpleConfigStatic.GetMarkerSize: Integer;
+function TMarkerSimpleConfigStatic.GetMarkerSize: Integer;
 begin
   Result := FMarkerSize;
 end;
 
 end.
+
+

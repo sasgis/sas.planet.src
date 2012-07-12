@@ -33,13 +33,14 @@ type
     procedure SetMinMoveSpeed(AValue: Double);
     property MinMoveSpeed: Double read GetMinMoveSpeed write SetMinMoveSpeed;
 
-    function GetMovedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    property MovedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetMovedMarkerConfig;
+    function GetMovedMarkerConfig: IMarkerSimpleConfig;
+    property MovedMarkerConfig: IMarkerSimpleConfig read GetMovedMarkerConfig;
 
-    function GetStopedMarkerConfig: IBitmapMarkerProviderSimpleConfig;
-    property StopedMarkerConfig: IBitmapMarkerProviderSimpleConfig read GetStopedMarkerConfig;
+    function GetStopedMarkerConfig: IMarkerSimpleConfig;
+    property StopedMarkerConfig: IMarkerSimpleConfig read GetStopedMarkerConfig;
   end;
 
 implementation
 
 end.
+
