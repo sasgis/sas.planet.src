@@ -44,6 +44,14 @@ type
     property Direction: Double read GetDirection;
   end;
 
+  IBitmapMarkerChangeable = interface
+    ['{0FD0F8A2-CB30-42A0-8622-4E8F2A37C2D6}']
+    function GetStatic: IBitmapMarker;
+
+    function GetChangeNotifier: INotifier;
+    property ChangeNotifier: INotifier read GetChangeNotifier;
+  end;
+
   IBitmapMarkerProvider = interface
     ['{A186F046-0CFB-456A-A6C3-271046CB2CA0}']
     function GetMarker: IBitmapMarker;
