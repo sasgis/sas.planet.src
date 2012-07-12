@@ -16,7 +16,6 @@ type
   private
     procedure DrawToBitmap(
       ABitmap: TCustomBitmap32;
-      ACombineMode: TCombineMode;
       const APosition: TDoublePoint
     );
   public
@@ -41,7 +40,6 @@ end;
 
 procedure TMarkerDrawableByBitmapMarker.DrawToBitmap(
   ABitmap: TCustomBitmap32;
-  ACombineMode: TCombineMode;
   const APosition: TDoublePoint
 );
 var
@@ -62,7 +60,7 @@ begin
       FMarker.Bitmap,
       FMarker.Bitmap.BoundsRect,
       dmBlend,
-      ACombineMode
+      ABitmap.CombineMode
     );
   end;
 end;
