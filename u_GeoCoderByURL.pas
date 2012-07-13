@@ -122,7 +122,18 @@ begin
  sname := '';
  sdesc := '';
 
- if PosEx('http://g.co/', Vlink, 1) > 0then begin
+ if PosEx('http://g.co/', Vlink, 1) > 0 then begin
+  sname := 'google';
+  Vlink := AhttpData;
+  i := PosEx('ll', Vlink, 1);
+  j := PosEx(',', Vlink, i);
+  slat := Copy(Vlink, i + 3, j - (i + 3));
+  i := j;
+  j := PosEx('&', Vlink, i);
+  slon := Copy(Vlink, i + 1, j - (i + 1));
+ end;
+
+ if PosEx('http://goo.gl/maps/', Vlink, 1) > 0 then begin
   sname := 'google';
   Vlink := AhttpData;
   i := PosEx('ll', Vlink, 1);
@@ -593,6 +604,7 @@ function TGeoCoderByURL.PrepareRequest(
 begin
   Result := nil;
   if (PosEx('http://g.co/', ASearch, 1) > 0 )or
+     (PosEx('http://goo.gl/maps/', ASearch, 1) > 0 )or
      (PosEx('yandex.ru/?oid=', ASearch, 1) > 0 )or
      (PosEx('binged.it', ASearch, 1) > 0 )or
      (PosEx('osm.org', ASearch, 1) > 0 )or
