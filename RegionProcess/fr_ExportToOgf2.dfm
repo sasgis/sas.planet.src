@@ -1,7 +1,7 @@
 object frExportToOgf2: TfrExportToOgf2
   Left = 0
   Top = 0
-  Width = 486
+  Width = 535
   Height = 304
   Align = alClient
   ParentShowHint = False
@@ -12,23 +12,23 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 413
+    Width = 462
     Height = 252
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 395
+    ExplicitWidth = 378
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 413
+      Width = 462
       Height = 252
       Align = alClient
       AutoSize = True
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitWidth = 395
+      ExplicitWidth = 378
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -62,7 +62,7 @@ object frExportToOgf2: TfrExportToOgf2
         Layout = tlCenter
       end
       object lblTileRes: TLabel
-        Left = 144
+        Left = 154
         Top = 110
         Width = 103
         Height = 13
@@ -70,7 +70,7 @@ object frExportToOgf2: TfrExportToOgf2
         Layout = tlCenter
       end
       object lblJpgQulity: TLabel
-        Left = 285
+        Left = 305
         Top = 110
         Width = 90
         Height = 13
@@ -80,7 +80,7 @@ object frExportToOgf2: TfrExportToOgf2
       object cbbMap: TComboBox
         Left = 3
         Top = 19
-        Width = 410
+        Width = 459
         Height = 21
         Align = alCustom
         Style = csDropDownList
@@ -92,7 +92,7 @@ object frExportToOgf2: TfrExportToOgf2
       object cbbHyb: TComboBox
         Left = 3
         Top = 59
-        Width = 410
+        Width = 459
         Height = 21
         Align = alCustom
         Style = csDropDownList
@@ -104,7 +104,7 @@ object frExportToOgf2: TfrExportToOgf2
       object cbbImageFormat: TComboBox
         Left = 3
         Top = 129
-        Width = 135
+        Width = 145
         Height = 21
         ItemHeight = 13
         ItemIndex = 2
@@ -116,9 +116,9 @@ object frExportToOgf2: TfrExportToOgf2
           'JPEG')
       end
       object cbbTileRes: TComboBox
-        Left = 144
+        Left = 154
         Top = 129
-        Width = 135
+        Width = 145
         Height = 21
         ItemHeight = 13
         ItemIndex = 0
@@ -138,9 +138,9 @@ object frExportToOgf2: TfrExportToOgf2
         TabOrder = 4
       end
       object seJpgQuality: TSpinEdit
-        Left = 285
-        Top = 128
-        Width = 135
+        Left = 305
+        Top = 129
+        Width = 145
         Height = 22
         MaxValue = 100
         MinValue = 1
@@ -152,7 +152,7 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 486
+    Width = 535
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -177,14 +177,14 @@ object frExportToOgf2: TfrExportToOgf2
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 415
+      Width = 464
       Height = 21
       Align = alClient
       TabOrder = 0
       ExplicitWidth = 380
     end
     object btnSelectTargetFile: TButton
-      Left = 462
+      Left = 511
       Top = 3
       Width = 21
       Height = 21
@@ -196,7 +196,7 @@ object frExportToOgf2: TfrExportToOgf2
     end
   end
   object pnlZoom: TPanel
-    Left = 413
+    Left = 462
     Top = 27
     Width = 73
     Height = 252
@@ -232,13 +232,12 @@ object frExportToOgf2: TfrExportToOgf2
       ItemHeight = 13
       TabOrder = 0
       OnChange = cbbZoomChange
-      ExplicitWidth = 50
     end
   end
   object pnlBottom: TPanel
     Left = 0
     Top = 279
-    Width = 486
+    Width = 535
     Height = 25
     Align = alBottom
     BevelEdges = [beTop]
@@ -248,7 +247,7 @@ object frExportToOgf2: TfrExportToOgf2
     ExplicitWidth = 451
     object lblStat: TLabel
       Left = 3
-      Top = 3
+      Top = 1
       Width = 7
       Height = 13
       Align = alCustom
