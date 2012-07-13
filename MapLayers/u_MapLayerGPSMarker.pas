@@ -3,6 +3,7 @@ unit u_MapLayerGPSMarker;
 interface
 
 uses
+  SysUtils,
   GR32,
   GR32_Image,
   t_GeoTypes,
@@ -11,9 +12,9 @@ uses
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
+  i_MarkerDrawable,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
-  i_BitmapMarker,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -22,24 +23,19 @@ type
   private
     FConfig: IMapLayerGPSMarkerConfig;
     FGPSRecorder: IGPSRecorder;
-    FMovedMarkerProvider: IBitmapMarkerProviderChangeable;
-    FMovedMarkerProviderStatic: IBitmapMarkerProvider;
-    FStopedMarkerProvider: IBitmapMarkerProviderChangeable;
-    FStopedMarkerProviderStatic: IBitmapMarkerProvider;
+    FArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+    FStopedMarkerChangeable: IMarkerDrawableChangeable;
 
     FGpsPosChangeFlag: ISimpleFlag;
-    FStopedMarker: IBitmapMarker;
-    FMarker: IBitmapMarker;
 
-    FFixedLonLat: TDoublePoint;
+    FPositionCS: IReadWriteSync;
+    FPositionLonLat: TDoublePoint;
+    FStopped: Boolean;
+    FDirectionAngle: Double;
 
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
     procedure OnTimer;
-    procedure PrepareMarker(
-      const ASpeed, AAngle: Double;
-      AForceStopped: Boolean
-    );
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -55,8 +51,8 @@ type
       const AViewPortState: IViewPortState;
       const ATimerNoifier: INotifier;
       const AConfig: IMapLayerGPSMarkerConfig;
-      const AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
-      const AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+      const AStopedMarkerChangeable: IMarkerDrawableChangeable;
       const AGPSRecorder: IGPSRecorder
     );
   end;
@@ -64,13 +60,11 @@ type
 implementation
 
 uses
-  Types,
-  SysUtils,
-  GR32_Resamplers,
-  u_GeoFun,
-  i_GPS,
   vsagps_public_base,
   vsagps_public_position,
+  i_GPS,
+  u_GeoFun,
+  u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent;
 
@@ -84,8 +78,8 @@ constructor TMapLayerGPSMarker.Create(
   const AViewPortState: IViewPortState;
   const ATimerNoifier: INotifier;
   const AConfig: IMapLayerGPSMarkerConfig;
-  const AMovedMarkerProvider: IBitmapMarkerProviderChangeable;
-  const AStopedMarkerProvider: IBitmapMarkerProviderChangeable;
+  const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+  const AStopedMarkerChangeable: IMarkerDrawableChangeable;
   const AGPSRecorder: IGPSRecorder
 );
 begin
@@ -98,10 +92,11 @@ begin
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
-  FMovedMarkerProvider := AMovedMarkerProvider;
-  FStopedMarkerProvider := AStopedMarkerProvider;
+  FArrowMarkerChangeable := AArrowMarkerChangeable;
+  FStopedMarkerChangeable := AStopedMarkerChangeable;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
+  FPositionCS := MakeSyncRW_Var(Self, False);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
@@ -113,11 +108,11 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FMovedMarkerProvider.GetChangeNotifier
+    FArrowMarkerChangeable.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FStopedMarkerProvider.GetChangeNotifier
+    FStopedMarkerChangeable.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
@@ -132,17 +127,18 @@ end;
 
 procedure TMapLayerGPSMarker.OnConfigChange;
 begin
-  FMovedMarkerProviderStatic := FMovedMarkerProvider.GetStatic;
-  FStopedMarkerProviderStatic := FStopedMarkerProvider.GetStatic;
-  FStopedMarker := FStopedMarkerProviderStatic.GetMarker;
-  GPSReceiverReceive;
+  ViewUpdateLock;
+  try
+    SetNeedRedraw;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TMapLayerGPSMarker.OnTimer;
 var
   VGPSPosition: IGPSPosition;
   VpPos: PSingleGPSData;
-  VForceStoppedMarker: Boolean;
 begin
   if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
@@ -154,10 +150,18 @@ begin
         Hide;
       end else begin
         // ok
-        FFixedLonLat.X := VpPos^.PositionLon;
-        FFixedLonLat.Y := VpPos^.PositionLat;
-        VForceStoppedMarker := ((not VpPos^.AllowCalcStats) or NoData_Float64(VpPos^.Speed_KMH) or NoData_Float64(VpPos^.Heading));
-        PrepareMarker(VpPos^.Speed_KMH, VpPos^.Heading, VForceStoppedMarker);
+        FPositionCS.BeginWrite;
+        try
+          FPositionLonLat.X := VpPos^.PositionLon;
+          FPositionLonLat.Y := VpPos^.PositionLat;
+          FStopped := ((not VpPos^.AllowCalcStats) or NoData_Float64(VpPos^.Speed_KMH) or NoData_Float64(VpPos^.Heading));
+          if not FStopped then begin
+            FStopped := VpPos^.Speed_KMH <= FConfig.MinMoveSpeed;
+          end;
+          FDirectionAngle := VpPos^.Heading;
+        finally
+          FPositionCS.EndWrite;
+        end;
         Show;
         SetNeedRedraw;
       end;
@@ -172,54 +176,27 @@ procedure TMapLayerGPSMarker.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VMarker: IBitmapMarker;
   VFixedOnView: TDoublePoint;
-  VTargetPointFloat: TDoublePoint;
-  VTargetPoint: TPoint;
+  VPositionLonLat: TDoublePoint;
+  VStopped: Boolean;
+  VDirection: Double;
 begin
-  VMarker := FMarker;
-  if VMarker <> nil then begin
-    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-    VTargetPointFloat :=
-      DoublePoint(
-        VFixedOnView.X - VMarker.AnchorPoint.X,
-        VFixedOnView.Y - VMarker.AnchorPoint.Y
-      );
-    VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-    if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-      BlockTransfer(
-        ABuffer,
-        VTargetPoint.X, VTargetPoint.Y,
-        ABuffer.ClipRect,
-        VMarker.Bitmap,
-        VMarker.Bitmap.BoundsRect,
-        dmBlend,
-        cmBlend
-      );
-    end;
+  FPositionCS.BeginRead;
+  try
+    VPositionLonLat := FPositionLonLat;
+    VStopped := FStopped;
+    VDirection := FDirectionAngle;
+  finally
+    FPositionCS.EndRead;
   end;
-end;
-
-procedure TMapLayerGPSMarker.PrepareMarker(
-  const ASpeed, AAngle: Double;
-  AForceStopped: Boolean
-);
-var
-  VMarker: IBitmapMarker;
-  VMarkerProvider: IBitmapMarkerProvider;
-  VMarkerWithDirectionProvider: IBitmapMarkerWithDirectionProvider;
-begin
-  if (not AForceStopped) and (ASpeed > FConfig.MinMoveSpeed) then begin
-    VMarkerProvider := FMovedMarkerProviderStatic;
-    if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
-      VMarker := VMarkerWithDirectionProvider.GetMarkerWithRotation(AAngle);
+  if not PointIsEmpty(FPositionLonLat) then begin
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FPositionLonLat);
+    if VStopped then begin
+      FStopedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
     end else begin
-      VMarker := VMarkerProvider.GetMarker;
+      FArrowMarkerChangeable.GetStatic.DrawToBitmapWithDirection(ABuffer, VFixedOnView, VDirection);
     end;
-  end else begin
-    VMarker := FStopedMarker;
   end;
-  FMarker := VMarker;
 end;
 
 procedure TMapLayerGPSMarker.StartThreads;

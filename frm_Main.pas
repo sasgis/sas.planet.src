@@ -746,6 +746,7 @@ uses
   u_MarkerDrawableChangeableSimple,
   u_MarkerDrawableSimpleArrow,
   u_MarkerDrawableSimpleCross,
+  u_MarkerDrawableSimpleSquare,
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
@@ -1285,6 +1286,16 @@ begin
         )
       );
     end;
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableSimple.Create(
+        TMarkerDrawableSimpleSquare,
+        FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
+      );
+    VMarkerWithDirectionChangeable :=
+      TMarkerDrawableWithDirectionChangeableSimple.Create(
+        TMarkerDrawableSimpleArrow,
+        FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
+      );
     FLayersList.Add(
       TMapLayerGPSMarker.Create(
         GState.PerfCounterList,
@@ -1294,14 +1305,8 @@ begin
         FConfig.ViewPortState,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.GPSMarker,
-        TBitmapMarkerProviderChangeableWithConfig.Create(
-          TBitmapMarkerProviderSimpleArrow,
-          FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
-        ),
-        TBitmapMarkerProviderChangeableWithConfig.Create(
-          TBitmapMarkerProviderSimpleSquare,
-          FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
-        ),
+        VMarkerWithDirectionChangeable,
+        VMarkerChangeable,
         GState.GPSRecorder
       )
     );
