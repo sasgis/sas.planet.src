@@ -112,10 +112,14 @@ begin
   VFileName := ExtractFileName(AFullFileName);
   VFileExt := ExtractFileExt(VFileName);
 
-  try
-    VResourceProvider := AConfigProvider.GetSubItem(VFilePath);
-  except
-    Assert(False, 'Ошибка при получении пути ' + VFilePath);
+  if VFilePath = '' then begin
+    VResourceProvider := AConfigProvider;
+  end else begin
+    try
+      VResourceProvider := AConfigProvider.GetSubItem(VFilePath);
+    except
+      Assert(False, 'Ошибка при получении пути ' + VFilePath);
+    end;
   end;
 
   if VResourceProvider <> nil then begin
