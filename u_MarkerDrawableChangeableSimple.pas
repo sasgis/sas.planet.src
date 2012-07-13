@@ -34,6 +34,27 @@ type
     destructor Destroy; override;
   end;
 
+type
+  TMarkerDrawableWithDirectionChangeableSimple = class(TChangeableBase, IMarkerDrawableWithDirectionChangeable)
+  private
+    FMarkerClass: TMarkerDrawableWithDirectionSimpleAbstractClass;
+    FConfig: IMarkerSimpleConfig;
+
+    FConfigListener: IListener;
+
+    FStaticCS: IReadWriteSync;
+    FStatic: IMarkerDrawableWithDirection;
+    procedure OnConfigChange;
+  private
+    function GetStatic: IMarkerDrawableWithDirection;
+  public
+    constructor Create(
+      AMarkerClass: TMarkerDrawableWithDirectionSimpleAbstractClass;
+      const AConfig: IMarkerSimpleConfig
+    );
+    destructor Destroy; override;
+  end;
+
 implementation
 
 uses
@@ -49,6 +70,8 @@ begin
   inherited Create;
   FMarkerClass := AMarkerClass;
   FConfig := AConfig;
+
+  FStaticCS := MakeSyncRW_Var(Self, False);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigListener);
@@ -78,6 +101,57 @@ end;
 procedure TMarkerDrawableChangeableSimple.OnConfigChange;
 var
   VStatic: IMarkerDrawable;
+begin
+  VStatic := FMarkerClass.Create(FConfig.GetStatic);
+  FStaticCS.BeginWrite;
+  try
+    FStatic := VStatic;
+  finally
+    FStaticCS.EndWrite;
+  end;
+  DoChangeNotify;
+end;
+
+{ TMarkerDrawableWithDirectionChangeableSimple }
+
+constructor TMarkerDrawableWithDirectionChangeableSimple.Create(
+  AMarkerClass: TMarkerDrawableWithDirectionSimpleAbstractClass;
+  const AConfig: IMarkerSimpleConfig);
+begin
+  inherited Create;
+  FMarkerClass := AMarkerClass;
+  FConfig := AConfig;
+
+  FStaticCS := MakeSyncRW_Var(Self, False);
+
+  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
+  FConfig.ChangeNotifier.Add(FConfigListener);
+  OnConfigChange;
+end;
+
+destructor TMarkerDrawableWithDirectionChangeableSimple.Destroy;
+begin
+  if FConfig <> nil then begin
+    FConfig.ChangeNotifier.Remove(FConfigListener);
+    FConfig := nil;
+    FConfigListener := nil;
+  end;
+  inherited;
+end;
+
+function TMarkerDrawableWithDirectionChangeableSimple.GetStatic: IMarkerDrawableWithDirection;
+begin
+  FStaticCS.BeginRead;
+  try
+    Result := FStatic;
+  finally
+    FStaticCS.EndRead;
+  end;
+end;
+
+procedure TMarkerDrawableWithDirectionChangeableSimple.OnConfigChange;
+var
+  VStatic: IMarkerDrawableWithDirection;
 begin
   VStatic := FMarkerClass.Create(FConfig.GetStatic);
   FStaticCS.BeginWrite;
