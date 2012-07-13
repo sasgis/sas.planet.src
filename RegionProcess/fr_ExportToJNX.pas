@@ -18,7 +18,6 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
-  u_MapType,
   u_CommonFormAndFrameParents, Spin, ComCtrls;
 
 type
@@ -195,6 +194,7 @@ uses
   RegExprUtils,
   i_GUIDListStatic,
   u_StringListStatic,
+  u_MapType,
   u_MapTypeListStatic;
 
 {$R *.dfm}

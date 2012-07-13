@@ -34,7 +34,6 @@ uses
   StdCtrls,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
-  i_LocalCoordConverter,
   t_GeoTypes,
   i_ValueToStringConverter,
   i_LocalCoordConverterChangeable;
@@ -81,6 +80,7 @@ type
 implementation
 
 uses
+  i_LocalCoordConverter,
   u_GeoFun,
   u_GeoToStr,
   u_ResStrings;

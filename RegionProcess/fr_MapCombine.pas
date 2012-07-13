@@ -24,8 +24,7 @@ uses
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   i_BitmapLayerProvider,
-  u_CommonFormAndFrameParents,
-  t_GeoTypes;
+  u_CommonFormAndFrameParents;
 
 type
   IRegionProcessParamsFrameMapCombine = interface(IRegionProcessParamsFrameBase)
@@ -145,6 +144,7 @@ type
 implementation
 
 uses
+  t_GeoTypes,
   i_GUIDListStatic,
   i_VectorItemProjected,
   i_CoordConverter,

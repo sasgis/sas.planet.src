@@ -11,6 +11,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  Spin,
   i_LanguageManager,
   i_MapTypes,
   i_BitmapTileSaveLoad,
@@ -21,9 +22,7 @@ uses
   i_MapTypeGUIConfigList,
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
-  u_MapType,
-  u_CommonFormAndFrameParents,
-  t_GeoTypes, Spin;
+  u_CommonFormAndFrameParents;
 
 type
   IRegionProcessParamsFrameExportToOgf2 = interface(IRegionProcessParamsFrameBase)
@@ -104,11 +103,13 @@ type
 implementation
 
 uses
+  t_GeoTypes,
   i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
   u_BitmapTileVampyreSaver,
   u_BitmapLayerProviderMapWithLayer,
+  u_MapType,
   u_ResStrings;
 
 {$R *.dfm}

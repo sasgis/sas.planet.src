@@ -38,7 +38,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_GeoCoder,
-  i_LocalCoordConverter,
   u_CommonFormAndFrameParents,
   fr_LonLat;
 
@@ -98,6 +97,7 @@ uses
   ActiveX,
   i_GeoCoderList,
   i_MarksSimple,
+  i_LocalCoordConverter,
   i_NotifierOperation,
   u_NotifierOperation,
   u_GeoCodeResult,

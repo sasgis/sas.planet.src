@@ -35,7 +35,6 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  i_MapAttachmentsInfo,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
@@ -99,6 +98,7 @@ type
 implementation
 
 uses
+  i_MapAttachmentsInfo,
   i_GUIDListStatic;
 
 {$R *.dfm}

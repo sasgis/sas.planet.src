@@ -32,7 +32,6 @@ uses
   StdCtrls,
   ExtCtrls,
   i_LanguageManager,
-  i_ShortCutSingleConfig,
   i_ShortCutModalEdit,
   u_CommonFormAndFrameParents,
   u_ShortcutManager;
@@ -68,6 +67,7 @@ uses
   GR32,
   GR32_Resamplers,
   i_Bitmap32Static,
+  i_ShortCutSingleConfig,
   u_ShortCutModalEditByForm,
   u_ResStrings;
 

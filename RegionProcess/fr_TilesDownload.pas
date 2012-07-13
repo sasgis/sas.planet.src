@@ -11,7 +11,6 @@ uses
   ExtCtrls,
   StdCtrls,
   ComCtrls,
-  t_GeoTypes,
   i_MapTypes,
   i_CoordConverterFactory,
   i_LanguageManager,
@@ -19,7 +18,6 @@ uses
   i_VectorItmesFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  i_MapAttachmentsInfo,
   i_RegionProcessParamsFrame,
   u_MapType,
   u_CommonFormAndFrameParents;
@@ -116,8 +114,10 @@ type
 implementation
 
 uses
+  t_GeoTypes,
   i_GUIDListStatic,
   i_VectorItemProjected,
+  i_MapAttachmentsInfo,
   u_GeoFun,
   u_ResStrings;
 

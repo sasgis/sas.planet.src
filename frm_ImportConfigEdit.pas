@@ -32,7 +32,6 @@ uses
   ExtCtrls,
   GR32,
   u_CommonFormAndFrameParents,
-  i_MarkCategory,
   i_LanguageManager,
   i_ImportConfig,
   i_MarksDb,
@@ -68,6 +67,7 @@ implementation
 uses
   i_MarkTemplate,
   i_MarkPicture,
+  i_MarkCategory,
   u_ImportConfig;
 
 {$R *.dfm}
