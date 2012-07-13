@@ -1588,7 +1588,7 @@ begin
       )
     );
     FLayersList.Add(
-      TCenterScale.Create(
+      TLayerCenterScale.Create(
         GState.PerfCounterList,
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,

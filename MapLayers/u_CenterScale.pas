@@ -15,7 +15,7 @@ uses
   u_WindowLayerBasic;
 
 type
-  TCenterScale = class(TWindowLayerAbstract)
+  TLayerCenterScale = class(TWindowLayerAbstract)
   private
     FConfig: ICenterScaleConfig;
     FLayer: TBitmapLayer;
@@ -42,9 +42,9 @@ implementation
 uses
   u_ListenerByEvent;
 
-{ TCenterScale }
+{ TLayerCenterScale }
 
-constructor TCenterScale.Create(
+constructor TLayerCenterScale.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -74,7 +74,7 @@ begin
   );
 end;
 
-function TCenterScale.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
+function TLayerCenterScale.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 var
   VSize: TPoint;
   VViewSize: TPoint;
@@ -96,7 +96,7 @@ begin
   end;
 end;
 
-procedure TCenterScale.OnConfigChange;
+procedure TLayerCenterScale.OnConfigChange;
 var
   VVisible: Boolean;
   VBitmap: IBitmapMarker;
@@ -114,14 +114,14 @@ begin
   end;
 end;
 
-procedure TCenterScale.OnPosChange;
+procedure TLayerCenterScale.OnPosChange;
 begin
   if FLayer.Visible then begin
     FLayer.Location := GetMapLayerLocationRect(FPosition.GetStatic);
   end;
 end;
 
-procedure TCenterScale.StartThreads;
+procedure TLayerCenterScale.StartThreads;
 begin
   inherited;
   OnConfigChange;
