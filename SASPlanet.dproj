@@ -829,6 +829,7 @@
     <DCCReference Include="u_MarkCategoryFactory.pas" />
     <DCCReference Include="u_MarkCategoryFactoryConfig.pas" />
     <DCCReference Include="u_MarkerDrawableByBitmapMarker.pas" />
+    <DCCReference Include="u_MarkerDrawableCenterScale.pas" />
     <DCCReference Include="u_MarkerDrawableChangeableFaked.pas" />
     <DCCReference Include="u_MarkerDrawableChangeableSimple.pas" />
     <DCCReference Include="u_MarkerDrawableSimpleAbstract.pas" />

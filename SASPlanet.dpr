@@ -745,6 +745,7 @@ uses
   u_MarkerDrawableSimpleArrow in 'u_MarkerDrawableSimpleArrow.pas',
   u_MarkerDrawableSimpleCross in 'u_MarkerDrawableSimpleCross.pas',
   u_MarkerDrawableSimpleSquare in 'u_MarkerDrawableSimpleSquare.pas',
+  u_MarkerDrawableCenterScale in 'u_MarkerDrawableCenterScale.pas',
   u_MarkerDrawableByBitmapMarker in 'u_MarkerDrawableByBitmapMarker.pas',
   u_MarkerDrawableWithDirectionByBitmapMarker in 'u_MarkerDrawableWithDirectionByBitmapMarker.pas',
   u_MarkerDrawableChangeableFaked in 'u_MarkerDrawableChangeableFaked.pas',
