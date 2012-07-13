@@ -1,7 +1,7 @@
 object frExportToOgf2: TfrExportToOgf2
   Left = 0
   Top = 0
-  Width = 589
+  Width = 486
   Height = 304
   Align = alClient
   ParentShowHint = False
@@ -12,17 +12,16 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 533
+    Width = 413
     Height = 252
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     ExplicitWidth = 395
-    ExplicitHeight = 277
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 533
+      Width = 413
       Height = 252
       Align = alClient
       AutoSize = True
@@ -30,7 +29,6 @@ object frExportToOgf2: TfrExportToOgf2
       BorderWidth = 3
       TabOrder = 0
       ExplicitWidth = 395
-      ExplicitHeight = 277
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -58,33 +56,31 @@ object frExportToOgf2: TfrExportToOgf2
       object lblImageFormat: TLabel
         Left = 3
         Top = 110
-        Width = 83
+        Width = 88
         Height = 13
-        Caption = 'OGF2 tile format:'
+        Caption = 'OGF2 tiles format:'
         Layout = tlCenter
       end
       object lblTileRes: TLabel
-        Left = 130
+        Left = 144
         Top = 110
-        Width = 98
+        Width = 103
         Height = 13
-        Caption = 'OGF2 tile resolution:'
+        Caption = 'OGF2 tiles resolution:'
         Layout = tlCenter
       end
       object lblJpgQulity: TLabel
-        AlignWithMargins = True
-        Left = 258
+        Left = 285
         Top = 110
         Width = 90
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Quality (for JPEG):'
         Layout = tlCenter
       end
       object cbbMap: TComboBox
         Left = 3
         Top = 19
-        Width = 507
+        Width = 410
         Height = 21
         Align = alCustom
         Style = csDropDownList
@@ -92,12 +88,11 @@ object frExportToOgf2: TfrExportToOgf2
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 369
       end
       object cbbHyb: TComboBox
         Left = 3
         Top = 59
-        Width = 507
+        Width = 410
         Height = 21
         Align = alCustom
         Style = csDropDownList
@@ -105,12 +100,11 @@ object frExportToOgf2: TfrExportToOgf2
         DropDownCount = 16
         ItemHeight = 13
         TabOrder = 1
-        ExplicitWidth = 369
       end
       object cbbImageFormat: TComboBox
         Left = 3
         Top = 129
-        Width = 112
+        Width = 135
         Height = 21
         ItemHeight = 13
         ItemIndex = 2
@@ -122,9 +116,9 @@ object frExportToOgf2: TfrExportToOgf2
           'JPEG')
       end
       object cbbTileRes: TComboBox
-        Left = 130
+        Left = 144
         Top = 129
-        Width = 112
+        Width = 135
         Height = 21
         ItemHeight = 13
         ItemIndex = 0
@@ -144,9 +138,9 @@ object frExportToOgf2: TfrExportToOgf2
         TabOrder = 4
       end
       object seJpgQuality: TSpinEdit
-        Left = 258
-        Top = 129
-        Width = 112
+        Left = 285
+        Top = 128
+        Width = 135
         Height = 22
         MaxValue = 100
         MinValue = 1
@@ -158,7 +152,7 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 589
+    Width = 486
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -183,14 +177,14 @@ object frExportToOgf2: TfrExportToOgf2
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 518
+      Width = 415
       Height = 21
       Align = alClient
       TabOrder = 0
       ExplicitWidth = 380
     end
     object btnSelectTargetFile: TButton
-      Left = 565
+      Left = 462
       Top = 3
       Width = 21
       Height = 21
@@ -202,21 +196,21 @@ object frExportToOgf2: TfrExportToOgf2
     end
   end
   object pnlZoom: TPanel
-    Left = 533
+    Left = 413
     Top = 27
-    Width = 56
+    Width = 73
     Height = 252
     Align = alRight
     BevelOuter = bvNone
     BorderWidth = 3
     Constraints.MinWidth = 56
     TabOrder = 2
-    ExplicitHeight = 277
+    ExplicitLeft = 378
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 50
+      Width = 67
       Height = 13
       Margins.Left = 0
       Margins.Top = 0
@@ -231,29 +225,31 @@ object frExportToOgf2: TfrExportToOgf2
     object cbbZoom: TComboBox
       Left = 3
       Top = 19
-      Width = 50
+      Width = 67
       Height = 21
       Align = alTop
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 0
       OnChange = cbbZoomChange
+      ExplicitWidth = 50
     end
   end
   object pnlBottom: TPanel
     Left = 0
     Top = 279
-    Width = 589
+    Width = 486
     Height = 25
     Align = alBottom
     BevelEdges = [beTop]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitWidth = 451
     object lblStat: TLabel
       Left = 3
-      Top = 5
-      Width = 41
+      Top = 3
+      Width = 7
       Height = 13
       Align = alCustom
       Anchors = [akLeft, akBottom]
@@ -265,6 +261,7 @@ object frExportToOgf2: TfrExportToOgf2
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitTop = 5
     end
   end
   object dlgSaveTargetFile: TSaveDialog
