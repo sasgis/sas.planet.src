@@ -77,17 +77,17 @@ object frmCacheManager: TfrmCacheManager
             'BerkeleyDB')
         end
         object chkIgnoreTNE: TCheckBox
-          Left = 319
+          Left = 279
           Top = 81
-          Width = 122
+          Width = 130
           Height = 17
           Caption = 'Ignore *.tne'
           TabOrder = 2
         end
         object chkRemove: TCheckBox
-          Left = 447
+          Left = 415
           Top = 81
-          Width = 109
+          Width = 141
           Height = 17
           Caption = 'Remove tiles'
           TabOrder = 3
@@ -95,7 +95,7 @@ object frmCacheManager: TfrmCacheManager
         object edtDefExtention: TEdit
           Left = 175
           Top = 81
-          Width = 129
+          Width = 98
           Height = 21
           TabOrder = 4
           Text = '*.jpg'
