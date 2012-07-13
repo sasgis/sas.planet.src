@@ -58,9 +58,7 @@ uses
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
-  t_GeoTypes,
-  u_MarksSystem,
-  u_GeoTostr;
+  u_MarksSystem;
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager)
@@ -151,9 +149,11 @@ implementation
 
 uses
   gnugettext,
+  t_GeoTypes,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
+  u_GeoTostr,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,

@@ -27,7 +27,6 @@ uses
   Classes,
   TB2Item,
   TBX,
-  i_Notifier,
   i_Listener,
   i_ActiveMapsConfig;
 

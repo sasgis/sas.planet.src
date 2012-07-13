@@ -37,7 +37,6 @@ uses
   i_LogSimpleProvider,
   i_LanguageManager,
   i_ValueToStringConverter,
-  u_ResStrings,
   u_ThreadDownloadTiles;
 
 type
@@ -107,6 +106,7 @@ uses
   Graphics,
   IniFiles,
   i_ConfigDataWriteProvider,
+  u_ResStrings,
   u_ConfigDataWriteProviderByIniFile;
 
 {$R *.dfm}

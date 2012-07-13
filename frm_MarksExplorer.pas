@@ -41,9 +41,8 @@ uses
   TB2Item,
   TBX,
   TBXControls,
-  i_Notifier, i_Listener,
+  i_Listener,
   u_CommonFormAndFrameParents,
-  t_GeoTypes,
   i_LanguageManager,
   i_LocalCoordConverterChangeable,
   i_NavigationToPoint,
@@ -53,7 +52,6 @@ uses
   i_ImportFile,
   i_MarksSimple,
   i_MarkCategory,
-  i_StaticTreeItem,
   u_MarksDbGUIHelper;
 
 type
@@ -185,6 +183,8 @@ implementation
 
 uses
   t_CommonTypes,
+  t_GeoTypes,
+  i_StaticTreeItem,
   i_ImportConfig,
   i_MarkTemplate,
   i_MarksFactoryConfig,

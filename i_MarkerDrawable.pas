@@ -5,7 +5,6 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_Notifier,
   i_Changeable;
 
 type

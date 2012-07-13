@@ -33,7 +33,6 @@ uses
   i_LanguageManager,
   i_MarkCategory,
   i_MarkCategoryDB,
-  i_MarkCategoryFactory,
   u_CommonFormAndFrameParents;
 
 type
@@ -67,6 +66,7 @@ type
 implementation
 
 uses
+  i_MarkCategoryFactory,
   i_MarkCategoryFactoryConfig,
   u_ResStrings;
 

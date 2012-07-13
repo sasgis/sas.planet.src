@@ -37,16 +37,13 @@ uses
   Spin,
   GR32,
   GR32_Resamplers,
-  t_GeoTypes,
   u_CommonFormAndFrameParents,
-  u_ResStrings,
   i_LanguageManager,
   i_PathConfig,
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
-  i_MarkCategory,
   i_MarkCategoryDB,
   i_MarksDb,
   fr_MarkDescription,
@@ -133,9 +130,11 @@ implementation
 
 uses
   Math,
+  t_GeoTypes,
   i_BitmapMarker,
   i_MarkTemplate,
-  i_MarksFactoryConfig;
+  i_MarksFactoryConfig,
+  u_ResStrings;
 
 {$R *.dfm}
 

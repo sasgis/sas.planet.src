@@ -31,8 +31,7 @@ uses
   ComCtrls,
   Spin,
   u_CommonFormAndFrameParents,
-  u_MapType,
-  u_ResStrings;
+  u_MapType;
 
 type
   TfrmMapTypeEdit = class(TFormWitghLanguageManager)
@@ -108,7 +107,8 @@ uses
   t_CommonTypes,
   i_TileDownloaderState,
   u_GlobalCahceConfig,
-  u_GlobalState;
+  u_GlobalState,
+  u_ResStrings;
 
 {$R *.dfm}
 
