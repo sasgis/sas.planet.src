@@ -3,7 +3,6 @@ unit u_MapLayerNavToMark;
 interface
 
 uses
-  Types,
   GR32,
   GR32_Image,
   i_Notifier,
@@ -13,7 +12,7 @@ uses
   i_InternalPerformanceCounter,
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
-  i_BitmapMarker,
+  i_MarkerDrawable,
   i_ViewPortState,
   u_MapLayerBasic;
 
@@ -22,11 +21,8 @@ type
   private
     FConfig: IMapLayerNavToPointMarkerConfig;
     FNavToPoint: INavigationToPoint;
-    FArrowMarkerProvider: IBitmapMarkerProviderChangeable;
-    FArrowMarkerProviderStatic: IBitmapMarkerProvider;
-    FReachedMarkerProvider: IBitmapMarkerProviderChangeable;
-    FReachedMarkerProviderStatic: IBitmapMarkerProvider;
-    FReachedMarker: IBitmapMarker;
+    FArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+    FReachedMarkerChangeable: IMarkerDrawableChangeable;
 
     FMarkPoint: TDoublePoint;
     procedure OnNavToPointChange;
@@ -45,8 +41,8 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ANavToPoint: INavigationToPoint;
-      const AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
-      const AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+      const AReachedMarkerChangeable: IMarkerDrawableChangeable;
       const AConfig: IMapLayerNavToPointMarkerConfig
     );
   end;
@@ -54,11 +50,8 @@ type
 implementation
 
 uses
-  SysUtils,
   Math,
-  GR32_Resamplers,
   i_CoordConverter,
-  u_GeoFun,
   u_ListenerByEvent;
 
 { TNavToMarkLayer }
@@ -70,8 +63,8 @@ constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ANavToPoint: INavigationToPoint;
-  const AArrowMarkerProvider: IBitmapMarkerProviderChangeable;
-  const AReachedMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+      const AReachedMarkerChangeable: IMarkerDrawableChangeable;
   const AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin
@@ -83,8 +76,8 @@ begin
     AViewPortState
   );
   FNavToPoint := ANavToPoint;
-  FArrowMarkerProvider := AArrowMarkerProvider;
-  FReachedMarkerProvider := AReachedMarkerProvider;
+  FArrowMarkerChangeable := AArrowMarkerChangeable;
+  FReachedMarkerChangeable := AReachedMarkerChangeable;
   FConfig := AConfig;
 
   LinksList.Add(
@@ -93,11 +86,11 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FArrowMarkerProvider.GetChangeNotifier
+    FArrowMarkerChangeable.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FReachedMarkerProvider.GetChangeNotifier
+    FReachedMarkerChangeable.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnNavToPointChange),
@@ -109,9 +102,6 @@ procedure TNavToMarkLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FArrowMarkerProviderStatic := FArrowMarkerProvider.GetStatic;
-    FReachedMarkerProviderStatic := FReachedMarkerProvider.GetStatic;
-    FReachedMarker := FReachedMarkerProviderStatic.GetMarker;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -144,12 +134,7 @@ var
   VCrossDist: Double;
   VDistInPixel: Double;
   VAngle: Double;
-  VTargetPointFloat: TDoublePoint;
-  VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
-  VMarker: IBitmapMarker;
-  VMarkerProvider: IBitmapMarkerProvider;
-  VMarkerWithDirectionProvider: IBitmapMarkerWithDirectionProvider;
 begin
   VConverter := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
@@ -161,40 +146,18 @@ begin
   VCrossDist := FConfig.CrossDistInPixels;
   if VDistInPixel < VCrossDist then begin
     VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FMarkPoint);
-    VMarker := FReachedMarker;
+    FReachedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
   end else begin
     VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
     VDeltaNormed.Y := VDelta.Y / VDistInPixel * VCrossDist;
     VMarkMapPos.X := VScreenCenterMapPos.X + VDeltaNormed.X;
     VMarkMapPos.Y := VScreenCenterMapPos.Y + VDeltaNormed.Y;
     VFixedOnView := ALocalConverter.MapPixelFloat2LocalPixelFloat(VMarkMapPos);
-    VMarkerProvider := FArrowMarkerProviderStatic;
-    if Supports(VMarkerProvider, IBitmapMarkerWithDirectionProvider, VMarkerWithDirectionProvider) then begin
-      VAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;
-      if VDelta.Y > 0 then begin
-        VAngle := 180 - VAngle;
-      end;
-      VMarker := VMarkerWithDirectionProvider.GetMarkerWithRotation(VAngle);
-    end else begin
-      VMarker := VMarkerProvider.GetMarker;
+    VAngle := ArcSin(VDelta.X / VDistInPixel) / Pi * 180;
+    if VDelta.Y > 0 then begin
+      VAngle := 180 - VAngle;
     end;
-  end;
-  VTargetPointFloat :=
-    DoublePoint(
-      VFixedOnView.X - VMarker.AnchorPoint.X,
-      VFixedOnView.Y - VMarker.AnchorPoint.Y
-    );
-  VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-  if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-    BlockTransfer(
-      ABuffer,
-      VTargetPoint.X, VTargetPoint.Y,
-      ABuffer.ClipRect,
-      VMarker.Bitmap,
-      VMarker.Bitmap.BoundsRect,
-      dmBlend,
-      cmBlend
-    );
+    FArrowMarkerChangeable.GetStatic.DrawToBitmapWithDirection(ABuffer, VFixedOnView, VAngle);
   end;
 end;
 
@@ -202,7 +165,6 @@ procedure TNavToMarkLayer.StartThreads;
 begin
   inherited;
   OnNavToPointChange;
-  OnConfigChange;
 end;
 
 end.

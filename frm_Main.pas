@@ -743,6 +743,9 @@ uses
   u_MarkerDrawableChangeableFaked,
   u_MarkerDrawableByBitmapMarker,
   u_MarkerDrawableCenterScale,
+  u_MarkerDrawableChangeableSimple,
+  u_MarkerDrawableSimpleArrow,
+  u_MarkerDrawableSimpleCross,
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
@@ -1099,6 +1102,7 @@ var
   VZoom: Byte;
   VMarkerProvider: IBitmapMarkerProviderChangeable;
   VMarkerChangeable: IMarkerDrawableChangeable;
+  VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
   VBitmapMarker: IBitmapMarker;
 begin
@@ -1526,6 +1530,17 @@ begin
         FConfig.LayersConfig.GotoLayerConfig
       )
     );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableSimple.Create(
+        TMarkerDrawableSimpleCross,
+        FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
+      );
+    VMarkerWithDirectionChangeable :=
+      TMarkerDrawableWithDirectionChangeableSimple.Create(
+        TMarkerDrawableSimpleArrow,
+        FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
+      );
+
     FLayersList.Add(
       TNavToMarkLayer.Create(
         GState.PerfCounterList,
@@ -1534,14 +1549,8 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.NavToPoint,
-        TBitmapMarkerProviderChangeableWithConfig.Create(
-          TBitmapMarkerProviderSimpleArrow,
-          FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
-        ),
-        TBitmapMarkerProviderChangeableWithConfig.Create(
-          TBitmapMarkerProviderSimpleCross,
-          FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
-        ),
+        VMarkerWithDirectionChangeable,
+        VMarkerChangeable,
         FConfig.LayersConfig.NavToPointMarkerConfig
       )
     );
