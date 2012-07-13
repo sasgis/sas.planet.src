@@ -1343,7 +1343,9 @@ begin
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
         FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
       )
     );
     FLayersList.Add(
@@ -1379,7 +1381,9 @@ begin
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
         FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
       )
     );
     FLayersList.Add(
@@ -1403,7 +1407,9 @@ begin
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
         FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
-        FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
       )
     );
     FLayersList.Add(
@@ -1427,7 +1433,9 @@ begin
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
         FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
-        FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
       )
     );
 
@@ -1464,7 +1472,9 @@ begin
         FConfig.ViewPortState,
         GState.VectorItmesFactory,
         FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker),
+        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
       )
     );
 

@@ -658,6 +658,7 @@ uses
   u_LastSelectionLayerConfig in 'u_LastSelectionLayerConfig.pas',
   i_LastSearchResultConfig in 'i_LastSearchResultConfig.pas',
   u_LastSearchResultConfig in 'u_LastSearchResultConfig.pas',
+  u_PointsSetLayerConfig in 'u_PointsSetLayerConfig.pas',
   i_PolyLineLayerConfig in 'i_PolyLineLayerConfig.pas',
   u_PolyLineLayerConfig in 'u_PolyLineLayerConfig.pas',
   i_PolygonLayerConfig in 'i_PolygonLayerConfig.pas',

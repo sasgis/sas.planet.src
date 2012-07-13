@@ -24,7 +24,8 @@ interface
 
 uses
   GR32,
-  i_ConfigDataElement;
+  i_ConfigDataElement,
+  i_MarkerSimpleConfig;
 
 type
   ILineLayerConfig = interface(IConfigDataElement)
@@ -41,25 +42,14 @@ type
 
   IPointsSetLayerConfig = interface(IConfigDataElement)
     ['{5B334D74-C1B7-4C5D-96C2-9EA4D02698EF}']
-    function GetPointFillColor: TColor32;
-    procedure SetPointFillColor(AValue: TColor32);
-    property PointFillColor: TColor32 read GetPointFillColor write SetPointFillColor;
+    function GetFirstPointMarker: IMarkerSimpleConfig;
+    property FirstPointMarker: IMarkerSimpleConfig read GetFirstPointMarker;
 
-    function GetPointRectColor: TColor32;
-    procedure SetPointRectColor(AValue: TColor32);
-    property PointRectColor: TColor32 read GetPointRectColor write SetPointRectColor;
+    function GetActivePointMarker: IMarkerSimpleConfig;
+    property ActivePointMarker: IMarkerSimpleConfig read GetActivePointMarker;
 
-    function GetPointFirstColor: TColor32;
-    procedure SetPointFirstColor(AValue: TColor32);
-    property PointFirstColor: TColor32 read GetPointFirstColor write SetPointFirstColor;
-
-    function GetPointActiveColor: TColor32;
-    procedure SetPointActiveColor(AValue: TColor32);
-    property PointActiveColor: TColor32 read GetPointActiveColor write SetPointActiveColor;
-
-    function GetPointSize: integer;
-    procedure SetPointSize(AValue: integer);
-    property PointSize: integer read GetPointSize write SetPointSize;
+    function GetNormalPointMarker: IMarkerSimpleConfig;
+    property NormalPointMarker: IMarkerSimpleConfig read GetNormalPointMarker;
   end;
 
 implementation

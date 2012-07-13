@@ -66,12 +66,19 @@ type
 implementation
 
 uses
+  i_MarkerSimpleConfig,
+  u_MarkerSimpleConfigStatic,
+  u_PointsSetLayerConfig,
   u_ConfigProviderHelpers,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TSelectionPolylineLayerConfig }
 
 constructor TSelectionPolylineLayerConfig.Create;
+var
+  VFirstPointMarkerDefault: IMarkerSimpleConfigStatic;
+  VActivePointMarkerDefault: IMarkerSimpleConfigStatic;
+  VNormalPointMarkerDefault: IMarkerSimpleConfigStatic;
 begin
   inherited Create;
   FLineConfig := TLineLayerConfig.Create;
@@ -88,7 +95,33 @@ begin
     TConfigSaveLoadStrategyBasicProviderSubItem.Create('Shadow')
   );
 
-  FPointsConfig := TPointsSetLayerConfig.Create;
+  VFirstPointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      8,
+      SetAlpha(ClGreen32, 255),
+      SetAlpha(ClRed32, 150)
+    );
+
+  VActivePointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      8,
+      SetAlpha(ClRed32, 255),
+      SetAlpha(ClRed32, 150)
+    );
+
+  VNormalPointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      8,
+      SetAlpha(clYellow32, 150),
+      SetAlpha(ClRed32, 150)
+    );
+
+  FPointsConfig :=
+    TPointsSetLayerConfig.Create(
+      VFirstPointMarkerDefault,
+      VActivePointMarkerDefault,
+      VNormalPointMarkerDefault
+    );
   Add(
     FPointsConfig,
     TConfigSaveLoadStrategyBasicProviderSubItem.Create('Line')

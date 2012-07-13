@@ -46,13 +46,20 @@ type
 implementation
 
 uses
+  i_MarkerSimpleConfig,
   u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_PointsSetLayerConfig,
   u_PolyLineLayerConfig,
+  u_MarkerSimpleConfigStatic,
   u_CalcLineLayerCaptionsConfig;
 
 { TCalcLineLayerConfig }
 
 constructor TCalcLineLayerConfig.Create;
+var
+  VFirstPointMarkerDefault: IMarkerSimpleConfigStatic;
+  VActivePointMarkerDefault: IMarkerSimpleConfigStatic;
+  VNormalPointMarkerDefault: IMarkerSimpleConfigStatic;
 begin
   inherited Create;
 
@@ -61,12 +68,33 @@ begin
   FLineConfig.LineWidth := 3;
   Add(FLineConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-  FPointsConfig := TPointsSetLayerConfig.Create;
-  FPointsConfig.PointFillColor := SetAlpha(ClWhite32, 150);
-  FPointsConfig.PointRectColor := SetAlpha(ClRed32, 150);
-  FPointsConfig.PointFirstColor := SetAlpha(ClGreen32, 255);
-  FPointsConfig.PointActiveColor := SetAlpha(ClRed32, 255);
-  FPointsConfig.PointSize := 6;
+  VFirstPointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      6,
+      SetAlpha(ClGreen32, 255),
+      SetAlpha(ClRed32, 150)
+    );
+
+  VActivePointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      6,
+      SetAlpha(ClRed32, 255),
+      SetAlpha(ClRed32, 150)
+    );
+
+  VNormalPointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      6,
+      SetAlpha(ClWhite32, 150),
+      SetAlpha(ClRed32, 150)
+    );
+
+  FPointsConfig :=
+    TPointsSetLayerConfig.Create(
+      VFirstPointMarkerDefault,
+      VActivePointMarkerDefault,
+      VNormalPointMarkerDefault
+    );
   Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FCaptionConfig := TCalcLineLayerCaptionsConfig.Create;

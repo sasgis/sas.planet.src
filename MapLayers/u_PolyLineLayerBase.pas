@@ -14,6 +14,7 @@ uses
   i_InternalPerformanceCounter,
   i_LineOnMapEdit,
   i_ProjectionInfo,
+  i_MarkerDrawable,
   i_DoublePointsAggregator,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
@@ -168,26 +169,14 @@ type
 
   TPointsSetLayerBase = class(TMapLayerBasicNoBitmap)
   private
-    FConfig: IPointsSetLayerConfig;
-
-    FPointFillColor: TColor32;
-    FPointRectColor: TColor32;
-    FPointFirstColor: TColor32;
-    FPointActiveColor: TColor32;
-    FPointSize: integer;
+    FFirstPointMarker: IMarkerDrawableChangeable;
+    FActivePointMarker: IMarkerDrawableChangeable;
+    FNormalPointMarker: IMarkerDrawableChangeable;
 
     FNeedUpdatePoints: Boolean;
     FProjection: IProjectionInfo;
     FProjectedPoints: IDoublePointsAggregator;
     FActivePointIndex: Integer;
-    procedure DrawPoint(
-      ABuffer: TBitmap32;
-      const ABitmapSize: TPoint;
-      const APosOnBitmap: TDoublePoint;
-      const ASize: Integer;
-      const AFillColor: TColor32;
-      const ARectColor: TColor32
-    );
     procedure OnConfigChange;
   protected
     procedure ChangedSource;
@@ -196,7 +185,6 @@ type
       out AProjectedPoints: IDoublePointsAggregator;
       out AActivePointIndex: Integer
     ); virtual; abstract;
-    procedure DoConfigChange; virtual;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -211,7 +199,9 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
-      const AConfig: IPointsSetLayerConfig
+      const AFirstPointMarker: IMarkerDrawableChangeable;
+      const AActivePointMarker: IMarkerDrawableChangeable;
+      const ANormalPointMarker: IMarkerDrawableChangeable
     );
   end;
 
@@ -235,7 +225,9 @@ type
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
-      const AConfig: IPointsSetLayerConfig
+      const AFirstPointMarker: IMarkerDrawableChangeable;
+      const AActivePointMarker: IMarkerDrawableChangeable;
+      const ANormalPointMarker: IMarkerDrawableChangeable
     );
   end;
 
@@ -259,13 +251,16 @@ type
       const AViewPortState: IViewPortState;
       const AFactory: IVectorItmesFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
-      const AConfig: IPointsSetLayerConfig
+      const AFirstPointMarker: IMarkerDrawableChangeable;
+      const AActivePointMarker: IMarkerDrawableChangeable;
+      const ANormalPointMarker: IMarkerDrawableChangeable
     );
   end;
 
 implementation
 
 uses
+  i_Listener,
   i_CoordConverter,
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
@@ -800,8 +795,12 @@ constructor TPointsSetLayerBase.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
-  const AConfig: IPointsSetLayerConfig
+  const AFirstPointMarker: IMarkerDrawableChangeable;
+  const AActivePointMarker: IMarkerDrawableChangeable;
+  const ANormalPointMarker: IMarkerDrawableChangeable
 );
+var
+  VListener: IListener;
 begin
   inherited Create(
     APerfList,
@@ -810,68 +809,30 @@ begin
     AParentMap,
     AViewPortState
   );
-  FConfig := AConfig;
+  FFirstPointMarker := AFirstPointMarker;
+  FActivePointMarker := AActivePointMarker;
+  FNormalPointMarker := ANormalPointMarker;
 
+  VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    VListener,
+    FFirstPointMarker.GetChangeNotifier
   );
-end;
-
-procedure TPointsSetLayerBase.DoConfigChange;
-begin
-  inherited;
-  FPointFillColor := FConfig.PointFillColor;
-  FPointRectColor := FConfig.PointRectColor;
-  FPointFirstColor := FConfig.PointFirstColor;
-  FPointActiveColor := FConfig.PointActiveColor;
-  FPointSize := FConfig.PointSize;
-end;
-
-procedure TPointsSetLayerBase.DrawPoint(
-  ABuffer: TBitmap32;
-  const ABitmapSize: TPoint;
-  const APosOnBitmap: TDoublePoint;
-  const ASize: Integer;
-  const AFillColor, ARectColor: TColor32
-);
-var
-  VHalfSize: Double;
-  VRect: TRect;
-begin
-  if (APosOnBitmap.x > 0) and
-    (APosOnBitmap.y > 0) and
-    (APosOnBitmap.x < ABitmapSize.X) and
-    (APosOnBitmap.y < ABitmapSize.Y) then begin
-    VHalfSize := ASize / 2;
-    VRect.TopLeft :=
-      PointFromDoublePoint(
-        DoublePoint(APosOnBitmap.X - VHalfSize, APosOnBitmap.Y - VHalfSize),
-        prToTopLeft
-      );
-    VRect.Right := VRect.Left + ASize;
-    VRect.Bottom := VRect.Top + ASize;
-    ABuffer.FillRectTS(VRect, ARectColor);
-    if AFillColor <> ARectColor then begin
-      Inc(VRect.Left);
-      Inc(VRect.Top);
-      Dec(VRect.Right);
-      Dec(VRect.Bottom);
-      ABuffer.FillRectS(VRect, AFillColor);
-    end;
-  end;
+  LinksList.Add(
+    VListener,
+    FActivePointMarker.GetChangeNotifier
+  );
+  LinksList.Add(
+    VListener,
+    FNormalPointMarker.GetChangeNotifier
+  );
 end;
 
 procedure TPointsSetLayerBase.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FConfig.LockRead;
-    try
-      DoConfigChange;
-    finally
-      FConfig.UnlockRead;
-    end;
+    SetNeedRedraw
   finally
     ViewUpdateUnlock;
   end;
@@ -891,8 +852,14 @@ var
   VPosOnMap: TDoublePoint;
   VPosOnBitmap: TDoublePoint;
   i: Integer;
+  VFirstPointMarker: IMarkerDrawable;
+  VActivePointMarker: IMarkerDrawable;
+  VNormalPointMarker: IMarkerDrawable;
 begin
   inherited;
+  VFirstPointMarker := FFirstPointMarker.GetStatic;
+  VActivePointMarker := FActivePointMarker.GetStatic;
+  VNormalPointMarker := FNormalPointMarker.GetStatic;
 
   VProjection := FProjection;
   VPoints := FProjectedPoints;
@@ -927,17 +894,17 @@ begin
     VPosOnMap := VPoints.Points[0];
     VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
     if VActiveIndex = 0 then begin
-      DrawPoint(ABuffer, VBitmapSize, VPosOnBitmap, FPointSize, FPointActiveColor, FPointFirstColor);
+      VActivePointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
     end else begin
-      DrawPoint(ABuffer, VBitmapSize, VPosOnBitmap, FPointSize, FPointFirstColor, FPointFirstColor);
+      VFirstPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
     end;
     for i := 1 to VPoints.Count - 1 do begin
       VPosOnMap := VPoints.Points[i];
       VPosOnBitmap := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPosOnMap);
       if VActiveIndex = i then begin
-        DrawPoint(ABuffer, VBitmapSize, VPosOnBitmap, FPointSize, FPointActiveColor, FPointRectColor);
+        VActivePointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
       end else begin
-        DrawPoint(ABuffer, VBitmapSize, VPosOnBitmap, FPointSize, FPointFillColor, FPointRectColor);
+        VNormalPointMarker.DrawToBitmap(ABuffer, VPosOnBitmap);
       end;
     end;
   end;
@@ -959,7 +926,9 @@ constructor TPathEditPointsSetLayer.Create(
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
-  const AConfig: IPointsSetLayerConfig
+  const AFirstPointMarker: IMarkerDrawableChangeable;
+  const AActivePointMarker: IMarkerDrawableChangeable;
+  const ANormalPointMarker: IMarkerDrawableChangeable
 );
 begin
   inherited Create(
@@ -969,7 +938,9 @@ begin
     AParentMap,
     AViewPortState,
     AFactory,
-    AConfig
+    AFirstPointMarker,
+    AActivePointMarker,
+    ANormalPointMarker
   );
   FLineOnMapEdit := ALineOnMapEdit;
 
@@ -1061,11 +1032,13 @@ constructor TPolygonEditPointsSetLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
- AParentMap: TImage32;
+  AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AFactory: IVectorItmesFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
-  const AConfig: IPointsSetLayerConfig
+  const AFirstPointMarker: IMarkerDrawableChangeable;
+  const AActivePointMarker: IMarkerDrawableChangeable;
+  const ANormalPointMarker: IMarkerDrawableChangeable
 );
 begin
   inherited Create(
@@ -1075,7 +1048,9 @@ begin
     AParentMap,
     AViewPortState,
     AFactory,
-    AConfig
+    AFirstPointMarker,
+    AActivePointMarker,
+    ANormalPointMarker
   );
   FLineOnMapEdit := ALineOnMapEdit;
 
