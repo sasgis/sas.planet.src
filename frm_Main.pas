@@ -1507,15 +1507,6 @@ begin
         )
       );
     FLayersList.Add(FLayerSearchResults);
-    VMarkerProvider := TBitmapMarkerProviderChangeableFaked.Create(
-      TBitmapMarkerProviderStaticFromDataProvider.Create(
-        GState.ResourceProvider,
-        GState.ContentTypeManager,
-        'ICONIII.png',
-        DoublePoint(7, 6)
-      )
-    );
-
     VBitmap :=
       ReadBitmapByFileRef(
         GState.ResourceProvider,
