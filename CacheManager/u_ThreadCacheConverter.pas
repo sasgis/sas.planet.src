@@ -255,7 +255,9 @@ begin
 
       if Result then begin
         FProgressInfo.TilesProcessed := FProgressInfo.TilesProcessed + 1;
-        FProgressInfo.TilesSize := FProgressInfo.TilesSize + ATileBinaryData.Size;
+        if Assigned(ATileBinaryData) then begin
+          FProgressInfo.TilesSize := FProgressInfo.TilesSize + ATileBinaryData.Size;
+        end;
         FProgressInfo.LastTileName := ATileNameInCache;
       end;
     end;
