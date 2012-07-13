@@ -815,6 +815,11 @@ begin
     Result.Bottom := VViewSize.Y - FConfig.BottomMargin;
     Result.Left := Result.Right - VSize.X;
     Result.Top := Result.Bottom - VSize.Y;
+  end else begin
+    Result.Left := 0;
+    Result.Bottom := 0;
+    Result.Right := 0;
+    Result.Top := 0;
   end;
 end;
 

@@ -17,6 +17,7 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   GR32,
   t_GeoTypes,

@@ -56,7 +56,7 @@ type
     FMainMapChangeListener: IListener;
     function _GetActiveCoordConverter: ICoordConverter;
     function CreateVisibleCoordConverter(
-      AActiveCoordConverter: ICoordConverter;
+      const AActiveCoordConverter: ICoordConverter;
       AViewSize: TPoint;
       AVisibleMove: TDoublePoint;
       AMapScale: Double;
@@ -387,7 +387,7 @@ begin
 end;
 
 function TMapViewPortState.CreateVisibleCoordConverter(
-  AActiveCoordConverter: ICoordConverter;
+  const AActiveCoordConverter: ICoordConverter;
   AViewSize: TPoint;
   AVisibleMove: TDoublePoint;
   AMapScale: Double;

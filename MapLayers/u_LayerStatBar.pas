@@ -140,6 +140,11 @@ begin
     Result.Bottom := ANewVisualCoordConverter.GetLocalRectSize.Y;
     Result.Right := Result.Left + Layer.Bitmap.Width;
     Result.Top := Result.Bottom - Layer.Bitmap.Height;
+  end else begin
+    Result.Left := 0;
+    Result.Bottom := 0;
+    Result.Right := 0;
+    Result.Top := 0;
   end;
 end;
 

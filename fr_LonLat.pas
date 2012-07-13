@@ -66,7 +66,7 @@ type
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
-    function Edit2Digit(const Atext:string; lat:boolean; var res:Double): boolean;
+    function Edit2Digit(const Atext:string; lat:boolean; out res: Double): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -118,7 +118,7 @@ begin
   FTileSelectStyle:=ATileSelectStyle;
 end;
 
-function TfrLonLat.Edit2Digit(const Atext: string; lat: boolean; var res: Double): boolean;
+function TfrLonLat.Edit2Digit(const Atext: string; lat: boolean; out res: Double): boolean;
 var i,delitel:integer;
     gms:double;
     VText:string;
@@ -193,6 +193,7 @@ var
   XYPoint: TDoublePoint;
   VZoom: Byte;
 begin
+  Result := CEmptyDoublePoint;
   case cbbCoordType.ItemIndex of
    0: begin
         if not(Edit2Digit(edtLat.Text,true,Result.y))or

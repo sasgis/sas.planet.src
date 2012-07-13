@@ -194,6 +194,7 @@ uses
   Types,
   GR32,
   gnugettext,
+  c_ZeroGUID,
   i_BinaryData,
   u_Bitmap32Static,
   i_BitmapTileSaveLoad,
@@ -797,11 +798,15 @@ function TZmpInfo.LoadGUID(const AConfig: IConfigDataProvider): TGUID;
 var
   VGUIDStr: String;
 begin
+  Result := CGUID_Zero;
   VGUIDStr := AConfig.ReadString('GUID', '');
   if Length(VGUIDStr) > 0 then begin
     try
       Result := StringToGUID(VGUIDStr);
     except
+      raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
+    end;
+    if IsEqualGUID(Result, CGUID_Zero) then begin
       raise EZmpGUIDError.CreateResFmt(@SAS_ERR_MapGUIDBad, [VGUIDStr]);
     end;
   end else begin
