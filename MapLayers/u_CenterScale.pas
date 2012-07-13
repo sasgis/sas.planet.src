@@ -62,6 +62,7 @@ begin
   FPosition := APosition;
 
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
+  FLayer.MouseEvents := false;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
