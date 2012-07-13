@@ -697,6 +697,7 @@ uses
   i_GUIDListStatic,
   i_ActiveMapsConfig,
   i_BitmapMarker,
+  i_MarkerDrawable,
   i_LanguageManager,
   i_VectorDataItemSimple,
   i_EnumDoublePoint,
@@ -739,6 +740,8 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_FullMapMouseCursorLayer,
+  u_MarkerDrawableChangeableFaked,
+  u_MarkerDrawableByBitmapMarker,
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
@@ -751,6 +754,8 @@ uses
   u_MouseState,
   u_UITileDownloadList,
   u_MapTypeConfigModalEditByForm,
+  u_ConfigProviderHelpers,
+  u_BitmapMarker,
   i_ImportConfig,
   u_EnumDoublePointLine2Poly,
   u_BitmapMarkerProviderSimpleBase,
@@ -1092,6 +1097,9 @@ var
   VDegScale: Double;
   VZoom: Byte;
   VMarkerProvider: IBitmapMarkerProviderChangeable;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+  VBitmap: IBitmap32Static;
+  VBitmapMarker: IBitmapMarker;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1487,6 +1495,23 @@ begin
         DoublePoint(7, 6)
       )
     );
+
+    VBitmap :=
+      ReadBitmapByFileRef(
+        GState.ResourceProvider,
+        'ICONIII.png',
+        GState.ContentTypeManager,
+        nil
+      );
+    VBitmapMarker :=
+      TBitmapMarker.Create(
+        VBitmap,
+        DoublePoint(7, 6)
+      );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+      );
     FLayersList.Add(
       TGotoLayer.Create(
         GState.PerfCounterList,
@@ -1495,7 +1520,7 @@ begin
         map,
         GState.GUISyncronizedTimerNotifier,
         FConfig.ViewPortState,
-        VMarkerProvider,
+        VMarkerChangeable,
         FMapGoto,
         FConfig.LayersConfig.GotoLayerConfig
       )

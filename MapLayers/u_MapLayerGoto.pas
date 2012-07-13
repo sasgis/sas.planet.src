@@ -10,6 +10,7 @@ uses
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_BitmapMarker,
+  i_MarkerDrawable,
   i_ViewPortState,
   i_MapViewGoto,
   i_LocalCoordConverter,
@@ -21,11 +22,7 @@ type
   private
     FConfig: IGotoLayerConfig;
     FMapGoto: IMapViewGoto;
-
-
-    FMarkerProvider: IBitmapMarkerProviderChangeable;
-    FMarkerProviderStatic: IBitmapMarkerProvider;
-    FMarker: IBitmapMarker;
+    FMarkerChangeable: IMarkerDrawableChangeable;
 
     procedure OnTimer;
     procedure OnConfigChange;
@@ -44,7 +41,7 @@ type
       AParentMap: TImage32;
       const ATimerNoifier: INotifier;
       const AViewPortState: IViewPortState;
-      const AMarkerProvider: IBitmapMarkerProviderChangeable;
+      const AMarkerChangeable: IMarkerDrawableChangeable;
       const AMapGoto: IMapViewGoto;
       const AConfig: IGotoLayerConfig
     );
@@ -71,7 +68,7 @@ constructor TGotoLayer.Create(
   AParentMap: TImage32;
   const ATimerNoifier: INotifier;
   const AViewPortState: IViewPortState;
-  const AMarkerProvider: IBitmapMarkerProviderChangeable;
+  const AMarkerChangeable: IMarkerDrawableChangeable;
   const AMapGoto: IMapViewGoto;
   const AConfig: IGotoLayerConfig
 );
@@ -86,7 +83,7 @@ begin
     AViewPortState
   );
   FConfig := AConfig;
-  FMarkerProvider := AMarkerProvider;
+  FMarkerChangeable := AMarkerChangeable;
   FMapGoto := AMapGoto;
 
   VListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
@@ -97,7 +94,7 @@ begin
 
   LinksList.Add(
     VListener,
-    FMarkerProvider.GetChangeNotifier
+    FMarkerChangeable.ChangeNotifier
   );
 
   LinksList.Add(
@@ -141,12 +138,7 @@ begin
 end;
 
 procedure TGotoLayer.OnConfigChange;
-var
-  VMarker: IBitmapMarker;
 begin
-  FMarkerProviderStatic := FMarkerProvider.GetStatic;
-  VMarker := FMarkerProviderStatic.GetMarker;
-  FMarker := VMarker;
   ViewUpdateLock;
   try
     SetVisible(GetIsVisible);
@@ -172,11 +164,9 @@ procedure TGotoLayer.PaintLayer(
 var
   VConverter: ICoordConverter;
   VGotoPos: IGotoPosStatic;
-  VMarker: IBitmapMarker;
+  VMarker: IMarkerDrawable;
   VGotoLonLat: TDoublePoint;
   VFixedOnView: TDoublePoint;
-  VTargetPoint: TPoint;
-  VTargetPointFloat: TDoublePoint;
 begin
   inherited;
   VGotoPos := FMapGoto.LastGotoPos;
@@ -188,25 +178,9 @@ begin
   VGotoLonLat := VGotoPos.LonLat;
   if not PointIsEmpty(VGotoLonLat) then begin
     VConverter := ALocalConverter.GetGeoConverter;
-    VMarker := FMarker;
+    VMarker := FMarkerChangeable.GetStatic;
     VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VGotoLonLat);
-    VTargetPointFloat :=
-      DoublePoint(
-        VFixedOnView.X - VMarker.AnchorPoint.X,
-        VFixedOnView.Y - VMarker.AnchorPoint.Y
-      );
-    VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-    if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-      BlockTransfer(
-        ABuffer,
-        VTargetPoint.X, VTargetPoint.Y,
-        ABuffer.ClipRect,
-        VMarker.Bitmap,
-        VMarker.Bitmap.BoundsRect,
-        dmBlend,
-        cmBlend
-      );
-    end;
+    VMarker.DrawToBitmap(ABuffer, VFixedOnView);
   end;
 end;
 
