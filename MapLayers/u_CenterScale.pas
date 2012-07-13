@@ -6,8 +6,9 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
+  t_GeoTypes,
   i_NotifierOperation,
-  i_BitmapMarker,
+  i_MarkerDrawable,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
@@ -18,12 +19,19 @@ type
   TLayerCenterScale = class(TWindowLayerAbstract)
   private
     FConfig: ICenterScaleConfig;
-    FLayer: TBitmapLayer;
+    FMarkerChangeable: IMarkerDrawableChangeable;
     FPosition: ILocalCoordConverterChangeable;
+
+    FLayer: TCustomLayer;
+
+    FFixedPoint: TDoublePoint;
 
     procedure OnConfigChange;
     procedure OnPosChange;
-    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
+    procedure OnPaintLayer(
+      Sender: TObject;
+      Buffer: TBitmap32
+    );
   protected
     procedure StartThreads; override;
   public
@@ -33,6 +41,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
+      const AMarkerChangeable: IMarkerDrawableChangeable;
       const AConfig: ICenterScaleConfig
     );
   end;
@@ -40,7 +49,8 @@ type
 implementation
 
 uses
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_GeoFun;
 
 { TLayerCenterScale }
 
@@ -50,6 +60,7 @@ constructor TLayerCenterScale.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
+  const AMarkerChangeable: IMarkerDrawableChangeable;
   const AConfig: ICenterScaleConfig
 );
 begin
@@ -60,6 +71,7 @@ begin
   );
   FConfig := AConfig;
   FPosition := APosition;
+  FMarkerChangeable := AMarkerChangeable;
 
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   FLayer.MouseEvents := false;
@@ -74,56 +86,46 @@ begin
   );
 end;
 
-function TLayerCenterScale.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
-var
-  VSize: TPoint;
-  VViewSize: TPoint;
-  VBitmap: IBitmapMarker;
-begin
-  VBitmap := FConfig.BitmapProvider.GetStatic.GetMarker;
-  if (VBitmap <> nil) and (ANewVisualCoordConverter <> nil) and FLayer.Visible then begin
-    VSize := VBitmap.BitmapSize;
-    VViewSize := ANewVisualCoordConverter.GetLocalRectSize;
-    Result.Left := VViewSize.X / 2 - VBitmap.AnchorPoint.X;
-    Result.Top := VViewSize.Y / 2 - VBitmap.AnchorPoint.Y;
-    Result.Right := Result.Left + VSize.X;
-    Result.Bottom := Result.Top + VSize.Y;
-  end else begin
-    Result.Left := 0;
-    Result.Top := 0;
-    Result.Right := 0;
-    Result.Bottom := 0;
-  end;
-end;
-
 procedure TLayerCenterScale.OnConfigChange;
 var
   VVisible: Boolean;
-  VBitmap: IBitmapMarker;
 begin
   VVisible := FConfig.Visible;
-  VBitmap := FConfig.BitmapProvider.GetStatic.GetMarker;
-  if VVisible and (VBitmap <> nil) then begin
-    FLayer.Bitmap.Assign(VBitmap.Bitmap);
-    FLayer.Bitmap.DrawMode := dmBlend;
-    FLayer.Location := GetMapLayerLocationRect(FPosition.GetStatic);
+  if VVisible then begin
     FLayer.Visible := True;
+    FLayer.Changed;
   end else begin
     FLayer.Visible := False;
-    FLayer.Bitmap.Delete;
+  end;
+end;
+
+procedure TLayerCenterScale.OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+var
+  VMarker: IMarkerDrawable;
+begin
+  VMarker := FMarkerChangeable.GetStatic;
+  if VMarker <> nil then begin
+    VMarker.DrawToBitmap(Buffer, FFixedPoint);
   end;
 end;
 
 procedure TLayerCenterScale.OnPosChange;
+var
+  VNewFixedPoint: TDoublePoint;
 begin
   if FLayer.Visible then begin
-    FLayer.Location := GetMapLayerLocationRect(FPosition.GetStatic);
+    VNewFixedPoint := RectCenter(FPosition.GetStatic.GetLocalRect);
+    if not DoublePointsEqual(VNewFixedPoint, FFixedPoint) then begin
+      FFixedPoint := VNewFixedPoint;
+      FLayer.Changed;
+    end;
   end;
 end;
 
 procedure TLayerCenterScale.StartThreads;
 begin
   inherited;
+  FLayer.OnPaint := Self.OnPaintLayer;
   OnConfigChange;
 end;
 

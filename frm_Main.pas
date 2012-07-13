@@ -742,6 +742,7 @@ uses
   u_FullMapMouseCursorLayer,
   u_MarkerDrawableChangeableFaked,
   u_MarkerDrawableByBitmapMarker,
+  u_MarkerDrawableCenterScale,
   u_PolyLineLayerBase,
   u_LineOnMapEdit,
   u_PointOnMapEdit,
@@ -1587,6 +1588,10 @@ begin
         FConfig.LayersConfig.FullMapMouseCursorLayerConfig
       )
     );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableCenterScale.Create
+      );
     FLayersList.Add(
       TLayerCenterScale.Create(
         GState.PerfCounterList,
@@ -1594,6 +1599,7 @@ begin
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState.Position,
+        VMarkerChangeable,
         FConfig.LayersConfig.CenterScaleConfig
       )
     );
