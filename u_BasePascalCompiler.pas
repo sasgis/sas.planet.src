@@ -28,9 +28,7 @@ uses
   uPSR_dll,
   uPSRuntime,
   uPSCompiler,
-  uPSUtils,
-  i_CoordConverter,
-  u_ResStrings;
+  uPSUtils;
 
 type
   EPascalScriptEmptyScript = class(Exception);
@@ -92,6 +90,8 @@ uses
   RegExprUtils,
   i_SimpleHttpDownloader,
   i_ProjConverter,
+  i_CoordConverter,
+  u_ResStrings,
   u_GeoToStr,
   u_TileRequestBuilderHelpers;
 

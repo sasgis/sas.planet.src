@@ -34,16 +34,12 @@ uses
   EmbeddedWB,
   SHDocVw_EWB,
   GR32_Image,
-  i_Notifier,
   i_Listener,
   u_CommonFormAndFrameParents,
   i_WindowPositionConfig,
   i_ContentTypeManager,
   i_LanguageManager,
   i_ProxySettings;
-
-const
-  WM_PARSER_THREAD_FINISHED = WM_USER + $200;
 
 type
   TfrmIntrnalBrowser = class(TFormWitghLanguageManager)

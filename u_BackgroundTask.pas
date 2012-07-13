@@ -28,7 +28,6 @@ uses
   i_NotifierOperation,
   i_ThreadConfig,
   i_BackgroundTask,
-  u_NotifierOperation,
   u_InterfacedThread;
 
 type
@@ -68,6 +67,7 @@ type
 implementation
 
 uses
+  u_NotifierOperation,
   u_ListenerByEvent;
 
 { TBackgroundTask }
