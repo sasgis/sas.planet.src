@@ -381,7 +381,8 @@ begin
       FLocalConverterFactory,
       VMapCalibrations,
       VFileName,
-      VSplitCount
+      VSplitCount,
+      'TThreadMapCombineBMP'
     );
   end else if (VFileExt = '.KMZ') then begin
     VMapSize := VTargetConverter.GetLocalRectSize;

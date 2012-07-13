@@ -189,7 +189,6 @@ implementation
 uses
   SysUtils,
   Types,
-  
   i_DownloadResult,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
@@ -200,6 +199,7 @@ uses
   u_TileIteratorByPolygon,
   u_DoublePointsAggregator,
   u_ListenerByEvent,
+  u_ReadableThreadNames,
   u_ResStrings;
 
 constructor TThreadDownloadTiles.CreateInternal(
@@ -571,6 +571,7 @@ var
   VOperationID: Integer;
   VRequest: ITileRequest;
 begin
+  SetCurrentThreadName(Self.ClassName);
   Randomize;
   FStartTime := Now;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);

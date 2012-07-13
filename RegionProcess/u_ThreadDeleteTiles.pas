@@ -86,7 +86,8 @@ begin
     ACancelNotifier,
     AOperationID,
     AProgressInfo,
-    APolyLL
+    APolyLL,
+    Self.ClassName
   );
   FPolyProjected := AProjectedPolygon;
   FZoom := Azoom;

@@ -75,7 +75,8 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr
+    Azoomarr,
+    Self.ClassName
   );
   FTargetFile := ATargetFile;
   FProjectionFactory := AProjectionFactory;

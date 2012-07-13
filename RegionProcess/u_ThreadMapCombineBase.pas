@@ -50,7 +50,8 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
-      const ASplitCount: TPoint
+      const ASplitCount: TPoint;
+      const ADebugThreadName: string = ''
     );
   end;
 
@@ -72,14 +73,16 @@ constructor TThreadMapCombineBase.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
-  const ASplitCount: TPoint
+  const ASplitCount: TPoint;
+  const ADebugThreadName: string = ''
 );
 begin
   inherited Create(
     ACancelNotifier,
     AOperationID,
     AProgressInfo,
-    APolygon
+    APolygon,
+    ADebugThreadName
   );
   FTargetConverter := ATargetConverter;
   FImageProvider := AImageProvider;

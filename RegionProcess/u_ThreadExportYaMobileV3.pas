@@ -118,7 +118,8 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr
+    Azoomarr,
+    Self.ClassName
   );
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;

@@ -107,7 +107,8 @@ begin
     ACancelNotifier,
     AOperationID,
     AProgressInfo,
-    APolygon
+    APolygon,
+    Self.ClassName
   );
   FImageProvider := AImageProvider;
   FZoom := AZoom;

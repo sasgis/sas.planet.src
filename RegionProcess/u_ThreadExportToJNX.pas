@@ -104,7 +104,8 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr
+    Azoomarr,
+    Self.ClassName
   );
   FTargetFile := ATargetFile;
   FCoordConverterFactory := ACoordConverterFactory;

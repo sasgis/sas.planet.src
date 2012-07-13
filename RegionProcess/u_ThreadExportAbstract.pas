@@ -23,7 +23,8 @@ type
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
-      const AZooms: TByteDynArray
+      const AZooms: TByteDynArray;
+      const ADebigThreadName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -38,7 +39,8 @@ constructor TThreadExportAbstract.Create(
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
-  const AZooms: TByteDynArray
+  const AZooms: TByteDynArray;
+  const ADebigThreadName: string = ''
 );
 var
   i: Integer;
@@ -50,7 +52,8 @@ begin
     ACancelNotifier,
     AOperationID,
     AProgressInfo,
-    APolygon
+    APolygon,
+    ADebigThreadName
   );
   Assert(AZooms <> nil);
   VZoomSourceCount := Length(AZooms);

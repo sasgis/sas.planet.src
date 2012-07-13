@@ -121,7 +121,8 @@ begin
     ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
-    ASplitCount
+    ASplitCount,
+    Self.ClassName
   );
   FWithAlpha := AWithAlpha;
 end;

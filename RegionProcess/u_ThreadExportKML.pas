@@ -80,7 +80,8 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr
+    Azoomarr,
+    Self.ClassName
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;

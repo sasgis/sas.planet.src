@@ -89,7 +89,8 @@ begin
     ALocalConverterFactory,
     AMapCalibrationList,
     AFileName,
-    ASplitCount
+    ASplitCount,
+    Self.ClassName
   );
   FQuality := AQuality;
 end;

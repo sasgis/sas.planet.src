@@ -19,6 +19,7 @@ type
 
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
+    FDebugThreadName: string;
     procedure OnCancel;
     procedure SynShowMessage;
     procedure ShowMessageSync(const AMessage: string);
@@ -35,7 +36,8 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: ILonLatPolygon
+      const APolygon: ILonLatPolygon;
+      const ADebugThreadName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -45,16 +47,19 @@ implementation
 uses
   SysUtils,
   Dialogs,
+  u_ReadableThreadNames,
   u_ListenerByEvent;
 
 constructor TThreadRegionProcessAbstract.Create(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: ILonLatPolygon
+  const APolygon: ILonLatPolygon;
+  const ADebugThreadName: string = ''
 );
 begin
   inherited Create(false);
+  FDebugThreadName := ADebugThreadName;
   Priority := tpLowest;
   FreeOnTerminate := true;
   FCancelNotifier := ACancelNotifier;
@@ -85,6 +90,7 @@ end;
 
 procedure TThreadRegionProcessAbstract.Execute;
 begin
+  SetCurrentThreadName(FDebugThreadName);
   try
     ProcessRegion;
   except

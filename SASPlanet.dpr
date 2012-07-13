@@ -10,6 +10,7 @@ uses
   SysUtils,
   MidasLib,
   XPMan,
+  u_ReadableThreadNames,
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_Listener in 'i_Listener.pas',
   i_Notifier in 'i_Notifier.pas',
@@ -889,6 +890,7 @@ uses
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 
 begin
+  SetCurrentThreadName('ApplicationMainThread');
   GState := TGlobalState.Create;
   try
     Application.Initialize;

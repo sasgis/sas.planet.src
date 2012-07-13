@@ -34,6 +34,7 @@ type
     FCancelListener: IListener;
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
+    FDebugThreadName: string;
     procedure OnCancel;
     procedure SynShowMessage;
     procedure ShowMessageSync(const AMessage: string);
@@ -44,7 +45,8 @@ type
   public
     constructor Create(
       const ACancelNotifier: INotifierOperation;
-      const AOperationID: Integer
+      const AOperationID: Integer;
+      const ADebugThreadName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -54,16 +56,19 @@ implementation
 uses
   Dialogs,
   SysUtils,
+  u_ReadableThreadNames,
   u_ListenerByEvent;
 
 { TThreadCacheManagerAbstract }
 
 constructor TThreadCacheManagerAbstract.Create(
   const ACancelNotifier: INotifierOperation;
-  const AOperationID: Integer
+  const AOperationID: Integer;
+  const ADebugThreadName: string = ''
 );
 begin
   inherited Create(True);
+  FDebugThreadName := ADebugThreadName;
   Self.Priority := tpNormal;
   Self.FreeOnTerminate := True;
   FCancelNotifier := ACancelNotifier;
@@ -91,6 +96,7 @@ end;
 
 procedure TThreadCacheManagerAbstract.Execute;
 begin
+  SetCurrentThreadName(FDebugThreadName);
   try
     Process;
   except

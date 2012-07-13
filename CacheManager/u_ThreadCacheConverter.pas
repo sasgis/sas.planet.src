@@ -179,7 +179,7 @@ begin
       True
     );
   
-  inherited Create(FCancelNotifier, FOperationID);
+  inherited Create(FCancelNotifier, FOperationID, Self.ClassName);
 end;
 
 destructor TThreadCacheConverter.Destroy;
