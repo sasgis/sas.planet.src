@@ -14,6 +14,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
   i_MapTypeGUIConfigList,
+  i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
   fr_ExportIPhone;
 
@@ -25,6 +26,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FNewFormat: Boolean;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -42,6 +44,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       ANewFormat: Boolean
     );
     function GetCaption: string; override;
@@ -75,6 +78,7 @@ constructor TExportProviderIPhone.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   ANewFormat: Boolean
 );
 begin
@@ -88,6 +92,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FNewFormat := ANewFormat;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
@@ -176,6 +181,7 @@ begin
     FLocalConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,
+    FBitmapTileSaveLoadFactory,
     path,
     APolygon,
     ZoomArr,

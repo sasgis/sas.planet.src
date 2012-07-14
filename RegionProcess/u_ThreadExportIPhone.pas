@@ -19,6 +19,7 @@ uses
   i_VectorItmesFactory,
   i_CoordConverter,
   i_VectorItemLonLat,
+  i_BitmapTileSaveLoadFactory,
   u_MapType,
   u_GeoFun,
   t_GeoTypes,
@@ -45,6 +46,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     procedure CheckSQLiteAPIError(AError: Boolean);
     procedure WritePListFile(const AGeoConvert: ICoordConverter);
     procedure WriteTileToSQLite3(
@@ -64,6 +66,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -91,8 +94,7 @@ uses
   i_TileIterator,
   u_Bitmap32Static,
   u_TileIteratorByPolygon,
-  u_BitmapLayerProviderMapWithLayer,
-  u_BitmapTileVampyreSaver;
+  u_BitmapLayerProviderMapWithLayer;
 
 constructor TThreadExportIPhone.Create(
   const ACancelNotifier: INotifierOperation;
@@ -102,6 +104,7 @@ constructor TThreadExportIPhone.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -126,6 +129,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := IncludeTrailingPathDelimiter(APath);
   ForceDirectories(FExportPath);
   FNewFormat := ANewFormat;
@@ -149,7 +153,7 @@ begin
       FActiveMapIndex := VTaskIndex;
     end;
     FTasks[VTaskIndex].FFlag := 3;
-    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],
@@ -165,7 +169,7 @@ begin
       FActiveMapIndex := VTaskIndex;
     end;
     FTasks[VTaskIndex].FFlag := 2;
-    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverPNGRGB.Create(Acmap);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, Acmap);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[1],
@@ -181,7 +185,7 @@ begin
       FActiveMapIndex := VTaskIndex;
     end;
     FTasks[VTaskIndex].FFlag := 6;
-    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Achib);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Achib);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],

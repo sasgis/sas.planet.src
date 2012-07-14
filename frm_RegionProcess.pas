@@ -412,6 +412,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       True
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -428,6 +429,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       False
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -471,6 +473,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
     );
