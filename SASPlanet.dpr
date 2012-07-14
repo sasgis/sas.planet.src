@@ -260,6 +260,8 @@ uses
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   u_BitmapTileLibJpeg in 'BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas',
+  i_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas',
+  u_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
   i_MapVersionInfo in 'i_MapVersionInfo.pas',
   u_MapVersionInfo in 'u_MapVersionInfo.pas',

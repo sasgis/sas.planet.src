@@ -27,6 +27,7 @@ uses
   i_ContentTypeInfo,
   i_ContentConverter,
   i_InternalPerformanceCounter,
+  i_BitmapTileSaveLoadFactory,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
   u_ContentTypeManagerBase;
@@ -41,13 +42,15 @@ type
     function FindConverterWithSynonyms(const ASourceType, ATargetType: string): IContentConverter;
     procedure UpdateConverterMatrix;
     procedure InitLists(
-      const AFactory: IVectorItmesFactory;
+      const AVectorItemsFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
       const ASavePerfCounterList: IInternalPerformanceCounterList
     );
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory;
+      const AVectorItemsFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -60,9 +63,6 @@ uses
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
-  u_BitmapTileVampyreLoader,
-  u_BitmapTileVampyreSaver,
-  u_BitmapTileLibJpeg,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_ContentConverterBase,
@@ -71,35 +71,34 @@ uses
 { TContentTypeManagerSimple }
 
 constructor TContentTypeManagerSimple.Create(
-  const AFactory: IVectorItmesFactory;
+  const AVectorItemsFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   InitLists(
-    AFactory,
+    AVectorItemsFactory,
+    ABitmapTileSaveLoadFactory,
     APerfCounterList.CreateAndAddNewSubList('TileLoad'),
     APerfCounterList.CreateAndAddNewSubList('TileSave')
   );
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
-  const AFactory: IVectorItmesFactory;
+  const AVectorItemsFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
   const ASavePerfCounterList: IInternalPerformanceCounterList
 );
 var
   VContentType: IContentTypeInfoBasic;
-  VLoader: IBitmapTileLoader;
-  VSaver: IBitmapTileSaver;
 begin
-  VLoader := TLibJpegTileLoader.Create(ALoadPerfCounterList);
-  VSaver := TLibJpegTileSaver.Create(85, ASavePerfCounterList);
   VContentType := TContentTypeInfoBitmap.Create(
     'image/jpg',
     '.jpg',
-    VLoader,
-    VSaver
+    ABitmapTileSaveLoadFactory.CreateJpegLoader(ALoadPerfCounterList),
+    ABitmapTileSaveLoadFactory.CreateJpegSaver(85, ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/jpeg');
@@ -110,8 +109,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/png',
     '.png',
-    TVampyreBasicBitmapTileLoaderPNG.Create(ALoadPerfCounterList),
-    TVampyreBasicBitmapTileSaverPNG.Create(ASavePerfCounterList)
+    ABitmapTileSaveLoadFactory.CreatePngLoader(ALoadPerfCounterList),
+    ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, nil, ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/x-png');
@@ -121,8 +120,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/gif',
     '.gif',
-    TVampyreBasicBitmapTileLoaderGIF.Create(ALoadPerfCounterList),
-    TVampyreBasicBitmapTileSaverGIF.Create(ASavePerfCounterList)
+    ABitmapTileSaveLoadFactory.CreateGifLoader(ALoadPerfCounterList),
+    ABitmapTileSaveLoadFactory.CreateGifSaver(ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
@@ -130,8 +129,8 @@ begin
   VContentType := TContentTypeInfoBitmap.Create(
     'image/bmp',
     '.bmp',
-    TVampyreBasicBitmapTileLoaderBMP.Create(ALoadPerfCounterList),
-    TVampyreBasicBitmapTileSaverBMP.Create(ASavePerfCounterList)
+    ABitmapTileSaveLoadFactory.CreateBmpLoader(ALoadPerfCounterList),
+    ABitmapTileSaveLoadFactory.CreateBmpSaver(ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/x-ms-bmp');
@@ -153,7 +152,7 @@ begin
     'application/vnd.google-earth.kml+xml',
     '.kml',
     TKmlInfoSimpleParser.Create(
-      AFactory,
+      AVectorItemsFactory,
       ALoadPerfCounterList
     )
   );
@@ -164,7 +163,7 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      AFactory,
+      AVectorItemsFactory,
       ALoadPerfCounterList
     )
   );

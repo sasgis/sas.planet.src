@@ -51,7 +51,9 @@
     <DelphiCompile Include="SASPlanet.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas" />
+    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas" />
     <DCCReference Include="CacheManager\frm_CacheManager.pas">

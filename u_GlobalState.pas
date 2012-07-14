@@ -86,6 +86,7 @@ uses
   i_InternalBrowser,
   i_DebugInfoWindow,
   i_GlobalInternetState,
+  i_BitmapTileSaveLoadFactory,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -163,6 +164,7 @@ type
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
@@ -224,6 +226,7 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
+    property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
 
     constructor Create;
     destructor Destroy; override;
@@ -315,6 +318,7 @@ uses
   u_InternalDomainInfoProviderByMapTypeList,
   u_InternalDomainInfoProviderByDataProvider,
   u_GlobalInternetState,
+  u_BitmapTileSaveLoadFactory,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -354,6 +358,8 @@ begin
   FMarksDbPath := TPathConfig.Create('PrimaryPath', '.', FBaseDataPath);
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
+
+  FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create;
 
   FAppStartedNotifierInternal := TNotifierOneOperation.Create;
   FAppStartedNotifier := FAppStartedNotifierInternal;
@@ -437,6 +443,7 @@ begin
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorItmesFactory,
+      FBitmapTileSaveLoadFactory,
       FPerfCounterList
     );
 
@@ -605,6 +612,7 @@ begin
   FGUISyncronizedTimerNotifier := nil;
   FMainConfigProvider := nil;
   FGlobalInternetState := nil;
+  FBitmapTileSaveLoadFactory := nil;
   inherited;
 end;
 
