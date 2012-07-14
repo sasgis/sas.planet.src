@@ -41,11 +41,12 @@ type
     FLineWidth: Integer;
   protected
     function GetLLRect: ILonLatRect; override;
+    function GetGoToLonLat: TDoublePoint; override;
+    function IsEqual(const AMark: IMark): Boolean; override;
+  private
     function GetLine: ILonLatPath;
     function GetLineColor: TColor32;
     function GetLineWidth: Integer;
-    function GetGoToLonLat: TDoublePoint; override;
-    function IsEqual(const AMark: IMark): Boolean; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;

@@ -46,6 +46,9 @@ type
     FMarkerSize: Integer;
   protected
     function GetLLRect: ILonLatRect; override;
+    function GetGoToLonLat: TDoublePoint; override;
+    function IsEqual(const AMark: IMark): Boolean; override;
+  private
     function GetPoint: TDoublePoint;
     function GetTextColor: TColor32;
     function GetTextBgColor: TColor32;
@@ -53,8 +56,6 @@ type
     function GetMarkerSize: Integer;
     function GetPicName: string;
     function GetPic: IMarkPicture;
-    function GetGoToLonLat: TDoublePoint; override;
-    function IsEqual(const AMark: IMark): Boolean; override;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
