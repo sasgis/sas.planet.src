@@ -13,7 +13,7 @@ uses
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
   i_LastSearchResultConfig,
-  i_BitmapMarker,
+  i_MarkerDrawable,
   i_ViewPortState,
   i_VectorDataItemSimple,
   i_FindVectorItems,
@@ -26,8 +26,7 @@ type
   TSearchResultsLayer = class(TMapLayerBasicNoBitmap, IFindVectorItems)
   private
     FLastSearchResults: ILastSearchResultConfig;
-    FMarkerProvider: IBitmapMarkerProviderChangeable;
-    FMarkerProviderStatic: IBitmapMarkerProvider;
+    FMarker: IMarkerDrawableChangeable;
     procedure OnLastSearchResultsChange;
     procedure OnConfigChange;
   protected
@@ -50,7 +49,7 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ALastSearchResults: ILastSearchResultConfig;
-      const AMarkerProvider: IBitmapMarkerProviderChangeable
+      const AMarker: IMarkerDrawableChangeable
     );
   end;
 
@@ -58,7 +57,6 @@ implementation
 
 uses
   Types,
-  GR32_Resamplers,
   i_CoordConverter,
   u_ListenerByEvent,
   u_GeoFun;
@@ -72,7 +70,7 @@ constructor TSearchResultsLayer.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ALastSearchResults: ILastSearchResultConfig;
-  const AMarkerProvider: IBitmapMarkerProviderChangeable
+  const AMarker: IMarkerDrawableChangeable
 );
 begin
   inherited Create(
@@ -83,11 +81,11 @@ begin
     AViewPortState
   );
   FLastSearchResults := ALastSearchResults;
-  FMarkerProvider := AMarkerProvider;
+  FMarker := AMarker;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FMarkerProvider.GetChangeNotifier
+    FMarker.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLastSearchResultsChange),
@@ -99,7 +97,6 @@ procedure TSearchResultsLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FMarkerProviderStatic := FMarkerProvider.GetStatic;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -125,37 +122,19 @@ var
   VConverter: ICoordConverter;
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
-  VTargetPointFloat: TDoublePoint;
-  VTargetPoint: TPoint;
   VFixedOnView: TDoublePoint;
-  VMarker: IBitmapMarker;
+  VMarker: IMarkerDrawable;
   i: integer;
   VSearchResults: IGeoCodeResult;
 begin
-  VConverter := ALocalConverter.GetGeoConverter;
-  VMarker := FMarkerProviderStatic.GetMarker;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
+    VMarker := FMarker.GetStatic;
+    VConverter := ALocalConverter.GetGeoConverter;
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
-      VTargetPointFloat :=
-        DoublePoint(
-          VFixedOnView.X - VMarker.AnchorPoint.X,
-          VFixedOnView.Y - VMarker.AnchorPoint.Y
-        );
-      VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-      if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-        BlockTransfer(
-          ABuffer,
-          VTargetPoint.X, VTargetPoint.Y,
-          ABuffer.ClipRect,
-          VMarker.Bitmap,
-          VMarker.Bitmap.BoundsRect,
-          dmBlend,
-          cmBlend
-        );
-      end;
+      VMarker.DrawToBitmap(ABuffer, VFixedOnView);
     end;
   end;
 end;
@@ -175,18 +154,16 @@ var
   i: integer;
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
-  VMarker: IBitmapMarker;
   VSearchResults: IGeoCodeResult;
 begin
   Result := nil;
   AItemS := 0;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
-    VMarker := FMarkerProviderStatic.GetMarker;
-    VRect.Left := ALocalPoint.X - (VMarker.Bitmap.Width div 2);
-    VRect.Top := ALocalPoint.Y - (VMarker.Bitmap.Height div 2);
-    VRect.Right := ALocalPoint.X + (VMarker.Bitmap.Width div 2);
-    VRect.Bottom := ALocalPoint.Y + (VMarker.Bitmap.Height div 2);
+    VRect.Left := ALocalPoint.X - 5;
+    VRect.Top := ALocalPoint.Y - 5;
+    VRect.Right := ALocalPoint.X + 5;
+    VRect.Bottom := ALocalPoint.Y + 5;
     VConverter := AVisualConverter.GetGeoConverter;
     VZoom := AVisualConverter.GetZoom;
     VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);

@@ -1489,6 +1489,22 @@ begin
         FConfig.LayersConfig.SelectionRectLayerConfig
       )
     );
+    VBitmap :=
+      ReadBitmapByFileRef(
+        GState.ResourceProvider,
+        'FOUNDPNT.png',
+        GState.ContentTypeManager,
+        nil
+      );
+    VBitmapMarker :=
+      TBitmapMarker.Create(
+        VBitmap,
+        DoublePoint(8, 8)
+      );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+      );
     FLayerSearchResults :=
       TSearchResultsLayer.Create(
         GState.PerfCounterList,
@@ -1497,14 +1513,7 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.LastSearchResultConfig,
-        TBitmapMarkerProviderChangeableFaked.Create(
-          TBitmapMarkerProviderStaticFromDataProvider.Create(
-            GState.ResourceProvider,
-            GState.ContentTypeManager,
-            'FOUNDPNT.png',
-            DoublePoint(8, 8)
-          )
-        )
+        VMarkerChangeable
       );
     FLayersList.Add(FLayerSearchResults);
     VBitmap :=
