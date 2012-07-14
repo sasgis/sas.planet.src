@@ -51,6 +51,7 @@
     <DelphiCompile Include="SASPlanet.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas" />
@@ -190,7 +191,6 @@
     <DCCReference Include="i_BitmapLayerProviderWithListener.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
-    <DCCReference Include="i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
     <DCCReference Include="i_CenterScaleConfig.pas" />
     <DCCReference Include="i_Changeable.pas" />

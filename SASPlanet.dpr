@@ -256,7 +256,7 @@ uses
   u_ECWWrite in 'u_ECWWrite.pas',
   i_ARGBToPaletteConverter in 'i_ARGBToPaletteConverter.pas',
   u_ARGBToPaletteConverter in 'u_ARGBToPaletteConverter.pas',
-  i_BitmapTileSaveLoad in 'i_BitmapTileSaveLoad.pas',
+  i_BitmapTileSaveLoad in 'BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas',
   u_BitmapTileVampyreLoader in 'BitmapTileSaveLoad\u_BitmapTileVampyreLoader.pas',
   u_BitmapTileVampyreSaver in 'BitmapTileSaveLoad\u_BitmapTileVampyreSaver.pas',
   u_BitmapTileLibJpeg in 'BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas',
