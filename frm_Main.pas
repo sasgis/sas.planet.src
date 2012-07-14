@@ -1102,7 +1102,6 @@ var
   VScale: Integer;
   VDegScale: Double;
   VZoom: Byte;
-  VMarkerProvider: IBitmapMarkerProviderChangeable;
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
@@ -1572,14 +1571,22 @@ begin
         GState.GUISyncronizedTimerNotifier
       )
     );
-    VMarkerProvider := TBitmapMarkerProviderChangeableFaked.Create(
-      TBitmapMarkerProviderStaticFromDataProvider.Create(
+    VBitmap :=
+      ReadBitmapByFileRef(
         GState.ResourceProvider,
-        GState.ContentTypeManager,
         'ICONIII.png',
+        GState.ContentTypeManager,
+        nil
+      );
+    VBitmapMarker :=
+      TBitmapMarker.Create(
+        VBitmap,
         DoublePoint(7, 6)
-      )
-    );
+      );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+      );
     FLayersList.Add(
       TPointOnMapEditLayer.Create(
         GState.PerfCounterList,
@@ -1587,7 +1594,7 @@ begin
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
-        VMarkerProvider,
+        VMarkerChangeable,
         FPointOnMapEdit
       )
     );
