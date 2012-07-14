@@ -21,6 +21,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_BitmapLayerProvider,
+  i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 
@@ -71,6 +72,7 @@ type
   private
     FVectorFactory: IVectorItmesFactory;
     FProjectionFactory: IProjectionInfoFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -92,6 +94,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -107,7 +110,6 @@ uses
   i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
-  u_BitmapTileVampyreSaver,
   u_BitmapLayerProviderMapWithLayer,
   u_MapType,
   u_ResStrings;
@@ -192,6 +194,7 @@ constructor TfrExportToOgf2.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -202,6 +205,7 @@ begin
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FVectorFactory := AVectorFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
@@ -246,15 +250,15 @@ var
 begin
   case cbbImageFormat.ItemIndex of
     0: begin
-      Result := TVampyreBasicBitmapTileSaverBMP.Create;
+      Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
     end;
 
     1: begin
-      Result := TVampyreBasicBitmapTileSaverPNGRGB.Create;
+      Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp)
     end;
   else begin
     VJpegQuality := seJpgQuality.Value;
-    Result := TVampyreBasicBitmapTileSaverJPG.Create(VJpegQuality);
+    Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(VJpegQuality);
   end;
   end;
 end;

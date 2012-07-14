@@ -44,6 +44,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ImageResamplerConfig,
+  i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessingConfig,
   i_GlobalDownloadConfig,
@@ -111,6 +112,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
   public
@@ -133,6 +135,7 @@ type
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AMapCalibrationList: IMapCalibrationList;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -190,6 +193,7 @@ constructor TfrmRegionProcess.Create(
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AMapCalibrationList: IMapCalibrationList;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -211,6 +215,7 @@ begin
     ALocalConverterFactory,
     AProjectionFactory,
     AVectorItmesFactory,
+    ABitmapTileSaveLoadFactory,
     ATileNameGenerator
   );
 
@@ -274,6 +279,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -388,6 +394,7 @@ procedure TfrmRegionProcess.InitExportsList(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 var
@@ -448,6 +455,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
     );
@@ -519,6 +527,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -533,6 +542,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
     );

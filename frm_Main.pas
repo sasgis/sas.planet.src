@@ -830,6 +830,7 @@ begin
       GState.BitmapPostProcessingConfig,
       GState.ProjectionFactory,
       GState.VectorItmesFactory,
+      GState.BitmapTileSaveLoadFactory,
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,

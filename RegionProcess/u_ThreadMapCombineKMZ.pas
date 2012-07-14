@@ -12,6 +12,7 @@ uses
   i_BitmapLayerProvider,
   i_MapCalibration,
   i_VectorItemLonLat,
+  i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
   t_GeoTypes,
   u_ThreadMapCombineBase;
@@ -20,6 +21,7 @@ type
   TThreadMapCombineKMZ = class(TThreadMapCombineBase)
   private
     FQuality: Integer;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -41,6 +43,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       AQuality: Integer
     );
   end;
@@ -53,7 +56,6 @@ uses
   i_BinaryData,
   i_CoordConverter,
   i_BitmapTileSaveLoad,
-  u_BitmapTileVampyreSaver,
   u_StreamReadOnlyByBinaryData,
   u_GeoToStr;
 
@@ -68,6 +70,7 @@ constructor TThreadMapCombineKMZ.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   AQuality: Integer
 );
 begin
@@ -85,6 +88,7 @@ begin
     Self.ClassName
   );
   FQuality := AQuality;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
 end;
 
 procedure TThreadMapCombineKMZ.SaveRect(
@@ -132,7 +136,7 @@ begin
   iWidth := VMapPieceSize.X div (nim.X);
   iHeight := VMapPieceSize.y div (nim.Y);
 
-  JPGSaver := TVampyreBasicBitmapTileSaverJPG.create(FQuality);
+  JPGSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(FQuality);
 
   VKmzFileNameOnly := ExtractFileName(AFileName);
   Zip := TKaZip.Create(nil);

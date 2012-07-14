@@ -16,6 +16,7 @@ uses
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
+  i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
@@ -33,6 +34,7 @@ type
     FTasks: array of TExportTaskYaMobileV3;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FIsReplace: boolean;
     FExportPath: string;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -65,6 +67,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -89,7 +92,6 @@ uses
   u_Bitmap32Static,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer,
-  u_BitmapTileVampyreSaver,
   u_ARGBToPaletteConverter;
 
 const
@@ -103,6 +105,7 @@ constructor TThreadExportYaMobileV3.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -125,6 +128,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
   if (length(Atypemaparr) <> 3) then begin
@@ -141,7 +145,7 @@ begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 2;
-    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverJPG.create(Acsat);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[0],
@@ -154,7 +158,7 @@ begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 1;
-    FTasks[VTaskIndex].FSaver := TVampyreBasicBitmapTileSaverPNGPalette.create(TARGBToPaletteConverter.Create, Acmap);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap, TARGBToPaletteConverter.Create);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[1],

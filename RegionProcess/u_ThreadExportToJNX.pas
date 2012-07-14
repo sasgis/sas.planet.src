@@ -14,6 +14,7 @@ uses
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
+  i_BitmapTileSaveLoadFactory,
   i_StringListStatic,
   u_MapType,
   u_ResStrings,
@@ -26,6 +27,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
     FJNXversion: byte;  // 3..4
@@ -48,6 +50,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -74,7 +77,6 @@ uses
   i_BinaryData,
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
-  u_BitmapTileVampyreSaver,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
@@ -84,6 +86,7 @@ constructor TThreadExportToJnx.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -111,6 +114,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FProductName := AProductName;
   FMapName := AMapName;
   FJNXVersion := AJNXVersion;
@@ -194,7 +198,7 @@ begin
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FZoomList) - 1 do begin
-          VSaver := TVampyreBasicBitmapTileSaverJPG.Create(strtoint(FJpgQuality.Items[i]));
+          VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
           VZoom := FZoomList[i];
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
