@@ -176,8 +176,8 @@ begin
         Result :=
           TVectorDataItemPoint.Create(
             THtmlToHintTextConverterStuped.Create,
-            VPlacemark.GetAddress + #13#10 + VPlacemark.GetDesc,
-            VPlacemark.GetFullDesc,
+            VPlacemark.Name + #13#10 + VPlacemark.GetDesc,
+            VPlacemark.GetInfoHTML,
             VPlacemark.GetPoint
           );
         AItemS := 0;

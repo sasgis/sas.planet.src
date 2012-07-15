@@ -5933,7 +5933,7 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
-    VStr := VPlacemark.GetFullDesc;
+    VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
     end;
@@ -5949,14 +5949,14 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
-    VStr := VPlacemark.GetFullDesc;
+    VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
       FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(
         VPlacemark.GetPoint,
-        VPlacemark.GetAddress,
+        VPlacemark.Name,
         VStr
       );
     VMark := FMarkDBGUI.EditMarkModal(VMark, True);

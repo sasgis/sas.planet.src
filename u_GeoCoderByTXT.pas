@@ -99,10 +99,10 @@ begin
   Result := false;
   for i := 0 to AList.Count - 1 do begin
     VPlacemark := IGeoCodePlacemark(AList.Items[i]);
-    j:= posex(')',VPlacemark.GetAddress);
-    str1 := copy(VPlacemark.GetAddress,j,length(VPlacemark.GetAddress)-(j+1));
-    j:= posex(')',Avalue.GetAddress);
-    str2 := copy(Avalue.GetAddress,j,length(Avalue.GetAddress)-(j+1));
+    j:= posex(')',VPlacemark.Name);
+    str1 := copy(VPlacemark.Name,j,length(VPlacemark.Name)-(j+1));
+    j:= posex(')',Avalue.Name);
+    str2 := copy(Avalue.Name,j,length(Avalue.Name)-(j+1));
     if str1=str2 then begin
       if
         abs(VPlacemark.GetPoint.x-avalue.GetPoint.x) +

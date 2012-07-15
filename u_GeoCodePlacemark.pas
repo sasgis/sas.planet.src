@@ -24,20 +24,26 @@ interface
 
 uses
   t_GeoTypes,
+  i_LonLatRect,
   i_GeoCoder;
 
 type
   TGeoCodePlacemark = class(TInterfacedObject, IGeoCodePlacemark)
   private
-    FPoint: TDoublePoint;
+    FLLRect: ILonLatRect;
     FAddress: WideString;
     FDesc: WideString;
     FFullDesc: WideString;
     FAccuracy: Integer;
-    function GetPoint: TDoublePoint; safecall;
-    function GetAddress: WideString; safecall;
-    function GetDesc: WideString; safecall;
-    function GetFullDesc: WideString; safecall;
+  private
+    function GetPoint: TDoublePoint;
+    function GetName: string;
+    function GetDesc: string;
+    function GetLLRect: ILonLatRect;
+    function GetHintText: string;
+    function GetInfoHTML: string;
+    function GetInfoCaption: string;
+  private
     function GetAccuracy: Integer; safecall;
   public
     constructor Create(
@@ -52,6 +58,9 @@ type
 
 implementation
 
+uses
+  u_LonLatRectByPoint;
+  
 { TGeoCodePlacemark }
 
 constructor TGeoCodePlacemark.Create(
@@ -66,7 +75,7 @@ begin
   FAddress := AAddress;
   FDesc := ADesc;
   FFullDesc := AFullDesc;
-  FPoint := APoint;
+  FLLRect := TLonLatRectByPoint.Create(APoint);
   FAccuracy := AAccuracy;
 end;
 
@@ -81,24 +90,39 @@ begin
   Result := FAccuracy;
 end;
 
-function TGeoCodePlacemark.GetAddress: WideString;
+function TGeoCodePlacemark.GetName: string;
 begin
   Result := FAddress;
 end;
 
-function TGeoCodePlacemark.GetDesc: WideString;
+function TGeoCodePlacemark.GetDesc: string;
 begin
   Result := FDesc;
 end;
 
-function TGeoCodePlacemark.GetFullDesc: WideString;
+function TGeoCodePlacemark.GetHintText: string;
+begin
+  Result := FDesc;
+end;
+
+function TGeoCodePlacemark.GetInfoCaption: string;
+begin
+  Result := FAddress;
+end;
+
+function TGeoCodePlacemark.GetInfoHTML: string;
 begin
   Result := FFullDesc;
 end;
 
+function TGeoCodePlacemark.GetLLRect: ILonLatRect;
+begin
+  Result := FLLRect;
+end;
+
 function TGeoCodePlacemark.GetPoint: TDoublePoint;
 begin
-  Result := FPoint;
+  Result := FLLRect.TopLeft;
 end;
 
 end.
