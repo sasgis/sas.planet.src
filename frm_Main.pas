@@ -5664,7 +5664,7 @@ begin
   NMarkNav.Visible := VMark <> nil;
   if (VMark <> nil) then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      NMarksCalcs.Visible := false;
+      NMarksCalcs.Visible := False;
     end else if Supports(VMark, IMarkLine, VMarkLine) then begin
       NMarksCalcsSq.Visible := False;
       NMarksCalcsPer.Visible := False;
@@ -5675,10 +5675,11 @@ begin
       NMarksCalcsPer.Visible := True;
       NMarksCalcsLen.Visible:= False;
       NMarksCalcs.Visible := True;
+    end else begin
+      NMarksCalcs.Visible := True;
     end;
-    NMarksCalcs.Visible := true;
   end else begin
-    NMarksCalcs.Visible := false;
+    NMarksCalcs.Visible := False;
   end;
   if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
     NMarkNav.Checked:=true
