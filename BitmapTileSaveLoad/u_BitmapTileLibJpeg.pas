@@ -39,7 +39,8 @@ type
       Sender: TObject;
       ALine: PByte;
       ALineSize: Cardinal;
-      ALineNumber: Integer
+      ALineNumber: Integer;
+      ABGRAColorSpace: Boolean
     ): Boolean;
   private
     function Load(const AData: IBinaryData): IBitmap32Static;
@@ -55,6 +56,7 @@ type
     function WriteLine(
       Sender: TObject;
       ALineNumber: Integer;
+      ALineSize: Cardinal;
       out Abort: Boolean
     ): PByte;
   private
@@ -81,7 +83,13 @@ type
   TWriterAppData = record
     Bitmap: TCustomBitmap32;
     Line: PByte;
+    LineSize: Cardinal;
+    BGRAColorSpace: Boolean;
   end;
+
+const
+  cUseLibJpeg8 = False;
+  cUseBGRAColorSpace = True; // Available for libjpeg-turbo only
 
 { TLibJpegTileLoader }
 
@@ -111,7 +119,7 @@ begin
     VStream := TStreamReadOnlyByBinaryData.Create(AData);
     try
       VStream.Position := 0;
-      VJpeg := TJpegReader.Create(VStream);
+      VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace, cUseLibJpeg8);
       try
         if VJpeg.ReadHeader() then begin
           VBitmap := TCustomBitmap32.Create;
@@ -145,7 +153,8 @@ function TLibJpegTileLoader.ReadLine(
   Sender: TObject;
   ALine: PByte;
   ALineSize: Cardinal;
-  ALineNumber: Integer
+  ALineNumber: Integer;
+  ABGRAColorSpace: Boolean
 ): Boolean;
 var
   VJpeg: TJpegReader;
@@ -155,15 +164,23 @@ var
 begin
   VJpeg := Sender as TJpegReader;
   VBtm := TCustomBitmap32(VJpeg.AppData^);
-  for I := 0 to VBtm.Width - 1 do begin
-    VColor.R := ALine^;
-    Inc(ALine, 1);
-    VColor.G := ALine^;
-    Inc(ALine, 1);
-    VColor.B := ALine^;
-    Inc(ALine, 1);
-    VColor.A := $FF;
-    VBtm.Pixel[I, ALineNumber] := TColor32(VColor);
+  if ABGRAColorSpace then begin
+    Move(
+      ALine^,
+      VBtm.ScanLine[ALineNumber]^,
+      ALineSize
+    );
+  end else begin
+    for I := 0 to VBtm.Width - 1 do begin
+      VColor.R := ALine^;
+      Inc(ALine, 1);
+      VColor.G := ALine^;
+      Inc(ALine, 1);
+      VColor.B := ALine^;
+      Inc(ALine, 1);
+      VColor.A := $FF;
+      VBtm.Pixel[I, ALineNumber] := TColor32(VColor);
+    end;
   end;
   Result := True;
 end;
@@ -194,10 +211,18 @@ begin
   try
     VMemStream := TMemoryStream.Create;
     try
-      VJpeg := TJpegWriter.Create(VMemStream);
+      VAppData.Bitmap := ABitmap.Bitmap;
+      VAppData.BGRAColorSpace := cUseBGRAColorSpace;
+
+      VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace, cUseLibJpeg8);
       try
-        VAppData.Bitmap := ABitmap.Bitmap;
-        GetMem(VAppData.Line, VAppData.Bitmap.Width * 3);
+        if VAppData.BGRAColorSpace then begin
+          VAppData.LineSize := VAppData.Bitmap.Width * 4;
+        end else begin
+          VAppData.LineSize := VAppData.Bitmap.Width * 3;
+        end;
+
+        GetMem(VAppData.Line, VAppData.LineSize);
         try
           VJpeg.Width := VAppData.Bitmap.Width;
           VJpeg.Height := VAppData.Bitmap.Height;
@@ -226,6 +251,7 @@ end;
 function TLibJpegTileSaver.WriteLine(
   Sender: TObject;
   ALineNumber: Integer;
+  ALineSize: Cardinal;
   out Abort: Boolean
 ): PByte;
 var
@@ -237,15 +263,24 @@ var
 begin
   VJpeg := Sender as TJpegWriter;
   VAppData := TWriterAppData(VJpeg.AppData^);
+  Assert(ALineSize = VAppData.LineSize);
   VLine := VAppData.Line;
-  for I := 0 to VAppData.Bitmap.Width - 1 do begin
-    VPixColor := TColor32Rec(VAppData.Bitmap.Pixel[I, ALineNumber]);
-    VLine^ := VPixColor.R;
-    Inc(VLine);
-    VLine^ := VPixColor.G;
-    Inc(VLine);
-    VLine^ := VPixColor.B;
-    Inc(VLine);
+  if VAppData.BGRAColorSpace then begin
+    Move(
+      VAppData.Bitmap.ScanLine[ALineNumber]^,
+      VLine^,
+      VAppData.LineSize
+    );
+  end else begin
+    for I := 0 to VAppData.Bitmap.Width - 1 do begin
+      VPixColor := TColor32Rec(VAppData.Bitmap.Pixel[I, ALineNumber]);
+      VLine^ := VPixColor.R;
+      Inc(VLine);
+      VLine^ := VPixColor.G;
+      Inc(VLine);
+      VLine^ := VPixColor.B;
+      Inc(VLine);
+    end;
   end;
   Result := VAppData.Line;
   Abort := False;

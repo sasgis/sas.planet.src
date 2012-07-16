@@ -22,8 +22,13 @@ uses
   LibJpegInOutDataManager;
 
 type
-  TReadScanLineCallBack = function(Sender: TObject; ALine: PByte;
-    ALineSize: Cardinal; ALineNumber: Integer): Boolean of object;
+  TReadScanLineCallBack = function(
+    Sender: TObject;
+    ALine: PByte;
+    ALineSize: Cardinal;
+    ALineNumber: Integer;
+    ABGRAColorSpace: Boolean
+  ): Boolean of object;
 
   TJpegMarker = record
     ID: Byte;           // $FE: COM; $E0..$EF: APP0..APP15
@@ -38,6 +43,7 @@ type
     FStream: TStream;
     FLibInitilized: Boolean;
     FUseLibJpeg8: Boolean;
+    FUseBGRAColorSpace: Boolean;
     FJpegHeaderParsed: Boolean;
     FSaveMarkers: Boolean;
     FMarkersList: TJpegMarkersList;
@@ -53,25 +59,25 @@ type
     jpeg8_err: LibJpeg8.jpeg_error_mgr;
     {$ENDIF}
     {$IFDEF LIB_JPEG_62_SUPPORT}
-    function InitDecomp62(): Boolean;
+    function InitDecomp62: Boolean;
     function DoDecomp62(
       AReadCallBack: TReadScanLineCallBack = nil;
       AOutStream: TStream = nil
     ): Boolean;
     {$ENDIF}
     {$IFDEF LIB_JPEG_8_SUPPORT}
-    function InitDecomp8():Boolean;
+    function InitDecomp8:Boolean;
     function DoDecomp8(
       AReadCallBack: TReadScanLineCallBack = nil;
       AOutStream: TStream = nil
     ): Boolean;
     {$ENDIF}
-    function GetWidth(): Integer;
-    function GetHeight(): Integer;
+    function GetWidth: Integer;
+    function GetHeight: Integer;
   public
-    constructor Create(AJpegSource: TStream; AUseLibJpeg8: Boolean = False);
+    constructor Create(AJpegSource: TStream; AUseBGRAColorSpace: Boolean; AUseLibJpeg8: Boolean = False);
     destructor Destroy; override;
-    function ReadHeader(): Boolean;
+    function ReadHeader: Boolean;
     function Decompress(AReadCallBack: TReadScanLineCallBack): Boolean; overload;
     function Decompress(AOutStream: TStream): Boolean; overload;
     property Width: Integer read GetWidth;
@@ -97,11 +103,12 @@ implementation
 
 { TJpegReader }
 
-constructor TJpegReader.Create(AJpegSource: TStream; AUseLibJpeg8: Boolean);
+constructor TJpegReader.Create(AJpegSource: TStream; AUseBGRAColorSpace: Boolean; AUseLibJpeg8: Boolean);
 begin
   inherited Create;
   FStream := AJpegSource;
   FUseLibJpeg8 := AUseLibJpeg8;
+  FUseBGRAColorSpace := AUseBGRAColorSpace;
   FJpegHeaderParsed := False;
   FSaveMarkers := False;
   SetLength(FMarkersList, 0);
@@ -110,13 +117,13 @@ begin
   FAppData := nil;
   if not FUseLibJpeg8 then begin
     {$IFDEF LIB_JPEG_62_SUPPORT}
-    FLibInitilized := InitDecomp62();
+    FLibInitilized := InitDecomp62;
     {$ELSE}
     raise ELibJpegException.Create('LibJpeg62 disabled by config!');
     {$ENDIF}
   end else begin
     {$IFDEF LIB_JPEG_8_SUPPORT}
-    FLibInitilized := InitDecomp8();
+    FLibInitilized := InitDecomp8;
     {$ELSE}
     raise ELibJpegException.Create('LibJpeg8 disabled by config!');
     {$ENDIF}
@@ -183,7 +190,7 @@ begin
   end;
 end;
 
-function TJpegReader.ReadHeader():Boolean;
+function TJpegReader.ReadHeader:Boolean;
 var
   I: Integer;
   {$IFDEF LIB_JPEG_62_SUPPORT}
@@ -271,12 +278,12 @@ begin
   Result := FJpegHeaderParsed;
 end;
 
-function TJpegReader.GetWidth(): Integer;
+function TJpegReader.GetWidth: Integer;
 begin
   Result := -1;
   if FLibInitilized then begin
     if not FJpegHeaderParsed then begin
-      ReadHeader();
+      ReadHeader;
     end;
     if FJpegHeaderParsed then begin
       if not FUseLibJpeg8 then begin
@@ -292,12 +299,12 @@ begin
   end;
 end;
 
-function TJpegReader.GetHeight(): Integer;
+function TJpegReader.GetHeight: Integer;
 begin
   Result := -1;
   if FLibInitilized then begin
     if not FJpegHeaderParsed then begin
-      ReadHeader();
+      ReadHeader;
     end;
     if FJpegHeaderParsed then begin
       if not FUseLibJpeg8 then begin
@@ -314,9 +321,9 @@ begin
 end;
 
 {$IFDEF LIB_JPEG_62_SUPPORT}
-function TJpegReader.InitDecomp62():Boolean;
+function TJpegReader.InitDecomp62: Boolean;
 begin
-  if {$IFNDEF LIB_JPEG_62_STATIC_LINK} InitLibJpeg62() {$ELSE} True {$ENDIF} then begin
+  if {$IFNDEF LIB_JPEG_62_STATIC_LINK} InitLibJpeg62 {$ELSE} True {$ENDIF} then begin
     FillChar(jpeg62, SizeOf(LibJpeg62.jpeg_decompress_struct), $00);
     FillChar(jpeg62_err, SizeOf(LibJpeg62.jpeg_error_mgr), $00);
 
@@ -360,10 +367,20 @@ var
 begin
   Result := False;
   VAborted := False;
-  if ReadHeader() then begin
+  if ReadHeader then begin
+    jpeg62.out_color_space := LibJpeg62.JCS_RGB;
+    {$IFNDEF LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS}
+    if FUseBGRAColorSpace then begin
+      raise ELibJpegException.Create('Extended color spaces disabled by config!');
+    end;
+    {$ELSE}
+    if FUseBGRAColorSpace then begin
+      jpeg62.out_color_space := LibJpeg62.JCS_EXT_BGRA;
+    end;
+    {$ENDIF}
     LibJpeg62.jpeg_start_decompress(@jpeg62);
     try
-      VSize := jpeg62.output_width * 3; // 24 bit/pix
+      VSize := jpeg62.output_width * Cardinal(jpeg62.out_color_components);
       GetMem(VLine, VSize);
       try
         for I := 0 to jpeg62.output_height - 1 do begin
@@ -373,7 +390,7 @@ begin
           end;
           LibJpeg62.jpeg_read_scanlines(@jpeg62, @VLine, 1);
           if Addr(AReadCallBack) <> nil then begin
-            if not AReadCallBack(Self, VLine, VSize, I) then begin
+            if not AReadCallBack(Self, VLine, VSize, I, FUseBGRAColorSpace) then begin
               VAborted := True;
               Break; // abort by user
             end;
@@ -396,9 +413,9 @@ end;
 {$ENDIF}
 
 {$IFDEF LIB_JPEG_8_SUPPORT}
-function TJpegReader.InitDecomp8():Boolean;
+function TJpegReader.InitDecomp8:Boolean;
 begin
-  if {$IFNDEF LIB_JPEG_8_STATIC_LINK} InitLibJpeg8() {$ELSE} True {$ENDIF} then begin
+  if {$IFNDEF LIB_JPEG_8_STATIC_LINK} InitLibJpeg8 {$ELSE} True {$ENDIF} then begin
     FillChar(jpeg8, SizeOf(LibJpeg8.jpeg_decompress_struct), $00);
     FillChar(jpeg8_err, SizeOf(LibJpeg8.jpeg_error_mgr), $00);
 
@@ -439,13 +456,24 @@ var
   VLine: Pointer;
   VSize: Cardinal;
   VAborted: Boolean;
+  VBGRAColorSpace: Boolean;
 begin
   Result := False;
   VAborted := False;
-  if ReadHeader() then begin
+  if ReadHeader then begin
+    jpeg8.out_color_space := LibJpeg8.JCS_RGB;
+    {$IFNDEF LIB_JPEG_8_TURBO_JCS_ALPHA_EXTENSIONS}
+    if FUseBGRAColorSpace then begin
+      raise ELibJpegException.Create('Extended color spaces disabled by config!');
+    end;
+    {$ELSE}
+    if FUseBGRAColorSpace then begin
+      jpeg8.out_color_space := LibJpeg8.JCS_EXT_BGRA;
+    end;
+    {$ENDIF}
     LibJpeg8.jpeg_start_decompress(@jpeg8);
-    try
-      VSize := jpeg8.output_width * 3; // 24 bit/pix
+    try 
+      VSize := jpeg8.output_width * Cardinal(jpeg8.out_color_components);
       GetMem(VLine, VSize);
       try
         for I := 0 to jpeg8.output_height - 1 do begin
@@ -455,7 +483,7 @@ begin
           end;
           LibJpeg8.jpeg_read_scanlines(@jpeg8, @VLine, 1);
           if Addr(AReadCallBack) <> nil then begin
-            if not AReadCallBack(Self, VLine, VSize, I) then begin
+            if not AReadCallBack(Self, VLine, VSize, I, FUseBGRAColorSpace) then begin
               VAborted := True;
               Break; // abort by user
             end;

@@ -237,6 +237,38 @@ J_COLOR_SPACE = (
 	JCS_YCbCr,      { Y/Cb/Cr (also known as YUV) }
 	JCS_CMYK,       { C/M/Y/K }
 	JCS_YCCK        { Y/Cb/Cr/K }
+    
+{$IFDEF LIB_JPEG_62_TURBO_JCS_EXTENSIONS}
+
+  { libjpeg-turbo includes extensions that allow JPEG
+    images to be compressed directly from (and decompressed
+    directly to) buffers that use BGR, BGRX, RGBX, XBGR, and
+    XRGB pixel ordering. }
+  ,
+  JCS_EXT_RGB,	{ red/green/blue }
+  JCS_EXT_RGBX,	{ red/green/blue/x }
+	JCS_EXT_BGR,	{ blue/green/red }
+	JCS_EXT_BGRX,	{ blue/green/red/x }
+	JCS_EXT_XBGR,	{ x/blue/green/red }
+	JCS_EXT_XRGB	{ x/red/green/blue }
+	
+  {$IFDEF LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS}
+  
+  { When out_color_space it set to JCS_EXT_RGBX, JCS_EXT_BGRX,
+    JCS_EXT_XBGR, or JCS_EXT_XRGB during decompression, the X byte is
+    undefined, and in order to ensure the best performance,
+    libjpeg-turbo can set that byte to whatever value it wishes.  Use
+    the following colorspace constants to ensure that the X byte is set
+    to 0xFF, so that it can be interpreted as an opaque alpha
+    channel. }
+    ,
+	JCS_EXT_RGBA,		{ red/green/blue/alpha }
+	JCS_EXT_BGRA,		{ blue/green/red/alpha }
+	JCS_EXT_ABGR,		{ alpha/blue/green/red }
+	JCS_EXT_ARGB		{ alpha/red/green/blue }
+    
+  {$ENDIF} // LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS
+{$ENDIF} // LIB_JPEG_62_TURBO_JCS_EXTENSIONS
 );
 
 

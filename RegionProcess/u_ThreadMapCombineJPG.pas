@@ -28,6 +28,7 @@ type
     function GetLine(
       Sender: TObject;
       ALineNumber: Integer;
+      ALineSize: Cardinal;
       out Abort: Boolean
     ): PByte;
   protected
@@ -114,17 +115,31 @@ var
   VMapPieceSize: TPoint;
   VExif: TExifSimple;
   VCenterLonLat: TDoublePoint;
+  VUseBGRAColorSpace: Boolean;
 begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
   VCenterLonLat := ALocalConverter.GetCenterLonLat;
-  FLineProvider :=
-    TImageLineProviderRGB.Create(
-      AImageProvider,
-      ALocalConverter,
-      AConverterFactory
-    );
+
+  VUseBGRAColorSpace := True; // Available for libjpeg-turbo only
+
+  if VUseBGRAColorSpace then begin
+    FLineProvider :=
+      TImageLineProviderBGRA.Create(
+        AImageProvider,
+        ALocalConverter,
+        AConverterFactory
+      );
+  end else begin
+    FLineProvider :=
+      TImageLineProviderRGB.Create(
+        AImageProvider,
+        ALocalConverter,
+        AConverterFactory
+      );
+  end;
+
   FWidth := VMapPieceSize.X;
   FHeight := VMapPieceSize.Y;
   if (FWidth >= JPG_MAX_WIDTH) or (FHeight >= JPG_MAX_HEIGHT) then begin
@@ -132,7 +147,7 @@ begin
   end;
   VStream := TFileStream.Create(AFileName, fmCreate);
   try
-    VJpegWriter := TJpegWriter.Create(VStream);
+    VJpegWriter := TJpegWriter.Create(VStream, VUseBGRAColorSpace);
     try
       VJpegWriter.Width := FWidth;
       VJpegWriter.Height := FHeight;
@@ -156,6 +171,7 @@ end;
 function TThreadMapCombineJPG.GetLine(
   Sender: TObject;
   ALineNumber: Integer;
+  ALineSize: Cardinal;
   out Abort: Boolean
 ): PByte;
 begin

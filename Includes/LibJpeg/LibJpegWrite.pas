@@ -22,14 +22,19 @@ uses
   LibJpegInOutDataManager;
 
 type
-  TWriteScanLineCallBack = function(Sender: TObject; ALineNumber: Integer;
-    out Abort: Boolean): PByte of object;
+  TWriteScanLineCallBack = function(
+    Sender: TObject;
+    ALineNumber: Integer;
+    ALineSize: Cardinal;
+    out Abort: Boolean
+  ): PByte of object;
 
   TJpegWriter = class(TObject)
   protected
     FStream: TStream;
     FLibInitilized: Boolean;
     FUseLibJpeg8: Boolean;
+    FUseBGRAColorSpace: Boolean;
     FWidth: Integer;
     FHeight: Integer;
     FQuality: Integer;
@@ -45,23 +50,23 @@ type
     jpeg8_err: LibJpeg8.jpeg_error_mgr;
     {$ENDIF}
     {$IFDEF LIB_JPEG_62_SUPPORT}
-    function InitComp62(): Boolean;
+    function InitComp62: Boolean;
     function DoComp62(
       AWriteCallBack: TWriteScanLineCallBack = nil;
       AInPutStream: TStream = nil
     ): Boolean;
     {$ENDIF}
     {$IFDEF LIB_JPEG_8_SUPPORT}
-    function InitComp8():Boolean;
+    function InitComp8: Boolean;
     function DoComp8(
       AWriteCallBack: TWriteScanLineCallBack = nil;
       AInPutStream: TStream = nil
     ): Boolean;
     {$ENDIF}
-    function SetCompOptions(): Boolean;
-    function WriteMarkers(): Boolean;
+    function SetCompOptions: Boolean;
+    function WriteMarkers: Boolean;
   public
-    constructor Create(AJpegDest: TStream; AUseLibJpeg8: Boolean = False);
+    constructor Create(AJpegDest: TStream; AUseBGRAColorSpace: Boolean; AUseLibJpeg8: Boolean = False);
     destructor Destroy; override;
     function Compress(AWriteCallBack: TWriteScanLineCallBack): Boolean; overload;
     function Compress(AInPutStream: TStream): Boolean; overload;
@@ -89,12 +94,13 @@ implementation
 
 { TJpegWriter }
 
-constructor TJpegWriter.Create(AJpegDest: TStream; AUseLibJpeg8: Boolean);
+constructor TJpegWriter.Create(AJpegDest: TStream; AUseBGRAColorSpace: Boolean; AUseLibJpeg8: Boolean);
 var
   I: Integer;
 begin
   FStream := AJpegDest;
   FUseLibJpeg8 := AUseLibJpeg8;
+  FUseBGRAColorSpace := AUseBGRAColorSpace;
   FWidth := -1;
   FHeight := -1;
   FQuality := 95;
@@ -105,13 +111,13 @@ begin
   FAppData := nil;
   if not FUseLibJpeg8 then begin
     {$IFDEF LIB_JPEG_62_SUPPORT}
-    FLibInitilized := InitComp62();
+    FLibInitilized := InitComp62;
     {$ELSE}
     raise ELibJpegException.Create('LibJpeg62 disabled by config!');
     {$ENDIF}
   end else begin
     {$IFDEF LIB_JPEG_8_SUPPORT}
-    FLibInitilized := InitComp8();
+    FLibInitilized := InitComp8;
     {$ELSE}
     raise ELibJpegException.Create('LibJpeg8 disabled by config!');
     {$ENDIF}
@@ -222,7 +228,7 @@ begin
   end;
 end;
 
-function TJpegWriter.SetCompOptions(): Boolean;
+function TJpegWriter.SetCompOptions: Boolean;
 const
   JPG_MAX_HEIGHT = 65536;
   JPG_MAX_WIDTH  = 65536;
@@ -244,8 +250,18 @@ begin
       {$IFDEF LIB_JPEG_62_SUPPORT}
       jpeg62.image_width := FWidth;
       jpeg62.image_height := FHeight;
-      jpeg62.input_components := 3;
+      jpeg62.input_components :=3;
       jpeg62.in_color_space := LibJpeg62.JCS_RGB;
+      {$IFNDEF LIB_JPEG_62_TURBO_JCS_ALPHA_EXTENSIONS}
+      if FUseBGRAColorSpace then begin
+        raise ELibJpegException.Create('Extended color spaces disabled by config!');
+      end;
+      {$ELSE}
+      if FUseBGRAColorSpace then begin
+        jpeg62.input_components := 4;
+        jpeg62.in_color_space := LibJpeg62.JCS_EXT_BGRA;
+      end;
+      {$ENDIF}
       LibJpeg62.jpeg_set_defaults(@jpeg62);
       LibJpeg62.jpeg_set_quality(@jpeg62, FQuality, True);
       Result := jpeg62.global_state <> 0;
@@ -256,6 +272,16 @@ begin
       jpeg8.image_height := FHeight;
       jpeg8.input_components := 3;
       jpeg8.in_color_space := LibJpeg8.JCS_RGB;
+      {$IFNDEF LIB_JPEG_8_TURBO_JCS_ALPHA_EXTENSIONS}
+      if FUseBGRAColorSpace then begin
+        raise ELibJpegException.Create('Extended color spaces disabled by config!');
+      end;
+      {$ELSE}
+      if FUseBGRAColorSpace then begin
+        jpeg8.input_components := 4;
+        jpeg8.in_color_space := LibJpeg8.JCS_EXT_BGRA;
+      end;
+      {$ENDIF}
       LibJpeg8.jpeg_set_defaults(@jpeg8);
       LibJpeg8.jpeg_set_quality(@jpeg8, FQuality, True);
       Result := jpeg8.global_state <> 0;
@@ -264,7 +290,7 @@ begin
   end;
 end;
 
-function TJpegWriter.WriteMarkers(): Boolean;
+function TJpegWriter.WriteMarkers: Boolean;
 var
   I: Integer;
 begin
@@ -297,7 +323,7 @@ begin
 end;
 
 {$IFDEF LIB_JPEG_62_SUPPORT}
-function TJpegWriter.InitComp62():Boolean;
+function TJpegWriter.InitComp62: Boolean;
 begin
   if {$IFNDEF LIB_JPEG_62_STATIC_LINK} InitLibJpeg62() {$ELSE} True {$ENDIF} then begin
     FillChar(jpeg62, SizeOf(LibJpeg62.jpeg_compress_struct), $00);
@@ -347,11 +373,11 @@ begin
   VMemoryStream := nil;
   VLine := nil;
 
-  if SetCompOptions() then begin
+  if SetCompOptions then begin
     LibJpeg62.jpeg_start_compress(@jpeg62, True);
     try
-      if WriteMarkers() then begin
-        VSize := jpeg62.image_width * 3; // 24 bit/pix
+      if WriteMarkers then begin
+        VSize := jpeg62.image_width * Cardinal(jpeg62.input_components);
 
         if (Addr(AWriteCallBack) = nil) and Assigned(AInPutStream) then begin
           VStreamPos := AInPutStream.Position;
@@ -370,7 +396,7 @@ begin
             end;
 
             if Addr(AWriteCallBack) <> nil then begin
-              VLine := AWriteCallBack(Self, I, VAborted);
+              VLine := AWriteCallBack(Self, I, VSize, VAborted);
               if VAborted then begin
                 Break; // abort by user
               end;
@@ -407,7 +433,7 @@ end;
 {$ENDIF}
 
 {$IFDEF LIB_JPEG_8_SUPPORT}
-function TJpegWriter.InitComp8():Boolean;
+function TJpegWriter.InitComp8: Boolean;
 begin
   if {$IFNDEF LIB_JPEG_8_STATIC_LINK} InitLibJpeg8() {$ELSE} True {$ENDIF} then begin
     FillChar(jpeg8, SizeOf(LibJpeg8.jpeg_compress_struct), $00);
@@ -460,8 +486,8 @@ begin
   if SetCompOptions() then begin
     LibJpeg8.jpeg_start_compress(@jpeg8, True);
     try
-      if WriteMarkers() then begin
-        VSize := jpeg8.image_width * 3; // 24 bit/pix
+      if WriteMarkers then begin
+        VSize := jpeg8.image_width * Cardinal(jpeg8.input_components);
 
         if (Addr(AWriteCallBack) = nil) and Assigned(AInPutStream) then begin
           VStreamPos := AInPutStream.Position;
@@ -480,7 +506,7 @@ begin
             end;
 
             if Addr(AWriteCallBack) <> nil then begin
-              VLine := AWriteCallBack(Self, I, VAborted);
+              VLine := AWriteCallBack(Self, I, VSize, VAborted);
               if VAborted then begin
                 Break; // abort by user
               end;
