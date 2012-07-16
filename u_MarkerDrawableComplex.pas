@@ -14,10 +14,10 @@ type
     FMarkerFirst: IMarkerDrawable;
     FMarkerSecond: IMarkerDrawable;
   private
-    procedure DrawToBitmap(
+    function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
-    );
+    ): Boolean;
   public
     constructor Create(
       AMarkerFirst: IMarkerDrawable;
@@ -40,11 +40,16 @@ begin
   FMarkerSecond := AMarkerSecond;
 end;
 
-procedure TMarkerDrawableComplex.DrawToBitmap(ABitmap: TCustomBitmap32;
-  const APosition: TDoublePoint);
+function TMarkerDrawableComplex.DrawToBitmap(ABitmap: TCustomBitmap32;
+  const APosition: TDoublePoint): Boolean;
 begin
-  FMarkerFirst.DrawToBitmap(ABitmap, APosition);
-  FMarkerSecond.DrawToBitmap(ABitmap, APosition);
+  Result := False;
+  if FMarkerFirst.DrawToBitmap(ABitmap, APosition) then begin
+    Result := True;
+  end;
+  if FMarkerSecond.DrawToBitmap(ABitmap, APosition) then begin
+    Result := True;
+  end;
 end;
 
 end.

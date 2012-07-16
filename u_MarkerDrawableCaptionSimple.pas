@@ -16,10 +16,10 @@ type
     FTextBgColor: TColor32;
     FSolidBgDraw: Boolean;
   private
-    procedure DrawToBitmap(
+    function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
-    );
+    ): Boolean;
   public
     constructor Create(
       ACapion: string;
@@ -49,10 +49,10 @@ begin
   FSolidBgDraw := ASolidBgDraw;
 end;
 
-procedure TMarkerDrawableCaptionSimple.DrawToBitmap(ABitmap: TCustomBitmap32;
-  const APosition: TDoublePoint);
+function TMarkerDrawableCaptionSimple.DrawToBitmap(ABitmap: TCustomBitmap32;
+  const APosition: TDoublePoint): Boolean;
 begin
-
+  Result := False;
 end;
 
 end.
