@@ -20,20 +20,20 @@ type
 
   TMarkerDrawableSimpleAbstract = class(TMarkerDrawableSimpleBaseAbstract, IMarkerDrawable)
   protected
-    procedure DrawToBitmap(
+    function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
-    ); virtual; abstract;
+    ): Boolean; virtual; abstract;
   end;
   TMarkerDrawableSimpleAbstractClass = class of TMarkerDrawableSimpleAbstract;
 
   TMarkerDrawableWithDirectionSimpleAbstract = class(TMarkerDrawableSimpleBaseAbstract, IMarkerDrawableWithDirection)
   protected
-    procedure DrawToBitmapWithDirection(
+    function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;
       const AAngle: Double
-    ); virtual; abstract;
+    ): Boolean; virtual; abstract;
   end;
   TMarkerDrawableWithDirectionSimpleAbstractClass = class of TMarkerDrawableWithDirectionSimpleAbstract;
 

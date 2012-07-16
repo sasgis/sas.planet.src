@@ -95,9 +95,11 @@ uses
   gnugettext,
   i_LonLatRect,
   i_MarksSimple,
+  i_MarkerProviderForVectorItem,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   u_GeoFun,
+  u_MarkerProviderForVectorItemForMarkPoints,
   u_IdCacheSimpleThreadSafe,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
@@ -199,6 +201,8 @@ var
   VSourceProvider: IBitmapLayerProvider;
   VUseMarks: Boolean;
   VUseRecolor: Boolean;
+  VMarkerProvider: IMarkerProviderForVectorItem;
+  VMarksDrawConfig: IMarksDrawConfigStatic;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
   VRect := APolygon.Item[0].Bounds;
@@ -236,12 +240,19 @@ begin
     VLineClipRect.Top := VMapRect.Top - 10;
     VLineClipRect.Right := VMapRect.Right + 10;
     VLineClipRect.Bottom := VMapRect.Bottom + 10;
+    VMarksDrawConfig := FMarksDrawConfig.GetStatic;
+    VMarkerProvider :=
+      TMarkerProviderForVectorItemForMarkPoints.Create(
+        nil,
+        VMarksDrawConfig
+      );
     VMarksImageProvider :=
       TBitmapLayerProviderByMarksSubset.Create(
-        FMarksDrawConfig.GetStatic,
+        VMarksDrawConfig,
         FVectorItmesFactory,
         AProjectedPolygon.Projection,
         TIdCacheSimpleThreadSafe.Create,
+        VMarkerProvider,
         VLineClipRect,
         VMarksSubset
       );

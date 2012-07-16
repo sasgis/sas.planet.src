@@ -10,10 +10,10 @@ uses
 type
   IMarkerDrawable = interface
     ['{91E8968F-8563-4ED0-8774-AF844F8CA8B9}']
-    procedure DrawToBitmap(
+    function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
-    );
+    ): Boolean;
   end;
 
   IMarkerDrawableChangeable = interface(IChangeable)
@@ -23,11 +23,11 @@ type
 
   IMarkerDrawableWithDirection = interface
     ['{76C743DE-86B4-4EF2-9451-DB22A90B8628}']
-    procedure DrawToBitmapWithDirection(
+    function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;
       const AAngle: Double
-    );
+    ): Boolean;
   end;
 
   IMarkerDrawableWithDirectionChangeable = interface(IChangeable)

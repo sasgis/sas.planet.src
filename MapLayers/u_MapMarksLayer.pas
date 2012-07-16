@@ -54,14 +54,13 @@ type
   TMapMarksLayer = class(TMapLayerTiledWithThreadDraw, IFindVectorItems)
   private
     FConfig: IMarksLayerConfig;
-    FConfigStatic: IUsedMarksConfigStatic;
-    FDrawConfigStatic: IMarksDrawConfigStatic;
     FVectorItmesFactory: IVectorItmesFactory;
     FMarkDB: TMarksSystem;
 
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
     FProjectedCache: IIdCacheSimple;
+    FMarkerCache: IIdCacheSimple;
     FPointsAgregator: IDoublePointsAggregator;
 
     FMarksSubset: IMarksSubset;
@@ -79,7 +78,10 @@ type
 
     procedure OnConfigChange;
     procedure OnMarksDbChange;
-    function GetMarksSubset(const ALocalConverter: ILocalCoordConverter): IMarksSubset;
+    function GetMarksSubset(
+      const AConfig: IUsedMarksConfigStatic;
+      const ALocalConverter: ILocalCoordConverter
+    ): IMarksSubset;
   protected
     procedure DrawBitmap(
       AOperationID: Integer;
@@ -120,6 +122,9 @@ uses
   i_TileIterator,
   i_Bitmap32Static,
   i_BitmapLayerProvider,
+  i_MarkerProviderForVectorItem,
+  u_MarkerProviderForVectorItemWithCache,
+  u_MarkerProviderForVectorItemForMarkPoints,
   u_IdCacheSimpleThreadSafe,
   u_DoublePointsAggregator,
   u_BitmapLayerProviderByMarksSubset,
@@ -165,6 +170,7 @@ begin
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FPointsAgregator := TDoublePointsAggregator.Create;
+  FMarkerCache := TIdCacheSimpleThreadSafe.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -211,12 +217,14 @@ var
   VMapRect: TDoubleRect;
   VCounterContext: TInternalPerformanceCounterContext;
   VTileConverter: ILocalCoordConverter;
+  VMarkerProvider: IMarkerProviderForVectorItem;
+  VMarksDrawConfig: IMarksDrawConfigStatic;
 begin
   VBitmapConverter := LayerCoordConverter;
   if VBitmapConverter <> nil then begin
     VCounterContext := FGetMarksCounter.StartOperation;
     try
-      VMarksSubset := GetMarksSubset(VBitmapConverter);
+      VMarksSubset := GetMarksSubset(FConfig.MarksShowConfig.GetStatic, VBitmapConverter);
       FMarksSubsetCS.BeginWrite;
       try
         FMarksSubset := VMarksSubset;
@@ -227,18 +235,26 @@ begin
       FGetMarksCounter.FinishOperation(VCounterContext);
     end;
     FProjectedCache.Clear;
+    FMarkerCache.Clear;
     if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
       VMapRect := VBitmapConverter.GetRectInMapPixelFloat;
       FLinesClipRect.Left := VMapRect.Left - 10;
       FLinesClipRect.Top := VMapRect.Top - 10;
       FLinesClipRect.Right := VMapRect.Right + 10;
       FLinesClipRect.Bottom := VMapRect.Bottom + 10;
+      VMarksDrawConfig := FConfig.MarksDrawConfig.GetStatic;
+      VMarkerProvider :=
+        TMarkerProviderForVectorItemWithCache.Create(
+          FMarkerCache,
+          TMarkerProviderForVectorItemForMarkPoints.Create(nil, VMarksDrawConfig)
+        );
       VProv :=
         TBitmapLayerProviderByMarksSubset.Create(
-          FDrawConfigStatic,
+          VMarksDrawConfig,
           FVectorItmesFactory,
           VBitmapConverter.ProjectionInfo,
           FProjectedCache,
+          VMarkerProvider,
           FLinesClipRect,
           VMarksSubset
         );
@@ -397,6 +413,7 @@ begin
 end;
 
 function TMapMarksLayer.GetMarksSubset(
+  const AConfig: IUsedMarksConfigStatic;
   const ALocalConverter: ILocalCoordConverter
 ): IMarksSubset;
 var
@@ -408,9 +425,9 @@ var
 begin
   VList := nil;
   Result := nil;
-  if FConfigStatic.IsUseMarks then begin
+  if AConfig.IsUseMarks then begin
     VZoom := ALocalConverter.GetZoom;
-    if not FConfigStatic.IgnoreCategoriesVisible then begin
+    if not AConfig.IgnoreCategoriesVisible then begin
       VList := FMarkDB.GetVisibleCategories(VZoom);
     end;
     try
@@ -421,7 +438,7 @@ begin
         VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
         VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
         VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-        Result := FMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, FConfigStatic.IgnoreMarksVisible);
+        Result := FMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, AConfig.IgnoreMarksVisible);
       end;
     finally
       VList := nil;
@@ -471,9 +488,7 @@ procedure TMapMarksLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FConfigStatic := FConfig.MarksShowConfig.GetStatic;
-    FDrawConfigStatic := FConfig.MarksDrawConfig.GetStatic;
-    SetVisible(FConfigStatic.IsUseMarks);
+    SetVisible(FConfig.MarksShowConfig.IsUseMarks);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
