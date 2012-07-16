@@ -122,6 +122,7 @@ begin
     VBitmap := TCustomBitmap32.Create;
     try
       VBitmap.SetSizeFrom(FBitmapWithText);
+      VBitmap.Clear(0);
       VBitmap.Draw(0, 0, FBitmapWithText);
       VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
       VBitmap := nil;
@@ -141,8 +142,11 @@ function TMarkerProviderForVectorItemForMarkPoints.GetIconMarker(
 var
   VMarker: IBitmapMarker;
 begin
+  Result := nil;
   if ASourceMarker = nil then begin
-    Result := FMarkerDefault.GetStatic;
+    if FMarkerDefault <> nil then begin
+      Result := FMarkerDefault.GetStatic;
+    end;
   end else begin
     VMarker := ASourceMarker;
     if ASize <> VMarker.BitmapSize.X then begin
