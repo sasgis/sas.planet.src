@@ -28,6 +28,7 @@ uses
   WinTypes,
   t_GeoTypes,
   i_ProjectionInfo,
+  i_MarkerProviderForVectorItem,
   i_IdCacheSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
@@ -44,6 +45,7 @@ type
   private
     FConfig: IMarksDrawConfigStatic;
     FVectorItmesFactory: IVectorItmesFactory;
+    FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IMarksSubset;
     FProjectionInfo: IProjectionInfo;
     FProjectedCache: IIdCacheSimple;
@@ -103,6 +105,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
+      const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
       const ALinesClipRect: TDoubleRect;
       const AMarksSubset: IMarksSubset
     );
@@ -118,6 +121,7 @@ uses
   GR32_Resamplers,
   GR32_Polygons,
   i_BitmapMarker,
+  i_MarkerDrawable,
   i_CoordConverter,
   i_EnumDoublePoint,
   u_Bitmap32Static,
@@ -138,6 +142,7 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
+  const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   const ALinesClipRect: TDoubleRect;
   const AMarksSubset: IMarksSubset
 );
@@ -148,6 +153,7 @@ begin
   FProjectionInfo := AProjectionInfo;
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
+  FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
   FLinesClipRect := ALinesClipRect;
 
   FTempBmp := TCustomBitmap32.Create;
@@ -391,87 +397,19 @@ function TBitmapLayerProviderByMarksSubset.DrawPoint(
 var
   VLocalPoint: TDoublePoint;
   VLonLat: TDoublePoint;
-  VDstRect: TRect;
-  VSrcRect: TRect;
-  VTextSize: TSize;
-  VMarkSize: Integer;
-  VFontSize: Integer;
-  VMarker: IBitmapMarker;
-  VTargetPoint: TPoint;
+  VMarker: IMarkerDrawable;
 begin
   Result := False;
-  VMarkSize := AMarkPoint.MarkerSize;
-  VFontSize := AMarkPoint.FontSize;
-  VLonLat := AMarkPoint.Point;
-  ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
-  VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
-  if (AMarkPoint.Pic <> nil) then begin
+  VMarker := FMarkerProviderForVectorItem.GetMarker(AMarkPoint);
+  if VMarker <> nil then begin
+    VLonLat := AMarkPoint.Point;
+    ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
+    VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     if not ABitmapInited then begin
       InitBitmap(ATargetBmp, ALocalConverter);
       ABitmapInited := True;
     end;
-    VMarker := AMarkPoint.Pic.GetMarkerBySize(VMarkSize);
-    VTargetPoint :=
-      PointFromDoublePoint(
-        DoublePoint(
-          VLocalPoint.X - VMarker.AnchorPoint.X,
-          VLocalPoint.Y - VMarker.AnchorPoint.Y
-        ),
-        prToTopLeft
-      );
-    BlockTransfer(
-      ATargetBmp,
-      VTargetPoint.X,
-      VTargetPoint.Y,
-      ATargetBmp.ClipRect,
-      VMarker.Bitmap,
-      VMarker.Bitmap.BoundsRect,
-      dmBlend
-    );
-    Result := True;
-  end;
-  if FConfig.ShowPointCaption then begin
-    if VFontSize > 0 then begin
-      if not ABitmapInited then begin
-        InitBitmap(ATargetBmp, ALocalConverter);
-        ABitmapInited := True;
-      end;
-      FBitmapWithText.MasterAlpha:=AlphaComponent(AMarkPoint.TextColor);
-      FBitmapWithText.Font.Size := VFontSize;
-      VTextSize := FBitmapWithText.TextExtent(AMarkPoint.Name);
-      VTextSize.cx:=VTextSize.cx+2;
-      VTextSize.cy:=VTextSize.cy+2;
-      FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
-      VDstRect.TopLeft :=
-        PointFromDoublePoint(
-          DoublePoint(
-            VLocalPoint.x + VMarkSize / 2,
-            VLocalPoint.y - VMarkSize / 2 - VTextSize.cy / 2
-          ),
-          prToTopLeft
-        );
-      VDstRect.Right := VDstRect.Left + VTextSize.cx;
-      VDstRect.Bottom := VDstRect.Top + VTextSize.cy;
-      VSrcRect := bounds(1, 1, VTextSize.cx, VTextSize.cy);
-      if FConfig.UseSolidCaptionBackground then begin
-        FBitmapWithText.Clear(AMarkPoint.TextBgColor);
-        FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
-      end else begin
-        FBitmapWithText.Clear(0);
-        FBitmapWithText.RenderText(2, 2, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextBgColor,255));
-        FBitmapWithText.RenderText(1, 1, AMarkPoint.Name, 1, SetAlpha(AMarkPoint.TextColor,255));
-      end;
-      BlockTransfer(
-        ATargetBmp,
-        VDstRect.Left,
-        VDstRect.Top,
-        ATargetBmp.ClipRect,
-        FBitmapWithText,
-        FBitmapWithText.BoundsRect,
-        dmBlend
-      );
-      Result := True;
-    end;
+    Result := VMarker.DrawToBitmap(ATargetBmp, VLocalPoint);
   end;
 end;
 
