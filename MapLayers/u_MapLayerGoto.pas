@@ -14,10 +14,10 @@ uses
   i_MapViewGoto,
   i_LocalCoordConverter,
   i_GotoLayerConfig,
-  u_MapLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TGotoLayer = class(TMapLayerBasicNoBitmap)
+  TGotoLayer = class(TWindowLayerSimpleBase)
   private
     FConfig: IGotoLayerConfig;
     FMapGoto: IMapViewGoto;
@@ -51,6 +51,7 @@ implementation
 uses
   Math,
   SysUtils,
+  GR32_Layers,
   i_Listener,
   i_CoordConverter,
   u_ListenerByEvent,
@@ -76,8 +77,8 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
-    AParentMap,
-    AViewPortState
+    TCustomLayer.Create(AParentMap.Layers),
+    AViewPortState.View
   );
   FConfig := AConfig;
   FMarkerChangeable := AMarkerChangeable;
@@ -136,13 +137,8 @@ end;
 
 procedure TGotoLayer.OnConfigChange;
 begin
-  ViewUpdateLock;
-  try
-    SetVisible(GetIsVisible);
-    SetNeedRedraw;
-  finally
-    ViewUpdateUnlock;
-  end;
+  Visible := GetIsVisible;
+  SetNeedRedraw;
 end;
 
 procedure TGotoLayer.OnTimer;
