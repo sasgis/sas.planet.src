@@ -5,57 +5,80 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_MarkerDrawable,
   u_MarkerDrawableSimpleAbstract;
 
 type
   TMarkerDrawableSimpleCross = class(TMarkerDrawableSimpleAbstract)
   protected
-    procedure DrawToBitmap(
+    function  DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
-    ); override;
+    ): Boolean; override;
   end;
 
 implementation
 
 uses
-  GR32_Polygons;
+  Types,
+  GR32_Polygons,
+  u_GeoFun;
 
 { TMarkerDrawableSimpleCross }
 
-procedure TMarkerDrawableSimpleCross.DrawToBitmap(ABitmap: TCustomBitmap32;
-  const APosition: TDoublePoint);
+function TMarkerDrawableSimpleCross.DrawToBitmap(ABitmap: TCustomBitmap32;
+  const APosition: TDoublePoint): Boolean;
 var
   VCrossHalfWidth: Double;
   VHalfSize: Double;
   VPolygon: TPolygon32;
+  VTargetRect: TRect;
+  VTargetDoubleRect: TDoubleRect;
 begin
   VCrossHalfWidth := Config.MarkerSize / 10;
   VHalfSize := Config.MarkerSize / 2;
-  VPolygon := TPolygon32.Create;
-  try
-    VPolygon.Closed := True;
-    VPolygon.Antialiased := true;
-    VPolygon.AntialiasMode := am2times;
-    VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y - VHalfSize));
-    VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y - VHalfSize));
-    VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y - VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X + VHalfSize, APosition.Y - VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X + VHalfSize, APosition.Y + VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y + VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y + VHalfSize));
-    VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y + VHalfSize));
-    VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y + VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X - VHalfSize, APosition.Y + VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X - VHalfSize, APosition.Y - VCrossHalfWidth));
-    VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y - VCrossHalfWidth));
+  VTargetDoubleRect.Left := APosition.X - VHalfSize;
+  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
+  VTargetDoubleRect.Right := APosition.X + VHalfSize;
+  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
 
-    VPolygon.DrawFill(ABitmap, Config.MarkerColor);
-    VPolygon.DrawEdge(ABitmap, Config.BorderColor);
-  finally
-    VPolygon.Free;
+  VTargetRect := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
+  IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
+  if IsRectEmpty(VTargetRect) then begin
+    Result := False;
+    Exit;
   end;
+  if not ABitmap.MeasuringMode then begin
+    ABitmap.BeginUpdate;
+    try
+      VPolygon := TPolygon32.Create;
+      try
+        VPolygon.Closed := True;
+        VPolygon.Antialiased := true;
+        VPolygon.AntialiasMode := am2times;
+        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y - VHalfSize));
+        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y - VHalfSize));
+        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y - VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X + VHalfSize, APosition.Y - VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X + VHalfSize, APosition.Y + VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y + VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X + VCrossHalfWidth, APosition.Y + VHalfSize));
+        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y + VHalfSize));
+        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y + VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X - VHalfSize, APosition.Y + VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X - VHalfSize, APosition.Y - VCrossHalfWidth));
+        VPolygon.Add(FixedPoint(APosition.X - VCrossHalfWidth, APosition.Y - VCrossHalfWidth));
+
+        VPolygon.DrawFill(ABitmap, Config.MarkerColor);
+        VPolygon.DrawEdge(ABitmap, Config.BorderColor);
+      finally
+        VPolygon.Free;
+      end;
+    finally
+      ABitmap.EndUpdate;
+    end;
+  end;
+  ABitmap.Changed(VTargetRect);
+  Result := True;
 end;
 
 end.

@@ -39,14 +39,13 @@ type
     FLoader: IBitmapTileLoader;
 
     FCS: IReadWriteSync;
-    FSimpleMarkerProvider: IBitmapMarkerProvider;
+    FBitmapMarker: IBitmapMarker;
     FSource: IBinaryData;
 
     FInitedFlag: ISimpleFlag;
     procedure InitPic;
   private
     function GetMarker: IBitmapMarker;
-    function GetMarkerBySize(ASize: Integer): IBitmapMarker;
   private
     function GetName: string;
     function GetSource: IBinaryData;
@@ -70,8 +69,7 @@ uses
   i_Bitmap32Static,
   u_BitmapMarker,
   u_SimpleFlagWithInterlock,
-  u_BinaryDataByMemStream,
-  u_BitmapMarkerProviderStaticFromDataProvider;
+  u_BinaryDataByMemStream;
 
 { TMarkPictureSimple }
 constructor TMarkPictureSimple.Create(
@@ -110,7 +108,6 @@ var
   VMemStream: TMemoryStream;
   VBitmap: IBitmap32Static;
   VAnchor: TDoublePoint;
-  VBaseMarker: IBitmapMarker;
 begin
   if not FInitedFlag.CheckFlag then begin
     FCS.BeginWrite;
@@ -128,8 +125,7 @@ begin
 
         VAnchor.X := VBitmap.Bitmap.Width / 2;
         VAnchor.Y := VBitmap.Bitmap.Height;
-        VBaseMarker := TBitmapMarker.Create(VBitmap, VAnchor);
-        FSimpleMarkerProvider := TBitmapMarkerProviderStatic.Create(VBaseMarker);
+        FBitmapMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FInitedFlag.SetFlag;
       end;
     finally
@@ -141,13 +137,7 @@ end;
 function TMarkPictureSimple.GetMarker: IBitmapMarker;
 begin
   InitPic;
-  Result := FSimpleMarkerProvider.GetMarker;
-end;
-
-function TMarkPictureSimple.GetMarkerBySize(ASize: Integer): IBitmapMarker;
-begin
-  InitPic;
-  Result := FSimpleMarkerProvider.GetMarkerBySize(ASize);
+  Result := FBitmapMarker;
 end;
 
 function TMarkPictureSimple.GetName: string;

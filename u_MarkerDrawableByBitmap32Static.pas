@@ -1,4 +1,4 @@
-unit u_MarkerDrawableByBitmapMarker;
+unit u_MarkerDrawableByBitmap32Static;
 
 interface
 
@@ -6,13 +6,14 @@ uses
   Types,
   GR32,
   t_GeoTypes,
-  i_MarkerDrawable,
-  i_BitmapMarker;
+  i_Bitmap32Static,
+  i_MarkerDrawable;
 
 type
-  TMarkerDrawableByBitmapMarker = class(TInterfacedObject, IMarkerDrawable)
+  TMarkerDrawableByBitmap32Static = class(TInterfacedObject, IMarkerDrawable)
   private
-    FMarker: IBitmapMarker;
+    FBitmap: IBitmap32Static;
+    FAnchorPoint: TDoublePoint;
   private
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
@@ -20,7 +21,8 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AMarker: IBitmapMarker
+      const ABitmap: IBitmap32Static;
+      const AAnchorPoint: TDoublePoint
     );
   end;
 
@@ -30,15 +32,19 @@ uses
   GR32_Resamplers,
   u_GeoFun;
 
-{ TMarkerDrawableByBitmapMarker }
+{ TMarkerDrawableByBitmap32Static }
 
-constructor TMarkerDrawableByBitmapMarker.Create(const AMarker: IBitmapMarker);
+constructor TMarkerDrawableByBitmap32Static.Create(
+  const ABitmap: IBitmap32Static;
+  const AAnchorPoint: TDoublePoint
+);
 begin
   inherited Create;
-  FMarker := AMarker;
+  FBitmap := ABitmap;
+  FAnchorPoint := AAnchorPoint;
 end;
 
-function TMarkerDrawableByBitmapMarker.DrawToBitmap(
+function TMarkerDrawableByBitmap32Static.DrawToBitmap(
   ABitmap: TCustomBitmap32;
   const APosition: TDoublePoint
 ): Boolean;
@@ -50,10 +56,10 @@ var
 begin
   VTargetPointFloat :=
     DoublePoint(
-      APosition.X - FMarker.AnchorPoint.X,
-      APosition.Y - FMarker.AnchorPoint.Y
+      APosition.X - FAnchorPoint.X,
+      APosition.Y - FAnchorPoint.Y
     );
-  VSourceSize := Point(FMarker.Bitmap.Width, FMarker.Bitmap.Height);
+  VSourceSize := Point(FBitmap.Bitmap.Width, FBitmap.Bitmap.Height);
   VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
   VTargetRect.TopLeft := VTargetPoint;
   VTargetRect.Right := VTargetRect.Left + VSourceSize.X;
@@ -68,8 +74,8 @@ begin
     ABitmap,
     VTargetPoint.X, VTargetPoint.Y,
     ABitmap.ClipRect,
-    FMarker.Bitmap,
-    FMarker.Bitmap.BoundsRect,
+    FBitmap.Bitmap,
+    FBitmap.Bitmap.BoundsRect,
     dmBlend,
     ABitmap.CombineMode
   );

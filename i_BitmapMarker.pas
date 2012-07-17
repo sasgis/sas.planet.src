@@ -51,30 +51,7 @@ type
     function GetChangeNotifier: INotifier;
     property ChangeNotifier: INotifier read GetChangeNotifier;
   end;
-
-  IBitmapMarkerProvider = interface
-    ['{A186F046-0CFB-456A-A6C3-271046CB2CA0}']
-    function GetMarker: IBitmapMarker;
-    function GetMarkerBySize(ASize: Integer): IBitmapMarker;
-  end;
-
-  IBitmapMarkerWithDirectionProvider = interface(IBitmapMarkerProvider)
-    ['{80B3D3EB-E42E-4D40-A20D-6C15F7E446A0}']
-    function GetMarkerWithRotation(const AAngle: Double): IBitmapMarkerWithDirection;
-    function GetMarkerWithRotationBySize(
-      const AAngle: Double;
-      ASize: Integer
-    ): IBitmapMarkerWithDirection;
-  end;
-
-  IBitmapMarkerProviderChangeable = interface
-    ['{A81C1CCD-76B8-48F7-8079-25F1D1A8D10B}']
-    function GetStatic: IBitmapMarkerProvider;
-
-    function GetChangeNotifier: INotifier;
-    property ChangeNotifier: INotifier read GetChangeNotifier;
-  end;
-
+  
 implementation
 
 end.

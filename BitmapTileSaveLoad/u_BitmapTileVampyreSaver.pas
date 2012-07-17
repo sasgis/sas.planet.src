@@ -80,14 +80,6 @@ type
     );
   end;
 
-  TVampyreBasicBitmapTileSaverJPG = class(TVampyreBasicBitmapTileSaver)
-  public
-    constructor Create(
-      ACompressionQuality: Byte;
-      const APerfCounterList: IInternalPerformanceCounterList = nil
-    );
-  end;
-
 function GetVampireGlobalLock: IReadWriteSync;
 
 implementation
@@ -95,7 +87,6 @@ implementation
 uses
   ImagingGraphics32,
   ImagingNetworkGraphics,
-  ImagingJpeg,
   ImagingGif,
   ImagingBitmap,
   u_BinaryDataByMemStream;
@@ -266,22 +257,6 @@ procedure TVampyreBasicBitmapTileSaverPNGPalette.PrepareData(
 );
 begin
   FConverter.Convert(AImage);
-end;
-
-{ TVampyreBasicBitmapTileSaverJPG }
-
-constructor TVampyreBasicBitmapTileSaverJPG.Create(
-  ACompressionQuality: byte;
-  const APerfCounterList: IInternalPerformanceCounterList = nil
-);
-var
-  VFormat: TJpegFileFormat;
-  VMeta: TMetadata;
-begin
-  VMeta := TMetadata.Create;
-  VFormat := TJpegFileFormat.Create(VMeta);
-  VFormat.Quality := ACompressionQuality;
-  inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
 end;
 
 initialization

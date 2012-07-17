@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  SysUtils,
   GR32,
   GR32_Image,
   t_GeoTypes,
@@ -14,7 +15,7 @@ uses
   i_ViewPortState,
   i_TileError,
   i_SimpleFlag,
-  i_BitmapMarker,
+  i_MarkerDrawable,
   i_TileErrorLogProviedrStuped,
   u_MapType,
   u_MapLayerBasic;
@@ -26,15 +27,14 @@ type
     FTimerNoifier: INotifier;
     FNeedUpdateFlag: ISimpleFlag;
 
-    FHideAfterTime: Cardinal;
     FErrorInfo: ITileErrorInfo;
-    FFixedLonLat: TDoublePoint;
-    FMarker: IBitmapMarker;
+    FErrorInfoCS: IReadWriteSync;
+    FHideAfterTime: Cardinal;
+    FMarker: IMarkerDrawable;
 
     procedure OnTimer;
     procedure OnErrorRecive;
-    function CreateMarkerByError(const AErrorInfo: ITileErrorInfo): IBitmapMarker;
-    procedure ShowError(const AErrorInfo: ITileErrorInfo);
+    function CreateMarkerByError(const AErrorInfo: ITileErrorInfo): IMarkerDrawable;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -57,13 +57,13 @@ implementation
 
 uses
   Types,
-  GR32_Resamplers,
   i_CoordConverter,
   i_Bitmap32Static,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
-  u_BitmapMarker,
+  u_MarkerDrawableByBitmap32Static,
   u_Bitmap32Static,
+  u_Synchronizer,
   u_GeoFun;
 
 
@@ -90,6 +90,7 @@ begin
   FTimerNoifier := ATimerNoifier;
   FErrorInfo := nil;
   FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
+  FErrorInfoCS := MakeSyncRW_Var(Self, False);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnErrorRecive),
@@ -103,7 +104,7 @@ end;
 
 function TTileErrorInfoLayer.CreateMarkerByError(
   const AErrorInfo: ITileErrorInfo
-): IBitmapMarker;
+): IMarkerDrawable;
 var
   VText: string;
   VSize: TPoint;
@@ -149,7 +150,7 @@ begin
     finally
       VBitmap.Free;
     end;
-    Result := TBitmapMarker.Create(VBitmapStatic, DoublePoint(VSize.X / 2, VSize.Y / 2));
+    Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, DoublePoint(VSize.X / 2, VSize.Y / 2));
   end;
 end;
 
@@ -170,23 +171,52 @@ procedure TTileErrorInfoLayer.OnTimer;
 var
   VCurrTime: Cardinal;
   VNeedHide: Boolean;
+  VErrorInfo: ITileErrorInfo;
 begin
+  VErrorInfo := nil;
   if FNeedUpdateFlag.CheckFlagAndReset then begin
-    ShowError(FLogProvider.GetLastErrorInfo);
-  end else begin
-    VNeedHide := True;
-    if FHideAfterTime <> 0 then begin
-      if FErrorInfo <> nil then begin
-        VCurrTime := GetTickCount;
-        if (VCurrTime < FHideAfterTime) then begin
-          VNeedHide := False;
-        end;
+    VErrorInfo := FLogProvider.GetLastErrorInfo;
+  end;
+  if VErrorInfo <> nil then begin
+    VCurrTime := GetTickCount;
+    ViewUpdateLock;
+    try
+      FErrorInfoCS.BeginWrite;
+      try
+        FErrorInfo := VErrorInfo;
+        FHideAfterTime := VCurrTime + 10000;
+      finally
+        FErrorInfoCS.EndWrite;
       end;
+      SetNeedRedraw;
+      Show;
+    finally
+      ViewUpdateUnlock;
     end;
-    if VNeedHide then begin
-      ShowError(nil);
+  end else begin
+    VCurrTime := GetTickCount;
+    VNeedHide := False;
+    ViewUpdateLock;
+    try
+      FErrorInfoCS.BeginWrite;
+      try
+        if (FHideAfterTime = 0) or (FErrorInfo = nil) or (VCurrTime >= FHideAfterTime) then begin
+          VNeedHide := True;
+          FHideAfterTime := 0;
+          FErrorInfo := nil;
+        end;
+      finally
+        FErrorInfoCS.EndWrite;
+      end;
+      if VNeedHide then begin
+        FMarker := nil;
+        Hide;
+      end;
+    finally
+      ViewUpdateUnlock;
     end;
   end;
+
 end;
 
 procedure TTileErrorInfoLayer.PaintLayer(
@@ -194,13 +224,30 @@ procedure TTileErrorInfoLayer.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VMarker: IBitmapMarker;
+  VMarker: IMarkerDrawable;
   VFixedOnView: TDoublePoint;
-  VTargetPointFloat: TDoublePoint;
-  VTargetPoint: TPoint;
+  VErrorInfo: ITileErrorInfo;
+  VConverter: ICoordConverter;
+  VMapType: TMapType;
+  VZoom: Byte;
+  VTile: TPoint;
+  VFixedLonLat: TDoublePoint;
 begin
+  FErrorInfoCS.BeginRead;
+  try
+    VErrorInfo := FErrorInfo;
+  finally
+    FErrorInfoCS.EndRead;
+  end;
   if FErrorInfo <> nil then begin
-    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
+    VMapType := VErrorInfo.MapType;
+    VConverter := VMapType.GeoConvert;
+    VZoom := VErrorInfo.Zoom;
+    VTile := VErrorInfo.Tile;
+    VConverter.CheckTilePosStrict(VTile, VZoom, True);
+    VFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(VTile, VZoom)), VZoom);
+    ALocalConverter.GeoConverter.CheckLonLatPos(VFixedLonLat);
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
     if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin
       VMarker := FMarker;
       if VMarker = nil then begin
@@ -208,57 +255,10 @@ begin
       end;
       FMarker := VMarker;
       if VMarker <> nil then begin
-        VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FFixedLonLat);
-        VTargetPointFloat :=
-          DoublePoint(
-            VFixedOnView.X - VMarker.AnchorPoint.X,
-            VFixedOnView.Y - VMarker.AnchorPoint.Y
-          );
-        VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-        if PtInRect(ALocalConverter.GetLocalRect, VTargetPoint) then begin
-          BlockTransfer(
-            ABuffer,
-            VTargetPoint.X, VTargetPoint.Y,
-            ABuffer.ClipRect,
-            VMarker.Bitmap,
-            VMarker.Bitmap.BoundsRect,
-            dmBlend,
-            cmBlend
-          );
-        end;
+        VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VFixedLonLat);
+        VMarker.DrawToBitmap(ABuffer, VFixedOnView);
       end;
     end;
-  end;
-end;
-
-procedure TTileErrorInfoLayer.ShowError(const AErrorInfo: ITileErrorInfo);
-var
-  VConverter: ICoordConverter;
-  VMapType: TMapType;
-  VZoom: Byte;
-  VTile: TPoint;
-begin
-  ViewUpdateLock;
-  try
-    FErrorInfo := AErrorInfo;
-    if FErrorInfo <> nil then begin
-      VMapType := FErrorInfo.MapType;
-      VConverter := VMapType.GeoConvert;
-      FHideAfterTime := GetTickCount + 10000;
-      VZoom := FErrorInfo.Zoom;
-      VTile := FErrorInfo.Tile;
-      VConverter.CheckTilePosStrict(VTile, VZoom, True);
-      FFixedLonLat := VConverter.PixelPosFloat2LonLat(RectCenter(VConverter.TilePos2PixelRect(VTile, VZoom)), VZoom);
-      FMarker := nil;
-      SetNeedRedraw;
-      Show;
-    end else begin
-      FHideAfterTime := 0;
-      FMarker := nil;
-      Hide;
-    end;
-  finally
-    ViewUpdateUnlock;
   end;
 end;
 

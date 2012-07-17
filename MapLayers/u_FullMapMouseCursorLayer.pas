@@ -23,7 +23,6 @@ type
     FMouseState: IMouseState;
 
     FLastPos: TPoint;
-    FColor: TColor32;
     procedure OnConfigChange;
     procedure OnTimerEvent;
   protected
@@ -92,7 +91,6 @@ end;
 
 procedure TFullMapMouseCursorLayer.OnConfigChange;
 begin
-  FColor := FConfig.LineColor;
   ViewUpdateLock;
   try
     if FConfig.Enabled and ((FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways)) then begin
@@ -122,11 +120,13 @@ procedure TFullMapMouseCursorLayer.PaintLayer(ABuffer: TBitmap32;
 );
 var
   VPos: TPoint;
+  VColor: TColor32;
 begin
   inherited;
   VPos := FMouseState.CurentPos;
-  ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, FColor);
-  ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, FColor);
+  VColor := FConfig.LineColor;
+  ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, VColor);
+  ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, VColor);
   FLastPos := VPos;
 end;
 

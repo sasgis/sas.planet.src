@@ -57,7 +57,7 @@ type
     );
   end;
 
-  TMapLayerBasicNoBitmap = class(TMapLayerBase)
+  TMapLayerBasicNoBitmap = class(TWindowLayerBasic)
   private
     FOnPaintCounter: IInternalPerformanceCounter;
     procedure OnPaintLayer(
@@ -409,7 +409,8 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     TCustomLayer.Create(AParentMap.Layers),
-    AViewPortState
+    AViewPortState,
+    True
   );
   FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
 end;

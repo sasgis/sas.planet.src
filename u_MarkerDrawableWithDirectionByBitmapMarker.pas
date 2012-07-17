@@ -26,11 +26,11 @@ type
       const APosition: TDoublePoint
     );
   private
-    procedure DrawToBitmapWithDirection(
+    function DrawToBitmapWithDirection(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint;
       const AAngle: Double
-    );
+    ): Boolean;
   public
     constructor Create(
       const AMarker: IBitmapMarkerWithDirection
@@ -40,6 +40,7 @@ type
 implementation
 
 uses
+  Math,
   GR32_Blend,
   GR32_Rasterizers,
   GR32_Resamplers,
@@ -79,60 +80,87 @@ begin
       APosition.Y - AMarker.AnchorPoint.Y
     );
   VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-  if PtInRect(ABitmap.BoundsRect, VTargetPoint) then begin
-    BlockTransfer(
-      ABitmap,
-      VTargetPoint.X, VTargetPoint.Y,
-      ABitmap.ClipRect,
-      AMarker.Bitmap,
-      AMarker.Bitmap.BoundsRect,
-      dmBlend,
-      ABitmap.CombineMode
-    );
-  end;
+  BlockTransfer(
+    ABitmap,
+    VTargetPoint.X, VTargetPoint.Y,
+    ABitmap.ClipRect,
+    AMarker.Bitmap,
+    AMarker.Bitmap.BoundsRect,
+    dmBlend,
+    ABitmap.CombineMode
+  );
 end;
 
-procedure TMarkerDrawableWithDirectionByBitmapMarker.DrawToBitmapWithDirection(
+function TMarkerDrawableWithDirectionByBitmapMarker.DrawToBitmapWithDirection(
   ABitmap: TCustomBitmap32;
   const APosition: TDoublePoint;
   const AAngle: Double
-);
+): Boolean;
 var
   VCachedMarker: IBitmapMarkerWithDirection;
   VMarkerToDraw: IBitmapMarkerWithDirection;
+  VSourceSize: TPoint;
+  VAnchorPoint: TDoublePoint;
+  VHalfSize: Double;
+  VTargetRect: TRect;
+  VTargetDoubleRect: TDoubleRect;
 begin
-  if Abs(CalcAngleDelta(AAngle, FMarker.Direction)) > CAngleDelta then begin
-    FCachedMarkerCS.BeginRead;
-    try
-      VCachedMarker := FCachedMarker;
-    finally
-      FCachedMarkerCS.EndRead;
-    end;
+  VSourceSize := FMarker.BitmapSize;
+  VAnchorPoint := FMarker.AnchorPoint;
+  VHalfSize :=
+    Min(
+      Min(VAnchorPoint.X + VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VAnchorPoint.Y),
+      Min(VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y, VSourceSize.X - VAnchorPoint.X + VSourceSize.Y - VAnchorPoint.Y)
+    );
+  VTargetDoubleRect.Left := APosition.X - VHalfSize;
+  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
+  VTargetDoubleRect.Right := APosition.X + VHalfSize;
+  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+  VTargetRect := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
 
-    if VCachedMarker <> nil then begin
-      if Abs(CalcAngleDelta(AAngle, VCachedMarker.Direction)) > CAngleDelta then begin
-        VMarkerToDraw := nil;
+  IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
+  if IsRectEmpty(VTargetRect) then begin
+    Result := False;
+    Exit;
+  end;
+
+  if ABitmap.MeasuringMode then begin
+    ABitmap.Changed(VTargetRect);
+  end else begin
+    if Abs(CalcAngleDelta(AAngle, FMarker.Direction)) > CAngleDelta then begin
+      FCachedMarkerCS.BeginRead;
+      try
+        VCachedMarker := FCachedMarker;
+      finally
+        FCachedMarkerCS.EndRead;
+      end;
+
+      if VCachedMarker <> nil then begin
+        if Abs(CalcAngleDelta(AAngle, VCachedMarker.Direction)) > CAngleDelta then begin
+          VMarkerToDraw := nil;
+        end else begin
+          VMarkerToDraw := VCachedMarker;
+        end;
       end else begin
-        VMarkerToDraw := VCachedMarker;
+        VMarkerToDraw := nil;
+      end;
+      if VMarkerToDraw = nil then begin
+        VMarkerToDraw := ModifyMarkerWithRotation(FMarker, AAngle);
+      end;
+      if (VMarkerToDraw <> nil) and (VMarkerToDraw <> VCachedMarker) then begin
+        FCachedMarkerCS.BeginWrite;
+        try
+          FCachedMarker := VMarkerToDraw;
+        finally
+          FCachedMarkerCS.EndWrite;
+        end;
       end;
     end else begin
-      VMarkerToDraw := nil;
+      VMarkerToDraw := FMarker;
     end;
-    if VMarkerToDraw = nil then begin
-      VMarkerToDraw := ModifyMarkerWithRotation(FMarker, AAngle);
-    end;
-    if (VMarkerToDraw <> nil) and (VMarkerToDraw <> VCachedMarker) then begin
-      FCachedMarkerCS.BeginWrite;
-      try
-        FCachedMarker := VMarkerToDraw;
-      finally
-        FCachedMarkerCS.EndWrite;
-      end;
-    end;
-  end else begin
-    VMarkerToDraw := FMarker;
+    DrawToBitmap(VMarkerToDraw, ABitmap, APosition);
   end;
-  DrawToBitmap(VMarkerToDraw, ABitmap, APosition);
+  Result := True;
 end;
 
 function TMarkerDrawableWithDirectionByBitmapMarker.ModifyMarkerWithRotation(

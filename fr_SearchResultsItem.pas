@@ -86,11 +86,11 @@ begin
   FPlacemark:=APlacemark;
   FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
-  LabelCaption.Caption:=FPlacemark.GetAddress;
+  LabelCaption.Caption:=FPlacemark.Name;
   LabelDesc.Caption:=FPlacemark.GetDesc;
   FMapGoto:=AMapGoto;
   FViewPortState := AViewPortState;
-  PanelFullDesc.Visible:=FPlacemark.GetFullDesc<>'';
+  PanelFullDesc.Visible:=FPlacemark.GetInfoHTML<>'';
   PanelDesc.Visible:=FPlacemark.GetDesc<>'';
 end;
 
@@ -127,7 +127,7 @@ end;
 procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  FIntrnalBrowser.ShowMessage(FPlacemark.GetAddress, FPlacemark.GetFullDesc);
+  FIntrnalBrowser.ShowMessage(FPlacemark.GetInfoCaption, FPlacemark.GetInfoHTML);
 end;
 
 end.

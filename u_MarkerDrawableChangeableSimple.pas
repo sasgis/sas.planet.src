@@ -4,8 +4,6 @@ interface
 
 uses
   SysUtils,
-  GR32,
-  t_GeoTypes,
   i_Notifier,
   i_Listener,
   i_MarkerDrawable,

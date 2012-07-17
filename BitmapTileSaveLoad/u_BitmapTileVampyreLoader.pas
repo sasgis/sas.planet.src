@@ -49,19 +49,11 @@ type
     );
   end;
 
-  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
-  public
-    constructor Create(
-      const APerfCounterList: IInternalPerformanceCounterList
-    );
-  end;
-
 implementation
 
 uses
   ImagingTypes,
   ImagingGraphics32,
-  ImagingJpeg,
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap,
@@ -166,12 +158,5 @@ begin
 end;
 
 { TVampyreBasicBitmapTileLoaderJPEG }
-
-constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
-);
-begin
-  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
-end;
 
 end.

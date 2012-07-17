@@ -696,7 +696,6 @@ uses
   i_LocalCoordConverter,
   i_GUIDListStatic,
   i_ActiveMapsConfig,
-  i_BitmapMarker,
   i_MarkerDrawable,
   i_LanguageManager,
   i_VectorDataItemSimple,
@@ -741,7 +740,7 @@ uses
   u_TileErrorLogProviedrStuped,
   u_FullMapMouseCursorLayer,
   u_MarkerDrawableChangeableFaked,
-  u_MarkerDrawableByBitmapMarker,
+  u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableCenterScale,
   u_MarkerDrawableChangeableSimple,
   u_MarkerDrawableSimpleArrow,
@@ -760,15 +759,8 @@ uses
   u_UITileDownloadList,
   u_MapTypeConfigModalEditByForm,
   u_ConfigProviderHelpers,
-  u_BitmapMarker,
   i_ImportConfig,
   u_EnumDoublePointLine2Poly,
-  u_BitmapMarkerProviderSimpleBase,
-  u_BitmapMarkerProviderSimpleSquare,
-  u_BitmapMarkerProviderSimpleArrow,
-  u_BitmapMarkerProviderSimpleCross,
-  u_BitmapMarkerProviderChangeableFaked,
-  u_BitmapMarkerProviderStaticFromDataProvider,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
   u_TreeByPathDetalizeProviderList,
@@ -1105,7 +1097,6 @@ var
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
-  VBitmapMarker: IBitmapMarker;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1496,14 +1487,9 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(8, 8)
-      );
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
       );
     FLayerSearchResults :=
       TSearchResultsLayer.Create(
@@ -1523,14 +1509,9 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(7, 6)
-      );
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
     FLayersList.Add(
       TGotoLayer.Create(
@@ -1587,14 +1568,9 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(7, 6)
-      );
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
     FLayersList.Add(
       TPointOnMapEditLayer.Create(
@@ -5664,7 +5640,7 @@ begin
   NMarkNav.Visible := VMark <> nil;
   if (VMark <> nil) then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      NMarksCalcs.Visible := false;
+      NMarksCalcs.Visible := False;
     end else if Supports(VMark, IMarkLine, VMarkLine) then begin
       NMarksCalcsSq.Visible := False;
       NMarksCalcsPer.Visible := False;
@@ -5675,10 +5651,11 @@ begin
       NMarksCalcsPer.Visible := True;
       NMarksCalcsLen.Visible:= False;
       NMarksCalcs.Visible := True;
+    end else begin
+      NMarksCalcs.Visible := True;
     end;
-    NMarksCalcs.Visible := true;
   end else begin
-    NMarksCalcs.Visible := false;
+    NMarksCalcs.Visible := False;
   end;
   if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
     NMarkNav.Checked:=true
@@ -5933,7 +5910,7 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
-    VStr := VPlacemark.GetFullDesc;
+    VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
     end;
@@ -5949,14 +5926,14 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
-    VStr := VPlacemark.GetFullDesc;
+    VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
       FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(
         VPlacemark.GetPoint,
-        VPlacemark.GetAddress,
+        VPlacemark.Name,
         VStr
       );
     VMark := FMarkDBGUI.EditMarkModal(VMark, True);
