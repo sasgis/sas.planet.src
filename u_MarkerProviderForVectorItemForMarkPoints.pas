@@ -68,6 +68,7 @@ uses
   u_Bitmap32Static,
   u_BitmapMarker,
   u_MarkerDrawableByBitmapMarker,
+  u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableComplex,
   u_GeoFun;
 
@@ -141,7 +142,6 @@ function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
 ): IMarkerDrawable;
 var
   VTextSize: TSize;
-  VMarker: IBitmapMarker;
   VBitmapStatic: IBitmap32Static;
   VAnchorPoint: TDoublePoint;
 begin
@@ -149,8 +149,7 @@ begin
   VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
   if VBitmapStatic <> nil then begin
     VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VTextSize.cy / 2);
-    VMarker := TBitmapMarker.Create(VBitmapStatic, VAnchorPoint);
-    Result := TMarkerDrawableByBitmapMarker.Create(VMarker);
+    Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, VAnchorPoint);
   end;
 end;
 

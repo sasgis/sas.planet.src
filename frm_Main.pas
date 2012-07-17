@@ -742,6 +742,7 @@ uses
   u_FullMapMouseCursorLayer,
   u_MarkerDrawableChangeableFaked,
   u_MarkerDrawableByBitmapMarker,
+  u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableCenterScale,
   u_MarkerDrawableChangeableSimple,
   u_MarkerDrawableSimpleArrow,
@@ -1099,7 +1100,6 @@ var
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
-  VBitmapMarker: IBitmapMarker;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1490,14 +1490,9 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(8, 8)
-      );
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
       );
     FLayerSearchResults :=
       TSearchResultsLayer.Create(
@@ -1517,14 +1512,9 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(7, 6)
-      );
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
     FLayersList.Add(
       TGotoLayer.Create(
@@ -1581,14 +1571,9 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VBitmapMarker :=
-      TBitmapMarker.Create(
-        VBitmap,
-        DoublePoint(7, 6)
-      );
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmapMarker.Create(VBitmapMarker)
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
     FLayersList.Add(
       TPointOnMapEditLayer.Create(

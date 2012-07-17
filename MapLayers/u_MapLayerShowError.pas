@@ -63,7 +63,7 @@ uses
   i_Bitmap32Static,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
-  u_MarkerDrawableByBitmapMarker,
+  u_MarkerDrawableByBitmap32Static,
   u_BitmapMarker,
   u_Bitmap32Static,
   u_Synchronizer,
@@ -115,7 +115,6 @@ var
   VMessageSize: TSize;
   VBitmap: TBitmap32;
   VBitmapStatic: IBitmap32Static;
-  VBitmapMarker: IBitmapMarker;
 begin
   inherited;
   Result := nil;
@@ -154,8 +153,7 @@ begin
     finally
       VBitmap.Free;
     end;
-    VBitmapMarker := TBitmapMarker.Create(VBitmapStatic, DoublePoint(VSize.X / 2, VSize.Y / 2));
-    Result := TMarkerDrawableByBitmapMarker.Create(VBitmapMarker);
+    Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, DoublePoint(VSize.X / 2, VSize.Y / 2));
   end;
 end;
 
