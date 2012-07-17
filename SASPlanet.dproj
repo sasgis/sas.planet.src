@@ -593,12 +593,6 @@
     <DCCReference Include="u_BitmapLayerProviderSimpleForCombine.pas" />
     <DCCReference Include="u_BitmapLayerProviderWithBgColor.pas" />
     <DCCReference Include="u_BitmapMarker.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderChangeableFaked.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderSimpleArrow.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderSimpleBase.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderSimpleCross.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderSimpleSquare.pas" />
-    <DCCReference Include="u_BitmapMarkerProviderStaticFromDataProvider.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
     <DCCReference Include="u_CalcLineLayerCaptionsConfig.pas" />
