@@ -2,6 +2,8 @@ unit u_BitmapTileVampyreSaver;
 
 interface
 
+{.$DEFINE USE_VAMPYRE_JPEG_SAVER}
+
 uses
   Classes,
   SysUtils,
@@ -80,6 +82,7 @@ type
     );
   end;
 
+{$IFDEF USE_VAMPYRE_JPEG_SAVER}
   TVampyreBasicBitmapTileSaverJPG = class(TVampyreBasicBitmapTileSaver)
   public
     constructor Create(
@@ -87,6 +90,7 @@ type
       const APerfCounterList: IInternalPerformanceCounterList = nil
     );
   end;
+{$ENDIF}
 
 function GetVampireGlobalLock: IReadWriteSync;
 
@@ -95,7 +99,9 @@ implementation
 uses
   ImagingGraphics32,
   ImagingNetworkGraphics,
+  {$IFDEF USE_VAMPYRE_JPEG_SAVER}
   ImagingJpeg,
+  {$ENDIF}
   ImagingGif,
   ImagingBitmap,
   u_BinaryDataByMemStream;
@@ -270,6 +276,7 @@ end;
 
 { TVampyreBasicBitmapTileSaverJPG }
 
+{$IFDEF USE_VAMPYRE_JPEG_SAVER}
 constructor TVampyreBasicBitmapTileSaverJPG.Create(
   ACompressionQuality: byte;
   const APerfCounterList: IInternalPerformanceCounterList = nil
@@ -283,6 +290,7 @@ begin
   VFormat.Quality := ACompressionQuality;
   inherited CreateWithMeta(VFormat, VMeta, APerfCounterList);
 end;
+{$ENDIF}
 
 initialization
   GVampireGlobalLock := TSimpleRWSync.Create;
