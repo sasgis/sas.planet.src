@@ -24,7 +24,7 @@ type
 
     FLayer: TCustomLayer;
 
-    FFixedPoint: TDoublePoint;
+    FLastFixedPoint: TDoublePoint;
 
     procedure OnConfigChange;
     procedure OnPosChange;
@@ -72,6 +72,7 @@ begin
   FConfig := AConfig;
   FPosition := APosition;
   FMarkerChangeable := AMarkerChangeable;
+  FLastFixedPoint := CEmptyDoublePoint;
 
   FLayer := TBitmapLayer.Create(AParentMap.Layers);
   FLayer.MouseEvents := false;
@@ -102,10 +103,12 @@ end;
 procedure TLayerCenterScale.OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
 var
   VMarker: IMarkerDrawable;
+  VFixedPoint: TDoublePoint;
 begin
   VMarker := FMarkerChangeable.GetStatic;
   if VMarker <> nil then begin
-    VMarker.DrawToBitmap(Buffer, FFixedPoint);
+    VFixedPoint := RectCenter(FPosition.GetStatic.GetLocalRect);
+    VMarker.DrawToBitmap(Buffer, VFixedPoint);
   end;
 end;
 
@@ -115,8 +118,8 @@ var
 begin
   if FLayer.Visible then begin
     VNewFixedPoint := RectCenter(FPosition.GetStatic.GetLocalRect);
-    if not DoublePointsEqual(VNewFixedPoint, FFixedPoint) then begin
-      FFixedPoint := VNewFixedPoint;
+    if not DoublePointsEqual(VNewFixedPoint, FLastFixedPoint) then begin
+      FLastFixedPoint := VNewFixedPoint;
       FLayer.Changed;
     end;
   end;
