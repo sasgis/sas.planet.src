@@ -752,6 +752,7 @@ uses
   u_MarkerDrawableSimpleSquare in 'u_MarkerDrawableSimpleSquare.pas',
   u_MarkerDrawableCenterScale in 'u_MarkerDrawableCenterScale.pas',
   u_MarkerDrawableByBitmapMarker in 'u_MarkerDrawableByBitmapMarker.pas',
+  u_MarkerDrawableByBitmap32Static in 'u_MarkerDrawableByBitmap32Static.pas',
   u_MarkerDrawableWithDirectionByBitmapMarker in 'u_MarkerDrawableWithDirectionByBitmapMarker.pas',
   u_MarkerDrawableChangeableFaked in 'u_MarkerDrawableChangeableFaked.pas',
   u_MarkerDrawableChangeableSimple in 'u_MarkerDrawableChangeableSimple.pas',
