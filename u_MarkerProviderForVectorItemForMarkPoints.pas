@@ -7,6 +7,7 @@ uses
   i_MarkerDrawable,
   i_VectorDataItemSimple,
   i_MarksDrawConfig,
+  i_Bitmap32Static,
   i_BitmapMarker,
   i_MarkerProviderForVectorItem;
 
@@ -18,6 +19,13 @@ type
 
     FBitmapWithText: TBitmap32;
 
+    function GetCaptionBitmap(
+      ACaption: string;
+      AFontSize: Integer;
+      ATextColor: TColor32;
+      ATextBgColor: TColor32;
+      ASolidBgDraw: Boolean
+    ): IBitmap32Static;
     function GetCaptionMarker(
       ACaption: string;
       AFontSize: Integer;
@@ -57,7 +65,6 @@ uses
   GR32_Transforms,
   t_GeoTypes,
   i_MarksSimple,
-  i_Bitmap32Static,
   u_Bitmap32Static,
   u_BitmapMarker,
   u_MarkerDrawableByBitmapMarker,
@@ -89,19 +96,12 @@ begin
   inherited;
 end;
 
-function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
-  ACaption: string;
-  AFontSize: Integer;
-  ATextColor, ATextBgColor: TColor32;
-  ASolidBgDraw: Boolean;
-  AMarkSize: Integer
-): IMarkerDrawable;
+function TMarkerProviderForVectorItemForMarkPoints.GetCaptionBitmap(
+  ACaption: string; AFontSize: Integer; ATextColor, ATextBgColor: TColor32;
+  ASolidBgDraw: Boolean): IBitmap32Static;
 var
   VTextSize: TSize;
-  VMarker: IBitmapMarker;
-  VBitmapStatic: IBitmap32Static;
   VBitmap: TCustomBitmap32;
-  VAnchorPoint: TDoublePoint;
 begin
   Result := nil;
   if (AFontSize > 0) and (ACaption <> '') then begin
@@ -124,11 +124,30 @@ begin
       VBitmap.SetSizeFrom(FBitmapWithText);
       VBitmap.Clear(0);
       VBitmap.Draw(0, 0, FBitmapWithText);
-      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+      Result := TBitmap32Static.CreateWithOwn(VBitmap);
       VBitmap := nil;
     finally
       VBitmap.Free;
     end;
+  end;
+end;
+
+function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
+  ACaption: string;
+  AFontSize: Integer;
+  ATextColor, ATextBgColor: TColor32;
+  ASolidBgDraw: Boolean;
+  AMarkSize: Integer
+): IMarkerDrawable;
+var
+  VTextSize: TSize;
+  VMarker: IBitmapMarker;
+  VBitmapStatic: IBitmap32Static;
+  VAnchorPoint: TDoublePoint;
+begin
+  Result := nil;
+  VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
+  if VBitmapStatic <> nil then begin
     VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VTextSize.cy / 2);
     VMarker := TBitmapMarker.Create(VBitmapStatic, VAnchorPoint);
     Result := TMarkerDrawableByBitmapMarker.Create(VMarker);
