@@ -47,6 +47,13 @@ type
     );
   end;
 
+  TBitmapTileFreeImageLoaderIco = class(TBitmapTileFreeImageLoader)
+  public
+    constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
+  end;
+
   TBitmapTileFreeImageLoaderGif = class(TBitmapTileFreeImageLoader)
   public
     constructor Create(
@@ -55,13 +62,6 @@ type
   end;
 
   TBitmapTileFreeImageLoaderPng = class(TBitmapTileFreeImageLoader)
-  public
-    constructor Create(
-      const APerfCounterList: IInternalPerformanceCounterList
-    );
-  end;
-
-  TBitmapTileFreeImageLoaderJpeg = class(TBitmapTileFreeImageLoader)
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList
@@ -79,7 +79,6 @@ type
   public
     constructor Create(
       const AFormat: FREE_IMAGE_FORMAT;
-      const AJpegQuality: Byte;
       const APngCompress: Byte;
       const ABitPerPixel: Byte;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -110,14 +109,6 @@ type
     );
   end;
 
-  TBitmapTileFreeImageSaverJpeg = class(TBitmapTileFreeImageSaver)
-  public
-    constructor Create(
-      const AJpegQuality: Byte;
-      const APerfCounterList: IInternalPerformanceCounterList
-    );
-  end;
-
 implementation
 
 uses
@@ -133,7 +124,6 @@ type
   EBitmapTileFreeImageSaver = class (Exception);
 
 const
-  cJpegQualityUndef = 255;
   cPngCompressLevelUndef = 255;
   
 { TBitmapTileFreeImageLoader }
@@ -224,6 +214,17 @@ begin
   );
 end;
 
+{ TBitmapTileFreeImageLoaderIco }
+
+constructor TBitmapTileFreeImageLoaderIco.Create(
+  const APerfCounterList: IInternalPerformanceCounterList
+);
+begin
+  inherited Create(
+    APerfCounterList.CreateAndAddNewSubList('FreeImage/Ico')
+  );
+end;
+
 { TBitmapTileFreeImageLoaderGif }
 
 constructor TBitmapTileFreeImageLoaderGif.Create(
@@ -246,22 +247,10 @@ begin
   );
 end;
 
-{ TBitmapTileFreeImageLoaderJpeg }
-
-constructor TBitmapTileFreeImageLoaderJpeg.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
-);
-begin
-  inherited Create(
-    APerfCounterList.CreateAndAddNewSubList('FreeImage/Jpeg')
-  );
-end;
-
 { TBitmapTileFreeImageSaver }
 
 constructor TBitmapTileFreeImageSaver.Create(
   const AFormat: FREE_IMAGE_FORMAT;
-  const AJpegQuality: Byte;
   const APngCompress: Byte;
   const ABitPerPixel: Byte;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -272,16 +261,6 @@ begin
   FBitPerPixel := ABitPerPixel;
   FCounter := APerfCounterList.CreateAndAddNewCounter('Save');
   case FFormat of
-    FIF_JPEG:
-      case AJpegQuality of
-         0..24: FFlag := JPEG_QUALITYBAD;
-        25..49: FFlag := JPEG_QUALITYAVERAGE;
-        50..74: FFlag := JPEG_QUALITYNORMAL;
-        75..80: FFlag := JPEG_QUALITYGOOD;
-      else // 81..100
-        FFlag := JPEG_QUALITYSUPERB;
-      end;
-
     FIF_PNG:
       case APngCompress  of
         1..4:
@@ -344,7 +323,7 @@ begin
             'FreeBitmap.ColorQuantize FAIL!'
           );
         end;
-      end else if FBitPerPixel = 24 then begin // PNG without alfa, JPEG
+      end else if FBitPerPixel = 24 then begin // PNG without alfa
         if not VFreeBitmap.ConvertTo24Bits then begin
           raise EBitmapTileFreeImageSaver.Create(
             'FreeBitmap.ConvertTo24Bits FAIL!'
@@ -380,7 +359,6 @@ constructor TBitmapTileFreeImageSaverBmp.Create(
 begin
   inherited Create(
     FIF_BMP,
-    cJpegQualityUndef,
     cPngCompressLevelUndef,
     32,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Bmp')
@@ -395,7 +373,6 @@ constructor TBitmapTileFreeImageSaverGif.Create(
 begin
   inherited Create(
     FIF_GIF,
-    cJpegQualityUndef,
     cPngCompressLevelUndef,
     8,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Gif')
@@ -412,26 +389,9 @@ constructor TBitmapTileFreeImageSaverPng.Create(
 begin
   inherited Create(
     FIF_PNG,
-    cJpegQualityUndef,
     APngCompress,
     ABitPerPixel,
     APerfCounterList.CreateAndAddNewSubList('FreeImage/Png')
-  );
-end;
-
-{ TBitmapTileFreeImageSaverJpeg }
-
-constructor TBitmapTileFreeImageSaverJpeg.Create(
-  const AJpegQuality: Byte;
-  const APerfCounterList: IInternalPerformanceCounterList
-);
-begin
-  inherited Create(
-    FIF_JPEG,
-    AJpegQuality,
-    cPngCompressLevelUndef,
-    24,
-    APerfCounterList.CreateAndAddNewSubList('FreeImage/Jpeg')
   );
 end;
 

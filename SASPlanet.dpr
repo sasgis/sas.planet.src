@@ -262,6 +262,7 @@ uses
   u_BitmapTileLibJpeg in 'BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas',
   i_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas',
   u_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas',
+  u_BitmapTileFreeImage in 'BitmapTileSaveLoad\u_BitmapTileFreeImage.pas',
   u_MapTypeCacheConfig in 'u_MapTypeCacheConfig.pas',
   i_MapVersionInfo in 'i_MapVersionInfo.pas',
   u_MapVersionInfo in 'u_MapVersionInfo.pas',

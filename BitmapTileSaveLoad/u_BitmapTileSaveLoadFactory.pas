@@ -77,10 +77,16 @@ type
 
 implementation
 
+{$DEFINE USE_FREE_IMAGE}
+
 uses
   u_BitmapTileLibJpeg,
+  {$IFNDEF USE_FREE_IMAGE}
   u_BitmapTileVampyreSaver,
   u_BitmapTileVampyreLoader,
+  {$ELSE}
+  u_BitmapTileFreeImage,
+  {$ENDIF}
   u_InternalPerformanceCounterList;
 
 function GetValidPerfCounterList(
@@ -99,45 +105,75 @@ function TBitmapTileSaveLoadFactory.CreateBmpLoader(
   const APerfCounterList: IInternalPerformanceCounterList = nil
 ): IBitmapTileLoader;
 begin
+  {$IFNDEF USE_FREE_IMAGE}
   Result := TVampyreBasicBitmapTileLoaderBMP.Create(
     GetValidPerfCounterList(APerfCounterList)
   );
+  {$ELSE}
+  Result := TBitmapTileFreeImageLoaderBmp.Create(
+    GetValidPerfCounterList(APerfCounterList)
+  );
+  {$ENDIF}
 end;
 
 function TBitmapTileSaveLoadFactory.CreateBmpSaver(
   const APerfCounterList: IInternalPerformanceCounterList = nil
 ): IBitmapTileSaver;
 begin
+  {$IFNDEF USE_FREE_IMAGE}
   Result := TVampyreBasicBitmapTileSaverBMP.Create(
     GetValidPerfCounterList(APerfCounterList)
   );
+  {$ELSE}
+  Result := TBitmapTileFreeImageSaverBmp.Create(
+    GetValidPerfCounterList(APerfCounterList)
+  );
+  {$ENDIF}
 end;
 
 function TBitmapTileSaveLoadFactory.CreateGifLoader(
   const APerfCounterList: IInternalPerformanceCounterList = nil
 ): IBitmapTileLoader;
 begin
+  {$IFNDEF USE_FREE_IMAGE}
   Result := TVampyreBasicBitmapTileLoaderGIF.Create(
     GetValidPerfCounterList(APerfCounterList)
   );
+  {$ELSE}
+  Result := TBitmapTileFreeImageLoaderGif.Create(
+    GetValidPerfCounterList(APerfCounterList)
+  );
+  {$ENDIF}
 end;
 
 function TBitmapTileSaveLoadFactory.CreateGifSaver(
   const APerfCounterList: IInternalPerformanceCounterList = nil
 ): IBitmapTileSaver;
 begin
+  {$IFNDEF USE_FREE_IMAGE}
   Result := TVampyreBasicBitmapTileSaverGIF.Create(
     GetValidPerfCounterList(APerfCounterList)
   );
+  {$ELSE}
+  Result := TBitmapTileFreeImageSaverGif.Create(
+    GetValidPerfCounterList(APerfCounterList)
+  );
+  {$ENDIF}
 end;
 
 function TBitmapTileSaveLoadFactory.CreatePngLoader(
   const APerfCounterList: IInternalPerformanceCounterList = nil
 ): IBitmapTileLoader;
 begin
+  {$IFNDEF USE_FREE_IMAGE}
   Result := TVampyreBasicBitmapTileLoaderPNG.Create(
     GetValidPerfCounterList(APerfCounterList)
   );
+  {$ELSE}
+  Result := TBitmapTileFreeImageLoaderPng.Create(
+    GetValidPerfCounterList(APerfCounterList)
+  );
+  {$ENDIF}
 end;
 
 function TBitmapTileSaveLoadFactory.CreatePngSaver(
@@ -150,27 +186,51 @@ begin
   case AColorDepth of
     i8bpp:
       begin
+        {$IFNDEF USE_FREE_IMAGE}
         Result := TVampyreBasicBitmapTileSaverPNGPalette.Create(
           AARGBToPaletteConverter,
           ACompressionLevel,
           GetValidPerfCounterList(APerfCounterList)
         );
+        {$ELSE}
+        Result := TBitmapTileFreeImageSaverPng.Create(
+          ACompressionLevel,
+          8,
+          GetValidPerfCounterList(APerfCounterList)
+        );
+        {$ENDIF}
       end;
 
     i24bpp:
       begin
+        {$IFNDEF USE_FREE_IMAGE}
         Result := TVampyreBasicBitmapTileSaverPNGRGB.Create(
           ACompressionLevel,
           GetValidPerfCounterList(APerfCounterList)
         );
+        {$ELSE}
+        Result := TBitmapTileFreeImageSaverPng.Create(
+          ACompressionLevel,
+          24,
+          GetValidPerfCounterList(APerfCounterList)
+        );
+        {$ENDIF}
       end;
 
   else // i32bpp
     begin
+      {$IFNDEF USE_FREE_IMAGE}
       Result := TVampyreBasicBitmapTileSaverPNG.Create(
         ACompressionLevel,
         GetValidPerfCounterList(APerfCounterList)
       );
+      {$ELSE}
+      Result := TBitmapTileFreeImageSaverPng.Create(
+        ACompressionLevel,
+        32,
+        GetValidPerfCounterList(APerfCounterList)
+      );
+      {$ENDIF}
     end;
   end;
 end;

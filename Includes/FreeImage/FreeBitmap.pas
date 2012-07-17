@@ -1967,7 +1967,7 @@ begin
   	fif := FreeImage_GetFIFFromFilename(PAnsiChar(FileName));
 
   // check for supported file types
-  if (fif <> FIF_UNKNOWN) and (not fif in [FIF_TIFF, FIF_ICO, FIF_GIF]) then
+  if (fif <> FIF_UNKNOWN) and (not fif in [{FIF_TIFF,} FIF_ICO, FIF_GIF]) then
     Exit;
 
   // open the stream
