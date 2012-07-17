@@ -24,7 +24,6 @@ interface
 
 uses
   ActiveX,
-  t_GeoTypes,
   i_NotifierOperation,
   i_VectorDataItemSimple,
   i_LocalCoordConverter;

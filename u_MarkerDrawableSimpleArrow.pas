@@ -5,7 +5,6 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_MarkerDrawable,
   u_MarkerDrawableSimpleAbstract;
 
 type

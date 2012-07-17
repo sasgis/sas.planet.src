@@ -265,7 +265,6 @@ uses
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
   u_ListenerByEvent,
-  u_GeoFun,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual;

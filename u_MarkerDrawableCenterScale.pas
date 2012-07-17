@@ -20,7 +20,6 @@ uses
   Types,
   SysUtils,
   GR32,
-  t_GeoTypes,
   i_Bitmap32Static,
   u_Bitmap32Static,
   u_BitmapMarker,

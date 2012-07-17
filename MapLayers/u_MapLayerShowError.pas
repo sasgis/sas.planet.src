@@ -16,7 +16,6 @@ uses
   i_TileError,
   i_SimpleFlag,
   i_MarkerDrawable,
-  i_BitmapMarker,
   i_TileErrorLogProviedrStuped,
   u_MapType,
   u_MapLayerBasic;
@@ -58,13 +57,11 @@ implementation
 
 uses
   Types,
-  GR32_Resamplers,
   i_CoordConverter,
   i_Bitmap32Static,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_MarkerDrawableByBitmap32Static,
-  u_BitmapMarker,
   u_Bitmap32Static,
   u_Synchronizer,
   u_GeoFun;

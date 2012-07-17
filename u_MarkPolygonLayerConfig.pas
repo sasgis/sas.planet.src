@@ -48,7 +48,6 @@ uses
   u_MarkerSimpleConfigStatic,
   u_PointsSetLayerConfig,
   u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_PolyLineLayerConfig,
   u_PolygonLayerConfig;
 
 { TMarkPolygonLayerConfig }

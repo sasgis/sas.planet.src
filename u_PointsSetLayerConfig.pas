@@ -28,9 +28,7 @@ type
 implementation
 
 uses
-  GR32,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_ConfigSaveLoadStrategyBasicUseProvider,
   u_MarkerSimpleConfig;
 
 constructor TPointsSetLayerConfig.Create(

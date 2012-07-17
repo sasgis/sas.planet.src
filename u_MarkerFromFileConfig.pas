@@ -59,7 +59,6 @@ type
 implementation
 
 uses
-  u_ConfigProviderHelpers,
   u_MarkerFromFileConfigStatic,
   u_GeoFun;
 

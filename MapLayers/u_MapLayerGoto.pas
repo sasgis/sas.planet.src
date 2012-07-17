@@ -9,7 +9,6 @@ uses
   i_Notifier,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
-  i_BitmapMarker,
   i_MarkerDrawable,
   i_ViewPortState,
   i_MapViewGoto,
@@ -50,10 +49,8 @@ type
 implementation
 
 uses
-  Types,
   Math,
   SysUtils,
-  GR32_Resamplers,
   i_Listener,
   i_CoordConverter,
   u_ListenerByEvent,
