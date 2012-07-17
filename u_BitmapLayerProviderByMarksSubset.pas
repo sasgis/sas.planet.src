@@ -51,8 +51,6 @@ type
     FProjectedCache: IIdCacheSimple;
     FLinesClipRect: TDoubleRect;
 
-    FTempBmp: TCustomBitmap32;
-    FBitmapWithText: TBitmap32;
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
     function GetProjectedPath(
@@ -109,18 +107,15 @@ type
       const ALinesClipRect: TDoubleRect;
       const AMarksSubset: IMarksSubset
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  Classes,
   ActiveX,
   SysUtils,
   GR32_Resamplers,
   GR32_Polygons,
-  i_BitmapMarker,
   i_MarkerDrawable,
   i_CoordConverter,
   i_EnumDoublePoint,
@@ -156,28 +151,7 @@ begin
   FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
   FLinesClipRect := ALinesClipRect;
 
-  FTempBmp := TCustomBitmap32.Create;
-  FTempBmp.DrawMode := dmBlend;
-  FTempBmp.CombineMode := cmMerge;
-  FTempBmp.Resampler := TLinearResampler.Create;
-
-  FBitmapWithText := TBitmap32.Create;
-  FBitmapWithText.Font.Name := 'Tahoma';
-  FBitmapWithText.Font.Style := [];
-  FBitmapWithText.DrawMode := dmBlend;
-  FBitmapWithText.CombineMode := cmMerge;
-  FBitmapWithText.Font.Size := CMaxFontSize;
-  FBitmapWithText.Resampler := TLinearResampler.Create;
-
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
-end;
-
-destructor TBitmapLayerProviderByMarksSubset.Destroy;
-begin
-  FPreparedPointsAggreagtor := nil;
-  FreeAndNil(FTempBmp);
-  FreeAndNil(FBitmapWithText);
-  inherited;
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawPath(
