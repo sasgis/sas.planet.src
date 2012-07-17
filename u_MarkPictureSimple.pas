@@ -69,8 +69,7 @@ uses
   i_Bitmap32Static,
   u_BitmapMarker,
   u_SimpleFlagWithInterlock,
-  u_BinaryDataByMemStream,
-  u_BitmapMarkerProviderStaticFromDataProvider;
+  u_BinaryDataByMemStream;
 
 { TMarkPictureSimple }
 constructor TMarkPictureSimple.Create(
