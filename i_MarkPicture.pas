@@ -29,10 +29,12 @@ uses
   i_ConfigDataElement;
 
 type
-  IMarkPicture = interface(IBitmapMarkerProvider)
+  IMarkPicture = interface
     ['{4F70C829-D49A-4019-AAF6-3AA9BCD2CCAE}']
     function GetSource: IBinaryData;
     property Source: IBinaryData read GetSource;
+
+    function GetMarker: IBitmapMarker;
 
     function GetName: string;
 
