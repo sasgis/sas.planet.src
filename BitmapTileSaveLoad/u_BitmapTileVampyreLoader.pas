@@ -2,8 +2,6 @@ unit u_BitmapTileVampyreLoader;
 
 interface
 
-{.$DEFINE USE_VAMPYRE_JPEG_LOADER}
-
 uses
   SysUtils,
   Imaging,
@@ -51,23 +49,11 @@ type
     );
   end;
 
-{$IFDEF USE_VAMPYRE_JPEG_LOADER}
-  TVampyreBasicBitmapTileLoaderJPEG = class(TVampyreBasicBitmapTileLoader)
-  public
-    constructor Create(
-      const APerfCounterList: IInternalPerformanceCounterList
-    );
-  end;
-{$ENDIF}
-
 implementation
 
 uses
   ImagingTypes,
   ImagingGraphics32,
-  {$IFDEF USE_VAMPYRE_JPEG_LOADER}
-  ImagingJpeg,
-  {$ENDIF}
   ImagingNetworkGraphics,
   ImagingGif,
   ImagingBitmap,
@@ -172,14 +158,5 @@ begin
 end;
 
 { TVampyreBasicBitmapTileLoaderJPEG }
-
-{$IFDEF USE_VAMPYRE_JPEG_LOADER}
-constructor TVampyreBasicBitmapTileLoaderJPEG.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
-);
-begin
-  inherited Create(TJpegFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreJPEG'));
-end;
-{$ENDIF}
 
 end.
