@@ -223,19 +223,19 @@ var
   VTileRect: TRect;
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VMapPixelRect: TRect;
+  VMapPixelRect: TDoubleRect;
 begin
-  VMapPixelRect := ANewConverter.GetRectInMapPixel;
+  VMapPixelRect := ANewConverter.GetRectInMapPixelFloat;
   VZoom := ANewConverter.Zoom;
   VConverter := ANewConverter.GeoConverter;
-  VConverter.CheckPixelRect(VMapPixelRect, VZoom);
-  VTileRect := VConverter.PixelRect2TileRect(VMapPixelRect, VZoom);
-  if EqualRect(VMapPixelRect, VConverter.TileRect2PixelRect(VTileRect, VZoom)) then begin
+  VConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+  VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
+  if DoubleRectsEqual(VMapPixelRect, DoubleRect(VConverter.TileRect2PixelRect(VTileRect, VZoom))) then begin
     VLocalConverter := ANewConverter;
   end else begin
     VLocalConverter := FLocalConverterFactory.CreateBySourceWithStableTileRect(ANewConverter);
-    VMapPixelRect := VLocalConverter.GetRectInMapPixel;
-    VTileRect := VConverter.PixelRect2TileRect(VMapPixelRect, VZoom);
+    VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+    VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
   end;
 
   if ASource = nil then begin
