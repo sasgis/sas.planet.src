@@ -20,14 +20,14 @@ type
     FBitmapWithText: TBitmap32;
 
     function GetCaptionBitmap(
-      ACaption: string;
+      const ACaption: string;
       AFontSize: Integer;
       ATextColor: TColor32;
       ATextBgColor: TColor32;
       ASolidBgDraw: Boolean
     ): IBitmap32Static;
     function GetCaptionMarker(
-      ACaption: string;
+      const ACaption: string;
       AFontSize: Integer;
       ATextColor: TColor32;
       ATextBgColor: TColor32;
@@ -98,7 +98,7 @@ begin
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetCaptionBitmap(
-  ACaption: string; AFontSize: Integer; ATextColor, ATextBgColor: TColor32;
+  const ACaption: string; AFontSize: Integer; ATextColor, ATextBgColor: TColor32;
   ASolidBgDraw: Boolean): IBitmap32Static;
 var
   VTextSize: TSize;
@@ -134,7 +134,7 @@ begin
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
-  ACaption: string;
+  const ACaption: string;
   AFontSize: Integer;
   ATextColor, ATextBgColor: TColor32;
   ASolidBgDraw: Boolean;
