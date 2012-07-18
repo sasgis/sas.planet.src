@@ -157,6 +157,4 @@ begin
   inherited Create(TBitmapFileFormat, APerfCounterList.CreateAndAddNewSubList('VampyreBMP'));
 end;
 
-{ TVampyreBasicBitmapTileLoaderJPEG }
-
 end.
