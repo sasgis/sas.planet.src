@@ -32,6 +32,7 @@ type
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
+    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -173,6 +174,12 @@ begin
       ViewUpdateUnlock;
     end;
   end;
+end;
+
+procedure TMapGPSLayerNew.StartThreads;
+begin
+  inherited;
+  OnConfigChange;
 end;
 
 end.
