@@ -22,14 +22,19 @@ type
     function GetExpectedID: Integer;
     property ExpectedID: Integer read GetExpectedID;
 
+    function GetShownId: Integer;
+    property ShownId: Integer read GetShownId;
+
+    function GetIsRedyWasShown: Boolean;
+    property IsRedyWasShown: Boolean read GetIsRedyWasShown;
+
     procedure IncExpectedID;
     procedure UpdateBitmap(
       AID: Integer;
       const ABitmap: IBitmap32Static
     );
-
     function GetBitmap: IBitmap32Static;
-    property Bitmap: IBitmap32Static read GetBitmap;
+    function GetBitmapForShow: IBitmap32Static;
   end;
 
   ITileMatrix = interface

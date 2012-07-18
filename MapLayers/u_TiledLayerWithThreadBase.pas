@@ -87,6 +87,9 @@ type
     function GetLayerProvider: IBitmapLayerProvider;
     procedure SetLayerProvider(const Value: IBitmapLayerProvider);
     property LayerProvider: IBitmapLayerProvider read GetLayerProvider write SetLayerProvider;
+
+    function GetVisible: Boolean;
+    procedure SetVisible(const Value: Boolean);
   protected
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
@@ -99,8 +102,10 @@ type
 
     procedure SetNeedUpdateLayerProvider;
 
-    procedure SetNeedUpdateLayer;
     procedure DoUpdateLayer; virtual;
+    procedure Show;
+    procedure Hide;
+    property Visible: Boolean read GetVisible write SetVisible;
   protected
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
@@ -225,7 +230,11 @@ var
   VProviderWithListener: IBitmapLayerProviderWithListener;
 begin
   VOldTileMatrix := TileMatrix;
-  VNewTileMatrix := FTileMatrixFactory.BuildNewMatrix(VOldTileMatrix, LayerCoordConverter);
+  if Visible then begin
+    VNewTileMatrix := FTileMatrixFactory.BuildNewMatrix(VOldTileMatrix, LayerCoordConverter);
+  end else begin
+    VNewTileMatrix := nil;
+  end;
   if VOldTileMatrix <> VNewTileMatrix then begin
     FDrawTask.StopExecute;
     SetTileMatrix(VNewTileMatrix);
@@ -235,7 +244,7 @@ begin
     if FUpdateLayerProviderOnPosChange then begin
       SetNeedUpdateLayerProvider;
     end;
-    SetNeedUpdateLayer;
+    FLayerChangedFlag.SetFlag;
   end;
 end;
 
@@ -265,6 +274,16 @@ begin
   finally
     FTileMatrixCS.EndRead;
   end;
+end;
+
+function TTiledLayerWithThreadBase.GetVisible: Boolean;
+begin
+  Result := FLayer.Visible;
+end;
+
+procedure TTiledLayerWithThreadBase.Hide;
+begin
+  SetVisible(False);
 end;
 
 procedure TTiledLayerWithThreadBase.OnPaintLayer(
@@ -421,7 +440,7 @@ begin
           try
             VBitmap := ALayerProvider.GetBitmapRect(AOperationID, ACancelNotifier, VElement.LocalConverter);
             VElement.UpdateBitmap(VId, VBitmap);
-            SetNeedUpdateLayer;
+            FLayerChangedFlag.SetFlag;
           finally
             FOneTilePrepareCounter.FinishOperation(VCounterContext);
           end;
@@ -444,8 +463,34 @@ begin
 end;
 
 procedure TTiledLayerWithThreadBase.OnTimer;
+var
+  VLocalConverter: ILocalCoordConverter;
+  VTileMatrix: ITileMatrix;
+  VElement: ITileMatrixElement;
+  VTileIterator: ITileIterator;
+  VTile: TPoint;
+  VDstRect: TRect;
 begin
-  UpdateLayerIfNeed;
+  if FLayerChangedFlag.CheckFlagAndReset then begin
+    VTileMatrix := TileMatrix;
+    VLocalConverter := ViewCoordConverter;
+    if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
+      if not VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
+        FLayer.Changed;
+        Exit;
+      end;
+      VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
+      while VTileIterator.Next(VTile) do begin
+        VElement := VTileMatrix.GetElementByTile(VTile);
+        if VElement <> nil then begin
+          if not VElement.IsRedyWasShown then begin
+            VDstRect := VLocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel);
+            FLayer.Changed(VDstRect);
+          end;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TTiledLayerWithThreadBase.PaintLayer(
@@ -484,7 +529,7 @@ begin
     while VTileIterator.Next(VTile) do begin
       VElement := ATileMatrix.GetElementByTile(VTile);
       if VElement <> nil then begin
-        VBitmap := VElement.Bitmap;
+        VBitmap := VElement.GetBitmapForShow;
         if VBitmap <> nil then begin
           VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel);
           if not ABuffer.MeasuringMode then begin
@@ -558,11 +603,6 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.SetNeedUpdateLayer;
-begin
-  FLayerChangedFlag.SetFlag;
-end;
-
 procedure TTiledLayerWithThreadBase.SetNeedUpdateLayerProvider;
 begin
   FDrawTask.StopExecute;
@@ -590,7 +630,26 @@ procedure TTiledLayerWithThreadBase.SetViewCoordConverter(
 );
 begin
   inherited;
-  SetNeedUpdateLayer;
+  FLayerChangedFlag.SetFlag;
+end;
+
+procedure TTiledLayerWithThreadBase.SetVisible(const Value: Boolean);
+begin
+  if FLayer.Visible <> Value then begin
+    ViewUpdateLock;
+    try
+      FLayer.Visible := Value;
+      SetNeedUpdateTileMatrix;
+      SetNeedUpdateLayerProvider;
+    finally
+      ViewUpdateUnlock;
+    end;
+  end;
+end;
+
+procedure TTiledLayerWithThreadBase.Show;
+begin
+  SetVisible(True);
 end;
 
 procedure TTiledLayerWithThreadBase.SendTerminateToThreads;
@@ -610,6 +669,7 @@ end;
 procedure TTiledLayerWithThreadBase.UpdateLayerIfNeed;
 begin
   if FLayerChangedFlag.CheckFlagAndReset then begin
+
     DoUpdateLayer;
   end;
 end;

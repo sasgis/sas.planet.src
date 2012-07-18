@@ -111,6 +111,7 @@ procedure TMapLayerFillingMapNew.OnConfigChange;
 begin
   ViewUpdateLock;
   try
+    Visible := FConfig.GetStatic.Visible;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;

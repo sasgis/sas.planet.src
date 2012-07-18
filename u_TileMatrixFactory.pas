@@ -172,7 +172,7 @@ begin
         VSourceTile.Y := VY;
         VSourceElement := ASource.GetElementByTile(VSourceTile);
         if VSourceElement <> nil then begin
-          VSourceBitmap := VSourceElement.Bitmap;
+          VSourceBitmap := VSourceElement.GetBitmap;
           if VSourceBitmap <> nil then begin
             if VTargetTileCoordConverter = nil then begin
               VBitmap := TCustomBitmap32.Create;

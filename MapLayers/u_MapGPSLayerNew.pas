@@ -151,6 +151,7 @@ procedure TMapGPSLayerNew.OnConfigChange;
 begin
   ViewUpdateLock;
   try
+    Visible := FConfig.Visible;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
