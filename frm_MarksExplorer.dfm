@@ -8,8 +8,8 @@ object frmMarksExplorer: TfrmMarksExplorer
   Constraints.MinHeight = 309
   Constraints.MinWidth = 406
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poDefault
   ShowHint = True
   OnActivate = FormActivate
@@ -161,7 +161,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Left = 353
             Top = 0
             Width = 4
-            Height = 4
+            Height = 20
             Align = alRight
             TabOrder = 1
           end
@@ -283,7 +283,6 @@ object frmMarksExplorer: TfrmMarksExplorer
       ParentCtl3D = False
       TabOrder = 0
       OnClick = rgMarksShowModeClick
-      ExplicitWidth = 447
     end
     object pnlButtons: TPanel
       AlignWithMargins = True
@@ -329,7 +328,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 0
         OnClick = btnExportClick
-        ExplicitWidth = 80
         Caption = 'Export'
       end
       object btnImport: TTBXButton
@@ -342,7 +340,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         ImageIndex = 0
         TabOrder = 1
         OnClick = btnImportClick
-        ExplicitWidth = 80
         Caption = 'Import'
       end
     end

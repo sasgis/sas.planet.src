@@ -1872,6 +1872,7 @@ begin
 
     FfrmMarksExplorer :=
       TfrmMarksExplorer.Create(
+        False,
         GState.LanguageManager,
         GState.ImportFileByExt,
         FConfig.ViewPortState.Position,

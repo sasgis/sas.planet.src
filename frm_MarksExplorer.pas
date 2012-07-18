@@ -138,6 +138,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure rgMarksShowModeClick(Sender: TObject);
   private
+    FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
     FCategoryList: IInterfaceList;
     FMarksList: IInterfaceList;
@@ -165,8 +166,11 @@ type
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMark;
     function GetSelectedMarksIdList: IInterfaceList;
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     constructor Create(
+      AUseAsIndepentWindow: Boolean;
       const ALanguageManager: ILanguageManager;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -193,6 +197,7 @@ uses
 {$R *.dfm}
 
 constructor TfrmMarksExplorer.Create(
+  AUseAsIndepentWindow: Boolean;
   const ALanguageManager: ILanguageManager;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -204,6 +209,7 @@ constructor TfrmMarksExplorer.Create(
 );
 begin
   inherited Create(ALanguageManager);
+  FUseAsIndepentWindow := AUseAsIndepentWindow;
   FMarkDBGUI := AMarkDBGUI;
   FMapGoto := AMapGoto;
   FImportFileByExt := AImportFileByExt;
@@ -217,6 +223,17 @@ begin
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FMarksSystemStateListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemStateChanged);
+end;
+
+procedure TfrmMarksExplorer.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  if FUseAsIndepentWindow then begin
+    // WS_Ex_AppWindow - отвечает за отображение кнопки на панели задач
+    Params.ExStyle := Params.ExStyle or WS_Ex_AppWindow;
+    // по умолчанию устанавливается Application.Handle, однако мне нужно чтобы форма была отдельно
+    Params.WndParent := GetDesktopWindow; // привязываем к рабочему столу
+  end;
 end;
 
 procedure TfrmMarksExplorer.FormCreate(Sender: TObject);
@@ -399,7 +416,7 @@ var
   VImportConfig: IImportConfig;
   VFileName: string;
 begin
-  If (OpenDialog1.Execute) then begin
+  If (OpenDialog1.Execute(Self.Handle)) then begin
     VFileName := OpenDialog1.FileName;
     if (FileExists(VFileName)) then begin
       VImportConfig := FMarkDBGUI.EditModalImportConfig;
