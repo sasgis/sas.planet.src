@@ -17,8 +17,8 @@ type
     function GetMarker(const AItem: IVectorDataItemSimple): IMarkerDrawable;
   public
     constructor Create(
-      ACache: IIdCacheSimple;
-      AProvider: IMarkerProviderForVectorItem
+      const ACache: IIdCacheSimple;
+      const AProvider: IMarkerProviderForVectorItem
     );
   end;
 
@@ -29,8 +29,8 @@ uses
 
 { TMarkerProviderForVectorItemWithCache }
 
-constructor TMarkerProviderForVectorItemWithCache.Create(ACache: IIdCacheSimple;
-  AProvider: IMarkerProviderForVectorItem);
+constructor TMarkerProviderForVectorItemWithCache.Create(const ACache: IIdCacheSimple;
+  const AProvider: IMarkerProviderForVectorItem);
 begin
   Assert(ACache <> nil);
   Assert(AProvider <> nil);

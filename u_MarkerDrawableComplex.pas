@@ -19,8 +19,8 @@ type
     ): Boolean;
   public
     constructor Create(
-      AMarkerFirst: IMarkerDrawable;
-      AMarkerSecond: IMarkerDrawable
+      const AMarkerFirst: IMarkerDrawable;
+      const AMarkerSecond: IMarkerDrawable
     );
   end;
 
@@ -29,7 +29,7 @@ implementation
 { TMarkerDrawableComplex }
 
 constructor TMarkerDrawableComplex.Create(
-  AMarkerFirst, AMarkerSecond: IMarkerDrawable
+  const AMarkerFirst, AMarkerSecond: IMarkerDrawable
 );
 begin
   Assert(AMarkerFirst <> nil);

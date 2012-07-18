@@ -37,7 +37,7 @@ type
 
 
     function GetIconMarker(
-      ASourceMarker: IBitmapMarker;
+      const ASourceMarker: IBitmapMarker;
       ASize: Integer
     ): IMarkerDrawable;
     function ModifyMarkerWithResize(
@@ -153,7 +153,7 @@ begin
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetIconMarker(
-  ASourceMarker: IBitmapMarker;
+  const ASourceMarker: IBitmapMarker;
   ASize: Integer
 ): IMarkerDrawable;
 var
