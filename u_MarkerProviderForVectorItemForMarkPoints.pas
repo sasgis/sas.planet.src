@@ -141,14 +141,13 @@ function TMarkerProviderForVectorItemForMarkPoints.GetCaptionMarker(
   AMarkSize: Integer
 ): IMarkerDrawable;
 var
-  VTextSize: TSize;
   VBitmapStatic: IBitmap32Static;
   VAnchorPoint: TDoublePoint;
 begin
   Result := nil;
   VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
   if VBitmapStatic <> nil then begin
-    VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VTextSize.cy / 2);
+    VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VBitmapStatic.Bitmap.Height / 2);
     Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, VAnchorPoint);
   end;
 end;
