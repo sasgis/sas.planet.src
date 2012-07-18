@@ -761,7 +761,6 @@ uses
   u_MarkerProviderForVectorItemFixedMarker in 'u_MarkerProviderForVectorItemFixedMarker.pas',
   u_MarkerProviderForVectorItemForMarkPoints in 'u_MarkerProviderForVectorItemForMarkPoints.pas',
   u_MarkerProviderForVectorItemWithCache in 'u_MarkerProviderForVectorItemWithCache.pas',
-  u_MarkerDrawableCaptionSimple in 'u_MarkerDrawableCaptionSimple.pas',
   i_MarkerSimpleConfig in 'i_MarkerSimpleConfig.pas',
   u_MarkerSimpleConfigStatic in 'u_MarkerSimpleConfigStatic.pas',
   u_MarkerSimpleConfig in 'u_MarkerSimpleConfig.pas',
