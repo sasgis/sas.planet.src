@@ -144,6 +144,10 @@ begin
   );
   FConfig := AConfig;
   FPosition := APosition;
+  FViewPortState := AViewPortState;
+  FGUIConfigList := AGUIConfigList;
+  FIconsList := AIconsList;
+  
   FLayer := TPositionedLayer.Create(AParentMap.Layers);
   FLayer.Visible := False;
   FLayer.MouseEvents := false;
