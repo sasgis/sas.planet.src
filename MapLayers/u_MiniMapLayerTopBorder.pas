@@ -191,11 +191,13 @@ procedure TMiniMapLayerTopBorder.UpdateLayerSize(
   const AMasterAlfa: Integer
 );
 begin
-  FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
-  FLayer.Bitmap.Clear(clLightGray32);
-  FLayer.Bitmap.HorzLineS(0, 0, ASize.X, clBlack32);
-  FLayer.Bitmap.HorzLineS(0, ASize.Y - 1, ASize.X, clBlack32);
-  FLayer.Bitmap.MasterAlpha := AMasterAlfa;
+  if (FLayer.Bitmap.Width <> ASize.X) or (FLayer.Bitmap.Height <> ASize.Y) then begin
+    FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
+    FLayer.Bitmap.Clear(clLightGray32);
+    FLayer.Bitmap.HorzLineS(0, 0, ASize.X, clBlack32);
+    FLayer.Bitmap.HorzLineS(0, ASize.Y - 1, ASize.X, clBlack32);
+    FLayer.Bitmap.MasterAlpha := AMasterAlfa;
+  end;
 end;
 
 end.

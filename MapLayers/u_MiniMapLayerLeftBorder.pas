@@ -261,19 +261,21 @@ procedure TMiniMapLayerLeftBorder.UpdateLayerSize(
 var
   VCenterPos: TPoint;
 begin
-  FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
-  FLayer.Bitmap.Clear(clLightGray32);
+  if (FLayer.Bitmap.Width <> ASize.X) or (FLayer.Bitmap.Height <> ASize.Y) then begin
+    FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
+    FLayer.Bitmap.Clear(clLightGray32);
 
-  FLayer.Bitmap.VertLineS(0, 0, ASize.Y - 1, clBlack32);
-  FLayer.Bitmap.VertLineS(ASize.X - 1, ASize.X - 1, ASize.Y - 1, clBlack32);
-  FLayer.Bitmap.HorzLineS(0, 0, ASize.X - 1, clBlack32);
-  VCenterPos.X := ASize.X div 2;
-  VCenterPos.Y := ASize.X + (ASize.Y - ASize.X) div 2;
-  FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y - 6] := 0;
-  FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y - 2] := 0;
-  FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y + 2] := 0;
-  FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y + 6] := 0;
-  FLayer.Bitmap.MasterAlpha := AMasterAlfa;
+    FLayer.Bitmap.VertLineS(0, 0, ASize.Y - 1, clBlack32);
+    FLayer.Bitmap.VertLineS(ASize.X - 1, ASize.X - 1, ASize.Y - 1, clBlack32);
+    FLayer.Bitmap.HorzLineS(0, 0, ASize.X - 1, clBlack32);
+    VCenterPos.X := ASize.X div 2;
+    VCenterPos.Y := ASize.X + (ASize.Y - ASize.X) div 2;
+    FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y - 6] := 0;
+    FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y - 2] := 0;
+    FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y + 2] := 0;
+    FLayer.bitmap.Pixel[VCenterPos.X, VCenterPos.Y + 6] := 0;
+    FLayer.Bitmap.MasterAlpha := AMasterAlfa;
+  end;
 end;
 
 end.
