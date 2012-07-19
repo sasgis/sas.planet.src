@@ -65,12 +65,6 @@ type
     procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
     property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer write SetUsePrevZoomAtLayer;
 
-    function GetPlusButton: IBitmap32Static;
-    property PlusButton: IBitmap32Static read GetPlusButton;
-
-    function GetMinusButton: IBitmap32Static;
-    property MinusButton: IBitmap32Static read GetMinusButton;
-
     function GetMapsConfig: IMiniMapMapsConfig;
     property MapsConfig: IMiniMapMapsConfig read GetMapsConfig;
 

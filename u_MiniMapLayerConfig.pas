@@ -45,10 +45,6 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
 
-    FPlusButtonFileName: string;
-    FPlusButton: IBitmap32Static;
-    FMinusButtonFileName: string;
-    FMinusButton: IBitmap32Static;
     FMapsConfig: IMiniMapMapsConfig;
     FThreadConfig: IThreadConfig;
   protected
@@ -75,9 +71,6 @@ type
 
     function GetUsePrevZoomAtLayer: Boolean;
     procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
-
-    function GetPlusButton: IBitmap32Static;
-    function GetMinusButton: IBitmap32Static;
 
     function GetMapsConfig: IMiniMapMapsConfig;
     function GetThreadConfig: IThreadConfig;
@@ -111,8 +104,6 @@ begin
   FZoomDelta := 4;
   FMasterAlpha := 150;
   FVisible := True;
-  FPlusButton := nil;
-  FMinusButton := nil;
   FUsePrevZoomAtMap := True;
   FUsePrevZoomAtLayer := True;
 
@@ -121,9 +112,6 @@ begin
 
   FThreadConfig := TThreadConfig.Create(tpLower);
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
-
-  FPlusButtonFileName := 'sas:\Resource\ICONI.png';
-  FMinusButtonFileName := 'sas:\Resource\ICONII.png';
 end;
 
 procedure TMiniMapLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -137,8 +125,6 @@ begin
     SetUsePrevZoomAtMap(AConfigData.ReadBool('UsePrevZoomAtMap', FUsePrevZoomAtMap));
     SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer));
 
-    FPlusButton := ReadBitmapByFileRef(AConfigData, FPlusButtonFileName, FContentTypeManager, FPlusButton);
-    FMinusButton := ReadBitmapByFileRef(AConfigData, FMinusButtonFileName, FContentTypeManager, FMinusButton);
     SetChanged;
   end;
 end;
@@ -176,26 +162,6 @@ begin
   LockRead;
   try
     Result := FMasterAlpha;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMiniMapLayerConfig.GetMinusButton: IBitmap32Static;
-begin
-  LockRead;
-  try
-    Result := FMinusButton;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMiniMapLayerConfig.GetPlusButton: IBitmap32Static;
-begin
-  LockRead;
-  try
-    Result := FPlusButton;
   finally
     UnlockRead;
   end;
