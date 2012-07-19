@@ -35,8 +35,6 @@ uses
 type
   TMiniMapLayerConfig = class(TConfigDataElementComplexBase, IMiniMapLayerConfig)
   private
-    FContentTypeManager: IContentTypeManager;
-
     FWidth: Integer;
     FZoomDelta: Integer;
     FMasterAlpha: Integer;
@@ -76,7 +74,6 @@ type
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
-      const AContentTypeManager: IContentTypeManager;
       const AMapsConfig: IMainMapsConfig
     );
   end;
@@ -94,12 +91,10 @@ uses
 { TMiniMapLayerConfig }
 
 constructor TMiniMapLayerConfig.Create(
-  const AContentTypeManager: IContentTypeManager;
   const AMapsConfig: IMainMapsConfig
 );
 begin
   inherited Create;
-  FContentTypeManager := AContentTypeManager;
   FWidth := 100;
   FZoomDelta := 4;
   FMasterAlpha := 150;

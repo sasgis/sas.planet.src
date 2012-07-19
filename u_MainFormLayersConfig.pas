@@ -97,7 +97,6 @@ type
     function GetFullMapMouseCursorLayerConfig: IFullMapMouseCursorLayerConfig;
   public
     constructor Create(
-      const AContentTypeManager: IContentTypeManager;
       const AMapsConfig: IMainMapsConfig
     );
   end;
@@ -132,7 +131,6 @@ uses
 { TMainFormLayersConfig }
 
 constructor TMainFormLayersConfig.Create(
-  const AContentTypeManager: IContentTypeManager;
   const AMapsConfig: IMainMapsConfig
 );
 begin
@@ -153,7 +151,7 @@ begin
   Add(FMarksLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
-  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AContentTypeManager, AMapsConfig);
+  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig);
   Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
   FCenterScaleConfig := TCenterScaleConfig.Create;
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));
