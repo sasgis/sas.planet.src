@@ -69,10 +69,6 @@ type
 
     FPopup: TTBXPopupMenu;
     FIconsList: IMapTypeIconsList;
-    FPlusButton: TBitmapLayer;
-    FPlusButtonPressed: Boolean;
-    FMinusButton: TBitmapLayer;
-    FMinusButtonPressed: Boolean;
     FViewRectDrawLayer: TBitmapLayer;
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
@@ -96,32 +92,6 @@ type
     procedure CreateBitmapProvider;
 
     procedure DrawMainViewRect;
-
-    procedure PlusButtonMouseDown(
-      Sender: TObject;
-      Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
-    procedure PlusButtonMouseUP(
-      Sender: TObject;
-      Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
-
-    procedure MinusButtonMouseDown(
-      Sender: TObject;
-      Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
-    procedure MinusButtonMouseUP(
-      Sender: TObject;
-      Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
 
     procedure LayerMouseDown(
       Sender: TObject;
@@ -487,24 +457,6 @@ begin
   FViewRectDrawLayer.OnMouseDown := LayerMouseDown;
   FViewRectDrawLayer.OnMouseUp := LayerMouseUP;
   FViewRectDrawLayer.OnMouseMove := LayerMouseMove;
-
-  FPlusButton := TBitmapLayer.Create(AParentMap.Layers);
-  FPlusButton.Visible := False;
-  FPlusButton.MouseEvents := false;
-  FPlusButton.Bitmap.DrawMode := dmBlend;
-  FPlusButton.OnMouseDown := PlusButtonMouseDown;
-  FPlusButton.OnMouseUp := PlusButtonMouseUP;
-  FPlusButton.Cursor := crHandPoint;
-  FPlusButtonPressed := False;
-
-  FMinusButton := TBitmapLayer.Create(AParentMap.Layers);
-  FMinusButton.Visible := False;
-  FMinusButton.MouseEvents := false;
-  FMinusButton.Bitmap.DrawMode := dmBlend;
-  FMinusButton.OnMouseDown := MinusButtonMouseDown;
-  FMinusButton.OnMouseUp := MinusButtonMouseUP;
-  FMinusButton.Cursor := crHandPoint;
-  FMinusButtonPressed := False;
 end;
 
 procedure TMiniMapLayer.BuildPopUpMenu;
@@ -791,12 +743,6 @@ begin
   inherited;
   FViewRectDrawLayer.Visible := false;
   FViewRectDrawLayer.MouseEvents := false;
-
-  FPlusButton.Visible := False;
-  FPlusButton.MouseEvents := false;
-
-  FMinusButton.Visible := False;
-  FMinusButton.MouseEvents := false;
 end;
 
 procedure TMiniMapLayer.LayerMouseDown(
@@ -906,40 +852,6 @@ begin
   FPosMoved := False;
 end;
 
-procedure TMiniMapLayer.MinusButtonMouseDown(
-  Sender: TObject;
-  Button: TMouseButton;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-begin
-  if Button = mbLeft then begin
-    FMinusButtonPressed := True;
-  end;
-end;
-
-procedure TMiniMapLayer.MinusButtonMouseUP(
-  Sender: TObject;
-  Button: TMouseButton;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-begin
-  if Button = mbLeft then begin
-    if FMinusButtonPressed then begin
-      FMinusButtonPressed := False;
-      if FMinusButton.HitTest(X, Y) then begin
-        FConfig.LockWrite;
-        try
-          FConfig.ZoomDelta := FConfig.ZoomDelta + 1;
-        finally
-          FConfig.UnlockWrite;
-        end;
-      end;
-    end;
-  end;
-end;
-
 procedure TMiniMapLayer.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
@@ -988,8 +900,6 @@ begin
 end;
 
 procedure TMiniMapLayer.OnConfigChange;
-var
-  VBitmapStatic: IBitmap32Static;
 begin
   ViewUpdateLock;
   try
@@ -997,24 +907,7 @@ begin
     try
       FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
       FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
-      VBitmapStatic := FConfig.PlusButton;
-      if VBitmapStatic <> nil then begin
-        FPlusButton.Bitmap.Assign(VBitmapStatic.Bitmap);
-      end else begin
-        FPlusButton.Bitmap.Delete;
-      end;
-      FPlusButton.Bitmap.DrawMode := dmTransparent;
 
-      VBitmapStatic := FConfig.MinusButton;
-      if VBitmapStatic <> nil then begin
-        FMinusButton.Bitmap.Assign(VBitmapStatic.Bitmap);
-      end else begin
-        FMinusButton.Bitmap.Delete;
-      end;
-      FMinusButton.Bitmap.DrawMode := dmTransparent;
-
-      FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-      FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       Layer.Bitmap.Lock;
       try
         Layer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
@@ -1080,40 +973,6 @@ procedure TMiniMapLayer.OnTimer;
 begin
   if FUpdateFlag.CheckFlagAndReset then begin
     Layer.Changed;
-  end;
-end;
-
-procedure TMiniMapLayer.PlusButtonMouseDown(
-  Sender: TObject;
-  Button: TMouseButton;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-begin
-  if Button = mbLeft then begin
-    FPlusButtonPressed := True;
-  end;
-end;
-
-procedure TMiniMapLayer.PlusButtonMouseUP(
-  Sender: TObject;
-  Button: TMouseButton;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-begin
-  if Button = mbLeft then begin
-    if FPlusButtonPressed then begin
-      if FPlusButton.HitTest(X, Y) then begin
-        FConfig.LockWrite;
-        try
-          FConfig.ZoomDelta := FConfig.ZoomDelta - 1;
-        finally
-          FConfig.UnlockWrite;
-        end;
-      end;
-      FPlusButtonPressed := False;
-    end;
   end;
 end;
 
@@ -1206,32 +1065,12 @@ begin
   inherited;
   FViewRectDrawLayer.Visible := True;
   FViewRectDrawLayer.MouseEvents := True;
-
-  FPlusButton.Visible := True;
-  FPlusButton.MouseEvents := True;
-
-  FMinusButton.Visible := True;
-  FMinusButton.MouseEvents := True;
 end;
 
 procedure TMiniMapLayer.DoUpdateLayerLocation(const ANewLocation: TFloatRect);
-var
-  VRect: TFloatRect;
 begin
   inherited;
   FViewRectDrawLayer.Location := ANewLocation;
-
-  VRect.Left := ANewLocation.Left + 6;
-  VRect.Top := ANewLocation.Top + 6;
-  VRect.Right := VRect.Left + FPlusButton.Bitmap.Width;
-  VRect.Bottom := VRect.Top + FPlusButton.Bitmap.Height;
-  FPlusButton.Location := VRect;
-
-  VRect.Left := ANewLocation.Left + 19;
-  VRect.Top := ANewLocation.Top + 6;
-  VRect.Right := VRect.Left + FMinusButton.Bitmap.Width;
-  VRect.Bottom := VRect.Top + FMinusButton.Bitmap.Height;
-  FMinusButton.Location := VRect;
 end;
 
 procedure TMiniMapLayer.DoUpdateLayerSize(const ANewSize: TPoint);

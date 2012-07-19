@@ -715,6 +715,8 @@ uses
   u_MiniMapLayer,
   u_MiniMapLayerTopBorder,
   u_MiniMapLayerLeftBorder,
+  u_MiniMapLayerPlusButton,
+  u_MiniMapLayerMinusButton,
   u_LayerStatBar,
   u_MapMainLayer,
   u_MapMainLayerNew,
@@ -1675,6 +1677,50 @@ begin
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState.Position,
+        FConfig.LayersConfig.MiniMapLayerConfig
+      )
+    );
+    VBitmap :=
+      ReadBitmapByFileRef(
+        GState.ResourceProvider,
+        'ICONII.png',
+        GState.ContentTypeManager,
+        nil
+      );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(5.5, 5.5))
+      );
+    FLayersList.Add(
+      TMiniMapLayerMinusButton.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState.Position,
+        VMarkerChangeable,
+        FConfig.LayersConfig.MiniMapLayerConfig
+      )
+    );
+    VBitmap :=
+      ReadBitmapByFileRef(
+        GState.ResourceProvider,
+        'ICONI.png',
+        GState.ContentTypeManager,
+        nil
+      );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(5.5, 5.5))
+      );
+    FLayersList.Add(
+      TMiniMapLayerPlusButton.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState.Position,
+        VMarkerChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
     );

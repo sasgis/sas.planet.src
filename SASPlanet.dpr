@@ -461,6 +461,8 @@ uses
   u_MiniMapLayer in 'MapLayers\u_MiniMapLayer.pas',
   u_MiniMapLayerTopBorder in 'MapLayers\u_MiniMapLayerTopBorder.pas',
   u_MiniMapLayerLeftBorder in 'MapLayers\u_MiniMapLayerLeftBorder.pas',
+  u_MiniMapLayerPlusButton in 'MapLayers\u_MiniMapLayerPlusButton.pas',
+  u_MiniMapLayerMinusButton in 'MapLayers\u_MiniMapLayerMinusButton.pas',
   u_CenterScale in 'MapLayers\u_CenterScale.pas',
   u_LayerStatBar in 'MapLayers\u_LayerStatBar.pas',
   u_FullMapMouseCursorLayer in 'MapLayers\u_FullMapMouseCursorLayer.pas',

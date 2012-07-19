@@ -455,6 +455,8 @@
     <DCCReference Include="MapLayers\u_MapMarksLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerLeftBorder.pas" />
+    <DCCReference Include="MapLayers\u_MiniMapLayerMinusButton.pas" />
+    <DCCReference Include="MapLayers\u_MiniMapLayerPlusButton.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerTopBorder.pas" />
     <DCCReference Include="MapLayers\u_PointOnMapEditLayer.pas" />
     <DCCReference Include="MapLayers\u_PolyLineLayerBase.pas" />
