@@ -73,10 +73,6 @@ type
     FPlusButtonPressed: Boolean;
     FMinusButton: TBitmapLayer;
     FMinusButtonPressed: Boolean;
-    FLeftBorder: TBitmapLayer;
-    FLeftBorderMoved: Boolean;
-    FLeftBorderMovedClickDelta: Double;
-    FTopBorder: TBitmapLayer;
     FViewRectDrawLayer: TBitmapLayer;
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
@@ -123,24 +119,6 @@ type
     procedure MinusButtonMouseUP(
       Sender: TObject;
       Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
-
-    procedure LeftBorderMouseDown(
-      Sender: TObject;
-      Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
-    procedure LeftBorderMouseUP(
-      Sender: TObject;
-      Button: TMouseButton;
-      Shift: TShiftState;
-      X, Y: Integer
-    );
-    procedure LeftBorderMouseMove(
-      Sender: TObject;
       Shift: TShiftState;
       X, Y: Integer
     );
@@ -502,21 +480,6 @@ end;
 
 procedure TMiniMapLayer.CreateLayers(AParentMap: TImage32);
 begin
-  FLeftBorder := TBitmapLayer.Create(AParentMap.Layers);
-  FLeftBorder.Visible := False;
-  FLeftBorder.MouseEvents := false;
-  FLeftBorder.Cursor := crSizeNWSE;
-  FLeftBorder.Bitmap.DrawMode := dmBlend;
-  FLeftBorder.OnMouseDown := LeftBorderMouseDown;
-  FLeftBorder.OnMouseUp := LeftBorderMouseUP;
-  FLeftBorder.OnMouseMove := LeftBorderMouseMove;
-  FLeftBorderMoved := False;
-
-  FTopBorder := TBitmapLayer.Create(AParentMap.Layers);
-  FTopBorder.Visible := False;
-  FTopBorder.MouseEvents := false;
-  FTopBorder.Bitmap.DrawMode := dmBlend;
-
   FViewRectDrawLayer := TBitmapLayer.Create(AParentMap.Layers);
   FViewRectDrawLayer.Visible := False;
   FViewRectDrawLayer.MouseEvents := false;
@@ -829,11 +792,6 @@ begin
   FViewRectDrawLayer.Visible := false;
   FViewRectDrawLayer.MouseEvents := false;
 
-  FLeftBorder.Visible := False;
-  FLeftBorder.MouseEvents := false;
-
-  FTopBorder.Visible := False;
-
   FPlusButton.Visible := False;
   FPlusButton.MouseEvents := false;
 
@@ -948,62 +906,6 @@ begin
   FPosMoved := False;
 end;
 
-procedure TMiniMapLayer.LeftBorderMouseDown(
-  Sender: TObject;
-  Button: TMouseButton;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-begin
-  if Button = mbLeft then begin
-    FLeftBorderMoved := true;
-    FLeftBorderMovedClickDelta := Layer.Location.Left - X;
-  end;
-end;
-
-procedure TMiniMapLayer.LeftBorderMouseMove(
-  Sender: TObject;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-var
-  VNewWidth: Integer;
-  VVisibleSize: TPoint;
-begin
-  if FLeftBorderMoved then begin
-    VVisibleSize := ViewCoordConverter.GetLocalRectSize;
-    VNewWidth := Trunc(Layer.Location.Right - X - FLeftBorderMovedClickDelta);
-    if VNewWidth < 40 then begin
-      VNewWidth := 40;
-    end;
-    if VNewWidth > VVisibleSize.X then begin
-      VNewWidth := VVisibleSize.X;
-    end;
-    if VNewWidth > VVisibleSize.Y then begin
-      VNewWidth := VVisibleSize.Y;
-    end;
-    FConfig.Width := VNewWidth;
-  end;
-end;
-
-procedure TMiniMapLayer.LeftBorderMouseUP(
-  Sender: TObject;
-  Button: TMouseButton;
-  Shift: TShiftState;
-  X, Y: Integer
-);
-begin
-  if FLeftBorderMoved then begin
-    ViewUpdateLock;
-    try
-      SetNeedRedraw;
-      FLeftBorderMoved := False;
-    finally
-      ViewUpdateUnlock;
-    end;
-  end;
-end;
-
 procedure TMiniMapLayer.MinusButtonMouseDown(
   Sender: TObject;
   Button: TMouseButton;
@@ -1113,8 +1015,6 @@ begin
 
       FMinusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       FPlusButton.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-      FTopBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
-      FLeftBorder.Bitmap.MasterAlpha := FConfig.MasterAlpha;
       Layer.Bitmap.Lock;
       try
         Layer.Bitmap.MasterAlpha := FConfig.MasterAlpha;
@@ -1307,11 +1207,6 @@ begin
   FViewRectDrawLayer.Visible := True;
   FViewRectDrawLayer.MouseEvents := True;
 
-  FLeftBorder.Visible := True;
-  FLeftBorder.MouseEvents := True;
-
-  FTopBorder.Visible := True;
-
   FPlusButton.Visible := True;
   FPlusButton.MouseEvents := True;
 
@@ -1325,18 +1220,6 @@ var
 begin
   inherited;
   FViewRectDrawLayer.Location := ANewLocation;
-
-  VRect.Left := ANewLocation.Left - 5;
-  VRect.Top := ANewLocation.Top - 5;
-  VRect.Right := ANewLocation.Left;
-  VRect.Bottom := ANewLocation.Bottom;
-  FLeftBorder.Location := VRect;
-
-  VRect.Left := ANewLocation.Left;
-  VRect.Top := ANewLocation.Top - 5;
-  VRect.Right := ANewLocation.Right;
-  VRect.Bottom := ANewLocation.Top;
-  FTopBorder.Location := VRect;
 
   VRect.Left := ANewLocation.Left + 6;
   VRect.Top := ANewLocation.Top + 6;
@@ -1354,39 +1237,10 @@ end;
 procedure TMiniMapLayer.DoUpdateLayerSize(const ANewSize: TPoint);
 var
   VBitmapSizeInPixel: TPoint;
-  VBorderWidth: Integer;
 begin
   inherited;
-  VBorderWidth := 5;
   VBitmapSizeInPixel := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   FViewRectDrawLayer.Bitmap.SetSize(VBitmapSizeInPixel.X, VBitmapSizeInPixel.Y);
-  if (FLeftBorder.Bitmap.Height <> VBitmapSizeInPixel.Y + VBorderWidth) then begin
-    FLeftBorder.Bitmap.Lock;
-    try
-      FLeftBorder.Bitmap.SetSize(VBorderWidth, VBitmapSizeInPixel.Y + VBorderWidth);
-      FLeftBorder.Bitmap.Clear(clLightGray32);
-      FLeftBorder.Bitmap.VertLineS(0, 0, VBitmapSizeInPixel.Y + VBorderWidth - 1, clBlack32);
-      FLeftBorder.Bitmap.VertLineS(VBorderWidth - 1, VBorderWidth - 1, VBitmapSizeInPixel.Y + VBorderWidth - 1, clBlack32);
-      FLeftBorder.Bitmap.HorzLineS(0, 0, VBorderWidth - 1, clBlack32);
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 6] := 0;
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) - 2] := 0;
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 2] := 0;
-      FLeftBorder.bitmap.Pixel[2, VBorderWidth + (VBitmapSizeInPixel.Y div 2) + 6] := 0;
-    finally
-      FLeftBorder.Bitmap.Unlock;
-    end;
-  end;
-  if (FTopBorder.Bitmap.Width <> VBitmapSizeInPixel.X) then begin
-    FTopBorder.Bitmap.Lock;
-    try
-      FTopBorder.Bitmap.SetSize(VBitmapSizeInPixel.X, VBorderWidth);
-      FTopBorder.Bitmap.Clear(clLightGray32);
-      FTopBorder.Bitmap.HorzLineS(0, 0, VBitmapSizeInPixel.X, clBlack32);
-      FTopBorder.Bitmap.HorzLineS(0, VBorderWidth - 1, VBitmapSizeInPixel.X, clBlack32);
-    finally
-      FTopBorder.Bitmap.Unlock;
-    end;
-  end;
 end;
 
 end.

@@ -713,6 +713,8 @@ uses
   u_MapType,
   u_MapLayerWiki,
   u_MiniMapLayer,
+  u_MiniMapLayerTopBorder,
+  u_MiniMapLayerLeftBorder,
   u_LayerStatBar,
   u_MapMainLayer,
   u_MapMainLayerNew,
@@ -1654,6 +1656,26 @@ begin
         FMapTypeIcons18List,
         FTileErrorLogger,
         GState.GUISyncronizedTimerNotifier
+      )
+    );
+    FLayersList.Add(
+      TMiniMapLayerTopBorder.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState.Position,
+        FConfig.LayersConfig.MiniMapLayerConfig
+      )
+    );
+    FLayersList.Add(
+      TMiniMapLayerLeftBorder.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState.Position,
+        FConfig.LayersConfig.MiniMapLayerConfig
       )
     );
 
