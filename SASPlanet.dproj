@@ -458,6 +458,7 @@
     <DCCReference Include="MapLayers\u_MiniMapLayerMinusButton.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerPlusButton.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerTopBorder.pas" />
+    <DCCReference Include="MapLayers\u_MiniMapLayerViewRect.pas" />
     <DCCReference Include="MapLayers\u_PointOnMapEditLayer.pas" />
     <DCCReference Include="MapLayers\u_PolyLineLayerBase.pas" />
     <DCCReference Include="MapLayers\u_SelectionLayer.pas" />
@@ -769,6 +770,7 @@
     <DCCReference Include="u_ListenerByEvent.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_ListenerTTLCheck.pas" />
+    <DCCReference Include="u_LocalConverterChangeableOfMiniMap.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
