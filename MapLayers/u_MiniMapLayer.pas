@@ -135,8 +135,6 @@ type
       const AConfig: IMiniMapLayerConfig;
       const AViewConfig: IGlobalViewMainConfig;
       const APostProcessingConfig: IBitmapPostProcessingConfig;
-      const AGUIConfigList: IMapTypeGUIConfigList;
-      const AIconsList: IMapTypeIconsList;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifier
     );
@@ -177,8 +175,6 @@ constructor TMiniMapLayer.Create(
   const AConfig: IMiniMapLayerConfig;
   const AViewConfig: IGlobalViewMainConfig;
   const APostProcessingConfig: IBitmapPostProcessingConfig;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const AIconsList: IMapTypeIconsList;
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifier
 );

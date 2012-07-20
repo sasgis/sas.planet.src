@@ -1665,8 +1665,6 @@ begin
         FConfig.LayersConfig.MiniMapLayerConfig,
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
-        GState.MapType.GUIConfigList,
-        FMapTypeIcons18List,
         FTileErrorLogger,
         GState.GUISyncronizedTimerNotifier
       )
