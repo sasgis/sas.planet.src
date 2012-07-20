@@ -231,13 +231,15 @@ var
   VMiniMapRect: TDoubleRect;
   VBitmapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VPolygon: TPolygon32;
   VGeoConvertSource: ICoordConverter;
   VGeoConvertMiniMap: ICoordConverter;
   VZoomDelta: Integer;
   VSize: TPoint;
   VViewSize: TPoint;
   VWidth: Integer;
+  VFillColor: TColor32;
+  VBorderColor: TColor32;
+  VDrawRect: TRect;
 begin
   VWidth := FConfig.Width;
   VSize.X := VWidth;
@@ -263,31 +265,25 @@ begin
 
       VMiniMapRect := DoubleRect(AMiniMapConverter.GetLocalRect);
       if IsIntersecProjectedRect(VBitmapRect, VMiniMapRect) then begin
-        VPolygon := TPolygon32.Create;
-        try
-          VPolygon.Antialiased := true;
-          VPolygon.Add(FixedPoint(VBitmapRect.Left, VBitmapRect.Top));
-          VPolygon.Add(FixedPoint(VBitmapRect.Right, VBitmapRect.Top));
-          VPolygon.Add(FixedPoint(VBitmapRect.Right, VBitmapRect.Bottom));
-          VPolygon.Add(FixedPoint(VBitmapRect.Left, VBitmapRect.Bottom));
-          VPolygon.DrawFill(ABuffer, SetAlpha(clWhite32, (VZoomDelta) * 35));
-          with VPolygon.Outline do begin
-            try
-              with Grow(Fixed(3.2 / 2), 0.5) do begin
-                try
-                  FillMode := pfWinding;
-                  DrawFill(ABuffer, SetAlpha(clNavy32, (VZoomDelta) * 43));
-                finally
-                  Free;
-                end;
-              end;
-            finally
-              Free;
-            end;
-          end;
-        finally
-          VPolygon.Free;
-        end;
+        VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
+        VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
+        VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
+        ABuffer.FillRectTS(VDrawRect, VFillColor);
+        ABuffer.FrameRectTS(VDrawRect, VBorderColor);
+        ABuffer.FrameRectTS(
+          VDrawRect.Left - 1,
+          VDrawRect.Top + 1,
+          VDrawRect.Right + 1,
+          VDrawRect.Bottom - 1,
+          VBorderColor
+        );
+        ABuffer.FrameRectTS(
+          VDrawRect.Left + 1,
+          VDrawRect.Top - 1,
+          VDrawRect.Right - 1,
+          VDrawRect.Bottom + 1,
+          VBorderColor
+        );
       end;
     end;
   end;
