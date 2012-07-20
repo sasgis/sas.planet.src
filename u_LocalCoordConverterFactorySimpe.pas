@@ -40,13 +40,13 @@ type
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter;
       const AMapScale: Double;
-      const ALocalTopLeftAtMap: TDoublePoint
+      const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
       const ALocalRect: TRect;
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter;
-      const ALocalTopLeftAtMap: TPoint
+      const AMapPixelAtLocalZero: TPoint
     ): ILocalCoordConverter;
 
     function ChangeCenterLonLat(
@@ -567,7 +567,7 @@ function TLocalCoordConverterFactorySimpe.CreateConverter(
   const AZoom: Byte;
   const AGeoConverter: ICoordConverter;
   const AMapScale: Double;
-  const ALocalTopLeftAtMap: TDoublePoint
+  const AMapPixelAtLocalZero: TDoublePoint
 ): ILocalCoordConverter;
 begin
   if Abs(AMapScale - 1) < 0.01  then begin
@@ -575,7 +575,7 @@ begin
       TLocalCoordConverterNoScale.Create(
         ALocalRect,
         FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
-        ALocalTopLeftAtMap
+        AMapPixelAtLocalZero
       );
   end else begin
     Result :=
@@ -583,7 +583,7 @@ begin
         ALocalRect,
         FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
         AMapScale,
-        ALocalTopLeftAtMap
+        AMapPixelAtLocalZero
       );
   end;
 end;
@@ -592,13 +592,13 @@ function TLocalCoordConverterFactorySimpe.CreateConverterNoScale(
   const ALocalRect: TRect;
   const AZoom: Byte;
   const AGeoConverter: ICoordConverter;
-  const ALocalTopLeftAtMap: TPoint
+  const AMapPixelAtLocalZero: TPoint
 ): ILocalCoordConverter;
 begin
   Result := TLocalCoordConverterNoScaleIntDelta.Create(
     ALocalRect,
     FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
-    ALocalTopLeftAtMap
+    AMapPixelAtLocalZero
   );
 end;
 

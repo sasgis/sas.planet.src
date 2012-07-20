@@ -36,13 +36,13 @@ type
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter;
       const AMapScale: Double;
-      const ALocalTopLeftAtMap: TDoublePoint
+      const AMapPixelAtLocalZero: TDoublePoint
     ): ILocalCoordConverter;
     function CreateConverterNoScale(
       const ALocalRect: TRect;
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter;
-      const ALocalTopLeftAtMap: TPoint
+      const AMapPixelAtLocalZero: TPoint
     ): ILocalCoordConverter;
 
     function ChangeCenterLonLat(

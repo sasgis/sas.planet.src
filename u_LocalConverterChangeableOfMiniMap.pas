@@ -134,7 +134,8 @@ begin
 end;
 
 function TLocalConverterChangeableOfMiniMap.GetConverterForSource(
-  const AVisualCoordConverter: ILocalCoordConverter): ILocalCoordConverter;
+  const AVisualCoordConverter: ILocalCoordConverter
+): ILocalCoordConverter;
 var
   VVisualMapCenter: TDoublePoint;
   VZoom: Byte;
@@ -142,7 +143,7 @@ var
   VConverter: ICoordConverter;
   VVisualMapCenterInRelative: TDoublePoint;
   VVisualMapCenterInLayerMap: TDoublePoint;
-  VLocalTopLeftAtMap: TPoint;
+  VMapPixelAtLocalZero: TPoint;
   VLocalTopLeftAtMapFloat: TDoublePoint;
   VLayerSize: TPoint;
   VVeiwSize: TPoint;
@@ -153,6 +154,12 @@ begin
   VWidth := FConfig.Width;
   VBottomMargin := FConfig.BottomMargin;
   VVeiwSize := AVisualCoordConverter.GetLocalRectSize;
+  VLayerSize := Point(VWidth, VWidth);
+  VLocalRect.Right := VVeiwSize.X;
+  VLocalRect.Bottom := VVeiwSize.Y - VBottomMargin;
+  VLocalRect.Left := VLocalRect.Right - VLayerSize.X;
+  VLocalRect.Top := VLocalRect.Bottom - VLayerSize.Y;
+
   VVisualMapCenter := AVisualCoordConverter.GetCenterMapPixelFloat;
   VSourceZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
@@ -160,23 +167,18 @@ begin
   VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
   VZoom := GetActualZoom(AVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
-  VLayerSize := Point(VWidth, VWidth);
   VLocalTopLeftAtMapFloat :=
     DoublePoint(
-      VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
-      VVisualMapCenterInLayerMap.Y - VLayerSize.Y / 2
+      VVisualMapCenterInLayerMap.X - (VLocalRect.Left + VLayerSize.X / 2),
+      VVisualMapCenterInLayerMap.Y - (VLocalRect.Top + VLayerSize.Y / 2)
     );
-  VLocalTopLeftAtMap := PointFromDoublePoint(VLocalTopLeftAtMapFloat, prToTopLeft);
+  VMapPixelAtLocalZero := PointFromDoublePoint(VLocalTopLeftAtMapFloat, prToTopLeft);
 
-  VLocalRect.Right := VVeiwSize.X;
-  VLocalRect.Bottom := VVeiwSize.Y - VBottomMargin;
-  VLocalRect.Left := VLocalRect.Right - VLayerSize.X;
-  VLocalRect.Top := VLocalRect.Bottom - VLayerSize.Y;
   Result := FConverterFactory.CreateConverterNoScale(
     VLocalRect,
     VZoom,
     VConverter,
-    VLocalTopLeftAtMap
+    VMapPixelAtLocalZero
   );
 end;
 
