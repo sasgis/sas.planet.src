@@ -325,18 +325,20 @@ begin
   LockWrite;
   try
     VLocalConverter := FPosition.GetStatic;
-    VGeoConverter := VLocalConverter.GeoConverter;
-    VLocalConverterNew :=
-      CreateVisibleCoordConverter(
-        VGeoConverter,
-        ANewSize,
-        DoublePoint(0, 0),
-        FBaseScale,
-        VLocalConverter.GetCenterMapPixelFloat,
-        VLocalConverter.Zoom
-      );
-    FPosition.SetConverter(VLocalConverterNew);
-    FView.SetConverter(VLocalConverterNew);
+    if not EqualRect(VLocalConverter.GetLocalRect, Rect(0, 0, ANewSize.X, ANewSize.Y)) then begin
+      VGeoConverter := VLocalConverter.GeoConverter;
+      VLocalConverterNew :=
+        CreateVisibleCoordConverter(
+          VGeoConverter,
+          ANewSize,
+          DoublePoint(0, 0),
+          FBaseScale,
+          VLocalConverter.GetCenterMapPixelFloat,
+          VLocalConverter.Zoom
+        );
+      FPosition.SetConverter(VLocalConverterNew);
+      FView.SetConverter(VLocalConverterNew);
+    end;
   finally
     UnlockWrite;
   end;
