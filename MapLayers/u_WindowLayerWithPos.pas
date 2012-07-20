@@ -23,6 +23,7 @@ unit u_WindowLayerWithPos;
 interface
 
 uses
+  Types,
   SysUtils,
   GR32,
   GR32_Layers,
@@ -71,6 +72,42 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       ALayer: TCustomLayer;
       const ALocalConverter: ILocalCoordConverterChangeable
+    );
+  end;
+
+  TWindowLayerWithBitmapBase = class(TWindowLayerAbstract)
+  private
+    FLayer: TBitmapLayer;
+    FVisible: Boolean;
+    FNeedUpdateLayerVisibilityFlag: ISimpleFlag;
+    FNeedUpdateBitmapDrawFlag: ISimpleFlag;
+    FNeedUpdateBitmapSizeFlag: ISimpleFlag;
+    FNeedUpdateLayerLocationFlag: ISimpleFlag;
+  protected
+    procedure DoViewUpdate; override;
+  protected
+    procedure SetNeedUpdateLayerVisibility;
+    procedure DoUpdateLayerVisibility; virtual;
+
+    procedure SetNeedUpdateBitmapDraw;
+    procedure DoUpdateBitmapDraw; virtual; abstract;
+
+    procedure SetNeedUpdateBitmapSize;
+    function GetNewBitmapSize: TPoint; virtual; abstract;
+    procedure DoUpdateBitmapSize; virtual;
+
+    procedure SetNeedUpdateLayerLocation;
+    function GetNewLayerLocation: TFloatRect; virtual; abstract;
+    procedure DoUpdateLayerLocation; virtual;
+
+    property Layer: TBitmapLayer read FLayer;
+    property Visible: Boolean read FVisible;
+  public
+    constructor Create(
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
+      ALayer: TBitmapLayer
     );
   end;
 
@@ -197,7 +234,6 @@ type
 implementation
 
 uses
-  Types,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent;
@@ -680,6 +716,98 @@ procedure TWindowLayerSimpleBase.StartThreads;
 begin
   inherited;
   FLayer.OnPaint := OnPaintLayer;
+end;
+
+{ TWindowLayerWithBitmapBase }
+
+constructor TWindowLayerWithBitmapBase.Create(
+  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation; ALayer: TBitmapLayer);
+begin
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier
+  );
+  FLayer := ALayer;
+  FLayer.Visible := False;
+  FNeedUpdateLayerVisibilityFlag := TSimpleFlagWithInterlock.Create;
+  FNeedUpdateBitmapDrawFlag := TSimpleFlagWithInterlock.Create;
+  FNeedUpdateBitmapSizeFlag := TSimpleFlagWithInterlock.Create;
+  FNeedUpdateLayerLocationFlag := TSimpleFlagWithInterlock.Create;
+end;
+
+procedure TWindowLayerWithBitmapBase.DoUpdateBitmapSize;
+var
+  VSize: TPoint;
+begin
+  VSize := GetNewBitmapSize;
+  if (VSize.X <> FLayer.Bitmap.Width) or (VSize.Y <> FLayer.Bitmap.Height) then begin
+    FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
+  end;
+end;
+
+procedure TWindowLayerWithBitmapBase.DoUpdateLayerLocation;
+var
+  VLocation: TFloatRect;
+begin
+  VLocation := GetNewLayerLocation;
+  if not EqualRect(VLocation, FLayer.Location) then begin
+    FLayer.Location := VLocation;
+  end;
+
+end;
+
+procedure TWindowLayerWithBitmapBase.DoUpdateLayerVisibility;
+begin
+  if FLayer.Visible <> FVisible then begin
+    FLayer.Visible := FVisible;
+  end;
+end;
+
+procedure TWindowLayerWithBitmapBase.DoViewUpdate;
+begin
+  inherited;
+  if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
+    SetNeedUpdateLayerVisibility;
+    SetNeedUpdateBitmapSize;
+  end;
+  if FNeedUpdateBitmapSizeFlag.CheckFlagAndReset then begin
+    DoUpdateBitmapSize;
+    if FVisible then begin
+      SetNeedUpdateBitmapDraw;
+      SetNeedUpdateLayerLocation;
+    end;
+  end;
+  if FNeedUpdateBitmapDrawFlag.CheckFlagAndReset then begin
+    DoUpdateBitmapDraw;
+  end;
+  if FNeedUpdateLayerLocationFlag.CheckFlagAndReset then begin
+    DoUpdateLayerLocation;
+  end;
+  if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
+    DoUpdateLayerVisibility;
+  end;
+end;
+
+procedure TWindowLayerWithBitmapBase.SetNeedUpdateBitmapDraw;
+begin
+  FNeedUpdateBitmapDrawFlag.SetFlag;
+end;
+
+procedure TWindowLayerWithBitmapBase.SetNeedUpdateBitmapSize;
+begin
+  FNeedUpdateBitmapSizeFlag.SetFlag;
+end;
+
+procedure TWindowLayerWithBitmapBase.SetNeedUpdateLayerLocation;
+begin
+  FNeedUpdateLayerLocationFlag.SetFlag;
+end;
+
+procedure TWindowLayerWithBitmapBase.SetNeedUpdateLayerVisibility;
+begin
+  FNeedUpdateLayerVisibilityFlag.SetFlag;
 end;
 
 end.
