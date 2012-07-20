@@ -83,6 +83,11 @@ type
     FNeedUpdateBitmapDrawFlag: ISimpleFlag;
     FNeedUpdateBitmapSizeFlag: ISimpleFlag;
     FNeedUpdateLayerLocationFlag: ISimpleFlag;
+
+    FResizeCounter: IInternalPerformanceCounter;
+    FRedrawCounter: IInternalPerformanceCounter;
+
+    procedure SetVisible(const Value: Boolean);
   protected
     procedure DoViewUpdate; override;
   protected
@@ -94,14 +99,14 @@ type
 
     procedure SetNeedUpdateBitmapSize;
     function GetNewBitmapSize: TPoint; virtual; abstract;
-    procedure DoUpdateBitmapSize; virtual;
+    procedure DoUpdateBitmapSize(const ASize: TPoint); virtual;
 
     procedure SetNeedUpdateLayerLocation;
     function GetNewLayerLocation: TFloatRect; virtual; abstract;
-    procedure DoUpdateLayerLocation; virtual;
+    procedure DoUpdateLayerLocation(ALocation: TFloatRect); virtual;
 
     property Layer: TBitmapLayer read FLayer;
-    property Visible: Boolean read FVisible;
+    property Visible: Boolean read FVisible write SetVisible;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -731,31 +736,26 @@ begin
   );
   FLayer := ALayer;
   FLayer.Visible := False;
+  FLayer.MouseEvents := False;
+  FLayer.Bitmap.DrawMode := dmBlend;
+
   FNeedUpdateLayerVisibilityFlag := TSimpleFlagWithInterlock.Create;
   FNeedUpdateBitmapDrawFlag := TSimpleFlagWithInterlock.Create;
   FNeedUpdateBitmapSizeFlag := TSimpleFlagWithInterlock.Create;
   FNeedUpdateLayerLocationFlag := TSimpleFlagWithInterlock.Create;
+
+  FResizeCounter := PerfList.CreateAndAddNewCounter('Resize');
+  FRedrawCounter := PerfList.CreateAndAddNewCounter('Redraw');
 end;
 
-procedure TWindowLayerWithBitmapBase.DoUpdateBitmapSize;
-var
-  VSize: TPoint;
+procedure TWindowLayerWithBitmapBase.DoUpdateBitmapSize(const ASize: TPoint);
 begin
-  VSize := GetNewBitmapSize;
-  if (VSize.X <> FLayer.Bitmap.Width) or (VSize.Y <> FLayer.Bitmap.Height) then begin
-    FLayer.Bitmap.SetSize(VSize.X, VSize.Y);
-  end;
+  FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
 end;
 
-procedure TWindowLayerWithBitmapBase.DoUpdateLayerLocation;
-var
-  VLocation: TFloatRect;
+procedure TWindowLayerWithBitmapBase.DoUpdateLayerLocation(ALocation: TFloatRect);
 begin
-  VLocation := GetNewLayerLocation;
-  if not EqualRect(VLocation, FLayer.Location) then begin
-    FLayer.Location := VLocation;
-  end;
-
+  FLayer.Location := ALocation;
 end;
 
 procedure TWindowLayerWithBitmapBase.DoUpdateLayerVisibility;
@@ -766,24 +766,52 @@ begin
 end;
 
 procedure TWindowLayerWithBitmapBase.DoViewUpdate;
+var
+  VSize: TPoint;
+  VLocation: TFloatRect;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   inherited;
   if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
-    SetNeedUpdateLayerVisibility;
-    SetNeedUpdateBitmapSize;
+    if FVisible <> FLayer.Visible then begin
+      SetNeedUpdateLayerVisibility;
+      SetNeedUpdateBitmapSize;
+    end;
   end;
   if FNeedUpdateBitmapSizeFlag.CheckFlagAndReset then begin
-    DoUpdateBitmapSize;
     if FVisible then begin
-      SetNeedUpdateBitmapDraw;
-      SetNeedUpdateLayerLocation;
+      VSize := GetNewBitmapSize;
+    end else begin
+      VSize := Point(0, 0);
+    end;
+    if (VSize.X <> FLayer.Bitmap.Width) or (VSize.Y <> FLayer.Bitmap.Height) then begin
+      VCounterContext := FResizeCounter.StartOperation;
+      try
+        DoUpdateBitmapSize(VSize);
+        if FVisible then begin
+          SetNeedUpdateBitmapDraw;
+          SetNeedUpdateLayerLocation;
+        end;
+      finally
+        FResizeCounter.FinishOperation(VCounterContext);
+      end;
     end;
   end;
   if FNeedUpdateBitmapDrawFlag.CheckFlagAndReset then begin
-    DoUpdateBitmapDraw;
+    if FVisible then begin
+      VCounterContext := FRedrawCounter.StartOperation;
+      try
+        DoUpdateBitmapDraw;
+      finally
+        FRedrawCounter.FinishOperation(VCounterContext);
+      end;
+    end;
   end;
   if FNeedUpdateLayerLocationFlag.CheckFlagAndReset then begin
-    DoUpdateLayerLocation;
+    VLocation := GetNewLayerLocation;
+    if not EqualRect(VLocation, FLayer.Location) then begin
+      DoUpdateLayerLocation(VLocation);
+    end;
   end;
   if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
     DoUpdateLayerVisibility;
@@ -808,6 +836,12 @@ end;
 procedure TWindowLayerWithBitmapBase.SetNeedUpdateLayerVisibility;
 begin
   FNeedUpdateLayerVisibilityFlag.SetFlag;
+end;
+
+procedure TWindowLayerWithBitmapBase.SetVisible(const Value: Boolean);
+begin
+  FVisible := Value;
+  SetNeedUpdateLayerVisibility;
 end;
 
 end.
