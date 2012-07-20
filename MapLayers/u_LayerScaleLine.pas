@@ -28,17 +28,21 @@ uses
   GR32_Image,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ScaleLineConfig,
   u_WindowLayerWithPos;
 
 type
-  TLayerScaleLine = class(TWindowLayerFixedSizeWithBitmap)
+  TLayerScaleLine = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IScaleLineConfig;
+    FPosition: ILocalCoordConverterChangeable;
     FTmpBitmap: TBitmap32;
     procedure OnConfigChange;
+    procedure OnPosChange;
+
     procedure DrawOutLinedText(
       X, Y: Integer;
       const Text: string;
@@ -95,11 +99,9 @@ type
       out AFullLen: Double
     );
   protected
-    procedure SetLayerCoordConverter(
-      const AValue: ILocalCoordConverter
-    ); override;
-    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
-    procedure DoRedraw; override;
+    function GetNewBitmapSize: TPoint; override;
+    function GetNewLayerLocation: TFloatRect; override;
+    procedure DoUpdateBitmapDraw; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -117,6 +119,7 @@ implementation
 
 uses
   SysUtils,
+  GR32_Layers,
   GR32_Resamplers,
   i_CoordConverter,
   u_ListenerByEvent,
@@ -134,17 +137,20 @@ constructor TLayerScaleLine.Create(
   const AViewPortState: IViewPortState;
   const AConfig: IScaleLineConfig
 );
-var
-  VSize: TPoint;
 begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
-    AParentMap,
-    AViewPortState
+    TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
+  FPosition := AViewPortState.Position;
+
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnPosChange),
+    FPosition.GetChangeNotifier
+  );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -156,12 +162,6 @@ begin
   FTmpBitmap := TBitmap32.Create;
   FTmpBitmap.Font := Layer.Bitmap.Font;
   FTmpBitmap.Font.Size := Layer.Bitmap.Font.Size;
-
-  VSize.X := 400;
-  VSize.Y := 400;
-
-  Layer.Bitmap.SetSize(VSize.X, VSize.Y);
-  DoUpdateLayerSize(VSize);
 end;
 
 destructor TLayerScaleLine.Destroy;
@@ -170,40 +170,27 @@ begin
   inherited Destroy;
 end;
 
-function TLayerScaleLine.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
-var
-  VSize: TPoint;
-begin
-  if ANewVisualCoordConverter <> nil then begin
-    VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
-    Result.Left := 6;
-    Result.Bottom := ANewVisualCoordConverter.GetLocalRectSize.Y - 6 - FConfig.BottomMargin;
-    Result.Right := Result.Left + VSize.X;
-    Result.Top := Result.Bottom - VSize.Y;
-  end else begin
-    Result.Left := 0;
-    Result.Bottom := 0;
-    Result.Right := 0;
-    Result.Top := 0;
-  end;
-end;
-
 procedure TLayerScaleLine.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    SetVisible(FConfig.Visible);
-    SetNeedRedraw;
-    SetNeedUpdateLocation;
+    Visible := FConfig.Visible;
+    SetNeedUpdateBitmapDraw;
+    SetNeedUpdateLayerLocation;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
-procedure TLayerScaleLine.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
+procedure TLayerScaleLine.OnPosChange;
 begin
-  inherited;
-  SetNeedRedraw;
+  ViewUpdateLock;
+  try
+    SetNeedUpdateBitmapDraw;
+    SetNeedUpdateLayerLocation;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TLayerScaleLine.StartThreads;
@@ -251,13 +238,13 @@ begin
   );
 end;
 
-procedure TLayerScaleLine.DoRedraw;
+procedure TLayerScaleLine.DoUpdateBitmapDraw;
 var
   VVisualCoordConverter: ILocalCoordConverter;
 begin
   inherited;
   Layer.Bitmap.Clear(0);
-  VVisualCoordConverter := LayerCoordConverter;
+  VVisualCoordConverter := FPosition.GetStatic;
   if VVisualCoordConverter <> nil then begin
     RedrawGorizontalScaleLegend(VVisualCoordConverter);
     if FConfig.Extended then begin
@@ -680,6 +667,23 @@ begin
     VZoom
   );
   AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+end;
+
+function TLayerScaleLine.GetNewBitmapSize: TPoint;
+begin
+  Result.X := 400;
+  Result.Y := 400;
+end;
+
+function TLayerScaleLine.GetNewLayerLocation: TFloatRect;
+var
+  VSize: TPoint;
+begin
+  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+  Result.Left := 6;
+  Result.Bottom := FPosition.GetStatic.GetLocalRect.Bottom - 6 - FConfig.BottomMargin;
+  Result.Right := Result.Left + VSize.X;
+  Result.Top := Result.Bottom - VSize.Y;
 end;
 
 {$ENDREGION}// Vertical Scale Legend
