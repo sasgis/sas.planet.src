@@ -53,9 +53,7 @@ type
       Buffer: TBitmap32
     );
     procedure UpdateLayerLocation(
-      const AViewSize: TPoint;
-      const AMiniMapWidth: Integer;
-      const ABottomMargin: Integer
+      const AMiniMapRect: TRect
     );
     procedure MouseDown(
       Sender: TObject;
@@ -87,6 +85,7 @@ type
 implementation
 
 uses
+  SysUtils,
   t_GeoTypes,
   u_ListenerByEvent;
 
@@ -156,15 +155,11 @@ end;
 procedure TMiniMapLayerPlusButton.OnConfigChange;
 var
   VVisible: Boolean;
-  VWidth: Integer;
-  VBottomMargin: Integer;
   VLocalConverter: ILocalCoordConverter;
 begin
   FConfig.LockRead;
   try
     VVisible := FConfig.Visible;
-    VWidth := FConfig.Width;
-    VBottomMargin := FConfig.BottomMargin;
   finally
     FConfig.UnlockRead;
   end;
@@ -173,11 +168,7 @@ begin
     FLayer.MouseEvents := True;
     VLocalConverter := FPosition.GetStatic;
     if VLocalConverter <> nil then begin
-      UpdateLayerLocation(
-        VLocalConverter.GetLocalRectSize,
-        VWidth,
-        VBottomMargin
-      );
+      UpdateLayerLocation(VLocalConverter.GetLocalRect);
     end;
     FLayer.Changed;
   end else begin
@@ -205,26 +196,18 @@ end;
 procedure TMiniMapLayerPlusButton.OnPosChange;
 var
   VVisible: Boolean;
-  VWidth: Integer;
-  VBottomMargin: Integer;
   VLocalConverter: ILocalCoordConverter;
 begin
   FConfig.LockRead;
   try
     VVisible := FConfig.Visible;
-    VWidth := FConfig.Width;
-    VBottomMargin := FConfig.BottomMargin;
   finally
     FConfig.UnlockRead;
   end;
   if VVisible then begin
     VLocalConverter := FPosition.GetStatic;
     if VLocalConverter <> nil then begin
-      UpdateLayerLocation(
-        VLocalConverter.GetLocalRectSize,
-        VWidth,
-        VBottomMargin
-      );
+      UpdateLayerLocation(VLocalConverter.GetLocalRect);
     end;
   end;
 end;
@@ -237,18 +220,18 @@ begin
 end;
 
 procedure TMiniMapLayerPlusButton.UpdateLayerLocation(
-  const AViewSize: TPoint;
-  const AMiniMapWidth: Integer;
-  const ABottomMargin: Integer
+  const AMiniMapRect: TRect
 );
 var
-  VLocation: TRect;
+  VLocation: TFloatRect;
 begin
-  VLocation.Left := AViewSize.X - AMiniMapWidth + 6;
-  VLocation.Top := AViewSize.Y - ABottomMargin - AMiniMapWidth + 6;
+  VLocation.Left := AMiniMapRect.Left + 6;
+  VLocation.Top := AMiniMapRect.Top + 6;
   VLocation.Right := VLocation.Left + 12;
   VLocation.Bottom := VLocation.Top + 12;
-  FLayer.Location := FloatRect(VLocation);
+  if not EqualRect(FLayer.Location, VLocation) then begin
+    FLayer.Location := VLocation;
+  end;
 end;
 
 end.

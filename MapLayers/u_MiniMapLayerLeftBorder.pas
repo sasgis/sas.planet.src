@@ -52,9 +52,7 @@ type
       const AMasterAlfa: Integer
     );
     procedure UpdateLayerLocation(
-      const AViewSize: TPoint;
-      const AMiniMapWidth: Integer;
-      const ABottomMargin: Integer
+      const AMiniMapRect: TRect
     );
     procedure MouseDown(
       Sender: TObject;
@@ -89,6 +87,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_ListenerByEvent;
 
 { TMiniMapLayerTopBorder }
@@ -143,7 +142,7 @@ var
   VVisibleSize: TPoint;
 begin
   if FLeftBorderMoved then begin
-    VVisibleSize := FPosition.GetStatic.GetLocalRectSize;
+    VVisibleSize := FPosition.GetStatic.GetLocalRect.BottomRight;
     VNewWidth := Trunc(VVisibleSize.X - X - FLeftBorderMovedClickDelta);
     if VNewWidth < 40 then begin
       VNewWidth := 40;
@@ -169,10 +168,8 @@ end;
 procedure TMiniMapLayerLeftBorder.OnConfigChange;
 var
   VVisible: Boolean;
-  VWidth: Integer;
   VMasterAlfa: Integer;
   VBorderWidth: Integer;
-  VBottomMargin: Integer;
   VLocalConverter: ILocalCoordConverter;
   VLayerSize: TPoint;
 begin
@@ -180,25 +177,19 @@ begin
   FConfig.LockRead;
   try
     VVisible := FConfig.Visible;
-    VWidth := FConfig.Width;
     VMasterAlfa := FConfig.MasterAlpha;
-    VBottomMargin := FConfig.BottomMargin;
   finally
     FConfig.UnlockRead;
   end;
   if VVisible then begin
     FLayer.Visible := True;
     FLayer.MouseEvents := True;
-    VLayerSize.X := VBorderWidth;
-    VLayerSize.Y := VWidth + VBorderWidth;
-    UpdateLayerSize(VLayerSize, VMasterAlfa);
     VLocalConverter := FPosition.GetStatic;
     if VLocalConverter <> nil then begin
-      UpdateLayerLocation(
-        VLocalConverter.GetLocalRectSize,
-        VWidth,
-        VBottomMargin
-      );
+      VLayerSize.X := VBorderWidth;
+      VLayerSize.Y := VLocalConverter.GetLocalRectSize.Y + VBorderWidth;
+      UpdateLayerSize(VLayerSize, VMasterAlfa);
+      UpdateLayerLocation(VLocalConverter.GetLocalRect);
     end;
   end else begin
     FLayer.Visible := False;
@@ -209,26 +200,18 @@ end;
 procedure TMiniMapLayerLeftBorder.OnPosChange;
 var
   VVisible: Boolean;
-  VWidth: Integer;
-  VBottomMargin: Integer;
   VLocalConverter: ILocalCoordConverter;
 begin
   FConfig.LockRead;
   try
     VVisible := FConfig.Visible;
-    VWidth := FConfig.Width;
-    VBottomMargin := FConfig.BottomMargin;
   finally
     FConfig.UnlockRead;
   end;
   if VVisible then begin
     VLocalConverter := FPosition.GetStatic;
     if VLocalConverter <> nil then begin
-      UpdateLayerLocation(
-        VLocalConverter.GetLocalRectSize,
-        VWidth,
-        VBottomMargin
-      );
+      UpdateLayerLocation(VLocalConverter.GetLocalRect);
     end;
   end;
 end;
@@ -240,18 +223,18 @@ begin
 end;
 
 procedure TMiniMapLayerLeftBorder.UpdateLayerLocation(
-  const AViewSize: TPoint;
-  const AMiniMapWidth: Integer;
-  const ABottomMargin: Integer
+  const AMiniMapRect: TRect
 );
 var
-  VLocation: TRect;
+  VLocation: TFloatRect;
 begin
-  VLocation.Right := AViewSize.X - AMiniMapWidth;
-  VLocation.Bottom := AViewSize.Y - ABottomMargin;
+  VLocation.Right := AMiniMapRect.Left;
+  VLocation.Bottom := AMiniMapRect.Bottom;
   VLocation.Left := VLocation.Right - FLayer.Bitmap.Width;
   VLocation.Top := VLocation.Bottom - FLayer.Bitmap.Height;
-  FLayer.Location := FloatRect(VLocation);
+  if not EqualRect(FLayer.Location, VLocation) then begin
+    FLayer.Location := VLocation;
+  end;
 end;
 
 procedure TMiniMapLayerLeftBorder.UpdateLayerSize(

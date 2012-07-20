@@ -694,6 +694,7 @@ uses
   i_ProjectionInfo,
   i_VectorItemLonLat,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
   i_ActiveMapsConfig,
   i_MarkerDrawable,
@@ -708,11 +709,13 @@ uses
   i_GeoCoder,
   i_GPSRecorder,
   i_PathDetalizeProvider,
+  u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
   u_GeoToStr,
   u_MapType,
   u_MapLayerWiki,
   u_MiniMapLayer,
+  u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
   u_MiniMapLayerLeftBorder,
   u_MiniMapLayerPlusButton,
@@ -1101,6 +1104,7 @@ var
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
+  VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1642,6 +1646,13 @@ begin
         FConfig.MainMapsConfig
       )
     );
+    VMiniMapConverterChangeable :=
+      TLocalConverterChangeableOfMiniMap.Create(
+        GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
+        GState.LocalConverterFactory,
+        FConfig.ViewPortState.Position,
+        FConfig.LayersConfig.MiniMapLayerConfig
+      );
     FLayersList.Add(
       TMiniMapLayer.Create(
         GState.PerfCounterList,
@@ -1661,12 +1672,25 @@ begin
       )
     );
     FLayersList.Add(
+      TMiniMapLayerViewRect.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState,
+        GState.MapType.GUIConfigList,
+        FMapTypeIcons18List,
+        VMiniMapConverterChangeable,
+        FConfig.LayersConfig.MiniMapLayerConfig
+      )
+    );
+    FLayersList.Add(
       TMiniMapLayerTopBorder.Create(
         GState.PerfCounterList,
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState.Position,
+        VMiniMapConverterChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
     );
@@ -1676,7 +1700,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState.Position,
+        VMiniMapConverterChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
     );
@@ -1697,7 +1721,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState.Position,
+        VMiniMapConverterChangeable,
         VMarkerChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
@@ -1719,7 +1743,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState.Position,
+        VMiniMapConverterChangeable,
         VMarkerChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
