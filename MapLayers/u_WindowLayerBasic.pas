@@ -6,6 +6,7 @@ uses
   i_Listener,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
+  i_SimpleFlag,
   i_ListenerNotifierLinksList;
 
 type
@@ -15,12 +16,17 @@ type
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
 
+    FViewUpdateLockCounter: ICounter;
     FAppStartedListener: IListener;
     FAppClosingListener: IListener;
     FLinksList: IListenerNotifierLinksList;
     procedure OnAppStarted;
     procedure OnAppClosing;
   protected
+    procedure ViewUpdateLock;
+    procedure ViewUpdateUnlock;
+    procedure DoViewUpdate; virtual;
+
     procedure StartThreads; virtual;
     procedure SendTerminateToThreads; virtual;
 
@@ -41,6 +47,7 @@ implementation
 
 uses
   u_ListenerByEvent,
+  u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList;
 
 { TWindowLayerAbstract }
@@ -56,6 +63,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FPerfList := APerfList.CreateAndAddNewSubList(ClassName);
 
+  FViewUpdateLockCounter := TCounterInterlock.Create;
   FLinksList := TListenerNotifierLinksList.Create;
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
@@ -73,6 +81,11 @@ begin
     FAppClosingNotifier := nil;
   end;
   inherited;
+end;
+
+procedure TWindowLayerAbstract.DoViewUpdate;
+begin
+ // Do nothing
 end;
 
 procedure TWindowLayerAbstract.AfterConstruction;
@@ -106,6 +119,22 @@ end;
 procedure TWindowLayerAbstract.StartThreads;
 begin
   FLinksList.ActivateLinks;
+end;
+
+procedure TWindowLayerAbstract.ViewUpdateLock;
+begin
+  FViewUpdateLockCounter.Inc;
+end;
+
+procedure TWindowLayerAbstract.ViewUpdateUnlock;
+var
+  VLockCount: Integer;
+begin
+  VLockCount := FViewUpdateLockCounter.Dec;
+  Assert(VLockCount >= 0);
+  if VLockCount = 0 then begin
+    DoViewUpdate;
+  end;
 end;
 
 end.

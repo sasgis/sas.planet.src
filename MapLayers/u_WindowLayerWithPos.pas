@@ -101,10 +101,6 @@ type
 
     procedure PosChange(const ANewVisualCoordConverter: ILocalCoordConverter);
 
-    procedure ViewUpdateLock;
-    procedure ViewUpdateUnlock;
-    procedure DoViewUpdate; virtual;
-
     property ViewCoordConverter: ILocalCoordConverter read GetViewCoordConverter;
     property LayerCoordConverter: ILocalCoordConverter read GetLayerCoordConverter;
   public
@@ -307,10 +303,6 @@ begin
   end;
 end;
 
-procedure TWindowLayerWithPosBase.DoViewUpdate;
-begin
-end;
-
 procedure TWindowLayerWithPosBase.SetLayerCoordConverter(
   const AValue: ILocalCoordConverter
 );
@@ -339,22 +331,6 @@ procedure TWindowLayerWithPosBase.StartThreads;
 begin
   inherited;
   OnViewPortPosChange;
-end;
-
-procedure TWindowLayerWithPosBase.ViewUpdateLock;
-begin
-  FViewUpdateLockCounter.Inc;
-end;
-
-procedure TWindowLayerWithPosBase.ViewUpdateUnlock;
-var
-  VLockCount: Integer;
-begin
-  VLockCount := FViewUpdateLockCounter.Dec;
-  Assert(VLockCount >= 0);
-  if VLockCount = 0 then begin
-    DoViewUpdate;
-  end;
 end;
 
 { TWindowLayerBasic }

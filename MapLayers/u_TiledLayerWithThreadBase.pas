@@ -99,9 +99,7 @@ type
     procedure OnPosChange;
     procedure OnScaleChange;
   protected
-    procedure ViewUpdateLock;
-    procedure ViewUpdateUnlock;
-    procedure DoViewUpdate;
+    procedure DoViewUpdate; override;
 
     function CreateLayerProvider(
       const ALayerConverter: ILocalCoordConverter
@@ -719,22 +717,6 @@ begin
     finally
       FTileMatrixUpdateCounter.FinishOperation(VCounterContext);
     end;
-  end;
-end;
-
-procedure TTiledLayerWithThreadBase.ViewUpdateLock;
-begin
-  FViewUpdateLockCounter.Inc;
-end;
-
-procedure TTiledLayerWithThreadBase.ViewUpdateUnlock;
-var
-  VLockCount: Integer;
-begin
-  VLockCount := FViewUpdateLockCounter.Dec;
-  Assert(VLockCount >= 0);
-  if VLockCount = 0 then begin
-    DoViewUpdate;
   end;
 end;
 
