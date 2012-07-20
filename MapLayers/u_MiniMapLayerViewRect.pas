@@ -265,25 +265,32 @@ begin
 
       VMiniMapRect := DoubleRect(AMiniMapConverter.GetLocalRect);
       if IsIntersecProjectedRect(VBitmapRect, VMiniMapRect) then begin
-        VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
-        VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
-        VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
-        ABuffer.FillRectTS(VDrawRect, VFillColor);
-        ABuffer.FrameRectTS(VDrawRect, VBorderColor);
-        ABuffer.FrameRectTS(
-          VDrawRect.Left - 1,
-          VDrawRect.Top + 1,
-          VDrawRect.Right + 1,
-          VDrawRect.Bottom - 1,
-          VBorderColor
-        );
-        ABuffer.FrameRectTS(
-          VDrawRect.Left + 1,
-          VDrawRect.Top - 1,
-          VDrawRect.Right - 1,
-          VDrawRect.Bottom + 1,
-          VBorderColor
-        );
+        if
+          (VMiniMapRect.Left < VBitmapRect.Left) or
+          (VMiniMapRect.Top < VBitmapRect.Top) or
+          (VMiniMapRect.Right > VBitmapRect.Right) or
+          (VMiniMapRect.Bottom > VBitmapRect.Bottom)
+        then begin
+          VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
+          VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
+          VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
+          ABuffer.FillRectTS(VDrawRect, VFillColor);
+          ABuffer.FrameRectTS(VDrawRect, VBorderColor);
+          ABuffer.FrameRectTS(
+            VDrawRect.Left - 1,
+            VDrawRect.Top + 1,
+            VDrawRect.Right + 1,
+            VDrawRect.Bottom - 1,
+            VBorderColor
+          );
+          ABuffer.FrameRectTS(
+            VDrawRect.Left + 1,
+            VDrawRect.Top - 1,
+            VDrawRect.Right - 1,
+            VDrawRect.Bottom + 1,
+            VBorderColor
+          );
+        end;
       end;
     end;
   end;
