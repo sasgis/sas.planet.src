@@ -477,7 +477,6 @@ type
     procedure NGoToCurClick(Sender: TObject);
     procedure TBGPSToPointCenterClick(Sender: TObject);
     procedure tbtmHelpBugTrackClick(Sender: TObject);
-    procedure FormResize(Sender: TObject);
     procedure tbitmShowDebugInfoClick(Sender: TObject);
     procedure NMarkExportClick(Sender: TObject);
     procedure TBHideMarksClick(Sender: TObject);
@@ -628,8 +627,13 @@ type
     procedure OnPathProvidesChange;
     procedure OnNavToMarkChange;
     procedure DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
+
     procedure WMGetMinMaxInfo(var msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
-    procedure WMTIMECHANGE(var m: TMessage); message WM_TIMECHANGE;
+    procedure WMTimeChange(var m: TMessage); message WM_TIMECHANGE;
+    Procedure WMSize(Var Msg: TWMSize); Message WM_SIZE;
+    Procedure WMMove(Var Msg: TWMMove); Message WM_MOVE;
+    Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
+
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; const ALastTime:double; AZoom:byte; const AMousePos:TPoint);
     procedure ProcessPosChangeMessage;
@@ -651,8 +655,6 @@ type
     procedure PaintZSlider(zoom:integer);
     procedure SetToolbarsLock(AValue: Boolean);
 
-    Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
-    Procedure TrayControl(Var Msg: TMessage); Message WM_SYSCOMMAND;
     procedure OnBeforeViewChange;
     procedure OnAfterViewChange;
     procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
@@ -661,7 +663,6 @@ type
     procedure TBfillMapAsMainClick(Sender: TObject);
     procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBXSelectSrchClick(Sender: TObject);
-    procedure OnMinimize(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     function ConvLatLon2Scale(const Astr:string):Double;
     function Deg2Strvalue(const aDeg:Double):string;
@@ -965,7 +966,6 @@ begin
   SystemTimeChanged;
   ProgramStart:=true;
   Application.Title:=Caption;
-  Application.OnMinimize := Self.OnMinimize;
   Caption:=Caption+' '+SASVersion;
   TBXSetTheme('SAStbxTheme');
 
@@ -2666,52 +2666,69 @@ procedure TfrmMain.OnWinPositionChange;
 var
   VIsFullScreen: Boolean;
   VIsMaximized: Boolean;
+  VIsMinimized: Boolean;
   VRect: TRect;
 begin
   FWinPosition.LockRead;
   try
     VIsFullScreen := FWinPosition.GetIsFullScreen;
     VIsMaximized := FWinPosition.GetIsMaximized;
+    VIsMinimized := FWinPosition.IsMinimized;
     VRect := FWinPosition.GetBoundsRect;
   finally
     FWinPosition.UnlockRead;
   end;
-  TBFullSize.Checked := VIsFullScreen;
-  NFoolSize.Checked:=VIsFullScreen;
-  TBexit.Visible:=VIsFullScreen;
-  TBDock.Parent:=Self;
-  TBDockLeft.Parent:=Self;
-  TBDockBottom.Parent:=Self;
-  TBDockRight.Parent:=Self;
-  TBDock.Visible:=not(VIsFullScreen);
-  TBDockLeft.Visible:=not(VIsFullScreen);
-  TBDockBottom.Visible:=not(VIsFullScreen);
-  TBDockRight.Visible:=not(VIsFullScreen);
-  if VIsFullScreen then begin
-    Self.WindowState := wsMaximized;
-    SetBounds(
-      Monitor.Left + Left - ClientOrigin.X,
-      Monitor.Top + Top - ClientOrigin.Y,
-      Monitor.Width + (Width - ClientWidth),
-      Monitor.Height + (Height - ClientHeight)
-    );
+  if VIsMinimized then begin
+    if GState.GlobalAppConfig.IsShowIconInTray  then begin
+      TrayIcon.Visible := True;
+      ShowWindow(Self.Handle, SW_HIDE);
+      ShowWindow(Application.Handle, SW_HIDE);
+    end else begin
+      Self.WindowState := wsMinimized;
+    end;
   end else begin
-    if VIsMaximized then begin
-      if Self.WindowState <> wsMaximized then begin
-        if not EqualRect(BoundsRect, VRect) then begin
-          Self.BoundsRect:= VRect;
-        end;
-      end;
+    if (TrayIcon.Visible) and GState.GlobalAppConfig.IsShowIconInTray  then begin
+      ShowWindow(Application.Handle, SW_SHOW);
+      ShowWindow(Self.Handle, SW_SHOW);
+      TrayIcon.Visible := False;
+    end;
+    TBFullSize.Checked := VIsFullScreen;
+    NFoolSize.Checked:=VIsFullScreen;
+    TBexit.Visible:=VIsFullScreen;
+    TBDock.Parent:=Self;
+    TBDockLeft.Parent:=Self;
+    TBDockBottom.Parent:=Self;
+    TBDockRight.Parent:=Self;
+    TBDock.Visible:=not(VIsFullScreen);
+    TBDockLeft.Visible:=not(VIsFullScreen);
+    TBDockBottom.Visible:=not(VIsFullScreen);
+    TBDockRight.Visible:=not(VIsFullScreen);
+    if VIsFullScreen then begin
       Self.WindowState := wsMaximized;
       SetBounds(
-        Monitor.Left,
-        Monitor.Top,
-        Monitor.Width,
-        Monitor.Height
+        Monitor.Left + Left - ClientOrigin.X,
+        Monitor.Top + Top - ClientOrigin.Y,
+        Monitor.Width + (Width - ClientWidth),
+        Monitor.Height + (Height - ClientHeight)
       );
     end else begin
-      Self.WindowState := wsNormal;
-      Self.BoundsRect:= VRect;
+      if VIsMaximized then begin
+        if Self.WindowState <> wsMaximized then begin
+          if not EqualRect(BoundsRect, VRect) then begin
+            Self.BoundsRect:= VRect;
+          end;
+        end;
+        Self.WindowState := wsMaximized;
+        SetBounds(
+          Monitor.Left,
+          Monitor.Top,
+          Monitor.Width,
+          Monitor.Height
+        );
+      end else begin
+        Self.WindowState := wsNormal;
+        Self.BoundsRect:= VRect;
+      end;
     end;
   end;
 end;
@@ -3042,26 +3059,6 @@ begin
   );
 end;
 
-
-Procedure TfrmMain.FormMove(Var Msg: TWMMove);
-Begin
-  Inherited;
-  FormResize(self);
-End;
-
-procedure TfrmMain.FormResize(Sender: TObject);
-begin
-  if FWinPosition <> nil then begin
-    if not FWinPosition.GetIsFullScreen then begin
-      if Self.WindowState = wsMaximized then begin
-        FWinPosition.SetMaximized;
-      end else if Self.WindowState = wsNormal then begin
-        FWinPosition.SetWindowPosition(Self.BoundsRect);
-      end;
-    end;
-  end;
-end;
-
 procedure TfrmMain.TBmoveClick(Sender: TObject);
 begin
   FState.State := ao_movemap;
@@ -3180,7 +3177,60 @@ begin
  end;
 end;
 
-procedure TfrmMain.WMTIMECHANGE(var m: TMessage);
+Procedure TfrmMain.WMMove(Var Msg: TWMMove);
+Begin
+  Inherited;
+  if FWinPosition <> nil then begin
+    if not FWinPosition.GetIsFullScreen then begin
+      if Self.WindowState = wsMaximized then begin
+        FWinPosition.SetMaximized;
+      end else if Self.WindowState = wsNormal then begin
+        FWinPosition.SetWindowPosition(Self.BoundsRect);
+      end;
+    end;
+  end;
+End;
+
+procedure TfrmMain.WMSize(var Msg: TWMSize);
+begin
+  inherited;
+  if FWinPosition <> nil then begin
+    if Msg.SizeType = SIZE_MINIMIZED then begin
+      if not FWinPosition.IsMinimized then  begin
+        FWinPosition.SetMinimized;
+      end;
+    end else if Msg.SizeType = SIZE_MAXIMIZED then begin
+      if FWinPosition.IsMinimized then  begin
+        FWinPosition.SetNotMinimized;
+      end;
+    end else if Msg.SizeType = SIZE_RESTORED then begin
+      if FWinPosition.IsMinimized then  begin
+        FWinPosition.SetNotMinimized;
+      end;
+    end;
+  end;
+end;
+
+Procedure TfrmMain.WMSysCommand(var Msg: TMessage);
+begin
+  if (Msg.WParam = SC_RESTORE) then begin
+    if FWinPosition.IsMinimized then begin
+      FWinPosition.SetNotMinimized;
+    end else if FWinPosition.IsMaximized and (Self.WindowState = wsMaximized) then begin
+      FWinPosition.SetNormalWindow;
+    end else begin
+      inherited;
+    end;
+  end else if (Msg.WParam = SC_MINIMIZE) then begin
+    if (not FWinPosition.IsMinimized) then begin
+      FWinPosition.SetMinimized;
+    end else begin
+      inherited;
+    end;
+  end else inherited;
+end;
+
+procedure TfrmMain.WMTimeChange(var m: TMessage);
 begin
   inherited;
   SystemTimeChanged;
@@ -5919,22 +5969,6 @@ begin
   FTumbler.DrawTo(ZSlider.Bitmap,tumbpos.X,tumbpos.Y);
 end;
 
-// TrayIcon
-
-Procedure TfrmMain.TrayControl(var Msg: TMessage);
-begin
-  if (Msg.WParam = SC_MINIMIZE) and GState.GlobalAppConfig.IsShowIconInTray then begin
-    TrayIcon.Visible := True;
-    ShowWindow(Self.Handle, SW_HIDE);
-    ShowWindow(Application.Handle, SW_HIDE);
-  end else inherited;
-end;
-
-procedure TfrmMain.OnMinimize(Sender: TObject);
-begin
-  PostMessage(Self.Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-end;
-
 procedure TfrmMain.OnNavToMarkChange;
 begin
   tbitmNavigationArrow.Checked := FConfig.NavToPoint.IsActive;
@@ -5964,11 +5998,11 @@ begin
   end;
 end;
 
+// TrayIcon
+
 procedure TfrmMain.TrayItemRestoreClick(Sender: TObject);
 begin
-  ShowWindow(Application.Handle, SW_SHOW);
-  ShowWindow(Self.Handle, SW_SHOW);
-  TrayIcon.Visible := False;
+  FWinPosition.SetNotMinimized;
 end;
 
 procedure TfrmMain.TrayItemQuitClick(Sender: TObject);

@@ -39,6 +39,11 @@ type
     procedure SetMaximized;
     procedure SetNormalWindow;
 
+    function GetIsMinimized: Boolean;
+    procedure SetMinimized;
+    procedure SetNotMinimized;
+    property IsMinimized: Boolean read GetIsMinimized;
+
     function GetBoundsRect: TRect;
     property BoundsRect: TRect read GetBoundsRect;
     procedure SetWindowPosition(const ARect: TRect);

@@ -34,6 +34,7 @@ type
   private
     FIsFullScreen: Boolean;
     FIsMaximized: Boolean;
+    FIsMinimized: Boolean;
     FBoundsRect: TRect;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -47,7 +48,10 @@ type
     procedure SetMaximized;
     procedure SetNormalWindow;
     procedure SetWindowPosition(const ARect: TRect);
-  public
+    function GetIsMinimized: Boolean;
+    procedure SetNotMinimized;
+    procedure SetMinimized;
+public
     constructor Create(const AStartRect: TRect);
   end;
 
@@ -61,6 +65,7 @@ begin
   FBoundsRect := AStartRect;
   FIsFullScreen := False;
   FIsMaximized := False;
+  FIsMinimized := False;
 end;
 
 procedure TMainWindowPositionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -122,6 +127,16 @@ begin
   end;
 end;
 
+function TMainWindowPositionConfig.GetIsMinimized: Boolean;
+begin
+  LockRead;
+  try
+    Result := FIsMinimized;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TMainWindowPositionConfig.SetFullScreen;
 begin
   LockWrite;
@@ -149,6 +164,19 @@ begin
   end;
 end;
 
+procedure TMainWindowPositionConfig.SetMinimized;
+begin
+  LockWrite;
+  try
+    if not FIsMinimized then begin
+      FIsMinimized := True;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TMainWindowPositionConfig.SetNoFullScreen;
 begin
   LockWrite;
@@ -169,6 +197,19 @@ begin
     if FIsFullScreen or FIsMaximized then begin
       FIsFullScreen := False;
       FIsMaximized := False;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainWindowPositionConfig.SetNotMinimized;
+begin
+  LockWrite;
+  try
+    if FIsMinimized then begin
+      FIsMinimized := False;
       SetChanged;
     end;
   finally
