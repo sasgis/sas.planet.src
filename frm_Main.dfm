@@ -16,7 +16,6 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnMouseWheel = FormMouseWheel
-  OnResize = FormResize
   OnShortCut = FormShortCut
   PixelsPerInch = 96
   TextHeight = 13
@@ -121,7 +120,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 242
+      Left = 230
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -153,7 +152,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 369
+      Left = 363
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -164,7 +163,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 540
+      Left = 534
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -1259,7 +1258,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 399
+      Left = 429
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1285,7 +1284,7 @@ object frmMain: TfrmMain
       end
     end
     object FillDates: TTBXToolbar
-      Left = 610
+      Left = 629
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
@@ -1337,8 +1336,8 @@ object frmMain: TfrmMain
         OnChange = DateTimePicker1Change
       end
       object DateTimePicker2: TDateTimePicker
-        Left = 141
-        Top = 0
+        Left = 203
+        Top = 21
         Width = 81
         Height = 21
         Date = 40830.496065717590000000
@@ -1418,7 +1417,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1438,7 +1437,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -1575,7 +1574,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 136
+        Top = 138
         Width = 61
         Height = 22
         MaxValue = 100000

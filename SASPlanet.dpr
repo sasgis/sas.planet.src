@@ -903,6 +903,7 @@ begin
   GState := TGlobalState.Create;
   try
     Application.Initialize;
+    Application.MainFormOnTaskBar := True;
     Application.Title := SAS_STR_ApplicationTitle;
     TfrmStartLogo.ShowLogo(GState.LanguageManager, GState.StartUpLogoConfig);
     try
