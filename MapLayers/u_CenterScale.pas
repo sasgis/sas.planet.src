@@ -94,7 +94,7 @@ begin
   FMarkerChangeable := AMarkerChangeable;
   FLastFixedPoint := CEmptyDoublePoint;
 
-  FLayer := TBitmapLayer.Create(AParentMap.Layers);
+  FLayer := TCustomLayer.Create(AParentMap.Layers);
   FLayer.MouseEvents := false;
 
   LinksList.Add(
