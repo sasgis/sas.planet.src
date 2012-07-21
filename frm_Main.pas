@@ -2679,16 +2679,14 @@ begin
     FWinPosition.UnlockRead;
   end;
   if VIsMinimized then begin
-    if GState.GlobalAppConfig.IsShowIconInTray  then begin
+    if (not TrayIcon.Visible) and GState.GlobalAppConfig.IsShowIconInTray  then begin
       TrayIcon.Visible := True;
       ShowWindow(Self.Handle, SW_HIDE);
-      ShowWindow(Application.Handle, SW_HIDE);
     end else begin
       Self.WindowState := wsMinimized;
     end;
   end else begin
     if (TrayIcon.Visible) and GState.GlobalAppConfig.IsShowIconInTray  then begin
-      ShowWindow(Application.Handle, SW_SHOW);
       ShowWindow(Self.Handle, SW_SHOW);
       TrayIcon.Visible := False;
     end;
