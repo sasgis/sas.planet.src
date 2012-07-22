@@ -32,25 +32,20 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TMiniMapLayerTopBorder = class(TWindowLayerAbstract)
+  TMiniMapLayerTopBorder = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IMiniMapLayerConfig;
     FPosition: ILocalCoordConverterChangeable;
 
-    FLayer: TBitmapLayer;
     procedure OnConfigChange;
     procedure OnPosChange;
-    procedure UpdateLayerSize(
-      const ASize: TPoint;
-      const AMasterAlfa: Integer
-    );
-    procedure UpdateLayerLocation(
-      const AMiniMapRect: TRect
-    );
   protected
+    function GetNewBitmapSize: TPoint; override;
+    function GetNewLayerLocation: TFloatRect; override;
+    procedure DoUpdateBitmapDraw; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -80,13 +75,12 @@ begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier
+    AAppClosingNotifier,
+    TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
   FPosition := APosition;
-  FLayer := TBitmapLayer.Create(AParentMap.Layers);
-  FLayer.MouseEvents := false;
-  FLayer.Bitmap.DrawMode := dmBlend;
+  Layer.Bitmap.DrawMode := dmBlend;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -99,52 +93,66 @@ begin
 
 end;
 
-procedure TMiniMapLayerTopBorder.OnConfigChange;
+procedure TMiniMapLayerTopBorder.DoUpdateBitmapDraw;
 var
-  VVisible: Boolean;
-  VMasterAlfa: Integer;
-  VBorderWidth: Integer;
-  VLocalConverter: ILocalCoordConverter;
-  VLayerSize: TPoint;
+  VSize: TPoint;
 begin
-  VBorderWidth := 5;
-  FConfig.LockRead;
-  try
-    VVisible := FConfig.Visible;
-    VMasterAlfa := FConfig.MasterAlpha;
-  finally
-    FConfig.UnlockRead;
-  end;
-  if VVisible then begin
-    FLayer.Visible := True;
-    VLocalConverter := FPosition.GetStatic;
-    if VLocalConverter <> nil then begin
-      VLayerSize.X := VLocalConverter.GetLocalRectSize.X;
-      VLayerSize.Y := VBorderWidth;
-      UpdateLayerSize(VLayerSize, VMasterAlfa);
-      UpdateLayerLocation(VLocalConverter.GetLocalRect);
-    end;
+  inherited;
+  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+  Layer.Bitmap.Clear(clLightGray32);
+  Layer.Bitmap.HorzLineS(0, 0, VSize.X - 1, clBlack32);
+  Layer.Bitmap.HorzLineS(0, VSize.Y - 1, VSize.X - 1, clBlack32);
+end;
+
+function TMiniMapLayerTopBorder.GetNewBitmapSize: TPoint;
+var
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FPosition.GetStatic;
+  if VLocalConverter <> nil then begin
+    Result := Point(VLocalConverter.GetLocalRectSize.X, 5);
   end else begin
-    FLayer.Visible := False;
+    Result := Point(0, 0);
+  end;
+end;
+
+function TMiniMapLayerTopBorder.GetNewLayerLocation: TFloatRect;
+var
+  VLocalConverter: ILocalCoordConverter;
+  VMiniMapRect: TRect;
+begin
+  VLocalConverter := FPosition.GetStatic;
+  if VLocalConverter <> nil then begin
+    VMiniMapRect := VLocalConverter.GetLocalRect;
+    Result.Right := VMiniMapRect.Right;
+    Result.Bottom := VMiniMapRect.Top;
+    Result.Left := Result.Right - Layer.Bitmap.Width;
+    Result.Top := Result.Bottom - Layer.Bitmap.Height;
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
+  end;
+end;
+
+procedure TMiniMapLayerTopBorder.OnConfigChange;
+begin
+  ViewUpdateLock;
+  try
+    Visible := FConfig.Visible;
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateBitmapDraw;
+  finally
+    ViewUpdateUnlock;
   end;
 end;
 
 procedure TMiniMapLayerTopBorder.OnPosChange;
-var
-  VVisible: Boolean;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    VVisible := FConfig.Visible;
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateLayerLocation;
   finally
-    FConfig.UnlockRead;
-  end;
-  if VVisible then begin
-    VLocalConverter := FPosition.GetStatic;
-    if VLocalConverter <> nil then begin
-      UpdateLayerLocation(VLocalConverter.GetLocalRect);
-    end;
+    ViewUpdateUnlock;
   end;
 end;
 
@@ -152,35 +160,6 @@ procedure TMiniMapLayerTopBorder.StartThreads;
 begin
   inherited;
   OnConfigChange;
-end;
-
-procedure TMiniMapLayerTopBorder.UpdateLayerLocation(
-  const AMiniMapRect: TRect
-);
-var
-  VLocation: TFloatRect;
-begin
-  VLocation.Right := AMiniMapRect.Right;
-  VLocation.Bottom := AMiniMapRect.Top;
-  VLocation.Left := VLocation.Right - FLayer.Bitmap.Width;
-  VLocation.Top := VLocation.Bottom - FLayer.Bitmap.Height;
-  if not EqualRect(FLayer.Location, VLocation) then begin
-    FLayer.Location := VLocation;
-  end;
-end;
-
-procedure TMiniMapLayerTopBorder.UpdateLayerSize(
-  const ASize: TPoint;
-  const AMasterAlfa: Integer
-);
-begin
-  if (FLayer.Bitmap.Width <> ASize.X) or (FLayer.Bitmap.Height <> ASize.Y) then begin
-    FLayer.Bitmap.SetSize(ASize.X, ASize.Y);
-    FLayer.Bitmap.Clear(clLightGray32);
-    FLayer.Bitmap.HorzLineS(0, 0, ASize.X, clBlack32);
-    FLayer.Bitmap.HorzLineS(0, ASize.Y - 1, ASize.X, clBlack32);
-    FLayer.Bitmap.MasterAlpha := AMasterAlfa;
-  end;
 end;
 
 end.
