@@ -14,6 +14,7 @@ type
   private
     FMarker: IBitmapMarker;
   private
+    function GetBoundsForPosition(const APosition: TDoublePoint): TRect;
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
@@ -44,20 +45,10 @@ function TMarkerDrawableByBitmapMarker.DrawToBitmap(
 ): Boolean;
 var
   VTargetPoint: TPoint;
-  VTargetPointFloat: TDoublePoint;
   VTargetRect: TRect;
-  VSourceSize: TPoint;
 begin
-  VTargetPointFloat :=
-    DoublePoint(
-      APosition.X - FMarker.AnchorPoint.X,
-      APosition.Y - FMarker.AnchorPoint.Y
-    );
-  VSourceSize := Point(FMarker.Bitmap.Width, FMarker.Bitmap.Height);
-  VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-  VTargetRect.TopLeft := VTargetPoint;
-  VTargetRect.Right := VTargetRect.Left + VSourceSize.X;
-  VTargetRect.Bottom := VTargetRect.Top + VSourceSize.Y;
+  VTargetRect := GetBoundsForPosition(APosition);
+  VTargetPoint := VTargetRect.TopLeft;
   IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
   if IsRectEmpty(VTargetRect) then begin
     Result := False;
@@ -74,6 +65,26 @@ begin
     ABitmap.CombineMode
   );
   Result := True;
+end;
+
+function TMarkerDrawableByBitmapMarker.GetBoundsForPosition(
+  const APosition: TDoublePoint): TRect;
+var
+  VTargetPoint: TPoint;
+  VTargetPointFloat: TDoublePoint;
+  VSourceSize: TPoint;
+begin
+  VTargetPointFloat :=
+    DoublePoint(
+      APosition.X - FMarker.AnchorPoint.X,
+      APosition.Y - FMarker.AnchorPoint.Y
+    );
+  VSourceSize := Point(FMarker.Bitmap.Width, FMarker.Bitmap.Height);
+  VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
+
+  Result.TopLeft := VTargetPoint;
+  Result.Right := Result.Left + VSourceSize.X;
+  Result.Bottom := Result.Top + VSourceSize.Y;
 end;
 
 end.

@@ -20,6 +20,7 @@ type
 
   TMarkerDrawableSimpleAbstract = class(TMarkerDrawableSimpleBaseAbstract, IMarkerDrawable)
   protected
+    function GetBoundsForPosition(const APosition: TDoublePoint): TRect; virtual; abstract;
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint

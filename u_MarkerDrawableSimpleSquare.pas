@@ -10,6 +10,7 @@ uses
 type
   TMarkerDrawableSimpleSquare = class(TMarkerDrawableSimpleAbstract)
   protected
+    function GetBoundsForPosition(const APosition: TDoublePoint): TRect; override;
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
@@ -56,6 +57,21 @@ begin
     ABitmap.Changed(VTargetRect);
   end;
   Result := True;
+end;
+
+function TMarkerDrawableSimpleSquare.GetBoundsForPosition(
+  const APosition: TDoublePoint): TRect;
+var
+  VHalfSize: Double;
+  VTargetDoubleRect: TDoubleRect;
+begin
+  VHalfSize := Config.MarkerSize / 2;
+  VTargetDoubleRect.Left := APosition.X - VHalfSize;
+  VTargetDoubleRect.Top := APosition.Y - VHalfSize;
+  VTargetDoubleRect.Right := APosition.X + VHalfSize;
+  VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
+
+  Result := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
 end;
 
 end.

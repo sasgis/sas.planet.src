@@ -10,6 +10,7 @@ uses
 type
   IMarkerDrawable = interface
     ['{91E8968F-8563-4ED0-8774-AF844F8CA8B9}']
+    function GetBoundsForPosition(const APosition: TDoublePoint): TRect;
     function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
