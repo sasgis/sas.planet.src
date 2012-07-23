@@ -11,6 +11,7 @@ uses
   i_NotifierOperation,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_TimeZoneDiffByLonLat,
   i_StatBarConfig,
@@ -23,7 +24,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TLayerStatBar = class(TWindowLayerWithBitmap)
+  TLayerStatBar = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IStatBarConfig;
     FMainMapsConfig: IMainMapsConfig;
@@ -32,6 +33,8 @@ type
     FMouseState: IMouseState;
     FTimeZoneDiff: ITimeZoneDiffByLonLat;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FPosition: ILocalCoordConverterChangeable;
+    FView: ILocalCoordConverterChangeable;
 
     FLastUpdateTick: DWORD;
     FMinUpdate: Cardinal;
@@ -41,13 +44,11 @@ type
     function GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;
     procedure OnConfigChange;
     procedure OnTimerEvent;
+    procedure OnPosChange;
   protected
-    function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
-    procedure DoRedraw; override;
-    function GetLayerSizeForView(
-      const ANewVisualCoordConverter: ILocalCoordConverter
-    ): TPoint; override;
-    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
+    function GetNewBitmapSize: TPoint; override;
+    function GetNewLayerLocation: TFloatRect; override;
+    procedure DoUpdateBitmapDraw; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -73,6 +74,7 @@ uses
   SysUtils,
   StrUtils,
   Graphics,
+  GR32_Layers,
   i_CoordConverter,
   u_ListenerByEvent,
   u_ResStrings,
@@ -104,8 +106,7 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
-    AParentMap,
-    AViewPortState
+    TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
   FGlobalInternetState := AGlobalInternetState;
@@ -113,6 +114,9 @@ begin
   FTimeZoneDiff := ATimeZoneDiff;
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
+  FPosition := AViewPortState.Position;
+  FView := AViewPortState.View;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
@@ -121,23 +125,28 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnTimerEvent),
     ATimerNoifier
   );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnPosChange),
+    FPosition.ChangeNotifier
+  );
   FMainMapsConfig := AMainMapsConfig;
   FLastUpdateTick := 0;
 end;
 
-function TLayerStatBar.GetLayerSizeForView(
-  const ANewVisualCoordConverter: ILocalCoordConverter
-): TPoint;
+function TLayerStatBar.GetNewBitmapSize: TPoint;
 begin
-  Result.X := ANewVisualCoordConverter.GetLocalRectSize.X;
+  Result.X := FPosition.GetStatic.GetLocalRectSize.X;
   Result.Y := FConfig.Height;
 end;
 
-function TLayerStatBar.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
+function TLayerStatBar.GetNewLayerLocation: TFloatRect;
+var
+  VLocalCoordConverter: ILocalCoordConverter;
 begin
-  if ANewVisualCoordConverter <> nil then begin
+  VLocalCoordConverter := FPosition.GetStatic;
+  if VLocalCoordConverter <> nil then begin
     Result.Left := 0;
-    Result.Bottom := ANewVisualCoordConverter.GetLocalRectSize.Y;
+    Result.Bottom := VLocalCoordConverter.GetLocalRectSize.Y;
     Result.Right := Result.Left + Layer.Bitmap.Width;
     Result.Top := Result.Bottom - Layer.Bitmap.Height;
   end else begin
@@ -194,8 +203,20 @@ begin
     finally
       FConfig.UnlockRead;
     end;
-    SetNeedRedraw;
-    SetVisible(VVisible);
+    Visible := VVisible;
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateBitmapDraw;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
+procedure TLayerStatBar.OnPosChange;
+begin
+  ViewUpdateLock;
+  try
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateLayerLocation;
   finally
     ViewUpdateUnlock;
   end;
@@ -203,14 +224,12 @@ end;
 
 procedure TLayerStatBar.OnTimerEvent;
 begin
-  Redraw;
-end;
-
-procedure TLayerStatBar.SetViewCoordConverter(const AValue: ILocalCoordConverter);
-begin
-  inherited;
-  SetNeedUpdateLayerSize;
-  SetNeedUpdateLocation;
+  ViewUpdateLock;
+  try
+    SetNeedUpdateBitmapDraw;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TLayerStatBar.StartThreads;
@@ -219,7 +238,7 @@ begin
   OnConfigChange;
 end;
 
-procedure TLayerStatBar.DoRedraw;
+procedure TLayerStatBar.DoUpdateBitmapDraw;
 
   procedure RenderText(
   const AOffset: TPoint;
@@ -260,7 +279,7 @@ begin
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
     VValueConverter := FValueToStringConverterConfig.GetStatic;
-    VVisualCoordConverter := ViewCoordConverter;
+    VVisualCoordConverter := FView.GetStatic;
     VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
@@ -361,6 +380,8 @@ begin
     end;
 
     FLastUpdateTick := GetTickCount;
+  end else begin
+    SetNeedUpdateBitmapDraw;
   end;
 end;
 
