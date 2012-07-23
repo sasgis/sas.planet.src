@@ -11,6 +11,7 @@ uses
   i_ActiveMapsConfig,
   i_MainMapLayerConfig,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_MapTypes,
@@ -45,7 +46,8 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const APosition: ILocalCoordConverterChangeable;
+      const AView: ILocalCoordConverterChangeable;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMainMap: IMapTypeChangeable;
@@ -73,7 +75,8 @@ constructor TMapMainLayerNew.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const APosition: ILocalCoordConverterChangeable;
+  const AView: ILocalCoordConverterChangeable;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMainMap: IMapTypeChangeable;
@@ -96,8 +99,8 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.Position,
-    AViewPortState.View,
+    APosition,
+    AView,
     VTileMatrixFactory,
     AResamplerConfig,
     AConverterFactory,

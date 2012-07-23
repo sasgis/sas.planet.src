@@ -228,21 +228,11 @@ end;
 procedure TMiniMapLayer.CreateBitmapProvider;
 var
   VMainMap: IMapType;
-  VLayersSet: IMapTypeSet;
   VUsePrevZoomAtMap, VUsePrevZoomAtLayer: Boolean;
   VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
 
-  VLayers: array of IMapType;
   VLayersList: IMapTypeListStatic;
   VProvider: IBitmapLayerProvider;
-  VItem: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  VCnt: Cardinal;
-  i: Integer;
-  VLayersCount: Integer;
-  VZOrder: Integer;
-  VIndex: Integer;
 begin
   VMainMap := FMainMap.GetStatic;
   VLayersList := FLayerList.List;
