@@ -1730,10 +1730,7 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(5.5, 5.5))
-      );
+    VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
     FLayersList.Add(
       TMiniMapLayerPlusButton.Create(
         GState.PerfCounterList,
@@ -1741,7 +1738,7 @@ begin
         GState.AppClosingNotifier,
         map,
         VMiniMapConverterChangeable,
-        VMarkerChangeable,
+        VBitmapChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
     );
