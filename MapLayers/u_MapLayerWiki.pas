@@ -61,7 +61,7 @@ type
   private
     FConfig: IKmlLayerConfig;
     FVectorItmesFactory: IVectorItmesFactory;
-    FLayersSet: IActiveMapsSet;
+    FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
 
     FProjectedCache: IIdCacheSimple;
@@ -155,7 +155,7 @@ type
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifier;
       const AConfig: IKmlLayerConfig;
-      const ALayersSet: IActiveMapsSet
+      const ALayersSet: IMapTypeSetChangeable
     );
   end;
 
@@ -197,7 +197,7 @@ constructor TWikiLayer.Create(
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifier;
   const AConfig: IKmlLayerConfig;
-  const ALayersSet: IActiveMapsSet
+  const ALayersSet: IMapTypeSetChangeable
 );
 begin
   inherited Create(
@@ -517,7 +517,7 @@ var
 begin
   ViewUpdateLock;
   try
-    VNewLayersSet := FLayersSet.GetSelectedMapsSet;
+    VNewLayersSet := FLayersSet.GetStatic;
 
     FVectorMapsSetCS.BeginWrite;
     try

@@ -29,11 +29,6 @@ uses
   i_ConfigDataElement;
 
 type
-  IMiniMapMapsConfig = interface(IActivMapWithLayers)
-    ['{13A59AC2-947D-452F-A816-06E78602DFFA}']
-    function GetActiveMiniMap: IMapType;
-  end;
-
   IMiniMapLayerConfig = interface(IConfigDataElement)
     ['{52CF4419-A937-47E1-9A07-966736ACAA86}']
     function GetWidth: Integer;
@@ -64,8 +59,8 @@ type
     procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
     property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer write SetUsePrevZoomAtLayer;
 
-    function GetMapsConfig: IMiniMapMapsConfig;
-    property MapsConfig: IMiniMapMapsConfig read GetMapsConfig;
+    function GetMapsConfig: IActivMapWithLayers;
+    property MapsConfig: IActivMapWithLayers read GetMapsConfig;
 
     function GetThreadConfig: IThreadConfig;
     property ThreadConfig: IThreadConfig read GetThreadConfig;

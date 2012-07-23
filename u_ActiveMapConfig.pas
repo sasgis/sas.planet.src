@@ -33,11 +33,12 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TActiveMapConfig = class(TConfigDataElementBaseEmptySaveLoad, IActiveMap)
+  TActiveMapConfig = class(TConfigDataElementBaseEmptySaveLoad, IActiveMap, IMapTypeChangeable)
   private
     FSelectedGUID: TGUID;
     FMapsSet: IMapTypeSet;
     FSingeMapsList: IGUIDInterfaceSet;
+    FStatic: IMapType;
   private
     FMainMapChangeNotyfier: INotifier;
     FMainMapListener: IListener;
@@ -46,6 +47,7 @@ type
     function GetSelectedGUID: TGUID;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
     function GetMapsSet: IMapTypeSet;
+    function GetStatic: IMapType;
   public
     constructor Create(
       const AMainMapChangeNotyfier: INotifier;
@@ -80,6 +82,7 @@ begin
   if FMapsSet.GetIterator.Next(1, FSelectedGUID, i) <> S_OK then begin
     raise Exception.Create('Empty maps list');
   end;
+  FStatic := FMapsSet.GetMapTypeByGUID(FSelectedGUID);
 end;
 
 destructor TActiveMapConfig.Destroy;
@@ -115,12 +118,23 @@ begin
   end;
 end;
 
+function TActiveMapConfig.GetStatic: IMapType;
+begin
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
+end;
+
 procedure TActiveMapConfig.OnMainMapChange(const AGUID: TGUID);
 begin
   LockWrite;
   try
     if not IsEqualGUID(FSelectedGUID, AGUID) then begin
       FSelectedGUID := AGUID;
+      FStatic := FMapsSet.GetMapTypeByGUID(FSelectedGUID);
       SetChanged;
     end;
   finally

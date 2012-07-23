@@ -31,7 +31,7 @@ uses
   u_ActivMapWithLayers;
 
 type
-  TMiniMapMapsConfig = class(TActivMapWithLayers, IMiniMapMapsConfig)
+  TMiniMapMapsConfig = class(TActivMapWithLayers, IMapTypeChangeable)
   private
     FActiveMiniMap: IMapType;
     FSelectedMapChangeListener: IListener;
@@ -43,7 +43,7 @@ type
     procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActiveMiniMap(const AValue: IMapType);
   private
-    function GetActiveMiniMap: IMapType;
+    function GetStatic: IMapType;
   public
     constructor Create(const AMapsConfig: IMainMapsConfig);
     destructor Destroy; override;
@@ -87,7 +87,7 @@ begin
   inherited;
 end;
 
-function TMiniMapMapsConfig.GetActiveMiniMap: IMapType;
+function TMiniMapMapsConfig.GetStatic: IMapType;
 begin
   LockRead;
   try

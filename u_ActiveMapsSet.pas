@@ -31,7 +31,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TActiveMapsSet = class(TConfigDataElementBaseEmptySaveLoad, IActiveMapsSet)
+  TActiveMapsSet = class(TConfigDataElementBaseEmptySaveLoad, IActiveMapsSet, IMapTypeSetChangeable)
   private
     FMapsSet: IMapTypeSet;
 
@@ -53,7 +53,7 @@ type
   private
     function IsGUIDSelected(const AMapGUID: TGUID): Boolean;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
-    function GetSelectedMapsSet: IMapTypeSet;
+    function GetStatic: IMapTypeSet;
     function GetMapsSet: IMapTypeSet;
   public
     constructor Create(
@@ -141,7 +141,7 @@ begin
   Result := FMapsSet;
 end;
 
-function TActiveMapsSet.GetSelectedMapsSet: IMapTypeSet;
+function TActiveMapsSet.GetStatic: IMapTypeSet;
 begin
   LockRead;
   try

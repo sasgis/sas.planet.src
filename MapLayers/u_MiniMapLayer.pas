@@ -44,6 +44,7 @@ uses
   i_SimpleFlag,
   i_TileError,
   i_BitmapLayerProvider,
+  i_MapTypeListChangeable,
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
   u_MapType,
@@ -55,6 +56,8 @@ type
     FConfig: IMiniMapLayerConfig;
     FViewConfig: IGlobalViewMainConfig;
     FErrorLogger: ITileErrorLogger;
+    FMainMap: IMapTypeChangeable;
+    FLayerList: IMapTypeListChangeable;
     FParentMap: TImage32;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
@@ -62,11 +65,6 @@ type
 
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
-
-    FMainMap: IMapType;
-    FMainMapCS: IReadWriteSync;
-    FLayersSet: IMapTypeSet;
-    FLayersSetCS: IReadWriteSync;
 
     FBitmapProvider: IBitmapLayerProvider;
     FBitmapProviderCS: IReadWriteSync;
@@ -96,12 +94,6 @@ type
       const ACancelNotifier: INotifierOperation
     );
     procedure ClearLayerBitmap;
-    function GetLayersSet: IMapTypeSet;
-    function GetMainMap: IMapType;
-    procedure SetLayersSet(const Value: IMapTypeSet);
-    procedure SetMainMap(const Value: IMapType);
-    property MainMap: IMapType read GetMainMap write SetMainMap;
-    property LayersSet: IMapTypeSet read GetLayersSet write SetLayersSet;
     property ConverterFactory: ILocalCoordConverterFactorySimpe read FConverterFactory;
   protected
     function GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect; override;
@@ -127,6 +119,8 @@ type
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
       const AConfig: IMiniMapLayerConfig;
+      const AMainMap: IMapTypeChangeable;
+      const ALayerList: IMapTypeListChangeable;
       const AViewConfig: IGlobalViewMainConfig;
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AErrorLogger: ITileErrorLogger;
@@ -163,6 +157,8 @@ constructor TMiniMapLayer.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
   const AConfig: IMiniMapLayerConfig;
+  const AMainMap: IMapTypeChangeable;
+  const ALayerList: IMapTypeListChangeable;
   const AViewConfig: IGlobalViewMainConfig;
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AErrorLogger: ITileErrorLogger;
@@ -179,6 +175,8 @@ begin
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   FViewPortState := AViewPortState;
   FConfig := AConfig;
+  FMainMap := AMainMap;
+  FLayerList := ALayerList;
   FErrorLogger := AErrorLogger;
   FClearStrategyFactory := AClearStrategyFactory;
   FViewConfig := AViewConfig;
@@ -186,8 +184,6 @@ begin
   FPostProcessingConfig := APostProcessingConfig;
   FParentMap := AParentMap;
 
-  FMainMapCS := MakeSyncRW_Var(Self);
-  FLayersSetCS := MakeSyncRW_Var(Self);
   FBitmapProviderCS := MakeSyncRW_Var(Self);
 
   Layer.Bitmap.BeginUpdate;
@@ -203,12 +199,12 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
-    FConfig.MapsConfig.GetChangeNotifier
+    FMainMap.ChangeNotifier
   );
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
-    FConfig.MapsConfig.GetActiveLayersSet.GetChangeNotifier
+    FLayerList.ChangeNotifier
   );
 
   LinksList.Add(
@@ -248,44 +244,12 @@ var
   VZOrder: Integer;
   VIndex: Integer;
 begin
-  VMainMap := MainMap;
-  VLayersSet := LayersSet;
+  VMainMap := FMainMap.GetStatic;
+  VLayersList := FLayerList.List;
   VUsePrevZoomAtMap := FUsePrevZoomAtMap;
   VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;
   VPostProcessingConfig := FPostProcessingConfig.GetStatic;
 
-  VLayersCount := 0;
-  try
-    if VLayersSet <> nil then begin
-      VEnum := VLayersSet.GetIterator;
-      while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
-        VItem := VLayersSet.GetMapTypeByGUID(VGUID);
-        if VItem.MapType.IsBitmapTiles then begin
-          VZOrder := VItem.MapType.LayerDrawConfig.LayerZOrder;
-          Inc(VLayersCount);
-          SetLength(VLayers, VLayersCount);
-          VIndex := 0;
-          if VLayersCount > 1 then begin
-            for i := VLayersCount - 2 downto 0 do begin
-              if VLayers[i].MapType.LayerDrawConfig.LayerZOrder > VZOrder then begin
-                VLayers[i + 1] := VLayers[i];
-              end else begin
-                VIndex := i + 1;
-                Break;
-              end;
-            end;
-          end;
-          VLayers[VIndex] := VItem;
-        end;
-      end;
-    end;
-    VLayersList := TMapTypeListStatic.Create(VLayers);
-  finally
-    for i := 0 to Length(VLayers) - 1 do begin
-      VLayers[i] := nil;
-    end;
-    VLayers := nil;
-  end;
   VProvider :=
     TBitmapLayerProviderForViewMaps.Create(
       VMainMap,
@@ -306,9 +270,6 @@ end;
 
 destructor TMiniMapLayer.Destroy;
 begin
-  FMainMapCS := nil;
-  FLayersSetCS := nil;
-
   FConverterFactory := nil;
   FDrawTask := nil;
   inherited;
@@ -374,16 +335,6 @@ var
 begin
   VWidth := FConfig.Width;
   Result := Point(VWidth, VWidth);
-end;
-
-function TMiniMapLayer.GetLayersSet: IMapTypeSet;
-begin
-  FLayersSetCS.BeginRead;
-  try
-    Result := FLayersSet;
-  finally
-    FLayersSetCS.EndRead;
-  end;
 end;
 
 procedure TMiniMapLayer.DoRedraw;
@@ -519,16 +470,6 @@ begin
   end;
 end;
 
-function TMiniMapLayer.GetMainMap: IMapType;
-begin
-  FMainMapCS.BeginRead;
-  try
-    Result := FMainMap;
-  finally
-    FMainMapCS.EndRead;
-  end;
-end;
-
 function TMiniMapLayer.GetMapLayerLocationRect(const ANewVisualCoordConverter: ILocalCoordConverter): TFloatRect;
 var
   VSize: TPoint;
@@ -592,13 +533,9 @@ begin
 end;
 
 procedure TMiniMapLayer.OnLayerSetChange;
-var
-  VNewLayersSet: IMapTypeSet;
 begin
   ViewUpdateLock;
   try
-    VNewLayersSet := FConfig.MapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
-    LayersSet := VNewLayersSet;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -606,13 +543,9 @@ begin
 end;
 
 procedure TMiniMapLayer.OnMainMapChange;
-var
-  VNewMainMap: IMapType;
 begin
   ViewUpdateLock;
   try
-    VNewMainMap := FConfig.MapsConfig.GetActiveMiniMap;
-    MainMap := VNewMainMap;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -664,26 +597,6 @@ begin
   end;
   SetNeedUpdateLocation;
   inherited;
-end;
-
-procedure TMiniMapLayer.SetLayersSet(const Value: IMapTypeSet);
-begin
-  FLayersSetCS.BeginWrite;
-  try
-    FLayersSet := Value;
-  finally
-    FLayersSetCS.EndWrite;
-  end;
-end;
-
-procedure TMiniMapLayer.SetMainMap(const Value: IMapType);
-begin
-  FMainMapCS.BeginWrite;
-  try
-    FMainMap := Value;
-  finally
-    FMainMapCS.EndWrite;
-  end;
 end;
 
 procedure TMiniMapLayer.SetNeedRedraw;

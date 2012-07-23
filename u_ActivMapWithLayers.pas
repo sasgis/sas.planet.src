@@ -206,11 +206,13 @@ begin
   end;
 
   VIndex := 0;
-  VEnum := FActiveLayersSet.GetSelectedMapsSet.GetIterator;
+  VEnum := FActiveLayersSet.GetMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VGUIDString := GUIDToString(VGUID);
-    AConfigData.WriteString(CKeyNameLayer + IntToStr(VIndex), VGUIDString);
-    Inc(VIndex);
+    if FActiveLayersSet.IsGUIDSelected(VGUID) then begin
+      VGUIDString := GUIDToString(VGUID);
+      AConfigData.WriteString(CKeyNameLayer + IntToStr(VIndex), VGUIDString);
+      Inc(VIndex);
+    end;
   end;
 end;
 

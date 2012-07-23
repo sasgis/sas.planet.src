@@ -24,6 +24,7 @@ interface
 
 uses
   ActiveX,
+  i_Changeable,
   u_MapType;
 
 type
@@ -36,12 +37,22 @@ type
     property GUID: TGUID read GetGUID;
   end;
 
+  IMapTypeChangeable = interface(IChangeable)
+    ['{8B43402D-0D20-4A6B-8198-71DDAAADD2A9}']
+    function GetStatic: IMapType;
+  end;
+
   IMapTypeSet = interface
     ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
     function GetCount: Integer;
+  end;
+
+  IMapTypeSetChangeable = interface(IChangeable)
+    ['{F6548515-4FB4-45F1-A742-B886BBCB1024}']
+    function GetStatic: IMapTypeSet;
   end;
 
   IMapTypeListStatic = interface
@@ -56,4 +67,3 @@ type
 implementation
 
 end.
- 

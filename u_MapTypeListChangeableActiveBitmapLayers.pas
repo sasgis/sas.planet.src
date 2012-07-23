@@ -3,16 +3,17 @@ unit u_MapTypeListChangeableActiveBitmapLayers;
 interface
 
 uses
-  i_Notifier, i_Listener,
+  i_Notifier,
+  i_Listener,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeListChangeable,
   u_ConfigDataElementBase;
 
 type
-  TMapTypeListChangeableActiveBitmapLayers = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeListChangeable)
+  TMapTypeListChangeableByActiveMapsSet = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeListChangeable)
   private
-    FActiveMaps: IActiveMapsSet;
+    FSourceSet: IMapTypeSetChangeable;
 
     FZOrderListener: IListener;
     FLayerSetListener: IListener;
@@ -25,7 +26,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
-      const AActiveMaps: IActiveMapsSet
+      const ASourceSet: IMapTypeSetChangeable
     );
     destructor Destroy; override;
   end;
@@ -37,29 +38,30 @@ uses
   u_ListenerByEvent,
   u_MapTypeListStatic;
 
-{ TMapTypeListChangeableActiveBitmapLayers }
+{ TMapTypeListChangeableByActiveMapsSet }
 
-constructor TMapTypeListChangeableActiveBitmapLayers.Create(
-  const AActiveMaps: IActiveMapsSet);
+constructor TMapTypeListChangeableByActiveMapsSet.Create(
+  const ASourceSet: IMapTypeSetChangeable);
 begin
   inherited Create;
-  FActiveMaps := AActiveMaps;
+  FSourceSet := ASourceSet;
 
   FZOrderListener := TNotifyNoMmgEventListener.Create(Self.OnMapZOrderChanged);
   FLayerSetListener := TNotifyNoMmgEventListener.Create(Self.OnLayerSetChanged);
-  FActiveMaps.ChangeNotifier.Add(FLayerSetListener);
+  FSourceSet.ChangeNotifier.Add(FLayerSetListener);
   OnLayerSetChanged;
 end;
 
-destructor TMapTypeListChangeableActiveBitmapLayers.Destroy;
+destructor TMapTypeListChangeableByActiveMapsSet.Destroy;
 var
   VEnum: IEnumGUID;
   VGuid: TGUID;
   VCnt: Cardinal;
   VMapType: IMapType;
 begin
-  if FActiveMaps <> nil then begin
-    FActiveMaps.ChangeNotifier.Remove(FLayerSetListener);
+  if FSourceSet <> nil then begin
+    FSourceSet.ChangeNotifier.Remove(FLayerSetListener);
+    FSourceSet := nil;
   end;
   FLayerSetListener := nil;
   if FLayersSet <> nil then begin
@@ -75,7 +77,7 @@ begin
   inherited;
 end;
 
-function TMapTypeListChangeableActiveBitmapLayers.CreateStatic: IInterface;
+function TMapTypeListChangeableByActiveMapsSet.CreateStatic: IInterface;
   procedure QuickSort(
     var AMapsList: array of IMapType;
     var AZList: array of Integer;
@@ -159,12 +161,12 @@ begin
   end;
 end;
 
-function TMapTypeListChangeableActiveBitmapLayers.GetList: IMapTypeListStatic;
+function TMapTypeListChangeableByActiveMapsSet.GetList: IMapTypeListStatic;
 begin
   Result := IMapTypeListStatic(GetStaticInternal);
 end;
 
-procedure TMapTypeListChangeableActiveBitmapLayers.OnLayerSetChanged;
+procedure TMapTypeListChangeableByActiveMapsSet.OnLayerSetChanged;
 var
   VNewSet: IMapTypeSet;
   VEnum: IEnumGUID;
@@ -172,7 +174,7 @@ var
   VCnt: Cardinal;
   VMapType: IMapType;
 begin
-  VNewSet := FActiveMaps.GetSelectedMapsSet;
+  VNewSet := FSourceSet.GetStatic;
   LockWrite;
   try
     if (FLayersSet <> nil) and FLayersSet.IsEqual(VNewSet) then begin
@@ -207,7 +209,7 @@ begin
   end;
 end;
 
-procedure TMapTypeListChangeableActiveBitmapLayers.OnMapZOrderChanged;
+procedure TMapTypeListChangeableByActiveMapsSet.OnMapZOrderChanged;
 begin
   LockWrite;
   try

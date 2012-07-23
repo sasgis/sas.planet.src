@@ -774,6 +774,7 @@ uses
   u_MapTypeMenuItemsGeneratorBasic,
   u_TreeByPathDetalizeProviderList,
   u_MenuGeneratorByStaticTreeSimple,
+  u_MapTypeListChangeableActiveBitmapLayers,
   u_NotifierOperation,
   u_MainFormState,
   u_PosFromGSM,
@@ -1144,7 +1145,8 @@ begin
           FConfig.ViewPortState,
           GState.ImageResamplerConfig,
           GState.LocalConverterFactory,
-          FConfig.MainMapsConfig,
+          FConfig.MainMapsConfig.GetActiveMap as IMapTypeChangeable,
+          TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet as IMapTypeSetChangeable),
           GState.BitmapPostProcessingConfig,
           FConfig.LayersConfig.MainMapLayerConfig,
           FTileErrorLogger,
@@ -1162,7 +1164,8 @@ begin
           GState.ImageResamplerConfig,
           GState.LocalConverterFactory,
           GState.ClearStrategyFactory,
-          FConfig.MainMapsConfig,
+          FConfig.MainMapsConfig.GetActiveMap as IMapTypeChangeable,
+          FConfig.MainMapsConfig.GetActiveBitmapLayersSet as IMapTypeSetChangeable,
           GState.BitmapPostProcessingConfig,
           FConfig.LayersConfig.MainMapLayerConfig,
           FTileErrorLogger,
@@ -1207,7 +1210,7 @@ begin
         FTileErrorLogger,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.KmlLayerConfig,
-        FConfig.MainMapsConfig.GetActiveKmlLayersSet
+        FConfig.MainMapsConfig.GetActiveKmlLayersSet as IMapTypeSetChangeable
       );
     FLayersList.Add(FWikiLayer);
     if FConfig.MainConfig.UseNewMainLayer then begin
@@ -1665,6 +1668,8 @@ begin
         GState.LocalConverterFactory,
         GState.ClearStrategyFactory,
         FConfig.LayersConfig.MiniMapLayerConfig,
+        FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
+        TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet as IMapTypeSetChangeable),
         GState.ViewConfig,
         GState.BitmapPostProcessingConfig,
         FTileErrorLogger,
@@ -5802,7 +5807,7 @@ begin
   TBOpenDirLayer.Visible:=false;
   TBCopyLinkLayer.Visible:=false;
   TBLayerInfo.Visible:=false;
-  VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
+  VActiveLayersSet := (FConfig.MainMapsConfig.GetActiveLayersSet as IMapTypeSetChangeable).GetStatic;
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
@@ -5856,7 +5861,7 @@ var
   VGUID: TGUID;
 begin
   NLayerParams.Visible:=false;
-  VActiveLayersSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetSelectedMapsSet;
+  VActiveLayersSet := (FConfig.MainMapsConfig.GetActiveLayersSet as IMapTypeSetChangeable).GetStatic;
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];

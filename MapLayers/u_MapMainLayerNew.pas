@@ -25,9 +25,8 @@ type
   private
     FErrorLogger: ITileErrorLogger;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
-    FMapsConfig: IMainMapsConfig;
     FConfig: IMainMapLayerConfig;
-
+    FMainMap: IMapTypeChangeable;
     FLayesList: IMapTypeListChangeable;
 
     FUsePrevZoomAtMap: Boolean;
@@ -49,7 +48,8 @@ type
       const AViewPortState: IViewPortState;
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMapsConfig: IMainMapsConfig;
+      const AMainMap: IMapTypeChangeable;
+      const ALayesList: IMapTypeListChangeable;
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AConfig: IMainMapLayerConfig;
       const AErrorLogger: ITileErrorLogger;
@@ -76,7 +76,8 @@ constructor TMapMainLayerNew.Create(
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMapsConfig: IMainMapsConfig;
+  const AMainMap: IMapTypeChangeable;
+  const ALayesList: IMapTypeListChangeable;
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AConfig: IMainMapLayerConfig;
   const AErrorLogger: ITileErrorLogger;
@@ -104,16 +105,15 @@ begin
     False,
     AConfig.ThreadConfig
   );
-  FMapsConfig := AMapsConfig;
+  FMainMap := AMainMap;
+  FLayesList := ALayesList;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
   FConfig := AConfig;
 
-  FLayesList := TMapTypeListChangeableActiveBitmapLayers.Create(FMapsConfig.GetActiveBitmapLayersSet);
-
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
-    FMapsConfig.GetActiveMap.GetChangeNotifier
+    FMainMap.ChangeNotifier
   );
 
   LinksList.Add(
@@ -141,7 +141,7 @@ var
   VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
   VLayersList: IMapTypeListStatic;
 begin
-  VMainMap := FMapsConfig.GetSelectedMapType;
+  VMainMap := FMainMap.GetStatic;
   VLayersList := FLayesList.List;
   VUsePrevZoomAtMap := FUsePrevZoomAtMap;
   VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;

@@ -51,7 +51,8 @@ type
   TMapMainLayer = class(TMapLayerTiledWithThreadDraw)
   private
     FErrorLogger: ITileErrorLogger;
-    FMapsConfig: IMainMapsConfig;
+    FMainMapChangeable: IMapTypeChangeable;
+    FLayersSetChangeable: IMapTypeSetChangeable;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FConfig: IMainMapLayerConfig;
     FTileChangeListener: IListener;
@@ -101,7 +102,8 @@ type
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-      const AMapsConfig: IMainMapsConfig;
+      const AMainMap: IMapTypeChangeable;
+      const ALayersSet: IMapTypeSetChangeable;
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AConfig: IMainMapLayerConfig;
       const AErrorLogger: ITileErrorLogger;
@@ -138,7 +140,8 @@ constructor TMapMainLayer.Create(
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AClearStrategyFactory: ILayerBitmapClearStrategyFactory;
-  const AMapsConfig: IMainMapsConfig;
+  const AMainMap: IMapTypeChangeable;
+  const ALayersSet: IMapTypeSetChangeable;
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AConfig: IMainMapLayerConfig;
   const AErrorLogger: ITileErrorLogger;
@@ -157,7 +160,8 @@ begin
     ATimerNoifier,
     AConfig.ThreadConfig
   );
-  FMapsConfig := AMapsConfig;
+  FMainMapChangeable := AMainMap;
+  FLayersSetChangeable := ALayersSet;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
   FConfig := AConfig;
@@ -171,12 +175,12 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
-    FMapsConfig.GetActiveMap.GetChangeNotifier
+    FMainMapChangeable.ChangeNotifier
   );
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
-    FMapsConfig.GetActiveBitmapLayersSet.GetChangeNotifier
+    FLayersSetChangeable.ChangeNotifier
   );
 
   LinksList.Add(
@@ -434,7 +438,7 @@ var
 begin
   ViewUpdateLock;
   try
-    VNewLayersSet := FMapsConfig.GetActiveBitmapLayersSet.GetSelectedMapsSet;
+    VNewLayersSet := FLayersSetChangeable.GetStatic;
 
     FLayersSetCS.BeginWrite;
     try
@@ -505,7 +509,7 @@ var
 begin
   ViewUpdateLock;
   try
-    VNewMainMap := FMapsConfig.GetSelectedMapType;
+    VNewMainMap := FMainMapChangeable.GetStatic;
 
     FMainMapCS.BeginWrite;
     try

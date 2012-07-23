@@ -41,7 +41,7 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
 
-    FMapsConfig: IMiniMapMapsConfig;
+    FMapsConfig: IActivMapWithLayers;
     FThreadConfig: IThreadConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
@@ -68,7 +68,7 @@ type
     function GetUsePrevZoomAtLayer: Boolean;
     procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
 
-    function GetMapsConfig: IMiniMapMapsConfig;
+    function GetMapsConfig: IActivMapWithLayers;
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
@@ -144,7 +144,7 @@ begin
   end;
 end;
 
-function TMiniMapLayerConfig.GetMapsConfig: IMiniMapMapsConfig;
+function TMiniMapLayerConfig.GetMapsConfig: IActivMapWithLayers;
 begin
   Result := FMapsConfig;
 end;

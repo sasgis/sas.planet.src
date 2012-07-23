@@ -44,7 +44,6 @@ type
     ['{09F8FEE4-984C-4D1F-A240-BD8FF3333F85}']
     function IsGUIDSelected(const AMapGUID: TGUID): Boolean;
     function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
-    function GetSelectedMapsSet: IMapTypeSet;
     function GetMapsSet: IMapTypeSet;
   end;
 
