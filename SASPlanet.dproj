@@ -587,6 +587,7 @@
     <DCCReference Include="u_BinaryData.pas" />
     <DCCReference Include="u_BinaryDataByMemStream.pas" />
     <DCCReference Include="u_Bitmap32Static.pas" />
+    <DCCReference Include="u_BitmapChangeableFaked.pas" />
     <DCCReference Include="u_BitmapGeo.pas" />
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderByTrackPath.pas" />
