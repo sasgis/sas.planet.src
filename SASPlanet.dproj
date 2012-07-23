@@ -416,6 +416,7 @@
     <DCCReference Include="i_TreeChangeable.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
+    <DCCReference Include="i_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_VectorDataFactory.pas" />
     <DCCReference Include="i_VectorDataItemSimple.pas" />
@@ -820,6 +821,7 @@
     <DCCReference Include="u_MapTypeListStatic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
+    <DCCReference Include="u_MapTypeSetChangeableBySourceSetWithFilter.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
     <DCCReference Include="u_MapVersionFactoryGE.pas" />
@@ -1028,6 +1030,7 @@
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_UserInterfaceItemBase.pas" />
+    <DCCReference Include="u_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="u_VectorDataFactorySimple.pas" />
