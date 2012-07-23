@@ -28,7 +28,7 @@ type
   private
     FErrorLogger: ITileErrorLogger;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
-    FConfig: IMainMapLayerConfig;
+    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FMainMap: IMapTypeChangeable;
     FLayesList: IMapTypeListChangeable;
 
@@ -53,7 +53,8 @@ type
       const AMainMap: IMapTypeChangeable;
       const ALayesList: IMapTypeListChangeable;
       const APostProcessingConfig: IBitmapPostProcessingConfig;
-      const AConfig: IMainMapLayerConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+      const AThreadConfig: IThreadConfig;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifier
     );
@@ -82,7 +83,8 @@ constructor TMapMainLayerNew.Create(
   const AMainMap: IMapTypeChangeable;
   const ALayesList: IMapTypeListChangeable;
   const APostProcessingConfig: IBitmapPostProcessingConfig;
-  const AConfig: IMainMapLayerConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const AThreadConfig: IThreadConfig;
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifier
 );
@@ -106,13 +108,13 @@ begin
     AConverterFactory,
     ATimerNoifier,
     False,
-    AConfig.ThreadConfig
+    AThreadConfig
   );
   FMainMap := AMainMap;
   FLayesList := ALayesList;
   FErrorLogger := AErrorLogger;
   FPostProcessingConfig := APostProcessingConfig;
-  FConfig := AConfig;
+  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
@@ -126,7 +128,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
+    FUseTilePrevZoomConfig.GetChangeNotifier
   );
 
   LinksList.Add(
@@ -146,7 +148,7 @@ var
 begin
   VMainMap := FMainMap.GetStatic;
   VLayersList := FLayesList.List;
-  VUsePrevConfig := FConfig.UseTilePrevZoomConfig.GetStatic;
+  VUsePrevConfig := FUseTilePrevZoomConfig.GetStatic;
   VPostProcessingConfig := FPostProcessingConfig.GetStatic;
 
   Result :=

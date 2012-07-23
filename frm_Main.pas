@@ -1149,7 +1149,8 @@ begin
           FConfig.MainMapsConfig.GetActiveMap as IMapTypeChangeable,
           TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet as IMapTypeSetChangeable),
           GState.BitmapPostProcessingConfig,
-          FConfig.LayersConfig.MainMapLayerConfig,
+          FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+          FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
           FTileErrorLogger,
           GState.GUISyncronizedTimerNotifier
         )
@@ -1673,7 +1674,8 @@ begin
           FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
           TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet as IMapTypeSetChangeable),
           GState.BitmapPostProcessingConfig,
-          FConfig.LayersConfig.MainMapLayerConfig,
+          FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
+          FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
           FTileErrorLogger,
           GState.GUISyncronizedTimerNotifier
         )
