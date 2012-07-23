@@ -114,7 +114,6 @@ implementation
 
 uses
   SysUtils,
-  GR32_Polygons,
   c_ZeroGUID,
   i_CoordConverter,
   i_MapTypes,

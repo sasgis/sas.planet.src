@@ -44,7 +44,6 @@ uses
   i_FillingMapLayerConfig,
   i_MainMapLayerConfig,
   i_GotoLayerConfig,
-  i_ContentTypeManager,
   i_FullMapMouseCursorLayerConfig,
   i_MainFormConfig,
   u_ConfigDataElementComplexBase;

@@ -85,7 +85,6 @@ implementation
 uses
   SysUtils,
   GR32_Resamplers,
-  t_GeoTypes,
   u_ListenerByEvent;
 
 { TMiniMapLayerPlusButton }

@@ -23,10 +23,8 @@ unit u_MiniMapLayerConfig;
 interface
 
 uses
-  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ContentTypeManager,
   i_ThreadConfig,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
@@ -84,7 +82,6 @@ uses
   Classes,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_ConfigProviderHelpers,
   u_ThreadConfig,
   u_MiniMapMapsConfig;
 

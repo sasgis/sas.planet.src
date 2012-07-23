@@ -17,7 +17,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_BitmapLayerProvider,
   i_ImageResamplerConfig,
-  i_ViewPortState,
   i_SimpleFlag,
   i_TileMatrix,
   i_BackgroundTask,

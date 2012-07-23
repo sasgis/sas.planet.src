@@ -59,7 +59,6 @@ implementation
 
 uses
   Classes,
-  i_BitmapTileSaveLoad,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,

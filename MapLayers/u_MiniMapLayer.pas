@@ -25,10 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  Classes,
-  Controls,
-  TBX,
-  TB2Item,
   GR32,
   GR32_Image,
   GR32_Layers,
@@ -36,7 +32,6 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_MapTypes,
-  i_MapTypeIconsList,
   i_ActiveMapsConfig,
   i_BackgroundTask,
   i_InternalPerformanceCounter,
@@ -49,7 +44,6 @@ uses
   i_SimpleFlag,
   i_TileError,
   i_BitmapLayerProvider,
-  i_MapTypeGUIConfigList,
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
   u_MapType,
@@ -146,12 +140,9 @@ implementation
 uses
   ActiveX,
   Types,
-  GR32_Polygons,
   GR32_Resamplers,
-  c_ZeroGUID,
   u_Synchronizer,
   u_GeoFun,
-  u_ResStrings,
   u_SimpleFlagWithInterlock,
   i_TileIterator,
   i_Bitmap32Static,
@@ -159,8 +150,7 @@ uses
   u_MapTypeListStatic,
   u_BitmapLayerProviderForViewMaps,
   u_BackgroundTask,
-  u_TileIteratorSpiralByRect,
-  u_MapTypeMenuItemsGeneratorBasic;
+  u_TileIteratorSpiralByRect;
 
 { TMapMainLayer }
 

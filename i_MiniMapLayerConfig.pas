@@ -23,7 +23,6 @@ unit i_MiniMapLayerConfig;
 interface
 
 uses
-  i_Bitmap32Static,
   i_MapTypes,
   i_ThreadConfig,
   i_ActiveMapsConfig,

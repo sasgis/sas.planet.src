@@ -24,7 +24,6 @@ interface
 
 uses
   GR32,
-  Graphics,
   WinTypes,
   t_GeoTypes,
   i_ProjectionInfo,
@@ -114,7 +113,6 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  GR32_Resamplers,
   GR32_Polygons,
   i_MarkerDrawable,
   i_CoordConverter,
