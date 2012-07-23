@@ -1659,24 +1659,45 @@ begin
         FConfig.ViewPortState.Position,
         FConfig.LayersConfig.MiniMapLayerConfig
       );
-    FLayersList.Add(
-      TMiniMapLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.LocalConverterFactory,
-        GState.ClearStrategyFactory,
-        FConfig.LayersConfig.MiniMapLayerConfig,
-        FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
-        TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet as IMapTypeSetChangeable),
-        GState.ViewConfig,
-        GState.BitmapPostProcessingConfig,
-        FTileErrorLogger,
-        GState.GUISyncronizedTimerNotifier
-      )
-    );
+    if FConfig.MainConfig.UseNewMainLayer then begin
+      FLayersList.Add(
+        TMapMainLayerNew.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          VMiniMapConverterChangeable,
+          VMiniMapConverterChangeable,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
+          TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet as IMapTypeSetChangeable),
+          GState.BitmapPostProcessingConfig,
+          FConfig.LayersConfig.MainMapLayerConfig,
+          FTileErrorLogger,
+          GState.GUISyncronizedTimerNotifier
+        )
+      );
+    end else begin
+      FLayersList.Add(
+        TMiniMapLayer.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.LocalConverterFactory,
+          GState.ClearStrategyFactory,
+          FConfig.LayersConfig.MiniMapLayerConfig,
+          FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
+          TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet as IMapTypeSetChangeable),
+          GState.ViewConfig,
+          GState.BitmapPostProcessingConfig,
+          FTileErrorLogger,
+          GState.GUISyncronizedTimerNotifier
+        )
+      );
+    end;
     FLayersList.Add(
       TMiniMapLayerViewRect.Create(
         GState.PerfCounterList,
