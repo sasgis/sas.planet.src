@@ -30,31 +30,25 @@ uses
   GR32_Image,
   GR32_Layers,
   i_NotifierOperation,
-  i_MarkerDrawable,
+  i_Bitmap32Static,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TMiniMapLayerMinusButton = class(TWindowLayerAbstract)
+  TMiniMapLayerMinusButton = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IMiniMapLayerConfig;
-    FMarker: IMarkerDrawableChangeable;
     FPosition: ILocalCoordConverterChangeable;
+    FBitmap: IBitmapChangeable;
 
-    FLayer: TPositionedLayer;
     FButtonPressed: Boolean;
     procedure OnConfigChange;
+    procedure OnBitmapChange;
     procedure OnPosChange;
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
-    );
-    procedure UpdateLayerLocation(
-      const AMiniMapRect: TRect
-    );
+
     procedure MouseDown(
       Sender: TObject;
       Button: TMouseButton;
@@ -67,8 +61,11 @@ type
       Shift: TShiftState;
       X, Y: Integer
     );
-
   protected
+    function GetNewBitmapSize: TPoint; override;
+    procedure DoUpdateLayerVisibility; override;
+    function GetNewLayerLocation: TFloatRect; override;
+    procedure DoUpdateBitmapDraw; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -77,7 +74,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
-      const AMarker: IMarkerDrawableChangeable;
+      const ABitmap: IBitmapChangeable;
       const AConfig: IMiniMapLayerConfig
     );
   end;
@@ -86,6 +83,7 @@ implementation
 
 uses
   SysUtils,
+  GR32_Resamplers,
   t_GeoTypes,
   u_ListenerByEvent;
 
@@ -95,22 +93,21 @@ constructor TMiniMapLayerMinusButton.Create(
   const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
   AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
-  const AMarker: IMarkerDrawableChangeable;
+  const ABitmap: IBitmapChangeable;
   const AConfig: IMiniMapLayerConfig);
 begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier
+    AAppClosingNotifier,
+    TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
   FPosition := APosition;
-  FMarker := AMarker;
-  FLayer := TPositionedLayer.Create(AParentMap.Layers);
-  FLayer.MouseEvents := false;
-  FLayer.OnMouseDown := MouseDown;
-  FLayer.OnMouseUp := MouseUP;
-  FLayer.Cursor := crHandPoint;
+  FBitmap := ABitmap;
+  Layer.OnMouseDown := MouseDown;
+  Layer.OnMouseUp := MouseUP;
+  Layer.Cursor := crHandPoint;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -121,9 +118,62 @@ begin
     FPosition.ChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FMarker.ChangeNotifier
+    TNotifyNoMmgEventListener.Create(Self.OnBitmapChange),
+    FBitmap.ChangeNotifier
   );
+end;
+
+procedure TMiniMapLayerMinusButton.DoUpdateBitmapDraw;
+var
+  VBitmap: IBitmap32Static;
+begin
+  inherited;
+  VBitmap := FBitmap.GetStatic;
+  if VBitmap <> nil then begin
+    BlockTransfer(
+      Layer.Bitmap,
+      0, 0,
+      Layer.Bitmap.ClipRect,
+      VBitmap.Bitmap,
+      VBitmap.Bitmap.BoundsRect,
+      dmOpaque
+    );
+  end;
+end;
+
+procedure TMiniMapLayerMinusButton.DoUpdateLayerVisibility;
+begin
+  inherited;
+  Layer.MouseEvents := Visible;
+end;
+
+function TMiniMapLayerMinusButton.GetNewBitmapSize: TPoint;
+var
+  VBitmap: IBitmap32Static;
+begin
+  VBitmap := FBitmap.GetStatic;
+  if VBitmap <> nil then begin
+    Result := Point(VBitmap.Bitmap.Width, VBitmap.Bitmap.Height);
+  end else begin
+    Result := Point(0, 0);
+  end;
+end;
+
+function TMiniMapLayerMinusButton.GetNewLayerLocation: TFloatRect;
+var
+  VLocalConverter: ILocalCoordConverter;
+  VMiniMapRect: TRect;
+begin
+  VLocalConverter := FPosition.GetStatic;
+  if VLocalConverter <> nil then begin
+    VMiniMapRect := VLocalConverter.GetLocalRect;
+    Result.Left := VMiniMapRect.Left + 19;
+    Result.Top := VMiniMapRect.Top + 6;
+    Result.Right := Result.Left + Layer.Bitmap.Width;
+    Result.Bottom := Result.Top + Layer.Bitmap.Height;
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
+  end;
 end;
 
 procedure TMiniMapLayerMinusButton.MouseDown(Sender: TObject;
@@ -139,7 +189,7 @@ procedure TMiniMapLayerMinusButton.MouseUP(Sender: TObject; Button: TMouseButton
 begin
   if Button = mbLeft then begin
     if FButtonPressed then begin
-      if FLayer.HitTest(X, Y) then begin
+      if Layer.HitTest(X, Y) then begin
         FConfig.LockWrite;
         try
           FConfig.ZoomDelta := FConfig.ZoomDelta + 1;
@@ -152,87 +202,43 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerMinusButton.OnConfigChange;
-var
-  VVisible: Boolean;
-  VLocalConverter: ILocalCoordConverter;
+procedure TMiniMapLayerMinusButton.OnBitmapChange;
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    VVisible := FConfig.Visible;
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateBitmapDraw;
+    SetNeedUpdateLayerLocation;
   finally
-    FConfig.UnlockRead;
-  end;
-  if VVisible then begin
-    FLayer.Visible := True;
-    FLayer.MouseEvents := True;
-    VLocalConverter := FPosition.GetStatic;
-    if VLocalConverter <> nil then begin
-      UpdateLayerLocation(VLocalConverter.GetLocalRect);
-    end;
-    FLayer.Changed;
-  end else begin
-    FLayer.Visible := False;
-    FLayer.MouseEvents := False;
+    ViewUpdateUnlock;
   end;
 end;
 
-procedure TMiniMapLayerMinusButton.OnPaintLayer(Sender: TObject;
-  Buffer: TBitmap32);
-var
-  VCenterPos: TDoublePoint;
-  VLocation: TFloatRect;
-  VMarker: IMarkerDrawable;
+procedure TMiniMapLayerMinusButton.OnConfigChange;
 begin
-  VMarker := FMarker.GetStatic;
-  if VMarker <> nil then begin
-    VLocation := FLayer.Location;
-    VCenterPos.X := (VLocation.Left + VLocation.Right) / 2;
-    VCenterPos.Y := (VLocation.Top + VLocation.Bottom) / 2;
-    VMarker.DrawToBitmap(Buffer, VCenterPos);
+  ViewUpdateLock;
+  try
+    Visible := FConfig.Visible;
+    SetNeedUpdateLayerLocation;
+  finally
+    ViewUpdateUnlock;
   end;
 end;
 
 procedure TMiniMapLayerMinusButton.OnPosChange;
-var
-  VVisible: Boolean;
-  VLocalConverter: ILocalCoordConverter;
 begin
-  FConfig.LockRead;
+  ViewUpdateLock;
   try
-    VVisible := FConfig.Visible;
+    SetNeedUpdateLayerLocation;
   finally
-    FConfig.UnlockRead;
-  end;
-  if VVisible then begin
-    VLocalConverter := FPosition.GetStatic;
-    if VLocalConverter <> nil then begin
-      UpdateLayerLocation(VLocalConverter.GetLocalRect);
-    end;
+    ViewUpdateUnlock;
   end;
 end;
 
 procedure TMiniMapLayerMinusButton.StartThreads;
 begin
   inherited;
-  FLayer.OnPaint := OnPaintLayer;
   OnConfigChange;
-end;
-
-procedure TMiniMapLayerMinusButton.UpdateLayerLocation(
-  const AMiniMapRect: TRect
-);
-var
-  VLocation: TFloatRect;
-begin
-  VLocation.Left := AMiniMapRect.Left + 19;
-  VLocation.Top := AMiniMapRect.Top + 6;
-  VLocation.Right := VLocation.Left + 12;
-  VLocation.Bottom := VLocation.Top + 12;
-
-  if not EqualRect(FLayer.Location, VLocation) then begin
-    FLayer.Location := VLocation;
-  end;
 end;
 
 end.

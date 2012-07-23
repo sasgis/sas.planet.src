@@ -747,6 +747,7 @@ uses
   u_MainWindowPositionConfig,
   u_TileErrorLogProviedrStuped,
   u_FullMapMouseCursorLayer,
+  u_BitmapChangeableFaked,
   u_MarkerDrawableChangeableFaked,
   u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableCenterScale,
@@ -1101,6 +1102,7 @@ var
   VScale: Integer;
   VDegScale: Double;
   VZoom: Byte;
+  VBitmapChangeable: IBitmapChangeable;
   VMarkerChangeable: IMarkerDrawableChangeable;
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
@@ -1709,10 +1711,7 @@ begin
         GState.ContentTypeManager,
         nil
       );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(5.5, 5.5))
-      );
+    VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
     FLayersList.Add(
       TMiniMapLayerMinusButton.Create(
         GState.PerfCounterList,
@@ -1720,7 +1719,7 @@ begin
         GState.AppClosingNotifier,
         map,
         VMiniMapConverterChangeable,
-        VMarkerChangeable,
+        VBitmapChangeable,
         FConfig.LayersConfig.MiniMapLayerConfig
       )
     );
