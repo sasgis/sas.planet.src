@@ -21,7 +21,7 @@ type
   protected
     function CreateStatic: IInterface; override;
   protected
-    function IsValidMapType(AMapType: IMapType): Boolean; virtual;
+    function IsValidMapType(const AMapType: IMapType): Boolean; virtual;
   public
     constructor Create(
       const ASourceSet: IMapTypeSetChangeable
@@ -32,13 +32,13 @@ type
 type
   TMapTypeSetChangeableBySourceSetWithFilterBtimap = class(TMapTypeSetChangeableBySourceSetWithFilter)
   protected
-    function IsValidMapType(AMapType: IMapType): Boolean; override;
+    function IsValidMapType(const AMapType: IMapType): Boolean; override;
   end;
 
 type
   TMapTypeSetChangeableBySourceSetWithFilterVector = class(TMapTypeSetChangeableBySourceSetWithFilter)
   protected
-    function IsValidMapType(AMapType: IMapType): Boolean; override;
+    function IsValidMapType(const AMapType: IMapType): Boolean; override;
   end;
 
 implementation
@@ -100,7 +100,7 @@ begin
 end;
 
 function TMapTypeSetChangeableBySourceSetWithFilter.IsValidMapType(
-  AMapType: IMapType): Boolean;
+  const AMapType: IMapType): Boolean;
 begin
   Result := True;
 end;
@@ -159,7 +159,7 @@ end;
 { TMapTypeSetChangeableBySourceSetWithFilterBtimap }
 
 function TMapTypeSetChangeableBySourceSetWithFilterBtimap.IsValidMapType(
-  AMapType: IMapType
+  const AMapType: IMapType
 ): Boolean;
 begin
   Result := (AMapType <> nil) and (AMapType.MapType.IsBitmapTiles);
@@ -168,7 +168,7 @@ end;
 { TMapTypeSetChangeableBySourceSetWithFilterVector }
 
 function TMapTypeSetChangeableBySourceSetWithFilterVector.IsValidMapType(
-  AMapType: IMapType
+  const AMapType: IMapType
 ): Boolean;
 begin
   Result := (AMapType <> nil) and (AMapType.MapType.IsKmlTiles);
