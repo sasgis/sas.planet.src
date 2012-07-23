@@ -28,6 +28,7 @@ uses
   i_ThreadConfig,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
+  i_UseTilePrevZoomConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -38,8 +39,7 @@ type
     FMasterAlpha: Integer;
     FVisible: Boolean;
     FBottomMargin: Integer;
-    FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
+    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
 
     FMapsConfig: IActivMapWithLayers;
     FThreadConfig: IThreadConfig;
@@ -62,12 +62,7 @@ type
     function GetBottomMargin: Integer;
     procedure SetBottomMargin(AValue: Integer);
 
-    function GetUsePrevZoomAtMap: Boolean;
-    procedure SetUsePrevZoomAtMap(const AValue: Boolean);
-
-    function GetUsePrevZoomAtLayer: Boolean;
-    procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
-
+    function GetUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     function GetMapsConfig: IActivMapWithLayers;
     function GetThreadConfig: IThreadConfig;
   public
@@ -83,6 +78,7 @@ uses
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ThreadConfig,
+  u_UseTilePrevZoomConfig,
   u_MiniMapMapsConfig;
 
 { TMiniMapLayerConfig }
@@ -96,8 +92,9 @@ begin
   FZoomDelta := 4;
   FMasterAlpha := 150;
   FVisible := True;
-  FUsePrevZoomAtMap := True;
-  FUsePrevZoomAtLayer := True;
+
+  FUseTilePrevZoomConfig := TUseTilePrevZoomConfig.Create;
+  Add(FUseTilePrevZoomConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
@@ -114,8 +111,6 @@ begin
     SetZoomDelta(AConfigData.ReadInteger('ZoomDelta', FZoomDelta));
     SetMasterAlpha(AConfigData.ReadInteger('Alpha', FMasterAlpha));
     SetVisible(AConfigData.ReadBool('Visible', FVisible));
-    SetUsePrevZoomAtMap(AConfigData.ReadBool('UsePrevZoomAtMap', FUsePrevZoomAtMap));
-    SetUsePrevZoomAtLayer(AConfigData.ReadBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer));
 
     SetChanged;
   end;
@@ -130,8 +125,6 @@ begin
   AConfigData.WriteInteger('ZoomDelta', FZoomDelta);
   AConfigData.WriteInteger('Alpha', FMasterAlpha);
   AConfigData.WriteBool('Visible', FVisible);
-  AConfigData.WriteBool('UsePrevZoomAtMap', FUsePrevZoomAtMap);
-  AConfigData.WriteBool('UsePrevZoomAtLayer', FUsePrevZoomAtLayer);
 end;
 
 function TMiniMapLayerConfig.GetBottomMargin: Integer;
@@ -164,24 +157,9 @@ begin
   Result := FThreadConfig;
 end;
 
-function TMiniMapLayerConfig.GetUsePrevZoomAtLayer: Boolean;
+function TMiniMapLayerConfig.GetUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
 begin
-  LockRead;
-  try
-    Result := FUsePrevZoomAtLayer;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMiniMapLayerConfig.GetUsePrevZoomAtMap: Boolean;
-begin
-  LockRead;
-  try
-    Result := FUsePrevZoomAtMap;
-  finally
-    UnlockRead;
-  end;
+  Result := FUseTilePrevZoomConfig;
 end;
 
 function TMiniMapLayerConfig.GetVisible: Boolean;
@@ -233,32 +211,6 @@ begin
   try
     if FMasterAlpha <> AValue then begin
       FMasterAlpha := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMiniMapLayerConfig.SetUsePrevZoomAtLayer(const AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FUsePrevZoomAtLayer <> AValue then begin
-      FUsePrevZoomAtLayer := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMiniMapLayerConfig.SetUsePrevZoomAtMap(const AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FUsePrevZoomAtMap <> AValue then begin
-      FUsePrevZoomAtMap := AValue;
       SetChanged;
     end;
   finally

@@ -26,6 +26,7 @@ uses
   i_MapTypes,
   i_ThreadConfig,
   i_ActiveMapsConfig,
+  i_UseTilePrevZoomConfig,
   i_ConfigDataElement;
 
 type
@@ -51,13 +52,8 @@ type
     procedure SetBottomMargin(AValue: Integer);
     property BottomMargin: Integer read GetBottomMargin write SetBottomMargin;
 
-    function GetUsePrevZoomAtMap: Boolean;
-    procedure SetUsePrevZoomAtMap(const AValue: Boolean);
-    property UsePrevZoomAtMap: Boolean read GetUsePrevZoomAtMap write SetUsePrevZoomAtMap;
-
-    function GetUsePrevZoomAtLayer: Boolean;
-    procedure SetUsePrevZoomAtLayer(const AValue: Boolean);
-    property UsePrevZoomAtLayer: Boolean read GetUsePrevZoomAtLayer write SetUsePrevZoomAtLayer;
+    function GetUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+    property UseTilePrevZoomConfig: IUseTilePrevZoomConfig read GetUseTilePrevZoomConfig;
 
     function GetMapsConfig: IActivMapWithLayers;
     property MapsConfig: IActivMapWithLayers read GetMapsConfig;

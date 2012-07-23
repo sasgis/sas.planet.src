@@ -47,6 +47,7 @@ uses
   i_MapTypeListChangeable,
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
+  i_UseTilePrevZoomConfig,
   u_MapType,
   u_WindowLayerWithPos;
 
@@ -62,9 +63,6 @@ type
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FViewPortState: IViewPortState;
-
-    FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
 
     FBitmapProvider: IBitmapLayerProvider;
     FBitmapProviderCS: IReadWriteSync;
@@ -228,24 +226,23 @@ end;
 procedure TMiniMapLayer.CreateBitmapProvider;
 var
   VMainMap: IMapType;
-  VUsePrevZoomAtMap, VUsePrevZoomAtLayer: Boolean;
   VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
 
   VLayersList: IMapTypeListStatic;
   VProvider: IBitmapLayerProvider;
+  VUsePrevConfig: IUseTilePrevZoomTileConfigStatic;
 begin
   VMainMap := FMainMap.GetStatic;
   VLayersList := FLayerList.List;
-  VUsePrevZoomAtMap := FUsePrevZoomAtMap;
-  VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;
+  VUsePrevConfig := FConfig.UseTilePrevZoomConfig.GetStatic;
   VPostProcessingConfig := FPostProcessingConfig.GetStatic;
 
   VProvider :=
     TBitmapLayerProviderForViewMaps.Create(
       VMainMap,
       VLayersList,
-      VUsePrevZoomAtMap,
-      VUsePrevZoomAtLayer,
+      VUsePrevConfig.UsePrevZoomAtMap,
+      VUsePrevConfig.UsePrevZoomAtLayer,
       True,
       VPostProcessingConfig,
       FErrorLogger
@@ -486,9 +483,6 @@ begin
   try
     FConfig.LockRead;
     try
-      FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
-
       Layer.Bitmap.Lock;
       try
         Layer.Bitmap.MasterAlpha := FConfig.MasterAlpha;

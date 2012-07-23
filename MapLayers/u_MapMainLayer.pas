@@ -65,8 +65,6 @@ type
     FLayersSet: IMapTypeSet;
     FLayersSetCS: IReadWriteSync;
 
-    FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
     FTileUpdateFlag: ISimpleFlag;
 
     procedure CreateBitmapProvider;
@@ -121,6 +119,7 @@ uses
   t_GeoTypes,
   i_Bitmap32Static,
   i_TileIterator,
+  i_UseTilePrevZoomConfig,
   i_NotifierTileRectUpdate,
   u_ListenerByEvent,
   u_GeoFun,
@@ -202,7 +201,6 @@ procedure TMapMainLayer.CreateBitmapProvider;
 var
   VMainMap: IMapType;
   VLayersSet: IMapTypeSet;
-  VUsePrevZoomAtMap, VUsePrevZoomAtLayer: Boolean;
   VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
 
   VLayers: array of IMapType;
@@ -216,11 +214,11 @@ var
   VLayersCount: Integer;
   VZOrder: Integer;
   VIndex: Integer;
+  VUsePrevConfig: IUseTilePrevZoomTileConfigStatic;
 begin
   VMainMap := MainMap;
   VLayersSet := LayersSet;
-  VUsePrevZoomAtMap := FUsePrevZoomAtMap;
-  VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;
+  VUsePrevConfig := FConfig.UseTilePrevZoomConfig.GetStatic;
   VPostProcessingConfig := FPostProcessingConfig.GetStatic;
 
   VLayersCount := 0;
@@ -259,8 +257,8 @@ begin
     TBitmapLayerProviderForViewMaps.Create(
       VMainMap,
       VLayersList,
-      VUsePrevZoomAtMap,
-      VUsePrevZoomAtLayer,
+      VUsePrevConfig.UsePrevZoomAtMap,
+      VUsePrevConfig.UsePrevZoomAtLayer,
       True,
       VPostProcessingConfig,
       FErrorLogger
@@ -407,13 +405,6 @@ procedure TMapMainLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FConfig.LockRead;
-    try
-      FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
-    finally
-      FConfig.UnlockRead;
-    end;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;

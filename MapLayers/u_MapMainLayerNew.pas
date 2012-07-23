@@ -14,6 +14,8 @@ uses
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
+  i_UseTilePrevZoomConfig,
+  i_ThreadConfig,
   i_MapTypes,
   i_MapTypeListChangeable,
   i_InternalPerformanceCounter,
@@ -30,8 +32,6 @@ type
     FMainMap: IMapTypeChangeable;
     FLayesList: IMapTypeListChangeable;
 
-    FUsePrevZoomAtMap: Boolean;
-    FUsePrevZoomAtLayer: Boolean;
     procedure OnMainMapChange;
     procedure OnLayerListChange;
     procedure OnConfigChange;
@@ -140,22 +140,21 @@ function TMapMainLayerNew.CreateLayerProvider(
 ): IBitmapLayerProvider;
 var
   VMainMap: IMapType;
-  VUsePrevZoomAtMap, VUsePrevZoomAtLayer: Boolean;
   VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
   VLayersList: IMapTypeListStatic;
+  VUsePrevConfig: IUseTilePrevZoomTileConfigStatic;
 begin
   VMainMap := FMainMap.GetStatic;
   VLayersList := FLayesList.List;
-  VUsePrevZoomAtMap := FUsePrevZoomAtMap;
-  VUsePrevZoomAtLayer := FUsePrevZoomAtLayer;
+  VUsePrevConfig := FConfig.UseTilePrevZoomConfig.GetStatic;
   VPostProcessingConfig := FPostProcessingConfig.GetStatic;
 
   Result :=
     TBitmapLayerProviderForViewMaps.Create(
       VMainMap,
       VLayersList,
-      VUsePrevZoomAtMap,
-      VUsePrevZoomAtLayer,
+      VUsePrevConfig.UsePrevZoomAtMap,
+      VUsePrevConfig.UsePrevZoomAtLayer,
       True,
       VPostProcessingConfig,
       FErrorLogger
@@ -166,13 +165,6 @@ procedure TMapMainLayerNew.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    FConfig.LockRead;
-    try
-      FUsePrevZoomAtMap := FConfig.UsePrevZoomAtMap;
-      FUsePrevZoomAtLayer := FConfig.UsePrevZoomAtLayer;
-    finally
-      FConfig.UnlockRead;
-    end;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
