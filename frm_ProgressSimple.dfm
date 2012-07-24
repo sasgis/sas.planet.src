@@ -8,8 +8,8 @@ object frmProgressSimple: TfrmProgressSimple
   ClientWidth = 323
   Color = clBtnFace
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
