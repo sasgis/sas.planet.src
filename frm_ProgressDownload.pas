@@ -138,7 +138,6 @@ end;
 
 procedure TfrmProgressDownload.FormCreate(Sender: TObject);
 begin
-  FStoped := false;
   FFinished := False;
 end;
 
@@ -191,6 +190,13 @@ begin
   FProgress.Max := FDownloadThread.TotalInRegion;
   FProgress.Progress1 := FDownloadThread.Downloaded;
   FProgress.Progress2 := FDownloadThread.Processed;
+  if FDownloadThread.PausedByUser then begin
+    FStoped := true;
+    btnPause.Caption := SAS_STR_Continue;
+  end else begin
+    FStoped := false;
+    btnPause.Caption := SAS_STR_Pause;
+  end;
   Visible:=true;
 end;
 

@@ -613,6 +613,9 @@ begin
             end;
             FStartTime := now;
           end;
+          if Terminated then begin
+            Break;
+          end;
 
           // notify about current tile
           FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, Fzoom)]), 0);
