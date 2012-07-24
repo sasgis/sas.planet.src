@@ -166,19 +166,19 @@ object frTilesCopy: TfrTilesCopy
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 86
-      Height = 13
+      Width = 41
+      Height = 18
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
-      Left = 92
+      Left = 47
       Top = 3
-      Width = 335
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0
@@ -205,7 +205,7 @@ object frTilesCopy: TfrTilesCopy
     BevelKind = bkTile
     BevelOuter = bvNone
     BorderWidth = 3
-    Caption = 'Save selection to file'
+    Caption = 'Copy tiles from selection to folder'
     TabOrder = 2
   end
 end

@@ -20,7 +20,7 @@ object frmRegionProcess: TfrmRegionProcess
     Top = 0
     Width = 572
     Height = 279
-    ActivePage = TabSheet5
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     TabWidth = 92
@@ -104,7 +104,7 @@ object frmRegionProcess: TfrmRegionProcess
       Top = 6
       Width = 25
       Height = 25
-      Hint = 'Save selection to file'
+      Hint = 'Save selection info to file'
       Align = alRight
       Flat = True
       Glyph.Data = {
