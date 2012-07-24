@@ -4069,7 +4069,9 @@ begin
       FState.State := ao_movemap;
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
-    End;
+    end else begin
+      FState.State := ao_movemap;
+    end;
   Finally
     VSelLonLat.Free;
   End;

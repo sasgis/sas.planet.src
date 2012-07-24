@@ -66,7 +66,6 @@ object frmMain: TfrmMain
         Hint = 'Move'
       end
       object TBRectSave: TTBXSubmenuItem
-        AutoCheck = True
         DropdownCombo = True
         ImageIndex = 10
         Images = PanelsImageList
@@ -1417,7 +1416,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1437,7 +1436,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
