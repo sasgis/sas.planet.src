@@ -111,8 +111,6 @@ type
 
     procedure SetNeedUpdateLayerProvider;
 
-    procedure Show;
-    procedure Hide;
     property Visible: Boolean read GetVisible write SetVisible;
   protected
     procedure StartThreads; override;
@@ -301,11 +299,6 @@ end;
 function TTiledLayerWithThreadBase.GetVisible: Boolean;
 begin
   Result := FLayer.Visible;
-end;
-
-procedure TTiledLayerWithThreadBase.Hide;
-begin
-  SetVisible(False);
 end;
 
 procedure TTiledLayerWithThreadBase.OnPaintLayer(
@@ -681,11 +674,6 @@ begin
       ViewUpdateUnlock;
     end;
   end;
-end;
-
-procedure TTiledLayerWithThreadBase.Show;
-begin
-  SetVisible(True);
 end;
 
 procedure TTiledLayerWithThreadBase.SendTerminateToThreads;
