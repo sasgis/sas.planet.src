@@ -70,8 +70,8 @@ type
     function GetStatic: IMapTypeSet;
   public
     constructor Create(
-      AMainMap: IMapTypeChangeable;
-      ALayersSet: IMapTypeSetChangeable
+      const AMainMap: IMapTypeChangeable;
+      const ALayersSet: IMapTypeSetChangeable
     );
     destructor Destroy; override;
   end;
@@ -197,7 +197,9 @@ end;
 { TMapsSetChangeableByMainMapAndLayersSet }
 
 constructor TMapsSetChangeableByMainMapAndLayersSet.Create(
-  AMainMap: IMapTypeChangeable; ALayersSet: IMapTypeSetChangeable);
+  const AMainMap: IMapTypeChangeable;
+  const ALayersSet: IMapTypeSetChangeable
+);
 begin
   inherited Create;
   FMainMap := AMainMap;
