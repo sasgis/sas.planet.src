@@ -142,7 +142,7 @@ function TMapMainLayerNew.CreateLayerProvider(
 ): IBitmapLayerProvider;
 var
   VMainMap: IMapType;
-  VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
+  VPostProcessingConfig: IBitmapPostProcessing;
   VLayersList: IMapTypeListStatic;
   VUsePrevConfig: IUseTilePrevZoomTileConfigStatic;
 begin

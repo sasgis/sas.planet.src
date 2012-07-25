@@ -38,7 +38,7 @@ type
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FUseCache: Boolean;
-    FPostProcessingConfig: IBitmapPostProcessingConfigStatic;
+    FPostProcessingConfig: IBitmapPostProcessing;
     FErrorLogger: ITileErrorLogger;
     procedure OnMapVersionChange;
     procedure OnTileUpdate(const AMsg: IInterface);
@@ -71,7 +71,7 @@ type
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean;
       AUseCache: Boolean;
-      const APostProcessingConfig: IBitmapPostProcessingConfigStatic;
+      const APostProcessingConfig: IBitmapPostProcessing;
       const AErrorLogger: ITileErrorLogger
     );
     destructor Destroy; override;
@@ -99,7 +99,7 @@ constructor TBitmapLayerProviderForViewMaps.Create(
   const AMainMap: IMapType;
   const ALayersList: IMapTypeListStatic;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer, AUseCache: Boolean;
-  const APostProcessingConfig: IBitmapPostProcessingConfigStatic;
+  const APostProcessingConfig: IBitmapPostProcessing;
   const AErrorLogger: ITileErrorLogger
 );
 begin

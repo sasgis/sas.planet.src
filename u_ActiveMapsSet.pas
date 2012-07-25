@@ -216,7 +216,6 @@ end;
 function TMapsSetChangeableByMainMapAndLayersSet.CreateStatic: IInterface;
 var
   VLayersSet: IMapTypeSet;
-  VMapType: IMapType;
   VList: TMapTypeSet;
   VEnun: IEnumGUID;
   VGUID: TGUID;

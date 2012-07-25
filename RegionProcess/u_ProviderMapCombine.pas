@@ -197,7 +197,7 @@ var
   VMarksImageProvider: IBitmapLayerProvider;
   VMapRect: TRect;
   VLineClipRect: TDoubleRect;
-  VRecolorConfig: IBitmapPostProcessingConfigStatic;
+  VRecolorConfig: IBitmapPostProcessing;
   VSourceProvider: IBitmapLayerProvider;
   VUseMarks: Boolean;
   VUseRecolor: Boolean;

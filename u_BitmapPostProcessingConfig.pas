@@ -42,11 +42,14 @@ type
   private
     function GetInvertColor: boolean;
     procedure SetInvertColor(const AValue: boolean);
+    
     function GetGammaN: Integer;
     procedure SetGammaN(const AValue: Integer);
+
     function GetContrastN: Integer;
     procedure SetContrastN(const AValue: Integer);
-    function GetStatic: IBitmapPostProcessingConfigStatic;
+
+    function GetStatic: IBitmapPostProcessing;
   public
     constructor Create;
   end;
@@ -68,7 +71,7 @@ end;
 
 function TBitmapPostProcessingConfig.CreateStatic: IInterface;
 var
-  VStatic: IBitmapPostProcessingConfigStatic;
+  VStatic: IBitmapPostProcessing;
 begin
   VStatic :=
     TBitmapPostProcessingConfigStatic.Create(
@@ -132,9 +135,9 @@ begin
   end;
 end;
 
-function TBitmapPostProcessingConfig.GetStatic: IBitmapPostProcessingConfigStatic;
+function TBitmapPostProcessingConfig.GetStatic: IBitmapPostProcessing;
 begin
-  Result := IBitmapPostProcessingConfigStatic(GetStaticInternal);
+  Result := IBitmapPostProcessing(GetStaticInternal);
 end;
 
 procedure TBitmapPostProcessingConfig.SetContrastN(const AValue: Integer);

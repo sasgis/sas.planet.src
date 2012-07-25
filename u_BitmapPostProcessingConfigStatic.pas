@@ -28,17 +28,13 @@ uses
   i_BitmapPostProcessingConfig;
 
 type
-  TBitmapPostProcessingConfigStatic = class(TInterfacedObject, IBitmapPostProcessingConfigStatic)
+  TBitmapPostProcessingConfigStatic = class(TInterfacedObject, IBitmapPostProcessing)
   private
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
     procedure ProcessBitmap(const Bitmap: TCustomBitmap32);
   private
-    function GetInvertColor: boolean;
-    function GetGammaN: Integer;
-    function GetContrastN: Integer;
-
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
@@ -65,21 +61,6 @@ begin
   FInvertColor := AInvertColor;
   FContrastN := AContrastN;
   FGammaN := AGammaN;
-end;
-
-function TBitmapPostProcessingConfigStatic.GetContrastN: Integer;
-begin
-  Result := FContrastN;
-end;
-
-function TBitmapPostProcessingConfigStatic.GetGammaN: Integer;
-begin
-  Result := FGammaN;
-end;
-
-function TBitmapPostProcessingConfigStatic.GetInvertColor: boolean;
-begin
-  Result := FInvertColor;
 end;
 
 procedure Contrast(

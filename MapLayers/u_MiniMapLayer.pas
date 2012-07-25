@@ -226,7 +226,7 @@ end;
 procedure TMiniMapLayer.CreateBitmapProvider;
 var
   VMainMap: IMapType;
-  VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
+  VPostProcessingConfig: IBitmapPostProcessing;
 
   VLayersList: IMapTypeListStatic;
   VProvider: IBitmapLayerProvider;

@@ -201,7 +201,7 @@ procedure TMapMainLayer.CreateBitmapProvider;
 var
   VMainMap: IMapType;
   VLayersSet: IMapTypeSet;
-  VPostProcessingConfig: IBitmapPostProcessingConfigStatic;
+  VPostProcessingConfig: IBitmapPostProcessing;
 
   VLayers: array of IMapType;
   VLayersList: IMapTypeListStatic;

@@ -13,7 +13,7 @@ uses
 type
   TBitmapLayerProviderSimpleForCombine = class(TInterfacedObject, IBitmapLayerProvider)
   private
-    FRecolorConfig: IBitmapPostProcessingConfigStatic;
+    FRecolorConfig: IBitmapPostProcessing;
     FSourceProvider: IBitmapLayerProvider;
     FMarksImageProvider: IBitmapLayerProvider;
   private
@@ -24,7 +24,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ARecolorConfig: IBitmapPostProcessingConfigStatic;
+      const ARecolorConfig: IBitmapPostProcessing;
       const ASourceProvider: IBitmapLayerProvider;
       const AMarksImageProvider: IBitmapLayerProvider
     );
@@ -39,7 +39,7 @@ uses
 { TBitmapLayerProviderSimpleForCombine }
 
 constructor TBitmapLayerProviderSimpleForCombine.Create(
-  const ARecolorConfig: IBitmapPostProcessingConfigStatic;
+  const ARecolorConfig: IBitmapPostProcessing;
   const ASourceProvider: IBitmapLayerProvider;
   const AMarksImageProvider: IBitmapLayerProvider
 );

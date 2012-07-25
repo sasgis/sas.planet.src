@@ -27,19 +27,8 @@ uses
   i_ConfigDataElement;
 
 type
-  IBitmapPostProcessingConfigStatic = interface
+  IBitmapPostProcessing = interface
     ['{3DBBF6CA-6AA3-4578-8D23-3E04D1D42C34}']
-    function GetInvertColor: boolean;
-    property InvertColor: boolean read GetInvertColor;
-
-    // Число для гамма преобразования тайлов перед отображением
-    function GetGammaN: Integer;
-    property GammaN: Integer read GetGammaN;
-
-    // Число для изменения контрастности тайлов перед отображением
-    function GetContrastN: Integer;
-    property ContrastN: Integer read GetContrastN;
-
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   end;
 
@@ -57,7 +46,7 @@ type
     procedure SetContrastN(const AValue: Integer);
     property ContrastN: Integer read GetContrastN write SetContrastN;
 
-    function GetStatic: IBitmapPostProcessingConfigStatic;
+    function GetStatic: IBitmapPostProcessing;
   end;
 
 implementation
