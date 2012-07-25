@@ -257,7 +257,11 @@ begin
     FDrawTask.StopExecute;
     SetTileMatrix(VNewTileMatrix);
     if Supports(LayerProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
-      VProviderWithListener.SetListener(FRectUpdateListener, VNewTileMatrix.LocalConverter);
+      if VNewTileMatrix <> nil then begin
+        VProviderWithListener.SetListener(FRectUpdateListener, VNewTileMatrix.LocalConverter);
+      end else begin
+        VProviderWithListener.RemoveListener;
+      end;
     end;
     if FUpdateLayerProviderOnPosChange then begin
       SetNeedUpdateLayerProvider;
