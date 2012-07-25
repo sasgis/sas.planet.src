@@ -163,13 +163,14 @@ begin
     FAppClosingNotifier
   );
 
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000, 1000);
+  FGCList.Add(FTTLListener);
+
   FLinksList.ActivateLinks;
   OnConfigChange;
   OnMapTypeActiveChange;
   OnPosChange;
 
-  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000, 1000);
-  FGCList.Add(FTTLListener);
 end;
 
 destructor TUiTileDownload.Destroy;
