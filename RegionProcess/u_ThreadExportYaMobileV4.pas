@@ -89,8 +89,7 @@ uses
   i_TileIterator,
   u_Bitmap32Static,
   u_TileIteratorByPolygon,
-  u_BitmapLayerProviderMapWithLayer,
-  u_ARGBToPaletteConverter;
+  u_BitmapLayerProviderMapWithLayer;
 
 { TThreadExportYaMobileV4 }
 
@@ -163,7 +162,7 @@ begin
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 11;
     FTasks[VTaskIndex].FMapName := Atypemaparr[1].GUIConfig.Name.Value;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap, TARGBToPaletteConverter.Create);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[1],

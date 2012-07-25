@@ -91,8 +91,7 @@ uses
   i_LocalCoordConverter,
   u_Bitmap32Static,
   u_TileIteratorByPolygon,
-  u_BitmapLayerProviderMapWithLayer,
-  u_ARGBToPaletteConverter;
+  u_BitmapLayerProviderMapWithLayer;
 
 const
   YaHeaderSize: integer = 1024;
@@ -158,7 +157,7 @@ begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 1;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap, TARGBToPaletteConverter.Create);
+    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         Atypemaparr[1],

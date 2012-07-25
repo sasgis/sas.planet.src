@@ -109,7 +109,7 @@ begin
     'image/png',
     '.png',
     ABitmapTileSaveLoadFactory.CreatePngLoader(ALoadPerfCounterList),
-    ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, nil, ASavePerfCounterList)
+    ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, ASavePerfCounterList)
   );
   AddByType(VContentType, VContentType.GetContentType);
   AddByType(VContentType, 'image/x-png');

@@ -24,7 +24,6 @@ interface
 
 uses
   i_BitmapTileSaveLoad,
-  i_ARGBToPaletteConverter,
   i_InternalPerformanceCounter;
 
 type
@@ -58,7 +57,6 @@ type
     function CreatePngSaver(
       const AColorDepth: TImageColorBitPerPix = i32bpp;
       const ACompressionLevel: Byte = 2;
-      const AARGBToPaletteConverter: IARGBToPaletteConverter = nil;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
 
