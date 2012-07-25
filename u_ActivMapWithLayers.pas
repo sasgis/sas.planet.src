@@ -37,20 +37,23 @@ type
     FLayerSetSelectNotyfier: INotifierWithGUID;
     FLayerSetUnselectNotyfier: INotifierWithGUID;
 
+    FLayersSet: IMapTypeSet;
     FAllMapsSet: IMapTypeSet;
-    FAllMapsSingleList: IGUIDInterfaceSet;
-    FActiveLayersSet: IActiveMapsSet;
-    FAllActiveMapsSet: IActiveMapsSet;
+
+    FActiveLayersSet: IMapTypeSetChangeable;
+    FAllActiveMapsSet: IMapTypeSetChangeable;
   protected
     property LayerSetSelectNotyfier: INotifierWithGUID read FLayerSetSelectNotyfier;
     property LayerSetUnselectNotyfier: INotifierWithGUID read FLayerSetUnselectNotyfier;
-    property AllMapsSingleList: IGUIDInterfaceSet read FAllMapsSingleList;
   protected
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
 
-    function GetActiveLayersSet: IActiveMapsSet;
-    function GetAllActiveMapsSet: IActiveMapsSet;
+    function GetLayersSet: IMapTypeSet;
+    function GetAllMapsSet: IMapTypeSet;
+
+    function GetActiveLayersSet: IMapTypeSetChangeable;
+    function GetAllActiveMapsSet: IMapTypeSetChangeable;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -67,6 +70,7 @@ uses
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,
+  i_ConfigDataElement,
   u_GUIDInterfaceSet,
   u_MapTypeSet,
   u_ActiveMapSingleAbstract,
@@ -87,53 +91,45 @@ var
   VAllMapsList: TMapTypeSet;
 begin
   inherited Create(AMapsSet);
+  FLayersSet := ALayersSet;
+
   FLayerSetSelectNotyfier := TNotifierWithGUID.Create;
   FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
 
-  FAllMapsSingleList := TGUIDInterfaceSet.Create(False);
   VAllMapsList := TMapTypeSet.Create(True);
 
   VEnun := AMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMapType := AMapsSet.GetMapTypeByGUID(VGUID);
-    VSingleMap := IActiveMapSingle(SingeMapsList.GetByGUID(VGUID));
     VAllMapsList.Add(VMapType);
-    FAllMapsSingleList.Add(VGUID, VSingleMap);
   end;
 
-  VEnun := ALayersSet.GetIterator;
+  VEnun := FLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMapType := ALayersSet.GetMapTypeByGUID(VGUID);
+    VMapType := FLayersSet.GetMapTypeByGUID(VGUID);
+    VAllMapsList.Add(VMapType);
     VSingleMap := TActiveMapSingleLayer.Create(
       VMapType,
       FLayerSetSelectNotyfier,
       FLayerSetUnselectNotyfier
     );
-    VAllMapsList.Add(VMapType);
-    FAllMapsSingleList.Add(VGUID, VSingleMap);
-    Add(VSingleMap, nil);
+    SingleSet.Add(VGUID, VSingleMap);
   end;
 
 
   FAllMapsSet := VAllMapsList;
 
-  FActiveLayersSet := TActiveMapsSet.Create(
-    ALayersSet,
-    FAllMapsSingleList,
-    nil,
+  FActiveLayersSet := TLayerSetChangeable.Create(
+    FLayersSet,
     FLayerSetSelectNotyfier,
     FLayerSetUnselectNotyfier
   );
-  Add(FActiveLayersSet, nil);
 
-  FAllActiveMapsSet := TActiveMapsSet.Create(
-    FAllMapsSet,
-    FAllMapsSingleList,
-    MainMapChangeNotyfier,
-    FLayerSetSelectNotyfier,
-    FLayerSetUnselectNotyfier
-  );
-  Add(FAllActiveMapsSet, nil);
+  FAllActiveMapsSet :=
+    TMapsSetChangeableByMainMapAndLayersSet.Create(
+      GetActiveMap,
+      FActiveLayersSet
+    );
 end;
 
 destructor TActivMapWithLayers.Destroy;
@@ -142,7 +138,6 @@ begin
   FLayerSetUnselectNotyfier := nil;
 
   FAllMapsSet := nil;
-  FAllMapsSingleList := nil;
   FActiveLayersSet := nil;
   FAllActiveMapsSet := nil;
   inherited;
@@ -174,7 +169,7 @@ begin
           VGUID := CGUID_Zero;
         end;
         if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-          VMap := FActiveLayersSet.GetMapsSet.GetMapTypeByGUID(VGUID);
+          VMap := FLayersSet.GetMapTypeByGUID(VGUID);
           if VMap <> nil then begin
             SelectLayerByGUID(VGUID);
           end;
@@ -206,22 +201,30 @@ begin
   end;
 
   VIndex := 0;
-  VEnum := FActiveLayersSet.GetMapsSet.GetIterator;
+  VEnum := FActiveLayersSet.GetStatic.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    if FActiveLayersSet.IsGUIDSelected(VGUID) then begin
-      VGUIDString := GUIDToString(VGUID);
-      AConfigData.WriteString(CKeyNameLayer + IntToStr(VIndex), VGUIDString);
-      Inc(VIndex);
-    end;
+    VGUIDString := GUIDToString(VGUID);
+    AConfigData.WriteString(CKeyNameLayer + IntToStr(VIndex), VGUIDString);
+    Inc(VIndex);
   end;
 end;
 
-function TActivMapWithLayers.GetAllActiveMapsSet: IActiveMapsSet;
+function TActivMapWithLayers.GetAllActiveMapsSet: IMapTypeSetChangeable;
 begin
   Result := FAllActiveMapsSet;
 end;
 
-function TActivMapWithLayers.GetActiveLayersSet: IActiveMapsSet;
+function TActivMapWithLayers.GetAllMapsSet: IMapTypeSet;
+begin
+  Result := FAllMapsSet;
+end;
+
+function TActivMapWithLayers.GetLayersSet: IMapTypeSet;
+begin
+  Result := FLayersSet;
+end;
+
+function TActivMapWithLayers.GetActiveLayersSet: IMapTypeSetChangeable;
 begin
   Result := FActiveLayersSet;
 end;

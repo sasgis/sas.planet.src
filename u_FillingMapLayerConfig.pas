@@ -30,6 +30,7 @@ uses
   i_LocalCoordConverter,
   i_ActiveMapsConfig,
   i_ThreadConfig,
+  i_MapTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_FillingMapLayerConfig,
@@ -92,7 +93,10 @@ type
 
     function GetThreadConfig: IThreadConfig;
   public
-    constructor Create(const AMapsConfig: IMainMapsConfig);
+    constructor Create(
+      const AMainMap: IMapTypeChangeable;
+      const AMapsSet: IMapTypeSet
+    );
   end;
 
 implementation
@@ -107,7 +111,10 @@ uses
 
 { TFillingMapLayerConfig }
 
-constructor TFillingMapLayerConfig.Create(const AMapsConfig: IMainMapsConfig);
+constructor TFillingMapLayerConfig.Create(
+  const AMainMap: IMapTypeChangeable;
+  const AMapsSet: IMapTypeSet
+);
 begin
   inherited Create;
   FVisible := False;
@@ -120,7 +127,7 @@ begin
   FFilterMode := False;
   FFillFirstDay := EncodeDate(2000, 1, 1);
   FFillLastDay := DateOf(Now);
-  FSourceMap := TFillingMapMapsConfig.Create(AMapsConfig);
+  FSourceMap := TFillingMapMapsConfig.Create(AMainMap, AMapsSet);
   Add(FSourceMap, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FThreadConfig := TThreadConfig.Create(tpLowest);

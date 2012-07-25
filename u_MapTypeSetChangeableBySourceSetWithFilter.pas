@@ -41,6 +41,12 @@ type
     function IsValidMapType(const AMapType: IMapType): Boolean; override;
   end;
 
+  type
+  TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty = class(TMapTypeSetChangeableBySourceSetWithFilter)
+  protected
+    function IsValidMapType(const AMapType: IMapType): Boolean; override;
+  end;
+
 implementation
 
 uses
@@ -59,6 +65,8 @@ begin
 
   FSourceSetListener := TNotifyNoMmgEventListener.Create(Self.OnActiveMapsSetChange);
   FSourceSet.ChangeNotifier.Add(FSourceSetListener);
+
+  FPrevSourceSetStatic := FSourceSet.GetStatic;
 end;
 
 destructor TMapTypeSetChangeableBySourceSetWithFilter.Destroy;
@@ -172,6 +180,17 @@ function TMapTypeSetChangeableBySourceSetWithFilterVector.IsValidMapType(
 ): Boolean;
 begin
   Result := (AMapType <> nil) and (AMapType.MapType.IsKmlTiles);
+end;
+
+{ TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty }
+
+function TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.IsValidMapType(
+  const AMapType: IMapType): Boolean;
+begin
+  Result := False;
+  if AMapType <> nil then begin
+    Result := AMapType.MapType.Zmp.License.GetDefault <> '';
+  end;
 end;
 
 end.

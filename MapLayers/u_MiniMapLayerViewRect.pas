@@ -179,7 +179,8 @@ var
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
-    FConfig.MapsConfig.GetActiveMapsSet,
+    FConfig.MapsConfig.GetMapsSet,
+    FConfig.MapsConfig.GetMapSingleSet,
     AMapssSubMenu,
     Self.OnClickMapItem,
     FIconsList
@@ -191,7 +192,8 @@ begin
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
-    FConfig.MapsConfig.GetActiveLayersSet,
+    FConfig.MapsConfig.GetLayersSet,
+    FConfig.MapsConfig.GetMapSingleSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,
     FIconsList
@@ -390,10 +392,10 @@ begin
       if VMap <> nil then begin
         FConfig.MapsConfig.LockWrite;
         try
-          if not FConfig.MapsConfig.GetActiveLayersSet.IsGUIDSelected(VMap.GUID) then begin
-            FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
-          end else begin
+          if VAtiveMap.GetIsActive then begin
             FConfig.MapsConfig.UnSelectLayerByGUID(VMap.GUID);
+          end else begin
+            FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
           end;
         finally
           FConfig.MapsConfig.UnlockWrite;

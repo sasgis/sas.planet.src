@@ -473,7 +473,7 @@ begin
   if FMainCoordConverter <> nil then begin
     Result := FMainCoordConverter;
   end else begin
-    VMap := FMainMapConfig.GetActiveMap.GetMapsSet.GetMapTypeByGUID(FMainMapConfig.GetActiveMap.GetSelectedGUID);
+    VMap := FMainMapConfig.GetActiveMap.GetStatic;
     if VMap <> nil then begin
       Result := VMap.MapType.ViewGeoConvert;
     end;

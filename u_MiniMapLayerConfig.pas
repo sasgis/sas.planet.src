@@ -28,6 +28,7 @@ uses
   i_ThreadConfig,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
+  i_MapTypes,
   i_UseTilePrevZoomConfig,
   u_ConfigDataElementComplexBase;
 
@@ -67,7 +68,9 @@ type
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
-      const AMapsConfig: IMainMapsConfig
+      const AMainMap: IMapTypeChangeable;
+      const AMapsSet: IMapTypeSet;
+      const ALayersSet: IMapTypeSet
     );
   end;
 
@@ -84,7 +87,9 @@ uses
 { TMiniMapLayerConfig }
 
 constructor TMiniMapLayerConfig.Create(
-  const AMapsConfig: IMainMapsConfig
+  const AMainMap: IMapTypeChangeable;
+  const AMapsSet: IMapTypeSet;
+  const ALayersSet: IMapTypeSet
 );
 begin
   inherited Create;
@@ -96,7 +101,7 @@ begin
   FUseTilePrevZoomConfig := TUseTilePrevZoomConfig.Create;
   Add(FUseTilePrevZoomConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-  FMapsConfig := TMiniMapMapsConfig.Create(AMapsConfig);
+  FMapsConfig := TMiniMapMapsConfig.Create(AMainMap, AMapsSet, ALayersSet);
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
 
   FThreadConfig := TThreadConfig.Create(tpLower);

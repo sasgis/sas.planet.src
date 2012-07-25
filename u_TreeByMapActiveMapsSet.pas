@@ -25,13 +25,14 @@ interface
 uses
   i_Notifier,
   i_StaticTreeItem,
+  i_MapTypes,
   i_TreeChangeable,
   i_ActiveMapsConfig;
 
 type
   TTreeByMapActiveMapsSet = class(TInterfacedObject, ITreeChangeable)
   private
-    FMapsSet: IActiveMapsSet;
+    FMapsSet: IMapTypeSet;
     FStaticTree: IStaticTreeItem;
     FChangeNotifier: INotifier;
   protected
@@ -40,7 +41,7 @@ type
     function GetStatic: IStaticTreeItem;
     function GetChangeNotifier: INotifier;
   public
-    constructor Create(const AMapsSet: IActiveMapsSet);
+    constructor Create(const AMapsSet: IMapTypeSet);
   end;
 
 implementation
@@ -50,7 +51,7 @@ uses
 
 { TTreeByMapActiveMapsSet }
 
-constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IActiveMapsSet);
+constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IMapTypeSet);
 begin
   inherited Create;
   FMapsSet := AMapsSet;

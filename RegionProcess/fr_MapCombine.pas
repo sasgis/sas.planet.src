@@ -359,6 +359,7 @@ var
   i: Integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
+  VActiveLayers: IMapTypeSet;
   VAddedIndex: Integer;
   VMapCalibration: IMapCalibration;
   VGUIDList: IGUIDListStatic;
@@ -371,7 +372,8 @@ begin
   end;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
+  VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
   cbbMap.Items.Clear;
   cbbHybr.Items.Clear;
   cbbMap.Items.Add(SAS_STR_No);
@@ -389,7 +391,7 @@ begin
       end else begin
         VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
         if (cbbHybr.ItemIndex=-1) then begin
-          if FMainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VGUID) then begin
+          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
             cbbHybr.ItemIndex:=VAddedIndex;
           end;
         end;

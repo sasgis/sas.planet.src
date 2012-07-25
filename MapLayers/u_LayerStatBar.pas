@@ -17,6 +17,7 @@ uses
   i_StatBarConfig,
   i_ViewPortState,
   i_MouseState,
+  i_MapTypes,
   i_ActiveMapsConfig,
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
@@ -27,7 +28,7 @@ type
   TLayerStatBar = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IStatBarConfig;
-    FMainMapsConfig: IMainMapsConfig;
+    FMainMap: IMapTypeChangeable;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
     FMouseState: IMouseState;
@@ -64,7 +65,7 @@ type
       const ATimeZoneDiff: ITimeZoneDiffByLonLat;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
-      const AMainMapsConfig: IMainMapsConfig
+      const AMainMap: IMapTypeChangeable
     );
   end;
 
@@ -99,7 +100,7 @@ constructor TLayerStatBar.Create(
   const ATimeZoneDiff: ITimeZoneDiffByLonLat;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
-  const AMainMapsConfig: IMainMapsConfig
+  const AMainMap: IMapTypeChangeable
 );
 begin
   inherited Create(
@@ -129,7 +130,7 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FPosition.ChangeNotifier
   );
-  FMainMapsConfig := AMainMapsConfig;
+  FMainMap := AMainMap;
   FLastUpdateTick := 0;
 end;
 
@@ -261,7 +262,7 @@ var
   VSize: TPoint;
   VRad: Extended;
   VTile: TPoint;
-  VMap: TMapType;
+  VMapType: TMapType;
   VConverter: ICoordConverter;
   VPixelsAtZoom: Double;
   VCurrentTick: DWORD;
@@ -284,13 +285,13 @@ begin
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
     VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
-    VMap := FMainMapsConfig.GetSelectedMapType.MapType;
+    VMapType := FMainMap.GetStatic.MapType;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
-    VMap.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
+    VMapType.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
     VTile :=
       PointFromDoublePoint(
-        VMap.GeoConvert.PixelPosFloat2TilePosFloat(VMapPoint, VZoomCurr),
+        VMapType.GeoConvert.PixelPosFloat2TilePosFloat(VMapPoint, VZoomCurr),
         prToTopLeft
       );
 
@@ -339,7 +340,7 @@ begin
 
     if FConfig.ViewDownloadedInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VTileName := VMap.GetTileShowName(VTile, VZoomCurr);
+      VTileName := VMapType.GetTileShowName(VTile, VZoomCurr);
       VString := SAS_STR_load + ' ' +
         inttostr(FDownloadInfo.TileCount) +
         ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size / 1024) + ')';

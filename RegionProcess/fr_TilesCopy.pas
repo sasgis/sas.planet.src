@@ -231,7 +231,7 @@ begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   chklstMaps.Items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   For i := 0 to VGUIDList.Count-1 do begin

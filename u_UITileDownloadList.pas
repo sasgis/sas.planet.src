@@ -9,6 +9,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ActiveMapsConfig,
   i_NotifierTTLCheck,
+  i_MapTypes,
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
@@ -25,7 +26,8 @@ type
       const AConfig: IDownloadUIConfig;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AMapsSet: IActiveMapsSet;
+      const AMapsSet: IMapTypeSet;
+      const AMapsSingleSet: IActiveMapSingleSet;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
       const AErrorLogger: ITileErrorLogger
@@ -46,7 +48,8 @@ constructor TUITileDownloadList.Create(
   const AConfig: IDownloadUIConfig;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AMapsSet: IActiveMapsSet;
+  const AMapsSet: IMapTypeSet;
+  const AMapsSingleSet: IActiveMapSingleSet;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
@@ -60,9 +63,9 @@ var
 begin
   inherited Create;
   FList := TInterfaceList.Create;
-  VEnum := AMapsSet.GetMapsSet.GetIterator;
+  VEnum := AMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VMapTypeActive := AMapsSet.GetMapSingle(VGUID);
+    VMapTypeActive := AMapsSingleSet.GetMapSingle(VGUID);
     if VMapTypeActive.GetMapType.MapType.Zmp.TileDownloaderConfig.Enabled then begin
       VDownload :=
         TUiTileDownload.Create(

@@ -359,6 +359,7 @@ var
   i: integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
+  VActiveLayers: IMapTypeSet;
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
@@ -368,7 +369,8 @@ begin
       CbbZoom.Items.Add(inttostr(i));
     end;
 
-    VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+    VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
+    VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
 
     CbbZoom2.items := CbbZoom.Items;
     CbbZoom3.items := CbbZoom.Items;
@@ -418,7 +420,7 @@ begin
       if(VMapType.IsHybridLayer) then begin
         VAddedIndex := cbbHyb.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if (cbbHyb.ItemIndex=-1) then begin
-          if FMainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VGUID) then begin
+          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
             cbbHyb.ItemIndex:=VAddedIndex;
           end;
         end;

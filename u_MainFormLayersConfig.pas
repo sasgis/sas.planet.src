@@ -150,7 +150,7 @@ begin
   Add(FMarksLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksShow'));
   FKmlLayerConfig := TKmlLayerConfig.Create;
   Add(FKmlLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('WikiLayer'));
-  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig);
+  FMiniMapLayerConfig := TMiniMapLayerConfig.Create(AMapsConfig.GetActiveMap, AMapsConfig.GetMapsSet, AMapsConfig.GetLayersSet);
   Add(FMiniMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MiniMap'));
   FCenterScaleConfig := TCenterScaleConfig.Create;
   Add(FCenterScaleConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('CenterScale'));
@@ -170,7 +170,7 @@ begin
   Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
   FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
-  FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig);
+  FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig.GetActiveMap, AMapsConfig.GetAllMapsSet);
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
   FGotoLayerConfig := TGotoLayerConfig.Create;
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));

@@ -32,20 +32,32 @@ uses
   u_NotifyWithGUIDEvent;
 
 type
+  TActiveMapSingleSet = class(TInterfacedObject, IActiveMapSingleSet)
+  private
+    FSet: IGUIDInterfaceSet;
+  private
+    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
+  public
+    constructor Create(ASet: IGUIDInterfaceSet);
+  end;
+
+type
   TMainActiveMap = class(TConfigDataElementComplexBase, IMainActiveMap)
   private
     FMapsSet: IMapTypeSet;
     FMainMapChangeNotyfier: INotifierWithGUID;
-    FSingeMapsList: IGUIDInterfaceSet;
-    FActiveMap: IActiveMap;
-    FActiveMapsSet: IActiveMapsSet;
+    FActiveMap: IMapTypeChangeable;
+    FMapSingleSet: IActiveMapSingleSet;
+    FSingleSet: IGUIDInterfaceSet;
   protected
     property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
-    property SingeMapsList: IGUIDInterfaceSet read FSingeMapsList;
+    property SingleSet: IGUIDInterfaceSet read FSingleSet;
   protected
     procedure SelectMainByGUID(const AMapGUID: TGUID);
-    function GetActiveMap: IActiveMap;
-    function GetActiveMapsSet: IActiveMapsSet;
+    function GetActiveMap: IMapTypeChangeable;
+
+    function GetMapSingleSet: IActiveMapSingleSet;
+    function GetMapsSet: IMapTypeSet;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -76,37 +88,30 @@ var
   i: Cardinal;
   VMapType: IMapType;
   VSingleMap: IActiveMapSingle;
+  VSelected: IMapType;
 begin
   inherited Create;
   FMapsSet := AMapsSet;
   FMainMapChangeNotyfier := TNotifierWithGUID.Create;
-  FSingeMapsList := TGUIDInterfaceSet.Create(False);
+  FSingleSet := TGUIDInterfaceSet.Create(False);
+  FMapSingleSet := TActiveMapSingleSet.Create(FSingleSet);
+
+  FActiveMap := TMapTypeChangeableByNotifier.Create(FMainMapChangeNotyfier, FMapsSet);
+  Add(FActiveMap);
+  VSelected := FActiveMap.GetStatic;
 
   VEnun := FMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
-    VSingleMap := TActiveMapSingleMainMap.Create(VMapType, FMainMapChangeNotyfier);
-    FSingeMapsList.Add(VGUID, VSingleMap);
-    Add(VSingleMap, nil);
+    VSingleMap := TActiveMapSingleMainMap.Create(VMapType, VMapType = VSelected, FMainMapChangeNotyfier);
+    FSingleSet.Add(VGUID, VSingleMap);
   end;
-  FActiveMap := TActiveMapConfig.Create(FMainMapChangeNotyfier, FSingeMapsList, FMapsSet);
-  Add(FActiveMap, nil);
-
-  FActiveMapsSet := TActiveMapsSet.Create(
-    FMapsSet,
-    FSingeMapsList,
-    MainMapChangeNotyfier,
-    nil,
-    nil
-  );
-  Add(FActiveMapsSet, nil);
 end;
 
 destructor TMainActiveMap.Destroy;
 begin
   FMainMapChangeNotyfier := nil;
   FMapsSet := nil;
-  FSingeMapsList := nil;
   FActiveMap := nil;
   inherited;
 end;
@@ -142,19 +147,24 @@ var
   VGUID: TGUID;
 begin
   inherited;
-  VGUID := FActiveMap.GetSelectedGUID;
+  VGUID := FActiveMap.GetStatic.GUID;
   VGUIDString := GUIDToString(VGUID);
   AConfigData.WriteString(CKeyNameMap, VGUIDString);
 end;
 
-function TMainActiveMap.GetActiveMap: IActiveMap;
+function TMainActiveMap.GetActiveMap: IMapTypeChangeable;
 begin
   Result := FActiveMap;
 end;
 
-function TMainActiveMap.GetActiveMapsSet: IActiveMapsSet;
+function TMainActiveMap.GetMapSingleSet: IActiveMapSingleSet;
 begin
-  Result := FActiveMapsSet;
+  Result := FMapSingleSet;
+end;
+
+function TMainActiveMap.GetMapsSet: IMapTypeSet;
+begin
+  Result := FMapsSet;
 end;
 
 procedure TMainActiveMap.SelectMainByGUID(const AMapGUID: TGUID);
@@ -167,6 +177,20 @@ begin
       UnlockWrite;
     end;
   end;
+end;
+
+{ TActiveMapSingleSet }
+
+constructor TActiveMapSingleSet.Create(ASet: IGUIDInterfaceSet);
+begin
+  inherited Create;
+  FSet := ASet;
+end;
+
+function TActiveMapSingleSet.GetMapSingle(
+  const AMapGUID: TGUID): IActiveMapSingle;
+begin
+  Result := IActiveMapSingle(FSet.GetByGUID(AMapGUID));
 end;
 
 end.

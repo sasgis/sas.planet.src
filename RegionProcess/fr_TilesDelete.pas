@@ -174,7 +174,7 @@ begin
   end;
   cbbZoom.ItemIndex := AZoom;
 
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   cbbMap.items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   For i := 0 to VGUIDList.Count-1 do begin

@@ -292,6 +292,7 @@ var
   I: Integer;
   VMapType: TMapType;
   VActiveMapGUID: TGUID;
+  VActiveLayers: IMapTypeSet;
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
@@ -310,8 +311,9 @@ begin
   cbbTileRes.ItemIndex := 0; // 128*128 pix
   cbbImageFormat.ItemIndex := 2; // JPEG
 
-  cbbHyb.Items.AddObject(SAS_STR_No, nil);   
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+  cbbHyb.Items.AddObject(SAS_STR_No, nil);
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
+  VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   for I := 0 to VGUIDList.Count-1 do begin
     VGUID := VGUIDList.Items[I];
@@ -325,7 +327,7 @@ begin
       end else if(VMapType.IsHybridLayer) then begin
         VAddedIndex := cbbHyb.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
         if (cbbHyb.ItemIndex = -1) then begin
-          if FMainMapsConfig.GetActiveLayersSet.IsGUIDSelected(VGUID) then begin
+          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
             cbbHyb.ItemIndex := VAddedIndex;
           end;
         end;

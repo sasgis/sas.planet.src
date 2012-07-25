@@ -261,7 +261,7 @@ begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetSelectedGUID;
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   cbbMap.items.Clear;
   LFoldersName.items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;

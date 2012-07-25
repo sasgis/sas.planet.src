@@ -42,7 +42,7 @@ type
     function GetMapType: IMapType;
     function GetIsActive: Boolean;
   public
-    constructor Create(const AMapType: IMapType);
+    constructor Create(const AMapType: IMapType; AIsActive: Boolean);
     destructor Destroy; override;
   end;
 
@@ -55,6 +55,7 @@ type
   public
     constructor Create(
       const AMapType: IMapType;
+      AIsActive: Boolean;
       const AMainMapChangeNotyfier: INotifier
     );
     destructor Destroy; override;
@@ -87,9 +88,10 @@ uses
 
 { TActiveMapSingleAbstract }
 
-constructor TActiveMapSingleAbstract.Create(const AMapType: IMapType);
+constructor TActiveMapSingleAbstract.Create(const AMapType: IMapType; AIsActive: Boolean);
 begin
   inherited Create;
+  FIsActive := AIsActive;
   FMapType := AMapType;
   if FMapType <> nil then begin
     FMapGUID := FMapType.GUID;
@@ -136,10 +138,11 @@ end;
 
 constructor TActiveMapSingleMainMap.Create(
   const AMapType: IMapType;
+  AIsActive: Boolean;
   const AMainMapChangeNotyfier: INotifier
 );
 begin
-  inherited Create(AMapType);
+  inherited Create(AMapType, AIsActive);
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
   FMainMapChangeNotyfier.Add(FMainMapListener);
@@ -165,7 +168,7 @@ constructor TActiveMapSingleLayer.Create(
   const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
 begin
-  inherited Create(AMapType);
+  inherited Create(AMapType, False);
   FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;
   FLayerSetSelectListener := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetSelectChange);
   FLayerSetSelectNotyfier.Add(FLayerSetSelectListener);
