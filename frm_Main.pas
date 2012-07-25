@@ -717,6 +717,7 @@ uses
   u_MapType,
   u_MapLayerWiki,
   u_MiniMapLayer,
+  u_MiniMapLayerNew,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
   u_MiniMapLayerLeftBorder,
@@ -1681,7 +1682,7 @@ begin
       );
     if FConfig.MainConfig.UseNewMainLayer then begin
       FLayersList.Add(
-        TMapMainLayerNew.Create(
+        TMiniMapLayerNew.Create(
           GState.PerfCounterList,
           GState.AppStartedNotifier,
           GState.AppClosingNotifier,
@@ -1690,6 +1691,7 @@ begin
           VMiniMapConverterChangeable,
           GState.ImageResamplerConfig,
           GState.LocalConverterFactory,
+          FConfig.LayersConfig.MiniMapLayerConfig,
           FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
           TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
           GState.BitmapPostProcessingConfig,
