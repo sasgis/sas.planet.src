@@ -6,8 +6,8 @@ object frmCacheManager: TfrmCacheManager
   ClientWidth = 572
   Color = clBtnFace
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 13

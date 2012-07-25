@@ -9,8 +9,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Constraints.MinHeight = 332
   Constraints.MinWidth = 264
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poMainFormCenter
   ShowHint = True
   OnCanResize = FormCanResize
@@ -62,8 +62,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Caption = 'Images available'
     Constraints.MinHeight = 144
     TabOrder = 1
-    ExplicitTop = 97
-    ExplicitHeight = 301
     object tvFound: TTreeView
       AlignWithMargins = True
       Left = 5
@@ -82,7 +80,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnClick = tvFoundClick
       OnDeletion = tvFoundDeletion
       OnMouseDown = tvFoundMouseDown
-      ExplicitHeight = 278
     end
     object pnlRight: TPanel
       Left = 173
@@ -92,7 +89,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 284
       object btnUp: TButton
         AlignWithMargins = True
         Left = 3

@@ -7,8 +7,8 @@ object frmStartLogo: TfrmStartLogo
   ClientWidth = 480
   Color = clBtnFace
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poScreenCenter
   Scaled = False
   OnClose = FormClose

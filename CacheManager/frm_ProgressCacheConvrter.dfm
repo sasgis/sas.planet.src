@@ -7,8 +7,8 @@ object frmProgressCacheConverter: TfrmProgressCacheConverter
   ClientWidth = 315
   Color = clBtnFace
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poScreenCenter
   ScreenSnap = True
   ShowHint = True

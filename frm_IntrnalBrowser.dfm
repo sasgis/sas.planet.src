@@ -6,8 +6,8 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
   ClientWidth = 554
   Color = clBtnFace
   ParentFont = True
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  PopupMode = pmAuto
   Position = poDefault
   OnClose = FormClose
   OnCreate = FormCreate
@@ -23,7 +23,6 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
     Height = 306
     Align = alClient
     TabOrder = 0
-    Silent = False
     OnBeforeNavigate2 = EmbeddedWB1BeforeNavigate2
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
