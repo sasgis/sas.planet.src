@@ -70,8 +70,6 @@ uses
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,
-  i_ConfigDataElement,
-  u_GUIDInterfaceSet,
   u_MapTypeSet,
   u_ActiveMapSingleAbstract,
   u_ActiveMapsSet;
@@ -115,7 +113,6 @@ begin
     );
     SingleSet.Add(VGUID, VSingleMap);
   end;
-
 
   FAllMapsSet := VAllMapsList;
 

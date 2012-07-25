@@ -26,8 +26,7 @@ uses
   i_Notifier,
   i_StaticTreeItem,
   i_MapTypes,
-  i_TreeChangeable,
-  i_ActiveMapsConfig;
+  i_TreeChangeable;
 
 type
   TTreeByMapActiveMapsSet = class(TInterfacedObject, ITreeChangeable)

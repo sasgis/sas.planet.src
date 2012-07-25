@@ -25,7 +25,6 @@ interface
 uses
   i_Notifier,
   i_Listener,
-  i_ActiveMapsConfig,
   i_MapTypes,
   i_FillingMapLayerConfig,
   u_MainActiveMap;

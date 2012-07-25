@@ -36,7 +36,6 @@ uses
   i_LayerBitmapClearStrategy,
   i_LocalCoordConverter,
   i_MapTypes,
-  i_ActiveMapsConfig,
   i_ViewPortState,
   i_SimpleFlag,
   i_ImageResamplerConfig,

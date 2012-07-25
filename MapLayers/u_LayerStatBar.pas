@@ -18,7 +18,6 @@ uses
   i_ViewPortState,
   i_MouseState,
   i_MapTypes,
-  i_ActiveMapsConfig,
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
   i_GlobalInternetState,

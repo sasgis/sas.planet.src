@@ -28,7 +28,6 @@ uses
   SysUtils,
   t_FillingMapModes,
   i_LocalCoordConverter,
-  i_ActiveMapsConfig,
   i_ThreadConfig,
   i_MapTypes,
   i_ConfigDataProvider,

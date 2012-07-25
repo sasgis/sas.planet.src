@@ -8,8 +8,6 @@ uses
   i_NotifierOperation,
   i_TileError,
   i_BitmapPostProcessingConfig,
-  i_ActiveMapsConfig,
-  i_MainMapLayerConfig,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
@@ -19,7 +17,6 @@ uses
   i_MapTypes,
   i_MapTypeListChangeable,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_ImageResamplerConfig,
   u_TiledLayerWithThreadBase;
 
@@ -66,7 +63,6 @@ uses
   i_TileMatrix,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_MapTypeListChangeableActiveBitmapLayers,
   u_BitmapLayerProviderForViewMaps;
 
 { TMapMainLayerNew }

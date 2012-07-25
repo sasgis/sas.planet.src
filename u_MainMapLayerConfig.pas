@@ -3,8 +3,6 @@ unit u_MainMapLayerConfig;
 interface
 
 uses
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_ThreadConfig,
   i_MainMapLayerConfig,
   i_UseTilePrevZoomConfig,

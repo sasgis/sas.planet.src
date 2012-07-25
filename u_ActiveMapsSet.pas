@@ -25,9 +25,7 @@ interface
 uses
   i_Notifier,
   i_Listener,
-  i_GUIDSet,
   i_MapTypes,
-  i_ActiveMapsConfig,
   u_ConfigDataElementBase;
 
 type
@@ -82,7 +80,6 @@ implementation
 
 uses
   ActiveX,
-  c_ZeroGUID,
   u_MapTypeSet,
   u_ListenerByEvent,
   u_NotifyWithGUIDEvent;

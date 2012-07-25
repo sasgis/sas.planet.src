@@ -27,9 +27,7 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
-  i_GUIDSet,
   i_MapTypes,
-  i_ActiveMapsConfig,
   u_ConfigDataElementBase;
 
 type
@@ -55,7 +53,6 @@ implementation
 
 uses
   ActiveX,
-  c_ZeroGUID,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapConfigNew }

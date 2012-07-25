@@ -73,7 +73,6 @@ uses
   ActiveX,
   u_GUIDInterfaceSet,
   u_ActiveMapSingleAbstract,
-  u_ActiveMapsSet,
   u_ActiveMapConfig;
 
 const

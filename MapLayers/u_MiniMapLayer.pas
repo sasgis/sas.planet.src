@@ -23,7 +23,6 @@ unit u_MiniMapLayer;
 interface
 
 uses
-  Windows,
   SysUtils,
   GR32,
   GR32_Image,
@@ -32,7 +31,6 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_MapTypes,
-  i_ActiveMapsConfig,
   i_BackgroundTask,
   i_InternalPerformanceCounter,
   i_LayerBitmapClearStrategy,
@@ -48,7 +46,6 @@ uses
   i_MiniMapLayerConfig,
   i_BitmapPostProcessingConfig,
   i_UseTilePrevZoomConfig,
-  u_MapType,
   u_WindowLayerWithPos;
 
 type
@@ -130,7 +127,6 @@ type
 implementation
 
 uses
-  ActiveX,
   Types,
   GR32_Resamplers,
   u_Synchronizer,
@@ -139,7 +135,6 @@ uses
   i_TileIterator,
   i_Bitmap32Static,
   u_ListenerByEvent,
-  u_MapTypeListStatic,
   u_BitmapLayerProviderForViewMaps,
   u_BackgroundTask,
   u_TileIteratorSpiralByRect;

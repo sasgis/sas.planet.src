@@ -5,7 +5,6 @@ interface
 uses
   i_Listener,
   i_MapTypes,
-  i_ActiveMapsConfig,
   u_ConfigDataElementBase;
 
 type

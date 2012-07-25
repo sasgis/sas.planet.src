@@ -23,8 +23,6 @@ unit u_MainMapsConfig;
 interface
 
 uses
-  i_Notifier,
-  i_Listener,
   i_ActiveMapsConfig,
   i_MapTypes,
   u_ActivMapWithLayers;
@@ -49,8 +47,6 @@ implementation
 
 uses
   ActiveX,
-  i_ConfigDataElement,
-  u_NotifyWithGUIDEvent,
   u_MapTypeSet,
   u_ActiveMapsSet;
 

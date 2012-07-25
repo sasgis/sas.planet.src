@@ -6,7 +6,6 @@ uses
   i_Notifier,
   i_Listener,
   i_MapTypes,
-  i_ActiveMapsConfig,
   i_MapTypeListChangeable,
   u_ConfigDataElementBase;
 

@@ -7,7 +7,6 @@ uses
   i_StringListStatic,
   i_StringListChangeable,
   i_MapTypes,
-  i_MapTypeListChangeable,
   i_LanguageManager,
   u_ConfigDataElementBase;
 

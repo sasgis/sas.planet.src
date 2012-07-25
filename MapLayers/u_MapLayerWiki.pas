@@ -35,7 +35,6 @@ uses
   t_GeoTypes,
   i_MapTypes,
   i_NotifierOperation,
-  i_ActiveMapsConfig,
   i_ProjectionInfo,
   i_VectorItemProjected,
   i_VectorItmesFactory,
