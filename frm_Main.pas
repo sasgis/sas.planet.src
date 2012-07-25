@@ -710,6 +710,7 @@ uses
   i_GeoCoder,
   i_GPSRecorder,
   i_PathDetalizeProvider,
+  i_StringListChangeable,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
   u_GeoToStr,
@@ -721,6 +722,7 @@ uses
   u_MiniMapLayerLeftBorder,
   u_MiniMapLayerPlusButton,
   u_MiniMapLayerMinusButton,
+  u_LayerLicenseList,
   u_LayerStatBar,
   u_MapMainLayer,
   u_MapMainLayerNew,
@@ -775,6 +777,8 @@ uses
   u_TreeByPathDetalizeProviderList,
   u_MenuGeneratorByStaticTreeSimple,
   u_MapTypeListChangeableActiveBitmapLayers,
+  u_MapTypeSetChangeableBySourceSetWithFilter,
+  u_ActiveMapsLicenseList,
   u_NotifierOperation,
   u_MainFormState,
   u_PosFromGSM,
@@ -1108,6 +1112,7 @@ var
   VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
   VBitmap: IBitmap32Static;
   VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
+  VLicensList: IStringListChangeable;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
@@ -1634,6 +1639,20 @@ begin
         map,
         FConfig.ViewPortState,
         FConfig.LayersConfig.ScaleLineConfig
+      )
+    );
+    VLicensList :=
+      TActiveMapsLicenseList.Create(
+        GState.LanguageManager,
+        TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(FConfig.MainMapsConfig.GetAllActiveMapsSet)
+      );
+    FLayersList.Add(
+      TLayerLicenseList.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        VLicensList
       )
     );
     FLayersList.Add(

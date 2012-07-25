@@ -375,6 +375,7 @@
     <DCCReference Include="i_StringByLanguage.pas" />
     <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
+    <DCCReference Include="i_StringListChangeable.pas" />
     <DCCReference Include="i_StringListStatic.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_ThreadConfig.pas" />
@@ -434,6 +435,7 @@
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_FullMapMouseCursorLayer.pas" />
+    <DCCReference Include="MapLayers\u_LayerLicenseList.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
     <DCCReference Include="MapLayers\u_MapElementsGuidedList.pas" />
@@ -570,6 +572,7 @@
     <DCCReference Include="t_MapAttachments.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
+    <DCCReference Include="u_ActiveMapsLicenseList.pas" />
     <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
