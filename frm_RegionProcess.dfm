@@ -26,6 +26,10 @@ object frmRegionProcess: TfrmRegionProcess
     TabWidth = 92
     object TabSheet1: TTabSheet
       Caption = 'Download'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Tag = 1
@@ -62,42 +66,6 @@ object frmRegionProcess: TfrmRegionProcess
       ExplicitTop = 0
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object Bevel5: TBevel
-        Left = 0
-        Top = 0
-        Width = 564
-        Height = 31
-        Align = alTop
-        Shape = bsBottomLine
-        ExplicitWidth = 565
-      end
-      object Label9: TLabel
-        Left = 5
-        Top = 8
-        Width = 125
-        Height = 13
-        Caption = 'Export selection to format'
-      end
-      object CBFormat: TComboBox
-        Left = 220
-        Top = 4
-        Width = 249
-        Height = 21
-        Style = csDropDownList
-        DropDownCount = 11
-        ItemHeight = 0
-        TabOrder = 0
-        OnChange = CBFormatChange
-      end
-      object pnlExport: TPanel
-        Left = 0
-        Top = 31
-        Width = 564
-        Height = 220
-        Align = alClient
-        BevelOuter = bvNone
-        TabOrder = 1
-      end
     end
     object TabSheet6: TTabSheet
       Tag = 5

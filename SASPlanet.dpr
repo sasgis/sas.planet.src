@@ -837,6 +837,7 @@ uses
   u_ThreadCacheManagerAbstract in 'CacheManager\u_ThreadCacheManagerAbstract.pas',
   i_CacheConverterProgressInfo in 'CacheManager\i_CacheConverterProgressInfo.pas',
   u_CacheConverterProgressInfo in 'CacheManager\u_CacheConverterProgressInfo.pas',
+  fr_Export in 'RegionProcess\fr_Export.pas' {frExport: TFrame},
   fr_ExportYaMobileV3 in 'RegionProcess\fr_ExportYaMobileV3.pas' {frExportYaMobileV3: TFrame},
   u_ExportProviderYaMobileV3 in 'RegionProcess\u_ExportProviderYaMobileV3.pas',
   fr_ExportYaMobileV4 in 'RegionProcess\fr_ExportYaMobileV4.pas' {frExportYaMobileV4: TFrame},

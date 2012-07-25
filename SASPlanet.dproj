@@ -471,6 +471,10 @@
     <DCCReference Include="MapLayers\u_TiledLayerWithThreadBase.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
+    <DCCReference Include="RegionProcess\fr_Export.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExport</Form>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
       <DesignClass>TFrame</DesignClass>

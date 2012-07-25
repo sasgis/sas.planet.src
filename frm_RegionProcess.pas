@@ -59,7 +59,8 @@ uses
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
-  u_MarksSystem;
+  u_MarksSystem,
+  fr_Export;
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager)
@@ -70,22 +71,18 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
-    Bevel5: TBevel;
-    Label9: TLabel;
-    CBFormat: TComboBox;
     Button3: TButton;
     SpeedButton1: TSpeedButton;
     SaveSelDialog: TSaveDialog;
     CBCloseWithStart: TCheckBox;
     TabSheet6: TTabSheet;
-    pnlExport: TPanel;
     pnlBottomButtons: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
-    procedure CBFormatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    FfrExport: TfrExport;
     FVectorItmesFactory: IVectorItmesFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
@@ -101,20 +98,6 @@ type
     procedure scleitRECT(const APolyLL: ILonLatPolygon);
     procedure savefilesREG(const APolyLL: ILonLatPolygon);
     procedure ExportREG(const APolyLL: ILonLatPolygon);
-    procedure InitExportsList(
-      const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
-      const AMainMapsConfig: IMainMapsConfig;
-      const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList;
-      const ACoordConverterFactory: ICoordConverterFactory;
-      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ATileNameGenerator: ITileFileNameGeneratorsList
-    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -145,28 +128,16 @@ type
     procedure LoadSelFromFile(const FileName:string);
     procedure StartSlsFromFile(const AFileName:string);
     procedure Show_(Azoom:byte; const APolygon: ILonLatPolygon);
-    procedure RefreshTranslation; override;
   end;
 
 implementation
 
 uses
-  gnugettext,
   t_GeoTypes,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_GeoTostr,
-  u_ExportProviderYaMobileV3,
-  u_ExportProviderYaMobileV4,
-  u_ExportProviderGEKml,
-  u_ExportProviderIPhone,
-  u_ExportProviderAUX,
-  u_ExportProviderZip,
-  u_ExportProviderTar,
-  u_ExportProviderJNX,
-  u_ExportProviderOgf2,
-  u_ExportProviderCE,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -200,24 +171,24 @@ constructor TfrmRegionProcess.Create(
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  TP_Ignore(Self, 'CBFormat.Items');
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
   FVectorItmesFactory := AVectorItmesFactory;
-  InitExportsList(
-    ALanguageManager,
-    AAppClosingNotifier,
-    ATimerNoifier,
-    AMainMapsConfig,
-    AFullMapsSet,
-    AGUIConfigList,
-    ACoordConverterFactory,
-    ALocalConverterFactory,
-    AProjectionFactory,
-    AVectorItmesFactory,
-    ABitmapTileSaveLoadFactory,
-    ATileNameGenerator
-  );
+  FfrExport :=
+    TfrExport.Create(
+      ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      ACoordConverterFactory,
+      ALocalConverterFactory,
+      AProjectionFactory,
+      AVectorItmesFactory,
+      ABitmapTileSaveLoadFactory,
+      ATileNameGenerator
+    );
 
   FProviderTilesDelte :=
     TProviderTilesDelete.Create(
@@ -290,13 +261,8 @@ begin
 end;
 
 destructor TfrmRegionProcess.Destroy;
-var
-  i: Integer;
 begin
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    CBFormat.Items.Objects[i].Free;
-    CBFormat.Items.Objects[i] := nil;
-  end;
+  FreeAndNil(FfrExport);
   FreeAndNil(FProviderTilesDelte);
   FreeAndNil(FProviderTilesGenPrev);
   FreeAndNil(FProviderTilesCopy);
@@ -337,36 +303,15 @@ begin
   end
 end;
 
-procedure TfrmRegionProcess.RefreshTranslation;
-var
-  i: Integer;
-  VProvider: TExportProviderAbstract;
-  VIndex: Integer;
-begin
-  inherited;
-  VIndex := CBFormat.ItemIndex;
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    VProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
-    CBFormat.Items[i] := VProvider.GetCaption;
-  end;
-  CBFormat.ItemIndex := VIndex;
-end;
-
 procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
 begin
   FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.ExportREG(const APolyLL: ILonLatPolygon);
-var
-  VExportProvider: TExportProviderAbstract;
 begin
-  VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
-  if VExportProvider <> nil then begin
-    VExportProvider.StartProcess(APolyLL);
-  end;
+  FfrExport.StartProcess(APolyLL);
 end;
-
 
 procedure TfrmRegionProcess.savefilesREG(const APolyLL: ILonLatPolygon);
 begin
@@ -381,191 +326,6 @@ end;
 procedure TfrmRegionProcess.genbacksatREG(const APolyLL: ILonLatPolygon);
 begin
   FProviderTilesGenPrev.StartProcess(APolyLL);
-end;
-
-procedure TfrmRegionProcess.InitExportsList(
-  const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const ACoordConverterFactory: ICoordConverterFactory;
-  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ATileNameGenerator: ITileFileNameGeneratorsList
-);
-var
-  VExportProvider: TExportProviderAbstract;
-begin
-  VExportProvider :=
-    TExportProviderIPhone.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      ACoordConverterFactory,
-      ALocalConverterFactory,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ABitmapTileSaveLoadFactory,
-      True
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderIPhone.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      ACoordConverterFactory,
-      ALocalConverterFactory,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ABitmapTileSaveLoadFactory,
-      False
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderGEKml.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderYaMobileV3.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ABitmapTileSaveLoadFactory,
-      ALocalConverterFactory,
-      ACoordConverterFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderYaMobileV4.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ABitmapTileSaveLoadFactory,
-      ALocalConverterFactory,
-      ACoordConverterFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderAUX.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderZip.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ATileNameGenerator
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderTar.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ATileNameGenerator
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderJNX.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ABitmapTileSaveLoadFactory,
-      ACoordConverterFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-    VExportProvider :=
-    TExportProviderOgf2.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ABitmapTileSaveLoadFactory,
-      ALocalConverterFactory,
-      ACoordConverterFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  VExportProvider :=
-    TExportProviderCE.Create(
-      ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AProjectionFactory,
-      AVectorItmesFactory,
-      ACoordConverterFactory
-    );
-  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
-
-  CBFormat.ItemIndex := 0;
 end;
 
 procedure TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon);
@@ -590,27 +350,16 @@ begin
 end;
 
 procedure TfrmRegionProcess.Show_(Azoom:byte; const APolygon: ILonLatPolygon);
-var
-  i:integer;
-  VExportProvider: TExportProviderAbstract;
 begin
   FZoom_rect:=Azoom;
   FPolygonLL := APolygon;
-
   FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
-    if VExportProvider <> nil then begin
-      VExportProvider.Show(pnlExport, FZoom_rect, FPolygonLL);
-    end;
-  end;
   Self.Show;
 end;
 
-
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
-  CBFormatChange(CBFormat);
+  FfrExport.Show(TabSheet5, FZoom_rect, FPolygonLL);
   FProviderTilesDelte.Show(TabSheet4, FZoom_rect, FPolygonLL);
   FProviderTilesGenPrev.Show(TabSheet3, FZoom_rect, FPolygonLL);
   FProviderTilesCopy.Show(TabSheet6, FZoom_rect, FPolygonLL);
@@ -664,23 +413,6 @@ end;
 procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);
 begin
   FProviderTilesDownload.StartBySLS(AFileName);
-end;
-
-procedure TfrmRegionProcess.CBFormatChange(Sender: TObject);
-var
-  VExportProvider: TExportProviderAbstract;
-  i: Integer;
-begin
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[i]);
-    if VExportProvider <> nil then begin
-      if i = CBFormat.ItemIndex then begin
-        VExportProvider.Show(pnlExport, FZoom_rect, FPolygonLL);
-      end else begin
-        VExportProvider.Hide;
-      end;
-    end;
-  end;
 end;
 
 end.
