@@ -9,7 +9,7 @@ object frmProgressSimple: TfrmProgressSimple
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate

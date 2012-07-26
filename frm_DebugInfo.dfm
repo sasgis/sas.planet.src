@@ -12,7 +12,7 @@ object frmDebugInfo: TfrmDebugInfo
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96

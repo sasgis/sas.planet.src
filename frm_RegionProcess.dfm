@@ -9,7 +9,7 @@ object frmRegionProcess: TfrmRegionProcess
   Constraints.MinWidth = 580
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   Position = poMainFormCenter
   ShowHint = True
   OnShow = FormShow
@@ -26,10 +26,6 @@ object frmRegionProcess: TfrmRegionProcess
     TabWidth = 92
     object TabSheet1: TTabSheet
       Caption = 'Download'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Tag = 1

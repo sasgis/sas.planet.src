@@ -7,7 +7,7 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   Position = poDefault
   OnClose = FormClose
   OnCreate = FormCreate

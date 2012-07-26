@@ -1,21 +1,18 @@
 object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
-  BorderStyle = bsSizeToolWin
   Caption = 'Please wait...'
-  ClientHeight = 241
+  ClientHeight = 233
   ClientWidth = 328
   Color = clBtnFace
   Constraints.MinHeight = 243
   Constraints.MinWidth = 336
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
-  Position = poScreenCenter
-  ScreenSnap = True
+  PopupMode = pmExplicit
+  Position = poMainFormCenter
   ShowHint = True
   OnClose = FormClose
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -23,7 +20,7 @@ object frmProgressDownload: TfrmProgressDownload
     Left = 3
     Top = 3
     Width = 322
-    Height = 235
+    Height = 227
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -33,7 +30,7 @@ object frmProgressDownload: TfrmProgressDownload
       Left = 3
       Top = 3
       Width = 316
-      Height = 84
+      Height = 76
       Align = alClient
       ReadOnly = True
       ScrollBars = ssBoth
@@ -41,7 +38,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlBottom: TPanel
       Left = 0
-      Top = 209
+      Top = 201
       Width = 322
       Height = 26
       Margins.Top = 0
@@ -98,7 +95,7 @@ object frmProgressDownload: TfrmProgressDownload
     object pnlProgress: TPanel
       AlignWithMargins = True
       Left = 5
-      Top = 175
+      Top = 167
       Width = 312
       Height = 17
       Margins.Left = 5
@@ -111,7 +108,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object chkAutoCloseWhenFinish: TCheckBox
       Left = 0
-      Top = 192
+      Top = 184
       Width = 322
       Height = 17
       Align = alBottom
@@ -120,7 +117,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlToProcess: TPanel
       Left = 0
-      Top = 90
+      Top = 82
       Width = 322
       Height = 17
       Align = alBottom
@@ -154,7 +151,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlProcessed: TPanel
       Left = 0
-      Top = 107
+      Top = 99
       Width = 322
       Height = 17
       Align = alBottom
@@ -188,7 +185,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlDownloaded: TPanel
       Left = 0
-      Top = 124
+      Top = 116
       Width = 322
       Height = 17
       Align = alBottom
@@ -222,7 +219,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlSizeToFinish: TPanel
       Left = 0
-      Top = 158
+      Top = 150
       Width = 322
       Height = 17
       Align = alBottom
@@ -256,7 +253,7 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlTimeToFinish: TPanel
       Left = 0
-      Top = 141
+      Top = 133
       Width = 322
       Height = 17
       Align = alBottom

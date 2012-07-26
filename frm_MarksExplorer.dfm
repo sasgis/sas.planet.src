@@ -9,7 +9,7 @@ object frmMarksExplorer: TfrmMarksExplorer
   Constraints.MinWidth = 406
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   Position = poDefault
   ShowHint = True
   OnActivate = FormActivate

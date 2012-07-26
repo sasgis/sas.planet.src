@@ -7,7 +7,7 @@ object frmCacheManager: TfrmCacheManager
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 13

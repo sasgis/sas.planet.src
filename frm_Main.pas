@@ -843,6 +843,7 @@ begin
       GState.DownloadInfo,
       GState.ValueToStringConverterConfig
     );
+  FFormRegionProcess.PopupParent := Self;
   FfrmGoTo :=
     TfrmGoTo.Create(
       GState.LanguageManager,
@@ -862,7 +863,7 @@ begin
       GState.PerfCounterList,
       GState.ValueToStringConverterConfig
     );
-
+  FfrmCacheManager.PopupParent := Self;
   FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
 
   LoadMapIconsList;
@@ -2018,6 +2019,7 @@ begin
         FMarkDBGUI,
         FMapGoto
       );
+    FfrmMarksExplorer.PopupParent := Self;
 
     FLinksList.ActivateLinks;
     GState.StartThreads;

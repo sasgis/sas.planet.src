@@ -10,7 +10,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Constraints.MinWidth = 264
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmAuto
+  PopupMode = pmExplicit
   Position = poMainFormCenter
   ShowHint = True
   OnCanResize = FormCanResize

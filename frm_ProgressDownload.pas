@@ -31,6 +31,8 @@ uses
   StdCtrls,
   Controls,
   Classes,
+  Buttons,
+  ComCtrls,
   DateUtils,
   RarProgress,
   u_CommonFormAndFrameParents,
@@ -70,7 +72,6 @@ type
     procedure btnCloseClick(Sender: TObject);
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure UpdateTimerTimer(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -83,19 +84,17 @@ type
     FStoped: boolean;
     FFinished: Boolean;
     FProgress: TRarProgress;
-    procedure InitProgressForm;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
     function GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
     function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
-    procedure StopThread;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       ADownloadThread: TThreadDownloadTiles;
       const ALog: ILogSimpleProvider
-    ); reintroduce; virtual;
+    ); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -110,36 +109,6 @@ uses
   u_ConfigDataWriteProviderByIniFile;
 
 {$R *.dfm}
-
-procedure TfrmProgressDownload.btnCloseClick(Sender: TObject);
-begin
-  FDownloadThread.Terminate;
-  UpdateTimer.Enabled := false;
-  Close;
-end;
-
-procedure TfrmProgressDownload.btnMinimizeClick(Sender: TObject);
-begin
-  Perform(wm_SysCommand, SC_MINIMIZE, 0)
-end;
-
-procedure TfrmProgressDownload.btnPauseClick(Sender: TObject);
-begin
-  if FStoped then begin
-    FDownloadThread.DownloadResume;
-    FStoped := false;
-    btnPause.Caption := SAS_STR_Pause;
-  end else begin
-    FDownloadThread.DownloadPause;
-    FStoped := true;
-    btnPause.Caption := SAS_STR_Continue;
-  end
-end;
-
-procedure TfrmProgressDownload.FormCreate(Sender: TObject);
-begin
-  FFinished := False;
-end;
 
 constructor TfrmProgressDownload.Create(
   const ALanguageManager: ILanguageManager;
@@ -174,19 +143,6 @@ begin
   end;
   FProgress.Parent := pnlProgress;
   FProgress.Align := alClient;
-  InitProgressForm;
-end;
-
-destructor TfrmProgressDownload.Destroy;
-begin
-  StopThread;
-  FreeAndNil(FDownloadThread);
-  FLog := nil;
-  FreeAndNil(FProgress);
-  inherited;
-end;
-procedure TfrmProgressDownload.InitProgressForm;
-begin
   FProgress.Max := FDownloadThread.TotalInRegion;
   FProgress.Progress1 := FDownloadThread.Downloaded;
   FProgress.Progress2 := FDownloadThread.Processed;
@@ -197,7 +153,42 @@ begin
     FStoped := false;
     btnPause.Caption := SAS_STR_Pause;
   end;
-  Visible:=true;
+  FFinished := False;
+end;
+
+destructor TfrmProgressDownload.Destroy;
+begin
+  FDownloadThread.Terminate;
+  Application.ProcessMessages;
+  FreeAndNil(FDownloadThread);
+  FLog := nil;
+  FreeAndNil(FProgress);
+  inherited;
+end;
+
+procedure TfrmProgressDownload.btnCloseClick(Sender: TObject);
+begin
+  FDownloadThread.Terminate;
+  UpdateTimer.Enabled := false;
+  Close;
+end;
+
+procedure TfrmProgressDownload.btnMinimizeClick(Sender: TObject);
+begin
+  Perform(wm_SysCommand, SC_MINIMIZE, 0)
+end;
+
+procedure TfrmProgressDownload.btnPauseClick(Sender: TObject);
+begin
+  if FStoped then begin
+    FDownloadThread.DownloadResume;
+    FStoped := false;
+    btnPause.Caption := SAS_STR_Pause;
+  end else begin
+    FDownloadThread.DownloadPause;
+    FStoped := true;
+    btnPause.Caption := SAS_STR_Continue;
+  end
 end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
@@ -327,12 +318,6 @@ begin
   FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
   Action := caFree;
-end;
-
-procedure TfrmProgressDownload.StopThread;
-begin
-  FDownloadThread.Terminate;
-  Application.ProcessMessages;
 end;
 
 end.

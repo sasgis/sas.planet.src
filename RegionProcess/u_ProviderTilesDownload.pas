@@ -140,6 +140,7 @@ var
   VSessionSection: IConfigDataProvider;
   VLog: TLogSimpleProvider;
   VThread: TThreadDownloadTiles;
+  VForm: TfrmProgressDownload;
 begin
   VIni := TMemIniFile.Create(AFileName);
   VSLSData := TConfigDataProviderByIniFile.Create(VIni);
@@ -156,12 +157,14 @@ begin
       FDownloadConfig,
       FDownloadInfo
     );
-  TfrmProgressDownload.Create(
+  VForm := TfrmProgressDownload.Create(
     LanguageManager,
     FValueToStringConverterConfig,
     VThread,
     VLog
   );
+  Application.ProcessMessages;
+  VForm.Show;
 end;
 
 procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon);
@@ -172,6 +175,7 @@ var
   VThread: TThreadDownloadTiles;
   VProjectedPolygon: IProjectedPolygon;
   VForAttachments: Boolean;
+  VForm: TfrmProgressDownload;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
@@ -200,12 +204,13 @@ begin
     (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
     VForAttachments
   );
-  TfrmProgressDownload.Create(
+  VForm := TfrmProgressDownload.Create(
     Self.LanguageManager,
     FValueToStringConverterConfig,
     VThread,
     VLog
   );
+  VForm.Show;
 end;
 
 end.
