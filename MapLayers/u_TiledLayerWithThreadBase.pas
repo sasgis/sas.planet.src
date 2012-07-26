@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   GR32,
   GR32_Image,
   GR32_Layers,
@@ -38,7 +39,7 @@ type
     FLayerProvider: IBitmapLayerProvider;
     FLayerProviderCS: IReadWriteSync;
 
-    FLayer: TCustomLayer;
+    FLayer: TPositionedLayer;
 
     FDrawTask: IBackgroundTask;
     FRectUpdateListener: IListener;
@@ -175,7 +176,8 @@ begin
     AAppClosingNotifier
   );
   FUpdateLayerProviderOnPosChange := AUpdateLayerProviderOnPosChange;
-  FLayer := TCustomLayer.Create(AParentMap.Layers);
+  FLayer := TPositionedLayer.Create(AParentMap.Layers);
+  FLayer.MouseEvents := False;
   FImageResamplerConfig := AResamplerConfig;
   FTileMatrixFactory := ATileMatrixFactory;
   FView := AView;
@@ -340,10 +342,16 @@ begin
 end;
 
 procedure TTiledLayerWithThreadBase.OnPosChange;
+var
+  VLocation: TFloatRect;
 begin
   ViewUpdateLock;
   try
     SetNeedUpdateTileMatrix;
+    VLocation := FloatRect(FPosition.GetStatic.GetLocalRect);
+    if not EqualRect(FLayer.Location, VLocation) then begin
+      FLayer.Location := VLocation;
+    end;
   finally
     ViewUpdateUnlock
   end;
@@ -555,6 +563,7 @@ var
   VDstRect: TRect;
   VCounterContext: TInternalPerformanceCounterContext;
   VMapPixelRect: TDoubleRect;
+  VClipedDstRect: TRect;
 begin
   inherited;
   VConverter := ALocalConverter.GeoConverter;
@@ -574,9 +583,15 @@ begin
     while VTileIterator.Next(VTile) do begin
       VElement := ATileMatrix.GetElementByTile(VTile);
       if VElement <> nil then begin
-        VBitmap := VElement.GetBitmapForShow;
+        VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel);
+        IntersectRect(VTileRectInClipRect, VDstRect, ABuffer.ClipRect);
+
+        if ABuffer.MeasuringMode or not EqualRect(VDstRect, VClipedDstRect) then begin
+          VBitmap := VElement.GetBitmap;
+        end else begin
+          VBitmap := VElement.GetBitmapForShow;
+        end;
         if VBitmap <> nil then begin
-          VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel);
           if not ABuffer.MeasuringMode then begin
             if VResampler = nil then begin
               VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
@@ -600,6 +615,8 @@ begin
           end else begin
             ABuffer.Changed(VDstRect);
           end;
+        end else begin
+          ABuffer.Changed(VDstRect);
         end;
       end;
     end;
