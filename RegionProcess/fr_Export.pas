@@ -25,10 +25,10 @@ uses
 
 type
   TfrExport = class(TFrame)
-    Bevel5: TBevel;
     Label9: TLabel;
     CBFormat: TComboBox;
     pnlExport: TPanel;
+    pnlTop: TPanel;
     procedure CBFormatChange(Sender: TObject);
   private
     FZoom: byte;
