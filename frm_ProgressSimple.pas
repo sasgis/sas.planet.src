@@ -166,6 +166,7 @@ procedure TfrmProgressSimple.FormClose(Sender: TObject; var Action:
 begin
   CancelOperation;
   Action := caFree;
+  Application.MainForm.SetFocus;
 end;
 
 procedure TfrmProgressSimple.FormKeyUp(Sender: TObject; var Key: Word;
