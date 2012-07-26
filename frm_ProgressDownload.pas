@@ -318,6 +318,7 @@ begin
   FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
   Action := caFree;
+  Application.MainForm.SetFocus;
 end;
 
 end.
