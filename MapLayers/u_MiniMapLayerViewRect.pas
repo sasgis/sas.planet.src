@@ -40,10 +40,10 @@ uses
   i_MapTypeIconsList,
   i_ViewPortState,
   i_MapTypeGUIConfigList,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TMiniMapLayerViewRect = class(TWindowLayerAbstract)
+  TMiniMapLayerViewRect = class(TWindowLayerWithLocationBase)
   private
     FParentMap: TImage32;
     FConfig: IMiniMapLayerConfig;
@@ -56,18 +56,12 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
 
-    FLayer: TPositionedLayer;
     procedure OnConfigChange;
     procedure OnPosChange;
     procedure DrawMainViewRect(
       ABuffer: TBitmap32;
       const AMiniMapConverter: ILocalCoordConverter;
       const AViewConverter: ILocalCoordConverter
-    );
-
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
     );
 
     procedure LayerMouseDown(
@@ -91,10 +85,10 @@ type
     procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
-    procedure UpdateLayerLocation(
-      const AMiniMapRect: TRect
-    );
   protected
+    procedure DoUpdateLayerVisibility; override;
+    function GetNewLayerLocation: TFloatRect; override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -138,7 +132,8 @@ begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier
+    AAppClosingNotifier,
+    TPositionedLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
   FParentMap := AParentMap;
@@ -146,14 +141,10 @@ begin
   FViewPortState := AViewPortState;
   FGUIConfigList := AGUIConfigList;
   FIconsList := AIconsList;
-  
-  FLayer := TPositionedLayer.Create(AParentMap.Layers);
-  FLayer.Visible := False;
-  FLayer.MouseEvents := false;
-  FLayer.OnMouseDown := LayerMouseDown;
-  FLayer.OnMouseUp := LayerMouseUP;
-  FLayer.OnMouseMove := LayerMouseMove;
-  FLayer.OnPaint := OnPaintLayer;
+
+  Layer.OnMouseDown := LayerMouseDown;
+  Layer.OnMouseUp := LayerMouseUP;
+  Layer.OnMouseMove := LayerMouseMove;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -219,6 +210,12 @@ begin
   VLayersSubMenu := VSubMenuItem;
 
   BuildMapsListUI(FPopup.Items, VLayersSubMenu);
+end;
+
+procedure TMiniMapLayerViewRect.DoUpdateLayerVisibility;
+begin
+  inherited;
+  Layer.MouseEvents := Visible;
 end;
 
 procedure TMiniMapLayerViewRect.DrawMainViewRect(
@@ -297,6 +294,18 @@ begin
   end;
 end;
 
+function TMiniMapLayerViewRect.GetNewLayerLocation: TFloatRect;
+var
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FPosition.GetStatic;
+  if Visible and (VLocalConverter <> nil) then begin
+    Result := FloatRect(VLocalConverter.GetLocalRect);
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
+  end;
+end;
+
 procedure TMiniMapLayerViewRect.LayerMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
@@ -313,7 +322,7 @@ begin
       VVisibleCenter := RectCenter(VLocalConverter.GetLocalRect);
       FPosMoved := True;
       FViewRectMoveDelta := DoublePoint(X - VVisibleCenter.X, Y - VVisibleCenter.Y);
-      FLayer.Changed;
+      Layer.Changed;
     end;
   end;
 end;
@@ -345,7 +354,7 @@ begin
       FViewRectMoveDelta.Y := Y - VVisibleCenter.Y;
     end;
 
-    FLayer.Changed;
+    Layer.Changed;
   end;
 end;
 
@@ -359,7 +368,7 @@ var
   VLonLat: TDoublePoint;
 begin
   if FPosMoved then begin
-    if FLayer.HitTest(X, Y) then begin
+    if Layer.HitTest(X, Y) then begin
       VLocalConverter := FPosition.GetStatic;
       VConverter := VLocalConverter.GetGeoConverter;
       VZoom := VLocalConverter.GetZoom;
@@ -372,7 +381,7 @@ begin
       FViewPortState.ChangeLonLat(VLonLat);
     end else begin
       FViewRectMoveDelta := DoublePoint(0, 0);
-      FLayer.Changed;
+      Layer.Changed;
     end;
   end;
   FPosMoved := False;
@@ -426,58 +435,37 @@ begin
 end;
 
 procedure TMiniMapLayerViewRect.OnConfigChange;
-var
-  VLocalConverter: ILocalCoordConverter;
 begin
-  if FConfig.Visible then begin
-    FLayer.Visible := True;
-    FLayer.MouseEvents := True;
-    VLocalConverter := FPosition.GetStatic;
-    if VLocalConverter <> nil then begin
-      UpdateLayerLocation(VLocalConverter.GetLocalRect);
-      FLayer.Changed;
-    end;
-  end else begin
-    FLayer.Visible := False;
-    FLayer.MouseEvents := False;
-  end;
-end;
-
-procedure TMiniMapLayerViewRect.OnPaintLayer(
-  Sender: TObject;
-  Buffer: TBitmap32
-);
-var
-  VMiniMapConverter: ILocalCoordConverter;
-  VViewConverter: ILocalCoordConverter;
-  VOldClipRect: TRect;
-  VNewClipRect: TRect;
-begin
-  VMiniMapConverter := FPosition.GetStatic;
-  VViewConverter := FViewPortState.Position.GetStatic;
-  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) then begin
-    VOldClipRect := Buffer.ClipRect;
-    if IntersectRect(VNewClipRect, VOldClipRect, VMiniMapConverter.GetLocalRect) then begin
-      Buffer.ClipRect := VNewClipRect;
-      try
-        DrawMainViewRect(Buffer, VMiniMapConverter, VViewConverter);
-      finally
-        Buffer.ClipRect := VOldClipRect;
-      end;
-    end;
+  ViewUpdateLock;
+  try
+    Visible := FConfig.Visible;
+    SetNeedUpdateLayerLocation;
+    SetNeedFullRepaintLayer;
+  finally
+    ViewUpdateUnlock;
   end;
 end;
 
 procedure TMiniMapLayerViewRect.OnPosChange;
-var
-  VLocalConverter: ILocalCoordConverter;
 begin
-  if FConfig.Visible then begin
-    VLocalConverter := FPosition.GetStatic;
-    if VLocalConverter <> nil then begin
-      UpdateLayerLocation(VLocalConverter.GetLocalRect);
-      FLayer.Changed;
-    end;
+  ViewUpdateLock;
+  try
+    SetNeedUpdateLayerLocation;
+    SetNeedFullRepaintLayer;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
+procedure TMiniMapLayerViewRect.PaintLayer(ABuffer: TBitmap32);
+var
+  VMiniMapConverter: ILocalCoordConverter;
+  VViewConverter: ILocalCoordConverter;
+begin
+  VMiniMapConverter := FPosition.GetStatic;
+  VViewConverter := FViewPortState.Position.GetStatic;
+  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) then begin
+    DrawMainViewRect(ABuffer, VMiniMapConverter, VViewConverter);
   end;
 end;
 
@@ -485,18 +473,6 @@ procedure TMiniMapLayerViewRect.StartThreads;
 begin
   inherited;
   OnConfigChange;
-end;
-
-procedure TMiniMapLayerViewRect.UpdateLayerLocation(
-  const AMiniMapRect: TRect
-);
-var
-  VLocation: TFloatRect;
-begin
-  VLocation := FloatRect(AMiniMapRect);
-  if not EqualRect(FLayer.Location, VLocation) then begin
-    FLayer.Location := VLocation;
-  end;
 end;
 
 end.

@@ -22,10 +22,10 @@ uses
   i_TileMatrix,
   i_BackgroundTask,
   i_InternalPerformanceCounter,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TTiledLayerWithThreadBase = class(TWindowLayerAbstract)
+  TTiledLayerWithThreadBase = class(TWindowLayerWithLocationBase)
   private
     FTileMatrixFactory: ITileMatrixFactory;
     FImageResamplerConfig: IImageResamplerConfig;
@@ -39,16 +39,12 @@ type
     FLayerProvider: IBitmapLayerProvider;
     FLayerProviderCS: IReadWriteSync;
 
-    FLayer: TPositionedLayer;
-
     FDrawTask: IBackgroundTask;
     FRectUpdateListener: IListener;
 
     FBgDrawCounter: IInternalPerformanceCounter;
     FPrepareLayerProviderCounter: IInternalPerformanceCounter;
     FOneTilePrepareCounter: IInternalPerformanceCounter;
-    FOnPaintCounter: IInternalPerformanceCounter;
-    FOnMeasuringPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintCounter: IInternalPerformanceCounter;
     FTileMatrixUpdateCounter: IInternalPerformanceCounter;
 
@@ -58,7 +54,6 @@ type
     FUpdateLayerProviderFlag: ISimpleFlag;
     FTileMatrixChangeFlag: ISimpleFlag;
 
-    procedure UpdateLayerIfNeed;
     procedure UpdateTileMatrixIfNeed;
 
     function GetTileMatrix: ITileMatrix;
@@ -77,11 +72,7 @@ type
       const ALayerProvider: IBitmapLayerProvider
     );
 
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
-    );
-    procedure PaintLayer(
+    procedure PaintLayerFromTileMatrix(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const ATileMatrix: ITileMatrix
@@ -90,15 +81,13 @@ type
     procedure OnRectUpdate(const AMsg: IInterface);
     function GetLayerProvider: IBitmapLayerProvider;
     procedure SetLayerProvider(const Value: IBitmapLayerProvider);
-    property LayerProvider: IBitmapLayerProvider read GetLayerProvider write SetLayerProvider;
 
-    function GetVisible: Boolean;
-    procedure SetVisible(const Value: Boolean);
-    procedure DoUpdateLayer;
+    property LayerProvider: IBitmapLayerProvider read GetLayerProvider write SetLayerProvider;
 
     procedure OnPosChange;
     procedure OnScaleChange;
   protected
+    procedure DoUpdateLayerVisibility; override;
     procedure DoViewUpdate; override;
 
     function CreateLayerProvider(
@@ -111,9 +100,9 @@ type
     procedure DoUpdateTileMatrix; virtual;
 
     procedure SetNeedUpdateLayerProvider;
-
-    property Visible: Boolean read GetVisible write SetVisible;
   protected
+    function GetNewLayerLocation: TFloatRect; override;
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
     property TileMatrix: ITileMatrix read GetTileMatrix;
@@ -173,11 +162,10 @@ begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier
+    AAppClosingNotifier,
+    TPositionedLayer.Create(AParentMap.Layers)
   );
   FUpdateLayerProviderOnPosChange := AUpdateLayerProviderOnPosChange;
-  FLayer := TPositionedLayer.Create(AParentMap.Layers);
-  FLayer.MouseEvents := False;
   FImageResamplerConfig := AResamplerConfig;
   FTileMatrixFactory := ATileMatrixFactory;
   FView := AView;
@@ -188,8 +176,6 @@ begin
 
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   FOneTilePrepareCounter := PerfList.CreateAndAddNewCounter('OneTilePrepare');
-  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
-  FOnMeasuringPaintCounter := PerfList.CreateAndAddNewCounter('OnMeasuringPaint');
   FOneTilePaintCounter := PerfList.CreateAndAddNewCounter('OneTilePaint');
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
   FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
@@ -236,9 +222,11 @@ begin
   FDrawTask.StartExecute;
 end;
 
-procedure TTiledLayerWithThreadBase.DoUpdateLayer;
+procedure TTiledLayerWithThreadBase.DoUpdateLayerVisibility;
 begin
-  FLayer.Changed;
+  inherited;
+  SetNeedUpdateTileMatrix;
+  SetNeedUpdateLayerProvider;
 end;
 
 procedure TTiledLayerWithThreadBase.DoUpdateTileMatrix;
@@ -275,7 +263,6 @@ begin
   inherited;
   UpdateTileMatrixIfNeed;
   FDrawTask.StartExecute;
-  UpdateLayerIfNeed;
 end;
 
 function TTiledLayerWithThreadBase.GetLayerProvider: IBitmapLayerProvider;
@@ -285,6 +272,18 @@ begin
     Result := FLayerProvider;
   finally
     FLayerProviderCS.EndRead;
+  end;
+end;
+
+function TTiledLayerWithThreadBase.GetNewLayerLocation: TFloatRect;
+var
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FPosition.GetStatic;
+  if Visible and (VLocalConverter <> nil) then begin
+    Result := FloatRect(VLocalConverter.GetLocalRect);
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
   end;
 end;
 
@@ -298,60 +297,12 @@ begin
   end;
 end;
 
-function TTiledLayerWithThreadBase.GetVisible: Boolean;
-begin
-  Result := FLayer.Visible;
-end;
-
-procedure TTiledLayerWithThreadBase.OnPaintLayer(
-  Sender: TObject;
-  Buffer: TBitmap32
-);
-var
-  VTileMatrix: ITileMatrix;
-  VLocalConverter: ILocalCoordConverter;
-  VCounter: IInternalPerformanceCounter;
-  VCounterContext: TInternalPerformanceCounterContext;
-  VOldClipRect: TRect;
-  VNewClipRect: TRect;
-begin
-  VLocalConverter := FView.GetStatic;
-  VTileMatrix := TileMatrix;
-  if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
-    if Buffer.MeasuringMode then begin
-      VCounter := FOnMeasuringPaintCounter;
-    end else begin
-      VCounter := FOnPaintCounter;
-    end;
-
-    VCounterContext := VCounter.StartOperation;
-    try
-      VOldClipRect := Buffer.ClipRect;
-      if IntersectRect(VNewClipRect, VOldClipRect, VLocalConverter.GetLocalRect) then begin
-        Buffer.ClipRect := VNewClipRect;
-        try
-          PaintLayer(Buffer, VLocalConverter, VTileMatrix);
-        finally
-          Buffer.ClipRect := VOldClipRect;
-        end;
-      end;
-    finally
-      VCounter.FinishOperation(VCounterContext);
-    end;
-  end;
-end;
-
 procedure TTiledLayerWithThreadBase.OnPosChange;
-var
-  VLocation: TFloatRect;
 begin
   ViewUpdateLock;
   try
     SetNeedUpdateTileMatrix;
-    VLocation := FloatRect(FPosition.GetStatic.GetLocalRect);
-    if not EqualRect(FLayer.Location, VLocation) then begin
-      FLayer.Location := VLocation;
-    end;
+    SetNeedUpdateLayerLocation;
   finally
     ViewUpdateUnlock
   end;
@@ -462,7 +413,7 @@ procedure TTiledLayerWithThreadBase.OnScaleChange;
 begin
   ViewUpdateLock;
   try
-    FLayerChangedFlag.SetFlag;
+    SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;
   end;
@@ -529,7 +480,7 @@ begin
     VLocalConverter := FView.GetStatic;
     if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
       if not VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
-        FLayer.Changed;
+        Layer.Changed;
         Exit;
       end;
       VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
@@ -538,7 +489,7 @@ begin
         if VElement <> nil then begin
           if not VElement.IsRedyWasShown then begin
             VDstRect := VLocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel);
-            FLayer.Changed(VDstRect);
+            Layer.Changed(VDstRect);
           end;
         end;
       end;
@@ -546,7 +497,19 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.PaintLayer(
+procedure TTiledLayerWithThreadBase.PaintLayer(ABuffer: TBitmap32);
+var
+  VTileMatrix: ITileMatrix;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FView.GetStatic;
+  VTileMatrix := TileMatrix;
+  if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
+    PaintLayerFromTileMatrix(ABuffer, VLocalConverter, VTileMatrix);
+  end;
+end;
+
+procedure TTiledLayerWithThreadBase.PaintLayerFromTileMatrix(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const ATileMatrix: ITileMatrix
@@ -679,20 +642,6 @@ begin
   end;
 end;
 
-procedure TTiledLayerWithThreadBase.SetVisible(const Value: Boolean);
-begin
-  if FLayer.Visible <> Value then begin
-    ViewUpdateLock;
-    try
-      FLayer.Visible := Value;
-      SetNeedUpdateTileMatrix;
-      SetNeedUpdateLayerProvider;
-    finally
-      ViewUpdateUnlock;
-    end;
-  end;
-end;
-
 procedure TTiledLayerWithThreadBase.SendTerminateToThreads;
 begin
   inherited;
@@ -702,16 +651,8 @@ end;
 procedure TTiledLayerWithThreadBase.StartThreads;
 begin
   inherited;
-  FLayer.OnPaint := OnPaintLayer;
   FDrawTask.Start;
   FDrawTask.StartExecute;
-end;
-
-procedure TTiledLayerWithThreadBase.UpdateLayerIfNeed;
-begin
-  if FLayerChangedFlag.CheckFlagAndReset then begin
-    DoUpdateLayer;
-  end;
 end;
 
 procedure TTiledLayerWithThreadBase.UpdateTileMatrixIfNeed;

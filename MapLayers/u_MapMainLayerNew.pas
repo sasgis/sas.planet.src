@@ -131,6 +131,7 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FPostProcessingConfig.GetChangeNotifier
   );
+  Visible := True;
 end;
 
 function TMapMainLayerNew.CreateLayerProvider(
