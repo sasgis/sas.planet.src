@@ -75,6 +75,39 @@ type
     );
   end;
 
+  TWindowLayerBasicBase = class(TWindowLayerAbstract)
+  private
+    FLayer: TCustomLayer;
+    FVisible: Boolean;
+    FNeedUpdateLayerVisibilityFlag: ISimpleFlag;
+    FNeedFullRepaintLayerFlag: ISimpleFlag;
+
+    FOnPaintCounter: IInternalPerformanceCounter;
+    FOnMeasuringPaintCounter: IInternalPerformanceCounter;
+    procedure SetVisible(const Value: Boolean);
+    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+  protected
+    procedure StartThreads; override;
+    procedure DoViewUpdate; override;
+  protected
+    procedure SetNeedUpdateLayerVisibility;
+    procedure DoUpdateLayerVisibility; virtual;
+    procedure SetNeedFullRepaintLayer;
+    procedure DoFullRepaintLayer; virtual;
+
+    procedure PaintLayer(ABuffer: TBitmap32); virtual; abstract;
+
+    property Layer: TCustomLayer read FLayer;
+    property Visible: Boolean read FVisible write SetVisible;
+  public
+    constructor Create(
+      const APerfList: IInternalPerformanceCounterList;
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
+      ALayer: TCustomLayer
+    );
+  end;
+
   TWindowLayerWithLocationBase = class(TWindowLayerAbstract)
   private
     FLayer: TPositionedLayer;
@@ -883,8 +916,13 @@ end;
 
 procedure TWindowLayerWithBitmapBase.SetVisible(const Value: Boolean);
 begin
-  FVisible := Value;
-  SetNeedUpdateLayerVisibility;
+  ViewUpdateLock;
+  try
+    FVisible := Value;
+    SetNeedUpdateLayerVisibility;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 { TWindowLayerWithLocationBase }
@@ -993,11 +1031,107 @@ end;
 
 procedure TWindowLayerWithLocationBase.SetVisible(const Value: Boolean);
 begin
-  FVisible := Value;
-  SetNeedUpdateLayerVisibility;
+  ViewUpdateLock;
+  try
+    FVisible := Value;
+    SetNeedUpdateLayerVisibility;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TWindowLayerWithLocationBase.StartThreads;
+begin
+  inherited;
+  FLayer.OnPaint := OnPaintLayer;
+end;
+
+{ TWindowLayerBasicBase }
+
+constructor TWindowLayerBasicBase.Create(
+  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation; ALayer: TCustomLayer);
+begin
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier
+  );
+  FLayer := ALayer;
+  FLayer.Visible := False;
+  FLayer.MouseEvents := False;
+
+  FNeedUpdateLayerVisibilityFlag := TSimpleFlagWithInterlock.Create;
+  FNeedFullRepaintLayerFlag := TSimpleFlagWithInterlock.Create;
+
+  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
+  FOnMeasuringPaintCounter := PerfList.CreateAndAddNewCounter('OnMeasuringPaint');
+end;
+
+procedure TWindowLayerBasicBase.DoFullRepaintLayer;
+begin
+  FLayer.Changed;
+end;
+
+procedure TWindowLayerBasicBase.DoUpdateLayerVisibility;
+begin
+  FLayer.Visible := FVisible;
+end;
+
+procedure TWindowLayerBasicBase.DoViewUpdate;
+begin
+  inherited;
+  if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
+    if FLayer.Visible <> FVisible then begin
+      DoUpdateLayerVisibility;
+    end;
+  end;
+  if FNeedFullRepaintLayerFlag.CheckFlagAndReset then begin
+    DoFullRepaintLayer;
+  end;
+end;
+
+procedure TWindowLayerBasicBase.OnPaintLayer(Sender: TObject;
+  Buffer: TBitmap32);
+var
+  VCounter: IInternalPerformanceCounter;
+  VCounterContext: TInternalPerformanceCounterContext;
+begin
+  if Buffer.MeasuringMode then begin
+    VCounter := FOnMeasuringPaintCounter;
+  end else begin
+    VCounter := FOnPaintCounter;
+  end;
+  VCounterContext := VCounter.StartOperation;
+  try
+    PaintLayer(Buffer);
+  finally
+    VCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+procedure TWindowLayerBasicBase.SetNeedFullRepaintLayer;
+begin
+  FNeedFullRepaintLayerFlag.SetFlag;
+end;
+
+procedure TWindowLayerBasicBase.SetNeedUpdateLayerVisibility;
+begin
+  FNeedUpdateLayerVisibilityFlag.SetFlag;
+end;
+
+procedure TWindowLayerBasicBase.SetVisible(const Value: Boolean);
+begin
+  ViewUpdateLock;
+  try
+    FVisible := Value;
+    SetNeedUpdateLayerVisibility;
+  finally
+    ViewUpdateUnlock;
+  end;
+end;
+
+procedure TWindowLayerBasicBase.StartThreads;
 begin
   inherited;
   FLayer.OnPaint := OnPaintLayer;
