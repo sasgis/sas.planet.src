@@ -32,16 +32,6 @@ uses
   u_NotifyWithGUIDEvent;
 
 type
-  TActiveMapSingleSet = class(TInterfacedObject, IActiveMapSingleSet)
-  private
-    FSet: IGUIDInterfaceSet;
-  private
-    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
-  public
-    constructor Create(ASet: IGUIDInterfaceSet);
-  end;
-
-type
   TMainActiveMap = class(TConfigDataElementComplexBase, IMainActiveMap)
   private
     FMapsSet: IMapTypeSet;
@@ -73,6 +63,7 @@ uses
   ActiveX,
   u_GUIDInterfaceSet,
   u_ActiveMapSingleAbstract,
+  u_ActiveMapSingleSet,
   u_ActiveMapConfig;
 
 const
@@ -176,20 +167,6 @@ begin
       UnlockWrite;
     end;
   end;
-end;
-
-{ TActiveMapSingleSet }
-
-constructor TActiveMapSingleSet.Create(ASet: IGUIDInterfaceSet);
-begin
-  inherited Create;
-  FSet := ASet;
-end;
-
-function TActiveMapSingleSet.GetMapSingle(
-  const AMapGUID: TGUID): IActiveMapSingle;
-begin
-  Result := IActiveMapSingle(FSet.GetByGUID(AMapGUID));
 end;
 
 end.
