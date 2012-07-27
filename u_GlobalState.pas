@@ -384,7 +384,7 @@ begin
   FVectorItmesFactory := TVectorItmesFactorySimple.Create;
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
-  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 500);
+  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 50);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
   FGUISyncronizedTimerNotifierInternal := TNotifierBase.Create;
