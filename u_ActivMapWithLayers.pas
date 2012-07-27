@@ -70,8 +70,10 @@ uses
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,
+  u_GUIDInterfaceSet,
   u_MapTypeSet,
   u_ActiveMapSingleAbstract,
+  u_ActiveMapSingleSet,
   u_ActiveMapsSet;
 
 const
@@ -87,19 +89,23 @@ var
   VMapType: IMapType;
   VSingleMap: IActiveMapSingle;
   VAllMapsList: TMapTypeSet;
+  VSingleSet: IGUIDInterfaceSet;
+  VMainMapChangeNotyfier: INotifierWithGUID;
 begin
-  inherited Create(AMapsSet);
-  FLayersSet := ALayersSet;
-
+  VMainMapChangeNotyfier := TNotifierWithGUID.Create;
   FLayerSetSelectNotyfier := TNotifierWithGUID.Create;
   FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
+  FLayersSet := ALayersSet;
 
+  VSingleSet := TGUIDInterfaceSet.Create(False);
   VAllMapsList := TMapTypeSet.Create(True);
 
   VEnun := AMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMapType := AMapsSet.GetMapTypeByGUID(VGUID);
     VAllMapsList.Add(VMapType);
+    VSingleMap := TActiveMapSingleMainMap.Create(VMapType, False, VMainMapChangeNotyfier);
+    VSingleSet.Add(VGUID, VSingleMap);
   end;
 
   VEnun := FLayersSet.GetIterator;
@@ -111,8 +117,9 @@ begin
       FLayerSetSelectNotyfier,
       FLayerSetUnselectNotyfier
     );
-    SingleSet.Add(VGUID, VSingleMap);
+    VSingleSet.Add(VGUID, VSingleMap);
   end;
+  inherited Create(AMapsSet, VMainMapChangeNotyfier, TActiveMapSingleSet.Create(VSingleSet));
 
   FAllMapsSet := VAllMapsList;
 

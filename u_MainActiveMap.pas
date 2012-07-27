@@ -38,10 +38,8 @@ type
     FMainMapChangeNotyfier: INotifierWithGUID;
     FActiveMap: IMapTypeChangeable;
     FMapSingleSet: IActiveMapSingleSet;
-    FSingleSet: IGUIDInterfaceSet;
   protected
     property MainMapChangeNotyfier: INotifierWithGUID read FMainMapChangeNotyfier;
-    property SingleSet: IGUIDInterfaceSet read FSingleSet;
   protected
     procedure SelectMainByGUID(const AMapGUID: TGUID);
     function GetActiveMap: IMapTypeChangeable;
@@ -52,7 +50,11 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create(const AMapsSet: IMapTypeSet);
+    constructor Create(
+      const AMapsSet: IMapTypeSet;
+      const AMainMapChangeNotyfier: INotifierWithGUID = nil;
+      const AMapSingleSet: IActiveMapSingleSet = nil
+    );
     destructor Destroy; override;
   end;
 
@@ -71,31 +73,41 @@ const
 
 { TMainActiveMap }
 
-constructor TMainActiveMap.Create(const AMapsSet: IMapTypeSet);
+constructor TMainActiveMap.Create(
+  const AMapsSet: IMapTypeSet;
+  const AMainMapChangeNotyfier: INotifierWithGUID;
+  const AMapSingleSet: IActiveMapSingleSet
+);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
   VMapType: IMapType;
   VSingleMap: IActiveMapSingle;
-  VSelected: IMapType;
+  VSingleSet: IGUIDInterfaceSet;
 begin
   inherited Create;
   FMapsSet := AMapsSet;
-  FMainMapChangeNotyfier := TNotifierWithGUID.Create;
-  FSingleSet := TGUIDInterfaceSet.Create(False);
-  FMapSingleSet := TActiveMapSingleSet.Create(FSingleSet);
+  FMainMapChangeNotyfier := AMainMapChangeNotyfier;
+  FMapSingleSet := AMapSingleSet;
+  if FMainMapChangeNotyfier = nil then begin
+    FMainMapChangeNotyfier := TNotifierWithGUID.Create;
+  end;
+  if FMapSingleSet = nil then begin
+    VSingleSet := TGUIDInterfaceSet.Create(False);
+
+    VEnun := FMapsSet.GetIterator;
+    while VEnun.Next(1, VGUID, i) = S_OK do begin
+      VMapType := AMapsSet.GetMapTypeByGUID(VGUID);
+      VSingleMap := TActiveMapSingleMainMap.Create(VMapType, False, FMainMapChangeNotyfier);
+      VSingleSet.Add(VGUID, VSingleMap);
+    end;
+
+    FMapSingleSet := TActiveMapSingleSet.Create(VSingleSet);
+  end;
 
   FActiveMap := TMapTypeChangeableByNotifier.Create(FMainMapChangeNotyfier, FMapsSet);
   Add(FActiveMap);
-  VSelected := FActiveMap.GetStatic;
-
-  VEnun := FMapsSet.GetIterator;
-  while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
-    VSingleMap := TActiveMapSingleMainMap.Create(VMapType, VMapType = VSelected, FMainMapChangeNotyfier);
-    FSingleSet.Add(VGUID, VSingleMap);
-  end;
 end;
 
 destructor TMainActiveMap.Destroy;
