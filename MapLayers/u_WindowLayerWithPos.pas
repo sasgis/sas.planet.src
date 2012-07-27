@@ -37,44 +37,6 @@ uses
   u_WindowLayerBasic;
 
 type
-  TWindowLayerSimpleBase = class(TWindowLayerAbstract)
-  private
-    FLocalConverter: ILocalCoordConverterChangeable;
-    FLayer: TCustomLayer;
-    FOnPaintCounter: IInternalPerformanceCounter;
-    FOnMeasuringPaintCounter: IInternalPerformanceCounter;
-    procedure OnViewPortPosChange;
-
-    function GetVisible: Boolean;
-    procedure SetVisible(const Value: Boolean);
-
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
-    );
-  protected
-    procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
-    ); virtual; abstract;
-
-    procedure SetNeedRedraw;
-    procedure Show;
-    procedure Hide;
-
-    property Visible: Boolean read GetVisible write SetVisible;
-  protected
-    procedure StartThreads; override;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      ALayer: TCustomLayer;
-      const ALocalConverter: ILocalCoordConverterChangeable
-    );
-  end;
-
   TWindowLayerBasicBase = class(TWindowLayerAbstract)
   private
     FLayer: TCustomLayer;
@@ -710,93 +672,6 @@ begin
   finally
     FLayer.Bitmap.Unlock;
   end;
-end;
-
-{ TWindowLayerSimpleBase }
-
-constructor TWindowLayerSimpleBase.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
-  ALayer: TCustomLayer;
-  const ALocalConverter: ILocalCoordConverterChangeable
-);
-begin
-  inherited Create(APerfList, AAppStartedNotifier, AAppClosingNotifier);
-  FLocalConverter := ALocalConverter;
-  FLayer := ALayer;
-
-  FLayer.MouseEvents := false;
-  FLayer.Visible := false;
-
-  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
-  FOnMeasuringPaintCounter := PerfList.CreateAndAddNewCounter('OnMeasuringPaint');
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
-    FLocalConverter.ChangeNotifier
-  );
-end;
-
-function TWindowLayerSimpleBase.GetVisible: Boolean;
-begin
-  Result := FLayer.Visible;
-end;
-
-procedure TWindowLayerSimpleBase.Hide;
-begin
-  FLayer.Visible := False
-end;
-
-procedure TWindowLayerSimpleBase.OnPaintLayer(
-  Sender: TObject;
-  Buffer: TBitmap32
-);
-var
-  VConverter: ILocalCoordConverter;
-  VCounter: IInternalPerformanceCounter;
-  VCounterContext: TInternalPerformanceCounterContext;
-begin
-  VConverter := FLocalConverter.GetStatic;
-  if VConverter <> nil then begin
-    if Buffer.MeasuringMode then begin
-      VCounter := FOnMeasuringPaintCounter;
-    end else begin
-      VCounter := FOnPaintCounter;
-    end;
-    VCounterContext := VCounter.StartOperation;
-    try
-      PaintLayer(Buffer, VConverter);
-    finally
-      VCounter.FinishOperation(VCounterContext);
-    end;
-  end;
-end;
-
-procedure TWindowLayerSimpleBase.OnViewPortPosChange;
-begin
-  SetNeedRedraw;
-end;
-
-procedure TWindowLayerSimpleBase.SetNeedRedraw;
-begin
-  inherited;
-  FLayer.Changed;
-end;
-
-procedure TWindowLayerSimpleBase.SetVisible(const Value: Boolean);
-begin
-  FLayer.Visible := Value
-end;
-
-procedure TWindowLayerSimpleBase.Show;
-begin
-  FLayer.Visible := True
-end;
-
-procedure TWindowLayerSimpleBase.StartThreads;
-begin
-  inherited;
-  FLayer.OnPaint := OnPaintLayer;
 end;
 
 { TWindowLayerWithBitmapBase }
