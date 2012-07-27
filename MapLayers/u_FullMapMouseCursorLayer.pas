@@ -8,16 +8,18 @@ uses
   i_Notifier,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_FullMapMouseCursorLayerConfig,
   i_MainFormState,
   i_MouseState,
-  u_MapLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TFullMapMouseCursorLayer = class(TMapLayerBasicNoBitmap)
+  TFullMapMouseCursorLayer = class(TWindowLayerBasicBase)
   private
+    FLocalConverter: ILocalCoordConverterChangeable;
     FConfig: IFullMapMouseCursorLayerConfig;
     FMainFormState: IMainFormState;
     FMouseState: IMouseState;
@@ -27,8 +29,7 @@ type
     procedure OnTimerEvent;
   protected
     procedure PaintLayer(
-      ABuffer: TBitmap32;
-      const ALocalConverter: ILocalCoordConverter
+      ABuffer: TBitmap32
     ); override;
     procedure StartThreads; override;
   public
@@ -37,7 +38,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const APosition: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
       const ATimerNoifier: INotifier;
       const AMouseState: IMouseState;
@@ -48,6 +49,7 @@ type
 implementation
 
 uses
+  GR32_Layers,
   u_ListenerByEvent;
 
 { TFullMapMouseCursorLayer }
@@ -57,7 +59,7 @@ constructor TFullMapMouseCursorLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const APosition: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
   const ATimerNoifier: INotifier;
   const AMouseState: IMouseState;
@@ -68,12 +70,12 @@ begin
     APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier,
-    AParentMap,
-    AViewPortState
+    TCustomLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
   FMainFormState := AMainFormState;
   FMouseState := AMouseState;
+  FLocalConverter := APosition;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -93,11 +95,7 @@ procedure TFullMapMouseCursorLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    if FConfig.Enabled and ((FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways)) then begin
-      Show;
-    end else begin
-      Hide;
-    end;
+    Visible := FConfig.Enabled and ((FMainFormState.State <> ao_movemap) or (FConfig.ShowAlways));
   finally
     ViewUpdateUnlock;
   end;
@@ -106,18 +104,43 @@ end;
 procedure TFullMapMouseCursorLayer.OnTimerEvent;
 var
   VPos: TPoint;
+  VRect: TRect;
+  VViewRect: TRect;
+  VLocalConverter: ILocalCoordConverter;
 begin
   if Visible then begin
     VPos := FMouseState.CurentPos;
+    VLocalConverter := FLocalConverter.GetStatic;
+    VViewRect := VLocalConverter.GetLocalRect;
     if (VPos.X <> FLastPos.X) or (VPos.Y <> FLastPos.Y) then begin
-      Layer.Changed;
+      VRect.Left := VViewRect.Left;
+      VRect.Top := FLastPos.Y - 1;
+      VRect.Right := VViewRect.Right;
+      VRect.Bottom := FLastPos.Y + 1;
+      Layer.Changed(VRect);
+
+      VRect.Left := FLastPos.X - 1;
+      VRect.Top := VViewRect.Top;
+      VRect.Right := FLastPos.X + 1;
+      VRect.Bottom := VViewRect.Bottom;
+      Layer.Changed(VRect);
+
+      VRect.Left := VViewRect.Left;
+      VRect.Top := VPos.Y - 1;
+      VRect.Right := VViewRect.Right;
+      VRect.Bottom := VPos.Y + 1;
+      Layer.Changed(VRect);
+
+      VRect.Left := VPos.X - 1;
+      VRect.Top := VViewRect.Top;
+      VRect.Right := VPos.X + 1;
+      VRect.Bottom := VViewRect.Bottom;
+      Layer.Changed(VRect);
     end;
   end;
 end;
 
-procedure TFullMapMouseCursorLayer.PaintLayer(ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter
-);
+procedure TFullMapMouseCursorLayer.PaintLayer(ABuffer: TBitmap32);
 var
   VPos: TPoint;
   VColor: TColor32;

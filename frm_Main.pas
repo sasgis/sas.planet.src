@@ -1611,7 +1611,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState,
+        FConfig.ViewPortState.Position,
         FState,
         GState.GUISyncronizedTimerNotifier,
         FMouseState,
