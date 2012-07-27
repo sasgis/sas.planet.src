@@ -95,6 +95,7 @@ begin
   ViewUpdateLock;
   try
     Visible := not PointIsEmpty(VPoint);
+    SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;
   end;
