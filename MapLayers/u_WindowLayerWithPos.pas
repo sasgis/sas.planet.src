@@ -959,10 +959,15 @@ begin
   if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
     if FLayer.Visible <> FVisible then begin
       DoUpdateLayerVisibility;
+      if Visible then begin
+        SetNeedFullRepaintLayer;
+      end;
     end;
   end;
   if FNeedFullRepaintLayerFlag.CheckFlagAndReset then begin
-    DoFullRepaintLayer;
+    if FVisible then begin
+      DoFullRepaintLayer;
+    end;
   end;
 end;
 

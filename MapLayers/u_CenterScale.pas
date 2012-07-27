@@ -33,26 +33,21 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_CenterScaleConfig,
-  u_WindowLayerBasic;
+  u_WindowLayerWithPos;
 
 type
-  TLayerCenterScale = class(TWindowLayerAbstract)
+  TLayerCenterScale = class(TWindowLayerBasicBase)
   private
     FConfig: ICenterScaleConfig;
     FMarkerChangeable: IMarkerDrawableChangeable;
     FPosition: ILocalCoordConverterChangeable;
 
-    FLayer: TCustomLayer;
-
     FLastFixedPoint: TDoublePoint;
 
     procedure OnConfigChange;
     procedure OnPosChange;
-    procedure OnPaintLayer(
-      Sender: TObject;
-      Buffer: TBitmap32
-    );
   protected
+    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -87,15 +82,13 @@ begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier
+    AAppClosingNotifier,
+    TCustomLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
   FPosition := APosition;
   FMarkerChangeable := AMarkerChangeable;
   FLastFixedPoint := CEmptyDoublePoint;
-
-  FLayer := TCustomLayer.Create(AParentMap.Layers);
-  FLayer.MouseEvents := false;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -108,19 +101,16 @@ begin
 end;
 
 procedure TLayerCenterScale.OnConfigChange;
-var
-  VVisible: Boolean;
 begin
-  VVisible := FConfig.Visible;
-  if VVisible then begin
-    FLayer.Visible := True;
-    FLayer.Changed;
-  end else begin
-    FLayer.Visible := False;
+  ViewUpdateLock;
+  try
+    Visible := FConfig.Visible;
+  finally
+    ViewUpdateUnlock;
   end;
 end;
 
-procedure TLayerCenterScale.OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+procedure TLayerCenterScale.PaintLayer(ABuffer: TBitmap32);
 var
   VMarker: IMarkerDrawable;
   VFixedPoint: TDoublePoint;
@@ -128,7 +118,7 @@ begin
   VMarker := FMarkerChangeable.GetStatic;
   if VMarker <> nil then begin
     VFixedPoint := RectCenter(FPosition.GetStatic.GetLocalRect);
-    VMarker.DrawToBitmap(Buffer, VFixedPoint);
+    VMarker.DrawToBitmap(ABuffer, VFixedPoint);
   end;
 end;
 
@@ -136,11 +126,16 @@ procedure TLayerCenterScale.OnPosChange;
 var
   VNewFixedPoint: TDoublePoint;
 begin
-  if FLayer.Visible then begin
+  if Visible then begin
     VNewFixedPoint := RectCenter(FPosition.GetStatic.GetLocalRect);
     if not DoublePointsEqual(VNewFixedPoint, FLastFixedPoint) then begin
       FLastFixedPoint := VNewFixedPoint;
-      FLayer.Changed;
+      ViewUpdateLock;
+      try
+        SetNeedFullRepaintLayer;
+      finally
+        ViewUpdateUnlock;
+      end;
     end;
   end;
 end;
@@ -148,7 +143,6 @@ end;
 procedure TLayerCenterScale.StartThreads;
 begin
   inherited;
-  FLayer.OnPaint := Self.OnPaintLayer;
   OnConfigChange;
 end;
 
