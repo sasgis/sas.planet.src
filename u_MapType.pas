@@ -396,10 +396,24 @@ begin
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
     FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
     FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
-    FCacheBitmap := TMemTileCacheBitmap.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+    FCacheBitmap :=
+      TMemTileCacheBitmap.Create(
+        AGCList,
+        FStorage,
+        FStorageConfig.CoordConverter,
+        AMainMemCacheConfig,
+        FPerfCounterList.CreateAndAddNewSubList('BmpInMem')
+      );
   end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
-    FCacheVector := TMemTileCacheVector.Create(AGCList, FStorage, FStorageConfig.CoordConverter, AMainMemCacheConfig);
+    FCacheVector :=
+      TMemTileCacheVector.Create(
+        AGCList,
+        FStorage,
+        FStorageConfig.CoordConverter,
+        AMainMemCacheConfig,
+        FPerfCounterList.CreateAndAddNewSubList('VectorInMem')
+      );
     FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
   end;
   FVersionConfig.VersionFactory := FStorage.MapVersionFactory;

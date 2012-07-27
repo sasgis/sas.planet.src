@@ -28,6 +28,7 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
+  i_InternalPerformanceCounter,
   i_MainMemCacheConfig,
   i_Bitmap32Static,
   i_MapVersionInfo,
@@ -51,6 +52,12 @@ type
 
     FCacheList: TStringList;
     FSync: IReadWriteSync;
+
+    FClearCounter: IInternalPerformanceCounter;
+    FAddItemCounter: IInternalPerformanceCounter;
+    FDeleteItemCounter: IInternalPerformanceCounter;
+    FCacheHitCounter: IInternalPerformanceCounter;
+    FCacheMissCounter: IInternalPerformanceCounter;
     procedure OnChangeConfig;
     procedure OnTileStorageChange(const AMsg: IInterface);
     function GetMemCacheKey(
@@ -87,7 +94,8 @@ type
       const AGCList: INotifierTTLCheck;
       const ATileStorage: TTileStorageAbstract;
       const ACoordConverter: ICoordConverter;
-      const AConfig: IMainMemCacheConfig
+      const AConfig: IMainMemCacheConfig;
+      const APerfList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
   end;
@@ -137,7 +145,8 @@ constructor TMemTileCacheBase.Create(
   const AGCList: INotifierTTLCheck;
   const ATileStorage: TTileStorageAbstract;
   const ACoordConverter: ICoordConverter;
-  const AConfig: IMainMemCacheConfig
+  const AConfig: IMainMemCacheConfig;
+  const APerfList: IInternalPerformanceCounterList
 );
 var
   i: Integer;
@@ -160,12 +169,17 @@ begin
       end;
     end;
   end;
-
   FCacheList := TStringList.Create;
   FCacheList.Capacity := FConfig.MaxSize;
   FSync := MakeSyncRW_Big(Self, False);
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 40000, 1000);
   FGCList.Add(FTTLListener);
+
+  FAddItemCounter := APerfList.CreateAndAddNewCounter('Add');
+  FDeleteItemCounter := APerfList.CreateAndAddNewCounter('Delete');
+  FClearCounter := APerfList.CreateAndAddNewCounter('Clear');
+  FCacheHitCounter := APerfList.CreateAndAddNewCounter('CacheHit');
+  FCacheMissCounter := APerfList.CreateAndAddNewCounter('CacheMiss');
 end;
 
 destructor TMemTileCacheBase.Destroy;
@@ -205,36 +219,49 @@ procedure TMemTileCacheBase.AddObjectToCache(
 var
   VKey: string;
   i: integer;
+  VContext: TInternalPerformanceCounterContext;
 begin
   VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginWrite;
+
+  VContext :=  FAddItemCounter.StartOperation;
   try
-    i := FCacheList.IndexOf(VKey);
-    if (i < 0) and (FCacheList.Capacity > 0) then begin
-      if (FCacheList.Count >= FCacheList.Capacity) and (FCacheList.Count > 0) then begin
-        ItemFree(0);
-        FCacheList.Delete(0);
+    FSync.BeginWrite;
+    try
+      i := FCacheList.IndexOf(VKey);
+      if (i < 0) and (FCacheList.Capacity > 0) then begin
+        if (FCacheList.Count >= FCacheList.Capacity) and (FCacheList.Count > 0) then begin
+          ItemFree(0);
+          FCacheList.Delete(0);
+        end;
+        AObj._AddRef;
+        FCacheList.AddObject(VKey, Pointer(AObj));
       end;
-      AObj._AddRef;
-      FCacheList.AddObject(VKey, Pointer(AObj));
+    finally
+      FSync.EndWrite;
     end;
   finally
-    FSync.EndWrite;
+    FAddItemCounter.FinishOperation(VContext);
   end;
 end;
 
 procedure TMemTileCacheBase.Clear;
 var
   i: integer;
+  VContext: TInternalPerformanceCounterContext;
 begin
-  FSync.BeginWrite;
+  VContext :=  FClearCounter.StartOperation;
   try
-    for i := FCacheList.Count - 1 downto 0 do begin
-      ItemFree(i);
-      FCacheList.Delete(i);
+    FSync.BeginWrite;
+    try
+      for i := FCacheList.Count - 1 downto 0 do begin
+        ItemFree(i);
+        FCacheList.Delete(i);
+      end;
+    finally
+      FSync.EndWrite;
     end;
   finally
-    FSync.EndWrite;
+    FClearCounter.FinishOperation(VContext);
   end;
 end;
 
@@ -246,17 +273,23 @@ procedure TMemTileCacheBase.DeleteTileFromCache(
 var
   i: Integer;
   VKey: string;
+  VContext: TInternalPerformanceCounterContext;
 begin
   VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginWrite;
+  VContext :=  FDeleteItemCounter.StartOperation;
   try
-    i := FCacheList.IndexOf(VKey);
-    if i >= 0 then begin
-      ItemFree(i);
-      FCacheList.Delete(i);
+    FSync.BeginWrite;
+    try
+      i := FCacheList.IndexOf(VKey);
+      if i >= 0 then begin
+        ItemFree(i);
+        FCacheList.Delete(i);
+      end;
+    finally
+      FSync.EndWrite;
     end;
   finally
-    FSync.EndWrite;
+    FDeleteItemCounter.FinishOperation(VContext);
   end;
 end;
 
@@ -333,22 +366,32 @@ function TMemTileCacheBase.TryLoadObjectFromCache(
 var
   i: integer;
   VKey: string;
+  VContext: TInternalPerformanceCounterContext;
 begin
   Result := False;
   VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
-  FSync.BeginRead;
+  VContext :=  FCacheHitCounter.StartOperation;
   try
-    i := FCacheList.IndexOf(VKey);
-    if i >= 0 then begin
-      Result :=
-        Supports(
-          IInterface(Pointer(FCacheList.Objects[i])),
-          AIID,
-          AResult
-        );
+    FSync.BeginRead;
+    try
+      i := FCacheList.IndexOf(VKey);
+      if i >= 0 then begin
+        Result :=
+          Supports(
+            IInterface(Pointer(FCacheList.Objects[i])),
+            AIID,
+            AResult
+          );
+      end;
+    finally
+      FSync.EndRead;
     end;
   finally
-    FSync.EndRead;
+    if Result then begin
+      FCacheHitCounter.FinishOperation(VContext);
+    end else begin
+      FCacheMissCounter.FinishOperation(VContext);
+    end;
   end;
   if Result then begin
     IncUpdateCounter;
