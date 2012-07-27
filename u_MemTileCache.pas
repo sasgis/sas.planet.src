@@ -78,8 +78,10 @@ type
     function TryLoadObjectFromCache(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
-    ): IInterface;
+      const AMapVersionInfo: IMapVersionInfo;
+      const AIID: TGUID;
+      out AResult
+    ): Boolean;
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
@@ -324,24 +326,31 @@ end;
 function TMemTileCacheBase.TryLoadObjectFromCache(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
-): IInterface;
+  const AMapVersionInfo: IMapVersionInfo;
+  const AIID: TGUID;
+  out AResult
+): Boolean;
 var
   i: integer;
   VKey: string;
 begin
-  Result := nil;
+  Result := False;
   VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
   FSync.BeginRead;
   try
     i := FCacheList.IndexOf(VKey);
     if i >= 0 then begin
-      Result := IInterface(Pointer(FCacheList.Objects[i]));
+      Result :=
+        Supports(
+          IInterface(Pointer(FCacheList.Objects[i])),
+          AIID,
+          AResult
+        );
     end;
   finally
     FSync.EndRead;
   end;
-  if Result <> nil then begin
+  if Result then begin
     IncUpdateCounter;
   end;
 end;
@@ -380,11 +389,8 @@ function TMemTileCacheVector.TryLoadTileFromCache(
   const AZoom: Byte;
   const AMapVersionInfo: IMapVersionInfo
 ): IVectorDataItemList;
-var
-  VObj: IInterface;
 begin
-  VObj := TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo);
-  if not Supports(VObj, IVectorDataItemList, Result) then begin
+  if not TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo, IVectorDataItemList, Result) then begin
     Result := nil;
   end;
 end;
@@ -406,11 +412,8 @@ function TMemTileCacheBitmap.TryLoadTileFromCache(
   const AZoom: Byte;
   const AMapVersionInfo: IMapVersionInfo
 ): IBitmap32Static;
-var
-  VObj: IInterface;
 begin
-  VObj := TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo);
-  if not Supports(VObj, IBitmap32Static, Result) then begin
+  if not TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo, IBitmap32Static, Result) then begin
     Result := nil;
   end;
 end;
