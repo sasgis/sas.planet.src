@@ -1600,7 +1600,7 @@ begin
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
-        FConfig.ViewPortState,
+        FConfig.ViewPortState.View,
         VMarkerChangeable,
         FPointOnMapEdit
       )
