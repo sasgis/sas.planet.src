@@ -182,7 +182,6 @@ begin
 
     for i := 0 to FMapList.Count - 1 do begin
       VWriter.LevelScale[i] := ZoomToScale[FScaleArr[i]];
-      ;
       VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
       VWriter.LevelDescription[i] := FLevelsDesc.items[i * 3];
       VWriter.LevelName[i] := FLevelsDesc.Items[i * 3 + 1];
