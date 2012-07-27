@@ -11,7 +11,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_MarkerDrawable,
-  i_ViewPortState,
   i_MapViewGoto,
   i_LocalCoordConverter,
   i_GotoLayerConfig,
@@ -39,7 +38,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const ATimerNoifier: INotifier;
-      const AViewPortState: IViewPortState;
+      const ALocalConverter: ILocalCoordConverterChangeable;
       const AMarkerChangeable: IMarkerDrawableChangeable;
       const AMapGoto: IMapViewGoto;
       const AConfig: IGotoLayerConfig
@@ -65,7 +64,7 @@ constructor TGotoLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const ATimerNoifier: INotifier;
-  const AViewPortState: IViewPortState;
+  const ALocalConverter: ILocalCoordConverterChangeable;
   const AMarkerChangeable: IMarkerDrawableChangeable;
   const AMapGoto: IMapViewGoto;
   const AConfig: IGotoLayerConfig
@@ -79,7 +78,7 @@ begin
     AAppClosingNotifier,
     TCustomLayer.Create(AParentMap.Layers)
   );
-  FLocalConverter := AViewPortState.View;
+  FLocalConverter := ALocalConverter;
   FConfig := AConfig;
   FMarkerChangeable := AMarkerChangeable;
   FMapGoto := AMapGoto;

@@ -1542,7 +1542,7 @@ begin
         GState.AppClosingNotifier,
         map,
         GState.GUISyncronizedTimerNotifier,
-        FConfig.ViewPortState,
+        FConfig.ViewPortState.View,
         VMarkerChangeable,
         FMapGoto,
         FConfig.LayersConfig.GotoLayerConfig
