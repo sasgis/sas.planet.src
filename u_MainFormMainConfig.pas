@@ -97,7 +97,7 @@ begin
   FMouseScrollInvert := False;
   FShowHintOnMarks := True;
   FShowHintOnlyInMapMoveMode := False;
-  FUseNewMainLayer := False;
+  FUseNewMainLayer := True;
   FRuller := nil;
   FTumbler := nil;
 
@@ -114,7 +114,7 @@ begin
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     FShowHintOnlyInMapMoveMode := AConfigData.ReadBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
-    FUseNewMainLayer := AConfigData.ReadBool('UseNewMainLayer', FUseNewMainLayer);
+    FUseNewMainLayer := not AConfigData.ReadBool('UseOldLayers', not FUseNewMainLayer);
     FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
 
     FRuller := ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
