@@ -164,7 +164,6 @@ type
     FLayerCoordConverter: ILocalCoordConverter;
     FLayerCoordConverterCS: IReadWriteSync;
 
-    FViewUpdateLockCounter: ICounter;
     procedure OnViewPortPosChange;
     procedure OnViewPortScaleChange;
     function GetLayerCoordConverter: ILocalCoordConverter;
@@ -296,7 +295,6 @@ begin
 
   FViewCoordConverterCS := MakeSyncRW_Var(Self);
   FLayerCoordConverterCS := MakeSyncRW_Var(Self);
-  FViewUpdateLockCounter := TCounterInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),

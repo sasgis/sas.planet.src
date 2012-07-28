@@ -64,7 +64,6 @@ type
     FErrorLogger: ITileErrorLogger;
 
     FProjectedCache: IIdCacheSimple;
-    FPointsAgregatorThread: IDoublePointsAggregator;
     FPointsAgregatorGUI: IDoublePointsAggregator;
     FTileChangeListener: IListener;
     FAllElements: IMapElementsGuidedList;
@@ -218,7 +217,6 @@ begin
   FVectorMapsSetCS := MakeSyncRW_Var(Self);
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
-  FPointsAgregatorThread := TDoublePointsAggregator.Create;
   FPointsAgregatorGUI := TDoublePointsAggregator.Create;
 
   LinksList.Add(

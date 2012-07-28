@@ -48,7 +48,6 @@ type
     FOneTilePaintCounter: IInternalPerformanceCounter;
     FTileMatrixUpdateCounter: IInternalPerformanceCounter;
 
-    FViewUpdateLockCounter: ICounter;
     FDelicateRedrawFlag: ISimpleFlag;
     FLayerChangedFlag: ISimpleFlag;
     FUpdateLayerProviderFlag: ISimpleFlag;
@@ -190,7 +189,6 @@ begin
   FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
   FUpdateLayerProviderFlag := TSimpleFlagWithInterlock.Create;
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
-  FViewUpdateLockCounter := TCounterInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
