@@ -86,7 +86,8 @@ implementation
 
 uses
   libdb51,
-  CRC32;
+  CRC32,
+  u_BerkeleyDBErrorHandler;
 
 const
   CBDBMetaVersion = #01;

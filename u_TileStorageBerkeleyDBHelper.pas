@@ -120,9 +120,9 @@ implementation
 
 uses
   Windows,
-  SysUtils,
-  libdb51,
-  u_BinaryData;
+  SysUtils,  
+  u_BinaryData,
+  u_BerkeleyDBErrorHandler;
 
 const
   CPageSize = 1024; // 1k

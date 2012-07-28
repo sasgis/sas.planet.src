@@ -66,7 +66,8 @@ type
 implementation
 
 uses
-  libdb51;
+  libdb51,
+  u_BerkeleyDBErrorHandler;
 
 { TBerkeleyDBPool }
 

@@ -118,7 +118,8 @@ type
 implementation
 
 uses
-  u_BerkeleyDBEnv;
+  u_BerkeleyDBEnv,
+  u_BerkeleyDBErrorHandler;
 
 const
   CBerkeleyDBErrPfx = 'BerkeleyDB';

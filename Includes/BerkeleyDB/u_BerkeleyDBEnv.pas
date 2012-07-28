@@ -68,7 +68,8 @@ implementation
 uses
   Windows,
   Contnrs,
-  SysUtils;
+  SysUtils,
+  u_BerkeleyDBErrorHandler;
 
 var
   GEnvList: TObjectList = nil;

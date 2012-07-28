@@ -24,6 +24,12 @@ unit libdb51;
 
 interface
 
+uses
+  SysUtils;
+
+type
+  EBerkeleyDBExeption = class(Exception);
+
 (*
   TRANSLATOR NOTES:
 
@@ -2718,15 +2724,9 @@ function  CheckAndNotExistsBDB(resultCode: integer): boolean;          // check 
 procedure CheckBDBandNil      (resultCode: integer; var ptr);          // set the 'ptr' pointer to nil and call CheckBDB()
 function  CallBDBandNil       (resultCode: integer; var ptr): integer; // set the 'ptr' pointer to nil and return the 'resultCode'
 
-procedure BDBRaiseException(const EMsg: string); 
-procedure BDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
-
 implementation
 
-uses Windows, SysUtils, SyncObjs;
-
-type
-  EBerkeleyDBExeption = class(Exception);
+uses Windows, SyncObjs;
 
 var
   DllHandle: THandle = 0;
@@ -2735,16 +2735,6 @@ var
 
 const
   DllName = 'libdb51.dll';
-
-procedure BDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
-begin
-  raise EBerkeleyDBExeption.Create(errpfx + ': ' + msg);
-end;
-
-procedure BDBRaiseException(const EMsg: string);
-begin
-  raise EBerkeleyDBExeption.Create(EMsg);
-end;
 
 function InitBerkeleyDB: Boolean;
 
