@@ -112,6 +112,7 @@ type
 implementation
 
 uses
+  Windows,
   Classes,
   SysUtils,
   GR32,
@@ -293,6 +294,9 @@ var
   VMemStream: TMemoryStream;
   VFreeBitmap: TFreeWinBitmap;
   VCounterContext: TInternalPerformanceCounterContext;
+  VPalette: PRGBQUAD;
+  VPaletteSize: Integer;
+  VTransparencyTable: array [0..255] of Byte;
 begin
   VCounterContext := FCounter.StartOperation;
   try
@@ -318,9 +322,36 @@ begin
       end;
 
       if FBitPerPixel = 8 then begin // PNG with palette, GIF
-        if not VFreeBitmap.ColorQuantize(FIQ_WUQUANT) then begin
+        if VFreeBitmap.ConvertTo24Bits then begin
+          if VFreeBitmap.ColorQuantize(FIQ_WUQUANT) then begin
+            // Restore transparent background 
+            VPalette := VFreeBitmap.GetPalette;
+            VPaletteSize := VFreeBitmap.GetPaletteSize div SizeOf(PRGBQUAD);
+            if (VPalette <> nil) and (VPaletteSize <= 256) then begin
+              for I := 0 to VPaletteSize - 1 do begin
+                if (VPalette.rgbGreen >= $FE) and
+                   (VPalette.rgbBlue = $00) and
+                   (VPalette.rgbRed = $00) then
+                begin
+                  VTransparencyTable[I] := $00;
+                end else begin
+                  VTransparencyTable[I] := $FF;
+                end;
+                Inc(VPalette);
+              end;
+              VFreeBitmap.SetTransparencyTable(
+                @VTransparencyTable[0],
+                VPaletteSize
+              );
+            end;
+          end else begin
+            raise EBitmapTileFreeImageSaver.Create(
+              'FreeBitmap.ColorQuantize FAIL!'
+            );
+          end;
+        end else begin
           raise EBitmapTileFreeImageSaver.Create(
-            'FreeBitmap.ColorQuantize FAIL!'
+            'Palette FreeBitmap.ConvertTo24Bits FAIL!'
           );
         end;
       end else if FBitPerPixel = 24 then begin // PNG without alfa
