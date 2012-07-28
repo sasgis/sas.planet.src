@@ -534,7 +534,7 @@ begin
   VTileData.ElementsTable[0].DataID := 0;
   VTileData.ElementsTable[0].DataSize := ATile.Data.Size;
   GetMem(VTileData.Data, ATile.Data.Size);
-  Move(ATile.Data.Buffer^, VTileData.Data, ATile.Data.Size);
+  Move(ATile.Data.Buffer^, VTileData.Data^, ATile.Data.Size);
   Result := VTileData;
 end;
 
