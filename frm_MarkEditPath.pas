@@ -134,6 +134,7 @@ begin
     end else begin
       Caption := SAS_STR_EditPath;
     end;
+    Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       Result := FMarksDb.Factory.ModifyLine(
         AMark,

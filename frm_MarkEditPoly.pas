@@ -149,6 +149,7 @@ begin
     end else begin
       Caption:=SAS_STR_EditPoly;
     end;
+    Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       Result := FMarksDb.Factory.ModifyPoly(
         AMark,

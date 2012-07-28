@@ -215,6 +215,7 @@ begin
       imgIcon.Hint := '';
     end;
     frLonLatPoint.LonLat := AMark.Point;
+    Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
       Result := FMarksDb.Factory.ModifyPoint(
