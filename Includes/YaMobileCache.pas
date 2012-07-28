@@ -108,7 +108,10 @@ type
       AAddTileDataSize: Integer
     ): Boolean;
     // Тайловый блок
-    function CreateTileDataBlock(ATile: TTileStream): TYaMobileTileData;
+    procedure CreateTileDataBlock(
+      ATile: TTileStream;
+      var ATileData: TYaMobileTileData
+    );
     procedure FreeTileDataBlock(var ATileData: TYaMobileTileData);
     function ReadTileDataBlock(
       var ATileData: TYaMobileTileData;
@@ -435,7 +438,7 @@ begin
   ARegularBlock.DataTable[VCount-1].Size := YaCacheYTLDHeaderSize + ATile.Data.Size;
   ARegularBlock.DataTable[VCount-1].Index := GetTileIndex(ATile.Point);
   SetLength(ARegularBlock.Tiles, VCount);
-  ARegularBlock.Tiles[VCount-1] := CreateTileDataBlock(ATile);
+  CreateTileDataBlock(ATile, ARegularBlock.Tiles[VCount-1]);
   ARegularBlock.DataCellsCount := VCount;
   Result := True;
 end;
@@ -515,27 +518,28 @@ begin
   end;
 end;
 
-function TYaMobileCacheFile.CreateTileDataBlock(ATile: TTileStream): TYaMobileTileData;
+procedure TYaMobileCacheFile.CreateTileDataBlock(
+  ATile: TTileStream;
+  var ATileData: TYaMobileTileData
+);
 var
-  VTileData: TYaMobileTileData;
   MD5: TMD5Digest;
   I: Integer;
 begin
-  ZeroMemory(@VTileData, SizeOf(TYaMobileTileData));
+  ZeroMemory(@ATileData, SizeOf(TYaMobileTileData));
   MD5 := MD5Buffer(ATile.Data.Buffer^, ATile.Data.Size);
-  VTileData.Magic := StrToMagic('YTLD');
-  VTileData.ElementsCount := 1;
-  VTileData.FormatVersion := 1;
+  ATileData.Magic := StrToMagic('YTLD');
+  ATileData.ElementsCount := 1;
+  ATileData.FormatVersion := 1;
   for I := 0 to 15 do begin
-    VTileData.MD5[I] := MD5.v[I];
+    ATileData.MD5[I] := MD5.v[I];
   end;
-  VTileData.MapVersion := ATile.MapVersion;
-  SetLength(VTileData.ElementsTable, VTileData.ElementsCount);
-  VTileData.ElementsTable[0].DataID := 0;
-  VTileData.ElementsTable[0].DataSize := ATile.Data.Size;
-  GetMem(VTileData.Data, ATile.Data.Size);
-  Move(ATile.Data.Buffer^, VTileData.Data^, ATile.Data.Size);
-  Result := VTileData;
+  ATileData.MapVersion := ATile.MapVersion;
+  SetLength(ATileData.ElementsTable, ATileData.ElementsCount);
+  ATileData.ElementsTable[0].DataID := 0;
+  ATileData.ElementsTable[0].DataSize := ATile.Data.Size;
+  GetMem(ATileData.Data, ATile.Data.Size);
+  Move(ATile.Data.Buffer^, ATileData.Data^, ATile.Data.Size);
 end;
 
 procedure TYaMobileCacheFile.FreeTileDataBlock(var ATileData: TYaMobileTileData);
