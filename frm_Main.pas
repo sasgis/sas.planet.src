@@ -531,7 +531,6 @@ type
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
-    FGpsPosChangeCounter: Integer;
     FCenterToGPSDelta: TDoublePoint;
     FShowActivHint: boolean;
     FHintWindow: THintWindow;
@@ -878,7 +877,6 @@ begin
   FTileErrorLogger := VLogger;
   FTileErrorLogProvider := VLogger;
 
-  FGpsPosChangeCounter := 0;
   FCenterToGPSDelta := CEmptyDoublePoint;
 
   TBSMB.Images := FMapTypeIcons24List.GetImageList;
