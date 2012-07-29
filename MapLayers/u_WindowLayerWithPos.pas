@@ -842,6 +842,12 @@ var
   VLocation: TFloatRect;
 begin
   inherited;
+  if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
+    if FLayer.Visible <> FVisible then begin
+      SetNeedUpdateLayerVisibility;
+      SetNeedUpdateLayerLocation;
+    end;
+  end;
   if FNeedUpdateLayerLocationFlag.CheckFlagAndReset then begin
     VLocation := GetNewLayerLocation;
     if not EqualRect(VLocation, FLayer.Location) then begin
@@ -851,6 +857,7 @@ begin
   if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
     if FLayer.Visible <> FVisible then begin
       DoUpdateLayerVisibility;
+      SetNeedUpdateLayerLocation;
     end;
   end;
   if FNeedFullRepaintLayerFlag.CheckFlagAndReset then begin
