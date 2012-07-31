@@ -23,7 +23,6 @@ unit fr_TilesDelete;
 interface
 
 uses
-  Windows, // for inline AnsiSameText
   SysUtils,
   Classes,
   Controls,
@@ -35,20 +34,11 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_PredicateByTileInfo,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
   u_CommonFormAndFrameParents;
-
-type
-  IRegionProcessParamsFrameTilesDelete = interface(IRegionProcessParamsFrameBase)
-    ['{34B156A8-D8DD-4EFF-AF55-70C93C3ADE17}']
-    function GetDeleteBySize: Integer;
-    property DeleteBySize: Integer read GetDeleteBySize;
-
-    function GetForAttachments: Boolean;
-    property ForAttachments: Boolean read GetForAttachments;
-  end;
 
 type
   TfrTilesDelete = class(
@@ -56,7 +46,7 @@ type
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
       IRegionProcessParamsFrameOneZoom,
-      IRegionProcessParamsFrameTilesDelete
+      IRegionProcessParamsFrameProcessPredicate
     )
     cbbMap: TComboBox;
     seDelSize: TSpinEdit;
@@ -71,6 +61,7 @@ type
     lblStat: TLabel;
     flwpnlDelBySize: TFlowPanel;
     lblDelSize: TLabel;
+    rgTarget: TRadioGroup;
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -84,8 +75,7 @@ type
     function GetMapType: TMapType;
     function GetZoom: Byte;
   private
-    function GetDeleteBySize: Integer;
-    function GetForAttachments: Boolean;
+    function GetPredicate: IPredicateByTileInfo;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -98,8 +88,8 @@ type
 implementation
 
 uses
-  i_MapAttachmentsInfo,
-  i_GUIDListStatic;
+  i_GUIDListStatic,
+  u_PredicateByTileInfoBase;
 
 {$R *.dfm}
 
@@ -118,31 +108,33 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
-function TfrTilesDelete.GetDeleteBySize: Integer;
-begin
-  if chkDelBySize.Checked then begin
-    Result := seDelSize.Value;
-  end else begin
-    Result := -1;
-  end;
-end;
-
-function TfrTilesDelete.GetForAttachments: Boolean;
-var
-  VMapType: TMapType;
-begin
-  Result := False;
-  VMapType := GetMapType;
-  if VMapType <> nil then begin
-    Result := (not AnsiSameText(cbbMap.Items[cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
-  end;
-end;
-
 function TfrTilesDelete.GetMapType: TMapType;
 begin
   Result := nil;
   if cbbMap.ItemIndex >= 0 then begin
     Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+end;
+
+function TfrTilesDelete.GetPredicate: IPredicateByTileInfo;
+begin
+  if rgTarget.ItemIndex < 0 then begin
+    rgTarget.ItemIndex := 0;
+  end;
+  if rgTarget.ItemIndex = 0 then begin
+    if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
+      Result := TPredicateByTileInfoEqualSize.Create(False, seDelSize.Value);
+    end else begin
+      Result := TPredicateByTileInfoExistsTile.Create;
+    end;
+  end else if rgTarget.ItemIndex = 1 then begin
+    Result := TPredicateByTileInfoExistsTNE.Create;
+  end else if rgTarget.ItemIndex = 2 then begin
+    if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
+      Result := TPredicateByTileInfoEqualSize.Create(True, seDelSize.Value);
+    end else begin
+      Result := TPredicateByTileInfoExistsTileOrTNE.Create;
+    end;
   end;
 end;
 
@@ -165,8 +157,6 @@ var
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
-  VMapAttachmentsInfo: IMapAttachmentsInfo;
-  VMapAttachmentsName: String;
 begin
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
@@ -186,15 +176,6 @@ begin
       // select current map by default
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
-      end;
-
-      // check attachments for map (with another name!)
-      VMapAttachmentsInfo:=VMapType.Zmp.MapAttachmentsInfo;
-      if Assigned(VMapAttachmentsInfo) then
-      if VMapAttachmentsInfo.GetUseDel then begin // no direct deleting by default
-        VMapAttachmentsName := VMapAttachmentsInfo.GetString(VMapType.GetLanguageManager.CurrentLanguageIndex);
-        if (not AnsiSameText(VMapType.GUIConfig.Name.Value, VMapAttachmentsName)) then
-          cbbMap.Items.AddObject(VMapAttachmentsName, VMapType);
       end;
     end;
   end;

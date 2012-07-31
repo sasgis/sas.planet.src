@@ -58,7 +58,7 @@ object frTilesDelete: TfrTilesDelete
         Height = 21
         Align = alTop
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
     end
@@ -102,13 +102,13 @@ object frTilesDelete: TfrTilesDelete
         Align = alTop
         Style = csDropDownList
         DropDownCount = 16
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object flwpnlDelBySize: TFlowPanel
         AlignWithMargins = True
         Left = 6
-        Top = 44
+        Top = 108
         Width = 377
         Height = 24
         Align = alTop
@@ -116,6 +116,7 @@ object frTilesDelete: TfrTilesDelete
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 1
+        ExplicitTop = 44
         object chkDelBySize: TCheckBox
           Left = 0
           Top = 2
@@ -127,12 +128,12 @@ object frTilesDelete: TfrTilesDelete
           AlignWithMargins = True
           Left = 16
           Top = 5
-          Width = 238
+          Width = 148
           Height = 13
           Caption = 'Delete only tiles of size, bytes:'
         end
         object seDelSize: TSpinEdit
-          Left = 257
+          Left = 167
           Top = 2
           Width = 69
           Height = 22
@@ -141,6 +142,20 @@ object frTilesDelete: TfrTilesDelete
           TabOrder = 1
           Value = 0
         end
+      end
+      object rgTarget: TRadioGroup
+        Left = 3
+        Top = 41
+        Width = 383
+        Height = 64
+        Align = alTop
+        Caption = 'Delete target'
+        ItemIndex = 0
+        Items.Strings = (
+          'Delete tiles'
+          'Delete tne'
+          'Delete both')
+        TabOrder = 2
       end
     end
   end

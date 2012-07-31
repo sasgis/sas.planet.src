@@ -30,6 +30,8 @@ uses
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_VectorItemProjected,
+  i_MapVersionInfo,
+  i_PredicateByTileInfo,
   u_MapType,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
@@ -39,10 +41,9 @@ type
   private
     FZoom: byte;
     FMapType: TMapType;
+    FVersion: IMapVersionInfo;
     FPolyProjected: IProjectedPolygon;
-    DelBytes: boolean;
-    DelBytesNum: integer;
-    FForAttachments: Boolean;
+    FPredicate: IPredicateByTileInfo;
   protected
     procedure ProcessRegion; override;
     procedure ProgressFormUpdateOnProgress(
@@ -55,11 +56,10 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
-      Azoom: byte;
-      Atypemap: TMapType;
-      ADelByte: boolean;
-      ADelBytesNum: integer;
-      AForAttachments: Boolean
+      AZoom: byte;
+      ATypeMap: TMapType;
+      const AVersion: IMapVersionInfo;
+      const APredicate: IPredicateByTileInfo
     );
   end;
 
@@ -67,6 +67,7 @@ implementation
 
 uses
   i_TileIterator,
+  i_TileInfoBasic,
   u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
@@ -75,11 +76,10 @@ constructor TThreadDeleteTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
-  Azoom: byte;
-  Atypemap: TMapType;
-  ADelByte: boolean;
-  ADelBytesNum: integer;
-  AForAttachments: Boolean
+  AZoom: byte;
+  ATypeMap: TMapType;
+  const AVersion: IMapVersionInfo;
+  const APredicate: IPredicateByTileInfo
 );
 begin
   inherited Create(
@@ -92,9 +92,8 @@ begin
   FPolyProjected := AProjectedPolygon;
   FZoom := Azoom;
   FMapType := Atypemap;
-  DelBytes := ADelByte;
-  DelBytesNum := ADelBytesNum;
-  FForAttachments := AForAttachments;
+  FPredicate := APredicate;
+  FVersion := AVersion;
 end;
 
 procedure TThreadDeleteTiles.ProcessRegion;
@@ -104,34 +103,40 @@ var
   VDeletedCount: integer;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VTileInfo: ITileInfoBasic;
 begin
   inherited;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
-  try
-    VTilesToProcess := VTileIterator.TilesTotal;
-    ProgressInfo.SetCaption(
-      SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')'
-    );
-    VTilesProcessed := 0;
-    VDeletedCount := 0;
-    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
+  VTilesToProcess := VTileIterator.TilesTotal;
+  ProgressInfo.SetCaption(
+    SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')'
+  );
+  VTilesProcessed := 0;
+  VDeletedCount := 0;
+  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
 
-    // foreach selected tile
-    while VTileIterator.Next(VTile) do begin
-      if CancelNotifier.IsOperationCanceled(OperationID) then begin
-        exit;
-      end;
-      // try to delete
-      if (not DelBytes) or (DelBytesNum = FMapType.TileSize(VTile, FZoom)) then begin
-        if FMapType.DeleteTile(VTile, FZoom) then begin
-          inc(VDeletedCount);
+  // foreach selected tile
+  while VTileIterator.Next(VTile) do begin
+    if CancelNotifier.IsOperationCanceled(OperationID) then begin
+      exit;
+    end;
+    VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion);
+    if (VTileInfo <> nil) then begin
+      if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
+        if VTileInfo.IsExists then begin
+          if FMapType.TileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
+            inc(VDeletedCount);
+          end;
+        end;
+        if VTileInfo.IsExistsTNE then begin
+          if FMapType.TileStorage.DeleteTNE(VTile, FZoom, VTileInfo.VersionInfo) then begin
+            inc(VDeletedCount);
+          end;
         end;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
       end;
-      inc(VTilesProcessed);
     end;
-  finally
-    VTileIterator := nil;
+    inc(VTilesProcessed);
   end;
 end;
 

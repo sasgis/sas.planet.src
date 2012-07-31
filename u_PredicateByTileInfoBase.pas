@@ -47,10 +47,11 @@ type
   TPredicateByTileInfoEqualSize = class(TPredicateByTileInfoAbstract)
   private
     FSize: Cardinal;
+    FDeleteTNE: Boolean;
   protected
     function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
   public
-    constructor Create(ASize: Cardinal);
+    constructor Create(ADeleteTNE: Boolean; ASize: Cardinal);
   end;
 
   TPredicateByTileInfoNotExistOrBeforDate = class(TPredicateByTileInfoAbstract)
@@ -109,10 +110,11 @@ end;
 
 { TPredicateByTileInfoEqualSize }
 
-constructor TPredicateByTileInfoEqualSize.Create(ASize: Cardinal);
+constructor TPredicateByTileInfoEqualSize.Create(ADeleteTNE: Boolean; ASize: Cardinal);
 begin
   inherited Create;
   FSize := ASize;
+  FDeleteTNE := ADeleteTNE;
 end;
 
 function TPredicateByTileInfoEqualSize.Check(
@@ -121,6 +123,8 @@ begin
   Result := False;
   if ATileInfo.FInfoType = titExists then begin
     Result := ATileInfo.FSize = FSize;
+  end else if ATileInfo.FInfoType = titTneExists then begin
+    Result := FDeleteTNE;
   end;
 end;
 

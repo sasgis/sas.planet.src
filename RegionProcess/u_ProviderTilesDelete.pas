@@ -67,6 +67,7 @@ implementation
 uses
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_PredicateByTileInfo,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_VectorItemProjected,
@@ -111,7 +112,7 @@ begin
     );
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
-  Assert(Supports(Result, IRegionProcessParamsFrameTilesDelete));
+  Assert(Supports(Result, IRegionProcessParamsFrameProcessPredicate));
 end;
 
 function TProviderTilesDelete.GetCaption: string;
@@ -122,31 +123,18 @@ end;
 procedure TProviderTilesDelete.StartProcess(const APolygon: ILonLatPolygon);
 var
   VMapType: TMapType;
-  VDelBySize: Integer;
-  VIsDelSize: Boolean;
-  VDelSize: Cardinal;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
-  VForAttachments: Boolean;
+  VPredicate: IPredicateByTileInfo;
 begin
   inherited;
   if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
-
     VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
     VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
-
-    VForAttachments := (ParamsFrame as IRegionProcessParamsFrameTilesDelete).ForAttachments;
-    VDelBySize := (ParamsFrame as IRegionProcessParamsFrameTilesDelete).DeleteBySize;
-
-    VIsDelSize := (VDelBySize >= 0);
-    if VIsDelSize then begin
-      VDelSize := VDelBySize;
-    end else begin
-      VDelSize := 0;
-    end;
+    VPredicate := (ParamsFrame as IRegionProcessParamsFrameProcessPredicate).Predicate;
 
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -174,9 +162,8 @@ begin
       VProjectedPolygon,
       VZoom,
       VMapType,
-      VIsDelSize,
-      VDelSize,
-      VForAttachments
+      VMapType.VersionConfig.Version,
+      VPredicate
     );
   end;
 end;

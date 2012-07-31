@@ -8,6 +8,7 @@ uses
   i_BitmapLayerProvider,
   i_MapCalibration,
   i_ProjectionInfo,
+  i_PredicateByTileInfo,
   u_MapType;
 
 type
@@ -53,6 +54,12 @@ type
     ['{98A4BE9B-AF50-45F5-8E26-0DBF0F094C0B}']
     function GetProvider: IBitmapLayerProvider;
     property Provider: IBitmapLayerProvider read GetProvider;
+  end;
+
+  IRegionProcessParamsFrameProcessPredicate = interface(IRegionProcessParamsFrameBase)
+    ['{DF8D4BBB-BA83-412A-BA70-3A1E454AD3C3}']
+    function GetPredicate: IPredicateByTileInfo;
+    property Predicate: IPredicateByTileInfo read GetPredicate;
   end;
 
   IRegionProcessParamsFrameTargetPath = interface(IRegionProcessParamsFrameBase)
