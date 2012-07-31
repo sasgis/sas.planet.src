@@ -146,7 +146,7 @@ end;
 
 function TEnumLonLatPointByPath.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := ILonLatPath(FSourceLineSet).Item[fIndex].GetEnum;
+  Result := ILonLatPath(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 { TEnumLonLatPointByPolygon }
@@ -158,7 +158,7 @@ end;
 
 function TEnumLonLatPointByPolygon.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := ILonLatPolygon(FSourceLineSet).Item[fIndex].GetEnum;
+  Result := ILonLatPolygon(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 { TEnumProjectedPointByPath }
@@ -170,7 +170,7 @@ end;
 
 function TEnumProjectedPointByPath.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := IProjectedPath(FSourceLineSet).Item[fIndex].GetEnum;
+  Result := IProjectedPath(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 { TEnumProjectedPointByPolygon }
@@ -182,7 +182,7 @@ end;
 
 function TEnumProjectedPointByPolygon.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := IProjectedPolygon(FSourceLineSet).Item[fIndex].GetEnum;
+  Result := IProjectedPolygon(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 { TEnumLocalPointByPath }
@@ -194,7 +194,7 @@ end;
 
 function TEnumLocalPointByPath.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := ILocalPath(FSourceLineSet).Item[fIndex].GetEnum;
+  Result := ILocalPath(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 { TEnumLocalPointByPolygon }
@@ -206,7 +206,7 @@ end;
 
 function TEnumLocalPointByPolygon.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := ILocalPolygon(FSourceLineSet).Item[fIndex].GetEnum;
+  Result := ILocalPolygon(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 end.

@@ -121,8 +121,8 @@ var
   VRequestHeader: string;
 begin
   inherited;
-  if FURLBase <> FDefConfig.UrlBase then begin
-    AConfigData.WriteString('URLBase', FURLBase);
+  if FUrlBase <> FDefConfig.UrlBase then begin
+    AConfigData.WriteString('URLBase', FUrlBase);
   end else begin
     AConfigData.DeleteValue('URLBase');
   end;

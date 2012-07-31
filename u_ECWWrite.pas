@@ -84,9 +84,9 @@ begin
   VECWWrite := TECWWrite(pClient.pClientData);
   Result := VECWWrite.FReadDelegate(
     nNextLine,
-    PlineRGB(PPtr(InputArray)[0]),
-    PlineRGB(PPtr(InputArray)[1]),
-    PlineRGB(PPtr(InputArray)[2])
+    PLineRGB(PPtr(InputArray)[0]),
+    PLineRGB(PPtr(InputArray)[1]),
+    PLineRGB(PPtr(InputArray)[2])
   );
 end;
 

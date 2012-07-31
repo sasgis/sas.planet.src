@@ -214,8 +214,8 @@ begin
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
       Caption := SAS_MSG_LoadComplete+' ('+VComplete+')';
-      lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
-      lblProcessedValue.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
+      lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_Files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
+      lblProcessedValue.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_Files;
       lblDownloadedValue.Caption := inttostr(FDownloadThread.Downloaded)+' ('+ VValueConverter.DataSizeConvert(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       lblSizeToFinishValue.Caption := GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);
@@ -234,8 +234,8 @@ begin
     end else begin
       Caption:=SAS_STR_LoadProcess+'... ('+VComplete+')';
       Application.ProcessMessages;
-      lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
-      lblProcessedValue.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_files;
+      lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_Files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
+      lblProcessedValue.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_Files;
       lblDownloadedValue.Caption:=inttostr(FDownloadThread.Downloaded)+' ('+VValueConverter.DataSizeConvert(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.ElapsedTime);
       lblSizeToFinishValue.Caption:=GetLenEnd(FDownloadThread.TotalInRegion, FDownloadThread.Processed, FDownloadThread.Downloaded, FDownloadThread.DownloadSize);

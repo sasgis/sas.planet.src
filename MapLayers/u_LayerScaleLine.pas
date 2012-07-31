@@ -199,7 +199,7 @@ begin
   OnConfigChange;
 end;
 
-procedure TLayerScaleLine.DrawOutlinedText(
+procedure TLayerScaleLine.DrawOutLinedText(
   X, Y: Integer;
   const Text: string;
   TextColor: TColor32;
@@ -375,7 +375,7 @@ var
   VHeight: Integer;
 begin
   if Length(AText) > 0 then begin
-    DrawOutlinedText(
+    DrawOutLinedText(
       AScalePos,
       ATargetBitmap.Height - 36,
       AText,
@@ -614,7 +614,7 @@ var
   VStartX: Integer;
 begin
   if Length(AText) > 0 then begin
-    DrawOutlinedText(
+    DrawOutLinedText(
       26,
       AScalePos,
       AText,

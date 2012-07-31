@@ -109,7 +109,7 @@ begin
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   VTilesToProcess := VTileIterator.TilesTotal;
   ProgressInfo.SetCaption(
-    SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files + ' (x' + inttostr(FZoom + 1) + ')'
+    SAS_STR_Deleted + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files + ' (x' + inttostr(FZoom + 1) + ')'
   );
   VTilesProcessed := 0;
   VDeletedCount := 0;
@@ -146,7 +146,7 @@ procedure TThreadDeleteTiles.ProgressFormUpdateOnProgress(
 begin
   ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
   ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
-  ProgressInfo.SetFirstLine(SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_files);
+  ProgressInfo.SetFirstLine(SAS_STR_AllDelete + ' ' + inttostr(ADeleted) + ' ' + SAS_STR_Files);
 end;
 
 end.

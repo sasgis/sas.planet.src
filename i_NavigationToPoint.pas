@@ -33,14 +33,14 @@ type
     function GetIsActive: Boolean;
     property IsActive: Boolean read GetIsActive;
 
-    function GetMarkId: IMarkID;
-    property MarkId: IMarkID read GetMarkId;
+    function GetMarkId: IMarkId;
+    property MarkId: IMarkId read GetMarkId;
 
     function GetLonLat: TDoublePoint;
     property LonLat: TDoublePoint read GetLonLat;
 
     procedure StartNavToMark(
-      const AMarkId: IMarkID;
+      const AMarkId: IMarkId;
       const APointLonLat: TDoublePoint
     );
     procedure StartNavLonLat(const APointLonLat: TDoublePoint);

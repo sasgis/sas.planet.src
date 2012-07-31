@@ -36,7 +36,7 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     function PosStr2List(
-      const Apos1,Apos2: string;
+      const APos1,APos2: string;
       var AAList: IInterfaceList
     ) : boolean;
     function GenShtab2Pos(
@@ -75,7 +75,7 @@ var i:integer;
 begin
 Result := 0;
 if (A_substr<>'') and (Length(A_Substr)<Length(A_String)) then
- for I := 0 to length(A_string)-length(A_Substr) do
+ for i := 0 to length(A_string)-length(A_Substr) do
    if copy(A_String,i,length(A_substr))=A_substr then begin
    inc(Result);
    LastPos := i;
@@ -229,7 +229,7 @@ begin
   end;
 end;
 
-function TGeoCoderByCoord.PosStr2List(const Apos1,Apos2: string; var AAList: IInterfaceList) : boolean;
+function TGeoCoderByCoord.PosStr2List(const APos1,APos2: string; var AAList: IInterfaceList) : boolean;
 var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;
@@ -243,9 +243,9 @@ begin
  VValueConverter := FValueToStringConverterConfig.GetStatic;
  result := true;
  VCounter:=0;
- Str2Degree(apos1, VBlat1, VBlon1, VDLat);
+ Str2Degree(APos1, VBlat1, VBlon1, VDLat);
  if VBLat1 and VBLon1 then begin Vblat1 := false ; VBLon1 := false end; // если указано 123NE
-      Str2Degree(apos2, VBLat2, VBlon2, VDLon);
+      Str2Degree(APos2, VBLat2, VBlon2, VDLon);
       if VBLat2 and VBLon2 then begin Vblat2 := false ; VBLon2 := false end;
 
       if VBLat1 and VBLat2 then begin Vblat1 := false ; VBLat2 := false end;
@@ -257,7 +257,7 @@ begin
       if VBlon2 then VPoint.X := VDLon ;
 
       if (VBLat1 and VBLon2)or(VBLat2 and VBLon1) then begin // точно определили всего одну пару
-        sname := apos1+' '+apos2;
+        sname := APos1+' '+APos2;
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
          sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
@@ -274,7 +274,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -287,7 +287,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -303,7 +303,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -316,7 +316,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -337,7 +337,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -350,7 +350,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -364,7 +364,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -377,7 +377,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -397,7 +397,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -410,7 +410,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -424,7 +424,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -437,7 +437,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then
          if not( ((VDLat<0) or (VDLon<0)) and (VPoint.y >0)and (VPoint.X >0) or
          ((VDLat<0)and(VDLon<0)and((VPoint.y >0)or(VPoint.X >0)))) then begin
-          inc(VCounter);sname := inttostr(VCounter)+'.) '+apos1+' '+apos2;
+          inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
           VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);

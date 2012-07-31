@@ -96,7 +96,7 @@ begin
     exit;
   end;
   e2 := FExct * FExct;
-  a := FRadiusa;
+  a := FRadiusA;
 
   VStart.X := AStart.X * D2R;
   VStart.Y := AStart.Y * D2R;
@@ -191,9 +191,9 @@ function TDatum.CalcPoligonArea(
   var
     a, b, c: double;
   begin
-    a := det(point, point1, point2);
-    b := det(point, point2, point3);
-    c := det(point, point3, point1);
+    a := Det(point, point1, point2);
+    b := Det(point, point2, point3);
+    c := Det(point, point3, point1);
     Result := ((a >= 0) and (b >= 0) and (c >= 0)) or ((a < 0) and (b < 0) and (c < 0));
   end;
 
@@ -222,7 +222,7 @@ begin
   For NodeN := 0 to ACount - 1 do begin
     PointsA[NodeN] := 1;
   end;
-  for I := 0 to 2 do begin
+  for i := 0 to 2 do begin
     pn[i] := i;
     p[i] := APoints[i];
   end;

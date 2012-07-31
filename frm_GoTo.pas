@@ -178,7 +178,7 @@ procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
   textsrch:String;
   VIndex: Integer;
-  VMarkId: IMarkID;
+  VMarkId: IMarkId;
   VMark: IMark;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;

@@ -572,8 +572,8 @@ begin
         if Terminated then begin
           Break;
         end;
-        FGoToNextTile := false;
-        while not FGoToNextTile do begin
+        FGotoNextTile := false;
+        while not FGotoNextTile do begin
           FFinishEvent.ResetEvent;
           if (FPausedByUser) then begin
             FElapsedTime := FElapsedTime + (Now - FStartTime);
@@ -606,7 +606,7 @@ begin
               end;
               FLastSuccessfulPoint := VTile;
               FLastProcessedPoint := VTile;
-              FGoToNextTile := True;
+              FGotoNextTile := True;
             end else begin
               try
                 if (not (FSecondLoadTNE)) and
@@ -618,7 +618,7 @@ begin
                   end;
                   FLastProcessedPoint := VTile;
                   FLastSuccessfulPoint := VTile;
-                  FGoToNextTile := True;
+                  FGotoNextTile := True;
                 end else begin
                   // download tile
                   VOperationID := FCancelNotifier.CurrentOperation;
@@ -641,15 +641,15 @@ begin
               except
                 on E: Exception do begin
                   FLog.WriteText(E.Message, 0);
-                  FGoToNextTile := True;
+                  FGotoNextTile := True;
                 end;
               end;
             end;
           end else begin
             FLog.WriteText(FRES_FileExistsShort, 0);
-            FGoToNextTile := True;
+            FGotoNextTile := True;
           end;
-          if FGoToNextTile then begin
+          if FGotoNextTile then begin
             inc(FProcessed);
           end;
           if Terminated then begin
@@ -754,7 +754,7 @@ begin
         FLog.WriteText('(Ok!)', 0);
       end;
       FLastSuccessfulPoint := AResult.Request.Tile;
-      FGoToNextTile := True;
+      FGotoNextTile := True;
       if FDownloadInfo <> nil then begin
         FDownloadInfo.Add(1, VResultOk.Data.Size);
       end;
@@ -764,33 +764,33 @@ begin
         FLog.WriteText(FRES_FileBeCreateLen, 0);
       end;
       FLastSuccessfulPoint := AResult.Request.Tile;
-      FGoToNextTile := True;
+      FGotoNextTile := True;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
       FLog.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime, [FProxyAuthErrorSleepTime div 1000]), 10);
       SleepCancelable(FProxyAuthErrorSleepTime);
-      FGoToNextTile := false;
+      FGotoNextTile := false;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultBanned) then begin
       FLog.WriteText(FRES_Ban + #13#10 + Format(FRES_WaitTime, [FBanSleepTime div 1000]), 10);
       SleepCancelable(FBanSleepTime);
-      FGoToNextTile := false;
+      FGotoNextTile := false;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultBadContentType, VResultBadContentType) then begin
       FLog.WriteText(Format(FRES_BadMIME, [VResultBadContentType.ContentType]), 1);
-      FGoToNextTile := True;
+      FGotoNextTile := True;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists) then begin
       FLog.WriteText(FRES_TileNotExists, 1);
-      FGoToNextTile := True;
+      FGotoNextTile := True;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
       if Supports(VResultWithDownload.DownloadResult, IDownloadResultNoConnetctToServer) then begin
         FLog.WriteText(VResultDownloadError.ErrorText + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
         SleepCancelable(FDownloadErrorSleepTime);
-        FGoToNextTile := false;
+        FGotoNextTile := false;
       end else begin
         FLog.WriteText(FRES_Noconnectionstointernet + #13#10 + Format(FRES_WaitTime, [FDownloadErrorSleepTime div 1000]), 10);
         SleepCancelable(FDownloadErrorSleepTime);
         if FDownloadConfig.IsGoNextTileIfDownloadError then begin
-          FGoToNextTile := True;
+          FGotoNextTile := True;
         end else begin
-          FGoToNextTile := False;
+          FGotoNextTile := False;
         end;
       end;
     end;

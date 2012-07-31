@@ -34,18 +34,18 @@ type
   TNavigationToPoint = class(TConfigDataElementBase, INavigationToPoint)
   private
     FIsActive: Boolean;
-    FMarkId: IMarkID;
+    FMarkId: IMarkId;
     FLonLat: TDoublePoint;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetIsActive: Boolean;
-    function GetMarkId: IMarkID;
+    function GetMarkId: IMarkId;
     function GetLonLat: TDoublePoint;
 
     procedure StartNavToMark(
-      const AMarkId: IMarkID;
+      const AMarkId: IMarkId;
       const APointLonLat: TDoublePoint
     );
     procedure StartNavLonLat(const APointLonLat: TDoublePoint);
@@ -90,7 +90,7 @@ begin
   AConfigData.WriteFloat('Y', FLonLat.Y);
 end;
 
-function TNavigationToPoint.GetMarkId: IMarkID;
+function TNavigationToPoint.GetMarkId: IMarkId;
 begin
   LockRead;
   try
@@ -134,7 +134,7 @@ begin
 end;
 
 procedure TNavigationToPoint.StartNavToMark(
-  const AMarkId: IMarkID;
+  const AMarkId: IMarkId;
   const APointLonLat: TDoublePoint
 );
 begin

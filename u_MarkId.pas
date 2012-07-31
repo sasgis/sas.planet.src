@@ -28,7 +28,7 @@ uses
   i_MarksDbSmlInternal;
 
 type
-  TMarkId = class(TInterfacedObject, IMarkID, IMarkSMLInternal)
+  TMarkId = class(TInterfacedObject, IMarkId, IMarkSMLInternal)
   private
     FName: string;
     FId: Integer;
@@ -46,7 +46,7 @@ type
     function GetCategoryId: Integer;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
-    function IsSameId(const AMarkId: IMarkID): Boolean;
+    function IsSameId(const AMarkId: IMarkId): Boolean;
   public
     constructor Create(
       const AName: string;
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-function TMarkId.IsSameId(const AMarkId: IMarkID): Boolean;
+function TMarkId.IsSameId(const AMarkId: IMarkId): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin

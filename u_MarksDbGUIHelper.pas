@@ -68,7 +68,7 @@ type
     );
 
     procedure DeleteMarkModal(
-      const AMarkId: IMarkID;
+      const AMarkId: IMarkId;
       handle: THandle
     );
     procedure DeleteMarksModal(
@@ -309,7 +309,7 @@ begin
 end;
 
 procedure TMarksDbGUIHelper.DeleteMarkModal(
-  const AMarkId: IMarkID;
+  const AMarkId: IMarkId;
   handle: THandle
 );
 var

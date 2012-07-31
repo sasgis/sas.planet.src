@@ -135,8 +135,8 @@ procedure TfrTilesCopy.chklstZoomsDblClick(Sender: TObject);
 var
   i: Integer;
 begin
-  for I := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
-  if chklstZooms.ItemIndex<chklstZooms.count-1 then for I := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
+  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
+  if chklstZooms.ItemIndex<chklstZooms.count-1 then for i := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
   if chklstZooms.ItemIndex=chklstZooms.count-1 then chkAllZooms.state:=cbChecked else chkAllZooms.state:=cbGrayed;
 end;
 

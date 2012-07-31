@@ -222,7 +222,7 @@ begin
               VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
               VWriter.WriteTile(
-                I,
+                i,
                 256,
                 256,
                 VTileBounds,

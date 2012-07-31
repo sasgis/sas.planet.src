@@ -172,8 +172,8 @@ begin
       );
   end;
 
-  for I := 0 to Length(FCacheFile) - 1 do begin
-    FCacheFile[I] := nil;
+  for i := 0 to Length(FCacheFile) - 1 do begin
+    FCacheFile[i] := nil;
   end;
   FCacheCount := 0;
 end;

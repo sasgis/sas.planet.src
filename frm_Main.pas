@@ -831,7 +831,7 @@ begin
       GState.ImageResamplerConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
-      GState.MarksDB,
+      GState.MarksDb,
       GState.LocalConverterFactory,
       GState.BitmapPostProcessingConfig,
       GState.ProjectionFactory,
@@ -846,7 +846,7 @@ begin
   FfrmGoTo :=
     TfrmGoTo.Create(
       GState.LanguageManager,
-      GState.MarksDB.MarksDb,
+      GState.MarksDb.MarksDb,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState.Position,
       GState.ValueToStringConverterConfig
@@ -1003,7 +1003,7 @@ begin
     TMarksDbGUIHelper.Create(
       GState.LanguageManager,
       GState.MediaDataPath,
-      GState.MarksDB,
+      GState.MarksDb,
       FConfig.ViewPortState.Position,
       GState.VectorItmesFactory,
       GState.ValueToStringConverterConfig,
@@ -1262,7 +1262,7 @@ begin
         GState.ClearStrategyFactory,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.MarksLayerConfig,
-        FMarkDBGUI.MarksDB
+        FMarkDBGUI.MarksDb
       );
     FLayersList.Add(FLayerMapMarks);
     if FConfig.MainConfig.UseNewMainLayer then begin
@@ -3479,8 +3479,8 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
 begin
-  if TMenuItem(sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(sender).Tag);
+  if TMenuItem(Sender).Tag<>0 then begin
+    VMapType := TMapType(TMenuItem(Sender).Tag);
   end else begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end;
@@ -3521,11 +3521,11 @@ end;
 procedure TfrmMain.tbitmHideThisMarkClick(Sender: TObject);
 var
   VMark: IMark;
-  VMarkId: IMarkID;
+  VMarkId: IMarkId;
 begin
   VMark := FSelectedMark;
-  if Supports(VMark, IMarkID, VMarkId) then begin
-    FMarkDBGUI.MarksDB.MarksDb.SetMarkVisibleByID(VMarkId, False);
+  if Supports(VMark, IMarkId, VMarkId) then begin
+    FMarkDBGUI.MarksDb.MarksDb.SetMarkVisibleByID(VMarkId, False);
   end;
 end;
 
@@ -3603,8 +3603,8 @@ var
   VTile: TPoint;
   VMapType: TMapType;
 begin
-  if TMenuItem(sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(sender).Tag);
+  if TMenuItem(Sender).Tag<>0 then begin
+    VMapType := TMapType(TMenuItem(Sender).Tag);
   end else begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end;
@@ -3633,11 +3633,11 @@ procedure TfrmMain.NDegScale0Click(Sender: TObject);
 var
   VTag: Double;
 begin
-  TTBXItem(sender).checked := True;
+  TTBXItem(Sender).checked := True;
   if NDegScaleUser.Checked then
     VTag := (ConvLatLon2Scale(NDegValue.text)*100000000)
   else
-    VTag := TTBXItem(sender).Tag;
+    VTag := TTBXItem(Sender).Tag;
   NDegValue.text := deg2strvalue(VTag);
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
@@ -3689,8 +3689,8 @@ var
   VTile: TPoint;
   VMessage: string;
 begin
-  if TMenuItem(sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(sender).Tag);
+  if TMenuItem(Sender).Tag<>0 then begin
+    VMapType := TMapType(TMenuItem(Sender).Tag);
   end else begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end;
@@ -3759,10 +3759,10 @@ begin
          TBREGIONClick(Sender);
        end;
    12: begin
-         TBCOORDClick(sender);
+         TBCOORDClick(Sender);
        end;
    20: begin
-         TBScreenSelectClick(sender);
+         TBScreenSelectClick(Sender);
        end;
    21: begin
          TBPolylineSelectClick(Sender);
@@ -4049,17 +4049,17 @@ end;
 
 procedure TfrmMain.TBGPSconnClick(Sender: TObject);
 begin
-  GState.GPSConfig.GPSEnabled := TTBXitem(sender).Checked;
+  GState.GPSConfig.GPSEnabled := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.TBGPSPathClick(Sender: TObject);
 begin
-  FConfig.LayersConfig.GPSTrackConfig.Visible := TTBXitem(sender).Checked;
+  FConfig.LayersConfig.GPSTrackConfig.Visible := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.TBGPSToPointClick(Sender: TObject);
 begin
-  FConfig.GPSBehaviour.MapMove := TTBXitem(sender).Checked;
+  FConfig.GPSBehaviour.MapMove := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.TBHideMarksClick(Sender: TObject);
@@ -4274,7 +4274,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    FMarkDBGUI.DeleteMarkModal(VMark as IMarkID, Handle);
+    FMarkDBGUI.DeleteMarkModal(VMark as IMarkId, Handle);
   end;
 end;
 
@@ -4298,8 +4298,8 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
 begin
-  if TMenuItem(sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(sender).Tag);
+  if TMenuItem(Sender).Tag<>0 then begin
+    VMapType := TMapType(TMenuItem(Sender).Tag);
   end else begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end;
@@ -4446,10 +4446,10 @@ procedure TfrmMain.NMapParamsClick(Sender: TObject);
 var
   VMapType: TMapType;
 begin
-  if TTBXItem(sender).Tag=0 then begin
+  if TTBXItem(Sender).Tag=0 then begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end else begin
-    VMapType := TMapType(TTBXItem(sender).Tag);
+    VMapType := TMapType(TTBXItem(Sender).Tag);
   end;
   FMapTypeEditor.EditMap(VMapType);
 end;
@@ -5071,8 +5071,8 @@ procedure TfrmMain.NGShScale01Click(Sender: TObject);
 var
   VTag: Integer;
 begin
-  VTag := TTBXItem(sender).Tag;
-  TTBXItem(sender).checked := True;
+  VTag := TTBXItem(Sender).Tag;
+  TTBXItem(Sender).checked := True;
   FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.LockWrite;
   try
     if VTag = 0 then begin
@@ -5179,7 +5179,7 @@ begin
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       LL := VMark.GetGoToLonLat;
-      FConfig.NavToPoint.StartNavToMark(VMark as IMarkID, ll);
+      FConfig.NavToPoint.StartNavToMark(VMark as IMarkId, ll);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;
@@ -5351,8 +5351,8 @@ var
   VMapType: TMapType;
   VUrl: string;
 begin
-  if TMenuItem(sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(sender).Tag);
+  if TMenuItem(Sender).Tag<>0 then begin
+    VMapType := TMapType(TMenuItem(Sender).Tag);
   end else begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end;
@@ -5413,12 +5413,12 @@ end;
 
 procedure TfrmMain.TBXSensorsBarVisibleChanged(Sender: TObject);
 begin
-  NSensors.Checked := TTBXToolWindow(sender).Visible;
+  NSensors.Checked := TTBXToolWindow(Sender).Visible;
 end;
 
 procedure TfrmMain.NSensorsClick(Sender: TObject);
 begin
-  TBXSensorsBar.Visible := TTBXItem(sender).Checked;
+  TBXSensorsBar.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TfrmMain.tbitmSaveCurrentPositionClick(Sender: TObject);
@@ -5463,7 +5463,7 @@ begin
   if VMark <> nil then begin
     VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False);
     if VMarkModifed <> nil then begin
-      GState.MarksDB.MarksDb.UpdateMark(VMark, VMarkModifed);
+      GState.MarksDb.MarksDb.UpdateMark(VMark, VMarkModifed);
     end;
   end;
 end;
@@ -5564,7 +5564,7 @@ end;
 
 procedure TfrmMain.TBGPSToPointCenterClick(Sender: TObject);
 begin
-  FConfig.GPSBehaviour.MapMoveCentered := TTBXitem(sender).Checked;
+  FConfig.GPSBehaviour.MapMoveCentered := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.NShowSelectionClick(Sender: TObject);
@@ -6105,7 +6105,7 @@ begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
-      FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(
+      FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(
         VPlacemark.GetPoint,
         VPlacemark.Name,
         VStr

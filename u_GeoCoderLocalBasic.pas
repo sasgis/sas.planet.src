@@ -100,12 +100,12 @@ var
   VMark: IGeoCodePlacemark;
   VDistArr: array of Double;
 begin
-   setlength(VDistArr,Alist.Count);
-   for i := 0 to Alist.GetCount-1 do begin
+   setlength(VDistArr,AList.Count);
+   for i := 0 to AList.GetCount-1 do begin
       VMark := IGeoCodePlacemark(AList.Items[i]);
       VDistArr[i]:=ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat,VMark.GetPoint);
    end;
-  QuickSort(AList,VDistArr,0,Alist.GetCount-1);
+  QuickSort(AList,VDistArr,0,AList.GetCount-1);
 end;
 
 function TGeoCoderLocalBasic.GetLocations(

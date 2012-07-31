@@ -295,8 +295,8 @@ var
   VSelectedCategory: ICategory;
 begin
   VSelectedCategory := GetSelectedCategory;
-  FCategoryList := FMarkDBGUI.MarksDB.CategoryDB.GetCategoriesList;
-  VTree := FMarkDBGUI.MarksDB.CategoryListToStaticTree(FCategoryList);
+  FCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
+  VTree := FMarkDBGUI.MarksDb.CategoryListToStaticTree(FCategoryList);
   CategoryTreeView.OnChange:=nil;
   try
     CategoryTreeView.Items.BeginUpdate;
@@ -317,7 +317,7 @@ end;
 procedure TfrmMarksExplorer.UpdateMarksList;
 var
   VCategory: IMarkCategory;
-  VMarkId: IMarkID;
+  VMarkId: IMarkId;
   i: Integer;
   VSelectedIndex: Integer;
   VTopIndex: Integer;
@@ -334,7 +334,7 @@ begin
       FMarkDBGUI.MarksListToStrings(FMarksList, MarksListBox.Items);
       for i:=0 to MarksListBox.Count-1 do begin
         VMarkId := IMarkId(Pointer(MarksListBox.Items.Objects[i]));
-        MarksListBox.Checked[i] := FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMarkId);
+        MarksListBox.Checked[i] := FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMarkId);
       end;
       if VSelectedIndex > 0 then begin
         if VSelectedIndex < MarksListBox.Count then begin
@@ -404,7 +404,7 @@ var
 begin
   VMark := GetSelectedMarkId;
   if VMark <> nil then begin
-    FMarkDBGUI.MarksDB.MarksDb.SetMarkVisibleByID(
+    FMarkDBGUI.MarksDb.MarksDb.SetMarkVisibleByID(
       VMark,
       MarksListBox.Checked[MarksListBox.ItemIndex]
     );
@@ -476,7 +476,7 @@ begin
   VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
     if VMarkIdList.Count=1 then begin
-      VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
+      VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
       VMark := FMarkDBGUI.EditMarkModal(VMark, False);
       if VMark <> nil then begin
         FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
@@ -487,13 +487,13 @@ begin
         VMarksList:=TInterfaceList.Create;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
-          VMark:=FMarkDBGUI.MarksDB.MarksDb.GetMarkByID(VMarkId);
+          VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId);
           if Supports(VMark, IMarkPoint, VMarkPoint) then begin
             if VImportConfig.TemplateNewPoint<>nil then begin
-              VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoint(
+              VMark:=FMarkDBGUI.MarksDb.MarksDb.Factory.ModifyPoint(
                 VMarkPoint,
                 VMarkPoint.Name,
-                FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
+                FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
                 VImportConfig.TemplateNewPoint.Pic,
                 VImportConfig.TemplateNewPoint.Category,
                 VMarkPoint.Desc,
@@ -506,10 +506,10 @@ begin
             end;
           end else if Supports(VMark, IMarkLine, VMarkLine) then begin
             if VImportConfig.TemplateNewLine<>nil then begin
-              VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyLine(
+              VMark:=FMarkDBGUI.MarksDb.MarksDb.Factory.ModifyLine(
                 VMarkLine,
                 VMarkLine.Name,
-                FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
+                FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
                 VImportConfig.TemplateNewLine.Category,
                 VMarkLine.Desc,
                 VMarkLine.Line,
@@ -519,10 +519,10 @@ begin
             end;
           end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
             if VImportConfig.TemplateNewPoly<>nil then begin
-              VMark:=FMarkDBGUI.MarksDB.MarksDb.Factory.ModifyPoly(
+              VMark:=FMarkDBGUI.MarksDb.MarksDb.Factory.ModifyPoly(
                 VMarkPoly,
                 VMarkPoly.Name,
-                FMarkDBGUI.MarksDB.MarksDb.GetMarkVisible(VMark),
+                FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
                 VImportConfig.TemplateNewPoly.Category,
                 VMarkPoly.Desc,
                 VMarkPoly.Line,
@@ -616,10 +616,10 @@ begin
     VCategoryOld := GetSelectedCategory;
     if VCategoryOld <> nil then begin
       if CategoryTreeView.Selected.StateIndex = 1 then begin
-        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
+        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
         CategoryTreeView.Selected.StateIndex:=2;
       end else begin
-        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
+        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
         CategoryTreeView.Selected.StateIndex:=1;
       end;
       if not VCategoryOld.IsEqual(VCategoryNew) then begin
@@ -644,10 +644,10 @@ begin
     VCategoryOld := IMarkCategory(VTreeNode.Data);
     if VCategoryOld <> nil then begin
       if VTreeNode.StateIndex=1 then begin
-        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
+        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
         VTreeNode.StateIndex:=2;
       end else begin
-        VCategoryNew := FMarkDBGUI.MarksDB.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
+        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
         VTreeNode.StateIndex:=1;
       end;
       if not VCategoryOld.IsEqual(VCategoryNew) then begin
@@ -737,14 +737,14 @@ end;
 
 procedure TfrmMarksExplorer.OnMarkSystemStateChanged;
 begin
-  lblReadOnly.Visible := FMarkDBGUI.MarksDB.State.GetStatic.WriteAccess = asDisabled;
+  lblReadOnly.Visible := FMarkDBGUI.MarksDb.State.GetStatic.WriteAccess = asDisabled;
 end;
 
 procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);
 var
   VCategory: IMarkCategory;
 begin
-  VCategory := FMarkDBGUI.MarksDB.CategoryDB.Factory.CreateNew('');
+  VCategory := FMarkDBGUI.MarksDb.CategoryDB.Factory.CreateNew('');
   VCategory := FMarkDBGUI.EditCategoryModal(VCategory, True);
   if VCategory <> nil then begin
     FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(nil, VCategory);
@@ -763,7 +763,7 @@ begin
   VCategory := GetSelectedCategory;
   VPointTemplate := nil;
   if VCategory <> nil then begin
-    VTemplateConfig := FMarkDBGUI.MarksDB.MarksFactoryConfig.PointTemplateConfig;
+    VTemplateConfig := FMarkDBGUI.MarksDb.MarksFactoryConfig.PointTemplateConfig;
     VPointTemplate := VTemplateConfig.DefaultTemplate;
     VPointTemplate :=
       VTemplateConfig.CreateTemplate(
@@ -776,7 +776,7 @@ begin
       );
   end;
 
-  VMark := FMarkDBGUI.MarksDB.MarksDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
+  VMark := FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
   VMark := FMarkDBGUI.EditMarkModal(VMark, True);
   if VMark <> nil then begin
     FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
@@ -789,7 +789,7 @@ var
 begin
   if CategoryTreeView.Items.Count>0 then begin
     VNewVisible := CheckBox2.Checked;
-    FMarkDBGUI.MarksDB.CategoryDB.SetAllCategoriesVisible(VNewVisible);
+    FMarkDBGUI.MarksDb.CategoryDB.SetAllCategoriesVisible(VNewVisible);
   end;
 end;
 
@@ -814,7 +814,7 @@ begin
   VCategory := GetSelectedCategory;
   if VCategory <> nil then begin
     VNewVisible := CheckBox1.Checked;
-    FMarkDBGUI.MarksDB.MarksDb.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
+    FMarkDBGUI.MarksDb.MarksDb.SetAllMarksInCategoryVisible(VCategory, VNewVisible);
   end;
 end;
 
@@ -822,10 +822,10 @@ procedure TfrmMarksExplorer.FormHide(Sender: TObject);
 begin
   Self.OnResize := nil;
   FWindowConfig.ChangeNotifier.Remove(FConfigListener);
-  FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
-  FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Remove(FMarksDBListener);
+  FMarkDBGUI.MarksDb.CategoryDB.ChangeNotifier.Remove(FCategoryDBListener);
+  FMarkDBGUI.MarksDb.MarksDb.ChangeNotifier.Remove(FMarksDBListener);
   FMarksShowConfig.ChangeNotifier.Remove(FMarksShowConfigListener);
-  FMarkDBGUI.MarksDB.State.ChangeNotifier.Remove(FMarksSystemStateListener);
+  FMarkDBGUI.MarksDb.State.ChangeNotifier.Remove(FMarksSystemStateListener);
   CategoryTreeView.OnChange:=nil;
   CategoryTreeView.Items.Clear;
   MarksListBox.Clear;
@@ -845,10 +845,10 @@ begin
   UpdateCategoryTree;
   UpdateMarksList;
   btnNavOnMark.Checked:= FNavToPoint.IsActive;
-  FMarkDBGUI.MarksDB.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
-  FMarkDBGUI.MarksDB.MarksDb.ChangeNotifier.Add(FMarksDBListener);
+  FMarkDBGUI.MarksDb.CategoryDB.ChangeNotifier.Add(FCategoryDBListener);
+  FMarkDBGUI.MarksDb.MarksDb.ChangeNotifier.Add(FMarksDBListener);
   FMarksShowConfig.ChangeNotifier.Add(FMarksShowConfigListener);
-  FMarkDBGUI.MarksDB.State.ChangeNotifier.Add(FMarksSystemStateListener);
+  FMarkDBGUI.MarksDb.State.ChangeNotifier.Add(FMarksSystemStateListener);
   FWindowConfig.ChangeNotifier.Add(FConfigListener);
   OnConfigChange;
   OnMarkSystemStateChanged;

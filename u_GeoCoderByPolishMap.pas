@@ -73,8 +73,8 @@ uses
 { TGeoCoderByPolishMap }
 
 function getType(
-  const Asection:string;
-  const Atype:integer
+  const ASection: string;
+  const AType:integer
   ):string;
 begin
 result := '';

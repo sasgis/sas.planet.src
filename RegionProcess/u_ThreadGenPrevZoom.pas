@@ -157,7 +157,7 @@ begin
   end;
   try
     ProgressInfo.SetCaption(
-      SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_files
+      SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
     );
 
     VResampler := FResamplerFactory.CreateResampler;

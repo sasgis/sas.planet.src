@@ -40,7 +40,7 @@ type
   TExportMarks2KML = class
   private
     kmldoc: TXMLDocument;
-    filename: string;
+    FFileName: string;
     inKMZ: boolean;
     doc: iXMLNode;
     Zip: TKaZip;
@@ -123,11 +123,11 @@ procedure TExportMarks2KML.ExportToKML(
 var
   KMLStream: TMemoryStream;
 begin
-  filename := AFileName;
-  inKMZ := ExtractFileExt(filename) = '.kmz';
+  FFileName := AFileName;
+  inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
-    Zip.FileName := filename;
-    Zip.CreateZip(filename);
+    Zip.FileName := FFileName;
+    Zip.CreateZip(FFileName);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
     AddFolders(AMarksSubset, ACategoryList);
@@ -141,7 +141,7 @@ begin
     end;
   end else begin
     AddFolders(AMarksSubset, ACategoryList);
-    kmldoc.SaveToFile(FileName);
+    kmldoc.SaveToFile(FFileName);
   end;
 end;
 
@@ -153,11 +153,11 @@ procedure TExportMarks2KML.ExportCategoryToKML(
 var
   KMLStream: TMemoryStream;
 begin
-  filename := AFileName;
-  inKMZ := ExtractFileExt(filename) = '.kmz';
+  FFileName := AFileName;
+  inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
-    Zip.FileName := filename;
-    Zip.CreateZip(filename);
+    Zip.FileName := FFileName;
+    Zip.CreateZip(FFileName);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
     AddFolder(doc, ACategory.Name, AMarksSubset);
@@ -171,7 +171,7 @@ begin
     end;
   end else begin
     AddFolder(doc, ACategory.Name, AMarksSubset);
-    kmldoc.SaveToFile(FileName);
+    kmldoc.SaveToFile(FFileName);
   end;
 end;
 
@@ -182,11 +182,11 @@ procedure TExportMarks2KML.ExportMarkToKML(
 var
   KMLStream: TMemoryStream;
 begin
-  filename := AFileName;
-  inKMZ := ExtractFileExt(filename) = '.kmz';
+  FFileName := AFileName;
+  inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
-    Zip.FileName := filename;
-    Zip.CreateZip(filename);
+    Zip.FileName := FFileName;
+    Zip.CreateZip(FFileName);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
     AddMark(Mark, doc);
@@ -200,7 +200,7 @@ begin
     end;
   end else begin
     AddMark(Mark, doc);
-    kmldoc.SaveToFile(FileName);
+    kmldoc.SaveToFile(FFileName);
   end;
 end;
 
@@ -413,7 +413,7 @@ begin
         if inKMZ then begin
           Zip.AddStream(Result, VStream);
         end else begin
-          VTargetPath := ExtractFilePath(filename) + VTargetPath;
+          VTargetPath := ExtractFilePath(FFileName) + VTargetPath;
           VTargetFullName := VTargetPath + VPicName;
           CreateDir(VTargetPath);
           VStream.SaveToFile(VTargetFullName);
