@@ -133,11 +133,11 @@ type
 implementation
 
 uses
-  t_GeoTypes,
-  i_EnumDoublePoint,
-  i_DoublePointsAggregator,
-  u_DoublePointsAggregator,
-  u_GeoTostr,
+  i_ConfigDataProvider,
+  i_ConfigDataWriteProvider,
+  u_ConfigDataProviderByIniFile,
+  u_ConfigDataWriteProviderByIniFile,
+  u_ConfigProviderHelpers,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy,
@@ -273,32 +273,27 @@ end;
 
 procedure TfrmRegionProcess.LoadSelFromFile(const FileName: string);
 var
-  i:integer;
   VIni:TMemIniFile;
-  VPointsAggregator: IDoublePointsAggregator;
-  VPoint: TDoublePoint;
+  VHLGData: IConfigDataProvider;
+  VPolygonSection: IConfigDataProvider;
+  VPolygon: ILonLatPolygon;
   VZoom: Byte;
 begin
-  if FileExists(FileName) then
-  begin
+  if FileExists(FileName) then begin
     VIni := TMemIniFile.Create(FileName);
     try
-      VPointsAggregator := TDoublePointsAggregator.Create;
-      i := 1;
-      while str2r( VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647') ) <> 2147483647 do
-      begin
-        VPoint.x := str2r(VIni.ReadString('HIGHLIGHTING','PointLon_'+inttostr(i),'2147483647'));
-        VPoint.y := str2r(VIni.ReadString('HIGHLIGHTING','PointLat_'+inttostr(i),'2147483647'));
-        VPointsAggregator.Add(VPoint);
-        inc(i);
-      end;
-      if VPointsAggregator.Count > 0 then
-      begin
-        VZoom := VIni.Readinteger('HIGHLIGHTING','zoom',1) - 1;
-        Self.Show_(VZoom, FVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count));
-      end;
+      VHLGData := TConfigDataProviderByIniFile.Create(VIni);
+      VIni := nil;
     finally
-      VIni.Free;
+      FreeAndNil(VIni);
+    end;
+    VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
+    if VPolygonSection <> nil then begin
+      VPolygon := ReadPolygon(VPolygonSection, FVectorItmesFactory);
+      if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+        VZoom := VPolygonSection.ReadInteger('zoom', 1) - 1;
+        Self.Show_(VZoom, VPolygon);
+      end;
     end;
   end
 end;
@@ -376,12 +371,11 @@ end;
 
 procedure TfrmRegionProcess.SpeedButton1Click(Sender: TObject);
 var
-  Ini: Tinifile;
-  i:integer;
+  VIni: Tinifile;
   VZoom: Byte;
   VPolygon: ILonLatPolygon;
-  VEnum: IEnumDoublePoint;
-  VPoint: TDoublePoint;
+  VHLGData: IConfigDataWriteProvider;
+  VPolygonSection: IConfigDataWriteProvider;
 begin
   if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then begin
     If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
@@ -392,21 +386,16 @@ begin
     finally
       FLastSelectionInfo.UnlockRead;
     end;
-    Ini:=TiniFile.Create(SaveSelDialog.FileName);
+    VIni:=TIniFile.Create(SaveSelDialog.FileName);
     try
-      if VPolygon.Count > 0 then begin
-        Ini.WriteInteger('HIGHLIGHTING','zoom',VZoom + 1);
-        VEnum := VPolygon.GetEnum;
-        i := 1;
-        while VEnum.Next(VPoint) do begin
-          Ini.WriteFloat('HIGHLIGHTING','PointLon_'+inttostr(i), VPoint.x);
-          Ini.WriteFloat('HIGHLIGHTING','PointLat_'+inttostr(i), VPoint.y);
-          Inc(i);
-        end;
-      end;
+      VHLGData := TConfigDataWriteProviderByIniFile.Create(VIni);
+      VIni := nil;
     finally
-      ini.Free;
+      VIni.Free;
     end;
+    VPolygonSection := VHLGData.GetOrCreateSubItem('HIGHLIGHTING');
+    VPolygonSection.WriteInteger('zoom',VZoom + 1);
+    WritePolygon(VPolygonSection, VPolygon);
   end;
 end;
 

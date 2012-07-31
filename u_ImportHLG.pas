@@ -49,9 +49,10 @@ uses
   SysUtils,
   t_GeoTypes,
   i_MarksSimple,
-  i_DoublePointsAggregator,
-  u_DoublePointsAggregator,
-  u_GeoToStr;
+  i_ConfigDataProvider,
+  i_VectorItemLonLat,
+  u_ConfigDataProviderByIniFile,
+  u_ConfigProviderHelpers;
 
 { TImportHLG }
 
@@ -66,34 +67,33 @@ function TImportHLG.ProcessImport(
   const AConfig: IImportConfig
 ): Boolean;
 var
-  ini: TMemIniFile;
-  i: integer;
-  VPointsAggregator: IDoublePointsAggregator;
+  VIni: TMemIniFile;
+  VHLGData: IConfigDataProvider;
+  VPolygonSection: IConfigDataProvider;
+  VPolygon: ILonLatPolygon;
   VMark: IMark;
-  VPoint: TDoublePoint;
 begin
   Result := False;
-  VPointsAggregator := TDoublePointsAggregator.Create;
   if AConfig.TemplateNewPoly <> nil then begin
-    ini := TMemIniFile.Create(AFileName);
+    VIni := TMemIniFile.Create(AFileName);
     try
-      i := 1;
-      while str2r(Ini.ReadString('HIGHLIGHTING', 'PointLon_' + IntToStr(i), '2147483647')) <> 2147483647 do begin
-        VPoint.x := str2r(Ini.ReadString('HIGHLIGHTING', 'PointLon_' + IntToStr(i), '2147483647'));
-        VPoint.y := str2r(Ini.ReadString('HIGHLIGHTING', 'PointLat_' + IntToStr(i), '2147483647'));
-        VPointsAggregator.Add(VPoint);
-        inc(i);
-      end;
+      VHLGData := TConfigDataProviderByIniFile.Create(VIni);
+      VIni := nil;
     finally
-      FreeAndNil(ini);
+      FreeAndNil(VIni);
     end;
-    if VPointsAggregator.Count > 2 then begin
-      VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-        FFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count),
-        ExtractFileName(AFileName),
-        '',
-        AConfig.TemplateNewPoly
-      );
+    VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
+    if VPolygonSection <> nil then begin
+      VPolygon := ReadPolygon(VPolygonSection, FFactory);
+    end;
+    if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+      VMark :=
+        AConfig.MarkDB.Factory.CreateNewPoly(
+          VPolygon,
+          ExtractFileName(AFileName),
+          '',
+          AConfig.TemplateNewPoly
+        );
       if VMark <> nil then begin
         AConfig.MarkDB.UpdateMark(nil, VMark);
         Result := True;

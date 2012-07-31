@@ -26,7 +26,6 @@ uses
   Windows,
   SyncObjs,
   Classes,
-  t_GeoTypes,
   i_Notifier,
   i_Listener,
   i_LogSimple,
@@ -190,16 +189,14 @@ uses
   SysUtils,
   Types,
   i_DownloadResult,
-  i_EnumDoublePoint,
-  i_DoublePointsAggregator,
   i_TileRequest,
   i_TileIterator,
   i_TileDownloaderState,
   u_DownloadInfoSimple,
   u_TileIteratorByPolygon,
-  u_DoublePointsAggregator,
   u_ListenerByEvent,
   u_ReadableThreadNames,
+  u_ConfigProviderHelpers,
   u_ResStrings;
 
 constructor TThreadDownloadTiles.CreateInternal(
@@ -361,7 +358,6 @@ constructor TThreadDownloadTiles.CreateFromSls(
   const ADownloadInfo: IDownloadInfoSimple
 );
 var
-  i: integer;
   VGuids: string;
   VGuid: TGUID;
   VMap: IMapType;
@@ -375,11 +371,8 @@ var
   VProcessed: Int64;
   VSecondLoadTNE: Boolean;
   VLastProcessedPoint: TPoint;
-  VPointsAggregator: IDoublePointsAggregator;
   VElapsedTime: TDateTime;
   VMapType: TMapType;
-  VPoint: TDoublePoint;
-  VValidPoint: Boolean;
   VPolygon: ILonLatPolygon;
   VProjectedPolygon: IProjectedPolygon;
 begin
@@ -434,21 +427,7 @@ begin
       VLastProcessedPoint.X := ASLSSection.ReadInteger('StartX', -1);
       VLastProcessedPoint.Y := ASLSSection.ReadInteger('StartY', -1);
     end;
-    VPointsAggregator := TDoublePointsAggregator.Create;
-    i := 1;
-    repeat
-      VPoint.X := ASLSSection.ReadFloat('LLPointX_' + inttostr(i), -10000);
-      VPoint.Y := ASLSSection.ReadFloat('LLPointY_' + inttostr(i), -10000);
-      VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
-      if VValidPoint then begin
-        VPointsAggregator.Add(VPoint);
-        inc(i);
-      end;
-    until not VValidPoint;
-    if VPointsAggregator.Count > 0 then begin
-      VPolygon := AVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
-    end;
-
+    VPolygon := ReadPolygon(ASLSSection, AVectorItmesFactory);
     VMap := AFullMapsSet.GetMapTypeByGUID(VGuid);
     if VMap = nil then begin
       ALog.WriteText(Format('Map with GUID = %s not found', [VGuids]), 10);
@@ -524,10 +503,7 @@ end;
 
 procedure TThreadDownloadTiles.SaveToFile(const ASLSSection: IConfigDataWriteProvider);
 var
-  i: integer;
   VElapsedTime: TDateTime;
-  VEnum: IEnumDoublePoint;
-  VPoint: TDoublePoint;
 begin
   ASLSSection.WriteString('MapGUID', GUIDToString(FMapType.Zmp.GUID));
   ASLSSection.WriteInteger('Zoom', Fzoom + 1);
@@ -543,13 +519,7 @@ begin
   ASLSSection.WriteInteger('StartY', FLastProcessedPoint.Y);
   ASLSSection.WriteInteger('LastSuccessfulStartX', FLastSuccessfulPoint.X);
   ASLSSection.WriteInteger('LastSuccessfulStartY', FLastSuccessfulPoint.Y);
-  VEnum := FPolygLL.GetEnum;
-  i := 0;
-  while VEnum.Next(VPoint) do begin
-    ASLSSection.WriteFloat('LLPointX_' + inttostr(i), VPoint.x);
-    ASLSSection.WriteFloat('LLPointY_' + inttostr(i), VPoint.y);
-    Inc(i);
-  end;
+  WritePolygon(ASLSSection, FPolygLL);
   if (FPausedByUser) then begin
     VElapsedTime := FElapsedTime;
   end else begin

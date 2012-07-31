@@ -57,9 +57,8 @@ implementation
 
 uses
   SysUtils,
-  i_DoublePointsAggregator,
   i_EnumDoublePoint,
-  u_DoublePointsAggregator;
+  u_ConfigProviderHelpers;
 
 { TLastSelectionInfo }
 
@@ -73,28 +72,15 @@ end;
 
 procedure TLastSelectionInfo.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
-  i: Integer;
-  VPoint: TDoublePoint;
-  VValidPoint: Boolean;
-  VPolygon: IDoublePointsAggregator;
+  VPolygon: ILonLatPolygon;
   VZoom: Byte;
 begin
   inherited;
   if AConfigData <> nil then begin
-    VPolygon := TDoublePointsAggregator.Create;
-    i := 1;
-    repeat
-      VPoint.X := AConfigData.ReadFloat('PointX_' + inttostr(i), 1000000);
-      VPoint.Y := AConfigData.ReadFloat('PointY_' + inttostr(i), 1000000);
-      VValidPoint := (Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360);
-      if VValidPoint then begin
-        VPolygon.Add(VPoint);
-        inc(i);
-      end;
-    until not VValidPoint;
+    VPolygon := ReadPolygon(AConfigData, FVectorItmesFactory);
     if VPolygon.Count > 0 then begin
       VZoom := AConfigData.Readinteger('Zoom', FZoom);
-      SetPolygon(FVectorItmesFactory.CreateLonLatPolygon(VPolygon.Points, VPolygon.Count), VZoom);
+      SetPolygon(VPolygon, VZoom);
     end;
   end;
 end;
@@ -102,22 +88,12 @@ end;
 procedure TLastSelectionInfo.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
-var
-  i: Integer;
-  VEnum: IEnumDoublePoint;
-  VPoint: TDoublePoint;
 begin
   inherited;
   AConfigData.DeleteValues;
   if FPolygon.Count > 0 then begin
     AConfigData.WriteInteger('Zoom', FZoom);
-    VEnum := FPolygon.GetEnum;
-    i := 1;
-    while VEnum.Next(VPoint) do begin
-      AConfigData.WriteFloat('PointX_' + inttostr(i), VPoint.X);
-      AConfigData.WriteFloat('PointY_' + inttostr(i), VPoint.Y);
-      Inc(i);
-    end;
+    WritePolygon(AConfigData, FPolygon);
   end;
 end;
 
