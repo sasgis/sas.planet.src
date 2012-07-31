@@ -108,51 +108,51 @@ type
 
     function GetTileFileName(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): string; virtual; abstract;
     function GetTileInfo(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; virtual; abstract;
     function LoadTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; virtual; abstract;
     function DeleteTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
     function DeleteTNE(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
     procedure SaveTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AData: IBinaryData
     ); virtual; abstract;
     procedure SaveTNE(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ); virtual; abstract;
 
     function GetListOfTileVersions(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; virtual;
 
     function GetTileRectInfo(
       const ARect: TRect;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; virtual; abstract;
 
@@ -161,7 +161,7 @@ type
       const ACancelNotifier: INotifierOperation;
       btm: TCustomBitmap32;
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       ASourceZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AColorer: IFillingMapColorer
@@ -261,7 +261,7 @@ end;
 
 function TTileStorageAbstract.GetListOfTileVersions(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): IMapVersionListStatic;
 begin
@@ -308,7 +308,7 @@ function TTileStorageAbstract.LoadFillingMap(
   const ACancelNotifier: INotifierOperation;
   btm: TCustomBitmap32;
   const AXY: TPoint;
-  Azoom, ASourceZoom: byte;
+  AZoom, ASourceZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const AColorer: IFillingMapColorer
 ): boolean;
@@ -336,7 +336,7 @@ var
     VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
     VSourceTilePixels :=
       RectFromDoubleRect(
-        VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, Azoom),
+        VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, AZoom),
         rrToTopLeft
       );
     if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -376,10 +376,10 @@ begin
     try
       VGeoConvert := FConfig.CoordConverter;
       VTile := AXY;
-      VGeoConvert.CheckTilePosStrict(VTile, Azoom, True);
+      VGeoConvert.CheckTilePosStrict(VTile, AZoom, True);
       VGeoConvert.CheckZoom(ASourceZoom);
 
-      VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, Azoom);
+      VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, AZoom);
 
       VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
@@ -387,7 +387,7 @@ begin
       btm.Height := VTileSize.Y;
       btm.Clear(0);
 
-      VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
+      VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, AZoom);
       VSourceTilesRect :=
         RectFromDoubleRect(
           VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, ASourceZoom),
@@ -395,12 +395,12 @@ begin
         );
       VSolidDrow := (VTileSize.X <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left)) or (VTileSize.Y <= 2 * (VSourceTilesRect.Right - VSourceTilesRect.Left));
 
-      if Assigned(FOnRangeFillingMap) and (ASourceZoom > Azoom) then begin
+      if Assigned(FOnRangeFillingMap) and (ASourceZoom > AZoom) then begin
         // make buffer: 1 tile has 2^(ASourceZoom-Azoom) tiles for each side
         with VRangeFillingMapInfo do begin
           SourceZoom := ASourceZoom;
           Zoom := AZoom;
-          TileMapSize := 1 shl (ASourceZoom - Azoom);
+          TileMapSize := 1 shl (ASourceZoom - AZoom);
 
           // set buffer format (and size) depending on particular storage capabilities
           ItemSize := GetRangeFillingMapItemSize;

@@ -15,12 +15,12 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       ACheckTileSize: Boolean
     ): ITileRequest;
     function GetLink(
       const AXY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): string;
     procedure Download(
       const ATileRequest: ITileRequest

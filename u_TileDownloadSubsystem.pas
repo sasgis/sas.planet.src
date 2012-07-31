@@ -62,12 +62,12 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       ACheckTileSize: Boolean
     ): ITileRequest;
     function GetLink(
       const AXY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): string;
     procedure Download(
       const ATileRequest: ITileRequest
@@ -264,7 +264,7 @@ end;
 
 function TTileDownloadSubsystem.GetLink(
   const AXY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): string;
 var
   VRequest: ITileRequest;
@@ -278,7 +278,7 @@ begin
           nil,
           0,
           AXY,
-          Azoom,
+          AZoom,
           False
         );
       VDownloadRequest := nil;
@@ -296,7 +296,7 @@ function TTileDownloadSubsystem.GetRequest(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AXY: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   ACheckTileSize: Boolean
 ): ITileRequest;
 var

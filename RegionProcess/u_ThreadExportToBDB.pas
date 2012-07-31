@@ -70,10 +70,10 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: TByteDynArray;
-      const Atypemaparr: IMapTypeListStatic;
-      Amove: boolean;
-      Areplace: boolean
+      const AZoomArr: TByteDynArray;
+      const AMapTypeArr: IMapTypeListStatic;
+      AMove: boolean;
+      AReplace: boolean
     );
   end;
 
@@ -97,9 +97,9 @@ constructor TThreadExportToBDB.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: TByteDynArray;
-  const Atypemaparr: IMapTypeListStatic;
-  Amove, Areplace: boolean
+  const AZoomArr: TByteDynArray;
+  const AMapTypeArr: IMapTypeListStatic;
+  AMove, AReplace: boolean
 );
 begin
   inherited Create(
@@ -107,7 +107,7 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr,
+    AZoomArr,
     Self.ClassName
   );
   FProjectionFactory := AProjectionFactory;
@@ -119,7 +119,7 @@ begin
   FIsMove := AMove;
   FTileNameGen := TTileFileNameBDB.Create;
   FIsReplace := AReplace;
-  FMapTypeArr := Atypemaparr;
+  FMapTypeArr := AMapTypeArr;
 end;
 
 function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): string;

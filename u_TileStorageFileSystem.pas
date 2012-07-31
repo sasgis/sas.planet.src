@@ -91,47 +91,47 @@ type
 
     function GetTileFileName(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): string; override;
     function GetTileInfo(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileInfoBasic; override;
     function GetTileRectInfo(
       const ARect: TRect;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
 
     function LoadTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       out ATileInfo: ITileInfoBasic
     ): IBinaryData; override;
 
     function DeleteTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
     function DeleteTNE(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
     procedure SaveTile(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AData: IBinaryData
     ); override;
     procedure SaveTNE(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ); override;
 
@@ -140,7 +140,7 @@ type
       const ACancelNotifier: INotifierOperation;
       btm: TCustomBitmap32;
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       ASourceZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AColorer: IFillingMapColorer
@@ -243,7 +243,7 @@ end;
 
 function TTileStorageFileSystem.DeleteTile(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
@@ -259,19 +259,19 @@ begin
     Result := false;
     if StorageStateStatic.DeleteAccess <> asDisabled then begin
       try
-        VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+        VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
         FLock.BeginWrite;
         try
           Result := (DeleteFile(PChar(VPath)) <> FALSE);
         finally
           FLock.EndWrite;
         end;
-        DeleteTNE(AXY, Azoom, AVersionInfo);
+        DeleteTNE(AXY, AZoom, AVersionInfo);
       except
         Result := false;
       end;
       if Result then begin
-        NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+        NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
   {$IFDEF WITH_PERF_COUNTER}
@@ -283,7 +283,7 @@ end;
 
 function TTileStorageFileSystem.DeleteTNE(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
@@ -299,7 +299,7 @@ begin
     Result := False;
     if StorageStateStatic.DeleteAccess <> asDisabled then begin
       try
-        VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+        VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
         VPath := ChangeFileExt(VPath, '.tne');
         FLock.BeginWrite;
         try
@@ -335,11 +335,11 @@ end;
 
 function TTileStorageFileSystem.GetTileFileName(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Result := FCacheConfig.GetTileFileName(AXY, Azoom);
+  Result := FCacheConfig.GetTileFileName(AXY, AZoom);
 end;
 
 function _GetAttributesEx(
@@ -435,7 +435,7 @@ end;
 
 function TTileStorageFileSystem.GetTileRectInfo(
   const ARect: TRect;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
 var
@@ -456,7 +456,7 @@ begin
   Result := nil;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VRect := ARect;
-    VZoom := Azoom;
+    VZoom := AZoom;
     Config.CoordConverter.CheckTileRect(VRect, VZoom);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
@@ -527,7 +527,7 @@ end;
 
 function TTileStorageFileSystem.GetTileInfo(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): ITileInfoBasic;
 var
@@ -542,7 +542,7 @@ begin
   try
   {$ENDIF}
     if StorageStateStatic.ReadAccess <> asDisabled then begin
-      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
       Result := GetTileInfoByPath(VPath, AVersionInfo, False);
     end;
   {$IFDEF WITH_PERF_COUNTER}
@@ -557,7 +557,7 @@ function TTileStorageFileSystem.LoadFillingMap(
   const ACancelNotifier: INotifierOperation;
   btm: TCustomBitmap32;
   const AXY: TPoint;
-  Azoom, ASourceZoom: byte;
+  AZoom, ASourceZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const AColorer: IFillingMapColorer
 ): boolean;
@@ -585,10 +585,10 @@ begin
     try
       VGeoConvert := Config.CoordConverter;
       VTile := AXY;
-      VGeoConvert.CheckTilePosStrict(VTile, Azoom, True);
+      VGeoConvert.CheckTilePosStrict(VTile, AZoom, True);
       VGeoConvert.CheckZoom(ASourceZoom);
 
-      VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, Azoom);
+      VPixelsRect := VGeoConvert.TilePos2PixelRect(VTile, AZoom);
 
       VTileSize := Point(VPixelsRect.Right - VPixelsRect.Left, VPixelsRect.Bottom - VPixelsRect.Top);
 
@@ -596,7 +596,7 @@ begin
       btm.Height := VTileSize.Y;
       btm.Clear(0);
 
-      VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, Azoom);
+      VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, AZoom);
       VSourceTilesRect :=
         RectFromDoubleRect(
           VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, ASourceZoom),
@@ -638,7 +638,7 @@ begin
             VRelativeRect := VGeoConvert.TilePos2RelativeRect(VCurrTile, ASourceZoom);
             VSourceTilePixels :=
               RectFromDoubleRect(
-                VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, Azoom),
+                VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRect, AZoom),
                 rrToTopLeft
               );
             if VSourceTilePixels.Left < VPixelsRect.Left then begin
@@ -683,7 +683,7 @@ end;
 
 function TTileStorageFileSystem.LoadTile(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   out ATileInfo: ITileInfoBasic
 ): IBinaryData;
@@ -701,7 +701,7 @@ begin
   {$ENDIF}
     Result := nil;
     if StorageStateStatic.ReadAccess <> asDisabled then begin
-      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
       ATileInfo := GetTileInfoByPath(VPath, AVersionInfo, True);
       if ATileInfo.GetIsExists then begin
         if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
@@ -718,7 +718,7 @@ end;
 
 procedure TTileStorageFileSystem.SaveTile(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const AData: IBinaryData
 );
@@ -734,7 +734,7 @@ begin
   try
   {$ENDIF}
     if StorageStateStatic.WriteAccess <> asDisabled then begin
-      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
       FLock.BeginWrite;
       try
         CreateDirIfNotExists(VPath);
@@ -749,7 +749,7 @@ begin
       finally
         FLock.EndWrite;
       end;
-      NotifyTileUpdate(AXY, Azoom, AVersionInfo);
+      NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   {$IFDEF WITH_PERF_COUNTER}
   finally
@@ -760,7 +760,7 @@ end;
 
 procedure TTileStorageFileSystem.SaveTNE(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 );
 var
@@ -777,7 +777,7 @@ begin
   try
   {$ENDIF}
     if StorageStateStatic.WriteAccess <> asDisabled then begin
-      VPath := FCacheConfig.GetTileFileName(AXY, Azoom);
+      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
       VPath := ChangeFileExt(VPath, '.tne');
       FLock.BeginWrite;
       try

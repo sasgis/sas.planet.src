@@ -37,7 +37,7 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
-      const Aradiusa, Aradiusb: Double
+      const ARadiusA, ARadiusB: Double
     );
   end;
 
@@ -54,20 +54,20 @@ const
 { TCoordConverterMercatorOnEllipsoid }
 
 constructor TCoordConverterMercatorOnEllipsoid.Create(
-  const ARadiusA, Aradiusb: Double
+  const ARadiusA, ARadiusB: Double
 );
 begin
   FExct := sqrt(ARadiusA * ARadiusA - ARadiusB * ARadiusB) / ARadiusA;
   if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(3395, Aradiusa, Aradiusb), 3395, CELL_UNITS_METERS);
+    inherited Create(TDatum.Create(3395, ARadiusA, ARadiusB), 3395, CELL_UNITS_METERS);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb), 0, CELL_UNITS_UNKNOWN);
+    inherited Create(TDatum.Create(0, ARadiusA, ARadiusB), 0, CELL_UNITS_UNKNOWN);
   end;
 end;
 
-function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
+function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALL: TDoublePoint): TDoublePoint;
 begin
-  Result := Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALl);
+  Result := Ellipsoid_LonLat2Metr(Datum.GetSpheroidRadiusA, FExct, ALL);
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(

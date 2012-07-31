@@ -39,44 +39,44 @@ type
 
     procedure CheckPixelPosInternal(
       var XY: TPoint;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckPixelPosStrictInternal(
       var XY: TPoint;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckPixelPosFloatInternal(
       var XY: TDoublePoint;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckPixelRectInternal(
       var XY: TRect;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckPixelRectFloatInternal(
       var XY: TDoubleRect;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
 
     procedure CheckTilePosInternal(
       var XY: TPoint;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckTilePosStrictInternal(
       var XY: TPoint;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckTilePosFloatInternal(
       var XY: TDoublePoint;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckTileRectInternal(
       var XY: TRect;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
     procedure CheckTileRectFloatInternal(
       var XY: TDoubleRect;
-      var Azoom: byte
+      var AZoom: byte
     ); override;
 
     procedure CheckRelativePosInternal(var XY: TDoublePoint); override;
@@ -96,32 +96,32 @@ type
 
     function PixelPos2TilePosInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TPoint; override;
     function PixelPos2TilePosFloatInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function PixelPos2RelativeInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function PixelPos2LonLatInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
 
     function PixelPosFloat2TilePosFloatInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function PixelPosFloat2RelativeInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function PixelPosFloat2LonLatInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
 
     function PixelRect2TileRectInternal(
@@ -156,44 +156,44 @@ type
 
     function TilePos2PixelPosInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TPoint; override;
     function TilePos2PixelRectInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TRect; override;
     function TilePos2PixelRectFloatInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
     function TilePos2LonLatRectInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
     function TilePos2LonLatInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function TilePos2RelativeInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function TilePos2RelativeRectInternal(
       const XY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
 
     function TilePosFloat2PixelPosFloatInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function TilePosFloat2RelativeInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function TilePosFloat2LonLatInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
 
     function TileRect2PixelRectInternal(
@@ -206,7 +206,7 @@ type
     ): TDoubleRect; override;
     function TileRect2LonLatRectInternal(
       const XY: TRect;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
 
     function TileRectFloat2PixelRectFloatInternal(
@@ -219,91 +219,91 @@ type
     ): TDoubleRect; override;
     function TileRectFloat2LonLatRectInternal(
       const XY: TDoubleRect;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
 
     function Relative2PixelPosFloatInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function Relative2TilePosFloatInternal(
       const XY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
 
     function RelativeRect2PixelRectFloatInternal(
       const XY: TDoubleRect;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
     function RelativeRect2TileRectFloatInternal(
       const XY: TDoubleRect;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
     function RelativeRect2LonLatRectInternal(const XY: TDoubleRect): TDoubleRect; override;
 
 
     function LonLat2PixelPosFloatInternal(
       const Ll: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
     function LonLat2TilePosFloatInternal(
       const Ll: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; override;
 
     function LonLatRect2RelativeRectInternal(const XY: TDoubleRect): TDoubleRect; override;
     function LonLatRect2PixelRectFloatInternal(
       const XY: TDoubleRect;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
     function LonLatRect2TileRectFloatInternal(
       const XY: TDoubleRect;
-      Azoom: byte
+      AZoom: byte
     ): TDoubleRect; override;
   protected
     function CheckZoom(var AZoom: Byte): boolean; override;
     function CheckTilePos(
       var XY: TPoint;
-      var Azoom: byte;
+      var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
     function CheckTilePosStrict(
       var XY: TPoint;
-      var Azoom: byte;
+      var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
     function CheckTileRect(
       var XY: TRect;
-      var Azoom: byte
+      var AZoom: byte
     ): boolean; override;
 
     function CheckPixelPos(
       var XY: TPoint;
-      var Azoom: byte;
+      var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
     function CheckPixelPosFloat(
       var XY: TDoublePoint;
-      var Azoom: byte;
+      var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
     function CheckPixelPosStrict(
       var XY: TPoint;
-      var Azoom: byte;
+      var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
     function CheckPixelPosFloatStrict(
       var XY: TDoublePoint;
-      var Azoom: byte;
+      var AZoom: byte;
       ACicleMap: Boolean
     ): boolean; override;
     function CheckPixelRect(
       var XY: TRect;
-      var Azoom: byte
+      var AZoom: byte
     ): boolean; override;
     function CheckPixelRectFloat(
       var XY: TDoubleRect;
-      var Azoom: byte
+      var AZoom: byte
     ): boolean; override;
 
     function CheckRelativePos(var XY: TDoublePoint): boolean; override;
@@ -315,16 +315,16 @@ type
     function GetTileSplitCode: Integer; override;
     function GetTileSize(
       const XY: TPoint;
-      const Azoom: byte
+      const AZoom: byte
     ): TPoint; override;
   private
     function Pos2LonLat(
       const AXY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): TDoublePoint; stdcall;
     function LonLat2Pos(
       const AXY: TDoublePoint;
-      Azoom: byte
+      AZoom: byte
     ): Tpoint; stdcall;
   public
     procedure AfterConstruction; override;
@@ -353,7 +353,7 @@ end;
 
 function TCoordConverterBasic.LonLat2Pos(
   const AXY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): Tpoint;
 var
   VXY: TDoublePoint;
@@ -362,7 +362,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckLonLatPosInternal(VXY);
-  if Azoom > 23 then begin
+  if AZoom > 23 then begin
     VZoom := VZoom - 8;
     CheckZoomInternal(VZoom);
     Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft)
@@ -374,7 +374,7 @@ end;
 
 function TCoordConverterBasic.Pos2LonLat(
   const AXY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VXY: TPoint;
@@ -382,7 +382,7 @@ var
 begin
   VXY := AXY;
   VZoom := AZoom;
-  if Azoom > 23 then begin
+  if AZoom > 23 then begin
     VZoom := VZoom - 8;
     CheckPixelPosInternal(VXY, VZoom);
     Result := PixelPos2LonLatInternal(VXY, Vzoom);
@@ -399,7 +399,7 @@ end;
 
 function TCoordConverterBasic.GetTileSize(
   const XY: TPoint;
-  const Azoom: byte
+  const AZoom: byte
 ): TPoint;
 begin
   Result := Point(256, 256);
@@ -416,7 +416,7 @@ end;
 
 procedure TCoordConverterBasic.CheckTilePosInternal(
   var XY: TPoint;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VTilesAtZoom: Integer;
@@ -425,7 +425,7 @@ begin
     Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomInternal(AZoom);
   if XY.X < 0 then begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.X := 0;
@@ -449,7 +449,7 @@ end;
 
 procedure TCoordConverterBasic.CheckTileRectInternal(
   var XY: TRect;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VTilesAtZoom: Integer;
@@ -458,7 +458,7 @@ begin
     Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomInternal(AZoom);
   if XY.Left < 0 then begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.Left := 0;
@@ -499,7 +499,7 @@ end;
 
 procedure TCoordConverterBasic.CheckTilePosStrictInternal(
   var XY: TPoint;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VTilesAtZoom: Integer;
@@ -508,7 +508,7 @@ begin
     Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoomInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomInternal(AZoom);
   if XY.X < 0 then begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.X := 0;
@@ -531,7 +531,7 @@ end;
 
 procedure TCoordConverterBasic.CheckPixelPosInternal(
   var XY: TPoint;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VPixelsAtZoom: Integer;
@@ -540,27 +540,27 @@ begin
     Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomInternal(AZoom);
 
   if XY.X < 0 then begin
-    if (Azoom < 23) or (XY.X <> VPixelsAtZoom) then begin
+    if (AZoom < 23) or (XY.X <> VPixelsAtZoom) then begin
       Assert(False, 'Координата X пиксела не может быть меньше нуля');
       XY.X := 0;
     end;
   end else begin
-    if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.X > VPixelsAtZoom) then begin
       Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
       XY.X := VPixelsAtZoom;
     end;
   end;
 
   if XY.Y < 0 then begin
-    if (Azoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
+    if (AZoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
       Assert(False, 'Координата Y пиксела не может быть меньше нуля');
       XY.Y := 0;
     end;
   end else begin
-    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Y > VPixelsAtZoom) then begin
       Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
       XY.Y := VPixelsAtZoom;
     end;
@@ -570,7 +570,7 @@ end;
 
 procedure TCoordConverterBasic.CheckPixelRectInternal(
   var XY: TRect;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VPixelsAtZoom: Integer;
@@ -579,13 +579,13 @@ begin
     Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomInternal(AZoom);
 
   if XY.Left < 0 then begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.Left := 0;
   end else begin
-    if (Azoom < 23) and (XY.Left > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Left > VPixelsAtZoom) then begin
       Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
       XY.Left := VPixelsAtZoom;
     end;
@@ -595,7 +595,7 @@ begin
     Assert(False, 'Координата Y пиксела не может быть меньше нуля');
     XY.Top := 0;
   end else begin
-    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Top > VPixelsAtZoom) then begin
       Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
       XY.Top := VPixelsAtZoom;
     end;
@@ -605,7 +605,7 @@ begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.Right := 0;
   end else begin
-    if (Azoom < 23) and (XY.Right > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Right > VPixelsAtZoom) then begin
       Assert(False, 'Координата X пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
       XY.Right := VPixelsAtZoom;
     end;
@@ -615,7 +615,7 @@ begin
     Assert(False, 'Координата Y пиксела не может быть меньше нуля');
     XY.Bottom := 0;
   end else begin
-    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
       Assert(False, 'Координата Y пиксела на этом зуме не может быть больше ' + IntToStr(VPixelsAtZoom));
       XY.Bottom := VPixelsAtZoom;
     end;
@@ -624,7 +624,7 @@ end;
 
 procedure TCoordConverterBasic.CheckPixelPosStrictInternal(
   var XY: TPoint;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VPixelsAtZoom: Integer;
@@ -633,12 +633,12 @@ begin
     Assert(False, 'Слишком большой зум ' + IntToStr(AZoom));
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoomInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomInternal(AZoom);
   if XY.X < 0 then begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.X := 0;
   end else begin
-    if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.X >= VPixelsAtZoom) then begin
       Assert(False, 'Координата X пиксела на этом зуме не может быть больше или равна ' + IntToStr(VPixelsAtZoom));
       XY.X := VPixelsAtZoom - 1;
     end;
@@ -648,7 +648,7 @@ begin
     Assert(False, 'Координата Y пиксела не может быть меньше нуля');
     XY.Y := 0;
   end else begin
-    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Y > VPixelsAtZoom) then begin
       Assert(False, 'Координата Y пиксела на этом зуме не может быть больше или равна' + IntToStr(VPixelsAtZoom));
       XY.Y := VPixelsAtZoom - 1;
     end;
@@ -786,7 +786,7 @@ end;
 
 procedure TCoordConverterBasic.CheckTilePosFloatInternal(
   var XY: TDoublePoint;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VTilesAtZoom: Double;
@@ -795,7 +795,7 @@ begin
     Assert(False, 'Слишком большой зум ' + FloatToStr(AZoom));
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   if XY.X < 0 then begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.X := 0;
@@ -818,7 +818,7 @@ end;
 
 procedure TCoordConverterBasic.CheckPixelRectFloatInternal(
   var XY: TDoubleRect;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VPixelsAtZoom: Double;
@@ -827,7 +827,7 @@ begin
     Assert(False, 'Слишком большой зум ' + FloatToStr(AZoom));
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
 
   if XY.Left < 0 then begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
@@ -872,7 +872,7 @@ end;
 
 procedure TCoordConverterBasic.CheckPixelPosFloatInternal(
   var XY: TDoublePoint;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VPixelsAtZoom: Double;
@@ -882,7 +882,7 @@ begin
     AZoom := 23;
   end;
 
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
   if XY.X < 0 then begin
     Assert(False, 'Координата X пиксела не может быть меньше нуля');
     XY.X := 0;
@@ -906,7 +906,7 @@ end;
 
 procedure TCoordConverterBasic.CheckTileRectFloatInternal(
   var XY: TDoubleRect;
-  var Azoom: byte
+  var AZoom: byte
 );
 var
   VTilesAtZoom: Double;
@@ -915,7 +915,7 @@ begin
     Assert(False, 'Слишком большой зум ' + FloatToStr(AZoom));
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   if XY.Left < 0 then begin
     Assert(False, 'Координата X тайла не может быть меньше нуля');
     XY.Left := 0;
@@ -1002,27 +1002,27 @@ end;
 // PixelPos
 function TCoordConverterBasic.PixelPos2RelativeInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VPixelsAtZoom: Double;
 begin
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
   Result.X := XY.X / VPixelsAtZoom;
   Result.Y := XY.Y / VPixelsAtZoom;
 end;
 
 function TCoordConverterBasic.PixelPos2LonLatInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
-  Result := Relative2LonLatInternal(PixelPos2RelativeInternal(XY, Azoom));
+  Result := Relative2LonLatInternal(PixelPos2RelativeInternal(XY, AZoom));
 end;
 
 function TCoordConverterBasic.PixelPos2TilePosFloatInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
   Result.X := XY.X / 256;
@@ -1031,7 +1031,7 @@ end;
 
 function TCoordConverterBasic.PixelPos2TilePosInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TPoint;
 begin
   Result.X := XY.X shr 8;
@@ -1042,30 +1042,30 @@ end;
 // PixelPosFloat
 function TCoordConverterBasic.PixelPosFloat2LonLatInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VRelative: TDoublePoint;
 begin
-  VRelative := PixelPosFloat2RelativeInternal(XY, Azoom);
+  VRelative := PixelPosFloat2RelativeInternal(XY, AZoom);
   Result := Relative2LonLatInternal(VRelative);
 end;
 
 function TCoordConverterBasic.PixelPosFloat2RelativeInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VPixelsAtZoom: Double;
 begin
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
   Result.X := XY.X / VPixelsAtZoom;
   Result.Y := XY.Y / VPixelsAtZoom;
 end;
 
 function TCoordConverterBasic.PixelPosFloat2TilePosFloatInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
   Result.X := XY.X / 256;
@@ -1133,7 +1133,7 @@ function TCoordConverterBasic.PixelRectFloat2RelativeRectInternal(
 var
   VPixelsAtZoom: Double;
 begin
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
   Result.Left := XY.Left / VPixelsAtZoom;
   Result.Top := XY.Top / VPixelsAtZoom;
   Result.Right := XY.Right / VPixelsAtZoom;
@@ -1155,15 +1155,15 @@ end;
 // TilePos
 function TCoordConverterBasic.TilePos2LonLatInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
-  Result := Relative2LonLatInternal(TilePos2RelativeInternal(XY, Azoom));
+  Result := Relative2LonLatInternal(TilePos2RelativeInternal(XY, AZoom));
 end;
 
 function TCoordConverterBasic.TilePos2PixelRectInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TRect;
 begin
   Result.Left := XY.X shl 8;
@@ -1174,7 +1174,7 @@ end;
 
 function TCoordConverterBasic.TilePos2PixelRectFloatInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 begin
   Result.Left := XY.X shl 8;
@@ -1185,32 +1185,32 @@ end;
 
 function TCoordConverterBasic.TilePos2LonLatRectInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 begin
-  Result := RelativeRect2LonLatRectInternal(TilePos2RelativeRectInternal(XY, Azoom));
+  Result := RelativeRect2LonLatRectInternal(TilePos2RelativeRectInternal(XY, AZoom));
 end;
 
 function TCoordConverterBasic.TilePos2RelativeInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   Result.X := XY.X / VTilesAtZoom;
   Result.Y := XY.Y / VTilesAtZoom;
 end;
 
 function TCoordConverterBasic.TilePos2RelativeRectInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   Result.Left := XY.X / VTilesAtZoom;
   Result.Top := XY.Y / VTilesAtZoom;
   Result.Right := (XY.X + 1) / VTilesAtZoom;
@@ -1219,7 +1219,7 @@ end;
 
 function TCoordConverterBasic.TilePos2PixelPosInternal(
   const XY: TPoint;
-  Azoom: byte
+  AZoom: byte
 ): TPoint;
 begin
   Result.X := XY.X shl 8;
@@ -1230,18 +1230,18 @@ end;
 // TilePosFloat
 function TCoordConverterBasic.TilePosFloat2LonLatInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VRelative: TDoublePoint;
 begin
-  VRelative := TilePosFloat2RelativeInternal(XY, Azoom);
+  VRelative := TilePosFloat2RelativeInternal(XY, AZoom);
   Result := Relative2LonLatInternal(VRelative);
 end;
 
 function TCoordConverterBasic.TilePosFloat2PixelPosFloatInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
   Result.X := XY.X * 256;
@@ -1250,12 +1250,12 @@ end;
 
 function TCoordConverterBasic.TilePosFloat2RelativeInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   Result.X := XY.X / VTilesAtZoom;
   Result.Y := XY.Y / VTilesAtZoom;
 end;
@@ -1275,10 +1275,10 @@ end;
 
 function TCoordConverterBasic.TileRect2LonLatRectInternal(
   const XY: TRect;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 begin
-  Result := RelativeRect2LonLatRectInternal(TileRect2RelativeRectInternal(XY, Azoom));
+  Result := RelativeRect2LonLatRectInternal(TileRect2RelativeRectInternal(XY, AZoom));
 end;
 
 function TCoordConverterBasic.TileRect2RelativeRectInternal(
@@ -1288,7 +1288,7 @@ function TCoordConverterBasic.TileRect2RelativeRectInternal(
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   Result.Left := XY.Left / VTilesAtZoom;
   Result.Top := XY.Top / VTilesAtZoom;
   Result.Right := XY.Right / VTilesAtZoom;
@@ -1299,12 +1299,12 @@ end;
 // TileRectFloat
 function TCoordConverterBasic.TileRectFloat2LonLatRectInternal(
   const XY: TDoubleRect;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 var
   VRelativeRect: TDoubleRect;
 begin
-  VRelativeRect := TileRectFloat2RelativeRectInternal(XY, Azoom);
+  VRelativeRect := TileRectFloat2RelativeRectInternal(XY, AZoom);
   Result := RelativeRect2LonLatRectInternal(VRelativeRect);
 end;
 
@@ -1326,7 +1326,7 @@ function TCoordConverterBasic.TileRectFloat2RelativeRectInternal(
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   Result.Left := XY.Left / VTilesAtZoom;
   Result.Top := XY.Top / VTilesAtZoom;
   Result.Right := XY.Right / VTilesAtZoom;
@@ -1337,24 +1337,24 @@ end;
 // RelativePos
 function TCoordConverterBasic.Relative2PixelPosFloatInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VPixelsAtZoom: Double;
 begin
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
   Result.X := XY.X * VPixelsAtZoom;
   Result.Y := XY.Y * VPixelsAtZoom;
 end;
 
 function TCoordConverterBasic.Relative2TilePosFloatInternal(
   const XY: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
   Result.X := XY.X * VTilesAtZoom;
   Result.Y := XY.Y * VTilesAtZoom;
 end;
@@ -1370,12 +1370,12 @@ end;
 
 function TCoordConverterBasic.RelativeRect2PixelRectFloatInternal(
   const XY: TDoubleRect;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 var
   VPixelsAtZoom: Double;
 begin
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
 
   Result.Left := XY.Left * VPixelsAtZoom;
   Result.Top := XY.Top * VPixelsAtZoom;
@@ -1386,12 +1386,12 @@ end;
 
 function TCoordConverterBasic.RelativeRect2TileRectFloatInternal(
   const XY: TDoubleRect;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 var
   VTilesAtZoom: Double;
 begin
-  VTilesAtZoom := TilesAtZoomFloatInternal(Azoom);
+  VTilesAtZoom := TilesAtZoomFloatInternal(AZoom);
 
   Result.Left := XY.Left * VTilesAtZoom;
   Result.Top := XY.Top * VTilesAtZoom;
@@ -1404,7 +1404,7 @@ end;
 // LonLatPos
 function TCoordConverterBasic.LonLat2PixelPosFloatInternal(
   const Ll: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
   Result := Relative2PixelPosFloatInternal(LonLat2RelativeInternal(LL), AZoom);
@@ -1412,7 +1412,7 @@ end;
 
 function TCoordConverterBasic.LonLat2TilePosFloatInternal(
   const Ll: TDoublePoint;
-  Azoom: byte
+  AZoom: byte
 ): TDoublePoint;
 begin
   Result := Relative2TilePosFloatInternal(LonLat2RelativeInternal(LL), AZoom);
@@ -1429,25 +1429,25 @@ end;
 
 function TCoordConverterBasic.LonLatRect2PixelRectFloatInternal(
   const XY: TDoubleRect;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 begin
   Result :=
     RelativeRect2PixelRectFloatInternal(
       LonLatRect2RelativeRectInternal(XY),
-      Azoom
+      AZoom
     );
 end;
 
 function TCoordConverterBasic.LonLatRect2TileRectFloatInternal(
   const XY: TDoubleRect;
-  Azoom: byte
+  AZoom: byte
 ): TDoubleRect;
 begin
   Result :=
     RelativeRect2TileRectFloatInternal(
       LonLatRect2RelativeRectInternal(XY),
-      Azoom
+      AZoom
     );
 end;
 
@@ -1463,7 +1463,7 @@ end;
 
 function TCoordConverterBasic.CheckTilePos(
   var XY: TPoint;
-  var Azoom: byte;
+  var AZoom: byte;
   ACicleMap: Boolean
 ): boolean;
 var
@@ -1474,7 +1474,7 @@ begin
     AZoom := 23;
     Result := False;
   end;
-  VTilesAtZoom := TilesAtZoom(Azoom);
+  VTilesAtZoom := TilesAtZoom(AZoom);
 
   if XY.X < 0 then begin
     Result := False;
@@ -1507,7 +1507,7 @@ end;
 
 function TCoordConverterBasic.CheckTileRect(
   var XY: TRect;
-  var Azoom: byte
+  var AZoom: byte
 ): boolean;
 var
   VTilesAtZoom: Integer;
@@ -1517,7 +1517,7 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoom(Azoom);
+  VTilesAtZoom := TilesAtZoom(AZoom);
 
   if XY.Left < 0 then begin
     Result := False;
@@ -1562,7 +1562,7 @@ end;
 
 function TCoordConverterBasic.CheckTilePosStrict(
   var XY: TPoint;
-  var Azoom: byte;
+  var AZoom: byte;
   ACicleMap: Boolean
 ): boolean;
 var
@@ -1573,7 +1573,7 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VTilesAtZoom := TilesAtZoom(Azoom);
+  VTilesAtZoom := TilesAtZoom(AZoom);
 
   if XY.X < 0 then begin
     Result := False;
@@ -1606,7 +1606,7 @@ end;
 
 function TCoordConverterBasic.CheckPixelPos(
   var XY: TPoint;
-  var Azoom: byte;
+  var AZoom: byte;
   ACicleMap: Boolean
 ): boolean;
 var
@@ -1617,11 +1617,11 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  VPixelsAtZoom := PixelsAtZoom(AZoom);
 
   if XY.X < 0 then begin
     Result := False;
-    if (Azoom < 23) then begin
+    if (AZoom < 23) then begin
       if ACicleMap then begin
         XY.X := XY.X mod VPixelsAtZoom + VPixelsAtZoom;
       end else begin
@@ -1637,7 +1637,7 @@ begin
       end;
     end;
   end else begin
-    if (Azoom < 23) and (XY.X > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.X > VPixelsAtZoom) then begin
       Result := False;
       if ACicleMap then begin
         XY.X := XY.X mod VPixelsAtZoom;
@@ -1649,11 +1649,11 @@ begin
 
   if XY.Y < 0 then begin
     Result := False;
-    if (Azoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
+    if (AZoom < 23) or (XY.Y <> VPixelsAtZoom) then begin
       XY.Y := 0;
     end;
   end else begin
-    if (Azoom < 23) and (XY.Y > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Y > VPixelsAtZoom) then begin
       Result := False;
       XY.Y := VPixelsAtZoom;
     end;
@@ -1662,7 +1662,7 @@ end;
 
 function TCoordConverterBasic.CheckPixelPosFloat(
   var XY: TDoublePoint;
-  var Azoom: byte;
+  var AZoom: byte;
   ACicleMap: Boolean
 ): boolean;
 var
@@ -1674,7 +1674,7 @@ begin
     AZoom := 23;
   end;
 
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
 
   if XY.X < 0 then begin
     Result := False;
@@ -1707,7 +1707,7 @@ end;
 
 function TCoordConverterBasic.CheckPixelRect(
   var XY: TRect;
-  var Azoom: byte
+  var AZoom: byte
 ): boolean;
 var
   VPixelsAtZoom: Integer;
@@ -1717,13 +1717,13 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  VPixelsAtZoom := PixelsAtZoom(AZoom);
 
   if XY.Left < 0 then begin
     Result := False;
     XY.Left := 0;
   end else begin
-    if (Azoom < 23) and (XY.Left > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Left > VPixelsAtZoom) then begin
       Result := False;
       XY.Left := VPixelsAtZoom;
     end;
@@ -1733,7 +1733,7 @@ begin
     Result := False;
     XY.Top := 0;
   end else begin
-    if (Azoom < 23) and (XY.Top > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Top > VPixelsAtZoom) then begin
       Result := False;
       XY.Top := VPixelsAtZoom;
     end;
@@ -1743,7 +1743,7 @@ begin
     Result := False;
     XY.Right := 0;
   end else begin
-    if (Azoom < 23) and (XY.Right > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Right > VPixelsAtZoom) then begin
       Result := False;
       XY.Right := VPixelsAtZoom;
     end;
@@ -1753,7 +1753,7 @@ begin
     Result := False;
     XY.Bottom := 0;
   end else begin
-    if (Azoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
       Result := False;
       XY.Bottom := VPixelsAtZoom;
     end;
@@ -1762,7 +1762,7 @@ end;
 
 function TCoordConverterBasic.CheckPixelRectFloat(
   var XY: TDoubleRect;
-  var azoom: byte
+  var AZoom: byte
 ): boolean;
 var
   VPixelsAtZoom: Double;
@@ -1772,7 +1772,7 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
 
   if XY.Left < 0 then begin
     Result := False;
@@ -1817,7 +1817,7 @@ end;
 
 function TCoordConverterBasic.CheckPixelPosStrict(
   var XY: TPoint;
-  var Azoom: byte;
+  var AZoom: byte;
   ACicleMap: Boolean
 ): boolean;
 var
@@ -1828,7 +1828,7 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoom(Azoom);
+  VPixelsAtZoom := PixelsAtZoom(AZoom);
   if XY.X < 0 then begin
     Result := False;
     if ACicleMap then begin
@@ -1837,7 +1837,7 @@ begin
       XY.X := 0;
     end;
   end else begin
-    if (Azoom < 23) and (XY.X >= VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.X >= VPixelsAtZoom) then begin
       Result := False;
       if ACicleMap then begin
         XY.X := XY.X mod VPixelsAtZoom;
@@ -1851,7 +1851,7 @@ begin
     Result := False;
     XY.Y := 0;
   end else begin
-    if (Azoom < 23) and (XY.Y >= VPixelsAtZoom) then begin
+    if (AZoom < 23) and (XY.Y >= VPixelsAtZoom) then begin
       Result := False;
       XY.Y := VPixelsAtZoom - 1;
     end;
@@ -1860,7 +1860,7 @@ end;
 
 function TCoordConverterBasic.CheckPixelPosFloatStrict(
   var XY: TDoublePoint;
-  var Azoom: byte;
+  var AZoom: byte;
   ACicleMap: Boolean
 ): boolean;
 var
@@ -1871,7 +1871,7 @@ begin
     Result := False;
     AZoom := 23;
   end;
-  VPixelsAtZoom := PixelsAtZoomFloatInternal(Azoom);
+  VPixelsAtZoom := PixelsAtZoomFloatInternal(AZoom);
   if XY.X < 0 then begin
     Result := False;
     if ACicleMap then begin

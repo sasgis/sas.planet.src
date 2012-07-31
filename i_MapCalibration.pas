@@ -37,7 +37,7 @@ type
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;

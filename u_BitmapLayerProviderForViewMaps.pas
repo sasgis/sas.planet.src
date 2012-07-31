@@ -46,7 +46,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ATile: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const ACoordConverterTarget: ICoordConverter;
       const ASource: IBitmap32Static;
       AUsePrevZoom: Boolean;
@@ -124,7 +124,7 @@ function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ATile: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   const ACoordConverterTarget: ICoordConverter;
   const ASource: IBitmap32Static;
   AUsePrevZoom: Boolean;

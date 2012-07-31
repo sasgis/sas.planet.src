@@ -72,7 +72,7 @@ type
       const Azoomarr: TByteDynArray;
       const Atypemaparr: array of TMapType;
       AActiveMapIndex: Integer;
-      Areplace: boolean;
+      AReplace: boolean;
       ANewFormat: Boolean;
       Acsat: byte;
       Acmap: byte;
@@ -110,7 +110,7 @@ constructor TThreadExportIPhone.Create(
   const Azoomarr: TByteDynArray;
   const Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
-  Areplace: boolean;
+  AReplace: boolean;
   ANewFormat: Boolean;
   Acsat, Acmap, Achib: byte
 );

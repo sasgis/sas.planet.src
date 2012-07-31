@@ -2457,23 +2457,23 @@ begin
     (VNewState=ao_select_line);
   TBAdd_Point.Checked := VNewState=ao_edit_point;
   TBAdd_Line.Checked := VNewState=ao_edit_line;
-  TBAdd_Poly.Checked := VNewState=ao_edit_Poly;
+  TBAdd_Poly.Checked := VNewState=ao_edit_poly;
   TBEditPath.Visible := false;
   tbitmSaveMark.Visible :=
-    (VNewState=ao_Edit_line)or
-    (VNewState=ao_Edit_Poly);
+    (VNewState=ao_edit_line)or
+    (VNewState=ao_edit_poly);
   tbitmSaveMark.DropdownCombo :=
-    ((VNewState=ao_Edit_line) and (FEditMarkLine <> nil))or
-    ((VNewState=ao_Edit_Poly) and (FEditMarkPoly <> nil));
+    ((VNewState=ao_edit_line) and (FEditMarkLine <> nil))or
+    ((VNewState=ao_edit_poly) and (FEditMarkPoly <> nil));
   tbitmSaveMarkAsNew.Visible := tbitmSaveMark.DropdownCombo;
   TBEditPathOk.Visible :=
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
   TBEditPathLabel.Visible := (VNewState=ao_calc_line);
-  TBEditPathMarsh.Visible := (VNewState=ao_Edit_line);
+  TBEditPathMarsh.Visible := (VNewState=ao_edit_line);
   TBEditMagnetDraw.Visible :=
-    (VNewState=ao_Edit_line)or
-    (VNewState=ao_Edit_Poly)or
+    (VNewState=ao_edit_line)or
+    (VNewState=ao_edit_poly)or
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
   TBEditMagnetDraw.Checked := FConfig.MainConfig.MagnetDraw;
@@ -2499,7 +2499,7 @@ begin
     ao_movemap: map.Cursor:=crDefault;
     ao_calc_line: map.Cursor:=2;
     ao_select_poly,ao_select_rect,ao_select_line: map.Cursor:=crDrag;
-    ao_edit_point,ao_edit_Line,ao_edit_poly: map.Cursor:=4;
+    ao_edit_point,ao_edit_line,ao_edit_poly: map.Cursor:=4;
   end;
   if VNewState <> ao_edit_line then begin
     FEditMarkLine := nil;
@@ -2901,7 +2901,7 @@ begin
       end;
       VK_RETURN: begin
         case FState.State of
-          ao_edit_Poly: begin
+          ao_edit_poly: begin
             VLineOnMapEdit := FLineOnMapEdit;
             if VLineOnMapEdit <> nil then begin
               if VLineOnMapEdit.IsReady then begin

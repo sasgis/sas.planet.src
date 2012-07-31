@@ -49,7 +49,7 @@ type
     FMarkPictureList: IMarkPictureList;
 
     function CreatePoint(
-      AID: Integer;
+      AId: Integer;
       const AName: string;
       AVisible: Boolean;
       const APicName: string;
@@ -62,7 +62,7 @@ type
       AFontSize, AMarkerSize: Integer
     ): IMarkPoint;
     function CreateLine(
-      AID: Integer;
+      AId: Integer;
       const AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
@@ -73,7 +73,7 @@ type
       ALineWidth: Integer
     ): IMarkLine;
     function CreatePoly(
-      AID: Integer;
+      AId: Integer;
       const AName: string;
       AVisible: Boolean;
       ACategoryId: Integer;
@@ -156,7 +156,7 @@ type
     function GetConfig: IMarksFactoryConfig;
   private
     function CreateMark(
-      AID: Integer;
+      AId: Integer;
       const AName: string;
       AVisible: Boolean;
       const APicName: string;
@@ -333,7 +333,7 @@ begin
 end;
 
 function TMarkFactory.CreatePoint(
-  AID: Integer;
+  AId: Integer;
   const AName: string;
   AVisible: Boolean;
   const APicName: string;
@@ -373,7 +373,7 @@ begin
     TMarkPoint.Create(
       FHintConverter,
       AName,
-      AID,
+      AId,
       AVisible,
       VPicName,
       VPic,
@@ -388,7 +388,7 @@ begin
 end;
 
 function TMarkFactory.CreateLine(
-  AID: Integer;
+  AId: Integer;
   const AName: string;
   AVisible: Boolean;
   ACategoryId: Integer;
@@ -421,7 +421,7 @@ begin
 end;
 
 function TMarkFactory.CreatePoly(
-  AID: Integer;
+  AId: Integer;
   const AName: string;
   AVisible: Boolean;
   ACategoryId: Integer;
@@ -443,7 +443,7 @@ begin
     TMarkPoly.Create(
       FHintConverter,
       AName,
-      AID,
+      AId,
       AVisible,
       VCategory,
       ADesc,
@@ -455,7 +455,7 @@ begin
 end;
 
 function TMarkFactory.CreateMark(
-  AID: Integer;
+  AId: Integer;
   const AName: string;
   AVisible: Boolean;
   const APicName: string;

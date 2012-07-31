@@ -39,10 +39,10 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: TByteDynArray;
-      const Atypemaparr: IMapTypeListStatic;
-      Amove: boolean;
-      Areplace: boolean;
+      const AZoomArr: TByteDynArray;
+      const AMapTypeArr: IMapTypeListStatic;
+      AMove: boolean;
+      AReplace: boolean;
       const ATileNameGen: ITileFileNameGenerator
     );
   end;
@@ -63,9 +63,9 @@ constructor TThreadExportToFileSystem.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: TByteDynArray;
-  const Atypemaparr: IMapTypeListStatic;
-  Amove, Areplace: boolean;
+  const AZoomArr: TByteDynArray;
+  const AMapTypeArr: IMapTypeListStatic;
+  AMove, AReplace: boolean;
   const ATileNameGen: ITileFileNameGenerator
 );
 begin
@@ -74,7 +74,7 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr,
+    AZoomArr,
     Self.ClassName
   );
   FProjectionFactory := AProjectionFactory;
@@ -83,7 +83,7 @@ begin
   FIsMove := AMove;
   FTileNameGen := ATileNameGen;
   FIsReplace := AReplace;
-  FMapTypeArr := Atypemaparr;
+  FMapTypeArr := AMapTypeArr;
 end;
 
 procedure TThreadExportToFileSystem.ProcessRegion;

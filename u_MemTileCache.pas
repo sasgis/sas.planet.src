@@ -62,7 +62,7 @@ type
     procedure OnTileStorageChange(const AMsg: IInterface);
     function GetMemCacheKey(
       const AXY: TPoint;
-      const Azoom: byte;
+      const AZoom: byte;
       const AMapVersionInfo: IMapVersionInfo
     ): string;
     procedure OnTTLTrim(Sender: TObject);
@@ -295,13 +295,13 @@ end;
 
 function TMemTileCacheBase.GetMemCacheKey(
   const AXY: TPoint;
-  const Azoom: byte;
+  const AZoom: byte;
   const AMapVersionInfo: IMapVersionInfo
 ): string;
 var
   VVer: String;
 begin
-  Result := inttostr(Azoom) + '_' + inttostr(AXY.X) + '_' + inttostr(AXY.Y);
+  Result := inttostr(AZoom) + '_' + inttostr(AXY.X) + '_' + inttostr(AXY.Y);
   if Assigned(AMapVersionInfo) then begin
     VVer := AMapVersionInfo.StoreString;
     if (0 < Length(VVer)) then begin

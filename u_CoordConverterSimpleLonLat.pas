@@ -37,7 +37,7 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
-      const Aradiusa, Aradiusb: Double
+      const ARadiusA, ARadiusB: Double
     );
   end;
 
@@ -50,14 +50,14 @@ uses
 { TCoordConverterSimpleLonLat }
 
 constructor TCoordConverterSimpleLonLat.Create(
-  const Aradiusa, Aradiusb: Double
+  const ARadiusA, ARadiusB: Double
 );
 begin
-  FExct := sqrt(ARadiusa * ARadiusa - ARadiusb * ARadiusb) / ARadiusa;
-  if (Abs(ARadiusa - 6378137) < 1) and (Abs(ARadiusb - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(4326, Aradiusa, Aradiusb), 4326, CELL_UNITS_DEGREES);
+  FExct := sqrt(ARadiusA * ARadiusA - ARadiusB * ARadiusB) / ARadiusA;
+  if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
+    inherited Create(TDatum.Create(4326, ARadiusA, ARadiusB), 4326, CELL_UNITS_DEGREES);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa, Aradiusb), 0, CELL_UNITS_UNKNOWN);
+    inherited Create(TDatum.Create(0, ARadiusA, ARadiusB), 0, CELL_UNITS_UNKNOWN);
   end;
 end;
 

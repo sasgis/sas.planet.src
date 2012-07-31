@@ -47,7 +47,7 @@ type
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -185,7 +185,7 @@ end;
 procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   const AConverter: ICoordConverter
 );
 var
@@ -193,8 +193,8 @@ var
   ll1, ll2: TDoublePoint;
   CellX, CellY, OrigX, OrigY: Double;
 begin
-  ll1 := AConverter.PixelPos2LonLat(xy1, Azoom);
-  ll2 := AConverter.PixelPos2LonLat(xy2, Azoom);
+  ll1 := AConverter.PixelPos2LonLat(xy1, AZoom);
+  ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
   CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
   assignfile(f, AFileName + 'w');
   rewrite(f);

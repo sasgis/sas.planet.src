@@ -30,7 +30,7 @@ type
     ['{E702ED99-8DC5-4C42-BB51-739011CEC6EA}']
     function GetTileFileName(
       AXY: TPoint;
-      Azoom: byte
+      AZoom: byte
     ): string;
   end;
 

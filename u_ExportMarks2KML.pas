@@ -123,7 +123,7 @@ procedure TExportMarks2KML.ExportToKML(
 var
   KMLStream: TMemoryStream;
 begin
-  filename := Afilename;
+  filename := AFileName;
   inKMZ := ExtractFileExt(filename) = '.kmz';
   if inKMZ then begin
     Zip.FileName := filename;
@@ -153,7 +153,7 @@ procedure TExportMarks2KML.ExportCategoryToKML(
 var
   KMLStream: TMemoryStream;
 begin
-  filename := Afilename;
+  filename := AFileName;
   inKMZ := ExtractFileExt(filename) = '.kmz';
   if inKMZ then begin
     Zip.FileName := filename;
@@ -182,7 +182,7 @@ procedure TExportMarks2KML.ExportMarkToKML(
 var
   KMLStream: TMemoryStream;
 begin
-  filename := Afilename;
+  filename := AFileName;
   inKMZ := ExtractFileExt(filename) = '.kmz';
   if inKMZ then begin
     Zip.FileName := filename;

@@ -57,7 +57,7 @@ type
     destructor Destroy; override;
     function GetTileFileName(
       const AXY: TPoint;
-      const Azoom: byte
+      const AZoom: byte
     ): string; virtual;
 
     property ConfigChangeNotifier: INotifier read FConfigChangeNotifier;
@@ -121,7 +121,7 @@ type
     destructor Destroy; override;
     function GetTileFileName(
       const AXY: TPoint;
-      const Azoom: byte
+      const AZoom: byte
     ): string; override;
     property BasePath: string read FBasePath;
   end;
@@ -182,10 +182,10 @@ end;
 
 function TMapTypeCacheConfigAbstract.GetTileFileName(
   const AXY: TPoint;
-  const Azoom: byte
+  const AZoom: byte
 ): string;
 begin
-  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, Azoom) + FConfig.GetStatic.TileFileExt;
+  Result := FBasePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + FConfig.GetStatic.TileFileExt;
 end;
 
 { TMapTypeCacheConfig }

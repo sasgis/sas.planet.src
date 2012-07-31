@@ -36,7 +36,7 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
-      const Aradiusa: Double
+      const ARadiusA: Double
     );
   end;
 
@@ -48,15 +48,15 @@ uses
 { TCoordConverterMercatorOnSphere }
 
 constructor TCoordConverterMercatorOnSphere.Create(
-  const Aradiusa: Double
+  const ARadiusA: Double
 );
 begin
-  if Abs(ARadiusa - 6378137) < 1 then begin
-    inherited Create(TDatum.Create(7059, Aradiusa), 3785, CELL_UNITS_METERS);
-  end else if Abs(ARadiusa - 6371000) < 1 then begin
-    inherited Create(TDatum.Create(53004, Aradiusa), 53004, CELL_UNITS_METERS);
+  if Abs(ARadiusA - 6378137) < 1 then begin
+    inherited Create(TDatum.Create(7059, ARadiusA), 3785, CELL_UNITS_METERS);
+  end else if Abs(ARadiusA - 6371000) < 1 then begin
+    inherited Create(TDatum.Create(53004, ARadiusA), 53004, CELL_UNITS_METERS);
   end else begin
-    inherited Create(TDatum.Create(0, Aradiusa), 0, CELL_UNITS_UNKNOWN);
+    inherited Create(TDatum.Create(0, ARadiusA), 0, CELL_UNITS_UNKNOWN);
   end;
 end;
 

@@ -70,9 +70,9 @@ type
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
-      const Azoomarr: TByteDynArray;
-      const Atypemaparr: array of TMapType;
-      Areplace: boolean;
+      const AZoomArr: TByteDynArray;
+      const AMapTypeArr: array of TMapType;
+      AReplace: boolean;
       Acsat: byte;
       Acmap: byte
     );
@@ -107,9 +107,9 @@ constructor TThreadExportYaMobileV3.Create(
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
-  const Azoomarr: TByteDynArray;
-  const Atypemaparr: array of TMapType;
-  Areplace: boolean;
+  const AZoomArr: TByteDynArray;
+  const AMapTypeArr: array of TMapType;
+  AReplace: boolean;
   Acsat, Acmap: byte
 );
 var
@@ -120,7 +120,7 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Azoomarr,
+    AZoomArr,
     Self.ClassName
   );
   FCoordConverterFactory := ACoordConverterFactory;
@@ -130,37 +130,37 @@ begin
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
-  if (length(Atypemaparr) <> 3) then begin
+  if (length(AMapTypeArr) <> 3) then begin
     raise Exception.Create('Not expected maps count');
   end;
-  if (Atypemaparr[0] = nil) and
-    (Atypemaparr[1] = nil) and
-    (Atypemaparr[2] = nil) then begin
+  if (AMapTypeArr[0] = nil) and
+    (AMapTypeArr[1] = nil) and
+    (AMapTypeArr[2] = nil) then begin
     raise Exception.Create('Maps are not selected');
   end;
 
   VTaskIndex := -1;
-  if (Atypemaparr[0] <> nil) or (Atypemaparr[2] <> nil) then begin
+  if (AMapTypeArr[0] <> nil) or (AMapTypeArr[2] <> nil) then begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 2;
     FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
-        Atypemaparr[0],
-        Atypemaparr[2],
+        AMapTypeArr[0],
+        AMapTypeArr[2],
         False,
         False
       );
   end;
-  if Atypemaparr[1] <> nil then begin
+  if AMapTypeArr[1] <> nil then begin
     Inc(VTaskIndex);
     SetLength(FTasks, VTaskIndex + 1);
     FTasks[VTaskIndex].FMapId := 1;
     FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
-        Atypemaparr[1],
+        AMapTypeArr[1],
         nil,
         False,
         False

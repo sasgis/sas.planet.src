@@ -45,39 +45,39 @@ type
 
     function GetTileFileName(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersion: IMapVersionInfo
     ): string;
     function GetTileInfo(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersion: IMapVersionInfo
     ): ITileInfoBasic;
 
     function LoadTile(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileInfoWithData;
     function DeleteTile(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
     function DeleteTNE(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
     procedure SaveTile(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersion: IMapVersionInfo;
       const AData: IBinaryData
     );
     procedure SaveTNE(
       const AXY: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AVersion: IMapVersionInfo
     );
   end;

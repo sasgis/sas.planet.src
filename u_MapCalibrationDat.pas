@@ -38,7 +38,7 @@ type
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -65,7 +65,7 @@ end;
 procedure TMapCalibrationDat.SaveCalibrationInfo(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   const AConverter: ICoordConverter
 );
 var
@@ -75,8 +75,8 @@ begin
   assignfile(f, ChangeFileExt(AFileName, '.dat'));
   rewrite(f);
   writeln(f, '2');
-  LL1 := AConverter.PixelPos2LonLat(xy1, Azoom);
-  LL2 := AConverter.PixelPos2LonLat(xy2, Azoom);
+  LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
+  LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
   writeln(f, R2StrPoint(LL1.x) + ',' + R2StrPoint(LL1.y));
   writeln(f, R2StrPoint(LL2.x) + ',' + R2StrPoint(LL1.y));
   writeln(f, R2StrPoint(LL2.x) + ',' + R2StrPoint(LL2.y));

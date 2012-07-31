@@ -43,7 +43,7 @@ type
    AOperationID: Integer;
    const AFile : string ;
    const ASearch : widestring;
-   Alist : IInterfaceList;
+   AList : IInterfaceList;
    var Acnt : integer
    );
   protected
@@ -465,12 +465,12 @@ begin
     VPlacemark := IGeoCodePlacemark(AList.Items[i]);
     j:= posex(')',VPlacemark.Name);
     str1 := copy(VPlacemark.Name,j,length(VPlacemark.Name)-(j+1));
-    j:= posex(')',Avalue.Name);
-    str2 := copy(Avalue.Name,j,length(Avalue.Name)-(j+1));
+    j:= posex(')',AValue.Name);
+    str2 := copy(AValue.Name,j,length(AValue.Name)-(j+1));
     if str1=str2 then begin
       if
-        abs(VPlacemark.GetPoint.x-avalue.GetPoint.x) +
-        abs(VPlacemark.GetPoint.Y-avalue.GetPoint.Y) < 0.05
+        abs(VPlacemark.GetPoint.x-AValue.GetPoint.x) +
+        abs(VPlacemark.GetPoint.Y-AValue.GetPoint.Y) < 0.05
       then begin
         Result := true;
         Break;
@@ -484,7 +484,7 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
-  Alist : IInterfaceList;
+  AList : IInterfaceList;
   var Acnt : integer
   );
 var

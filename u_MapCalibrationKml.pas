@@ -38,7 +38,7 @@ type
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -65,7 +65,7 @@ end;
 procedure TMapCalibrationKml.SaveCalibrationInfo(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   const AConverter: ICoordConverter
 );
 var
@@ -81,8 +81,8 @@ begin
   VStr := VStr + ansiToUTF8('<kml><GroundOverlay><name>' + VFileName + '</name><color>88ffffff</color><Icon>' + #13#10);
   VStr := VStr + ansiToUTF8('<href>' + VFileName + '</href>' + #13#10);
   VStr := VStr + ansiToUTF8('<viewBoundScale>0.75</viewBoundScale></Icon><LatLonBox>' + #13#10);
-  LL1 := AConverter.PixelPos2LonLat(xy1, Azoom);
-  LL2 := AConverter.PixelPos2LonLat(xy2, Azoom);
+  LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
+  LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
   VStr := VStr + ansiToUTF8('<north>' + R2StrPoint(LL1.y) + '</north>' + #13#10);
   VStr := VStr + ansiToUTF8('<south>' + R2StrPoint(LL2.y) + '</south>' + #13#10);
   VStr := VStr + ansiToUTF8('<east>' + R2StrPoint(LL2.x) + '</east>' + #13#10);

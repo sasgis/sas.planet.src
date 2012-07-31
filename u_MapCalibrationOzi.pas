@@ -38,7 +38,7 @@ type
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
       const xy1, xy2: TPoint;
-      Azoom: byte;
+      AZoom: byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -65,7 +65,7 @@ end;
 procedure TMapCalibrationOzi.SaveCalibrationInfo(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
-  Azoom: byte;
+  AZoom: byte;
   const AConverter: ICoordConverter
 );
 const
@@ -95,11 +95,11 @@ begin
     writeln(f, '1 ,Map Code,' + #13#10 + 'WGS 84,,   0.0000,   0.0000,WGS 84' + #13#10 + 'Reserved 1' + #13#10 +
       'Reserved 2' + #13#10 + 'Magnetic Variation,,,E' + #13#10 + 'Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No');
 
-    VLL1 := AConverter.PixelPos2LonLat(xy1, Azoom);
-    VLL2 := AConverter.PixelPos2LonLat(xy2, Azoom);
+    VLL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
+    VLL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
     xy.Y := (xy2.y - ((xy2.Y - xy1.Y) div 2));
     xy.X := (xy2.x - ((xy2.x - xy1.x) div 2));
-    VLL := AConverter.PixelPos2LonLat(xy, Azoom);
+    VLL := AConverter.PixelPos2LonLat(xy, AZoom);
 
     lon[1] := VLL1.X;
     lat[1] := VLL1.Y;
@@ -153,7 +153,7 @@ begin
 
     rad := AConverter.Datum.GetSpheroidRadiusA;
 
-    writeln(f, 'MM1B,' + FloatToStr(1 / ((AConverter.PixelsAtZoomFloat(Azoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat));
+    writeln(f, 'MM1B,' + FloatToStr(1 / ((AConverter.PixelsAtZoomFloat(AZoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat));
     writeln(f, 'MOP,Map Open Position,0,0');
     writeln(f, 'IWH,Map Image Width/Height,' + inttostr(VLocalRect.Right) + ',' + inttostr(VLocalRect.Bottom));
   finally
