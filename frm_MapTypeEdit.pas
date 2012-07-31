@@ -119,28 +119,28 @@ end;
 
 procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
-  FmapType.TileDownloadRequestBuilderConfig.LockWrite;
+  FMapType.TileDownloadRequestBuilderConfig.LockWrite;
   try
-    FmapType.TileDownloadRequestBuilderConfig.UrlBase := EditURL.Text;
+    FMapType.TileDownloadRequestBuilderConfig.UrlBase := EditURL.Text;
     FMapType.TileDownloadRequestBuilderConfig.RequestHeader := mmoHeader.Text;
   finally
-    FmapType.TileDownloadRequestBuilderConfig.UnlockWrite;
+    FMapType.TileDownloadRequestBuilderConfig.UnlockWrite;
   end;
 
   FMapType.GUIConfig.LockWrite;
   try
-    FmapType.GUIConfig.ParentSubMenu.Value:=EditParSubMenu.Text;
-    FmapType.GUIConfig.HotKey:=EditHotKey.HotKey;
+    FMapType.GUIConfig.ParentSubMenu.Value:=EditParSubMenu.Text;
+    FMapType.GUIConfig.HotKey:=EditHotKey.HotKey;
     FMapType.GUIConfig.Enabled:=CheckEnabled.Checked;
-    FmapType.GUIConfig.separator:=CheckBox1.Checked;
+    FMapType.GUIConfig.separator:=CheckBox1.Checked;
   finally
     FMapType.GUIConfig.UnlockWrite;
   end;
 
-  FmapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
-  FmapType.StorageConfig.LockWrite;
+  FMapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
+  FMapType.StorageConfig.LockWrite;
   try
-    FmapType.StorageConfig.NameInCache := EditNameinCache.Text;
+    FMapType.StorageConfig.NameInCache := EditNameinCache.Text;
     // do not change cache types for GE and GC
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
       // common cache types
@@ -156,7 +156,7 @@ begin
       end;
     end;
   finally
-    FmapType.StorageConfig.UnlockWrite;
+    FMapType.StorageConfig.UnlockWrite;
   end;
   FMapType.VersionConfig.Version := FMapType.VersionConfig.VersionFactory.CreateByStoreString(edtVersion.Text);
   FMapType.Abilities.UseDownload := chkDownloadEnabled.Checked;
@@ -171,29 +171,29 @@ end;
 
 procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FmapType:=nil;
+  FMapType:=nil;
 end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
 begin
-  EditURL.Text := FmapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
+  EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
   mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
 
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
-  SESleep.Value:=FmapType.Zmp.TileDownloaderConfig.WaitInterval;
-  EditHotKey.HotKey:=FmapType.Zmp.GUI.HotKey;
+  SESleep.Value:=FMapType.Zmp.TileDownloaderConfig.WaitInterval;
+  EditHotKey.HotKey:=FMapType.Zmp.GUI.HotKey;
 
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-    if FmapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
+    if FMapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
       // BDB
-      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode - 1;
+      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
     end else begin
-      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
+      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
     end;
   end;
 
-  EditParSubMenu.Text:=FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
-  CheckBox1.Checked:=FmapType.Zmp.GUI.Separator;
+  EditParSubMenu.Text:=FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
+  CheckBox1.Checked:=FMapType.Zmp.GUI.Separator;
   CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
   edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
 end;
@@ -210,7 +210,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetSubMenuClick(Sender: TObject);
 begin
-  EditParSubMenu.Text := FmapType.GUIConfig.ParentSubMenu.GetDefaultValue;
+  EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
 end;
 
 procedure TfrmMapTypeEdit.btnResetHotKeyClick(Sender: TObject);
@@ -226,11 +226,11 @@ end;
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-    if (FmapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB) then begin
+    if (FMapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB) then begin
       // BDB
-      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode - 1;
+      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
     end else begin
-      CBCacheType.ItemIndex := FmapType.Zmp.StorageConfig.CacheTypeCode;
+      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
     end;
   end;
 end;
@@ -241,7 +241,7 @@ var
 begin
   FMapType := AMapType;
 
-  Caption:=SAS_STR_EditMap+' '+FmapType.GUIConfig.Name.Value;
+  Caption:=SAS_STR_EditMap+' '+FMapType.GUIConfig.Name.Value;
   edtZmp.Text := AMapType.Zmp.FileName;
 
   FMapType.TileDownloadRequestBuilderConfig.LockRead;

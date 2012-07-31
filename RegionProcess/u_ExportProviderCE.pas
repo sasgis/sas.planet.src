@@ -106,7 +106,7 @@ end;
 
 procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
+  Path: string;
   Zoomarr: TByteDynArray;
   VMapType: TMapType;
 

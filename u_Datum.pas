@@ -201,7 +201,7 @@ var
   Node: TDoublePoint;
   p: array [0..2] of TDoublePoint;  //вершины треугольника
   pn: array [0..2] of integer;
-  Noden: integer;
+  NodeN: integer;
   PointsNum: integer;
   Orient: Integer;
   inPoint: Boolean;

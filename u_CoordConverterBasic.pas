@@ -385,10 +385,10 @@ begin
   if AZoom > 23 then begin
     VZoom := VZoom - 8;
     CheckPixelPosInternal(VXY, VZoom);
-    Result := PixelPos2LonLatInternal(VXY, Vzoom);
+    Result := PixelPos2LonLatInternal(VXY, VZoom);
   end else begin
     CheckTilePosInternal(VXY, VZoom);
-    Result := TilePos2LonLatInternal(VXY, Vzoom);
+    Result := TilePos2LonLatInternal(VXY, VZoom);
   end;
 end;
 

@@ -136,7 +136,7 @@ function TfrmMarkEditPoly.EditMark(const AMark: IMarkPoly; AIsNewMark: Boolean):
 begin
   frMarkCategory.Init(AMark.Category);
   try
-    edtName.Text:=AMark.name;
+    edtName.Text:=AMark.Name;
     frMarkDescription.Description:=AMark.Desc;
     seLineTransp.Value:=100-round(AlphaComponent(AMark.BorderColor)/255*100);
     seFillTransp.Value:=100-round(AlphaComponent(AMark.FillColor)/255*100);

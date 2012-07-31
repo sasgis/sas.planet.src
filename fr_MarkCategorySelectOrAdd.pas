@@ -67,7 +67,7 @@ begin
   AStrings.Clear;
   for i := 0 to AList.Count - 1 do begin
     VCategory := IMarkCategory(AList[i]);
-    AStrings.AddObject(VCategory.name, Pointer(VCategory));
+    AStrings.AddObject(VCategory.Name, Pointer(VCategory));
   end;
 end;
 

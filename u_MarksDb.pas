@@ -596,7 +596,7 @@ end;
 
 procedure TMarksDb.WriteCurrentMarkId(const AMark: IMarkId);
 begin
-  FCdsMarks.FieldByName('name').AsString := AMark.name;
+  FCdsMarks.FieldByName('name').AsString := AMark.Name;
   FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
 end;
 
@@ -620,7 +620,7 @@ begin
   end;
 
   FCdsMarks.FieldByName('Visible').AsBoolean := VVisible;
-  FCdsMarks.FieldByName('name').AsString := AMark.name;
+  FCdsMarks.FieldByName('name').AsString := AMark.Name;
   FCdsMarks.FieldByName('categoryid').AsInteger := VCategoryId;
   FCdsMarks.FieldByName('descr').AsString := AMark.Desc;
   FCdsMarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;

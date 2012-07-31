@@ -235,7 +235,7 @@ begin
   Priority := tpLower;
 
   FReplaceExistTiles := AReplaceExistTiles;
-  Fzoom := AZoom;
+  FZoom := AZoom;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
   FForAttachments := AForAttachments;
@@ -506,7 +506,7 @@ var
   VElapsedTime: TDateTime;
 begin
   ASLSSection.WriteString('MapGUID', GUIDToString(FMapType.Zmp.GUID));
-  ASLSSection.WriteInteger('Zoom', Fzoom + 1);
+  ASLSSection.WriteInteger('Zoom', FZoom + 1);
   ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
   ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
   ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
@@ -588,8 +588,8 @@ begin
           end;
 
           // notify about current tile
-          FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, Fzoom)]), 0);
-          VTileExists := FMapType.TileExists(VTile, Fzoom);
+          FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom)]), 0);
+          VTileExists := FMapType.TileExists(VTile, FZoom);
 
           // for attachments need base tile - but even for existing tile some attachments may not exist
           if (FReplaceExistTiles) or not (VTileExists) then begin
@@ -599,7 +599,7 @@ begin
             end else begin
               FLog.WriteText(FRES_LoadProcess + '...', 0);
             end;
-            if (FCheckExistTileDate) and (VTileExists) and (FMapType.TileLoadDate(VTile, Fzoom) >= FCheckTileDate) then begin
+            if (FCheckExistTileDate) and (VTileExists) and (FMapType.TileLoadDate(VTile, FZoom) >= FCheckTileDate) then begin
               // skip existing newer tile (but download attachments)
               if (FLog <> nil) then begin
                 FLog.WriteText(FRES_FileBeCreateTime, 0);
@@ -610,7 +610,7 @@ begin
             end else begin
               try
                 if (not (FSecondLoadTNE)) and
-                  (FMapType.TileNotExistsOnServer(VTile, Fzoom)) and
+                  (FMapType.TileNotExistsOnServer(VTile, FZoom)) and
                   (FDownloadConfig.IsSaveTileNotExists) then begin
                   // tne found - skip downloading tile
                   if (FLog <> nil) then begin

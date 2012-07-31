@@ -104,13 +104,12 @@ ResourceString
   SAS_STR_activescale = 'Current zoom';
   SAS_STR_for = 'For';
   SAS_STR_notfound = 'Nothing found on current map.';
-  SAS_STR_Process = 'Processing...';
   SAS_STR_WiteLoad = 'Please wait, download in progress...';
   SAS_STR_Processed = 'Processed';
   SAS_STR_ProcessedNoMore = 'Process not more than';
   SAS_STR_AllDelete = 'Deleted total:';
   SAS_STR_AllSaves = 'Total to save:';
-  SAS_STR_files = 'files';
+  SAS_STR_Files = 'files';
   SAS_STR_file = 'file';
   SAS_STR_No = 'No';
   SAS_STR_Yes = 'Yes';

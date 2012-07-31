@@ -341,8 +341,8 @@ begin
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
               PosTag3 := Cardinal(FBMSrchDescE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                Vdescription := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
-                parseDescription(Vdescription);
+                VDescription := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
+                parseDescription(VDescription);
               end;
             end;
           end;

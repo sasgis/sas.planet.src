@@ -91,7 +91,7 @@ end;
 function TCoordConverterMercatorOnEllipsoid.Relative2LonLatInternal(
   const XY: TDoublePoint): TDoublePoint;
 var
-  zu, zum1, yy: extended;
+  Zu, Zum1, yy: extended;
   VXY: TDoublePoint;
   VSin: Extended;
   e_y: Extended;

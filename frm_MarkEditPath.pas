@@ -123,7 +123,7 @@ function TfrmMarkEditPath.EditMark(const AMark: IMarkLine; AIsNewMark: Boolean):
 begin
   frMarkCategory.Init(AMark.Category);
   try
-    edtName.Text:=AMark.name;
+    edtName.Text:=AMark.Name;
     frMarkDescription.Description := AMark.Desc;
     SEtransp.Value:=100-round(AlphaComponent(AMark.LineColor)/255*100);
     seWidth.Value:=AMark.LineWidth;

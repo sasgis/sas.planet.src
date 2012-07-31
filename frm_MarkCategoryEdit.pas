@@ -106,7 +106,7 @@ begin
   end else begin
     Self.Caption:=SAS_STR_EditCategory;
   end;
-  EditName.Text:=ACategory.name;
+  EditName.Text:=ACategory.Name;
   EditS1.Value:=ACategory.AfterScale;
   EditS2.Value:=ACategory.BeforeScale;
   CBShow.Checked:=ACategory.visible;

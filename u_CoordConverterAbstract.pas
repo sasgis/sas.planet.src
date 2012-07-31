@@ -536,7 +536,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosStrictInternal(VXY, VZoom);
-  Result := TilePos2PixelRectInternal(VXY, Vzoom);
+  Result := TilePos2PixelRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePos2PixelRectFloat(
@@ -550,7 +550,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosStrictInternal(VXY, VZoom);
-  Result := TilePos2PixelRectFloatInternal(VXY, Vzoom);
+  Result := TilePos2PixelRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePos2LonLatRect(
@@ -564,7 +564,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosStrictInternal(VXY, VZoom);
-  Result := TilePos2LonLatRectInternal(VXY, Vzoom);
+  Result := TilePos2LonLatRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelsAtZoom(const AZoom: byte): Longint;
@@ -573,7 +573,7 @@ var
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := PixelsAtZoomInternal(Vzoom);
+  Result := PixelsAtZoomInternal(VZoom);
 end;
 
 function TCoordConverterAbstract.PixelsAtZoomFloat(const AZoom: byte): Double;
@@ -582,7 +582,7 @@ var
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := PixelsAtZoomFloatInternal(Vzoom);
+  Result := PixelsAtZoomFloatInternal(VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRectAtZoom(const AZoom: byte): TRect;
@@ -591,7 +591,7 @@ var
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := PixelRectAtZoomInternal(Vzoom);
+  Result := PixelRectAtZoomInternal(VZoom);
 end;
 
 function TCoordConverterAbstract.TilesAtZoom(const AZoom: byte): Longint;
@@ -600,7 +600,7 @@ var
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := TilesAtZoomInternal(Vzoom);
+  Result := TilesAtZoomInternal(VZoom);
 end;
 
 function TCoordConverterAbstract.TilesAtZoomFloat(const AZoom: byte): Double;
@@ -609,7 +609,7 @@ var
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := TilesAtZoomFloatInternal(Vzoom);
+  Result := TilesAtZoomFloatInternal(VZoom);
 end;
 
 function TCoordConverterAbstract.TileRectAtZoom(const AZoom: byte): TRect;
@@ -618,7 +618,7 @@ var
 begin
   VZoom := AZoom;
   CheckZoomInternal(VZoom);
-  Result := TileRectAtZoomInternal(Vzoom);
+  Result := TileRectAtZoomInternal(VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2Relative(
@@ -632,7 +632,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelPosInternal(VXY, VZoom);
-  Result := PixelPos2RelativeInternal(VXY, Vzoom);
+  Result := PixelPos2RelativeInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.Relative2LonLat(
@@ -657,7 +657,7 @@ begin
   VZoom := AZoom;
   CheckRelativePosInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := Relative2PixelPosFloatInternal(VXY, Vzoom);
+  Result := Relative2PixelPosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.LonLat2Metr(
@@ -682,7 +682,7 @@ begin
   VZoom := AZoom;
   CheckLonLatPosInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := LonLat2PixelPosFloatInternal(VXY, Vzoom);
+  Result := LonLat2PixelPosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2LonLat(
@@ -696,7 +696,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelPosInternal(VXY, VZoom);
-  Result := PixelPos2LonLatInternal(VXY, Vzoom);
+  Result := PixelPos2LonLatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePos2LonLat(
@@ -710,7 +710,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosInternal(VXY, VZoom);
-  Result := TilePos2LonLatInternal(VXY, Vzoom);
+  Result := TilePos2LonLatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePos2Relative(
@@ -724,7 +724,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosInternal(VXY, VZoom);
-  Result := TilePos2RelativeInternal(VXY, Vzoom);
+  Result := TilePos2RelativeInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePos2RelativeRect(
@@ -738,7 +738,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosStrictInternal(VXY, VZoom);
-  Result := TilePos2RelativeRectInternal(VXY, Vzoom);
+  Result := TilePos2RelativeRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePosFloat2LonLat(
@@ -752,7 +752,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckTilePosFloatInternal(VXY, VZoom);
-  Result := TilePosFloat2LonLatInternal(VXY, Vzoom);
+  Result := TilePosFloat2LonLatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePosFloat2PixelPosFloat(
@@ -766,7 +766,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckTilePosFloatInternal(VXY, VZoom);
-  Result := TilePosFloat2PixelPosFloatInternal(VXY, Vzoom);
+  Result := TilePosFloat2PixelPosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePosFloat2Relative(
@@ -780,7 +780,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckTilePosFloatInternal(VXY, VZoom);
-  Result := TilePosFloat2RelativeInternal(VXY, Vzoom);
+  Result := TilePosFloat2RelativeInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.LonLatRect2RelativeRect(
@@ -805,7 +805,7 @@ begin
   VZoom := AZoom;
   CheckRelativePosInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := Relative2TilePosFloatInternal(VXY, Vzoom);
+  Result := Relative2TilePosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.RelativeRect2LonLatRect(
@@ -830,7 +830,7 @@ begin
   VZoom := AZoom;
   CheckRelativeRectInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := RelativeRect2PixelRectFloatInternal(VXY, Vzoom);
+  Result := RelativeRect2PixelRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.RelativeRect2TileRectFloat(
@@ -845,7 +845,7 @@ begin
   VZoom := AZoom;
   CheckRelativeRectInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := RelativeRect2TileRectFloatInternal(VXY, Vzoom);
+  Result := RelativeRect2TileRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2TilePos(
@@ -859,7 +859,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelPosInternal(VXY, VZoom);
-  Result := PixelPos2TilePosInternal(VXY, Vzoom);
+  Result := PixelPos2TilePosInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPos2TilePosFloat(
@@ -873,7 +873,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelPosInternal(VXY, VZoom);
-  Result := PixelPos2TilePosFloatInternal(VXY, Vzoom);
+  Result := PixelPos2TilePosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPosFloat2LonLat(
@@ -887,7 +887,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelPosFloatInternal(VXY, VZoom);
-  Result := PixelPosFloat2LonLatInternal(VXY, Vzoom);
+  Result := PixelPosFloat2LonLatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPosFloat2Relative(
@@ -901,7 +901,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelPosFloatInternal(VXY, VZoom);
-  Result := PixelPosFloat2RelativeInternal(VXY, Vzoom);
+  Result := PixelPosFloat2RelativeInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelPosFloat2TilePosFloat(
@@ -915,7 +915,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelPosFloatInternal(VXY, VZoom);
-  Result := PixelPosFloat2TilePosFloatInternal(VXY, Vzoom);
+  Result := PixelPosFloat2TilePosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRect2LonLatRect(
@@ -929,7 +929,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelRectInternal(VXY, VZoom);
-  Result := PixelRect2LonLatRectInternal(VXY, Vzoom);
+  Result := PixelRect2LonLatRectInternal(VXY, VZoom);
 end;
 
 
@@ -944,7 +944,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelRectInternal(VXY, VZoom);
-  Result := PixelRect2TileRectInternal(VXY, Vzoom);
+  Result := PixelRect2TileRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRect2TileRectFloat(
@@ -958,7 +958,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelRectInternal(VXY, VZoom);
-  Result := PixelRect2TileRectFloatInternal(VXY, Vzoom);
+  Result := PixelRect2TileRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRectFloat2LonLatRect(
@@ -972,7 +972,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelRectFloatInternal(VXY, VZoom);
-  Result := PixelRectFloat2LonLatRectInternal(VXY, Vzoom);
+  Result := PixelRectFloat2LonLatRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRectFloat2RelativeRect(
@@ -986,7 +986,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelRectFloatInternal(VXY, VZoom);
-  Result := PixelRectFloat2RelativeRectInternal(VXY, Vzoom);
+  Result := PixelRectFloat2RelativeRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRectFloat2TileRectFloat(
@@ -1000,7 +1000,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckPixelRectFloatInternal(VXY, VZoom);
-  Result := PixelRectFloat2TileRectFloatInternal(VXY, Vzoom);
+  Result := PixelRectFloat2TileRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TileRect2PixelRect(
@@ -1014,7 +1014,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTileRectInternal(VXY, VZoom);
-  Result := TileRect2PixelRectInternal(VXY, Vzoom);
+  Result := TileRect2PixelRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.PixelRect2RelativeRect(
@@ -1028,7 +1028,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelRectInternal(VXY, VZoom);
-  Result := PixelRect2RelativeRectInternal(VXY, Vzoom);
+  Result := PixelRect2RelativeRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TilePos2PixelPos(
@@ -1042,7 +1042,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTilePosInternal(VXY, VZoom);
-  Result := TilePos2PixelPosInternal(VXY, Vzoom);
+  Result := TilePos2PixelPosInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.LonLat2TilePosFloat(
@@ -1057,7 +1057,7 @@ begin
   VZoom := AZoom;
   CheckLonLatPosInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := LonLat2TilePosFloatInternal(VXY, Vzoom);
+  Result := LonLat2TilePosFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.LonLat2Relative(
@@ -1081,7 +1081,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTileRectInternal(VXY, VZoom);
-  Result := TileRect2LonLatRectInternal(VXY, Vzoom);
+  Result := TileRect2LonLatRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TileRect2RelativeRect(
@@ -1095,7 +1095,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckTileRectInternal(VXY, VZoom);
-  Result := TileRect2RelativeRectInternal(VXY, Vzoom);
+  Result := TileRect2RelativeRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TileRectFloat2LonLatRect(
@@ -1109,7 +1109,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckTileRectFloatInternal(VXY, VZoom);
-  Result := TileRectFloat2LonLatRectInternal(VXY, Vzoom);
+  Result := TileRectFloat2LonLatRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TileRectFloat2PixelRectFloat(
@@ -1123,7 +1123,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckTileRectFloatInternal(VXY, VZoom);
-  Result := TileRectFloat2PixelRectFloatInternal(VXY, Vzoom);
+  Result := TileRectFloat2PixelRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.TileRectFloat2RelativeRect(
@@ -1137,7 +1137,7 @@ begin
   VXY := XY;
   VZoom := AZoom;
   CheckTileRectFloatInternal(VXY, VZoom);
-  Result := TileRectFloat2RelativeRectInternal(VXY, Vzoom);
+  Result := TileRectFloat2RelativeRectInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.LonLatRect2TileRectFloat(
@@ -1152,7 +1152,7 @@ begin
   VZoom := AZoom;
   CheckLonLatRectInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := LonLatRect2TileRectFloatInternal(VXY, Vzoom);
+  Result := LonLatRect2TileRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.Metr2LonLat(const AXY: TDoublePoint): TDoublePoint;
@@ -1176,7 +1176,7 @@ begin
   VZoom := AZoom;
   CheckLonLatRectInternal(VXY);
   CheckZoomInternal(VZoom);
-  Result := LonLatRect2PixelRectFloatInternal(VXY, Vzoom);
+  Result := LonLatRect2PixelRectFloatInternal(VXY, VZoom);
 end;
 
 function TCoordConverterAbstract.GetDatum: IDatum;

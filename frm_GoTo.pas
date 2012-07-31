@@ -170,7 +170,7 @@ begin
   AStrings.Clear;
   for i := 0 to AList.Count - 1 do begin
     VMarkId := IMarkId(AList[i]);
-    AStrings.AddObject(VMarkId.name, Pointer(VMarkId));
+    AStrings.AddObject(VMarkId.Name, Pointer(VMarkId));
   end;
 end;
 
@@ -192,7 +192,7 @@ begin
       VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
       VMark := FMarksDb.GetMarkByID(VMarkId);
       VLonLat := VMark.GetGoToLonLat;
-      FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.name);
+      FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.Name);
       ModalResult := mrOk;
     end else begin
       ModalResult := mrCancel;

@@ -193,7 +193,7 @@ begin
   drwgrdIcons.RowCount := VRowCount;
   drwgrdIcons.Repaint;
   FPic := AMark.Pic;
-  edtName.Text:=AMark.name;
+  edtName.Text:=AMark.Name;
   frMarkDescription.Description:=AMark.Desc;
   seFontSize.Value:=AMark.FontSize;
   seIconSize.Value:=AMark.MarkerSize;

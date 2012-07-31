@@ -50,7 +50,7 @@ uses
 type
   TMarksDbGUIHelper = class
   private
-    FMarksDB: TMarksSystem;
+    FMarksDb: TMarksSystem;
     FVectorItmesFactory: IVectorItmesFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
@@ -83,7 +83,7 @@ type
       const AMark: IMark;
       const AProjection: IProjectionInfo
     ): boolean;
-    function AddKategory(const name: string): IMarkCategory;
+    function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkLength(
       const AMark: IMarkLine;
       const AConverter: ICoordConverter;
@@ -135,7 +135,7 @@ type
       AIgnoreMarksVisible: Boolean
     );
 
-    property MarksDB: TMarksSystem read FMarksDB;
+    property MarksDb: TMarksSystem read FMarksDb;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -173,7 +173,7 @@ constructor TMarksDbGUIHelper.Create(
 );
 begin
   inherited Create;
-  FMarksDB := AMarksDB;
+  FMarksDb := AMarksDB;
   FVectorItmesFactory := AVectorItmesFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
@@ -181,8 +181,8 @@ begin
     TfrmMarkEditPoint.Create(
       ALanguageManager,
       AMediaPath,
-      FMarksDB.CategoryDB,
-      FMarksDB.MarksDb,
+      FMarksDb.CategoryDB,
+      FMarksDb.MarksDb,
       AViewPortState,
       AValueToStringConverterConfig
     );
@@ -190,32 +190,32 @@ begin
     TfrmMarkEditPath.Create(
       ALanguageManager,
       AMediaPath,
-      FMarksDB.CategoryDB,
-      FMarksDB.MarksDb
+      FMarksDb.CategoryDB,
+      FMarksDb.MarksDb
     );
   FfrmMarkEditPoly :=
     TfrmMarkEditPoly.Create(
       ALanguageManager,
       AMediaPath,
-      FMarksDB.CategoryDB,
-      FMarksDB.MarksDb
+      FMarksDb.CategoryDB,
+      FMarksDb.MarksDb
     );
   FfrmMarkCategoryEdit :=
     TfrmMarkCategoryEdit.Create(
       ALanguageManager,
-      FMarksDB.CategoryDB
+      FMarksDb.CategoryDB
     );
   FfrmImportConfigEdit :=
     TfrmImportConfigEdit.Create(
       ALanguageManager,
-      FMarksDB.CategoryDB,
-      FMarksDB.MarksDb
+      FMarksDb.CategoryDB,
+      FMarksDb.MarksDb
     );
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,
-      FMarksDB.CategoryDB,
-      FMarksDB.MarksDb
+      FMarksDb.CategoryDB,
+      FMarksDb.MarksDb
     );
   FExportDialog := TSaveDialog.Create(nil);
 
@@ -238,11 +238,11 @@ begin
   inherited;
 end;
 
-function TMarksDbGUIHelper.AddKategory(const name: string): IMarkCategory;
+function TMarksDbGUIHelper.AddKategory(const Name: string): IMarkCategory;
 var
   VCategory: IMarkCategory;
 begin
-  VCategory := FMarksDB.CategoryDB.Factory.CreateNew(name);
+  VCategory := FMarksDb.CategoryDB.Factory.CreateNew(Name);
   Result := FMarksDb.CategoryDB.GetCategoryByName(VCategory.Name);
   if Result = nil then begin
     Result := FMarksDb.CategoryDB.UpdateCategory(nil, VCategory);
@@ -254,7 +254,7 @@ var
   VMark: IMarkPoint;
 begin
   Result := False;
-  VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
+  VMark := FMarksDb.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
   VMark := FfrmMarkEditPoint.EditMark(VMark, True);
   if VMark <> nil then begin
     FMarksDb.MarksDb.UpdateMark(nil, VMark);
@@ -289,7 +289,7 @@ begin
     end else begin
       VFormat := '%0:s';
     end;
-    AStrings.AddObject(Format(VFormat, [VMarkId.name]), Pointer(VMarkId));
+    AStrings.AddObject(Format(VFormat, [VMarkId.Name]), Pointer(VMarkId));
   end;
 end;
 
@@ -317,7 +317,7 @@ var
   VMessage: string;
 begin
   if AMarkId <> nil then begin
-    VMark := FMarksDB.MarksDb.GetMarkByID(AMarkId);
+    VMark := FMarksDb.MarksDb.GetMarkByID(AMarkId);
     if VMark <> nil then begin
       if Supports(VMark, IMarkPoint) then begin
         VMessage := SAS_MSG_DeleteMarkPointAsk;
@@ -326,7 +326,7 @@ begin
       end else if Supports(VMark, IMarkPoly) then begin
         VMessage := SAS_MSG_DeleteMarkPolyAsk;
       end;
-      VMessage := Format(VMessage, [AMarkId.name]);
+      VMessage := Format(VMessage, [AMarkId.Name]);
       if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMark(AMarkId, nil);
       end;
@@ -397,7 +397,7 @@ var
   VFileName: string;
 begin
   if AMarkCategory <> nil then begin
-    FExportDialog.FileName := StringReplace(AMarkCategory.name, '\', '-', [rfReplaceAll]);
+    FExportDialog.FileName := StringReplace(AMarkCategory.Name, '\', '-', [rfReplaceAll]);
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
@@ -487,7 +487,7 @@ begin
     VLen := AMark.Line.CalcLength(AConverter.Datum);
     VMessage := SAS_STR_L + ' - ' +
       FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name), 0);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.Name), 0);
   end;
 end;
 
@@ -504,7 +504,7 @@ begin
     VLen := AMark.Line.CalcPerimeter(AConverter.Datum);
     VMessage := SAS_STR_P + ' - ' +
       FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name), 0);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.Name), 0);
   end;
 end;
 
@@ -520,7 +520,7 @@ begin
   if AMark <> nil then begin
     VArea := AMark.Line.CalcArea(AConverter.Datum);
     VMessage := SAS_STR_S + ' - ' + FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.name), 0);
+    MessageBox(AHandle, pchar(VMessage), pchar(AMark.Name), 0);
   end;
 end;
 
@@ -576,10 +576,10 @@ var
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
+    VMark := FMarksDb.MarksDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
     VNewMark := AAsNewMark;
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.CreateNewLine(ALine, '', ADescription);
+    VMark := FMarksDb.MarksDb.Factory.CreateNewLine(ALine, '', ADescription);
     VNewMark := True;
   end;
   if VMark <> nil then begin
@@ -606,10 +606,10 @@ var
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoint(AMark, ALonLat);
+    VMark := FMarksDb.MarksDb.Factory.SimpleModifyPoint(AMark, ALonLat);
     VNewMark := False;
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
+    VMark := FMarksDb.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
     VNewMark := True;
   end;
   if VMark <> nil then begin
@@ -633,10 +633,10 @@ var
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDB.MarksDb.Factory.SimpleModifyPoly(AMark, ALine);
+    VMark := FMarksDb.MarksDb.Factory.SimpleModifyPoly(AMark, ALine);
     VNewMark := AAsNewMark;
   end else begin
-    VMark := FMarksDB.MarksDb.Factory.CreateNewPoly(ALine, '', '');
+    VMark := FMarksDb.MarksDb.Factory.CreateNewPoly(ALine, '', '');
     VNewMark := True;
   end;
   if VMark <> nil then begin

@@ -118,7 +118,7 @@ type
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
-    FMarksDB: TMarksSystem;
+    FMarksDb: TMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -177,7 +177,7 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
-    property MarksDB: TMarksSystem read FMarksDB;
+    property MarksDB: TMarksSystem read FMarksDb;
     property GPSpar: TGPSpar read FGPSpar;
 
     // Список генераторов имен файлов с тайлами
@@ -508,7 +508,7 @@ begin
     );
   FMarkPictureList := TMarkPictureListSimple.Create(FMarksIconsPath, FContentTypeManager);
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
-  FMarksDB :=
+  FMarksDb :=
     TMarksSystem.Create(
       FLanguageManager,
       FMarksDbPath,
@@ -588,7 +588,7 @@ begin
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
-  FreeAndNil(FMarksDB);
+  FreeAndNil(FMarksDb);
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
   FGPSRecorder := nil;

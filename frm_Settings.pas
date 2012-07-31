@@ -823,7 +823,7 @@ begin
   try
     CBinvertcolor.Checked := GState.BitmapPostProcessingConfig.InvertColor;
     TrBarGamma.Position:=GState.BitmapPostProcessingConfig.GammaN;
-    TrBarcontrast.Position:=GState.BitmapPostProcessingConfig.ContrastN;
+    TrBarContrast.Position:=GState.BitmapPostProcessingConfig.ContrastN;
   finally
     GState.BitmapPostProcessingConfig.UnlockRead;
   end;
@@ -832,7 +832,7 @@ begin
   end else begin
     LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
   end;
-  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
+  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarContrast.Position)+')';
 
   GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.LockRead;
   try
@@ -973,7 +973,7 @@ end;
 
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
- LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarcontrast.Position)+')';
+ LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarContrast.Position)+')';
 end;
 
 procedure TfrmSettings.SaveGPSConfig;

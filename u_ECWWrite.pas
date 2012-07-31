@@ -29,8 +29,8 @@ uses
   i_NotifierOperation;
 
 type
-  TlineRGB = array[0..0] of single;
-  PlineRGB = ^TlineRGB;
+  TLineRGB = array[0..0] of single;
+  PLineRGB = ^TLineRGB;
 
   TEcwRead =
     function(

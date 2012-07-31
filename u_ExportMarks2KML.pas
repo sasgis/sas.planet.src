@@ -160,7 +160,7 @@ begin
     Zip.CreateZip(filename);
     Zip.CompressionType := ctFast;
     Zip.Active := true;
-    AddFolder(doc, ACategory.name, AMarksSubset);
+    AddFolder(doc, ACategory.Name, AMarksSubset);
     KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
@@ -170,7 +170,7 @@ begin
       KMLStream.Free;
     end;
   end else begin
-    AddFolder(doc, ACategory.name, AMarksSubset);
+    AddFolder(doc, ACategory.Name, AMarksSubset);
     kmldoc.SaveToFile(FileName);
   end;
 end;
@@ -216,7 +216,7 @@ begin
   for K := 0 to ACategoryList.Count - 1 do begin
     VCategory := IMarkCategory(Pointer(ACategoryList.Items[K]));
     VMarksSubset := AMarksSet.GetSubsetByCategory(VCategory);
-    AddFolder(doc, VCategory.name, VMarksSubset);
+    AddFolder(doc, VCategory.Name, VMarksSubset);
   end;
 end;
 
@@ -319,7 +319,7 @@ var
   VLonLat: TDoublePoint;
 begin
   currNode := inNode.AddChild('Placemark');
-  currNode.ChildValues['name'] := Mark.name;
+  currNode.ChildValues['name'] := Mark.Name;
   currNode.ChildValues['description'] := Mark.Desc;
   if Supports(Mark, IMarkPoint, VMarkPoint) then begin
     with currNode.AddChild('Style') do begin

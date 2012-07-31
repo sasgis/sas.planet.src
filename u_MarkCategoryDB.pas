@@ -136,7 +136,7 @@ end;
 
 procedure TMarkCategoryDB.WriteCurrentCategory(const ACategory: IMarkCategory);
 begin
-  FCdsKategory.fieldbyname('name').AsString := ACategory.name;
+  FCdsKategory.fieldbyname('name').AsString := ACategory.Name;
   FCdsKategory.FieldByName('visible').AsBoolean := ACategory.visible;
   FCdsKategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
   FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;

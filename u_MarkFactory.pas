@@ -215,7 +215,7 @@ function TMarkFactory.CreateNewLine(
 var
   VTemplate: IMarkTemplateLine;
   VTemplateSML: IMarkTemplateSMLInternal;
-  VCategoryID: Integer;
+  VCategoryId: Integer;
   VName: string;
 begin
   VTemplate := ATemplate;
@@ -228,9 +228,9 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VCategoryID := CNotExistCategoryID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
-    VCategoryID := VTemplateSML.CategoryId;
+    VCategoryId := VTemplateSML.CategoryId;
   end;
 
   Result :=
@@ -256,7 +256,7 @@ var
   VTemplate: IMarkTemplatePoint;
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
-  VCategoryID: Integer;
+  VCategoryId: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -268,9 +268,9 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VCategoryID := CNotExistCategoryID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
-    VCategoryID := VTemplateSML.CategoryId;
+    VCategoryId := VTemplateSML.CategoryId;
   end;
 
   Result :=
@@ -300,7 +300,7 @@ var
   VTemplate: IMarkTemplatePoly;
   VTemplateSML: IMarkTemplateSMLInternal;
   VName: string;
-  VCategoryID: Integer;
+  VCategoryId: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -312,9 +312,9 @@ begin
     VName := VTemplate.GetNewName;
   end;
 
-  VCategoryID := CNotExistCategoryID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
-    VCategoryID := VTemplateSML.CategoryId;
+    VCategoryId := VTemplateSML.CategoryId;
   end;
 
   Result :=
