@@ -188,16 +188,10 @@ function TIeEmbeddedProtocol.Read(
 begin
   if FStream.Position < FStream.Size then begin
     cbRead := FStream.Read(pv^, cb);
-    if FStream.Position < FStream.Size then begin
-      FProtocolSink.ReportData(BSCF_INTERMEDIATEDATANOTIFICATION, FStream.Position, FStream.Size);
-    end else begin
-      FProtocolSink.ReportData(BSCF_LASTDATANOTIFICATION, FStream.Position, FStream.Size);
-    end;
     Result := S_OK;
   end else begin
     Result := S_FALSE;
   end;
-  FProtocolSink.ReportResult(S_OK, 0, nil);
 end;
 
 function TIeEmbeddedProtocol.Resume: HResult;
@@ -230,7 +224,8 @@ begin
     FBindInfo := OIBindInfo;
     if LoadDataToStream(szUrl) then begin
       //информируем о том что есть что отображать
-      FProtocolSink.ReportData(BSCF_FIRSTDATANOTIFICATION, 0, FStream.Size);
+      FProtocolSink.ReportData(BSCF_FIRSTDATANOTIFICATION or BSCF_LASTDATANOTIFICATION or BSCF_DATAFULLYAVAILABLE, FStream.Size, FStream.Size);
+      FProtocolSink.ReportResult(S_OK, 200, nil);
       Result := S_OK;
     end else begin
       Result := INET_E_DOWNLOAD_FAILURE;
