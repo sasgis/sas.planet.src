@@ -90,7 +90,7 @@ begin
     Self.ClassName
   );
   FPolyProjected := AProjectedPolygon;
-  FZoom := Azoom;
+  FZoom := AZoom;
   FMapType := AMapType;
   FPredicate := APredicate;
   FVersion := AVersion;

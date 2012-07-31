@@ -231,7 +231,7 @@ begin
    frLonLatPoint.Parent := tsCoordinates;
   VLocalConverter := FViewPortState.GetStatic;
   AZoom := VLocalConverter.GetZoom;
-  cbbZoom.ItemIndex := Azoom;
+  cbbZoom.ItemIndex := AZoom;
   frLonLatPoint.LonLat := VLocalConverter.GetCenterLonLat;
   InitGeoCoders;
   InitHistory;

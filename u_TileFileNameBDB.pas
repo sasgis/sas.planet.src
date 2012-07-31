@@ -68,7 +68,7 @@ begin
     '%d' + PathDelim +
     '%d' + '.' + '%d',
     [
-      Azoom + 1,
+      AZoom + 1,
       AXY.x shr 10,
       AXY.y shr 10,
       AXY.x shr 8,

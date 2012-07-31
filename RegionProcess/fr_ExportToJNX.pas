@@ -719,7 +719,7 @@ end;
 
 function TfrExportToJNX.GetMapName: string;
 begin
-  Result := EmapName.Text;
+  Result := EMapName.Text;
 end;
 
 function TfrExportToJNX.GetPath: string;

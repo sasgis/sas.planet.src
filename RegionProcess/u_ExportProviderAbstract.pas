@@ -108,7 +108,7 @@ begin
     end;
     VFrame := ParamsFrame;
     if VFrame <> nil then begin
-      VFrame.Init(Azoom, APolygon);
+      VFrame.Init(AZoom, APolygon);
     end;
   end;
 end;

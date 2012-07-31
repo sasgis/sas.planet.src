@@ -183,7 +183,7 @@ function TfrExportToCE.GetComent: string;
 var
   VMapType: TMapType;
 begin
-  Result := EmapName.Text;
+  Result := EMapName.Text;
   if Result <> '' then begin
     VMapType :=  GetMapType;
     Result := Guidtostring(VMapType.Zmp.GUID) + #13#10 + Result;

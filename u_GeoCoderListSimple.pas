@@ -148,7 +148,7 @@ begin
   try
     VItem :=
       TGeoCoderListEntity.Create(
-        CGeoCoderGeoNamesTXTGUID,
+        CGeoCoderGeonamesTXTGUID,
         'Offline search (*.txt)',
         TGeoCoderByTXT.Create(AValueToStringConverterConfig)
       );

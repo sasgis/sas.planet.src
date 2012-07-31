@@ -79,9 +79,9 @@ procedure Contrast(
   end;
 
 var
-  Dest: PColor32;
+  VDest: PColor32;
   y, mr, i: Integer;
-  ContrastTable: array [0..255] of byte;
+  VContrastTable: array [0..255] of byte;
   vd: Double;
 begin
   if Value = 0 then begin
@@ -94,19 +94,19 @@ begin
     vd := 1 - (Sqrt(-Value / 1000));
   end;
   for i := 0 to 255 do begin
-    ContrastTable[i] := BLimit(mR + Trunc((i - mR) * vd));
+    VContrastTable[i] := BLimit(mR + Trunc((i - mR) * vd));
   end;
 
-  Dest := @Bitmap.Bits[0];
+  VDest := @Bitmap.Bits[0];
   for y := 0 to Bitmap.Width * Bitmap.Height - 1 do begin
-    Dest^ :=
+    VDest^ :=
       GR32.Color32(
-        ContrastTable[RedComponent(dest^)],
-        ContrastTable[GreenComponent(dest^)],
-        ContrastTable[BlueComponent(dest^)],
-        AlphaComponent(dest^)
+        VContrastTable[RedComponent(VDest^)],
+        VContrastTable[GreenComponent(VDest^)],
+        VContrastTable[BlueComponent(VDest^)],
+        AlphaComponent(VDest^)
       );
-    Inc(Dest);
+    Inc(VDest);
   end;
 end;
 
@@ -141,9 +141,9 @@ procedure TBitmapPostProcessingConfigStatic.ProcessBitmap(
   end;
 
 var
-  Dest: PColor32;
+  VDest: PColor32;
   X, Y: integer;
-  GammaTable: array[0..255] of byte;
+  VGammaTable: array[0..255] of byte;
   L: Double;
 begin
   Contrast(Bitmap, FContrastN);
@@ -157,20 +157,20 @@ begin
     end else begin
       L := 1 / ((FGammaN - 40) / 10);
     end;
-    GammaTable[0] := 0;
+    VGammaTable[0] := 0;
     for X := 1 to 255 do begin
-      GammaTable[X] := round(255 * Power(X / 255, L));
+      VGammaTable[X] := round(255 * Power(X / 255, L));
     end;
-    Dest := @Bitmap.Bits[0];
+    VDest := @Bitmap.Bits[0];
     for Y := 0 to Bitmap.Height * Bitmap.Width - 1 do begin
-      Dest^ :=
+      VDest^ :=
         GR32.Color32(
-          GammaTable[RedComponent(dest^)],
-          GammaTable[GreenComponent(dest^)],
-          GammaTable[BlueComponent(dest^)],
-          AlphaComponent(dest^)
+          VGammaTable[RedComponent(VDest^)],
+          VGammaTable[GreenComponent(VDest^)],
+          VGammaTable[BlueComponent(VDest^)],
+          AlphaComponent(VDest^)
         );
-      Inc(Dest);
+      Inc(VDest);
     end;
   end;
 end;

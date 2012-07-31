@@ -4544,7 +4544,7 @@ begin
   FMouseHandler.OnMouseDown(Button, Shift, Point(X, Y));
   if (FMapZoomAnimtion)or
      (ssDouble in Shift)or
-     (button=mbMiddle)or
+     (Button=mbMiddle)or
      (ssRight in Shift)and(ssLeft in Shift)or
      (HiWord(GetKeyState(VK_DELETE))<>0)or
      (HiWord(GetKeyState(VK_INSERT))<>0)or
@@ -4660,7 +4660,7 @@ begin
 
   if (FMapZoomAnimtion) then exit;
 
-  if button=mbMiddle then begin
+  if Button=mbMiddle then begin
     TBFullSizeClick(nil);
     exit;
   end;
@@ -4767,11 +4767,11 @@ begin
     QueryPerformanceCounter(VCurrTick);
     QueryPerformanceFrequency(VFr);
     MapMoveAnimate(VMouseMoveSpeed,(VCurrTick-VPrevTick)/VFr,
-                   FConfig.ViewPortState.GetCurrentZoom, FMouseState.GetLastUpPos(button));
+                   FConfig.ViewPortState.GetCurrentZoom, FMouseState.GetLastUpPos(Button));
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
-    if (FState.State=ao_movemap)and(button=mbLeft) then begin
+    if (FState.State=ao_movemap)and(Button=mbLeft) then begin
       VItemIsFound := False;
       VItemCaption := '';
       VItemHTML := '';

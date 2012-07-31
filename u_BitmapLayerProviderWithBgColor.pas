@@ -1,4 +1,4 @@
-unit u_BitmapLayerProviderWithBGColor;
+unit u_BitmapLayerProviderWithBgColor;
 
 interface
 

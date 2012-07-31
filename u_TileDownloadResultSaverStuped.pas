@@ -243,7 +243,7 @@ begin
               VCutTile := FTilePostDownloadCropConfig.CutTile;
 
               if (0 = VCutSize.X) or (0 = VCutSize.Y) then begin
-                VCutSize := FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom);
+                VCutSize := FStorageConfig.CoordConverter.GetTileSize(AXY, AZoom);
               end;
 
               // define counts
@@ -283,7 +283,7 @@ begin
                         CropOnDownload(
                           VBitmap,
                           Rect(VCutSize.X * i, VCutSize.Y * j, VCutSize.X * (i + 1), VCutSize.Y * (j + 1)),
-                          FStorageConfig.CoordConverter.GetTileSize(VPos, Azoom)
+                          FStorageConfig.CoordConverter.GetTileSize(VPos, AZoom)
                         );
 
                         VCutBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
@@ -294,7 +294,7 @@ begin
 
                       // save
                       VData := VTargetContentTypeBitmap.GetSaver.Save(VCutBitmapStatic);
-                      FStorage.SaveTile(VPos, Azoom, AVersionInfo, VData);
+                      FStorage.SaveTile(VPos, AZoom, AVersionInfo, VData);
                     end;
                   end;
                 end;
@@ -307,7 +307,7 @@ begin
                 CropOnDownload(
                   VBitmap,
                   FTilePostDownloadCropConfig.CropRect,
-                  FStorageConfig.CoordConverter.GetTileSize(AXY, Azoom)
+                  FStorageConfig.CoordConverter.GetTileSize(AXY, AZoom)
                 );
                 VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
                 VBitmap := nil;
@@ -315,7 +315,7 @@ begin
                 VBitmap.Free;
               end;
               VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
-              FStorage.SaveTile(AXY, Azoom, AVersionInfo, VData);
+              FStorage.SaveTile(AXY, AZoom, AVersionInfo, VData);
             end;
           end else begin
             raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
@@ -329,7 +329,7 @@ begin
     end else begin
       VConverter := FContentTypeManager.GetConverter(AContenType, FContentType.GetContentType);
       if VConverter <> nil then begin
-        FStorage.SaveTile(AXY, Azoom, AVersionInfo, VConverter.Convert(AData));
+        FStorage.SaveTile(AXY, AZoom, AVersionInfo, VConverter.Convert(AData));
       end else begin
         raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
       end;

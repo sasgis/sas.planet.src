@@ -394,7 +394,7 @@ function TTileStorageDBMS.DeleteTNE(
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 begin
-  Result := SendTileCommand(AXY, AZoom, AVErsionInfo, nil, FETS_Delete_TNE_A, FETS_Delete_TNE_W)
+  Result := SendTileCommand(AXY, AZoom, AVersionInfo, nil, FETS_Delete_TNE_A, FETS_Delete_TNE_W)
 end;
 
 function TTileStorageDBMS.GetAllowDifferentContentTypes: Boolean;

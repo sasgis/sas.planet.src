@@ -151,7 +151,7 @@ type
 
 
 procedure Blob2ExtArr(
-  Blobfield: Tfield;
+  ABlobField: TField;
   const AAggregator: IDoublePointsAggregator
 );
 const
@@ -166,7 +166,7 @@ var
   VPoint: TExtendedPoint;
   VDoublePoint: TDoublePoint;
 begin
-  VField := TBlobfield(BlobField);
+  VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
   try
     VSize := VStream.Size;
@@ -193,14 +193,14 @@ end;
 
 procedure BlobFromPoint(
   const APoint: TDoublePoint;
-  Blobfield: Tfield
+  ABlobField: TField
 );
 var
   VField: TBlobfield;
   VStream: TStream;
   VPoint: TExtendedPoint;
 begin
-  VField := TBlobfield(BlobField);
+  VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
     VPoint.X := APoint.X;
@@ -213,7 +213,7 @@ end;
 
 procedure BlobFromPath(
   const APath: ILonLatPath;
-  Blobfield: Tfield
+  ABlobField: TField
 );
 var
   VField: TBlobfield;
@@ -225,7 +225,7 @@ var
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
 begin
-  VField := TBlobfield(BlobField);
+  VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
     VEnum := APath.GetEnum;
@@ -257,7 +257,7 @@ end;
 
 procedure BlobFromPolygon(
   const APolygon: ILonLatPolygon;
-  Blobfield: Tfield
+  ABlobField: TField
 );
 var
   VField: TBlobfield;
@@ -267,7 +267,7 @@ var
   VCurrPoint: TDoublePoint;
   VLine: ILonLatPolygonLine;
 begin
-  VField := TBlobfield(BlobField);
+  VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
     if APolygon.Count > 0 then begin

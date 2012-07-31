@@ -276,22 +276,22 @@ var
   pb: integer;
   iip: integer;
 begin
-  description := Utf8ToAnsi(Description);
-  pb := PosEx('<![CDATA[', description, 1);
+  Description := Utf8ToAnsi(Description);
+  pb := PosEx('<![CDATA[', Description, 1);
   if pb > 0 then begin
-    description := copy(description, pb + 9, PosEx(']]>', description, 1) - (pb + 9));
+    Description := copy(Description, pb + 9, PosEx(']]>', Description, 1) - (pb + 9));
   end;
-  iip := PosEx('&lt;', description, 1);
+  iip := PosEx('&lt;', Description, 1);
   while iip > 0 do begin
-    description[iip] := '<';
-    Delete(description, iip + 1, 3);
-    iip := PosEx('&lt;', description, iip);
+    Description[iip] := '<';
+    Delete(Description, iip + 1, 3);
+    iip := PosEx('&lt;', Description, iip);
   end;
-  iip := PosEx('&gt;', description, 1);
+  iip := PosEx('&gt;', Description, 1);
   while iip > 0 do begin
-    description[iip] := '>';
-    Delete(description, iip + 1, 3);
-    iip := PosEx('&gt;', description, iip);
+    Description[iip] := '>';
+    Delete(Description, iip + 1, 3);
+    iip := PosEx('&gt;', Description, iip);
   end;
 end;
 

@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GeoCoderByWikiMapia;
+unit u_GeoCoderByWikimapia;
 
 interface
 

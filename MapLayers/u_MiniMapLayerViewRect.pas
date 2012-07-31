@@ -313,7 +313,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   FParentMap.PopupMenu := nil;
-  case button of
+  case Button of
     mbRight: begin
       FParentMap.PopupMenu := FPopup;
     end;
