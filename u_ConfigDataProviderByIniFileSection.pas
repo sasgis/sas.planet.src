@@ -89,6 +89,7 @@ type
 implementation
 
 uses
+  Math,
   StrUtils,
   u_StringListStatic,
   u_BinaryDataByMemStream;
@@ -211,17 +212,27 @@ function TConfigDataProviderByIniFileSection.ReadFloat(
 ): Double;
 var
   FloatStr: string;
+  VComaPos: Integer;
 begin
   FloatStr := FIniFile.ReadString(FSection, AIdent, '');
   Result := ADefault;
   if FloatStr <> '' then begin
-    try
-      Result := StrToFloat(FloatStr, FFormatSettings);
-    except
-      on EConvertError do
-        // Ignore EConvertError exceptions
-      else
-        raise;
+    if (FloatStr = 'NAN') then begin
+      Result := NaN;
+    end else begin
+      VComaPos := System.pos(',', FloatStr);
+      if VComaPos > 0 then begin
+        FloatStr[VComaPos] := FFormatSettings.DecimalSeparator;
+      end;
+
+      try
+        Result := StrToFloat(FloatStr, FFormatSettings);
+      except
+        on EConvertError do
+          // Ignore EConvertError exceptions
+        else
+          raise;
+      end;
     end;
   end;
 end;
