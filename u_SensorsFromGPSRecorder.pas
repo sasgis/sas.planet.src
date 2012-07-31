@@ -371,7 +371,7 @@ begin
     if (not NoData_Float32(DGPS_Age_Second)) then begin
       if (DGPS_Age_Second > 0) then begin
         Result := Result + ': ' + RoundEx(DGPS_Age_Second, 2);
-      end;//+' '+SAS_UNITS_Secund;
+      end;
       if (DGPS_Station_ID > 0) then begin
         Result := Result + ' #' + IntToStr(DGPS_Station_ID);
       end;

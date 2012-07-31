@@ -58,7 +58,6 @@ ResourceString
   SAS_ERR_Save = 'Error while saving!';
   SAS_ERR_code = 'Error code:';
   SAS_ERR_NoMaps = 'Unable to load map(s)! Aborting...';
-  SAS_ERR_FileNotFound = 'File not found!';
   SAS_ERR_PortOpen = 'Error opening port!';
   SAS_ERR_Communication = 'Error communicating with device';
   SAS_ERR_UnablePposition = 'Unable to fix position';
@@ -73,8 +72,6 @@ ResourceString
   SAS_ERR_TileNotExists = 'Tile is not found!';
   SAS_ERR_Noconnectionstointernet = 'Error connecting to server';
   SAS_ERR_FileExistsShort = 'The tile already exists';
-  SAS_ERR_Memory = 'Not enough memory to complete the task';
-  SAS_ERR_UseADifferentFormat = 'Please choose another format (ECW, BMP, JP2) while stitching large images';
   SAS_ERR_BadMIMEForDownloadRastr = 'Server returned type "%0:s", this is not bitmap image';
   SAS_ERR_BadMIME = 'Server returned unexpected type "%0:s"';
   SAS_ERR_MapGUIDEmpty = 'Empty GUID';
@@ -82,12 +79,9 @@ ResourceString
   SAS_ERR_MapGUIDError = 'There is an error %1:s in map %0:s';
   SAS_ERR_MapGUIDDuplicate = 'Files %0:s and %1:s have the same GUID';
   SAS_ERR_MainMapNotExists = 'You need at least one MAP among your ZMP files';
-  SAS_ERR_UrlScriptUnexpectedError = 'Map script error %0:s (%2:s):'#13#10'Unexpected error';
   SAS_ERR_UrlScriptCompileError = 'Compilation error in script '#13#10'%0:s';
   SAS_ERR_UrlScriptByteCodeLoad = 'Error at script bytecode loading';
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection "%0:s" of the map';
-  SAS_ERR_MapDownloadByError = 'Download of map %0:s disabled because of error: %1:s';
-  SAS_ERR_TileDownloadContentTypeUnexpcted = 'Unexpected content type';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput = 'Error in geographic coordinates';
 
@@ -110,15 +104,12 @@ ResourceString
   SAS_STR_activescale = 'Current zoom';
   SAS_STR_for = 'For';
   SAS_STR_notfound = 'Nothing found on current map.';
-  SAS_STR_foundplace = 'Found';
   SAS_STR_Process = 'Processing...';
   SAS_STR_WiteLoad = 'Please wait, download in progress...';
   SAS_STR_Processed = 'Processed';
-  SAS_STR_Saves = 'Saved';
   SAS_STR_ProcessedNoMore = 'Process not more than';
   SAS_STR_AllDelete = 'Deleted total:';
   SAS_STR_AllSaves = 'Total to save:';
-  SAS_STR_files = 'files';
   SAS_STR_file = 'file';
   SAS_STR_No = 'No';
   SAS_STR_Yes = 'Yes';
@@ -142,7 +133,6 @@ ResourceString
   SAS_STR_ExtendedPolygonCaption = '%0:s (Polygon)';
   SAS_STR_EditMap = 'Map Settings:';
   SAS_STR_Pause = 'Pause';
-  SAS_STR_Stop = 'Stop';
   SAS_STR_Stop1 = 'Paused';
   SAS_STR_Continue = 'Resume';
   SAS_STR_ExportTiles = 'Export';
@@ -156,7 +146,6 @@ ResourceString
   SAS_STR_LoadAttachmentsEnd_Failed = 'Failed';
   SAS_STR_LoadAttachmentsEnd_Cancelled = 'Cancelled';
   SAS_STR_LoadAttachmentsEnd_Nothing = 'No attachments';
-  SAS_STR_Wite = 'Wait';
   SAS_STR_S = 'Area';
   SAS_STR_L = 'Length';
   SAS_STR_P = 'Perimeter';
@@ -273,7 +262,6 @@ ResourceString
   SAS_UNITS_m2 = 'm2';
   SAS_UNITS_km2 = 'km2';
   SAS_UNITS_Ha = 'ha';
-  SAS_UNITS_Secund = 'sec.';
 
 implementation
 
