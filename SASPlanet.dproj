@@ -339,6 +339,7 @@
     <DCCReference Include="i_PointOnMapEdit.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
+    <DCCReference Include="i_PredicateByTileInfo.pas" />
     <DCCReference Include="i_ProjConverter.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
@@ -908,6 +909,7 @@
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PosFromGSM.pas" />
+    <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjConverterFactory.pas" />
     <DCCReference Include="u_ProjectedSingleLine.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
