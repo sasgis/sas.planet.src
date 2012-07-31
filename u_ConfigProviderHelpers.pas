@@ -26,6 +26,8 @@ uses
   GR32,
   i_ContentTypeManager,
   i_Bitmap32Static,
+  i_VectorItemLonLat,
+  i_VectorItmesFactory,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 
@@ -47,13 +49,28 @@ function ReadBitmapByFileRef(
   const ADefault: IBitmap32Static
 ): IBitmap32Static;
 
+function ReadPolygon(
+  const AConfigProvider: IConfigDataProvider;
+  const AVectorItmesFactory: IVectorItmesFactory
+): ILonLatPolygon;
+
+procedure WritePolygon(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const APolygon: ILonLatPolygon
+);
+
 implementation
 
 uses
   SysUtils,
   Graphics,
+  t_GeoTypes,
   i_BinaryData,
-  i_ContentTypeInfo;
+  i_EnumDoublePoint,
+  i_DoublePointsAggregator,
+  i_ContentTypeInfo,
+  u_GeoFun,
+  u_DoublePointsAggregator;
 
 function ReadColor32(
   const AConfigProvider: IConfigDataProvider;
@@ -136,6 +153,90 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+function ReadPolygon(
+  const AConfigProvider: IConfigDataProvider;
+  const AVectorItmesFactory: IVectorItmesFactory
+): ILonLatPolygon;
+  function CheckIsValidPoint(
+    const AConfigProvider: IConfigDataProvider;
+    const AIdentLon: string;
+    const AIdentLat: string;
+    const AIndex: Integer
+  ): Boolean;
+  var
+    VPoint: TDoublePoint;
+  begin
+    VPoint.X := AConfigProvider.ReadFloat(AIdentLon + inttostr(AIndex), -10000);
+    VPoint.Y := AConfigProvider.ReadFloat(AIdentLat + inttostr(AIndex), -10000);
+
+    Result := not PointIsEmpty(VPoint) and ((Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360));
+  end;
+var
+  i: Integer;
+  VPoint: TDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
+  VIdentLon: string;
+  VIdentLat: string;
+  VValidPoint: Boolean;
+begin
+  VIdentLon := 'PointLon_';
+  VIdentLat := 'PointLat_';
+  i := 0;
+  if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+    i := 1;
+    if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+      i := 0;
+      VIdentLon := 'LLPointX_';
+      VIdentLat := 'LLPointY_';
+      if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+        i := 1;
+        if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+          i := 0;
+          VIdentLon := 'PointX_';
+          VIdentLat := 'PointY_';
+          if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+            i := 1;
+            if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
+              Result := AVectorItmesFactory.CreateLonLatPolygon(nil, 0);
+              Exit;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  VPointsAggregator := TDoublePointsAggregator.Create;
+  repeat
+    VPoint.X := AConfigProvider.ReadFloat(VIdentLon + inttostr(i), -10000);
+    VPoint.Y := AConfigProvider.ReadFloat(VIdentLat + inttostr(i), -10000);
+    VValidPoint := PointIsEmpty(VPoint) or ((Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360));
+    if VValidPoint then begin
+      VPointsAggregator.Add(VPoint);
+      Inc(i);
+    end;
+  until not VValidPoint;
+  Result := AVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+end;
+
+procedure WritePolygon(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const APolygon: ILonLatPolygon
+);
+var
+  VEnum: IEnumDoublePoint;
+  i: Integer;
+  VPoint: TDoublePoint;
+begin
+  VEnum := APolygon.GetEnum;
+  i := 1;
+  while VEnum.Next(VPoint) do begin
+    AConfigProvider.WriteFloat('PointLon_' + IntToStr(i), VPoint.x);
+    AConfigProvider.WriteFloat('PointLat_' + IntToStr(i), VPoint.y);
+    Inc(i);
   end;
 end;
 
