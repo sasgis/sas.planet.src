@@ -45,7 +45,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
-      Atypemap: TMapType;
+      AMapType: TMapType;
       ANotSaveNotExists: boolean;
       ARelativePath: boolean
     );
@@ -70,7 +70,7 @@ constructor TThreadExportKML.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
-  Atypemap: TMapType;
+  AMapType: TMapType;
   ANotSaveNotExists: boolean;
   ARelativePath: boolean
 );
@@ -88,7 +88,7 @@ begin
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;
   RelativePath := ARelativePath;
-  FMapType := Atypemap;
+  FMapType := AMapType;
 end;
 
 procedure TThreadExportKML.KmlFileWrite(

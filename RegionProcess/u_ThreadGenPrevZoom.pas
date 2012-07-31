@@ -45,7 +45,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const AZooms: TByteDynArray;
       const APolygLL: ILonLatPolygon;
-      Atypemap: TMapType;
+      AMapType: TMapType;
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormFirstZoom: boolean;
@@ -76,7 +76,7 @@ constructor TThreadGenPrevZoom.Create(
   const AVectorItmesFactory: IVectorItmesFactory;
   const AZooms: TByteDynArray;
   const APolygLL: ILonLatPolygon;
-  Atypemap: TMapType;
+  AMapType: TMapType;
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormFirstZoom: boolean;
@@ -103,7 +103,7 @@ begin
   FUsePrevTiles := AUsePrevTiles;
   FZooms := AZooms;
   FTileInProc := 0;
-  FMapType := Atypemap;
+  FMapType := AMapType;
   FResamplerFactory := AResamplerFactory;
   FBackGroundColor := ABackGroundColor;
 end;

@@ -57,7 +57,7 @@ type
       const APolyLL: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
       AZoom: byte;
-      ATypeMap: TMapType;
+      AMapType: TMapType;
       const AVersion: IMapVersionInfo;
       const APredicate: IPredicateByTileInfo
     );
@@ -77,7 +77,7 @@ constructor TThreadDeleteTiles.Create(
   const APolyLL: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
   AZoom: byte;
-  ATypeMap: TMapType;
+  AMapType: TMapType;
   const AVersion: IMapVersionInfo;
   const APredicate: IPredicateByTileInfo
 );
@@ -91,7 +91,7 @@ begin
   );
   FPolyProjected := AProjectedPolygon;
   FZoom := Azoom;
-  FMapType := Atypemap;
+  FMapType := AMapType;
   FPredicate := APredicate;
   FVersion := AVersion;
 end;

@@ -68,7 +68,7 @@ type
     );
 
     procedure DeleteMarkModal(
-      const AMarkID: IMarkID;
+      const AMarkId: IMarkID;
       handle: THandle
     );
     procedure DeleteMarksModal(
@@ -309,15 +309,15 @@ begin
 end;
 
 procedure TMarksDbGUIHelper.DeleteMarkModal(
-  const AMarkID: IMarkID;
+  const AMarkId: IMarkID;
   handle: THandle
 );
 var
   VMark: IMark;
   VMessage: string;
 begin
-  if AMarkID <> nil then begin
-    VMark := FMarksDB.MarksDb.GetMarkByID(AMarkID);
+  if AMarkId <> nil then begin
+    VMark := FMarksDB.MarksDb.GetMarkByID(AMarkId);
     if VMark <> nil then begin
       if Supports(VMark, IMarkPoint) then begin
         VMessage := SAS_MSG_DeleteMarkPointAsk;
@@ -326,9 +326,9 @@ begin
       end else if Supports(VMark, IMarkPoly) then begin
         VMessage := SAS_MSG_DeleteMarkPolyAsk;
       end;
-      VMessage := Format(VMessage, [AMarkID.name]);
+      VMessage := Format(VMessage, [AMarkId.name]);
       if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
-        FMarksDb.MarksDb.UpdateMark(AMarkID, nil);
+        FMarksDb.MarksDb.UpdateMark(AMarkId, nil);
       end;
     end;
   end;

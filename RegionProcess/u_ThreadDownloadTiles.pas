@@ -155,7 +155,7 @@ type
       Azdate: boolean;
       ASecondLoadTNE: boolean;
       AZoom: byte;
-      Atypemap: TMapType;
+      AMapType: TMapType;
       const AReplaceOlderDate: TDateTime;
       const AForAttachments: Boolean
     );
@@ -320,7 +320,7 @@ constructor TThreadDownloadTiles.Create(
   const ADownloadInfo: IDownloadInfoSimple;
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
-  Atypemap: TMapType;
+  AMapType: TMapType;
   const AReplaceOlderDate: TDateTime;
   const AForAttachments: Boolean
 );
@@ -329,7 +329,7 @@ begin
     ACreatePaused,
     AAppClosingNotifier,
     ALog,
-    Atypemap,
+    AMapType,
     AZoom,
     APolygon,
     APolyProjected,

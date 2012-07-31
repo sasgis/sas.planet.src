@@ -127,7 +127,7 @@ type
     destructor Destroy; override;
     procedure LoadSelFromFile(const FileName:string);
     procedure StartSlsFromFile(const AFileName:string);
-    procedure Show_(Azoom:byte; const APolygon: ILonLatPolygon);
+    procedure Show_(AZoom:byte; const APolygon: ILonLatPolygon);
   end;
 
 implementation
@@ -344,9 +344,9 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.Show_(Azoom:byte; const APolygon: ILonLatPolygon);
+procedure TfrmRegionProcess.Show_(AZoom:byte; const APolygon: ILonLatPolygon);
 begin
-  FZoom_rect:=Azoom;
+  FZoom_rect:=AZoom;
   FPolygonLL := APolygon;
   FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
   Self.Show;

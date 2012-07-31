@@ -69,7 +69,7 @@ type
     FConfigListener: IListener;
     procedure OnConfigChange;
     procedure SetGoodCaption(const ACaption: String);
-    function OpenLocalImage(const AFilename: WideString): Boolean;
+    function OpenLocalImage(const AFileName: WideString): Boolean;
     procedure ResetImageView(const AForImage: Boolean);
   public
     constructor Create(
@@ -198,12 +198,12 @@ begin
   end;
 end;
 
-function TfrmIntrnalBrowser.OpenLocalImage(const AFilename: WideString): Boolean;
+function TfrmIntrnalBrowser.OpenLocalImage(const AFileName: WideString): Boolean;
 begin
   Result := FALSE;
   ResetImageView(TRUE);
   try
-    imgViewImage.Bitmap.LoadFromFile(AFilename);
+    imgViewImage.Bitmap.LoadFromFile(AFileName);
     Inc(Result);
   except
   end;
