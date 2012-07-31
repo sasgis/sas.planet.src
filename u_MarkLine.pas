@@ -40,6 +40,8 @@ type
     FLineColor: TColor32;
     FLineWidth: Integer;
   protected
+    function GetMarkType: TGUID; override;
+  protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IMark): Boolean; override;
@@ -99,6 +101,11 @@ end;
 function TMarkLine.GetLLRect: ILonLatRect;
 begin
   Result := FLine.Bounds;
+end;
+
+function TMarkLine.GetMarkType: TGUID;
+begin
+  Result := IMarkLine;
 end;
 
 function TMarkLine.IsEqual(const AMark: IMark): Boolean;

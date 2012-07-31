@@ -39,6 +39,7 @@ type
     function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
   protected
     function GetName: string;
+    function GetMarkType: TGUID; virtual; abstract;
   protected
     function GetId: Integer;
     function GetCategory: ICategory;

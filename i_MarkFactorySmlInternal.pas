@@ -44,12 +44,6 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMark;
-    function CreateMarkId(
-      const AName: string;
-      AId: Integer;
-      ACategoryId: Integer;
-      AVisible: Boolean
-    ): IMarkID;
   end;
 
 const

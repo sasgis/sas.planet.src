@@ -34,8 +34,14 @@ uses
 type
   IMarkID = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
+    function GetCategory: ICategory;
+    property Category: ICategory read GetCategory;
+
     function GetName: string;
     property Name: string read GetName;
+
+    function GetMarkType: TGUID;
+    property MarkType: TGUID read GetMarkType;
   end;
 
   IMark = interface(IVectorDataItemSimple)

@@ -169,12 +169,6 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMark;
-    function CreateMarkId(
-      const AName: string;
-      AId: Integer;
-      ACategoryId: Integer;
-      AVisible: Boolean
-    ): IMarkID;
   public
     constructor Create(
       const AConfig: IMarksFactoryConfig;
@@ -534,19 +528,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TMarkFactory.CreateMarkId(
-  const AName: string;
-  AId: Integer;
-  ACategoryId: Integer;
-  AVisible: Boolean
-): IMarkID;
-var
-  VCategory: ICategory;
-begin
-  VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
-  Result := TMarkId.Create(AName, AId, VCategory, AVisible);
 end;
 
 function TMarkFactory.SimpleModifyLine(

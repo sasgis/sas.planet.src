@@ -45,6 +45,8 @@ type
     FFontSize: Integer;
     FMarkerSize: Integer;
   protected
+    function GetMarkType: TGUID; override;
+  protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IMark): Boolean; override;
@@ -192,6 +194,11 @@ end;
 function TMarkPoint.GetMarkerSize: Integer;
 begin
   Result := FMarkerSize;
+end;
+
+function TMarkPoint.GetMarkType: TGUID;
+begin
+  Result := IMarkPoint;
 end;
 
 end.
