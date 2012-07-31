@@ -269,11 +269,27 @@ procedure TMarksDbGUIHelper.MarksListToStrings(
 var
   i: Integer;
   VMarkId: IMarkId;
+  VPointCaptionFormat: string;
+  VPolygonCaptionFormat: string;
+  VPathCaptionFormat: string;
+  VFormat: string;
 begin
+  VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
+  VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
+  VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
   AStrings.Clear;
   for i := 0 to AList.Count - 1 do begin
     VMarkId := IMarkId(AList[i]);
-    AStrings.AddObject(VMarkId.name, Pointer(VMarkId));
+    if IsEqualGUID(VMarkId.MarkType, IMarkPoint) then begin
+      VFormat := VPointCaptionFormat;
+    end else if IsEqualGUID(VMarkId.MarkType, IMarkLine) then begin
+      VFormat := VPathCaptionFormat;
+    end else if IsEqualGUID(VMarkId.MarkType, IMarkPoly) then begin
+      VFormat := VPolygonCaptionFormat;
+    end else begin
+      VFormat := '%0:s';
+    end;
+    AStrings.AddObject(Format(VFormat, [VMarkId.name]), Pointer(VMarkId));
   end;
 end;
 
