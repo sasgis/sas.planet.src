@@ -185,7 +185,6 @@ uses
   i_MarksDbSmlInternal,
   i_MarkCategoryFactoryDbInternal,
   u_GeoFun,
-  u_MarkId,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;

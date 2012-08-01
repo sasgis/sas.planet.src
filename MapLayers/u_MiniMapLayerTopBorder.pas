@@ -61,7 +61,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_ListenerByEvent;
 
 { TMiniMapLayerTopBorder }

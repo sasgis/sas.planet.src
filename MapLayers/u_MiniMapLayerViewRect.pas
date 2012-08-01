@@ -107,7 +107,6 @@ type
 implementation
 
 uses
-  SysUtils,
   c_ZeroGUID,
   i_CoordConverter,
   i_MapTypes,

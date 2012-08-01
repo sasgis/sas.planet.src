@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderGridTiles;
 interface
 
 uses
-  Windows,
   Types,
   SysUtils,
   GR32,

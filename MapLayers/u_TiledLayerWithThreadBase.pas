@@ -3,7 +3,6 @@ unit u_TiledLayerWithThreadBase;
 interface
 
 uses
-  Windows,
   Types,
   GR32,
   GR32_Image,

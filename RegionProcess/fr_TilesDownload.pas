@@ -113,7 +113,6 @@ uses
   t_GeoTypes,
   i_GUIDListStatic,
   i_VectorItemProjected,
-  i_MapAttachmentsInfo,
   u_GeoFun,
   u_ResStrings;
 

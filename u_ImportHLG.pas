@@ -47,7 +47,6 @@ implementation
 uses
   IniFiles,
   SysUtils,
-  t_GeoTypes,
   i_MarksSimple,
   i_ConfigDataProvider,
   i_VectorItemLonLat,

@@ -82,7 +82,6 @@ type
 implementation
 
 uses
-  SysUtils,
   GR32_Resamplers,
   u_ListenerByEvent;
 

@@ -32,7 +32,6 @@ uses
   Controls,
   Classes,
   Buttons,
-  ComCtrls,
   DateUtils,
   RarProgress,
   u_CommonFormAndFrameParents,

@@ -9,7 +9,6 @@ uses
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_MarkerDrawable,
-  i_ViewPortState,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_PointOnMapEdit,

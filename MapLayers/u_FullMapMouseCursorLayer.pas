@@ -10,7 +10,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_FullMapMouseCursorLayerConfig,
   i_MainFormState,
   i_MouseState,

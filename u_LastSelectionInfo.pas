@@ -23,7 +23,6 @@ unit u_LastSelectionInfo;
 interface
 
 uses
-  t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LastSelectionInfo,
@@ -56,8 +55,6 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_EnumDoublePoint,
   u_ConfigProviderHelpers;
 
 { TLastSelectionInfo }
