@@ -50,6 +50,7 @@ type
       AShowText: Boolean;
       AShowLines: Boolean
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -79,6 +80,12 @@ begin
   FBitmap := TBitmap32.Create;
   FBitmap.SetSize(256, 256);
   FBitmap.OnChange := Self.OnBitmapChange;
+end;
+
+destructor TBitmapLayerProviderGridTiles.Destroy;
+begin
+  FreeAndNil(FBitmap);
+  inherited;
 end;
 
 procedure TBitmapLayerProviderGridTiles.DrawCaptions(AOperationID: Integer;
