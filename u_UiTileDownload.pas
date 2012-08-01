@@ -93,6 +93,7 @@ uses
   i_TileRequestResult,
   i_DownloadResult,
   i_CoordConverter,
+  i_TileInfoBasic,
   u_ListenerNotifierLinksList,
   u_ListenerByEvent,
   u_ListenerTTLCheck,
@@ -283,6 +284,7 @@ var
   VRequest: ITileRequest;
   VHandles: array [0..1] of THandle;
   VWaitResult: DWORD;
+  VTileInfo: ITileInfoBasic;
 begin
   FTTLListener.UpdateUseTime;
   VMapType := FMapTypeActive.GetMapType.MapType;
@@ -324,15 +326,16 @@ begin
 
       while VIterator.Next(VTile) do begin
         VNeedDownload := False;
-        if VMapType.TileExists(VTile, VZoom) then begin
+        VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoom, VMapType.VersionConfig.Version);
+        if VTileInfo.IsExists then begin
           if FUseDownload = tsInternet then begin
-            if Now - VMapType.TileLoadDate(VTile, VZoom) > FTileMaxAgeInInternet then begin
+            if Now - VTileInfo.LoadDate > FTileMaxAgeInInternet then begin
               VNeedDownload := True;
             end;
           end;
         end else begin
           if (FUseDownload = tsInternet) or (FUseDownload = tsCacheInternet) then begin
-            if not (VMapType.TileNotExistsOnServer(VTile, VZoom)) then begin
+            if not VTileInfo.IsExistsTNE then begin
               VNeedDownload := True;
             end;
           end;
