@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   SysUtils,
   GR32,
   i_SimpleFlag,
@@ -93,13 +94,14 @@ var
   i, j: integer;
   VTileIndex: TPoint;
   VTileRelativeRect: TDoubleRect;
-  VTileRect: TRect;
-  VTileScreenRect: TRect;
-  VTileSize: TPoint;
-  VTileCenter: TPoint;
+  VPixelRectOfTile: TDoubleRect;
+  VLocalRectOfTile: TDoubleRect;
+  VTileSize: TDoublePoint;
+  VTileCenter: TDoublePoint;
   textoutx: string;
   textouty: string;
   Sz1, Sz2: TSize;
+  VOutPoint: TPoint;
 begin
   VGeoConvert := ALocalConverter.GeoConverter;
   VCurrentZoom := ALocalConverter.Zoom;
@@ -110,32 +112,28 @@ begin
   VTilesRect :=
     RectFromDoubleRect(
       VGeoConvert.RelativeRect2TileRectFloat(VLoadedRelativeRect, AGridZoom),
-      rrToTopLeft
+      rrOutside
     );
   for i := VTilesRect.Top to VTilesRect.Bottom - 1 do begin
     VTileIndex.Y := i;
     for j := VTilesRect.Left to VTilesRect.Right - 1 do begin
       VTileIndex.X := j;
       VTileRelativeRect := VGeoConvert.TilePos2RelativeRect(VTileIndex, AGridZoom);
-      VTileRect :=
-        RectFromDoubleRect(
-          VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
-          rrToTopLeft
-        );
-      VTileScreenRect.TopLeft := ALocalConverter.MapPixel2LocalPixel(VTileRect.TopLeft);
-      VTileScreenRect.BottomRight := ALocalConverter.MapPixel2LocalPixel(VTileRect.BottomRight);
-
-      VTileSize.X := VTileRect.Right - VTileRect.Left;
-      VTileSize.Y := VTileRect.Bottom - VTileRect.Top;
-      VTileCenter.X := VTileScreenRect.Left + VTileSize.X div 2;
-      VTileCenter.Y := VTileScreenRect.Top + VTileSize.Y div 2;
+      VPixelRectOfTile := VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom);
+      VLocalRectOfTile := ALocalConverter.MapRectFloat2LocalRectFloat(VPixelRectOfTile);
+      VTileSize.X := VPixelRectOfTile.Right - VPixelRectOfTile.Left;
+      VTileSize.Y := VPixelRectOfTile.Bottom - VPixelRectOfTile.Top;
+      VTileCenter.X := VLocalRectOfTile.Left + VTileSize.X / 2;
+      VTileCenter.Y := VLocalRectOfTile.Top + VTileSize.Y / 2;
       textoutx := 'x=' + inttostr(VTileIndex.X);
       textouty := 'y=' + inttostr(VTileIndex.Y);
       Sz1 := FBitmap.TextExtent(textoutx);
       Sz2 := FBitmap.TextExtent(textouty);
       if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        FBitmap.RenderText(VTileCenter.X - (Sz1.cx div 2) + 1, VTileCenter.Y - Sz2.cy, textoutx, 0, FColor);
-        FBitmap.RenderText(VTileCenter.X - (Sz2.cx div 2) + 1, VTileCenter.Y, textouty, 0, FColor);
+        VOutPoint := Point(Trunc(VTileCenter.X - Sz1.cx / 2), Trunc(VTileCenter.Y - Sz2.cy));
+        FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, textoutx, 0, FColor);
+        VOutPoint := Point(Trunc(VTileCenter.X - Sz2.cx / 2), Trunc(VTileCenter.Y));
+        FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, textoutx, 0, FColor);
       end;
     end;
   end;
@@ -153,9 +151,9 @@ var
   VTilesRect: TRect;
   VTilesLineRect: TRect;
   i, j: integer;
-  VTileRelativeRect: TDoubleRect;
-  VTileRect: TRect;
-  VTileScreenRect: TRect;
+  VRelativeRectOfTilesLine: TDoubleRect;
+  VMapPixelRectOfTilesLine: TDoubleRect;
+  VLocalRectOfTilesLine: TRect;
 begin
   VGeoConvert := ALocalConverter.GeoConverter;
   VCurrentZoom := ALocalConverter.Zoom;
@@ -167,7 +165,7 @@ begin
   VTilesRect :=
     RectFromDoubleRect(
       VGeoConvert.RelativeRect2TileRectFloat(VRelativeRect, AGridZoom),
-      rrToTopLeft
+      rrOutside
     );
 
   VTilesLineRect.Left := VTilesRect.Left;
@@ -176,29 +174,26 @@ begin
     VTilesLineRect.Top := i;
     VTilesLineRect.Bottom := i;
 
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, AGridZoom);
-    VTileRect :=
+    VRelativeRectOfTilesLine := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, AGridZoom);
+    VMapPixelRectOfTilesLine := VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRectOfTilesLine, VCurrentZoom);
+    VLocalRectOfTilesLine :=
       RectFromDoubleRect(
-        VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+        ALocalConverter.MapRectFloat2LocalRectFloat(VMapPixelRectOfTilesLine),
         rrToTopLeft
       );
-    VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
-    VTileScreenRect.Left := VLocalRect.Left;
-    VTileScreenRect.Right := VLocalRect.Right;
+    VLocalRectOfTilesLine.Left := VLocalRect.Left;
+    VLocalRectOfTilesLine.Right := VLocalRect.Right;
 
-    if VTileScreenRect.Top < VLocalRect.Top then begin
-      VTileScreenRect.Top := VLocalRect.Top;
-      VTileScreenRect.Bottom := VTileScreenRect.Top;
+    if (VLocalRectOfTilesLine.Top >= VLocalRect.Top) and
+      (VLocalRectOfTilesLine.Top < VLocalRect.Bottom) then begin
+      FBitmap.HorzLineTS(
+        VLocalRectOfTilesLine.Left,
+        VLocalRectOfTilesLine.Top,
+        VLocalRectOfTilesLine.Right,
+        FColor
+      );
     end;
-
-    if VTileScreenRect.Top > VLocalRect.Bottom then begin
-      VTileScreenRect.Top := VLocalRect.Bottom;
-      VTileScreenRect.Bottom := VTileScreenRect.Top;
-    end;
-
-    FBitmap.HorzLineTS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Right, FColor);
   end;
 
   VTilesLineRect.Top := VTilesRect.Top;
@@ -207,29 +202,26 @@ begin
     VTilesLineRect.Left := j;
     VTilesLineRect.Right := j;
 
-    VTileRelativeRect := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, AGridZoom);
-    VTileRect :=
+    VRelativeRectOfTilesLine := VGeoConvert.TileRect2RelativeRect(VTilesLineRect, AGridZoom);
+    VMapPixelRectOfTilesLine := VGeoConvert.RelativeRect2PixelRectFloat(VRelativeRectOfTilesLine, VCurrentZoom);
+    VLocalRectOfTilesLine :=
       RectFromDoubleRect(
-        VGeoConvert.RelativeRect2PixelRectFloat(VTileRelativeRect, VCurrentZoom),
+        ALocalConverter.MapRectFloat2LocalRectFloat(VMapPixelRectOfTilesLine),
         rrToTopLeft
       );
-    VTileScreenRect := ALocalConverter.MapRect2LocalRect(VTileRect);
 
-    VTileScreenRect.Top := VLocalRect.Top;
-    VTileScreenRect.Bottom := VLocalRect.Bottom;
+    VLocalRectOfTilesLine.Top := VLocalRect.Top;
+    VLocalRectOfTilesLine.Bottom := VLocalRect.Bottom;
 
-    if VTileScreenRect.Left < VLocalRect.Left then begin
-      VTileScreenRect.Left := VLocalRect.Left;
-      VTileScreenRect.Right := VTileScreenRect.Left;
+    if (VLocalRectOfTilesLine.Left >= VLocalRect.Left) and
+      (VLocalRectOfTilesLine.Left < VLocalRect.Right) then begin
+      FBitmap.VertLineTS(
+        VLocalRectOfTilesLine.Left,
+        VLocalRectOfTilesLine.Top,
+        VLocalRectOfTilesLine.Bottom,
+        FColor
+      );
     end;
-
-    if VTileScreenRect.Left > VLocalRect.Right then begin
-      VTileScreenRect.Left := VLocalRect.Right;
-      VTileScreenRect.Right := VTileScreenRect.Left;
-    end;
-
-    FBitmap.VertLineTS(VTileScreenRect.Left, VTileScreenRect.Top,
-      VTileScreenRect.Bottom, FColor);
   end;
 end;
 
