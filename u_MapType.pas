@@ -199,14 +199,6 @@ type
       AZoom: byte;
       const ABitmap: IBitmap32Static
     );
-    function TileLoadDate(
-      const AXY: TPoint;
-      AZoom: byte
-    ): TDateTime;
-    function TileSize(
-      const AXY: TPoint;
-      AZoom: byte
-    ): integer;
     function TileExportToFile(
       const AXY: TPoint;
       AZoom: byte;
@@ -591,28 +583,6 @@ begin
       AVersionInfo := VTileInfo.VersionInfo;
     end;
   end;
-end;
-
-function TMapType.TileLoadDate(
-  const AXY: TPoint;
-  AZoom: byte
-): TDateTime;
-var
-  VTileInfo: ITileInfoBasic;
-begin
-  VTileInfo := FStorage.GetTileInfo(AXY, AZoom, FVersionConfig.Version);
-  Result := VTileInfo.GetLoadDate;
-end;
-
-function TMapType.TileSize(
-  const AXY: TPoint;
-  AZoom: byte
-): integer;
-var
-  VTileInfo: ITileInfoBasic;
-begin
-  VTileInfo := FStorage.GetTileInfo(AXY, AZoom, FVersionConfig.Version);
-  Result := VTileInfo.GetSize;
 end;
 
 procedure TMapType.SaveTileSimple(
