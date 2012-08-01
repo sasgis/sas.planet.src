@@ -25,9 +25,6 @@ uses
 type
   IRegionProcessParamsFrameTilesDownload = interface(IRegionProcessParamsFrameBase)
     ['{70B48431-5383-4CD2-A1EF-AF9291F6ABB0}']
-    function GetForAttachments: Boolean;
-    property ForAttachments: Boolean read GetForAttachments;
-
     function GetIsStartPaused: Boolean;
     property IsStartPaused: Boolean read GetIsStartPaused;
 
@@ -93,7 +90,6 @@ type
     function GetMapType: TMapType;
     function GetZoom: Byte;
   private
-    function GetForAttachments: Boolean;
     function GetIsStartPaused: Boolean;
     function GetIsIgnoreTne: Boolean;
     function GetIsReplace: Boolean;
@@ -203,17 +199,6 @@ begin
   FGUIConfigList := AGUIConfigList;
 end;
 
-function TfrTilesDownload.GetForAttachments: Boolean;
-var
-  VMapType: TMapType;
-begin
-  Result := False;
-  VMapType := GetMapType;
-  if VMapType <> nil then begin
-    Result := (not AnsiSameText(cbbMap.Items[cbbMap.ItemIndex], VMapType.GUIConfig.Name.Value));
-  end;
-end;
-
 function TfrTilesDownload.GetIsIgnoreTne: Boolean;
 begin
   Result := chkTryLoadIfTNE.Checked
@@ -268,8 +253,6 @@ var
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
-  VMapAttachmentsInfo: IMapAttachmentsInfo;
-  VMapAttachmentsName: String;
 begin
   FPolygLL := APolygon;
   cbbZoom.Items.Clear;
@@ -290,15 +273,6 @@ begin
       // select current map by default
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
-      end;
-
-      // check attachments for map (with another name!)
-      VMapAttachmentsInfo:=VMapType.Zmp.MapAttachmentsInfo;
-      if Assigned(VMapAttachmentsInfo) then
-      if VMapAttachmentsInfo.GetUseDwn then begin // no direct downloading by default
-        VMapAttachmentsName := VMapAttachmentsInfo.GetString(VMapType.GetLanguageManager.CurrentLanguageIndex);
-        if (not AnsiSameText(VMapType.GUIConfig.Name.Value, VMapAttachmentsName)) then
-          cbbMap.Items.AddObject(VMapAttachmentsName, VMapType);
       end;
     end;
   end;

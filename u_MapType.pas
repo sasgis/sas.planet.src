@@ -225,9 +225,6 @@ type
     ): boolean;
     function GetShortFolderName: string;
 
-    function GetLanguageManager: ILanguageManager;
-    // parse vector object description
-
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
@@ -767,11 +764,6 @@ end;
 function TMapType.GetIsKmlTiles: Boolean;
 begin
   Result := FKmlLoaderFromStorage <> nil;
-end;
-
-function TMapType.GetLanguageManager: ILanguageManager;
-begin
-  Result := FLanguageManager;
 end;
 
 function TMapType.GetIsHybridLayer: Boolean;

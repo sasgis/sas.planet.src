@@ -174,12 +174,10 @@ var
   VLog: TLogSimpleProvider;
   VThread: TThreadDownloadTiles;
   VProjectedPolygon: IProjectedPolygon;
-  VForAttachments: Boolean;
   VForm: TfrmProgressDownload;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
-  VForAttachments := (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ForAttachments;
 
   VProjectedPolygon :=
     FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -201,8 +199,7 @@ begin
     (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
     VZoom,
     VMapType,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
-    VForAttachments
+    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate
   );
   VForm := TfrmProgressDownload.Create(
     Self.LanguageManager,

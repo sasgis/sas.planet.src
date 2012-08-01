@@ -76,7 +76,6 @@ type
     FBanSleepTime: Cardinal;
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
-    FForAttachments: Boolean;
 
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
@@ -136,8 +135,7 @@ type
       ASecondLoadTNE: Boolean;
       const ALastProcessedPoint: TPoint;
       const AProcessed: Int64;
-      const AElapsedTime: TDateTime;
-      const AForAttachments: Boolean
+      const AElapsedTime: TDateTime
     );
   protected
     procedure Execute; override;
@@ -156,8 +154,7 @@ type
       ASecondLoadTNE: boolean;
       AZoom: byte;
       AMapType: TMapType;
-      const AReplaceOlderDate: TDateTime;
-      const AForAttachments: Boolean
+      const AReplaceOlderDate: TDateTime
     );
     constructor CreateFromSls(
       const AAppClosingNotifier: INotifierOneOperation;
@@ -215,8 +212,7 @@ constructor TThreadDownloadTiles.CreateInternal(
   ASecondLoadTNE: Boolean;
   const ALastProcessedPoint: TPoint;
   const AProcessed: Int64;
-  const AElapsedTime: TDateTime;
-  const AForAttachments: Boolean
+  const AElapsedTime: TDateTime
 );
 var
   VOperationNotifier: TNotifierOperation;
@@ -239,7 +235,6 @@ begin
   FZoom := AZoom;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
-  FForAttachments := AForAttachments;
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
@@ -322,8 +317,7 @@ constructor TThreadDownloadTiles.Create(
   Azamena, ACheckExistTileSize, Azdate, ASecondLoadTNE: boolean;
   AZoom: byte;
   AMapType: TMapType;
-  const AReplaceOlderDate: TDateTime;
-  const AForAttachments: Boolean
+  const AReplaceOlderDate: TDateTime
 );
 begin
   CreateInternal(
@@ -343,8 +337,7 @@ begin
     ASecondLoadTNE,
     Point(-1, -1),
     0,
-    0,
-    AForAttachments
+    0
   );
 end;
 
@@ -470,8 +463,7 @@ begin
       VSecondLoadTNE,
       VLastProcessedPoint,
       VProcessed,
-      VElapsedTime,
-      FALSE
+      VElapsedTime
     );
   end;
 end;
