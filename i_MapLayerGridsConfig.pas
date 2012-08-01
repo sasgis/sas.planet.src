@@ -26,6 +26,7 @@ uses
   GR32,
   t_GeoTypes,
   i_LocalCoordConverter,
+  i_ThreadConfig,
   i_ConfigDataElement;
 
 type
@@ -95,6 +96,9 @@ type
 
     function GetDegreeGrid: IDegreeGridConfig;
     property DegreeGrid: IDegreeGridConfig read GetDegreeGrid;
+
+    function GetThreadConfig: IThreadConfig;
+    property ThreadConfig: IThreadConfig read GetThreadConfig;
   end;
 
 implementation

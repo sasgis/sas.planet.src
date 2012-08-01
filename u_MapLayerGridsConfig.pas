@@ -24,6 +24,7 @@ interface
 
 uses
   i_MapLayerGridsConfig,
+  i_ThreadConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -32,10 +33,12 @@ type
     FTileGrid: ITileGridConfig;
     FGenShtabGrid: IGenShtabGridConfig;
     FDegreeGrid: IDegreeGridConfig;
+    FThreadConfig: IThreadConfig;
   private
     function GetTileGrid: ITileGridConfig;
     function GetGenShtabGrid: IGenShtabGridConfig;
     function GetDegreeGrid: IDegreeGridConfig;
+    function GetThreadConfig: IThreadConfig;
   public
     constructor Create;
   end;
@@ -43,7 +46,9 @@ type
 implementation
 
 uses
+  Classes,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
+  u_ThreadConfig,
   u_TileGridConfig,
   u_GenShtabGridConfig,
   u_DegreeGridConfig;
@@ -59,6 +64,8 @@ begin
   Add(FGenShtabGrid, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GenShtabGrid'));
   FDegreeGrid := TDegreeGridConfig.Create;
   Add(FDegreeGrid, TConfigSaveLoadStrategyBasicProviderSubItem.Create('DegreeGrid'));
+  FThreadConfig := TThreadConfig.Create(tpNormal);
+  Add(FThreadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Grids'));
 end;
 
 function TMapLayerGridsConfig.GetGenShtabGrid: IGenShtabGridConfig;
@@ -69,6 +76,11 @@ end;
 function TMapLayerGridsConfig.GetDegreeGrid: IDegreeGridConfig;
 begin
   Result := FDegreeGrid;
+end;
+
+function TMapLayerGridsConfig.GetThreadConfig: IThreadConfig;
+begin
+  Result := FThreadConfig;
 end;
 
 function TMapLayerGridsConfig.GetTileGrid: ITileGridConfig;
