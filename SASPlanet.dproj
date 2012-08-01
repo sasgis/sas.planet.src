@@ -600,6 +600,7 @@
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderByTrackPath.pas" />
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
+    <DCCReference Include="u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
     <DCCReference Include="u_BitmapLayerProviderGridTiles.pas" />
