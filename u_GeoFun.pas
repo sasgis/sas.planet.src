@@ -166,9 +166,9 @@ begin
       CellIncrementY := (VM2.Y-VM1.Y)/ImageHeight;
     end;
     CELL_UNITS_DEGREES: begin
-      OriginX:=ll1.x;
-      OriginY:=ll1.y;
-      CellIncrementX:=(ll2.x-ll1.x)/ImageWidth;
+      OriginX:=LL1.x;
+      OriginY:=LL1.y;
+      CellIncrementX:=(LL2.x-LL1.x)/ImageWidth;
       CellIncrementY:=-CellIncrementX;
     end;
   end;

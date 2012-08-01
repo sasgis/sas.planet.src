@@ -219,7 +219,7 @@ begin
             SinCos(pi / 4 + Angle, s, c);
             VResultPixelPos := DoublePoint(FPrevPoint.x + VRadius * c, FPrevPoint.y + VRadius * s);
             FProjection.GeoConverter.CheckPixelPosFloat(VResultPixelPos, VZoom, false);
-            APoint := FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, Vzoom);
+            APoint := FProjection.GeoConverter.PixelPosFloat2LonLat(VResultPixelPos, VZoom);
             Result := True;
 
             SinCos(pi / 2 + pi / 4 + Angle + pi, s, c);

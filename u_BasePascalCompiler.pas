@@ -100,35 +100,35 @@ function CommonAppScriptOnUses(
   const AName: string
 ): Boolean;
 var
-  T: TPSType;
+  VType: TPSType;
   RecT: TPSRecordType;
 begin
   // common types
   if SameText(AName, 'SYSTEM') then begin
     // TPoint
-    T := Sender.FindType('integer');
+    VType := Sender.FindType('integer');
     RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
     with RecT.AddRecVal do begin
       FieldOrgName := 'x';
-      aType := t;
+      aType := VType;
     end;
 
     with RecT.AddRecVal do begin
       FieldOrgName := 'y';
-      aType := t;
+      aType := VType;
     end;
 
     // TDoublePoint
-    T := Sender.FindType('Double');
+    VType := Sender.FindType('Double');
     RecT := TPSRecordType(Sender.AddType('TDoublePoint', btRecord));
     with RecT.AddRecVal do begin
       FieldOrgName := 'x';
-      aType := t;
+      aType := VType;
     end;
 
     with RecT.AddRecVal do begin
       FieldOrgName := 'y';
-      aType := t;
+      aType := VType;
     end;
 
     with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), IProjConverter, 'IProjConverter') do begin

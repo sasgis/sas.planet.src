@@ -312,7 +312,7 @@ begin
   while VTileIterator.Next(VTile) do begin
     VErrorString := '';
     try
-      kml := Alayer.LoadTileVector(VTile, Vzoom, False, Alayer.CacheVector);
+      kml := Alayer.LoadTileVector(VTile, VZoom, False, Alayer.CacheVector);
       if kml <> nil then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;

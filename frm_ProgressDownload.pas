@@ -193,8 +193,8 @@ end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
 begin
-  FProgress.Top:=TPanel(sender).Height-48;
-  FProgress.Width:=TPanel(sender).Width-14;
+  FProgress.Top:=TPanel(Sender).Height-48;
+  FProgress.Width:=TPanel(Sender).Width-14;
 end;
 
 procedure TfrmProgressDownload.UpdateProgressForm;

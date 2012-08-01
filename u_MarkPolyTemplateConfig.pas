@@ -135,7 +135,7 @@ var
   VTemplate: IMarkTemplatePoly;
 begin
   inherited;
-  VCategoryID := CNotExistCategoryID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;
@@ -168,7 +168,7 @@ var
   VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
-  VCategoryID := CNotExistCategoryID;
+  VCategoryId := CNotExistCategoryID;
   if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
     VCategoryId := VTemplateInternal.CategoryId;
   end;

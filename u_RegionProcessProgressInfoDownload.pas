@@ -49,6 +49,7 @@ type
     procedure Resume;
     procedure SaveState(const ASLSSection: IConfigDataWriteProvider);
 
+  private
     procedure SetPaused;
     procedure SetStarted;
     procedure AddProcessedTile(const ATile: TPoint);

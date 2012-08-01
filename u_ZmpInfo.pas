@@ -932,8 +932,8 @@ var
   VIsUseDownloader: Boolean;
   VDefaultProjConverterArgs: string;
 begin
-  VURLBase := AConfig.ReadString('DefURLBase', '');
-  VURLBase := AConfig.ReadString('URLBase', VURLBase);
+  VUrlBase := AConfig.ReadString('DefURLBase', '');
+  VUrlBase := AConfig.ReadString('URLBase', VUrlBase);
   VRequestHead := AConfig.ReadString('RequestHead', '');
   VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(AConfig);

@@ -74,11 +74,11 @@ function TCoordConverterMercatorOnEllipsoid.LonLat2RelativeInternal(
   const XY: TDoublePoint): TDoublePoint;
 var
   z, c: Extended;
-  VLL: TDoublePoint;
+  VLonLat: TDoublePoint;
 begin
-  VLL := XY;
-  Result.x := (0.5 + VLl.x / 360);
-  z := sin(VLl.y * Pi / 180);
+  VLonLat := XY;
+  Result.x := (0.5 + VLonLat.x / 360);
+  z := sin(VLonLat.y * Pi / 180);
   c := (1 / (2 * Pi));
   Result.y := (0.5 - c * (ArcTanh(z) - FExct * ArcTanh(FExct * z)));
 end;
@@ -115,9 +115,9 @@ begin
   until (abs(Zum1 - Zu) < MerkElipsK) or (isNAN(Zu));
   if not (isNAN(Zu)) then begin
     if VXY.y > 0.5 then begin
-      result.Y := -zu * 180 / Pi;
+      result.Y := -Zu * 180 / Pi;
     end else begin
-      result.Y := zu * 180 / Pi;
+      result.Y := Zu * 180 / Pi;
     end;
   end;
 end;

@@ -24,7 +24,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ACategoryDB: IMarkCategoryDB
+      const ACategoryDb: IMarkCategoryDB
     ); reintroduce;
     destructor Destroy; override;
     procedure Init(const ACategory: ICategory);
@@ -40,11 +40,11 @@ implementation
 
 constructor TfrMarkCategorySelectOrAdd.Create(
   const ALanguageManager: ILanguageManager;
-  const ACategoryDB: IMarkCategoryDB
+  const ACategoryDb: IMarkCategoryDB
 );
 begin
   inherited Create(ALanguageManager);
-  FCategoryDB := ACategoryDB;
+  FCategoryDB := ACategoryDb;
   FCategoryList := nil;
   FLastUsedCategoryName := '';
 end;

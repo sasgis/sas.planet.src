@@ -106,7 +106,7 @@ end;
 
 procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
 var
-  Path: string;
+  VPath: string;
   Zoomarr: TByteDynArray;
   VMapType: TMapType;
 
@@ -120,7 +120,7 @@ var
 begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMaxSize := (ParamsFrame as IRegionProcessParamsFrameExportToCE).MaxSize;
   VComent := (ParamsFrame as IRegionProcessParamsFrameExportToCE).Coment;
   VRecoverInfo := (ParamsFrame as IRegionProcessParamsFrameExportToCE).IsAddRecoverInfo;
@@ -144,11 +144,10 @@ begin
     FCoordConverterFactory,
     FProjectionFactory,
     FVectorItmesFactory,
-    path,
+    VPath,
     APolygon,
     Zoomarr,
     VMapType,
-
     VMaxSize,
     VComent,
     VRecoverInfo

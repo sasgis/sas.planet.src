@@ -87,14 +87,14 @@ begin
   if Value = 0 then begin
     Exit;
   end;
-  mR := 128;
+  mr := 128;
   if Value > 0 then begin
     vd := 1 + (Value / 100);
   end else begin
     vd := 1 - (Sqrt(-Value / 1000));
   end;
   for i := 0 to 255 do begin
-    VContrastTable[i] := BLimit(mR + Trunc((i - mR) * vd));
+    VContrastTable[i] := BLimit(mr + Trunc((i - mr) * vd));
   end;
 
   VDest := @Bitmap.Bits[0];

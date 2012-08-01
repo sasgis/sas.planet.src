@@ -47,16 +47,16 @@ function Ellipsoid_LonLat2Metr(
   const ALl: TDoublePoint
 ): TDoublePoint;
 var
-  VLL: TDoublePoint;
+  VLonLat: TDoublePoint;
   b, bs: extended;
 begin
-  VLL := ALl;
-  Vll.x := Vll.x * (Pi / 180);
-  Vll.y := Vll.y * (Pi / 180);
-  result.x := ARadiusa * Vll.x;
+  VLonLat := ALl;
+  VLonLat.x := VLonLat.x * (Pi / 180);
+  VLonLat.y := VLonLat.y * (Pi / 180);
+  result.x := ARadiusa * VLonLat.x;
 
-  bs := AExct * sin(VLl.y);
-  b := Tan((Vll.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (AExct / 2));
+  bs := AExct * sin(VLonLat.y);
+  b := Tan((VLonLat.y + PI / 2) / 2) * power((1 - bs) / (1 + bs), (AExct / 2));
   if b <= 0 then begin
     b := 0.00000000000001;
   end;

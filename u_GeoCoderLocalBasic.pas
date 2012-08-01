@@ -135,7 +135,7 @@ begin
     VList := TInterfaceList.Create;
   end;
 
-  if Vlist.GetCount>1 then SortIt(Vlist ,ALocalConverter);
+  if VList.GetCount>1 then SortIt(VList ,ALocalConverter);
 
   Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList);
 end;

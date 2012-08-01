@@ -155,7 +155,7 @@ var
     result := Copy(pString, lIni, lFim - lIni);
   end;
 
-  function mid(
+  function Mid(
   const str: string;
     pos: integer
   ): string;

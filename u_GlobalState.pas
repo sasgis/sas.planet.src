@@ -177,7 +177,7 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
-    property MarksDB: TMarksSystem read FMarksDb;
+    property MarksDb: TMarksSystem read FMarksDb;
     property GPSpar: TGPSpar read FGPSpar;
 
     // Список генераторов имен файлов с тайлами

@@ -110,7 +110,7 @@ end;
 
 procedure TExportProviderZip.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
+  VPath: string;
   Zoomarr: TByteDynArray;
   VMapType: TMapType;
   VNameGenerator: ITileFileNameGenerator;
@@ -120,7 +120,7 @@ var
 begin
   inherited;
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
 
@@ -140,7 +140,7 @@ begin
     VCancelNotifierInternal,
     VOperationID,
     VProgressInfo,
-    path,
+    VPath,
     FProjectionFactory,
     FVectorItmesFactory,
     APolygon,

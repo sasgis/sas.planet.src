@@ -231,8 +231,8 @@ begin
 
       if VCanShowText then begin
         if VDrawLonLatRect.Left + z.X / 2 < 180 then begin
-          VTextYPos := VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left + z.X / 2, VVDrawLonLatRect.Top), Vzoom);
-          VTextXPos := VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left, VVDrawLonLatRect.Top + z.Y / 2), Vzoom);
+          VTextYPos := VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left + z.X / 2, VVDrawLonLatRect.Top), VZoom);
+          VTextXPos := VGeoConvert.LonLat2PixelPosFloat(doublepoint(VDrawLonLatRect.Left, VVDrawLonLatRect.Top + z.Y / 2), VZoom);
           VTextPos2.TopLeft := FloatPoint2RectWihtClip(ALocalConverter.MapPixelFloat2LocalPixelFloat(VTextYPos));
           VTextPos2.BottomRight := FloatPoint2RectWihtClip(ALocalConverter.MapPixelFloat2LocalPixelFloat(VTextXPos));
           // X

@@ -664,7 +664,7 @@ type
     procedure TBXSelectSrchClick(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
     function ConvLatLon2Scale(const Astr:string):Double;
-    function Deg2Strvalue(const aDeg:Double):string;
+    function Deg2StrValue(const aDeg:Double):string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1077,7 +1077,7 @@ begin
   result := res;
 end;
 
-function TfrmMain.deg2strvalue(const aDeg:Double):string;
+function TfrmMain.Deg2StrValue(const aDeg:Double):string;
 var
   Vmin :integer;
   VDegScale : Double;
@@ -1129,7 +1129,7 @@ begin
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
     Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
     Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
-    Map.Cursor:=crDefault;
+    map.Cursor:=crDefault;
 
     FMapZoomAnimtion:=False;
     FShortCutManager :=
@@ -1826,7 +1826,7 @@ begin
      if VDegScale = 0 then NDegScale0.Checked := true else
      if VDegScale < 0 then NDegScaleAuto.Checked := true else
                            NDegScaleUser.Checked := true ;
-     NDegValue.text := deg2strvalue(VDegScale);
+     NDegValue.text := Deg2StrValue(VDegScale);
     end else
     NDegScale0.Checked := True;
 
@@ -2741,7 +2741,7 @@ begin
     end;
     TBFullSize.Checked := VIsFullScreen;
     NFoolSize.Checked:=VIsFullScreen;
-    TBexit.Visible:=VIsFullScreen;
+    TBExit.Visible:=VIsFullScreen;
     TBDock.Parent:=Self;
     TBDockLeft.Parent:=Self;
     TBDockBottom.Parent:=Self;
@@ -3638,7 +3638,7 @@ begin
     VTag := (ConvLatLon2Scale(NDegValue.text)*100000000)
   else
     VTag := TTBXItem(Sender).Tag;
-  NDegValue.text := deg2strvalue(VTag);
+  NDegValue.text := Deg2StrValue(VTag);
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
     if VTag = 0 then begin
@@ -3660,7 +3660,7 @@ var
 begin
   NDegScaleUser.checked := True;
   VTag := (ConvLatLon2Scale(NewText)*100000000);
-  NewText := deg2strvalue(VTag);
+  NewText := Deg2StrValue(VTag);
 //  NDegScaleUser.tag := VTag;
   FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.LockWrite;
   try
@@ -5172,14 +5172,14 @@ end;
 
 procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
-  LL:TDoublePoint;
+  VLonLat:TDoublePoint;
   VMark: IMark;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
-      LL := VMark.GetGoToLonLat;
-      FConfig.NavToPoint.StartNavToMark(VMark as IMarkId, ll);
+      VLonLat := VMark.GetGoToLonLat;
+      FConfig.NavToPoint.StartNavToMark(VMark as IMarkId, VLonLat);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;

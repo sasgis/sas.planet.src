@@ -85,7 +85,7 @@ end;
 
 function TMapTypeSet.GetMapTypeByGUID(const AGUID: TGUID): IMapType;
 begin
-  Result := Flist.GetByGUID(AGUID) as IMapType;
+  Result := FList.GetByGUID(AGUID) as IMapType;
 end;
 
 function TMapTypeSet.IsEqual(const AValue: IMapTypeSet): Boolean;

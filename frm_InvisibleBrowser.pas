@@ -102,8 +102,8 @@ var
 begin
   if FProxyConfig <> nil then begin
     VProxyConfig := FProxyConfig.GetStatic;
-    VUselogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
-    if VUselogin then begin
+    VUseLogin := (not VProxyConfig.UseIESettings) and VProxyConfig.UseProxy and VProxyConfig.UseLogin;
+    if VUseLogin then begin
       szUserName := VProxyConfig.Login;
       szPassWord := VProxyConfig.Password;
     end;

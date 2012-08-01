@@ -117,7 +117,7 @@ var
   i: byte;
 begin
   for i:=0 to chklstMaps.Count-1 do begin
-    chklstMaps.Checked[i] := TCheckBox(sender).Checked;
+    chklstMaps.Checked[i] := TCheckBox(Sender).Checked;
   end;
 end;
 
@@ -127,7 +127,7 @@ var
 begin
   if chkAllZooms.state<>cbGrayed then
   for i:=0 to chklstZooms.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(sender).Checked;
+    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
   end;
 end;
 

@@ -137,7 +137,7 @@ end;
 
 function TMapTypeIconsList.GetIconIndexByGUID(const AGUID: TGUID): Integer;
 begin
-  Result := Integer(Flist.GetByGUID(AGUID)) - 1;
+  Result := Integer(FList.GetByGUID(AGUID)) - 1;
 end;
 
 end.

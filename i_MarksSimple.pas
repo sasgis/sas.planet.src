@@ -49,7 +49,7 @@ type
     function GetCategory: ICategory;
     property Category: ICategory read GetCategory;
 
-    function IsSameId(const AMarkId: IMarkID): Boolean;
+    function IsSameId(const AMarkId: IMarkId): Boolean;
     function IsEqual(const AMark: IMark): Boolean;
     function GetGoToLonLat: TDoublePoint;
   end;

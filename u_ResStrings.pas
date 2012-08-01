@@ -56,7 +56,7 @@ ResourceString
 
   SAS_ERR_Nopoints = 'Required pointset is not found!';
   SAS_ERR_Save = 'Error while saving!';
-  SAS_ERR_code = 'Error code:';
+  SAS_ERR_Code = 'Error code:';
   SAS_ERR_NoMaps = 'Unable to load map(s)! Aborting...';
   SAS_ERR_PortOpen = 'Error opening port!';
   SAS_ERR_Communication = 'Error communicating with device';

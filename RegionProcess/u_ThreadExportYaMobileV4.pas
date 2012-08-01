@@ -71,7 +71,7 @@ type
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       const Atypemaparr: array of TMapType;
-      Areplace: boolean;
+      AReplace: boolean;
       Acsat: byte;
       Acmap: byte
     );
@@ -106,7 +106,7 @@ constructor TThreadExportYaMobileV4.Create(
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   const Atypemaparr: array of TMapType;
-  Areplace: boolean;
+  AReplace: boolean;
   Acsat, Acmap: byte
 );
 var

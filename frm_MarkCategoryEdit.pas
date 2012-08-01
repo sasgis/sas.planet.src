@@ -109,7 +109,7 @@ begin
   EditName.Text:=ACategory.Name;
   EditS1.Value:=ACategory.AfterScale;
   EditS2.Value:=ACategory.BeforeScale;
-  CBShow.Checked:=ACategory.visible;
+  CBShow.Checked:=ACategory.Visible;
   if ShowModal = mrOk then begin
     Result := FCategoryDB.Factory.Modify(
         ACategory,

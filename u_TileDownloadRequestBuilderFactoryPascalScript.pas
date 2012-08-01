@@ -118,45 +118,45 @@ function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
   const AName: string
 ): Boolean;
 var
-  T: TPSType;
+  VType: TPSType;
 begin
   if SameText('SYSTEM', AName) then begin
-    T := ACompiler.FindType('ISimpleHttpDownloader');
-    ACompiler.AddUsedVariable('Downloader', t);
+    VType := ACompiler.FindType('ISimpleHttpDownloader');
+    ACompiler.AddUsedVariable('Downloader', VType);
 
-    T := ACompiler.FindType('IProjConverter');
-    ACompiler.AddUsedVariable('DefProjConverter', t);
+    VType := ACompiler.FindType('IProjConverter');
+    ACompiler.AddUsedVariable('DefProjConverter', VType);
 
-    T := ACompiler.FindType('IProjConverterFactory');
-    ACompiler.AddUsedVariable('ProjFactory', t);
+    VType := ACompiler.FindType('IProjConverterFactory');
+    ACompiler.AddUsedVariable('ProjFactory', VType);
 
-    T := ACompiler.FindType('ICoordConverter');
-    ACompiler.AddUsedVariable('Converter', t);
+    VType := ACompiler.FindType('ICoordConverter');
+    ACompiler.AddUsedVariable('Converter', VType);
 
-    T := ACompiler.FindType('string');
-    ACompiler.AddUsedVariable('ResultURL', t);
-    ACompiler.AddUsedVariable('PostData', t);
-    ACompiler.AddUsedVariable('GetURLBase', t);
-    ACompiler.AddUsedVariable('RequestHead', t);
-    ACompiler.AddUsedVariable('ResponseHead', t);
-    ACompiler.AddUsedVariable('ScriptBuffer', t);
-    ACompiler.AddUsedVariable('Version', t);
-    ACompiler.AddUsedVariable('Lang', t);
+    VType := ACompiler.FindType('string');
+    ACompiler.AddUsedVariable('ResultURL', VType);
+    ACompiler.AddUsedVariable('PostData', VType);
+    ACompiler.AddUsedVariable('GetURLBase', VType);
+    ACompiler.AddUsedVariable('RequestHead', VType);
+    ACompiler.AddUsedVariable('ResponseHead', VType);
+    ACompiler.AddUsedVariable('ScriptBuffer', VType);
+    ACompiler.AddUsedVariable('Version', VType);
+    ACompiler.AddUsedVariable('Lang', VType);
 
-    T := ACompiler.FindType('integer');
-    ACompiler.AddUsedVariable('GetX', t);
-    ACompiler.AddUsedVariable('GetY', t);
-    ACompiler.AddUsedVariable('GetZ', t);
+    VType := ACompiler.FindType('integer');
+    ACompiler.AddUsedVariable('GetX', VType);
+    ACompiler.AddUsedVariable('GetY', VType);
+    ACompiler.AddUsedVariable('GetZ', VType);
 
-    T := ACompiler.FindType('Double');
-    ACompiler.AddUsedVariable('GetLlon', t);
-    ACompiler.AddUsedVariable('GetTLat', t);
-    ACompiler.AddUsedVariable('GetBLat', t);
-    ACompiler.AddUsedVariable('GetRLon', t);
-    ACompiler.AddUsedVariable('GetLMetr', t);
-    ACompiler.AddUsedVariable('GetRMetr', t);
-    ACompiler.AddUsedVariable('GetTMetr', t);
-    ACompiler.AddUsedVariable('GetBMetr', t);
+    VType := ACompiler.FindType('Double');
+    ACompiler.AddUsedVariable('GetLlon', VType);
+    ACompiler.AddUsedVariable('GetTLat', VType);
+    ACompiler.AddUsedVariable('GetBLat', VType);
+    ACompiler.AddUsedVariable('GetRLon', VType);
+    ACompiler.AddUsedVariable('GetLMetr', VType);
+    ACompiler.AddUsedVariable('GetRMetr', VType);
+    ACompiler.AddUsedVariable('GetTMetr', VType);
+    ACompiler.AddUsedVariable('GetBMetr', VType);
 
     Result := True;
   end else begin

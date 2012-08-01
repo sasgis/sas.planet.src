@@ -111,7 +111,7 @@ end;
 
 procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
+  VPath: string;
   Zoomarr: TByteDynArray;
   VProductName: string;
   VMapName: string;
@@ -130,7 +130,7 @@ begin
   inherited;
 
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VLevelsDesc := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LevelsDesc;
   VProductName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductName;
@@ -156,7 +156,7 @@ begin
     VProgressInfo
   );
 
-  TThreadExportToJNX.Create(
+  TThreadExportToJnx.Create(
     VCancelNotifierInternal,
     VOperationID,
     VProgressInfo,
@@ -164,7 +164,7 @@ begin
     FProjectionFactory,
     FVectorItmesFactory,
     FBitmapTileSaveLoadFactory,
-    path,
+    VPath,
     APolygon,
     Zoomarr,
     VProductName,

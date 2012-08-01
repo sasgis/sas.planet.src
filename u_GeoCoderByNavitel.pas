@@ -537,17 +537,17 @@ begin
      sdesc:='';
      sname:='';
      sfulldesc:='';
-     i := PosEx('[', vBuffer, 1);
-     j := PosEx(',', vBuffer, 1);
-     navitel_id := Copy(vBuffer, i + 1, j - (i + 1));
+     i := PosEx('[', VBuffer, 1);
+     j := PosEx(',', VBuffer, 1);
+     navitel_id := Copy(VBuffer, i + 1, j - (i + 1));
 
      j:=1;
-     i := PosEx('[', vBuffer, 1);
+     i := PosEx('[', VBuffer, 1);
      if i>0  then begin
-       j := PosEx(',', vBuffer, i + 1);
+       j := PosEx(',', VBuffer, i + 1);
        VRequest :=
         PrepareRequestByURL(
-          'http://maps.navitel.su/webmaps/searchTwoStepInfo?id='+(Copy(vBuffer, i + 1, j - (i + 1)))
+          'http://maps.navitel.su/webmaps/searchTwoStepInfo?id='+(Copy(VBuffer, i + 1, j - (i + 1)))
         );
        VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
@@ -565,16 +565,16 @@ begin
       end;
      end;
      i:=j+1;
-     j := PosEx(']', vBuffer, i);
-     sname := Utf8ToAnsi(Copy(vBuffer, i + 3, j - (i + 4)));
-     j := PosEx(',', vBuffer, j+1);
+     j := PosEx(']', VBuffer, i);
+     sname := Utf8ToAnsi(Copy(VBuffer, i + 3, j - (i + 4)));
+     j := PosEx(',', VBuffer, j+1);
      i := j+1;
-     j := PosEx(',', vBuffer, j+1);
-     Navitel_type := Copy(vBuffer, i + 1, j - (i + 1));
+     j := PosEx(',', VBuffer, j+1);
+     Navitel_type := Copy(VBuffer, i + 1, j - (i + 1));
      Sname := NavitelType(StrToInt(Navitel_type )) + sname;
      i := j+1;
-     j := PosEx(',', vBuffer, i+1);
-     place_id := Copy(vBuffer, i + 1, j - (i + 1));
+     j := PosEx(',', VBuffer, i+1);
+     place_id := Copy(VBuffer, i + 1, j - (i + 1));
      if place_id<>'null' then begin
       VRequest := PrepareRequestByURL('http://maps.navitel.su/webmaps/searchById?id='+(place_id));
       VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
@@ -595,10 +595,10 @@ begin
         Exit;
       end;
      end else begin
-       i := PosEx('[', vBuffer, j+1);
+       i := PosEx('[', VBuffer, j+1);
        if i>j+1 then begin
-        j := PosEx(']', vBuffer, i);
-        sdesc := Utf8ToAnsi(Copy(vBuffer, i + 1, j - (i + 1)));
+        j := PosEx(']', VBuffer, i);
+        sdesc := Utf8ToAnsi(Copy(VBuffer, i + 1, j - (i + 1)));
        end;
      end;
 
@@ -611,7 +611,7 @@ begin
      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
      VList.Add(VPlace);
 
-    vBuffer:='';
+    VBuffer:='';
     end;
    end;
   end;

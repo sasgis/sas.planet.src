@@ -72,17 +72,17 @@ function TMapAttachmentsFactoryPascalScript.DoCompilerOnAuxUses(
   const AName: string
 ): Boolean;
 var
-  T: TPSType;
+  VType: TPSType;
 begin
   if SameText('SYSTEM', AName) then begin
-    T := ACompiler.FindType('string');
-    ACompiler.AddUsedVariable('ResultText', t);
-    ACompiler.AddUsedVariable('SourceText', t);
-    ACompiler.AddUsedVariable('AttachmentNumber', t);
-    ACompiler.AddUsedVariable('AttachmentSubCache', t);
+    VType := ACompiler.FindType('string');
+    ACompiler.AddUsedVariable('ResultText', VType);
+    ACompiler.AddUsedVariable('SourceText', VType);
+    ACompiler.AddUsedVariable('AttachmentNumber', VType);
+    ACompiler.AddUsedVariable('AttachmentSubCache', VType);
 
-    T := ACompiler.FindType('integer');
-    ACompiler.AddUsedVariable('MaxSubIndex', t);
+    VType := ACompiler.FindType('integer');
+    ACompiler.AddUsedVariable('MaxSubIndex', VType);
 
     with ACompiler.AddInterface(ACompiler.FindInterface('IUnknown'), IStringByLanguage, 'IStringByLanguage') do begin
       RegisterMethod('function GetString(ALangIndex: Integer): string', cdRegister);
@@ -102,8 +102,8 @@ begin
       RegisterMethod('function GetUseDel: Boolean', cdStdCall);
     end;
 
-    T := ACompiler.FindType('IMapAttachmentsInfo');
-    ACompiler.AddUsedVariable('MapAttachmentsInfo', t);
+    VType := ACompiler.FindType('IMapAttachmentsInfo');
+    ACompiler.AddUsedVariable('MapAttachmentsInfo', VType);
 
     Result := TRUE;
   end else begin

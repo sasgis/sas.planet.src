@@ -101,8 +101,8 @@ end;
 
 procedure TExportProviderGEKml.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
-  Zoomarr: TByteDynArray;
+  VPath: string;
+  VZoomArr: TByteDynArray;
   VMapType: TMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
@@ -111,8 +111,8 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   RelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
   NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
@@ -133,11 +133,11 @@ begin
     VCancelNotifierInternal,
     VOperationID,
     VProgressInfo,
-    path,
+    VPath,
     FProjectionFactory,
     FVectorItmesFactory,
     APolygon,
-    ZoomArr,
+    VZoomArr,
     VMapType,
     NotSaveNotExists,
     RelativePath

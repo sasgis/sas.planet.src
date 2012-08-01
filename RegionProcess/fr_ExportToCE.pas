@@ -140,7 +140,7 @@ var
 begin
   if chkAllZooms.state<>cbGrayed then
   for i:=0 to chklstZooms.items.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(sender).Checked;
+    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
   end;
 end;
 
@@ -219,7 +219,7 @@ var
   VMapType: TMapType;
 begin
   Result := '';
-  if Temppath.Text <> '' then begin
+  if TempPath.Text <> '' then begin
     Result := edtTargetFile.Text;
   end else if copy(edtTargetFile.Text, length(edtTargetFile.Text), 1) <> '\' then begin
     Result := edtTargetFile.Text;

@@ -74,7 +74,7 @@ begin
   end;
   VGUIDSTring := GUIDToString(iid);
   VProtocol := TIeEmbeddedProtocol.Create(FDomainList);
-  if VProtocol.GetInterface(IID, Obj) then begin
+  if VProtocol.GetInterface(IID, obj) then begin
     Result := 0;
   end else begin
     Result := E_NOINTERFACE;

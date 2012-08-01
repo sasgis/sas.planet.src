@@ -62,13 +62,13 @@ end;
 
 function TCoordConverterMercatorOnSphere.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;
 var
-  VLl: TDoublePoint;
+  VLonLat: TDoublePoint;
 begin
-  VLl := ALl;
-  Vll.x := Vll.x * (Pi / 180);
-  Vll.y := Vll.y * (Pi / 180);
-  result.x := Datum.GetSpheroidRadiusA * Vll.x;
-  result.y := Datum.GetSpheroidRadiusA * Ln(Tan(PI / 4 + Vll.y / 2));
+  VLonLat := ALl;
+  VLonLat.x := VLonLat.x * (Pi / 180);
+  VLonLat.y := VLonLat.y * (Pi / 180);
+  result.x := Datum.GetSpheroidRadiusA * VLonLat.x;
+  result.y := Datum.GetSpheroidRadiusA * Ln(Tan(PI / 4 + VLonLat.y / 2));
 end;
 
 function TCoordConverterMercatorOnSphere.LonLat2RelativeInternal(const XY: TDoublePoint): TDoublePoint;

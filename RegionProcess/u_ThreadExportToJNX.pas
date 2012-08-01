@@ -30,7 +30,7 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
-    FJNXversion: byte;  // 3..4
+    FJNXVersion: byte;  // 3..4
     FZorder: integer;   // для 4 версии
     FProductID: integer; // 0,2,3,4,5,6,7,8,9
     FJpgQuality: IStringListStatic; // 10..100 TODO
@@ -175,7 +175,7 @@ begin
   try
     VWriter.Levels := Length(FZoomList);
     VWriter.ProductName := FProductName;
-    VWriter.MapName := FmapName;
+    VWriter.MapName := FMapName;
     VWriter.Version := FJNXVersion;
     VWriter.ZOrder := FZorder;
     VWriter.ProductID := FProductID;

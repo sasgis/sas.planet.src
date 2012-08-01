@@ -200,7 +200,7 @@ begin
   FBasePath := ABasePath;
   VState := TReadWriteStateInternal.Create;
   FState := VState;
-  VCategoryDB := TMarkCategoryDB.Create(VState, FBasePath, ACategoryFactoryConfig);
+  VCategoryDb := TMarkCategoryDB.Create(VState, FBasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig :=
@@ -260,7 +260,7 @@ begin
   VList := FCategoryDB.GetCategoriesList;
   for i := 0 to VList.Count - 1 do begin
     VCategory := IMarkCategory(VList[i]);
-    if (VCategory.visible) and
+    if (VCategory.Visible) and
       (VCategory.AfterScale <= AZoom + 1) and
       (VCategory.BeforeScale >= AZoom + 1) then begin
       Result.Add(VCategory);
@@ -278,7 +278,7 @@ begin
   VList := FCategoryDB.GetCategoriesList;
   for i := 0 to VList.Count - 1 do begin
     VCategory := IMarkCategory(VList[i]);
-    if VCategory.visible then begin
+    if VCategory.Visible then begin
       Result.Add(VCategory);
     end;
   end;

@@ -504,9 +504,9 @@ begin
   if AError then begin
     if Assigned(FSqlite3) then begin
       raise Exception.Create(
-        FSQLite3Lib.sqlite3_errmsg(Fsqlite3) +
+        FSQLite3Lib.sqlite3_errmsg(FSqlite3) +
         ' ( error code: ' +
-        IntToStr(FSQLite3Lib.sqlite3_errcode(Fsqlite3)) + ')'
+        IntToStr(FSQLite3Lib.sqlite3_errcode(FSqlite3)) + ')'
       );
     end else begin
       raise Exception.Create('Sqlite3 error');

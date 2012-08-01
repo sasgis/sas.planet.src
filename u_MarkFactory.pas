@@ -708,15 +708,15 @@ function TMarkFactory.ModifyLine(
   ALineWidth: Integer
 ): IMarkLine;
 var
-  VID: Integer;
+  VId: Integer;
   VCategoryId: Integer;
   VCategoryInternal: IMarkCategorySMLInternal;
   VMarkInternal: IMarkSMLInternal;
 begin
-  VID := CNotExistMarkID;
+  VId := CNotExistMarkID;
   if ASource <> nil then begin
     if Supports(ASource, IMarkSMLInternal, VMarkInternal) then begin
-      VID := VMarkInternal.Id;
+      VId := VMarkInternal.Id;
     end;
   end;
   VCategoryId := CNotExistCategoryID;

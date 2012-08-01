@@ -99,7 +99,7 @@ var
   i: byte;
 begin
   for i:=0 to chklstZooms.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(sender).Checked;
+    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
   end;
 end;
 

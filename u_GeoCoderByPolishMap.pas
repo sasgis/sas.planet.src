@@ -714,7 +714,7 @@ SearchRec: TSearchRec;
 MySearch : string;
 begin
  Vcnt := 1;
- MySearch := Asearch;
+ MySearch := ASearch;
  while PosEx('  ',MySearch)>0 do MySearch := ReplaceStr(MySearch,'  ',' ');
  VList := TInterfaceList.Create;
  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp\');

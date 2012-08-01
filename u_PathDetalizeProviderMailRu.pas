@@ -98,7 +98,7 @@ var
   pathstr, timeT1: string;
   url: string;
   i, posit, posit2, endpos, dd, seconds, meters: integer;
-  dateT1: TDateTime;
+  VDateT1: TDateTime;
   VPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
   VPointsAggregator: IDoublePointsAggregator;
@@ -165,13 +165,13 @@ begin
     end else begin
       AComment := SAS_STR_MarshLen + inttostr(meters) + ' ' + SAS_UNITS_m;
     end;
-    DateT1 := SecondToTime(seconds);
-    dd := DaysBetween(0, DateT1);
+    VDateT1 := SecondToTime(seconds);
+    dd := DaysBetween(0, VDateT1);
     timeT1 := '';
     if dd > 0 then begin
       timeT1 := inttostr(dd) + ' дней, ';
     end;
-    timeT1 := timeT1 + TimeToStr(DateT1);
+    timeT1 := timeT1 + TimeToStr(VDateT1);
     AComment := AComment + #13#10 + SAS_STR_Marshtime + timeT1;
   end;
 end;

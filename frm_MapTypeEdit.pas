@@ -132,7 +132,7 @@ begin
     FMapType.GUIConfig.ParentSubMenu.Value:=EditParSubMenu.Text;
     FMapType.GUIConfig.HotKey:=EditHotKey.HotKey;
     FMapType.GUIConfig.Enabled:=CheckEnabled.Checked;
-    FMapType.GUIConfig.separator:=CheckBox1.Checked;
+    FMapType.GUIConfig.Separator:=CheckBox1.Checked;
   finally
     FMapType.GUIConfig.UnlockWrite;
   end;
@@ -276,7 +276,7 @@ begin
   finally
     FMapType.StorageConfig.UnlockRead;
   end;
-  CheckBox1.Checked:=FMapType.GUIConfig.separator;
+  CheckBox1.Checked:=FMapType.GUIConfig.Separator;
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version.StoreString;
   pnlHeader.Visible := GState.GlobalAppConfig.IsShowDebugInfo;

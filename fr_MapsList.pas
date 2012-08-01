@@ -210,12 +210,12 @@ begin
  VMapType := TMapType(Item.Data);
  if VMapType <> nil then begin
   if VMapType.GUIConfig.Separator then begin
-   sender.canvas.Pen.Color:=clGray;
-   sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
-   sender.canvas.LineTo(sender.Column[0].Width,Item.DisplayRect(drBounds).Bottom-1);
+   Sender.canvas.Pen.Color:=clGray;
+   Sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
+   Sender.canvas.LineTo(Sender.Column[0].Width,Item.DisplayRect(drBounds).Bottom-1);
   end;
-  if Item.Index mod 2 = 1 then sender.canvas.brush.Color:=cl3DLight
-                         else sender.canvas.brush.Color:=clwhite;
+  if Item.Index mod 2 = 1 then Sender.canvas.brush.Color:=cl3DLight
+                         else Sender.canvas.brush.Color:=clwhite;
  end;
 end;
 

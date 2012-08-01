@@ -123,8 +123,8 @@ end;
 
 procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
-  Zoomarr: TByteDynArray;
+  VPath: string;
+  VZoomArr: TByteDynArray;
   typemaparr: array of TMapType;
   comprSat, comprMap, comprHyb: byte;
   Replace: boolean;
@@ -134,8 +134,8 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
 begin
   inherited;
-  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   setlength(typemaparr, 3);
   VActiveMapIndex := 0;
   typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
@@ -182,9 +182,9 @@ begin
     FProjectionFactory,
     FVectorItmesFactory,
     FBitmapTileSaveLoadFactory,
-    path,
+    VPath,
     APolygon,
-    ZoomArr,
+    VZoomArr,
     typemaparr,
     VActiveMapIndex,
     Replace,

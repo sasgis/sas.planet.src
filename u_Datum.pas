@@ -158,7 +158,7 @@ function TDatum.CalcPoligonArea(
   const ACount: Integer
 ): Double;
 
-  function sign(AValue: double): integer;
+  function Sign(AValue: double): integer;
   begin
     if AValue < 0 then begin
       Result := -1;

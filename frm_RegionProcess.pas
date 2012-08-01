@@ -335,7 +335,7 @@ begin
   0: LoadRegion(FPolygonLL);
   1: scleitRECT(FPolygonLL);
   2: genbacksatREG(FPolygonLL);
-  3: delRegion(FPolygonLL);
+  3: DelRegion(FPolygonLL);
   4: ExportREG(FPolygonLL);
   5: savefilesREG(FPolygonLL);
  end;

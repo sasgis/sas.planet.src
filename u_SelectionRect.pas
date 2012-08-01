@@ -138,7 +138,7 @@ begin
     Result := FTileGridConfig.GetRectStickToGrid(VLocalConverter, Result);
   end;
   if (ssShift in Shift) then begin
-    if FGenShtabGridConfig.scale <> 0 then begin
+    if FGenShtabGridConfig.Scale <> 0 then begin
       Result := FGenShtabGridConfig.GetRectStickToGrid(VLocalConverter, Result);
     end else begin
       Result := FDegreeGridConfig.GetRectStickToGrid(VLocalConverter, Result);

@@ -125,7 +125,7 @@ begin
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
     ProgressInfo.SetSecondLine(
-      SAS_STR_Zoom + ': ' + inttostr(Vzoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)
+      SAS_STR_Zoom + ': ' + inttostr(VZoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)
     );
   end;
 

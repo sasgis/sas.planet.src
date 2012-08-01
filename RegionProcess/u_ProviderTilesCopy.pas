@@ -105,8 +105,8 @@ end;
 
 procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon);
 var
-  path: string;
-  Zoomarr: TByteDynArray;
+  VPath: string;
+  VZoomArr: TByteDynArray;
   VReplace: Boolean;
   VDeleteSource: Boolean;
   VCancelNotifierInternal: INotifierOperationInternal;
@@ -115,8 +115,8 @@ var
   VCacheType: Byte;
   VMaps: IMapTypeListStatic;
 begin
-  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
-  path := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
+  VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
   VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
@@ -140,11 +140,11 @@ begin
       VCancelNotifierInternal,
       VOperationID,
       VProgressInfo,
-      path,
+      VPath,
       FProjectionFactory,
       FVectorItmesFactory,
       APolygon,
-      ZoomArr,
+      VZoomArr,
       VMaps,
       VDeleteSource,
       VReplace
@@ -154,11 +154,11 @@ begin
       VCancelNotifierInternal,
       VOperationID,
       VProgressInfo,
-      path,
+      VPath,
       FProjectionFactory,
       FVectorItmesFactory,
       APolygon,
-      ZoomArr,
+      VZoomArr,
       VMaps,
       VDeleteSource,
       VReplace,

@@ -149,7 +149,7 @@ begin
   VSelectedText := EditComment.SelText;
   VTextBeforeSelection := '';
   VTextAfterSelection := '';
-  case TEditBtn(TTBXItem(sender).Tag) of
+  case TEditBtn(TTBXItem(Sender).Tag) of
   ebB: begin
         VTextBeforeSelection := '<b>';
         VTextAfterSelection := '</b>';

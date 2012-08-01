@@ -243,11 +243,11 @@ type
 
 
     function LonLat2PixelPosFloatInternal(
-      const Ll: TDoublePoint;
+      const ALonLat: TDoublePoint;
       AZoom: byte
     ): TDoublePoint; override;
     function LonLat2TilePosFloatInternal(
-      const Ll: TDoublePoint;
+      const ALonLat: TDoublePoint;
       AZoom: byte
     ): TDoublePoint; override;
 
@@ -1403,19 +1403,19 @@ end;
 //------------------------------------------------------------------------------
 // LonLatPos
 function TCoordConverterBasic.LonLat2PixelPosFloatInternal(
-  const Ll: TDoublePoint;
+  const ALonLat: TDoublePoint;
   AZoom: byte
 ): TDoublePoint;
 begin
-  Result := Relative2PixelPosFloatInternal(LonLat2RelativeInternal(LL), AZoom);
+  Result := Relative2PixelPosFloatInternal(LonLat2RelativeInternal(ALonLat), AZoom);
 end;
 
 function TCoordConverterBasic.LonLat2TilePosFloatInternal(
-  const Ll: TDoublePoint;
+  const ALonLat: TDoublePoint;
   AZoom: byte
 ): TDoublePoint;
 begin
-  Result := Relative2TilePosFloatInternal(LonLat2RelativeInternal(LL), AZoom);
+  Result := Relative2TilePosFloatInternal(LonLat2RelativeInternal(ALonLat), AZoom);
 end;
 
 //------------------------------------------------------------------------------

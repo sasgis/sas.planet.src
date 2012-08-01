@@ -300,10 +300,10 @@ begin
   FpGetTLat := PPSVariantDouble(FPSExec.GetVar2('GetTLat'));
   FpGetBLat := PPSVariantDouble(FPSExec.GetVar2('GetBLat'));
   FpGetRLon := PPSVariantDouble(FPSExec.GetVar2('GetRLon'));
-  FpGetLmetr := PPSVariantDouble(FPSExec.GetVar2('GetLmetr'));
-  FpGetTmetr := PPSVariantDouble(FPSExec.GetVar2('GetTmetr'));
-  FpGetBmetr := PPSVariantDouble(FPSExec.GetVar2('GetBmetr'));
-  FpGetRmetr := PPSVariantDouble(FPSExec.GetVar2('GetRmetr'));
+  FpGetLMetr := PPSVariantDouble(FPSExec.GetVar2('GetLmetr'));
+  FpGetTMetr := PPSVariantDouble(FPSExec.GetVar2('GetTmetr'));
+  FpGetBMetr := PPSVariantDouble(FPSExec.GetVar2('GetBmetr'));
+  FpGetRMetr := PPSVariantDouble(FPSExec.GetVar2('GetRmetr'));
   FpConverter := PPSVariantInterface(FPSExec.GetVar2('Converter'));
   FpDownloader := PPSVariantInterface(FPSExec.GetVar2('Downloader'));
   FpDefProjConverter := PPSVariantInterface(FPSExec.GetVar2('DefProjConverter'));
@@ -319,7 +319,7 @@ procedure TTileDownloadRequestBuilderPascalScript.SetVar(
 );
 var
   XY: TPoint;
-  Ll: TDoublePoint;
+  VLonLat: TDoublePoint;
   VTile: TPoint;
   VZoom: Byte;
   VAccept: string;
@@ -331,28 +331,28 @@ begin
   FpGetX.Data := VTile.X;
   FpGetY.Data := VTile.Y;
   FpGetZ.Data := VZoom + 1;
-  Ll := FCoordConverter.Pos2LonLat(VTile, VZoom);
-  FpGetLlon.Data := Ll.X;
-  FpGetTLat.Data := Ll.Y;
-  Ll := FCoordConverter.LonLat2Metr(LL);
-  FpGetLMetr.Data := Ll.X;
-  FpGetTMetr.Data := Ll.Y;
+  VLonLat := FCoordConverter.Pos2LonLat(VTile, VZoom);
+  FpGetLlon.Data := VLonLat.X;
+  FpGetTLat.Data := VLonLat.Y;
+  VLonLat := FCoordConverter.LonLat2Metr(VLonLat);
+  FpGetLMetr.Data := VLonLat.X;
+  FpGetTMetr.Data := VLonLat.Y;
   XY := VTile;
   Inc(XY.X);
   Inc(XY.Y);
-  Ll := FCoordConverter.Pos2LonLat(XY, VZoom);
-  FpGetRLon.Data := Ll.X;
-  FpGetBLat.Data := Ll.Y;
-  Ll := FCoordConverter.LonLat2Metr(LL);
-  FpGetRMetr.Data := Ll.X;
-  FpGetBMetr.Data := Ll.Y;
+  VLonLat := FCoordConverter.Pos2LonLat(XY, VZoom);
+  FpGetRLon.Data := VLonLat.X;
+  FpGetBLat.Data := VLonLat.Y;
+  VLonLat := FCoordConverter.LonLat2Metr(VLonLat);
+  FpGetRMetr.Data := VLonLat.X;
+  FpGetBMetr.Data := VLonLat.Y;
   FpConverter.Data := FCoordConverter;
 
   FpResultUrl.Data := '';
   FpPostData.Data := '';
   Config.LockRead;
   try
-    FpGetURLBase.Data := Config.URLBase;
+    FpGetURLBase.Data := Config.UrlBase;
     FpRequestHead.Data := Config.RequestHeader;
     VUseDownloader := Config.IsUseDownloader;
   finally
