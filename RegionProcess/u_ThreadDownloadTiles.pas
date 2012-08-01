@@ -190,6 +190,7 @@ uses
   Types,
   i_DownloadResult,
   i_TileRequest,
+  i_TileInfoBasic,
   i_TileIterator,
   i_TileDownloaderState,
   u_DownloadInfoSimple,
@@ -535,7 +536,7 @@ end;
 
 procedure TThreadDownloadTiles.Execute;
 var
-  VTileExists: boolean;
+  VTileInfo: ITileInfoBasic;
   VTile: TPoint;
   VTileIterator: ITileIterator;
   VOperationID: Integer;
@@ -589,17 +590,17 @@ begin
 
           // notify about current tile
           FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom)]), 0);
-          VTileExists := FMapType.TileExists(VTile, FZoom);
+          VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version);
 
           // for attachments need base tile - but even for existing tile some attachments may not exist
-          if (FReplaceExistTiles) or not (VTileExists) then begin
+          if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
             // what to do
-            if VTileExists then begin
+            if VTileInfo.IsExists then begin
               FLog.WriteText(FRES_LoadProcessRepl, 0);
             end else begin
               FLog.WriteText(FRES_LoadProcess + '...', 0);
             end;
-            if (FCheckExistTileDate) and (VTileExists) and (FMapType.TileLoadDate(VTile, FZoom) >= FCheckTileDate) then begin
+            if (FCheckExistTileDate) and (VTileInfo.IsExists) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
               // skip existing newer tile (but download attachments)
               if (FLog <> nil) then begin
                 FLog.WriteText(FRES_FileBeCreateTime, 0);
@@ -610,7 +611,7 @@ begin
             end else begin
               try
                 if (not (FSecondLoadTNE)) and
-                  (FMapType.TileNotExistsOnServer(VTile, FZoom)) and
+                  (VTileInfo.IsExistsTNE) and
                   (FDownloadConfig.IsSaveTileNotExists) then begin
                   // tne found - skip downloading tile
                   if (FLog <> nil) then begin
