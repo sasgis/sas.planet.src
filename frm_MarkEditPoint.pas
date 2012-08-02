@@ -36,7 +36,8 @@ uses
   Buttons,
   Spin,
   GR32,
-  GR32_Resamplers,
+  GR32_Image,
+  GR32_Layers,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_PathConfig,
@@ -48,6 +49,7 @@ uses
   i_MarksDb,
   fr_MarkDescription,
   fr_LonLat,
+  fr_PictureSelectFromList,
   fr_MarkCategorySelectOrAdd;
 
 type
@@ -71,8 +73,6 @@ type
     btnTextColor: TSpeedButton;
     btnShadowColor: TSpeedButton;
     ColorDialog1: TColorDialog;
-    drwgrdIcons: TDrawGrid;
-    imgIcon: TImage;
     pnlBottomButtons: TPanel;
     flwpnlTrahsparent: TFlowPanel;
     flwpnlTextColor: TFlowPanel;
@@ -90,29 +90,22 @@ type
     pnlCategory: TPanel;
     pnlName: TPanel;
     btnSetAsTemplate: TButton;
+    imgIcon: TImage32;
     procedure btnOkClick(Sender: TObject);
     procedure btnTextColorClick(Sender: TObject);
     procedure btnShadowColorClick(Sender: TObject);
-    procedure drwgrdIconsDrawCell(Sender: TObject; ACol, ARow: Integer;
-      Rect: TRect; State: TGridDrawState);
-    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure drwgrdIconsMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
     procedure btnSetAsTemplateClick(Sender: TObject);
+    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton; Shift:
+        TShiftState; X, Y: Integer; Layer: TCustomLayer);
   private
     FCategoryDB: IMarkCategoryDB;
     FMarksDb: IMarksDb;
-    FPic: IMarkPicture;
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
     frMarkCategory: TfrMarkCategorySelectOrAdd;
-    procedure DrawFromMarkIcons(
-      canvas: TCanvas;
-      const APic: IMarkPicture;
-      const bound: TRect
-    );
+    frSelectPicture: TfrPictureSelectFromList;
+    procedure SelectImageFromList(Sender: TObject);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -130,6 +123,10 @@ implementation
 
 uses
   Math,
+  GR32_Blend,
+  GR32_Rasterizers,
+  GR32_Resamplers,
+  GR32_Transforms,
   t_GeoTypes,
   i_BitmapMarker,
   i_MarkTemplate,
@@ -164,6 +161,12 @@ begin
       ALanguageManager,
       FCategoryDB
     );
+  frSelectPicture :=
+    TfrPictureSelectFromList.Create(
+      ALanguageManager,
+      FMarksDb.Factory.MarkPictureList,
+      Self.SelectImageFromList
+    );
 end;
 
 destructor TfrmMarkEditPoint.Destroy;
@@ -174,25 +177,66 @@ begin
   inherited;
 end;
 
+procedure CopyMarkerToBitmap(
+  const ASourceMarker: IBitmapMarker;
+  ATarget: TCustomBitmap32
+);
+var
+  VTransform: TAffineTransformation;
+  VSizeSource: TPoint;
+  VTargetRect: TFloatRect;
+  VScale: Double;
+  VRasterizer: TRasterizer;
+  VTransformer: TTransformer;
+  VCombineInfo: TCombineInfo;
+  VSampler: TCustomResampler;
+begin
+  VTransform := TAffineTransformation.Create;
+  try
+    VSizeSource := ASourceMarker.BitmapSize;
+    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+    VScale := ATarget.Width / ASourceMarker.BitmapSize.X;
+    VTransform.Scale(VScale, VScale);
+    VTargetRect := VTransform.GetTransformedBounds;
+
+    ATarget.Clear(clWhite32);
+
+    VRasterizer := TRegularRasterizer.Create;
+    try
+      VSampler := TLinearResampler.Create;
+      try
+        VSampler.Bitmap := ASourceMarker.Bitmap;
+        VTransformer := TTransformer.Create(VSampler, VTransform);
+        try
+          VRasterizer.Sampler := VTransformer;
+          VCombineInfo.SrcAlpha := 255;
+          VCombineInfo.DrawMode := dmBlend;
+          VCombineInfo.CombineMode := cmBlend;
+          VCombineInfo.TransparentColor := 0;
+          VRasterizer.Rasterize(ATarget, ATarget.BoundsRect, VCombineInfo);
+        finally
+          EMMS;
+          VTransformer.Free;
+        end;
+      finally
+        VSampler.Free;
+      end;
+    finally
+      VRasterizer.Free;
+    end;
+  finally
+    VTransform.Free;
+  end;
+end;
+
 function TfrmMarkEditPoint.EditMark(const AMark: IMarkPoint; AIsNewMark: Boolean): IMarkPoint;
 var
-  VPicCount: Integer;
-  VColCount: Integer;
-  VRowCount: Integer;
-  VPictureList: IMarkPictureList;
   VLonLat:TDoublePoint;
 begin
   frMarkDescription.Description:='';
-  VPictureList := FMarksDb.Factory.MarkPictureList;
-  VPicCount := VPictureList.Count;
-  VColCount := drwgrdIcons.ColCount;
-  VRowCount := VPicCount div VColCount;
-  if (VPicCount mod VColCount) > 0 then begin
-    Inc(VRowCount);
-  end;
-  drwgrdIcons.RowCount := VRowCount;
-  drwgrdIcons.Repaint;
-  FPic := AMark.Pic;
+  frSelectPicture.Visible := False;
+  frSelectPicture.Parent := Self;
+  frSelectPicture.Picture := AMark.Pic;
   edtName.Text:=AMark.Name;
   frMarkDescription.Description:=AMark.Desc;
   seFontSize.Value:=AMark.FontSize;
@@ -208,10 +252,14 @@ begin
     end else begin
       Caption:=SAS_STR_EditMark;
     end;
-    DrawFromMarkIcons(imgIcon.canvas, AMark.Pic, bounds(4,4,36,36));
-    if FPic <> nil then begin
-      imgIcon.Hint := FPic.GetName;
+    if AMark.Pic <> nil then begin
+    end;
+    if frSelectPicture.Picture <> nil then begin
+      imgIcon.Bitmap.SetSizeFrom(imgIcon);
+      CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
+      imgIcon.Hint := frSelectPicture.Picture.GetName;
     end else begin
+      imgIcon.Bitmap.Delete;
       imgIcon.Hint := '';
     end;
     frLonLatPoint.LonLat := AMark.Point;
@@ -222,7 +270,7 @@ begin
         AMark,
         edtName.Text,
         chkVisible.Checked,
-        FPic,
+        frSelectPicture.Picture,
         frMarkCategory.GetCategory,
         frMarkDescription.Description,
         VLonLat,
@@ -250,7 +298,6 @@ begin
   frLonLatPoint.Parent := pnlLonLat;
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
-  drwgrdIcons.Visible:=false;
   flwpnlTextColor.Realign;
   flwpnlShadowColor.Realign;
 end;
@@ -269,7 +316,7 @@ begin
     VConfig := FMarksDb.Factory.Config.PointTemplateConfig;
     VTemplate :=
       VConfig.CreateTemplate(
-        FPic,
+        frSelectPicture.Picture,
         frMarkCategory.GetCategory,
         SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
@@ -285,90 +332,33 @@ begin
  if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TfrmMarkEditPoint.DrawFromMarkIcons(
-  canvas: TCanvas;
-  const APic: IMarkPicture;
-  const bound:TRect
-);
-var
-  VBitmap: TBitmap32;
-  wdth:integer;
-  VResampler: TCustomResampler;
-  VMarker: IBitmapMarker;
+procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject; Button:
+    TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 begin
-  canvas.FillRect(bound);
-  if APic <> nil then begin
-    VMarker := APic.GetMarker;
-    if VMarker <> nil then begin
-      wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
-      VBitmap:=TBitmap32.Create;
-      try
-        VBitmap.SetSize(wdth,wdth);
-        VBitmap.Clear(clWhite32);
-        VResampler := TKernelResampler.Create;
-        try
-          TKernelResampler(VResampler).Kernel := TLinearKernel.Create;
-          StretchTransfer(
-            VBitmap,
-            VBitmap.BoundsRect,
-            VBitmap.ClipRect,
-            VMarker.Bitmap,
-            VMarker.Bitmap.BoundsRect,
-            VResampler,
-            dmBlend,
-            cmBlend
-          );
-        finally
-          VResampler.Free;
-        end;
-        VBitmap.DrawTo(canvas.Handle, bound, VBitmap.BoundsRect);
-      finally
-        VBitmap.Free;
-      end;
-    end;
+  if frSelectPicture.Visible then begin
+    frSelectPicture.Visible := False;
+  end else begin
+    frSelectPicture.Left := 5;
+    frSelectPicture.Width := Self.ClientWidth - frSelectPicture.Left - 5;
+    frSelectPicture.Top := pnlImage.Top + pnlImage.Height;
+    frSelectPicture.Height := Self.ClientHeight - frSelectPicture.Top - 5;
+    frSelectPicture.Visible := True;
+    frSelectPicture.SetFocus;
   end;
 end;
 
-procedure TfrmMarkEditPoint.drwgrdIconsDrawCell(Sender: TObject; ACol,
-  ARow: Integer; Rect: TRect; State: TGridDrawState);
-var
-  i:Integer;
-  VPictureList: IMarkPictureList;
+procedure TfrmMarkEditPoint.SelectImageFromList(Sender: TObject);
 begin
-  i:=(Arow*drwgrdIcons.ColCount)+ACol;
-  VPictureList := FMarksDb.Factory.MarkPictureList;
-  if i < VPictureList.Count then
-    DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
-end;
-
-procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
- drwgrdIcons.Visible:=not(drwgrdIcons.Visible);
- if drwgrdIcons.Visible then drwgrdIcons.SetFocus;
-end;
-
-procedure TfrmMarkEditPoint.drwgrdIconsMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  i:integer;
-  ACol,ARow: Integer;
-  VPictureList: IMarkPictureList;
-begin
-  drwgrdIcons.MouseToCell(X,Y,ACol,ARow);
-  i:=(ARow*drwgrdIcons.ColCount)+ACol;
-  VPictureList := FMarksDb.Factory.MarkPictureList;
-  if (ARow>-1)and(ACol>-1) and (i < VPictureList.Count) then begin
-    FPic := VPictureList.Get(i);
-    imgIcon.Canvas.FillRect(imgIcon.Canvas.ClipRect);
-    DrawFromMarkIcons(imgIcon.Canvas, FPic, bounds(5,5,36,36));
-    if FPic <> nil then begin
-      imgIcon.Hint := FPic.GetName;
-    end else begin
-      imgIcon.Hint := '';
-    end;
-    drwgrdIcons.Visible:=false;
+  frSelectPicture.Visible := False;
+  if frSelectPicture.Picture <> nil then begin
+    imgIcon.Bitmap.SetSizeFrom(imgIcon);
+    CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
+    imgIcon.Hint := frSelectPicture.Picture.GetName;
+  end else begin
+    imgIcon.Bitmap.Delete;
+    imgIcon.Hint := '';
   end;
+
 end;
 
 end.

@@ -2,7 +2,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
   Left = 193
   Top = 178
   Caption = 'Add New Placemark'
-  ClientHeight = 424
+  ClientHeight = 413
   ClientWidth = 314
   Color = clBtnFace
   Constraints.MinHeight = 428
@@ -28,23 +28,23 @@ object frmMarkEditPoint: TfrmMarkEditPoint
   object chkVisible: TCheckBox
     AlignWithMargins = True
     Left = 3
-    Top = 373
+    Top = 362
     Width = 308
     Height = 17
     Align = alBottom
     Caption = 'Show on map'
-    TabOrder = 5
+    TabOrder = 4
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 393
+    Top = 382
     Width = 314
     Height = 31
     Align = alBottom
     BevelEdges = [beTop]
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 6
+    TabOrder = 5
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 238
@@ -86,7 +86,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
   end
   object grdpnlStyleRows: TGridPanel
     Left = 0
-    Top = 285
+    Top = 274
     Width = 314
     Height = 85
     Align = alBottom
@@ -126,7 +126,7 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         SizeStyle = ssAuto
         Value = 100.000000000000000000
       end>
-    TabOrder = 4
+    TabOrder = 3
     DesignSize = (
       314
       83)
@@ -370,12 +370,12 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     Left = 0
     Top = 138
     Width = 314
-    Height = 147
+    Height = 136
     Align = alClient
     BevelEdges = [beTop, beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 2
   end
   object pnlLonLat: TPanel
     Left = 0
@@ -403,17 +403,22 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       Align = alLeft
       BevelOuter = bvLowered
       TabOrder = 1
-      object imgIcon: TImage
+      object imgIcon: TImage32
         AlignWithMargins = True
         Left = 4
         Top = 4
         Width = 45
         Height = 45
-        Cursor = crHandPoint
         Align = alClient
+        Bitmap.CombineMode = cmMerge
+        Bitmap.ResamplerClassName = 'TLinearResampler'
+        BitmapAlign = baCenter
+        Color = clBtnFace
+        ParentColor = False
+        Scale = 1.000000000000000000
+        ScaleMode = smNormal
+        TabOrder = 0
         OnMouseDown = imgIconMouseDown
-        ExplicitLeft = 10
-        ExplicitTop = 14
       end
     end
     object pnlTopMain: TPanel
@@ -463,25 +468,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
         end
       end
     end
-  end
-  object drwgrdIcons: TDrawGrid
-    Left = 3
-    Top = 58
-    Width = 310
-    Height = 185
-    ColCount = 8
-    Ctl3D = False
-    DefaultColWidth = 36
-    DefaultRowHeight = 36
-    FixedCols = 0
-    FixedRows = 0
-    GridLineWidth = 0
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goThumbTracking]
-    ParentCtl3D = False
-    TabOrder = 2
-    Visible = False
-    OnDrawCell = drwgrdIconsDrawCell
-    OnMouseUp = drwgrdIconsMouseUp
   end
   object ColorDialog1: TColorDialog
     Left = 56
