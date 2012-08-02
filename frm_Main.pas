@@ -2838,13 +2838,35 @@ var
   VMapType: TMapType;
   VCancelSelection: Boolean;
   VLineOnMapEdit: ILineOnMapEdit;
+  VLonLat: TDoublePoint;
 begin
   if Self.Active then begin
     VShortCut := ShortCutFromMessage(Msg);
     case VShortCut of
+      VK_LEFT + scCtrl: begin
+        VLineOnMapEdit := FLineOnMapEdit;
+        if VLineOnMapEdit <> nil then begin
+          VLonLat := VLineOnMapEdit.SetSelectedPrevPoint;
+          if not PointIsEmpty(VLonLat) then begin
+            FConfig.ViewPortState.ChangeLonLat(VLonLat);
+          end;
+          Handled := True;
+        end;
+      end;
+      VK_RIGHT + scCtrl: begin
+        VLineOnMapEdit := FLineOnMapEdit;
+        if VLineOnMapEdit <> nil then begin
+          VLonLat := VLineOnMapEdit.SetSelectedNextPoint;
+          if not PointIsEmpty(VLonLat) then begin
+            FConfig.ViewPortState.ChangeLonLat(VLonLat);
+          end;
+          Handled := True;
+        end;
+      end;
       VK_BACK: begin
-        if FLineOnMapEdit <> nil then begin
-          FLineOnMapEdit.DeleteActivePoint;
+        VLineOnMapEdit := FLineOnMapEdit;
+        if VLineOnMapEdit <> nil then begin
+          VLineOnMapEdit.DeleteActivePoint;
           Handled := True;
         end;
       end;
