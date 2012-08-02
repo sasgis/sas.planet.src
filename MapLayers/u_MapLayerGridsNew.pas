@@ -51,6 +51,7 @@ uses
   u_ListenerByEvent,
   u_BitmapLayerProviderComplex,
   u_BitmapLayerProviderGridGenshtab,
+  u_BitmapLayerProviderGridDegree,
   u_BitmapLayerProviderGridTiles;
 
 { TMapLayerGridsNew }
@@ -109,6 +110,7 @@ var
   VShowText: Boolean;
   VShowLines: Boolean;
   VScale: Integer;
+  VScaleDegree: Double;
   VProvider: IBitmapLayerProvider;
 begin
   Result := nil;
@@ -158,13 +160,38 @@ begin
       Result := VProvider;
     end;
   end;
+  FConfig.DegreeGrid.LockRead;
+  try
+    VVisible := FConfig.DegreeGrid.Visible;
+    VColor := FConfig.DegreeGrid.GridColor;
+    VScaleDegree := FConfig.DegreeGrid.Scale;
+    VShowText := FConfig.DegreeGrid.ShowText;
+    VShowLines := True;
+  finally
+    FConfig.DegreeGrid.UnlockRead;
+  end;
+  if VVisible then begin
+    VProvider :=
+      TBitmapLayerProviderGridDegree.Create(
+        VColor,
+        VScaleDegree,
+        VShowText,
+        VShowLines,
+        FValueToStringConverterConfig.GetStatic
+      );
+    if Result <> nil then begin
+      Result := TBitmapLayerProviderComplex.Create(Result, VProvider);
+    end else begin
+      Result := VProvider;
+    end;
+  end;
 end;
 
 procedure TMapLayerGridsNew.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.TileGrid.Visible or FConfig.GenShtabGrid.Visible;
+    Visible := FConfig.TileGrid.Visible or FConfig.GenShtabGrid.Visible or FConfig.DegreeGrid.Visible;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
