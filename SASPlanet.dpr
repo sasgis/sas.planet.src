@@ -458,6 +458,7 @@ uses
   u_BitmapLayerProviderForViewMaps in 'u_BitmapLayerProviderForViewMaps.pas',
   u_BitmapLayerProviderFillingMap in 'u_BitmapLayerProviderFillingMap.pas',
   u_BitmapLayerProviderGridTiles in 'u_BitmapLayerProviderGridTiles.pas',
+  u_BitmapLayerProviderGridDegree in 'u_BitmapLayerProviderGridDegree.pas',
   u_BitmapLayerProviderGridGenshtab in 'u_BitmapLayerProviderGridGenshtab.pas',
   u_BitmapLayerProviderComplex in 'u_BitmapLayerProviderComplex.pas',
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',

@@ -603,6 +603,7 @@
     <DCCReference Include="u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
+    <DCCReference Include="u_BitmapLayerProviderGridDegree.pas" />
     <DCCReference Include="u_BitmapLayerProviderGridGenshtab.pas" />
     <DCCReference Include="u_BitmapLayerProviderGridTiles.pas" />
     <DCCReference Include="u_BitmapLayerProviderInPolygon.pas" />
