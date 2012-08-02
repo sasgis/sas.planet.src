@@ -49,6 +49,8 @@ uses
   i_TileMatrix,
   u_TileMatrixFactory,
   u_ListenerByEvent,
+  u_BitmapLayerProviderComplex,
+  u_BitmapLayerProviderGridGenshtab,
   u_BitmapLayerProviderGridTiles;
 
 { TMapLayerGridsNew }
@@ -106,6 +108,8 @@ var
   VZoom: Integer;
   VShowText: Boolean;
   VShowLines: Boolean;
+  VScale: Integer;
+  VProvider: IBitmapLayerProvider;
 begin
   Result := nil;
   FConfig.TileGrid.LockRead;
@@ -129,13 +133,38 @@ begin
         VShowLines
       );
   end;
+  FConfig.GenShtabGrid.LockRead;
+  try
+    VVisible := FConfig.GenShtabGrid.Visible;
+    VColor := FConfig.GenShtabGrid.GridColor;
+    VScale := FConfig.GenShtabGrid.Scale;
+    VShowText := FConfig.GenShtabGrid.ShowText;
+    VShowLines := True;
+  finally
+    FConfig.GenShtabGrid.UnlockRead;
+  end;
+  if VVisible then begin
+    VProvider :=
+      TBitmapLayerProviderGridGenshtab.Create(
+        VColor,
+        VScale,
+        VShowText,
+        VShowLines
+      );
+
+    if Result <> nil then begin
+      Result := TBitmapLayerProviderComplex.Create(Result, VProvider);
+    end else begin
+      Result := VProvider;
+    end;
+  end;
 end;
 
 procedure TMapLayerGridsNew.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.TileGrid.Visible;
+    Visible := FConfig.TileGrid.Visible or FConfig.GenShtabGrid.Visible;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;
