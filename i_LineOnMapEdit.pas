@@ -48,8 +48,8 @@ type
       ASegmentIndex: Integer;
       APointIndex: Integer
     );
-    procedure SetSelectedNextPoint;
-    procedure SetSelectedPrevPoint;
+    function SetSelectedNextPoint: TDoublePoint;
+    function SetSelectedPrevPoint: TDoublePoint;
     function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 
     function IsEmpty: Boolean;

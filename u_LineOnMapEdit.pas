@@ -45,8 +45,8 @@ type
       ASegmentIndex: Integer;
       APointIndex: Integer
     );
-    procedure SetSelectedNextPoint;
-    procedure SetSelectedPrevPoint;
+    function SetSelectedNextPoint: TDoublePoint;
+    function SetSelectedPrevPoint: TDoublePoint;
     function SelectPointInLonLatRect(const ARect: TDoubleRect): Boolean;
 
     function IsEmpty: Boolean; virtual; abstract;
@@ -358,14 +358,18 @@ begin
   end;
 end;
 
-procedure TLineOnMapEdit.SetSelectedNextPoint;
+function TLineOnMapEdit.SetSelectedNextPoint: TDoublePoint;
 begin
   LockWrite;
   try
+    Result := CEmptyDoublePoint;
     if FPointsCount > 0 then begin
       if FSelectedPointIndex < FPointsCount then begin
         Inc(FSelectedPointIndex);
         _UpdateLineWithSelected;
+        if FSelectedPointIndex < FPointsCount then begin
+          Result :=  FPoints[FSelectedPointIndex];
+        end;
       end;
     end;
   finally
@@ -411,14 +415,16 @@ begin
   end;
 end;
 
-procedure TLineOnMapEdit.SetSelectedPrevPoint;
+function TLineOnMapEdit.SetSelectedPrevPoint: TDoublePoint;
 begin
   LockWrite;
   try
+    Result := CEmptyDoublePoint;
     if FPointsCount > 0 then begin
       if FSelectedPointIndex > 0 then begin
         Dec(FSelectedPointIndex);
         _UpdateLineWithSelected;
+        Result :=  FPoints[FSelectedPointIndex];
       end;
     end;
   finally
