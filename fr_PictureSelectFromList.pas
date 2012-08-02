@@ -15,7 +15,7 @@ uses
   Grids,
   i_MarkPicture,
   i_LanguageManager,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents, StdCtrls;
 
 type
   TfrPictureSelectFromList = class(TFrame)
@@ -24,6 +24,8 @@ type
         TRect; State: TGridDrawState);
     procedure drwgrdIconsKeyDown(Sender: TObject; var Key: Word; Shift:
         TShiftState);
+    procedure drwgrdIconsMouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+        Integer);
     procedure drwgrdIconsMouseUp(Sender: TObject; Button: TMouseButton; Shift:
         TShiftState; X, Y: Integer);
     procedure FrameEnter(Sender: TObject);
@@ -125,14 +127,26 @@ procedure TfrPictureSelectFromList.drwgrdIconsKeyDown(Sender: TObject; var Key:
     Word; Shift: TShiftState);
 var
   i:integer;
-  ACol,ARow: Integer;
 begin
   if Key = VK_SPACE then begin
     i:=(drwgrdIcons.Row*drwgrdIcons.ColCount)+drwgrdIcons.Col;
-    if (ARow>-1)and(ACol>-1) and (i < FPictureList.Count) then begin
+    if (i >= 0) and (i < FPictureList.Count) then begin
       FPicture := FPictureList.Get(i);
       FOnSelect(Self);
     end;
+  end;
+end;
+
+procedure TfrPictureSelectFromList.drwgrdIconsMouseMove(Sender: TObject; Shift:
+    TShiftState; X, Y: Integer);
+var
+  i:integer;
+  ACol,ARow: Integer;
+begin
+  drwgrdIcons.MouseToCell(X, Y, ACol, ARow);
+  i:=(ARow*drwgrdIcons.ColCount)+ACol;
+  if (ARow>-1)and(ACol>-1) and (i < FPictureList.Count) then begin
+    drwgrdIcons.Hint := FPictureList.Get(i).GetName;
   end;
 end;
 
@@ -143,7 +157,7 @@ var
   ACol,ARow: Integer;
 begin
   drwgrdIcons.MouseToCell(X, Y, ACol, ARow);
-  i:=(drwgrdIcons.Row*drwgrdIcons.ColCount)+drwgrdIcons.Col;
+  i:=(ARow*drwgrdIcons.ColCount)+ACol;
   if (ARow>-1)and(ACol>-1) and (i < FPictureList.Count) then begin
     FPicture := FPictureList.Get(i);
     FOnSelect(Self);

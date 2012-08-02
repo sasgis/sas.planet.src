@@ -21,9 +21,12 @@ object frPictureSelectFromList: TfrPictureSelectFromList
     GridLineWidth = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goThumbTracking]
     ParentCtl3D = False
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 0
     OnDrawCell = drwgrdIconsDrawCell
     OnKeyDown = drwgrdIconsKeyDown
+    OnMouseMove = drwgrdIconsMouseMove
     OnMouseUp = drwgrdIconsMouseUp
   end
 end
