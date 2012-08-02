@@ -623,10 +623,7 @@ begin
         CategoryTreeView.Selected.StateIndex:=1;
       end;
       if not VCategoryOld.IsEqual(VCategoryNew) then begin
-        FCategoryList.Remove(VCategoryOld);
         FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
-        FCategoryList.Add(VCategoryNew);
-        CategoryTreeView.Selected.Data := Pointer(VCategoryNew);
       end;
     end;
   end;
@@ -651,10 +648,7 @@ begin
         VTreeNode.StateIndex:=1;
       end;
       if not VCategoryOld.IsEqual(VCategoryNew) then begin
-        FCategoryList.Remove(VCategoryOld);
         FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
-        FCategoryList.Add(VCategoryNew);
-        VTreeNode.Data := Pointer(VCategoryNew);
       end;
     end;
   end;
