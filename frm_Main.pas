@@ -728,6 +728,7 @@ uses
   u_MapMainLayerNew,
   u_MapMarksLayer,
   u_MapLayerGrids,
+  u_MapLayerGridsNew,
   u_MapLayerTileGrid,
   u_MapLayerNavToMark,
   u_MapGPSLayer,
@@ -1180,29 +1181,46 @@ begin
         )
       );
     end;
-    FLayersList.Add(
-      TMapLayerGrids.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        FConfig.LayersConfig.MapLayerGridsConfig,
-        GState.ValueToStringConverterConfig
-      )
-    );
-    FLayersList.Add(
-      TMapLayerTileGrid.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
-      )
-    );
+    if FConfig.MainConfig.UseNewMainLayer then begin
+      FLayersList.Add(
+        TMapLayerGridsNew.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.GUISyncronizedTimerNotifier,
+          GState.ValueToStringConverterConfig,
+          FConfig.LayersConfig.MapLayerGridsConfig
+        )
+      );
+    end else begin
+      FLayersList.Add(
+        TMapLayerGrids.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          FConfig.LayersConfig.MapLayerGridsConfig,
+          GState.ValueToStringConverterConfig
+        )
+      );
+      FLayersList.Add(
+        TMapLayerTileGrid.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
+        )
+      );
+    end;
     FWikiLayer :=
       TWikiLayer.Create(
         GState.PerfCounterList,
