@@ -170,6 +170,10 @@
       <Form>frMarksGeneralOptions</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="fr_PictureSelectFromList.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frPictureSelectFromList</Form>
+    </DCCReference>
     <DCCReference Include="fr_SearchResultsItem.pas">
       <Form>frSearchResultsItem</Form>
       <DesignClass>TFrame</DesignClass>
