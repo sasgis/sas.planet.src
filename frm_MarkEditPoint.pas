@@ -174,6 +174,7 @@ begin
   FreeAndNil(frMarkDescription);
   FreeAndNil(frLonLatPoint);
   FreeAndNil(frMarkCategory);
+  FreeAndNil(frSelectPicture);
   inherited;
 end;
 
