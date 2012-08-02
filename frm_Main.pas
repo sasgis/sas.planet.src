@@ -1416,6 +1416,18 @@ begin
       )
     );
     FLayersList.Add(
+      TCalcLineLayer.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState,
+        FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
+        FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig,
+        GState.ValueToStringConverterConfig
+      )
+    );
+    FLayersList.Add(
       TPolygonEditLayer.Create(
         GState.PerfCounterList,
         GState.AppStartedNotifier,
