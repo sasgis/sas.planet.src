@@ -12,6 +12,7 @@ uses
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
+  i_ArchiveReadWriteFactory,
   i_MapTypeGUIConfigList,
   i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
@@ -22,6 +23,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -37,6 +39,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
@@ -69,6 +72,7 @@ constructor TExportProviderZip.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
@@ -80,6 +84,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileNameGenerator := ATileNameGenerator;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
@@ -143,6 +148,7 @@ begin
     VPath,
     FProjectionFactory,
     FVectorItmesFactory,
+    FArchiveReadWriteFactory,
     APolygon,
     Zoomarr,
     VMapType,

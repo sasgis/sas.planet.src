@@ -32,6 +32,7 @@ uses
   i_CoordConverter,
   i_ProjectionInfo,
   i_VectorItmesFactory,
+  i_ArchiveReadWriteFactory,
   i_ValueToStringConverter,
   i_VectorItemLonLat,
   i_LocalCoordConverterChangeable,
@@ -52,6 +53,7 @@ type
   private
     FMarksDb: TMarksSystem;
     FVectorItmesFactory: IVectorItmesFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
@@ -143,6 +145,7 @@ type
       AMarksDB: TMarksSystem;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
     );
@@ -168,6 +171,7 @@ constructor TMarksDbGUIHelper.Create(
   AMarksDB: TMarksSystem;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess
 );
@@ -175,6 +179,7 @@ begin
   inherited Create;
   FMarksDb := AMarksDB;
   FVectorItmesFactory := AVectorItmesFactory;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
   FfrmMarkEditPoint :=
@@ -401,7 +406,7 @@ begin
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
-        KMLExport := TExportMarks2KML.Create;
+        KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
         try
           VMarksSubset :=
             FMarksDb.MarksDb.GetMarksSubset(
@@ -431,7 +436,7 @@ begin
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
-        KMLExport := TExportMarks2KML.Create;
+        KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
         try
           VMarksSubset :=
             FMarksDb.MarksDb.GetMarksSubset(
@@ -458,7 +463,7 @@ begin
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
-        KMLExport := TExportMarks2KML.Create;
+        KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
         try
           KMLExport.ExportMarkToKML(AMark, VFileName);
         finally

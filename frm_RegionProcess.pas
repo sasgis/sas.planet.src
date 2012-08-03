@@ -45,6 +45,7 @@ uses
   i_VectorItmesFactory,
   i_ImageResamplerConfig,
   i_BitmapTileSaveLoadFactory,
+  i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessingConfig,
   i_GlobalDownloadConfig,
@@ -119,6 +120,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMapCalibrationList: IMapCalibrationList;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -165,6 +167,7 @@ constructor TfrmRegionProcess.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMapCalibrationList: IMapCalibrationList;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -187,6 +190,7 @@ begin
       AProjectionFactory,
       AVectorItmesFactory,
       ABitmapTileSaveLoadFactory,
+      AArchiveReadWriteFactory,
       ATileNameGenerator
     );
 
@@ -251,6 +255,7 @@ begin
       AProjectionFactory,
       AVectorItmesFactory,
       ABitmapTileSaveLoadFactory,
+      AArchiveReadWriteFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,

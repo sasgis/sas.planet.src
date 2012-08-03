@@ -87,6 +87,7 @@ uses
   i_DebugInfoWindow,
   i_GlobalInternetState,
   i_BitmapTileSaveLoadFactory,
+  i_ArchiveReadWriteFactory,
   u_IeEmbeddedProtocolRegistration,
   u_GPSState,
   u_GlobalCahceConfig;
@@ -165,6 +166,7 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
@@ -227,6 +229,7 @@ type
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
+    property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
 
     constructor Create;
     destructor Destroy; override;
@@ -319,6 +322,7 @@ uses
   u_InternalDomainInfoProviderByDataProvider,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
+  u_ArchiveReadWriteFactory,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -360,6 +364,7 @@ begin
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create;
+  FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
 
   FAppStartedNotifierInternal := TNotifierOneOperation.Create;
   FAppStartedNotifier := FAppStartedNotifierInternal;
@@ -444,6 +449,7 @@ begin
     TContentTypeManagerSimple.Create(
       FVectorItmesFactory,
       FBitmapTileSaveLoadFactory,
+      FArchiveReadWriteFactory,
       FPerfCounterList
     );
 
@@ -471,6 +477,7 @@ begin
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
       FVectorItmesFactory,
+      FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
 
@@ -525,6 +532,7 @@ begin
     TZmpInfoSet.Create(
       FZmpConfig,
       FCoordConverterFactory,
+      FArchiveReadWriteFactory,
       FContentTypeManager,
       FLanguageManager,
       VFilesIterator
@@ -612,6 +620,7 @@ begin
   FGUISyncronizedTimerNotifier := nil;
   FMainConfigProvider := nil;
   FGlobalInternetState := nil;
+  FArchiveReadWriteFactory := nil;
   FBitmapTileSaveLoadFactory := nil;
   inherited;
 end;

@@ -24,16 +24,17 @@ interface
 
 uses
   Classes,
-  KAZip,
   i_StringListStatic,
   i_BinaryData,
+  i_ArchiveReadWrite,
+  i_ArchiveReadWriteFactory,
   i_ConfigDataProvider;
 
 type
   TConfigDataProviderByKaZip = class(TInterfacedObject, IConfigDataProvider)
   private
     FSourceFileName: string;
-    FUnZip: TKAZip;
+    FZip: IArchiveReader;
   private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
@@ -69,7 +70,10 @@ type
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
   public
-    constructor Create(const AFileName: string);
+    constructor Create(
+      const AFileName: string;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+    );
     destructor Destroy; override;
   end;
 
@@ -81,11 +85,15 @@ uses
   u_ResStrings,
   u_StringListStatic,
   u_BinaryDataByMemStream,
+  u_StreamReadOnlyByBinaryData,
   u_ConfigDataProviderByIniFile;
 
 { TConfigDataProviderByKaZip }
 
-constructor TConfigDataProviderByKaZip.Create(const AFileName: string);
+constructor TConfigDataProviderByKaZip.Create(
+  const AFileName: string;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+);
 begin
   inherited Create;
   FSourceFileName := AFileName;
@@ -95,14 +103,13 @@ begin
   if not FileExists(AFileName) then begin
     raise Exception.CreateFmt(SAS_ERR_FileNotFoundFmt, [AFileName]);
   end;
-  FUnZip := TKAZip.Create(nil);
-  FUnZip.Open(AFileName);
+  FZip := AArchiveReadWriteFactory.CreateZipReaderByName(AFileName);
 end;
 
 destructor TConfigDataProviderByKaZip.Destroy;
 begin
-  FreeAndNil(FUnZip);
-  inherited;
+  FZip := nil;
+  inherited Destroy;
 end;
 
 function TConfigDataProviderByKaZip.GetSubItem(
@@ -111,29 +118,24 @@ var
   VExt: string;
   VIniFile: TMemIniFile;
   VIniStrings: TStringList;
-  VIniStream: TMemoryStream;
-  VIndex: Integer;
+  VIniStream: TStream;
+  VData: IBinaryData;
 begin
   Result := nil;
   VExt := UpperCase(ExtractFileExt(AIdent));
   if (VExt = '.INI') or (VExt = '.TXT') then begin
-    VIndex := FUnZip.Entries.IndexOf(AIdent);
-    if VIndex >= 0 then begin
+    VData := FZip.GetItemByName(AIdent);
+    if VData <> nil then begin
       VIniFile := TMemIniFile.Create('');
-      VIniStream := TMemoryStream.Create;
+      VIniStream := TStreamReadOnlyByBinaryData.Create(VData);
+      VIniStream.Position := 0;
+      VIniStrings := TStringList.Create;
       try
-        FUnZip.Entries.Items[VIndex].ExtractToStream(VIniStream);
-        VIniStream.Position := 0;
-        VIniStrings := TStringList.Create;
-        try
-          VIniStrings.LoadFromStream(VIniStream);
-          VIniFile.SetStrings(VIniStrings);
-          Result := TConfigDataProviderByIniFile.Create(VIniFile);
-        finally
-          VIniStrings.Free;
-        end;
+        VIniStrings.LoadFromStream(VIniStream);
+        VIniFile.SetStrings(VIniStrings);
+        Result := TConfigDataProviderByIniFile.Create(VIniFile);
       finally
-        VIniStream.Free;
+        VIniStrings.Free;
       end;
     end;
   end;
@@ -141,22 +143,8 @@ end;
 
 function TConfigDataProviderByKaZip.ReadBinary(
   const AIdent: string): IBinaryData;
-var
-  VIndex: Integer;
-  VMemStream: TMemoryStream;
 begin
-  Result := nil;
-  VIndex := FUnZip.Entries.IndexOf(AIdent);
-  if VIndex >= 0 then begin
-    VMemStream := TMemoryStream.Create;
-    try
-      FUnZip.Entries.Items[VIndex].ExtractToStream(VMemStream);
-      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-      VMemStream := nil;
-    finally
-      VMemStream.Free;
-    end;
-  end;
+  Result := FZip.GetItemByName(AIdent);
 end;
 
 function TConfigDataProviderByKaZip.ReadBool(
@@ -203,8 +191,8 @@ function TConfigDataProviderByKaZip.ReadString(const AIdent,
   ADefault: string): string;
 var
   VExt: string;
-  VStream: TMemoryStream;
-  VIndex: Integer;
+  VStream: TStream;
+  VData: IBinaryData;
 begin
   Result := '';
   if AIdent = '::FileName' then begin
@@ -212,17 +200,12 @@ begin
   end else begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
-      VIndex := FUnZip.Entries.IndexOf(AIdent);
-      if VIndex >= 0 then begin
-        VStream := TMemoryStream.Create;
-        try
-          FUnZip.Entries.Items[VIndex].ExtractToStream(VStream);
-          SetLength(Result, VStream.Size);
-          VStream.Position := 0;
-          VStream.ReadBuffer(Result[1], VStream.Size);
-        finally
-          VStream.Free;
-        end;
+      VData := FZip.GetItemByName(AIdent);
+      if VData <> nil then begin
+        VStream := TStreamReadOnlyByBinaryData.Create(VData);
+        SetLength(Result, VStream.Size);
+        VStream.Position := 0;
+        VStream.ReadBuffer(Result[1], VStream.Size);
       end;
     end else begin
       Result := ADefault;
@@ -233,14 +216,14 @@ end;
 function TConfigDataProviderByKaZip.ReadSubItemsList: IStringListStatic;
 var
   VList: TStringList;
-  i: Integer;
+  I: Integer;
   VExt: string;
   VFileName: string;
 begin
   VList := TStringList.Create;
   try
-    for i := 0 to FUnZip.Entries.Count - 1 do begin
-      VFileName := FUnZip.Entries.Items[i].FileName;
+    for I := 0 to FZip.GetItemsCount - 1 do begin
+      VFileName := FZip.GetItemNameByIndex(I);
       VExt := UpperCase(ExtractFileExt(VFileName));
       if (VExt = '.INI') or (VExt = '.TXT') then begin
         VList.Add(VFileName);
@@ -270,8 +253,8 @@ var
 begin
   VList := TStringList.Create;
   try
-    for i := 0 to FUnZip.Entries.Count - 1 do begin
-      VFileName := FUnZip.Entries.Items[i].FileName;
+    for i := 0 to FZip.GetItemsCount - 1 do begin
+      VFileName := FZip.GetItemNameByIndex(I);
       VExt := UpperCase(ExtractFileExt(VFileName));
       if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
         VList.Add(VFileName);

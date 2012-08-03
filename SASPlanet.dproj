@@ -51,6 +51,10 @@
     <DelphiCompile Include="SASPlanet.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="ArchiveReadWrite\i_ArchiveReadWrite.pas" />
+    <DCCReference Include="ArchiveReadWrite\i_ArchiveReadWriteFactory.pas" />
+    <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteFactory.pas" />
+    <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileFreeImage.pas" />

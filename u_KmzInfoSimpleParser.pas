@@ -28,6 +28,7 @@ uses
   i_VectorDataFactory,
   i_VectorDataItemSimple,
   i_VectorItmesFactory,
+  i_ArchiveReadWriteFactory,
   i_InternalPerformanceCounter,
   i_VectorDataLoader;
 
@@ -36,6 +37,7 @@ type
   private
     FKmlParser: IVectorDataLoader;
     FLoadKmzStreamCounter: IInternalPerformanceCounter;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   private
     function LoadFromStream(
       AStream: TStream;
@@ -48,6 +50,7 @@ type
   public
     constructor Create(
       const AFactory: IVectorItmesFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -56,7 +59,7 @@ implementation
 
 uses
   SysUtils,
-  KAZip,
+  i_ArchiveReadWrite,
   u_KmlInfoSimpleParser,
   u_StreamReadOnlyByBinaryData;
 
@@ -64,6 +67,7 @@ uses
 
 constructor TKmzInfoSimpleParser.Create(
   const AFactory: IVectorItmesFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -73,6 +77,7 @@ begin
   VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('KmzLoader');
   FKmlParser := TKmlInfoSimpleParser.Create(AFactory, VPerfCounterList);
   FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmzStream');
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
 function TKmzInfoSimpleParser.Load(
@@ -96,48 +101,42 @@ function TKmzInfoSimpleParser.LoadFromStream(
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
-  i: Integer;
-  UnZip: TKAZip;
+  I: Integer;
+  VZip: IArchiveReader;
+  VItemsCount: Integer;
   VMemStream: TMemoryStream;
-  VStreamKml: TMemoryStream;
+  VStreamKml: TStream;
   VIndex: Integer;
   VCounterContext: TInternalPerformanceCounterContext;
+  VData: IBinaryData;
+  VFileName: string;
 begin
   Result := nil;
   VCounterContext := FLoadKmzStreamCounter.StartOperation;
   try
-    UnZip := TKAZip.Create(nil);
+    VMemStream := TMemoryStream.Create;
     try
-      VMemStream := TMemoryStream.Create;
-      try
-        VMemStream.LoadFromStream(AStream);
-        UnZip.Open(VMemStream);
-        if UnZip.Entries.Count > 0 then begin
-          VStreamKml := TMemoryStream.Create;
-          try
-            VIndex := UnZip.Entries.IndexOf('doc.kml');
-            if VIndex < 0 then begin
-              for i := 0 to UnZip.Entries.Count - 1 do begin
-                if ExtractFileExt(UnZip.Entries.Items[i].FileName) = '.kml' then begin
-                  VIndex := i;
-                  Break;
-                end;
-              end;
+      VMemStream.LoadFromStream(AStream);
+      VMemStream.Position := 0;
+      VZip := FArchiveReadWriteFactory.CreateZipReaderByStream(VMemStream);
+      VItemsCount := VZip.GetItemsCount;
+      if VItemsCount > 0 then begin
+        VData := VZip.GetItemByName('doc.kml');
+        if VData = nil then begin
+          VIndex := 0;
+          for I := 0 to VItemsCount - 1 do begin
+            if ExtractFileExt(VZip.GetItemNameByIndex(I)) = '.kml' then begin
+              VIndex := I;
+              Break;
             end;
-            if VIndex < 0 then begin
-              VIndex := 0;
-            end;
-            UnZip.Entries.Items[VIndex].ExtractToStream(VStreamKml);
-            Result := FKmlParser.LoadFromStream(VStreamKml, AFactory);
-          finally
-            VStreamKml.Free;
           end;
+          VData := VZip.GetItemByIndex(VIndex, VFileName);
         end;
-      finally
-        FreeAndNil(VMemStream);
+        VStreamKml := TStreamReadOnlyByBinaryData.Create(VData);
+        Result := FKmlParser.LoadFromStream(VStreamKml, AFactory);
       end;
     finally
-      UnZip.Free;
+      FreeAndNil(VMemStream);
     end;
   finally
     FLoadKmzStreamCounter.FinishOperation(VCounterContext);

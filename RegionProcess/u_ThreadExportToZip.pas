@@ -6,7 +6,6 @@ uses
   Types,
   SysUtils,
   Classes,
-  KAZip,
   GR32,
   i_CoordConverterFactory,
   i_NotifierOperation,
@@ -14,6 +13,7 @@ uses
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   i_TileFileNameGenerator,
+  i_ArchiveReadWriteFactory,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -25,9 +25,8 @@ type
     FTileNameGen: ITileFileNameGenerator;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
-
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTargetFile: string;
-    FZip: TKaZip;
   protected
     procedure ProcessRegion; override;
   public
@@ -38,6 +37,7 @@ type
       const ATargetFile: string;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       AMapType: TMapType;
@@ -50,6 +50,7 @@ implementation
 
 uses
   i_BinaryData,
+  i_ArchiveReadWrite,
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
@@ -64,6 +65,7 @@ constructor TThreadExportToZip.Create(
   const ATargetFile: string;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   AMapType: TMapType;
@@ -83,13 +85,12 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGen := ATileNameGen;
   FMapType := AMapType;
-  FZip := TKaZip.Create(nil);
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
 destructor TThreadExportToZip.Destroy;
 begin
-  inherited;
-  FZip.free;
+  inherited Destroy;
 end;
 
 procedure TThreadExportToZip.ProcessRegion;
@@ -102,13 +103,12 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
-  VStream: TStream;
-  VFileTime: TDateTime;
   VTileInfo: ITileInfoBasic;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;
+  VZip: IArchiveWriter;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -129,10 +129,7 @@ begin
       SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
     );
     VTileStorage := FMapType.TileStorage;
-    FZip.FileName := FTargetFile;
-    FZip.CreateZip(FTargetFile);
-    FZip.CompressionType := ctFast;
-    FZip.Active := true;
+    VZip := FArchiveReadWriteFactory.CreateZipWriterByName(FTargetFile);
 
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
@@ -147,20 +144,11 @@ begin
         end;
         VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
         if VData <> nil then begin
-          VFileTime := VTileInfo.GetLoadDate;
-          VStream := TStreamReadOnlyByBinaryData.Create(VData);
-          try
-                {$WARN SYMBOL_PLATFORM OFF}
-            FZip.AddStream(
-              FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
-              faArchive,
-              VFileTime,
-              VStream
-            );
-                {$WARN SYMBOL_PLATFORM ON}
-          finally
-            VStream.Free;
-          end;
+          VZip.AddFile(
+            VData,
+            FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
+            VTileInfo.GetLoadDate
+          );
         end;
         inc(VTilesProcessed);
         if VTilesProcessed mod 100 = 0 then begin

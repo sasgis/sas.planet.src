@@ -27,6 +27,7 @@ uses
   i_GUIDSet,
   i_ZmpInfo,
   i_CoordConverterFactory,
+  i_ArchiveReadWriteFactory,
   i_LanguageManager,
   i_ContentTypeManager,
   i_FileNameIterator,
@@ -44,6 +45,7 @@ type
     constructor Create(
       const AZmpConfig: IZmpConfig;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AContentTypeManager: IContentTypeManager;
       const ALanguageManager: ILanguageManager;
       const AFilesIterator: IFileNameIterator
@@ -67,6 +69,7 @@ uses
 constructor TZmpInfoSet.Create(
   const AZmpConfig: IZmpConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AContentTypeManager: IContentTypeManager;
   const ALanguageManager: ILanguageManager;
   const AFilesIterator: IFileNameIterator
@@ -86,7 +89,10 @@ begin
     VFullFileName := AFilesIterator.GetRootFolderName + VFileName;
     try
       if FileExists(VFullFileName) then begin
-        VZmpMapConfig := TConfigDataProviderByKaZip.Create(VFullFileName);
+        VZmpMapConfig := TConfigDataProviderByKaZip.Create(
+          VFullFileName,
+          AArchiveReadWriteFactory
+        );
       end else begin
         VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);
       end;

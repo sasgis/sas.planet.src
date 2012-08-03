@@ -25,45 +25,54 @@ interface
 uses
   Classes,
   i_BinaryData,
+  i_ContentTypeInfo,
+  i_ArchiveReadWriteFactory,
   u_ContentConverterBase;
 
 type
   TContentConverterKmz2Kml = class(TContentConverterBase)
+  private
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   protected
     function Convert(const AData: IBinaryData): IBinaryData; override;
+  public
+    constructor Create(
+      const ASource: IContentTypeInfoBasic;
+      const ATarget: IContentTypeInfoBasic;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+    );
   end;
 
 implementation
 
 uses
-  KAZip,
+  SysUtils,
+  i_ArchiveReadWrite,
   u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
 { TContentConverterKmz2Kml }
 
+constructor TContentConverterKmz2Kml.Create(
+  const ASource: IContentTypeInfoBasic;
+  const ATarget: IContentTypeInfoBasic;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+);
+begin
+  inherited Create(ASource, ATarget);
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+end;
+
 function TContentConverterKmz2Kml.Convert(const AData: IBinaryData): IBinaryData;
 var
-  UnZip: TKAZip;
+  VZip: IArchiveReader;
+  VFileName: string;
   VMemStream: TCustomMemoryStream;
-  VResultStream: TMemoryStream;
 begin
   VMemStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    UnZip := TKAZip.Create(nil);
-    try
-      UnZip.Open(VMemStream);
-      VResultStream := TMemoryStream.Create;
-      try
-        UnZip.Entries.Items[0].ExtractToStream(VResultStream);
-        Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
-        VResultStream := nil;
-      finally
-        VResultStream.Free;
-      end;
-    finally
-      UnZip.Free;
-    end;
+    VZip := FArchiveReadWriteFactory.CreateZipReaderByStream(VMemStream);
+    Result := VZip.GetItemByIndex(0, VFileName);
   finally
     VMemStream.Free;
   end;

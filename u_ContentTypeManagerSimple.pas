@@ -28,6 +28,7 @@ uses
   i_ContentConverter,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoadFactory,
+  i_ArchiveReadWriteFactory,
   u_ContentTypeListByKey,
   u_ContentConverterMatrix,
   u_ContentTypeManagerBase;
@@ -35,6 +36,7 @@ uses
 type
   TContentTypeManagerSimple = class(TContentTypeManagerBase)
   private
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     procedure ConverterMatrixUpdateFixed;
     procedure ConverterMatrixUpdateSynonyms;
     procedure ConverterMatrixUpdateFixedWithSynonyms;
@@ -51,6 +53,7 @@ type
     constructor Create(
       const AVectorItemsFactory: IVectorItmesFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -72,10 +75,12 @@ uses
 constructor TContentTypeManagerSimple.Create(
   const AVectorItemsFactory: IVectorItmesFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   InitLists(
     AVectorItemsFactory,
     ABitmapTileSaveLoadFactory,
@@ -136,17 +141,6 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
-(*
-  VContentType := TContentTypeInfoBitmap.Create(
-    'application/vnd.google-earth.tile-image',
-    '.ge_image',
-    TBitmapTileGELoader.Create(APerfCounterList),
-    nil
-  );
-  AddByType(VContentType, VContentType.GetContentType);
-  AddByExt(VContentType, VContentType.GetDefaultExt);
-*)
-
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
@@ -163,6 +157,7 @@ begin
     '.kmz',
     TKmzInfoSimpleParser.Create(
       AVectorItemsFactory,
+      FArchiveReadWriteFactory,
       ALoadPerfCounterList
     )
   );
@@ -194,7 +189,11 @@ begin
   VTargetName := 'application/vnd.google-earth.kml+xml';
   VTargetContent := TypeList.Get(VTargetName);
 
-  VConverter := TContentConverterKmz2Kml.Create(VSourceContent, VTargetContent);
+  VConverter := TContentConverterKmz2Kml.Create(
+    VSourceContent,
+    VTargetContent,
+    FArchiveReadWriteFactory
+  );
   ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
 
   VSoruceName := 'application/vnd.google-earth.kml+xml';
@@ -203,7 +202,11 @@ begin
   VTargetName := 'application/vnd.google-earth.kmz';
   VTargetContent := TypeList.Get(VTargetName);
 
-  VConverter := TContentConverterKml2Kmz.Create(VSourceContent, VTargetContent);
+  VConverter := TContentConverterKml2Kmz.Create(
+    VSourceContent,
+    VTargetContent,
+    FArchiveReadWriteFactory
+  );
   ConverterMatrix.Add(VSoruceName, VTargetName, VConverter);
 end;
 

@@ -30,8 +30,9 @@ uses
   GR32,
   XMLIntf,
   XMLDoc,
-  KaZip,
   ActiveX,
+  i_ArchiveReadWrite,
+  i_ArchiveReadWriteFactory,
   i_MarksSimple,
   i_MarkCategory,
   u_GeoToStr;
@@ -43,7 +44,8 @@ type
     FFileName: string;
     inKMZ: boolean;
     doc: iXMLNode;
-    Zip: TKaZip;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FZip: IArchiveWriter;
     procedure AddFolders(
       const AMarksSet: IMarksSubset;
       const ACategoryList: IInterfaceList
@@ -64,7 +66,7 @@ type
     function SaveMarkIcon(const Mark: IMarkPoint): string;
     function Color32toKMLColor(Color32: TColor32): string;
   public
-    constructor Create;
+    constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
     destructor Destroy; override;
     procedure ExportToKML(
       const ACategoryList: IInterfaceList;
@@ -88,9 +90,12 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
+  u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
-constructor TExportMarks2KML.Create;
+constructor TExportMarks2KML.Create(
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+);
 var
   child: iXMLNode;
 begin
@@ -103,14 +108,12 @@ begin
   child := kmldoc.AddChild('kml');
   child.Attributes['xmlns'] := 'http://earth.google.com/kml/2.2';
   doc := child.AddChild('Document');
-  Zip := TKaZip.Create(nil);
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FZip := nil;
 end;
 
 destructor TExportMarks2KML.Destroy;
 begin
-  Zip.Active := false;
-  Zip.Close;
-  Zip.Free;
   kmldoc.Free;
   inherited;
 end;
@@ -122,20 +125,19 @@ procedure TExportMarks2KML.ExportToKML(
 );
 var
   KMLStream: TMemoryStream;
+  VData: IBinaryData;
 begin
   FFileName := AFileName;
   inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
-    Zip.FileName := FFileName;
-    Zip.CreateZip(FFileName);
-    Zip.CompressionType := ctFast;
-    Zip.Active := true;
+    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
     AddFolders(AMarksSubset, ACategoryList);
     KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
       KMLStream.Position := 0;
-      Zip.AddStream('doc.kml', KMLStream);
+      VData := TBinaryDataByMemStream.CreateFromStream(KMLStream);
+      FZip.AddFile(VData, 'doc.kml', Now);
     finally
       KMLStream.Free;
     end;
@@ -152,20 +154,19 @@ procedure TExportMarks2KML.ExportCategoryToKML(
 );
 var
   KMLStream: TMemoryStream;
+  VData: IBinaryData;
 begin
   FFileName := AFileName;
   inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
-    Zip.FileName := FFileName;
-    Zip.CreateZip(FFileName);
-    Zip.CompressionType := ctFast;
-    Zip.Active := true;
+    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
     AddFolder(doc, ACategory.Name, AMarksSubset);
     KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
       KMLStream.Position := 0;
-      Zip.AddStream('doc.kml', KMLStream);
+      VData := TBinaryDataByMemStream.CreateFromStream(KMLStream);
+      FZip.AddFile(VData, 'doc.kml', Now);
     finally
       KMLStream.Free;
     end;
@@ -181,20 +182,19 @@ procedure TExportMarks2KML.ExportMarkToKML(
 );
 var
   KMLStream: TMemoryStream;
+  VData: IBinaryData;
 begin
   FFileName := AFileName;
   inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
-    Zip.FileName := FFileName;
-    Zip.CreateZip(FFileName);
-    Zip.CompressionType := ctFast;
-    Zip.Active := true;
+    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
     AddMark(Mark, doc);
     KMLStream := TMemoryStream.Create;
     try
       kmldoc.SaveToStream(KMLStream);
       KMLStream.Position := 0;
-      Zip.AddStream('doc.kml', KMLStream);
+      VData := TBinaryDataByMemStream.CreateFromStream(KMLStream);
+      FZip.AddFile(VData, 'doc.kml', Now);
     finally
       KMLStream.Free;
     end;
@@ -411,7 +411,7 @@ begin
         VTargetPath := 'files' + PathDelim;
         Result := VTargetPath + VPicName;
         if inKMZ then begin
-          Zip.AddStream(Result, VStream);
+          FZip.AddFile(VData, Result, Now);
         end else begin
           VTargetPath := ExtractFilePath(FFileName) + VTargetPath;
           VTargetFullName := VTargetPath + VPicName;

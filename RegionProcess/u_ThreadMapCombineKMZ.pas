@@ -13,6 +13,7 @@ uses
   i_MapCalibration,
   i_VectorItemLonLat,
   i_BitmapTileSaveLoadFactory,
+  i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   t_GeoTypes,
   u_ThreadMapCombineBase;
@@ -22,6 +23,7 @@ type
   private
     FQuality: Integer;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -44,6 +46,7 @@ type
       const AFileName: string;
       const ASplitCount: TPoint;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       AQuality: Integer
     );
   end;
@@ -51,12 +54,12 @@ type
 implementation
 
 uses
-  KAZip,
   i_Bitmap32Static,
   i_BinaryData,
   i_CoordConverter,
   i_BitmapTileSaveLoad,
-  u_StreamReadOnlyByBinaryData,
+  i_ArchiveReadWrite,
+  u_BinaryDataByMemStream,
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
@@ -71,6 +74,7 @@ constructor TThreadMapCombineKMZ.Create(
   const AFileName: string;
   const ASplitCount: TPoint;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   AQuality: Integer
 );
 begin
@@ -89,6 +93,7 @@ begin
   );
   FQuality := AQuality;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
 procedure TThreadMapCombineKMZ.SaveRect(
@@ -103,15 +108,12 @@ var
   iWidth, iHeight: integer;
   i, j: integer;
   VFileName: string;
-
   kmlm: TMemoryStream;
   VLLRect: TDoubleRect;
   VStr: UTF8String;
   VNameInKmz: String;
   nim: TPoint;
-
-  Zip: TKaZip;
-
+  VZip: IArchiveWriter;
   VPixelRect: TRect;
   VLocalConverter: ILocalCoordConverter;
   VLocalRect: TRect;
@@ -124,7 +126,6 @@ var
   VTilesToProcess: Integer;
   VBitmapTile: IBitmap32Static;
   VData: IBinaryData;
-  VDataStream: TStreamReadOnlyByBinaryData;
 begin
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
@@ -137,80 +138,65 @@ begin
   iHeight := VMapPieceSize.y div (nim.Y);
 
   JPGSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(FQuality);
-
+  VZip := FArchiveReadWriteFactory.CreateZipWriterByName(AFileName);
   VKmzFileNameOnly := ExtractFileName(AFileName);
-  Zip := TKaZip.Create(nil);
+  kmlm := TMemoryStream.Create;
   try
-    Zip.FileName := AFileName;
-    Zip.CreateZip(AFileName);
-    Zip.CompressionType := ctFast;
-    Zip.Active := true;
-
-    kmlm := TMemoryStream.Create;
-    try
-      VStr := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
-      VLocalRect.Left := 0;
-      VLocalRect.Top := 0;
-      VLocalRect.Right := iWidth;
-      VLocalRect.Bottom := iHeight;
-      for i := 1 to nim.X do begin
-        for j := 1 to nim.Y do begin
+    VStr := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10 + '<kml xmlns="http://earth.google.com/kml/2.2">' + #13#10 + '<Folder>' + #13#10 + '<name>' + VKmzFileNameOnly + '</name>' + #13#10);
+    VLocalRect.Left := 0;
+    VLocalRect.Top := 0;
+    VLocalRect.Right := iWidth;
+    VLocalRect.Bottom := iHeight;
+    for i := 1 to nim.X do begin
+      for j := 1 to nim.Y do begin
+        if CancelNotifier.IsOperationCanceled(OperationID) then begin
+          break;
+        end;
+        VPixelRect.Left := VCurrentPieceRect.Left + iWidth * (i - 1);
+        VPixelRect.Right := VCurrentPieceRect.Left + iWidth * i;
+        VPixelRect.Top := VCurrentPieceRect.Top + iHeight * (j - 1);
+        VPixelRect.Bottom := VCurrentPieceRect.Top + iHeight * j;
+        VLocalConverter :=
+          AConverterFactory.CreateConverterNoScale(
+            VLocalRect,
+            ALocalConverter.Zoom,
+            VGeoConverter,
+            VPixelRect.TopLeft
+          );
+        VBitmapTile := AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
+        if VBitmapTile <> nil then begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             break;
           end;
-          VPixelRect.Left := VCurrentPieceRect.Left + iWidth * (i - 1);
-          VPixelRect.Right := VCurrentPieceRect.Left + iWidth * i;
-          VPixelRect.Top := VCurrentPieceRect.Top + iHeight * (j - 1);
-          VPixelRect.Bottom := VCurrentPieceRect.Top + iHeight * j;
-          VLocalConverter :=
-            AConverterFactory.CreateConverterNoScale(
-              VLocalRect,
-              ALocalConverter.Zoom,
-              VGeoConverter,
-              VPixelRect.TopLeft
-            );
-          VBitmapTile := AImageProvider.GetBitmapRect(AOperationID, ACancelNotifier, VLocalConverter);
-          if VBitmapTile <> nil then begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              break;
-            end;
-            VData := JPGSaver.Save(VBitmapTile);
+          VData := JPGSaver.Save(VBitmapTile);
 
-            if VData <> nil then begin
-              VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
-              VNameInKmz := 'files/' + VFileName;
-              VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
-              VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
-              VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, ALocalConverter.Zoom);
-              VStr := VStr + ansiToUTF8('<LatLonBox>' + #13#10);
-              VStr := VStr + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
-              VStr := VStr + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
-              VStr := VStr + ansiToUTF8('<east>' + R2StrPoint(VLLRect.Right) + '</east>' + #13#10);
-              VStr := VStr + ansiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
-              VStr := VStr + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
+          if VData <> nil then begin
+            VFileName := ChangeFileExt(VKmzFileNameOnly, inttostr(i) + inttostr(j) + '.jpg');
+            VNameInKmz := 'files/' + VFileName;
+            VStr := VStr + ansiToUTF8('<GroundOverlay>' + #13#10 + '<name>' + VFileName + '</name>' + #13#10 + '<drawOrder>75</drawOrder>' + #13#10);
+            VStr := VStr + ansiToUTF8('<Icon><href>' + VNameInKmz + '</href>' + '<viewBoundScale>0.75</viewBoundScale></Icon>' + #13#10);
+            VLLRect := VGeoConverter.PixelRect2LonLatRect(VPixelRect, ALocalConverter.Zoom);
+            VStr := VStr + ansiToUTF8('<LatLonBox>' + #13#10);
+            VStr := VStr + ansiToUTF8('<north>' + R2StrPoint(VLLRect.Top) + '</north>' + #13#10);
+            VStr := VStr + ansiToUTF8('<south>' + R2StrPoint(VLLRect.Bottom) + '</south>' + #13#10);
+            VStr := VStr + ansiToUTF8('<east>' + R2StrPoint(VLLRect.Right) + '</east>' + #13#10);
+            VStr := VStr + ansiToUTF8('<west>' + R2StrPoint(VLLRect.Left) + '</west>' + #13#10);
+            VStr := VStr + ansiToUTF8('</LatLonBox>' + #13#10 + '</GroundOverlay>' + #13#10);
 
-              VDataStream := TStreamReadOnlyByBinaryData.Create(VData);
-              try
-                Zip.AddStream(VNameInKmz, VDataStream);
-              finally
-                VDataStream.Free;
-              end;
-            end;
+            VZip.AddFile(VData, VNameInKmz, Now);
           end;
-          ProgressFormUpdateOnProgress(VTilesProcessed / VTilesToProcess);
         end;
+        ProgressFormUpdateOnProgress(VTilesProcessed / VTilesToProcess);
       end;
-      VStr := VStr + ansiToUTF8('</Folder>' + #13#10 + '</kml>');
-      kmlm.Write(VStr[1], length(VStr));
-      kmlm.Position := 0;
-      Zip.AddStream('doc.kml', kmlm);
-      Zip.Active := false;
-      Zip.Close;
-    finally
-      kmlm.Free;
     end;
+    VStr := VStr + ansiToUTF8('</Folder>' + #13#10 + '</kml>');
+    kmlm.Write(VStr[1], length(VStr));
+    kmlm.Position := 0;
+
+    VData := TBinaryDataByMemStream.CreateFromStream(kmlm);
+    VZip.AddFile(VData, 'doc.kml', Now);
   finally
-    Zip.Free;
+    kmlm.Free;
   end;
 end;
 

@@ -20,6 +20,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
+  i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessingConfig,
   i_UsedMarksConfig,
@@ -40,6 +41,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FMarksDB: TMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
@@ -74,6 +76,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       AMarksDB: TMarksSystem;
@@ -128,6 +131,7 @@ constructor TProviderMapCombine.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   AMarksDB: TMarksSystem;
@@ -154,6 +158,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
 function TProviderMapCombine.CreateFrame: TFrame;
@@ -422,6 +427,7 @@ begin
       VFileName,
       VSplitCount,
       FBitmapTileSaveLoadFactory,
+      FArchiveReadWriteFactory,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.JPG') then begin

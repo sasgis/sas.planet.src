@@ -839,6 +839,7 @@ begin
       GState.ProjectionFactory,
       GState.VectorItmesFactory,
       GState.BitmapTileSaveLoadFactory,
+      GState.ArchiveReadWriteFactory,
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
@@ -1008,6 +1009,7 @@ begin
       GState.MarksDb,
       FConfig.ViewPortState.Position,
       GState.VectorItmesFactory,
+      GState.ArchiveReadWriteFactory,
       GState.ValueToStringConverterConfig,
       FFormRegionProcess
     );

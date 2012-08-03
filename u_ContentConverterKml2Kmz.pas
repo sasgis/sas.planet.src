@@ -25,49 +25,56 @@ interface
 uses
   Classes,
   i_BinaryData,
+  i_ContentTypeInfo,
+  i_ArchiveReadWriteFactory,
   u_ContentConverterBase;
 
 type
   TContentConverterKml2Kmz = class(TContentConverterBase)
+  private
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   protected
     function Convert(const AData: IBinaryData): IBinaryData; override;
+  public
+    constructor Create(
+      const ASource: IContentTypeInfoBasic;
+      const ATarget: IContentTypeInfoBasic;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+    );
   end;
 
 implementation
 
 uses
-  KAZip,
-  u_BinaryDataByMemStream,
-  u_StreamReadOnlyByBinaryData;
+  SysUtils,
+  i_ArchiveReadWrite,
+  u_BinaryDataByMemStream;
 
 { TContentConverterKmz2Kml }
 
+constructor TContentConverterKml2Kmz.Create(
+  const ASource: IContentTypeInfoBasic;
+  const ATarget: IContentTypeInfoBasic;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+);
+begin
+  inherited Create(ASource, ATarget);
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+end;
+
 function TContentConverterKml2Kmz.Convert(const AData: IBinaryData): IBinaryData;
 var
-  VMemStream: TCustomMemoryStream;
-  VZip: TKAZip;
+  VZip: IArchiveWriter;
   VResultStream: TMemoryStream;
 begin
-  VMemStream := TStreamReadOnlyByBinaryData.Create(AData);
+  VResultStream := TMemoryStream.Create;
   try
-    VZip := TKAZip.Create(nil);
-    try
-      VResultStream := TMemoryStream.Create;
-      try
-        VZip.CreateZip(VResultStream);
-        VZip.Open(VResultStream);
-        VZip.CompressionType := ctNormal;
-        VZip.AddStream('doc.kml', VMemStream);
-        Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
-        VResultStream := nil;
-      finally
-        VResultStream.Free;
-      end;
-    finally
-      VZip.Free;
-    end;
+    VZip := FArchiveReadWriteFactory.CreateZipWriterByStream(VResultStream);
+    VZip.AddFile(AData, 'doc.kml', Now);
+    Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
+    VResultStream := nil;
   finally
-    VMemStream.Free;
+    VResultStream.Free;
   end;
 end;
 

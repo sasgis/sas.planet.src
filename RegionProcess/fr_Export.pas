@@ -16,6 +16,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_BitmapTileSaveLoadFactory,
+  i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -46,6 +47,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     ); reintroduce;
     destructor Destroy; override;
@@ -89,6 +91,7 @@ constructor TfrExport.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 var
@@ -198,6 +201,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      AArchiveReadWriteFactory,
       ATileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
