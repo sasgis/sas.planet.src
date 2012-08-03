@@ -538,13 +538,6 @@ begin
   Randomize;
   FStartTime := Now;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
-  //  if (FMapType.TileDownloaderConfig.IteratorSubRectSize.X=1)and
-  //     (FMapType.TileDownloaderConfig.IteratorSubRectSize.Y=1) then begin
-  //    VTileIterator := TTileIteratorStuped.Create(FPolyProjected);
-  //  end else begin
-  //    VTileIterator := TTileIteratorBySubRect.Create(FPolyProjected,
-  //                      FMapType.TileDownloaderConfig.IteratorSubRectSize);
-  //  end;
   try
     FTotalInRegion := VTileIterator.TilesTotal;
     FLastSuccessfulPoint := Point(-1, -1);
@@ -552,14 +545,13 @@ begin
       while VTileIterator.Next(VTile) do begin
         if Terminated then begin
           Break;
-          ;
         end;
         if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
           Break;
         end;
       end;
-
     end;
+    
     if not Terminated then begin
       while VTileIterator.Next(VTile) do begin
         if Terminated then begin
