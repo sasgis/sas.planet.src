@@ -647,7 +647,8 @@ type
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange;
     procedure OnFillingMapChange;
-    
+    procedure OnShowSearchResults(Sender: TObject);
+
 
     procedure SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 
@@ -2099,8 +2100,8 @@ begin
       GState.InternalBrowser,
       FMapGoto,
       ScrollBoxSearchWindow,
-      TBSearchWindow,
       tbxpmnSearchResult,
+      Self.OnShowSearchResults,
       GState.ValueToStringConverterConfig,
       FConfig.LastSearchResultConfig,
       FConfig.ViewPortState.Position
@@ -6096,6 +6097,15 @@ begin
     end;
   finally
     FConfig.MainGeoCoderConfig.SearchHistory.UnlockRead;
+  end;
+end;
+
+procedure TfrmMain.OnShowSearchResults(Sender: TObject);
+begin
+  TBSearchWindow.Show;
+  if FWinPosition.IsFullScreen then begin
+    TBDockLeft.Parent:=map;
+    TBDockLeft.Visible:=true;
   end;
 end;
 

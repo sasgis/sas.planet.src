@@ -23,6 +23,7 @@ unit u_SearchResults;
 interface
 
 uses
+  Classes,
   Dialogs,
   Controls,
   Menus,
@@ -42,10 +43,10 @@ type
     FViewPortState: ILocalCoordConverterChangeable;
     FIntrnalBrowser: IInternalBrowser;
     FDrawParent: TWinControl;
-    FSearchWindow: TWinControl;
     FPopUp: TPopupMenu;
     FValueConverterConfig: IValueToStringConverterConfig;
     FLastSearchResults: ILastSearchResultConfig;
+    FOnShowResults: TNotifyEvent;
     FSearchItems: array of TfrSearchResultsItem;
   private
     procedure ClearSearchResults;
@@ -58,8 +59,8 @@ type
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto;
       ADrawParent: TWinControl;
-      ASearchWindow: TWinControl;
       APopUp: TPopupMenu;
+      AOnShowResults: TNotifyEvent;
       const AValueConverterConfig: IValueToStringConverterConfig;
       const ALastSearchResults: ILastSearchResultConfig;
       const AViewPortState: ILocalCoordConverterChangeable
@@ -79,8 +80,8 @@ constructor TSearchResultPresenterOnPanel.Create(
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto;
   ADrawParent: TWinControl;
-  ASearchWindow: TWinControl;
   APopUp: TPopupMenu;
+  AOnShowResults: TNotifyEvent;
   const AValueConverterConfig: IValueToStringConverterConfig;
   const ALastSearchResults: ILastSearchResultConfig;
   const AViewPortState: ILocalCoordConverterChangeable
@@ -94,7 +95,7 @@ begin
   FViewPortState := AViewPortState;
   FDrawParent := ADrawParent;
   FLastSearchResults := ALastSearchResults;
-  FSearchWindow := ASearchWindow;
+  FOnShowResults := AOnShowResults;
 end;
 
 destructor TSearchResultPresenterOnPanel.Destroy;
@@ -131,9 +132,8 @@ begin
   VEnum := ASearchResult.GetPlacemarks;
 
   FLastSearchResults.ClearGeoCodeResult;
-
   if ASearchResult.GetPlacemarksCount > 1 then begin
-    FSearchWindow.Show;
+    FOnShowResults(Self);
     FLastSearchResults.GeoCodeResult := ASearchResult;
   end;
 
