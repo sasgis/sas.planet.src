@@ -197,6 +197,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Width = 168
           Height = 334
           Align = alClient
+          HideSelection = False
           Indent = 19
           PopupMenu = tbpmnCategories
           ReadOnly = True
