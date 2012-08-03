@@ -112,7 +112,7 @@ object frmProgressDownload: TfrmProgressDownload
       Width = 322
       Height = 17
       Align = alBottom
-      Caption = 'Auto close window after finish'
+      Caption = 'Close this window once finished'
       TabOrder = 3
     end
     object pnlToProcess: TPanel
