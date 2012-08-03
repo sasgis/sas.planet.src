@@ -193,7 +193,7 @@ object frmCacheManager: TfrmCacheManager
     TabOrder = 1
     object btnStart: TButton
       AlignWithMargins = True
-      Left = 491
+      Left = 410
       Top = 6
       Width = 75
       Height = 25
@@ -205,7 +205,7 @@ object frmCacheManager: TfrmCacheManager
     end
     object btnCansel: TButton
       AlignWithMargins = True
-      Left = 410
+      Left = 491
       Top = 6
       Width = 75
       Height = 25

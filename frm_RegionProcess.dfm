@@ -129,7 +129,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object Button1: TButton
       AlignWithMargins = True
-      Left = 491
+      Left = 410
       Top = 6
       Width = 75
       Height = 25
@@ -141,7 +141,7 @@ object frmRegionProcess: TfrmRegionProcess
     end
     object Button3: TButton
       AlignWithMargins = True
-      Left = 410
+      Left = 491
       Top = 6
       Width = 75
       Height = 25
