@@ -81,6 +81,7 @@ end;
 procedure TSelectionLayer.DoConfigChange;
 begin
   inherited;
+  SetNeedRedraw;
   FVisible := FConfig.Visible;
   SetVisible(FVisible);
 end;
