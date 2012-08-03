@@ -683,12 +683,12 @@ end;
 procedure TfrmMarksExplorer.MarksListBoxKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  VMarkId: IMarkId;
+  VMarkIdList: IInterfaceList;
 begin
   If key=VK_DELETE then begin
-    VMarkId := GetSelectedMarkId;
-    if VMarkId <> nil then begin
-      FMarkDBGUI.DeleteMarkModal(VMarkId, Self.Handle);
+    VMarkIdList:=GetSelectedMarksIdList;
+    if VMarkIdList <> nil then begin
+      FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle);
     end;
   end;
 end;
