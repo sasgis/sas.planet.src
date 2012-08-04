@@ -53,6 +53,7 @@
     </DelphiCompile>
     <DCCReference Include="ArchiveReadWrite\i_ArchiveReadWrite.pas" />
     <DCCReference Include="ArchiveReadWrite\i_ArchiveReadWriteFactory.pas" />
+    <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas" />
     <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteFactory.pas" />
     <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas" />
     <DCCReference Include="ArchiveReadWrite\u_ArchiveWriteLibTar.pas" />

@@ -14,6 +14,7 @@ uses
   i_ArchiveReadWrite in 'ArchiveReadWrite\i_ArchiveReadWrite.pas',
   u_ArchiveReadWriteKaZip in 'ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas',
   u_ArchiveWriteLibTar in 'ArchiveReadWrite\u_ArchiveWriteLibTar.pas',
+  u_ArchiveReadWrite7Zip in 'ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas',
   i_ArchiveReadWriteFactory in 'ArchiveReadWrite\i_ArchiveReadWriteFactory.pas',
   u_ArchiveReadWriteFactory in 'ArchiveReadWrite\u_ArchiveReadWriteFactory.pas',
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
