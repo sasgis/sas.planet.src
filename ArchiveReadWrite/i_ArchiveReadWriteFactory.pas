@@ -14,6 +14,9 @@ type
 
     function CreateZipWriterByName(const AFileName: string): IArchiveWriter;
     function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
+
+    function CreateTarWriterByName(const AFileName: string): IArchiveWriter;
+    function CreateTarWriterByStream(const AStream: TStream): IArchiveWriter;
   end;
 
 implementation

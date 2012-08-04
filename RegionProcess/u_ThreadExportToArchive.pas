@@ -1,4 +1,4 @@
-unit u_ThreadExportToZip;
+unit u_ThreadExportToArchive;
 
 interface
 
@@ -7,68 +7,64 @@ uses
   SysUtils,
   Classes,
   GR32,
-  i_CoordConverterFactory,
+  i_TileFileNameGenerator,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
+  i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
-  i_TileFileNameGenerator,
-  i_ArchiveReadWriteFactory,
+  i_ArchiveReadWrite,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToZip = class(TThreadExportAbstract)
+  TThreadExportToArchive = class(TThreadExportAbstract)
   private
     FMapType: TMapType;
+    FArchive: IArchiveWriter;
     FTileNameGen: ITileFileNameGenerator;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
-    FTargetFile: string;
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
+      const AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const ATargetFile: string;
+      const AArchiveWriter: IArchiveWriter;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
-      AMapType: TMapType;
+      const AMapType: TMapType;
       const ATileNameGen: ITileFileNameGenerator
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
   i_BinaryData,
-  i_ArchiveReadWrite,
   i_VectorItemProjected,
   i_TileIterator,
-  i_TileInfoBasic,
-  u_StreamReadOnlyByBinaryData,
+  i_TileInfoBasic,  
   u_TileIteratorByPolygon,
   u_TileStorageAbstract;
 
-constructor TThreadExportToZip.Create(
+{ TThreadExportToArchive }
+
+constructor TThreadExportToArchive.Create(
   const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
+  const AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const ATargetFile: string;
+  const AArchiveWriter: IArchiveWriter;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
-  AMapType: TMapType;
+  const AMapType: TMapType;
   const ATileNameGen: ITileFileNameGenerator
 );
 begin
@@ -80,25 +76,18 @@ begin
     Azoomarr,
     Self.ClassName
   );
-  FTargetFile := ATargetFile;
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
   FTileNameGen := ATileNameGen;
   FMapType := AMapType;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FArchive := AArchiveWriter;
 end;
 
-destructor TThreadExportToZip.Destroy;
-begin
-  inherited Destroy;
-end;
-
-procedure TThreadExportToZip.ProcessRegion;
+procedure TThreadExportToArchive.ProcessRegion;
 var
-  i: integer;
+  I: Integer;
   VZoom: Byte;
   VExt: string;
-  VPath: string;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
@@ -108,20 +97,19 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;
-  VZip: IArchiveWriter;
 begin
   inherited;
   VTilesToProcess := 0;
   SetLength(VTileIterators, Length(FZooms));
-  for i := 0 to Length(FZooms) - 1 do begin
-    VZoom := FZooms[i];
+  for I := 0 to Length(FZooms) - 1 do begin
+    VZoom := FZooms[I];
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );
-    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-    VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
+    VTileIterators[I] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
   try
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);
@@ -129,40 +117,36 @@ begin
       SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
     );
     VTileStorage := FMapType.TileStorage;
-    VZip := FArchiveReadWriteFactory.CreateZipWriterByName(FTargetFile);
-
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    for i := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[i];
+    for I := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[I];
       VExt := FMapType.StorageConfig.TileFileExt;
-      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FTargetFile) + FMapType.GetShortFolderName);
-      VTileIterator := VTileIterators[i];
+      VTileIterator := VTileIterators[I];
       while VTileIterator.Next(VTile) do begin
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
-          exit;
+          Exit;
         end;
         VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
         if VData <> nil then begin
-          VZip.AddFile(
+          FArchive.AddFile(
             VData,
             FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
             VTileInfo.GetLoadDate
           );
         end;
-        inc(VTilesProcessed);
+        Inc(VTilesProcessed);
         if VTilesProcessed mod 100 = 0 then begin
           ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         end;
       end;
     end;
   finally
-    for i := 0 to Length(FZooms) - 1 do begin
-      VTileIterators[i] := nil;
+    for I := 0 to Length(FZooms) - 1 do begin
+      VTileIterators[I] := nil;
     end;
     VTileIterators := nil;
   end;
-  FTileNameGen := nil;
 end;
 
 end.

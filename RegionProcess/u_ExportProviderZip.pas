@@ -56,7 +56,7 @@ uses
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
-  u_ThreadExportToZip,
+  u_ThreadExportToArchive,
   u_ResStrings,
   u_MapType,
   frm_ProgressSimple;
@@ -141,14 +141,13 @@ begin
     VProgressInfo
   );
 
-  TThreadExportToZip.Create(
+  TThreadExportToArchive.Create(
     VCancelNotifierInternal,
     VOperationID,
     VProgressInfo,
-    VPath,
+    FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
     FProjectionFactory,
     FVectorItmesFactory,
-    FArchiveReadWriteFactory,
     APolygon,
     Zoomarr,
     VMapType,

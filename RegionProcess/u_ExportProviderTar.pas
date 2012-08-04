@@ -13,6 +13,7 @@ uses
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
   i_VectorItmesFactory,
+  i_ArchiveReadWriteFactory,
   i_TileFileNameGeneratorsList,
   u_ExportProviderAbstract,
   fr_ExportToFileCont;
@@ -22,6 +23,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItmesFactory: IVectorItmesFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -37,6 +39,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
@@ -52,7 +55,7 @@ uses
   u_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   i_TileFileNameGenerator,
-  u_ThreadExportToTar,
+  u_ThreadExportToArchive,
   u_ResStrings,
   u_MapType,
   frm_ProgressSimple;
@@ -68,6 +71,7 @@ constructor TExportProviderTar.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
@@ -79,6 +83,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileNameGenerator := ATileNameGenerator;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
@@ -135,11 +140,11 @@ begin
     VProgressInfo
   );
 
-  TThreadExportToTar.Create(
+  TThreadExportToArchive.Create(
     VCancelNotifierInternal,
     VOperationID,
     VProgressInfo,
-    VPath,
+    FArchiveReadWriteFactory.CreateTarWriterByName(VPath),
     FProjectionFactory,
     FVectorItmesFactory,
     APolygon,

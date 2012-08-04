@@ -55,6 +55,7 @@
     <DCCReference Include="ArchiveReadWrite\i_ArchiveReadWriteFactory.pas" />
     <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteFactory.pas" />
     <DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas" />
+    <DCCReference Include="ArchiveReadWrite\u_ArchiveWriteLibTar.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileFreeImage.pas" />
@@ -560,14 +561,13 @@
     <DCCReference Include="RegionProcess\u_ThreadExportAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportIPhone.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToArchive.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToBDB.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToCE.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToOgf2.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToTar.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToZip.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV3.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />

@@ -216,6 +216,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItmesFactory,
+      AArchiveReadWriteFactory,
       ATileNameGenerator
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

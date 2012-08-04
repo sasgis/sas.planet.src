@@ -16,6 +16,9 @@ type
     // Zip writer
     function CreateZipWriterByName(const AFileName: string): IArchiveWriter;
     function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
+    // Tar writer
+    function CreateTarWriterByName(const AFileName: string): IArchiveWriter;
+    function CreateTarWriterByStream(const AStream: TStream): IArchiveWriter;
   public
     constructor Create;
     destructor Destroy; override;
@@ -24,6 +27,7 @@ type
 implementation
 
 uses
+  u_ArchiveWriteLibTar,
   u_ArchiveReadWriteKaZip;
 
 { TArchiveReadWriteFactory }
@@ -64,6 +68,20 @@ function TArchiveReadWriteFactory.CreateZipWriterByStream(
 ): IArchiveWriter;
 begin
   Result := TArchiveWriteByKaZip.Create(AStream);
+end;
+
+function TArchiveReadWriteFactory.CreateTarWriterByName(
+  const AFileName: string
+): IArchiveWriter;
+begin
+  Result := TArchiveWriteByLibTar.Create(AFileName);
+end;
+
+function TArchiveReadWriteFactory.CreateTarWriterByStream(
+  const AStream: TStream
+): IArchiveWriter;
+begin
+  Result := TArchiveWriteByLibTar.Create(AStream);
 end;
 
 end.
