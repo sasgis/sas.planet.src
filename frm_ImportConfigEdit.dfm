@@ -14,7 +14,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
   PixelsPerInch = 96
   TextHeight = 13
   object btnOk: TButton
-    Left = 424
+    Left = 341
     Top = 352
     Width = 75
     Height = 25
@@ -23,7 +23,7 @@ object frmImportConfigEdit: TfrmImportConfigEdit
     OnClick = btnOkClick
   end
   object btnCancel: TButton
-    Left = 344
+    Left = 422
     Top = 352
     Width = 75
     Height = 25
