@@ -22,7 +22,6 @@ object frmShortCutEdit: TfrmShortCutEdit
     Align = alClient
     Caption = 'Define hotkey'
     TabOrder = 0
-    ExplicitLeft = 8
     object HotKey: THotKey
       AlignWithMargins = True
       Left = 8
@@ -41,8 +40,6 @@ object frmShortCutEdit: TfrmShortCutEdit
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 172
-    ExplicitWidth = 201
     object btnClear: TSpeedButton
       AlignWithMargins = True
       Left = 3
@@ -58,7 +55,7 @@ object frmShortCutEdit: TfrmShortCutEdit
     end
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 121
+      Left = 50
       Top = 3
       Width = 65
       Height = 25
@@ -67,12 +64,10 @@ object frmShortCutEdit: TfrmShortCutEdit
       Default = True
       ModalResult = 1
       TabOrder = 0
-      ExplicitLeft = 128
-      ExplicitTop = 16
     end
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 50
+      Left = 121
       Top = 3
       Width = 65
       Height = 25
@@ -81,8 +76,7 @@ object frmShortCutEdit: TfrmShortCutEdit
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 56
-      ExplicitTop = 6
+      ExplicitLeft = 90
     end
   end
 end
