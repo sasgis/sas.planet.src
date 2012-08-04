@@ -158,15 +158,19 @@ var
   VEntry: TKAZipEntriesEntry;
 begin
   VDataStream := TStreamReadOnlyByBinaryData.Create(AFileData);
-  {$WARN SYMBOL_PLATFORM OFF}
-  VEntry := FZip.AddStream(
-    AFileNameInArchive,
-    faArchive, // (!) platform
-    AFileDate,
-    VDataStream
-  );
-  {$WARN SYMBOL_PLATFORM ON}
-  Result := VEntry.Index;
+  try
+    {$WARN SYMBOL_PLATFORM OFF}
+    VEntry := FZip.AddStream(
+      AFileNameInArchive,
+      faArchive, // (!) platform
+      AFileDate,
+      VDataStream
+    );
+    {$WARN SYMBOL_PLATFORM ON}
+    Result := VEntry.Index;
+  finally
+    VDataStream.Free;
+  end;
 end;
 
 end.

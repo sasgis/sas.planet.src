@@ -133,7 +133,11 @@ begin
           VData := VZip.GetItemByIndex(VIndex, VFileName);
         end;
         VStreamKml := TStreamReadOnlyByBinaryData.Create(VData);
-        Result := FKmlParser.LoadFromStream(VStreamKml, AFactory);
+        try
+          Result := FKmlParser.LoadFromStream(VStreamKml, AFactory);
+        finally
+          VStreamKml.Free;
+        end;
       end;
     finally
       FreeAndNil(VMemStream);

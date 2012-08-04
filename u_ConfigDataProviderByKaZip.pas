@@ -128,14 +128,18 @@ begin
     if VData <> nil then begin
       VIniFile := TMemIniFile.Create('');
       VIniStream := TStreamReadOnlyByBinaryData.Create(VData);
-      VIniStream.Position := 0;
-      VIniStrings := TStringList.Create;
       try
-        VIniStrings.LoadFromStream(VIniStream);
-        VIniFile.SetStrings(VIniStrings);
-        Result := TConfigDataProviderByIniFile.Create(VIniFile);
+        VIniStream.Position := 0;
+        VIniStrings := TStringList.Create;
+        try
+          VIniStrings.LoadFromStream(VIniStream);
+          VIniFile.SetStrings(VIniStrings);
+          Result := TConfigDataProviderByIniFile.Create(VIniFile);
+        finally
+          VIniStrings.Free;
+        end;
       finally
-        VIniStrings.Free;
+        VIniStream.Free;
       end;
     end;
   end;
@@ -203,9 +207,13 @@ begin
       VData := FZip.GetItemByName(AIdent);
       if VData <> nil then begin
         VStream := TStreamReadOnlyByBinaryData.Create(VData);
-        SetLength(Result, VStream.Size);
-        VStream.Position := 0;
-        VStream.ReadBuffer(Result[1], VStream.Size);
+        try
+          SetLength(Result, VStream.Size);
+          VStream.Position := 0;
+          VStream.ReadBuffer(Result[1], VStream.Size);
+        finally
+          VStream.Free;
+        end;
       end;
     end else begin
       Result := ADefault;
