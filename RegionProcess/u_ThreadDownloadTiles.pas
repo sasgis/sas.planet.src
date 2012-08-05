@@ -134,7 +134,6 @@ type
       const AReplaceOlderDate: TDateTime;
       ASecondLoadTNE: Boolean;
       const ALastProcessedPoint: TPoint;
-      const AProcessed: Int64;
       const AElapsedTime: TDateTime
     );
   protected
@@ -211,7 +210,6 @@ constructor TThreadDownloadTiles.CreateInternal(
   const AReplaceOlderDate: TDateTime;
   ASecondLoadTNE: Boolean;
   const ALastProcessedPoint: TPoint;
-  const AProcessed: Int64;
   const AElapsedTime: TDateTime
 );
 var
@@ -225,6 +223,7 @@ begin
   FDownloadConfig := ADownloadConfig;
   FLog := ALog;
 
+  FProcessed := 0;
   FPausedSleepTime := 100;
   FBanSleepTime := 5000;
   FProxyAuthErrorSleepTime := 10000;
@@ -240,7 +239,6 @@ begin
   FSecondLoadTNE := ASecondLoadTNE;
   FPolygLL := APolygon;
   FPolyProjected := APolyProjected;
-  FProcessed := AProcessed;
   FElapsedTime := AElapsedTime;
   FLastProcessedPoint := ALastProcessedPoint;
   if Terminated then begin
@@ -336,7 +334,6 @@ begin
     AReplaceOlderDate,
     ASecondLoadTNE,
     Point(-1, -1),
-    0,
     0
   );
 end;
@@ -362,7 +359,6 @@ var
   VCheckTileDate: TDateTime;
   VProcessedTileCount: Int64;
   VProcessedSize: Int64;
-  VProcessed: Int64;
   VSecondLoadTNE: Boolean;
   VLastProcessedPoint: TPoint;
   VElapsedTime: TDateTime;
@@ -376,7 +372,6 @@ begin
   VCheckExistTileDate := False;
   VCheckTileDate := Now;
   VSecondLoadTNE := False;
-  VProcessed := 0;
   VElapsedTime := 0;
   VProcessedTileCount := 0;
   VProcessedSize := 0;
@@ -411,7 +406,6 @@ begin
     VProcessedTileCount := ASLSSection.ReadInteger('ProcessedTileCount', VProcessedTileCount);
     VProcessedSize := trunc(ASLSSection.ReadFloat('ProcessedSize', 0) * 1024);
 
-    VProcessed := ASLSSection.ReadInteger('Processed', VProcessed);
     VSecondLoadTNE := ASLSSection.ReadBool('SecondLoadTNE', VSecondLoadTNE);
     VElapsedTime := ASLSSection.ReadFloat('ElapsedTime', VElapsedTime);
     if ADownloadConfig.IsUseSessionLastSuccess then begin
@@ -462,7 +456,6 @@ begin
       VCheckTileDate,
       VSecondLoadTNE,
       VLastProcessedPoint,
-      VProcessed,
       VElapsedTime
     );
   end;
@@ -543,6 +536,7 @@ begin
     FLastSuccessfulPoint := Point(-1, -1);
     if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
       while VTileIterator.Next(VTile) do begin
+        Inc(FProcessed);
         if Terminated then begin
           Break;
         end;
