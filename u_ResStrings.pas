@@ -133,12 +133,12 @@ ResourceString
   SAS_STR_ExtendedPolygonCaption = '%0:s (Polygon)';
   SAS_STR_EditMap = 'Map Settings:';
   SAS_STR_Pause = 'Pause';
-  SAS_STR_Stop1 = 'Paused';
+  SAS_STR_Paused = 'Paused... (%0:s)';
   SAS_STR_Continue = 'Resume';
   SAS_STR_ExportTiles = 'Export';
   SAS_STR_Resolution = 'size:';
   SAS_STR_UserStop = 'Paused by user...';
-  SAS_STR_LoadProcess = 'Downloading';
+  SAS_STR_LoadProcess = '%0:s Downloading';
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
   SAS_STR_ProcessedFile = 'Processing tile: %0:s ...';
   SAS_STR_LoadAttachmentsBegin = 'Downloading attachments...';

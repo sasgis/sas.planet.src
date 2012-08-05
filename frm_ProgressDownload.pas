@@ -212,7 +212,7 @@ begin
       FFinished := True;
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
-      Caption := SAS_MSG_LoadComplete+' ('+VComplete+')';
+      Self.Caption := SAS_MSG_LoadComplete;
       lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_Files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       lblProcessedValue.Caption := inttostr(FDownloadThread.Processed)+' '+SAS_STR_Files;
       lblDownloadedValue.Caption := inttostr(FDownloadThread.Downloaded)+' ('+ VValueConverter.DataSizeConvert(FDownloadThread.DownloadSize)+') '+SAS_STR_Files;
@@ -229,9 +229,9 @@ begin
   end else begin
     UpdateMemoProgressForm;
     if (FStoped) then begin
-      Caption:=SAS_STR_Stop1+'... ('+VComplete+')';
+      Self.Caption := Format(SAS_STR_Paused, [VComplete]);
     end else begin
-      Caption:=SAS_STR_LoadProcess+'... ('+VComplete+')';
+      Self.Caption := Format(SAS_STR_LoadProcess, [VComplete]);
       Application.ProcessMessages;
       lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_Files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       lblProcessedValue.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_Files;
