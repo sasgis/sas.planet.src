@@ -93,6 +93,13 @@ type
       const AMark: IMarkId;
       AVisible: Boolean
     );
+    procedure SetMarkVisibleByIDList(
+      const AMarkList: IInterfaceList;
+      AVisible: Boolean
+    );
+    procedure ToggleMarkVisibleByIDList(
+      const AMarkList: IInterfaceList
+    );
     function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(const AMark: IMark): Boolean; overload;
     function GetFactory: IMarkFactory;
@@ -782,6 +789,93 @@ begin
       finally
         UnlockWrite;
       end;
+    end;
+  end;
+end;
+
+procedure TMarksDb.SetMarkVisibleByIDList(const AMarkList: IInterfaceList;
+  AVisible: Boolean);
+var
+  i: Integer;
+  VMarkVisible: IMarkSMLInternal;
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
+begin
+  if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
+    LockWrite;
+    try
+      for i := 0 to AMarkList.Count - 1 do begin
+        VId := CNotExistMarkID;
+        if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
+          VId := VMarkVisible.Id;
+          VMarkVisible.Visible := AVisible;
+        end;
+        if VId >= 0 then begin
+          if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
+            VMarkInternal.Visible := AVisible;
+            FCdsMarks.Filtered := false;
+            if FCdsMarks.Locate('id', VId, []) then begin
+              FCdsMarks.Edit;
+              WriteCurrentMarkId(VMarkInternal as IMarkId);
+              FCdsMarks.Post;
+              SetChanged;
+            end;
+          end;
+        end;
+      end;
+    finally
+      UnlockWrite;
+    end;
+  end;
+end;
+
+procedure TMarksDb.ToggleMarkVisibleByIDList(const AMarkList: IInterfaceList);
+var
+  i: Integer;
+  VMarkVisible: IMarkSMLInternal;
+  VId: Integer;
+  VMarkInternal: IMarkSMLInternal;
+  VVisible: Boolean;
+  VVisibleCount: Integer;
+  VInvisibleCount: Integer;
+begin
+  if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
+    VVisibleCount := 0;
+    VInvisibleCount := 0;
+    for i := 0 to AMarkList.Count - 1 do begin
+      if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
+        if VMarkVisible.Visible then begin
+          Inc(VVisibleCount);
+        end else begin
+          Inc(VInvisibleCount);
+        end;
+      end;
+    end;
+    VVisible := VVisibleCount < VInvisibleCount;
+
+    LockWrite;
+    try
+      for i := 0 to AMarkList.Count - 1 do begin
+        VId := CNotExistMarkID;
+        if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
+          VId := VMarkVisible.Id;
+          VMarkVisible.Visible := VVisible;
+        end;
+        if VId >= 0 then begin
+          if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
+            VMarkInternal.Visible := VVisible;
+            FCdsMarks.Filtered := false;
+            if FCdsMarks.Locate('id', VId, []) then begin
+              FCdsMarks.Edit;
+              WriteCurrentMarkId(VMarkInternal as IMarkId);
+              FCdsMarks.Post;
+              SetChanged;
+            end;
+          end;
+        end;
+      end;
+    finally
+      UnlockWrite;
     end;
   end;
 end;

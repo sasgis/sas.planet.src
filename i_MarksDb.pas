@@ -51,6 +51,14 @@ type
       const AMark: IMarkId;
       AVisible: Boolean
     );
+    procedure SetMarkVisibleByIDList(
+      const AMarkList: IInterfaceList;
+      AVisible: Boolean
+    );
+    procedure ToggleMarkVisibleByIDList(
+      const AMarkList: IInterfaceList
+    );
+
     function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(const AMark: IMark): Boolean; overload;
     procedure SetAllMarksInCategoryVisible(
