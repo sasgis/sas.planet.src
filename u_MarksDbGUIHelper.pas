@@ -157,6 +157,7 @@ implementation
 uses
   SysUtils,
   gnugettext,
+  i_DoublePointFilter,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_ExportMarks2KML,
@@ -539,6 +540,7 @@ var
   VRadius: double;
   VDefRadius: String;
   VPolygon: ILonLatPolygon;
+  VFilter: ILonLatPointFilter;
 begin
   Result := false;
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
@@ -554,10 +556,11 @@ begin
           ShowMessage(SAS_ERR_ParamsInput);
           Exit;
         end;
+        VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
         VPolygon :=
           FVectorItmesFactory.CreateLonLatPolygonByLonLatPathAndFilter(
             VMarkLine.Line,
-            TLonLatPointFilterLine2Poly.Create(VRadius, AProjection)
+            VFilter
           );
         FFormRegionProcess.Show_(AProjection.Zoom, VPolygon);
         Result := true;

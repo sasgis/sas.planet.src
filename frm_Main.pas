@@ -702,6 +702,7 @@ uses
   i_LanguageManager,
   i_VectorDataItemSimple,
   i_EnumDoublePoint,
+  i_DoublePointFilter,
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
   i_ConfigDataProvider,
@@ -5370,6 +5371,7 @@ var
   VPath: ILonLatPath;
   VLineOnMapEdit: ILineOnMapEdit;
   VPathLine: ILonLatPathLine;
+  VFilter: ILonLatPointFilter;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
   if VLineOnMapEdit <> nil then begin
@@ -5384,13 +5386,15 @@ begin
         if VPath.Count > 0 then begin
           VPathLine := VPath.Item[0];
           if VPathLine.Count > 1 then begin
+            VFilter :=
+              TLonLatPointFilterLine2Poly.Create(
+                FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
+                FConfig.ViewPortState.Position.GetStatic.ProjectionInfo
+              );
             VPoly :=
               GState.VectorItmesFactory.CreateLonLatPolygonByLonLatPathAndFilter(
                 VPath,
-                TLonLatPointFilterLine2Poly.Create(
-                  FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
-                  FConfig.ViewPortState.Position.GetStatic.ProjectionInfo
-                )
+                VFilter
               );
             FState.State := ao_movemap;
             FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
