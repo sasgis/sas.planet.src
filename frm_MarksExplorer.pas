@@ -136,6 +136,8 @@ type
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure MarksListBoxKeyDown(Sender: TObject; var Key: Word; Shift:
+        TShiftState);
     procedure rgMarksShowModeClick(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
@@ -400,14 +402,16 @@ end;
 
 procedure TfrmMarksExplorer.MarksListBoxClickCheck(Sender: TObject);
 var
-  VMark: IMarkId;
+  VMarkIdList: IInterfaceList;
+  VMarkId: IMarkId;
 begin
-  VMark := GetSelectedMarkId;
-  if VMark <> nil then begin
-    FMarkDBGUI.MarksDb.MarksDb.SetMarkVisibleByID(
-      VMark,
-      MarksListBox.Checked[MarksListBox.ItemIndex]
-    );
+  VMarkIdList:=GetSelectedMarksIdList;
+  if (VMarkIdList <> nil) and (VMarkIdList.Count > 0) then begin
+    FMarkDBGUI.MarksDb.MarksDb.ToggleMarkVisibleByIDList(VMarkIdList);
+  end;
+  VMarkId := GetSelectedMarkId;
+  if VMarkId <> nil then begin
+    MarksListBox.Checked[MarksListBox.ItemIndex] := FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMarkId);
   end;
 end;
 
@@ -847,6 +851,20 @@ begin
   OnConfigChange;
   OnMarkSystemStateChanged;
   Self.OnResize := FormResize;
+end;
+
+procedure TfrmMarksExplorer.MarksListBoxKeyDown(Sender: TObject; var Key: Word;
+    Shift: TShiftState);
+var
+  VMarkIdList: IInterfaceList;
+begin
+  if Key = VK_SPACE then begin
+    VMarkIdList:=GetSelectedMarksIdList;
+    if (VMarkIdList <> nil) and (VMarkIdList.Count > 0) then begin
+      FMarkDBGUI.MarksDb.MarksDb.ToggleMarkVisibleByIDList(VMarkIdList);
+    end;
+    Key := 0;
+  end;
 end;
 
 procedure TfrmMarksExplorer.rgMarksShowModeClick(Sender: TObject);
