@@ -29,10 +29,8 @@ uses
   Controls,
   Forms,
   Dialogs,
-  graphics,
   ExtCtrls,
   StdCtrls,
-  Grids,
   Buttons,
   Spin,
   GR32,
@@ -122,13 +120,7 @@ type
 implementation
 
 uses
-  Math,
-  GR32_Blend,
-  GR32_Rasterizers,
-  GR32_Resamplers,
-  GR32_Transforms,
   t_GeoTypes,
-  i_BitmapMarker,
   i_MarkTemplate,
   i_MarksFactoryConfig,
   u_ResStrings;
@@ -176,58 +168,6 @@ begin
   FreeAndNil(frMarkCategory);
   FreeAndNil(frSelectPicture);
   inherited;
-end;
-
-procedure CopyMarkerToBitmap(
-  const ASourceMarker: IBitmapMarker;
-  ATarget: TCustomBitmap32
-);
-var
-  VTransform: TAffineTransformation;
-  VSizeSource: TPoint;
-  VTargetRect: TFloatRect;
-  VScale: Double;
-  VRasterizer: TRasterizer;
-  VTransformer: TTransformer;
-  VCombineInfo: TCombineInfo;
-  VSampler: TCustomResampler;
-begin
-  VTransform := TAffineTransformation.Create;
-  try
-    VSizeSource := ASourceMarker.BitmapSize;
-    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-    VScale := ATarget.Width / ASourceMarker.BitmapSize.X;
-    VTransform.Scale(VScale, VScale);
-    VTargetRect := VTransform.GetTransformedBounds;
-
-    ATarget.Clear(clWhite32);
-
-    VRasterizer := TRegularRasterizer.Create;
-    try
-      VSampler := TLinearResampler.Create;
-      try
-        VSampler.Bitmap := ASourceMarker.Bitmap;
-        VTransformer := TTransformer.Create(VSampler, VTransform);
-        try
-          VRasterizer.Sampler := VTransformer;
-          VCombineInfo.SrcAlpha := 255;
-          VCombineInfo.DrawMode := dmBlend;
-          VCombineInfo.CombineMode := cmBlend;
-          VCombineInfo.TransparentColor := 0;
-          VRasterizer.Rasterize(ATarget, ATarget.BoundsRect, VCombineInfo);
-        finally
-          EMMS;
-          VTransformer.Free;
-        end;
-      finally
-        VSampler.Free;
-      end;
-    finally
-      VRasterizer.Free;
-    end;
-  finally
-    VTransform.Free;
-  end;
 end;
 
 function TfrmMarkEditPoint.EditMark(const AMark: IMarkPoint; AIsNewMark: Boolean): IMarkPoint;

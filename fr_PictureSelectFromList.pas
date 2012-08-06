@@ -4,6 +4,7 @@ interface
 
 uses
   Windows,
+  Types,
   Messages,
   SysUtils,
   Variants,
@@ -13,7 +14,9 @@ uses
   Forms,
   Dialogs,
   Grids,
+  GR32,
   i_MarkPicture,
+  i_Bitmap32Static,
   i_LanguageManager,
   u_CommonFormAndFrameParents, StdCtrls;
 
@@ -49,15 +52,76 @@ type
     ); reintroduce;
   end;
 
+procedure CopyMarkerToBitmap(
+  const ASourceBitmap: IBitmap32Static;
+  ATarget: TCustomBitmap32
+);
+
 implementation
 
 uses
   Math,
-  GR32,
+  GR32_Blend,
+  GR32_Rasterizers,
   GR32_Resamplers,
+  GR32_Transforms,
   i_BitmapMarker;
 
 {$R *.dfm}
+
+procedure CopyMarkerToBitmap(
+  const ASourceBitmap: IBitmap32Static;
+  ATarget: TCustomBitmap32
+);
+var
+  VTransform: TAffineTransformation;
+  VSizeSource: TPoint;
+  VTargetRect: TFloatRect;
+  VScale: Double;
+  VRasterizer: TRasterizer;
+  VTransformer: TTransformer;
+  VCombineInfo: TCombineInfo;
+  VSampler: TCustomResampler;
+begin
+  VSizeSource := Point(ASourceBitmap.Bitmap.Width, ASourceBitmap.Bitmap.Height);
+  if VSizeSource.X > 0 then begin
+    VTransform := TAffineTransformation.Create;
+    try
+      VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+      VScale := ATarget.Width / VSizeSource.X;
+      VTransform.Scale(VScale, VScale);
+      VTargetRect := VTransform.GetTransformedBounds;
+
+      ATarget.Clear(clWhite32);
+
+      VRasterizer := TRegularRasterizer.Create;
+      try
+        VSampler := TLinearResampler.Create;
+        try
+          VSampler.Bitmap := ASourceBitmap.Bitmap;
+          VTransformer := TTransformer.Create(VSampler, VTransform);
+          try
+            VRasterizer.Sampler := VTransformer;
+            VCombineInfo.SrcAlpha := 255;
+            VCombineInfo.DrawMode := dmBlend;
+            VCombineInfo.CombineMode := cmBlend;
+            VCombineInfo.TransparentColor := 0;
+            VRasterizer.Rasterize(ATarget, ATarget.BoundsRect, VCombineInfo);
+          finally
+            EMMS;
+            VTransformer.Free;
+          end;
+        finally
+          VSampler.Free;
+        end;
+      finally
+        VRasterizer.Free;
+      end;
+    finally
+      VTransform.Free;
+    end;
+  end;
+end;
 
 constructor TfrPictureSelectFromList.Create(
   const ALanguageManager: ILanguageManager;
