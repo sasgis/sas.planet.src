@@ -642,7 +642,7 @@ type
     procedure OnMainFormMainConfigChange;
     procedure OnStateChange;
 
-    procedure CopyStringToClipboard(const s: Widestring);
+    procedure CopyStringToClipboard(const s: string);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange;
@@ -2466,7 +2466,7 @@ begin
   DeleteDC(hSourcDC);
 end;
 
-procedure TfrmMain.CopyStringToClipboard(const s: Widestring);
+procedure TfrmMain.CopyStringToClipboard(const s: string);
 var hg: THandle;
     P: PChar;
 begin
@@ -2474,7 +2474,7 @@ begin
   begin
     try
       EmptyClipBoard;
-      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, Length(S)+1);
+      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, (Length(S)+1) * SizeOf(S[1]));
       try
         P:=GlobalLock(hg);
         try
@@ -3698,7 +3698,7 @@ begin
         prToTopLeft
       );
     s := VMapType.GetTileFileName(VTile, VZoomCurr);
-    winexec(PChar('explorer /select,' + s), SW_SHOWNORMAL)
+    WinExec(PAnsiChar('explorer /select,' + s), SW_SHOWNORMAL)
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
@@ -5110,7 +5110,7 @@ begin
     SetDescription(PChar(Desc));
     SetPath(PChar(PathObj));
   end;
-  PFile.Save(PWChar(WideString(PathLink)), FALSE);
+  PFile.Save(POleStr(WideString(PathLink)), FALSE);
 end;
 
 procedure TfrmMain.tbitmCreateShortcutClick(Sender: TObject);

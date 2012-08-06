@@ -215,7 +215,7 @@ procedure TThreadExportIPhone.WriteTileToSQLite3(
   AFlags: Integer
 );
 var
-  s: string;
+  s: AnsiString;
   stmt: PSQLite3Stmt;
 begin
   s := 'INSERT INTO Images (data,zoom,x,y,flags,length) VALUES ' +
@@ -230,7 +230,7 @@ begin
   CheckSQLiteAPIError(
     FSQLite3Lib.sqlite3_prepare_v2(
     FSqlite3,
-    PChar(s),
+    PAnsiChar(s),
     Length(s),
     stmt,
     nil
@@ -281,14 +281,14 @@ end;
 
 procedure TThreadExportIPhone.ProcessRegion;
 
-  procedure SQLiteWriteString(const AString: string);
+  procedure SQLiteWriteString(const AString: AnsiString);
   var
     stmt: PSQLite3Stmt;
   begin
     CheckSQLiteAPIError(
       FSQLite3Lib.sqlite3_prepare_v2(
       FSqlite3,
-      PChar(AString),
+      PAnsiChar(AString),
       Length(AString),
       stmt,
       nil

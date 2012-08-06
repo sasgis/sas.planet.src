@@ -415,7 +415,7 @@ begin
       VAccesState := StorageStateInternal.ReadAccess;
       StorageStateInternal.ReadAccess := asUnknown;
       FCachedNameInCache := VNameInCache;
-      if not InternalLib_SetPath(PChar(FCachedNameInCache)) then begin
+      if not InternalLib_SetPath(PAnsiChar(FCachedNameInCache)) then begin
         StorageStateInternal.ReadAccess := VAccesState;
       end;
     finally
