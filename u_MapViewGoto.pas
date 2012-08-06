@@ -23,6 +23,7 @@ unit u_MapViewGoto;
 interface
 
 uses
+  Types,
   t_GeoTypes,
   i_Notifier,
   i_ViewPortState,
@@ -56,6 +57,7 @@ type
       const ALonLat: TDoublePoint;
       const AZoom: Byte
     );
+    procedure FitRectToScreen(const ALonLatRect: TDoubleRect);
     function GetLastGotoPos: IGotoPosStatic;
     function GetChangeNotifier: INotifier;
   public
@@ -67,6 +69,8 @@ implementation
 uses
   Math,
   SysUtils,
+  i_CoordConverter,
+  i_LocalCoordConverter,
   u_Notifier,
   u_GeoFun;
 
@@ -78,6 +82,56 @@ begin
   FViewPortState := AViewPortState;
   FChangeNotifier := TNotifierBase.Create;
   FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
+end;
+
+procedure TMapViewGoto.FitRectToScreen(const ALonLatRect: TDoubleRect);
+var
+  VCenterLonLat: TDoublePoint;
+  VLLRect: TDoubleRect;
+  VGeoConverter: ICoordConverter;
+  VScreenSize: TPoint;
+  VRelativeRect: TDoubleRect;
+  VTargetZoom: Byte;
+  VZoom: Byte;
+  VMarkMapRect: TDoubleRect;
+  VMarkMapSize: TDoublePoint;
+  VLocalConverter: ILocalCoordConverter;
+begin
+  if PointIsEmpty(ALonLatRect.TopLeft) or PointIsEmpty(ALonLatRect.BottomRight) then begin
+    Exit;
+  end;
+  if DoublePointsEqual(ALonLatRect.TopLeft, ALonLatRect.BottomRight) then begin
+    Exit;
+  end;
+  VCenterLonLat.X := (ALonLatRect.Left + ALonLatRect.Right) / 2;
+  VCenterLonLat.Y := (ALonLatRect.Top + ALonLatRect.Bottom) / 2;
+  VLLRect := ALonLatRect;
+  FViewPortState.LockWrite;
+  try
+    VLocalConverter := FViewPortState.Position.GetStatic;
+    VGeoConverter := VLocalConverter.GeoConverter;
+    VScreenSize := VLocalConverter.GetLocalRectSize;
+
+    VGeoConverter.CheckLonLatRect(VLLRect);
+    VRelativeRect := VGeoConverter.LonLatRect2RelativeRect(VLLRect);
+
+    VTargetZoom := 23;
+    for VZoom := 1 to 23 do begin
+      VMarkMapRect := VGeoConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoom);
+      VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
+      VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
+      if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
+        VTargetZoom := VZoom - 1;
+        Break;
+      end;
+    end;
+    VGeoConverter.CheckZoom(VTargetZoom);
+    VGeoConverter.CheckLonLatPos(VCenterLonLat);
+    FViewPortState.ChangeZoomWithFreezeAtCenter(VTargetZoom);
+    FViewPortState.ChangeLonLat(VCenterLonLat);
+  finally
+    FViewPortState.UnlockWrite;
+  end;
 end;
 
 function TMapViewGoto.GetChangeNotifier: INotifier;

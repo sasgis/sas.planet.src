@@ -857,10 +857,19 @@ end;
 procedure TfrmMarksExplorer.MarksListBoxDblClick(Sender: TObject);
 var
   VMark: IMark;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
+    if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+      FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
+    end else if Supports(VMark, IMarkLine, VMarkLine) then begin
+      FMapGoto.FitRectToScreen(VMarkLine.LLRect.Rect);
+    end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+      FMapGoto.FitRectToScreen(VMarkPoly.LLRect.Rect);
+    end;
   end;
 end;
 

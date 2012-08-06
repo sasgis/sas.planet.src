@@ -45,6 +45,7 @@ type
       const ALonLat: TDoublePoint;
       const AZoom: Byte
     );
+    procedure FitRectToScreen(const ALonLatRect: TDoubleRect);
 
     function GetLastGotoPos: IGotoPosStatic;
     property LastGotoPos: IGotoPosStatic read GetLastGotoPos;
