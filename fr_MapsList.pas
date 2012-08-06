@@ -206,17 +206,15 @@ procedure TfrMapsList.MapListCustomDrawSubItem(Sender: TCustomListView;
 var
   VMapType: TMapType;
 begin
- if item = nil then EXIT;
- VMapType := TMapType(Item.Data);
- if VMapType <> nil then begin
-  if VMapType.GUIConfig.Separator then begin
-   Sender.canvas.Pen.Color:=clGray;
-   Sender.canvas.MoveTo(2,Item.DisplayRect(drBounds).Bottom-1);
-   Sender.canvas.LineTo(Sender.Column[0].Width,Item.DisplayRect(drBounds).Bottom-1);
+  if Item = nil then EXIT;
+  VMapType := TMapType(Item.Data);
+  if VMapType <> nil then begin
+    if Item.Index mod 2 = 1 then begin
+      Sender.canvas.brush.Color := cl3DLight;
+    end else begin
+      Sender.canvas.brush.Color := clwhite;
+    end;
   end;
-  if Item.Index mod 2 = 1 then Sender.canvas.brush.Color:=cl3DLight
-                         else Sender.canvas.brush.Color:=clwhite;
- end;
 end;
 
 procedure TfrMapsList.MapListDblClick(Sender: TObject);
