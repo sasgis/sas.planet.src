@@ -373,7 +373,7 @@ function TTileStorageBerkeleyDB.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
-): ITileRectInfo;
+): ITileRectInfo;             {
 var
   VRect: TRect;
   VZoom: Byte;
@@ -386,9 +386,9 @@ var
   VFolderName: string;
   VPrevFolderName: string;
   VPrevFolderExist: Boolean;
-  VFolderExists: Boolean;
+  VFolderExists: Boolean;      }
 begin
-  Result := nil;
+  Result := nil;              {
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VRect := ARect;
     VZoom := AZoom;
@@ -438,7 +438,7 @@ begin
         end;
       end;
     end;
-  end;
+  end;                           }
 end;
 
 function TTileStorageBerkeleyDB.LoadTile(
