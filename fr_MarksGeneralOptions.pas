@@ -3,6 +3,7 @@ unit fr_MarksGeneralOptions;
 interface
 
 uses
+  Types,
   Classes,
   Graphics,
   Controls,
@@ -13,6 +14,8 @@ uses
   ExtCtrls,
   Buttons,
   GR32,
+  GR32_Image,
+  GR32_Layers,
   GR32_Resamplers,
   i_MarkCategory,
   i_ImportConfig,
@@ -20,6 +23,7 @@ uses
   i_MarkCategoryDB,
   i_LanguageManager,
   u_CommonFormAndFrameParents,
+  fr_PictureSelectFromList,
   fr_MarkCategorySelectOrAdd;
 
 type
@@ -38,7 +42,6 @@ type
     clrbxPointShadowColor: TColorBox;
     sePointIconSize: TSpinEdit;
     sePointTextTransp: TSpinEdit;
-    cbbPointIcon: TComboBox;
     grpLine: TGroupBox;
     lblLineColor: TLabel;
     lblLineWidth: TLabel;
@@ -67,16 +70,20 @@ type
     chkPolyIgnore: TCheckBox;
     ColorDialog1: TColorDialog;
     pnlCategory: TPanel;
+    pnlImage: TPanel;
+    imgIcon: TImage32;
     procedure btnPointTextColorClick(Sender: TObject);
     procedure btnPointShadowColorClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
     procedure btnPolyLineColorClick(Sender: TObject);
     procedure btnPolyFillColorClick(Sender: TObject);
-    procedure cbbPointIconDrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
+    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton; Shift:
+        TShiftState; X, Y: Integer; Layer: TCustomLayer);
   private
     frMarkCategory: TfrMarkCategorySelectOrAdd;
+    frSelectPicture: TfrPictureSelectFromList;
     FMarksDb: IMarksDb;
+    procedure SelectImageFromList(Sender: TObject);
   public
     procedure SetIgnore(AValue: Boolean);
     procedure Init(const ACategory: ICategory);
@@ -118,56 +125,55 @@ begin
       ALanguageManager,
       ACategoryDB
     );
+
+  frSelectPicture :=
+    TfrPictureSelectFromList.Create(
+      ALanguageManager,
+      FMarksDb.Factory.MarkPictureList,
+      Self.SelectImageFromList
+    );
 end;
 
 destructor TfrMarksGeneralOptions.Destroy;
 begin
   FreeAndNil(frMarkCategory);
+  FreeAndNil(frSelectPicture);
   inherited;
 end;
 
 procedure TfrMarksGeneralOptions.Init(const ACategory: ICategory);
 var
-  VPictureList: IMarkPictureList;
-  i: Integer;
   VFactory: IMarkFactory;
   VConfig: IMarksFactoryConfig;
   VPointTemplate: IMarkTemplatePoint;
-  VPic: IMarkPicture;
   VPathTemplate: IMarkTemplateLine;
   VPolyTemplate: IMarkTemplatePoly;
 begin
   frMarkCategory.Parent := pnlCategory;
   frMarkCategory.Init(ACategory);
+  frSelectPicture.Visible := False;
+  frSelectPicture.Parent := Self;
 
   VFactory := FMarksDb.Factory;
   VConfig := VFactory.Config;
-  VPictureList := VFactory.MarkPictureList;
-  VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
 
+  VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
+  frSelectPicture.Picture := VPointTemplate.Pic;
+  if frSelectPicture.Picture <> nil then begin
+    imgIcon.Bitmap.SetSizeFrom(imgIcon);
+    CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
+    imgIcon.Hint := frSelectPicture.Picture.GetName;
+  end else begin
+    imgIcon.Bitmap.Delete;
+    imgIcon.Hint := '';
+  end;
   clrbxPointTextColor.Selected := WinColor(VPointTemplate.TextColor);
   clrbxPointShadowColor.Selected := WinColor(VPointTemplate.TextBgColor);
   sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.TextColor)/255*100);
   sePointFontSize.Value := VPointTemplate.FontSize;
   sePointIconSize.Value := VPointTemplate.MarkerSize;
 
-  cbbPointIcon.Items.BeginUpdate;
-  try
-    cbbPointIcon.Items.Clear;
-    for i := 0 to VPictureList.Count - 1 do begin
-      VPic := VPictureList.Get(i);
-      cbbPointIcon.Items.AddObject(VPictureList.GetName(i), Pointer(VPic));
-      if VPic = VPointTemplate.Pic then begin
-        cbbPointIcon.ItemIndex := i;
-      end;
-    end;
-    if cbbPointIcon.ItemIndex < 0 then begin
-      cbbPointIcon.ItemIndex := 0;
-    end;
-  finally
-    cbbPointIcon.Items.EndUpdate;
-  end;
-  cbbPointIcon.Repaint;
+
   VPathTemplate := VConfig.LineTemplateConfig.DefaultTemplate;
   clrbxLineColor.Selected := WinColor(VPathTemplate.LineColor);
   seLineTransp.Value := 100-round(AlphaComponent(VPathTemplate.LineColor)/255*100);
@@ -182,6 +188,19 @@ begin
   sePolyLineWidth.Value := VPolyTemplate.LineWidth;
 end;
 
+procedure TfrMarksGeneralOptions.SelectImageFromList(Sender: TObject);
+begin
+  frSelectPicture.Visible := False;
+  if frSelectPicture.Picture <> nil then begin
+    imgIcon.Bitmap.SetSizeFrom(imgIcon);
+    CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
+    imgIcon.Hint := frSelectPicture.Picture.GetName;
+  end else begin
+    imgIcon.Bitmap.Delete;
+    imgIcon.Hint := '';
+  end;
+end;
+
 procedure TfrMarksGeneralOptions.SetIgnore(AValue: Boolean);
 begin
   chkPointIgnore.Checked := AValue;
@@ -191,14 +210,11 @@ end;
 
 procedure TfrMarksGeneralOptions.Clear;
 begin
-  cbbPointIcon.Items.Clear;
   frMarkCategory.Clear;
 end;
 
 function TfrMarksGeneralOptions.GetImportConfig: IImportConfig;
 var
-  VIndex: Integer;
-  VPic: IMarkPicture;
   VMarkTemplatePoint: IMarkTemplatePoint;
   VMarkTemplateLine: IMarkTemplateLine;
   VMarkTemplatePoly: IMarkTemplatePoly;
@@ -206,15 +222,9 @@ var
 begin
   if not chkPointIgnore.Checked then begin
     VCategory := frMarkCategory.GetCategory;
-    VIndex := cbbPointIcon.ItemIndex;
-    if VIndex < 0 then begin
-      VPic := nil;
-    end else begin
-      VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[VIndex]));
-    end;
     VMarkTemplatePoint :=
       FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
-        VPic,
+        frSelectPicture.Picture,
         VCategory,
         SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
@@ -277,47 +287,21 @@ begin
   if ColorDialog1.Execute then clrbxPolyLineColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TfrMarksGeneralOptions.cbbPointIconDrawItem(Control: TWinControl;
-  Index: Integer; Rect: TRect; State: TOwnerDrawState);
+procedure TfrMarksGeneralOptions.imgIconMouseDown(Sender: TObject; Button:
+    TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
-  VBitmap: TBitmap32;
-  VPic: IMarkPicture;
-  VMarker: IBitmapMarker;
-  VResampler: TCustomResampler;
+  VPnlPos: TPoint;
 begin
-  cbbPointIcon.Canvas.FillRect(Rect);
-
-  VPic := IMarkPicture(Pointer(cbbPointIcon.Items.Objects[Index]));
-  if (VPic <> nil) then begin
-    VMarker := VPic.GetMarker;
-    VBitmap:=TBitmap32.Create;
-    try
-      VBitmap.SetSize(31,31);
-      VBitmap.Clear(clWhite32);
-      VResampler := TKernelResampler.Create;
-      try
-        TKernelResampler(VResampler).Kernel := TLinearKernel.Create;
-        StretchTransfer(
-          VBitmap,
-          VBitmap.BoundsRect,
-          VBitmap.ClipRect,
-          VMarker.Bitmap,
-          VMarker.Bitmap.BoundsRect,
-          VResampler,
-          dmBlend,
-          cmBlend
-        );
-      finally
-        VResampler.Free;
-      end;
-      VBitmap.DrawTo(
-        cbbPointIcon.Canvas.Handle,
-        Bounds(Rect.Left + 2, Rect.Top + 2, 31,31),
-        VBitmap.BoundsRect
-      );
-    finally
-      VBitmap.Free;
-    end;
+  if frSelectPicture.Visible then begin
+    frSelectPicture.Visible := False;
+  end else begin
+    VPnlPos := pnlImage.ClientToParent(Point(0, 0), Self);
+    frSelectPicture.Left := 5;
+    frSelectPicture.Width := Self.ClientWidth - frSelectPicture.Left - 5;
+    frSelectPicture.Top := VPnlPos.Y + pnlImage.Height;
+    frSelectPicture.Height := Self.ClientHeight - frSelectPicture.Top - 5;
+    frSelectPicture.Visible := True;
+    frSelectPicture.SetFocus;
   end;
 end;
 

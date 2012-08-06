@@ -118,18 +118,32 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       TabOrder = 4
       Value = 35
     end
-    object cbbPointIcon: TComboBox
-      Left = 64
-      Top = 21
-      Width = 57
-      Height = 44
-      Hint = 'Select image'
-      Style = csOwnerDrawVariable
-      ItemHeight = 38
-      ParentShowHint = False
-      ShowHint = False
+    object pnlImage: TPanel
+      AlignWithMargins = True
+      Left = 63
+      Top = 17
+      Width = 53
+      Height = 53
+      BevelOuter = bvLowered
       TabOrder = 5
-      OnDrawItem = cbbPointIconDrawItem
+      object imgIcon: TImage32
+        AlignWithMargins = True
+        Left = 4
+        Top = 4
+        Width = 45
+        Height = 45
+        Align = alClient
+        Bitmap.CombineMode = cmMerge
+        Bitmap.ResamplerClassName = 'TLinearResampler'
+        BitmapAlign = baCenter
+        Color = clBtnFace
+        ParentColor = False
+        Scale = 1.000000000000000000
+        ScaleMode = smNormal
+        TabOrder = 0
+        OnMouseDown = imgIconMouseDown
+        ExplicitHeight = 50
+      end
     end
   end
   object grpLine: TGroupBox
