@@ -729,6 +729,7 @@ uses
   u_MapMainLayer,
   u_MapMainLayerNew,
   u_MapMarksLayer,
+  u_MapMarksLayerNew,
   u_MapLayerGrids,
   u_MapLayerGridsNew,
   u_MapLayerTileGrid,
@@ -1271,22 +1272,40 @@ begin
         )
       );
     end;
-    FLayerMapMarks:=
-      TMapMarksLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.ClearStrategyFactory,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.MarksLayerConfig,
-        FMarkDBGUI.MarksDb
-      );
-    FLayersList.Add(FLayerMapMarks);
+    if FConfig.MainConfig.UseNewMainLayer then begin
+      FLayerMapMarks:=
+        TMapMarksLayerNew.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.VectorItmesFactory,
+          GState.GUISyncronizedTimerNotifier,
+          FConfig.LayersConfig.MarksLayerConfig,
+          FMarkDBGUI.MarksDb
+        );
+      FLayersList.Add(FLayerMapMarks);
+    end else begin
+      FLayerMapMarks:=
+        TMapMarksLayer.Create(
+          GState.PerfCounterList,
+          GState.AppStartedNotifier,
+          GState.AppClosingNotifier,
+          map,
+          FConfig.ViewPortState,
+          GState.VectorItmesFactory,
+          GState.ImageResamplerConfig,
+          GState.LocalConverterFactory,
+          GState.ClearStrategyFactory,
+          GState.GUISyncronizedTimerNotifier,
+          FConfig.LayersConfig.MarksLayerConfig,
+          FMarkDBGUI.MarksDb
+        );
+      FLayersList.Add(FLayerMapMarks);
+    end;
     if FConfig.MainConfig.UseNewMainLayer then begin
       FLayersList.Add(
         TMapGPSLayerNew.Create(

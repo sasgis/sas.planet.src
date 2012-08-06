@@ -485,6 +485,7 @@ uses
   u_MapLayerGridsNew in 'MapLayers\u_MapLayerGridsNew.pas',
   u_MapMainLayer in 'MapLayers\u_MapMainLayer.pas',
   u_MapMarksLayer in 'MapLayers\u_MapMarksLayer.pas',
+  u_MapMarksLayerNew in 'MapLayers\u_MapMarksLayerNew.pas',
   u_MapLayerNavToMark in 'MapLayers\u_MapLayerNavToMark.pas',
   u_SelectionLayer in 'MapLayers\u_SelectionLayer.pas',
   u_LayerScaleLine in 'MapLayers\u_LayerScaleLine.pas',
