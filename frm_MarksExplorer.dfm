@@ -355,6 +355,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       'OziExplorer Track Point File Version 2.1 (*.plt)|*.plt|Google KM' +
       'Z files (*.kmz)|*.kmz|Download session (*.sls)|*.sls|Selection (' +
       '*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx'
+    Options = [ofAllowMultiSelect, ofEnableSizing]
     Left = 352
     Top = 144
   end
@@ -364,7 +365,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300080080000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300800080000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
