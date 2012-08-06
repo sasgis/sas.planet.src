@@ -136,6 +136,7 @@ type
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure MarksListBoxDblClick(Sender: TObject);
     procedure MarksListBoxKeyDown(Sender: TObject; var Key: Word; Shift:
         TShiftState);
     procedure rgMarksShowModeClick(Sender: TObject);
@@ -851,6 +852,16 @@ begin
   OnConfigChange;
   OnMarkSystemStateChanged;
   Self.OnResize := FormResize;
+end;
+
+procedure TfrmMarksExplorer.MarksListBoxDblClick(Sender: TObject);
+var
+  VMark: IMark;
+begin
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
+  end;
 end;
 
 procedure TfrmMarksExplorer.MarksListBoxKeyDown(Sender: TObject; var Key: Word;

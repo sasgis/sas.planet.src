@@ -62,6 +62,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           PopupMenu = tbpmnMarks
           Sorted = True
           TabOrder = 0
+          OnDblClick = MarksListBoxDblClick
           OnKeyDown = MarksListBoxKeyDown
           OnKeyUp = MarksListBoxKeyUp
         end
