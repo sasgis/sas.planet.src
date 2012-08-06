@@ -308,7 +308,7 @@ var
 begin
   if ACategory <> nil then begin
     VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
-    if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
+    if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
       FMarksDb.DeleteCategoryWithMarks(ACategory);
     end;
   end;
@@ -333,7 +333,7 @@ begin
         VMessage := SAS_MSG_DeleteMarkPolyAsk;
       end;
       VMessage := Format(VMessage, [AMarkId.Name]);
-      if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
+      if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMark(AMarkId, nil);
       end;
     end;
@@ -354,7 +354,7 @@ begin
       DeleteMarkModal(VMark, handle);
     end else begin
       VMessage := Format(SAS_MSG_DeleteManyMarksAsk, [AMarkIDList.Count]);
-      if MessageBox(handle, pchar(VMessage), pchar(SAS_MSG_coution), 36) = IDYES then begin
+      if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMarksList(AMarkIDList, nil);
       end;
     end;
@@ -493,7 +493,7 @@ begin
     VLen := AMark.Line.CalcLength(AConverter.Datum);
     VMessage := SAS_STR_L + ' - ' +
       FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.Name), 0);
+    MessageBox(AHandle, PChar(VMessage), PChar(AMark.Name), 0);
   end;
 end;
 
@@ -510,7 +510,7 @@ begin
     VLen := AMark.Line.CalcPerimeter(AConverter.Datum);
     VMessage := SAS_STR_P + ' - ' +
       FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.Name), 0);
+    MessageBox(AHandle, PChar(VMessage), PChar(AMark.Name), 0);
   end;
 end;
 
@@ -526,7 +526,7 @@ begin
   if AMark <> nil then begin
     VArea := AMark.Line.CalcArea(AConverter.Datum);
     VMessage := SAS_STR_S + ' - ' + FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
-    MessageBox(AHandle, pchar(VMessage), pchar(AMark.Name), 0);
+    MessageBox(AHandle, PChar(VMessage), PChar(AMark.Name), 0);
   end;
 end;
 

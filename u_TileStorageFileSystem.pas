@@ -262,7 +262,7 @@ begin
         VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
         FLock.BeginWrite;
         try
-          Result := (DeleteFile(PChar(VPath)) <> FALSE);
+          Result := DeleteFile(VPath);
         finally
           FLock.EndWrite;
         end;
@@ -303,7 +303,7 @@ begin
         VPath := ChangeFileExt(VPath, '.tne');
         FLock.BeginWrite;
         try
-          Result := (DeleteFile(PChar(VPath)) <> FALSE);
+          Result := DeleteFile(VPath);
         finally
           FLock.EndWrite;
         end;

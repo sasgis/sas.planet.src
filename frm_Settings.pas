@@ -458,7 +458,7 @@ begin
   end else begin
     if VUseProxy then begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
-      PIInfo^.lpszProxy := PChar(VHost);
+      PIInfo^.lpszProxy := PAnsiChar(VHost);
       PIInfo^.lpszProxyBypass := nil;
     end else  begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
