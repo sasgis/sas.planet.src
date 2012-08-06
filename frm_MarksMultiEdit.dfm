@@ -34,22 +34,11 @@ object frmMarksMultiEdit: TfrmMarksMultiEdit
   end
   object pnlMarksGeneralOptions: TPanel
     Left = 0
-    Top = 26
+    Top = 0
     Width = 503
-    Height = 320
+    Height = 346
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitWidth = 505
-  end
-  object pnlCategory: TPanel
-    Left = 0
-    Top = 0
-    Width = 503
-    Height = 26
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 3
-    ExplicitWidth = 505
   end
 end

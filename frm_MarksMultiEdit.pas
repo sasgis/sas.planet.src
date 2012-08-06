@@ -45,14 +45,10 @@ type
     btnOk: TButton;
     btnCancel: TButton;
     pnlMarksGeneralOptions: TPanel;
-    pnlCategory: TPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    frMarkCategory: TfrMarkCategorySelectOrAdd;
     frMarksGeneralOptions: TfrMarksGeneralOptions;
-    FCategoryDB: IMarkCategoryDB;
-    FMarksDb: IMarksDb;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -79,94 +75,34 @@ constructor TfrmMarksMultiEdit.Create(
 );
 begin
   inherited Create(ALanguageManager);
-  FMarksDb := AMarksDb;
-  FCategoryDB := ACategoryDB;
 
-  frMarkCategory :=
-    TfrMarkCategorySelectOrAdd.Create(
+  frMarksGeneralOptions:=
+    TfrMarksGeneralOptions.Create(
       ALanguageManager,
-      FCategoryDB
+      ACategoryDB,
+      AMarksDb
     );
-
-  frMarksGeneralOptions:= TfrMarksGeneralOptions.Create(ALanguageManager);
-  frMarksGeneralOptions.chkPointIgnore.Checked:=true;
-  frMarksGeneralOptions.chkLineIgnore.Checked:=true;
-  frMarksGeneralOptions.chkPolyIgnore.Checked:=true;
+  frMarksGeneralOptions.SetIgnore(true);
 end;
 
 destructor TfrmMarksMultiEdit.Destroy;
 begin
   FreeAndNil(frMarksGeneralOptions);
-  FreeAndNil(frMarkCategory);
   inherited;
 end;
 
 function TfrmMarksMultiEdit.GetImportConfig(const ACategory:ICategory): IImportConfig;
-var
-  VIndex: Integer;
-  VPic: IMarkPicture;
-  VMarkTemplatePoint: IMarkTemplatePoint;
-  VMarkTemplateLine: IMarkTemplateLine;
-  VMarkTemplatePoly: IMarkTemplatePoly;
-  VCategory: ICategory;
 begin
-    frMarksGeneralOptions.Init(FMarksDb);
-    frMarkCategory.Init(ACategory);
-    try
-      if ShowModal = mrOk then begin
-        if not frMarksGeneralOptions.chkPointIgnore.Checked then begin
-          VIndex := frMarksGeneralOptions.cbbPointIcon.ItemIndex;
-          if VIndex < 0 then begin
-            VPic := nil;
-          end else begin
-            VPic := IMarkPicture(Pointer(frMarksGeneralOptions.cbbPointIcon.Items.Objects[VIndex]));
-          end;
-          VCategory := frMarkCategory.GetCategory;
-          VMarkTemplatePoint :=
-            FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
-              VPic,
-              VCategory,
-              SetAlpha(Color32(frMarksGeneralOptions.clrbxPointTextColor.Selected),round(((100-frMarksGeneralOptions.sePointTextTransp.Value)/100)*256)),
-              SetAlpha(Color32(frMarksGeneralOptions.clrbxPointShadowColor.Selected),round(((100-frMarksGeneralOptions.sePointTextTransp.Value)/100)*256)),
-              frMarksGeneralOptions.sePointFontSize.Value,
-              frMarksGeneralOptions.sePointIconSize.Value
-            );
-        end;
-        VMarkTemplateLine := nil;
-        if not frMarksGeneralOptions.chkLineIgnore.Checked then begin
-          VCategory := frMarkCategory.GetCategory;
-          VMarkTemplateLine :=
-            FMarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
-              VCategory,
-              SetAlpha(Color32(frMarksGeneralOptions.clrbxLineColor.Selected),round(((100-frMarksGeneralOptions.seLineTransp.Value)/100)*256)),
-              frMarksGeneralOptions.seLineWidth.Value
-            );
-        end;
-        VMarkTemplatePoly := nil;
-        if not frMarksGeneralOptions.chkPolyIgnore.Checked then begin
-          VCategory := frMarkCategory.GetCategory;
-          VMarkTemplatePoly :=
-            FMarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
-              VCategory,
-              SetAlpha(Color32(frMarksGeneralOptions.clrbxPolyLineColor.Selected),round(((100-frMarksGeneralOptions.sePolyLineTransp.Value)/100)*256)),
-              SetAlpha(Color32(frMarksGeneralOptions.clrbxPolyFillColor.Selected),round(((100-frMarksGeneralOptions.sePolyFillTransp.Value)/100)*256)),
-              frMarksGeneralOptions.sePolyLineWidth.Value
-            );
-        end;
-        Result :=
-          TImportConfig.Create(
-            FMarksDb,
-            VMarkTemplatePoint,
-            VMarkTemplateLine,
-            VMarkTemplatePoly
-          );
-      end else begin
-        Result := nil;
-      end;
-    finally
-      frMarkCategory.Clear;
-      frMarksGeneralOptions.Clear;
+  frMarksGeneralOptions.Init(ACategory);
+  try
+    if ShowModal = mrOk then begin
+      Result := frMarksGeneralOptions.GetImportConfig;
+    end else begin
+      Result := nil;
     end;
+  finally
+    frMarksGeneralOptions.Clear;
+  end;
 end;
 
 procedure TfrmMarksMultiEdit.btnOkClick(Sender: TObject);
@@ -176,7 +112,6 @@ end;
 
 procedure TfrmMarksMultiEdit.FormShow(Sender: TObject);
 begin
-  frMarkCategory.Parent := pnlCategory;
   frMarksGeneralOptions.Parent := pnlMarksGeneralOptions;
 end;
 

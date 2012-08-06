@@ -2,11 +2,11 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
   Left = 0
   Top = 0
   Width = 505
-  Height = 320
+  Height = 354
   TabOrder = 0
   object grpPoint: TGroupBox
-    Left = 8
-    Top = 32
+    Left = 3
+    Top = 57
     Width = 489
     Height = 81
     Caption = 'Placemark parameters'
@@ -133,8 +133,8 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     end
   end
   object grpLine: TGroupBox
-    Left = 8
-    Top = 144
+    Left = 3
+    Top = 169
     Width = 489
     Height = 57
     Caption = 'Path parameters'
@@ -200,8 +200,8 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     end
   end
   object grpPoly: TGroupBox
-    Left = 8
-    Top = 232
+    Left = 3
+    Top = 257
     Width = 489
     Height = 81
     Caption = 'Polygon parameters'
@@ -322,30 +322,42 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     end
   end
   object chkPointIgnore: TCheckBox
-    Left = 8
-    Top = 8
+    Left = 3
+    Top = 33
     Width = 129
     Height = 17
     Caption = 'Ignore placemarks'
     TabOrder = 3
   end
   object chkLineIgnore: TCheckBox
-    Left = 8
-    Top = 120
+    Left = 3
+    Top = 145
     Width = 129
     Height = 17
     Caption = 'Ignore paths'
     TabOrder = 4
   end
   object chkPolyIgnore: TCheckBox
-    Left = 8
-    Top = 208
+    Left = 3
+    Top = 233
     Width = 153
     Height = 17
     Caption = 'Ignore polygons'
     TabOrder = 5
   end
+  object pnlCategory: TPanel
+    Left = 0
+    Top = 0
+    Width = 505
+    Height = 26
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 6
+    ExplicitLeft = -5
+    ExplicitTop = 31
+  end
   object ColorDialog1: TColorDialog
-    Left = 475
+    Left = 470
+    Top = 25
   end
 end
