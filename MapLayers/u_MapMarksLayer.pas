@@ -454,7 +454,12 @@ var
   VID: Integer;
 begin
   VID := Integer(AMarkPath);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+  if Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+    if not Result.Projection.GetIsSameProjectionInfo(AProjectionInfo) then begin
+      Result := nil;
+    end;
+  end;
+  if Result = nil then begin
     Result :=
       FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
         AProjectionInfo,
@@ -473,7 +478,12 @@ var
   VID: Integer;
 begin
   VID := Integer(AMarkPoly);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
+  if Supports(FProjectedCache.GetByID(VID), IProjectedPolygon, Result) then begin
+    if not Result.Projection.GetIsSameProjectionInfo(AProjectionInfo) then begin
+      Result := nil;
+    end;
+  end;
+  if Result = nil then begin
     Result :=
       FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
         AProjectionInfo,
