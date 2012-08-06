@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderGridGenshtab;
 interface
 
 uses
-  Windows,
   Types,
   SysUtils,
   GR32,

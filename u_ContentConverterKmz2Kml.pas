@@ -46,9 +46,7 @@ type
 implementation
 
 uses
-  SysUtils,
   i_ArchiveReadWrite,
-  u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
 { TContentConverterKmz2Kml }

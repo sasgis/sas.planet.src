@@ -13,7 +13,6 @@ uses
   i_BitmapLayerProvider,
   i_InternalPerformanceCounter,
   i_ViewPortState,
-  i_SimpleFlag,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksLayerConfig,
@@ -89,7 +88,6 @@ uses
   u_ListenerByEvent,
   u_IdCacheSimpleThreadSafe,
   u_Synchronizer,
-  u_SimpleFlagWithInterlock,
   u_MarkerProviderForVectorItemWithCache,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_BitmapLayerProviderByMarksSubset;

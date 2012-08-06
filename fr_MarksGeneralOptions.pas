@@ -5,7 +5,6 @@ interface
 uses
   Types,
   Classes,
-  Graphics,
   Controls,
   Forms,
   Dialogs,
@@ -16,7 +15,6 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
-  GR32_Resamplers,
   i_MarkCategory,
   i_ImportConfig,
   i_MarksDB,
@@ -106,7 +104,6 @@ uses
   i_MarkTemplate,
   i_MarkFactory,
   i_MarksFactoryConfig,
-  i_BitmapMarker,
   u_ImportConfig;
 
 {$R *.dfm}

@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderGridDegree;
 interface
 
 uses
-  Windows,
   Types,
   SysUtils,
   GR32,
@@ -64,7 +63,6 @@ uses
   u_Bitmap32Static,
   RegExprUtils,
   u_GeoFun,
-  u_GeoToStr,
   u_Synchronizer;
 
 { TBitmapLayerProviderGridGenshtab }

@@ -28,16 +28,13 @@ uses
   Controls,
   Forms,
   StdCtrls,
-  Spin,
   ExtCtrls,
-  GR32,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_ImportConfig,
   i_MarksDb,
   i_MarkCategoryDB,
-  fr_MarksGeneralOptions,
-  fr_MarkCategorySelectOrAdd;
+  u_CommonFormAndFrameParents,
+  fr_MarksGeneralOptions;
 
 type
   TfrmImportConfigEdit = class(TFormWitghLanguageManager)
@@ -59,12 +56,6 @@ type
   end;
 
 implementation
-
-uses
-  i_MarkTemplate,
-  i_MarkPicture,
-  i_MarkCategory,
-  u_ImportConfig;
 
 {$R *.dfm}
 

@@ -18,7 +18,7 @@ uses
   i_MarkPicture,
   i_Bitmap32Static,
   i_LanguageManager,
-  u_CommonFormAndFrameParents, StdCtrls;
+  u_CommonFormAndFrameParents;
 
 type
   TfrPictureSelectFromList = class(TFrame)

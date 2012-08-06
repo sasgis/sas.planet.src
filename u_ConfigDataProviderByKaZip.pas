@@ -84,7 +84,6 @@ uses
   IniFiles,
   u_ResStrings,
   u_StringListStatic,
-  u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData,
   u_ConfigDataProviderByIniFile;
 
