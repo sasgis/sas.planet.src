@@ -322,7 +322,7 @@ var
   VLonLat: TDoublePoint;
   VTile: TPoint;
   VZoom: Byte;
-  VAccept: string;
+  VAccept, VUserAgent: string;
   VUseDownloader: Boolean;
   VSimpleDownloader: ISimpleHttpDownloader;
 begin
@@ -367,7 +367,9 @@ begin
   end;
 
   FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'Accept', VAccept);
-  FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'User-Agent', ADownloaderConfig.InetConfigStatic.UserAgentString);
+  VUserAgent := GetHeaderValue(FpRequestHead.Data, 'User-Agent');
+  if VUserAgent = '' then
+    FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'User-Agent', ADownloaderConfig.InetConfigStatic.UserAgentString);
 
   if ALastResponseInfo <> nil then begin
     FpResponseHead.Data := ALastResponseInfo.ResponseHead;

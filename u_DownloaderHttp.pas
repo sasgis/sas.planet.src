@@ -119,6 +119,7 @@ uses
   u_ListenerByEvent,
   u_Synchronizer,
   u_StreamReadOnlyByBinaryData,
+  u_TileRequestBuilderHelpers,
   u_BinaryDataByMemStream;
 
 { TDownloaderHttp }
@@ -498,15 +499,20 @@ procedure TDownloaderHttp.PreConfigHttpClient(
 );
 var
   VProxyConfig: IProxyConfigStatic;
+  VUserAgent: string;
 begin
   if (ARawHttpRequestHeader <> '') and
     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then begin
     FHttpClientLastConfig.HeaderRawText := ARawHttpRequestHeader;
     FHttpClient.RequestHeader.RawHeaderText := FHttpClientLastConfig.HeaderRawText;
   end;
-  if FHttpClientLastConfig.HeaderUserAgent <> AInetConfig.UserAgentString then begin
-    FHttpClientLastConfig.HeaderUserAgent := AInetConfig.UserAgentString;
-    FHttpClient.RequestHeader.UserAgent := FHttpClientLastConfig.HeaderUserAgent;
+  VUserAgent := GetHeaderValue(ARawHttpRequestHeader, 'User-Agent');
+  if VUserAgent = '' then begin
+    VUserAgent := AInetConfig.UserAgentString;
+  end;
+  if FHttpClientLastConfig.HeaderUserAgent <> VUserAgent then begin
+    FHttpClientLastConfig.HeaderUserAgent := VUserAgent;
+    FHttpClient.RequestHeader.UserAgent := VUserAgent;
   end;
   if FHttpClient.RequestHeader.Accept = '' then begin
     FHttpClient.RequestHeader.Accept := '*/*';
