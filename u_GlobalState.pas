@@ -335,6 +335,7 @@ var
   VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VXmlLoader: IVectorDataLoader;
+  VXmlZLoader: IVectorDataLoader;
   VKmlLoader: IVectorDataLoader;
   VKmzLoader: IVectorDataLoader;
   VFilesIteratorFactory: IFileNameIteratorFactory;
@@ -467,6 +468,13 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItmesFactory,
+      nil,
+      VMarksKmlLoadCounterList
+    );
+  VXmlZLoader :=
+    TXmlInfoSimpleParser.Create(
+      FVectorItmesFactory,
+      FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
   VKmlLoader :=
@@ -490,7 +498,8 @@ begin
       VMarksKmlLoadCounterList
     ),
     VKmlLoader,
-    VKmzLoader
+    VKmzLoader,
+    VXmlZLoader
   );
   VList := TNotifierTTLCheck.Create;
   FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
