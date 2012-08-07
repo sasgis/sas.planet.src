@@ -409,6 +409,7 @@
     <DCCReference Include="i_TileMatrix.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
+    <DCCReference Include="i_TileProvider.pas" />
     <DCCReference Include="i_TileRequest.pas" />
     <DCCReference Include="i_TileRequestQueue.pas" />
     <DCCReference Include="i_TileRequestResult.pas" />
@@ -1015,6 +1016,8 @@
     <DCCReference Include="u_TileMatrixElement.pas" />
     <DCCReference Include="u_TileMatrixFactory.pas" />
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
+    <DCCReference Include="u_TileProviderByStorage.pas" />
+    <DCCReference Include="u_TileProviderWithCache.pas" />
     <DCCReference Include="u_TileRectInfo.pas" />
     <DCCReference Include="u_TileRectInfoShort.pas" />
     <DCCReference Include="u_TileRequest.pas" />
