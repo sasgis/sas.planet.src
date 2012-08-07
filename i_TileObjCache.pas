@@ -34,19 +34,16 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     procedure AddTileToCache(
       const AObj: IVectorDataItemList;
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     function TryLoadTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     ): IVectorDataItemList;
   end;
 
@@ -55,19 +52,16 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     procedure AddTileToCache(
       const AObj: IBitmap32Static;
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     function TryLoadTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     ): IBitmap32Static;
   end;
 

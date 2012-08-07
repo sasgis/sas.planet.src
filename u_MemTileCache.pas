@@ -62,8 +62,7 @@ type
     procedure OnTileStorageChange(const AMsg: IInterface);
     function GetMemCacheKey(
       const AXY: TPoint;
-      const AZoom: byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: byte
     ): string;
     procedure OnTTLTrim(Sender: TObject);
   protected
@@ -73,19 +72,16 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     procedure AddObjectToCache(
       const AObj: IInterface;
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     function TryLoadObjectFromCache(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo;
       const AIID: TGUID;
       out AResult
     ): Boolean;
@@ -105,13 +101,11 @@ type
     procedure AddTileToCache(
       const AObj: IVectorDataItemList;
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     function TryLoadTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     ): IVectorDataItemList;
   end;
 
@@ -120,13 +114,11 @@ type
     procedure AddTileToCache(
       const AObj: IBitmap32Static;
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
     function TryLoadTileFromCache(
       const AXY: TPoint;
-      const AZoom: Byte;
-      const AMapVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     ): IBitmap32Static;
   end;
 
@@ -213,15 +205,14 @@ end;
 procedure TMemTileCacheBase.AddObjectToCache(
   const AObj: IInterface;
   const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 );
 var
   VKey: string;
   i: integer;
   VContext: TInternalPerformanceCounterContext;
 begin
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
+  VKey := GetMemCacheKey(AXY, AZoom);
 
   VContext :=  FAddItemCounter.StartOperation;
   try
@@ -267,15 +258,14 @@ end;
 
 procedure TMemTileCacheBase.DeleteTileFromCache(
   const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 );
 var
   i: Integer;
   VKey: string;
   VContext: TInternalPerformanceCounterContext;
 begin
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
+  VKey := GetMemCacheKey(AXY, AZoom);
   VContext :=  FDeleteItemCounter.StartOperation;
   try
     FSync.BeginWrite;
@@ -295,19 +285,10 @@ end;
 
 function TMemTileCacheBase.GetMemCacheKey(
   const AXY: TPoint;
-  const AZoom: byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: byte
 ): string;
-var
-  VVer: String;
 begin
   Result := inttostr(AZoom) + '_' + inttostr(AXY.X) + '_' + inttostr(AXY.Y);
-  if Assigned(AMapVersionInfo) then begin
-    VVer := AMapVersionInfo.StoreString;
-    if (0 < Length(VVer)) then begin
-      Result := Result + '_' + VVer;
-    end;
-  end;
 end;
 
 procedure TMemTileCacheBase.IncUpdateCounter;
@@ -347,7 +328,7 @@ var
   VTileKey: ITileKey;
 begin
   if Supports(AMsg, ITileKey, VTileKey) then begin
-    DeleteTileFromCache(VTileKey.Tile, VTileKey.Zoom, VTileKey.VersionInfo);
+    DeleteTileFromCache(VTileKey.Tile, VTileKey.Zoom);
   end;
 end;
 
@@ -359,7 +340,6 @@ end;
 function TMemTileCacheBase.TryLoadObjectFromCache(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo;
   const AIID: TGUID;
   out AResult
 ): Boolean;
@@ -369,7 +349,7 @@ var
   VContext: TInternalPerformanceCounterContext;
 begin
   Result := False;
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
+  VKey := GetMemCacheKey(AXY, AZoom);
   VContext :=  FCacheHitCounter.StartOperation;
   try
     FSync.BeginRead;
@@ -403,14 +383,13 @@ end;
 procedure TMemTileCacheVector.AddTileToCache(
   const AObj: IVectorDataItemList;
   const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 );
 var
   VKey: string;
   i: integer;
 begin
-  VKey := GetMemCacheKey(AXY, AZoom, AMapVersionInfo);
+  VKey := GetMemCacheKey(AXY, AZoom);
   FSync.BeginWrite;
   try
     i := FCacheList.IndexOf(VKey);
@@ -429,11 +408,10 @@ end;
 
 function TMemTileCacheVector.TryLoadTileFromCache(
   const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 ): IVectorDataItemList;
 begin
-  if not TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo, IVectorDataItemList, Result) then begin
+  if not TryLoadObjectFromCache(AXY, AZoom, IVectorDataItemList, Result) then begin
     Result := nil;
   end;
 end;
@@ -443,20 +421,18 @@ end;
 procedure TMemTileCacheBitmap.AddTileToCache(
   const AObj: IBitmap32Static;
   const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 );
 begin
-  AddObjectToCache(AObj, AXY, AZoom, AMapVersionInfo);
+  AddObjectToCache(AObj, AXY, AZoom);
 end;
 
 function TMemTileCacheBitmap.TryLoadTileFromCache(
   const AXY: TPoint;
-  const AZoom: Byte;
-  const AMapVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 ): IBitmap32Static;
 begin
-  if not TryLoadObjectFromCache(AXY, AZoom, AMapVersionInfo, IBitmap32Static, Result) then begin
+  if not TryLoadObjectFromCache(AXY, AZoom, IBitmap32Static, Result) then begin
     Result := nil;
   end;
 end;

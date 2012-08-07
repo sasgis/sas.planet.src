@@ -53,8 +53,7 @@ uses
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_MapAbilitiesConfig,
-  
-  
+  i_Listener,
   i_MapAttachmentsFactory,
   i_MapVersionInfo,
   i_SimpleTileStorageConfig,
@@ -106,6 +105,9 @@ type
     FStorageConfig: ISimpleTileStorageConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
     FPerfCounterList: IInternalPerformanceCounterList;
+
+    FVersionChangeListener: IListener;
+    procedure OnVersionChange;
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
@@ -283,11 +285,9 @@ uses
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,
   u_DownloadResultFactory,
-  
   u_MemTileCache,
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
-  
   u_TileIteratorByRect,
   u_VectorDataFactorySimple,
   u_HtmlToHintTextConverterStuped,
@@ -296,6 +296,7 @@ uses
   u_TileDownloadSubsystem,
   u_GeoFun,
   u_TileStorageGE,
+  u_ListenerByEvent,
   u_TileStorageBerkeleyDB,
   u_TileStorageFileSystem;
 
@@ -340,7 +341,11 @@ begin
   FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
+
   FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
+  FVersionChangeListener := TNotifyNoMmgEventListener.Create(Self.OnVersionChange);
+  FVersionConfig.ChangeNotifier.Add(FVersionChangeListener);
+
   FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
   FAbilitiesConfig :=
     TMapAbilitiesConfig.Create(
@@ -445,6 +450,12 @@ end;
 
 destructor TMapType.Destroy;
 begin
+  if FVersionConfig <> nil then begin
+    FVersionConfig.ChangeNotifier.Remove(FVersionChangeListener);
+    FVersionConfig := nil;
+    FVersionChangeListener := nil;
+  end;
+
   FCoordConverter := nil;
   FCacheBitmap := nil;
   FCacheVector := nil;
@@ -456,7 +467,6 @@ begin
   FViewCoordConverter := nil;
   FContentType := nil;
   FLanguageManager := nil;
-  FVersionConfig := nil;
   FTileDownloaderConfig := nil;
   FTileDownloadRequestBuilderConfig := nil;
   FDownloadResultFactory := nil;
@@ -790,11 +800,11 @@ begin
     if ACache = nil then begin
       Result := LoadBitmapTileFromStorage(AXY, AZoom, VVersionInfo);
     end else begin
-      Result := ACache.TryLoadTileFromCache(AXY, AZoom, VVersionInfo);
+      Result := ACache.TryLoadTileFromCache(AXY, AZoom);
       if Result = nil then begin
         Result := LoadBitmapTileFromStorage(AXY, AZoom, VVersionInfo);
         if Result <> nil then begin
-          ACache.AddTileToCache(Result, AXY, AZoom, VVersionInfo);
+          ACache.AddTileToCache(Result, AXY, AZoom);
         end;
       end;
     end;
@@ -851,11 +861,11 @@ begin
     if ACache = nil then begin
       Result := LoadKmlTileFromStorage(AXY, AZoom, VVersionInfo);
     end else begin
-      Result := ACache.TryLoadTileFromCache(AXY, AZoom, VVersionInfo);
+      Result := ACache.TryLoadTileFromCache(AXY, AZoom);
       if Result = nil then begin
         Result := LoadKmlTileFromStorage(AXY, AZoom, VVersionInfo);
         if Result <> nil then begin
-          ACache.AddTileToCache(Result, AXY, AZoom, VVersionInfo);
+          ACache.AddTileToCache(Result, AXY, AZoom);
         end;
       end;
     end;
@@ -863,6 +873,16 @@ begin
     if not IgnoreError then begin
       raise;
     end;
+  end;
+end;
+
+procedure TMapType.OnVersionChange;
+begin
+  if FCacheBitmap <> nil then begin
+    FCacheBitmap.Clear;
+  end;
+  if FCacheVector <> nil then begin
+    FCacheVector.Clear;
   end;
 end;
 
