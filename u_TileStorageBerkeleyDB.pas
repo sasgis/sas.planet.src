@@ -149,7 +149,8 @@ uses
   i_TileFileNameParser,
   u_MapVersionFactorySimpleString,
   u_ListenerTTLCheck,
-  u_TileRectInfo,
+//  u_TileRectInfo,
+  u_TileRectInfoShort,
   u_TileFileNameBDB,
   u_TileIteratorByRect,
   u_TileStorageTypeAbilities,
@@ -373,22 +374,43 @@ function TTileStorageBerkeleyDB.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
-): ITileRectInfo;             {
+): ITileRectInfo;
+
+type
+  TInfo = record
+    Name: string;
+    PrevName: string;
+    Exists: Boolean;
+    PrevExists: Boolean;
+  end;
+
+  procedure ClearInfo(var AInfo: TInfo);
+  begin
+    AInfo.Name := '';
+    AInfo.PrevName := '';
+    AInfo.Exists := False;
+    AInfo.PrevExists := False;
+  end;
+
 var
   VRect: TRect;
   VZoom: Byte;
   VCount: TPoint;
-  VItems: PTileInfoInternalArray;
+  //VItems: PTileInfoInternalArray;
+  VItems: PTileInfoShortInternalArray;
   VIndex: Integer;
-  VFileName: string;
   VTile: TPoint;
   VIterator: ITileIterator;
-  VFolderName: string;
-  VPrevFolderName: string;
-  VPrevFolderExist: Boolean;
-  VFolderExists: Boolean;      }
+  VFolderInfo: TInfo;
+  VFileInfo: TInfo;
+  VTneFileInfo: TInfo;
+  VTileExists: Boolean;
+  VTileBinaryData: IBinaryData;
+  VTileVersion: WideString;
+  VTileContentType: WideString;
+  VTileDate: TDateTime;
 begin
-  Result := nil;              {
+  Result := nil;
   if StorageStateStatic.ReadAccess <> asDisabled then begin
     VRect := ARect;
     VZoom := AZoom;
@@ -396,39 +418,112 @@ begin
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) then begin
-      VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoInternal));
+      //VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoInternal));
+      VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoShortInternal));
       try
-        VPrevFolderName := '';
-        VPrevFolderExist := False;
+        ClearInfo(VFolderInfo);
+        ClearInfo(VFileInfo);
+        ClearInfo(VTneFileInfo);
         VIterator := TTileIteratorByRect.Create(VRect);
         while VIterator.Next(VTile) do begin
           VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
-          VFileName := FCacheConfig.GetTileFileName(VTile, VZoom);
-          VFolderName := ExtractFilePath(VFileName);
+          VFileInfo.Name := FCacheConfig.GetTileFileName(VTile, VZoom);
+          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, '.tne');
+          VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
 
-          if VFolderName = VPrevFolderName then begin
-            VFolderExists := VPrevFolderExist;
+          if VFolderInfo.Name = VFolderInfo.PrevName then begin
+            VFolderInfo.Exists := VFolderInfo.PrevExists;
           end else begin
-            VFolderExists := DirectoryExists(VFolderName);
-            VPrevFolderName := VFolderName;
-            VPrevFolderExist := VFolderExists;
+            VFolderInfo.Exists := DirectoryExists(VFolderInfo.Name);
+            VFolderInfo.PrevName := VFolderInfo.Name;
+            VFolderInfo.PrevExists := VFolderInfo.Exists;
           end;
-          if VFolderExists then begin
-            //TODO: доделать.
+
+          if VFileInfo.Name = VFileInfo.PrevName then begin
+            VFileInfo.Exists := VFileInfo.PrevExists;
+          end else begin
+            VFileInfo.Exists := FileExists(VFileInfo.Name);
+            VFileInfo.PrevName := VFileInfo.Name;
+            VFileInfo.PrevExists := VFileInfo.Exists;
+          end;
+
+          if VTneFileInfo.Name = VTneFileInfo.PrevName then begin
+            VTneFileInfo.Exists := VTneFileInfo.PrevExists;
+          end else begin
+            VTneFileInfo.Exists := FileExists(VTneFileInfo.Name);
+            VTneFileInfo.PrevName := VTneFileInfo.Name;
+            VTneFileInfo.PrevExists := VTneFileInfo.Exists;
+          end;
+
+          if
+            (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists))
+          then begin
+            VTileExists := FHelper.LoadTile(
+              VFileInfo.Name,
+              VTile,
+              VZoom,
+              AVersionInfo,
+              VTileBinaryData,
+              VTileVersion,
+              VTileContentType,
+              VTileDate
+            );
+            if VTileExists then begin             
+              // tile exists
+              VItems[VIndex].FLoadDate := VTileDate;
+              //VItems[VIndex].FVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersion);
+              //VItems[VIndex].FContentType := FContentTypeManager.GetInfo(VTileContentType);
+              //VItems[VIndex].FData := VTileBinaryData;
+              VItems[VIndex].FSize := VTileBinaryData.Size;
+              VItems[VIndex].FInfoType := titExists;
+            end else begin
+              VTileExists := FHelper.IsTNEFound(
+                VTneFileInfo.Name,
+                VTile,
+                VZoom,
+                AVersionInfo,
+                VTileDate
+              );
+              if VTileExists then begin
+                // tne exists
+                VItems[VIndex].FLoadDate := VTileDate;
+                //VItems[VIndex].FVersionInfo := AVersionInfo;
+                //VItems[VIndex].FContentType := nil;
+                //VItems[VIndex].FData := nil;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titTneExists;
+              end else begin
+                // neither tile nor tne
+                VItems[VIndex].FLoadDate := 0;
+                //VItems[VIndex].FVersionInfo := nil;
+                //VItems[VIndex].FContentType := nil;
+                //VItems[VIndex].FData := nil;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titNotExists;
+              end;
+            end;
           end else begin
             // neither tile nor tne
             VItems[VIndex].FLoadDate := 0;
-            VItems[VIndex].FVersionInfo := nil;
-            VItems[VIndex].FContentType := nil;
-            VItems[VIndex].FData := nil;
+            //VItems[VIndex].FVersionInfo := nil;
+            //VItems[VIndex].FContentType := nil;
+            //VItems[VIndex].FData := nil;
             VItems[VIndex].FSize := 0;
             VItems[VIndex].FInfoType := titNotExists;
           end;
         end;
+        //Result :=
+        //  TTileRectInfo.CreateWithOwn(
+        //    VRect,
+        //    VZoom,
+        //    VItems
+        //  );
         Result :=
-          TTileRectInfo.CreateWithOwn(
+          TTileRectInfoShort.CreateWithOwn(
             VRect,
             VZoom,
+            nil,
+            FMainContentType,
             VItems
           );
         VItems := nil;
@@ -438,7 +533,7 @@ begin
         end;
       end;
     end;
-  end;                           }
+  end;
 end;
 
 function TTileStorageBerkeleyDB.LoadTile(
