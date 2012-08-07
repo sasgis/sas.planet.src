@@ -108,7 +108,7 @@ begin
   inherited Create;
   FVisible := True;
   FHeight := 17;
-  FMinUpdateTickCount := 200;
+  FMinUpdateTickCount := 50;
   FBgColor := SetAlpha(clBlack32, $50);
   FTextColor := SetAlpha(clWhite32, $FF);
   FFontName := 'Arial';
