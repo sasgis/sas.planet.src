@@ -63,7 +63,7 @@ uses
   u_NotifierLonLatRectUpdate in 'u_NotifierLonLatRectUpdate.pas',
   i_ConfigDataProvider in 'i_ConfigDataProvider.pas',
   i_ConfigDataWriteProvider in 'i_ConfigDataWriteProvider.pas',
-  u_ConfigDataProviderByKaZip in 'u_ConfigDataProviderByKaZip.pas',
+  u_ConfigDataProviderByZip in 'u_ConfigDataProviderByZip.pas',
   u_ConfigDataProviderByIniFile in 'u_ConfigDataProviderByIniFile.pas',
   u_ConfigDataProviderByIniFileSection in 'u_ConfigDataProviderByIniFileSection.pas',
   u_ConfigDataProviderByFolder in 'u_ConfigDataProviderByFolder.pas',

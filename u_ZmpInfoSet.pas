@@ -60,7 +60,7 @@ uses
   i_ConfigDataProvider,
   u_GUIDInterfaceSet,
   u_ConfigDataProviderByFolder,
-  u_ConfigDataProviderByKaZip,
+  u_ConfigDataProviderByZip,
   u_ZmpInfo,
   u_ResStrings;
 
@@ -89,7 +89,7 @@ begin
     VFullFileName := AFilesIterator.GetRootFolderName + VFileName;
     try
       if FileExists(VFullFileName) then begin
-        VZmpMapConfig := TConfigDataProviderByKaZip.Create(
+        VZmpMapConfig := TConfigDataProviderByZip.Create(
           VFullFileName,
           AArchiveReadWriteFactory
         );

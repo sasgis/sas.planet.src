@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ConfigDataProviderByKaZip;
+unit u_ConfigDataProviderByZip;
 
 interface
 
@@ -31,7 +31,7 @@ uses
   i_ConfigDataProvider;
 
 type
-  TConfigDataProviderByKaZip = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByZip = class(TInterfacedObject, IConfigDataProvider)
   private
     FSourceFileName: string;
     FZip: IArchiveReader;
@@ -87,9 +87,9 @@ uses
   u_StreamReadOnlyByBinaryData,
   u_ConfigDataProviderByIniFile;
 
-{ TConfigDataProviderByKaZip }
+{ TConfigDataProviderByZip }
 
-constructor TConfigDataProviderByKaZip.Create(
+constructor TConfigDataProviderByZip.Create(
   const AFileName: string;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
@@ -105,13 +105,13 @@ begin
   FZip := AArchiveReadWriteFactory.CreateZipReaderByName(AFileName);
 end;
 
-destructor TConfigDataProviderByKaZip.Destroy;
+destructor TConfigDataProviderByZip.Destroy;
 begin
   FZip := nil;
   inherited Destroy;
 end;
 
-function TConfigDataProviderByKaZip.GetSubItem(
+function TConfigDataProviderByZip.GetSubItem(
   const AIdent: string): IConfigDataProvider;
 var
   VExt: string;
@@ -144,13 +144,13 @@ begin
   end;
 end;
 
-function TConfigDataProviderByKaZip.ReadBinary(
+function TConfigDataProviderByZip.ReadBinary(
   const AIdent: string): IBinaryData;
 begin
   Result := FZip.GetItemByName(AIdent);
 end;
 
-function TConfigDataProviderByKaZip.ReadBool(
+function TConfigDataProviderByZip.ReadBool(
   const AIdent: string;
   const ADefault: Boolean
 ): Boolean;
@@ -158,7 +158,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadDate(
+function TConfigDataProviderByZip.ReadDate(
   const AIdent: string;
   const ADefault: TDateTime
 ): TDateTime;
@@ -166,7 +166,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadDateTime(
+function TConfigDataProviderByZip.ReadDateTime(
   const AIdent: string;
   const ADefault: TDateTime
 ): TDateTime;
@@ -174,7 +174,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadFloat(
+function TConfigDataProviderByZip.ReadFloat(
   const AIdent: string;
   const ADefault: Double
 ): Double;
@@ -182,7 +182,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadInteger(
+function TConfigDataProviderByZip.ReadInteger(
   const AIdent: string;
   const ADefault: Integer
 ): Longint;
@@ -190,7 +190,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadString(const AIdent,
+function TConfigDataProviderByZip.ReadString(const AIdent,
   ADefault: string): string;
 var
   VExt: string;
@@ -220,7 +220,7 @@ begin
   end;
 end;
 
-function TConfigDataProviderByKaZip.ReadSubItemsList: IStringListStatic;
+function TConfigDataProviderByZip.ReadSubItemsList: IStringListStatic;
 var
   VList: TStringList;
   I: Integer;
@@ -243,7 +243,7 @@ begin
   end;
 end;
 
-function TConfigDataProviderByKaZip.ReadTime(
+function TConfigDataProviderByZip.ReadTime(
   const AIdent: string;
   const ADefault: TDateTime
 ): TDateTime;
@@ -251,7 +251,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByKaZip.ReadValuesList: IStringListStatic;
+function TConfigDataProviderByZip.ReadValuesList: IStringListStatic;
 var
   VList: TStringList;
   i: Integer;

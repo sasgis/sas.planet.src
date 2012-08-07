@@ -634,9 +634,9 @@
     <DCCReference Include="u_ConfigDataProviderByFolder.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFile.pas" />
     <DCCReference Include="u_ConfigDataProviderByIniFileSection.pas" />
-    <DCCReference Include="u_ConfigDataProviderByKaZip.pas" />
     <DCCReference Include="u_ConfigDataProviderByPathConfig.pas" />
     <DCCReference Include="u_ConfigDataProviderByResources.pas" />
+    <DCCReference Include="u_ConfigDataProviderByZip.pas" />
     <DCCReference Include="u_ConfigDataProviderVirtualWithSubItem.pas" />
     <DCCReference Include="u_ConfigDataProviderWithGlobal.pas" />
     <DCCReference Include="u_ConfigDataProviderWithLocal.pas" />
