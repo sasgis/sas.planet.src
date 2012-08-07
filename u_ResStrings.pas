@@ -140,7 +140,8 @@ ResourceString
   SAS_STR_ExportTiles = 'Export';
   SAS_STR_Resolution = 'size:';
   SAS_STR_UserStop = 'Paused by user...';
-  SAS_STR_LoadProcess = '%0:s Downloading';
+  SAS_STR_DownloadingCaption = '%0:s Downloading';
+  SAS_STR_LoadProcess = 'Downloading...';
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
   SAS_STR_ProcessedFile = 'Processing tile: %0:s ...';
   SAS_STR_LoadAttachmentsBegin = 'Downloading attachments...';

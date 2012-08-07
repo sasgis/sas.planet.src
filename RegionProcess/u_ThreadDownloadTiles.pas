@@ -576,7 +576,7 @@ begin
             if VTileInfo.IsExists then begin
               FLog.WriteText(FRES_LoadProcessRepl, 0);
             end else begin
-              FLog.WriteText(FRES_LoadProcess + '...', 0);
+              FLog.WriteText(FRES_LoadProcess, 0);
             end;
             if (FCheckExistTileDate) and (VTileInfo.IsExists) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
               // skip existing newer tile (but download attachments)

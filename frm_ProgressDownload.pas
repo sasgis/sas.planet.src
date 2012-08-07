@@ -231,7 +231,7 @@ begin
     if (FStoped) then begin
       Self.Caption := Format(SAS_STR_Paused, [VComplete]);
     end else begin
-      Self.Caption := Format(SAS_STR_LoadProcess, [VComplete]);
+      Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]);
       Application.ProcessMessages;
       lblToProcessValue.Caption := inttostr(FDownloadThread.TotalInRegion)+' '+SAS_STR_Files+' (z'+inttostr(FDownloadThread.Zoom + 1)+')';
       lblProcessedValue.Caption:=inttostr(FDownloadThread.Processed)+' '+SAS_STR_Files;
