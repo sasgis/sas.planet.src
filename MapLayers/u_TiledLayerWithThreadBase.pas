@@ -457,6 +457,7 @@ begin
         VElement.UpdateBitmap(VId, nil);
       end;
     end;
+    FLayerChangedFlag.SetFlag;
   end;
 end;
 
