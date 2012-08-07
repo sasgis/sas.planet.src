@@ -299,7 +299,6 @@ begin
     imgIcon.Bitmap.Delete;
     imgIcon.Hint := '';
   end;
-
 end;
 
 end.
