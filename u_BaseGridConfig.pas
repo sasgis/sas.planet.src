@@ -63,7 +63,7 @@ begin
   inherited Create;
   FVisible := False;
   FShowText := True;
-  FGridColor := SetAlpha(clWhite32, 150);
+  FGridColor := SetAlpha(clWhite32, 200);
 end;
 
 procedure TBaseGridConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
