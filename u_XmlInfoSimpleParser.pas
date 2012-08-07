@@ -154,7 +154,7 @@ procedure ParseXML_Aux_AddTrackSegmentToList(
   AParseXML_Aux: PParseXML_Aux;
   const AForcePolyLine: Boolean;
   const AWideStrName, AWideStrDesc: WideString;
-  AItemsFactory: IVectorItmesFactory
+  const AItemsFactory: IVectorItmesFactory
 );
 var
   trk_obj: IVectorDataItemSimple;
