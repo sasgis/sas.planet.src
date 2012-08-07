@@ -59,7 +59,7 @@ begin
   inherited Create;
   FIsGoNextTileIfDownloadError := True;
   FIsUseSessionLastSuccess := True;
-  FIsSaveTileNotExists := True;
+  FIsSaveTileNotExists := False;
 end;
 
 procedure TGlobalDownloadConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
