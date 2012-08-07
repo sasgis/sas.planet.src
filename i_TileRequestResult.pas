@@ -40,8 +40,6 @@ type
     property DownloadResult: IDownloadResult read GetDownloadResult;
   end;
 
-
-
 implementation
 
 end.
