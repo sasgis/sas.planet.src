@@ -345,9 +345,6 @@ begin
       finally
         FPrepareLayerProviderCounter.FinishOperation(VCounterContext);
       end;
-      if VProvider = nil then begin
-        Exit;
-      end;
       if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
         VProviderWithListener.SetListener(FRectUpdateListener, VTileMatrix.LocalConverter);
       end;
