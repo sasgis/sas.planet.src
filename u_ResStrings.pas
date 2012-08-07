@@ -38,7 +38,7 @@ ResourceString
   SAS_MSG_DeleteTilesInRegionAsk = 'Are you sure you want to delete tiles in selected region?';
 
   SAS_MSG_ResetSensorAsk = 'Are you sure you want to reset sensor?';
-  SAS_MSG_FileExists = 'Tile %0:s is available in cache.'#13#10 +
+  SAS_MSG_TileExists = 'Tile %0:s is available in cache.'#13#10 +
     'Replace?';
   SAS_MSG_NeedHL = 'Please select at least one region';
   SAS_MSG_FunExForPoly = 'The feature can be used on polygons and polylines';
