@@ -367,17 +367,23 @@ var
   VCancelNotifier: INotifierOperation;
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VMsg: string;
 begin
-  PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
   VImageProvider := PrepareImageProvider(APolygon, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
-
+  if FileExists(VFileName) then begin
+    VMsg := Format(SAS_MSG_FileExists, [VFileName]);
+    if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
+      Exit;
+    end;
+  end;                      
   VFileExt := UpperCase(ExtractFileExt(VFileName));
   if (VFileExt = '.ECW') or (VFileExt = '.JP2') then begin
+    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
     TThreadMapCombineECW.Create(
       VCancelNotifier,
       VOperationID,
@@ -392,6 +398,7 @@ begin
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.BMP') then begin
+    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
     TThreadMapCombineBMP.Create(
       VCancelNotifier,
       VOperationID,
@@ -415,6 +422,7 @@ begin
       ShowMessage(SAS_MSG_GarminMax1Mp);
     end;
 
+    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
     TThreadMapCombineKMZ.Create(
       VCancelNotifier,
       VOperationID,
@@ -431,6 +439,7 @@ begin
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.JPG') then begin
+    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
     TThreadMapCombineJPG.Create(
       VCancelNotifier,
       VOperationID,
@@ -445,6 +454,7 @@ begin
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.PNG') then begin
+    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
     TThreadMapCombinePNG.Create(
       VCancelNotifier,
       VOperationID,

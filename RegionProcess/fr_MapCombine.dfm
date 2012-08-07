@@ -36,7 +36,7 @@ object frMapCombine: TfrMapCombine
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 86
+      Width = 41
       Height = 19
       Margins.Left = 0
       Margins.Top = 0
@@ -47,9 +47,9 @@ object frMapCombine: TfrMapCombine
       ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
-      Left = 92
+      Left = 47
       Top = 3
-      Width = 419
+      Width = 464
       Height = 19
       Align = alClient
       TabOrder = 0
@@ -80,7 +80,7 @@ object frMapCombine: TfrMapCombine
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 134
+      Width = 73
       Height = 21
       Margins.Left = 0
       Margins.Top = 0
@@ -91,9 +91,9 @@ object frMapCombine: TfrMapCombine
       ExplicitHeight = 13
     end
     object cbbOutputFormat: TComboBox
-      Left = 140
+      Left = 79
       Top = 3
-      Width = 392
+      Width = 453
       Height = 21
       Align = alClient
       Style = csDropDownList
@@ -155,9 +155,6 @@ object frMapCombine: TfrMapCombine
         ItemHeight = 13
         TabOrder = 0
         OnChange = cbbZoomChange
-        ExplicitLeft = 0
-        ExplicitTop = 16
-        ExplicitWidth = 56
       end
     end
     object pnlCenterMain: TPanel
@@ -190,7 +187,7 @@ object frMapCombine: TfrMapCombine
           Align = alTop
           Caption = 'Base Map:'
           Layout = tlCenter
-          ExplicitWidth = 57
+          ExplicitWidth = 50
         end
         object lblHybr: TLabel
           AlignWithMargins = True
@@ -203,7 +200,7 @@ object frMapCombine: TfrMapCombine
           Align = alTop
           Caption = 'Overlay layer:'
           Layout = tlCenter
-          ExplicitWidth = 55
+          ExplicitWidth = 69
         end
         object lblStat: TLabel
           AlignWithMargins = True
@@ -296,14 +293,14 @@ object frMapCombine: TfrMapCombine
           AlignWithMargins = True
           Left = 3
           Top = 5
-          Width = 144
+          Width = 137
           Height = 13
           Alignment = taRightJustify
           Caption = 'Quality (for JPEG and ECW):'
           Layout = tlCenter
         end
         object seJpgQuality: TSpinEdit
-          Left = 150
+          Left = 143
           Top = 2
           Width = 41
           Height = 22
@@ -385,7 +382,7 @@ object frMapCombine: TfrMapCombine
         object lblSplitHor: TLabel
           Left = 7
           Top = 16
-          Width = 92
+          Width = 59
           Height = 13
           Caption = 'horizontally:'
         end
@@ -393,7 +390,7 @@ object frMapCombine: TfrMapCombine
           AlignWithMargins = True
           Left = 7
           Top = 40
-          Width = 88
+          Width = 47
           Height = 13
           Caption = 'vertically:'
         end
@@ -423,7 +420,6 @@ object frMapCombine: TfrMapCombine
   object dlgSaveTargetFile: TSaveDialog
     DefaultExt = 'zip'
     Filter = 'Zip |*.zip'
-    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 48
     Top = 232
   end

@@ -40,6 +40,8 @@ ResourceString
   SAS_MSG_ResetSensorAsk = 'Are you sure you want to reset sensor?';
   SAS_MSG_TileExists = 'Tile %0:s is available in cache.'#13#10 +
     'Replace?';
+  SAS_MSG_FileExists = 'File %0:s is available on disk.'#13#10 +
+    'Replace?';
   SAS_MSG_NeedHL = 'Please select at least one region';
   SAS_MSG_FunExForPoly = 'The feature can be used on polygons and polylines';
   SAS_MSG_FileBeCreateTime = 'The tile is newer than the entered age, skipping.';
