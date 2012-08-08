@@ -31,7 +31,6 @@ uses
   i_InternalPerformanceCounter,
   i_MainMemCacheConfig,
   i_Bitmap32Static,
-  i_MapVersionInfo,
   i_VectorDataItemSimple,
   i_ListenerTTLCheck,
   i_NotifierTTLCheck,

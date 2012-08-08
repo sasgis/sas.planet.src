@@ -23,9 +23,7 @@ unit u_MapType;
 interface
 
 uses
-  Windows,
-  sysutils,
-  Classes,
+  SysUtils,
   GR32,
   t_GeoTypes,
   i_Bitmap32Static,

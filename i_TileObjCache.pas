@@ -25,7 +25,6 @@ interface
 uses
   Types,
   i_Bitmap32Static,
-  i_MapVersionInfo,
   i_VectorDataItemSimple;
 
 type

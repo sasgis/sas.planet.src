@@ -744,7 +744,6 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MapLayerSearchResults,
-  u_MapLayerFillingMap,
   u_MapLayerFillingMapNew,
   u_MapLayerGoto,
   u_CenterScale,

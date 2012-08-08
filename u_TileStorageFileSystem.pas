@@ -24,13 +24,10 @@ interface
 
 uses
   Windows,
-  Types,
   Classes,
   SysUtils,
   GR32,
   i_BinaryData,
-  i_FillingMapColorer,
-  i_NotifierOperation,
   i_SimpleTileStorageConfig,
   i_CoordConverter,
   i_MapVersionInfo,
@@ -147,7 +144,6 @@ implementation
 uses
   WideStrings,
   t_CommonTypes,
-  t_GeoTypes,
   i_TileIterator,
   i_FileNameIterator,
   u_TileRectInfoShort,
@@ -159,7 +155,6 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_TreeFolderRemover,
-  u_GeoFun,
   u_Synchronizer,
   u_TileInfoBasic;
 
