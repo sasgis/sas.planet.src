@@ -104,10 +104,10 @@ var
   VExtRect: TDoubleRect;
 begin
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  savepath := FMapType.GetTileFileName(ATile, AZoom);
   if (FNotSaveNotExists) and (not (FMapType.TileExists(ATile, AZoom))) then begin
     exit;
   end;
+  savepath := FMapType.GetTileFileName(ATile, AZoom);
   if RelativePath then begin
     savepath := ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   end;
