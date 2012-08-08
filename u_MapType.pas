@@ -156,10 +156,6 @@ type
       const AXY: TPoint;
       AZoom: byte
     ): Boolean;
-    function TileNotExistsOnServer(
-      const AXY: TPoint;
-      AZoom: byte
-    ): Boolean;
     function LoadTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -511,17 +507,6 @@ function TMapType.DeleteTile(
 ): Boolean;
 begin
   Result := FStorage.DeleteTile(AXY, AZoom, FVersionConfig.Version);
-end;
-
-function TMapType.TileNotExistsOnServer(
-  const AXY: TPoint;
-  AZoom: byte
-): Boolean;
-var
-  VTileInfo: ITileInfoBasic;
-begin
-  VTileInfo := FStorage.GetTileInfo(AXY, AZoom, FVersionConfig.Version);
-  Result := VTileInfo.GetIsExistsTNE;
 end;
 
 procedure TMapType.SaveBitmapTileToStorage(
