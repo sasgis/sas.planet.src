@@ -170,8 +170,6 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       const AContentTypeManager: IContentTypeManager
     );
-
-    function GetRangeFillingMapItemSize: SmallInt; override;
   end;
 
   TTileStorageGC = class(TTileStorageDLL)
@@ -184,8 +182,6 @@ type
       AGlobalCacheConfig: TGlobalCahceConfig;
       const AContentTypeManager: IContentTypeManager
     );
-
-    function GetRangeFillingMapItemSize: SmallInt; override;
   end;
 
 implementation
@@ -820,12 +816,6 @@ begin
   DoOnMapSettingsEdit(nil);
 end;
 
-function TTileStorageGE.GetRangeFillingMapItemSize: SmallInt;
-begin
-  // there are no loading tile dates in GE cache - just flags
-  Result := SizeOf(TRangeFillingItem1);
-end;
-
 function TTileStorageGE.InternalLib_CheckInitialized: Boolean;
 begin
   // common checks
@@ -864,12 +854,6 @@ begin
   FCacheConfig := TMapTypeCacheConfigGC.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
   InternalLib_Initialize;
   DoOnMapSettingsEdit(nil);
-end;
-
-function TTileStorageGC.GetRangeFillingMapItemSize: SmallInt;
-begin
-  // there are loading tile dates in GC cache - datetime up to minute and flags
-  Result := SizeOf(TRangeFillingItem4);
 end;
 
 function TTileStorageGC.InternalLib_CheckInitialized: Boolean;

@@ -1243,35 +1243,19 @@ begin
         FConfig.MainMapsConfig.GetActiveKmlLayersSet
       );
     FLayersList.Add(FWikiLayer);
-    if FConfig.MainConfig.UseNewMainLayer then begin
-      FLayersList.Add(
-        TMapLayerFillingMapNew.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.GUISyncronizedTimerNotifier,
-          FConfig.LayersConfig.FillingMapLayerConfig
-        )
-      );
-    end else begin
-      FLayersList.Add(
-        TMapLayerFillingMap.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.GUISyncronizedTimerNotifier,
-          FConfig.LayersConfig.FillingMapLayerConfig
-        )
-      );
-    end;
+    FLayersList.Add(
+      TMapLayerFillingMapNew.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.FillingMapLayerConfig
+      )
+    );
     if FConfig.MainConfig.UseNewMainLayer then begin
       FLayerMapMarks:=
         TMapMarksLayerNew.Create(

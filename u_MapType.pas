@@ -188,10 +188,6 @@ type
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function DeleteTile(
-      const AXY: TPoint;
-      AZoom: byte
-    ): Boolean;
     procedure SaveTileSimple(
       const AXY: TPoint;
       AZoom: byte;
@@ -205,15 +201,6 @@ type
       const AColorer: IFillingMapColorer
     ): IBitmap32Static;
 
-    function LoadFillingMap(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      btm: TCustomBitmap32;
-      const AXY: TPoint;
-      AZoom: byte;
-      ASourceZoom: byte;
-      const AColorer: IFillingMapColorer
-    ): boolean;
     function GetShortFolderName: string;
 
     property Zmp: IZmpInfo read FZmp;
@@ -501,14 +488,6 @@ begin
   Result := VTileInfo.GetIsExists;
 end;
 
-function TMapType.DeleteTile(
-  const AXY: TPoint;
-  AZoom: byte
-): Boolean;
-begin
-  Result := FStorage.DeleteTile(AXY, AZoom, FVersionConfig.Version);
-end;
-
 procedure TMapType.SaveBitmapTileToStorage(
   const AXY: TPoint;
   const AZoom: byte;
@@ -577,28 +556,6 @@ procedure TMapType.SaveTileSimple(
 );
 begin
   SaveBitmapTileToStorage(AXY, AZoom, ABitmap);
-end;
-
-function TMapType.LoadFillingMap(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  btm: TCustomBitmap32;
-  const AXY: TPoint;
-  AZoom, ASourceZoom: byte;
-  const AColorer: IFillingMapColorer
-): boolean;
-begin
-  Result :=
-    FStorage.LoadFillingMap(
-      AOperationID,
-      ACancelNotifier,
-      btm,
-      AXY,
-      AZoom,
-      ASourceZoom,
-      FVersionConfig.Version,
-      AColorer
-    );
 end;
 
 function TMapType.GetShortFolderName: string;
