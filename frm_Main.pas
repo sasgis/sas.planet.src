@@ -3785,7 +3785,7 @@ begin
       s:=VMapType.GetTileShowName(VTile, VZoomCurr);
       VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [s]);
       if (MessageBox(handle,pchar(VMessage),pchar(SAS_MSG_coution),36)=IDYES) then begin
-        VMapType.DeleteTile(VTile, VZoomCurr);
+        VMapType.TileStorage.DeleteTile(VTile, VZoomCurr, VMapType.VersionConfig.Version);
       end;
     end;
   end;
@@ -4769,7 +4769,7 @@ begin
             prToTopLeft
           );
         if HiWord(GetKeyState(VK_DELETE))<>0 then begin
-          VMapType.DeleteTile(VTile, VZoomCurr);
+          VMapType.TileStorage.DeleteTile(VTile, VZoomCurr, VMapType.VersionConfig.Version);
           Exit;
         end;
         if HiWord(GetKeyState(VK_INSERT))<>0 then begin
