@@ -57,6 +57,7 @@ type
     procedure MoveActivePoint(const APoint: TDoublePoint);
   public
     constructor Create(const AFactory: IVectorItmesFactory);
+    procedure AfterConstruction; override;
   end;
 
   TPathOnMapEdit = class(TLineOnMapEdit, IPathOnMapEdit)
@@ -156,6 +157,12 @@ begin
   FPointsCount := 0;
   FSelectedPointIndex := 0;
   SetLength(FPoints, 0);
+end;
+
+procedure TLineOnMapEdit.AfterConstruction;
+begin
+  inherited;
+  _UpdateLineObject;
 end;
 
 procedure TLineOnMapEdit.Clear;
