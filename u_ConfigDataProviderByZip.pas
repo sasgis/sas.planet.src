@@ -261,7 +261,7 @@ begin
   VList := TStringList.Create;
   try
     for i := 0 to FZip.GetItemsCount - 1 do begin
-      VFileName := FZip.GetItemNameByIndex(I);
+      VFileName := FZip.GetItemNameByIndex(i);
       VExt := UpperCase(ExtractFileExt(VFileName));
       if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
         VList.Add(VFileName);

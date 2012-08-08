@@ -318,12 +318,12 @@ begin
   VGlobalCacheConfig.DefCache := AFormatID;
   VGlobalCacheConfig.NewCPath := '';
   VGlobalCacheConfig.OldCPath := '';
-  VGlobalCacheConfig.ESCpath := '';
-  VGlobalCacheConfig.GMTilespath := '';
-  VGlobalCacheConfig.GECachepath := '';
-  VGlobalCacheConfig.GCCachepath := '';
-  VGlobalCacheConfig.BDBCachepath := '';
-  VGlobalCacheConfig.DBMSCachepath := '';
+  VGlobalCacheConfig.ESCPath := '';
+  VGlobalCacheConfig.GMTilesPath := '';
+  VGlobalCacheConfig.GECachePath := '';
+  VGlobalCacheConfig.GCCachePath := '';
+  VGlobalCacheConfig.BDBCachePath := '';
+  VGlobalCacheConfig.DBMSCachePath := '';
 
   VTileNameGeneratorList :=
     TTileFileNameGeneratorsSimpleList.Create(VGlobalCacheConfig);

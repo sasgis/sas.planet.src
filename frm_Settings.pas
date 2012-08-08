@@ -63,14 +63,14 @@ type
     tsView: TTabSheet;
     btnApply: TButton;
     Label15: TLabel;
-    OldCpath: TEdit;
+    OldCPath: TEdit;
     NewCpath: TEdit;
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
     Label1: TLabel;
-    EScPath: TEdit;
+    ESCPath: TEdit;
     Button8: TButton;
     Button9: TButton;
     Label3: TLabel;
@@ -629,13 +629,13 @@ begin
     GState.MainFormConfig.MainConfig.UnlockWrite;
   end;
 
- GState.CacheConfig.NewCPath:=IncludeTrailingPathDelimiter(NewCPath.Text);
+ GState.CacheConfig.NewCpath:=IncludeTrailingPathDelimiter(NewCpath.Text);
  GState.CacheConfig.OldCPath:=IncludeTrailingPathDelimiter(OldCPath.Text);
- GState.CacheConfig.EScPath:=IncludeTrailingPathDelimiter(EScPath.Text);
+ GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(ESCPath.Text);
  GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
- GState.CacheConfig.BDBCachepath:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
- GState.CacheConfig.GCCachepath:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
+ GState.CacheConfig.BDBCachePath:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
+ GState.CacheConfig.GCCachePath:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
 
   GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockWrite;
   try
@@ -674,11 +674,11 @@ end;
 
 procedure TfrmSettings.Button4Click(Sender: TObject);
 begin
- if (Sender as TButton).Tag=1 then OldCpath.Text:='cache_old' + PathDelim;
+ if (Sender as TButton).Tag=1 then OldCPath.Text:='cache_old' + PathDelim;
  if (Sender as TButton).Tag=2 then NewCpath.Text:='cache' + PathDelim;
- if (Sender as TButton).Tag=3 then EScPath.Text:='cache_es' + PathDelim;
- if (Sender as TButton).Tag=4 then GMTilespath.Text:='cache_gmt' + PathDelim;
- if (Sender as TButton).Tag=5 then GECachepath.Text:='cache_ge' + PathDelim;
+ if (Sender as TButton).Tag=3 then ESCPath.Text:='cache_es' + PathDelim;
+ if (Sender as TButton).Tag=4 then GMTilesPath.Text:='cache_gmt' + PathDelim;
+ if (Sender as TButton).Tag=5 then GECachePath.Text:='cache_ge' + PathDelim;
  if (Sender as TButton).Tag=6 then edtBDBCachePath.Text:='cache_db' + PathDelim;
  if (Sender as TButton).Tag=7 then edtGCCachePath.Text:='cache_gc' + PathDelim;
 end;
@@ -688,9 +688,9 @@ var  TempPath: string;
 begin
   if SelectDirectory('', '', TempPath) then
   begin
-    if (Sender as TButton).Tag=1 then OldCpath.Text:= IncludeTrailingPathDelimiter(TempPath);
+    if (Sender as TButton).Tag=1 then OldCPath.Text:= IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=2 then NewCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=3 then EScPath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (Sender as TButton).Tag=3 then ESCPath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=6 then edtBDBCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
@@ -872,8 +872,8 @@ begin
  end;
 
  OldCPath.text:=GState.CacheConfig.OldCPath;
- NewCPath.text:=GState.CacheConfig.NewCPath;
- EScPath.text:=GState.CacheConfig.EScPath;
+ NewCpath.text:=GState.CacheConfig.NewCpath;
+ ESCPath.text:=GState.CacheConfig.ESCPath;
  GMTilesPath.text:=GState.CacheConfig.GMTilesPath;
  GECachePath.text:=GState.CacheConfig.GECachePath;
  edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath;

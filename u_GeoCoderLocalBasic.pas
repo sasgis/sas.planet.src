@@ -79,7 +79,7 @@ procedure QuickSort(
 
           ADist[I] := ADist[J];
           ADist[J] := TD;
-          AList.Exchange(i,j);
+          AList.Exchange(I,J);
           Inc(I);
           Dec(J);
         end;

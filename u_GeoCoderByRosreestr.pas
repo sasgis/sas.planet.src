@@ -201,7 +201,7 @@ var
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   i: integer;
-  S1, S2, S3, S4: string;
+  s1, s2, s3, s4: string;
   i1, i2, i3, i4: integer;
 begin
   VSearch := ASearch;

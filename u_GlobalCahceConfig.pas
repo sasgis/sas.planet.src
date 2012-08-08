@@ -114,8 +114,8 @@ begin
   FDefCache := c_File_Cache_Id_SAS;
   FCacheChangeNotifierInternal := TNotifierBase.Create;
   FCacheChangeNotifier := FCacheChangeNotifierInternal;
-  FOldCpath := 'cache_old' + PathDelim;
-  FNewCpath := 'cache' + PathDelim;
+  FOldCPath := 'cache_old' + PathDelim;
+  FNewCPath := 'cache' + PathDelim;
   FESCPath := 'cache_ES' + PathDelim;
   FGMTilesPath := 'cache_gmt' + PathDelim;
   FGECachePath := 'cache_GE' + PathDelim;
@@ -147,8 +147,8 @@ begin
 
   VPathConfig := AConfigProvider.GetSubItem('PATHtoCACHE');
   if VPathConfig <> nil then begin
-    OldCpath := VPathConfig.ReadString('GMVC', OldCpath);
-    NewCpath := VPathConfig.ReadString('SASC', NewCpath);
+    OldCPath := VPathConfig.ReadString('GMVC', OldCPath);
+    NewCPath := VPathConfig.ReadString('SASC', NewCPath);
     ESCPath := VPathConfig.ReadString('ESC', ESCPath);
     GMTilesPath := VPathConfig.ReadString('GMTiles', GMTilesPath);
     GECachePath := VPathConfig.ReadString('GECache', GECachePath);
@@ -169,8 +169,8 @@ begin
   VPathConfig := AConfigProvider.GetOrCreateSubItem('PATHtoCACHE');
   VViewConfig.WriteInteger('DefCache', FDefCache);
 
-  VPathConfig.WriteString('GMVC', OldCpath);
-  VPathConfig.WriteString('SASC', NewCpath);
+  VPathConfig.WriteString('GMVC', OldCPath);
+  VPathConfig.WriteString('SASC', NewCPath);
   VPathConfig.WriteString('ESC', ESCPath);
   VPathConfig.WriteString('GMTiles', GMTilesPath);
   VPathConfig.WriteString('GECache', GECachePath);
