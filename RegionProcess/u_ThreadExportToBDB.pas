@@ -242,7 +242,7 @@ begin
             end;
             if TileExportToRemoteBDB(VHelper, VMapType, VTile, VZoom, VVersionInfo, VPath) then begin
               if FIsMove then begin
-                VMapType.DeleteTile(VTile, VZoom);
+                VMapType.TileStorage.DeleteTile(VTile, VZoom, VVersionInfo);
               end;
             end;
             inc(VTilesProcessed);
