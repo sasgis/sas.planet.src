@@ -373,16 +373,16 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       BevelOuter = bvNone
       ColumnCollection = <
         item
-          SizeStyle = ssAuto
-          Value = 100.000000000000000000
-        end
-        item
-          SizeStyle = ssAuto
-          Value = 100.000000000000000000
-        end
-        item
           SizeStyle = ssAbsolute
-          Value = 27.000000000000000000
+          Value = 55.000000000000000000
+        end
+        item
+          SizeStyle = ssAuto
+          Value = 100.000000000000000000
+        end
+        item
+          SizeStyle = ssAuto
+          Value = 50.000000000000000000
         end>
       ControlCollection = <
         item
@@ -409,9 +409,9 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         222
         25)
       object EditHotKey: THotKey
-        Left = 40
+        Left = 55
         Top = 2
-        Width = 96
+        Width = 86
         Height = 21
         Anchors = []
         HotKey = 0
@@ -420,7 +420,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       end
       object btnResetHotKey: TButton
         AlignWithMargins = True
-        Left = 139
+        Left = 144
         Top = 3
         Width = 21
         Height = 19
@@ -435,7 +435,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         AlignWithMargins = True
         Left = 3
         Top = 6
-        Width = 34
+        Width = 40
         Height = 13
         Anchors = []
         Caption = 'Hotkey'
