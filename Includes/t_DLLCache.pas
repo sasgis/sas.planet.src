@@ -120,14 +120,6 @@ type
     const ASetInfoData: Pointer
   ): Boolean; stdcall;
 
-  // DLLCache_QueryFillingMap - get map of existing and non-existing tiles
-  TDLLCache_QueryFillingMap = function(
-    const ADLLCacheHandle: PDLLCacheHandle;
-    const ASourceTilesRect: PRect;
-    const AVersionString: PAnsiChar;
-    const ARangeFillingMapInfo: PRangeFillingMapInfo
-  ): Boolean; stdcall;
-
   // common params (same for TQueryTileInfo + TEnumTileVersionsInfo + TUrlOfTileInfo)
   TCommonTileOperInfo = packed record
     Size: SmallInt; // FULL size!

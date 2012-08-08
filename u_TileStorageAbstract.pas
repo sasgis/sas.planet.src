@@ -24,14 +24,10 @@ interface
 
 uses
   Types,
-  Classes,
   SysUtils,
-  GR32,
   i_Notifier,
   i_Listener,
   i_BinaryData,
-  i_FillingMapColorer,
-  i_NotifierOperation,
   i_CoordConverter,
   i_SimpleTileStorageConfig,
   i_ContentTypeInfo,
@@ -42,17 +38,9 @@ uses
   i_StorageStateInternal,
   i_TileInfoBasic,
   i_NotifierTileRectUpdate,
-  t_RangeFillingMap,
   u_MapTypeCacheConfig;
 
 type
-  TRangeFillingMapEvent = function(
-      Sender: TObject;
-      const ASourceTilesRect: PRect;
-      const AVersionInfo: IMapVersionInfo;
-      const ARangeFillingMapInfo: PRangeFillingMapInfo
-    ): Boolean of object;
-
   TOnTileStorageScan = function(
       Sender: TObject;
       const ATileNameInCache: string;
@@ -68,7 +56,6 @@ type
     FMapVersionFactory: IMapVersionFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
-    FOnRangeFillingMap: TRangeFillingMapEvent;
     FNotifierByZoom: array of INotifierTileRectUpdate;
     FConfigListener: IListener;
     FStorageState: IStorageStateChangeble;
@@ -93,7 +80,6 @@ type
     property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
     property Config: ISimpleTileStorageConfig read FConfig;
-    property OnRangeFillingMap: TRangeFillingMapEvent read FOnRangeFillingMap write FOnRangeFillingMap;
   public
     constructor Create(
       const AStorageTypeAbilities: IStorageTypeAbilities;
@@ -172,15 +158,11 @@ implementation
 uses
   u_Synchronizer,
   t_CommonTypes,
-  t_GeoTypes,
-  i_TileIterator,
   u_ListenerByEvent,
   i_TileKey,
   u_TileKey,
-  u_GeoFun,
   u_NotifierTileRectUpdate,
-  u_StorageStateInternal,
-  u_TileIteratorByRect;
+  u_StorageStateInternal;
 
 { TTileStorageAbstract }
 
@@ -196,7 +178,6 @@ var
   VState: TStorageStateInternal;
 begin
   inherited Create;
-  FOnRangeFillingMap := nil;
   FConfig := AConfig;
   FMapVersionFactory := AMapVersionFactory;
   FStorageStateStaticCS := MakeSyncRW_Var(Self);

@@ -76,13 +76,6 @@ type
   protected
     procedure DoOnMapSettingsEdit(Sender: TObject);
 
-    function DoOnRangeFillingMap(
-      Sender: TObject;
-      const ASourceTilesRect: PRect;
-      const AVersionInfo: IMapVersionInfo;
-      const ARangeFillingMapInfo: PRangeFillingMapInfo
-    ): Boolean;
-
     function QueryTileInternal(
       const AXY: TPoint;
       const AZoom: byte;
@@ -420,40 +413,6 @@ begin
   end;
 end;
 
-function TTileStorageDLL.DoOnRangeFillingMap(
-  Sender: TObject;
-  const ASourceTilesRect: PRect;
-  const AVersionInfo: IMapVersionInfo;
-  const ARangeFillingMapInfo: PRangeFillingMapInfo
-): Boolean;
-var
-  VVersionInfo: IMapVersionInfo;
-  VVersionStoreString: AnsiString;
-  VVersionStringPtr: PAnsiChar;
-begin
-  Result := FALSE;
-
-  if not Assigned(FDLLCache_QueryFillingMap) then begin
-    Exit;
-  end;
-
-  VVersionInfo := AVersionInfo;
-  if Assigned(VVersionInfo) then begin
-    VVersionStoreString := VVersionInfo.StoreString;
-    VVersionStringPtr := PAnsiChar(VVersionStoreString);
-  end else begin
-    VVersionStringPtr := nil;
-  end;
-
-  try
-    Result := TDLLCache_QueryFillingMap(FDLLCache_QueryFillingMap)(@FDLLCacheHandle,
-      ASourceTilesRect,
-      VVersionStringPtr,
-      ARangeFillingMapInfo);
-  except
-  end;
-end;
-
 function TTileStorageDLL.GetAllowDifferentContentTypes: Boolean;
 begin
   Result := TRUE;
@@ -557,7 +516,6 @@ end;
 function TTileStorageDLL.InternalLib_CleanupProc: Boolean;
 begin
   Result := FALSE;
-  OnRangeFillingMap := nil;
   FDLLCache_EnumTileVersions := nil;
   FDLLCache_QueryTile := nil;
   FDLLCache_ConvertImage := nil;
@@ -612,11 +570,6 @@ begin
       FDLLCache_QueryTile := GetProcAddress(FDLLHandle, 'DLLCache_QueryTile');
       FDLLCache_ConvertImage := GetProcAddress(FDLLHandle, 'DLLCache_ConvertImage');
       FDLLCache_QueryFillingMap := GetProcAddress(FDLLHandle, 'DLLCache_QueryFillingMap');
-
-      // params
-      if Assigned(FDLLCache_QueryFillingMap) then begin
-        OnRangeFillingMap := Self.DoOnRangeFillingMap;
-      end;
     end;
   end;
 end;
