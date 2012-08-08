@@ -201,13 +201,6 @@ type
       AZoom: byte;
       const ABitmap: IBitmap32Static
     );
-    function TileExportToFile(
-      const AXY: TPoint;
-      AZoom: byte;
-      const AFileName: string;
-      OverWrite: boolean
-    ): boolean;
-
     function GetFillingMapBitmap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -599,43 +592,6 @@ procedure TMapType.SaveTileSimple(
 );
 begin
   SaveBitmapTileToStorage(AXY, AZoom, ABitmap);
-end;
-
-function TMapType.TileExportToFile(
-  const AXY: TPoint;
-  AZoom: byte;
-  const AFileName: string;
-  OverWrite: boolean
-): boolean;
-var
-  VFileStream: TFileStream;
-  VFileExists: Boolean;
-  VExportPath: string;
-  VTileInfo: ITileInfoBasic;
-  VData: IBinaryData;
-begin
-  Result := False;
-  VFileExists := FileExists(AFileName);
-  if not VFileExists or OverWrite then begin
-    VData := FStorage.LoadTile(AXY, AZoom, FVersionConfig.Version, VTileInfo);
-    if VData <> nil then begin
-      if VFileExists then begin
-        DeleteFile(AFileName);
-      end else begin
-        VExportPath := ExtractFilePath(AFileName);
-        ForceDirectories(VExportPath);
-      end;
-
-      VFileStream := TFileStream.Create(AFileName, fmCreate);
-      try
-        VFileStream.WriteBuffer(VData.Buffer^, VData.Size);
-        FileSetDate(AFileName, DateTimeToFileDate(VTileInfo.GetLoadDate));
-      finally
-        VFileStream.Free;
-      end;
-      Result := True;
-    end;
-  end;
 end;
 
 function TMapType.LoadFillingMap(

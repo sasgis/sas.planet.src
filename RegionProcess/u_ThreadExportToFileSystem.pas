@@ -3,6 +3,7 @@ unit u_ThreadExportToFileSystem;
 interface
 
 uses
+  Windows,
   Types,
   SysUtils,
   Classes,
@@ -12,6 +13,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItmesFactory,
   i_VectorItemLonLat,
+  i_TileInfoBasic,
   i_MapTypes,
   u_MapType,
   u_ResStrings,
@@ -28,6 +30,12 @@ type
     FIsMove: boolean;
     FIsReplace: boolean;
     FPathExport: string;
+
+  function SaveTileToFile(
+    const ATileInfo: ITileInfoWithData;
+    const AFileName: string;
+    OverWrite: boolean
+  ): boolean;
   protected
     procedure ProcessRegion; override;
   public
@@ -52,6 +60,8 @@ implementation
 uses
   i_VectorItemProjected,
   i_CoordConverter,
+  i_MapVersionInfo,
+  i_BinaryData,
   i_TileIterator,
   u_TileIteratorByPolygon;
 
@@ -86,6 +96,38 @@ begin
   FMapTypeArr := AMapTypeArr;
 end;
 
+function TThreadExportToFileSystem.SaveTileToFile(
+  const ATileInfo: ITileInfoWithData;
+  const AFileName: string;
+  OverWrite: boolean
+): boolean;
+var
+  VFileStream: TFileStream;
+  VFileExists: Boolean;
+  VExportPath: string;
+  VData: IBinaryData;
+begin
+  Result := False;
+  VFileExists := FileExists(AFileName);
+  if not VFileExists or OverWrite then begin
+    if VFileExists then begin
+      DeleteFile(AFileName);
+    end else begin
+      VExportPath := ExtractFilePath(AFileName);
+      ForceDirectories(VExportPath);
+    end;
+    VData := ATileInfo.TileData;
+    VFileStream := TFileStream.Create(AFileName, fmCreate);
+    try
+      VFileStream.WriteBuffer(VData.Buffer^, VData.Size);
+      FileSetDate(AFileName, DateTimeToFileDate(ATileInfo.GetLoadDate));
+    finally
+      VFileStream.Free;
+    end;
+    Result := True;
+  end;
+end;
+
 procedure TThreadExportToFileSystem.ProcessRegion;
 var
   i, j: integer;
@@ -101,6 +143,9 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VVersion: IMapVersionInfo;
 begin
   inherited;
   SetLength(VTileIterators, FMapTypeArr.Count, Length(FZooms));
@@ -129,6 +174,7 @@ begin
       VZoom := FZooms[i];
       for j := 0 to FMapTypeArr.Count - 1 do begin
         VMapType := FMapTypeArr.Items[j].MapType;
+        VVersion := VMapType.VersionConfig.Version;
         VGeoConvert := VMapType.GeoConvert;
         VExt := VMapType.StorageConfig.TileFileExt;
         VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
@@ -137,11 +183,12 @@ begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          if VMapType.TileExists(VTile, VZoom) then begin
+          VMapType.TileStorage.LoadTile(VTile, VZoom, VVersion, VTileInfo);
+          if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
             pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
-            if VMapType.TileExportToFile(VTile, VZoom, pathto, FIsReplace) then begin
+            if SaveTileToFile(VTileInfoWithData, pathto, FIsReplace) then begin
               if FIsMove then begin
-                VMapType.DeleteTile(VTile, VZoom);
+                VMapType.TileStorage.DeleteTile(VTile, VZoom, VVersion);
               end;
             end;
           end;
