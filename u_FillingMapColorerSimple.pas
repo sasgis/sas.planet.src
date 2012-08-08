@@ -5,7 +5,6 @@ interface
 uses
   GR32,
   t_FillingMapModes,
-  t_RangeFillingMap,
   i_TileInfoBasic,
   i_FillingMapColorer;
 
@@ -24,17 +23,11 @@ type
     FGradientDays: integer;
   private
     function InternalGetColor(
-      const ATileInfoOptional: PTileInfo;
-      const ARangeItemPtr: Pointer;
-      const ARangeItemLen: SmallInt
+      const ATileInfoOptional: PTileInfo
     ): TColor32;
   private
     function GetColor(const ATileInfo: ITileInfoBasic): TColor32; overload;
     function GetColor(const ATileInfo: TTileInfo): TColor32; overload;
-    function GetRangeColor(
-      const ARangeItemPtr: Pointer;
-      const ARangeItemLen: SmallInt
-    ): TColor32;
   public
     constructor Create(
       ANoTileColor: TColor32;
@@ -113,89 +106,12 @@ function TFillingMapColorerSimple.GetColor(
   const ATileInfo: TTileInfo
 ): TColor32;
 begin
-  Result := InternalGetColor(@ATileInfo, nil, 0);
-end;
-
-function TFillingMapColorerSimple.GetRangeColor(
-  const ARangeItemPtr: Pointer;
-  const ARangeItemLen: SmallInt
-): TColor32;
-begin
-  Result := InternalGetColor(nil, ARangeItemPtr, ARangeItemLen);
+  Result := InternalGetColor(@ATileInfo);
 end;
 
 function TFillingMapColorerSimple.InternalGetColor(
-  const ATileInfoOptional: PTileInfo;
-  const ARangeItemPtr: Pointer;
-  const ARangeItemLen: SmallInt
+  const ATileInfoOptional: PTileInfo
 ): TColor32;
-
-  function _GetIsExists: Boolean;
-  begin
-    if Assigned(ATileInfoOptional) then begin
-      Result := ATileInfoOptional.FInfoType = titExists;
-    end else begin
-      case ARangeItemLen of
-        SizeOf(TRangeFillingItem1): begin
-          Result := PRangeFillingItem1(ARangeItemPtr)^.IsTileExists;
-        end;
-        SizeOf(TRangeFillingItem4): begin
-          Result := PRangeFillingItem4(ARangeItemPtr)^.IsTileExists;
-        end;
-        SizeOf(TRangeFillingItem8): begin
-          Result := PRangeFillingItem8(ARangeItemPtr)^.IsTileExists;
-        end;
-      else begin
-        Result := FALSE;
-      end;
-      end;
-    end;
-  end;
-
-  function _GetIsExistsTNE: Boolean;
-  begin
-    if Assigned(ATileInfoOptional) then begin
-      Result := ATileInfoOptional.FInfoType = titTneExists;
-    end else begin
-      case ARangeItemLen of
-        SizeOf(TRangeFillingItem1): begin
-          Result := PRangeFillingItem1(ARangeItemPtr)^.IsTNEExists;
-        end;
-        SizeOf(TRangeFillingItem4): begin
-          Result := PRangeFillingItem4(ARangeItemPtr)^.IsTNEExists;
-        end;
-        SizeOf(TRangeFillingItem8): begin
-          Result := PRangeFillingItem8(ARangeItemPtr)^.IsTNEExists;
-        end;
-      else begin
-        Result := FALSE;
-      end;
-      end;
-    end;
-  end;
-
-  function _GetLoadDate: TDateTime;
-  begin
-    if Assigned(ATileInfoOptional) then begin
-      Result := ATileInfoOptional.FLoadDate;
-    end else begin
-      case ARangeItemLen of
-        SizeOf(TRangeFillingItem1): begin
-          Result := 0; // no datetime
-        end;
-        SizeOf(TRangeFillingItem4): begin
-          Result := PRangeFillingItem4(ARangeItemPtr)^.GetAsDateTime;
-        end;
-        SizeOf(TRangeFillingItem8): begin
-          Result := PRangeFillingItem8(ARangeItemPtr)^.GetAsDateTime;
-        end;
-      else begin
-        Result := 0;
-      end;
-      end;
-    end;
-  end;
-
 var
   VFileExists: Boolean;
   VFileDate: TDateTime;
@@ -203,11 +119,11 @@ var
   VC1, VC2: Double;
 begin
   Result := 0;
-  VFileExists := _GetIsExists;
+  VFileExists := ATileInfoOptional.FInfoType = titExists;
   if VFileExists then begin
     if FFillMode = fmExisting then begin
       if FFilterMode then begin
-        VFileDate := _GetLoadDate;
+        VFileDate := ATileInfoOptional.FLoadDate;
         VDateCompare := CompareDate(VFileDate, FFillLastDay);
         if (VDateCompare < GreaterThanValue) then begin
           VDateCompare := CompareDate(VFileDate, FFillFirstDay);
@@ -219,7 +135,7 @@ begin
         Result := FNoTileColor;
       end;
     end else if FFillMode = fmGradient then begin
-      VFileDate := _GetLoadDate;
+      VFileDate := ATileInfoOptional.FLoadDate;
       VDateCompare := CompareDate(VFileDate, FFillLastDay);
       if (VDateCompare <> GreaterThanValue) then begin
         VDateCompare := CompareDate(VFileDate, FFillFirstDay);
@@ -248,7 +164,7 @@ begin
       Result := FNoTileColor;
     end;
     if FShowTNE then begin
-      if _GetIsExistsTNE then begin
+      if ATileInfoOptional.FInfoType = titTneExists then begin
         Result := FTNEColor;
       end;
     end;
