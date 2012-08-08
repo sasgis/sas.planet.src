@@ -136,10 +136,10 @@ begin
       Sz1 := FBitmap.TextExtent(textoutx);
       Sz2 := FBitmap.TextExtent(textouty);
       if (Sz1.cx < VTileSize.X) and (Sz2.cx < VTileSize.X) then begin
-        VOutPoint := Point(Trunc(VTileCenter.X - Sz1.cx / 2), Trunc(VTileCenter.Y - Sz2.cy));
+        VOutPoint := Point(Trunc(VTileCenter.X - Sz1.cx / 2), Trunc(VTileCenter.Y - Sz1.cy));
         FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, textoutx, 0, FColor);
         VOutPoint := Point(Trunc(VTileCenter.X - Sz2.cx / 2), Trunc(VTileCenter.Y));
-        FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, textoutx, 0, FColor);
+        FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, textouty, 0, FColor);
       end;
     end;
   end;
