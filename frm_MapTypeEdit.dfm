@@ -435,11 +435,11 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         AlignWithMargins = True
         Left = 3
         Top = 6
-        Width = 40
+        Width = 34
         Height = 13
-        Anchors = []
+        Anchors = [akLeft]
         Caption = 'Hotkey'
-        ExplicitTop = 7
+        ExplicitTop = 3
       end
     end
     object grdpnlSleep: TGridPanel
