@@ -23,8 +23,7 @@ unit t_DLLCache;
 interface
 
 uses
-  Windows,
-  t_RangeFillingMap;
+  Windows;
 
 const
   // Init - FlagsInp

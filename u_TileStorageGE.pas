@@ -28,7 +28,6 @@ uses
   Classes,
   i_BinaryData,
   t_CommonTypes,
-  t_RangeFillingMap,
   t_DLLCache,
   i_SimpleTileStorageConfig,
   u_MapVersionFactoryGE,
