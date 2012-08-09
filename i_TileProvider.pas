@@ -15,8 +15,8 @@ type
     property GeoConverter: ICoordConverter read GetGeoConverter;
 
     function GetTile(
-      const AZoom: Byte;
-      const ATile: TPoint
+      const ATile: TPoint;
+      const AZoom: Byte
     ): IBitmap32Static;
   end;
 
@@ -26,8 +26,8 @@ type
     property GeoConverter: ICoordConverter read GetGeoConverter;
 
     function GetTile(
-      const AZoom: Byte;
-      const ATile: TPoint
+      const ATile: TPoint;
+      const AZoom: Byte
     ): IVectorDataItemList;
   end;
 

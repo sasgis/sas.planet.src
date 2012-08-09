@@ -27,8 +27,8 @@ type
   private
     function GetGeoConverter: ICoordConverter;
     function GetTile(
-      const AZoom: Byte;
-      const ATile: TPoint
+      const ATile: TPoint;
+      const AZoom: Byte
     ): IBitmap32Static;
   public
     constructor Create(
@@ -52,8 +52,8 @@ type
   private
     function GetGeoConverter: ICoordConverter;
     function GetTile(
-      const AZoom: Byte;
-      const ATile: TPoint
+      const ATile: TPoint;
+      const AZoom: Byte
     ): IVectorDataItemList;
   public
     constructor Create(
@@ -99,8 +99,10 @@ begin
   Result := FGeoConverter;
 end;
 
-function TBitmapTileProviderByStorage.GetTile(const AZoom: Byte;
-  const ATile: TPoint): IBitmap32Static;
+function TBitmapTileProviderByStorage.GetTile(
+  const ATile: TPoint;
+  const AZoom: Byte
+): IBitmap32Static;
 var
   VTileInfo: ITileInfoBasic;
   VData: IBinaryData;
@@ -177,8 +179,10 @@ begin
   Result := FGeoConverter;
 end;
 
-function TVectorTileProviderByStorage.GetTile(const AZoom: Byte;
-  const ATile: TPoint): IVectorDataItemList;
+function TVectorTileProviderByStorage.GetTile(
+  const ATile: TPoint;
+  const AZoom: Byte
+): IVectorDataItemList;
 var
   VTileInfo: ITileInfoBasic;
   VData: IBinaryData;

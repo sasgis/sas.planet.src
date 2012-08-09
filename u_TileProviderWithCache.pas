@@ -18,8 +18,8 @@ type
   private
     function GetGeoConverter: ICoordConverter;
     function GetTile(
-      const AZoom: Byte;
-      const ATile: TPoint
+      const ATile: TPoint;
+      const AZoom: Byte
     ): IBitmap32Static;
   public
     constructor Create(
@@ -35,8 +35,8 @@ type
   private
     function GetGeoConverter: ICoordConverter;
     function GetTile(
-      const AZoom: Byte;
-      const ATile: TPoint
+      const ATile: TPoint;
+      const AZoom: Byte
     ): IVectorDataItemList;
   public
     constructor Create(
@@ -64,12 +64,14 @@ begin
   Result := FSource.GeoConverter;
 end;
 
-function TBitmapTileProviderWithCache.GetTile(const AZoom: Byte;
-  const ATile: TPoint): IBitmap32Static;
+function TBitmapTileProviderWithCache.GetTile(
+  const ATile: TPoint;
+  const AZoom: Byte
+): IBitmap32Static;
 begin
   Result := FCache.TryLoadTileFromCache(ATile, AZoom);
   if Result = nil then begin
-    Result := FSource.GetTile(AZoom, ATile);
+    Result := FSource.GetTile(ATile, AZoom);
     if Result <> nil then begin
       FCache.AddTileToCache(Result, ATile, AZoom);
     end;
@@ -93,12 +95,14 @@ begin
   Result := FSource.GeoConverter;
 end;
 
-function TVectorTileProviderWithCache.GetTile(const AZoom: Byte;
-  const ATile: TPoint): IVectorDataItemList;
+function TVectorTileProviderWithCache.GetTile(
+  const ATile: TPoint;
+  const AZoom: Byte
+): IVectorDataItemList;
 begin
   Result := FCache.TryLoadTileFromCache(ATile, AZoom);
   if Result = nil then begin
-    Result := FSource.GetTile(AZoom, ATile);
+    Result := FSource.GetTile(ATile, AZoom);
     if Result <> nil then begin
       FCache.AddTileToCache(Result, ATile, AZoom);
     end;
