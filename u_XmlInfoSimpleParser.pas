@@ -417,10 +417,16 @@ var
     if Result then begin
       SafeSetWideStringP(VCoordinates, AKmlData.fParamsStrs[kml_coordinates]);
       VPointsAdded := 0;
+      
       // loop through points
       repeat
+        while (Length(VCoordinates)>0) and (VCoordinates[1] in [' ',#9,#10,#13,#160]) do begin
+          System.Delete(VCoordinates,1,1);
+        end;
+        
         if Length(VCoordinates)=0 then
           break;
+          
         VSepPos:=System.Pos(' ',VCoordinates);
         if (VSepPos>0) then begin
           // with delimiter
