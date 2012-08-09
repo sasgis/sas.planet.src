@@ -99,6 +99,7 @@ implementation
 
 uses
   SysUtils,
+  c_CacheTypeCodes,
   i_PathConfig,
   i_CoordConverter,
   i_SimpleTileStorageConfig,

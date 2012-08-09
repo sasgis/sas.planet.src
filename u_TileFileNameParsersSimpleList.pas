@@ -49,6 +49,7 @@ type
 implementation
 
 uses
+  c_CacheTypeCodes,
   u_TileFileNameSAS,
   u_TileFileNameGMV,
   u_TileFileNameES,

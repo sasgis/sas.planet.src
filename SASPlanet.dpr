@@ -28,6 +28,7 @@ uses
   c_CoordConverter in 'c_CoordConverter.pas',
   c_GeoCoderGUIDSimple in 'c_GeoCoderGUIDSimple.pas',
   c_SensorsGUIDSimple in 'c_SensorsGUIDSimple.pas',
+  c_CacheTypeCodes in 'c_CacheTypeCodes.pas',
   t_GeoTypes in 't_GeoTypes.pas',
   t_CommonTypes in 't_CommonTypes.pas',
   t_FillingMapModes in 't_FillingMapModes.pas',

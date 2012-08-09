@@ -101,6 +101,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  c_CacheTypeCodes,
   frm_ProgressCacheConvrter,   
   i_CacheConverterProgressInfo,
   u_NotifierOperation,

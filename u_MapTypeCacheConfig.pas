@@ -150,6 +150,7 @@ uses
   Windows,
   u_Synchronizer,
   ShLwApi,
+  c_CacheTypeCodes,
   u_Notifier,
   u_ListenerByEvent;
 

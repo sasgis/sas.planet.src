@@ -144,6 +144,7 @@ implementation
 uses
   WideStrings,
   t_CommonTypes,
+  c_CacheTypeCodes,
   i_TileIterator,
   i_FileNameIterator,
   u_TileRectInfoShort,

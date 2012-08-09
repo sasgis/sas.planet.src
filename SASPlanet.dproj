@@ -72,6 +72,7 @@
     <DCCReference Include="CacheManager\u_CacheConverterProgressInfo.pas" />
     <DCCReference Include="CacheManager\u_ThreadCacheConverter.pas" />
     <DCCReference Include="CacheManager\u_ThreadCacheManagerAbstract.pas" />
+    <DCCReference Include="c_CacheTypeCodes.pas" />
     <DCCReference Include="c_CoordConverter.pas" />
     <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
