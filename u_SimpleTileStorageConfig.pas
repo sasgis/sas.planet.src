@@ -77,6 +77,7 @@ type
 implementation
 
 uses
+  c_CacheTypeCodes,
   u_SimpleTileStorageConfigStatic;
 
 { TSimpleTileStorageConfig }
@@ -282,7 +283,7 @@ end;
 procedure TSimpleTileStorageConfig.SetCacheTypeCode(AValue: Integer);
 begin
   if FDefConfig.CacheTypeCode <> 5 then begin
-    if AValue <> 5 then begin
+    if AValue <> c_File_Cache_Id_GE then begin
       LockWrite;
       try
         if FCacheTypeCode <> AValue then begin
