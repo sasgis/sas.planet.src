@@ -102,12 +102,11 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes,
-  frm_ProgressCacheConvrter,   
   i_CacheConverterProgressInfo,
   u_NotifierOperation,
-  u_GlobalCahceConfig,
   u_ThreadCacheConverter,
-  u_CacheConverterProgressInfo;
+  u_CacheConverterProgressInfo,
+  frm_ProgressCacheConvrter;
 
 {$R *.dfm}
 

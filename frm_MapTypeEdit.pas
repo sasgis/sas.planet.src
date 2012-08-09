@@ -107,7 +107,6 @@ uses
   t_CommonTypes,
   c_CacheTypeCodes,
   i_TileDownloaderState,
-  u_GlobalCahceConfig,
   u_GlobalState,
   u_ResStrings;
 
