@@ -299,6 +299,7 @@ constructor TMapType.Create(
 var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
+  VCacheTypeCode: Integer;
 begin
   inherited Create;
   FZmp := AZmp;
@@ -340,15 +341,16 @@ begin
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
-  if FStorageConfig.CacheTypeCode = c_File_Cache_Id_DEFAULT then begin
-    FStorageConfig.CacheTypeCode := AGlobalCacheConfig.DefCache;
+  VCacheTypeCode := FStorageConfig.CacheTypeCode;
+  if VCacheTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VCacheTypeCode := AGlobalCacheConfig.DefCache;
   end;
 
-  if FStorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
+  if VCacheTypeCode = c_File_Cache_Id_BDB then begin
     FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager, FPerfCounterList);
-  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GE then begin
+  end else if VCacheTypeCode = c_File_Cache_Id_GE then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else if FStorageConfig.CacheTypeCode = c_File_Cache_Id_GC then begin
+  end else if VCacheTypeCode = c_File_Cache_Id_GC then begin
     FStorage := TTileStorageGC.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else begin
     FStorage :=

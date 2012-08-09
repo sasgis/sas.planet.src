@@ -187,7 +187,7 @@ begin
   FFormatSettings.TwoDigitYearCenturyWindow := 50;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FLock := MakeSyncRW_Big(Self, False);
-  FCacheConfig := TMapTypeCacheConfig.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
+  FCacheConfig := TMapTypeCacheConfigFileSystem.Create(AConfig, AGlobalCacheConfig, ATileNameGeneratorList);
   FMainContentType := AContentTypeManager.GetInfoByExt(Config.TileFileExt);
 
   VCacheType := AConfig.CacheTypeCode;
