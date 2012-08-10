@@ -97,6 +97,8 @@ type
   end;
   PParseXML_Aux = ^TParseXML_Aux;
 
+  TForceObjectType = (fotNone, fotPolyLine, fotPolygon);
+
 procedure ParseXML_Aux_Cleanup_Array(p: PParseXML_Aux);
 begin
   with p^ do begin
@@ -152,7 +154,7 @@ end;
 
 procedure ParseXML_Aux_AddTrackSegmentToList(
   AParseXML_Aux: PParseXML_Aux;
-  const AForcePolyLine: Boolean;
+  const AForceObjectType: TForceObjectType;
   const AWideStrName, AWideStrDesc: WideString;
   const AItemsFactory: IVectorItmesFactory
 );
@@ -176,7 +178,7 @@ begin
       if (1 = array_count) then begin
         // single point in track segment - make as point
         trk_obj := AParseXML_Aux^.Factory.BuildPoint('', AWideStrName, AWideStrDesc, array_points[0]);
-      end else if (not AForcePolyLine) and DoublePointsEqual(array_points[0], array_points[array_count - 1]) then begin
+      end else if (AForceObjectType=fotPolygon) or ((AForceObjectType=fotNone) and DoublePointsEqual(array_points[0], array_points[array_count - 1])) then begin
         // polygon
         trk_obj :=
           AParseXML_Aux^.Factory.BuildPoly(
@@ -451,6 +453,18 @@ var
     end;
   end;
 
+  function _GetKmlForceObjectTypeMode(const Atag: Tvsagps_KML_main_tag): TForceObjectType;
+  begin
+    case Atag of
+    kml_LinearRing:
+      Result := fotPolygon;
+    kml_LineString:
+      Result := fotPolyLine;
+    else
+      Result := fotNone;
+    end;
+  end;
+
 begin
   // if aborted
   if pPX_State^.aborted_by_user then begin
@@ -483,7 +497,7 @@ begin
         if _ParseCoordinatesForKML(pPX_Result^.kml_data) then
           ParseXML_Aux_AddTrackSegmentToList(
             PParseXML_Aux(pUserAuxPointer),
-            (pPX_Result^.kml_data.current_tag=kml_LineString),
+            _GetKmlForceObjectTypeMode(pPX_Result^.kml_data.current_tag),
             VWSName, VWSDesc,
             FFactory);
 
@@ -549,7 +563,7 @@ begin
           // make track segment object
           ParseXML_Aux_AddTrackSegmentToList(
             PParseXML_Aux(pUserAuxPointer),
-            FALSE,
+            fotNone,
             VWSName, VWSDesc,
             FFactory);
             
