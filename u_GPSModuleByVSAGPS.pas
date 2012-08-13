@@ -47,6 +47,7 @@ uses
   vsagps_public_position,
   vsagps_public_trackpoint,
   vsagps_public_sysutils,
+  vsagps_public_debugstring,
   vsagps_public_unit_info;
 
 type
@@ -121,7 +122,7 @@ type
     procedure InternalClearUnitInfo(const AUnitIndex: Byte);
     procedure InternalSetUnitInfo(const AUnitIndex: Byte;
                                   const AKind: TVSAGPS_UNIT_INFO_Kind;
-                                  const AValue: String);
+                                  const AValue: AnsiString);
                                   
     procedure LockUnitInfo(const AUnitIndex: Byte);
     procedure UnlockUnitInfo(const AUnitIndex: Byte);
@@ -134,12 +135,12 @@ type
     function DoExecuteGPSCommand(Sender: TObject;
                                  const AUnitIndex: Byte;
                                  const ACommand: LongInt;
-                                 const APointer: Pointer): String;
+                                 const APointer: Pointer): AnsiString;
                                   
     // called by device object when unit info changed
     procedure DoGPSUnitInfoChanged(const AUnitIndex: Byte;
                                    const AKind: TVSAGPS_UNIT_INFO_Kind;
-                                   const AValue: PChar);
+                                   const AValue: PAnsiChar);
   protected
     procedure Connect(const AConfig: IGPSModuleByCOMPortSettings;
                       const ALogConfig: IGPSConfig); safecall;
@@ -303,7 +304,7 @@ procedure rVSAGPS_UNIT_INFO_DLL_Proc(const pUserPointer: Pointer;
                                      const btUnitIndex: Byte;
                                      const dwGPSDevType: DWORD;
                                      const eKind: TVSAGPS_UNIT_INFO_Kind;
-                                     const szValue: PChar); stdcall;
+                                     const szValue: PAnsiChar); stdcall;
 begin
   if (nil<>pUserPointer) then
     TGPSModuleByVSAGPS(pUserPointer).DoGPSUnitInfoChanged(btUnitIndex, eKind, szValue);
@@ -427,9 +428,9 @@ procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
 const
   FlyOnTrackCFG='vsagps_fly-on-track.cfg';
 var
-  FGPSPortName: String;
+  FGPSPortName: AnsiString;
 {$if defined(VSAGPS_AS_DLL)}
-  FszGPSPortName: PChar;
+  FszGPSPortName: PAnsiChar;
 {$ifend}
   FGPSDevType: DWORD;
   VTimeout: DWORD;
@@ -461,6 +462,10 @@ begin
   try
     if FConnectState <> gs_DoneDisconnected then
       Exit;
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Connect: begin');
+{$ifend}
 
     VFlyOnTrackSource:='';
     _LoadFlyOnTrackSource;
@@ -528,11 +533,15 @@ begin
       FGPSPortName:='COM' + IntToStr(AConfig.Port);
 {$if defined(VSAGPS_AS_DLL)}
       FGPSPortName:=FGPSPortName+#0;
-      FszGPSPortName:=PChar(FGPSPortName);
+      FszGPSPortName:=PAnsiChar(FGPSPortName);
 {$ifend}
       FGPSGPS_DevParams.btAutodetectOnConnect:=Ord(AConfig.AutodetectCOMOnConnect<>FALSE);
       FGPSGPS_DevParams.dwAutodetectFlags:=AConfig.AutodetectCOMFlags;
     end;
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Connect: before GPSConnect');
+{$ifend}
 
     try
 {$if defined(VSAGPS_AS_DLL)}
@@ -556,6 +565,11 @@ begin
                                         nil)) then
 {$ifend}
       begin
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+        VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Connect: not connected');
+{$ifend}
+
         // not connected
         raise Exception.Create(SAS_MSG_NoGPSdetected);
       end;
@@ -612,7 +626,15 @@ begin
   inherited;
   LockConnect;
   try
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: begin');
+{$ifend}
+
     if FConnectState<>gs_DoneDisconnected then begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+      VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: before GPSDisconnect');
+{$ifend}
+    
 {$if defined(VSAGPS_AS_DLL)}
       VSAGPS_Disconnect(FVSAGPS_HANDLE);
 {$else}
@@ -629,7 +651,7 @@ end;
 procedure TGPSModuleByVSAGPS.DoAddPointToLogWriter(const AUnitIndex: Byte);
 var
   tATP: Tvsagps_AddTrackPoint;
-  s: String;
+  s: AnsiString;
 begin
   //inherited;
   LockLogger;
@@ -665,7 +687,7 @@ end;
 function TGPSModuleByVSAGPS.DoExecuteGPSCommand(Sender: TObject;
                                                 const AUnitIndex: Byte;
                                                 const ACommand: LongInt;
-                                                const APointer: Pointer): String;
+                                                const APointer: Pointer): AnsiString;
 begin
   // some special commands
 
@@ -726,8 +748,8 @@ end;
 procedure TGPSModuleByVSAGPS.DoGPSUnitInfoChanged(
   const AUnitIndex: Byte;
   const AKind: TVSAGPS_UNIT_INFO_Kind;
-  const AValue: PChar);
-var s: String;
+  const AValue: PAnsiChar);
+var s: AnsiString;
 begin
   // save to info
   if (guik_ClearALL=AKind) then
@@ -756,7 +778,7 @@ procedure TGPSModuleByVSAGPS.GPSRecv_NMEA_GSV(const AUnitIndex: Byte; const pGSV
 var
   VFixIndex: ShortInt;
   VStatus: Byte;
-  VTalkerID: String;
+  VTalkerID: AnsiString;
 begin
   if (nil=pGSV) or (sizeof(pGSV^)<>pGSV^.dwSize) then
     Exit;
@@ -865,7 +887,7 @@ end;
 procedure TGPSModuleByVSAGPS.Do_VSAGPS_LOGGER_TRACKPARAMS_EVENT(const pLogger: Pointer;
                                                                 const pATP: Pvsagps_AddTrackPoint;
                                                                 const AParamsOut: PVSAGPS_LOGGER_GETVALUES_CALLBACK_PARAMS);
-  procedure _AllocA(const s: String);
+  procedure _AllocA(const s: AnsiString);
   var dwLen: DWORD;
   begin
     if (nil<>AParamsOut.AStrResult) then begin
@@ -874,12 +896,12 @@ procedure TGPSModuleByVSAGPS.Do_VSAGPS_LOGGER_TRACKPARAMS_EVENT(const pLogger: P
     end;
     dwLen:=Length(s);
     AParamsOut.AStrResult:=VSAGPS_GetMem(dwLen+1);
-    CopyMemory(AParamsOut.AStrResult, PChar(s), dwLen);
+    CopyMemory(AParamsOut.AStrResult, PAnsiChar(s), dwLen);
     AParamsOut.AStrResult[dwLen]:=#0;
   end;
 
 var
-  st: String;
+  st: AnsiString;
 begin
   if (ttGPX=pATP^.eTrackType) then
   case pATP^.eTrackParam of
@@ -1006,7 +1028,11 @@ begin
   end;
 end;
 
-procedure TGPSModuleByVSAGPS.InternalSetUnitInfo(const AUnitIndex: Byte; const AKind: TVSAGPS_UNIT_INFO_Kind; const AValue: String);
+procedure TGPSModuleByVSAGPS.InternalSetUnitInfo(
+  const AUnitIndex: Byte;
+  const AKind: TVSAGPS_UNIT_INFO_Kind;
+  const AValue: AnsiString
+);
 begin
   LockUnitInfo(AUnitIndex);
   try
@@ -1112,32 +1138,68 @@ end;
 
 procedure TGPSModuleByVSAGPS.LockConnect;
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockConnect: in');
+{$ifend}
   EnterCriticalSection(FConnectCS);
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockConnect: ok');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.LockLogger;
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockLogger: in');
+{$ifend}
   EnterCriticalSection(FLoggerCS);
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockLogger: ok');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.LockUnitInfo(const AUnitIndex: Byte);
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockUnitInfo: in');
+{$ifend}
   EnterCriticalSection(FUnitInfoCS);
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockUnitInfo: ok');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.UnlockConnect;
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.UnlockConnect: in');
+{$ifend}
   LeaveCriticalSection(FConnectCS);
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.UnlockConnect: ok');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.UnlockLogger;
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.UnlockLogger: in');
+{$ifend}
   LeaveCriticalSection(FLoggerCS);
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.UnlockLogger: ok');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.UnlockUnitInfo(const AUnitIndex: Byte);
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.UnlockUnitInfo: in');
+{$ifend}
   LeaveCriticalSection(FUnitInfoCS);
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.UnlockUnitInfo: ok');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.GPSRecv_GARMIN_D800(const AUnitIndex: Byte; const pData: PD800_Pvt_Data_Type);
@@ -1146,7 +1208,7 @@ var
   VUTCTime: TDateTime;
   VUTCDate: TDateTime;
   VTemp: Byte;
-  VNmea23Mode: Char;
+  VNmea23Mode: AnsiChar;
 begin
   if (nil=pData) then
     Exit;
@@ -1286,7 +1348,7 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
 {$ifend}  
   end;
 
-  procedure AddLoggerPacket(const p: PChar);
+  procedure AddLoggerPacket(const p: PAnsiChar);
   begin
 {$if defined(VSAGPS_AS_DLL)}
     VSAGPS_AddLoggerPacket(FVSAGPS_LOGGER, p, StrLen(p), nil);
@@ -1296,7 +1358,7 @@ procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
   end;
 
   procedure InternalDumpByDevice;
-  var p: PChar;
+  var p: PAnsiChar;
   begin
 {$if defined(VSAGPS_AS_DLL)}
     p:=VSAGPS_SerializePacket(FVSAGPS_HANDLE, AUnitIndex, APacket, nil);
@@ -1319,7 +1381,7 @@ begin
       InternalDumpByDevice;
     end else if (gdt_COM_NMEA0183=(ADevType and gdt_COM_NMEA0183)) then begin
       // write full nmea packets like a strings
-      AddLoggerPacket(PChar(APacket));
+      AddLoggerPacket(PAnsiChar(APacket));
     end;
   end;
 end;
@@ -1330,7 +1392,7 @@ var
   VPositionOK: Boolean;
   VUTCTimeOK: Boolean;
   VUTCTime: TDateTime;
-  VNmea23Mode: Char;
+  VNmea23Mode: AnsiChar;
 begin
   if (nil=pGGA) or (sizeof(pGGA^)<>pGGA^.dwSize) then
     Exit;
@@ -1410,7 +1472,7 @@ end;
 
 procedure TGPSModuleByVSAGPS.GPSRecv_NMEA_GSA(const AUnitIndex: Byte; const pGSA: PNMEA_GSA);
 var
-  VSourceTalkerID: String;
+  VSourceTalkerID: AnsiString;
 begin
   if (nil=pGSA) or (sizeof(pGSA^)<>pGSA^.dwSize) then
     Exit;

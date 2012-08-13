@@ -57,7 +57,7 @@ type
       const AUnitIndex: Byte;
       const ACommand: LongInt;
       const APointer: Pointer
-    ): String;
+    ): AnsiString;
     procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
 
     procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);

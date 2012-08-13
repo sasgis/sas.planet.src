@@ -83,8 +83,8 @@ type
   protected
     FSingleGPSData: TSingleGPSData;
     FFixSatsALL: TVSAGPS_FIX_ALL;
-    function GetSatellitesListByTalkerID(const ATalkerID: String): TSatellitesInternalList;
-    function SerializeSatsInfo: String;
+    function GetSatellitesListByTalkerID(const ATalkerID: AnsiString): TSatellitesInternalList;
+    function SerializeSatsInfo: AnsiString;
   protected
     property DataReciveNotifier: INotifierInternal read FDataReciveNotifier;
 
@@ -109,7 +109,7 @@ type
     );
 
     procedure _UpdateSattelite(
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       const AIndex: Byte;
       const ASatellite_Info: TVSAGPS_FIX_SAT;
       const AElevation: SInt16;
@@ -120,7 +120,7 @@ type
     );
 
     procedure _UpdateSatsInView(
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       const ACount: Byte
     );
 
@@ -135,7 +135,7 @@ type
     );
 
     procedure _UpdateFixedSats(
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       const AFixedSats: PVSAGPS_FIX_SATS
     );
 
@@ -149,7 +149,7 @@ type
 
     procedure _UpdateMagVar(
       const AMagVar_Deg: Double;
-      const AMagVar_Sym: Char
+      const AMagVar_Sym: AnsiChar
     );
 
     procedure _UpdateFixStatus(
@@ -161,11 +161,11 @@ type
     );
 
     procedure _UpdateNavMode(
-      const ANavMode: Char
+      const ANavMode: AnsiChar
     );
 
     procedure _UpdateNmea23Mode(
-      const ANmea23Mode: Char;
+      const ANmea23Mode: AnsiChar;
       const ADontSetIfNewIsEmpty: Boolean;
       const ADontSetIfOldIsANR: Boolean
     );
@@ -349,7 +349,7 @@ begin
   end;
 end;
 
-function TGPSModuleAbstract.GetSatellitesListByTalkerID(const ATalkerID: String): TSatellitesInternalList;
+function TGPSModuleAbstract.GetSatellitesListByTalkerID(const ATalkerID: AnsiString): TSatellitesInternalList;
 begin
   if SameText(ATalkerID, nmea_ti_GLONASS) then begin
     Result := FSatellitesGL;
@@ -368,16 +368,16 @@ begin
   FCSGPSData.BeginWrite;
 end;
 
-function TGPSModuleAbstract.SerializeSatsInfo: String;
+function TGPSModuleAbstract.SerializeSatsInfo: AnsiString;
 
-  procedure _AddToResult(const s: String);
+  procedure _AddToResult(const s: AnsiString);
   begin
     Result := Result + s + ',';
   end;
 
   procedure _DoForSats(
   const lst: TSatellitesInternalList;
-  const sats_prefix: String
+  const sats_prefix: AnsiString
   );
   var
     i: Integer;
@@ -385,7 +385,7 @@ function TGPSModuleAbstract.SerializeSatsInfo: String;
     bsp: TSingleSatFixibilityData;
     ssp: TSingleSatSkyData;
     si: IGPSSatelliteInfo;
-    s: String;
+    s: AnsiString;
   begin
     si := nil;
     v_done := 0;
@@ -505,7 +505,7 @@ begin
 end;
 
 procedure TGPSModuleAbstract._UpdateFixedSats(
-  const ATalkerID: String;
+  const ATalkerID: AnsiString;
   const AFixedSats: PVSAGPS_FIX_SATS
 );
 var
@@ -531,7 +531,7 @@ procedure TGPSModuleAbstract._UpdateFromTrackPoint(const pData: PSingleTrackPoin
   procedure _DoForSats(
   const a_fix_count: Byte;
   const p_sky_1: PSingleSatsInfoData;
-  const a_talker_id: String
+  const a_talker_id: AnsiString
   );
   var
     i: SmallInt;
@@ -595,7 +595,7 @@ end;
 
 procedure TGPSModuleAbstract._UpdateMagVar(
   const AMagVar_Deg: Double;
-  const AMagVar_Sym: Char
+  const AMagVar_Sym: AnsiChar
 );
 begin
   if FSingleGPSData.MagVar.variation_degree <> AMagVar_Deg then begin
@@ -665,7 +665,7 @@ begin
 end;
 
 procedure TGPSModuleAbstract._UpdateSatsInView(
-  const ATalkerID: String;
+  const ATalkerID: AnsiString;
   const ACount: Byte
 );
 var
@@ -679,7 +679,7 @@ begin
 end;
 
 procedure TGPSModuleAbstract._UpdateSattelite(
-  const ATalkerID: String;
+  const ATalkerID: AnsiString;
   const AIndex: Byte;
   const ASatellite_Info: TVSAGPS_FIX_SAT;
   const AElevation: SInt16;
@@ -784,7 +784,7 @@ begin
   end;
 end;
 
-procedure TGPSModuleAbstract._UpdateNavMode(const ANavMode: Char);
+procedure TGPSModuleAbstract._UpdateNavMode(const ANavMode: AnsiChar);
 begin
   if FSingleGPSData.NavMode <> ANavMode then begin
     FSingleGPSData.NavMode := ANavMode;
@@ -793,7 +793,7 @@ begin
 end;
 
 procedure TGPSModuleAbstract._UpdateNmea23Mode(
-  const ANmea23Mode: Char;
+  const ANmea23Mode: AnsiChar;
   const ADontSetIfNewIsEmpty: Boolean;
   const ADontSetIfOldIsANR: Boolean
 );

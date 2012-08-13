@@ -35,10 +35,10 @@ type
 
   IGPSSatellitesInView = interface
     ['{D8744967-74EB-47A1-A8FD-4626B5CD2B20}']
-    function GetCount(const ATalkerID: String): Byte; stdcall;
-    function GetFixCount(const ATalkerID: String): Byte; stdcall;
+    function GetCount(const ATalkerID: AnsiString): Byte; stdcall;
+    function GetFixCount(const ATalkerID: AnsiString): Byte; stdcall;
     function GetItem(
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       const AIndex: Byte
     ): IGPSSatelliteInfo; stdcall;
 
@@ -47,18 +47,18 @@ type
 
     function GetAllSatelliteParams(
       const AIndex: Byte;
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       var AFixed: Boolean;
       AParams: PSingleSatFixibilityData;
       ASky: PSingleSatSkyData = nil
     ): Boolean; stdcall;
 
-    function EnumerateTalkerID(var ATalkerID: String): Boolean; stdcall;
+    function EnumerateTalkerID(var ATalkerID: AnsiString): Boolean; stdcall;
     function GetCountForAllTalkerIDs(const AOnlyForFixed: Boolean): Byte; stdcall;
 
-    property Count[const ATalkerID: String]: Byte read GetCount;
-    property FixCount[const ATalkerID: String]: Byte read GetFixCount;
-    property Item[const ATalkerID: String; const AIndex: Byte]: IGPSSatelliteInfo read GetItem;
+    property Count[const ATalkerID: AnsiString]: Byte read GetCount;
+    property FixCount[const ATalkerID: AnsiString]: Byte read GetFixCount;
+    property Item[const ATalkerID: AnsiString; const AIndex: Byte]: IGPSSatelliteInfo read GetItem;
   end;
 
   IGPSPosition = interface
