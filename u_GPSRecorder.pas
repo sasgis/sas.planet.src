@@ -83,13 +83,13 @@ type
     FCurrentPosition: IGPSPosition;
     FLastPositionOK: Boolean;
 
-    FGPSUnitInfo: String;
+    FGPSUnitInfo: AnsiString;
     function AddPointInternal(const APoint: TGPSTrackPoint): TDoublePoint;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
+    function GenerateGPSUnitInfo(const AUnitIndex: Byte): AnsiString;
     procedure ReGenerateGPSUnitInfo;
     procedure DoGPSUnitInfoChanged(
       Sender: TObject;
@@ -716,7 +716,7 @@ begin
   end;
 end;
 
-function TGPSRecorder.GenerateGPSUnitInfo(const AUnitIndex: Byte): String;
+function TGPSRecorder.GenerateGPSUnitInfo(const AUnitIndex: Byte): AnsiString;
 begin
   if Assigned(FGPSPositionFactory) then begin
     Result := FGPSPositionFactory.ExecuteGPSCommand(Self, AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil);

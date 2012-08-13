@@ -62,7 +62,7 @@ type
       const AUnitIndex: Byte;
       const ACommand: LongInt;
       const APointer: Pointer
-    ): String;
+    ): AnsiString;
 
     procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
 
@@ -96,7 +96,7 @@ function TGPSPositionFactory.ExecuteGPSCommand(
   const AUnitIndex: Byte;
   const ACommand: Integer;
   const APointer: Pointer
-): String;
+): AnsiString;
 begin
   if Assigned(FExecuteGPSCommandEvent) then begin
     Result := FExecuteGPSCommandEvent(Sender, AUnitIndex, ACommand, APointer);

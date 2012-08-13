@@ -42,10 +42,10 @@ type
       var AItemsIfaceTI: IInterfaceList
     );
   private
-    function GetCount(const ATalkerID: String): Byte; stdcall;
-    function GetFixCount(const ATalkerID: String): Byte; stdcall;
+    function GetCount(const ATalkerID: AnsiString): Byte; stdcall;
+    function GetFixCount(const ATalkerID: AnsiString): Byte; stdcall;
     function GetItem(
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       const AIndex: Byte
     ): IGPSSatelliteInfo; stdcall;
 
@@ -54,13 +54,13 @@ type
 
     function GetAllSatelliteParams(
       const AIndex: Byte;
-      const ATalkerID: String;
+      const ATalkerID: AnsiString;
       var AFixed: Boolean;
       AParams: PSingleSatFixibilityData;
       ASky: PSingleSatSkyData = nil
     ): Boolean; stdcall;
 
-    function EnumerateTalkerID(var ATalkerID: String): Boolean; stdcall;
+    function EnumerateTalkerID(var ATalkerID: AnsiString): Boolean; stdcall;
     function GetCountForAllTalkerIDs(const AOnlyForFixed: Boolean): Byte; stdcall;
   public
     constructor Create(
@@ -98,7 +98,7 @@ begin
   inherited;
 end;
 
-function TGPSSatellitesInView.EnumerateTalkerID(var ATalkerID: String): Boolean;
+function TGPSSatellitesInView.EnumerateTalkerID(var ATalkerID: AnsiString): Boolean;
 begin
   if (0 = Length(ATalkerID)) then begin
     // get first talker_id
@@ -137,7 +137,7 @@ begin
   Result := FALSE;
 end;
 
-function TGPSSatellitesInView.GetCount(const ATalkerID: String): Byte;
+function TGPSSatellitesInView.GetCount(const ATalkerID: AnsiString): Byte;
 begin
   if SameText(ATalkerID, nmea_ti_GLONASS) then begin
     // glonass
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-function TGPSSatellitesInView.GetFixCount(const ATalkerID: String): Byte;
+function TGPSSatellitesInView.GetFixCount(const ATalkerID: AnsiString): Byte;
 var
   p: PVSAGPS_FIX_SATS;
 begin
@@ -188,7 +188,7 @@ end;
 
 function TGPSSatellitesInView.GetAllSatelliteParams(
   const AIndex: Byte;
-  const ATalkerID: String;
+  const ATalkerID: AnsiString;
   var AFixed: Boolean;
   AParams: PSingleSatFixibilityData;
   ASky: PSingleSatSkyData = nil
@@ -212,7 +212,7 @@ begin
 end;
 
 function TGPSSatellitesInView.GetItem(
-  const ATalkerID: String;
+  const ATalkerID: AnsiString;
   const AIndex: Byte
 ): IGPSSatelliteInfo;
 begin
