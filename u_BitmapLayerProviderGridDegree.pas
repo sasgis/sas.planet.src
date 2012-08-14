@@ -177,6 +177,7 @@ begin
       if copy(VListName, length(VListName) - 2, 3) = '00''' then begin
         VListName := ReplaceStr(VListName, '00''', '');
       end;
+      if length(VListName)>4 then
       VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
       VListName := ReplaceStr(VListName, ',°', '°');
 
@@ -201,6 +202,7 @@ begin
       if copy(VListName, length(VListName) - 2, 3) = '00''' then begin
         VListName := ReplaceStr(VListName, '00''', '');
       end;
+      if length(VListName)>4 then
       VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
       VListName := ReplaceStr(VListName, ',°', '°');
 
