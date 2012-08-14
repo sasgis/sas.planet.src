@@ -42,8 +42,8 @@ begin
   VRect := RectFromDoubleRect(VDoubleRect, rrClosest);
 
   VTargetRect := VRect;
-  IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
-  if IsRectEmpty(VTargetRect) then begin
+  Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
+  if Types.IsRectEmpty(VTargetRect) then begin
     Result := False;
     Exit;
   end;

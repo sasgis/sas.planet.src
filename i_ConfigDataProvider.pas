@@ -31,6 +31,10 @@ type
     ['{FB657238-6D8F-463D-B56F-3FB4C74EE352}']
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadAnsiString(
+      const AIdent: string;
+      const ADefault: AnsiString
+    ): AnsiString;
     function ReadString(
       const AIdent: string;
       const ADefault: string

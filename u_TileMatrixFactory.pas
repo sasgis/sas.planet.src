@@ -282,10 +282,10 @@ var
   VIndex: Integer;
   VX, VY: Integer;
 begin
-  if not IntersectRect(VIntersectRect, ATileRect, ASource.TileRect) then begin
+  if not Types.IntersectRect(VIntersectRect, ATileRect, ASource.TileRect) then begin
     Result := BuildEmpty(ATileRect, ANewConverter);
   end else begin
-    VTileCount := Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
+    VTileCount := Types.Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
     SetLength(VElements, VTileCount.X * VTileCount.Y);
     try
       for VX := VIntersectRect.Left to VIntersectRect.Right - 1 do begin
@@ -341,10 +341,10 @@ begin
       VConverter.RelativeRect2TileRectFloat(VRelativeRectSource, VZoom),
       rrToTopLeft
     );
-  if not IntersectRect(VIntersectRect, ATileRect, VTileRectSourceAtTarget) then begin
+  if not Types.IntersectRect(VIntersectRect, ATileRect, VTileRectSourceAtTarget) then begin
     Result := BuildEmpty(ATileRect, ANewConverter);
   end else begin
-    VTileCount := Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
+    VTileCount := Types.Point(ATileRect.Right - ATileRect.Left, ATileRect.Bottom - ATileRect.Top);
     SetLength(VElements, VTileCount.X * VTileCount.Y);
     try
       VResampler := nil;

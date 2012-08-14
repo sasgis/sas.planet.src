@@ -156,7 +156,7 @@ begin
 
       VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
-      VOutPoint := Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalCellCenter.Y - VTextSize.cy));
+      VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalCellCenter.Y - VTextSize.cy));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
     end;
   end;

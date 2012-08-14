@@ -329,7 +329,7 @@ var
   VText: string;
 begin
   VWidth := (AScaleLegendWidth div 4) * 4;
-  VBitmapSize := Point(ATargetBitmap.Width, ATargetBitmap.Height);
+  VBitmapSize := Types.Point(ATargetBitmap.Width, ATargetBitmap.Height);
   ATargetBitmap.Line(0, VBitmapSize.Y - 3, VWidth + 2, VBitmapSize.Y - 3, AOutLineColor);
   for I := 0 to 4 do begin
     VStartX := I * (VWidth div 4);
@@ -409,7 +409,7 @@ begin
   VZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
   VStartPixel := PointFromDoublePoint(AVisualCoordConverter.GetCenterMapPixelFloat, prToTopLeft);
-  VFinishPixel := Point(VStartPixel.X + 1, VStartPixel.Y);
+  VFinishPixel := Types.Point(VStartPixel.X + 1, VStartPixel.Y);
   VStartLonLat := VConverter.PixelPos2LonLat(VStartPixel, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(VFinishPixel, VZoom);
   Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
@@ -574,7 +574,7 @@ var
   VText: string;
 begin
   VHeight := (AScaleLegendHeight div 4) * 4;
-  VBitmapSize := Point(ATargetBitmap.Width, ATargetBitmap.Height);
+  VBitmapSize := Types.Point(ATargetBitmap.Width, ATargetBitmap.Height);
   if VBitmapSize.Y > VHeight then begin
     ATargetBitmap.VertLineS(2, VBitmapSize.Y - 3, VBitmapSize.Y - VHeight - 3, AOutLineColor);
     for I := 1 to 4 do begin
@@ -656,14 +656,14 @@ begin
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(
-    Point(VCenterPixelXY.X, VCenterPixelXY.Y - (ALineHeight div 2)),
+    Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - (ALineHeight div 2)),
     VZoom
   );
   AHalfLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(
-    Point(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight),
+    Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight),
     VZoom
   );
   AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
@@ -679,7 +679,7 @@ function TLayerScaleLine.GetNewLayerLocation: TFloatRect;
 var
   VSize: TPoint;
 begin
-  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+  VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   Result.Left := 6;
   Result.Bottom := FPosition.GetStatic.GetLocalRect.Bottom - 6 - FConfig.BottomMargin;
   Result.Right := Result.Left + VSize.X;

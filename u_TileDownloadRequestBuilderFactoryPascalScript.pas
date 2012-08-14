@@ -59,7 +59,7 @@ type
     function BuildRequestBuilder(const ADownloader: IDownloader): ITileDownloadRequestBuilder;
   public
     constructor Create(
-      const AScriptText: string;
+      const AScriptText: AnsiString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const ACheker: IDownloadChecker;
@@ -79,7 +79,7 @@ uses
 { TTileDownloadRequestBuilderFactoryPascalScript }
 
 constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
-  const AScriptText: string;
+  const AScriptText: AnsiString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const ACheker: IDownloadChecker;
@@ -133,7 +133,7 @@ begin
     VType := ACompiler.FindType('ICoordConverter');
     ACompiler.AddUsedVariable('Converter', VType);
 
-    VType := ACompiler.FindType('string');
+    VType := ACompiler.FindType('AnsiString');
     ACompiler.AddUsedVariable('ResultURL', VType);
     ACompiler.AddUsedVariable('PostData', VType);
     ACompiler.AddUsedVariable('GetURLBase', VType);
@@ -173,7 +173,7 @@ function TTileDownloadRequestBuilderFactoryPascalScript.BuildRequestBuilder(
   const ADownloader: IDownloader
 ): ITileDownloadRequestBuilder;
 var
-  VProjArgs: string;
+  VProjArgs: AnsiString;
 begin
   Result := nil;
   if FStateInternal.Enabled then begin

@@ -43,7 +43,7 @@ type
     { IMapAttachmentsFactory }
     function GetCompiledData: String;
   public
-    constructor Create(const AScriptText: string);
+    constructor Create(const AScriptText: AnsiString);
   end;
 
 procedure RunParseAttachmentScript(
@@ -61,7 +61,7 @@ uses
 
 { TMapAttachmentsFactoryPascalScript }
 
-constructor TMapAttachmentsFactoryPascalScript.Create(const AScriptText: string);
+constructor TMapAttachmentsFactoryPascalScript.Create(const AScriptText: AnsiString);
 begin
   inherited;
   PreparePascalScript;

@@ -390,7 +390,7 @@ begin
   if Visible then begin
     Result := ANewVisualCoordConverter.GetLocalRectSize;
   end else begin
-    Result := Point(0, 0);
+    Result := Types.Point(0, 0);
   end;
 end;
 

@@ -118,8 +118,8 @@ begin
   VTargetDoubleRect.Bottom := APosition.Y + VHalfSize;
   VTargetRect := RectFromDoubleRect(VTargetDoubleRect, rrOutside);
 
-  IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
-  if IsRectEmpty(VTargetRect) then begin
+  Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
+  if Types.IsRectEmpty(VTargetRect) then begin
     Result := False;
     Exit;
   end;

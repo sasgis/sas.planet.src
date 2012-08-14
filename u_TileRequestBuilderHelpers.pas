@@ -24,16 +24,16 @@ interface
 
 function Rand(X: Integer): Integer;
 function GetUnixTime: Int64;
-function StrLength (const Str: string): Integer;
-function GetAfter(const SubStr, Str: string): string;
-function GetBefore(const SubStr, Str: string): string;
-function GetBetween(const Str, After, Before: string): string;
+function StrLength (const Str: AnsiString): Integer;
+function GetAfter(const SubStr, Str: AnsiString): AnsiString;
+function GetBefore(const SubStr, Str: AnsiString): AnsiString;
+function GetBetween(const Str, After, Before: AnsiString): AnsiString;
 function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer;
-function SetHeaderValue(const AHeaders, AName, AValue: string): string;
-function GetHeaderValue(const AHeaders, AName: string): string;
-function GetNumberAfter(const ASubStr, AText: String): String;
-function GetDiv3Path(const ASource: String): String;
-function SaveToLocalFile(const AFullLocalFilename, AData: String): Integer;
+function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
+function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
+function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString;
+function GetDiv3Path(const ASource: AnsiString): AnsiString;
+function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer;
 
 implementation
 
@@ -53,12 +53,12 @@ begin
   Result := DateTimeToUnix(now);
 end;
 
-function StrLength (const Str: string): Integer;
+function StrLength (const Str: AnsiString): Integer;
 begin
   Result := Length(Str);
 end;
 
-function GetAfter(const SubStr, Str: string): string;
+function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 begin
   if pos(substr,str) > 0 then
     result := copy(str,pos(substr,str)+length(substr),length(str))
@@ -66,7 +66,7 @@ begin
     result := '';
 end;
 
-function GetBefore(const SubStr, Str: string): string;
+function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 begin
   if pos(substr,str)>0 then
     result := copy(str,1,pos(substr,str)-1)
@@ -74,7 +74,7 @@ begin
     result := '';
 end;
 
-function GetBetween(const Str, After, Before: string): string;
+function GetBetween(const Str, After, Before: AnsiString): AnsiString;
 begin
   result := GetBefore(Before,GetAfter(After,str));
 end;
@@ -127,7 +127,7 @@ asm
       POP EDI
 end;
 
-function SetHeaderValue(const AHeaders, AName, AValue: string): string;
+function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
 var
   VRegExpr: TRegExpr;
 begin
@@ -148,7 +148,7 @@ begin
     Result := AName + ': ' + AValue + #13#10;
 end;
 
-function GetHeaderValue(const AHeaders, AName: string): string;
+function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
 var
   VRegExpr: TRegExpr;
 begin
@@ -169,7 +169,7 @@ begin
     Result := '';
 end;
 
-function SaveToLocalFile(const AFullLocalFilename, AData: String): Integer;
+function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer;
 var
   VPath: String;
   VStream: TFileStream;
@@ -194,7 +194,7 @@ begin
   end;
 end;
 
-function GetNumberAfter(const ASubStr, AText: String): String;
+function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString;
 var VPos: Integer;
 begin
   Result := '';
@@ -208,7 +208,7 @@ begin
   end;
 end;
 
-function GetDiv3Path(const ASource: String): String;
+function GetDiv3Path(const ASource: AnsiString): AnsiString;
 var i: Integer;
 begin
   Result:='';

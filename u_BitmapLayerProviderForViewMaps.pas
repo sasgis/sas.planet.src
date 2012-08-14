@@ -222,7 +222,7 @@ begin
   VCoordConverterTarget := ALocalConverter.GeoConverter;
   VPixelRect := ALocalConverter.GetRectInMapPixel;
   VTile := VCoordConverterTarget.PixelRect2TileRect(VPixelRect, Vzoom).TopLeft;
-  Assert(EqualRect(VPixelRect, VCoordConverterTarget.TilePos2PixelRect(VTile, Vzoom)));
+  Assert(Types.EqualRect(VPixelRect, VCoordConverterTarget.TilePos2PixelRect(VTile, Vzoom)));
 
   Result :=
     GetBitmapByMapType(

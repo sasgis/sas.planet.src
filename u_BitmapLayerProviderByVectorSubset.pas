@@ -268,7 +268,7 @@ begin
   VConverter.CheckLonLatPos(VPointLL);
   VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
   VRect.BottomRight := VRect.TopLeft;
-  if PtInRect(ALocalConverter.GetLocalRect, VRect.TopLeft) then begin
+  if Types.PtInRect(ALocalConverter.GetLocalRect, VRect.TopLeft) then begin
     if not ABitmapInited then begin
       InitBitmap(ATargetBmp, ALocalConverter);
       ABitmapInited := True;

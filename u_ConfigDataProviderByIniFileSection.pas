@@ -45,6 +45,10 @@ type
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadAnsiString(
+      const AIdent: string;
+      const ADefault: AnsiString
+    ): AnsiString;
     function ReadString(
       const AIdent: string;
       const ADefault: string
@@ -243,6 +247,12 @@ function TConfigDataProviderByIniFileSection.ReadInteger(
 ): Longint;
 begin
   Result := FIniFile.ReadInteger(FSection, AIdent, ADefault);
+end;
+
+function TConfigDataProviderByIniFileSection.ReadAnsiString(const AIdent: string;
+  const ADefault: AnsiString): AnsiString;
+begin
+  Result := FIniFile.ReadString(FSection, AIdent, ADefault);
 end;
 
 function TConfigDataProviderByIniFileSection.ReadString(const AIdent,

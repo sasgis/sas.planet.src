@@ -210,7 +210,7 @@ begin
     v2:=v2+4*v1; // v2 in 0..15
 
     // map to 'ABCD EFGH IJKL MNOP'
-    _AddChar(Chr(Ord('A')+v2));
+    _AddChar(AnsiChar(Ord('A')+v2));
   until FALSE;
 end;
 
@@ -305,13 +305,13 @@ begin
       if (0=v1) then
         c1:='0'
       else
-        c1:=Chr(Ord('1')+v1-1);
+        c1:=AnsiChar(Ord('1')+v1-1);
       _AddChar(c1);
       // add second char
       if (0=v2) then
         c1:='0'
       else
-        c1:=Chr(Ord('1')+v2-1);
+        c1:=AnsiChar(Ord('1')+v2-1);
       _AddChar(c1);
     end;
   until FALSE;

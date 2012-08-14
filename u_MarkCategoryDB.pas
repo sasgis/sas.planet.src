@@ -344,7 +344,7 @@ var
   VFileName: string;
   VCategory: IMarkCategory;
   VId: Integer;
-  XML: string;
+  XML: AnsiString;
   VStream: TFileStream;
 begin
   VFileName := GetMarksCategoryFileName;
@@ -450,7 +450,7 @@ end;
 
 function TMarkCategoryDB.SaveCategory2File: boolean;
 var
-  XML: string;
+  XML: AnsiString;
 begin
   result := true;
   try

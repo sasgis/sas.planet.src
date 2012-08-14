@@ -17,8 +17,8 @@ type
     FOperationID: Integer;
   private
     function DoHttpRequest(
-      const ARequestUrl, ARequestHeader, APostData: string;
-      out AResponseHeader, AResponseData: string
+      const ARequestUrl, ARequestHeader, APostData: AnsiString;
+      out AResponseHeader, AResponseData: AnsiString
     ): Cardinal;
   public
     constructor Create(
@@ -56,8 +56,8 @@ begin
 end;
 
 function TSimpleHttpDownloader.DoHttpRequest(
-  const ARequestUrl, ARequestHeader, APostData: string;
-  out AResponseHeader, AResponseData: string
+  const ARequestUrl, ARequestHeader, APostData: AnsiString;
+  out AResponseHeader, AResponseData: AnsiString
 ): Cardinal;
 var
   VRequest: IDownloadRequest;

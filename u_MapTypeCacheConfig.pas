@@ -346,7 +346,7 @@ procedure TMapTypeCacheConfigBerkeleyDB.OnSettingsEdit;
   begin
     SetLength(Result, MAX_PATH);
     PathCombine(@Result[1], PChar(ABasePath), PChar(ARelativePath));
-    SetLength(Result, StrLen(@Result[1]));
+    SetLength(Result, StrLen(PChar(Result)));
   end;
 
 var
@@ -356,13 +356,13 @@ begin
   FCS.BeginWrite;
   try
     VBasePath := FConfig.GetStatic.NameInCache;
-    if PathIsRelative(PAnsiChar(VBasePath)) then begin
+    if PathIsRelative(PChar(VBasePath)) then begin
       if FGlobalCacheConfig.BDBCachePath <> '' then begin
         VCachePath := IncludeTrailingPathDelimiter(FGlobalCacheConfig.BDBCachePath);
       end else begin
         VCachePath := '';
       end;
-      if PathIsRelative(PAnsiChar(VCachePath)) then begin
+      if PathIsRelative(PChar(VCachePath)) then begin
         VCachePath := RelativeToAbsolutePath(
           IncludeTrailingPathDelimiter(FGlobalCacheConfig.CacheGlobalPath),
           VCachePath

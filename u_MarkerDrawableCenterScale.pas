@@ -54,8 +54,8 @@ begin
     VFontSize := 12;
     VBitmap.Font.Size := VFontSize;
     VTextWdth := VBitmap.TextWidth('270°');
-    VSize := Point((VRadius * 2) + (VDigitsOffset * 2) + (VTextWdth * 2), (VRadius * 2) + (VDigitsOffset * 2) + (VTextWdth * 2));
-    VHalfSize := Point(VSize.X div 2, VSize.Y div 2);
+    VSize := Types.Point((VRadius * 2) + (VDigitsOffset * 2) + (VTextWdth * 2), (VRadius * 2) + (VDigitsOffset * 2) + (VTextWdth * 2));
+    VHalfSize := Types.Point(VSize.X div 2, VSize.Y div 2);
     VBitmap.SetSize(VSize.X, VSize.Y);
     VBitmap.Clear(0);
     VBitmap.Font.Size := VFontSize - 3;

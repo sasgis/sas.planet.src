@@ -45,6 +45,10 @@ type
   protected
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadAnsiString(
+      const AIdent: string;
+      const ADefault: AnsiString
+    ): AnsiString;
     function ReadString(
       const AIdent: string;
       const ADefault: string
@@ -257,6 +261,25 @@ begin
     end;
   end else begin
     Result := FProviderGlobal.ReadInteger(VIdent, Result);
+  end;
+end;
+
+function TConfigDataProviderWithGlobal.ReadAnsiString(
+  const AIdent: string;
+  const ADefault: AnsiString
+): AnsiString;
+var
+  VIdent: string;
+  VUseMain: Boolean;
+begin
+  VIdent := PrepareIdent(AIdent, VUseMain);
+  Result := ADefault;
+  if VUseMain then begin
+    if (FProviderMain <> nil) then begin
+      Result := FProviderMain.ReadAnsiString(VIdent, Result);
+    end;
+  end else begin
+    Result := FProviderGlobal.ReadAnsiString(VIdent, Result);
   end;
 end;
 

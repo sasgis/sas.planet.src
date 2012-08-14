@@ -298,7 +298,7 @@ begin
   VCurrentPieceRect := FLocalConverter.GetLocalRect;
   VPixel :=
     FLocalConverter.LocalPixel2MapPixel(
-      Point(VCurrentPieceRect.Left, ALine)
+      Types.Point(VCurrentPieceRect.Left, ALine)
     );
   VTile := FMainGeoConverter.PixelPos2TilePos(VPixel, FZoom);
   VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTile, FZoom);

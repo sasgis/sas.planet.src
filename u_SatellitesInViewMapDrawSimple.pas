@@ -333,7 +333,7 @@ var
 var
   i: Byte;
   VCountForAllTalkerIDs, VTalkerIDCount: Byte;
-  VTalkerID: String;
+  VTalkerID: AnsiString;
 begin
   if (not Assigned(ASatellites)) then begin
     Exit;
@@ -406,7 +406,7 @@ var
   VText: string;
   VTextSize: TSize;
   VTextPos: TPoint;
-  VTalkerID: String;
+  VTalkerID: AnsiString;
   // VCountForAllTalkerIDs: Byte;
   VTalkerIDCount, i: Byte;
 begin

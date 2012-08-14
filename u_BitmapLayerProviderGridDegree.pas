@@ -183,7 +183,7 @@ begin
 
       VTextSize := FBitmap.TextExtent(VListName);
 
-      VOutPoint := Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
+      VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
 
       VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left);
@@ -208,7 +208,7 @@ begin
 
       VTextSize := FBitmap.TextExtent(VListName);
 
-      VOutPoint := Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
+      VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
     end;
   end;

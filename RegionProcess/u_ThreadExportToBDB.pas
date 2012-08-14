@@ -126,7 +126,7 @@ function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): st
 begin
   SetLength(Result, MAX_PATH);
   PathCombine(@Result[1], PChar(ExtractFilePath(ParamStr(0))), PChar(ARelativePathName));
-  SetLength(Result, StrLen(@Result[1]));
+  SetLength(Result, StrLen(PChar(Result)));
 end;
 
 function TThreadExportToBDB.TileExportToRemoteBDB(

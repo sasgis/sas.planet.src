@@ -37,6 +37,10 @@ type
   private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadAnsiString(
+      const AIdent: string;
+      const ADefault: AnsiString
+    ): AnsiString;
     function ReadString(
       const AIdent: string;
       const ADefault: string
@@ -156,6 +160,14 @@ function TConfigDataProviderWithReplacedSubItem.ReadInteger(
 ): Longint;
 begin
   Result := FSource.ReadInteger(AIdent, ADefault);
+end;
+
+function TConfigDataProviderWithReplacedSubItem.ReadAnsiString(
+  const AIdent: string;
+  const ADefault: AnsiString
+): AnsiString;
+begin
+  Result := FSource.ReadAnsiString(AIdent, ADefault);
 end;
 
 function TConfigDataProviderWithReplacedSubItem.ReadString(const AIdent,

@@ -40,7 +40,7 @@ begin
     info.Flags := 0;
     try
       RaiseException($406D1388, 0,
-        SizeOf(info) div SizeOf(LongWord), PDWord(@info));
+        SizeOf(info) div SizeOf(LongWord), PUINT_PTR(@info));
     except
     end;
     end;

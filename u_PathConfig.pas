@@ -222,7 +222,7 @@ procedure TPathConfig._UpdateFullPath;
   begin
     SetLength(Result, MAX_PATH);
     PathCombine(@Result[1], PChar(ABasePath), PChar(ARelativePath));
-    SetLength(Result, StrLen(@Result[1]));
+    SetLength(Result, StrLen(PChar(Result)));
   end;
 
 var

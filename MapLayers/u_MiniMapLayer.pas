@@ -293,7 +293,7 @@ begin
   VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
   VZoom := GetActualZoom(ANewVisualCoordConverter);
   VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
-  VLayerSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+  VLayerSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   VLocalTopLeftAtMapFloat :=
     DoublePoint(
       VVisualMapCenterInLayerMap.X - VLayerSize.X / 2,
@@ -316,7 +316,7 @@ var
   VWidth: Integer;
 begin
   VWidth := FConfig.Width;
-  Result := Point(VWidth, VWidth);
+  Result := Types.Point(VWidth, VWidth);
 end;
 
 procedure TMiniMapLayer.DoRedraw;
@@ -458,7 +458,7 @@ var
   VViewSize: TPoint;
 begin
   if ANewVisualCoordConverter <> nil then begin
-    VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+    VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
     VViewSize := ANewVisualCoordConverter.GetLocalRectSize;
     Result.Right := VViewSize.X;
     Result.Bottom := VViewSize.Y - FConfig.BottomMargin;

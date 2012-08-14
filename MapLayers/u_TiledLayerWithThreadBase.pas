@@ -384,7 +384,7 @@ begin
       VZoom := VTileMatrix.LocalConverter.Zoom;
       VConverter.CheckLonLatRect(VMapLonLatRect);
       VTileRect := RectFromDoubleRect(VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom), rrOutside);
-      if IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect) then begin
+      if Types.IntersectRect(VTileRectToUpdate, VTileRect, VTileMatrix.TileRect) then begin
         for i := VTileRectToUpdate.Top to VTileRectToUpdate.Bottom - 1 do begin
           VTile.Y := i;
           for j := VTileRectToUpdate.Left to VTileRectToUpdate.Right - 1 do begin
@@ -542,9 +542,9 @@ begin
       VElement := ATileMatrix.GetElementByTile(VTile);
       if VElement <> nil then begin
         VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel);
-        IntersectRect(VTileRectInClipRect, VDstRect, ABuffer.ClipRect);
+        Types.IntersectRect(VTileRectInClipRect, VDstRect, ABuffer.ClipRect);
 
-        if ABuffer.MeasuringMode or not EqualRect(VDstRect, VClipedDstRect) then begin
+        if ABuffer.MeasuringMode or not Types.EqualRect(VDstRect, VClipedDstRect) then begin
           VBitmap := VElement.GetBitmap;
         end else begin
           VBitmap := VElement.GetBitmapForShow;

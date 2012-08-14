@@ -36,6 +36,10 @@ type
   private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadAnsiString(
+      const AIdent: string;
+      const ADefault: AnsiString
+    ): AnsiString;
     function ReadString(
       const AIdent: string;
       const ADefault: string
@@ -191,8 +195,10 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByPathConfig.ReadString(const AIdent,
-  ADefault: string): string;
+function TConfigDataProviderByPathConfig.ReadAnsiString(
+  const AIdent: string;
+  const ADefault: AnsiString
+): AnsiString;
 var
   VExt: string;
   VStream: TMemoryStream;
@@ -222,6 +228,12 @@ begin
       Result := ADefault;
     end;
   end;
+end;
+
+function TConfigDataProviderByPathConfig.ReadString(const AIdent,
+  ADefault: string): string;
+begin
+  Result := ReadAnsiString(AIdent, ADefault);
 end;
 
 function TConfigDataProviderByPathConfig.ReadSubItemsList: IStringListStatic;

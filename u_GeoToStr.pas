@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes;
 
-function RoundEx(chislo: Double; Precision: Integer): string;
+function RoundEx(chislo: Double; Precision: Integer): AnsiString;
 function R2StrPoint(r: Double): string;
 function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer):string;
 function str2r(inp:string):Double;
@@ -39,7 +39,7 @@ uses
 var
   GFormatSettings : TFormatSettings;
 
-function RoundEx(chislo: Double; Precision: Integer): string;
+function RoundEx(chislo: Double; Precision: Integer): AnsiString;
 begin
   if NoData_Float64(chislo) then
     Result := '-'

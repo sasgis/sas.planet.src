@@ -97,7 +97,7 @@ var
   VSize: TPoint;
 begin
   inherited;
-  VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+  VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   Layer.Bitmap.Clear(clLightGray32);
   Layer.Bitmap.HorzLineS(0, 0, VSize.X - 1, clBlack32);
   Layer.Bitmap.HorzLineS(0, VSize.Y - 1, VSize.X - 1, clBlack32);
@@ -109,9 +109,9 @@ var
 begin
   VLocalConverter := FPosition.GetStatic;
   if VLocalConverter <> nil then begin
-    Result := Point(VLocalConverter.GetLocalRectSize.X, 5);
+    Result := Types.Point(VLocalConverter.GetLocalRectSize.X, 5);
   end else begin
-    Result := Point(0, 0);
+    Result := Types.Point(0, 0);
   end;
 end;
 

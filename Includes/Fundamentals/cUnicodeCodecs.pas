@@ -5,7 +5,7 @@
 {   File version:     4.16                                                     }
 {   Description:      Unicode codecs                                           }
 {                                                                              }
-{   Copyright:        Copyright © 2002-2008                                    }
+{   Copyright:        Copyright © 2002-2011                                    }
 {                     David J Butler and Dieter Köhler                         }
 {                     All rights reserved.                                     }
 {                     See license below.                                       }
@@ -508,7 +508,7 @@ type
 
 {                                                                              }
 { TUCS4LECodec                                                                 }
-{   Unicode Codec implementation for ISO 10646 UCS-4BE.                        }
+{   Unicode Codec implementation for ISO 10646 UCS-4LE.                        }
 {                                                                              }
 type
   TUCS4LECodec = class(TCustomUnicodeCodec)
@@ -531,7 +531,7 @@ type
 
 {                                                                              }
 { TUCS4_2143Codec                                                              }
-{   Unicode Codec implementation for ISO 10646 UCS-4BE.                        }
+{   Unicode Codec implementation for UCS-4 2143.                               }
 {                                                                              }
 type
   TUCS4_2143Codec = class(TCustomUnicodeCodec)
@@ -554,7 +554,7 @@ type
 
 {                                                                              }
 { TUCS4_3412Codec                                                              }
-{   Unicode Codec implementation for ISO 10646 UCS-4BE.                        }
+{   Unicode Codec implementation for UCS-4 3412.                               }
 {                                                                              }
 type
   TUCS4_3412Codec = class(TCustomUnicodeCodec)
@@ -1404,9 +1404,9 @@ type
 {                                                                              }
 { Test cases                                                                   }
 {                                                                              }
-{$IFDEF DEBUG}
+{$IFDEF DEBUG}{$IFDEF SELFTEST}
 procedure SelfTest;
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
 
 
@@ -2951,7 +2951,7 @@ end;
 
 procedure TCustomSingleByteCodec.InternalWriteUCS4Char(const C: UCS4Char;
     out ByteCount: Integer);
-var E : Char;
+var E : AnsiChar;
 begin
   E := EncodeUCS4Char(C);
   WriteBuffer(E, 1);
@@ -6833,7 +6833,7 @@ end;
 { IBM864                                                                       }
 {                                                                              }
 const
-  IBM864Map : Array[#$25..#$FF] of WideChar = (
+  IBM864Map : Array[#$0025..#$00FF] of WideChar = (
       #$FFFF, #$0026, #$0027, #$0028, #$0029, #$002A, #$002B, #$002C,
       #$002D, #$002E, #$002F, #$0030, #$0031, #$0032, #$0033, #$0034,
       #$0035, #$0036, #$0037, #$0038, #$0039, #$003A, #$003B, #$003C,
@@ -9513,7 +9513,7 @@ end;
 {                                                                              }
 { Test cases                                                                   }
 {                                                                              }
-{$IFDEF DEBUG}
+{$IFDEF DEBUG}{$IFDEF SELFTEST}
 {$ASSERTIONS ON}
 procedure SelfTest;
 const W1 : Array[0..3] of WideChar = (#$0041, #$2262, #$0391, #$002E);
@@ -9546,7 +9546,7 @@ begin
   Assert(GetCodecClassByAlias('us-ascii') = TUSASCIICodec, 'GetCodecClassByAlias');
   Assert(GetCodecClassByAlias('ISO-8859-10') = TISO8859_10Codec, 'GetCodecClassByAlias');
 end;
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
 
 

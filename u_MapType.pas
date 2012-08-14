@@ -709,7 +709,7 @@ begin
     end;
     if Result <> nil then begin
       VRect := FCoordConverter.TilePos2PixelRect(AXY, AZoom);
-      VSize := Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
+      VSize :=Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Bitmap.Width <> VSize.X) or
         (Result.Bitmap.Height <> VSize.Y) then begin
         VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;

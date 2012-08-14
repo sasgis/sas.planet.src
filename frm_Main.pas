@@ -2797,7 +2797,7 @@ begin
     end else begin
       if VIsMaximized then begin
         if Self.WindowState <> wsMaximized then begin
-          if not EqualRect(BoundsRect, VRect) then begin
+          if not Types.EqualRect(BoundsRect, VRect) then begin
             Self.BoundsRect:= VRect;
           end;
         end;
@@ -5263,7 +5263,7 @@ var
 begin
   if not Handled then begin
     if not FConfig.MainConfig.DisableZoomingByMouseScroll then begin
-      if PtInRect(map.BoundsRect, Self.ScreenToClient(MousePos)) then begin
+      if Types.PtInRect(map.BoundsRect, Self.ScreenToClient(MousePos)) then begin
         if not FMapZoomAnimtion then begin
           VMousePos := map.ScreenToClient(MousePos);
           if FConfig.MainConfig.MouseScrollInvert then z:=-1 else z:=1;

@@ -77,7 +77,7 @@ begin
   VBitmap := FBitmap.Bitmap;
   VBitmap.DrawMode := dmBlend;
   VBitmap.CombineMode := cmBlend;
-  FBitmapSize := Point(VBitmap.Width, VBitmap.Height);
+  FBitmapSize := Types.Point(VBitmap.Width, VBitmap.Height);
 end;
 
 function TBitmapMarker.GetAnchorPoint: TDoublePoint;

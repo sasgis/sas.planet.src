@@ -96,9 +96,9 @@ begin
       VRowsCount := 5;
     end;
 
-    Result := Point(1000, Abs(Layer.Bitmap.Font.Height) * VRowsCount + 10);
+    Result := Types.Point(1000, Abs(Layer.Bitmap.Font.Height) * VRowsCount + 10);
   end else begin
-    Result := Point(0, 0);
+    Result := Types.Point(0, 0);
   end;
 end;
 

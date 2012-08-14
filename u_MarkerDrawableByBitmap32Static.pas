@@ -56,8 +56,8 @@ begin
   VTargetRect := GetBoundsForPosition(APosition);
   VTargetPoint := VTargetRect.TopLeft;
 
-  IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
-  if IsRectEmpty(VTargetRect) then begin
+  Types.IntersectRect(VTargetRect, ABitmap.ClipRect, VTargetRect);
+  if Types.IsRectEmpty(VTargetRect) then begin
     Result := False;
     Exit;
   end;
@@ -86,7 +86,7 @@ begin
       APosition.X - FAnchorPoint.X,
       APosition.Y - FAnchorPoint.Y
     );
-  VSourceSize := Point(FBitmap.Bitmap.Width, FBitmap.Bitmap.Height);
+  VSourceSize := Types.Point(FBitmap.Bitmap.Width, FBitmap.Bitmap.Height);
   VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
 
   Result.TopLeft := VTargetPoint;

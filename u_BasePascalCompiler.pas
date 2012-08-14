@@ -51,16 +51,16 @@ type
   TBasePascalCompiler = class(TPSPascalCompiler)
   private
     FOnAuxUses: TOnBasePascalCompilerUsesProc;
-    FScriptText: String;
+    FScriptText: AnsiString;
   public
-    constructor Create(const AScriptText: String);
+    constructor Create(const AScriptText: AnsiString);
     function CompileAndGetOutput(var AData: TbtString): Boolean;
     property OnAuxUses: TOnBasePascalCompilerUsesProc read FOnAuxUses write FOnAuxUses;
   end;
 
   TBaseFactoryPascalScript = class(TInterfacedObject)
   private
-    FScriptText: string;
+    FScriptText: AnsiString;
     FCompiledData: TbtString;
   protected
     property CompiledData: TbtString read FCompiledData;
@@ -70,12 +70,11 @@ type
     ): Boolean; virtual;
     function PreparePascalScript: Boolean;
   public
-    constructor Create(const AScriptText: string);
+    constructor Create(const AScriptText: AnsiString);
   end;
 
   TBasePascalScriptCompiled = class(TInterfacedObject)
   protected
-    FScriptBuffer: string;
     FExec: TBasePascalScriptExec;
   protected
     procedure PrepareCompiledScript(const ACompiledData: TbtString);
@@ -97,7 +96,7 @@ uses
 
 function CommonAppScriptOnUses(
   Sender: TPSPascalCompiler;
-  const AName: string
+  const AName: tbtString
 ): Boolean;
 var
   VType: TPSType;
@@ -138,7 +137,7 @@ begin
 
     with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), IProjConverterFactory, 'IProjConverterFactory') do begin
       RegisterMethod('Function GetByEPSG( const AEPSG : Integer) : IProjConverter', cdRegister);
-      RegisterMethod('Function GetByInitString( const AArgs : String) : IProjConverter', cdRegister);
+      RegisterMethod('Function GetByInitString( const AArgs : AnsiString) : IProjConverter', cdRegister);
     end;
 
     // ICoordConverter
@@ -159,7 +158,7 @@ begin
 
     //ISimpleHttpDownloader
     with Sender.AddInterface(Sender.FindInterface('IUNKNOWN'), ISimpleHttpDownloader, 'ISimpleHttpDownloader') do begin
-      RegisterMethod('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData : string; out AResponseHeader, AResponseData : string) : Cardinal', cdRegister);
+      RegisterMethod('function DoHttpRequest(const ARequestUrl, ARequestHeader, APostData : AnsiString; out AResponseHeader, AResponseData : AnsiString) : Cardinal', cdRegister);
     end;
 
   end;
@@ -175,27 +174,27 @@ begin
   if SameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(x:integer): integer');
-    Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): string');
+    Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): AnsiString');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
-    Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): string');
+    Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
 
     // string routines
-    Sender.AddDelphiFunction('function Length(Str: string): integer');
-    Sender.AddDelphiFunction('function GetAfter(SubStr, Str: string): string');
-    Sender.AddDelphiFunction('function GetBefore(SubStr, Str: string): string');
-    Sender.AddDelphiFunction('function GetBetween(Str, After, Before: string): string');
-    Sender.AddDelphiFunction('function SubStrPos(const Str, SubStr: String; FromPos: integer): integer');
-    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: string; AMatchID: Integer): string');
-    Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: string): string');
-    Sender.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: String): String');
-    Sender.AddDelphiFunction('function GetDiv3Path(const ANumber: String): String');
+    Sender.AddDelphiFunction('function Length(Str: AnsiString): integer');
+    Sender.AddDelphiFunction('function GetAfter(SubStr, Str: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function GetBefore(SubStr, Str: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function GetBetween(Str, After, Before: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function SubStrPos(const Str, SubStr: AnsiString; FromPos: integer): integer');
+    Sender.AddDelphiFunction('function RegExprGetMatchSubStr(const Str, MatchExpr: AnsiString; AMatchID: Integer): AnsiString');
+    Sender.AddDelphiFunction('function RegExprReplaceMatchSubStr(const Str, MatchExpr, Replace: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function GetDiv3Path(const ANumber: AnsiString): AnsiString');
 
     // system routines
     Sender.AddDelphiFunction('function GetUnixTime:int64');
-    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: string): string');
-    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: string): string');
-    Sender.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: String): Integer');
-    Sender.AddDelphiFunction('function FileExists(const FileName: string): Boolean');
+    Sender.AddDelphiFunction('function SetHeaderValue(AHeaders, AName, AValue: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function GetHeaderValue(AHeaders, AName: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer');
+    Sender.AddDelphiFunction('function FileExists(const FileName: AnsiString): Boolean');
 
     Result := True;
   end else begin
@@ -223,7 +222,7 @@ begin
   Result := Self.GetOutput(AData);
 end;
 
-constructor TBasePascalCompiler.Create(const AScriptText: String);
+constructor TBasePascalCompiler.Create(const AScriptText: AnsiString);
 begin
   inherited Create;
   FOnAuxUses := nil;
@@ -265,7 +264,7 @@ end;
 
 { TBaseFactoryPascalScript }
 
-constructor TBaseFactoryPascalScript.Create(const AScriptText: string);
+constructor TBaseFactoryPascalScript.Create(const AScriptText: AnsiString);
 begin
   inherited Create;
   FCompiledData := '';
@@ -312,8 +311,6 @@ end;
 
 procedure TBasePascalScriptCompiled.PrepareCompiledScript(const ACompiledData: TbtString);
 begin
-  FScriptBuffer := '';
-
   // create
   FExec := TBasePascalScriptExec.Create;
 

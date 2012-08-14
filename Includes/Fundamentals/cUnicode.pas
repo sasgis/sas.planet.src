@@ -5,7 +5,7 @@
 {   File version:     4.12                                                     }
 {   Description:      Unicode character and string functions                   }
 {                                                                              }
-{   Copyright:        Copyright © 2002-2007, David J Butler                    }
+{   Copyright:        Copyright © 2002-2011, David J Butler                    }
 {                     All rights reserved.                                     }
 {                     Redistribution and use in source and binary forms, with  }
 {                     or without modification, are permitted provided that     }
@@ -136,7 +136,7 @@ const
 type
   UCS4Char = LongWord;
 {$ENDIF}
-{$IFDEF DOT_NET}
+{$IFDEF CLR}
 type
   UCS4Char = LongWord;
 {$ENDIF}
@@ -144,7 +144,7 @@ type
 type
   WideCharMatchFunction = function (const Ch: WideChar): Boolean;
 
-function  IsASCIIChar(const Ch: WideChar): Boolean;
+function  IsASCIIChar(const Ch: WideChar): Boolean; {$IFDEF UseInline}inline;{$ENDIF}
 function  IsWhiteSpace(const Ch: WideChar): Boolean;
 function  IsControl(const Ch: WideChar): Boolean;
 function  IsControlOrWhiteSpace(const Ch: WideChar): Boolean;
@@ -210,7 +210,7 @@ type
 
 function  WideMatchAnsiCharNoCase(const M: AnsiChar; const C: WideChar): Boolean;
 
-{$IFNDEF DOT_NET}
+{$IFNDEF CLR}
 function  WidePMatchChars(const CharMatchFunc: WideCharMatchFunction;
           const P: PWideChar; const Length: Integer = -1): Integer;
 function  WidePMatchCharsRev(const CharMatchFunc: WideCharMatchFunction;
@@ -227,7 +227,7 @@ function  WideEqualAnsiStr(const M: AnsiString; const S: WideString;
 function  WideMatchLeftAnsiStr(const M: AnsiString; const S: WideString;
           const CaseSensitive: Boolean = True): Boolean;
 
-{$IFNDEF DOT_NET}
+{$IFNDEF CLR}
 function  WideZPosChar(const F: WideChar; const P: PWideChar): Integer;
 function  WideZPosAnsiChar(const F: AnsiChar; const P: PWideChar): Integer;
 function  WideZPosAnsiCharSet(const F: AnsiCharSet; const P: PWideChar): Integer;
@@ -313,9 +313,9 @@ function  WideSplit(const S, D: WideString): WideStringArray;
 {                                                                              }
 { Self-testing code                                                            }
 {                                                                              }
-{$IFDEF DEBUG}
+{$IFDEF DEBUG}{$IFDEF SELFTEST}
 procedure SelfTest;
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
 
 
@@ -333,7 +333,7 @@ end;
 
 function IsWhiteSpace(const Ch: WideChar): Boolean;
 begin
-  Case Ch of
+  case Ch of
     #$0009..#$000D,    // ASCII CONTROL
     #$0020,            // SPACE
     #$0085,            // <control>
@@ -352,7 +352,7 @@ end;
 
 function IsControl(const Ch: WideChar): Boolean;
 begin
-  Case Ch of
+  case Ch of
     #$0000..#$001F,
     #$007F..#$009F :
       Result := True;
@@ -369,7 +369,7 @@ end;
 // Derived from 'Cf' + 'Cc' + 'Cs' - White_Space
 function IsIgnorable(const Ch: UCS4Char): Boolean;
 begin
-  Case Ch of
+  case Ch of
     $0000..$0008,     // # Cc   [9] <control>..<control>
     $000E..$001F,     // # Cc  [18] <control>..<control>
     $007F..$0084,     // # Cc   [6] <control>..<control>
@@ -402,7 +402,7 @@ end;
 
 function IsDash(const Ch: WideChar): Boolean;
 begin
-  Case Ch of
+  case Ch of
     #$002D,            // HYPHEN-MINUS
     #$00AD,            // SOFT HYPHEN
     #$058A,            // ARMENIAN HYPHEN
@@ -425,7 +425,7 @@ end;
 
 function IsHyphen(const Ch: WideChar): Boolean;
 begin
-  Case Ch of
+  case Ch of
     #$002D,            // HYPHEN-MINUS
     #$00AD,            // SOFT HYPHEN
     #$058A,            // ARMENIAN HYPHEN
@@ -443,7 +443,7 @@ end;
 
 function IsFullStop(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $002E,  // FULL STOP
     $0589,  // ARMENIAN FULL STOP
     $06D4,  // ARABIC FULL STOP
@@ -465,7 +465,7 @@ end;
 
 function IsComma(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $002C,  // COMMA
     $055D,  // ARMENIAN COMMA
     $060C,  // ARABIC COMMA
@@ -486,7 +486,7 @@ end;
 
 function IsExclamationMark(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0021,    // EXCLAMATION MARK
     $00A1,    // INVERTED EXCLAMATION MARK
     $055C,    // ARMENIAN EXCLAMATION MARK
@@ -504,7 +504,7 @@ end;
 
 function IsQuestionMark(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $003F,    // QUESTION MARK
     $00BF,    // INVERTED QUESTION MARK
     $037E,    // GREEK QUESTION MARK
@@ -522,7 +522,7 @@ end;
 
 function GetRightParenthesis(const LeftParenthesis: WideChar): WideChar;
 begin
-  Case Ord(LeftParenthesis) of
+  case Ord(LeftParenthesis) of
     $0028 : Result := #$0029;  // PARENTHESIS
     $207D : Result := #$207E;  // SUPERSCRIPT PARENTHESIS
     $208D : Result := #$208E;  // SUBSCRIPT PARENTHESIS
@@ -542,7 +542,7 @@ end;
 
 function GetRightBracket(const LeftBracket: WideChar): WideChar;
 begin
-  Case Ord(LeftBracket) of
+  case Ord(LeftBracket) of
     $005B : Result := #$005D;  // SQUARE BRACKET
     $007B : Result := #$007D;  // CURLY BRACKET
     $2045 : Result := #$2046;  // SQUARE BRACKET WITH QUILL
@@ -580,7 +580,7 @@ end;
 
 function IsSingularQuotationMark(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0022,   //        QUOTATION MARK
     $0027,   //        APOSTROPHE
     $FF02,   //        FULLWIDTH QUOTATION MARK
@@ -593,7 +593,7 @@ end;
 
 function GetClosingQuotationMark(const OpeningQuote: WideChar): WideChar;
 begin
-  Case Ord(OpeningQuote) of
+  case Ord(OpeningQuote) of
     $00AB : Result := #$00BB;     // LEFT/RIGHT -POINTING DOUBLE ANGLE QUOTATION MARK
     $2018 : Result := #$2019;     // LEFT/RIGHT SINGLE QUOTATION MARK
     $201A : Result := #$201B;     // SINGLE LOW-9 QUOTATION MARK / SINGLE HIGH-REVERSED-9 QUOTATION MARK
@@ -613,7 +613,7 @@ end;
 
 function GetOpeningQuotationMark(const ClosingQuote: WideChar): WideChar;
 begin
-  Case Ord(ClosingQuote) of
+  case Ord(ClosingQuote) of
     $00BB : Result := #$00AB;     // LEFT/RIGHT -POINTING DOUBLE ANGLE QUOTATION MARK
     $2019 : Result := #$2018;     // LEFT/RIGHT SINGLE QUOTATION MARK
     $201B : Result := #$201A;     // SINGLE LOW-9 QUOTATION MARK / SINGLE HIGH-REVERSED-9 QUOTATION MARK
@@ -634,7 +634,7 @@ end;
 
 function IsPunctuation(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0021,   // EXCLAMATION MARK
     $0022,   // QUOTATION MARK
     $0023,   // NUMBER SIGN
@@ -941,7 +941,7 @@ end;
 
 function DecimalDigitBase(const Ch: UCS4Char): UCS4Char;
 begin
-  Case Ch of
+  case Ch of
     $0030..$0039   : Result := $0030;  // DIGIT
     $0660..$0669   : Result := $0660;  // ARABIC-INDIC DIGIT
     $06F0..$06F9   : Result := $06F0;  // EXTENDED ARABIC-INDIC DIGIT
@@ -999,7 +999,7 @@ end;
 
 function IsASCIIDecimalDigit(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0030..$0039 : Result := True;
   else
     Result := False;
@@ -1008,7 +1008,7 @@ end;
 
 function FractionCharacterValue(const Ch: WideChar; var A, B : Integer): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $00BC : begin A := 1; B := 4; end;       // # No       VULGAR FRACTION ONE QUARTER
     $00BD : begin A := 1; B := 2; end;       // # No       VULGAR FRACTION ONE HALF
     $00BE : begin A := 3; B := 4; end;       // # No       VULGAR FRACTION THREE QUARTERS
@@ -1033,7 +1033,7 @@ end;
 
 function RomanNumeralValue(const Ch: WideChar): Integer;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $2160        : Result := 1;     //  Nl       ROMAN NUMERAL ONE
     $2161        : Result := 2;     //  Nl       ROMAN NUMERAL TWO
     $2162        : Result := 3;     //  Nl       ROMAN NUMERAL THREE
@@ -1075,7 +1075,7 @@ end;
 
 function LatinAlphaCharBase(const Ch: WideChar): UCS4Char;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0041..$005A : Result := $0041;  // LATIN CAPITAL LETTER
     $0061..$007A : Result := $0061;  // LATIN SMALL LETTER
     $FF21..$FF3A : Result := $FF21;  // FULLWIDTH LATIN CAPITAL LETTER
@@ -1099,7 +1099,7 @@ begin
   if Ch <= $FFFF then
     Result := HexAlphaDigitBase(WideChar(Ch))
   else
-    Case Ch of
+    case Ch of
       $1D400..$1D405 : Result := $1D400;  // MATHEMATICAL BOLD CAPITAL
       $1D41A..$1D41F : Result := $1D41A;  // MATHEMATICAL BOLD SMALL
       $1D434..$1D439 : Result := $1D434;  // MATHEMATICAL ITALIC CAPITAL
@@ -1166,7 +1166,7 @@ end;
 
 function IsASCIIHexDigit(const Ch: WideChar): Boolean;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0030..$0039,
     $0041..$0046,
     $0061..$0066  : Result := True;
@@ -2690,7 +2690,7 @@ begin
   // Binary search [Avg number of comparisons = Log2(UnicodeLetterEntries) = 10]
   L := 0;
   H := UnicodeLetterEntries - 1;
-  Repeat
+  repeat
     I := (L + H) div 2;
     D := UnicodeLetterInfo[I].Unicode;
     if D = Ch then
@@ -2702,13 +2702,13 @@ begin
       H := I - 1
     else
       L := I + 1;
-  Until L > H;
+  until L > H;
   Result := -1;
 end;
 
 function LocateOtherLowerCase(const Ch: WideChar): WideChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $2170..$217F : Result := WideChar(Ord(Ch) - $2170 + $2160);    // # Nl  [16] SMALL ROMAN NUMERAL ONE..SMALL ROMAN NUMERAL ONE THOUSAND
     $24D0..$24E9 : Result := WideChar(Ord(Ch) - $24D0 + $24B6);    // # So  [26] CIRCLED LATIN SMALL LETTER A..CIRCLED LATIN SMALL LETTER Z
   else
@@ -2718,7 +2718,7 @@ end;
 
 function LocateOtherUpperCase(const Ch: WideChar): WideChar;
 begin
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $2160..$216F : Result := WideChar(Ord(Ch) - $2160 + $2170);    // # Nl  [16] ROMAN NUMERAL ONE..ROMAN NUMERAL ONE THOUSAND
     $24B6..$24CF : Result := WideChar(Ord(Ch) - $24B6 + $24D0);    // # So  [26] CIRCLED LATIN CAPITAL LETTER A..CIRCLED LATIN CAPITAL LETTER Z
   else
@@ -2731,7 +2731,7 @@ begin
   if Ord(Ch) < $00DF then
     Result := '' else
   if Ord(Ch) <= $0587 then
-    Case Ord(Ch) of
+    case Ord(Ch) of
       $00DF : Result := #$0053#$0073;         // # LATIN SMALL LETTER SHARP S
       $0149 : Result := #$02BC#$004E;         // # LATIN SMALL LETTER N PRECEDED BY APOSTROPHE
       $01F0 : Result := #$004A#$030C;         // # LATIN SMALL LETTER J WITH CARON
@@ -2744,7 +2744,7 @@ begin
   if Ord(Ch) < $1E96 then
     Result := '' else
   if Ord(Ch) <= $1FF7 then
-    Case Ord(Ch) of
+    case Ord(Ch) of
       $1E96 : Result := #$0048#$0331;         // # LATIN SMALL LETTER H WITH LINE BELOW
       $1E97 : Result := #$0054#$0308;         // # LATIN SMALL LETTER T WITH DIAERESIS
       $1E98 : Result := #$0057#$030A;         // # LATIN SMALL LETTER W WITH RING ABOVE
@@ -2781,7 +2781,7 @@ begin
   if Ord(Ch) < $FB00 then
     Result := '' else
   if Ord(Ch) <= $FB17 then
-    Case Ord(Ch) of
+    case Ord(Ch) of
       $FB00 : Result := #$0046#$0066;         // # LATIN SMALL LIGATURE FF
       $FB01 : Result := #$0046#$0069;         // # LATIN SMALL LIGATURE FI
       $FB02 : Result := #$0046#$006C;         // # LATIN SMALL LIGATURE FL
@@ -2806,7 +2806,7 @@ begin
   if Ord(Ch) < $00DF then
     Result := '' else
   if Ord(Ch) <= $0587 then
-    Case Ord(Ch) of
+    case Ord(Ch) of
       $00DF : Result := #$0053#$0053;         // # LATIN SMALL LETTER SHARP S
       $0149 : Result := #$02BC#$004E;         // # LATIN SMALL LETTER N PRECEDED BY APOSTROPHE
       $01F0 : Result := #$004A#$030C;         // # LATIN SMALL LETTER J WITH CARON
@@ -2819,7 +2819,7 @@ begin
   if Ord(Ch) < $1E96 then
     Result := '' else
   if Ord(Ch) <= $1FFC then
-    Case Ord(Ch) of
+    case Ord(Ch) of
       $1E96 : Result := #$0048#$0331;         // # LATIN SMALL LETTER H WITH LINE BELOW
       $1E97 : Result := #$0054#$0308;         // # LATIN SMALL LETTER T WITH DIAERESIS
       $1E98 : Result := #$0057#$030A;         // # LATIN SMALL LETTER W WITH RING ABOVE
@@ -2910,7 +2910,7 @@ begin
   if Ord(Ch) < $FB00 then
     Result := '' else
   if Ord(Ch) <= $FB17 then
-    Case Ord(Ch) of
+    case Ord(Ch) of
       $FB00 : Result := #$0046#$0046;         // # LATIN SMALL LIGATURE FF
       $FB01 : Result := #$0046#$0049;         // # LATIN SMALL LIGATURE FI
       $FB02 : Result := #$0046#$004C;         // # LATIN SMALL LIGATURE FL
@@ -3011,7 +3011,7 @@ begin
   if (Ord(Ch) > $01F2) and (Ord(Ch) < $1F88) then
     Result := -1 else
     begin
-      For I := 0 to UnicodeTitleCaseLetterEntries - 1 do
+      for I := 0 to UnicodeTitleCaseLetterEntries - 1 do
         if UnicodeTitleCaseLetterInfo[I].Unicode = Ch then
           begin
             Result := I;
@@ -3026,7 +3026,7 @@ begin
   Result := LocateTitleCaseLetterInfo(Ch) >= 0;
 end;
 
-{$IFDEF DOT_NET}
+{$IFDEF CLR}
 function WideUpCase(const Ch: WideChar): WideChar;
 var I : Integer;
     J : Integer;
@@ -3132,7 +3132,7 @@ begin
     Result := R;
 end;
 
-{$IFDEF DOT_NET}
+{$IFDEF CLR}
 function WideLowCase(const Ch: WideChar): WideChar;
 var I : Integer;
     J : Integer;
@@ -3233,7 +3233,8 @@ begin
       Result := LocateFoldingLowerCase(Ch);
       if Result = '' then
         Result := Ch;
-    end else
+    end
+  else
     Result := R;
 end;
 
@@ -3244,7 +3245,7 @@ begin
     Result := Ch;
 end;
 
-{$IFDEF DOT_NET}
+{$IFDEF CLR}
 function WideIsEqualNoCase(const A, B: WideChar): Boolean;
 var I    : Integer;
     J    : Integer;
@@ -3287,7 +3288,8 @@ begin
     end;
   E := LocateOtherLowerCase(A);
   if E <> #$0000 then
-    Result := E = B else
+    Result := E = B
+  else
     Result := False;
 end;
 {$ELSE}
@@ -3333,7 +3335,8 @@ begin
     end;
   E := LocateOtherLowerCase(A);
   if E <> #$0000 then
-    Result := E = B else
+    Result := E = B
+  else
     Result := False;
 end;
 {$ENDIF}
@@ -3341,7 +3344,7 @@ end;
 // Derived from 'Lo' class
 function IsOtherLetter(const Ch: UCS4Char): Boolean;
 begin
-  Case Ch of
+  case Ch of
     $01BB,              //       LATIN LETTER TWO WITH STROKE
     $01C0..$01C3,       //   [4] LATIN LETTER DENTAL CLICK..LATIN LETTER RETROFLEX CLICK
     $05D0..$05EA,       //  [27] HEBREW LETTER ALEF..HEBREW LETTER TAV
@@ -3573,7 +3576,7 @@ begin
   Result := IsLetter(Ch);
   if Result then
     exit;
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $02B0..$02B8,   // # Lm   [9] MODIFIER LETTER SMALL H..MODIFIER LETTER SMALL Y
     $02BB..$02C1,   // # Lm   [7] MODIFIER LETTER TURNED COMMA..MODIFIER LETTER REVERSED GLOTTAL STOP
     $02D0..$02D1,   // # Lm   [2] MODIFIER LETTER TRIANGULAR COLON..MODIFIER LETTER HALF TRIANGULAR COLON
@@ -3726,7 +3729,7 @@ function GetCombiningClass(const Ch: WideChar): Byte;
 begin
   if Ord(Ch) < $0300 then
     Result := 0 else
-  Case Ord(Ch) of
+  case Ord(Ch) of
     $0300..$0319 : Result := 230;
     $031A        : Result := 232;
     $031B        : Result := 216;
@@ -7376,7 +7379,7 @@ begin
   // Binary search
   L := 0;
   H := UnicodeDecompositionEntries - 1;
-  Repeat
+  repeat
     I := (L + H) div 2;
     D := UnicodeDecompositionInfo[I].Unicode;
     if D = Ch then
@@ -7387,18 +7390,18 @@ begin
     if D > Ch then
       H := I - 1 else
       L := I + 1;
-  Until L > H;
+  until L > H;
   Result := -1;
 end;
 
-{$IFDEF DOT_NET}
+{$IFDEF CLR}
 function GetCharacterDecomposition(const Ch: WideChar): WideString;
 var I, J : Integer;
 begin
   I := LocateDecompositionInfo(Ch);
   if I < 0 then
     // Exceptionally long decompositions not stored in table
-    Case Ch of
+    case Ch of
       #$3316 : Result := #$30AD#$30ED#$30E1#$30FC#$30C8#$30EB;             // SQUARE KIROMEETORU
       #$33AF : Result := #$0072#$0061#$0064#$2215#$0073#$00B2;             // SQUARE RAD OVER S SQUARED
       #$FDFA : Result := #$0635#$0644#$0649#$0020#$0627#$0644#$0644#$0647#$0020#$0639#$0644#$064A#$0647#$0020#$0648#$0633#$0644#$0645; // ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
@@ -7438,7 +7441,7 @@ begin
   I := LocateDecompositionInfo(Ch);
   if I < 0 then
     // Exceptionally long decompositions not stored in table
-    Case Ch of
+    case Ch of
       #$3316 : Result := #$30AD#$30ED#$30E1#$30FC#$30C8#$30EB;             // SQUARE KIROMEETORU
       #$33AF : Result := #$0072#$0061#$0064#$2215#$0073#$00B2;             // SQUARE RAD OVER S SQUARED
       #$FDFA : Result := #$0635#$0644#$0649#$0020#$0627#$0644#$0644#$0647#$0020#$0639#$0644#$064A#$0647#$0020#$0648#$0633#$0644#$0645; // ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
@@ -7452,7 +7455,7 @@ begin
       Q := P;
       Inc(Q);
       I := 1;
-      While (Q^ <> #$FFFF) and (I < 5) do
+      while (Q^ <> #$FFFF) and (I < 5) do
         begin
           Inc(Q);
           Inc(I);
@@ -7460,7 +7463,7 @@ begin
       SetLength(Result, I);
       Q := P;
       P := Pointer(Result);
-      For J := 1 to I do
+      for J := 1 to I do
         begin
           P^ := Q^;
           Inc(P);
@@ -8487,7 +8490,7 @@ begin
   // Binary search
   L := 0;
   H := UnicodeUCS4DecompositionEntries - 1;
-  Repeat
+  repeat
     I := (L + H) div 2;
     D := UnicodeUCS4DecompositionInfo[I].Unicode;
     if D = Ch then
@@ -8498,11 +8501,11 @@ begin
     if D > Ch then
       H := I - 1 else
       L := I + 1;
-  Until L > H;
+  until L > H;
   Result := -1;
 end;
 
-{$IFDEF DOT_NET}
+{$IFDEF CLR}
 function GetCharacterDecomposition(const Ch: UCS4Char): WideString;
 var I : Integer;
     P : TUnicodeUCS4DecompositionInfo;
@@ -8615,7 +8618,7 @@ begin
   Result := D = N;
 end;
 
-{$IFNDEF DOT_NET}
+{$IFNDEF CLR}
 function WidePMatchChars(const CharMatchFunc: WideCharMatchFunction;
     const P: PWideChar; const Length: Integer): Integer;
 var Q : PWideChar;
@@ -8630,7 +8633,7 @@ begin
   C := Q^;
   if (L < 0) and (Ord(C) = 0) then
     exit;
-  Repeat
+  repeat
     if not CharMatchFunc(C) then
       exit;
     Inc(Result);
@@ -8638,7 +8641,7 @@ begin
     if L > 0 then
       Dec(L);
     C := Q^;
-  Until (L = 0) or ((L < 0) and (Ord(C) = 0));
+  until (L = 0) or ((L < 0) and (Ord(C) = 0));
 end;
 
 function WidePMatchCharsRev(const CharMatchFunc: WideCharMatchFunction;
@@ -8656,7 +8659,7 @@ begin
   C := Q^;
   if (L < 0) and (Ord(C) = 0) then
     exit;
-  Repeat
+  repeat
     if not CharMatchFunc(C) then
       exit;
     Inc(Result);
@@ -8668,7 +8671,7 @@ begin
         if L > 0 then
           C := Q^;
       end;
-  Until (L = 0) or ((L < 0) and (Ord(C) = 0));
+  until (L = 0) or ((L < 0) and (Ord(C) = 0));
 end;
 
 function WidePMatchAllChars(const CharMatchFunc: WideCharMatchFunction; const P: PWideChar; const Length: Integer): Integer;
@@ -8684,14 +8687,14 @@ begin
   C := Q^;
   if (L < 0) and (Ord(C) = 0) then
     exit;
-  Repeat
+  repeat
     if CharMatchFunc(C) then
       Inc(Result);
     Inc(Q);
     if L > 0 then
       Dec(L);
     C := Q^;
-  Until (L = 0) or ((L < 0) and (Ord(C) = 0));
+  until (L = 0) or ((L < 0) and (Ord(C) = 0));
 end;
 
 function WidePMatchAnsiStr(const M: AnsiString; const P: PWideChar;
@@ -8710,7 +8713,7 @@ begin
   Q := P;
   if CaseSensitive then
     begin
-      For I := 1 to L do
+      for I := 1 to L do
         if Ord(R^) <> Ord(Q^) then
           begin
             Result := False;
@@ -8722,7 +8725,7 @@ begin
           end;
     end else
     begin
-      For I := 1 to L do
+      for I := 1 to L do
         if not WideMatchAnsiCharNoCase(R^, Q^) then
           begin
             Result := False;
@@ -8748,7 +8751,7 @@ begin
     end;
   R := Pointer(M);
   Q := P;
-  For I := 1 to L do
+  for I := 1 to L do
     if R^ <> Q^ then
       begin
         Result := False;
@@ -8792,7 +8795,7 @@ end;
 {                                                                              }
 { Pos                                                                          }
 {                                                                              }
-{$IFNDEF DOT_NET}
+{$IFNDEF CLR}
 function WideZPosAnsiChar(const F: AnsiChar; const P: PWideChar): Integer;
 var Q : PWideChar;
     I : Integer;
@@ -8802,7 +8805,7 @@ begin
   if not Assigned(Q) then
     exit;
   I := 0;
-  While Ord(Q^) <> 0 do
+  while Ord(Q^) <> 0 do
     if Ord(Q^) = Ord(F) then
       begin
         Result := I;
@@ -8823,8 +8826,8 @@ begin
   if not Assigned(Q) then
     exit;
   I := 0;
-  While Ord(Q^) <> 0 do
-    if (Ord(Q^) < $80) and (Char(Ord(Q^)) in F) then
+  while Ord(Q^) <> 0 do
+    if (Ord(Q^) < $80) and (AnsiChar(Ord(Q^)) in F) then
       begin
         Result := I;
         exit;
@@ -8844,7 +8847,7 @@ begin
   if not Assigned(Q) then
     exit;
   I := 0;
-  While Ord(Q^) <> 0 do
+  while Ord(Q^) <> 0 do
     if Q^ = F then
       begin
         Result := I;
@@ -8865,7 +8868,7 @@ begin
   if not Assigned(Q) then
     exit;
   I := 0;
-  While Ord(Q^) <> 0 do
+  while Ord(Q^) <> 0 do
     if WidePMatchAnsiStr(F, Q, CaseSensitive) then
       begin
         Result := I;
@@ -8883,7 +8886,7 @@ end;
 {                                                                              }
 { Skip                                                                         }
 {                                                                              }
-{$IFNDEF DOT_NET}
+{$IFNDEF CLR}
 function WideZSkipChar(const CharMatchFunc: WideCharMatchFunction; var P: PWideChar): Boolean;
 var C : WideChar;
 begin
@@ -8907,7 +8910,7 @@ begin
   if not Assigned(P) then
     exit;
   C := P^;
-  While Ord(C) <> 0 do
+  while Ord(C) <> 0 do
     if not CharMatchFunc(C) then
       exit
     else
@@ -8938,7 +8941,7 @@ end;
 {                                                                              }
 { Extract                                                                      }
 {                                                                              }
-{$IFNDEF DOT_NET}
+{$IFNDEF CLR}
 function WideZExtractBeforeChar(const Ch: WideChar; var P: PWideChar; var S: WideString): Boolean;
 var I : Integer;
 begin
@@ -9025,7 +9028,7 @@ begin
     end;
   SetLength(Result, Count);
   P := Pointer(Result);
-  For I := 1 to Count do
+  for I := 1 to Count do
     begin
       P^ := Ch;
       Inc(P);
@@ -9050,7 +9053,7 @@ begin
     F := IsWhiteSpace;
   I := 0;
   P := Pointer(S);
-  While F(P^) do
+  while F(P^) do
     begin
       Inc(I);
       Inc(P);
@@ -9080,7 +9083,7 @@ begin
   I := 0;
   P := Pointer(S);
   Inc(P, L - 1);
-  While F(P^) do
+  while F(P^) do
     begin
       Inc(I);
       Dec(P);
@@ -9110,7 +9113,7 @@ begin
   I := 0;
   P := Pointer(S);
   Inc(P, L - 1);
-  While F(P^) or IsControl(P^) do
+  while F(P^) or IsControl(P^) do
     begin
       Inc(I);
       Dec(P);
@@ -9123,7 +9126,7 @@ begin
     end;
   J := 0;
   P := Pointer(S);
-  While F(P^) or IsControl(P^) do
+  while F(P^) or IsControl(P^) do
     begin
       Inc(J);
       Inc(P);
@@ -9175,7 +9178,7 @@ begin
   Q := PWideChar(S);
   if not Assigned(Q) then
     exit;
-  For I := 1 to Length(S) do
+  for I := 1 to Length(S) do
     begin
       if Q^ = Ch then
         Inc(Result);
@@ -9200,7 +9203,7 @@ begin
     end;
   P := Pointer(S);
   Inc(P, StartIndex - 1);
-  For I := StartIndex to L do
+  for I := StartIndex to L do
     if P^ = F then
       begin
         Result := I;
@@ -9223,8 +9226,8 @@ begin
     end;
   P := Pointer(S);
   Inc(P, StartIndex - 1);
-  For I := StartIndex to L do
-    if (Ord(P^) <= $FF) and (Char(P^) in F) then
+  for I := StartIndex to L do
+    if (Ord(P^) <= $FF) and (AnsiChar(P^) in F) then
       begin
         Result := I;
         exit;
@@ -9246,7 +9249,7 @@ begin
     end;
   P := Pointer(S);
   Inc(P, StartIndex - 1);
-  For I := StartIndex to L do
+  for I := StartIndex to L do
     if WidePMatch(F, P) then
       begin
         Result := I;
@@ -9281,7 +9284,7 @@ begin
   SetLength(T, L);
   P := Pointer(S);
   Q := Pointer(T);
-  For I := 1 to M do
+  for I := 1 to M do
     if P^ = Find then
       begin
         if R > 0 then
@@ -9320,7 +9323,7 @@ function WideUpperCase(const S: WideString): WideString;
 var I : Integer;
 begin
   Result := '';
-  For I := 1 to Length(S) do
+  for I := 1 to Length(S) do
     Result := Result + WideUpCaseFolding(S[I]);
 end;
 
@@ -9328,7 +9331,7 @@ function WideLowerCase(const S: WideString): WideString;
 var I : Integer;
 begin
   Result := '';
-  For I := 1 to Length(S) do
+  for I := 1 to Length(S) do
     Result := Result + WideLowCaseFolding(S[I]);
 end;
 {$ENDIF}
@@ -9390,7 +9393,7 @@ begin
   if LR > 0 then
     begin
       SetLength(V, Result + LR);
-      For I := 0 to LR - 1 do
+      for I := 0 to LR - 1 do
         V[Result + I] := R[I];
     end;
 end;
@@ -9412,13 +9415,13 @@ begin
     end;
   L := 0;
   I := 1;
-  Repeat
+  repeat
     I := WidePos(D, S, I);
     if I = 0 then
       break;
     Inc(L);
     Inc(I, M);
-  Until False;
+  until False;
   SetLength(Result, L + 1);
   if L = 0 then
     begin
@@ -9427,7 +9430,7 @@ begin
     end;
   L := 0;
   I := 1;
-  Repeat
+  repeat
     J := WidePos(D, S, I);
     if J = 0 then
       begin
@@ -9437,7 +9440,7 @@ begin
     Result[L] := WideCopyRange(S, I, J - 1);
     Inc(L);
     I := J + M;
-  Until False;
+  until False;
 end;
 
 
@@ -9445,7 +9448,7 @@ end;
 {                                                                              }
 { Self-testing code                                                            }
 {                                                                              }
-{$IFDEF DEBUG}
+{$IFDEF DEBUG}{$IFDEF SELFTEST}
 {$ASSERTIONS ON}
 procedure SelfTest;
 var S : WideString;
@@ -9510,12 +9513,12 @@ begin
   Assert(WidePos('A', 'XYZABCAACDEF', 8) = 8, 'WidePos');
   Assert(WidePos('AA', 'XYZABCAACDEF', 8) = 0, 'WidePos');
   Assert(WidePos('AAQ', 'XYZABCAACDEF', 1) = 0, 'WidePos');
-  {$IFNDEF DOT_NET}
+  {$IFNDEF CLR}
   Assert(WideZPosAnsiChar('A', 'XYZABCAACDEF') = 3, 'WideZPosAnsiChar');
   Assert(WideZPosAnsiChar('Q', 'XYZABCAACDEF') = -1, 'WideZPosAnsiChar');
   {$ENDIF}
 end;
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
 
 

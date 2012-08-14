@@ -666,7 +666,7 @@ function TWindowLayerFixedSizeWithBitmap.GetLayerSizeForView(
 begin
   FLayer.Bitmap.Lock;
   try
-    Result := Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
+    Result := Types.Point(FLayer.Bitmap.Width, FLayer.Bitmap.Height);
   finally
     FLayer.Bitmap.Unlock;
   end;
@@ -729,7 +729,7 @@ begin
     if FVisible then begin
       VSize := GetNewBitmapSize;
     end else begin
-      VSize := Point(0, 0);
+      VSize := Types.Point(0, 0);
     end;
     if (VSize.X <> FLayer.Bitmap.Width) or (VSize.Y <> FLayer.Bitmap.Height) then begin
       VCounterContext := FResizeCounter.StartOperation;
@@ -881,7 +881,7 @@ begin
   VCounterContext := VCounter.StartOperation;
   try
     VOldClipRect := Buffer.ClipRect;
-    if IntersectRect(VNewClipRect, VOldClipRect, MakeRect(FLayer.Location, rrClosest)) then begin
+    if Types.IntersectRect(VNewClipRect, VOldClipRect, MakeRect(FLayer.Location, rrClosest)) then begin
       Buffer.ClipRect := VNewClipRect;
       try
         PaintLayer(Buffer);

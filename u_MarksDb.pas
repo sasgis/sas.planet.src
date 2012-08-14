@@ -1101,7 +1101,7 @@ var
   VList: IIDInterfaceList;
   VMarkInternal: IMarkSMLInternal;
   VStream: TStream;
-  XML: string;
+  XML: AnsiString;
 begin
   VFileName := GetMarksFileName;
   FStateInternal.LockWrite;
@@ -1221,7 +1221,7 @@ end;
 
 function TMarksDb.SaveMarks2File: boolean;
 var
-  XML: string;
+  XML: AnsiString;
 begin
   result := true;
   try

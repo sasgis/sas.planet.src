@@ -37,6 +37,10 @@ type
   private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
+    function ReadAnsiString(
+      const AIdent: string;
+      const ADefault: AnsiString
+    ): AnsiString;
     function ReadString(
       const AIdent: string;
       const ADefault: string
@@ -200,6 +204,21 @@ begin
     Result := FSource.ReadInteger(VIdent, Result);
   end;
   Result := FSource.ReadInteger(AIdent, Result);
+end;
+
+function TConfigDataProviderWithUseDepreciated.ReadAnsiString(
+  const AIdent: string;
+  const ADefault: AnsiString
+): AnsiString;
+var
+  VIdent: string;
+begin
+  Result := ADefault;
+  VIdent := GetDepreciatedName(AIdent);
+  if VIdent <> '' then begin
+    Result := FSource.ReadAnsiString(VIdent, Result);
+  end;
+  Result := FSource.ReadAnsiString(AIdent, Result);
 end;
 
 function TConfigDataProviderWithUseDepreciated.ReadString(const AIdent,

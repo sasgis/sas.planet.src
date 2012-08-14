@@ -55,7 +55,7 @@ type
     FTileDownloader: ITileDownloader;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
-    function GetScriptText(const AConfig: IConfigDataProvider): string;
+    function GetScriptText(const AConfig: IConfigDataProvider): AnsiString;
     procedure OnAppClosing;
   private
     function GetRequest(
@@ -333,9 +333,9 @@ end;
 
 function TTileDownloadSubsystem.GetScriptText(
   const AConfig: IConfigDataProvider
-): string;
+): AnsiString;
 begin
-  Result := AConfig.ReadString(PascalScriptFileName, '');
+  Result := AConfig.ReadAnsiString(PascalScriptFileName, '');
 end;
 
 function TTileDownloadSubsystem.GetState: ITileDownloaderStateChangeble;
@@ -349,3 +349,4 @@ begin
 end;
 
 end.
+

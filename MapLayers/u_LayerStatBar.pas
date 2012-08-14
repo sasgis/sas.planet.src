@@ -283,7 +283,7 @@ begin
     VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
-    VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
+    VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
     VMapType := FMainMap.GetStatic.MapType;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
@@ -362,7 +362,7 @@ begin
           VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);
           if VTileNameWidthAviable < VTileNameWidth + 40 then begin
             SetLength(VShortTileName, 6);
-            StrLCopy(PAnsiChar(VShortTileName), PAnsiChar(VTileName), 6);
+            StrLCopy(PChar(VShortTileName), PChar(VTileName), 6);
             VShortTileName :=
               VShortTileName + '...' +
               RightStr(

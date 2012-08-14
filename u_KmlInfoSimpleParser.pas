@@ -75,8 +75,8 @@ type
       ALen: integer;
       const APointsAggregator: IDoublePointsAggregator
     ): boolean;
-    procedure parseName(var Name: AnsiString);
-    procedure parseDescription(var Description: AnsiString);
+    procedure parseName(var Name: String);
+    procedure parseDescription(var Description: String);
     function BuildItem(
       const AName, ADesc: string;
       const APointsAggregator: IDoublePointsAggregator;
@@ -260,7 +260,7 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseName(var Name: AnsiString);
+procedure TKmlInfoSimpleParser.parseName(var Name: String);
 var
   pb: integer;
 begin
@@ -271,7 +271,7 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseDescription(var Description: AnsiString);
+procedure TKmlInfoSimpleParser.parseDescription(var Description: String);
 var
   pb: integer;
   iip: integer;
