@@ -404,8 +404,16 @@ end;
 
 destructor TGPSModuleByVSAGPS.Destroy;
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: begin');
+{$ifend}
+
   Disconnect;
 
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: kill object');
+{$ifend}
+  
 {$if defined(VSAGPS_AS_DLL)}
   if (nil<>FVSAGPS_HANDLE) then begin
     VSAGPS_Destroy(FVSAGPS_HANDLE);
@@ -415,12 +423,29 @@ begin
   FreeAndNil(FVSAGPS_Object);
 {$ifend}
 
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: stop logger');
+{$ifend}
+
   InternalStopLogger;
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: delete sections');
+{$ifend}
 
   DeleteCriticalSection(FLoggerCS);
   DeleteCriticalSection(FConnectCS);
   DeleteCriticalSection(FUnitInfoCS);
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: inherited');
+{$ifend}
+
   inherited;
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: end');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
@@ -623,16 +648,21 @@ end;
 
 procedure TGPSModuleByVSAGPS.Disconnect;
 begin
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: begin');
+{$ifend}
+
   inherited;
+
   LockConnect;
   try
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
-    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: begin');
+    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: check');
 {$ifend}
 
     if FConnectState<>gs_DoneDisconnected then begin
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
-      VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: before GPSDisconnect');
+      VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: GPSDisconnect');
 {$ifend}
     
 {$if defined(VSAGPS_AS_DLL)}
@@ -641,11 +671,20 @@ begin
       FVSAGPS_Object.GPSDisconnect;
 {$ifend}
     end;
+
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: stop logger');
+{$ifend}
+
     // stop low-level logging
     InternalStopLogger;
   finally
     UnLockConnect;
   end;
+  
+{$if defined(VSAGPS_USE_DEBUG_STRING)}
+  VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Disconnect: end');
+{$ifend}
 end;
 
 procedure TGPSModuleByVSAGPS.DoAddPointToLogWriter(const AUnitIndex: Byte);
