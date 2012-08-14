@@ -285,7 +285,11 @@ var
   );
   var
     VPX_Result: Pvsagps_XML_ParserResult;
+    VInner: Boolean;
   begin
+    VWSName := '';
+    VInner := FALSE;
+
     VPX_Result := pPX_Result;
     repeat
       // noway
@@ -307,12 +311,20 @@ var
         end;
 
         // done
-        Exit;
+        break;
+      end else if (VPX_Result^.kml_data.current_tag = kml_innerBoundaryIs) then begin
+        // Inner boundary
+        VInner := TRUE;
       end;
 
       // prev level
       VPX_Result := VPX_Result^.prev_data;
     until FALSE;
+
+    if VInner and (not a_to_description) then begin
+      // add prefix to name
+      VWSName := 'inner - ' + VWSName;
+    end;
   end;
 
   procedure _SetFromParentTrk(
