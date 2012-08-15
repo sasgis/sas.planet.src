@@ -252,7 +252,7 @@ end;
 function TConfigDataProviderByIniFileSection.ReadAnsiString(const AIdent: string;
   const ADefault: AnsiString): AnsiString;
 begin
-  Result := FIniFile.ReadString(FSection, AIdent, ADefault);
+  Result := AnsiString(FIniFile.ReadString(FSection, AIdent, String(ADefault)));
 end;
 
 function TConfigDataProviderByIniFileSection.ReadString(const AIdent,

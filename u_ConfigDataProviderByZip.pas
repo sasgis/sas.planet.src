@@ -205,7 +205,7 @@ var
 begin
   Result := '';
   if AIdent = '::FileName' then begin
-    Result := FSourceFileName;
+    Result := AnsiString(FSourceFileName);
   end else begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
@@ -229,7 +229,12 @@ end;
 function TConfigDataProviderByZip.ReadString(const AIdent,
   ADefault: string): string;
 begin
-  Result := ReadAnsiString(AIdent, ADefault);
+  Result := '';
+  if AIdent = '::FileName' then begin
+    Result := FSourceFileName;
+  end else begin
+    Result := ReadAnsiString(AIdent, ADefault);
+  end;
 end;
 
 function TConfigDataProviderByZip.ReadSubItemsList: IStringListStatic;
