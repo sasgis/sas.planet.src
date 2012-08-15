@@ -21,25 +21,17 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 663
     Height = 410
-    ActivePage = tsGPS
+    ActivePage = tsView
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
       BorderWidth = 3
       Caption = 'Maps'
       ImageIndex = 8
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object tsCache: TTabSheet
       Caption = 'Cache'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -568,7 +560,6 @@ object frmSettings: TfrmSettings
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'BerkeleyDB')
-          ExplicitHeight = 22
         end
         object lbGCCachePath: TLabel
           AlignWithMargins = True
@@ -619,10 +610,6 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Internet'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -722,10 +709,11 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 13
+              Height = 17
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -826,10 +814,6 @@ object frmSettings: TfrmSettings
     object tsControl: TTabSheet
       Caption = 'Control'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -862,10 +846,6 @@ object frmSettings: TfrmSettings
     object tsView: TTabSheet
       Caption = 'View'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -1117,18 +1097,20 @@ object frmSettings: TfrmSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 23
-              Width = 6
+              Width = 315
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
               Top = 61
-              Width = 6
+              Width = 315
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1183,9 +1165,10 @@ object frmSettings: TfrmSettings
                 Left = 0
                 Top = 0
                 Width = 91
-                Height = 13
+                Height = 20
                 Align = alLeft
                 Caption = 'Image postprocess'
+                ExplicitHeight = 13
               end
               object btnImageProcessReset: TButton
                 Left = 294
@@ -1229,12 +1212,14 @@ object frmSettings: TfrmSettings
               Align = alClient
               Style = csDropDownList
               ItemHeight = 13
+              ItemIndex = 0
               TabOrder = 0
+              Text = 'Auto'
               Items.Strings = (
                 'Auto'
-                'Sq M'
-                'Sq Km'
-                'Ha')
+                '2066339 m2'
+                '2,07 km2'
+                '206,63 ha')
             end
           end
         end
@@ -1660,10 +1645,6 @@ object frmSettings: TfrmSettings
     object tsGPS: TTabSheet
       Caption = 'GPS'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
@@ -2025,10 +2006,6 @@ object frmSettings: TfrmSettings
     object tsWiki: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -2121,10 +2098,6 @@ object frmSettings: TfrmSettings
     object tsGSM: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlGSM: TPanel
         Left = 0
         Top = 0
