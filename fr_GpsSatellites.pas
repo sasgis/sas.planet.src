@@ -45,6 +45,7 @@ type
     FValueChangeCounter: ICounter;
     FValueShowId: Integer;
 
+    function CheckVisible: Boolean;
     procedure OnSensorDataUpdate;
     procedure OnTimer;
     procedure UpdateDataView;
@@ -99,6 +100,24 @@ begin
   OnSensorDataUpdate;
 end;
 
+function TfrGpsSatellites.CheckVisible: Boolean;
+var
+  VParent: TWinControl;
+begin
+  Result := Visible;
+  if Result then begin
+    VParent := Self.Parent;
+    while VParent <> nil do begin
+      Result := VParent.Visible;
+      if Result then begin
+        VParent := VParent.Parent;
+      end else begin
+        VParent := nil;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrGpsSatellites.OnSensorDataUpdate;
 begin
   FValueChangeCounter.Inc;
@@ -132,12 +151,14 @@ procedure TfrGpsSatellites.UpdateDataView;
 var
   VSatellites: IGPSSatellitesInView;
 begin
-  VSatellites := FGpsSatellitesSensor.Info;
-  SatellitePaintBox.Bitmap.Lock;
-  try
-    FMapDraw.Draw(SatellitePaintBox.Bitmap, VSatellites);
-  finally
-    SatellitePaintBox.Bitmap.Unlock;
+  if CheckVisible then begin
+    VSatellites := FGpsSatellitesSensor.Info;
+    SatellitePaintBox.Bitmap.Lock;
+    try
+      FMapDraw.Draw(SatellitePaintBox.Bitmap, VSatellites);
+    finally
+      SatellitePaintBox.Bitmap.Unlock;
+    end;
   end;
 end;
 

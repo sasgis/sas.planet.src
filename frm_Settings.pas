@@ -253,13 +253,10 @@ type
     procedure CBLoginClick(Sender: TObject);
     procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
-    procedure tsGPSShow(Sender: TObject);
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnGPSSwitchClick(Sender: TObject);
     procedure btnImageProcessResetClick(Sender: TObject);
-    procedure tsGPSHide(Sender: TObject);
-    procedure FormHide(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -764,6 +761,7 @@ begin
   FLinksList.ActivateLinks;
 
   CBoxLocal.Clear;
+  frGpsSatellites.Parent := GroupBox3;
   frShortCutList.Parent := GroupBox5;
   frMapsList.Parent := tsMaps;
   frMapsList.Init;
@@ -922,9 +920,6 @@ begin
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
- if tsGPS.Visible then begin
-   tsGPSShow(nil);
- end;
 end;
 
 procedure TfrmSettings.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -942,33 +937,10 @@ begin
   end;
 end;
 
-procedure TfrmSettings.FormHide(Sender: TObject);
-begin
-  if tsGPS.Visible then begin
-    tsGPSHide(nil);
-  end;
-end;
-
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);
 begin
  if TrBarGamma.Position<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')'
                            else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
-end;
-
-procedure TfrmSettings.tsGPSHide(Sender: TObject);
-begin
-  if frGpsSatellites <> nil then begin
-    frGpsSatellites.Parent := nil;
-    frGpsSatellites.Hide;
-  end;
-end;
-
-procedure TfrmSettings.tsGPSShow(Sender: TObject);
-begin
-  if frGpsSatellites <> nil then begin
-    frGpsSatellites.Show;
-    frGpsSatellites.Parent := GroupBox3;
-  end;
 end;
 
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);

@@ -13,7 +13,6 @@ object frmSettings: TfrmSettings
   ShowHint = True
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  OnHide = FormHide
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -25,17 +24,22 @@ object frmSettings: TfrmSettings
     ActivePage = tsGPS
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 676
     object tsMaps: TTabSheet
       BorderWidth = 3
       Caption = 'Maps'
       ImageIndex = 8
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object tsCache: TTabSheet
       Caption = 'Cache'
       ImageIndex = 1
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
@@ -45,7 +49,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 662
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -274,7 +277,6 @@ object frmSettings: TfrmSettings
             Value = 100.000000000000000000
           end>
         TabOrder = 1
-        ExplicitWidth = 668
         DesignSize = (
           655
           217)
@@ -298,7 +300,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 422
         end
         object Button6: TButton
           Tag = 2
@@ -310,7 +311,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 1
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object Button7: TButton
           Tag = 2
@@ -322,7 +322,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 2
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
         object Label2: TLabel
           AlignWithMargins = True
@@ -344,7 +343,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 3
-          ExplicitWidth = 422
         end
         object Button4: TButton
           Tag = 1
@@ -356,7 +354,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 4
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object Button5: TButton
           Tag = 1
@@ -368,7 +365,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 5
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
         object Label1: TLabel
           AlignWithMargins = True
@@ -390,7 +386,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 6
-          ExplicitWidth = 422
         end
         object Button8: TButton
           Tag = 3
@@ -402,7 +397,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 7
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object Button9: TButton
           Tag = 3
@@ -414,7 +408,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 8
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
         object Label19: TLabel
           AlignWithMargins = True
@@ -436,7 +429,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 9
-          ExplicitWidth = 422
         end
         object Button13: TButton
           Tag = 4
@@ -448,7 +440,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 10
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object Button14: TButton
           Tag = 4
@@ -460,7 +451,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 11
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
         object Label31: TLabel
           AlignWithMargins = True
@@ -482,7 +472,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 12
-          ExplicitWidth = 422
         end
         object Button10: TButton
           Tag = 5
@@ -494,7 +483,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 13
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object Button17: TButton
           Tag = 5
@@ -506,7 +494,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 14
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
         object lblBDBCachePath: TLabel
           AlignWithMargins = True
@@ -528,7 +515,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 15
-          ExplicitWidth = 422
         end
         object btnSetDefBDBCachePath: TButton
           Tag = 6
@@ -540,7 +526,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 16
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object btnSetBDBCachePath: TButton
           Tag = 6
@@ -552,7 +537,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 17
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
         object Label37: TLabel
           AlignWithMargins = True
@@ -584,7 +568,7 @@ object frmSettings: TfrmSettings
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'BerkeleyDB')
-          ExplicitWidth = 422
+          ExplicitHeight = 22
         end
         object lbGCCachePath: TLabel
           AlignWithMargins = True
@@ -606,7 +590,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 18
-          ExplicitWidth = 422
         end
         object btnSetDefGCCachePath: TButton
           Tag = 7
@@ -618,7 +601,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 19
           OnClick = Button4Click
-          ExplicitLeft = 628
         end
         object btnSetGCCachePath: TButton
           Tag = 7
@@ -630,7 +612,6 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 20
           OnClick = Button5Click
-          ExplicitLeft = 648
         end
       end
     end
@@ -638,7 +619,10 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Internet'
       ImageIndex = 1
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -648,7 +632,6 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitWidth = 662
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
@@ -658,7 +641,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Retry download if tile not found'
           TabOrder = 0
-          ExplicitWidth = 650
         end
         object CkBGoNextTile: TCheckBox
           AlignWithMargins = True
@@ -669,7 +651,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Download next tile if no response'
           TabOrder = 1
-          ExplicitWidth = 650
         end
         object CBSaveTileNotExists: TCheckBox
           AlignWithMargins = True
@@ -680,7 +661,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Store info about not found tiles'
           TabOrder = 2
-          ExplicitWidth = 650
         end
         object flwpnlDownloadTimeOut: TFlowPanel
           Left = 3
@@ -691,7 +671,6 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 3
-          ExplicitWidth = 656
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -720,7 +699,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Restore download from last successful tile'
           TabOrder = 4
-          ExplicitWidth = 650
         end
         object GroupBox4: TGroupBox
           Left = 3
@@ -730,7 +708,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Connection settings'
           TabOrder = 5
-          ExplicitWidth = 656
           object pnlProxyUrl: TPanel
             AlignWithMargins = True
             Left = 5
@@ -740,17 +717,15 @@ object frmSettings: TfrmSettings
             Align = alTop
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitWidth = 646
             object lblUseProxy: TLabel
               AlignWithMargins = True
               Left = 24
               Top = 3
               Width = 94
-              Height = 17
+              Height = 13
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
-              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -769,7 +744,6 @@ object frmSettings: TfrmSettings
               Height = 23
               Align = alClient
               TabOrder = 1
-              ExplicitWidth = 525
               ExplicitHeight = 21
             end
           end
@@ -783,7 +757,6 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitWidth = 646
             object CBLogin: TCheckBox
               AlignWithMargins = True
               Left = 3
@@ -835,7 +808,6 @@ object frmSettings: TfrmSettings
             AutoSize = True
             BevelOuter = bvNone
             TabOrder = 2
-            ExplicitWidth = 646
             object chkUseIEProxy: TCheckBox
               AlignWithMargins = True
               Left = 3
@@ -846,7 +818,6 @@ object frmSettings: TfrmSettings
               Caption = 'Use system proxy settings'
               TabOrder = 0
               OnClick = chkUseIEProxyClick
-              ExplicitWidth = 640
             end
           end
         end
@@ -855,7 +826,10 @@ object frmSettings: TfrmSettings
     object tsControl: TTabSheet
       Caption = 'Control'
       ImageIndex = 2
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -864,7 +838,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         Caption = 'Mouse wheel'
         TabOrder = 0
-        ExplicitWidth = 668
         object ScrolInvert: TCheckBox
           AlignWithMargins = True
           Left = 5
@@ -874,7 +847,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Roll backward to zoom in'
           TabOrder = 0
-          ExplicitWidth = 658
         end
       end
       object GroupBox5: TGroupBox
@@ -885,13 +857,15 @@ object frmSettings: TfrmSettings
         Align = alClient
         Caption = 'Hotkeys'
         TabOrder = 1
-        ExplicitWidth = 668
       end
     end
     object tsView: TTabSheet
       Caption = 'View'
       ImageIndex = 3
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -922,7 +896,6 @@ object frmSettings: TfrmSettings
             Value = 100.000000000000000000
           end>
         TabOrder = 0
-        ExplicitWidth = 668
         object pnlUILeft: TPanel
           Left = 0
           Top = 0
@@ -932,7 +905,6 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 0
-          ExplicitWidth = 334
           object pnlDistFormat: TPanel
             Left = 3
             Top = 70
@@ -942,7 +914,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 0
-            ExplicitWidth = 328
             object Label3: TLabel
               Left = 3
               Top = 3
@@ -969,7 +940,6 @@ object frmSettings: TfrmSettings
               Items.Strings = (
                 '12 km 423 m'
                 '23.4 km')
-              ExplicitWidth = 201
             end
           end
           object pnlLonLatFormat: TPanel
@@ -981,7 +951,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 1
-            ExplicitWidth = 328
             object Label84: TLabel
               Left = 3
               Top = 3
@@ -1012,7 +981,6 @@ object frmSettings: TfrmSettings
                 '-- deg.min.sec. (-12'#176'23"43.35'#39')'
                 '-- deg.min. (-12'#176'23.454)'
                 '-- deg. (-12.1233'#176')')
-              ExplicitWidth = 184
             end
           end
           object pnlLang: TPanel
@@ -1025,7 +993,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 2
-            ExplicitWidth = 328
             object Label8: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1049,7 +1016,6 @@ object frmSettings: TfrmSettings
               ItemHeight = 13
               TabOrder = 0
               OnChange = CBoxLocalChange
-              ExplicitWidth = 263
             end
           end
           object pnlOptions: TPanel
@@ -1062,7 +1028,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 3
-            ExplicitWidth = 328
             object CBShowmapname: TCheckBox
               Left = 3
               Top = 37
@@ -1071,7 +1036,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Show map name on toolbar'
               TabOrder = 0
-              ExplicitWidth = 322
             end
             object ChBoxFirstLat: TCheckBox
               Left = 3
@@ -1081,7 +1045,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Latitude-Longitude order'
               TabOrder = 1
-              ExplicitWidth = 322
             end
             object CBlock_toolbars: TCheckBox
               Left = 3
@@ -1091,7 +1054,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Lock toolbars'
               TabOrder = 2
-              ExplicitWidth = 322
             end
             object CBShowHintOnMarks: TCheckBox
               Left = 3
@@ -1101,7 +1063,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Show tooltips'
               TabOrder = 3
-              ExplicitWidth = 322
             end
             object CBMinimizeToTray: TCheckBox
               Left = 3
@@ -1111,7 +1072,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Minimize to tray'
               TabOrder = 4
-              ExplicitWidth = 322
             end
           end
           object flwpnlTileBorder: TFlowPanel
@@ -1124,7 +1084,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 4
-            ExplicitWidth = 328
             object Label69: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1155,24 +1114,21 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 5
-            ExplicitWidth = 328
             object LabelGamma: TLabel
               Left = 3
               Top = 23
-              Width = 315
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
               Top = 61
-              Width = 315
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1190,7 +1146,6 @@ object frmSettings: TfrmSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarGammaChange
-              ExplicitWidth = 322
             end
             object TrBarContrast: TTrackBar
               Left = 3
@@ -1205,7 +1160,6 @@ object frmSettings: TfrmSettings
               ThumbLength = 15
               TickMarks = tmTopLeft
               OnChange = TrBarContrastChange
-              ExplicitWidth = 322
             end
             object CBinvertcolor: TCheckBox
               AlignWithMargins = True
@@ -1216,7 +1170,6 @@ object frmSettings: TfrmSettings
               Align = alTop
               Caption = 'Night mode (color inversion)'
               TabOrder = 2
-              ExplicitWidth = 316
             end
             object pnlImageProcessTop: TPanel
               Left = 3
@@ -1226,15 +1179,13 @@ object frmSettings: TfrmSettings
               Align = alTop
               BevelOuter = bvNone
               TabOrder = 3
-              ExplicitWidth = 322
               object lblImageProcessCaption: TLabel
                 Left = 0
                 Top = 0
                 Width = 91
-                Height = 20
+                Height = 13
                 Align = alLeft
                 Caption = 'Image postprocess'
-                ExplicitHeight = 13
               end
               object btnImageProcessReset: TButton
                 Left = 294
@@ -1246,7 +1197,6 @@ object frmSettings: TfrmSettings
                 Caption = '<>'
                 TabOrder = 0
                 OnClick = btnImageProcessResetClick
-                ExplicitLeft = 301
               end
             end
           end
@@ -1259,7 +1209,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 6
-            ExplicitWidth = 328
             object lblAreaFormat: TLabel
               Left = 3
               Top = 3
@@ -1286,7 +1235,6 @@ object frmSettings: TfrmSettings
                 'Sq M'
                 'Sq Km'
                 'Ha')
-              ExplicitWidth = 219
             end
           end
         end
@@ -1301,8 +1249,6 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 1
-          ExplicitLeft = 334
-          ExplicitWidth = 334
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
             Top = 36
@@ -1313,7 +1259,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 0
-            ExplicitWidth = 326
             object Label17: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1346,7 +1291,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 1
-            ExplicitWidth = 326
             object Label24: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1365,7 +1309,6 @@ object frmSettings: TfrmSettings
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
-              ExplicitWidth = 320
               object Label26: TLabel
                 AlignWithMargins = True
                 Left = 3
@@ -1416,7 +1359,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 2
-            ExplicitWidth = 326
             object Label35: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1438,7 +1380,6 @@ object frmSettings: TfrmSettings
               Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
               ItemHeight = 16
               TabOrder = 0
-              ExplicitWidth = 226
             end
           end
           object pnlResize: TPanel
@@ -1451,7 +1392,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 3
-            ExplicitWidth = 326
             object Label16: TLabel
               AlignWithMargins = True
               Left = 6
@@ -1476,7 +1416,6 @@ object frmSettings: TfrmSettings
               TabOrder = 0
               Items.Strings = (
                 '')
-              ExplicitWidth = 230
             end
           end
           object pnlTileBorders: TPanel
@@ -1491,7 +1430,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 6
-            ExplicitWidth = 326
             object Label23: TLabel
               Left = 3
               Top = 3
@@ -1512,7 +1450,6 @@ object frmSettings: TfrmSettings
               BevelOuter = bvNone
               Padding.Top = 3
               TabOrder = 0
-              ExplicitWidth = 320
               object Label27: TLabel
                 AlignWithMargins = True
                 Left = 3
@@ -1571,7 +1508,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 5
-            ExplicitWidth = 326
             object LabelGsh1: TLabel
               Left = 3
               Top = 3
@@ -1592,7 +1528,6 @@ object frmSettings: TfrmSettings
               BevelOuter = bvNone
               Padding.Top = 3
               TabOrder = 0
-              ExplicitWidth = 320
               object LabelGsh2: TLabel
                 AlignWithMargins = True
                 Left = 3
@@ -1652,7 +1587,6 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 4
-            ExplicitWidth = 326
             object LabelDeg1: TLabel
               Left = 3
               Top = 3
@@ -1673,7 +1607,6 @@ object frmSettings: TfrmSettings
               BevelOuter = bvNone
               Padding.Top = 3
               TabOrder = 0
-              ExplicitWidth = 320
               object LabelDeg2: TLabel
                 AlignWithMargins = True
                 Left = 3
@@ -1727,9 +1660,10 @@ object frmSettings: TfrmSettings
     object tsGPS: TTabSheet
       Caption = 'GPS'
       ImageIndex = 4
-      OnHide = tsGPSHide
-      OnShow = tsGPSShow
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
@@ -1739,7 +1673,6 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         Padding.Right = 3
         TabOrder = 0
-        ExplicitWidth = 418
         object flwpnlGpsPort: TFlowPanel
           Left = 0
           Top = 0
@@ -1752,7 +1685,6 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 0
-          ExplicitWidth = 415
           object Label4: TLabel
             AlignWithMargins = True
             Left = 6
@@ -1879,8 +1811,8 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMOthers: TCheckBox
             AlignWithMargins = True
-            Left = 337
-            Top = 27
+            Left = 6
+            Top = 50
             Width = 60
             Height = 17
             Caption = 'Others'
@@ -1888,7 +1820,7 @@ object frmSettings: TfrmSettings
           end
           object CB_USBGarmin: TCheckBox
             AlignWithMargins = True
-            Left = 6
+            Left = 72
             Top = 50
             Width = 82
             Height = 17
@@ -1909,7 +1841,6 @@ object frmSettings: TfrmSettings
           BorderWidth = 3
           FlowStyle = fsTopBottomLeftRight
           TabOrder = 1
-          ExplicitWidth = 415
           object Label6: TLabel
             Left = 3
             Top = 3
@@ -2020,7 +1951,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Autosave track to:'
           TabOrder = 2
-          ExplicitWidth = 415
           object CB_GPSlogPLT: TCheckBox
             AlignWithMargins = True
             Left = 75
@@ -2061,7 +1991,6 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 3
-          ExplicitWidth = 415
           object CBSensorsBarAutoShow: TCheckBox
             AlignWithMargins = True
             Left = 6
@@ -2071,7 +2000,6 @@ object frmSettings: TfrmSettings
             Align = alTop
             Caption = 'Auto show/hide sensors toolbar'
             TabOrder = 0
-            ExplicitWidth = 403
           end
         end
       end
@@ -2083,7 +2011,6 @@ object frmSettings: TfrmSettings
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 418
         object GroupBox3: TGroupBox
           Left = 0
           Top = 0
@@ -2098,7 +2025,10 @@ object frmSettings: TfrmSettings
     object tsWiki: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -2143,7 +2073,6 @@ object frmSettings: TfrmSettings
             Value = 50.000000000000000000
           end>
         TabOrder = 0
-        ExplicitWidth = 668
         DesignSize = (
           655
           57)
@@ -2192,7 +2121,10 @@ object frmSettings: TfrmSettings
     object tsGSM: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
-      ExplicitWidth = 668
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlGSM: TPanel
         Left = 0
         Top = 0
@@ -2202,7 +2134,6 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitWidth = 668
         object chkPosFromGSM: TCheckBox
           Left = 3
           Top = 3
@@ -2212,7 +2143,6 @@ object frmSettings: TfrmSettings
           Caption = 'Automatically detect location using GSM phone (Google query)'
           TabOrder = 0
           OnClick = chkPosFromGSMClick
-          ExplicitWidth = 662
         end
         object flwpnlGSM: TFlowPanel
           Left = 3
@@ -2225,7 +2155,6 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 1
-          ExplicitWidth = 662
           object Label33: TLabel
             AlignWithMargins = True
             Left = 6
@@ -2308,7 +2237,6 @@ object frmSettings: TfrmSettings
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 676
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 585
@@ -2320,7 +2248,6 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       TabOrder = 0
       OnClick = btnCancelClick
-      ExplicitLeft = 598
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -2334,7 +2261,6 @@ object frmSettings: TfrmSettings
       ModalResult = 1
       TabOrder = 1
       OnClick = btnApplyClick
-      ExplicitLeft = 517
     end
     object btnApply: TButton
       AlignWithMargins = True
@@ -2346,7 +2272,6 @@ object frmSettings: TfrmSettings
       Caption = 'Apply'
       TabOrder = 2
       OnClick = btnApplyClick
-      ExplicitLeft = 436
     end
   end
 end
