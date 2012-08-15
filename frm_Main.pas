@@ -3311,6 +3311,10 @@ begin
     end else if Msg.SizeType = SIZE_RESTORED then begin
       if FWinPosition.IsMinimized then  begin
         FWinPosition.SetNotMinimized;
+      end else begin
+        if not FWinPosition.IsFullScreen and not FWinPosition.IsMaximized then begin
+          FWinPosition.SetWindowPosition(Self.BoundsRect);
+        end;
       end;
     end;
   end;
