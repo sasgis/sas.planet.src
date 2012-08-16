@@ -64,7 +64,6 @@ type
     FErrorLogger: ITileErrorLogger;
 
     FProjectedCache: IIdCacheSimple;
-    FPointsAgregatorGUI: IDoublePointsAggregator;
     FTileChangeListener: IListener;
 
     FAllElements: IVectorDataItemList;
@@ -77,17 +76,6 @@ type
     FTileUpdateFlag: ISimpleFlag;
     procedure OnTileChange;
     procedure OnTimer;
-
-    function GetProjectedPath(
-      const AData: IVectorDataItemLine;
-      const AProjectionInfo: IProjectionInfo;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IProjectedPath;
-    function GetProjectedPolygon(
-      const AData: IVectorDataItemPoly;
-      const AProjectionInfo: IProjectionInfo;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IProjectedPolygon;
 
     procedure ElementsClear;
 
@@ -218,7 +206,6 @@ begin
   FAllElementsCS := MakeSyncRW_Var(Self, False);
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
-  FPointsAgregatorGUI := TDoublePointsAggregator.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -756,48 +743,6 @@ begin
   end;
 end;
 
-function TWikiLayer.GetProjectedPath(
-  const AData: IVectorDataItemLine;
-  const AProjectionInfo: IProjectionInfo;
-  const ATemp: IDoublePointsAggregator = nil
-): IProjectedPath;
-var
-  VID: Integer;
-begin
-  VID := Integer(AData);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    Result :=
-      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
-        AProjectionInfo,
-        AData.Line,
-        FLinesClipRect,
-        ATemp
-      );
-    FProjectedCache.Add(VID, Result);
-  end;
-end;
-
-function TWikiLayer.GetProjectedPolygon(
-  const AData: IVectorDataItemPoly;
-  const AProjectionInfo: IProjectionInfo;
-  const ATemp: IDoublePointsAggregator = nil
-): IProjectedPolygon;
-var
-  VID: Integer;
-begin
-  VID := Integer(AData);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    Result :=
-      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
-        AProjectionInfo,
-        AData.Line,
-        FLinesClipRect,
-        ATemp
-      );
-    FProjectedCache.Add(VID, Result);
-  end;
-end;
-
 procedure TWikiLayer.ElementsClear;
 begin
   FAllElementsCS.BeginWrite;
@@ -852,16 +797,13 @@ var
   VProjectdPolygon: IProjectedPolygon;
   VSquare: Double;
 begin
-  // return TRUE if breaks loop
   Result := nil;
 
-  // if has elements
   if ACopiedElements.Count > 0 then begin
     VLocalConverter := LayerCoordConverter;
     if not AVisualConverter.ProjectionInfo.GetIsSameProjectionInfo(VLocalConverter.ProjectionInfo) then begin
       Exit;
     end;
-    // TODO: execute this only once (for multiple calls)
     VRect.Left := xy.X - 3;
     VRect.Top := xy.Y - 3;
     VRect.Right := xy.X + 3;
@@ -883,19 +825,21 @@ begin
           AItemS := 0;
           Exit;
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-          VProjectdPath := GetProjectedPath(VItemLine, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
-          if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
-            Result := VItem;
-            AItemS := 0;
-            Exit;
+          if Supports(FProjectedCache.GetByID(Integer(VItemLine)), IProjectedPath, VProjectdPath) then begin
+            if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
+              Result := VItem;
+              AItemS := 0;
+              Exit;
+            end;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-          VProjectdPolygon := GetProjectedPolygon(VItemPoly, VLocalConverter.ProjectionInfo, FPointsAgregatorGUI);
-          if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
-            VSquare := VProjectdPolygon.CalcArea;
-            if (Result = nil) or (VSquare < AItemS) then begin
-              Result := VItem;
-              AItemS := VSquare;
+          if Supports(FProjectedCache.GetByID(Integer(VItemPoly)), IProjectedPolygon, VProjectdPolygon) then begin
+            if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
+              VSquare := VProjectdPolygon.CalcArea;
+              if (Result = nil) or (VSquare < AItemS) then begin
+                Result := VItem;
+                AItemS := VSquare;
+              end;
             end;
           end;
         end;
