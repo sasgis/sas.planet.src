@@ -184,7 +184,7 @@ var
   SWord: string;
   StrLen, N: Byte;
 begin
-  StrLen := SizeOf(Str);
+  StrLen := Length(Str);
   N := 1;
   while ((WordNmbr >= N) and (StrLen <> 0)) do begin
     StrLen := System.Pos(Smb, str);
