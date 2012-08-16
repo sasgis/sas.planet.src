@@ -2789,15 +2789,15 @@ begin
     if VIsFullScreen then begin
       Self.WindowState := wsMaximized;
       SetBounds(
-        Monitor.Left + Left - ClientOrigin.X,
-        Monitor.Top + Top - ClientOrigin.Y,
-        Monitor.Width + (Width - ClientWidth),
-        Monitor.Height + (Height - ClientHeight)
+        Monitor.Left + Self.Left - Self.ClientOrigin.X,
+        Monitor.Top + Self.Top - Self.ClientOrigin.Y,
+        Monitor.Width + (Self.Width - Self.ClientWidth),
+        Monitor.Height + (Self.Height - Self.ClientHeight)
       );
     end else begin
       if VIsMaximized then begin
         if Self.WindowState <> wsMaximized then begin
-          if not Types.EqualRect(BoundsRect, VRect) then begin
+          if not Types.EqualRect(Self.BoundsRect, VRect) then begin
             Self.BoundsRect:= VRect;
           end;
         end;
@@ -2819,7 +2819,7 @@ end;
 //Обработка нажатий кнопоки и калесика
 procedure TfrmMain.DoMessageEvent(var Msg: TMsg; var Handled: Boolean);
 begin
-  if Active then begin
+  if Self.Active then begin
     if not FMapZoomAnimtion then begin
       FKeyMovingHandler.DoMessageEvent(Msg, Handled);
     end;
