@@ -466,8 +466,8 @@ end;
 function TLocalCoordConverterNoScale.MapPixel2LocalPixel(
   const APoint: TPoint): TPoint;
 begin
-  Result.X := Trunc(APoint.X - FMapPixelAtLocalZero.X);
-  Result.Y := Trunc(APoint.Y - FMapPixelAtLocalZero.Y);
+  Result.X := APoint.X - Trunc(FMapPixelAtLocalZero.X);
+  Result.Y := APoint.Y - Trunc(FMapPixelAtLocalZero.Y);
 end;
 
 function TLocalCoordConverterNoScale.MapPixel2LocalPixelFloat(
