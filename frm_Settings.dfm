@@ -1305,7 +1305,7 @@ object frmSettings: TfrmSettings
               object MapZapColorBox: TColorBox
                 Left = 31
                 Top = 0
-                Width = 78
+                Width = 135
                 Height = 22
                 Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
                 ItemHeight = 16
@@ -1313,7 +1313,7 @@ object frmSettings: TfrmSettings
               end
               object Label29: TLabel
                 AlignWithMargins = True
-                Left = 112
+                Left = 169
                 Top = 3
                 Width = 37
                 Height = 13
@@ -1321,9 +1321,9 @@ object frmSettings: TfrmSettings
                 Caption = 'Opacity'
               end
               object MapZapAlphaEdit: TSpinEdit
-                Left = 152
+                Left = 209
                 Top = 0
-                Width = 41
+                Width = 42
                 Height = 22
                 MaxValue = 255
                 MinValue = 0
@@ -1446,7 +1446,7 @@ object frmSettings: TfrmSettings
               object ColorBoxBorder: TColorBox
                 Left = 31
                 Top = 3
-                Width = 78
+                Width = 135
                 Height = 22
                 Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
                 ItemHeight = 16
@@ -1454,16 +1454,16 @@ object frmSettings: TfrmSettings
               end
               object Label28: TLabel
                 AlignWithMargins = True
-                Left = 112
+                Left = 169
                 Top = 6
                 Width = 37
                 Height = 13
                 Caption = 'Opacity'
               end
               object SpinEditBorderAlpha: TSpinEdit
-                Left = 152
+                Left = 209
                 Top = 3
-                Width = 41
+                Width = 42
                 Height = 22
                 MaxValue = 255
                 MinValue = 0
@@ -1524,7 +1524,7 @@ object frmSettings: TfrmSettings
               object GenshtabBoxBorder: TColorBox
                 Left = 31
                 Top = 3
-                Width = 78
+                Width = 135
                 Height = 22
                 Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
                 ItemHeight = 16
@@ -1532,16 +1532,16 @@ object frmSettings: TfrmSettings
               end
               object LabelGsh3: TLabel
                 AlignWithMargins = True
-                Left = 112
+                Left = 169
                 Top = 6
                 Width = 37
                 Height = 13
                 Caption = 'Opacity'
               end
               object SpinEditGenshtabBorderAlpha: TSpinEdit
-                Left = 152
+                Left = 209
                 Top = 3
-                Width = 41
+                Width = 42
                 Height = 22
                 MaxValue = 255
                 MinValue = 0
@@ -1603,7 +1603,7 @@ object frmSettings: TfrmSettings
               object DegreeBoxBorder: TColorBox
                 Left = 31
                 Top = 3
-                Width = 78
+                Width = 135
                 Height = 22
                 Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
                 ItemHeight = 16
@@ -1611,16 +1611,16 @@ object frmSettings: TfrmSettings
               end
               object LabelDeg3: TLabel
                 AlignWithMargins = True
-                Left = 112
+                Left = 169
                 Top = 6
                 Width = 37
                 Height = 13
                 Caption = 'Opacity'
               end
               object SpinEditDegreeBorderAlpha: TSpinEdit
-                Left = 152
+                Left = 209
                 Top = 3
-                Width = 41
+                Width = 42
                 Height = 22
                 MaxValue = 255
                 MinValue = 0
