@@ -256,7 +256,7 @@ end;
 procedure TThreadExportYaMobileV4.GenUserXml(const AMapID, AMapName: string);
 var
   VUserXml: string;
-  VUserXmlAnsi: RawByteString;
+  VUserXmlAnsi: AnsiString;
   VUserXmlPath: string;
   VStream: TMemoryStream;
   VAddStr: string;
