@@ -206,6 +206,8 @@ begin
   FAllElementsCS := MakeSyncRW_Var(Self, False);
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
+  FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
+  FTileUpdateFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -220,8 +222,6 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
     ATimerNoifier
   );
-  FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
-  FTileUpdateFlag := TSimpleFlagWithInterlock.Create;
 end;
 
 procedure TWikiLayer.DoHide;

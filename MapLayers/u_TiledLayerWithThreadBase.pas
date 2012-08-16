@@ -89,6 +89,8 @@ type
     procedure DoViewUpdate; override;
 
     function CreateLayerProvider(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; virtual; abstract;
     procedure DelicateRedraw;
@@ -341,7 +343,7 @@ begin
     if VProvider = nil then begin
       VCounterContext := FPrepareLayerProviderCounter.StartOperation;
       try
-        VProvider := CreateLayerProvider(VLayerConverter);
+        VProvider := CreateLayerProvider(AOperationID, ACancelNotifier, VLayerConverter);
       finally
         FPrepareLayerProviderCounter.FinishOperation(VCounterContext);
       end;

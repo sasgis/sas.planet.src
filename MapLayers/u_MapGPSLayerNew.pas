@@ -30,6 +30,8 @@ type
     procedure OnTimer;
   protected
     function CreateLayerProvider(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
     procedure StartThreads; override;
@@ -113,7 +115,10 @@ begin
 end;
 
 function TMapGPSLayerNew.CreateLayerProvider(
-  const ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider;
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const ALayerConverter: ILocalCoordConverter
+): IBitmapLayerProvider;
 var
   VTrackColorer: ITrackColorerStatic;
   VPointsCount: Integer;

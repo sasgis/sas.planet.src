@@ -36,6 +36,8 @@ type
     procedure OnConfigChange;
   protected
     function CreateLayerProvider(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
     procedure StartThreads; override;
@@ -144,6 +146,8 @@ begin
 end;
 
 function TMiniMapLayerNew.CreateLayerProvider(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
 ): IBitmapLayerProvider;
 var

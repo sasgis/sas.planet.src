@@ -49,6 +49,8 @@ type
     ): IMarksSubset;
   protected
     function CreateLayerProvider(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
     procedure StartThreads; override;
@@ -156,7 +158,10 @@ begin
 end;
 
 function TMapMarksLayerNew.CreateLayerProvider(
-  const ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider;
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const ALayerConverter: ILocalCoordConverter
+): IBitmapLayerProvider;
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VMarksSubset: IMarksSubset;

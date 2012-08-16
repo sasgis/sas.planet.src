@@ -22,6 +22,8 @@ type
     procedure OnConfigChange;
   protected
     function CreateLayerProvider(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
     procedure StartThreads; override;
@@ -91,6 +93,8 @@ begin
 end;
 
 function TMapLayerFillingMapNew.CreateLayerProvider(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
 ): IBitmapLayerProvider;
 var
