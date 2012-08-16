@@ -79,7 +79,7 @@ end;
 function TPosFromGSM.GetCoordFromGoogle(var LL: TDoublePoint): boolean;
 var
   strA, strB, strC, strAll: string;
-  sResult: string;
+  sResult: AnsiString;
   ms: TMemoryStream;
   iLat, iLon: Integer;
   i: Integer;
@@ -87,7 +87,7 @@ var
   sTmp, sTmp2: string;
   iCntr: Integer;
   SwinHttp: TSwinHttp;
-  post: string;
+  post: AnsiString;
 begin
   Result := true;
   NC := '0' + NC;
@@ -115,7 +115,7 @@ begin
     try
       ms.Position := 0;
       setLength(post, ms.Size);
-      ms.Read(post[1], ms.Size);
+      ms.ReadBuffer(post[1], ms.Size);
       SwinHttp.Post('http://www.google.com/glm/mmap', post);
       SetLength(sResult, SwinHttp.Response.Content.Size);
       SwinHttp.Response.Content.ReadBuffer(sResult[1], SwinHttp.Response.Content.Size);

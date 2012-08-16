@@ -494,7 +494,7 @@ var
  slat, slon, sname, sdesc, sfulldesc : string;
  VLinkErr : boolean;
  i, j, k, l: integer;
- VStr: string;
+ VStr: AnsiString;
  VSearch : widestring;
  VTemplist : TStringlist;
  VCityList : IStringListStatic;

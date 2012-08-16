@@ -130,7 +130,7 @@ var
  slat, slon, sname, sdesc, sfulldesc : string;
  VLinkErr : boolean;
  i, k, l: integer;
- VStr: string;
+ VStr: AnsiString;
  VSearch : widestring;
  V_StrData : string;
  Skip: boolean;
