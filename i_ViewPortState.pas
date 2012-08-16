@@ -55,7 +55,6 @@ type
     procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
-    procedure FitRectToScreen(const ALonLatRect: TDoubleRect);
 
     procedure MoveTo(const Pnt: TPoint);
     procedure ScaleTo(
