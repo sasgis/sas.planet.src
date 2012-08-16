@@ -256,6 +256,7 @@ end;
 procedure TThreadExportYaMobileV4.GenUserXml(const AMapID, AMapName: string);
 var
   VUserXml: string;
+  VUserXmlAnsi: RawByteString;
   VUserXmlPath: string;
   VStream: TMemoryStream;
   VAddStr: string;
@@ -280,19 +281,19 @@ begin
           VSize := VStream.Size;
           VStream.Position := 0;
         end;
-        SetLength(VUserXml, VSize);
-        VStream.Read(Pointer(VUserXml)^, Length(VUserXml));
-        VUserXml := Utf8ToAnsi(VUserXml);
+        SetLength(VUserXmlAnsi, VSize);
+        VStream.Read(VUserXmlAnsi[1], Length(VUserXmlAnsi));
+        VUserXml := Utf8ToAnsi(VUserXmlAnsi);
         VUserXml := StringReplace(VUserXml, '</map_layers>'#10, '', [rfIgnoreCase, rfReplaceAll]);
         if VUserXml <> '' then begin
           VUserXml := VUserXml + VAddStr;
         end;
       end;
       if VUserXml <> '' then begin
-        VUserXml := #239#187#191 + AnsiToUtf8(VUserXml);
+        VUserXmlAnsi := #239#187#191 + AnsiToUtf8(VUserXml);
         VStream.Clear;
         VStream.Position := 0;
-        VStream.Write(Pointer(VUserXml)^, Length(VUserXml));
+        VStream.Write(VUserXmlAnsi[1], Length(VUserXmlAnsi));
         VStream.SaveToFile(VUserXmlPath);
       end;
     end;
