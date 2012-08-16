@@ -66,7 +66,9 @@ type
     FProjectedCache: IIdCacheSimple;
     FPointsAgregatorGUI: IDoublePointsAggregator;
     FTileChangeListener: IListener;
-    FAllElements: IMapElementsGuidedList;
+
+    FAllElements: IVectorDataItemList;
+    FAllElementsCS: IReadWriteSync;
 
     FVectorMapsSet: IMapTypeSet;
     FVectorMapsSetCS: IReadWriteSync;
@@ -89,9 +91,6 @@ type
 
     procedure ElementsClear;
 
-    // define working list by map
-    function GetElementsListByMap(const AMapType: TMapType): IInterfaceList;
-
     procedure AddWikiElement(
       const AElments: IInterfaceList;
       const AData: IVectorDataItemSimple;
@@ -104,22 +103,22 @@ type
       Alayer: TMapType;
       const ALocalConverter: ILocalCoordConverter
     );
-    procedure PrepareWikiElements(
+    function PrepareWikiElements(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
-    );
+    ): IVectorDataItemList;
     procedure OnConfigChange;
     procedure OnLayerSetChange;
     procedure ProcessDraw(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AElments: IInterfaceList;
+      const AElments: IVectorDataItemList;
       const ALocalConverter: ILocalCoordConverter
     );
     function MouseOnElements(
       const AVisualConverter: ILocalCoordConverter;
-      const ACopiedElements: IInterfaceList;
+      const ACopiedElements: IVectorDataItemList;
       const xy: TPoint;
       var AItemS: Double
     ): IVectorDataItemSimple;
@@ -171,6 +170,7 @@ uses
   i_NotifierTileRectUpdate,
   u_ListenerByEvent,
   u_TileIteratorByRect,
+  u_VectorDataItemList,
   u_TileErrorInfo,
   u_ResStrings,
   u_GeoFun,
@@ -215,6 +215,7 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   FErrorLogger := AErrorLogger;
   FVectorMapsSetCS := MakeSyncRW_Var(Self);
+  FAllElementsCS := MakeSyncRW_Var(Self, False);
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FPointsAgregatorGUI := TDoublePointsAggregator.Create;
@@ -234,8 +235,6 @@ begin
   );
   FTileChangeListener := TNotifyNoMmgEventListener.Create(Self.OnTileChange);
   FTileUpdateFlag := TSimpleFlagWithInterlock.Create;
-
-  FAllElements := TMapElementsGuidedList.Create;
 end;
 
 procedure TWikiLayer.DoHide;
@@ -343,11 +342,11 @@ begin
   end;
 end;
 
-procedure TWikiLayer.PrepareWikiElements(
+function TWikiLayer.PrepareWikiElements(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
-);
+): IVectorDataItemList;
 var
   VVectorMapsSet: IMapTypeSet;
   VEnum: IEnumGUID;
@@ -363,27 +362,32 @@ begin
   finally
     FVectorMapsSetCS.EndRead;
   end;
-
-  if VVectorMapsSet <> nil then begin
-    VEnum := VVectorMapsSet.GetIterator;
-    while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VItem := VVectorMapsSet.GetMapTypeByGUID(VGUID);
-      VMapType := VItem.GetMapType;
-      if VMapType.IsKmlTiles then begin
-        VElements := GetElementsListByMap(VMapType);
-        AddElementsFromMap(AOperationID, ACancelNotifier, VElements, VMapType, ALocalConverter);
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
+  VElements := TInterfaceList.Create;
+  VElements.Lock;
+  try
+    if VVectorMapsSet <> nil then begin
+      VEnum := VVectorMapsSet.GetIterator;
+      while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
+        VItem := VVectorMapsSet.GetMapTypeByGUID(VGUID);
+        VMapType := VItem.GetMapType;
+        if VMapType.IsKmlTiles then begin
+          AddElementsFromMap(AOperationID, ACancelNotifier, VElements, VMapType, ALocalConverter);
+          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+            Break;
+          end;
         end;
       end;
     end;
+  finally
+    VElements.Unlock;
   end;
+  Result := TVectorDataItemList.Create(VElements);
 end;
 
 procedure TWikiLayer.ProcessDraw(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AElments: IInterfaceList;
+  const AElments: IVectorDataItemList;
   const ALocalConverter: ILocalCoordConverter
 );
 var
@@ -716,7 +720,7 @@ procedure TWikiLayer.DrawBitmap(
 );
 var
   VBitmapConverter: ILocalCoordConverter;
-  VList: IInterfaceList;
+  VList: IVectorDataItemList;
   VMapPixelRect: TDoubleRect;
 begin
   inherited;
@@ -729,11 +733,13 @@ begin
     FLinesClipRect.Bottom := VMapPixelRect.Bottom + 10;
     ElementsClear;
     FProjectedCache.Clear;
-    PrepareWikiElements(AOperationID, ACancelNotifier, VBitmapConverter);
-    VList := TInterfaceList.Create;
-    // copy all elements into
-    FAllElements.CopyMapElementsToList(TRUE, TRUE, VList);
-    // work
+    VList := PrepareWikiElements(AOperationID, ACancelNotifier, VBitmapConverter);
+    FAllElementsCS.BeginWrite;
+    try
+      FAllElements := VList;
+    finally
+      FAllElementsCS.EndWrite;
+    end;
     if VList.Count > 0 then begin
       ProcessDraw(AOperationID, ACancelNotifier, VList, VBitmapConverter);
     end else begin
@@ -747,15 +753,6 @@ begin
         Layer.Bitmap.UnLock;
       end;
     end;
-  end;
-end;
-
-function TWikiLayer.GetElementsListByMap(const AMapType: TMapType): IInterfaceList;
-begin
-  if Assigned(AMapType.Zmp.MapAttachmentsInfo) then begin
-    Result := FAllElements.GetMapElementsWithGUID(AMapType.Zmp.GUID);
-  end else begin
-    Result := FAllElements.GetMapElementsWithoutGUID;
   end;
 end;
 
@@ -803,7 +800,12 @@ end;
 
 procedure TWikiLayer.ElementsClear;
 begin
-  FAllElements.ClearMapElements;
+  FAllElementsCS.BeginWrite;
+  try
+    FAllElements := nil;
+  finally
+    FAllElementsCS.EndWrite;
+  end;
 end;
 
 function TWikiLayer.FindItem(
@@ -812,23 +814,25 @@ function TWikiLayer.FindItem(
   out AItemS: Double
 ): IVectorDataItemSimple;
 var
-  VElements: IInterfaceList;
+  VElements: IVectorDataItemList;
 begin
   Result := nil;
   AItemS := 0;
   // single call on ALL elements
-  VElements := TInterfaceList.Create;
+  FAllElementsCS.BeginRead;
   try
-    FAllElements.CopyMapElementsToList(TRUE, TRUE, VElements);
-    Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint, AItemS);
+    VElements := FAllElements;
   finally
-    VElements := nil;
+    FAllElementsCS.EndRead;
+  end;
+  if VElements <> nil then begin
+    Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint, AItemS);
   end;
 end;
 
 function TWikiLayer.MouseOnElements(
   const AVisualConverter: ILocalCoordConverter;
-  const ACopiedElements: IInterfaceList;
+  const ACopiedElements: IVectorDataItemList;
   const xy: TPoint;
   var AItemS: Double
 ): IVectorDataItemSimple;
@@ -872,7 +876,7 @@ begin
 
     // check element
     for i := 0 to ACopiedElements.Count - 1 do begin
-      VItem := IVectorDataItemSimple(Pointer(ACopiedElements[i]));
+      VItem := ACopiedElements.GetItem(i);
       if VItem.LLRect.IsIntersecWithRect(VLonLatRect) then begin
         if Supports(VItem, IVectorDataItemPoint) then begin
           Result := VItem;

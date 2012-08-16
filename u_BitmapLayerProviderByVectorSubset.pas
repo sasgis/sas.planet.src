@@ -26,7 +26,7 @@ type
     FColorBG: TColor32;
     FPointColor: TColor32;
     FVectorItmesFactory: IVectorItmesFactory;
-    FVectorItems: IInterfaceList;
+    FVectorItems: IVectorDataItemList;
     FProjectionInfo: IProjectionInfo;
     FProjectedCache: IIdCacheSimple;
     FLinesClipRect: TDoubleRect;
@@ -97,7 +97,7 @@ type
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
       const ALinesClipRect: TDoubleRect;
-      const AVectorItems: IInterfaceList
+      const AVectorItems: IVectorDataItemList
     );
   end;
 
@@ -123,7 +123,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
   const ALinesClipRect: TDoubleRect;
-  const AVectorItems: IInterfaceList
+  const AVectorItems: IVectorDataItemList
 );
 begin
   inherited Create;
@@ -440,7 +440,7 @@ begin
     try
       VIsEmpty := True;
       for i := 0 to FVectorItems.Count - 1 do begin
-        VItem := IVectorDataItemSimple(FVectorItems[i]);
+        VItem := FVectorItems.GetItem(i);
         if VItem.LLRect.IsIntersecWithRect(VLLRect) then begin
           if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
             VIsEmpty := False;
