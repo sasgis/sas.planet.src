@@ -463,6 +463,7 @@
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\u_MapLayerTileGrid.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerWikiNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayer.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayerNew.pas" />
