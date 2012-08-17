@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_Bitmap32Static,
   i_MapVersionConfig,
   i_BitmapTileSaveLoad,
@@ -104,8 +105,7 @@ function TBitmapTileProviderByStorage.GetTile(
   const AZoom: Byte
 ): IBitmap32Static;
 var
-  VTileInfo: ITileInfoBasic;
-  VData: IBinaryData;
+  VTileInfo: ITileInfoWithData;
   VRect: TRect;
   VSize: TPoint;
   VBitmap: TCustomBitmap32;
@@ -113,9 +113,8 @@ var
 begin
   Result := nil;
   try
-    VData := FStorage.LoadTile(ATile, AZoom, FVersionConfig.Version, VTileInfo);
-    if VData <> nil then begin
-      Result := FLoaderFromStorage.Load(VData);
+    if Supports(FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+      Result := FLoaderFromStorage.Load(VTileInfo.TileData);
     end;
     if Result <> nil then begin
       VRect := FGeoConverter.TilePos2PixelRect(ATile, AZoom);
@@ -184,14 +183,12 @@ function TVectorTileProviderByStorage.GetTile(
   const AZoom: Byte
 ): IVectorDataItemList;
 var
-  VTileInfo: ITileInfoBasic;
-  VData: IBinaryData;
+  VTileInfo: ITileInfoWithData;
 begin
   Result := nil;
   try
-    VData := FStorage.LoadTile(ATile, AZoom, FVersionConfig.Version, VTileInfo);
-    if VData <> nil then begin
-      Result := FLoaderFromStorage.Load(VData, FVectorDataFactory);
+    if Supports(FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+      Result := FLoaderFromStorage.Load(VTileInfo.TileData, FVectorDataFactory);
     end;
   except
     if not FIsIgnoreError then begin

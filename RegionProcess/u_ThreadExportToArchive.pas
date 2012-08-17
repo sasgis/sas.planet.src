@@ -92,11 +92,10 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileStorage: TTileStorageAbstract;
-  VTileInfo: ITileInfoBasic;
+  VTileInfo: ITileInfoWithData;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VData: IBinaryData;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -127,10 +126,9 @@ begin
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
           Exit;
         end;
-        VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
-        if VData <> nil then begin
+        if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
           FArchive.AddFile(
-            VData,
+            VTileInfo.TileData,
             FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
             VTileInfo.GetLoadDate
           );

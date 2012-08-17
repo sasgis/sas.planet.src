@@ -107,7 +107,7 @@ var
 begin
   Result := nil;
   if Supports(ARequest, ITileDownloadRequest, VTileDownloadRequest) then begin
-    Result := FStorage.GetTileInfo(VTileDownloadRequest.Source.Tile, VTileDownloadRequest.Source.Zoom, VTileDownloadRequest.Source.VersionInfo);
+    Result := FStorage.GetTileInfo(VTileDownloadRequest.Source.Tile, VTileDownloadRequest.Source.Zoom, VTileDownloadRequest.Source.VersionInfo, gtimWithData);
   end;
 end;
 

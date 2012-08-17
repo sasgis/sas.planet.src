@@ -63,6 +63,7 @@ uses
   i_MapVersionInfo,
   i_BinaryData,
   i_TileIterator,
+  u_TileStorageAbstract,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToFileSystem.Create(
@@ -143,8 +144,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VTileInfo: ITileInfoBasic;
-  VTileInfoWithData: ITileInfoWithData;
+  VTileInfo: ITileInfoWithData;
   VVersion: IMapVersionInfo;
 begin
   inherited;
@@ -183,10 +183,9 @@ begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          VMapType.TileStorage.LoadTile(VTile, VZoom, VVersion, VTileInfo);
-          if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+          if Supports(VMapType.TileStorage.GetTileInfo(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
             pathto := VPath + FTileNameGen.GetTileFileName(VTile, VZoom) + VExt;
-            if SaveTileToFile(VTileInfoWithData, pathto, FIsReplace) then begin
+            if SaveTileToFile(VTileInfo, pathto, FIsReplace) then begin
               if FIsMove then begin
                 VMapType.TileStorage.DeleteTile(VTile, VZoom, VVersion);
               end;

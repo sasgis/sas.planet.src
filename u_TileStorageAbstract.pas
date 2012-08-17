@@ -41,6 +41,8 @@ uses
   u_MapTypeCacheConfig;
 
 type
+  TGetTileInfoMode = (gtimWithData = 1, gtimWithoutData = -1, gtimAsIs = 0);
+
   TOnTileStorageScan = function(
       Sender: TObject;
       const ATileNameInCache: string;
@@ -100,14 +102,15 @@ type
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): ITileInfoBasic; virtual; abstract;
-    function LoadTile(
-      const AXY: TPoint;
-      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
-      out ATileInfo: ITileInfoBasic
-    ): IBinaryData; virtual; abstract;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; virtual; abstract;
+    function GetTileRectInfo(
+      const ARect: TRect;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): ITileRectInfo; virtual; abstract;
+
     function DeleteTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -135,12 +138,6 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; virtual;
-
-    function GetTileRectInfo(
-      const ARect: TRect;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): ITileRectInfo; virtual; abstract;
 
     procedure Scan(
       const AOnTileStorageScan: TOnTileStorageScan;

@@ -101,6 +101,7 @@ uses
   u_BackgroundTask,
   u_MapType,
   u_GeoFun,
+  u_TileStorageAbstract,
   u_TileErrorInfo;
 
 { TUiTileDownload }
@@ -326,7 +327,7 @@ begin
 
       while VIterator.Next(VTile) do begin
         VNeedDownload := False;
-        VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoom, VMapType.VersionConfig.Version);
+        VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoom, VMapType.VersionConfig.Version, gtimAsIs);
         if VTileInfo.IsExists then begin
           if FUseDownload = tsInternet then begin
             if Now - VTileInfo.LoadDate > FTileMaxAgeInInternet then begin

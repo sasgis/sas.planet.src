@@ -87,6 +87,7 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   u_TileFileNameBDB,
+  u_TileStorageAbstract,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToBDB.Create(
@@ -139,12 +140,11 @@ function TThreadExportToBDB.TileExportToRemoteBDB(
 ): Boolean;
 var
   VExportSDBFile: string;
-  VTileInfo: ITileInfoBasic;
+  VTileInfo: ITileInfoWithData;
   VTileExists: Boolean;
   VSDBFileExists: Boolean;
   VLoadDate: TDateTime;
   VContenetTypeStr: PWideChar;
-  VData: IBinaryData;
 begin
   Result := False;
   VExportSDBFile :=
@@ -159,9 +159,7 @@ begin
     VTileExists := False;
   end;
   if not VTileExists or (VTileExists and FIsReplace) then begin
-    VTileInfo := nil;
-    VData := AMapType.TileStorage.LoadTile(AXY, AZoom, AVersionInfo, VTileInfo);
-    if VData <> nil then begin
+    if Supports(AMapType.TileStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
       if VSDBFileExists or AHelper.CreateDirIfNotExists(VExportSDBFile) then begin
         if VTileInfo <> nil then begin
           VLoadDate := VTileInfo.LoadDate;
@@ -180,7 +178,7 @@ begin
           VLoadDate,
           VTileInfo.VersionInfo,
           VContenetTypeStr,
-          VData
+          VTileInfo.TileData
         );
       end;
     end;

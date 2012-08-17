@@ -485,7 +485,7 @@ function TMapType.TileExists(
 var
   VTileInfo: ITileInfoBasic;
 begin
-  VTileInfo := FStorage.GetTileInfo(AXY, AZoom, FVersionConfig.Version);
+  VTileInfo := FStorage.GetTileInfo(AXY, AZoom, FVersionConfig.Version, gtimAsIs);
   Result := VTileInfo.GetIsExists;
 end;
 
@@ -518,16 +518,12 @@ function TMapType.LoadBitmapTileFromStorage(
   var AVersionInfo: IMapVersionInfo
 ): IBitmap32Static;
 var
-  VTileInfo: ITileInfoBasic;
-  VData: IBinaryData;
+  VTileInfoWithData: ITileInfoWithData;
 begin
   Result := nil;
-  VData := FStorage.LoadTile(AXY, AZoom, AVersionInfo, VTileInfo);
-  if VData <> nil then begin
-    Result := FBitmapLoaderFromStorage.Load(VData);
-    if Assigned(VTileInfo) then begin
-      AVersionInfo := VTileInfo.VersionInfo;
-    end;
+  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
+    Result := FBitmapLoaderFromStorage.Load(VTileInfoWithData.TileData);
+    AVersionInfo := VTileInfoWithData.VersionInfo;
   end;
 end;
 
@@ -537,16 +533,12 @@ function TMapType.LoadKmlTileFromStorage(
   var AVersionInfo: IMapVersionInfo
 ): IVectorDataItemList;
 var
-  VTileInfo: ITileInfoBasic;
-  VData: IBinaryData;
+  VTileInfoWithData: ITileInfoWithData;
 begin
   Result := nil;
-  VData := FStorage.LoadTile(AXY, AZoom, AVersionInfo, VTileInfo);
-  if VData <> nil then begin
-    Result := FKmlLoaderFromStorage.Load(VData, FVectorDataFactory);
-    if Assigned(VTileInfo) then begin
-      AVersionInfo := VTileInfo.VersionInfo;
-    end;
+  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
+    Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, FVectorDataFactory);
+    AVersionInfo := VTileInfoWithData.VersionInfo;
   end;
 end;
 

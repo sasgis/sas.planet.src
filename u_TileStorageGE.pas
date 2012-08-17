@@ -79,9 +79,8 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
-      AStream: TMemoryStream;
-      out ATileInfo: ITileInfoBasic
-    ): Boolean;
+      const AIsNeedData: Boolean
+    ): ITileInfoBasic;
   public
     constructor Create(
       const AConfig: ISimpleTileStorageConfig;
@@ -98,7 +97,8 @@ type
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
@@ -106,13 +106,6 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
-
-    function LoadTile(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      out ATileInfo: ITileInfoBasic
-    ): IBinaryData; override;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -488,10 +481,11 @@ end;
 function TTileStorageDLL.GetTileInfo(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 begin
-  QueryTileInternal(AXY, AZoom, AVersionInfo, nil, Result);
+  Result := QueryTileInternal(AXY, AZoom, AVersionInfo, AMode = gtimWithData);
 end;
 
 function TTileStorageDLL.GetTileRectInfo(
@@ -640,42 +634,18 @@ begin
   end;
 end;
 
-function TTileStorageDLL.LoadTile(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo;
-  out ATileInfo: ITileInfoBasic
-): IBinaryData;
-var
-  VMemStream: TMemoryStream;
-begin
-  Result := nil;
-  VMemStream := TMemoryStream.Create;
-  try
-    if QueryTileInternal(AXY, AZoom, AVersionInfo, VMemStream, ATileInfo) then begin
-      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-      VMemStream := nil;
-    end;
-  finally
-    VMemStream.Free;
-  end;
-end;
-
 function TTileStorageDLL.QueryTileInternal(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
-  AStream: TMemoryStream;
-  out ATileInfo: ITileInfoBasic
-): Boolean;
+  const AIsNeedData: Boolean
+): ITileInfoBasic;
 var
   VVersionInfo: IMapVersionInfo;
   VVersionStoreString: AnsiString;
   VQTInfo: TQueryTileInfo;
 begin
-  Result := FALSE;
-  ATileInfo := nil;
-
+  Result := nil;
   FDLLSync.BeginRead;
   try
     if StorageStateStatic.ReadAccess <> asDisabled then begin
@@ -689,9 +659,9 @@ begin
       VQTInfo.Common.VersionInp := PAnsiChar(VVersionStoreString);
 
       // load tile body or not
-      if (nil <> AStream) then begin
+      if AIsNeedData then begin
         VQTInfo.Common.FlagsInp := DLLCACHE_QTI_LOAD_TILE;
-        VQTInfo.TileStream := AStream;
+        VQTInfo.TileStream := TMemoryStream.Create;
       end;
 
       try
@@ -708,26 +678,36 @@ begin
           // check size
           if (VQTInfo.TileSize > 0) then begin
             // tile exists
-            ATileInfo := TTileInfoBasicExists.Create(
-              VQTInfo.DateOut,
-              VQTInfo.TileSize,
-              IMapVersionInfo(VQTInfo.VersionOut),
-              FMainContentType
-            );
-            Inc(Result);
+            if AIsNeedData then begin
+              Result := TTileInfoBasicExistsWithTile.Create(
+                VQTInfo.DateOut,
+                TBinaryDataByMemStream.CreateWithOwn(TMemoryStream(VQTInfo.TileStream)),
+                IMapVersionInfo(VQTInfo.VersionOut),
+                FMainContentType
+              );
+              VQTInfo.TileStream := nil;
+            end else begin
+              Result := TTileInfoBasicExists.Create(
+                VQTInfo.DateOut,
+                VQTInfo.TileSize,
+                IMapVersionInfo(VQTInfo.VersionOut),
+                FMainContentType
+              );
+            end;
           end else if (0 <> (VQTInfo.Common.FlagsOut and DLLCACHE_QTO_TNE_EXISTS)) then begin
             // tne found
-            ATileInfo := TTileInfoBasicTNE.Create(VQTInfo.DateOut, IMapVersionInfo(VQTInfo.VersionOut));
+            Result := TTileInfoBasicTNE.Create(VQTInfo.DateOut, IMapVersionInfo(VQTInfo.VersionOut));
           end else begin
             // nothing
-            ATileInfo := FTileNotExistsTileInfo;
+            Result := FTileNotExistsTileInfo;
           end;
         end else begin
           // nothing
-          ATileInfo := FTileNotExistsTileInfo;
+          Result := FTileNotExistsTileInfo;
         end;
       finally
         IMapVersionInfo(VQTInfo.VersionOut) := nil;
+        TMemoryStream(VQTInfo.TileStream).Free;
       end;
     end;
   finally

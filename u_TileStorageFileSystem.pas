@@ -94,20 +94,14 @@ type
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
-
-    function LoadTile(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      out ATileInfo: ITileInfoBasic
-    ): IBinaryData; override;
 
     function DeleteTile(
       const AXY: TPoint;
@@ -513,7 +507,8 @@ end;
 function TTileStorageFileSystem.GetTileInfo(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 var
   VPath: String;
@@ -528,46 +523,11 @@ begin
   {$ENDIF}
     if StorageStateStatic.ReadAccess <> asDisabled then begin
       VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-      Result := GetTileInfoByPath(VPath, AVersionInfo, False);
+      Result := GetTileInfoByPath(VPath, AVersionInfo, AMode = gtimWithData);
     end;
   {$IFDEF WITH_PERF_COUNTER}
   finally
     FGetTileInfoCounter.FinishOperation(VCounterContext);
-  end;
-  {$ENDIF}
-end;
-
-function TTileStorageFileSystem.LoadTile(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo;
-  out ATileInfo: ITileInfoBasic
-): IBinaryData;
-var
-  VPath: String;
-  VInfoWithData: ITileInfoWithData;
-{$IFDEF WITH_PERF_COUNTER}
-var
-  VCounterContext: TInternalPerformanceCounterContext;
-{$ENDIF}
-begin
-  {$IFDEF WITH_PERF_COUNTER}
-  VCounterContext := FLoadTileCounter.StartOperation;
-  try
-  {$ENDIF}
-    Result := nil;
-    if StorageStateStatic.ReadAccess <> asDisabled then begin
-      VPath := FCacheConfig.GetTileFileName(AXY, AZoom);
-      ATileInfo := GetTileInfoByPath(VPath, AVersionInfo, True);
-      if ATileInfo.GetIsExists then begin
-        if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
-          Result := VInfoWithData.TileData;
-        end;
-      end;
-    end;
-  {$IFDEF WITH_PERF_COUNTER}
-  finally
-    FLoadTileCounter.FinishOperation(VCounterContext);
   end;
   {$ENDIF}
 end;
@@ -671,8 +631,9 @@ var
   VTileZoom: Byte;
   VTileFileName: string;
   VTileFileNameW: WideString;
-  VTileInfoBasic: ITileInfoBasic;
-  VTileBinData: IBinaryData;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VData: IBinaryData;
   VProcessFileMasks: TWideStringList;
   VFilesIterator: IFileNameIterator;
   VFoldersIteratorFactory: IFileNameIteratorFactory;
@@ -704,20 +665,28 @@ begin
     while VFilesIterator.Next(VTileFileNameW) do begin
       VTileFileName := WideCharToString(PWideChar(VTileFileNameW));
       if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) then begin
-        VTileBinData := Self.LoadTile(VTileXY, VTileZoom, nil, VTileInfoBasic);
-        VAbort := not AOnTileStorageScan(
-          Self,
-          VTileFileName,
-          VTileXY,
-          VTileZoom,
-          VTileInfoBasic,
-          VTileBinData
-        );
-        if (not VAbort and ARemoveTileAfterProcess) then begin
-          if VTileInfoBasic.IsExists then begin
-            Self.DeleteTile(VTileXY, VTileZoom, nil);
-          end else if VTileInfoBasic.IsExistsTNE then begin
-            Self.DeleteTNE(VTileXY, VTileZoom, nil);
+        VTileInfo := Self.GetTileInfo(VTileXY, VTileZoom, nil, gtimWithData);
+        if VTileInfo <> nil then begin
+          VData := nil;
+          if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+            VData := VTileInfoWithData.TileData;
+          end;
+
+          VAbort := not AOnTileStorageScan(
+            Self,
+            VTileFileName,
+            VTileXY,
+            VTileZoom,
+            VTileInfo,
+            VData
+          );
+          VData := nil;
+          if (not VAbort and ARemoveTileAfterProcess) then begin
+            if VTileInfo.IsExists then begin
+              Self.DeleteTile(VTileXY, VTileZoom, nil);
+            end else if VTileInfo.IsExistsTNE then begin
+              Self.DeleteTNE(VTileXY, VTileZoom, nil);
+            end;
           end;
         end;
       end else begin

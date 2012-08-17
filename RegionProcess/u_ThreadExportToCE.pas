@@ -107,8 +107,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VData: IBinaryData;
-  VTileInfo: ITileInfoBasic;
+  VTileInfo: ITileInfoWithData;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -151,14 +150,13 @@ begin
             exit;
           end;
           VExt := FMapType.StorageConfig.TileFileExt;
-          VData := VTileStorage.LoadTile(VTile, VZoom, nil, VTileInfo);
-          if VData <> nil then begin
+          if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
             VSAS4WinCE.Add(
               VZoom + 1,
               VTile.X,
               VTile.Y,
-              VData.Buffer,
-              VData.Size,
+              VTileInfo.TileData.Buffer,
+              VTileInfo.TileData.Size,
               VExt
             );
           end;

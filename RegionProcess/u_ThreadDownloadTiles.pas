@@ -192,6 +192,7 @@ uses
   u_DownloadInfoSimple,
   u_TileIteratorByPolygon,
   u_ListenerByEvent,
+  u_TileStorageAbstract,
   u_ReadableThreadNames,
   u_ConfigProviderHelpers,
   u_ResStrings;
@@ -568,7 +569,7 @@ begin
 
           // notify about current tile
           FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom)]), 0);
-          VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version);
+          VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version, gtimWithData);
 
           // for attachments need base tile - but even for existing tile some attachments may not exist
           if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin

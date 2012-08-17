@@ -91,7 +91,8 @@ type
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
@@ -99,13 +100,6 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; override;
-
-    function LoadTile(
-      const AXY: TPoint;
-      const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
-      out ATileInfo: ITileInfoBasic
-    ): IBinaryData; override;
 
     function DeleteTile(
       const AXY: TPoint;
@@ -288,7 +282,8 @@ end;
 function TTileStorageBerkeleyDB.GetTileInfo(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 var
   VPath: string;
@@ -330,13 +325,21 @@ begin
         );
 
         if VResult then begin
-
-          Result := TTileInfoBasicExistsWithTile.Create(
-            VTileDate,
-            VTileBinaryData,
-            MapVersionFactory.CreateByStoreString(VTileVersion),
-            FContentTypeManager.GetInfo(VTileContentType)
-          );
+          if AMode = gtimWithoutData then begin
+            Result := TTileInfoBasicExists.Create(
+              VTileDate,
+              VTileBinaryData.Size,
+              MapVersionFactory.CreateByStoreString(VTileVersion),
+              FContentTypeManager.GetInfo(VTileContentType)
+            );
+          end else begin
+            Result := TTileInfoBasicExistsWithTile.Create(
+              VTileDate,
+              VTileBinaryData,
+              MapVersionFactory.CreateByStoreString(VTileVersion),
+              FContentTypeManager.GetInfo(VTileContentType)
+            );
+          end;
         end;
       end;
 
@@ -534,40 +537,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TTileStorageBerkeleyDB.LoadTile(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
-  out ATileInfo: ITileInfoBasic
-): IBinaryData;
-{$IFDEF WITH_PERF_COUNTER}
-var
-  VCounterContext: TInternalPerformanceCounterContext;
-{$ENDIF}
-var
-  VInfoWithData: ITileInfoWithData;
-begin
-  {$IFDEF WITH_PERF_COUNTER}
-  VCounterContext := FLoadTileCounter.StartOperation;
-  try
-  {$ENDIF}
-    Result := nil;
-    ATileInfo := FTileNotExistsTileInfo;
-    if StorageStateStatic.ReadAccess <> asDisabled then begin
-      ATileInfo := GetTileInfo(AXY, AZoom, AVersionInfo);
-      if ATileInfo.IsExists then begin
-        if Supports(ATileInfo, ITileInfoWithData, VInfoWithData) then begin
-          Result := VInfoWithData.TileData;
-        end;
-      end;
-    end;
-  {$IFDEF WITH_PERF_COUNTER}
-  finally
-    FLoadTileCounter.FinishOperation(VCounterContext);
-  end;
-  {$ENDIF}
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTile(
@@ -776,8 +745,9 @@ var
   VTileFileName: string;
   VTileFileNameW: WideString;
   VFileNameParser: ITileFileNameParser;
-  VTileInfoBasic: ITileInfoBasic;
-  VTileBinData: IBinaryData;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VData: IBinaryData;
   VProcessFileMasks: TWideStringList;
   VFilesIterator: IFileNameIterator;
   VFoldersIteratorFactory: IFileNameIteratorFactory;
@@ -814,19 +784,24 @@ begin
         FHelper.GetTileExistsArray(FCacheConfig.BasePath + VTileFileName, VTileZoom, nil, VTilesArray) then begin
         for I := 0 to Length(VTilesArray) - 1 do begin
           VTileXY := VTilesArray[I];
-          VTileBinData := Self.LoadTile(VTileXY, VTileZoom, nil, VTileInfoBasic);
+          VTileInfo := Self.GetTileInfo(VTileXY, VTileZoom, nil, gtimWithData);
+          VData := nil;
+          if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+            VData := VTileInfoWithData.TileData;
+          end;
           VAbort := not AOnTileStorageScan(
             Self,
             VTileFileName,
             VTileXY,
             VTileZoom,
-            VTileInfoBasic,
-            VTileBinData
+            VTileInfo,
+            VData
           );
+          VData := nil;
           if (not VAbort and ARemoveTileAfterProcess) then begin
-            if VTileInfoBasic.IsExists then begin
+            if VTileInfo.IsExists then begin
               Self.DeleteTile(VTileXY, VTileZoom, nil);
-            end else if VTileInfoBasic.IsExistsTNE then begin
+            end else if VTileInfo.IsExistsTNE then begin
               Self.DeleteTNE(VTileXY, VTileZoom, nil);
             end;
           end;

@@ -68,6 +68,7 @@ implementation
 uses
   i_TileIterator,
   i_TileInfoBasic,
+  u_TileStorageAbstract,
   u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
@@ -120,7 +121,7 @@ begin
     if CancelNotifier.IsOperationCanceled(OperationID) then begin
       exit;
     end;
-    VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion);
+    VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimWithoutData);
     if (VTileInfo <> nil) then begin
       if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
         if VTileInfo.IsExists then begin

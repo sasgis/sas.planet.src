@@ -226,7 +226,8 @@ begin
         FDestTileStorage.GetTileInfo(
           ATileXY,
           ATileZoom,
-          ATileInfo.VersionInfo
+          ATileInfo.VersionInfo,
+          gtimAsIs
         );
       if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and ATileInfo.IsExistsTNE)) then begin
         Result := True;

@@ -95,9 +95,8 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
-      AStream: TStream;
-      out ATileInfo: ITileInfoBasic
-    ): Boolean;
+      const AIsNeedData: Boolean
+    ): ITileInfoBasic;
 
     // insert/delete tile/tne
     function SendTileCommand(
@@ -131,15 +130,9 @@ type
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): ITileInfoBasic; override;
-
-    function LoadTile(
-      const AXY: TPoint;
-      const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
-      out ATileInfo: ITileInfoBasic
-    ): IBinaryData; override;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; override;
 
     function DeleteTile(
       const AXY: TPoint;
@@ -471,10 +464,11 @@ end;
 function TTileStorageDBMS.GetTileInfo(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 begin
-  QueryTileInternal(AXY, AZoom, AVersionInfo, nil, Result);
+  Result := QueryTileInternal(AXY, AZoom, AVersionInfo, AMode = gtimWithData);
 end;
 
 function TTileStorageDBMS.GetUTCNow: TDateTime;
@@ -720,33 +714,12 @@ begin
   end;
 end;
 
-function TTileStorageDBMS.LoadTile(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
-  out ATileInfo: ITileInfoBasic
-): IBinaryData;
-var
-  VMemStream: TMemoryStream;
-begin
-  Result := nil;
-  VMemStream:=TMemoryStream.Create;
-  try
-    if QueryTileInternal(AXY, AZoom, AVersionInfo, VMemStream, ATileInfo) then begin
-      Result := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-      VMemStream := nil;
-    end;
-  finally
-    VMemStream.Free;
-  end;
-end;
-
 function TTileStorageDBMS.QueryTileInternal(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
-  AStream: TStream;
-  out ATileInfo: ITileInfoBasic): Boolean;
+  const AIsNeedData: Boolean
+): ITileInfoBasic;
 var
   VData: TETS_QUERY_TILE_DATA;
 
@@ -765,27 +738,39 @@ var
 begin
   FillChar(VData, SizeOf(VData), 0);
   VData.wSize := SizeOf(VData);
-  VData.TileHolder := AStream;
+  if AIsNeedData then begin
+    VData.TileHolder := TMemoryStream.Create;
+  end;
   try
-    Result := SendTileCommand(AXY, AZoom, AVersionInfo, @VData, FETS_Query_Tile_A, FETS_Query_Tile_W);
-
-    if (not Result) then begin
+    if (not SendTileCommand(AXY, AZoom, AVersionInfo, @VData, FETS_Query_Tile_A, FETS_Query_Tile_W)) then begin
       // failed
-      ATileInfo := nil;
+      Result := nil;
     end else if ((VData.dwFlagsOut and ETS_QTO_TILE_NOT_FOUND) <> 0) then begin
       // no info
-      ATileInfo := FTileNotExistsTileInfo;
+      Result := FTileNotExistsTileInfo;
     end else if (0=VData.TileSize) then begin
       // TNE
-      ATileInfo := TTileInfoBasicTNE.Create(VData.TileDate, _GetResultVersion);
+      Result := TTileInfoBasicTNE.Create(VData.TileDate, _GetResultVersion);
     end else begin
       // tile found
-      ATileInfo := TTileInfoBasicExists.Create(VData.TileDate, VData.TileSize, _GetResultVersion, GetProviderContentType(VData.wContentType));
+      if AIsNeedData then begin
+        Result :=
+          TTileInfoBasicExistsWithTile.Create(
+            VData.TileDate,
+            TBinaryDataByMemStream.CreateWithOwn(TMemoryStream(VData.TileHolder)),
+            _GetResultVersion,
+            GetProviderContentType(VData.wContentType)
+          );
+          VData.TileHolder := nil;
+      end else begin
+        Result := TTileInfoBasicExists.Create(VData.TileDate, VData.TileSize, _GetResultVersion, GetProviderContentType(VData.wContentType));
+      end;
     end;
   finally
     // cleanup version
     if (VData.VersionHolder<>nil) then
       FreeAndNil(TMapVersionInfo(VData.VersionHolder));
+    TMemoryStream(VData.TileHolder).Free;
   end;
 end;
 
