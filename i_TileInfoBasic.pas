@@ -39,6 +39,7 @@ type
     FContentType: IContentTypeInfoBasic;
     FData: IBinaryData;
     FSize: Cardinal;
+    FZoom: Byte;
     FInfoType: TTileInfoType;
   end;
 

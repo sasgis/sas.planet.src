@@ -49,6 +49,7 @@ type
   TEnumTileInfo = class(TInterfacedObject, IEnumTileInfo)
   private
     FRef: IInterface;
+    FZoom: Byte;
     FTileRect: TRect;
     FItems: PTileInfoInternalArray;
     FTileIterator: ITileIterator;
@@ -58,6 +59,7 @@ type
   public
     constructor Create(
       const ARef: IInterface;
+      const AZoom: Byte;
       const ATileRect: TRect;
       AItems: PTileInfoInternalArray;
       const ATileIterator: ITileIterator
@@ -66,6 +68,7 @@ type
 
 constructor TEnumTileInfo.Create(
   const ARef: IInterface;
+  const AZoom: Byte;
   const ATileRect: TRect;
   AItems: PTileInfoInternalArray;
   const ATileIterator: ITileIterator
@@ -73,6 +76,7 @@ constructor TEnumTileInfo.Create(
 begin
   inherited Create;
   FRef := ARef;
+  FZoom := AZoom;
   FTileRect := ATileRect;
   FItems := AItems;
   FTileIterator := ATileIterator;
@@ -86,6 +90,7 @@ begin
   Result := FTileIterator.Next(VTile);
   if Result then begin
     ATileInfo.FTile := VTile;
+    ATileInfo.FZoom := FZoom;
     VIndex := TileToIndex(VTile);
     if VIndex < 0 then begin
       ATileInfo.FInfoType := titUnknown;
@@ -153,7 +158,7 @@ end;
 
 function TTileRectInfo.GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
 begin
-  Result := TEnumTileInfo.Create(Self, FTileRect, @FItems[0], ATileIterator);
+  Result := TEnumTileInfo.Create(Self, FZoom, FTileRect, @FItems[0], ATileIterator);
 end;
 
 function TTileRectInfo.GetTileRect: TRect;

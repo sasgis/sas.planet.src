@@ -51,6 +51,7 @@ type
     FRef: IInterface;
     FVersionInfo: IMapVersionInfo;
     FContentType: IContentTypeInfoBasic;
+    FZoom: Byte;
     FTileRect: TRect;
     FItems: PTileInfoShortInternalArray;
     FTileIterator: ITileIterator;
@@ -62,6 +63,7 @@ type
       const ARef: IInterface;
       const AVersionInfo: IMapVersionInfo;
       const AContentType: IContentTypeInfoBasic;
+      const AZoom: Byte;
       const ATileRect: TRect;
       AItems: PTileInfoShortInternalArray;
       const ATileIterator: ITileIterator
@@ -72,6 +74,7 @@ constructor TEnumTileInfoShort.Create(
   const ARef: IInterface;
   const AVersionInfo: IMapVersionInfo;
   const AContentType: IContentTypeInfoBasic;
+  const AZoom: Byte;
   const ATileRect: TRect;
   AItems: PTileInfoShortInternalArray;
   const ATileIterator: ITileIterator
@@ -81,6 +84,7 @@ begin
   FRef := ARef;
   FVersionInfo := AVersionInfo;
   FContentType := AContentType;
+  FZoom := AZoom;
   FTileRect := ATileRect;
   FItems := AItems;
   FTileIterator := ATileIterator;
@@ -94,6 +98,7 @@ begin
   Result := FTileIterator.Next(VTile);
   if Result then begin
     ATileInfo.FTile := VTile;
+    ATileInfo.FZoom := FZoom;
     VIndex := TileToIndex(VTile);
     if VIndex < 0 then begin
       ATileInfo.FInfoType := titUnknown;
@@ -163,6 +168,7 @@ begin
       Self,
       FVersionInfo,
       FContentType,
+      FZoom,
       FTileRect,
       Addr(FItems[0]),
       ATileIterator

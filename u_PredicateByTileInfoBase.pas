@@ -11,37 +11,37 @@ type
   TPredicateByTileInfoAbstract = class(TInterfacedObject, IPredicateByTileInfo)
   protected
     function Check(const ATileInfo: ITileInfoBasic; AZoom: Byte; const ATile: TPoint): Boolean; overload;
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; overload; virtual; abstract;
+    function Check(const ATileInfo: TTileInfo): Boolean; overload; virtual; abstract;
   end;
 
   TPredicateByTileInfoExistsTile = class(TPredicateByTileInfoAbstract)
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   end;
 
   TPredicateByTileInfoNotExistsTile = class(TPredicateByTileInfoAbstract)
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   end;
 
   TPredicateByTileInfoExistsTNE = class(TPredicateByTileInfoAbstract)
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   end;
 
   TPredicateByTileInfoNotExistsTNE = class(TPredicateByTileInfoAbstract)
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   end;
 
   TPredicateByTileInfoExistsTileOrTNE = class(TPredicateByTileInfoAbstract)
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   end;
 
   TPredicateByTileInfoNotExistsTileOrTNE = class(TPredicateByTileInfoAbstract)
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   end;
 
   TPredicateByTileInfoEqualSize = class(TPredicateByTileInfoAbstract)
@@ -49,7 +49,7 @@ type
     FSize: Cardinal;
     FDeleteTNE: Boolean;
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   public
     constructor Create(ADeleteTNE: Boolean; ASize: Cardinal);
   end;
@@ -59,7 +59,7 @@ type
     FDate: TDateTime;
     FIgnoreTNE: Boolean;
   protected
-    function Check(const ATileInfo: TTileInfo; AZoom: Byte): Boolean; override;
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
   public
     constructor Create(
       AIgnoreTNE: Boolean;
@@ -84,6 +84,7 @@ var
   VTileWithData: ITileInfoWithData;
 begin
   VTileInfo.FTile := ATile;
+  VTileInfo.FZoom := AZoom;
   if ATileInfo = nil then begin
     VTileInfo.FInfoType := titNotExists;
     VTileInfo.FData := nil;
@@ -105,7 +106,7 @@ begin
   VTileInfo.FVersionInfo := ATileInfo.VersionInfo;
   VTileInfo.FContentType := ATileInfo.ContentType;
   VTileInfo.FSize := ATileInfo.Size;
-  Result := Check(VTileInfo, AZoom);
+  Result := Check(VTileInfo);
 end;
 
 { TPredicateByTileInfoEqualSize }
@@ -118,7 +119,7 @@ begin
 end;
 
 function TPredicateByTileInfoEqualSize.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := False;
   if ATileInfo.FInfoType = titExists then begin
@@ -131,7 +132,7 @@ end;
 { TPredicateByTileInfoExistsTile }
 
 function TPredicateByTileInfoExistsTile.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := ATileInfo.FInfoType = titExists;
 end;
@@ -139,7 +140,7 @@ end;
 { TPredicateByTileInfoExistsTNE }
 
 function TPredicateByTileInfoExistsTNE.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := ATileInfo.FInfoType = titTneExists;
 end;
@@ -147,7 +148,7 @@ end;
 { TPredicateByTileInfoExistsTileOrTNE }
 
 function TPredicateByTileInfoExistsTileOrTNE.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := (ATileInfo.FInfoType = titTneExists) or (ATileInfo.FInfoType = titExists);
 end;
@@ -155,7 +156,7 @@ end;
 { TPredicateByTileInfoNotExistsTile }
 
 function TPredicateByTileInfoNotExistsTile.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := ATileInfo.FInfoType <> titExists;
 end;
@@ -163,7 +164,7 @@ end;
 { TPredicateByTileInfoNotExistsTNE }
 
 function TPredicateByTileInfoNotExistsTNE.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := ATileInfo.FInfoType <> titTneExists;
 end;
@@ -171,7 +172,7 @@ end;
 { TPredicateByTileInfoNotExistsTileOrTNE }
 
 function TPredicateByTileInfoNotExistsTileOrTNE.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte): Boolean;
+  const ATileInfo: TTileInfo): Boolean;
 begin
   Result := (ATileInfo.FInfoType <> titTneExists) and (ATileInfo.FInfoType <> titExists);
 end;
@@ -189,7 +190,7 @@ begin
 end;
 
 function TPredicateByTileInfoNotExistOrBeforDate.Check(
-  const ATileInfo: TTileInfo; AZoom: Byte
+  const ATileInfo: TTileInfo
 ): Boolean;
 begin
   if ATileInfo.FInfoType = titNotExists then begin
