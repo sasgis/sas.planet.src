@@ -730,6 +730,93 @@ begin
   {$ENDIF}
 end;
 
+{ TEnumTileInfoByBDB }
+
+type
+  TEnumTileInfoByBDB = class(TInterfacedObject, IEnumTileInfo)
+  private
+    FFilesIterator: IFileNameIterator;
+    FTileFileNameParser: ITileFileNameParser;
+    FStorage: TTileStorageBerkeleyDB;
+
+    FCurFileTilesArray: TPointArray;
+    FCurFileIndex: Integer;
+    FCurFileZoom: Byte;
+  private
+    function Next(var ATileInfo: TTileInfo): Boolean;
+  public
+    constructor Create(
+      AFilesIterator: IFileNameIterator;
+      ATileFileNameParser: ITileFileNameParser;
+      AStorage: TTileStorageBerkeleyDB
+    );
+  end;
+
+constructor TEnumTileInfoByBDB.Create(
+  AFilesIterator: IFileNameIterator;
+  ATileFileNameParser: ITileFileNameParser;
+  AStorage: TTileStorageBerkeleyDB
+);
+begin
+  FFilesIterator := AFilesIterator;
+  FTileFileNameParser := ATileFileNameParser;
+  FStorage := AStorage;
+  FCurFileIndex := 0;
+  FCurFileTilesArray := nil;
+end;
+
+function TEnumTileInfoByBDB.Next(var ATileInfo: TTileInfo): Boolean;
+var
+  VTileFileName: string;
+  VTileFileNameW: WideString;
+  VTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VData: IBinaryData;
+  VTileXY: TPoint;
+begin
+  Result := False;
+  while FCurFileIndex >= 0 do begin
+    if FCurFileIndex < Length(FCurFileTilesArray) then begin
+      ATileInfo.FZoom := FCurFileZoom;
+      ATileInfo.FTile := FCurFileTilesArray[FCurFileIndex];
+      Inc(FCurFileIndex);
+      VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, nil, gtimWithData);
+      VData := nil;
+      if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+        VData := VTileInfoWithData.TileData;
+      end;
+      ATileInfo.FLoadDate := VTileInfo.LoadDate;
+      ATileInfo.FVersionInfo := VTileInfo.VersionInfo;
+      ATileInfo.FContentType := VTileInfo.ContentType;
+      ATileInfo.FData := VData;
+      ATileInfo.FSize := VTileInfo.Size;
+      if VTileInfo.IsExists then begin
+        ATileInfo.FInfoType := titExists;
+        Result := True;
+        Break;
+      end else if VTileInfo.IsExistsTNE then begin
+        ATileInfo.FInfoType := titTneExists;
+        Result := True;
+        Break;
+      end else begin
+        ATileInfo.FInfoType := titNotExists;
+        Continue;
+      end;
+    end;
+    if FFilesIterator.Next(VTileFileNameW) then begin
+      VTileFileName := VTileFileNameW;
+      if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom) and
+        FStorage.FHelper.GetTileExistsArray(FStorage.FCacheConfig.BasePath + VTileFileName, FCurFileZoom, nil, FCurFileTilesArray) then begin
+        FCurFileIndex := 0;
+      end else begin
+        FCurFileIndex := Length(FCurFileTilesArray);
+      end;
+    end else begin
+      FCurFileIndex := -1;
+    end;
+  end;
+end;
+
 procedure TTileStorageBerkeleyDB.Scan(
   const AOnTileStorageScan: TOnTileStorageScan;
   const AIgnoreTNE: Boolean;
