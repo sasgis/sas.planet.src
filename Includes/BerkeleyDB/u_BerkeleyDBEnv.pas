@@ -35,7 +35,6 @@ type
     FActive: Boolean;
     FLibInitOk: Boolean;
     FLastRemoveLogTime: Cardinal;
-    FLastCheckPointTime: Cardinal;
     FEnvRootPath: string;
     FCS: TCriticalSection;
     FClientsCount: Integer;
@@ -57,7 +56,7 @@ type
   end;
 
 function GlobalAllocateEnvironment(const AEnvRootPath: string; ASingleMode: Boolean): TBerkeleyDBEnv;
-function GlobalFreeEnvironment(AEnv: TBerkeleyDBEnv): Boolean;
+function GlobalFreeAndNilEnvironment(var AEnv: TBerkeleyDBEnv): Boolean;
 
 const
   CEnvSubDir = 'env';
@@ -69,11 +68,20 @@ uses
   Windows,
   Contnrs,
   SysUtils,
+  ShLwApi,
   u_BerkeleyDBErrorHandler;
 
 var
   GEnvList: TObjectList = nil;
   GCS: TCriticalSection = nil;
+
+function GetFullPathName(const ARelativePathName: string): string;
+begin
+  SetLength(Result, MAX_PATH);
+  PathCombine(@Result[1], PChar(ExtractFilePath(ParamStr(0))), PChar(ARelativePathName));
+  SetLength(Result, StrLen(PChar(Result)));
+  Result := LowerCase(IncludeTrailingPathDelimiter(Result));
+end;
 
 function GlobalAllocateEnvironment(
   const AEnvRootPath: string;
@@ -81,32 +89,36 @@ function GlobalAllocateEnvironment(
 ): TBerkeleyDBEnv;
 var
   I: Integer;
+  VPath: string;
   VEnv: TBerkeleyDBEnv;
 begin
   Result := nil;
   GCS.Acquire;
   try
+    VPath := GetFullPathName(AEnvRootPath);
     for I := 0 to GEnvList.Count - 1 do begin
       VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
       if Assigned(VEnv) then begin
-        if VEnv.EnvRootPath = AEnvRootPath then begin
-          VEnv.ClientsCount := VEnv.ClientsCount + 1;
+        if VEnv.EnvRootPath = VPath then begin
           Result := VEnv;
           Break;
         end;
       end;
     end;
     if not Assigned(Result) then begin
-      VEnv := TBerkeleyDBEnv.Create(AEnvRootPath, ASingleMode);
+      VEnv := TBerkeleyDBEnv.Create(VPath, ASingleMode);
       GEnvList.Add(VEnv);
       Result := VEnv;
+    end;
+    if Assigned(Result) then begin
+      Result.ClientsCount := Result.ClientsCount + 1;
     end;
   finally
     GCS.Release;
   end;
 end;
 
-function GlobalFreeEnvironment(AEnv: TBerkeleyDBEnv): Boolean;
+function GlobalFreeAndNilEnvironment(var AEnv: TBerkeleyDBEnv): Boolean;
 var
   I: Integer;
   VEnv: TBerkeleyDBEnv;
@@ -114,17 +126,20 @@ begin
   Result := False;
   GCS.Acquire;
   try
-    for I := 0 to GEnvList.Count - 1 do begin
-      VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
-      if Assigned(VEnv) then begin
-        if VEnv = AEnv then begin
-          VEnv.ClientsCount := VEnv.ClientsCount - 1;
-          if VEnv.ClientsCount <= 0 then begin
-            GEnvList.Remove(VEnv);
-            GEnvList.Pack;
-            Result := True;
+    if Assigned(AEnv) then begin
+      for I := 0 to GEnvList.Count - 1 do begin
+        VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
+        if Assigned(VEnv) then begin
+          if VEnv = AEnv then begin
+            VEnv.ClientsCount := VEnv.ClientsCount - 1;
+            if VEnv.ClientsCount <= 0 then begin
+              GEnvList.Remove(VEnv);
+              GEnvList.Pack;
+              AEnv := nil;
+              Result := True;
+            end;
+            Break;
           end;
-          Break;
         end;
       end;
     end;
@@ -144,7 +159,6 @@ begin
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
-  FLastCheckPointTime := 0;
   FEnvRootPath := AEnvRootPath;
   FSingleMode := ASingleMode;
   FClientsCount := 1;
@@ -236,8 +250,7 @@ procedure TBerkeleyDBEnv.CheckPoint(Sender: TObject);
 begin
   FCS.Acquire;
   try
-    if FActive and FLibInitOk and (GetTickCount - FLastCheckPointTime > 30000) then begin
-      FLastCheckPointTime := GetTickCount;
+    if FActive and FLibInitOk then begin
       CheckBDB(FEnv.txn_checkpoint(FEnv, 0, 0, DB_FORCE));
     end;
   finally

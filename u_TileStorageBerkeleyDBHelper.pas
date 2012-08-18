@@ -146,7 +146,7 @@ end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
-  GlobalFreeEnvironment(FEnv);
+  GlobalFreeAndNilEnvironment(FEnv);
   FEvent.Free;
   inherited Destroy;
 end;
@@ -175,7 +175,7 @@ begin
     FEvent.ResetEvent;
     try
       if Assigned(FEnv) then begin
-        GlobalFreeEnvironment(FEnv);
+        GlobalFreeAndNilEnvironment(FEnv);
       end;
       FStorageRootPath := AStorageNewRootPath;
       CreateEnvironment(AStorageNewRootPath);

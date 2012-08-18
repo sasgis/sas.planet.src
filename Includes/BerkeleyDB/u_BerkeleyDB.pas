@@ -52,6 +52,7 @@ type
     FFileName: string;
     FDBEnabled: Boolean;
     FSyncAllow: Boolean;
+    FOperationsCountToCheckPoint: Integer;
     FCS: TCriticalSection;
     FOnCreate: TBDBOnEvent;
     FOnOpen: TBDBOnEvent;
@@ -122,8 +123,9 @@ uses
   u_BerkeleyDBErrorHandler;
 
 const
-  CBerkeleyDBErrPfx = 'BerkeleyDB';
+  cBerkeleyDBErrPfx = 'BerkeleyDB';
   cMaxTxnCommitCount = 32;
+  cMaxOperationsCountToCheckPoint = 1024;
 
 { TBerkeleyDB }
 
@@ -143,6 +145,7 @@ begin
   FOnCheckPoint := nil;
   FDBEnabled := False;
   FSyncAllow := False;
+  FOperationsCountToCheckPoint := 0;
 end;
 
 destructor TBerkeleyDB.Destroy;
@@ -167,7 +170,7 @@ function TBerkeleyDB.Open(
     VRelativeFileName: string;
   begin
     if FENV = nil then begin
-      BDBRaiseException(CBerkeleyDBErrPfx + ': Environment not assigned.');
+      BDBRaiseException(cBerkeleyDBErrPfx + ': Environment not assigned.');
     end;
 
     VEnvHomePtr := '';
@@ -182,7 +185,7 @@ function TBerkeleyDB.Open(
 
     CheckBDB(db_create(FDB, FENV, 0));
     try
-      FDB.set_errpfx(FDB, CBerkeleyDBErrPfx);
+      FDB.set_errpfx(FDB, cBerkeleyDBErrPfx);
 
       if not AFileExists then begin
         CheckBDB(FDB.set_pagesize(FDB, APageSize));
@@ -353,7 +356,13 @@ begin
       dbtData.size := ADataSize;
       txn := GetTransaction;
       Result := CheckAndNotExistsBDB(FDB.put(FDB, txn, @dbtKey, @dbtData, 0));
-      VOnCheckPointAllow := Result;
+      if Result then begin
+        Inc(FOperationsCountToCheckPoint);
+        VOnCheckPointAllow := FOperationsCountToCheckPoint >= cMaxOperationsCountToCheckPoint;
+        if VOnCheckPointAllow then begin
+          FOperationsCountToCheckPoint := 0;
+        end;
+      end;
     end;
   finally
     FCS.Release;
@@ -405,7 +414,13 @@ begin
       dbtKey.size := AKeySize;
       txn := GetTransaction;
       Result := CheckAndFoundBDB(FDB.del(FDB, txn, @dbtKey, 0));
-      VOnCheckPointAllow := Result;
+      if Result then begin
+        Inc(FOperationsCountToCheckPoint);
+        VOnCheckPointAllow := FOperationsCountToCheckPoint >= cMaxOperationsCountToCheckPoint;
+        if VOnCheckPointAllow then begin
+          FOperationsCountToCheckPoint := 0;
+        end;
+      end;
     end;
   finally
     FCS.Release;
