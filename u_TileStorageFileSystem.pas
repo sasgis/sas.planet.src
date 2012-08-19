@@ -126,6 +126,10 @@ type
       const AVersionInfo: IMapVersionInfo
     ); override;
 
+    function ScanTiles(
+      const AIgnoreTNE: Boolean
+    ): IEnumTileInfo;
+
     procedure Scan(
       const AOnTileStorageScan: TOnTileStorageScan;
       const AIgnoreTNE: Boolean;
@@ -811,6 +815,48 @@ begin
       FullRemoveDir(FCacheConfig.BasePath, True, False, True);
     end;
 
+  finally
+    VProcessFileMasks.Free;
+  end;
+end;
+
+function TTileStorageFileSystem.ScanTiles(
+  const AIgnoreTNE: Boolean): IEnumTileInfo;
+const
+  cMaxFolderDepth = 10;
+var
+  VProcessFileMasks: TWideStringList;
+  VFilesIterator: IFileNameIterator;
+  VFoldersIteratorFactory: IFileNameIteratorFactory;
+  VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+begin
+  VProcessFileMasks := TWideStringList.Create;
+  try
+    VProcessFileMasks.Add('*' + FMainContentType.GetDefaultExt);
+    if not AIgnoreTNE then begin
+      VProcessFileMasks.Add('*.tne');
+    end;
+
+    VFoldersIteratorFactory :=
+      TFoldersIteratorRecursiveByLevelsFactory.Create(cMaxFolderDepth);
+
+    VFilesInFolderIteratorFactory :=
+      TFileNameIteratorInFolderByMaskListFactory.Create(VProcessFileMasks, True);
+
+    VFilesIterator := TFileNameIteratorFolderWithSubfolders.Create(
+      FCacheConfig.BasePath,
+      '',
+      VFoldersIteratorFactory,
+      VFilesInFolderIteratorFactory
+    );
+    Result :=
+      TEnumTileInfoByFileIterator.Create(
+        FLock,
+        VFilesIterator,
+        FTileFileNameParser,
+        State,
+        FMainContentType
+      );
   finally
     VProcessFileMasks.Free;
   end;

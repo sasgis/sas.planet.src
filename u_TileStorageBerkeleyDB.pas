@@ -126,6 +126,10 @@ type
       const AVersionInfo: IMapVersionInfo
     ); override;
 
+    function ScanTiles(
+      const AIgnoreTNE: Boolean
+    ): IEnumTileInfo;
+    
     procedure Scan(
       const AOnTileStorageScan: TOnTileStorageScan;
       const AIgnoreTNE: Boolean;
@@ -911,6 +915,50 @@ begin
   finally
     VProcessFileMasks.Free;
   end;
+end;
+
+function TTileStorageBerkeleyDB.ScanTiles(
+  const AIgnoreTNE: Boolean): IEnumTileInfo;
+const
+  cMaxFolderDepth = 10;
+var
+  VProcessFileMasks: TWideStringList;
+  VFileNameParser: ITileFileNameParser;
+  VFilesIterator: IFileNameIterator;
+  VFoldersIteratorFactory: IFileNameIteratorFactory;
+  VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+begin
+  VProcessFileMasks := TWideStringList.Create;
+  try
+    VProcessFileMasks.Add('*.sdb');
+    if not AIgnoreTNE then begin
+      VProcessFileMasks.Add('*.tne');
+    end;
+
+    VFoldersIteratorFactory :=
+      TFoldersIteratorRecursiveByLevelsFactory.Create(cMaxFolderDepth);
+
+    VFilesInFolderIteratorFactory :=
+      TFileNameIteratorInFolderByMaskListFactory.Create(VProcessFileMasks, True);
+
+    VFilesIterator := TFileNameIteratorFolderWithSubfolders.Create(
+      FCacheConfig.BasePath,
+      '',
+      VFoldersIteratorFactory,
+      VFilesInFolderIteratorFactory
+    );
+
+    VFileNameParser := TTileFileNameBDB.Create;
+    Result :=
+      TEnumTileInfoByBDB.Create(
+        VFilesIterator,
+        VFileNameParser,
+        Self
+      );
+  finally
+    VProcessFileMasks.Free;
+  end;
+
 end;
 
 end.
