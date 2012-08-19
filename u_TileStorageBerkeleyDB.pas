@@ -128,7 +128,7 @@ type
 
     function ScanTiles(
       const AIgnoreTNE: Boolean
-    ): IEnumTileInfo;
+    ): IEnumTileInfo; override;
     
     procedure Scan(
       const AOnTileStorageScan: TOnTileStorageScan;

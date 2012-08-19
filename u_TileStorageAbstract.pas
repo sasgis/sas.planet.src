@@ -139,6 +139,10 @@ type
       const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; virtual;
 
+    function ScanTiles(
+      const AIgnoreTNE: Boolean
+    ): IEnumTileInfo; virtual;
+
     procedure Scan(
       const AOnTileStorageScan: TOnTileStorageScan;
       const AIgnoreTNE: Boolean;
@@ -325,6 +329,12 @@ procedure TTileStorageAbstract.Scan(
 begin
   // You mast override Scan method in custom tile storage, if you need it
   raise Exception.Create('Operation not supported on this tile storage type!');
+end;
+
+function TTileStorageAbstract.ScanTiles(
+  const AIgnoreTNE: Boolean): IEnumTileInfo;
+begin
+  Result := nil;
 end;
 
 end.
