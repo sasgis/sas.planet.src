@@ -32,6 +32,8 @@ uses
   i_TileStorageInfo;
 
 type
+  TGetTileInfoMode = (gtimWithData = 1, gtimWithoutData = -1, gtimAsIs = 0);
+  
   ITileStorage = interface
     ['{80A0246E-68E0-4EA0-9B0F-3338472FDB3C}']
     function GetInfo: ITileStorageInfo;
@@ -45,39 +47,34 @@ type
 
     function GetTileFileName(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): string;
     function GetTileInfo(
       const AXY: TPoint;
-      AZoom: byte;
-      const AVersion: IMapVersionInfo
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
-
-    function LoadTile(
-      const AXY: TPoint;
-      AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): ITileInfoWithData;
     function DeleteTile(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
     function DeleteTNE(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
     procedure SaveTile(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const AData: IBinaryData
     );
     procedure SaveTNE(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
       const AVersion: IMapVersionInfo
     );
   end;

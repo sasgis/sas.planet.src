@@ -43,15 +43,6 @@ uses
 type
   TGetTileInfoMode = (gtimWithData = 1, gtimWithoutData = -1, gtimAsIs = 0);
 
-  TOnTileStorageScan = function(
-      Sender: TObject;
-      const ATileNameInCache: string;
-      const ATileXY: TPoint;
-      const ATileZoom: Byte;
-      const ATileInfo: ITileInfoBasic;
-      const ATileBinaryData: IBinaryData
-    ): Boolean of object;
-
   TTileStorageAbstract = class
   private
     FConfig: ISimpleTileStorageConfig;
