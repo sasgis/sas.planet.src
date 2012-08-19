@@ -129,12 +129,6 @@ type
     function ScanTiles(
       const AIgnoreTNE: Boolean
     ): IEnumTileInfo; override;
-    
-    procedure Scan(
-      const AOnTileStorageScan: TOnTileStorageScan;
-      const AIgnoreTNE: Boolean;
-      const ARemoveTileAfterProcess: Boolean
-    ); override;
   end;
 
 implementation
@@ -818,102 +812,6 @@ begin
     end else begin
       FCurFileIndex := -1;
     end;
-  end;
-end;
-
-procedure TTileStorageBerkeleyDB.Scan(
-  const AOnTileStorageScan: TOnTileStorageScan;
-  const AIgnoreTNE: Boolean;
-  const ARemoveTileAfterProcess: Boolean
-);
-const
-  cMaxFolderDepth = 100;
-var
-  I: Integer;
-  VTileXY: TPoint;
-  VTileZoom: Byte;
-  VTilesArray: TPointArray;
-  VTileFileName: string;
-  VTileFileNameW: WideString;
-  VFileNameParser: ITileFileNameParser;
-  VTileInfo: ITileInfoBasic;
-  VTileInfoWithData: ITileInfoWithData;
-  VData: IBinaryData;
-  VProcessFileMasks: TWideStringList;
-  VFilesIterator: IFileNameIterator;
-  VFoldersIteratorFactory: IFileNameIteratorFactory;
-  VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
-  VAbort: Boolean;
-begin
-  VProcessFileMasks := TWideStringList.Create;
-  try
-    VProcessFileMasks.Add('*.sdb');
-    if not AIgnoreTNE then begin
-      VProcessFileMasks.Add('*.tne');
-    end;
-
-    VFoldersIteratorFactory :=
-      TFoldersIteratorRecursiveByLevelsFactory.Create(cMaxFolderDepth);
-
-    VFilesInFolderIteratorFactory :=
-      TFileNameIteratorInFolderByMaskListFactory.Create(VProcessFileMasks, True);
-
-    VFilesIterator := TFileNameIteratorFolderWithSubfolders.Create(
-      FCacheConfig.BasePath,
-      '',
-      VFoldersIteratorFactory,
-      VFilesInFolderIteratorFactory
-    );
-
-    VFileNameParser := TTileFileNameBDB.Create;
-
-    VAbort := False;
-
-    while VFilesIterator.Next(VTileFileNameW) do begin
-      VTileFileName := WideCharToString(PWideChar(VTileFileNameW));
-      if VFileNameParser.GetTilePoint(VTileFileName, VTileXY, VTileZoom) and
-        FHelper.GetTileExistsArray(FCacheConfig.BasePath + VTileFileName, VTileZoom, nil, VTilesArray) then begin
-        for I := 0 to Length(VTilesArray) - 1 do begin
-          VTileXY := VTilesArray[I];
-          VTileInfo := Self.GetTileInfo(VTileXY, VTileZoom, nil, gtimWithData);
-          VData := nil;
-          if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
-            VData := VTileInfoWithData.TileData;
-          end;
-          VAbort := not AOnTileStorageScan(
-            Self,
-            VTileFileName,
-            VTileXY,
-            VTileZoom,
-            VTileInfo,
-            VData
-          );
-          VData := nil;
-          if (not VAbort and ARemoveTileAfterProcess) then begin
-            if VTileInfo.IsExists then begin
-              Self.DeleteTile(VTileXY, VTileZoom, nil);
-            end else if VTileInfo.IsExistsTNE then begin
-              Self.DeleteTNE(VTileXY, VTileZoom, nil);
-            end;
-          end;
-          if VAbort then begin
-            Break;
-          end;
-        end;
-      end else begin
-        VAbort := True;
-      end;
-      if VAbort then begin
-        Break;
-      end;
-    end;
-
-    if (not VAbort and ARemoveTileAfterProcess) then begin
-      FullRemoveDir(FCacheConfig.BasePath, True, False, True);
-    end;
-
-  finally
-    VProcessFileMasks.Free;
   end;
 end;
 

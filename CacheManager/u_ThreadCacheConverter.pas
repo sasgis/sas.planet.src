@@ -65,12 +65,7 @@ type
     ): TTileStorageAbstract;
 
     function OnSourceTileStorageScan(
-      Sender: TObject;
-      const ATileNameInCache: string;
-      const ATileXY: TPoint;
-      const ATileZoom: Byte;
-      const ATileInfo: ITileInfoBasic;
-      const ATileBinaryData: IBinaryData
+      const ATileInfo: TTileInfo
     ): Boolean;
 
   protected
@@ -198,22 +193,32 @@ begin
 end;
 
 procedure TThreadCacheConverter.Process;
+var
+  VTileInfo: TTileInfo;
+  VTileEnum: IEnumTileInfo;
 begin
-  FSourceTileStorage.Scan(
-    Self.OnSourceTileStorageScan,
-    FSourceIgnoreTne,
-    FSourceRemoveTiles
-  );
+  VTileEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne);
+  if VTileEnum <> nil then begin
+    while VTileEnum.Next(VTileInfo) do begin
+      if not OnSourceTileStorageScan(VTileInfo) then begin
+        Break;
+      end;
+      if FSourceRemoveTiles then begin
+        if VTileInfo.FInfoType = titExists then begin
+          FSourceTileStorage.DeleteTile(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
+        end else begin
+          if (VTileInfo.FInfoType = titTneExists) and FSourceIgnoreTne then begin
+            FSourceTileStorage.DeleteTNE(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
+          end;
+        end;
+      end;
+    end;
+  end;
   FProgressInfo.Finished := True;
 end;
 
 function TThreadCacheConverter.OnSourceTileStorageScan(
-  Sender: TObject;
-  const ATileNameInCache: string;
-  const ATileXY: TPoint;
-  const ATileZoom: Byte;
-  const ATileInfo: ITileInfoBasic;
-  const ATileBinaryData: IBinaryData
+  const ATileInfo: TTileInfo
 ): Boolean;
 var
   VTileInfo: ITileInfoBasic;
@@ -224,43 +229,42 @@ begin
     if not FDestOverwriteTiles then begin
       VTileInfo :=
         FDestTileStorage.GetTileInfo(
-          ATileXY,
-          ATileZoom,
-          ATileInfo.VersionInfo,
+          ATileInfo.FTile,
+          ATileInfo.FZoom,
+          ATileInfo.FVersionInfo,
           gtimAsIs
         );
-      if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and ATileInfo.IsExistsTNE)) then begin
+      if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
         Result := True;
         FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
-        FProgressInfo.LastTileName := ATileNameInCache;
+        FProgressInfo.LastTileName := FSourceTileStorage.GetTileFileName(ATileInfo.FTile, ATileInfo.FZoom, ATileInfo.FVersionInfo);
       end;
     end;
 
     if not Result then begin
 
-      if ATileInfo.IsExists then begin
+      if ATileInfo.FInfoType = titExists then begin
         FDestTileStorage.SaveTile(
-          ATileXY,
-          ATileZoom,
-          ATileInfo.VersionInfo,
-          ATileBinaryData
+          ATileInfo.FTile,
+          ATileInfo.FZoom,
+          ATileInfo.FVersionInfo,
+          ATileInfo.FData
         );
         Result := True;
-      end else if ATileInfo.IsExistsTNE then begin
+      end else if ATileInfo.FInfoType = titTneExists then begin
         FDestTileStorage.SaveTNE(
-          ATileXY,
-          ATileZoom,
-          ATileInfo.VersionInfo
+          ATileInfo.FTile,
+          ATileInfo.FZoom,
+          ATileInfo.FVersionInfo
         );
         Result := True;
       end;
 
       if Result then begin
         FProgressInfo.TilesProcessed := FProgressInfo.TilesProcessed + 1;
-        if Assigned(ATileBinaryData) then begin
-          FProgressInfo.TilesSize := FProgressInfo.TilesSize + ATileBinaryData.Size;
+        if Assigned(ATileInfo.FData) then begin
+          FProgressInfo.TilesSize := FProgressInfo.TilesSize + ATileInfo.FData.Size;
         end;
-        FProgressInfo.LastTileName := ATileNameInCache;
       end;
     end;
   end;

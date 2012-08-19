@@ -143,12 +143,6 @@ type
       const AIgnoreTNE: Boolean
     ): IEnumTileInfo; virtual;
 
-    procedure Scan(
-      const AOnTileStorageScan: TOnTileStorageScan;
-      const AIgnoreTNE: Boolean;
-      const ARemoveTileAfterProcess: Boolean
-    ); virtual;
-
     property State: IStorageStateChangeble read FStorageState;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
     property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
@@ -319,16 +313,6 @@ begin
   finally
     FStorageStateStaticCS.EndWrite;
   end;
-end;
-
-procedure TTileStorageAbstract.Scan(
-  const AOnTileStorageScan: TOnTileStorageScan;
-  const AIgnoreTNE: Boolean;
-  const ARemoveTileAfterProcess: Boolean
-);
-begin
-  // You mast override Scan method in custom tile storage, if you need it
-  raise Exception.Create('Operation not supported on this tile storage type!');
 end;
 
 function TTileStorageAbstract.ScanTiles(
