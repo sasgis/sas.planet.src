@@ -23,6 +23,8 @@ type
 
     function GetReplaceAccess: TAccesState;
     property ReplaceAccess: TAccesState read GetReplaceAccess;
+
+    function IsSame(const AValue: IStorageStateStatic): Boolean;
   end;
 
   IStorageStateChangeble = interface(IChangeable)
