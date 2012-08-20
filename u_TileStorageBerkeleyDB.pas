@@ -56,6 +56,7 @@ type
     FBDBTTLListener: IListenerTTLCheck;
     FMemCacheTTLListener: IListenerTTLCheck;
     FTileInfoMemCache: TTileInfoBasicMemCache;
+    FUseMemCache: Boolean;
     {$IFDEF WITH_PERF_COUNTER}
     FPerfCounterList: IInternalPerformanceCounterList;
     FGetTileInfoCounter: IInternalPerformanceCounter;
@@ -72,6 +73,7 @@ type
       const AGCList: INotifierTTLCheck;
       const AConfig: ISimpleTileStorageConfig;
       AGlobalCacheConfig: TGlobalCahceConfig;
+      const AUseMemCache: Boolean;
       const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -158,6 +160,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AGCList: INotifierTTLCheck;
   const AConfig: ISimpleTileStorageConfig;
   AGlobalCacheConfig: TGlobalCahceConfig;
+  const AUseMemCache: Boolean;
   const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -180,6 +183,8 @@ begin
   FSaveTileCounter := FPerfCounterList.CreateAndAddNewCounter('SaveTile');
   FSaveTNECounter := FPerfCounterList.CreateAndAddNewCounter('SaveTNE');
   {$ENDIF}
+
+  FUseMemCache := AUseMemCache;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FCacheConfig := TMapTypeCacheConfigBerkeleyDB.Create(
@@ -294,9 +299,11 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 {$ENDIF}
 begin
-  Result := FTileInfoMemCache.Get(AXY, AZoom);
-  if Result <> nil then begin
-    Exit;
+  if FUseMemCache then begin
+    Result := FTileInfoMemCache.Get(AXY, AZoom);
+    if Result <> nil then begin
+      Exit;
+    end;
   end;
   {$IFDEF WITH_PERF_COUNTER}
   VCounterContext := FGetTileInfoCounter.StartOperation;
@@ -362,7 +369,9 @@ begin
       end;
     end;
 
-    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+    if FUseMemCache then begin
+      FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+    end;
 
   {$IFDEF WITH_PERF_COUNTER}
   finally
@@ -575,12 +584,14 @@ begin
               AVersionInfo,
               FMainContentType
             );
-          FTileInfoMemCache.Add(
-            AXY,
-            AZoom,
-            AVersionInfo,
-            VTileInfo
-          );
+          if FUseMemCache then begin
+            FTileInfoMemCache.Add(
+              AXY,
+              AZoom,
+              AVersionInfo,
+              VTileInfo
+            );
+          end;
           NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
       end;
@@ -622,12 +633,14 @@ begin
           nil
         );
         if VResult then begin
-          FTileInfoMemCache.Add(
-            AXY,
-            AZoom,
-            AVersionInfo,
-            TTileInfoBasicTNE.Create(Now, AVersionInfo)
-          );
+          if FUseMemCache then begin
+            FTileInfoMemCache.Add(
+              AXY,
+              AZoom,
+              AVersionInfo,
+              TTileInfoBasicTNE.Create(Now, AVersionInfo)
+            );
+          end;
           NotifyTileUpdate(AXY, AZoom, AVersionInfo);
         end;
       end;
@@ -673,12 +686,14 @@ begin
         Result := False;
       end;
       if Result then begin
-        FTileInfoMemCache.Add(
-          AXY,
-          AZoom,
-          AVersionInfo,
-          TTileInfoBasicNotExists.Create(0, AVersionInfo)
-        );
+        if FUseMemCache then begin
+          FTileInfoMemCache.Add(
+            AXY,
+            AZoom,
+            AVersionInfo,
+            TTileInfoBasicNotExists.Create(0, AVersionInfo)
+          );
+        end;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
@@ -760,7 +775,7 @@ begin
   FTileFileNameParser := ATileFileNameParser;
   FStorage := AStorage;
   FCurFileIndex := 0;
-  FCurFileTilesArray := nil;
+  SetLength(FCurFileTilesArray, 0);
 end;
 
 function TEnumTileInfoByBDB.Next(var ATileInfo: TTileInfo): Boolean;

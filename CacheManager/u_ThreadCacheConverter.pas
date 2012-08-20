@@ -355,6 +355,7 @@ begin
         FGCList,
         VStorageConfig,
         VGlobalCacheConfig,
+        False,
         FContentTypeManager,
         FPerfCounterList
       );

@@ -347,7 +347,7 @@ begin
   end;
 
   if VCacheTypeCode = c_File_Cache_Id_BDB then begin
-    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, FContentTypeManager, FPerfCounterList);
+    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, True, FContentTypeManager, FPerfCounterList);
   end else if VCacheTypeCode = c_File_Cache_Id_GE then begin
     FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
   end else if VCacheTypeCode = c_File_Cache_Id_GC then begin
