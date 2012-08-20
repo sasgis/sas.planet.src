@@ -380,6 +380,7 @@
     <DCCReference Include="i_StaticTreeItem.pas" />
     <DCCReference Include="i_StorageState.pas" />
     <DCCReference Include="i_StorageStateInternal.pas" />
+    <DCCReference Include="i_StorageStateProxy.pas" />
     <DCCReference Include="i_StorageTypeAbilities.pas" />
     <DCCReference Include="i_StringByLanguage.pas" />
     <DCCReference Include="i_StringConfigDataElement.pas" />
@@ -967,6 +968,7 @@
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
     <DCCReference Include="u_StaticTreeItem.pas" />
     <DCCReference Include="u_StorageStateInternal.pas" />
+    <DCCReference Include="u_StorageStateProxy.pas" />
     <DCCReference Include="u_StorageStateStatic.pas" />
     <DCCReference Include="u_StreamReadOnlyByBinaryData.pas" />
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />

@@ -523,6 +523,8 @@ uses
   u_StorageStateStatic in 'u_StorageStateStatic.pas',
   i_StorageStateInternal in 'i_StorageStateInternal.pas',
   u_StorageStateInternal in 'u_StorageStateInternal.pas',
+  i_StorageStateProxy in 'i_StorageStateProxy.pas',
+  u_StorageStateProxy in 'u_StorageStateProxy.pas',
   i_TileDownloaderState in 'i_TileDownloaderState.pas',
   u_TileDownloaderStateStatic in 'u_TileDownloaderStateStatic.pas',
   u_TileDownloaderStateInternal in 'u_TileDownloaderStateInternal.pas',
