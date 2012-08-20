@@ -48,6 +48,7 @@ type
     FSourceIgnoreTne: Boolean;
     FSourceRemoveTiles: Boolean;
     FDestOverwriteTiles: Boolean;
+    FSourcePath: string;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
     FPerfCounterList: IInternalPerformanceCounterList;
@@ -135,6 +136,7 @@ begin
   FSourceIgnoreTne := ASourceIgnoreTne;
   FSourceRemoveTiles := ASourceRemoveTiles;
   FDestOverwriteTiles := ADestOverwriteTiles;
+  FSourcePath := ASourcePath;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
   FPerfCounterList := APerfCounterList;
@@ -152,7 +154,7 @@ begin
   FSourceTileStorage :=
     CreateSimpleTileStorage(
       'SourcePath',
-      ASourcePath,
+      FSourcePath,
       VDefExtention,
       ASourceCacheFormatID,
       (not FSourceRemoveTiles),
@@ -222,6 +224,7 @@ function TThreadCacheConverter.OnSourceTileStorageScan(
 ): Boolean;
 var
   VTileInfo: ITileInfoBasic;
+  VTileFullPath: string;
 begin
   Result := False;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
@@ -237,7 +240,6 @@ begin
       if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
         Result := True;
         FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
-        FProgressInfo.LastTileName := FSourceTileStorage.GetTileFileName(ATileInfo.FTile, ATileInfo.FZoom, ATileInfo.FVersionInfo);
       end;
     end;
 
@@ -267,6 +269,16 @@ begin
         end;
       end;
     end;
+
+    VTileFullPath :=
+      FSourceTileStorage.GetTileFileName(
+        ATileInfo.FTile,
+        ATileInfo.FZoom,
+        ATileInfo.FVersionInfo
+      );
+
+    FProgressInfo.LastTileName :=
+      StringReplace(VTileFullPath, FSourcePath, '', [rfIgnoreCase]);
   end;
 end;
 
