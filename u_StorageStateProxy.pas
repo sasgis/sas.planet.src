@@ -91,7 +91,7 @@ end;
 
 procedure TStorageStateProxy.OnTargetChange;
 var
-  VState: TStorageStateStatic;
+  VState: IStorageStateStatic;
 begin
   LockWrite;
   try
