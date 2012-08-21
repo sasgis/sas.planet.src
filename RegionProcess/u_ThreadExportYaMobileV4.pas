@@ -282,7 +282,7 @@ begin
           VStream.Position := 0;
         end;
         SetLength(VUserXmlAnsi, VSize);
-        VStream.Read(VUserXmlAnsi[1], Length(VUserXmlAnsi));
+        VStream.ReadBuffer(VUserXmlAnsi[1], Length(VUserXmlAnsi));
         VUserXml := Utf8ToAnsi(VUserXmlAnsi);
         VUserXml := StringReplace(VUserXml, '</map_layers>'#10, '', [rfIgnoreCase, rfReplaceAll]);
         if VUserXml <> '' then begin
@@ -293,7 +293,7 @@ begin
         VUserXmlAnsi := #239#187#191 + AnsiToUtf8(VUserXml);
         VStream.Clear;
         VStream.Position := 0;
-        VStream.Write(VUserXmlAnsi[1], Length(VUserXmlAnsi));
+        VStream.WriteBuffer(VUserXmlAnsi[1], Length(VUserXmlAnsi));
         VStream.SaveToFile(VUserXmlPath);
       end;
     end;
