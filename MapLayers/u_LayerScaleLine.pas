@@ -409,7 +409,9 @@ begin
   VZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
   VStartPixel := PointFromDoublePoint(AVisualCoordConverter.GetCenterMapPixelFloat, prToTopLeft);
+  VConverter.CheckPixelPosStrict(VStartPixel, VZoom, True);
   VFinishPixel := Types.Point(VStartPixel.X + 1, VStartPixel.Y);
+  VConverter.CheckPixelPos(VFinishPixel, VZoom, True);
   VStartLonLat := VConverter.PixelPos2LonLat(VStartPixel, VZoom);
   VFinishLonLat := VConverter.PixelPos2LonLat(VFinishPixel, VZoom);
   Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
