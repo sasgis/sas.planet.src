@@ -179,6 +179,9 @@ begin
     _UpdateFullPath;
     if FIsRelative then begin
       if FBasePathConfig <> nil then begin
+        if FBasePathListener = nil then begin
+          FBasePathListener := TNotifyNoMmgEventListener.Create(Self.OnBasePathChange);
+        end;
         FBasePathConfig.ChangeNotifier.Add(FBasePathListener);
       end;
     end;
