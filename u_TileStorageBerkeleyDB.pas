@@ -428,7 +428,6 @@ begin
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
-      //VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoInternal));
       SetLength(VItems, VCount.X * VCount.Y);
         ClearInfo(VFolderInfo);
         ClearInfo(VFileInfo);

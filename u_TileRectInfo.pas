@@ -19,6 +19,7 @@ type
     FSize: Cardinal;
     FInfoType: TTileInfoType;
   end;
+  TArrayOfTileInfoInternal = array of TTileInfoInternal;
   PTileInfoInternalArray = ^TTileInfoInternalArray;
   TTileInfoInternalArray = array [0..0] of TTileInfoInternal;
 
@@ -27,7 +28,7 @@ type
     FTileRect: TRect;
     FTileCount: TPoint;
     FZoom: Byte;
-    FItems: PTileInfoInternalArray;
+    FItems: TArrayOfTileInfoInternal;
   private
     function GetTileRect: TRect;
     function GetZoom: Byte;
@@ -36,7 +37,7 @@ type
     constructor CreateWithOwn(
       const ATileRect: TRect;
       AZoom: Byte;
-      AItems: PTileInfoInternalArray
+      AItems: TArrayOfTileInfoInternal
     );
     destructor Destroy; override;
   end;
@@ -127,7 +128,7 @@ end;
 constructor TTileRectInfo.CreateWithOwn(
   const ATileRect: TRect;
   AZoom: Byte;
-  AItems: PTileInfoInternalArray
+  AItems: TArrayOfTileInfoInternal
 );
 begin
   inherited Create;
@@ -150,7 +151,6 @@ begin
       FItems[i].FContentType := nil;
       FItems[i].FData := nil;
     end;
-    FreeMemory(FItems);
     FItems := nil;
   end;
   inherited;
@@ -158,7 +158,7 @@ end;
 
 function TTileRectInfo.GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
 begin
-  Result := TEnumTileInfo.Create(Self, FZoom, FTileRect, @FItems[0], ATileIterator);
+  Result := TEnumTileInfo.Create(Self, FZoom, FTileRect, Addr(FItems[0]), ATileIterator);
 end;
 
 function TTileRectInfo.GetTileRect: TRect;
