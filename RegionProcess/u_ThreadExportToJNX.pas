@@ -108,7 +108,7 @@ begin
     AProgressInfo,
     APolygon,
     Azoomarr,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FTargetFile := ATargetFile;
   FCoordConverterFactory := ACoordConverterFactory;

@@ -528,7 +528,7 @@ var
   VOperationID: Integer;
   VRequest: ITileRequest;
 begin
-  SetCurrentThreadName(Self.ClassName);
+  SetCurrentThreadName(AnsiString(Self.ClassName));
   Randomize;
   FStartTime := Now;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);

@@ -119,7 +119,7 @@ begin
     AProgressInfo,
     APolygon,
     Azoomarr,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;

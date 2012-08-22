@@ -19,7 +19,7 @@ type
 
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
-    FDebugThreadName: string;
+    FDebugThreadName: AnsiString;
     procedure OnCancel;
     procedure SynShowMessage;
     procedure ShowMessageSync(const AMessage: string);
@@ -37,7 +37,7 @@ type
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
-      const ADebugThreadName: string = ''
+      const ADebugThreadName: AnsiString = ''
     );
     destructor Destroy; override;
   end;
@@ -55,7 +55,7 @@ constructor TThreadRegionProcessAbstract.Create(
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
-  const ADebugThreadName: string = ''
+  const ADebugThreadName: AnsiString = ''
 );
 begin
   inherited Create(false);

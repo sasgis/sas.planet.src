@@ -82,7 +82,7 @@ begin
     AProgressInfo,
     APolygon,
     Azoomarr,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FTargetFile := ATargetFile;
   FMapType := AMapType;

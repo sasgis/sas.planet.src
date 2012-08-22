@@ -122,7 +122,7 @@ begin
     AMapCalibrationList,
     AFileName,
     ASplitCount,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FWithAlpha := AWithAlpha;
 end;

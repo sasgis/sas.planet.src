@@ -117,7 +117,7 @@ begin
     AAppClosingNotifier,
     Self.OnDrawBitmap,
     AThreadConfig,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FUpdateViewFlag := TSimpleFlagWithInterlock.Create;
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;

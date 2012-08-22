@@ -121,7 +121,7 @@ begin
     AProgressInfo,
     APolygon,
     AZoomArr,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;

@@ -190,7 +190,7 @@ begin
     AAppClosingNotifier,
     OnPrepareTileMatrix,
     AThreadConfig,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
 
   LinksList.Add(

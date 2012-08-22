@@ -81,7 +81,7 @@ begin
     AProgressInfo,
     APolygon,
     Azoomarr,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItmesFactory := AVectorItmesFactory;

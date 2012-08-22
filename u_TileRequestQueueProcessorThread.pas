@@ -46,7 +46,7 @@ constructor TTileRequestQueueProcessorThread.Create(
   const ATileDownloaderSync: ITileDownloader
 );
 begin
-  inherited Create(AThreadConfig, Self.ClassName);
+  inherited Create(AThreadConfig, AnsiString(Self.ClassName));
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
   FTileDownloaderSync := ATileDownloaderSync;

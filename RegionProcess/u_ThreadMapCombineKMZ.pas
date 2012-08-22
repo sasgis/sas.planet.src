@@ -89,7 +89,7 @@ begin
     AMapCalibrationList,
     AFileName,
     ASplitCount,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FQuality := AQuality;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;

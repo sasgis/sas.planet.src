@@ -88,7 +88,7 @@ begin
     AOperationID,
     AProgressInfo,
     APolyLL,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;

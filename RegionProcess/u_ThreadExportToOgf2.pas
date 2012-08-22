@@ -108,7 +108,7 @@ begin
     AOperationID,
     AProgressInfo,
     APolygon,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FImageProvider := AImageProvider;
   FZoom := AZoom;

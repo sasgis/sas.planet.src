@@ -59,7 +59,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AOnExecute: TBackgroundTaskExecuteEvent;
       const AThreadConfig: IThreadConfig;
-      const AThreadDebugName: string
+      const AThreadDebugName: AnsiString
     );
     destructor Destroy; override;
   end;
@@ -76,7 +76,7 @@ constructor TBackgroundTask.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AOnExecute: TBackgroundTaskExecuteEvent;
   const AThreadConfig: IThreadConfig;
-  const AThreadDebugName: string
+  const AThreadDebugName: AnsiString
 );
 var
   VOperationNotifier: TNotifierOperation;

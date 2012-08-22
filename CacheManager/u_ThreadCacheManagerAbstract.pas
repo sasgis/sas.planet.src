@@ -46,7 +46,7 @@ type
     constructor Create(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
-      const ADebugThreadName: string = ''
+      const ADebugThreadName: AnsiString = ''
     );
     destructor Destroy; override;
   end;
@@ -64,7 +64,7 @@ uses
 constructor TThreadCacheManagerAbstract.Create(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
-  const ADebugThreadName: string = ''
+  const ADebugThreadName: AnsiString = ''
 );
 begin
   inherited Create(True);

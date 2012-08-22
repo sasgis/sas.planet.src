@@ -87,7 +87,7 @@ begin
     AMapCalibrationList,
     AFileName,
     ASplitCount,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   FQuality := AQuality;
 end;

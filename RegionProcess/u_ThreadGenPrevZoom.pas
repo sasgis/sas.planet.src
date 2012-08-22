@@ -90,7 +90,7 @@ begin
     AOperationID,
     AProgressInfo,
     APolygLL,
-    Self.ClassName
+    AnsiString(Self.ClassName)
   );
   if Length(AZooms) <= 1 then begin
     raise Exception.Create('Не выбрано целевых масштабов');

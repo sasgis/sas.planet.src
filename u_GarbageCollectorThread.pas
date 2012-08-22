@@ -71,7 +71,7 @@ var
   VNextCheck: Cardinal;
   VNow: Cardinal;
 begin
-  SetCurrentThreadName(Self.ClassName);
+  SetCurrentThreadName(AnsiString(Self.ClassName));
   VNextCheck := 0;
   while not Terminated do begin
     VNow := GetTickCount;
