@@ -407,7 +407,7 @@ var
   VZoom: Byte;
   VCount: TPoint;
   //VItems: PTileInfoInternalArray;
-  VItems: PTileInfoShortInternalArray;
+  VItems: TArrayOfTileInfoShortInternal;
   VIndex: Integer;
   VTile: TPoint;
   VIterator: ITileIterator;
@@ -427,10 +427,9 @@ begin
     Config.CoordConverter.CheckTileRect(VRect, VZoom);
     VCount.X := VRect.Right - VRect.Left;
     VCount.Y := VRect.Bottom - VRect.Top;
-    if (VCount.X > 0) and (VCount.Y > 0) then begin
+    if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
       //VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoInternal));
-      VItems := GetMemory(VCount.X * VCount.Y * SizeOf(TTileInfoShortInternal));
-      try
+      SetLength(VItems, VCount.X * VCount.Y);
         ClearInfo(VFolderInfo);
         ClearInfo(VFileInfo);
         ClearInfo(VTneFileInfo);
@@ -537,11 +536,6 @@ begin
             VItems
           );
         VItems := nil;
-      finally
-        if VItems <> nil then begin
-          FreeMemory(VItems);
-        end;
-      end;
     end;
   end;
 end;

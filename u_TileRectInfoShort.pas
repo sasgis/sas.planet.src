@@ -15,6 +15,7 @@ type
     FSize: Cardinal;
     FInfoType: TTileInfoType;
   end;
+  TArrayOfTileInfoShortInternal = array of TTileInfoShortInternal;
   PTileInfoShortInternalArray = ^TTileInfoShortInternalArray;
   TTileInfoShortInternalArray = array [0..0] of TTileInfoShortInternal;
 
@@ -25,7 +26,7 @@ type
     FZoom: Byte;
     FVersionInfo: IMapVersionInfo;
     FContentType: IContentTypeInfoBasic;
-    FItems: PTileInfoShortInternalArray;
+    FItems: TArrayOfTileInfoShortInternal;
   private
     function GetTileRect: TRect;
     function GetZoom: Byte;
@@ -36,7 +37,7 @@ type
       AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AContentType: IContentTypeInfoBasic;
-      AItems: PTileInfoShortInternalArray
+      AItems: TArrayOfTileInfoShortInternal
     );
     destructor Destroy; override;
   end;
@@ -137,7 +138,7 @@ constructor TTileRectInfoShort.CreateWithOwn(
   AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AContentType: IContentTypeInfoBasic;
-  AItems: PTileInfoShortInternalArray
+  AItems: TArrayOfTileInfoShortInternal
 );
 begin
   inherited Create;
@@ -152,10 +153,7 @@ end;
 
 destructor TTileRectInfoShort.Destroy;
 begin
-  if FItems <> nil then begin
-    FreeMemory(FItems);
-    FItems := nil;
-  end;
+  FItems := nil;
   inherited;
 end;
 
