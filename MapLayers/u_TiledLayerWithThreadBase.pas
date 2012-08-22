@@ -180,16 +180,18 @@ begin
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
   FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
 
+  FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
+  FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
+  FUpdateLayerProviderFlag := TSimpleFlagWithInterlock.Create;
+  FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
+  FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
+
   FDrawTask := TBackgroundTask.Create(
     AAppClosingNotifier,
     OnPrepareTileMatrix,
     AThreadConfig,
     Self.ClassName
   );
-  FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
-  FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
-  FUpdateLayerProviderFlag := TSimpleFlagWithInterlock.Create;
-  FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnTimer),
@@ -199,13 +201,10 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FPosition.ChangeNotifier
   );
-
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnScaleChange),
     FView.ChangeNotifier
   );
-
-  FRectUpdateListener := TNotifyEventListener.Create(Self.OnRectUpdate);
 end;
 
 procedure TTiledLayerWithThreadBase.DelicateRedraw;
