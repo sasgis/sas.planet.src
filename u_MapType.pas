@@ -205,6 +205,7 @@ type
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
     property VersionConfig: IMapVersionConfig read FVersionConfig;
+    property ContentType: IContentTypeInfoBasic read FContentType;
 
     property Abilities: IMapAbilitiesConfig read FAbilitiesConfig;
     property StorageConfig: ISimpleTileStorageConfig read FStorageConfig;
@@ -341,6 +342,10 @@ begin
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
 
+  FContentType := FContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
+  FCoordConverter := FStorageConfig.CoordConverter;
+  FViewCoordConverter := FZmp.ViewGeoConvert;
+
   VCacheTypeCode := FStorageConfig.CacheTypeCode;
   if VCacheTypeCode = c_File_Cache_Id_DEFAULT then begin
     VCacheTypeCode := AGlobalCacheConfig.DefCache;
@@ -363,7 +368,6 @@ begin
         FPerfCounterList
       );
   end;
-  FContentType := FStorage.GetMainContentType;
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
     FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
     FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
@@ -389,9 +393,6 @@ begin
   end;
   FVersionConfig.VersionFactory := FStorage.MapVersionFactory;
 
-  FCoordConverter := FStorageConfig.CoordConverter;
-  FViewCoordConverter := FZmp.ViewGeoConvert;
-
   FTileDownloadSubsystem :=
     TTileDownloadSubsystem.Create(
       AGCList,
@@ -410,6 +411,7 @@ begin
       FTileDownloadRequestBuilderConfig,
       FContentTypeManager,
       FZmp.ContentTypeSubst,
+      FContentType,
       FZmp.TilePostDownloadCropConfig,
       FAbilitiesConfig,
       FZmp.DataProvider,

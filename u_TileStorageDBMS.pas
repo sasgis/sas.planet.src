@@ -116,7 +116,6 @@ type
     
     destructor Destroy; override;
 
-    function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
@@ -398,11 +397,6 @@ end;
 function TTileStorageDBMS.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
-end;
-
-function TTileStorageDBMS.GetMainContentType: IContentTypeInfoBasic;
-begin
-  Result := FMainContentType;
 end;
 
 function TTileStorageDBMS.GetProviderContentType(const AContentTypeId: Word): IContentTypeInfoBasic;

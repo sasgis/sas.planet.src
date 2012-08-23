@@ -18,6 +18,7 @@ uses
   i_DownloadResultFactory,
   i_LanguageManager,
   i_GlobalDownloadConfig,
+  i_ContentTypeInfo,
   i_TileRequest,
   i_TileDownloaderState,
   i_TileDownloaderConfig,
@@ -92,6 +93,7 @@ type
       const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
       const AContentTypeManager: IContentTypeManager;
       const AContentTypeSubst: IContentTypeSubst;
+      const ASaveContentType: IContentTypeInfoBasic;
       const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
       const AMapAbilitiesConfig: IMapAbilitiesConfig;
       const AZmpData: IConfigDataProvider;
@@ -142,6 +144,7 @@ constructor TTileDownloadSubsystem.Create(
   const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
   const AContentTypeManager: IContentTypeManager;
   const AContentTypeSubst: IContentTypeSubst;
+  const ASaveContentType: IContentTypeInfoBasic;
   const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
   const AMapAbilitiesConfig: IMapAbilitiesConfig;
   const AZmpData: IConfigDataProvider;
@@ -195,6 +198,7 @@ begin
         AImageResamplerConfig,
         AContentTypeManager,
         AContentTypeSubst,
+        ASaveContentType,
         ATilePostDownloadCropConfig,
         AStorageConfig,
         AStorage

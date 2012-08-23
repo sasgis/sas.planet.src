@@ -63,6 +63,7 @@ type
       const AImageResamplerConfig: IImageResamplerConfig;
       const AContentTypeManager: IContentTypeManager;
       const AContentTypeSubst: IContentTypeSubst;
+      const ASaveContentType: IContentTypeInfoBasic;
       const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
       const AStorageConfig: ISimpleTileStorageConfig;
       AStorage: TTileStorageAbstract
@@ -93,6 +94,7 @@ constructor TTileDownloadResultSaverStuped.Create(
   const AImageResamplerConfig: IImageResamplerConfig;
   const AContentTypeManager: IContentTypeManager;
   const AContentTypeSubst: IContentTypeSubst;
+  const ASaveContentType: IContentTypeInfoBasic;
   const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
   const AStorageConfig: ISimpleTileStorageConfig;
   AStorage: TTileStorageAbstract
@@ -108,7 +110,7 @@ begin
   FTilePostDownloadCropConfig := ATilePostDownloadCropConfig;
   FStorageConfig := AStorageConfig;
   FStorage := AStorage;
-  FContentType := FStorage.GetMainContentType;
+  FContentType := ASaveContentType;
 
   VState := TTileDownloaderStateInternal.Create;
   FStateInternal := VState;

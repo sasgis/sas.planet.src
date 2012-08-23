@@ -80,7 +80,6 @@ type
       const AConfig: ISimpleTileStorageConfig
     );
     destructor Destroy; override;
-    function GetMainContentType: IContentTypeInfoBasic; virtual; abstract;
     function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
 
     function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;

@@ -169,7 +169,7 @@ begin
         if (VTileInfo <> nil) and (VTileInfo.ContentType <> nil) then begin
           VContenetTypeStr := PWideChar(VTileInfo.ContentType.GetContentType);
         end else begin
-          VContenetTypeStr := PWideChar(AMapType.TileStorage.GetMainContentType.GetContentType);
+          VContenetTypeStr := PWideChar(AMapType.ContentType.GetContentType);
         end;
         Result := AHelper.SaveTile(
           VExportSDBFile,

@@ -81,7 +81,6 @@ type
     );
     destructor Destroy; override;
 
-    function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
 
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
@@ -307,11 +306,6 @@ end;
 function TTileStorageFileSystem.GetCacheConfig: TMapTypeCacheConfigAbstract;
 begin
   Result := FCacheConfig;
-end;
-
-function TTileStorageFileSystem.GetMainContentType: IContentTypeInfoBasic;
-begin
-  Result := FMainContentType;
 end;
 
 function TTileStorageFileSystem.GetTileFileName(

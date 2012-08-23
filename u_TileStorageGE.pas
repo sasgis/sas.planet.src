@@ -89,7 +89,6 @@ type
     destructor Destroy; override;
 
     // auxillary tile storage routines
-    function GetMainContentType: IContentTypeInfoBasic; override;
     function GetAllowDifferentContentTypes: Boolean; override;
     function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
 
@@ -462,11 +461,6 @@ begin
   end;
 
   Result := TMapVersionListStatic.Create(VList);
-end;
-
-function TTileStorageDLL.GetMainContentType: IContentTypeInfoBasic;
-begin
-  Result := FMainContentType;
 end;
 
 function TTileStorageDLL.GetTileFileName(
