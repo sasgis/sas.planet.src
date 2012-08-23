@@ -33,9 +33,8 @@ uses
   i_InternalPerformanceCounter,
   i_TileInfoBasic,
   i_BinaryData,
+  i_TileStorage,
   i_CacheConverterProgressInfo,
-  u_GlobalCahceConfig,
-  u_TileStorageAbstract,
   u_ThreadCacheManagerAbstract;
 
 type
@@ -43,8 +42,8 @@ type
   private
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
-    FSourceTileStorage: TTileStorageAbstract;
-    FDestTileStorage: TTileStorageAbstract;
+    FSourceTileStorage: ITileStorage;
+    FDestTileStorage: ITileStorage;
     FSourceIgnoreTne: Boolean;
     FSourceRemoveTiles: Boolean;
     FDestOverwriteTiles: Boolean;
@@ -53,7 +52,6 @@ type
     FContentTypeManager: IContentTypeManager;
     FPerfCounterList: IInternalPerformanceCounterList;
     FProgressInfo: ICacheConverterProgressInfo;
-    FGlobalCahceConfig: array of TGlobalCahceConfig;
     function CreateSimpleTileStorage(
       const ACacheIdent: string;
       const ARootPath: string;
@@ -63,7 +61,7 @@ type
       const AAllowDelete: Boolean;
       const AAllowAdd: Boolean;
       const AAllowReplace: Boolean
-    ): TTileStorageAbstract;
+    ): ITileStorage;
 
     function OnSourceTileStorageScan(
       const ATileInfo: TTileInfo
@@ -88,7 +86,6 @@ type
       const APerfCounterList: IInternalPerformanceCounterList;
       const AProgressInfo: ICacheConverterProgressInfo
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -142,8 +139,6 @@ begin
   FPerfCounterList := APerfCounterList;
   FProgressInfo := AProgressInfo;
 
-  SetLength(FGlobalCahceConfig, 0);
-
   VDotPos := Pos('.', ADefExtention);
   if VDotPos > 0 then begin
     VDefExtention := Copy(ADefExtention, VDotPos, Length(ADefExtention) - VDotPos + 1);
@@ -176,43 +171,28 @@ begin
       True,
       True
     );
-  
-  inherited Create(FCancelNotifier, FOperationID, AnsiString(Self.ClassName));
-end;
 
-destructor TThreadCacheConverter.Destroy;
-var
-  I: Integer;
-begin
-  FSourceTileStorage.Free;
-  FDestTileStorage.Free;
-  FCancelNotifier := nil;
-  for I := 0 to Length(FGlobalCahceConfig) - 1 do begin
-    FGlobalCahceConfig[I].Free;
-  end;
-  SetLength(FGlobalCahceConfig, 0);
-  inherited Destroy;
+  inherited Create(FCancelNotifier, FOperationID, AnsiString(Self.ClassName));
 end;
 
 procedure TThreadCacheConverter.Process;
 var
+  VEnum: IEnumTileInfo;
   VTileInfo: TTileInfo;
-  VTileEnum: IEnumTileInfo;
 begin
-  VTileEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne);
-  if VTileEnum <> nil then begin
-    while VTileEnum.Next(VTileInfo) do begin
-      if not OnSourceTileStorageScan(VTileInfo) then begin
-        Break;
-      end;
-      if FSourceRemoveTiles then begin
-        if VTileInfo.FInfoType = titExists then begin
-          FSourceTileStorage.DeleteTile(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
-        end else begin
-          if (VTileInfo.FInfoType = titTneExists) and FSourceIgnoreTne then begin
-            FSourceTileStorage.DeleteTNE(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
-          end;
-        end;
+  VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne);
+  while VEnum.Next(VTileInfo) do begin
+    if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+      Break;
+    end;
+    if not OnSourceTileStorageScan(VTileInfo) then begin
+      Break;
+    end;
+    if FSourceRemoveTiles then begin
+      if VTileInfo.FInfoType = titExists then begin
+        FSourceTileStorage.DeleteTile(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
+      end else if VTileInfo.FInfoType = titTneExists then begin
+        FSourceTileStorage.DeleteTNE(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
       end;
     end;
   end;
@@ -291,14 +271,12 @@ function TThreadCacheConverter.CreateSimpleTileStorage(
   const AAllowDelete: Boolean;
   const AAllowAdd: Boolean;
   const AAllowReplace: Boolean
-): TTileStorageAbstract;
+): ITileStorage;
 var
-  I: Integer;
   VIsStoreFileCache: Boolean;
   VStorageConfig: ISimpleTileStorageConfig;
   VStorageConfigStatic: ISimpleTileStorageConfigStatic;
   VBaseCachePath: IPathConfig;
-  VGlobalCacheConfig: TGlobalCahceConfig;
   VTileNameGeneratorList: ITileFileNameGeneratorsList;
   VTileNameParserList: ITileFileNameParsersList;
   VCoordConverterFake: ICoordConverter;
@@ -327,62 +305,46 @@ begin
 
   VBaseCachePath := TPathConfig.Create(ACacheIdent, ARootPath, nil);
 
-  I := Length(FGlobalCahceConfig);
-  SetLength(FGlobalCahceConfig, I + 1);
-  FGlobalCahceConfig[I] := TGlobalCahceConfig.Create(VBaseCachePath);
-  VGlobalCacheConfig := FGlobalCahceConfig[I];
-
-  //emulate TGlobalCahceConfig.LoadConfig
-  VGlobalCacheConfig.DefCache := AFormatID;
-  VGlobalCacheConfig.NewCPath := '';
-  VGlobalCacheConfig.OldCPath := '';
-  VGlobalCacheConfig.ESCPath := '';
-  VGlobalCacheConfig.GMTilesPath := '';
-  VGlobalCacheConfig.GECachePath := '';
-  VGlobalCacheConfig.GCCachePath := '';
-  VGlobalCacheConfig.BDBCachePath := '';
-  VGlobalCacheConfig.DBMSCachePath := '';
-
   VTileNameGeneratorList :=
-    TTileFileNameGeneratorsSimpleList.Create(VGlobalCacheConfig);
+    TTileFileNameGeneratorsSimpleList.Create;
 
   VTileNameParserList :=
-    TTileFileNameParsersSimpleList.Create(VGlobalCacheConfig);
+    TTileFileNameParsersSimpleList.Create;
 
   if VStorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
-    Result :=
-      TTileStorageBerkeleyDB.Create(
-        FGCList,
-        VStorageConfig,
-        VGlobalCacheConfig,
-        False,
-        FContentTypeManager,
-        FPerfCounterList
-      );
+//    Result :=
+//      TTileStorageBerkeleyDB.Create(
+//        FGCList,
+//        VStorageConfig,
+//        VGlobalCacheConfig,
+//        False,
+//        FContentTypeManager,
+//        FPerfCounterList
+//      );
   end else if VStorageConfig.CacheTypeCode = c_File_Cache_Id_GE then begin
-    Result :=
-      TTileStorageGE.Create(
-        VStorageConfig,
-        VGlobalCacheConfig,
-        FContentTypeManager
-      );
+//    Result :=
+//      TTileStorageGE.Create(
+//        VStorageConfig,
+//        VGlobalCacheConfig,
+//        FContentTypeManager
+//      );
   end else if VStorageConfig.CacheTypeCode = c_File_Cache_Id_GC then begin
-    Result :=
-      TTileStorageGC.Create(
-        VStorageConfig,
-        VGlobalCacheConfig,
-        FContentTypeManager
-      );
+//    Result :=
+//      TTileStorageGC.Create(
+//        VStorageConfig,
+//        VGlobalCacheConfig,
+//        FContentTypeManager
+//      );
   end else begin
-    Result :=
-      TTileStorageFileSystem.Create(
-        VStorageConfig,
-        VGlobalCacheConfig,
-        VTileNameGeneratorList,
-        VTileNameParserList,
-        FContentTypeManager,
-        FPerfCounterList
-      );
+//    Result :=
+//      TTileStorageFileSystem.Create(
+//        VStorageConfig,
+//        VGlobalCacheConfig,
+//        VTileNameGeneratorList,
+//        VTileNameParserList,
+//        FContentTypeManager,
+//        FPerfCounterList
+//      );
   end;
 end;
 

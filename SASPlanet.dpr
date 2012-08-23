@@ -379,6 +379,7 @@ uses
   u_TileStorageTypeListSimple in 'u_TileStorageTypeListSimple.pas',
   i_DownloadResultTextProvider in 'i_DownloadResultTextProvider.pas',
   u_DownloadResultTextProvider in 'u_DownloadResultTextProvider.pas',
+  u_TileStorageOfMapType in 'u_TileStorageOfMapType.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
   u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',

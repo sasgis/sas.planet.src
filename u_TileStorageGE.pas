@@ -34,7 +34,10 @@ uses
   i_ContentTypeInfo,
   i_MapVersionConfig,
   i_MapVersionInfo,
+  i_CoordConverter,
+  i_CoordConverterFactory,
   i_TileInfoBasic,
+  i_TileStorage,
   i_ContentTypeManager,
   u_MapTypeCacheConfig,
   u_GlobalCahceConfig,
@@ -43,7 +46,6 @@ uses
 type
   TTileStorageDLL = class(TTileStorageAbstract)
   protected
-    FCacheConfig: TMapTypeCacheConfigDLL;
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
     // access
@@ -55,8 +57,6 @@ type
     FDLLCache_QueryTile: Pointer;
     FDLLCache_ConvertImage: Pointer;
     FDLLCache_QueryFillingMap: Pointer;
-    // cached values
-    FCachedNameInCache: AnsiString;
   protected
     // Lib routines
     function InternalLib_CleanupProc: Boolean; virtual;
@@ -73,25 +73,13 @@ type
       const ASize: Cardinal
     ): Boolean;
   protected
-    procedure DoOnMapSettingsEdit(Sender: TObject);
-
     function QueryTileInternal(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AIsNeedData: Boolean
     ): ITileInfoBasic;
-  public
-    constructor Create(
-      const AConfig: ISimpleTileStorageConfig;
-      const AContentTypeManager: IContentTypeManager
-    );
-    destructor Destroy; override;
-
-    // auxillary tile storage routines
-    function GetAllowDifferentContentTypes: Boolean; override;
-    function GetCacheConfig: TMapTypeCacheConfigAbstract; override;
-
+  protected
     // common tile storage interface
     function GetTileInfo(
       const AXY: TPoint;
@@ -142,35 +130,32 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; override;
+  public
+    constructor Create(
+      const AGeoConverter: ICoordConverter;
+      const AStoragePath: string;
+      const AMapVersionFactory: IMapVersionFactory;
+      const AContentTypeManager: IContentTypeManager
+    );
+    destructor Destroy; override;
   end;
 
   TTileStorageGE = class(TTileStorageDLL)
   protected
     function InternalLib_Initialize: Boolean; override;
     function InternalLib_CheckInitialized: Boolean; override;
-  public
-    constructor Create(
-      const AConfig: ISimpleTileStorageConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      const AContentTypeManager: IContentTypeManager
-    );
   end;
 
   TTileStorageGC = class(TTileStorageDLL)
   protected
     function InternalLib_Initialize: Boolean; override;
     function InternalLib_CheckInitialized: Boolean; override;
-  public
-    constructor Create(
-      const AConfig: ISimpleTileStorageConfig;
-      AGlobalCacheConfig: TGlobalCahceConfig;
-      const AContentTypeManager: IContentTypeManager
-    );
   end;
 
 implementation
 
 uses
+  c_CoordConverter,
   u_BinaryDataByMemStream,
   u_MapVersionListStatic,
   u_AvailPicsNMC,
@@ -328,18 +313,27 @@ end;
 { TTileStorageDLL }
 
 constructor TTileStorageDLL.Create(
-  const AConfig: ISimpleTileStorageConfig;
+  const AGeoConverter: ICoordConverter;
+  const AStoragePath: string;
+  const AMapVersionFactory: IMapVersionFactory;
   const AContentTypeManager: IContentTypeManager
 );
 begin
-  inherited Create(TTileStorageTypeAbilitiesGE.Create, TMapVersionFactoryGE.Create, AConfig);
+  inherited Create(
+    TTileStorageTypeAbilitiesGE.Create,
+    AMapVersionFactory,
+    AGeoConverter,
+    AStoragePath
+  );
   FDLLSync := MakeSyncRW_Big(Self);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FDLLHandle := 0;
   FDLLCacheHandle := nil;
   InternalLib_CleanupProc;
-  FCachedNameInCache := '';
-  FMainContentType := AContentTypeManager.GetInfo('image/jpeg'); // ('application/vnd.google-earth.tile-image'); // wtf?
+  FMainContentType := AContentTypeManager.GetInfo('image/jpeg');
+  if not InternalLib_SetPath(PAnsiChar(StoragePath)) then begin
+    StorageStateInternal.ReadAccess := asEnabled;
+  end;
 end;
 
 function TTileStorageDLL.DeleteTile(
@@ -371,47 +365,10 @@ begin
     FDLLSync.EndWrite;
   end;
 
-  FreeAndNil(FCacheConfig);
-
   FTileNotExistsTileInfo := nil;
   FDLLSync := nil;
 
   inherited Destroy;
-end;
-
-procedure TTileStorageDLL.DoOnMapSettingsEdit(Sender: TObject);
-var
-  VNameInCache: AnsiString;
-  VAccesState: TAccesState;
-begin
-  if (nil = FCacheConfig) then begin
-    Exit;
-  end;
-  VNameInCache := FCacheConfig.GetNameInCache;
-  if not SameText(VNameInCache, FCachedNameInCache) then begin
-    // change path
-    FDLLSync.BeginWrite;
-    try
-      VAccesState := StorageStateInternal.ReadAccess;
-      StorageStateInternal.ReadAccess := asUnknown;
-      FCachedNameInCache := VNameInCache;
-      if not InternalLib_SetPath(PAnsiChar(FCachedNameInCache)) then begin
-        StorageStateInternal.ReadAccess := VAccesState;
-      end;
-    finally
-      FDLLSync.EndWrite;
-    end;
-  end;
-end;
-
-function TTileStorageDLL.GetAllowDifferentContentTypes: Boolean;
-begin
-  Result := TRUE;
-end;
-
-function TTileStorageDLL.GetCacheConfig: TMapTypeCacheConfigAbstract;
-begin
-  Result := FCacheConfig;
 end;
 
 function TTileStorageDLL.GetListOfTileVersions(
@@ -430,7 +387,7 @@ begin
 
   FDLLSync.BeginRead;
   try
-    if StorageStateStatic.ReadAccess <> asDisabled then begin
+    if StorageStateInternal.ReadAccess <> asDisabled then begin
       VVersionStoreString := AVersionInfo.StoreString;
       // init
       FillChar(VEnumInfo, sizeof(VEnumInfo), #0);
@@ -642,7 +599,7 @@ begin
   Result := nil;
   FDLLSync.BeginRead;
   try
-    if StorageStateStatic.ReadAccess <> asDisabled then begin
+    if StorageStateInternal.ReadAccess <> asDisabled then begin
       VVersionInfo := AVersionInfo;
       VVersionStoreString := VVersionInfo.StoreString;
       // init
@@ -730,18 +687,6 @@ end;
 
 { TTileStorageGE }
 
-constructor TTileStorageGE.Create(
-  const AConfig: ISimpleTileStorageConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  const AContentTypeManager: IContentTypeManager
-);
-begin
-  inherited Create(AConfig, AContentTypeManager);
-  FCacheConfig := TMapTypeCacheConfigGE.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
-  InternalLib_Initialize;
-  DoOnMapSettingsEdit(nil);
-end;
-
 function TTileStorageGE.InternalLib_CheckInitialized: Boolean;
 begin
   // common checks
@@ -769,18 +714,6 @@ begin
 end;
 
 { TTileStorageGC }
-
-constructor TTileStorageGC.Create(
-  const AConfig: ISimpleTileStorageConfig;
-  AGlobalCacheConfig: TGlobalCahceConfig;
-  const AContentTypeManager: IContentTypeManager
-);
-begin
-  inherited Create(AConfig, AContentTypeManager);
-  FCacheConfig := TMapTypeCacheConfigGC.Create(AConfig, AGlobalCacheConfig, Self.DoOnMapSettingsEdit);
-  InternalLib_Initialize;
-  DoOnMapSettingsEdit(nil);
-end;
 
 function TTileStorageGC.InternalLib_CheckInitialized: Boolean;
 begin

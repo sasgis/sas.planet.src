@@ -21,7 +21,7 @@ uses
   i_TileDownloadResultSaver,
   i_SimpleTileStorageConfig,
   u_TileDownloaderStateInternal,
-  u_TileStorageAbstract;
+  i_TileStorage;
 
 type
   TTileDownloadResultSaverStuped = class(TInterfacedObject, ITileDownloadResultSaver)
@@ -30,7 +30,7 @@ type
     FImageResamplerConfig: IImageResamplerConfig;
     FContentTypeSubst: IContentTypeSubst;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-    FStorage: TTileStorageAbstract;
+    FStorage: ITileStorage;
     FStorageConfig: ISimpleTileStorageConfig;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
@@ -66,7 +66,7 @@ type
       const ASaveContentType: IContentTypeInfoBasic;
       const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
       const AStorageConfig: ISimpleTileStorageConfig;
-      AStorage: TTileStorageAbstract
+      const AStorage: ITileStorage
     );
     destructor Destroy; override;
   end;
@@ -97,7 +97,7 @@ constructor TTileDownloadResultSaverStuped.Create(
   const ASaveContentType: IContentTypeInfoBasic;
   const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
   const AStorageConfig: ISimpleTileStorageConfig;
-  AStorage: TTileStorageAbstract
+  const AStorage: ITileStorage
 );
 var
   VState: TTileDownloaderStateInternal;

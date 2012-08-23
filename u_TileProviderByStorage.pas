@@ -14,7 +14,7 @@ uses
   i_VectorDataLoader,
   i_ImageResamplerConfig,
   i_VectorDataFactory,
-  u_TileStorageAbstract;
+  i_TileStorage;
 
 type
   TBitmapTileProviderByStorage = class(TInterfacedObject, IBitmapTileProvider)
@@ -22,7 +22,7 @@ type
     FGeoConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IBitmapTileLoader;
-    FStorage: TTileStorageAbstract;
+    FStorage: ITileStorage;
     FIsIgnoreError: Boolean;
     FImageResamplerConfig: IImageResamplerConfig;
   private
@@ -38,7 +38,7 @@ type
       const AGeoConverter: ICoordConverter;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
-      const AStorage: TTileStorageAbstract
+      const AStorage: ITileStorage
     );
   end;
 
@@ -47,7 +47,7 @@ type
     FGeoConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IVectorDataLoader;
-    FStorage: TTileStorageAbstract;
+    FStorage: ITileStorage;
     FVectorDataFactory: IVectorDataFactory;
     FIsIgnoreError: Boolean;
   private
@@ -63,7 +63,7 @@ type
       const AGeoConverter: ICoordConverter;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IVectorDataLoader;
-      const AStorage: TTileStorageAbstract
+      const AStorage: ITileStorage
     );
   end;
 
@@ -84,7 +84,7 @@ constructor TBitmapTileProviderByStorage.Create(
   const AGeoConverter: ICoordConverter;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
-  const AStorage: TTileStorageAbstract);
+  const AStorage: ITileStorage);
 begin
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
@@ -162,7 +162,7 @@ constructor TVectorTileProviderByStorage.Create(
   const AGeoConverter: ICoordConverter;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IVectorDataLoader;
-  const AStorage: TTileStorageAbstract);
+  const AStorage: ITileStorage);
 begin
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;

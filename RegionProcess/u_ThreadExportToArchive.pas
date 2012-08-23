@@ -49,9 +49,9 @@ uses
   i_BinaryData,
   i_VectorItemProjected,
   i_TileIterator,
-  i_TileInfoBasic,  
-  u_TileIteratorByPolygon,
-  u_TileStorageAbstract;
+  i_TileInfoBasic,
+  i_TileStorage,
+  u_TileIteratorByPolygon;
 
 { TThreadExportToArchive }
 
@@ -91,7 +91,7 @@ var
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VTileStorage: TTileStorageAbstract;
+  VTileStorage: ITileStorage;
   VTileInfo: ITileInfoWithData;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;

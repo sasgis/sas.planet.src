@@ -36,7 +36,7 @@ uses
   i_NotifierTTLCheck,
   i_TileObjCache,
   i_CoordConverter,
-  u_TileStorageAbstract;
+  i_TileStorage;
 
 type
   TMemTileCacheBase = class(TInterfacedObject)
@@ -44,7 +44,7 @@ type
     FConfig: IMainMemCacheConfig;
     FGCList: INotifierTTLCheck;
     FConfigListener: IListener;
-    FTileStorage: TTileStorageAbstract;
+    FTileStorage: ITileStorage;
     FCoordConverter: ICoordConverter;
     FStorageChangeListener: IListener;
     FTTLListener: IListenerTTLCheck;
@@ -87,7 +87,7 @@ type
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
-      const ATileStorage: TTileStorageAbstract;
+      const ATileStorage: ITileStorage;
       const ACoordConverter: ICoordConverter;
       const AConfig: IMainMemCacheConfig;
       const APerfList: IInternalPerformanceCounterList
@@ -134,7 +134,7 @@ uses
 
 constructor TMemTileCacheBase.Create(
   const AGCList: INotifierTTLCheck;
-  const ATileStorage: TTileStorageAbstract;
+  const ATileStorage: ITileStorage;
   const ACoordConverter: ICoordConverter;
   const AConfig: IMainMemCacheConfig;
   const APerfList: IInternalPerformanceCounterList

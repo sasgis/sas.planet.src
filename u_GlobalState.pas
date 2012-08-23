@@ -390,7 +390,7 @@ begin
   FVectorItmesFactory := TVectorItmesFactorySimple.Create;
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
-  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 50);
+  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
   FGUISyncronizedTimerNotifierInternal := TNotifierBase.Create;
@@ -443,8 +443,8 @@ begin
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
-  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create(FCacheConfig);
-  FTileNameParser := TTileFileNameParsersSimpleList.Create(FCacheConfig);
+  FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
+  FTileNameParser := TTileFileNameParsersSimpleList.Create;
 
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(

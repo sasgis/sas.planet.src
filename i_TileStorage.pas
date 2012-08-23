@@ -23,22 +23,21 @@ unit i_TileStorage;
 interface
 
 uses
-  GR32,
+  Types,
   i_BinaryData,
   i_NotifierTileRectUpdate,
   i_MapVersionInfo,
+  i_MapVersionConfig,
   i_StorageState,
+  i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileStorageInfo;
 
 type
   TGetTileInfoMode = (gtimWithData = 1, gtimWithoutData = -1, gtimAsIs = 0);
-  
+
   ITileStorage = interface
     ['{80A0246E-68E0-4EA0-9B0F-3338472FDB3C}']
-    function GetInfo: ITileStorageInfo;
-    property Info: ITileStorageInfo read GetInfo;
-
     function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
     property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
 
@@ -77,6 +76,21 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     );
+    function GetListOfTileVersions(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): IMapVersionListStatic;
+
+    function GetTileRectInfo(
+      const ARect: TRect;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): ITileRectInfo;
+
+    function ScanTiles(
+      const AIgnoreTNE: Boolean
+    ): IEnumTileInfo;
   end;
 
 

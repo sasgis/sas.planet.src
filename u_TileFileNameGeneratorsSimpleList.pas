@@ -33,12 +33,11 @@ uses
 type
   TTileFileNameGeneratorsSimpleList = class(TInterfacedObject, ITileFileNameGeneratorsList)
   private
-    FGlobalCacheConfig: TGlobalCahceConfig;
     FItems: array of ITileFileNameGenerator;
   public
-    constructor Create(AGlobalCacheConfig: TGlobalCahceConfig);
+    constructor Create;
     destructor Destroy; override;
-    function GetGenerator(CacheType: Byte): ITileFileNameGenerator;
+    function GetGenerator(ACacheType: Byte): ITileFileNameGenerator;
   end;
 
 implementation
@@ -54,12 +53,9 @@ uses
 
 { TTileFileNameGeneratorsSimpleList }
 
-constructor TTileFileNameGeneratorsSimpleList.Create(
-  AGlobalCacheConfig: TGlobalCahceConfig
-);
+constructor TTileFileNameGeneratorsSimpleList.Create;
 begin
   inherited Create;
-  FGlobalCacheConfig := AGlobalCacheConfig;
   SetLength(FItems, 6);
   FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
@@ -81,16 +77,10 @@ begin
 end;
 
 function TTileFileNameGeneratorsSimpleList.GetGenerator(
-  CacheType: Byte): ITileFileNameGenerator;
-var
-  VCacheType: Byte;
+  ACacheType: Byte): ITileFileNameGenerator;
 begin
-  if CacheType = 0 then begin
-    VCacheType := FGlobalCacheConfig.DefCache;
-  end else begin
-    VCacheType := CacheType;
-  end;
-  case VCacheType of
+  Assert(ACacheType <> c_File_Cache_Id_DEFAULT);
+  case ACacheType of
     c_File_Cache_Id_GMV:
     begin
       Result := FItems[0];
@@ -116,10 +106,10 @@ begin
       Result := FItems[5];
     end;
   else begin
-    Result := FItems[3]; // as for GM
+    Assert(False);
+    Result := nil;
   end;
   end;
 end;
 
 end.
- 

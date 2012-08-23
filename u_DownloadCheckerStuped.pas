@@ -31,13 +31,13 @@ uses
   i_TileDownloaderConfig,
   i_AntiBan,
   i_TileInfoBasic,
-  u_TileStorageAbstract;
+  i_TileStorage;
 
 type
   TDownloadCheckerStuped = class(TInterfacedObject, IDownloadChecker)
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
-    FStorage: TTileStorageAbstract;
+    FStorage: ITileStorage;
     FAntiBan: IAntiBan;
     function PrepareOldTileInfo(const ARequest: IDownloadRequest): ITileInfoBasic;
     function CheckOldTileSize(
@@ -62,7 +62,7 @@ type
     constructor Create(
       const AAntiBan: IAntiBan;
       const ATileDownloaderConfig: ITileDownloaderConfig;
-      AStorage: TTileStorageAbstract
+      const AStorage: ITileStorage
     );
   end;
 
@@ -78,7 +78,7 @@ uses
 constructor TDownloadCheckerStuped.Create(
   const AAntiBan: IAntiBan;
   const ATileDownloaderConfig: ITileDownloaderConfig;
-  AStorage: TTileStorageAbstract
+  const AStorage: ITileStorage
 );
 begin
   inherited Create;

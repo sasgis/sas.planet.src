@@ -626,13 +626,13 @@ begin
     GState.MainFormConfig.MainConfig.UnlockWrite;
   end;
 
- GState.CacheConfig.NewCpath:=IncludeTrailingPathDelimiter(NewCpath.Text);
- GState.CacheConfig.OldCPath:=IncludeTrailingPathDelimiter(OldCPath.Text);
- GState.CacheConfig.ESCPath:=IncludeTrailingPathDelimiter(ESCPath.Text);
- GState.CacheConfig.GMTilesPath:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
- GState.CacheConfig.GECachePath:=IncludeTrailingPathDelimiter(GECachePath.Text);
- GState.CacheConfig.BDBCachePath:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
- GState.CacheConfig.GCCachePath:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
+ GState.CacheConfig.NewCpath.Path:=IncludeTrailingPathDelimiter(NewCpath.Text);
+ GState.CacheConfig.OldCPath.Path:=IncludeTrailingPathDelimiter(OldCPath.Text);
+ GState.CacheConfig.ESCPath.Path:=IncludeTrailingPathDelimiter(ESCPath.Text);
+ GState.CacheConfig.GMTilesPath.Path:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
+ GState.CacheConfig.GECachePath.Path:=IncludeTrailingPathDelimiter(GECachePath.Text);
+ GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
+ GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
 
   GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockWrite;
   try
@@ -869,13 +869,13 @@ begin
    CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
  end;
 
- OldCPath.text:=GState.CacheConfig.OldCPath;
- NewCpath.text:=GState.CacheConfig.NewCpath;
- ESCPath.text:=GState.CacheConfig.ESCPath;
- GMTilesPath.text:=GState.CacheConfig.GMTilesPath;
- GECachePath.text:=GState.CacheConfig.GECachePath;
- edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath;
- edtGCCachePath.text:=GState.CacheConfig.GCCachePath;
+ OldCPath.text:=GState.CacheConfig.OldCPath.Path;
+ NewCpath.text:=GState.CacheConfig.NewCpath.Path;
+ ESCPath.text:=GState.CacheConfig.ESCPath.Path;
+ GMTilesPath.text:=GState.CacheConfig.GMTilesPath.Path;
+ GECachePath.text:=GState.CacheConfig.GECachePath.Path;
+ edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
+ edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
 
   // load gps config
   LoadGPSConfig;

@@ -37,27 +37,18 @@ type
     FDefCache: byte;
 
     //Пути к кэшам разных типов
-    FNewCPath: string;
-    FOldCPath: string;
-    FESCPath: string;
-    FGMTilesPath: string;
-    FGECachePath: string;
-    FGCCachePath: string;
-    FBDBCachePath: string;
-    FDBMSCachePath: string;
+    FNewCPath: IPathConfig;
+    FOldCPath: IPathConfig;
+    FESCPath: IPathConfig;
+    FGMTilesPath: IPathConfig;
+    FGECachePath: IPathConfig;
+    FGCCachePath: IPathConfig;
+    FBDBCachePath: IPathConfig;
+    FDBMSCachePath: IPathConfig;
 
     FCacheChangeNotifier: INotifier;
     FCacheChangeNotifierInternal: INotifierInternal;
     procedure SetDefCache(const Value: byte);
-    procedure SetESCPath(const Value: string);
-    procedure SetGECachePath(const Value: string);
-    procedure SetBDBCachePath(const Value: string);
-    procedure SetDBMSCachePath(const Value: string);
-    procedure SetGMTilesPath(const Value: string);
-    procedure SetNewCPath(const Value: string);
-    procedure SetOldCPath(const Value: string);
-    function GetCacheGlobalPath: string;
-    procedure SetGCCachePath(const Value: string);
   public
     constructor Create(
       const ACacheGlobalPath: IPathConfig
@@ -71,16 +62,15 @@ type
     property DefCache: byte read FDefCache write SetDefCache;
 
     //Пути к кэшам разных типов
-    property NewCPath: string read FNewCPath write SetNewCPath;
-    property OldCPath: string read FOldCPath write SetOldCPath;
-    property ESCPath: string read FESCPath write SetESCPath;
-    property GMTilesPath: string read FGMTilesPath write SetGMTilesPath;
-    property GECachePath: string read FGECachePath write SetGECachePath;
-    property GCCachePath: string read FGCCachePath write SetGCCachePath;
-    property BDBCachePath: string read FBDBCachePath write SetBDBCachePath;
-    property DBMSCachePath: string read FDBMSCachePath write SetDBMSCachePath;
+    property NewCPath: IPathConfig read FNewCPath;
+    property OldCPath: IPathConfig read FOldCPath;
+    property ESCPath: IPathConfig read FESCPath;
+    property GMTilesPath: IPathConfig read FGMTilesPath;
+    property GECachePath: IPathConfig read FGECachePath;
+    property GCCachePath: IPathConfig read FGCCachePath;
+    property BDBCachePath: IPathConfig read FBDBCachePath;
+    property DBMSCachePath: IPathConfig read FDBMSCachePath;
 
-    property CacheGlobalPath: string read GetCacheGlobalPath;
     property CacheChangeNotifier: INotifier read FCacheChangeNotifier;
   end;
 
@@ -89,6 +79,7 @@ implementation
 uses
   SysUtils,
   c_CacheTypeCodes,
+  u_PathConfig,
   u_Notifier;
 
 { TGlobalCahceConfig }
@@ -102,25 +93,21 @@ begin
   FDefCache := c_File_Cache_Id_SAS;
   FCacheChangeNotifierInternal := TNotifierBase.Create;
   FCacheChangeNotifier := FCacheChangeNotifierInternal;
-  FOldCPath := 'cache_old' + PathDelim;
-  FNewCPath := 'cache' + PathDelim;
-  FESCPath := 'cache_ES' + PathDelim;
-  FGMTilesPath := 'cache_gmt' + PathDelim;
-  FGECachePath := 'cache_GE' + PathDelim;
-  FGCCachePath := 'cache_GC' + PathDelim;
-  FBDBCachePath := 'cache_db' + PathDelim;
-  FDBMSCachePath := 'cache_sasgis' + PathDelim + 'cache_sasgis'; // it is global DBMS identifier: SERVER\DATABASE
+
+  FOldCPath := TPathConfig.Create('GMVC', 'cache_old', FCacheGlobalPath);
+  FNewCPath := TPathConfig.Create('SASC', 'cache', FCacheGlobalPath);
+  FESCPath := TPathConfig.Create('ESC', 'cache_ES', FCacheGlobalPath);
+  FGMTilesPath := TPathConfig.Create('GMTiles', 'cache_gmt', FCacheGlobalPath);
+  FGECachePath := TPathConfig.Create('GECache', 'cache_GE', FCacheGlobalPath);
+  FGCCachePath := TPathConfig.Create('GCCache', 'cache_GC', FCacheGlobalPath);
+  FBDBCachePath := TPathConfig.Create('BDBCache', 'cache_db', FCacheGlobalPath);
+  FDBMSCachePath := TPathConfig.Create('DBMSCache', 'cache_dbms', FCacheGlobalPath);
 end;
 
 destructor TGlobalCahceConfig.Destroy;
 begin
   FCacheChangeNotifier := nil;
   inherited;
-end;
-
-function TGlobalCahceConfig.GetCacheGlobalPath: string;
-begin
-  Result := FCacheGlobalPath.FullPath;
 end;
 
 procedure TGlobalCahceConfig.LoadConfig(const AConfigProvider: IConfigDataProvider);
@@ -135,14 +122,14 @@ begin
 
   VPathConfig := AConfigProvider.GetSubItem('PATHtoCACHE');
   if VPathConfig <> nil then begin
-    OldCPath := VPathConfig.ReadString('GMVC', OldCPath);
-    NewCPath := VPathConfig.ReadString('SASC', NewCPath);
-    ESCPath := VPathConfig.ReadString('ESC', ESCPath);
-    GMTilesPath := VPathConfig.ReadString('GMTiles', GMTilesPath);
-    GECachePath := VPathConfig.ReadString('GECache', GECachePath);
-    GCCachePath := VPathConfig.ReadString('GCCache', GCCachePath);
-    BDBCachePath := VPathConfig.ReadString('BDBCache', BDBCachePath);
-    DBMSCachePath := VPathConfig.ReadString('DBMSCache', DBMSCachePath);
+    OldCPath.ReadConfig(VPathConfig);
+    NewCPath.ReadConfig(VPathConfig);
+    ESCPath.ReadConfig(VPathConfig);
+    GMTilesPath.ReadConfig(VPathConfig);
+    GECachePath.ReadConfig(VPathConfig);
+    GCCachePath.ReadConfig(VPathConfig);
+    BDBCachePath.ReadConfig(VPathConfig);
+    DBMSCachePath.ReadConfig(VPathConfig);
   end;
 end;
 
@@ -157,22 +144,14 @@ begin
   VPathConfig := AConfigProvider.GetOrCreateSubItem('PATHtoCACHE');
   VViewConfig.WriteInteger('DefCache', FDefCache);
 
-  VPathConfig.WriteString('GMVC', OldCPath);
-  VPathConfig.WriteString('SASC', NewCPath);
-  VPathConfig.WriteString('ESC', ESCPath);
-  VPathConfig.WriteString('GMTiles', GMTilesPath);
-  VPathConfig.WriteString('GECache', GECachePath);
-  VPathConfig.WriteString('GCCache', GCCachePath);
-  VPathConfig.WriteString('BDBCache', BDBCachePath);
-  VPathConfig.WriteString('DBMSCache', DBMSCachePath);
-end;
-
-procedure TGlobalCahceConfig.SetDBMSCachePath(const Value: string);
-begin
-  if FDBMSCachePath <> Value then begin
-    FDBMSCachePath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
+  OldCPath.WriteConfig(VPathConfig);
+  NewCPath.WriteConfig(VPathConfig);
+  ESCPath.WriteConfig(VPathConfig);
+  GMTilesPath.WriteConfig(VPathConfig);
+  GECachePath.WriteConfig(VPathConfig);
+  GCCachePath.WriteConfig(VPathConfig);
+  BDBCachePath.WriteConfig(VPathConfig);
+  DBMSCachePath.WriteConfig(VPathConfig);
 end;
 
 procedure TGlobalCahceConfig.SetDefCache(const Value: byte);
@@ -187,62 +166,6 @@ begin
       FDefCache := Value;
       FCacheChangeNotifierInternal.Notify(nil);
     end;
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetESCPath(const Value: string);
-begin
-  if FESCPath <> Value then begin
-    FESCPath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetGCCachePath(const Value: string);
-begin
-  if FGCCachePath <> Value then begin
-    FGCCachePath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetGECachePath(const Value: string);
-begin
-  if FGECachePath <> Value then begin
-    FGECachePath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetBDBCachePath(const Value: string);
-begin
-  if FBDBCachePath <> Value then begin
-    FBDBCachePath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetGMTilesPath(const Value: string);
-begin
-  if FGMTilesPath <> Value then begin
-    FGMTilesPath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetNewCPath(const Value: string);
-begin
-  if FNewCPath <> Value then begin
-    FNewCPath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
-  end;
-end;
-
-procedure TGlobalCahceConfig.SetOldCPath(const Value: string);
-begin
-  if FOldCPath <> Value then begin
-    FOldCPath := Value;
-    FCacheChangeNotifierInternal.Notify(nil);
   end;
 end;
 

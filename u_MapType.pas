@@ -69,7 +69,7 @@ uses
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
   u_GlobalCahceConfig,
-  
+  i_TileStorage,
   u_TileStorageAbstract;
 
 type
@@ -79,7 +79,7 @@ type
 
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
-    FStorage: TTileStorageAbstract;
+    FStorage: ITileStorage;
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
@@ -214,7 +214,7 @@ type
     property IsHybridLayer: Boolean read GetIsHybridLayer;
 
     property TileDownloadSubsystem: ITileDownloadSubsystem read FTileDownloadSubsystem;
-    property TileStorage: TTileStorageAbstract read FStorage;
+    property TileStorage: ITileStorage read FStorage;
     property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
     property LayerDrawConfig: ILayerDrawConfig read FLayerDrawConfig;
     property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
@@ -271,6 +271,7 @@ uses
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
   u_GeoFun,
+  u_TileStorageOfMapType,
   u_TileStorageGE,
   u_ListenerByEvent,
   u_TileStorageBerkeleyDB,
@@ -300,7 +301,6 @@ constructor TMapType.Create(
 var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
-  VCacheTypeCode: Integer;
 begin
   inherited Create;
   FZmp := AZmp;
@@ -341,33 +341,21 @@ begin
   FVersionConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-
   FContentType := FContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := FZmp.ViewGeoConvert;
 
-  VCacheTypeCode := FStorageConfig.CacheTypeCode;
-  if VCacheTypeCode = c_File_Cache_Id_DEFAULT then begin
-    VCacheTypeCode := AGlobalCacheConfig.DefCache;
-  end;
-
-  if VCacheTypeCode = c_File_Cache_Id_BDB then begin
-    FStorage := TTileStorageBerkeleyDB.Create(AGCList, FStorageConfig, AGlobalCacheConfig, True, FContentTypeManager, FPerfCounterList);
-  end else if VCacheTypeCode = c_File_Cache_Id_GE then begin
-    FStorage := TTileStorageGE.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else if VCacheTypeCode = c_File_Cache_Id_GC then begin
-    FStorage := TTileStorageGC.Create(FStorageConfig, AGlobalCacheConfig, FContentTypeManager);
-  end else begin
-    FStorage :=
-      TTileStorageFileSystem.Create(
-        FStorageConfig,
-        AGlobalCacheConfig,
-        ATileNameGeneratorList,
-        ATileNameParserList,
-        FContentTypeManager,
-        FPerfCounterList
-      );
-  end;
+  FStorage :=
+    TTileStorageOfMapType.Create(
+      AGlobalCacheConfig,
+      FStorageConfig,
+      FVersionConfig,
+      AGCList,
+      AContentTypeManager,
+      ATileNameGeneratorList,
+      ATileNameParserList,
+      FPerfCounterList
+    );
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
     FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
     FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
@@ -391,7 +379,6 @@ begin
       );
     FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
   end;
-  FVersionConfig.VersionFactory := FStorage.MapVersionFactory;
 
   FTileDownloadSubsystem :=
     TTileDownloadSubsystem.Create(
@@ -456,8 +443,7 @@ begin
   FMapAttachmentsFactory := nil;
   FAbilitiesConfig := nil;
   FStorageConfig := nil;
-
-  FreeAndNil(FStorage);
+  FStorage := nil;
   inherited;
 end;
 

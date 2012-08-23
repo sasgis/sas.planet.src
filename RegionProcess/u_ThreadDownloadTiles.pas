@@ -189,6 +189,7 @@ uses
   i_TileInfoBasic,
   i_TileIterator,
   i_TileDownloaderState,
+  i_TileStorage,
   u_DownloadInfoSimple,
   u_TileIteratorByPolygon,
   u_ListenerByEvent,

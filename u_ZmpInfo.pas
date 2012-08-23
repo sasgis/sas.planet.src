@@ -848,7 +848,7 @@ begin
   VCacheTypeCode := AConfig.ReadInteger('CacheType', 0);
   // c_File_Cache_Id_GE and c_File_Cache_Id_GC
   if (VCacheTypeCode = 5) or (VCacheTypeCode = 8) then begin
-    VTileFileExt := '.ge_image';
+    VTileFileExt := '.jpg';
     VIsStoreFileCache := False;
     VIsReadOnly := True;
     VAllowDelete := False;

@@ -53,10 +53,10 @@ uses
   SAS4WinCE,
   i_TileIterator,
   i_TileInfoBasic,
+  i_TileStorage,
   i_BinaryData,
   i_VectorItemProjected,
-  u_TileIteratorByPolygon,
-  u_TileStorageAbstract;
+  u_TileIteratorByPolygon;
 
 { TThreadExportToCE }
 
@@ -102,7 +102,7 @@ var
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VTileStorage: TTileStorageAbstract;
+  VTileStorage: ITileStorage;
   VSAS4WinCE: TSAS4WinCE;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;

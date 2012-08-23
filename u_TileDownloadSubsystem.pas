@@ -32,9 +32,9 @@ uses
   i_MapVersionConfig,
   i_InvisibleBrowser,
   i_ProjConverter,
+  i_TileStorage,
   i_TileDownloadSubsystem,
-  u_NotifierOperation,
-  u_TileStorageAbstract;
+  u_NotifierOperation;
 
 type
   TTileDownloadSubsystem = class(TInterfacedObject, ITileDownloadSubsystem)
@@ -99,7 +99,7 @@ type
       const AZmpData: IConfigDataProvider;
       const AProjFactory: IProjConverterFactory;
       const AStorageConfig: ISimpleTileStorageConfig;
-      AStorage: TTileStorageAbstract
+      const AStorage: ITileStorage
     );
     destructor Destroy; override;
   end;
@@ -150,7 +150,7 @@ constructor TTileDownloadSubsystem.Create(
   const AZmpData: IConfigDataProvider;
   const AProjFactory: IProjConverterFactory;
   const AStorageConfig: ISimpleTileStorageConfig;
-  AStorage: TTileStorageAbstract
+  const AStorage: ITileStorage
 );
 var
   VDownloaderList: ITileDownloaderList;

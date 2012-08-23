@@ -86,8 +86,8 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
+  i_TileStorage,
   u_TileFileNameBDB,
-  u_TileStorageAbstract,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToBDB.Create(

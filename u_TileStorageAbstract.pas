@@ -33,56 +33,40 @@ uses
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_MapVersionConfig,
+  i_PathConfig,
   i_StorageTypeAbilities,
   i_StorageState,
   i_StorageStateInternal,
   i_TileInfoBasic,
+  i_TileStorage,
   i_NotifierTileRectUpdate,
   u_MapTypeCacheConfig;
 
 type
-  TGetTileInfoMode = (gtimWithData = 1, gtimWithoutData = -1, gtimAsIs = 0);
-
-  TTileStorageAbstract = class
+  TTileStorageAbstract = class(TInterfacedObject, ITileStorage)
   private
-    FConfig: ISimpleTileStorageConfig;
+    FGeoConverter: ICoordConverter;
     FMapVersionFactory: IMapVersionFactory;
     FMinValidZoom: Byte;
     FMaxValidZoom: Byte;
     FNotifierByZoom: array of INotifierTileRectUpdate;
-    FConfigListener: IListener;
+    FStoragePath: string;
     FStorageState: IStorageStateChangeble;
-    FStorageStateListener: IListener;
-    FStorageStateStatic: IStorageStateStatic;
-    FStorageStateStaticCS: IReadWriteSync;
     FStorageStateInternal: IStorageStateInternal;
     FNotifierByZoomInternal: array of INotifierTileRectUpdateInternal;
-    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
-    function GetNotifierByZoomInternal(
-      AZoom: Byte): INotifierTileRectUpdateInternal;
-    procedure OnStateChange;
-    procedure OnConfigChange;
-    function GetStorageStateStatic: IStorageStateStatic;
-    property NotifierByZoomInternal[AZoom: Byte]: INotifierTileRectUpdateInternal read GetNotifierByZoomInternal;
   protected
     procedure NotifyTileUpdate(
       const ATile: TPoint;
       const AZoom: Byte;
       const AVersion: IMapVersionInfo
     );
-    property StorageStateStatic: IStorageStateStatic read GetStorageStateStatic;
     property StorageStateInternal: IStorageStateInternal read FStorageStateInternal;
-    property Config: ISimpleTileStorageConfig read FConfig;
-  public
-    constructor Create(
-      const AStorageTypeAbilities: IStorageTypeAbilities;
-      const AMapVersionFactory: IMapVersionFactory;
-      const AConfig: ISimpleTileStorageConfig
-    );
-    destructor Destroy; override;
-    function GetAllowDifferentContentTypes: Boolean; virtual; abstract;
-
-    function GetCacheConfig: TMapTypeCacheConfigAbstract; virtual; abstract;
+    property StoragePath: string read FStoragePath;
+    property GeoConverter: ICoordConverter read FGeoConverter;
+    property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
+  protected
+    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
+    function GetState: IStorageStateChangeble;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -100,7 +84,6 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): ITileRectInfo; virtual; abstract;
-
     function DeleteTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -132,10 +115,14 @@ type
     function ScanTiles(
       const AIgnoreTNE: Boolean
     ): IEnumTileInfo; virtual;
-
-    property State: IStorageStateChangeble read FStorageState;
-    property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
-    property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
+  public
+    constructor Create(
+      const AStorageTypeAbilities: IStorageTypeAbilities;
+      const AMapVersionFactory: IMapVersionFactory;
+      const AGeoConverter: ICoordConverter;
+      const AStoragePath: string
+    );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -146,6 +133,7 @@ uses
   u_ListenerByEvent,
   i_TileKey,
   u_TileKey,
+  u_PathConfig,
   u_NotifierTileRectUpdate,
   u_StorageStateInternal;
 
@@ -154,7 +142,8 @@ uses
 constructor TTileStorageAbstract.Create(
   const AStorageTypeAbilities: IStorageTypeAbilities;
   const AMapVersionFactory: IMapVersionFactory;
-  const AConfig: ISimpleTileStorageConfig
+  const AGeoConverter: ICoordConverter;
+  const AStoragePath: string
 );
 var
   VCount: Integer;
@@ -163,30 +152,22 @@ var
   VState: TStorageStateInternal;
 begin
   inherited Create;
-  FConfig := AConfig;
   FMapVersionFactory := AMapVersionFactory;
-  FStorageStateStaticCS := MakeSyncRW_Var(Self);
+  FStoragePath := AStoragePath;
+  FGeoConverter := AGeoConverter;
 
   VState := TStorageStateInternal.Create(AStorageTypeAbilities);
   FStorageStateInternal := VState;
   FStorageState := VState;
 
-  FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
-  FConfig.ChangeNotifier.Add(FConfigListener);
-  OnConfigChange;
-
-  FStorageStateListener := TNotifyNoMmgEventListener.Create(Self.OnStateChange);
-  FStorageState.ChangeNotifier.Add(FStorageStateListener);
-  OnStateChange;
-
-  FMinValidZoom := FConfig.CoordConverter.MinZoom;
-  FMaxValidZoom := FConfig.CoordConverter.MaxZoom;
+  FMinValidZoom := AGeoConverter.MinZoom;
+  FMaxValidZoom := AGeoConverter.MaxZoom;
   Assert(FMinValidZoom <= FMaxValidZoom);
   VCount := FMaxValidZoom - FMinValidZoom + 1;
   SetLength(FNotifierByZoom, VCount);
   SetLength(FNotifierByZoomInternal, VCount);
   for i := 0 to VCount - 1 do begin
-    VNotifier := TNotifierTileRectUpdate.Create(FMinValidZoom + i, FConfig.CoordConverter);
+    VNotifier := TNotifierTileRectUpdate.Create(FMinValidZoom + i, AGeoConverter);
     FNotifierByZoom[i] := VNotifier;
     FNotifierByZoomInternal[i] := VNotifier;
   end;
@@ -196,19 +177,12 @@ destructor TTileStorageAbstract.Destroy;
 var
   i: Integer;
 begin
-  FStorageState.ChangeNotifier.Remove(FStorageStateListener);
-  FStorageStateListener := nil;
-
-  FConfig.ChangeNotifier.Remove(FConfigListener);
-  FConfigListener := nil;
-
   for i := 0 to Length(FNotifierByZoom) - 1 do begin
     FNotifierByZoom[i] := nil;
   end;
   for i := 0 to Length(FNotifierByZoomInternal) - 1 do begin
     FNotifierByZoomInternal[i] := nil;
   end;
-  FStorageStateStaticCS := nil;
   inherited;
 end;
 
@@ -231,20 +205,9 @@ begin
   end;
 end;
 
-function TTileStorageAbstract.GetNotifierByZoomInternal(
-  AZoom: Byte): INotifierTileRectUpdateInternal;
+function TTileStorageAbstract.GetState: IStorageStateChangeble;
 begin
-  Result := FNotifierByZoomInternal[AZoom - FMinValidZoom];
-end;
-
-function TTileStorageAbstract.GetStorageStateStatic: IStorageStateStatic;
-begin
-  FStorageStateStaticCS.BeginRead;
-  try
-    Result := FStorageStateStatic;
-  finally
-    FStorageStateStaticCS.EndRead;
-  end;
+  Result := FStorageState;
 end;
 
 procedure TTileStorageAbstract.NotifyTileUpdate(
@@ -256,52 +219,10 @@ var
   VKey: ITileKey;
   VNotifier: INotifierTileRectUpdateInternal;
 begin
-  VNotifier := NotifierByZoomInternal[AZoom];
+  VNotifier := FNotifierByZoomInternal[AZoom - FMinValidZoom];
   if VNotifier <> nil then begin
     VKey := TTileKey.Create(ATile, AZoom, AVersion);
     VNotifier.TileUpdateNotify(VKey);
-  end;
-end;
-
-procedure TTileStorageAbstract.OnConfigChange;
-var
-  VConfig: ISimpleTileStorageConfigStatic;
-begin
-  VConfig := FConfig.GetStatic;
-  FStorageStateInternal.LockWrite;
-  try
-    if VConfig.IsReadOnly then begin
-      FStorageStateInternal.WriteAccess := asDisabled;
-    end else begin
-      FStorageStateInternal.WriteAccess := asUnknown;
-      if VConfig.AllowAdd then begin
-        FStorageStateInternal.AddAccess := asUnknown;
-      end else begin
-        FStorageStateInternal.AddAccess := asDisabled;
-      end;
-      if VConfig.AllowDelete then begin
-        FStorageStateInternal.DeleteAccess := asUnknown;
-      end else begin
-        FStorageStateInternal.DeleteAccess := asDisabled;
-      end;
-      if VConfig.AllowReplace then begin
-        FStorageStateInternal.ReplaceAccess := asUnknown;
-      end else begin
-        FStorageStateInternal.ReplaceAccess := asDisabled;
-      end;
-    end;
-  finally
-    FStorageStateInternal.UnlockWrite;
-  end;
-end;
-
-procedure TTileStorageAbstract.OnStateChange;
-begin
-  FStorageStateStaticCS.BeginWrite;
-  try
-    FStorageStateStatic := FStorageState.GetStatic;
-  finally
-    FStorageStateStaticCS.EndWrite;
   end;
 end;
 

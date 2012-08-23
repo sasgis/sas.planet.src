@@ -66,7 +66,7 @@ begin
   GCS.Acquire;
   try
     if not Assigned(GDebugLogFileStream) then begin
-      VLogFileName := GState.CacheConfig.BDBCachepath + '\sdb.log';
+      VLogFileName := GState.CacheConfig.BDBCachepath.FullPath + '\sdb.log';
       if not FileExists(VLogFileName) then begin
         GDebugLogFileStream := TFileStream.Create(VLogFileName, fmCreate);
         GDebugLogFileStream.Free;

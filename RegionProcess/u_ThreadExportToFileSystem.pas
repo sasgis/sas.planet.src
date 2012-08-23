@@ -63,7 +63,7 @@ uses
   i_MapVersionInfo,
   i_BinaryData,
   i_TileIterator,
-  u_TileStorageAbstract,
+  i_TileStorage,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToFileSystem.Create(

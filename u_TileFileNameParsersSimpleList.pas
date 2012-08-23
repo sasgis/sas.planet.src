@@ -37,12 +37,11 @@ type
     ITileFileNameParsersList
   )
   private
-    FGlobalCacheConfig: TGlobalCahceConfig;
     FItems: array of ITileFileNameParser;
   private
     function GetParser(const ACacheType: Byte): ITileFileNameParser;
   public
-    constructor Create(const AGlobalCacheConfig: TGlobalCahceConfig);
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -59,12 +58,9 @@ uses
 
 { TTileFileNameParsersSimpleList }
 
-constructor TTileFileNameParsersSimpleList.Create(
-  const AGlobalCacheConfig: TGlobalCahceConfig
-);
+constructor TTileFileNameParsersSimpleList.Create;
 begin
   inherited Create;
-  FGlobalCacheConfig := AGlobalCacheConfig;
   SetLength(FItems, 6);
   FItems[0] := TTileFileNameGMV.Create;
   FItems[1] := TTileFileNameSAS.Create;
@@ -88,15 +84,9 @@ end;
 function TTileFileNameParsersSimpleList.GetParser(
   const ACacheType: Byte
 ): ITileFileNameParser;
-var
-  VCacheType: Byte;
 begin
-  if ACacheType = 0 then begin
-    VCacheType := FGlobalCacheConfig.DefCache;
-  end else begin
-    VCacheType := ACacheType;
-  end;
-  case VCacheType of
+  Assert(ACacheType <> c_File_Cache_Id_DEFAULT);
+  case ACacheType of
     c_File_Cache_Id_GMV:
     begin
       Result := FItems[0];
@@ -122,7 +112,8 @@ begin
       Result := FItems[5];
     end;
   else begin
-    Result := FItems[3]; // as for GM
+    Assert(False);
+    Result := nil;
   end;
   end;
 end;

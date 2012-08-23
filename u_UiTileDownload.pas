@@ -94,6 +94,7 @@ uses
   i_DownloadResult,
   i_CoordConverter,
   i_TileInfoBasic,
+  i_TileStorage,
   u_ListenerNotifierLinksList,
   u_ListenerByEvent,
   u_ListenerTTLCheck,
@@ -101,7 +102,6 @@ uses
   u_BackgroundTask,
   u_MapType,
   u_GeoFun,
-  u_TileStorageAbstract,
   u_TileErrorInfo;
 
 { TUiTileDownload }
