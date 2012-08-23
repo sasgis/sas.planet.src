@@ -40,6 +40,7 @@ type
     procedure DrawFromMarkIcons(
       canvas: TCanvas;
       const APic: IMarkPicture;
+      const ASize: Integer;
       const bound: TRect
     );
   public
@@ -134,22 +135,28 @@ begin
   FOnSelect := AOnSelect;
 end;
 
-procedure TfrPictureSelectFromList.DrawFromMarkIcons(canvas: TCanvas;
-  const APic: IMarkPicture; const bound: TRect);
+procedure TfrPictureSelectFromList.DrawFromMarkIcons(
+  canvas: TCanvas;
+  const APic: IMarkPicture;
+  const ASize: Integer;
+  const bound: TRect
+);
 var
   VBitmap: TBitmap32;
-  wdth:integer;
   VResampler: TCustomResampler;
   VMarker: IBitmapMarker;
+  VSourceRect: TRect;
+  VSourceSize: TPoint;
 begin
   canvas.FillRect(bound);
   if APic <> nil then begin
     VMarker := APic.GetMarker;
     if VMarker <> nil then begin
-      wdth:=min(bound.Right-bound.Left,bound.Bottom-bound.Top);
       VBitmap:=TBitmap32.Create;
       try
-        VBitmap.SetSize(wdth,wdth);
+        VBitmap.SetSize(bound.Right-bound.Left, bound.Bottom-bound.Top);
+        VSourceSize := VMarker.BitmapSize;
+        VSourceRect := Rect(0, 0, Trunc((VBitmap.Width / ASize) * VSourceSize.X), Trunc((VBitmap.Height / ASize) * VSourceSize.Y));
         VBitmap.Clear(clWhite32);
         VResampler := TKernelResampler.Create;
         try
@@ -159,7 +166,7 @@ begin
             VBitmap.BoundsRect,
             VBitmap.ClipRect,
             VMarker.Bitmap,
-            VMarker.Bitmap.BoundsRect,
+            VSourceRect,
             VResampler,
             dmBlend,
             cmBlend
@@ -184,7 +191,7 @@ begin
   i:=(Arow*drwgrdIcons.ColCount)+ACol;
   VPictureList := FPictureList;
   if i < VPictureList.Count then
-    DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.CellRect(ACol,ARow));
+    DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.DefaultColWidth, Rect);
 end;
 
 procedure TfrPictureSelectFromList.drwgrdIconsKeyDown(Sender: TObject; var Key:
