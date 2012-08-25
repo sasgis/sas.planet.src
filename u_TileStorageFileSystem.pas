@@ -415,14 +415,14 @@ begin
             VPrevFolderExist := VFolderExists;
           end;
           if VFolderExists then begin
-              UpdateTileInfoByFile(False, False, VFileName, VTileInfo);
+              UpdateTileInfoByFile(False, False, VFileName + FFileExt, VTileInfo);
               if VTileInfo.FInfoType = titExists then begin
               // tile exists
               VItems[VIndex].FInfoType := titExists;
                 VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
                 VItems[VIndex].FSize := VTileInfo.FSize;
               end else begin
-                UpdateTileInfoByFile(True, False, ChangeFileExt(VFileName, CTneFileExt), VTileInfo);
+                UpdateTileInfoByFile(True, False, VFileName + CTneFileExt, VTileInfo);
                 if VTileInfo.FInfoType = titTneExists then begin
                   // tne exists
                   VItems[VIndex].FInfoType := titTneExists;
