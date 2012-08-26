@@ -609,7 +609,7 @@ begin
     VSourceTileRect :=
       RectFromDoubleRect(
         VSourceConverter.RelativeRect2TileRectFloat(VSourceRelativeRect, ASourceZoom),
-        rrToTopLeft
+        rrOutside
       );
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
