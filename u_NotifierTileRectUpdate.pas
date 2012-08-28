@@ -7,6 +7,7 @@ uses
   SysUtils,
   i_Listener,
   i_TileKey,
+  i_TileRect,
   i_CoordConverter,
   i_NotifierTileRectUpdate;
 
@@ -25,16 +26,18 @@ type
     FList: array of TListenerRecord;
     function CalcGrowSize(AOldSize: Integer): Integer;
   private
-    function GetGeoCoder: ICoordConverter; stdcall;
-    function GetZoom: Byte; stdcall;
+    function GetGeoCoder: ICoordConverter;
+    function GetZoom: Byte;
 
     procedure Add(
       const AListener: IListener;
       const ATileRect: TRect
-    ); stdcall;
-    procedure Remove(const AListener: IListener); stdcall;
+    );
+    procedure Remove(const AListener: IListener);
 
-    procedure TileUpdateNotify(const ATileKey: ITileKey); stdcall;
+  private
+    procedure TileUpdateNotify(const ATileKey: ITileKey);
+    procedure TileRectUpdateNotify(const ATileRect: ITileRect);
   public
     constructor Create(
       AZoom: Byte;
@@ -153,6 +156,41 @@ begin
     end;
   finally
     FSynchronizer.EndWrite;
+  end;
+end;
+
+procedure TNotifierTileRectUpdate.TileRectUpdateNotify(
+  const ATileRect: ITileRect
+);
+var
+  i: Integer;
+  VList: TList;
+  VListener: IListener;
+begin
+  VList := TList.Create;
+  try
+    VList.Capacity := 8;
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FCount - 1 do begin
+        if (ATileRect = nil) or ATileRect.IsIntersecWithRect(FList[i].Rect) then begin
+          FList[i].Listener._AddRef;
+          VList.Add(Pointer(FList[i].Listener));
+        end;
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      for i := 0 to VList.Count - 1 do begin
+        VListener := IListener(VList[i]);
+        VListener.Notification(ATileRect);
+        VListener._Release;
+        VListener := nil;
+      end;
+    end;
+  finally
+    VList.Free;
   end;
 end;
 

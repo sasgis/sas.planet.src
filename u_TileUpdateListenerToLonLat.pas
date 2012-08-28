@@ -31,6 +31,7 @@ uses
   Types,
   SysUtils,
   i_TileKey,
+  i_TileRect,
   i_LonLatRect,
   u_LonLatRect,
   u_SimpleFlagWithInterlock;
@@ -57,9 +58,11 @@ end;
 procedure TTileUpdateListenerToLonLat.Notification(const AMsg: IInterface);
 var
   VTileKey: ITileKey;
+  VTileRect: ITileRect;
   VLonLatRect: ILonLatRect;
   VTile: TPoint;
   VZoom: Byte;
+  VRect: TRect;
 begin
   if not FDisconnectFlag.CheckFlag then begin
     if Supports(AMsg, ITileKey, VTileKey) then begin
@@ -67,6 +70,12 @@ begin
       VZoom := VTileKey.Zoom;
       FCoordConverter.CheckTilePosStrict(VTile, VZoom, True);
       VLonLatRect := TLonLatRect.Create(FCoordConverter.TilePos2LonLatRect(VTile, VZoom));
+      FEvent(VLonLatRect);
+    end else if Supports(AMsg, ITileRect, VTileRect) then begin
+      VZoom := VTileRect.Zoom;
+      VRect := VTileRect.Rect;
+      FCoordConverter.CheckTileRect(VRect, VZoom);
+      VLonLatRect := TLonLatRect.Create(FCoordConverter.TileRect2LonLatRect(VRect, VZoom));
       FEvent(VLonLatRect);
     end else begin
       FEvent(nil);
