@@ -93,7 +93,6 @@ type
     ): IEnumTileInfo;
   end;
 
-
 implementation
 
 end.
