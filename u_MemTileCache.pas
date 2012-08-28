@@ -64,6 +64,10 @@ type
       const AZoom: byte
     ): string;
     procedure OnTTLTrim(Sender: TObject);
+    procedure DeleteTileRectFromCache(
+      const ARect: TRect;
+      const AZoom: Byte
+    );
   protected
     procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
@@ -125,6 +129,7 @@ implementation
 
 uses
   i_TileKey,
+  i_TileRect,
   i_NotifierTileRectUpdate,
   u_ListenerTTLCheck,
   u_Synchronizer,
@@ -282,6 +287,42 @@ begin
   end;
 end;
 
+procedure TMemTileCacheBase.DeleteTileRectFromCache(const ARect: TRect;
+  const AZoom: Byte);
+var
+  VSize: TPoint;
+  VTile: TPoint;
+  i, j: Integer;
+  VKey: string;
+  VIndex: Integer;
+begin
+  VSize.X := ARect.Right - ARect.Left;
+  VSize.Y := ARect.Bottom - ARect.Top;
+  if (VSize.X > 0) and (VSize.Y > 0) then begin
+    if (VSize.X > 2) or (VSize.Y > 2) then begin
+      Clear;
+    end else begin
+      FSync.BeginWrite;
+      try
+        for j := ARect.Left to ARect.Right - 1 do begin
+          VTile.X := j;
+          for i := ARect.Top to ARect.Bottom - 1 do begin
+            VTile.Y := i;
+            VKey := GetMemCacheKey(VTile, AZoom);
+            VIndex := FCacheList.IndexOf(VKey);
+            if VIndex >= 0 then begin
+              ItemFree(VIndex);
+              FCacheList.Delete(VIndex);
+            end;
+          end;
+        end;
+      finally
+        FSync.EndWrite;
+      end;
+    end;
+  end;
+end;
+
 function TMemTileCacheBase.GetMemCacheKey(
   const AXY: TPoint;
   const AZoom: byte
@@ -325,9 +366,14 @@ end;
 procedure TMemTileCacheBase.OnTileStorageChange(const AMsg: IInterface);
 var
   VTileKey: ITileKey;
+  VTileRect: ITileRect;
 begin
   if Supports(AMsg, ITileKey, VTileKey) then begin
     DeleteTileFromCache(VTileKey.Tile, VTileKey.Zoom);
+  end else if Supports(AMsg, ITileRect, VTileRect) then begin
+    DeleteTileRectFromCache(VTileRect.Rect, VTileRect.Zoom);
+  end else begin
+    Clear;
   end;
 end;
 
