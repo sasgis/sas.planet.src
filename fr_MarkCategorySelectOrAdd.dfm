@@ -1,7 +1,7 @@
 object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
   Left = 0
   Top = 0
-  Width = 320
+  Width = 451
   Height = 27
   Align = alTop
   AutoSize = True
@@ -11,7 +11,7 @@ object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
     Left = 3
     Top = 3
     Width = 49
-    Height = 24
+    Height = 21
     Align = alLeft
     Caption = 'Category:'
     Layout = tlCenter
@@ -21,9 +21,10 @@ object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
     AlignWithMargins = True
     Left = 58
     Top = 3
-    Width = 259
+    Width = 390
     Height = 21
     Align = alClient
+    DropDownCount = 20
     ItemHeight = 13
     TabOrder = 0
     Text = 'New Category'
