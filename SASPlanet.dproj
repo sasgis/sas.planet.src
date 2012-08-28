@@ -412,6 +412,7 @@
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
     <DCCReference Include="i_TileProvider.pas" />
+    <DCCReference Include="i_TileRect.pas" />
     <DCCReference Include="i_TileRequest.pas" />
     <DCCReference Include="i_TileRequestQueue.pas" />
     <DCCReference Include="i_TileRequestResult.pas" />

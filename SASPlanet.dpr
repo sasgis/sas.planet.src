@@ -111,6 +111,7 @@ uses
   i_ListenerTTLCheck in 'i_ListenerTTLCheck.pas',
   i_TileKey in 'i_TileKey.pas',
   u_TileKey in 'u_TileKey.pas',
+  i_TileRect in 'i_TileRect.pas',
   i_IdCacheSimple in 'i_IdCacheSimple.pas',
   u_IdCacheSimpleThreadSafe in 'u_IdCacheSimpleThreadSafe.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
