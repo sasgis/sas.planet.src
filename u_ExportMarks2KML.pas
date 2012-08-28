@@ -93,6 +93,30 @@ uses
   u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
+function XMLTextPrepare(Src: AnsiString): AnsiString;
+var i, l: integer;
+    Buf, P: PAnsiChar;
+    ch: Integer;
+begin
+  Result := '';
+  L := Length(src);
+  if L = 0 then exit;
+  GetMem(Buf, L);
+  try
+    P := Buf;
+    for i := 1 to L do begin
+      ch := Ord(src[i]);
+      if (ch >= 32) or (ch = $09) or (ch = $0A) or (ch = $0D) then begin
+        P^:= AnsiChar(ch);
+        Inc(P);
+      end;
+    end;
+    SetString(Result, Buf, P - Buf);
+  finally
+    FreeMem(Buf);
+  end;
+end;
+
 constructor TExportMarks2KML.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
@@ -319,8 +343,8 @@ var
   VLonLat: TDoublePoint;
 begin
   currNode := inNode.AddChild('Placemark');
-  currNode.ChildValues['name'] := Mark.Name;
-  currNode.ChildValues['description'] := Mark.Desc;
+  currNode.ChildValues['name'] := XMLTextPrepare(Mark.Name);
+  currNode.ChildValues['description'] := XMLTextPrepare(Mark.Desc);
   if Supports(Mark, IMarkPoint, VMarkPoint) then begin
     with currNode.AddChild('Style') do begin
       with AddChild('LabelStyle') do begin
