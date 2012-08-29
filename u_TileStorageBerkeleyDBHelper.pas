@@ -162,7 +162,7 @@ begin
     FPool.OnObjCreate := Self.OnBDBObjCreate;
   end else begin
     BDBRaiseException(
-      'Error [BerkeleyDB]: Can''t allocate environment: ' + APath
+      'Error [BerkeleyDB]: Can''t allocate environment: ' + AnsiString(APath)
     );
   end;
 end;
@@ -211,7 +211,7 @@ begin
     end else begin
       Result := nil;
       BDBRaiseException(
-        'Error [BerkeleyDB]: Can''t open file: ' + AFileName
+        'Error [BerkeleyDB]: Can''t open file: ' + AnsiString(AFileName)
       );
     end;
   except

@@ -25,7 +25,7 @@ interface
 uses
   libdb51;
 
-procedure BDBRaiseException(const EMsg: string);
+procedure BDBRaiseException(const EMsg: AnsiString);
 procedure BDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 
 implementation
@@ -58,9 +58,10 @@ begin
   end;
 end;
 
-procedure WriteErrorToLog(const AMsg: string);
+procedure WriteErrorToLog(const AMsg: AnsiString);
 var
-  VLogMsg: string;
+  VDateTimeStr: string;
+  VLogMsg: AnsiString;
   VLogFileName: string;
 begin
   GCS.Acquire;
@@ -74,8 +75,8 @@ begin
       GDebugLogFileStream := TFileStream.Create(VLogFileName, fmOpenReadWrite or fmShareDenyNone);
     end;
 
-    DateTimeToString(VLogMsg, 'dd-mm-yyyy  hh:nn:ss.zzzz', Now);
-    VLogMsg := VLogMsg + '  ' + AMsg + #13#10;
+    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy  hh:nn:ss.zzzz', Now);
+    VLogMsg := AnsiString(VDateTimeStr) + '  ' + AMsg + #13#10;
 
     GDebugLogFileStream.Position := GDebugLogFileStream.Size;
     GDebugLogFileStream.Write(VLogMsg[1], Length(VLogMsg));
@@ -86,27 +87,27 @@ end;
 
 procedure BDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
-  VMsg: string;
+  VMsg: AnsiString;
   VEnvHome: PAnsiChar;
 begin
-  VMsg := errpfx + ': ' + msg;
+  VMsg := errpfx + AnsiString(': ') + msg;
   if cLogEnabled then
   try
     dbenv.get_home(dbenv, @VEnvHome);
     WriteErrorToLog(VMsg + ' (' + VEnvHome + ')');
   except
   end;
-  raise EBerkeleyDBExeption.Create(VMsg);
+  raise EBerkeleyDBExeption.Create(String(VMsg));
 end;
 
-procedure BDBRaiseException(const EMsg: string);
+procedure BDBRaiseException(const EMsg: AnsiString);
 begin
   if cLogEnabled then
   try
     WriteErrorToLog(EMsg);
   except
   end;
-  raise EBerkeleyDBExeption.Create(EMsg);
+  raise EBerkeleyDBExeption.Create(String(EMsg));
 end;
 
 initialization

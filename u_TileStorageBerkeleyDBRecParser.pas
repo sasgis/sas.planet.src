@@ -261,7 +261,7 @@ begin
       end;
     end else begin
       BDBRaiseException(
-        'Error [BerkeleyDB]: Bad magic value (' +
+        AnsiString('Error [BerkeleyDB]: Bad magic value (') +
         AData.RecMagic[0] +
         AData.RecMagic[1] +
         AData.RecMagic[2] +
