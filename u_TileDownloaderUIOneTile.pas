@@ -143,7 +143,7 @@ var
   VOperationID: Integer;
   VRequest: ITileRequest;
 begin
-  SetCurrentThreadName(Self.ClassName);
+  SetCurrentThreadName(AnsiString(Self.ClassName));
   Randomize;
   if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
     VOperationID := FCancelNotifier.CurrentOperation;
