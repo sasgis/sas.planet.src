@@ -16,20 +16,16 @@ uses
   i_ProjectionInfo,
   i_DoublePointsAggregator,
   i_ValueToStringConverter,
-  i_CalcLineLayerConfig,
+  i_PointCaptionsLayerConfig,
   u_MapLayerBasic;
 
 type
   TCalcLineLayer = class(TMapLayerBasicNoBitmap)
   private
-    FConfig: ICalcLineLayerCaptionsConfig;
+    FConfig: IPointCaptionsLayerConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLineOnMapEdit: IPathOnMapEdit;
 
-    FLenShow: Boolean;
-    FTextColor: TColor32;
-    FTextBGColor: TColor32;
-    FValueConverter: IValueToStringConverter;
     FTempBitmap: TBitmap32;
     FTempLastPointBitmap: TBitmap32;
 
@@ -60,7 +56,6 @@ type
       out ADistStrings: TStringList;
       out ATextSizeArray: TArrayOfPoint
     );
-    procedure DoConfigChange;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -75,7 +70,7 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ALineOnMapEdit: IPathOnMapEdit;
-      const AConfig: ICalcLineLayerCaptionsConfig;
+      const AConfig: IPointCaptionsLayerConfig;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
     destructor Destroy; override;
@@ -102,7 +97,7 @@ constructor TCalcLineLayer.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ALineOnMapEdit: IPathOnMapEdit;
-  const AConfig: ICalcLineLayerCaptionsConfig;
+  const AConfig: IPointCaptionsLayerConfig;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
@@ -176,15 +171,15 @@ begin
 end;
 
 procedure TCalcLineLayer.OnConfigChange;
+var
+  VConfig: IPointCaptionsLayerConfigStatic;
 begin
   ViewUpdateLock;
   try
-    FConfig.LockRead;
-    try
-      DoConfigChange;
-    finally
-      FConfig.UnlockRead;
-    end;
+    VConfig := FConfig.GetStatic;
+    FTempBitmap.Font.Size := VConfig.FontSize;
+    FTempLastPointBitmap.Font.Size := VConfig.LastPointFontSize;
+    Visible := VConfig.Visible and (FLine <> nil) and (FLine.Count > 0);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -198,7 +193,7 @@ begin
     FLine := FLineOnMapEdit.Path;
     if FLine.Count > 0 then begin
       SetNeedRedraw;
-      Show;
+      Visible := FConfig.Visible;
     end else begin
       Hide;
     end;
@@ -208,20 +203,12 @@ begin
   end;
 end;
 
-procedure TCalcLineLayer.DoConfigChange;
-begin
-  inherited;
-  FLenShow := FConfig.LenShow;
-  FTextColor := FConfig.TextColor;
-  FTextBGColor := FConfig.TextBGColor;
-  FValueConverter := FValueToStringConverterConfig.GetStatic;
-end;
-
 procedure TCalcLineLayer.PaintLayer(
   ABuffer: TBitmap32;
   const ALocalConverter: ILocalCoordConverter
 );
 var
+  VConfig: IPointCaptionsLayerConfigStatic;
   VProjection: IProjectionInfo;
   VPoints: IDoublePointsAggregator;
   VDistStrings: TStringList;
@@ -237,6 +224,7 @@ var
   i: Integer;
 begin
   inherited;
+  VConfig := FConfig.GetStatic;
   VProjection := FProjection;
   VPoints := FProjectedPoints;
   VTextSizeArray := FTextSizeArray;
@@ -271,7 +259,7 @@ begin
     VLocalRect := ALocalConverter.GetLocalRect;
     VBitmapSize.X := VLocalRect.Right - VLocalRect.Left;
     VBitmapSize.Y := VLocalRect.Bottom - VLocalRect.Top;
-    if FLenShow then begin
+    if not VConfig.ShowLastPointOnly then begin
       for i := 0 to VPoints.Count - 2 do begin
         VText := VDistStrings[i];
         VTextSize.cx := VTextSizeArray[i].X;
@@ -284,9 +272,9 @@ begin
           VText,
           VTextSize,
           VPosOnBitmap,
-          7,
-          FTextBGColor,
-          FTextColor
+          VConfig.FontSize,
+          VConfig.TextBGColor,
+          VConfig.TextColor
         );
       end;
     end;
@@ -302,9 +290,9 @@ begin
       VText,
       VTextSize,
       VPosOnBitmap,
-      9,
-      FTextBGColor,
-      FTextColor
+      VConfig.LastPointFontSize,
+      VConfig.TextBGColor,
+      VConfig.TextColor
     );
   end;
 end;
@@ -336,6 +324,7 @@ var
   VSkipPoint: Boolean;
   VText: string;
   VTextSize: TSize;
+  VValueConverter: IValueToStringConverter;
 begin
   AProjectedPoints := nil;
   ADistStrings := nil;
@@ -343,6 +332,7 @@ begin
   VLine := FLine;
   if VLine <> nil then begin
     VTotalDist := 0;
+    VValueConverter := FValueToStringConverterConfig.GetStatic;
     VConverter := AProjection.GeoConverter;
     VZoom := AProjection.Zoom;
     VDatum := VConverter.Datum;
@@ -374,7 +364,7 @@ begin
             );
           if not VSkipPoint then begin
             AProjectedPoints.Add(VCurrProjected);
-            VText := FValueConverter.DistConvert(VTotalDist);
+            VText := VValueConverter.DistConvert(VTotalDist);
             ADistStrings.Add(VText);
             if Length(ATextSizeArray) < AProjectedPoints.Count then begin
               SetLength(ATextSizeArray, AProjectedPoints.Count);
@@ -390,7 +380,7 @@ begin
       end;
       if VSkipPoint then begin
         AProjectedPoints.Add(VCurrProjected);
-        VText := FValueConverter.DistConvert(VTotalDist);
+        VText := VValueConverter.DistConvert(VTotalDist);
         ADistStrings.Add(VText);
         if Length(ATextSizeArray) < AProjectedPoints.Count then begin
           SetLength(ATextSizeArray, AProjectedPoints.Count);
@@ -402,7 +392,7 @@ begin
       end;
     end;
     if AProjectedPoints.Count > 0 then begin
-      VText := SAS_STR_Whole + ': ' + FValueConverter.DistConvert(VTotalDist);
+      VText := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(VTotalDist);
       ADistStrings[AProjectedPoints.Count - 1] := VText;
       VTextSize := FTempLastPointBitmap.TextExtent(VText);
       ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;

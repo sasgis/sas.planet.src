@@ -706,6 +706,7 @@ uses
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
   i_ConfigDataProvider,
+  i_PointCaptionsLayerConfig,
   i_MapVersionInfo,
   i_GPS,
   i_GeoCoder,
@@ -1429,7 +1430,7 @@ begin
         map,
         FConfig.ViewPortState,
         FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig,
+        FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
         GState.ValueToStringConverterConfig
       )
     );
@@ -2505,7 +2506,7 @@ begin
   TBEditPathOk.Visible :=
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
-  TBEditPathLabel.Visible := (VNewState=ao_calc_line);
+  TBEditPathLabel.Visible := (VNewState=ao_calc_line) or (VNewState=ao_edit_line);
   TBEditPathMarsh.Visible := (VNewState=ao_edit_line);
   TBEditMagnetDraw.Visible :=
     (VNewState=ao_edit_line)or
@@ -5157,14 +5158,27 @@ begin
 end;
 
 procedure TfrmMain.TBEditPathLabelClick(Sender: TObject);
+var
+  VConfig: IPointCaptionsLayerConfig;
 begin
-  if FState.State = ao_calc_line then begin
-    FConfig.LayersConfig.CalcLineLayerConfig.LockWrite;
-    try
-      FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.LenShow :=
-        not FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig.LenShow;
-    finally
-      FConfig.LayersConfig.CalcLineLayerConfig.UnlockWrite;
+  case FState.State of
+    ao_edit_line: begin
+      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+      VConfig.LockWrite;
+      try
+        VConfig.Visible := not VConfig.Visible;
+      finally
+        VConfig.UnlockWrite;
+      end;
+    end;
+    ao_calc_line: begin
+      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+      VConfig.LockWrite;
+      try
+        VConfig.ShowLastPointOnly := not VConfig.ShowLastPointOnly;
+      finally
+        VConfig.UnlockWrite;
+      end;
     end;
   end;
 end;

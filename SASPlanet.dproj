@@ -347,6 +347,7 @@
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />
+    <DCCReference Include="i_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="i_PointOnMapEdit.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
@@ -628,7 +629,6 @@
     <DCCReference Include="u_BitmapMarker.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
-    <DCCReference Include="u_CalcLineLayerCaptionsConfig.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
     <DCCReference Include="u_ChangeableBase.pas" />
@@ -923,6 +923,7 @@
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
     <DCCReference Include="u_PLTSimpleParser.pas" />
+    <DCCReference Include="u_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="u_PointOnMapEdit.pas" />
     <DCCReference Include="u_PointsSetLayerConfig.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />

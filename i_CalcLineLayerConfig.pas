@@ -23,26 +23,11 @@ unit i_CalcLineLayerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataElement,
+  i_PointCaptionsLayerConfig,
   i_PolyLineLayerConfig;
 
 type
-  ICalcLineLayerCaptionsConfig = interface(IConfigDataElement)
-    ['{7B3B1D25-519A-43AE-9FFA-B27982DA37D7}']
-    function GetLenShow: Boolean;
-    procedure SetLenShow(const AValue: Boolean);
-    property LenShow: Boolean read GetLenShow write SetLenShow;
-
-    function GetTextColor: TColor32;
-    procedure SetTextColor(const AValue: TColor32);
-    property TextColor: TColor32 read GetTextColor write SetTextColor;
-
-    function GetTextBGColor: TColor32;
-    procedure SetTextBGColor(const AValue: TColor32);
-    property TextBGColor: TColor32 read GetTextBGColor write SetTextBGColor;
-  end;
-
   ICalcLineLayerConfig = interface(IConfigDataElement)
     ['{6D7DFAAC-D654-4CB2-8073-5C33A0DBEE12}']
     function GetLineConfig: ILineLayerConfig;
@@ -51,8 +36,8 @@ type
     function GetPointsConfig: IPointsSetLayerConfig;
     property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
 
-    function GetCaptionConfig: ICalcLineLayerCaptionsConfig;
-    property CaptionConfig: ICalcLineLayerCaptionsConfig read GetCaptionConfig;
+    function GetCaptionConfig: IPointCaptionsLayerConfig;
+    property CaptionConfig: IPointCaptionsLayerConfig read GetCaptionConfig;
   end;
 
 implementation

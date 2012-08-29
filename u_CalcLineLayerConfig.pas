@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   i_PolyLineLayerConfig,
+  i_PointCaptionsLayerConfig,
   i_CalcLineLayerConfig,
   u_ConfigDataElementComplexBase;
 
@@ -33,11 +34,11 @@ type
   private
     FLineConfig: ILineLayerConfig;
     FPointsConfig: IPointsSetLayerConfig;
-    FCaptionConfig: ICalcLineLayerCaptionsConfig;
+    FCaptionConfig: IPointCaptionsLayerConfig;
   private
     function GetLineConfig: ILineLayerConfig;
     function GetPointsConfig: IPointsSetLayerConfig;
-    function GetCaptionConfig: ICalcLineLayerCaptionsConfig;
+    function GetCaptionConfig: IPointCaptionsLayerConfig;
   public
     constructor Create;
   end;
@@ -51,7 +52,7 @@ uses
   u_PointsSetLayerConfig,
   u_PolyLineLayerConfig,
   u_MarkerSimpleConfigStatic,
-  u_CalcLineLayerCaptionsConfig;
+  u_PointCaptionsLayerConfig;
 
 { TCalcLineLayerConfig }
 
@@ -97,11 +98,11 @@ begin
     );
   Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-  FCaptionConfig := TCalcLineLayerCaptionsConfig.Create;
+  FCaptionConfig := TPointCaptionsLayerConfig.Create;
   Add(FCaptionConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
-function TCalcLineLayerConfig.GetCaptionConfig: ICalcLineLayerCaptionsConfig;
+function TCalcLineLayerConfig.GetCaptionConfig: IPointCaptionsLayerConfig;
 begin
   Result := FCaptionConfig;
 end;

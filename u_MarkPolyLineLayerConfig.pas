@@ -25,6 +25,7 @@ interface
 uses
   i_MarkPolyLineLayerConfig,
   i_PolyLineLayerConfig,
+  i_PointCaptionsLayerConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -32,9 +33,11 @@ type
   private
     FLineConfig: ILineLayerConfig;
     FPointsConfig: IPointsSetLayerConfig;
+    FCaptionConfig: IPointCaptionsLayerConfig;
   private
     function GetLineConfig: ILineLayerConfig;
     function GetPointsConfig: IPointsSetLayerConfig;
+    function GetCaptionConfig: IPointCaptionsLayerConfig;
   public
     constructor Create;
   end;
@@ -47,6 +50,7 @@ uses
   u_MarkerSimpleConfigStatic,
   u_PointsSetLayerConfig,
   u_ConfigSaveLoadStrategyBasicUseProvider,
+  u_PointCaptionsLayerConfig,
   u_PolyLineLayerConfig;
 
 { TMarkPolyLineLayerConfig }
@@ -91,6 +95,13 @@ begin
       VNormalPointMarkerDefault
     );
   Add(FPointsConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+  FCaptionConfig := TPointCaptionsLayerConfig.Create;
+  Add(FCaptionConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
+
+function TMarkPolyLineLayerConfig.GetCaptionConfig: IPointCaptionsLayerConfig;
+begin
+  Result := FCaptionConfig;
 end;
 
 function TMarkPolyLineLayerConfig.GetLineConfig: ILineLayerConfig;
