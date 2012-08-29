@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes;
 
-function RoundEx(chislo: Double; Precision: Integer): AnsiString;
+function RoundEx(chislo: Double; Precision: Integer): String;
 function R2StrPoint(r: Double): string;
 function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer):string;
 function str2r(inp:string):Double;

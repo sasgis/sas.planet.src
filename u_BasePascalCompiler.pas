@@ -174,7 +174,7 @@ begin
   if SameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(x:integer): integer');
-    Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): AnsiString');
+    Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): String');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
     Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
 
