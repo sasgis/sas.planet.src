@@ -34,7 +34,7 @@ type
     FCancelListener: IListener;
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
-    FDebugThreadName: string;
+    FDebugThreadName: AnsiString;
     procedure OnCancel;
     procedure SynShowMessage;
     procedure ShowMessageSync(const AMessage: string);
