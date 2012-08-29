@@ -70,6 +70,7 @@ type
 implementation
 
 uses
+  ALfcnString,
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
@@ -146,7 +147,7 @@ var
   VTileIterator: ITileIterator;
   VSaver: IBitmapTileSaver;
   VGeoConvert: ICoordConverter;
-  VStringStream: TStringStream;
+  VStringStream: TALStringStream;
   VWriter: TMultiVolumeJNXWriter;
   VTileBounds: TJNXRect;
   VTopLeft: TDoublePoint;
@@ -192,7 +193,7 @@ begin
     try
       ProgressInfo.SetCaption(SAS_STR_ExportTiles);
       ProgressInfo.SetFirstLine(SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files);
-      VStringStream := TStringStream.Create('');
+      VStringStream := TALStringStream.Create('');
       try
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
