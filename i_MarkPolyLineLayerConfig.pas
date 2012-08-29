@@ -24,6 +24,7 @@ interface
 
 uses
   i_ConfigDataElement,
+  i_PointCaptionsLayerConfig,
   i_PolyLineLayerConfig;
 
 type
@@ -34,6 +35,9 @@ type
 
     function GetPointsConfig: IPointsSetLayerConfig;
     property PointsConfig: IPointsSetLayerConfig read GetPointsConfig;
+
+    function GetCaptionConfig: IPointCaptionsLayerConfig;
+    property CaptionConfig: IPointCaptionsLayerConfig read GetCaptionConfig;
   end;
 
 implementation
