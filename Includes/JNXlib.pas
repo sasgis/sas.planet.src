@@ -1,8 +1,8 @@
 unit JNXLib;
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.6
-  Date:    2012.07.03
+  Version: 1.7
+  Date:    2012.08.29
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -26,8 +26,6 @@ unit JNXLib;
 
   Check the attached sample projects as examples of reading and writing the JNX files.
 
-  The unit was checked in Delphi 5 and 7, and FreePascal 2.2.2.
-
   Newer versions of this unit can be available from
     http://whiter.brinkster.net/en/JNX.shtml
 }
@@ -48,7 +46,7 @@ const
 
   JNX3_ZORDER = 30;
   META_BLOCK_VERSION = 9;
-  JNX_EOF_SIGNATURE = 'BirdsEye';
+  JNX_EOF_SIGNATURE: AnsiString = 'BirdsEye';
   META_BLOCK_MINSIZE = 1024;
 
 type
@@ -100,12 +98,12 @@ type
 
   TJNXMapMeta = record
     Version: integer;
-    GUID: String;
+    GUID: AnsiString;
     ProductName: WideString;
     MapName: WideString;
     LevelMetaCount: integer;
     LevelMetas: array of TJNXLevelMeta;
-    RawTailData: String;
+    RawTailData: AnsiString;
   end;
   PJNXMapMeta = ^TJNXMapMeta;
 
@@ -172,7 +170,7 @@ type
   protected
     FFile: file;
 
-    function GetJPEGStream(l, t: integer): String;
+    function GetJPEGStream(l, t: integer): AnsiString;
 
     procedure OpenFile(const Path: String); override;
     procedure CloseFile; override;
@@ -184,7 +182,7 @@ type
     procedure ReadMeta;
     procedure ReadTilesInfo;
   public
-    property JPEGStreams[l, t: integer]: String read GetJPEGStream;
+    property JPEGStreams[l, t: integer]: AnsiString read GetJPEGStream;
   end;
 
   TBaseJNXWriter = class(TJNXMapFile)
@@ -193,7 +191,7 @@ type
 
     procedure InitHeader;
   public
-    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True); virtual; abstract;
+    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: AnsiString; AdjustMapBounds: boolean = True); virtual; abstract;
     function CanAcceptTile(LevelIndex, TileLength: integer): boolean; virtual;
   end;
 
@@ -222,7 +220,7 @@ type
     procedure WriteMeta;
     procedure WriteTilesInfo;
   public
-    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True); override;
+    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: AnsiString; AdjustMapBounds: boolean = True); override;
     function CanAcceptTile(LevelIndex, TileLength: integer): boolean; override;
   end;
 
@@ -252,7 +250,7 @@ type
   public
     destructor Destroy; override;
 
-    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True); override;
+    procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: AnsiString; AdjustMapBounds: boolean = True); override;
   end;
 
 
@@ -262,7 +260,7 @@ procedure WriteUTFString(var f: File; const s: WideString);
 function JNXCoordToWGS84(c: integer): double;
 function WGS84CoordToJNX(c: double): integer;
 
-function CreateGUID: String;
+function CreateGUID: AnsiString;
 
 function JNXRect(northern_lat, eastern_lon, southern_lat, western_lon: integer): TJNXRect;
 
@@ -276,8 +274,8 @@ uses
 
 function ReadUTFString(var f: File): WideString;
 var
-  UTF: String;
-  c: char;
+  UTF: AnsiString;
+  c: AnsiChar;
 begin
   UTF := '';
   repeat
@@ -291,7 +289,7 @@ end;
 
 procedure WriteUTFString(var f: File; const s: WideString);
 var
-  UTF: String;
+  UTF: AnsiString;
 begin
   UTF := UTF8Encode(s) + #0;
   BlockWrite(f, UTF[1], Length(UTF));
@@ -315,8 +313,8 @@ begin
   SetFilePointer(TFileRec(f).Handle, Pos, @HiDWord, FILE_BEGIN);
 end;
 
-function CreateGUID: String;
-  function MakeRandSeq(Len: integer): String;
+function CreateGUID: AnsiString;
+  function MakeRandSeq(Len: integer): AnsiString;
   var
     i: integer;
   begin
@@ -500,7 +498,7 @@ end;
 
 { TJNXReader }
 
-function TJNXReader.GetJPEGStream(l, t: integer): String;
+function TJNXReader.GetJPEGStream(l, t: integer): AnsiString;
 begin
   Seek64(FFile, TileInfo[l, t].PicOffset);
   SetLength(Result, TileInfo[l, t].PicSize + 2);
@@ -572,7 +570,7 @@ begin
   with FMeta do
   begin
     BlockRead(FFile, Version, SizeOf(Version));
-    GUID := String(ReadUTFString(FFile));
+    GUID := AnsiString(ReadUTFString(FFile));
     ProductName := ReadUTFString(FFile);
     BlockRead(FFile, Dummy1, SizeOf(Dummy1));
     MapName := ReadUTFString(FFile);
@@ -817,7 +815,7 @@ begin
 end;
 
 procedure TSimpleJNXWriter.WriteTile(Level, PicWidth, PicHeight: integer;
-  const Bounds: TJNXRect; const JpegString: String; AdjustMapBounds: boolean = True);
+  const Bounds: TJNXRect; const JpegString: AnsiString; AdjustMapBounds: boolean = True);
 var
   Len: integer;
   TileIndex: integer;
@@ -968,7 +966,7 @@ begin
 end;
 
 procedure TMultiVolumeJNXWriter.WriteTile(Level, PicWidth,
-  PicHeight: integer; const Bounds: TJNXRect; const JpegString: String;
+  PicHeight: integer; const Bounds: TJNXRect; const JpegString: AnsiString;
   AdjustMapBounds: boolean);
 var
   VolumeIndex: integer;
