@@ -162,7 +162,7 @@ end;
 
 procedure TGUIDObjectSet.SetCapacity(NewCapacity: Integer);
 begin
-  if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
+  if (NewCapacity < FCount) or (NewCapacity > MaxObjectWithGUIDListSize) then begin
     Error(@SListCapacityError, NewCapacity);
   end;
   if NewCapacity <> FCapacity then begin
@@ -175,7 +175,7 @@ procedure TGUIDObjectSet.SetCount(NewCount: Integer);
 var
   I: Integer;
 begin
-  if (NewCount < 0) or (NewCount > MaxListSize) then begin
+  if (NewCount < 0) or (NewCount > MaxObjectWithGUIDListSize) then begin
     Error(@SListCountError, NewCount);
   end;
   if NewCount > FCapacity then begin

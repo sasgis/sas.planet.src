@@ -434,14 +434,14 @@ var
   VProxyConfig: IProxyConfig;
   VUseIEProxy: Boolean;
   VUseProxy: Boolean;
-  VHost: string;
+  VHost: AnsiString;
 begin
   VProxyConfig := GState.InetConfig.ProxyConfig;
   VProxyConfig.LockRead;
   try
     VUseIEProxy := VProxyConfig.GetUseIESettings;
     VUseProxy := VProxyConfig.GetUseProxy;
-    VHost := VProxyConfig.GetHost;
+    VHost := AnsiString(VProxyConfig.GetHost);
   finally
     VProxyConfig.UnlockRead;
   end;
@@ -955,7 +955,7 @@ begin
     GState.GPSConfig.ModuleConfig.ConnectionTimeout:=SE_ConnectionTimeout.Value;
     GState.GPSConfig.ModuleConfig.NMEALog:=CB_GPSlogNmea.Checked;
     GState.GPSConfig.ModuleConfig.Delay:=SpinEdit1.Value;
-    GState.GPSConfig.ModuleConfig.Port := GetCOMPortNumber(ComboBoxCOM.Text);
+    GState.GPSConfig.ModuleConfig.Port := GetCOMPortNumber(AnsiString(ComboBoxCOM.Text));
     GState.GPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
     GState.GPSConfig.WriteLog[ttPLT]:=CB_GPSlogPLT.Checked;
     GState.GPSConfig.WriteLog[ttGPX]:=CB_GPSlogGPX.Checked;
