@@ -44,7 +44,7 @@ type
       AZoom: byte;
       const AConverter: ICoordConverter
     );
-  public
+  private
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: WideString; safecall;
     // Более детальное описание привязки
