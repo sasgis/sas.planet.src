@@ -37,7 +37,7 @@ type
     constructor CreateWithOwn(
       const ATileRect: TRect;
       AZoom: Byte;
-      AItems: TArrayOfTileInfoInternal
+      const AItems: TArrayOfTileInfoInternal
     );
     destructor Destroy; override;
   end;
@@ -128,7 +128,7 @@ end;
 constructor TTileRectInfo.CreateWithOwn(
   const ATileRect: TRect;
   AZoom: Byte;
-  AItems: TArrayOfTileInfoInternal
+  const AItems: TArrayOfTileInfoInternal
 );
 begin
   inherited Create;
