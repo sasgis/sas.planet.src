@@ -74,6 +74,7 @@ uses
   Ogf2Writer,
   t_GeoTypes,
   c_CoordConverter,
+  i_MapCalibration,
   i_Bitmap32Static,
   i_TileIterator,
   i_VectorItemProjected,
@@ -128,20 +129,16 @@ procedure TThreadExportToOgf2.SaveOziCalibrationMap(
   const AZoom: Byte
 );
 var
-  VOziCalibrationMap: TMapCalibrationOzi;
+  VOziCalibrationMap: IMapCalibration;
 begin
   VOziCalibrationMap := TMapCalibrationOzi.Create;
-  try
-    VOziCalibrationMap.SaveCalibrationInfo(
-      FTargetFile,
-      ATileRect.TopLeft,
-      ATileRect.BottomRight,
-      AZoom,
-      AGeoConvert
-    );
-  finally
-    VOziCalibrationMap.Free;
-  end;
+  VOziCalibrationMap.SaveCalibrationInfo(
+    FTargetFile,
+    ATileRect.TopLeft,
+    ATileRect.BottomRight,
+    AZoom,
+    AGeoConvert
+  );
 end;
 
 
