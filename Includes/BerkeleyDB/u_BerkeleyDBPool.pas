@@ -214,7 +214,7 @@ begin
           Inc(FUsageCount);
         end else begin
           BDBRaiseException(
-            'Error [BerkeleyDB]: Can''t acquire db: ' + AFileName
+            'Error [BerkeleyDB]: Can''t acquire db: ' + AnsiString(AFileName)
           );
         end;
       except
