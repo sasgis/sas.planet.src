@@ -546,18 +546,18 @@ type
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
-      AFilesIterator: IFileNameIterator;
-      ATileFileNameParser: ITileFileNameParser;
-      AStorageState: IStorageStateChangeble;
-      AMainContentType: IContentTypeInfoBasic
+      const AFilesIterator: IFileNameIterator;
+      const ATileFileNameParser: ITileFileNameParser;
+      const AStorageState: IStorageStateChangeble;
+      const AMainContentType: IContentTypeInfoBasic
     );
   end;
 
 constructor TEnumTileInfoByFileIterator.Create(
-  AFilesIterator: IFileNameIterator;
-  ATileFileNameParser: ITileFileNameParser;
-  AStorageState: IStorageStateChangeble;
-  AMainContentType: IContentTypeInfoBasic);
+  const AFilesIterator: IFileNameIterator;
+  const ATileFileNameParser: ITileFileNameParser;
+  const AStorageState: IStorageStateChangeble;
+  const AMainContentType: IContentTypeInfoBasic);
 begin
   inherited Create;
   FFilesIterator := AFilesIterator;

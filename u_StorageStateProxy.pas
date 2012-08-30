@@ -21,7 +21,7 @@ type
     procedure OnTargetChange;
   private
     function GetTarget: IStorageStateChangeble;
-    procedure SetTarget(AValue: IStorageStateChangeble);
+    procedure SetTarget(const AValue: IStorageStateChangeble);
 
     function GetStatic: IStorageStateStatic;
   public
@@ -111,7 +111,7 @@ begin
   end;
 end;
 
-procedure TStorageStateProxy.SetTarget(AValue: IStorageStateChangeble);
+procedure TStorageStateProxy.SetTarget(const AValue: IStorageStateChangeble);
 begin
   LockWrite;
   try

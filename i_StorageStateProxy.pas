@@ -10,7 +10,7 @@ type
   IStorageStateProxy = interface(IChangeable)
     ['{0C95A8D3-B486-4A9A-A84B-EC209B24BA0C}']
     function GetTarget: IStorageStateChangeble;
-    procedure SetTarget(AValue: IStorageStateChangeble);
+    procedure SetTarget(const AValue: IStorageStateChangeble);
     property Target: IStorageStateChangeble read GetTarget write SetTarget;
 
     function GetStatic: IStorageStateStatic;

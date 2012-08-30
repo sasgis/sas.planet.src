@@ -93,7 +93,7 @@ uses
   u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
-function XMLTextPrepare(Src: AnsiString): AnsiString;
+function XMLTextPrepare(const Src: AnsiString): AnsiString;
 var i, l: integer;
     Buf, P: PAnsiChar;
     ch: Integer;

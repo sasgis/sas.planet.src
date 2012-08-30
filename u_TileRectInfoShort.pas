@@ -37,7 +37,7 @@ type
       AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const AContentType: IContentTypeInfoBasic;
-      AItems: TArrayOfTileInfoShortInternal
+      const AItems: TArrayOfTileInfoShortInternal
     );
     destructor Destroy; override;
   end;
@@ -138,7 +138,7 @@ constructor TTileRectInfoShort.CreateWithOwn(
   AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const AContentType: IContentTypeInfoBasic;
-  AItems: TArrayOfTileInfoShortInternal
+  const AItems: TArrayOfTileInfoShortInternal
 );
 begin
   inherited Create;

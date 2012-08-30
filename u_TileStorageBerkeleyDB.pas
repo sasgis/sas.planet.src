@@ -654,15 +654,15 @@ type
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
-      AFilesIterator: IFileNameIterator;
-      ATileFileNameParser: ITileFileNameParser;
+      const AFilesIterator: IFileNameIterator;
+      const ATileFileNameParser: ITileFileNameParser;
       AStorage: TTileStorageBerkeleyDB
     );
   end;
 
 constructor TEnumTileInfoByBDB.Create(
-  AFilesIterator: IFileNameIterator;
-  ATileFileNameParser: ITileFileNameParser;
+  const AFilesIterator: IFileNameIterator;
+  const ATileFileNameParser: ITileFileNameParser;
   AStorage: TTileStorageBerkeleyDB
 );
 begin
