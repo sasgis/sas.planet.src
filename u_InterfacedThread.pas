@@ -68,7 +68,7 @@ type
   private
     FRef: IInterface;
     FExec: TThreadMethod;
-    FDebugName: string;
+    FDebugName: AnsiString;
   protected
     procedure DoTerminate; override;
     procedure Execute; override;

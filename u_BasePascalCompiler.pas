@@ -45,7 +45,7 @@ type
   TOnBasePascalCompilerUsesProc =
     function(
       ACompiler: TBasePascalCompiler;
-      const AName: string
+      const AName: tbtString
     ): Boolean of object;
 
   TBasePascalCompiler = class(TPSPascalCompiler)
@@ -66,7 +66,7 @@ type
     property CompiledData: TbtString read FCompiledData;
     function DoCompilerOnAuxUses(
       ACompiler: TBasePascalCompiler;
-      const AName: string
+      const AName: tbtString
     ): Boolean; virtual;
     function PreparePascalScript: Boolean;
   public
@@ -276,7 +276,7 @@ end;
 
 function TBaseFactoryPascalScript.DoCompilerOnAuxUses(
   ACompiler: TBasePascalCompiler;
-  const AName: string
+  const AName: tbtString
 ): Boolean;
 begin
   // common routines linked to object (based on TPSPascalCompiler)

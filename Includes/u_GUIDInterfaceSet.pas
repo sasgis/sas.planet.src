@@ -172,7 +172,7 @@ end;
 
 procedure TGUIDInterfaceSet.SetCapacity(NewCapacity: Integer);
 begin
-  if (NewCapacity < FCount) or (NewCapacity > MaxListSize) then begin
+  if (NewCapacity < FCount) or (NewCapacity > MaxInterfaceWithGUIDListSize) then begin
     Error(@SListCapacityError, NewCapacity);
   end;
   if NewCapacity <> FCapacity then begin
@@ -185,7 +185,7 @@ procedure TGUIDInterfaceSet.SetCount(NewCount: Integer);
 var
   I: Integer;
 begin
-  if (NewCount < 0) or (NewCount > MaxListSize) then begin
+  if (NewCount < 0) or (NewCount > MaxInterfaceWithGUIDListSize) then begin
     Error(@SListCountError, NewCount);
   end;
   if NewCount > FCapacity then begin

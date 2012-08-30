@@ -37,7 +37,7 @@ type
   protected
     function DoCompilerOnAuxUses(
       ACompiler: TBasePascalCompiler;
-      const AName: string
+      const AName: tbtString
     ): Boolean; override;
   protected
     { IMapAttachmentsFactory }
@@ -69,7 +69,7 @@ end;
 
 function TMapAttachmentsFactoryPascalScript.DoCompilerOnAuxUses(
   ACompiler: TBasePascalCompiler;
-  const AName: string
+  const AName: tbtString
 ): Boolean;
 var
   VType: TPSType;

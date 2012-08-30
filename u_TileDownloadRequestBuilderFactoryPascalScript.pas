@@ -24,6 +24,7 @@ interface
 
 uses
   SysUtils,
+  uPSUtils,
   i_LanguageManager,
   i_Downloader,
   i_DownloadChecker,
@@ -52,7 +53,7 @@ type
   protected
     function DoCompilerOnAuxUses(
       ACompiler: TBasePascalCompiler;
-      const AName: string
+      const AName: tbtString
     ): Boolean; override;
   protected
     function GetState: ITileDownloaderStateChangeble;
@@ -115,7 +116,7 @@ end;
 
 function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
   ACompiler: TBasePascalCompiler;
-  const AName: string
+  const AName: tbtString
 ): Boolean;
 var
   VType: TPSType;
