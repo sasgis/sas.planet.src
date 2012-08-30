@@ -38,6 +38,12 @@ type
       const AFileName: WideString;
       const AConverter: ICoordConverter
     );
+    procedure SaveWFile(
+      const AFileName: WideString;
+      const xy1, xy2: TPoint;
+      AZoom: byte;
+      const AConverter: ICoordConverter
+    );
   public
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: WideString; safecall;
@@ -61,7 +67,7 @@ uses
   t_GeoTypes,
   u_GeoToStr;
 
-function GetProj(const AConverter: ICoordConverter): string;
+function GetProj(const AConverter: ICoordConverter): AnsiString;
 begin
   case AConverter.GetProjectionEPSG of
     3785: begin
@@ -188,23 +194,8 @@ procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   AZoom: byte;
   const AConverter: ICoordConverter
 );
-var
-  f: TextFile;
-  ll1, ll2: TDoublePoint;
-  CellX, CellY, OrigX, OrigY: Double;
 begin
-  ll1 := AConverter.PixelPos2LonLat(xy1, AZoom);
-  ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
-  CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
-  assignfile(f, AFileName + 'w');
-  rewrite(f);
-  writeln(f, R2StrPoint(CellX));
-  writeln(f, '0');
-  writeln(f, '0');
-  writeln(f, R2StrPoint(CellY));
-  writeln(f, R2StrPoint(OrigX));
-  writeln(f, R2StrPoint(OrigY));
-  closefile(f);
+  SaveWFile(AFileName, xy1, xy2, AZoom, AConverter);
   SavePrjFile(AFileName, AConverter);
   SaveAuxXmlFile(AFileName, AConverter);
 end;
@@ -214,14 +205,50 @@ procedure TMapCalibrationWorldFiles.SavePrjFile(
   const AConverter: ICoordConverter
 );
 var
-  f: TextFile;
-  VprojInfo: String;
+  VprojInfo: AnsiString;
+  VFileName: string;
+  VFileStream: TFileStream;
 begin
-  assignfile(f, ChangeFileExt(AFileName, '.prj'));
-  rewrite(f);
-  VprojInfo := GetProj(AConverter);
-  writeln(f, VprojInfo);
-  closefile(f);
+  VFileName := ChangeFileExt(AFileName, '.prj');
+  VFileStream := TFileStream.Create(VFileName, fmCreate);
+  try
+    VprojInfo := GetProj(AConverter);
+    VFileStream.WriteBuffer(VprojInfo[1], Length(VprojInfo));
+  finally
+    VFileStream.Free;
+  end;
+end;
+
+procedure TMapCalibrationWorldFiles.SaveWFile(
+  const AFileName: WideString;
+  const xy1, xy2: TPoint;
+  AZoom: byte;
+  const AConverter: ICoordConverter
+);
+var
+  ll1, ll2: TDoublePoint;
+  CellX, CellY, OrigX, OrigY: Double;
+  VText: AnsiString;
+  VFileName: string;
+  VFileStream: TFileStream;
+begin
+  VFileName := AFileName + 'w';
+  VFileStream := TFileStream.Create(VFileName, fmCreate);
+  try
+    ll1 := AConverter.PixelPos2LonLat(xy1, AZoom);
+    ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
+    CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
+    VText := '';
+    VText := VText + R2StrPoint(CellX)  + #13#10;
+    VText := VText + '0'  + #13#10;
+    VText := VText + '0'  + #13#10;
+    VText := VText + R2StrPoint(CellY)  + #13#10;
+    VText := VText + R2StrPoint(OrigX)  + #13#10;
+    VText := VText + R2StrPoint(OrigY)  + #13#10;
+    VFileStream.WriteBuffer(VText[1], Length(VText));
+  finally
+    VFileStream.Free;
+  end;
 end;
 
 end.
