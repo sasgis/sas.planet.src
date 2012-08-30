@@ -63,11 +63,12 @@ implementation
 uses
   Classes,
   SysUtils,
+  ALfcnString,
   u_GeoFun,
   t_GeoTypes,
   u_GeoToStr;
 
-function GetProj(const AConverter: ICoordConverter): AnsiString;
+function GetProj(const AConverter: ICoordConverter): UTF8String;
 begin
   case AConverter.GetProjectionEPSG of
     3785: begin
@@ -173,13 +174,11 @@ procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
 var
   AuxXmkfile: TMemoryStream;
   VStr: UTF8String;
-  VprojInfo: String;
 begin
   AuxXmkfile := TMemoryStream.create;
   try
     VStr := AnsiToUtf8('<PAMDataset>' + #13#10 + '<SRS>');
-    VprojInfo := GetProj(AConverter);
-    VStr := VStr + AnsiToUtf8(VprojInfo);
+    VStr := VStr + GetProj(AConverter);
     VStr := VStr + AnsiToUtf8('</SRS>' + #13#10 + '<Metadata>' + #13#10 + '<MDI key="PyramidResamplingType">NEAREST</MDI>' + #13#10 + '</Metadata>' + #13#10 + '</PAMDataset>');
     AuxXmkfile.Write(VStr[1], length(VStr));
     AuxXmkfile.SaveToFile(AFileName + '.aux.xml');
@@ -205,7 +204,7 @@ procedure TMapCalibrationWorldFiles.SavePrjFile(
   const AConverter: ICoordConverter
 );
 var
-  VprojInfo: AnsiString;
+  VprojInfo: UTF8String;
   VFileName: string;
   VFileStream: TFileStream;
 begin
@@ -231,7 +230,9 @@ var
   VText: AnsiString;
   VFileName: string;
   VFileStream: TFileStream;
+  VFormat: TALFormatSettings;
 begin
+  VFormat.DecimalSeparator := '.';
   VFileName := AFileName + 'w';
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
@@ -239,12 +240,12 @@ begin
     ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
     CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
     VText := '';
-    VText := VText + R2StrPoint(CellX)  + #13#10;
+    VText := VText + ALFloatToStr(CellX, VFormat)  + #13#10;
     VText := VText + '0'  + #13#10;
     VText := VText + '0'  + #13#10;
-    VText := VText + R2StrPoint(CellY)  + #13#10;
-    VText := VText + R2StrPoint(OrigX)  + #13#10;
-    VText := VText + R2StrPoint(OrigY)  + #13#10;
+    VText := VText + ALFloatToStr(CellY, VFormat)  + #13#10;
+    VText := VText + ALFloatToStr(OrigX, VFormat)  + #13#10;
+    VText := VText + ALFloatToStr(OrigY, VFormat)  + #13#10;
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally
     VFileStream.Free;

@@ -563,7 +563,7 @@ end;
 constructor TSynchronizerCSSC.Create(const ACreator: TObject; const dwSpinCount: Cardinal);
 begin
   inherited Create;
-  FCreatorClassName := ACreator.ClassName;
+  FCreatorClassName := AnsiString(ACreator.ClassName);
   InitializeCriticalSectionAndSpinCount(FLock, dwSpinCount);
 end;
 
@@ -631,7 +631,7 @@ end;
 constructor TSynchronizerCS.Create(const ACreator: TObject);
 begin
   inherited Create;
-  FCreatorClassName := ACreator.ClassName;
+  FCreatorClassName := AnsiString(ACreator.ClassName);
   InitializeCriticalSection(FLock);
 end;
 
@@ -758,7 +758,7 @@ begin
   if (nil=AInitData) then
     RaiseNotAvailable(ClassType);
   inherited Create;
-  FCreatorClassName := ACreator.ClassName;
+  FCreatorClassName := AnsiString(ACreator.ClassName);
   FInitData := AInitData;
   TRtlInitializeResource(FInitData^.InitializePtr)(@FLock);
 end;
@@ -797,7 +797,7 @@ begin
   if (nil=AInitData) then
     RaiseNotAvailable(ClassType);
   inherited Create;
-  FCreatorClassName := ACreator.ClassName;
+  FCreatorClassName := AnsiString(ACreator.ClassName);
   FInitData := AInitData;
   TRtlInitializeSRWLock(FInitData^.InitializePtr)(@FLock);
 end;
@@ -819,7 +819,7 @@ begin
   if (nil=AInitData) then
     RaiseNotAvailable(ClassType);
   inherited Create;
-  FCreatorClassName := ACreator.ClassName;
+  FCreatorClassName := AnsiString(ACreator.ClassName);
   FInitData := AInitData;
   FEventPairHandle := 0;
   TNtCreateEventPair(FInitData^.NtCreateEventPair)(@FEventPairHandle, STANDARD_RIGHTS_ALL, nil);
