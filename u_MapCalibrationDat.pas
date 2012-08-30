@@ -46,6 +46,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   t_GeoTypes,
   u_GeoToStr;
@@ -69,21 +70,28 @@ procedure TMapCalibrationDat.SaveCalibrationInfo(
   const AConverter: ICoordConverter
 );
 var
-  f: TextFile;
   LL1, LL2: TDoublePoint;
+  VFileName: string;
+  VFileStream: TFileStream;
+  VText: AnsiString;
 begin
-  assignfile(f, ChangeFileExt(AFileName, '.dat'));
-  rewrite(f);
-  writeln(f, '2');
-  LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
-  LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
-  writeln(f, R2StrPoint(LL1.x) + ',' + R2StrPoint(LL1.y));
-  writeln(f, R2StrPoint(LL2.x) + ',' + R2StrPoint(LL1.y));
-  writeln(f, R2StrPoint(LL2.x) + ',' + R2StrPoint(LL2.y));
-  writeln(f, R2StrPoint(LL1.x) + ',' + R2StrPoint(LL2.y));
-  writeln(f, '(SASPlanet)');
-  closefile(f);
+  VFileName := ChangeFileExt(AFileName, '.dat');
+  VFileStream := TFileStream.Create(VFileName, fmCreate);
+  try
+    VText := '';
+    VText := VText + '2' + #13#10;
+    LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
+    LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
+    VText := VText + R2StrPoint(LL1.x) + ',' + R2StrPoint(LL1.y) + #13#10;
+    VText := VText + R2StrPoint(LL2.x) + ',' + R2StrPoint(LL1.y) + #13#10;
+    VText := VText + R2StrPoint(LL2.x) + ',' + R2StrPoint(LL2.y) + #13#10;
+    VText := VText + R2StrPoint(LL1.x) + ',' + R2StrPoint(LL2.y) + #13#10;
+    VText := VText + '(SASPlanet)' + #13#10;
+
+    VFileStream.WriteBuffer(VText[1], Length(VText));
+  finally
+    VFileStream.Free;
+  end;
 end;
 
 end.
- 
