@@ -193,7 +193,7 @@ TYPE
                  PROCEDURE AddSymbolicLink (Filename, Linkname : AnsiString; DateGmt : TDateTime);
                  PROCEDURE AddLink         (Filename, Linkname : AnsiString; DateGmt : TDateTime);
                  PROCEDURE AddVolumeHeader (VolumeId           : AnsiString; DateGmt : TDateTime);
-                 PROCEDURE AddLongLink     (TarFilename: STRING);
+                 PROCEDURE AddLongLink     (TarFilename: AnsiString);
                  PROCEDURE Finalize;
                  PROPERTY Permissions : TTarPermissions READ FPermissions WRITE FPermissions;   // Access permissions
                  PROPERTY UID         : INTEGER         READ FUID         WRITE FUID;           // User ID
@@ -960,7 +960,7 @@ BEGIN
   WriteTarHeader (FStream, DirRec);
 END;
 
-PROCEDURE TTarWriter.AddLongLink (TarFilename: STRING);
+PROCEDURE TTarWriter.AddLongLink (TarFilename: AnsiString);
 VAR
   DirRec      : TTarDirRec;
   Rec         : ARRAY [0..RECORDSIZE-1] OF CHAR;

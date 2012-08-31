@@ -84,7 +84,7 @@ begin
   try
     FTar.AddStream(
       VStream,
-      AFileNameInArchive,
+      AnsiString(AFileNameInArchive),
       AFileDate
     );
     Inc(FFilesCount);

@@ -101,7 +101,7 @@ var
   VMemStream: TMemoryStream;
   VItemIndex: Integer;
 begin
-  VItemIndex := FZip.Entries.IndexOf(AItemName);
+  VItemIndex := FZip.Entries.IndexOf(AnsiString(AItemName));
   if VItemIndex >= 0 then begin
     VMemStream := TMemoryStream.Create;
     try
@@ -118,7 +118,7 @@ end;
 function TArchiveReadByKaZip.GetItemNameByIndex(const AItemIndex: Integer): string;
 begin
   if FZip.Entries.Count >= AItemIndex then begin
-    Result := FZip.Entries.Items[AItemIndex].FileName;
+    Result := string(FZip.Entries.Items[AItemIndex].FileName);
   end else begin
     Result := '';
   end;
@@ -181,7 +181,7 @@ begin
   try
     {$WARN SYMBOL_PLATFORM OFF}
     VEntry := FZip.AddStream(
-      AFileNameInArchive,
+      AnsiString(AFileNameInArchive),
       faArchive, // (!) platform
       AFileDate,
       VDataStream
