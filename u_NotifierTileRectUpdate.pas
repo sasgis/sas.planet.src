@@ -68,8 +68,11 @@ type
     );
     procedure Remove(const AListener: IListener);
   private
-    procedure TileUpdateNotify(const ATileKey: ITileKey);
-    procedure TileRectUpdateNotify(const ATileRect: ITileRect);
+    procedure TileFullUpdateNotify;
+    procedure TileUpdateNotify(const ATileKey: ITileKey); overload;
+    procedure TileUpdateNotify(const ATile: TPoint; const AZoom: Byte); overload;
+    procedure TileRectUpdateNotify(const ATileRect: ITileRect); overload;
+    procedure TileRectUpdateNotify(const ATileRect: TRect; const AZoom: Byte); overload;
   public
     constructor Create(
       const AGeoCoder: ICoordConverter
@@ -80,6 +83,7 @@ type
 implementation
 
 uses
+  u_TileKey,
   u_Synchronizer;
 
 { TNotifierTileRectUpdateOneZoomSimple }
@@ -489,6 +493,121 @@ begin
       for i := 0 to VList.Count - 1 do begin
         VListener := VList[i];
         IListener(VListener).Notification(ATileKey);
+        IInterface(VListener)._Release;
+        VListener := nil;
+      end;
+    end;
+  finally
+    VList.Free;
+  end;
+end;
+
+procedure TNotifierTileRectUpdate.TileFullUpdateNotify;
+var
+  i: Integer;
+  VList: TList;
+  VListener: Pointer;
+begin
+  VList := TList.Create;
+  try
+    VList.Capacity := 8;
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FListeners.Count - 1 do begin
+        VListener := FListeners.Items[i];
+        VList.Add(VListener);
+        IInterface(VListener)._AddRef;;
+      end;
+      for i := 0 to Length(FListenersByZoom) - 1 do begin
+        FListenersByZoom[i].PrepareListenersListFull(VList);
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      for i := 0 to VList.Count - 1 do begin
+        VListener := VList[i];
+        IListener(VListener).Notification(nil);
+        IInterface(VListener)._Release;
+        VListener := nil;
+      end;
+    end;
+  finally
+    VList.Free;
+  end;
+end;
+
+procedure TNotifierTileRectUpdate.TileRectUpdateNotify(const ATileRect: TRect;
+  const AZoom: Byte);
+var
+  i: Integer;
+  VList: TList;
+  VListener: Pointer;
+  VZoomIndex: Integer;
+  VTileRect: ITileRect;
+begin
+  VList := TList.Create;
+  try
+    VList.Capacity := 8;
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FListeners.Count - 1 do begin
+        VListener := FListeners.Items[i];
+        VList.Add(VListener);
+        IInterface(VListener)._AddRef;;
+      end;
+      VZoomIndex := AZoom - FMinValidZoom;
+      if (VZoomIndex >= 0) and (VZoomIndex < Length(FListenersByZoom)) then begin
+        FListenersByZoom[VZoomIndex].PrepareListenersListByRect(ATileRect, VList);
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      VTileRect := nil; //TODO: Доделать создание ITileRect
+      for i := 0 to VList.Count - 1 do begin
+        VListener := VList[i];
+        IListener(VListener).Notification(VTileRect);
+        IInterface(VListener)._Release;
+        VListener := nil;
+      end;
+    end;
+  finally
+    VList.Free;
+  end;
+end;
+
+procedure TNotifierTileRectUpdate.TileUpdateNotify(const ATile: TPoint;
+  const AZoom: Byte);
+var
+  i: Integer;
+  VList: TList;
+  VListener: Pointer;
+  VZoomIndex: Integer;
+  VKey: ITileKey;
+begin
+  VList := TList.Create;
+  try
+    VList.Capacity := 8;
+    FSynchronizer.BeginRead;
+    try
+      for i := 0 to FListeners.Count - 1 do begin
+        VListener := FListeners.Items[i];
+        VList.Add(VListener);
+        IInterface(VListener)._AddRef;;
+      end;
+      VZoomIndex := AZoom - FMinValidZoom;
+      if (VZoomIndex >= 0) and (VZoomIndex < Length(FListenersByZoom)) then begin
+        FListenersByZoom[VZoomIndex].PrepareListenersListByTile(ATile, VList);
+      end;
+    finally
+      FSynchronizer.EndRead;
+    end;
+    if VList.Count > 0 then begin
+      VKey := TTileKey.Create(ATile, AZoom);
+      for i := 0 to VList.Count - 1 do begin
+        VListener := VList[i];
+        IListener(VListener).Notification(VKey);
         IInterface(VListener)._Release;
         VListener := nil;
       end;

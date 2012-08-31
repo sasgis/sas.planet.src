@@ -31,8 +31,11 @@ type
   end;
 
   INotifierTileRectUpdateInternal = interface
-    procedure TileUpdateNotify(const ATileKey: ITileKey);
-    procedure TileRectUpdateNotify(const ATileRect: ITileRect);
+    procedure TileFullUpdateNotify;
+    procedure TileUpdateNotify(const ATileKey: ITileKey); overload;
+    procedure TileUpdateNotify(const ATile: TPoint; const AZoom: Byte); overload;
+    procedure TileRectUpdateNotify(const ATileRect: ITileRect); overload;
+    procedure TileRectUpdateNotify(const ATileRect: TRect; const AZoom: Byte); overload;
   end;
 
 implementation

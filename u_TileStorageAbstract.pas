@@ -184,11 +184,8 @@ procedure TTileStorageAbstract.NotifyTileUpdate(
   const AZoom: Byte;
   const AVersion: IMapVersionInfo
 );
-var
-  VKey: ITileKey;
 begin
-  VKey := TTileKey.Create(ATile, AZoom);
-  FTileNotifierInternal.TileUpdateNotify(VKey);
+  FTileNotifierInternal.TileUpdateNotify(ATile, AZoom);
 end;
 
 function TTileStorageAbstract.ScanTiles(
