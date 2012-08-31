@@ -29,8 +29,8 @@ uses
 type
   IContentTypeInfoBasic = interface
     ['{A2FC7C16-1B96-4AA2-BC70-1A353E4E1923}']
-    function GetContentType: WideString;
-    function GetDefaultExt: WideString;
+    function GetContentType: AnsiString;
+    function GetDefaultExt: AnsiString;
   end;
 
   IContentTypeInfoBitmap = interface(IContentTypeInfoBasic)

@@ -47,7 +47,7 @@ type
       AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AData: IBinaryData;
-      const AContenType: string
+      const AContenType: AnsiString
     );
     procedure CropOnDownload(
       ABtm: TCustomBitmap32;
@@ -209,7 +209,7 @@ procedure TTileDownloadResultSaverStuped.SaveTileDownload(
   AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const AData: IBinaryData;
-  const AContenType: string
+  const AContenType: AnsiString
 );
 var
   VBitmap: TCustomBitmap32;

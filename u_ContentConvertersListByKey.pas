@@ -23,32 +23,33 @@ unit u_ContentConvertersListByKey;
 interface
 
 uses
-  Classes,
+  ALStringList,
   i_ContentConverter;
 
 type
   TContentConvertersListByKey = class
   private
-    FList: TStringList;
+    FList: TALStringList;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Add(
-      const AKey: string;
+      const AKey: AnsiString;
       const AConverter: IContentConverter
     );
-    function Get(const AKey: string): IContentConverter;
+    function Get(const AKey: AnsiString): IContentConverter;
   end;
 
 implementation
 
 uses
+  Classes,
   SysUtils;
 
 { TContentConvertersListByKey }
 
 procedure TContentConvertersListByKey.Add(
-  const AKey: string;
+  const AKey: AnsiString;
   const AConverter: IContentConverter
 );
 begin
@@ -59,7 +60,7 @@ end;
 constructor TContentConvertersListByKey.Create;
 begin
   inherited Create;
-  FList := TStringList.Create;
+  FList := TALStringList.Create;
   FList.Sorted := True;
   FList.Duplicates := dupError;
 end;
@@ -77,7 +78,7 @@ begin
   inherited;
 end;
 
-function TContentConvertersListByKey.Get(const AKey: string): IContentConverter;
+function TContentConvertersListByKey.Get(const AKey: AnsiString): IContentConverter;
 var
   VIndex: Integer;
 begin

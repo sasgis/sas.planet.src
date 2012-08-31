@@ -41,7 +41,7 @@ type
     procedure ConverterMatrixUpdateSynonyms;
     procedure ConverterMatrixUpdateFixedWithSynonyms;
     procedure ConverterMatrixUpdateBitmaps;
-    function FindConverterWithSynonyms(const ASourceType, ATargetType: string): IContentConverter;
+    function FindConverterWithSynonyms(const ASourceType, ATargetType: AnsiString): IContentConverter;
     procedure UpdateConverterMatrix;
     procedure InitLists(
       const AVectorItemsFactory: IVectorItmesFactory;
@@ -62,6 +62,7 @@ implementation
 
 uses
   Classes,
+  ALStringList,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
@@ -177,9 +178,9 @@ end;
 
 procedure TContentTypeManagerSimple.ConverterMatrixUpdateFixed;
 var
-  VSoruceName: string;
+  VSoruceName: AnsiString;
   VSourceContent: IContentTypeInfoBasic;
-  VTargetName: string;
+  VTargetName: AnsiString;
   VTargetContent: IContentTypeInfoBasic;
   VConverter: IContentConverter;
 begin
@@ -212,11 +213,11 @@ end;
 
 procedure TContentTypeManagerSimple.ConverterMatrixUpdateSynonyms;
 var
-  VSourceEnumerator: TStringsEnumerator;
-  VSoruceName: string;
+  VSourceEnumerator: TALStringsEnumerator;
+  VSoruceName: AnsiString;
   VSourceContent: IContentTypeInfoBasic;
-  VTargetEnumerator: TStringsEnumerator;
-  VTargetName: string;
+  VTargetEnumerator: TALStringsEnumerator;
+  VTargetName: AnsiString;
   VTargetContent: IContentTypeInfoBasic;
   VConverter: IContentConverter;
 begin
@@ -247,13 +248,13 @@ begin
 end;
 
 function TContentTypeManagerSimple.FindConverterWithSynonyms(
-  const ASourceType, ATargetType: string
+  const ASourceType, ATargetType: AnsiString
 ): IContentConverter;
 var
-  VSourceEnumerator: TStringsEnumerator;
-  VSoruceName: string;
-  VTargetEnumerator: TStringsEnumerator;
-  VTargetName: string;
+  VSourceEnumerator: TALStringsEnumerator;
+  VSoruceName: AnsiString;
+  VTargetEnumerator: TALStringsEnumerator;
+  VTargetName: AnsiString;
   VConverter: IContentConverter;
 begin
   Result := nil;
@@ -297,11 +298,11 @@ end;
 
 procedure TContentTypeManagerSimple.ConverterMatrixUpdateFixedWithSynonyms;
 var
-  VSourceEnumerator: TStringsEnumerator;
-  VSoruceName: string;
+  VSourceEnumerator: TALStringsEnumerator;
+  VSoruceName: AnsiString;
   VSourceContent: IContentTypeInfoBasic;
-  VTargetEnumerator: TStringsEnumerator;
-  VTargetName: string;
+  VTargetEnumerator: TALStringsEnumerator;
+  VTargetName: AnsiString;
   VTargetContent: IContentTypeInfoBasic;
   VConverter: IContentConverter;
 begin
@@ -333,11 +334,11 @@ end;
 
 procedure TContentTypeManagerSimple.ConverterMatrixUpdateBitmaps;
 var
-  VSourceEnumerator: TStringsEnumerator;
-  VSoruceName: string;
+  VSourceEnumerator: TALStringsEnumerator;
+  VSoruceName: AnsiString;
   VSourceContent: IContentTypeInfoBitmap;
-  VTargetEnumerator: TStringsEnumerator;
-  VTargetName: string;
+  VTargetEnumerator: TALStringsEnumerator;
+  VTargetName: AnsiString;
   VTargetContent: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
 begin

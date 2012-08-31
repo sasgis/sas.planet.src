@@ -23,33 +23,34 @@ unit u_ContentConverterMatrix;
 interface
 
 uses
-  Classes,
+  ALStringList,
   i_ContentConverter;
 
 type
   TContentConverterMatrix = class
   private
-    FList: TStringList;
+    FList: TALStringList;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Add(
-      const ASourceType, ATargetType: string;
+      const ASourceType, ATargetType: AnsiString;
       const AConverter: IContentConverter
     );
-    function Get(const ASourceType, ATargetType: string): IContentConverter;
+    function Get(const ASourceType, ATargetType: AnsiString): IContentConverter;
   end;
 
 implementation
 
 uses
+  Classes,
   SysUtils,
   u_ContentConvertersListByKey;
 
 { TContentConverterMatrix }
 
 procedure TContentConverterMatrix.Add(
-  const ASourceType, ATargetType: string;
+  const ASourceType, ATargetType: AnsiString;
   const AConverter: IContentConverter
 );
 var
@@ -68,7 +69,7 @@ end;
 constructor TContentConverterMatrix.Create;
 begin
   inherited Create;
-  FList := TStringList.Create;
+  FList := TALStringList.Create;
   FList.Sorted := True;
   FList.Duplicates := dupError;
 end;
@@ -89,7 +90,7 @@ begin
 end;
 
 function TContentConverterMatrix.Get(
-  const ASourceType, ATargetType: string
+  const ASourceType, ATargetType: AnsiString
 ): IContentConverter;
 var
   VIndex: Integer;

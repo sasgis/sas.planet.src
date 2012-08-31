@@ -55,7 +55,7 @@ type
     FProjFactory: IProjConverterFactory;
     FScriptBuffer: AnsiString;
 
-    FLang: string;
+    FLang: AnsiString;
     FLangManager: ILanguageManager;
     FLangListener: IListener;
     FLangChangeFlag: ISimpleFlag;
@@ -322,7 +322,7 @@ var
   VLonLat: TDoublePoint;
   VTile: TPoint;
   VZoom: Byte;
-  VAccept, VUserAgent: string;
+  VAccept, VUserAgent: AnsiString;
   VUseDownloader: Boolean;
   VSimpleDownloader: ISimpleHttpDownloader;
 begin

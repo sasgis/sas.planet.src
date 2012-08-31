@@ -23,34 +23,35 @@ unit u_ContentTypeListByKey;
 interface
 
 uses
-  Classes,
+  ALStringList,
   i_ContentTypeInfo;
 
 type
   TContentTypeListByKey = class
   private
-    FList: TStringList;
+    FList: TALStringList;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Add(
-      const AKey: string;
+      const AKey: AnsiString;
       const AType: IContentTypeInfoBasic
     );
-    function Get(const AKey: string): IContentTypeInfoBasic;
-    function GetEnumerator: TStringsEnumerator;
+    function Get(const AKey: AnsiString): IContentTypeInfoBasic;
+    function GetEnumerator: TALStringsEnumerator;
   end;
 
 
 implementation
 
 uses
+  Classes,
   SysUtils;
 
 { TContentTypeListByKey }
 
 procedure TContentTypeListByKey.Add(
-  const AKey: string;
+  const AKey: AnsiString;
   const AType: IContentTypeInfoBasic
 );
 begin
@@ -61,7 +62,7 @@ end;
 constructor TContentTypeListByKey.Create;
 begin
   inherited Create;
-  FList := TStringList.Create;
+  FList := TALStringList.Create;
   FList.Sorted := True;
   FList.Duplicates := dupError;
 end;
@@ -79,7 +80,7 @@ begin
   inherited;
 end;
 
-function TContentTypeListByKey.Get(const AKey: string): IContentTypeInfoBasic;
+function TContentTypeListByKey.Get(const AKey: AnsiString): IContentTypeInfoBasic;
 var
   VIndex: Integer;
 begin
@@ -90,7 +91,7 @@ begin
   end;
 end;
 
-function TContentTypeListByKey.GetEnumerator: TStringsEnumerator;
+function TContentTypeListByKey.GetEnumerator: TALStringsEnumerator;
 begin
   Result := FList.GetEnumerator;
 end;

@@ -30,15 +30,15 @@ uses
 type
   TContentTypeInfoBase = class(TInterfacedObject, IContentTypeInfoBasic)
   private
-    FContentType: WideString;
-    FDefaultExt: WideString;
+    FContentType: AnsiString;
+    FDefaultExt: AnsiString;
   private
-    function GetContentType: WideString;
-    function GetDefaultExt: WideString;
+    function GetContentType: AnsiString;
+    function GetDefaultExt: AnsiString;
   public
     constructor Create(
-      const AContentType: WideString;
-      const ADefaultExt: WideString
+      const AContentType: AnsiString;
+      const ADefaultExt: AnsiString
     );
   end;
 
@@ -51,8 +51,8 @@ type
     function GetSaver: IBitmapTileSaver;
   public
     constructor Create(
-      const AContentType: WideString;
-      const ADefaultExt: WideString;
+      const AContentType: AnsiString;
+      const ADefaultExt: AnsiString;
       const ALoader: IBitmapTileLoader;
       const ASaver: IBitmapTileSaver
     );
@@ -66,8 +66,8 @@ type
     function GetLoader: IVectorDataLoader;
   public
     constructor Create(
-      const AContentType: WideString;
-      const ADefaultExt: WideString;
+      const AContentType: AnsiString;
+      const ADefaultExt: AnsiString;
       const ALoader: IVectorDataLoader
     );
     destructor Destroy; override;
@@ -77,19 +77,19 @@ implementation
 
 { TContentTypeInfoBase }
 
-constructor TContentTypeInfoBase.Create(const AContentType, ADefaultExt: WideString);
+constructor TContentTypeInfoBase.Create(const AContentType, ADefaultExt: AnsiString);
 begin
   inherited Create;
   FContentType := AContentType;
   FDefaultExt := ADefaultExt;
 end;
 
-function TContentTypeInfoBase.GetContentType: WideString;
+function TContentTypeInfoBase.GetContentType: AnsiString;
 begin
   Result := FContentType;
 end;
 
-function TContentTypeInfoBase.GetDefaultExt: WideString;
+function TContentTypeInfoBase.GetDefaultExt: AnsiString;
 begin
   Result := FDefaultExt;
 end;
@@ -97,7 +97,7 @@ end;
 { TContentTypeInfoBitmap }
 
 constructor TContentTypeInfoBitmap.Create(
-  const AContentType, ADefaultExt: WideString;
+  const AContentType, ADefaultExt: AnsiString;
   const ALoader: IBitmapTileLoader;
   const ASaver: IBitmapTileSaver
 );
@@ -127,7 +127,7 @@ end;
 { TContentTypeInfoKml }
 
 constructor TContentTypeInfoKml.Create(
-  const AContentType, ADefaultExt: WideString;
+  const AContentType, ADefaultExt: AnsiString;
   const ALoader: IVectorDataLoader
 );
 begin

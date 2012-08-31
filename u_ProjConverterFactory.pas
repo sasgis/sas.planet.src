@@ -15,11 +15,11 @@ type
     FDllHolder: IInterface;
   private
     procedure InitDll;
-    function GetArgsByEpsg(const AEPSG: Integer): string;
-    function GetByInitStringInternal(const AArgs: String): IProjConverter;
+    function GetArgsByEpsg(const AEPSG: Integer): AnsiString;
+    function GetByInitStringInternal(const AArgs: AnsiString): IProjConverter;
   private
     function GetByEPSG(const AEPSG: Integer): IProjConverter;
-    function GetByInitString(const AArgs: String): IProjConverter;
+    function GetByInitString(const AArgs: AnsiString): IProjConverter;
   public
     constructor Create;
   end;
@@ -27,6 +27,7 @@ type
 implementation
 
 uses
+  ALfcnString,
   t_GeoTypes,
   u_Synchronizer;
 
@@ -243,7 +244,7 @@ begin
   FDllFailed := False;
 end;
 
-function TProjConverterFactory.GetArgsByEpsg(const AEPSG: Integer): string;
+function TProjConverterFactory.GetArgsByEpsg(const AEPSG: Integer): AnsiString;
 var
   i: Integer;
 begin
@@ -266,22 +267,22 @@ begin
     i := 21 + (AEPSG-2463)*6;
     if (i>180) then
       i := i - 360;
-    Result := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+    Result := '+proj=tmerc +lat_0=0 +lon_0='+ALIntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
   end else if (AEPSG>=2492) and (AEPSG<=2522) then begin
     // 2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
     i := 9 + (AEPSG-2492)*6;
     if (i>180) then
       i := i - 360;
-    Result := '+proj=tmerc +lat_0=0 +lon_0='+IntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+    Result := '+proj=tmerc +lat_0=0 +lon_0='+ALIntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
   end else if (AEPSG>=32601) and (AEPSG<=32660) then begin
     // 32601-32660 = WGS 84 / UTM zone N
-    Result := '+proj=utm +zone='+IntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+    Result := '+proj=utm +zone='+ALIntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
   end;
 end;
 
 function TProjConverterFactory.GetByEPSG(const AEPSG: Integer): IProjConverter;
 var
-  VArgs: string;
+  VArgs: AnsiString;
 begin
   Result := nil;
   VArgs := GetArgsByEpsg(AEPSG);
@@ -291,17 +292,17 @@ begin
 end;
 
 function TProjConverterFactory.GetByInitString(
-  const AArgs: String
+  const AArgs: AnsiString
 ): IProjConverter;
 const
-  c_EPSG = 'EPSG:';
+  c_EPSG: AnsiString = 'EPSG:';
 var
   VEPSG: Integer;
-  VArgs: String;
+  VArgs: AnsiString;
 begin
   VArgs := AArgs;
-  if SameText(System.Copy(AArgs, 1, Length(c_EPSG)), c_EPSG) then begin
-    if TryStrToInt(System.Copy(AArgs, Length(c_EPSG)+1, Length(AArgs)), VEPSG) then begin
+  if ALSameText(ALCopyStr(AArgs, 1, Length(c_EPSG)), c_EPSG) then begin
+    if ALTryStrToInt(ALCopyStr(AArgs, Length(c_EPSG)+1, Length(AArgs)), VEPSG) then begin
       VArgs := GetArgsByEpsg(VEPSG);
     end;
   end;
@@ -309,7 +310,7 @@ begin
 end;
 
 function TProjConverterFactory.GetByInitStringInternal(
-  const AArgs: String): IProjConverter;
+  const AArgs: AnsiString): IProjConverter;
 var
   VDll: IProjDLLHolder;
   VProj: PProjPJ;
