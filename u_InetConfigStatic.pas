@@ -30,20 +30,20 @@ type
   TInetConfigStatic = class(TInterfacedObject, IInetConfigStatic)
   private
     FProxyConfigStatic: IProxyConfigStatic;
-    FUserAgentString: string;
+    FUserAgentString: AnsiString;
     FTimeOut: Cardinal;
     FSleepOnResetConnection: Cardinal;
     FDownloadTryCount: Integer;
   private
     function GetProxyConfigStatic: IProxyConfigStatic;
-    function GetUserAgentString: string;
+    function GetUserAgentString: AnsiString;
     function GetTimeOut: Cardinal;
     function GetSleepOnResetConnection: Cardinal;
     function GetDownloadTryCount: Integer;
   public
     constructor Create(
       const AProxyConfigStatic: IProxyConfigStatic;
-      const AUserAgentString: string;
+      const AUserAgentString: AnsiString;
       ATimeOut: Cardinal;
       ASleepOnResetConnection: Cardinal;
       ADownloadTryCount: Integer
@@ -56,7 +56,7 @@ implementation
 
 constructor TInetConfigStatic.Create(
   const AProxyConfigStatic: IProxyConfigStatic;
-  const AUserAgentString: string;
+  const AUserAgentString: AnsiString;
   ATimeOut, ASleepOnResetConnection: Cardinal;
   ADownloadTryCount: Integer
 );
@@ -89,7 +89,7 @@ begin
   Result := FTimeOut;
 end;
 
-function TInetConfigStatic.GetUserAgentString: string;
+function TInetConfigStatic.GetUserAgentString: AnsiString;
 begin
   Result := FUserAgentString;
 end;

@@ -29,17 +29,17 @@ uses
 type
   ITileDownloadRequestBuilderConfigStatic = interface
     ['{84B1A72C-951D-4591-80E4-3DA0CDC30ED7}']
-    function GetUrlBase: string;
-    property UrlBase: string read GetUrlBase;
+    function GetUrlBase: AnsiString;
+    property UrlBase: AnsiString read GetUrlBase;
 
-    function GetRequestHeader: string;
-    property RequestHeader: string read GetRequestHeader;
+    function GetRequestHeader: AnsiString;
+    property RequestHeader: AnsiString read GetRequestHeader;
 
     function GetIsUseDownloader: Boolean;
     property IsUseDownloader: Boolean read GetIsUseDownloader;
 
-    function GetDefaultProjConverterArgs: string;
-    property DefaultProjConverterArgs: string read GetDefaultProjConverterArgs;
+    function GetDefaultProjConverterArgs: AnsiString;
+    property DefaultProjConverterArgs: AnsiString read GetDefaultProjConverterArgs;
 
     function GetGeoCoder: ICoordConverter;
     property GeoCoder: ICoordConverter read GetGeoCoder;
@@ -48,19 +48,19 @@ type
 
   ITileDownloadRequestBuilderConfig = interface(IConfigDataElement)
     ['{FA554C29-EDAF-4E3C-9B59-BC881502F33A}']
-    function GetUrlBase: string;
-    procedure SetUrlBase(const AValue: string);
-    property UrlBase: string read GetUrlBase write SetUrlBase;
+    function GetUrlBase: AnsiString;
+    procedure SetUrlBase(const AValue: AnsiString);
+    property UrlBase: AnsiString read GetUrlBase write SetUrlBase;
 
-    function GetRequestHeader: string;
-    procedure SetRequestHeader(const AValue: string);
-    property RequestHeader: string read GetRequestHeader write SetRequestHeader;
+    function GetRequestHeader: AnsiString;
+    procedure SetRequestHeader(const AValue: AnsiString);
+    property RequestHeader: AnsiString read GetRequestHeader write SetRequestHeader;
 
     function GetIsUseDownloader: Boolean;
     property IsUseDownloader: Boolean read GetIsUseDownloader;
 
-    function GetDefaultProjConverterArgs: string;
-    property DefaultProjConverterArgs: string read GetDefaultProjConverterArgs;
+    function GetDefaultProjConverterArgs: AnsiString;
+    property DefaultProjConverterArgs: AnsiString read GetDefaultProjConverterArgs;
 
     function GetGeoCoder: ICoordConverter;
     property GeoCoder: ICoordConverter read GetGeoCoder;

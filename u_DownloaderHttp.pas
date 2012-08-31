@@ -43,8 +43,8 @@ uses
 type
   THttpClientConfigRec = record
     HttpTimeOut: Cardinal;
-    HeaderUserAgent: string;
-    HeaderRawText: string;
+    HeaderUserAgent: AnsiString;
+    HeaderRawText: AnsiString;
     ProxyUseIESettings: Boolean;
     ProxyUseCustomSettings: Boolean;
     ProxyHost: WideString;
@@ -79,7 +79,7 @@ type
       const AResultFactory: IDownloadResultFactory
     ): IDownloadResult;
     procedure PreConfigHttpClient(
-      const ARawHttpRequestHeader: string;
+      const ARawHttpRequestHeader: AnsiString;
       const AInetConfig: IInetConfigStatic
     );
     function IsConnectError(ALastError: Cardinal): Boolean;
@@ -115,6 +115,7 @@ type
 implementation
 
 uses
+  ALfcnString,
   i_BinaryData,
   u_ListenerByEvent,
   u_Synchronizer,
@@ -438,7 +439,7 @@ begin
   if AResultFactory <> nil then begin
     VRawHeaderText := FHttpResponseHeader.RawHeaderText;
     VContentType := FHttpResponseHeader.ContentType;
-    VStatusCode := StrToIntDef(FHttpResponseHeader.StatusCode, 0);
+    VStatusCode := ALStrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
       VResponseBody :=
         TBinaryDataByMemStream.CreateFromMem(
@@ -494,12 +495,13 @@ begin
 end;
 
 procedure TDownloaderHttp.PreConfigHttpClient(
-  const ARawHttpRequestHeader: string;
+  const ARawHttpRequestHeader: AnsiString;
   const AInetConfig: IInetConfigStatic
 );
 var
   VProxyConfig: IProxyConfigStatic;
-  VUserAgent: string;
+  VUserAgent: AnsiString;
+  VProxyHost: AnsiString;
 begin
   if (ARawHttpRequestHeader <> '') and
     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then begin
@@ -548,10 +550,11 @@ begin
         FHttpClient.AccessType := wHttpAt_Preconfig;
       end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
         FHttpClient.AccessType := wHttpAt_Proxy;
+        VProxyHost := FHttpClientLastConfig.ProxyHost;
         FHttpClient.ProxyParams.ProxyServer :=
-          Copy(FHttpClientLastConfig.ProxyHost, 0, Pos(':', FHttpClientLastConfig.ProxyHost) - 1);
+          ALCopyStr(VProxyHost, 0, ALPos(':', VProxyHost) - 1);
         FHttpClient.ProxyParams.ProxyPort :=
-          StrToInt(Copy(FHttpClientLastConfig.ProxyHost, Pos(':', FHttpClientLastConfig.ProxyHost) + 1));
+          ALStrToInt(ALCopyStr(VProxyHost, ALPos(':', VProxyHost) + 1, Length(VProxyHost)));
         if FHttpClientLastConfig.ProxyUseLogin then begin
           FHttpClient.ProxyParams.ProxyUserName := FHttpClientLastConfig.ProxyUserName;
           FHttpClient.ProxyParams.ProxyPassword := FHttpClientLastConfig.ProxyPassword;

@@ -32,7 +32,7 @@ uses
 type
   TInetConfig = class(TConfigDataElementComplexWithStaticBase, IInetConfig)
   private
-    FUserAgentString: string;
+    FUserAgentString: AnsiString;
     FTimeOut: Cardinal;
     FProxyConfig: IProxyConfig;
     FSleepOnResetConnection: Cardinal;
@@ -45,8 +45,8 @@ type
   private
     function GetProxyConfig: IProxyConfig;
 
-    function GetUserAgentString: string;
-    procedure SetUserAgentString(const AValue: string);
+    function GetUserAgentString: AnsiString;
+    procedure SetUserAgentString(const AValue: AnsiString);
 
     function GetTimeOut: Cardinal;
     procedure SetTimeOut(AValue: Cardinal);
@@ -102,7 +102,7 @@ procedure TInetConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FUserAgentString := AConfigData.ReadString('UserAgentString', FUserAgentString);
+    FUserAgentString := AConfigData.ReadAnsiString('UserAgentString', FUserAgentString);
     FTimeOut := AConfigData.ReadInteger('TimeOut', FTimeOut);
     SetDownloadTryCount(AConfigData.ReadInteger('DownloadTryCount', FDownloadTryCount));
     FSleepOnResetConnection := AConfigData.ReadInteger('SleepOnResetConnection', FSleepOnResetConnection);
@@ -159,7 +159,7 @@ begin
   end;
 end;
 
-function TInetConfig.GetUserAgentString: string;
+function TInetConfig.GetUserAgentString: AnsiString;
 begin
   LockRead;
   try
@@ -210,7 +210,7 @@ begin
   end;
 end;
 
-procedure TInetConfig.SetUserAgentString(const AValue: string);
+procedure TInetConfig.SetUserAgentString(const AValue: AnsiString);
 begin
   LockWrite;
   try

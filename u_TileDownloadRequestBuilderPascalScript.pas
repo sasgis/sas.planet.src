@@ -53,7 +53,7 @@ type
     FCoordConverter: ICoordConverterSimple;
     FDefProjConverter: IProjConverter;
     FProjFactory: IProjConverterFactory;
-    FScriptBuffer: string;
+    FScriptBuffer: AnsiString;
 
     FLang: string;
     FLangManager: ILanguageManager;

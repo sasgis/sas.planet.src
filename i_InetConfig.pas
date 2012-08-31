@@ -32,8 +32,8 @@ type
     function GetProxyConfigStatic: IProxyConfigStatic;
     property ProxyConfigStatic: IProxyConfigStatic read GetProxyConfigStatic;
 
-    function GetUserAgentString: string;
-    property UserAgentString: string read GetUserAgentString;
+    function GetUserAgentString: AnsiString;
+    property UserAgentString: AnsiString read GetUserAgentString;
 
     function GetTimeOut: Cardinal;
     property TimeOut: Cardinal read GetTimeOut;
@@ -50,9 +50,9 @@ type
     function GetProxyConfig: IProxyConfig;
     property ProxyConfig: IProxyConfig read GetProxyConfig;
 
-    function GetUserAgentString: string;
-    procedure SetUserAgentString(const AValue: string);
-    property UserAgentString: string read GetUserAgentString write SetUserAgentString;
+    function GetUserAgentString: AnsiString;
+    procedure SetUserAgentString(const AValue: AnsiString);
+    property UserAgentString: AnsiString read GetUserAgentString write SetUserAgentString;
 
     function GetTimeOut: Cardinal;
     procedure SetTimeOut(AValue: Cardinal);

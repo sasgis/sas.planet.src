@@ -32,23 +32,23 @@ uses
 type
   TTileDownloadRequestBuilderConfigStatic = class(TInterfacedObject, ITileDownloadRequestBuilderConfigStatic)
   private
-    FUrlBase: string;
-    FRequestHeader: string;
+    FUrlBase: AnsiString;
+    FRequestHeader: AnsiString;
     FIsUseDownloader: Boolean;
-    FDefaultProjConverterArgs: string;
+    FDefaultProjConverterArgs: AnsiString;
     FGeoCoder: ICoordConverter;
   private
-    function GetUrlBase: string;
-    function GetRequestHeader: string;
+    function GetUrlBase: AnsiString;
+    function GetRequestHeader: AnsiString;
     function GetIsUseDownloader: Boolean;
-    function GetDefaultProjConverterArgs: string;
+    function GetDefaultProjConverterArgs: AnsiString;
     function GetGeoCoder: ICoordConverter;
   public
     constructor Create(
-      const AUrlBase: string;
-      const ARequestHeader: string;
+      const AUrlBase: AnsiString;
+      const ARequestHeader: AnsiString;
       const AIsUseDownloader: Boolean;
-      const ADefaultProjConverterArgs: string;
+      const ADefaultProjConverterArgs: AnsiString;
       const AGeoCoder: ICoordConverter
     );
   end;
@@ -56,21 +56,21 @@ type
   TTileDownloadRequestBuilderConfig = class(TConfigDataElementBase, ITileDownloadRequestBuilderConfig)
   private
     FDefConfig: ITileDownloadRequestBuilderConfigStatic;
-    FUrlBase: string;
-    FRequestHeader: string;
+    FUrlBase: AnsiString;
+    FRequestHeader: AnsiString;
     FGeoCoder: ICoordConverter;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetUrlBase: string;
-    procedure SetUrlBase(const AValue: string);
+    function GetUrlBase: AnsiString;
+    procedure SetUrlBase(const AValue: AnsiString);
 
-    function GetRequestHeader: string;
-    procedure SetRequestHeader(const AValue: string);
+    function GetRequestHeader: AnsiString;
+    procedure SetRequestHeader(const AValue: AnsiString);
 
     function GetIsUseDownloader: Boolean;
-    function GetDefaultProjConverterArgs: string;
+    function GetDefaultProjConverterArgs: AnsiString;
     function GetGeoCoder: ICoordConverter;
   public
     constructor Create(const ADefConfig: ITileDownloadRequestBuilderConfigStatic);
@@ -79,7 +79,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  ALfcnString;
 
 { TTileDownloadRequestBuilderConfig }
 
@@ -98,14 +99,14 @@ procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 var
-  VRequestHeader: string;
+  VRequestHeader: AnsiString;
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetUrlBase(AConfigData.ReadString('URLBase', FUrlBase));
+    SetUrlBase(AConfigData.ReadAnsiString('URLBase', FUrlBase));
     VRequestHeader :=
-      StringReplace(
-        AConfigData.ReadString('RequestHead', FRequestHeader),
+      ALStringReplace(
+        AConfigData.ReadAnsiString('RequestHead', FRequestHeader),
         '\r\n',
         #13#10,
         [rfIgnoreCase, rfReplaceAll]
@@ -118,30 +119,30 @@ procedure TTileDownloadRequestBuilderConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
 var
-  VRequestHeader: string;
+  VRequestHeader: AnsiString;
 begin
   inherited;
   if FUrlBase <> FDefConfig.UrlBase then begin
-    AConfigData.WriteString('URLBase', FUrlBase);
+    AConfigData.WriteAnsiString('URLBase', FUrlBase);
   end else begin
     AConfigData.DeleteValue('URLBase');
   end;
 
   if FRequestHeader <> FDefConfig.RequestHeader then begin
     VRequestHeader :=
-      StringReplace(
+      ALStringReplace(
         FRequestHeader,
         #13#10,
         '\r\n',
         [rfIgnoreCase, rfReplaceAll]
       );
-    AConfigData.WriteString('RequestHead', VRequestHeader);
+    AConfigData.WriteAnsiString('RequestHead', VRequestHeader);
   end else begin
     AConfigData.DeleteValue('RequestHead');
   end;
 end;
 
-function TTileDownloadRequestBuilderConfig.GetDefaultProjConverterArgs: string;
+function TTileDownloadRequestBuilderConfig.GetDefaultProjConverterArgs: AnsiString;
 begin
   Result := FDefConfig.DefaultProjConverterArgs;
 end;
@@ -156,7 +157,7 @@ begin
   Result := FDefConfig.IsUseDownloader;
 end;
 
-function TTileDownloadRequestBuilderConfig.GetRequestHeader: string;
+function TTileDownloadRequestBuilderConfig.GetRequestHeader: AnsiString;
 begin
   LockRead;
   try
@@ -166,7 +167,7 @@ begin
   end;
 end;
 
-function TTileDownloadRequestBuilderConfig.GetUrlBase: string;
+function TTileDownloadRequestBuilderConfig.GetUrlBase: AnsiString;
 begin
   LockRead;
   try
@@ -176,7 +177,7 @@ begin
   end;
 end;
 
-procedure TTileDownloadRequestBuilderConfig.SetRequestHeader(const AValue: string);
+procedure TTileDownloadRequestBuilderConfig.SetRequestHeader(const AValue: AnsiString);
 begin
   LockWrite;
   try
@@ -189,7 +190,7 @@ begin
   end;
 end;
 
-procedure TTileDownloadRequestBuilderConfig.SetUrlBase(const AValue: string);
+procedure TTileDownloadRequestBuilderConfig.SetUrlBase(const AValue: AnsiString);
 begin
   LockWrite;
   try
@@ -205,9 +206,9 @@ end;
 { TTileDownloadRequestBuilderConfigStatic }
 
 constructor TTileDownloadRequestBuilderConfigStatic.Create(
-  const AUrlBase, ARequestHeader: string;
+  const AUrlBase, ARequestHeader: AnsiString;
   const AIsUseDownloader: Boolean;
-  const ADefaultProjConverterArgs: string;
+  const ADefaultProjConverterArgs: AnsiString;
   const AGeoCoder: ICoordConverter
 );
 begin
@@ -219,7 +220,7 @@ begin
   FGeoCoder := AGeoCoder;
 end;
 
-function TTileDownloadRequestBuilderConfigStatic.GetDefaultProjConverterArgs: string;
+function TTileDownloadRequestBuilderConfigStatic.GetDefaultProjConverterArgs: AnsiString;
 begin
   Result := FDefaultProjConverterArgs;
 end;
@@ -234,12 +235,12 @@ begin
   Result := FIsUseDownloader;
 end;
 
-function TTileDownloadRequestBuilderConfigStatic.GetRequestHeader: string;
+function TTileDownloadRequestBuilderConfigStatic.GetRequestHeader: AnsiString;
 begin
   Result := FRequestHeader;
 end;
 
-function TTileDownloadRequestBuilderConfigStatic.GetUrlBase: string;
+function TTileDownloadRequestBuilderConfigStatic.GetUrlBase: AnsiString;
 begin
   Result := FUrlBase;
 end;

@@ -29,17 +29,17 @@ uses
 type
   TLastResponseInfo = class(TConfigDataElementBaseEmptySaveLoad, ILastResponseInfo)
   private
-    FResponseHead: string;
+    FResponseHead: AnsiString;
   private
-    function GetResponseHead: string;
-    procedure SetResponseHead(const AValue: string);
+    function GetResponseHead: AnsiString;
+    procedure SetResponseHead(const AValue: AnsiString);
   end;
 
 implementation
 
 { TLastResponseInfo }
 
-function TLastResponseInfo.GetResponseHead: string;
+function TLastResponseInfo.GetResponseHead: AnsiString;
 begin
   LockRead;
   try
@@ -49,7 +49,7 @@ begin
   end;
 end;
 
-procedure TLastResponseInfo.SetResponseHead(const AValue: string);
+procedure TLastResponseInfo.SetResponseHead(const AValue: AnsiString);
 begin
   LockWrite;
   try
