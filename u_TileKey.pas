@@ -12,18 +12,15 @@ type
   private
     FTile: TPoint;
     FZoom: Byte;
-    FVersionInfo: IMapVersionInfo;
   private
     function GetTile: TPoint;
     function GetZoom: Byte;
-    function GetVersionInfo: IMapVersionInfo;
 
     function IsSame(const AValue: ITileKey): Boolean;
   public
     constructor Create(
       const ATile: TPoint;
-      const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AZoom: Byte
     );
   end;
 
@@ -33,24 +30,17 @@ implementation
 
 constructor TTileKey.Create(
   const ATile: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
+  const AZoom: Byte
 );
 begin
   inherited Create;
   FTile := ATile;
   FZoom := AZoom;
-  FVersionInfo := AVersionInfo;
 end;
 
 function TTileKey.GetTile: TPoint;
 begin
   Result := FTile;
-end;
-
-function TTileKey.GetVersionInfo: IMapVersionInfo;
-begin
-  Result := FVersionInfo;
 end;
 
 function TTileKey.GetZoom: Byte;
@@ -69,13 +59,7 @@ begin
     if (FTile.X <> VTile.X) or (FTile.Y <> VTile.Y) or (FZoom <> AValue.Zoom) then begin
       Result := False;
     end else begin
-      if FVersionInfo = AValue.VersionInfo then begin
-        Result := True;
-      end else if FVersionInfo <> nil then begin
-        Result := FVersionInfo.IsSame(AValue.VersionInfo);
-      end else begin
-        Result := False;
-      end;
+      Result := True;
     end;
   end;
 end;

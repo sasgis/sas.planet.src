@@ -15,9 +15,6 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetVersionInfo: IMapVersionInfo;
-    property VersionInfo: IMapVersionInfo read GetVersionInfo;
-
     function IsSame(const AValue: ITileKey): Boolean;
   end;
 

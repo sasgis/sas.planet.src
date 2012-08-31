@@ -29,9 +29,6 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetVersionInfo: IMapVersionInfo;
-    property VersionInfo: IMapVersionInfo read GetVersionInfo;
-
     function IsEqual(const ARect: TRect): Boolean; overload;
     function IsEqual(const ARect: ITileRect): Boolean; overload;
     function IsPointInRect(const APoint: TPoint): Boolean;

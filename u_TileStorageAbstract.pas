@@ -221,7 +221,7 @@ var
 begin
   VNotifier := FNotifierByZoomInternal[AZoom - FMinValidZoom];
   if VNotifier <> nil then begin
-    VKey := TTileKey.Create(ATile, AZoom, AVersion);
+    VKey := TTileKey.Create(ATile, AZoom);
     VNotifier.TileUpdateNotify(VKey);
   end;
 end;
