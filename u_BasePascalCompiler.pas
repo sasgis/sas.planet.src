@@ -86,6 +86,7 @@ implementation
 
 uses
   Math,
+  ALfcnString,
   RegExprUtils,
   i_SimpleHttpDownloader,
   i_ProjConverter,
@@ -103,7 +104,7 @@ var
   RecT: TPSRecordType;
 begin
   // common types
-  if SameText(AName, 'SYSTEM') then begin
+  if ALSameText(AName, 'SYSTEM') then begin
     // TPoint
     VType := Sender.FindType('integer');
     RecT := TPSRecordType(Sender.AddType('TPoint', btRecord));
@@ -171,7 +172,7 @@ begin
   end;
 
   // common functions
-  if SameText(AName, 'SYSTEM') then begin
+  if ALSameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(x:integer): integer');
     Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): String');
@@ -208,7 +209,7 @@ end;
 function TBasePascalCompiler.CompileAndGetOutput(var AData: TbtString): Boolean;
 var
   i: Integer;
-  VCompilerMsg: string;
+  VCompilerMsg: AnsiString;
 begin
   if (not Self.Compile(FScriptText)) then begin
     VCompilerMsg := '';
@@ -324,7 +325,7 @@ begin
   if not FExec.LoadData(ACompiledData) then begin
     raise Exception.Create(
       SAS_ERR_UrlScriptByteCodeLoad + #13#10 +
-      TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString)
+      string(TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString))
     );
   end;
 

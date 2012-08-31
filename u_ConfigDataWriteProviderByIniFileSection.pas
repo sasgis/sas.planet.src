@@ -173,7 +173,7 @@ end;
 procedure TConfigDataWriteProviderByIniFileSection.WriteAnsiString(
   const AIdent: string; const AValue: AnsiString);
 begin
-  IniFile.WriteString(Section, AIdent, AValue);
+  IniFile.WriteString(Section, AIdent, string(AValue));
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteTime(
