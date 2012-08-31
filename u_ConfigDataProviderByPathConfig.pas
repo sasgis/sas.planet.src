@@ -206,7 +206,7 @@ var
 begin
   Result := '';
   if AIdent = '::FileName' then begin
-    Result := FSourcePath.FullPath;
+    Result := AnsiString(FSourcePath.FullPath);
   end else begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
@@ -233,7 +233,7 @@ end;
 function TConfigDataProviderByPathConfig.ReadString(const AIdent,
   ADefault: string): string;
 begin
-  Result := ReadAnsiString(AIdent, ADefault);
+  Result := string(ReadAnsiString(AIdent, AnsiString(ADefault)));
 end;
 
 function TConfigDataProviderByPathConfig.ReadSubItemsList: IStringListStatic;

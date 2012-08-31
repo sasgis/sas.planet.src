@@ -233,7 +233,7 @@ begin
   if AIdent = '::FileName' then begin
     Result := FSourceFileName;
   end else begin
-    Result := ReadAnsiString(AIdent, ADefault);
+    Result := string(ReadAnsiString(AIdent, AnsiString(ADefault)));
   end;
 end;
 
