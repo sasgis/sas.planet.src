@@ -39,8 +39,8 @@ type
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
-    FExpectedMIMETypes: string;
-    FDefaultMIMEType: string;
+    FExpectedMIMETypes: AnsiString;
+    FDefaultMIMEType: AnsiString;
     FIteratorSubRectSize: TPoint;
   protected
     function CreateStatic: IInterface; override;
@@ -62,11 +62,11 @@ type
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
 
-    function GetExpectedMIMETypes: string;
-    procedure SetExpectedMIMETypes(const AValue: string);
+    function GetExpectedMIMETypes: AnsiString;
+    procedure SetExpectedMIMETypes(const AValue: AnsiString);
 
-    function GetDefaultMIMEType: string;
-    procedure SetDefaultMIMEType(const AValue: string);
+    function GetDefaultMIMEType: AnsiString;
+    procedure SetDefaultMIMEType(const AValue: AnsiString);
 
     function GetIteratorSubRectSize: TPoint;
     procedure SetIteratorSubRectSize(const AValue: TPoint);
@@ -130,8 +130,8 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FIgnoreMIMEType := AConfigData.ReadBool('IgnoreContentType', FIgnoreMIMEType);
-    FDefaultMIMEType := AConfigData.ReadString('DefaultContentType', FDefaultMIMEType);
-    FExpectedMIMETypes := AConfigData.ReadString('ContentType', FExpectedMIMETypes);
+    FDefaultMIMEType := AConfigData.ReadAnsiString('DefaultContentType', FDefaultMIMEType);
+    FExpectedMIMETypes := AConfigData.ReadAnsiString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
     SetMaxConnectToServerCount(AConfigData.ReadInteger('MaxConnectToServerCount', FMaxConnectToServerCount));
     SetChanged;
@@ -166,7 +166,7 @@ begin
   end;
 end;
 
-function TTileDownloaderConfig.GetDefaultMIMEType: string;
+function TTileDownloaderConfig.GetDefaultMIMEType: AnsiString;
 begin
   LockRead;
   try
@@ -186,7 +186,7 @@ begin
   end;
 end;
 
-function TTileDownloaderConfig.GetExpectedMIMETypes: string;
+function TTileDownloaderConfig.GetExpectedMIMETypes: AnsiString;
 begin
   LockRead;
   try
@@ -250,7 +250,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderConfig.SetDefaultMIMEType(const AValue: string);
+procedure TTileDownloaderConfig.SetDefaultMIMEType(const AValue: AnsiString);
 begin
   LockWrite;
   try
@@ -282,7 +282,7 @@ begin
   end;
 end;
 
-procedure TTileDownloaderConfig.SetExpectedMIMETypes(const AValue: string);
+procedure TTileDownloaderConfig.SetExpectedMIMETypes(const AValue: AnsiString);
 begin
   LockWrite;
   try

@@ -184,7 +184,7 @@ procedure TTileDownloadResultSaverStuped.SaveDownloadResult(
 );
 var
   VResultOk: IDownloadResultOk;
-  VContentType: string;
+  VContentType: AnsiString;
   VTileDownloadRequest: ITileDownloadRequest;
   VTileRequest: ITileRequest;
 begin

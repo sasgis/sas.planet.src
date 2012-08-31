@@ -43,7 +43,7 @@ type
     FBanFlag: ISimpleFlag;
     procedure addDwnforban;
     procedure IncDownloadedAndCheckAntiBan;
-    procedure ExecOnBan(const ALastUrl: String);
+    procedure ExecOnBan(const ALastUrl: AnsiString);
   private
     procedure PreDownload(
       const ARequest: IDownloadRequest
@@ -74,15 +74,15 @@ uses
 type
   TExecOnBan = class
   private
-    FLastUrl: string;
+    FLastUrl: AnsiString;
     procedure ExecOnBan;
   public
-    procedure Exec(const ALastUrl: String);
+    procedure Exec(const ALastUrl: AnsiString);
   end;
 
 { TExecOnBan }
 
-procedure TExecOnBan.Exec(const ALastUrl: String);
+procedure TExecOnBan.Exec(const ALastUrl: AnsiString);
 begin
   FLastUrl := ALastUrl;
   TThread.Synchronize(nil, ExecOnBan);
@@ -123,7 +123,7 @@ begin
   FBanFlag := TSimpleFlagWithInterlock.Create;
 end;
 
-procedure TAntiBanStuped.ExecOnBan(const ALastUrl: String);
+procedure TAntiBanStuped.ExecOnBan(const ALastUrl: AnsiString);
 begin
   if FBanFlag.CheckFlagAndReset then begin
     with TExecOnBan.Create do begin

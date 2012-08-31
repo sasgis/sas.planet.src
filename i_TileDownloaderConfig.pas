@@ -45,11 +45,11 @@ type
     function GetIgnoreMIMEType: Boolean;
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType;
 
-    function GetExpectedMIMETypes: string;
-    property ExpectedMIMETypes: string read GetExpectedMIMETypes;
+    function GetExpectedMIMETypes: AnsiString;
+    property ExpectedMIMETypes: AnsiString read GetExpectedMIMETypes;
 
-    function GetDefaultMIMEType: string;
-    property DefaultMIMEType: string read GetDefaultMIMEType;
+    function GetDefaultMIMEType: AnsiString;
+    property DefaultMIMEType: AnsiString read GetDefaultMIMEType;
 
     function GetIteratorSubRectSize: TPoint;
     property IteratorSubRectSize: TPoint read GetIteratorSubRectSize;
@@ -76,13 +76,13 @@ type
     procedure SetIgnoreMIMEType(AValue: Boolean);
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType write SetIgnoreMIMEType;
 
-    function GetExpectedMIMETypes: string;
-    procedure SetExpectedMIMETypes(const AValue: string);
-    property ExpectedMIMETypes: string read GetExpectedMIMETypes write SetExpectedMIMETypes;
+    function GetExpectedMIMETypes: AnsiString;
+    procedure SetExpectedMIMETypes(const AValue: AnsiString);
+    property ExpectedMIMETypes: AnsiString read GetExpectedMIMETypes write SetExpectedMIMETypes;
 
-    function GetDefaultMIMEType: string;
-    procedure SetDefaultMIMEType(const AValue: string);
-    property DefaultMIMEType: string read GetDefaultMIMEType write SetDefaultMIMEType;
+    function GetDefaultMIMEType: AnsiString;
+    procedure SetDefaultMIMEType(const AValue: AnsiString);
+    property DefaultMIMEType: AnsiString read GetDefaultMIMEType write SetDefaultMIMEType;
 
     function GetIteratorSubRectSize: TPoint;
     procedure SetIteratorSubRectSize(const AValue: TPoint);

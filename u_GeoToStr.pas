@@ -70,7 +70,7 @@ end;
 
 function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer): string;
 const
-  Roman: array[1..36] of string[6] = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
+  Roman: array[1..36] of string = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
              'XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV',
              'XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI');
 var
