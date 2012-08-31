@@ -11,16 +11,21 @@ uses
 
 type
   INotifierTileRectUpdate = interface
-    ['{63FC7494-8ECF-42BE-A516-3908337F77CE}']
+    ['{67415555-955C-4BC7-BC8F-2F9BCDD0F065}']
     function GetGeoCoder: ICoordConverter;
     property GeoCoder: ICoordConverter read GetGeoCoder;
 
-    function GetZoom: Byte;
-    property Zoom: Byte read GetZoom;
-
-    procedure Add(
+    procedure AddListenerByRect(
       const AListener: IListener;
+      const AZoom: Byte;
       const ATileRect: TRect
+    );
+    procedure AddListenerByZoom(
+      const AListener: IListener;
+      const AZoom: Byte
+    );
+    procedure AddListener(
+      const AListener: IListener
     );
     procedure Remove(const AListener: IListener);
   end;

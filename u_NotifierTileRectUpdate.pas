@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_Listener,
   i_TileKey,
@@ -17,30 +18,60 @@ type
     Rect: TRect;
   end;
 
-  TNotifierTileRectUpdate = class(TInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
+  TNotifierTileRectUpdateOneZoomSimple = class
   private
-    FGeoCoder: ICoordConverter;
-    FZoom: Byte;
-    FSynchronizer: IReadWriteSync;
+    FListenerByAllZoom: TList;
     FCount: Integer;
-    FList: array of TListenerRecord;
+    FListenerByRect: array of TListenerRecord;
     function CalcGrowSize(AOldSize: Integer): Integer;
-  private
-    function GetGeoCoder: ICoordConverter;
-    function GetZoom: Byte;
 
-    procedure Add(
+  public
+    procedure AddListenerByRect(
       const AListener: IListener;
       const ATileRect: TRect
     );
+    procedure AddListener(
+      const AListener: IListener
+    );
     procedure Remove(const AListener: IListener);
 
+    procedure PrepareListenersListFull(AListeners: TList);
+    procedure PrepareListenersListByTile(const ATile: TPoint; AListeners: TList);
+    procedure PrepareListenersListByRect(const ATileRect: TRect; AListeners: TList);
+  public
+    constructor Create();
+    destructor Destroy; override;
+  end;
+
+  TNotifierTileRectUpdate = class(TInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
+  private
+    FGeoCoder: ICoordConverter;
+    FMinValidZoom: Byte;
+    FMaxValidZoom: Byte;
+    FSynchronizer: IReadWriteSync;
+    FListeners: TList;
+    FListenersByZoom: array of TNotifierTileRectUpdateOneZoomSimple;
+  private
+    function GetGeoCoder: ICoordConverter;
+
+    procedure AddListenerByRect(
+      const AListener: IListener;
+      const AZoom: Byte;
+      const ATileRect: TRect
+    );
+    procedure AddListenerByZoom(
+      const AListener: IListener;
+      const AZoom: Byte
+    );
+    procedure AddListener(
+      const AListener: IListener
+    );
+    procedure Remove(const AListener: IListener);
   private
     procedure TileUpdateNotify(const ATileKey: ITileKey);
     procedure TileRectUpdateNotify(const ATileRect: ITileRect);
   public
     constructor Create(
-      AZoom: Byte;
       const AGeoCoder: ICoordConverter
     );
     destructor Destroy; override;
@@ -49,35 +80,94 @@ type
 implementation
 
 uses
-  Classes,
   u_Synchronizer;
 
-{ TNotifierTileRectUpdate }
+{ TNotifierTileRectUpdateOneZoomSimple }
 
-constructor TNotifierTileRectUpdate.Create(
-  AZoom: Byte;
-  const AGeoCoder: ICoordConverter
-);
+constructor TNotifierTileRectUpdateOneZoomSimple.Create;
 begin
   inherited Create;
-  FZoom := AZoom;
-  FGeoCoder := AGeoCoder;
-  FSynchronizer := MakeSyncRW_Big(Self, False);
+  FListenerByAllZoom := TList.Create;
 end;
 
-destructor TNotifierTileRectUpdate.Destroy;
+destructor TNotifierTileRectUpdateOneZoomSimple.Destroy;
 var
   i: Integer;
 begin
   for i := 0 to FCount - 1 do begin
-    FList[i].Listener := nil;
+    FListenerByRect[i].Listener := nil;
   end;
-  FList := nil;
-  FGeoCoder := nil;
+  FListenerByRect := nil;
+  if FListenerByAllZoom <> nil then begin
+    for i := 0 to FListenerByAllZoom.Count - 1 do begin
+      IInterface(FListenerByAllZoom[i])._Release;
+    end;
+    FreeAndNil(FListenerByAllZoom);
+  end;
   inherited;
 end;
 
-function TNotifierTileRectUpdate.CalcGrowSize(AOldSize: Integer): Integer;
+procedure TNotifierTileRectUpdateOneZoomSimple.AddListener(
+  const AListener: IListener);
+var
+  i: Integer;
+  VIndex: Integer;
+begin
+  Assert(AListener <> nil);
+  VIndex := -1;
+  for i := 0 to FCount - 1 do begin
+    if FListenerByRect[i].Listener = AListener then begin
+      VIndex := i;
+      Break;
+    end;
+  end;
+  if VIndex >= 0 then begin
+    FListenerByRect[VIndex].Listener := nil;
+    Dec(FCount);
+    if VIndex < FCount then begin
+      Pointer(FListenerByRect[VIndex].Listener) := Pointer(FListenerByRect[FCount].Listener);
+      FListenerByRect[VIndex].Rect := FListenerByRect[FCount].Rect;
+      Pointer(FListenerByRect[FCount].Listener) := nil;
+    end;
+  end;
+  if FListenerByAllZoom.IndexOf(Pointer(AListener)) < 0 then begin
+    FListenerByAllZoom.Add(Pointer(AListener));
+    AListener._AddRef;
+  end;
+end;
+
+procedure TNotifierTileRectUpdateOneZoomSimple.AddListenerByRect(
+  const AListener: IListener; const ATileRect: TRect);
+var
+  i: Integer;
+  VIndex: Integer;
+begin
+  Assert(AListener <> nil);
+  VIndex := -1;
+  for i := 0 to FCount - 1 do begin
+    if FListenerByRect[i].Listener = AListener then begin
+      VIndex := i;
+      Break;
+    end;
+  end;
+  if VIndex < 0 then begin
+    if FCount >= Length(FListenerByRect) then begin
+      SetLength(FListenerByRect, CalcGrowSize(Length(FListenerByRect)));
+    end;
+    VIndex := FCount;
+    Inc(FCount);
+  end;
+  FListenerByRect[VIndex].Listener := AListener;
+  FListenerByRect[VIndex].Rect := ATileRect;
+  VIndex := FListenerByAllZoom.IndexOf(Pointer(AListener));
+  if VIndex >= 0 then begin
+    AListener._Release;
+    FListenerByAllZoom.Delete(VIndex);
+  end;
+end;
+
+function TNotifierTileRectUpdateOneZoomSimple.CalcGrowSize(
+  AOldSize: Integer): Integer;
 begin
   if AOldSize < 8 then begin
     Result := 8;
@@ -86,10 +176,134 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.Add(
-  const AListener: IListener;
-  const ATileRect: TRect
-);
+procedure TNotifierTileRectUpdateOneZoomSimple.Remove(
+  const AListener: IListener);
+var
+  i: Integer;
+  VIndex: Integer;
+begin
+  Assert(AListener <> nil);
+  VIndex := -1;
+  for i := 0 to FCount - 1 do begin
+    if FListenerByRect[i].Listener = AListener then begin
+      VIndex := i;
+      Break;
+    end;
+  end;
+  if VIndex >= 0 then begin
+    FListenerByRect[VIndex].Listener := nil;
+    Dec(FCount);
+    if VIndex < FCount then begin
+      Pointer(FListenerByRect[VIndex].Listener) := Pointer(FListenerByRect[FCount].Listener);
+      FListenerByRect[VIndex].Rect := FListenerByRect[FCount].Rect;
+      Pointer(FListenerByRect[FCount].Listener) := nil;
+    end;
+  end;
+  VIndex := FListenerByAllZoom.IndexOf(Pointer(AListener));
+  if VIndex >= 0 then begin
+    AListener._Release;
+    FListenerByAllZoom.Delete(VIndex);
+  end;
+end;
+
+procedure TNotifierTileRectUpdateOneZoomSimple.PrepareListenersListByRect(
+  const ATileRect: TRect; AListeners: TList);
+var
+  i: Integer;
+  VListener: Pointer;
+  VIntersectRect: TRect;
+begin
+  for i := 0 to FCount - 1 do begin
+    if IntersectRect(VIntersectRect, FListenerByRect[i].Rect, ATileRect) then begin
+      VListener := Pointer(FListenerByRect[i].Listener);
+      AListeners.Add(VListener);
+      IInterface(VListener)._AddRef;
+    end;
+  end;
+  for i := 0 to FListenerByAllZoom.Count - 1 do begin
+    VListener := FListenerByAllZoom.Items[i];
+    AListeners.Add(VListener);
+    IInterface(VListener)._AddRef;
+  end;
+end;
+
+procedure TNotifierTileRectUpdateOneZoomSimple.PrepareListenersListByTile(
+  const ATile: TPoint; AListeners: TList);
+var
+  i: Integer;
+  VListener: Pointer;
+begin
+  for i := 0 to FCount - 1 do begin
+    if PtInRect(FListenerByRect[i].Rect, ATile) then begin
+      VListener := Pointer(FListenerByRect[i].Listener);
+      AListeners.Add(VListener);
+      IInterface(VListener)._AddRef;
+    end;
+  end;
+  for i := 0 to FListenerByAllZoom.Count - 1 do begin
+    VListener := FListenerByAllZoom.Items[i];
+    AListeners.Add(VListener);
+    IInterface(VListener)._AddRef;
+  end;
+end;
+
+procedure TNotifierTileRectUpdateOneZoomSimple.PrepareListenersListFull(
+  AListeners: TList);
+var
+  i: Integer;
+  VListener: Pointer;
+begin
+  for i := 0 to FCount - 1 do begin
+    VListener := Pointer(FListenerByRect[i].Listener);
+    AListeners.Add(VListener);
+    IInterface(VListener)._AddRef;
+  end;
+  for i := 0 to FListenerByAllZoom.Count - 1 do begin
+    VListener := FListenerByAllZoom.Items[i];
+    AListeners.Add(VListener);
+    IInterface(VListener)._AddRef;
+  end;
+end;
+
+{ TNotifierTileRectUpdate }
+
+constructor TNotifierTileRectUpdate.Create(const AGeoCoder: ICoordConverter);
+var
+  VCount: Integer;
+  i: Integer;
+begin
+  Assert(AGeoCoder <> nil);
+  inherited Create;
+  FGeoCoder := AGeoCoder;
+  FMinValidZoom := FGeoCoder.MinZoom;
+  FMaxValidZoom := FGeoCoder.MaxZoom;
+  FSynchronizer := MakeSyncRW_Big(Self, False);
+  FListeners := TList.Create;
+  VCount := FMaxValidZoom - FMinValidZoom + 1;
+  SetLength(FListenersByZoom, VCount);
+  for i := 0 to VCount - 1 do begin
+    FListenersByZoom[i] := TNotifierTileRectUpdateOneZoomSimple.Create;
+  end;
+end;
+
+destructor TNotifierTileRectUpdate.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Length(FListenersByZoom) - 1 do begin
+    FreeAndNil(FListenersByZoom[i]);
+  end;
+  FListenersByZoom := nil;
+  if FListeners <> nil then begin
+    for i := 0 to FListeners.Count - 1 do begin
+      IInterface(FListeners[i])._Release;
+    end;
+    FreeAndNil(FListeners);
+  end;
+  inherited;
+end;
+
+procedure TNotifierTileRectUpdate.AddListener(const AListener: IListener);
 var
   i: Integer;
   VIndex: Integer;
@@ -97,22 +311,75 @@ begin
   Assert(AListener <> nil);
   FSynchronizer.BeginWrite;
   try
-    VIndex := -1;
-    for i := 0 to FCount - 1 do begin
-      if FList[i].Listener = AListener then begin
-        VIndex := i;
-        Break;
-      end;
+    for i := 0 to Length(FListenersByZoom) - 1 do begin
+      FListenersByZoom[i].Remove(AListener);
     end;
+    VIndex := FListeners.IndexOf(Pointer(AListener));
     if VIndex < 0 then begin
-      if FCount >= Length(FList) then begin
-        SetLength(FList, CalcGrowSize(Length(FList)));
-      end;
-      VIndex := FCount;
-      Inc(FCount);
+      FListeners.Add(Pointer(AListener));
+      AListener._AddRef;
     end;
-    FList[VIndex].Listener := AListener;
-    FList[VIndex].Rect := ATileRect;
+  finally
+    FSynchronizer.EndWrite;
+  end;
+end;
+
+procedure TNotifierTileRectUpdate.AddListenerByRect(
+  const AListener: IListener;
+  const AZoom: Byte;
+  const ATileRect: TRect
+);
+var
+  i: Integer;
+  VIndex: Integer;
+  VZoomIndex: Integer;
+begin
+  Assert(AListener <> nil);
+  VZoomIndex := AZoom - FMinValidZoom;
+  FSynchronizer.BeginWrite;
+  try
+    for i := 0 to Length(FListenersByZoom) - 1 do begin
+      if i = VZoomIndex then begin
+        FListenersByZoom[i].AddListenerByRect(AListener, ATileRect);
+      end else begin
+        FListenersByZoom[i].Remove(AListener);
+      end;
+    end;
+    VIndex := FListeners.IndexOf(Pointer(AListener));
+    if VIndex >= 0 then begin
+      AListener._Release;
+      FListeners.Delete(VIndex);
+    end;
+  finally
+    FSynchronizer.EndWrite;
+  end;
+end;
+
+procedure TNotifierTileRectUpdate.AddListenerByZoom(
+  const AListener: IListener;
+  const AZoom: Byte
+);
+var
+  i: Integer;
+  VIndex: Integer;
+  VZoomIndex: Integer;
+begin
+  Assert(AListener <> nil);
+  VZoomIndex := AZoom - FMinValidZoom;
+  FSynchronizer.BeginWrite;
+  try
+    for i := 0 to Length(FListenersByZoom) - 1 do begin
+      if i = VZoomIndex then begin
+        FListenersByZoom[i].AddListener(AListener);
+      end else begin
+        FListenersByZoom[i].Remove(AListener);
+      end;
+    end;
+    VIndex := FListeners.IndexOf(Pointer(AListener));
+    if VIndex >= 0 then begin
+      AListener._Release;
+      FListeners.Delete(VIndex);
+    end;
   finally
     FSynchronizer.EndWrite;
   end;
@@ -123,14 +390,7 @@ begin
   Result := FGeoCoder;
 end;
 
-function TNotifierTileRectUpdate.GetZoom: Byte;
-begin
-  Result := FZoom;
-end;
-
-procedure TNotifierTileRectUpdate.Remove(
-  const AListener: IListener
-);
+procedure TNotifierTileRectUpdate.Remove(const AListener: IListener);
 var
   i: Integer;
   VIndex: Integer;
@@ -138,21 +398,13 @@ begin
   Assert(AListener <> nil);
   FSynchronizer.BeginWrite;
   try
-    VIndex := -1;
-    for i := 0 to FCount - 1 do begin
-      if FList[i].Listener = AListener then begin
-        VIndex := i;
-        Break;
-      end;
+    for i := 0 to Length(FListenersByZoom) - 1 do begin
+      FListenersByZoom[i].Remove(AListener);
     end;
+    VIndex := FListeners.IndexOf(Pointer(AListener));
     if VIndex >= 0 then begin
-      FList[VIndex].Listener := nil;
-      Dec(FCount);
-      if VIndex < FCount then begin
-        Pointer(FList[VIndex].Listener) := Pointer(FList[FCount].Listener);
-        FList[VIndex].Rect := FList[FCount].Rect;
-        Pointer(FList[FCount].Listener) := nil;
-      end;
+      AListener._Release;
+      FListeners.Delete(VIndex);
     end;
   finally
     FSynchronizer.EndWrite;
@@ -160,22 +412,31 @@ begin
 end;
 
 procedure TNotifierTileRectUpdate.TileRectUpdateNotify(
-  const ATileRect: ITileRect
-);
+  const ATileRect: ITileRect);
 var
   i: Integer;
   VList: TList;
-  VListener: IListener;
+  VListener: Pointer;
+  VZoomIndex: Integer;
 begin
   VList := TList.Create;
   try
     VList.Capacity := 8;
     FSynchronizer.BeginRead;
     try
-      for i := 0 to FCount - 1 do begin
-        if (ATileRect = nil) or ATileRect.IsIntersecWithRect(FList[i].Rect) then begin
-          FList[i].Listener._AddRef;
-          VList.Add(Pointer(FList[i].Listener));
+      for i := 0 to FListeners.Count - 1 do begin
+        VListener := FListeners.Items[i];
+        VList.Add(VListener);
+        IInterface(VListener)._AddRef;;
+      end;
+      if ATileRect <> nil then begin
+        VZoomIndex := ATileRect.Zoom - FMinValidZoom;
+        if (VZoomIndex >= 0) and (VZoomIndex < Length(FListenersByZoom)) then begin
+          FListenersByZoom[VZoomIndex].PrepareListenersListByRect(ATileRect.Rect, VList);
+        end;
+      end else begin
+        for i := 0 to Length(FListenersByZoom) - 1 do begin
+          FListenersByZoom[i].PrepareListenersListFull(VList);
         end;
       end;
     finally
@@ -183,9 +444,9 @@ begin
     end;
     if VList.Count > 0 then begin
       for i := 0 to VList.Count - 1 do begin
-        VListener := IListener(VList[i]);
-        VListener.Notification(ATileRect);
-        VListener._Release;
+        VListener := VList[i];
+        IListener(VListener).Notification(ATileRect);
+        IInterface(VListener)._Release;
         VListener := nil;
       end;
     end;
@@ -197,20 +458,28 @@ end;
 procedure TNotifierTileRectUpdate.TileUpdateNotify(const ATileKey: ITileKey);
 var
   i: Integer;
-  VTile: TPoint;
   VList: TList;
-  VListener: IListener;
+  VListener: Pointer;
+  VZoomIndex: Integer;
 begin
   VList := TList.Create;
   try
     VList.Capacity := 8;
-    VTile := ATileKey.Tile;
     FSynchronizer.BeginRead;
     try
-      for i := 0 to FCount - 1 do begin
-        if PtInRect(FList[i].Rect, VTile) then begin
-          FList[i].Listener._AddRef;
-          VList.Add(Pointer(FList[i].Listener));
+      for i := 0 to FListeners.Count - 1 do begin
+        VListener := FListeners.Items[i];
+        VList.Add(VListener);
+        IInterface(VListener)._AddRef;;
+      end;
+      if ATileKey <> nil then begin
+        VZoomIndex := ATileKey.Zoom - FMinValidZoom;
+        if (VZoomIndex >= 0) and (VZoomIndex < Length(FListenersByZoom)) then begin
+          FListenersByZoom[VZoomIndex].PrepareListenersListByTile(ATileKey.Tile, VList);
+        end;
+      end else begin
+        for i := 0 to Length(FListenersByZoom) - 1 do begin
+          FListenersByZoom[i].PrepareListenersListFull(VList);
         end;
       end;
     finally
@@ -218,9 +487,9 @@ begin
     end;
     if VList.Count > 0 then begin
       for i := 0 to VList.Count - 1 do begin
-        VListener := IListener(VList[i]);
-        VListener.Notification(ATileKey);
-        VListener._Release;
+        VListener := VList[i];
+        IListener(VListener).Notification(ATileKey);
+        IInterface(VListener)._Release;
         VListener := nil;
       end;
     end;

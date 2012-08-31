@@ -145,7 +145,6 @@ constructor TMemTileCacheBase.Create(
   const APerfList: IInternalPerformanceCounterList
 );
 var
-  i: Integer;
   VNotifier: INotifierTileRectUpdate;
 begin
   inherited Create;
@@ -158,11 +157,9 @@ begin
     FTileStorage := ATileStorage;
     FCoordConverter := ACoordConverter;
     FStorageChangeListener := TNotifyEventListener.Create(Self.OnTileStorageChange);
-    for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
-      VNotifier := FTileStorage.NotifierByZoom[i];
-      if VNotifier <> nil then begin
-        VNotifier.Add(FStorageChangeListener, FCoordConverter.TileRectAtZoom(i));
-      end;
+    VNotifier := FTileStorage.TileNotifier;
+    if VNotifier <> nil then begin
+      VNotifier.AddListener(FStorageChangeListener);
     end;
   end;
   FCacheList := TStringList.Create;
@@ -180,7 +177,6 @@ end;
 
 destructor TMemTileCacheBase.Destroy;
 var
-  i: Integer;
   VNotifier: INotifierTileRectUpdate;
 begin
   FConfig.GetChangeNotifier.Remove(FConfigListener);
@@ -191,15 +187,15 @@ begin
   FTTLListener := nil;
   FGCList := nil;
 
-  for i := FCoordConverter.MinZoom to FCoordConverter.MaxZoom do begin
-    VNotifier := FTileStorage.NotifierByZoom[i];
+  if FTileStorage <> nil then begin
+    VNotifier := FTileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VNotifier.Remove(FStorageChangeListener);
     end;
+    FTileStorage := nil;
   end;
   FStorageChangeListener := nil;
   FCoordConverter := nil;
-  FTileStorage := nil;
 
   Clear;
   FreeAndNil(FCacheList);

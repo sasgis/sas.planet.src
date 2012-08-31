@@ -77,7 +77,7 @@ type
       const APath: string
     );
   private
-    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
+    function GetTileNotifier: INotifierTileRectUpdate;
     function GetState: IStorageStateChangeble;
 
     function GetTileFileName(
@@ -520,15 +520,14 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.GetNotifierByZoom(
-  AZoom: Byte): INotifierTileRectUpdate;
+function TTileStorageOfMapType.GetTileNotifier: INotifierTileRectUpdate;
 var
   VStorage: ITileStorage;
 begin
   Result := nil;
   VStorage := GetStorage;
   if VStorage <> nil then begin
-    Result := VStorage.NotifierByZoom[AZoom];
+    Result := VStorage.TileNotifier;
   end;
 end;
 

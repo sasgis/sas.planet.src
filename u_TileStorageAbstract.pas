@@ -47,13 +47,11 @@ type
   private
     FGeoConverter: ICoordConverter;
     FMapVersionFactory: IMapVersionFactory;
-    FMinValidZoom: Byte;
-    FMaxValidZoom: Byte;
-    FNotifierByZoom: array of INotifierTileRectUpdate;
+    FTileNotifier: INotifierTileRectUpdate;
     FStoragePath: string;
     FStorageState: IStorageStateChangeble;
     FStorageStateInternal: IStorageStateInternal;
-    FNotifierByZoomInternal: array of INotifierTileRectUpdateInternal;
+    FTileNotifierInternal: INotifierTileRectUpdateInternal;
   protected
     procedure NotifyTileUpdate(
       const ATile: TPoint;
@@ -65,7 +63,7 @@ type
     property GeoConverter: ICoordConverter read FGeoConverter;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
   protected
-    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
+    function GetTileNotifier: INotifierTileRectUpdate;
     function GetState: IStorageStateChangeble;
 
     function GetTileFileName(
@@ -122,7 +120,6 @@ type
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -146,8 +143,6 @@ constructor TTileStorageAbstract.Create(
   const AStoragePath: string
 );
 var
-  VCount: Integer;
-  i: Integer;
   VNotifier: TNotifierTileRectUpdate;
   VState: TStorageStateInternal;
 begin
@@ -160,30 +155,9 @@ begin
   FStorageStateInternal := VState;
   FStorageState := VState;
 
-  FMinValidZoom := AGeoConverter.MinZoom;
-  FMaxValidZoom := AGeoConverter.MaxZoom;
-  Assert(FMinValidZoom <= FMaxValidZoom);
-  VCount := FMaxValidZoom - FMinValidZoom + 1;
-  SetLength(FNotifierByZoom, VCount);
-  SetLength(FNotifierByZoomInternal, VCount);
-  for i := 0 to VCount - 1 do begin
-    VNotifier := TNotifierTileRectUpdate.Create(FMinValidZoom + i, AGeoConverter);
-    FNotifierByZoom[i] := VNotifier;
-    FNotifierByZoomInternal[i] := VNotifier;
-  end;
-end;
-
-destructor TTileStorageAbstract.Destroy;
-var
-  i: Integer;
-begin
-  for i := 0 to Length(FNotifierByZoom) - 1 do begin
-    FNotifierByZoom[i] := nil;
-  end;
-  for i := 0 to Length(FNotifierByZoomInternal) - 1 do begin
-    FNotifierByZoomInternal[i] := nil;
-  end;
-  inherited;
+  VNotifier := TNotifierTileRectUpdate.Create(AGeoConverter);
+  FTileNotifier := VNotifier;
+  FTileNotifierInternal := VNotifier;
 end;
 
 function TTileStorageAbstract.GetListOfTileVersions(
@@ -195,14 +169,9 @@ begin
   Result := nil;
 end;
 
-function TTileStorageAbstract.GetNotifierByZoom(
-  AZoom: Byte
-): INotifierTileRectUpdate;
+function TTileStorageAbstract.GetTileNotifier: INotifierTileRectUpdate;
 begin
-  Result := nil;
-  if (AZoom >= FMinValidZoom) and (AZoom <= FMaxValidZoom) then begin
-    Result := FNotifierByZoom[AZoom - FMinValidZoom];
-  end;
+  Result := FTileNotifier;
 end;
 
 function TTileStorageAbstract.GetState: IStorageStateChangeble;
@@ -217,13 +186,9 @@ procedure TTileStorageAbstract.NotifyTileUpdate(
 );
 var
   VKey: ITileKey;
-  VNotifier: INotifierTileRectUpdateInternal;
 begin
-  VNotifier := FNotifierByZoomInternal[AZoom - FMinValidZoom];
-  if VNotifier <> nil then begin
-    VKey := TTileKey.Create(ATile, AZoom);
-    VNotifier.TileUpdateNotify(VKey);
-  end;
+  VKey := TTileKey.Create(ATile, AZoom);
+  FTileNotifierInternal.TileUpdateNotify(VKey);
 end;
 
 function TTileStorageAbstract.ScanTiles(

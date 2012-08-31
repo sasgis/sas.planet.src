@@ -295,15 +295,13 @@ var
   VNotifier: INotifierTileRectUpdate;
   i: Integer;
   VMap: IMapType;
-  VZoom: Byte;
 begin
   FListenerCS.BeginWrite;
   try
     if (FListener <> nil) and (FListenLocalConverter <> nil) then begin
-      VZoom := FListenLocalConverter.Zoom;
       VMap := FMainMap;
       if VMap <> nil then begin
-        VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+        VNotifier := VMap.MapType.TileNotifier;
         if VNotifier <> nil then begin
           VNotifier.Remove(FMainMapListener);
         end;
@@ -313,7 +311,7 @@ begin
         for i := 0 to FLayersList.Count - 1 do begin
           VMap := FLayersList.Items[i];
           if VMap <> nil then begin
-            VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+            VNotifier := VMap.MapType.TileNotifier;
             if VNotifier <> nil then begin
               VNotifier.Remove(FLayerListeners[i]);
             end;
@@ -354,7 +352,7 @@ begin
         if (VZoom <> ALocalConverter.Zoom) then begin
           VMap := FMainMap;
           if VMap <> nil then begin
-            VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+            VNotifier := VMap.MapType.TileNotifier;
             if VNotifier <> nil then begin
               VNotifier.Remove(FMainMapListener);
             end;
@@ -363,7 +361,7 @@ begin
             for i := 0 to FLayersList.Count - 1 do begin
               VMap := FLayersList.Items[i];
               if VMap <> nil then begin
-                VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+                VNotifier := VMap.MapType.TileNotifier;
                 if VNotifier <> nil then begin
                   VNotifier.Remove(FLayerListeners[i]);
                 end;
@@ -410,7 +408,7 @@ begin
         VLonLatRect := VConverter.PixelRect2LonLatRect(VMapRect, VZoom);
         VMap := FMainMap;
         if VMap <> nil then begin
-          VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+          VNotifier := VMap.MapType.TileNotifier;
           if VNotifier <> nil then begin
             VConverter := VMap.MapType.GeoConvert;
             VMapLonLatRect := VLonLatRect;
@@ -420,14 +418,14 @@ begin
                 VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
                 rrToTopLeft
               );
-            VNotifier.Add(FMainMapListener, VTileRect);
+            VNotifier.AddListenerByRect(FMainMapListener, VZoom, VTileRect);
           end;
         end;
         if FLayersList <> nil then begin
           for i := 0 to FLayersList.Count - 1 do begin
             VMap := FLayersList.Items[i];
             if VMap <> nil then begin
-              VNotifier := VMap.MapType.NotifierByZoom[VZoom];
+              VNotifier := VMap.MapType.TileNotifier;
               if VNotifier <> nil then begin
                 VConverter := VMap.MapType.GeoConvert;
                 VMapLonLatRect := VLonLatRect;
@@ -437,7 +435,7 @@ begin
                     VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
                     rrToTopLeft
                   );
-                VNotifier.Add(FLayerListeners[i], VTileRect);
+                VNotifier.AddListenerByRect(FLayerListeners[i], VZoom, VTileRect);
               end;
             end;
           end;

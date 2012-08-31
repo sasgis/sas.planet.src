@@ -38,8 +38,8 @@ type
 
   ITileStorage = interface
     ['{80A0246E-68E0-4EA0-9B0F-3338472FDB3C}']
-    function GetNotifierByZoom(AZoom: Byte): INotifierTileRectUpdate;
-    property NotifierByZoom[AZoom: Byte]: INotifierTileRectUpdate read GetNotifierByZoom;
+    function GetTileNotifier: INotifierTileRectUpdate;
+    property TileNotifier: INotifierTileRectUpdate read GetTileNotifier;
 
     function GetState: IStorageStateChangeble;
     property State: IStorageStateChangeble read GetState;
