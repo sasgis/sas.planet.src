@@ -43,6 +43,10 @@ type
       const AIdent: string;
       const AValue: string
     );
+    procedure WriteAnsiString(
+      const AIdent: string;
+      const AValue: AnsiString
+    );
     procedure WriteInteger(
       const AIdent: string;
       const AValue: Longint
@@ -107,6 +111,12 @@ function TConfigDataWriteProviderByIniFile.GetOrCreateSubItem(
   const AIdent: string): IConfigDataWriteProvider;
 begin
   Result := TConfigDataWriteProviderByIniFileSection.Create(IniFile, AIdent, Self);
+end;
+
+procedure TConfigDataWriteProviderByIniFile.WriteAnsiString(
+  const AIdent: string; const AValue: AnsiString);
+begin
+  raise Exception.Create('Not expected');
 end;
 
 procedure TConfigDataWriteProviderByIniFile.WriteBinary(

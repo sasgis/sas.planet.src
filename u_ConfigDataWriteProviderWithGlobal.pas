@@ -45,6 +45,10 @@ type
       const AIdent: string;
       const AValue: string
     );
+    procedure WriteAnsiString(
+      const AIdent: string;
+      const AValue: AnsiString
+    );
     procedure WriteInteger(
       const AIdent: string;
       const AValue: Longint
@@ -267,6 +271,22 @@ begin
   if VUseMain then begin
     if FProviderMain <> nil then begin
       FProviderMain.WriteString(VIdent, AValue);
+    end;
+  end else begin
+    raise Exception.Create('Not expected');
+  end;
+end;
+
+procedure TConfigDataWriteProviderWithGlobal.WriteAnsiString(
+  const AIdent: string; const AValue: AnsiString);
+var
+  VIdent: string;
+  VUseMain: Boolean;
+begin
+  VIdent := PrepareIdent(AIdent, VUseMain);
+  if VUseMain then begin
+    if FProviderMain <> nil then begin
+      FProviderMain.WriteAnsiString(VIdent, AValue);
     end;
   end else begin
     raise Exception.Create('Not expected');

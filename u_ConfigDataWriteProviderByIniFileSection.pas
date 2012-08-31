@@ -44,6 +44,10 @@ type
       const AIdent: string;
       const AValue: string
     );
+    procedure WriteAnsiString(
+      const AIdent: string;
+      const AValue: AnsiString
+    );
     procedure WriteInteger(
       const AIdent: string;
       const AValue: Longint
@@ -162,6 +166,12 @@ end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteString(const AIdent,
   AValue: string);
+begin
+  IniFile.WriteString(Section, AIdent, AValue);
+end;
+
+procedure TConfigDataWriteProviderByIniFileSection.WriteAnsiString(
+  const AIdent: string; const AValue: AnsiString);
 begin
   IniFile.WriteString(Section, AIdent, AValue);
 end;
