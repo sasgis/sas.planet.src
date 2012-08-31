@@ -40,8 +40,8 @@ type
       const ARequest: IDownloadRequest;
       const ARecivedData: IBinaryData;
       var AStatusCode: Cardinal;
-      var AContentType: string;
-      var AResponseHead: string
+      var AContentType: AnsiString;
+      var AResponseHead: AnsiString
     ): IDownloadResult;
   end;
 

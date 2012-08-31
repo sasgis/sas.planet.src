@@ -53,7 +53,7 @@ type
       const ARequest: IDownloadRequest;
       const ARecivedBuffer: IBinaryData;
       var AStatusCode: Cardinal;
-      var AResponseHead: string
+      var AResponseHead: AnsiString
     ): IDownloadResult;
   public
     constructor Create(
@@ -160,7 +160,7 @@ function TAntiBanStuped.PostCheckDownload(
   const ARequest: IDownloadRequest;
   const ARecivedBuffer: IBinaryData;
   var AStatusCode: Cardinal;
-  var AResponseHead: string
+  var AResponseHead: AnsiString
 ): IDownloadResult;
 begin
   Result := nil;

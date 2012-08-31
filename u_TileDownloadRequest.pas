@@ -33,14 +33,14 @@ uses
 type
   TTileDownloadRequest = class(TInterfacedObject, IDownloadRequest, ITileDownloadRequest, IRequestWithChecker)
   private
-    FUrl: string;
-    FRequestHeader: string;
+    FUrl: AnsiString;
+    FRequestHeader: AnsiString;
     FInetConfig: IInetConfigStatic;
     FCheker: IDownloadChecker;
     FSource: ITileRequest;
   private
-    function GetUrl: string;
-    function GetRequestHeader: string;
+    function GetUrl: AnsiString;
+    function GetRequestHeader: AnsiString;
     function GetInetConfig: IInetConfigStatic;
   private
     function GetSource: ITileRequest;
@@ -48,8 +48,8 @@ type
     function GetChecker: IDownloadChecker;
   public
     constructor Create(
-      const AUrl: string;
-      const ARequestHeader: string;
+      const AUrl: AnsiString;
+      const ARequestHeader: AnsiString;
       const AInetConfig: IInetConfigStatic;
       const ACheker: IDownloadChecker;
       const ASource: ITileRequest
@@ -63,8 +63,8 @@ type
     function GetPostData: IBinaryData;
   public
     constructor Create(
-      const AUrl: string;
-      const ARequestHeader: string;
+      const AUrl: AnsiString;
+      const ARequestHeader: AnsiString;
       const APostData: IBinaryData;
       const AInetConfig: IInetConfigStatic;
       const ACheker: IDownloadChecker;
@@ -77,7 +77,7 @@ implementation
 { TTileDownloadRequest }
 
 constructor TTileDownloadRequest.Create(
-  const AUrl, ARequestHeader: string;
+  const AUrl, ARequestHeader: AnsiString;
   const AInetConfig: IInetConfigStatic;
   const ACheker: IDownloadChecker;
   const ASource: ITileRequest
@@ -101,7 +101,7 @@ begin
   Result := FInetConfig;
 end;
 
-function TTileDownloadRequest.GetRequestHeader: string;
+function TTileDownloadRequest.GetRequestHeader: AnsiString;
 begin
   Result := FRequestHeader;
 end;
@@ -111,7 +111,7 @@ begin
   Result := FSource;
 end;
 
-function TTileDownloadRequest.GetUrl: string;
+function TTileDownloadRequest.GetUrl: AnsiString;
 begin
   Result := FUrl;
 end;
@@ -119,7 +119,7 @@ end;
 { TTileDownloadPostRequest }
 
 constructor TTileDownloadPostRequest.Create(
-  const AUrl, ARequestHeader: string;
+  const AUrl, ARequestHeader: AnsiString;
   const APostData: IBinaryData;
   const AInetConfig: IInetConfigStatic;
   const ACheker: IDownloadChecker;

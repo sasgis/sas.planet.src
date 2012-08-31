@@ -49,22 +49,22 @@ type
   TDownloadResultOk = class(TDownloadResult, IDownloadResultOk, IDownloadResultWithServerRespond)
   private
     FStatusCode: Cardinal;
-    FRawResponseHeader: string;
-    FContentType: string;
+    FRawResponseHeader: AnsiString;
+    FContentType: AnsiString;
     FData: IBinaryData;
   protected
     function GetIsServerExists: Boolean; override;
   protected
     function GetStatusCode: Cardinal;
-    function GetRawResponseHeader: string;
-    function GetContentType: string;
+    function GetRawResponseHeader: AnsiString;
+    function GetContentType: AnsiString;
     function GetData: IBinaryData;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
-      const ARawResponseHeader: string;
-      const AContentType: string;
+      const ARawResponseHeader: AnsiString;
+      const AContentType: AnsiString;
       const AData: IBinaryData
     );
   end;
@@ -135,16 +135,16 @@ type
   TDownloadResultBanned = class(TDownloadResultError, IDownloadResultBanned, IDownloadResultWithServerRespond)
   private
     FStatusCode: Cardinal;
-    FRawResponseHeader: string;
+    FRawResponseHeader: AnsiString;
   protected
     function GetIsServerExists: Boolean; override;
     function GetStatusCode: Cardinal;
-    function GetRawResponseHeader: string;
+    function GetRawResponseHeader: AnsiString;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
-      const ARawResponseHeader: string;
+      const ARawResponseHeader: AnsiString;
       const AErrorText: string
     );
   end;
@@ -152,20 +152,20 @@ type
   TDownloadResultBadContentType = class(TDownloadResultError, IDownloadResultBadContentType, IDownloadResultWithServerRespond)
   private
     FStatusCode: Cardinal;
-    FRawResponseHeader: string;
-    FContentType: string;
+    FRawResponseHeader: AnsiString;
+    FContentType: AnsiString;
   protected
-    function GetContentType: string;
+    function GetContentType: AnsiString;
   protected
     function GetIsServerExists: Boolean; override;
     function GetStatusCode: Cardinal;
-    function GetRawResponseHeader: string;
+    function GetRawResponseHeader: AnsiString;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AContentType: string;
+      const AContentType: AnsiString;
       AStatusCode: Cardinal;
-      const ARawResponseHeader: string;
+      const ARawResponseHeader: AnsiString;
       const AErrorText: string
     );
   end;
@@ -174,19 +174,19 @@ type
   private
     FReasonText: string;
     FStatusCode: Cardinal;
-    FRawResponseHeader: string;
+    FRawResponseHeader: AnsiString;
   protected
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
     function GetStatusCode: Cardinal;
-    function GetRawResponseHeader: string;
+    function GetRawResponseHeader: AnsiString;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
       const AReasonText: string;
       AStatusCode: Cardinal;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     );
   end;
 
@@ -194,7 +194,7 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const ARawResponseHeader: string;
+      const ARawResponseHeader: AnsiString;
       const AErrorText: string;
       AStatusCode: DWORD
     );
@@ -205,7 +205,7 @@ type
     constructor Create(
       const ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
-      const ARawResponseHeader: string;
+      const ARawResponseHeader: AnsiString;
       const AErrorText: string
     );
   end;
@@ -214,19 +214,19 @@ type
   private
     FReasonText: string;
     FStatusCode: Cardinal;
-    FRawResponseHeader: string;
+    FRawResponseHeader: AnsiString;
   protected
     function GetIsServerExists: Boolean; override;
   protected
     function GetReasonText: string;
     function GetStatusCode: Cardinal;
-    function GetRawResponseHeader: string;
+    function GetRawResponseHeader: AnsiString;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
       const AReasonText: string;
       AStatusCode: Cardinal;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     );
   end;
 
@@ -255,7 +255,7 @@ end;
 constructor TDownloadResultOk.Create(
   const ARequest: IDownloadRequest;
   AStatusCode: Cardinal;
-  const ARawResponseHeader, AContentType: string;
+  const ARawResponseHeader, AContentType: AnsiString;
   const AData: IBinaryData
 );
 begin
@@ -266,7 +266,7 @@ begin
   FData := AData;
 end;
 
-function TDownloadResultOk.GetContentType: string;
+function TDownloadResultOk.GetContentType: AnsiString;
 begin
   Result := FContentType;
 end;
@@ -281,7 +281,7 @@ begin
   Result := True;
 end;
 
-function TDownloadResultOk.GetRawResponseHeader: string;
+function TDownloadResultOk.GetRawResponseHeader: AnsiString;
 begin
   Result := FRawResponseHeader;
 end;
@@ -326,7 +326,8 @@ end;
 constructor TDownloadResultBanned.Create(
   const ARequest: IDownloadRequest;
   AStatusCode: Cardinal;
-  const ARawResponseHeader, AErrorText: string
+  const ARawResponseHeader: AnsiString;
+  const AErrorText: string
 );
 begin
   inherited Create(ARequest, AErrorText);
@@ -339,7 +340,7 @@ begin
   Result := True;
 end;
 
-function TDownloadResultBanned.GetRawResponseHeader: string;
+function TDownloadResultBanned.GetRawResponseHeader: AnsiString;
 begin
   Result := FRawResponseHeader;
 end;
@@ -353,9 +354,10 @@ end;
 
 constructor TDownloadResultBadContentType.Create(
   const ARequest: IDownloadRequest;
-  const AContentType: string;
+  const AContentType: AnsiString;
   AStatusCode: Cardinal;
-  const ARawResponseHeader, AErrorText: string
+  const ARawResponseHeader: AnsiString;
+  const AErrorText: string
 );
 begin
   inherited Create(ARequest, Format(AErrorText, [AContentType]));
@@ -364,7 +366,7 @@ begin
   FRawResponseHeader := ARawResponseHeader;
 end;
 
-function TDownloadResultBadContentType.GetContentType: string;
+function TDownloadResultBadContentType.GetContentType: AnsiString;
 begin
   Result := FContentType;
 end;
@@ -374,7 +376,7 @@ begin
   Result := True;
 end;
 
-function TDownloadResultBadContentType.GetRawResponseHeader: string;
+function TDownloadResultBadContentType.GetRawResponseHeader: AnsiString;
 begin
   Result := FRawResponseHeader;
 end;
@@ -430,7 +432,7 @@ constructor TDownloadResultDataNotExists.Create(
   const ARequest: IDownloadRequest;
   const AReasonText: string;
   AStatusCode: Cardinal;
-  const ARawResponseHeader: string
+  const ARawResponseHeader: AnsiString
 );
 begin
   inherited Create(ARequest);
@@ -444,7 +446,7 @@ begin
   Result := True;
 end;
 
-function TDownloadResultDataNotExists.GetRawResponseHeader: string;
+function TDownloadResultDataNotExists.GetRawResponseHeader: AnsiString;
 begin
   Result := FRawResponseHeader;
 end;
@@ -465,7 +467,7 @@ constructor TDownloadResultNotNecessary.Create(
   const ARequest: IDownloadRequest;
   const AReasonText: string;
   AStatusCode: Cardinal;
-  const ARawResponseHeader: string
+  const ARawResponseHeader: AnsiString
 );
 begin
   inherited Create(ARequest);
@@ -479,7 +481,7 @@ begin
   Result := True;
 end;
 
-function TDownloadResultNotNecessary.GetRawResponseHeader: string;
+function TDownloadResultNotNecessary.GetRawResponseHeader: AnsiString;
 begin
   Result := FRawResponseHeader;
 end;
@@ -498,7 +500,8 @@ end;
 
 constructor TDownloadResultDataNotExistsByStatusCode.Create(
   const ARequest: IDownloadRequest;
-  const ARawResponseHeader, AErrorText: string;
+  const ARawResponseHeader: AnsiString;
+  const AErrorText: string;
   AStatusCode: DWORD
 );
 begin
@@ -510,7 +513,8 @@ end;
 constructor TDownloadResultDataNotExistsZeroSize.Create(
   const ARequest: IDownloadRequest;
   AStatusCode: Cardinal;
-  const ARawResponseHeader, AErrorText: string
+  const ARawResponseHeader: AnsiString;
+  const AErrorText: string
 );
 begin
   inherited Create(ARequest, AErrorText, AStatusCode, ARawResponseHeader);

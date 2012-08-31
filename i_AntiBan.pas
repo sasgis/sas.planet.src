@@ -39,7 +39,7 @@ type
       const ARequest: IDownloadRequest;
       const ARecivedBuffer: IBinaryData;
       var AStatusCode: Cardinal;
-      var AResponseHead: string
+      var AResponseHead: AnsiString
     ): IDownloadResult;
   end;
 

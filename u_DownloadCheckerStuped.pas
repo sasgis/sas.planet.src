@@ -55,8 +55,8 @@ type
       const ARequest: IDownloadRequest;
       const ARecivedData: IBinaryData;
       var AStatusCode: Cardinal;
-      var AContentType: string;
-      var AResponseHead: string
+      var AContentType: AnsiString;
+      var AResponseHead: AnsiString
     ): IDownloadResult;
   public
     constructor Create(
@@ -145,8 +145,8 @@ function TDownloadCheckerStuped.AfterReciveData(
   const ARequest: IDownloadRequest;
   const ARecivedData: IBinaryData;
   var AStatusCode: Cardinal;
-  var AContentType: string;
-  var AResponseHead: string
+  var AContentType: AnsiString;
+  var AResponseHead: AnsiString
 ): IDownloadResult;
 var
   VConfig: ITileDownloaderConfigStatic;

@@ -45,8 +45,8 @@ type
     function GetStatusCode: Cardinal;
     property StatusCode: Cardinal read GetStatusCode;
 
-    function GetRawResponseHeader: string;
-    property RawResponseHeader: string read GetRawResponseHeader;
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
   end;
 
   IDownloadResultOk = interface(IDownloadResult)
@@ -54,11 +54,11 @@ type
     function GetStatusCode: Cardinal;
     property StatusCode: Cardinal read GetStatusCode;
 
-    function GetRawResponseHeader: string;
-    property RawResponseHeader: string read GetRawResponseHeader;
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
 
-    function GetContentType: string;
-    property ContentType: string read GetContentType;
+    function GetContentType: AnsiString;
+    property ContentType: AnsiString read GetContentType;
 
     function GetData: IBinaryData;
     property Data: IBinaryData read GetData;
@@ -84,11 +84,11 @@ type
 
   IDownloadResultBadContentType = interface(IDownloadResultError)
     ['{A8C2F27E-D1DA-43CA-8F34-4156F906D50B}']
-    function GetContentType: string;
-    property ContentType: string read GetContentType;
+    function GetContentType: AnsiString;
+    property ContentType: AnsiString read GetContentType;
 
-    function GetRawResponseHeader: string;
-    property RawResponseHeader: string read GetRawResponseHeader;
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
   end;
 
   IDownloadResultDataNotExists = interface(IDownloadResult)
@@ -96,8 +96,8 @@ type
     function GetReasonText: string;
     property ReasonText: string read GetReasonText;
 
-    function GetRawResponseHeader: string;
-    property RawResponseHeader: string read GetRawResponseHeader;
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
   end;
 
   IDownloadResultNotNecessary = interface(IDownloadResult)
@@ -105,8 +105,8 @@ type
     function GetReasonText: string;
     property ReasonText: string read GetReasonText;
 
-    function GetRawResponseHeader: string;
-    property RawResponseHeader: string read GetRawResponseHeader;
+    function GetRawResponseHeader: AnsiString;
+    property RawResponseHeader: AnsiString read GetRawResponseHeader;
   end;
 
 implementation

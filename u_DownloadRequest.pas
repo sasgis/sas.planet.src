@@ -10,17 +10,17 @@ uses
 type
   TDownloadRequest = class(TInterfacedObject, IDownloadRequest)
   private
-    FUrl: string;
-    FRequestHeader: string;
+    FUrl: AnsiString;
+    FRequestHeader: AnsiString;
     FInetConfig: IInetConfigStatic;
   protected
-    function GetUrl: string;
-    function GetRequestHeader: string;
+    function GetUrl: AnsiString;
+    function GetRequestHeader: AnsiString;
     function GetInetConfig: IInetConfigStatic;
   public
     constructor Create(
-      const AUrl: string;
-      const ARequestHeader: string;
+      const AUrl: AnsiString;
+      const ARequestHeader: AnsiString;
       const AInetConfig: IInetConfigStatic
     );
   end;
@@ -32,8 +32,8 @@ type
     function GetPostData: IBinaryData;
   public
     constructor Create(
-      const AUrl: string;
-      const ARequestHeader: string;
+      const AUrl: AnsiString;
+      const ARequestHeader: AnsiString;
       const APostData: IBinaryData;
       const AInetConfig: IInetConfigStatic
     );
@@ -44,7 +44,7 @@ implementation
 { TDownloadRequest }
 
 constructor TDownloadRequest.Create(
-  const AUrl, ARequestHeader: string;
+  const AUrl, ARequestHeader: AnsiString;
   const AInetConfig: IInetConfigStatic
 );
 begin
@@ -59,12 +59,12 @@ begin
   Result := FInetConfig;
 end;
 
-function TDownloadRequest.GetRequestHeader: string;
+function TDownloadRequest.GetRequestHeader: AnsiString;
 begin
   Result := FRequestHeader;
 end;
 
-function TDownloadRequest.GetUrl: string;
+function TDownloadRequest.GetUrl: AnsiString;
 begin
   Result := FUrl;
 end;
@@ -72,7 +72,7 @@ end;
 { TDownloadPostRequest }
 
 constructor TDownloadPostRequest.Create(
-  const AUrl, ARequestHeader: string;
+  const AUrl, ARequestHeader: AnsiString;
   const APostData: IBinaryData;
   const AInetConfig: IInetConfigStatic
 );

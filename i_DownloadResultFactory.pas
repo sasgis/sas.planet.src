@@ -37,8 +37,8 @@ type
     function BuildOk(
       const ARequest: IDownloadRequest;
       const AStatusCode: Cardinal;
-      const ARawResponseHeader: string;
-      const AContentType: string;
+      const ARawResponseHeader: AnsiString;
+      const AContentType: AnsiString;
       const AData: IBinaryData
     ): IDownloadResultOk;
     function BuildUnexpectedProxyAuth(
@@ -69,36 +69,36 @@ type
     ): IDownloadResultError;
     function BuildBadContentType(
       const ARequest: IDownloadRequest;
-      const AContentType: string;
+      const AContentType: AnsiString;
       const AStatusCode: DWORD;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     ): IDownloadResultBadContentType;
     function BuildBanned(
       const ARequest: IDownloadRequest;
       const AStatusCode: DWORD;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     ): IDownloadResultBanned;
     function BuildDataNotExists(
       const ARequest: IDownloadRequest;
       const AReasonText: string;
       const AStatusCode: DWORD;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsByStatusCode(
       const ARequest: IDownloadRequest;
-      const ARawResponseHeader: string;
+      const ARawResponseHeader: AnsiString;
       const AStatusCode: DWORD
     ): IDownloadResultDataNotExists;
     function BuildDataNotExistsZeroSize(
       const ARequest: IDownloadRequest;
       const AStatusCode: DWORD;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     ): IDownloadResultDataNotExists;
     function BuildNotNecessary(
       const ARequest: IDownloadRequest;
       const AReasonText: string;
       const AStatusCode: DWORD;
-      const ARawResponseHeader: string
+      const ARawResponseHeader: AnsiString
     ): IDownloadResultNotNecessary;
   end;
 

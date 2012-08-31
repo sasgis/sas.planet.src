@@ -428,9 +428,9 @@ function TDownloaderHttp.OnAfterResponse(
   const AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
 var
-  VRawHeaderText: string;
+  VRawHeaderText: AnsiString;
   VStatusCode: Cardinal;
-  VContentType: string;
+  VContentType: AnsiString;
   VRequestWithChecker: IRequestWithChecker;
   VResponseBody: IBinaryData;
 begin
