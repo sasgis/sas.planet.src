@@ -775,7 +775,7 @@ jpeg_error_mgr = record
   { Routine that actually outputs a trace or error message }
   output_message: procedure(cinfo: j_common_ptr); cdecl;
   { Format a message string for the most recent JPEG error or message }
-  format_message: procedure(cinfo: j_common_ptr; buffer: pAnsichar); cdecl;
+  format_message: procedure(cinfo: j_common_ptr; buffer: PAnsiChar); cdecl;
 //#define JMSG_LENGTH_MAX  200	{ recommended size of format_message buffer }
   { Reset error state variables at start of a new image }
   reset_error_mgr: procedure(cinfo: j_common_ptr); cdecl;
@@ -786,7 +786,7 @@ jpeg_error_mgr = record
   msg_parm: record
     case integer of
       1: (i: array [0..7] of integer);
-      2: (s: array [0..79] of char);
+      2: (s: array [0..79] of AnsiChar);
     end;
   
   { Standard state variables for error facility }
