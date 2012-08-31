@@ -192,6 +192,7 @@ implementation
 
 uses
   Types,
+  ALfcnString,
   GR32,
   gnugettext,
   c_ZeroGUID,
@@ -926,19 +927,19 @@ procedure TZmpInfo.LoadTileRequestBuilderConfig(
   const AConfig: IConfigDataProvider
 );
 var
-  VUrlBase: string;
-  VRequestHead: string;
+  VUrlBase: AnsiString;
+  VRequestHead: AnsiString;
   VCoordConverter: ICoordConverter;
   VIsUseDownloader: Boolean;
-  VDefaultProjConverterArgs: string;
+  VDefaultProjConverterArgs: AnsiString;
 begin
-  VUrlBase := AConfig.ReadString('DefURLBase', '');
-  VUrlBase := AConfig.ReadString('URLBase', VUrlBase);
-  VRequestHead := AConfig.ReadString('RequestHead', '');
-  VRequestHead := StringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
+  VUrlBase := AConfig.ReadAnsiString('DefURLBase', '');
+  VUrlBase := AConfig.ReadAnsiString('URLBase', VUrlBase);
+  VRequestHead := AConfig.ReadAnsiString('RequestHead', '');
+  VRequestHead := ALStringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
   VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(AConfig);
   VIsUseDownloader := AConfig.ReadBool('IsUseDownloaderInScript', False);
-  VDefaultProjConverterArgs := AConfig.ReadString('Proj4Args', '');
+  VDefaultProjConverterArgs := AConfig.ReadAnsiString('Proj4Args', '');
 
   FTileDownloadRequestBuilderConfig :=
     TTileDownloadRequestBuilderConfigStatic.Create(

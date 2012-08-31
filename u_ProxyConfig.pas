@@ -33,25 +33,25 @@ type
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
-    FHost: WideString;
+    FHost: AnsiString;
     FUseLogin: boolean;
-    FLogin: WideString;
-    FPassword: WideString;
+    FLogin: AnsiString;
+    FPassword: AnsiString;
   private
     function GetUseIESettings: Boolean;
     function GetUseProxy: Boolean;
-    function GetHost: WideString;
+    function GetHost: AnsiString;
     function GetUseLogin: boolean;
-    function GetLogin: WideString;
-    function GetPassword: WideString;
+    function GetLogin: AnsiString;
+    function GetPassword: AnsiString;
   public
     constructor Create(
       AUseIESettings: Boolean;
       AUseProxy: Boolean;
-      const AHost: WideString;
+      const AHost: AnsiString;
       AUseLogin: boolean;
-      const ALogin: WideString;
-      const APassword: WideString
+      const ALogin: AnsiString;
+      const APassword: AnsiString
     );
   end;
 
@@ -59,10 +59,10 @@ type
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;
-    FHost: WideString;
+    FHost: AnsiString;
     FUseLogin: boolean;
-    FLogin: WideString;
-    FPassword: WideString;
+    FLogin: AnsiString;
+    FPassword: AnsiString;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -75,17 +75,17 @@ type
     function GetUseProxy: Boolean; safecall;
     procedure SetUseProxy(AValue: Boolean);
 
-    function GetHost: WideString; safecall;
-    procedure SetHost(const AValue: WideString);
+    function GetHost: AnsiString; safecall;
+    procedure SetHost(const AValue: AnsiString);
 
     function GetUseLogin: boolean; safecall;
     procedure SetUseLogin(AValue: Boolean);
 
-    function GetLogin: WideString; safecall;
-    procedure SetLogin(const AValue: WideString);
+    function GetLogin: AnsiString; safecall;
+    procedure SetLogin(const AValue: AnsiString);
 
-    function GetPassword: WideString; safecall;
-    procedure SetPassword(const AValue: WideString);
+    function GetPassword: AnsiString; safecall;
+    procedure SetPassword(const AValue: AnsiString);
 
     function GetStatic: IProxyConfigStatic;
   public
@@ -129,10 +129,10 @@ begin
   if AConfigData <> nil then begin
     FUseIESettings := AConfigData.ReadBool('UseIEProxySettings', FUseIESettings);
     FUseProxy := AConfigData.ReadBool('UseProxy', FUseProxy);
-    FHost := AConfigData.ReadString('Host', FHost);
+    FHost := AConfigData.ReadAnsiString('Host', FHost);
     FUseLogin := AConfigData.ReadBool('UseAuth', FUseLogin);
-    FLogin := AConfigData.ReadString('Login', FLogin);
-    FPassword := AConfigData.ReadString('Password', FPassword);
+    FLogin := AConfigData.ReadAnsiString('Login', FLogin);
+    FPassword := AConfigData.ReadAnsiString('Password', FPassword);
     SetChanged;
   end;
 end;
@@ -142,13 +142,13 @@ begin
   inherited;
   AConfigData.WriteBool('UseIEProxySettings', FUseIESettings);
   AConfigData.WriteBool('UseProxy', FUseProxy);
-  AConfigData.WriteString('Host', FHost);
+  AConfigData.WriteAnsiString('Host', FHost);
   AConfigData.WriteBool('UseAuth', FUseLogin);
-  AConfigData.WriteString('Login', FLogin);
-  AConfigData.WriteString('Password', FPassword);
+  AConfigData.WriteAnsiString('Login', FLogin);
+  AConfigData.WriteAnsiString('Password', FPassword);
 end;
 
-function TProxyConfig.GetHost: WideString;
+function TProxyConfig.GetHost: AnsiString;
 begin
   LockRead;
   try
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-function TProxyConfig.GetLogin: WideString;
+function TProxyConfig.GetLogin: AnsiString;
 begin
   LockRead;
   try
@@ -168,7 +168,7 @@ begin
   end;
 end;
 
-function TProxyConfig.GetPassword: WideString;
+function TProxyConfig.GetPassword: AnsiString;
 begin
   LockRead;
   try
@@ -213,7 +213,7 @@ begin
   end;
 end;
 
-procedure TProxyConfig.SetHost(const AValue: WideString);
+procedure TProxyConfig.SetHost(const AValue: AnsiString);
 begin
   LockWrite;
   try
@@ -228,7 +228,7 @@ begin
   end;
 end;
 
-procedure TProxyConfig.SetLogin(const AValue: WideString);
+procedure TProxyConfig.SetLogin(const AValue: AnsiString);
 begin
   LockWrite;
   try
@@ -243,7 +243,7 @@ begin
   end;
 end;
 
-procedure TProxyConfig.SetPassword(const AValue: WideString);
+procedure TProxyConfig.SetPassword(const AValue: AnsiString);
 begin
   LockWrite;
   try
@@ -306,9 +306,9 @@ end;
 
 constructor TProxyConfigStatic.Create(
   AUseIESettings, AUseProxy: Boolean;
-  const AHost: WideString;
+  const AHost: AnsiString;
   AUseLogin: boolean;
-  const ALogin, APassword: WideString
+  const ALogin, APassword: AnsiString
 );
 begin
   inherited Create;
@@ -320,17 +320,17 @@ begin
   FPassword := APassword;
 end;
 
-function TProxyConfigStatic.GetHost: WideString;
+function TProxyConfigStatic.GetHost: AnsiString;
 begin
   Result := FHost;
 end;
 
-function TProxyConfigStatic.GetLogin: WideString;
+function TProxyConfigStatic.GetLogin: AnsiString;
 begin
   Result := FLogin;
 end;
 
-function TProxyConfigStatic.GetPassword: WideString;
+function TProxyConfigStatic.GetPassword: AnsiString;
 begin
   Result := FPassword;
 end;

@@ -47,10 +47,10 @@ type
     HeaderRawText: AnsiString;
     ProxyUseIESettings: Boolean;
     ProxyUseCustomSettings: Boolean;
-    ProxyHost: WideString;
+    ProxyHost: AnsiString;
     ProxyUseLogin: Boolean;
-    ProxyUserName: WideString;
-    ProxyPassword: WideString;
+    ProxyUserName: AnsiString;
+    ProxyPassword: AnsiString;
   end;
 
   TDownloaderHttp = class(TInterfacedObject, IDownloader)

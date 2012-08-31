@@ -34,17 +34,17 @@ type
     function GetUseProxy: boolean;
     property UseProxy: boolean read GetUseProxy;
 
-    function GetHost: WideString;
-    property Host: WideString read GetHost;
+    function GetHost: AnsiString;
+    property Host: AnsiString read GetHost;
 
     function GetUseLogin: boolean;
     property UseLogin: boolean read GetUseLogin;
 
-    function GetLogin: WideString;
-    property Login: WideString read GetLogin;
+    function GetLogin: AnsiString;
+    property Login: AnsiString read GetLogin;
 
-    function GetPassword: WideString;
-    property Password: WideString read GetPassword;
+    function GetPassword: AnsiString;
+    property Password: AnsiString read GetPassword;
   end;
 
   IProxyConfig = interface(IConfigDataElement)
@@ -57,21 +57,21 @@ type
     procedure SetUseProxy(AValue: Boolean);
     property UseProxy: boolean read GetUseProxy write SetUseProxy;
 
-    function GetHost: WideString; safecall;
-    procedure SetHost(const AValue: WideString);
-    property Host: WideString read GetHost write SetHost;
+    function GetHost: AnsiString; safecall;
+    procedure SetHost(const AValue: AnsiString);
+    property Host: AnsiString read GetHost write SetHost;
 
     function GetUseLogin: boolean; safecall;
     procedure SetUseLogin(AValue: Boolean);
     property UseLogin: boolean read GetUseLogin write SetUseLogin;
 
-    function GetLogin: WideString; safecall;
-    procedure SetLogin(const AValue: WideString);
-    property Login: WideString read GetLogin write SetLogin;
+    function GetLogin: AnsiString; safecall;
+    procedure SetLogin(const AValue: AnsiString);
+    property Login: AnsiString read GetLogin write SetLogin;
 
-    function GetPassword: WideString; safecall;
-    procedure SetPassword(const AValue: WideString);
-    property Password: WideString read GetPassword write SetPassword;
+    function GetPassword: AnsiString; safecall;
+    procedure SetPassword(const AValue: AnsiString);
+    property Password: AnsiString read GetPassword write SetPassword;
 
     function GetStatic: IProxyConfigStatic;
   end;

@@ -113,7 +113,7 @@ end;
 procedure TInetConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteString('UserAgentString', FUserAgentString);
+  AConfigData.WriteAnsiString('UserAgentString', FUserAgentString);
   AConfigData.WriteInteger('TimeOut', FTimeOut);
   AConfigData.WriteInteger('DownloadTryCount', FDownloadTryCount);
   AConfigData.WriteInteger('SleepOnResetConnection', FSleepOnResetConnection);
