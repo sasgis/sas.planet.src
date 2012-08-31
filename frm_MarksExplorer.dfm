@@ -163,7 +163,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Left = 353
             Top = 0
             Width = 4
-            Height = 20
+            Height = 4
             Align = alRight
             TabOrder = 1
           end

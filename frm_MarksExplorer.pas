@@ -258,7 +258,7 @@ begin
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
-  procedure AddTreeSubItems(
+  procedure UpdateTreeSubItems(
     const ATree: IStaticTreeItem;
     const ASelectedCategory: ICategory;
     AParentNode: TTreeNode;
@@ -268,16 +268,26 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
     i: Integer;
     VTree: IStaticTreeItem;
     VNode: TTreeNode;
+    VNodeToDelete: TTreeNode;
     VCategory: IMarkCategory;
     VName: string;
   begin
+    if AParentNode = nil then begin
+      VNode := ATreeItems.GetFirstNode;
+    end else begin
+      VNode := AParentNode.getFirstChild;
+    end;
     for i := 0 to ATree.SubItemCount - 1 do begin
       VTree := ATree.SubItem[i];
       VName := VTree.Name;
       if VName = '' then begin
         VName := '(NoName)';
       end;
-      VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
+      if VNode = nil then begin
+        VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
+      end else begin
+        VNode.Text := VName;
+      end;
       VNode.StateIndex:=0;
       if Supports(VTree.Data, IMarkCategory, VCategory) then begin
         VNode.Data := Pointer(VCategory);
@@ -290,7 +300,13 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
           VNode.Selected := True;
         end;
       end;
-      AddTreeSubItems(VTree, ASelectedCategory, VNode, ATreeItems);
+      UpdateTreeSubItems(VTree, ASelectedCategory, VNode, ATreeItems);
+      VNode := VNode.getNextSibling;
+    end;
+    while VNode <> nil do begin
+      VNodeToDelete := VNode;
+      VNode := VNode.getNextSibling;
+      VNodeToDelete.Delete;
     end;
   end;
 var
@@ -304,10 +320,7 @@ begin
   try
     CategoryTreeView.Items.BeginUpdate;
     try
-      CategoryTreeView.SortType := stNone;
-      CategoryTreeView.Items.Clear;
-      AddTreeSubItems(VTree, VSelectedCategory, nil, CategoryTreeView.Items);
-      CategoryTreeView.SortType:=stText;
+      UpdateTreeSubItems(VTree, VSelectedCategory, nil, CategoryTreeView.Items);
     finally
       CategoryTreeView.Items.EndUpdate;
     end;
