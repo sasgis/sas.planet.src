@@ -489,6 +489,7 @@ var
   VPath: string;
   VResult: Boolean;
   VTileInfo: ITileInfoBasic;
+  VContenetTypeStr: WideString;
 begin
     if GetState.GetStatic.WriteAccess <> asDisabled then begin
       VPath :=
@@ -496,13 +497,14 @@ begin
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
         '.sdb';
       if FHelper.CreateDirIfNotExists(VPath) then begin
+        VContenetTypeStr := FMainContentType.GetContentType;
         VResult := FHelper.SaveTile(
           VPath,
           AXY,
           AZoom,
           Now,
           AVersionInfo,
-          PWideChar(FMainContentType.GetContentType),
+          PWideChar(VContenetTypeStr),
           AData
         );
         if VResult then begin
@@ -535,6 +537,7 @@ procedure TTileStorageBerkeleyDB.SaveTNE(
 var
   VPath: String;
   VResult: Boolean;
+  VContenetTypeStr: WideString;
 begin
     if GetState.GetStatic.WriteAccess <> asDisabled then begin
       VPath :=
@@ -542,13 +545,14 @@ begin
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
         '.tne';
       if FHelper.CreateDirIfNotExists(VPath) then begin
+        VContenetTypeStr := FMainContentType.GetContentType;
         VResult := FHelper.SaveTile(
           VPath,
           AXY,
           AZoom,
           Now,
           AVersionInfo,
-          PWideChar(FMainContentType.GetContentType),
+          PWideChar(VContenetTypeStr),
           nil
         );
         if VResult then begin
