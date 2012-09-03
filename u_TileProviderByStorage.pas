@@ -5,6 +5,7 @@ interface
 uses
   Types,
   SysUtils,
+  i_NotifierTileRectUpdate,
   i_Bitmap32Static,
   i_MapVersionConfig,
   i_BitmapTileSaveLoad,
@@ -31,6 +32,7 @@ type
       const ATile: TPoint;
       const AZoom: Byte
     ): IBitmap32Static;
+    function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
@@ -56,6 +58,7 @@ type
       const ATile: TPoint;
       const AZoom: Byte
     ): IVectorDataItemList;
+    function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
@@ -83,7 +86,8 @@ constructor TBitmapTileProviderByStorage.Create(
   const AGeoConverter: ICoordConverter;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
-  const AStorage: ITileStorage);
+  const AStorage: ITileStorage
+);
 begin
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
@@ -92,6 +96,11 @@ begin
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
   FStorage := AStorage;
+end;
+
+function TBitmapTileProviderByStorage.GetChangeNotifier: INotifierTileRectUpdate;
+begin
+  Result := FStorage.TileNotifier;
 end;
 
 function TBitmapTileProviderByStorage.GetGeoConverter: ICoordConverter;
@@ -170,6 +179,11 @@ begin
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
   FStorage := AStorage;
+end;
+
+function TVectorTileProviderByStorage.GetChangeNotifier: INotifierTileRectUpdate;
+begin
+  Result := FStorage.TileNotifier;
 end;
 
 function TVectorTileProviderByStorage.GetGeoConverter: ICoordConverter;

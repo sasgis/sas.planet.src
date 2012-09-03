@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  i_NotifierTileRectUpdate,
   i_CoordConverter,
   i_VectorDataItemSimple,
   i_Bitmap32Static;
@@ -18,6 +19,9 @@ type
       const ATile: TPoint;
       const AZoom: Byte
     ): IBitmap32Static;
+
+    function GetChangeNotifier: INotifierTileRectUpdate;
+    property ChangeNotifier: INotifierTileRectUpdate read GetChangeNotifier;
   end;
 
   IVectorTileProvider = interface
@@ -29,6 +33,9 @@ type
       const ATile: TPoint;
       const AZoom: Byte
     ): IVectorDataItemList;
+
+    function GetChangeNotifier: INotifierTileRectUpdate;
+    property ChangeNotifier: INotifierTileRectUpdate read GetChangeNotifier;
   end;
 
 implementation

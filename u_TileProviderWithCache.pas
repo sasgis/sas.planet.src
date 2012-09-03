@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  i_NotifierTileRectUpdate,
   i_Bitmap32Static,
   i_VectorDataItemSimple,
   i_CoordConverter,
@@ -21,6 +22,7 @@ type
       const ATile: TPoint;
       const AZoom: Byte
     ): IBitmap32Static;
+    function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
       const ASource: IBitmapTileProvider;
@@ -38,6 +40,7 @@ type
       const ATile: TPoint;
       const AZoom: Byte
     ): IVectorDataItemList;
+    function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
       const ASource: IVectorTileProvider;
@@ -57,6 +60,11 @@ begin
   inherited Create;
   FSource := ASource;
   FCache := ACache;
+end;
+
+function TBitmapTileProviderWithCache.GetChangeNotifier: INotifierTileRectUpdate;
+begin
+  Result := FSource.ChangeNotifier;
 end;
 
 function TBitmapTileProviderWithCache.GetGeoConverter: ICoordConverter;
@@ -88,6 +96,11 @@ begin
   inherited Create;
   FSource := ASource;
   FCache := ACache;
+end;
+
+function TVectorTileProviderWithCache.GetChangeNotifier: INotifierTileRectUpdate;
+begin
+  Result := FSource.ChangeNotifier;
 end;
 
 function TVectorTileProviderWithCache.GetGeoConverter: ICoordConverter;
