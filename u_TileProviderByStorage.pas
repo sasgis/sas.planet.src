@@ -37,7 +37,6 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AImageResamplerConfig: IImageResamplerConfig;
-      const AGeoConverter: ICoordConverter;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
       const AStorage: ITileStorage
@@ -63,7 +62,6 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AVectorDataFactory: IVectorDataFactory;
-      const AGeoConverter: ICoordConverter;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IVectorDataLoader;
       const AStorage: ITileStorage
@@ -83,19 +81,22 @@ uses
 constructor TBitmapTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
   const AImageResamplerConfig: IImageResamplerConfig;
-  const AGeoConverter: ICoordConverter;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
   const AStorage: ITileStorage
 );
 begin
+  Assert(AImageResamplerConfig <> nil);
+  Assert(AVersionConfig <> nil);
+  Assert(ALoaderFromStorage <> nil);
+  Assert(AStorage <> nil);
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FImageResamplerConfig := AImageResamplerConfig;
-  FGeoConverter := AGeoConverter;
+  FStorage := AStorage;
+  FGeoConverter := FStorage.CoordConverter;
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
-  FStorage := AStorage;
 end;
 
 function TBitmapTileProviderByStorage.GetChangeNotifier: INotifierTileRectUpdate;
@@ -167,18 +168,21 @@ end;
 constructor TVectorTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
   const AVectorDataFactory: IVectorDataFactory;
-  const AGeoConverter: ICoordConverter;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IVectorDataLoader;
   const AStorage: ITileStorage);
 begin
+  Assert(AVectorDataFactory <> nil);
+  Assert(AVersionConfig <> nil);
+  Assert(ALoaderFromStorage <> nil);
+  Assert(AStorage <> nil);
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FVectorDataFactory := AVectorDataFactory;
-  FGeoConverter := AGeoConverter;
+  FStorage := AStorage;
+  FGeoConverter := FStorage.CoordConverter;
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
-  FStorage := AStorage;
 end;
 
 function TVectorTileProviderByStorage.GetChangeNotifier: INotifierTileRectUpdate;
