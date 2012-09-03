@@ -144,7 +144,7 @@ var
   VTileExists: Boolean;
   VSDBFileExists: Boolean;
   VLoadDate: TDateTime;
-  VContenetTypeStr: PWideChar;
+  VContenetTypeStr: WideString;
 begin
   Result := False;
   VExportSDBFile :=
@@ -167,9 +167,9 @@ begin
           VLoadDate := Now;
         end;
         if (VTileInfo <> nil) and (VTileInfo.ContentType <> nil) then begin
-          VContenetTypeStr := PWideChar(VTileInfo.ContentType.GetContentType);
+          VContenetTypeStr := VTileInfo.ContentType.GetContentType;
         end else begin
-          VContenetTypeStr := PWideChar(AMapType.ContentType.GetContentType);
+          VContenetTypeStr := AMapType.ContentType.GetContentType;
         end;
         Result := AHelper.SaveTile(
           VExportSDBFile,
@@ -177,7 +177,7 @@ begin
           AZoom,
           VLoadDate,
           VTileInfo.VersionInfo,
-          VContenetTypeStr,
+          PWideChar(VContenetTypeStr),
           VTileInfo.TileData
         );
       end;
