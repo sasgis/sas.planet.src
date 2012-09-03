@@ -35,6 +35,10 @@ type
       const AXY: TPoint;
       const AZoom: Byte
     );
+    procedure DeleteTileRectFromCache(
+      const ARect: TRect;
+      const AZoom: Byte
+    );
     procedure AddTileToCache(
       const AObj: IVectorDataItemList;
       const AXY: TPoint;
@@ -51,6 +55,10 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(
       const AXY: TPoint;
+      const AZoom: Byte
+    );
+    procedure DeleteTileRectFromCache(
+      const ARect: TRect;
       const AZoom: Byte
     );
     procedure AddTileToCache(

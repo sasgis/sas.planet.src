@@ -64,10 +64,6 @@ type
       const AZoom: byte
     ): string;
     procedure OnTTLTrim(Sender: TObject);
-    procedure DeleteTileRectFromCache(
-      const ARect: TRect;
-      const AZoom: Byte
-    );
   protected
     procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
@@ -75,6 +71,10 @@ type
     procedure Clear;
     procedure DeleteTileFromCache(
       const AXY: TPoint;
+      const AZoom: Byte
+    );
+    procedure DeleteTileRectFromCache(
+      const ARect: TRect;
       const AZoom: Byte
     );
     procedure AddObjectToCache(
