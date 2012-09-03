@@ -493,8 +493,9 @@ var
  VPoint : TDoublePoint;
  slat, slon, sname, sdesc, sfulldesc : string;
  VLinkErr : boolean;
- i, j, k, l: integer;
+ Vi, i, j, k, l: integer;
  VStr: AnsiString;
+ vStr2: AnsiString;
  VSearch : widestring;
  VTemplist : TStringlist;
  VCityList : IStringListStatic;
@@ -546,98 +547,104 @@ begin
     Exit;
   end;
   if VTemplist.Count>0 then VCityList := TStringListStatic.CreateWithOwn(VTemplist);
+  Vi := i;
   // ищем вхождение, затем бежим назад до начала блока
-  if k=0 then i:=1 else i := k;
-  VSearch := 'LABEL='+VSearch;
-  while (PosEx(VSearch, VStr, i)>i) {and (i>0) }do begin
-    VLinkErr := false;
-    i := PosEx(VSearch, VStr, i);
-    k := PosEx('[END]', VStr, i); // конец блока найденных данных.
-    l := i;
+  while true do begin
+     VLinkErr := false;
+     Vi := PosEx(VSearch, VStr, Vi) + 1;
+     if Vi = 1 then break; // больше не нашли?
+     j := Vi - 1;
+     while (Vstr[j] <> #$A) and (j > 0) do dec(j); // начало строки с найденными данными
+     if copy(Vstr, j + 1, 6) <> 'LABEL=' then continue; // найденные данные не в теге Label?
+    k := PosEx('[END]', VStr, Vi); // конец блока найденных данных.
+    l := Vi;
+    Vi := k;
     while (copy(Vstr,l,1)<>'[') and (l>0) do dec(l); // начало блока с найденными данными
+    vStr2 := copy(VStr, l, k +5 - l); // вырежем весь блок с найденными данными
+    i := PosEx(']', VStr2);
+    k := PosEx('[END]', VStr2); // конец блока найденных данных.
 
-    i := PosEx(']', VStr, l);
     if i>0 then begin
      if i<k then begin
-       V_SectionType := Copy(Vstr, l + 1, i - (l + 1));
+       V_SectionType := Copy(Vstr2, 2, i - 2);
       end else
        V_SectionType := '';
     end;
 
-     i := PosEx('LABEL=' , VStr, l);
+     i := PosEx('LABEL=' , VStr2);
      if (i>0) then
       if (i<k) then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_Label := Copy(VStr, i+6 , j - (i+6));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_Label := Copy(VStr2, i+6 , j - (i+6));
        V_Label := ReplaceStr(V_Label,'~[0X1F]',' ');
       end else
      V_Label := '';
 
-      i := PosEx('CITYIDX=', VStr, l);
+      i := PosEx('CITYIDX=', VStr2);
       if i>0 then
       if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       vcity := Copy(Vstr, i + 8, j - (i + 8));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       vcity := Copy(Vstr2, i + 8, j - (i + 8));
        if  strtoint(vcity)<VCityList.Count then
        V_CityName := VCityList.items[strtoint(vcity)-1]
        else V_CityName := '';
       end else
       V_CityName := '';
 
-      i := PosEx('CITYNAME=', VStr, l);
+      i := PosEx('CITYNAME=', VStr2);
       if i>0 then begin
        if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_CityName := Copy(Vstr, i + 9, j - (i + 9));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_CityName := Copy(Vstr2, i + 9, j - (i + 9));
        end else
        V_CityName := '';
       end;
 
-      i := PosEx('REGIONNAME=', VStr, l);
+      i := PosEx('REGIONNAME=', VStr2);
       if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_RegionName := Copy(Vstr, i + 11, j - (i + 11));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_RegionName := Copy(Vstr2, i + 11, j - (i + 11));
       end else
       V_RegionName := '';
 
-      i := PosEx('COUNTRYNAME=', VStr, l);
+      i := PosEx('COUNTRYNAME=', VStr2);
       if i>0 then
       if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_CountryName := Copy(Vstr, i + 12, j - (i + 12));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_CountryName := Copy(Vstr2, i + 12, j - (i + 12));
       end else
       V_CountryName := '';
 
-      i := PosEx('TYPE=', VStr, l);
+      i := PosEx('TYPE=', VStr2);
       if i>0 then
       if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_Type := strtoint(Copy(Vstr, i + 5, j - (i + 5)));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_Type := strtoint(Copy(Vstr2, i + 5, j - (i + 5)));
       end else
       V_Type  := -1;
 
-      i := PosEx('STREETDESC=', VStr, l);
+      i := PosEx('STREETDESC=', VStr2);
       if i>0 then
       if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_StreetDesc := Copy(Vstr, i + 11, j - (i + 11));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_StreetDesc := Copy(Vstr2, i + 11, j - (i + 11));
       end else
       V_StreetDesc  := '';
 
-      i := PosEx('HOUSENUMBER=', VStr, l);
+      i := PosEx('HOUSENUMBER=', VStr2);
       if i>0 then
       if i<k then begin
-       j := PosEx(V_EndOfLine  , VStr, i);
-       V_HouseNumber := Copy(Vstr, i + 12, j - (i + 12));
+       j := PosEx(V_EndOfLine  , VStr2, i);
+       V_HouseNumber := Copy(Vstr2, i + 12, j - (i + 12));
       end else
       V_HouseNumber := '';
 
-      i := PosEx('DATA', VStr, l);
-      i := PosEx('(', VStr, i);
-      j := PosEx(',', VStr, i);
-      slat := Copy(Vstr, i + 1, j - (i + 1));
-      i := PosEx(')', VStr, i);
-      slon := Copy(Vstr, j + 1, i - (j + 1));
+      i := PosEx('DATA', VStr2);
+      i := PosEx('(', VStr2, i);
+      j := PosEx(',', VStr2, i);
+      slat := Copy(Vstr2, i + 1, j - (i + 1));
+      i := PosEx(')', VStr2, i);
+      slon := Copy(Vstr2, j + 1, i - (j + 1));
 
     if (slat='') or (slon='') then VLinkErr := true;
     if V_Label='' then VLinkErr := true;
@@ -654,11 +661,11 @@ begin
      end;
       sdesc := '';
       sname := V_Label;
-      if V_Type<> -1 then sdesc := getType(V_SectionType,V_Type)+ #$D#$A;
-      if V_CountryName <> '' then sdesc := sdesc + V_CountryName + ', ' else sdesc := '';
+      if V_CountryName <> '' then sdesc := sdesc + V_CountryName + ', ';
       if V_RegionName <> '' then sdesc := sdesc + V_RegionName;
-      if V_CityName <> '' then sdesc := sdesc + #$D#$A+ V_CityName ;
       if sdesc <> '' then sdesc := sdesc + #$D#$A;
+      if V_Type<> -1 then sdesc := getType(V_SectionType,V_Type)+ #$D#$A + sdesc;
+      if V_CityName <> '' then sdesc := sdesc +  V_CityName + #$D#$A;
       VValueConverter := FValueToStringConverterConfig.GetStatic;
       sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
@@ -686,7 +693,6 @@ begin
         AList.Add(VPlace);
        end;
     end;
-    i:=k;
   end;
 end;
 
