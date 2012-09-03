@@ -30,6 +30,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_VectorItmesFactory,
+  i_InternalPerformanceCounter,
   i_ReadWriteState,
   i_MarksSimple,
   i_MarkPicture,
@@ -63,6 +64,7 @@ type
       const ABasePath: IPathConfig;
       const AMarkPictureList: IMarkPictureList;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
@@ -188,6 +190,7 @@ constructor TMarksSystem.Create(
   const ABasePath: IPathConfig;
   const AMarkPictureList: IMarkPictureList;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const APerfCounterList: IInternalPerformanceCounterList;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
@@ -214,6 +217,7 @@ begin
       VState,
       ABasePath,
       FCategoryDBInternal,
+      APerfCounterList.CreateAndAddNewSubList('MarksDb'),
       AVectorItmesFactory,
       AHintConverter,
       FMarksFactoryConfig

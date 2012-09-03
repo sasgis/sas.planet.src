@@ -530,6 +530,7 @@ begin
       FMarksDbPath,
       FMarkPictureList,
       FVectorItmesFactory,
+      FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       THtmlToHintTextConverterStuped.Create,
       FMarksCategoryFactoryConfig
     );

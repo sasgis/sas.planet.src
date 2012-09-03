@@ -29,6 +29,7 @@ uses
   Classes,
   t_GeoTypes,
   i_IDList,
+  i_InternalPerformanceCounter,
   i_PathConfig,
   i_VectorItmesFactory,
   i_MarksFactoryConfig,
@@ -48,6 +49,7 @@ type
   private
     FBasePath: IPathConfig;
     FStateInternal: IReadWriteStateInternal;
+    FPerfCounterList: IInternalPerformanceCounterList;
 
     FStream: TStream;
     FCdsMarks: TClientDataSet;
@@ -55,6 +57,9 @@ type
     FFactory: IMarkFactory;
     FMarksList: IIDInterfaceList;
     FByCategoryList: IIDInterfaceList;
+
+    FLoadDbCounter: IInternalPerformanceCounter;
+    FSaveDbCounter: IInternalPerformanceCounter;
 
     function ReadCurrentMark: IMark;
     procedure WriteCurrentMarkId(const AMark: IMarkId);
@@ -126,6 +131,7 @@ type
       const AStateInternal: IReadWriteStateInternal;
       const ABasePath: IPathConfig;
       const ACategoryDB: IMarkCategoryDBSmlInternal;
+      const APerfCounterList: IInternalPerformanceCounterList;
       const AVectorItmesFactory: IVectorItmesFactory;
       const AHintConverter: IHtmlToHintTextConverter;
       const AFactoryConfig: IMarksFactoryConfig
@@ -302,6 +308,7 @@ constructor TMarksDb.Create(
   const AStateInternal: IReadWriteStateInternal;
   const ABasePath: IPathConfig;
   const ACategoryDB: IMarkCategoryDBSmlInternal;
+  const APerfCounterList: IInternalPerformanceCounterList;
   const AVectorItmesFactory: IVectorItmesFactory;
   const AHintConverter: IHtmlToHintTextConverter;
   const AFactoryConfig: IMarksFactoryConfig
@@ -312,6 +319,7 @@ begin
   inherited Create;
   FBasePath := ABasePath;
   FStateInternal := AStateInternal;
+  FPerfCounterList := APerfCounterList;
   VFactory :=
     TMarkFactory.Create(
       AFactoryConfig,
@@ -323,6 +331,10 @@ begin
   FFactoryDbInternal := VFactory;
   FMarksList := TIDInterfaceList.Create;
   FByCategoryList := TIDInterfaceList.Create;
+
+  FLoadDbCounter := FPerfCounterList.CreateAndAddNewCounter('LoadDb');
+  FSaveDbCounter := FPerfCounterList.CreateAndAddNewCounter('SaveDb');
+
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'CDSmarks';
   FCdsMarks.DisableControls;
@@ -1104,7 +1116,10 @@ var
   VMarkInternal: IMarkSMLInternal;
   VStream: TStream;
   XML: AnsiString;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
+  VCounterContext := FLoadDbCounter.StartOperation;
+  try
   VFileName := GetMarksFileName;
   FStateInternal.LockWrite;
   try
@@ -1219,12 +1234,18 @@ begin
   finally
     FStateInternal.UnlockWrite;
   end;
+  finally
+    FLoadDbCounter.FinishOperation(VCounterContext);
+  end;
 end;
 
 function TMarksDb.SaveMarks2File: boolean;
 var
   XML: AnsiString;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
+  VCounterContext := FSaveDbCounter.StartOperation;
+  try
   result := true;
   try
     FStateInternal.LockRead;
@@ -1248,6 +1269,9 @@ begin
     end;
   except
     result := false;
+  end;
+  finally
+    FSaveDbCounter.FinishOperation(VCounterContext);
   end;
 end;
 
