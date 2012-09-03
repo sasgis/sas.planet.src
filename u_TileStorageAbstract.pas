@@ -58,6 +58,7 @@ type
   protected
     function GetTileNotifier: INotifierTileRectUpdate;
     function GetState: IStorageStateChangeble;
+    function GetCoordConverter: ICoordConverter;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -145,6 +146,11 @@ begin
   VNotifier := TNotifierTileRectUpdate.Create(AGeoConverter);
   FTileNotifier := VNotifier;
   FTileNotifierInternal := VNotifier;
+end;
+
+function TTileStorageAbstract.GetCoordConverter: ICoordConverter;
+begin
+  Result := FGeoConverter;
 end;
 
 function TTileStorageAbstract.GetListOfTileVersions(

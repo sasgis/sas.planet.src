@@ -12,6 +12,7 @@ uses
   i_InternalPerformanceCounter,
   i_NotifierTileRectUpdate,
   i_StorageState,
+  i_CoordConverter,
   i_ContentTypeInfo,
   i_Listener,
   i_MapVersionConfig,
@@ -78,6 +79,7 @@ type
   private
     function GetTileNotifier: INotifierTileRectUpdate;
     function GetState: IStorageStateChangeble;
+    function GetCoordConverter: ICoordConverter;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -145,7 +147,6 @@ implementation
 uses
   c_CacheTypeCodes,
   c_CoordConverter,
-  i_CoordConverter,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   u_ListenerByEvent,
@@ -503,6 +504,11 @@ begin
   finally
     VCounter.FinishOperation(VCounterContext);
   end;
+end;
+
+function TTileStorageOfMapType.GetCoordConverter: ICoordConverter;
+begin
+  Result := FConfig.CoordConverter;
 end;
 
 function TTileStorageOfMapType.GetListOfTileVersions(

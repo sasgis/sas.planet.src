@@ -25,6 +25,7 @@ interface
 uses
   Types,
   i_BinaryData,
+  i_CoordConverter,
   i_NotifierTileRectUpdate,
   i_MapVersionInfo,
   i_StorageState,
@@ -40,6 +41,9 @@ type
 
     function GetState: IStorageStateChangeble;
     property State: IStorageStateChangeble read GetState;
+
+    function GetCoordConverter: ICoordConverter;
+    property CoordConverter: ICoordConverter read GetCoordConverter;
 
     function GetTileFileName(
       const AXY: TPoint;
