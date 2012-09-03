@@ -31,11 +31,11 @@ type
     FIsReplace: boolean;
     FPathExport: string;
 
-  function SaveTileToFile(
-    const ATileInfo: ITileInfoWithData;
-    const AFileName: string;
-    OverWrite: boolean
-  ): boolean;
+    function SaveTileToFile(
+      const ATileInfo: ITileInfoWithData;
+      const AFileName: string;
+      OverWrite: boolean
+    ): boolean;
   protected
     procedure ProcessRegion; override;
   public

@@ -193,12 +193,12 @@ begin
     end;
     for i := VCountForCopy to VCount - 1 do begin
       VList[i] := CreateDownloader;
-      if  not FChangeCounter.CheckEqual(VCounter) then begin
+      if not FChangeCounter.CheckEqual(VCounter) then begin
         Exit;
       end;
     end;
     VStatic := TTileDownloaderListStatic.Create(VList);
-    if  not FChangeCounter.CheckEqual(VCounter) then begin
+    if not FChangeCounter.CheckEqual(VCounter) then begin
       Exit;
     end;
     FCS.BeginWrite;
@@ -211,7 +211,7 @@ begin
   end else if VStatic = nil then begin
     SetLength(VList, 0);
     VStatic := TTileDownloaderListStatic.Create(VList);
-    if  not FChangeCounter.CheckEqual(VCounter) then begin
+    if not FChangeCounter.CheckEqual(VCounter) then begin
       Exit;
     end;
     FCS.BeginWrite;

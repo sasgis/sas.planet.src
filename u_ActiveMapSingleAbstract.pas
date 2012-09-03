@@ -42,7 +42,10 @@ type
     function GetMapType: IMapType;
     function GetIsActive: Boolean;
   public
-    constructor Create(const AMapType: IMapType; AIsActive: Boolean);
+    constructor Create(
+      const AMapType: IMapType;
+      AIsActive: Boolean
+    );
     destructor Destroy; override;
   end;
 
@@ -88,7 +91,10 @@ uses
 
 { TActiveMapSingleAbstract }
 
-constructor TActiveMapSingleAbstract.Create(const AMapType: IMapType; AIsActive: Boolean);
+constructor TActiveMapSingleAbstract.Create(
+  const AMapType: IMapType;
+  AIsActive: Boolean
+);
 begin
   inherited Create;
   FIsActive := AIsActive;

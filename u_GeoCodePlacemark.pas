@@ -60,7 +60,7 @@ implementation
 
 uses
   u_LonLatRectByPoint;
-  
+
 { TGeoCodePlacemark }
 
 constructor TGeoCodePlacemark.Create(

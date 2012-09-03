@@ -278,7 +278,9 @@ begin
 end;
 
 procedure TConfigDataWriteProviderWithGlobal.WriteAnsiString(
-  const AIdent: string; const AValue: AnsiString);
+  const AIdent: string;
+  const AValue: AnsiString
+);
 var
   VIdent: string;
   VUseMain: Boolean;

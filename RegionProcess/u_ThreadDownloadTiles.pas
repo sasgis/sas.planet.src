@@ -547,7 +547,7 @@ begin
         end;
       end;
     end;
-    
+
     if not Terminated then begin
       while VTileIterator.Next(VTile) do begin
         if Terminated then begin

@@ -430,8 +430,11 @@ end;
 
 { TLocalCoordConverterNoScale }
 
-constructor TLocalCoordConverterNoScale.Create(const ALocalRect: TRect;
-  const AProjection: IProjectionInfo; const AMapPixelAtLocalZero: TDoublePoint);
+constructor TLocalCoordConverterNoScale.Create(
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo;
+  const AMapPixelAtLocalZero: TDoublePoint
+);
 begin
   inherited Create(ALocalRect, AProjection);
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;

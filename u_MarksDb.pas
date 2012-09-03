@@ -793,8 +793,10 @@ begin
   end;
 end;
 
-procedure TMarksDb.SetMarkVisibleByIDList(const AMarkList: IInterfaceList;
-  AVisible: Boolean);
+procedure TMarksDb.SetMarkVisibleByIDList(
+  const AMarkList: IInterfaceList;
+  AVisible: Boolean
+);
 var
   i: Integer;
   VMarkVisible: IMarkSMLInternal;

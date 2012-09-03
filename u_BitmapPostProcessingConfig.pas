@@ -42,7 +42,7 @@ type
   private
     function GetInvertColor: boolean;
     procedure SetInvertColor(const AValue: boolean);
-    
+
     function GetGammaN: Integer;
     procedure SetGammaN(const AValue: Integer);
 

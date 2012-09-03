@@ -53,7 +53,11 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
   public
-    constructor Create(const AChangedFlag: ISimpleFlag = nil; const AStopNotifyCounter: ICounter = nil; const ALock: IReadWriteSync = nil);
+    constructor Create(
+      const AChangedFlag: ISimpleFlag = nil;
+      const AStopNotifyCounter: ICounter = nil;
+      const ALock: IReadWriteSync = nil
+    );
   end;
 
   TConfigDataElementWithStaticBase = class(TConfigDataElementBase)
@@ -68,7 +72,11 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create(const AChangedFlag: ISimpleFlag = nil; const AStopNotifyCounter: ICounter = nil; const ALock: IReadWriteSync = nil);
+    constructor Create(
+      const AChangedFlag: ISimpleFlag = nil;
+      const AStopNotifyCounter: ICounter = nil;
+      const ALock: IReadWriteSync = nil
+    );
     destructor Destroy; override;
   end;
 
@@ -93,7 +101,11 @@ uses
 
 { TConfigDataElementBase }
 
-constructor TConfigDataElementBase.Create(const AChangedFlag: ISimpleFlag; const AStopNotifyCounter: ICounter; const ALock: IReadWriteSync);
+constructor TConfigDataElementBase.Create(
+  const AChangedFlag: ISimpleFlag;
+  const AStopNotifyCounter: ICounter;
+  const ALock: IReadWriteSync
+);
 begin
   inherited Create;
   FLock := ALock;
@@ -196,7 +208,11 @@ begin
   FStatic := CreateStatic;
 end;
 
-constructor TConfigDataElementWithStaticBase.Create(const AChangedFlag: ISimpleFlag; const AStopNotifyCounter: ICounter; const ALock: IReadWriteSync);
+constructor TConfigDataElementWithStaticBase.Create(
+  const AChangedFlag: ISimpleFlag;
+  const AStopNotifyCounter: ICounter;
+  const ALock: IReadWriteSync
+);
 begin
   inherited;
   FStaticCS := MakeSyncRW_Var(Self);

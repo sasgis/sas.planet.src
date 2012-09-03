@@ -120,7 +120,8 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeByMapPixelDelta(
   const ASource: ILocalCoordConverter;
-  const ADelta: TDoublePoint): ILocalCoordConverter;
+  const ADelta: TDoublePoint
+): ILocalCoordConverter;
 var
   VZoom: Byte;
   VConverter: ICoordConverter;
@@ -157,7 +158,8 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeCenterLonLat(
   const ASource: ILocalCoordConverter;
-  const ALonLat: TDoublePoint): ILocalCoordConverter;
+  const ALonLat: TDoublePoint
+): ILocalCoordConverter;
 var
   VZoom: Byte;
   VConverter: ICoordConverter;
@@ -196,7 +198,8 @@ end;
 function TLocalCoordConverterFactorySimpe.ChangeCenterLonLatAndZoom(
   const ASource: ILocalCoordConverter;
   AZoom: Byte;
-  const ALonLat: TDoublePoint): ILocalCoordConverter;
+  const ALonLat: TDoublePoint
+): ILocalCoordConverter;
 var
   VZoomOld: Byte;
   VZoomNew: Byte;
@@ -235,7 +238,8 @@ end;
 
 function TLocalCoordConverterFactorySimpe.ChangeCenterToLocalPoint(
   const ASource: ILocalCoordConverter;
-  const AVisualPoint: TPoint): ILocalCoordConverter;
+  const AVisualPoint: TPoint
+): ILocalCoordConverter;
 var
   VZoom: Byte;
   VConverter: ICoordConverter;
@@ -311,7 +315,9 @@ begin
 end;
 
 function TLocalCoordConverterFactorySimpe.ChangeZoomAndScaleSaveRelativeRect(
-  const ASource: ILocalCoordConverter; const AZoom: Byte): ILocalCoordConverter;
+  const ASource: ILocalCoordConverter;
+  const AZoom: Byte
+): ILocalCoordConverter;
 var
   VZoomOld: Byte;
   VZoomNew: Byte;
@@ -401,8 +407,10 @@ begin
 end;
 
 function TLocalCoordConverterFactorySimpe.ChangeZoomWithFreezeAtVisualPoint(
-  const ASource: ILocalCoordConverter; const AZoom: Byte;
-  const AFreezePoint: TPoint): ILocalCoordConverter;
+  const ASource: ILocalCoordConverter;
+  const AZoom: Byte;
+  const AFreezePoint: TPoint
+): ILocalCoordConverter;
 var
   VZoomOld: Byte;
   VZoomNew: Byte;
@@ -570,7 +578,7 @@ function TLocalCoordConverterFactorySimpe.CreateConverter(
   const AMapPixelAtLocalZero: TDoublePoint
 ): ILocalCoordConverter;
 begin
-  if Abs(AMapScale - 1) < 0.01  then begin
+  if Abs(AMapScale - 1) < 0.01 then begin
     Result :=
       TLocalCoordConverterNoScale.Create(
         ALocalRect,

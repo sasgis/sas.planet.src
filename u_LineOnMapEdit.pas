@@ -375,7 +375,7 @@ begin
         Inc(FSelectedPointIndex);
         _UpdateLineWithSelected;
         if FSelectedPointIndex < FPointsCount then begin
-          Result :=  FPoints[FSelectedPointIndex];
+          Result := FPoints[FSelectedPointIndex];
         end;
       end;
     end;
@@ -431,7 +431,7 @@ begin
       if FSelectedPointIndex > 0 then begin
         Dec(FSelectedPointIndex);
         _UpdateLineWithSelected;
-        Result :=  FPoints[FSelectedPointIndex];
+        Result := FPoints[FSelectedPointIndex];
       end;
     end;
   finally

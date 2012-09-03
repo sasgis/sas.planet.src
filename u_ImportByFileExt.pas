@@ -30,7 +30,7 @@ uses
   i_ImportConfig;
 
 {$I vsagps_defines.inc}
-  
+
 type
   TImportByFileExt = class(TInterfacedObject, IImportFile)
   private

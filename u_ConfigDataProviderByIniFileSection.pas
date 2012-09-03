@@ -249,8 +249,10 @@ begin
   Result := FIniFile.ReadInteger(FSection, AIdent, ADefault);
 end;
 
-function TConfigDataProviderByIniFileSection.ReadAnsiString(const AIdent: string;
-  const ADefault: AnsiString): AnsiString;
+function TConfigDataProviderByIniFileSection.ReadAnsiString(
+  const AIdent: string;
+  const ADefault: AnsiString
+): AnsiString;
 begin
   Result := AnsiString(FIniFile.ReadString(FSection, AIdent, String(ADefault)));
 end;

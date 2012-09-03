@@ -114,7 +114,9 @@ begin
 end;
 
 procedure TConfigDataWriteProviderByIniFile.WriteAnsiString(
-  const AIdent: string; const AValue: AnsiString);
+  const AIdent: string;
+  const AValue: AnsiString
+);
 begin
   raise Exception.Create('Not expected');
 end;

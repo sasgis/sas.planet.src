@@ -62,7 +62,10 @@ type
   private
     function Save(const ABitmap: IBitmap32Static): IBinaryData;
   public
-    constructor Create(ACompressionQuality: Byte; const APerfCounterList: IInternalPerformanceCounterList);
+    constructor Create(
+      ACompressionQuality: Byte;
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
     destructor Destroy; override;
   end;
 
@@ -187,7 +190,10 @@ end;
 
 { TLibJpegTileSaver }
 
-constructor TLibJpegTileSaver.Create(ACompressionQuality: Byte; const APerfCounterList: IInternalPerformanceCounterList);
+constructor TLibJpegTileSaver.Create(
+  ACompressionQuality: Byte;
+  const APerfCounterList: IInternalPerformanceCounterList
+);
 begin
   inherited Create;
   FSaveCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/SaveStream');

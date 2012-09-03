@@ -51,7 +51,7 @@ type
     function GetIsMinimized: Boolean;
     procedure SetNotMinimized;
     procedure SetMinimized;
-public
+  public
     constructor Create(const AStartRect: TRect);
   end;
 

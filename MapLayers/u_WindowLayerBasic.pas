@@ -85,7 +85,7 @@ end;
 
 procedure TWindowLayerAbstract.DoViewUpdate;
 begin
- // Do nothing
+  // Do nothing
 end;
 
 procedure TWindowLayerAbstract.AfterConstruction;

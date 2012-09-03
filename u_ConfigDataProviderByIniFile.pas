@@ -154,8 +154,10 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByIniFile.ReadAnsiString(const AIdent: string;
-  const ADefault: AnsiString): AnsiString;
+function TConfigDataProviderByIniFile.ReadAnsiString(
+  const AIdent: string;
+  const ADefault: AnsiString
+): AnsiString;
 begin
   Result := ADefault;
 end;

@@ -159,7 +159,8 @@ end;
 
 function TConfigDataProviderVirtualWithSubItem.ReadAnsiString(
   const AIdent: string;
-  const ADefault: AnsiString): AnsiString;
+  const ADefault: AnsiString
+): AnsiString;
 begin
   Result := ADefault;
 end;

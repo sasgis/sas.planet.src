@@ -365,7 +365,7 @@ begin
   if AZoom > 23 then begin
     VZoom := VZoom - 8;
     CheckZoomInternal(VZoom);
-    Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft)
+    Result := PointFromDoublePoint(Relative2PixelPosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft);
   end else begin
     CheckZoomInternal(VZoom);
     Result := PointFromDoublePoint(Relative2TilePosFloatInternal(LonLat2RelativeInternal(VXY), VZoom), prToTopLeft);

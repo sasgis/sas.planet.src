@@ -47,7 +47,10 @@ type
     FOnPaintCounter: IInternalPerformanceCounter;
     FOnMeasuringPaintCounter: IInternalPerformanceCounter;
     procedure SetVisible(const Value: Boolean);
-    procedure OnPaintLayer(Sender: TObject; Buffer: TBitmap32);
+    procedure OnPaintLayer(
+      Sender: TObject;
+      Buffer: TBitmap32
+    );
   protected
     procedure StartThreads; override;
     procedure DoViewUpdate; override;
@@ -675,8 +678,11 @@ end;
 { TWindowLayerWithBitmapBase }
 
 constructor TWindowLayerWithBitmapBase.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; ALayer: TBitmapLayer);
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  ALayer: TBitmapLayer
+);
 begin
   inherited Create(
     APerfList,
@@ -801,8 +807,11 @@ end;
 { TWindowLayerWithLocationBase }
 
 constructor TWindowLayerWithLocationBase.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; ALayer: TPositionedLayer);
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  ALayer: TPositionedLayer
+);
 begin
   inherited Create(
     APerfList,
@@ -865,8 +874,10 @@ begin
   end;
 end;
 
-procedure TWindowLayerWithLocationBase.OnPaintLayer(Sender: TObject;
-  Buffer: TBitmap32);
+procedure TWindowLayerWithLocationBase.OnPaintLayer(
+  Sender: TObject;
+  Buffer: TBitmap32
+);
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -929,8 +940,11 @@ end;
 { TWindowLayerBasicBase }
 
 constructor TWindowLayerBasicBase.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; ALayer: TCustomLayer);
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  ALayer: TCustomLayer
+);
 begin
   inherited Create(
     APerfList,
@@ -976,8 +990,10 @@ begin
   end;
 end;
 
-procedure TWindowLayerBasicBase.OnPaintLayer(Sender: TObject;
-  Buffer: TBitmap32);
+procedure TWindowLayerBasicBase.OnPaintLayer(
+  Sender: TObject;
+  Buffer: TBitmap32
+);
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;

@@ -171,7 +171,9 @@ begin
 end;
 
 procedure TConfigDataWriteProviderByIniFileSection.WriteAnsiString(
-  const AIdent: string; const AValue: AnsiString);
+  const AIdent: string;
+  const AValue: AnsiString
+);
 begin
   IniFile.WriteString(Section, AIdent, string(AValue));
 end;

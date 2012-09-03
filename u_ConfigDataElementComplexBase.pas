@@ -69,7 +69,11 @@ type
     procedure LockRead; override;
     procedure UnlockRead; override;
   public
-    constructor Create(const AChangedFlag: ISimpleFlag = nil; const AStopNotifyCounter: ICounter = nil; const ALock: IReadWriteSync = nil);
+    constructor Create(
+      const AChangedFlag: ISimpleFlag = nil;
+      const AStopNotifyCounter: ICounter = nil;
+      const ALock: IReadWriteSync = nil
+    );
     destructor Destroy; override;
   end;
 
@@ -85,7 +89,11 @@ type
   public
     procedure AfterConstruction; override;
   public
-    constructor Create(const AChangedFlag: ISimpleFlag = nil; const AStopNotifyCounter: ICounter = nil; const ALock: IReadWriteSync = nil);
+    constructor Create(
+      const AChangedFlag: ISimpleFlag = nil;
+      const AStopNotifyCounter: ICounter = nil;
+      const ALock: IReadWriteSync = nil
+    );
     destructor Destroy; override;
   end;
 

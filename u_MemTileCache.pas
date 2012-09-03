@@ -214,7 +214,7 @@ var
 begin
   VKey := GetMemCacheKey(AXY, AZoom);
 
-  VContext :=  FAddItemCounter.StartOperation;
+  VContext := FAddItemCounter.StartOperation;
   try
     FSync.BeginWrite;
     try
@@ -240,7 +240,7 @@ var
   i: integer;
   VContext: TInternalPerformanceCounterContext;
 begin
-  VContext :=  FClearCounter.StartOperation;
+  VContext := FClearCounter.StartOperation;
   try
     FSync.BeginWrite;
     try
@@ -266,7 +266,7 @@ var
   VContext: TInternalPerformanceCounterContext;
 begin
   VKey := GetMemCacheKey(AXY, AZoom);
-  VContext :=  FDeleteItemCounter.StartOperation;
+  VContext := FDeleteItemCounter.StartOperation;
   try
     FSync.BeginWrite;
     try
@@ -283,8 +283,10 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.DeleteTileRectFromCache(const ARect: TRect;
-  const AZoom: Byte);
+procedure TMemTileCacheBase.DeleteTileRectFromCache(
+  const ARect: TRect;
+  const AZoom: Byte
+);
 var
   VSize: TPoint;
   VTile: TPoint;
@@ -391,7 +393,7 @@ var
 begin
   Result := False;
   VKey := GetMemCacheKey(AXY, AZoom);
-  VContext :=  FCacheHitCounter.StartOperation;
+  VContext := FCacheHitCounter.StartOperation;
   try
     FSync.BeginRead;
     try

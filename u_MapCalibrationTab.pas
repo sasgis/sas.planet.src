@@ -86,7 +86,7 @@ begin
     VText := VText + '!table' + #13#10;
     VText := VText + '!version 300' + #13#10;
     VText := VText + '!charset WindowsCyrillic' + #13#10 + #13#10;
-    VText := VText + 'Definition Table'  + #13#10;
+    VText := VText + 'Definition Table' + #13#10;
     VText := VText + 'File "' + ExtractFileName(AFileName) + '"' + #13#10;
     VText := VText + 'Type "RASTER"' + #13#10;
 

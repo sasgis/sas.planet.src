@@ -240,12 +240,12 @@ begin
     ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
     CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
     VText := '';
-    VText := VText + ALFloatToStr(CellX, VFormat)  + #13#10;
-    VText := VText + '0'  + #13#10;
-    VText := VText + '0'  + #13#10;
-    VText := VText + ALFloatToStr(CellY, VFormat)  + #13#10;
-    VText := VText + ALFloatToStr(OrigX, VFormat)  + #13#10;
-    VText := VText + ALFloatToStr(OrigY, VFormat)  + #13#10;
+    VText := VText + ALFloatToStr(CellX, VFormat) + #13#10;
+    VText := VText + '0' + #13#10;
+    VText := VText + '0' + #13#10;
+    VText := VText + ALFloatToStr(CellY, VFormat) + #13#10;
+    VText := VText + ALFloatToStr(OrigX, VFormat) + #13#10;
+    VText := VText + ALFloatToStr(OrigY, VFormat) + #13#10;
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally
     VFileStream.Free;

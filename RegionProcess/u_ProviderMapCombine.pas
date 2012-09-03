@@ -380,7 +380,7 @@ begin
     if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
       Exit;
     end;
-  end;                      
+  end;
   VFileExt := UpperCase(ExtractFileExt(VFileName));
   if (VFileExt = '.ECW') or (VFileExt = '.JP2') then begin
     PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);

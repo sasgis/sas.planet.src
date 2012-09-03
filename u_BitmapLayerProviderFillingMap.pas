@@ -20,7 +20,7 @@ type
     TInterfacedObject,
     IBitmapLayerProvider,
     IBitmapLayerProviderWithListener
-  )
+    )
   private
     FMapType: IMapType;
     FSourceZoom: Byte;
@@ -165,8 +165,10 @@ begin
   end;
 end;
 
-procedure TBitmapLayerProviderFillingMap.SetListener(const AListener: IListener;
-  const ALocalConverter: ILocalCoordConverter);
+procedure TBitmapLayerProviderFillingMap.SetListener(
+  const AListener: IListener;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VNotifier: INotifierTileRectUpdate;
   VZoom: Byte;

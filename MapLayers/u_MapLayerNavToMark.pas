@@ -63,8 +63,8 @@ constructor TNavToMarkLayer.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ANavToPoint: INavigationToPoint;
-      const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
-      const AReachedMarkerChangeable: IMarkerDrawableChangeable;
+  const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
+  const AReachedMarkerChangeable: IMarkerDrawableChangeable;
   const AConfig: IMapLayerNavToPointMarkerConfig
 );
 begin

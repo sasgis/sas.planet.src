@@ -94,20 +94,23 @@ uses
   u_StreamReadOnlyByBinaryData;
 
 function XMLTextPrepare(const Src: AnsiString): AnsiString;
-var i, l: integer;
-    Buf, P: PAnsiChar;
-    ch: Integer;
+var
+  i, l: integer;
+  Buf, P: PAnsiChar;
+  ch: Integer;
 begin
   Result := '';
   L := Length(src);
-  if L = 0 then exit;
+  if L = 0 then begin
+    exit;
+  end;
   GetMem(Buf, L);
   try
     P := Buf;
     for i := 1 to L do begin
       ch := Ord(src[i]);
       if (ch >= 32) or (ch = $09) or (ch = $0A) or (ch = $0D) then begin
-        P^:= AnsiChar(ch);
+        P^ := AnsiChar(ch);
         Inc(P);
       end;
     end;

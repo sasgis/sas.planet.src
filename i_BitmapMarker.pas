@@ -51,7 +51,7 @@ type
     function GetChangeNotifier: INotifier;
     property ChangeNotifier: INotifier read GetChangeNotifier;
   end;
-  
+
 implementation
 
 end.
