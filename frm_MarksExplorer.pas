@@ -724,6 +724,8 @@ begin
     if VMarkIdList <> nil then begin
       FMarkDBGUI.DeleteMarksModal(VMarkIdList, Self.Handle);
     end;
+  end else if Key = VK_RETURN then begin
+    MarksListBoxDblClick(Sender);
   end;
 end;
 
