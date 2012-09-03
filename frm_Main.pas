@@ -864,7 +864,8 @@ begin
       GState.GUISyncronizedTimerNotifier,
       GState.GCThread.List,
       GState.ContentTypeManager,
-      GState.PerfCounterList,
+      GState.TileNameGenerator,
+      GState.TileNameParser,
       GState.ValueToStringConverterConfig
     );
   FfrmCacheManager.PopupParent := Self;

@@ -35,12 +35,13 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
-  i_Notifier, 
+  i_Notifier,
   i_NotifierOperation,
   i_LanguageManager,
   i_NotifierTTLCheck,
   i_ContentTypeManager,
-  i_InternalPerformanceCounter,
+  i_TileFileNameGeneratorsList,
+  i_TileFileNameParsersList,
   i_ValueToStringConverter,
   u_CommonFormAndFrameParents;
 
@@ -79,7 +80,8 @@ type
     FTimerNoifier: INotifier;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
-    FPerfCounterList: IInternalPerformanceCounterList;
+    FFileNameGeneratorsList: ITileFileNameGeneratorsList;
+    FFileNameParsersList: ITileFileNameParsersList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     procedure ProcessCacheConverter;
   public
@@ -89,7 +91,8 @@ type
       const ATimerNoifier: INotifier;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
-      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
+      const AFileNameParsersList: ITileFileNameParsersList;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -118,7 +121,8 @@ constructor TfrmCacheManager.Create(
   const ATimerNoifier: INotifier;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
-  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
+  const AFileNameParsersList: ITileFileNameParsersList;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
@@ -127,8 +131,9 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FGCList := AGCList;
+  FFileNameGeneratorsList := AFileNameGeneratorsList;
+  FFileNameParsersList := AFileNameParsersList;
   FContentTypeManager := AContentTypeManager;
-  FPerfCounterList := APerfCounterList;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
   cbbCacheTypes.ItemIndex := 1; // SAS.Planet
@@ -213,7 +218,8 @@ begin
     chkOverwrite.Checked,
     FGCList,
     FContentTypeManager,
-    FPerfCounterList,
+    FFileNameGeneratorsList,
+    FFileNameParsersList,
     VProgressInfo
   );
 

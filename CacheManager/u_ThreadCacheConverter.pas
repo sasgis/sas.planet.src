@@ -48,7 +48,8 @@ type
     FSourcePath: string;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
-    FPerfCounterList: IInternalPerformanceCounterList;
+    FFileNameGeneratorsList: ITileFileNameGeneratorsList;
+    FFileNameParsersList: ITileFileNameParsersList;
     FProgressInfo: ICacheConverterProgressInfo;
     function CreateSimpleTileStorage(
       const ACacheIdent: string;
@@ -81,7 +82,8 @@ type
       const ADestOverwriteTiles: Boolean;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
-      const APerfCounterList: IInternalPerformanceCounterList;
+      const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
+      const AFileNameParsersList: ITileFileNameParsersList;
       const AProgressInfo: ICacheConverterProgressInfo
     );
   end;
@@ -92,7 +94,11 @@ uses
   SysUtils,
   c_CacheTypeCodes,
   i_PathConfig,
+  i_TileFileNameGenerator,
+  i_TileFileNameParser,
   i_CoordConverter,
+  i_MapVersionConfig,
+  i_ContentTypeInfo,
   i_SimpleTileStorageConfig,
   u_SimpleTileStorageConfig,
   u_SimpleTileStorageConfigStatic,
@@ -100,6 +106,7 @@ uses
   u_TileFileNameGeneratorsSimpleList,
   u_CoordConverterMercatorOnSphere,
   u_PathConfig,
+  u_MapVersionFactorySimpleString,
   u_TileStorageFileSystem,
   u_TileStorageBerkeleyDB,
   u_TileStorageGE;
@@ -119,7 +126,8 @@ constructor TThreadCacheConverter.Create(
   const ADestOverwriteTiles: Boolean;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
-  const APerfCounterList: IInternalPerformanceCounterList;
+  const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
+  const AFileNameParsersList: ITileFileNameParsersList;
   const AProgressInfo: ICacheConverterProgressInfo
 );
 var
@@ -134,7 +142,8 @@ begin
   FSourcePath := ASourcePath;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
-  FPerfCounterList := APerfCounterList;
+  FFileNameGeneratorsList := AFileNameGeneratorsList;
+  FFileNameParsersList := AFileNameParsersList;
   FProgressInfo := AProgressInfo;
 
   VDotPos := Pos('.', ADefExtention);
@@ -271,78 +280,54 @@ function TThreadCacheConverter.CreateSimpleTileStorage(
   const AAllowReplace: Boolean
 ): ITileStorage;
 var
-  VIsStoreFileCache: Boolean;
-  VStorageConfig: ISimpleTileStorageConfig;
-  VStorageConfigStatic: ISimpleTileStorageConfigStatic;
-  VBaseCachePath: IPathConfig;
-  VTileNameGeneratorList: ITileFileNameGeneratorsList;
-  VTileNameParserList: ITileFileNameParsersList;
   VCoordConverterFake: ICoordConverter;
+  VMapVersionFactory: IMapVersionFactory;
+  VContentType: IContentTypeInfoBasic;
+  VFileNameGenerator: ITileFileNameGenerator;
+  VFileNameParser: ITileFileNameParser;
 begin
-  VIsStoreFileCache :=
-    (AFormatID <> c_File_Cache_Id_BDB) and
-    (AFormatID <> c_File_Cache_Id_GE) and
-    (AFormatID <> c_File_Cache_Id_GC);
-
   VCoordConverterFake := TCoordConverterMercatorOnSphere.Create(6378137);
-
-  VStorageConfigStatic :=
-    TSimpleTileStorageConfigStatic.Create(
-      VCoordConverterFake,
-      AFormatID,
-      '',
-      ADefExtention,
-      VIsStoreFileCache,
-      AIsReadOnly,
-      AAllowDelete,
-      AAllowAdd,
-      AAllowReplace
-    );
-
-  VStorageConfig := TSimpleTileStorageConfig.Create(VStorageConfigStatic);
-
-  VBaseCachePath := TPathConfig.Create(ACacheIdent, ARootPath, nil);
-
-  VTileNameGeneratorList :=
-    TTileFileNameGeneratorsSimpleList.Create;
-
-  VTileNameParserList :=
-    TTileFileNameParsersSimpleList.Create;
-
-  if VStorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
-//    Result :=
-//      TTileStorageBerkeleyDB.Create(
-//        FGCList,
-//        VStorageConfig,
-//        VGlobalCacheConfig,
-//        False,
-//        FContentTypeManager,
-//        FPerfCounterList
-//      );
-  end else if VStorageConfig.CacheTypeCode = c_File_Cache_Id_GE then begin
+  VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
+  if AFormatID = c_File_Cache_Id_BDB then begin
+    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+    Result :=
+      TTileStorageBerkeleyDB.Create(
+        VCoordConverterFake,
+        ARootPath,
+        FGCList,
+        False,
+        FContentTypeManager,
+        VMapVersionFactory,
+        VContentType
+      );
+  end else if AFormatID = c_File_Cache_Id_GE then begin
 //    Result :=
 //      TTileStorageGE.Create(
 //        VStorageConfig,
 //        VGlobalCacheConfig,
 //        FContentTypeManager
 //      );
-  end else if VStorageConfig.CacheTypeCode = c_File_Cache_Id_GC then begin
+  end else if AFormatID = c_File_Cache_Id_GC then begin
 //    Result :=
 //      TTileStorageGC.Create(
 //        VStorageConfig,
 //        VGlobalCacheConfig,
 //        FContentTypeManager
 //      );
-  end else begin
-//    Result :=
-//      TTileStorageFileSystem.Create(
-//        VStorageConfig,
-//        VGlobalCacheConfig,
-//        VTileNameGeneratorList,
-//        VTileNameParserList,
-//        FContentTypeManager,
-//        FPerfCounterList
-//      );
+  end else if AFormatID in [c_File_Cache_Id_GMV, c_File_Cache_Id_SAS, c_File_Cache_Id_ES, c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing] then begin
+    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+    VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
+    VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
+    Result :=
+      TTileStorageFileSystem.Create(
+        VCoordConverterFake,
+        ARootPath,
+        ADefExtention,
+        VContentType,
+        VMapVersionFactory,
+        VFileNameGenerator,
+        VFileNameParser
+      );
   end;
 end;
 
