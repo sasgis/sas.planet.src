@@ -23,7 +23,6 @@ unit u_ConfigDataElementComplexBase;
 interface
 
 uses
-  Classes,
   SysUtils,
   Contnrs,
   i_SimpleFlag,

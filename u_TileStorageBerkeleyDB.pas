@@ -26,7 +26,6 @@ uses
   Types,
   SysUtils,
   i_BinaryData,
-  i_SimpleTileStorageConfig,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
@@ -37,9 +36,7 @@ uses
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
   i_TileFileNameGenerator,
-  i_InternalPerformanceCounter,
   u_TileStorageBerkeleyDBHelper,
-  u_GlobalCahceConfig,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
@@ -127,9 +124,7 @@ uses
   i_TileIterator,
   i_FileNameIterator,
   i_TileFileNameParser,
-  u_MapVersionFactorySimpleString,
   u_ListenerTTLCheck,
-  //  u_TileRectInfo,
   u_TileRectInfoShort,
   u_TileFileNameBDB,
   u_TileIteratorByRect,
@@ -137,7 +132,7 @@ uses
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
-  u_TreeFolderRemover,
+  
   u_TileInfoBasic;
 
 { TTileStorageBerkeleyDB }

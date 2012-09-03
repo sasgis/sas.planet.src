@@ -27,7 +27,6 @@ interface
 
 uses
   i_TileFileNameGenerator,
-  u_GlobalCahceConfig,
   i_TileFileNameGeneratorsList;
 
 type

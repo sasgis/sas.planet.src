@@ -29,17 +29,13 @@ uses
   i_BinaryData,
   t_CommonTypes,
   t_DLLCache,
-  i_SimpleTileStorageConfig,
-  u_MapVersionFactoryGE,
   i_ContentTypeInfo,
   i_MapVersionConfig,
   i_MapVersionInfo,
   i_CoordConverter,
-  i_CoordConverterFactory,
   i_TileInfoBasic,
   i_TileStorage,
   i_ContentTypeManager,
-  u_GlobalCahceConfig,
   u_TileStorageAbstract;
 
 type
@@ -154,7 +150,6 @@ type
 implementation
 
 uses
-  c_CoordConverter,
   u_BinaryDataByMemStream,
   u_MapVersionListStatic,
   u_AvailPicsNMC,

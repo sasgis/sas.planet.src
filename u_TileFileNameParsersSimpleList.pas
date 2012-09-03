@@ -27,7 +27,6 @@ unit u_TileFileNameParsersSimpleList;
 interface
 
 uses
-  u_GlobalCahceConfig,
   i_TileFileNameParser,
   i_TileFileNameParsersList;
 

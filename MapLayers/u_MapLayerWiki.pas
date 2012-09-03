@@ -28,18 +28,15 @@ uses
   Classes,
   GR32,
   GR32_Image,
+  t_GeoTypes,
   i_Notifier,
   i_Listener,
-  u_MapType,
-  u_MapLayerBasic,
-  t_GeoTypes,
   i_MapTypes,
   i_NotifierOperation,
   i_ProjectionInfo,
   i_VectorItemProjected,
   i_VectorItmesFactory,
   i_IdCacheSimple,
-  i_DoublePointsAggregator,
   i_KmlLayerConfig,
   i_ImageResamplerConfig,
   i_LocalCoordConverter,
@@ -51,8 +48,7 @@ uses
   i_SimpleFlag,
   i_FindVectorItems,
   i_VectorDataItemSimple,
-  i_MapElementsGuidedList,
-  u_MapElementsGuidedList,
+  u_MapType,
   u_MapLayerWithThreadDraw;
 
 type
@@ -163,7 +159,6 @@ uses
   u_ResStrings,
   u_GeoFun,
   u_SimpleFlagWithInterlock,
-  u_DoublePointsAggregator,
   u_BitmapLayerProviderByVectorSubset,
   u_IdCacheSimpleThreadSafe,
   u_TileIteratorSpiralByRect;

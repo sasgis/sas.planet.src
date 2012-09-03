@@ -12,7 +12,6 @@ uses
   i_InternalPerformanceCounter,
   i_NotifierTileRectUpdate,
   i_StorageState,
-  i_CoordConverterFactory,
   i_ContentTypeInfo,
   i_Listener,
   i_MapVersionConfig,

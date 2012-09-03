@@ -61,7 +61,6 @@ type
 implementation
 
 uses
-  Classes,
   ALStringList,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,

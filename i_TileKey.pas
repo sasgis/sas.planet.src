@@ -3,8 +3,7 @@ unit i_TileKey;
 interface
 
 uses
-  Types,
-  i_MapVersionInfo;
+  Types;
 
 type
   ITileKey = interface

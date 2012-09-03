@@ -3,8 +3,7 @@ unit i_TileRect;
 interface
 
 uses
-  Types,
-  i_MapVersionInfo;
+  Types;
 
 type
   ITileRect = interface

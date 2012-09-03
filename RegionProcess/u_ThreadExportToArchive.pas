@@ -46,7 +46,6 @@ type
 implementation
 
 uses
-  i_BinaryData,
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,

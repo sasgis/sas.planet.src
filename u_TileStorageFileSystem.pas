@@ -28,20 +28,14 @@ uses
   SysUtils,
   GR32,
   i_BinaryData,
-  i_SimpleTileStorageConfig,
   i_CoordConverter,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_MapVersionConfig,
   i_TileInfoBasic,
   i_TileStorage,
-  i_TileFileNameParsersList,
-  i_TileFileNameGeneratorsList,
-  i_ContentTypeManager,
-  i_InternalPerformanceCounter,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
-  u_GlobalCahceConfig,
   u_TileStorageAbstract;
 
 type
@@ -123,20 +117,16 @@ implementation
 uses
   WideStrings,
   t_CommonTypes,
-  c_CacheTypeCodes,
   i_TileIterator,
   i_FileNameIterator,
   i_StorageState,
   u_TileRectInfoShort,
   u_BinaryDataByMemStream,
-  u_MapVersionFactorySimpleString,
   u_TileStorageTypeAbilities,
   u_TileIteratorByRect,
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
-  u_TreeFolderRemover,
-  u_Synchronizer,
   u_TileInfoBasic;
 
 const

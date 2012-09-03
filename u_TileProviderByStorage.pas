@@ -73,7 +73,6 @@ uses
   GR32,
   GR32_Resamplers,
   i_TileInfoBasic,
-  i_BinaryData,
   u_Bitmap32Static;
 
 { TBitmapTileProviderByStorage }

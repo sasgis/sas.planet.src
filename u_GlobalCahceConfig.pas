@@ -77,7 +77,6 @@ type
 implementation
 
 uses
-  SysUtils,
   c_CacheTypeCodes,
   u_PathConfig,
   u_Notifier;

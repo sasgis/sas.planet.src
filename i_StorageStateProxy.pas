@@ -1,8 +1,8 @@
 unit i_StorageStateProxy;
 
 interface
+
 uses
-  t_CommonTypes,
   i_StorageState,
   i_Changeable;
 

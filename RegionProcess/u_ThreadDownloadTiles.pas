@@ -193,7 +193,6 @@ uses
   u_DownloadInfoSimple,
   u_TileIteratorByPolygon,
   u_ListenerByEvent,
-  u_TileStorageAbstract,
   u_ReadableThreadNames,
   u_ConfigProviderHelpers,
   u_ResStrings;

@@ -69,8 +69,7 @@ uses
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
   u_GlobalCahceConfig,
-  i_TileStorage,
-  u_TileStorageAbstract;
+  i_TileStorage;
 
 type
   TMapType = class
@@ -272,10 +271,7 @@ uses
   u_TileDownloadSubsystem,
   u_GeoFun,
   u_TileStorageOfMapType,
-  u_TileStorageGE,
-  u_ListenerByEvent,
-  u_TileStorageBerkeleyDB,
-  u_TileStorageFileSystem;
+  u_ListenerByEvent;
 
 constructor TMapType.Create(
   const ALanguageManager: ILanguageManager;

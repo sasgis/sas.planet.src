@@ -27,11 +27,8 @@ uses
   i_BinaryData,
   i_NotifierTileRectUpdate,
   i_MapVersionInfo,
-  i_MapVersionConfig,
   i_StorageState,
-  i_ContentTypeInfo,
-  i_TileInfoBasic,
-  i_TileStorageInfo;
+  i_TileInfoBasic;
 
 type
   TGetTileInfoMode = (gtimWithData = 1, gtimWithoutData = -1, gtimAsIs = 0);

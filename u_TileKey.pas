@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  i_MapVersionInfo,
   i_TileKey;
 
 type

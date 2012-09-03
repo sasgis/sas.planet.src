@@ -7,9 +7,7 @@ uses
   Classes,
   SysUtils,
   GR32_Image,
-  i_SimpleFlag,
   i_Notifier,
-  i_Listener,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -24,7 +22,6 @@ uses
   i_ImageResamplerConfig,
   i_IdCacheSimple,
   i_FindVectorItems,
-  i_MarksSimple,
   u_MapType,
   u_TiledLayerWithThreadBase;
 
@@ -112,11 +109,11 @@ uses
   i_TileIterator,
   i_VectorItemProjected,
   i_LonLatRect,
-  i_MarkerProviderForVectorItem,
+  
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_TileErrorInfo,
-  u_SimpleFlagWithInterlock,
+  
   u_IdCacheSimpleThreadSafe,
   u_VectorDataItemList,
   u_GeoFun,

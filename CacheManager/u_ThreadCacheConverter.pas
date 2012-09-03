@@ -23,7 +23,6 @@ unit u_ThreadCacheConverter;
 interface
 
 uses
-  Types,
   Classes,
   i_NotifierOperation,
   i_NotifierTTLCheck,
@@ -32,7 +31,6 @@ uses
   i_TileFileNameGeneratorsList,
   i_InternalPerformanceCounter,
   i_TileInfoBasic,
-  i_BinaryData,
   i_TileStorage,
   i_CacheConverterProgressInfo,
   u_ThreadCacheManagerAbstract;
@@ -101,7 +99,7 @@ uses
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList,
   u_CoordConverterMercatorOnSphere,
-  u_PathConfig,  
+  u_PathConfig,
   u_TileStorageFileSystem,
   u_TileStorageBerkeleyDB,
   u_TileStorageGE;

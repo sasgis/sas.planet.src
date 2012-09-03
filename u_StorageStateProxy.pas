@@ -5,7 +5,6 @@ interface
 uses
   t_CommonTypes,
   i_Listener,
-  i_StorageTypeAbilities,
   i_StorageState,
   i_StorageStateProxy,
   u_ConfigDataElementBase;

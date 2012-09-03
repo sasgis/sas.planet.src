@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderByVectorSubset;
 interface
 
 uses
-  Classes,
   Types,
   GR32,
   t_GeoTypes,

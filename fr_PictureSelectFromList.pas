@@ -61,7 +61,6 @@ procedure CopyMarkerToBitmap(
 implementation
 
 uses
-  Math,
   GR32_Blend,
   GR32_Rasterizers,
   GR32_Resamplers,

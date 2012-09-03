@@ -81,7 +81,6 @@ implementation
 
 uses
   ShLwApi,
-  i_BinaryData,
   i_CoordConverter,
   i_VectorItemProjected,
   i_TileIterator,

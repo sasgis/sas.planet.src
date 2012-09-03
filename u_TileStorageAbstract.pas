@@ -24,16 +24,10 @@ interface
 
 uses
   Types,
-  SysUtils,
-  i_Notifier,
-  i_Listener,
   i_BinaryData,
   i_CoordConverter,
-  i_SimpleTileStorageConfig,
-  i_ContentTypeInfo,
   i_MapVersionInfo,
   i_MapVersionConfig,
-  i_PathConfig,
   i_StorageTypeAbilities,
   i_StorageState,
   i_StorageStateInternal,
@@ -124,12 +118,6 @@ type
 implementation
 
 uses
-  u_Synchronizer,
-  t_CommonTypes,
-  u_ListenerByEvent,
-  i_TileKey,
-  u_TileKey,
-  u_PathConfig,
   u_NotifierTileRectUpdate,
   u_StorageStateInternal;
 
