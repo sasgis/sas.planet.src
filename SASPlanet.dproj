@@ -455,7 +455,6 @@
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
-    <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />
     <DCCReference Include="MapLayers\u_MapLayerFillingMapNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGPSMarker.pas" />
@@ -835,7 +834,6 @@
     <DCCReference Include="u_MapMovingConfig.pas" />
     <DCCReference Include="u_MapType.pas" />
     <DCCReference Include="u_MapTypeBasic.pas" />
-    <DCCReference Include="u_MapTypeCacheConfig.pas" />
     <DCCReference Include="u_MapTypeConfigModalEditByForm.pas" />
     <DCCReference Include="u_MapTypeGUIConfig.pas" />
     <DCCReference Include="u_MapTypeGUIConfigList.pas" />
