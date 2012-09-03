@@ -39,7 +39,6 @@ uses
   i_TileInfoBasic,
   i_TileStorage,
   i_ContentTypeManager,
-  u_MapTypeCacheConfig,
   u_GlobalCahceConfig,
   u_TileStorageAbstract;
 

@@ -40,7 +40,6 @@ uses
   i_InternalPerformanceCounter,
   u_TileStorageBerkeleyDBHelper,
   u_GlobalCahceConfig,
-  u_MapTypeCacheConfig,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
@@ -130,7 +129,7 @@ uses
   i_TileFileNameParser,
   u_MapVersionFactorySimpleString,
   u_ListenerTTLCheck,
-//  u_TileRectInfo,
+  //  u_TileRectInfo,
   u_TileRectInfoShort,
   u_TileFileNameBDB,
   u_TileIteratorByRect,
@@ -249,72 +248,72 @@ begin
       Exit;
     end;
   end;
-    Result := FTileNotExistsTileInfo;
-    if GetState.GetStatic.ReadAccess <> asDisabled then begin
+  Result := FTileNotExistsTileInfo;
+  if GetState.GetStatic.ReadAccess <> asDisabled then begin
 
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        '.sdb';
+    VPath :=
+      StoragePath +
+      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+      '.sdb';
 
-      VResult := False;
+    VResult := False;
 
+    if FileExists(VPath) then begin
+
+      VResult := FHelper.LoadTile(
+        VPath,
+        AXY,
+        AZoom,
+        AVersionInfo,
+        VTileBinaryData,
+        VTileVersion,
+        VTileContentType,
+        VTileDate
+      );
+
+      if VResult then begin
+        if AMode = gtimWithoutData then begin
+          Result := TTileInfoBasicExists.Create(
+            VTileDate,
+            VTileBinaryData.Size,
+            MapVersionFactory.CreateByStoreString(VTileVersion),
+            FContentTypeManager.GetInfo(VTileContentType)
+          );
+        end else begin
+          Result := TTileInfoBasicExistsWithTile.Create(
+            VTileDate,
+            VTileBinaryData,
+            MapVersionFactory.CreateByStoreString(VTileVersion),
+            FContentTypeManager.GetInfo(VTileContentType)
+          );
+        end;
+      end;
+    end;
+
+    if not VResult then begin
+      VPath := ChangeFileExt(VPath, '.tne');
       if FileExists(VPath) then begin
-
-        VResult := FHelper.LoadTile(
+        VResult := FHelper.IsTNEFound(
           VPath,
           AXY,
           AZoom,
           AVersionInfo,
-          VTileBinaryData,
-          VTileVersion,
-          VTileContentType,
           VTileDate
         );
-
         if VResult then begin
-          if AMode = gtimWithoutData then begin
-            Result := TTileInfoBasicExists.Create(
-              VTileDate,
-              VTileBinaryData.Size,
-              MapVersionFactory.CreateByStoreString(VTileVersion),
-              FContentTypeManager.GetInfo(VTileContentType)
-            );
-          end else begin
-            Result := TTileInfoBasicExistsWithTile.Create(
-              VTileDate,
-              VTileBinaryData,
-              MapVersionFactory.CreateByStoreString(VTileVersion),
-              FContentTypeManager.GetInfo(VTileContentType)
-            );
-          end;
+          Result := TTileInfoBasicTNE.Create(VTileDate, AVersionInfo);
         end;
-      end;
-
-      if not VResult then begin
-        VPath := ChangeFileExt(VPath, '.tne');
-        if FileExists(VPath) then begin
-          VResult := FHelper.IsTNEFound(
-            VPath,
-            AXY,
-            AZoom,
-            AVersionInfo,
-            VTileDate
-          );
-          if VResult then begin
-            Result := TTileInfoBasicTNE.Create(VTileDate, AVersionInfo);
-          end;
-        end;
-      end;
-
-      if not VResult then begin
-        Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
       end;
     end;
 
-    if FUseMemCache then begin
-      FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+    if not VResult then begin
+      Result := TTileInfoBasicNotExists.Create(0, AVersionInfo);
     end;
+  end;
+
+  if FUseMemCache then begin
+    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+  end;
 end;
 
 function TTileStorageBerkeleyDB.GetTileRectInfo(
@@ -366,115 +365,113 @@ begin
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
       SetLength(VItems, VCount.X * VCount.Y);
-        ClearInfo(VFolderInfo);
-        ClearInfo(VFileInfo);
-        ClearInfo(VTneFileInfo);
-        VIterator := TTileIteratorByRect.Create(VRect);
-        while VIterator.Next(VTile) do begin
-          VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
-          VFileInfo.Name :=
-            StoragePath +
-            FFileNameGenerator.GetTileFileName(VTile, VZoom) +
-            '.sdb';
-          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, '.tne');
-          VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
+      ClearInfo(VFolderInfo);
+      ClearInfo(VFileInfo);
+      ClearInfo(VTneFileInfo);
+      VIterator := TTileIteratorByRect.Create(VRect);
+      while VIterator.Next(VTile) do begin
+        VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
+        VFileInfo.Name :=
+          StoragePath +
+          FFileNameGenerator.GetTileFileName(VTile, VZoom) +
+          '.sdb';
+        VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, '.tne');
+        VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
 
-          if VFolderInfo.Name = VFolderInfo.PrevName then begin
-            VFolderInfo.Exists := VFolderInfo.PrevExists;
+        if VFolderInfo.Name = VFolderInfo.PrevName then begin
+          VFolderInfo.Exists := VFolderInfo.PrevExists;
+        end else begin
+          VFolderInfo.Exists := DirectoryExists(VFolderInfo.Name);
+          VFolderInfo.PrevName := VFolderInfo.Name;
+          VFolderInfo.PrevExists := VFolderInfo.Exists;
+        end;
+
+        if VFileInfo.Name = VFileInfo.PrevName then begin
+          VFileInfo.Exists := VFileInfo.PrevExists;
+        end else begin
+          VFileInfo.Exists := FileExists(VFileInfo.Name);
+          VFileInfo.PrevName := VFileInfo.Name;
+          VFileInfo.PrevExists := VFileInfo.Exists;
+        end;
+
+        if VTneFileInfo.Name = VTneFileInfo.PrevName then begin
+          VTneFileInfo.Exists := VTneFileInfo.PrevExists;
+        end else begin
+          VTneFileInfo.Exists := FileExists(VTneFileInfo.Name);
+          VTneFileInfo.PrevName := VTneFileInfo.Name;
+          VTneFileInfo.PrevExists := VTneFileInfo.Exists;
+        end;
+
+        if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
+          VTileExists := FHelper.LoadTile(
+            VFileInfo.Name,
+            VTile,
+            VZoom,
+            AVersionInfo,
+            VTileBinaryData,
+            VTileVersion,
+            VTileContentType,
+            VTileDate
+          );
+          if VTileExists then begin
+            // tile exists
+            VItems[VIndex].FLoadDate := VTileDate;
+            //VItems[VIndex].FVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersion);
+            //VItems[VIndex].FContentType := FContentTypeManager.GetInfo(VTileContentType);
+            //VItems[VIndex].FData := VTileBinaryData;
+            VItems[VIndex].FSize := VTileBinaryData.Size;
+            VItems[VIndex].FInfoType := titExists;
           end else begin
-            VFolderInfo.Exists := DirectoryExists(VFolderInfo.Name);
-            VFolderInfo.PrevName := VFolderInfo.Name;
-            VFolderInfo.PrevExists := VFolderInfo.Exists;
-          end;
-
-          if VFileInfo.Name = VFileInfo.PrevName then begin
-            VFileInfo.Exists := VFileInfo.PrevExists;
-          end else begin
-            VFileInfo.Exists := FileExists(VFileInfo.Name);
-            VFileInfo.PrevName := VFileInfo.Name;
-            VFileInfo.PrevExists := VFileInfo.Exists;
-          end;
-
-          if VTneFileInfo.Name = VTneFileInfo.PrevName then begin
-            VTneFileInfo.Exists := VTneFileInfo.PrevExists;
-          end else begin
-            VTneFileInfo.Exists := FileExists(VTneFileInfo.Name);
-            VTneFileInfo.PrevName := VTneFileInfo.Name;
-            VTneFileInfo.PrevExists := VTneFileInfo.Exists;
-          end;
-
-          if
-            (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists))
-          then begin
-            VTileExists := FHelper.LoadTile(
-              VFileInfo.Name,
+            VTileExists := FHelper.IsTNEFound(
+              VTneFileInfo.Name,
               VTile,
               VZoom,
               AVersionInfo,
-              VTileBinaryData,
-              VTileVersion,
-              VTileContentType,
               VTileDate
             );
             if VTileExists then begin
-              // tile exists
+              // tne exists
               VItems[VIndex].FLoadDate := VTileDate;
-              //VItems[VIndex].FVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersion);
-              //VItems[VIndex].FContentType := FContentTypeManager.GetInfo(VTileContentType);
-              //VItems[VIndex].FData := VTileBinaryData;
-              VItems[VIndex].FSize := VTileBinaryData.Size;
-              VItems[VIndex].FInfoType := titExists;
+              //VItems[VIndex].FVersionInfo := AVersionInfo;
+              //VItems[VIndex].FContentType := nil;
+              //VItems[VIndex].FData := nil;
+              VItems[VIndex].FSize := 0;
+              VItems[VIndex].FInfoType := titTneExists;
             end else begin
-              VTileExists := FHelper.IsTNEFound(
-                VTneFileInfo.Name,
-                VTile,
-                VZoom,
-                AVersionInfo,
-                VTileDate
-              );
-              if VTileExists then begin
-                // tne exists
-                VItems[VIndex].FLoadDate := VTileDate;
-                //VItems[VIndex].FVersionInfo := AVersionInfo;
-                //VItems[VIndex].FContentType := nil;
-                //VItems[VIndex].FData := nil;
-                VItems[VIndex].FSize := 0;
-                VItems[VIndex].FInfoType := titTneExists;
-              end else begin
-                // neither tile nor tne
-                VItems[VIndex].FLoadDate := 0;
-                //VItems[VIndex].FVersionInfo := nil;
-                //VItems[VIndex].FContentType := nil;
-                //VItems[VIndex].FData := nil;
-                VItems[VIndex].FSize := 0;
-                VItems[VIndex].FInfoType := titNotExists;
-              end;
+              // neither tile nor tne
+              VItems[VIndex].FLoadDate := 0;
+              //VItems[VIndex].FVersionInfo := nil;
+              //VItems[VIndex].FContentType := nil;
+              //VItems[VIndex].FData := nil;
+              VItems[VIndex].FSize := 0;
+              VItems[VIndex].FInfoType := titNotExists;
             end;
-          end else begin
-            // neither tile nor tne
-            VItems[VIndex].FLoadDate := 0;
-            //VItems[VIndex].FVersionInfo := nil;
-            //VItems[VIndex].FContentType := nil;
-            //VItems[VIndex].FData := nil;
-            VItems[VIndex].FSize := 0;
-            VItems[VIndex].FInfoType := titNotExists;
           end;
+        end else begin
+          // neither tile nor tne
+          VItems[VIndex].FLoadDate := 0;
+          //VItems[VIndex].FVersionInfo := nil;
+          //VItems[VIndex].FContentType := nil;
+          //VItems[VIndex].FData := nil;
+          VItems[VIndex].FSize := 0;
+          VItems[VIndex].FInfoType := titNotExists;
         end;
-        //Result :=
-        //  TTileRectInfo.CreateWithOwn(
-        //    VRect,
-        //    VZoom,
-        //    VItems
-        //  );
-        Result :=
-          TTileRectInfoShort.CreateWithOwn(
-            VRect,
-            VZoom,
-            nil,
-            FMainContentType,
-            VItems
-          );
-        VItems := nil;
+      end;
+      //Result :=
+      //  TTileRectInfo.CreateWithOwn(
+      //    VRect,
+      //    VZoom,
+      //    VItems
+      //  );
+      Result :=
+        TTileRectInfoShort.CreateWithOwn(
+          VRect,
+          VZoom,
+          nil,
+          FMainContentType,
+          VItems
+        );
+      VItems := nil;
     end;
   end;
 end;
@@ -491,42 +488,42 @@ var
   VTileInfo: ITileInfoBasic;
   VContenetTypeStr: WideString;
 begin
-    if GetState.GetStatic.WriteAccess <> asDisabled then begin
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        '.sdb';
-      if FHelper.CreateDirIfNotExists(VPath) then begin
-        VContenetTypeStr := FMainContentType.GetContentType;
-        VResult := FHelper.SaveTile(
-          VPath,
-          AXY,
-          AZoom,
-          Now,
-          AVersionInfo,
-          PWideChar(VContenetTypeStr),
-          AData
-        );
-        if VResult then begin
-          VTileInfo :=
-            TTileInfoBasicExistsWithTile.Create(
-              Now,
-              AData,
-              AVersionInfo,
-              FMainContentType
-            );
-          if FUseMemCache then begin
-            FTileInfoMemCache.Add(
-              AXY,
-              AZoom,
-              AVersionInfo,
-              VTileInfo
-            );
-          end;
-          NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    VPath :=
+      StoragePath +
+      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+      '.sdb';
+    if FHelper.CreateDirIfNotExists(VPath) then begin
+      VContenetTypeStr := FMainContentType.GetContentType;
+      VResult := FHelper.SaveTile(
+        VPath,
+        AXY,
+        AZoom,
+        Now,
+        AVersionInfo,
+        PWideChar(VContenetTypeStr),
+        AData
+      );
+      if VResult then begin
+        VTileInfo :=
+          TTileInfoBasicExistsWithTile.Create(
+            Now,
+            AData,
+            AVersionInfo,
+            FMainContentType
+          );
+        if FUseMemCache then begin
+          FTileInfoMemCache.Add(
+            AXY,
+            AZoom,
+            AVersionInfo,
+            VTileInfo
+          );
         end;
+        NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
+  end;
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTNE(
@@ -539,35 +536,35 @@ var
   VResult: Boolean;
   VContenetTypeStr: WideString;
 begin
-    if GetState.GetStatic.WriteAccess <> asDisabled then begin
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        '.tne';
-      if FHelper.CreateDirIfNotExists(VPath) then begin
-        VContenetTypeStr := FMainContentType.GetContentType;
-        VResult := FHelper.SaveTile(
-          VPath,
-          AXY,
-          AZoom,
-          Now,
-          AVersionInfo,
-          PWideChar(VContenetTypeStr),
-          nil
-        );
-        if VResult then begin
-          if FUseMemCache then begin
-            FTileInfoMemCache.Add(
-              AXY,
-              AZoom,
-              AVersionInfo,
-              TTileInfoBasicTNE.Create(Now, AVersionInfo)
-            );
-          end;
-          NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    VPath :=
+      StoragePath +
+      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+      '.tne';
+    if FHelper.CreateDirIfNotExists(VPath) then begin
+      VContenetTypeStr := FMainContentType.GetContentType;
+      VResult := FHelper.SaveTile(
+        VPath,
+        AXY,
+        AZoom,
+        Now,
+        AVersionInfo,
+        PWideChar(VContenetTypeStr),
+        nil
+      );
+      if VResult then begin
+        if FUseMemCache then begin
+          FTileInfoMemCache.Add(
+            AXY,
+            AZoom,
+            AVersionInfo,
+            TTileInfoBasicTNE.Create(Now, AVersionInfo)
+          );
         end;
+        NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
+  end;
 end;
 
 function TTileStorageBerkeleyDB.DeleteTile(
@@ -578,39 +575,39 @@ function TTileStorageBerkeleyDB.DeleteTile(
 var
   VPath: string;
 begin
-    Result := False;
-    if GetState.GetStatic.DeleteAccess <> asDisabled then begin
-      try
-        VPath :=
-          StoragePath +
-          FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-          '.sdb';
-        if FileExists(VPath) then begin
-          Result := FHelper.DeleteTile(
-            VPath,
-            AXY,
-            AZoom,
-            AVersionInfo
-          );
-        end;
-        if not Result then begin
-          Result := DeleteTNE(AXY, AZoom, AVersionInfo);
-        end;
-      except
-        Result := False;
+  Result := False;
+  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
+    try
+      VPath :=
+        StoragePath +
+        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+        '.sdb';
+      if FileExists(VPath) then begin
+        Result := FHelper.DeleteTile(
+          VPath,
+          AXY,
+          AZoom,
+          AVersionInfo
+        );
       end;
-      if Result then begin
-        if FUseMemCache then begin
-          FTileInfoMemCache.Add(
-            AXY,
-            AZoom,
-            AVersionInfo,
-            TTileInfoBasicNotExists.Create(0, AVersionInfo)
-          );
-        end;
-        NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+      if not Result then begin
+        Result := DeleteTNE(AXY, AZoom, AVersionInfo);
       end;
+    except
+      Result := False;
     end;
+    if Result then begin
+      if FUseMemCache then begin
+        FTileInfoMemCache.Add(
+          AXY,
+          AZoom,
+          AVersionInfo,
+          TTileInfoBasicNotExists.Create(0, AVersionInfo)
+        );
+      end;
+      NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    end;
+  end;
 end;
 
 function TTileStorageBerkeleyDB.DeleteTNE(
@@ -621,25 +618,25 @@ function TTileStorageBerkeleyDB.DeleteTNE(
 var
   VPath: string;
 begin
-    Result := False;
-    if GetState.GetStatic.DeleteAccess <> asDisabled then begin
-      try
-        VPath :=
-          StoragePath +
-          FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-          '.tne';
-        if FileExists(VPath) then begin
-          Result := FHelper.DeleteTile(
-            VPath,
-            AXY,
-            AZoom,
-            AVersionInfo
-          );
-        end;
-      except
-        Result := False;
+  Result := False;
+  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
+    try
+      VPath :=
+        StoragePath +
+        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+        '.tne';
+      if FileExists(VPath) then begin
+        Result := FHelper.DeleteTile(
+          VPath,
+          AXY,
+          AZoom,
+          AVersionInfo
+        );
       end;
+    except
+      Result := False;
     end;
+  end;
 end;
 
 { TEnumTileInfoByBDB }

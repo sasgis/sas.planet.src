@@ -35,7 +35,6 @@ uses
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
   u_GlobalCahceConfig,
-  u_MapTypeCacheConfig,
   u_TileStorageAbstract,
   t_ETS_Tiles,
   t_ETS_Provider;

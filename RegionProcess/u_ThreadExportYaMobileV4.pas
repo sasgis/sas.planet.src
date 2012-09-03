@@ -321,93 +321,93 @@ begin
   inherited;
   hxyi := 1;
   sizeim := 128;
-    bmp32crop := TCustomBitmap32.Create;
-    try
-      bmp32crop.Width := sizeim;
-      bmp32crop.Height := sizeim;
-      VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-      VTilesToProcess := 0;
-      SetLength(VTileIterators, Length(FZooms));
+  bmp32crop := TCustomBitmap32.Create;
+  try
+    bmp32crop.Width := sizeim;
+    bmp32crop.Height := sizeim;
+    VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
+    VTilesToProcess := 0;
+    SetLength(VTileIterators, Length(FZooms));
 
-      for i := 0 to Length(FZooms) - 1 do begin
-        VZoom := FZooms[i];
-        VProjectedPolygon :=
-          FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
-            FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
-            PolygLL
-          );
-        VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-        VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
-      end;
-      try
-        VTilesProcessed := 0;
-
-        ProgressInfo.SetCaption(SAS_STR_ExportTiles);
-        ProgressInfo.SetFirstLine(
-          SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+    for i := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[i];
+      VProjectedPolygon :=
+        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+          FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+          PolygLL
         );
-        ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+      VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
+    end;
+    try
+      VTilesProcessed := 0;
 
-        tc := GetTickCount;
-        try
-          for j := 0 to length(FTasks) - 1 do begin
-            GenUserXml(IntToStr(FTasks[j].FMapId), FTasks[j].FMapName);
-            for i := 0 to Length(FZooms) - 1 do begin
-              VZoom := FZooms[i];
-              VTileIterators[i].Reset;
-              while VTileIterators[i].Next(VTile) do begin
-                if CancelNotifier.IsOperationCanceled(OperationID) then begin
-                  exit;
-                end;
-                VBitmapTile :=
-                  FTasks[j].FImageProvider.GetBitmapRect(
-                    OperationID, CancelNotifier,
-                    FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
-                  );
-                if VBitmapTile <> nil then begin
-                  for xi := 0 to hxyi do begin
-                    for yi := 0 to hxyi do begin
-                      bmp32crop.Clear;
-                      BlockTransfer(
-                        bmp32crop,
-                        0,
-                        0,
-                        bmp32crop.ClipRect,
-                        VBitmapTile.Bitmap,
-                        bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
-                        dmOpaque
-                      );
-                      VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(bmp32crop);
-                      VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
-                      AddTileToCache(
-                        VDataToSave,
-                        Types.Point(2 * VTile.X + Xi, 2 * VTile.Y + Yi),
-                        VZoom,
-                        FTasks[j].FMapId
-                      );
-                    end;
+      ProgressInfo.SetCaption(SAS_STR_ExportTiles);
+      ProgressInfo.SetFirstLine(
+        SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
+      );
+      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+
+      tc := GetTickCount;
+      try
+        for j := 0 to length(FTasks) - 1 do begin
+          GenUserXml(IntToStr(FTasks[j].FMapId), FTasks[j].FMapName);
+          for i := 0 to Length(FZooms) - 1 do begin
+            VZoom := FZooms[i];
+            VTileIterators[i].Reset;
+            while VTileIterators[i].Next(VTile) do begin
+              if CancelNotifier.IsOperationCanceled(OperationID) then begin
+                exit;
+              end;
+              VBitmapTile :=
+                FTasks[j].FImageProvider.GetBitmapRect(
+                  OperationID, CancelNotifier,
+                  FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
+                );
+              if VBitmapTile <> nil then begin
+                for xi := 0 to hxyi do begin
+                  for yi := 0 to hxyi do begin
+                    bmp32crop.Clear;
+                    BlockTransfer(
+                      bmp32crop,
+                      0,
+                      0,
+                      bmp32crop.ClipRect,
+                      VBitmapTile.Bitmap,
+                      bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                      dmOpaque
+                    );
+                    VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(bmp32crop);
+                    VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
+                    AddTileToCache(
+                      VDataToSave,
+                      Types.Point(2 * VTile.X + Xi, 2 * VTile.Y + Yi),
+                      VZoom,
+                      FTasks[j].FMapId
+                    );
                   end;
                 end;
-                inc(VTilesProcessed);
-                if (GetTickCount - tc > 1000) then begin
-                  tc := GetTickCount;
-                  ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-                end;
+              end;
+              inc(VTilesProcessed);
+              if (GetTickCount - tc > 1000) then begin
+                tc := GetTickCount;
+                ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
               end;
             end;
           end;
-        finally
-          CloseCacheFiles;
         end;
       finally
-        for i := 0 to Length(FZooms) - 1 do begin
-          VTileIterators[i] := nil;
-        end;
+        CloseCacheFiles;
       end;
-      ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
     finally
-      bmp32crop.Free;
+      for i := 0 to Length(FZooms) - 1 do begin
+        VTileIterators[i] := nil;
+      end;
     end;
+    ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
+  finally
+    bmp32crop.Free;
+  end;
 end;
 
 end.

@@ -42,7 +42,6 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   u_GlobalCahceConfig,
-  u_MapTypeCacheConfig,
   u_TileStorageAbstract;
 
 type
@@ -338,36 +337,36 @@ function TTileStorageFileSystem.GetTileInfoByPath(
 var
   VTileInfo: TTileInfo;
 begin
-    UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
-    if VTileInfo.FInfoType = titExists then begin
+  UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
+  if VTileInfo.FInfoType = titExists then begin
     // tile exists
     if AIsLoadIfExists then begin
-        Result :=
-          TTileInfoBasicExistsWithTile.Create(
-            VTileInfo.FLoadDate,
-            VTileInfo.FData,
+      Result :=
+        TTileInfoBasicExistsWithTile.Create(
+          VTileInfo.FLoadDate,
+          VTileInfo.FData,
           nil,
           FMainContentType
         );
     end else begin
       Result :=
         TTileInfoBasicExists.Create(
-            VTileInfo.FLoadDate,
-            VTileInfo.FSize,
+          VTileInfo.FLoadDate,
+          VTileInfo.FSize,
           nil,
           FMainContentType
         );
     end;
+  end else begin
+    UpdateTileInfoByFile(True, AIsLoadIfExists, ChangeFileExt(APath, CTneFileExt), VTileInfo);
+    if VTileInfo.FInfoType = titTneExists then begin
+      // tne exists
+      Result := TTileInfoBasicTNE.Create(VTileInfo.FLoadDate, nil);
     end else begin
-      UpdateTileInfoByFile(True, AIsLoadIfExists, ChangeFileExt(APath, CTneFileExt), VTileInfo);
-      if VTileInfo.FInfoType = titTneExists then begin
-        // tne exists
-        Result := TTileInfoBasicTNE.Create(VTileInfo.FLoadDate, nil);
-      end else begin
-        // neither tile nor tne
-        Result := FTileNotExistsTileInfo;
-      end;
+      // neither tile nor tne
+      Result := FTileNotExistsTileInfo;
     end;
+  end;
 end;
 
 function TTileStorageFileSystem.GetTileRectInfo(
@@ -399,58 +398,58 @@ begin
     VCount.Y := VRect.Bottom - VRect.Top;
     if (VCount.X > 0) and (VCount.Y > 0) and (VCount.X <= 2048) and (VCount.Y <= 2048) then begin
       SetLength(VItems, VCount.X * VCount.Y);
-        VPrevFolderName := '';
-        VPrevFolderExist := False;
-        VIterator := TTileIteratorByRect.Create(VRect);
-        while VIterator.Next(VTile) do begin
-          VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
-          VFileName := StoragePath + FFileNameGenerator.GetTileFileName(VTile, VZoom);
-          VFolderName := ExtractFilePath(VFileName);
+      VPrevFolderName := '';
+      VPrevFolderExist := False;
+      VIterator := TTileIteratorByRect.Create(VRect);
+      while VIterator.Next(VTile) do begin
+        VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
+        VFileName := StoragePath + FFileNameGenerator.GetTileFileName(VTile, VZoom);
+        VFolderName := ExtractFilePath(VFileName);
 
-          if VFolderName = VPrevFolderName then begin
-            VFolderExists := VPrevFolderExist;
-          end else begin
-            VFolderExists := DirectoryExists(VFolderName);
-            VPrevFolderName := VFolderName;
-            VPrevFolderExist := VFolderExists;
-          end;
-          if VFolderExists then begin
-              UpdateTileInfoByFile(False, False, VFileName + FFileExt, VTileInfo);
-              if VTileInfo.FInfoType = titExists then begin
-              // tile exists
-              VItems[VIndex].FInfoType := titExists;
-                VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
-                VItems[VIndex].FSize := VTileInfo.FSize;
-              end else begin
-                UpdateTileInfoByFile(True, False, VFileName + CTneFileExt, VTileInfo);
-                if VTileInfo.FInfoType = titTneExists then begin
-                  // tne exists
-                  VItems[VIndex].FInfoType := titTneExists;
-                  VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
-                  VItems[VIndex].FSize := 0;
-                end else begin
-                  // neither tile nor tne
-                  VItems[VIndex].FLoadDate := 0;
-                  VItems[VIndex].FSize := 0;
-                  VItems[VIndex].FInfoType := titNotExists;
-                end;
-              end;
-          end else begin
-            // neither tile nor tne
-            VItems[VIndex].FLoadDate := 0;
-            VItems[VIndex].FSize := 0;
-            VItems[VIndex].FInfoType := titNotExists;
-          end;
+        if VFolderName = VPrevFolderName then begin
+          VFolderExists := VPrevFolderExist;
+        end else begin
+          VFolderExists := DirectoryExists(VFolderName);
+          VPrevFolderName := VFolderName;
+          VPrevFolderExist := VFolderExists;
         end;
-        Result :=
-          TTileRectInfoShort.CreateWithOwn(
-            VRect,
-            VZoom,
-            nil,
-            FMainContentType,
-            VItems
-          );
-        VItems := nil;
+        if VFolderExists then begin
+          UpdateTileInfoByFile(False, False, VFileName + FFileExt, VTileInfo);
+          if VTileInfo.FInfoType = titExists then begin
+            // tile exists
+            VItems[VIndex].FInfoType := titExists;
+            VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
+            VItems[VIndex].FSize := VTileInfo.FSize;
+          end else begin
+            UpdateTileInfoByFile(True, False, VFileName + CTneFileExt, VTileInfo);
+            if VTileInfo.FInfoType = titTneExists then begin
+              // tne exists
+              VItems[VIndex].FInfoType := titTneExists;
+              VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
+              VItems[VIndex].FSize := 0;
+            end else begin
+              // neither tile nor tne
+              VItems[VIndex].FLoadDate := 0;
+              VItems[VIndex].FSize := 0;
+              VItems[VIndex].FInfoType := titNotExists;
+            end;
+          end;
+        end else begin
+          // neither tile nor tne
+          VItems[VIndex].FLoadDate := 0;
+          VItems[VIndex].FSize := 0;
+          VItems[VIndex].FInfoType := titNotExists;
+        end;
+      end;
+      Result :=
+        TTileRectInfoShort.CreateWithOwn(
+          VRect,
+          VZoom,
+          nil,
+          FMainContentType,
+          VItems
+        );
+      VItems := nil;
     end;
   end;
 end;
@@ -470,7 +469,7 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       FFileExt;
-      Result := GetTileInfoByPath(VPath, AVersionInfo, AMode = gtimWithData);
+    Result := GetTileInfoByPath(VPath, AVersionInfo, AMode = gtimWithData);
   end;
 end;
 
@@ -484,22 +483,22 @@ var
   VPath: String;
   VFileStream: TFileStream;
 begin
-    if GetState.GetStatic.WriteAccess <> asDisabled then begin
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        FFileExt;
-      CreateDirIfNotExists(VPath);
-      VFileStream := TFileStream.Create(VPath, fmCreate);
-      try
-        VFileStream.Size := AData.Size;
-        VFileStream.Position := 0;
-        VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
-      finally
-        VFileStream.Free;
-      end;
-      NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    VPath :=
+      StoragePath +
+      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+      FFileExt;
+    CreateDirIfNotExists(VPath);
+    VFileStream := TFileStream.Create(VPath, fmCreate);
+    try
+      VFileStream.Size := AData.Size;
+      VFileStream.Position := 0;
+      VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+    finally
+      VFileStream.Free;
     end;
+    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+  end;
 end;
 
 procedure TTileStorageFileSystem.SaveTNE(
@@ -513,23 +512,23 @@ var
   VDateString: string;
   VFileStream: TFileStream;
 begin
-    if GetState.GetStatic.WriteAccess <> asDisabled then begin
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        CTneFileExt;
-      if not FileExists(VPath) then begin
-        CreateDirIfNotExists(VPath);
-        VNow := Now;
-        DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
-        VFileStream := TFileStream.Create(VPath, fmCreate);
-        try
-          VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
-        finally
-          VFileStream.Free;
-        end;
+  if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    VPath :=
+      StoragePath +
+      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+      CTneFileExt;
+    if not FileExists(VPath) then begin
+      CreateDirIfNotExists(VPath);
+      VNow := Now;
+      DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
+      VFileStream := TFileStream.Create(VPath, fmCreate);
+      try
+        VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
+      finally
+        VFileStream.Free;
       end;
     end;
+  end;
 end;
 
 { TEnumTileInfoByFileIterator }
@@ -557,7 +556,8 @@ constructor TEnumTileInfoByFileIterator.Create(
   const AFilesIterator: IFileNameIterator;
   const ATileFileNameParser: ITileFileNameParser;
   const AStorageState: IStorageStateChangeble;
-  const AMainContentType: IContentTypeInfoBasic);
+  const AMainContentType: IContentTypeInfoBasic
+);
 begin
   inherited Create;
   FFilesIterator := AFilesIterator;

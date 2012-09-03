@@ -108,48 +108,51 @@ begin
   end;
 end;
 
-procedure ParseXML_Aux_AddPointTo_Array(AParseXML_Aux: PParseXML_Aux; const Awpt_point: TDoublePoint);
+procedure ParseXML_Aux_AddPointTo_Array(
+  AParseXML_Aux: PParseXML_Aux;
+  const Awpt_point: TDoublePoint
+);
 begin
-    // calc rect
-    with AParseXML_Aux^ do begin
-      if (0 = array_count) then begin
-        // very first point of segment
-        array_rect.TopLeft := Awpt_point;
-        array_rect.BottomRight := Awpt_point;
+  // calc rect
+  with AParseXML_Aux^ do begin
+    if (0 = array_count) then begin
+      // very first point of segment
+      array_rect.TopLeft := Awpt_point;
+      array_rect.BottomRight := Awpt_point;
+    end else begin
+      // compare bounds
+      if array_rect.Left > Awpt_point.X then begin
+        array_rect.Left := Awpt_point.X;
+      end;
+      if array_rect.Right < Awpt_point.X then begin
+        array_rect.Right := Awpt_point.X;
+      end;
+      if array_rect.Top < Awpt_point.y then begin
+        array_rect.Top := Awpt_point.y;
+      end;
+      if array_rect.Bottom > Awpt_point.y then begin
+        array_rect.Bottom := Awpt_point.y;
+      end;
+    end;
+  end;
+
+  // allocate more array
+  with AParseXML_Aux^ do begin
+    if (array_count >= array_capacity) then begin
+      if (0 = array_capacity) then begin
+        array_capacity := 32;
       end else begin
-        // compare bounds
-        if array_rect.Left > Awpt_point.X then begin
-          array_rect.Left := Awpt_point.X;
-        end;
-        if array_rect.Right < Awpt_point.X then begin
-          array_rect.Right := Awpt_point.X;
-        end;
-        if array_rect.Top < Awpt_point.y then begin
-          array_rect.Top := Awpt_point.y;
-        end;
-        if array_rect.Bottom > Awpt_point.y then begin
-          array_rect.Bottom := Awpt_point.y;
-        end;
+        array_capacity := array_capacity * 2;
       end;
+      SetLength(array_points, array_capacity);
     end;
+  end;
 
-    // allocate more array
-    with AParseXML_Aux^ do begin
-      if (array_count >= array_capacity) then begin
-        if (0 = array_capacity) then begin
-          array_capacity := 32;
-        end else begin
-          array_capacity := array_capacity * 2;
-        end;
-        SetLength(array_points, array_capacity);
-      end;
-    end;
-
-    // add
-    with AParseXML_Aux^ do begin
-      array_points[array_count] := Awpt_point;
-      Inc(array_count);
-    end;
+  // add
+  with AParseXML_Aux^ do begin
+    array_points[array_count] := Awpt_point;
+    Inc(array_count);
+  end;
 end;
 
 procedure ParseXML_Aux_AddTrackSegmentToList(
@@ -178,7 +181,7 @@ begin
       if (1 = array_count) then begin
         // single point in track segment - make as point
         trk_obj := AParseXML_Aux^.Factory.BuildPoint('', AWideStrName, AWideStrDesc, array_points[0]);
-      end else if (AForceObjectType=fotPolygon) or ((AForceObjectType=fotNone) and DoublePointsEqual(array_points[0], array_points[array_count - 1])) then begin
+      end else if (AForceObjectType = fotPolygon) or ((AForceObjectType = fotNone) and DoublePointsEqual(array_points[0], array_points[array_count - 1])) then begin
         // polygon
         trk_obj :=
           AParseXML_Aux^.Factory.BuildPoly(
@@ -227,10 +230,11 @@ begin
   FFactory := AFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 
-  if Assigned(FArchiveReadWriteFactory) then
-    VCounterName := 'LoadXmlZipStream'
-  else
+  if Assigned(FArchiveReadWriteFactory) then begin
+    VCounterName := 'LoadXmlZipStream';
+  end else begin
     VCounterName := 'LoadXmlStream';
+  end;
 
   FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter(VCounterName);
   VSAGPS_PrepareFormatSettings(FFormat);
@@ -293,8 +297,9 @@ var
     VPX_Result := pPX_Result;
     repeat
       // noway
-      if (nil=VPX_Result) then
+      if (nil = VPX_Result) then begin
         break;
+      end;
 
       // check tag
       if (VPX_Result^.kml_data.current_tag = kml_Placemark) then begin
@@ -430,16 +435,17 @@ var
     if Result then begin
       SafeSetWideStringP(VCoordinates, AKmlData.fParamsStrs[kml_coordinates]);
       VPointsAdded := 0;
-      
+
       // loop through points
       repeat
-        if Length(VCoordinates)=0 then
+        if Length(VCoordinates) = 0 then begin
           break;
+        end;
 
-        VSepPos:=System.Pos(' ',VCoordinates);
-        if (VSepPos>0) then begin
+        VSepPos := System.Pos(' ', VCoordinates);
+        if (VSepPos > 0) then begin
           // with delimiter
-          VCoordLine := System.Copy(VCoordinates, 1, VSepPos-1);
+          VCoordLine := System.Copy(VCoordinates, 1, VSepPos - 1);
           System.Delete(VCoordinates, 1, VSepPos);
         end else begin
           // no delimiter
@@ -447,28 +453,34 @@ var
           VCoordinates := '';
         end;
 
-        if (Length(VCoordLine)>0) then
-        if parse_kml_coordinate(VCoordLine, @VData, FFormat) then begin
-          wpt_point.X := VData.lon1;
-          wpt_point.Y := VData.lat0;
-          ParseXML_Aux_AddPointTo_Array(PParseXML_Aux(pUserAuxPointer), wpt_point);
-          Inc(VPointsAdded);
+        if (Length(VCoordLine) > 0) then begin
+          if parse_kml_coordinate(VCoordLine, @VData, FFormat) then begin
+            wpt_point.X := VData.lon1;
+            wpt_point.Y := VData.lat0;
+            ParseXML_Aux_AddPointTo_Array(PParseXML_Aux(pUserAuxPointer), wpt_point);
+            Inc(VPointsAdded);
+          end;
         end;
       until FALSE;
       // check
-      Result := (VPointsAdded>0);
+      Result := (VPointsAdded > 0);
     end;
   end;
 
   function _GetKmlForceObjectTypeMode(const Atag: Tvsagps_KML_main_tag): TForceObjectType;
   begin
     case Atag of
-    kml_LinearRing:
-      Result := fotPolygon;
-    kml_LineString:
-      Result := fotPolyLine;
-    else
+      kml_LinearRing:
+      begin
+        Result := fotPolygon;
+      end;
+      kml_LineString:
+      begin
+        Result := fotPolyLine;
+      end;
+    else begin
       Result := fotNone;
+    end;
     end;
   end;
 
@@ -489,43 +501,45 @@ begin
     end;
 
     // check some tags with coordinates on Closing
-    if (xtd_Close = pPX_State^.tag_disposition) then
-    case pPX_Result^.kml_data.current_tag of
-      kml_LinearRing,kml_LineString: begin
-        // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
-        // <Placemark><LineString><coordinates>
-        // make description
-        _SetFromParentPlacemark(kml_description, TRUE);
-        // make name
-        _SetFromParentPlacemark(kml_name, FALSE);
+    if (xtd_Close = pPX_State^.tag_disposition) then begin
+      case pPX_Result^.kml_data.current_tag of
+        kml_LinearRing, kml_LineString: begin
+          // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
+          // <Placemark><LineString><coordinates>
+          // make description
+          _SetFromParentPlacemark(kml_description, TRUE);
+          // make name
+          _SetFromParentPlacemark(kml_name, FALSE);
 
-        // make polyline (path) object
-        // if LineString - force PolyLine mode
-        if _ParseCoordinatesForKML(pPX_Result^.kml_data) then
-          ParseXML_Aux_AddTrackSegmentToList(
-            PParseXML_Aux(pUserAuxPointer),
-            _GetKmlForceObjectTypeMode(pPX_Result^.kml_data.current_tag),
-            VWSName, VWSDesc,
-            FFactory);
+          // make polyline (path) object
+          // if LineString - force PolyLine mode
+          if _ParseCoordinatesForKML(pPX_Result^.kml_data) then begin
+            ParseXML_Aux_AddTrackSegmentToList(
+              PParseXML_Aux(pUserAuxPointer),
+              _GetKmlForceObjectTypeMode(pPX_Result^.kml_data.current_tag),
+              VWSName, VWSDesc,
+              FFactory);
+          end;
 
-        // clear points
-        ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
-      end;
-      kml_Point: begin
-        // <Placemark><Point><coordinates>
-        // make description
-        _SetFromParentPlacemark(kml_description, TRUE);
-        //_SetFromParentPlacemark(kml_href, TRUE);
-        //_SetFromParentPlacemark(kml_key, TRUE);
-        //_SetFromParentPlacemark(kml_phoneNumber, TRUE);
-        //_SetFromParentPlacemark(kml_address, TRUE);
-        //_SetFromParentPlacemark(kml_sourceHref, TRUE);
-        //_SetFromParentPlacemark(kml_text, TRUE);
-        // make name
-        _SetFromParentPlacemark(kml_name, FALSE);
-        // make point object
-        if _GetPointForKML(pPX_Result^.kml_data) then begin
-          _AddWptToList;
+          // clear points
+          ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
+        end;
+        kml_Point: begin
+          // <Placemark><Point><coordinates>
+          // make description
+          _SetFromParentPlacemark(kml_description, TRUE);
+          //_SetFromParentPlacemark(kml_href, TRUE);
+          //_SetFromParentPlacemark(kml_key, TRUE);
+          //_SetFromParentPlacemark(kml_phoneNumber, TRUE);
+          //_SetFromParentPlacemark(kml_address, TRUE);
+          //_SetFromParentPlacemark(kml_sourceHref, TRUE);
+          //_SetFromParentPlacemark(kml_text, TRUE);
+          // make name
+          _SetFromParentPlacemark(kml_name, FALSE);
+          // make point object
+          if _GetPointForKML(pPX_Result^.kml_data) then begin
+            _AddWptToList;
+          end;
         end;
       end;
     end;
@@ -573,7 +587,7 @@ begin
             fotNone,
             VWSName, VWSDesc,
             FFactory);
-            
+
           // clear points and increment segment counter
           ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
           Inc(PParseXML_Aux(pUserAuxPointer)^.segment_counter);
@@ -676,7 +690,7 @@ begin
       finally
         FreeAndNil(VMemStream);
       end;
-      
+
     end else begin
       // read from single simple source
       Result := Internal_LoadFromStream_Original(AStream, AFactory);

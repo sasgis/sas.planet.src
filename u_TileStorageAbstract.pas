@@ -39,8 +39,7 @@ uses
   i_StorageStateInternal,
   i_TileInfoBasic,
   i_TileStorage,
-  i_NotifierTileRectUpdate,
-  u_MapTypeCacheConfig;
+  i_NotifierTileRectUpdate;
 
 type
   TTileStorageAbstract = class(TInterfacedObject, ITileStorage)
