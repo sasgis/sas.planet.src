@@ -150,7 +150,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       256
       113)
     object lbZoom: TLabel
-      Left = 186
+      Left = 198
       Top = 22
       Width = 47
       Height = 13
@@ -197,7 +197,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     end
     object chkBing: TCheckBox
       AlignWithMargins = True
-      Left = 128
+      Left = 152
       Top = 21
       Width = 44
       Height = 17
@@ -244,6 +244,14 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Height = 17
       Caption = '16'
       TabOrder = 7
+    end
+    object chkESRI: TCheckBox
+      Left = 98
+      Top = 21
+      Width = 44
+      Height = 17
+      Caption = 'ESRI'
+      TabOrder = 8
     end
   end
 end

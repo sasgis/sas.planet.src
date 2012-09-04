@@ -81,6 +81,7 @@ type
     lbNMC: TLabel;
     chkNMC16: TCheckBox;
     lbNMCZoom: TLabel;
+    chkESRI: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -98,6 +99,7 @@ type
     FBing: TAvailPicsBing;
     FNMCs: TAvailPicsNMCs;
     FTerraserver: TAvailPicsTerraserver;
+    FESRI: TAvailPicsESRI;
     FDGStacks: TAvailPicsDGs;
     FAvailPicsTileInfo: TAvailPicsTileInfo;
     FCallIndex: DWORD;
@@ -345,6 +347,8 @@ var
   VPixelsAtZoom: Double;
   VConverter: ICoordConverter;
   VMapPixel: TDoublePoint;
+  VTilePosFloat: TDoublePoint;
+  VTilePos: TPoint;
 begin
   Inc(FCallIndex);
 
@@ -362,6 +366,11 @@ begin
   VMapPixel := FLocalConverter.LocalPixel2MapPixelFloat(AVisualPoint);
   VConverter.CheckPixelPosFloatStrict(VMapPixel, FAvailPicsTileInfo.Zoom, True);
   FAvailPicsTileInfo.LonLat := VConverter.PixelPosFloat2LonLat(VMapPixel, FAvailPicsTileInfo.Zoom);
+  // full tile rect
+  VTilePosFloat := VConverter.PixelPosFloat2TilePosFloat(VMapPixel, FAvailPicsTileInfo.Zoom);
+  VTilePos.X := Trunc(VTilePosFloat.X);
+  VTilePos.Y := Trunc(VTilePosFloat.Y);
+  FAvailPicsTileInfo.TileRect := VConverter.TilePos2LonLatRect(VTilePos, FAvailPicsTileInfo.Zoom);
 
   VRad := VConverter.Datum.GetSpheroidRadiusA;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(FAvailPicsTileInfo.Zoom);
@@ -484,6 +493,8 @@ begin
 
   RunImageThread(chkTerraserver, FTerraserver);
 
+  RunImageThread(chkESRI, FESRI);
+
   // for DG - for current stack
   VDGstack:=nil;
   if (0<cbDGstacks.Items.Count) and (0<=cbDGstacks.ItemIndex) and (cbDGstacks.ItemIndex<cbDGstacks.Items.Count) then
@@ -591,6 +602,7 @@ begin
   // simple
   FreeAndNil(FBing);
   FreeAndNil(FTerraserver);
+  FreeAndNil(FESRI);
 
   // fixed array
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
@@ -621,6 +633,10 @@ begin
   // make for terraserver
   if (nil=FTerraserver) then
     FTerraserver := TAvailPicsTerraserver.Create(@FAvailPicsTileInfo);
+
+  // make for ESRI
+  if (nil=FESRI) then
+    FESRI := TAvailPicsESRI.Create(@FAvailPicsTileInfo);
 
   // make for digital globe
   if (0=Length(FDGStacks)) then
@@ -654,6 +670,9 @@ begin
 
   if (nil<>FTerraserver) then
     FTerraserver.SetLocalConverter(FLocalConverter);
+
+  if (nil<>FESRI) then
+    FESRI.SetLocalConverter(FLocalConverter);
 
   k:=Length(FDGStacks);
   if (0<k) then
@@ -782,6 +801,7 @@ begin
   FBing:=nil;
   FillChar(FNMCs, sizeof(FNMCs), 0);
   FTerraserver:=nil;
+  FESRI:=nil;
   SetLength(FDGStacks, 0);
 
   ZeroMemory(@FAvailPicsTileInfo, sizeof(FAvailPicsTileInfo));

@@ -44,6 +44,8 @@ type
     // for DG
     mpp: Extended;
     hi,wi: Integer;
+    // for ESRI
+    TileRect: TDoubleRect;
   end;
 
   TAvailPicsAbstract = class(TObject)
