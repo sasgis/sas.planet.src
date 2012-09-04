@@ -28,6 +28,7 @@ uses
   SysUtils,
   DBClient,
   i_IDList,
+  i_SimpleFlag,
   i_PathConfig,
   i_MarkCategory,
   i_MarkCategoryFactory,
@@ -49,6 +50,8 @@ type
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
+    FNeedSaveFlag: ISimpleFlag;
+
     function ReadCurrentCategory(out AId: Integer): IMarkCategory;
     procedure WriteCurrentCategory(const ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
@@ -85,6 +88,7 @@ uses
   t_CommonTypes,
   i_EnumID,
   u_IDInterfaceList,
+  u_SimpleFlagWithInterlock,
   i_MarksDbSmlInternal,
   u_MarkCategoryFactory;
 
@@ -103,6 +107,7 @@ begin
   VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FFactoryDbInternal := VFactory;
   FFactory := VFactory;
+  FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
   FCdsKategory := TClientDataSet.Create(nil);
   FCdsKategory.Name := 'CDSKategory';
   FCdsKategory.DisableControls;
@@ -180,6 +185,7 @@ begin
         WriteCurrentCategory(ANewCategory);
         FCdsKategory.post;
         SetChanged;
+        FNeedSaveFlag.SetFlag;
         Result := ReadCurrentCategory(VIdNew);
         Assert(Result <> nil);
         Assert(VIdNew >= 0);
@@ -187,6 +193,7 @@ begin
       end else begin
         FCdsKategory.Delete;
         SetChanged;
+        FNeedSaveFlag.SetFlag;
       end;
     end else begin
       FCdsKategory.Insert;
@@ -194,6 +201,7 @@ begin
       FCdsKategory.post;
       Result := ReadCurrentCategory(VIdNew);
       SetChanged;
+      FNeedSaveFlag.SetFlag;
       Assert(Result <> nil);
       Assert(VIdNew >= 0);
     end;
@@ -303,6 +311,7 @@ begin
     end;
     if VChanged then begin
       SetChanged;
+      FNeedSaveFlag.SetFlag;
     end;
   finally
     UnlockWrite;
@@ -453,28 +462,35 @@ var
   XML: AnsiString;
 begin
   result := true;
-  try
-    FStateInternal.LockRead;
+  if FNeedSaveFlag.CheckFlagAndReset then begin
     try
-      if FStateInternal.WriteAccess = asEnabled then begin
-        LockRead;
-        try
-          if FStream <> nil then begin
-            FCdsKategory.MergeChangeLog;
-            XML := FCdsKategory.XMLData;
-            FStream.Size := length(XML);
-            FStream.Position := 0;
-            FStream.WriteBuffer(XML[1], length(XML));
+      FStateInternal.LockRead;
+      try
+        if FStateInternal.WriteAccess = asEnabled then begin
+          LockRead;
+          try
+            if FStream <> nil then begin
+              FCdsKategory.MergeChangeLog;
+              XML := FCdsKategory.XMLData;
+              FStream.Size := length(XML);
+              FStream.Position := 0;
+              FStream.WriteBuffer(XML[1], length(XML));
+            end else begin
+              FNeedSaveFlag.SetFlag;
+            end;
+          finally
+            UnlockRead;
           end;
-        finally
-          UnlockRead;
+        end else begin
+          FNeedSaveFlag.SetFlag;
         end;
+      finally
+        FStateInternal.UnlockRead;
       end;
-    finally
-      FStateInternal.UnlockRead;
+    except
+      result := false;
+      FNeedSaveFlag.SetFlag;
     end;
-  except
-    result := false;
   end;
 end;
 

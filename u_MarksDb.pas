@@ -29,6 +29,7 @@ uses
   Classes,
   t_GeoTypes,
   i_IDList,
+  i_SimpleFlag,
   i_InternalPerformanceCounter,
   i_PathConfig,
   i_VectorItmesFactory,
@@ -58,6 +59,7 @@ type
     FMarksList: IIDInterfaceList;
     FByCategoryList: IIDInterfaceList;
 
+    FNeedSaveFlag: ISimpleFlag;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
 
@@ -154,6 +156,7 @@ uses
   i_VectorItemLonLat,
   u_DoublePointsAggregator,
   u_MarkFactory,
+  u_SimpleFlagWithInterlock,
   u_GeoFun,
   u_MarksSubset;
 
@@ -331,6 +334,7 @@ begin
   FFactoryDbInternal := VFactory;
   FMarksList := TIDInterfaceList.Create;
   FByCategoryList := TIDInterfaceList.Create;
+  FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
 
   FLoadDbCounter := FPerfCounterList.CreateAndAddNewCounter('LoadDb');
   FSaveDbCounter := FPerfCounterList.CreateAndAddNewCounter('SaveDb');
@@ -400,6 +404,7 @@ begin
       FCdsMarks.Delete;
     end;
     SetChanged;
+    FNeedSaveFlag.SetFlag;
   end else begin
     if Supports(ANewMark, IMark, VMark) then begin
       FCdsMarks.Insert;
@@ -407,6 +412,7 @@ begin
       FCdsMarks.Post;
       Result := ReadCurrentMark;
       SetChanged;
+      FNeedSaveFlag.SetFlag;
     end;
   end;
 
@@ -751,6 +757,7 @@ begin
           FCdsMarks.FieldByName('Visible').AsBoolean := ANewVisible;
           FCdsMarks.Post;
           SetChanged;
+          FNeedSaveFlag.SetFlag;
         end;
         FCdsMarks.Next;
       end;
@@ -794,6 +801,7 @@ begin
           WriteCurrentMarkId(AMark);
           FCdsMarks.Post;
           SetChanged;
+          FNeedSaveFlag.SetFlag;
         end;
         if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;
@@ -833,6 +841,7 @@ begin
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
               SetChanged;
+              FNeedSaveFlag.SetFlag;
             end;
           end;
         end;
@@ -884,6 +893,7 @@ begin
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
               SetChanged;
+              FNeedSaveFlag.SetFlag;
             end;
           end;
         end;
@@ -1244,34 +1254,41 @@ var
   XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VCounterContext := FSaveDbCounter.StartOperation;
-  try
   result := true;
-  try
-    FStateInternal.LockRead;
+  if FNeedSaveFlag.CheckFlagAndReset then begin
+    VCounterContext := FSaveDbCounter.StartOperation;
     try
-      if FStateInternal.WriteAccess = asEnabled then begin
-        LockRead;
+      try
+        FStateInternal.LockRead;
         try
-          if FStream <> nil then begin
-            FCdsMarks.MergeChangeLog;
-            XML := FCdsMarks.XMLData;
-            FStream.Size := length(XML);
-            FStream.Position := 0;
-            FStream.WriteBuffer(XML[1], length(XML));
+          if FStateInternal.WriteAccess = asEnabled then begin
+            LockRead;
+            try
+              if FStream <> nil then begin
+                FCdsMarks.MergeChangeLog;
+                XML := FCdsMarks.XMLData;
+                FStream.Size := length(XML);
+                FStream.Position := 0;
+                FStream.WriteBuffer(XML[1], length(XML));
+              end else begin
+                FNeedSaveFlag.SetFlag;
+              end;
+            finally
+              UnlockRead;
+            end;
+          end else begin
+            FNeedSaveFlag.SetFlag;
           end;
         finally
-          UnlockRead;
+          FStateInternal.UnlockRead;
         end;
+      except
+        result := false;
+        FNeedSaveFlag.SetFlag;
       end;
     finally
-      FStateInternal.UnlockRead;
+      FSaveDbCounter.FinishOperation(VCounterContext);
     end;
-  except
-    result := false;
-  end;
-  finally
-    FSaveDbCounter.FinishOperation(VCounterContext);
   end;
 end;
 
