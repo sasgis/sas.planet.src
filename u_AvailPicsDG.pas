@@ -324,8 +324,9 @@ begin
     
       // date as 2007/05/06
       VDate := GetWord(VLine, ',', 2);
-      if (Length(VDate)<10) then
+      if (Length(VDate)<10) then begin
         break;
+      end;
       VDate[5] := DateSeparator;
       VDate[8] := DateSeparator;
 
@@ -348,21 +349,20 @@ begin
       // 0.6
       VResolution := GetWord(VLine, ',', 5);
 
-      if CheckHiResResolution(VResolution) then begin
-        // make params
-        VParams:=TStringList.Create;
-        VParams.Values['tid']:=VId;
-        VParams.Values['date']:=VDateOrig;
-        VParams.Values['provider']:=VProvider;
-        VParams.Values['resolution']:=VResolution;
-        VParams.Values['color']:=VColor;
-      
-        // add item
-        VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VId, VParams);
-        FreeAndNil(VParams);
+      // make params
+      VParams:=TStringList.Create;
+      VParams.Values['tid']:=VId;
+      VParams.Values['date']:=VDateOrig;
+      VParams.Values['provider']:=VProvider;
+      VParams.Values['resolution']:=VResolution;
+      VParams.Values['color']:=VColor;
 
-        if VAddResult then
-          Inc(Result);
+      // add item
+      VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VId, VParams);
+      FreeAndNil(VParams);
+
+      if VAddResult then begin
+        Inc(Result);
       end;
     except
       if (nil<>VParams) then begin
