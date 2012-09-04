@@ -64,23 +64,20 @@ type
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FExportDialog: TSaveDialog;
   public
-    procedure MarksListToStrings(
-      const AList: IInterfaceList;
-      AStrings: TStrings
-    );
+    function GetMarkIdCaption(AMarkId: IMarkId): string;
 
-    procedure DeleteMarkModal(
+    function DeleteMarkModal(
       const AMarkId: IMarkId;
       handle: THandle
-    );
-    procedure DeleteMarksModal(
+    ): Boolean;
+    function DeleteMarksModal(
       const AMarkIDList: IInterfaceList;
       handle: THandle
-    );
-    procedure DeleteCategoryModal(
+    ): Boolean;
+    function DeleteCategoryModal(
       const ACategory: IMarkCategory;
       handle: THandle
-    );
+    ): Boolean;
     function OperationMark(
       const AMark: IMark;
       const AProjection: IProjectionInfo
@@ -268,60 +265,32 @@ begin
   end;
 end;
 
-procedure TMarksDbGUIHelper.MarksListToStrings(
-  const AList: IInterfaceList;
-  AStrings: TStrings
-);
-var
-  i: Integer;
-  VMarkId: IMarkId;
-  VPointCaptionFormat: string;
-  VPolygonCaptionFormat: string;
-  VPathCaptionFormat: string;
-  VFormat: string;
-begin
-  VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
-  VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
-  VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
-  AStrings.Clear;
-  for i := 0 to AList.Count - 1 do begin
-    VMarkId := IMarkId(AList[i]);
-    if IsEqualGUID(VMarkId.MarkType, IMarkPoint) then begin
-      VFormat := VPointCaptionFormat;
-    end else if IsEqualGUID(VMarkId.MarkType, IMarkLine) then begin
-      VFormat := VPathCaptionFormat;
-    end else if IsEqualGUID(VMarkId.MarkType, IMarkPoly) then begin
-      VFormat := VPolygonCaptionFormat;
-    end else begin
-      VFormat := '%0:s';
-    end;
-    AStrings.AddObject(Format(VFormat, [VMarkId.Name]), Pointer(VMarkId));
-  end;
-end;
-
-procedure TMarksDbGUIHelper.DeleteCategoryModal(
+function TMarksDbGUIHelper.DeleteCategoryModal(
   const ACategory: IMarkCategory;
   handle: THandle
-);
+): Boolean;
 var
   VMessage: string;
 begin
+  Result := False;
   if ACategory <> nil then begin
     VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
     if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
       FMarksDb.DeleteCategoryWithMarks(ACategory);
+      Result := True;
     end;
   end;
 end;
 
-procedure TMarksDbGUIHelper.DeleteMarkModal(
+function TMarksDbGUIHelper.DeleteMarkModal(
   const AMarkId: IMarkId;
   handle: THandle
-);
+): Boolean;
 var
   VMark: IMark;
   VMessage: string;
 begin
+  Result := False;
   if AMarkId <> nil then begin
     VMark := FMarksDb.MarksDb.GetMarkByID(AMarkId);
     if VMark <> nil then begin
@@ -335,27 +304,30 @@ begin
       VMessage := Format(VMessage, [AMarkId.Name]);
       if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMark(AMarkId, nil);
+        Result := True;
       end;
     end;
   end;
 end;
 
-procedure TMarksDbGUIHelper.DeleteMarksModal(
+function TMarksDbGUIHelper.DeleteMarksModal(
   const AMarkIDList: IInterfaceList;
   handle: THandle
-);
+): Boolean;
 var
   VMark: IMarkId;
   VMessage: string;
 begin
+  Result := False;
   if (AMarkIDList <> nil) and (AMarkIDList.Count > 0) then begin
     if AMarkIDList.Count = 1 then begin
       VMark := IMarkId(AMarkIDList[0]);
-      DeleteMarkModal(VMark, handle);
+      Result := DeleteMarkModal(VMark, handle);
     end else begin
       VMessage := Format(SAS_MSG_DeleteManyMarksAsk, [AMarkIDList.Count]);
       if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
         FMarksDb.MarksDb.UpdateMarksList(AMarkIDList, nil);
+        Result := True;
       end;
     end;
   end;
@@ -473,6 +445,33 @@ begin
       end;
     end;
   end;
+end;
+
+function TMarksDbGUIHelper.GetMarkIdCaption(AMarkId: IMarkId): string;
+var
+  VPointCaptionFormat: string;
+  VPolygonCaptionFormat: string;
+  VPathCaptionFormat: string;
+  VFormat: string;
+  VName: string;
+begin
+  VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
+  VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
+  VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
+  VName := AMarkId.Name;
+  if VName = '' then begin
+    VName := '(NoName)';
+  end;
+  if IsEqualGUID(AMarkId.MarkType, IMarkPoint) then begin
+    VFormat := VPointCaptionFormat;
+  end else if IsEqualGUID(AMarkId.MarkType, IMarkLine) then begin
+    VFormat := VPathCaptionFormat;
+  end else if IsEqualGUID(AMarkId.MarkType, IMarkPoly) then begin
+    VFormat := VPolygonCaptionFormat;
+  end else begin
+    VFormat := '%0:s';
+  end;
+  Result := Format(VFormat, [AMarkId.Name]);
 end;
 
 function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;

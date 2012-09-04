@@ -50,22 +50,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alClient
         Caption = 'Placemarks'
         TabOrder = 0
-        object MarksListBox: TCheckListBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 46
-          Width = 351
-          Height = 337
-          OnClickCheck = MarksListBoxClickCheck
-          Align = alClient
-          ItemHeight = 13
-          PopupMenu = tbpmnMarks
-          Sorted = True
-          TabOrder = 0
-          OnDblClick = MarksListBoxDblClick
-          OnKeyDown = MarksListBoxKeyDown
-          OnKeyUp = MarksListBoxKeyUp
-        end
         object TBXDockMark: TTBXDock
           Left = 2
           Top = 15
@@ -147,7 +131,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Height = 20
           Align = alBottom
           BevelOuter = bvNone
-          TabOrder = 2
+          TabOrder = 1
           object CheckBox1: TCheckBox
             AlignWithMargins = True
             Left = 3
@@ -163,10 +147,31 @@ object frmMarksExplorer: TfrmMarksExplorer
             Left = 353
             Top = 0
             Width = 4
-            Height = 4
+            Height = 20
             Align = alRight
             TabOrder = 1
           end
+        end
+        object MarksListBox: TTreeView
+          AlignWithMargins = True
+          Left = 5
+          Top = 46
+          Width = 351
+          Height = 337
+          Align = alClient
+          HideSelection = False
+          Indent = 19
+          MultiSelect = True
+          MultiSelectStyle = [msControlSelect, msShiftSelect]
+          PopupMenu = tbpmnMarks
+          ReadOnly = True
+          ShowRoot = False
+          StateImages = imlStates
+          TabOrder = 2
+          OnContextPopup = MarksListBoxContextPopup
+          OnDblClick = MarksListBoxDblClick
+          OnKeyDown = MarksListBoxKeyDown
+          OnMouseUp = MarksListBoxMouseUp
         end
       end
       object grpCategory: TGroupBox
@@ -206,6 +211,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           StateImages = imlStates
           TabOrder = 1
           OnChange = CategoryTreeViewChange
+          OnContextPopup = CategoryTreeViewContextPopup
           OnKeyUp = CategoryTreeViewKeyUp
           OnMouseUp = CategoryTreeViewMouseUp
         end
