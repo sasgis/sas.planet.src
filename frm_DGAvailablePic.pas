@@ -41,6 +41,7 @@ uses
   u_AvailPicsBing,
   u_AvailPicsNMC,
   u_AvailPicsTerra,
+  u_AvailPicsESRI,
   i_NotifierOperation,
   u_NotifierOperation,
   i_DownloadRequest,
