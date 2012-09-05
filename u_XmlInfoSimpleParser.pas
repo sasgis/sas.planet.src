@@ -541,6 +541,37 @@ begin
             _AddWptToList;
           end;
         end;
+        kml_gx_coord: begin
+          if (kml_latitude in pPX_Result^.kml_data.fAvail_params) and
+             (kml_longitude in pPX_Result^.kml_data.fAvail_params) then begin
+            // add single coord
+            wpt_point.X := pPX_Result^.kml_data.fValues.longitude;
+            wpt_point.Y := pPX_Result^.kml_data.fValues.latitude;
+            // add to array of points
+            ParseXML_Aux_AddPointTo_Array(PParseXML_Aux(pUserAuxPointer), wpt_point);
+          end;
+        end;
+        kml_gx_Track: begin
+          // <Placemark><gx:Track>
+          // <gx:coord>60.798387 56.748476 230.85376</gx:coord><gx:coord>60.798634 56.748772 247.196045</gx:coord>
+          // </gx:Track></Placemark>
+          // make polyline on closing tag
+          if (0 < PParseXML_Aux(pUserAuxPointer)^.array_count) then begin
+            // get params from parent (Placemark)
+            _SetFromParentPlacemark(kml_description, TRUE);
+            _SetFromParentPlacemark(kml_name, FALSE);
+
+            // make track segment object
+            ParseXML_Aux_AddTrackSegmentToList(
+              PParseXML_Aux(pUserAuxPointer),
+              fotPolyLine,
+              VWSName, VWSDesc,
+              FFactory);
+
+            // clear points (no segment counter)
+            ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
+          end;
+        end;
       end;
     end;
 
