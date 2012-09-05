@@ -71,13 +71,15 @@ type
 
   TDownloadResultError = class(TDownloadResult, IDownloadResultError)
   private
-    FErrorText: string;
+    FErrorTextFormat: string;
+    FErrorTextArgs: array of TVarRec;
   protected
     function GetErrorText: string;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AErrorText: string
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const
     );
   end;
 
@@ -95,7 +97,8 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AErrorText: string;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const;
       AErrorCode: DWORD
     );
   end;
@@ -109,7 +112,8 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AErrorText: string;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const;
       AStatusCode: DWORD
     );
   end;
@@ -118,7 +122,8 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AErrorText: string;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const;
       AStatusCode: DWORD
     );
   end;
@@ -127,7 +132,8 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AErrorText: string;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const;
       AErrorCode: DWORD
     );
   end;
@@ -145,7 +151,8 @@ type
       const ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
-      const AErrorText: string
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const
     );
   end;
 
@@ -166,13 +173,15 @@ type
       const AContentType: AnsiString;
       AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
-      const AErrorText: string
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const
     );
   end;
 
   TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists, IDownloadResultWithServerRespond)
   private
-    FReasonText: string;
+    FReasonTextFormat: string;
+    FReasonTextArgs: array of TVarRec;
     FStatusCode: Cardinal;
     FRawResponseHeader: AnsiString;
   protected
@@ -184,7 +193,8 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AReasonText: string;
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const;
       AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString
     );
@@ -195,7 +205,8 @@ type
     constructor Create(
       const ARequest: IDownloadRequest;
       const ARawResponseHeader: AnsiString;
-      const AErrorText: string;
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const;
       AStatusCode: DWORD
     );
   end;
@@ -206,13 +217,15 @@ type
       const ARequest: IDownloadRequest;
       AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
-      const AErrorText: string
+      const AErrorTextFormat: string;
+      const AErrorTextArgs: array of const
     );
   end;
 
   TDownloadResultNotNecessary = class(TDownloadResult, IDownloadResultNotNecessary, IDownloadResultWithServerRespond)
   private
-    FReasonText: string;
+    FReasonTextFormat: string;
+    FReasonTextArgs: array of TVarRec;
     FStatusCode: Cardinal;
     FRawResponseHeader: AnsiString;
   protected
@@ -224,7 +237,8 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      const AReasonText: string;
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const;
       AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString
     );
@@ -233,7 +247,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  gnugettext;
 
 { TDownloadResult }
 
@@ -295,16 +310,23 @@ end;
 
 constructor TDownloadResultError.Create(
   const ARequest: IDownloadRequest;
-  const AErrorText: string
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const
 );
+var
+  i: Integer;
 begin
   inherited Create(ARequest);
-  FErrorText := AErrorText;
+  FErrorTextFormat := AErrorTextFormat;
+  SetLength(FErrorTextArgs, Length(AErrorTextArgs));
+  for I := 0 to High(AErrorTextArgs) do begin
+    FErrorTextArgs[i] := AErrorTextArgs[i];
+  end;
 end;
 
 function TDownloadResultError.GetErrorText: string;
 begin
-  Result := FErrorText;
+  Result := Format(gettext(FErrorTextFormat), FErrorTextArgs);
 end;
 
 { TDownloadResultProxyError }
@@ -327,10 +349,11 @@ constructor TDownloadResultBanned.Create(
   const ARequest: IDownloadRequest;
   AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString;
-  const AErrorText: string
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const
 );
 begin
-  inherited Create(ARequest, AErrorText);
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -357,10 +380,11 @@ constructor TDownloadResultBadContentType.Create(
   const AContentType: AnsiString;
   AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString;
-  const AErrorText: string
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AContentType]));
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
   FContentType := AContentType;
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
@@ -390,33 +414,36 @@ end;
 
 constructor TDownloadResultNoConnetctToServerByErrorCode.Create(
   const ARequest: IDownloadRequest;
-  const AErrorText: string;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const;
   AErrorCode: DWORD
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AErrorCode]));
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
 end;
 
 { TDownloadResultLoadErrorByStatusCode }
 
 constructor TDownloadResultLoadErrorByStatusCode.Create(
   const ARequest: IDownloadRequest;
-  const AErrorText: string;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const;
   AStatusCode: DWORD
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AStatusCode]));
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
 end;
 
 { TDownloadResultLoadErrorByErrorCode }
 
 constructor TDownloadResultLoadErrorByErrorCode.Create(
   const ARequest: IDownloadRequest;
-  const AErrorText: string;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const;
   AErrorCode: DWORD
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AErrorCode]));
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
 end;
 
 { TDownloadResultLoadError }
@@ -430,13 +457,20 @@ end;
 
 constructor TDownloadResultDataNotExists.Create(
   const ARequest: IDownloadRequest;
-  const AReasonText: string;
+  const AReasonTextFormat: string;
+  const AReasonTextArgs: array of const;
   AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString
 );
+var
+  i: Integer;
 begin
   inherited Create(ARequest);
-  FReasonText := AReasonText;
+  FReasonTextFormat := AReasonTextFormat;
+  SetLength(FReasonTextArgs, Length(AReasonTextArgs));
+  for I := 0 to High(AReasonTextArgs) do begin
+    FReasonTextArgs[i] := AReasonTextArgs[i];
+  end;
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -453,7 +487,7 @@ end;
 
 function TDownloadResultDataNotExists.GetReasonText: string;
 begin
-  Result := FReasonText;
+  Result := Format(gettext(FReasonTextFormat), FReasonTextArgs);
 end;
 
 function TDownloadResultDataNotExists.GetStatusCode: Cardinal;
@@ -465,13 +499,20 @@ end;
 
 constructor TDownloadResultNotNecessary.Create(
   const ARequest: IDownloadRequest;
-  const AReasonText: string;
+  const AReasonTextFormat: string;
+  const AReasonTextArgs: array of const;
   AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString
 );
+var
+  i: Integer;
 begin
   inherited Create(ARequest);
-  FReasonText := AReasonText;
+  FReasonTextFormat := AReasonTextFormat;
+  SetLength(FReasonTextArgs, Length(AReasonTextArgs));
+  for I := 0 to High(AReasonTextArgs) do begin
+    FReasonTextArgs[i] := AReasonTextArgs[i];
+  end;
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
 end;
@@ -488,7 +529,7 @@ end;
 
 function TDownloadResultNotNecessary.GetReasonText: string;
 begin
-  Result := FReasonText;
+  Result := Format(gettext(FReasonTextFormat), FReasonTextArgs);
 end;
 
 function TDownloadResultNotNecessary.GetStatusCode: Cardinal;
@@ -501,11 +542,12 @@ end;
 constructor TDownloadResultDataNotExistsByStatusCode.Create(
   const ARequest: IDownloadRequest;
   const ARawResponseHeader: AnsiString;
-  const AErrorText: string;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const;
   AStatusCode: DWORD
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AStatusCode]), AStatusCode, ARawResponseHeader);
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs, AStatusCode, ARawResponseHeader);
 end;
 
 { TDownloadResultDataNotExistsZeroSize }
@@ -514,21 +556,23 @@ constructor TDownloadResultDataNotExistsZeroSize.Create(
   const ARequest: IDownloadRequest;
   AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString;
-  const AErrorText: string
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const
 );
 begin
-  inherited Create(ARequest, AErrorText, AStatusCode, ARawResponseHeader);
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs, AStatusCode, ARawResponseHeader);
 end;
 
 { TDownloadResultLoadErrorByUnknownStatusCode }
 
 constructor TDownloadResultLoadErrorByUnknownStatusCode.Create(
   const ARequest: IDownloadRequest;
-  const AErrorText: string;
+  const AErrorTextFormat: string;
+  const AErrorTextArgs: array of const;
   AStatusCode: DWORD
 );
 begin
-  inherited Create(ARequest, Format(AErrorText, [AStatusCode]));
+  inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
 end;
 
 { TDownloadResultCanceled }

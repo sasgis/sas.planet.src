@@ -39,7 +39,6 @@ uses
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
   i_InvisibleBrowser,
-  i_DownloadResultTextProvider,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_ProjConverter,
@@ -89,7 +88,6 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
-      const ADownloadResultTextProvider: IDownloadResultTextProvider;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
@@ -198,7 +196,6 @@ procedure TMapTypesMainList.LoadMaps(
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
-  const ADownloadResultTextProvider: IDownloadResultTextProvider;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
@@ -258,7 +255,6 @@ begin
           ADownloaderThreadConfig,
           AContentTypeManager,
           ACoordConverterFactory,
-          ADownloadResultTextProvider,
           AInvisibleBrowser,
           AProjFactory,
           VLocalMapConfig,

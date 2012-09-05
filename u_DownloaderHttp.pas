@@ -327,7 +327,7 @@ begin
                 Result := FResultFactory.BuildCanceled(ARequest);
               end else begin
                 if E.StatusCode = 0 then begin
-                  Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, e.Message);
+                  Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, e.Message, []);
                 end;
               end;
             end;

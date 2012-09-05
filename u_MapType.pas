@@ -46,7 +46,6 @@ uses
   i_NotifierTTLCheck,
   i_DownloadResultFactory,
   i_InetConfig,
-  i_DownloadResultTextProvider,
   i_ImageResamplerConfig,
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
@@ -237,7 +236,6 @@ type
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ADownloadResultTextProvider: IDownloadResultTextProvider;
       const AInvisibleBrowser: IInvisibleBrowser;
       const AProjFactory: IProjConverterFactory;
       const AConfig: IConfigDataProvider;
@@ -288,7 +286,6 @@ constructor TMapType.Create(
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ADownloadResultTextProvider: IDownloadResultTextProvider;
   const AInvisibleBrowser: IInvisibleBrowser;
   const AProjFactory: IProjConverterFactory;
   const AConfig: IConfigDataProvider;
@@ -325,10 +322,7 @@ begin
       FZmp.Abilities,
       FStorageConfig
     );
-  FDownloadResultFactory :=
-    TDownloadResultFactory.Create(
-      ADownloadResultTextProvider
-    );
+  FDownloadResultFactory := TDownloadResultFactory.Create;
 
   FGUIConfig.ReadConfig(AConfig);
   FLayerDrawConfig.ReadConfig(AConfig);

@@ -27,13 +27,10 @@ uses
   i_BinaryData,
   i_DownloadResult,
   i_DownloadRequest,
-  i_DownloadResultTextProvider,
   i_DownloadResultFactory;
 
 type
   TDownloadResultFactory = class(TInterfacedObject, IDownloadResultFactory)
-  private
-    FTextProvider: IDownloadResultTextProvider;
   private
     function BuildCanceled(
       const ARequest: IDownloadRequest
@@ -69,7 +66,8 @@ type
     ): IDownloadResultError;
     function BuildLoadErrorByUnknownReason(
       const ARequest: IDownloadRequest;
-      const AReason: string
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const
     ): IDownloadResultError;
     function BuildBadContentType(
       const ARequest: IDownloadRequest;
@@ -84,7 +82,8 @@ type
     ): IDownloadResultBanned;
     function BuildDataNotExists(
       const ARequest: IDownloadRequest;
-      const AReasonText: string;
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const;
       const AStatusCode: DWORD;
       const ARawResponseHeader: AnsiString
     ): IDownloadResultDataNotExists;
@@ -100,30 +99,20 @@ type
     ): IDownloadResultDataNotExists;
     function BuildNotNecessary(
       const ARequest: IDownloadRequest;
-      const AReasonText: string;
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const;
       const AStatusCode: DWORD;
       const ARawResponseHeader: AnsiString
     ): IDownloadResultNotNecessary;
-  public
-    constructor Create(
-      const ATextProvider: IDownloadResultTextProvider
-    );
   end;
 
 implementation
 
 uses
+  gnugettext,
   u_DownloadResult;
 
 { TDownloadResultFactory }
-
-constructor TDownloadResultFactory.Create(
-  const ATextProvider: IDownloadResultTextProvider
-);
-begin
-  inherited Create;
-  FTextProvider := ATextProvider;
-end;
 
 function TDownloadResultFactory.BuildBadContentType(
   const ARequest: IDownloadRequest;
@@ -132,14 +121,27 @@ function TDownloadResultFactory.BuildBadContentType(
   const ARawResponseHeader: AnsiString
 ): IDownloadResultBadContentType;
 begin
-  Result := TDownloadResultBadContentType.Create(ARequest, AContentType, AStatusCode, ARawResponseHeader, 'Неожиданный тип %s');
+  Result :=
+    TDownloadResultBadContentType.Create(
+      ARequest,
+      AContentType,
+      AStatusCode,
+      ARawResponseHeader,
+      gettext_noop('Unexpected content type %s'),
+      [AContentType]
+    );
 end;
 
 function TDownloadResultFactory.BuildBadProxyAuth(
   const ARequest: IDownloadRequest
 ): IDownloadResultProxyError;
 begin
-  Result := TDownloadResultProxyError.Create(ARequest, 'Ошибка авторизации на прокси');
+  Result :=
+    TDownloadResultProxyError.Create(
+      ARequest,
+      gettext_noop('Proxy authorization error'),
+      []
+    );
 end;
 
 function TDownloadResultFactory.BuildBanned(
@@ -148,7 +150,14 @@ function TDownloadResultFactory.BuildBanned(
   const ARawResponseHeader: AnsiString
 ): IDownloadResultBanned;
 begin
-  Result := TDownloadResultBanned.Create(ARequest, AStatusCode, ARawResponseHeader, 'Похоже вас забанили');
+  Result :=
+    TDownloadResultBanned.Create(
+      ARequest,
+      AStatusCode,
+      ARawResponseHeader,
+      gettext_noop('Most likely you''ve been banned by the server!'),
+      []
+    );
 end;
 
 function TDownloadResultFactory.BuildCanceled(
@@ -160,12 +169,20 @@ end;
 
 function TDownloadResultFactory.BuildDataNotExists(
   const ARequest: IDownloadRequest;
-  const AReasonText: string;
+  const AReasonTextFormat: string;
+  const AReasonTextArgs: array of const;
   const AStatusCode: DWORD;
   const ARawResponseHeader: AnsiString
 ): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExists.Create(ARequest, AReasonText, AStatusCode, ARawResponseHeader);
+  Result :=
+    TDownloadResultDataNotExists.Create(
+      ARequest,
+      AReasonTextFormat,
+      AReasonTextArgs,
+      AStatusCode,
+      ARawResponseHeader
+    );
 end;
 
 function TDownloadResultFactory.BuildDataNotExistsByStatusCode(
@@ -174,7 +191,14 @@ function TDownloadResultFactory.BuildDataNotExistsByStatusCode(
   const AStatusCode: DWORD
 ): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsByStatusCode.Create(ARequest, ARawResponseHeader, 'Данныео отсутствуют. Статус %d', AStatusCode);
+  Result :=
+    TDownloadResultDataNotExistsByStatusCode.Create(
+      ARequest,
+      ARawResponseHeader,
+      gettext_noop('Data does not found! Status code %d'),
+      [AStatusCode],
+      AStatusCode
+    );
 end;
 
 function TDownloadResultFactory.BuildDataNotExistsZeroSize(
@@ -183,7 +207,14 @@ function TDownloadResultFactory.BuildDataNotExistsZeroSize(
   const ARawResponseHeader: AnsiString
 ): IDownloadResultDataNotExists;
 begin
-  Result := TDownloadResultDataNotExistsZeroSize.Create(ARequest, AStatusCode, ARawResponseHeader, 'Получен ответ нулевой длинны');
+  Result :=
+    TDownloadResultDataNotExistsZeroSize.Create(
+      ARequest,
+      AStatusCode,
+      ARawResponseHeader,
+      gettext_noop('Size of answer is zero'),
+      []
+    );
 end;
 
 function TDownloadResultFactory.BuildLoadErrorByErrorCode(
@@ -191,7 +222,13 @@ function TDownloadResultFactory.BuildLoadErrorByErrorCode(
   const AErrorCode: DWORD
 ): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadErrorByErrorCode.Create(ARequest, 'Ошибка загрузки. Код ошибки %d', AErrorCode);
+  Result :=
+    TDownloadResultLoadErrorByErrorCode.Create(
+      ARequest,
+      gettext_noop('Download error. Error code %d'),
+      [AErrorCode],
+      AErrorCode
+    );
 end;
 
 function TDownloadResultFactory.BuildLoadErrorByStatusCode(
@@ -199,15 +236,27 @@ function TDownloadResultFactory.BuildLoadErrorByStatusCode(
   const AStatusCode: DWORD
 ): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadErrorByStatusCode.Create(ARequest, 'Ошибка загрузки. Статус %d', AStatusCode);
+  Result :=
+    TDownloadResultLoadErrorByStatusCode.Create(
+      ARequest,
+      gettext_noop('Download error. Status code %d'),
+      [AStatusCode],
+      AStatusCode
+    );
 end;
 
 function TDownloadResultFactory.BuildLoadErrorByUnknownReason(
   const ARequest: IDownloadRequest;
-  const AReason: string
+  const AReasonTextFormat: string;
+  const AReasonTextArgs: array of const
 ): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadError.Create(ARequest, 'Ошибка при загрузке:' + AReason);
+  Result :=
+    TDownloadResultLoadError.Create(
+      ARequest,
+      AReasonTextFormat,
+      AReasonTextArgs
+    );
 end;
 
 function TDownloadResultFactory.BuildLoadErrorByUnknownStatusCode(
@@ -215,7 +264,13 @@ function TDownloadResultFactory.BuildLoadErrorByUnknownStatusCode(
   const AStatusCode: DWORD
 ): IDownloadResultError;
 begin
-  Result := TDownloadResultLoadErrorByUnknownStatusCode.Create(ARequest, 'Неизвестный статус %d', AStatusCode);
+  Result :=
+    TDownloadResultLoadErrorByUnknownStatusCode.Create(
+      ARequest,
+      gettext_noop('Unknown status code %d'),
+      [AStatusCode],
+      AStatusCode
+    );
 end;
 
 function TDownloadResultFactory.BuildNoConnetctToServerByErrorCode(
@@ -223,17 +278,31 @@ function TDownloadResultFactory.BuildNoConnetctToServerByErrorCode(
   const AErrorCode: DWORD
 ): IDownloadResultNoConnetctToServer;
 begin
-  Result := TDownloadResultNoConnetctToServerByErrorCode.Create(ARequest, 'Ошибка подключения к серверу. Код ошибки %d', AErrorCode);
+  Result :=
+    TDownloadResultNoConnetctToServerByErrorCode.Create(
+      ARequest,
+      gettext_noop('Connect to server error. Error code %d'),
+      [AErrorCode],
+      AErrorCode
+    );
 end;
 
 function TDownloadResultFactory.BuildNotNecessary(
   const ARequest: IDownloadRequest;
-  const AReasonText: string;
+  const AReasonTextFormat: string;
+  const AReasonTextArgs: array of const;
   const AStatusCode: DWORD;
   const ARawResponseHeader: AnsiString
 ): IDownloadResultNotNecessary;
 begin
-  Result := TDownloadResultNotNecessary.Create(ARequest, AReasonText, AStatusCode, ARawResponseHeader);
+  Result :=
+    TDownloadResultNotNecessary.Create(
+      ARequest,
+      AReasonTextFormat,
+      AReasonTextArgs,
+      AStatusCode,
+      ARawResponseHeader
+    );
 end;
 
 function TDownloadResultFactory.BuildOk(
@@ -244,14 +313,26 @@ function TDownloadResultFactory.BuildOk(
   const AData: IBinaryData
 ): IDownloadResultOk;
 begin
-  Result := TDownloadResultOk.Create(ARequest, AStatusCode, ARawResponseHeader, AContentType, AData);
+  Result :=
+    TDownloadResultOk.Create(
+      ARequest,
+      AStatusCode,
+      ARawResponseHeader,
+      AContentType,
+      AData
+    );
 end;
 
 function TDownloadResultFactory.BuildUnexpectedProxyAuth(
   const ARequest: IDownloadRequest
 ): IDownloadResultProxyError;
 begin
-  Result := TDownloadResultProxyError.Create(ARequest, 'Настройки не предусматривают авторизацию на прокси');
+  Result :=
+    TDownloadResultProxyError.Create(
+      ARequest,
+      gettext_noop('Unexpected proxy authorization'),
+      []
+    );
 end;
 
 end.

@@ -74,7 +74,6 @@ uses
   i_GlobalViewMainConfig,
   i_GlobalDownloadConfig,
   i_StartUpLogoConfig,
-  i_DownloadResultTextProvider,
   i_ImportFile,
   i_PathDetalizeProviderList,
   i_GPSRecorder,
@@ -150,7 +149,6 @@ type
     FGUISyncronizedTimerNotifier: INotifier;
     FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
-    FDownloadResultTextProvider: IDownloadResultTextProvider;
     FProtocol: TIeEmbeddedProtocolRegistration;
     FPathDetalizeList: IPathDetalizeProviderList;
     FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
@@ -199,7 +197,6 @@ type
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property GlobalInternetState: IGlobalInternetState read FGlobalInternetState;
     property ImportFileByExt: IImportFile read FImportFileByExt;
-    property DownloadResultTextProvider: IDownloadResultTextProvider read FDownloadResultTextProvider;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifier read FGUISyncronizedTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
@@ -295,7 +292,6 @@ uses
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
   u_LayerBitmapClearStrategyFactory,
-  u_DownloadResultTextProvider,
   u_TimeZoneDiffByLonLatStuped,
   u_MainFormConfig,
   u_ProjConverterFactory,
@@ -514,12 +510,11 @@ begin
       FPerfCounterList
     );
   FLastSelectionInfo := TLastSelectionInfo.Create(FVectorItmesFactory);
-  FDownloadResultTextProvider := TDownloadResultTextProvider.Create(FLanguageManager);
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FInetConfig,
       FGCThread.List,
-      TDownloadResultFactory.Create(FDownloadResultTextProvider),
+      TDownloadResultFactory.Create,
       FValueToStringConverterConfig
     );
   FMarkPictureList := TMarkPictureListSimple.Create(FMarksIconsPath, FContentTypeManager);
@@ -554,7 +549,7 @@ begin
       FLanguageManager,
       FInetConfig,
       FGCThread.List,
-      TDownloadResultFactory.Create(FDownloadResultTextProvider),
+      TDownloadResultFactory.Create,
       TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
       FVectorItmesFactory,
       VKmlLoader
@@ -712,7 +707,6 @@ begin
     FDownloadConfig,
     FDownloaderThreadConfig,
     FContentTypeManager,
-    FDownloadResultTextProvider,
     FCoordConverterFactory,
     FInvisibleBrowser,
     VProjFactory,

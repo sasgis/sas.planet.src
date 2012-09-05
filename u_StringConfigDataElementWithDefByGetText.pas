@@ -3,13 +3,14 @@ unit u_StringConfigDataElementWithDefByGetText;
 interface
 
 uses
+  gnugettext,
   i_LanguageManager,
   u_StringConfigDataElementWithDefBase;
 
 type
   TStringConfigDataElementWithDefByGetText = class(TStringConfigDataElementWithDefBase)
   private
-    FGetTextMsgId: WideString;
+    FGetTextMsgId: MsgIdString;
   protected
     function GetDefValueForCurrentLang: string; override;
   public
@@ -18,19 +19,16 @@ type
       AUseSotre: Boolean;
       const AStoreIdentifier: string;
       AIsStoreDefault: Boolean;
-      const AGetTextMsgId: WideString
+      const AGetTextMsgId: MsgIdString
     ); overload;
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AGetTextMsgId: WideString
+      const AGetTextMsgId: MsgIdString
     ); overload;
   end;
 
 
 implementation
-
-uses
-  gnugettext;
 
 { TStringConfigDataElementWithDefByGetText }
 

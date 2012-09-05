@@ -70,6 +70,7 @@ implementation
 
 uses
   SysUtils,
+  gnugettext,
   i_TileRequest,
   i_TileDownloadRequest;
 
@@ -159,13 +160,26 @@ begin
     if (AContentType = '') then begin
       AContentType := VConfig.DefaultMIMEType;
     end else if (Pos(AContentType, VConfig.ExpectedMIMETypes) <= 0) then begin
-      Result := AResultFactory.BuildBadContentType(ARequest, AContentType, AStatusCode, AResponseHead);
+      Result :=
+        AResultFactory.BuildBadContentType(
+          ARequest,
+          AContentType,
+          AStatusCode,
+          AResponseHead
+        );
       Exit;
     end;
   end;
   if IsNeedCheckTileSize(ARequest) then begin
     if CheckOldTileSize(ARequest, ARecivedData.Size) then begin
-      Result := AResultFactory.BuildNotNecessary(ARequest, 'Одинаковый размер тайла', AStatusCode, AResponseHead);
+      Result :=
+        AResultFactory.BuildNotNecessary(
+          ARequest,
+          gettext_NoOp('Tile with same size exists'),
+          [],
+          AStatusCode,
+          AResponseHead
+        );
       Exit;
     end;
   end;

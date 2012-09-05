@@ -85,7 +85,7 @@ begin
   VCaption :=
     TStringConfigDataElementWithDefByGetText.Create(
       ALanguageManager,
-      gettext_NoOp('By car (Shortest) with Maps@mail.ru')
+      gettext_noop('By car (Shortest) with Maps@mail.ru')
     );
   VDescription :=
     TStringConfigDataElementWithDefByGetText.Create(

@@ -49,8 +49,6 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   u_DownloadResultFactory,
-  i_DownloadResultTextProvider,
-  u_DownloadResultTextProvider,
   i_Downloader,
   u_DownloaderHttp,
   t_GeoTypes,
@@ -139,7 +137,6 @@ type
   private
     FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
-    FDownloadResultTextProvider: IDownloadResultTextProvider;
     FResultFactory: IDownloadResultFactory;
   public
     constructor Create(
@@ -813,8 +810,7 @@ begin
 
   FLocalConverter := nil;
   FInetConfig := AInetConfig;
-  FDownloadResultTextProvider := TDownloadResultTextProvider.Create(ALanguageManager);
-  FResultFactory := TDownloadResultFactory.Create(FDownloadResultTextProvider);
+  FResultFactory := TDownloadResultFactory.Create;
 end;
 
 destructor TfrmDGAvailablePic.Destroy;
@@ -823,7 +819,6 @@ begin
   KillPicsVendors;
   // interfaces
   FResultFactory:=nil;
-  FDownloadResultTextProvider:=nil;
   FInetConfig:=nil;
   FLocalConverter:=nil;
   FCSAddNode:=nil;

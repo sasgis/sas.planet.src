@@ -65,7 +65,8 @@ type
     ): IDownloadResultError;
     function BuildLoadErrorByUnknownReason(
       const ARequest: IDownloadRequest;
-      const AReason: string
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const
     ): IDownloadResultError;
     function BuildBadContentType(
       const ARequest: IDownloadRequest;
@@ -80,7 +81,8 @@ type
     ): IDownloadResultBanned;
     function BuildDataNotExists(
       const ARequest: IDownloadRequest;
-      const AReasonText: string;
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const;
       const AStatusCode: DWORD;
       const ARawResponseHeader: AnsiString
     ): IDownloadResultDataNotExists;
@@ -96,7 +98,8 @@ type
     ): IDownloadResultDataNotExists;
     function BuildNotNecessary(
       const ARequest: IDownloadRequest;
-      const AReasonText: string;
+      const AReasonTextFormat: string;
+      const AReasonTextArgs: array of const;
       const AStatusCode: DWORD;
       const ARawResponseHeader: AnsiString
     ): IDownloadResultNotNecessary;
