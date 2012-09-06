@@ -607,6 +607,7 @@ begin
     end;
 
     V_Label := GetParam(#$A'LABEL=',vStr2);
+    V_Label := ReplaceStr(V_Label,'~[0X1F]',' ');
     i := strtointdef(GetParam(#$A'CITYIDX=',vStr2),-1);
     if (i > 0) and (i < VCityList.Count) then
         V_CityName := VCityList.items[i - 1] else  V_CityName := '';
