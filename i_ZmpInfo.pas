@@ -33,6 +33,7 @@ uses
   i_SimpleTileStorageConfig,
   i_MapAbilitiesConfig,
   i_MapAttachmentsInfo,
+  i_BinaryDataListStatic,
   i_StringByLanguage,
   i_MapVersionInfo,
   i_TileDownloadRequestBuilderConfig;
@@ -108,6 +109,12 @@ type
 
     function GetAbilities: IMapAbilitiesConfigStatic;
     property Abilities: IMapAbilitiesConfigStatic read GetAbilities;
+
+    function GetEmptyTileSamples: IBinaryDataListStatic;
+    property EmptyTileSamples: IBinaryDataListStatic read GetEmptyTileSamples;
+
+    function GetBanTileSamples: IBinaryDataListStatic;
+    property BanTileSamples: IBinaryDataListStatic read GetBanTileSamples;
 
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
     property StorageConfig: ISimpleTileStorageConfigStatic read GetStorageConfig;

@@ -194,6 +194,8 @@
     <DCCReference Include="i_BackgroundTask.pas" />
     <DCCReference Include="i_BatteryStatus.pas" />
     <DCCReference Include="i_BinaryData.pas" />
+    <DCCReference Include="i_BinaryDataListChangeable.pas" />
+    <DCCReference Include="i_BinaryDataListStatic.pas" />
     <DCCReference Include="i_Bitmap32Static.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
@@ -351,6 +353,7 @@
     <DCCReference Include="i_PointOnMapEdit.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
+    <DCCReference Include="i_PredicateByBinaryData.pas" />
     <DCCReference Include="i_PredicateByTileInfo.pas" />
     <DCCReference Include="i_ProjConverter.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
@@ -610,6 +613,7 @@
     <DCCReference Include="u_BatteryStatus.pas" />
     <DCCReference Include="u_BinaryData.pas" />
     <DCCReference Include="u_BinaryDataByMemStream.pas" />
+    <DCCReference Include="u_BinaryDataListStatic.pas" />
     <DCCReference Include="u_Bitmap32Static.pas" />
     <DCCReference Include="u_BitmapChangeableFaked.pas" />
     <DCCReference Include="u_BitmapGeo.pas" />
@@ -928,6 +932,7 @@
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PosFromGSM.pas" />
+    <DCCReference Include="u_PredicateByStaticSampleList.pas" />
     <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjConverterFactory.pas" />
     <DCCReference Include="u_ProjectedSingleLine.pas" />

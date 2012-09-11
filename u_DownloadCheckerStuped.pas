@@ -24,6 +24,7 @@ interface
 
 uses
   i_BinaryData,
+  i_PredicateByBinaryData,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
@@ -39,6 +40,8 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FStorage: ITileStorage;
     FAntiBan: IAntiBan;
+    FBanCheckPredicate: IPredicateByBinaryData;
+    FEmptyTilePredicate: IPredicateByBinaryData;
     function PrepareOldTileInfo(const ARequest: IDownloadRequest): ITileInfoBasic;
     function CheckOldTileSize(
       const ARequest: IDownloadRequest;
@@ -61,6 +64,8 @@ type
   public
     constructor Create(
       const AAntiBan: IAntiBan;
+      const ABanCheckPredicate: IPredicateByBinaryData;
+      const AEmptyTilePredicate: IPredicateByBinaryData;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AStorage: ITileStorage
     );
@@ -78,12 +83,16 @@ uses
 
 constructor TDownloadCheckerStuped.Create(
   const AAntiBan: IAntiBan;
+  const ABanCheckPredicate: IPredicateByBinaryData;
+  const AEmptyTilePredicate: IPredicateByBinaryData;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AStorage: ITileStorage
 );
 begin
   inherited Create;
   FAntiBan := AAntiBan;
+  FBanCheckPredicate := ABanCheckPredicate;
+  FEmptyTilePredicate := AEmptyTilePredicate;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FStorage := AStorage;
 end;
@@ -170,6 +179,31 @@ begin
       Exit;
     end;
   end;
+  if FBanCheckPredicate <> nil then begin
+    if FBanCheckPredicate.Check(ARecivedData) then begin
+      Result :=
+        AResultFactory.BuildBanned(
+          ARequest,
+          AStatusCode,
+          AResponseHead
+        );
+      Exit;
+    end;
+  end;
+  if FEmptyTilePredicate <> nil then begin
+    if FEmptyTilePredicate.Check(ARecivedData) then begin
+      Result :=
+        AResultFactory.BuildDataNotExists(
+          ARequest,
+          gettext_NoOp('Tile is recognized as empty'),
+          [],
+          AStatusCode,
+          AResponseHead
+        );
+      Exit;
+    end;
+  end;
+
   if IsNeedCheckTileSize(ARequest) then begin
     if CheckOldTileSize(ARequest, ARecivedData.Size) then begin
       Result :=

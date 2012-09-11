@@ -6,6 +6,7 @@ uses
   Types,
   i_Listener,
   i_NotifierOperation,
+  i_BinaryDataListStatic,
   i_CoordConverterFactory,
   i_CoordConverter,
   i_ThreadConfig,
@@ -95,6 +96,8 @@ type
       const AContentTypeSubst: IContentTypeSubst;
       const ASaveContentType: IContentTypeInfoBasic;
       const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+      const AEmptyTileSamples: IBinaryDataListStatic;
+      const ABanTileSamples: IBinaryDataListStatic;
       const AMapAbilitiesConfig: IMapAbilitiesConfig;
       const AZmpData: IConfigDataProvider;
       const AProjFactory: IProjConverterFactory;
@@ -109,6 +112,7 @@ implementation
 uses
   i_TileDownloadRequest,
   i_TileDownloaderList,
+  i_PredicateByBinaryData,
   i_DownloadChecker,
   u_ListenerByEvent,
   u_TileRequest,
@@ -116,6 +120,7 @@ uses
   u_AntiBanStuped,
   u_DownloaderFaked,
   u_DownloadCheckerStuped,
+  u_PredicateByStaticSampleList,
   u_TileDownloadRequestBuilderLazy,
   u_TileDownloadSubsystemState,
   u_TileDownloadResultSaverStuped,
@@ -146,6 +151,8 @@ constructor TTileDownloadSubsystem.Create(
   const AContentTypeSubst: IContentTypeSubst;
   const ASaveContentType: IContentTypeInfoBasic;
   const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
+  const AEmptyTileSamples: IBinaryDataListStatic;
+  const ABanTileSamples: IBinaryDataListStatic;
   const AMapAbilitiesConfig: IMapAbilitiesConfig;
   const AZmpData: IConfigDataProvider;
   const AProjFactory: IProjConverterFactory;
@@ -156,6 +163,8 @@ var
   VDownloaderList: ITileDownloaderList;
   VDownloadChecker: IDownloadChecker;
   VOperationNotifier: TNotifierOperation;
+  VEmptyPredicate: IPredicateByBinaryData;
+  VBanPredicate: IPredicateByBinaryData;
 begin
   inherited Create;
   FCoordConverter := ACoordConverter;
@@ -172,8 +181,18 @@ begin
   FZmpDownloadEnabled := AZmpTileDownloaderConfig.Enabled;
 
   if FZmpDownloadEnabled then begin
+    if ABanTileSamples <> nil then begin
+      VBanPredicate := TPredicateByStaticSampleList.Create(ABanTileSamples);
+    end;
+
+    if AEmptyTileSamples <> nil then begin
+      VEmptyPredicate := TPredicateByStaticSampleList.Create(AEmptyTileSamples);
+    end;
+
     VDownloadChecker := TDownloadCheckerStuped.Create(
       TAntiBanStuped.Create(AInvisibleBrowser, AZmpData),
+      VBanPredicate,
+      VEmptyPredicate,
       FTileDownloaderConfig,
       AStorage
     );

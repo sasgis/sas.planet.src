@@ -390,6 +390,8 @@ begin
       FZmp.ContentTypeSubst,
       FContentType,
       FZmp.TilePostDownloadCropConfig,
+      FZmp.EmptyTileSamples,
+      FZmp.BanTileSamples,
       FAbilitiesConfig,
       FZmp.DataProvider,
       AProjFactory,

@@ -30,6 +30,7 @@ uses
   i_ConfigDataProvider,
   i_LanguageListStatic,
   i_MapVersionInfo,
+  i_BinaryDataListStatic,
   i_ContentTypeSubst,
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderConfig,
@@ -123,6 +124,8 @@ type
     FViewGeoConvert: ICoordConverter;
     FGUI: IZmpInfoGUI;
     FAbilities: IMapAbilitiesConfigStatic;
+    FEmptyTileSamples: IBinaryDataListStatic;
+    FBanTileSamples: IBinaryDataListStatic;
     FMapAttachmentsInfo: IMapAttachmentsInfo;
     FStorageConfig: ISimpleTileStorageConfigStatic;
 
@@ -140,6 +143,8 @@ type
     procedure LoadStorageConfig(const AConfig: IConfigDataProvider);
     function LoadGUID(const AConfig: IConfigDataProvider): TGUID;
     procedure LoadVersion(const AConfig: IConfigDataProvider);
+    function GetBinaryListByConfig(const AConfig: IConfigDataProvider): IBinaryDataListStatic;
+    procedure LoadSamples(const AConfig: IConfigDataProvider);
     procedure LoadAttachmentsInfo(
       const AConfig: IConfigDataProvider;
       const ALanguageManager: ILanguageManager
@@ -168,6 +173,8 @@ type
     function GetGeoConvert: ICoordConverter;
     function GetViewGeoConvert: ICoordConverter;
     function GetAbilities: IMapAbilitiesConfigStatic;
+    function GetEmptyTileSamples: IBinaryDataListStatic;
+    function GetBanTileSamples: IBinaryDataListStatic;
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
     function GetDataProvider: IConfigDataProvider;
     function GetMapAttachmentsInfo: IMapAttachmentsInfo;
@@ -197,9 +204,11 @@ uses
   gnugettext,
   c_ZeroGUID,
   i_BinaryData,
+  i_StringListStatic,
   u_Bitmap32Static,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
+  u_BinaryDataListStatic,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
   u_TileDownloaderConfigStatic,
@@ -569,6 +578,40 @@ begin
   Result := FAbilities;
 end;
 
+function TZmpInfo.GetBanTileSamples: IBinaryDataListStatic;
+begin
+  Result := FBanTileSamples;
+end;
+
+function TZmpInfo.GetBinaryListByConfig(
+  const AConfig: IConfigDataProvider
+): IBinaryDataListStatic;
+var
+  VList: IStringListStatic;
+  VCount: Integer;
+  i: Integer;
+  VItems: array of IBinaryData;
+begin
+  Result := nil;
+  if AConfig <> nil then begin
+    VList := AConfig.ReadValuesList;
+    VCount := VList.Count;
+    if VCount > 0 then begin
+      SetLength(VItems, VCount);
+      for i := 0 to VCount - 1 do begin
+        VItems[i] := AConfig.ReadBinary(VList.Items[i]);
+      end;
+      try
+        Result := TBinaryDataListStatic.Create(VItems);
+      finally
+        for i := 0 to VCount - 1 do begin
+          VItems[i] := nil;
+        end;
+      end;
+    end;
+  end;
+end;
+
 function TZmpInfo.GetContentTypeSubst: IContentTypeSubst;
 begin
   Result := FContentTypeSubst;
@@ -577,6 +620,11 @@ end;
 function TZmpInfo.GetDataProvider: IConfigDataProvider;
 begin
   Result := FConfig;
+end;
+
+function TZmpInfo.GetEmptyTileSamples: IBinaryDataListStatic;
+begin
+  Result := FEmptyTileSamples;
 end;
 
 function TZmpInfo.GetFileName: string;
@@ -768,6 +816,7 @@ begin
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
+  LoadSamples(FConfig);
   LoadAttachmentsInfo(FConfigIni, ALanguageManager);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
@@ -830,6 +879,12 @@ begin
   if FViewGeoConvert = nil then begin
     FViewGeoConvert := FGeoConvert;
   end;
+end;
+
+procedure TZmpInfo.LoadSamples(const AConfig: IConfigDataProvider);
+begin
+  FEmptyTileSamples := GetBinaryListByConfig(AConfig.GetSubItem('EmptyTiles'));
+  FBanTileSamples := GetBinaryListByConfig(AConfig.GetSubItem('BanTiles'));
 end;
 
 procedure TZmpInfo.LoadStorageConfig(
