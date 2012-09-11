@@ -529,8 +529,8 @@ procedure TTileStorageFileSystem.SaveTNE(
 );
 var
   VPath: String;
-  VNow: TDateTime;
-  VDateString: string;
+  //VNow: TDateTime;
+  //VDateString: string;
   VFileStream: TFileStream;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
@@ -542,14 +542,14 @@ begin
     try
       if not FileExists(VPath) then begin
         CreateDirIfNotExists(VPath);
-        VNow := Now;
-        DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
+        //VNow := Now;
+        //DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
         VFileStream := TFileStream.Create(VPath, fmCreate);
-        try
-          VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
-        finally
+        //try
+          //VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
+        //finally
           VFileStream.Free;
-        end;
+        //end;
       end;
     finally
       FFsLock.EndWrite;
