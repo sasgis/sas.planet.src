@@ -46,6 +46,7 @@ type
     FTileFileNameParser: ITileFileNameParser;
     FFileNameGenerator: ITileFileNameGenerator;
 
+    FFsLock: IReadWriteSync;
     FFormatSettings: TFormatSettings;
     FTileNotExistsTileInfo: ITileInfoBasic;
 
@@ -127,6 +128,7 @@ uses
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
+  u_Synchronizer,
   u_TileInfoBasic;
 
 const
@@ -162,6 +164,8 @@ begin
   FFileNameGenerator := ATileNameGenerator;
 
 
+  FFsLock := MakeSyncRW_Std(Self, False);
+
   FFormatSettings.DecimalSeparator := '.';
   FFormatSettings.DateSeparator := '-';
   FFormatSettings.ShortDateFormat := 'yyyy-MM-dd';
@@ -192,17 +196,25 @@ function TTileStorageFileSystem.DeleteTile(
 ): Boolean;
 var
   VPath: string;
+  VFileName: string;
+  VTneName: string;
 begin
   Result := false;
   if GetState.GetStatic.DeleteAccess <> asDisabled then begin
     try
       VPath :=
         StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        FFileExt;
+        FFileNameGenerator.GetTileFileName(AXY, AZoom);
+      VFileName := VPath + FFileExt;
+      VTneName := VPath + CTneFileExt;
 
-      Result := DeleteFile(VPath);
-      DeleteTNE(AXY, AZoom, AVersionInfo);
+      FFsLock.BeginWrite;
+      try
+        Result := DeleteFile(VFileName);
+        DeleteFile(VTneName);
+      finally
+        FFsLock.EndWrite;
+      end;
     except
       Result := false;
     end;
@@ -227,7 +239,12 @@ begin
         StoragePath +
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
         CTneFileExt;
-      Result := DeleteFile(VPath);
+      FFsLock.BeginWrite;
+      try
+        Result := DeleteFile(VPath);
+      finally
+        FFsLock.EndWrite;
+      end;
     except
       Result := false;
     end;
@@ -327,6 +344,8 @@ function TTileStorageFileSystem.GetTileInfoByPath(
 var
   VTileInfo: TTileInfo;
 begin
+  FFsLock.BeginRead;
+  try
   UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
   if VTileInfo.FInfoType = titExists then begin
     // tile exists
@@ -356,6 +375,9 @@ begin
       // neither tile nor tne
       Result := FTileNotExistsTileInfo;
     end;
+  end;
+  finally
+    FFsLock.EndRead;
   end;
 end;
 
@@ -471,21 +493,30 @@ procedure TTileStorageFileSystem.SaveTile(
 );
 var
   VPath: String;
+  VFileName: string;
+  VTneName: string;
   VFileStream: TFileStream;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     VPath :=
       StoragePath +
-      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      FFileExt;
-    CreateDirIfNotExists(VPath);
-    VFileStream := TFileStream.Create(VPath, fmCreate);
+      FFileNameGenerator.GetTileFileName(AXY, AZoom);
+    VFileName := VPath + FFileExt;
+    VTneName := VPath + CTneFileExt;
+    FFsLock.BeginWrite;
     try
-      VFileStream.Size := AData.Size;
-      VFileStream.Position := 0;
-      VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+      CreateDirIfNotExists(VFileName);
+      VFileStream := TFileStream.Create(VFileName, fmCreate);
+      try
+        VFileStream.Size := AData.Size;
+        VFileStream.Position := 0;
+        VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+      finally
+        VFileStream.Free;
+      end;
+      DeleteFile(VTneName);
     finally
-      VFileStream.Free;
+      FFsLock.EndWrite;
     end;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
@@ -507,16 +538,21 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       CTneFileExt;
-    if not FileExists(VPath) then begin
-      CreateDirIfNotExists(VPath);
-      VNow := Now;
-      DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
-      VFileStream := TFileStream.Create(VPath, fmCreate);
-      try
-        VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
-      finally
-        VFileStream.Free;
+    FFsLock.BeginWrite;
+    try
+      if not FileExists(VPath) then begin
+        CreateDirIfNotExists(VPath);
+        VNow := Now;
+        DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
+        VFileStream := TFileStream.Create(VPath, fmCreate);
+        try
+          VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
+        finally
+          VFileStream.Free;
+        end;
       end;
+    finally
+      FFsLock.EndWrite;
     end;
   end;
 end;
@@ -537,6 +573,7 @@ type
     constructor Create(
       const AFilesIterator: IFileNameIterator;
       const ATileFileNameParser: ITileFileNameParser;
+      const ALock: IReadWriteSync;
       const AStorageState: IStorageStateChangeble;
       const AMainContentType: IContentTypeInfoBasic
     );
@@ -545,6 +582,7 @@ type
 constructor TEnumTileInfoByFileIterator.Create(
   const AFilesIterator: IFileNameIterator;
   const ATileFileNameParser: ITileFileNameParser;
+  const ALock: IReadWriteSync;
   const AStorageState: IStorageStateChangeble;
   const AMainContentType: IContentTypeInfoBasic
 );
@@ -552,6 +590,7 @@ begin
   inherited Create;
   FFilesIterator := AFilesIterator;
   FTileFileNameParser := ATileFileNameParser;
+  FLock := ALock;
   FStorageState := AStorageState;
   FMainContentType := AMainContentType;
 end;
@@ -627,6 +666,7 @@ begin
       TEnumTileInfoByFileIterator.Create(
         VFilesIterator,
         FTileFileNameParser,
+        FFsLock,
         GetState,
         FMainContentType
       );
