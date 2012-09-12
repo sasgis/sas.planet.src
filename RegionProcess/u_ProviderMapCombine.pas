@@ -5,6 +5,7 @@ interface
 uses
   Windows,
   Forms,
+  GR32,
   t_GeoTypes,
   i_Notifier,
   i_NotifierOperation,
@@ -171,6 +172,7 @@ begin
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
+      FViewConfig,
       FMapCalibrationList
     );
   Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
@@ -280,8 +282,8 @@ begin
     );
   Result :=
     TBitmapLayerProviderWithBGColor.Create(
-      FViewConfig.BackGroundColor,
-      Result
+      (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
+      Result 
     );
 end;
 
@@ -368,6 +370,7 @@ var
   VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VMsg: string;
+  VBGColor: TColor32;
 begin
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
@@ -375,6 +378,7 @@ begin
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
+  VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
   if FileExists(VFileName) then begin
     VMsg := Format(SAS_MSG_FileExists, [VFileName]);
     if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
@@ -395,6 +399,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
+      VBGColor,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.BMP') then begin
@@ -410,7 +415,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
-      'TThreadMapCombineBMP'
+      VBGColor
     );
   end else if (VFileExt = '.KMZ') then begin
     VMapSize := VTargetConverter.GetLocalRectSize;
@@ -451,6 +456,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
+      VBGColor,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
     );
   end else if (VFileExt = '.PNG') then begin
@@ -466,6 +472,7 @@ begin
       VMapCalibrations,
       VFileName,
       VSplitCount,
+      VBGColor,
       (ParamsFrame as IRegionProcessParamsFrameMapCombineWithAlfa).IsSaveAlfa
     );
   end;

@@ -5,7 +5,6 @@ interface
 uses
   Classes,
   Types,
-  GR32,
   i_NotifierOperation,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,

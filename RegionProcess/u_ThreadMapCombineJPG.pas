@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   LibJpegWrite,
+  GR32,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
@@ -24,6 +25,7 @@ type
     FWidth: Integer;
     FHeight: Integer;
     FQuality: Integer;
+    FBgColor: TColor32;
     FLineProvider: IImageLineProvider;
     function GetLine(
       Sender: TObject;
@@ -52,6 +54,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
+      ABgColor: TColor32;
       AQuality: Integer
     );
   end;
@@ -77,6 +80,7 @@ constructor TThreadMapCombineJPG.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
+  ABgColor: TColor32;
   AQuality: Integer
 );
 begin
@@ -93,6 +97,7 @@ begin
     ASplitCount,
     AnsiString(Self.ClassName)
   );
+  FBgColor := ABgColor;
   FQuality := AQuality;
 end;
 
@@ -129,14 +134,16 @@ begin
       TImageLineProviderBGRA.Create(
         AImageProvider,
         ALocalConverter,
-        AConverterFactory
+        AConverterFactory,
+        FBgColor
       );
   end else begin
     FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
         ALocalConverter,
-        AConverterFactory
+        AConverterFactory,
+        FBgColor
       );
   end;
 

@@ -8,14 +8,19 @@ uses
   GR32,
   i_NotifierOperation,
   i_BitmapLayerProvider,
+  i_RegionProcessProgressInfo,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
+  i_VectorItemLonLat,
+  i_MapCalibration,
   u_ResStrings,
   u_ThreadMapCombineBase,
   LibBMP;
 
 type
   TThreadMapCombineBMP = class(TThreadMapCombineBase)
+  private
+    FBgColor: TColor32;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -25,6 +30,20 @@ type
       const ALocalConverter: ILocalCoordConverter;
       const AConverterFactory: ILocalCoordConverterFactorySimpe
     ); override;
+  public
+    constructor Create(
+      const ACancelNotifier: INotifierOperation;
+      AOperationID: Integer;
+      const AProgressInfo: IRegionProcessProgressInfoInternal;
+      const APolygon: ILonLatPolygon;
+      const ATargetConverter: ILocalCoordConverter;
+      const AImageProvider: IBitmapLayerProvider;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AMapCalibrationList: IMapCalibrationList;
+      const AFileName: string;
+      const ASplitCount: TPoint;
+      ABgColor: TColor32
+    );
   end;
 
 implementation
@@ -33,6 +52,35 @@ uses
   gnugettext,
   i_ImageLineProvider,
   u_ImageLineProvider;
+
+constructor TThreadMapCombineBMP.Create(
+  const ACancelNotifier: INotifierOperation; AOperationID: Integer;
+  const AProgressInfo: IRegionProcessProgressInfoInternal;
+  const APolygon: ILonLatPolygon;
+  const ATargetConverter: ILocalCoordConverter;
+  const AImageProvider: IBitmapLayerProvider;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AMapCalibrationList: IMapCalibrationList;
+  const AFileName: string;
+  const ASplitCount: TPoint;
+  ABgColor: TColor32
+);
+begin
+  inherited Create(
+    ACancelNotifier,
+    AOperationID,
+    AProgressInfo,
+    APolygon,
+    ATargetConverter,
+    AImageProvider,
+    ALocalConverterFactory,
+    AMapCalibrationList,
+    AFileName,
+    ASplitCount,
+    AnsiString(Self.ClassName)
+  );
+  FBgColor := ABgColor;
+end;
 
 procedure TThreadMapCombineBMP.SaveRect(
   AOperationID: Integer;
@@ -64,7 +112,8 @@ begin
       TImageLineProviderBGR.Create(
         AImageProvider,
         ALocalConverter,
-        AConverterFactory
+        AConverterFactory,
+        FBgColor
       );
     for i := 0 to VSize.Y - 1 do begin
       VLineBGR := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);

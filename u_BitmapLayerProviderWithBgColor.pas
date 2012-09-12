@@ -30,7 +30,8 @@ type
 implementation
 
 uses
-  GR32_Resamplers;
+  GR32_Resamplers,
+  u_Bitmap32Static;
 
 { TBitmapLayerProviderWithBGColor }
 
@@ -75,6 +76,8 @@ begin
         Result.Bitmap.BoundsRect,
         dmBlend
       );
+      Result := TBitmap32Static.CreateWithOwn(VTargetBmp);
+      VTargetBmp := nil;
     finally
       VTargetBmp.Free;
     end;

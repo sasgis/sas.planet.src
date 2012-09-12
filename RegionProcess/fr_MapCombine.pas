@@ -13,6 +13,7 @@ uses
   StdCtrls,
   CheckLst,
   Spin,
+  GR32,
   i_LanguageManager,
   i_MapTypes,
   i_CoordConverterFactory,
@@ -21,6 +22,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapCalibration,
+  i_GlobalViewMainConfig,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   i_BitmapLayerProvider,
@@ -37,6 +39,9 @@ type
 
     function GetSplitCount: TPoint;
     property SplitCount: TPoint read GetSplitCount;
+
+    function GetBGColor: TColor32;
+    property BGColor: TColor32 read GetBGColor;
   end;
 
   IRegionProcessParamsFrameMapCombineJpg = interface(IRegionProcessParamsFrameBase)
@@ -111,6 +116,7 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FMapCalibrationList: IMapCalibrationList;
     FPolygLL: ILonLatPolygon;
+    FViewConfig: IGlobalViewMainConfig;
     procedure UpdatePanelSizes;
   private
     procedure Init(
@@ -128,6 +134,7 @@ type
     function GetSplitCount: TPoint;
     function GetQuality: Integer;
     function GetIsSaveAlfa: Boolean;
+    function GetBGColor: TColor32;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -136,6 +143,7 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const AViewConfig: IGlobalViewMainConfig;
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     procedure RefreshTranslation; override;
@@ -244,6 +252,7 @@ constructor TfrMapCombine.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const AViewConfig: IGlobalViewMainConfig;
   const AMapCalibrationList: IMapCalibrationList
 );
 begin
@@ -254,8 +263,24 @@ begin
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   FMapCalibrationList := AMapCalibrationList;
+  FViewConfig := AViewConfig;
   cbbOutputFormat.ItemIndex := 0;
   UpdatePanelSizes;
+end;
+
+function TfrMapCombine.GetBGColor: TColor32;
+var
+  VMap: TMapType;
+begin
+  VMap := nil;
+  if cbbMap.ItemIndex >= 0 then begin
+    VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  end;
+  if VMap = nil then begin
+    Result := SetAlpha(FViewConfig.BackGroundColor, 0);
+  end else begin
+    Result := SetAlpha(FViewConfig.BackGroundColor, 255);
+  end;
 end;
 
 function TfrMapCombine.GetIsSaveAlfa: Boolean;

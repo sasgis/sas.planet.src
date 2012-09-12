@@ -20,6 +20,7 @@ type
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FLocalConverter: ILocalCoordConverter;
     FBytesPerPixel: Integer;
+    FBgColor: TColor32;
 
     FZoom: byte;
     FMainGeoConverter: ICoordConverter;
@@ -58,6 +59,7 @@ type
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverter: ILocalCoordConverter;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      ABgColor: TColor32;
       ABytesPerPixel: Integer
     );
     destructor Destroy; override;
@@ -68,7 +70,8 @@ type
     constructor Create(
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      ABgColor: TColor32
     );
   end;
 
@@ -77,7 +80,8 @@ type
     constructor Create(
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverter: ILocalCoordConverter;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe
+      const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      ABgColor: TColor32
     );
   end;
 
@@ -125,6 +129,7 @@ constructor TImageLineProviderAbstract.Create(
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverter: ILocalCoordConverter;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  ABgColor: TColor32;
   ABytesPerPixel: Integer
 );
 begin
@@ -132,6 +137,7 @@ begin
   FImageProvider := AImageProvider;
   FLocalConverter := ALocalConverter;
   FConverterFactory := AConverterFactory;
+  FBgColor := ABgColor;
   FBytesPerPixel := ABytesPerPixel;
 
   FZoom := FLocalConverter.Zoom;
@@ -326,13 +332,15 @@ end;
 constructor TImageLineProviderNoAlfa.Create(
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  ABgColor: TColor32
 );
 begin
   inherited Create(
     AImageProvider,
     ALocalConverter,
     AConverterFactory,
+    ABgColor,
     3
   );
 end;
@@ -342,13 +350,15 @@ end;
 constructor TImageLineProviderWithAlfa.Create(
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverter: ILocalCoordConverter;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe
+  const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  ABgColor: TColor32
 );
 begin
   inherited Create(
     AImageProvider,
     ALocalConverter,
     AConverterFactory,
+    ABgColor,
     4
   );
 end;
@@ -398,7 +408,13 @@ begin
       Inc(VTarget);
     end;
   end else begin
-    FillChar(ATarget^, ACount * SizeOf(VTarget^), 0);
+    VTarget := ATarget;
+    for i := 0 to ACount - 1 do begin
+      VTarget.B := TColor32Entry(FBgColor).B;
+      VTarget.G := TColor32Entry(FBgColor).G;
+      VTarget.R := TColor32Entry(FBgColor).R;
+      Inc(VTarget);
+    end;
   end;
 end;
 
@@ -425,7 +441,13 @@ begin
       Inc(VTarget);
     end;
   end else begin
-    FillChar(ATarget^, ACount * SizeOf(VTarget^), 0);
+    VTarget := ATarget;
+    for i := 0 to ACount - 1 do begin
+      VTarget.B := TColor32Entry(FBgColor).B;
+      VTarget.G := TColor32Entry(FBgColor).G;
+      VTarget.R := TColor32Entry(FBgColor).R;
+      Inc(VTarget);
+    end;
   end;
 end;
 
@@ -453,7 +475,14 @@ begin
       Inc(VTarget);
     end;
   end else begin
-    FillChar(ATarget^, ACount * SizeOf(VTarget^), 0);
+    VTarget := ATarget;
+    for i := 0 to ACount - 1 do begin
+      VTarget.B := TColor32Entry(FBgColor).B;
+      VTarget.G := TColor32Entry(FBgColor).G;
+      VTarget.R := TColor32Entry(FBgColor).R;
+      VTarget.A := TColor32Entry(FBgColor).A;
+      Inc(VTarget);
+    end;
   end;
 end;
 
@@ -464,11 +493,18 @@ procedure TImageLineProviderBGRA.PreparePixleLine(
   ATarget: Pointer;
   ACount: Integer
 );
+var
+  VTarget: PColor32;
+  i: Integer;
 begin
   if ASource <> nil then begin
     Move(ASource^, ATarget^, ACount * SizeOf(ASource^));
   end else begin
-    FillChar(ATarget^, ACount * SizeOf(ASource^), 0);
+    VTarget := ATarget;
+    for i := 0 to ACount - 1 do begin
+      VTarget^ := FBgColor;
+      Inc(VTarget);
+    end;
   end;
 end;
 

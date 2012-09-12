@@ -20,6 +20,7 @@ uses
 type
   TThreadMapCombinePNG = class(TThreadMapCombineBase)
   private
+    FBgColor: TColor32;
     FWithAlpha: Boolean;
   protected
     procedure SaveRect(
@@ -42,6 +43,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
+      ABgColor: TColor32;
       AWithAlpha: Boolean
     );
   end;
@@ -108,6 +110,7 @@ constructor TThreadMapCombinePNG.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
+  ABgColor: TColor32;
   AWithAlpha: Boolean
 );
 begin
@@ -124,6 +127,7 @@ begin
     ASplitCount,
     AnsiString(Self.ClassName)
   );
+  FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;
 end;
 
@@ -159,7 +163,8 @@ begin
       TImageLineProviderRGBA.Create(
         AImageProvider,
         ALocalConverter,
-        AConverterFactory
+        AConverterFactory,
+        FBgColor
       );
   end else begin
     VPngColorType := PNG_COLOR_TYPE_RGB;
@@ -167,7 +172,8 @@ begin
       TImageLineProviderRGB.Create(
         AImageProvider,
         ALocalConverter,
-        AConverterFactory
+        AConverterFactory,
+        FBgColor
       );
   end;
 
