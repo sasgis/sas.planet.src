@@ -1164,10 +1164,10 @@ object frmSettings: TfrmSettings
               object lblImageProcessCaption: TLabel
                 Left = 0
                 Top = 0
-                Width = 91
+                Width = 105
                 Height = 20
                 Align = alLeft
-                Caption = 'Image postprocess'
+                Caption = 'Image postprocessing'
                 ExplicitHeight = 13
               end
               object btnImageProcessReset: TButton

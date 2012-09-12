@@ -275,7 +275,7 @@ object frMapCombine: TfrMapCombine
         Width = 204
         Height = 17
         Align = alTop
-        Caption = 'Use color settings'
+        Caption = 'Use postprocessing settings'
         TabOrder = 1
       end
       object flwpnlJpegQuality: TFlowPanel
