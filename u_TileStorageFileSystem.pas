@@ -47,7 +47,6 @@ type
     FFileNameGenerator: ITileFileNameGenerator;
 
     FFsLock: IReadWriteSync;
-    FFormatSettings: TFormatSettings;
     FTileNotExistsTileInfo: ITileInfoBasic;
 
     procedure CreateDirIfNotExists(const APath: string);
@@ -165,15 +164,6 @@ begin
 
 
   FFsLock := MakeSyncRW_Std(Self, False);
-
-  FFormatSettings.DecimalSeparator := '.';
-  FFormatSettings.DateSeparator := '-';
-  FFormatSettings.ShortDateFormat := 'yyyy-MM-dd';
-  FFormatSettings.TimeSeparator := '-';
-  FFormatSettings.LongTimeFormat := 'HH-mm-ss';
-  FFormatSettings.ShortTimeFormat := 'HH-mm-ss';
-  FFormatSettings.ListSeparator := ';';
-  FFormatSettings.TwoDigitYearCenturyWindow := 50;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 end;
 
@@ -529,8 +519,6 @@ procedure TTileStorageFileSystem.SaveTNE(
 );
 var
   VPath: String;
-  //VNow: TDateTime;
-  //VDateString: string;
   VFileStream: TFileStream;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
@@ -542,14 +530,8 @@ begin
     try
       if not FileExists(VPath) then begin
         CreateDirIfNotExists(VPath);
-        //VNow := Now;
-        //DateTimeToString(VDateString, 'yyyy-mm-dd-hh-nn-ss', VNow, FFormatSettings);
         VFileStream := TFileStream.Create(VPath, fmCreate);
-        //try
-          //VFileStream.WriteBuffer(VDateString[1], Length(VDateString) * SizeOf(VDateString[1]));
-        //finally
-          VFileStream.Free;
-        //end;
+        VFileStream.Free;
       end;
     finally
       FFsLock.EndWrite;
