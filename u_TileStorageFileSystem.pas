@@ -519,19 +519,23 @@ procedure TTileStorageFileSystem.SaveTNE(
 );
 var
   VPath: String;
+  VFileName: string;
+  VTneName: string;
   VFileStream: TFileStream;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     VPath :=
       StoragePath +
-      FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      CTneFileExt;
+      FFileNameGenerator.GetTileFileName(AXY, AZoom);
+    VFileName := VPath + FFileExt;
+    VTneName := VPath + CTneFileExt;
     FFsLock.BeginWrite;
     try
-      if not FileExists(VPath) then begin
-        CreateDirIfNotExists(VPath);
+      if not FileExists(VTneName) then begin
+        CreateDirIfNotExists(VTneName);
         VFileStream := TFileStream.Create(VPath, fmCreate);
         VFileStream.Free;
+        DeleteFile(VFileName);
       end;
     finally
       FFsLock.EndWrite;
