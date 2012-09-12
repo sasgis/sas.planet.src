@@ -30,21 +30,15 @@ type
   private
     FIsLayer: Boolean;
     FIsShowOnSmMap: Boolean;
-    FIsUseStick: Boolean;
-    FIsUseGenPrevious: Boolean;
     FUseDownload: Boolean;
   private
     function GetIsLayer: Boolean;
     function GetIsShowOnSmMap: Boolean;
-    function GetIsUseStick: Boolean;
-    function GetIsUseGenPrevious: Boolean;
     function GetUseDownload: Boolean;
   public
     constructor Create(
       AIsLayer: Boolean;
       AIsShowOnSmMap: Boolean;
-      AIsUseStick: Boolean;
-      AIsUseGenPrevious: Boolean;
       AUseDownload: Boolean
     );
   end;
@@ -56,16 +50,12 @@ implementation
 constructor TMapAbilitiesConfigStatic.Create(
   AIsLayer,
   AIsShowOnSmMap,
-  AIsUseStick,
-  AIsUseGenPrevious,
   AUseDownload: boolean
 );
 begin
   inherited Create;
   FIsLayer := AIsLayer;
   FIsShowOnSmMap := AIsShowOnSmMap;
-  FIsUseStick := AIsUseStick;
-  FIsUseGenPrevious := AIsUseGenPrevious;
   FUseDownload := AUseDownload;
 end;
 
@@ -77,16 +67,6 @@ end;
 function TMapAbilitiesConfigStatic.GetIsShowOnSmMap: Boolean;
 begin
   Result := FIsShowOnSmMap;
-end;
-
-function TMapAbilitiesConfigStatic.GetIsUseGenPrevious: Boolean;
-begin
-  Result := FIsUseGenPrevious;
-end;
-
-function TMapAbilitiesConfigStatic.GetIsUseStick: Boolean;
-begin
-  Result := FIsUseStick;
 end;
 
 function TMapAbilitiesConfigStatic.GetUseDownload: Boolean;

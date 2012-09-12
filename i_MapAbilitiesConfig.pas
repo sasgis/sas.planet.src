@@ -34,12 +34,6 @@ type
     function GetIsShowOnSmMap: Boolean;
     property IsShowOnSmMap: Boolean read GetIsShowOnSmMap;
 
-    function GetIsUseStick: Boolean;
-    property IsUseStick: Boolean read GetIsUseStick;
-
-    function GetIsUseGenPrevious: Boolean;
-    property IsUseGenPrevious: Boolean read GetIsUseGenPrevious;
-
     function GetUseDownload: Boolean;
     property UseDownload: Boolean read GetUseDownload;
   end;
@@ -52,14 +46,6 @@ type
     function GetIsShowOnSmMap: Boolean;
     procedure SetIsShowOnSmMap(AValue: Boolean);
     property IsShowOnSmMap: Boolean read GetIsShowOnSmMap write SetIsShowOnSmMap;
-
-    function GetIsUseStick: Boolean;
-    procedure SetIsUseStick(AValue: Boolean);
-    property IsUseStick: Boolean read GetIsUseStick write SetIsUseStick;
-
-    function GetIsUseGenPrevious: Boolean;
-    procedure SetIsUseGenPrevious(AValue: Boolean);
-    property IsUseGenPrevious: Boolean read GetIsUseGenPrevious write SetIsUseGenPrevious;
 
     function GetUseDownload: Boolean;
     procedure SetUseDownload(AValue: Boolean);

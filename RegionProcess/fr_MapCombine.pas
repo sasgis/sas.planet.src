@@ -382,7 +382,7 @@ begin
   For i := 0 to VGUIDList.Count-1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.Abilities.IsUseStick)and(VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
+    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
       if not VMapType.Abilities.IsLayer then begin
         VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
         if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin

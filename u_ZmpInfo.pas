@@ -696,22 +696,16 @@ procedure TZmpInfo.LoadAbilities(const AConfig: IConfigDataProvider);
 var
   VIsLayer: Boolean;
   VIsShowOnSmMap: Boolean;
-  VIsUseStick: Boolean;
-  VIsUseGenPrevious: Boolean;
   VUseDownload: Boolean;
 begin
   VIsLayer := AConfig.ReadBool('asLayer', False);
   VIsShowOnSmMap := AConfig.ReadBool('CanShowOnSmMap', True);
-  VIsUseStick := AConfig.ReadBool('Usestick', True);
-  VIsUseGenPrevious := AConfig.ReadBool('UseGenPrevious', True);
   VUseDownload := AConfig.ReadBool('UseDwn', True);
 
   FAbilities :=
     TMapAbilitiesConfigStatic.Create(
       VIsLayer,
       VIsShowOnSmMap,
-      VIsUseStick,
-      VIsUseGenPrevious,
       VUseDownload
     );
 end;
