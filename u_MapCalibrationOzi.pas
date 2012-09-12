@@ -89,7 +89,6 @@ begin
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
     VText := '';
-    VText := VText + '!table' + #13#10;
     VText := VText + 'OziExplorer Map Data File Version 2.2' + #13#10;
     VText := VText + 'Created by SAS.Planet' + #13#10;
     VText := VText + ExtractFileName(AFileName) + #13#10;
