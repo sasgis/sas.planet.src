@@ -625,7 +625,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 345
           Height = 17
           Align = alCustom
-          Caption = 'Use color settings'
+          Caption = 'Use postprocessing settings'
           Enabled = False
           TabOrder = 6
         end
