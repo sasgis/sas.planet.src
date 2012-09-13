@@ -3,7 +3,6 @@ unit u_PredicateByStaticSampleList;
 interface
 
 uses
-  Classes,
   i_IDList,
   i_BinaryData,
   i_BinaryDataListStatic,
