@@ -35,7 +35,7 @@ type
     FNotifier: INotifierInternal;
     FCurrentOperationID: Integer;
   private
-    procedure NextOperation;
+    procedure NextOperation(const AMsg: IInterface = nil);
   private
     function GetCurrentOperation: Integer;
     function IsOperationCanceled(AID: Integer): Boolean;
@@ -52,7 +52,7 @@ type
     FNotifier: INotifierInternal;
     FCS: IReadWriteSync;
   private
-    procedure ExecuteOperation;
+    procedure ExecuteOperation(const AMsg: IInterface = nil);
   private
     function GetIsExecuted: Boolean;
 
@@ -60,6 +60,22 @@ type
     procedure Remove(const AListener: IListener);
   public
     constructor Create;
+  end;
+
+  TNotifierOneOperationByNotifier = class(TInterfacedObject, INotifier, INotifierOneOperation)
+  private
+    FSourceNotifier: INotifierOperation;
+    FSourceID: Integer;
+  private
+    function GetIsExecuted: Boolean;
+
+    procedure Add(const AListener: IListener);
+    procedure Remove(const AListener: IListener);
+  public
+    constructor Create(
+      const ASourceNotifier: INotifierOperation;
+      ASourceID: Integer
+    );
   end;
 
 implementation
@@ -92,10 +108,10 @@ begin
   Result := InterlockedCompareExchange(FCurrentOperationID, 0, 0);
 end;
 
-procedure TNotifierOperation.NextOperation;
+procedure TNotifierOperation.NextOperation(const AMsg: IInterface);
 begin
   InterlockedIncrement(FCurrentOperationID);
-  FNotifier.Notify(nil);
+  FNotifier.Notify(AMsg);
 end;
 
 procedure TNotifierOperation.RemoveListener(const AListener: IListener);
@@ -131,7 +147,7 @@ begin
   end;
 end;
 
-procedure TNotifierOneOperation.ExecuteOperation;
+procedure TNotifierOneOperation.ExecuteOperation(const AMsg: IInterface);
 var
   VNotifier: INotifierInternal;
 begin
@@ -144,7 +160,7 @@ begin
       FCS.EndWrite;
     end;
     if VNotifier <> nil then begin
-      VNotifier.Notify(nil);
+      VNotifier.Notify(AMsg);
     end;
   end;
 end;
@@ -170,6 +186,31 @@ begin
       VNotifier.Remove(AListener);
     end;
   end;
+end;
+
+{ TNotifierOneOperationByNotifier }
+
+constructor TNotifierOneOperationByNotifier.Create(
+  const ASourceNotifier: INotifierOperation; ASourceID: Integer);
+begin
+  inherited Create;
+  FSourceNotifier := ASourceNotifier;
+  FSourceID := ASourceID;
+end;
+
+procedure TNotifierOneOperationByNotifier.Add(const AListener: IListener);
+begin
+  FSourceNotifier.AddListener(AListener);
+end;
+
+function TNotifierOneOperationByNotifier.GetIsExecuted: Boolean;
+begin
+  Result := FSourceNotifier.IsOperationCanceled(FSourceID);
+end;
+
+procedure TNotifierOneOperationByNotifier.Remove(const AListener: IListener);
+begin
+  FSourceNotifier.RemoveListener(AListener);
 end;
 
 end.

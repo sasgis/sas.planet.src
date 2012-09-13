@@ -39,7 +39,7 @@ type
   end;
 
   INotifierOperationInternal = interface(INotifierOperation)
-    procedure NextOperation;
+    procedure NextOperation(const AMsg: IInterface = nil);
   end;
 
   INotifierOneOperation = interface(INotifier)
@@ -52,7 +52,7 @@ type
   end;
 
   INotifierOneOperationInternal = interface(INotifierOneOperation)
-    procedure ExecuteOperation;
+    procedure ExecuteOperation(const AMsg: IInterface = nil);
   end;
 
 implementation
