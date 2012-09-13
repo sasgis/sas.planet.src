@@ -420,6 +420,7 @@
     <DCCReference Include="i_TileRequest.pas" />
     <DCCReference Include="i_TileRequestQueue.pas" />
     <DCCReference Include="i_TileRequestResult.pas" />
+    <DCCReference Include="i_TileRequestTask.pas" />
     <DCCReference Include="i_TileStorage.pas" />
     <DCCReference Include="i_TileStorageConfig.pas" />
     <DCCReference Include="i_TileStorageInfo.pas" />
@@ -1037,6 +1038,7 @@
     <DCCReference Include="u_TileRequestQueue.pas" />
     <DCCReference Include="u_TileRequestQueueProcessorThread.pas" />
     <DCCReference Include="u_TileRequestResult.pas" />
+    <DCCReference Include="u_TileRequestTask.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
     <DCCReference Include="u_TileStorageBerkeleyDB.pas" />
     <DCCReference Include="u_TileStorageBerkeleyDBHelper.pas" />

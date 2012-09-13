@@ -99,6 +99,8 @@ uses
   u_PathConfig in 'u_PathConfig.pas',
   i_TileRequest in 'i_TileRequest.pas',
   u_TileRequest in 'u_TileRequest.pas',
+  i_TileRequestTask in 'i_TileRequestTask.pas',
+  u_TileRequestTask in 'u_TileRequestTask.pas',
   i_TileError in 'i_TileError.pas',
   u_TileErrorInfo in 'u_TileErrorInfo.pas',
   i_TileErrorLogProviedrStuped in 'i_TileErrorLogProviedrStuped.pas',
