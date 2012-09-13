@@ -604,6 +604,7 @@
     <DCCReference Include="u_AvailPicsAbstract.pas" />
     <DCCReference Include="u_AvailPicsBing.pas" />
     <DCCReference Include="u_AvailPicsDG.pas" />
+    <DCCReference Include="u_AvailPicsDG2.pas" />
     <DCCReference Include="u_AvailPicsNMC.pas" />
     <DCCReference Include="u_AvailPicsTerra.pas" />
     <DCCReference Include="u_AvailPicsESRI.pas" />
