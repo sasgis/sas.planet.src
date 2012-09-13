@@ -89,7 +89,7 @@ uses
   u_Synchronizer,
   t_GeoTypes,
   i_TileIterator,
-  i_TileRequest,
+  i_TileRequestTask,
   i_TileRequestResult,
   i_DownloadResult,
   i_CoordConverter,
@@ -282,7 +282,7 @@ var
   VZoom: Byte;
   VMapType: TMapType;
   VNeedDownload: Boolean;
-  VRequest: ITileRequest;
+  VTask: ITileRequestTask;
   VHandles: array [0..1] of THandle;
   VWaitResult: DWORD;
   VTileInfo: ITileInfoBasic;
@@ -351,10 +351,12 @@ begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 Break;
               end;
-              VRequest := VMapType.TileDownloadSubsystem.GetRequest(ACancelNotifier, AOperationID, VTile, VZoom, False);
-              VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-              FGlobalInternetState.IncQueueCount;
-              VMapType.TileDownloadSubsystem.Download(VRequest);
+              VTask := VMapType.TileDownloadSubsystem.GetRequestTask(ACancelNotifier, AOperationID, VTile, VZoom, False);
+              if VTask <> nil then begin
+                VTask.FinishNotifier.Add(FTileDownloadFinishListener);
+                FGlobalInternetState.IncQueueCount;
+                VMapType.TileDownloadSubsystem.Download(VTask);
+              end;
             end;
           end;
         end;
@@ -367,7 +369,7 @@ end;
 
 procedure TUiTileDownload.OnTileDownloadFinish(const AMsg: IInterface);
 var
-  VResult: ITileRequestResult;
+  VTask: ITileRequestTask;
   VResultWithDownload: ITileRequestResultWithDownloadResult;
   VDownloadResultOk: IDownloadResultOk;
   VResultDownloadError: IDownloadResultError;
@@ -378,42 +380,41 @@ var
   VError: ITileErrorInfo;
 begin
   FGlobalInternetState.DecQueueCount;
-
-  VResult := AMsg as ITileRequestResult;
-
   ReleaseSemaphore(FSemaphore, 1, nil);
-  VErrorString := '';
-  if Supports(VResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
-    if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
-      if FDownloadInfo <> nil then begin
-        FDownloadInfo.Add(1, VDownloadResultOk.Data.Size);
-      end;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists, VResultDataNotExists) then begin
-      VErrorString := VResultDataNotExists.ReasonText;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
-      VErrorString := VResultDownloadError.ErrorText;
-    end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
-      VErrorString := VResultNotNecessary.ReasonText;
-    end else begin
-      VErrorString := 'Unexpected error';
-    end;
-  end else begin
-    if Supports(VResult, ITileRequestResultError, VRequestError) then begin
-      VErrorString := VRequestError.ErrorText;
-    end;
-  end;
 
-  if VErrorString <> '' then begin
-    if FErrorLogger <> nil then begin
-      VErrorString := 'Error: ' + VErrorString;
-      VError :=
-        TTileErrorInfo.Create(
-          FMapTypeActive.GetMapType.MapType,
-          VResult.Request.Zoom,
-          VResult.Request.Tile,
-          VErrorString
-        );
-      FErrorLogger.LogError(VError);
+  if Supports(AMsg, ITileRequestTask, VTask) then begin
+    VErrorString := '';
+    if Supports(VTask.Result, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
+      if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
+        if FDownloadInfo <> nil then begin
+          FDownloadInfo.Add(1, VDownloadResultOk.Data.Size);
+        end;
+      end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists, VResultDataNotExists) then begin
+        VErrorString := VResultDataNotExists.ReasonText;
+      end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
+        VErrorString := VResultDownloadError.ErrorText;
+      end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
+        VErrorString := VResultNotNecessary.ReasonText;
+      end else begin
+        VErrorString := 'Unexpected error';
+      end;
+    end else begin
+      if Supports(VTask.Result, ITileRequestResultError, VRequestError) then begin
+        VErrorString := VRequestError.ErrorText;
+      end;
+    end;
+    if VErrorString <> '' then begin
+      if FErrorLogger <> nil then begin
+        VErrorString := 'Error: ' + VErrorString;
+        VError :=
+          TTileErrorInfo.Create(
+            FMapTypeActive.GetMapType.MapType,
+            VTask.TileRequest.Zoom,
+            VTask.TileRequest.Tile,
+            VErrorString
+          );
+        FErrorLogger.LogError(VError);
+      end;
     end;
   end;
 end;

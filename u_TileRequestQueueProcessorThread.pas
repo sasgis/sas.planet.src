@@ -6,7 +6,7 @@ uses
   i_NotifierOperation,
   i_Listener,
   i_ThreadConfig,
-  i_TileRequest,
+  i_TileRequestTask,
   i_TileRequestQueue,
   i_TileDownloader,
   u_InterfacedThread;
@@ -35,6 +35,8 @@ type
 implementation
 
 uses
+  SysUtils,
+  i_TileRequestResult,
   u_ListenerByEvent;
 
 { TTileRequestQueueProcessorThread }
@@ -71,13 +73,18 @@ end;
 
 procedure TTileRequestQueueProcessorThread.Execute;
 var
-  VTileRequest: ITileRequest;
+  VTileRequestTask: ITileRequestTaskInternal;
+  VResult: ITileRequestResult;
 begin
   inherited;
   while not Terminated do begin
-    VTileRequest := FTileRequestQueue.Pull;
-    if VTileRequest <> nil then begin
-      FTileDownloaderSync.Download(VTileRequest);
+    if Supports(FTileRequestQueue.Pull, ITileRequestTaskInternal, VTileRequestTask) then begin
+      VResult := nil;
+      try
+        VResult := FTileDownloaderSync.Download(VTileRequestTask.CancelNotifier, VTileRequestTask.TileRequest);
+      finally
+        VTileRequestTask.SetFinished(VResult);
+      end;
     end;
   end;
 end;

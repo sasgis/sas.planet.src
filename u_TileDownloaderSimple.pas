@@ -12,6 +12,7 @@ uses
   i_LastResponseInfo,
   i_Downloader,
   i_TileRequest,
+  i_TileRequestResult,
   i_TileDownloadResultSaver,
   i_TileDownloaderConfig,
   i_TileDownloader,
@@ -49,9 +50,10 @@ type
     procedure SleepCancelable(ATime: Cardinal);
     procedure SleepIfConnectErrorOrWaitInterval;
   private
-    procedure Download(
+    function Download(
+      const ACancelNotifier: INotifierOneOperation;
       const ATileRequest: ITileRequest
-    );
+    ): ITileRequestResult;
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
@@ -71,7 +73,6 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_TileDownloadRequest,
-  i_TileRequestResult,
   u_ListenerByEvent,
   u_TileRequestResult;
 
@@ -132,112 +133,108 @@ begin
   inherited;
 end;
 
-procedure TTileDownloaderSimple.Download(
+function TTileDownloaderSimple.Download(
+  const ACancelNotifier: INotifierOneOperation;
   const ATileRequest: ITileRequest
-);
+): ITileRequestResult;
 var
   VDownloadRequest: ITileDownloadRequest;
-  VTileRequestResult: ITileRequestResult;
   VDownloadResult: IDownloadResult;
   VCount: Integer;
   VTryCount: Integer;
   VResultWithRespond: IDownloadResultWithServerRespond;
 begin
-  ATileRequest.StartNotifier.Notify(ATileRequest);
-  try
-    if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-      FCS.BeginWrite;
-      try
-        if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-          FCancelEvent.ResetEvent;
-          ATileRequest.CancelNotifier.AddListener(FCancelListener);
-          try
-            if not ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-              VTileRequestResult := nil;
-              VCount := 0;
-              VTryCount := FDownloadTryCount;
-              repeat
-                SleepIfConnectErrorOrWaitInterval;
-                if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-                  VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
-                  Break;
-                end;
-                try
-                  VDownloadRequest := FTileDownloadRequestBuilder.BuildRequest(
+  Result := nil;
+  if not ACancelNotifier.IsExecuted then begin
+    FCS.BeginWrite;
+    try
+      if not ACancelNotifier.IsExecuted then begin
+        FCancelEvent.ResetEvent;
+        ACancelNotifier.Add(FCancelListener);
+        try
+          if not ACancelNotifier.IsExecuted then begin
+            VCount := 0;
+            VTryCount := FDownloadTryCount;
+            repeat
+              SleepIfConnectErrorOrWaitInterval;
+              if ACancelNotifier.IsExecuted then begin
+                Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
+                Break;
+              end;
+              try
+                VDownloadRequest :=
+                  FTileDownloadRequestBuilder.BuildRequest(
                     ATileRequest,
                     FLastResponseInfo,
                     FDestroyNotifier,
                     FDestroyOperationID
                   );
-                except
-                  on E: Exception do begin
-                    VTileRequestResult :=
-                      TTileRequestResultErrorBeforBuildDownloadRequest.Create(
-                        ATileRequest,
-                        E.Message
-                      );
-                    Break;
-                  end;
-                end;
-                if VDownloadRequest = nil then begin
-                  VTileRequestResult :=
+              except
+                on E: Exception do begin
+                  Result :=
                     TTileRequestResultErrorBeforBuildDownloadRequest.Create(
                       ATileRequest,
-                      'Tile not exists'
-                    );
-                  Break;
-                end;
-                if ATileRequest.CancelNotifier.IsOperationCanceled(ATileRequest.OperationID) then begin
-                  VTileRequestResult := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
-                  Break;
-                end;
-                VDownloadResult :=
-                  FHttpDownloader.DoRequest(
-                    VDownloadRequest,
-                    FDestroyNotifier,
-                    FDestroyOperationID
-                  );
-                Inc(VCount);
-                FLastDownloadTime := GetTickCount;
-                if VDownloadResult <> nil then begin
-                  if VDownloadResult.IsServerExists then begin
-                    FWasConnectError := False;
-                    if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
-                      FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
-                    end;
-                  end else begin
-                    FWasConnectError := True;
-                  end;
-                end;
-                try
-                  FResultSaver.SaveDownloadResult(VDownloadResult);
-                  VTileRequestResult := TTileRequestResultOk.Create(VDownloadResult);
-                except
-                  on E: Exception do begin
-                    VTileRequestResult := TTileRequestResultErrorAfterDownloadRequest.Create(
-                      VDownloadResult,
                       E.Message
                     );
-                  end;
+                  Break;
                 end;
-              until (not FWasConnectError) or (VCount >= VTryCount);
-            end else begin
-              VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
-            end;
-          finally
-            ATileRequest.CancelNotifier.RemoveListener(FCancelListener);
+              end;
+              if VDownloadRequest = nil then begin
+                Result :=
+                  TTileRequestResultErrorBeforBuildDownloadRequest.Create(
+                    ATileRequest,
+                    'Tile not exists'
+                  );
+                Break;
+              end;
+              if ACancelNotifier.IsExecuted then begin
+                Result := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
+                Break;
+              end;
+              VDownloadResult :=
+                FHttpDownloader.DoRequest(
+                  VDownloadRequest,
+                  FDestroyNotifier,
+                  FDestroyOperationID
+                );
+              Inc(VCount);
+              FLastDownloadTime := GetTickCount;
+              if VDownloadResult <> nil then begin
+                if VDownloadResult.IsServerExists then begin
+                  FWasConnectError := False;
+                  if Supports(VDownloadResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
+                    FLastResponseInfo.ResponseHead := VResultWithRespond.RawResponseHeader;
+                  end;
+                end else begin
+                  FWasConnectError := True;
+                end;
+              end;
+              try
+                FResultSaver.SaveDownloadResult(VDownloadResult);
+                Result := TTileRequestResultOk.Create(VDownloadResult);
+              except
+                on E: Exception do begin
+                  Result := TTileRequestResultErrorAfterDownloadRequest.Create(
+                    VDownloadResult,
+                    E.Message
+                  );
+                end;
+              end;
+            until (not FWasConnectError) or (VCount >= VTryCount);
+          end else begin
+            Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
           end;
-        end else begin
-          VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
+        finally
+          ACancelNotifier.Remove(FCancelListener);
         end;
-      finally
-        FCS.EndWrite;
+      end else begin
+        Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
       end;
-    end else begin
-      VTileRequestResult := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
+    finally
+      FCS.EndWrite;
     end;
-  finally
-    ATileRequest.FinishNotifier.Notify(VTileRequestResult);
+  end else begin
+    Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
   end;
 end;
 

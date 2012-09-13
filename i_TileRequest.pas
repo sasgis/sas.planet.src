@@ -4,8 +4,6 @@ interface
 
 uses
   Types,
-  i_Notifier,
-  i_NotifierOperation,
   i_MapVersionInfo;
 
 type
@@ -19,18 +17,6 @@ type
 
     function GetVersionInfo: IMapVersionInfo;
     property VersionInfo: IMapVersionInfo read GetVersionInfo;
-
-    function GetStartNotifier: INotifierInternal;
-    property StartNotifier: INotifierInternal read GetStartNotifier;
-
-    function GetFinishNotifier: INotifierInternal;
-    property FinishNotifier: INotifierInternal read GetFinishNotifier;
-
-    function GetCancelNotifier: INotifierOperation;
-    property CancelNotifier: INotifierOperation read GetCancelNotifier;
-
-    function GetOperationID: Integer;
-    property OperationID: Integer read GetOperationID;
   end;
 
   ITileRequestWithSizeCheck = interface(ITileRequest)

@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_Listener,
   i_NotifierOperation,
   i_BinaryDataListStatic,
@@ -21,6 +22,7 @@ uses
   i_GlobalDownloadConfig,
   i_ContentTypeInfo,
   i_TileRequest,
+  i_TileRequestTask,
   i_TileDownloaderState,
   i_TileDownloaderConfig,
   i_TileDownloadRequestBuilderConfig,
@@ -50,29 +52,30 @@ type
     FDestroyNotifier: INotifierOperation;
     FDestroyOperationID: Integer;
     FAppClosingListener: IListener;
+    FTileRequestTaskSync: IReadWriteSync;
 
     FZmpDownloadEnabled: Boolean;
     FState: ITileDownloaderStateChangeble;
     FDownloadResultSaver: ITileDownloadResultSaver;
-    FTileDownloader: ITileDownloader;
+    FTileDownloader: ITileDownloaderAsync;
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloadRequestBuilderFactory: ITileDownloadRequestBuilderFactory;
     function GetScriptText(const AConfig: IConfigDataProvider): AnsiString;
     procedure OnAppClosing;
   private
-    function GetRequest(
+    function GetRequestTask(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
       AZoom: byte;
       ACheckTileSize: Boolean
-    ): ITileRequest;
+    ): ITileRequestTask;
     function GetLink(
       const AXY: TPoint;
       AZoom: byte
     ): string;
     procedure Download(
-      const ATileRequest: ITileRequest
+      const ATileRequestTask: ITileRequestTask
     );
 
     function GetState: ITileDownloaderStateChangeble;
@@ -116,6 +119,7 @@ uses
   i_DownloadChecker,
   u_ListenerByEvent,
   u_TileRequest,
+  u_TileRequestTask,
   u_TileDownloaderList,
   u_AntiBanStuped,
   u_DownloaderFaked,
@@ -125,6 +129,7 @@ uses
   u_TileDownloadSubsystemState,
   u_TileDownloadResultSaverStuped,
   u_TileDownloaderWithQueue,
+  u_Synchronizer,
   u_TileDownloadRequestBuilderFactoryPascalScript;
 
 const
@@ -248,6 +253,7 @@ begin
       AAppClosingNotifier,
       256
     );
+    FTileRequestTaskSync := MakeSyncRW_Var(Self, False);
   end else begin
     FState :=
       TTileDownloadSubsystemState.Create(
@@ -276,11 +282,21 @@ begin
   inherited;
 end;
 
-procedure TTileDownloadSubsystem.Download(const ATileRequest: ITileRequest);
+procedure TTileDownloadSubsystem.Download(
+  const ATileRequestTask: ITileRequestTask
+);
+var
+  VTaskInternal: ITileRequestTaskInternal;
 begin
-  if FZmpDownloadEnabled then begin
-    if FState.GetStatic.Enabled then begin
-      FTileDownloader.Download(ATileRequest);
+  if Supports(ATileRequestTask, ITileRequestTaskInternal, VTaskInternal) then begin
+    if FZmpDownloadEnabled then begin
+      if FState.GetStatic.Enabled then begin
+        FTileDownloader.Download(ATileRequestTask);
+      end else begin
+        VTaskInternal.SetFinished(nil);
+      end;
+    end else begin
+      VTaskInternal.SetFinished(nil);
     end;
   end;
 end;
@@ -297,12 +313,10 @@ begin
   if FZmpDownloadEnabled then begin
     if FTileDownloadRequestBuilderFactory.State.GetStatic.Enabled then begin
       VRequest :=
-        GetRequest(
-          nil,
-          0,
+        TTileRequest.Create(
           AXY,
           AZoom,
-          False
+          FVersionConfig.Version
         );
       VDownloadRequest := nil;
       if VRequest <> nil then begin
@@ -315,39 +329,46 @@ begin
   end;
 end;
 
-function TTileDownloadSubsystem.GetRequest(
+function TTileDownloadSubsystem.GetRequestTask(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AXY: TPoint;
   AZoom: byte;
   ACheckTileSize: Boolean
-): ITileRequest;
+): ITileRequestTask;
 var
+  VRequest: ITileRequest;
   VZoom: Byte;
   VTile: TPoint;
+  VCancelNotifier: INotifierOneOperation;
 begin
   Result := nil;
   if FZmpDownloadEnabled then begin
-    VZoom := AZoom;
-    VTile := AXY;
-    if FCoordConverter.CheckTilePosStrict(VTile, VZoom, False) then begin
-      if ACheckTileSize then begin
+    if FState.GetStatic.Enabled then begin
+      VZoom := AZoom;
+      VTile := AXY;
+      if FCoordConverter.CheckTilePosStrict(VTile, VZoom, False) then begin
+        if ACheckTileSize then begin
+          VRequest :=
+            TTileRequestWithSizeCheck.Create(
+              VTile,
+              VZoom,
+              FVersionConfig.Version
+            );
+        end else begin
+          VRequest :=
+            TTileRequest.Create(
+              VTile,
+              VZoom,
+              FVersionConfig.Version
+            );
+        end;
+        VCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
         Result :=
-          TTileRequestWithSizeCheck.Create(
-            VTile,
-            VZoom,
-            FVersionConfig.Version,
-            ACancelNotifier,
-            AOperationID
-          );
-      end else begin
-        Result :=
-          TTileRequest.Create(
-            VTile,
-            VZoom,
-            FVersionConfig.Version,
-            ACancelNotifier,
-            AOperationID
+          TTileRequestTask.Create(
+            VRequest,
+            VCancelNotifier,
+            FTileRequestTaskSync
           );
       end;
     end;

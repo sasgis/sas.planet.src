@@ -27,7 +27,6 @@ uses
   SyncObjs,
   Classes,
   Types,
-  i_Notifier,
   i_Listener,
   i_TileError,
   i_ThreadConfig,
@@ -56,7 +55,6 @@ type
     FTileDownloadFinishListener: IListenerDisconnectable;
 
     FAppClosingListener: IListener;
-    FResult: ITileRequestResult;
 
     procedure OnTileDownloadFinish(const AMsg: IInterface);
     procedure OnAppClosing;
@@ -81,7 +79,7 @@ implementation
 
 uses
   SysUtils,
-  i_TileRequest,
+  i_TileRequestTask,
   i_DownloadResult,
   u_ReadableThreadNames,
   u_ListenerByEvent,
@@ -141,18 +139,22 @@ end;
 procedure TTileDownloaderUIOneTile.Execute;
 var
   VOperationID: Integer;
-  VRequest: ITileRequest;
+  VTask: ITileRequestTask;
 begin
   SetCurrentThreadName(AnsiString(Self.ClassName));
   Randomize;
   if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
     VOperationID := FCancelNotifier.CurrentOperation;
-    VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, FTile, FZoom, False);
-    VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-    FGlobalInternetState.IncQueueCount;
-    FMapType.TileDownloadSubsystem.Download(VRequest);
-    FFinishEvent.WaitFor(INFINITE);
-    ProcessResult(FResult);
+    VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, VOperationID, FTile, FZoom, False);
+    if VTask <> nil then begin
+      VTask.FinishNotifier.Add(FTileDownloadFinishListener);
+      FGlobalInternetState.IncQueueCount;
+      FMapType.TileDownloadSubsystem.Download(VTask);
+      if not VTask.FinishNotifier.IsExecuted then begin
+        FFinishEvent.WaitFor(INFINITE);
+      end;
+      ProcessResult(VTask.Result);
+    end;
   end;
 end;
 
@@ -163,11 +165,7 @@ begin
 end;
 
 procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(const AMsg: IInterface);
-var
-  VResult: ITileRequestResult;
 begin
-  VResult := AMsg as ITileRequestResult;
-  FResult := VResult;
   FFinishEvent.SetEvent;
 end;
 

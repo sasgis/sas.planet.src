@@ -8,7 +8,7 @@ uses
   i_SimpleFlag,
   i_NotifierOperation,
   i_Listener,
-  i_TileRequest,
+  i_TileRequestTask,
   i_TileRequestQueue,
   i_ListenerTTLCheck,
   i_NotifierTTLCheck;
@@ -17,7 +17,7 @@ type
   TTileRequestQueue = class(TInterfacedObject, ITileRequestQueue)
   private
     type
-    TArrayOfITileRequest = array of ITileRequest;
+    TArrayOfITileRequest = array of ITileRequestTask;
   private
     FCapacity: Integer;
     FGCList: INotifierTTLCheck;
@@ -41,8 +41,8 @@ type
     function GetOrInitArray: TArrayOfITileRequest;
     procedure OnClosing;
   private
-    procedure Push(const ARequest: ITileRequest);
-    function Pull: ITileRequest;
+    procedure Push(const ARequest: ITileRequestTask);
+    function Pull: ITileRequestTask;
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
@@ -163,7 +163,7 @@ begin
   end;
 end;
 
-function TTileRequestQueue.Pull: ITileRequest;
+function TTileRequestQueue.Pull: ITileRequestTask;
 var
   VIndex: Integer;
   VArray: TArrayOfITileRequest;
@@ -193,7 +193,7 @@ begin
   end;
 end;
 
-procedure TTileRequestQueue.Push(const ARequest: ITileRequest);
+procedure TTileRequestQueue.Push(const ARequest: ITileRequestTask);
 var
   VIndex: Integer;
   VArray: TArrayOfITileRequest;

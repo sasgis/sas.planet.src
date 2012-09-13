@@ -26,7 +26,6 @@ uses
   Windows,
   SyncObjs,
   Classes,
-  i_Notifier,
   i_Listener,
   i_LogSimple,
   i_ConfigDataProvider,
@@ -105,7 +104,6 @@ type
     FTileDownloadFinishListener: IListenerDisconnectable;
 
     FAppClosingListener: IListener;
-    FResult: ITileRequestResult;
 
     procedure OnTileDownloadFinish(const AMsg: IInterface);
     procedure OnAppClosing;
@@ -185,7 +183,7 @@ uses
   SysUtils,
   Types,
   i_DownloadResult,
-  i_TileRequest,
+  i_TileRequestTask,
   i_TileInfoBasic,
   i_TileIterator,
   i_TileDownloaderState,
@@ -526,7 +524,7 @@ var
   VTile: TPoint;
   VTileIterator: ITileIterator;
   VOperationID: Integer;
-  VRequest: ITileRequest;
+  VTask: ITileRequestTask;
 begin
   SetCurrentThreadName(AnsiString(Self.ClassName));
   Randomize;
@@ -602,21 +600,30 @@ begin
                 end else begin
                   // download tile
                   VOperationID := FCancelNotifier.CurrentOperation;
-                  VRequest := FMapType.TileDownloadSubsystem.GetRequest(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
-                  VRequest.FinishNotifier.Add(FTileDownloadFinishListener);
-                  FMapType.TileDownloadSubsystem.Download(VRequest);
-                  if Terminated then begin
+                  VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
+                  if VTask <> nil then begin
+                    VTask.FinishNotifier.Add(FTileDownloadFinishListener);
+                    FMapType.TileDownloadSubsystem.Download(VTask);
+                    if Terminated then begin
+                      Break;
+                    end;
+                    if not VTask.FinishNotifier.IsExecuted then begin
+                      FFinishEvent.WaitFor(INFINITE);
+                    end;
+                    if Terminated then begin
+                      Break;
+                    end;
+                    ProcessResult(VTask.Result);
+                    if Terminated then begin
+                      Break;
+                    end;
+                    FLastProcessedPoint := VTile;
+                  end else begin
+                    FLog.WriteText('Download disabled', 0);
+                    FGotoNextTile := False;
+                    FPausedByUser := True;
                     Break;
                   end;
-                  FFinishEvent.WaitFor(INFINITE);
-                  if Terminated then begin
-                    Break;
-                  end;
-                  ProcessResult(FResult);
-                  if Terminated then begin
-                    Break;
-                  end;
-                  FLastProcessedPoint := VTile;
                 end;
               except
                 on E: Exception do begin
@@ -687,11 +694,7 @@ begin
 end;
 
 procedure TThreadDownloadTiles.OnTileDownloadFinish(const AMsg: IInterface);
-var
-  VResult: ITileRequestResult;
 begin
-  VResult := AMsg as ITileRequestResult;
-  FResult := VResult;
   FFinishEvent.SetEvent;
 end;
 

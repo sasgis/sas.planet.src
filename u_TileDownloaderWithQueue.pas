@@ -5,7 +5,7 @@ interface
 uses
   i_NotifierOperation,
   i_ThreadConfig,
-  i_TileRequest,
+  i_TileRequestTask,
   i_TileRequestQueue,
   i_TileDownloaderList,
   i_TileDownloader,
@@ -13,13 +13,13 @@ uses
   i_NotifierTTLCheck;
 
 type
-  TTileDownloaderWithQueue = class(TInterfacedObject, ITileDownloader)
+  TTileDownloaderWithQueue = class(TInterfacedObject, ITileDownloaderAsync)
   private
     FQueue: ITileRequestQueue;
     FSyncTileRequestProcessorPull: ITileRequestProcessorPool;
   private
     procedure Download(
-      const ATileRequest: ITileRequest
+      const ATileRequestTask: ITileRequestTask
     );
   public
     constructor Create(
@@ -64,9 +64,11 @@ begin
     );
 end;
 
-procedure TTileDownloaderWithQueue.Download(const ATileRequest: ITileRequest);
+procedure TTileDownloaderWithQueue.Download(
+  const ATileRequestTask: ITileRequestTask
+);
 begin
-  FQueue.Push(ATileRequest);
+  FQueue.Push(ATileRequestTask);
   FSyncTileRequestProcessorPull.InitThreadsIfNeed;
 end;
 
