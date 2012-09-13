@@ -38,6 +38,7 @@ uses
   i_LocalCoordConverter,
   u_AvailPicsAbstract,
   u_AvailPicsDG,
+  u_AvailPicsDG2,
   u_AvailPicsBing,
   u_AvailPicsNMC,
   u_AvailPicsTerra,
@@ -80,6 +81,7 @@ type
     chkNMC16: TCheckBox;
     lbNMCZoom: TLabel;
     chkESRI: TCheckBox;
+    chkDG2: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -95,6 +97,7 @@ type
     procedure FormShow(Sender: TObject);
   private
     FBing: TAvailPicsBing;
+    FDG2: TAvailPicsDG2;
     FNMCs: TAvailPicsNMCs;
     FTerraserver: TAvailPicsTerraserver;
     FESRI: TAvailPicsESRI;
@@ -478,6 +481,7 @@ begin
 
   // run thread for every image source
   RunImageThread(chkBing, FBing);
+  RunImageThread(chkDG2, FDG2);
 
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
     // chkNMC15, chkNMC16, chkNMC18, chkNMC20
@@ -582,6 +586,8 @@ begin
   try
     // get tid for DG items
     single_tid := TStrings(tvFound.Items.Item[i].Data).Values['tid'];
+    if single_tid = '' then single_tid := TStrings(tvFound.Items.Item[i].Data).Values['FeatureId'];
+    if single_tid = '' then single_tid := TStrings(tvFound.Items.Item[i].Data).Values['layer'];
     if (0<Length(single_tid)) then begin
       if (0<Length(Result)) then
         Result:=Result+',';
@@ -598,6 +604,7 @@ var
 begin
   // simple
   FreeAndNil(FBing);
+  FreeAndNil(FDG2);
   FreeAndNil(FTerraserver);
   FreeAndNil(FESRI);
 
@@ -623,6 +630,10 @@ begin
   // make for bing
   if (nil=FBing) then
     FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo);
+
+  // make for DigitalGlobe2
+  if (nil=FDG2) then
+    FDG2 := TAvailPicsDG2.Create(@FAvailPicsTileInfo);
 
   // make for nokia map creator
   GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo);
@@ -659,6 +670,9 @@ var
 begin
   if (nil<>FBing) then
     FBing.SetLocalConverter(FLocalConverter);
+
+  if (nil<>FDG2) then
+    FDG2.SetLocalConverter(FLocalConverter);
 
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
     if (FNMCs[j]<>nil) then
@@ -796,6 +810,7 @@ begin
   FVertResizeFactor:=0;
   FCallIndex:=0;
   FBing:=nil;
+  FDG2:=nil;
   FillChar(FNMCs, sizeof(FNMCs), 0);
   FTerraserver:=nil;
   FESRI:=nil;
