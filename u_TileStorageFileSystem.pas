@@ -533,7 +533,7 @@ begin
     try
       if not FileExists(VTneName) then begin
         CreateDirIfNotExists(VTneName);
-        VFileStream := TFileStream.Create(VPath, fmCreate);
+        VFileStream := TFileStream.Create(VTneName, fmCreate);
         VFileStream.Free;
         DeleteFile(VFileName);
       end;
