@@ -86,6 +86,7 @@ var
   VDate, VfeatureId, VDate1: String;
   VSampleDistance, VcompanyName : String;
   Vsource, VlegacyId, VproductType, VdataLayer : String;
+  VposList : String;
   VAddResult: Boolean;
   i : integer;
   VParams: TStrings;
@@ -118,6 +119,10 @@ begin
             Vsource := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:source').text;
             VcompanyName := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:companyName').text;
 
+            PlacemarkNode := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:geometry');
+            while  PlacemarkNode.ChildNodes.Count > 0 do PlacemarkNode := PlacemarkNode.ChildNodes[0];
+            VposList := PlacemarkNode.text;
+
             if VDate='' then VDate := copy(VDate1,1,10);
             VDate[5] := DateSeparator;
             VDate[8] := DateSeparator;
@@ -131,6 +136,7 @@ begin
             VParams.Values['DataLayer'] := VdataLayer;
             VParams.Values['Source'] := Vsource;
             VParams.Values['Provider'] := VcompanyName;
+            VParams.Values['VposList'] := VposList;
 
             VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, 'DigitalGlobe', VParams);
             FreeAndNil(VParams);
