@@ -118,7 +118,7 @@ end;
 function TArchiveReadByKaZip.GetItemNameByIndex(const AItemIndex: Integer): string;
 begin
   if FZip.Entries.Count >= AItemIndex then begin
-    Result := string(FZip.Entries.Items[AItemIndex].FileName);
+    Result := string(ToDosName(FZip.Entries.Items[AItemIndex].FileName));
   end else begin
     Result := '';
   end;
