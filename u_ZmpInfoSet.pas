@@ -89,9 +89,9 @@ begin
     VFullFileName := AFilesIterator.GetRootFolderName + VFileName;
     try
       if FileExists(VFullFileName) then begin
-        VZmpMapConfig := TConfigDataProviderByZip.Create(
+        VZmpMapConfig := TConfigDataProviderByArchive.Create(
           VFullFileName,
-          AArchiveReadWriteFactory
+          AArchiveReadWriteFactory.CreateZipReaderByName(VFullFileName)
         );
       end else begin
         VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);

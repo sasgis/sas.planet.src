@@ -31,10 +31,11 @@ uses
   i_ConfigDataProvider;
 
 type
-  TConfigDataProviderByZip = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByArchive = class(TInterfacedObject, IConfigDataProvider)
   private
     FSourceFileName: string;
-    FZip: IArchiveReader;
+    FArchive: IArchiveReader;
+    FSubFolder: string;
   private
     function GetSubItem(const AIdent: string): IConfigDataProvider;
     function ReadBinary(const AIdent: string): IBinaryData;
@@ -76,7 +77,8 @@ type
   public
     constructor Create(
       const AFileName: string;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+      const AArchive: IArchiveReader;
+      const ASubFolder: string = ''
     );
     destructor Destroy; override;
   end;
@@ -93,29 +95,28 @@ uses
 
 { TConfigDataProviderByZip }
 
-constructor TConfigDataProviderByZip.Create(
+constructor TConfigDataProviderByArchive.Create(
   const AFileName: string;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+  const AArchive: IArchiveReader;
+  const ASubFolder: string
 );
 begin
   inherited Create;
   FSourceFileName := AFileName;
-  if AFileName = '' then begin
-    raise Exception.Create(SAS_ERR_EmptyZMPFileName);
+  FArchive := AArchive;
+  FSubFolder := ASubFolder;
+  if FSubFolder <> '' then begin
+    FSubFolder := IncludeTrailingPathDelimiter(FSubFolder);
   end;
-  if not FileExists(AFileName) then begin
-    raise Exception.CreateFmt(SAS_ERR_FileNotFoundFmt, [AFileName]);
-  end;
-  FZip := AArchiveReadWriteFactory.CreateZipReaderByName(AFileName);
 end;
 
-destructor TConfigDataProviderByZip.Destroy;
+destructor TConfigDataProviderByArchive.Destroy;
 begin
-  FZip := nil;
+  FArchive := nil;
   inherited Destroy;
 end;
 
-function TConfigDataProviderByZip.GetSubItem(
+function TConfigDataProviderByArchive.GetSubItem(
   const AIdent: string): IConfigDataProvider;
 var
   VExt: string;
@@ -123,11 +124,13 @@ var
   VIniStrings: TStringList;
   VIniStream: TStream;
   VData: IBinaryData;
+  i: Integer;
+  VSubFolder: string;
 begin
   Result := nil;
   VExt := UpperCase(ExtractFileExt(AIdent));
   if (VExt = '.INI') or (VExt = '.TXT') then begin
-    VData := FZip.GetItemByName(AIdent);
+    VData := FArchive.GetItemByName(FSubFolder + AIdent);
     if VData <> nil then begin
       VIniFile := TMemIniFile.Create('');
       VIniStream := TStreamReadOnlyByBinaryData.Create(VData);
@@ -145,16 +148,24 @@ begin
         VIniStream.Free;
       end;
     end;
+  end else begin
+    VSubFolder := IncludeTrailingPathDelimiter(FSubFolder + AIdent);
+    for i := 0 to FArchive.GetItemsCount - 1 do begin
+      if CompareText(FArchive.GetItemNameByIndex(i), VSubFolder) = 0 then begin
+        Result := TConfigDataProviderByArchive.Create(FSourceFileName + PathDelim + AIdent, FArchive, VSubFolder);
+        Break;
+      end;
+    end;
   end;
 end;
 
-function TConfigDataProviderByZip.ReadBinary(
+function TConfigDataProviderByArchive.ReadBinary(
   const AIdent: string): IBinaryData;
 begin
-  Result := FZip.GetItemByName(AIdent);
+  Result := FArchive.GetItemByName(FSubFolder + AIdent);
 end;
 
-function TConfigDataProviderByZip.ReadBool(
+function TConfigDataProviderByArchive.ReadBool(
   const AIdent: string;
   const ADefault: Boolean
 ): Boolean;
@@ -162,7 +173,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByZip.ReadDate(
+function TConfigDataProviderByArchive.ReadDate(
   const AIdent: string;
   const ADefault: TDateTime
 ): TDateTime;
@@ -170,7 +181,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByZip.ReadDateTime(
+function TConfigDataProviderByArchive.ReadDateTime(
   const AIdent: string;
   const ADefault: TDateTime
 ): TDateTime;
@@ -178,7 +189,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByZip.ReadFloat(
+function TConfigDataProviderByArchive.ReadFloat(
   const AIdent: string;
   const ADefault: Double
 ): Double;
@@ -186,7 +197,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByZip.ReadInteger(
+function TConfigDataProviderByArchive.ReadInteger(
   const AIdent: string;
   const ADefault: Integer
 ): Longint;
@@ -194,7 +205,7 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByZip.ReadAnsiString(
+function TConfigDataProviderByArchive.ReadAnsiString(
   const AIdent: string;
   const ADefault: AnsiString
 ): AnsiString;
@@ -209,7 +220,7 @@ begin
   end else begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
-      VData := FZip.GetItemByName(AIdent);
+      VData := FArchive.GetItemByName(FSubFolder + AIdent);
       if VData <> nil then begin
         VStream := TStreamReadOnlyByBinaryData.Create(VData);
         try
@@ -226,7 +237,7 @@ begin
   end;
 end;
 
-function TConfigDataProviderByZip.ReadString(const AIdent,
+function TConfigDataProviderByArchive.ReadString(const AIdent,
   ADefault: string): string;
 begin
   Result := '';
@@ -237,20 +248,24 @@ begin
   end;
 end;
 
-function TConfigDataProviderByZip.ReadSubItemsList: IStringListStatic;
+function TConfigDataProviderByArchive.ReadSubItemsList: IStringListStatic;
 var
   VList: TStringList;
   I: Integer;
   VExt: string;
+  VFullFileName: string;
   VFileName: string;
 begin
   VList := TStringList.Create;
   try
-    for I := 0 to FZip.GetItemsCount - 1 do begin
-      VFileName := FZip.GetItemNameByIndex(I);
-      VExt := UpperCase(ExtractFileExt(VFileName));
-      if (VExt = '.INI') or (VExt = '.TXT') then begin
-        VList.Add(VFileName);
+    for I := 0 to FArchive.GetItemsCount - 1 do begin
+      VFullFileName := FArchive.GetItemNameByIndex(I);
+      if CompareText(ExtractFilePath(ExcludeTrailingPathDelimiter(VFullFileName)), FSubFolder) = 0  then begin
+        VFileName := ExtractFileName(VFullFileName);
+        VExt := UpperCase(ExtractFileExt(VFileName));
+        if (VExt = '.INI') or (VExt = '.TXT') then begin
+          VList.Add(VFileName);
+        end;
       end;
     end;
     Result := TStringListStatic.CreateWithOwn(VList);
@@ -260,7 +275,7 @@ begin
   end;
 end;
 
-function TConfigDataProviderByZip.ReadTime(
+function TConfigDataProviderByArchive.ReadTime(
   const AIdent: string;
   const ADefault: TDateTime
 ): TDateTime;
@@ -268,19 +283,19 @@ begin
   Result := ADefault;
 end;
 
-function TConfigDataProviderByZip.ReadValuesList: IStringListStatic;
+function TConfigDataProviderByArchive.ReadValuesList: IStringListStatic;
 var
   VList: TStringList;
   i: Integer;
-  VExt: string;
+  VFullFileName: string;
   VFileName: string;
 begin
   VList := TStringList.Create;
   try
-    for i := 0 to FZip.GetItemsCount - 1 do begin
-      VFileName := FZip.GetItemNameByIndex(i);
-      VExt := UpperCase(ExtractFileExt(VFileName));
-      if (VExt <> '.INI') or (VExt = '.HTML') or (VExt = '.TXT') then begin
+    for i := 0 to FArchive.GetItemsCount - 1 do begin
+      VFullFileName := FArchive.GetItemNameByIndex(i);
+      if CompareText(ExtractFilePath(ExcludeTrailingPathDelimiter(VFullFileName)), FSubFolder) = 0  then begin
+        VFileName := ExtractFileName(VFullFileName);
         VList.Add(VFileName);
       end;
     end;
