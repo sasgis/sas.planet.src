@@ -26,7 +26,7 @@ uses
   t_ETS_Tiles;
 
 type
-  // provider handle
+  // provider handle (single handle for single tile storage)
   TETS_Provider_Handle = Pointer;
   PETS_Provider_Handle = ^TETS_Provider_Handle;
 
@@ -40,20 +40,20 @@ type
     const AGlobalStorageIdentifier: PAnsiChar;
     const AServiceName: PAnsiChar;
     const AFlagsOut: PCardinal
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
   TETS_SetStorageIdentifier_W = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AGlobalStorageIdentifier: PWideChar;
     const AServiceName: PWideChar;
     const AFlagsOut: PCardinal
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // Sync storage provider
   // name 'ETS_Sync'
   TETS_Sync = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AFlags: Cardinal
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // Set primary content type
   // name 'ETS_SetPrimaryContentType_A' (ANSI) or 'ETS_SetPrimaryContentType_W' (UNICODE)
@@ -61,12 +61,12 @@ type
     const AProvider_Handle: PETS_Provider_Handle;
     const ADefaultExt: PAnsiChar;
     const AContentType: PAnsiChar
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
   TETS_SetPrimaryContentType_W = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const ADefaultExt: PWideChar;
     const AContentType: PWideChar
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // callbacks
   TETS_QueryAllContentTypes_Callback_A = function(
@@ -75,14 +75,14 @@ type
     const AIndex: Integer;
     const AExtensions: PAnsiChar;
     const AContentType: PAnsiChar
-    ): Boolean; stdcall;
+    ): Byte; stdcall;
   TETS_QueryAllContentTypes_Callback_W = function(
     const AHostPointer: Pointer;
     const AQueryPointer: Pointer;
     const AIndex: Integer;
     const AExtensions: PWideChar;
     const AContentType: PWideChar
-    ): Boolean; stdcall;
+    ): Byte; stdcall;
 
   // Query all content types (supported by provider)
   // name 'ETS_QueryAllContentTypes_A' (ANSI) or 'ETS_QueryAllContentTypes_W' (UNICODE)
@@ -90,12 +90,12 @@ type
     const AProvider_Handle: PETS_Provider_Handle;
     const AQueryPointer: Pointer;
     const AQueryCallback: TETS_QueryAllContentTypes_Callback_A
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
   TETS_QueryAllContentTypes_W = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AQueryPointer: Pointer;
     const AQueryCallback: TETS_QueryAllContentTypes_Callback_W
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // generic types for common routines
   // ANSI with 'A' and UNICODE with 'W'
@@ -106,13 +106,13 @@ type
     const AXYZ: PTILE_ID_XYZ;
     const AVersionString: PAnsiChar;
     const AData: Pointer
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
   TETS_Single_Tile_Command_W = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AXYZ: PTILE_ID_XYZ;
     const AVersionString: PWideChar;
     const AData: Pointer
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // insert TNE marker
   // name 'ETS_Insert_TNE_A' (ANSI) or 'ETS_Insert_TNE_W' (UNICODE)
@@ -149,21 +149,21 @@ type
     const AStatusBuffer: PETS_STATUS_BUFFER;
     const AFlags: Cardinal;  // see ETS_INIT_* constants
     const AHostPointer: Pointer
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // completely initialized storage provider
   // name 'ETS_Complete'
   TETS_Complete = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AFlags: Cardinal
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
   // uninitialize storage provider
   // name 'ETS_Uninitialize'
   TETS_Uninitialize = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AFlags: Cardinal
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
 
   // set storage provider information
@@ -174,7 +174,7 @@ type
     const AInfoSize: Cardinal;
     const AInfoData: Pointer;
     const AInfoResult: PCardinal
-  ): Boolean; stdcall;
+  ): Byte; stdcall;
 
 
   // provider structures:
@@ -237,14 +237,14 @@ type
     const ATileBuffer: Pointer;
     const AVersionBuffer: PAnsiChar;
     const AData: PETS_QUERY_TILE_DATA
-    ): Boolean; stdcall;
+    ): Byte; stdcall;
 
   TETS_Query_Tile_Callback_W = function(
     const AHostPointer: Pointer;
     const ATileBuffer: Pointer;
     const AVersionBuffer: PWideChar;
     const AData: PETS_QUERY_TILE_DATA
-    ): Boolean; stdcall;
+    ): Byte; stdcall;
 
 implementation
 
