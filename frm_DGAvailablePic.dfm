@@ -3,7 +3,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Top = 247
   BorderStyle = bsSizeToolWin
   Caption = 'Images available'
-  ClientHeight = 517
+  ClientHeight = 571
   ClientWidth = 280
   Color = clBtnFace
   Constraints.MinHeight = 332
@@ -20,7 +20,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   TextHeight = 13
   object spltDesc: TSplitter
     Left = 0
-    Top = 317
+    Top = 365
     Width = 280
     Height = 3
     Cursor = crVSplit
@@ -31,9 +31,9 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   end
   object gbImageParams: TGroupBox
     Left = 0
-    Top = 320
+    Top = 368
     Width = 280
-    Height = 197
+    Height = 203
     Align = alBottom
     Caption = 'Description:'
     Constraints.MinHeight = 80
@@ -42,13 +42,14 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Left = 2
       Top = 15
       Width = 276
-      Height = 180
+      Height = 186
       Align = alClient
       TabOrder = 0
       TitleCaptions.Strings = (
         'Parameter'
         'Value')
-      ExplicitHeight = 164
+      ExplicitLeft = 1
+      ExplicitHeight = 180
       ColWidths = (
         120
         150)
@@ -58,18 +59,18 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Left = 0
     Top = 137
     Width = 280
-    Height = 180
+    Height = 228
     Align = alClient
     Caption = 'Images available'
     Constraints.MinHeight = 144
     TabOrder = 1
-    ExplicitHeight = 196
+    ExplicitHeight = 180
     object tvFound: TTreeView
       AlignWithMargins = True
       Left = 5
       Top = 18
       Width = 189
-      Height = 157
+      Height = 205
       Align = alClient
       HideSelection = False
       HotTrack = True
@@ -82,17 +83,19 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnClick = tvFoundClick
       OnDeletion = tvFoundDeletion
       OnMouseDown = tvFoundMouseDown
-      ExplicitHeight = 173
+      ExplicitHeight = 157
     end
     object pnlRight: TPanel
       Left = 197
       Top = 15
       Width = 81
-      Height = 163
+      Height = 211
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 179
+      ExplicitLeft = 200
+      ExplicitTop = 14
+      ExplicitHeight = 198
       object btnUp: TButton
         AlignWithMargins = True
         Left = 3
@@ -139,6 +142,32 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'Refresh'
         TabOrder = 0
         OnClick = btnRefreshClick
+      end
+      object btnMakePoly: TButton
+        AlignWithMargins = True
+        Left = 3
+        Top = 127
+        Width = 75
+        Height = 25
+        Hint = 'Make Polygon'
+        Align = alTop
+        Caption = 'Make Polygon'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 4
+        OnClick = btnMakePolyClick
+        ExplicitTop = 137
+      end
+      object chkALLImages: TCheckBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 158
+        Width = 75
+        Height = 17
+        Align = alTop
+        Caption = 'All Images'
+        TabOrder = 5
+        OnClick = chkALLImagesClick
       end
     end
   end
@@ -188,7 +217,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
       ItemHeight = 13
-      TabOrder = 1
+      TabOrder = 4
     end
     object chkDG: TCheckBox
       AlignWithMargins = True
@@ -197,7 +226,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 41
       Height = 17
       Caption = 'DG'
-      TabOrder = 0
+      TabOrder = 3
     end
     object chkBing: TCheckBox
       AlignWithMargins = True
@@ -215,7 +244,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 84
       Height = 17
       Caption = 'Terraserver'
-      TabOrder = 3
+      TabOrder = 0
     end
     object chkNMC15: TCheckBox
       Left = 86
@@ -223,7 +252,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 36
       Height = 17
       Caption = '15'
-      TabOrder = 4
+      TabOrder = 5
     end
     object chkNMC18: TCheckBox
       Left = 170
@@ -231,7 +260,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 36
       Height = 17
       Caption = '18'
-      TabOrder = 5
+      TabOrder = 7
     end
     object chkNMC20: TCheckBox
       Left = 212
@@ -239,7 +268,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 36
       Height = 17
       Caption = '20'
-      TabOrder = 6
+      TabOrder = 8
     end
     object chkNMC16: TCheckBox
       Left = 128
@@ -247,7 +276,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 36
       Height = 17
       Caption = '16'
-      TabOrder = 7
+      TabOrder = 6
     end
     object chkESRI: TCheckBox
       Left = 98
@@ -255,7 +284,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Width = 44
       Height = 17
       Caption = 'ESRI'
-      TabOrder = 8
+      TabOrder = 1
     end
     object chkDG2: TCheckBox
       Left = 13

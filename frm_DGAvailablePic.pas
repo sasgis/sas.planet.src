@@ -53,6 +53,7 @@ uses
   i_Downloader,
   u_DownloaderHttp,
   t_GeoTypes,
+  u_MarksDbGUIHelper,
   Grids,
   ValEdit;
 
@@ -82,6 +83,8 @@ type
     lbNMCZoom: TLabel;
     chkESRI: TCheckBox;
     chkDG2: TCheckBox;
+    btnMakePoly: TButton;
+    chkALLImages: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -95,6 +98,8 @@ type
     procedure spltDescCanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormShow(Sender: TObject);
+    procedure chkALLImagesClick(Sender: TObject);
+    procedure btnMakePolyClick(Sender: TObject);
   private
     FBing: TAvailPicsBing;
     FDG2: TAvailPicsDG2;
@@ -106,6 +111,8 @@ type
     FCallIndex: DWORD;
     FVertResizeFactor: Integer;
     FCSAddNode: IReadWriteSync;
+    // object from main form
+    FMarkDBGUI: TMarksDbGUIHelper;
   private
     procedure MakePicsVendors;
     procedure KillPicsVendors;
@@ -137,12 +144,16 @@ type
 
     // get tid list (for DG only)
     function Get_DG_tid_List: String;
+
+    procedure UpdateALLImagesState;
+    procedure ApplyALLCheckboxState(const AChkBox: TCheckBox; const AHasState: Byte);
   private
     FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
     FResultFactory: IDownloadResultFactory;
   public
     constructor Create(
+      const AMarkDBGUI: TMarksDbGUIHelper;
       const ALanguageManager: ILanguageManager;
       const AInetConfig: IInetConfig
     ); reintroduce;
@@ -157,6 +168,14 @@ implementation
 uses
   u_Clipboard,
   u_Synchronizer,
+  i_ImportConfig,
+  i_MarksSimple,
+  i_VectorItmesFactory,
+  i_VectorItemLonLat,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
+  u_VectorItmesFactorySimple,
+  u_GeoFun,
   i_CoordConverter;
 
 type
@@ -514,6 +533,20 @@ begin
         then tvFound.Selected.MoveTo(tvFound.Selected.GetPrev,naInsert)
 end;
 
+procedure TfrmDGAvailablePic.chkALLImagesClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  if chkALLImages.state<>cbGrayed then
+  for i := 0 to tvFound.Items.Count-1 do
+  with tvFound.Items.Item[i] do begin
+    if chkALLImages.State = cbChecked then
+      StateIndex := 2
+    else
+      StateIndex := 1;
+  end;
+end;
+
 procedure TfrmDGAvailablePic.btnDownClick(Sender: TObject);
 begin
  if tvFound.Selected<>nil then
@@ -529,6 +562,181 @@ begin
   if tvFound.Selected.GetNext<>tvFound.Selected.Parent.GetLastChild
    then tvFound.Selected.MoveTo(tvFound.Selected.GetNext.GetNext,naInsert)
    else tvFound.Selected.MoveTo(tvFound.Selected.GetNext,naAdd)
+end;
+
+procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
+
+  function _ExtractFloat(var AParsedText: String): Double;
+  var
+    p: Integer;
+    s: String;
+  begin
+    if (0=Length(AParsedText)) then
+      Abort;
+    p := System.Pos(' ', AParsedText);
+    if (p>0) then begin
+      // found
+      s := System.Copy(AParsedText,1,p-1);
+      System.Delete(AParsedText, 1, p);
+    end else begin
+      // not found
+      s := AParsedText;
+      AParsedText := '';
+    end;
+    Result := StrToFloat(s);
+  end;
+
+  function _ExtractPoint(var AParsedText: String; const AInvert: Boolean): TDoublePoint;
+  var d: Double;
+  begin
+    Result.Y := _ExtractFloat(AParsedText);
+    Result.X := _ExtractFloat(AParsedText);
+    if AInvert then begin
+      d := Result.Y;
+      Result.Y := Result.X;
+      Result.X := d;
+    end;
+  end;
+
+  procedure _AddWithBR(var AFullDesc: String; const ACaption, AValue: String);
+  begin
+    if (0<Length(AValue)) then begin
+      AFullDesc := AFullDesc + '<br>' + ACaption + ':' + AValue;
+    end;
+  end;
+  
+var
+  i,k: Integer;
+  VXCommaY: Boolean;
+  VName, VDesc, VGeometry, VDate: String;
+  VImportConfig: IImportConfig;
+  VVectorItmesFactory: IVectorItmesFactory;
+  VPointsAggregator: IDoublePointsAggregator;
+  VPoint: TDoublePoint;
+  VValidPoint: Boolean;
+  VPolygon: ILonLatPolygon;
+  VMark: IMark;
+begin
+  if (nil=FMarkDBGUI) then
+    Exit;
+
+  // VImportConfig := nil;
+  // VVectorItmesFactory := nil;
+  // VPointsAggregator := nil;
+  k := tvFound.Items.Count;
+  
+  if (0<k) then
+  for i := 0 to k-1 do
+  if (nil<>tvFound.Items.Item[i].Data) then
+  if (2=tvFound.Items.Item[i].StateIndex) then begin
+    // prepare values
+    VXCommaY := FALSE;
+    VGeometry := '';
+    with TStrings(tvFound.Items.Item[i].Data) do
+    try
+      VGeometry := Values['VposList'];
+      (*
+      if (0=Length(VGeometry)) then begin
+        // allow import geometry for NokiaMapCreator - tile-bounded only!
+        VGeometry := Values['geometry'];
+        VGeometry := StringReplace(VGeometry, ',', ' ', [rfReplaceAll]);
+        VXCommaY := TRUE;
+      end;
+      *)
+
+      VDate := Values['Date'];
+      if (0=Length(VDate)) then
+        VDate := Values['acquisitionDate'];
+
+      if (0<Length(VGeometry)) then begin
+        VDesc := Values['FeatureId'];
+        Vname := copy(VDate,1,10)+' '+VDesc;
+
+        VDesc := 'FeatureId:'+VDesc;
+        // add Date
+        _AddWithBR(VDesc, 'Date', VDate);
+
+        // add other values - use VDate as temp buffer
+
+        // add Color
+        VDate := Values['Color'];
+        if (0=Length(VDate)) then
+          VDate := Values['productType'];
+        _AddWithBR(VDesc, 'Color', VDate);
+        
+        // add Resolution
+        VDate := Values['Resolution'];
+        if (0=Length(VDate)) then
+          VDate := Values['groundSampleDistance'];
+        _AddWithBR(VDesc, 'Resolution', VDate);
+        
+        // add Source
+        _AddWithBR(VDesc, 'Source', Values['Source']);
+        
+        // add Provider
+        VDate := Values['Provider'];
+        if (0=Length(VDate)) then
+          VDate := lbNMC.Caption; // only from DG and NokiaMapCreator
+        _AddWithBR(VDesc, 'Provider', VDate);
+      end;
+    except
+    end;
+
+    if (VGeometry <> '') then begin
+      // show dialog
+      if (nil=VImportConfig) then begin
+        // single time only!
+        VImportConfig := FMarkDBGUI.EditModalImportConfig;
+        VVectorItmesFactory := TVectorItmesFactorySimple.Create;
+        VPointsAggregator := TDoublePointsAggregator.Create;
+        // check for crazy errors
+        if (nil=VPointsAggregator) then
+          Exit;
+        if (nil=VVectorItmesFactory) then
+          Exit;
+        if (nil=VImportConfig) then
+          Exit;
+        if (nil=VImportConfig.TemplateNewPoly) then
+          Exit;
+      end;
+
+      // fill with coords
+      VPointsAggregator.Clear;
+      repeat
+        // cut pairs (space-separated y and x)
+        try
+          VPoint := _ExtractPoint(VGeometry, VXCommaY);
+          VValidPoint := (not PointIsEmpty(VPoint)) and ((Abs(VPoint.X) <= 180) and (Abs(VPoint.Y) <= 90));
+        except
+          VValidPoint := FALSE;
+        end;
+        // add pair
+        if VValidPoint then begin
+          VPointsAggregator.Add(VPoint);
+        end;
+      until (0=Length(VGeometry));
+
+      if (VPointsAggregator.Count>0) then begin
+        // create lonlats
+        VPolygon := VVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+        if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+          // make polygon
+          VMark := VImportConfig.MarkDB.Factory.CreateNewPoly(
+            VPolygon,
+            Vname,
+            VDesc,
+            VImportConfig.TemplateNewPoly
+          );
+
+          if (nil<>VMark) then begin
+            // apply to database
+            VImportConfig.MarkDB.UpdateMark(nil, VMark);
+          end;
+        end;
+      end;
+
+    end;
+  end;
 end;
 
 function TfrmDGAvailablePic.GetImagesNode(const AParentNode: TTreeNode;
@@ -762,6 +970,29 @@ begin
   end;
 end;
 
+procedure TfrmDGAvailablePic.UpdateALLImagesState;
+var
+  i: Integer;
+  VHasState: Byte;
+begin
+  // obtain ALLImages checkbox state
+  VHasState := 0;
+  if tvFound.Items.Count>0 then
+  for i := 0 to tvFound.Items.Count-1 do begin
+    // keep state
+    if (2=tvFound.Items.Item[i].StateIndex) then
+      VHasState := (VHasState or $01) // checked
+    else
+      VHasState := (VHasState or $02);
+    // check both exist
+    if ($03 = VHasState) then
+      break;
+  end;
+
+  // apply ALLImages checkbox state
+  ApplyALLCheckboxState(chkALLImages, VHasState);
+end;
+
 procedure TfrmDGAvailablePic.UpdateInfoByNode(const ANode: TTreeNode);
 begin
   if (nil=ANode) then
@@ -772,6 +1003,8 @@ begin
     // update info
     veImageParams.Strings.Assign(TStrings(ANode.Data));
   end;
+
+  UpdateALLImagesState;
 end;
 
 procedure TfrmDGAvailablePic.UpdateZoomLabel;
@@ -795,6 +1028,7 @@ procedure TfrmDGAvailablePic.ClearAvailableImages;
 begin
   tvFound.Items.Clear;
   ClearInfoByNode;
+  chkALLImages.Checked := FALSE;
 end;
 
 procedure TfrmDGAvailablePic.ClearInfoByNode;
@@ -803,10 +1037,12 @@ begin
 end;
 
 constructor TfrmDGAvailablePic.Create(
+  const AMarkDBGUI: TMarksDbGUIHelper;
   const ALanguageManager: ILanguageManager;
   const AInetConfig: IInetConfig
 );
 begin
+  FMarkDBGUI := AMarkDBGUI;
   FVertResizeFactor:=0;
   FCallIndex:=0;
   FBing:=nil;
@@ -830,6 +1066,7 @@ end;
 
 destructor TfrmDGAvailablePic.Destroy;
 begin
+  FMarkDBGUI:=nil;
   // kill vendors objects
   KillPicsVendors;
   // interfaces
@@ -838,6 +1075,24 @@ begin
   FLocalConverter:=nil;
   FCSAddNode:=nil;
   inherited;
+end;
+
+procedure TfrmDGAvailablePic.ApplyALLCheckboxState(const AChkBox: TCheckBox; const AHasState: Byte);
+begin
+  case AHasState of
+    $03: begin
+      // both
+      AChkBox.State := cbGrayed;
+    end;
+    $01: begin
+      // all checked
+      AChkBox.State := cbChecked;
+    end;
+    else begin
+      // empty or all unchecked
+      AChkBox.State := cbUnchecked;
+    end;
+  end;
 end;
 
 procedure TfrmDGAvailablePic.btnCopyClick(Sender: TObject);

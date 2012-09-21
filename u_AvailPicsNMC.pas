@@ -68,7 +68,6 @@ uses
   u_ResStrings,
   u_GeoToStr,
   u_GeoFun,
-  t_ETS_Tiles,
   u_ETS_Tiles,
   xmldom,
   vsagps_public_xml_dom,
@@ -403,30 +402,27 @@ end;
 
 function TAvailPicsNMC.GetQuadKey: String;
 var
-  VXYZ: TTILE_ID_XYZ;
+  VZoom: Byte;
   VTilePos: Tpoint;
 begin
   // check working zoom
   if (0=FWorkingZoom) then begin
     // actual zoom (decremented)
-    VXYZ.z := FTileInfoPtr.Zoom;
+    VZoom := FTileInfoPtr.Zoom;
   end else begin
     // fixed zoom (decremented)
-    VXYZ.z := FWorkingZoom-1;
+    VZoom := FWorkingZoom-1;
   end;
 
   // get tile coords (use decremented zoom)
   VTilePos :=
     PointFromDoublePoint(
-      FLocalConverter.GeoConverter.LonLat2TilePosFloat(FTileInfoPtr.LonLat, VXYZ.z),
+      FLocalConverter.GeoConverter.LonLat2TilePosFloat(FTileInfoPtr.LonLat, VZoom),
       prToTopLeft
     );
-  VXYZ.x := VTilePos.X; // 5372
-  VXYZ.y := VTilePos.Y; // 2359
 
   // to quadkey (use real zoom)
-  Inc(VXYZ.z);
-  Result:=Convert_XYZ_to_0123(@VXYZ); // 1210211331322
+  Result := XYZ_to_QuadKey(VTilePos, (VZoom+1)); // like 1210211331322
 end;
 
 function TAvailPicsNMC.LinkToImages: String;
@@ -752,7 +748,7 @@ begin
   VStream:=TPointedMemoryStream.Create;
   try
     // set stream
-    VStream.SetPointer(VExifAttr, VLen+1);
+    VStream.SetPointer(VExifAttr, VLen);
     // apply stream
     Result := ParseExifXml(VStream);
   finally

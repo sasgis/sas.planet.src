@@ -2334,7 +2334,6 @@ begin
   FLayersList := nil;
 
   FreeAndNil(FShortCutManager);
-  FreeAndNil(FMarkDBGUI);
 end;
 
 destructor TfrmMain.Destroy;
@@ -2358,6 +2357,7 @@ begin
   FreeAndNil(FfrmSettings);
   FreeAndNil(FfrmCacheManager);
   FreeAndNil(FfrmMarksExplorer);
+  FreeAndNil(FMarkDBGUI);
   inherited;
 end;
 
@@ -5458,6 +5458,7 @@ begin
   // create
   if (nil=FfrmDGAvailablePic) then
     FfrmDGAvailablePic:=TfrmDGAvailablePic.Create(
+      FMarkDBGUI,
       GState.LanguageManager,
       GState.InetConfig);
   // link to position    
