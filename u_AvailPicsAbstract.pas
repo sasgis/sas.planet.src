@@ -41,6 +41,7 @@ type
     AddImageProc: TAddAvailImageItemProc;
     LonLat: TDoublePoint;
     Zoom: Byte;
+    LowResToo: Boolean;
     // for DG
     mpp: Extended;
     hi,wi: Integer;
@@ -77,6 +78,9 @@ function CheckHiResResolution(const AStrResolution: String): Boolean;
 
 implementation
 
+uses
+  u_GeoToStr;
+
 function CheckHiResResolution(const AStrResolution: String): Boolean;
 var VRes: String;
 begin
@@ -87,10 +91,10 @@ begin
     // try co check landsat
     VRes:=AStrResolution;
     try
-      if DecimalSeparator<>'.' then
-        VRes:=StringReplace(VRes,'.',DecimalSeparator,[]);
+      if (DecimalSeparator<>'.') and (System.Pos(DecimalSeparator,VRes)>0) then
+        VRes:=StringReplace(VRes, DecimalSeparator, '.', []);
       // do not show "landsat" with 15 and 25 meters
-      Result:=(StrToFloat(VRes)<=14);
+      Result:=(StrPointToFloat(VRes)<=14);
     except
       Result:=TRUE;
     end;

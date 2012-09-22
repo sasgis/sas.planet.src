@@ -349,20 +349,22 @@ begin
       // 0.6
       VResolution := GetWord(VLine, ',', 5);
 
-      // make params
-      VParams:=TStringList.Create;
-      VParams.Values['tid']:=VId;
-      VParams.Values['date']:=VDateOrig;
-      VParams.Values['provider']:=VProvider;
-      VParams.Values['resolution']:=VResolution;
-      VParams.Values['color']:=VColor;
+      if FTileInfoPtr.LowResToo or CheckHiResResolution(VResolution) then begin
+        // make params
+        VParams:=TStringList.Create;
+        VParams.Values['tid']:=VId;
+        VParams.Values['date']:=VDateOrig;
+        VParams.Values['provider']:=VProvider;
+        VParams.Values['resolution']:=VResolution;
+        VParams.Values['color']:=VColor;
 
-      // add item
-      VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VId, VParams);
-      FreeAndNil(VParams);
+        // add item
+        VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VId, VParams);
+        FreeAndNil(VParams);
 
-      if VAddResult then begin
-        Inc(Result);
+        if VAddResult then begin
+          Inc(Result);
+        end;
       end;
     except
       if (nil<>VParams) then begin

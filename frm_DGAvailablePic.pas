@@ -85,6 +85,8 @@ type
     chkDG2: TCheckBox;
     btnMakePoly: TButton;
     chkALLImages: TCheckBox;
+    chkALLServices: TCheckBox;
+    chkLowResolutionToo: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -100,6 +102,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure chkALLImagesClick(Sender: TObject);
     procedure btnMakePolyClick(Sender: TObject);
+    procedure chkALLServicesClick(Sender: TObject);
+    procedure chkLowResolutionTooClick(Sender: TObject);
   private
     FBing: TAvailPicsBing;
     FDG2: TAvailPicsDG2;
@@ -111,6 +115,7 @@ type
     FCallIndex: DWORD;
     FVertResizeFactor: Integer;
     FCSAddNode: IReadWriteSync;
+    FALLClicking: Boolean;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
   private
@@ -146,7 +151,10 @@ type
     function Get_DG_tid_List: String;
 
     procedure UpdateALLImagesState;
+    procedure UpdateALLServicesState;
     procedure ApplyALLCheckboxState(const AChkBox: TCheckBox; const AHasState: Byte);
+    procedure ApplyServicesCheckboxHandlers;
+    function IsCommonServiceCheckbox(const ABox: TControl): Boolean;
   private
     FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
@@ -176,6 +184,7 @@ uses
   u_DoublePointsAggregator,
   u_VectorItmesFactorySimple,
   u_GeoFun,
+  u_GeoToStr,
   i_CoordConverter;
 
 type
@@ -538,6 +547,7 @@ var
   i: Integer;
 begin
   if chkALLImages.state<>cbGrayed then
+  if tvFound.Items.Count>0 then
   for i := 0 to tvFound.Items.Count-1 do
   with tvFound.Items.Item[i] do begin
     if chkALLImages.State = cbChecked then
@@ -545,6 +555,43 @@ begin
     else
       StateIndex := 1;
   end;
+end;
+
+procedure TfrmDGAvailablePic.chkALLServicesClick(Sender: TObject);
+var
+  i: Integer;
+  VBox: TControl;
+begin
+  if FALLClicking then
+    Exit;
+
+  // common service checkboxes
+  if (Sender<>chkALLServices) then begin
+    UpdateALLServicesState;
+    Exit;
+  end;
+
+  // apply to all checkbox in gbImagesSource (except sender)
+  if chkALLServices.state<>cbGrayed then
+  if gbImagesSource.ControlCount>0 then begin
+    FALLClicking := TRUE;
+    try
+      for i := 0 to gbImagesSource.ControlCount-1 do begin
+        VBox := gbImagesSource.Controls[i];
+        if IsCommonServiceCheckbox(VBox) then begin
+          // apply to service checkbox
+          TCheckBox(VBox).State := chkALLServices.State;
+        end;
+      end;
+    finally
+      FALLClicking := FALSE;
+    end;
+  end;
+end;
+
+procedure TfrmDGAvailablePic.chkLowResolutionTooClick(Sender: TObject);
+begin
+  FAvailPicsTileInfo.LowResToo := chkLowResolutionToo.Checked;
 end;
 
 procedure TfrmDGAvailablePic.btnDownClick(Sender: TObject);
@@ -583,7 +630,7 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
       s := AParsedText;
       AParsedText := '';
     end;
-    Result := StrToFloat(s);
+    Result := StrPointToFloat(s);
   end;
 
   function _ExtractPoint(var AParsedText: String; const AInvert: Boolean): TDoublePoint;
@@ -805,6 +852,11 @@ begin
   end;
 end;
 
+function TfrmDGAvailablePic.IsCommonServiceCheckbox(const ABox: TControl): Boolean;
+begin
+  Result := (ABox <> chkALLServices) and (ABox <> chkLowResolutionToo) and (ABox is TCheckBox);
+end;
+
 procedure TfrmDGAvailablePic.KillPicsVendors;
 var
   i,k: Integer;
@@ -993,15 +1045,47 @@ begin
   ApplyALLCheckboxState(chkALLImages, VHasState);
 end;
 
+procedure TfrmDGAvailablePic.UpdateALLServicesState;
+var
+  i: Integer;
+  VBox: TControl;
+  VHasState: Byte;
+begin
+  // obtain chkALLServices checkbox state
+  VHasState := 0;
+  if gbImagesSource.ControlCount>0 then
+  for i := 0 to gbImagesSource.ControlCount-1 do begin
+    VBox := gbImagesSource.Controls[i];
+    if IsCommonServiceCheckbox(VBox) then begin
+      // keep state
+      if (cbChecked = TCheckBox(VBox).State) then
+        VHasState := (VHasState or $01) // checked
+      else
+        VHasState := (VHasState or $02);
+      // check both exist
+      if ($03 = VHasState) then
+        break;
+    end;
+  end;
+
+  // apply chkALLServices checkbox state
+  ApplyALLCheckboxState(chkALLServices, VHasState);
+end;
+
 procedure TfrmDGAvailablePic.UpdateInfoByNode(const ANode: TTreeNode);
 begin
-  if (nil=ANode) then
-    ClearInfoByNode
-  else if (nil=ANode.Data) then
-    ClearInfoByNode
-  else begin
-    // update info
-    veImageParams.Strings.Assign(TStrings(ANode.Data));
+  veImageParams.Strings.BeginUpdate;
+  try
+    ClearInfoByNode;
+    
+    if (nil<>ANode) then
+    if (nil<>ANode.Data) then begin
+      // update info
+      veImageParams.TopRow := 1; //veImageParams.FixedRows;
+      veImageParams.Strings.Assign(TStrings(ANode.Data));
+    end;
+  finally
+    veImageParams.Strings.EndUpdate;
   end;
 
   UpdateALLImagesState;
@@ -1043,6 +1127,7 @@ constructor TfrmDGAvailablePic.Create(
 );
 begin
   FMarkDBGUI := AMarkDBGUI;
+  FALLClicking := FALSE;
   FVertResizeFactor:=0;
   FCallIndex:=0;
   FBing:=nil;
@@ -1095,6 +1180,22 @@ begin
   end;
 end;
 
+procedure TfrmDGAvailablePic.ApplyServicesCheckboxHandlers;
+var
+  i: Integer;
+  VBox: TControl;
+begin
+  // set OnClick if empty from chkALLServices
+  if gbImagesSource.ControlCount>0 then
+  for i := 0 to gbImagesSource.ControlCount-1 do begin
+    VBox := gbImagesSource.Controls[i];
+    if IsCommonServiceCheckbox(VBox) then begin
+      // apply handler
+      TCheckBox(VBox).OnClick := chkALLServices.OnClick;
+    end;
+  end;
+end;
+
 procedure TfrmDGAvailablePic.btnCopyClick(Sender: TObject);
 begin
   CopyStringToClipboard(Handle, Get_DG_tid_List);
@@ -1119,6 +1220,7 @@ end;
 procedure TfrmDGAvailablePic.FormShow(Sender: TObject);
 begin
   FVertResizeFactor:=Height-gbAvailImages.Top-gbAvailImages.Height-spltDesc.Height-gbImageParams.Height;
+  ApplyServicesCheckboxHandlers;
 end;
 
 end.

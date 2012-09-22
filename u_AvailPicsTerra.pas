@@ -168,6 +168,12 @@ function TAvailPicsTerraserver.ParseResponse(const AStream: TMemoryStream): Inte
     VLayer := GetAfter(',', VValue);
     VValue := GetBefore(',', VValue);
 
+    if (VValue='-1') and (VDate='-1') and (VLayer='-1') then begin
+      // no image
+      Result := FALSE;
+      Exit;
+    end;
+
     // make params
     if (nil=AParams) then
       AParams := TStringList.Create

@@ -116,6 +116,15 @@ function TAvailPicsESRI.ParseResponse(const AStream: TMemoryStream): Integer;
       AOutValue := '';
     end;
   end;
+
+  function VDateToDate(const AOrigDate: String): String;
+  begin
+    Result := AOrigDate;
+    if (8=Length(Result)) then begin
+      System.Insert(DateSeparator, Result, 5);
+      System.Insert(DateSeparator, Result, 8);
+    end;
+  end;
   
 const
   c_features = 'features';
@@ -161,7 +170,7 @@ begin
           // end of attributes
           VInAttributes := FALSE;
           // add item
-          VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VId, VParams);
+          VAddResult := FTileInfoPtr.AddImageProc(Self, VDateToDate(VDate), 'ESRI'+' '+VId, VParams);
           FreeAndNil(VParams);
           // inc count
           if VAddResult then begin

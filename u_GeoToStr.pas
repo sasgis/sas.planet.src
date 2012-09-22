@@ -30,6 +30,9 @@ function R2StrPoint(r: Double): string;
 function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer):string;
 function str2r(inp:string):Double;
 
+// forced with point
+function StrPointToFloat(const S: String): Double;
+
 implementation
 
 uses
@@ -62,6 +65,10 @@ begin
  end;
 end;
 
+function StrPointToFloat(const S: String): Double;
+begin
+  Result := StrToFloat(S, GFormatSettings);
+end;
 
 function R2StrPoint(r: Double): string;
 begin

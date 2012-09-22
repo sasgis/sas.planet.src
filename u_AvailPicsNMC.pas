@@ -606,7 +606,7 @@ const
       end;
 
       // check some critical values
-      if CheckHiResResolution(VSLParams.Values['groundSampleDistance']) then begin
+      if FTileInfoPtr.LowResToo or CheckHiResResolution(VSLParams.Values['groundSampleDistance']) then begin
         VTail := VSLParams.Values['featureId'];
         VDate := VSLParams.Values['acquisitionDate'];
         if (0<Length(VDate)) and (0<Length(VTail)) then begin
