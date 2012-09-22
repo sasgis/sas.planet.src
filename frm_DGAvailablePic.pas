@@ -663,6 +663,7 @@ var
   VValidPoint: Boolean;
   VPolygon: ILonLatPolygon;
   VMark: IMark;
+  VAllNewMarks: IInterfaceList;
 begin
   if (nil=FMarkDBGUI) then
     Exit;
@@ -777,13 +778,21 @@ begin
 
           if (nil<>VMark) then begin
             // apply to database
-            VImportConfig.MarkDB.UpdateMark(nil, VMark);
+            // VImportConfig.MarkDB.UpdateMark(nil, VMark);
+            if (nil=VAllNewMarks) then
+              VAllNewMarks := TInterfaceList.Create;
+            VAllNewMarks.Add(VMark);
           end;
         end;
       end;
 
     end;
   end;
+
+  if Assigned(VAllNewMarks) then
+  if (nil<>VImportConfig) then
+  if (nil<>VImportConfig.MarkDB) then
+    VImportConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
 end;
 
 function TfrmDGAvailablePic.GetImagesNode(const AParentNode: TTreeNode;
