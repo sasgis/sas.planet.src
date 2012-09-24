@@ -182,6 +182,10 @@ begin
     NoHTML := MidStr(OrigHTML, '<p', '>', True);
     OrigHTML := StringReplace(OrigHTML, NoHTML, (#13#10#13#10), [rfReplaceAll, rfIgnoreCase]);
   end;
+  if System.Pos('<style', OrigHTML) > 0 then begin
+    NoHTML := MidStr(OrigHTML, '<style', '</style>', False);
+    OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
+  end;
   while System.Pos('<', OrigHTML) > 0 do begin
     NoHTML := MidStr(OrigHTML, '<', '>', True);
     OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
