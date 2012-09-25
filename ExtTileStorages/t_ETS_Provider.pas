@@ -36,13 +36,6 @@ type
 
   // provider functions:
 
-  // set "path" to provider
-  // name 'ETS_SetStorageIdentifier'
-  TETS_SetStorageIdentifier = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const AFlagsOut: PLongWord
-  ): Byte; stdcall;
-
   // Sync storage provider
   // name 'ETS_Sync'
   TETS_Sync = function(
