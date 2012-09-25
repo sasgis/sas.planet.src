@@ -156,6 +156,7 @@ uses
   u_TileStorageBerkeleyDB,
   u_TileStorageFileSystem,
   u_TileStorageGE,
+  u_TileStorageDBMS,
   u_MapVersionFactoryGE,
   u_MapVersionFactorySimpleString,
   u_Synchronizer;
@@ -261,6 +262,22 @@ begin
         FStorage :=
           TTileStorageBerkeleyDB.Create(
             VCoordConverter,
+            FCurrentPath,
+            FGCList,
+            True,
+            FContentTypeManager,
+            VMapVersionFactory,
+            VMainContentType
+          );
+      end;
+    end else if ATypeCode = c_File_Cache_Id_DBMS then begin
+      VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
+      if VMainContentType <> nil then begin
+        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+        FStorage :=
+          TTileStorageDBMS.Create(
+            VCoordConverter,
+            FGlobalCacheConfig.DBMSCachePath.Path,
             FCurrentPath,
             FGCList,
             True,

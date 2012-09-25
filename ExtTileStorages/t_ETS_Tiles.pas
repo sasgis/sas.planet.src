@@ -30,31 +30,42 @@ const
   ETS_RESULT_OK = 0;
 
   // repeat command exclusively
-  ETS_RESULT_NEED_EXCUSIVE = 1;
+  ETS_RESULT_NEED_EXCLUSIVE = 1;
 
+  
+  // access to storage is restricted (4-7)
+  // access to storage is disabled (at host!)
+  ETS_RESULT_NO_ACCESS = 5;
   // service storage is suspended (treat as TNE for SHOW and ABORT for EXPORT)
-  ETS_RESULT_SUSPENDED = 2;
-
+  ETS_RESULT_SUSPENDED = 6;
   // service is in read-only mode (cannot execute insert, update or create)
-  ETS_RESULT_READ_ONLY = 3;
+  ETS_RESULT_READ_ONLY = 7;
+  
 
-  // auth errors (4-7)
-  ETS_RESULT_AUTH_REQUIRED  = 4; // no auth info but required
-  ETS_RESULT_AUTH_CANCELLED = 5; // user cancels auth
-  ETS_RESULT_AUTH_FAILED    = 6; // auth error
+  // auth errors (8-15)
+  ETS_RESULT_AUTH_REQUIRED  = 10; // no auth info but required
+  ETS_RESULT_AUTH_CANCELLED = 11; // user cancels auth
+  ETS_RESULT_AUTH_FAILED    = 12; // auth error
 
-  // connectivity and transport errors (8-16)
-  ETS_RESULT_NOT_CONNECTED = 9;
-  ETS_RESULT_DISCONNECTED  = 10;
+  // connectivity and transport errors (16-31)
+  ETS_RESULT_NOT_CONNECTED  = 20;
+  ETS_RESULT_DISCONNECTED   = 21;
+  // abstract host exception in callback
+  ETS_RESULT_CALLBACK_EXCEPTION = 31;
 
   // invalid values (32-63)
+  ETS_RESULT_INVALID_HOST_PTR     = 32;
+  ETS_RESULT_INVALID_CALLBACK_PTR = 33;
+
+  // if tile position is not in rect
+  ETS_RESULT_INVALID_TILE_POS = 36;
   // if id is smallint and set greater than smallint
-  ETS_RESULT_ID_RANGE_ERROR = 33;
+  ETS_RESULT_ID_RANGE_ERROR   = 37;
   // length of Nst string parameter too big
-  ETS_RESULT_STRING1_LEN = 34;
-  ETS_RESULT_STRING2_LEN = 35;
-  ETS_RESULT_STRING3_LEN = 36;
-  ETS_RESULT_STRING4_LEN = 37;
+  ETS_RESULT_STRING1_LEN = 41;
+  ETS_RESULT_STRING2_LEN = 42;
+  ETS_RESULT_STRING3_LEN = 43;
+  ETS_RESULT_STRING4_LEN = 44;
 
   // unknown value (64-127)
   ETS_RESULT_UNKNOWN_SERVICE     = 65;
@@ -97,6 +108,9 @@ const
   ETS_UCT_YES = '1';
   ETS_UCT_NO  = '0';
 
+  // flags for Initialize
+  ETS_INIT_ISOLATE_ENV = $00000001; // make single isolated environment and connection
+
 type
   // only numeric xyz
   TTILE_ID_XYZ = packed record
@@ -106,35 +120,70 @@ type
   PTILE_ID_XYZ = ^TTILE_ID_XYZ;
 
 const
-  // delete tile, tne or both (for DEL)
-  ETS_DELETE_ALL  = $00000000; // same as BOTH
-  ETS_DELETE_TILE = $00000001;
-  ETS_DELETE_TNE  = $00000002;
-  ETS_DELETE_BOTH = $00000004; // same as ALL
+  // requests options
 
-  // input options (for GET)
-  ETS_TBI_WITH_BODY  = $00000001; // with tile body (or query info only)
+  // input
+  ETS_ROI_ANSI_VERSION_IN      = $00000001; // PAnsiChar for VersionIn
+  ETS_ROI_ANSI_VERSION_OUT     = $00000002; // PAnsiChar for VersionOut
+  ETS_ROI_ANSI_CONTENTTYPE_IN  = $00000004; // PAnsiChar for ContentTypeIn
+  ETS_ROI_ANSI_CONTENTTYPE_OUT = $00000008; // PAnsiChar for ContentTypeOut
+  ETS_ROI_ANSI_SET_INFORMATION = $00000010; // PAnsiChar for SetInformation
+  ETS_ROI_SELECT_TILE_BODY     = $00000020; // with tile body (or query info only)
+  ETS_ROI_EXCLUSIVELY          = $00000040; // if set - exclusive access
+  ETS_ROI_CHECK_EXISTS_ONLY    = $00000080; // just check if tile exists
 
-  // output options
-  ETS_TBO_TILE_EXISTS  = $00000001; // tile found
-  ETS_TBO_TNE_EXISTS   = $00000002; // TNE marker found
-  ETS_TBO_COMMON       = $00000004; // common tile
-  ETS_TBO_CRC32        = $00000008; // actual CRC32
+  // output
+  ETS_ROO_TILE_EXISTS  = $00000001; // tile found
+  ETS_ROO_TNE_EXISTS   = $00000002; // TNE found
+  ETS_ROO_COMMON       = $00000004; // common tile (just flag)
+
+  // ETS_STO_HASH         = $00000008; // actual HASH (if provider stores HASH)
+  // MD5             - 128 bit = 16 byte
+  // SHA-1           - 160 bit = 20 byte
+  // √Œ—“ – 34.11-94 - 256 bit = 32 byte
+  // Tiger/192       - 192 bit = 24 byte
+  // MurmurHash 2A   -  32 bit =  4 byte
+  // Adler-32        -  32 bit =  4 byte
+  // PJW-32          -  32 bit =  4 byte
 
 type
-  // tile information buffer type
-  TETS_TILE_BUFFER = packed record
-    dwOptionsIn: LongWord;  // ETS_TBI_* constants (for GET)
-    dwOptionsOut: LongWord; // ETS_TBO_* constants (for GET)
-    ptrTileBuffer: Pointer; // Optional
-    dwTileSize: LongWord; // Mandatory (treat <0 as TNE too!)
-    dtLoadedUTC: TDateTime; // Mandatory (UTC only!)
-    dwCRC32: LongWord; // Optional
-    wVersionIn: LongInt; // Mandatory (Int or SmallInt)
-    wVersionOut: LongInt; // Mandatory (Int or SmallInt)
-    wContentType: LongInt; // Mandatory (Int or SmallInt)
+  // tile info for SELECT
+  TETS_SELECT_TILE_IN = packed record
+    XYZ: PTILE_ID_XYZ;
+    szVersionIn: Pointer;  // requested version (PAnsiChar or PWideChar)
+    dwOptionsIn: LongWord; // ETS_ROI_* constants
   end;
-  PETS_TILE_BUFFER = ^TETS_TILE_BUFFER;
+  PETS_SELECT_TILE_IN = ^TETS_SELECT_TILE_IN;
+  
+  TETS_SELECT_TILE_OUT = packed record
+    dwOptionsOut: LongWord;    // ETS_ROO_* constants
+    szVersionOut: Pointer;     // Optional output version (PAnsiChar or PWideChar)
+    szContentTypeOut: Pointer; // Mandatory output contenttype (PAnsiChar or PWideChar)
+    dtLoadedUTC: TDateTime;    // Mandatory (UTC only!)
+    dwTileSize: LongWord;      // Mandatory (treat <=0 as TNE)
+    ptTileBuffer: Pointer;     // Optional
+  end;
+  PETS_SELECT_TILE_OUT = ^TETS_SELECT_TILE_OUT;
+
+  // tile info for INSERT and UPDATE (tile or TNE)
+  TETS_INSERT_TILE_IN = packed record
+    XYZ: PTILE_ID_XYZ;
+    szVersionIn: Pointer;   // Optional version (PAnsiChar or PWideChar)
+    dwOptionsIn: LongWord;  // ETS_ROI_* constants
+    szContentType: Pointer; // Optional contenttype (PAnsiChar or PWideChar)
+    dtLoadedUTC: TDateTime; // Mandatory (UTC only!)
+    dwTileSize: LongWord;   // Mandatory (treat <=0 as TNE)
+    ptTileBuffer: Pointer;  // Optional
+  end;
+  PETS_INSERT_TILE_IN = ^TETS_INSERT_TILE_IN;
+
+  // tile info for DELETE (tile or TNE)
+  TETS_DELETE_TILE_IN = packed record
+    XYZ: PTILE_ID_XYZ;
+    szVersionIn: Pointer;  // Optional version (PAnsiChar or PWideChar)
+    dwOptionsIn: LongWord; // ETS_ROI_* constants
+  end;
+  PETS_DELETE_TILE_IN = ^TETS_DELETE_TILE_IN;
 
   // buffers for callbacks
   
@@ -154,6 +203,50 @@ type
   end;
   PETS_VERSION_A = ^TETS_VERSION_A;
 
+  TETS_ENUM_TILE_VERSION_OUT = packed record
+    // sequence
+    ResponseCount: LongInt;
+    ResponseIndex: LongInt;
+    ResponseValue: Pointer // PETS_VERSION_W or PETS_VERSION_A
+  end;
+  PETS_ENUM_TILE_VERSION_OUT = ^TETS_ENUM_TILE_VERSION_OUT;
+
+
+
+  // for GetTileRectInfo
+  TETS_GET_TILE_RECT_IN = packed record
+    ptTileRect: PRect;
+    btTileZoom: Byte;
+    szVersionIn: Pointer;  // Optional version (PAnsiChar or PWideChar)
+    dwOptionsIn: LongWord; // ETS_ROI_* constants
+    dwInfoMode: LongWord; // reserved (use 0)
+  end;
+  PETS_GET_TILE_RECT_IN = ^TETS_GET_TILE_RECT_IN;
+
+  TETS_GET_TILE_RECT_OUT = packed record
+    TilePos: TPoint;                // Mandatory tile position
+    TileInfo: TETS_SELECT_TILE_OUT; // Mandatory tile info
+  end;
+  PETS_GET_TILE_RECT_OUT = ^TETS_GET_TILE_RECT_OUT;
+
+
+  // output buffer for tile enumerator
+  TETS_NEXT_TILE_ENUM_OUT = packed record
+    TileFull: PTILE_ID_XYZ;         // Mandatory tile full identifier
+    TileInfo: TETS_SELECT_TILE_OUT; // Mandatory tile info
+  end;
+  PETS_NEXT_TILE_ENUM_OUT = ^TETS_NEXT_TILE_ENUM_OUT;
+
+
+  // set provider identification
+  TETS_SET_IDENTIFIER_INFO = packed record
+    dwOptionsIn: LongWord; // ETS_ROI_* constants
+    szGlobalStorageIdentifier: Pointer;  // Optional GlobalStorageIdentifier (PAnsiChar or PWideChar)
+    szServiceName: Pointer; // Mandatory ServiceName (PAnsiChar or PWideChar)
+  end;
+  PETS_SET_IDENTIFIER_INFO = ^TETS_SET_IDENTIFIER_INFO;
+
+
 
   // contenttype buffer type
   TETS_CONTENTTYPE_W = packed record
@@ -168,7 +261,7 @@ type
   end;
   PETS_CONTENTTYPE_A = ^TETS_CONTENTTYPE_A;
 
-
+  
   // version_compare buffer type
   TETS_VER_COMP_W = packed record
     id_ver_comp: AnsiChar; // ver_comp identifier  (always Ansi!)

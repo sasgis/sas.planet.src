@@ -30,222 +30,203 @@ type
   TETS_Provider_Handle = Pointer;
   PETS_Provider_Handle = ^TETS_Provider_Handle;
 
+  // tiles enumerator handle
+  TETS_EnumTiles_Handle = Pointer;
+  PETS_EnumTiles_Handle = ^TETS_EnumTiles_Handle;
+
   // provider functions:
 
   // set "path" to provider
-  // name 'ETS_SetStorageIdentifier_A' (ANSI) or 'ETS_SetStorageIdentifier_W' (UNICODE)
-  // returns TRUE if it allows access to storage, or FALSE otherwise
-  TETS_SetStorageIdentifier_A = function(
+  // name 'ETS_SetStorageIdentifier'
+  TETS_SetStorageIdentifier = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AGlobalStorageIdentifier: PAnsiChar;
-    const AServiceName: PAnsiChar;
-    const AFlagsOut: PCardinal
-  ): Byte; stdcall;
-  TETS_SetStorageIdentifier_W = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const AGlobalStorageIdentifier: PWideChar;
-    const AServiceName: PWideChar;
-    const AFlagsOut: PCardinal
+    const AFlagsOut: PLongWord
   ): Byte; stdcall;
 
   // Sync storage provider
   // name 'ETS_Sync'
   TETS_Sync = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AFlags: Cardinal
+    const AFlags: LongWord // ETS_ROI_EXCLUSIVELY
   ): Byte; stdcall;
 
-  // Set primary content type
-  // name 'ETS_SetPrimaryContentType_A' (ANSI) or 'ETS_SetPrimaryContentType_W' (UNICODE)
-  TETS_SetPrimaryContentType_A = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const ADefaultExt: PAnsiChar;
-    const AContentType: PAnsiChar
-  ): Byte; stdcall;
-  TETS_SetPrimaryContentType_W = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const ADefaultExt: PWideChar;
-    const AContentType: PWideChar
-  ): Byte; stdcall;
 
-  // callbacks
-  TETS_QueryAllContentTypes_Callback_A = function(
+  // tile routines
+
+  // callback (set by special routine)
+  TETS_SelectTile_Callback = function(
     const AHostPointer: Pointer;
-    const AQueryPointer: Pointer;
-    const AIndex: Integer;
-    const AExtensions: PAnsiChar;
-    const AContentType: PAnsiChar
-    ): Byte; stdcall;
-  TETS_QueryAllContentTypes_Callback_W = function(
+    const ACallbackPointer: Pointer;
+    const ASelectBufferInp: PETS_SELECT_TILE_IN;
+    const ASelectBufferOut: PETS_SELECT_TILE_OUT
+  ): Byte; stdcall;
+
+  // get tile or get tile info (supported by provider)
+  // name 'ETS_SelectTile'
+  TETS_SelectTile = function(
+    const AProvider_Handle: PETS_Provider_Handle;
+    const ACallbackPointer: Pointer;
+    const ASelectBufferIn: PETS_SELECT_TILE_IN
+  ): Byte; stdcall;
+
+  // insert tile or update tile of set TNE marker (supported by provider)
+  // name 'ETS_InsertTile' (MANDATORY)
+  // name 'ETS_InsertTNE'  (OPTIONAL)
+  TETS_InsertTile = function(
+    const AProvider_Handle: PETS_Provider_Handle;
+    const AInsertBuffer: PETS_INSERT_TILE_IN
+  ): Byte; stdcall;
+  
+  // delete tile or TNE marker (supported by provider)
+  // name 'ETS_DeleteTile' (MANDATORY)
+  // name 'ETS_DeleteTNE' (OPTIONAL)
+  TETS_DeleteTile = function(
+    const AProvider_Handle: PETS_Provider_Handle;
+    const ADeleteBuffer: PETS_DELETE_TILE_IN
+  ): Byte; stdcall;
+
+
+  // callback (set by special routine)
+  TETS_EnumTileVersions_Callback = function(
     const AHostPointer: Pointer;
-    const AQueryPointer: Pointer;
-    const AIndex: Integer;
-    const AExtensions: PWideChar;
-    const AContentType: PWideChar
-    ): Byte; stdcall;
-
-  // Query all content types (supported by provider)
-  // name 'ETS_QueryAllContentTypes_A' (ANSI) or 'ETS_QueryAllContentTypes_W' (UNICODE)
-  TETS_QueryAllContentTypes_A = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const AQueryPointer: Pointer;
-    const AQueryCallback: TETS_QueryAllContentTypes_Callback_A
-  ): Byte; stdcall;
-  TETS_QueryAllContentTypes_W = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const AQueryPointer: Pointer;
-    const AQueryCallback: TETS_QueryAllContentTypes_Callback_W
+    const ACallbackPointer: Pointer;
+    const AEnumTileVerBufferInp: PETS_SELECT_TILE_IN;
+    const AEnumTileVerBufferOut: PETS_ENUM_TILE_VERSION_OUT
   ): Byte; stdcall;
 
-  // generic types for common routines
-  // ANSI with 'A' and UNICODE with 'W'
-  // returns TRUE if ok, or FALSE otherwise
-  // check for special names bellow
-  TETS_Single_Tile_Command_A = function(
+  // enum tile versions (supported by provider)
+  // name 'ETS_EnumTileVersions'
+  TETS_EnumTileVersions = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AXYZ: PTILE_ID_XYZ;
-    const AVersionString: PAnsiChar;
-    const AData: Pointer
-  ): Byte; stdcall;
-  TETS_Single_Tile_Command_W = function(
-    const AProvider_Handle: PETS_Provider_Handle;
-    const AXYZ: PTILE_ID_XYZ;
-    const AVersionString: PWideChar;
-    const AData: Pointer
+    const ACallbackPointer: Pointer;
+    const ASelectBufferIn: PETS_SELECT_TILE_IN
   ): Byte; stdcall;
 
-  // insert TNE marker
-  // name 'ETS_Insert_TNE_A' (ANSI) or 'ETS_Insert_TNE_W' (UNICODE)
 
-  // insert TILE
-  // name 'ETS_Insert_Tile_A' (ANSI) or 'ETS_Insert_Tile_W' (UNICODE)
 
-  // delete TNE marker
-  // name 'ETS_Delete_TNE_A' (ANSI) or 'ETS_Delete_TNE_W' (UNICODE)
+  // callback (set by special routine)
+  TETS_GetTileRectInfo_Callback = function(
+    const AHostPointer: Pointer;
+    const ACallbackPointer: Pointer;
+    const ATileRectInfoInp: PETS_GET_TILE_RECT_IN;
+    const ATileRectInfoOut: PETS_GET_TILE_RECT_OUT
+  ): Byte; stdcall;
 
-  // delete TILE and TNE marker
-  // name 'ETS_Delete_Tile_TNE_A' (ANSI) or 'ETS_Delete_Tile_TNE_W' (UNICODE)
+  // get tile in rect info (supported by provider)
+  // name 'ETS_GetTileRectInfo'
+  TETS_GetTileRectInfo = function(
+    const AProvider_Handle: PETS_Provider_Handle;
+    const ACallbackPointer: Pointer;
+    const ATileRectInfoIn: PETS_GET_TILE_RECT_IN
+  ): Byte; stdcall;
 
-  // query TILE
-  // name 'ETS_Query_Tile_A' (ANSI) or 'ETS_Query_Tile_W' (UNICODE)
 
   // struct
-  TETS_STATUS_BUFFER = packed record
+  TETS_STATIC_BUFFER = packed record
     wSize: SmallInt;
-    Status_Current: Byte;  // 0 by default
-    Status_MaxOK: Byte; // 0 by default
-    NoInsert: Byte; // 0 or 1
-    NoDelete: Byte; // 0 or 1
-    NoSelect: Byte; // 0 or 1
+    wReserved: SmallInt;
+    //dwNoVersionId: LongInt; // special id_version for requests without version (Int or SmallInt)
+    //dwPriVersionId: LongInt; // primary id_version for service (Int or SmallInt)
+    //dwPriContentType: LongInt; // primary contenttype for service (Int or SmallInt)
+    //Status_Current: Byte;  // 0 by default
+    //Status_MaxOK: Byte; // 0 by default
+    //NoInsert: Byte; // 0 or 1
+    //NoDelete: Byte; // 0 or 1
+    //NoSelect: Byte; // 0 or 1
     //NoVerions: Byte; // 0 or 1
     //LastError: LongInt;
+  public
+    procedure Clear;
   end;
-  PETS_STATUS_BUFFER = ^TETS_STATUS_BUFFER;
+  PETS_STATIC_BUFFER = ^TETS_STATIC_BUFFER;
 
   // initialize storage provider
   // name 'ETS_Initialize'
   TETS_Initialize = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AStatusBuffer: PETS_STATUS_BUFFER;
-    const AFlags: Cardinal;  // see ETS_INIT_* constants
-    const AHostPointer: Pointer
+    const AStatusBuffer: PETS_STATIC_BUFFER; // MANDATORY
+    const AFlags: LongWord;  // see ETS_INIT_* constants
+    const AHostPointer: Pointer // MANDATORY
   ): Byte; stdcall;
 
   // completely initialized storage provider
   // name 'ETS_Complete'
   TETS_Complete = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AFlags: Cardinal
+    const AFlags: LongWord
   ): Byte; stdcall;
 
   // uninitialize storage provider
   // name 'ETS_Uninitialize'
   TETS_Uninitialize = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AFlags: Cardinal
+    const AFlags: LongWord
   ): Byte; stdcall;
-
 
   // set storage provider information
   // name 'ETS_SetInformation'
   TETS_SetInformation = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const AInfoClass: Byte; // see ETS_INFOCLASS_* constants
-    const AInfoSize: Cardinal;
+    const AInfoSize: LongWord;
     const AInfoData: Pointer;
-    const AInfoResult: PCardinal
+    const AInfoResult: PLongWord
   ): Byte; stdcall;
 
+  // initialize tile enumerator
+  // name 'ETS_MakeTileEnum'
+  TETS_MakeTileEnum = function(
+    const AProvider_Handle: PETS_Provider_Handle;  // IN
+    const AEnumTilesHandle: PETS_EnumTiles_Handle; // OUT
+    const AFlags: LongWord;  // reserved
+    const AHostPointer: Pointer // MANDATORY
+  ): Byte; stdcall;
 
-  // provider structures:
-  
-  TETS_INSERT_TILE_DATA = packed record
-    wSize: SmallInt;
-    wContentType: Word;   // IN
-    dwFlagsInp: Cardinal; // IN
-    dwFlagsOut: Cardinal; // OUT
-    TileSize: Cardinal;   // IN
-    TileBuffer: Pointer;  // IN
-    TileCRC: UInt64;      // IN
-    TileDate: TDateTime;  // IN
-  end;
-  PETS_INSERT_TILE_DATA = ^TETS_INSERT_TILE_DATA;
+  // uninitialize tile enumerator
+  // name 'ETS_KillTileEnum'
+  TETS_KillTileEnum = function(
+    const AEnumTilesHandle: PETS_EnumTiles_Handle; // IN OUT
+    const AFlags: LongWord
+  ): Byte; stdcall;
 
-  TETS_QUERY_TILE_DATA = packed record
-    wSize: SmallInt;
-    wContentType: Word;     // OUT
-    dwFlagsInp: Cardinal;   // IN
-    dwFlagsOut: Cardinal;   // OUT
-    TileSize: Cardinal;     // OUT
-    TileCRC: UInt64;        // OUT
-    TileDate: TDateTime;    // OUT
-    TileHolder: Pointer;    // opaque for storage provider
-    VersionHolder: Pointer; // opaque for storage provider
-  end;
-  PETS_QUERY_TILE_DATA = ^TETS_QUERY_TILE_DATA;
+  // uninitialize tile enumerator
+  // name 'ETS_NextTileEnum'
+  TETS_NextTileEnum = function(
+    const AEnumTilesHandle: PETS_EnumTiles_Handle; // IN
+    const ACallbackPointer: Pointer; // MANDATORY
+    const ANextBufferIn: PETS_GET_TILE_RECT_IN
+  ): Byte; stdcall;
+
+  // callback for ETS_NextTileEnum
+  TETS_NextTileEnum_Callback = function(
+    const AHostPointer: Pointer;
+    const ACallbackPointer: Pointer;
+    const ANextBufferInp: PETS_GET_TILE_RECT_IN;
+    const ANextBufferOut: PETS_NEXT_TILE_ENUM_OUT
+  ): Byte; stdcall;
 
 const
-  // input flags
-  ETS_QTI_CRC_ACTUAL      = $00010000; // crc has actual value
-
-  // output flags
-  ETS_QTO_TILE_NOT_FOUND  = $00000001; // no info about tile (TNE: _has_ info and size=0)
-  ETS_QTO_SOURCE_VERSION  = $00000002; // output version is the same as input
-  ETS_QTO_CRC_ACTUAL      = $00010000; // crc has actual value
-
   // AInfoClass values for TETS_SetInformation
-  ETS_INFOCLASS_QUERY_TILE_CALLBACK_A = $00; // set callback for ETS_Query_Tile_A(pointer)
-  ETS_INFOCLASS_QUERY_TILE_CALLBACK_W = $01; // set callback for ETS_Query_Tile_W (pointer)
-  ETS_INFOCLASS_AUTH_NOTIFIER         = $02; // set auth notifier (pointer)
-  ETS_INFOCLASS_AUTH_DATA             = $03; // set auth data (struct)
-  ETS_INFOCLASS_EXCEPTION_HANDLER_A   = $04; // set exception handler (pointer)
-  ETS_INFOCLASS_EXCEPTION_HANDLER_W   = $05; // set exception handler (pointer)
-  ETS_INFOCLASS_LOST_NOTIFIER         = $06; // set lost connection notifier (pointer)
-  ETS_INFOCLASS_REST_NOTIFIER         = $07; // set restore connection notifier (pointer)
+  ETS_INFOCLASS_SetStorageIdentifier      = $01; // set GlobalStorageIdentifier and ServiceName
 
-  // flags for Initialize
-  ETS_INIT_ISOLATE_ENV       = $00000001; // make single isolated environment and connection
-  ETS_INIT_STORED_PROC       = $00000002; // use stored procs (instead of direct requests)
+  ETS_INFOCLASS_SelectTile_Callback       = $10; // set callback for ETS_SelectTile (pointer)
+  ETS_INFOCLASS_EnumTileVersions_Callback = $11; // set callback for ETS_EnumTileVersions (pointer)
+  ETS_INFOCLASS_GetTileRectInfo_Callback  = $12; // set callback for ETS_GetTileRectInfo (pointer)
+  ETS_INFOCLASS_NextTileEnum_Callback     = $13; // set callback for ETS_NextTileEnum (pointer)
 
-  // flags for auth
-  ETS_AUTH_UNICODE = $00000001;
-  
-type
-  // callbacks
-  TETS_Query_Tile_Callback_A = function(
-    const AHostPointer: Pointer;
-    const ATileBuffer: Pointer;
-    const AVersionBuffer: PAnsiChar;
-    const AData: PETS_QUERY_TILE_DATA
-    ): Byte; stdcall;
+  ETS_INFOCLASS_Disconnect_Notifier       = $20; // set lost connection notifier (pointer)
+  ETS_INFOCLASS_Reconnect_Notifier        = $21; // set restore connection notifier (pointer)
+  ETS_INFOCLASS_Messages_Notifier         = $22; // set messages, warnings, errors ... notifier (pointer)
 
-  TETS_Query_Tile_Callback_W = function(
-    const AHostPointer: Pointer;
-    const ATileBuffer: Pointer;
-    const AVersionBuffer: PWideChar;
-    const AData: PETS_QUERY_TILE_DATA
-    ): Byte; stdcall;
 
 implementation
+
+{ TETS_STATIC_BUFFER }
+
+procedure TETS_STATIC_BUFFER.Clear;
+begin
+  FillChar(Self, SizeOf(Self), 0);
+  Self.wSize := SizeOf(Self);
+end;
 
 end.
