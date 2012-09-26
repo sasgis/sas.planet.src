@@ -112,7 +112,15 @@ end;
 
 function TEnumTileInfo.TileToIndex(const ATile: TPoint): Integer;
 begin
-  Result := TileInRectToIndex(@FTileRect, ATile);
+  if (ATile.X < FTileRect.Left) or (ATile.X >= FTileRect.Right) then begin
+    Result := -1;
+  end else if (ATile.Y < FTileRect.Top) or (ATile.Y >= FTileRect.Bottom) then begin
+    Result := -1;
+  end else begin
+    Result :=
+      (ATile.X - FTileRect.Left) +
+      (ATile.Y - FTileRect.Top) * (FTileRect.Right - FTileRect.Left);
+  end;
 end;
 
 { TTileRectInfo }

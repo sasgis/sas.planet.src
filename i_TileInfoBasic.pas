@@ -32,7 +32,6 @@ uses
 type
   TTileInfoType = (titUnknown = 0, titNotExists = 1, titExists = 2, titTneExists = 3);
 
-  PTileInfo = ^TTileInfo;
   TTileInfo = record
     FTile: TPoint;
     FLoadDate: TDateTime;
@@ -87,21 +86,6 @@ type
     property TileData: IBinaryData read GetTileData;
   end;
 
-function TileInRectToIndex(const ATileRect: PRect; const ATile: TPoint): Integer;
-
 implementation
-
-function TileInRectToIndex(const ATileRect: PRect; const ATile: TPoint): Integer;
-begin
-  if (ATile.X < ATileRect^.Left) or (ATile.X >= ATileRect^.Right) then begin
-    Result := -1;
-  end else if (ATile.Y < ATileRect^.Top) or (ATile.Y >= ATileRect^.Bottom) then begin
-    Result := -1;
-  end else begin
-    Result :=
-      (ATile.X - ATileRect^.Left) +
-      (ATile.Y - ATileRect^.Top) * (ATileRect^.Right - ATileRect^.Left);
-  end;
-end;
 
 end.
