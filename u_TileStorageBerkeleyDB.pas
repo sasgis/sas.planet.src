@@ -81,12 +81,6 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    function DeleteTNE(
-      const AXY: TPoint;
-      const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
-    ): Boolean; override;
-
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -586,7 +580,18 @@ begin
         );
       end;
       if not Result then begin
-        Result := DeleteTNE(AXY, AZoom, AVersionInfo);
+        VPath :=
+          StoragePath +
+          FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+          '.tne';
+        if FileExists(VPath) then begin
+          Result := FHelper.DeleteTile(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo
+          );
+        end;
       end;
     except
       Result := False;
@@ -601,35 +606,6 @@ begin
         );
       end;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-    end;
-  end;
-end;
-
-function TTileStorageBerkeleyDB.DeleteTNE(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
-): Boolean;
-var
-  VPath: string;
-begin
-  Result := False;
-  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
-    try
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        '.tne';
-      if FileExists(VPath) then begin
-        Result := FHelper.DeleteTile(
-          VPath,
-          AXY,
-          AZoom,
-          AVersionInfo
-        );
-      end;
-    except
-      Result := False;
     end;
   end;
 end;

@@ -78,12 +78,6 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
-    function DeleteTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): Boolean; override;
-
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -200,8 +194,7 @@ begin
 
       FFsLock.BeginWrite;
       try
-        Result := DeleteFile(VFileName);
-        DeleteFile(VTneName);
+        Result := DeleteFile(VFileName) or DeleteFile(VTneName);
       finally
         FFsLock.EndWrite;
       end;
@@ -210,33 +203,6 @@ begin
     end;
     if Result then begin
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-    end;
-  end;
-end;
-
-function TTileStorageFileSystem.DeleteTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
-): Boolean;
-var
-  VPath: string;
-begin
-  Result := False;
-  if GetState.GetStatic.DeleteAccess <> asDisabled then begin
-    try
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        CTneFileExt;
-      FFsLock.BeginWrite;
-      try
-        Result := DeleteFile(VPath);
-      finally
-        FFsLock.EndWrite;
-      end;
-    except
-      Result := false;
     end;
   end;
 end;

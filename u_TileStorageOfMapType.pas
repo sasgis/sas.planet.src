@@ -103,11 +103,6 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
-    function DeleteTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo
-    ): Boolean;
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -497,26 +492,6 @@ begin
     VStorage := GetStorage;
     if VStorage <> nil then begin
       Result := VStorage.DeleteTile(AXY, AZoom, AVersion);
-    end;
-  finally
-    VCounter.FinishOperation(VCounterContext);
-  end;
-end;
-
-function TTileStorageOfMapType.DeleteTNE(const AXY: TPoint; const AZoom: byte;
-  const AVersion: IMapVersionInfo): Boolean;
-var
-  VCounter: IInternalPerformanceCounter;
-  VCounterContext: TInternalPerformanceCounterContext;
-  VStorage: ITileStorage;
-begin
-  Result := False;
-  VCounter := FDeleteTNECounter;
-  VCounterContext := VCounter.StartOperation;
-  try
-    VStorage := GetStorage;
-    if VStorage <> nil then begin
-      Result := VStorage.DeleteTNE(AXY, AZoom, AVersion);
     end;
   finally
     VCounter.FinishOperation(VCounterContext);

@@ -124,15 +124,8 @@ begin
     VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimWithoutData);
     if (VTileInfo <> nil) then begin
       if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
-        if VTileInfo.IsExists then begin
-          if FMapType.TileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
-            inc(VDeletedCount);
-          end;
-        end;
-        if VTileInfo.IsExistsTNE then begin
-          if FMapType.TileStorage.DeleteTNE(VTile, FZoom, VTileInfo.VersionInfo) then begin
-            inc(VDeletedCount);
-          end;
+        if FMapType.TileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
+          inc(VDeletedCount);
         end;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);
       end;

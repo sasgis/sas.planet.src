@@ -61,11 +61,6 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
-    function DeleteTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo
-    ): Boolean;
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: byte;

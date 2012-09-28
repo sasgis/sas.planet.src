@@ -101,12 +101,6 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    function DeleteTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): Boolean; override;
-
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -331,15 +325,6 @@ begin
 end;
 
 function TTileStorageDLL.DeleteTile(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
-): Boolean;
-begin
-  Result := FALSE;
-end;
-
-function TTileStorageDLL.DeleteTNE(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo

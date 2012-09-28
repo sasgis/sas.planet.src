@@ -190,12 +190,6 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    function DeleteTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): Boolean; override;
-
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -595,15 +589,6 @@ function TTileStorageETS.DeleteTile(
 ): Boolean;
 begin
   Result := InternalDeleteTileOrTNE(AXY, AZoom, AVersionInfo, FETS_DeleteTile, FALSE);
-end;
-
-function TTileStorageETS.DeleteTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
-): Boolean;
-begin
-  Result := InternalDeleteTileOrTNE(AXY, AZoom, AVersionInfo, FETS_DeleteTNE, TRUE);
 end;
 
 destructor TTileStorageETS.Destroy;

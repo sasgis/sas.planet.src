@@ -188,10 +188,8 @@ begin
       Break;
     end;
     if FSourceRemoveTiles then begin
-      if VTileInfo.FInfoType = titExists then begin
+      if VTileInfo.FInfoType in [titExists, titTneExists] then begin
         FSourceTileStorage.DeleteTile(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
-      end else if VTileInfo.FInfoType = titTneExists then begin
-        FSourceTileStorage.DeleteTNE(VTileInfo.FTile, VTileInfo.FZoom, VTileInfo.FVersionInfo);
       end;
     end;
   end;
