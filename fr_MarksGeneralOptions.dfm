@@ -126,24 +126,6 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       Height = 53
       BevelOuter = bvLowered
       TabOrder = 5
-      object imgIcon: TImage32
-        AlignWithMargins = True
-        Left = 4
-        Top = 4
-        Width = 45
-        Height = 45
-        Align = alClient
-        Bitmap.CombineMode = cmMerge
-        Bitmap.ResamplerClassName = 'TLinearResampler'
-        BitmapAlign = baCenter
-        Color = clBtnFace
-        ParentColor = False
-        Scale = 1.000000000000000000
-        ScaleMode = smNormal
-        TabOrder = 0
-        OnMouseDown = imgIconMouseDown
-        ExplicitHeight = 50
-      end
     end
   end
   object grpLine: TGroupBox
@@ -367,8 +349,6 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 6
-    ExplicitLeft = -5
-    ExplicitTop = 31
   end
   object ColorDialog1: TColorDialog
     Left = 470

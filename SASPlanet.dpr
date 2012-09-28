@@ -903,6 +903,7 @@ uses
   fr_MarkCategorySelectOrAdd in 'fr_MarkCategorySelectOrAdd.pas' {frMarkCategorySelectOrAdd: TFrame},
   fr_MarksGeneralOptions in 'fr_MarksGeneralOptions.pas' {frMarksGeneralOptions: TFrame},
   fr_MarkDescription in 'fr_MarkDescription.pas' {frMarkDescription: TFrame},
+  fr_SelectedPicture in 'fr_SelectedPicture.pas' {frSelectedPicture: TFrame},
   fr_PictureSelectFromList in 'fr_PictureSelectFromList.pas' {frPictureSelectFromList: TFrame},
   fr_LonLat in 'fr_LonLat.pas' {frLonLat: TFrame},
   fr_SearchResultsItem in 'fr_SearchResultsItem.pas' {frSearchResultsItem: TFrame},

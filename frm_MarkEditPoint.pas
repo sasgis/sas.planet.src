@@ -34,8 +34,6 @@ uses
   Buttons,
   Spin,
   GR32,
-  GR32_Image,
-  GR32_Layers,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_PathConfig,
@@ -48,6 +46,7 @@ uses
   fr_MarkDescription,
   fr_LonLat,
   fr_PictureSelectFromList,
+  fr_SelectedPicture,
   fr_MarkCategorySelectOrAdd;
 
 type
@@ -88,14 +87,12 @@ type
     pnlCategory: TPanel;
     pnlName: TPanel;
     btnSetAsTemplate: TButton;
-    imgIcon: TImage32;
     procedure btnOkClick(Sender: TObject);
     procedure btnTextColorClick(Sender: TObject);
     procedure btnShadowColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSetAsTemplateClick(Sender: TObject);
-    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton; Shift:
-        TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure imgIconMouseDown(Sender: TObject);
   private
     FCategoryDB: IMarkCategoryDB;
     FMarksDb: IMarksDb;
@@ -103,6 +100,7 @@ type
     frLonLatPoint: TfrLonLat;
     frMarkCategory: TfrMarkCategorySelectOrAdd;
     frSelectPicture: TfrPictureSelectFromList;
+    frSelectedPicture: TfrSelectedPicture;
     procedure SelectImageFromList(Sender: TObject);
   public
     constructor Create(
@@ -159,6 +157,7 @@ begin
       FMarksDb.Factory.MarkPictureList,
       Self.SelectImageFromList
     );
+  frSelectedPicture := TfrSelectedPicture.Create(ALanguageManager, Self.imgIconMouseDown);
 end;
 
 destructor TfrmMarkEditPoint.Destroy;
@@ -167,6 +166,7 @@ begin
   FreeAndNil(frLonLatPoint);
   FreeAndNil(frMarkCategory);
   FreeAndNil(frSelectPicture);
+  FreeAndNil(frSelectedPicture);
   inherited;
 end;
 
@@ -178,6 +178,10 @@ begin
   frSelectPicture.Visible := False;
   frSelectPicture.Parent := Self;
   frSelectPicture.Picture := AMark.Pic;
+
+  frSelectedPicture.Parent := pnlImage;
+  frSelectedPicture.Picture := AMark.Pic;
+
   edtName.Text:=AMark.Name;
   frMarkDescription.Description:=AMark.Desc;
   seFontSize.Value:=AMark.FontSize;
@@ -192,16 +196,6 @@ begin
       Caption:=SAS_STR_AddNewMark;
     end else begin
       Caption:=SAS_STR_EditMark;
-    end;
-    if AMark.Pic <> nil then begin
-    end;
-    if frSelectPicture.Picture <> nil then begin
-      imgIcon.Bitmap.SetSizeFrom(imgIcon);
-      CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
-      imgIcon.Hint := frSelectPicture.Picture.GetName;
-    end else begin
-      imgIcon.Bitmap.Delete;
-      imgIcon.Hint := '';
     end;
     frLonLatPoint.LonLat := AMark.Point;
     Self.PopupParent := Application.MainForm;
@@ -273,8 +267,7 @@ begin
  if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject; Button:
-    TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject);
 begin
   if frSelectPicture.Visible then begin
     frSelectPicture.Visible := False;
@@ -291,14 +284,7 @@ end;
 procedure TfrmMarkEditPoint.SelectImageFromList(Sender: TObject);
 begin
   frSelectPicture.Visible := False;
-  if frSelectPicture.Picture <> nil then begin
-    imgIcon.Bitmap.SetSizeFrom(imgIcon);
-    CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
-    imgIcon.Hint := frSelectPicture.Picture.GetName;
-  end else begin
-    imgIcon.Bitmap.Delete;
-    imgIcon.Hint := '';
-  end;
+  frSelectedPicture.Picture := frSelectPicture.Picture;
 end;
 
 end.

@@ -403,23 +403,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
       Align = alLeft
       BevelOuter = bvLowered
       TabOrder = 1
-      object imgIcon: TImage32
-        AlignWithMargins = True
-        Left = 4
-        Top = 4
-        Width = 45
-        Height = 45
-        Align = alClient
-        Bitmap.CombineMode = cmMerge
-        Bitmap.ResamplerClassName = 'TLinearResampler'
-        BitmapAlign = baCenter
-        Color = clBtnFace
-        ParentColor = False
-        Scale = 1.000000000000000000
-        ScaleMode = smNormal
-        TabOrder = 0
-        OnMouseDown = imgIconMouseDown
-      end
     end
     object pnlTopMain: TPanel
       Left = 59

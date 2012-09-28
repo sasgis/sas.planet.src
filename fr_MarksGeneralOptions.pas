@@ -13,8 +13,6 @@ uses
   ExtCtrls,
   Buttons,
   GR32,
-  GR32_Image,
-  GR32_Layers,
   i_MarkCategory,
   i_ImportConfig,
   i_MarksDB,
@@ -22,6 +20,7 @@ uses
   i_LanguageManager,
   u_CommonFormAndFrameParents,
   fr_PictureSelectFromList,
+  fr_SelectedPicture,
   fr_MarkCategorySelectOrAdd;
 
 type
@@ -69,17 +68,16 @@ type
     ColorDialog1: TColorDialog;
     pnlCategory: TPanel;
     pnlImage: TPanel;
-    imgIcon: TImage32;
     procedure btnPointTextColorClick(Sender: TObject);
     procedure btnPointShadowColorClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
     procedure btnPolyLineColorClick(Sender: TObject);
     procedure btnPolyFillColorClick(Sender: TObject);
-    procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton; Shift:
-        TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure imgIconMouseDown(Sender: TObject);
   private
     frMarkCategory: TfrMarkCategorySelectOrAdd;
     frSelectPicture: TfrPictureSelectFromList;
+    frSelectedPicture: TfrSelectedPicture;
     FMarksDb: IMarksDb;
     procedure SelectImageFromList(Sender: TObject);
   public
@@ -100,7 +98,6 @@ implementation
 
 uses
   SysUtils,
-  i_MarkPicture,
   i_MarkTemplate,
   i_MarkFactory,
   i_MarksFactoryConfig,
@@ -129,12 +126,14 @@ begin
       FMarksDb.Factory.MarkPictureList,
       Self.SelectImageFromList
     );
+  frSelectedPicture := TfrSelectedPicture.Create(ALanguageManager, Self.imgIconMouseDown);
 end;
 
 destructor TfrMarksGeneralOptions.Destroy;
 begin
   FreeAndNil(frMarkCategory);
   FreeAndNil(frSelectPicture);
+  FreeAndNil(frSelectedPicture);
   inherited;
 end;
 
@@ -151,19 +150,15 @@ begin
   frSelectPicture.Visible := False;
   frSelectPicture.Parent := Self;
 
+  frSelectedPicture.Parent := pnlImage;
+
   VFactory := FMarksDb.Factory;
   VConfig := VFactory.Config;
 
   VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
   frSelectPicture.Picture := VPointTemplate.Pic;
-  if frSelectPicture.Picture <> nil then begin
-    imgIcon.Bitmap.SetSizeFrom(imgIcon);
-    CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
-    imgIcon.Hint := frSelectPicture.Picture.GetName;
-  end else begin
-    imgIcon.Bitmap.Delete;
-    imgIcon.Hint := '';
-  end;
+  frSelectedPicture.Picture := frSelectPicture.Picture;
+
   clrbxPointTextColor.Selected := WinColor(VPointTemplate.TextColor);
   clrbxPointShadowColor.Selected := WinColor(VPointTemplate.TextBgColor);
   sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.TextColor)/255*100);
@@ -188,14 +183,7 @@ end;
 procedure TfrMarksGeneralOptions.SelectImageFromList(Sender: TObject);
 begin
   frSelectPicture.Visible := False;
-  if frSelectPicture.Picture <> nil then begin
-    imgIcon.Bitmap.SetSizeFrom(imgIcon);
-    CopyMarkerToBitmap(frSelectPicture.Picture.GetMarker, imgIcon.Bitmap);
-    imgIcon.Hint := frSelectPicture.Picture.GetName;
-  end else begin
-    imgIcon.Bitmap.Delete;
-    imgIcon.Hint := '';
-  end;
+  frSelectedPicture.Picture := frSelectPicture.Picture;
 end;
 
 procedure TfrMarksGeneralOptions.SetIgnore(AValue: Boolean);
@@ -284,8 +272,7 @@ begin
   if ColorDialog1.Execute then clrbxPolyLineColor.Selected:=ColorDialog1.Color;
 end;
 
-procedure TfrMarksGeneralOptions.imgIconMouseDown(Sender: TObject; Button:
-    TMouseButton; Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+procedure TfrMarksGeneralOptions.imgIconMouseDown(Sender: TObject);
 var
   VPnlPos: TPoint;
 begin
