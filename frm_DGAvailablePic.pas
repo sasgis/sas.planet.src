@@ -720,11 +720,17 @@ begin
         
         // add Source
         _AddWithBR(VDesc, 'Source', Values['Source']);
-        
+
+        // add ID if exist
+        VDate := Values['LegacyId'];
+        if (0<>Length(VDate)) then
+        _AddWithBR(VDesc, 'LegacyId', VDate);
+
+
         // add Provider
         VDate := Values['Provider'];
         if (0=Length(VDate)) then
-          VDate := lbNMC.Caption; // only from DG and NokiaMapCreator
+          VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator
         _AddWithBR(VDesc, 'Provider', VDate);
       end;
     except
