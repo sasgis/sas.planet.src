@@ -669,7 +669,7 @@ begin
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
 
-  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y + (ALineHeight div 2));
+  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - (ALineHeight div 2));
   if VConverter.CheckPixelPosStrict(VFinishPixelXY, VZoom, True) then begin
     VFinishLonLat := VConverter.PixelPos2LonLat(
       VFinishPixelXY,
@@ -680,7 +680,7 @@ begin
     AHalfLen := -1;
   end;
 
-  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y + ALineHeight);
+  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight);
   if VConverter.CheckPixelPosStrict(VFinishPixelXY, VZoom, True) then begin
     VFinishLonLat := VConverter.PixelPos2LonLat(
       VFinishPixelXY,
