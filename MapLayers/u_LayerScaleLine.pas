@@ -524,7 +524,18 @@ begin
 
   GetMetersPerVerticalLine(AVisualCoordConverter, VValidLegendWidth, VHalfLenght, VFullLenght);
 
-  if VFullLenght > 10000 then begin
+  if (VHalfLenght < 0) or (VFullLenght < 0) then begin
+    DrawVerticalScaleLegend(
+      VColor,
+      VOutLineColor,
+      VColor,
+      VValidLegendWidth,
+      ' ',
+      ' ',
+      Layer.Bitmap
+    );
+    Exit;
+  end else if VFullLenght > 10000 then begin
     VFullLenght := VFullLenght / 1000;
     VHalfLenght := VHalfLenght / 1000;
     VUnitsString := ' ' + SAS_UNITS_km + ' ';
@@ -643,7 +654,7 @@ procedure TLayerScaleLine.GetMetersPerVerticalLine(
 );
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
-  VCenterPixelXY: TPoint;
+  VCenterPixelXY, VFinishPixelXY: TPoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
 begin
@@ -657,18 +668,28 @@ begin
   );
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
-  VFinishLonLat := VConverter.PixelPos2LonLat(
-    Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - (ALineHeight div 2)),
-    VZoom
-  );
-  AHalfLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
 
-  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
-  VFinishLonLat := VConverter.PixelPos2LonLat(
-    Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight),
-    VZoom
-  );
-  AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y + (ALineHeight div 2));
+  if VConverter.CheckPixelPosStrict(VFinishPixelXY, VZoom, True) then begin
+    VFinishLonLat := VConverter.PixelPos2LonLat(
+      VFinishPixelXY,
+      VZoom
+    );
+    AHalfLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+  end else begin
+    AHalfLen := -1;
+  end;
+
+  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y + ALineHeight);
+  if VConverter.CheckPixelPosStrict(VFinishPixelXY, VZoom, True) then begin
+    VFinishLonLat := VConverter.PixelPos2LonLat(
+      VFinishPixelXY,
+      VZoom
+    );
+    AFullLen := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat);
+  end else begin
+    AFullLen := -1;
+  end;
 end;
 
 function TLayerScaleLine.GetNewBitmapSize: TPoint;
