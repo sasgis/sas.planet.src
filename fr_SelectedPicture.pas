@@ -45,6 +45,7 @@ type
 implementation
 
 uses
+  Math,
   GR32_Blend,
   GR32_Rasterizers,
   GR32_Resamplers,
@@ -67,12 +68,14 @@ var
   VSampler: TCustomResampler;
 begin
   VSizeSource := Point(ASourceBitmap.Bitmap.Width, ASourceBitmap.Bitmap.Height);
-  if VSizeSource.X > 0 then begin
+  if (VSizeSource.X > 0) and (VSizeSource.Y > 0) then begin
     VTransform := TAffineTransformation.Create;
     try
       VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-      VScale := ATarget.Width / VSizeSource.X;
+      VScale := Min(ATarget.Width / VSizeSource.X, ATarget.Height / VSizeSource.Y);
+      VTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y /2);
       VTransform.Scale(VScale, VScale);
+      VTransform.Translate(ATarget.Width / 2, ATarget.Height /2);
       VTargetRect := VTransform.GetTransformedBounds;
 
       ATarget.Clear(clWhite32);
