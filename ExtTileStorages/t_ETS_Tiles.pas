@@ -48,24 +48,39 @@ const
   ETS_RESULT_AUTH_FAILED    = 12; // auth error
 
   // connectivity and transport errors (16-31)
+  ETS_RESULT_CANNOT_CONNECT = 19; // failed to create or initialize connection object
   ETS_RESULT_NOT_CONNECTED  = 20;
   ETS_RESULT_DISCONNECTED   = 21;
+  // abstract host exception in provider
+  ETS_RESULT_PROVIDER_EXCEPTION = 30;
   // abstract host exception in callback
   ETS_RESULT_CALLBACK_EXCEPTION = 31;
 
   // invalid values (32-63)
   ETS_RESULT_INVALID_HOST_PTR     = 32;
   ETS_RESULT_INVALID_CALLBACK_PTR = 33;
+  ETS_RESULT_INVALID_PROVIDER_PTR = 34;
+  ETS_RESULT_INVALID_TILEENUM_PTR = 35;
+  ETS_RESULT_INVALID_INPUT_BUFFER = 36;
 
   // if tile position is not in rect
-  ETS_RESULT_INVALID_TILE_POS = 36;
+  ETS_RESULT_INVALID_TILE_POS = 41;
   // if id is smallint and set greater than smallint
-  ETS_RESULT_ID_RANGE_ERROR   = 37;
+  ETS_RESULT_ID_RANGE_ERROR   = 42;
+  // if sizeof struct is less than required
+  ETS_RESULT_SIZE_TOO_SMALL   = 43;
+  // storage path is invalid
+  ETS_RESULT_INVALID_PATH     = 44;
+  
   // length of Nst string parameter too big
-  ETS_RESULT_STRING1_LEN = 41;
-  ETS_RESULT_STRING2_LEN = 42;
-  ETS_RESULT_STRING3_LEN = 43;
-  ETS_RESULT_STRING4_LEN = 44;
+  ETS_RESULT_STRING1_LEN = 51;
+  ETS_RESULT_STRING2_LEN = 52;
+  ETS_RESULT_STRING3_LEN = 53;
+  ETS_RESULT_STRING4_LEN = 54;
+
+  // mandatory pointer is NULL
+  ETS_RESULT_POINTER1_NIL = 61;
+  ETS_RESULT_POINTER2_NIL = 62;
 
   // unknown value (64-127)
   ETS_RESULT_UNKNOWN_SERVICE     = 65;
@@ -73,6 +88,7 @@ const
   ETS_RESULT_UNKNOWN_VER_COMP    = 67;
   ETS_RESULT_UNKNOWN_DIV_MODE    = 68;
   ETS_RESULT_UNKNOWN_CONTENTTYPE = 69;
+  ETS_RESULT_UNKNOWN_INFOCLASS   = 70;
 
 
 const

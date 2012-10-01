@@ -198,18 +198,28 @@ type
     const ANextBufferOut: PETS_NEXT_TILE_ENUM_OUT
   ): Byte; stdcall;
 
-const
+
   // AInfoClass values for TETS_SetInformation
-  ETS_INFOCLASS_SetStorageIdentifier      = $01; // set GlobalStorageIdentifier and ServiceName
+const
+  ETS_INFOCLASS_SetStorageIdentifier = $00; // set GlobalStorageIdentifier and ServiceName
+  
+type
+  TETS_INFOCLASS_Callbacks = (
+    ETS_INFOCLASS_SelectTile_Callback       = $01 // set callback for ETS_SelectTile (pointer)
+    ,
+    ETS_INFOCLASS_EnumTileVersions_Callback       // set callback for ETS_EnumTileVersions (pointer)
+    ,
+    ETS_INFOCLASS_GetTileRectInfo_Callback        // set callback for ETS_GetTileRectInfo (pointer)
+    ,
+    ETS_INFOCLASS_NextTileEnum_Callback           // set callback for ETS_NextTileEnum (pointer)
+    ,
+    ETS_INFOCLASS_Disconnect_Notifier             // set lost connection notifier (pointer)
+    ,
+    ETS_INFOCLASS_Reconnect_Notifier              // set restore connection notifier (pointer)
+    ,
+    ETS_INFOCLASS_Messages_Notifier               // set messages, warnings, errors ... notifier (pointer)
+  );
 
-  ETS_INFOCLASS_SelectTile_Callback       = $10; // set callback for ETS_SelectTile (pointer)
-  ETS_INFOCLASS_EnumTileVersions_Callback = $11; // set callback for ETS_EnumTileVersions (pointer)
-  ETS_INFOCLASS_GetTileRectInfo_Callback  = $12; // set callback for ETS_GetTileRectInfo (pointer)
-  ETS_INFOCLASS_NextTileEnum_Callback     = $13; // set callback for ETS_NextTileEnum (pointer)
-
-  ETS_INFOCLASS_Disconnect_Notifier       = $20; // set lost connection notifier (pointer)
-  ETS_INFOCLASS_Reconnect_Notifier        = $21; // set restore connection notifier (pointer)
-  ETS_INFOCLASS_Messages_Notifier         = $22; // set messages, warnings, errors ... notifier (pointer)
 
 
 implementation

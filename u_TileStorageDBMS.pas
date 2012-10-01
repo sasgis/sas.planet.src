@@ -1185,10 +1185,10 @@ begin
       FETS_SetInformation := GetProcAddress(FDLLHandle, 'ETS_SetInformation');
       if (nil <> FETS_SetInformation) then begin
         // set callbacks
-        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, ETS_INFOCLASS_SelectTile_Callback, 0, @Host_SelectTile_Callback, nil);
-        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, ETS_INFOCLASS_EnumTileVersions_Callback, 0, @Host_EnumTileVersions_Callback, nil);
-        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, ETS_INFOCLASS_GetTileRectInfo_Callback, 0, @Host_GetTileRectInfo_Callback, nil);
-        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, ETS_INFOCLASS_NextTileEnum_Callback, 0, @Host_NextTileEnum_Callback, nil);
+        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_SelectTile_Callback), 0, @Host_SelectTile_Callback, nil);
+        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_EnumTileVersions_Callback), 0, @Host_EnumTileVersions_Callback, nil);
+        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_GetTileRectInfo_Callback), 0, @Host_GetTileRectInfo_Callback, nil);
+        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_NextTileEnum_Callback), 0, @Host_NextTileEnum_Callback, nil);
         // TODO: ETS_INFOCLASS_Disconnect_Notifier
         // TODO: ETS_INFOCLASS_Reconnect_Notifier
         // TODO: ETS_INFOCLASS_Messages_Notifier
