@@ -292,7 +292,6 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
       end else begin
         VNode.Text := VName;
       end;
-      VNode.StateIndex:=0;
       if Supports(VTree.Data, IMarkCategory, VCategory) then begin
         VNode.Data := Pointer(VCategory);
         if VCategory.Visible then begin
@@ -303,6 +302,9 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
         if VCategory.IsSame(ASelectedCategory) then begin
           VNode.Selected := True;
         end;
+      end else begin
+        VNode.StateIndex:=0;
+        VNode.Data := nil;
       end;
       UpdateTreeSubItems(VTree, ASelectedCategory, VNode, ATreeItems);
       VNode := VNode.getNextSibling;
