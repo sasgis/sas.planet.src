@@ -33,6 +33,7 @@ type
     FRadiusA: Double;
     FRadiusB: Double;
     FExct: Double;
+    FFlattening: Double;
   private
     function GetEPSG: integer; stdcall;
     function GetSpheroidRadiusA: Double; stdcall;
@@ -81,6 +82,7 @@ begin
   FRadiusA := ARadiusA;
   FRadiusB := ARadiusB;
   FExct := sqrt(FRadiusA * FRadiusA - FRadiusB * FRadiusB) / FRadiusA;
+  FFlattening := (FRadiusA - FRadiusB) / FRadiusA;
 end;
 
 constructor TDatum.Create(
@@ -322,7 +324,7 @@ begin
 
   aa := FRadiusA * FRadiusA;
   bb := FRadiusB * FRadiusB;
-  r0 := 1 - FExct;
+  r0 := 1 - FFlattening;
 
   // === Thaddeus Vincenty's direct algorithm for ellipsoids: ==================
   TanU1 := r0 * Tan(Lat1);
@@ -367,9 +369,9 @@ begin
   Term2 := CosU1 * CosSigma - SinU1 * SinSigma * CosTc;
   Lambda := ArcTan2(Term1, Term2);
 
-  C := FExct/ 16 * Sqr(CosAlpha) * (4 + FExct * (4 - 3 * Sqr(CosAlpha)));
+  C := FFlattening/ 16 * Sqr(CosAlpha) * (4 + FFlattening * (4 - 3 * Sqr(CosAlpha)));
 
-  Omega := Lambda - (1-c) * FExct * SinAlpha *
+  Omega := Lambda - (1-c) * FFlattening * SinAlpha *
              (Sigma + C * SinSigma * (c2sm + C * CosSigma * (-1 + 2 * Sqr(c2sm))));
 
   Lon := Lon1 + Omega;
