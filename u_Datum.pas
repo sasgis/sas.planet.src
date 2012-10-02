@@ -44,7 +44,15 @@ type
       const APoints: PDoublePointArray;
       const ACount: Integer
     ): Double;
-    function CalcDist(const AStart, AFinish: TDoublePoint): Double;
+    function CalcDist(const AStart, AFinish: TDoublePoint): Double; overload;
+
+    function CalcDist(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint;
+      out AInitialBearing: Double;
+      out AFinalBearing: Double
+    ): Double; overload;
+
     function CalcFinishPosition(
       const AStart: TDoublePoint;
       const AInitialBearing: Double;
@@ -65,6 +73,7 @@ type
 implementation
 
 uses
+  SysUtils,
   Math;
 
 const
@@ -95,43 +104,10 @@ end;
 
 function TDatum.CalcDist(const AStart, AFinish: TDoublePoint): Double;
 var
-  fSinPhimean, fdLambda, fdPhi, fAlpha, fRho, fNu, fR, fz, fTemp, a, e2: Double;
-  VStart, VFinish: TDoublePoint; // Координаты в радианах
+  VInitialBearing: Double;
+  VFinalBearing: Double;
 begin
-  result := 0;
-  if (AStart.X = AFinish.X) and (AStart.Y = AFinish.Y) then begin
-    exit;
-  end;
-  e2 := FExct * FExct;
-  a := FRadiusA;
-
-  VStart.X := AStart.X * D2R;
-  VStart.Y := AStart.Y * D2R;
-  VFinish.X := AFinish.X * D2R;
-  VFinish.Y := AFinish.Y * D2R;
-
-  fdLambda := VStart.X - VFinish.X;
-  fdPhi := VStart.Y - VFinish.Y;
-  fz := Sqrt(intPower(Sin(fdPhi / 2), 2) + Cos(VFinish.Y) * Cos(VStart.Y) * intPower(Sin(fdLambda / 2), 2));
-  fz := 2 * ArcSin(fz);
-  fSinPhimean := Sin((VStart.Y + VFinish.Y) / 2.0);
-  fTemp := 1 - e2 * (fSinPhimean * fSinPhimean);
-  fRho := (a * (1 - e2)) / Power(fTemp, 1.5);
-  fNu := a / (Sqrt(1 - e2 * (fSinPhimean * fSinPhimean)));
-  fAlpha := Cos(VFinish.Y) * Sin(fdLambda) * 1 / Sin(fz);
-  if fAlpha > 1 then begin
-    fAlpha := 1;
-  end else if fAlpha < -1 then begin
-    fAlpha := -1;
-  end;
-  fAlpha := ArcSin(fAlpha);
-  fR := (fRho * fNu) / ((fRho * intPower(Sin(fAlpha), 2)) + (fNu * intPower(Cos(fAlpha), 2)));
-
-  if abs(fdLambda) <= Pi then begin
-    result := (fz * fR);
-  end else begin
-    result := (Pi * fR) + ((Pi * fR) - (fz * fR));
-  end;
+  Result := CalcDist(AStart, AFinish, VInitialBearing, VFinalBearing);
 end;
 
 function TDatum.SphericalTriangleSquare(points: array of TDoublePoint): Double;
@@ -379,6 +355,94 @@ begin
 
   Result.Y := Lat / D2R;
   Result.X := Lon / D2R;
+end;
+
+function TDatum.CalcDist(
+  const AStart: TDoublePoint;
+  const AFinish: TDoublePoint;
+  out AInitialBearing: Double;
+  out AFinalBearing: Double
+): Double;
+var
+  IterLimit: Integer;
+  L, U1, U2, SinU1, CosU1, SinU2, CosU2, Lambda, LambdaP, SinLambda, CosLambda,
+  Sigma, SinSigma, CosSigma, Cos2SigmaM, SinAlpha, CosSqAlpha, uSqr, A, B, C,
+  DeltaSigma, Lat1, Lon1, Lat2, Lon2, aa, bb, r0: Extended;
+begin
+  Lat1 := AStart.Y * D2R;
+  Lon1 := AStart.X * D2R;
+
+  Lat2 := AFinish.Y * D2R;
+  Lon2 := AFinish.X * D2R;
+
+  aa := FRadiusA * FRadiusA;
+  bb := FRadiusB * FRadiusB;
+  r0 := 1 - FFlattening;
+
+  if (Lat1 = Lat2) and (Lon1 = Lon2) then begin           // Coincident points
+    Result := 0.0;
+    Exit;
+  end;
+
+  L := Lon2 - Lon1;
+
+  if (Lat1 = 0) and (Lat2 = 0) then begin                 // Along equator
+    Result := Abs(FRadiusA * L);
+    if (L > 0) then begin
+      AInitialBearing := PI / 2;
+    end else begin
+      AInitialBearing := 3 * PI / 2;
+    end;
+    Exit;
+  end;
+
+  // === Thaddeus Vincenty's inverse algorithm: ================================
+  U1 := ArcTan(r0 * Tan(Lat1));
+  U2 := ArcTan(r0 * Tan(Lat2));
+  SinCos(U1, SinU1, CosU1);
+  SinCos(U2, SinU2, CosU2);
+  Lambda := L;
+  IterLimit := 100;
+  repeat
+    SinCos(Lambda, SinLambda, CosLambda);
+    SinSigma :=
+      Sqrt((Sqr(CosU2 * SinLambda)) + Sqr(CosU1 * SinU2 - SinU1 * CosU2 * CosLambda));
+    CosSigma := SinU1 * SinU2 + CosU1 * CosU2 * CosLambda;
+    Sigma := ArcTan2(SinSigma, CosSigma);
+    SinAlpha := CosU1 * CosU2 * SinLambda / SinSigma;
+    CosSqAlpha := 1 - Sqr(SinAlpha);
+    Cos2SigmaM := CosSigma - 2 * SinU1 * SinU2 / CosSqAlpha;
+    C := FFlattening / 16 * CosSqAlpha * (4 + FFlattening * (4 - 3 * CosSqAlpha));
+    LambdaP := Lambda;
+    Lambda := L + (1 - C) * FFlattening * SinAlpha *
+      (Sigma + C * SinSigma * (Cos2SigmaM + C * CosSigma * (-1 + 2 * Sqr(Cos2SigmaM))));
+    Dec(IterLimit, 1);
+    if (IterLimit <= 0) then begin
+      raise Exception.Create('Algorithm failed to converge');
+    end;
+  until (Abs(Lambda - LambdaP) <= 1E-12);
+  uSqr := CosSqAlpha * (aa - bb) / bb;
+  A := 1 + uSqr / 16384 * (4096 + uSqr * (-768 + uSqr * (320 - 175 * uSqr)));
+  B := uSqr / 1024 * (256 + uSqr * (-128 + uSqr * (74 - 47 * uSqr)));
+  DeltaSigma :=
+    B * SinSigma * (Cos2SigmaM + B / 4 * (SinSigma * (-1 + 2 * Sqr(Cos2SigmaM))-
+    B / 6 * Cos2SigmaM * (-3 + 4 * SinSigma * SinSigma) * (-3 + 4 * Sqr(Cos2SigmaM))));
+
+  Result := FRadiusB * A * (Sigma - DeltaSigma);
+
+  AInitialBearing := ArcTan2(CosU2 * SinLambda, CosU1 * SinU2 - SinU1 * CosU2 * CosLambda);
+  if (AInitialBearing < 0) then begin
+    AInitialBearing := 2 * Pi + AInitialBearing;
+  end;
+
+  AFinalBearing := ArcTan2(CosU1 * SinLambda, (-SinU1 * CosU2 + CosU1 * SinU2 * CosLambda)) - Pi;
+  if (AFinalBearing < 0) then begin
+    AFinalBearing := 2 * Pi + AFinalBearing;
+  end;
+  //============================================================================
+
+  AInitialBearing := AInitialBearing / D2R;
+  AFinalBearing := AFinalBearing / D2R;
 end;
 
 end.

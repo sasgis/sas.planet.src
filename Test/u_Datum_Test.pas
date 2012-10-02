@@ -11,7 +11,7 @@ uses
 type
   TestTDatum = class(TTestCase)
   published
-    //procedure TestCalcDist;
+    procedure TestCalcDist;
     procedure TestCalcFinishPosition;
   end;
 
@@ -21,16 +21,31 @@ uses
   Math,
   c_CoordConverter;
 
-//procedure TestTDatum.TestCalcDist;
-//var
-//  ReturnValue: Double;
-//  AFinish: TDoublePoint;
-//  AStart: TDoublePoint;
-//begin
-//  // TODO: Setup method call parameters
-//  ReturnValue := FDatum.CalcDist(AStart, AFinish);
-//  // TODO: Validate method results
-//end;
+procedure TestTDatum.TestCalcDist;
+var
+  ReturnValue: Double;
+  AFinish: TDoublePoint;
+  AStart: TDoublePoint;
+  AInitialBearing: Double;
+  AFinalBearing: Double;
+  VDatum: IDatum;
+begin
+  VDatum := TDatum.Create(CGELonLatProjectionEPSG, 6378137.0000, 6356752.3142);
+
+  AStart.Y := 53.00; // Lat
+  AStart.X := 30.00; // Lon
+
+  AFinish.Y := 60.4826175;  // Lat
+  AFinish.X := 39.09439537; // Lon
+
+  ReturnValue := VDatum.CalcDist(AStart, AFinish);
+
+  CheckEquals(Round(ReturnValue), 1000000);
+
+  ReturnValue := VDatum.CalcDist(AStart, AFinish, AInitialBearing, AFinalBearing);
+
+  CheckEquals(Round(ReturnValue), 1000000);
+end;
 
 procedure TestTDatum.TestCalcFinishPosition;
 var

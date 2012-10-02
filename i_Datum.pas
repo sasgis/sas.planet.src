@@ -44,11 +44,26 @@ type
       const ACount: Integer
     ): Double;
 
+    // ¬озвращает кратчайшее (вдоль геодезической линии) рассто€ние между двум€
+    // заданными точками (в метрах).
     function CalcDist(
       const AStart: TDoublePoint;
       const AFinish: TDoublePoint
-    ): Double;
+    ): Double; overload;
 
+    // –ешает так называемую вторую (обратную) геодезическую задачу: построить
+    // кратчайший маршрут между двум€ точками на картографируемой поверхности и
+    // определелить рассто€ние и направление движени€.
+    function CalcDist(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint;
+      out AInitialBearing: Double;
+      out AFinalBearing: Double
+    ): Double; overload;
+
+    // –ешает так называемую первую (пр€мую) геодезическую задачу: где мы
+    // окажемс€, если выйдем из указанной точки в указанном направлении и
+    // продЄм, не сворачива€, указанное рассто€ние.
     function CalcFinishPosition(
       const AStart: TDoublePoint;
       const AInitialBearing: Double;
