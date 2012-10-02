@@ -5,6 +5,8 @@ object frSelectedPicture: TfrSelectedPicture
   Height = 53
   Align = alClient
   TabOrder = 0
+  ExplicitWidth = 47
+  ExplicitHeight = 48
   object imgIcon: TImage32
     AlignWithMargins = True
     Left = 3
@@ -21,9 +23,8 @@ object frSelectedPicture: TfrSelectedPicture
     ScaleMode = smNormal
     TabOrder = 0
     OnMouseDown = imgIconMouseDown
-    ExplicitLeft = 4
-    ExplicitTop = 4
-    ExplicitWidth = 45
-    ExplicitHeight = 45
+    OnResize = imgIconResize
+    ExplicitWidth = 445
+    ExplicitHeight = 298
   end
 end

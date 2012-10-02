@@ -25,6 +25,7 @@ type
     imgIcon: TImage32;
     procedure imgIconMouseDown(Sender: TObject; Button: TMouseButton; Shift:
         TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    procedure imgIconResize(Sender: TObject);
   private
     FPicture: IMarkPicture;
     FOnClick: TNotifyEvent;
@@ -33,6 +34,7 @@ type
       const ASourceBitmap: IBitmap32Static;
       ATarget: TCustomBitmap32
     );
+    procedure UpdatePicture;
   public
     property Picture: IMarkPicture read FPicture write SetPicture;
   public
@@ -124,9 +126,19 @@ begin
   end;
 end;
 
+procedure TfrSelectedPicture.imgIconResize(Sender: TObject);
+begin
+  UpdatePicture;
+end;
+
 procedure TfrSelectedPicture.SetPicture(const Value: IMarkPicture);
 begin
   FPicture := Value;
+  UpdatePicture;
+end;
+
+procedure TfrSelectedPicture.UpdatePicture;
+begin
   if FPicture <> nil then begin
     imgIcon.Bitmap.SetSizeFrom(imgIcon);
     CopyMarkerToBitmap(FPicture.GetMarker, imgIcon.Bitmap);
