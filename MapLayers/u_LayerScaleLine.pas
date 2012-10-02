@@ -98,6 +98,11 @@ type
       out AHalfLen: Double;
       out AFullLen: Double
     );
+    procedure ModifyLenAndHeight(
+      const AVisualCoordConverter: ILocalCoordConverter;
+      var AFullLenght: Double;
+      var AHeight: Integer
+    );
   protected
     function GetNewBitmapSize: TPoint; override;
     function GetNewLayerLocation: TFloatRect; override;
@@ -126,6 +131,77 @@ uses
   u_ResStrings,
   u_GeoFun,
   t_GeoTypes;
+
+function GetNiceLen(ALen: Double): Double;
+const
+  CNiceValues: array [0..54] of Double =
+    (
+    40000000,
+    30000000,
+    20000000,
+    15000000,
+    10000000,
+    8000000,
+    5000000,
+    4000000,
+    3000000,
+    2000000,
+    1500000,
+    1000000,
+    800000,
+    500000,
+    400000,
+    300000,
+    200000,
+    150000,
+    100000,
+    80000,
+    50000,
+    40000,
+    30000,
+    20000,
+    15000,
+    10000,
+    8000,
+    5000,
+    4000,
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    500,
+    400,
+    300,
+    200,
+    150,
+    100,
+    80,
+    50,
+    40,
+    30,
+    20,
+    15,
+    10,
+    8,
+    6,
+    4,
+    3,
+    2,
+    1.5,
+    1,
+    0.5
+    );
+var
+  i: Integer;
+begin
+  for i := 0 to Length(CNiceValues) - 1 do begin
+    Result := CNiceValues[i];
+    if ALen > Result then begin
+      Break;
+    end;
+  end;
+end;
 
 { TLayerScaleLine }
 
@@ -421,77 +497,6 @@ procedure TLayerScaleLine.ModifyLenAndWidth(
   var ALen: Double;
   var AWidth: Integer
 );
-  function GetNiceLen(ALen: Double): Double;
-  const
-    CNiceValues: array [0..54] of Double =
-      (
-      40000000,
-      30000000,
-      20000000,
-      15000000,
-      10000000,
-      8000000,
-      5000000,
-      4000000,
-      3000000,
-      2000000,
-      1500000,
-      1000000,
-      800000,
-      500000,
-      400000,
-      300000,
-      200000,
-      150000,
-      100000,
-      80000,
-      50000,
-      40000,
-      30000,
-      20000,
-      15000,
-      10000,
-      8000,
-      5000,
-      4000,
-      3000,
-      2000,
-      1500,
-      1000,
-      800,
-      500,
-      400,
-      300,
-      200,
-      150,
-      100,
-      80,
-      50,
-      40,
-      30,
-      20,
-      15,
-      10,
-      8,
-      6,
-      4,
-      3,
-      2,
-      1.5,
-      1,
-      0.5
-      );
-  var
-    i: Integer;
-  begin
-    for i := 0 to Length(CNiceValues) - 1 do begin
-      Result := CNiceValues[i];
-      if ALen > Result then begin
-        Break;
-      end;
-    end;
-  end;
-
 var
   VNewLen: Double;
   VNewWidth: Integer;
@@ -514,22 +519,26 @@ var
   VFullLenght, VHalfLenght: Double;
   VColor: TColor32;
   VOutLineColor: TColor32;
-  VValidLegendWidth: Integer;
+  VValidLegendHeight: Integer;
   VHalfValue, VFullValue: string;
 begin
   VColor := FConfig.Color;
   VOutLineColor := FConfig.OutLineColor;
 
-  VValidLegendWidth := (FConfig.Width div 4) * 4;
+  VValidLegendHeight := (FConfig.Width div 4) * 4;
 
-  GetMetersPerVerticalLine(AVisualCoordConverter, VValidLegendWidth, VHalfLenght, VFullLenght);
+  GetMetersPerVerticalLine(AVisualCoordConverter, VValidLegendHeight, VHalfLenght, VFullLenght);
+
+  if FConfig.NumbersFormat = slnfNice then begin
+    ModifyLenAndHeight(AVisualCoordConverter, VFullLenght, VValidLegendHeight);
+  end;
 
   if (VHalfLenght < 0) or (VFullLenght < 0) then begin
     DrawVerticalScaleLegend(
       VColor,
       VOutLineColor,
       VColor,
-      VValidLegendWidth,
+      VValidLegendHeight,
       ' ',
       ' ',
       Layer.Bitmap
@@ -548,13 +557,15 @@ begin
   end;
 
   case FConfig.NumbersFormat of
-
-    // slnfNice: // TODO
-
+    slnfNice: begin
+      VHalfValue := IntToStr(Round(VFullLenght / 2)) + VUnitsString;
+      VFullValue := IntToStr(Round(VFullLenght)) + VUnitsString;
+    end;
     slnfScienceRound: begin
       VHalfValue := IntToStr(Round(VHalfLenght)) + VUnitsString;
       VFullValue := IntToStr(Round(VFullLenght)) + VUnitsString;
-    end else begin
+    end;
+  else begin
     VHalfValue := FloatToStrF(VHalfLenght, ffFixed, 10, 2) + VUnitsString;
     VFullValue := FloatToStrF(VFullLenght, ffFixed, 10, 2) + VUnitsString;
   end;
@@ -564,7 +575,7 @@ begin
     VColor,
     VOutLineColor,
     VColor,
-    VValidLegendWidth,
+    VValidLegendHeight,
     VHalfValue,
     VFullValue,
     Layer.Bitmap
@@ -690,6 +701,36 @@ begin
   end else begin
     AFullLen := -1;
   end;
+end;
+
+procedure TLayerScaleLine.ModifyLenAndHeight(
+  const AVisualCoordConverter: ILocalCoordConverter;
+  var AFullLenght: Double;
+  var AHeight: Integer
+);
+var
+  VStartLonLat, VFinishLonLat: TDoublePoint;
+  VCenterPixelXY: TPoint;
+  VFinishPixelXY: TDoublePoint;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+begin
+  AFullLenght := GetNiceLen(AFullLenght);
+
+  VZoom := AVisualCoordConverter.GetZoom;
+  VConverter := AVisualCoordConverter.GetGeoConverter;
+
+  VCenterPixelXY := AVisualCoordConverter.LocalPixel2MapPixel(
+    AVisualCoordConverter.LonLat2LocalPixel(
+      AVisualCoordConverter.GetCenterLonLat
+    )
+  );
+
+  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
+  VFinishLonLat := VConverter.Datum.CalcFinishPosition(VStartLonLat, 0, AFullLenght);
+  VFinishPixelXY := VConverter.LonLat2PixelPosFloat(VFinishLonLat, VZoom);
+
+  AHeight := Abs(VCenterPixelXY.Y - Round(VFinishPixelXY.Y));
 end;
 
 function TLayerScaleLine.GetNewBitmapSize: TPoint;
