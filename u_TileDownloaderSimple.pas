@@ -183,7 +183,7 @@ begin
                 Result :=
                   TTileRequestResultErrorBeforBuildDownloadRequest.Create(
                     ATileRequest,
-                    'Tile not exists'
+                    'Tile does not exist'
                   );
                 Break;
               end;
