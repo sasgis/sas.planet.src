@@ -43,10 +43,17 @@ type
       const APoints: PDoublePointArray;
       const ACount: Integer
     ): Double;
+
     function CalcDist(
       const AStart: TDoublePoint;
       const AFinish: TDoublePoint
     ): Double;
+
+    function CalcFinishPosition(
+      const AStart: TDoublePoint;
+      const AInitialBearing: Double;
+      const ADistance: Double
+    ): TDoublePoint;
   end;
 
 implementation

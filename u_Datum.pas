@@ -44,6 +44,11 @@ type
       const ACount: Integer
     ): Double;
     function CalcDist(const AStart, AFinish: TDoublePoint): Double;
+    function CalcFinishPosition(
+      const AStart: TDoublePoint;
+      const AInitialBearing: Double;
+      const ADistance: Double
+    ): TDoublePoint;
   public
     constructor Create(
       AEPSG: Integer;
@@ -292,6 +297,86 @@ begin
   end else begin
     Result := (ADatum.EPSG <> 0) and (FEPSG <> 0) and (FEPSG = ADatum.EPSG);
   end;
+end;
+
+function TDatum.CalcFinishPosition(
+  const AStart: TDoublePoint;
+  const AInitialBearing: Double;
+  const ADistance: Double
+): TDoublePoint;
+var
+  SinTc, CosTc, U1, TanU1, SinU1, CosU1, SinAlpha, CosAlpha, Usqr, A, B, C,
+  Term1, Term2, Term3, Sigma, SinSigma, CosSigma, TanSigma1, DeltaSigma,
+  Sigma1, TwoSigmaM, c2sm, LastSigma, Lambda, Omega, aa, bb, r0: Extended;
+  Lat, Lon, Lat1, Lon1, Azimuth: Double;
+begin
+  if ADistance = 0.0 then begin  // Coincident points
+    Result := AStart;
+    Exit;
+  end;
+
+  Lat1 := AStart.X * D2R;
+  Lon1 := AStart.Y * D2R;
+
+  Azimuth := AInitialBearing * D2R;
+
+  aa := FRadiusA * FRadiusA;
+  bb := FRadiusB * FRadiusB;
+  r0 := 1 - FExct;
+
+  // === Thaddeus Vincenty's direct algorithm for ellipsoids: ==================
+  TanU1 := r0 * Tan(Lat1);
+  TanSigma1 := TanU1/Cos(Azimuth);                                       //eq 1
+  U1 := ArcTan(TanU1);
+  SinCos(U1, SinU1, CosU1);
+  SinAlpha := CosU1 * Sin(Azimuth);                                      //eq 2
+  CosAlpha := Sqrt(1 - Sqr(SinAlpha));
+  Usqr := Sqr(CosAlpha) * (aa-bb)/bb;
+
+  Term1 := Usqr / 16384;
+  Term2 := 4096 + Usqr * (-768 + Usqr * (320 - 175 * Usqr));
+
+  A := 1 + Term1 * Term2;
+  B := Usqr / 1024 * (256 + Usqr * (-128 + Usqr * (74 - 47 * Usqr)));    //eq 4
+
+  Sigma := ADistance / (FRadiusB * a);
+  Sigma1 := ArcTan(TanSigma1);
+
+  repeat
+    LastSigma := Sigma;
+    TwoSigmaM := 2 * Sigma1 + Sigma;                                     //eq 5
+    SinCos(Sigma, SinSigma, CosSigma);
+    SinCos(Azimuth, SinTc, CosTc);
+    c2sm := Cos(TwoSigmaM);
+
+    DeltaSigma :=
+      B * SinSigma * (c2sm + b/4 * (CosSigma * (-1 + 2 * Sqr(c2sm)) -
+      B / 6 * c2sm * (-3 + 4 * Sqr(SinSigma)) * (-3 + 4 * Sqr(c2sm))));  //eq 6
+
+    Sigma := ADistance / (FRadiusB * a) + DeltaSigma;                    //eq 7
+  until (Abs(Sigma - LastSigma) <= 1E-12);
+
+  TwoSigmaM := 2 * Sigma1 + Sigma;                                       //eq 5
+  c2sm := Cos(TwoSigmaM);
+  SinCos(Sigma, SinSigma, CosSigma);
+  Term1 := SinU1 * CosSigma + CosU1 * SinSigma * CosTc;
+  Term2 := Sqr(SinAlpha) + Sqr(SinU1 * SinSigma - CosU1 * CosSigma * CosTc);
+  Term3 := r0 * Sqrt(Term2);
+  Lat   := ArcTan2(Term1, Term3);
+  Term1 := SinSigma * Sin(Azimuth);
+  Term2 := CosU1 * CosSigma - SinU1 * SinSigma * CosTc;
+  Lambda := ArcTan2(Term1, Term2);
+
+  C := FExct/ 16 * Sqr(CosAlpha) * (4 + FExct * (4 - 3 * Sqr(CosAlpha)));
+
+  Omega := Lambda - (1-c) * FExct * SinAlpha *
+             (Sigma + C * SinSigma * (c2sm + C * CosSigma * (-1 + 2 * Sqr(c2sm))));
+
+  Lon := Lon1 + Omega;
+  //============================================================================
+
+  Result.X := Lat / D2R;
+  Result.Y := Lon / D2R;
 end;
 
 end.

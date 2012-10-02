@@ -47,8 +47,10 @@
     <DCCReference Include="..\u_EnumDoublePointLine2Poly_Test.pas" />
     <DCCReference Include="..\u_EnumDoublePointWithClip_Test.pas" />
     <DCCReference Include="..\u_HashCacheWithQueuesAbstract_Test.pas" />
+    <DCCReference Include="..\u_PathConfig_Test.pas" />
     <DCCReference Include="..\u_ProjectedSingleLine_Test.pas" />
     <DCCReference Include="..\u_VectorItmesFactorySimple_Test.pas" />
+    <DCCReference Include="u_Datum_Test.pas" />
     <DCCReference Include="u_SASTestCase.pas" />
   </ItemGroup>
 </Project>
