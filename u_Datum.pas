@@ -315,8 +315,8 @@ begin
     Exit;
   end;
 
-  Lat1 := AStart.X * D2R;
-  Lon1 := AStart.Y * D2R;
+  Lat1 := AStart.Y * D2R;
+  Lon1 := AStart.X * D2R;
 
   Azimuth := AInitialBearing * D2R;
 
@@ -375,8 +375,8 @@ begin
   Lon := Lon1 + Omega;
   //============================================================================
 
-  Result.X := Lat / D2R;
-  Result.Y := Lon / D2R;
+  Result.Y := Lat / D2R;
+  Result.X := Lon / D2R;
 end;
 
 end.
