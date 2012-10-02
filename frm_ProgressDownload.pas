@@ -314,8 +314,8 @@ end;
 
 procedure TfrmProgressDownload.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FDownloadThread.Terminate;
   UpdateTimer.Enabled := false;
+  FDownloadThread.Terminate;
   Action := caFree;
   Application.MainForm.SetFocus;
 end;
