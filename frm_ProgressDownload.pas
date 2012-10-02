@@ -157,6 +157,7 @@ end;
 
 destructor TfrmProgressDownload.Destroy;
 begin
+  UpdateTimer.Enabled := false;
   FDownloadThread.Terminate;
   Application.ProcessMessages;
   FreeAndNil(FDownloadThread);
@@ -167,8 +168,6 @@ end;
 
 procedure TfrmProgressDownload.btnCloseClick(Sender: TObject);
 begin
-  FDownloadThread.Terminate;
-  UpdateTimer.Enabled := false;
   Close;
 end;
 
