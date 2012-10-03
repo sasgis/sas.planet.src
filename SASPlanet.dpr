@@ -492,6 +492,7 @@ uses
   u_MiniMapLayerViewRect in 'MapLayers\u_MiniMapLayerViewRect.pas',
   u_CenterScale in 'MapLayers\u_CenterScale.pas',
   u_LayerStatBar in 'MapLayers\u_LayerStatBar.pas',
+  u_LayerStatBarPopupMenu in 'MapLayers\u_LayerStatBarPopupMenu.pas',
   u_FullMapMouseCursorLayer in 'MapLayers\u_FullMapMouseCursorLayer.pas',
   u_MapLayerBasic in 'MapLayers\u_MapLayerBasic.pas',
   u_MapLayerTileGrid in 'MapLayers\u_MapLayerTileGrid.pas',

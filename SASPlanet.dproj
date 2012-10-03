@@ -455,6 +455,7 @@
     <DCCReference Include="MapLayers\u_LayerLicenseList.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
+    <DCCReference Include="MapLayers\u_LayerStatBarPopupMenu.pas" />
     <DCCReference Include="MapLayers\u_MapElementsGuidedList.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayer.pas" />
     <DCCReference Include="MapLayers\u_MapGPSLayerNew.pas" />

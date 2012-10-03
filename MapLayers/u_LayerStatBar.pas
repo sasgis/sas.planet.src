@@ -5,6 +5,8 @@ interface
 uses
   Windows,
   Types,
+  Controls,
+  Classes,
   GR32,
   GR32_Image,
   i_Notifier,
@@ -21,6 +23,7 @@ uses
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
+  u_LayerStatBarPopupMenu,
   u_WindowLayerWithPos;
 
 type
@@ -35,7 +38,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeable;
-
+    FPopupMenu: TLayerStatBarPopupMenu;
     FLastUpdateTick: DWORD;
     FMinUpdate: Cardinal;
     FBgColor: TColor32;
@@ -45,10 +48,12 @@ type
     procedure OnConfigChange;
     procedure OnTimerEvent;
     procedure OnPosChange;
+    procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   protected
     function GetNewBitmapSize: TPoint; override;
     function GetNewLayerLocation: TFloatRect; override;
     procedure DoUpdateBitmapDraw; override;
+    procedure DoUpdateLayerVisibility; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -116,6 +121,13 @@ begin
   FMouseState := AMouseState;
   FPosition := AViewPortState.Position;
   FView := AViewPortState.View;
+
+  FPopupMenu := TLayerStatBarPopupMenu.Create(
+    AParentMap,
+    AConfig
+  );
+
+  Self.Layer.OnMouseDown := OnMouseDown;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -206,6 +218,7 @@ begin
     Visible := VVisible;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
+    SetNeedUpdateLayerVisibility;
   finally
     ViewUpdateUnlock;
   end;
@@ -232,10 +245,28 @@ begin
   end;
 end;
 
+procedure TLayerStatBar.OnMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
+begin
+  if Button = mbRight then begin
+    FPopupMenu.PopUp;
+  end;
+end;
+
 procedure TLayerStatBar.StartThreads;
 begin
   inherited;
   OnConfigChange;
+end;
+
+procedure TLayerStatBar.DoUpdateLayerVisibility;
+begin
+  inherited;
+  Layer.MouseEvents := Visible;
 end;
 
 procedure TLayerStatBar.DoUpdateBitmapDraw;
