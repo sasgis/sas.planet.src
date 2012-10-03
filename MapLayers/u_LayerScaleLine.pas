@@ -24,6 +24,8 @@ interface
 
 uses
   Types,
+  Controls,
+  Classes,
   GR32,
   GR32_Image,
   i_NotifierOperation,
@@ -32,6 +34,7 @@ uses
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ScaleLineConfig,
+  u_LayerScaleLinePopupMenu,
   u_WindowLayerWithPos;
 
 type
@@ -40,8 +43,10 @@ type
     FConfig: IScaleLineConfig;
     FPosition: ILocalCoordConverterChangeable;
     FTmpBitmap: TBitmap32;
+    FPopupMenu: TLayerScaleLinePopupMenu;
     procedure OnConfigChange;
     procedure OnPosChange;
+    procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 
     procedure DrawOutLinedText(
       X, Y: Integer;
@@ -107,6 +112,7 @@ type
     function GetNewBitmapSize: TPoint; override;
     function GetNewLayerLocation: TFloatRect; override;
     procedure DoUpdateBitmapDraw; override;
+    procedure DoUpdateLayerVisibility; override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -223,6 +229,8 @@ begin
   FConfig := AConfig;
   FPosition := AViewPortState.Position;
 
+  FPopupMenu := TLayerScaleLinePopupMenu.Create(AParentMap, AConfig);
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FPosition.GetChangeNotifier
@@ -231,6 +239,8 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
   );
+
+  Layer.OnMouseDown := OnMouseDown;
 
   Layer.Bitmap.Font.Name := FConfig.FontName;
   Layer.Bitmap.Font.Size := FConfig.FontSize;
@@ -243,6 +253,7 @@ end;
 destructor TLayerScaleLine.Destroy;
 begin
   FTmpBitmap.Free;
+  FPopupMenu.Free;
   inherited Destroy;
 end;
 
@@ -253,6 +264,7 @@ begin
     Visible := FConfig.Visible;
     SetNeedUpdateBitmapDraw;
     SetNeedUpdateLayerLocation;
+    SetNeedUpdateLayerVisibility;
   finally
     ViewUpdateUnlock;
   end;
@@ -264,8 +276,21 @@ begin
   try
     SetNeedUpdateBitmapDraw;
     SetNeedUpdateLayerLocation;
+    SetNeedUpdateLayerVisibility;
   finally
     ViewUpdateUnlock;
+  end;
+end;
+
+procedure TLayerScaleLine.OnMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
+begin
+  if Button = mbRight then begin
+    FPopupMenu.PopUp;
   end;
 end;
 
@@ -273,6 +298,12 @@ procedure TLayerScaleLine.StartThreads;
 begin
   inherited;
   OnConfigChange;
+end;
+
+procedure TLayerScaleLine.DoUpdateLayerVisibility;
+begin
+  inherited;
+  Layer.MouseEvents := False; // Visible;
 end;
 
 procedure TLayerScaleLine.DrawOutLinedText(

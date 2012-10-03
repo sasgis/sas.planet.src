@@ -504,6 +504,7 @@ uses
   u_MapLayerNavToMark in 'MapLayers\u_MapLayerNavToMark.pas',
   u_SelectionLayer in 'MapLayers\u_SelectionLayer.pas',
   u_LayerScaleLine in 'MapLayers\u_LayerScaleLine.pas',
+  u_LayerScaleLinePopupMenu in 'MapLayers\u_LayerScaleLinePopupMenu.pas',
   u_MapGPSLayer in 'MapLayers\u_MapGPSLayer.pas',
   u_MapGPSLayerNew in 'MapLayers\u_MapGPSLayerNew.pas',
   u_MapLayerShowError in 'MapLayers\u_MapLayerShowError.pas',
