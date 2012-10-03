@@ -47,6 +47,7 @@ type
 implementation
 
 uses
+  Types,
   Math,
   GR32_Blend,
   GR32_Rasterizers,
