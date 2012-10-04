@@ -71,6 +71,7 @@ type
       const AGlobalInternetState: IGlobalInternetState;
       const AMainMap: IMapTypeChangeable
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -143,6 +144,12 @@ begin
   );
   FMainMap := AMainMap;
   FLastUpdateTick := 0;
+end;
+
+destructor TLayerStatBar.Destroy;
+begin
+  FPopupMenu.Free;
+  inherited Destroy;
 end;
 
 function TLayerStatBar.GetNewBitmapSize: TPoint;
