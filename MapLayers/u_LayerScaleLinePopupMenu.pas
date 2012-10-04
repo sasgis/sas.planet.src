@@ -34,7 +34,7 @@ type
     tagExtended,
     tagNumbersFormat,
     tagNice,
-    tagScienceRound,
+    tagRound,
     tagScience,
     tagHide
   );
@@ -44,7 +44,7 @@ const
     'Show Vertical Scale Legend',
     'Numbers Format',
     'Nice',
-    'ScienceRound',
+    'Round',
     'Science',
     'Hide Scale Legend'
   );
@@ -84,6 +84,7 @@ begin
 
   VMenuSubItem := TTBXSubmenuItem.Create(FPopup);
   VMenuSubItem.Caption := cMenuItemList[tagNumbersFormat];
+  VMenuSubItem.Tag := Integer(tagNumbersFormat);
   for I := tagNice to tagScience do begin
     VMenuItem := TTBXItem.Create(FPopup);
     VMenuItem.RadioItem := True;
@@ -107,16 +108,23 @@ end;
 
 procedure TLayerScaleLinePopupMenu.InitItemsState;
 var
-  I: Integer;
+  I, J: Integer;
   VMenuItem: TTBCustomItem;
 begin
   for I := 0 to FPopup.Items.Count - 1 do begin
     VMenuItem := FPopup.Items[I];
     case TMenuItemTag(VMenuItem.Tag) of
       tagExtended: VMenuItem.Checked := FConfig.Extended;
-      tagNice: VMenuItem.Checked := FConfig.NumbersFormat = slnfNice;
-      tagScienceRound: VMenuItem.Checked := FConfig.NumbersFormat = slnfScienceRound;
-      tagScience: VMenuItem.Checked := FConfig.NumbersFormat = slnfScience;
+      tagNumbersFormat: begin
+        for J := 0 to FPopup.Items[I].Count - 1 do begin
+          VMenuItem := FPopup.Items[I].Items[J];
+          case TMenuItemTag(VMenuItem.Tag) of
+            tagNice: VMenuItem.Checked := FConfig.NumbersFormat = slnfNice;
+            tagRound: VMenuItem.Checked := FConfig.NumbersFormat = slnfScienceRound;
+            tagScience: VMenuItem.Checked := FConfig.NumbersFormat = slnfScience;
+          end;
+        end;
+      end;
     end;
   end;
 end;
@@ -135,7 +143,7 @@ begin
     case TMenuItemTag(VMenuItem.Tag) of
       tagExtended: FConfig.Extended := VMenuItem.Checked;
       tagNice: FConfig.NumbersFormat := slnfNice;
-      tagScienceRound: FConfig.NumbersFormat := slnfScienceRound;
+      tagRound: FConfig.NumbersFormat := slnfScienceRound;
       tagScience: FConfig.NumbersFormat := slnfScience;
       tagHide: FConfig.Visible := False;
     end;

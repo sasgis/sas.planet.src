@@ -240,6 +240,7 @@ begin
     FConfig.GetChangeNotifier
   );
 
+  Layer.AlphaHit := True;
   Layer.OnMouseDown := OnMouseDown;
 
   Layer.Bitmap.Font.Name := FConfig.FontName;
@@ -303,7 +304,7 @@ end;
 procedure TLayerScaleLine.DoUpdateLayerVisibility;
 begin
   inherited;
-  Layer.MouseEvents := False; // Visible;
+  Layer.MouseEvents := Visible;
 end;
 
 procedure TLayerScaleLine.DrawOutLinedText(
