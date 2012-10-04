@@ -1208,6 +1208,11 @@ object frmMain: TfrmMain
           Caption = 'Options'
           Hint = ''
         end
+        object tbitmInterfaceOptions: TTBXItem
+          OnClick = tbitmOnInterfaceOptionsClick
+          Caption = 'Interface Options'
+          Hint = ''
+        end
         object TBLang: TTBXSubmenuItem
           Images = MenusImageList
           Caption = 'Language'

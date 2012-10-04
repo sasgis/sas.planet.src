@@ -114,6 +114,9 @@
     <DCCReference Include="frm_Main.pas">
       <Form>frmMain</Form>
     </DCCReference>
+    <DCCReference Include="frm_MapLayersOptions.pas">
+      <Form>frmMapLayersOptions</Form>
+    </DCCReference>
     <DCCReference Include="frm_MapTypeEdit.pas">
       <Form>frmMapTypeEdit</Form>
     </DCCReference>

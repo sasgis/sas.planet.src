@@ -1,9 +1,29 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_LayerScaleLinePopupMenu;
 
 interface
 
 uses
-  Menus,
+  Classes,
   GR32_Image,
   TBX,
   TB2Item,
@@ -15,13 +35,15 @@ type
     FParentMap: TImage32;
     FPopup: TTBXPopupMenu;
     FConfig: IScaleLineConfig;
+    FOnOptionsClick: TNotifyEvent;
     procedure BuildPopUpMenu;
     procedure InitItemsState;
     procedure OnMenuItemClick(Sender: TObject);
   public
     constructor Create(
       const AParentMap: TImage32;
-      const AConfig: IScaleLineConfig
+      const AConfig: IScaleLineConfig;
+      const AOnOptionsClick: TNotifyEvent
     );
     destructor Destroy; override;
     procedure PopUp;
@@ -36,7 +58,8 @@ type
     tagNice,
     tagRound,
     tagScience,
-    tagHide
+    tagHide,
+    tagOptions
   );
 
 const
@@ -46,19 +69,22 @@ const
     'Nice',
     'Round',
     'Science',
-    'Hide Scale Legend'
+    'Hide Scale Legend',
+    'Options...'
   );
 
 { TLayerScaleLinePopupMenu }
 
 constructor TLayerScaleLinePopupMenu.Create(
   const AParentMap: TImage32;
-  const AConfig: IScaleLineConfig
+  const AConfig: IScaleLineConfig;
+  const AOnOptionsClick: TNotifyEvent 
 );
 begin
   inherited Create;
   FParentMap := AParentMap;
   FConfig := AConfig;
+  FOnOptionsClick := AOnOptionsClick;
   FPopup := TTBXPopupMenu.Create(FParentMap);
   FPopup.Name := 'PopupScaleLine';
   BuildPopUpMenu;
@@ -97,11 +123,13 @@ begin
   end;
   FPopup.Items.Add(VMenuSubItem);
 
-  VMenuItem := TTBXItem.Create(FPopup);
-  VMenuItem.Caption := cMenuItemList[tagHide];
-  VMenuItem.Tag := Integer(tagHide);
-  VMenuItem.OnClick := OnMenuItemClick;
-  FPopup.Items.Add(VMenuItem);
+  for I := tagHide to tagOptions do begin
+    VMenuItem := TTBXItem.Create(FPopup);
+    VMenuItem.Caption := cMenuItemList[I];
+    VMenuItem.Tag := Integer(I);
+    VMenuItem.OnClick := OnMenuItemClick;
+    FPopup.Items.Add(VMenuItem);
+  end;
 
   InitItemsState;
 end;
@@ -146,6 +174,7 @@ begin
       tagRound: FConfig.NumbersFormat := slnfScienceRound;
       tagScience: FConfig.NumbersFormat := slnfScience;
       tagHide: FConfig.Visible := False;
+      tagOptions: if Assigned(FOnOptionsClick) then FOnOptionsClick(Self);
     end;
   end;
 end;

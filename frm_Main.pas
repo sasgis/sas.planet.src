@@ -89,6 +89,7 @@ uses
   u_MarksDbGUIHelper,
   frm_About,
   frm_Settings,
+  frm_MapLayersOptions,
   frm_RegionProcess,
   frm_DGAvailablePic,
   frm_MarksExplorer,
@@ -179,6 +180,7 @@ type
     tbitmOnlineForum: TTBXItem;
     NMapParams: TTBXItem;
     tbitmOptions: TTBXItem;
+    tbitmInterfaceOptions: TTBXItem;
     TBLang: TTBXSubmenuItem;
     tbitmGPSConnect: TTBXItem;
     tbitmGPSTrackShow: TTBXItem;
@@ -393,6 +395,7 @@ type
     procedure tbitmQuitClick(Sender: TObject);
     procedure ZoomToolBarDockChanging(Sender: TObject; Floating: Boolean; DockingTo: TTBDock);
     procedure tbitmOptionsClick(Sender: TObject);
+    procedure tbitmOnInterfaceOptionsClick(Sender: TObject);
     procedure NbackloadClick(Sender: TObject);
     procedure NaddPointClick(Sender: TObject);
     procedure tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
@@ -591,6 +594,7 @@ type
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
+    FfrmMapLayersOptions: TfrmMapLayersOptions;
     FfrmCacheManager: TfrmCacheManager;
     FfrmMarksExplorer: TfrmMarksExplorer;
     FfrmAbout: TfrmAbout;
@@ -793,6 +797,8 @@ uses
   u_GUIDObjectSet,
   u_GlobalState,
   u_InetFunc,
+  u_LayerScaleLinePopupMenu,
+  u_LayerStatBarPopupMenu,
   frm_StartLogo,
   frm_LonLatRectEdit;
 
@@ -869,6 +875,13 @@ begin
       GState.ValueToStringConverterConfig
     );
   FfrmCacheManager.PopupParent := Self;
+
+  FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
+    GState.LanguageManager,
+    FConfig.LayersConfig.ScaleLineConfig,
+    FConfig.LayersConfig.StatBar
+  );
+
   FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
 
   LoadMapIconsList;
@@ -1676,6 +1689,7 @@ begin
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
+        Self.tbitmOnInterfaceOptionsClick,
         FConfig.LayersConfig.ScaleLineConfig
       )
     );
@@ -1707,6 +1721,7 @@ begin
         GState.TimeZoneDiffByLonLat,
         GState.DownloadInfo,
         GState.GlobalInternetState,
+        Self.tbitmOnInterfaceOptionsClick,
         FConfig.MainMapsConfig.GetActiveMap
       )
     );
@@ -2355,6 +2370,7 @@ begin
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FfrmGoTo);
   FreeAndNil(FfrmSettings);
+  FreeAndNil(FfrmMapLayersOptions);
   FreeAndNil(FfrmCacheManager);
   FreeAndNil(FfrmMarksExplorer);
   FreeAndNil(FMarkDBGUI);
@@ -3401,6 +3417,16 @@ end;
 procedure TfrmMain.tbitmOptionsClick(Sender: TObject);
 begin
   FfrmSettings.ShowModal;
+end;
+
+procedure TfrmMain.tbitmOnInterfaceOptionsClick(Sender: TObject);
+begin
+  if Sender is TLayerStatBarPopupMenu then begin
+    FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 0;
+  end else if (Sender is TLayerScaleLinePopupMenu) then begin
+    FfrmMapLayersOptions.pgcOptions.ActivePageIndex := 1;
+  end;
+  FfrmMapLayersOptions.ShowModal;
 end;
 
 procedure TfrmMain.NbackloadClick(Sender: TObject);

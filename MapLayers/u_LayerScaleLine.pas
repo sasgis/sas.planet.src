@@ -121,6 +121,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
+      const AOnOptionsClick: TNotifyEvent;
       const AConfig: IScaleLineConfig
     );
     destructor Destroy; override;
@@ -217,6 +218,7 @@ constructor TLayerScaleLine.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
+  const AOnOptionsClick: TNotifyEvent;
   const AConfig: IScaleLineConfig
 );
 begin
@@ -229,7 +231,7 @@ begin
   FConfig := AConfig;
   FPosition := AViewPortState.Position;
 
-  FPopupMenu := TLayerScaleLinePopupMenu.Create(AParentMap, AConfig);
+  FPopupMenu := TLayerScaleLinePopupMenu.Create(AParentMap, AConfig, AOnOptionsClick);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),

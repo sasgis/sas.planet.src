@@ -69,6 +69,7 @@ type
       const ATimeZoneDiff: ITimeZoneDiffByLonLat;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
+      const AOnOptionsClick: TNotifyEvent;
       const AMainMap: IMapTypeChangeable
     );
     destructor Destroy; override;
@@ -105,6 +106,7 @@ constructor TLayerStatBar.Create(
   const ATimeZoneDiff: ITimeZoneDiffByLonLat;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
+  const AOnOptionsClick: TNotifyEvent;
   const AMainMap: IMapTypeChangeable
 );
 begin
@@ -125,10 +127,11 @@ begin
 
   FPopupMenu := TLayerStatBarPopupMenu.Create(
     AParentMap,
-    AConfig
+    AConfig,
+    AOnOptionsClick
   );
 
-  Self.Layer.OnMouseDown := OnMouseDown;
+  Layer.OnMouseDown := OnMouseDown;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

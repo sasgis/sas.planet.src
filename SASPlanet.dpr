@@ -914,6 +914,7 @@ uses
   frm_DebugInfo in 'frm_DebugInfo.pas' {frmDebugInfo},
   frm_About in 'frm_About.pas' {frmAbout},
   frm_Settings in 'frm_Settings.pas' {frmSettings},
+  frm_MapLayersOptions in 'frm_MapLayersOptions.pas' {frmMapLayersOptions},
   frm_RegionProcess in 'frm_RegionProcess.pas' {frmRegionProcess},
   frm_ProgressDownload in 'frm_ProgressDownload.pas' {frmProgressDownload},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
