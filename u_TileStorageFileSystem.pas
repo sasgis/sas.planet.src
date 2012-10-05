@@ -466,7 +466,7 @@ begin
     FFsLock.BeginWrite;
     try
       CreateDirIfNotExists(VFileName);
-      VHandle := 0;
+      VHandle := INVALID_HANDLE_VALUE;
       try
         VHandle :=
           CreateFile(PChar
@@ -488,7 +488,7 @@ begin
           VFileStream.Free;
         end;
       finally
-        if VHandle >= 0 then begin
+        if VHandle <> INVALID_HANDLE_VALUE then begin
           FileClose(VHandle);
         end;
       end;
@@ -522,7 +522,7 @@ begin
     try
       if not FileExists(VTneName) then begin
         CreateDirIfNotExists(VTneName);
-        VHandle := 0;
+        VHandle := INVALID_HANDLE_VALUE;
         try
           VHandle :=
             CreateFile(PChar
@@ -536,7 +536,7 @@ begin
             );
           FileSetDate(VHandle, DateTimeToFileDate(ALoadDate));
         finally
-          if VHandle >= 0 then begin
+          if VHandle <> INVALID_HANDLE_VALUE then begin
             FileClose(VHandle);
           end;
         end;
