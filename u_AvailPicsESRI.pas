@@ -25,6 +25,9 @@ interface
 uses
   SysUtils,
   Classes,
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
   u_AvailPicsAbstract;
 
 type
@@ -34,9 +37,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
 implementation
@@ -46,40 +47,10 @@ uses
   u_TileRequestBuilderHelpers;
 
 { TAvailPicsESRI }
-function TAvailPicsESRI.Header: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsESRI.PostData: string;
-begin
- Result := '';
-end;
 
 function TAvailPicsESRI.ContentType: String;
 begin
   Result := 'text/plain'; // 'text/plain;charset=utf-8'   // 'text/html'
-end;
-
-function TAvailPicsESRI.LinkToImages: String;
-begin
-  // http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/0/query?text=&geometry=26%2C40%2C74%2C80&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelEnvelopeIntersects&relationParam=&objectIds=&where=&time=&returnCountOnly=true&returnIdsOnly=true&returnGeometry=true&maxAllowableOffset=&outSR=4326&outFields=*&f=html
-  // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
-
-  Result := 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/'+
-            '0'+
-            '/query?text=&geometry='+
-            // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
-            RoundEx(FTileInfoPtr.TileRect.Left, 6)+'%2C'+
-            RoundEx(FTileInfoPtr.TileRect.Bottom, 6)+'%2C'+
-            RoundEx(FTileInfoPtr.TileRect.Right, 6)+'%2C'+
-            RoundEx(FTileInfoPtr.TileRect.Top, 6)+
-            '&geometryType=esriGeometryEnvelope&inSR=4326'+
-            '&spatialRel=esriSpatialRelEnvelopeIntersects&relationParam=&objectIds=&where=&time='+
-            '&returnCountOnly=false'+ // true
-            '&returnIdsOnly=false'+
-            '&returnGeometry=false'+
-            '&maxAllowableOffset=&outSR=4326&outFields=*&f=pjson'; // pjson // kmz // html
 end;
 
 function TAvailPicsESRI.ParseResponse(const AStream: TMemoryStream): Integer;
@@ -335,6 +306,31 @@ JSON
 }
 
 *)
+end;
+
+function TAvailPicsESRI.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+var VLink: string;
+begin
+ VLink := 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/'+
+           '0'+
+           '/query?text=&geometry='+
+           // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
+           RoundEx(FTileInfoPtr.TileRect.Left, 6)+'%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Bottom, 6)+'%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Right, 6)+'%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Top, 6)+
+           '&geometryType=esriGeometryEnvelope&inSR=4326'+
+           '&spatialRel=esriSpatialRelEnvelopeIntersects&relationParam=&objectIds=&where=&time='+
+           '&returnCountOnly=false'+ // true
+           '&returnIdsOnly=false'+
+           '&returnGeometry=false'+
+           '&maxAllowableOffset=&outSR=4326&outFields=*&f=pjson'; // pjson // kmz // html
+ Result := TDownloadRequest.Create(
+           VLink,
+           '',
+           AInetConfig.GetStatic
+           );
+
 end;
 
 end.

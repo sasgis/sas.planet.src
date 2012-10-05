@@ -28,7 +28,11 @@ uses
   XMLIntf,
   XMLDoc,
   strutils,
-  u_AvailPicsAbstract;
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
+  u_AvailPicsAbstract,
+  u_BinaryDataByMemStream;
 
 type
   TAvailPicsDD = class(TAvailPicsByKey)
@@ -41,9 +45,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
     property LayerKey: string read FLayerKey write FLayerKey;
 
@@ -63,16 +65,13 @@ uses
   i_BinaryData,
   i_Downloader,
   i_DownloadResult,
-  i_DownloadRequest,
   i_NotifierOperation,
   i_DownloadResultFactory,
   u_GeoToStr,
   u_GlobalState,
   u_DownloaderHttp,
-  u_DownloadRequest,
   u_NotifierOperation,
   u_DownloadResultFactory,
-  u_BinaryDataByMemStream,
   u_ArchiveReadWriteFactory,
   u_TileRequestBuilderHelpers;
 
@@ -105,27 +104,111 @@ begin
   FDefaultKey := '';
 end;
 
-function TAvailPicsDD.Header: string;
-begin
-  Result := 'Host: www.datadoors.net'+#$D#$A+
- 'Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1'+#$D#$A+
- 'Accept-Language: ru-RU,ru;q=0.9,en;q=0.8'+#$D#$A+
- 'Referer: http://www.datadoors.net/DataDoorsWeb/I3FlexClient/I3FlexClient.swf?rev=18'+#$D#$A+
- 'Cookie: ASP.NET_SessionId=aq3nam31cfz5ovskvkuj5s0w'+#$D#$A+
- 'Connection: Keep-Alive'+#$D#$A+
- 'Content-type: text/xml; charset=utf-8'+#$D#$A+
- 'SOAPAction: "http://www.datadoors.net/services/2.6/GetProductFootprintsByCriteria"';
- end;
-
 function TAvailPicsDD.ContentType: String;
 begin
   Result := 'text/xml';
 end;
 
-function TAvailPicsDD.PostData: AnsiString;
+
+
+function TAvailPicsDD.ParseResponse(const AStream: TMemoryStream): Integer;
 var
-  VHttpData: string;
+  XMLDocument: TXMLDocument;
+  Node, SubNode: IXMLNode;
+  PlacemarkNode: IXMLNode;
+  VDate: String;
+  Vsource, V_uid: String;
+  VposList : String;
+  VAddResult: Boolean;
+  i, j: integer;
+  VParams: TStrings;
+begin
+  Result:=0;
+
+  if (not Assigned(FTileInfoPtr.AddImageProc)) then
+    Exit;
+
+  if (nil=AStream) or (0=AStream.Size) then
+    Exit;
+
+  XMLDocument := TXMLDocument.Create(Application);
+  XMLDocument.LoadFromStream(AStream);
+  Node := XMLDocument.DocumentElement;
+  Node := Node.ChildNodes[0];
+  Node := Node.ChildNodes[0];
+  Node := Node.ChildNodes[0];
+    if (Node <> nil) and (Node.ChildNodes.Count > 0) then begin
+      for i := 0 to Node.ChildNodes.Count - 1 do begin
+        PlacemarkNode := Node.ChildNodes[i];
+        if PlacemarkNode.NodeName = 'Product' then begin
+        Vsource := PlacemarkNode.GetAttribute('name');
+        V_uid := PlacemarkNode.GetAttribute('uid');
+
+        PlacemarkNode := PlacemarkNode.ChildNodes.FindNode('Footprints');
+        for j := 0 to PlacemarkNode.ChildNodes.Count - 1 do  begin
+          SubNode := PlacemarkNode.ChildNodes[j];
+          if subNode.nodename='Footprint' then begin
+          try
+            VParams:=nil;
+            VParams:=TStringList.Create;
+            VDate := copy(SubNode.GetAttribute('acq_date'),1,10);
+            VDate[5] := DateSeparator;
+            VDate[8] := DateSeparator;
+
+            VposList := SubNode.GetAttribute('acq_date');
+            VParams.Values['acq_date'] := VposList;
+
+            VposList := SubNode.GetAttribute('name');
+            VParams.Values['CatalogID'] := VposList;
+
+            VposList := SubNode.GetAttribute('uid');
+            VParams.Values['uid'] := VposList;
+
+            VposList := SubNode.GetAttribute('cloud_cover');
+            VParams.Values['cloud_cover'] := VposList;
+
+            VParams.Values['Provider'] := 'www.datadoors.net';
+
+            SubNode := SubNode.ChildNodes.FindNode('Geometry');
+            VposList := SubNode.text;
+            VposList := ReplaceStr(VposList,',',' ');
+            VposList := ReplaceStr(VposList,'(','');
+            VposList := ReplaceStr(VposList,')','');
+            VposList := ReplaceStr(VposList,'MULTIPOLYGON','');
+            VParams.Values['Geometry'] := VposList;
+            VParams.Values['Source'] := Vsource;
+            VParams.Values['Source:uid'] := V_uid;
+
+            VposList := ReplaceStr(Vsource,'DigitalGlobe ','');
+            VposList := ReplaceStr(VposList,'GeoEye ','');
+            VposList := 'DD:' + VposList;
+
+            VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VposList, VParams);
+            FreeAndNil(VParams);
+            if VAddResult then begin
+              Inc(Result);
+            end;
+           except
+            if (nil<>VParams) then begin
+              try
+                VParams.Free;
+              except
+              end;
+              VParams:=nil;
+            end;
+          end;
+      end;
+     end;
+    end;
+   end;
+  end;
+ end;
+
+function TAvailPicsDD.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+var
   VPostData: IBinaryData;
+  VPostdataStr: string;
+  VHttpData: string;
   VDownloader: IDownloader; // TDownloaderHttp;
   VPostRequest : IDownloadPostRequest; // POST
   VHeader: string;
@@ -228,7 +311,7 @@ begin
   V_UserTokenUid := GetBetween(VHttpData ,'<ResponseValue>', '</ResponseValue>');
 
   if length(V_UserTokenUid)=36 then
-  Result :='<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+#$D#$A+
+  VPostDataStr :='<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+#$D#$A+
     '  <SOAP-ENV:Header>'+#$D#$A+
     '    <tns:DdSoapHeader MyAttribute="" xmlns="http://www.datadoors.net/services/2.6/" xmlns:tns="http://www.datadoors.net/services/2.6/">'+#$D#$A+
     '      <UserTokenUid>'+V_UserTokenUid+'</UserTokenUid>'+#$D#$A+
@@ -255,104 +338,31 @@ begin
     '    </GetProductFootprintsByCriteria>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>'
-  else Result := '';
- end;
+  else VPostDataStr := '';
 
-function TAvailPicsDD.LinkToImages: String;
-begin
-  Result := 'http://www.datadoors.net/webservices/datadoors26.asmx';
+
+
+ VPostData :=
+  TBinaryDataByMemStream.CreateFromMem(
+     Length(VPostDataStr),
+     Addr(VPostDataStr[1])
+     );
+
+ VHeader := 'Host: www.datadoors.net'+#$D#$A+
+  'Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1'+#$D#$A+
+  'Accept-Language: ru-RU,ru;q=0.9,en;q=0.8'+#$D#$A+
+  'Referer: http://www.datadoors.net/DataDoorsWeb/I3FlexClient/I3FlexClient.swf?rev=18'+#$D#$A+
+  'Connection: Keep-Alive'+#$D#$A+
+  'Content-type: text/xml; charset=utf-8'+#$D#$A+
+  'SOAPAction: "http://www.datadoors.net/services/2.6/GetProductFootprintsByCriteria"';
+
+     Result := TDownloadPostRequest.Create(
+              'http://www.datadoors.net/webservices/datadoors26.asmx',
+              VHeader,
+              VPostData,
+              AInetConfig.GetStatic
+               );
 end;
 
-function TAvailPicsDD.ParseResponse(const AStream: TMemoryStream): Integer;
-var
-  XMLDocument: TXMLDocument;
-  Node, SubNode: IXMLNode;
-  PlacemarkNode: IXMLNode;
-  VDate: String;
-  Vsource, V_uid: String;
-  VposList : String;
-  VAddResult: Boolean;
-  i, j: integer;
-  VParams: TStrings;
-begin
-  Result:=0;
 
-  if (not Assigned(FTileInfoPtr.AddImageProc)) then
-    Exit;
-
-  if (nil=AStream) or (0=AStream.Size) then
-    Exit;
-
-  XMLDocument := TXMLDocument.Create(Application);
-  XMLDocument.LoadFromStream(AStream);
-  Node := XMLDocument.DocumentElement;
-  Node := Node.ChildNodes[0];
-  Node := Node.ChildNodes[0];
-  Node := Node.ChildNodes[0];
-    if (Node <> nil) and (Node.ChildNodes.Count > 0) then begin
-      for i := 0 to Node.ChildNodes.Count - 1 do begin
-        PlacemarkNode := Node.ChildNodes[i];
-        if PlacemarkNode.NodeName = 'Product' then begin
-        Vsource := PlacemarkNode.GetAttribute('name');
-        V_uid := PlacemarkNode.GetAttribute('uid');
-
-        PlacemarkNode := PlacemarkNode.ChildNodes.FindNode('Footprints');
-        for j := 0 to PlacemarkNode.ChildNodes.Count - 1 do  begin
-          SubNode := PlacemarkNode.ChildNodes[j];
-          if subNode.nodename='Footprint' then begin
-          try
-            VParams:=nil;
-            VParams:=TStringList.Create;
-            VDate := copy(SubNode.GetAttribute('acq_date'),1,10);
-            VDate[5] := DateSeparator;
-            VDate[8] := DateSeparator;
-
-            VposList := SubNode.GetAttribute('acq_date');
-            VParams.Values['acq_date'] := VposList;
-
-            VposList := SubNode.GetAttribute('name');
-            VParams.Values['CatalogID'] := VposList;
-
-            VposList := SubNode.GetAttribute('uid');
-            VParams.Values['uid'] := VposList;
-
-            VposList := SubNode.GetAttribute('cloud_cover');
-            VParams.Values['cloud_cover'] := VposList;
-
-            VParams.Values['Provider'] := 'www.datadoors.net';
-
-            SubNode := SubNode.ChildNodes.FindNode('Geometry');
-            VposList := SubNode.text;
-            VposList := ReplaceStr(VposList,',',' ');
-            VposList := ReplaceStr(VposList,'(','');
-            VposList := ReplaceStr(VposList,')','');
-            VposList := ReplaceStr(VposList,'MULTIPOLYGON','');
-            VParams.Values['Geometry'] := VposList;
-            VParams.Values['Source'] := Vsource;
-            VParams.Values['Source:uid'] := V_uid;
-
-            VposList := ReplaceStr(Vsource,'DigitalGlobe ','');
-            VposList := ReplaceStr(VposList,'GeoEye ','');
-            VposList := 'DD:' + VposList;
-
-            VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VposList, VParams);
-            FreeAndNil(VParams);
-            if VAddResult then begin
-              Inc(Result);
-            end;
-           except
-            if (nil<>VParams) then begin
-              try
-                VParams.Free;
-              except
-              end;
-              VParams:=nil;
-            end;
-          end;
-      end;
-     end;
-    end;
-   end;
-  end;
- end;
 end.

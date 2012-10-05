@@ -35,7 +35,6 @@ uses
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_InetConfig,
-  i_BinaryData,
   i_LocalCoordConverter,
   u_AvailPicsAbstract,
   u_AvailPicsDG,
@@ -192,7 +191,7 @@ uses
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   i_DoublePointsAggregator,
-  u_BinaryDataByMemStream,
+//  u_BinaryDataByMemStream,
   u_DoublePointsAggregator,
   u_VectorItmesFactorySimple,
   u_GeoFun,
@@ -311,32 +310,11 @@ var
   VDownloadResultDataNotExists: IDownloadResultDataNotExists;
   VResultOk: IDownloadResultOk;
   VCancelNotifier: INotifierOperation;
-  VPostData: IBinaryData;
-//  VMemoryStream: TMemoryStream;
 begin
-//  VMemoryStream:= TMemoryStream.Create;
   try
    Result:=FALSE;
    try
-     if Length(FAvailPicsSrc.PostData) > 0 then
-     begin
-       VPostData :=
-         TBinaryDataByMemStream.CreateFromMem(
-           Length(FAvailPicsSrc.PostData),
-           Addr(FAvailPicsSrc.PostData[1])
-         );
-       VRequest:=TDownloadPostRequest.Create(
-                    FAvailPicsSrc.LinkToImages,
-                    FAvailPicsSrc.Header,
-                    VPostData,
-                    FInetConfig.GetStatic
-                  );
-     end else
-     VRequest:=TDownloadRequest.Create(
-                  FAvailPicsSrc.LinkToImages,
-                  FAvailPicsSrc.Header,
-                  FInetConfig.GetStatic
-               );
+     VRequest:=FAvailPicsSrc.GetRequest(FInetConfig);
      VCancelNotifier:=TNotifierOperation.Create;
      VResult:=FDownloaderHttp.DoRequest(
                   VRequest,

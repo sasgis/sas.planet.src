@@ -26,6 +26,9 @@ uses
   Windows,
   SysUtils,
   Classes,
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
   u_AvailPicsAbstract;
 
 type
@@ -42,10 +45,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
     property WorkingZoom: Byte read FWorkingZoom write FWorkingZoom;
   end;
@@ -428,13 +428,6 @@ begin
   Result := XYZ_to_QuadKey(VTilePos, (VZoom+1)); // like 1210211331322
 end;
 
-function TAvailPicsNMC.LinkToImages: String;
-begin
-  // get tile (for exif)
-  Result := 'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile=ColorOnly&syn=1&appid=jsapi&token='+FDefaultKey+
-            '&quadkey='+GetQuadKey;
-end;
-
 function TAvailPicsNMC.ParseExifXml(const AStream: TMemoryStream): Integer;
 const
   cdgprefix = 'digitalglobe';
@@ -729,16 +722,6 @@ begin
   end;
 end;
 
-function TAvailPicsNMC.Header: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsNMC.PostData: string;
-begin
- Result := '';
-end;
-
 
 function TAvailPicsNMC.ParseResponse(const AStream: TMemoryStream): Integer;
 var
@@ -770,4 +753,12 @@ begin
   end;
 end;
 
+function TAvailPicsNMC.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+begin
+ Result := TDownloadRequest.Create(
+           'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile=ColorOnly&syn=1&appid=jsapi&token='+FDefaultKey+'&quadkey='+GetQuadKey,
+           '',
+           AInetConfig.GetStatic
+           );
+end;
 end.

@@ -28,6 +28,9 @@ uses
   Classes,
   XMLIntf,
   XMLDoc,
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
   u_AvailPicsAbstract;
 
 type
@@ -39,9 +42,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
 
@@ -54,16 +55,6 @@ uses
 
 { TAvailPicsDG2 }
 
-function TAvailPicsdg2.Header: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsdg2.PostData: string;
-begin
- Result := '';
-end;
-
 procedure TAvailPicsdg2.AfterConstruction;
 begin
   inherited;
@@ -75,20 +66,6 @@ begin
   Result := 'text/xml';
 end;
 
-function TAvailPicsdg2.LinkToImages: String;
-var
-  key:string;
-  i: integer;
-begin
-  Key:= FDefaultKey;
-  For i := 1 to Length(Key) do Key[i] := Chr(Ord(Key[i])+1);
-  Result := 'https://services.digitalglobe.com/catalogservice/wfsaccess?WIDTH=256&HEIGHT=256&CONNECTID='+Key+
-            '&MAXFEATURES=25&SERVICE=WFS&REQUEST=GetFeature&TYPENAME=DigitalGlobe:FinishedFeature&VERSION=1.1.0&BBOX='+
-            RoundEx(FTileInfoPtr.TileRect.Bottom, 8)+','+
-            RoundEx(FTileInfoPtr.TileRect.Left, 8)+','+
-            RoundEx(FTileInfoPtr.TileRect.Top, 8)+','+
-            RoundEx(FTileInfoPtr.TileRect.Right, 8);
-end;
 
 function TAvailPicsdg2.ParseResponse(const AStream: TMemoryStream): Integer;
 var
@@ -169,5 +146,27 @@ begin
     end;
 end;
 
+function TAvailPicsdg2.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+var
+  VLink: string;
+  key:string;
+  i: integer;
+begin
+ Key:= FDefaultKey;
+ For i := 1 to Length(Key) do Key[i] := Chr(Ord(Key[i])+1);
+ VLink  := 'https://services.digitalglobe.com/catalogservice/wfsaccess?WIDTH=256&HEIGHT=256&CONNECTID='+Key+
+            '&MAXFEATURES=25&SERVICE=WFS&REQUEST=GetFeature&TYPENAME=DigitalGlobe:FinishedFeature&VERSION=1.1.0&BBOX='+
+            RoundEx(FTileInfoPtr.TileRect.Bottom, 8)+','+
+            RoundEx(FTileInfoPtr.TileRect.Left, 8)+','+
+            RoundEx(FTileInfoPtr.TileRect.Top, 8)+','+
+            RoundEx(FTileInfoPtr.TileRect.Right, 8);
+
+ Result := TDownloadRequest.Create(
+           VLink,
+           '',
+           AInetConfig.GetStatic
+           );
+
+end;
 
 end.

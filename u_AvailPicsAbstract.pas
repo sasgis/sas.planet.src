@@ -25,6 +25,8 @@ interface
 uses
   SysUtils,
   Classes,
+  i_InetConfig,
+  i_DownloadRequest,
   i_LocalCoordConverter,
   t_GeoTypes;
 
@@ -64,12 +66,8 @@ type
     // parse response from server, returns number of added items
     function ParseResponse(const AStream: TMemoryStream): Integer; virtual; abstract;
 
-    // get full link
-    function LinkToImages: String; virtual; abstract;
-
-    //define Header
-    function Header: string; virtual; abstract;
-    function PostData: AnsiString; virtual; abstract;
+    // Request or PostRequest
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; virtual; abstract;
   end;
 
   TAvailPicsByKey = class(TAvailPicsAbstract)

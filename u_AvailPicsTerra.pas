@@ -25,6 +25,9 @@ interface
 uses
   SysUtils,
   Classes,
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
   u_AvailPicsAbstract;
 
 type
@@ -34,9 +37,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
 implementation
@@ -54,36 +55,10 @@ begin
 end;
 
 { TAvailPicsTerraserver }
-function TAvailPicsTerraserver.Header: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsTerraserver.PostData: string;
-begin
- Result := '';
-end;
 
 function TAvailPicsTerraserver.ContentType: String;
 begin
   Result := 'text/html';
-end;
-
-function TAvailPicsTerraserver.LinkToImages: String;
-//var VZoom: Byte;
-begin
-  //VZoom := FTileInfoPtr.Zoom;
-  //AdjustMinimalHiResZoom(VZoom);
-  // use decremented zoom here!
-
-  // http://www.terraserver.com/view_frm.asp?cx=56.75&cy=60.94&mpp=5&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=&lgin=28374&styp=&vic=
-  Result := 'http://www.terraserver.com/view_frm.asp?' +
-            'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
-            '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
-            '&mpp=5' +
-            '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=' +
-            '&lgin=' + _RandInt5 +
-            '&styp=&vic=';
 end;
 
 function TAvailPicsTerraserver.ParseResponse(const AStream: TMemoryStream): Integer;
@@ -239,6 +214,24 @@ begin
     FreeAndNil(VResponse);
     FreeAndNil(VSLParams);
   end;
+end;
+
+function TAvailPicsTerraserver.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+var
+  VLink: string;
+begin
+ VLink := 'http://www.terraserver.com/view_frm.asp?' +
+          'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
+          '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
+          '&mpp=5' +
+          '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=' +
+          '&lgin=' + _RandInt5 +
+          '&styp=&vic=';
+ Result := TDownloadRequest.Create(
+           VLink,
+           '',
+           AInetConfig.GetStatic
+           );
 end;
 
 end.

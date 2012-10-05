@@ -25,6 +25,9 @@ interface
 uses
   SysUtils,
   Classes,
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
   u_AvailPicsAbstract;
 
 type
@@ -39,10 +42,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-    
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
     // name in this class of vendor (stack number and description)
     function GUI_Name: String;
@@ -280,32 +280,6 @@ begin
   Result:=FStack_Number+', '+FStack_Descript;
 end;
 
-function TAvailPicsDG.Header: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsDG.PostData: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsDG.LinkToImages: String;
-var
-  VEncrypt: String;
-begin
-  VEncrypt:= Encode64(EncodeDG('cmd=info&id='+FStack_Key+
-                               '&appid='+FStack_AppId+
-                               '&ls='+FStack_Number+
-                               '&xc='+RoundEx(FTileInfoPtr.LonLat.X, 6)+
-                               '&yc='+RoundEx(FTileInfoPtr.LonLat.y, 6)+
-                               '&mpp='+R2StrPoint(FTileInfoPtr.mpp)+
-                               '&iw='+inttostr(FTileInfoPtr.wi)+
-                               '&ih='+inttostr(FTileInfoPtr.hi)+
-                               '&extentset=all'));
-  Result := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + VEncrypt;
-end;
-
 function TAvailPicsDG.ParseResponse(const AStream: TMemoryStream): Integer;
 var
   i: Integer;
@@ -391,6 +365,29 @@ begin
   finally
     FreeAndNil(VList);
   end;
+end;
+
+function TAvailPicsDG.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+var
+  VLink: string;
+  VEncrypt: String;
+begin
+  VEncrypt:= Encode64(EncodeDG('cmd=info&id='+FStack_Key+
+                               '&appid='+FStack_AppId+
+                               '&ls='+FStack_Number+
+                               '&xc='+RoundEx(FTileInfoPtr.LonLat.X, 6)+
+                               '&yc='+RoundEx(FTileInfoPtr.LonLat.y, 6)+
+                               '&mpp='+R2StrPoint(FTileInfoPtr.mpp)+
+                               '&iw='+inttostr(FTileInfoPtr.wi)+
+                               '&ih='+inttostr(FTileInfoPtr.hi)+
+                               '&extentset=all'));
+  VLink := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + VEncrypt;
+  Result := TDownloadRequest.Create(
+              VLink,
+              '',
+              AInetConfig.GetStatic
+              );
+
 end;
 
 end.

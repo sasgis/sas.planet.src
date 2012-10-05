@@ -25,6 +25,9 @@ interface
 uses
   SysUtils,
   Classes,
+  i_InetConfig,
+  i_DownloadRequest,
+  u_DownloadRequest,
   u_AvailPicsAbstract;
 
 type
@@ -36,9 +39,7 @@ type
 
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
-    function LinkToImages: String; override;
-    function Header: string; override;
-    function PostData: AnsiString; override;
+    function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
 procedure AdjustMinimalBingHiResZoom(var VActualZoom: Byte);
@@ -70,30 +71,6 @@ end;
 function TAvailPicsBing.ContentType: String;
 begin
   Result := 'application/xml';
-end;
-
-function TAvailPicsBing.LinkToImages: String;
-var VZoom: Byte;
-begin
-  VZoom := FTileInfoPtr.Zoom;
-  AdjustMinimalBingHiResZoom(VZoom);
-
-  // use decremented zoom here!
-    
-  // http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/63.011796,58.619231?zl=14&o=xml&key=AvuPoJ5DwFK0Htv75MetMjEN1QjQHiB8UIkTP0XZGHUQn-y2-r464Mjg27vyQ8Z1
-  Result := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
-            RoundEx(FTileInfoPtr.LonLat.Y, 6)+','+RoundEx(FTileInfoPtr.LonLat.X, 6)+
-            '?zl='+IntToStr(VZoom)+'&o=xml&key='+FDefaultKey;
-end;
-
-function TAvailPicsBing.Header: string;
-begin
- Result := '';
-end;
-
-function TAvailPicsBing.PostData: string;
-begin
- Result := '';
 end;
 
 function TAvailPicsBing.ParseResponse(const AStream: TMemoryStream): Integer;
@@ -195,6 +172,24 @@ begin
     VResponse:=nil;
     VDOMDocument:=nil;
   end;
+end;
+
+function TAvailPicsBing.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
+var VZoom: Byte;
+    VLink: string;
+begin
+ VZoom := FTileInfoPtr.Zoom;
+ AdjustMinimalBingHiResZoom(VZoom);
+ VLink := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
+            RoundEx(FTileInfoPtr.LonLat.Y, 6)+','+RoundEx(FTileInfoPtr.LonLat.X, 6)+
+            '?zl='+IntToStr(VZoom)+'&o=xml&key='+FDefaultKey;
+
+ Result := TDownloadRequest.Create(
+           VLink,
+           '',
+           AInetConfig.GetStatic
+           );
+
 end;
 
 end.
