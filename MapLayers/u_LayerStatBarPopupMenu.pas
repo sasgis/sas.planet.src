@@ -138,6 +138,7 @@ end;
 
 procedure TLayerStatBarPopupMenu.PopUp;
 begin
+  InitItemsState;
   FParentMap.PopupMenu := FPopup;
 end;
 

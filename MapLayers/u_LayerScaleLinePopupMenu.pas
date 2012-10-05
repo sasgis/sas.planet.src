@@ -159,6 +159,7 @@ end;
 
 procedure TLayerScaleLinePopupMenu.PopUp;
 begin
+  InitItemsState;
   FParentMap.PopupMenu := FPopup;
 end;
 
