@@ -70,9 +70,8 @@ type
     const AInsertBuffer: PETS_INSERT_TILE_IN
   ): Byte; stdcall;
   
-  // delete tile or TNE marker (supported by provider)
+  // delete tile and TNE marker (supported by provider)
   // name 'ETS_DeleteTile' (MANDATORY)
-  // name 'ETS_DeleteTNE' (OPTIONAL)
   TETS_DeleteTile = function(
     const AProvider_Handle: PETS_Provider_Handle;
     const ADeleteBuffer: PETS_DELETE_TILE_IN
@@ -114,30 +113,11 @@ type
   ): Byte; stdcall;
 
 
-  // struct
-  TETS_STATIC_BUFFER = packed record
-    wSize: SmallInt;
-    wReserved: SmallInt;
-    //dwNoVersionId: LongInt; // special id_version for requests without version (Int or SmallInt)
-    //dwPriVersionId: LongInt; // primary id_version for service (Int or SmallInt)
-    //dwPriContentType: LongInt; // primary contenttype for service (Int or SmallInt)
-    //Status_Current: Byte;  // 0 by default
-    //Status_MaxOK: Byte; // 0 by default
-    //NoInsert: Byte; // 0 or 1
-    //NoDelete: Byte; // 0 or 1
-    //NoSelect: Byte; // 0 or 1
-    //NoVerions: Byte; // 0 or 1
-    //LastError: LongInt;
-  public
-    procedure Clear;
-  end;
-  PETS_STATIC_BUFFER = ^TETS_STATIC_BUFFER;
-
   // initialize storage provider
   // name 'ETS_Initialize'
   TETS_Initialize = function(
     const AProvider_Handle: PETS_Provider_Handle;
-    const AStatusBuffer: PETS_STATIC_BUFFER; // MANDATORY
+    const AStatusBuffer: PETS_SERVICE_STORAGE_OPTIONS; // MANDATORY
     const AFlags: LongWord;  // see ETS_INIT_* constants
     const AHostPointer: Pointer // MANDATORY
   ): Byte; stdcall;
@@ -201,11 +181,12 @@ type
 
   // AInfoClass values for TETS_SetInformation
 const
-  ETS_INFOCLASS_SetStorageIdentifier = $00; // set GlobalStorageIdentifier and ServiceName
-  
+  ETS_INFOCLASS_SetStorageIdentifier  = $00; // set GlobalStorageIdentifier and ServiceName
+  ETS_INFOCLASS_SetPrimaryContentType = $01; // set primary ContentType (if size=SizeOfAnsiChar -> use PAnsiChar)
+
 type
   TETS_INFOCLASS_Callbacks = (
-    ETS_INFOCLASS_SelectTile_Callback       = $01 // set callback for ETS_SelectTile (pointer)
+    ETS_INFOCLASS_SelectTile_Callback       = $10 // set callback for ETS_SelectTile (pointer)
     ,
     ETS_INFOCLASS_EnumTileVersions_Callback       // set callback for ETS_EnumTileVersions (pointer)
     ,
@@ -223,13 +204,5 @@ type
 
 
 implementation
-
-{ TETS_STATIC_BUFFER }
-
-procedure TETS_STATIC_BUFFER.Clear;
-begin
-  FillChar(Self, SizeOf(Self), 0);
-  Self.wSize := SizeOf(Self);
-end;
 
 end.

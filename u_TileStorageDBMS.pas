@@ -70,7 +70,6 @@ type
     FETS_InsertTile: Pointer; // TETS_InsertTile
     FETS_InsertTNE: Pointer;  // TETS_InsertTile (OPTIONAL)
     FETS_DeleteTile: Pointer; // TETS_DeleteTile
-    FETS_DeleteTNE: Pointer;  // TETS_DeleteTile (OPTIONAL)
     FETS_SetInformation: Pointer;   // TETS_SetInformation
     FETS_EnumTileVersions: Pointer; // TETS_EnumTileVersions (OPTIONAL)
     FETS_GetTileRectInfo: Pointer;  // TETS_GetTileRectInfo (OPTIONAL)
@@ -79,7 +78,7 @@ type
     FETS_KillTileEnum: Pointer;     // TETS_KillTileEnum (OPTIONAL)
 
     // shared buffer
-    FETS_STATIC_BUFFER: TETS_STATIC_BUFFER;
+    FETS_SERVICE_STORAGE_OPTIONS: TETS_SERVICE_STORAGE_OPTIONS;
 
     // sync mem cache routine
     procedure DoTTLSync(Sender: TObject);
@@ -123,21 +122,11 @@ type
   private
     // service helpers routines
 
-    function NowUTC: TDateTime;
-
-    // delete tile or TNE
-    function InternalDeleteTileOrTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ARoutinePtr: Pointer;
-      const ACallForTNE: Boolean
-    ): Boolean;
-
     procedure InternalSaveTileOrTNE(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData;
       const ARoutinePtr: Pointer;
       const ACallForTNE: Boolean
@@ -543,7 +532,7 @@ begin
     AStoragePath
   );
 
-  FETS_STATIC_BUFFER.Clear;
+  FETS_SERVICE_STORAGE_OPTIONS.Clear;
 
   FDLLSync := MakeSyncRW_Big(Self);
 
@@ -589,8 +578,82 @@ function TTileStorageETS.DeleteTile(
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
+var
+  VStep: Byte;
+  VResult: Byte;
+  VTileID: TTILE_ID_XYZ;
+  VBufferIn: TETS_DELETE_TILE_IN;
+  VVersionString: String;
 begin
-  Result := InternalDeleteTileOrTNE(AXY, AZoom, AVersionInfo, FETS_DeleteTile, FALSE);
+  Result := FALSE;
+  // check if no routine
+  if (nil=FETS_DeleteTile) then
+    Exit;
+
+  VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
+  VStep := 0;
+  repeat
+    // let us go
+    DoBeginWork((VStep>0));
+    try
+      if StorageStateInternal.DeleteAccess <> asDisabled then begin
+        // allow delete - initialize buffers
+        if (0=VStep) then begin
+          VTileID.xy := AXY;
+          VTileID.z := AZoom;
+          VBufferIn.XYZ := @VTileID;
+          // make flags
+          VBufferIn.dwOptionsIn := 0;
+          // make version
+          VVersionString := AVersionInfo.StoreString;
+          VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+          if SizeOf(Char)=SizeOf(AnsiChar) then begin
+            // AnsiString
+            VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN);
+          end;
+        end else begin
+          // exclusively
+          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
+        end;
+
+        // request to storage
+        VResult := TETS_DeleteTile(FETS_DeleteTile)(
+          @FDLLProvHandle,
+          @VBufferIn);
+      end else begin
+        // no access
+        Exit;
+      end;
+    finally
+      DoEndWork((VStep>0));
+    end;
+
+    // check response
+    case VResult of
+      ETS_RESULT_NEED_EXCLUSIVE: begin
+        // repeat exclusively
+        Inc(VStep);
+      end;
+      ETS_RESULT_OK: begin
+        // success
+        Result := TRUE;
+        // break to exit loop and write to cache
+        break;
+      end;
+      else begin
+        // failed
+        Exit;
+      end;
+    end;
+  until FALSE;
+
+  if Result then begin
+    if FUseMemCache then begin
+      // delete both tile and TNE
+      FTileInfoMemCache.Remove(AXY, AZoom);
+    end;
+    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+  end;
 end;
 
 destructor TTileStorageETS.Destroy;
@@ -1031,91 +1094,6 @@ begin
   end;
 end;
 
-function TTileStorageETS.InternalDeleteTileOrTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ARoutinePtr: Pointer;
-  const ACallForTNE: Boolean
-): Boolean;
-var
-  VStep: Byte;
-  VResult: Byte;
-  VTileID: TTILE_ID_XYZ;
-  VBufferIn: TETS_DELETE_TILE_IN;
-  VVersionString: String;
-begin
-  Result := FALSE;
-  // check if no routine
-  if (nil=ARoutinePtr) then
-    Exit;
-
-  VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
-  VStep := 0;
-  repeat
-    // let us go
-    DoBeginWork((VStep>0));
-    try
-      if StorageStateInternal.DeleteAccess <> asDisabled then begin
-        // allow delete - initialize buffers
-        if (0=VStep) then begin
-          VTileID.xy := AXY;
-          VTileID.z := AZoom;
-          VBufferIn.XYZ := @VTileID;
-          // make flags
-          VBufferIn.dwOptionsIn := 0;
-          // make version
-          VVersionString := AVersionInfo.StoreString;
-          VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
-          if SizeOf(Char)=SizeOf(AnsiChar) then begin
-            // AnsiString
-            VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN);
-          end;
-        end else begin
-          // exclusively
-          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
-        end;
-
-        // request to storage
-        VResult := TETS_DeleteTile(ARoutinePtr)(
-          @FDLLProvHandle,
-          @VBufferIn);
-      end else begin
-        // no access
-        Exit;
-      end;
-    finally
-      DoEndWork((VStep>0));
-    end;
-
-    // check response
-    case VResult of
-      ETS_RESULT_NEED_EXCLUSIVE: begin
-        // repeat exclusively
-        Inc(VStep);
-      end;
-      ETS_RESULT_OK: begin
-        // success
-        Result := TRUE;
-        // break to exit loop and write to cache
-        break;
-      end;
-      else begin
-        // failed
-        Exit;
-      end;
-    end;
-  until FALSE;
-
-  if Result then begin
-    if FUseMemCache then begin
-      // delete both tile and TNE
-      FTileInfoMemCache.Remove(AXY, AZoom);
-    end;
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-  end;
-end;
-
 function TTileStorageETS.InternalLib_CheckInitialized: Boolean;
 begin
   Result := (0 <> FDLLHandle) and (nil <> FDLLProvHandle) and
@@ -1125,7 +1103,7 @@ begin
     (nil <> FETS_DeleteTile) and
     (nil <> FETS_SetInformation);
   // FETS_Sync is OPTIONAL
-  // FETS_InsertTNE and FETS_DeleteTNE are OPTIONAL (if storage supports TNE only with tiles)
+  // FETS_InsertTNE and OPTIONAL (if storage supports TNE only with tiles)
   // FETS_EnumTileVersions is OPTIONAL (used for enum versions for single tile)
   // FETS_GetTileRectInfo is OPTIONAL (used by filling map)
   // FETS_MakeTileEnum and FETS_NextTileEnum and FETS_KillTileEnum is OPTIONAL (used by cache manager)
@@ -1141,7 +1119,6 @@ begin
   FETS_InsertTile := nil;
   FETS_InsertTNE  := nil;
   FETS_DeleteTile := nil;
-  FETS_DeleteTNE  := nil;
 
   FETS_SetInformation   := nil;
   FETS_EnumTileVersions := nil;
@@ -1155,10 +1132,21 @@ end;
 function TTileStorageETS.InternalLib_Complete: Boolean;
 var
   p: Pointer;
+  VPrimContentType: AnsiString;
 begin
   Result := FALSE;
   if (0 <> FDLLHandle) then begin
-    // uninit
+    // notify provider about primary contenttype
+    VPrimContentType := FMainContentType.GetContentType;
+    TETS_SetInformation(FETS_SetInformation)(
+      @FDLLProvHandle,
+      Ord(ETS_INFOCLASS_SetPrimaryContentType),
+      SizeOf(AnsiChar),
+      PAnsiChar(VPrimContentType),
+      nil
+    );
+    
+    // complete initialization
     p := GetProcAddress(FDLLHandle, 'ETS_Complete');
     if (nil <> p) then begin
       TETS_Complete(p)(@FDLLProvHandle, 0);
@@ -1177,8 +1165,8 @@ begin
     // get init proc
     VFunc := GetProcAddress(FDLLHandle, 'ETS_Initialize');
     if (nil <> VFunc) then begin
-      FETS_STATIC_BUFFER.Clear;
-      VResult := TETS_Initialize(VFunc)(@FDLLProvHandle, @FETS_STATIC_BUFFER, 0, Pointer(Self));
+      FETS_SERVICE_STORAGE_OPTIONS.Clear;
+      VResult := TETS_Initialize(VFunc)(@FDLLProvHandle, @FETS_SERVICE_STORAGE_OPTIONS, 0, Pointer(Self));
       Result := (ETS_RESULT_OK=VResult);
     end;
 
@@ -1207,7 +1195,6 @@ begin
       FETS_InsertTile := GetProcAddress(FDLLHandle, 'ETS_InsertTile');
       FETS_InsertTNE := GetProcAddress(FDLLHandle, 'ETS_InsertTNE');
       FETS_DeleteTile := GetProcAddress(FDLLHandle, 'ETS_DeleteTile');
-      FETS_DeleteTNE := GetProcAddress(FDLLHandle, 'ETS_DeleteTNE');
       FETS_EnumTileVersions := GetProcAddress(FDLLHandle, 'ETS_EnumTileVersions');
       FETS_GetTileRectInfo := GetProcAddress(FDLLHandle, 'ETS_GetTileRectInfo');
       // enumtiles
@@ -1295,6 +1282,7 @@ procedure TTileStorageETS.InternalSaveTileOrTNE(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime;
   const AData: IBinaryData;
   const ARoutinePtr: Pointer;
   const ACallForTNE: Boolean
@@ -1336,7 +1324,7 @@ begin
           // no contenttype
           VBufferIn.szContentType := nil;
           // other fields
-          VBufferIn.dtLoadedUTC := NowUTC;
+          VBufferIn.dtLoadedUTC := ALoadDate;
           if Assigned(AData) then begin
             VBufferIn.dwTileSize := AData.Size;
             VBufferIn.ptTileBuffer := AData.Buffer;
@@ -1407,13 +1395,6 @@ begin
   end;
 end;
 
-function TTileStorageETS.NowUTC: TDateTime;
-var st: TSystemTime;
-begin
-  GetSystemTime(st);
-  Result := SystemTimeToDateTime(st);
-end;
-
 procedure TTileStorageETS.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
@@ -1422,7 +1403,7 @@ procedure TTileStorageETS.SaveTile(
   const AData: IBinaryData
 );
 begin
-  InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, AData, FETS_InsertTile, FALSE);
+  InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, AData, FETS_InsertTile, FALSE);
 end;
 
 procedure TTileStorageETS.SaveTNE(
@@ -1432,7 +1413,7 @@ procedure TTileStorageETS.SaveTNE(
   const ALoadDate: TDateTime
 );
 begin
-  InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, nil, FETS_InsertTNE, TRUE);
+  InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, nil, FETS_InsertTNE, TRUE);
 end;
 
 function TTileStorageETS.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;

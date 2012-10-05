@@ -67,11 +67,13 @@ const
   ETS_RESULT_INVALID_TILE_POS = 41;
   // if id is smallint and set greater than smallint
   ETS_RESULT_ID_RANGE_ERROR   = 42;
-  // if sizeof struct is less than required
-  ETS_RESULT_SIZE_TOO_SMALL   = 43;
+  // if size of data is invalid
+  ETS_RESULT_INVALID_BUFFER_SIZE = 43;
   // storage path is invalid
   ETS_RESULT_INVALID_PATH     = 44;
-  
+  // storage structure is invalid
+  ETS_RESULT_INVALID_STRUCTURE = 45;
+
   // length of Nst string parameter too big
   ETS_RESULT_STRING1_LEN = 51;
   ETS_RESULT_STRING2_LEN = 52;
@@ -100,15 +102,16 @@ const
 
   // how to divide tiles between tables (mask width)
   TILE_DIV_NONE  = 'Z'; // all-in-one       (0) - reserved!
-  TILE_DIV_1024  = 'D'; // div by mod 1024 (10) - internal only
-  TILE_DIV_2048  = 'F'; // div by mod 2048 (11) - internal only
-  TILE_DIV_4096  = 'G'; // div by mod 4096 (12) - internal only
-  TILE_DIV_8192  = 'J'; // div by mod 8192 (13) - internal only
-  TILE_DIV_16384 = 'N'; // div by mod 16384 (14) - internal only
-  TILE_DIV_32768 = 'Q'; // div by mod 32768 (15) - internal only
+  TILE_DIV_1024  = 'F'; // div by mod 1024 (10) - internal only
+  TILE_DIV_2048  = 'G'; // div by mod 2048 (11) - internal only
+  TILE_DIV_4096  = 'H'; // div by mod 4096 (12) - internal only
+  TILE_DIV_8192  = 'I'; // div by mod 8192 (13) - internal only
+  TILE_DIV_16384 = 'J'; // div by mod 16384 (14) - internal only
+  TILE_DIV_32768 = 'K'; // div by mod 32768 (15) - internal only
+  TILE_DIV_ERROR = '0'; // unknown value
 
   // how to load tiles with another version or without version
-  ETS_TLM_WITHOUT_VERSION = $00000001; // allow (without version) if (request with version) and (no tiles with any version)
+  ETS_TLM_WITHOUT_VERSION = $00000001; // allow (without version) if (request with version) and (no tiles with any prev version)
   ETS_TLM_PREV_VERSION    = $00000002; // allow (prev version) if (request with version) and (tile not found)
   ETS_TLM_LAST_VERSION    = $00000004; // allow (last version) if (request without version) and (tile without version not found)
 
@@ -176,7 +179,7 @@ type
     szVersionOut: Pointer;     // Optional output version (PAnsiChar or PWideChar)
     szContentTypeOut: Pointer; // Mandatory output contenttype (PAnsiChar or PWideChar)
     dtLoadedUTC: TDateTime;    // Mandatory (UTC only!)
-    dwTileSize: LongWord;      // Mandatory (treat <=0 as TNE)
+    dwTileSize: LongInt;       // Mandatory (treat <=0 as TNE)
     ptTileBuffer: Pointer;     // Optional
   end;
   PETS_SELECT_TILE_OUT = ^TETS_SELECT_TILE_OUT;
@@ -188,7 +191,7 @@ type
     dwOptionsIn: LongWord;  // ETS_ROI_* constants
     szContentType: Pointer; // Optional contenttype (PAnsiChar or PWideChar)
     dtLoadedUTC: TDateTime; // Mandatory (UTC only!)
-    dwTileSize: LongWord;   // Mandatory (treat <=0 as TNE)
+    dwTileSize: LongInt;    // Mandatory (treat <=0 as TNE)
     ptTileBuffer: Pointer;  // Optional
   end;
   PETS_INSERT_TILE_IN = ^TETS_INSERT_TILE_IN;
@@ -311,8 +314,13 @@ type
 
   // buffer to set service options to storage
   TETS_SERVICE_STORAGE_OPTIONS = packed record
+    // service fields
+    wSize: SmallInt;
+    wReserved: SmallInt;  // use 0
+    // from host to storage
     tile_load_mode: LongWord; // ETS_TLM_* constants
     tile_save_mode: LongWord; // ETS_TSM_* constants
+    // from storage to host
     id_div_mode: AnsiChar; // how to divide tiles into tables
     id_ver_comp: AnsiChar; // type of version numbers comparator
     work_mode: AnsiChar; //  ETS_SWM_* constants
@@ -329,6 +337,7 @@ implementation
 procedure TETS_SERVICE_STORAGE_OPTIONS.Clear;
 begin
   FillChar(Self, sizeof(Self), 0);
+  wSize := sizeof(Self);
   id_div_mode := TILE_DIV_NONE;
   id_ver_comp := TILE_VERSION_COMPARE_NONE;
   work_mode := ETS_SWM_DEFAULT;
