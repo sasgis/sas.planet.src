@@ -133,6 +133,8 @@ ResourceString
   SAS_STR_ExtendedPointCaption = '%0:s (Placemark)';
   SAS_STR_ExtendedPathCaption = '%0:s (Path)';
   SAS_STR_ExtendedPolygonCaption = '%0:s (Polygon)';
+  SAS_STR_Finished = 'Finished';
+  SAS_STR_CacheConvertionIsFinished = 'Cache convertion is finished!';
   SAS_STR_EditMap = 'Map Settings:';
   SAS_STR_Pause = 'Pause';
   SAS_STR_Paused = 'Paused... (%0:s)';

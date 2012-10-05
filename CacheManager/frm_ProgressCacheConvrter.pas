@@ -220,8 +220,9 @@ begin
     lblSizeValue.Caption := VValueConverter.DataSizeConvert(FProgressInfo.TilesSize / 1024);
     lblLastTileValue.Caption := FProgressInfo.LastTileName;     
     if FProgressInfo.Finished then begin
-      Self.Caption := 'Finished';
+      Self.Caption := SAS_STR_Finished;
       FFinished := True;
+      ShowMessage(SAS_STR_CacheConvertionIsFinished);
     end;
   end;
 end;

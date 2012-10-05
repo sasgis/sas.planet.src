@@ -150,6 +150,7 @@ procedure TfrmCacheManager.btnSelectSrcPathClick(Sender: TObject);
 var
   VPath: string;
 begin
+  VPath := edtPath.Text;
   if SelectDirectory('', '', VPath) then begin
     edtPath.Text := IncludeTrailingPathDelimiter(VPath);
   end;
@@ -164,6 +165,7 @@ procedure TfrmCacheManager.btnSelectDestPathClick(Sender: TObject);
 var
   VPath: string;
 begin
+  VPath := edtDestPath.Text;
   if SelectDirectory('', '', VPath) then begin
     edtDestPath.Text := IncludeTrailingPathDelimiter(VPath);
   end;

@@ -165,7 +165,7 @@ object frmCacheManager: TfrmCacheManager
           Top = 81
           Width = 381
           Height = 17
-          Caption = 'Overwrite exist tiles'
+          Caption = 'Overwrite existing tiles'
           TabOrder = 2
         end
         object btnSelectDestPath: TButton
