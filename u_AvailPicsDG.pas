@@ -40,6 +40,9 @@ type
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
     function LinkToImages: String; override;
+    
+    function Header: string; override;
+    function PostData: AnsiString; override;
 
     // name in this class of vendor (stack number and description)
     function GUI_Name: String;
@@ -275,6 +278,16 @@ end;
 function TAvailPicsDG.GUI_Name: String;
 begin
   Result:=FStack_Number+', '+FStack_Descript;
+end;
+
+function TAvailPicsDG.Header: string;
+begin
+ Result := '';
+end;
+
+function TAvailPicsDG.PostData: string;
+begin
+ Result := '';
 end;
 
 function TAvailPicsDG.LinkToImages: String;

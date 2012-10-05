@@ -35,6 +35,8 @@ type
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
     function LinkToImages: String; override;
+    function Header: string; override;
+    function PostData: AnsiString; override;
   end;
 
 implementation
@@ -44,6 +46,15 @@ uses
   u_TileRequestBuilderHelpers;
 
 { TAvailPicsESRI }
+function TAvailPicsESRI.Header: string;
+begin
+ Result := '';
+end;
+
+function TAvailPicsESRI.PostData: string;
+begin
+ Result := '';
+end;
 
 function TAvailPicsESRI.ContentType: String;
 begin
@@ -125,7 +136,7 @@ function TAvailPicsESRI.ParseResponse(const AStream: TMemoryStream): Integer;
       System.Insert(DateSeparator, Result, 8);
     end;
   end;
-  
+
 const
   c_features = 'features';
   c_attributes = 'attributes';

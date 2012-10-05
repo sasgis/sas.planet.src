@@ -40,6 +40,8 @@ type
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
     function LinkToImages: String; override;
+    function Header: string; override;
+    function PostData: AnsiString; override;
   end;
 
 
@@ -51,6 +53,16 @@ uses
   xmldom;
 
 { TAvailPicsDG2 }
+
+function TAvailPicsdg2.Header: string;
+begin
+ Result := '';
+end;
+
+function TAvailPicsdg2.PostData: string;
+begin
+ Result := '';
+end;
 
 procedure TAvailPicsdg2.AfterConstruction;
 begin

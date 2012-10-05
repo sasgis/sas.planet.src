@@ -44,6 +44,9 @@ type
 
     function LinkToImages: String; override;
 
+    function Header: string; override;
+    function PostData: AnsiString; override;
+
     property WorkingZoom: Byte read FWorkingZoom write FWorkingZoom;
   end;
 
@@ -725,6 +728,17 @@ begin
     VDOMDocument:=nil;
   end;
 end;
+
+function TAvailPicsNMC.Header: string;
+begin
+ Result := '';
+end;
+
+function TAvailPicsNMC.PostData: string;
+begin
+ Result := '';
+end;
+
 
 function TAvailPicsNMC.ParseResponse(const AStream: TMemoryStream): Integer;
 var

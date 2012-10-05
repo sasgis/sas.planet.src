@@ -35,6 +35,8 @@ type
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
     function LinkToImages: String; override;
+    function Header: string; override;
+    function PostData: AnsiString; override;
   end;
 
 implementation
@@ -52,6 +54,15 @@ begin
 end;
 
 { TAvailPicsTerraserver }
+function TAvailPicsTerraserver.Header: string;
+begin
+ Result := '';
+end;
+
+function TAvailPicsTerraserver.PostData: string;
+begin
+ Result := '';
+end;
 
 function TAvailPicsTerraserver.ContentType: String;
 begin
@@ -86,7 +97,7 @@ function TAvailPicsTerraserver.ParseResponse(const AStream: TMemoryStream): Inte
     Vmm := '';
     Vdd := '';
     Vyyyy := AText;
-    
+
     // get m[m]
     VSepPos := System.Pos(ASep, Vyyyy);
     if VSepPos>0 then begin
@@ -104,7 +115,7 @@ function TAvailPicsTerraserver.ParseResponse(const AStream: TMemoryStream): Inte
       while Length(Vdd)<2 do
         Vdd := '0' + Vdd;
     end;
-    
+
     // check all parts
     if TryStrToInt(Vyyyy, VSepPos) then
     if TryStrToInt(Vmm, VSepPos) then

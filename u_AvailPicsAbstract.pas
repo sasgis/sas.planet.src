@@ -66,6 +66,10 @@ type
 
     // get full link
     function LinkToImages: String; virtual; abstract;
+
+    //define Header
+    function Header: string; virtual; abstract;
+    function PostData: AnsiString; virtual; abstract;
   end;
 
   TAvailPicsByKey = class(TAvailPicsAbstract)

@@ -35,6 +35,7 @@ uses
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_InetConfig,
+  i_BinaryData,
   i_LocalCoordConverter,
   u_AvailPicsAbstract,
   u_AvailPicsDG,
@@ -43,6 +44,7 @@ uses
   u_AvailPicsNMC,
   u_AvailPicsTerra,
   u_AvailPicsESRI,
+  u_AvailPicsDD,
   i_NotifierOperation,
   u_NotifierOperation,
   i_DownloadRequest,
@@ -64,29 +66,36 @@ type
     tvFound: TTreeView;
     btnUp: TButton;
     btnDown: TButton;
-    gbImagesSource: TGroupBox;
-    cbDGstacks: TComboBox;
     btnCopy: TButton;
     pnlRight: TPanel;
-    chkBing: TCheckBox;
-    chkDG: TCheckBox;
     btnRefresh: TButton;
     veImageParams: TValueListEditor;
-    lbZoom: TLabel;
     spltDesc: TSplitter;
-    chkTerraserver: TCheckBox;
-    chkNMC15: TCheckBox;
-    chkNMC18: TCheckBox;
-    chkNMC20: TCheckBox;
-    lbNMC: TLabel;
-    chkNMC16: TCheckBox;
-    lbNMCZoom: TLabel;
-    chkESRI: TCheckBox;
-    chkDG2: TCheckBox;
     btnMakePoly: TButton;
     chkALLImages: TCheckBox;
+    lbNMC: TLabel;
+    lbNMCZoom: TLabel;
+    lbZoom: TLabel;
+    cbDGstacks: TComboBox;
+    chkBing: TCheckBox;
     chkALLServices: TCheckBox;
+    chkTerraserver: TCheckBox;
+    chkNMC20: TCheckBox;
+    chkNMC18: TCheckBox;
+    chkNMC16: TCheckBox;
+    chkNMC15: TCheckBox;
     chkLowResolutionToo: TCheckBox;
+    chkESRI: TCheckBox;
+    chkDG2: TCheckBox;
+    chkDG: TCheckBox;
+    PnlSearch: TGroupBox;
+    ChkDD1: TCheckBox;
+    ChkDD2: TCheckBox;
+    ChkDD3: TCheckBox;
+    ChkDD4: TCheckBox;
+    ChkDD5: TCheckBox;
+    LabelDatadoors: TLabel;
+    Up: TPanel;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -108,6 +117,7 @@ type
     FBing: TAvailPicsBing;
     FDG2: TAvailPicsDG2;
     FNMCs: TAvailPicsNMCs;
+    FDDs: TAvailPicsDataDoors;
     FTerraserver: TAvailPicsTerraserver;
     FESRI: TAvailPicsESRI;
     FDGStacks: TAvailPicsDGs;
@@ -118,10 +128,11 @@ type
     FALLClicking: Boolean;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
+
   private
     procedure MakePicsVendors;
     procedure KillPicsVendors;
-    
+
     procedure UpdateZoomLabel;
     procedure PropagateLocalConverter;
 
@@ -181,6 +192,7 @@ uses
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   i_DoublePointsAggregator,
+  u_BinaryDataByMemStream,
   u_DoublePointsAggregator,
   u_VectorItmesFactorySimple,
   u_GeoFun,
@@ -190,10 +202,10 @@ uses
 type
   TGetList = class(TThread)
   public
-    FLinkToService: String;
-    FContentType: String;
+    FDownloaderHttp: IDownloader; // TDownloaderHttp;
     FHttpErrorCode: Cardinal;
     FHttpErrorText: String;
+    
   private
     FInetConfig: IInetConfig;
     FForm: TfrmDGAvailablePic;
@@ -202,7 +214,6 @@ type
     FCallIndex: DWORD;
     FMemoryStream: TMemoryStream;
     function CallIndexActual: Boolean;
-    function GetStreamFromURL1: Boolean;
     procedure PostFinishedMessage;
   protected
     procedure Execute; override;
@@ -244,12 +255,11 @@ begin
   FreeOnTerminate:=true;
   Priority:=tpLower;
   FAvailPicsSrc:=AAvailPicsSrc;
-  FLinkToService:=AAvailPicsSrc.LinkToImages;
-  FContentType:=AAvailPicsSrc.ContentType;
   FForm := AForm;
   FChkBox := AChkBox;
   FCallIndex := AForm.FCallIndex;
   FMemoryStream := TMemoryStream.Create;
+  FDownloaderHttp:=TDownloaderHttp.Create(AForm.FResultFactory);
 end;
 
 destructor TGetList.Destroy;
@@ -270,60 +280,6 @@ begin
   FForm.veImageParams.Strings.Add(s1+'='+FHttpErrorText);
 end;
 
-function TGetList.GetStreamFromURL1: Boolean;
-var
-  VDownloaderHttp: IDownloader; // TDownloaderHttp;
-  VRequest: IDownloadRequest; // TDownloadRequest
-  VResult: IDownloadResult;
-  VResultWithRespond: IDownloadResultWithServerRespond;
-  VDownloadResultError: IDownloadResultError;
-  VDownloadResultDataNotExists: IDownloadResultDataNotExists;
-  VResultOk: IDownloadResultOk;
-  VCancelNotifier: INotifierOperation;
-begin
-  Result:=FALSE;
-  try
-    VDownloaderHttp:=TDownloaderHttp.Create(FForm.FResultFactory);
-    VRequest:=TDownloadRequest.Create(FLinkToService, '', FInetConfig.GetStatic);
-    VCancelNotifier:=TNotifierOperation.Create;
-
-    // download
-    VResult:=VDownloaderHttp.DoRequest(VRequest, VCancelNotifier, VCancelNotifier.CurrentOperation);
-
-    // check result
-    if not Assigned(VResult) then begin
-      // fail
-      FHttpErrorText:='No result';
-    end else if Supports(VResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
-      // obtain result
-      FHttpErrorCode := VResultWithRespond.StatusCode;
-      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        // save to stream
-        if (System.Pos(FContentType, VResultOk.ContentType)>0) then begin
-          // ok
-          FMemoryStream.Position:=0;
-          FMemoryStream.SetSize(VResultOk.Data.Size);
-          CopyMemory(FMemoryStream.Memory, VResultOk.Data.Buffer, VResultOk.Data.Size);
-          Result:=TRUE;
-        end else begin
-          // invalid ContentType
-          FMemoryStream.Position:=0;
-          FMemoryStream.SetSize(0);
-        end;
-      end;
-    end else if Supports(VResult, IDownloadResultError, VDownloadResultError) then begin
-      // error
-      FHttpErrorText:=VDownloadResultError.ErrorText;
-    end else if Supports(VResult, IDownloadResultDataNotExists, VDownloadResultDataNotExists) then begin
-      // no data
-      FHttpErrorText:=VDownloadResultDataNotExists.ReasonText;
-    end;
-  finally
-    VRequest:=nil;
-    VDownloaderHttp:=nil;
-    VCancelNotifier:=nil;
-  end;
-end;
 
 procedure TGetList.PostFinishedMessage;
 begin
@@ -346,9 +302,82 @@ begin
 end;
 
 procedure TGetList.Execute;
+var
+  Result: boolean;
+  VRequest: IDownloadRequest; // TDownloadRequest
+  VResult: IDownloadResult;
+  VResultWithRespond: IDownloadResultWithServerRespond;
+  VDownloadResultError: IDownloadResultError;
+  VDownloadResultDataNotExists: IDownloadResultDataNotExists;
+  VResultOk: IDownloadResultOk;
+  VCancelNotifier: INotifierOperation;
+  VPostData: IBinaryData;
+//  VMemoryStream: TMemoryStream;
 begin
+//  VMemoryStream:= TMemoryStream.Create;
   try
-    if GetStreamFromURL1 then begin
+   Result:=FALSE;
+   try
+     if Length(FAvailPicsSrc.PostData) > 0 then
+     begin
+       VPostData :=
+         TBinaryDataByMemStream.CreateFromMem(
+           Length(FAvailPicsSrc.PostData),
+           Addr(FAvailPicsSrc.PostData[1])
+         );
+       VRequest:=TDownloadPostRequest.Create(
+                    FAvailPicsSrc.LinkToImages,
+                    FAvailPicsSrc.Header,
+                    VPostData,
+                    FInetConfig.GetStatic
+                  );
+     end else
+     VRequest:=TDownloadRequest.Create(
+                  FAvailPicsSrc.LinkToImages,
+                  FAvailPicsSrc.Header,
+                  FInetConfig.GetStatic
+               );
+     VCancelNotifier:=TNotifierOperation.Create;
+     VResult:=FDownloaderHttp.DoRequest(
+                  VRequest,
+                  VCancelNotifier,
+                  VCancelNotifier.CurrentOperation
+              );
+
+     // check result
+     if not Assigned(VResult) then begin
+       // fail
+       FHttpErrorText:='No result';
+     end else if Supports(VResult, IDownloadResultWithServerRespond, VResultWithRespond) then begin
+       // obtain result
+       FHttpErrorCode := VResultWithRespond.StatusCode;
+       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+         // save to stream
+         if (System.Pos(FAvailPicsSrc.ContentType, VResultOk.ContentType)>0) then begin
+           // ok
+           FMemoryStream.Position:=0;
+           FMemoryStream.SetSize(VResultOk.Data.Size);
+           CopyMemory(FMemoryStream.Memory, VResultOk.Data.Buffer, VResultOk.Data.Size);
+           Result:=TRUE;
+         end else begin
+           // invalid ContentType
+           FMemoryStream.Position:=0;
+           FMemoryStream.SetSize(0);
+         end;
+       end;
+     end else if Supports(VResult, IDownloadResultError, VDownloadResultError) then begin
+       // error
+       FHttpErrorText:=VDownloadResultError.ErrorText;
+     end else if Supports(VResult, IDownloadResultDataNotExists, VDownloadResultDataNotExists) then begin
+       // no data
+       FHttpErrorText:=VDownloadResultDataNotExists.ReasonText;
+     end;
+   finally
+     VRequest:=nil;
+     VCancelNotifier:=nil;
+   end;
+
+    if Result then begin
       // ok
       if not(Terminated) then
         Synchronize(ShowList);
@@ -502,6 +531,7 @@ procedure TfrmDGAvailablePic.btnRefreshClick(Sender: TObject);
 var
   VDGstack: TAvailPicsDG;
   j: TAvailPicsNMCZoom;
+  i: TAvailPicsDataDoorsID;
   VComp: TComponent;
 begin
   // clear
@@ -517,6 +547,15 @@ begin
     if Assigned(VComp) then
     if (VComp is TCheckBox) then begin
       RunImageThread(TCheckBox(VComp), FNMCs[j]);
+    end;
+  end;
+
+  for i := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
+    // ChkDD1, ChkDD2, ChkDD3, ChkDD4, ChkDD5
+    VComp := FindComponent('ChkDD' + IntToStr(Ord(i)));
+    if Assigned(VComp) then
+    if (VComp is TCheckBox) then begin
+      RunImageThread(TCheckBox(VComp), FDDs[i]);
     end;
   end;
 
@@ -573,11 +612,11 @@ begin
 
   // apply to all checkbox in gbImagesSource (except sender)
   if chkALLServices.state<>cbGrayed then
-  if gbImagesSource.ControlCount>0 then begin
+  if PnlSearch.ControlCount>0 then begin
     FALLClicking := TRUE;
     try
-      for i := 0 to gbImagesSource.ControlCount-1 do begin
-        VBox := gbImagesSource.Controls[i];
+      for i := 0 to PnlSearch.ControlCount-1 do begin
+        VBox := PnlSearch.Controls[i];
         if IsCommonServiceCheckbox(VBox) then begin
           // apply to service checkbox
           TCheckBox(VBox).State := chkALLServices.State;
@@ -651,7 +690,7 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
       AFullDesc := AFullDesc + '<br>' + ACaption + ':' + AValue;
     end;
   end;
-  
+
 var
   i,k: Integer;
   VXCommaY: Boolean;
@@ -668,11 +707,8 @@ begin
   if (nil=FMarkDBGUI) then
     Exit;
 
-  // VImportConfig := nil;
-  // VVectorItmesFactory := nil;
-  // VPointsAggregator := nil;
   k := tvFound.Items.Count;
-  
+
   if (0<k) then
   for i := 0 to k-1 do
   if (nil<>tvFound.Items.Item[i].Data) then
@@ -681,8 +717,15 @@ begin
     VXCommaY := FALSE;
     VGeometry := '';
     with TStrings(tvFound.Items.Item[i].Data) do
+
     try
       VGeometry := Values['VposList'];
+      if 0=length(VGeometry) then
+      if length(Values['Geometry'])>0 then begin
+         VGeometry := Values['Geometry'];
+         VXCommaY := TRUE;
+      end;
+
       (*
       if (0=Length(VGeometry)) then begin
         // allow import geometry for NokiaMapCreator - tile-bounded only!
@@ -695,43 +738,59 @@ begin
       VDate := Values['Date'];
       if (0=Length(VDate)) then
         VDate := Values['acquisitionDate'];
+      if (0=Length(VDate)) then
+        VDate := Values['acq_date'];
+
 
       if (0<Length(VGeometry)) then begin
-        VDesc := Values['FeatureId'];
-        Vname := copy(VDate,1,10)+' '+VDesc;
 
-        VDesc := 'FeatureId:'+VDesc;
+        VDesc := Values['FeatureId'];
+        if 0<length(VDesc)then begin
+          Vname := copy(VDate,1,10)+' '+VDesc;
+          VDesc := 'FeatureId:'+VDesc;
+        end;
+
+         if 0=length(VDesc) then begin
+          VDesc := Values['uid'];
+          Vname := copy(VDate,1,10)+' '+VDesc;
+          VDesc := 'uid:'+VDesc;
+         end;
         // add Date
         _AddWithBR(VDesc, 'Date', VDate);
 
         // add other values - use VDate as temp buffer
-
         // add Color
         VDate := Values['Color'];
         if (0=Length(VDate)) then
           VDate := Values['productType'];
         _AddWithBR(VDesc, 'Color', VDate);
-        
+
         // add Resolution
         VDate := Values['Resolution'];
         if (0=Length(VDate)) then
           VDate := Values['groundSampleDistance'];
         _AddWithBR(VDesc, 'Resolution', VDate);
-        
+
         // add Source
         _AddWithBR(VDesc, 'Source', Values['Source']);
 
         // add ID if exist
+        VDate := '';
         VDate := Values['LegacyId'];
         if (0<>Length(VDate)) then
         _AddWithBR(VDesc, 'LegacyId', VDate);
 
+        if 0=length(VDate) then begin
+          VDate := Values['CatalogID'];
+          _AddWithBR(VDesc, 'CatalogID', VDate);
+        end;
 
         // add Provider
         VDate := Values['Provider'];
         if (0=Length(VDate)) then
           VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator
         _AddWithBR(VDesc, 'Provider', VDate);
+
       end;
     except
     end;
@@ -876,6 +935,7 @@ procedure TfrmDGAvailablePic.KillPicsVendors;
 var
   i,k: Integer;
   j: TAvailPicsNMCZoom;
+  jj: TAvailPicsDataDoorsID;
 begin
   // simple
   FreeAndNil(FBing);
@@ -888,6 +948,9 @@ begin
     FreeAndNil(FNMCs[j]);
   end;
 
+  for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
+    FreeAndNil(FDDs[jj]);
+  end;
   // list
   cbDGstacks.Items.Clear;
   k:=Length(FDGStacks);
@@ -912,6 +975,9 @@ begin
 
   // make for nokia map creator
   GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo);
+
+  // make for datadoors
+  GenerateAvailPicsDD(FDDs, @FAvailPicsTileInfo);
 
   // make for terraserver
   if (nil=FTerraserver) then
@@ -942,6 +1008,7 @@ procedure TfrmDGAvailablePic.PropagateLocalConverter;
 var
   i,k: Integer;
   j: TAvailPicsNMCZoom;
+  jj: TAvailPicsDataDoorsID;
 begin
   if (nil<>FBing) then
     FBing.SetLocalConverter(FLocalConverter);
@@ -952,6 +1019,11 @@ begin
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
     if (FNMCs[j]<>nil) then
       FNMCs[j].SetLocalConverter(FLocalConverter);
+  end;
+
+  for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
+    if (FDDs[jj]<>nil) then
+      FDDs[jj].SetLocalConverter(FLocalConverter);
   end;
 
   if (nil<>FTerraserver) then
@@ -978,7 +1050,8 @@ begin
     with TGetList.Create(FInetConfig,
                          AImgVendor,
                          Self,
-                         AChkBox) do
+                         AChkBox
+                         ) do
     begin
       Resume;
     end;
@@ -1068,9 +1141,9 @@ var
 begin
   // obtain chkALLServices checkbox state
   VHasState := 0;
-  if gbImagesSource.ControlCount>0 then
-  for i := 0 to gbImagesSource.ControlCount-1 do begin
-    VBox := gbImagesSource.Controls[i];
+  if PnlSearch.ControlCount>0 then
+  for i := 0 to PnlSearch.ControlCount-1 do begin
+    VBox := PnlSearch.Controls[i];
     if IsCommonServiceCheckbox(VBox) then begin
       // keep state
       if (cbChecked = TCheckBox(VBox).State) then
@@ -1148,6 +1221,7 @@ begin
   FBing:=nil;
   FDG2:=nil;
   FillChar(FNMCs, sizeof(FNMCs), 0);
+  FillChar(FDDs, sizeof(FDDs), 0);
   FTerraserver:=nil;
   FESRI:=nil;
   SetLength(FDGStacks, 0);
@@ -1162,6 +1236,7 @@ begin
   FLocalConverter := nil;
   FInetConfig := AInetConfig;
   FResultFactory := TDownloadResultFactory.Create;
+
 end;
 
 destructor TfrmDGAvailablePic.Destroy;
@@ -1201,9 +1276,9 @@ var
   VBox: TControl;
 begin
   // set OnClick if empty from chkALLServices
-  if gbImagesSource.ControlCount>0 then
-  for i := 0 to gbImagesSource.ControlCount-1 do begin
-    VBox := gbImagesSource.Controls[i];
+  if PnlSearch.ControlCount>0 then
+  for i := 0 to PnlSearch.ControlCount-1 do begin
+    VBox := PnlSearch.Controls[i];
     if IsCommonServiceCheckbox(VBox) then begin
       // apply handler
       TCheckBox(VBox).OnClick := chkALLServices.OnClick;
@@ -1239,3 +1314,4 @@ begin
 end;
 
 end.
+

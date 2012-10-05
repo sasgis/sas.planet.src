@@ -37,6 +37,8 @@ type
     function ParseResponse(const AStream: TMemoryStream): Integer; override;
 
     function LinkToImages: String; override;
+    function Header: string; override;
+    function PostData: AnsiString; override;
   end;
 
 procedure AdjustMinimalBingHiResZoom(var VActualZoom: Byte);
@@ -82,6 +84,16 @@ begin
   Result := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
             RoundEx(FTileInfoPtr.LonLat.Y, 6)+','+RoundEx(FTileInfoPtr.LonLat.X, 6)+
             '?zl='+IntToStr(VZoom)+'&o=xml&key='+FDefaultKey;
+end;
+
+function TAvailPicsBing.Header: string;
+begin
+ Result := '';
+end;
+
+function TAvailPicsBing.PostData: string;
+begin
+ Result := '';
 end;
 
 function TAvailPicsBing.ParseResponse(const AStream: TMemoryStream): Integer;
