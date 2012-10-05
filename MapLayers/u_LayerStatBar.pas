@@ -193,6 +193,9 @@ begin
   Result := EncodeTime(st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
   Result := Result + tz;
   Result := Frac(Result);
+  if Result < 0 then begin
+    Result := 1 + Result;
+  end;
 end;
 
 procedure TLayerStatBar.OnConfigChange;
