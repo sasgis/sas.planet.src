@@ -34,6 +34,7 @@ uses
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_ScaleLineConfig,
+  i_LanguageManager,
   u_LayerScaleLinePopupMenu,
   u_WindowLayerWithPos;
 
@@ -116,6 +117,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      const ALanguageManager: ILanguageManager;
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
@@ -213,6 +215,7 @@ end;
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(
+  const ALanguageManager: ILanguageManager;
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -231,7 +234,12 @@ begin
   FConfig := AConfig;
   FPosition := AViewPortState.Position;
 
-  FPopupMenu := TLayerScaleLinePopupMenu.Create(AParentMap, AConfig, AOnOptionsClick);
+  FPopupMenu := TLayerScaleLinePopupMenu.Create(
+    ALanguageManager,
+    AParentMap,
+    AConfig,
+    AOnOptionsClick
+  );
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),

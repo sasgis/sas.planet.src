@@ -23,6 +23,7 @@ uses
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
+  i_LanguageManager,
   u_LayerStatBarPopupMenu,
   u_WindowLayerWithPos;
 
@@ -57,6 +58,7 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
+      const ALanguageManager: ILanguageManager;
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
@@ -94,6 +96,7 @@ const
 { TLayerStatBar }
 
 constructor TLayerStatBar.Create(
+  const ALanguageManager: ILanguageManager;
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -126,6 +129,7 @@ begin
   FView := AViewPortState.View;
 
   FPopupMenu := TLayerStatBarPopupMenu.Create(
+    ALanguageManager,
     AParentMap,
     AConfig,
     AOnOptionsClick

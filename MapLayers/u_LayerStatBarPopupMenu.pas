@@ -27,6 +27,9 @@ uses
   GR32_Image,
   TBX,
   TB2Item,
+  i_Notifier,
+  i_Listener,
+  i_LanguageManager,
   i_StatBarConfig;
 
 type
@@ -36,11 +39,15 @@ type
     FPopup: TTBXPopupMenu;
     FStatBarConfig: IStatBarConfig;
     FOnOptionsClick: TNotifyEvent;
+    FLanguageManager: ILanguageManager;
+    FListener: IListener;
     procedure BuildPopUpMenu;
     procedure InitItemsState;
     procedure OnMenuItemClick(Sender: TObject);
+    procedure OnLangChange;
   public
     constructor Create(
+      const ALanguageManager: ILanguageManager;
       const AParentMap: TImage32;
       const AStatBarConfig: IStatBarConfig;
       const AOnOptionsClick: TNotifyEvent
@@ -51,9 +58,23 @@ type
 
 implementation
 
+uses
+  u_ListenerByEvent;
+
+resourcestring
+  rsShowZoomInfo = 'Show Zoom Info';
+  rsShowLonLatInfo = 'Show LonLat Info';
+  rsShowMeterPerPixelInfo = 'Show Meter Per Pixel Info';
+  rsShowTimeZoneInfo = 'Show Time Zone Info';
+  rsShowDownloadInfo = 'Show Download Info';
+  rsShowQueueInfo = 'Show Queue Info';
+  rsShowTilePathInfo = 'Show Tile Path Info';
+  rsHideStatusBar = 'Hide Status Bar';
+  rsOptions = 'Options...';
+
 type
   TMenuItemTag = (
-    tagZoomInfo,
+    tagZoomInfo = 0,
     tagLonLatInfo,
     tagMetrPerPixInfo,
     tagTimeZoneInfo,
@@ -64,38 +85,51 @@ type
     tagOptions
   );
 
-const
-  cMenuItemList: array [TMenuItemTag] of string = (
-    'Show Zoom Info',
-    'Show LonLat Info',
-    'Show Meter Per Pixel Info',
-    'Show Time Zone Info',
-    'Show Download Info',
-    'Show Queue Info',
-    'Show Tile Path Info',
-    'Hide Status Bar',
-    'Options...'
-  );
+  TMenuItemList = array [TMenuItemTag] of string;
+
+function GetMenuItemList: TMenuItemList; inline;
+begin
+  Result[TMenuItemTag(0)] := rsShowZoomInfo;
+  Result[TMenuItemTag(1)] := rsShowLonLatInfo;
+  Result[TMenuItemTag(2)] := rsShowMeterPerPixelInfo;
+  Result[TMenuItemTag(3)] := rsShowTimeZoneInfo;
+  Result[TMenuItemTag(4)] := rsShowDownloadInfo;
+  Result[TMenuItemTag(5)] := rsShowQueueInfo;
+  Result[TMenuItemTag(6)] := rsShowTilePathInfo;
+  Result[TMenuItemTag(7)] := rsHideStatusBar;
+  Result[TMenuItemTag(8)] := rsOptions;
+end;
 
 { TLayerStatBarPopupMenu }
 
 constructor TLayerStatBarPopupMenu.Create(
+  const ALanguageManager: ILanguageManager;
   const AParentMap: TImage32;
   const AStatBarConfig: IStatBarConfig;
   const AOnOptionsClick: TNotifyEvent
 );
 begin
   inherited Create;
+  FLanguageManager := ALanguageManager;
   FParentMap := AParentMap;
   FStatBarConfig := AStatBarConfig;
   FOnOptionsClick := AOnOptionsClick;
+
   FPopup := TTBXPopupMenu.Create(FParentMap);
   FPopup.Name := 'PopupStatusBar';
+
   BuildPopUpMenu;
+
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
+  FLanguageManager.GetChangeNotifier.Add(FListener);
 end;
 
 destructor TLayerStatBarPopupMenu.Destroy;
 begin
+  FLanguageManager.GetChangeNotifier.Remove(FListener);
+  FListener := nil;
+  FLanguageManager := nil;
+  FStatBarConfig := nil;
   inherited Destroy;
 end;
 
@@ -103,13 +137,15 @@ procedure TLayerStatBarPopupMenu.BuildPopUpMenu;
 var
   I: TMenuItemTag;
   VMenuItem: TTBXItem;
+  VMenuItemList: TMenuItemList;
 begin
+  VMenuItemList := GetMenuItemList;
   for I := Low(TMenuItemTag) to High(TMenuItemTag) do begin
     VMenuItem := TTBXItem.Create(FPopup);
     if not (I in [tagHide, tagOptions]) then begin
       VMenuItem.AutoCheck := True;
     end;
-    VMenuItem.Caption := cMenuItemList[I];
+    VMenuItem.Caption := VMenuItemList[I];
     VMenuItem.Tag := Integer(I);
     VMenuItem.OnClick := OnMenuItemClick;
     FPopup.Items.Add(VMenuItem);
@@ -159,6 +195,17 @@ begin
       tagHide: FStatBarConfig.Visible := False;
       tagOptions: if Assigned(FOnOptionsClick) then FOnOptionsClick(Self);
     end;
+  end;
+end;
+
+procedure TLayerStatBarPopupMenu.OnLangChange;
+var
+  I: Integer;
+  VMenuItemList: TMenuItemList;
+begin
+  VMenuItemList := GetMenuItemList;
+  for I := 0 to FPopup.Items.Count - 1 do begin
+    FPopup.Items[I].Caption := VMenuItemList[TMenuItemTag(I)];
   end;
 end;
 

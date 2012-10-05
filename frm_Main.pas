@@ -1684,6 +1684,7 @@ begin
     );
     FLayersList.Add(
       TLayerScaleLine.Create(
+        GState.LanguageManager,
         GState.PerfCounterList,
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
@@ -1709,6 +1710,7 @@ begin
     );
     FLayersList.Add(
       TLayerStatBar.Create(
+        GState.LanguageManager,
         GState.PerfCounterList,
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
