@@ -478,7 +478,9 @@ begin
             FILE_ATTRIBUTE_NORMAL,
             0
           );
-        FileSetDate(VHandle, DateTimeToFileDate(ALoadDate));
+        {$WARN SYMBOL_PLATFORM OFF}
+        FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
+        {$WARN SYMBOL_PLATFORM ON}
         VFileStream := THandleStream.Create(VHandle);
         try
           VFileStream.Size := AData.Size;
@@ -534,7 +536,9 @@ begin
               FILE_ATTRIBUTE_NORMAL,
               0
             );
-          FileSetDate(VHandle, DateTimeToFileDate(ALoadDate));
+          {$WARN SYMBOL_PLATFORM OFF}
+          FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
+          {$WARN SYMBOL_PLATFORM ON}
         finally
           if VHandle <> INVALID_HANDLE_VALUE then begin
             FileClose(VHandle);
