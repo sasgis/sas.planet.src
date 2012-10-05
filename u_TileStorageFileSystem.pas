@@ -82,12 +82,14 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData
     ); override;
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime
     ); override;
 
     function ScanTiles(
@@ -445,13 +447,15 @@ procedure TTileStorageFileSystem.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime;
   const AData: IBinaryData
 );
 var
   VPath: String;
   VFileName: string;
   VTneName: string;
-  VFileStream: TFileStream;
+  VHandle: THandle;
+  VFileStream: THandleStream;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     VPath :=
@@ -462,13 +466,31 @@ begin
     FFsLock.BeginWrite;
     try
       CreateDirIfNotExists(VFileName);
-      VFileStream := TFileStream.Create(VFileName, fmCreate);
+      VHandle := 0;
       try
-        VFileStream.Size := AData.Size;
-        VFileStream.Position := 0;
-        VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+        VHandle :=
+          CreateFile(PChar
+            (VFileName),
+            GENERIC_READ or GENERIC_WRITE,
+            0,
+            nil,
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            0
+          );
+        FileSetDate(VHandle, DateTimeToFileDate(ALoadDate));
+        VFileStream := THandleStream.Create(VHandle);
+        try
+          VFileStream.Size := AData.Size;
+          VFileStream.Position := 0;
+          VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+        finally
+          VFileStream.Free;
+        end;
       finally
-        VFileStream.Free;
+        if VHandle >= 0 then begin
+          FileClose(VHandle);
+        end;
       end;
       DeleteFile(VTneName);
     finally
@@ -481,13 +503,14 @@ end;
 procedure TTileStorageFileSystem.SaveTNE(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime
 );
 var
   VPath: String;
   VFileName: string;
   VTneName: string;
-  VFileStream: TFileStream;
+  VHandle: THandle;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     VPath :=
@@ -499,8 +522,24 @@ begin
     try
       if not FileExists(VTneName) then begin
         CreateDirIfNotExists(VTneName);
-        VFileStream := TFileStream.Create(VTneName, fmCreate);
-        VFileStream.Free;
+        VHandle := 0;
+        try
+          VHandle :=
+            CreateFile(PChar
+              (VTneName),
+              GENERIC_READ or GENERIC_WRITE,
+              0,
+              nil,
+              CREATE_ALWAYS,
+              FILE_ATTRIBUTE_NORMAL,
+              0
+            );
+          FileSetDate(VHandle, DateTimeToFileDate(ALoadDate));
+        finally
+          if VHandle >= 0 then begin
+            FileClose(VHandle);
+          end;
+        end;
         DeleteFile(VFileName);
       end;
     finally

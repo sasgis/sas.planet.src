@@ -85,13 +85,15 @@ type
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime
     ); override;
 
     function ScanTiles(
@@ -469,6 +471,7 @@ procedure TTileStorageBerkeleyDB.SaveTile(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime;
   const AData: IBinaryData
 );
 var
@@ -488,7 +491,7 @@ begin
         VPath,
         AXY,
         AZoom,
-        Now,
+        ALoadDate,
         AVersionInfo,
         PWideChar(VContenetTypeStr),
         AData
@@ -496,7 +499,7 @@ begin
       if VResult then begin
         VTileInfo :=
           TTileInfoBasicExistsWithTile.Create(
-            Now,
+            ALoadDate,
             AData,
             AVersionInfo,
             FMainContentType
@@ -518,7 +521,8 @@ end;
 procedure TTileStorageBerkeleyDB.SaveTNE(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime
 );
 var
   VPath: String;
@@ -536,7 +540,7 @@ begin
         VPath,
         AXY,
         AZoom,
-        Now,
+        ALoadDate,
         AVersionInfo,
         PWideChar(VContenetTypeStr),
         nil
@@ -547,7 +551,7 @@ begin
             AXY,
             AZoom,
             AVersionInfo,
-            TTileInfoBasicTNE.Create(Now, AVersionInfo)
+            TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
           );
         end;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);

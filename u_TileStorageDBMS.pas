@@ -194,13 +194,15 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime
     ); override;
 
     function GetListOfTileVersions(
@@ -1416,6 +1418,7 @@ procedure TTileStorageETS.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime;
   const AData: IBinaryData
 );
 begin
@@ -1425,7 +1428,8 @@ end;
 procedure TTileStorageETS.SaveTNE(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime
 );
 begin
   InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, nil, FETS_InsertTNE, TRUE);

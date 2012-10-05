@@ -65,12 +65,14 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData
     );
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo;
+      const ALoadDate: TDateTime
     );
     function GetListOfTileVersions(
       const AXY: TPoint;

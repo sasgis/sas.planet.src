@@ -105,13 +105,15 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData
     ); override;
 
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const ALoadDate: TDateTime
     ); override;
 
     function GetListOfTileVersions(
@@ -649,6 +651,7 @@ procedure TTileStorageDLL.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime;
   const AData: IBinaryData
 );
 begin
@@ -658,7 +661,8 @@ end;
 procedure TTileStorageDLL.SaveTNE(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionInfo;
+  const ALoadDate: TDateTime
 );
 begin
   Abort;

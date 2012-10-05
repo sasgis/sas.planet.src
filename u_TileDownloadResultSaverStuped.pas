@@ -197,7 +197,12 @@ begin
         SaveTileDownload(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VResultOk.Data, VContentType);
       end else if Supports(AResult, IDownloadResultDataNotExists) then begin
         if FDownloadConfig.IsSaveTileNotExists then begin
-          FStorage.SaveTNE(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo);
+          FStorage.SaveTNE(
+            VTileRequest.Tile,
+            VTileRequest.Zoom,
+            VTileRequest.VersionInfo,
+            Now
+          );
         end;
       end;
     end;
@@ -296,7 +301,7 @@ begin
 
                       // save
                       VData := VTargetContentTypeBitmap.GetSaver.Save(VCutBitmapStatic);
-                      FStorage.SaveTile(VPos, AZoom, AVersionInfo, VData);
+                      FStorage.SaveTile(VPos, AZoom, AVersionInfo, Now, VData);
                     end;
                   end;
                 end;
@@ -317,7 +322,7 @@ begin
                 VBitmap.Free;
               end;
               VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
-              FStorage.SaveTile(AXY, AZoom, AVersionInfo, VData);
+              FStorage.SaveTile(AXY, AZoom, AVersionInfo, Now, VData);
             end;
           end else begin
             raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
@@ -331,7 +336,7 @@ begin
     end else begin
       VConverter := FContentTypeManager.GetConverter(AContenType, FContentType.GetContentType);
       if VConverter <> nil then begin
-        FStorage.SaveTile(AXY, AZoom, AVersionInfo, VConverter.Convert(AData));
+        FStorage.SaveTile(AXY, AZoom, AVersionInfo, Now, VConverter.Convert(AData));
       end else begin
         raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
       end;

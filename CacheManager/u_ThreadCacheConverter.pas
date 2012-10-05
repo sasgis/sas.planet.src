@@ -227,6 +227,7 @@ begin
           ATileInfo.FTile,
           ATileInfo.FZoom,
           ATileInfo.FVersionInfo,
+          ATileInfo.FLoadDate,
           ATileInfo.FData
         );
         Result := True;
@@ -234,7 +235,8 @@ begin
         FDestTileStorage.SaveTNE(
           ATileInfo.FTile,
           ATileInfo.FZoom,
-          ATileInfo.FVersionInfo
+          ATileInfo.FVersionInfo,
+          ATileInfo.FLoadDate
         );
         Result := True;
       end;

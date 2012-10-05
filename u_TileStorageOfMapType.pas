@@ -107,12 +107,14 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
+      const ALoadDate: TDateTime;
       const AData: IBinaryData
     );
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo
+      const AVersion: IMapVersionInfo;
+      const ALoadDate: TDateTime
     );
     function GetListOfTileVersions(
       const AXY: TPoint;
@@ -588,8 +590,13 @@ begin
   end;
 end;
 
-procedure TTileStorageOfMapType.SaveTile(const AXY: TPoint; const AZoom: byte;
-  const AVersion: IMapVersionInfo; const AData: IBinaryData);
+procedure TTileStorageOfMapType.SaveTile(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersion: IMapVersionInfo;
+  const ALoadDate: TDateTime;
+  const AData: IBinaryData
+);
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -600,15 +607,19 @@ begin
   try
     VStorage := GetStorage;
     if VStorage <> nil then begin
-      VStorage.SaveTile(AXY, AZoom, AVersion, AData);
+      VStorage.SaveTile(AXY, AZoom, AVersion, ALoadDate, AData);
     end;
   finally
     VCounter.FinishOperation(VCounterContext);
   end;
 end;
 
-procedure TTileStorageOfMapType.SaveTNE(const AXY: TPoint; const AZoom: byte;
-  const AVersion: IMapVersionInfo);
+procedure TTileStorageOfMapType.SaveTNE(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersion: IMapVersionInfo;
+  const ALoadDate: TDateTime
+);
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -619,7 +630,7 @@ begin
   try
     VStorage := GetStorage;
     if VStorage <> nil then begin
-      VStorage.SaveTNE(AXY, AZoom, AVersion);
+      VStorage.SaveTNE(AXY, AZoom, AVersion, ALoadDate);
     end;
   finally
     VCounter.FinishOperation(VCounterContext);
