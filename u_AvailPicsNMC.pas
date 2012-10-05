@@ -27,6 +27,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract;
@@ -43,7 +44,7 @@ type
 
     function ContentType: String; override;
 
-    function ParseResponse(const AStream: TMemoryStream): Integer; override;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
@@ -723,22 +724,27 @@ begin
 end;
 
 
-function TAvailPicsNMC.ParseResponse(const AStream: TMemoryStream): Integer;
+function TAvailPicsNMC.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
   VExifAttr: PByte;
   VLen: DWORD;
   VStream: TPointedMemoryStream;
+  VMemoryStream: TMemoryStream;
 begin
-  Result := 0;
+  VMemoryStream := TMemoryStream.Create;
+  VMemoryStream.Position:=0;
+  VMemoryStream.SetSize(AResultOk.Data.Size);
+  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
 
+  Result := 0;
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
     Exit;
 
   // get item for $9286 (UserComment)
-  if not FindExifInJpeg(AStream.Memory, AStream.Size, FALSE, $9286, VExifAttr, VLen) then
+  if not FindExifInJpeg(VMemoryStream.Memory, VMemoryStream.Size, FALSE, $9286, VExifAttr, VLen) then
     Exit;
 
   // parse xml

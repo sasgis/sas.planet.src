@@ -29,6 +29,7 @@ uses
   XMLDoc,
   strutils,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract,
@@ -43,7 +44,7 @@ type
 
     function ContentType: String; override;
 
-    function ParseResponse(const AStream: TMemoryStream): Integer; override;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
@@ -64,7 +65,6 @@ uses
   windows,
   i_BinaryData,
   i_Downloader,
-  i_DownloadResult,
   i_NotifierOperation,
   i_DownloadResultFactory,
   u_GeoToStr,
@@ -111,7 +111,7 @@ end;
 
 
 
-function TAvailPicsDD.ParseResponse(const AStream: TMemoryStream): Integer;
+function TAvailPicsDD.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
   XMLDocument: TXMLDocument;
   Node, SubNode: IXMLNode;
@@ -122,17 +122,22 @@ var
   VAddResult: Boolean;
   i, j: integer;
   VParams: TStrings;
+  VMemoryStream: TMemoryStream;
 begin
+  VMemoryStream := TMemoryStream.Create;
+  VMemoryStream.Position:=0;
+  VMemoryStream.SetSize(AResultOk.Data.Size);
+  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result:=0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
     Exit;
 
   XMLDocument := TXMLDocument.Create(Application);
-  XMLDocument.LoadFromStream(AStream);
+  XMLDocument.LoadFromStream(VMemoryStream);
   Node := XMLDocument.DocumentElement;
   Node := Node.ChildNodes[0];
   Node := Node.ChildNodes[0];

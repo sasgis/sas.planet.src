@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract;
@@ -35,7 +36,7 @@ type
   public
     function ContentType: String; override;
 
-    function ParseResponse(const AStream: TMemoryStream): Integer; override;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
@@ -44,6 +45,7 @@ implementation
 
 uses
   u_GeoToStr,
+  windows,
   u_TileRequestBuilderHelpers;
 
 { TAvailPicsESRI }
@@ -53,7 +55,7 @@ begin
   Result := 'text/plain'; // 'text/plain;charset=utf-8'   // 'text/html'
 end;
 
-function TAvailPicsESRI.ParseResponse(const AStream: TMemoryStream): Integer;
+function TAvailPicsESRI.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 
   function _StartingWithKey(const AOriginalLine, AKeyToCheck: String): Boolean;
   var VPos: Integer;
@@ -123,7 +125,12 @@ var
   VHasFeatures, VInAttributes: Boolean;
   VAddResult: Boolean;
   VKey, VValue: String;
+  VMemoryStream: TMemoryStream;
 begin
+  VMemoryStream := TMemoryStream.Create;
+  VMemoryStream.Position:=0;
+  VMemoryStream.SetSize(AResultOk.Data.Size);
+  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result:=0;
   VHasFeatures:=FALSE;
   VInAttributes:=FALSE;
@@ -131,13 +138,13 @@ begin
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
     Exit;
 
   VParams:=nil;
   VList:=TStringList.Create;
   try
-    VList.LoadFromStream(AStream);
+    VList.LoadFromStream(VMemoryStream);
 
     // very simple JSON parser for ESRI
 

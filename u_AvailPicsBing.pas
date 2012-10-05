@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract;
@@ -37,7 +38,7 @@ type
 
     function ContentType: String; override;
 
-    function ParseResponse(const AStream: TMemoryStream): Integer; override;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
@@ -49,6 +50,7 @@ implementation
 uses
   u_GeoToStr,
   xmldom,
+  windows,
   vsagps_public_xml_dom,
   vsagps_public_xml_parser;
 
@@ -73,7 +75,7 @@ begin
   Result := 'application/xml';
 end;
 
-function TAvailPicsBing.ParseResponse(const AStream: TMemoryStream): Integer;
+function TAvailPicsBing.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
   VDOMDocument: IDOMDocument;
   VResponse: IDOMNode;
@@ -85,13 +87,18 @@ var
   VNodeName, VNodeValue: String;
   VVintageStart, VVintageEnd: String;
   VSLParams: TStrings;
+  VMemoryStream: TMemoryStream;
 begin
+  VMemoryStream := TMemoryStream.Create;
+  VMemoryStream.Position:=0;
+  VMemoryStream.SetSize(AResultOk.Data.Size);
+  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result:=0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
     Exit;
 
   VSLParams:=nil;
@@ -105,7 +112,7 @@ begin
   try
     // create xml
     if VSAGPS_Create_DOMDocument(VDOMDocument, FALSE {no exception if false}, 1 {no validation}) then
-    if VSAGPS_Load_DOMDocument_FromStream(VDOMDocument, AStream, FALSE {no exception if false}) then
+    if VSAGPS_Load_DOMDocument_FromStream(VDOMDocument, VMemoryStream, FALSE {no exception if false}) then
     try
       VResponse := VDOMDocument.lastChild;
       // get StatusCode

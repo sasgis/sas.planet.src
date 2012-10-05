@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract;
@@ -35,7 +36,7 @@ type
   public
     function ContentType: String; override;
 
-    function ParseResponse(const AStream: TMemoryStream): Integer; override;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
@@ -44,6 +45,7 @@ implementation
 
 uses
   u_GeoToStr,
+  windows,
   u_TileRequestBuilderHelpers;
 
 function _RandInt5: String;
@@ -61,7 +63,7 @@ begin
   Result := 'text/html';
 end;
 
-function TAvailPicsTerraserver.ParseResponse(const AStream: TMemoryStream): Integer;
+function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 
   function _ConvertToYYYYMMDD(const AText, ASep: String): String;
   var
@@ -178,13 +180,18 @@ var
   VResponse: TStringList;
   VSLParams: TStrings;
   S: String;
+  VMemoryStream: TMemoryStream;
 begin
+  VMemoryStream := TMemoryStream.Create;
+  VMemoryStream.Position:=0;
+  VMemoryStream.SetSize(AResultOk.Data.Size);
+  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result:=0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
     Exit;
 
   // search for:
@@ -193,7 +200,7 @@ begin
   VSLParams := nil;
   VResponse := TStringList.Create;
   try
-    VResponse.LoadFromStream(AStream);
+    VResponse.LoadFromStream(VMemoryStream);
 
     while (VResponse.Count>0) do begin
       S := Trim(VResponse[0]);

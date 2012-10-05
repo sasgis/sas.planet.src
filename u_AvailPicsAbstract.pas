@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   i_LocalCoordConverter,
   t_GeoTypes;
@@ -64,7 +65,7 @@ type
     function ContentType: String; virtual; abstract;
 
     // parse response from server, returns number of added items
-    function ParseResponse(const AStream: TMemoryStream): Integer; virtual; abstract;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; virtual; abstract;
 
     // Request or PostRequest
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; virtual; abstract;

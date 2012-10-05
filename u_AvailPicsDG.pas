@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_InetConfig,
+  i_DownloadResult,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract;
@@ -40,7 +41,7 @@ type
   public
     function ContentType: String; override;
 
-    function ParseResponse(const AStream: TMemoryStream): Integer; override;
+    function ParseResponse(const AResultOk: IDownloadResultOk): Integer; override;
 
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
 
@@ -56,6 +57,7 @@ procedure GenerateAvailPicsDG(var ADGs: TAvailPicsDGs;
 implementation
 
 uses
+  Windows,
   u_GeoToStr;
 
 (*
@@ -280,7 +282,7 @@ begin
   Result:=FStack_Number+', '+FStack_Descript;
 end;
 
-function TAvailPicsDG.ParseResponse(const AStream: TMemoryStream): Integer;
+function TAvailPicsDG.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
   i: Integer;
   VAddResult: Boolean;
@@ -289,18 +291,23 @@ var
   VDate, VId: String;
   VDateOrig, VProvider, VColor, VResolution: String;
   VParams: TStrings;
+  VMemoryStream: TMemoryStream;
 begin
+  VMemoryStream := TMemoryStream.Create;
+  VMemoryStream.Position:=0;
+  VMemoryStream.SetSize(AResultOk.Data.Size);
+  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=AStream) or (0=AStream.Size) then
+  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
     Exit;
 
   VList:=TStringList.Create;
   try
-    VList.LoadFromStream(AStream);
+    VList.LoadFromStream(VMemoryStream);
 
     if (0<VList.Count) then
     for i := 0 to VList.Count-1 do
