@@ -93,12 +93,12 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Alignment = taRightJustify
         Caption = 'Redraw interval (ms):'
       end
-      object chkStatBarVisible: TCheckBox
+      object chkStatBarHide: TCheckBox
         Left = 3
         Top = 9
         Width = 282
         Height = 17
-        Caption = 'Visible'
+        Caption = 'Hide Status Bar'
         TabOrder = 0
       end
       object clrbxStatBarTextColor: TColorBox
@@ -239,7 +239,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 101
         Width = 282
         Height = 17
-        Caption = 'Show TimeZone Info'
+        Caption = 'Show Time Zone Info'
         TabOrder = 11
       end
       object chkStatBarDownloadInfo: TCheckBox
@@ -324,12 +324,12 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Caption = 'Opacity:'
         ExplicitLeft = 256
       end
-      object chkScaleLineVisible: TCheckBox
+      object chkScaleLineHide: TCheckBox
         Left = 3
         Top = 9
         Width = 282
         Height = 17
-        Caption = 'Visible'
+        Caption = 'Hide Scale Legend'
         TabOrder = 0
       end
       object chkShowVertScaleLine: TCheckBox

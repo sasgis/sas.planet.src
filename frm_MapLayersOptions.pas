@@ -47,7 +47,7 @@ type
     pgcOptions: TPageControl;
     tsStatBar: TTabSheet;
     tsScaleLine: TTabSheet;
-    chkScaleLineVisible: TCheckBox;
+    chkScaleLineHide: TCheckBox;
     chkShowVertScaleLine: TCheckBox;
     rgScaleLineNumbFormat: TRadioGroup;
     seScaleLineWidth: TSpinEdit;
@@ -68,7 +68,7 @@ type
     grpScaleLineFont: TGroupBox;
     edtScaleLineFont: TEdit;
     btnOk: TButton;
-    chkStatBarVisible: TCheckBox;
+    chkStatBarHide: TCheckBox;
     lblStatBarTextColor: TLabel;
     lblStatBarTextOpacity: TLabel;
     clrbxStatBarTextColor: TColorBox;
@@ -139,7 +139,7 @@ end;
 procedure TfrmMapLayersOptions.FormShow(Sender: TObject);
 begin
   // Status Bar
-  chkStatBarVisible.Checked := FStatBarConfig.Visible;
+  chkStatBarHide.Checked := not FStatBarConfig.Visible;
   chkStatBarZoomInfo.Checked := FStatBarConfig.ViewZoomInfo;
   chkStatBarLonLatInfo.Checked := FStatBarConfig.ViewLonLatInfo;
   chkStatBarMetrPerPixInfo.Checked := FStatBarConfig.ViewMetrPerPixInfo;
@@ -156,7 +156,7 @@ begin
   clrbxStatBarBackgroundColor.Selected := WinColor(FStatBarConfig.BgColor);
   seStatBarBackgroundOpacity.Value := AlphaComponent(FStatBarConfig.BgColor);
   // Scale Line
-  chkScaleLineVisible.Checked := FScaleLineConfig.Visible;
+  chkScaleLineHide.Checked := not FScaleLineConfig.Visible;
   chkShowVertScaleLine.Checked := FScaleLineConfig.Extended;
   rgScaleLineNumbFormat.ItemIndex := Integer(FScaleLineConfig.NumbersFormat);
   seScaleLineWidth.Value := FScaleLineConfig.Width;
@@ -171,7 +171,7 @@ end;
 procedure TfrmMapLayersOptions.btnApplyClick(Sender: TObject);
 begin
   // Status Bar
-  FStatBarConfig.Visible := chkStatBarVisible.Checked;
+  FStatBarConfig.Visible := not chkStatBarHide.Checked;
   FStatBarConfig.ViewZoomInfo := chkStatBarZoomInfo.Checked;
   FStatBarConfig.ViewLonLatInfo := chkStatBarLonLatInfo.Checked;
   FStatBarConfig.ViewMetrPerPixInfo := chkStatBarMetrPerPixInfo.Checked;
@@ -192,7 +192,7 @@ begin
     seStatBarBackgroundOpacity.Value
   );
   // Scale Line
-  FScaleLineConfig.Visible := chkScaleLineVisible.Checked;
+  FScaleLineConfig.Visible := not chkScaleLineHide.Checked;
   FScaleLineConfig.Extended := chkShowVertScaleLine.Checked;
   FScaleLineConfig.NumbersFormat := TScaleLegendNumbersFormat(rgScaleLineNumbFormat.ItemIndex);
   FScaleLineConfig.Width := seScaleLineWidth.Value;
