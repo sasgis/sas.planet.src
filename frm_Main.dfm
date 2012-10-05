@@ -1209,6 +1209,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmInterfaceOptions: TTBXItem
+          Images = MenusImageList
           OnClick = tbitmOnInterfaceOptionsClick
           Caption = 'Interface Options'
           Hint = ''
