@@ -833,6 +833,7 @@ uses
   u_AvailPicsBing in 'u_AvailPicsBing.pas',
   u_AvailPicsNMC in 'u_AvailPicsNMC.pas',
   u_AvailPicsDG in 'u_AvailPicsDG.pas',
+  u_AvailPicsDD in 'u_AvailPicsDD.pas',
   u_AvailPicsDG2 in 'u_AvailPicsDG2.pas',
   u_AvailPicsTerra in 'u_AvailPicsTerra.pas',
   u_AvailPicsESRI in 'u_AvailPicsESRI.pas',
