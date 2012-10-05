@@ -26,14 +26,8 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
-    ExplicitWidth = 325
-    ExplicitHeight = 351
     object tsStatBar: TTabSheet
       Caption = 'Status Bar'
-      ExplicitLeft = -36
-      ExplicitTop = 0
-      ExplicitWidth = 281
-      ExplicitHeight = 165
       DesignSize = (
         368
         392)
@@ -43,7 +37,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 193
         Width = 52
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Text color:'
       end
       object lblStatBarTextOpacity: TLabel
@@ -52,7 +45,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 193
         Width = 41
         Height = 13
-        Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Opacity:'
       end
@@ -62,7 +54,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 240
         Width = 86
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Background color:'
       end
       object lblStatBarBackgroundOpacity: TLabel
@@ -71,7 +62,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 240
         Width = 41
         Height = 13
-        Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Opacity:'
       end
@@ -81,7 +71,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 345
         Width = 35
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Height:'
       end
       object lblStatBarRedrawTime: TLabel
@@ -90,13 +79,12 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 345
         Width = 104
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Redraw interval (ms):'
       end
       object chkStatBarHide: TCheckBox
         Left = 3
         Top = 9
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Hide Status Bar'
         TabOrder = 0
@@ -176,7 +164,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           MinValue = 0
           TabOrder = 0
           Value = 10
-          ExplicitLeft = 199
         end
         object edtStatBarFontName: TEdit
           Left = 10
@@ -187,7 +174,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
           Text = 'Arial'
-          ExplicitWidth = 183
         end
       end
       object seStatBarHeight: TSpinEdit
@@ -213,7 +199,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarZoomInfo: TCheckBox
         Left = 3
         Top = 32
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show Zoom Info'
         TabOrder = 8
@@ -221,7 +207,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarLonLatInfo: TCheckBox
         Left = 3
         Top = 55
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show LonLat Info'
         TabOrder = 9
@@ -229,7 +215,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarMetrPerPixInfo: TCheckBox
         Left = 3
         Top = 78
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show Meter Per Pixel Info'
         TabOrder = 10
@@ -237,7 +223,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarTimeZoneInfo: TCheckBox
         Left = 3
         Top = 101
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show Time Zone Info'
         TabOrder = 11
@@ -245,7 +231,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarDownloadInfo: TCheckBox
         Left = 3
         Top = 124
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show Download Info'
         TabOrder = 12
@@ -253,7 +239,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarQueueInfo: TCheckBox
         Left = 3
         Top = 147
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show Queue Info'
         TabOrder = 13
@@ -261,7 +247,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkStatBarTilePathInfo: TCheckBox
         Left = 3
         Top = 170
-        Width = 282
+        Width = 310
         Height = 17
         Caption = 'Show Tile Path Info'
         TabOrder = 14
@@ -270,8 +256,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     object tsScaleLine: TTabSheet
       Caption = 'Scale Legend'
       ImageIndex = 1
-      ExplicitWidth = 317
-      ExplicitHeight = 298
       DesignSize = (
         368
         392)
@@ -281,7 +265,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 111
         Width = 29
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Color:'
       end
       object lblScaleLineWidth: TLabel
@@ -290,7 +273,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 263
         Width = 32
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Width:'
       end
       object lblScaleLineOutlineColor: TLabel
@@ -299,7 +281,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 158
         Width = 64
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Outline color:'
       end
       object lblScaleLineColorOpacity: TLabel
@@ -308,7 +289,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 111
         Width = 41
         Height = 13
-        Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Opacity:'
         ExplicitLeft = 256
@@ -319,7 +299,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 158
         Width = 41
         Height = 13
-        Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Opacity:'
         ExplicitLeft = 256
@@ -327,7 +306,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkScaleLineHide: TCheckBox
         Left = 3
         Top = 9
-        Width = 282
+        Width = 299
         Height = 17
         Caption = 'Hide Scale Legend'
         TabOrder = 0
@@ -335,9 +314,9 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object chkShowVertScaleLine: TCheckBox
         Left = 3
         Top = 32
-        Width = 282
+        Width = 309
         Height = 17
-        Caption = 'Show Vertical Legend'
+        Caption = 'Show Vertical Scale Legend'
         TabOrder = 1
       end
       object rgScaleLineNumbFormat: TRadioGroup
@@ -355,7 +334,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           'Round'
           'Science')
         TabOrder = 2
-        ExplicitWidth = 260
       end
       object seScaleLineWidth: TSpinEdit
         Left = 3
@@ -377,7 +355,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 16
         TabOrder = 4
-        ExplicitWidth = 247
       end
       object clrbxScaleLineOutlineColor: TColorBox
         Left = 3
@@ -389,7 +366,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 16
         TabOrder = 5
-        ExplicitWidth = 247
       end
       object seScaleLineColorOpacity: TSpinEdit
         Left = 229
@@ -401,7 +377,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         MinValue = 0
         TabOrder = 6
         Value = 255
-        ExplicitLeft = 256
       end
       object seScaleLineOutlineOpacity: TSpinEdit
         Left = 229
@@ -413,7 +388,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         MinValue = 0
         TabOrder = 7
         Value = 170
-        ExplicitLeft = 256
       end
       object grpScaleLineFont: TGroupBox
         Left = 3
@@ -424,7 +398,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Font'
         TabOrder = 8
-        ExplicitWidth = 336
         DesignSize = (
           309
           52)
@@ -448,7 +421,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           MinValue = 0
           TabOrder = 0
           Value = 8
-          ExplicitLeft = 199
         end
         object edtScaleLineFont: TEdit
           Left = 10
@@ -459,7 +431,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
           Text = 'Arial'
-          ExplicitWidth = 183
         end
       end
     end
@@ -476,8 +447,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
-    ExplicitLeft = 193
-    ExplicitTop = 357
   end
   object btnApply: TButton
     Left = 86
@@ -490,8 +459,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Default = True
     TabOrder = 2
     OnClick = btnApplyClick
-    ExplicitLeft = 59
-    ExplicitTop = 370
   end
   object btnOk: TButton
     Left = 165
@@ -504,8 +471,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Default = True
     TabOrder = 3
     OnClick = btnOkClick
-    ExplicitLeft = 138
-    ExplicitTop = 370
   end
   object dlgFont: TFontDialog
     Font.Charset = DEFAULT_CHARSET
