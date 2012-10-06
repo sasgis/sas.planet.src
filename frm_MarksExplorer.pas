@@ -340,42 +340,54 @@ procedure TfrmMarksExplorer.UpdateMarksList;
 var
   VCategory: IMarkCategory;
   VMarkId: IMarkId;
-  i: Integer;
+  I: Integer;
   VNode: TTreeNode;
   VNodeToDelete: TTreeNode;
   VName: string;
+  VSortedMarksList: TStringList;
 begin
   FMarksList := nil;
   VCategory := GetSelectedCategory;
   if (VCategory <> nil) then begin
     FMarksList := FMarkDBGUI.MarksDb.MarksDb.GetMarskIdListByCategory(VCategory);
-    MarksListBox.Items.BeginUpdate;
+    VSortedMarksList := TStringList.Create;
     try
-      VNode := MarksListBox.Items.GetFirstNode;
-      for i:=0 to FMarksList.Count-1 do begin
-        VMarkId := IMarkId(FMarksList.Items[i]);
+      VSortedMarksList.Sorted := True;
+      for I := 0 to FMarksList.Count - 1 do begin
+        VMarkId := IMarkId(FMarksList.Items[I]);
         VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
-        if VNode = nil then begin
-          VNode := MarksListBox.Items.AddChildObject(nil, VName, nil);
-        end else begin
-          VNode.Text := VName;
+        VSortedMarksList.AddObject(VName, Pointer(VMarkId));
+      end;                                                                        
+      MarksListBox.Items.BeginUpdate;
+      try
+        VNode := MarksListBox.Items.GetFirstNode;
+        for I := 0 to VSortedMarksList.Count - 1 do begin
+          VMarkId := IMarkId(Pointer(VSortedMarksList.Objects[I]));
+          VName := VSortedMarksList.Strings[I];
+          if VNode = nil then begin
+            VNode := MarksListBox.Items.AddChildObject(nil, VName, nil);
+          end else begin
+            VNode.Text := VName;
+          end;
+          VNode.Data := Pointer(VMarkId);
+          if FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMarkId) then begin
+            VNode.StateIndex := 1;
+          end else begin
+            VNode.StateIndex := 2;
+          end;
+          VNode := VNode.getNextSibling;
         end;
-        VNode.Data := Pointer(VMarkId);
-        if FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMarkId) then begin
-          VNode.StateIndex := 1;
-        end else begin
-          VNode.StateIndex := 2;
+        while VNode <> nil do begin
+          VNodeToDelete := VNode;
+          VNode := VNode.getNextSibling;
+          VNodeToDelete.Delete;
         end;
-        VNode := VNode.getNextSibling;
+        lblMarksCount.Caption:='('+inttostr(MarksListBox.Items.Count)+')';
+      finally
+        MarksListBox.Items.EndUpdate;
       end;
-      while VNode <> nil do begin
-        VNodeToDelete := VNode;
-        VNode := VNode.getNextSibling;
-        VNodeToDelete.Delete;
-      end;
-      lblMarksCount.Caption:='('+inttostr(MarksListBox.Items.Count)+')';
     finally
-      MarksListBox.Items.EndUpdate;
+      VSortedMarksList.Free;
     end;
   end else begin
     MarksListBox.Items.Clear;
