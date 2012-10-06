@@ -126,7 +126,7 @@ var i,delitel:integer;
 begin
   result:=true;
   res:=0;
-  VText:=Atext;
+  VText:=UpperCase(Atext);
 
   VText:=StringReplace(VText,'S','-',[rfReplaceAll]);
   VText:=StringReplace(VText,'W','-',[rfReplaceAll]);
