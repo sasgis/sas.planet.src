@@ -162,50 +162,43 @@ begin
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
       VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top);
-      if copy(VListName, length(VListName) - 5, 6) = '00.00"' then begin
-        VListName := ReplaceStr(VListName, '00.00"', '');
+      if copy(VListName, length(VListName) - 5, 6) = '00'+decimalseparator+'00"' then begin
+        VListName := ReplaceStr(VListName, '00'+decimalseparator+'00"', '');
       end;
-      if copy(VListName, length(VListName) - 5, 6) = '00,00"' then begin
-        VListName := ReplaceStr(VListName, '00,00"', '');
+      if copy(VListName, length(VListName) - 7, 8) = '00'+decimalseparator+'0000''' then begin
+        VListName := ReplaceStr(VListName, '00'+decimalseparator+'0000''', '');
       end;
-      if copy(VListName, length(VListName) - 3, 4) = ',00"' then begin
-        VListName := ReplaceStr(VListName, ',00"', '"');
-      end;
-      if copy(VListName, length(VListName) - 3, 4) = '.00"' then begin
-        VListName := ReplaceStr(VListName, '.00"', '"');
+      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin
+        VListName := ReplaceStr(VListName, decimalseparator+'00"', '"');
       end;
       if copy(VListName, length(VListName) - 2, 3) = '00''' then begin
         VListName := ReplaceStr(VListName, '00''', '');
       end;
-      if length(VListName)>4 then
+      if length(VListName)>5 then
       VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
       VListName := ReplaceStr(VListName, ',°', '°');
-
       VTextSize := FBitmap.TextExtent(VListName);
+
 
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
 
       VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left);
-      if copy(VListName, length(VListName) - 5, 6) = '00.00"' then begin
-        VListName := ReplaceStr(VListName, '00.00"', '');
+      if copy(VListName, length(VListName) - 5, 6) = '00'+decimalseparator+'00"' then begin
+        VListName := ReplaceStr(VListName, '00'+decimalseparator+'00"', '');
       end;
-      if copy(VListName, length(VListName) - 5, 6) = '00,00"' then begin
-        VListName := ReplaceStr(VListName, '00,00"', '');
+      if copy(VListName, length(VListName) - 7, 8) = '00'+decimalseparator+'0000''' then begin
+        VListName := ReplaceStr(VListName, '00'+decimalseparator+'0000''', '');
       end;
-      if copy(VListName, length(VListName) - 3, 4) = ',00"' then begin
-        VListName := ReplaceStr(VListName, ',00"', '"');
-      end;
-      if copy(VListName, length(VListName) - 3, 4) = '.00"' then begin
-        VListName := ReplaceStr(VListName, '.00"', '"');
+      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin
+        VListName := ReplaceStr(VListName, decimalseparator+'00"', '"');
       end;
       if copy(VListName, length(VListName) - 2, 3) = '00''' then begin
         VListName := ReplaceStr(VListName, '00''', '');
       end;
-      if length(VListName)>4 then
+      if length(VListName)>5 then
       VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
       VListName := ReplaceStr(VListName, ',°', '°');
-
       VTextSize := FBitmap.TextExtent(VListName);
 
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
