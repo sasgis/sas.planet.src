@@ -162,43 +162,44 @@ begin
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
       VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top);
-      if copy(VListName, length(VListName) - 5, 6) = '00'+decimalseparator+'00"' then begin
-        VListName := ReplaceStr(VListName, '00'+decimalseparator+'00"', '');
-      end;
-      if copy(VListName, length(VListName) - 7, 8) = '00'+decimalseparator+'0000''' then begin
-        VListName := ReplaceStr(VListName, '00'+decimalseparator+'0000''', '');
-      end;
-      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin
+// X12°30'00,00"
+      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin // X12°30'45,00" -> X12°30'45"
         VListName := ReplaceStr(VListName, decimalseparator+'00"', '"');
+        if copy(VListName, length(VListName) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
+          VListName := ReplaceStr(VListName, '00"', '');
+          if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+           VListName := ReplaceStr(VListName, '00''', '');
+          end;
+        end;
       end;
-      if copy(VListName, length(VListName) - 2, 3) = '00''' then begin
-        VListName := ReplaceStr(VListName, '00''', '');
+// X12°34,5678'
+      if copy(VListName, length(VListName) - 5, 6) = decimalseparator+'0000''' then begin // X12°34,0000' -> X12°34'
+        VListName := ReplaceStr(VListName, decimalseparator+'0000''', '''');              // Õ12°00,0000' -> X12°00'
+        if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+          VListName := ReplaceStr(VListName, '00''', '');
+        end;
       end;
-      if length(VListName)>5 then
-      VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
-      VListName := ReplaceStr(VListName, ',°', '°');
-      VTextSize := FBitmap.TextExtent(VListName);
-
-
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
-
+// **************************************************
       VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left);
-      if copy(VListName, length(VListName) - 5, 6) = '00'+decimalseparator+'00"' then begin
-        VListName := ReplaceStr(VListName, '00'+decimalseparator+'00"', '');
-      end;
-      if copy(VListName, length(VListName) - 7, 8) = '00'+decimalseparator+'0000''' then begin
-        VListName := ReplaceStr(VListName, '00'+decimalseparator+'0000''', '');
-      end;
-      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin
+// X12°30'00,00"
+      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin // X12°30'45,00" -> X12°30'45"
         VListName := ReplaceStr(VListName, decimalseparator+'00"', '"');
+        if copy(VListName, length(VListName) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
+          VListName := ReplaceStr(VListName, '00"', '');
+          if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+           VListName := ReplaceStr(VListName, '00''', '');
+          end;
+        end;
       end;
-      if copy(VListName, length(VListName) - 2, 3) = '00''' then begin
-        VListName := ReplaceStr(VListName, '00''', '');
+// X12°34,5678'
+      if copy(VListName, length(VListName) - 5, 6) = decimalseparator+'0000''' then begin // X12°30,0000' -> X12°30'
+        VListName := ReplaceStr(VListName, decimalseparator+'0000''', '''');              // Õ12°00,0000' -> X12°00'
+        if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+          VListName := ReplaceStr(VListName, '00''', '');
+        end;
       end;
-      if length(VListName)>5 then
-      VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
-      VListName := ReplaceStr(VListName, ',°', '°');
       VTextSize := FBitmap.TextExtent(VListName);
 
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
