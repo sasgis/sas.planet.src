@@ -222,7 +222,11 @@ begin
     if FProgressInfo.Finished then begin
       Self.Caption := SAS_STR_Finished;
       FFinished := True;
-      ShowMessage(SAS_STR_CacheConvertionIsFinished);
+      if FProgressInfo.ProgressAbortErrorStr <> '' then begin
+        ShowMessage(FProgressInfo.ProgressAbortErrorStr);
+      end else begin
+        ShowMessage(SAS_STR_CacheConvertionIsFinished);
+      end;
     end;
   end;
 end;

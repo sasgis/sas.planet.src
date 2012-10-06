@@ -35,6 +35,7 @@ type
     FLastTileName: string;
     FCS: IReadWriteSync;
     FFinished: Boolean;
+    FProgressAbortErrorStr: string;
   private
     function GetTilesProcessed: Int64;
     procedure SetTilesProcessed(const AValue: Int64);
@@ -46,6 +47,8 @@ type
     procedure SetLastTileName(const AValue: string);
     function GetIsFinished: Boolean;
     procedure SetIsFinished(const AValue: Boolean);
+    function GetProgressAbortErrorStr: string;
+    procedure SetProgressAbortErrorStr(AValue: string);
   public
     constructor Create;
   end;
@@ -66,6 +69,7 @@ begin
   FTilesSize := 0;
   FLastTileName := '';
   FFinished := False;
+  FProgressAbortErrorStr := '';
 end;
 
 function TCacheConverterProgressInfo.GetTilesProcessed: Int64;
@@ -163,6 +167,26 @@ begin
   FCS.BeginWrite;
   try
     FFinished := AValue;
+  finally
+    FCS.EndWrite
+  end;
+end;
+
+function TCacheConverterProgressInfo.GetProgressAbortErrorStr: string;
+begin
+  FCS.BeginRead;
+  try
+    Result := FProgressAbortErrorStr;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+procedure TCacheConverterProgressInfo.SetProgressAbortErrorStr(AValue: string);
+begin
+  FCS.BeginWrite;
+  try
+    FProgressAbortErrorStr := AValue;
   finally
     FCS.EndWrite
   end;

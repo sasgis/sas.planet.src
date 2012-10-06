@@ -98,6 +98,9 @@ ResourceString
     'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +
     'Try select smaller region to stitch in %s or select other output format (ECW is the best).';
 
+  SAS_ERR_ContentTypeMismatch = 'Cache converter aborted with error: Content-Type mismatch!' + #13#10 +
+     'Source: %s' + #13#10 + 'Destenation: %s';
+
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';
   SAS_STR_load = 'Downloaded';

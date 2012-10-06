@@ -45,6 +45,8 @@ type
     FSourceRemoveTiles: Boolean;
     FDestOverwriteTiles: Boolean;
     FSourcePath: string;
+    FDefExtention: string;
+    FSAS_ERR_ContentTypeMismatch: string;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -97,6 +99,7 @@ uses
   i_CoordConverter,
   i_MapVersionConfig,
   i_ContentTypeInfo,
+  u_ResStrings,
   u_CoordConverterMercatorOnSphere,
   u_MapVersionFactorySimpleString,
   u_TileStorageFileSystem,
@@ -123,7 +126,6 @@ constructor TThreadCacheConverter.Create(
   const AProgressInfo: ICacheConverterProgressInfo
 );
 var
-  VDefExtention: string;
   VDotPos: Integer;
 begin
   FCancelNotifier := ACancelNotifier;
@@ -137,19 +139,22 @@ begin
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
   FProgressInfo := AProgressInfo;
+  FSAS_ERR_ContentTypeMismatch := SAS_ERR_ContentTypeMismatch;
 
   VDotPos := Pos('.', ADefExtention);
   if VDotPos > 0 then begin
-    VDefExtention := Copy(ADefExtention, VDotPos, Length(ADefExtention) - VDotPos + 1);
+    FDefExtention := Copy(ADefExtention, VDotPos, Length(ADefExtention) - VDotPos + 1);
   end else begin
-    VDefExtention := '.' + ADefExtention;
+    FDefExtention := '.' + ADefExtention;
   end;
+
+  FDefExtention := LowerCase(FDefExtention);
 
   FSourceTileStorage :=
     CreateSimpleTileStorage(
       'SourcePath',
       FSourcePath,
-      VDefExtention,
+      FDefExtention,
       ASourceCacheFormatID,
       (not FSourceRemoveTiles),
       FSourceRemoveTiles,
@@ -163,7 +168,7 @@ begin
     CreateSimpleTileStorage(
       'DestPath',
       ADestPath,
-      VDefExtention,
+      FDefExtention,
       ADestCacheFormatID,
       False,
       True,
@@ -202,8 +207,24 @@ function TThreadCacheConverter.OnSourceTileStorageScan(
 var
   VTileInfo: ITileInfoBasic;
   VTileFullPath: string;
+  VDestContentType: IContentTypeInfoBasic;
+  VDestContentTypeStr: string;
+  VSrcContentTypeStr: string;
 begin
   Result := False;
+  if LowerCase(ATileInfo.FContentType.GetDefaultExt) <> FDefExtention then begin
+    VDestContentType := FContentTypeManager.GetInfo(FDefExtention);
+    if Assigned(VDestContentType) then begin
+      VDestContentTypeStr := VDestContentType.GetContentType + ' (*' + FDefExtention + ')';
+    end else begin
+      VDestContentTypeStr := '*' + FDefExtention;
+    end;
+    VSrcContentTypeStr := ATileInfo.FContentType.GetContentType +
+      ' (*' + ATileInfo.FContentType.GetDefaultExt + ')';
+    FProgressInfo.ProgressAbortErrorStr := Format(FSAS_ERR_ContentTypeMismatch,
+      [VSrcContentTypeStr, VDestContentTypeStr]);
+    Exit;
+  end;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
 
     if not FDestOverwriteTiles then begin

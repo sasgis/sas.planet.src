@@ -44,6 +44,10 @@ type
     function GetIsFinished: Boolean;
     procedure SetIsFinished(const AValue: Boolean);
     property Finished: Boolean read GetIsFinished write SetIsFinished;
+
+    function GetProgressAbortErrorStr: string;
+    procedure SetProgressAbortErrorStr(AValue: string);
+    property ProgressAbortErrorStr: string read GetProgressAbortErrorStr write SetProgressAbortErrorStr;
   end;
 
 implementation
