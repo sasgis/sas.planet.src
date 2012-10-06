@@ -981,6 +981,9 @@ begin
   if VBitmapStatic <> nil then begin
     FTumbler.Assign(VBitmapStatic.Bitmap);
   end;
+  NDegScale50000.Caption := '0'+DecimalSeparator+'5°';
+  NDegScale25000.Caption := '0'+DecimalSeparator+'25°';
+  NDegScale10000.Caption := '0'+DecimalSeparator+'125°';
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
