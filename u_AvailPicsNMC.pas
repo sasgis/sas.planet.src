@@ -604,8 +604,8 @@ const
 
       // check some critical values
       if FTileInfoPtr.LowResToo or CheckHiResResolution(VSLParams.Values['groundSampleDistance']) then begin
-        VTail := VSLParams.Values['featureId'];
-        VDate := VSLParams.Values['acquisitionDate'];
+//        VTail := VSLParams.Values['featureId'];
+        VDate := COPY(VSLParams.Values['acquisitionDate'],1,10);
         if (0<Length(VDate)) and (0<Length(VTail)) then begin
           // subst date separators
           try
@@ -623,7 +623,7 @@ const
           end;
 
           // add item
-          FTileInfoPtr.AddImageProc(Self, VDate, VTail, VSLParams);
+          FTileInfoPtr.AddImageProc(Self, VDate, 'Nokia MC '+IntToStr(FWorkingZoom), VSLParams);
         end;
       end;
     finally

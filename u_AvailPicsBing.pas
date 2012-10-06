@@ -155,8 +155,10 @@ begin
         VVintageEnd[5]:=DateSeparator;
         VVintageEnd[8]:=DateSeparator;
 
-        // add
-        if FTileInfoPtr.AddImageProc(Self, VVintageStart+' - '+VVintageEnd, 'Bing', VSLParams) then
+        if VVintageStart <> VVintageEnd then
+           VVintageStart := VVintageStart + ' - '+ VVintageEnd;
+
+        if FTileInfoPtr.AddImageProc(Self, VVintageStart, 'Bing', VSLParams) then
           Inc(Result);
       end;
 
