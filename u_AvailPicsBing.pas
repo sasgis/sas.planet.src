@@ -88,6 +88,7 @@ var
   VVintageStart, VVintageEnd: String;
   VSLParams: TStrings;
   VMemoryStream: TMemoryStream;
+  VZoom: Byte;
 begin
   VMemoryStream := TMemoryStream.Create;
   VMemoryStream.Position:=0;
@@ -157,8 +158,10 @@ begin
 
         if VVintageStart <> VVintageEnd then
            VVintageStart := VVintageStart + ' - '+ VVintageEnd;
+        VZoom := FTileInfoPtr.Zoom;
+        AdjustMinimalBingHiResZoom(VZoom);
 
-        if FTileInfoPtr.AddImageProc(Self, VVintageStart, 'Bing', VSLParams) then
+        if FTileInfoPtr.AddImageProc(Self, VVintageStart, 'Bing (z'+inttostr(VZoom+1)+')', VSLParams) then
           Inc(Result);
       end;
 

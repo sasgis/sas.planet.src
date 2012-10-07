@@ -47,8 +47,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       TitleCaptions.Strings = (
         'Parameter'
         'Value')
-      ExplicitWidth = 700
-      ExplicitHeight = 163
       ColWidths = (
         120
         362)
@@ -226,7 +224,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Width = 198
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
       end
       object chkALLServices: TCheckBox
