@@ -366,9 +366,13 @@ function TDatum.CalcDist(
 var
   IterLimit: Integer;
   L, U1, U2, SinU1, CosU1, SinU2, CosU2, Lambda, LambdaP, SinLambda, CosLambda,
-  Sigma, SinSigma, CosSigma, Cos2SigmaM, SinAlpha, CosSqAlpha, uSqr, A, B, C,
+  Sigma, SinSigma, CosSigma, Cos2SigmaM, SinAlpha, CosSqAlpha, uSq, A, B, C,
   DeltaSigma, Lat1, Lon1, Lat2, Lon2, aa, bb, r0: Extended;
 begin
+  Result := 0;
+  AInitialBearing := 0;
+  AFinalBearing := 0;
+
   Lat1 := AStart.Y * D2R;
   Lon1 := AStart.X * D2R;
 
@@ -379,22 +383,7 @@ begin
   bb := FRadiusB * FRadiusB;
   r0 := 1 - FFlattening;
 
-  if (Lat1 = Lat2) and (Lon1 = Lon2) then begin           // Coincident points
-    Result := 0.0;
-    Exit;
-  end;
-
   L := Lon2 - Lon1;
-
-  if (Lat1 = 0) and (Lat2 = 0) then begin                 // Along equator
-    Result := Abs(FRadiusA * L);
-    if (L > 0) then begin
-      AInitialBearing := PI / 2;
-    end else begin
-      AInitialBearing := 3 * PI / 2;
-    end;
-    Exit;
-  end;
 
   // === Thaddeus Vincenty's inverse algorithm: ================================
   U1 := ArcTan(r0 * Tan(Lat1));
@@ -403,39 +392,50 @@ begin
   SinCos(U2, SinU2, CosU2);
   Lambda := L;
   IterLimit := 100;
+
   repeat
     SinCos(Lambda, SinLambda, CosLambda);
     SinSigma :=
       Sqrt((Sqr(CosU2 * SinLambda)) + Sqr(CosU1 * SinU2 - SinU1 * CosU2 * CosLambda));
+    if SinSigma = 0 then begin // co-incident points
+      Exit;
+    end;
     CosSigma := SinU1 * SinU2 + CosU1 * CosU2 * CosLambda;
     Sigma := ArcTan2(SinSigma, CosSigma);
     SinAlpha := CosU1 * CosU2 * SinLambda / SinSigma;
     CosSqAlpha := 1 - Sqr(SinAlpha);
     Cos2SigmaM := CosSigma - 2 * SinU1 * SinU2 / CosSqAlpha;
+    if IsNaN(Cos2SigmaM) then begin // equatorial line: cosSqAlpha=0
+      Cos2SigmaM := 0;
+    end;
     C := FFlattening / 16 * CosSqAlpha * (4 + FFlattening * (4 - 3 * CosSqAlpha));
     LambdaP := Lambda;
     Lambda := L + (1 - C) * FFlattening * SinAlpha *
       (Sigma + C * SinSigma * (Cos2SigmaM + C * CosSigma * (-1 + 2 * Sqr(Cos2SigmaM))));
-    Dec(IterLimit, 1);
+    Dec(IterLimit);
     if (IterLimit <= 0) then begin
-      raise Exception.Create('Algorithm failed to converge');
+      raise Exception.CreateFmt(
+        'Vincenty''s inverse algorithm failed to converge!' + #13#10 +
+        'Start point (lat; lon): %.6f; %.6f' + #13#10 +
+        'Finish point (lat; lon): %.6f; %.6f',
+        [AStart.Y, AStart.X, AFinish.Y, AFinish.X]
+      );
     end;
-  until (Abs(Lambda - LambdaP) <= 1E-12);
-  uSqr := CosSqAlpha * (aa - bb) / bb;
-  A := 1 + uSqr / 16384 * (4096 + uSqr * (-768 + uSqr * (320 - 175 * uSqr)));
-  B := uSqr / 1024 * (256 + uSqr * (-128 + uSqr * (74 - 47 * uSqr)));
-  DeltaSigma :=
-    B * SinSigma * (Cos2SigmaM + B / 4 * (SinSigma * (-1 + 2 * Sqr(Cos2SigmaM))-
-    B / 6 * Cos2SigmaM * (-3 + 4 * SinSigma * SinSigma) * (-3 + 4 * Sqr(Cos2SigmaM))));
+  until not (Abs(Lambda - LambdaP) > 1E-12);
 
-  Result := FRadiusB * A * (Sigma - DeltaSigma);
+  uSq := CosSqAlpha * (aa - bb) / bb;
+  A := 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
+  B := uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
+  DeltaSigma :=
+    B * SinSigma * (Cos2SigmaM + B / 4 * (CosSigma * (-1 + 2 * Sqr(Cos2SigmaM))-
+    B / 6 * Cos2SigmaM * (-3 + 4 * Sqr(SinSigma)) * (-3 + 4 * Sqr(Cos2SigmaM))));
 
   AInitialBearing := ArcTan2(CosU2 * SinLambda, CosU1 * SinU2 - SinU1 * CosU2 * CosLambda);
   if (AInitialBearing < 0) then begin
     AInitialBearing := 2 * Pi + AInitialBearing;
   end;
 
-  AFinalBearing := ArcTan2(CosU1 * SinLambda, (-SinU1 * CosU2 + CosU1 * SinU2 * CosLambda)) - Pi;
+  AFinalBearing := ArcTan2(CosU1 * SinLambda, (-SinU1 * CosU2 + CosU1 * SinU2 * CosLambda)) - Pi; // ?? (- Pi)
   if (AFinalBearing < 0) then begin
     AFinalBearing := 2 * Pi + AFinalBearing;
   end;
@@ -443,6 +443,7 @@ begin
 
   AInitialBearing := AInitialBearing / D2R;
   AFinalBearing := AFinalBearing / D2R;
+  Result := FRadiusB * A * (Sigma - DeltaSigma);
 end;
 
 end.
