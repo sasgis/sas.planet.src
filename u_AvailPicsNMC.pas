@@ -579,6 +579,30 @@ const
     end;
   end;
 
+  function _GetDateForCaption(const ADate: String): String;
+  begin
+    Result := System.Copy(ADate,1,10);
+    if (0<Length(Result)) then
+    try
+      Result[5]:=DateSeparator;
+      Result[8]:=DateSeparator;
+    except
+    end;
+  end;
+
+  function _GetDateCaptionFromParams(const ASLParams: TStrings): String;
+  begin
+    // get single date at acquisitionDate
+    // or 2 dates from earliestAcquisitionDate to latestAcquisitionDate
+    Result := _GetDateForCaption(ASLParams.Values['latestAcquisitionDate']);
+    if (0<Length(Result)) then begin
+      Result := _GetDateForCaption(ASLParams.Values['earliestAcquisitionDate']) + ' - ' + Result;
+    end else begin
+      // single date
+      Result := _GetDateForCaption(ASLParams.Values['acquisitionDate']);
+    end;
+  end;
+
   procedure _ParseFinishedFeature(const SL_Common: TStrings; const AFinishedFeature: IDOMNode);
   var
     VItem: IDOMNode;
@@ -605,25 +629,22 @@ const
       // check some critical values
       if FTileInfoPtr.LowResToo or CheckHiResResolution(VSLParams.Values['groundSampleDistance']) then begin
 //        VTail := VSLParams.Values['featureId'];
-        VDate := COPY(VSLParams.Values['acquisitionDate'],1,10);
-        if (0<Length(VDate)) and (0<Length(VTail)) then begin
-          // subst date separators
-          try
-            VDate[5]:=DateSeparator;
-            VDate[8]:=DateSeparator;
-          except
-          end;
+        // get date(s) for date caption
+        VDate := _GetDateCaptionFromParams(VSLParams);
+        if (0<Length(VDate)) then begin
 
           // add params from common
           //VSLParams.AddStrings(SL_Common);
 
           // add working zoom
+          (*
           if (FWorkingZoom<>0) then begin
             VSLParams.Values[SAS_STR_Zoom + ' ' + IntToStr(FWorkingZoom)] := SAS_STR_Yes;
           end;
+          *)
 
           // add item
-          FTileInfoPtr.AddImageProc(Self, VDate, 'Nokia MC '+IntToStr(FWorkingZoom), VSLParams);
+          FTileInfoPtr.AddImageProc(Self, VDate, 'Nokia z'+IntToStr(FWorkingZoom), VSLParams);
         end;
       end;
     finally
