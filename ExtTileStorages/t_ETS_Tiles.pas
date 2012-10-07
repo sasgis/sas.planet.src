@@ -32,6 +32,10 @@ const
   // repeat command exclusively
   ETS_RESULT_NEED_EXCLUSIVE = 1;
 
+  // not implemented
+  ETS_RESULT_NOT_IMPLEMENTED = 2;
+
+
   
   // access to storage is restricted (4-7)
   // access to storage is disabled (at host!)
@@ -48,6 +52,7 @@ const
   ETS_RESULT_AUTH_FAILED    = 12; // auth error
 
   // connectivity and transport errors (16-31)
+  ETS_RESULT_INCOMPLETE     = 18; // should call Complete routine
   ETS_RESULT_CANNOT_CONNECT = 19; // failed to create or initialize connection object
   ETS_RESULT_NOT_CONNECTED  = 20;
   ETS_RESULT_DISCONNECTED   = 21;
@@ -73,6 +78,8 @@ const
   ETS_RESULT_INVALID_PATH     = 44;
   // storage structure is invalid
   ETS_RESULT_INVALID_STRUCTURE = 45;
+  // if code of service is invalid
+  ETS_RESULT_INVALID_SERVICE_CODE = 46;
 
   // length of Nst string parameter too big
   ETS_RESULT_STRING1_LEN = 51;
