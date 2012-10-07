@@ -756,8 +756,10 @@ var
   VFinishPixelXY: TDoublePoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
+  VHeight: Integer;
+  VFullLenght: Double;
 begin
-  AFullLenght := GetNiceLen(AFullLenght);
+  VFullLenght := GetNiceLen(AFullLenght);
 
   VZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
@@ -769,10 +771,18 @@ begin
   );
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
-  VFinishLonLat := VConverter.Datum.CalcFinishPosition(VStartLonLat, 0, AFullLenght);
+  VFinishLonLat := VConverter.Datum.CalcFinishPosition(VStartLonLat, 0, VFullLenght);
+  VConverter.CheckLonLatPos(VFinishLonLat);
   VFinishPixelXY := VConverter.LonLat2PixelPosFloat(VFinishLonLat, VZoom);
 
-  AHeight := Abs(VCenterPixelXY.Y - Round(VFinishPixelXY.Y));
+  VHeight := Abs(VCenterPixelXY.Y - Round(VFinishPixelXY.Y));
+
+  if VHeight <= 0 then begin
+    AFullLenght := -1;
+  end else begin
+    AFullLenght := VFullLenght;
+    AHeight := VHeight;
+  end;
 end;
 
 function TLayerScaleLine.GetNewBitmapSize: TPoint;
