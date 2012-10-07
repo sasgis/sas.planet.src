@@ -34,6 +34,9 @@ type
 
 implementation
 
+uses
+  SysUtils;
+
 {$R *.dfm}
 
 { TfrMarkCategorySelectOrAdd }
@@ -84,7 +87,7 @@ var
   VCategory: IMarkCategory;
 begin
   Result := nil;
-  VCategoryText := CBKateg.Text;
+  VCategoryText := Trim(CBKateg.Text);
   VIndex := CBKateg.ItemIndex;
   if VIndex < 0 then begin
     VIndex:= CBKateg.Items.IndexOf(VCategoryText);
