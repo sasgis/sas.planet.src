@@ -353,11 +353,17 @@ begin
     VSortedMarksList := TStringList.Create;
     try
       VSortedMarksList.Sorted := True;
-      for I := 0 to FMarksList.Count - 1 do begin
-        VMarkId := IMarkId(FMarksList.Items[I]);
-        VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
-        VSortedMarksList.AddObject(VName, Pointer(VMarkId));
-      end;                                                                        
+      VSortedMarksList.Duplicates := dupAccept;
+      VSortedMarksList.BeginUpdate;
+      try
+        for I := 0 to FMarksList.Count - 1 do begin
+          VMarkId := IMarkId(FMarksList.Items[I]);
+          VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
+          VSortedMarksList.AddObject(VName, Pointer(VMarkId));
+        end;
+      finally
+        VSortedMarksList.EndUpdate;
+      end;
       MarksListBox.Items.BeginUpdate;
       try
         VNode := MarksListBox.Items.GetFirstNode;
