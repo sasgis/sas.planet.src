@@ -404,9 +404,10 @@ begin
     Sigma := ArcTan2(SinSigma, CosSigma);
     SinAlpha := CosU1 * CosU2 * SinLambda / SinSigma;
     CosSqAlpha := 1 - Sqr(SinAlpha);
-    Cos2SigmaM := CosSigma - 2 * SinU1 * SinU2 / CosSqAlpha;
-    if IsNaN(Cos2SigmaM) then begin // equatorial line: cosSqAlpha=0
-      Cos2SigmaM := 0;
+    if CosSqAlpha <> 0 then begin
+      Cos2SigmaM := CosSigma - 2 * SinU1 * SinU2 / CosSqAlpha;
+    end else begin
+      Cos2SigmaM := 0; // equatorial line: cosSqAlpha=0
     end;
     C := FFlattening / 16 * CosSqAlpha * (4 + FFlattening * (4 - 3 * CosSqAlpha));
     LambdaP := Lambda;
