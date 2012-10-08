@@ -6,7 +6,7 @@ uses
   i_NotifierOperation,
   i_ThreadConfig,
   i_TileRequestTask,
-  i_TileRequestQueue,
+  i_InterfaceQueue,
   i_TileDownloaderList,
   i_TileDownloader,
   i_ITileRequestProcessorPool,
@@ -15,7 +15,7 @@ uses
 type
   TTileDownloaderWithQueue = class(TInterfacedObject, ITileDownloaderAsync)
   private
-    FQueue: ITileRequestQueue;
+    FQueue: IInterfaceQueue;
     FSyncTileRequestProcessorPull: ITileRequestProcessorPool;
   private
     procedure Download(
@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  u_TileRequestQueue,
+  u_InterfaceQueue,
   u_TileRequestProcessorPool;
 
 { TTileDownloaderWithQueue }
@@ -49,8 +49,7 @@ constructor TTileDownloaderWithQueue.Create(
 begin
   inherited Create;
   FQueue :=
-    TTileRequestQueue.Create(
-      AGCList,
+    TInterfaceQueue.Create(
       AAppClosingNotifier,
       AQueueCapacity
     );

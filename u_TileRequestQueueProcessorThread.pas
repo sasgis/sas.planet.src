@@ -7,7 +7,7 @@ uses
   i_Listener,
   i_ThreadConfig,
   i_TileRequestTask,
-  i_TileRequestQueue,
+  i_InterfaceQueue,
   i_TileDownloader,
   u_InterfacedThread;
 
@@ -15,7 +15,7 @@ type
   TTileRequestQueueProcessorThread = class(TInterfacedThread)
   private
     FAppClosingNotifier: INotifierOneOperation;
-    FTileRequestQueue: ITileRequestQueue;
+    FTileRequestQueue: IInterfaceQueue;
     FTileDownloaderSync: ITileDownloader;
 
     FAppClosingListener: IListener;
@@ -26,7 +26,7 @@ type
     constructor Create(
       const AThreadConfig: IThreadConfig;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATileRequestQueue: ITileRequestQueue;
+      const ATileRequestQueue: IInterfaceQueue;
       const ATileDownloaderSync: ITileDownloader
     );
     destructor Destroy; override;
@@ -44,7 +44,7 @@ uses
 constructor TTileRequestQueueProcessorThread.Create(
   const AThreadConfig: IThreadConfig;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATileRequestQueue: ITileRequestQueue;
+  const ATileRequestQueue: IInterfaceQueue;
   const ATileDownloaderSync: ITileDownloader
 );
 begin

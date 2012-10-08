@@ -262,6 +262,7 @@
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
     <DCCReference Include="i_InetConfig.pas" />
+    <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_InternalBrowser.pas" />
     <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalPerformanceCounter.pas" />
@@ -421,7 +422,6 @@
     <DCCReference Include="i_TileProvider.pas" />
     <DCCReference Include="i_TileRect.pas" />
     <DCCReference Include="i_TileRequest.pas" />
-    <DCCReference Include="i_TileRequestQueue.pas" />
     <DCCReference Include="i_TileRequestResult.pas" />
     <DCCReference Include="i_TileRequestTask.pas" />
     <DCCReference Include="i_TileStorage.pas" />
@@ -782,6 +782,7 @@
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InetFunc.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_InternalBrowserByForm.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByDataProvider.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
@@ -1042,7 +1043,6 @@
     <DCCReference Include="u_TileRequest.pas" />
     <DCCReference Include="u_TileRequestBuilderHelpers.pas" />
     <DCCReference Include="u_TileRequestProcessorPool.pas" />
-    <DCCReference Include="u_TileRequestQueue.pas" />
     <DCCReference Include="u_TileRequestQueueProcessorThread.pas" />
     <DCCReference Include="u_TileRequestResult.pas" />
     <DCCReference Include="u_TileRequestTask.pas" />

@@ -11,7 +11,7 @@ uses
   i_ThreadConfig,
   i_ListenerTTLCheck,
   i_NotifierTTLCheck,
-  i_TileRequestQueue,
+  i_InterfaceQueue,
   i_TileDownloaderList,
   i_ITileRequestProcessorPool;
 
@@ -25,7 +25,7 @@ type
     FDownloaderList: ITileDownloaderList;
     FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifierOneOperation;
-    FTileRequestQueue: ITileRequestQueue;
+    FTileRequestQueue: IInterfaceQueue;
 
     FTTLListener: IListenerTTLCheck;
     FDownloadersListListener: IListener;
@@ -42,7 +42,7 @@ type
       const AGCList: INotifierTTLCheck;
       const AThreadConfig: IThreadConfig;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATileRequestQueue: ITileRequestQueue;
+      const ATileRequestQueue: IInterfaceQueue;
       const ADownloaderList: ITileDownloaderList
     );
     destructor Destroy; override;
@@ -63,7 +63,7 @@ constructor TTileRequestProcessorPool.Create(
   const AGCList: INotifierTTLCheck;
   const AThreadConfig: IThreadConfig;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATileRequestQueue: ITileRequestQueue;
+  const ATileRequestQueue: IInterfaceQueue;
   const ADownloaderList: ITileDownloaderList
 );
 begin
