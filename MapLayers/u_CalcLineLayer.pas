@@ -309,15 +309,12 @@ var
   VConverter: ICoordConverter;
   VDatum: IDatum;
   VZoom: Byte;
-
   VCurrLonLat: TDoublePoint;
   VCurrIsEmpty: Boolean;
   VCurrProjected: TDoublePoint;
-
   VPrevLonLat: TDoublePoint;
   VPrevIsEmpty: Boolean;
   VPrevProjected: TDoublePoint;
-
   VDist: Double;
   VTotalDist: Double;
   VLonLat: TDoublePoint;
@@ -325,6 +322,8 @@ var
   VText: string;
   VTextSize: TSize;
   VValueConverter: IValueToStringConverter;
+  VStartAzimuth, VFinishAzimuth: Double;
+  VAzimuth: string;
 begin
   AProjectedPoints := nil;
   ADistStrings := nil;
@@ -351,7 +350,7 @@ begin
           VCurrProjected := VPrevProjected;
         end else begin
           if not VPrevIsEmpty then begin
-            VDist := VDatum.CalcDist(VPrevLonLat, VCurrLonLat);
+            VDist := VDatum.CalcDist(VPrevLonLat, VCurrLonLat, VStartAzimuth, VFinishAzimuth);
             VTotalDist := VTotalDist + VDist;
           end;
           VLonLat := VCurrLonLat;
@@ -392,7 +391,13 @@ begin
       end;
     end;
     if AProjectedPoints.Count > 0 then begin
-      VText := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(VTotalDist);
+      if FConfig.ShowAzimuth then begin
+        VAzimuth := ' ' + SAS_STR_Azimuth + ': ' +
+          FloatToStrF(VStartAzimuth, ffNumber, 12, 2) + #176; // #176 - degree symbol
+      end else begin
+        VAzimuth := '';
+      end;
+      VText := SAS_STR_Whole + ': ' + VValueConverter.DistConvert(VTotalDist) + VAzimuth;
       ADistStrings[AProjectedPoints.Count - 1] := VText;
       VTextSize := FTempLastPointBitmap.TextExtent(VText);
       ATextSizeArray[AProjectedPoints.Count - 1].X := VTextSize.cx;

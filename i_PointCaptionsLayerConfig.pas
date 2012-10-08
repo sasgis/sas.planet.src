@@ -12,6 +12,9 @@ type
     function GetVisible: Boolean;
     property Visible: Boolean read GetVisible;
 
+    function GetShowAzimuth: Boolean;
+    property ShowAzimuth: Boolean read GetShowAzimuth;
+
     function GetShowLastPointOnly: Boolean;
     property ShowLastPointOnly: Boolean read GetShowLastPointOnly;
 
@@ -33,6 +36,10 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
+
+    function GetShowAzimuth: Boolean;
+    procedure SetShowAzimuth(AValue: Boolean);
+    property ShowAzimuth: Boolean read GetShowAzimuth write SetShowAzimuth;
 
     function GetShowLastPointOnly: Boolean;
     procedure SetShowLastPointOnly(const AValue: Boolean);

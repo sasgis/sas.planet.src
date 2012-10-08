@@ -158,6 +158,7 @@ ResourceString
   SAS_STR_L = 'Length';
   SAS_STR_P = 'Perimeter';
   SAS_STR_Whole = 'Total';
+  SAS_STR_Azimuth = 'Azimuth';
   SAS_STR_Maps = 'Maps';
   SAS_STR_Layers = 'Layers';
   SAS_STR_InputLacitp = 'Enter comma-separated MNC, MCC, LAC, CellID (example: 02,250,7718,11942)';

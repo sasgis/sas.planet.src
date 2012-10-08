@@ -33,6 +33,7 @@ type
   TPointCaptionsLayerConfigStatic = class(TInterfacedObject, IPointCaptionsLayerConfigStatic)
   private
     FVisible: Boolean;
+    FShowAzimuth: Boolean;
     FShowLastPointOnly: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
@@ -40,6 +41,7 @@ type
     FTextBGColor: TColor32;
   private
     function GetVisible: Boolean;
+    function GetShowAzimuth: Boolean;
     function GetShowLastPointOnly: Boolean;
     function GetFontSize: Integer;
     function GetLastPointFontSize: Integer;
@@ -48,6 +50,7 @@ type
   public
     constructor Create(
       AVisible: Boolean;
+      AShowAzimuth: Boolean;
       AShowLastPointOnly: Boolean;
       AFontSize: Integer;
       ALastPointFontSize: Integer;
@@ -59,6 +62,7 @@ type
   TPointCaptionsLayerConfig = class(TConfigDataElementWithStaticBase, IPointCaptionsLayerConfig)
   private
     FVisible: Boolean;
+    FShowAzimuth: Boolean;
     FShowLastPointOnly: Boolean;
     FFontSize: Integer;
     FLastPointFontSize: Integer;
@@ -72,6 +76,9 @@ type
   private
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+
+    function GetShowAzimuth: Boolean;
+    procedure SetShowAzimuth(AValue: Boolean);
 
     function GetShowLastPointOnly: Boolean;
     procedure SetShowLastPointOnly(const AValue: Boolean);
@@ -100,12 +107,13 @@ uses
 
 { TPointCaptionsLayerConfigStatic }
 
-constructor TPointCaptionsLayerConfigStatic.Create(AVisible,
+constructor TPointCaptionsLayerConfigStatic.Create(AVisible, AShowAzimuth,
   AShowLastPointOnly: Boolean; AFontSize, ALastPointFontSize: Integer;
   ATextColor, ATextBGColor: TColor32);
 begin
   inherited Create;
   FVisible := AVisible;
+  FShowAzimuth := AShowAzimuth;
   FShowLastPointOnly := AShowLastPointOnly;
   FFontSize := AFontSize;
   FLastPointFontSize := ALastPointFontSize;
@@ -143,12 +151,18 @@ begin
   Result := FVisible;
 end;
 
+function TPointCaptionsLayerConfigStatic.GetShowAzimuth: Boolean;
+begin
+  Result := FShowAzimuth;
+end;
+
 { TPointCaptionsLayerConfig }
 
 constructor TPointCaptionsLayerConfig.Create;
 begin
   inherited Create;
   FVisible := True;
+  FShowAzimuth := True;
   FShowLastPointOnly := False;
   FFontSize := 7;
   FLastPointFontSize := 9;
@@ -163,6 +177,7 @@ begin
   VStatic :=
     TPointCaptionsLayerConfigStatic.Create(
       FVisible,
+      FShowAzimuth,
       FShowLastPointOnly,
       FFontSize,
       FLastPointFontSize,
@@ -177,6 +192,7 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FVisible := AConfigData.ReadBool('VisibleCaptions', FVisible);
+    FShowAzimuth := AConfigData.ReadBool('ShowAzimuth', FShowAzimuth);
     FShowLastPointOnly := AConfigData.ReadBool('ShowLastPointCaptionOnly', FShowLastPointOnly);
     FFontSize := AConfigData.ReadInteger('FontSize', FFontSize);
     FLastPointFontSize := AConfigData.ReadInteger('LastPointFontSize', FLastPointFontSize);
@@ -193,6 +209,7 @@ procedure TPointCaptionsLayerConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteBool('VisibleCaptions', FVisible);
+  AConfigData.WriteBool('ShowAzimuth', FShowAzimuth);
   AConfigData.WriteBool('ShowLastPointCaptionOnly', FShowLastPointOnly);
   AConfigData.WriteInteger('FontSize', FFontSize);
   AConfigData.WriteInteger('LastPointFontSize', FLastPointFontSize);
@@ -261,6 +278,16 @@ begin
   LockRead;
   try
     Result := FVisible;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TPointCaptionsLayerConfig.GetShowAzimuth: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowAzimuth;
   finally
     UnlockRead;
   end;
@@ -338,6 +365,19 @@ begin
   try
     if FVisible <> AValue then begin
       FVisible := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TPointCaptionsLayerConfig.SetShowAzimuth(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowAzimuth <> AValue then begin
+      FShowAzimuth := AValue;
       SetChanged;
     end;
   finally
