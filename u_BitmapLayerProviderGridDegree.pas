@@ -179,6 +179,13 @@ begin
           VListName := ReplaceStr(VListName, '00''', '');
         end;
       end;
+      if copy(VListName, length(VListName) , 1) = '°' then begin // X12,0000000° -> X12,°
+                                                                 // X12,3400000° -> X12,34°
+        VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
+        VListName := ReplaceStr(VListName, decimalseparator+'°', '°'); // X12,° -> X12°
+      end;
+
+      VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
 // **************************************************
@@ -200,8 +207,13 @@ begin
           VListName := ReplaceStr(VListName, '00''', '');
         end;
       end;
-      VTextSize := FBitmap.TextExtent(VListName);
+      if copy(VListName, length(VListName) , 1) = '°' then begin // X12,0000000° -> X12,°
+                                                                 // X12,3400000° -> X12,34°
+        VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
+        VListName := ReplaceStr(VListName, decimalseparator+'°', '°'); // X12,° -> X12°
+      end;
 
+      VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
     end;
