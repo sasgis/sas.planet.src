@@ -179,11 +179,12 @@ begin
           VListName := ReplaceStr(VListName, '00''', '');
         end;
       end;
-      if copy(VListName, length(VListName) , 1) = '°' then begin // X12,0000000° -> X12,°
-                                                                 // X12,3400000° -> X12,34°
-        VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
+      if (RegExprGetMatchSubStr(VListName,decimalseparator+'\d+0\°',0)<>'' ) then begin // X12,0000000° -> X12,°
+                                                                       // X12,3400000° -> X12,34°
+                                                                       // Õ40,0000000° -> 40,°
+        while copy(VListName,length(VListName)-1,2)='0°' do VListName := ReplaceStr(VListName, '0°', '°');
         VListName := ReplaceStr(VListName, decimalseparator+'°', '°'); // X12,° -> X12°
-      end;
+      end;                                                             // X40,° -> X40°
 
       VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
@@ -207,11 +208,12 @@ begin
           VListName := ReplaceStr(VListName, '00''', '');
         end;
       end;
-      if copy(VListName, length(VListName) , 1) = '°' then begin // X12,0000000° -> X12,°
-                                                                 // X12,3400000° -> X12,34°
-        VListName := RegExprReplaceMatchSubStr(VListName, '\0+\°', '°');
+       if (RegExprGetMatchSubStr(VListName,decimalseparator+'\d+0\°',0)<>'' ) then begin // X12,0000000° -> X12,°
+                                                                       // X12,3400000° -> X12,34°
+                                                                       // Õ40,0000000° -> 40,°
+        while copy(VListName,length(VListName)-1,2)='0°' do VListName := ReplaceStr(VListName, '0°', '°');
         VListName := ReplaceStr(VListName, decimalseparator+'°', '°'); // X12,° -> X12°
-      end;
+      end;                                                             // X40,° -> X40°
 
       VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
