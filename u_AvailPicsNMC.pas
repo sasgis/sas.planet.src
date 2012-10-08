@@ -591,12 +591,16 @@ const
   end;
 
   function _GetDateCaptionFromParams(const ASLParams: TStrings): String;
+  var
+    VPrevDate: String;
   begin
     // get single date at acquisitionDate
     // or 2 dates from earliestAcquisitionDate to latestAcquisitionDate
     Result := _GetDateForCaption(ASLParams.Values['latestAcquisitionDate']);
     if (0<Length(Result)) then begin
-      Result := _GetDateForCaption(ASLParams.Values['earliestAcquisitionDate']) + ' - ' + Result;
+      VPrevDate := _GetDateForCaption(ASLParams.Values['earliestAcquisitionDate']);
+      if (Result<>VPrevDate) then
+        Result := VPrevDate + ' - ' + Result;
     end else begin
       // single date
       Result := _GetDateForCaption(ASLParams.Values['acquisitionDate']);

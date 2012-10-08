@@ -44,6 +44,7 @@ uses
   u_AvailPicsTerra,
   u_AvailPicsESRI,
   u_AvailPicsDD,
+  u_AvailPicsGeoFuse,
   i_NotifierOperation,
   u_NotifierOperation,
   i_DownloadRequest,
@@ -95,6 +96,7 @@ type
     ChkDD5: TCheckBox;
     LabelDatadoors: TLabel;
     Up: TPanel;
+    chkGeoFuse: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -120,6 +122,8 @@ type
     FTerraserver: TAvailPicsTerraserver;
     FESRI: TAvailPicsESRI;
     FDGStacks: TAvailPicsDGs;
+    FGeoFuse: TAvailPicsGeoFuse;
+    
     FAvailPicsTileInfo: TAvailPicsTileInfo;
     FCallIndex: DWORD;
     FVertResizeFactor: Integer;
@@ -522,13 +526,18 @@ begin
     VComp := FindComponent('ChkDD' + IntToStr(Ord(i)));
     if Assigned(VComp) then
     if (VComp is TCheckBox) then begin
-      RunImageThread(TCheckBox(VComp), FDDs[i]);
+      // do not request for GeoEye and IKONOS if GeoFuse.GeoEye is checked
+      if (Ord(i)<4) or (not chkGeoFuse.Checked) then
+        RunImageThread(TCheckBox(VComp), FDDs[i]);
     end;
   end;
 
   RunImageThread(chkTerraserver, FTerraserver);
 
   RunImageThread(chkESRI, FESRI);
+
+  // run for GeoFuse.GeoEye search (both GeoEye and IKONOS with full metadata)
+  RunImageThread(chkGeoFuse, FGeoFuse);
 
   // for DG - for current stack
   VDGstack:=nil;
@@ -619,14 +628,20 @@ end;
 
 procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
 
-  function _ExtractFloat(var AParsedText: String): Double;
+  function _ExtractFloat(var AParsedText: String; const ACommaAsDelimiter: Boolean): Double;
   var
-    p: Integer;
+    p,q: Integer;
     s: String;
   begin
     if (0=Length(AParsedText)) then
       Abort;
     p := System.Pos(' ', AParsedText);
+    if (p>0) then begin
+      // check if comma before space
+      q := System.Pos(',', AParsedText);
+      if (q>0) and (q<p) then
+        p:=q;
+    end;
     if (p>0) then begin
       // found
       s := System.Copy(AParsedText,1,p-1);
@@ -639,11 +654,11 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
     Result := StrPointToFloat(s);
   end;
 
-  function _ExtractPoint(var AParsedText: String; const AInvert: Boolean): TDoublePoint;
+  function _ExtractPoint(var AParsedText: String; const AInvert, ACommaAsDelimiter: Boolean): TDoublePoint;
   var d: Double;
   begin
-    Result.Y := _ExtractFloat(AParsedText);
-    Result.X := _ExtractFloat(AParsedText);
+    Result.Y := _ExtractFloat(AParsedText, ACommaAsDelimiter);
+    Result.X := _ExtractFloat(AParsedText, ACommaAsDelimiter);
     if AInvert then begin
       d := Result.Y;
       Result.Y := Result.X;
@@ -660,7 +675,7 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
 
 var
   i,k: Integer;
-  VXCommaY: Boolean;
+  VXCommaY, VCommaAsDelimiter: Boolean;
   VName, VDesc, VGeometry, VDate: String;
   VImportConfig: IImportConfig;
   VVectorItmesFactory: IVectorItmesFactory;
@@ -719,6 +734,8 @@ begin
 
          if 0=length(VDesc) then begin
           VDesc := Values['uid'];
+          if 0=length(VDesc) then
+            VDesc := Values['IMAGE_ID'];
           Vname := copy(VDate,1,10)+' '+VDesc;
           VDesc := 'uid:'+VDesc;
          end;
@@ -736,15 +753,16 @@ begin
         VDate := Values['Resolution'];
         if (0=Length(VDate)) then
           VDate := Values['groundSampleDistance'];
+        if (0=Length(VDate)) then
+          VDate := Values['GSD'];
         _AddWithBR(VDesc, 'Resolution', VDate);
 
         // add Source
-        _AddWithBR(VDesc, 'Source', Values['Source']);
+        VDate := Values['Source'];
+        _AddWithBR(VDesc, 'Source', VDate);
 
         // add ID if exist
-        VDate := '';
         VDate := Values['LegacyId'];
-        if (0<>Length(VDate)) then
         _AddWithBR(VDesc, 'LegacyId', VDate);
 
         if 0=length(VDate) then begin
@@ -752,13 +770,27 @@ begin
           _AddWithBR(VDesc, 'CatalogID', VDate);
         end;
 
+        (*
+        VDate := Values['IMAGE_ID'];
+        if (0<>Length(VDate)) then
+        _AddWithBR(VDesc, 'IMAGE_ID', VDate);
+        *)
+        
+        VDate := Values['SCENE_ID'];
+        _AddWithBR(VDesc, 'SCENE_ID', VDate);
+
         // add Provider
         VDate := Values['Provider'];
         if (0=Length(VDate)) then
-          VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator
+          VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator and GeoFuse.GeoEye
         _AddWithBR(VDesc, 'Provider', VDate);
-        // add Preview
-        VDate := Values['PreviewLink'];
+
+        // add Preview (from more info to less info)
+        VDate := Values['FULL_METADATA_URL'];
+        if (0=Length(VDate)) then
+          VDate := Values['METADATA_URL'];
+        if (0=Length(VDate)) then
+          VDate := Values['IMAGE_FILE_URL'];
         if (0<>Length(VDate)) then
         _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
 
@@ -785,11 +817,12 @@ begin
       end;
 
       // fill with coords
+      VCommaAsDelimiter := (System.Pos(',',VGeometry)>0);
       VPointsAggregator.Clear;
       repeat
         // cut pairs (space-separated y and x)
         try
-          VPoint := _ExtractPoint(VGeometry, VXCommaY);
+          VPoint := _ExtractPoint(VGeometry, VXCommaY, VCommaAsDelimiter);
           VValidPoint := (not PointIsEmpty(VPoint)) and ((Abs(VPoint.X) <= 180) and (Abs(VPoint.Y) <= 90));
         except
           VValidPoint := FALSE;
@@ -913,6 +946,7 @@ begin
   FreeAndNil(FDG2);
   FreeAndNil(FTerraserver);
   FreeAndNil(FESRI);
+  FreeAndNil(FGeoFuse);
 
   // fixed array
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
@@ -958,6 +992,10 @@ begin
   if (nil=FESRI) then
     FESRI := TAvailPicsESRI.Create(@FAvailPicsTileInfo);
 
+  // make for GeoFuse.GeoEye
+  if (nil=FGeoFuse) then
+    FGeoFuse := TAvailPicsGeoFuse.Create(@FAvailPicsTileInfo);
+
   // make for digital globe
   if (0=Length(FDGStacks)) then
     GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo);
@@ -1002,6 +1040,9 @@ begin
 
   if (nil<>FESRI) then
     FESRI.SetLocalConverter(FLocalConverter);
+
+  if (nil<>FGeoFuse) then
+    FGeoFuse.SetLocalConverter(FLocalConverter);
 
   k:=Length(FDGStacks);
   if (0<k) then
@@ -1195,6 +1236,7 @@ begin
   FillChar(FDDs, sizeof(FDDs), 0);
   FTerraserver:=nil;
   FESRI:=nil;
+  FGeoFuse:=nil;
   SetLength(FDGStacks, 0);
 
   ZeroMemory(@FAvailPicsTileInfo, sizeof(FAvailPicsTileInfo));

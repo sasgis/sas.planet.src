@@ -837,6 +837,7 @@ uses
   u_AvailPicsDG2 in 'u_AvailPicsDG2.pas',
   u_AvailPicsTerra in 'u_AvailPicsTerra.pas',
   u_AvailPicsESRI in 'u_AvailPicsESRI.pas',
+  u_AvailPicsGeoFuse in 'u_AvailPicsGeoFuse.pas',
   i_InternalBrowser in 'i_InternalBrowser.pas',
   u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',

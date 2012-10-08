@@ -3,8 +3,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Top = 247
   BorderStyle = bsSizeToolWin
   Caption = 'Images available'
-  ClientHeight = 386
-  ClientWidth = 492
+  ClientHeight = 416
+  ClientWidth = 512
   Color = clBtnFace
   Constraints.MinHeight = 410
   Constraints.MinWidth = 500
@@ -20,62 +20,71 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   TextHeight = 13
   object spltDesc: TSplitter
     Left = 0
-    Top = 197
-    Width = 492
+    Top = 227
+    Width = 512
     Height = 5
     Cursor = crVSplit
     Align = alBottom
     OnCanResize = spltDescCanResize
     ExplicitTop = 198
+    ExplicitWidth = 492
   end
   object gbImageParams: TGroupBox
     Left = 0
-    Top = 202
-    Width = 492
+    Top = 232
+    Width = 512
     Height = 184
     Align = alBottom
     Caption = 'Description:'
     Constraints.MinHeight = 80
     TabOrder = 0
+    ExplicitTop = 202
+    ExplicitWidth = 492
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
-      Width = 488
+      Width = 508
       Height = 167
       Align = alClient
+      DefaultColWidth = 160
       TabOrder = 0
       TitleCaptions.Strings = (
         'Parameter'
         'Value')
+      ExplicitTop = 14
       ColWidths = (
-        120
-        362)
+        160
+        342)
     end
   end
   object Up: TPanel
     Left = 0
     Top = 0
-    Width = 492
-    Height = 197
+    Width = 512
+    Height = 227
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 492
+    ExplicitHeight = 197
     object gbAvailImages: TGroupBox
       Left = 271
       Top = 0
-      Width = 219
-      Height = 195
+      Width = 239
+      Height = 225
       Align = alCustom
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Images available'
       Constraints.MinHeight = 191
       TabOrder = 0
+      ExplicitWidth = 219
+      ExplicitHeight = 195
       object tvFound: TTreeView
         AlignWithMargins = True
         Left = 5
         Top = 18
-        Width = 114
-        Height = 172
+        Width = 134
+        Height = 202
         Align = alClient
         HideSelection = False
         HotTrack = True
@@ -88,15 +97,19 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         OnClick = tvFoundClick
         OnDeletion = tvFoundDeletion
         OnMouseDown = tvFoundMouseDown
+        ExplicitWidth = 114
+        ExplicitHeight = 172
       end
       object pnlRight: TPanel
-        Left = 122
+        Left = 142
         Top = 15
         Width = 95
-        Height = 178
+        Height = 208
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 122
+        ExplicitHeight = 178
         object btnUp: TButton
           AlignWithMargins = True
           Left = 3
@@ -161,29 +174,31 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         object chkALLImages: TCheckBox
           AlignWithMargins = True
           Left = 3
-          Top = 158
+          Top = 188
           Width = 89
           Height = 17
           Align = alBottom
           Caption = 'All Images'
           TabOrder = 5
           OnClick = chkALLImagesClick
+          ExplicitTop = 158
         end
       end
     end
     object PnlSearch: TGroupBox
       Left = 2
-      Top = 0
+      Top = 1
       Width = 263
-      Height = 195
+      Height = 225
       Align = alCustom
       Anchors = [akLeft, akTop, akBottom]
       Caption = 'Image services'
       Constraints.MinHeight = 191
       TabOrder = 1
+      ExplicitHeight = 195
       DesignSize = (
         263
-        195)
+        225)
       object lbNMC: TLabel
         Left = 8
         Top = 60
@@ -212,7 +227,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object LabelDatadoors: TLabel
         Left = 8
-        Top = 120
+        Top = 147
         Width = 97
         Height = 13
         Caption = 'www.datadoors.net'
@@ -229,13 +244,14 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object chkALLServices: TCheckBox
         Left = 8
-        Top = 171
+        Top = 203
         Width = 109
         Height = 17
         Anchors = [akLeft, akBottom]
         Caption = 'All Services'
         TabOrder = 1
         OnClick = chkALLServicesClick
+        ExplicitTop = 220
       end
       object chkBing: TCheckBox
         AlignWithMargins = True
@@ -272,14 +288,15 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         TabOrder = 5
       end
       object chkLowResolutionToo: TCheckBox
-        Left = 136
-        Top = 170
+        Left = 143
+        Top = 203
         Width = 117
         Height = 18
         Anchors = [akLeft, akBottom]
         Caption = 'Low Resolution too'
         TabOrder = 6
         OnClick = chkLowResolutionTooClick
+        ExplicitTop = 173
       end
       object chkNMC15: TCheckBox
         Left = 86
@@ -324,7 +341,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object ChkDD2: TCheckBox
         Left = 15
-        Top = 150
+        Top = 177
         Width = 85
         Height = 17
         Caption = 'WorldView-2'
@@ -332,7 +349,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object ChkDD1: TCheckBox
         Left = 15
-        Top = 135
+        Top = 162
         Width = 87
         Height = 17
         Caption = 'WorldView-1'
@@ -340,7 +357,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object ChkDD3: TCheckBox
         Left = 110
-        Top = 135
+        Top = 162
         Width = 62
         Height = 17
         Caption = 'QuickBird'
@@ -348,7 +365,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object ChkDD4: TCheckBox
         Left = 110
-        Top = 150
+        Top = 177
         Width = 63
         Height = 17
         Caption = 'GeoEye'
@@ -356,11 +373,19 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object ChkDD5: TCheckBox
         Left = 185
-        Top = 135
+        Top = 162
         Width = 58
         Height = 17
         Caption = 'IKONOS'
         TabOrder = 16
+      end
+      object chkGeoFuse: TCheckBox
+        Left = 8
+        Top = 124
+        Width = 232
+        Height = 17
+        Caption = 'GeoFuse.GeoEye (GeoEye+IKONOS)'
+        TabOrder = 17
       end
     end
   end

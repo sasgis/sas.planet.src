@@ -123,6 +123,22 @@ var
   i, j: integer;
   VParams: TStrings;
   VMemoryStream: TMemoryStream;
+
+  function CatalogID_to_GeoFuseGeoEyeID(const ASrcId: String): String;
+  var p: Integer;
+  begin
+    p := System.Pos('_', ASrcId);
+    if (p>0) then begin
+      // geoeye
+      Result := System.Copy(ASrcId, 1, (p-1));
+      // dup + tail
+      Result := Result + Result + System.Copy(ASrcId, p, Length(ASrcId));
+    end else begin
+      // TODO: ikonos
+      Result := ASrcId;
+    end;
+  end;
+  
 begin
   VMemoryStream := TMemoryStream.Create;
   VMemoryStream.Position:=0;
@@ -169,6 +185,9 @@ begin
             VposList := SubNode.GetAttribute('uid');
             VParams.Values['uid'] := VposList;
 
+            VposList := SubNode.GetAttribute('incidence_angle');
+            VParams.Values['incidence_angle'] := VposList;
+
             VposList := SubNode.GetAttribute('cloud_cover');
             VParams.Values['cloud_cover'] := VposList;
 
@@ -183,13 +202,21 @@ begin
             VParams.Values['Geometry'] := VposList;
             VParams.Values['Source'] := Vsource;
             VParams.Values['Source:uid'] := V_uid;
+
             if length(VcatalogID)<>0 then
             if (FLayerKey ='c4453cc2-6e13-4a39-91ce-972e567a15d8') or
                (FLayerKey ='2f864ade-2820-4ddd-9a51-b1d2f4b66e18') or
-               (FLayerKey ='1798eda6-9987-407e-8373-eb324d5b31fd') then
-            VParams.Values['PreviewLink'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VcatalogID+'&imageHeight=512&imageWidth=512'
-            else
-            VParams.Values['PreviewLink'] := 'http://search.kosmosnimki.ru/QuickLookImage.ashx?id='+VcatalogID;
+               (FLayerKey ='1798eda6-9987-407e-8373-eb324d5b31fd') then begin
+              // add preview and metadata
+              VParams.Values['IMAGE_FILE_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VcatalogID+'&imageHeight=512&imageWidth=512';
+              VParams.Values['METADATA_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseMetadata?buffer=1.0&catalogId='+VcatalogID+'&imageHeight=natres&imageWidth=natres';
+            end else begin
+              VParams.Values['IMAGE_FILE_URL'] := 'http://search.kosmosnimki.ru/QuickLookImage.ashx?id='+VcatalogID;
+              VParams.Values['METADATA_URL'] := 'http://search.kosmosnimki.ru/QuickLookInfo.aspx?id='+VcatalogID;
+              // link to full geoeye metadata
+              //if (FLayerKey = 'cb547543-5619-464d-a0ee-4ff5ff2e7dab') then
+                //VParams.Values['FULL_METADATA_URL'] := 'http://geofuse.geoeye.com/landing/image-details/Default.aspx?id='+CatalogID_to_GeoFuseGeoEyeID(VcatalogID);
+            end;
 
 
             VposList := ReplaceStr(Vsource,'DigitalGlobe ','');
