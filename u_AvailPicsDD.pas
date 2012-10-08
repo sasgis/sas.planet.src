@@ -51,7 +51,7 @@ type
     property LayerKey: string read FLayerKey write FLayerKey;
 
   end;
-  TAvailPicsDataDoorsID = (dd1=1, dd2=2, dd3=3, dd4=4, dd5=5 );
+  TAvailPicsDataDoorsID = (dd1=1, dd2=2, dd3=3, dd4=4, dd5=5);
   TAvailPicsDataDoors = array [TAvailPicsDataDoorsID] of TAvailPicsDD;
 
 procedure GenerateAvailPicsDD(var ADDs: TAvailPicsDataDoors;
@@ -116,7 +116,7 @@ var
   XMLDocument: TXMLDocument;
   Node, SubNode: IXMLNode;
   PlacemarkNode: IXMLNode;
-  VDate: String;
+  VDate, VcatalogID: String;
   Vsource, V_uid: String;
   VposList : String;
   VAddResult: Boolean;
@@ -163,8 +163,8 @@ begin
             VposList := SubNode.GetAttribute('acq_date');
             VParams.Values['acq_date'] := VposList;
 
-            VposList := SubNode.GetAttribute('name');
-            VParams.Values['CatalogID'] := VposList;
+            VcatalogID := SubNode.GetAttribute('name');
+            VParams.Values['CatalogID'] := VcatalogID;
 
             VposList := SubNode.GetAttribute('uid');
             VParams.Values['uid'] := VposList;
@@ -183,6 +183,14 @@ begin
             VParams.Values['Geometry'] := VposList;
             VParams.Values['Source'] := Vsource;
             VParams.Values['Source:uid'] := V_uid;
+            if length(VcatalogID)<>0 then
+            if (FLayerKey ='c4453cc2-6e13-4a39-91ce-972e567a15d8') or
+               (FLayerKey ='2f864ade-2820-4ddd-9a51-b1d2f4b66e18') or
+               (FLayerKey ='1798eda6-9987-407e-8373-eb324d5b31fd') then
+            VParams.Values['PreviewLink'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VcatalogID+'&imageHeight=512&imageWidth=512'
+            else
+            VParams.Values['PreviewLink'] := 'http://search.kosmosnimki.ru/QuickLookImage.ashx?id='+VcatalogID;
+
 
             VposList := ReplaceStr(Vsource,'DigitalGlobe ','');
             VposList := ReplaceStr(VposList,'GeoEye ','');

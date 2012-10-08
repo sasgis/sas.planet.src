@@ -133,6 +133,8 @@ begin
             VParams.Values['Source'] := Vsource;
             VParams.Values['Provider'] := VcompanyName;
             VParams.Values['VposList'] := VposList;
+            if length(VlegacyId)<>0 then            
+            VParams.Values['PreviewLink'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VlegacyId+'&imageHeight=512&imageWidth=512';
 
             VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, 'DigitalGlobe', VParams);
             FreeAndNil(VParams);

@@ -757,6 +757,10 @@ begin
         if (0=Length(VDate)) then
           VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator
         _AddWithBR(VDesc, 'Provider', VDate);
+        // add Preview
+        VDate := Values['PreviewLink'];
+        if (0<>Length(VDate)) then
+        _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
 
       end;
     except
