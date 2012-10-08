@@ -530,126 +530,122 @@ begin
   Randomize;
   FStartTime := Now;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
-  try
-    FTotalInRegion := VTileIterator.TilesTotal;
-    FLastSuccessfulPoint := Point(-1, -1);
-    if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
-      while VTileIterator.Next(VTile) do begin
-        Inc(FProcessed);
-        if Terminated then begin
-          Break;
-        end;
-        if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
-          Break;
-        end;
+  FTotalInRegion := VTileIterator.TilesTotal;
+  FLastSuccessfulPoint := Point(-1, -1);
+  if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
+    while VTileIterator.Next(VTile) do begin
+      Inc(FProcessed);
+      if Terminated then begin
+        Break;
+      end;
+      if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
+        Break;
       end;
     end;
+  end;
 
-    if not Terminated then begin
-      while VTileIterator.Next(VTile) do begin
+  if not Terminated then begin
+    while VTileIterator.Next(VTile) do begin
+      if Terminated then begin
+        Break;
+      end;
+      FGotoNextTile := false;
+      while not FGotoNextTile do begin
+        FFinishEvent.ResetEvent;
+        if (FPausedByUser) then begin
+          FElapsedTime := FElapsedTime + (Now - FStartTime);
+          FLog.WriteText(FRES_UserStop, 10);
+          While (FPausedByUser) and (not Terminated) do begin
+            SleepCancelable(FPausedSleepTime);
+          end;
+          FStartTime := now;
+        end;
         if Terminated then begin
           Break;
         end;
-        FGotoNextTile := false;
-        while not FGotoNextTile do begin
-          FFinishEvent.ResetEvent;
-          if (FPausedByUser) then begin
-            FElapsedTime := FElapsedTime + (Now - FStartTime);
-            FLog.WriteText(FRES_UserStop, 10);
-            While (FPausedByUser) and (not Terminated) do begin
-              SleepCancelable(FPausedSleepTime);
-            end;
-            FStartTime := now;
-          end;
-          if Terminated then begin
-            Break;
-          end;
 
-          // notify about current tile
-          FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom)]), 0);
-          VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version, gtimWithData);
+        // notify about current tile
+        FLog.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom)]), 0);
+        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version, gtimWithData);
 
-          // for attachments need base tile - but even for existing tile some attachments may not exist
-          if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
-            // what to do
-            if VTileInfo.IsExists then begin
-              FLog.WriteText(FRES_LoadProcessRepl, 0);
-            end else begin
-              FLog.WriteText(FRES_LoadProcess, 0);
+        // for attachments need base tile - but even for existing tile some attachments may not exist
+        if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
+          // what to do
+          if VTileInfo.IsExists then begin
+            FLog.WriteText(FRES_LoadProcessRepl, 0);
+          end else begin
+            FLog.WriteText(FRES_LoadProcess, 0);
+          end;
+          if (FCheckExistTileDate) and (VTileInfo.IsExists) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
+            // skip existing newer tile (but download attachments)
+            if (FLog <> nil) then begin
+              FLog.WriteText(FRES_FileBeCreateTime, 0);
             end;
-            if (FCheckExistTileDate) and (VTileInfo.IsExists) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
-              // skip existing newer tile (but download attachments)
-              if (FLog <> nil) then begin
-                FLog.WriteText(FRES_FileBeCreateTime, 0);
-              end;
-              FLastSuccessfulPoint := VTile;
-              FLastProcessedPoint := VTile;
-              FGotoNextTile := True;
-            end else begin
-              try
-                if (not (FSecondLoadTNE)) and
-                  (VTileInfo.IsExistsTNE) and
-                  (FDownloadConfig.IsSaveTileNotExists) then begin
-                  // tne found - skip downloading tile
-                  if (FLog <> nil) then begin
-                    FLog.WriteText('(tne exists)', 0);
-                  end;
-                  FLastProcessedPoint := VTile;
-                  FLastSuccessfulPoint := VTile;
-                  FGotoNextTile := True;
-                end else begin
-                  // download tile
-                  VOperationID := FCancelNotifier.CurrentOperation;
-                  VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
-                  if VTask <> nil then begin
-                    VTask.FinishNotifier.Add(FTileDownloadFinishListener);
-                    FMapType.TileDownloadSubsystem.Download(VTask);
-                    if Terminated then begin
-                      Break;
-                    end;
-                    if not VTask.FinishNotifier.IsExecuted then begin
-                      FFinishEvent.WaitFor(INFINITE);
-                    end;
-                    if Terminated then begin
-                      Break;
-                    end;
-                    ProcessResult(VTask.Result);
-                    if Terminated then begin
-                      Break;
-                    end;
-                    FLastProcessedPoint := VTile;
-                  end else begin
-                    FLog.WriteText('Download disabled', 0);
-                    FGotoNextTile := False;
-                    FPausedByUser := True;
+            FLastSuccessfulPoint := VTile;
+            FLastProcessedPoint := VTile;
+            FGotoNextTile := True;
+          end else begin
+            try
+              if (not (FSecondLoadTNE)) and
+                (VTileInfo.IsExistsTNE) and
+                (FDownloadConfig.IsSaveTileNotExists) then begin
+                // tne found - skip downloading tile
+                if (FLog <> nil) then begin
+                  FLog.WriteText('(tne exists)', 0);
+                end;
+                FLastProcessedPoint := VTile;
+                FLastSuccessfulPoint := VTile;
+                FGotoNextTile := True;
+              end else begin
+                // download tile
+                VOperationID := FCancelNotifier.CurrentOperation;
+                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, VOperationID, VTile, FZoom, FCheckExistTileSize);
+                if VTask <> nil then begin
+                  VTask.FinishNotifier.Add(FTileDownloadFinishListener);
+                  FMapType.TileDownloadSubsystem.Download(VTask);
+                  if Terminated then begin
                     Break;
                   end;
-                end;
-              except
-                on E: Exception do begin
-                  FLog.WriteText(E.Message, 0);
-                  FGotoNextTile := True;
+                  if not VTask.FinishNotifier.IsExecuted then begin
+                    FFinishEvent.WaitFor(INFINITE);
+                  end;
+                  if Terminated then begin
+                    Break;
+                  end;
+                  ProcessResult(VTask.Result);
+                  if Terminated then begin
+                    Break;
+                  end;
+                  FLastProcessedPoint := VTile;
+                end else begin
+                  FLog.WriteText('Download disabled', 0);
+                  FGotoNextTile := False;
+                  FPausedByUser := True;
+                  Break;
                 end;
               end;
+            except
+              on E: Exception do begin
+                FLog.WriteText(E.Message, 0);
+                FGotoNextTile := True;
+              end;
             end;
-          end else begin
-            FLog.WriteText(FRES_FileExistsShort, 0);
-            FGotoNextTile := True;
           end;
-          if FGotoNextTile then begin
-            inc(FProcessed);
-          end;
-          if Terminated then begin
-            Break;
-          end;
+        end else begin
+          FLog.WriteText(FRES_FileExistsShort, 0);
+          FGotoNextTile := True;
+        end;
+        if FGotoNextTile then begin
+          inc(FProcessed);
         end;
         if Terminated then begin
           Break;
         end;
       end;
+      if Terminated then begin
+        Break;
+      end;
     end;
-  finally
-    VTileIterator := nil;
   end;
   if not Terminated then begin
     FLog.WriteText(FRES_ProcessFilesComplete, 0);
