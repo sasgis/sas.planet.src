@@ -38,8 +38,12 @@ type
     procedure Resume;
   end;
 
-  IRegionProcessProgressInfoDownloadInternal = interface(IProgressInfoInternalBase)
+  IRegionProcessProgressInfoDownloadInternal = interface
     ['{9D2A57FB-D127-44D0-98F9-3BBDBEAEDCD6}']
+    function GetNeedPause: Boolean;
+    property NeedPause: Boolean read GetNeedPause;
+
+    procedure Finish;
     procedure SetPaused;
     procedure SetStarted;
     procedure AddProcessedTile(const ATile: TPoint);
