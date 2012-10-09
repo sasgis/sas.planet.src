@@ -213,7 +213,7 @@ var
 begin
   Result := False;
   if LowerCase(ATileInfo.FContentType.GetDefaultExt) <> FDefExtention then begin
-    VDestContentType := FContentTypeManager.GetInfo(FDefExtention);
+    VDestContentType := FContentTypeManager.GetInfoByExt(FDefExtention);
     if Assigned(VDestContentType) then begin
       VDestContentTypeStr := VDestContentType.GetContentType + ' (*' + FDefExtention + ')';
     end else begin
