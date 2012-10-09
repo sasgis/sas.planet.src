@@ -56,12 +56,10 @@ implementation
 
 uses
   Math,
-  StrUtils,
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
   u_Bitmap32Static,
-  RegExprUtils,
   u_GeoFun,
   u_Synchronizer;
 
@@ -112,7 +110,6 @@ var
   i, j: Integer;
   VTextSize: TSize;
   VListName: String;
-  VLonLatCenter: TDoublePoint;
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
@@ -161,60 +158,15 @@ begin
       VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
-      VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top);
-// X12°30'00,00"
-      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin // X12°30'45,00" -> X12°30'45"
-        VListName := ReplaceStr(VListName, decimalseparator+'00"', '"');
-        if copy(VListName, length(VListName) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
-          VListName := ReplaceStr(VListName, '00"', '');
-          if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-           VListName := ReplaceStr(VListName, '00''', '');
-          end;
-        end;
-      end;
-// X12°34,5678'
-      if copy(VListName, length(VListName) - 5, 6) = decimalseparator+'0000''' then begin // X12°34,0000' -> X12°34'
-        VListName := ReplaceStr(VListName, decimalseparator+'0000''', '''');              // Õ12°00,0000' -> X12°00'
-        if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-          VListName := ReplaceStr(VListName, '00''', '');
-        end;
-      end;
-      if (RegExprGetMatchSubStr(VListName,decimalseparator+'\d+0\°',0)<>'' ) then begin // X12,0000000° -> X12,°
-                                                                       // X12,3400000° -> X12,34°
-                                                                       // Õ40,0000000° -> 40,°
-        while copy(VListName,length(VListName)-1,2)='0°' do VListName := ReplaceStr(VListName, '0°', '°');
-        VListName := ReplaceStr(VListName, decimalseparator+'°', '°'); // X12,° -> X12°
-      end;                                                             // X40,° -> X40°
+      if abs(VLonLatRectOfCell.Top)<=85 then
+        VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top,true)
+      else VListName := '';
 
       VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
 // **************************************************
-      VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left);
-// X12°30'00,00"
-      if copy(VListName, length(VListName) - 3, 4) = decimalseparator+'00"' then begin // X12°30'45,00" -> X12°30'45"
-        VListName := ReplaceStr(VListName, decimalseparator+'00"', '"');
-        if copy(VListName, length(VListName) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
-          VListName := ReplaceStr(VListName, '00"', '');
-          if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-           VListName := ReplaceStr(VListName, '00''', '');
-          end;
-        end;
-      end;
-// X12°34,5678'
-      if copy(VListName, length(VListName) - 5, 6) = decimalseparator+'0000''' then begin // X12°30,0000' -> X12°30'
-        VListName := ReplaceStr(VListName, decimalseparator+'0000''', '''');              // Õ12°00,0000' -> X12°00'
-        if copy(VListName, length(VListName) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-          VListName := ReplaceStr(VListName, '00''', '');
-        end;
-      end;
-       if (RegExprGetMatchSubStr(VListName,decimalseparator+'\d+0\°',0)<>'' ) then begin // X12,0000000° -> X12,°
-                                                                       // X12,3400000° -> X12,34°
-                                                                       // Õ40,0000000° -> 40,°
-        while copy(VListName,length(VListName)-1,2)='0°' do VListName := ReplaceStr(VListName, '0°', '°');
-        VListName := ReplaceStr(VListName, decimalseparator+'°', '°'); // X12,° -> X12°
-      end;                                                             // X40,° -> X40°
-
+      VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left,true);
       VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);

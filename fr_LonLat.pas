@@ -253,8 +253,8 @@ begin
 
   case cbbCoordType.ItemIndex of
    0: begin
-        edtLon.Text:=VValueConverter.LonConvert(Value.x);
-        edtLat.Text:=VValueConverter.LatConvert(Value.y);
+        edtLon.Text:=VValueConverter.LonConvert(Value.x, false);
+        edtLat.Text:=VValueConverter.LatConvert(Value.y, false);
       end;
    1: begin
         XYPoint:=

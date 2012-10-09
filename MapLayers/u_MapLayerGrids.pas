@@ -236,7 +236,7 @@ begin
           VTextPos2.TopLeft := FloatPoint2RectWihtClip(ALocalConverter.MapPixelFloat2LocalPixelFloat(VTextYPos));
           VTextPos2.BottomRight := FloatPoint2RectWihtClip(ALocalConverter.MapPixelFloat2LocalPixelFloat(VTextXPos));
           // X
-          ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top);
+          ListName := VValueConverter.LatConvert(vVDrawLonLatRect.Top,false);
           ss := copy(ListName, length(ListName) - 5, 6);
           if copy(ListName, length(ListName) - 5, 6) = '00.00"' then begin
             ListName := ReplaceStr(ListName, '00.00"', '');
@@ -262,7 +262,7 @@ begin
             VTextPos2.Top,
             ListName, 0, VColor);
           // Y
-          ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left);
+          ListName := VValueConverter.LonConvert(VDrawLonLatRect.Left,false);
           if copy(ListName, length(ListName) - 5, 6) = '00.00"' then begin
             ListName := ReplaceStr(ListName, '00.00"', '');
           end;

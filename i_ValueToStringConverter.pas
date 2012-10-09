@@ -37,8 +37,8 @@ type
     function SpeedConvert(AKmph: Double): string;
     function AltitudeConvert(AMeters: Double): string;
     function LonLatConvert(ALonLat: TDoublePoint): string;
-    function LonConvert(ALon: Double): string;
-    function LatConvert(ALat: Double): string;
+    function LonConvert(ALon: Double; ACutZero:boolean): string;
+    function LatConvert(ALat: Double; ACutZero:boolean): string;
   end;
 
   IValueToStringConverterConfig = interface(IConfigDataElement)
