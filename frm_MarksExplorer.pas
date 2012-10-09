@@ -108,6 +108,7 @@ type
     pnlBottom: TPanel;
     lblReadOnly: TLabel;
     MarksListBox: TTreeView;
+    procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
     procedure BtnEditCategoryClick(Sender: TObject);
@@ -144,6 +145,7 @@ type
     procedure MarksListBoxMouseUp(Sender: TObject; Button: TMouseButton; Shift:
         TShiftState; X, Y: Integer);
     procedure rgMarksShowModeClick(Sender: TObject);
+    procedure tbpmnCategoriesPopup(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
@@ -193,6 +195,7 @@ type
 implementation
 
 uses
+  gnugettext,
   t_CommonTypes,
   t_GeoTypes,
   i_StaticTreeItem,
@@ -259,6 +262,17 @@ begin
     end;
   end;
   inherited;
+end;
+
+procedure TfrmMarksExplorer.BtnAddCategoryClick(Sender: TObject);
+var
+  VCategory: IMarkCategory;
+begin
+  VCategory := FMarkDBGUI.MarksDb.CategoryDB.Factory.CreateNew('');
+  VCategory := FMarkDBGUI.EditCategoryModal(VCategory, True);
+  if VCategory <> nil then begin
+    FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(nil, VCategory);
+  end;
 end;
 
 procedure TfrmMarksExplorer.UpdateCategoryTree;
@@ -787,8 +801,15 @@ end;
 procedure TfrmMarksExplorer.tbitmAddCategoryClick(Sender: TObject);
 var
   VCategory: IMarkCategory;
+  VNewName: string;
 begin
-  VCategory := FMarkDBGUI.MarksDb.CategoryDB.Factory.CreateNew('');
+  VNewName := '';
+  VCategory := GetSelectedCategory;
+  if VCategory <> nil then begin
+    VNewName := VCategory.Name + '\';
+  end;
+
+  VCategory := FMarkDBGUI.MarksDb.CategoryDB.Factory.CreateNew(VNewName);
   VCategory := FMarkDBGUI.EditCategoryModal(VCategory, True);
   if VCategory <> nil then begin
     FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(nil, VCategory);
@@ -1000,6 +1021,14 @@ begin
   end;
 end;
 
-end.
+procedure TfrmMarksExplorer.tbpmnCategoriesPopup(Sender: TObject);
+begin
+  if GetSelectedCategory = nil then begin
+    tbitmAddCategory.Caption := _('Add Category');
+  end else begin
+    tbitmAddCategory.Caption := _('Add SubCategory');
+  end;
+end;
 
+end.
 

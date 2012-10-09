@@ -64,6 +64,7 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   i_MarksDbSmlInternal,
   u_MarkCategory;
 
@@ -103,7 +104,10 @@ begin
   try
     if VName = '' then begin
       VName := FConfig.DefaultName.Value;
+    end else if RightStr(VName, 1) = '\' then begin
+      VName := VName + FConfig.DefaultName.Value;
     end;
+
     VAfterScale := FConfig.AfterScale;
     VBeforeScale := FConfig.BeforeScale;
   finally

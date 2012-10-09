@@ -237,7 +237,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             UseThemeColor = False
             object BtnAddCategory: TTBXItem
               ImageIndex = 32
-              OnClick = tbitmAddCategoryClick
+              OnClick = BtnAddCategoryClick
               Caption = ''
               Hint = 'Add'
             end
@@ -480,12 +480,13 @@ object frmMarksExplorer: TfrmMarksExplorer
   end
   object tbpmnCategories: TTBXPopupMenu
     Images = frmMain.MenusImageList
+    OnPopup = tbpmnCategoriesPopup
     Left = 72
     Top = 200
     object tbitmAddCategory: TTBXItem
       ImageIndex = 32
       OnClick = tbitmAddCategoryClick
-      Caption = 'Add Category'
+      Caption = 'Add SubCategory'
       Hint = 'Add'
     end
     object tbitmEditCategory: TTBXItem
