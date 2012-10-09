@@ -325,10 +325,13 @@ object frmMain: TfrmMain
           object TBRECT: TTBXItem
             ImageIndex = 10
             Images = PanelsImageList
+            Options = [tboShowHint]
             ShortCut = 32850
             OnClick = TBRECTClick
             Caption = 'Rectangular Selection'
-            Hint = ''
+            Hint = 
+              'Alt - snap to Lat/Lon grid (if enabled)'#13#10'Ctrl - snap to tile bou' +
+              'ndaries'#13#10'Shift - snap to GenShtab boundaries (if enabled)'
           end
           object TBREGION: TTBXItem
             ImageIndex = 13
