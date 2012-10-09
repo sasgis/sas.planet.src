@@ -38,8 +38,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Caption = 'Description:'
     Constraints.MinHeight = 80
     TabOrder = 0
-    ExplicitTop = 202
-    ExplicitWidth = 492
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
@@ -51,7 +49,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       TitleCaptions.Strings = (
         'Parameter'
         'Value')
-      ExplicitTop = 14
+      OnDblClick = veImageParamsDblClick
+      ExplicitLeft = 1
       ColWidths = (
         160
         342)
@@ -65,8 +64,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 492
-    ExplicitHeight = 197
     object gbAvailImages: TGroupBox
       Left = 271
       Top = 0
@@ -77,8 +74,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Caption = 'Images available'
       Constraints.MinHeight = 191
       TabOrder = 0
-      ExplicitWidth = 219
-      ExplicitHeight = 195
       object tvFound: TTreeView
         AlignWithMargins = True
         Left = 5
@@ -97,8 +92,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         OnClick = tvFoundClick
         OnDeletion = tvFoundDeletion
         OnMouseDown = tvFoundMouseDown
-        ExplicitWidth = 114
-        ExplicitHeight = 172
       end
       object pnlRight: TPanel
         Left = 142
@@ -108,8 +101,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 122
-        ExplicitHeight = 178
         object btnUp: TButton
           AlignWithMargins = True
           Left = 3
@@ -181,7 +172,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           Caption = 'All Images'
           TabOrder = 5
           OnClick = chkALLImagesClick
-          ExplicitTop = 158
         end
       end
     end
@@ -195,7 +185,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Caption = 'Image services'
       Constraints.MinHeight = 191
       TabOrder = 1
-      ExplicitHeight = 195
       DesignSize = (
         263
         225)
@@ -251,7 +240,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'All Services'
         TabOrder = 1
         OnClick = chkALLServicesClick
-        ExplicitTop = 220
       end
       object chkBing: TCheckBox
         AlignWithMargins = True
@@ -296,7 +284,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'Low Resolution too'
         TabOrder = 6
         OnClick = chkLowResolutionTooClick
-        ExplicitTop = 173
       end
       object chkNMC15: TCheckBox
         Left = 86

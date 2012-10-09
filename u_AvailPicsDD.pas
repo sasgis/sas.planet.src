@@ -208,7 +208,7 @@ begin
                (FLayerKey ='2f864ade-2820-4ddd-9a51-b1d2f4b66e18') or
                (FLayerKey ='1798eda6-9987-407e-8373-eb324d5b31fd') then begin
               // add preview and metadata
-              VParams.Values['IMAGE_FILE_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VcatalogID+'&imageHeight=512&imageWidth=512';
+              VParams.Values['IMAGE_FILE_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VcatalogID+'&imageHeight=1024&imageWidth=1024';
               VParams.Values['METADATA_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseMetadata?buffer=1.0&catalogId='+VcatalogID+'&imageHeight=natres&imageWidth=natres';
             end else begin
               VParams.Values['IMAGE_FILE_URL'] := 'http://search.kosmosnimki.ru/QuickLookImage.ashx?id='+VcatalogID;

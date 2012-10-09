@@ -114,6 +114,7 @@ type
     procedure btnMakePolyClick(Sender: TObject);
     procedure chkALLServicesClick(Sender: TObject);
     procedure chkLowResolutionTooClick(Sender: TObject);
+    procedure veImageParamsDblClick(Sender: TObject);
   private
     FBing: TAvailPicsBing;
     FDG2: TAvailPicsDG2;
@@ -169,6 +170,8 @@ type
     procedure ApplyALLCheckboxState(const AChkBox: TCheckBox; const AHasState: Byte);
     procedure ApplyServicesCheckboxHandlers;
     function IsCommonServiceCheckbox(const ABox: TControl): Boolean;
+    function GetImageParamsValue(const ACol, ARow: Integer): String;
+    function OpenFromImageParams(const AItemValue: String): Boolean;
   private
     FLocalConverter: ILocalCoordConverter;
     FInetConfig: IInetConfig;
@@ -195,7 +198,7 @@ uses
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   i_DoublePointsAggregator,
-//  u_BinaryDataByMemStream,
+  u_InetFunc,
   u_DoublePointsAggregator,
   u_VectorItmesFactorySimple,
   u_GeoFun,
@@ -786,13 +789,15 @@ begin
         _AddWithBR(VDesc, 'Provider', VDate);
 
         // add Preview (from more info to less info)
+        VDate := Values['IMAGE_FILE_URL'];
+        if (0<>Length(VDate)) then
+          _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
+
         VDate := Values['FULL_METADATA_URL'];
         if (0=Length(VDate)) then
           VDate := Values['METADATA_URL'];
-        if (0=Length(VDate)) then
-          VDate := Values['IMAGE_FILE_URL'];
         if (0<>Length(VDate)) then
-        _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
+          _AddWithBR(VDesc, 'MetadataLink', '<a href='+VDate+'>'+VDate+'</a>');
 
       end;
     except
@@ -862,6 +867,14 @@ begin
   if (nil<>VImportConfig) then
   if (nil<>VImportConfig.MarkDB) then
     VImportConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
+end;
+
+function TfrmDGAvailablePic.GetImageParamsValue(const ACol, ARow: Integer): String;
+begin
+  if (ACol>0) and (ARow>0) and (ARow<veImageParams.RowCount) then
+    Result := veImageParams.Cells[ACol,ARow] // +1 {veImageParams.FixedRows}
+  else
+    Result := '';
 end;
 
 function TfrmDGAvailablePic.GetImagesNode(const AParentNode: TTreeNode;
@@ -1011,6 +1024,11 @@ begin
   // select last item
   if (0<cbDGstacks.Items.Count) and (0>cbDGstacks.ItemIndex) then
     cbDGstacks.ItemIndex:=(cbDGstacks.Items.Count-1);
+end;
+
+function TfrmDGAvailablePic.OpenFromImageParams(const AItemValue: String): Boolean;
+begin
+  Result := (Length(AItemValue)>4) and SameText(System.Copy(AItemValue,1,4),'http');
 end;
 
 procedure TfrmDGAvailablePic.PropagateLocalConverter;
@@ -1206,6 +1224,18 @@ begin
     VZoomStr:='-';
   end;
   lbZoom.Caption:=StringReplace(lbZoom.Hint,'%',VZoomStr,[]);
+end;
+
+procedure TfrmDGAvailablePic.veImageParamsDblClick(Sender: TObject);
+var
+  VURLText: String;
+begin
+  // check if URL
+  VURLText := GetImageParamsValue(veImageParams.Col, veImageParams.Row);
+  if OpenFromImageParams(VURLText) then begin
+    // open URL
+    OpenUrlInBrowser(VURLText);
+  end;
 end;
 
 procedure TfrmDGAvailablePic.ClearAvailableImages;

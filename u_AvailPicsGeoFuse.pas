@@ -54,18 +54,16 @@ type
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
-  TGeoFuseWorkingLineType = (gfwlt_StartOfAttributes, gfwlt_StartOfGeometry, gfwlt_Parameter, gfwlt_Value, gfwlt_MultiLine);
-
 implementation
 
 uses
   u_GeoToStr,
   windows,
-  KAZip,
-  i_BinaryData,
-  i_ArchiveReadWrite,
-  u_ArchiveReadWriteKaZip,
+  ALZLibExGZ,
   u_TileRequestBuilderHelpers;
+
+type
+  TGeoFuseWorkingLineType = (gfwlt_StartOfAttributes, gfwlt_StartOfGeometry, gfwlt_Parameter, gfwlt_Value, gfwlt_MultiLine);
 
 { TAvailPicsGeoFuse }
 
@@ -75,14 +73,6 @@ begin
 end;
 
 function TAvailPicsGeoFuse.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
-  (*
-  function _StartingWithKey(const AOriginalLine, AKeyToCheck: String): Boolean;
-  var VPos: Integer;
-  begin
-    VPos := System.Pos(AKeyToCheck, AOriginalLine);
-    Result := (VPos=2) and (AOriginalLine[1]='"');
-  end;
-  *)
 
   procedure _InitParams(var AObj: TStrings; const AClearExisting: Boolean);
   begin
@@ -91,63 +81,6 @@ function TAvailPicsGeoFuse.ParseResponse(const AResultOk: IDownloadResultOk): In
     else if AClearExisting then
       AObj.Clear;
   end;
-
-  (*
-  procedure _ParseJSONKey(var AOutValue: String);
-  begin
-    if (Length(AOutValue)>0) and (AOutValue[Length(AOutValue)]='"') then
-      SetLength(AOutValue, Length(AOutValue)-1);
-    if (Length(AOutValue)>0) and (AOutValue[1]='"') then
-      System.Delete(AOutValue, 1, 1);
-  end;
-  *)
-
-  (*
-  procedure _ParseJSONLine(const AOriginalLine: String; out AOutKey, AOutValue: String);
-  var VPos: Integer;
-  begin
-    VPos := System.Pos(':',AOriginalLine);
-    if (VPos>0) then begin
-      // "SRC_ACC" : 25.399999999999999,
-      AOutKey := Trim(System.Copy(AOriginalLine, 1, VPos-1));
-      AOutValue := Trim(System.Copy(AOriginalLine, VPos+1, Length(AOriginalLine)));
-      // remove last comma
-      if (Length(AOutValue)>0) and (AOutValue[Length(AOutValue)]=',') then
-        SetLength(AOutValue, Length(AOutValue)-1);
-      // remove both "
-      _ParseJSONKey(AOutKey);
-      _ParseJSONKey(AOutValue);
-    end else begin
-      // nothing
-      AOutKey := '';
-      AOutValue := '';
-    end;
-  end;
-  *)
-
-  (*
-  function VDateToDate(const AOrigDate: String): String;
-  begin
-    Result := AOrigDate;
-    if (8=Length(Result)) then begin
-      System.Insert(DateSeparator, Result, 5);
-      System.Insert(DateSeparator, Result, 8);
-    end;
-  end;
-  *)
-
-  (*
-  function _PrepareJsonParameter(const ASrc: String): String;
-  begin
-    Result := ASrc;
-    if (0=Length(Result)) then
-      Exit;
-    if (Result[1]='"') then
-      System.Delete(Result,1,1);
-    if (0<Length(Result)) and (Result[Length(Result)]='"') then
-      SetLength(Result, Length(Result)-1);
-  end;
-  *)
 
 const
   c_attributes_quoted = '"attributes"';
@@ -401,10 +334,6 @@ function TAvailPicsGeoFuse.GetPlainJsonGeoFuseText(
   const AResultOk: IDownloadResultOk;
   const AList: TStrings
 ): Boolean;
-//var
-  //VRawHeaders: String;
-  //VList: TStringList;
-  //VIndex: Integer;
 begin
   Result := FALSE;
 
@@ -438,8 +367,8 @@ begin
     'Host: geofuse.geoeye.com'+#$D#$A+
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'+#$D#$A+
     'Accept-Language: ru-ru,ru;q=0.8,en-us;q=0.5,en;q=0.3'+#$D#$A+
-    //'Accept-Encoding: gzip, deflate'+#$D#$A+
-    'Accept-Encoding: deflate'+#$D#$A+
+    'Accept-Encoding: gzip, deflate'+#$D#$A+
+    //'Accept-Encoding: deflate'+#$D#$A+
     'DNT: 1'+#$D#$A+
     'Connection: keep-alive'+#$D#$A+
     'Referer: http://geofuse.geoeye.com/maps/Map.aspx';
@@ -485,36 +414,26 @@ function TAvailPicsGeoFuse.GetUnzippedJsonGeoFuseText(
   const AList: TStrings
 ): Boolean;
 var
-  VZip: TKAZip;
   VMemoryStream: TMemoryStream;
-  //VArchiveReader: IArchiveReader;
-  VData: IBinaryData;
-  //VCount: Integer;
+  VUnzipped: TMemoryStream;
   VStrValue: String;
 begin
-  VZip:=TKAZip.Create(nil);
   VMemoryStream := TMemoryStream.Create;
+  VUnzipped := TMemoryStream.Create;
   try
     // copy to memstream for unzipper
     VMemoryStream.SetSize(AResultOk.Data.Size);
     VMemoryStream.Position:=0;
     CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
 
-    VZip.FixZip(VMemoryStream);
+    GZDecompressStream(VMemoryStream, VUnzipped);
 
-    // make unzipper on stream
-    (*
-    VArchiveReader := TArchiveReadByKaZip.Create(VMemoryStream);
-    VCount := VArchiveReader.GetItemsCount;
-    VData := VArchiveReader.GetItemByIndex(0, VStrValue);
-    *)
-    
     // failed to unzip - try to use as plain text
-    if (nil=VData) or (VData.Buffer=nil) or (VData.Size=0) then
+    if (VUnzipped.Memory=nil) or (VUnzipped.Size=0) then
       Abort;
 
     // unzipped
-    SetString(VStrValue, PChar(VData.Buffer), VData.Size);
+    SetString(VStrValue, PChar(VUnzipped.Memory), VUnzipped.Size);
 
     // apply
     AList.Clear;
@@ -525,7 +444,7 @@ begin
     Result := (AList.Count>1);
   finally
     VMemoryStream.Free;
-    VZip.Free;
+    VUnzipped.Free;
   end;
 end;
 
