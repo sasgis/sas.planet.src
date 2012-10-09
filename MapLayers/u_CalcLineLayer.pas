@@ -158,8 +158,8 @@ var
 begin
   if (APosOnBitmap.x > 0) and
     (APosOnBitmap.y > 0) and
-    (APosOnBitmap.x < ABitmapSize.X - 12 - ATextSize.cx) and
-    (APosOnBitmap.y < ABitmapSize.Y - ATextSize.cy) then begin
+    (APosOnBitmap.x < ABitmapSize.X) and
+    (APosOnBitmap.y < ABitmapSize.Y) then begin
     ABuffer.Font.Size := AFontSize;
     VRect.Left := Trunc(APosOnBitmap.x + 12);
     VRect.Top := Trunc(APosOnBitmap.Y);
