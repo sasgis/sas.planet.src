@@ -171,6 +171,13 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     AParams.Values['date'] := VDate;
     AParams.Values['layer'] := VLayer;
     AParams.Values['provider'] := VValue;
+    AParams.Values['METADATA_URL'] := 'http://www.terraserver.com/view_frm.asp?' +
+          'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
+          '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
+          '&mpp=5' +
+          '&proj=4326&pic=img&prov=-1&stac=-1&ovrl=-1&drwl=' +
+          '&lgin=' + _RandInt5 +
+          '&styp=&vic=';
 
     // call
     Result := FTileInfoPtr.AddImageProc(Self, VDate, 'Terraserver', AParams);
