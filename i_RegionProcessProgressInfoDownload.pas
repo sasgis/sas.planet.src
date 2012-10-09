@@ -34,6 +34,9 @@ type
     property LogProvider: ILogSimpleProvider read GetLogProvider; 
 
     procedure SaveState(const ASLSSection: IConfigDataWriteProvider);
+
+    function GetIsPaused: Boolean;
+    property IsPaused: Boolean read GetIsPaused;
     procedure Pause;
     procedure Resume;
   end;
@@ -41,7 +44,8 @@ type
   IRegionProcessProgressInfoDownloadInternal = interface
     ['{9D2A57FB-D127-44D0-98F9-3BBDBEAEDCD6}']
     function GetNeedPause: Boolean;
-    property NeedPause: Boolean read GetNeedPause;
+    procedure SetNeedPause(AValue: Boolean);
+    property NeedPause: Boolean read GetNeedPause write SetNeedPause;
 
     procedure Finish;
     procedure SetPaused;

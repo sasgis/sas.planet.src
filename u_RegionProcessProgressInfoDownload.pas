@@ -52,11 +52,13 @@ type
     function GetZoom: Byte;
     function GetLogProvider: ILogSimpleProvider;
 
+    function GetIsPaused: Boolean;
     procedure Pause;
     procedure Resume;
     procedure SaveState(const ASLSSection: IConfigDataWriteProvider);
   private
     function GetNeedPause: Boolean;
+    procedure SetNeedPause(AValue: Boolean);
     procedure Finish;
     procedure SetPaused;
     procedure SetStarted;
@@ -66,6 +68,8 @@ type
     function GetLog: ILogSimple;
   public
     constructor Create(
+      const ALog: ILogSimple;
+      const ALogProvider: ILogSimpleProvider;
       const AGUID: TGUID;
       AZoom: Byte;
       const APolygon: ILonLatPolygon;
@@ -85,13 +89,14 @@ type
 implementation
 
 uses
-  u_LogForTaskThread,
   u_ConfigProviderHelpers,
   u_Synchronizer;
 
 { TRegionProcessProgressInfoDownload }
 
 constructor TRegionProcessProgressInfoDownload.Create(
+  const ALog: ILogSimple;
+  const ALogProvider: ILogSimpleProvider;
   const AGUID: TGUID;
   AZoom: Byte;
   const APolygon: ILonLatPolygon;
@@ -106,8 +111,6 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const ALastProcessedPoint: TPoint;
   const AElapsedTime: TDateTime
 );
-var
-  VLog: TLogSimpleProvider;
 begin
   inherited Create;
   FGUID := AGUID;
@@ -121,9 +124,8 @@ begin
 
   FCS := MakeSyncRW_Var(Self, False);
 
-  VLog := TLogSimpleProvider.Create(5000, 0);
-  FLog := VLog;
-  FLogProvider := VLog;
+  FLog := ALog;
+  FLogProvider := ALogProvider;
 
   FPaused := APaused;
   FNeedPause := APaused;
@@ -215,6 +217,16 @@ begin
   FCS.BeginRead;
   try
     Result := FFinished;
+  finally
+    FCS.EndRead;
+  end;
+end;
+
+function TRegionProcessProgressInfoDownload.GetIsPaused: Boolean;
+begin
+  FCS.BeginRead;
+  try
+    Result := FNeedPause;
   finally
     FCS.EndRead;
   end;
@@ -333,6 +345,16 @@ begin
     ASLSSection.WriteFloat('ElapsedTime', VElapsedTime);
   finally
     FCS.EndRead;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.SetNeedPause(AValue: Boolean);
+begin
+  FCS.BeginWrite;
+  try
+    FNeedPause := AValue;
+  finally
+    FCS.EndWrite;
   end;
 end;
 
