@@ -23,6 +23,7 @@ unit u_ProviderTilesDownload;
 interface
 
 uses
+  Types,
   Forms,
   i_NotifierOperation,
   i_MapTypes,
@@ -76,10 +77,17 @@ uses
   IniFiles,
   i_VectorItemProjected,
   i_ConfigDataProvider,
+  i_ProjectionInfo,
   i_RegionProcessParamsFrame,
+  i_LogSimple,
+  i_LogSimpleProvider,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
+  u_ConfigProviderHelpers,
+  u_RegionProcessProgressInfoDownload,
+  u_NotifierOperation,
+  u_DownloadInfoSimple,
   frm_ProgressDownload,
   u_ResStrings;
 
@@ -139,32 +147,148 @@ var
   VSLSData: IConfigDataProvider;
   VSessionSection: IConfigDataProvider;
   VLog: TLogSimpleProvider;
-  VThread: TThreadDownloadTiles;
+  VLogSimple: ILogSimple;
+  VLogProvider: ILogSimpleProvider;
   VForm: TfrmProgressDownload;
+  VCancelNotifierInternal: INotifierOperationInternal;
+  VOperationID: Integer;
+  VProgressInfo: TRegionProcessProgressInfoDownload;
+  VGuids: string;
+  VGuid: TGUID;
+  VMap: IMapType;
+  VZoom: Byte;
+  VReplaceExistTiles: Boolean;
+  VCheckExistTileSize: Boolean;
+  VCheckExistTileDate: Boolean;
+  VCheckTileDate: TDateTime;
+  VProcessedTileCount: Int64;
+  VProcessedSize: Int64;
+  VSecondLoadTNE: Boolean;
+  VLastProcessedPoint: TPoint;
+  VElapsedTime: TDateTime;
+  VMapType: TMapType;
+  VPolygon: ILonLatPolygon;
+  VProjection: IProjectionInfo;
+  VProjectedPolygon: IProjectedPolygon;
 begin
   VIni := TMemIniFile.Create(AFileName);
   VSLSData := TConfigDataProviderByIniFile.Create(VIni);
   VSessionSection := VSLSData.GetSubItem('Session');
   VLog := TLogSimpleProvider.Create(5000, 0);
-  VThread :=
-    TThreadDownloadTiles.CreateFromSls(
-      FAppClosingNotifier,
-      FVectorItmesFactory,
-      VLog,
-      FullMapsSet,
-      FProjectionFactory,
-      VSessionSection,
-      FDownloadConfig,
-      FDownloadInfo
+  VLogSimple := VLog;
+  VLogProvider := VLog;
+  VCancelNotifierInternal := TNotifierOperation.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+
+  VReplaceExistTiles := False;
+  VCheckExistTileSize := False;
+  VCheckExistTileDate := False;
+  VCheckTileDate := Now;
+  VSecondLoadTNE := False;
+  VElapsedTime := 0;
+  VProcessedTileCount := 0;
+  if VSessionSection = nil then begin
+    raise Exception.Create('No SLS data');
+  end;
+  VGuids := VSessionSection.ReadString('MapGUID', '');
+  if VGuids = '' then begin
+    raise Exception.Create('Map GUID is empty');
+  end;
+  VGuid := StringToGUID(VGuids);
+  VZoom := VSessionSection.ReadInteger('Zoom', 0);
+  if VZoom > 0 then begin
+    Dec(VZoom);
+  end else begin
+    raise Exception.Create('Unknown zoom');
+  end;
+  VReplaceExistTiles := VSessionSection.ReadBool('ReplaceExistTiles', VReplaceExistTiles);
+  VCheckExistTileSize := VSessionSection.ReadBool('CheckExistTileSize', VCheckExistTileSize);
+  VCheckExistTileDate := VSessionSection.ReadBool('CheckExistTileDate', VCheckExistTileDate);
+  VCheckTileDate := VSessionSection.ReadDate('CheckTileDate', VCheckTileDate);
+  VProcessedTileCount := VSessionSection.ReadInteger('ProcessedTileCount', VProcessedTileCount);
+  VProcessedSize := trunc(VSessionSection.ReadFloat('ProcessedSize', 0) * 1024);
+
+  VSecondLoadTNE := VSessionSection.ReadBool('SecondLoadTNE', VSecondLoadTNE);
+  VElapsedTime := VSessionSection.ReadFloat('ElapsedTime', VElapsedTime);
+  if FDownloadConfig.IsUseSessionLastSuccess then begin
+    VLastProcessedPoint.X := VSessionSection.ReadInteger('LastSuccessfulStartX', -1);
+    VLastProcessedPoint.Y := VSessionSection.ReadInteger('LastSuccessfulStartY', -1);
+  end else begin
+    VLastProcessedPoint.X := VSessionSection.ReadInteger('StartX', -1);
+    VLastProcessedPoint.Y := VSessionSection.ReadInteger('StartY', -1);
+  end;
+  VMap := FullMapsSet.GetMapTypeByGUID(VGuid);
+  if VMap = nil then begin
+    raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
+  end else begin
+    VMapType := VMap.MapType;
+    if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
+      raise Exception.Create('Unknown zoom');
+    end;
+  end;
+  VPolygon := ReadPolygon(VSessionSection, FVectorItmesFactory);
+  if VPolygon.Count > 0 then begin
+    VProjection :=
+      FProjectionFactory.GetByConverterAndZoom(
+        VMapType.GeoConvert,
+        VZoom
+      );
+    VProjectedPolygon :=
+      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        VProjection,
+        VPolygon
+      );
+  end else begin
+    raise Exception.Create('Empty polygon');
+  end;
+  VProgressInfo :=
+    TRegionProcessProgressInfoDownload.Create(
+      VLogSimple,
+      VLogProvider,
+      VGuid,
+      VZoom,
+      VPolygon,
+      VSecondLoadTNE,
+      VReplaceExistTiles,
+      VCheckExistTileSize,
+      VCheckExistTileDate,
+      VCheckTileDate,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused,
+      VProcessedSize,
+      VProcessedTileCount,
+      VLastProcessedPoint,
+      VElapsedTime
     );
   VForm := TfrmProgressDownload.Create(
     LanguageManager,
     FValueToStringConverterConfig,
-    VThread,
-    VLog
+    VCancelNotifierInternal,
+    VProgressInfo
   );
   Application.ProcessMessages;
   VForm.Show;
+
+  if not VCancelNotifierInternal.IsOperationCanceled(VOperationID) then begin
+    TThreadDownloadTiles.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
+      FAppClosingNotifier,
+      VMapType,
+      VZoom,
+      VPolygon,
+      VProjectedPolygon,
+      FDownloadConfig,
+      TDownloadInfoSimple.Create(FDownloadInfo, VProcessedTileCount, VProcessedSize),
+      VReplaceExistTiles,
+      VCheckExistTileSize,
+      VCheckExistTileDate,
+      VCheckTileDate,
+      VSecondLoadTNE,
+      VLastProcessedPoint,
+      VElapsedTime
+    );
+  end;
 end;
 
 procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon);
@@ -172,9 +296,13 @@ var
   VMapType: TMapType;
   VZoom: byte;
   VLog: TLogSimpleProvider;
-  VThread: TThreadDownloadTiles;
+  VLogSimple: ILogSimple;
+  VLogProvider: ILogSimpleProvider;
   VProjectedPolygon: IProjectedPolygon;
   VForm: TfrmProgressDownload;
+  VCancelNotifierInternal: INotifierOperationInternal;
+  VOperationID: Integer;
+  VProgressInfo: TRegionProcessProgressInfoDownload;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
@@ -185,29 +313,59 @@ begin
       APolygon
     );
   VLog := TLogSimpleProvider.Create(5000, 0);
-  VThread := TThreadDownloadTiles.Create(
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused,
-    FAppClosingNotifier,
-    VLog,
-    APolygon,
-    VProjectedPolygon,
-    FDownloadConfig,
-    FDownloadInfo,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
-    VZoom,
-    VMapType,
-    (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate
-  );
+  VLogSimple := VLog;
+  VLogProvider := VLog;
+  VCancelNotifierInternal := TNotifierOperation.Create;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+
+  VProgressInfo :=
+    TRegionProcessProgressInfoDownload.Create(
+      VLogSimple,
+      VLogProvider,
+      VMapType.Zmp.GUID,
+      VZoom,
+      APolygon,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused,
+      0,
+      0,
+      Point(-1, -1),
+      0
+    );
   VForm := TfrmProgressDownload.Create(
-    Self.LanguageManager,
+    LanguageManager,
     FValueToStringConverterConfig,
-    VThread,
-    VLog
+    VCancelNotifierInternal,
+    VProgressInfo
   );
+  Application.ProcessMessages;
   VForm.Show;
+
+  if not VCancelNotifierInternal.IsOperationCanceled(VOperationID) then begin
+    TThreadDownloadTiles.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
+      FAppClosingNotifier,
+      VMapType,
+      VZoom,
+      APolygon,
+      VProjectedPolygon,
+      FDownloadConfig,
+      TDownloadInfoSimple.Create(FDownloadInfo),
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
+      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+      Point(-1, -1),
+      0
+    );
+  end;
 end;
 
 end.
