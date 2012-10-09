@@ -210,9 +210,9 @@ begin
   VConverterThread := TThreadCacheConverter.Create(
     VCancelNotifierInternal,
     VOperationID,
-    edtPath.Text,
-    edtDestPath.Text,
-    edtDefExtention.Text,
+    IncludeTrailingPathDelimiter(Trim(edtPath.Text)),
+    IncludeTrailingPathDelimiter(Trim(edtDestPath.Text)),
+    Trim(edtDefExtention.Text),
     GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex),
     GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex),
     chkIgnoreTNE.Checked,
