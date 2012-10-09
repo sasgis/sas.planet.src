@@ -48,7 +48,7 @@ type
     function GetIsFinished: Boolean;
     procedure SetIsFinished(const AValue: Boolean);
     function GetProgressAbortErrorStr: string;
-    procedure SetProgressAbortErrorStr(AValue: string);
+    procedure SetProgressAbortErrorStr(const AValue: string);
   public
     constructor Create;
   end;
@@ -182,7 +182,7 @@ begin
   end;
 end;
 
-procedure TCacheConverterProgressInfo.SetProgressAbortErrorStr(AValue: string);
+procedure TCacheConverterProgressInfo.SetProgressAbortErrorStr(const AValue: string);
 begin
   FCS.BeginWrite;
   try
