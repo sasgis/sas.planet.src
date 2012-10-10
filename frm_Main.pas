@@ -731,15 +731,10 @@ uses
   u_MiniMapLayerMinusButton,
   u_LayerLicenseList,
   u_LayerStatBar,
-  u_MapMainLayer,
   u_MapMainLayerNew,
-  u_MapMarksLayer,
   u_MapMarksLayerNew,
-  u_MapLayerGrids,
   u_MapLayerGridsNew,
-  u_MapLayerTileGrid,
   u_MapLayerNavToMark,
-  u_MapGPSLayer,
   u_MapGPSLayerNew,
   u_SelectionLayer,
   u_LayerScaleLine,
@@ -1164,86 +1159,39 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
-    if FConfig.MainConfig.UseNewMainLayer then begin
-      FLayersList.Add(
-        TMapMainLayerNew.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState.Position,
-          FConfig.ViewPortState.View,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          FConfig.MainMapsConfig.GetActiveMap,
-          TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
-          GState.BitmapPostProcessingConfig,
-          FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
-          FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
-          FTileErrorLogger,
-          GState.GUISyncronizedTimerNotifier
-        )
-      );
-    end else begin
-      FLayersList.Add(
-        TMapMainLayer.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.ClearStrategyFactory,
-          FConfig.MainMapsConfig.GetActiveMap,
-          FConfig.MainMapsConfig.GetActiveBitmapLayersSet,
-          GState.BitmapPostProcessingConfig,
-          FConfig.LayersConfig.MainMapLayerConfig,
-          FTileErrorLogger,
-          GState.GUISyncronizedTimerNotifier
-        )
-      );
-    end;
-    if FConfig.MainConfig.UseNewMainLayer then begin
-      FLayersList.Add(
-        TMapLayerGridsNew.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.GUISyncronizedTimerNotifier,
-          GState.ValueToStringConverterConfig,
-          FConfig.LayersConfig.MapLayerGridsConfig
-        )
-      );
-    end else begin
-      FLayersList.Add(
-        TMapLayerGrids.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          FConfig.LayersConfig.MapLayerGridsConfig,
-          GState.ValueToStringConverterConfig
-        )
-      );
-      FLayersList.Add(
-        TMapLayerTileGrid.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          FConfig.LayersConfig.MapLayerGridsConfig.TileGrid
-        )
-      );
-    end;
+    FLayersList.Add(
+      TMapMainLayerNew.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState.Position,
+        FConfig.ViewPortState.View,
+        GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        FConfig.MainMapsConfig.GetActiveMap,
+        TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
+        GState.BitmapPostProcessingConfig,
+        FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+        FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
+        FTileErrorLogger,
+        GState.GUISyncronizedTimerNotifier
+      )
+    );
+    FLayersList.Add(
+      TMapLayerGridsNew.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.GUISyncronizedTimerNotifier,
+        GState.ValueToStringConverterConfig,
+        FConfig.LayersConfig.MapLayerGridsConfig
+      )
+    );
     FWikiLayer :=
       TWikiLayer.Create(
         GState.PerfCounterList,
@@ -1274,72 +1222,35 @@ begin
         FConfig.LayersConfig.FillingMapLayerConfig
       )
     );
-    if FConfig.MainConfig.UseNewMainLayer then begin
-      FLayerMapMarks:=
-        TMapMarksLayerNew.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.VectorItmesFactory,
-          GState.GUISyncronizedTimerNotifier,
-          FConfig.LayersConfig.MarksLayerConfig,
-          FMarkDBGUI.MarksDb
-        );
-      FLayersList.Add(FLayerMapMarks);
-    end else begin
-      FLayerMapMarks:=
-        TMapMarksLayer.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.VectorItmesFactory,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.ClearStrategyFactory,
-          GState.GUISyncronizedTimerNotifier,
-          FConfig.LayersConfig.MarksLayerConfig,
-          FMarkDBGUI.MarksDb
-        );
-      FLayersList.Add(FLayerMapMarks);
-    end;
-    if FConfig.MainConfig.UseNewMainLayer then begin
-      FLayersList.Add(
-        TMapGPSLayerNew.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.GUISyncronizedTimerNotifier,
-          FConfig.LayersConfig.GPSTrackConfig,
-          GState.GPSRecorder
-        )
+    FLayerMapMarks:=
+      TMapMarksLayerNew.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.VectorItmesFactory,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.MarksLayerConfig,
+        FMarkDBGUI.MarksDb
       );
-    end else begin
-      FLayersList.Add(
-        TMapGPSLayer.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          GState.ClearStrategyFactory,
-          GState.GUISyncronizedTimerNotifier,
-          FConfig.LayersConfig.GPSTrackConfig,
-          GState.GPSRecorder
-        )
-      );
-    end;
+    FLayersList.Add(FLayerMapMarks);
+    FLayersList.Add(
+      TMapGPSLayerNew.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        FConfig.ViewPortState,
+        GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        GState.GUISyncronizedTimerNotifier,
+        FConfig.LayersConfig.GPSTrackConfig,
+        GState.GPSRecorder
+      )
+    );
     VMarkerChangeable :=
       TMarkerDrawableChangeableSimple.Create(
         TMarkerDrawableSimpleSquare,
