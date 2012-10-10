@@ -14,7 +14,7 @@ type
     FListBySize: IIDInterfaceList;
     function CalcHash(const AData: IBinaryData): Integer;
     function CompareData(const AData1, AData2: IBinaryData): Boolean;
-    procedure AppendSample(ASample: IBinaryData);
+    procedure AppendSample(const ASample: IBinaryData);
   private
     function Check(const AData: IBinaryData): Boolean;
   public
@@ -49,7 +49,7 @@ begin
   end;
 end;
 
-procedure TPredicateByStaticSampleList.AppendSample(ASample: IBinaryData);
+procedure TPredicateByStaticSampleList.AppendSample(const ASample: IBinaryData);
 var
   VHash: Integer;
   VBySize: IInterface;

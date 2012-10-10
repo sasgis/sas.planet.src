@@ -64,7 +64,7 @@ type
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FExportDialog: TSaveDialog;
   public
-    function GetMarkIdCaption(AMarkId: IMarkId): string;
+    function GetMarkIdCaption(const AMarkId: IMarkId): string;
 
     function DeleteMarkModal(
       const AMarkId: IMarkId;
@@ -447,7 +447,7 @@ begin
   end;
 end;
 
-function TMarksDbGUIHelper.GetMarkIdCaption(AMarkId: IMarkId): string;
+function TMarksDbGUIHelper.GetMarkIdCaption(const AMarkId: IMarkId): string;
 var
   VPointCaptionFormat: string;
   VPolygonCaptionFormat: string;
