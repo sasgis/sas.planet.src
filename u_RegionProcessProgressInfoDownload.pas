@@ -64,6 +64,7 @@ type
     procedure SetStarted;
     procedure AddProcessedTile(const ATile: TPoint);
     procedure AddDownloadedTile(const ATile: TPoint; const ASize: Cardinal);
+    procedure AddNotNecessaryTile(const ATile: TPoint);
     procedure SetTotalToProcess(AValue: Int64);
     function GetLog: ILogSimple;
   public
@@ -151,6 +152,17 @@ begin
     FLastSuccessfulPoint := ATile;
     Inc(FDownloadedSize, ASize);
     Inc(FDownloadedCount);
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.AddNotNecessaryTile(
+  const ATile: TPoint);
+begin
+  FCS.BeginWrite;
+  try
+    FLastSuccessfulPoint := ATile;
   finally
     FCS.EndWrite;
   end;

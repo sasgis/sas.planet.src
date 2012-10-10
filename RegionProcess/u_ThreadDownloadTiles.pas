@@ -46,7 +46,6 @@ type
     FMapType: TMapType;
     FZoom: Byte;
     FDownloadInfo: IDownloadInfoSimple;
-    FPolygLL: ILonLatPolygon;
     FPolyProjected: IProjectedPolygon;
     FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
@@ -55,7 +54,6 @@ type
     FDownloadConfig: IGlobalDownloadConfig;
     FCheckTileDate: TDateTime;
     FLastProcessedPoint: TPoint;
-    FLastSuccessfulPoint: TPoint;
 
     FPausedSleepTime: Cardinal;
     FBanSleepTime: Cardinal;
@@ -103,11 +101,10 @@ type
     constructor Create(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
+      const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
       const AAppClosingNotifier: INotifierOneOperation;
       AMapType: TMapType;
       AZoom: byte;
-      const APolygon: ILonLatPolygon;
       const APolyProjected: IProjectedPolygon;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -141,11 +138,10 @@ uses
 constructor TThreadDownloadTiles.Create(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
+  const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
   const AAppClosingNotifier: INotifierOneOperation;
   AMapType: TMapType;
   AZoom: byte;
-  const APolygon: ILonLatPolygon;
   const APolyProjected: IProjectedPolygon;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -158,6 +154,13 @@ constructor TThreadDownloadTiles.Create(
 var
   VState: ITileDownloaderStateStatic;
 begin
+  Assert(ACancelNotifier <> nil);
+  Assert(AProgressInfo <> nil);
+  Assert(AAppClosingNotifier <> nil);
+  Assert(AMapType <> nil);
+  Assert(APolyProjected <> nil);
+  Assert(ADownloadConfig <> nil);
+  Assert(ADownloadInfo <> nil);
   inherited Create(False);
   Priority := tpLower;
   FreeOnTerminate := True;
@@ -179,50 +182,31 @@ begin
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
-  FPolygLL := APolygon;
   FPolyProjected := APolyProjected;
   FLastProcessedPoint := ALastProcessedPoint;
 
   if FMapType = nil then begin
     Terminate;
-    FProgressInfo.Finish;
     Exit;
   end;
   if not FMapType.Abilities.UseDownload then begin
     FProgressInfo.Log.WriteText(Format('Download of map %s disabled by map params', [FMapType.GUIConfig.Name.Value]), 10);
-    FProgressInfo.Finish;
     Terminate;
     Exit;
   end;
   VState := FMapType.TileDownloadSubsystem.State.GetStatic;
   if not VState.Enabled then begin
     FProgressInfo.Log.WriteText(Format('Download of map %s disabled. Reason: %s', [FMapType.GUIConfig.Name.Value, VState.DisableReason]), 10);
-    FProgressInfo.Finish;
     Terminate;
     Exit;
   end;
-  if FPolygLL = nil then begin
-    FProgressInfo.Log.WriteText('Polygon does not exist', 10);
-    FProgressInfo.Finish;
-    Terminate;
-    Exit;
-  end;
-  if FPolygLL.Count < 1 then begin
-    FProgressInfo.Log.WriteText('Empty Polygon', 10);
-    FProgressInfo.Finish;
-    Terminate;
-    Exit;
-  end;
-
   if FPolyProjected = nil then begin
     FProgressInfo.Log.WriteText('Polygon does not exist', 10);
-    FProgressInfo.Finish;
     Terminate;
     Exit;
   end;
   if FPolyProjected.Count < 1 then begin
     FProgressInfo.Log.WriteText('Empty Polygon', 10);
-    FProgressInfo.Finish;
     Terminate;
     Exit;
   end;
@@ -231,7 +215,7 @@ begin
 
   FCancelNotifier := ACancelNotifier;
   FOperationID := AOperationID;
-  
+
   FFinishEvent := TEvent.Create;
 
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
@@ -292,7 +276,6 @@ begin
 
     VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
     FProgressInfo.SetTotalToProcess(VTileIterator.TilesTotal);
-    FLastSuccessfulPoint := Point(-1, -1);
     if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
       while VTileIterator.Next(VTile) do begin
         if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
@@ -340,7 +323,6 @@ begin
           if (FCheckExistTileDate) and (VTileInfo.IsExists) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
             // skip existing newer tile (but download attachments)
             FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
-            FLastSuccessfulPoint := VTile;
             FLastProcessedPoint := VTile;
             VGotoNextTile := True;
           end else begin
@@ -351,7 +333,6 @@ begin
                 // tne found - skip downloading tile
                 FProgressInfo.Log.WriteText('(tne exists)', 0);
                 FLastProcessedPoint := VTile;
-                FLastSuccessfulPoint := VTile;
                 VGotoNextTile := True;
               end else begin
                 // download tile
@@ -459,15 +440,13 @@ begin
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VResultOk) then begin
       // tile downloaded successfully (try to download attachments)
       FProgressInfo.Log.WriteText('(Ok!)', 0);
-      FLastSuccessfulPoint := AResult.Request.Tile;
+      FProgressInfo.AddDownloadedTile(AResult.Request.Tile, VResultOk.Data.Size);
       Result := True;
-      if FDownloadInfo <> nil then begin
-        FDownloadInfo.Add(1, VResultOk.Data.Size);
-      end;
+      FDownloadInfo.Add(1, VResultOk.Data.Size);
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
       // same file size - assuming file the same (but download attachments)
       FProgressInfo.Log.WriteText(FRES_FileBeCreateLen, 0);
-      FLastSuccessfulPoint := AResult.Request.Tile;
+      FProgressInfo.AddNotNecessaryTile(AResult.Request.Tile);
       Result := True;
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultProxyError) then begin
       FProgressInfo.Log.WriteText(FRES_Authorization + #13#10 + Format(FRES_WaitTime, [FProxyAuthErrorSleepTime div 1000]), 10);

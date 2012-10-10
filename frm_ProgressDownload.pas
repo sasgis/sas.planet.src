@@ -203,6 +203,7 @@ var
   VComplete: string;
   VValueConverter: IValueToStringConverter;
   VTotal: Int64;
+  VDownloadSize: Double;
 begin
   VTotal := FProgressInfo.TotalToProcess;
   if VTotal > 0 then begin
@@ -210,6 +211,7 @@ begin
   end else begin
     VComplete := '~%';
   end;
+  VDownloadSize := FProgressInfo.DownloadSize / 1024;
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   if FProgressInfo.Finished then begin
     if not FFinished then begin
@@ -219,9 +221,9 @@ begin
       Self.Caption := SAS_MSG_LoadComplete;
       lblToProcessValue.Caption := inttostr(VTotal)+' '+SAS_STR_Files+' (z'+inttostr(FProgressInfo.Zoom + 1)+')';
       lblProcessedValue.Caption := inttostr(FProgressInfo.Processed)+' '+SAS_STR_Files;
-      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded)+' ('+ VValueConverter.DataSizeConvert(FProgressInfo.DownloadSize)+') '+SAS_STR_Files;
+      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded)+' ('+ VValueConverter.DataSizeConvert(VDownloadSize)+') '+SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
-      lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, FProgressInfo.DownloadSize);
+      lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
       FProgress.Max := VTotal;
       FProgress.Progress1 := FProgressInfo.Processed;
       FProgress.Progress2 := FProgressInfo.Downloaded;
@@ -239,9 +241,9 @@ begin
       Application.ProcessMessages;
       lblToProcessValue.Caption := inttostr(VTotal)+' '+SAS_STR_Files+' (z'+inttostr(FProgressInfo.Zoom + 1)+')';
       lblProcessedValue.Caption:=inttostr(FProgressInfo.Processed)+' '+SAS_STR_Files;
-      lblDownloadedValue.Caption:=inttostr(FProgressInfo.Downloaded)+' ('+VValueConverter.DataSizeConvert(FProgressInfo.DownloadSize)+') '+SAS_STR_Files;
+      lblDownloadedValue.Caption:=inttostr(FProgressInfo.Downloaded)+' ('+VValueConverter.DataSizeConvert(VDownloadSize)+') '+SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
-      lblSizeToFinishValue.Caption:=GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, FProgressInfo.DownloadSize);
+      lblSizeToFinishValue.Caption:=GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
       UpdateMemoProgressForm;
       FProgress.Max := VTotal;
       FProgress.Progress1 := FProgressInfo.Processed;
