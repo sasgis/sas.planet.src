@@ -157,16 +157,16 @@
       <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="fr_GpsSatellites.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frGpsSatellites</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
       <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_MapsList.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frMapsList</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_MarkCategorySelectOrAdd.pas">
       <Form>frMarkCategorySelectOrAdd</Form>
@@ -181,11 +181,15 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_PictureSelectFromList.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frPictureSelectFromList</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_SearchResultsItem.pas">
       <Form>frSearchResultsItem</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="fr_SelectedPicture.pas">
+      <Form>frSelectedPicture</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_ShortCutList.pas">
@@ -491,8 +495,8 @@
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="RegionProcess\fr_Export.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExport</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
       <Form>frExportAUX</Form>
@@ -519,8 +523,8 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportToOgf2.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frExportToOgf2</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ExportYaMobileV3.pas">
       <Form>frExportYaMobileV3</Form>
@@ -603,13 +607,13 @@
     <DCCReference Include="u_AntiBanStuped.pas" />
     <DCCReference Include="u_AvailPicsAbstract.pas" />
     <DCCReference Include="u_AvailPicsBing.pas" />
-    <DCCReference Include="u_AvailPicsDG.pas" />
     <DCCReference Include="u_AvailPicsDD.pas" />
+    <DCCReference Include="u_AvailPicsDG.pas" />
     <DCCReference Include="u_AvailPicsDG2.pas" />
-    <DCCReference Include="u_AvailPicsNMC.pas" />
-    <DCCReference Include="u_AvailPicsTerra.pas" />
     <DCCReference Include="u_AvailPicsESRI.pas" />
     <DCCReference Include="u_AvailPicsGeoFuse.pas" />
+    <DCCReference Include="u_AvailPicsNMC.pas" />
+    <DCCReference Include="u_AvailPicsTerra.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
@@ -716,22 +720,22 @@
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
-    <DCCReference Include="u_GeoCoderLocalBasic.pas" />
     <DCCReference Include="u_GeoCoderBy2GIS.pas" />
+    <DCCReference Include="u_GeoCoderByCoord.pas" />
     <DCCReference Include="u_GeoCoderByGoogle.pas" />
     <DCCReference Include="u_GeoCoderByNavitel.pas" />
+    <DCCReference Include="u_GeoCoderByOSM.pas" />
+    <DCCReference Include="u_GeoCoderByPolishMap.pas" />
     <DCCReference Include="u_GeoCoderByRosreestr.pas" />
+    <DCCReference Include="u_GeoCoderByTXT.pas" />
     <DCCReference Include="u_GeoCoderByURL.pas" />
-    <DCCReference Include="u_GeoCoderByCoord.pas" />
     <DCCReference Include="u_GeoCoderByWikimapia.pas" />
     <DCCReference Include="u_GeoCoderByYandex.pas" />
-    <DCCReference Include="u_GeoCoderByOSM.pas" />
-    <DCCReference Include="u_GeoCoderByTXT.pas" />
-    <DCCReference Include="u_GeoCoderByPolishMap.pas" />
     <DCCReference Include="u_GeoCodeResult.pas" />
     <DCCReference Include="u_GeoCoderListBase.pas" />
     <DCCReference Include="u_GeoCoderListEntity.pas" />
     <DCCReference Include="u_GeoCoderListSimple.pas" />
+    <DCCReference Include="u_GeoCoderLocalBasic.pas" />
     <DCCReference Include="u_GeoFun.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
