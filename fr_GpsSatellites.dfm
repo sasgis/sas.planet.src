@@ -50,7 +50,6 @@ object frGpsSatellites: TfrGpsSatellites
         Margins.Right = 0
         Align = alLeft
         Caption = 'Satellites in use'
-        ExplicitHeight = 13
       end
       object shpSatInfoActive: TShape
         AlignWithMargins = True
@@ -62,8 +61,6 @@ object frGpsSatellites: TfrGpsSatellites
         Margins.Bottom = 1
         Align = alLeft
         Brush.Color = clGreen
-        ExplicitLeft = 5
-        ExplicitTop = 1
       end
     end
     object pnlSatInfoVisible: TPanel
@@ -85,9 +82,6 @@ object frGpsSatellites: TfrGpsSatellites
         Margins.Bottom = 1
         Align = alLeft
         Brush.Color = clYellow
-        ExplicitLeft = -1
-        ExplicitTop = 6
-        ExplicitHeight = 55
       end
       object lblSatInfoVisible: TLabel
         AlignWithMargins = True
@@ -100,7 +94,6 @@ object frGpsSatellites: TfrGpsSatellites
         Margins.Right = 0
         Align = alLeft
         Caption = 'Satellites in range'
-        ExplicitHeight = 13
       end
     end
     object pnlSatInfoZeroSignal: TPanel
@@ -123,7 +116,6 @@ object frGpsSatellites: TfrGpsSatellites
         Margins.Right = 0
         Align = alLeft
         Caption = 'Satellites not in range'
-        ExplicitHeight = 13
       end
       object shpSatInfoZeroSignal: TShape
         AlignWithMargins = True
@@ -135,8 +127,6 @@ object frGpsSatellites: TfrGpsSatellites
         Margins.Bottom = 1
         Align = alLeft
         Brush.Color = clRed
-        ExplicitLeft = 5
-        ExplicitTop = 8
       end
     end
   end

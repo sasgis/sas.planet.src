@@ -11,8 +11,6 @@ object frLonLat: TfrLonLat
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  ExplicitWidth = 451
-  ExplicitHeight = 304
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -21,7 +19,6 @@ object frLonLat: TfrLonLat
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 451
     object cbbCoordType: TComboBox
       Left = 6
       Top = 3
@@ -83,7 +80,6 @@ object frLonLat: TfrLonLat
         Value = 50.000000000000000000
       end>
     TabOrder = 1
-    ExplicitWidth = 451
     object lblLon: TLabel
       AlignWithMargins = True
       Left = 3
@@ -94,7 +90,6 @@ object frLonLat: TfrLonLat
       Alignment = taRightJustify
       Caption = 'Longitude:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtLat: TEdit
       AlignWithMargins = True
@@ -108,7 +103,6 @@ object frLonLat: TfrLonLat
       Ctl3D = False
       ParentCtl3D = False
       TabOrder = 0
-      ExplicitWidth = 388
     end
     object edtLon: TEdit
       AlignWithMargins = True
@@ -122,7 +116,6 @@ object frLonLat: TfrLonLat
       Ctl3D = False
       ParentCtl3D = False
       TabOrder = 1
-      ExplicitWidth = 388
     end
     object lblLat: TLabel
       AlignWithMargins = True
@@ -134,7 +127,6 @@ object frLonLat: TfrLonLat
       Alignment = taRightJustify
       Caption = 'Latitude:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
   end
   object pnlXY: TPanel
@@ -151,7 +143,6 @@ object frLonLat: TfrLonLat
     BevelOuter = bvNone
     TabOrder = 2
     Visible = False
-    ExplicitWidth = 451
     object grdpnlXY: TGridPanel
       Left = 0
       Top = 0
@@ -196,7 +187,6 @@ object frLonLat: TfrLonLat
           Value = 50.000000000000000000
         end>
       TabOrder = 0
-      ExplicitWidth = 401
       object lblY: TLabel
         AlignWithMargins = True
         Left = 3
@@ -207,8 +197,6 @@ object frLonLat: TfrLonLat
         Alignment = taRightJustify
         Caption = 'Y:'
         Layout = tlCenter
-        ExplicitLeft = 12
-        ExplicitHeight = 13
       end
       object edtX: TEdit
         AlignWithMargins = True
@@ -222,7 +210,6 @@ object frLonLat: TfrLonLat
         Ctl3D = False
         ParentCtl3D = False
         TabOrder = 0
-        ExplicitWidth = 379
       end
       object edtY: TEdit
         AlignWithMargins = True
@@ -236,7 +223,6 @@ object frLonLat: TfrLonLat
         Ctl3D = False
         ParentCtl3D = False
         TabOrder = 1
-        ExplicitWidth = 379
       end
       object lblX: TLabel
         AlignWithMargins = True
@@ -248,8 +234,6 @@ object frLonLat: TfrLonLat
         Alignment = taRightJustify
         Caption = 'X:'
         Layout = tlCenter
-        ExplicitLeft = 12
-        ExplicitHeight = 13
       end
     end
     object grdpnlZoom: TGridPanel
@@ -296,9 +280,6 @@ object frLonLat: TfrLonLat
         Align = alLeft
         Caption = 'Z:'
         Layout = tlCenter
-        ExplicitLeft = 1
-        ExplicitTop = 4
-        ExplicitHeight = 13
       end
       object cbbZoom: TComboBox
         AlignWithMargins = True

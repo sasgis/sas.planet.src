@@ -82,7 +82,6 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Right = 0
         Align = alTop
         Caption = 'Map'
-        ExplicitWidth = 31
       end
       object lblNamesType: TLabel
         AlignWithMargins = True
@@ -94,7 +93,6 @@ object frExportToFileCont: TfrExportToFileCont
         Margins.Right = 0
         Align = alTop
         Caption = 'Export selection to format:'
-        ExplicitWidth = 207
       end
       object cbbMap: TComboBox
         Left = 3

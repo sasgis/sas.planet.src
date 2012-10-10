@@ -19,8 +19,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     Margins.Bottom = 0
     Align = alTop
     Shape = bsTopLine
-    ExplicitTop = 79
-    ExplicitWidth = 283
   end
   object PanelCaption: TPanel
     Left = 0

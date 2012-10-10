@@ -49,7 +49,6 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = 'Zoom:'
-        ExplicitWidth = 30
       end
       object cbbZoom: TComboBox
         Left = 5
@@ -82,7 +81,6 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = '_'
-        ExplicitWidth = 6
       end
       object lblMap: TLabel
         AlignWithMargins = True
@@ -95,7 +93,6 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = 'Map:'
-        ExplicitWidth = 24
       end
       object Bevel1: TBevel
         Left = 5
@@ -104,9 +101,6 @@ object frTilesDownload: TfrTilesDownload
         Height = 5
         Align = alTop
         Shape = bsTopLine
-        ExplicitLeft = 3
-        ExplicitTop = 54
-        ExplicitWidth = 386
       end
       object cbbMap: TComboBox
         Left = 5
@@ -128,7 +122,6 @@ object frTilesDownload: TfrTilesDownload
         Caption = 'Overwrite old tiles'
         TabOrder = 1
         OnClick = chkReplaceClick
-        ExplicitTop = 82
       end
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
@@ -138,7 +131,6 @@ object frTilesDownload: TfrTilesDownload
         Align = alTop
         Caption = 'Try to re-download missing tiles'
         TabOrder = 2
-        ExplicitTop = 66
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
@@ -151,7 +143,6 @@ object frTilesDownload: TfrTilesDownload
         BorderWidth = 3
         Padding.Left = 15
         TabOrder = 3
-        ExplicitTop = 98
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
@@ -178,7 +169,6 @@ object frTilesDownload: TfrTilesDownload
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
-            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0

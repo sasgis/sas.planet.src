@@ -35,7 +35,6 @@ object frMarkDescription: TfrMarkDescription
       Align = alLeft
       Caption = 'Description:'
       Layout = tlBottom
-      ExplicitHeight = 13
     end
     object TBXToolbar1: TTBXToolbar
       AlignWithMargins = True

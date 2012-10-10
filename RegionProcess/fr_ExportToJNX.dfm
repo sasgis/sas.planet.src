@@ -65,10 +65,6 @@ object frExportToJNX: TfrExportToJNX
     OnChange = PageControl1Change
     object Map: TTabSheet
       Caption = 'Map'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlCenter: TPanel
         Left = 0
         Top = 0
@@ -349,10 +345,6 @@ object frExportToJNX: TfrExportToJNX
     object Layer: TTabSheet
       Caption = 'Overlay layer:'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         443
         249)
@@ -496,10 +488,6 @@ object frExportToJNX: TfrExportToJNX
     object Info: TTabSheet
       Caption = 'Additional'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object PnlInfo: TPanel
         Left = 0
         Top = 0

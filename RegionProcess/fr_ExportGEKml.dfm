@@ -81,9 +81,6 @@ object frExportGEKml: TfrExportGEKml
         Align = alTop
         AutoSize = False
         Caption = 'Map'
-        ExplicitLeft = 12
-        ExplicitTop = 6
-        ExplicitWidth = 31
       end
       object chkNotSaveNotExists: TCheckBox
         Left = 3

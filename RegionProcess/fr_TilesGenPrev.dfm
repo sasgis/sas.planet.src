@@ -103,9 +103,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         AutoSize = False
         Caption = 'Map:'
-        ExplicitLeft = 7
-        ExplicitTop = -1
-        ExplicitWidth = 57
       end
       object lblStat: TLabel
         Left = 10
@@ -125,9 +122,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         AutoSize = False
         Caption = 'Resize algorithm:'
-        ExplicitLeft = 5
-        ExplicitTop = 37
-        ExplicitWidth = 52
       end
       object Bevel1: TBevel
         AlignWithMargins = True
@@ -141,7 +135,6 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Bottom = 0
         Align = alTop
         Shape = bsTopLine
-        ExplicitTop = 83
       end
       object cbbMap: TComboBox
         Left = 3

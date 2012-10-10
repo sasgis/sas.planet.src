@@ -15,7 +15,6 @@ object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
     Align = alLeft
     Caption = 'Category:'
     Layout = tlCenter
-    ExplicitHeight = 13
   end
   object CBKateg: TComboBox
     AlignWithMargins = True

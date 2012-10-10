@@ -173,7 +173,6 @@ object frTilesCopy: TfrTilesCopy
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 47

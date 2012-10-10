@@ -36,7 +36,6 @@ object frExportToCE: TfrExportToCE
         Margins.Right = 0
         Align = alTop
         Caption = 'Zooms:'
-        ExplicitWidth = 35
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -213,7 +212,6 @@ object frExportToCE: TfrExportToCE
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47

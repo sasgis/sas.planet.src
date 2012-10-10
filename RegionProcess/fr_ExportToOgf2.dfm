@@ -8,7 +8,6 @@ object frExportToOgf2: TfrExportToOgf2
   ShowHint = True
   TabOrder = 0
   Visible = False
-  ExplicitWidth = 451
   object pnlCenter: TPanel
     Left = 0
     Top = 27
@@ -17,7 +16,6 @@ object frExportToOgf2: TfrExportToOgf2
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 378
     object pnlMain: TPanel
       Left = 0
       Top = 0
@@ -28,7 +26,6 @@ object frExportToOgf2: TfrExportToOgf2
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      ExplicitWidth = 378
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
@@ -158,7 +155,6 @@ object frExportToOgf2: TfrExportToOgf2
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitWidth = 451
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3
@@ -172,7 +168,6 @@ object frExportToOgf2: TfrExportToOgf2
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
@@ -181,7 +176,6 @@ object frExportToOgf2: TfrExportToOgf2
       Height = 21
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 380
     end
     object btnSelectTargetFile: TButton
       Left = 511
@@ -192,11 +186,10 @@ object frExportToOgf2: TfrExportToOgf2
       Caption = '...'
       TabOrder = 1
       OnClick = btnSelectTargetFileClick
-      ExplicitLeft = 427
     end
   end
   object pnlZoom: TPanel
-    Left = 462
+    Left = 378
     Top = 27
     Width = 73
     Height = 252
@@ -205,7 +198,6 @@ object frExportToOgf2: TfrExportToOgf2
     BorderWidth = 3
     Constraints.MinWidth = 56
     TabOrder = 2
-    ExplicitLeft = 378
     object lblZoom: TLabel
       AlignWithMargins = True
       Left = 3
@@ -218,13 +210,10 @@ object frExportToOgf2: TfrExportToOgf2
       Align = alTop
       AutoSize = False
       Caption = 'Zoom:'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 72
     end
     object cbbZoom: TComboBox
       Left = 3
-      Top = 19
+      Top = 16
       Width = 67
       Height = 21
       Align = alTop
@@ -237,17 +226,16 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlBottom: TPanel
     Left = 0
     Top = 279
-    Width = 535
+    Width = 451
     Height = 25
     Align = alBottom
     BevelEdges = [beTop]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 451
     object lblStat: TLabel
       Left = 3
-      Top = 1
+      Top = -1
       Width = 7
       Height = 13
       Align = alCustom
@@ -260,7 +248,6 @@ object frExportToOgf2: TfrExportToOgf2
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitTop = 5
     end
   end
   object dlgSaveTargetFile: TSaveDialog

@@ -116,7 +116,6 @@ object frTilesDelete: TfrTilesDelete
         BevelOuter = bvNone
         Padding.Top = 2
         TabOrder = 1
-        ExplicitTop = 44
         object chkDelBySize: TCheckBox
           Left = 0
           Top = 2

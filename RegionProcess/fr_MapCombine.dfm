@@ -44,7 +44,6 @@ object frMapCombine: TfrMapCombine
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
@@ -53,7 +52,6 @@ object frMapCombine: TfrMapCombine
       Height = 19
       Align = alClient
       TabOrder = 0
-      ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
       Left = 511
@@ -88,7 +86,6 @@ object frMapCombine: TfrMapCombine
       Align = alLeft
       Caption = 'Output format:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object cbbOutputFormat: TComboBox
       Left = 79
@@ -141,9 +138,6 @@ object frMapCombine: TfrMapCombine
         Align = alTop
         AutoSize = False
         Caption = 'Zoom:'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 72
       end
       object cbbZoom: TComboBox
         Left = 3
@@ -187,7 +181,6 @@ object frMapCombine: TfrMapCombine
           Align = alTop
           Caption = 'Base Map:'
           Layout = tlCenter
-          ExplicitWidth = 50
         end
         object lblHybr: TLabel
           AlignWithMargins = True
@@ -200,7 +193,6 @@ object frMapCombine: TfrMapCombine
           Align = alTop
           Caption = 'Overlay layer:'
           Layout = tlCenter
-          ExplicitWidth = 69
         end
         object lblStat: TLabel
           AlignWithMargins = True
@@ -211,7 +203,6 @@ object frMapCombine: TfrMapCombine
           Align = alTop
           Caption = '_'
           Layout = tlCenter
-          ExplicitWidth = 6
         end
         object cbbMap: TComboBox
           Left = 3
@@ -341,8 +332,6 @@ object frMapCombine: TfrMapCombine
         AutoSize = False
         Caption = 'Create georeferencing file:'
         WordWrap = True
-        ExplicitTop = 6
-        ExplicitWidth = 150
       end
       object chklstPrTypes: TCheckListBox
         Left = 3

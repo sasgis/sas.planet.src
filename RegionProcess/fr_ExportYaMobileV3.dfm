@@ -182,10 +182,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = '0..9 max'
           Layout = tlCenter
-          ExplicitLeft = 269
-          ExplicitTop = 21
-          ExplicitWidth = 43
-          ExplicitHeight = 13
         end
         object seMapCompress: TSpinEdit
           Left = 240
@@ -250,8 +246,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
-          ExplicitWidth = 55
-          ExplicitHeight = 13
         end
         object lblCompress: TLabel
           Left = 240
@@ -270,9 +264,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Hybrid'
           Layout = tlCenter
-          ExplicitLeft = 6
-          ExplicitWidth = 29
-          ExplicitHeight = 37
         end
         object lblMap: TLabel
           Left = 0
@@ -283,10 +274,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Map'
           Layout = tlCenter
-          ExplicitLeft = 5
-          ExplicitTop = 21
-          ExplicitWidth = 31
-          ExplicitHeight = 13
         end
         object lblSat: TLabel
           Left = 0
@@ -297,9 +284,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Satellite'
           Layout = tlCenter
-          ExplicitLeft = 5
-          ExplicitTop = 45
-          ExplicitHeight = 13
         end
         object lblMaps: TLabel
           Left = 43
@@ -311,10 +295,6 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           AutoSize = False
           Caption = 'Enable the following map types:'
           Layout = tlCenter
-          ExplicitLeft = 5
-          ExplicitTop = 4
-          ExplicitWidth = 174
-          ExplicitHeight = 13
         end
       end
     end
