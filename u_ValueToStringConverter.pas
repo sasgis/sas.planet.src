@@ -188,9 +188,9 @@ begin
       VValue := VValue - VInt * (60 * 100);
 
       if VInt < 10 then begin
-        Result := result + '0' + IntToStr(VInt) + '''';
+        Result := Result + '0' + IntToStr(VInt) + '''';
       end else begin
-        Result := result + IntToStr(VInt) + '''';
+        Result := Result + IntToStr(VInt) + '''';
       end;
 
       Result := Result + FormatFloat('00.00', VValue / 100) + '"';
@@ -206,7 +206,6 @@ begin
           end;
         end;
       end;
-
     end;
     dshCharDegrMin, dshSignDegrMin: begin
       VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
