@@ -18,6 +18,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
   i_MapTypes,
+  i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
@@ -37,6 +38,7 @@ type
   TProviderMapCombine = class(TExportProviderAbstract)
   private
     FViewConfig: IGlobalViewMainConfig;
+    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
     FProjectionFactory: IProjectionInfoFactory;
@@ -72,6 +74,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -127,6 +130,7 @@ constructor TProviderMapCombine.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -149,6 +153,7 @@ begin
   );
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
+  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FMarksShowConfig := AMarksShowConfig;
@@ -173,6 +178,7 @@ begin
       Self.FullMapsSet,
       Self.GUIConfigList,
       FViewConfig,
+      FUseTilePrevZoomConfig,
       FMapCalibrationList
     );
   Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));

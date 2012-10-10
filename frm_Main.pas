@@ -838,6 +838,7 @@ begin
       GState.CoordConverterFactory,
       GState.TileNameGenerator,
       GState.ViewConfig,
+      FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       GState.ImageResamplerConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,

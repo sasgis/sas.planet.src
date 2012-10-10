@@ -22,6 +22,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapCalibration,
+  i_UseTilePrevZoomConfig,
   i_GlobalViewMainConfig,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
@@ -115,6 +116,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FMapCalibrationList: IMapCalibrationList;
+    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FPolygLL: ILonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
     procedure UpdatePanelSizes;
@@ -144,6 +146,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     procedure RefreshTranslation; override;
@@ -253,6 +256,7 @@ constructor TfrMapCombine.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AMapCalibrationList: IMapCalibrationList
 );
 begin
@@ -264,6 +268,7 @@ begin
   FGUIConfigList := AGUIConfigList;
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
+  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
   cbbOutputFormat.ItemIndex := 0;
   UpdatePanelSizes;
 end;
@@ -350,8 +355,8 @@ begin
     TBitmapLayerProviderMapWithLayer.Create(
       VMap,
       VLayer,
-      True,
-      True
+      FUseTilePrevZoomConfig.UsePrevZoomAtMap,
+      FUseTilePrevZoomConfig.UsePrevZoomAtLayer
     );
 end;
 

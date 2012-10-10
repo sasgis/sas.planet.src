@@ -50,6 +50,7 @@ uses
   i_BitmapPostProcessingConfig,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
+  i_UseTilePrevZoomConfig,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MapTypes,
@@ -111,6 +112,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
       const AViewConfig: IGlobalViewMainConfig;
+      const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AImageResamplerConfig: IImageResamplerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
@@ -158,6 +160,7 @@ constructor TfrmRegionProcess.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
   const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AImageResamplerConfig: IImageResamplerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
@@ -250,6 +253,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AViewConfig,
+      AUseTilePrevZoomConfig,
       AAppClosingNotifier,
       ATimerNoifier,
       AProjectionFactory,
