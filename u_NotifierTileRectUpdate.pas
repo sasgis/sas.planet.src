@@ -39,7 +39,7 @@ type
     procedure PrepareListenersListByTile(const ATile: TPoint; AListeners: TList);
     procedure PrepareListenersListByRect(const ATileRect: TRect; AListeners: TList);
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 

@@ -24,7 +24,7 @@ type
 
     function GetStatic: IStorageStateStatic;
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
   end;
 
