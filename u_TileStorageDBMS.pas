@@ -1495,6 +1495,7 @@ constructor TEnumTileInfoByETS.Create(
   const AStorage: TTileStorageETS
 );
 begin
+  inherited Create;
   FIgnoreTNE := AIgnoreTNE;
   FStorage := AStorage;
 

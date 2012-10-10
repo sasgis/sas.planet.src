@@ -642,6 +642,7 @@ constructor TEnumTileInfoByBDB.Create(
   AStorage: TTileStorageBerkeleyDB
 );
 begin
+  inherited Create;
   FFilesIterator := AFilesIterator;
   FTileFileNameParser := ATileFileNameParser;
   FStorage := AStorage;
