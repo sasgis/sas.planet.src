@@ -25,10 +25,10 @@ interface
 uses
   Forms,
   Classes,
-  GR32_Image,
   Controls,
   ExtCtrls,
   StdCtrls,
+  GR32_Image,
   i_LanguageManager,
   i_StartUpLogoConfig,
   u_CommonFormAndFrameParents;
