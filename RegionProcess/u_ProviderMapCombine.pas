@@ -289,7 +289,7 @@ begin
   Result :=
     TBitmapLayerProviderWithBGColor.Create(
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
-      Result 
+      Result
     );
 end;
 

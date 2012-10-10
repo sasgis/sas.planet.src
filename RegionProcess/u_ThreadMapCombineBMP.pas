@@ -54,7 +54,8 @@ uses
   u_ImageLineProvider;
 
 constructor TThreadMapCombineBMP.Create(
-  const ACancelNotifier: INotifierOperation; AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;

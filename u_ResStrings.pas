@@ -99,7 +99,7 @@ ResourceString
     'Try select smaller region to stitch in %s or select other output format (ECW is the best).';
 
   SAS_ERR_ContentTypeMismatch = 'Cache converter aborted with error: Content-Type mismatch!' + #13#10 +
-     'Source: %s' + #13#10 + 'Destination: %s';
+    'Source: %s' + #13#10 + 'Destination: %s';
 
   SAS_STR_MarshLen = 'Distance:';
   SAS_STR_Marshtime = 'Time to reach:';

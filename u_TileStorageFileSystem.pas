@@ -304,36 +304,36 @@ var
 begin
   FFsLock.BeginRead;
   try
-  UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
-  if VTileInfo.FInfoType = titExists then begin
-    // tile exists
-    if AIsLoadIfExists then begin
-      Result :=
-        TTileInfoBasicExistsWithTile.Create(
-          VTileInfo.FLoadDate,
-          VTileInfo.FData,
-          nil,
-          FMainContentType
-        );
+    UpdateTileInfoByFile(False, AIsLoadIfExists, APath, VTileInfo);
+    if VTileInfo.FInfoType = titExists then begin
+      // tile exists
+      if AIsLoadIfExists then begin
+        Result :=
+          TTileInfoBasicExistsWithTile.Create(
+            VTileInfo.FLoadDate,
+            VTileInfo.FData,
+            nil,
+            FMainContentType
+          );
+      end else begin
+        Result :=
+          TTileInfoBasicExists.Create(
+            VTileInfo.FLoadDate,
+            VTileInfo.FSize,
+            nil,
+            FMainContentType
+          );
+      end;
     end else begin
-      Result :=
-        TTileInfoBasicExists.Create(
-          VTileInfo.FLoadDate,
-          VTileInfo.FSize,
-          nil,
-          FMainContentType
-        );
+      UpdateTileInfoByFile(True, AIsLoadIfExists, ChangeFileExt(APath, CTneFileExt), VTileInfo);
+      if VTileInfo.FInfoType = titTneExists then begin
+        // tne exists
+        Result := TTileInfoBasicTNE.Create(VTileInfo.FLoadDate, nil);
+      end else begin
+        // neither tile nor tne
+        Result := FTileNotExistsTileInfo;
+      end;
     end;
-  end else begin
-    UpdateTileInfoByFile(True, AIsLoadIfExists, ChangeFileExt(APath, CTneFileExt), VTileInfo);
-    if VTileInfo.FInfoType = titTneExists then begin
-      // tne exists
-      Result := TTileInfoBasicTNE.Create(VTileInfo.FLoadDate, nil);
-    end else begin
-      // neither tile nor tne
-      Result := FTileNotExistsTileInfo;
-    end;
-  end;
   finally
     FFsLock.EndRead;
   end;
@@ -469,8 +469,8 @@ begin
       VHandle := INVALID_HANDLE_VALUE;
       try
         VHandle :=
-          CreateFile(PChar
-            (VFileName),
+          CreateFile(
+            PChar(VFileName),
             GENERIC_READ or GENERIC_WRITE,
             0,
             nil,
@@ -527,8 +527,8 @@ begin
         VHandle := INVALID_HANDLE_VALUE;
         try
           VHandle :=
-            CreateFile(PChar
-              (VTneName),
+            CreateFile(
+              PChar(VTneName),
               GENERIC_READ or GENERIC_WRITE,
               0,
               nil,

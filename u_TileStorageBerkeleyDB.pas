@@ -128,7 +128,6 @@ uses
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
-  
   u_TileInfoBasic;
 
 { TTileStorageBerkeleyDB }

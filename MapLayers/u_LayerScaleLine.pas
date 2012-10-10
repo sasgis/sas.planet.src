@@ -47,7 +47,12 @@ type
     FPopupMenu: TLayerScaleLinePopupMenu;
     procedure OnConfigChange;
     procedure OnPosChange;
-    procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure OnMouseDown(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
 
     procedure DrawOutLinedText(
       X, Y: Integer;

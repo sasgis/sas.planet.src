@@ -1130,92 +1130,18 @@ var
 begin
   VCounterContext := FLoadDbCounter.StartOperation;
   try
-  VFileName := GetMarksFileName;
-  FStateInternal.LockWrite;
-  try
-    LockWrite;
+    VFileName := GetMarksFileName;
+    FStateInternal.LockWrite;
     try
-      InitEmptyDS(FCdsMarks);
-      FMarksList.Clear;
-      FByCategoryList.Clear;
-      if FStateInternal.ReadAccess <> asDisabled then begin
-        VStream := nil;
-        try
-          if FileExists(VFileName) then begin
-            if FStateInternal.WriteAccess <> asDisabled then begin
-              try
-                VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
-                FStateInternal.WriteAccess := asEnabled;
-              except
-                VStream := nil;
-                FStateInternal.WriteAccess := asDisabled;
-              end;
-            end;
-            if VStream = nil then begin
-              try
-                VStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
-                FStateInternal.ReadAccess := asEnabled;
-              except
-                FStateInternal.ReadAccess := asDisabled;
-                VStream := nil;
-              end;
-            end;
-            if VStream <> nil then begin
-              try
-                SetLength(XML, VStream.Size);
-                VStream.ReadBuffer(XML[1], length(XML));
-              except
-                FStateInternal.ReadAccess := asDisabled;
-                VStream.Free;
-                VStream := nil;
-              end;
-            end;
-
-            if length(XML) > 0 then begin
-              try
-                FCdsMarks.XMLData := XML;
-              except
-                InitEmptyDS(FCdsMarks);
-              end;
-            end;
-
-            if FCdsMarks.RecordCount > 0 then begin
-              if FStateInternal.WriteAccess = asEnabled then begin
-                CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
-              end;
-            end;
-
-            FCdsMarks.Filtered := False;
-            FCdsMarks.First;
-            while not FCdsMarks.Eof do begin
-              VMark := ReadCurrentMark;
-              if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
-                VIdNew := VMarkInternal.Id;
-                if VMark.Category = nil then begin
-                  VCategoryIdNew := CNotExistCategoryID;
-                end else begin
-                  VCategoryIdNew := VMarkInternal.CategoryId;
-                end;
-                FMarksList.Add(VIdNew, VMark);
-                VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
-                if VList = nil then begin
-                  VList := TIDInterfaceList.Create;
-                  FByCategoryList.Add(VCategoryIdNew, VList);
-                end;
-                VList.Add(VIdNew, VMark);
-              end;
-              FCdsMarks.Next;
-            end;
-          end else begin
-            if FStateInternal.WriteAccess <> asDisabled then begin
-              try
-                VStream := TFileStream.Create(VFileName, fmCreate);
-                VStream.Free;
-                VStream := nil;
-              except
-                FStateInternal.WriteAccess := asDisabled;
-                VStream := nil;
-              end;
+      LockWrite;
+      try
+        InitEmptyDS(FCdsMarks);
+        FMarksList.Clear;
+        FByCategoryList.Clear;
+        if FStateInternal.ReadAccess <> asDisabled then begin
+          VStream := nil;
+          try
+            if FileExists(VFileName) then begin
               if FStateInternal.WriteAccess <> asDisabled then begin
                 try
                   VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
@@ -1225,25 +1151,99 @@ begin
                   FStateInternal.WriteAccess := asDisabled;
                 end;
               end;
+              if VStream = nil then begin
+                try
+                  VStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
+                  FStateInternal.ReadAccess := asEnabled;
+                except
+                  FStateInternal.ReadAccess := asDisabled;
+                  VStream := nil;
+                end;
+              end;
+              if VStream <> nil then begin
+                try
+                  SetLength(XML, VStream.Size);
+                  VStream.ReadBuffer(XML[1], length(XML));
+                except
+                  FStateInternal.ReadAccess := asDisabled;
+                  VStream.Free;
+                  VStream := nil;
+                end;
+              end;
+
+              if length(XML) > 0 then begin
+                try
+                  FCdsMarks.XMLData := XML;
+                except
+                  InitEmptyDS(FCdsMarks);
+                end;
+              end;
+
+              if FCdsMarks.RecordCount > 0 then begin
+                if FStateInternal.WriteAccess = asEnabled then begin
+                  CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
+                end;
+              end;
+
+              FCdsMarks.Filtered := False;
+              FCdsMarks.First;
+              while not FCdsMarks.Eof do begin
+                VMark := ReadCurrentMark;
+                if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+                  VIdNew := VMarkInternal.Id;
+                  if VMark.Category = nil then begin
+                    VCategoryIdNew := CNotExistCategoryID;
+                  end else begin
+                    VCategoryIdNew := VMarkInternal.CategoryId;
+                  end;
+                  FMarksList.Add(VIdNew, VMark);
+                  VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
+                  if VList = nil then begin
+                    VList := TIDInterfaceList.Create;
+                    FByCategoryList.Add(VCategoryIdNew, VList);
+                  end;
+                  VList.Add(VIdNew, VMark);
+                end;
+                FCdsMarks.Next;
+              end;
+            end else begin
+              if FStateInternal.WriteAccess <> asDisabled then begin
+                try
+                  VStream := TFileStream.Create(VFileName, fmCreate);
+                  VStream.Free;
+                  VStream := nil;
+                except
+                  FStateInternal.WriteAccess := asDisabled;
+                  VStream := nil;
+                end;
+                if FStateInternal.WriteAccess <> asDisabled then begin
+                  try
+                    VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
+                    FStateInternal.WriteAccess := asEnabled;
+                  except
+                    VStream := nil;
+                    FStateInternal.WriteAccess := asDisabled;
+                  end;
+                end;
+              end;
             end;
+            if FStream <> nil then begin
+              FreeAndNil(FStream);
+            end;
+            if FStateInternal.WriteAccess = asEnabled then begin
+              FStream := VStream;
+              VStream := nil;
+            end;
+          finally
+            VStream.Free;
           end;
-          if FStream <> nil then begin
-            FreeAndNil(FStream);
-          end;
-          if FStateInternal.WriteAccess = asEnabled then begin
-            FStream := VStream;
-            VStream := nil;
-          end;
-        finally
-          VStream.Free;
         end;
+      finally
+        UnlockWrite
       end;
     finally
-      UnlockWrite
+      FStateInternal.UnlockWrite;
     end;
-  finally
-    FStateInternal.UnlockWrite;
-  end;
   finally
     FLoadDbCounter.FinishOperation(VCounterContext);
   end;

@@ -304,12 +304,12 @@ begin
 
   // === Thaddeus Vincenty's direct algorithm for ellipsoids: ==================
   TanU1 := r0 * Tan(Lat1);
-  TanSigma1 := TanU1/Cos(Azimuth);                                       //eq 1
+  TanSigma1 := TanU1 / Cos(Azimuth);                                       //eq 1
   U1 := ArcTan(TanU1);
   SinCos(U1, SinU1, CosU1);
   SinAlpha := CosU1 * Sin(Azimuth);                                      //eq 2
   CosAlpha := Sqrt(1 - Sqr(SinAlpha));
-  Usqr := Sqr(CosAlpha) * (aa-bb)/bb;
+  Usqr := Sqr(CosAlpha) * (aa - bb) / bb;
 
   Term1 := Usqr / 16384;
   Term2 := 4096 + Usqr * (-768 + Usqr * (320 - 175 * Usqr));
@@ -328,7 +328,7 @@ begin
     c2sm := Cos(TwoSigmaM);
 
     DeltaSigma :=
-      B * SinSigma * (c2sm + b/4 * (CosSigma * (-1 + 2 * Sqr(c2sm)) -
+      B * SinSigma * (c2sm + b / 4 * (CosSigma * (-1 + 2 * Sqr(c2sm)) -
       B / 6 * c2sm * (-3 + 4 * Sqr(SinSigma)) * (-3 + 4 * Sqr(c2sm))));  //eq 6
 
     Sigma := ADistance / (FRadiusB * a) + DeltaSigma;                    //eq 7
@@ -340,15 +340,15 @@ begin
   Term1 := SinU1 * CosSigma + CosU1 * SinSigma * CosTc;
   Term2 := Sqr(SinAlpha) + Sqr(SinU1 * SinSigma - CosU1 * CosSigma * CosTc);
   Term3 := r0 * Sqrt(Term2);
-  Lat   := ArcTan2(Term1, Term3);
+  Lat := ArcTan2(Term1, Term3);
   Term1 := SinSigma * Sin(Azimuth);
   Term2 := CosU1 * CosSigma - SinU1 * SinSigma * CosTc;
   Lambda := ArcTan2(Term1, Term2);
 
-  C := FFlattening/ 16 * Sqr(CosAlpha) * (4 + FFlattening * (4 - 3 * Sqr(CosAlpha)));
+  C := FFlattening / 16 * Sqr(CosAlpha) * (4 + FFlattening * (4 - 3 * Sqr(CosAlpha)));
 
-  Omega := Lambda - (1-c) * FFlattening * SinAlpha *
-             (Sigma + C * SinSigma * (c2sm + C * CosSigma * (-1 + 2 * Sqr(c2sm))));
+  Omega := Lambda - (1 - c) * FFlattening * SinAlpha *
+    (Sigma + C * SinSigma * (c2sm + C * CosSigma * (-1 + 2 * Sqr(c2sm))));
 
   Lon := Lon1 + Omega;
   //============================================================================
@@ -428,7 +428,7 @@ begin
   A := 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
   B := uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
   DeltaSigma :=
-    B * SinSigma * (Cos2SigmaM + B / 4 * (CosSigma * (-1 + 2 * Sqr(Cos2SigmaM))-
+    B * SinSigma * (Cos2SigmaM + B / 4 * (CosSigma * (-1 + 2 * Sqr(Cos2SigmaM)) -
     B / 6 * Cos2SigmaM * (-3 + 4 * Sqr(SinSigma)) * (-3 + 4 * Sqr(Cos2SigmaM))));
 
   AInitialBearing := ArcTan2(CosU2 * SinLambda, CosU1 * SinU2 - SinU1 * CosU2 * CosLambda);

@@ -48,7 +48,10 @@ type
     FNorthMarker: string;
     FSouthMarker: string;
   private
-    function DegrToStr(ADegr: Double; ACutZero:boolean): string;
+    function DegrToStr(
+      ADegr: Double;
+      ACutZero: boolean
+    ): string;
     function GetLatitudeMarker(ADegr: Double): string;
     function GetLongitudeMarker(ADegr: Double): string;
   private
@@ -59,8 +62,14 @@ type
     function SpeedConvert(AKmph: Double): string;
     function AltitudeConvert(AMeters: Double): string;
     function LonLatConvert(ALonLat: TDoublePoint): string;
-    function LonConvert(ALon: Double; ACutZero:boolean): string;
-    function LatConvert(ALat: Double; ACutZero:boolean): string;
+    function LonConvert(
+      ALon: Double;
+      ACutZero: boolean
+    ): string;
+    function LatConvert(
+      ALat: Double;
+      ACutZero: boolean
+    ): string;
   public
     constructor Create(
       ADistStrFormat: TDistStrFormat;
@@ -158,7 +167,10 @@ begin
   end;
 end;
 
-function TValueToStringConverter.DegrToStr(ADegr: Double; ACutZero:boolean): string;
+function TValueToStringConverter.DegrToStr(
+  ADegr: Double;
+  ACutZero: boolean
+): string;
 var
   VDegr: Double;
   VInt: Integer;
@@ -184,15 +196,15 @@ begin
       Result := Result + FormatFloat('00.00', VValue / 100) + '"';
 
       if ACutZero then begin
-       if copy(Result, length(Result) - 3, 4) = decimalseparator+'00"' then begin // X12°30'45,00" -> X12°30'45"
-        Result := ReplaceStr(Result, decimalseparator+'00"', '"');
-        if copy(Result, length(Result) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
-          Result := ReplaceStr(Result, '00"', '');
-          if copy(Result, length(Result) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-           Result := ReplaceStr(Result, '00''', '');
+        if copy(Result, length(Result) - 3, 4) = decimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
+          Result := ReplaceStr(Result, decimalseparator + '00"', '"');
+          if copy(Result, length(Result) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
+            Result := ReplaceStr(Result, '00"', '');
+            if copy(Result, length(Result) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+              Result := ReplaceStr(Result, '00''', '');
+            end;
           end;
         end;
-       end;
       end;
 
     end;
@@ -203,16 +215,26 @@ begin
       Result := IntToStr(VInt) + '°';
       Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
       if ACutZero then begin
-       while copy(Result,length(Result)-1,2)='0''' do Result := ReplaceStr(Result, '0''', '''');   // 12°34,50000' -> 12°34,5'   12°00,00000' -> 12°00,'
-       if copy(Result,length(Result)-1,2)=decimalseparator+'''' then Result := ReplaceStr(Result, decimalseparator+'''', ''''); // 12°40,' -> 12°40'
-       if copy(Result,length(Result)-2,3)='00''' then Result := ReplaceStr(Result, '00''', ''); //  12°00' -> 12°
+        while copy(Result, length(Result) - 1, 2) = '0''' do begin
+          Result := ReplaceStr(Result, '0''', '''');
+        end;   // 12°34,50000' -> 12°34,5'   12°00,00000' -> 12°00,'
+        if copy(Result, length(Result) - 1, 2) = decimalseparator + '''' then begin
+          Result := ReplaceStr(Result, decimalseparator + '''', '''');
+        end; // 12°40,' -> 12°40'
+        if copy(Result, length(Result) - 2, 3) = '00''' then begin
+          Result := ReplaceStr(Result, '00''', '');
+        end; //  12°00' -> 12°
       end;
     end;
     dshCharDegr, dshSignDegr: begin
       Result := FormatFloat('0.000000', VDegr) + '°';
       if ACutZero then begin
-       while copy(Result,length(Result)-1,2)='0°' do Result := ReplaceStr(Result, '0°', '°');   // 12,3450000° -> 12,345°   12,0000000° -> 12,°
-       if copy(Result,length(Result)-1,2)=decimalseparator+'°' then Result := ReplaceStr(Result, decimalseparator+'°', '°'); //12,° -> 12°
+        while copy(Result, length(Result) - 1, 2) = '0°' do begin
+          Result := ReplaceStr(Result, '0°', '°');
+        end;   // 12,3450000° -> 12,345°   12,0000000° -> 12,°
+        if copy(Result, length(Result) - 1, 2) = decimalseparator + '°' then begin
+          Result := ReplaceStr(Result, decimalseparator + '°', '°');
+        end; //12,° -> 12°
       end;
     end;
   end;
@@ -257,8 +279,9 @@ begin
         result := FNorthMarker;
       end else if ADegr < 0 then begin
         result := FSouthMarker;
-      end else
+      end else begin
         result := '';
+      end;
     end;
     dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
       if ADegr >= 0 then begin
@@ -278,8 +301,9 @@ begin
         result := FEastMarker;
       end else if ADegr < 0 then begin
         result := FWestMarker;
-      end else
+      end else begin
         result := '';
+      end;
     end;
     dshSignDegrMinSec, dshSignDegrMin, dshSignDegr: begin
       if ADegr >= 0 then begin
@@ -296,8 +320,8 @@ var
   VLatStr: string;
   VLonStr: string;
 begin
-  VLatStr := GetLatitudeMarker(ALonLat.Y) + DegrToStr(ALonLat.Y,false);
-  VLonStr := GetLongitudeMarker(ALonLat.X) + DegrToStr(ALonLat.X,false);
+  VLatStr := GetLatitudeMarker(ALonLat.Y) + DegrToStr(ALonLat.Y, false);
+  VLonStr := GetLongitudeMarker(ALonLat.X) + DegrToStr(ALonLat.X, false);
   if FIsLatitudeFirst then begin
     Result := VLatStr + ' ' + VLonStr;
   end else begin
@@ -305,14 +329,20 @@ begin
   end;
 end;
 
-function TValueToStringConverter.LonConvert(ALon: Double; ACutZero:boolean): string;
+function TValueToStringConverter.LonConvert(
+  ALon: Double;
+  ACutZero: boolean
+): string;
 begin
-  result := GetLongitudeMarker(ALon) + DegrToStr(ALon,ACutZero);
+  result := GetLongitudeMarker(ALon) + DegrToStr(ALon, ACutZero);
 end;
 
-function TValueToStringConverter.LatConvert(ALat: Double; ACutZero:boolean): string;
+function TValueToStringConverter.LatConvert(
+  ALat: Double;
+  ACutZero: boolean
+): string;
 begin
-  result := GetLatitudeMarker(ALat) + DegrToStr(ALat,ACutZero);
+  result := GetLatitudeMarker(ALat) + DegrToStr(ALat, ACutZero);
 end;
 
 function TValueToStringConverter.SpeedConvert(AKmph: Double): string;
