@@ -6,12 +6,8 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   ClientHeight = 459
   ClientWidth = 325
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
   FormStyle = fsStayOnTop
+  ParentFont = True
   OldCreateOrder = False
   Position = poMainFormCenter
   OnShow = FormShow

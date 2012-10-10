@@ -4,11 +4,7 @@ object frmInvisibleBrowser: TfrmInvisibleBrowser
   ClientHeight = 509
   ClientWidth = 845
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
   OldCreateOrder = False
   OnCreate = FormCreate
   PixelsPerInch = 96
