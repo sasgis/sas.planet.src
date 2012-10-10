@@ -22,7 +22,6 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 186
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 213
@@ -78,7 +77,6 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
         Value = 50.000000000000000000
       end>
     TabOrder = 1
-    ExplicitHeight = 186
     object grpTopLeft: TGroupBox
       AlignWithMargins = True
       Left = 3
@@ -88,7 +86,6 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       Align = alClient
       Caption = 'Upper left corner'
       TabOrder = 0
-      ExplicitHeight = 87
     end
     object grpBottomRight: TGroupBox
       AlignWithMargins = True
@@ -99,8 +96,6 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
       Align = alClient
       Caption = 'Lower right corner'
       TabOrder = 1
-      ExplicitTop = 96
-      ExplicitHeight = 87
     end
   end
 end

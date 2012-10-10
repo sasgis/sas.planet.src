@@ -133,7 +133,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Process not more than:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object lblToProcessValue: TLabel
         Left = 316
@@ -146,7 +145,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
     end
     object pnlProcessed: TPanel
@@ -167,7 +165,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Processed total:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object lblProcessedValue: TLabel
         Left = 316
@@ -180,7 +177,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
     end
     object pnlDownloaded: TPanel
@@ -201,7 +197,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Downloaded total:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object lblDownloadedValue: TLabel
         Left = 316
@@ -214,7 +209,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
     end
     object pnlSizeToFinish: TPanel
@@ -235,7 +229,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Approx. to download:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object lblSizeToFinishValue: TLabel
         Left = 316
@@ -248,7 +241,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
     end
     object pnlTimeToFinish: TPanel
@@ -269,7 +261,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = 'Time remaining:'
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object lblTimeToFinishValue: TLabel
         Left = 316
@@ -282,7 +273,6 @@ object frmProgressDownload: TfrmProgressDownload
         Caption = '  '
         ParentBiDiMode = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
     end
   end

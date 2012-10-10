@@ -20,7 +20,6 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 13
     Align = alTop
     Caption = 'Visible on zooms:'
-    ExplicitWidth = 81
   end
   object Bevel5: TBevel
     Left = 0
@@ -29,9 +28,6 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
     Height = 9
     Align = alBottom
     Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 106
-    ExplicitWidth = 369
   end
   object CBShow: TCheckBox
     AlignWithMargins = True
@@ -88,7 +84,6 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Default = True
       TabOrder = 2
       OnClick = btnSetAsTemplateClick
-      ExplicitHeight = 23
     end
   end
   object flwpnlZooms: TFlowPanel
@@ -155,7 +150,6 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Align = alLeft
       Caption = 'Name'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object EditName: TEdit
       AlignWithMargins = True

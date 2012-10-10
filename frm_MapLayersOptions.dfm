@@ -152,7 +152,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Anchors = [akTop, akRight]
           Caption = '...'
           OnClick = btnStatBarFontClick
-          ExplicitLeft = 255
         end
         object seStatBarFontSize: TSpinEdit
           Left = 227
@@ -291,7 +290,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 13
         Anchors = [akTop, akRight]
         Caption = 'Opacity:'
-        ExplicitLeft = 256
       end
       object lblScalelineOutlineOpacity: TLabel
         AlignWithMargins = True
@@ -301,7 +299,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Height = 13
         Anchors = [akTop, akRight]
         Caption = 'Opacity:'
-        ExplicitLeft = 256
       end
       object chkScaleLineHide: TCheckBox
         Left = 3
@@ -409,7 +406,6 @@ object frmMapLayersOptions: TfrmMapLayersOptions
           Anchors = [akTop, akRight]
           Caption = '...'
           OnClick = btnScaleLineFontClick
-          ExplicitLeft = 255
         end
         object seScaleLineFontSize: TSpinEdit
           Left = 226

@@ -26,8 +26,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     Cursor = crVSplit
     Align = alBottom
     OnCanResize = spltDescCanResize
-    ExplicitTop = 198
-    ExplicitWidth = 492
   end
   object gbImageParams: TGroupBox
     Left = 0
@@ -50,7 +48,6 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         'Parameter'
         'Value')
       OnDblClick = veImageParamsDblClick
-      ExplicitLeft = 1
       ColWidths = (
         160
         342)

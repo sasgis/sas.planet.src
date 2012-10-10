@@ -38,9 +38,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         Left = 181
         Top = 0
         Height = 408
-        ExplicitLeft = 237
-        ExplicitTop = 14
-        ExplicitHeight = 331
       end
       object grpMarks: TGroupBox
         Left = 184
@@ -320,10 +317,6 @@ object frmMarksExplorer: TfrmMarksExplorer
         ParentColor = False
         ParentFont = False
         Layout = tlCenter
-        ExplicitLeft = 29
-        ExplicitTop = 32
-        ExplicitWidth = 57
-        ExplicitHeight = 13
       end
       object btnExport: TTBXButton
         AlignWithMargins = True

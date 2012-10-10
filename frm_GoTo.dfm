@@ -39,7 +39,6 @@ object frmGoTo: TfrmGoTo
       Alignment = taRightJustify
       Caption = 'Zoom:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object cbbZoom: TComboBox
       AlignWithMargins = True

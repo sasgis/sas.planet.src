@@ -31,46 +31,26 @@ object frmRegionProcess: TfrmRegionProcess
       Tag = 1
       Caption = 'Stitch'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet3: TTabSheet
       Tag = 2
       Caption = 'Generate'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet4: TTabSheet
       Tag = 3
       Caption = 'Delete'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Tag = 4
       Caption = 'Export'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet6: TTabSheet
       Tag = 5
       Caption = 'Copy'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object pnlBottomButtons: TPanel
@@ -124,8 +104,6 @@ object frmRegionProcess: TfrmRegionProcess
       ParentShowHint = False
       ShowHint = True
       OnClick = SpeedButton1Click
-      ExplicitLeft = 319
-      ExplicitTop = 220
     end
     object Button1: TButton
       AlignWithMargins = True

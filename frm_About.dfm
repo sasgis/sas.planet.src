@@ -19,8 +19,6 @@ object frmAbout: TfrmAbout
     Height = 3
     Align = alBottom
     Shape = bsTopLine
-    ExplicitTop = 179
-    ExplicitWidth = 314
   end
   object lblVersionCatpion: TLabel
     Left = 129
@@ -64,7 +62,6 @@ object frmAbout: TfrmAbout
     Font.Style = []
     ParentFont = False
     Layout = tlCenter
-    ExplicitWidth = 314
   end
   object lblVersion: TLabel
     Left = 171
@@ -112,7 +109,6 @@ object frmAbout: TfrmAbout
     Align = alTop
     Alignment = taCenter
     Caption = 'Copyright (C) 2007-2012, SAS.Planet development team'
-    ExplicitWidth = 272
   end
   object pnlBottom: TPanel
     Left = 0

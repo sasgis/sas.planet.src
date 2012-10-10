@@ -41,10 +41,6 @@ object frmInvisibleBrowser: TfrmInvisibleBrowser
     UserAgent = 
       'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.' +
       '50727)'
-    ExplicitLeft = -288
-    ExplicitTop = -261
-    ExplicitWidth = 842
-    ExplicitHeight = 526
     ControlData = {
       4C000000A4100000550D00000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800

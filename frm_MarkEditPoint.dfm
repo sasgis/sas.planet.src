@@ -21,9 +21,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
     Height = 9
     Align = alTop
     Shape = bsBottomLine
-    ExplicitLeft = 8
-    ExplicitTop = 96
-    ExplicitWidth = 329
   end
   object chkVisible: TCheckBox
     AlignWithMargins = True
@@ -438,7 +435,6 @@ object frmMarkEditPoint: TfrmMarkEditPoint
           Align = alLeft
           Caption = 'Name:'
           Layout = tlCenter
-          ExplicitHeight = 13
         end
         object edtName: TEdit
           AlignWithMargins = True

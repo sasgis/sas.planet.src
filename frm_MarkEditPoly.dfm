@@ -92,7 +92,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Margins.Top = 0
       Align = alTop
       Caption = 'Fill:'
-      ExplicitWidth = 16
     end
     object flwpnlFill: TFlowPanel
       Left = 0
@@ -179,7 +178,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Margins.Top = 0
       Align = alTop
       Caption = 'Line:'
-      ExplicitWidth = 23
     end
     object flwpnlLine: TFlowPanel
       Left = 0
@@ -293,7 +291,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Height = 19
       Align = alLeft
       Caption = 'Category:'
-      ExplicitHeight = 13
     end
     object CBKateg: TComboBox
       AlignWithMargins = True
@@ -323,7 +320,6 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Height = 21
       Align = alLeft
       Caption = 'Name:'
-      ExplicitHeight = 13
     end
     object edtName: TEdit
       AlignWithMargins = True

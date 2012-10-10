@@ -50,7 +50,6 @@ object frmMarkEditPath: TfrmMarkEditPath
       Align = alLeft
       Caption = 'Name:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtName: TEdit
       AlignWithMargins = True
@@ -174,8 +173,6 @@ object frmMarkEditPath: TfrmMarkEditPath
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 5
-    ExplicitLeft = 8
-    ExplicitTop = 299
     object btnOk: TButton
       AlignWithMargins = True
       Left = 173

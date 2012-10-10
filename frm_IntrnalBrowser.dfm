@@ -36,7 +36,6 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
       '<HTML></HTML>')
     PrintOptions.Orientation = poPortrait
     OnKeyDown = EmbeddedWB1KeyDown
-    ExplicitHeight = 296
     ControlData = {
       4C000000D8380000DE2000000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800

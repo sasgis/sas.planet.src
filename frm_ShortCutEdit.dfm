@@ -50,8 +50,6 @@ object frmShortCutEdit: TfrmShortCutEdit
       Caption = 'No'
       Flat = True
       OnClick = btnClearClick
-      ExplicitLeft = 8
-      ExplicitTop = 6
     end
     object btnOk: TButton
       AlignWithMargins = True
@@ -76,7 +74,6 @@ object frmShortCutEdit: TfrmShortCutEdit
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 90
     end
   end
 end
