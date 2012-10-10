@@ -170,7 +170,7 @@ begin
       VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
       VInt := Trunc(VValue / (60 * 60 * 100));
       VValue := VValue - VInt * (60 * 60 * 100);
-      result := IntToStr(VInt) + '°';
+      Result := IntToStr(VInt) + '°';
 
       VInt := Trunc(VValue / (60 * 100));
       VValue := VValue - VInt * (60 * 100);
