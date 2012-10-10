@@ -156,7 +156,6 @@ uses
   u_RegionProcessProgressInfo in 'u_RegionProcessProgressInfo.pas',
   i_RegionProcessProgressInfoDownload in 'i_RegionProcessProgressInfoDownload.pas',
   u_RegionProcessProgressInfoDownload in 'u_RegionProcessProgressInfoDownload.pas',
-  u_BaseTileDownloaderThread in 'u_BaseTileDownloaderThread.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',
   u_ThreadMapCombineBase in 'RegionProcess\u_ThreadMapCombineBase.pas',
   u_ThreadMapCombineBMP in 'RegionProcess\u_ThreadMapCombineBMP.pas',

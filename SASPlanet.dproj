@@ -618,7 +618,6 @@
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
-    <DCCReference Include="u_BaseTileDownloaderThread.pas" />
     <DCCReference Include="u_BatteryStatus.pas" />
     <DCCReference Include="u_BinaryData.pas" />
     <DCCReference Include="u_BinaryDataByMemStream.pas" />

@@ -35,11 +35,10 @@ uses
   i_DownloadInfoSimple,
   i_GlobalInternetState,
   u_NotifierOperation,
-  u_BaseTileDownloaderThread,
   u_MapType;
 
 type
-  TTileDownloaderUIOneTile = class(TBaseTileDownloaderThread)
+  TTileDownloaderUIOneTile = class(TThread)
   private
     FAppClosingNotifier: INotifierOneOperation;
     FErrorLogger: ITileErrorLogger;
@@ -99,7 +98,6 @@ var
   VOperationNotifier: TNotifierOperation;
 begin
   inherited Create(False);
-  FPausedByUser := FALSE;
   FDownloadInfo := ADownloadInfo;
   FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
