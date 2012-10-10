@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  i_SimpleFlag,
+  SysUtils,
   i_NotifierOperation,
   i_Listener,
   i_InterfaceQueue;
@@ -21,8 +21,11 @@ type
     FReadyRequestSemaphore: THandle;
     FStopThreadEventHandle: THandle;
 
-    FHeadIndex: ICounter;
-    FTailIndex: ICounter;
+    FHeadCS: IReadWriteSync;
+    FHeadIndex: Integer;
+
+    FTailCS: IReadWriteSync;
+    FTailIndex: Integer;
 
     FRequestArray: array of Pointer;
 
@@ -41,7 +44,7 @@ type
 implementation
 
 uses
-  u_SimpleFlagWithInterlock,
+  u_Synchronizer,
   u_ListenerByEvent;
 
 { TInterfaceQueue }
@@ -56,8 +59,11 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FCapacity := ACapacity;
 
-  FHeadIndex := TCounterInterlock.Create;
-  FTailIndex := TCounterInterlock.Create;
+  FHeadIndex := 0;
+  FTailIndex := 0;
+
+  FHeadCS := MakeSyncRW_Var(Self, False);
+  FTailCS := MakeSyncRW_Var(Self, False);
 
   FCapasitySemaphore := CreateSemaphore(nil, ACapacity, ACapacity, nil);
   FReadyRequestSemaphore := CreateSemaphore(nil, 0, ACapacity, nil);
@@ -108,10 +114,18 @@ begin
   VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, 1000);
   case VWaitResult of
     WAIT_OBJECT_0: begin
-      VIndex := FHeadIndex.Inc;
-      VIndex := VIndex mod FCapacity;
-      Result := IInterface(FRequestArray[VIndex]);
-      FRequestArray[VIndex] := nil;
+      FHeadCS.BeginWrite;
+      try
+        VIndex := FHeadIndex;
+        Inc(FHeadIndex);
+        if FHeadIndex >= FCapacity then begin
+          FHeadIndex := 0;
+        end;
+        Result := IInterface(FRequestArray[VIndex]);
+        FRequestArray[VIndex] := nil;
+      finally
+        FHeadCS.EndWrite;
+      end;
       Result._Release;
       ReleaseSemaphore(FCapasitySemaphore, 1, nil);
     end;
@@ -129,9 +143,17 @@ begin
   VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
   case VWaitResult of
     WAIT_OBJECT_0: begin
-      VIndex := FTailIndex.Inc;
-      VIndex := VIndex mod FCapacity;
-      FRequestArray[VIndex] := Pointer(AObj);
+      FTailCS.BeginWrite;
+      try
+        VIndex := FTailIndex;
+        Inc(FTailIndex);
+        if FTailIndex >= FCapacity then begin
+          FTailIndex := 0;
+        end;
+        FRequestArray[VIndex] := Pointer(AObj);
+      finally
+        FTailCS.EndWrite;
+      end;
       AObj._AddRef;
       ReleaseSemaphore(FReadyRequestSemaphore, 1, nil);
     end;
