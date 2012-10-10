@@ -25,7 +25,7 @@ type
 
   ITileRequestTaskInternal = interface(ITileRequestTask)
     ['{1F2A8AAD-A290-4019-8E81-7A33227EF877}']
-    procedure SetFinished(AResult: ITileRequestResult);
+    procedure SetFinished(const AResult: ITileRequestResult);
   end;
 
 implementation

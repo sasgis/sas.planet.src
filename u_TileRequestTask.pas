@@ -25,12 +25,12 @@ type
     function GetResult: ITileRequestResult;
     function GetFinishNotifier: INotifierOneOperation;
   private
-    procedure SetFinished(AResult: ITileRequestResult);
+    procedure SetFinished(const AResult: ITileRequestResult);
   public
     constructor Create(
-      ATileRequest: ITileRequest;
-      ACancelNotifier: INotifierOneOperation;
-      ASync: IReadWriteSync
+      const ATileRequest: ITileRequest;
+      const ACancelNotifier: INotifierOneOperation;
+      const ASync: IReadWriteSync
     );
 
   end;
@@ -44,9 +44,9 @@ uses
 { TTileRequestTask }
 
 constructor TTileRequestTask.Create(
-  ATileRequest: ITileRequest;
-  ACancelNotifier: INotifierOneOperation;
-  ASync: IReadWriteSync
+  const ATileRequest: ITileRequest;
+  const ACancelNotifier: INotifierOneOperation;
+  const ASync: IReadWriteSync
 );
 begin
   inherited Create;
@@ -84,7 +84,7 @@ begin
   Result := FTileRequest;
 end;
 
-procedure TTileRequestTask.SetFinished(AResult: ITileRequestResult);
+procedure TTileRequestTask.SetFinished(const AResult: ITileRequestResult);
 begin
   FSync.BeginWrite;
   try
