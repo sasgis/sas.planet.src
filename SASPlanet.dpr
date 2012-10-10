@@ -577,6 +577,7 @@ uses
   u_MarksImportBase in 'u_MarksImportBase.pas',
   u_ImportKML in 'u_ImportKML.pas',
   u_ImportHLG in 'u_ImportHLG.pas',
+  u_ImportCSV in 'u_ImportCSV.pas',
   u_ImportSLS in 'u_ImportSLS.pas',
   u_ImportMpSimple in 'u_ImportMpSimple.pas',
   u_ImportByFileExt in 'u_ImportByFileExt.pas',

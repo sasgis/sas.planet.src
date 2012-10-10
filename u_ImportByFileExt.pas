@@ -37,6 +37,7 @@ type
     FImportXML: IImportFile;
     FImportXMLZ: IImportFile;
     FImportPLT: IImportFile;
+    FImportCSV: IImportFile;
     FImportKML: IImportFile;
     FImportKMZ: IImportFile;
     FImportHLG: IImportFile;
@@ -65,6 +66,7 @@ uses
   SysUtils,
   u_ImportKML,
   u_ImportHLG,
+  u_ImportCSV,
   u_ImportSLS,
   u_ImportMpSimple;
 
@@ -84,6 +86,7 @@ begin
   FImportXML := TImportKML.Create(AVectorDataFactory, AXmlLoader);
   FImportXMLZ := TImportKML.Create(AVectorDataFactory, AXmlZLoader);
   FImportPLT := TImportKML.Create(AVectorDataFactory, APltLoader);
+  FImportCSV := TImportCSV.Create(AFactory);
   FImportHLG := TImportHLG.Create(AFactory);
   FImportMP := TImportMpSimple.Create(AFactory);
   FImportKML := TImportKML.Create(AVectorDataFactory, AKmlLoader);
@@ -116,6 +119,8 @@ begin
 {$ifend}
   end else if ('.plt' = VExtLwr) then begin
     Result := FImportPLT.ProcessImport(AFileName, AConfig);
+  end else if ('.csv' = VExtLwr) then begin
+    Result := FImportCSV.ProcessImport(AFileName, AConfig);
   end else if ('.hlg' = VExtLwr) then begin
     Result := FImportHLG.ProcessImport(AFileName, AConfig);
   end else if ('.mp' = VExtLwr) then begin

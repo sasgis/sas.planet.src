@@ -773,6 +773,7 @@
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportByFileExt.pas" />
     <DCCReference Include="u_ImportConfig.pas" />
+    <DCCReference Include="u_ImportCSV.pas" />
     <DCCReference Include="u_ImportHLG.pas" />
     <DCCReference Include="u_ImportKML.pas" />
     <DCCReference Include="u_ImportMpSimple.pas" />

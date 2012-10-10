@@ -32,6 +32,7 @@ function str2r(inp:string):Double;
 
 // forced with point
 function StrPointToFloat(const S: String): Double;
+function TryStrPointToFloat(const S: String; out AValue: Double): Boolean;
 
 implementation
 
@@ -68,6 +69,11 @@ end;
 function StrPointToFloat(const S: String): Double;
 begin
   Result := StrToFloat(S, GFormatSettings);
+end;
+
+function TryStrPointToFloat(const S: String; out AValue: Double): Boolean;
+begin
+  Result := TryStrToFloat(S, AValue, GFormatSettings);
 end;
 
 function R2StrPoint(r: Double): string;
