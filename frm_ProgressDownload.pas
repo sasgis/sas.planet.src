@@ -86,8 +86,14 @@ type
     FProgress: TRarProgress;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
-    function GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
-    function GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
+    function GetTimeEnd(
+      loadAll, load: Int64;
+      AElapsedTime: TDateTime
+    ): String;
+    function GetLenEnd(
+      loadAll, obrab, loaded: Int64;
+      len: Double
+    ): string;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -266,7 +272,10 @@ begin
   end;
 end;
 
-function TfrmProgressDownload.GetLenEnd(loadAll,obrab,loaded:integer;len:real):string;
+function TfrmProgressDownload.GetLenEnd(
+  loadAll, obrab, loaded: Int64;
+  len: Double
+): string;
 var
   VValueConverter: IValueToStringConverter;
 begin
@@ -278,7 +287,10 @@ begin
   end;
 end;
 
-function TfrmProgressDownload.GetTimeEnd(loadAll,load:integer; AElapsedTime: TDateTime):String;
+function TfrmProgressDownload.GetTimeEnd(
+  loadAll, load: Int64;
+  AElapsedTime: TDateTime
+): String;
 var
   dd:integer;
   VExpectedTime: TDateTime;
