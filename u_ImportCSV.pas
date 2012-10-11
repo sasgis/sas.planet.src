@@ -214,6 +214,7 @@ function TImportCSV.ProcessImport(
       Result := _TryTextToFloat(Trim(AList[AIndices.Y]), ACoords.Y);
   end;
 
+  (*
   procedure _SafeCheckFileExists(const AFilePath: String; var AFileName: String);
   var
     VFullName: String;
@@ -237,6 +238,7 @@ function TImportCSV.ProcessImport(
       FindClose(sr);
     end;
   end;
+  *)
 
   procedure _AppendStr(var ACollector: String; const ADelimiter, ANewItem: String);
   begin
@@ -247,24 +249,72 @@ function TImportCSV.ProcessImport(
 
   procedure _MakeObjectFromArray(
     const AHead{, AList}: TStrings;
-    const ACurValues: PCSVPointFieldValues;
+    const AOldValues: PCSVPointFieldValues;
     const AIndices: PCSVPointFieldIndices;
     const APointsAggregator: IDoublePointsAggregator;
     const AAllNewMarks: IInterfaceList
   );
+  var
+    i: TCSVPointFieldType;
+    VPointName, VPointDesc: String;
+    VMark: IMark;
   begin
     if APointsAggregator.Count=0 then
       Exit;
-      
-    if APointsAggregator.Count=1 then begin
-      // TODO: make point
-      Exit;
+
+    // make name and description - only from AOldValues
+    VPointName := '';
+    VPointDesc := '';
+    for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do
+    if (AIndices^.Items[i] >= 0) then
+    if (0<Length(AOldValues^.Items[i])) then begin
+      // always add to descript
+      _AppendStr(VPointDesc, '<br>', AHead[AIndices^.Items[i]] + ': ' + AOldValues^.Items[i]);
+      // set to name (always add date and time)
+      if (0=Length(VPointName)) or (i>csvpft_URL) then begin
+        // assuming no more than one date and one time
+        _AppendStr(VPointName, ' ', AOldValues^.Items[i]);
+      end;
     end;
 
-    if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
-      // TODO: polygon
+    if APointsAggregator.Count=1 then begin
+      // check template
+      if (nil=AConfig.TemplateNewPoint) then
+        Exit;
+      // make
+      VMark := AConfig.MarkDB.Factory.CreateNewPoint(
+        APointsAggregator.Points[0],
+        VPointName,
+        VPointDesc,
+        AConfig.TemplateNewPoint
+      );
+    end else if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
+      // check template
+      if (nil=AConfig.TemplateNewPoly) then
+        Exit;
+      // make
+      VMark := AConfig.MarkDB.Factory.CreateNewPoly(
+        FFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count),
+        VPointName,
+        VPointDesc,
+        AConfig.TemplateNewPoly
+      );
     end else begin
-      // TODO: polyline
+      // check template
+      if (nil=AConfig.TemplateNewLine) then
+        Exit;
+      // make
+      VMark := AConfig.MarkDB.Factory.CreateNewLine(
+        FFactory.CreateLonLatPath(APointsAggregator.Points, APointsAggregator.Count),
+        VPointName,
+        VPointDesc,
+        AConfig.TemplateNewLine
+      );
+    end;
+
+    if (VMark <> nil) then begin
+      // add mark to array
+      AAllNewMarks.Add(VMark);
     end;
   end;
 
@@ -286,6 +336,7 @@ function TImportCSV.ProcessImport(
       Exit;
 
     // make name
+
     VPointName := '';
     for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do
     if (AIndices^.Items[i] >= 0) then begin
@@ -309,22 +360,27 @@ function TImportCSV.ProcessImport(
       _AppendStr(VPointName, ' ', Trim(AList[AVoxFieldIndex]));
     end;
 
-    // make description - use all fields
+    // make description - use all fields (vox too)
     VPointDesc := '';
     for j := 0 to AList.Count-1 do begin
       VText := Trim(AList[j]);
       if (0<Length(VText)) then begin
+        (*
         // check value is filename
         if (j=AVoxFieldIndex) or (j=AIndices^.Items[csvpft_FILENAME]) then begin
           // make full path if file exists with full path
           _SafeCheckFileExists(AFilePath, VText);
         end;
+        *)
         // make 'name: value' pair
         VText := AHead[j] + ': ' + VText;
         // add to description
         _AppendStr(VPointDesc, '<br>', VText);
       end;
     end;
+
+    // add path to description
+    _AppendStr(VPointDesc, '<br>', '"IMPORTED FROM": "' + AFilePath + '"');
 
     // make simple point
     VMark := AConfig.MarkDB.Factory.CreateNewPoint(ACoords, VPointName, VPointDesc, AConfig.TemplateNewPoint);
@@ -333,7 +389,47 @@ function TImportCSV.ProcessImport(
       AAllNewMarks.Add(VMark);
     end;
   end;
-  
+
+  procedure _LoadFileBodyFromFile(
+    const AFileBody: TStrings;
+    const AFileName: String
+  );
+  var
+    VFileStream: TFileStream;
+    S: String;
+    i: Integer;
+    VLineCounter: Byte;
+  begin
+    // read
+    VFileStream:=TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
+    try
+      VFileStream.Position := 0;
+      SetString(S, nil, VFileStream.Size);
+      VFileStream.Read(Pointer(S)^, VFileStream.Size);
+    finally
+      VFileStream.Free;
+    end;
+
+    // replace #0 by SPACE
+    VLineCounter := 8;
+    for i := 1 to Length(S) do begin
+      if S[i]=#0 then begin
+        // has #0
+        S[i]:=' ';
+        VLineCounter := $FF;
+      end else if S[i] in [#10,#13] then begin
+        Dec(VLineCounter);
+        if (0=VLineCounter) then begin
+          // there are no #0 in many lines
+          break;
+        end;
+      end;
+    end;
+    
+    // apply as text
+    AFileBody.Text := S;
+  end;
+
 var
   VFileBody, VFileHeader, VParsedLine: TStringList;
   VFilePath, VFileName: String;
@@ -358,8 +454,9 @@ begin
   VFileHeader:=TStringList.Create;
   VParsedLine:=TStringList.Create;
   try
-    // read file
-    VFileBody.LoadFromFile(AFileName);
+    // read file (do not use LoadFromFile because of #0 chars)
+    // VFileBody.LoadFromFile(AFileName);
+    _LoadFileBodyFromFile(VFileBody, AFileName);
 
     // check count of lines (with header!)
     if VFileBody.Count<=1 then
@@ -367,14 +464,18 @@ begin
 
     // get header and parse into fields
     VFilePath := UpperCase(VFileBody[0]);
-    if System.Pos(#9, VFilePath)>0 then begin
+    if (System.Pos(#9, VFilePath)>0) then begin
       // TAB-separated
       VFileHeader.Delimiter := #9;
+    end else if (System.Pos(';', VFilePath)>0) then begin
+      // COMMA-separated with russian locale
+      VFileHeader.Delimiter := ';';
     end else begin
       // COMMA-separated
       VFileHeader.Delimiter := ',';
     end;
     VFileHeader.StrictDelimiter := TRUE;
+    VFileHeader.QuoteChar := '"';
     VFileHeader.DelimitedText := VFilePath;
 
     // check header
@@ -498,7 +599,9 @@ begin
   end;
 
   if Assigned(VAllNewMarks) then
+  if (VAllNewMarks.Count>0) then
   if (nil<>AConfig.MarkDB) then begin
+    Result := TRUE;
     AConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
   end;
 end;

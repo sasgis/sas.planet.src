@@ -349,11 +349,12 @@ object frmMarksExplorer: TfrmMarksExplorer
   object OpenDialog1: TOpenDialog
     DefaultExt = '*.kml'
     Filter = 
-      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx)|*.k' +
-      'ml;*.plt;*.kmz;*.sls;*.hlg;*.gpx|Google KML files (*.kml)|*.kml|' +
-      'OziExplorer Track Point File Version 2.1 (*.plt)|*.plt|Google KM' +
-      'Z files (*.kmz)|*.kmz|Download session (*.sls)|*.sls|Selection (' +
-      '*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx'
+      'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx,*.cs' +
+      'v)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.csv|Google KML files (*' +
+      '.kml)|*.kml|OziExplorer Track Point File Version 2.1 (*.plt)|*.p' +
+      'lt|Google KMZ files (*.kmz)|*.kmz|Download session (*.sls)|*.sls' +
+      '|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx|Univer' +
+      'sal CSV files (*.csv)|*.csv'
     Options = [ofAllowMultiSelect, ofEnableSizing]
     Left = 352
     Top = 144
