@@ -235,6 +235,8 @@
     <DCCReference Include="i_DownloadResultTextProvider.pas" />
     <DCCReference Include="i_DownloadUIConfig.pas" />
     <DCCReference Include="i_EnumDoublePoint.pas" />
+    <DCCReference Include="i_ErrorInfo.pas" />
+    <DCCReference Include="i_ErrorLogger.pas" />
     <DCCReference Include="i_FillingMapColorer.pas" />
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
@@ -711,6 +713,7 @@
     <DCCReference Include="u_EnumDoublePointWithClip.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
+    <DCCReference Include="u_ErrorInfoSimple.pas" />
     <DCCReference Include="u_ExportMarks2KML.pas" />
     <DCCReference Include="u_FillingMapColorerSimple.pas" />
     <DCCReference Include="u_FillingMapLayerConfig.pas" />
