@@ -342,6 +342,7 @@
     <DCCReference Include="i_MarksFactoryConfig.pas" />
     <DCCReference Include="i_MarksLayerConfig.pas" />
     <DCCReference Include="i_MarksSimple.pas" />
+    <DCCReference Include="i_MarksSystem.pas" />
     <DCCReference Include="i_MarkTemplate.pas" />
     <DCCReference Include="i_MenuGeneratorByTree.pas" />
     <DCCReference Include="i_MessageHandler.pas" />

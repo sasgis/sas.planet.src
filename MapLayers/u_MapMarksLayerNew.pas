@@ -22,7 +22,7 @@ uses
   i_IdCacheSimple,
   i_FindVectorItems,
   i_MarksSimple,
-  u_MarksSystem,
+  i_MarksSystem,
   u_TiledLayerWithThreadBase;
 
 type
@@ -30,7 +30,7 @@ type
   private
     FConfig: IMarksLayerConfig;
     FVectorItmesFactory: IVectorItmesFactory;
-    FMarkDB: TMarksSystem;
+    FMarkDB: IMarksSystem;
 
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
@@ -72,7 +72,7 @@ type
       const AVectorItmesFactory: IVectorItmesFactory;
       const ATimerNoifier: INotifier;
       const AConfig: IMarksLayerConfig;
-      AMarkDB: TMarksSystem
+      const AMarkDB: IMarksSystem
     );
   end;
 
@@ -97,14 +97,17 @@ uses
 { TMapMarksLayerNew }
 
 constructor TMapMarksLayerNew.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItmesFactory: IVectorItmesFactory;
-  const ATimerNoifier: INotifier; const AConfig: IMarksLayerConfig;
-  AMarkDB: TMarksSystem);
+  const ATimerNoifier: INotifier;
+  const AConfig: IMarksLayerConfig;
+  const AMarkDB: IMarksSystem
+);
 var
   VTileMatrixFactory: ITileMatrixFactory;
 begin

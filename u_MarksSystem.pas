@@ -41,12 +41,13 @@ uses
   i_MarkCategoryDB,
   i_MarkCategoryDBSmlInternal,
   i_MarksDb,
+  i_MarksSystem,
   i_MarksDbSmlInternal,
   i_StaticTreeItem,
   i_StaticTreeBuilder;
 
 type
-  TMarksSystem = class
+  TMarksSystem = class(TInterfacedObject, IMarksSystem)
   private
     FBasePath: IPathConfig;
     FMarksFactoryConfig: IMarksFactoryConfig;
@@ -58,6 +59,21 @@ type
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
     FCategoryTreeBuilder: IStaticTreeBuilder;
     FMarksSubsetTreeBuilder: IStaticTreeBuilder;
+  private
+    function GetState: IReadWriteStateChangeble;
+    function GetMarksDb: IMarksDb;
+    function GetCategoryDB: IMarkCategoryDB;
+    function GetMarksFactoryConfig: IMarksFactoryConfig;
+
+    function GetVisibleCategories(AZoom: Byte): IInterfaceList;
+    function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
+    procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
+
+    function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
+    function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
+
+    procedure ReadConfig(const AConfigData: IConfigDataProvider);
+    procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -69,21 +85,6 @@ type
       const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
-
-    procedure ReadConfig(const AConfigData: IConfigDataProvider);
-    procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
-
-    property State: IReadWriteStateChangeble read FState;
-    property MarksDb: IMarksDb read FMarksDb;
-    property CategoryDB: IMarkCategoryDB read FCategoryDB;
-    property MarksFactoryConfig: IMarksFactoryConfig read FMarksFactoryConfig;
-
-    function GetVisibleCategories(AZoom: Byte): IInterfaceList;
-    function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
-    procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
-
-    function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
-    function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
   end;
 
 
@@ -252,6 +253,26 @@ begin
   VMarkIdList := FMarksDb.GetMarskIdListByCategory(ACategory);
   FMarksDb.UpdateMarksList(VMarkIdList, nil);
   FCategoryDB.UpdateCategory(ACategory, nil);
+end;
+
+function TMarksSystem.GetCategoryDB: IMarkCategoryDB;
+begin
+  Result := FCategoryDB;
+end;
+
+function TMarksSystem.GetMarksDb: IMarksDb;
+begin
+  Result := FMarksDb;
+end;
+
+function TMarksSystem.GetMarksFactoryConfig: IMarksFactoryConfig;
+begin
+  Result := FMarksFactoryConfig;
+end;
+
+function TMarksSystem.GetState: IReadWriteStateChangeble;
+begin
+  Result := FState;
 end;
 
 function TMarksSystem.GetVisibleCategories(AZoom: Byte): IInterfaceList;

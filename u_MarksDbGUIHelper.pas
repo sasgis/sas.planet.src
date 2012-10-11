@@ -38,6 +38,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_MarksSimple,
   i_MarkCategory,
+  i_MarksSystem,
   i_ImportConfig,
   frm_MarkCategoryEdit,
   frm_MarkEditPoint,
@@ -45,13 +46,12 @@ uses
   frm_MarkEditPoly,
   frm_RegionProcess,
   frm_ImportConfigEdit,
-  frm_MarksMultiEdit,
-  u_MarksSystem;
+  frm_MarksMultiEdit;
 
 type
   TMarksDbGUIHelper = class
   private
-    FMarksDb: TMarksSystem;
+    FMarksDb: IMarksSystem;
     FVectorItmesFactory: IVectorItmesFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -134,12 +134,12 @@ type
       AIgnoreMarksVisible: Boolean
     );
 
-    property MarksDb: TMarksSystem read FMarksDb;
+    property MarksDb: IMarksSystem read FMarksDb;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
-      AMarksDB: TMarksSystem;
+      const AMarksDB: IMarksSystem;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorItmesFactory: IVectorItmesFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -166,7 +166,7 @@ uses
 constructor TMarksDbGUIHelper.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
-  AMarksDB: TMarksSystem;
+  const AMarksDB: IMarksSystem;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorItmesFactory: IVectorItmesFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;

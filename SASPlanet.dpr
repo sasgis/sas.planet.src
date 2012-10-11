@@ -459,6 +459,7 @@ uses
   u_MarkCategoryFactory in 'u_MarkCategoryFactory.pas',
   i_MarkCategoryFactoryConfig in 'i_MarkCategoryFactoryConfig.pas',
   u_MarkCategoryFactoryConfig in 'u_MarkCategoryFactoryConfig.pas',
+  i_MarksSystem in 'i_MarksSystem.pas',
   u_MarksSystem in 'u_MarksSystem.pas',
   u_MarksDbGUIHelper in 'u_MarksDbGUIHelper.pas',
   i_TileProvider in 'i_TileProvider.pas',

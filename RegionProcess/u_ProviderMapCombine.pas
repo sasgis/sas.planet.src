@@ -27,11 +27,11 @@ uses
   i_BitmapPostProcessingConfig,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
+  i_MarksSystem,
   i_MapCalibration,
   i_VectorItmesFactory,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
-  u_MarksSystem,
   fr_MapCombine;
 
 type
@@ -45,7 +45,7 @@ type
     FVectorItmesFactory: IVectorItmesFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
-    FMarksDB: TMarksSystem;
+    FMarksDB: IMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -83,7 +83,7 @@ type
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
-      AMarksDB: TMarksSystem;
+      const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AMapCalibrationList: IMapCalibrationList
@@ -139,7 +139,7 @@ constructor TProviderMapCombine.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
-  AMarksDB: TMarksSystem;
+  const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AMapCalibrationList: IMapCalibrationList

@@ -53,6 +53,7 @@ uses
   i_UseTilePrevZoomConfig,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
+  i_MarksSystem,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapCalibration,
@@ -61,7 +62,6 @@ uses
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
-  u_MarksSystem,
   fr_Export;
 
 type
@@ -116,7 +116,7 @@ type
       const AImageResamplerConfig: IImageResamplerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
-      AMarksDB: TMarksSystem;
+      const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -164,7 +164,7 @@ constructor TfrmRegionProcess.Create(
   const AImageResamplerConfig: IImageResamplerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
-  AMarksDB: TMarksSystem;
+  const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AProjectionFactory: IProjectionInfoFactory;

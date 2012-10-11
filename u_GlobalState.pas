@@ -62,7 +62,7 @@ uses
   i_InternalPerformanceCounter,
   i_LayerBitmapClearStrategy,
   u_LastSelectionInfo,
-  u_MarksSystem,
+  i_MarksSystem,
   u_MapTypesMainList,
   i_ThreadConfig,
   i_ZmpConfig,
@@ -118,7 +118,7 @@ type
     FCacheConfig: TGlobalCahceConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
-    FMarksDb: TMarksSystem;
+    FMarksDb: IMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -177,7 +177,7 @@ type
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
-    property MarksDb: TMarksSystem read FMarksDb;
+    property MarksDb: IMarksSystem read FMarksDb;
     property GPSpar: TGPSpar read FGPSpar;
 
     // Список генераторов имен файлов с тайлами
@@ -261,6 +261,7 @@ uses
   u_NotifierTTLCheck,
   i_FileNameIterator,
   u_ContentTypeManagerSimple,
+  u_MarksSystem,
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
   u_KmlInfoSimpleParser,
@@ -601,7 +602,7 @@ begin
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
-  FreeAndNil(FMarksDb);
+  FMarksDb := nil;
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
   FGPSRecorder := nil;
