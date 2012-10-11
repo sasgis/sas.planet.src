@@ -483,7 +483,6 @@
     <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayerNew.pas" />
-    <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerLeftBorder.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerMinusButton.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerNew.pas" />

@@ -722,7 +722,6 @@ uses
   u_GeoToStr,
   u_MapType,
   u_MapLayerWiki,
-  u_MiniMapLayer,
   u_MiniMapLayerNew,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
@@ -1649,7 +1648,6 @@ begin
         FConfig.ViewPortState.Position,
         FConfig.LayersConfig.MiniMapLayerConfig
       );
-    if FConfig.MainConfig.UseNewMainLayer then begin
       FLayersList.Add(
         TMiniMapLayerNew.Create(
           GState.PerfCounterList,
@@ -1670,26 +1668,6 @@ begin
           GState.GUISyncronizedTimerNotifier
         )
       );
-    end else begin
-      FLayersList.Add(
-        TMiniMapLayer.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          FConfig.ViewPortState,
-          GState.LocalConverterFactory,
-          GState.ClearStrategyFactory,
-          FConfig.LayersConfig.MiniMapLayerConfig,
-          FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
-          TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
-          GState.ViewConfig,
-          GState.BitmapPostProcessingConfig,
-          FTileErrorLogger,
-          GState.GUISyncronizedTimerNotifier
-        )
-      );
-    end;
     FLayersList.Add(
       TMiniMapLayerViewRect.Create(
         GState.PerfCounterList,

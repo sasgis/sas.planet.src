@@ -487,7 +487,6 @@ uses
   u_WindowLayerBasic in 'MapLayers\u_WindowLayerBasic.pas',
   u_WindowLayerWithPos in 'MapLayers\u_WindowLayerWithPos.pas',
   u_TiledLayerWithThreadBase in 'MapLayers\u_TiledLayerWithThreadBase.pas',
-  u_MiniMapLayer in 'MapLayers\u_MiniMapLayer.pas',
   u_MiniMapLayerNew in 'MapLayers\u_MiniMapLayerNew.pas',
   u_MiniMapLayerTopBorder in 'MapLayers\u_MiniMapLayerTopBorder.pas',
   u_MiniMapLayerLeftBorder in 'MapLayers\u_MiniMapLayerLeftBorder.pas',
