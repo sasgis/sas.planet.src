@@ -159,10 +159,10 @@ var
 begin
   inherited;
   VTilesToProcess := 0;
-  VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   SetLength(VTileIterators, Length(FZoomList));
   for i := 0 to FMapList.Count - 1 do begin
     VZoom := FZoomList[i];
+    VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
     VProjectedPolygon :=
       FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
@@ -200,12 +200,13 @@ begin
         for i := 0 to Length(FZoomList) - 1 do begin
           VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
           VZoom := FZoomList[i];
+          VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            VBitmapTile := FMapList.Items[i].MapType.LoadTileUni(VTile, VZoom, VGeoConvert, False, False, True);
+            VBitmapTile := FMapList.Items[i].MapType.LoadTile(VTile, VZoom, True);
             if VBitmapTile <> nil then begin
               VData := VSaver.Save(VBitmapTile);
 
