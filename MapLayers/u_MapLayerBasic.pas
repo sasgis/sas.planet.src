@@ -17,22 +17,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TMapLayerBase = class(TWindowLayerBasic)
-  protected
-    procedure SetLayerCoordConverter(
-      const AValue: ILocalCoordConverter
-    ); override;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      ALayer: TCustomLayer;
-      const AViewPortState: IViewPortState
-    );
-  end;
-
-  TMapLayerBasicFullView = class(TMapLayerBase)
+  TMapLayerBasicFullView = class(TWindowLayerBasic)
   private
     FLayer: TPositionedLayer;
 
@@ -42,6 +27,10 @@ type
     procedure UpdateLayerLocationIfNeed;
     procedure UpdateLayerLocation;
     procedure DoUpdateLayerLocation(const ANewLocation: TFloatRect); virtual;
+  protected
+    procedure SetLayerCoordConverter(
+      const AValue: ILocalCoordConverter
+    ); override;
   protected
     procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure SetNeedRedraw; override;
@@ -130,37 +119,6 @@ uses
   Types,
   u_SimpleFlagWithInterlock;
 
-{ TMapLayerBase }
-
-constructor TMapLayerBase.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  ALayer: TCustomLayer;
-  const AViewPortState: IViewPortState
-);
-begin
-  inherited Create(
-    APerfList,
-    AAppStartedNotifier,
-    AAppClosingNotifier,
-    ALayer,
-    AViewPortState,
-    True
-  );
-end;
-
-procedure TMapLayerBase.SetLayerCoordConverter(const AValue: ILocalCoordConverter);
-var
-  VLocalConverter: ILocalCoordConverter;
-begin
-  VLocalConverter := LayerCoordConverter;
-  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
-    SetNeedRedraw;
-  end;
-  inherited;
-end;
-
 { TMapLayerBasicFullView }
 
 constructor TMapLayerBasicFullView.Create(
@@ -176,7 +134,8 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     ALayer,
-    AViewPortState
+    AViewPortState,
+    True
   );
   FLayer := ALayer;
   FNeedUpdateLocationFlag := TSimpleFlagWithInterlock.Create;
@@ -202,6 +161,18 @@ begin
   end else begin
     Result := FloatRect(0, 0, 0, 0);
   end;
+end;
+
+procedure TMapLayerBasicFullView.SetLayerCoordConverter(
+  const AValue: ILocalCoordConverter);
+var
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := LayerCoordConverter;
+  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
+    SetNeedRedraw;
+  end;
+  inherited;
 end;
 
 procedure TMapLayerBasicFullView.SetNeedRedraw;
