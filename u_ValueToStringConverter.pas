@@ -175,33 +175,34 @@ var
   VDegr: Double;
   VInt: Integer;
   VValue: Integer;
+  res: string;
 begin
   VDegr := abs(ADegr);
+  Res := '-';
   case FDegrShowFormat of
     dshCharDegrMinSec, dshSignDegrMinSec: begin
       VValue := Trunc(VDegr * 60 * 60 * 100 + 0.005);
       VInt := Trunc(VValue / (60 * 60 * 100));
       VValue := VValue - VInt * (60 * 60 * 100);
-      Result := IntToStr(VInt) + '°';
-
+      Res := IntToStr(VInt) + '°';
       VInt := Trunc(VValue / (60 * 100));
       VValue := VValue - VInt * (60 * 100);
 
       if VInt < 10 then begin
-        Result := Result + '0' + IntToStr(VInt) + '''';
+        Res := Res + '0' + IntToStr(VInt) + '''';
       end else begin
-        Result := Result + IntToStr(VInt) + '''';
+        Res := Res + IntToStr(VInt) + '''';
       end;
 
-      Result := Result + FormatFloat('00.00', VValue / 100) + '"';
+      Res := Res + FormatFloat('00.00', VValue / 100) + '"';
 
       if ACutZero then begin
-        if copy(Result, length(Result) - 3, 4) = decimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
-          Result := ReplaceStr(Result, decimalseparator + '00"', '"');
-          if copy(Result, length(Result) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
-            Result := ReplaceStr(Result, '00"', '');
-            if copy(Result, length(Result) - 2, 3) = '00''' then begin  // X12°00' -> X12°
-              Result := ReplaceStr(Result, '00''', '');
+        if copy(Res, length(Res) - 3, 4) = decimalseparator + '00"' then begin // X12°30'45,00" -> X12°30'45"
+          Res := ReplaceStr(Res, decimalseparator + '00"', '"');
+          if copy(Res, length(Res) - 2, 3) = '00"' then begin   // X12°30'00" -> X12°30'
+            Res := ReplaceStr(Res, '00"', '');
+            if copy(Res, length(Res) - 2, 3) = '00''' then begin  // X12°00' -> X12°
+              Res := ReplaceStr(Res, '00''', '');
             end;
           end;
         end;
@@ -211,32 +212,33 @@ begin
       VValue := Trunc(VDegr * 60 * 10000 + 0.00005);
       VInt := Trunc(VValue / (60 * 10000));
       VValue := VValue - VInt * (60 * 10000);
-      Result := IntToStr(VInt) + '°';
-      Result := Result + FormatFloat('00.0000', VValue / 10000) + '''';
+      Res := IntToStr(VInt) + '°';
+      Res := Res + FormatFloat('00.0000', VValue / 10000) + '''';
       if ACutZero then begin
-        while copy(Result, length(Result) - 1, 2) = '0''' do begin
-          Result := ReplaceStr(Result, '0''', '''');
+        while copy(Res, length(Res) - 1, 2) = '0''' do begin
+          Res := ReplaceStr(Res, '0''', '''');
         end;   // 12°34,50000' -> 12°34,5'   12°00,00000' -> 12°00,'
-        if copy(Result, length(Result) - 1, 2) = decimalseparator + '''' then begin
-          Result := ReplaceStr(Result, decimalseparator + '''', '''');
+        if copy(Res, length(Res) - 1, 2) = decimalseparator + '''' then begin
+          Res := ReplaceStr(Res, decimalseparator + '''', '''');
         end; // 12°40,' -> 12°40'
-        if copy(Result, length(Result) - 2, 3) = '00''' then begin
-          Result := ReplaceStr(Result, '00''', '');
+        if copy(Res, length(Res) - 2, 3) = '00''' then begin
+          Res := ReplaceStr(Res, '00''', '');
         end; //  12°00' -> 12°
       end;
     end;
     dshCharDegr, dshSignDegr: begin
-      Result := FormatFloat('0.000000', VDegr) + '°';
+      Res := FormatFloat('0.000000', VDegr) + '°';
       if ACutZero then begin
-        while copy(Result, length(Result) - 1, 2) = '0°' do begin
-          Result := ReplaceStr(Result, '0°', '°');
+        while copy(Res, length(Res) - 1, 2) = '0°' do begin
+          Res := ReplaceStr(Res, '0°', '°');
         end;   // 12,3450000° -> 12,345°   12,0000000° -> 12,°
-        if copy(Result, length(Result) - 1, 2) = decimalseparator + '°' then begin
-          Result := ReplaceStr(Result, decimalseparator + '°', '°');
+        if copy(Res, length(Res) - 1, 2) = decimalseparator + '°' then begin
+          Res := ReplaceStr(Res, decimalseparator + '°', '°');
         end; //12,° -> 12°
       end;
     end;
   end;
+  Result :=res;
 end;
 
 function TValueToStringConverter.DistConvert(ADistInMeters: Double): string;
