@@ -366,6 +366,7 @@
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
     <DCCReference Include="i_PredicateByBinaryData.pas" />
     <DCCReference Include="i_PredicateByTileInfo.pas" />
+    <DCCReference Include="i_PredicateByTileRequest.pas" />
     <DCCReference Include="i_ProjConverter.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />

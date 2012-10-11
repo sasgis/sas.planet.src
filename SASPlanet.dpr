@@ -110,6 +110,7 @@ uses
   u_TileErrorLogProviedrStuped in 'u_TileErrorLogProviedrStuped.pas',
   i_NotifierOperation in 'i_NotifierOperation.pas',
   u_NotifierOperation in 'u_NotifierOperation.pas',
+  i_PredicateByTileRequest in 'i_PredicateByTileRequest.pas',
   i_PredicateByTileInfo in 'i_PredicateByTileInfo.pas',
   u_PredicateByTileInfoBase in 'u_PredicateByTileInfoBase.pas',
   i_LogSimple in 'i_LogSimple.pas',
