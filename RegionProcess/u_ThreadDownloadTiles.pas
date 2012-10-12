@@ -164,6 +164,9 @@ begin
   inherited Create(False);
   Priority := tpLower;
   FreeOnTerminate := True;
+
+  FCancelNotifier := ACancelNotifier;
+  FOperationID := AOperationID;
   FProgressInfo := AProgressInfo;
   FAppClosingNotifier := AAppClosingNotifier;
   FDownloadInfo := ADownloadInfo;
@@ -213,9 +216,6 @@ begin
 
   PrepareStrings;
 
-  FCancelNotifier := ACancelNotifier;
-  FOperationID := AOperationID;
-
   FFinishEvent := TEvent.Create;
 
   FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
@@ -231,7 +231,9 @@ end;
 
 destructor TThreadDownloadTiles.Destroy;
 begin
-  FFinishEvent.SetEvent;
+  if FFinishEvent <> nil then begin
+    FFinishEvent.SetEvent;
+  end;
 
   if FTileDownloadFinishListener <> nil then begin
     FTileDownloadFinishListener.Disconnect;
