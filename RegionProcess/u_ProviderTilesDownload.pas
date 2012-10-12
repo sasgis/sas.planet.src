@@ -253,7 +253,7 @@ begin
       VCheckExistTileSize,
       VCheckExistTileDate,
       VCheckTileDate,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsStartPaused,
+      False,
       VProcessedSize,
       VProcessedTileCount,
       VLastProcessedPoint,
