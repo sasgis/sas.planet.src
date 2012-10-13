@@ -24,10 +24,10 @@ type
     procedure Reset;
   public
     constructor Create(
-      ARootFolderName: WideString;
-      AFolderNameFromRoot: WideString;
-      AFileMask: WideString;
-      AFilesOnly: Boolean
+      const ARootFolderName: WideString;
+      const AFolderNameFromRoot: WideString;
+      const AFileMask: WideString;
+      const AFilesOnly: Boolean
     );
     destructor Destroy; override;
   end;
@@ -40,9 +40,10 @@ uses
 { TFileNameIteratorInFolderByMask }
 
 constructor TFileNameIteratorInFolderByMask.Create(
-  ARootFolderName,
-  AFolderNameFromRoot, AFileMask: WideString;
-  AFilesOnly: Boolean
+  const ARootFolderName: WideString;
+  const AFolderNameFromRoot: WideString;
+  const AFileMask: WideString;
+  const AFilesOnly: Boolean
 );
 begin
   FRootFolderName := ARootFolderName;
