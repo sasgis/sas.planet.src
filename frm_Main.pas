@@ -85,6 +85,7 @@ uses
   i_StaticTreeItem,
   i_MenuGeneratorByTree,
   i_FindVectorItems,
+  i_PlayerPlugin,
   u_ShortcutManager,
   u_MarksDbGUIHelper,
   frm_About,
@@ -383,6 +384,7 @@ type
     tbitmCopySearchResultDescription: TTBXItem;
     tbitmCreatePlaceMarkBySearchResult: TTBXItem;
     tbitmFitEditToScreen: TTBXItem;
+    NMarkPlay: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -531,6 +533,7 @@ type
     procedure tbitmCopySearchResultDescriptionClick(Sender: TObject);
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
     procedure tbitmFitEditToScreenClick(Sender: TObject);
+    procedure NMarkPlayClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -583,6 +586,8 @@ type
     FPointOnMapEdit: IPointOnMapEdit;
     FSelectionRect: ISelectionRect;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FPlacemarkPlayerPlugin: IPlayerPlugin;
+    //FPlacemarkPlayerTask: IPlayerTask;
 
     FTileErrorLogger: ITileErrorLogger;
     FTileErrorLogProvider: ITileErrorLogProviedrStuped;
@@ -793,6 +798,7 @@ uses
   u_InetFunc,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
+  u_PlayerPlugin,
   frm_StartLogo,
   frm_LonLatRectEdit;
 
@@ -892,6 +898,9 @@ begin
   FTileErrorLogProvider := VLogger;
 
   FCenterToGPSDelta := CEmptyDoublePoint;
+
+  FPlacemarkPlayerPlugin := TPlayerPlugin.Create;
+  //FPlacemarkPlayerTask := nil;
 
   TBSMB.Images := FMapTypeIcons24List.GetImageList;
   TBSMB.SubMenuImages := FMapTypeIcons18List.GetImageList;
@@ -2249,6 +2258,8 @@ end;
 destructor TfrmMain.Destroy;
 begin
   FreeAndNil(FfrmDGAvailablePic);
+  //FPlacemarkPlayerTask := nil;
+  FPlacemarkPlayerPlugin := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
   FSearchPresenter := nil;
@@ -4273,6 +4284,15 @@ begin
   end;
 end;
 
+procedure TfrmMain.NMarkPlayClick(Sender: TObject);
+begin
+  if (nil=FSelectedMark) then
+    Exit;
+  if (nil=FPlacemarkPlayerPlugin) then
+    Exit;
+  {FPlacemarkPlayerTask := }FPlacemarkPlayerPlugin.PlayByDescription(FSelectedMark.Desc);
+end;
+
 procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
 var
   VZoomCurr: Byte;
@@ -5830,6 +5850,7 @@ begin
   tbsprtMainPopUp0.Visible := VMark <> nil;
   NMarkOper.Visible := VMark <> nil;
   NMarkNav.Visible := VMark <> nil;
+  NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
   if (VMark <> nil) then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
       NMarksCalcs.Visible := False;
