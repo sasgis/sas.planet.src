@@ -114,7 +114,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderByRosreestr.Create(AInetConfig, AGCList, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
 
