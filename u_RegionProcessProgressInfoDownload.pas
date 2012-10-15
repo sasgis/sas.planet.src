@@ -62,6 +62,7 @@ type
     procedure Finish;
     procedure SetPaused;
     procedure SetStarted;
+    procedure AddManyProcessedTile(const ALastTile: TPoint; const ACnt: Cardinal);
     procedure AddProcessedTile(const ATile: TPoint);
     procedure AddDownloadedTile(const ATile: TPoint; const ASize: Cardinal);
     procedure AddNotNecessaryTile(const ATile: TPoint);
@@ -152,6 +153,18 @@ begin
     FLastSuccessfulPoint := ATile;
     Inc(FDownloadedSize, ASize);
     Inc(FDownloadedCount);
+  finally
+    FCS.EndWrite;
+  end;
+end;
+
+procedure TRegionProcessProgressInfoDownload.AddManyProcessedTile(
+  const ALastTile: TPoint; const ACnt: Cardinal);
+begin
+  FCS.BeginWrite;
+  try
+    FLastProcessedPoint := ALastTile;
+    Inc(FProcessed, ACnt);
   finally
     FCS.EndWrite;
   end;

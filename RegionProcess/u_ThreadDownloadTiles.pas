@@ -266,6 +266,8 @@ var
   VTileIterator: ITileIterator;
   VTask: ITileRequestTask;
   VGotoNextTile: Boolean;
+  VLastSkipped: TPoint;
+  VCntSkipped: Cardinal;
 begin
   try
     if Terminated then begin
@@ -278,6 +280,7 @@ begin
     VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
     FProgressInfo.SetTotalToProcess(VTileIterator.TilesTotal);
     if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
+      VCntSkipped := 0;
       while VTileIterator.Next(VTile) do begin
         if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
           Break;
@@ -285,6 +288,15 @@ begin
         if (VTile.X = FLastProcessedPoint.X) and (VTile.Y = FLastProcessedPoint.Y) then begin
           Break;
         end;
+        Inc(VCntSkipped);
+        VLastSkipped := VTile;
+        if VCntSkipped > 100 then begin
+          FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
+          VCntSkipped := 0;
+        end;
+      end;
+      if VCntSkipped > 0 then begin
+        FProgressInfo.AddManyProcessedTile(VLastSkipped, VCntSkipped);
       end;
     end;
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
