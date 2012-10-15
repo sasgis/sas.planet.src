@@ -282,7 +282,6 @@
     <DCCReference Include="i_LastSearchResultConfig.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
-    <DCCReference Include="i_LayerBitmapClearStrategy.pas" />
     <DCCReference Include="i_LayerDrawConfig.pas" />
     <DCCReference Include="i_LineOnMapEdit.pas" />
     <DCCReference Include="i_Listener.pas" />
@@ -479,7 +478,6 @@
     <DCCReference Include="MapLayers\u_MapLayerSearchResults.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWikiNew.pas" />
-    <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerLeftBorder.pas" />
@@ -806,8 +804,6 @@
     <DCCReference Include="u_LastSearchResultConfig.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
-    <DCCReference Include="u_LayerBitmapClearStrategy.pas" />
-    <DCCReference Include="u_LayerBitmapClearStrategyFactory.pas" />
     <DCCReference Include="u_LayerDrawConfig.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_ListenerByEvent.pas" />

@@ -151,7 +151,6 @@ type
     FPerfCounterList: IInternalPerformanceCounterList;
     FProtocol: TIeEmbeddedProtocolRegistration;
     FPathDetalizeList: IPathDetalizeProviderList;
-    FClearStrategyFactory: ILayerBitmapClearStrategyFactory;
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowserConfig: IWindowPositionConfig;
     FInternalBrowser: IInternalBrowser;
@@ -220,7 +219,6 @@ type
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
     property DownloaderThreadConfig: IThreadConfig read FDownloaderThreadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
-    property ClearStrategyFactory: ILayerBitmapClearStrategyFactory read FClearStrategyFactory;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
@@ -424,8 +422,6 @@ begin
     TImageResamplerConfig.Create(
       TImageResamplerFactoryListStaticSimple.Create
     );
-
-  FClearStrategyFactory := TLayerBitmapClearStrategyFactory.Create(FImageResamplerConfig, FPerfCounterList.CreateAndAddNewSubList('ClearStrategy'));
 
   FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(FTrackPath);
