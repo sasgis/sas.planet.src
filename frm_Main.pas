@@ -726,7 +726,7 @@ uses
   u_GeoFun,
   u_GeoToStr,
   u_MapType,
-  u_MapLayerWiki,
+  u_MapLayerWikiNew,
   u_MiniMapLayerNew,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
@@ -1201,18 +1201,17 @@ begin
       )
     );
     FWikiLayer :=
-      TWikiLayer.Create(
+      TWikiLayerNew.Create(
         GState.PerfCounterList,
         GState.AppStartedNotifier,
         GState.AppClosingNotifier,
         map,
         FConfig.ViewPortState,
-        GState.VectorItmesFactory,
         GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
-        GState.ClearStrategyFactory,
-        FTileErrorLogger,
+        GState.VectorItmesFactory,
         GState.GUISyncronizedTimerNotifier,
+        FTileErrorLogger,
         FConfig.LayersConfig.KmlLayerConfig,
         FConfig.MainMapsConfig.GetActiveKmlLayersSet
       );

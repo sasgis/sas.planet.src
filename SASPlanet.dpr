@@ -245,7 +245,6 @@ uses
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   i_MapElementsGuidedList in 'MapLayers\i_MapElementsGuidedList.pas',
   u_MapElementsGuidedList in 'MapLayers\u_MapElementsGuidedList.pas',
-  u_MapLayerWiki in 'MapLayers\u_MapLayerWiki.pas',
   u_MapLayerWikiNew in 'MapLayers\u_MapLayerWikiNew.pas',
   i_MiniMapLayerConfig in 'i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'u_MiniMapMapsConfig.pas',

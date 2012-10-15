@@ -478,7 +478,6 @@
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\u_MapLayerSearchResults.pas" />
     <DCCReference Include="MapLayers\u_MapLayerShowError.pas" />
-    <DCCReference Include="MapLayers\u_MapLayerWiki.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWikiNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerWithThreadDraw.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayerNew.pas" />
