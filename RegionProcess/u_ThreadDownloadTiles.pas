@@ -31,7 +31,6 @@ uses
   i_NotifierOperation,
   i_GlobalDownloadConfig,
   i_TileRequestResult,
-  i_VectorItemLonLat,
   i_VectorItemProjected,
   i_DownloadInfoSimple,
   i_RegionProcessProgressInfoDownload,

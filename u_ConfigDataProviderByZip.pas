@@ -27,7 +27,6 @@ uses
   i_StringListStatic,
   i_BinaryData,
   i_ArchiveReadWrite,
-  i_ArchiveReadWriteFactory,
   i_ConfigDataProvider;
 
 type
@@ -88,7 +87,6 @@ implementation
 uses
   SysUtils,
   IniFiles,
-  u_ResStrings,
   u_StringListStatic,
   u_StreamReadOnlyByBinaryData,
   u_ConfigDataProviderByIniFile;

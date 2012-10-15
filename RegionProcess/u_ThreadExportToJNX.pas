@@ -71,7 +71,6 @@ implementation
 
 uses
   ALfcnString,
-  c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
   i_TileIterator,

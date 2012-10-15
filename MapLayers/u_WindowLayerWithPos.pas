@@ -27,7 +27,6 @@ uses
   SysUtils,
   GR32,
   GR32_Layers,
-  GR32_Image,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -194,7 +193,6 @@ type
       AListenScaleChange: Boolean
     );
     destructor Destroy; override;
-
   end;
 
   TWindowLayerBasic = class(TWindowLayerWithPosBase)

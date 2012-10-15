@@ -6,13 +6,9 @@ uses
   GR32,
   GR32_Layers,
   GR32_Image,
-  t_GeoTypes,
   i_NotifierOperation,
   i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,
-  i_SimpleFlag,
-  i_ImageResamplerConfig,
   i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
 
@@ -44,10 +40,6 @@ type
   end;
 
 implementation
-
-uses
-  Types,
-  u_SimpleFlagWithInterlock;
 
 { TMapLayerBasicNoBitmap }
 
