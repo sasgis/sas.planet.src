@@ -327,6 +327,7 @@ begin
       VExportProvider.Show(pnlExport, AZoom, APolygon);
     end;
   end;
+  CBFormatChange(nil);
 end;
 
 procedure TfrExport.StartProcess(const APolygon: ILonLatPolygon);
