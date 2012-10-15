@@ -94,12 +94,13 @@ type
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; virtual; abstract;
     procedure DelicateRedraw;
-    procedure DelicateRedrawWithFullUpdate;
+    procedure DelicateRedrawWithFullUpdate; virtual;
 
     procedure SetNeedUpdateTileMatrix;
     procedure DoUpdateTileMatrix; virtual;
 
     procedure SetNeedUpdateLayerProvider;
+    property UpdateLayerProviderFlag: ISimpleFlag read FUpdateLayerProviderFlag;
   protected
     function GetNewLayerLocation: TFloatRect; override;
     procedure PaintLayer(ABuffer: TBitmap32); override;
@@ -349,6 +350,7 @@ begin
       if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
         VProviderWithListener.SetListener(FRectUpdateListener, VTileMatrix.LocalConverter);
       end;
+      SetMatrixNotReady(VTileMatrix);
       LayerProvider := VProvider;
     end;
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin

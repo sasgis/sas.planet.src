@@ -73,6 +73,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
+    procedure DelicateRedrawWithFullUpdate; override;
     procedure StartThreads; override;
   private
     function FindItem(
@@ -191,6 +192,7 @@ var
   VLinesClipRect: TDoubleRect;
   VMapPixelRect: TDoubleRect;
   VList: IVectorDataItemList;
+  VVectorMapsSet: IMapTypeSet;
 begin
   Result := nil;
   FConfig.LockRead;
@@ -201,15 +203,9 @@ begin
   finally
     FConfig.UnlockRead;
   end;
-  FProjectedCache.Clear;
-  FAllElementsCS.BeginWrite;
-  try
-    FAllElements := nil;
-  finally
-    FAllElementsCS.EndWrite;
-  end;
 
   VList := PrepareWikiElements(AOperationID, ACancelNotifier, ALayerConverter);
+  FProjectedCache.Clear;
   FAllElementsCS.BeginWrite;
   try
     FAllElements := VList;
@@ -217,24 +213,35 @@ begin
     FAllElementsCS.EndWrite;
   end;
 
-  if VList.Count > 0 then begin
-    VMapPixelRect := ALayerConverter.GetRectInMapPixelFloat;
-    VLinesClipRect.Left := VMapPixelRect.Left - 10;
-    VLinesClipRect.Top := VMapPixelRect.Top - 10;
-    VLinesClipRect.Right := VMapPixelRect.Right + 10;
-    VLinesClipRect.Bottom := VMapPixelRect.Bottom + 10;
-    Result :=
-      TBitmapLayerProviderByVectorSubset.Create(
-        VColorMain,
-        VColorBG,
-        VPointColor,
-        FVectorItmesFactory,
-        ALayerConverter.ProjectionInfo,
-        FProjectedCache,
-        VLinesClipRect,
-        VList
-      );
+  VMapPixelRect := ALayerConverter.GetRectInMapPixelFloat;
+  VLinesClipRect.Left := VMapPixelRect.Left - 10;
+  VLinesClipRect.Top := VMapPixelRect.Top - 10;
+  VLinesClipRect.Right := VMapPixelRect.Right + 10;
+  VLinesClipRect.Bottom := VMapPixelRect.Bottom + 10;
+  FVectorMapsSetCS.BeginRead;
+  try
+    VVectorMapsSet := FVectorMapsSet;
+  finally
+    FVectorMapsSetCS.EndRead;
   end;
+  Result :=
+    TBitmapLayerProviderByVectorSubset.Create(
+      VVectorMapsSet,
+      VColorMain,
+      VColorBG,
+      VPointColor,
+      FVectorItmesFactory,
+      ALayerConverter.ProjectionInfo,
+      FProjectedCache,
+      VLinesClipRect,
+      VList
+    );
+end;
+
+procedure TWikiLayerNew.DelicateRedrawWithFullUpdate;
+begin
+  UpdateLayerProviderFlag.SetFlag;
+  inherited;
 end;
 
 function TWikiLayerNew.FindItem(
@@ -502,6 +509,7 @@ end;
 procedure TWikiLayerNew.StartThreads;
 begin
   inherited;
+  OnLayerSetChange;
   OnConfigChange;
 end;
 
