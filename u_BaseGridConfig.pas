@@ -24,8 +24,10 @@ interface
 
 uses
   GR32,
+  t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_LocalCoordConverter,
   i_MapLayerGridsConfig,
   u_ConfigDataElementBase;
 
@@ -39,6 +41,15 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
+    function GetPointStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceLonLat: TDoublePoint
+    ): TDoublePoint; virtual; abstract;
+    function GetRectStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceRect: TDoubleRect
+    ): TDoubleRect; virtual; abstract;
+
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
 

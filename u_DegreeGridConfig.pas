@@ -37,13 +37,18 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  private
-    function GetScale: Double;
-    procedure SetScale(AValue: Double);
+  protected
+    function GetPointStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceLonLat: TDoublePoint
+    ): TDoublePoint; override;
     function GetRectStickToGrid(
       const ALocalConverter: ILocalCoordConverter;
       const ASourceRect: TDoubleRect
-    ): TDoubleRect;
+    ): TDoubleRect; override;
+  private
+    function GetScale: Double;
+    procedure SetScale(AValue: Double);
   public
     constructor Create;
   end;
@@ -78,6 +83,36 @@ procedure TDegreeGridConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteFloat('Scale', FScale);
+end;
+
+function TDegreeGridConfig.GetPointStickToGrid(
+  const ALocalConverter: ILocalCoordConverter;
+  const ASourceLonLat: TDoublePoint): TDoublePoint;
+var
+  VScale: Double;
+  VVisible: Boolean;
+  z: TDoublePoint;
+begin
+  LockRead;
+  try
+    VVisible := GetVisible;
+    VScale := FScale;
+  finally
+    UnlockRead;
+  end;
+  Result := ASourceLonLat;
+  if VVisible then begin
+    z := GetDegBordersStepByScale(VScale, ALocalConverter.Getzoom);
+    Result.X := Result.X - (round(Result.X * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+    if Result.X < 0 then begin
+      Result.X := Result.X - z.X;
+    end;
+
+    Result.Y := Result.Y - (round(Result.Y * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+    if Result.Y > 0 then begin
+      Result.Y := Result.Y + z.Y;
+    end;
+  end;
 end;
 
 function TDegreeGridConfig.GetRectStickToGrid(

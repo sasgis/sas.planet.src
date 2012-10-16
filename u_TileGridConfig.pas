@@ -39,6 +39,15 @@ type
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
+  protected
+    function GetPointStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceLonLat: TDoublePoint
+    ): TDoublePoint; override;
+    function GetRectStickToGrid(
+      const ALocalConverter: ILocalCoordConverter;
+      const ASourceRect: TDoubleRect
+    ): TDoubleRect; override;
   private
     function GetUseRelativeZoom: Boolean;
     procedure SetUseRelativeZoom(AValue: Boolean);
@@ -47,10 +56,6 @@ type
     procedure SetZoom(AValue: Integer);
 
     function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
-    function GetRectStickToGrid(
-      const ALocalConverter: ILocalCoordConverter;
-      const ASourceRect: TDoubleRect
-    ): TDoubleRect;
   public
     constructor Create;
   end;
@@ -110,6 +115,33 @@ begin
     Result := VZoom;
     ALocalConverter.GetGeoConverter.CheckZoom(Result);
   end;
+end;
+
+function TTileGridConfig.GetPointStickToGrid(
+  const ALocalConverter: ILocalCoordConverter;
+  const ASourceLonLat: TDoublePoint): TDoublePoint;
+var
+  VZoom: Byte;
+  VZoomCurr: Byte;
+  VSelectedTileFloat: TDoublePoint;
+  VSelectedTile: TPoint;
+  VConverter: ICoordConverter;
+begin
+  VZoomCurr := ALocalConverter.GetZoom;
+  VConverter := ALocalConverter.GetGeoConverter;
+  LockRead;
+  try
+    if GetVisible then begin
+      VZoom := GetActualZoom(ALocalConverter);
+    end else begin
+      VZoom := VZoomCurr;
+    end;
+  finally
+    UnlockRead;
+  end;
+  VSelectedTileFloat := VConverter.LonLat2TilePosFloat(ASourceLonLat, VZoom);
+  VSelectedTile := PointFromDoublePoint(VSelectedTileFloat, prClosest);
+  Result := VConverter.TilePos2LonLat(VSelectedTile, VZoom);
 end;
 
 function TTileGridConfig.GetRectStickToGrid(
