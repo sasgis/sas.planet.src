@@ -4859,7 +4859,7 @@ var
       Result:=(dwProcessId=GetCurrentProcessId);
     end;
   end;
-  
+
 begin
   if ProgramClose then begin
     exit;
@@ -4883,22 +4883,36 @@ begin
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   if (FLineOnMapEdit <> nil) and (movepoint) then begin
     VMagnetPoint := CEmptyDoublePoint;
-    VWikiItem := nil;
-    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
-       (FConfig.MainConfig.MagnetDraw)  then begin
-      VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
-    end;
-    if VWikiItem <> nil then begin
-      if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
-        VMagnetPoint := VMarkPoint.Point;
-      end else if Supports(VWikiItem, IMarkPoly, VMarkPoly) then begin
-        VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
-      end else if Supports(VWikiItem, IMarkLine, VMarkLine) then begin
-        VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
+    if FConfig.MainConfig.MagnetDraw then begin
+      if (ssCtrl in Shift) then begin
+        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
       end;
-    end;
-    if not PointIsEmpty(VMagnetPoint) then begin
-      VLonLat := VMagnetPoint;
+      if (ssShift in Shift) then begin
+        if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale <> 0 then begin
+          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+        end else begin
+          VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+        end;
+      end;
+      if (ssAlt in Shift) then begin
+        VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
+      end;
+
+      if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
+        VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
+        if VWikiItem <> nil then begin
+          if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
+            VMagnetPoint := VMarkPoint.Point;
+          end else if Supports(VWikiItem, IMarkPoly, VMarkPoly) then begin
+            VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
+          end else if Supports(VWikiItem, IMarkLine, VMarkLine) then begin
+            VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
+          end;
+        end;
+      end;
+      if not PointIsEmpty(VMagnetPoint) then begin
+        VLonLat := VMagnetPoint;
+      end;
     end;
     FLineOnMapEdit.MoveActivePoint(VLonLat);
     exit;
