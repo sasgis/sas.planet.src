@@ -250,10 +250,6 @@ type
     NMarkOper: TTBXItem;
     NMarkNav: TTBXItem;
     NMarkExport: TTBXItem;
-    NMarksCalcs: TTBXSubmenuItem;
-    NMarksCalcsLen: TTBXItem;
-    NMarksCalcsPer: TTBXItem;
-    NMarksCalcsSq: TTBXItem;
     tbsprtMainPopUp0: TTBXSeparatorItem;
     NaddPoint: TTBXItem;
     tbsprtMainPopUp1: TTBXSeparatorItem;
@@ -385,6 +381,7 @@ type
     tbitmCreatePlaceMarkBySearchResult: TTBXItem;
     tbitmFitEditToScreen: TTBXItem;
     NMarkPlay: TTBXItem;
+    tbitmMarkInfo: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -464,9 +461,6 @@ type
     procedure NGTOPO30Click(Sender: TObject);
     procedure NMarkNavClick(Sender: TObject);
     procedure AdjustFont(Item: TTBCustomItem; Viewer: TTBItemViewer; Font: TFont; StateFlags: Integer);
-    procedure NMarksCalcsLenClick(Sender: TObject);
-    procedure NMarksCalcsSqClick(Sender: TObject);
-    procedure NMarksCalcsPerClick(Sender: TObject);
     procedure TBEditPathOkClick(Sender: TObject);
     procedure NMapInfoClick(Sender: TObject);
     procedure TBXToolPalette1CellClick(Sender: TTBXCustomToolPalette;var ACol, ARow: Integer; var AllowChange: Boolean);
@@ -534,6 +528,7 @@ type
     procedure tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
     procedure tbitmFitEditToScreenClick(Sender: TObject);
     procedure NMarkPlayClick(Sender: TObject);
+    procedure tbitmMarkInfoClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -5284,28 +5279,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.NMarksCalcsLenClick(Sender: TObject);
-var
-  VMark: IMark;
-  VMarkLine: IMarkLine;
-begin
-  VMark := FSelectedMark;
-  if Supports(VMark, IMarkLine, VMarkLine) then begin
-    FMarkDBGUI.ShowMarkLength(VMarkLine, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
-  end;
-end;
-
-procedure TfrmMain.NMarksCalcsSqClick(Sender: TObject);
-var
-  VMark: IMark;
-  VMarkPoly: IMarkPoly;
-begin
-  VMark := FSelectedMark;
-  if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-    FMarkDBGUI.ShowMarkSq(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
-  end;
-end;
-
 procedure TfrmMain.nokiamapcreator1Click(Sender: TObject);
 var
   VLocalConverter: ILocalCoordConverter;
@@ -5327,17 +5300,6 @@ begin
     IntToStr(VZoom) +
     '|0|0|'
   );
-end;
-
-procedure TfrmMain.NMarksCalcsPerClick(Sender: TObject);
-var
-  VMark: IMark;
-  VMarkPoly: IMarkPoly;
-begin
-  VMark := FSelectedMark;
-  if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-    FMarkDBGUI.ShowMarkLength(VMarkPoly, FConfig.ViewPortState.GetCurrentCoordConverter, Self.Handle);
-  end;
 end;
 
 procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
@@ -5844,9 +5806,6 @@ var
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
   VMark: IMark;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
 begin
   VMark := FSelectedMark;
   NMarkEdit.Visible := VMark <> nil;
@@ -5864,25 +5823,7 @@ begin
   NMarkOper.Visible := VMark <> nil;
   NMarkNav.Visible := VMark <> nil;
   NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
-  if (VMark <> nil) then begin
-    if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      NMarksCalcs.Visible := False;
-    end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-      NMarksCalcsSq.Visible := False;
-      NMarksCalcsPer.Visible := False;
-      NMarksCalcsLen.Visible:= True;
-      NMarksCalcs.Visible := True;
-    end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-      NMarksCalcsSq.Visible := True;
-      NMarksCalcsPer.Visible := True;
-      NMarksCalcsLen.Visible:= False;
-      NMarksCalcs.Visible := True;
-    end else begin
-      NMarksCalcs.Visible := True;
-    end;
-  end else begin
-    NMarksCalcs.Visible := False;
-  end;
+  tbitmMarkInfo.Visible := (VMark <> nil);
   if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
     NMarkNav.Checked:=true
   end else begin
@@ -6178,6 +6119,16 @@ begin
         VPolygonOnMapEdit.SetPolygon(VPolygon);
       end;
     end;
+  end;
+end;
+
+procedure TfrmMain.tbitmMarkInfoClick(Sender: TObject);
+var
+  VMark: IMark;
+begin
+  VMark := FSelectedMark;
+  if VMark <> nil then begin
+    FMarkDBGUI.ShowMarkInfo(VMark);
   end;
 end;
 

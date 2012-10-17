@@ -915,6 +915,7 @@ uses
   frm_ProgressDownload in 'frm_ProgressDownload.pas' {frmProgressDownload},
   frm_InvisibleBrowser in 'frm_InvisibleBrowser.pas' {frmInvisibleBrowser},
   frm_MarkEditPoint in 'frm_MarkEditPoint.pas' {frmMarkEditPoint},
+  frm_MarkInfo in 'frm_MarkInfo.pas' {frmMarkInfo},
   frm_ProgressSimple in 'frm_ProgressSimple.pas' {frmProgressSimple},
   frm_StartLogo in 'frm_StartLogo.pas' {frmStartLogo},
   frm_LonLatRectEdit in 'frm_LonLatRectEdit.pas' {frmLonLatRectEdit},

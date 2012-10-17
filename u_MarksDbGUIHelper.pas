@@ -45,6 +45,7 @@ uses
   frm_MarkEditPath,
   frm_MarkEditPoly,
   frm_RegionProcess,
+  frm_MarkInfo,
   frm_ImportConfigEdit,
   frm_MarksMultiEdit;
 
@@ -62,6 +63,7 @@ type
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
+    FfrmMarkInfo: TfrmMarkInfo;
     FExportDialog: TSaveDialog;
   public
     function GetMarkIdCaption(const AMarkId: IMarkId): string;
@@ -83,20 +85,8 @@ type
       const AProjection: IProjectionInfo
     ): boolean;
     function AddKategory(const Name: string): IMarkCategory;
-    procedure ShowMarkLength(
-      const AMark: IMarkLine;
-      const AConverter: ICoordConverter;
-      AHandle: THandle
-    ); overload;
-    procedure ShowMarkLength(
-      const AMark: IMarkPoly;
-      const AConverter: ICoordConverter;
-      AHandle: THandle
-    ); overload;
-    procedure ShowMarkSq(
-      const AMark: IMarkPoly;
-      const AConverter: ICoordConverter;
-      AHandle: THandle
+    procedure ShowMarkInfo(
+      const AMark: IMark
     );
     function EditMarkModal(
       const AMark: IMark;
@@ -155,6 +145,7 @@ uses
   SysUtils,
   gnugettext,
   i_DoublePointFilter,
+  u_Datum,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_ExportMarks2KML,
@@ -214,6 +205,12 @@ begin
       FMarksDb.CategoryDB,
       FMarksDb.MarksDb
     );
+  FfrmMarkInfo :=
+    TfrmMarkInfo.Create(
+      ALanguageManager,
+      AValueToStringConverterConfig,
+      TDatum.Create(3395, 6378137, 6356752)
+    );
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,
@@ -237,6 +234,7 @@ begin
   FreeAndNil(FfrmMarkCategoryEdit);
   FreeAndNil(FfrmImportConfigEdit);
   FreeAndNil(FfrmMarksMultiEdit);
+  FreeAndNil(FfrmMarkInfo);
   FreeAndNil(FExportDialog);
   inherited;
 end;
@@ -479,53 +477,12 @@ begin
   Result := FfrmMarksMultiEdit.GetImportConfig(ACategory);
 end;
 
-procedure TMarksDbGUIHelper.ShowMarkLength(
-  const AMark: IMarkLine;
-  const AConverter: ICoordConverter;
-  AHandle: THandle
+procedure TMarksDbGUIHelper.ShowMarkInfo(
+  const AMark: IMark
 );
-var
-  VLen: Double;
-  VMessage: string;
 begin
   if AMark <> nil then begin
-    VLen := AMark.Line.CalcLength(AConverter.Datum);
-    VMessage := SAS_STR_L + ' - ' +
-      FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, PChar(VMessage), PChar(AMark.Name), 0);
-  end;
-end;
-
-procedure TMarksDbGUIHelper.ShowMarkLength(
-  const AMark: IMarkPoly;
-  const AConverter: ICoordConverter;
-  AHandle: THandle
-);
-var
-  VLen: Double;
-  VMessage: string;
-begin
-  if AMark <> nil then begin
-    VLen := AMark.Line.CalcPerimeter(AConverter.Datum);
-    VMessage := SAS_STR_P + ' - ' +
-      FValueToStringConverterConfig.GetStatic.DistConvert(VLen);
-    MessageBox(AHandle, PChar(VMessage), PChar(AMark.Name), 0);
-  end;
-end;
-
-procedure TMarksDbGUIHelper.ShowMarkSq(
-  const AMark: IMarkPoly;
-  const AConverter: ICoordConverter;
-  AHandle: THandle
-);
-var
-  VArea: Double;
-  VMessage: string;
-begin
-  if AMark <> nil then begin
-    VArea := AMark.Line.CalcArea(AConverter.Datum);
-    VMessage := SAS_STR_S + ' - ' + FValueToStringConverterConfig.GetStatic.AreaConvert(VArea);
-    MessageBox(AHandle, PChar(VMessage), PChar(AMark.Name), 0);
+    FfrmMarkInfo.ShowInfoModal(AMark);
   end;
 end;
 

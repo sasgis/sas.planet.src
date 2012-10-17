@@ -132,6 +132,9 @@
     <DCCReference Include="frm_MarkEditPoly.pas">
       <Form>frmMarkEditPoly</Form>
     </DCCReference>
+    <DCCReference Include="frm_MarkInfo.pas">
+      <Form>frmMarkInfo</Form>
+    </DCCReference>
     <DCCReference Include="frm_MarksExplorer.pas">
       <Form>frmMarksExplorer</Form>
     </DCCReference>
