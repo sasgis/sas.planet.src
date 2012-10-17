@@ -32,11 +32,11 @@ uses
   Dialogs,
   ExtCtrls,
   StdCtrls,
-  u_CommonFormAndFrameParents,
-  i_LanguageManager,
   t_GeoTypes,
+  i_LanguageManager,
   i_ValueToStringConverter,
-  i_LocalCoordConverterChangeable;
+  i_LocalCoordConverterChangeable,
+  u_CommonFormAndFrameParents;
 
 type
   TTileSelectStyle = (tssCenter, tssTopLeft, tssBottomRight);
