@@ -21,6 +21,7 @@ uses
   i_ImageResamplerConfig,
   i_IdCacheSimple,
   i_FindVectorItems,
+  i_MarkerDrawable,
   i_MarksSimple,
   i_MarksSystem,
   u_TiledLayerWithThreadBase;
@@ -31,6 +32,7 @@ type
     FConfig: IMarksLayerConfig;
     FVectorItmesFactory: IVectorItmesFactory;
     FMarkDB: IMarksSystem;
+    FMarkIconDefault: IMarkerDrawableChangeable;
 
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
@@ -70,6 +72,7 @@ type
       const AResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItmesFactory: IVectorItmesFactory;
+      const AMarkIconDefault: IMarkerDrawableChangeable;
       const ATimerNoifier: INotifier;
       const AConfig: IMarksLayerConfig;
       const AMarkDB: IMarksSystem
@@ -104,6 +107,7 @@ constructor TMapMarksLayerNew.Create(
   const AResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItmesFactory: IVectorItmesFactory;
+  const AMarkIconDefault: IMarkerDrawableChangeable;
   const ATimerNoifier: INotifier;
   const AConfig: IMarksLayerConfig;
   const AMarkDB: IMarksSystem
@@ -133,6 +137,7 @@ begin
   FConfig := AConfig;
   FMarkDB := AMarkDB;
   FVectorItmesFactory := AVectorItmesFactory;
+  FMarkIconDefault := AMarkIconDefault;
 
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
@@ -198,7 +203,7 @@ begin
     VMarkerProvider :=
       TMarkerProviderForVectorItemWithCache.Create(
         FMarkerCache,
-        TMarkerProviderForVectorItemForMarkPoints.Create(nil, VMarksDrawConfig)
+        TMarkerProviderForVectorItemForMarkPoints.Create(FMarkIconDefault, VMarksDrawConfig)
       );
     Result :=
       TBitmapLayerProviderByMarksSubset.Create(

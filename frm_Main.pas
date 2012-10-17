@@ -1224,6 +1224,17 @@ begin
         FConfig.LayersConfig.FillingMapLayerConfig
       )
     );
+    VBitmap :=
+      ReadBitmapByFileRef(
+        GState.ResourceProvider,
+        'RED.png',
+        GState.ContentTypeManager,
+        nil
+      );
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Bitmap.Width/2, VBitmap.Bitmap.Height))
+      );
     FLayerMapMarks:=
       TMapMarksLayerNew.Create(
         GState.PerfCounterList,
@@ -1234,6 +1245,7 @@ begin
         GState.ImageResamplerConfig,
         GState.LocalConverterFactory,
         GState.VectorItmesFactory,
+        VMarkerChangeable,
         GState.GUISyncronizedTimerNotifier,
         FConfig.LayersConfig.MarksLayerConfig,
         FMarkDBGUI.MarksDb
