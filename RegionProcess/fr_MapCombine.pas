@@ -17,6 +17,7 @@ uses
   i_LanguageManager,
   i_MapTypes,
   i_CoordConverterFactory,
+  i_CoordConverterList,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_ActiveMapsConfig,
@@ -112,6 +113,7 @@ type
   private
     FVectorFactory: IVectorItmesFactory;
     FProjectionFactory: IProjectionInfoFactory;
+    FCoordConverterList: ICoordConverterList;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -141,6 +143,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
+      const ACoordConverterList: ICoordConverterList;
       const AVectorFactory: IVectorItmesFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -251,6 +254,7 @@ end;
 constructor TfrMapCombine.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
+  const ACoordConverterList: ICoordConverterList;
   const AVectorFactory: IVectorItmesFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -262,6 +266,7 @@ constructor TfrMapCombine.Create(
 begin
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
+  FCoordConverterList := ACoordConverterList;
   FVectorFactory := AVectorFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;

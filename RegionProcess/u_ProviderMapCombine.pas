@@ -13,6 +13,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   i_CoordConverterFactory,
+  i_CoordConverterList,
   i_BitmapLayerProvider,
   i_VectorItemProjected,
   i_VectorItemLonLat,
@@ -42,6 +43,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
     FProjectionFactory: IProjectionInfoFactory;
+    FCoordConverterList: ICoordConverterList;
     FVectorItmesFactory: IVectorItmesFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -78,6 +80,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
+      const ACoordConverterList: ICoordConverterList;
       const AVectorItmesFactory: IVectorItmesFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -134,6 +137,7 @@ constructor TProviderMapCombine.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
+  const ACoordConverterList: ICoordConverterList;
   const AVectorItmesFactory: IVectorItmesFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -162,6 +166,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
   FProjectionFactory := AProjectionFactory;
+  FCoordConverterList := ACoordConverterList;
   FVectorItmesFactory := AVectorItmesFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
@@ -173,6 +178,7 @@ begin
     TfrMapCombine.Create(
       Self.LanguageManager,
       FProjectionFactory,
+      FCoordConverterList,
       FVectorItmesFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,

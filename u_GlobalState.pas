@@ -43,6 +43,7 @@ uses
   i_ContentTypeManager,
   i_VectorDataLoader,
   i_CoordConverterFactory,
+  i_CoordConverterList,
   i_BatteryStatus,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
@@ -119,6 +120,7 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDb: IMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
+    FCoordConverterList: ICoordConverterList;
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
@@ -183,6 +185,7 @@ type
     property TileNameParser: ITileFileNameParsersList read FTileNameParser;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
+    property CoordConverterList: ICoordConverterList read FCoordConverterList;
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
@@ -264,6 +267,7 @@ uses
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
   u_CoordConverterFactorySimple,
+  u_CoordConverterListStaticSimple,
   u_LanguageManager,
   u_DownloadInfoSimple,
   u_StartUpLogoConfig,
@@ -395,6 +399,7 @@ begin
   VCoordConverterFactorySimple := TCoordConverterFactorySimple.Create;
   FCoordConverterFactory := VCoordConverterFactorySimple;
   FProjectionFactory := VCoordConverterFactorySimple;
+  FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
 
   FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create(FVectorItmesFactory);

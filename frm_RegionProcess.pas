@@ -40,6 +40,7 @@ uses
   i_LanguageManager,
   i_LastSelectionInfo,
   i_CoordConverterFactory,
+  i_CoordConverterList,
   i_GlobalViewMainConfig,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
@@ -120,6 +121,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AProjectionFactory: IProjectionInfoFactory;
+      const ACoordConverterList: ICoordConverterList;
       const AVectorItmesFactory: IVectorItmesFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -168,6 +170,7 @@ constructor TfrmRegionProcess.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AProjectionFactory: IProjectionInfoFactory;
+  const ACoordConverterList: ICoordConverterList;
   const AVectorItmesFactory: IVectorItmesFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -257,6 +260,7 @@ begin
       AAppClosingNotifier,
       ATimerNoifier,
       AProjectionFactory,
+      ACoordConverterList,
       AVectorItmesFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,

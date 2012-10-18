@@ -850,6 +850,7 @@ begin
       GState.LocalConverterFactory,
       GState.BitmapPostProcessingConfig,
       GState.ProjectionFactory,
+      GState.CoordConverterList,
       GState.VectorItmesFactory,
       GState.BitmapTileSaveLoadFactory,
       GState.ArchiveReadWriteFactory,
