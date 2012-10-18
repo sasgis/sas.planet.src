@@ -547,7 +547,7 @@ type
     FUIDownload: IInterface;
 
     ProgramStart: Boolean;
-    ProgramClose: Boolean;
+    FStartedNormal: Boolean;
     //FMapVersionList: IMapVersionListStatic;
 
     FMapTypeIcons18List: IMapTypeIconsList;
@@ -608,6 +608,7 @@ type
     FMapGoto: IMapViewGoto;
 
     procedure InitSearchers;
+    procedure InitLayers;
     procedure LoadMapIconsList;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
@@ -814,8 +815,11 @@ var
 begin
   inherited;
 
+  FStartedNormal := False;
+  movepoint:=false;
   FfrmDGAvailablePic := nil;
 
+  FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
   VMouseState := TMouseState.Create;
   FMouseHandler := VMouseState;
@@ -882,8 +886,6 @@ begin
 
   LoadMapIconsList;
 
-  FLinksList := TListenerNotifierLinksList.Create;
-
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnStateChange),
     FState.ChangeNotifier
@@ -917,7 +919,6 @@ begin
   FNCopyLinkItemList := TGUIDObjectSet.Create(False);
   FNLayerInfoItemList := TGUIDObjectSet.Create(False);
 
-  FLayersList := TInterfaceList.Create;
   FWinPosition := TMainWindowPositionConfig.Create(BoundsRect);
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnWinPositionChange),
@@ -991,7 +992,6 @@ var
   VSensorViewGenerator: ISensorViewListGenerator;
 begin
   SystemTimeChanged;
-  ProgramStart:=true;
   Application.Title:=Caption;
   Caption:=Caption+' '+SASVersion;
   TBXSetTheme('SAStbxTheme');
@@ -1033,6 +1033,8 @@ begin
     );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
+  InitLayers;
+  ProgramStart:=true;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -1129,22 +1131,12 @@ var
   VScale: Integer;
   VDegScale: Double;
   VZoom: Byte;
-  VBitmapChangeable: IBitmapChangeable;
-  VMarkerChangeable: IMarkerDrawableChangeable;
-  VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
-  VBitmap: IBitmap32Static;
-  VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
-  VLicensList: IStringListChangeable;
 begin
   if not ProgramStart then exit;
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
-  Enabled:=false;
   try
     OnWinPositionChange;
 
-    movepoint:=false;
-
-    Enabled:=true;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
     Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
@@ -1161,598 +1153,6 @@ begin
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
     tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
-    FLayersList.Add(
-      TMapMainLayerNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState.Position,
-        FConfig.ViewPortState.View,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        FConfig.MainMapsConfig.GetActiveMap,
-        TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
-        GState.BitmapPostProcessingConfig,
-        FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
-        FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
-        FTileErrorLogger,
-        GState.GUISyncronizedTimerNotifier
-      )
-    );
-    FLayersList.Add(
-      TMapLayerGridsNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.GUISyncronizedTimerNotifier,
-        GState.ValueToStringConverterConfig,
-        FConfig.LayersConfig.MapLayerGridsConfig
-      )
-    );
-    FWikiLayer :=
-      TWikiLayerNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.VectorItmesFactory,
-        GState.GUISyncronizedTimerNotifier,
-        FTileErrorLogger,
-        FConfig.LayersConfig.KmlLayerConfig,
-        FConfig.MainMapsConfig.GetActiveKmlLayersSet
-      );
-    FLayersList.Add(FWikiLayer);
-    FLayersList.Add(
-      TMapLayerFillingMapNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.FillingMapLayerConfig
-      )
-    );
-    VBitmap :=
-      ReadBitmapByFileRef(
-        GState.ResourceProvider,
-        'RED.png',
-        GState.ContentTypeManager,
-        nil
-      );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Bitmap.Width/2, VBitmap.Bitmap.Height))
-      );
-    FLayerMapMarks:=
-      TMapMarksLayerNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.VectorItmesFactory,
-        VMarkerChangeable,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.MarksLayerConfig,
-        FMarkDBGUI.MarksDb
-      );
-    FLayersList.Add(FLayerMapMarks);
-    FLayersList.Add(
-      TMapGPSLayerNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.GPSTrackConfig,
-        GState.GPSRecorder
-      )
-    );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableSimple.Create(
-        TMarkerDrawableSimpleSquare,
-        FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
-      );
-    VMarkerWithDirectionChangeable :=
-      TMarkerDrawableWithDirectionChangeableSimple.Create(
-        TMarkerDrawableSimpleArrow,
-        FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
-      );
-    FLayersList.Add(
-      TMapLayerGPSMarker.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.LayersConfig.GPSMarker,
-        VMarkerWithDirectionChangeable,
-        VMarkerChangeable,
-        GState.GPSRecorder
-      )
-    );
-    FLayersList.Add(
-      TSelectionLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FConfig.LayersConfig.LastSelectionLayerConfig,
-        GState.LastSelectionInfo
-      )
-    );
-    FLayersList.Add(
-      TPathEditLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
-      )
-    );
-    FLayersList.Add(
-      TPathEditPointsSetLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
-      )
-    );
-    FLayersList.Add(
-      TCalcLineLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig,
-        GState.ValueToStringConverterConfig
-      )
-    );
-    FLayersList.Add(
-      TPathEditLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
-      )
-    );
-    FLayersList.Add(
-      TPathEditPointsSetLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
-      )
-    );
-    FLayersList.Add(
-      TCalcLineLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
-        GState.ValueToStringConverterConfig
-      )
-    );
-    FLayersList.Add(
-      TPolygonEditLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
-        FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
-      )
-    );
-    FLayersList.Add(
-      TPolygonEditPointsSetLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
-      )
-    );
-    FLayersList.Add(
-      TPolygonEditLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
-        FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
-      )
-    );
-    FLayersList.Add(
-      TPolygonEditPointsSetLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
-      )
-    );
-
-    FLayersList.Add(
-      TSelectionPolylineShadowLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
-      )
-    );
-    FLayersList.Add(
-      TPathEditLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-        FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
-      )
-    );
-    FLayersList.Add(
-      TPathEditPointsSetLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.VectorItmesFactory,
-        FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker),
-        TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
-      )
-    );
-
-    FLayersList.Add(
-      TSelectionRectLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FSelectionRect,
-        FConfig.LayersConfig.SelectionRectLayerConfig
-      )
-    );
-    VBitmap :=
-      ReadBitmapByFileRef(
-        GState.ResourceProvider,
-        'FOUNDPNT.png',
-        GState.ContentTypeManager,
-        nil
-      );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
-      );
-    FLayerSearchResults :=
-      TSearchResultsLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FConfig.LastSearchResultConfig,
-        VMarkerChangeable
-      );
-    FLayersList.Add(FLayerSearchResults);
-    VBitmap :=
-      ReadBitmapByFileRef(
-        GState.ResourceProvider,
-        'ICONIII.png',
-        GState.ContentTypeManager,
-        nil
-      );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
-      );
-    FLayersList.Add(
-      TGotoLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        GState.GUISyncronizedTimerNotifier,
-        FConfig.ViewPortState.View,
-        VMarkerChangeable,
-        FMapGoto,
-        FConfig.LayersConfig.GotoLayerConfig
-      )
-    );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableSimple.Create(
-        TMarkerDrawableSimpleCross,
-        FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
-      );
-    VMarkerWithDirectionChangeable :=
-      TMarkerDrawableWithDirectionChangeableSimple.Create(
-        TMarkerDrawableSimpleArrow,
-        FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
-      );
-
-    FLayersList.Add(
-      TNavToMarkLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FConfig.NavToPoint,
-        VMarkerWithDirectionChangeable,
-        VMarkerChangeable,
-        FConfig.LayersConfig.NavToPointMarkerConfig
-      )
-    );
-    FLayersList.Add(
-      TTileErrorInfoLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FTileErrorLogProvider,
-        GState.GUISyncronizedTimerNotifier
-      )
-    );
-    VBitmap :=
-      ReadBitmapByFileRef(
-        GState.ResourceProvider,
-        'ICONIII.png',
-        GState.ContentTypeManager,
-        nil
-      );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
-      );
-    FLayersList.Add(
-      TPointOnMapEditLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState.View,
-        VMarkerChangeable,
-        FPointOnMapEdit
-      )
-    );
-    FLayersList.Add(
-      TFullMapMouseCursorLayer.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState.Position,
-        FState,
-        GState.GUISyncronizedTimerNotifier,
-        FMouseState,
-        FConfig.LayersConfig.FullMapMouseCursorLayerConfig
-      )
-    );
-    VMarkerChangeable :=
-      TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableCenterScale.Create
-      );
-    FLayersList.Add(
-      TLayerCenterScale.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState.Position,
-        VMarkerChangeable,
-        FConfig.LayersConfig.CenterScaleConfig
-      )
-    );
-    FLayersList.Add(
-      TLayerScaleLine.Create(
-        GState.LanguageManager,
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        Self.tbitmOnInterfaceOptionsClick,
-        FConfig.LayersConfig.ScaleLineConfig
-      )
-    );
-    VLicensList :=
-      TActiveMapsLicenseList.Create(
-        GState.LanguageManager,
-        TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(FConfig.MainMapsConfig.GetAllActiveMapsSet)
-      );
-    FLayersList.Add(
-      TLayerLicenseList.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        VLicensList
-      )
-    );
-    FLayersList.Add(
-      TLayerStatBar.Create(
-        GState.LanguageManager,
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        FConfig.LayersConfig.StatBar,
-        GState.ValueToStringConverterConfig,
-        FMouseState,
-        GState.GUISyncronizedTimerNotifier,
-        GState.TimeZoneDiffByLonLat,
-        GState.DownloadInfo,
-        GState.GlobalInternetState,
-        Self.tbitmOnInterfaceOptionsClick,
-        FConfig.MainMapsConfig.GetActiveMap
-      )
-    );
-    VMiniMapConverterChangeable :=
-      TLocalConverterChangeableOfMiniMap.Create(
-        GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
-        GState.LocalConverterFactory,
-        FConfig.ViewPortState.Position,
-        FConfig.LayersConfig.MiniMapLayerConfig
-      );
-      FLayersList.Add(
-        TMiniMapLayerNew.Create(
-          GState.PerfCounterList,
-          GState.AppStartedNotifier,
-          GState.AppClosingNotifier,
-          map,
-          VMiniMapConverterChangeable,
-          VMiniMapConverterChangeable,
-          GState.ImageResamplerConfig,
-          GState.LocalConverterFactory,
-          FConfig.LayersConfig.MiniMapLayerConfig,
-          FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
-          TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
-          GState.BitmapPostProcessingConfig,
-          FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
-          FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
-          FTileErrorLogger,
-          GState.GUISyncronizedTimerNotifier
-        )
-      );
-    FLayersList.Add(
-      TMiniMapLayerViewRect.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        FConfig.ViewPortState,
-        GState.MapType.GUIConfigList,
-        FMapTypeIcons18List,
-        VMiniMapConverterChangeable,
-        FConfig.LayersConfig.MiniMapLayerConfig
-      )
-    );
-    FLayersList.Add(
-      TMiniMapLayerTopBorder.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        VMiniMapConverterChangeable,
-        FConfig.LayersConfig.MiniMapLayerConfig
-      )
-    );
-    FLayersList.Add(
-      TMiniMapLayerLeftBorder.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        VMiniMapConverterChangeable,
-        FConfig.LayersConfig.MiniMapLayerConfig
-      )
-    );
-    VBitmap :=
-      ReadBitmapByFileRef(
-        GState.ResourceProvider,
-        'ICONII.png',
-        GState.ContentTypeManager,
-        nil
-      );
-    VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
-    FLayersList.Add(
-      TMiniMapLayerMinusButton.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        VMiniMapConverterChangeable,
-        VBitmapChangeable,
-        FConfig.LayersConfig.MiniMapLayerConfig
-      )
-    );
-    VBitmap :=
-      ReadBitmapByFileRef(
-        GState.ResourceProvider,
-        'ICONI.png',
-        GState.ContentTypeManager,
-        nil
-      );
-    VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
-    FLayersList.Add(
-      TMiniMapLayerPlusButton.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        VMiniMapConverterChangeable,
-        VBitmapChangeable,
-        FConfig.LayersConfig.MiniMapLayerConfig
-      )
-    );
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnMapGUIChange),
@@ -2010,12 +1410,620 @@ begin
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
     FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
     Application.OnMessage := DoMessageEvent;
+    map.OnMouseDown := Self.mapMouseDown;
+    map.OnMouseUp := Self.mapMouseUp;
+    map.OnMouseMove := Self.mapMouseMove;
+    map.OnResize := Self.mapResize;
+    TBXMainMenu.ProcessShortCuts:=true;
+    FStartedNormal := True;
   finally
-    Enabled:=true;
     map.SetFocus;
     TfrmStartLogo.ReadyToHideLogo;
   end;
-  TBXMainMenu.ProcessShortCuts:=true;
+end;
+
+procedure TfrmMain.InitLayers;
+var
+  VBitmap: IBitmap32Static;
+  VMarkerChangeable: IMarkerDrawableChangeable;
+  VMarkerWithDirectionChangeable: IMarkerDrawableWithDirectionChangeable;
+  VLicensList: IStringListChangeable;
+  VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
+  VBitmapChangeable: IBitmapChangeable;
+begin
+  FLayersList := TInterfaceList.Create;
+  FLayersList.Add(
+    TMapMainLayerNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState.Position,
+      FConfig.ViewPortState.View,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      FConfig.MainMapsConfig.GetActiveMap,
+      TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
+      GState.BitmapPostProcessingConfig,
+      FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+      FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
+      FTileErrorLogger,
+      GState.GUISyncronizedTimerNotifier
+    )
+  );
+  FLayersList.Add(
+    TMapLayerGridsNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      GState.GUISyncronizedTimerNotifier,
+      GState.ValueToStringConverterConfig,
+      FConfig.LayersConfig.MapLayerGridsConfig
+    )
+  );
+  FWikiLayer :=
+    TWikiLayerNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      GState.VectorItmesFactory,
+      GState.GUISyncronizedTimerNotifier,
+      FTileErrorLogger,
+      FConfig.LayersConfig.KmlLayerConfig,
+      FConfig.MainMapsConfig.GetActiveKmlLayersSet
+    );
+  FLayersList.Add(FWikiLayer);
+  FLayersList.Add(
+    TMapLayerFillingMapNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.LayersConfig.FillingMapLayerConfig
+    )
+  );
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'RED1.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableFaked.Create(
+      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Bitmap.Width/2, VBitmap.Bitmap.Height))
+    );
+  FLayerMapMarks:=
+    TMapMarksLayerNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      GState.VectorItmesFactory,
+      VMarkerChangeable,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.LayersConfig.MarksLayerConfig,
+      FMarkDBGUI.MarksDb
+    );
+  FLayersList.Add(FLayerMapMarks);
+  FLayersList.Add(
+    TMapGPSLayerNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.LayersConfig.GPSTrackConfig,
+      GState.GPSRecorder
+    )
+  );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableSimple.Create(
+      TMarkerDrawableSimpleSquare,
+      FConfig.LayersConfig.GPSMarker.StopedMarkerConfig
+    );
+  VMarkerWithDirectionChangeable :=
+    TMarkerDrawableWithDirectionChangeableSimple.Create(
+      TMarkerDrawableSimpleArrow,
+      FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
+    );
+  FLayersList.Add(
+    TMapLayerGPSMarker.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.LayersConfig.GPSMarker,
+      VMarkerWithDirectionChangeable,
+      VMarkerChangeable,
+      GState.GPSRecorder
+    )
+  );
+  FLayersList.Add(
+    TSelectionLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FConfig.LayersConfig.LastSelectionLayerConfig,
+      GState.LastSelectionInfo
+    )
+  );
+  FLayersList.Add(
+    TPathEditLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
+    )
+  );
+  FLayersList.Add(
+    TPathEditPointsSetLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
+    )
+  );
+  FLayersList.Add(
+    TCalcLineLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig,
+      GState.ValueToStringConverterConfig
+    )
+  );
+  FLayersList.Add(
+    TPathEditLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
+    )
+  );
+  FLayersList.Add(
+    TPathEditPointsSetLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
+    )
+  );
+  FLayersList.Add(
+    TCalcLineLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
+      GState.ValueToStringConverterConfig
+    )
+  );
+  FLayersList.Add(
+    TPolygonEditLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
+      FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
+    )
+  );
+  FLayersList.Add(
+    TPolygonEditPointsSetLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
+    )
+  );
+  FLayersList.Add(
+    TPolygonEditLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
+      FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
+    )
+  );
+  FLayersList.Add(
+    TPolygonEditPointsSetLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.NormalPointMarker)
+    )
+  );
+
+  FLayersList.Add(
+    TSelectionPolylineShadowLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
+    )
+  );
+  FLayersList.Add(
+    TPathEditLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
+      FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
+    )
+  );
+  FLayersList.Add(
+    TPathEditPointsSetLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.VectorItmesFactory,
+      FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker),
+      TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.NormalPointMarker)
+    )
+  );
+
+  FLayersList.Add(
+    TSelectionRectLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FSelectionRect,
+      FConfig.LayersConfig.SelectionRectLayerConfig
+    )
+  );
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'FOUNDPNT.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableFaked.Create(
+      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
+    );
+  FLayerSearchResults :=
+    TSearchResultsLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FConfig.LastSearchResultConfig,
+      VMarkerChangeable
+    );
+  FLayersList.Add(FLayerSearchResults);
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'ICONIII.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableFaked.Create(
+      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
+    );
+  FLayersList.Add(
+    TGotoLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.ViewPortState.View,
+      VMarkerChangeable,
+      FMapGoto,
+      FConfig.LayersConfig.GotoLayerConfig
+    )
+  );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableSimple.Create(
+      TMarkerDrawableSimpleCross,
+      FConfig.LayersConfig.NavToPointMarkerConfig.ReachedMarkerConfig
+    );
+  VMarkerWithDirectionChangeable :=
+    TMarkerDrawableWithDirectionChangeableSimple.Create(
+      TMarkerDrawableSimpleArrow,
+      FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
+    );
+
+  FLayersList.Add(
+    TNavToMarkLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FConfig.NavToPoint,
+      VMarkerWithDirectionChangeable,
+      VMarkerChangeable,
+      FConfig.LayersConfig.NavToPointMarkerConfig
+    )
+  );
+  FLayersList.Add(
+    TTileErrorInfoLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FTileErrorLogProvider,
+      GState.GUISyncronizedTimerNotifier
+    )
+  );
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'ICONIII.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableFaked.Create(
+      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
+    );
+  FLayersList.Add(
+    TPointOnMapEditLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState.View,
+      VMarkerChangeable,
+      FPointOnMapEdit
+    )
+  );
+  FLayersList.Add(
+    TFullMapMouseCursorLayer.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState.Position,
+      FState,
+      GState.GUISyncronizedTimerNotifier,
+      FMouseState,
+      FConfig.LayersConfig.FullMapMouseCursorLayerConfig
+    )
+  );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableFaked.Create(
+      TMarkerDrawableCenterScale.Create
+    );
+  FLayersList.Add(
+    TLayerCenterScale.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState.Position,
+      VMarkerChangeable,
+      FConfig.LayersConfig.CenterScaleConfig
+    )
+  );
+  FLayersList.Add(
+    TLayerScaleLine.Create(
+      GState.LanguageManager,
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      Self.tbitmOnInterfaceOptionsClick,
+      FConfig.LayersConfig.ScaleLineConfig
+    )
+  );
+  VLicensList :=
+    TActiveMapsLicenseList.Create(
+      GState.LanguageManager,
+      TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(FConfig.MainMapsConfig.GetAllActiveMapsSet)
+    );
+  FLayersList.Add(
+    TLayerLicenseList.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VLicensList
+    )
+  );
+  FLayersList.Add(
+    TLayerStatBar.Create(
+      GState.LanguageManager,
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      FConfig.LayersConfig.StatBar,
+      GState.ValueToStringConverterConfig,
+      FMouseState,
+      GState.GUISyncronizedTimerNotifier,
+      GState.TimeZoneDiffByLonLat,
+      GState.DownloadInfo,
+      GState.GlobalInternetState,
+      Self.tbitmOnInterfaceOptionsClick,
+      FConfig.MainMapsConfig.GetActiveMap
+    )
+  );
+  VMiniMapConverterChangeable :=
+    TLocalConverterChangeableOfMiniMap.Create(
+      GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
+      GState.LocalConverterFactory,
+      FConfig.ViewPortState.Position,
+      FConfig.LayersConfig.MiniMapLayerConfig
+    );
+    FLayersList.Add(
+      TMiniMapLayerNew.Create(
+        GState.PerfCounterList,
+        GState.AppStartedNotifier,
+        GState.AppClosingNotifier,
+        map,
+        VMiniMapConverterChangeable,
+        VMiniMapConverterChangeable,
+        GState.ImageResamplerConfig,
+        GState.LocalConverterFactory,
+        FConfig.LayersConfig.MiniMapLayerConfig,
+        FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
+        TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
+        GState.BitmapPostProcessingConfig,
+        FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
+        FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
+        FTileErrorLogger,
+        GState.GUISyncronizedTimerNotifier
+      )
+    );
+  FLayersList.Add(
+    TMiniMapLayerViewRect.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.MapType.GUIConfigList,
+      FMapTypeIcons18List,
+      VMiniMapConverterChangeable,
+      FConfig.LayersConfig.MiniMapLayerConfig
+    )
+  );
+  FLayersList.Add(
+    TMiniMapLayerTopBorder.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VMiniMapConverterChangeable,
+      FConfig.LayersConfig.MiniMapLayerConfig
+    )
+  );
+  FLayersList.Add(
+    TMiniMapLayerLeftBorder.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VMiniMapConverterChangeable,
+      FConfig.LayersConfig.MiniMapLayerConfig
+    )
+  );
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'ICONII.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
+  FLayersList.Add(
+    TMiniMapLayerMinusButton.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VMiniMapConverterChangeable,
+      VBitmapChangeable,
+      FConfig.LayersConfig.MiniMapLayerConfig
+    )
+  );
+  VBitmap :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'ICONI.png',
+      GState.ContentTypeManager,
+      nil
+    );
+  VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
+  FLayersList.Add(
+    TMiniMapLayerPlusButton.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VMiniMapConverterChangeable,
+      VBitmapChangeable,
+      FConfig.LayersConfig.MiniMapLayerConfig
+    )
+  );
 end;
 
 procedure TfrmMain.InitSearchers;
@@ -2242,7 +2250,12 @@ procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   i:integer;
 begin
-  ProgramClose:=true;
+  map.OnResize := nil;
+  map.OnMouseDown := nil;
+  map.OnMouseUp := nil;
+  map.OnMouseMove := nil;
+  map.OnDblClick := nil;
+  map.OnMouseLeave := nil;
   FLinksList.DeactivateLinks;
   GState.SendTerminateToThreads;
   for i := 0 to Screen.FormCount - 1 do begin
@@ -2251,7 +2264,9 @@ begin
     end;
   end;
   Application.ProcessMessages;
-  SaveConfig(nil);
+  if FStartedNormal then begin
+    SaveConfig(nil);
+  end;
   Application.ProcessMessages;
   FWikiLayer := nil;
   FLayerMapMarks := nil;
@@ -4160,9 +4175,7 @@ end;
 
 procedure TfrmMain.mapResize(Sender: TObject);
 begin
-  if (not ProgramClose)and(not ProgramStart)then begin
-    FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
-  end;
+  FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
 end;
 
 procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
@@ -4868,9 +4881,6 @@ var
   end;
 
 begin
-  if ProgramClose then begin
-    exit;
-  end;
   VLastMouseMove := FMouseState.CurentPos;
   FMouseHandler.OnMouseMove(Shift, Point(AX, AY));
   VMousePos := FMouseState.CurentPos;
