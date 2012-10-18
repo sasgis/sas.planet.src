@@ -1,7 +1,7 @@
 object frmMarkInfo: TfrmMarkInfo
   Left = 0
   Top = 0
-  Caption = 'frmMarkInfo'
+  Caption = 'Mark Info'
   ClientHeight = 270
   ClientWidth = 343
   Color = clBtnFace
