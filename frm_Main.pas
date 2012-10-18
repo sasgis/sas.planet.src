@@ -1343,7 +1343,7 @@ begin
     OnNavToMarkChange;
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
-    FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
+    FKeyMovingHandler := TKeyMovingHandler.Create(FConfig.ViewPortState, FConfig.KeyMovingConfig);
     Application.OnMessage := DoMessageEvent;
     map.OnMouseDown := Self.mapMouseDown;
     map.OnMouseUp := Self.mapMouseUp;

@@ -26,7 +26,6 @@ uses
   Windows,
   Classes,
   Forms,
-  GR32_Image,
   t_GeoTypes,
   i_ViewPortState,
   i_KeyMovingConfig,
@@ -36,7 +35,6 @@ type
   TKeyMovingHandler = class(TInterfacedObject, IMessageHandler)
   private
     FConfig: IKeyMovingConfig;
-    FMap: TImage32;
     FViewPortState: IViewPortState;
     FKeyMovingLastTick: Int64;
     FTimeFromFirstToLast: Double;
@@ -51,7 +49,6 @@ type
     );
   public
     constructor Create(
-      AMap: TImage32;
       const AViewPortState: IViewPortState;
       const AConfig: IKeyMovingConfig
     );
@@ -66,14 +63,12 @@ uses
 { TKeyMovingHandler }
 
 constructor TKeyMovingHandler.Create(
-  AMap: TImage32;
   const AViewPortState: IViewPortState;
   const AConfig: IKeyMovingConfig
 );
 begin
   inherited Create;
   FConfig := AConfig;
-  FMap := AMap;
   FViewPortState := AViewPortState;
 end;
 
@@ -181,13 +176,7 @@ begin
         VPointDelta.x := FMoveVector.x * VStep;
         VPointDelta.y := FMoveVector.y * VStep;
 
-        FMap.BeginUpdate;
-        try
-          FViewPortState.ChangeMapPixelByDelta(VPointDelta);
-        finally
-          FMap.EndUpdate;
-          FMap.Changed;
-        end;
+        FViewPortState.ChangeMapPixelByDelta(VPointDelta);
 
         application.ProcessMessages;
         QueryPerformanceCounter(VCurrTick);
