@@ -225,6 +225,7 @@
     <DCCReference Include="i_ContentTypeSubst.pas" />
     <DCCReference Include="i_CoordConverter.pas" />
     <DCCReference Include="i_CoordConverterFactory.pas" />
+    <DCCReference Include="i_CoordConverterList.pas" />
     <DCCReference Include="i_Datum.pas" />
     <DCCReference Include="i_DebugInfoWindow.pas" />
     <DCCReference Include="i_DoublePointFilter.pas" />
@@ -681,6 +682,8 @@
     <DCCReference Include="u_CoordConverterAbstract.pas" />
     <DCCReference Include="u_CoordConverterBasic.pas" />
     <DCCReference Include="u_CoordConverterFactorySimple.pas" />
+    <DCCReference Include="u_CoordConverterListStatic.pas" />
+    <DCCReference Include="u_CoordConverterListStaticSimple.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnEllipsoid.pas" />
     <DCCReference Include="u_CoordConverterMercatorOnSphere.pas" />
     <DCCReference Include="u_CoordConverterRoutines.pas" />
