@@ -1145,7 +1145,6 @@ begin
     movepoint:=false;
 
     Enabled:=true;
-    Application.OnMessage := DoMessageEvent;
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
     Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
     Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
@@ -2010,6 +2009,7 @@ begin
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
     FKeyMovingHandler := TKeyMovingHandler.Create(map, FConfig.ViewPortState, FConfig.KeyMovingConfig);
+    Application.OnMessage := DoMessageEvent;
   finally
     Enabled:=true;
     map.SetFocus;
