@@ -3533,7 +3533,7 @@ end;
 
 procedure TfrmMain.tbitmOpenFolderMainMapTileClick(Sender: TObject);
 var
-  s:string;
+  VTileFileName: string;
   VZoomCurr: Byte;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -3560,8 +3560,12 @@ begin
       VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
       prToTopLeft
     );
-  s := VMapType.GetTileFileName(VTile, VZoomCurr);
-  WinExec(PAnsiChar('explorer /select,' + s), SW_SHOWNORMAL)
+  VTileFileName := VMapType.GetTileFileName(VTile, VZoomCurr);
+  if DirectoryExists(ExtractFilePath(VTileFileName)) then begin
+    WinExec(PAnsiChar('explorer /select,' + VTileFileName), SW_SHOWNORMAL);
+  end else begin
+    ShowMessageFmt(SAS_ERR_DirectoryNotExistFmt, [VTileFileName]);
+  end;
 end;
 
 function TfrmMain.ConvLatLon2Scale(const Astr:string):Double;
