@@ -821,6 +821,7 @@ begin
   FStartedNormal := False;
   movepoint:=false;
   FMapZoomAnimtion:=False;
+  FMapMoving := False;
   FfrmDGAvailablePic := nil;
 
   FLinksList := TListenerNotifierLinksList.Create;
@@ -985,6 +986,7 @@ begin
   if VBitmapStatic <> nil then begin
     FTumbler.Assign(VBitmapStatic.Bitmap);
   end;
+  FKeyMovingHandler := TKeyMovingHandler.Create(FConfig.ViewPortState, FConfig.KeyMovingConfig);
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -1045,80 +1047,6 @@ begin
     tbxpmnSearchResult.Tag := 0;
   end;
   FSensorViewList := nil;
-end;
-
-function TfrmMain.ConvLatLon2Scale(const Astr:string):Double;
-var rest: boolean;
-  res: Double;
-  i,delitel:integer;
-  gms:double;
-  VText:string;
-begin
-
-  VText := Astr;
-  rest := true;
-  i:=1;
-  while i<=length(VText) do begin
-    if (not(VText[i] in ['0'..'9','-','+','.',',',' '])) then begin
-      VText[i]:=' ';
-      dec(i);
-    end;
-     if ((i=1)and(VText[i]=' '))or
-       ((i=length(VText))and(VText[i]=' '))or
-       ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
-       ((i>1) and (VText[i]=' ') and (not(VText[i-1] in ['0'..'9'])))or
-       ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
-      Delete(VText,i,1);
-      dec(i);
-    end;
-    inc(i);
-  end;
-
-  try
-    res:=0;
-    delitel:=1;
-    repeat
-     i:=posEx(' ',VText,1);
-     if i=0 then begin
-       gms:=str2r(VText);
-     end else begin
-       gms:=str2r(copy(VText,1,i-1));
-       Delete(VText,1,i);
-     end;
-     if ((delitel>1)and(abs(gms)>60))or
-        ((delitel=1)and(abs(gms)>180)) then begin
-       Rest:=false;
-     end;
-     if res<0 then begin
-       res:=res-gms/delitel;
-     end else begin
-       res:=res+gms/delitel;
-     end;
-     delitel:=delitel*60;
-    until (i=0)or(delitel>3600)or(not rest);
-  except
-    res := 0;
-  end;
-  result := res;
-end;
-
-function TfrmMain.Deg2StrValue(const aDeg:Double):string;
-var
-  Vmin :integer;
-  VDegScale : Double;
-begin
-   // convert to  ° ' "
-   VDegScale := abs(aDeg/100000000);
-   result := IntToStr(Trunc(VDegScale)) + '°';
-   VDegScale := Frac(VDegScale+0.0000000001) * 60;
-   Vmin := Trunc(VDegScale);
-   if Vmin < 10 then begin
-     result := result + '0' + IntToStr(Vmin) + '''';
-   end else begin
-     result := result + IntToStr(Vmin) + '''';
-   end;
-   VDegScale := Frac(VDegScale) * 60;
-   result := result + FormatFloat('00.00', VDegScale) + '"';
 end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
@@ -1290,7 +1218,6 @@ begin
 
     InitSearchers;
     CreateLangMenu;
-    FMapMoving:=false;
 
     FfrmSettings :=
       TfrmSettings.Create(
@@ -1343,7 +1270,6 @@ begin
     OnNavToMarkChange;
 
     PaintZSlider(FConfig.ViewPortState.GetCurrentZoom);
-    FKeyMovingHandler := TKeyMovingHandler.Create(FConfig.ViewPortState, FConfig.KeyMovingConfig);
     Application.OnMessage := DoMessageEvent;
     map.OnMouseDown := Self.mapMouseDown;
     map.OnMouseUp := Self.mapMouseUp;
@@ -1735,10 +1661,13 @@ begin
       GState.ContentTypeManager,
       nil
     );
-  VMarkerChangeable :=
-    TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
-    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
+      );
+  end;
   FLayerSearchResults :=
     TSearchResultsLayer.Create(
       GState.PerfCounterList,
@@ -1757,10 +1686,13 @@ begin
       GState.ContentTypeManager,
       nil
     );
-  VMarkerChangeable :=
-    TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
-    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
+      );
+  end;
   FLayersList.Add(
     TGotoLayer.Create(
       GState.PerfCounterList,
@@ -1816,10 +1748,13 @@ begin
       GState.ContentTypeManager,
       nil
     );
-  VMarkerChangeable :=
-    TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
-    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
+      );
+  end;
   FLayersList.Add(
     TPointOnMapEditLayer.Create(
       GState.PerfCounterList,
@@ -1911,26 +1846,26 @@ begin
       FConfig.ViewPortState.Position,
       FConfig.LayersConfig.MiniMapLayerConfig
     );
-    FLayersList.Add(
-      TMiniMapLayerNew.Create(
-        GState.PerfCounterList,
-        GState.AppStartedNotifier,
-        GState.AppClosingNotifier,
-        map,
-        VMiniMapConverterChangeable,
-        VMiniMapConverterChangeable,
-        GState.ImageResamplerConfig,
-        GState.LocalConverterFactory,
-        FConfig.LayersConfig.MiniMapLayerConfig,
-        FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
-        TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
-        GState.BitmapPostProcessingConfig,
-        FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
-        FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
-        FTileErrorLogger,
-        GState.GUISyncronizedTimerNotifier
-      )
-    );
+  FLayersList.Add(
+    TMiniMapLayerNew.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      VMiniMapConverterChangeable,
+      VMiniMapConverterChangeable,
+      GState.ImageResamplerConfig,
+      GState.LocalConverterFactory,
+      FConfig.LayersConfig.MiniMapLayerConfig,
+      FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
+      TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
+      GState.BitmapPostProcessingConfig,
+      FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
+      FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
+      FTileErrorLogger,
+      GState.GUISyncronizedTimerNotifier
+    )
+  );
   FLayersList.Add(
     TMiniMapLayerViewRect.Create(
       GState.PerfCounterList,
@@ -1971,7 +1906,10 @@ begin
       GState.ContentTypeManager,
       nil
     );
-  VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
+  VBitmapChangeable := nil;
+  if VBitmap <> nil then begin
+    VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
+  end;
   FLayersList.Add(
     TMiniMapLayerMinusButton.Create(
       GState.PerfCounterList,
@@ -1990,7 +1928,10 @@ begin
       GState.ContentTypeManager,
       nil
     );
-  VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
+  VBitmapChangeable := nil;
+  if VBitmap <> nil then begin
+    VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
+  end;
   FLayersList.Add(
     TMiniMapLayerPlusButton.Create(
       GState.PerfCounterList,
@@ -3630,6 +3571,80 @@ begin
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
+end;
+
+function TfrmMain.ConvLatLon2Scale(const Astr:string):Double;
+var rest: boolean;
+  res: Double;
+  i,delitel:integer;
+  gms:double;
+  VText:string;
+begin
+
+  VText := Astr;
+  rest := true;
+  i:=1;
+  while i<=length(VText) do begin
+    if (not(VText[i] in ['0'..'9','-','+','.',',',' '])) then begin
+      VText[i]:=' ';
+      dec(i);
+    end;
+     if ((i=1)and(VText[i]=' '))or
+       ((i=length(VText))and(VText[i]=' '))or
+       ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
+       ((i>1) and (VText[i]=' ') and (not(VText[i-1] in ['0'..'9'])))or
+       ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
+      Delete(VText,i,1);
+      dec(i);
+    end;
+    inc(i);
+  end;
+
+  try
+    res:=0;
+    delitel:=1;
+    repeat
+     i:=posEx(' ',VText,1);
+     if i=0 then begin
+       gms:=str2r(VText);
+     end else begin
+       gms:=str2r(copy(VText,1,i-1));
+       Delete(VText,1,i);
+     end;
+     if ((delitel>1)and(abs(gms)>60))or
+        ((delitel=1)and(abs(gms)>180)) then begin
+       Rest:=false;
+     end;
+     if res<0 then begin
+       res:=res-gms/delitel;
+     end else begin
+       res:=res+gms/delitel;
+     end;
+     delitel:=delitel*60;
+    until (i=0)or(delitel>3600)or(not rest);
+  except
+    res := 0;
+  end;
+  result := res;
+end;
+
+function TfrmMain.Deg2StrValue(const aDeg:Double):string;
+var
+  Vmin :integer;
+  VDegScale : Double;
+begin
+   // convert to  ° ' "
+   VDegScale := abs(aDeg/100000000);
+   result := IntToStr(Trunc(VDegScale)) + '°';
+   VDegScale := Frac(VDegScale+0.0000000001) * 60;
+   Vmin := Trunc(VDegScale);
+   if Vmin < 10 then begin
+     result := result + '0' + IntToStr(Vmin) + '''';
+   end else begin
+     result := result + IntToStr(Vmin) + '''';
+   end;
+   VDegScale := Frac(VDegScale) * 60;
+   result := result + FormatFloat('00.00', VDegScale) + '"';
 end;
 
 procedure TfrmMain.NDegScale0Click(Sender: TObject);
