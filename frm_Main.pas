@@ -609,6 +609,9 @@ type
 
     procedure InitSearchers;
     procedure InitLayers;
+    procedure InitGridsMenus;
+    procedure InitMouseCursors;
+    procedure LoadParams;
     procedure LoadMapIconsList;
     procedure CreateMapUIMapsList;
     procedure CreateMapUILayersList;
@@ -817,6 +820,7 @@ begin
 
   FStartedNormal := False;
   movepoint:=false;
+  FMapZoomAnimtion:=False;
   FfrmDGAvailablePic := nil;
 
   FLinksList := TListenerNotifierLinksList.Create;
@@ -981,9 +985,6 @@ begin
   if VBitmapStatic <> nil then begin
     FTumbler.Assign(VBitmapStatic.Bitmap);
   end;
-  NDegScale50000.Caption := '0'+DecimalSeparator+'5°';
-  NDegScale25000.Caption := '0'+DecimalSeparator+'25°';
-  NDegScale10000.Caption := '0'+DecimalSeparator+'125°';
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -1122,29 +1123,19 @@ end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
 var
-  param:string;
-  VGUID: TGUID;
-  VLonLat: TDoublePoint;
   VMapLayersVsibleChangeListener: IListener;
   VMainFormMainConfigChangeListener: IListener;
   VGPSReceiverStateChangeListener: IListener;
-  VScale: Integer;
-  VDegScale: Double;
-  VZoom: Byte;
 begin
   if not ProgramStart then exit;
-  FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
+  ProgramStart:=false;
   try
+    FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
     OnWinPositionChange;
 
     Application.HelpFile := ExtractFilePath(Application.ExeName)+'help.hlp';
-    Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
-    Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
-    Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
-    Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
-    map.Cursor:=crDefault;
+    InitMouseCursors;
 
-    FMapZoomAnimtion:=False;
     FShortCutManager :=
       TShortcutManager.Create(
         TBXMainMenu.Items,
@@ -1154,43 +1145,14 @@ begin
 
     tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
 
+    InitGridsMenus;
+    
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnMapGUIChange),
       GState.MapType.GUIConfigList.GetChangeNotifier
     );
     OnMapGUIChange;
 
-
-    VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
-    if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
-      NGShScale10000.Checked := VScale = 10000;
-      NGShScale25000.Checked := VScale = 25000;
-      NGShScale50000.Checked := VScale = 50000;
-      NGShScale100000.Checked := VScale = 100000;
-      NGShScale200000.Checked := VScale = 200000;
-      NGShScale500000.Checked := VScale = 500000;
-      NGShScale1000000.Checked := VScale = 1000000;
-      NGShScale0.Checked := VScale = 0;
-    end else begin
-      NGShScale0.Checked := True;
-    end;
-
-
-    VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
-    if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
-     if VDegScale = 12500000 then NDegScale10000.Checked := true else
-     if VDegScale = 25000000 then NDegScale25000.Checked := true else
-     if VDegScale = 50000000 then NDegScale50000.Checked := true else
-     if VDegScale = 100000000 then NDegScale100000.Checked := true else
-     if VDegScale = 200000000 then NDegScale200000.Checked := true else
-     if VDegScale = 500000000 then NDegScale500000.Checked := true else
-     if VDegScale = 1000000000 then NDegScale1000000.Checked := true else
-     if VDegScale = 0 then NDegScale0.Checked := true else
-     if VDegScale < 0 then NDegScaleAuto.Checked := true else
-                           NDegScaleUser.Checked := true ;
-     NDegValue.text := Deg2StrValue(VDegScale);
-    end else
-    NDegScale0.Checked := True;
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
@@ -1316,34 +1278,7 @@ begin
     DateTimePicker1.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillFirstDay;
     DateTimePicker2.DateTime := FConfig.LayersConfig.FillingMapLayerConfig.FillLastDay;
 
-    ProgramStart:=false;
-
-    if ParamCount > 1 then begin
-      try
-        param:=paramstr(1);
-        if param<>'' then begin
-          try
-            VGUID := StringToGUID(param);
-          except
-            VGUID := CGUID_Zero;
-          end;
-          if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-            FConfig.MainMapsConfig.SelectMainByGUID(VGUID);
-          end;
-        end;
-        if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
-          VZoom := strtoint(paramstr(2)) - 1;
-          FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
-          VLonLat.X := str2r(paramstr(3));
-          VLonLat.Y := str2r(paramstr(4));
-          FConfig.ViewPortState.ChangeLonLat(VLonLat);
-        end else if paramstr(2)<>'' then begin
-          VZoom := strtoint(paramstr(2)) - 1;
-          FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
-        end;
-      except
-      end;
-    end;
+    LoadParams;
 
     FPathProvidersTree := TTreeByPathDetalizeProviderList.Create(GState.PathDetalizeList);
     FPathProvidersMenuBuilder := TMenuGeneratorByStaticTreeSimple.Create(Self.TBEditPathMarshClick);
@@ -1422,6 +1357,46 @@ begin
   end;
 end;
 
+procedure TfrmMain.InitGridsMenus;
+var
+  VScale: Integer;
+  VDegScale: Double;
+begin
+  VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
+  if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
+    NGShScale10000.Checked := VScale = 10000;
+    NGShScale25000.Checked := VScale = 25000;
+    NGShScale50000.Checked := VScale = 50000;
+    NGShScale100000.Checked := VScale = 100000;
+    NGShScale200000.Checked := VScale = 200000;
+    NGShScale500000.Checked := VScale = 500000;
+    NGShScale1000000.Checked := VScale = 1000000;
+    NGShScale0.Checked := VScale = 0;
+  end else begin
+    NGShScale0.Checked := True;
+  end;
+
+
+  NDegScale50000.Caption := '0'+DecimalSeparator+'5°';
+  NDegScale25000.Caption := '0'+DecimalSeparator+'25°';
+  NDegScale10000.Caption := '0'+DecimalSeparator+'125°';
+  VDegScale := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Scale;
+  if FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.Visible then begin
+   if VDegScale = 12500000 then NDegScale10000.Checked := true else
+   if VDegScale = 25000000 then NDegScale25000.Checked := true else
+   if VDegScale = 50000000 then NDegScale50000.Checked := true else
+   if VDegScale = 100000000 then NDegScale100000.Checked := true else
+   if VDegScale = 200000000 then NDegScale200000.Checked := true else
+   if VDegScale = 500000000 then NDegScale500000.Checked := true else
+   if VDegScale = 1000000000 then NDegScale1000000.Checked := true else
+   if VDegScale = 0 then NDegScale0.Checked := true else
+   if VDegScale < 0 then NDegScaleAuto.Checked := true else
+                         NDegScaleUser.Checked := true ;
+   NDegValue.text := Deg2StrValue(VDegScale);
+  end else
+  NDegScale0.Checked := True;
+end;
+
 procedure TfrmMain.InitLayers;
 var
   VBitmap: IBitmap32Static;
@@ -1497,14 +1472,17 @@ begin
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
-      'RED1.png',
+      'RED.png',
       GState.ContentTypeManager,
       nil
     );
-  VMarkerChangeable :=
-    TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Bitmap.Width/2, VBitmap.Bitmap.Height))
-    );
+  VMarkerChangeable := nil;
+  if VBitmap <> nil then begin
+    VMarkerChangeable :=
+      TMarkerDrawableChangeableFaked.Create(
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Bitmap.Width/2, VBitmap.Bitmap.Height))
+      );
+  end;
   FLayerMapMarks:=
     TMapMarksLayerNew.Create(
       GState.PerfCounterList,
@@ -2024,6 +2002,14 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
+end;
+
+procedure TfrmMain.InitMouseCursors;
+begin
+  Screen.Cursors[1]:=LoadCursor(HInstance, 'SEL');
+  Screen.Cursors[2]:=LoadCursor(HInstance, 'LEN');
+  Screen.Cursors[3]:=LoadCursor(HInstance, 'HAND');
+  Screen.Cursors[4]:=LoadCursor(HInstance, 'SELPOINT');
 end;
 
 procedure TfrmMain.InitSearchers;
@@ -5815,6 +5801,41 @@ begin
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     VList18.Add(VGUID, VMapType.GUIConfig.Bmp18);
     VList24.Add(VGUID, VMapType.GUIConfig.Bmp24);
+  end;
+end;
+
+procedure TfrmMain.LoadParams;
+var
+  param:string;
+  VGUID: TGUID;
+  VLonLat: TDoublePoint;
+  VZoom: Byte;
+begin
+  if ParamCount > 1 then begin
+    try
+      param:=paramstr(1);
+      if param<>'' then begin
+        try
+          VGUID := StringToGUID(param);
+        except
+          VGUID := CGUID_Zero;
+        end;
+        if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+          FConfig.MainMapsConfig.SelectMainByGUID(VGUID);
+        end;
+      end;
+      if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
+        VZoom := strtoint(paramstr(2)) - 1;
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
+        VLonLat.X := str2r(paramstr(3));
+        VLonLat.Y := str2r(paramstr(4));
+        FConfig.ViewPortState.ChangeLonLat(VLonLat);
+      end else if paramstr(2)<>'' then begin
+        VZoom := strtoint(paramstr(2)) - 1;
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
+      end;
+    except
+    end;
   end;
 end;
 
