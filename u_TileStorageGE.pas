@@ -136,6 +136,11 @@ type
   protected
     function InternalLib_Initialize: Boolean; override;
     function InternalLib_CheckInitialized: Boolean; override;
+    function GetTileFileName(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): string; override;
   end;
 
   TTileStorageGC = class(TTileStorageDLL)
@@ -700,6 +705,15 @@ begin
     // special routines
   end;
   *)
+end;
+
+function  TTileStorageGE.GetTileFileName(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): string;
+begin
+  Result := inherited GetTileFileName(AXY, AZoom, AVersionInfo) + 'dbCache.dat';
 end;
 
 { TTileStorageGC }
