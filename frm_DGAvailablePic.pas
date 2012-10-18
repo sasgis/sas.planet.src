@@ -1335,11 +1335,19 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
-var VMinNewHeight: Integer;
+var
+  VMinNewHeight: Integer;
 begin
-  VMinNewHeight:=(gbAvailImages.Top+gbAvailImages.Constraints.MinHeight+spltDesc.Height+gbImageParams.Height+FVertResizeFactor);
-  if (NewHeight<VMinNewHeight) then
-    NewHeight:=VMinNewHeight;
+  VMinNewHeight := (
+    gbAvailImages.Top +
+    gbAvailImages.Constraints.MinHeight +
+    spltDesc.Height +
+    gbImageParams.Height +
+    FVertResizeFactor
+  );
+  if NewHeight < VMinNewHeight then begin
+    NewHeight := VMinNewHeight;
+  end;
 end;
 
 procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);

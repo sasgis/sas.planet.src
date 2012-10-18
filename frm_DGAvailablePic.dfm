@@ -69,7 +69,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Align = alCustom
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Images available'
-      Constraints.MinHeight = 191
+      Constraints.MinHeight = 220
       TabOrder = 0
       object tvFound: TTreeView
         AlignWithMargins = True
