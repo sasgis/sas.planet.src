@@ -175,7 +175,7 @@ begin
   For i := 0 to VGUIDList.Count-1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.IsBitmapTiles)and(VMapType.StorageConfig.IsStoreFileCache)and(VMapType.GUIConfig.Enabled) then begin
+    if (VMapType.IsBitmapTiles)and(VMapType.TileStorage.IsFileCache)and(VMapType.GUIConfig.Enabled) then begin
       VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;

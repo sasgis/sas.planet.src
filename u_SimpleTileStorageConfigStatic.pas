@@ -33,7 +33,6 @@ type
     FCacheTypeCode: Integer;
     FNameInCache: string;
     FTileFileExt: string;
-    FIsStoreFileCache: Boolean;
     FIsReadOnly: boolean;
     FAllowDelete: boolean;
     FAllowAdd: boolean;
@@ -43,7 +42,6 @@ type
     function GetCacheTypeCode: Integer;
     function GetNameInCache: string;
     function GetTileFileExt: string;
-    function GetIsStoreFileCache: Boolean;
     function GetIsReadOnly: boolean;
     function GetAllowDelete: boolean;
     function GetAllowAdd: boolean;
@@ -54,7 +52,6 @@ type
       ACacheTypeCode: Integer;
       const ANameInCache: string;
       const ATileFileExt: string;
-      AIsStoreFileCache: Boolean;
       AIsReadOnly: boolean;
       AAllowDelete: boolean;
       AAllowAdd: boolean;
@@ -71,7 +68,7 @@ constructor TSimpleTileStorageConfigStatic.Create(
   ACacheTypeCode: Integer;
   const ANameInCache: string;
   const ATileFileExt: string;
-  AIsStoreFileCache, AIsReadOnly, AAllowDelete, AAllowAdd, AAllowReplace: boolean
+  AIsReadOnly, AAllowDelete, AAllowAdd, AAllowReplace: boolean
 );
 begin
   inherited Create;
@@ -79,7 +76,6 @@ begin
   FCacheTypeCode := ACacheTypeCode;
   FNameInCache := ANameInCache;
   FTileFileExt := ATileFileExt;
-  FIsStoreFileCache := AIsStoreFileCache;
   FIsReadOnly := AIsReadOnly;
   FAllowDelete := AAllowDelete;
   FAllowAdd := AAllowAdd;
@@ -114,11 +110,6 @@ end;
 function TSimpleTileStorageConfigStatic.GetIsReadOnly: boolean;
 begin
   Result := FIsReadOnly;
-end;
-
-function TSimpleTileStorageConfigStatic.GetIsStoreFileCache: Boolean;
-begin
-  Result := FIsStoreFileCache;
 end;
 
 function TSimpleTileStorageConfigStatic.GetNameInCache: string;

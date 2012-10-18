@@ -888,7 +888,6 @@ var
   VCacheTypeCode: Integer;
   VNameInCache: string;
   VTileFileExt: string;
-  VIsStoreFileCache: Boolean;
   VIsReadOnly: boolean;
   VAllowDelete: boolean;
   VAllowAdd: boolean;
@@ -899,14 +898,12 @@ begin
   // c_File_Cache_Id_GE and c_File_Cache_Id_GC
   if (VCacheTypeCode = 5) or (VCacheTypeCode = 8) then begin
     VTileFileExt := '.jpg';
-    VIsStoreFileCache := False;
     VIsReadOnly := True;
     VAllowDelete := False;
     VAllowAdd := False;
     VAllowReplace := False;
   end else begin
     VTileFileExt := LowerCase(AConfig.ReadString('Ext', '.jpg'));
-    VIsStoreFileCache := True;
     VIsReadOnly := False;
     VAllowDelete := True;
     VAllowAdd := True;
@@ -919,7 +916,6 @@ begin
       VCacheTypeCode,
       VNameInCache,
       VTileFileExt,
-      VIsStoreFileCache,
       VIsReadOnly,
       VAllowDelete,
       VAllowAdd,

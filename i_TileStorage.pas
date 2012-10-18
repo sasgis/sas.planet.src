@@ -45,6 +45,9 @@ type
     function GetCoordConverter: ICoordConverter;
     property CoordConverter: ICoordConverter read GetCoordConverter;
 
+    function GetIsFileCache: Boolean;
+    property IsFileCache: Boolean read GetIsFileCache;
+
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;

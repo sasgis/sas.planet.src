@@ -76,6 +76,7 @@ type
     ): ITileInfoBasic;
   protected
     // common tile storage interface
+    function GetIsFileCache: Boolean; override;
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
@@ -352,6 +353,11 @@ begin
   inherited Destroy;
 end;
 
+function TTileStorageDLL.GetIsFileCache: Boolean;
+begin
+  Result := False;
+end;
+
 function TTileStorageDLL.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
@@ -407,7 +413,7 @@ function TTileStorageDLL.GetTileFileName(
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Abort;
+  Result := StoragePath;
 end;
 
 function TTileStorageDLL.GetTileInfo(

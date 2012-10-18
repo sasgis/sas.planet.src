@@ -56,6 +56,7 @@ type
 
     procedure OnTTLSync(Sender: TObject);
   protected
+    function GetIsFileCache: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -204,6 +205,11 @@ begin
   FTileInfoMemCache.ClearByTTL;
 end;
 
+function TTileStorageBerkeleyDB.GetIsFileCache: Boolean;
+begin
+  Result := False;
+end;
+
 function TTileStorageBerkeleyDB.GetTileFileName(
   const AXY: TPoint;
   const AZoom: Byte;
@@ -213,9 +219,7 @@ begin
   Result :=
     StoragePath +
     FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-    '.sdb' + PathDelim +
-    'x' + IntToStr(AXY.X) + PathDelim +
-    'y' + IntToStr(AXY.Y) + FMainContentType.GetDefaultExt;
+    '.sdb';
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(

@@ -59,6 +59,7 @@ type
     function GetTileNotifier: INotifierTileRectUpdate;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
+    function GetIsFileCache: Boolean; virtual; abstract;
 
     function GetTileFileName(
       const AXY: TPoint;

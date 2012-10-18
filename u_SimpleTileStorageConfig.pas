@@ -55,7 +55,6 @@ type
     procedure SetNameInCache(const AValue: string);
 
     function GetTileFileExt: string;
-    function GetIsStoreFileCache: Boolean;
 
     function GetIsReadOnly: boolean;
     procedure SetIsReadOnly(AValue: Boolean);
@@ -108,7 +107,6 @@ begin
       FCacheTypeCode,
       FNameInCache,
       FDefConfig.TileFileExt,
-      FDefConfig.IsStoreFileCache,
       FIsReadOnly,
       FAllowDelete,
       FAllowAdd,
@@ -205,11 +203,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TSimpleTileStorageConfig.GetIsStoreFileCache: Boolean;
-begin
-  Result := FDefConfig.IsStoreFileCache;
 end;
 
 function TSimpleTileStorageConfig.GetNameInCache: string;

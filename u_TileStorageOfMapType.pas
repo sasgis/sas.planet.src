@@ -80,6 +80,7 @@ type
     function GetTileNotifier: INotifierTileRectUpdate;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
+    function GetIsFileCache: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -503,6 +504,17 @@ end;
 function TTileStorageOfMapType.GetCoordConverter: ICoordConverter;
 begin
   Result := FConfig.CoordConverter;
+end;
+
+function TTileStorageOfMapType.GetIsFileCache: Boolean;
+var
+  VStorage: ITileStorage;
+begin
+  Result := False;
+  VStorage := GetStorage;
+  if VStorage <> nil then begin
+    Result := VStorage.IsFileCache;
+  end;
 end;
 
 function TTileStorageOfMapType.GetListOfTileVersions(

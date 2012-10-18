@@ -3391,25 +3391,20 @@ var
   VTile: TPoint;
 begin
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
-  if VMapType.StorageConfig.IsStoreFileCache then begin
-    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-    VZoomCurr := VLocalConverter.GetZoom;
-    VConverter := VLocalConverter.GetGeoConverter;
-    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
-    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
-    VTile :=
-      PointFromDoublePoint(
-        VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
-        prToTopLeft
-      );
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VZoomCurr := VLocalConverter.GetZoom;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  VTile :=
+    PointFromDoublePoint(
+      VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
+      prToTopLeft
+    );
 
-   // Копирование в имени файла в буффер обмена. Заменить на обобщенное имя тайла.
-   CopyStringToClipboard(VMapType.GetTileFileName(VTile, VZoomCurr));
-  end else begin
-    ShowMessage(SAS_MSG_CantGetTileFileName);
-  end;
+  CopyStringToClipboard(VMapType.GetTileFileName(VTile, VZoomCurr));
 end;
 
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
@@ -3516,7 +3511,7 @@ var
   VMapType: TMapType;
 begin
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
-  if VMapType.StorageConfig.IsStoreFileCache then begin
+  if VMapType.TileStorage.IsFileCache then begin
     VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
@@ -3529,7 +3524,6 @@ begin
         VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
         prToTopLeft
       );
-    // Открыть файл в просмотрщике. Заменить на проверку возможности сделать это или дописать экспорт во временный файл.
     ShellExecute(0,'open',PChar(VMapType.GetTileFileName(VTile, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
@@ -3553,24 +3547,20 @@ begin
     VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   end;
 
-  if VMapType.StorageConfig.IsStoreFileCache then begin
-    VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
-    VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
-    VZoomCurr := VLocalConverter.GetZoom;
-    VConverter := VLocalConverter.GetGeoConverter;
-    VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
-    VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-    VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
-    VTile :=
-      PointFromDoublePoint(
-        VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
-        prToTopLeft
-      );
-    s := VMapType.GetTileFileName(VTile, VZoomCurr);
-    WinExec(PAnsiChar('explorer /select,' + s), SW_SHOWNORMAL)
-  end else begin
-    ShowMessage(SAS_MSG_CantGetTileFileName);
-  end;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VZoomCurr := VLocalConverter.GetZoom;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  VTile :=
+    PointFromDoublePoint(
+      VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
+      prToTopLeft
+    );
+  s := VMapType.GetTileFileName(VTile, VZoomCurr);
+  WinExec(PAnsiChar('explorer /select,' + s), SW_SHOWNORMAL)
 end;
 
 function TfrmMain.ConvLatLon2Scale(const Astr:string):Double;

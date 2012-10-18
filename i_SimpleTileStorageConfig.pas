@@ -41,9 +41,6 @@ type
     function GetTileFileExt: string;
     property TileFileExt: string read GetTileFileExt;
 
-    function GetIsStoreFileCache: Boolean;
-    property IsStoreFileCache: Boolean read GetIsStoreFileCache;
-
     function GetIsReadOnly: boolean;
     property IsReadOnly: Boolean read GetIsReadOnly;
 
@@ -72,9 +69,6 @@ type
 
     function GetTileFileExt: string;
     property TileFileExt: string read GetTileFileExt;
-
-    function GetIsStoreFileCache: Boolean;
-    property IsStoreFileCache: Boolean read GetIsStoreFileCache;
 
     function GetIsReadOnly: boolean;
     procedure SetIsReadOnly(AValue: Boolean);

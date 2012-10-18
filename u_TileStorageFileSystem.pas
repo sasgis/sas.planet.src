@@ -56,6 +56,7 @@ type
       AIsLoadIfExists: Boolean
     ): ITileInfoBasic;
   protected
+    function GetIsFileCache: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -207,6 +208,11 @@ begin
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
+end;
+
+function TTileStorageFileSystem.GetIsFileCache: Boolean;
+begin
+  Result := True;
 end;
 
 function TTileStorageFileSystem.GetTileFileName(

@@ -541,10 +541,13 @@ function TMapType.GetTileShowName(
   AZoom: byte
 ): string;
 begin
-  if FStorageConfig.IsStoreFileCache then begin
-    Result := FStorage.GetTileFileName(AXY, AZoom, FVersionConfig.Version);
-  end else begin
-    Result := 'z' + IntToStr(AZoom + 1) + 'x' + IntToStr(AXY.X) + 'y' + IntToStr(AXY.Y);
+  Result := FStorage.GetTileFileName(AXY, AZoom, FVersionConfig.Version);
+  if not FStorage.IsFileCache then begin
+    Result :=
+      IncludeTrailingPathDelimiter(Result) +
+      'z' + IntToStr(AZoom + 1) + PathDelim +
+      'x' + IntToStr(AXY.X) + PathDelim +
+      'y' + IntToStr(AXY.Y) + FContentType.GetDefaultExt;
   end;
 end;
 

@@ -154,6 +154,7 @@ type
 
   protected
     // base storage interface
+    function GetIsFileCache: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -735,6 +736,11 @@ begin
   FTileInfoMemCache.ClearByTTL;
 end;
 
+function TTileStorageETS.GetIsFileCache: Boolean;
+begin
+  Result := False;
+end;
+
 function TTileStorageETS.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
@@ -818,8 +824,7 @@ function TTileStorageETS.GetTileFileName(
   const AVersionInfo: IMapVersionInfo
 ): string;
 begin
-  Result := 'x' + IntToStr(AXY.X) + PathDelim +
-            'y' + IntToStr(AXY.Y) + FMainContentType.GetDefaultExt;
+  Result := StoragePath;
 end;
 
 function TTileStorageETS.GetTileInfo(
