@@ -3,8 +3,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   Top = 247
   BorderStyle = bsSizeToolWin
   Caption = 'Images available'
-  ClientHeight = 416
-  ClientWidth = 512
+  ClientHeight = 461
+  ClientWidth = 584
   Color = clBtnFace
   Constraints.MinHeight = 410
   Constraints.MinWidth = 500
@@ -20,8 +20,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   TextHeight = 13
   object spltDesc: TSplitter
     Left = 0
-    Top = 227
-    Width = 512
+    Top = 225
+    Width = 584
     Height = 5
     Cursor = crVSplit
     Align = alBottom
@@ -29,9 +29,9 @@ object frmDGAvailablePic: TfrmDGAvailablePic
   end
   object gbImageParams: TGroupBox
     Left = 0
-    Top = 232
-    Width = 512
-    Height = 184
+    Top = 230
+    Width = 584
+    Height = 231
     Align = alBottom
     Caption = 'Description:'
     Constraints.MinHeight = 80
@@ -39,8 +39,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
     object veImageParams: TValueListEditor
       Left = 2
       Top = 15
-      Width = 508
-      Height = 167
+      Width = 580
+      Height = 214
       Align = alClient
       DefaultColWidth = 160
       TabOrder = 0
@@ -50,22 +50,22 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       OnDblClick = veImageParamsDblClick
       ColWidths = (
         160
-        342)
+        414)
     end
   end
   object Up: TPanel
     Left = 0
     Top = 0
-    Width = 512
-    Height = 227
+    Width = 584
+    Height = 225
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object gbAvailImages: TGroupBox
       Left = 271
       Top = 0
-      Width = 239
-      Height = 225
+      Width = 311
+      Height = 223
       Align = alCustom
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Images available'
@@ -75,8 +75,8 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         AlignWithMargins = True
         Left = 5
         Top = 18
-        Width = 134
-        Height = 202
+        Width = 206
+        Height = 200
         Align = alClient
         HideSelection = False
         HotTrack = True
@@ -91,10 +91,10 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         OnMouseDown = tvFoundMouseDown
       end
       object pnlRight: TPanel
-        Left = 142
+        Left = 214
         Top = 15
         Width = 95
-        Height = 208
+        Height = 206
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
@@ -162,7 +162,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         object chkALLImages: TCheckBox
           AlignWithMargins = True
           Left = 3
-          Top = 188
+          Top = 186
           Width = 89
           Height = 17
           Align = alBottom
@@ -176,7 +176,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Left = 2
       Top = 1
       Width = 263
-      Height = 225
+      Height = 223
       Align = alCustom
       Anchors = [akLeft, akTop, akBottom]
       Caption = 'Image services'
@@ -184,7 +184,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       TabOrder = 1
       DesignSize = (
         263
-        225)
+        223)
       object lbNMC: TLabel
         Left = 8
         Top = 60
@@ -230,7 +230,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object chkALLServices: TCheckBox
         Left = 8
-        Top = 203
+        Top = 201
         Width = 109
         Height = 17
         Anchors = [akLeft, akBottom]
@@ -274,7 +274,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       end
       object chkLowResolutionToo: TCheckBox
         Left = 143
-        Top = 203
+        Top = 201
         Width = 117
         Height = 18
         Anchors = [akLeft, akBottom]
