@@ -511,10 +511,6 @@ var
   VTileRect: TRect;
   VResultMapPixelRect: TRect;
   VResultLocalPixelRect: TRect;
-  VViewSize: TPoint;
-  VMovedTile: TPoint;
-  VMovedPixelRect: TRect;
-  VMovedTileRect: TRect;
 begin
   if ASource.GeoConverter.IsSameConverter(AGeoConverter) then begin
     Result := CreateBySourceWithTileRect(ASource);
