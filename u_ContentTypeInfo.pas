@@ -35,6 +35,8 @@ type
   private
     function GetContentType: AnsiString;
     function GetDefaultExt: AnsiString;
+  protected
+    function CheckOtherForSaveCompatible(AContentType: IContentTypeInfoBasic): Boolean; virtual; abstract;
   public
     constructor Create(
       const AContentType: AnsiString;
@@ -46,6 +48,8 @@ type
   private
     FLoader: IBitmapTileLoader;
     FSaver: IBitmapTileSaver;
+  protected
+    function CheckOtherForSaveCompatible(AContentType: IContentTypeInfoBasic): Boolean; override;
   private
     function GetLoader: IBitmapTileLoader;
     function GetSaver: IBitmapTileSaver;
@@ -56,7 +60,6 @@ type
       const ALoader: IBitmapTileLoader;
       const ASaver: IBitmapTileSaver
     );
-    destructor Destroy; override;
   end;
 
   TContentTypeInfoKml = class(TContentTypeInfoBase, IContentTypeInfoVectorData)
@@ -64,16 +67,20 @@ type
     FLoader: IVectorDataLoader;
   private
     function GetLoader: IVectorDataLoader;
+  protected
+    function CheckOtherForSaveCompatible(AContentType: IContentTypeInfoBasic): Boolean; override;
   public
     constructor Create(
       const AContentType: AnsiString;
       const ADefaultExt: AnsiString;
       const ALoader: IVectorDataLoader
     );
-    destructor Destroy; override;
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TContentTypeInfoBase }
 
@@ -107,11 +114,16 @@ begin
   FSaver := ASaver;
 end;
 
-destructor TContentTypeInfoBitmap.Destroy;
+function TContentTypeInfoBitmap.CheckOtherForSaveCompatible(
+  AContentType: IContentTypeInfoBasic): Boolean;
+var
+  VBitmapType: IContentTypeInfoBitmap;
 begin
-  FLoader := nil;
-  FSaver := nil;
-  inherited;
+  if Supports(AContentType, IContentTypeInfoBitmap, VBitmapType) then begin
+    Result := FDefaultExt = VBitmapType.GetDefaultExt;
+  end else begin
+    Result := False;
+  end;
 end;
 
 function TContentTypeInfoBitmap.GetLoader: IBitmapTileLoader;
@@ -126,6 +138,18 @@ end;
 
 { TContentTypeInfoKml }
 
+function TContentTypeInfoKml.CheckOtherForSaveCompatible(
+  AContentType: IContentTypeInfoBasic): Boolean;
+var
+  VVectorType: IContentTypeInfoVectorData;
+begin
+  if Supports(AContentType, IContentTypeInfoVectorData, VVectorType) then begin
+    Result := FDefaultExt = VVectorType.GetDefaultExt;
+  end else begin
+    Result := False;
+  end;
+end;
+
 constructor TContentTypeInfoKml.Create(
   const AContentType, ADefaultExt: AnsiString;
   const ALoader: IVectorDataLoader
@@ -133,12 +157,6 @@ constructor TContentTypeInfoKml.Create(
 begin
   inherited Create(AContentType, ADefaultExt);
   FLoader := ALoader;
-end;
-
-destructor TContentTypeInfoKml.Destroy;
-begin
-  FLoader := nil;
-  inherited;
 end;
 
 function TContentTypeInfoKml.GetLoader: IVectorDataLoader;
