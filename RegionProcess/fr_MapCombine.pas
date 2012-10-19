@@ -107,6 +107,9 @@ type
     pnlBottom: TPanel;
     pnlCenterMain: TPanel;
     chkPngWithAlpha: TCheckBox;
+    pnlProjection: TPanel;
+    lblProjection: TLabel;
+    cbbProjection: TComboBox;
     procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
@@ -122,6 +125,7 @@ type
     FPolygLL: ILonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
     procedure UpdatePanelSizes;
+    procedure UpdateProjectionsList;
   private
     procedure Init(
       const AZoom: byte;
@@ -158,6 +162,7 @@ type
 implementation
 
 uses
+  gnugettext,
   t_GeoTypes,
   i_GUIDListStatic,
   i_VectorItemProjected,
@@ -171,6 +176,34 @@ uses
 {$R *.dfm}
 
 { TfrMapCombine }
+
+constructor TfrMapCombine.Create(
+  const ALanguageManager: ILanguageManager;
+  const AProjectionFactory: IProjectionInfoFactory;
+  const ACoordConverterList: ICoordConverterList;
+  const AVectorFactory: IVectorItmesFactory;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AViewConfig: IGlobalViewMainConfig;
+  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const AMapCalibrationList: IMapCalibrationList
+);
+begin
+  inherited Create(ALanguageManager);
+  FProjectionFactory := AProjectionFactory;
+  FCoordConverterList := ACoordConverterList;
+  FVectorFactory := AVectorFactory;
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+  FMapCalibrationList := AMapCalibrationList;
+  FViewConfig := AViewConfig;
+  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
+  cbbOutputFormat.ItemIndex := 0;
+  UpdateProjectionsList;
+  UpdatePanelSizes;
+end;
 
 procedure TfrMapCombine.btnSelectTargetFileClick(Sender: TObject);
 begin
@@ -251,33 +284,6 @@ begin
   end;
 end;
 
-constructor TfrMapCombine.Create(
-  const ALanguageManager: ILanguageManager;
-  const AProjectionFactory: IProjectionInfoFactory;
-  const ACoordConverterList: ICoordConverterList;
-  const AVectorFactory: IVectorItmesFactory;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const AViewConfig: IGlobalViewMainConfig;
-  const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AMapCalibrationList: IMapCalibrationList
-);
-begin
-  inherited Create(ALanguageManager);
-  FProjectionFactory := AProjectionFactory;
-  FCoordConverterList := ACoordConverterList;
-  FVectorFactory := AVectorFactory;
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
-  FMapCalibrationList := AMapCalibrationList;
-  FViewConfig := AViewConfig;
-  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
-  cbbOutputFormat.ItemIndex := 0;
-  UpdatePanelSizes;
-end;
-
 function TfrMapCombine.GetBGColor: TColor32;
 var
   VMap: TMapType;
@@ -324,26 +330,52 @@ var
   VMainMapType: TMapType;
   VZoom: Byte;
   VGeoConverter: ICoordConverter;
+  VIndex: Integer;
 begin
   Result := nil;
-  VMap := nil;
-  VMainMapType := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+  VGeoConverter := nil;
+  VIndex := cbbProjection.ItemIndex;
+  if VIndex < 0 then begin
+    VIndex := 0;
   end;
-  VLayer := nil;
-  if cbbHybr.ItemIndex >= 0 then begin
-    VLayer := TMapType(cbbHybr.Items.Objects[cbbHybr.ItemIndex]);
+  if VIndex >= 2 then begin
+    VIndex := VIndex - 2;
+    if VIndex < FCoordConverterList.Count then begin
+      VGeoConverter := FCoordConverterList.Items[VIndex];
+    end;
+    VIndex := 0;
   end;
+  if VGeoConverter = nil then begin
+    VMainMapType := nil;
 
-  if VMap <> nil then begin
-    VMainMapType := VMap;
-  end else if VLayer <> nil then begin
-    VMainMapType := VLayer;
+    VMap := nil;
+    if cbbMap.ItemIndex >= 0 then begin
+      VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
+    end;
+    VLayer := nil;
+    if cbbHybr.ItemIndex >= 0 then begin
+      VLayer := TMapType(cbbHybr.Items.Objects[cbbHybr.ItemIndex]);
+    end;
+
+    if VIndex = 0 then begin
+      if VMap <> nil then begin
+        VMainMapType := VMap;
+      end else if VLayer <> nil then begin
+        VMainMapType := VLayer;
+      end;
+    end else begin
+      if VLayer <> nil then begin
+        VMainMapType := VLayer;
+      end else if VMap <> nil then begin
+        VMainMapType := VMap;
+      end;
+    end;
+    if VMainMapType <> nil then begin
+      VGeoConverter := VMainMapType.GeoConvert;
+    end;
   end;
-  if VMainMapType <> nil then begin
-    VGeoConverter := VMainMapType.GeoConvert;
-    VZoom := cbbZoom.ItemIndex;
+  VZoom := cbbZoom.ItemIndex;
+  if VGeoConverter <> nil then begin
     Result := FProjectionFactory.GetByConverterAndZoom(VGeoConverter, VZoom);
   end;
 end;
@@ -401,6 +433,7 @@ var
   VGUID: TGUID;
 begin
   FPolygLL := APolygon;
+
   cbbZoom.Items.Clear;
   for i:=1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
@@ -452,17 +485,36 @@ end;
 
 procedure TfrMapCombine.RefreshTranslation;
 var
-  i: Integer;
+  VFormatIndex: Integer;
+  VProjectionIndex: Integer;
 begin
-  i := cbbOutputFormat.ItemIndex;
+  VFormatIndex := cbbOutputFormat.ItemIndex;
+  VProjectionIndex := cbbProjection.ItemIndex;
   inherited;
-  cbbOutputFormat.ItemIndex := i;
+  UpdateProjectionsList;
+  cbbOutputFormat.ItemIndex := VFormatIndex;
+  if VProjectionIndex >= 0 then begin
+    cbbProjection.ItemIndex := VProjectionIndex;
+  end;
   UpdatePanelSizes;
 end;
 
 procedure TfrMapCombine.UpdatePanelSizes;
 begin
   pnlCenter.ClientHeight := pnlMapSource.Height;
+end;
+
+procedure TfrMapCombine.UpdateProjectionsList;
+var
+  i: Integer;
+begin
+  cbbProjection.Items.Clear;
+  cbbProjection.Items.Add(_('Projection of map'));
+  cbbProjection.Items.Add(_('Projection of layer'));
+  for i := 0 to FCoordConverterList.Count - 1 do begin
+    cbbProjection.Items.Add(_(FCoordConverterList.Captions[i]));
+  end;
+  cbbProjection.ItemIndex := 0;
 end;
 
 end.

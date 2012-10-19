@@ -2,7 +2,7 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 535
-  Height = 304
+  Height = 273
   Align = alClient
   ParentShowHint = False
   ShowHint = True
@@ -37,10 +37,9 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 41
-      Height = 19
+      Height = 16
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
@@ -79,10 +78,9 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 73
-      Height = 21
+      Height = 18
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Bottom = 0
       Align = alLeft
       Caption = 'Output format:'
       Layout = tlCenter
@@ -112,7 +110,7 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 74
     Width = 535
-    Height = 71
+    Height = 119
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
@@ -120,7 +118,7 @@ object frMapCombine: TfrMapCombine
       Left = 479
       Top = 0
       Width = 56
-      Height = 71
+      Height = 119
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -155,7 +153,7 @@ object frMapCombine: TfrMapCombine
       Left = 0
       Top = 0
       Width = 479
-      Height = 71
+      Height = 119
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
@@ -163,7 +161,7 @@ object frMapCombine: TfrMapCombine
         Left = 0
         Top = 0
         Width = 479
-        Height = 102
+        Height = 129
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -197,7 +195,7 @@ object frMapCombine: TfrMapCombine
         object lblStat: TLabel
           AlignWithMargins = True
           Left = 6
-          Top = 83
+          Top = 110
           Width = 467
           Height = 13
           Align = alTop
@@ -229,14 +227,43 @@ object frMapCombine: TfrMapCombine
           Items.Strings = (
             'No')
         end
+        object pnlProjection: TPanel
+          Left = 3
+          Top = 80
+          Width = 473
+          Height = 27
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 2
+          object lblProjection: TLabel
+            Left = 0
+            Top = 0
+            Width = 52
+            Height = 27
+            Align = alLeft
+            Caption = 'Projection:'
+            Layout = tlCenter
+          end
+          object cbbProjection: TComboBox
+            Left = 52
+            Top = 0
+            Width = 421
+            Height = 21
+            Align = alClient
+            Style = csDropDownList
+            ItemHeight = 13
+            TabOrder = 0
+            OnChange = cbbOutputFormatChange
+          end
+        end
       end
     end
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 145
+    Top = 193
     Width = 535
-    Height = 159
+    Height = 80
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 4
@@ -244,11 +271,11 @@ object frMapCombine: TfrMapCombine
       Left = 0
       Top = 0
       Width = 210
-      Height = 159
+      Height = 80
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
-      Constraints.MinHeight = 64
+      Constraints.MinHeight = 80
       Constraints.MinWidth = 210
       TabOrder = 0
       object chkUseMapMarks: TCheckBox
@@ -317,7 +344,7 @@ object frMapCombine: TfrMapCombine
       Left = 210
       Top = 0
       Width = 157
-      Height = 159
+      Height = 80
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -337,7 +364,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 18
         Width = 151
-        Height = 138
+        Height = 59
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -353,7 +380,7 @@ object frMapCombine: TfrMapCombine
       Left = 367
       Top = 0
       Width = 168
-      Height = 159
+      Height = 80
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
