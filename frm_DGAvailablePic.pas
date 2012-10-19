@@ -48,7 +48,6 @@ uses
   i_NotifierOperation,
   u_NotifierOperation,
   i_DownloadRequest,
-  u_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
   u_DownloadResultFactory,

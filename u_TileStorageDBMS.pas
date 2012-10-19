@@ -27,7 +27,6 @@ uses
   SysUtils,
   Windows,
   i_BinaryData,
-  i_SimpleTileStorageConfig,
   i_MapVersionInfo,
   i_MapVersionConfig,
   i_ContentTypeInfo,
@@ -37,7 +36,6 @@ uses
   i_ContentTypeManager,
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
-  u_GlobalCahceConfig,
   u_TileStorageAbstract,
   u_TileInfoBasicMemCache,
   t_ETS_Tiles,
@@ -228,10 +226,7 @@ implementation
 
 uses
   t_CommonTypes,
-  vsagps_public_sysutils,
   u_BinaryDataByMemStream,
-  u_MapVersionFactorySimpleString,
-  u_MapVersionInfo,
   u_MapVersionListStatic,
   u_Synchronizer,
   u_ListenerTTLCheck,

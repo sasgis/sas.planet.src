@@ -29,7 +29,6 @@ uses
   t_GeoTypes,
   i_PathConfig,
   i_LanguageManager,
-  i_CoordConverter,
   i_ProjectionInfo,
   i_VectorItmesFactory,
   i_ArchiveReadWriteFactory,
