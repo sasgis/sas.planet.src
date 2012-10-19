@@ -107,6 +107,7 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
+      const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     ); override;
 
@@ -663,6 +664,7 @@ procedure TTileStorageDLL.SaveTile(
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
+  const AContentType: IContentTypeInfoBasic;
   const AData: IBinaryData
 );
 begin

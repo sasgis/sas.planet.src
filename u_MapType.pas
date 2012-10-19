@@ -478,7 +478,7 @@ var
   VData: IBinaryData;
 begin
   VData := FBitmapSaverToStorage.Save(ABitmap);
-  FStorage.SaveTile(AXY, AZoom, FVersionConfig.Version, Now, VData);
+  FStorage.SaveTile(AXY, AZoom, FVersionConfig.Version, Now, FContentType, VData);
 end;
 
 procedure TMapType.SaveConfig(const ALocalConfig: IConfigDataWriteProvider);

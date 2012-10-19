@@ -87,6 +87,7 @@ type
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
+      const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     ); override;
 
@@ -475,6 +476,7 @@ procedure TTileStorageBerkeleyDB.SaveTile(
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
+  const AContentType: IContentTypeInfoBasic;
   const AData: IBinaryData
 );
 var
@@ -484,12 +486,15 @@ var
   VContenetTypeStr: WideString;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
+      raise Exception.Create('Bad content type for this tile storage');
+    end;
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       '.sdb';
     if FHelper.CreateDirIfNotExists(VPath) then begin
-      VContenetTypeStr := FMainContentType.GetContentType;
+      VContenetTypeStr := AContentType.GetContentType;
       VResult := FHelper.SaveTile(
         VPath,
         AXY,

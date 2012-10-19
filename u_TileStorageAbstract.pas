@@ -28,6 +28,7 @@ uses
   i_CoordConverter,
   i_MapVersionInfo,
   i_MapVersionConfig,
+  i_ContentTypeInfo,
   i_StorageTypeAbilities,
   i_StorageState,
   i_StorageStateInternal,
@@ -87,6 +88,7 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
+      const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     ); virtual; abstract;
     procedure SaveTNE(

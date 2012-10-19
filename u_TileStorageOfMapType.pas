@@ -109,6 +109,7 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const ALoadDate: TDateTime;
+      const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     );
     procedure SaveTNE(
@@ -607,6 +608,7 @@ procedure TTileStorageOfMapType.SaveTile(
   const AZoom: byte;
   const AVersion: IMapVersionInfo;
   const ALoadDate: TDateTime;
+  const AContentType: IContentTypeInfoBasic;
   const AData: IBinaryData
 );
 var
@@ -619,7 +621,7 @@ begin
   try
     VStorage := GetStorage;
     if VStorage <> nil then begin
-      VStorage.SaveTile(AXY, AZoom, AVersion, ALoadDate, AData);
+      VStorage.SaveTile(AXY, AZoom, AVersion, ALoadDate, AContentType, AData);
     end;
   finally
     VCounter.FinishOperation(VCounterContext);

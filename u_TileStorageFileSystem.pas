@@ -84,6 +84,7 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
+      const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     ); override;
     procedure SaveTNE(
@@ -454,6 +455,7 @@ procedure TTileStorageFileSystem.SaveTile(
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
+  const AContentType: IContentTypeInfoBasic;
   const AData: IBinaryData
 );
 var
@@ -464,6 +466,9 @@ var
   VFileStream: THandleStream;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
+      raise Exception.Create('Bad content type for this tile storage');
+    end;
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom);

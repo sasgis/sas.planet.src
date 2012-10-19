@@ -249,6 +249,7 @@ begin
           ATileInfo.FZoom,
           ATileInfo.FVersionInfo,
           ATileInfo.FLoadDate,
+          ATileInfo.FContentType,
           ATileInfo.FData
         );
         Result := True;

@@ -27,6 +27,7 @@ uses
   i_BinaryData,
   i_CoordConverter,
   i_NotifierTileRectUpdate,
+  i_ContentTypeInfo,
   i_MapVersionInfo,
   i_StorageState,
   i_TileInfoBasic;
@@ -69,6 +70,7 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const ALoadDate: TDateTime;
+      const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     );
     procedure SaveTNE(
