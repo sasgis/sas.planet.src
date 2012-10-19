@@ -244,7 +244,7 @@ var
   VNeedRestart: Boolean;
 begin
   VConverter :=
-    FConverterFactory.CreateBySourceWithStableTileRectAndOtherGeo(
+    FConverterFactory.CreateBySourceWithTileRectAndOtherGeo(
       FViewPortState.GetStatic,
       FMapTypeActive.GetMapType.MapType.GeoConvert
     );

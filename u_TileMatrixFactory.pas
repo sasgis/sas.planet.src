@@ -232,7 +232,7 @@ begin
   if DoubleRectsEqual(VMapPixelRect, DoubleRect(VConverter.TileRect2PixelRect(VTileRect, VZoom))) then begin
     VLocalConverter := ANewConverter;
   end else begin
-    VLocalConverter := FLocalConverterFactory.CreateBySourceWithStableTileRect(ANewConverter);
+    VLocalConverter := FLocalConverterFactory.CreateBySourceWithTileRect(ANewConverter);
     VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
     VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
   end;

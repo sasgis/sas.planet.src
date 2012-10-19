@@ -89,10 +89,10 @@ type
       const AZoom: Byte;
       const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
-    function CreateBySourceWithStableTileRect(
+    function CreateBySourceWithTileRect(
       const ASource: ILocalCoordConverter
     ): ILocalCoordConverter;
-    function CreateBySourceWithStableTileRectAndOtherGeo(
+    function CreateBySourceWithTileRectAndOtherGeo(
       const ASource: ILocalCoordConverter;
       const AGeoConverter: ICoordConverter
     ): ILocalCoordConverter;
@@ -459,7 +459,7 @@ begin
     );
 end;
 
-function TLocalCoordConverterFactorySimpe.CreateBySourceWithStableTileRect(
+function TLocalCoordConverterFactorySimpe.CreateBySourceWithTileRect(
   const ASource: ILocalCoordConverter
 ): ILocalCoordConverter;
 var
@@ -467,11 +467,9 @@ var
   VSourcePixelRect: TRect;
   VConverter: ICoordConverter;
   VTileRect: TRect;
-  VResultPixelRect: TRect;
+  VResultMapPixelRect: TRect;
+  VResultLocalPixelRect: TRect;
   VViewSize: TPoint;
-  VMovedTile: TPoint;
-  VMovedPixelRect: TRect;
-  VMovedTileRect: TRect;
 begin
   VConverter := ASource.GetGeoConverter;
   VZoom := ASource.GetZoom;
@@ -482,37 +480,26 @@ begin
   VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
 
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
-  VMovedTile := VTileRect.TopLeft;
-  Inc(VMovedTile.X);
-  Inc(VMovedTile.Y);
-  VConverter.CheckTilePosStrict(VMovedTile, VZoom, False);
-
-  VMovedPixelRect.TopLeft := VConverter.TilePos2PixelPos(VMovedTile, VZoom);
-  VMovedPixelRect.Right := VMovedPixelRect.Left + VViewSize.X;
-  VMovedPixelRect.Bottom := VMovedPixelRect.Top + VViewSize.Y;
-  VConverter.CheckPixelRect(VMovedPixelRect, VZoom);
-
-  VMovedTileRect := VConverter.PixelRect2TileRect(VMovedPixelRect, VZoom);
-  VTileRect.Right := VMovedTileRect.Right;
-  VTileRect.Bottom := VMovedTileRect.Bottom;
-
-  VResultPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
-  if EqualRect(VSourcePixelRect, VResultPixelRect) then begin
+  VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
+  if EqualRect(VSourcePixelRect, VResultMapPixelRect) then begin
     Result := ASource;
   end else begin
-    Result := TLocalCoordConverterNoScaleIntDelta.Create(
+    VResultLocalPixelRect :=
       Rect(
         0, 0,
-        VResultPixelRect.Right - VResultPixelRect.Left,
-        VResultPixelRect.Bottom - VResultPixelRect.Top
-      ),
-      ASource.ProjectionInfo,
-      VResultPixelRect.TopLeft
-    );
+        VResultMapPixelRect.Right - VResultMapPixelRect.Left,
+        VResultMapPixelRect.Bottom - VResultMapPixelRect.Top
+      );
+    Result :=
+      TLocalCoordConverterNoScaleIntDelta.Create(
+        VResultLocalPixelRect,
+        ASource.ProjectionInfo,
+        VResultMapPixelRect.TopLeft
+      );
   end;
 end;
 
-function TLocalCoordConverterFactorySimpe.CreateBySourceWithStableTileRectAndOtherGeo(
+function TLocalCoordConverterFactorySimpe.CreateBySourceWithTileRectAndOtherGeo(
   const ASource: ILocalCoordConverter;
   const AGeoConverter: ICoordConverter
 ): ILocalCoordConverter;
@@ -522,52 +509,47 @@ var
   VSourceLonLatRect: TDoubleRect;
   VConverter: ICoordConverter;
   VTileRect: TRect;
-  VResultPixelRect: TRect;
+  VResultMapPixelRect: TRect;
+  VResultLocalPixelRect: TRect;
   VViewSize: TPoint;
   VMovedTile: TPoint;
   VMovedPixelRect: TRect;
   VMovedTileRect: TRect;
 begin
-  VConverter := ASource.GetGeoConverter;
-  VZoom := ASource.GetZoom;
-  VSourcePixelRect := ASource.GetRectInMapPixel;
-  VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
-  VSourceLonLatRect := VConverter.PixelRect2LonLatRect(VSourcePixelRect, VZoom);
-  AGeoConverter.CheckZoom(VZoom);
-  AGeoConverter.CheckLonLatRect(VSourceLonLatRect);
-  VSourcePixelRect :=
-    RectFromDoubleRect(
-      AGeoConverter.LonLatRect2PixelRectFloat(VSourceLonLatRect, VZoom),
-      rrToTopLeft
-    );
+  if ASource.GeoConverter.IsSameConverter(AGeoConverter) then begin
+    Result := CreateBySourceWithTileRect(ASource);
+  end else begin
+    VConverter := ASource.GetGeoConverter;
+    VZoom := ASource.GetZoom;
+    VSourcePixelRect := ASource.GetRectInMapPixel;
+    VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
+    VSourceLonLatRect := VConverter.PixelRect2LonLatRect(VSourcePixelRect, VZoom);
+    AGeoConverter.CheckZoom(VZoom);
+    AGeoConverter.CheckLonLatRect(VSourceLonLatRect);
+    VSourcePixelRect :=
+      RectFromDoubleRect(
+        AGeoConverter.LonLatRect2PixelRectFloat(VSourceLonLatRect, VZoom),
+        rrToTopLeft
+      );
+    AGeoConverter.CheckPixelRect(VSourcePixelRect, VZoom);
 
-  VViewSize.X := VSourcePixelRect.Right - VSourcePixelRect.Left;
-  VViewSize.Y := VSourcePixelRect.Bottom - VSourcePixelRect.Top;
+    VTileRect := AGeoConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
 
-  AGeoConverter.CheckPixelRect(VSourcePixelRect, VZoom);
+    VResultMapPixelRect := AGeoConverter.TileRect2PixelRect(VTileRect, VZoom);
 
-  VTileRect := AGeoConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
-  VMovedTile := VTileRect.TopLeft;
-  Inc(VMovedTile.X);
-  Inc(VMovedTile.Y);
-  AGeoConverter.CheckTilePosStrict(VMovedTile, VZoom, False);
-
-  VMovedPixelRect.TopLeft := AGeoConverter.TilePos2PixelPos(VMovedTile, VZoom);
-  VMovedPixelRect.Right := VMovedPixelRect.Left + VViewSize.X;
-  VMovedPixelRect.Bottom := VMovedPixelRect.Top + VViewSize.Y;
-  AGeoConverter.CheckPixelRect(VMovedPixelRect, VZoom);
-
-  VMovedTileRect := AGeoConverter.PixelRect2TileRect(VMovedPixelRect, VZoom);
-  VTileRect.Right := VMovedTileRect.Right;
-  VTileRect.Bottom := VMovedTileRect.Bottom;
-
-  VResultPixelRect := AGeoConverter.TileRect2PixelRect(VTileRect, VZoom);
-
-  Result := TLocalCoordConverterNoScaleIntDelta.Create(
-    Rect(0, 0, VResultPixelRect.Right - VResultPixelRect.Left, VResultPixelRect.Bottom - VResultPixelRect.Top),
-    FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
-    VResultPixelRect.TopLeft
-  );
+    VResultLocalPixelRect :=
+      Rect(
+        0, 0,
+        VResultMapPixelRect.Right - VResultMapPixelRect.Left,
+        VResultMapPixelRect.Bottom - VResultMapPixelRect.Top
+      );
+    Result :=
+      TLocalCoordConverterNoScaleIntDelta.Create(
+        VResultLocalPixelRect,
+        FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
+        VResultMapPixelRect.TopLeft
+      );
+  end;
 end;
 
 function TLocalCoordConverterFactorySimpe.CreateConverter(
