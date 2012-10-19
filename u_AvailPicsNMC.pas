@@ -787,7 +787,7 @@ end;
 function TAvailPicsNMC.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 begin
  Result := TDownloadRequest.Create(
-           'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile=ColorOnly&syn=1&appid=jsapi&token='+FDefaultKey+'&quadkey='+GetQuadKey,
+           'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile=Recency&syn=1&appid=jsapi&token='+FDefaultKey+'&quadkey='+GetQuadKey,
            '',
            AInetConfig.GetStatic
            );
