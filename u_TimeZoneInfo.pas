@@ -79,6 +79,7 @@ begin
   FTimeZoneDiff := AOldTzInterface;
   FLastUpdateTime := 0;
   FLastTZID := '';
+  FLonLatToTimeZoneID := nil;
   if ATryUseNewMethod then begin
     GetLonLatToTimeZoneID;
   end;
@@ -96,7 +97,6 @@ end;
 
 procedure TTimeZoneInfo.GetLonLatToTimeZoneID;
 begin
-  FLonLatToTimeZoneID := nil;
   FTimeZoneDll := LoadLibrary(cTimeZoneDllName);
   if FTimeZoneDll <> 0 then begin
     FLonLatToTimeZoneID := GetProcAddress(FTimeZoneDll, cTimeZoneLonLatToTimeZoneIDFuncName);
@@ -164,6 +164,7 @@ begin
       FLastTZID := VTZID;
       FLastPoint.X := Round(ALonLat.X * 100);
       FLastPoint.Y := Round(ALonLat.Y * 100);
+      FLastUpdateTime := GetTickCount;
     end;
   end;  
   if (FLastTZID <> '') and (FLastTZID <> 'uninhabited') then begin
