@@ -33,7 +33,9 @@ type
     const Lon: Double;
     const Lat: Double;
     const ABuffer: PAnsiChar;
-    const ABufferSize: Integer
+    const ABufferSize: Integer;
+    var ALastTimeZoneIndex: Integer;
+    var ALastPolygonIndex: Integer
   ): Integer; cdecl;
 
   TTimeZoneInfo = class(TObject)
@@ -41,6 +43,8 @@ type
     FLastPoint: TPoint;
     FLastTZID: AnsiString;
     FLastUpdateTime: Cardinal;
+    FLastTimeZoneIndex: Integer;
+    FLastPolygonIndex: Integer;
     FTimeZoneDll: THandle;
     FLonLatToTimeZoneID: PLonLatToTimeZoneID;
     FTimeZoneDiff: ITimeZoneDiffByLonLat;
@@ -80,6 +84,8 @@ begin
   FLastUpdateTime := 0;
   FLastTZID := '';
   FLonLatToTimeZoneID := nil;
+  FLastTimeZoneIndex := -1;
+  FLastPolygonIndex := -1;
   if ATryUseNewMethod then begin
     GetLonLatToTimeZoneID;
   end;
@@ -142,7 +148,9 @@ begin
         ALonLat.X,
         ALonLat.Y,
         PAnsiChar(VTZID),
-        Length(VTZID)
+        Length(VTZID),
+        FLastTimeZoneIndex,
+        FLastPolygonIndex
       );
       if VLen > 0 then begin // ok, we found it
         SetLength(VTZID, VLen);
@@ -151,7 +159,9 @@ begin
           RoundTo(ALonLat.X, -1),
           RoundTo(ALonLat.Y, -1),
           PAnsiChar(VTZID),
-          Length(VTZID)
+          Length(VTZID),
+          FLastTimeZoneIndex,
+          FLastPolygonIndex
         );
         if VLen >= 0 then begin
           SetLength(VTZID, VLen);
