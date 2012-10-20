@@ -48,6 +48,7 @@ type
     FTimeZoneDll: THandle;
     FLonLatToTimeZoneID: PLonLatToTimeZoneID;
     FTimeZoneDiff: ITimeZoneDiffByLonLat;
+    function LocalTimeToUTC(AValue: TDateTime): TDateTime;
     procedure GetLonLatToTimeZoneID;
     function GetStatusBarTzInfoNew(const ALonLat: TDoublePoint): string; inline;
     function GetStatusBarTzInfoOld(const ALonLat: TDoublePoint): string; inline;
@@ -120,18 +121,43 @@ begin
   end;
 end;
 
+function TTimeZoneInfo.LocalTimeToUTC(AValue: TDateTime): TDateTime;
+// AValue - локальное врем€
+// Result - врем€ UTC
+var
+  ST1, ST2: TSystemTime;
+  TZ: TTimeZoneInformation;
+begin
+  // TZ - локальные (Windows) настройки
+  GetTimeZoneInformation(TZ);
+  // т.к. надо будет делать обратное преобразование - инвертируем bias
+  TZ.Bias := -TZ.Bias;
+  TZ.StandardBias := -TZ.StandardBias;
+  TZ.DaylightBias := -TZ.DaylightBias;
+ 
+  DateTimeToSystemTime(AValue, ST1);
+ 
+  // ѕрименение локальных настроек ко времени
+  SystemTimeToTzSpecificLocalTime(@TZ, ST1, ST2);
+ 
+  // ѕриведение WindowsSystemTime к TDateTime
+  Result := SystemTimeToDateTime(ST2);
+end;
+
 function TTimeZoneInfo.GetStatusBarTzInfoNew(const ALonLat: TDoublePoint): string;
 const
-  cUTCFormatStr = ' (UTC %.0f)';
-  cUTCFormatStrWithPlus = ' (UTC +%.0f)';
+  cUTCFormatStr = ' (UTC%s%s)';
+  cUTCFormatStrWithPlus = ' (UTC+%s%s)';
 var
   VLen: Integer;
   VNeedDetectTZID: Boolean;
   VFormatStr: string;
+  VFloor, VFrac: string;
   VTZID: AnsiString;
   VTZDB: TBundledTimeZone;
   VUTCTime: Extended;
-  VSysTime: TSystemTime;
+  VUTCOffset: Extended;
+  VUTCOffsetFrac: Extended;
 begin
   Result := '';
   if (FLastTZID = '') or
@@ -184,11 +210,23 @@ begin
     end else begin
       VFormatStr := cUTCFormatStr;
     end;
-    GetSystemTime(VSysTime);
-    VUTCTime :=
-      EncodeDate(VSysTime.wYear, VSysTime.wMonth, VSysTime.wDay) +
-      EncodeTime(VSysTime.wHour, VSysTime.wMinute, VSysTime.wSecond, VSysTime.wMilliseconds);
-    Result := TimeToStr(VTZDB.ToLocalTime(VUTCTime)) + Format(VFormatStr, [VTZDB.UtcOffset/(60*60)]);
+    VUTCTime := LocalTimeToUTC(Now);
+
+    VUTCOffset := VTZDB.UtcOffset / (60 * 60);
+    VUTCOffsetFrac := Frac(VUTCOffset) * 60;
+
+    VFloor := IntToStr(Floor(VUTCOffset));
+    if VFloor = '0' then begin
+      VFloor := ' ' + VFloor;
+    end;
+
+    if VUTCOffsetFrac > 0 then begin
+      VFrac := Format(':%.0f', [VUTCOffsetFrac]);
+    end else begin
+      VFrac := '';
+    end;
+
+    Result := TimeToStr(VTZDB.ToLocalTime(VUTCTime)) + Format(VFormatStr, [VFloor, VFrac]);
   end;
 end;
 
