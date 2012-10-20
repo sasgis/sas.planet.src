@@ -46,6 +46,7 @@ uses
   i_TimeZoneDiffByLonLat in 'i_TimeZoneDiffByLonLat.pas',
   u_TimeZoneDiffByLonLatStuped in 'u_TimeZoneDiffByLonLatStuped.pas',
   c_TimeZones in 'c_TimeZones.pas',
+  u_TimeZoneInfo in 'u_TimeZoneInfo.pas',
   i_SimpleFlag in 'i_SimpleFlag.pas',
   u_SimpleFlagWithInterlock in 'u_SimpleFlagWithInterlock.pas',
   i_BinaryData in 'i_BinaryData.pas',

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_LayerStatBar;
 
 interface
@@ -24,6 +44,7 @@ uses
   i_DownloadInfoSimple,
   i_GlobalInternetState,
   i_LanguageManager,
+  u_TimeZoneInfo,
   u_LayerStatBarPopupMenu,
   u_WindowLayerWithPos;
 
@@ -35,7 +56,7 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
     FMouseState: IMouseState;
-    FTimeZoneDiff: ITimeZoneDiffByLonLat;
+    FTimeZoneInfo: TTimeZoneInfo;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeable;
@@ -45,7 +66,6 @@ type
     FBgColor: TColor32;
     FTextColor: TColor32;
     FAALevel: Integer;
-    function GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;
     procedure OnConfigChange;
     procedure OnTimerEvent;
     procedure OnPosChange;
@@ -96,7 +116,8 @@ uses
   u_MapType;
 
 const
-  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
+  // Константа для преобразования градусов в радианы
+  D2R: Double = 0.017453292519943295769236907684886;
 
 { TLayerStatBar }
 
@@ -127,7 +148,7 @@ begin
   FConfig := AConfig;
   FGlobalInternetState := AGlobalInternetState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
-  FTimeZoneDiff := ATimeZoneDiff;
+  FTimeZoneInfo := TTimeZoneInfo.Create(ATimeZoneDiff);
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
   FPosition := AViewPortState.Position;
@@ -160,6 +181,7 @@ end;
 
 destructor TLayerStatBar.Destroy;
 begin
+  FTimeZoneInfo.Free;
   FPopupMenu.Free;
   inherited Destroy;
 end;
@@ -185,21 +207,6 @@ begin
     Result.Bottom := 0;
     Result.Right := 0;
     Result.Top := 0;
-  end;
-end;
-
-function TLayerStatBar.GetTimeInLonLat(const ALonLat: TDoublePoint): TDateTime;
-var
-  tz: TDateTime;
-  st: TSystemTime;
-begin
-  tz := FTimeZoneDiff.GetTimeDiff(ALonLat);
-  GetSystemTime(st);
-  Result := EncodeTime(st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-  Result := Result + tz;
-  Result := Frac(Result);
-  if Result < 0 then begin
-    Result := 1 + Result;
   end;
 end;
 
@@ -308,7 +315,6 @@ procedure TLayerStatBar.DoUpdateBitmapDraw;
 var
   VLonLat: TDoublePoint;
   VString: string;
-  VTimeTZ: TDateTime;
   VMapPoint: TDoublePoint;
   VZoomCurr: Byte;
   VSize: TPoint;
@@ -384,8 +390,7 @@ begin
 
     if FConfig.ViewTimeZoneTimeInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VTimeTZ := GetTimeInLonLat(VLonLat);
-      VString := TimeToStr(VTimeTZ);
+      VString := FTimeZoneInfo.GetStatusBarTzInfo(VLonLat);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
