@@ -148,7 +148,10 @@ begin
   FConfig := AConfig;
   FGlobalInternetState := AGlobalInternetState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+
   FTimeZoneInfo := TTimeZoneInfo.Create(ATimeZoneDiff);
+  FConfig.TimeZoneInfoAvailable := FTimeZoneInfo.Available;
+
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
   FPosition := AViewPortState.Position;
@@ -388,7 +391,7 @@ begin
       VNeedSeparator := True;
     end;
 
-    if FConfig.ViewTimeZoneTimeInfo then begin
+    if FConfig.TimeZoneInfoAvailable and FConfig.ViewTimeZoneTimeInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VString := FTimeZoneInfo.GetStatusBarTzInfo(VLonLat);
       RenderText(VOffset, VString, VNeedSeparator);

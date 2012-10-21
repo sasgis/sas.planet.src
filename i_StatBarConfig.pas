@@ -73,6 +73,10 @@ type
     procedure SetViewTimeZoneTimeInfo(AValue: Boolean);
     property ViewTimeZoneTimeInfo: Boolean read GetViewTimeZoneTimeInfo write SetViewTimeZoneTimeInfo;
 
+    function GetTimeZoneInfoAvailable: Boolean;
+    procedure SetTimeZoneInfoAvailable(AValue: Boolean);
+    property TimeZoneInfoAvailable: Boolean read GetTimeZoneInfoAvailable write SetTimeZoneInfoAvailable;
+
     function GetViewDownloadedInfo: Boolean;
     procedure SetViewDownloadedInfo(AValue: Boolean);
     property ViewDownloadedInfo: Boolean read GetViewDownloadedInfo write SetViewDownloadedInfo;

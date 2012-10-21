@@ -113,7 +113,9 @@ type
 implementation
 
 uses
-  GR32;
+  GR32,
+  u_ResStrings,
+  u_TimeZoneInfo;
 
 { TfrmMapLayersOptions }
 
@@ -143,7 +145,18 @@ begin
   chkStatBarZoomInfo.Checked := FStatBarConfig.ViewZoomInfo;
   chkStatBarLonLatInfo.Checked := FStatBarConfig.ViewLonLatInfo;
   chkStatBarMetrPerPixInfo.Checked := FStatBarConfig.ViewMetrPerPixInfo;
-  chkStatBarTimeZoneInfo.Checked := FStatBarConfig.ViewTimeZoneTimeInfo;
+
+  chkStatBarTimeZoneInfo.Checked :=
+    FStatBarConfig.ViewTimeZoneTimeInfo and
+    FStatBarConfig.TimeZoneInfoAvailable;
+  chkStatBarTimeZoneInfo.Enabled := FStatBarConfig.TimeZoneInfoAvailable;
+  if not FStatBarConfig.TimeZoneInfoAvailable then begin
+    if not (Pos(cTimeZoneDllName, chkStatBarTimeZoneInfo.Caption) > 0) then begin
+      chkStatBarTimeZoneInfo.Caption := chkStatBarTimeZoneInfo.Caption + ' ' +
+        Format(SAS_ERR_TimeZoneInfoDisabled, [cTimeZoneDllName]);
+    end;
+  end;
+
   chkStatBarDownloadInfo.Checked := FStatBarConfig.ViewDownloadedInfo;
   chkStatBarQueueInfo.Checked := FStatBarConfig.ViewHttpQueueInfo;
   chkStatBarTilePathInfo.Checked := FStatBarConfig.ViewTilePathInfo;

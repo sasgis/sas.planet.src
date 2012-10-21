@@ -86,6 +86,7 @@ ResourceString
   SAS_ERR_MapProjectionUnexpectedType = 'Error in projection "%0:s" of the map';
   SAS_ERR_TileDownloadUnexpectedError = 'Unknown error during download';
   SAS_ERR_CoordinatesInput = 'Error in geographic coordinates';
+  SAS_ERR_TimeZoneInfoDisabled = '(%s not found!)';
 
   SAS_ERR_EmptyZMPFileName = 'Empty ZMP file name';
   SAS_ERR_FileNotFoundFmt = 'File %0:s not found';

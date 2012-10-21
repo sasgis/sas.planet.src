@@ -44,6 +44,7 @@ type
     FLonLatInfo: Boolean;
     FMetrPerPixInfo: Boolean;
     FTimeZoneTimeInfo: Boolean;
+    FTimeZoneInfoAvailable: Boolean;
     FDownloadInfo: Boolean;
     FHttpQueueInfo: Boolean;
     FTilePathInfo: Boolean;
@@ -84,6 +85,9 @@ type
     function GetViewTimeZoneTimeInfo: Boolean;
     procedure SetViewTimeZoneTimeInfo(AValue: Boolean);
 
+    function GetTimeZoneInfoAvailable: Boolean;
+    procedure SetTimeZoneInfoAvailable(AValue: Boolean);
+
     function GetViewDownloadedInfo: Boolean;
     procedure SetViewDownloadedInfo(AValue: Boolean);
 
@@ -118,6 +122,7 @@ begin
   FLonLatInfo := True;
   FMetrPerPixInfo := True;
   FTimeZoneTimeInfo := True;
+  FTimeZoneInfoAvailable := False;
   FDownloadInfo := True;
   FHttpQueueInfo := True;
   FTilePathInfo := True;
@@ -273,6 +278,16 @@ begin
   LockRead;
   try
     Result := FTimeZoneTimeInfo;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TStatBarConfig.GetTimeZoneInfoAvailable: Boolean;
+begin
+  LockRead;
+  try
+    Result := FTimeZoneInfoAvailable;
   finally
     UnlockRead;
   end;
@@ -444,6 +459,19 @@ begin
   try
     if FTimeZoneTimeInfo <> AValue then begin
       FTimeZoneTimeInfo := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TStatBarConfig.SetTimeZoneInfoAvailable(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FTimeZoneInfoAvailable <> AValue then begin
+      FTimeZoneInfoAvailable := AValue;
       SetChanged;
     end;
   finally

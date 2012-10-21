@@ -59,6 +59,9 @@ type
 implementation
 
 uses
+  SysUtils,
+  u_ResStrings,
+  u_TimeZoneInfo,
   u_ListenerByEvent;
 
 resourcestring
@@ -164,7 +167,18 @@ begin
       tagZoomInfo: VMenuItem.Checked := FStatBarConfig.ViewZoomInfo;
       tagLonLatInfo: VMenuItem.Checked := FStatBarConfig.ViewLonLatInfo;
       tagMetrPerPixInfo: VMenuItem.Checked := FStatBarConfig.ViewMetrPerPixInfo;
-      tagTimeZoneInfo: VMenuItem.Checked := FStatBarConfig.ViewTimeZoneTimeInfo;
+      tagTimeZoneInfo: begin
+         VMenuItem.Checked :=
+          FStatBarConfig.ViewTimeZoneTimeInfo and
+          FStatBarConfig.TimeZoneInfoAvailable;
+         VMenuItem.Enabled := FStatBarConfig.TimeZoneInfoAvailable;
+         if not FStatBarConfig.TimeZoneInfoAvailable then begin 
+           if not (Pos(cTimeZoneDllName, VMenuItem.Caption) > 0) then begin
+             VMenuItem.Caption := VMenuItem.Caption + ' ' +
+               Format(SAS_ERR_TimeZoneInfoDisabled, [cTimeZoneDllName]);
+           end;
+         end;
+      end;
       tagDownloadInfo: VMenuItem.Checked := FStatBarConfig.ViewDownloadedInfo;
       tagQueueInfo: VMenuItem.Checked := FStatBarConfig.ViewHttpQueueInfo;
       tagTilePathInfo: VMenuItem.Checked := FStatBarConfig.ViewTilePathInfo;

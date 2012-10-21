@@ -48,6 +48,8 @@ type
     FTimeZoneDll: THandle;
     FLonLatToTimeZoneID: PLonLatToTimeZoneID;
     FTimeZoneDiff: ITimeZoneDiffByLonLat;
+    FAvailable: Boolean;
+    FUseOldMethod: Boolean;
     function LocalTimeToUTC(AValue: TDateTime): TDateTime;
     function UTCOffsetToString(const AOffset: Extended): string;
     procedure GetLonLatToTimeZoneID;
@@ -56,11 +58,15 @@ type
   public
     constructor Create(
       const AOldTzInterface: ITimeZoneDiffByLonLat;
-      const ATryUseNewMethod: Boolean = True
+      const AUseOldMethod: Boolean = False
     );
     destructor Destroy; override;
     function GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
+    property Available: Boolean read FAvailable;
   end;
+
+const
+  cTimeZoneDllName = 'TimeZone.dll';
 
 implementation
 
@@ -71,25 +77,27 @@ uses
 
 const
   cTimeZoneInfoUpdateInterval = 500; // ms
-  cTimeZoneDllName = 'TimeZone.dll';
   cTimeZoneLonLatToTimeZoneIDFuncName = 'LonLatToTimeZoneID';
 
 { TTimeZoneInfo }
 
 constructor TTimeZoneInfo.Create(
   const AOldTzInterface: ITimeZoneDiffByLonLat;
-  const ATryUseNewMethod: Boolean = True
+  const AUseOldMethod: Boolean
 );
 begin
   inherited Create;
+  FUseOldMethod := AUseOldMethod;
   FTimeZoneDiff := AOldTzInterface;
   FLastUpdateTime := 0;
   FLastTZID := '';
   FLonLatToTimeZoneID := nil;
   FLastTimeZoneIndex := -1;
   FLastPolygonIndex := -1;
-  if ATryUseNewMethod then begin
+  if not AUseOldMethod then begin
     GetLonLatToTimeZoneID;
+  end else begin
+    FAvailable := True;
   end;
 end;
 
@@ -108,17 +116,21 @@ begin
   FTimeZoneDll := LoadLibrary(cTimeZoneDllName);
   if FTimeZoneDll <> 0 then begin
     FLonLatToTimeZoneID := GetProcAddress(FTimeZoneDll, cTimeZoneLonLatToTimeZoneIDFuncName);
+    FAvailable := (Addr(FLonLatToTimeZoneID) <> nil);
   end;
 end;
 
 function TTimeZoneInfo.GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
 begin
-  Result := '';
-  if Addr(FLonLatToTimeZoneID) <> nil then begin
-    Result := GetStatusBarTzInfoNew(ALonLat);
-  end;
-  if Result = '' then begin
+  if FUseOldMethod then begin
     Result := GetStatusBarTzInfoOld(ALonLat);
+  end else if FAvailable then begin
+    Result := GetStatusBarTzInfoNew(ALonLat);
+    if Result = '' then begin
+      Result := GetStatusBarTzInfoOld(ALonLat);
+    end;
+  end else begin
+    Result := '';
   end;
 end;
 
@@ -192,8 +204,8 @@ begin
      (GetTickCount > FLastUpdateTime + cTimeZoneInfoUpdateInterval)
   then begin
     VNeedDetectTZID := not (
-      (FLastPoint.X = Round(ALonLat.X * 100)) and
-      (FLastPoint.Y = Round(ALonLat.Y * 100)) and
+      (FLastPoint.X = Round(ALonLat.X * 10000)) and
+      (FLastPoint.Y = Round(ALonLat.Y * 10000)) and
       (FLastTZID <> '')
     );
     if VNeedDetectTZID then begin 
@@ -214,8 +226,8 @@ begin
         );
       end;  
       FLastTZID := VTZID;
-      FLastPoint.X := Round(ALonLat.X * 100);
-      FLastPoint.Y := Round(ALonLat.Y * 100);
+      FLastPoint.X := Round(ALonLat.X * 10000);
+      FLastPoint.Y := Round(ALonLat.Y * 10000);
       FLastUpdateTime := GetTickCount;
     end;
   end;  
