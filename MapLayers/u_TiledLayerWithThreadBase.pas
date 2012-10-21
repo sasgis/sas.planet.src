@@ -44,7 +44,8 @@ type
     FBgDrawCounter: IInternalPerformanceCounter;
     FPrepareLayerProviderCounter: IInternalPerformanceCounter;
     FOneTilePrepareCounter: IInternalPerformanceCounter;
-    FOneTilePaintCounter: IInternalPerformanceCounter;
+    FOneTilePaintSimpleCounter: IInternalPerformanceCounter;
+    FOneTilePaintResizeCounter: IInternalPerformanceCounter;
     FTileMatrixUpdateCounter: IInternalPerformanceCounter;
 
     FDelicateRedrawFlag: ISimpleFlag;
@@ -177,7 +178,8 @@ begin
 
   FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
   FOneTilePrepareCounter := PerfList.CreateAndAddNewCounter('OneTilePrepare');
-  FOneTilePaintCounter := PerfList.CreateAndAddNewCounter('OneTilePaint');
+  FOneTilePaintSimpleCounter := PerfList.CreateAndAddNewCounter('OneTilePaintSimple');
+  FOneTilePaintResizeCounter := PerfList.CreateAndAddNewCounter('OneTilePaintResize');
   FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
   FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
 
@@ -522,6 +524,7 @@ var
   VBitmap: IBitmap32Static;
   VResampler: TCustomResampler;
   VDstRect: TRect;
+  VDstSize: TPoint;
   VCounterContext: TInternalPerformanceCounterContext;
   VMapPixelRect: TDoubleRect;
   VClipedDstRect: TRect;
@@ -554,24 +557,43 @@ begin
         end;
         if VBitmap <> nil then begin
           if not ABuffer.MeasuringMode then begin
-            if VResampler = nil then begin
-              VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
-            end;
-            Assert(VResampler <> nil);
-            VCounterContext := FOneTilePaintCounter.StartOperation;
-            try
-              StretchTransfer(
-                ABuffer,
-                VDstRect,
-                ABuffer.ClipRect,
-                VBitmap.Bitmap,
-                VBitmap.Bitmap.BoundsRect,
-                VResampler,
-                dmBlend,
-                cmBlend
-              );
-            finally
-              FOneTilePaintCounter.FinishOperation(VCounterContext);
+            VDstSize := Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
+            if (VDstSize.X = VBitmap.Bitmap.Width) and (VDstSize.Y = VBitmap.Bitmap.Height) then begin
+              VCounterContext := FOneTilePaintSimpleCounter.StartOperation;
+              try
+                BlockTransfer(
+                  ABuffer,
+                  VDstRect.Left,
+                  VDstRect.Top,
+                  ABuffer.ClipRect,
+                  VBitmap.Bitmap,
+                  VBitmap.Bitmap.BoundsRect,
+                  dmBlend,
+                  cmBlend
+                );
+              finally
+                FOneTilePaintSimpleCounter.FinishOperation(VCounterContext);
+              end;
+            end else begin
+              if VResampler = nil then begin
+                VResampler := TNearestResampler.Create;
+              end;
+              Assert(VResampler <> nil);
+              VCounterContext := FOneTilePaintResizeCounter.StartOperation;
+              try
+                StretchTransfer(
+                  ABuffer,
+                  VDstRect,
+                  ABuffer.ClipRect,
+                  VBitmap.Bitmap,
+                  VBitmap.Bitmap.BoundsRect,
+                  VResampler,
+                  dmBlend,
+                  cmBlend
+                );
+              finally
+                FOneTilePaintResizeCounter.FinishOperation(VCounterContext);
+              end;
             end;
           end else begin
             ABuffer.Changed(VDstRect);
