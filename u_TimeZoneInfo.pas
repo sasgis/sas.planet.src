@@ -206,21 +206,9 @@ begin
         FLastTimeZoneIndex,
         FLastPolygonIndex
       );
-      if VLen > 0 then begin // ok, we found it
+      if VLen >= 0 then begin
         SetLength(VTZID, VLen);
-      end else if VLen = 0 then begin // not found, but maybe we on border between
-        VLen := FLonLatToTimeZoneID(  // two time zones, so try decres accuracy
-          RoundTo(ALonLat.X, -1),
-          RoundTo(ALonLat.Y, -1),
-          PAnsiChar(VTZID),
-          Length(VTZID),
-          FLastTimeZoneIndex,
-          FLastPolygonIndex
-        );
-        if VLen >= 0 then begin
-          SetLength(VTZID, VLen);
-        end;
-      end else if VLen < 0 then begin
+      end else begin
         raise Exception.Create(
           'LonLatToTimeZoneID: It''s strange, but buffer is too small!'
         );
