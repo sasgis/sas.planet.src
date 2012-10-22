@@ -17,6 +17,7 @@ uses
   i_ImageResamplerConfig,
   i_TilePostDownloadCropConfig,
   i_DownloadResult,
+  i_TileRequestResult,
   i_TileDownloaderState,
   i_TileDownloadResultSaver,
   i_SimpleTileStorageConfig,
@@ -56,7 +57,7 @@ type
     );
   private
     function GetState: ITileDownloaderStateChangeble;
-    procedure SaveDownloadResult(const AResult: IDownloadResult);
+    function SaveDownloadResult(const AResult: IDownloadResult): ITileRequestResult;
   public
     constructor Create(
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -84,6 +85,7 @@ uses
   i_TileRequest,
   i_TileDownloadRequest,
   u_ListenerByEvent,
+  u_TileRequestResult,
   u_Bitmap32Static,
   u_ResStrings;
 
@@ -179,22 +181,34 @@ begin
   end;
 end;
 
-procedure TTileDownloadResultSaverStuped.SaveDownloadResult(
+function TTileDownloadResultSaverStuped.SaveDownloadResult(
   const AResult: IDownloadResult
-);
+): ITileRequestResult;
 var
   VResultOk: IDownloadResultOk;
   VContentType: AnsiString;
   VTileDownloadRequest: ITileDownloadRequest;
   VTileRequest: ITileRequest;
 begin
+  Assert(AResult <> nil);
   if Assigned(AResult) then begin
     if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
       VTileRequest := VTileDownloadRequest.Source;
       if Supports(AResult, IDownloadResultOk, VResultOk) then begin
         VContentType := VResultOk.ContentType;
         VContentType := FContentTypeSubst.GetContentType(VContentType);
-        SaveTileDownload(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VResultOk.Data, VContentType);
+        try
+          SaveTileDownload(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VResultOk.Data, VContentType);
+          Result := TTileRequestResultOk.Create(AResult);
+        except
+          on E: Exception do begin
+            Result :=
+              TTileRequestResultErrorAfterDownloadRequest.Create(
+                AResult,
+                E.Message
+              );
+          end;
+        end;
       end else if Supports(AResult, IDownloadResultDataNotExists) then begin
         if FDownloadConfig.IsSaveTileNotExists then begin
           FStorage.SaveTNE(
@@ -204,7 +218,10 @@ begin
             Now
           );
         end;
+        Result := TTileRequestResultOk.Create(AResult);
       end;
+    end else begin
+      raise Exception.Create('This was not tile request');
     end;
   end;
 end;

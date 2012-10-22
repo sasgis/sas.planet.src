@@ -4,6 +4,7 @@ interface
 
 uses
   i_TileDownloaderState,
+  i_TileRequestResult,
   i_DownloadResult;
 
 type
@@ -12,7 +13,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
     property State: ITileDownloaderStateChangeble read GetState;
 
-    procedure SaveDownloadResult(const AResult: IDownloadResult);
+    function SaveDownloadResult(const AResult: IDownloadResult): ITileRequestResult;
   end;
 
 implementation

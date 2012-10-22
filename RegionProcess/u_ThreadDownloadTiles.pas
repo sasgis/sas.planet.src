@@ -443,6 +443,7 @@ function TThreadDownloadTiles.ProcessResultAndCheckGotoNextTile(
   const AResult: ITileRequestResult
 ): Boolean;
 var
+  VResultError: ITileRequestResultError;
   VResultOk: IDownloadResultOk;
   VResultBadContentType: IDownloadResultBadContentType;
   VResultDownloadError: IDownloadResultError;
@@ -451,13 +452,20 @@ begin
   if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
     FFinishEvent.ResetEvent;
     if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VResultOk) then begin
-      // tile downloaded successfully (try to download attachments)
-      FProgressInfo.Log.WriteText('(Ok!)', 0);
-      FProgressInfo.AddDownloadedTile(AResult.Request.Tile, VResultOk.Data.Size);
-      Result := True;
+      if Supports(AResult, ITileRequestResultError, VResultError) then begin
+        // tile downloaded successfully downloaded, but not saved
+        FProgressInfo.Log.WriteText('Error: ' + VResultError.ErrorText, 0);
+        FProgressInfo.NeedPause := True;
+        Result := False;
+      end else begin
+        // tile downloaded successfully
+        FProgressInfo.Log.WriteText('(Ok!)', 0);
+        FProgressInfo.AddDownloadedTile(AResult.Request.Tile, VResultOk.Data.Size);
+        Result := True;
+      end;
       FDownloadInfo.Add(1, VResultOk.Data.Size);
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary) then begin
-      // same file size - assuming file the same (but download attachments)
+      // same file size - assuming file the same
       FProgressInfo.Log.WriteText(FRES_FileBeCreateLen, 0);
       FProgressInfo.AddNotNecessaryTile(AResult.Request.Tile);
       Result := True;

@@ -208,17 +208,19 @@ begin
                 end else begin
                   FWasConnectError := True;
                 end;
-              end;
-              try
-                FResultSaver.SaveDownloadResult(VDownloadResult);
-                Result := TTileRequestResultOk.Create(VDownloadResult);
-              except
-                on E: Exception do begin
-                  Result := TTileRequestResultErrorAfterDownloadRequest.Create(
-                    VDownloadResult,
-                    E.Message
-                  );
+                try
+                  Result := FResultSaver.SaveDownloadResult(VDownloadResult);
+                  //TTileRequestResultOk.Create(VDownloadResult);
+                except
+                  on E: Exception do begin
+                    Result := TTileRequestResultErrorAfterDownloadRequest.Create(
+                      VDownloadResult,
+                      E.Message
+                    );
+                  end;
                 end;
+              end else begin
+                Result := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
               end;
             until (not FWasConnectError) or (VCount >= VTryCount);
           end else begin
