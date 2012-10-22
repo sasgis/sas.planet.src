@@ -181,7 +181,9 @@ begin
   FGlobalInternetState.DecQueueCount;
   if AResult <> nil then begin
     VErrorString := '';
-    if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
+    if Supports(AResult, ITileRequestResultError, VRequestError) then begin
+      VErrorString := VRequestError.ErrorText;
+    end else if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
       if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
         if FDownloadInfo <> nil then begin
           FDownloadInfo.Add(1, VDownloadResultOk.Data.Size);
@@ -194,10 +196,6 @@ begin
         VErrorString := VResultNotNecessary.ReasonText;
       end else begin
         VErrorString := 'Unexpected error';
-      end;
-    end else begin
-      if Supports(AResult, ITileRequestResultError, VRequestError) then begin
-        VErrorString := VRequestError.ErrorText;
       end;
     end;
 

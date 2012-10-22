@@ -384,7 +384,9 @@ begin
 
   if Supports(AMsg, ITileRequestTask, VTask) then begin
     VErrorString := '';
-    if Supports(VTask.Result, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
+    if Supports(VTask.Result, ITileRequestResultError, VRequestError) then begin
+      VErrorString := VRequestError.ErrorText;
+    end else if Supports(VTask.Result, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
       if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
         if FDownloadInfo <> nil then begin
           FDownloadInfo.Add(1, VDownloadResultOk.Data.Size);
@@ -397,10 +399,6 @@ begin
         VErrorString := VResultNotNecessary.ReasonText;
       end else begin
         VErrorString := 'Unexpected error';
-      end;
-    end else begin
-      if Supports(VTask.Result, ITileRequestResultError, VRequestError) then begin
-        VErrorString := VRequestError.ErrorText;
       end;
     end;
     if VErrorString <> '' then begin
