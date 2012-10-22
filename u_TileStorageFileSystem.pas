@@ -489,6 +489,10 @@ begin
             FILE_ATTRIBUTE_NORMAL,
             0
           );
+        if VHandle = INVALID_HANDLE_VALUE then begin
+          RaiseLastOSError;
+        end;
+
         {$WARN SYMBOL_PLATFORM OFF}
         FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
         {$WARN SYMBOL_PLATFORM ON}
@@ -547,6 +551,9 @@ begin
               FILE_ATTRIBUTE_NORMAL,
               0
             );
+          if VHandle = INVALID_HANDLE_VALUE then begin
+            RaiseLastOSError;
+          end;
           {$WARN SYMBOL_PLATFORM OFF}
           FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
           {$WARN SYMBOL_PLATFORM ON}
