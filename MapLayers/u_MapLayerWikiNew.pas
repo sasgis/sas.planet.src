@@ -254,15 +254,16 @@ var
 begin
   Result := nil;
   AMarkS := 0;
-
-  FAllElementsCS.BeginRead;
-  try
-    VElements := FAllElements;
-  finally
-    FAllElementsCS.EndRead;
-  end;
-  if VElements <> nil then begin
-    Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint, AMarkS);
+  if Visible then begin
+    FAllElementsCS.BeginRead;
+    try
+      VElements := FAllElements;
+    finally
+      FAllElementsCS.EndRead;
+    end;
+    if VElements <> nil then begin
+      Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint, AMarkS);
+    end;
   end;
 end;
 
