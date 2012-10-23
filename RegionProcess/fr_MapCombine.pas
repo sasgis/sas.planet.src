@@ -119,6 +119,8 @@ type
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FPolygLL: ILonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
+    FUseQuality: Boolean;
+    FUseAlfa: Boolean;
     FDefaultExt: string;
     FFormatName: string;
     procedure UpdatePanelSizes;
@@ -152,6 +154,8 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AMapCalibrationList: IMapCalibrationList;
+      const AUseQuality: Boolean;
+      const AUseAlfa: Boolean;
       const ADefaultExt: string;
       const AFormatName: string
     ); reintroduce;
@@ -187,6 +191,8 @@ constructor TfrMapCombine.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AMapCalibrationList: IMapCalibrationList;
+  const AUseQuality: Boolean;
+  const AUseAlfa: Boolean;
   const ADefaultExt: string;
   const AFormatName: string
 );
@@ -201,8 +207,12 @@ begin
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
+  FUseQuality := AUseQuality;
+  FUseAlfa := AUseAlfa;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
+  chkPngWithAlpha.Visible := FUseAlfa;
+  flwpnlJpegQuality.Visible := FUseQuality;
   UpdateProjectionsList;
   UpdatePanelSizes;
 end;

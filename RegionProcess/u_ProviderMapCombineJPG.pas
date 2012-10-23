@@ -100,6 +100,8 @@ begin
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList,
+      True,
+      False,
       'jpg',
       gettext_NoExtract('JPEG (Joint Photographic Experts Group)')
   );

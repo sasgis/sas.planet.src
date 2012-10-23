@@ -2,7 +2,7 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 535
-  Height = 224
+  Height = 235
   Align = alClient
   ParentShowHint = False
   ShowHint = True
@@ -204,7 +204,7 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 144
     Width = 535
-    Height = 80
+    Height = 91
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
@@ -212,7 +212,7 @@ object frMapCombine: TfrMapCombine
       Left = 0
       Top = 0
       Width = 210
-      Height = 80
+      Height = 91
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -285,7 +285,7 @@ object frMapCombine: TfrMapCombine
       Left = 210
       Top = 0
       Width = 157
-      Height = 80
+      Height = 91
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -305,7 +305,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 18
         Width = 151
-        Height = 59
+        Height = 70
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -321,7 +321,7 @@ object frMapCombine: TfrMapCombine
       Left = 367
       Top = 0
       Width = 168
-      Height = 80
+      Height = 91
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3

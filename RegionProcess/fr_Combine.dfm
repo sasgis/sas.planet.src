@@ -1,8 +1,8 @@
 object frCombine: TfrCombine
   Left = 0
   Top = 0
-  Width = 630
-  Height = 302
+  Width = 451
+  Height = 304
   Align = alClient
   TabOrder = 0
   object pnlTop: TPanel
@@ -35,7 +35,7 @@ object frCombine: TfrCombine
       Left = 3
       Top = 3
       Width = 73
-      Height = 21
+      Height = 13
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -49,7 +49,7 @@ object frCombine: TfrCombine
       Height = 21
       Align = alClient
       Style = csDropDownList
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 0
       OnChange = cbbOutputFormatChange
     end
@@ -57,8 +57,8 @@ object frCombine: TfrCombine
   object pnlExport: TPanel
     Left = 0
     Top = 49
-    Width = 630
-    Height = 253
+    Width = 451
+    Height = 255
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2

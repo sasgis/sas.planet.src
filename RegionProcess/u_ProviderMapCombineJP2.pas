@@ -100,6 +100,8 @@ begin
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList,
+      True,
+      False,
       'jp2',
       gettext_NoExtract('JPEG2000')
   );

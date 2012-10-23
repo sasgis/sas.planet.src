@@ -100,6 +100,8 @@ begin
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList,
+      True,
+      False,
       'ecw',
       gettext_NoExtract('ECW (Enhanced Compression Wavelet)')
   );

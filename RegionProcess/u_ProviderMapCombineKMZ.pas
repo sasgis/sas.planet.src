@@ -110,6 +110,8 @@ begin
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList,
+      True,
+      False,
       'kmz',
       gettext_NoExtract('KMZ for Garmin')
   );

@@ -2,7 +2,7 @@ object frmRegionProcess: TfrmRegionProcess
   Left = 234
   Top = 298
   Caption = 'Selection Manager'
-  ClientHeight = 316
+  ClientHeight = 323
   ClientWidth = 572
   Color = clBtnFace
   Constraints.MinHeight = 343
@@ -19,7 +19,7 @@ object frmRegionProcess: TfrmRegionProcess
     Left = 0
     Top = 0
     Width = 572
-    Height = 279
+    Height = 286
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
@@ -55,7 +55,7 @@ object frmRegionProcess: TfrmRegionProcess
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 279
+    Top = 286
     Width = 572
     Height = 37
     Align = alBottom

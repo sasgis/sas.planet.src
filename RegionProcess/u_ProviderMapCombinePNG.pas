@@ -100,6 +100,8 @@ begin
       ALocalConverterFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList,
+      False,
+      True,
       'png',
       gettext_NoExtract('PNG (Portable Network Graphics)')
   );
