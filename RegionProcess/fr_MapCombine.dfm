@@ -2,42 +2,27 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 535
-  Height = 273
+  Height = 224
   Align = alClient
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  object pnlTop: TPanel
-    Left = 0
-    Top = 0
-    Width = 535
-    Height = 22
-    Align = alTop
-    Alignment = taLeftJustify
-    AutoSize = True
-    BevelEdges = [beBottom]
-    BevelKind = bkTile
-    BevelOuter = bvNone
-    BorderWidth = 3
-    Caption = 'Stitch selection'
-    TabOrder = 0
-  end
   object pnlTargetFile: TPanel
     Left = 0
-    Top = 49
+    Top = 0
     Width = 535
     Height = 25
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     BorderWidth = 3
-    TabOrder = 1
+    TabOrder = 0
     object lblTargetFile: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
       Width = 41
-      Height = 16
+      Height = 19
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
@@ -63,57 +48,14 @@ object frMapCombine: TfrMapCombine
       OnClick = btnSelectTargetFileClick
     end
   end
-  object pnlOutputFormat: TPanel
-    Left = 0
-    Top = 22
-    Width = 535
-    Height = 27
-    Align = alTop
-    AutoSize = True
-    BevelOuter = bvNone
-    BorderWidth = 3
-    TabOrder = 2
-    object lblOutputFormat: TLabel
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 73
-      Height = 18
-      Margins.Left = 0
-      Margins.Top = 0
-      Align = alLeft
-      Caption = 'Output format:'
-      Layout = tlCenter
-    end
-    object cbbOutputFormat: TComboBox
-      Left = 79
-      Top = 3
-      Width = 453
-      Height = 21
-      Align = alClient
-      Style = csDropDownList
-      ItemHeight = 13
-      ItemIndex = 0
-      TabOrder = 0
-      Text = 'ECW (Enhanced Compression Wavelet)'
-      OnChange = cbbOutputFormatChange
-      Items.Strings = (
-        'ECW (Enhanced Compression Wavelet)'
-        'BMP (Bitmap Picture)'
-        'KMZ for Garmin'
-        'JPEG (Joint Photographic Experts Group)'
-        'JPEG2000'
-        'PNG (Portable Network Graphics)')
-    end
-  end
   object pnlCenter: TPanel
     Left = 0
-    Top = 74
+    Top = 25
     Width = 535
     Height = 119
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 1
     object pnlZoom: TPanel
       Left = 479
       Top = 0
@@ -139,7 +81,7 @@ object frMapCombine: TfrMapCombine
       end
       object cbbZoom: TComboBox
         Left = 3
-        Top = 19
+        Top = 16
         Width = 50
         Height = 21
         Align = alTop
@@ -161,7 +103,7 @@ object frMapCombine: TfrMapCombine
         Left = 0
         Top = 0
         Width = 479
-        Height = 129
+        Height = 120
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
@@ -183,7 +125,7 @@ object frMapCombine: TfrMapCombine
         object lblHybr: TLabel
           AlignWithMargins = True
           Left = 3
-          Top = 43
+          Top = 40
           Width = 473
           Height = 13
           Margins.Left = 0
@@ -195,7 +137,7 @@ object frMapCombine: TfrMapCombine
         object lblStat: TLabel
           AlignWithMargins = True
           Left = 6
-          Top = 110
+          Top = 104
           Width = 467
           Height = 13
           Align = alTop
@@ -204,7 +146,7 @@ object frMapCombine: TfrMapCombine
         end
         object cbbMap: TComboBox
           Left = 3
-          Top = 19
+          Top = 16
           Width = 473
           Height = 21
           Align = alTop
@@ -215,7 +157,7 @@ object frMapCombine: TfrMapCombine
         end
         object cbbHybr: TComboBox
           Left = 3
-          Top = 59
+          Top = 53
           Width = 473
           Height = 21
           Align = alTop
@@ -229,7 +171,7 @@ object frMapCombine: TfrMapCombine
         end
         object pnlProjection: TPanel
           Left = 3
-          Top = 80
+          Top = 74
           Width = 473
           Height = 27
           Align = alTop
@@ -253,7 +195,6 @@ object frMapCombine: TfrMapCombine
             Style = csDropDownList
             ItemHeight = 13
             TabOrder = 0
-            OnChange = cbbOutputFormatChange
           end
         end
       end
@@ -261,12 +202,12 @@ object frMapCombine: TfrMapCombine
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 193
+    Top = 144
     Width = 535
     Height = 80
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 4
+    TabOrder = 2
     object pnlOptions: TPanel
       Left = 0
       Top = 0
@@ -436,7 +377,7 @@ object frMapCombine: TfrMapCombine
   object dlgSaveTargetFile: TSaveDialog
     DefaultExt = 'zip'
     Filter = 'Zip |*.zip'
-    Left = 48
-    Top = 232
+    Left = 120
+    Top = 128
   end
 end

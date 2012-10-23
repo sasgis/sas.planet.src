@@ -63,6 +63,7 @@ uses
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
+  fr_Combine,
   fr_Export;
 
 type
@@ -86,6 +87,7 @@ type
     procedure FormShow(Sender: TObject);
   private
     FfrExport: TfrExport;
+    FfrCombine: TfrCombine;
     FVectorItmesFactory: IVectorItmesFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
@@ -94,7 +96,6 @@ type
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TProviderTilesDownload;
-    FProviderMapCombine: TExportProviderAbstract;
     procedure LoadRegion(const APolyLL: ILonLatPolygon);
     procedure DelRegion(const APolyLL: ILonLatPolygon);
     procedure genbacksatREG(const APolyLL: ILonLatPolygon);
@@ -146,8 +147,7 @@ uses
   u_ConfigProviderHelpers,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
-  u_ProviderTilesCopy,
-  u_ProviderMapCombine;
+  u_ProviderTilesCopy;
 
 {$R *.dfm}
 
@@ -249,8 +249,8 @@ begin
       ADownloadConfig,
       ADownloadInfo
     );
-  FProviderMapCombine :=
-    TProviderMapCombine.Create(
+  FfrCombine :=
+    TfrCombine.Create(
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -280,7 +280,7 @@ begin
   FreeAndNil(FProviderTilesGenPrev);
   FreeAndNil(FProviderTilesCopy);
   FreeAndNil(FProviderTilesDownload);
-  FreeAndNil(FProviderMapCombine);
+  FreeAndNil(FfrCombine);
   inherited;
 end;
 
@@ -338,7 +338,7 @@ end;
 
 procedure TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon);
 begin
-  FProviderMapCombine.StartProcess(APolyLL);
+  FfrCombine.StartProcess(APolyLL);
 end;
 
 
@@ -372,7 +372,7 @@ begin
   FProviderTilesGenPrev.Show(TabSheet3, FZoom_rect, FPolygonLL);
   FProviderTilesCopy.Show(TabSheet6, FZoom_rect, FPolygonLL);
   FProviderTilesDownload.Show(TabSheet1, FZoom_rect, FPolygonLL);
-  FProviderMapCombine.Show(TabSheet2, FZoom_rect, FPolygonLL);
+  FfrCombine.Show(TabSheet2, FZoom_rect, FPolygonLL);
 
   PageControl1.ActivePageIndex:=0;
 end;

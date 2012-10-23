@@ -498,6 +498,10 @@
     <DCCReference Include="MapLayers\u_TiledLayerWithThreadBase.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
+    <DCCReference Include="RegionProcess\fr_Combine.pas">
+      <Form>frCombine</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_Export.pas">
       <Form>frExport</Form>
       <DesignClass>TFrame</DesignClass>
@@ -571,6 +575,12 @@
     <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderZip.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombine.pas" />
+    <DCCReference Include="RegionProcess\u_ProviderMapCombineBMP.pas" />
+    <DCCReference Include="RegionProcess\u_ProviderMapCombineECW.pas" />
+    <DCCReference Include="RegionProcess\u_ProviderMapCombineJP2.pas" />
+    <DCCReference Include="RegionProcess\u_ProviderMapCombineJPG.pas" />
+    <DCCReference Include="RegionProcess\u_ProviderMapCombineKMZ.pas" />
+    <DCCReference Include="RegionProcess\u_ProviderMapCombinePNG.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesCopy.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesDelete.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesDownload.pas" />

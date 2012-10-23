@@ -22,8 +22,6 @@ uses
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  i_BitmapTileSaveLoadFactory,
-  i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessingConfig,
   i_UsedMarksConfig,
@@ -36,8 +34,10 @@ uses
   fr_MapCombine;
 
 type
-  TProviderMapCombine = class(TExportProviderAbstract)
+  TProviderMapCombineBase = class(TExportProviderAbstract)
   private
+    FDefaultExt: string;
+    FFormatName: string;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FAppClosingNotifier: INotifierOneOperation;
@@ -45,14 +45,13 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FVectorItmesFactory: IVectorItmesFactory;
-    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FMarksDB: IMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FMapCalibrationList: IMapCalibrationList;
+  protected
     function PrepareTargetFileName: string;
     function PrepareTargetConverter(
       const AProjectedPolygon: IProjectedPolygon
@@ -67,8 +66,11 @@ type
       out AOperationID: Integer;
       out AProgressInfo: IRegionProcessProgressInfoInternal
     );
+    property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
+  public
+    function GetCaption: string; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -82,25 +84,21 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItmesFactory: IVectorItmesFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-      const AMapCalibrationList: IMapCalibrationList
+      const AMapCalibrationList: IMapCalibrationList;
+      const ADefaultExt: string;
+      const AFormatName: string
     );
-    function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
-
 
 implementation
 
 uses
   Classes,
-  Dialogs,
   SysUtils,
   gnugettext,
   i_LonLatRect,
@@ -115,19 +113,14 @@ uses
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderInPolygon,
   u_BitmapLayerProviderWithBGColor,
-  u_ThreadMapCombineBMP,
-  u_ThreadMapCombineECW,
-  u_ThreadMapCombineJPG,
-  u_ThreadMapCombineKMZ,
-  u_ThreadMapCombinePNG,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ResStrings,
   frm_ProgressSimple;
 
-{ TProviderTilesDelete }
+{ TProviderMapCombineBase }
 
-constructor TProviderMapCombine.Create(
+constructor TProviderMapCombineBase.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -139,14 +132,14 @@ constructor TProviderMapCombine.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItmesFactory: IVectorItmesFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-  const AMapCalibrationList: IMapCalibrationList
+  const AMapCalibrationList: IMapCalibrationList;
+  const ADefaultExt: string;
+  const AFormatName: string
 );
 begin
   inherited Create(
@@ -168,11 +161,11 @@ begin
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
   FVectorItmesFactory := AVectorItmesFactory;
-  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FDefaultExt := ADefaultExt;
+  FFormatName := AFormatName;
 end;
 
-function TProviderMapCombine.CreateFrame: TFrame;
+function TProviderMapCombineBase.CreateFrame: TFrame;
 begin
   Result :=
     TfrMapCombine.Create(
@@ -185,7 +178,9 @@ begin
       Self.GUIConfigList,
       FViewConfig,
       FUseTilePrevZoomConfig,
-      FMapCalibrationList
+      FMapCalibrationList,
+      FDefaultExt,
+      FFormatName
     );
   Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
   Assert(Supports(Result, IRegionProcessParamsFrameMapCalibrationList));
@@ -196,12 +191,12 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameMapCombineWithAlfa));
 end;
 
-function TProviderMapCombine.GetCaption: string;
+function TProviderMapCombineBase.GetCaption: string;
 begin
-  Result := SAS_STR_OperationMapCombineCaption;
+  Result := _(FFormatName);
 end;
 
-function TProviderMapCombine.PrepareImageProvider(
+function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon
 ): IBitmapLayerProvider;
@@ -299,7 +294,7 @@ begin
     );
 end;
 
-function TProviderMapCombine.PreparePolygon(
+function TProviderMapCombineBase.PreparePolygon(
   const APolygon: ILonLatPolygon
 ): IProjectedPolygon;
 var
@@ -314,7 +309,7 @@ begin
     );
 end;
 
-procedure TProviderMapCombine.PrepareProcessInfo(
+procedure TProviderMapCombineBase.PrepareProcessInfo(
   out ACancelNotifier: INotifierOperation;
   out AOperationID: Integer;
   out AProgressInfo: IRegionProcessProgressInfoInternal
@@ -338,7 +333,7 @@ begin
   );
 end;
 
-function TProviderMapCombine.PrepareTargetConverter(
+function TProviderMapCombineBase.PrepareTargetConverter(
   const AProjectedPolygon: IProjectedPolygon
 ): ILocalCoordConverter;
 var
@@ -358,135 +353,19 @@ begin
     );
 end;
 
-function TProviderMapCombine.PrepareTargetFileName: string;
+function TProviderMapCombineBase.PrepareTargetFileName: string;
+var
+  VMsg: string;
 begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   if Result = '' then begin
     raise Exception.Create(_('Please, select output file first!'));
   end;
-end;
-
-procedure TProviderMapCombine.StartProcess(const APolygon: ILonLatPolygon);
-var
-  VMapCalibrations: IMapCalibrationList;
-  VFileName: string;
-  VSplitCount: TPoint;
-  VFileExt: string;
-  VProjectedPolygon: IProjectedPolygon;
-  VTargetConverter: ILocalCoordConverter;
-  VImageProvider: IBitmapLayerProvider;
-  VMapSize: TPoint;
-  VMapPieceSize: TPoint;
-  VKmzImgesCount: TPoint;
-  VCancelNotifier: INotifierOperation;
-  VOperationID: Integer;
-  VProgressInfo: IRegionProcessProgressInfoInternal;
-  VMsg: string;
-  VBGColor: TColor32;
-begin
-  VProjectedPolygon := PreparePolygon(APolygon);
-  VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
-  VImageProvider := PrepareImageProvider(APolygon, VProjectedPolygon);
-  VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
-  VFileName := PrepareTargetFileName;
-  VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
-  VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
-  if FileExists(VFileName) then begin
-    VMsg := Format(SAS_MSG_FileExists, [VFileName]);
+  if FileExists(Result) then begin
+    VMsg := Format(SAS_MSG_FileExists, [Result]);
     if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
-      Exit;
+      raise EAbort.CreateFmt('File %0:s is available on disk.', [Result]);
     end;
-  end;
-  VFileExt := UpperCase(ExtractFileExt(VFileName));
-  if (VFileExt = '.ECW') or (VFileExt = '.JP2') then begin
-    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
-    TThreadMapCombineECW.Create(
-      VCancelNotifier,
-      VOperationID,
-      VProgressInfo,
-      APolygon,
-      VTargetConverter,
-      VImageProvider,
-      FLocalConverterFactory,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      VBGColor,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
-    );
-  end else if (VFileExt = '.BMP') then begin
-    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
-    TThreadMapCombineBMP.Create(
-      VCancelNotifier,
-      VOperationID,
-      VProgressInfo,
-      APolygon,
-      VTargetConverter,
-      VImageProvider,
-      FLocalConverterFactory,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      VBGColor
-    );
-  end else if (VFileExt = '.KMZ') then begin
-    VMapSize := VTargetConverter.GetLocalRectSize;
-    VMapPieceSize.X := VMapSize.X div VSplitCount.X;
-    VMapPieceSize.Y := VMapSize.Y div VSplitCount.Y;
-    VKmzImgesCount.X := ((VMapPieceSize.X - 1) div 1024) + 1;
-    VKmzImgesCount.Y := ((VMapPieceSize.Y - 1) div 1024) + 1;
-    if ((VKmzImgesCount.X * VKmzImgesCount.Y) > 100) then begin
-      ShowMessage(SAS_MSG_GarminMax1Mp);
-    end;
-
-    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
-    TThreadMapCombineKMZ.Create(
-      VCancelNotifier,
-      VOperationID,
-      VProgressInfo,
-      APolygon,
-      VTargetConverter,
-      VImageProvider,
-      FLocalConverterFactory,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      FBitmapTileSaveLoadFactory,
-      FArchiveReadWriteFactory,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
-    );
-  end else if (VFileExt = '.JPG') then begin
-    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
-    TThreadMapCombineJPG.Create(
-      VCancelNotifier,
-      VOperationID,
-      VProgressInfo,
-      APolygon,
-      VTargetConverter,
-      VImageProvider,
-      FLocalConverterFactory,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      VBGColor,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
-    );
-  end else if (VFileExt = '.PNG') then begin
-    PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
-    TThreadMapCombinePNG.Create(
-      VCancelNotifier,
-      VOperationID,
-      VProgressInfo,
-      APolygon,
-      VTargetConverter,
-      VImageProvider,
-      FLocalConverterFactory,
-      VMapCalibrations,
-      VFileName,
-      VSplitCount,
-      VBGColor,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineWithAlfa).IsSaveAlfa
-    );
   end;
 end;
 

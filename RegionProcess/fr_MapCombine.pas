@@ -70,14 +70,10 @@ type
       IRegionProcessParamsFrameMapCombineJpg,
       IRegionProcessParamsFrameMapCombineWithAlfa
     )
-    pnlTop: TPanel;
     pnlTargetFile: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
-    pnlOutputFormat: TPanel;
-    cbbOutputFormat: TComboBox;
-    lblOutputFormat: TLabel;
     dlgSaveTargetFile: TSaveDialog;
     pnlSplit: TPanel;
     grpSplit: TGroupBox;
@@ -110,7 +106,6 @@ type
     pnlProjection: TPanel;
     lblProjection: TLabel;
     cbbProjection: TComboBox;
-    procedure cbbOutputFormatChange(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
@@ -124,6 +119,8 @@ type
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FPolygLL: ILonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
+    FDefaultExt: string;
+    FFormatName: string;
     procedure UpdatePanelSizes;
     procedure UpdateProjectionsList;
   private
@@ -154,7 +151,9 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AMapCalibrationList: IMapCalibrationList
+      const AMapCalibrationList: IMapCalibrationList;
+      const ADefaultExt: string;
+      const AFormatName: string
     ); reintroduce;
     procedure RefreshTranslation; override;
   end;
@@ -187,7 +186,9 @@ constructor TfrMapCombine.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AMapCalibrationList: IMapCalibrationList
+  const AMapCalibrationList: IMapCalibrationList;
+  const ADefaultExt: string;
+  const AFormatName: string
 );
 begin
   inherited Create(ALanguageManager);
@@ -200,40 +201,19 @@ begin
   FMapCalibrationList := AMapCalibrationList;
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
-  cbbOutputFormat.ItemIndex := 0;
+  FDefaultExt := ADefaultExt;
+  FFormatName := AFormatName;
   UpdateProjectionsList;
   UpdatePanelSizes;
 end;
 
 procedure TfrMapCombine.btnSelectTargetFileClick(Sender: TObject);
 begin
+  dlgSaveTargetFile.DefaultExt := FDefaultExt;
+  dlgSaveTargetFile.Filter := _(FFormatName) + ' | *.' + FDefaultExt;
   if dlgSaveTargetFile.Execute then begin
     edtTargetFile.Text := dlgSaveTargetFile.FileName;
   end;
-end;
-
-procedure TfrMapCombine.cbbOutputFormatChange(Sender: TObject);
-var
-  VNewExt: string;
-  VFileName: string;
-begin
-  case cbbOutputFormat.ItemIndex of
-    0: VNewExt := 'ecw';
-    1: VNewExt := 'bmp';
-    2: VNewExt := 'kmz';
-    3: VNewExt := 'jpg';
-    4: VNewExt := 'jp2';
-    5: VNewExt := 'png';
-  else
-    VNewExt := '';
-  end;
-  VFileName := edtTargetFile.Text;
-  if VFileName <> '' then begin
-    VFileName := ChangeFileExt(VFileName, '.' + VNewExt);
-  end;
-  edtTargetFile.Text := VFileName;
-  dlgSaveTargetFile.DefaultExt := VNewExt;
-  dlgSaveTargetFile.Filter := cbbOutputFormat.Items[cbbOutputFormat.ItemIndex] + ' | *.' + VNewExt;
 end;
 
 procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
@@ -478,21 +458,17 @@ begin
     VMapCalibration := FMapCalibrationList.Get(i);
     chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
   end;
-  cbbOutputFormatChange(cbbOutputFormat);
   cbbZoomChange(nil);
   UpdatePanelSizes;
 end;
 
 procedure TfrMapCombine.RefreshTranslation;
 var
-  VFormatIndex: Integer;
   VProjectionIndex: Integer;
 begin
-  VFormatIndex := cbbOutputFormat.ItemIndex;
   VProjectionIndex := cbbProjection.ItemIndex;
   inherited;
   UpdateProjectionsList;
-  cbbOutputFormat.ItemIndex := VFormatIndex;
   if VProjectionIndex >= 0 then begin
     cbbProjection.ItemIndex := VProjectionIndex;
   end;
