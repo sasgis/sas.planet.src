@@ -857,6 +857,7 @@ uses
   i_RegionProcessParamsFrame in 'RegionProcess\i_RegionProcessParamsFrame.pas',
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   u_SearchResults in 'u_SearchResults.pas',
+  u_BitmapFunc in 'u_BitmapFunc.pas',
   i_TileFileNameParser in 'i_TileFileNameParser.pas',
   i_TileFileNameParsersList in 'i_TileFileNameParsersList.pas',
   u_TileFileNameParsersSimpleList in 'u_TileFileNameParsersSimpleList.pas',
