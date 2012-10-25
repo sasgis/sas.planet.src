@@ -74,6 +74,7 @@ uses
   GR32,
   GR32_Resamplers,
   i_TileInfoBasic,
+  u_BitmapFunc,
   u_Bitmap32Static;
 
 { TBitmapTileProviderByStorage }
@@ -138,8 +139,7 @@ begin
             StretchTransfer(
               VBitmap,
               VBitmap.BoundsRect,
-              VBitmap.ClipRect,
-              Result.Bitmap,
+              Result,
               Result.Bitmap.BoundsRect,
               VResampler,
               dmOpaque

@@ -56,7 +56,8 @@ implementation
 
 uses
   GR32_Resamplers,
-  i_BitmapMarker;
+  i_BitmapMarker,
+  u_BitmapFunc;
 
 {$R *.dfm}
 
@@ -100,8 +101,7 @@ begin
           StretchTransfer(
             VBitmap,
             VBitmap.BoundsRect,
-            VBitmap.ClipRect,
-            VMarker.Bitmap,
+            VMarker,
             VSourceRect,
             VResampler,
             dmBlend,

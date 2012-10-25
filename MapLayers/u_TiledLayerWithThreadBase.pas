@@ -141,6 +141,7 @@ uses
   i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,
   u_GeoFun,
+  u_BitmapFunc,
   u_BackgroundTask;
 
 
@@ -565,8 +566,7 @@ begin
                   ABuffer,
                   VDstRect.Left,
                   VDstRect.Top,
-                  ABuffer.ClipRect,
-                  VBitmap.Bitmap,
+                  VBitmap,
                   VBitmap.Bitmap.BoundsRect,
                   dmBlend,
                   cmBlend
@@ -584,8 +584,7 @@ begin
                 StretchTransfer(
                   ABuffer,
                   VDstRect,
-                  ABuffer.ClipRect,
-                  VBitmap.Bitmap,
+                  VBitmap,
                   VBitmap.Bitmap.BoundsRect,
                   VResampler,
                   dmBlend,

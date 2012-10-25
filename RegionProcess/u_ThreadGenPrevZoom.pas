@@ -65,6 +65,7 @@ uses
   i_TileIterator,
   u_Bitmap32Static,
   u_GeoFun,
+  u_BitmapFunc,
   u_TileIteratorByPolygon,
   u_TileIteratorByRect;
 
@@ -228,8 +229,7 @@ begin
                 StretchTransfer(
                   bmp_ex,
                   VSubTileInTargetBounds,
-                  bmp_ex.ClipRect,
-                  VBitmapSourceTile.Bitmap,
+                  VBitmapSourceTile,
                   VSubTileBounds,
                   VResampler,
                   dmOpaque

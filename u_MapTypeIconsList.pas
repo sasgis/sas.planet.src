@@ -53,6 +53,7 @@ implementation
 uses
   SysUtils,
   GR32_Resamplers,
+  u_BitmapFunc,
   u_GUIDObjectSet;
 
 { TMapTypeIconsList }
@@ -81,8 +82,7 @@ begin
           StretchTransfer(
             VValidBitmap,
             VValidBitmap.BoundsRect,
-            VValidBitmap.ClipRect,
-            ABmp.Bitmap,
+            ABmp,
             ABmp.Bitmap.BoundsRect,
             VResampler,
             dmOpaque

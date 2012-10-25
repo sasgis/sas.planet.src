@@ -69,6 +69,7 @@ uses
   i_Bitmap32Static,
   i_ShortCutSingleConfig,
   u_ShortCutModalEditByForm,
+  u_BitmapFunc,
   u_ResStrings;
 
 {$R *.dfm}
@@ -151,8 +152,7 @@ begin
         StretchTransfer(
           VBitmap,
           VBitmap.BoundsRect,
-          VBitmap.ClipRect,
-          AIcon.Bitmap,
+          AIcon,
           AIcon.Bitmap.BoundsRect,
           VResampler,
           dmBlend,

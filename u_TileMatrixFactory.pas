@@ -62,6 +62,7 @@ uses
   i_CoordConverter,
   u_Bitmap32Static,
   u_GeoFun,
+  u_BitmapFunc,
   u_TileMatrixElement,
   u_TileMatrix;
 
@@ -192,11 +193,11 @@ begin
               AResampler := TNearestResampler.Create;
             end;
             Assert(AResampler <> nil);
+
             StretchTransfer(
               VBitmapStatic.Bitmap,
               VDstCopyRect,
-              VBitmapStatic.Bitmap.BoundsRect,
-              VSourceBitmap.Bitmap,
+              VSourceBitmap,
               VSrcCopyRect,
               AResampler,
               dmOpaque

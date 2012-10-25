@@ -268,6 +268,7 @@ uses
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
   u_GeoFun,
+  u_BitmapFunc,
   u_TileStorageOfMapType,
   u_ListenerByEvent;
 
@@ -695,8 +696,7 @@ begin
             StretchTransfer(
               VBitmap,
               VBitmap.BoundsRect,
-              VBitmap.ClipRect,
-              Result.Bitmap,
+              Result,
               Result.Bitmap.BoundsRect,
               VResampler,
               dmOpaque
@@ -819,8 +819,7 @@ begin
               StretchTransfer(
                 VBitmap,
                 VTileTargetBounds,
-                VBitmap.ClipRect,
-                VBmp.Bitmap,
+                VBmp,
                 VTileSourceBounds,
                 VResampler,
                 dmOpaque
@@ -964,8 +963,7 @@ begin
             VBitmap,
             VTargetBounds.Left,
             VTargetBounds.Top,
-            VBitmap.ClipRect,
-            VSpr.Bitmap,
+            VSpr,
             VSourceBounds,
             dmOpaque
           );
@@ -1031,8 +1029,7 @@ begin
           StretchTransfer(
             VBitmap,
             VBitmap.BoundsRect,
-            VBitmap.ClipRect,
-            VSpr.Bitmap,
+            VSpr,
             VSpr.Bitmap.BoundsRect,
             VResampler,
             dmOpaque
