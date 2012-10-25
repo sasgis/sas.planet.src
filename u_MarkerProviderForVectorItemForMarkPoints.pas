@@ -166,7 +166,7 @@ begin
     end;
   end else begin
     VMarker := ASourceMarker;
-    if ASize <> VMarker.BitmapSize.X then begin
+    if ASize <> VMarker.Size.X then begin
       VMarker := ModifyMarkerWithResize(VMarker, ASize);
     end;
     Result := TMarkerDrawableByBitmapMarker.Create(VMarker);
@@ -232,9 +232,9 @@ var
 begin
   VTransform := TAffineTransformation.Create;
   try
-    VSizeSource := ASourceMarker.BitmapSize;
+    VSizeSource := ASourceMarker.Size;
     VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-    VScale := ASize / ASourceMarker.BitmapSize.X;
+    VScale := ASize / VSizeSource.X;
     VTransform.Scale(VScale, VScale);
     VTargetRect := VTransform.GetTransformedBounds;
     VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;

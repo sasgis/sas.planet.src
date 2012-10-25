@@ -9,6 +9,12 @@ uses
 type
   IBitmap32Static = interface
     ['{CE710076-F0B6-43BF-A70F-15B40555DBFA}']
+    function GetSize: TPoint;
+    property Size: TPoint read GetSize;
+
+    function GetData: PColor32Array;
+    property Data: PColor32Array read GetData;
+
     function GetBitmap: TCustomBitmap32;
     property Bitmap: TCustomBitmap32 read GetBitmap;
   end;

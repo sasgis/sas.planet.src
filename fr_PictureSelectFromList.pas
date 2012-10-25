@@ -91,7 +91,7 @@ begin
       VBitmap:=TBitmap32.Create;
       try
         VBitmap.SetSize(bound.Right-bound.Left, bound.Bottom-bound.Top);
-        VSourceSize := VMarker.BitmapSize;
+        VSourceSize := VMarker.Size;
         VSourceRect := Rect(0, 0, Trunc((VBitmap.Width / ASize) * VSourceSize.X), Trunc((VBitmap.Height / ASize) * VSourceSize.Y));
         VBitmap.Clear(clWhite32);
         VResampler := TKernelResampler.Create;

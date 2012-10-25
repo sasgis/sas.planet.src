@@ -105,7 +105,7 @@ var
   VTargetRect: TRect;
   VTargetDoubleRect: TDoubleRect;
 begin
-  VSourceSize := FMarker.BitmapSize;
+  VSourceSize := FMarker.Size;
   VAnchorPoint := FMarker.AnchorPoint;
   VHalfSize :=
     Min(
@@ -181,7 +181,7 @@ var
 begin
   VTransform := TAffineTransformation.Create;
   try
-    VSizeSource := ASourceMarker.BitmapSize;
+    VSizeSource := ASourceMarker.Size;
     VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
     VTransform.Rotate(0, 0, ASourceMarker.Direction - AAngle);
     VTargetRect := VTransform.GetTransformedBounds;

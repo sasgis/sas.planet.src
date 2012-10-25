@@ -33,10 +33,10 @@ type
   TBitmapMarker = class(TInterfacedObject, IBitmapMarker, IBitmap32Static)
   private
     FBitmap: IBitmap32Static;
-    FBitmapSize: TPoint;
     FAnchorPoint: TDoublePoint;
   private
-    function GetBitmapSize: TPoint;
+    function GetSize: TPoint;
+    function GetData: PColor32Array;
     function GetBitmap: TCustomBitmap32;
     function GetAnchorPoint: TDoublePoint;
   public
@@ -77,7 +77,6 @@ begin
   VBitmap := FBitmap.Bitmap;
   VBitmap.DrawMode := dmBlend;
   VBitmap.CombineMode := cmBlend;
-  FBitmapSize := Types.Point(VBitmap.Width, VBitmap.Height);
 end;
 
 function TBitmapMarker.GetAnchorPoint: TDoublePoint;
@@ -90,9 +89,14 @@ begin
   Result := FBitmap.Bitmap;
 end;
 
-function TBitmapMarker.GetBitmapSize: TPoint;
+function TBitmapMarker.GetData: PColor32Array;
 begin
-  Result := FBitmapSize;
+  Result := FBitmap.Data;
+end;
+
+function TBitmapMarker.GetSize: TPoint;
+begin
+  Result := FBitmap.Size;
 end;
 
 { TBitmapMarkerWithDirection }

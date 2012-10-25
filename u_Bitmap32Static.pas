@@ -9,8 +9,11 @@ uses
 type
   TBitmap32Static = class(TInterfacedObject, IBitmap32Static)
   private
+    FSize: TPoint;
     FBitmap: TCustomBitmap32;
   private
+    function GetSize: TPoint;
+    function GetData: PColor32Array;
     function GetBitmap: TCustomBitmap32;
   public
     constructor CreateWithCopy(ABitmap: TCustomBitmap32);
@@ -21,6 +24,7 @@ type
 implementation
 
 uses
+  Types,
   SysUtils;
 
 { TBitmap32Static }
@@ -43,6 +47,7 @@ constructor TBitmap32Static.CreateWithOwn(ABitmap: TCustomBitmap32);
 begin
   inherited Create;
   FBitmap := ABitmap;
+  FSize := Point(FBitmap.Width, FBitmap.Height);
 end;
 
 destructor TBitmap32Static.Destroy;
@@ -54,6 +59,16 @@ end;
 function TBitmap32Static.GetBitmap: TCustomBitmap32;
 begin
   Result := FBitmap;
+end;
+
+function TBitmap32Static.GetData: PColor32Array;
+begin
+  Result := FBitmap.Bits;
+end;
+
+function TBitmap32Static.GetSize: TPoint;
+begin
+  Result := FSize;
 end;
 
 end.

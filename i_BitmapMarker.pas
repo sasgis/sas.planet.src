@@ -31,9 +31,6 @@ uses
 type
   IBitmapMarker = interface(IBitmap32Static)
     ['{03AB4233-EEEA-4AD6-A194-EFD32345056D}']
-    function GetBitmapSize: TPoint;
-    property BitmapSize: TPoint read GetBitmapSize;
-
     function GetAnchorPoint: TDoublePoint;
     property AnchorPoint: TDoublePoint read GetAnchorPoint;
   end;
