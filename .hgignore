@@ -11,3 +11,7 @@ syntax: glob
 *.dproj.local
 *.identcache
 *.cbk
+Test/bitmaps/giftest_out.gif
+Test/bitmaps/testimgfst_out.jpg
+Test/bitmaps/testimg_out.bmp
+Test/bitmaps/pngtest_out.png
