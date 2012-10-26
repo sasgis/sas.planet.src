@@ -40,37 +40,10 @@
     <Borland.Personality>Delphi.Personality</Borland.Personality>
     <Borland.ProjectType />
     <BorlandProject>
-<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1058</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">SASPlanetTests.dpr</Source></Source>  <Excluded_Packages>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1058</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">SASPlanetTests.dpr</Source></Source><Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dcloffice2k100.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
       <Excluded_Packages Name="$(BDS)\bin\dclofficexp100.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-    </Excluded_Packages>
-  </Delphi.Personality><UnitTesting><TestFramework>DUnit / Delphi Win32</TestFramework><TestRunner>GUI</TestRunner></UnitTesting></BorlandProject></BorlandProject>
+    </Excluded_Packages></Delphi.Personality><UnitTesting><TestFramework>DUnit / Delphi Win32</TestFramework><TestRunner>GUI</TestRunner></UnitTesting></BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
@@ -90,8 +63,20 @@
     <DCCReference Include="..\u_PathConfig_Test.pas" />
     <DCCReference Include="..\u_ProjectedSingleLine_Test.pas" />
     <DCCReference Include="..\u_VectorItmesFactorySimple_Test.pas" />
+    <DCCReference Include="i_IGUIDInterfaceSet_Test.pas" />
+    <DCCReference Include="i_IGUIDObjectSet_Test.pas" />
     <DCCReference Include="u_BitmapTileSaveLoadFactory_Test.pas" />
     <DCCReference Include="u_Datum_Test.pas" />
+    <DCCReference Include="u_EnumDoublePointClosePoly_Test.pas" />
+    <DCCReference Include="u_EnumDoublePointFilterEqual_Test.pas" />
+    <DCCReference Include="u_EnumDoublePointLine2Poly_Test.pas" />
+    <DCCReference Include="u_EnumDoublePointWithClip_Test.pas" />
+    <DCCReference Include="u_GUIDSet_Test.pas" />
+    <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas" />
+    <DCCReference Include="u_PathConfig_Test.pas" />
+    <DCCReference Include="u_ProjectedSingleLine_Test.pas" />
     <DCCReference Include="u_SASTestCase.pas" />
+    <DCCReference Include="u_VectorItmesFactorySimple_Test.pas" />
+    <DCCReference Include="u_WideStrings_Test.pas" />
   </ItemGroup>
 </Project>
