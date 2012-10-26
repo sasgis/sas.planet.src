@@ -85,10 +85,10 @@ type
     Label6: TLabel;
     SpinEdit1: TSpinEdit;
     SE_ConnectionTimeout: TSpinEdit;
-    Label16: TLabel;
-    ComboBox2: TComboBox;
+    lblResizeMethod: TLabel;
+    cbbResizeMethod: TComboBox;
     MiniMapAlphaEdit: TSpinEdit;
-    Label17: TLabel;
+    lblMiniMapAlfa: TLabel;
     TilesOverScreenEdit: TSpinEdit;
     Label69: TLabel;
     CB_GPSlogPLT: TCheckBox;
@@ -166,7 +166,7 @@ type
     CBGSMComPort: TComboBox;
     Label34: TLabel;
     CBGSMBaundRate: TComboBox;
-    Label35: TLabel;
+    lblBGColor: TLabel;
     ColorBoxBackGround: TColorBox;
     CBLastSuccess: TCheckBox;
     Label36: TLabel;
@@ -569,7 +569,7 @@ begin
     GState.ValueToStringConverterConfig.UnlockWrite;
   end;
 
-  GState.ImageResamplerConfig.ActiveIndex := ComboBox2.ItemIndex;
+  GState.ImageResamplerConfig.ActiveIndex := cbbResizeMethod.ItemIndex;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
   try
@@ -896,8 +896,8 @@ begin
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
   end;
   CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
-  InitResamplersList(GState.ImageResamplerConfig.GetList, ComboBox2);
-  ComboBox2.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerConfig.GetList, cbbResizeMethod);
+  cbbResizeMethod.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
   GState.ValueToStringConverterConfig.LockRead;
   try
     ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;

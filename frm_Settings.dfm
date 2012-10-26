@@ -21,7 +21,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 663
     Height = 410
-    ActivePage = tsView
+    ActivePage = tsMaps
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -277,7 +277,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 3
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'Native cache folder:'
           Layout = tlCenter
@@ -318,7 +318,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 30
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'GoogleMV cache folder:'
           Layout = tlCenter
@@ -359,7 +359,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 57
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'EarthSlicer cache folder:'
           Layout = tlCenter
@@ -400,7 +400,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 84
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'GlobalMapper Tiles (GMT) cache folder:'
           Layout = tlCenter
@@ -441,7 +441,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 111
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'GoogleEarth cache folder:'
           Layout = tlCenter
@@ -482,7 +482,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 138
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'BerkeleyDB cache folder:'
           Layout = tlCenter
@@ -523,7 +523,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 192
           Width = 194
-          Height = 22
+          Height = 25
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
@@ -552,7 +552,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 165
           Width = 194
-          Height = 21
+          Height = 24
           Align = alClient
           Caption = 'GeoCacher root folder:'
           Layout = tlCenter
@@ -693,7 +693,7 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 17
+              Height = 20
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
@@ -958,7 +958,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 23
+              Height = 26
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
@@ -1219,7 +1219,7 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 0
-            object Label17: TLabel
+            object lblMiniMapAlfa: TLabel
               AlignWithMargins = True
               Left = 6
               Top = 6
@@ -1262,9 +1262,9 @@ object frmSettings: TfrmSettings
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
-              Top = 22
+              Top = 19
               Width = 314
-              Height = 24
+              Height = 27
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
@@ -1318,12 +1318,12 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 2
-            object Label35: TLabel
+            object lblBGColor: TLabel
               AlignWithMargins = True
               Left = 6
               Top = 6
               Width = 82
-              Height = 22
+              Height = 25
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
@@ -1350,18 +1350,18 @@ object frmSettings: TfrmSettings
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 3
-            object Label16: TLabel
+            object lblResizeMethod: TLabel
               AlignWithMargins = True
               Left = 6
               Top = 6
               Width = 78
-              Height = 21
+              Height = 24
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Resize algorithm'
               Layout = tlCenter
             end
-            object ComboBox2: TComboBox
+            object cbbResizeMethod: TComboBox
               AlignWithMargins = True
               Left = 90
               Top = 6
