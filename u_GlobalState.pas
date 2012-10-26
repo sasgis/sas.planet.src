@@ -215,10 +215,6 @@ type
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
-    property TileLoadResamplerConfig: IImageResamplerConfig read FTileLoadResamplerConfig;
-    property TileGetPrevResamplerConfig: IImageResamplerConfig read FTileGetPrevResamplerConfig;
-    property TileReprojectResamplerConfig: IImageResamplerConfig read FTileReprojectResamplerConfig;
-    property TileDownloadResamplerConfig: IImageResamplerConfig read FTileDownloadResamplerConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
@@ -433,10 +429,6 @@ begin
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
   FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileLoadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
 
   FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(FTrackPath);
@@ -554,7 +546,21 @@ begin
       FLanguageManager,
       VFilesIterator
     );
-  FMainMapsList := TMapTypesMainList.Create(FZmpInfoSet, FPerfCounterList.CreateAndAddNewSubList('MapType'));
+
+  FTileLoadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+
+  FMainMapsList :=
+    TMapTypesMainList.Create(
+      FZmpInfoSet,
+      FTileLoadResamplerConfig,
+      FTileGetPrevResamplerConfig,
+      FTileReprojectResamplerConfig,
+      FTileDownloadResamplerConfig,
+      FPerfCounterList.CreateAndAddNewSubList('MapType')
+    );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FPathDetalizeList :=
     TPathDetalizeProviderListSimple.Create(
@@ -715,10 +721,6 @@ begin
     FGCThread.List,
     FAppClosingNotifier,
     FInetConfig,
-    FTileLoadResamplerConfig,
-    FTileGetPrevResamplerConfig,
-    FTileReprojectResamplerConfig,
-    FTileDownloadResamplerConfig,
     FDownloadConfig,
     FDownloaderThreadConfig,
     FContentTypeManager,
@@ -762,6 +764,10 @@ begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
     FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
     FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+    FTileLoadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Load'));
+    FTileGetPrevResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_GetPrev'));
+    FTileReprojectResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Reproject'));
+    FTileDownloadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Download'));
     FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FMarkPictureList.ReadConfig(MainConfigProvider);
     FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
@@ -806,6 +812,10 @@ begin
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
+  FTileLoadResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Load'));
+  FTileGetPrevResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_GetPrev'));
+  FTileReprojectResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Reproject'));
+  FTileDownloadResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Download'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));

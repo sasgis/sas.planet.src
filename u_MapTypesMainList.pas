@@ -35,6 +35,7 @@ uses
   i_ZmpInfoSet,
   i_NotifierTTLCheck,
   i_InetConfig,
+  i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
@@ -57,6 +58,11 @@ type
     FZmpInfoSet: IZmpInfoSet;
     FPerfCounterList: IInternalPerformanceCounterList;
 
+    FTileLoadResamplerConfig: IImageResamplerConfig;
+    FTileGetPrevResamplerConfig: IImageResamplerConfig;
+    FTileReprojectResamplerConfig: IImageResamplerConfig;
+    FTileDownloadResamplerConfig: IImageResamplerConfig;
+
     FMapType: array of TMapType;
     FFullMapsSet: IMapTypeSet;
     FMapsSet: IMapTypeSet;
@@ -67,6 +73,10 @@ type
   public
     constructor Create(
       const AZmpInfoSet: IZmpInfoSet;
+      const ATileLoadResamplerConfig: IImageResamplerConfig;
+      const ATileGetPrevResamplerConfig: IImageResamplerConfig;
+      const ATileReprojectResamplerConfig: IImageResamplerConfig;
+      const ATileDownloadResamplerConfig: IImageResamplerConfig;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -84,10 +94,6 @@ type
       const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
-      const AResamplerConfigLoad: IImageResamplerConfig;
-      const AResamplerConfigGetPrev: IImageResamplerConfig;
-      const AResamplerConfigChangeProjection: IImageResamplerConfig;
-      const AResamplerConfigDownload: IImageResamplerConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
@@ -100,6 +106,11 @@ type
 
     function GetGUIConfigList: IMapTypeGUIConfigList;
     property GUIConfigList: IMapTypeGUIConfigList read GetGUIConfigList;
+
+    property TileLoadResamplerConfig: IImageResamplerConfig read FTileLoadResamplerConfig;
+    property TileGetPrevResamplerConfig: IImageResamplerConfig read FTileGetPrevResamplerConfig;
+    property TileReprojectResamplerConfig: IImageResamplerConfig read FTileReprojectResamplerConfig;
+    property TileDownloadResamplerConfig: IImageResamplerConfig read FTileDownloadResamplerConfig;
   end;
 
 implementation
@@ -112,17 +123,26 @@ uses
   u_MapTypeGUIConfigList,
   u_MapTypeBasic,
   u_MapTypeSet,
+  u_ImageResamplerConfig,
   u_ResStrings;
 
 { TMapTypesMainList }
 
 constructor TMapTypesMainList.Create(
   const AZmpInfoSet: IZmpInfoSet;
+  const ATileLoadResamplerConfig: IImageResamplerConfig;
+  const ATileGetPrevResamplerConfig: IImageResamplerConfig;
+  const ATileReprojectResamplerConfig: IImageResamplerConfig;
+  const ATileDownloadResamplerConfig: IImageResamplerConfig;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FZmpInfoSet := AZmpInfoSet;
+  FTileLoadResamplerConfig := ATileLoadResamplerConfig;
+  FTileGetPrevResamplerConfig := ATileGetPrevResamplerConfig;
+  FTileReprojectResamplerConfig := ATileReprojectResamplerConfig;
+  FTileDownloadResamplerConfig := ATileDownloadResamplerConfig;
   FPerfCounterList := APerfCounterList;
 end;
 
@@ -195,10 +215,6 @@ procedure TMapTypesMainList.LoadMaps(
   const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
-  const AResamplerConfigLoad: IImageResamplerConfig;
-  const AResamplerConfigGetPrev: IImageResamplerConfig;
-  const AResamplerConfigChangeProjection: IImageResamplerConfig;
-  const AResamplerConfigDownload: IImageResamplerConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
@@ -256,10 +272,10 @@ begin
           AGCList,
           AAppClosingNotifier,
           AInetConfig,
-          AResamplerConfigLoad,
-          AResamplerConfigGetPrev,
-          AResamplerConfigChangeProjection,
-          AResamplerConfigDownload,
+          FTileLoadResamplerConfig,
+          FTileGetPrevResamplerConfig,
+          FTileReprojectResamplerConfig,
+          FTileDownloadResamplerConfig,
           ADownloadConfig,
           ADownloaderThreadConfig,
           AContentTypeManager,

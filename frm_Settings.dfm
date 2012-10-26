@@ -3,7 +3,7 @@ object frmSettings: TfrmSettings
   Top = 114
   Caption = 'Options'
   ClientHeight = 441
-  ClientWidth = 663
+  ClientWidth = 652
   Color = clBtnFace
   Constraints.MinHeight = 473
   Constraints.MinWidth = 660
@@ -19,9 +19,9 @@ object frmSettings: TfrmSettings
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 663
+    Width = 652
     Height = 410
-    ActivePage = tsMaps
+    ActivePage = tsView
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -36,7 +36,7 @@ object frmSettings: TfrmSettings
         AlignWithMargins = True
         Left = 3
         Top = 220
-        Width = 649
+        Width = 638
         Height = 25
         Align = alTop
         BevelOuter = bvNone
@@ -65,7 +65,7 @@ object frmSettings: TfrmSettings
       object grdpnlCache: TGridPanel
         Left = 0
         Top = 0
-        Width = 655
+        Width = 644
         Height = 217
         Align = alTop
         BevelOuter = bvNone
@@ -270,7 +270,7 @@ object frmSettings: TfrmSettings
           end>
         TabOrder = 1
         DesignSize = (
-          655
+          644
           217)
         object Label15: TLabel
           AlignWithMargins = True
@@ -286,14 +286,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 3
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 0
         end
         object Button6: TButton
           Tag = 2
-          Left = 615
+          Left = 604
           Top = 3
           Width = 20
           Height = 21
@@ -304,7 +304,7 @@ object frmSettings: TfrmSettings
         end
         object Button7: TButton
           Tag = 2
-          Left = 635
+          Left = 624
           Top = 3
           Width = 20
           Height = 21
@@ -327,14 +327,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 30
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 3
         end
         object Button4: TButton
           Tag = 1
-          Left = 615
+          Left = 604
           Top = 30
           Width = 20
           Height = 21
@@ -345,7 +345,7 @@ object frmSettings: TfrmSettings
         end
         object Button5: TButton
           Tag = 1
-          Left = 635
+          Left = 624
           Top = 30
           Width = 20
           Height = 21
@@ -368,14 +368,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 57
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 6
         end
         object Button8: TButton
           Tag = 3
-          Left = 615
+          Left = 604
           Top = 57
           Width = 20
           Height = 21
@@ -386,7 +386,7 @@ object frmSettings: TfrmSettings
         end
         object Button9: TButton
           Tag = 3
-          Left = 635
+          Left = 624
           Top = 57
           Width = 20
           Height = 21
@@ -409,14 +409,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 84
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 9
         end
         object Button13: TButton
           Tag = 4
-          Left = 615
+          Left = 604
           Top = 84
           Width = 20
           Height = 21
@@ -427,7 +427,7 @@ object frmSettings: TfrmSettings
         end
         object Button14: TButton
           Tag = 4
-          Left = 635
+          Left = 624
           Top = 84
           Width = 20
           Height = 21
@@ -450,14 +450,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 111
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 12
         end
         object Button10: TButton
           Tag = 5
-          Left = 615
+          Left = 604
           Top = 111
           Width = 20
           Height = 21
@@ -468,7 +468,7 @@ object frmSettings: TfrmSettings
         end
         object Button17: TButton
           Tag = 5
-          Left = 635
+          Left = 624
           Top = 111
           Width = 20
           Height = 21
@@ -491,14 +491,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 138
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 15
         end
         object btnSetDefBDBCachePath: TButton
           Tag = 6
-          Left = 615
+          Left = 604
           Top = 138
           Width = 20
           Height = 21
@@ -509,7 +509,7 @@ object frmSettings: TfrmSettings
         end
         object btnSetBDBCachePath: TButton
           Tag = 6
-          Left = 635
+          Left = 624
           Top = 138
           Width = 20
           Height = 21
@@ -532,7 +532,7 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 192
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           Style = csDropDownList
@@ -561,14 +561,14 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 203
           Top = 165
-          Width = 409
+          Width = 398
           Height = 21
           Align = alClient
           TabOrder = 18
         end
         object btnSetDefGCCachePath: TButton
           Tag = 7
-          Left = 615
+          Left = 604
           Top = 163
           Width = 20
           Height = 25
@@ -579,7 +579,7 @@ object frmSettings: TfrmSettings
         end
         object btnSetGCCachePath: TButton
           Tag = 7
-          Left = 635
+          Left = 624
           Top = 163
           Width = 20
           Height = 25
@@ -597,7 +597,7 @@ object frmSettings: TfrmSettings
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
-        Width = 649
+        Width = 638
         Height = 376
         Align = alClient
         BevelOuter = bvNone
@@ -607,7 +607,7 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 6
           Top = 114
-          Width = 637
+          Width = 626
           Height = 17
           Align = alTop
           Caption = 'Retry download if tile not found'
@@ -617,7 +617,7 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 6
           Top = 137
-          Width = 637
+          Width = 626
           Height = 17
           Align = alTop
           Caption = 'Download next tile if no response'
@@ -627,7 +627,7 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 6
           Top = 160
-          Width = 637
+          Width = 626
           Height = 17
           Align = alTop
           Caption = 'Store info about not found tiles'
@@ -636,7 +636,7 @@ object frmSettings: TfrmSettings
         object flwpnlDownloadTimeOut: TFlowPanel
           Left = 3
           Top = 180
-          Width = 643
+          Width = 632
           Height = 22
           Align = alTop
           AutoSize = True
@@ -665,7 +665,7 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 6
           Top = 205
-          Width = 637
+          Width = 626
           Height = 17
           Align = alTop
           Caption = 'Restore download from last successful tile'
@@ -674,7 +674,7 @@ object frmSettings: TfrmSettings
         object GroupBox4: TGroupBox
           Left = 3
           Top = 3
-          Width = 643
+          Width = 632
           Height = 108
           Align = alTop
           Caption = 'Connection settings'
@@ -683,7 +683,7 @@ object frmSettings: TfrmSettings
             AlignWithMargins = True
             Left = 5
             Top = 47
-            Width = 633
+            Width = 622
             Height = 23
             Align = alTop
             BevelOuter = bvNone
@@ -711,7 +711,7 @@ object frmSettings: TfrmSettings
             object EditIP: TEdit
               Left = 121
               Top = 0
-              Width = 512
+              Width = 501
               Height = 23
               Align = alClient
               TabOrder = 1
@@ -721,7 +721,7 @@ object frmSettings: TfrmSettings
             AlignWithMargins = True
             Left = 5
             Top = 76
-            Width = 633
+            Width = 622
             Height = 23
             Align = alTop
             AutoSize = True
@@ -772,7 +772,7 @@ object frmSettings: TfrmSettings
             AlignWithMargins = True
             Left = 5
             Top = 18
-            Width = 633
+            Width = 622
             Height = 23
             Align = alTop
             AutoSize = True
@@ -782,7 +782,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 627
+              Width = 616
               Height = 17
               Align = alTop
               Caption = 'Use system proxy settings'
@@ -799,7 +799,7 @@ object frmSettings: TfrmSettings
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
-        Width = 655
+        Width = 644
         Height = 42
         Align = alTop
         Caption = 'Mouse wheel'
@@ -808,7 +808,7 @@ object frmSettings: TfrmSettings
           AlignWithMargins = True
           Left = 5
           Top = 18
-          Width = 645
+          Width = 634
           Height = 17
           Align = alTop
           Caption = 'Roll backward to zoom in'
@@ -818,7 +818,7 @@ object frmSettings: TfrmSettings
       object GroupBox5: TGroupBox
         Left = 0
         Top = 42
-        Width = 655
+        Width = 644
         Height = 340
         Align = alClient
         Caption = 'Hotkeys'
@@ -831,7 +831,7 @@ object frmSettings: TfrmSettings
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
-        Width = 655
+        Width = 644
         Height = 382
         Align = alClient
         BevelOuter = bvNone
@@ -861,7 +861,7 @@ object frmSettings: TfrmSettings
         object pnlUILeft: TPanel
           Left = 0
           Top = 0
-          Width = 327
+          Width = 322
           Height = 382
           Align = alClient
           BevelOuter = bvNone
@@ -870,7 +870,7 @@ object frmSettings: TfrmSettings
           object pnlDistFormat: TPanel
             Left = 3
             Top = 70
-            Width = 321
+            Width = 316
             Height = 32
             Align = alTop
             BevelOuter = bvNone
@@ -890,7 +890,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 121
               Top = 6
-              Width = 194
+              Width = 189
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -906,7 +906,7 @@ object frmSettings: TfrmSettings
           object pnlLonLatFormat: TPanel
             Left = 3
             Top = 102
-            Width = 321
+            Width = 316
             Height = 34
             Align = alTop
             BevelOuter = bvNone
@@ -926,7 +926,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 138
               Top = 6
-              Width = 177
+              Width = 172
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -946,7 +946,7 @@ object frmSettings: TfrmSettings
           object pnlLang: TPanel
             Left = 3
             Top = 3
-            Width = 321
+            Width = 316
             Height = 35
             Align = alTop
             AutoSize = True
@@ -968,7 +968,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 59
               Top = 6
-              Width = 256
+              Width = 251
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -980,7 +980,7 @@ object frmSettings: TfrmSettings
           object pnlOptions: TPanel
             Left = 3
             Top = 136
-            Width = 321
+            Width = 316
             Height = 91
             Align = alTop
             AutoSize = True
@@ -990,7 +990,7 @@ object frmSettings: TfrmSettings
             object CBShowmapname: TCheckBox
               Left = 3
               Top = 37
-              Width = 315
+              Width = 310
               Height = 17
               Align = alTop
               Caption = 'Show map name on toolbar'
@@ -999,7 +999,7 @@ object frmSettings: TfrmSettings
             object ChBoxFirstLat: TCheckBox
               Left = 3
               Top = 3
-              Width = 315
+              Width = 310
               Height = 17
               Align = alTop
               Caption = 'Latitude-Longitude order'
@@ -1008,7 +1008,7 @@ object frmSettings: TfrmSettings
             object CBlock_toolbars: TCheckBox
               Left = 3
               Top = 54
-              Width = 315
+              Width = 310
               Height = 17
               Align = alTop
               Caption = 'Lock toolbars'
@@ -1017,7 +1017,7 @@ object frmSettings: TfrmSettings
             object CBShowHintOnMarks: TCheckBox
               Left = 3
               Top = 20
-              Width = 315
+              Width = 310
               Height = 17
               Align = alTop
               Caption = 'Show tooltips'
@@ -1026,7 +1026,7 @@ object frmSettings: TfrmSettings
             object CBMinimizeToTray: TCheckBox
               Left = 3
               Top = 71
-              Width = 315
+              Width = 310
               Height = 17
               Align = alTop
               Caption = 'Minimize to tray'
@@ -1036,7 +1036,7 @@ object frmSettings: TfrmSettings
           object flwpnlTileBorder: TFlowPanel
             Left = 3
             Top = 227
-            Width = 321
+            Width = 316
             Height = 28
             Align = alTop
             AutoSize = True
@@ -1066,7 +1066,7 @@ object frmSettings: TfrmSettings
           object pnlImageProcess: TPanel
             Left = 3
             Top = 255
-            Width = 321
+            Width = 316
             Height = 125
             Align = alTop
             AutoSize = True
@@ -1076,7 +1076,7 @@ object frmSettings: TfrmSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 23
-              Width = 315
+              Width = 310
               Height = 13
               Align = alTop
               Caption = '_'
@@ -1084,7 +1084,7 @@ object frmSettings: TfrmSettings
             object LabelContrast: TLabel
               Left = 3
               Top = 61
-              Width = 315
+              Width = 310
               Height = 13
               Align = alTop
               Caption = '_'
@@ -1092,7 +1092,7 @@ object frmSettings: TfrmSettings
             object TrBarGamma: TTrackBar
               Left = 3
               Top = 36
-              Width = 315
+              Width = 310
               Height = 25
               Align = alTop
               Max = 100
@@ -1109,7 +1109,7 @@ object frmSettings: TfrmSettings
             object TrBarContrast: TTrackBar
               Left = 3
               Top = 74
-              Width = 315
+              Width = 310
               Height = 25
               Align = alTop
               Max = 100
@@ -1124,7 +1124,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 102
-              Width = 309
+              Width = 304
               Height = 17
               Align = alTop
               Caption = 'Night mode (color inversion)'
@@ -1133,7 +1133,7 @@ object frmSettings: TfrmSettings
             object pnlImageProcessTop: TPanel
               Left = 3
               Top = 3
-              Width = 315
+              Width = 310
               Height = 20
               Align = alTop
               BevelOuter = bvNone
@@ -1147,7 +1147,7 @@ object frmSettings: TfrmSettings
                 Caption = 'Image postprocessing'
               end
               object btnImageProcessReset: TButton
-                Left = 294
+                Left = 289
                 Top = 0
                 Width = 21
                 Height = 20
@@ -1162,7 +1162,7 @@ object frmSettings: TfrmSettings
           object pnlAreaFormat: TPanel
             Left = 3
             Top = 38
-            Width = 321
+            Width = 316
             Height = 32
             Align = alTop
             BevelOuter = bvNone
@@ -1182,7 +1182,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 103
               Top = 6
-              Width = 212
+              Width = 207
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -1199,9 +1199,9 @@ object frmSettings: TfrmSettings
           end
         end
         object pnlUIRight: TPanel
-          Left = 327
+          Left = 322
           Top = 0
-          Width = 328
+          Width = 322
           Height = 382
           Align = alClient
           BevelEdges = [beLeft]
@@ -1211,8 +1211,8 @@ object frmSettings: TfrmSettings
           TabOrder = 1
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 36
-            Width = 320
+            Top = 168
+            Width = 314
             Height = 28
             Align = alTop
             AutoSize = True
@@ -1241,8 +1241,8 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 100
-            Width = 320
+            Top = 232
+            Width = 314
             Height = 51
             Align = alTop
             AutoSize = True
@@ -1255,7 +1255,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 308
+              Width = 302
               Height = 13
               Align = alTop
               Caption = 'Cached tiles map:'
@@ -1263,7 +1263,7 @@ object frmSettings: TfrmSettings
             object flwpnlFillMap: TFlowPanel
               Left = 3
               Top = 19
-              Width = 314
+              Width = 308
               Height = 27
               Align = alClient
               BevelOuter = bvNone
@@ -1308,8 +1308,8 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 64
-            Width = 320
+            Top = 196
+            Width = 314
             Height = 36
             Align = alTop
             AutoSize = True
@@ -1332,7 +1332,7 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 94
               Top = 6
-              Width = 220
+              Width = 214
               Height = 22
               Align = alClient
               Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
@@ -1342,8 +1342,8 @@ object frmSettings: TfrmSettings
           end
           object pnlResize: TPanel
             Left = 3
-            Top = 3
-            Width = 320
+            Top = 135
+            Width = 314
             Height = 33
             Align = alTop
             AutoSize = True
@@ -1354,18 +1354,18 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 78
+              Width = 109
               Height = 24
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'Resize algorithm'
+              Caption = 'Other Resize algorithm'
               Layout = tlCenter
             end
             object cbbResizeMethod: TComboBox
               AlignWithMargins = True
-              Left = 90
+              Left = 121
               Top = 6
-              Width = 224
+              Width = 187
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -1375,239 +1375,384 @@ object frmSettings: TfrmSettings
                 '')
             end
           end
-          object pnlTileBorders: TPanel
+          object pnlResizeOnload: TPanel
             Left = 3
-            Top = 151
-            Width = 320
-            Height = 69
+            Top = 3
+            Width = 314
+            Height = 33
             Align = alTop
             AutoSize = True
-            BevelEdges = [beBottom]
-            BevelKind = bkTile
-            BevelOuter = bvNone
-            BorderWidth = 3
-            TabOrder = 6
-            object Label23: TLabel
-              Left = 3
-              Top = 3
-              Width = 314
-              Height = 13
-              Align = alTop
-              Caption = 'Tile borders:'
-            end
-            object flwpnlTileBorders: TFlowPanel
-              Left = 3
-              Top = 16
-              Width = 314
-              Height = 48
-              Align = alTop
-              AutoSize = True
-              BevelEdges = [beBottom]
-              BevelOuter = bvNone
-              Padding.Top = 3
-              TabOrder = 0
-              object Label27: TLabel
-                AlignWithMargins = True
-                Left = 3
-                Top = 6
-                Width = 25
-                Height = 13
-                Caption = 'Color'
-              end
-              object ColorBoxBorder: TColorBox
-                Left = 31
-                Top = 3
-                Width = 135
-                Height = 22
-                Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-                ItemHeight = 16
-                TabOrder = 0
-              end
-              object Label28: TLabel
-                AlignWithMargins = True
-                Left = 169
-                Top = 6
-                Width = 37
-                Height = 13
-                Caption = 'Opacity'
-              end
-              object SpinEditBorderAlpha: TSpinEdit
-                Left = 209
-                Top = 3
-                Width = 42
-                Height = 22
-                MaxValue = 255
-                MinValue = 0
-                TabOrder = 1
-                Value = 255
-              end
-              object CBBorderText: TCheckBox
-                AlignWithMargins = True
-                Left = 3
-                Top = 28
-                Width = 286
-                Height = 17
-                Caption = 'Tile coordinates'
-                TabOrder = 2
-              end
-            end
-          end
-          object pnlGenshtabBorders: TPanel
-            Left = 3
-            Top = 220
-            Width = 320
-            Height = 68
-            Align = alTop
-            AutoSize = True
-            BevelEdges = [beBottom]
-            BevelKind = bkTile
-            BevelOuter = bvNone
-            BorderWidth = 3
-            TabOrder = 5
-            object LabelGsh1: TLabel
-              Left = 3
-              Top = 3
-              Width = 314
-              Height = 13
-              Align = alTop
-              Caption = 'Genshtab Map boundaries:'
-            end
-            object flwpnlGenshtabBorders: TFlowPanel
-              Left = 3
-              Top = 16
-              Width = 314
-              Height = 25
-              Align = alTop
-              AutoSize = True
-              BevelEdges = [beBottom]
-              BevelOuter = bvNone
-              Padding.Top = 3
-              TabOrder = 0
-              object LabelGsh2: TLabel
-                AlignWithMargins = True
-                Left = 3
-                Top = 6
-                Width = 25
-                Height = 13
-                Caption = 'Color'
-              end
-              object GenshtabBoxBorder: TColorBox
-                Left = 31
-                Top = 3
-                Width = 135
-                Height = 22
-                Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-                ItemHeight = 16
-                TabOrder = 0
-              end
-              object LabelGsh3: TLabel
-                AlignWithMargins = True
-                Left = 169
-                Top = 6
-                Width = 37
-                Height = 13
-                Caption = 'Opacity'
-              end
-              object SpinEditGenshtabBorderAlpha: TSpinEdit
-                Left = 209
-                Top = 3
-                Width = 42
-                Height = 22
-                MaxValue = 255
-                MinValue = 0
-                TabOrder = 1
-                Value = 255
-              end
-            end
-            object CBGenshtabBorderText: TCheckBox
-              AlignWithMargins = True
-              Left = 6
-              Top = 44
-              Width = 300
-              Height = 16
-              Align = alLeft
-              Caption = 'Genshtab Map names'
-              TabOrder = 1
-            end
-          end
-          object pnlDegreeBorders: TPanel
-            Left = 3
-            Top = 288
-            Width = 320
-            Height = 68
-            Align = alTop
-            AutoSize = True
-            BevelEdges = [beBottom]
-            BevelKind = bkTile
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 4
-            object LabelDeg1: TLabel
-              Left = 3
-              Top = 3
-              Width = 314
-              Height = 13
-              Align = alTop
-              Caption = 'Lat/Lon grid:'
-            end
-            object flwpnlDegreeBorders: TFlowPanel
-              Left = 3
-              Top = 16
-              Width = 314
-              Height = 25
-              Align = alTop
-              AutoSize = True
-              BevelEdges = [beBottom]
-              BevelOuter = bvNone
-              Padding.Top = 3
-              TabOrder = 0
-              object LabelDeg2: TLabel
-                AlignWithMargins = True
-                Left = 3
-                Top = 6
-                Width = 25
-                Height = 13
-                Caption = 'Color'
-              end
-              object DegreeBoxBorder: TColorBox
-                Left = 31
-                Top = 3
-                Width = 135
-                Height = 22
-                Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-                ItemHeight = 16
-                TabOrder = 0
-              end
-              object LabelDeg3: TLabel
-                AlignWithMargins = True
-                Left = 169
-                Top = 6
-                Width = 37
-                Height = 13
-                Caption = 'Opacity'
-              end
-              object SpinEditDegreeBorderAlpha: TSpinEdit
-                Left = 209
-                Top = 3
-                Width = 42
-                Height = 22
-                MaxValue = 255
-                MinValue = 0
-                TabOrder = 1
-                Value = 255
-              end
-            end
-            object CBDegreeBorderText: TCheckBox
+            object lblResizeOnLoad: TLabel
               AlignWithMargins = True
               Left = 6
-              Top = 44
-              Width = 300
-              Height = 16
+              Top = 6
+              Width = 93
+              Height = 24
               Align = alLeft
-              Caption = 'Grid line labels'
-              TabOrder = 1
+              Alignment = taRightJustify
+              Caption = 'On load from cahce'
+              Layout = tlCenter
+            end
+            object cbbResizeOnLoad: TComboBox
+              AlignWithMargins = True
+              Left = 105
+              Top = 6
+              Width = 203
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 0
+              Items.Strings = (
+                '')
             end
           end
+          object pnlResizeGetPre: TPanel
+            Left = 3
+            Top = 36
+            Width = 314
+            Height = 33
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 5
+            object lblResizeGetPre: TLabel
+              AlignWithMargins = True
+              Left = 6
+              Top = 6
+              Width = 94
+              Height = 24
+              Align = alLeft
+              Alignment = taRightJustify
+              Caption = 'Resize get from Z-1'
+              Layout = tlCenter
+            end
+            object cbbResizeGetPre: TComboBox
+              AlignWithMargins = True
+              Left = 106
+              Top = 6
+              Width = 202
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 0
+              Items.Strings = (
+                '')
+            end
+          end
+          object pnlProjectionChange: TPanel
+            Left = 3
+            Top = 69
+            Width = 314
+            Height = 33
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 6
+            object lblProjectionChange: TLabel
+              AlignWithMargins = True
+              Left = 6
+              Top = 6
+              Width = 103
+              Height = 24
+              Align = alLeft
+              Alignment = taRightJustify
+              Caption = 'On projection change'
+              Layout = tlCenter
+            end
+            object cbbProjectionChange: TComboBox
+              AlignWithMargins = True
+              Left = 115
+              Top = 6
+              Width = 193
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 0
+              Items.Strings = (
+                '')
+            end
+          end
+          object pnlDownloadResize: TPanel
+            Left = 3
+            Top = 102
+            Width = 314
+            Height = 33
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 7
+            object lblDownloadResize: TLabel
+              AlignWithMargins = True
+              Left = 6
+              Top = 6
+              Width = 121
+              Height = 24
+              Align = alLeft
+              Alignment = taRightJustify
+              Caption = 'On resize after download'
+              Layout = tlCenter
+            end
+            object cbbDownloadResize: TComboBox
+              AlignWithMargins = True
+              Left = 133
+              Top = 6
+              Width = 175
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 0
+              Items.Strings = (
+                '')
+            end
+          end
+        end
+      end
+    end
+    object tsGrids: TTabSheet
+      Caption = 'Grids'
+      ImageIndex = 8
+      object pnlTileBorders: TPanel
+        Left = 0
+        Top = 0
+        Width = 644
+        Height = 68
+        Align = alTop
+        AutoSize = True
+        BevelEdges = [beBottom]
+        BevelKind = bkTile
+        BevelOuter = bvNone
+        BorderWidth = 3
+        TabOrder = 0
+        object Label23: TLabel
+          Left = 3
+          Top = 3
+          Width = 638
+          Height = 13
+          Align = alTop
+          Caption = 'Tile borders:'
+        end
+        object flwpnlTileBorders: TFlowPanel
+          Left = 3
+          Top = 16
+          Width = 638
+          Height = 25
+          Align = alTop
+          AutoSize = True
+          BevelEdges = [beBottom]
+          BevelOuter = bvNone
+          Padding.Top = 3
+          TabOrder = 0
+          object Label27: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 6
+            Width = 25
+            Height = 13
+            Caption = 'Color'
+          end
+          object ColorBoxBorder: TColorBox
+            Left = 31
+            Top = 3
+            Width = 135
+            Height = 22
+            Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+            ItemHeight = 16
+            TabOrder = 0
+          end
+          object Label28: TLabel
+            AlignWithMargins = True
+            Left = 169
+            Top = 6
+            Width = 37
+            Height = 13
+            Caption = 'Opacity'
+          end
+          object SpinEditBorderAlpha: TSpinEdit
+            Left = 209
+            Top = 3
+            Width = 42
+            Height = 22
+            MaxValue = 255
+            MinValue = 0
+            TabOrder = 1
+            Value = 255
+          end
+        end
+        object CBBorderText: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 44
+          Width = 286
+          Height = 16
+          Align = alLeft
+          Caption = 'Tile coordinates'
+          TabOrder = 1
+        end
+      end
+      object pnlGenshtabBorders: TPanel
+        Left = 0
+        Top = 68
+        Width = 644
+        Height = 68
+        Align = alTop
+        AutoSize = True
+        BevelEdges = [beBottom]
+        BevelKind = bkTile
+        BevelOuter = bvNone
+        BorderWidth = 3
+        TabOrder = 1
+        object LabelGsh1: TLabel
+          Left = 3
+          Top = 3
+          Width = 638
+          Height = 13
+          Align = alTop
+          Caption = 'Genshtab Map boundaries:'
+        end
+        object flwpnlGenshtabBorders: TFlowPanel
+          Left = 3
+          Top = 16
+          Width = 638
+          Height = 25
+          Align = alTop
+          AutoSize = True
+          BevelEdges = [beBottom]
+          BevelOuter = bvNone
+          Padding.Top = 3
+          TabOrder = 0
+          object LabelGsh2: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 6
+            Width = 25
+            Height = 13
+            Caption = 'Color'
+          end
+          object GenshtabBoxBorder: TColorBox
+            Left = 31
+            Top = 3
+            Width = 135
+            Height = 22
+            Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+            ItemHeight = 16
+            TabOrder = 0
+          end
+          object LabelGsh3: TLabel
+            AlignWithMargins = True
+            Left = 169
+            Top = 6
+            Width = 37
+            Height = 13
+            Caption = 'Opacity'
+          end
+          object SpinEditGenshtabBorderAlpha: TSpinEdit
+            Left = 209
+            Top = 3
+            Width = 42
+            Height = 22
+            MaxValue = 255
+            MinValue = 0
+            TabOrder = 1
+            Value = 255
+          end
+        end
+        object CBGenshtabBorderText: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 44
+          Width = 300
+          Height = 16
+          Align = alLeft
+          Caption = 'Genshtab Map names'
+          TabOrder = 1
+        end
+      end
+      object pnlDegreeBorders: TPanel
+        Left = 0
+        Top = 136
+        Width = 644
+        Height = 68
+        Align = alTop
+        AutoSize = True
+        BevelEdges = [beBottom]
+        BevelKind = bkTile
+        BevelOuter = bvNone
+        BorderWidth = 3
+        TabOrder = 2
+        object LabelDeg1: TLabel
+          Left = 3
+          Top = 3
+          Width = 638
+          Height = 13
+          Align = alTop
+          Caption = 'Lat/Lon grid:'
+        end
+        object flwpnlDegreeBorders: TFlowPanel
+          Left = 3
+          Top = 16
+          Width = 638
+          Height = 25
+          Align = alTop
+          AutoSize = True
+          BevelEdges = [beBottom]
+          BevelOuter = bvNone
+          Padding.Top = 3
+          TabOrder = 0
+          object LabelDeg2: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 6
+            Width = 25
+            Height = 13
+            Caption = 'Color'
+          end
+          object DegreeBoxBorder: TColorBox
+            Left = 31
+            Top = 3
+            Width = 135
+            Height = 22
+            Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+            ItemHeight = 16
+            TabOrder = 0
+          end
+          object LabelDeg3: TLabel
+            AlignWithMargins = True
+            Left = 169
+            Top = 6
+            Width = 37
+            Height = 13
+            Caption = 'Opacity'
+          end
+          object SpinEditDegreeBorderAlpha: TSpinEdit
+            Left = 209
+            Top = 3
+            Width = 42
+            Height = 22
+            MaxValue = 255
+            MinValue = 0
+            TabOrder = 1
+            Value = 255
+          end
+        end
+        object CBDegreeBorderText: TCheckBox
+          AlignWithMargins = True
+          Left = 6
+          Top = 44
+          Width = 300
+          Height = 16
+          Align = alLeft
+          Caption = 'Grid line labels'
+          TabOrder = 1
         end
       end
     end
@@ -1617,7 +1762,7 @@ object frmSettings: TfrmSettings
       object pnlGPSLeft: TPanel
         Left = 0
         Top = 0
-        Width = 405
+        Width = 394
         Height = 382
         Align = alClient
         BevelOuter = bvNone
@@ -1626,7 +1771,7 @@ object frmSettings: TfrmSettings
         object flwpnlGpsPort: TFlowPanel
           Left = 0
           Top = 0
-          Width = 402
+          Width = 391
           Height = 75
           Align = alTop
           AutoSize = True
@@ -1782,7 +1927,7 @@ object frmSettings: TfrmSettings
         object flwpnlGpsParams: TFlowPanel
           Left = 0
           Top = 75
-          Width = 402
+          Width = 391
           Height = 230
           Align = alTop
           BevelEdges = []
@@ -1896,7 +2041,7 @@ object frmSettings: TfrmSettings
         object GB_GpsTrackSave: TGroupBox
           Left = 0
           Top = 305
-          Width = 402
+          Width = 391
           Height = 42
           Align = alTop
           Caption = 'Autosave track to:'
@@ -1932,7 +2077,7 @@ object frmSettings: TfrmSettings
         object pnlGpsSensors: TPanel
           Left = 0
           Top = 347
-          Width = 402
+          Width = 391
           Height = 31
           Align = alTop
           AutoSize = True
@@ -1945,7 +2090,7 @@ object frmSettings: TfrmSettings
             AlignWithMargins = True
             Left = 6
             Top = 6
-            Width = 390
+            Width = 379
             Height = 17
             Align = alTop
             Caption = 'Auto show/hide sensors toolbar'
@@ -1954,7 +2099,7 @@ object frmSettings: TfrmSettings
         end
       end
       object pnlGpsRight: TPanel
-        Left = 405
+        Left = 394
         Top = 0
         Width = 250
         Height = 382
@@ -1978,7 +2123,7 @@ object frmSettings: TfrmSettings
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
-        Width = 655
+        Width = 644
         Height = 57
         Align = alTop
         BevelOuter = bvNone
@@ -2020,7 +2165,7 @@ object frmSettings: TfrmSettings
           end>
         TabOrder = 0
         DesignSize = (
-          655
+          644
           57)
         object lblWikiMainColor: TLabel
           Left = 44
@@ -2066,7 +2211,7 @@ object frmSettings: TfrmSettings
       object pnlGSM: TPanel
         Left = 0
         Top = 0
-        Width = 655
+        Width = 644
         Height = 382
         Align = alClient
         BevelOuter = bvNone
@@ -2075,7 +2220,7 @@ object frmSettings: TfrmSettings
         object chkPosFromGSM: TCheckBox
           Left = 3
           Top = 3
-          Width = 649
+          Width = 638
           Height = 17
           Align = alTop
           Caption = 'Automatically detect location using GSM phone (Google query)'
@@ -2085,7 +2230,7 @@ object frmSettings: TfrmSettings
         object flwpnlGSM: TFlowPanel
           Left = 3
           Top = 20
-          Width = 649
+          Width = 638
           Height = 28
           Align = alTop
           AutoSize = True
@@ -2170,14 +2315,14 @@ object frmSettings: TfrmSettings
   object pnlBottomButtons: TPanel
     Left = 0
     Top = 410
-    Width = 663
+    Width = 652
     Height = 31
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     object btnCancel: TButton
       AlignWithMargins = True
-      Left = 585
+      Left = 574
       Top = 3
       Width = 75
       Height = 25
@@ -2189,7 +2334,7 @@ object frmSettings: TfrmSettings
     end
     object btnOk: TButton
       AlignWithMargins = True
-      Left = 504
+      Left = 493
       Top = 3
       Width = 75
       Height = 25
@@ -2202,7 +2347,7 @@ object frmSettings: TfrmSettings
     end
     object btnApply: TButton
       AlignWithMargins = True
-      Left = 423
+      Left = 412
       Top = 3
       Width = 75
       Height = 25

@@ -240,6 +240,19 @@ type
     pnlAreaFormat: TPanel;
     lblAreaFormat: TLabel;
     cbbAreaFormat: TComboBox;
+    tsGrids: TTabSheet;
+    pnlResizeOnload: TPanel;
+    lblResizeOnLoad: TLabel;
+    cbbResizeOnLoad: TComboBox;
+    pnlResizeGetPre: TPanel;
+    lblResizeGetPre: TLabel;
+    cbbResizeGetPre: TComboBox;
+    pnlProjectionChange: TPanel;
+    lblProjectionChange: TLabel;
+    cbbProjectionChange: TComboBox;
+    pnlDownloadResize: TPanel;
+    lblDownloadResize: TLabel;
+    cbbDownloadResize: TComboBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -570,6 +583,10 @@ begin
   end;
 
   GState.ImageResamplerConfig.ActiveIndex := cbbResizeMethod.ItemIndex;
+  GState.MapType.TileLoadResamplerConfig.ActiveIndex := cbbResizeOnLoad.ItemIndex;
+  GState.MapType.TileGetPrevResamplerConfig.ActiveIndex := cbbResizeGetPre.ItemIndex;
+  GState.MapType.TileReprojectResamplerConfig.ActiveIndex := cbbProjectionChange.ItemIndex;
+  GState.MapType.TileDownloadResamplerConfig.ActiveIndex := cbbDownloadResize.ItemIndex;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
   try
@@ -896,8 +913,22 @@ begin
     GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
   end;
   CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
+
   InitResamplersList(GState.ImageResamplerConfig.GetList, cbbResizeMethod);
   cbbResizeMethod.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
+
+  InitResamplersList(GState.MapType.TileLoadResamplerConfig.GetList, cbbResizeOnLoad);
+  cbbResizeOnLoad.ItemIndex := GState.MapType.TileLoadResamplerConfig.ActiveIndex;
+
+  InitResamplersList(GState.MapType.TileGetPrevResamplerConfig.GetList, cbbResizeGetPre);
+  cbbResizeGetPre.ItemIndex := GState.MapType.TileGetPrevResamplerConfig.ActiveIndex;
+
+  InitResamplersList(GState.MapType.TileReprojectResamplerConfig.GetList, cbbProjectionChange);
+  cbbProjectionChange.ItemIndex := GState.MapType.TileReprojectResamplerConfig.ActiveIndex;
+
+  InitResamplersList(GState.MapType.TileDownloadResamplerConfig.GetList, cbbDownloadResize);
+  cbbDownloadResize.ItemIndex := GState.MapType.TileDownloadResamplerConfig.ActiveIndex;
+
   GState.ValueToStringConverterConfig.LockRead;
   try
     ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;
