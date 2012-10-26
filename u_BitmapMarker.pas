@@ -37,7 +37,6 @@ type
   private
     function GetSize: TPoint;
     function GetData: PColor32Array;
-    function GetBitmap: TCustomBitmap32;
     function GetAnchorPoint: TDoublePoint;
   public
     constructor Create(
@@ -77,11 +76,6 @@ end;
 function TBitmapMarker.GetAnchorPoint: TDoublePoint;
 begin
   Result := FAnchorPoint;
-end;
-
-function TBitmapMarker.GetBitmap: TCustomBitmap32;
-begin
-  Result := FBitmap.GetBitmap;
 end;
 
 function TBitmapMarker.GetData: PColor32Array;

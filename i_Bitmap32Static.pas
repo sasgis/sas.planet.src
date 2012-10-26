@@ -14,9 +14,6 @@ type
 
     function GetData: PColor32Array;
     property Data: PColor32Array read GetData;
-
-    function GetBitmap: TCustomBitmap32;
-    property Bitmap: TCustomBitmap32 read GetBitmap;
   end;
 
   IBitmapChangeable = interface(IChangeable)
