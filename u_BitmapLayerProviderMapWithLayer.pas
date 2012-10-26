@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderMapWithLayer;
 interface
 
 uses
-  Types,
   GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
@@ -36,7 +35,6 @@ type
 implementation
 
 uses
-  GR32_Resamplers,
   u_BitmapFunc,
   u_Bitmap32Static;
 

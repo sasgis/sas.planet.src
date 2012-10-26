@@ -33,8 +33,6 @@ type
 implementation
 
 uses
-  Types,
-  GR32_Resamplers,
   u_BitmapFunc,
   u_Bitmap32Static;
 

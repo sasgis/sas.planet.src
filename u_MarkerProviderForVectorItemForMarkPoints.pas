@@ -59,10 +59,7 @@ implementation
 uses
   Types,
   SysUtils,
-  GR32_Blend,
-  GR32_Rasterizers,
   GR32_Resamplers,
-  GR32_Transforms,
   t_GeoTypes,
   i_MarksSimple,
   u_Bitmap32Static,

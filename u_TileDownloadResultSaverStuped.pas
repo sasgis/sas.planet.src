@@ -78,7 +78,6 @@ type
 implementation
 
 uses
-  GR32_Resamplers,
   t_CommonTypes,
   i_ContentConverter,
   i_BitmapTileSaveLoad,

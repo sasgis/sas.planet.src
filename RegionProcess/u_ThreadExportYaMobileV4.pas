@@ -81,7 +81,6 @@ type
 implementation
 
 uses
-  GR32_Resamplers,
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,

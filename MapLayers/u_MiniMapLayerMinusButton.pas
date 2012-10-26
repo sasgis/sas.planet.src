@@ -82,7 +82,6 @@ type
 implementation
 
 uses
-  GR32_Resamplers,
   u_BitmapFunc,
   u_ListenerByEvent;
 

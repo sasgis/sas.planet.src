@@ -58,7 +58,6 @@ type
 implementation
 
 uses
-  GR32_Resamplers,
   i_CoordConverter,
   i_Bitmap32Static,
   i_VectorItemProjected,

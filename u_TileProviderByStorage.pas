@@ -72,7 +72,6 @@ implementation
 
 uses
   GR32,
-  GR32_Resamplers,
   i_TileInfoBasic,
   u_BitmapFunc,
   u_Bitmap32Static;

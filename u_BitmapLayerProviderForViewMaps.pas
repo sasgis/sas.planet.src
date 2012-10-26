@@ -81,7 +81,6 @@ implementation
 
 uses
   GR32,
-  GR32_Resamplers,
   t_GeoTypes,
   i_LonLatRect,
   i_TileObjCache,

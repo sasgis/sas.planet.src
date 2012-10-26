@@ -3,7 +3,6 @@ unit fr_MapCombine;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   Controls,

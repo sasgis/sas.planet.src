@@ -23,9 +23,8 @@ unit i_BitmapMarker;
 interface
 
 uses
-  GR32,
-  i_Notifier,
   t_GeoTypes,
+  i_Notifier,
   i_Bitmap32Static;
 
 type

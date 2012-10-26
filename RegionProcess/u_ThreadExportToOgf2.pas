@@ -70,7 +70,6 @@ implementation
 
 uses
   GR32,
-  GR32_Resamplers,
   Ogf2Writer,
   t_GeoTypes,
   c_CoordConverter,

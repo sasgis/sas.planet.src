@@ -248,7 +248,6 @@ implementation
 
 uses
   Types,
-  GR32_Resamplers,
   c_CacheTypeCodes,
   i_BinaryData,
   i_TileInfoBasic,

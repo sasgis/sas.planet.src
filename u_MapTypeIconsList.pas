@@ -52,7 +52,6 @@ implementation
 
 uses
   SysUtils,
-  Types,
   GR32_Resamplers,
   u_BitmapFunc,
   u_GUIDObjectSet;
