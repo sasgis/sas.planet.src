@@ -84,7 +84,10 @@ type
       const AGCList: INotifierTTLCheck;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
-      const AImageResamplerConfig: IImageResamplerConfig;
+      const AResamplerConfigLoad: IImageResamplerConfig;
+      const AResamplerConfigGetPrev: IImageResamplerConfig;
+      const AResamplerConfigChangeProjection: IImageResamplerConfig;
+      const AResamplerConfigDownload: IImageResamplerConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
@@ -192,7 +195,10 @@ procedure TMapTypesMainList.LoadMaps(
   const AGCList: INotifierTTLCheck;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
-  const AImageResamplerConfig: IImageResamplerConfig;
+  const AResamplerConfigLoad: IImageResamplerConfig;
+  const AResamplerConfigGetPrev: IImageResamplerConfig;
+  const AResamplerConfigChangeProjection: IImageResamplerConfig;
+  const AResamplerConfigDownload: IImageResamplerConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
@@ -250,7 +256,10 @@ begin
           AGCList,
           AAppClosingNotifier,
           AInetConfig,
-          AImageResamplerConfig,
+          AResamplerConfigLoad,
+          AResamplerConfigGetPrev,
+          AResamplerConfigChangeProjection,
+          AResamplerConfigDownload,
           ADownloadConfig,
           ADownloaderThreadConfig,
           AContentTypeManager,

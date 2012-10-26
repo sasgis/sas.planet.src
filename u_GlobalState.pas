@@ -136,6 +136,10 @@ type
     FDownloaderThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
     FImageResamplerConfig: IImageResamplerConfig;
+    FTileLoadResamplerConfig: IImageResamplerConfig;
+    FTileGetPrevResamplerConfig: IImageResamplerConfig;
+    FTileReprojectResamplerConfig: IImageResamplerConfig;
+    FTileDownloadResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
@@ -211,6 +215,10 @@ type
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
+    property TileLoadResamplerConfig: IImageResamplerConfig read FTileLoadResamplerConfig;
+    property TileGetPrevResamplerConfig: IImageResamplerConfig read FTileGetPrevResamplerConfig;
+    property TileReprojectResamplerConfig: IImageResamplerConfig read FTileReprojectResamplerConfig;
+    property TileDownloadResamplerConfig: IImageResamplerConfig read FTileDownloadResamplerConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
@@ -256,6 +264,7 @@ uses
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigDataProviderByPathConfig,
   i_InternalDomainInfoProvider,
+  i_ImageResamplerFactory,
   i_ProjConverter,
   i_NotifierTTLCheck,
   u_NotifierTTLCheck,
@@ -341,6 +350,7 @@ var
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
   VInternalDomainInfoProvider: IInternalDomainInfoProvider;
+  VResamplerFactoryList: IImageResamplerFactoryList;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -421,10 +431,12 @@ begin
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
-  FImageResamplerConfig :=
-    TImageResamplerConfig.Create(
-      TImageResamplerFactoryListStaticSimple.Create
-    );
+  VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
+  FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileLoadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
 
   FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(FTrackPath);
@@ -703,7 +715,10 @@ begin
     FGCThread.List,
     FAppClosingNotifier,
     FInetConfig,
-    FImageResamplerConfig,
+    FTileLoadResamplerConfig,
+    FTileGetPrevResamplerConfig,
+    FTileReprojectResamplerConfig,
+    FTileDownloadResamplerConfig,
     FDownloadConfig,
     FDownloaderThreadConfig,
     FContentTypeManager,
