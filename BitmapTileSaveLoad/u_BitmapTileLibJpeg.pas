@@ -84,7 +84,8 @@ type
   end;
 
   TWriterAppData = record
-    Bitmap: TCustomBitmap32;
+    Size: TPoint;
+    Data: PColor32Array;
     Line: PByte;
     LineSize: Cardinal;
     BGRAColorSpace: Boolean;
@@ -217,21 +218,22 @@ begin
   try
     VMemStream := TMemoryStream.Create;
     try
-      VAppData.Bitmap := ABitmap.Bitmap;
+      VAppData.Size := ABitmap.Size;
+      VAppData.Data := ABitmap.Data;
       VAppData.BGRAColorSpace := cUseBGRAColorSpace;
 
       VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace, cUseLibJpeg8);
       try
         if VAppData.BGRAColorSpace then begin
-          VAppData.LineSize := VAppData.Bitmap.Width * 4;
+          VAppData.LineSize := VAppData.Size.X * 4;
         end else begin
-          VAppData.LineSize := VAppData.Bitmap.Width * 3;
+          VAppData.LineSize := VAppData.Size.X * 3;
         end;
 
         GetMem(VAppData.Line, VAppData.LineSize);
         try
-          VJpeg.Width := VAppData.Bitmap.Width;
-          VJpeg.Height := VAppData.Bitmap.Height;
+          VJpeg.Width := VAppData.Size.X;
+          VJpeg.Height := VAppData.Size.Y;
           VJpeg.Quality := FCompressionQuality;
           VJpeg.AppData := @VAppData;
           if not VJpeg.Compress(Self.WriteLine) then begin
@@ -273,13 +275,13 @@ begin
   VLine := VAppData.Line;
   if VAppData.BGRAColorSpace then begin
     Move(
-      VAppData.Bitmap.ScanLine[ALineNumber]^,
+      VAppData.Data[ALineNumber * VAppData.Size.X],
       VLine^,
       VAppData.LineSize
     );
   end else begin
-    for I := 0 to VAppData.Bitmap.Width - 1 do begin
-      VPixColor := TColor32Rec(VAppData.Bitmap.Pixel[I, ALineNumber]);
+    for I := 0 to VAppData.Size.X - 1 do begin
+      VPixColor := TColor32Rec(VAppData.Data[I + ALineNumber * VAppData.Size.X]);
       VLine^ := VPixColor.R;
       Inc(VLine);
       VLine^ := VPixColor.G;

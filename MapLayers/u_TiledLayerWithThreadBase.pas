@@ -559,15 +559,14 @@ begin
         if VBitmap <> nil then begin
           if not ABuffer.MeasuringMode then begin
             VDstSize := Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
-            if (VDstSize.X = VBitmap.Bitmap.Width) and (VDstSize.Y = VBitmap.Bitmap.Height) then begin
+            if (VDstSize.X = VBitmap.Size.X) and (VDstSize.Y = VBitmap.Size.Y) then begin
               VCounterContext := FOneTilePaintSimpleCounter.StartOperation;
               try
-                BlockTransfer(
+                BlockTransferFull(
                   ABuffer,
                   VDstRect.Left,
                   VDstRect.Top,
                   VBitmap,
-                  VBitmap.Bitmap.BoundsRect,
                   dmBlend,
                   cmBlend
                 );
@@ -581,11 +580,10 @@ begin
               Assert(VResampler <> nil);
               VCounterContext := FOneTilePaintResizeCounter.StartOperation;
               try
-                StretchTransfer(
+                StretchTransferFull(
                   ABuffer,
                   VDstRect,
                   VBitmap,
-                  VBitmap.Bitmap.BoundsRect,
                   VResampler,
                   dmBlend,
                   cmBlend

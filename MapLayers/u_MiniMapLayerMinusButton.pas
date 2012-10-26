@@ -83,6 +83,7 @@ implementation
 
 uses
   GR32_Resamplers,
+  u_BitmapFunc,
   u_ListenerByEvent;
 
 { TMiniMapLayerPlusButton }
@@ -128,12 +129,10 @@ begin
   inherited;
   VBitmap := FBitmap.GetStatic;
   if VBitmap <> nil then begin
-    BlockTransfer(
+    BlockTransferFull(
       Layer.Bitmap,
       0, 0,
-      Layer.Bitmap.ClipRect,
-      VBitmap.Bitmap,
-      VBitmap.Bitmap.BoundsRect,
+      VBitmap,
       dmOpaque
     );
   end;
@@ -151,7 +150,7 @@ var
 begin
   VBitmap := FBitmap.GetStatic;
   if VBitmap <> nil then begin
-    Result := Point(VBitmap.Bitmap.Width, VBitmap.Bitmap.Height);
+    Result := VBitmap.Size;
   end else begin
     Result := Point(0, 0);
   end;

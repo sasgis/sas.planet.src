@@ -196,7 +196,7 @@ begin
               );
               bmp_ex.Clear(FBackGroundColor);
             end else begin
-              bmp_ex.Assign(VBitmapSourceTile.Bitmap);
+              AssignStaticToBitmap32(bmp_ex, VBitmapSourceTile);
             end;
 
             VRelativeRect := VGeoConvert.TilePos2RelativeRect(VTile, VZoom);

@@ -31,6 +31,7 @@ implementation
 
 uses
   GR32_Resamplers,
+  u_BitmapFunc,
   u_GeoFun;
 
 { TMarkerDrawableByBitmap32Static }
@@ -62,12 +63,10 @@ begin
     Exit;
   end;
 
-  BlockTransfer(
+  BlockTransferFull(
     ABitmap,
     VTargetPoint.X, VTargetPoint.Y,
-    ABitmap.ClipRect,
-    FBitmap.Bitmap,
-    FBitmap.Bitmap.BoundsRect,
+    FBitmap,
     dmBlend,
     ABitmap.CombineMode
   );
@@ -86,7 +85,7 @@ begin
       APosition.X - FAnchorPoint.X,
       APosition.Y - FAnchorPoint.Y
     );
-  VSourceSize := Types.Point(FBitmap.Bitmap.Width, FBitmap.Bitmap.Height);
+  VSourceSize := FBitmap.Size;
   VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
 
   Result.TopLeft := VTargetPoint;

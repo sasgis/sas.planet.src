@@ -355,7 +355,9 @@ begin
     TargetBitmap,
     X, Y,
     TargetBitmap.ClipRect,
-    FTmpBitmap,
+    FTmpBitmap.Bits,
+    FTmpBitmap.Width,
+    FTmpBitmap.Height,
     FTmpBitmap.BoundsRect,
     dmOpaque
   );

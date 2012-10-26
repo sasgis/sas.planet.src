@@ -129,18 +129,17 @@ begin
     if Result <> nil then begin
       VRect := FGeoConverter.TilePos2PixelRect(ATile, AZoom);
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
-      if (Result.Bitmap.Width <> VSize.X) or
-        (Result.Bitmap.Height <> VSize.Y) then begin
+      if (Result.Size.X <> VSize.X) or
+        (Result.Size.Y <> VSize.Y) then begin
         VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
         try
           VBitmap := TCustomBitmap32.Create;
           try
             VBitmap.SetSize(VSize.X, VSize.Y);
-            StretchTransfer(
+            StretchTransferFull(
               VBitmap,
               VBitmap.BoundsRect,
               Result,
-              Result.Bitmap.BoundsRect,
               VResampler,
               dmOpaque
             );

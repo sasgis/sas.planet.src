@@ -68,15 +68,10 @@ constructor TBitmapMarker.Create(
   const ABitmap: IBitmap32Static;
   const AAnchorPoint: TDoublePoint
 );
-var
-  VBitmap: TCustomBitmap32;
 begin
   inherited Create;
   FAnchorPoint := AAnchorPoint;
   FBitmap := ABitmap;
-  VBitmap := FBitmap.Bitmap;
-  VBitmap.DrawMode := dmBlend;
-  VBitmap.CombineMode := cmBlend;
 end;
 
 function TBitmapMarker.GetAnchorPoint: TDoublePoint;
@@ -86,7 +81,7 @@ end;
 
 function TBitmapMarker.GetBitmap: TCustomBitmap32;
 begin
-  Result := FBitmap.Bitmap;
+  Result := FBitmap.GetBitmap;
 end;
 
 function TBitmapMarker.GetData: PColor32Array;

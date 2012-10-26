@@ -29,8 +29,10 @@ type
 implementation
 
 uses
+  Types,
   GR32,
   GR32_Resamplers,
+  u_BitmapFunc,
   u_Bitmap32Static;
 
 { TBitmapLayerProviderComplex }
@@ -65,13 +67,11 @@ begin
     end else begin
       VBitmap := TCustomBitmap32.Create;
       try
-        VBitmap.Assign(VResultFirst.Bitmap);
-        BlockTransfer(
+        AssignStaticToBitmap32(VBitmap, VResultFirst);
+        BlockTransferFull(
           VBitmap,
           0, 0,
-          VBitmap.ClipRect,
-          VResultSecond.Bitmap,
-          VResultSecond.Bitmap.BoundsRect,
+          VResultSecond,
           dmBlend,
           cmMerge
         );

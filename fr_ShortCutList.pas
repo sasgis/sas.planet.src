@@ -149,11 +149,10 @@ begin
       VBitmap.Clear(clWhite32);
       VResampler := TLinearResampler.Create;
       try
-        StretchTransfer(
+        StretchTransferFull(
           VBitmap,
           VBitmap.BoundsRect,
           AIcon,
-          AIcon.Bitmap.BoundsRect,
           VResampler,
           dmBlend,
           cmBlend

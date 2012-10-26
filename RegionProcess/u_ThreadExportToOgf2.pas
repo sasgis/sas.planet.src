@@ -81,6 +81,7 @@ uses
   u_Bitmap32Static,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
+  u_BitmapFunc,
   u_GeoFun;
 
 const
@@ -309,8 +310,7 @@ begin
                       VBitmap,
                       0,
                       0,
-                      VBitmap.ClipRect,
-                      VBitmapTile.Bitmap,
+                      VBitmapTile,
                       Bounds(FOgf2TileWidth * I, FOgf2TileHeight * J, FOgf2TileWidth, FOgf2TileHeight),
                       dmOpaque
                     );

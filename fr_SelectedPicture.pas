@@ -52,7 +52,8 @@ uses
   GR32_Blend,
   GR32_Rasterizers,
   GR32_Resamplers,
-  GR32_Transforms;
+  GR32_Transforms,
+  u_BitmapFunc;
 
 {$R *.dfm}
 
@@ -69,8 +70,9 @@ var
   VTransformer: TTransformer;
   VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
+  VBitmap: TCustomBitmap32;
 begin
-  VSizeSource := Point(ASourceBitmap.Bitmap.Width, ASourceBitmap.Bitmap.Height);
+  VSizeSource := ASourceBitmap.Size;
   if (VSizeSource.X > 0) and (VSizeSource.Y > 0) then begin
     VTransform := TAffineTransformation.Create;
     try
@@ -87,18 +89,24 @@ begin
       try
         VSampler := TLinearResampler.Create;
         try
-          VSampler.Bitmap := ASourceBitmap.Bitmap;
-          VTransformer := TTransformer.Create(VSampler, VTransform);
+          VBitmap := TCustomBitmap32.Create;
           try
-            VRasterizer.Sampler := VTransformer;
-            VCombineInfo.SrcAlpha := 255;
-            VCombineInfo.DrawMode := dmBlend;
-            VCombineInfo.CombineMode := cmBlend;
-            VCombineInfo.TransparentColor := 0;
-            VRasterizer.Rasterize(ATarget, ATarget.BoundsRect, VCombineInfo);
+            AssignStaticToBitmap32(VBitmap, ASourceBitmap);
+            VSampler.Bitmap := VBitmap;
+            VTransformer := TTransformer.Create(VSampler, VTransform);
+            try
+              VRasterizer.Sampler := VTransformer;
+              VCombineInfo.SrcAlpha := 255;
+              VCombineInfo.DrawMode := dmBlend;
+              VCombineInfo.CombineMode := cmBlend;
+              VCombineInfo.TransparentColor := 0;
+              VRasterizer.Rasterize(ATarget, ATarget.BoundsRect, VCombineInfo);
+            finally
+              EMMS;
+              VTransformer.Free;
+            end;
           finally
-            EMMS;
-            VTransformer.Free;
+            VBitmap.Free;
           end;
         finally
           VSampler.Free;

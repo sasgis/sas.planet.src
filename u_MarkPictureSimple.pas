@@ -123,8 +123,8 @@ begin
         end;
         VBitmap := FLoader.Load(FSource);
 
-        VAnchor.X := VBitmap.Bitmap.Width / 2;
-        VAnchor.Y := VBitmap.Bitmap.Height;
+        VAnchor.X := VBitmap.Size.X / 2;
+        VAnchor.Y := VBitmap.Size.Y;
         FBitmapMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FInitedFlag.SetFlag;
       end;

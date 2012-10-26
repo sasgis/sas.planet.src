@@ -795,6 +795,7 @@ uses
   u_GUIDObjectSet,
   u_GlobalState,
   u_InetFunc,
+  u_BitmapFunc,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
@@ -977,15 +978,15 @@ begin
     FLineOnMapByOperation[ao_select_line].GetChangeNotifier
   );
 
-  FRuller:=TBitmap32.Create;
-  FTumbler:=TBitmap32.Create;
+  FRuller := TBitmap32.Create;
   VBitmapStatic := FConfig.MainConfig.Ruller;
   if VBitmapStatic <> nil then begin
-    FRuller.Assign(VBitmapStatic.Bitmap);
+    AssignStaticToBitmap32(FRuller, VBitmapStatic);
   end;
+  FTumbler := TBitmap32.Create;
   VBitmapStatic := FConfig.MainConfig.Tumbler;
   if VBitmapStatic <> nil then begin
-    FTumbler.Assign(VBitmapStatic.Bitmap);
+    AssignStaticToBitmap32(FTumbler, VBitmapStatic);
   end;
   FKeyMovingHandler := TKeyMovingHandler.Create(FConfig.ViewPortState, FConfig.KeyMovingConfig);
 end;
@@ -1407,7 +1408,7 @@ begin
   if VBitmap <> nil then begin
     VMarkerChangeable :=
       TMarkerDrawableChangeableFaked.Create(
-        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Bitmap.Width/2, VBitmap.Bitmap.Height))
+        TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X/2, VBitmap.Size.Y))
       );
   end;
   FLayerMapMarks:=
@@ -3346,7 +3347,7 @@ begin
   if VBitmapTile <> nil then begin
     btm := TBitmap32.Create;
     try
-      btm.Assign(VBitmapTile.Bitmap);
+      AssignStaticToBitmap32(btm, VBitmapTile);
       btm1:=TBitmap.Create;
       try
         btm1.Width:=btm.Width;

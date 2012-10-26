@@ -66,7 +66,8 @@ implementation
 uses
   Types,
   c_SasVersion,
-  i_Bitmap32Static;
+  i_Bitmap32Static,
+  u_BitmapFunc;
 
 var
   frmStartLogo: TfrmStartLogo;
@@ -100,7 +101,7 @@ var
 begin
   VBitmapStatic := FConfig.Logo;
   if VBitmapStatic <> nil then begin
-    imgLogo.Bitmap.Assign(VBitmapStatic.Bitmap);
+    AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
   end;
   VBitmapSize.X := imgLogo.Bitmap.Width;
   VBitmapSize.Y := imgLogo.Bitmap.Height;

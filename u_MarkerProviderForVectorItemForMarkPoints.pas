@@ -67,6 +67,7 @@ uses
   i_MarksSimple,
   u_Bitmap32Static,
   u_BitmapMarker,
+  u_BitmapFunc,
   u_MarkerDrawableByBitmapMarker,
   u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableComplex,
@@ -147,7 +148,7 @@ begin
   Result := nil;
   VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
   if VBitmapStatic <> nil then begin
-    VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VBitmapStatic.Bitmap.Height / 2);
+    VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VBitmapStatic.Size.Y / 2);
     Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, VAnchorPoint);
   end;
 end;
@@ -217,70 +218,42 @@ end;
 function TMarkerProviderForVectorItemForMarkPoints.ModifyMarkerWithResize(
   const ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
 var
-  VTransform: TAffineTransformation;
   VSizeSource: TPoint;
-  VTargetRect: TFloatRect;
   VSizeTarget: TPoint;
   VBitmap: TCustomBitmap32;
-  VFixedOnBitmap: TFloatPoint;
+  VFixedOnBitmap: TDoublePoint;
   VScale: Double;
-  VRasterizer: TRasterizer;
-  VTransformer: TTransformer;
-  VCombineInfo: TCombineInfo;
   VSampler: TCustomResampler;
   VBitmapStatic: IBitmap32Static;
 begin
-  VTransform := TAffineTransformation.Create;
-  try
-    VSizeSource := ASourceMarker.Size;
-    VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
+  Result := nil;
+  VSizeSource := ASourceMarker.Size;
+  if VSizeSource.X > 0 then begin
     VScale := ASize / VSizeSource.X;
-    VTransform.Scale(VScale, VScale);
-    VTargetRect := VTransform.GetTransformedBounds;
-    VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
-    VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
+    VSizeTarget.X := Trunc(VSizeSource.X * VScale + 0.5);
+    VSizeTarget.Y := Trunc(VSizeSource.Y * VScale + 0.5);
     VBitmap := TCustomBitmap32.Create;
     try
       VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
-      VBitmap.Clear(0);
-
-      VRasterizer := TRegularRasterizer.Create;
+      VSampler := TLinearResampler.Create;
       try
-        VSampler := TLinearResampler.Create;
-        try
-          VSampler.Bitmap := ASourceMarker.Bitmap;
-          VTransformer := TTransformer.Create(VSampler, VTransform);
-          try
-            VRasterizer.Sampler := VTransformer;
-            VCombineInfo.SrcAlpha := 255;
-            VCombineInfo.DrawMode := dmOpaque;
-            VCombineInfo.CombineMode := cmBlend;
-            VCombineInfo.TransparentColor := 0;
-            VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
-          finally
-            EMMS;
-            VTransformer.Free;
-          end;
-        finally
-          VSampler.Free;
-        end;
+        StretchTransferFull(
+          VBitmap,
+          VBitmap.BoundsRect,
+          ASourceMarker,
+          VSampler,
+          dmOpaque
+        );
       finally
-        VRasterizer.Free;
+        VSampler.Free;
       end;
-
-      VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
       VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
       VBitmap := nil;
     finally
       VBitmap.Free;
     end;
-    Result :=
-      TBitmapMarker.Create(
-        VBitmapStatic,
-        DoublePoint(VFixedOnBitmap.X, VFixedOnBitmap.Y)
-      );
-  finally
-    VTransform.Free;
+    VFixedOnBitmap := DoublePoint(ASourceMarker.AnchorPoint.X * VScale, ASourceMarker.AnchorPoint.Y * VScale);
+    Result := TBitmapMarker.Create(VBitmapStatic, VFixedOnBitmap);
   end;
 end;
 

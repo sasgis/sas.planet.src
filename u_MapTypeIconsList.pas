@@ -52,6 +52,7 @@ implementation
 
 uses
   SysUtils,
+  Types,
   GR32_Resamplers,
   u_BitmapFunc,
   u_GUIDObjectSet;
@@ -73,17 +74,16 @@ begin
   try
     VValidBitmap := TCustomBitmap32.Create;
     try
-      if (ABmp.Bitmap.Width = FImageList.Width) and (ABmp.Bitmap.Height = FImageList.Height) then begin
-        VValidBitmap.Assign(ABmp.Bitmap);
+      if (ABmp.Size.X = FImageList.Width) and (ABmp.Size.Y = FImageList.Height) then begin
+        AssignStaticToBitmap32(VValidBitmap, ABmp);
       end else begin
         VResampler := TLinearResampler.Create;
         try
           VValidBitmap.SetSize(FImageList.Width, FImageList.Height);
-          StretchTransfer(
+          StretchTransferFull(
             VValidBitmap,
             VValidBitmap.BoundsRect,
             ABmp,
-            ABmp.Bitmap.BoundsRect,
             VResampler,
             dmOpaque
           );

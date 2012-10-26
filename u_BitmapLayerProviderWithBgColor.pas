@@ -30,7 +30,9 @@ type
 implementation
 
 uses
+  Types,
   GR32_Resamplers,
+  u_BitmapFunc,
   u_Bitmap32Static;
 
 { TBitmapLayerProviderWithBGColor }
@@ -67,13 +69,11 @@ begin
       VTileSize := ALocalConverter.GetLocalRectSize;
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
       VTargetBmp.Clear(FBackGroundColor);
-      BlockTransfer(
+      BlockTransferFull(
         VTargetBmp,
         0,
         0,
-        VTargetBmp.ClipRect,
-        Result.Bitmap,
-        Result.Bitmap.BoundsRect,
+        Result,
         dmBlend
       );
       Result := TBitmap32Static.CreateWithOwn(VTargetBmp);

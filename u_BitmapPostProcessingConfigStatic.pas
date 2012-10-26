@@ -48,6 +48,7 @@ implementation
 
 uses
   GR32_Filters,
+  u_BitmapFunc,
   u_Bitmap32Static;
 
 { TBitmapPostProcessingConfigStatic }
@@ -123,7 +124,7 @@ begin
   end else begin
     VBitmap := TCustomBitmap32.Create;
     try
-      VBitmap.Assign(ABitmap.Bitmap);
+      AssignStaticToBitmap32(VBitmap, ABitmap);
       ProcessBitmap(VBitmap);
       Result := TBitmap32Static.CreateWithOwn(VBitmap);
       VBitmap := nil;

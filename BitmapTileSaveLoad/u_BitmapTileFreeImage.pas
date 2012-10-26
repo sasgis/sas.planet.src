@@ -290,33 +290,32 @@ function TBitmapTileFreeImageSaver.Save(
 var
   I: Integer;
   VScanLineSize: Integer;
-  VBitmap: TCustomBitmap32;
   VMemStream: TMemoryStream;
   VFreeBitmap: TFreeWinBitmap;
   VCounterContext: TInternalPerformanceCounterContext;
   VPalette: PRGBQUAD;
   VPaletteSize: Integer;
   VTransparencyTable: array [0..255] of Byte;
+  VSize: TPoint;
 begin
   VCounterContext := FCounter.StartOperation;
   try
-    VBitmap := ABitmap.Bitmap;
-
+    VSize := ABitmap.Size;
     VFreeBitmap := TFreeWinBitmap.Create(
       FIT_BITMAP,
-      VBitmap.Width,
-      VBitmap.Height,
+      VSize.X,
+      VSize.Y,
       32
     );
     try
       VScanLineSize := VFreeBitmap.GetScanWidth;
 
-      Assert(VScanLineSize = VBitmap.Width * 4);
+      Assert(VScanLineSize = VSize.X * 4);
 
-      for I := 0 to VBitmap.Height - 1 do begin
+      for I := 0 to VSize.Y - 1 do begin
         Move(
-          VBitmap.ScanLine[I]^,
-          VFreeBitmap.GetScanLine(VBitmap.Height - 1 - I)^,
+          ABitmap.Data[I * VSize.X],
+          VFreeBitmap.GetScanLine(VSize.Y - 1 - I)^,
           VScanLineSize
         );
       end;

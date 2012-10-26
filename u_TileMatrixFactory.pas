@@ -176,12 +176,10 @@ begin
           if VSourceBitmap <> nil then begin
             if VTargetTileCoordConverter = nil then begin
               VBitmap := TCustomBitmap32.Create;
-              VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-              VBitmap := nil;
               VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, AZoom, VConverter);
               VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
-              VBitmapStatic.Bitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-              VBitmapStatic.Bitmap.Clear(0);
+              VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
+              VBitmap.Clear(0);
             end;
             PrepareCopyRects(
               VSourceElement.LocalConverter,
@@ -195,7 +193,7 @@ begin
             Assert(AResampler <> nil);
 
             StretchTransfer(
-              VBitmapStatic.Bitmap,
+              VBitmap,
               VDstCopyRect,
               VSourceBitmap,
               VSrcCopyRect,
@@ -205,6 +203,10 @@ begin
           end;
         end;
       end;
+    end;
+    if VBitmap <> nil then begin
+      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
+      VBitmap := nil;
     end;
     if VBitmapStatic <> nil then begin
       Result := TTileMatrixElement.Create(ATile, VTargetTileCoordConverter, VBitmapStatic);

@@ -13,6 +13,7 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeSubst,
   i_ContentTypeManager,
+  i_Bitmap32Static,
   i_GlobalDownloadConfig,
   i_ImageResamplerConfig,
   i_TilePostDownloadCropConfig,
@@ -50,11 +51,11 @@ type
       const AData: IBinaryData;
       const AContenType: AnsiString
     );
-    procedure CropOnDownload(
-      ABtm: TCustomBitmap32;
+    function CropOnDownload(
+      const ABtm: IBitmap32Static;
       const ACropRect: TRect;
       const ATileSize: TPoint
-    );
+    ): IBitmap32Static;
   private
     function GetState: ITileDownloaderStateChangeble;
     function SaveDownloadResult(const AResult: IDownloadResult): ITileRequestResult;
@@ -79,7 +80,6 @@ implementation
 uses
   GR32_Resamplers,
   t_CommonTypes,
-  i_Bitmap32Static,
   i_ContentConverter,
   i_BitmapTileSaveLoad,
   i_TileRequest,
@@ -87,6 +87,7 @@ uses
   u_ListenerByEvent,
   u_TileRequestResult,
   u_Bitmap32Static,
+  u_BitmapFunc,
   u_ResStrings;
 
 { TTileDownloadResultSaverStuped }
@@ -137,35 +138,35 @@ begin
   Result := FState;
 end;
 
-procedure TTileDownloadResultSaverStuped.CropOnDownload(
-  ABtm: TCustomBitmap32;
+function TTileDownloadResultSaverStuped.CropOnDownload(
+  const ABtm: IBitmap32Static;
   const ACropRect: TRect;
   const ATileSize: TPoint
-);
+): IBitmap32Static;
 var
-  VBtmDest: TCustomBitmap32;
+  VBitmap: TCustomBitmap32;
   VResampler: TCustomResampler;
 begin
-  VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+  VBitmap := TCustomBitmap32.Create;
   try
-    VBtmDest := TCustomBitmap32.Create;
+    VBitmap.SetSize(ATileSize.X, ATileSize.Y);
+    VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
     try
-      VBtmDest.SetSize(ATileSize.X, ATileSize.Y);
       StretchTransfer(
-        VBtmDest,
+        VBitmap,
         Bounds(0, 0, ATileSize.X, ATileSize.Y),
-        VBtmDest.ClipRect,
         ABtm,
         ACropRect,
         VResampler,
         dmOpaque
       );
-      ABtm.Assign(VBtmDest);
     finally
-      VBtmDest.Free;
+      VResampler.Free;
     end;
+    Result := TBitmap32Static.CreateWithOwn(VBitmap);
+    VBitmap := nil;
   finally
-    VResampler.Free;
+    VBitmap.Free;
   end;
 end;
 
@@ -234,7 +235,6 @@ procedure TTileDownloadResultSaverStuped.SaveTileDownload(
   const AContenType: AnsiString
 );
 var
-  VBitmap: TCustomBitmap32;
   VContentTypeInfo: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
@@ -274,10 +274,10 @@ begin
               if (0 = VCutCount.X) or (0 = VCutCount.Y) then begin
                 // define count by image size
                 if (VCutSize.X > 0) then begin
-                  VCutCount.X := VBitmapStatic.Bitmap.Width div VCutSize.X;
+                  VCutCount.X := VBitmapStatic.Size.X div VCutSize.X;
                 end;
                 if (VCutSize.Y > 0) then begin
-                  VCutCount.Y := VBitmapStatic.Bitmap.Height div VCutSize.Y;
+                  VCutCount.Y := VBitmapStatic.Size.Y div VCutSize.Y;
                 end;
               end;
 
@@ -301,20 +301,12 @@ begin
                       end;
 
                       // crop single part
-                      VBitmap := TCustomBitmap32.Create;
-                      try
-                        VBitmap.Assign(VBitmapStatic.Bitmap);
+                      VCutBitmapStatic :=
                         CropOnDownload(
-                          VBitmap,
+                          VBitmapStatic,
                           Rect(VCutSize.X * i, VCutSize.Y * j, VCutSize.X * (i + 1), VCutSize.Y * (j + 1)),
                           FStorageConfig.CoordConverter.GetTileSize(VPos, AZoom)
                         );
-
-                        VCutBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-                        VBitmap := nil;
-                      finally
-                        VBitmap.Free;
-                      end;
 
                       // save
                       VData := VTargetContentTypeBitmap.GetSaver.Save(VCutBitmapStatic);
@@ -325,19 +317,12 @@ begin
               end;
             end else begin
               // crop single tile
-              VBitmap := TCustomBitmap32.Create;
-              try
-                VBitmap.Assign(VBitmapStatic.Bitmap);
+              VBitmapStatic :=
                 CropOnDownload(
-                  VBitmap,
+                  VBitmapStatic,
                   FTilePostDownloadCropConfig.CropRect,
                   FStorageConfig.CoordConverter.GetTileSize(AXY, AZoom)
                 );
-                VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-                VBitmap := nil;
-              finally
-                VBitmap.Free;
-              end;
               VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
               FStorage.SaveTile(AXY, AZoom, AVersionInfo, Now, FContentType, VData);
             end;

@@ -47,6 +47,7 @@ uses
   GR32_Transforms,
   i_Bitmap32Static,
   u_GeoFun,
+  u_BitmapFunc,
   u_Bitmap32Static,
   u_BitmapMarker,
   u_Synchronizer;
@@ -80,12 +81,10 @@ begin
       APosition.Y - AMarker.AnchorPoint.Y
     );
   VTargetPoint := PointFromDoublePoint(VTargetPointFloat, prToTopLeft);
-  BlockTransfer(
+  BlockTransferFull(
     ABitmap,
     VTargetPoint.X, VTargetPoint.Y,
-    ABitmap.ClipRect,
-    AMarker.Bitmap,
-    AMarker.Bitmap.BoundsRect,
+    AMarker,
     dmBlend,
     ABitmap.CombineMode
   );
@@ -172,6 +171,7 @@ var
   VTargetRect: TFloatRect;
   VSizeTarget: TPoint;
   VBitmap: TCustomBitmap32;
+  VBitmapSource: TCustomBitmap32;
   VFixedOnBitmap: TFloatPoint;
   VRasterizer: TRasterizer;
   VTransformer: TTransformer;
@@ -196,17 +196,23 @@ begin
       try
         VSampler := TLinearResampler.Create;
         try
-          VSampler.Bitmap := ASourceMarker.Bitmap;
-          VTransformer := TTransformer.Create(VSampler, VTransform);
+          VBitmapSource := TCustomBitmap32.Create;
           try
-            VRasterizer.Sampler := VTransformer;
-            VCombineInfo.SrcAlpha := 255;
-            VCombineInfo.DrawMode := dmOpaque;
-            VCombineInfo.TransparentColor := 0;
-            VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
+            AssignStaticToBitmap32(VBitmapSource, ASourceMarker);
+            VSampler.Bitmap := VBitmapSource;
+            VTransformer := TTransformer.Create(VSampler, VTransform);
+            try
+              VRasterizer.Sampler := VTransformer;
+              VCombineInfo.SrcAlpha := 255;
+              VCombineInfo.DrawMode := dmOpaque;
+              VCombineInfo.TransparentColor := 0;
+              VRasterizer.Rasterize(VBitmap, VBitmap.BoundsRect, VCombineInfo);
+            finally
+              EMMS;
+              VTransformer.Free;
+            end;
           finally
-            EMMS;
-            VTransformer.Free;
+            VBitmapSource.Free;
           end;
         finally
           VSampler.Free;

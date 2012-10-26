@@ -179,7 +179,7 @@ begin
   VIntersectionAtBitmap := AConverter.MapRect2LocalRect(VBitmapRect);
   for i := 0 to (VBitmapRect.Bottom - VBitmapRect.Top - 1) do begin
     if ATargetBitmap <> nil then begin
-      VSourceLine := ATargetBitmap.Bitmap.PixelPtr[VIntersectionAtBitmap.Left, i];
+      VSourceLine := @ATargetBitmap.Data[VIntersectionAtBitmap.Left + i * ATargetBitmap.Size.X];
     end else begin
       VSourceLine := nil;
     end;

@@ -381,23 +381,22 @@ var
   VSourceLine: PColor32Array;
   VTargetLine: PColor32Array;
   i: Integer;
-  j: Integer;
   VBitmap: TCustomBitmap32;
+  VSize: TPoint;
 begin
   Result := nil;
   if ABitmap <> nil then begin
     VBitmap := TCustomBitmap32.Create;
     try
-      VBitmap.SetSizeFrom(ABitmap.Bitmap);
-      for i := 0 to ABitmap.Bitmap.Height - 1 do begin
-        VSourceLine := ABitmap.Bitmap.ScanLine[i];
-        VTargetLine := VBitmap.ScanLine[i];
-        for j := 0 to ABitmap.Bitmap.Width - 1 do begin
-          if VSourceLine[j] = AMaskColor then begin
-            VTargetLine[j] := 0;
-          end else begin
-            VTargetLine[j] := VSourceLine[j];
-          end;
+      VSize := ABitmap.Size;
+      VBitmap.SetSize(VSize.X, VSize.Y);
+      VSourceLine := ABitmap.Data;
+      VTargetLine := VBitmap.Bits;
+      for i := 0 to VSize.X * VSize.Y - 1 do begin
+        if VSourceLine[i] = AMaskColor then begin
+          VTargetLine[i] := 0;
+        end else begin
+          VTargetLine[i] := VSourceLine[i];
         end;
       end;
       Result := TBitmap32Static.CreateWithOwn(VBitmap);

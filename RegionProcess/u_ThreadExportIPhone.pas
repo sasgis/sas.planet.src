@@ -93,6 +93,7 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   u_Bitmap32Static,
+  u_BitmapFunc,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer;
 
@@ -447,8 +448,7 @@ begin
                             Vbmp32crop,
                             0,
                             0,
-                            Vbmp32crop.ClipRect,
-                            VBitmapTile.Bitmap,
+                            VBitmapTile,
                             bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                             dmOpaque
                           );

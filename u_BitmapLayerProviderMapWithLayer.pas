@@ -3,6 +3,7 @@ unit u_BitmapLayerProviderMapWithLayer;
 interface
 
 uses
+  Types,
   GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
@@ -36,6 +37,7 @@ implementation
 
 uses
   GR32_Resamplers,
+  u_BitmapFunc,
   u_Bitmap32Static;
 
 { TBitmapLayerProviderMapWithLayer }
@@ -76,13 +78,11 @@ begin
     if VLayer <> nil then begin
       VBitmap := TCustomBitmap32.Create;
       try
-        VBitmap.Assign(Result.Bitmap);
-        BlockTransfer(
+        AssignStaticToBitmap32(VBitmap, Result);
+        BlockTransferFull(
           VBitmap,
           0, 0,
-          VBitmap.ClipRect,
-          VLayer.Bitmap,
-          VLayer.Bitmap.BoundsRect,
+          VLayer,
           dmBlend
         );
         Result := TBitmap32Static.CreateWithOwn(VBitmap);
