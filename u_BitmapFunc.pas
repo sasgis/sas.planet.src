@@ -89,6 +89,7 @@ procedure StretchTransferFull(
 var
   VSize: TPoint;
 begin
+  VSize := ASource.Size;
   GR32_Resamplers.StretchTransfer(
     ADst,
     ADstRect,
@@ -119,6 +120,7 @@ procedure StretchTransfer(
 var
   VSize: TPoint;
 begin
+  VSize := ASource.Size;
   GR32_Resamplers.StretchTransfer(
     ADst,
     ADstRect,
