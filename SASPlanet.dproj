@@ -1069,6 +1069,7 @@
     <DCCReference Include="u_TileStorageDBMS.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
+    <DCCReference Include="u_TileStorageGETerrain.pas" />
     <DCCReference Include="u_TileStorageInfo.pas" />
     <DCCReference Include="u_TileStorageOfMapType.pas" />
     <DCCReference Include="u_TileStorageTypeAbilities.pas" />

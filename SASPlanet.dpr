@@ -551,6 +551,7 @@ uses
   i_TileFileNameGeneratorsList in 'i_TileFileNameGeneratorsList.pas',
   u_TileStorageAbstract in 'u_TileStorageAbstract.pas',
   u_TileStorageGE in 'u_TileStorageGE.pas',
+  u_TileStorageGETerrain in 'u_TileStorageGETerrain.pas',
   u_TileStorageFileSystem in 'u_TileStorageFileSystem.pas',
   u_TileStorageBerkeleyDB in 'u_TileStorageBerkeleyDB.pas',
   u_TileStorageBerkeleyDBHelper in 'u_TileStorageBerkeleyDBHelper.pas',

@@ -225,11 +225,23 @@ type
     const AVersionString: PAnsiChar
   ): Boolean; stdcall;
 
+  TDLLCache_QueryTerrainTile_Callback = function(
+    const AContext: Pointer;
+    const ATileInfo: PQueryTileInfo;
+    const ATileBuffer: Pointer
+  ): Boolean; stdcall;
+
   // DLLCache_QueryTile - get tile information (with or without loading tile)
   TDLLCache_QueryTile = function(
     const ADLLCacheHandle: PDLLCacheHandle;
     const ATileInfo: PQueryTileInfo;
     const AQueryTile_Callback: TDLLCache_QueryTile_Callback
+  ): Boolean; stdcall;
+
+  TDLLCache_QueryTerrainTile = function(
+    const ADLLCacheHandle: PDLLCacheHandle;
+    const ATileInfo: PQueryTileInfo;
+    const AQueryTerrainTile_Callback: TDLLCache_QueryTerrainTile_Callback
   ): Boolean; stdcall;
 
   // get and set memory manager for DLL
