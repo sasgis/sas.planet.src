@@ -109,6 +109,7 @@ type
     pnlBottom: TPanel;
     lblReadOnly: TLabel;
     MarksListBox: TTreeView;
+    tbitmMarkInfo: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -147,6 +148,7 @@ type
         TShiftState; X, Y: Integer);
     procedure rgMarksShowModeClick(Sender: TObject);
     procedure tbpmnCategoriesPopup(Sender: TObject);
+    procedure tbitmMarkInfoClick(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
@@ -869,6 +871,16 @@ begin
   VMark := FMarkDBGUI.EditMarkModal(VMark, True);
   if VMark <> nil then begin
     FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+  end;
+end;
+
+procedure TfrmMarksExplorer.tbitmMarkInfoClick(Sender: TObject);
+var
+  VMark: IMark;
+begin
+  VMark := GetSelectedMarkFull;
+  if VMark <> nil then begin
+    FMarkDBGUI.ShowMarkInfo(VMark);
   end;
 end;
 

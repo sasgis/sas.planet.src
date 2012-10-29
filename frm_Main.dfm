@@ -3337,8 +3337,9 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbitmMarkInfo: TTBXItem
+      ImageIndex = 27
       OnClick = tbitmMarkInfoClick
-      Caption = 'Mark Info'
+      Caption = 'Placemark Info'
       Hint = ''
     end
     object tbitmFitMarkToScreen: TTBXItem

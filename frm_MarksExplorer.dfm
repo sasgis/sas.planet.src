@@ -531,6 +531,12 @@ object frmMarksExplorer: TfrmMarksExplorer
       Caption = ''
       Hint = ''
     end
+    object tbitmMarkInfo: TTBXItem
+      ImageIndex = 27
+      OnClick = tbitmMarkInfoClick
+      Caption = 'Placemark Info'
+      Hint = ''
+    end
     object tbitmExportMark: TTBXItem
       OnClick = btnSaveMarkClick
       Caption = 'Export Placemark'
