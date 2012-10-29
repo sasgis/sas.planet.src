@@ -400,7 +400,6 @@ begin
 
     if FConfig.ViewDownloadedInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
-      VTileName := VMapType.GetTileShowName(VTile, VZoomCurr);
       VString := SAS_STR_load + ' ' +
         inttostr(FDownloadInfo.TileCount) +
         ' (' + VValueConverter.DataSizeConvert(FDownloadInfo.Size / 1024) + ')';
@@ -418,6 +417,7 @@ begin
     if FConfig.ViewTilePathInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
+      VTileName := VMapType.GetTileShowName(VTile, VZoomCurr);
       if Length(VTileName) > 0 then begin
         if VTileNameWidthAviable > 30 then begin
           VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);
