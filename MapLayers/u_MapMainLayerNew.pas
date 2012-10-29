@@ -47,7 +47,7 @@ type
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
-      const AResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMainMap: IMapTypeChangeable;
       const ALayesList: IMapTypeListChangeable;
@@ -76,7 +76,7 @@ constructor TMapMainLayerNew.Create(
   AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
-  const AResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMainMap: IMapTypeChangeable;
   const ALayesList: IMapTypeListChangeable;
@@ -91,7 +91,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      AResamplerConfig,
+      ATileMatrixDraftResamplerConfig,
       AConverterFactory
     );
   inherited Create(
@@ -102,8 +102,6 @@ begin
     APosition,
     AView,
     VTileMatrixFactory,
-    AResamplerConfig,
-    AConverterFactory,
     ATimerNoifier,
     False,
     AThreadConfig

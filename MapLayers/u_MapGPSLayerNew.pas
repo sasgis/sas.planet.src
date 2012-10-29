@@ -42,7 +42,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
       const AConfig: IMapLayerGPSTrackConfig;
@@ -67,7 +67,7 @@ constructor TMapGPSLayerNew.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifier; const AConfig: IMapLayerGPSTrackConfig;
   const AGPSRecorder: IGPSRecorder
@@ -77,7 +77,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      AResamplerConfig,
+      ATileMatrixDraftResamplerConfig,
       AConverterFactory
     );
   inherited Create(
@@ -88,8 +88,6 @@ begin
     AViewPortState.Position,
     AViewPortState.View,
     VTileMatrixFactory,
-    AResamplerConfig,
-    AConverterFactory,
     ATimerNoifier,
     False,
     AConfig.ThreadConfig

@@ -36,7 +36,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -62,7 +62,7 @@ constructor TMapLayerGridsNew.Create(
   const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
   AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifier;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -72,7 +72,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      AResamplerConfig,
+      ATileMatrixDraftResamplerConfig,
       AConverterFactory
     );
   inherited Create(
@@ -83,8 +83,6 @@ begin
     AViewPortState.Position,
     AViewPortState.View,
     VTileMatrixFactory,
-    AResamplerConfig,
-    AConverterFactory,
     ATimerNoifier,
     True,
     AConfig.ThreadConfig

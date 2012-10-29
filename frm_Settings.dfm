@@ -1220,7 +1220,7 @@ object frmSettings: TfrmSettings
           end
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 184
+            Top = 217
             Width = 314
             Height = 30
             Align = alTop
@@ -1252,7 +1252,7 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 250
+            Top = 283
             Width = 314
             Height = 51
             Align = alTop
@@ -1319,7 +1319,7 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 214
+            Top = 247
             Width = 314
             Height = 36
             Align = alTop
@@ -1353,7 +1353,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResize: TPanel
             Left = 3
-            Top = 151
+            Top = 184
             Width = 314
             Height = 33
             Align = alTop
@@ -1517,6 +1517,41 @@ object frmSettings: TfrmSettings
               Left = 75
               Top = 6
               Width = 233
+              Height = 21
+              Align = alClient
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 0
+              Items.Strings = (
+                '')
+            end
+          end
+          object pnlResizeTileMatrixDraft: TPanel
+            Left = 3
+            Top = 151
+            Width = 314
+            Height = 33
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            BorderWidth = 3
+            TabOrder = 8
+            object lblResizeTileMatrixDraft: TLabel
+              AlignWithMargins = True
+              Left = 6
+              Top = 6
+              Width = 107
+              Height = 24
+              Align = alLeft
+              Alignment = taRightJustify
+              Caption = 'On change zoom draft'
+              Layout = tlCenter
+            end
+            object cbbResizeTileMatrixDraft: TComboBox
+              AlignWithMargins = True
+              Left = 119
+              Top = 6
+              Width = 189
               Height = 21
               Align = alClient
               Style = csDropDownList

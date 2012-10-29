@@ -188,7 +188,7 @@ begin
               VDstCopyRect
             );
             if AResampler = nil then begin
-              AResampler := TNearestResampler.Create;
+              AResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
             end;
             Assert(AResampler <> nil);
 

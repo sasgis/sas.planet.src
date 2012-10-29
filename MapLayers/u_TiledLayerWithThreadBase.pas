@@ -27,7 +27,6 @@ type
   TTiledLayerWithThreadBase = class(TWindowLayerWithLocationBase)
   private
     FTileMatrixFactory: ITileMatrixFactory;
-    FImageResamplerConfig: IImageResamplerConfig;
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeable;
     FUpdateLayerProviderOnPosChange: Boolean;
@@ -117,8 +116,6 @@ type
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixFactory: ITileMatrixFactory;
-      const AResamplerConfig: IImageResamplerConfig;
-      const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
       AUpdateLayerProviderOnPosChange: Boolean;
       const AThreadConfig: IThreadConfig
@@ -155,8 +152,6 @@ constructor TTiledLayerWithThreadBase.Create(
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixFactory: ITileMatrixFactory;
-  const AResamplerConfig: IImageResamplerConfig;
-  const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifier;
   AUpdateLayerProviderOnPosChange: Boolean;
   const AThreadConfig: IThreadConfig
@@ -169,7 +164,6 @@ begin
     TPositionedLayer.Create(AParentMap.Layers)
   );
   FUpdateLayerProviderOnPosChange := AUpdateLayerProviderOnPosChange;
-  FImageResamplerConfig := AResamplerConfig;
   FTileMatrixFactory := ATileMatrixFactory;
   FView := AView;
   FPosition := APosition;

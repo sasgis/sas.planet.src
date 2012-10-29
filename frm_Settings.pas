@@ -254,6 +254,9 @@ type
     lblDownloadResize: TLabel;
     cbbDownloadResize: TComboBox;
     lblResize: TLabel;
+    pnlResizeTileMatrixDraft: TPanel;
+    lblResizeTileMatrixDraft: TLabel;
+    cbbResizeTileMatrixDraft: TComboBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -588,6 +591,7 @@ begin
   GState.MapType.TileGetPrevResamplerConfig.ActiveIndex := cbbResizeGetPre.ItemIndex;
   GState.MapType.TileReprojectResamplerConfig.ActiveIndex := cbbProjectionChange.ItemIndex;
   GState.MapType.TileDownloadResamplerConfig.ActiveIndex := cbbDownloadResize.ItemIndex;
+  GState.TileMatrixDraftResamplerConfig.ActiveIndex := cbbResizeTileMatrixDraft.ItemIndex;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
   try
@@ -929,6 +933,9 @@ begin
 
   InitResamplersList(GState.MapType.TileDownloadResamplerConfig.GetList, cbbDownloadResize);
   cbbDownloadResize.ItemIndex := GState.MapType.TileDownloadResamplerConfig.ActiveIndex;
+
+  InitResamplersList(GState.TileMatrixDraftResamplerConfig.GetList, cbbResizeTileMatrixDraft);
+  cbbResizeTileMatrixDraft.ItemIndex := GState.TileMatrixDraftResamplerConfig.ActiveIndex;
 
   GState.ValueToStringConverterConfig.LockRead;
   try

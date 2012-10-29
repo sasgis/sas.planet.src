@@ -69,7 +69,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItmesFactory: IVectorItmesFactory;
       const AMarkIconDefault: IMarkerDrawableChangeable;
@@ -104,7 +104,7 @@ constructor TMapMarksLayerNew.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItmesFactory: IVectorItmesFactory;
   const AMarkIconDefault: IMarkerDrawableChangeable;
@@ -117,7 +117,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      AResamplerConfig,
+      ATileMatrixDraftResamplerConfig,
       AConverterFactory
     );
   inherited Create(
@@ -128,8 +128,6 @@ begin
     AViewPortState.Position,
     AViewPortState.View,
     VTileMatrixFactory,
-    AResamplerConfig,
-    AConverterFactory,
     ATimerNoifier,
     True,
     AConfig.ThreadConfig

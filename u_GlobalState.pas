@@ -136,6 +136,7 @@ type
     FDownloaderThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
     FImageResamplerConfig: IImageResamplerConfig;
+    FTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     FTileLoadResamplerConfig: IImageResamplerConfig;
     FTileGetPrevResamplerConfig: IImageResamplerConfig;
     FTileReprojectResamplerConfig: IImageResamplerConfig;
@@ -215,6 +216,7 @@ type
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
+    property TileMatrixDraftResamplerConfig: IImageResamplerConfig read FTileMatrixDraftResamplerConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
@@ -429,6 +431,7 @@ begin
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
   FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
 
   FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(FTrackPath);
@@ -630,6 +633,7 @@ begin
   FInetConfig := nil;
   FViewConfig := nil;
   FImageResamplerConfig := nil;
+  FTileMatrixDraftResamplerConfig := nil;
   FMainFormConfig := nil;
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
@@ -764,6 +768,7 @@ begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
     FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
     FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
+    FTileMatrixDraftResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View_TilesDrafts'));
     FTileLoadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Load'));
     FTileGetPrevResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_GetPrev'));
     FTileReprojectResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Reproject'));
@@ -812,6 +817,7 @@ begin
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
+  FTileMatrixDraftResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View_TilesDrafts'));
   FTileLoadResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Load'));
   FTileGetPrevResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_GetPrev'));
   FTileReprojectResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Reproject'));
