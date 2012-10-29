@@ -1209,13 +1209,24 @@ object frmSettings: TfrmSettings
           BevelOuter = bvNone
           BorderWidth = 3
           TabOrder = 1
+          object lblResize: TLabel
+            AlignWithMargins = True
+            Left = 6
+            Top = 6
+            Width = 308
+            Height = 13
+            Align = alTop
+            Caption = 'Resize Algorithm:'
+          end
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 168
+            Top = 184
             Width = 314
-            Height = 28
+            Height = 30
             Align = alTop
             AutoSize = True
+            BevelEdges = [beTop]
+            BevelKind = bkTile
             BevelOuter = bvNone
             BorderWidth = 3
             TabOrder = 0
@@ -1241,7 +1252,7 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 232
+            Top = 250
             Width = 314
             Height = 51
             Align = alTop
@@ -1308,7 +1319,7 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 196
+            Top = 214
             Width = 314
             Height = 36
             Align = alTop
@@ -1342,7 +1353,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResize: TPanel
             Left = 3
-            Top = 135
+            Top = 151
             Width = 314
             Height = 33
             Align = alTop
@@ -1354,18 +1365,18 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 109
+              Width = 28
               Height = 24
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'Other Resize algorithm'
+              Caption = 'Other'
               Layout = tlCenter
             end
             object cbbResizeMethod: TComboBox
               AlignWithMargins = True
-              Left = 121
+              Left = 40
               Top = 6
-              Width = 187
+              Width = 268
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -1377,7 +1388,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeOnload: TPanel
             Left = 3
-            Top = 3
+            Top = 19
             Width = 314
             Height = 33
             Align = alTop
@@ -1393,7 +1404,7 @@ object frmSettings: TfrmSettings
               Height = 24
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'On load from cahce'
+              Caption = 'On load from cache'
               Layout = tlCenter
             end
             object cbbResizeOnLoad: TComboBox
@@ -1412,7 +1423,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeGetPre: TPanel
             Left = 3
-            Top = 36
+            Top = 52
             Width = 314
             Height = 33
             Align = alTop
@@ -1424,18 +1435,18 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 94
+              Width = 115
               Height = 24
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'Resize get from Z-1'
+              Caption = 'On get from lower zoom'
               Layout = tlCenter
             end
             object cbbResizeGetPre: TComboBox
               AlignWithMargins = True
-              Left = 106
+              Left = 127
               Top = 6
-              Width = 202
+              Width = 181
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -1447,7 +1458,7 @@ object frmSettings: TfrmSettings
           end
           object pnlProjectionChange: TPanel
             Left = 3
-            Top = 69
+            Top = 85
             Width = 314
             Height = 33
             Align = alTop
@@ -1482,7 +1493,7 @@ object frmSettings: TfrmSettings
           end
           object pnlDownloadResize: TPanel
             Left = 3
-            Top = 102
+            Top = 118
             Width = 314
             Height = 33
             Align = alTop
@@ -1494,18 +1505,18 @@ object frmSettings: TfrmSettings
               AlignWithMargins = True
               Left = 6
               Top = 6
-              Width = 121
+              Width = 63
               Height = 24
               Align = alLeft
               Alignment = taRightJustify
-              Caption = 'On resize after download'
+              Caption = 'On download'
               Layout = tlCenter
             end
             object cbbDownloadResize: TComboBox
               AlignWithMargins = True
-              Left = 133
+              Left = 75
               Top = 6
-              Width = 175
+              Width = 233
               Height = 21
               Align = alClient
               Style = csDropDownList
@@ -1849,8 +1860,8 @@ object frmSettings: TfrmSettings
             AutoSize = False
           end
           object btnGPSSwitch: TButton
-            Left = 303
-            Top = 3
+            Left = 3
+            Top = 24
             Width = 94
             Height = 21
             Hint = 'Disable or enable GPS'
@@ -1860,7 +1871,7 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMOnConnect: TCheckBox
             AlignWithMargins = True
-            Left = 6
+            Left = 100
             Top = 27
             Width = 80
             Height = 17
@@ -1870,7 +1881,7 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMSerial: TCheckBox
             AlignWithMargins = True
-            Left = 92
+            Left = 186
             Top = 27
             Width = 48
             Height = 17
@@ -1879,7 +1890,7 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMVirtual: TCheckBox
             AlignWithMargins = True
-            Left = 146
+            Left = 240
             Top = 27
             Width = 50
             Height = 17
@@ -1888,7 +1899,7 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMBluetooth: TCheckBox
             AlignWithMargins = True
-            Left = 202
+            Left = 296
             Top = 27
             Width = 67
             Height = 17
@@ -1897,8 +1908,8 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMUSBSer: TCheckBox
             AlignWithMargins = True
-            Left = 275
-            Top = 27
+            Left = 6
+            Top = 50
             Width = 56
             Height = 17
             Caption = 'USBSer'
@@ -1906,7 +1917,7 @@ object frmSettings: TfrmSettings
           end
           object CB_GPSAutodetectCOMOthers: TCheckBox
             AlignWithMargins = True
-            Left = 6
+            Left = 68
             Top = 50
             Width = 60
             Height = 17
@@ -1915,7 +1926,7 @@ object frmSettings: TfrmSettings
           end
           object CB_USBGarmin: TCheckBox
             AlignWithMargins = True
-            Left = 72
+            Left = 134
             Top = 50
             Width = 82
             Height = 17

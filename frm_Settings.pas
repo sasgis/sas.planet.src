@@ -253,6 +253,7 @@ type
     pnlDownloadResize: TPanel;
     lblDownloadResize: TLabel;
     cbbDownloadResize: TComboBox;
+    lblResize: TLabel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
