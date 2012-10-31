@@ -500,6 +500,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = ''
     end
     object tbitmExportCategory: TTBXItem
+      ImageIndex = 25
       OnClick = btnExportCategoryClick
       Caption = 'Export Placemarks'
       Hint = 'Export placemarks from selected category'
@@ -538,6 +539,7 @@ object frmMarksExplorer: TfrmMarksExplorer
       Hint = ''
     end
     object tbitmExportMark: TTBXItem
+      ImageIndex = 25
       OnClick = btnSaveMarkClick
       Caption = 'Export Placemark'
       Hint = 'Export selected placemark'
