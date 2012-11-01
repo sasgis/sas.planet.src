@@ -810,6 +810,8 @@ uses
   i_MarkerFromFileConfig in 'i_MarkerFromFileConfig.pas',
   u_MarkerFromFileConfigStatic in 'u_MarkerFromFileConfigStatic.pas',
   u_MarkerFromFileConfig in 'u_MarkerFromFileConfig.pas',
+  i_ProjectedDrawableElement in 'i_ProjectedDrawableElement.pas',
+  u_ProjectedDrawableElementByPolygon in 'u_ProjectedDrawableElementByPolygon.pas',
   i_MessageHandler in 'i_MessageHandler.pas',
   u_KeyMovingHandler in 'u_KeyMovingHandler.pas',
   i_MouseState in 'i_MouseState.pas',
