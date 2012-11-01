@@ -21,7 +21,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 652
     Height = 410
-    ActivePage = tsView
+    ActivePage = tsGPSMarker
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -2016,71 +2016,38 @@ object frmSettings: TfrmSettings
             TabOrder = 1
             Value = 100
           end
-          object Label10: TLabel
-            Left = 3
-            Top = 77
-            Width = 59
-            Height = 13
-            Caption = 'Pointer size:'
-          end
-          object SESizeStr: TSpinEdit
-            Left = 3
-            Top = 91
-            Width = 57
-            Height = 22
-            MaxValue = 150
-            MinValue = 10
-            TabOrder = 2
-            Value = 100
-          end
           object Label20: TLabel
             Left = 3
-            Top = 114
+            Top = 77
             Width = 59
             Height = 13
             Caption = 'Track width:'
           end
           object SESizeTrack: TSpinEdit
             Left = 3
-            Top = 128
+            Top = 91
             Width = 57
             Height = 22
             MaxValue = 50
             MinValue = 1
-            TabOrder = 3
+            TabOrder = 2
             Value = 50
-          end
-          object Label12: TLabel
-            Left = 3
-            Top = 151
-            Width = 59
-            Height = 13
-            Caption = 'Arrow color:'
-          end
-          object ColorBoxGPSstr: TColorBox
-            Left = 3
-            Top = 165
-            Width = 105
-            Height = 22
-            Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
-            ItemHeight = 16
-            TabOrder = 4
           end
           object Label5: TLabel
             Left = 3
-            Top = 188
+            Top = 114
             Width = 159
             Height = 13
             Caption = 'Maximum number of track points:'
           end
           object SE_NumTrackPoints: TSpinEdit
             Left = 3
-            Top = 202
+            Top = 128
             Width = 73
             Height = 22
             MaxValue = 1000000
             MinValue = 10
-            TabOrder = 5
+            TabOrder = 3
             Value = 10000
           end
         end
@@ -2160,6 +2127,87 @@ object frmSettings: TfrmSettings
           Align = alClient
           Caption = 'Satellites'
           TabOrder = 0
+        end
+      end
+    end
+    object tsGPSMarker: TTabSheet
+      Caption = 'GPS Marker'
+      ImageIndex = 9
+      object flwpnlGPSMarker: TFlowPanel
+        Left = 0
+        Top = 0
+        Width = 644
+        Height = 382
+        Align = alClient
+        BevelOuter = bvNone
+        FlowStyle = fsTopBottomLeftRight
+        TabOrder = 0
+        object lblGPSMarkerSize: TLabel
+          Left = 0
+          Top = 0
+          Width = 59
+          Height = 13
+          Caption = 'Pointer size:'
+        end
+        object SESizeStr: TSpinEdit
+          Left = 0
+          Top = 14
+          Width = 57
+          Height = 22
+          MaxValue = 150
+          MinValue = 10
+          TabOrder = 0
+          Value = 100
+        end
+        object lblGPSMarkerColor: TLabel
+          Left = 0
+          Top = 37
+          Width = 59
+          Height = 13
+          Caption = 'Arrow color:'
+        end
+        object ColorBoxGPSstr: TColorBox
+          Left = 0
+          Top = 51
+          Width = 105
+          Height = 22
+          Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
+          ItemHeight = 16
+          TabOrder = 1
+        end
+        object lblGPSMarkerRingsCount: TLabel
+          Left = 0
+          Top = 74
+          Width = 76
+          Height = 13
+          Caption = 'Number of rings'
+        end
+        object seGPSMarkerRingsCount: TSpinEdit
+          Left = 0
+          Top = 88
+          Width = 105
+          Height = 22
+          MaxValue = 20
+          MinValue = 0
+          TabOrder = 2
+          Value = 0
+        end
+        object lblGPSMarkerRingRadius: TLabel
+          Left = 0
+          Top = 111
+          Width = 72
+          Height = 13
+          Caption = 'Ring radius (m)'
+        end
+        object seGPSMarkerRingRadius: TSpinEdit
+          Left = 0
+          Top = 125
+          Width = 105
+          Height = 22
+          MaxValue = 20000
+          MinValue = 0
+          TabOrder = 3
+          Value = 0
         end
       end
     end
