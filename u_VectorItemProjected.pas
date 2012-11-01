@@ -47,6 +47,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
@@ -85,6 +86,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   public
@@ -127,6 +129,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
@@ -277,6 +280,25 @@ begin
   end;
 end;
 
+function TProjectedPolygon.IsRectIntersectBorder(
+  const ARect: TDoubleRect): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPolygonLine;
+  VIntersectRect: TDoubleRect;
+begin
+  Result := False;
+  if IntersecProjectedRect(VIntersectRect, ARect, FBounds) then begin
+    for i := 0 to FList.Count - 1 do begin
+      VLine := GetItem(i);
+      if VLine.IsRectIntersectBorder(ARect) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
 function TProjectedPolygon.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
@@ -406,6 +428,12 @@ begin
   Result := FLine.IsPointOnBorder(APoint, ADist);
 end;
 
+function TProjectedPolygonOneLine.IsRectIntersectBorder(
+  const ARect: TDoubleRect): Boolean;
+begin
+  Result := FLine.IsRectIntersectBorder(ARect);
+end;
+
 function TProjectedPolygonOneLine.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
@@ -491,6 +519,12 @@ function TProjectedPolygonEmpty.IsPointOnBorder(
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
+begin
+  Result := False;
+end;
+
+function TProjectedPolygonEmpty.IsRectIntersectBorder(
+  const ARect: TDoubleRect): Boolean;
 begin
   Result := False;
 end;

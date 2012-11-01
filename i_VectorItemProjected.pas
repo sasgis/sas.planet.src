@@ -47,6 +47,7 @@ type
       ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
 
     function GetCount: Integer;
@@ -95,6 +96,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
 
     function GetCount: Integer;
