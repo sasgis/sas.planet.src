@@ -27,6 +27,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGPSMarkerConfig,
+  i_MarkerRingsConfig,
   i_MarkerSimpleConfig,
   u_ConfigDataElementComplexBase;
 
@@ -36,7 +37,7 @@ type
     FMinMoveSpeed: Double;
     FMovedMarkerConfig: IMarkerSimpleConfig;
     FStopedMarkerConfig: IMarkerSimpleConfig;
-
+    FMarkerRingsConfig: IMarkerRingsConfig;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -46,6 +47,7 @@ type
 
     function GetMovedMarkerConfig: IMarkerSimpleConfig;
     function GetStopedMarkerConfig: IMarkerSimpleConfig;
+    function GetMarkerRingsConfig: IMarkerRingsConfig;
   public
     constructor Create;
   end;
@@ -55,6 +57,7 @@ implementation
 uses
   u_MarkerSimpleConfig,
   u_MarkerSimpleConfigStatic,
+  u_MarkerRingsConfig,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TMapLayerGPSMarkerConfig }
@@ -83,6 +86,9 @@ begin
     );
   FStopedMarkerConfig := TMarkerSimpleConfig.Create(VMarkerProvider);
   Add(FStopedMarkerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkerStoped'));
+
+  FMarkerRingsConfig := TMarkerRingsConfig.Create;
+  Add(FMarkerRingsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Rings'));
 end;
 
 procedure TMapLayerGPSMarkerConfig.DoReadConfig(
@@ -102,6 +108,11 @@ procedure TMapLayerGPSMarkerConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteFloat('MinSpeed', FMinMoveSpeed);
+end;
+
+function TMapLayerGPSMarkerConfig.GetMarkerRingsConfig: IMarkerRingsConfig;
+begin
+  Result := FMarkerRingsConfig;
 end;
 
 function TMapLayerGPSMarkerConfig.GetMinMoveSpeed: Double;

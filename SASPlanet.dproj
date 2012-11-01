@@ -334,6 +334,7 @@
     <DCCReference Include="i_MarkerDrawable.pas" />
     <DCCReference Include="i_MarkerFromFileConfig.pas" />
     <DCCReference Include="i_MarkerProviderForVectorItem.pas" />
+    <DCCReference Include="i_MarkerRingsConfig.pas" />
     <DCCReference Include="i_MarkerSimpleConfig.pas" />
     <DCCReference Include="i_MarkFactory.pas" />
     <DCCReference Include="i_MarkFactorySmlInternal.pas" />
@@ -904,6 +905,8 @@
     <DCCReference Include="u_MarkerProviderForVectorItemFixedMarker.pas" />
     <DCCReference Include="u_MarkerProviderForVectorItemForMarkPoints.pas" />
     <DCCReference Include="u_MarkerProviderForVectorItemWithCache.pas" />
+    <DCCReference Include="u_MarkerRingsConfig.pas" />
+    <DCCReference Include="u_MarkerRingsConfigStatic.pas" />
     <DCCReference Include="u_MarkerSimpleConfig.pas" />
     <DCCReference Include="u_MarkerSimpleConfigStatic.pas" />
     <DCCReference Include="u_MarkFactory.pas" />
