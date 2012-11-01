@@ -746,6 +746,7 @@ uses
   u_SelectionPolylineLayer,
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
+  u_MapLayerGPSMarkerRings,
   u_MapLayerSearchResults,
   u_MapLayerFillingMapNew,
   u_MapLayerGoto,
@@ -1462,6 +1463,19 @@ begin
       FConfig.LayersConfig.GPSMarker,
       VMarkerWithDirectionChangeable,
       VMarkerChangeable,
+      GState.GPSRecorder
+    )
+  );
+  FLayersList.Add(
+    TMapLayerGPSMarkerRings.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.GUISyncronizedTimerNotifier,
+      GState.VectorItmesFactory,
+      FConfig.LayersConfig.GPSMarker.MarkerRingsConfig,
       GState.GPSRecorder
     )
   );
