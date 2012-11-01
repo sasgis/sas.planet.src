@@ -80,6 +80,7 @@ uses
   i_SatellitesInViewMapDraw,
   i_SensorList,
   i_TimeZoneDiffByLonLat,
+  i_TerrainInfo,
   i_VectorItmesFactory,
   i_InvisibleBrowser,
   i_InternalBrowser,
@@ -168,6 +169,7 @@ type
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
+    FTerrainInfo: ITerrainInfo;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
 
@@ -233,6 +235,7 @@ type
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
+    property TerrainInfo: ITerrainInfo read FTerrainInfo;
 
     constructor Create;
     destructor Destroy; override;
@@ -301,6 +304,7 @@ uses
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
   u_TimeZoneDiffByLonLatStuped,
+  u_TerrainInfo,
   u_MainFormConfig,
   u_ProjConverterFactory,
   u_PathConfig,
@@ -426,6 +430,8 @@ begin
   end else begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
+
+  FTerrainInfo := TTerrainInfo.Create(FMainConfigProvider, FCacheConfig);
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);

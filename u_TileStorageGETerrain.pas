@@ -28,14 +28,13 @@ uses
   Classes,
   t_CommonTypes,
   t_DLLCache,
-  i_CoordConverter,
+  i_TerrainStorage,
   i_TileInfoBasic;
 
 type
-  TTileStorageDLLTerrain = class(TObject)
+  TTileStorageDLLTerrain = class(TInterfacedObject, ITerrainStorage)
   private
     FReadAccess: TAccesState;
-    FGeoConverter: ICoordConverter;
     FStoragePath: string;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FDLLSync: IReadWriteSync;
@@ -52,7 +51,6 @@ type
     function InternalLib_QueryTerrainTile(const ATileInfo: PQueryTileInfo): Boolean;
   public
     constructor Create(
-      const AGeoConverter: ICoordConverter;
       const AStoragePath: string
     );
     destructor Destroy; override;
@@ -61,6 +59,8 @@ type
       const AXY: TPoint;
       const AZoom: Byte
     ): ITileInfoBasic;
+
+    function GetAvailable: Boolean;
   end;
 
   TTileStorageGETerrain = class(TTileStorageDLLTerrain)
@@ -115,12 +115,10 @@ end;
 { TTerrainTileStorageDLL }
 
 constructor TTileStorageDLLTerrain.Create(
-  const AGeoConverter: ICoordConverter;
   const AStoragePath: string
 );
 begin
   inherited Create;
-  FGeoConverter := AGeoConverter;
   FStoragePath := AStoragePath;
   FReadAccess := asUnknown;
   FDLLHandle := 0;
@@ -145,6 +143,11 @@ begin
   FTileNotExistsTileInfo := nil;
   FDLLSync := nil;
   inherited Destroy;
+end;
+
+function TTileStorageDLLTerrain.GetAvailable: Boolean;
+begin
+  Result := (FReadAccess = asEnabled);
 end;
 
 function TTileStorageDLLTerrain.InternalLib_Initialize: Boolean;
@@ -252,8 +255,8 @@ begin
     if FReadAccess <> asDisabled then begin
       FillChar(VQTInfo, SizeOf(VQTInfo), #0);
       VQTInfo.Common.Size := SizeOf(VQTInfo);
-      VQTInfo.Common.Zoom := AZoom; // ToDo: check if zoom in [3,5,7,9...23]
-      VQTInfo.Common.XY := AXY; // ToDo: modify XY for correct zoom 
+      VQTInfo.Common.Zoom := AZoom;
+      VQTInfo.Common.XY := AXY;
       VQTInfo.Common.FlagsInp := DLLCACHE_QTI_LOAD_TILE;
       VQTInfo.TileStream := TMemoryStream.Create;
       try

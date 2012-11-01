@@ -44,6 +44,7 @@ uses
   i_DownloadInfoSimple,
   i_GlobalInternetState,
   i_LanguageManager,
+  i_TerrainInfo,
   u_TimeZoneInfo,
   u_LayerStatBarPopupMenu,
   u_WindowLayerWithPos;
@@ -57,6 +58,7 @@ type
     FGlobalInternetState: IGlobalInternetState;
     FMouseState: IMouseState;
     FTimeZoneInfo: TTimeZoneInfo;
+    FTerrainInfo: ITerrainInfo;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeable;
@@ -94,6 +96,7 @@ type
       const AMouseState: IMouseState;
       const ATimerNoifier: INotifier;
       const ATimeZoneDiff: ITimeZoneDiffByLonLat;
+      const ATerrainInfo: ITerrainInfo;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
       const AOnOptionsClick: TNotifyEvent;
@@ -133,6 +136,7 @@ constructor TLayerStatBar.Create(
   const AMouseState: IMouseState;
   const ATimerNoifier: INotifier;
   const ATimeZoneDiff: ITimeZoneDiffByLonLat;
+  const ATerrainInfo: ITerrainInfo;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
   const AOnOptionsClick: TNotifyEvent;
@@ -151,6 +155,8 @@ begin
 
   FTimeZoneInfo := TTimeZoneInfo.Create(ATimeZoneDiff);
   FConfig.TimeZoneInfoAvailable := FTimeZoneInfo.Available;
+
+  FTerrainInfo := ATerrainInfo;
 
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
@@ -387,6 +393,13 @@ begin
       VRad := VConverter.Datum.GetSpheroidRadiusA;
       VPixelsAtZoom := VConverter.PixelsAtZoomFloat(VZoomCurr);
       VString := VValueConverter.DistPerPixelConvert(1 / ((VPixelsAtZoom / (2 * PI)) / (VRad * cos(VLonLat.y * D2R))));
+      RenderText(VOffset, VString, VNeedSeparator);
+      VNeedSeparator := True;
+    end;
+
+    if True {ToDo} then begin
+      VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
+      VString := FTerrainInfo.GetElevationInfoStr(VLonLat, VZoomCurr);
       RenderText(VOffset, VString, VNeedSeparator);
       VNeedSeparator := True;
     end;
