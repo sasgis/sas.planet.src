@@ -424,6 +424,18 @@ var
     end;
   end;
 
+  function _GetFirstDelimiterPos(const ASource: WideString): Integer;
+  begin
+    Result := 1;
+    while (Result <=Length(ASource)) do begin
+      case Ord(ASource[Result]) of
+        9,10,13,32,160: Exit;
+      end;
+      Inc(Result);
+    end;
+    Result := 0;
+  end;
+
   function _ParseCoordinatesForKML(const AKmlData: Tvsagps_KML_ParserData): Boolean;
   var
     VCoordinates, VCoordLine: WideString;
@@ -442,7 +454,7 @@ var
           break;
         end;
 
-        VSepPos := System.Pos(' ', VCoordinates);
+        VSepPos := _GetFirstDelimiterPos(VCoordinates);
         if (VSepPos > 0) then begin
           // with delimiter
           VCoordLine := System.Copy(VCoordinates, 1, VSepPos - 1);
