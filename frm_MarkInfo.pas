@@ -70,6 +70,7 @@ var
   VPointsCount: Integer;
   i: Integer;
   VConverter: IValueToStringConverter;
+  VCategoryName: string;
 begin
   VPartsCount := AMark.Line.Count;
   VPointsCount := 0;
@@ -79,18 +80,33 @@ begin
   VLength := AMark.Line.CalcLength(FDatum);
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
+  VCategoryName := '';
+  if AMark.Category <> nil then begin
+    VCategoryName := AMark.Category.Name;
+  end;
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
+  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
   Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForPoint(AMark: IMarkPoint): string;
 var
   VConverter: IValueToStringConverter;
+  VCategoryName: string;
 begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
+  VCategoryName := '';
+  if AMark.Category <> nil then begin
+    VCategoryName := AMark.Category.Name;
+  end;
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
+  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + #13#10;
+  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForPoly(AMark: IMarkPoly): string;
@@ -101,6 +117,7 @@ var
   VPointsCount: Integer;
   i: Integer;
   VConverter: IValueToStringConverter;
+  VCategoryName: string;
 begin
   VPartsCount := AMark.Line.Count;
   VPointsCount := 0;
@@ -111,10 +128,17 @@ begin
   VArea := AMark.Line.CalcArea(FDatum);
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
+  VCategoryName := '';
+  if AMark.Category <> nil then begin
+    VCategoryName := AMark.Category.Name;
+  end;
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
+  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
   Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
   Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + #13#10;
+  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
 procedure TfrmMarkInfo.ShowInfoModal(AMark: IMark);
