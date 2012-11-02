@@ -102,7 +102,7 @@ begin
   // GE terrain's zooms mast be in values: [3,5,7,9,11,13,15,17,19,23,25]
   if AZoom <= 3 then begin
     AZoom := 5;
-  end else if (AZoom mod 2) = 0 then begin
+  end else if (AZoom mod 2) > 0 then begin
     AZoom := AZoom + 1;
   end;
 end;
@@ -110,7 +110,7 @@ end;
 procedure TTerrainProviderByDLL.OnCloseTerrainTile(const ATile: PTerrainTile);
 begin
   if (ATile <> nil) then begin
-    FTerrainPerser.Close(ATile.ParserContext);
+    FTerrainPerser.Close(@ATile.ParserContext);
   end;
 end;
 
@@ -124,17 +124,13 @@ var
   VContext: Pointer;
   VTneFound: Boolean;
 begin
-
-  // ToDo: Process in separate thread
-
-  VContext := nil;
   VTileInfo := FStorage.GetTileInfo(ATile, AZoom);
 
   if VTileInfo <> nil then begin
     VTneFound := (not VTileInfo.IsExists or VTileInfo.IsExistsTNE);
 
     if (not VTneFound and Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData)) then begin
-      if FTerrainPerser.Open(VContext, VTileInfoWithData.TileData) then begin
+      if FTerrainPerser.Open(@VContext, VTileInfoWithData.TileData) then begin
         FMemCache.Add(ATile, AZoom, VContext);
       end else begin
         VTneFound := True;
@@ -188,18 +184,14 @@ begin
     end;
 
     if VParentFound or (VTerrain = nil) then begin
-
       TryLoadTileToMemCache(VTilePoint, VTileZoom);
-
-  //  ToDo: wait separate thread with time-out and read MemCache by event
-
       VTerrain := FMemCache.Get(VTilePoint, VTileZoom);
     end;
 
     if (VTerrain <> nil) and (VTerrain.Exists) then begin
       if
         FTerrainPerser.GetElevation(
-          VTerrain.ParserContext,
+          @VTerrain.ParserContext,
           VLonLat,
           VTerrain.Zoom,
           VElevation
