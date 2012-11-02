@@ -82,6 +82,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils,
   u_ResStrings;
@@ -117,11 +118,21 @@ end;
 
 function TValueToStringConverter.AltitudeConvert(AMeters: Double): string;
 begin
+  if IsNan(AMeters) then begin
+    Result := 'NAN';
+    Exit;
+  end;
+
   Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeters;
 end;
 
 function TValueToStringConverter.AreaConvert(AAreaInSqm: Double): string;
 begin
+  if IsNan(AAreaInSqm) then begin
+    Result := 'NAN';
+    Exit;
+  end;
+  
   case FAreaShowFormat of
     asfAuto: begin
       if AAreaInSqm <= 1000000 then begin
@@ -245,6 +256,11 @@ function TValueToStringConverter.DistConvert(ADistInMeters: Double): string;
 var
   VKmDist: Double;
 begin
+  if IsNan(ADistInMeters) then begin
+    Result := 'NAN';
+    Exit;
+  end;
+
   Result := '';
   case FDistStrFormat of
     dsfKmAndM: begin
@@ -348,6 +364,11 @@ end;
 
 function TValueToStringConverter.SpeedConvert(AKmph: Double): string;
 begin
+  if IsNan(AKmph) then begin
+    Result := 'NAN';
+    Exit;
+  end;
+
   Result := FormatFloat('0.0', AKmph) + ' ' + FUnitsKmph;
 end;
 
