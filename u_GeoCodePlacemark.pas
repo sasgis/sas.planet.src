@@ -42,6 +42,7 @@ type
     function GetLLRect: ILonLatRect;
     function GetHintText: string;
     function GetInfoHTML: string;
+    function GetInfoUrl: string;
     function GetInfoCaption: string;
   private
     function GetAccuracy: Integer; safecall;
@@ -113,6 +114,11 @@ end;
 function TGeoCodePlacemark.GetInfoHTML: string;
 begin
   Result := FFullDesc;
+end;
+
+function TGeoCodePlacemark.GetInfoUrl: string;
+begin
+  Result := '';
 end;
 
 function TGeoCodePlacemark.GetLLRect: ILonLatRect;

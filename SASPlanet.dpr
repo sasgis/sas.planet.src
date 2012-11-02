@@ -780,6 +780,7 @@ uses
   i_InternalDomainInfoProvider in 'i_InternalDomainInfoProvider.pas',
   u_InternalDomainInfoProviderByMapTypeList in 'u_InternalDomainInfoProviderByMapTypeList.pas',
   u_InternalDomainInfoProviderByDataProvider in 'u_InternalDomainInfoProviderByDataProvider.pas',
+  u_InternalDomainInfoProviderByMarksSystem in 'u_InternalDomainInfoProviderByMarksSystem.pas',
   i_SimpleHttpDownloader in 'i_SimpleHttpDownloader.pas',
   u_SimpleHttpDownloader in 'u_SimpleHttpDownloader.pas',
   i_Bitmap32Static in 'i_Bitmap32Static.pas',

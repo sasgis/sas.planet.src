@@ -38,6 +38,7 @@ type
   protected
     function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
   protected
+    function GetStringID: string;
     function GetName: string;
     function GetMarkType: TGUID; virtual; abstract;
   protected
@@ -104,6 +105,14 @@ end;
 function TMarkId.GetName: string;
 begin
   Result := FName;
+end;
+
+function TMarkId.GetStringID: string;
+begin
+  Result := '';
+  if FId >= 0 then begin
+    Result := IntToStr(FId);
+  end;
 end;
 
 function TMarkId.GetVisible: Boolean;

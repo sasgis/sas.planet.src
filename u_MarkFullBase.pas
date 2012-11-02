@@ -41,6 +41,7 @@ type
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;
+    function GetInfoUrl: string;
     function GetInfoCaption: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function IsEqual(const AMark: IMark): Boolean; virtual;
@@ -59,6 +60,7 @@ implementation
 
 uses
   SysUtils,
+  c_InternalBrowser,
   i_MarksDbSmlInternal;
 
 { TMarkFullBase }
@@ -99,6 +101,14 @@ begin
     Result := '<HTML><BODY>';
     Result := Result + FDesc;
     Result := Result + '</BODY></HTML>';
+  end;
+end;
+
+function TMarkFullBase.GetInfoUrl: string;
+begin
+  Result := '';
+  if FDesc <> '' then begin
+    Result := CMarksSystemInternalURL + GetStringID + '/Description';
   end;
 end;
 

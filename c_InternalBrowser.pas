@@ -6,8 +6,10 @@ const
   CSASProtocolName = 'sas';
   CZmpInfoInternalDomain = 'ZmpInfo';
   CMediaDataInternalDomain = 'MediaData';
+  CMarksSystemInternalDomain = 'Placemarks';
   CZmpInfoInternalURL = CSASProtocolName + '://' + CZmpInfoInternalDomain + '/';
   CMediaDataInternalURL = CSASProtocolName + '://' + CMediaDataInternalDomain + '/';
+  CMarksSystemInternalURL = CSASProtocolName + '://' + CMarksSystemInternalDomain + '/';
 
 implementation
 

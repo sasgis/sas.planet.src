@@ -18,88 +18,79 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_VectorDataItemBase;
+unit u_InternalDomainInfoProviderByMarksSystem;
 
 interface
 
 uses
-  i_LonLatRect,
-  i_HtmlToHintTextConverter,
-  i_VectorDataItemSimple;
+  i_BinaryData,
+  i_MarksSystem,
+  i_InternalDomainInfoProvider;
 
 type
-  TVectorDataItemBase = class(TInterfacedObject, IVectorDataItemSimple)
+  TInternalDomainInfoProviderByMarksSystem = class(TInterfacedObject, IInternalDomainInfoProvider)
   private
-    FHintConverter: IHtmlToHintTextConverter;
-    FName: string;
-    FDesc: string;
-  protected
-    function GetName: string;
-    function GetDesc: string;
-    function GetLLRect: ILonLatRect; virtual; abstract;
-    function GetHintText: string;
-    function GetInfoUrl: string;
-    function GetInfoCaption: string;
-    function GetInfoHTML: string;
+    FMarksSystem: IMarksSystem;
+  private
+    function LoadBinaryByFilePath(
+      const AFilePath: string;
+      out AContentType: string
+    ): IBinaryData;
   public
     constructor Create(
-      const AHintConverter: IHtmlToHintTextConverter;
-      const AName: string;
-      const ADesc: string
+      const AMarksSystem: IMarksSystem
     );
   end;
 
 implementation
 
-{ TVectorDataItemBase }
+uses
+  StrUtils,
+  i_MarksSimple,
+  u_BinaryData;
 
-constructor TVectorDataItemBase.Create(
-  const AHintConverter: IHtmlToHintTextConverter;
-  const AName, ADesc: string
-);
+const
+  CDescriptionSuffix = '/Description';
+
+{ TInternalDomainInfoProviderByMarksSystem }
+
+constructor TInternalDomainInfoProviderByMarksSystem.Create(
+  const AMarksSystem: IMarksSystem);
 begin
   inherited Create;
-  FHintConverter := AHintConverter;
-  FName := AName;
-  FDesc := ADesc;
+  FMarksSystem := AMarksSystem;
 end;
 
-function TVectorDataItemBase.GetDesc: string;
+function TInternalDomainInfoProviderByMarksSystem.LoadBinaryByFilePath(
+  const AFilePath: string; out AContentType: string): IBinaryData;
+var
+  VMarkId: string;
+  VMark: IMark;
+  VDesc: string;
 begin
-  Result := FDesc;
-end;
-
-function TVectorDataItemBase.GetHintText: string;
-begin
-  Result := FHintConverter.Convert(FName, '');
-  if Result = '' then begin
-    Result := FHintConverter.Convert(FName, FDesc);
+  if Length(AFilePath) <= Length(CDescriptionSuffix) then begin
+    Result := nil;
+    AContentType := '';
+    Exit;
   end;
-end;
-
-function TVectorDataItemBase.GetInfoCaption: string;
-begin
-  Result := FName;
-end;
-
-function TVectorDataItemBase.GetInfoHTML: string;
-begin
-  Result := '';
-  if FDesc <> '' then begin
-    Result := '<HTML><BODY>';
-    Result := Result + FDesc;
-    Result := Result + '</BODY></HTML>';
+  VMarkId := LeftStr(AFilePath, Length(AFilePath) - Length(CDescriptionSuffix));
+  VMark := FMarksSystem.GetMarkByStringId(VMarkId);
+  if VMark = nil then begin
+    Result := nil;
+    AContentType := '';
+    Exit;
   end;
-end;
-
-function TVectorDataItemBase.GetInfoUrl: string;
-begin
-  Result := '';
-end;
-
-function TVectorDataItemBase.GetName: string;
-begin
-  Result := FName;
+  VDesc := VMark.Desc;
+  if VDesc <> '' then begin
+    VDesc := '<HTML><BODY>' + VDesc + '</BODY></HTML>';
+    Result :=
+      TBinaryData.Create(
+        Length(VDesc) * SizeOf(VDesc[1]),
+        @VDesc[1],
+        False
+      );
+  end;
+  AContentType := 'text/html';
 end;
 
 end.
