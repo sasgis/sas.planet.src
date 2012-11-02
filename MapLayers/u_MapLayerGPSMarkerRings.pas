@@ -168,6 +168,13 @@ procedure TMapLayerGPSMarkerRings.OnConfigChange;
 begin
   ViewUpdateLock;
   try
+    FGPSPosCS.BeginWrite;
+    try
+      FCirclesLonLat := nil;
+      FCirclesProjected := nil;
+    finally
+      FGPSPosCS.EndWrite;
+    end;
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
