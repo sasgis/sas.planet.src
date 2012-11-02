@@ -334,6 +334,7 @@
     <DCCReference Include="i_MarkerDrawable.pas" />
     <DCCReference Include="i_MarkerFromFileConfig.pas" />
     <DCCReference Include="i_MarkerProviderForVectorItem.pas" />
+    <DCCReference Include="i_MarkerRingsConfig.pas" />
     <DCCReference Include="i_MarkerSimpleConfig.pas" />
     <DCCReference Include="i_MarkFactory.pas" />
     <DCCReference Include="i_MarkFactorySmlInternal.pas" />
@@ -371,6 +372,7 @@
     <DCCReference Include="i_PredicateByTileInfo.pas" />
     <DCCReference Include="i_PredicateByTileRequest.pas" />
     <DCCReference Include="i_ProjConverter.pas" />
+    <DCCReference Include="i_ProjectedDrawableElement.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
@@ -477,6 +479,7 @@
     <DCCReference Include="MapLayers\u_MapLayerFillingMapNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGPSMarker.pas" />
+    <DCCReference Include="MapLayers\u_MapLayerGPSMarkerRings.pas" />
     <DCCReference Include="MapLayers\u_MapLayerGridsNew.pas" />
     <DCCReference Include="MapLayers\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\u_MapLayerSearchResults.pas" />
@@ -811,6 +814,7 @@
     <DCCReference Include="u_InternalBrowserByForm.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByDataProvider.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderByMarksSystem.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="u_InternalPerformanceCounter.pas" />
     <DCCReference Include="u_InternalPerformanceCounterList.pas" />
@@ -911,6 +915,8 @@
     <DCCReference Include="u_MarkerProviderForVectorItemFixedMarker.pas" />
     <DCCReference Include="u_MarkerProviderForVectorItemForMarkPoints.pas" />
     <DCCReference Include="u_MarkerProviderForVectorItemWithCache.pas" />
+    <DCCReference Include="u_MarkerRingsConfig.pas" />
+    <DCCReference Include="u_MarkerRingsConfigStatic.pas" />
     <DCCReference Include="u_MarkerSimpleConfig.pas" />
     <DCCReference Include="u_MarkerSimpleConfigStatic.pas" />
     <DCCReference Include="u_MarkFactory.pas" />
@@ -967,6 +973,7 @@
     <DCCReference Include="u_PredicateByStaticSampleList.pas" />
     <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjConverterFactory.pas" />
+    <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="u_ProjectedSingleLine.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />

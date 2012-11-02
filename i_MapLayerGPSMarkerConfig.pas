@@ -24,6 +24,7 @@ interface
 
 uses
   i_ConfigDataElement,
+  i_MarkerRingsConfig,
   i_MarkerSimpleConfig;
 
 type
@@ -38,6 +39,9 @@ type
 
     function GetStopedMarkerConfig: IMarkerSimpleConfig;
     property StopedMarkerConfig: IMarkerSimpleConfig read GetStopedMarkerConfig;
+
+    function GetMarkerRingsConfig: IMarkerRingsConfig;
+    property MarkerRingsConfig: IMarkerRingsConfig read GetMarkerRingsConfig;
   end;
 
 implementation

@@ -1483,7 +1483,7 @@ begin
     TEnumDoublePointLonLatToMapPixel.Create(
       AProjection.Zoom,
       AProjection.GeoConverter,
-      TEnumLonLatPointFilterFirstSegment.Create(AEnum)
+      AEnum
     );
   VEnum :=
     TEnumProjectedPointFilterEqual.Create(VEnum);
@@ -1546,7 +1546,7 @@ begin
     TEnumDoublePointLonLatToMapPixel.Create(
       AProjection.Zoom,
       AProjection.GeoConverter,
-      TEnumLonLatPointFilterFirstSegment.Create(AEnum)
+      AEnum
     );
   VEnum := TEnumProjectedPointFilterEqual.Create(VEnum);
 

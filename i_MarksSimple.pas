@@ -34,6 +34,9 @@ uses
 type
   IMarkId = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
+    function GetStringID: string;
+    property StringID: string read GetStringID;
+
     function GetCategory: ICategory;
     property Category: ICategory read GetCategory;
 
@@ -46,6 +49,9 @@ type
 
   IMark = interface(IVectorDataItemSimple)
     ['{52794019-3681-4C92-B50F-0853D5B070DE}']
+    function GetStringID: string;
+    property StringID: string read GetStringID;
+
     function GetCategory: ICategory;
     property Category: ICategory read GetCategory;
 

@@ -3349,6 +3349,7 @@ object frmMain: TfrmMain
       Hint = ''
     end
     object tbitmHideThisMark: TTBXItem
+      ImageIndex = 19
       OnClick = tbitmHideThisMarkClick
       Caption = 'Hide'
       Hint = ''

@@ -59,6 +59,7 @@ type
 
   IMarksDbSmlInternal = interface
     ['{54D17191-A56C-4951-8838-7E492906213A}']
+    function GetById(AId: Integer): IMarkSMLInternal;
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   end;

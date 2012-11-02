@@ -746,6 +746,7 @@ uses
   u_SelectionPolylineLayer,
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
+  u_MapLayerGPSMarkerRings,
   u_MapLayerSearchResults,
   u_MapLayerFillingMapNew,
   u_MapLayerGoto,
@@ -1462,6 +1463,19 @@ begin
       FConfig.LayersConfig.GPSMarker,
       VMarkerWithDirectionChangeable,
       VMarkerChangeable,
+      GState.GPSRecorder
+    )
+  );
+  FLayersList.Add(
+    TMapLayerGPSMarkerRings.Create(
+      GState.PerfCounterList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState,
+      GState.GUISyncronizedTimerNotifier,
+      GState.VectorItmesFactory,
+      FConfig.LayersConfig.GPSMarker.MarkerRingsConfig,
       GState.GPSRecorder
     )
   );
@@ -4655,10 +4669,7 @@ end;
 procedure TfrmMain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
-  VItemIsFound: boolean;
   VItemArea: Double;
-  VItemCaption: string;
-  VItemHTML: string;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
@@ -4676,6 +4687,7 @@ var
   VMouseMoveSpeed: TDoublePoint;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
+  VFoundItem: IVectorDataItemSimple;
   VPrevTick, VCurrTick, VFr: int64;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
@@ -4794,25 +4806,18 @@ begin
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
     if (FState.State=ao_movemap)and(Button=mbLeft) then begin
-      VItemIsFound := False;
-      VItemCaption := '';
-      VItemHTML := '';
       VItemArea := 0;
 
       VWikiItem := nil;
       VWikiItem := FWikiLayer.FindItem(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
-        VItemIsFound := True;
-        VItemCaption := VWikiItem.GetInfoCaption;
-        VItemHTML := VWikiItem.GetInfoHTML;
+        VFoundItem := VWikiItem;
         VItemArea := VMarkS;
       end;
 
       VWikiItem := FLayerSearchResults.FindItem(VLocalConverter, Point(x,y), VMarkS);
       if VWikiItem <> nil then begin
-        VItemIsFound := True;
-        VItemCaption := VWikiItem.GetInfoCaption;
-        VItemHTML := VWikiItem.GetInfoHTML;
+        VFoundItem := VWikiItem;
         VItemArea := VMarkS;
       end;
 
@@ -4822,16 +4827,16 @@ begin
       end;
 
       if VWikiItem <> nil then begin
-        if (not VItemIsFound) or (not Supports(VWikiItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
-          VItemIsFound := True;
-          VItemCaption := VWikiItem.GetInfoCaption;
-          VItemHTML := VWikiItem.GetInfoHTML;
+        if (VFoundItem <> nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
+         VFoundItem := VWikiItem;
         end;
       end;
 
-      if VItemIsFound  then begin
-        if VItemHTML <> '' then begin
-          GState.InternalBrowser.ShowMessage(VItemCaption, VItemHTML);
+      if VFoundItem <> nil  then begin
+        if VFoundItem.GetInfoUrl <> '' then begin
+          GState.InternalBrowser.Navigate(VFoundItem.GetInfoCaption, VFoundItem.GetInfoUrl);
+        end else if VFoundItem.Desc <> '' then begin
+          GState.InternalBrowser.ShowMessage(VFoundItem.GetInfoCaption, VFoundItem.Desc);
         end;
       end;
     end;

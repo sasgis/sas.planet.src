@@ -328,6 +328,7 @@ uses
   u_InternalDomainInfoProviderList,
   u_InternalDomainInfoProviderByMapTypeList,
   u_InternalDomainInfoProviderByDataProvider,
+  u_InternalDomainInfoProviderByMarksSystem,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -582,9 +583,16 @@ begin
       VKmlLoader
     );
   VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByMapTypeList.Create(
+      FZmpInfoSet,
+      FContentTypeManager
+    );
+
   VInternalDomainInfoProviderList.Add(
     CZmpInfoInternalDomain,
-    TInternalDomainInfoProviderByMapTypeList.Create(FZmpInfoSet, FContentTypeManager)
+    VInternalDomainInfoProvider
   );
 
   VInternalDomainInfoProvider :=
@@ -594,6 +602,14 @@ begin
     );
   VInternalDomainInfoProviderList.Add(
     CMediaDataInternalDomain,
+    VInternalDomainInfoProvider
+  );
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByMarksSystem.Create(
+      FMarksDb
+    );
+  VInternalDomainInfoProviderList.Add(
+    CMarksSystemInternalDomain,
     VInternalDomainInfoProvider
   );
 

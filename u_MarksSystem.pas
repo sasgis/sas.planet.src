@@ -65,6 +65,8 @@ type
     function GetCategoryDB: IMarkCategoryDB;
     function GetMarksFactoryConfig: IMarksFactoryConfig;
 
+    function GetMarkByStringId(AId: string): IMark;
+
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
@@ -91,6 +93,7 @@ type
 implementation
 
 uses
+  SysUtils,
   ActiveX,
   u_StaticTreeBuilderBase,
   u_ReadWriteStateInternal,
@@ -258,6 +261,20 @@ end;
 function TMarksSystem.GetCategoryDB: IMarkCategoryDB;
 begin
   Result := FCategoryDB;
+end;
+
+function TMarksSystem.GetMarkByStringId(AId: string): IMark;
+var
+  VId: Integer;
+begin
+  Result := nil;
+  if AId <> '' then begin
+    if TryStrToInt(AId, VId) then begin
+      if not Supports(FMarksDbInternal.GetById(VId), IMark, Result) then begin
+        Result := nil;
+      end;
+    end;
+  end;
 end;
 
 function TMarksSystem.GetMarksDb: IMarksDb;

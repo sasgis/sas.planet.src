@@ -61,6 +61,7 @@ type
       ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
+    function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
     function CalcArea: Double;
   public
     constructor Create(
@@ -388,6 +389,96 @@ begin
         end;
       end;
       VPrevPoint := VCurrPoint;
+    end;
+  end;
+end;
+
+function TProjectedPolygonLine.IsRectIntersectBorder(
+  const ARect: TDoubleRect): Boolean;
+var
+  VIntersectRect: TDoubleRect;
+  VEnum: IEnumProjectedPoint;
+  VPrevPoint: TDoublePoint;
+  VCurrPoint: TDoublePoint;
+  VIntersect: Double;
+  VDelta: TDoublePoint;
+begin
+  if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+    Result := False;
+  end else begin
+    Result := False;
+    VEnum := GetEnum;
+    // »щем есть ли пересечени€ пр€моугольника с полигоном
+    if VEnum.Next(VPrevPoint) then begin
+      while VEnum.Next(VCurrPoint) do begin
+        VDelta.X := VCurrPoint.X - VPrevPoint.X;
+        VDelta.Y := VCurrPoint.Y - VPrevPoint.Y;
+        if (VDelta.Y < 0) then begin
+          if (VCurrPoint.Y <= ARect.Top) and (ARect.Top < VPrevPoint.Y) then begin
+            VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+            if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+          if (VCurrPoint.Y <= ARect.Bottom) and (ARect.Bottom < VPrevPoint.Y) then begin
+            VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+            if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+        end else if (VDelta.Y > 0) then begin
+          if (VCurrPoint.Y > ARect.Top) and (ARect.Top >= VPrevPoint.Y) then begin
+            VIntersect := VDelta.X * (ARect.Top - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+            if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+          if (VCurrPoint.Y > ARect.Bottom) and (ARect.Bottom >= VPrevPoint.Y) then begin
+            VIntersect := VDelta.X * (ARect.Bottom - VPrevPoint.y) / VDelta.Y + VPrevPoint.x;
+            if (ARect.Left <= VIntersect) and (VIntersect < ARect.Right) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+        end;
+
+        if (VDelta.X < 0) then begin
+          if (VCurrPoint.X <= ARect.Left) and (ARect.Left < VPrevPoint.X) then begin
+            VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+            if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+          if (VCurrPoint.X <= ARect.Right) and (ARect.Right < VPrevPoint.X) then begin
+            VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+            if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+        end else if (VDelta.X > 0) then begin
+          if (VCurrPoint.X > ARect.Left) and (ARect.Left >= VPrevPoint.X) then begin
+            VIntersect := VDelta.Y * (ARect.Left - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+            if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+          if (VCurrPoint.X > ARect.Right) and (ARect.Right >= VPrevPoint.X) then begin
+            VIntersect := VDelta.Y * (ARect.Right - VPrevPoint.X) / VDelta.X + VPrevPoint.Y;
+            if (ARect.Top <= VIntersect) and (VIntersect < ARect.Bottom) then begin
+              Result := True;
+              Exit;
+            end;
+          end;
+        end;
+
+        VPrevPoint := VCurrPoint;
+      end;
     end;
   end;
 end;

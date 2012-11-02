@@ -83,6 +83,7 @@ type
       const AResultList: IInterfaceList
     );
   private
+    function GetById(AId: Integer): IMarkSMLInternal;
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   private
@@ -578,7 +579,7 @@ end;
 function TMarksDb.ReadCurrentMark: IMark;
 var
   VPicName: string;
-  VId: Integer;
+  AId: Integer;
   VName: string;
   VVisible: Boolean;
   VPoints: IDoublePointsAggregator;
@@ -590,7 +591,7 @@ var
   VScale2: Integer;
 begin
   VPoints := TDoublePointsAggregator.Create;
-  VId := FCdsMarks.fieldbyname('id').AsInteger;
+  AId := FCdsMarks.fieldbyname('id').AsInteger;
   VName := FCdsMarks.FieldByName('name').AsString;
   VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
   Blob2ExtArr(FCdsMarks.FieldByName('LonLatArr'), VPoints);
@@ -604,7 +605,7 @@ begin
 
   Result :=
     FFactoryDbInternal.CreateMark(
-      VId,
+      AId,
       VName,
       VVisible,
       VPicName,
@@ -684,19 +685,19 @@ end;
 
 function TMarksDb.GetMarkByID(const AMarkId: IMarkId): IMark;
 var
-  VId: Integer;
+  AId: Integer;
   VMarkVisible: IMarkSMLInternal;
 begin
   Result := nil;
   if AMarkId <> nil then begin
-    VId := CNotExistMarkID;
+    AId := CNotExistMarkID;
     if Supports(AMarkId, IMarkSMLInternal, VMarkVisible) then begin
-      VId := VMarkVisible.Id;
+      AId := VMarkVisible.Id;
     end;
-    if VId >= 0 then begin
+    if AId >= 0 then begin
       LockRead;
       try
-        Result := IMark(FMarksList.GetByID(VId));
+        Result := IMark(FMarksList.GetByID(AId));
       finally
         UnlockRead;
       end;
@@ -738,7 +739,7 @@ var
   VCategoryId: Integer;
   VList: IIDInterfaceList;
   VEnumId: IEnumID;
-  VId: Integer;
+  AId: Integer;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
 begin
@@ -765,8 +766,8 @@ begin
       VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
       if VList <> nil then begin
         VEnumId := VList.GetIDEnum;
-        while VEnumId.Next(1, VId, VCnt) = S_OK do begin
-          if Supports(VList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
+        while VEnumId.Next(1, AId, VCnt) = S_OK do begin
+          if Supports(VList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := ANewVisible;
           end;
         end;
@@ -783,27 +784,27 @@ procedure TMarksDb.SetMarkVisibleByID(
 );
 var
   VMarkVisible: IMarkSMLInternal;
-  VId: Integer;
+  AId: Integer;
   VMarkInternal: IMarkSMLInternal;
 begin
   if AMark <> nil then begin
-    VId := CNotExistMarkID;
+    AId := CNotExistMarkID;
     if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
-      VId := VMarkVisible.Id;
+      AId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
-    if VId >= 0 then begin
+    if AId >= 0 then begin
       LockWrite;
       try
         FCdsMarks.Filtered := false;
-        if FCdsMarks.Locate('id', VId, []) then begin
+        if FCdsMarks.Locate('id', AId, []) then begin
           FCdsMarks.Edit;
           WriteCurrentMarkId(AMark);
           FCdsMarks.Post;
           SetChanged;
           FNeedSaveFlag.SetFlag;
         end;
-        if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(FMarksList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;
         end;
       finally
@@ -820,23 +821,23 @@ procedure TMarksDb.SetMarkVisibleByIDList(
 var
   i: Integer;
   VMarkVisible: IMarkSMLInternal;
-  VId: Integer;
+  AId: Integer;
   VMarkInternal: IMarkSMLInternal;
 begin
   if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
     LockWrite;
     try
       for i := 0 to AMarkList.Count - 1 do begin
-        VId := CNotExistMarkID;
+        AId := CNotExistMarkID;
         if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
-          VId := VMarkVisible.Id;
+          AId := VMarkVisible.Id;
           VMarkVisible.Visible := AVisible;
         end;
-        if VId >= 0 then begin
-          if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
+        if AId >= 0 then begin
+          if Supports(FMarksList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := AVisible;
             FCdsMarks.Filtered := false;
-            if FCdsMarks.Locate('id', VId, []) then begin
+            if FCdsMarks.Locate('id', AId, []) then begin
               FCdsMarks.Edit;
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
@@ -856,7 +857,7 @@ procedure TMarksDb.ToggleMarkVisibleByIDList(const AMarkList: IInterfaceList);
 var
   i: Integer;
   VMarkVisible: IMarkSMLInternal;
-  VId: Integer;
+  AId: Integer;
   VMarkInternal: IMarkSMLInternal;
   VVisible: Boolean;
   VVisibleCount: Integer;
@@ -879,16 +880,16 @@ begin
     LockWrite;
     try
       for i := 0 to AMarkList.Count - 1 do begin
-        VId := CNotExistMarkID;
+        AId := CNotExistMarkID;
         if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
-          VId := VMarkVisible.Id;
+          AId := VMarkVisible.Id;
           VMarkVisible.Visible := VVisible;
         end;
-        if VId >= 0 then begin
-          if Supports(FMarksList.GetByID(VId), IMarkSMLInternal, VMarkInternal) then begin
+        if AId >= 0 then begin
+          if Supports(FMarksList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := VVisible;
             FCdsMarks.Filtered := false;
-            if FCdsMarks.Locate('id', VId, []) then begin
+            if FCdsMarks.Locate('id', AId, []) then begin
               FCdsMarks.Edit;
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
@@ -907,7 +908,7 @@ end;
 function TMarksDb.GetAllMarskIdList: IInterfaceList;
 var
   VEnumId: IEnumID;
-  VId: Integer;
+  AId: Integer;
   VCnt: Cardinal;
   VMarkId: IMarkId;
 begin
@@ -915,13 +916,28 @@ begin
   LockRead;
   try
     VEnumId := FMarksList.GetIDEnum;
-    while VEnumId.Next(1, VId, VCnt) = S_OK do begin
-      if Supports(FMarksList.GetByID(VId), IMarkId, VMarkId) then begin
+    while VEnumId.Next(1, AId, VCnt) = S_OK do begin
+      if Supports(FMarksList.GetByID(AId), IMarkId, VMarkId) then begin
         Result.Add(VMarkId);
       end;
     end;
   finally
     UnlockRead;
+  end;
+end;
+
+function TMarksDb.GetById(AId: Integer): IMarkSMLInternal;
+begin
+  Result := nil;
+  if AId >= 0 then begin
+    LockRead;
+    try
+      if not Supports(FMarksList.GetByID(AId), IMarkSMLInternal, Result) then begin
+       Result := nil;
+      end;
+    finally
+      UnlockRead;
+    end;
   end;
 end;
 
@@ -947,15 +963,15 @@ var
   VCategoryId: Integer;
   VList: IIDInterfaceList;
   VEnumId: IEnumID;
-  VId: Integer;
+  AId: Integer;
   VCnt: Cardinal;
 begin
   Result := TInterfaceList.Create;
   VCategoryId := GetCategoryID(ACategory);
   if Supports(FByCategoryList.GetByID(VCategoryId), IIDInterfaceList, VList) then begin
     VEnumId := VList.GetIDEnum;
-    while VEnumId.Next(1, VId, VCnt) = S_OK do begin
-      if Supports(VList.GetByID(VId), IMarkId, VMarkId) then begin
+    while VEnumId.Next(1, AId, VCnt) = S_OK do begin
+      if Supports(VList.GetByID(AId), IMarkId, VMarkId) then begin
         Result.Add(VMarkId);
       end;
     end;
@@ -1016,13 +1032,13 @@ procedure TMarksDb._AddMarksToList(
 var
   VMark: IMark;
   VEnumId: IEnumID;
-  VId: Integer;
+  AId: Integer;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
 begin
   VEnumId := ASourceList.GetIDEnum;
-  while VEnumId.Next(1, VId, VCnt) = S_OK do begin
-    VMark := IMark(ASourceList.GetByID(VId));
+  while VEnumId.Next(1, AId, VCnt) = S_OK do begin
+    VMark := IMark(ASourceList.GetByID(AId));
     if VMark.LLRect.IsIntersecWithRect(ARect) then begin
       if not AIgnoreVisible then begin
         if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin

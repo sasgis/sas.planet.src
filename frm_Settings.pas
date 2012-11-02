@@ -101,11 +101,7 @@ type
     Label84: TLabel;
     CBShowmapname: TCheckBox;
     CBinvertcolor: TCheckBox;
-    SESizeStr: TSpinEdit;
     Label11: TLabel;
-    Label10: TLabel;
-    ColorBoxGPSstr: TColorBox;
-    Label12: TLabel;
     GroupBox4: TGroupBox;
     CBProxyused: TCheckBox;
     EditPass: TEdit;
@@ -257,6 +253,16 @@ type
     pnlResizeTileMatrixDraft: TPanel;
     lblResizeTileMatrixDraft: TLabel;
     cbbResizeTileMatrixDraft: TComboBox;
+    tsGPSMarker: TTabSheet;
+    SESizeStr: TSpinEdit;
+    lblGPSMarkerSize: TLabel;
+    flwpnlGPSMarker: TFlowPanel;
+    ColorBoxGPSstr: TColorBox;
+    lblGPSMarkerColor: TLabel;
+    lblGPSMarkerRingsCount: TLabel;
+    seGPSMarkerRingsCount: TSpinEdit;
+    lblGPSMarkerRingRadius: TLabel;
+    seGPSMarkerRingRadius: TSpinEdit;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -597,6 +603,8 @@ begin
   try
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize := SESizeStr.Value;
+    GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count := seGPSMarkerRingsCount.Value;
+    GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance := seGPSMarkerRingRadius.Value;
   finally
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
   end;
@@ -906,6 +914,8 @@ begin
   try
     ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
     SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
+    seGPSMarkerRingsCount.Value := GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count;
+    seGPSMarkerRingRadius.Value := Trunc(GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance);
   finally
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
   end;
