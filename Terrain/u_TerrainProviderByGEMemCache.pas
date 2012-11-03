@@ -69,11 +69,6 @@ type
       const AZoom: Byte
     ): PTerrainTile;
 
-    function GetParent(
-      const AChildXY: TPoint;
-      const AChildZoom: Byte
-    ): PTerrainTile;
-
     procedure Clear;
   end;
 
@@ -204,15 +199,6 @@ begin
   finally
     FCS.EndWrite;
   end;
-end;
-
-function TTerrainProviderByGEMemCache.GetParent(
-  const AChildXY: TPoint;
-  const AChildZoom: Byte
-): PTerrainTile;
-begin
-  Result := nil;
-  // ToDo: Try found data in lower zooms 
 end;
 
 procedure TTerrainProviderByGEMemCache.Clear;

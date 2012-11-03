@@ -45,7 +45,6 @@ type
     const ATerrain: PGoogleEarthTerrainHandle;
     const ALon: Double;
     const ALat: Double;
-    const AZoom: Byte;
     out AElevation: Single
   ): Boolean; cdecl;
 
@@ -73,7 +72,6 @@ type
     function GetElevation(
       const ADLLContext: PGoogleEarthTerrainHandle;
       const ALonLat: TDoublePoint;
-      const AZoom: Byte;
       out AElevation: Single
     ): Boolean;
 
@@ -156,7 +154,6 @@ end;
 function TGoogleEarthTerrainParser.GetElevation(
   const ADLLContext: PGoogleEarthTerrainHandle;
   const ALonLat: TDoublePoint;
-  const AZoom: Byte;
   out AElevation: Single
 ): Boolean;
 begin
@@ -166,7 +163,6 @@ begin
       ADLLContext,
       ALonLat.X,
       ALonLat.Y,
-      AZoom,
       AElevation
     );
   end;

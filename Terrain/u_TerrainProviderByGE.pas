@@ -101,9 +101,9 @@ procedure TTerrainProviderByDLL.CheckTileZoom(var AZoom: Byte);
 begin
   // GE terrain's zooms mast be in values: [3,5,7,9,11,13,15,17,19,23,25]
   if AZoom <= 3 then begin
-    AZoom := 5;
+    AZoom := 2;
   end else if (AZoom mod 2) > 0 then begin
-    AZoom := AZoom + 1;
+    AZoom := AZoom - 1;
   end;
 end;
 
@@ -154,52 +154,51 @@ function TTerrainProviderByDLL.GetPointElevation(
 var
   VLonLat: TDoublePoint;
   VTilePoint: TPoint;
-  VTileZoom: Byte;
+  VZoom: Byte;
   VTerrain: PTerrainTile;
-  VParentFound: Boolean;
+  VFound: Boolean;
   VElevation: Single;
 begin
   Result := cUndefElevationValue;
 
   if FAvailable then begin
-    VParentFound := False;
+    VFound := False;
     VLonLat := ALonLat;
-    VTileZoom := AZoom;
+    VZoom := AZoom;
+    repeat
+      CheckTileZoom(VZoom);
 
-    FCoordConverter.CheckZoom(VTileZoom);
-    FCoordConverter.CheckLonLatPos(VLonLat);
+      VTilePoint := PointFromDoublePoint(
+        FCoordConverter.LonLat2TilePosFloat(VLonLat, VZoom),
+        prToTopLeft
+      );
 
-    Self.CheckTileZoom(VTileZoom);
+      VTerrain := FMemCache.Get(VTilePoint, VZoom);
 
-    VTilePoint := PointFromDoublePoint(
-      FCoordConverter.LonLat2TilePosFloat(VLonLat, VTileZoom),
-      prToTopLeft
-    );
-
-    VTerrain := FMemCache.Get(VTilePoint, VTileZoom);
-
-    if (VTerrain = nil) or (not VTerrain.Exists) then begin
-      VTerrain := FMemCache.GetParent(VTilePoint, VTileZoom);
-      VParentFound := (VTerrain <> nil);
-    end;
-
-    if VParentFound or (VTerrain = nil) then begin
-      TryLoadTileToMemCache(VTilePoint, VTileZoom);
-      VTerrain := FMemCache.Get(VTilePoint, VTileZoom);
-    end;
-
-    if (VTerrain <> nil) and (VTerrain.Exists) then begin
-      if
-        FTerrainPerser.GetElevation(
-          @VTerrain.ParserContext,
-          VLonLat,
-          VTerrain.Zoom,
-          VElevation
-        )
-      then begin
-        Result := VElevation;
+      if (VTerrain = nil) then begin
+        TryLoadTileToMemCache(VTilePoint, VZoom);
+        VTerrain := FMemCache.Get(VTilePoint, VZoom);
       end;
-    end;
+
+      if (VTerrain <> nil) and (VTerrain.Exists) then begin
+        VFound :=
+          FTerrainPerser.GetElevation(
+            @VTerrain.ParserContext,
+            VLonLat,
+            VElevation
+          );
+        if VFound then begin
+          Result := VElevation;
+        end;
+      end;
+
+      if (not VFound) and (VZoom > 2) then begin
+        VZoom := VZoom - 1;
+      end else begin
+        Break;
+      end;
+
+    until False;
   end;  
 end;
 
