@@ -515,6 +515,7 @@ uses
   u_SelectionRectLayer in 'MapLayers\u_SelectionRectLayer.pas',
   u_LayerLicenseList in 'MapLayers\u_LayerLicenseList.pas',
   u_MapMainLayerNew in 'MapLayers\u_MapMainLayerNew.pas',
+  c_TerrainProvider in 'Terrain\c_TerrainProvider.pas',
   i_TerrainProvider in 'Terrain\i_TerrainProvider.pas',
   u_TerrainProviderByGE in 'Terrain\u_TerrainProviderByGE.pas',
   i_TerrainStorage in 'Terrain\i_TerrainStorage.pas',

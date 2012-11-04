@@ -23,7 +23,8 @@ unit i_TerrainProvider;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  i_Notifier;
 
 type
   ITerrainProvider = interface
@@ -32,6 +33,12 @@ type
       const ALonLat: TDoublePoint;
       const AZoom: Byte
     ): Single;
+
+    function GetAvailable: Boolean;
+    property Available: Boolean read GetAvailable;
+
+    function GetStateChangeNotifier: INotifier;
+    property StateChangeNotifier: INotifier read GetStateChangeNotifier;
   end;
 
 implementation

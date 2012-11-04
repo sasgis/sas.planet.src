@@ -32,11 +32,6 @@ type
       const APoint: TDoublePoint;
       const AZoom: Byte
     ): string;
-
-    function GetElevationInfoFloat(
-      const APoint: TDoublePoint;
-      const AZoom: Byte
-    ): Single;
   end;
 
 implementation

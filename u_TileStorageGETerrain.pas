@@ -128,9 +128,7 @@ begin
   FDLLSync := MakeSyncRW_Big(Self);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   InternalLib_CleanupProc;
-  if not InternalLib_SetPath(PAnsiChar(FStoragePath)) then begin
-    FReadAccess := asEnabled;
-  end;
+  InternalLib_SetPath(PAnsiChar(FStoragePath));
 end;
 
 destructor TTileStorageDLLTerrain.Destroy;

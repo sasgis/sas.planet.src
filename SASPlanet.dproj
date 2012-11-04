@@ -610,6 +610,7 @@
     <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombinePNG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
+    <DCCReference Include="Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Terrain\i_TerrainConfig.pas" />
     <DCCReference Include="Terrain\i_TerrainInfo.pas" />

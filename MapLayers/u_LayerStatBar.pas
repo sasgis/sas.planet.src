@@ -174,6 +174,8 @@ begin
     ALanguageManager,
     AParentMap,
     AConfig,
+    FTerrainConfig,
+    ATerrainProviderList,
     AOnOptionsClick
   );
 

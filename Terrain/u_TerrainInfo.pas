@@ -23,7 +23,9 @@ unit u_TerrainInfo;
 interface
 
 uses
+  SyncObjs,
   t_GeoTypes,
+  i_Listener,
   i_TerrainInfo,
   i_TerrainConfig,
   i_TerrainProvider,
@@ -36,28 +38,44 @@ type
     FPrimaryTerrainProviderGUID: TGUID;
     FPrimaryTerrainProvider: ITerrainProvider;
     FTerrainProviderList: ITerrainProviderList;
+    FLastPoint: TDoublePoint;
+    FLastZoom: Byte;
+    FLastElevation: Integer;
+    FProviderStateListner: IListener;
+    FConfigSync: TCriticalSection;
+    function GetElevationInfo(
+      const APoint: TDoublePoint;
+      const AZoom: Byte
+    ): Integer;
+    procedure OnProviderStateChange;
   public
     constructor Create(
       const ATerrainConfig: ITerrainConfig;
       const ATerrainProviderList: ITerrainProviderList
     );
     destructor Destroy; override;
-
     function GetElevationInfoStr(
       const APoint: TDoublePoint;
       const AZoom: Byte
     ): string;
-
-    function GetElevationInfoFloat(
-      const APoint: TDoublePoint;
-      const AZoom: Byte
-    ): Single;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  ActiveX,
+  SysUtils,
+  Math,
+  i_Notifier,
+  i_TerrainProviderListElement,
+  c_TerrainProvider,
+  u_GeoFun,
+  u_ListenerByEvent,
+  u_ResStrings;
+
+const
+  cUndefinedPointValue: TDoublePoint = (X: NAN; Y: NAN);
+  cUndefinedZoomValue = $FF;
 
 { TTerrainInfo }
 
@@ -65,37 +83,180 @@ constructor TTerrainInfo.Create(
   const ATerrainConfig: ITerrainConfig;
   const ATerrainProviderList: ITerrainProviderList
 );
+var
+  VGUID: TGUID;
+  VTmp: Cardinal;
+  VEnum: IEnumGUID;
+  VElement: ITerrainProviderListElement;
+  VProvider: ITerrainProvider;
+  VNotifier: INotifier;
 begin
   inherited Create;
+  FConfigSync := TCriticalSection.Create;
   FTerrainConfig := ATerrainConfig;
   FTerrainProviderList := ATerrainProviderList;
   FPrimaryTerrainProviderGUID := FTerrainConfig.ElevationPrimaryProvider;
   FPrimaryTerrainProvider := FTerrainProviderList.Get(FPrimaryTerrainProviderGUID).Provider;
+  FTerrainConfig.ElevationInfoAvailable := FPrimaryTerrainProvider.Available;
+
+  FProviderStateListner := TNotifyNoMmgEventListener.Create(Self.OnProviderStateChange);
+  FTerrainConfig.ChangeNotifier.Add(FProviderStateListner);
+
+  FConfigSync.Acquire;
+  try
+    VEnum := FTerrainProviderList.GetGUIDEnum;
+    while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
+      VElement := FTerrainProviderList.Get(VGUID);
+      if VElement <> nil then begin
+        VProvider := VElement.Provider;
+        if VProvider <> nil then begin
+
+          if FTerrainConfig.TrySecondaryElevationProviders then begin
+            FTerrainConfig.ElevationInfoAvailable :=
+              FTerrainConfig.ElevationInfoAvailable or VProvider.Available;
+          end;
+
+          VNotifier := VProvider.StateChangeNotifier;
+          if VNotifier <> nil then begin
+            VNotifier.Add(FProviderStateListner);
+          end;
+        end;
+      end;
+    end;
+  finally
+    FConfigSync.Release;
+  end;
+
+  FLastPoint := cUndefinedPointValue;
+  FLastZoom := cUndefinedZoomValue;
+  FLastElevation := cUndefinedElevationValue;
 end;
 
 destructor TTerrainInfo.Destroy;
+var
+  VGUID: TGUID;
+  VTmp: Cardinal;
+  VEnum: IEnumGUID;
+  VElement: ITerrainProviderListElement;
+  VProvider: ITerrainProvider;
+  VNotifier: INotifier;
 begin
+  if (FTerrainProviderList <> nil) and (FProviderStateListner <> nil) then begin
+    VEnum := FTerrainProviderList.GetGUIDEnum;
+    while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
+      VElement := FTerrainProviderList.Get(VGUID);
+      if VElement <> nil then begin
+        VProvider := VElement.Provider;
+        if VProvider <> nil then begin
+          VNotifier := VProvider.StateChangeNotifier;
+          if VNotifier <> nil then begin
+            VNotifier.Remove(FProviderStateListner);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  if (FTerrainConfig <> nil) and (FProviderStateListner <> nil) then begin
+    FTerrainConfig.ChangeNotifier.Remove(FProviderStateListner);
+  end;
+
+  FProviderStateListner := nil;
+  FTerrainProviderList := nil;
+  FTerrainConfig := nil;
+
+  FConfigSync.Free;
+
   inherited Destroy;
 end;
 
-function TTerrainInfo.GetElevationInfoFloat(
+procedure TTerrainInfo.OnProviderStateChange;
+var
+  VGUID: TGUID;
+  VTmp: Cardinal;
+  VEnum: IEnumGUID;
+  VElement: ITerrainProviderListElement;
+  VProvider: ITerrainProvider;
+begin
+  FConfigSync.Acquire;
+  try
+    FPrimaryTerrainProviderGUID := FTerrainConfig.ElevationPrimaryProvider;
+
+    if (FTerrainProviderList <> nil) then begin
+      VEnum := FTerrainProviderList.GetGUIDEnum;
+      while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
+        VElement := FTerrainProviderList.Get(VGUID);
+        if VElement <> nil then begin
+          if IsEqualGUID(VElement.GUID, FPrimaryTerrainProviderGUID) then begin
+            FPrimaryTerrainProvider := VElement.Provider;
+            FTerrainConfig.ElevationInfoAvailable := FPrimaryTerrainProvider.Available;
+          end;
+
+          if FTerrainConfig.TrySecondaryElevationProviders then begin
+            VProvider := VElement.Provider;
+            if VProvider <> nil then begin
+              FTerrainConfig.ElevationInfoAvailable :=
+                FTerrainConfig.ElevationInfoAvailable or VProvider.Available;
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    FConfigSync.Release;
+  end;
+end;
+
+function TTerrainInfo.GetElevationInfo(
   const APoint: TDoublePoint;
   const AZoom: Byte
-): Single;
+): Integer;
+var
+  VGUID: TGUID;
+  VTmp: Cardinal;
+  VEnum: IEnumGUID;
+  VProvider: ITerrainProvider;
 begin
-  Result := FPrimaryTerrainProvider.GetPointElevation(APoint, AZoom);
-  { ToDo: if Result = 0 then try get elevation from Secondary providers  }
+  FConfigSync.Acquire;
+  try
+    if not DoublePointsEqual(FLastPoint, cUndefinedPointValue) and
+       DoublePointsEqual(FLastPoint, APoint) and (FLastZoom = AZoom) and
+       (FLastElevation <> cUndefinedElevationValue)
+    then begin
+      Result := FLastElevation;
+      Exit;
+    end;
+
+    Result := Round(FPrimaryTerrainProvider.GetPointElevation(APoint, AZoom));
+    if (Result = cUndefinedElevationValue) and FTerrainConfig.TrySecondaryElevationProviders then begin
+      VEnum := FTerrainProviderList.GetGUIDEnum;
+      while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
+        VProvider := FTerrainProviderList.Get(VGUID).Provider;
+        Result := Round(VProvider.GetPointElevation(APoint, AZoom));
+        if Result <> cUndefinedElevationValue then begin
+          Break;
+        end;
+      end;
+    end;
+
+    if Result = cUndefinedElevationValue then begin
+      Result := 0;
+    end;
+
+    FLastPoint := APoint;
+    FLastZoom := AZoom;
+    FLastElevation := Result;
+  finally
+    FConfigSync.Release;
+  end;
 end;
 
 function TTerrainInfo.GetElevationInfoStr(
   const APoint: TDoublePoint;
   const AZoom: Byte
 ): string;
-var
-  VElevation: Single;
 begin
-  VElevation := GetElevationInfoFloat(APoint, AZoom);
-  Result := Format('%0.f m', [VElevation]);
+  Result := IntToStr(GetElevationInfo(APoint, AZoom)) + ' ' + SAS_UNITS_m;
 end;
 
 end.
