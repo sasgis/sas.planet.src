@@ -40,6 +40,8 @@ type
       const AItems: TArrayOfTileInfoShortInternal
     );
     destructor Destroy; override;
+
+    class function TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
   end;
 
 implementation
@@ -120,15 +122,7 @@ end;
 
 function TEnumTileInfoShort.TileToIndex(const ATile: TPoint): Integer;
 begin
-  if (ATile.X < FTileRect.Left) or (ATile.X >= FTileRect.Right) then begin
-    Result := -1;
-  end else if (ATile.Y < FTileRect.Top) or (ATile.Y >= FTileRect.Bottom) then begin
-    Result := -1;
-  end else begin
-    Result :=
-      (ATile.X - FTileRect.Left) +
-      (ATile.Y - FTileRect.Top) * (FTileRect.Right - FTileRect.Left);
-  end;
+  Result := TTileRectInfoShort.TileInRectToIndex(ATile, FTileRect);
 end;
 
 { TTileRectInfoShort }
@@ -181,6 +175,19 @@ end;
 function TTileRectInfoShort.GetZoom: Byte;
 begin
   Result := FZoom;
+end;
+
+class function TTileRectInfoShort.TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
+begin
+  if (ATile.X < ARect.Left) or (ATile.X >= ARect.Right) then begin
+    Result := -1;
+  end else if (ATile.Y < ARect.Top) or (ATile.Y >= ARect.Bottom) then begin
+    Result := -1;
+  end else begin
+    Result :=
+      (ATile.X - ARect.Left) +
+      (ATile.Y - ARect.Top) * (ARect.Right - ARect.Left);
+  end;
 end;
 
 end.
