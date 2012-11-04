@@ -382,6 +382,7 @@ type
     tbitmFitEditToScreen: TTBXItem;
     NMarkPlay: TTBXItem;
     tbitmMarkInfo: TTBXItem;
+    tbitmCopyToClipboardGenshtabName: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -529,6 +530,7 @@ type
     procedure tbitmFitEditToScreenClick(Sender: TObject);
     procedure NMarkPlayClick(Sender: TObject);
     procedure tbitmMarkInfoClick(Sender: TObject);
+    procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2354,6 +2356,7 @@ begin
         try
           StrPCopy(P, s);
           SetClipboardData(CF_TEXT, hg);
+          SetClipboardData(CF_LOCALE, hg);
         finally
           GlobalUnlock(hg);
         end;
@@ -3397,6 +3400,30 @@ begin
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   VStr := GState.ValueToStringConverterConfig.GetStatic.LonLatConvert(VMouseLonLat);
   CopyStringToClipboard(VStr);
+end;
+
+procedure TfrmMain.tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
+var
+  VZoomCurr: Byte;
+  VMapType: TMapType;
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VMouseMapPoint: TDoublePoint;
+  VMouseLonLat: TDoublePoint;
+  VListName: Widestring;
+begin
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VZoomCurr := VLocalConverter.GetZoom;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
+  VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
+  VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
+  if GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then
+    VListName := LonLat2GShListName(VMouseLonLat, GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale, 100000000)
+    else VListName := '';
+  CopyStringToClipboard(VListName);
 end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
