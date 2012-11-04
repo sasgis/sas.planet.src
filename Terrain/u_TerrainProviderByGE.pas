@@ -112,6 +112,7 @@ begin
   FCoordConverter := nil;
   FStorage := nil;
   FMemCache.Free;
+  FTerrainPerser.Free;
   inherited Destroy;
 end;
 
