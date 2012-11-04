@@ -52,6 +52,7 @@ type
     FDLLCache_QueryTile: Pointer;
     FDLLCache_ConvertImage: Pointer;
     FDLLCache_QueryFillingMap: Pointer;
+    FDLLCache_QueryTileRectInfo: Pointer;
   protected
     // Lib routines
     function InternalLib_CleanupProc: Boolean; virtual;
@@ -62,6 +63,7 @@ type
     function InternalLib_SetPath(const APath: PAnsiChar): Boolean;
     function InternalLib_GetTileVersions(const AEnumInfo: PEnumTileVersionsInfo): Boolean;
     function InternalLib_QueryTile(const ATileInfo: PQueryTileInfo): Boolean;
+    function InternalLib_GetTileRectInfo(const ATileRectInfo: PQueryTileRectInfo): Boolean;
     function InternalLib_ConvertImage(
       const AConvertImage_Context: Pointer;
       const ABuffer: Pointer;
@@ -158,6 +160,7 @@ uses
   u_AvailPicsNMC,
   u_Synchronizer,
   u_TileInfoBasic,
+  u_TileRectInfoShort,
   u_TileStorageTypeAbilities;
 
 function DLLCache_ConvertImage_Callback(
@@ -208,6 +211,53 @@ begin
       Inc(Result);
     except
     end;
+  end;
+end;
+
+function InternalCreate_TileInfoType(const ATileRectInfo: PQueryTileRectInfo): TTileInfoType;
+begin
+  if ((ATileRectInfo^.Common.FlagsOut and DLLCACHE_QTO_TNE_EXISTS) <> 0) then begin
+    Result := titTneExists;
+  end else if (ATileRectInfo^.TileSize > 0) then begin
+    Result := titExists;
+  end else begin
+    Result := titNotExists;
+  end
+end;
+
+type
+  TGetTileRectFullInfo = packed record
+    Base: TQueryTileRectInfo;
+    InfoArray: TArrayOfTileInfoShortInternal;
+  end;
+  PGetTileRectFullInfo = ^TGetTileRectFullInfo;
+
+function DLLCache_QueryTileRectInfo_Callback(
+  const AContext: Pointer;
+  const ATileRectInfo: PQueryTileRectInfo
+): Boolean; stdcall;
+var
+  VIndex: Integer;
+begin
+  // add info from tile
+  VIndex := TTileRectInfoShort.TileInRectToIndex(ATileRectInfo^.Common.XY, ATileRectInfo^.TileRect);
+  // write info to TTileInfoShortInternal
+  if (VIndex>=0) then begin
+    with PGetTileRectFullInfo(ATileRectInfo)^.InfoArray[VIndex] do
+    if (titUnknown=FInfoType) then begin
+      // base fields
+      FLoadDate := ATileRectInfo^.DateOut;
+      FSize     := ATileRectInfo^.TileSize;
+      // derived field
+      FInfoType := InternalCreate_TileInfoType(ATileRectInfo);
+      Result := TRUE;
+    end else begin
+      // duplicated value
+      Result := FALSE;
+    end;
+  end else begin
+    // invalid tile position
+    Result := FALSE;
   end;
 end;
 
@@ -428,7 +478,25 @@ function TTileStorageDLL.GetTileInfo(
   const AVersionInfo: IMapVersionInfo;
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
+  procedure _LogToFile;
+  const c_fillingmapcalls = 'C:\_gettilecalls.txt';
+  var
+    sl: TStringList;
+    vline: String;
+  begin
+    sl := TStringList.Create;
+    try
+      if FileExists(c_fillingmapcalls) then
+        sl.LoadFromFile(c_fillingmapcalls);
+      vline := Format('%d - Zoom=%d, X=%d, Y = %d', [sl.Count, AZoom, AXY.X, AXY.Y]);
+      sl.Add(vline);
+      sl.SaveToFile(c_fillingmapcalls);
+    finally
+      sl.Free;
+    end;
+  end;
 begin
+  //_LogToFile;
   Result := QueryTileInternal(AXY, AZoom, AVersionInfo, AMode = gtimWithData);
 end;
 
@@ -437,8 +505,79 @@ function TTileStorageDLL.GetTileRectInfo(
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
+var
+  VObj: TGetTileRectFullInfo;
+  VVersionStoreString: AnsiString;
+  VTileCount: TPoint;
+  VInfoCount: Integer;
+
+  procedure _LogToFile;
+  const c_fillingmapcalls = 'C:\_fillingmapcalls.txt';
+  var
+    sl: TStringList;
+    vline: String;
+  begin
+    sl := TStringList.Create;
+    try
+      if FileExists(c_fillingmapcalls) then
+        sl.LoadFromFile(c_fillingmapcalls);
+      vline := Format('%d - Zoom=%d, Left=%d, Top=%d, Bottom = %d, Right = %d', [sl.Count, AZoom, ARect.Left, ARect.Top, ARect.Bottom, ARect.Right]);
+      sl.Add(vline);
+      sl.SaveToFile(c_fillingmapcalls);
+    finally
+      sl.Free;
+    end;
+  end;
 begin
   Result := nil;
+  //Exit;
+
+//x39 y 16
+//x47 y 20
+  //_LogToFile;
+
+
+  if (nil=FDLLCache_QueryTileRectInfo) then
+    Exit;
+
+  FDLLSync.BeginRead;
+  try
+    if StorageStateInternal.ReadAccess <> asDisabled then begin
+      VVersionStoreString := AVersionInfo.StoreString;
+      // init
+      FillChar(VObj, sizeof(VObj), #0);
+      VObj.Base.Common.Size := SizeOf(VObj);
+
+      with VObj.Base do begin
+        Common.Zoom := AZoom;
+        TileRect := ARect;
+        Common.VersionInp := PAnsiChar(VVersionStoreString);
+      end;
+
+      VTileCount.X := ARect.Right - ARect.Left;
+      VTileCount.Y := ARect.Bottom - ARect.Top;
+      VInfoCount := VTileCount.X * VTileCount.Y;
+      SetLength(VObj.InfoArray, VInfoCount);
+
+      // call
+      if not InternalLib_GetTileRectInfo(@VObj) then begin
+        VObj.InfoArray := nil;
+        Exit;
+      end;
+
+      // make result
+      Result := TTileRectInfoShort.CreateWithOwn(
+        ARect,
+        AZoom,
+        AVersionInfo,
+        FMainContentType,
+        VObj.InfoArray
+      );
+      VObj.InfoArray := nil;
+    end;
+  finally
+    FDLLSync.EndRead;
+  end;
 end;
 
 function TTileStorageDLL.InternalLib_CheckInitialized: Boolean;
@@ -447,7 +586,7 @@ begin
     (nil <> FDLLCacheHandle) and
     (nil <> FDLLCache_EnumTileVersions) and
     (nil <> FDLLCache_QueryTile);
-  // FDLLCache_ConvertImage and FDLLCache_QueryFillingMap can be NULL
+  // FDLLCache_ConvertImage and FDLLCache_QueryFillingMap and FDLLCache_QueryTileRectInfo can be NULL
 end;
 
 function TTileStorageDLL.InternalLib_CleanupProc: Boolean;
@@ -457,6 +596,7 @@ begin
   FDLLCache_QueryTile := nil;
   FDLLCache_ConvertImage := nil;
   FDLLCache_QueryFillingMap := nil;
+  FDLLCache_QueryTileRectInfo := nil;
 end;
 
 function TTileStorageDLL.InternalLib_ConvertImage(
@@ -471,6 +611,14 @@ begin
       DLLCACHE_IMG_SEC_DXT1,
       DLLCACHE_IMG_PRIMARY,
       DLLCache_ConvertImage_Callback);
+  end;
+end;
+
+function TTileStorageDLL.InternalLib_GetTileRectInfo(const ATileRectInfo: PQueryTileRectInfo): Boolean;
+begin
+  Result := FALSE;
+  if (nil <> FDLLCache_QueryTileRectInfo) then begin
+    Result := TDLLCache_QueryTileRectInfo(FDLLCache_QueryTileRectInfo)(@FDLLCacheHandle, ATileRectInfo, DLLCache_QueryTileRectInfo_Callback);
   end;
 end;
 
@@ -507,6 +655,7 @@ begin
       FDLLCache_QueryTile := GetProcAddress(FDLLHandle, 'DLLCache_QueryTile');
       FDLLCache_ConvertImage := GetProcAddress(FDLLHandle, 'DLLCache_ConvertImage');
       FDLLCache_QueryFillingMap := GetProcAddress(FDLLHandle, 'DLLCache_QueryFillingMap');
+      FDLLCache_QueryTileRectInfo := GetProcAddress(FDLLHandle, 'DLLCache_QueryTileRectInfo');
     end;
   end;
 end;

@@ -314,6 +314,32 @@ type
     const AUrlOfTile_Callback: TDLLCache_UrlOfTile_Callback
   ): Boolean; stdcall;
 
+  //
+  // for DLLCache_QueryTileRectInfo
+  TQueryTileRectInfo = packed record
+    // common params
+    Common: TCommonTileOperInfo; // fill all except XY
+    TileRect: TRect; // pointer to original rectangle
+    // output
+    TileSize: LongWord; // tile size
+    DateOut: TDateTime; // tile date
+  end;
+  PQueryTileRectInfo = ^TQueryTileRectInfo;
+
+  // callback to write tile info to array
+  TDLLCache_QueryTileRectInfo_Callback = function(
+    const AContext: Pointer;
+    const ATileRectInfo: PQueryTileRectInfo
+  ): Boolean; stdcall;
+
+  // DLLCache_QueryTileRectInfo - get tile information for rectangle (for filling map)
+  TDLLCache_QueryTileRectInfo = function(
+    const ADLLCacheHandle: PDLLCacheHandle;
+    const ATileRectInfo: PQueryTileRectInfo;
+    const AQueryTileRectInfo_Callback: TDLLCache_QueryTileRectInfo_Callback
+  ): Boolean; stdcall;
+
+
 implementation
 
 end.
