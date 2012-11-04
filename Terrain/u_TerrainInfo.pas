@@ -177,30 +177,34 @@ var
   VEnum: IEnumGUID;
   VElement: ITerrainProviderListElement;
   VProvider: ITerrainProvider;
+  VInfoAvail: Boolean;
 begin
   FConfigSync.Acquire;
   try
     FPrimaryTerrainProviderGUID := FTerrainConfig.ElevationPrimaryProvider;
 
     if (FTerrainProviderList <> nil) then begin
+      VInfoAvail := FALSE;
       VEnum := FTerrainProviderList.GetGUIDEnum;
       while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
         VElement := FTerrainProviderList.Get(VGUID);
         if VElement <> nil then begin
           if IsEqualGUID(VElement.GUID, FPrimaryTerrainProviderGUID) then begin
             FPrimaryTerrainProvider := VElement.Provider;
-            FTerrainConfig.ElevationInfoAvailable := FPrimaryTerrainProvider.Available;
+            VInfoAvail := VInfoAvail or FPrimaryTerrainProvider.Available;
           end;
 
-          if FTerrainConfig.TrySecondaryElevationProviders then begin
+          if FTerrainConfig.TrySecondaryElevationProviders then
+          if not IsEqualGUID(VElement.GUID, FPrimaryTerrainProviderGUID) then begin
             VProvider := VElement.Provider;
             if VProvider <> nil then begin
-              FTerrainConfig.ElevationInfoAvailable :=
-                FTerrainConfig.ElevationInfoAvailable or VProvider.Available;
+              VInfoAvail := VInfoAvail or VProvider.Available;
             end;
           end;
         end;
       end;
+
+      FTerrainConfig.ElevationInfoAvailable := VInfoAvail;
     end;
   finally
     FConfigSync.Release;

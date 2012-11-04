@@ -69,6 +69,11 @@ type
     constructor Create(const ACacheConfig: TGlobalCahceConfig);
   end;
 
+  TTerrainProviderByGeoCacher = class(TTerrainProviderByDLL)
+  public
+    constructor Create(const ACacheConfig: TGlobalCahceConfig);
+  end;
+  
 implementation
 
 uses
@@ -264,6 +269,26 @@ begin
     );
 
   inherited Create(ACacheConfig.GECachePath, VStrorage, VConverter);
+end;
+
+{ TTerrainProviderByGeoCacher }
+
+constructor TTerrainProviderByGeoCacher.Create(
+  const ACacheConfig: TGlobalCahceConfig);
+var
+  VStrorage: ITerrainStorage;
+  VConverter: ICoordConverter;
+begin
+  VStrorage :=
+    TTileStorageGCTerrain.Create(ACacheConfig.GCCachePath.Path) as ITerrainStorage;
+
+  VConverter :=
+    (TCoordConverterFactorySimple.Create as ICoordConverterFactory).GetCoordConverterByCode(
+      CGELonLatProjectionEPSG,
+      CTileSplitQuadrate256x256
+    );
+
+  inherited Create(ACacheConfig.GCCachePath, VStrorage, VConverter);
 end;
 
 end.

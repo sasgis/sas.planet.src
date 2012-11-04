@@ -70,6 +70,11 @@ type
     function InternalLib_Initialize: Boolean; override;
   end;
 
+  TTileStorageGCTerrain = class(TTileStorageDLLTerrain)
+  protected
+    function InternalLib_Initialize: Boolean; override;
+  end;
+  
 implementation
 
 uses
@@ -295,6 +300,16 @@ function TTileStorageGETerrain.InternalLib_Initialize: Boolean;
 begin
   if (0 = FDLLHandle) then begin
     FDLLHandle := LoadLibrary('TileStorage_GE.dll');
+  end;
+  Result := inherited InternalLib_Initialize;
+end;
+
+{ TTileStorageGCTerrain }
+
+function TTileStorageGCTerrain.InternalLib_Initialize: Boolean;
+begin
+  if (0 = FDLLHandle) then begin
+    FDLLHandle := LoadLibrary('TileStorage_GC.dll');
   end;
   Result := inherited InternalLib_Initialize;
 end;

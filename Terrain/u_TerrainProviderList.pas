@@ -79,9 +79,6 @@ begin
     );
   Add(VItem);
 
-{
-  ToDo
-
   VItem :=
     TTerrainProviderListElement.Create(
       cTerrainProviderGeoCacherGUID,
@@ -89,9 +86,6 @@ begin
       TTerrainProviderByGeoCacher.Create(ACacheConfig)
     );
   Add(VItem);
-
-}
-
 end;
 
 { TTerrainProviderListBase }
