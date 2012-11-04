@@ -18,28 +18,13 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TerrainStorage;
+unit c_TerrainProviderGUID;
 
 interface
 
-uses
-  Types,
-  i_TileInfoBasic;
-
-type
-  ITerrainStorage = interface
-    ['{ADBF684D-72B7-493B-B79D-5D88F6A17194}']
-
-    function GetAvailable: Boolean;
-    property Available: Boolean read GetAvailable;
-
-    function GetTileInfo(
-      const AXY: TPoint;
-      const AZoom: Byte
-    ): ITileInfoBasic;
-
-    function SetPath(const APath: string): Boolean;
-  end;
+const
+  cTerrainProviderGoogleEarthGUID: TGUID = '{04539368-8BFA-4B45-9D64-F30E91CEFC7F}';
+  cTerrainProviderGeoCacherGUID: TGUID = '{12D51461-F806-438F-ADDA-88D64DC4EB65}';
 
 implementation
 

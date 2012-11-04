@@ -18,29 +18,61 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TerrainStorage;
+unit u_TerrainProviderListElement;
 
 interface
 
 uses
-  Types,
-  i_TileInfoBasic;
+  i_TerrainProvider,
+  i_TerrainProviderListElement;
 
 type
-  ITerrainStorage = interface
-    ['{ADBF684D-72B7-493B-B79D-5D88F6A17194}']
-
-    function GetAvailable: Boolean;
-    property Available: Boolean read GetAvailable;
-
-    function GetTileInfo(
-      const AXY: TPoint;
-      const AZoom: Byte
-    ): ITileInfoBasic;
-
-    function SetPath(const APath: string): Boolean;
+  TTerrainProviderListElement = class(TInterfacedObject, ITerrainProviderListElement)
+  private
+    FGUID: TGUID;
+    FCaption: WideString;
+    FProvider: ITerrainProvider;
+  private
+    function GetGUID: TGUID;
+    function GetCaption: WideString;
+    function GetProvider: ITerrainProvider;
+  public
+    constructor Create(
+      const AGUID: TGUID;
+      const ACaption: WideString;
+      const AProvider: ITerrainProvider
+    );
   end;
 
 implementation
+
+{ TTerrainProviderListElement }
+
+constructor TTerrainProviderListElement.Create(
+  const AGUID: TGUID;
+  const ACaption: WideString;
+  const AProvider: ITerrainProvider
+);
+begin
+  inherited Create;
+  FGUID := AGUID;
+  FCaption := ACaption;
+  FProvider := AProvider;
+end;
+
+function TTerrainProviderListElement.GetCaption: WideString;
+begin
+  Result := FCaption;
+end;
+
+function TTerrainProviderListElement.GetProvider: ITerrainProvider;
+begin
+  Result := FProvider;
+end;
+
+function TTerrainProviderListElement.GetGUID: TGUID;
+begin
+  Result := FGUID;
+end;
 
 end.

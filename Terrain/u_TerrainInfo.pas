@@ -25,18 +25,21 @@ interface
 uses
   t_GeoTypes,
   i_TerrainInfo,
+  i_TerrainConfig,
   i_TerrainProvider,
-  i_ConfigDataProvider,
-  u_GlobalCahceConfig;
+  i_TerrainProviderList;
 
 type
   TTerrainInfo = class(TInterfacedObject, ITerrainInfo)
   private
-    FTerrainProvider: ITerrainProvider; // ToDo: make TerrainProviderList
+    FTerrainConfig: ITerrainConfig;
+    FPrimaryTerrainProviderGUID: TGUID;
+    FPrimaryTerrainProvider: ITerrainProvider;
+    FTerrainProviderList: ITerrainProviderList;
   public
     constructor Create(
-      const AAppConfig: IConfigDataProvider;
-      const ACacheConfig: TGlobalCahceConfig
+      const ATerrainConfig: ITerrainConfig;
+      const ATerrainProviderList: ITerrainProviderList
     );
     destructor Destroy; override;
 
@@ -54,19 +57,20 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_TerrainProviderByGE;
+  SysUtils;
 
 { TTerrainInfo }
 
 constructor TTerrainInfo.Create(
-  const AAppConfig: IConfigDataProvider;
-  const ACacheConfig: TGlobalCahceConfig
+  const ATerrainConfig: ITerrainConfig;
+  const ATerrainProviderList: ITerrainProviderList
 );
 begin
   inherited Create;
-  ACacheConfig.LoadConfig(AAppConfig); // ToDo: make listner OnCacheConfigChange
-  FTerrainProvider := TTerrainProviderByGoogleEarth.Create(ACacheConfig.GECachePath.Path);
+  FTerrainConfig := ATerrainConfig;
+  FTerrainProviderList := ATerrainProviderList;
+  FPrimaryTerrainProviderGUID := FTerrainConfig.ElevationPrimaryProvider;
+  FPrimaryTerrainProvider := FTerrainProviderList.Get(FPrimaryTerrainProviderGUID).Provider;
 end;
 
 destructor TTerrainInfo.Destroy;
@@ -79,7 +83,8 @@ function TTerrainInfo.GetElevationInfoFloat(
   const AZoom: Byte
 ): Single;
 begin
-  Result := FTerrainProvider.GetPointElevation(APoint, AZoom);
+  Result := FPrimaryTerrainProvider.GetPointElevation(APoint, AZoom);
+  { ToDo: if Result = 0 then try get elevation from Secondary providers  }
 end;
 
 function TTerrainInfo.GetElevationInfoStr(

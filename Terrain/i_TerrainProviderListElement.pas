@@ -18,27 +18,24 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TerrainStorage;
+unit i_TerrainProviderListElement;
 
 interface
 
 uses
-  Types,
-  i_TileInfoBasic;
+  i_TerrainProvider;
 
 type
-  ITerrainStorage = interface
-    ['{ADBF684D-72B7-493B-B79D-5D88F6A17194}']
+  ITerrainProviderListElement = interface
+    ['{12D5CC97-AA2C-446C-AADF-B14FDAFAF6D8}']
+    function GetGUID: TGUID;
+    property GUID: TGUID read GetGUID;
 
-    function GetAvailable: Boolean;
-    property Available: Boolean read GetAvailable;
+    function GetCaption: WideString;
+    property Caption: WideString read GetCaption;
 
-    function GetTileInfo(
-      const AXY: TPoint;
-      const AZoom: Byte
-    ): ITileInfoBasic;
-
-    function SetPath(const APath: string): Boolean;
+    function GetProvider: ITerrainProvider;
+    property Provider: ITerrainProvider read GetProvider;
   end;
 
 implementation

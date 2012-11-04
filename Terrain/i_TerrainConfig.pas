@@ -18,27 +18,31 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TerrainStorage;
+unit i_TerrainConfig;
 
 interface
 
 uses
-  Types,
-  i_TileInfoBasic;
+  i_ConfigDataElement;
 
 type
-  ITerrainStorage = interface
-    ['{ADBF684D-72B7-493B-B79D-5D88F6A17194}']
+  ITerrainConfig = interface(IConfigDataElement)
+    ['{B89AD0B1-8DB6-4C2B-AF6B-E9F05EA5AC3D}']
+    function GetShowInStatusBar: Boolean;
+    procedure SetShowInStatusBar(const AValue: Boolean);
+    property ShowInStatusBar: Boolean read GetShowInStatusBar write SetShowInStatusBar;
 
-    function GetAvailable: Boolean;
-    property Available: Boolean read GetAvailable;
+    function GetElevationInfoAvailable: Boolean;
+    procedure SetElevationInfoAvailable(const AValue: Boolean);
+    property ElevationInfoAvailable: Boolean read GetElevationInfoAvailable write SetElevationInfoAvailable;
 
-    function GetTileInfo(
-      const AXY: TPoint;
-      const AZoom: Byte
-    ): ITileInfoBasic;
+    function GetElevationPrimaryProvider: TGUID;
+    procedure SetElevationPrimaryProvider(const AValue: TGUID);
+    property ElevationPrimaryProvider: TGUID read GetElevationPrimaryProvider write SetElevationPrimaryProvider;
 
-    function SetPath(const APath: string): Boolean;
+    function GetTrySecondaryElevationProviders: Boolean;
+    procedure SetTrySecondaryElevationProviders(const AValue: Boolean);
+    property TrySecondaryElevationProviders: Boolean read GetTrySecondaryElevationProviders write SetTrySecondaryElevationProviders;
   end;
 
 implementation

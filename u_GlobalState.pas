@@ -80,7 +80,8 @@ uses
   i_SatellitesInViewMapDraw,
   i_SensorList,
   i_TimeZoneDiffByLonLat,
-  i_TerrainInfo,
+  i_TerrainProviderList,
+  i_TerrainConfig,
   i_VectorItmesFactory,
   i_InvisibleBrowser,
   i_InternalBrowser,
@@ -169,7 +170,8 @@ type
     FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
-    FTerrainInfo: ITerrainInfo;
+    FTerrainProviderList: ITerrainProviderList;
+    FTerrainConfig: ITerrainConfig;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
 
@@ -235,7 +237,8 @@ type
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
-    property TerrainInfo: ITerrainInfo read FTerrainInfo;
+    property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
+    property TerrainConfig: ITerrainConfig read FTerrainConfig;
 
     constructor Create;
     destructor Destroy; override;
@@ -304,7 +307,8 @@ uses
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
   u_TimeZoneDiffByLonLatStuped,
-  u_TerrainInfo,
+  u_TerrainProviderList,
+  u_TerrainConfig,
   u_MainFormConfig,
   u_ProjConverterFactory,
   u_PathConfig,
@@ -432,7 +436,8 @@ begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
 
-  FTerrainInfo := TTerrainInfo.Create(FMainConfigProvider, FCacheConfig);
+  FTerrainProviderList := TTerrainProviderListSimple.Create(FCacheConfig);
+  FTerrainConfig := TTerrainConfig.Create;
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
@@ -662,7 +667,6 @@ begin
   FMainMemCacheConfig := nil;
   FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
-  FreeAndNil(FCacheConfig);
   FSkyMapDraw := nil;
   FreeAndNil(FProtocol);
   FreeAndNil(FGUISyncronizedTimer);
@@ -671,6 +675,9 @@ begin
   FGlobalInternetState := nil;
   FArchiveReadWriteFactory := nil;
   FBitmapTileSaveLoadFactory := nil;
+  FTerrainProviderList := nil;
+  FTerrainConfig := nil;
+  FreeAndNil(FCacheConfig);
   inherited;
 end;
 
@@ -737,6 +744,8 @@ begin
   FCacheConfig.LoadConfig(FMainConfigProvider);
 
   VProjFactory := TProjConverterFactory.Create;
+
+  FTerrainConfig.ReadConfig(MainConfigProvider.GetSubItem('Terrain'));
 
   FMainMapsList.LoadMaps(
     FLanguageManager,

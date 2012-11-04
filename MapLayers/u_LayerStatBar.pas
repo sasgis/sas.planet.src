@@ -45,6 +45,8 @@ uses
   i_GlobalInternetState,
   i_LanguageManager,
   i_TerrainInfo,
+  i_TerrainConfig,
+  i_TerrainProviderList,
   u_TimeZoneInfo,
   u_LayerStatBarPopupMenu,
   u_WindowLayerWithPos;
@@ -59,6 +61,7 @@ type
     FMouseState: IMouseState;
     FTimeZoneInfo: TTimeZoneInfo;
     FTerrainInfo: ITerrainInfo;
+    FTerrainConfig: ITerrainConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeable;
@@ -96,7 +99,8 @@ type
       const AMouseState: IMouseState;
       const ATimerNoifier: INotifier;
       const ATimeZoneDiff: ITimeZoneDiffByLonLat;
-      const ATerrainInfo: ITerrainInfo;
+      const ATerrainProviderList: ITerrainProviderList;
+      const ATerrainConfig: ITerrainConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
       const AOnOptionsClick: TNotifyEvent;
@@ -116,6 +120,7 @@ uses
   u_ListenerByEvent,
   u_ResStrings,
   u_GeoFun,
+  u_TerrainInfo,
   u_MapType;
 
 const
@@ -136,7 +141,8 @@ constructor TLayerStatBar.Create(
   const AMouseState: IMouseState;
   const ATimerNoifier: INotifier;
   const ATimeZoneDiff: ITimeZoneDiffByLonLat;
-  const ATerrainInfo: ITerrainInfo;
+  const ATerrainProviderList: ITerrainProviderList;
+  const ATerrainConfig: ITerrainConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
   const AOnOptionsClick: TNotifyEvent;
@@ -150,13 +156,14 @@ begin
     TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
+  FTerrainConfig := ATerrainConfig;
   FGlobalInternetState := AGlobalInternetState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
   FTimeZoneInfo := TTimeZoneInfo.Create(ATimeZoneDiff);
   FConfig.TimeZoneInfoAvailable := FTimeZoneInfo.Available;
 
-  FTerrainInfo := ATerrainInfo;
+  FTerrainInfo := TTerrainInfo.Create(FTerrainConfig, ATerrainProviderList);
 
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
@@ -397,7 +404,7 @@ begin
       VNeedSeparator := True;
     end;
 
-    if True {ToDo} then begin
+    if FTerrainConfig.ShowInStatusBar and FTerrainConfig.ElevationInfoAvailable then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VString := FTerrainInfo.GetElevationInfoStr(VLonLat, VZoomCurr);
       RenderText(VOffset, VString, VNeedSeparator);

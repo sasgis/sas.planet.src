@@ -25,9 +25,12 @@ interface
 uses
   Types,
   t_GeoTypes,
+  i_Listener,
+  i_Notifier,
   i_CoordConverter,
   i_TerrainStorage,
   i_TerrainProvider,
+  u_GlobalCahceConfig,
   u_GoogleEarthTerrainParser,
   u_TerrainProviderByGEMemCache;
 
@@ -39,13 +42,17 @@ type
     FCoordConverter: ICoordConverter;
     FTerrainPerser: TGoogleEarthTerrainParser;
     FMemCache: TTerrainProviderByGEMemCache;
+    FCacheConfigChangeListener: IListener;
+    FCacheConfig: TGlobalCahceConfig;
     procedure TryLoadTileToMemCache(const ATile: TPoint; const AZoom: Byte);
     procedure CheckTileZoom(var AZoom: Byte);
     procedure OnCloseTerrainTile(const ATile: PTerrainTile);
   protected
     function GetPointElevation(const ALonLat: TDoublePoint; const AZoom: Byte): Single;
+    procedure OnCacheConfigChange; virtual; abstract;
   public
     constructor Create(
+      const ACacheConfig: TGlobalCahceConfig;
       const AStorage: ITerrainStorage;
       const ACoordConverter: ICoordConverter
     );
@@ -53,8 +60,9 @@ type
   end;
 
   TTerrainProviderByGoogleEarth = class(TTerrainProviderByDLL)
-    public
-      constructor Create(const AStoragePath: string);
+  public
+    constructor Create(const ACacheConfig: TGlobalCahceConfig);
+    procedure OnCacheConfigChange; override;
   end;
 
 const
@@ -68,6 +76,7 @@ uses
   i_TileInfoBasic,
   i_CoordConverterFactory,
   u_GeoFun,
+  u_ListenerByEvent,
   u_CoordConverterFactorySimple,
   u_TileStorageGETerrain;
 
@@ -77,20 +86,29 @@ const
 { TTerrainProviderByDLL }
 
 constructor TTerrainProviderByDLL.Create(
+  const ACacheConfig: TGlobalCahceConfig;
   const AStorage: ITerrainStorage;
   const ACoordConverter: ICoordConverter
 );
 begin
   inherited Create;
+  FCacheConfig := ACacheConfig;
   FStorage := AStorage;
   FCoordConverter := ACoordConverter;
   FTerrainPerser := TGoogleEarthTerrainParser.Create;
   FMemCache := TTerrainProviderByGEMemCache.Create(cMemCacheCapacity, Self.OnCloseTerrainTile);
   FAvailable := FStorage.Available and FTerrainPerser.Available;
+  FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
+  FCacheConfig.CacheChangeNotifier.Add(FCacheConfigChangeListener);
 end;
 
 destructor TTerrainProviderByDLL.Destroy;
 begin
+  if FCacheConfig <> nil then begin
+    FCacheConfig.CacheChangeNotifier.Remove(FCacheConfigChangeListener);
+    FCacheConfig := nil;
+    FCacheConfigChangeListener := nil;
+  end;
   FCoordConverter := nil;
   FStorage := nil;
   FMemCache.Free;
@@ -204,18 +222,29 @@ end;
 
 { TTerrainProviderByGoogleEarth }
 
-constructor TTerrainProviderByGoogleEarth.Create(const AStoragePath: string);
+constructor TTerrainProviderByGoogleEarth.Create(
+  const ACacheConfig: TGlobalCahceConfig
+);
 var
   VStrorage: ITerrainStorage;
   VConverter: ICoordConverter;
 begin
-  VStrorage := TTileStorageGETerrain.Create(AStoragePath) as ITerrainStorage;
+  VStrorage :=
+    TTileStorageGETerrain.Create(ACacheConfig.GECachePath.Path) as ITerrainStorage;
+
   VConverter :=
     (TCoordConverterFactorySimple.Create as ICoordConverterFactory).GetCoordConverterByCode(
       CGELonLatProjectionEPSG,
       CTileSplitQuadrate256x256
     );
-  inherited Create(VStrorage, VConverter);
+
+  inherited Create(ACacheConfig, VStrorage, VConverter);
+end;
+
+procedure TTerrainProviderByGoogleEarth.OnCacheConfigChange;
+begin
+  FStorage.SetPath(FCacheConfig.GECachePath.Path);
+  FAvailable := (FStorage.Available and FTerrainPerser.Available);
 end;
 
 end.

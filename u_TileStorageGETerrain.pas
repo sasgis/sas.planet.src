@@ -60,6 +60,8 @@ type
       const AZoom: Byte
     ): ITileInfoBasic;
 
+    function SetPath(const APath: string): Boolean;
+
     function GetAvailable: Boolean;
   end;
 
@@ -240,6 +242,11 @@ function TTileStorageDLLTerrain.InternalLib_CleanupProc: Boolean;
 begin
   Result := FALSE;
   FDLLCache_QueryTerrainTile := nil;
+end;
+
+function TTileStorageDLLTerrain.SetPath(const APath: string): Boolean;
+begin
+  Result := InternalLib_SetPath(PAnsiChar(APath));
 end;
 
 function TTileStorageDLLTerrain.GetTileInfo(
