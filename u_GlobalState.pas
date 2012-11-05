@@ -174,6 +174,7 @@ type
     FTerrainConfig: ITerrainConfig;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    procedure InitProtocol;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
     {$IFDEF SasDebugWithJcl}
@@ -272,6 +273,7 @@ uses
   i_ProjConverter,
   i_TextByVectorItem,
   u_TextByVectorItemHTMLByDescription,
+  u_TextByVectorItemMarkInfo,
   i_NotifierTTLCheck,
   u_NotifierTTLCheck,
   i_FileNameIterator,
@@ -347,7 +349,6 @@ constructor TGlobalState.Create;
 var
   VList: INotifierTTLCheckInternal;
   VViewCnonfig: IConfigDataProvider;
-  VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VXmlLoader: IVectorDataLoader;
   VXmlZLoader: IVectorDataLoader;
@@ -358,9 +359,7 @@ var
   VCoordConverterFactorySimple: TCoordConverterFactorySimple;
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
-  VInternalDomainInfoProvider: IInternalDomainInfoProvider;
   VResamplerFactoryList: IImageResamplerFactoryList;
-  VTextProivder: ITextByVectorItem;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -590,43 +589,9 @@ begin
       FVectorItmesFactory,
       VKmlLoader
     );
-  VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
 
-  VInternalDomainInfoProvider :=
-    TInternalDomainInfoProviderByMapTypeList.Create(
-      FZmpInfoSet,
-      FContentTypeManager
-    );
+  InitProtocol;
 
-  VInternalDomainInfoProviderList.Add(
-    CZmpInfoInternalDomain,
-    VInternalDomainInfoProvider
-  );
-
-  VInternalDomainInfoProvider :=
-    TInternalDomainInfoProviderByDataProvider.Create(
-      TConfigDataProviderByPathConfig.Create(FMediaDataPath),
-      FContentTypeManager
-    );
-  VInternalDomainInfoProviderList.Add(
-    CMediaDataInternalDomain,
-    VInternalDomainInfoProvider
-  );
-
-  VTextProivder := TTextByVectorItemHTMLByDescription.Create;
-  VInternalDomainInfoProvider :=
-    TInternalDomainInfoProviderByMarksSystem.Create(
-      FMarksDb,
-      VTextProivder,
-      nil
-    );
-  VInternalDomainInfoProviderList.Add(
-    CMarksSystemInternalDomain,
-    VInternalDomainInfoProvider
-  );
-
-
-  FProtocol := TIeEmbeddedProtocolRegistration.Create(CSASProtocolName, TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList));
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(
       FLanguageManager,
@@ -686,6 +651,69 @@ begin
   FTerrainConfig := nil;
   FreeAndNil(FCacheConfig);
   inherited;
+end;
+
+procedure TGlobalState.InitProtocol;
+var
+  VInternalDomainInfoProviderList: TInternalDomainInfoProviderList;
+  VInternalDomainInfoProvider: IInternalDomainInfoProvider;
+  VTextProivder: ITextByVectorItem;
+  VTextProviderList: TStringList;
+begin
+  VInternalDomainInfoProviderList := TInternalDomainInfoProviderList.Create;
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByMapTypeList.Create(
+      FZmpInfoSet,
+      FContentTypeManager
+    );
+
+  VInternalDomainInfoProviderList.Add(
+    CZmpInfoInternalDomain,
+    VInternalDomainInfoProvider
+  );
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByDataProvider.Create(
+      TConfigDataProviderByPathConfig.Create(FMediaDataPath),
+      FContentTypeManager
+    );
+  VInternalDomainInfoProviderList.Add(
+    CMediaDataInternalDomain,
+    VInternalDomainInfoProvider
+  );
+  VTextProviderList := TStringList.Create;
+  VTextProviderList.Sorted := True;
+  VTextProviderList.Duplicates := dupError;
+  VTextProivder :=
+    TTextByVectorItemMarkInfo.Create(
+      FValueToStringConverterConfig,
+      TDatum.Create(3395, 6378137, 6356752)
+    );
+
+  VTextProviderList.AddObject('Info', Pointer(VTextProivder));
+  VTextProivder._AddRef;
+
+  VTextProivder := TTextByVectorItemHTMLByDescription.Create;
+  VTextProviderList.AddObject(CVectorItemDescriptionSuffix, Pointer(VTextProivder));
+  VTextProivder._AddRef;
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByMarksSystem.Create(
+      FMarksDb,
+      VTextProivder,
+      VTextProviderList
+    );
+  VInternalDomainInfoProviderList.Add(
+    CMarksSystemInternalDomain,
+    VInternalDomainInfoProvider
+  );
+
+  FProtocol :=
+    TIeEmbeddedProtocolRegistration.Create(
+      CSASProtocolName,
+      TIeEmbeddedProtocolFactory.Create(VInternalDomainInfoProviderList)
+    );
 end;
 
 {$IFDEF SasDebugWithJcl}
