@@ -49,7 +49,7 @@ type
     procedure InitItemsState;
     procedure OnMenuItemClick(Sender: TObject);
     procedure OnTerrainItemClick(Sender: TObject);
-    procedure OnTerrainDisableItemClick(Sender: TObject);
+    procedure OnTerrainCustomizeItemClick(Sender: TObject);
     procedure OnLangChange;
   public
     constructor Create(
@@ -86,6 +86,8 @@ resourcestring
   rsShowTilePathInfo = 'Show Tile Path Info';
   rsHideStatusBar = 'Hide Status Bar';
   rsOptions = 'Options...';
+  rsAnyAvailableElevationSource = 'Any Available Source';
+  rsDisableElevationInfo = 'Disable';
 
 type
   TMenuItemTag = (
@@ -105,6 +107,7 @@ type
 
 const
   cDisableElevationInfoItemTag = 0;
+  cAnyAvailableElevationSourceItemTag = 1;
 
 function GetMenuItemList: TMenuItemList; inline;
 begin
@@ -166,6 +169,7 @@ var
   VMenuItem: TTBXItem;
   VMenuSubItem: TTBXSubmenuItem;
   VMenuItemList: TMenuItemList;
+  VMenuSeparator: TTBSeparatorItem;
   VGUID: TGUID;
   VTmp: Cardinal;
   VEnum: IEnumGUID;
@@ -196,14 +200,25 @@ begin
       VMenuSubItem.Enabled := (J > 0);
 
       if VMenuSubItem.Enabled then begin
+        VMenuSeparator := TTBSeparatorItem.Create(FPopup);
+        VMenuSubItem.Add(VMenuSeparator);
+
+        VMenuItem := TTBXItem.Create(FPopup);
+        VMenuItem.AutoCheck := True;
+        VMenuItem.Caption := rsAnyAvailableElevationSource;
+        VMenuItem.Tag := cAnyAvailableElevationSourceItemTag;
+        VMenuItem.OnClick := OnTerrainCustomizeItemClick;
+        VMenuSubItem.Add(VMenuItem);
+
         VMenuItem := TTBXItem.Create(FPopup);
         VMenuItem.RadioItem := True;
         VMenuItem.AutoCheck := True;
         VMenuItem.GroupIndex := 1;
-        VMenuItem.Caption := 'Disable';
+        VMenuItem.Caption := rsDisableElevationInfo;
         VMenuItem.Tag := cDisableElevationInfoItemTag;
-        VMenuItem.OnClick := OnTerrainDisableItemClick;
+        VMenuItem.OnClick := OnTerrainCustomizeItemClick;
         VMenuSubItem.Add(VMenuItem);
+
         VMenuSubItem.Checked := VMenuItem.Checked;
       end;
 
@@ -244,6 +259,9 @@ begin
             VMenuItem.Checked :=
               not FTerrainConfig.ShowInStatusBar or
               not FTerrainConfig.ElevationInfoAvailable;
+          end else if VMenuItem.Tag = cAnyAvailableElevationSourceItemTag then begin
+            VMenuItem.Enabled := FTerrainConfig.ShowInStatusBar;
+            VMenuItem.Checked := FTerrainConfig.TrySecondaryElevationProviders;
           end else begin
             VItem := ITerrainProviderListElement(VMenuItem.Tag);
             if (VItem <> nil) then begin
@@ -322,14 +340,21 @@ begin
   end;
 end;
 
-procedure TLayerStatBarPopupMenu.OnTerrainDisableItemClick(Sender: TObject);
+procedure TLayerStatBarPopupMenu.OnTerrainCustomizeItemClick(Sender: TObject);
 var
   VMenuItem: TTBXItem;
 begin
   if Sender is TTBXItem then begin
     VMenuItem := Sender as TTBXItem;
-    if VMenuItem.Checked then begin
-      FTerrainConfig.ShowInStatusBar := False;
+    case VMenuItem.Tag of
+      cDisableElevationInfoItemTag: begin
+        if VMenuItem.Checked then begin
+          FTerrainConfig.ShowInStatusBar := False;
+        end;
+      end;    
+      cAnyAvailableElevationSourceItemTag: begin
+        FTerrainConfig.TrySecondaryElevationProviders := VMenuItem.Checked;
+      end;
     end;
   end;
 end;

@@ -857,6 +857,7 @@ begin
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
+  FTerrainConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Terrain'));
 
   FMapsPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMAPS'));
   FTrackPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTRACKS'));
