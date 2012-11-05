@@ -4828,14 +4828,14 @@ begin
       end;
 
       if VWikiItem <> nil then begin
-        if (VFoundItem <> nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
+        if (VFoundItem = nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
          VFoundItem := VWikiItem;
         end;
       end;
 
       if VFoundItem <> nil  then begin
         if VFoundItem.GetInfoUrl <> '' then begin
-          GState.InternalBrowser.Navigate(VFoundItem.GetInfoCaption, VFoundItem.GetInfoUrl);
+          GState.InternalBrowser.Navigate(VFoundItem.GetInfoCaption, VFoundItem.GetInfoUrl + CVectorItemDescriptionSuffix);
         end else if VFoundItem.Desc <> '' then begin
           GState.InternalBrowser.ShowMessage(VFoundItem.GetInfoCaption, VFoundItem.Desc);
         end;

@@ -108,7 +108,7 @@ function TMarkFullBase.GetInfoUrl: string;
 begin
   Result := '';
   if FDesc <> '' then begin
-    Result := CMarksSystemInternalURL + GetStringID + '/Description';
+    Result := CMarksSystemInternalURL + GetStringID + '/';
   end;
 end;
 
