@@ -270,6 +270,8 @@ uses
   i_InternalDomainInfoProvider,
   i_ImageResamplerFactory,
   i_ProjConverter,
+  i_TextByVectorItem,
+  u_TextByVectorItemHTMLByDescription,
   i_NotifierTTLCheck,
   u_NotifierTTLCheck,
   i_FileNameIterator,
@@ -358,6 +360,7 @@ var
   VSleepByClass: IConfigDataProvider;
   VInternalDomainInfoProvider: IInternalDomainInfoProvider;
   VResamplerFactoryList: IImageResamplerFactoryList;
+  VTextProivder: ITextByVectorItem;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -609,9 +612,13 @@ begin
     CMediaDataInternalDomain,
     VInternalDomainInfoProvider
   );
+
+  VTextProivder := TTextByVectorItemHTMLByDescription.Create;
   VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByMarksSystem.Create(
-      FMarksDb
+      FMarksDb,
+      VTextProivder,
+      nil
     );
   VInternalDomainInfoProviderList.Add(
     CMarksSystemInternalDomain,

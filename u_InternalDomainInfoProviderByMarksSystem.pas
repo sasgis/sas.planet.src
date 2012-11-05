@@ -23,14 +23,24 @@ unit u_InternalDomainInfoProviderByMarksSystem;
 interface
 
 uses
+  Classes,
   i_BinaryData,
   i_MarksSystem,
+  i_TextByVectorItem,
   i_InternalDomainInfoProvider;
 
 type
   TInternalDomainInfoProviderByMarksSystem = class(TInterfacedObject, IInternalDomainInfoProvider)
   private
     FMarksSystem: IMarksSystem;
+    FTextProviders: TStringList;
+    FDefaultProvider: ITextByVectorItem;
+    function BuildBinaryDataByText(const AText: string): IBinaryData;
+    function ParseFileName(
+      const AFilePath: string;
+      out AMarkId: string;
+      out ASuffix: string
+    ): Boolean;
   private
     function LoadBinaryByFilePath(
       const AFilePath: string;
@@ -38,27 +48,64 @@ type
     ): IBinaryData;
   public
     constructor Create(
-      const AMarksSystem: IMarksSystem
+      const AMarksSystem: IMarksSystem;
+      const ADefaultProvider: ITextByVectorItem;
+      ATextProviders: TStringList
     );
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
   StrUtils,
+  c_InternalBrowser,
   i_MarksSimple,
   u_BinaryData;
-
-const
-  CDescriptionSuffix = '/Description';
 
 { TInternalDomainInfoProviderByMarksSystem }
 
 constructor TInternalDomainInfoProviderByMarksSystem.Create(
-  const AMarksSystem: IMarksSystem);
+  const AMarksSystem: IMarksSystem;
+  const ADefaultProvider: ITextByVectorItem;
+  ATextProviders: TStringList
+);
 begin
   inherited Create;
   FMarksSystem := AMarksSystem;
+  FDefaultProvider := ADefaultProvider;
+  FTextProviders := ATextProviders;
+end;
+
+destructor TInternalDomainInfoProviderByMarksSystem.Destroy;
+var
+  i: Integer;
+  VItem: Pointer;
+begin
+  if FTextProviders <> nil then begin
+    for i := 0 to FTextProviders.Count - 1 do begin
+      VItem := FTextProviders.Objects[i];
+      if VItem <> nil then begin
+        IInterface(VItem)._Release;
+      end;
+    end;
+  end;
+
+  inherited;
+end;
+
+function TInternalDomainInfoProviderByMarksSystem.BuildBinaryDataByText(
+  const AText: string): IBinaryData;
+begin
+  Result := nil;
+  if AText <> '' then begin
+    Result :=
+      TBinaryData.Create(
+        Length(AText) * SizeOf(AText[1]),
+        @AText[1],
+        False
+      );
+  end;
 end;
 
 function TInternalDomainInfoProviderByMarksSystem.LoadBinaryByFilePath(
@@ -66,31 +113,66 @@ function TInternalDomainInfoProviderByMarksSystem.LoadBinaryByFilePath(
 var
   VMarkId: string;
   VMark: IMark;
-  VDesc: string;
+  VProvider: ITextByVectorItem;
+  VSuffix: string;
+  VProviderIndex: Integer;
+  VText: string;
 begin
-  if Length(AFilePath) <= Length(CDescriptionSuffix) then begin
-    Result := nil;
-    AContentType := '';
-    Exit;
-  end;
-  VMarkId := LeftStr(AFilePath, Length(AFilePath) - Length(CDescriptionSuffix));
-  VMark := FMarksSystem.GetMarkByStringId(VMarkId);
-  if VMark = nil then begin
-    Result := nil;
-    AContentType := '';
-    Exit;
-  end;
-  VDesc := VMark.Desc;
-  if VDesc <> '' then begin
-    VDesc := '<HTML><BODY>' + VDesc + '</BODY></HTML>';
-    Result :=
-      TBinaryData.Create(
-        Length(VDesc) * SizeOf(VDesc[1]),
-        @VDesc[1],
-        False
-      );
-  end;
+  Result := nil;
   AContentType := 'text/html';
+  if ParseFileName(AFilePath, VMarkId, VSuffix) then begin
+    VMark := FMarksSystem.GetMarkByStringId(VMarkId);
+    if VMark <> nil then begin
+      VProvider := nil;
+      if VSuffix <> '' then begin
+        if FTextProviders <> nil then begin
+          if FTextProviders.Find(VSuffix, VProviderIndex) then begin
+            VProvider := ITextByVectorItem(Pointer(FTextProviders.Objects[VProviderIndex]));
+          end;
+        end;
+      end;
+      if VProvider = nil then begin
+        VProvider := FDefaultProvider;
+      end;
+      VText := VProvider.GetText(VMark);
+      Result := BuildBinaryDataByText(VText);
+      AContentType := 'text/html';
+    end;
+  end;
+end;
+
+function TInternalDomainInfoProviderByMarksSystem.ParseFileName(
+  const AFilePath: string;
+  out AMarkId, ASuffix: string
+): Boolean;
+var
+  VFileNameLen: Integer;
+  VSlashPos: Integer;
+  i: Integer;
+begin
+  VFileNameLen := Length(AFilePath);
+  if VFileNameLen = 0 then begin
+    Result := False;
+    Exit;
+  end;
+
+  VSlashPos := 0;
+  for i := VFileNameLen downto 1 do begin
+    if AFilePath[i] = '/' then begin
+      VSlashPos := i;
+      Break;
+    end;
+  end;
+
+
+  if VSlashPos > 0 then begin
+    AMarkId := LeftStr(AFilePath, VSlashPos - 1);
+    ASuffix := RightStr(AFilePath, VFileNameLen - VSlashPos);
+  end else begin
+    AMarkId := AFilePath;
+    ASuffix := '';
+  end;
+  Result := True;
 end;
 
 end.
