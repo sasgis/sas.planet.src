@@ -43,6 +43,7 @@ type
     FCoordConverter: ICoordConverter;
     FTerrainParser: TGoogleEarthTerrainParser;
     FMemCache: TTerrainProviderByGEMemCache;
+    FCacheStateChangeListner: IListener;
     FCacheConfigChangeListener: IListener;
     FPathConfig: IPathConfig;
     FStateChangeNotifier: INotifier;
@@ -53,6 +54,7 @@ type
   protected
     function GetPointElevation(const ALonLat: TDoublePoint; const AZoom: Byte): Single;
     procedure OnCacheConfigChange;
+    procedure OnCacheStateChange;
     function GetAvailable: Boolean;
     function GetStateChangeNotifier: INotifier;
   public
@@ -103,11 +105,18 @@ begin
   FPathConfig := APathConfig;
   FStorage := AStorage;
   FCoordConverter := ACoordConverter;
+
   FTerrainParser := TGoogleEarthTerrainParser.Create;
   FMemCache := TTerrainProviderByGEMemCache.Create(cMemCacheCapacity, Self.OnCloseTerrainTile);
+
   FAvailable := FStorage.Available and FTerrainParser.Available;
+
   FStateChangeNotifierInternal := TNotifierBase.Create;
   FStateChangeNotifier := FStateChangeNotifierInternal;
+
+  FCacheStateChangeListner := TNotifyNoMmgEventListener.Create(Self.OnCacheStateChange);
+  FStorage.Notifier.Add(FCacheStateChangeListner);
+
   FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
   FPathConfig.ChangeNotifier.Add(FCacheConfigChangeListener);
 end;
@@ -119,9 +128,13 @@ begin
     FPathConfig := nil;
     FCacheConfigChangeListener := nil;
   end;
+  if FStorage <> nil then begin
+    FStorage.Notifier.Remove(FCacheStateChangeListner);
+  end;
   FCoordConverter := nil;
   FStorage := nil;
   FStateChangeNotifier := nil;
+  FStateChangeNotifierInternal := nil;
   FMemCache.Free;
   FTerrainParser.Free;
   inherited Destroy;
@@ -135,6 +148,12 @@ end;
 procedure TTerrainProviderByDLL.OnCacheConfigChange;
 begin
   FStorage.SetPath(FPathConfig.Path);
+  FAvailable := (FStorage.Available and FTerrainParser.Available);
+  FStateChangeNotifierInternal.Notify(nil);
+end;
+
+procedure TTerrainProviderByDLL.OnCacheStateChange;
+begin
   FAvailable := (FStorage.Available and FTerrainParser.Available);
   FStateChangeNotifierInternal.Notify(nil);
 end;

@@ -28,6 +28,7 @@ uses
   Classes,
   t_CommonTypes,
   t_DLLCache,
+  i_Notifier,
   i_TerrainStorage,
   i_TileInfoBasic;
 
@@ -41,6 +42,8 @@ type
     FDLLHandle: THandle;
     FDLLCacheHandle: TDLLCacheHandle;
     FDLLCache_QueryTerrainTile: Pointer;
+    FNotifier: INotifier;
+    FNotifierInternal: INotifierInternal;
   protected
     function InternalLib_CleanupProc: Boolean; virtual;
     function InternalLib_Initialize: Boolean; virtual;
@@ -61,8 +64,8 @@ type
     ): ITileInfoBasic;
 
     function SetPath(const APath: string): Boolean;
-
     function GetAvailable: Boolean;
+    function GetNotifier: INotifier;
   end;
 
   TTileStorageGETerrain = class(TTileStorageDLLTerrain)
@@ -79,6 +82,7 @@ implementation
 
 uses
   u_BinaryDataByMemStream,
+  u_Notifier,
   u_Synchronizer,
   u_TileInfoBasic;
 
@@ -132,6 +136,8 @@ begin
   FDLLCacheHandle := nil;
   FDLLSync := MakeSyncRW_Big(Self);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
+  FNotifierInternal := TNotifierBase.Create;
+  FNotifier := FNotifierInternal;
   InternalLib_CleanupProc;
   InternalLib_SetPath(PAnsiChar(FStoragePath));
 end;
@@ -147,12 +153,19 @@ begin
   end;
   FTileNotExistsTileInfo := nil;
   FDLLSync := nil;
+  FNotifier := nil;
+  FNotifierInternal := nil;
   inherited Destroy;
 end;
 
 function TTileStorageDLLTerrain.GetAvailable: Boolean;
 begin
   Result := (FReadAccess = asEnabled);
+end;
+
+function TTileStorageDLLTerrain.GetNotifier: INotifier;
+begin
+  Result := FNotifier;
 end;
 
 function TTileStorageDLLTerrain.InternalLib_Initialize: Boolean;
@@ -183,6 +196,7 @@ begin
   end else begin
     FReadAccess := asDisabled;
   end;
+  FNotifierInternal.Notify(nil);
 end;
 
 function TTileStorageDLLTerrain.InternalLib_QueryTerrainTile(const ATileInfo: PQueryTileInfo): Boolean;

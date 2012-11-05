@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_Notifier,
   i_TileInfoBasic;
 
 type
@@ -39,6 +40,9 @@ type
     ): ITileInfoBasic;
 
     function SetPath(const APath: string): Boolean;
+
+    function GetNotifier: INotifier;
+    property Notifier: INotifier read GetNotifier;
   end;
 
 implementation

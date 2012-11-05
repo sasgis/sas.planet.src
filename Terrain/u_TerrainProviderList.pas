@@ -65,7 +65,9 @@ uses
 
 { TTerrainProviderListSimple }
 
-constructor TTerrainProviderListSimple.Create;
+constructor TTerrainProviderListSimple.Create(
+  const ACacheConfig: TGlobalCahceConfig
+);
 var
   VItem: ITerrainProviderListElement;
 begin
