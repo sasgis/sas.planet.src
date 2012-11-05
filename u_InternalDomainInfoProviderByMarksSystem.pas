@@ -58,6 +58,7 @@ type
 implementation
 
 uses
+  SysUtils,
   StrUtils,
   c_InternalBrowser,
   i_MarksSimple,
@@ -90,7 +91,7 @@ begin
       end;
     end;
   end;
-
+  FreeAndNil(FTextProviders);
   inherited;
 end;
 
