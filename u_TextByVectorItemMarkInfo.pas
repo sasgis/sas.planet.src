@@ -63,7 +63,7 @@ begin
     Result := 'Unknown mark type';
   end;
   if Result <> '' then begin
-    Result := '<HTML><BODY>' + Result + '</BODY></HTML>';
+    Result := '<HTML><BODY>'#13#10 + Result + #13#10'</BODY></HTML>';
   end;
 end;
 
@@ -88,12 +88,12 @@ begin
   if AMark.Category <> nil then begin
     VCategoryName := AMark.Category.Name;
   end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
-  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
-  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
+  Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForPoint(AMark: IMarkPoint): string;
@@ -107,10 +107,10 @@ begin
   if AMark.Category <> nil then begin
     VCategoryName := AMark.Category.Name;
   end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + #13#10;
-  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
+  Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
+  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + '<br>'#13#10;
+  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForPoly(AMark: IMarkPoly): string;
@@ -136,13 +136,13 @@ begin
   if AMark.Category <> nil then begin
     VCategoryName := AMark.Category.Name;
   end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
-  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
-  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + #13#10;
-  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
+  Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + '<br>'#13#10;
+  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
 end.
