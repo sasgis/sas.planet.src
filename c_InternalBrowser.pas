@@ -11,6 +11,7 @@ const
   CMediaDataInternalURL = CSASProtocolName + '://' + CMediaDataInternalDomain + '/';
   CMarksSystemInternalURL = CSASProtocolName + '://' + CMarksSystemInternalDomain + '/';
   CVectorItemDescriptionSuffix = 'Description';
+  CVectorItemInfoSuffix = 'Info';
 
 implementation
 

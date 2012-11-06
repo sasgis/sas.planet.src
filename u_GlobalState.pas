@@ -691,7 +691,7 @@ begin
       TDatum.Create(3395, 6378137, 6356752)
     );
 
-  VTextProviderList.AddObject('Info', Pointer(VTextProivder));
+  VTextProviderList.AddObject(CVectorItemInfoSuffix, Pointer(VTextProivder));
   VTextProivder._AddRef;
 
   VTextProivder := TTextByVectorItemHTMLByDescription.Create;

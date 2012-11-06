@@ -4834,10 +4834,12 @@ begin
       end;
 
       if VFoundItem <> nil  then begin
-        if VFoundItem.GetInfoUrl <> '' then begin
-          GState.InternalBrowser.Navigate(VFoundItem.GetInfoCaption, VFoundItem.GetInfoUrl + CVectorItemDescriptionSuffix);
-        end else if VFoundItem.Desc <> '' then begin
-          GState.InternalBrowser.ShowMessage(VFoundItem.GetInfoCaption, VFoundItem.Desc);
+        if VFoundItem.Desc <> '' then begin
+          if VFoundItem.GetInfoUrl <> '' then begin
+            GState.InternalBrowser.Navigate(VFoundItem.GetInfoCaption, VFoundItem.GetInfoUrl + CVectorItemDescriptionSuffix);
+          end else begin
+            GState.InternalBrowser.ShowMessage(VFoundItem.GetInfoCaption, VFoundItem.Desc);
+          end;
         end;
       end;
     end;
@@ -6189,6 +6191,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
+//    GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemInfoSuffix);
     FMarkDBGUI.ShowMarkInfo(VMark);
   end;
 end;
