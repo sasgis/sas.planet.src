@@ -34,6 +34,8 @@ type
     function GetZoom: Byte;
     function GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
   public
+    class function TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
+  public
     constructor CreateWithOwn(
       const ATileRect: TRect;
       AZoom: Byte;
@@ -54,7 +56,6 @@ type
     FTileRect: TRect;
     FItems: PTileInfoInternalArray;
     FTileIterator: ITileIterator;
-    function TileToIndex(const ATile: TPoint): Integer;
   private
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
@@ -92,7 +93,7 @@ begin
   if Result then begin
     ATileInfo.FTile := VTile;
     ATileInfo.FZoom := FZoom;
-    VIndex := TileToIndex(VTile);
+    VIndex := TTileRectInfo.TileInRectToIndex(VTile, FTileRect);
     if VIndex < 0 then begin
       ATileInfo.FInfoType := titUnknown;
       ATileInfo.FContentType := nil;
@@ -110,19 +111,6 @@ begin
   end;
 end;
 
-function TEnumTileInfo.TileToIndex(const ATile: TPoint): Integer;
-begin
-  if (ATile.X < FTileRect.Left) or (ATile.X >= FTileRect.Right) then begin
-    Result := -1;
-  end else if (ATile.Y < FTileRect.Top) or (ATile.Y >= FTileRect.Bottom) then begin
-    Result := -1;
-  end else begin
-    Result :=
-      (ATile.X - FTileRect.Left) +
-      (ATile.Y - FTileRect.Top) * (FTileRect.Right - FTileRect.Left);
-  end;
-end;
-
 { TTileRectInfo }
 
 constructor TTileRectInfo.CreateWithOwn(
@@ -131,6 +119,8 @@ constructor TTileRectInfo.CreateWithOwn(
   const AItems: TArrayOfTileInfoInternal
 );
 begin
+  Assert(AItems <> nil);
+  Assert(Length(AItems) >= (ATileRect.Right - ATileRect.Left) * (FTileRect.Bottom - FTileRect.Top));
   inherited Create;
   FTileRect := ATileRect;
   FZoom := AZoom;
@@ -169,6 +159,20 @@ end;
 function TTileRectInfo.GetZoom: Byte;
 begin
   Result := FZoom;
+end;
+
+class function TTileRectInfo.TileInRectToIndex(const ATile: TPoint;
+  const ARect: TRect): Integer;
+begin
+  if (ATile.X < ARect.Left) or (ATile.X >= ARect.Right) then begin
+    Result := -1;
+  end else if (ATile.Y < ARect.Top) or (ATile.Y >= ARect.Bottom) then begin
+    Result := -1;
+  end else begin
+    Result :=
+      (ATile.X - ARect.Left) +
+      (ATile.Y - ARect.Top) * (ARect.Right - ARect.Left);
+  end;
 end;
 
 end.

@@ -379,43 +379,46 @@ begin
       VPrevFolderExist := False;
       VIterator := TTileIteratorByRect.Create(VRect);
       while VIterator.Next(VTile) do begin
-        VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
-        VFileName := StoragePath + FFileNameGenerator.GetTileFileName(VTile, VZoom);
-        VFolderName := ExtractFilePath(VFileName);
+        VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
+        Assert(VIndex >=0);
+        if VIndex >= 0 then begin
+          VFileName := StoragePath + FFileNameGenerator.GetTileFileName(VTile, VZoom);
+          VFolderName := ExtractFilePath(VFileName);
 
-        if VFolderName = VPrevFolderName then begin
-          VFolderExists := VPrevFolderExist;
-        end else begin
-          VFolderExists := DirectoryExists(VFolderName);
-          VPrevFolderName := VFolderName;
-          VPrevFolderExist := VFolderExists;
-        end;
-        if VFolderExists then begin
-          UpdateTileInfoByFile(False, False, VFileName + FFileExt, VTileInfo);
-          if VTileInfo.FInfoType = titExists then begin
-            // tile exists
-            VItems[VIndex].FInfoType := titExists;
-            VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
-            VItems[VIndex].FSize := VTileInfo.FSize;
+          if VFolderName = VPrevFolderName then begin
+            VFolderExists := VPrevFolderExist;
           end else begin
-            UpdateTileInfoByFile(True, False, VFileName + CTneFileExt, VTileInfo);
-            if VTileInfo.FInfoType = titTneExists then begin
-              // tne exists
-              VItems[VIndex].FInfoType := titTneExists;
-              VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
-              VItems[VIndex].FSize := 0;
-            end else begin
-              // neither tile nor tne
-              VItems[VIndex].FLoadDate := 0;
-              VItems[VIndex].FSize := 0;
-              VItems[VIndex].FInfoType := titNotExists;
-            end;
+            VFolderExists := DirectoryExists(VFolderName);
+            VPrevFolderName := VFolderName;
+            VPrevFolderExist := VFolderExists;
           end;
-        end else begin
-          // neither tile nor tne
-          VItems[VIndex].FLoadDate := 0;
-          VItems[VIndex].FSize := 0;
-          VItems[VIndex].FInfoType := titNotExists;
+          if VFolderExists then begin
+            UpdateTileInfoByFile(False, False, VFileName + FFileExt, VTileInfo);
+            if VTileInfo.FInfoType = titExists then begin
+              // tile exists
+              VItems[VIndex].FInfoType := titExists;
+              VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
+              VItems[VIndex].FSize := VTileInfo.FSize;
+            end else begin
+              UpdateTileInfoByFile(True, False, VFileName + CTneFileExt, VTileInfo);
+              if VTileInfo.FInfoType = titTneExists then begin
+                // tne exists
+                VItems[VIndex].FInfoType := titTneExists;
+                VItems[VIndex].FLoadDate := VTileInfo.FLoadDate;
+                VItems[VIndex].FSize := 0;
+              end else begin
+                // neither tile nor tne
+                VItems[VIndex].FLoadDate := 0;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titNotExists;
+              end;
+            end;
+          end else begin
+            // neither tile nor tne
+            VItems[VIndex].FLoadDate := 0;
+            VItems[VIndex].FSize := 0;
+            VItems[VIndex].FInfoType := titNotExists;
+          end;
         end;
       end;
       Result :=

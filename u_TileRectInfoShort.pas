@@ -32,6 +32,8 @@ type
     function GetZoom: Byte;
     function GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
   public
+    class function TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
+  public
     constructor CreateWithOwn(
       const ATileRect: TRect;
       AZoom: Byte;
@@ -40,8 +42,6 @@ type
       const AItems: TArrayOfTileInfoShortInternal
     );
     destructor Destroy; override;
-
-    class function TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
   end;
 
 implementation
@@ -58,7 +58,6 @@ type
     FTileRect: TRect;
     FItems: PTileInfoShortInternalArray;
     FTileIterator: ITileIterator;
-    function TileToIndex(const ATile: TPoint): Integer;
   private
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
@@ -102,7 +101,7 @@ begin
   if Result then begin
     ATileInfo.FTile := VTile;
     ATileInfo.FZoom := FZoom;
-    VIndex := TileToIndex(VTile);
+    VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, FTileRect);
     if VIndex < 0 then begin
       ATileInfo.FInfoType := titUnknown;
       ATileInfo.FContentType := nil;
@@ -120,11 +119,6 @@ begin
   end;
 end;
 
-function TEnumTileInfoShort.TileToIndex(const ATile: TPoint): Integer;
-begin
-  Result := TTileRectInfoShort.TileInRectToIndex(ATile, FTileRect);
-end;
-
 { TTileRectInfoShort }
 
 constructor TTileRectInfoShort.CreateWithOwn(
@@ -135,6 +129,8 @@ constructor TTileRectInfoShort.CreateWithOwn(
   const AItems: TArrayOfTileInfoShortInternal
 );
 begin
+  Assert(AItems <> nil);
+  Assert(Length(AItems) >= (ATileRect.Right - ATileRect.Left) * (FTileRect.Bottom - FTileRect.Top));
   inherited Create;
   FTileRect := ATileRect;
   FContentType := AContentType;

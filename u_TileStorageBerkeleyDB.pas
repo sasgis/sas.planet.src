@@ -365,91 +365,94 @@ begin
       ClearInfo(VTneFileInfo);
       VIterator := TTileIteratorByRect.Create(VRect);
       while VIterator.Next(VTile) do begin
-        VIndex := (VTile.Y - VRect.Top) * VCount.X + (VTile.X - VRect.Left);
-        VFileInfo.Name :=
-          StoragePath +
-          FFileNameGenerator.GetTileFileName(VTile, VZoom) +
-          '.sdb';
-        VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, '.tne');
-        VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
+        VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
+        Assert(VIndex >=0);
+        if VIndex >= 0 then begin
+          VFileInfo.Name :=
+            StoragePath +
+            FFileNameGenerator.GetTileFileName(VTile, VZoom) +
+            '.sdb';
+          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, '.tne');
+          VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
 
-        if VFolderInfo.Name = VFolderInfo.PrevName then begin
-          VFolderInfo.Exists := VFolderInfo.PrevExists;
-        end else begin
-          VFolderInfo.Exists := DirectoryExists(VFolderInfo.Name);
-          VFolderInfo.PrevName := VFolderInfo.Name;
-          VFolderInfo.PrevExists := VFolderInfo.Exists;
-        end;
-
-        if VFileInfo.Name = VFileInfo.PrevName then begin
-          VFileInfo.Exists := VFileInfo.PrevExists;
-        end else begin
-          VFileInfo.Exists := FileExists(VFileInfo.Name);
-          VFileInfo.PrevName := VFileInfo.Name;
-          VFileInfo.PrevExists := VFileInfo.Exists;
-        end;
-
-        if VTneFileInfo.Name = VTneFileInfo.PrevName then begin
-          VTneFileInfo.Exists := VTneFileInfo.PrevExists;
-        end else begin
-          VTneFileInfo.Exists := FileExists(VTneFileInfo.Name);
-          VTneFileInfo.PrevName := VTneFileInfo.Name;
-          VTneFileInfo.PrevExists := VTneFileInfo.Exists;
-        end;
-
-        if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
-          VTileExists := FHelper.LoadTile(
-            VFileInfo.Name,
-            VTile,
-            VZoom,
-            AVersionInfo,
-            VTileBinaryData,
-            VTileVersion,
-            VTileContentType,
-            VTileDate
-          );
-          if VTileExists then begin
-            // tile exists
-            VItems[VIndex].FLoadDate := VTileDate;
-            //VItems[VIndex].FVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersion);
-            //VItems[VIndex].FContentType := FContentTypeManager.GetInfo(VTileContentType);
-            //VItems[VIndex].FData := VTileBinaryData;
-            VItems[VIndex].FSize := VTileBinaryData.Size;
-            VItems[VIndex].FInfoType := titExists;
+          if VFolderInfo.Name = VFolderInfo.PrevName then begin
+            VFolderInfo.Exists := VFolderInfo.PrevExists;
           end else begin
-            VTileExists := FHelper.IsTNEFound(
-              VTneFileInfo.Name,
+            VFolderInfo.Exists := DirectoryExists(VFolderInfo.Name);
+            VFolderInfo.PrevName := VFolderInfo.Name;
+            VFolderInfo.PrevExists := VFolderInfo.Exists;
+          end;
+
+          if VFileInfo.Name = VFileInfo.PrevName then begin
+            VFileInfo.Exists := VFileInfo.PrevExists;
+          end else begin
+            VFileInfo.Exists := FileExists(VFileInfo.Name);
+            VFileInfo.PrevName := VFileInfo.Name;
+            VFileInfo.PrevExists := VFileInfo.Exists;
+          end;
+
+          if VTneFileInfo.Name = VTneFileInfo.PrevName then begin
+            VTneFileInfo.Exists := VTneFileInfo.PrevExists;
+          end else begin
+            VTneFileInfo.Exists := FileExists(VTneFileInfo.Name);
+            VTneFileInfo.PrevName := VTneFileInfo.Name;
+            VTneFileInfo.PrevExists := VTneFileInfo.Exists;
+          end;
+
+          if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
+            VTileExists := FHelper.LoadTile(
+              VFileInfo.Name,
               VTile,
               VZoom,
               AVersionInfo,
+              VTileBinaryData,
+              VTileVersion,
+              VTileContentType,
               VTileDate
             );
             if VTileExists then begin
-              // tne exists
+              // tile exists
               VItems[VIndex].FLoadDate := VTileDate;
-              //VItems[VIndex].FVersionInfo := AVersionInfo;
-              //VItems[VIndex].FContentType := nil;
-              //VItems[VIndex].FData := nil;
-              VItems[VIndex].FSize := 0;
-              VItems[VIndex].FInfoType := titTneExists;
+              //VItems[VIndex].FVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersion);
+              //VItems[VIndex].FContentType := FContentTypeManager.GetInfo(VTileContentType);
+              //VItems[VIndex].FData := VTileBinaryData;
+              VItems[VIndex].FSize := VTileBinaryData.Size;
+              VItems[VIndex].FInfoType := titExists;
             end else begin
-              // neither tile nor tne
-              VItems[VIndex].FLoadDate := 0;
-              //VItems[VIndex].FVersionInfo := nil;
-              //VItems[VIndex].FContentType := nil;
-              //VItems[VIndex].FData := nil;
-              VItems[VIndex].FSize := 0;
-              VItems[VIndex].FInfoType := titNotExists;
+              VTileExists := FHelper.IsTNEFound(
+                VTneFileInfo.Name,
+                VTile,
+                VZoom,
+                AVersionInfo,
+                VTileDate
+              );
+              if VTileExists then begin
+                // tne exists
+                VItems[VIndex].FLoadDate := VTileDate;
+                //VItems[VIndex].FVersionInfo := AVersionInfo;
+                //VItems[VIndex].FContentType := nil;
+                //VItems[VIndex].FData := nil;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titTneExists;
+              end else begin
+                // neither tile nor tne
+                VItems[VIndex].FLoadDate := 0;
+                //VItems[VIndex].FVersionInfo := nil;
+                //VItems[VIndex].FContentType := nil;
+                //VItems[VIndex].FData := nil;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titNotExists;
+              end;
             end;
+          end else begin
+            // neither tile nor tne
+            VItems[VIndex].FLoadDate := 0;
+            //VItems[VIndex].FVersionInfo := nil;
+            //VItems[VIndex].FContentType := nil;
+            //VItems[VIndex].FData := nil;
+            VItems[VIndex].FSize := 0;
+            VItems[VIndex].FInfoType := titNotExists;
           end;
-        end else begin
-          // neither tile nor tne
-          VItems[VIndex].FLoadDate := 0;
-          //VItems[VIndex].FVersionInfo := nil;
-          //VItems[VIndex].FContentType := nil;
-          //VItems[VIndex].FData := nil;
-          VItems[VIndex].FSize := 0;
-          VItems[VIndex].FInfoType := titNotExists;
         end;
       end;
       //Result :=
