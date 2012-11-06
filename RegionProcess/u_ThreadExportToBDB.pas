@@ -228,7 +228,7 @@ begin
       VVersionInfo := VMapType.VersionConfig.Version;
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-      VHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.Datum.EPSG);
+      VHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.ProjectionEPSG);
       try
         for j := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[j];

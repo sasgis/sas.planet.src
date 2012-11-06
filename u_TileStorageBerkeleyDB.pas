@@ -162,7 +162,7 @@ begin
   FFileNameGenerator := TTileFileNameBDB.Create;
   FHelper := TTileStorageBerkeleyDBHelper.Create(
     StoragePath,
-    AGeoConverter.Datum.EPSG
+    AGeoConverter.ProjectionEPSG
   );
 
   FBDBTTLListener := TListenerTTLCheck.Create(
