@@ -23,10 +23,14 @@ unit c_CoordConverter;
 interface
 
 const
-  CTileSplitQuadrate256x256 = 1;
+  CGoogleDatumEPSG = 6055;
+  CYandexDatumEPSG = 6326;
+
   CGoogleProjectionEPSG = 3785;
   CYandexProjectionEPSG = 3395;
   CGELonLatProjectionEPSG = 4326;
+
+  CTileSplitQuadrate256x256 = 1;
 
 implementation
 
