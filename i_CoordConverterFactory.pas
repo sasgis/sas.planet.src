@@ -23,11 +23,18 @@ unit i_CoordConverterFactory;
 interface
 
 uses
+  i_Datum,
   i_CoordConverter,
   i_ProjectionInfo,
   i_ConfigDataProvider;
 
 type
+  IDatumFactory = interface
+    ['{6F33BA85-B340-44BE-BCCE-049216B2C472}']
+    function GetByCode(ADatumEPSG: Integer): IDatum;
+    function GetByRadius(const ARadiusA, ARadiusB: Double): IDatum;
+  end;
+
   ICoordConverterFactory = interface
     ['{399F7734-B79E-44E0-9A5A-A6BA38E9125A}']
     function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;

@@ -23,18 +23,24 @@ unit u_CoordConverterFactorySimple;
 interface
 
 uses
+  i_Datum,
   i_CoordConverter,
   i_ProjectionInfo,
   i_ConfigDataProvider,
   i_CoordConverterFactory;
 
 type
-  TCoordConverterFactorySimple = class(TInterfacedObject, ICoordConverterFactory, IProjectionInfoFactory)
+  TCoordConverterFactorySimple = class(TInterfacedObject, IDatumFactory, ICoordConverterFactory, IProjectionInfoFactory)
   private
+    FDatumGoogle: IDatum;
+    FDatumYandex: IDatum;
     FGoogle: ICoordConverter;
     FYandex: ICoordConverter;
     FLonLat: ICoordConverter;
     FEPSG53004: ICoordConverter;
+  private
+    function GetByCode(ADatumEPSG: Integer): IDatum;
+    function GetByRadius(const ARadiusA, ARadiusB: Double): IDatum;
   private
     function GetCoordConverterByConfig(const AConfig: IConfigDataProvider): ICoordConverter;
     function GetCoordConverterByCode(
@@ -55,6 +61,7 @@ implementation
 uses
   SysUtils,
   c_CoordConverter,
+  u_Datum,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat,
@@ -71,6 +78,13 @@ begin
   inherited Create;
 
   VRadiusA := 6378137;
+  FDatumGoogle := TDatum.Create(CGoogleDatumEPSG, VRadiusA, VRadiusA);
+
+  VRadiusA := 6378137;
+  VRadiusB := 6356752;
+  FDatumYandex := TDatum.Create(CYandexDatumEPSG, VRadiusA, VRadiusB);
+
+  VRadiusA := 6378137;
   FGoogle := TCoordConverterMercatorOnSphere.Create(VRadiusA);
 
   VRadiusA := 6371000;
@@ -83,6 +97,39 @@ begin
   VRadiusA := 6378137;
   VRadiusB := 6356752;
   FLonLat := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+end;
+
+function TCoordConverterFactorySimple.GetByCode(ADatumEPSG: Integer): IDatum;
+begin
+  Result := nil;
+  case ADatumEPSG of
+    CGoogleDatumEPSG: begin
+      Result := FDatumGoogle;
+    end;
+    CYandexDatumEPSG: begin
+      Result := FDatumYandex;
+    end;
+  end;
+end;
+
+function TCoordConverterFactorySimple.GetByRadius(
+  const ARadiusA, ARadiusB: Double
+): IDatum;
+var
+  VEPSG: Integer;
+begin
+  VEPSG := 0;
+  if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6378137) < 1) then begin
+    VEPSG := CGoogleDatumEPSG;
+  end;
+  if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
+    VEPSG := CYandexDatumEPSG;
+  end;
+  if VEPSG > 0 then begin
+    Result := GetByCode(VEPSG);
+  end else begin
+    Result := TDatum.Create(0, ARadiusA, ARadiusB);
+  end;
 end;
 
 function TCoordConverterFactorySimple.GetByConverterAndZoom(
