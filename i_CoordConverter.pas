@@ -334,6 +334,8 @@ type
 
     // Возвращает код EPSG для этой проекции. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetProjectionEPSG: Integer; stdcall;
+    property ProjectionEPSG: Integer read GetProjectionEPSG;
+
     // Возвращает единицы измерения используемые в спроецированной карте
     function GetCellSizeUnits: TCellSizeUnits; stdcall;
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
