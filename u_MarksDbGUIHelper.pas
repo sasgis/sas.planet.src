@@ -372,7 +372,17 @@ var
   VFileName: string;
 begin
   if AMarkCategory <> nil then begin
-    FExportDialog.FileName := StringReplace(AMarkCategory.Name, '\', '-', [rfReplaceAll]);
+    VFileName := AMarkCategory.Name;
+    VFileName := StringReplace(VFileName, '\', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '/', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, ':', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '*', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '?', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '"', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '>', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '<', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '|', '-', [rfReplaceAll]);
+    FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
@@ -429,7 +439,17 @@ var
   VFileName: string;
 begin
   if AMark <> nil then begin
-    FExportDialog.FileName := StringReplace(AMark.Name, '\', '-', [rfReplaceAll]);
+    VFileName := AMark.Name;
+    VFileName := StringReplace(VFileName, '\', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '/', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, ':', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '*', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '?', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '"', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '>', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '<', '-', [rfReplaceAll]);
+    VFileName := StringReplace(VFileName, '|', '-', [rfReplaceAll]);
+    FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
