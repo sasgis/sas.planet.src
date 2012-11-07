@@ -124,7 +124,7 @@ var
   i:Integer;
   VPictureList: IMarkPictureList;
 begin
-  i:=(Arow*drwgrdIcons.ColCount)+ACol;
+  i := (ARow * drwgrdIcons.ColCount) + ACol;
   VPictureList := FPictureList;
   if i < VPictureList.Count then
     DrawFromMarkIcons(drwgrdIcons.Canvas, VPictureList.Get(i), drwgrdIcons.DefaultColWidth, Rect);

@@ -169,7 +169,7 @@ begin
     VLanguagesEx := TLanguagesEx.Create;
     try
       id := VLanguagesEx.GNUGetTextID[FDefaultLangCode];
-      add(VLanguagesEx.EngNameFromLocaleID[id], FDefaultLangCode);
+      Add(VLanguagesEx.EngNameFromLocaleID[id], FDefaultLangCode);
 
       VinstalledLanguages := TStringList.Create;
       try
@@ -180,7 +180,7 @@ begin
         for i := 0 to VinstalledLanguages.Count - 1 do begin
           if (VinstalledLanguages[i] <> FDefaultLangCode) then begin
             id := VLanguagesEx.GNUGetTextID[VinstalledLanguages[i]];
-            add(VLanguagesEx.EngNameFromLocaleID[id], VinstalledLanguages[i]);
+            Add(VLanguagesEx.EngNameFromLocaleID[id], VinstalledLanguages[i]);
           end;
         end;
       finally

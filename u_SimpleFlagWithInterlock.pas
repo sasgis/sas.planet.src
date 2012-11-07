@@ -99,6 +99,7 @@ end;
 
 constructor TSimpleFlagWithParent.Create(const AParent: ISimpleFlag);
 begin
+  Assert(AParent <> nil);
   inherited Create;
   FParent := AParent;
   FSetCount := 0;

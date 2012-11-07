@@ -14,9 +14,9 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
-    function GetTextForPoint(AMark: IMarkPoint): string;
-    function GetTextForPath(AMark: IMarkLine): string;
-    function GetTextForPoly(AMark: IMarkPoly): string;
+    function GetTextForPoint(const AMark: IMarkPoint): string;
+    function GetTextForPath(const AMark: IMarkLine): string;
+    function GetTextForPoly(const AMark: IMarkPoly): string;
   private
     function GetText(const AItem: IVectorDataItemSimple): string;
   public
@@ -67,7 +67,7 @@ begin
   end;
 end;
 
-function TTextByVectorItemMarkInfo.GetTextForPath(AMark: IMarkLine): string;
+function TTextByVectorItemMarkInfo.GetTextForPath(const AMark: IMarkLine): string;
 var
   VLength: Double;
   VPartsCount: Integer;
@@ -96,7 +96,7 @@ begin
   Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
-function TTextByVectorItemMarkInfo.GetTextForPoint(AMark: IMarkPoint): string;
+function TTextByVectorItemMarkInfo.GetTextForPoint(const AMark: IMarkPoint): string;
 var
   VConverter: IValueToStringConverter;
   VCategoryName: string;
@@ -113,7 +113,7 @@ begin
   Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
-function TTextByVectorItemMarkInfo.GetTextForPoly(AMark: IMarkPoly): string;
+function TTextByVectorItemMarkInfo.GetTextForPoly(const AMark: IMarkPoly): string;
 var
   VLength: Double;
   VArea: Double;

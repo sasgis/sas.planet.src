@@ -141,7 +141,7 @@ begin
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
   FMapMovingConfig := TMapMovingConfig.Create;
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
-  FLastSearchResultConfig := TLastSearchResultConfig.create;
+  FLastSearchResultConfig := TLastSearchResultConfig.Create;
   Add(FLastSearchResultConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSearchResult'));
   FMarksExplorerWindowConfig := TWindowPositionConfig.Create;
   Add(FMarksExplorerWindowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorerWindow'));

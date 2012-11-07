@@ -40,6 +40,7 @@ var
   i: Integer;
   VSample: IBinaryData;
 begin
+  Assert(ABinaryDataList <> nil);
   inherited Create;
   FListBySize := TIDInterfaceList.Create;
   for i := 0 to ABinaryDataList.Count - 1 do begin

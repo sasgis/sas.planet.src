@@ -26,6 +26,7 @@ implementation
 
 constructor TStreamReadOnlyByBinaryData.Create(const AData: IBinaryData);
 begin
+  Assert(AData <> nil);
   inherited Create;
   FData := AData;
   SetPointer(FData.Buffer, FData.Size);

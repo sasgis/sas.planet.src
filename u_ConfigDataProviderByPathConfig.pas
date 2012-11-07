@@ -89,6 +89,7 @@ uses
 
 constructor TConfigDataProviderByPathConfig.Create(const ASourcePath: IPathConfig);
 begin
+  Assert(ASourcePath <> nil);
   inherited Create;
   FSourcePath := ASourcePath;
 end;

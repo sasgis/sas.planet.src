@@ -99,6 +99,7 @@ constructor TConfigDataProviderByArchive.Create(
   const ASubFolder: string
 );
 begin
+  Assert(AArchive <> nil);
   inherited Create;
   FSourceFileName := AFileName;
   FArchive := AArchive;

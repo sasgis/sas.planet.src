@@ -317,7 +317,7 @@ begin
   A := 1 + Term1 * Term2;
   B := Usqr / 1024 * (256 + Usqr * (-128 + Usqr * (74 - 47 * Usqr)));    //eq 4
 
-  Sigma := ADistance / (FRadiusB * a);
+  Sigma := ADistance / (FRadiusB * A);
   Sigma1 := ArcTan(TanSigma1);
 
   repeat
@@ -331,7 +331,7 @@ begin
       B * SinSigma * (c2sm + b / 4 * (CosSigma * (-1 + 2 * Sqr(c2sm)) -
       B / 6 * c2sm * (-3 + 4 * Sqr(SinSigma)) * (-3 + 4 * Sqr(c2sm))));  //eq 6
 
-    Sigma := ADistance / (FRadiusB * a) + DeltaSigma;                    //eq 7
+    Sigma := ADistance / (FRadiusB * A) + DeltaSigma;                    //eq 7
   until (Abs(Sigma - LastSigma) <= 1E-12);
 
   TwoSigmaM := 2 * Sigma1 + Sigma;                                       //eq 5

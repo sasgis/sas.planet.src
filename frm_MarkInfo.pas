@@ -28,11 +28,11 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
-    function GetTextForPoint(AMark: IMarkPoint): string;
-    function GetTextForPath(AMark: IMarkLine): string;
-    function GetTextForPoly(AMark: IMarkPoly): string;
+    function GetTextForPoint(const AMark: IMarkPoint): string;
+    function GetTextForPath(const AMark: IMarkLine): string;
+    function GetTextForPoly(const AMark: IMarkPoly): string;
   public
-    procedure ShowInfoModal(AMark: IMark);
+    procedure ShowInfoModal(const AMark: IMark);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -63,7 +63,7 @@ begin
   FDatum := ADatum;
 end;
 
-function TfrmMarkInfo.GetTextForPath(AMark: IMarkLine): string;
+function TfrmMarkInfo.GetTextForPath(const AMark: IMarkLine): string;
 var
   VLength: Double;
   VPartsCount: Integer;
@@ -92,7 +92,7 @@ begin
   Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoint(AMark: IMarkPoint): string;
+function TfrmMarkInfo.GetTextForPoint(const AMark: IMarkPoint): string;
 var
   VConverter: IValueToStringConverter;
   VCategoryName: string;
@@ -109,7 +109,7 @@ begin
   Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoly(AMark: IMarkPoly): string;
+function TfrmMarkInfo.GetTextForPoly(const AMark: IMarkPoly): string;
 var
   VLength: Double;
   VArea: Double;
@@ -141,7 +141,7 @@ begin
   Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
-procedure TfrmMarkInfo.ShowInfoModal(AMark: IMark);
+procedure TfrmMarkInfo.ShowInfoModal(const AMark: IMark);
 var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;

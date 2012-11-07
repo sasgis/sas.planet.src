@@ -9,7 +9,7 @@ uses
 type
   TCoordConverterListStaticSimple = class(TCoordConverterListStatic)
   public
-    constructor Create(AFactory: ICoordConverterFactory);
+    constructor Create(const AFactory: ICoordConverterFactory);
   end;
 
 implementation

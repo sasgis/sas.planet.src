@@ -106,6 +106,7 @@ constructor TConfigDataProviderByIniFileSection.Create(
   const AParent: IConfigDataProvider
 );
 begin
+  Assert(AIniFile <> nil);
   inherited Create;
   FIniFile := AIniFile;
   FSection := ASection;

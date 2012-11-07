@@ -43,6 +43,7 @@ constructor TTileUpdateListenerToLonLat.Create(
   AEvent: TNotifyListenerEvent
 );
 begin
+  Assert(ACoordConverter <> nil);
   inherited Create;
   FEvent := AEvent;
   FDisconnectFlag := TSimpleFlagWithInterlock.Create;

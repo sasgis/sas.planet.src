@@ -65,7 +65,7 @@ type
     function GetCategoryDB: IMarkCategoryDB;
     function GetMarksFactoryConfig: IMarksFactoryConfig;
 
-    function GetMarkByStringId(AId: string): IMark;
+    function GetMarkByStringId(const AId: string): IMark;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
@@ -263,7 +263,7 @@ begin
   Result := FCategoryDB;
 end;
 
-function TMarksSystem.GetMarkByStringId(AId: string): IMark;
+function TMarksSystem.GetMarkByStringId(const AId: string): IMark;
 var
   VId: Integer;
 begin

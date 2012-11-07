@@ -85,6 +85,7 @@ end;
 
 constructor TCommonFrameParent.Create(const ALanguageManager: ILanguageManager);
 begin
+  Assert(ALanguageManager <> nil);
   inherited Create(nil);
   TranslateComponent(self);
   FLanguageManager := ALanguageManager;
@@ -117,6 +118,7 @@ constructor TFormWitghLanguageManager.Create(
   const ALanguageManager: ILanguageManager
 );
 begin
+  Assert(ALanguageManager <> nil);
   inherited Create(nil);
   TranslateComponent(self);
   FLanguageManager := ALanguageManager;

@@ -118,6 +118,7 @@ end;
 
 function TfrTilesDelete.GetPredicate: IPredicateByTileInfo;
 begin
+  Result := nil;
   if rgTarget.ItemIndex < 0 then begin
     rgTarget.ItemIndex := 0;
   end;

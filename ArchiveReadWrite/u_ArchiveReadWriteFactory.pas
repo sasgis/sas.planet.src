@@ -135,7 +135,7 @@ function TArchiveReadWriteFactory.Create7ZipReaderByName(
   const AFileName: string
 ): IArchiveReader;
 begin
-  Result := TArchiveReadBy7Zip.Create(AFileName, at7zip);
+  Result := TArchiveReadBy7Zip.Create(AFileName, at7Zip);
 end;
 
 function TArchiveReadWriteFactory.Create7ZipReaderByStream(

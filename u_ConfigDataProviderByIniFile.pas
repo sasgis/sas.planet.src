@@ -90,6 +90,7 @@ uses
 
 constructor TConfigDataProviderByIniFile.Create(AIniFile: TCustomIniFile);
 begin
+  Assert(AIniFile <> nil);
   inherited Create;
   FIniFile := AIniFile;
 end;

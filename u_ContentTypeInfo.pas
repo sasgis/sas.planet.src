@@ -36,7 +36,7 @@ type
     function GetContentType: AnsiString;
     function GetDefaultExt: AnsiString;
   protected
-    function CheckOtherForSaveCompatible(AContentType: IContentTypeInfoBasic): Boolean; virtual; abstract;
+    function CheckOtherForSaveCompatible(const AContentType: IContentTypeInfoBasic): Boolean; virtual; abstract;
   public
     constructor Create(
       const AContentType: AnsiString;
@@ -49,7 +49,7 @@ type
     FLoader: IBitmapTileLoader;
     FSaver: IBitmapTileSaver;
   protected
-    function CheckOtherForSaveCompatible(AContentType: IContentTypeInfoBasic): Boolean; override;
+    function CheckOtherForSaveCompatible(const AContentType: IContentTypeInfoBasic): Boolean; override;
   private
     function GetLoader: IBitmapTileLoader;
     function GetSaver: IBitmapTileSaver;
@@ -68,7 +68,7 @@ type
   private
     function GetLoader: IVectorDataLoader;
   protected
-    function CheckOtherForSaveCompatible(AContentType: IContentTypeInfoBasic): Boolean; override;
+    function CheckOtherForSaveCompatible(const AContentType: IContentTypeInfoBasic): Boolean; override;
   public
     constructor Create(
       const AContentType: AnsiString;
@@ -115,7 +115,7 @@ begin
 end;
 
 function TContentTypeInfoBitmap.CheckOtherForSaveCompatible(
-  AContentType: IContentTypeInfoBasic): Boolean;
+  const AContentType: IContentTypeInfoBasic): Boolean;
 var
   VBitmapType: IContentTypeInfoBitmap;
 begin
@@ -139,7 +139,7 @@ end;
 { TContentTypeInfoKml }
 
 function TContentTypeInfoKml.CheckOtherForSaveCompatible(
-  AContentType: IContentTypeInfoBasic): Boolean;
+  const AContentType: IContentTypeInfoBasic): Boolean;
 var
   VVectorType: IContentTypeInfoVectorData;
 begin

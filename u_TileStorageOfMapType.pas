@@ -526,6 +526,7 @@ function TTileStorageOfMapType.GetListOfTileVersions(
 var
   VStorage: ITileStorage;
 begin
+  Result := nil;
   VStorage := GetStorage;
   if VStorage <> nil then begin
     Result := VStorage.GetListOfTileVersions(AXY, AZoom, AVersionInfo);
@@ -553,6 +554,7 @@ function TTileStorageOfMapType.GetTileFileName(const AXY: TPoint;
 var
   VStorage: ITileStorage;
 begin
+  Result := '';
   VStorage := GetStorage;
   if VStorage <> nil then begin
     Result := VStorage.GetTileFileName(AXY, AZoom, AVersion);
@@ -655,6 +657,7 @@ function TTileStorageOfMapType.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileIn
 var
   VStorage: ITileStorage;
 begin
+  Result := nil;
   VStorage := GetStorage;
   if VStorage <> nil then begin
     Result := VStorage.ScanTiles(AIgnoreTNE);
