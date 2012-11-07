@@ -37,6 +37,9 @@ uses
   ComCtrls,
   i_Notifier,
   i_NotifierOperation,
+  i_CoordConverter,
+  i_CoordConverterFactory,
+  i_TileStorage,
   i_LanguageManager,
   i_NotifierTTLCheck,
   i_ContentTypeManager,
@@ -80,10 +83,17 @@ type
     FTimerNoifier: INotifier;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
+    FCoordConverterFactory: ICoordConverterFactory;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     procedure ProcessCacheConverter;
+    function CreateSimpleTileStorage(
+      const ARootPath: string;
+      const ADefExtention: string;
+      const ACoordConverter: ICoordConverter;
+      const AFormatID: Byte
+    ): ITileStorage;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -91,6 +101,7 @@ type
       const ATimerNoifier: INotifier;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
+      const ACoordConverterFactory: ICoordConverterFactory;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -105,9 +116,18 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes,
+  c_CoordConverter,
+  i_MapVersionConfig,
+  i_ContentTypeInfo,
+  i_TileFileNameGenerator,
+  i_TileFileNameParser,
   i_CacheConverterProgressInfo,
   u_NotifierOperation,
   u_ThreadCacheConverter,
+  u_MapVersionFactorySimpleString,
+  u_TileStorageFileSystem,
+  u_TileStorageBerkeleyDB,
+  u_TileStorageGE,
   u_CacheConverterProgressInfo,
   frm_ProgressCacheConvrter;
 
@@ -121,6 +141,7 @@ constructor TfrmCacheManager.Create(
   const ATimerNoifier: INotifier;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
+  const ACoordConverterFactory: ICoordConverterFactory;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -134,10 +155,64 @@ begin
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
   FContentTypeManager := AContentTypeManager;
+  FCoordConverterFactory := ACoordConverterFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
   cbbCacheTypes.ItemIndex := 1; // SAS.Planet
   cbbDestCacheTypes.ItemIndex := 5; // BerkeleyDB
+end;
+
+function TfrmCacheManager.CreateSimpleTileStorage(const ARootPath,
+  ADefExtention: string; const ACoordConverter: ICoordConverter;
+  const AFormatID: Byte): ITileStorage;
+var
+  VMapVersionFactory: IMapVersionFactory;
+  VContentType: IContentTypeInfoBasic;
+  VFileNameGenerator: ITileFileNameGenerator;
+  VFileNameParser: ITileFileNameParser;
+begin
+  VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
+  if AFormatID = c_File_Cache_Id_BDB then begin
+    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+    Result :=
+      TTileStorageBerkeleyDB.Create(
+        ACoordConverter,
+        ARootPath,
+        FGCList,
+        False,
+        FContentTypeManager,
+        VMapVersionFactory,
+        VContentType
+      );
+  end else if AFormatID = c_File_Cache_Id_GE then begin
+//    Result :=
+//      TTileStorageGE.Create(
+//        VStorageConfig,
+//        VGlobalCacheConfig,
+//        FContentTypeManager
+//      );
+  end else if AFormatID = c_File_Cache_Id_GC then begin
+//    Result :=
+//      TTileStorageGC.Create(
+//        VStorageConfig,
+//        VGlobalCacheConfig,
+//        FContentTypeManager
+//      );
+  end else if AFormatID in [c_File_Cache_Id_GMV, c_File_Cache_Id_SAS, c_File_Cache_Id_ES, c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing] then begin
+    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+    VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
+    VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
+    Result :=
+      TTileStorageFileSystem.Create(
+        ACoordConverter,
+        ARootPath,
+        ADefExtention,
+        VContentType,
+        VMapVersionFactory,
+        VFileNameGenerator,
+        VFileNameParser
+      );
+  end;
 end;
 
 destructor TfrmCacheManager.Destroy;
@@ -201,27 +276,43 @@ var
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VConverterThread: TThreadCacheConverter;
+  VCoordConverter: ICoordConverter;
+  VSouurce: ITileStorage;
+  VTarget: ITileStorage;
+  VDestPath: string;
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
   VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
+  VCoordConverter := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  VSouurce :=
+    CreateSimpleTileStorage(
+      IncludeTrailingPathDelimiter(Trim(edtPath.Text)),
+      Trim(edtDefExtention.Text),
+      VCoordConverter,
+      GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex)
+    );
+  VDestPath := IncludeTrailingPathDelimiter(Trim(edtDestPath.Text));
+
+  ForceDirectories(VDestPath);
+  VTarget :=
+    CreateSimpleTileStorage(
+      VDestPath,
+      Trim(edtDefExtention.Text),
+      VCoordConverter,
+      GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex)
+    );
+
   VConverterThread := TThreadCacheConverter.Create(
     VCancelNotifierInternal,
     VOperationID,
-    IncludeTrailingPathDelimiter(Trim(edtPath.Text)),
-    IncludeTrailingPathDelimiter(Trim(edtDestPath.Text)),
-    Trim(edtDefExtention.Text),
-    GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex),
-    GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex),
+    VSouurce,
+    VTarget,
     chkIgnoreTNE.Checked,
     chkRemove.Checked,
     chkOverwrite.Checked,
-    FGCList,
-    FContentTypeManager,
-    FFileNameGeneratorsList,
-    FFileNameParsersList,
     VProgressInfo
   );
 

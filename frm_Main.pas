@@ -878,6 +878,7 @@ begin
       GState.GUISyncronizedTimerNotifier,
       GState.GCThread.List,
       GState.ContentTypeManager,
+      GState.CoordConverterFactory,
       GState.TileNameGenerator,
       GState.TileNameParser,
       GState.ValueToStringConverterConfig

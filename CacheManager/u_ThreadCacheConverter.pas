@@ -25,10 +25,6 @@ interface
 uses
   Classes,
   i_NotifierOperation,
-  i_NotifierTTLCheck,
-  i_ContentTypeManager,
-  i_TileFileNameParsersList,
-  i_TileFileNameGeneratorsList,
   i_TileInfoBasic,
   i_TileStorage,
   i_CacheConverterProgressInfo,
@@ -44,137 +40,49 @@ type
     FSourceIgnoreTne: Boolean;
     FSourceRemoveTiles: Boolean;
     FDestOverwriteTiles: Boolean;
-    FSourcePath: string;
-    FDefExtention: string;
-    FSAS_ERR_ContentTypeMismatch: string;
-    FGCList: INotifierTTLCheck;
-    FContentTypeManager: IContentTypeManager;
-    FFileNameGeneratorsList: ITileFileNameGeneratorsList;
-    FFileNameParsersList: ITileFileNameParsersList;
     FProgressInfo: ICacheConverterProgressInfo;
-    function CreateSimpleTileStorage(
-      const ACacheIdent: string;
-      const ARootPath: string;
-      const ADefExtention: string;
-      const AFormatID: Byte;
-      const AIsReadOnly: Boolean;
-      const AAllowDelete: Boolean;
-      const AAllowAdd: Boolean;
-      const AAllowReplace: Boolean
-    ): ITileStorage;
 
     function OnSourceTileStorageScan(
       const ATileInfo: TTileInfo
     ): Boolean;
-
   protected
     procedure Process; override;
   public
     constructor Create(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
-      const ASourcePath: string;
-      const ADestPath: string;
-      const ADefExtention: string;
-      const ASourceCacheFormatID: Byte;
-      const ADestCacheFormatID: Byte;
+      const ASourceStorage: ITileStorage;
+      const ATargetStorage: ITileStorage;
       const ASourceIgnoreTne: Boolean;
       const ASourceRemoveTiles: Boolean;
       const ADestOverwriteTiles: Boolean;
-      const AGCList: INotifierTTLCheck;
-      const AContentTypeManager: IContentTypeManager;
-      const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
-      const AFileNameParsersList: ITileFileNameParsersList;
       const AProgressInfo: ICacheConverterProgressInfo
     );
   end;
 
 implementation
 
-uses
-  SysUtils,
-  c_CacheTypeCodes,
-  i_TileFileNameGenerator,
-  i_TileFileNameParser,
-  i_CoordConverter,
-  i_MapVersionConfig,
-  i_ContentTypeInfo,
-  u_ResStrings,
-  u_CoordConverterMercatorOnSphere,
-  u_MapVersionFactorySimpleString,
-  u_TileStorageFileSystem,
-  u_TileStorageBerkeleyDB,
-  u_TileStorageGE;
-
 { TThreadCacheConverter }
 
 constructor TThreadCacheConverter.Create(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
-  const ASourcePath: string;
-  const ADestPath: string;
-  const ADefExtention: string;
-  const ASourceCacheFormatID: Byte;
-  const ADestCacheFormatID: Byte;
+  const ASourceStorage: ITileStorage;
+  const ATargetStorage: ITileStorage;
   const ASourceIgnoreTne: Boolean;
   const ASourceRemoveTiles: Boolean;
   const ADestOverwriteTiles: Boolean;
-  const AGCList: INotifierTTLCheck;
-  const AContentTypeManager: IContentTypeManager;
-  const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
-  const AFileNameParsersList: ITileFileNameParsersList;
   const AProgressInfo: ICacheConverterProgressInfo
 );
-var
-  VDotPos: Integer;
 begin
   FCancelNotifier := ACancelNotifier;
   FOperationID := AOperationID;
   FSourceIgnoreTne := ASourceIgnoreTne;
   FSourceRemoveTiles := ASourceRemoveTiles;
   FDestOverwriteTiles := ADestOverwriteTiles;
-  FSourcePath := ASourcePath;
-  FGCList := AGCList;
-  FContentTypeManager := AContentTypeManager;
-  FFileNameGeneratorsList := AFileNameGeneratorsList;
-  FFileNameParsersList := AFileNameParsersList;
   FProgressInfo := AProgressInfo;
-  FSAS_ERR_ContentTypeMismatch := SAS_ERR_ContentTypeMismatch;
-
-  VDotPos := Pos('.', ADefExtention);
-  if VDotPos > 0 then begin
-    FDefExtention := Copy(ADefExtention, VDotPos, Length(ADefExtention) - VDotPos + 1);
-  end else begin
-    FDefExtention := '.' + ADefExtention;
-  end;
-
-  FDefExtention := LowerCase(FDefExtention);
-
-  FSourceTileStorage :=
-    CreateSimpleTileStorage(
-      'SourcePath',
-      FSourcePath,
-      FDefExtention,
-      ASourceCacheFormatID,
-      (not FSourceRemoveTiles),
-      FSourceRemoveTiles,
-      False,
-      False
-    );
-
-  ForceDirectories(ADestPath);
-
-  FDestTileStorage :=
-    CreateSimpleTileStorage(
-      'DestPath',
-      ADestPath,
-      FDefExtention,
-      ADestCacheFormatID,
-      False,
-      True,
-      True,
-      True
-    );
+  FSourceTileStorage := ASourceStorage;
+  FDestTileStorage := ATargetStorage;
 
   inherited Create(FCancelNotifier, FOperationID, AnsiString(Self.ClassName));
 end;
@@ -207,24 +115,8 @@ function TThreadCacheConverter.OnSourceTileStorageScan(
 var
   VTileInfo: ITileInfoBasic;
   VTileFullPath: string;
-  VDestContentType: IContentTypeInfoBasic;
-  VDestContentTypeStr: string;
-  VSrcContentTypeStr: string;
 begin
   Result := False;
-  if LowerCase(ATileInfo.FContentType.GetDefaultExt) <> FDefExtention then begin
-    VDestContentType := FContentTypeManager.GetInfoByExt(FDefExtention);
-    if Assigned(VDestContentType) then begin
-      VDestContentTypeStr := VDestContentType.GetContentType + ' (*' + FDefExtention + ')';
-    end else begin
-      VDestContentTypeStr := '*' + FDefExtention;
-    end;
-    VSrcContentTypeStr := ATileInfo.FContentType.GetContentType +
-      ' (*' + ATileInfo.FContentType.GetDefaultExt + ')';
-    FProgressInfo.ProgressAbortErrorStr := Format(FSAS_ERR_ContentTypeMismatch,
-      [VSrcContentTypeStr, VDestContentTypeStr]);
-    Exit;
-  end;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
 
     if not FDestOverwriteTiles then begin
@@ -278,70 +170,7 @@ begin
         ATileInfo.FVersionInfo
       );
 
-    FProgressInfo.LastTileName :=
-      StringReplace(VTileFullPath, FSourcePath, '', [rfIgnoreCase]);
-  end;
-end;
-
-function TThreadCacheConverter.CreateSimpleTileStorage(
-  const ACacheIdent: string;
-  const ARootPath: string;
-  const ADefExtention: string;
-  const AFormatID: Byte;
-  const AIsReadOnly: Boolean;
-  const AAllowDelete: Boolean;
-  const AAllowAdd: Boolean;
-  const AAllowReplace: Boolean
-): ITileStorage;
-var
-  VCoordConverterFake: ICoordConverter;
-  VMapVersionFactory: IMapVersionFactory;
-  VContentType: IContentTypeInfoBasic;
-  VFileNameGenerator: ITileFileNameGenerator;
-  VFileNameParser: ITileFileNameParser;
-begin
-  VCoordConverterFake := TCoordConverterMercatorOnSphere.Create(6378137);
-  VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
-  if AFormatID = c_File_Cache_Id_BDB then begin
-    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
-    Result :=
-      TTileStorageBerkeleyDB.Create(
-        VCoordConverterFake,
-        ARootPath,
-        FGCList,
-        False,
-        FContentTypeManager,
-        VMapVersionFactory,
-        VContentType
-      );
-  end else if AFormatID = c_File_Cache_Id_GE then begin
-//    Result :=
-//      TTileStorageGE.Create(
-//        VStorageConfig,
-//        VGlobalCacheConfig,
-//        FContentTypeManager
-//      );
-  end else if AFormatID = c_File_Cache_Id_GC then begin
-//    Result :=
-//      TTileStorageGC.Create(
-//        VStorageConfig,
-//        VGlobalCacheConfig,
-//        FContentTypeManager
-//      );
-  end else if AFormatID in [c_File_Cache_Id_GMV, c_File_Cache_Id_SAS, c_File_Cache_Id_ES, c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing] then begin
-    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
-    VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
-    VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
-    Result :=
-      TTileStorageFileSystem.Create(
-        VCoordConverterFake,
-        ARootPath,
-        ADefExtention,
-        VContentType,
-        VMapVersionFactory,
-        VFileNameGenerator,
-        VFileNameParser
-      );
+    FProgressInfo.LastTileName := VTileFullPath;
   end;
 end;
 
