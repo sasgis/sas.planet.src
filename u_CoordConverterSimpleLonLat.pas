@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_Datum,
   u_CoordConverterBasic;
 
 type
@@ -37,7 +38,9 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
-      const ARadiusA, ARadiusB: Double
+      const ADatum: IDatum;
+      AProjEPSG: integer;
+      ACellSizeUnits: TCellSizeUnits
     );
   end;
 
@@ -50,15 +53,18 @@ uses
 { TCoordConverterSimpleLonLat }
 
 constructor TCoordConverterSimpleLonLat.Create(
-  const ARadiusA, ARadiusB: Double
+  const ADatum: IDatum;
+  AProjEPSG: integer;
+  ACellSizeUnits: TCellSizeUnits
 );
+var
+  VRadiusA, VRadiusB: Double;
 begin
-  FExct := sqrt(ARadiusA * ARadiusA - ARadiusB * ARadiusB) / ARadiusA;
-  if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(4326, ARadiusA, ARadiusB), 4326, CELL_UNITS_DEGREES);
-  end else begin
-    inherited Create(TDatum.Create(0, ARadiusA, ARadiusB), 0, CELL_UNITS_UNKNOWN);
-  end;
+  Assert(ADatum <> nil);
+  inherited;
+  VRadiusA := ADatum.GetSpheroidRadiusA;
+  VRadiusB := ADatum.GetSpheroidRadiusB;
+  FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;
 end;
 
 function TCoordConverterSimpleLonLat.LonLat2MetrInternal(const ALl: TDoublePoint): TDoublePoint;

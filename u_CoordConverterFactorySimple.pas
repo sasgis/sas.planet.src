@@ -34,6 +34,8 @@ type
   private
     FDatumGoogle: IDatum;
     FDatumYandex: IDatum;
+    FDatum53004: IDatum;
+
     FGoogle: ICoordConverter;
     FYandex: ICoordConverter;
     FLonLat: ICoordConverter;
@@ -60,6 +62,7 @@ implementation
 
 uses
   SysUtils,
+  t_GeoTypes,
   c_CoordConverter,
   u_Datum,
   u_CoordConverterMercatorOnSphere,
@@ -84,19 +87,16 @@ begin
   VRadiusB := 6356752;
   FDatumYandex := TDatum.Create(CYandexDatumEPSG, VRadiusA, VRadiusB);
 
-  VRadiusA := 6378137;
-  FGoogle := TCoordConverterMercatorOnSphere.Create(VRadiusA);
-
   VRadiusA := 6371000;
-  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+  FDatum53004 := TDatum.Create(53004, VRadiusA, VRadiusA);
 
-  VRadiusA := 6378137;
-  VRadiusB := 6356752;
-  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+  FGoogle := TCoordConverterMercatorOnSphere.Create(FDatumGoogle, CGoogleProjectionEPSG, CELL_UNITS_METERS);
 
-  VRadiusA := 6378137;
-  VRadiusB := 6356752;
-  FLonLat := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(FDatum53004, 53004, CELL_UNITS_METERS);
+
+  FYandex := TCoordConverterMercatorOnEllipsoid.Create(FDatumYandex, CYandexProjectionEPSG, CELL_UNITS_METERS);
+
+  FLonLat := TCoordConverterSimpleLonLat.Create(FDatumYandex, CGELonLatProjectionEPSG, CELL_UNITS_DEGREES);
 end;
 
 function TCoordConverterFactorySimple.GetByCode(ADatumEPSG: Integer): IDatum;
@@ -108,6 +108,9 @@ begin
     end;
     CYandexDatumEPSG: begin
       Result := FDatumYandex;
+    end;
+    53004: begin
+      Result := FDatum53004;
     end;
   end;
 end;
@@ -177,6 +180,7 @@ var
   VRadiusB: Double;
   VEPSG: Integer;
   VTileSplitCode: Integer;
+  VDatum: IDatum;
 begin
   Result := nil;
   VTileSplitCode := CTileSplitQuadrate256x256;
@@ -227,13 +231,30 @@ begin
   if Result = nil then begin
     case VProjection of
       1: begin
-        Result := TCoordConverterMercatorOnSphere.Create(VRadiusA);
+        VDatum := GetByRadius(VRadiusA, VRadiusA);
+        if VDatum.EPSG = CGoogleDatumEPSG then begin
+          Result := FGoogle;
+        end else if VDatum.EPSG = 53004  then begin
+          Result := FEPSG53004;
+        end else begin
+          Result := TCoordConverterMercatorOnSphere.Create(VDatum, 0, CELL_UNITS_UNKNOWN);
+        end;
       end;
       2: begin
-        Result := TCoordConverterMercatorOnEllipsoid.Create(VRadiusA, VRadiusB);
+        VDatum := GetByRadius(VRadiusA, VRadiusB);
+        if VDatum.EPSG = CYandexDatumEPSG then begin
+          Result := FYandex;
+        end else begin
+          Result := TCoordConverterMercatorOnEllipsoid.Create(VDatum, 0, CELL_UNITS_UNKNOWN);
+        end;
       end;
       3: begin
-        Result := TCoordConverterSimpleLonLat.Create(VRadiusA, VRadiusB);
+        VDatum := GetByRadius(VRadiusA, VRadiusB);
+        if VDatum.EPSG = CYandexDatumEPSG then begin
+          Result := FLonLat;
+        end else begin
+          Result := TCoordConverterSimpleLonLat.Create(VDatum, 0, CELL_UNITS_UNKNOWN);
+        end;
       end;
     else begin
       raise Exception.CreateFmt(SAS_ERR_MapProjectionUnexpectedType, [IntToStr(VProjection)]);

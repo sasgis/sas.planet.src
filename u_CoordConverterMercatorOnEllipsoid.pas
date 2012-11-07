@@ -24,6 +24,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_Datum,
   u_CoordConverterBasic;
 
 type
@@ -37,7 +38,9 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
-      const ARadiusA, ARadiusB: Double
+      const ADatum: IDatum;
+      AProjEPSG: integer;
+      ACellSizeUnits: TCellSizeUnits
     );
   end;
 
@@ -54,15 +57,18 @@ const
 { TCoordConverterMercatorOnEllipsoid }
 
 constructor TCoordConverterMercatorOnEllipsoid.Create(
-  const ARadiusA, ARadiusB: Double
+  const ADatum: IDatum;
+  AProjEPSG: integer;
+  ACellSizeUnits: TCellSizeUnits
 );
+var
+  VRadiusA, VRadiusB: Double;
 begin
-  FExct := sqrt(ARadiusA * ARadiusA - ARadiusB * ARadiusB) / ARadiusA;
-  if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6356752) < 1) then begin
-    inherited Create(TDatum.Create(3395, ARadiusA, ARadiusB), 3395, CELL_UNITS_METERS);
-  end else begin
-    inherited Create(TDatum.Create(0, ARadiusA, ARadiusB), 0, CELL_UNITS_UNKNOWN);
-  end;
+  Assert(ADatum <> nil);
+  inherited Create(ADatum, AProjEPSG, ACellSizeUnits);
+  VRadiusA := ADatum.GetSpheroidRadiusA;
+  VRadiusB := ADatum.GetSpheroidRadiusB;
+  FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;
 end;
 
 function TCoordConverterMercatorOnEllipsoid.LonLat2MetrInternal(const ALL: TDoublePoint): TDoublePoint;
