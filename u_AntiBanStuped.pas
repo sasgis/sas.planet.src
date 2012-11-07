@@ -114,6 +114,8 @@ constructor TAntiBanStuped.Create(
 var
   VParams: IConfigDataProvider;
 begin
+  Assert(AInvisibleBrowser <> nil);
+  Assert(AConfig <> nil);
   inherited Create;
   FInvisibleBrowser := AInvisibleBrowser;
   FDownloadTilesCounter := TCounterInterlock.Create;

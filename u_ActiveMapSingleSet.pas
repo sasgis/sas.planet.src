@@ -22,6 +22,7 @@ implementation
 
 constructor TActiveMapSingleSet.Create(ASet: IGUIDInterfaceSet);
 begin
+  Assert(ASet <> nil);
   inherited Create;
   FSet := ASet;
 end;

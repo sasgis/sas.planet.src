@@ -91,6 +91,7 @@ constructor TLayerSetChangeable.Create(
   const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
 begin
+  Assert(AMapsSet <> nil);
   Assert(ALayerSetSelectNotyfier <> nil);
   Assert(ALayerSetUnselectNotyfier <> nil);
   inherited Create;
@@ -201,6 +202,8 @@ constructor TMapsSetChangeableByMainMapAndLayersSet.Create(
   const ALayersSet: IMapTypeSetChangeable
 );
 begin
+  Assert(AMainMap <> nil);
+  Assert(ALayersSet <> nil);
   inherited Create;
   FMainMap := AMainMap;
   FLayersSet := ALayersSet;

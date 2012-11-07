@@ -65,6 +65,8 @@ var
   i: Cardinal;
   VGUID: TGUID;
 begin
+  Assert(AMainMapChangeNotyfier <> nil);
+  Assert(AMapsSet <> nil);
   inherited Create;
   FMapsSet := AMapsSet;
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;

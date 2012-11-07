@@ -148,6 +148,7 @@ constructor TActiveMapSingleMainMap.Create(
   const AMainMapChangeNotyfier: INotifier
 );
 begin
+  Assert(AMainMapChangeNotyfier <> nil);
   inherited Create(AMapType, AIsActive);
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
@@ -174,6 +175,8 @@ constructor TActiveMapSingleLayer.Create(
   const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
 begin
+  Assert(ALayerSetSelectNotyfier <> nil);
+  Assert(ALayerSetUnselectNotyfier <> nil);
   inherited Create(AMapType, False);
   FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;
   FLayerSetSelectListener := TNotifyWithGUIDEventListener.Create(Self.OnLayerSetSelectChange);

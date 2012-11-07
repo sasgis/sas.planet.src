@@ -62,6 +62,7 @@ constructor TActiveMapTBXItem.Create(
   const AMapActive: IActiveMapSingle
 );
 begin
+  Assert(AMapActive <> nil);
   inherited Create(AOwner);
   FMapActive := AMapActive;
   OnAdjustFont := Self.AdjustFont;

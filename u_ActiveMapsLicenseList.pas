@@ -47,6 +47,8 @@ constructor TActiveMapsLicenseList.Create(
   const AMapsSet: IMapTypeSetChangeable
 );
 begin
+  Assert(ALanguageManager <> nil);
+  Assert(AMapsSet <> nil);
   inherited Create;
   FMapsSet := AMapsSet;
   FLanguageManager := ALanguageManager;
