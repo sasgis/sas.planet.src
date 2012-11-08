@@ -4,12 +4,15 @@ interface
 
 const
   CSASProtocolName = 'sas';
+  CSASInternalURLPrefix = CSASProtocolName + '://';
   CZmpInfoInternalDomain = 'ZmpInfo';
+  CMapDataInternalDomain = 'MapData';
   CMediaDataInternalDomain = 'MediaData';
   CMarksSystemInternalDomain = 'Placemarks';
-  CZmpInfoInternalURL = CSASProtocolName + '://' + CZmpInfoInternalDomain + '/';
-  CMediaDataInternalURL = CSASProtocolName + '://' + CMediaDataInternalDomain + '/';
-  CMarksSystemInternalURL = CSASProtocolName + '://' + CMarksSystemInternalDomain + '/';
+  CZmpInfoInternalURL = CSASInternalURLPrefix + CZmpInfoInternalDomain + '/';
+  CMapDataInternalURL = CSASInternalURLPrefix + CMapDataInternalDomain + '/';
+  CMediaDataInternalURL = CSASInternalURLPrefix + CMediaDataInternalDomain + '/';
+  CMarksSystemInternalURL = CSASInternalURLPrefix + CMarksSystemInternalDomain + '/';
   CVectorItemDescriptionSuffix = 'Description';
   CVectorItemInfoSuffix = 'Info';
 
