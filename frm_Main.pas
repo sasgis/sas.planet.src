@@ -4926,7 +4926,7 @@ begin
   if (FMapZoomAnimtion)or(ssDouble in Shift) then begin
     exit;
   end;
-  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
+  VLocalConverter := FConfig.ViewPortState.View.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
   VZoomCurr := VLocalConverter.GetZoom;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
