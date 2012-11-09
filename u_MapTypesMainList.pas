@@ -46,6 +46,7 @@ uses
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
   i_MapTypes,
+  u_MapTypeSetChangeableSimple,
   u_GlobalCahceConfig,
   u_MapType;
 
@@ -65,6 +66,8 @@ type
 
     FMapType: array of TMapType;
     FFullMapsSet: IMapTypeSet;
+    FFullMapsSetChangeable: IMapTypeSetChangeable;
+    FFullMapsSetChangeableInternal: IMapTypeSetChangeableSimpleInternal;
     FMapsSet: IMapTypeSet;
     FLayersSet: IMapTypeSet;
 
@@ -80,6 +83,7 @@ type
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
+    property FullMapsSetChangeable: IMapTypeSetChangeable read FFullMapsSetChangeable;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
@@ -144,6 +148,8 @@ begin
   FTileReprojectResamplerConfig := ATileReprojectResamplerConfig;
   FTileDownloadResamplerConfig := ATileDownloadResamplerConfig;
   FPerfCounterList := APerfCounterList;
+  FFullMapsSetChangeableInternal := TMapTypeSetChangeableSimple.Create(nil);
+  FFullMapsSetChangeable := FFullMapsSetChangeableInternal;
 end;
 
 destructor TMapTypesMainList.Destroy;
@@ -204,6 +210,7 @@ begin
       VMapsList.Add(VMapType);
     end;
   end;
+  FFullMapsSetChangeableInternal.SetStatic(FFullMapsSet);
 end;
 
 procedure TMapTypesMainList.LoadMaps(
