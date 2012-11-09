@@ -1123,6 +1123,7 @@
     <DCCReference Include="u_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
+    <DCCReference Include="u_VectorDataFactoryForMap.pas" />
     <DCCReference Include="u_VectorDataFactorySimple.pas" />
     <DCCReference Include="u_VectorDataItemBase.pas" />
     <DCCReference Include="u_VectorDataItemList.pas" />
