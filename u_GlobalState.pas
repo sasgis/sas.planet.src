@@ -337,6 +337,7 @@ uses
   u_InternalDomainInfoProviderByMapTypeList,
   u_InternalDomainInfoProviderByDataProvider,
   u_InternalDomainInfoProviderByMarksSystem,
+  u_InternalDomainInfoProviderByMapData,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -709,6 +710,18 @@ begin
     VInternalDomainInfoProvider
   );
 
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByMapData.Create(
+      FMainMapsList.FullMapsSetChangeable,
+      VTextProivder,
+      CVectorItemDescriptionSuffix
+    );
+
+  VInternalDomainInfoProviderList.Add(
+    CMapDataInternalDomain,
+    VInternalDomainInfoProvider
+  );
   FProtocol :=
     TIeEmbeddedProtocolRegistration.Create(
       CSASProtocolName,
