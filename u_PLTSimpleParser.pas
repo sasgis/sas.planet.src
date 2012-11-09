@@ -50,10 +50,12 @@ type
   private
     function LoadFromStream(
       AStream: TStream;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
   public
@@ -84,6 +86,7 @@ end;
 
 function TPLTSimpleParser.Load(
   const AData: IBinaryData;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -92,7 +95,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AFactory);
+    Result := LoadFromStream(VStream, AIdData, AFactory);
   finally
     VStream.Free;
   end;
@@ -100,6 +103,7 @@ end;
 
 function TPLTSimpleParser.LoadFromStream(
   AStream: TStream;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -120,7 +124,7 @@ begin
         trackname := GetWord(pltstr[4], ',', 4);
         VItem :=
           AFactory.BuildPath(
-            '',
+            AIdData,
             trackname,
             '',
             FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count)

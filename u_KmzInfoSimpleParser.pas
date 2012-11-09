@@ -41,10 +41,12 @@ type
   private
     function LoadFromStream(
       AStream: TStream;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
   public
@@ -82,6 +84,7 @@ end;
 
 function TKmzInfoSimpleParser.Load(
   const AData: IBinaryData;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -90,7 +93,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AFactory);
+    Result := LoadFromStream(VStream, AIdData, AFactory);
   finally
     VStream.Free;
   end;
@@ -98,6 +101,7 @@ end;
 
 function TKmzInfoSimpleParser.LoadFromStream(
   AStream: TStream;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -134,7 +138,7 @@ begin
         end;
         VStreamKml := TStreamReadOnlyByBinaryData.Create(VData);
         try
-          Result := FKmlParser.LoadFromStream(VStreamKml, AFactory);
+          Result := FKmlParser.LoadFromStream(VStreamKml, AIdData, AFactory);
         finally
           VStreamKml.Free;
         end;

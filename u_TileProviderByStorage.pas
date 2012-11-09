@@ -203,7 +203,7 @@ begin
   Result := nil;
   try
     if Supports(FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-      Result := FLoaderFromStorage.Load(VTileInfo.TileData, FVectorDataFactory);
+      Result := FLoaderFromStorage.Load(VTileInfo.TileData, nil, FVectorDataFactory);
     end;
   except
     if not FIsIgnoreError then begin

@@ -57,15 +57,18 @@ type
     );
     function Internal_LoadFromStream_Original(
       AStream: TStream;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
   private
     function LoadFromStream(
       AStream: TStream;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
   public
@@ -87,6 +90,7 @@ uses
 type
   TParseXML_Aux = record
     opt: Tvsagps_XML_ParserOptions;
+    IdData: Pointer;
     Factory: IVectorDataFactory;
     list: IInterfaceList;
     segment_counter: Integer;
@@ -180,12 +184,12 @@ begin
     if (0 < array_count) then begin
       if (1 = array_count) then begin
         // single point in track segment - make as point
-        trk_obj := AParseXML_Aux^.Factory.BuildPoint('', AWideStrName, AWideStrDesc, array_points[0]);
+        trk_obj := AParseXML_Aux^.Factory.BuildPoint(AParseXML_Aux^.IdData, AWideStrName, AWideStrDesc, array_points[0]);
       end else if (AForceObjectType = fotPolygon) or ((AForceObjectType = fotNone) and DoublePointsEqual(array_points[0], array_points[array_count - 1])) then begin
         // polygon
         trk_obj :=
           AParseXML_Aux^.Factory.BuildPoly(
-            '',
+            AParseXML_Aux^.IdData,
             AWideStrName,
             AWideStrDesc,
             AItemsFactory.CreateLonLatPolygon(@array_points[0], array_count)
@@ -194,7 +198,7 @@ begin
         // polyline
         trk_obj :=
           AParseXML_Aux^.Factory.BuildPath(
-            '',
+            AParseXML_Aux.IdData,
             AWideStrName,
             AWideStrDesc,
             AItemsFactory.CreateLonLatPath(@array_points[0], array_count)
@@ -248,6 +252,7 @@ end;
 
 function TXmlInfoSimpleParser.Internal_LoadFromStream_Original(
   AStream: TStream;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -259,6 +264,7 @@ begin
   Inc(tAux.opt.gpx_options.bParse_trk);
   Inc(tAux.opt.gpx_options.bParse_wpt);
   tAux.Factory := AFactory;
+  tAux.IdData := AIdData;
   try
     // parse
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
@@ -386,15 +392,17 @@ var
   procedure _AddWptToList;
   var
     wpt_iface: IVectorDataItemPoint;
+    VAUX: PParseXML_Aux;
   begin
+    VAUX := PParseXML_Aux(pUserAuxPointer);
     // make list object
-    if not Assigned(PParseXML_Aux(pUserAuxPointer)^.list) then begin
-      PParseXML_Aux(pUserAuxPointer)^.list := TInterfaceList.Create;
+    if not Assigned(VAUX^.list) then begin
+      VAUX^.list := TInterfaceList.Create;
     end;
     // create object
-    wpt_iface := PParseXML_Aux(pUserAuxPointer)^.Factory.BuildPoint('', VWSName, VWSDesc, wpt_point);
+    wpt_iface := VAUX^.Factory.BuildPoint(VAUX^.IdData, VWSName, VWSDesc, wpt_point);
     // add object to list
-    PParseXML_Aux(pUserAuxPointer)^.list.Add(wpt_iface);
+    VAUX^.list.Add(wpt_iface);
   end;
 
   function _GetPointForGPX(const AWptData: Tvsagps_GPX_wpt_data): Boolean;
@@ -670,6 +678,7 @@ end;
 
 function TXmlInfoSimpleParser.Load(
   const AData: IBinaryData;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -678,7 +687,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AFactory);
+    Result := LoadFromStream(VStream, AIdData, AFactory);
   finally
     VStream.Free;
   end;
@@ -686,6 +695,7 @@ end;
 
 function TXmlInfoSimpleParser.LoadFromStream(
   AStream: TStream;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -725,7 +735,7 @@ begin
           end;
           VStreamKml := TStreamReadOnlyByBinaryData.Create(VData);
           try
-            Result := Internal_LoadFromStream_Original(VStreamKml, AFactory);
+            Result := Internal_LoadFromStream_Original(VStreamKml, AIdData, AFactory);
           finally
             VStreamKml.Free;
           end;
@@ -736,7 +746,7 @@ begin
 
     end else begin
       // read from single simple source
-      Result := Internal_LoadFromStream_Original(AStream, AFactory);
+      Result := Internal_LoadFromStream_Original(AStream, AIdData, AFactory);
     end;
   finally
     FLoadXmlStreamCounter.FinishOperation(VCounterContext);

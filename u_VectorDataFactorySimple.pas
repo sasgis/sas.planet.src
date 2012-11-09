@@ -15,19 +15,19 @@ type
     FHintConverter: IHtmlToHintTextConverter;
   private
     function BuildPoint(
-      const AId: string;
+      const AIdData: Pointer;
       const AName: string;
       const ADesc: string;
       const APoint: TDoublePoint
     ): IVectorDataItemPoint;
     function BuildPath(
-      const AId: string;
+      const AIdData: Pointer;
       const AName: string;
       const ADesc: string;
       const ALine: ILonLatPath
     ): IVectorDataItemLine;
     function BuildPoly(
-      const AId: string;
+      const AIdData: Pointer;
       const AName: string;
       const ADesc: string;
       const APoly: ILonLatPolygon
@@ -55,7 +55,8 @@ begin
 end;
 
 function TVectorDataFactorySimple.BuildPath(
-  const AId, AName, ADesc: string;
+  const AIdData: Pointer;
+  const AName, ADesc: string;
   const ALine: ILonLatPath
 ): IVectorDataItemLine;
 begin
@@ -69,7 +70,8 @@ begin
 end;
 
 function TVectorDataFactorySimple.BuildPoint(
-  const AId, AName, ADesc: string;
+  const AIdData: Pointer;
+  const AName, ADesc: string;
   const APoint: TDoublePoint
 ): IVectorDataItemPoint;
 begin
@@ -83,7 +85,8 @@ begin
 end;
 
 function TVectorDataFactorySimple.BuildPoly(
-  const AId, AName, ADesc: string;
+  const AIdData: Pointer;
+  const AName, ADesc: string;
   const APoly: ILonLatPolygon
 ): IVectorDataItemPoly;
 begin

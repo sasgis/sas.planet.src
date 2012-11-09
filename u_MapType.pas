@@ -529,7 +529,7 @@ var
 begin
   Result := nil;
   if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
-    Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, FVectorDataFactory);
+    Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, nil, FVectorDataFactory);
     AVersionInfo := VTileInfoWithData.VersionInfo;
   end;
 end;

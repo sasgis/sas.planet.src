@@ -129,7 +129,7 @@ begin
       VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
       VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        kml := FKmlLoader.Load(VResultOk.Data, FVectorDataFactory);
+        kml := FKmlLoader.Load(VResultOk.Data, nil, FVectorDataFactory);
         if kml <> nil then begin
           if kml.Count > 0 then begin
             if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin

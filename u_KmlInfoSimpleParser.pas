@@ -68,6 +68,7 @@ type
     function parse(
       const buffer: AnsiString;
       const AList: IInterfaceList;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): boolean;
     function parseCoordinates(
@@ -80,15 +81,18 @@ type
     function BuildItem(
       const AName, ADesc: string;
       const APointsAggregator: IDoublePointsAggregator;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemSimple;
   private
     function LoadFromStream(
       AStream: TStream;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
+      const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
   public
@@ -114,6 +118,7 @@ uses
 function TKmlInfoSimpleParser.BuildItem(
   const AName, ADesc: string;
   const APointsAggregator: IDoublePointsAggregator;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemSimple;
 var
@@ -123,12 +128,12 @@ begin
   VPointCount := APointsAggregator.Count;
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
-      Result := AFactory.BuildPoint('', AName, ADesc, APointsAggregator.Points[0]);
+      Result := AFactory.BuildPoint(AIdData, AName, ADesc, APointsAggregator.Points[0]);
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
         Result :=
           AFactory.BuildPoly(
-            '',
+            AIdData,
             AName,
             ADesc,
             FFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount)
@@ -136,7 +141,7 @@ begin
       end else begin
         Result :=
           AFactory.BuildPath(
-            '',
+            AIdData,
             AName,
             ADesc,
             FFactory.CreateLonLatPath(APointsAggregator.Points, VPointCount)
@@ -184,6 +189,7 @@ end;
 
 function TKmlInfoSimpleParser.Load(
   const AData: IBinaryData;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 var
@@ -192,7 +198,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AFactory);
+    Result := LoadFromStream(VStream, AIdData, AFactory);
   finally
     VStream.Free;
   end;
@@ -200,6 +206,7 @@ end;
 
 function TKmlInfoSimpleParser.LoadFromStream(
   AStream: TStream;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): IVectorDataItemList;
 
@@ -249,7 +256,7 @@ begin
       VKml := GetAnsiString(AStream);
       if VKml <> '' then begin
         VList := TInterfaceList.Create;
-        parse(VKml, VList, AFactory);
+        parse(VKml, VList, AIdData, AFactory);
         Result := TVectorDataItemList.Create(VList);
       end else begin
         Assert(False, 'KML data reader - Unknown error');
@@ -298,6 +305,7 @@ end;
 function TKmlInfoSimpleParser.parse(
   const buffer: AnsiString;
   const AList: IInterfaceList;
+  const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): boolean;
 var
@@ -364,7 +372,7 @@ begin
             result := false;
           end;
         end;
-        VItem := BuildItem(VName, VDescription, VPointsAggregator, AFactory);
+        VItem := BuildItem(VName, VDescription, VPointsAggregator, AIdData, AFactory);
         if VItem <> nil then begin
           AList.Add(VItem);
         end;
