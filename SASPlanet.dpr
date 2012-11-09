@@ -642,6 +642,7 @@ uses
   i_MapTypes in 'i_MapTypes.pas',
   u_MapTypeBasic in 'u_MapTypeBasic.pas',
   u_MapTypeSet in 'u_MapTypeSet.pas',
+  u_MapTypeSetChangeableSimple in 'u_MapTypeSetChangeableSimple.pas',
   u_MapTypeSetChangeableBySourceSetWithFilter in 'u_MapTypeSetChangeableBySourceSetWithFilter.pas',
   u_ActiveMapTBXItem in 'u_ActiveMapTBXItem.pas',
   u_MapTypeMenuItemsGeneratorBasic in 'u_MapTypeMenuItemsGeneratorBasic.pas',

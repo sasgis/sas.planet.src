@@ -896,6 +896,7 @@
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
     <DCCReference Include="u_MapTypeSetChangeableBySourceSetWithFilter.pas" />
+    <DCCReference Include="u_MapTypeSetChangeableSimple.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
     <DCCReference Include="u_MapVersionFactoryGE.pas" />
