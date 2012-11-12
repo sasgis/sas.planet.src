@@ -841,6 +841,7 @@
     <DCCReference Include="u_LastResponseInfo.pas" />
     <DCCReference Include="u_LastSearchResultConfig.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
+    <DCCReference Include="u_LastSelectionInfoSaver.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="u_LayerDrawConfig.pas" />
     <DCCReference Include="u_LineOnMapEdit.pas" />

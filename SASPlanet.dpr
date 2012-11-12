@@ -276,6 +276,7 @@ uses
   u_TextByVectorItemMarkInfo in 'u_TextByVectorItemMarkInfo.pas',
   i_LastSelectionInfo in 'i_LastSelectionInfo.pas',
   u_LastSelectionInfo in 'u_LastSelectionInfo.pas',
+  u_LastSelectionInfoSaver in 'u_LastSelectionInfoSaver.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   i_VectorDataLoader in 'i_VectorDataLoader.pas',
   u_XmlInfoSimpleParser in 'u_XmlInfoSimpleParser.pas',
