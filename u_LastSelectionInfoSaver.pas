@@ -40,11 +40,13 @@ type
 implementation
 
 uses
+  t_GeoTypes,
   SysUtils,
   IniFiles,
   i_ThreadConfig,
   i_VectorItemLonLat,
   i_ConfigDataWriteProvider,
+  i_EnumDoublePoint,
   u_ThreadConfig,
   u_ConfigProviderHelpers,
   u_ListenerByEvent,
@@ -70,7 +72,7 @@ begin
   FVectorItmesFactory := AVectorItmesFactory;
   FLastSelection := ALastSelection;
   FFileName := AFileName;
-  
+
 
   FNeedReadFlag := TSimpleFlagWithInterlock.Create;
   FNeedWriteFlag := TSimpleFlagWithInterlock.Create;
@@ -117,6 +119,11 @@ var
   VNeedWrite: Boolean;
   VIniFile: TMemIniFile;
   VProvider: IConfigDataWriteProvider;
+  VStringList: TStringList;
+  VFormatSettings: TFormatSettings;
+  VEnum: IEnumDoublePoint;
+  i: Integer;
+  VPoint: TDoublePoint;
 begin
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
@@ -163,15 +170,28 @@ begin
       Exit;
     end;
     try
-      VIniFile := TMemIniFile.Create(VFileName);
+      VFormatSettings.DecimalSeparator := '.';
+      VFormatSettings.DateSeparator := '.';
+      VFormatSettings.ShortDateFormat := 'dd.MM.yyyy';
+      VFormatSettings.TimeSeparator := ':';
+      VFormatSettings.LongTimeFormat := 'HH:mm:ss';
+      VFormatSettings.ShortTimeFormat := 'HH:mm:ss';
+      VFormatSettings.ListSeparator := ';';
+      VFormatSettings.TwoDigitYearCenturyWindow := 50;
+      VStringList := TStringList.Create;
       try
-        VProvider := TConfigDataWriteProviderByIniFile.Create(VIniFile);
-        VIniFile := nil;
-        VProvider := VProvider.GetOrCreateSubItem('HIGHLIGHTING');
-        VProvider.WriteInteger('Zoom', VZoom);
-        WritePolygon(VProvider, VPolygon);
+        VStringList.Add('[HIGHLIGHTING]');
+        VStringList.Add('Zoom='+IntToStr(VZoom));
+        VEnum := VPolygon.GetEnum;
+        i := 1;
+        while VEnum.Next(VPoint) do begin
+          VStringList.Add('PointLon_' + IntToStr(i)+ '=' +  FloatToStr(VPoint.X, VFormatSettings));
+          VStringList.Add('PointLat_' + IntToStr(i)+ '=' +  FloatToStr(VPoint.Y, VFormatSettings));
+          Inc(i);
+        end;
+        VStringList.SaveToFile(VFileName);
       finally
-        VIniFile.Free;
+        VStringList.Free;
       end;
     except
     end;
