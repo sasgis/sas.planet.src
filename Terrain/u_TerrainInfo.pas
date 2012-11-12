@@ -216,8 +216,8 @@ begin
         end;
       end; // while
 
-      if
-        (not FPrimaryTerrainProvider.Available) and
+      // if external provider selected and then removed
+      if ((FPrimaryTerrainProvider=nil) or (not FPrimaryTerrainProvider.Available)) and
         (VFirstAvailProvider <> nil) and
         FTerrainConfig.TrySecondaryElevationProviders
       then begin
