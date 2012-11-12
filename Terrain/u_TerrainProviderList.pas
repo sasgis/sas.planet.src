@@ -29,6 +29,7 @@ uses
   i_Notifier,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
+  i_ProjConverter,
   u_GlobalCahceConfig;
 
 type
@@ -49,8 +50,13 @@ type
   end;
 
   TTerrainProviderListSimple = class(TTerrainProviderListBase)
+  private
+    FProjConverterFactory: IProjConverterFactory;
   public
-    constructor Create(const ACacheConfig: TGlobalCahceConfig);
+    constructor Create(
+      const AProjConverterFactory: IProjConverterFactory;
+      const ACacheConfig: TGlobalCahceConfig
+    );
   end; 
 
 implementation
@@ -66,12 +72,14 @@ uses
 { TTerrainProviderListSimple }
 
 constructor TTerrainProviderListSimple.Create(
+  const AProjConverterFactory: IProjConverterFactory;
   const ACacheConfig: TGlobalCahceConfig
 );
 var
   VItem: ITerrainProviderListElement;
 begin
   inherited Create;
+  FProjConverterFactory := AProjConverterFactory;
 
   VItem :=
     TTerrainProviderListElement.Create(

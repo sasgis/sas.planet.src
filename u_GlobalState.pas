@@ -44,6 +44,7 @@ uses
   i_VectorDataLoader,
   i_CoordConverterFactory,
   i_CoordConverterList,
+  i_ProjConverter,
   i_BatteryStatus,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
@@ -123,6 +124,7 @@ type
     FMarksDb: IMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
+    FProjConverterFactory: IProjConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
@@ -270,7 +272,6 @@ uses
   u_ConfigDataProviderByPathConfig,
   i_InternalDomainInfoProvider,
   i_ImageResamplerFactory,
-  i_ProjConverter,
   i_TextByVectorItem,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
@@ -416,6 +417,8 @@ begin
   FGlobalAppConfig := TGlobalAppConfig.Create;
   FGlobalInternetState := TGlobalInternetState.Create;
 
+  FProjConverterFactory := TProjConverterFactory.Create;
+
   VCoordConverterFactorySimple := TCoordConverterFactorySimple.Create;
   FCoordConverterFactory := VCoordConverterFactorySimple;
   FProjectionFactory := VCoordConverterFactorySimple;
@@ -439,7 +442,7 @@ begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
 
-  FTerrainProviderList := TTerrainProviderListSimple.Create(FCacheConfig);
+  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FCacheConfig);
   FTerrainConfig := TTerrainConfig.Create;
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
@@ -650,6 +653,7 @@ begin
   FBitmapTileSaveLoadFactory := nil;
   FTerrainProviderList := nil;
   FTerrainConfig := nil;
+  FProjConverterFactory := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -782,7 +786,6 @@ var
   VLocalMapsConfig: IConfigDataProvider;
   Ini: TMeminifile;
   VMapsPath: String;
-  VProjFactory: IProjConverterFactory;
 begin
   VMapsPath := IncludeTrailingPathDelimiter(FMapsPath.FullPath);
   ForceDirectories(VMapsPath);
@@ -790,8 +793,6 @@ begin
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
-
-  VProjFactory := TProjConverterFactory.Create;
 
   FTerrainConfig.ReadConfig(MainConfigProvider.GetSubItem('Terrain'));
 
@@ -809,7 +810,7 @@ begin
     FContentTypeManager,
     FCoordConverterFactory,
     FInvisibleBrowser,
-    VProjFactory,
+    FProjConverterFactory,
     VLocalMapsConfig
   );
   FMainFormConfig :=
