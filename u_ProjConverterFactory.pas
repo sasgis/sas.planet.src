@@ -259,6 +259,9 @@ begin
   end else if (AEPSG=3395) then begin
     // WGS 84 / World Mercator
     Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+  end else if (AEPSG=4269) then begin
+    // NAD83
+    Result := '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
   end else if (AEPSG=4326) then begin
     // WGS 84
     Result := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';

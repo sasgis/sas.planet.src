@@ -29,6 +29,7 @@ uses
   i_Notifier,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
+  i_ExternalTerrainsProvider,
   i_ProjConverter,
   u_GlobalCahceConfig;
 
@@ -52,12 +53,14 @@ type
   TTerrainProviderListSimple = class(TTerrainProviderListBase)
   private
     FProjConverterFactory: IProjConverterFactory;
+    FExternalTerrainsProvider: IExternalTerrainsProvider;
   public
     constructor Create(
       const AProjConverterFactory: IProjConverterFactory;
       const ACacheConfig: TGlobalCahceConfig
     );
-  end; 
+    destructor Destroy; override;
+  end;
 
 implementation
 
@@ -65,9 +68,49 @@ uses
   c_TerrainProviderGUID,
   u_TerrainProviderListElement,
   u_TerrainProviderByGE,
+  u_ExternalTerrainsProvider,
   u_Notifier,
   u_Synchronizer,
   u_GUIDInterfaceSet;
+
+function ExternalTerrainsEnumCallbackFunc(
+  const AHostPointer: Pointer; // list
+  const ACallPointer: Pointer; // enumerator
+  const AProviderGUID: TGUID;
+  const AProviderName: PWideChar;
+  const AProviderProj: PAnsiChar;
+  const AOptions: LongWord // reserved
+): Boolean; cdecl;
+var
+  VCaption: WideString;
+  VProjInitString: AnsiString;
+  VProjConverter: IProjConverter;
+  VItem: ITerrainProviderListElement;
+begin
+  try
+    VCaption := AProviderName;
+
+    if (AProviderProj<>nil) then begin
+      VProjInitString := AProviderProj;
+      VProjConverter := TTerrainProviderListSimple(AHostPointer).FProjConverterFactory.GetByInitString(VProjInitString);
+    end else begin
+      // no proj converter
+      VProjConverter := nil;
+    end;
+
+    VItem := TTerrainProviderListElement.Create(
+      AProviderGUID,
+      VCaption,
+      TExternalTerrainsProvider(ACallPointer).CreateProvider(VProjConverter, AProviderGUID)
+    );
+
+    TTerrainProviderListSimple(AHostPointer).Add(VItem);
+
+    Result := TRUE;
+  except
+    Result := FALSE;
+  end;
+end;
 
 { TTerrainProviderListSimple }
 
@@ -79,6 +122,7 @@ var
   VItem: ITerrainProviderListElement;
 begin
   inherited Create;
+
   FProjConverterFactory := AProjConverterFactory;
 
   VItem :=
@@ -96,6 +140,19 @@ begin
       TTerrainProviderByGeoCacher.Create(ACacheConfig)
     );
   Add(VItem);
+
+  // make external items
+  FExternalTerrainsProvider := TExternalTerrainsProvider.Create;
+  if FExternalTerrainsProvider.Available then begin
+    FExternalTerrainsProvider.Enum(Pointer(Self), @ExternalTerrainsEnumCallbackFunc);
+  end;
+end;
+
+destructor TTerrainProviderListSimple.Destroy;
+begin
+  FExternalTerrainsProvider := nil;
+  FProjConverterFactory := nil;
+  inherited;
 end;
 
 { TTerrainProviderListBase }
