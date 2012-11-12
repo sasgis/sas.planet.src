@@ -36,6 +36,7 @@ uses
   i_GPSPositionFactory,
   i_LanguageManager,
   i_InetConfig,
+  i_BackgroundTask,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
   i_TileFileNameGeneratorsList,
@@ -106,6 +107,7 @@ type
     FMarksDbPath: IPathConfig;
     FMarksIconsPath: IPathConfig;
     FMediaDataPath: IPathConfig;
+    FLastSelectionFileName: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpConfig: IZmpConfig;
@@ -176,6 +178,7 @@ type
     FTerrainConfig: ITerrainConfig;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
+    FLastSelectionSaver: IBackgroundTask;
     procedure InitProtocol;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
@@ -339,6 +342,7 @@ uses
   u_InternalDomainInfoProviderByDataProvider,
   u_InternalDomainInfoProviderByMarksSystem,
   u_InternalDomainInfoProviderByMapData,
+  u_LastSelectionInfoSaver,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -381,6 +385,7 @@ begin
   FMarksDbPath := TPathConfig.Create('PrimaryPath', '.', FBaseDataPath);
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
+  FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', FBaseDataPath);
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create;
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
@@ -401,6 +406,7 @@ begin
   FTrackPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTRACKS'));
   FMarksDbPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMARKS'));
   FMediaDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMediaData'));
+  FLastSelectionFileName.ReadConfig(FMainConfigProvider.GetSubItem('LastSelection'));
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
@@ -614,6 +620,13 @@ begin
       FPerfCounterList
     );
   FBatteryStatus := TBatteryStatus.Create;
+  FLastSelectionSaver :=
+    TLastSelectionInfoSaver.Create(
+      FAppClosingNotifier,
+      FVectorItmesFactory,
+      FLastSelectionInfo,
+      FLastSelectionFileName
+    );
 end;
 
 destructor TGlobalState.Destroy;
@@ -770,6 +783,7 @@ begin
     FInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
   end;
   GPSpar.StartThreads;
+  FLastSelectionSaver.Start;
   FGUISyncronizedTimer.Enabled := True;
 end;
 
@@ -846,7 +860,6 @@ begin
 
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
-    FLastSelectionInfo.ReadConfig(MainConfigProvider.GetSubItem('LastSelection'));
     FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FTileMatrixDraftResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View_TilesDrafts'));
     FTileLoadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Load'));
@@ -888,7 +901,6 @@ begin
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FInternalBrowserConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('InternalBrowser'));
-  FLastSelectionInfo.WriteConfig(MainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FGlobalAppConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
@@ -912,6 +924,7 @@ begin
   FTrackPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTRACKS'));
   FMarksDbPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMARKS'));
   FMediaDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMediaData'));
+  FLastSelectionFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('LastSelection'));
 end;
 
 procedure TGlobalState.SendTerminateToThreads;
