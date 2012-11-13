@@ -3,15 +3,9 @@ unit fr_SelectedPicture;
 interface
 
 uses
-  Windows,
-  Messages,
-  SysUtils,
-  Variants,
   Classes,
-  Graphics,
   Controls,
   Forms,
-  Dialogs,
   GR32,
   GR32_Image,
   GR32_Layers,
@@ -49,10 +43,7 @@ implementation
 uses
   Types,
   Math,
-  GR32_Blend,
-  GR32_Rasterizers,
   GR32_Resamplers,
-  GR32_Transforms,
   u_BitmapFunc;
 
 {$R *.dfm}
@@ -62,60 +53,37 @@ uses
 procedure TfrSelectedPicture.CopyMarkerToBitmap(
   const ASourceBitmap: IBitmap32Static; ATarget: TCustomBitmap32);
 var
-  VTransform: TAffineTransformation;
-  VSizeSource: TPoint;
-  VTargetRect: TFloatRect;
+  VSourceSize: TPoint;
   VScale: Double;
-  VRasterizer: TRasterizer;
-  VTransformer: TTransformer;
-  VCombineInfo: TCombineInfo;
-  VSampler: TCustomResampler;
-  VBitmap: TCustomBitmap32;
+  VSourceRect: TRect;
+  VDstRect: TRect;
+  VResampler: TCustomResampler;
 begin
-  VSizeSource := ASourceBitmap.Size;
-  if (VSizeSource.X > 0) and (VSizeSource.Y > 0) then begin
-    VTransform := TAffineTransformation.Create;
+  VSourceSize := ASourceBitmap.Size;
+  if (VSourceSize.X > 0) and (VSourceSize.Y > 0) then begin
+    ATarget.Clear(clWhite32);
+    VScale := Min(ATarget.Width / VSourceSize.X, ATarget.Height / VSourceSize.Y);
+    VSourceRect := Rect(0, 0, VSourceSize.X, VSourceSize.Y);
+    VDstRect :=
+      Rect(
+        Trunc((ATarget.Width - VSourceSize.X * VScale) / 2),
+        Trunc((ATarget.Height - VSourceSize.Y * VScale) / 2),
+        Trunc((ATarget.Width + VSourceSize.X * VScale) / 2),
+        Trunc((ATarget.Height + VSourceSize.Y * VScale) / 2)
+      );
+    VResampler := TLinearResampler.Create;
     try
-      VTransform.SrcRect := FloatRect(0, 0, VSizeSource.X, VSizeSource.Y);
-      VScale := Min(ATarget.Width / VSizeSource.X, ATarget.Height / VSizeSource.Y);
-      VTransform.Translate(-VSizeSource.X / 2, -VSizeSource.Y /2);
-      VTransform.Scale(VScale, VScale);
-      VTransform.Translate(ATarget.Width / 2, ATarget.Height /2);
-      VTargetRect := VTransform.GetTransformedBounds;
-
-      ATarget.Clear(clWhite32);
-
-      VRasterizer := TRegularRasterizer.Create;
-      try
-        VSampler := TLinearResampler.Create;
-        try
-          VBitmap := TCustomBitmap32.Create;
-          try
-            AssignStaticToBitmap32(VBitmap, ASourceBitmap);
-            VSampler.Bitmap := VBitmap;
-            VTransformer := TTransformer.Create(VSampler, VTransform);
-            try
-              VRasterizer.Sampler := VTransformer;
-              VCombineInfo.SrcAlpha := 255;
-              VCombineInfo.DrawMode := dmBlend;
-              VCombineInfo.CombineMode := cmBlend;
-              VCombineInfo.TransparentColor := 0;
-              VRasterizer.Rasterize(ATarget, ATarget.BoundsRect, VCombineInfo);
-            finally
-              EMMS;
-              VTransformer.Free;
-            end;
-          finally
-            VBitmap.Free;
-          end;
-        finally
-          VSampler.Free;
-        end;
-      finally
-        VRasterizer.Free;
-      end;
+      StretchTransfer(
+        ATarget,
+        VDstRect,
+        ASourceBitmap,
+        VSourceRect,
+        VResampler,
+        dmBlend,
+        cmBlend
+      );
     finally
-      VTransform.Free;
+      VResampler.Free;
     end;
   end;
 end;
