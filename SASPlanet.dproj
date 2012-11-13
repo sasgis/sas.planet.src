@@ -159,6 +159,10 @@
     <DCCReference Include="frm_StartLogo.pas">
       <Form>frmStartLogo</Form>
     </DCCReference>
+    <DCCReference Include="fr_GPSConfig.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frGPSConfig</Form>
+    </DCCReference>
     <DCCReference Include="fr_GpsSatellites.pas">
       <Form>frGpsSatellites</Form>
       <DesignClass>TFrame</DesignClass>

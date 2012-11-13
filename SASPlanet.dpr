@@ -942,6 +942,7 @@ uses
   u_ProviderTilesDownload in 'RegionProcess\u_ProviderTilesDownload.pas',
   fr_ShortCutList in 'fr_ShortCutList.pas' {frShortCutList: TFrame},
   fr_MapsList in 'fr_MapsList.pas' {frMapsList: TFrame},
+  fr_GPSConfig in 'fr_GPSConfig.pas' {frGPSConfig: TFrame},
   fr_GpsSatellites in 'fr_GpsSatellites.pas' {frGpsSatellites: TFrame},
   fr_MarkCategorySelectOrAdd in 'fr_MarkCategorySelectOrAdd.pas' {frMarkCategorySelectOrAdd: TFrame},
   fr_MarksGeneralOptions in 'fr_MarksGeneralOptions.pas' {frMarksGeneralOptions: TFrame},
