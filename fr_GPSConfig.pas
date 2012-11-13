@@ -4,14 +4,10 @@ interface
 
 uses
   Windows,
-  Messages,
   SysUtils,
-  Variants,
   Classes,
-  Graphics,
   Controls,
   Forms,
-  Dialogs,
   StdCtrls,
   Spin,
   ExtCtrls,
@@ -92,7 +88,11 @@ implementation
 uses
   vsagps_public_base,
   vsagps_public_tracks,
+{$if defined(VSAGPS_AS_DLL)}
+  vsagps_public_com_checker,
+{$else}
   vsagps_com_checker,
+{$ifend}
   c_SensorsGUIDSimple,
   i_Sensor;
 

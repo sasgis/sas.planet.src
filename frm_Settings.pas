@@ -23,7 +23,6 @@ unit frm_Settings;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   Controls,
@@ -45,7 +44,6 @@ uses
   i_MapTypeConfigModalEdit,
   i_LanguageManager,
   u_ShortcutManager,
-  fr_GpsSatellites,
   fr_MapsList,
   fr_GPSConfig,
   fr_ShortCutList;
@@ -273,20 +271,9 @@ type
 implementation
 
 uses
-  Types,
   t_CommonTypes,
-  c_SensorsGUIDSimple,
   i_ProxySettings,
   i_InetConfig,
-  i_Sensor,
-  i_SensorList,
-  vsagps_public_base,
-  vsagps_public_tracks,
-{$if defined(VSAGPS_AS_DLL)}
-  vsagps_public_com_checker,
-{$else}
-  vsagps_com_checker,
-{$ifend}
   u_ListenerNotifierLinksList,
   u_GlobalState,
   u_ResStrings;

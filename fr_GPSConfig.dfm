@@ -41,7 +41,7 @@ object frGPSConfig: TfrGPSConfig
         Top = 3
         Width = 68
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'COM1'
       end
@@ -97,8 +97,8 @@ object frGPSConfig: TfrGPSConfig
         AutoSize = False
       end
       object btnGPSSwitch: TButton
-        Left = 3
-        Top = 24
+        Left = 303
+        Top = 3
         Width = 94
         Height = 21
         Hint = 'Disable or enable GPS'
@@ -108,7 +108,7 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_GPSAutodetectCOMOnConnect: TCheckBox
         AlignWithMargins = True
-        Left = 100
+        Left = 6
         Top = 27
         Width = 80
         Height = 17
@@ -118,7 +118,7 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_GPSAutodetectCOMSerial: TCheckBox
         AlignWithMargins = True
-        Left = 186
+        Left = 92
         Top = 27
         Width = 48
         Height = 17
@@ -127,7 +127,7 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_GPSAutodetectCOMVirtual: TCheckBox
         AlignWithMargins = True
-        Left = 240
+        Left = 146
         Top = 27
         Width = 50
         Height = 17
@@ -136,7 +136,7 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_GPSAutodetectCOMBluetooth: TCheckBox
         AlignWithMargins = True
-        Left = 296
+        Left = 202
         Top = 27
         Width = 67
         Height = 17
@@ -145,8 +145,8 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_GPSAutodetectCOMUSBSer: TCheckBox
         AlignWithMargins = True
-        Left = 6
-        Top = 50
+        Left = 275
+        Top = 27
         Width = 56
         Height = 17
         Caption = 'USBSer'
@@ -154,7 +154,7 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_GPSAutodetectCOMOthers: TCheckBox
         AlignWithMargins = True
-        Left = 68
+        Left = 6
         Top = 50
         Width = 60
         Height = 17
@@ -163,7 +163,7 @@ object frGPSConfig: TfrGPSConfig
       end
       object CB_USBGarmin: TCheckBox
         AlignWithMargins = True
-        Left = 134
+        Left = 72
         Top = 50
         Width = 82
         Height = 17
