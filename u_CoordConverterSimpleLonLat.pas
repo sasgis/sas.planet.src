@@ -47,8 +47,7 @@ type
 implementation
 
 uses
-  u_CoordConverterRoutines,
-  u_Datum;
+  u_CoordConverterRoutines;
 
 { TCoordConverterSimpleLonLat }
 

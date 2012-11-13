@@ -56,7 +56,6 @@ type
 implementation
 
 uses
-  GR32_Resamplers,
   t_GeoTypes,
   i_Bitmap32Static,
   i_CoordConverter,

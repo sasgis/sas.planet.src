@@ -57,10 +57,9 @@ type
 implementation
 
 uses
-  u_GeoToStr,
-  windows,
+  Windows,
   ALZLibExGZ,
-  u_TileRequestBuilderHelpers;
+  u_GeoToStr;
 
 type
   TGeoFuseWorkingLineType = (gfwlt_StartOfAttributes, gfwlt_StartOfGeometry, gfwlt_Parameter, gfwlt_Value, gfwlt_MultiLine);

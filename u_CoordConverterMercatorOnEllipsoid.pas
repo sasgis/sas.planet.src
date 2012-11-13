@@ -48,8 +48,7 @@ implementation
 
 uses
   Math,
-  u_CoordConverterRoutines,
-  u_Datum;
+  u_CoordConverterRoutines;
 
 const
   MerkElipsK = 0.000000001;

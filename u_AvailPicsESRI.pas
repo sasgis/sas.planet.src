@@ -44,9 +44,8 @@ type
 implementation
 
 uses
-  u_GeoToStr,
-  windows,
-  u_TileRequestBuilderHelpers;
+  Windows,
+  u_GeoToStr;
 
 { TAvailPicsESRI }
 

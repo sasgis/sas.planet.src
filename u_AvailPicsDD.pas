@@ -72,7 +72,6 @@ uses
   u_DownloaderHttp,
   u_NotifierOperation,
   u_DownloadResultFactory,
-  u_ArchiveReadWriteFactory,
   u_TileRequestBuilderHelpers;
 
 procedure GenerateAvailPicsDD(var ADDs: TAvailPicsDataDoors;

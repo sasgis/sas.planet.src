@@ -35,7 +35,6 @@ uses
   i_ZmpInfoSet,
   i_NotifierTTLCheck,
   i_InetConfig,
-  i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
@@ -127,7 +126,6 @@ uses
   u_MapTypeGUIConfigList,
   u_MapTypeBasic,
   u_MapTypeSet,
-  u_ImageResamplerConfig,
   u_ResStrings;
 
 { TMapTypesMainList }

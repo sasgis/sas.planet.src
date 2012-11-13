@@ -16,10 +16,8 @@ uses
   i_SimpleFlag,
   i_ProjectedDrawableElement,
   i_MarkerRingsConfig,
-  i_MapLayerGPSMarkerConfig,
   i_VectorItemLonLat,
   i_VectorItemProjected,
-  i_VectorItemLocal,
   i_VectorItmesFactory,
   i_GPSRecorder,
   i_ViewPortState,
@@ -74,12 +72,10 @@ implementation
 
 uses
   GR32_Polygons,
-  vsagps_public_base,
   vsagps_public_position,
   i_GPS,
   i_DoublePointsAggregator,
   u_GeoFun,
-  u_Datum,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_DoublePointsAggregator,

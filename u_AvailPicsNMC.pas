@@ -68,14 +68,13 @@ function FindExifInJpeg(const AJpegBuffer: Pointer;
 implementation
 
 uses
-  t_GeoTypes,
-  u_ResStrings,
-  u_GeoToStr,
-  u_GeoFun,
-  u_ETS_Tiles,
   xmldom,
   vsagps_public_xml_dom,
-  vsagps_public_xml_parser;
+  vsagps_public_xml_parser,
+  t_GeoTypes,
+  u_GeoToStr,
+  u_GeoFun,
+  u_ETS_Tiles;
 
 type
   // 4.6.2 IFD Structure

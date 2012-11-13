@@ -5,11 +5,7 @@ interface
 uses
   Types,
   i_BinaryData,
-  i_ConfigDataProvider,
-  i_ZmpInfo,
-  i_ZmpInfoSet,
   i_MapTypes,
-  i_ContentTypeManager,
   i_TextByVectorItem,
   i_InternalDomainInfoProvider;
 

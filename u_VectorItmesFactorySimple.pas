@@ -175,7 +175,6 @@ uses
   u_LocalSingleLine,
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterFirstSegment,
   u_EnumDoublePointFilterEqual,
   u_LonLatRect,
   u_LonLatRectByPoint,

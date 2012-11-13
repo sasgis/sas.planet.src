@@ -45,9 +45,6 @@ type
 
 implementation
 
-uses
-  u_Datum;
-
 { TCoordConverterMercatorOnSphere }
 
 constructor TCoordConverterMercatorOnSphere.Create(

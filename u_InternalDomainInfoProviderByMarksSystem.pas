@@ -60,7 +60,6 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  c_InternalBrowser,
   i_MarksSimple,
   u_BinaryData;
 
