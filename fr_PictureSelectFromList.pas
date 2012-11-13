@@ -5,14 +5,10 @@ interface
 uses
   Windows,
   Types,
-  Messages,
-  SysUtils,
-  Variants,
   Classes,
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   Grids,
   GR32,
   i_MarkPicture,
@@ -37,7 +33,7 @@ type
     FOnSelect: TNotifyEvent;
     FPicture: IMarkPicture;
     procedure DrawFromMarkIcons(
-      canvas: TCanvas;
+      ACanvas: TCanvas;
       const APic: IMarkPicture;
       const ASize: Integer;
       const bound: TRect
@@ -55,6 +51,7 @@ type
 implementation
 
 uses
+  Math,
   GR32_Resamplers,
   i_BitmapMarker,
   u_BitmapFunc;
@@ -73,7 +70,7 @@ begin
 end;
 
 procedure TfrPictureSelectFromList.DrawFromMarkIcons(
-  canvas: TCanvas;
+  ACanvas: TCanvas;
   const APic: IMarkPicture;
   const ASize: Integer;
   const bound: TRect
@@ -84,37 +81,48 @@ var
   VMarker: IBitmapMarker;
   VSourceRect: TRect;
   VSourceSize: TPoint;
+  VDstRect: TRect;
+  VScale: Double;
 begin
-  canvas.FillRect(bound);
+  VMarker := nil;
   if APic <> nil then begin
     VMarker := APic.GetMarker;
-    if VMarker <> nil then begin
-      VBitmap:=TBitmap32.Create;
+  end;
+  if VMarker <> nil then begin
+    VBitmap:=TBitmap32.Create;
+    try
+      VBitmap.SetSize(bound.Right-bound.Left, bound.Bottom-bound.Top);
+      VBitmap.Clear(clWhite32);
+      VSourceSize := VMarker.Size;
+      VScale := Min(VBitmap.Width / VSourceSize.X, VBitmap.Height / VSourceSize.Y);
+      VSourceRect := Rect(0, 0, VSourceSize.X, VSourceSize.Y);
+      VDstRect :=
+        Rect(
+          Trunc((VBitmap.Width - VSourceSize.X * VScale) / 2),
+          Trunc((VBitmap.Height - VSourceSize.Y * VScale) / 2),
+          Trunc((VBitmap.Width + VSourceSize.X * VScale) / 2),
+          Trunc((VBitmap.Height + VSourceSize.Y * VScale) / 2)
+        );
+      VResampler := TLinearResampler.Create;
       try
-        VBitmap.SetSize(bound.Right-bound.Left, bound.Bottom-bound.Top);
-        VSourceSize := VMarker.Size;
-        VSourceRect := Rect(0, 0, Trunc((VBitmap.Width / ASize) * VSourceSize.X), Trunc((VBitmap.Height / ASize) * VSourceSize.Y));
-        VBitmap.Clear(clWhite32);
-        VResampler := TKernelResampler.Create;
-        try
-          TKernelResampler(VResampler).Kernel := TLinearKernel.Create;
-          StretchTransfer(
-            VBitmap,
-            VBitmap.BoundsRect,
-            VMarker,
-            VSourceRect,
-            VResampler,
-            dmBlend,
-            cmBlend
-          );
-        finally
-          VResampler.Free;
-        end;
-        VBitmap.DrawTo(canvas.Handle, bound, VBitmap.BoundsRect);
+        StretchTransfer(
+          VBitmap,
+          VDstRect,
+          VMarker,
+          VSourceRect,
+          VResampler,
+          dmBlend,
+          cmBlend
+        );
       finally
-        VBitmap.Free;
+        VResampler.Free;
       end;
+      VBitmap.DrawTo(ACanvas.Handle, bound, VBitmap.BoundsRect);
+    finally
+      VBitmap.Free;
     end;
+  end else begin
+    ACanvas.FillRect(bound);
   end;
 end;
 
