@@ -342,7 +342,7 @@ uses
   u_InternalDomainInfoProviderByDataProvider,
   u_InternalDomainInfoProviderByMarksSystem,
   u_InternalDomainInfoProviderByMapData,
-  u_GPSState,
+  u_GpsSystem,
   u_LastSelectionInfoSaver,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,

@@ -270,7 +270,7 @@ uses
   u_GlobalCahceConfig in 'u_GlobalCahceConfig.pas',
   u_GlobalState in 'u_GlobalState.pas',
   u_GlobalInternetState in 'u_GlobalInternetState.pas',
-  u_GPSState in 'u_GPSState.pas',
+  u_GpsSystem in 'u_GpsSystem.pas',
   i_TextByVectorItem in 'i_TextByVectorItem.pas',
   u_TextByVectorItemHTMLByDescription in 'u_TextByVectorItemHTMLByDescription.pas',
   u_TextByVectorItemMarkInfo in 'u_TextByVectorItemMarkInfo.pas',

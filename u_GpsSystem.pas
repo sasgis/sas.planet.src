@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GPSState;
+unit u_GpsSystem;
 
 interface
 

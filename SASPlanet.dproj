@@ -800,7 +800,7 @@
     <DCCReference Include="u_GPSRecorder.pas" />
     <DCCReference Include="u_GPSSatelliteInfo.pas" />
     <DCCReference Include="u_GPSSatellitesInView.pas" />
-    <DCCReference Include="u_GPSState.pas" />
+    <DCCReference Include="u_GpsSystem.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
