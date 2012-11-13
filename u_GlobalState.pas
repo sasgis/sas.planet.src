@@ -93,7 +93,6 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   u_IeEmbeddedProtocolRegistration,
-  u_GPSState,
   u_GlobalCahceConfig;
 
 type
@@ -343,6 +342,7 @@ uses
   u_InternalDomainInfoProviderByDataProvider,
   u_InternalDomainInfoProviderByMarksSystem,
   u_InternalDomainInfoProviderByMapData,
+  u_GPSState,
   u_LastSelectionInfoSaver,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
