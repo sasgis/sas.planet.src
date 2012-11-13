@@ -307,6 +307,7 @@ begin
   frGPSConfig :=
     TfrGPSConfig.Create(
       ALanguageManager,
+      GState.GpsSystem,
       GState.SensorList,
       GState.GUISyncronizedTimerNotifier,
       GState.SkyMapDraw,

@@ -11,8 +11,10 @@ uses
   StdCtrls,
   Spin,
   ExtCtrls,
+  i_Listener,
   i_Notifier,
   i_LanguageManager,
+  i_GPSModule,
   i_GPSConfig,
   i_MapLayerGPSTrackConfig,
   i_MainFormBehaviourByGPSConfig,
@@ -59,16 +61,23 @@ type
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure btnGPSSwitchClick(Sender: TObject);
   private
+    FGpsSystem: IGPSModule;
     FGPSConfig: IGPSConfig;
     FGPSTrackConfig: IMapLayerGPSTrackConfig;
     FGPSBehaviour: IMainFormBehaviourByGPSConfig;
+
     FAutodetecting: Boolean;
     frGpsSatellites: TfrGpsSatellites;
+    FConnectListener: IListener;
+    FDisconnectListener: IListener;
+    procedure OnConnecting;
+    procedure OnDisconnect;
     function AutodetectCOMFlags: DWORD;
     procedure AutodetectAntiFreeze(Sender: TObject; AThread: TObject);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AGpsSystem: IGPSModule;
       const ASensorList: ISensorList;
       const AGUISyncronizedTimerNotifier: INotifier;
       const ASkyMapDraw: ISatellitesInViewMapDraw;
@@ -94,12 +103,14 @@ uses
   vsagps_com_checker,
 {$ifend}
   c_SensorsGUIDSimple,
-  i_Sensor;
+  i_Sensor,
+  u_ListenerByEvent;
 
 {$R *.dfm}
 
 constructor TfrGPSConfig.Create(
   const ALanguageManager: ILanguageManager;
+  const AGpsSystem: IGPSModule;
   const ASensorList: ISensorList;
   const AGUISyncronizedTimerNotifier: INotifier;
   const ASkyMapDraw: ISatellitesInViewMapDraw;
@@ -112,13 +123,22 @@ var
   VSensor: ISensor;
   VSensorSatellites: ISensorGPSSatellites;
 begin
+  Assert(AGpsSystem <> nil);
   Assert(ASensorList <> nil);
+  Assert(AGUISyncronizedTimerNotifier <> nil);
+  Assert(ASkyMapDraw <> nil);
+  Assert(AGPSBehaviour <> nil);
+  Assert(AGPSTrackConfig <> nil);
   Assert(AGPSConfig <> nil);
   inherited Create(ALanguageManager);
+  FGpsSystem := AGpsSystem;
   FGPSConfig := AGPSConfig;
   FGPSTrackConfig := AGPSTrackConfig;
   FGPSBehaviour := AGPSBehaviour;
+
   FAutodetecting:=FALSE;
+  FConnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, Self.OnConnecting);
+  FDisconnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, Self.OnDisconnect);
 
   VSensorListEntity := ASensorList.Get(CSensorGPSSatellitesGUID);
   if VSensorListEntity <> nil then begin
@@ -134,10 +154,18 @@ begin
         );
     end;
   end;
+
+  FGpsSystem.ConnectingNotifier.Add(FConnectListener);
+  FGpsSystem.DisconnectedNotifier.Add(FDisconnectListener);
 end;
 
 destructor TfrGPSConfig.Destroy;
 begin
+  if FGpsSystem <> nil then begin
+    FGpsSystem.ConnectingNotifier.Remove(FConnectListener);
+    FGpsSystem.DisconnectedNotifier.Remove(FDisconnectListener);
+  end;
+  FGpsSystem := nil;
   FreeAndNil(frGpsSatellites);
   inherited;
 end;
@@ -222,6 +250,20 @@ begin
   CB_GPSAutodetectCOMBluetooth.Checked:=VOptions.CheckBthModem;
   CB_GPSAutodetectCOMUSBSer.Checked:=VOptions.CheckUSBSer;
   CB_GPSAutodetectCOMOthers.Checked:=VOptions.CheckOthers;
+end;
+
+procedure TfrGPSConfig.OnConnecting;
+begin
+  CB_GPSlogPLT.Enabled := False;
+  CB_GPSlogNmea.Enabled := False;
+  CB_GPSlogGPX.Enabled := False;
+end;
+
+procedure TfrGPSConfig.OnDisconnect;
+begin
+  CB_GPSlogPLT.Enabled := True;
+  CB_GPSlogNmea.Enabled := True;
+  CB_GPSlogGPX.Enabled := True;
 end;
 
 procedure TfrGPSConfig.AutodetectAntiFreeze(Sender, AThread: TObject);
