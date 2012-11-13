@@ -47,6 +47,7 @@ uses
   u_ShortcutManager,
   fr_GpsSatellites,
   fr_MapsList,
+  fr_GPSConfig,
   fr_ShortCutList;
 
 type
@@ -80,18 +81,12 @@ type
     TrBarContrast: TTrackBar;
     LabelContrast: TLabel;
     tsGPS: TTabSheet;
-    ComboBoxCOM: TComboBox;
-    Label4: TLabel;
-    Label6: TLabel;
-    SpinEdit1: TSpinEdit;
-    SE_ConnectionTimeout: TSpinEdit;
     lblResizeMethod: TLabel;
     cbbResizeMethod: TComboBox;
     MiniMapAlphaEdit: TSpinEdit;
     lblMiniMapAlfa: TLabel;
     TilesOverScreenEdit: TSpinEdit;
     Label69: TLabel;
-    CB_GPSlogPLT: TCheckBox;
     tsWiki: TTabSheet;
     CBWMainColor: TColorBox;
     lblWikiMainColor: TLabel;
@@ -101,7 +96,6 @@ type
     Label84: TLabel;
     CBShowmapname: TCheckBox;
     CBinvertcolor: TCheckBox;
-    Label11: TLabel;
     GroupBox4: TGroupBox;
     CBProxyused: TCheckBox;
     EditPass: TEdit;
@@ -128,10 +122,6 @@ type
     GMTilesPath: TEdit;
     Button13: TButton;
     Button14: TButton;
-    Label20: TLabel;
-    SESizeTrack: TSpinEdit;
-    ComboBoxBoudRate: TComboBox;
-    Label65: TLabel;
     CBSaveTileNotExists: TCheckBox;
     CBBorderText: TCheckBox;
     CBGenshtabBorderText: TCheckBox;
@@ -154,7 +144,6 @@ type
     edtBDBCachePath: TEdit;
     btnSetDefBDBCachePath: TButton;
     btnSetBDBCachePath: TButton;
-    CBSensorsBarAutoShow: TCheckBox;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
     tsGSM: TTabSheet;
@@ -169,9 +158,6 @@ type
     SEWaitingAnswer: TSpinEdit;
     Label37: TLabel;
     CBCacheType: TComboBox;
-    Label5: TLabel;
-    SE_NumTrackPoints: TSpinEdit;
-    CB_GPSlogNmea: TCheckBox;
     pnlBottomButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
     grdpnlCache: TGridPanel;
@@ -203,29 +189,11 @@ type
     flwpnlFillMap: TFlowPanel;
     pnlBgColor: TPanel;
     grdpnlUI: TGridPanel;
-    pnlGPSLeft: TPanel;
-    flwpnlGpsPort: TFlowPanel;
-    flwpnlGpsParams: TFlowPanel;
-    GB_GpsTrackSave: TGroupBox;
-    pnlGpsSensors: TPanel;
-    pnlGpsRight: TPanel;
     grdpnlWiki: TGridPanel;
     chkPosFromGSM: TCheckBox;
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
-    GroupBox3: TGroupBox;
     CBMinimizeToTray: TCheckBox;
-    btnGPSAutodetectCOM: TButton;
-    lbGPSDelimiter1: TLabel;
-    btnGPSSwitch: TButton;
-    CB_GPSAutodetectCOMOnConnect: TCheckBox;
-    CB_GPSAutodetectCOMSerial: TCheckBox;
-    CB_GPSAutodetectCOMVirtual: TCheckBox;
-    CB_GPSAutodetectCOMBluetooth: TCheckBox;
-    CB_GPSAutodetectCOMUSBSer: TCheckBox;
-    CB_GPSAutodetectCOMOthers: TCheckBox;
-    CB_USBGarmin: TCheckBox;
-    CB_GPSlogGPX: TCheckBox;
     lbGCCachePath: TLabel;
     edtGCCachePath: TEdit;
     btnSetDefGCCachePath: TButton;
@@ -276,26 +244,19 @@ type
     procedure CBLoginClick(Sender: TObject);
     procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
-    procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure btnGPSSwitchClick(Sender: TObject);
     procedure btnImageProcessResetClick(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
     frShortCutList: TfrShortCutList;
     frMapsList: TfrMapsList;
-    frGpsSatellites: TfrGpsSatellites;
+    frGPSConfig: TfrGPSConfig;
     FMapTypeEditor: IMapTypeConfigModalEdit;
-    FAutodetecting: Boolean;
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
     );
-    procedure SaveGPSConfig;
-    procedure LoadGPSConfig;
-    procedure AutodetectAntiFreeze(Sender: TObject; AThread: TObject);
-    function AutodetectCOMFlags: DWORD;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -338,13 +299,8 @@ constructor TfrmSettings.Create(
   const AMapTypeEditor: IMapTypeConfigModalEdit;
   AOnSave: TNotifyEvent
 );
-var
-  VSensorListEntity: ISensorListEntity;
-  VSensor: ISensor;
-  VSensorSatellites: ISensorGPSSatellites;
 begin
   inherited Create(ALanguageManager);
-  FAutodetecting:=FALSE;
   FMapTypeEditor := AMapTypeEditor;
   FOnSave := AOnSave;
   FLinksList := TListenerNotifierLinksList.Create;
@@ -361,20 +317,16 @@ begin
       GState.MapType.GUIConfigList,
       AMapTypeEditor
     );
-  VSensorListEntity := GState.SensorList.Get(CSensorGPSSatellitesGUID);
-  if VSensorListEntity <> nil then begin
-    VSensor := VSensorListEntity.Sensor;
-    if Supports(VSensor, ISensorGPSSatellites, VSensorSatellites) then begin
-      frGpsSatellites :=
-        TfrGpsSatellites.Create(
-          ALanguageManager,
-          GState.GUISyncronizedTimerNotifier,
-          VSensorSatellites,
-          GState.SkyMapDraw,
-          True
-        );
-    end;
-  end;
+  frGPSConfig :=
+    TfrGPSConfig.Create(
+      ALanguageManager,
+      GState.SensorList,
+      GState.GUISyncronizedTimerNotifier,
+      GState.SkyMapDraw,
+      GState.MainFormConfig.GPSBehaviour,
+      GState.MainFormConfig.LayersConfig.GPSTrackConfig,
+      GState.GPSConfig
+    );
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -382,66 +334,8 @@ procedure TfrmSettings.btnCancelClick(Sender: TObject);
 begin
   frShortCutList.CancelChanges;
   frMapsList.CancelChanges;
+  frGPSConfig.CancelChanges;
   Close
-end;
-
-procedure TfrmSettings.btnGPSAutodetectCOMClick(Sender: TObject);
-var
-  VObj: TCOMCheckerObject;
-  VCancelled: Boolean;
-  VFlags: DWORD;
-  VPortName: String;
-  VPortNumber: SmallInt;
-  VPortIndex: Integer;
-begin
-  if FAutodetecting then
-    Exit;
-  FAutodetecting:=TRUE;
-  VObj:=nil;
-  try
-    // temp. disable controls
-    btnGPSAutodetectCOM.Enabled:=FALSE;
-    ComboBoxCOM.Enabled:=FALSE;
-    btnGPSSwitch.Enabled:=FALSE;
-    // make objects to enum
-    VObj:=TCOMCheckerObject.Create;
-    // flags (what to enum)
-    VFlags:=AutodetectCOMFlags;
-    // set timeouts as for real connection
-    VObj.SetFullConnectionTimeout(SE_ConnectionTimeout.Value, TRUE);
-    // set antifreeze handlers
-    VObj.OnThreadFinished:=Self.AutodetectAntiFreeze;
-    VObj.OnThreadPending:=Self.AutodetectAntiFreeze;
-    // execute
-    VPortNumber:=VObj.EnumExecute(nil, VCancelled, VFlags, FALSE);
-    if (VPortNumber>=0) then begin
-      // port found
-      // add new ports to combobox - not implemented yet
-      // set first port
-      VPortName:='COM'+IntToStr(VPortNumber);
-      VPortIndex:=ComboBoxCOM.Items.IndexOf(VPortName);
-      if (VPortIndex<>ComboBoxCOM.ItemIndex) then begin
-        // select new item
-        ComboBoxCOM.ItemIndex:=VPortIndex;
-        if Assigned(ComboBoxCOM.OnChange) then
-          ComboBoxCOM.OnChange(ComboBoxCOM);
-      end;
-    end;
-  finally
-    VObj.Free;
-    btnGPSAutodetectCOM.Enabled:=TRUE;
-    ComboBoxCOM.Enabled:=TRUE;
-    btnGPSSwitch.Enabled:=TRUE;
-    FAutodetecting:=FALSE;
-  end;
-end;
-
-procedure TfrmSettings.btnGPSSwitchClick(Sender: TObject);
-begin
-  // save config
-  SaveGPSConfig;
-  // change state
-  GState.GPSConfig.GPSEnabled := (not GState.GPSConfig.GPSEnabled);
 end;
 
 procedure TfrmSettings.btnImageProcessResetClick(Sender: TObject);
@@ -495,22 +389,6 @@ procedure TfrmSettings.ShowGPSSettings;
 begin
   tsGPS.Show;
   ShowModal;
-end;
-
-procedure TfrmSettings.AutodetectAntiFreeze(Sender, AThread: TObject);
-begin
-  Application.ProcessMessages;
-end;
-
-function TfrmSettings.AutodetectCOMFlags: DWORD;
-var VOptions: TCOMAutodetectOptions;
-begin
-  VOptions.CheckSerial:=CB_GPSAutodetectCOMSerial.Checked;
-  VOptions.CheckVirtual:=CB_GPSAutodetectCOMVirtual.Checked;
-  VOptions.CheckBthModem:=CB_GPSAutodetectCOMBluetooth.Checked;
-  VOptions.CheckUSBSer:=CB_GPSAutodetectCOMUSBSer.Checked;
-  VOptions.CheckOthers:=CB_GPSAutodetectCOMOthers.Checked;
-  EncodeCOMDeviceFlags(@VOptions, Result);
 end;
 
 procedure TfrmSettings.btnApplyClick(Sender: TObject);
@@ -608,19 +486,8 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
   end;
-  GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockWrite;
-  try
-    GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth := SESizeTrack.Value;
-    GState.MainFormConfig.LayersConfig.GPSTrackConfig.LastPointCount := SE_NumTrackPoints.Value;
-  finally
-    GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockWrite;
-  end;
-
-  // save gps config
-  SaveGPSConfig;
 
   GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
-  GState.MainFormConfig.GPSBehaviour.SensorsAutoShow := CBSensorsBarAutoShow.Checked;
   VInetConfig :=GState.InetConfig;
   VInetConfig.LockWrite;
   try
@@ -691,6 +558,7 @@ begin
 
  frShortCutList.ApplyChanges;
  frMapsList.ApplyChanges;
+ frGPSConfig.ApplyChanges;
   if Assigned(FOnSave) then begin
     FOnSave(nil);
   end;
@@ -778,7 +646,7 @@ destructor TfrmSettings.Destroy;
 begin
   FreeAndNil(frShortCutList);
   FreeAndNil(frMapsList);
-  FreeAndNil(frGpsSatellites);
+  FreeAndNil(frGPSConfig);
   inherited;
 end;
 
@@ -791,10 +659,11 @@ begin
   FLinksList.ActivateLinks;
 
   CBoxLocal.Clear;
-  frGpsSatellites.Parent := GroupBox3;
   frShortCutList.Parent := GroupBox5;
   frMapsList.Parent := tsMaps;
   frMapsList.Init;
+  frGPSConfig.Parent := tsGPS;
+  frGPSConfig.Init;
 
   CBoxLocal.Items.Clear;
   for i := 0 to GState.LanguageManager.LanguageList.Count - 1 do begin
@@ -802,7 +671,7 @@ begin
   end;
   CBoxLocal.ItemIndex := GState.LanguageManager.GetCurrentLanguageIndex;
 
- MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
+  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
   GState.DownloadConfig.LockRead;
   try
@@ -907,9 +776,6 @@ begin
  edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
  edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
 
-  // load gps config
-  LoadGPSConfig;
-
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
   try
     ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
@@ -919,15 +785,6 @@ begin
   finally
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
   end;
-
-  GState.MainFormConfig.LayersConfig.GPSTrackConfig.LockRead;
-  try
-    SESizeTrack.Value := Trunc(GState.MainFormConfig.LayersConfig.GPSTrackConfig.LineWidth);
-    SE_NumTrackPoints.Value := GState.MainFormConfig.LayersConfig.GPSTrackConfig.LastPointCount;
-  finally
-    GState.MainFormConfig.LayersConfig.GPSTrackConfig.UnlockRead;
-  end;
-  CBSensorsBarAutoShow.Checked := GState.MainFormConfig.GPSBehaviour.SensorsAutoShow;
 
   InitResamplersList(GState.ImageResamplerConfig.GetList, cbbResizeMethod);
   cbbResizeMethod.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
@@ -973,16 +830,14 @@ end;
 
 procedure TfrmSettings.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  CanClose:=(not FAutodetecting);
+  CanClose := frGPSConfig.CanClose;
 end;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
 var i:integer;
 begin
-  ComboBoxCOM.Items.Clear;
   for i:=1 to 64 do begin
     CBGSMComPort.Items.Add('COM'+inttostr(i));
-    ComboBoxCOM.Items.Add('COM'+inttostr(i));
   end;
 end;
 
@@ -995,25 +850,6 @@ end;
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarContrast.Position)+')';
-end;
-
-procedure TfrmSettings.SaveGPSConfig;
-begin
-  GState.GPSConfig.LockWrite;
-  try
-    GState.GPSConfig.ModuleConfig.ConnectionTimeout:=SE_ConnectionTimeout.Value;
-    GState.GPSConfig.ModuleConfig.NMEALog:=CB_GPSlogNmea.Checked;
-    GState.GPSConfig.ModuleConfig.Delay:=SpinEdit1.Value;
-    GState.GPSConfig.ModuleConfig.Port := GetCOMPortNumber(AnsiString(ComboBoxCOM.Text));
-    GState.GPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
-    GState.GPSConfig.WriteLog[ttPLT]:=CB_GPSlogPLT.Checked;
-    GState.GPSConfig.WriteLog[ttGPX]:=CB_GPSlogGPX.Checked;
-    GState.GPSConfig.ModuleConfig.USBGarmin:=CB_USBGarmin.Checked;
-    GState.GPSConfig.ModuleConfig.AutodetectCOMOnConnect:=CB_GPSAutodetectCOMOnConnect.Checked;
-    GState.GPSConfig.ModuleConfig.AutodetectCOMFlags:=Self.AutodetectCOMFlags;
-  finally
-    GState.GPSConfig.UnlockWrite;
-  end;
 end;
 
 procedure TfrmSettings.RefreshTranslation;
@@ -1033,34 +869,6 @@ begin
   for i := 0 to AList.Count - 1 do begin
     ABox.Items.Add(AList.Captions[i]);
   end;
-end;
-
-procedure TfrmSettings.LoadGPSConfig;
-var
-  VFlags: DWORD;
-  VOptions: TCOMAutodetectOptions;
-begin
-  GState.GPSConfig.LockRead;
-  try
-    SE_ConnectionTimeout.Value:=GState.GPSConfig.ModuleConfig.ConnectionTimeout;
-    CB_GPSlogNmea.Checked:=GState.GPSConfig.ModuleConfig.NMEALog;
-    SpinEdit1.Value:=GState.GPSConfig.ModuleConfig.Delay;
-    ComboBoxCOM.Text:= 'COM' + IntToStr(GState.GPSConfig.ModuleConfig.Port);
-    ComboBoxBoudRate.Text:=inttostr(GState.GPSConfig.ModuleConfig.BaudRate);
-    CB_GPSlogPLT.Checked:=GState.GPSConfig.WriteLog[ttPLT];
-    CB_GPSlogGPX.Checked:=GState.GPSConfig.WriteLog[ttGPX];
-    CB_USBGarmin.Checked:=GState.GPSConfig.ModuleConfig.USBGarmin;
-    CB_GPSAutodetectCOMOnConnect.Checked:=GState.GPSConfig.ModuleConfig.AutodetectCOMOnConnect;
-    VFlags:=GState.GPSConfig.ModuleConfig.AutodetectCOMFlags;
-  finally
-    GState.GPSConfig.UnlockRead;
-  end;
-  DecodeCOMDeviceFlags(VFlags, @VOptions);
-  CB_GPSAutodetectCOMSerial.Checked:=VOptions.CheckSerial;
-  CB_GPSAutodetectCOMVirtual.Checked:=VOptions.CheckVirtual;
-  CB_GPSAutodetectCOMBluetooth.Checked:=VOptions.CheckBthModem;
-  CB_GPSAutodetectCOMUSBSer.Checked:=VOptions.CheckUSBSer;
-  CB_GPSAutodetectCOMOthers.Checked:=VOptions.CheckOthers;
 end;
 
 end.
