@@ -41,6 +41,7 @@ type
     btnOk: TButton;
     btnCancel: TButton;
     pnlMarksGeneralOptions: TPanel;
+    pnlBottom: TPanel;
     procedure btnOkClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -85,6 +86,7 @@ function TfrmImportConfigEdit.GetImportConfig: IImportConfig;
 begin
   frMarksGeneralOptions.Init(nil);
   try
+    Self.PopupParent := Application.MainForm;
     if ShowModal = mrOk then begin
       Result := frMarksGeneralOptions.GetImportConfig;
     end else begin

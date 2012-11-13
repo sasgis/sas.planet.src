@@ -68,12 +68,21 @@ type
     ColorDialog1: TColorDialog;
     pnlCategory: TPanel;
     pnlImage: TPanel;
+    sePointShadowAlfa: TSpinEdit;
+    lblPointShadowAlfa: TLabel;
+    flwpnlPointText: TFlowPanel;
+    pnlPointParams: TPanel;
+    flwpnlPointShadowParams: TFlowPanel;
+    flwpnlPath: TFlowPanel;
+    flwpnlPlygonLine: TFlowPanel;
+    flwpnlPolygonFill: TFlowPanel;
     procedure btnPointTextColorClick(Sender: TObject);
     procedure btnPointShadowColorClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
     procedure btnPolyLineColorClick(Sender: TObject);
     procedure btnPolyFillColorClick(Sender: TObject);
     procedure imgIconMouseDown(Sender: TObject);
+    procedure pnlImageResize(Sender: TObject);
   private
     frMarkCategory: TfrMarkCategorySelectOrAdd;
     frSelectPicture: TfrPictureSelectFromList;
@@ -162,6 +171,7 @@ begin
   clrbxPointTextColor.Selected := WinColor(VPointTemplate.TextColor);
   clrbxPointShadowColor.Selected := WinColor(VPointTemplate.TextBgColor);
   sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.TextColor)/255*100);
+  sePointShadowAlfa.Value := 100-round(AlphaComponent(VPointTemplate.TextBgColor)/255*100);
   sePointFontSize.Value := VPointTemplate.FontSize;
   sePointIconSize.Value := VPointTemplate.MarkerSize;
 
@@ -212,7 +222,7 @@ begin
         frSelectPicture.Picture,
         VCategory,
         SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
-        SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointShadowAlfa.Value)/100)*256)),
         sePointFontSize.Value,
         sePointIconSize.Value
       );
@@ -287,6 +297,11 @@ begin
     frSelectPicture.Visible := True;
     frSelectPicture.SetFocus;
   end;
+end;
+
+procedure TfrMarksGeneralOptions.pnlImageResize(Sender: TObject);
+begin
+  pnlImage.Width := pnlImage.Height;
 end;
 
 end.
