@@ -1135,32 +1135,32 @@ begin
       );
     FLinksList.Add(
       VGPSReceiverStateChangeListener,
-      GState.GPSpar.ConnectingNotifier
+      GState.GpsSystem.ConnectingNotifier
     );
     FLinksList.Add(
       VGPSReceiverStateChangeListener,
-      GState.GPSpar.DisconnectedNotifier
+      GState.GpsSystem.DisconnectedNotifier
     );
 
     FLinksList.Add(
       TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, Self.GPSReceiverConnect),
-      GState.GPSpar.ConnectedNotifier
+      GState.GpsSystem.ConnectedNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, Self.GPSReceiverDisconnect),
-      GState.GPSpar.DisconnectedNotifier
+      GState.GpsSystem.DisconnectedNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, Self.GPSReceiverConnectError),
-      GState.GPSpar.ConnectErrorNotifier
+      GState.GpsSystem.ConnectErrorNotifier
     );
     FLinksList.Add(
       TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, Self.GPSReceiverTimeout),
-      GState.GPSpar.TimeOutNotifier
+      GState.GpsSystem.TimeOutNotifier
     );
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.GPSReceiverReceive),
-      GState.GPSpar.DataReciveNotifier
+      GState.GpsSystem.DataReciveNotifier
     );
 
     VMainFormMainConfigChangeListener := TNotifyEventListenerSync.Create(GState.GUISyncronizedTimerNotifier, Self.OnMainFormMainConfigChange);

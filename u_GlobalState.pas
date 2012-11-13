@@ -49,6 +49,7 @@ uses
   i_BatteryStatus,
   i_LocalCoordConverterFactorySimpe,
   i_ProxySettings,
+  i_GPSModule,
   i_GSMGeoCodeConfig,
   i_MainFormConfig,
   i_WindowPositionConfig,
@@ -151,7 +152,7 @@ type
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
-    FGPSpar: TGPSpar;
+    FGpsSystem: IGPSModule;
     FImportFileByExt: IImportFile;
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
@@ -193,7 +194,7 @@ type
     property CacheConfig: TGlobalCahceConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
     property MarksDb: IMarksSystem read FMarksDb;
-    property GPSpar: TGPSpar read FGPSpar;
+    property GpsSystem: IGPSModule read FGpsSystem;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -532,8 +533,10 @@ begin
   FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  FGPSpar :=
-    TGPSpar.Create(
+  FGpsSystem :=
+    TGpsSystem.Create(
+      FAppStartedNotifier,
+      FAppClosingNotifier,
       TGPSModuleFactoryByVSAGPS.Create(FGPSPositionFactory),
       FGPSConfig,
       FGPSRecorder,
@@ -642,7 +645,6 @@ begin
   FLastSelectionInfo := nil;
   FGPSConfig := nil;
   FGPSRecorder := nil;
-  FreeAndNil(FGPSpar);
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FGSMpar := nil;
@@ -782,7 +784,6 @@ begin
   if FGlobalAppConfig.IsSendStatistic then begin
     FInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
   end;
-  GPSpar.StartThreads;
   FLastSelectionSaver.Start;
   FGUISyncronizedTimer.Enabled := True;
 end;
@@ -931,7 +932,6 @@ procedure TGlobalState.SendTerminateToThreads;
 begin
   FGUISyncronizedTimer.Enabled := False;
   FAppClosingNotifierInternal.ExecuteOperation;
-  GPSpar.SendTerminateToThreads;
   FGCThread.Terminate;
 end;
 

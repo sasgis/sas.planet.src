@@ -25,11 +25,15 @@ interface
 uses
   Windows,
   SysUtils,
+  i_Listener,
   i_Notifier,
+  i_NotifierOperation,
   i_ListenerNotifierLinksList,
   i_GPSRecorder,
   i_GPSConfig,
   i_InternalPerformanceCounter,
+  i_GPS,
+  i_GPSModule,
   i_GPSModuleByCOMFactory,
   i_GPSModuleByCOM;
 
@@ -39,14 +43,18 @@ type
   TInternalState = (isDisconnected, isConnecting, isConnected, isDisconnecting, isTimeOut, isConnectError);
 
 type
-  TGPSpar = class
+  TGpsSystem = class(TInterfacedObject, IGPSModule)
   private
+    FAppStartedNotifier: INotifierOneOperation;
+    FAppClosingNotifier: INotifierOneOperation;
     FConfig: IGPSConfig;
     FGPSRecorder: IGPSRecorder;
     FGPSModuleFactory: IGPSModuleByCOMFactory;
     FGPSModuleByCOM: IGPSModuleByCOM;
 
     FCS: IReadWriteSync;
+    FAppStartedListener: IListener;
+    FAppClosingListener: IListener;
     FLinksList: IListenerNotifierLinksList;
     FDataReciveNotifier: INotifierInternal;
     FConnectingNotifier: INotifierInternal;
@@ -64,6 +72,12 @@ type
     FLastDataReceiveTick: Cardinal;
     FDataReceiveCounter: IInternalPerformanceCounter;
 
+    procedure StartThreads;
+    procedure SendTerminateToThreads;
+
+    procedure OnAppStarted;
+    procedure OnAppClosing;
+
     procedure OnTimer;
     procedure OnGpsConnecting;
     procedure OnGpsConnected;
@@ -75,15 +89,21 @@ type
     procedure OnConfigChange;
 
     procedure CreateModuleAndLinks;
-    function GetConnectedNotifier: INotifier;
-    function GetConnectErrorNotifier: INotifier;
-    function GetConnectingNotifier: INotifier;
-    function GetDataReciveNotifier: INotifier;
-    function GetDisconnectedNotifier: INotifier;
-    function GetDisconnectingNotifier: INotifier;
-    function GetTimeOutNotifier: INotifier;
+  private
+    function GetPosition: IGPSPosition; safecall;
+    function GetConnectedNotifier: INotifier; safecall;
+    function GetConnectErrorNotifier: INotifier; safecall;
+    function GetConnectingNotifier: INotifier; safecall;
+    function GetDataReciveNotifier: INotifier; safecall;
+    function GetDisconnectedNotifier: INotifier; safecall;
+    function GetDisconnectingNotifier: INotifier; safecall;
+    function GetTimeOutNotifier: INotifier; safecall;
+  public
+    procedure AfterConstruction; override;
   public
     constructor Create(
+      const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AGPSModuleFactory: IGPSModuleByCOMFactory;
       const AConfig: IGPSConfig;
       const AGPSRecorder: IGPSRecorder;
@@ -91,28 +111,32 @@ type
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
-    procedure StartThreads;
-    procedure SendTerminateToThreads;
-
-    property ConnectingNotifier: INotifier read GetConnectingNotifier;
-    property ConnectedNotifier: INotifier read GetConnectedNotifier;
-    property DisconnectingNotifier: INotifier read GetDisconnectingNotifier;
-    property DisconnectedNotifier: INotifier read GetDisconnectedNotifier;
-    property TimeOutNotifier: INotifier read GetTimeOutNotifier;
-    property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
-    property DataReciveNotifier: INotifier read GetDataReciveNotifier;
   end;
 
 implementation
 
 uses
-  i_GPS,
   u_Notifier,
   u_ListenerNotifierLinksList,
   u_Synchronizer,
   u_ListenerByEvent;
 
-constructor TGPSpar.Create(
+procedure TGpsSystem.AfterConstruction;
+begin
+  inherited;
+  FAppStartedNotifier.Add(FAppStartedListener);
+  if FAppStartedNotifier.IsExecuted then begin
+    StartThreads;
+  end;
+  FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    SendTerminateToThreads;
+  end;
+end;
+
+constructor TGpsSystem.Create(
+  const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AGPSModuleFactory: IGPSModuleByCOMFactory;
   const AConfig: IGPSConfig;
   const AGPSRecorder: IGPSRecorder;
@@ -121,11 +145,15 @@ constructor TGPSpar.Create(
 );
 begin
   inherited Create;
+  FAppStartedNotifier := AAppStartedNotifier;
+  FAppClosingNotifier := AAppClosingNotifier;
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
   FGPSModuleFactory := AGPSModuleFactory;
 
   FDataReceiveCounter := APerfCounterList.CreateAndAddNewCounter('GPS_Process');
+  FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FLinksList := TListenerNotifierLinksList.Create;
   FCS := MakeSyncRW_Var(Self, False);
   FModuleState := msDisconnected;
@@ -156,8 +184,16 @@ begin
   CreateModuleAndLinks;
 end;
 
-destructor TGPSpar.Destroy;
+destructor TGpsSystem.Destroy;
 begin
+  if FAppStartedNotifier <> nil then begin
+    FAppStartedNotifier.Remove(FAppStartedListener);
+    FAppStartedNotifier := nil;
+  end;
+  if FAppClosingNotifier <> nil then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingNotifier := nil;
+  end;
   FLinksList := nil;
   FGPSRecorder := nil;
   FGPSModuleByCOM := nil;
@@ -165,42 +201,47 @@ begin
   inherited;
 end;
 
-function TGPSpar.GetConnectedNotifier: INotifier;
+function TGpsSystem.GetConnectedNotifier: INotifier;
 begin
   Result := FConnectedNotifier;
 end;
 
-function TGPSpar.GetConnectErrorNotifier: INotifier;
+function TGpsSystem.GetConnectErrorNotifier: INotifier;
 begin
   Result := FConnectErrorNotifier;
 end;
 
-function TGPSpar.GetConnectingNotifier: INotifier;
+function TGpsSystem.GetConnectingNotifier: INotifier;
 begin
   Result := FConnectingNotifier;
 end;
 
-function TGPSpar.GetDataReciveNotifier: INotifier;
+function TGpsSystem.GetDataReciveNotifier: INotifier;
 begin
   Result := FDataReciveNotifier;
 end;
 
-function TGPSpar.GetDisconnectedNotifier: INotifier;
+function TGpsSystem.GetDisconnectedNotifier: INotifier;
 begin
   Result := FDisconnectedNotifier;
 end;
 
-function TGPSpar.GetDisconnectingNotifier: INotifier;
+function TGpsSystem.GetDisconnectingNotifier: INotifier;
 begin
   Result := FDisconnectingNotifier;
 end;
 
-function TGPSpar.GetTimeOutNotifier: INotifier;
+function TGpsSystem.GetPosition: IGPSPosition;
+begin
+  Result := FGPSRecorder.CurrentPosition;
+end;
+
+function TGpsSystem.GetTimeOutNotifier: INotifier;
 begin
   Result := FTimeOutNotifier;
 end;
 
-procedure TGPSpar.CreateModuleAndLinks;
+procedure TGpsSystem.CreateModuleAndLinks;
 begin
   if FGPSModuleFactory <> nil then begin
     FGPSModuleByCOM := FGPSModuleFactory.CreateGPSModule;
@@ -236,7 +277,17 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnConfigChange;
+procedure TGpsSystem.OnAppClosing;
+begin
+  SendTerminateToThreads;
+end;
+
+procedure TGpsSystem.OnAppStarted;
+begin
+  StartThreads;
+end;
+
+procedure TGpsSystem.OnConfigChange;
 begin
   if FGPSModuleByCOM <> nil then begin
     if FConfig.GPSEnabled then begin
@@ -249,7 +300,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsConnected;
+procedure TGpsSystem.OnGpsConnected;
 begin
   FConfig.GPSEnabled := True;
   FGPSRecorder.LockWrite;
@@ -268,7 +319,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsConnectError;
+procedure TGpsSystem.OnGpsConnectError;
 begin
   FCS.BeginWrite;
   try
@@ -278,7 +329,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsConnecting;
+procedure TGpsSystem.OnGpsConnecting;
 begin
   FCS.BeginWrite;
   try
@@ -288,7 +339,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsDataReceive;
+procedure TGpsSystem.OnGpsDataReceive;
 var
   VPosition: IGPSPosition;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -309,7 +360,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsDisconnected;
+procedure TGpsSystem.OnGpsDisconnected;
 begin
   FConfig.GPSEnabled := False;
   FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
@@ -321,7 +372,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsDisconnecting;
+procedure TGpsSystem.OnGpsDisconnecting;
 begin
   FCS.BeginWrite;
   try
@@ -331,7 +382,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnGpsTimeout;
+procedure TGpsSystem.OnGpsTimeout;
 begin
   FCS.BeginWrite;
   try
@@ -341,7 +392,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.OnTimer;
+procedure TGpsSystem.OnTimer;
 var
   VNeedNotify: Boolean;
   VInternalStateNew: TInternalState;
@@ -506,7 +557,7 @@ begin
   until not VNeedNotify;
 end;
 
-procedure TGPSpar.SendTerminateToThreads;
+procedure TGpsSystem.SendTerminateToThreads;
 begin
   FLinksList.DeactivateLinks;
   if FGPSModuleByCOM <> nil then begin
@@ -514,7 +565,7 @@ begin
   end;
 end;
 
-procedure TGPSpar.StartThreads;
+procedure TGpsSystem.StartThreads;
 begin
   FLinksList.ActivateLinks;
   OnConfigChange;
