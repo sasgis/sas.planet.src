@@ -69,12 +69,14 @@ var
   VStorageType: ITileStorageType;
 begin
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, 'cache');
-  VStorageType := TTileStorageTypeFileSystemSimple.Create(
-    CTileStorageTypeFileSystemSAS,
-    'Files SAS.Planet',
-    TTileFileNameSAS.Create,
-    VStorageTypeConfig
-  );
+  VStorageType :=
+    TTileStorageTypeFileSystemSimple.Create(
+      CTileStorageTypeFileSystemSAS,
+      'Files SAS.Planet',
+      TTileFileNameSAS.Create,
+      TTileFileNameSAS.Create,
+      VStorageTypeConfig
+    );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
     VStorageType,
@@ -86,6 +88,7 @@ begin
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
     CTileStorageTypeFileSystemGMV,
     'Files GMV',
+    TTileFileNameGMV.Create,
     TTileFileNameGMV.Create,
     VStorageTypeConfig
   );
@@ -101,6 +104,7 @@ begin
     CTileStorageTypeFileSystemES,
     'Files ES',
     TTileFileNameES.Create,
+    TTileFileNameES.Create,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -115,6 +119,7 @@ begin
     CTileStorageTypeFileSystemGM1,
     'Files GM',
     TTileFileNameGM1.Create,
+    TTileFileNameGM1.Create,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -128,6 +133,7 @@ begin
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
     CTileStorageTypeFileSystemGM2,
     'Files GM aux',
+    TTileFileNameGM2.Create,
     TTileFileNameGM2.Create,
     VStorageTypeConfig
   );
