@@ -371,6 +371,14 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Caption = 'GeoFuse.GeoEye (GeoEye+IKONOS)'
         TabOrder = 17
       end
+      object chkMNCasRecency: TCheckBox
+        Left = 128
+        Top = 60
+        Width = 65
+        Height = 17
+        Caption = 'Recency'
+        TabOrder = 18
+      end
     end
   end
 end

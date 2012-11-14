@@ -96,6 +96,7 @@ type
     LabelDatadoors: TLabel;
     Up: TPanel;
     chkGeoFuse: TCheckBox;
+    chkMNCasRecency: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -519,7 +520,7 @@ begin
     VComp := FindComponent('chkNMC' + IntToStr(Ord(j)));
     if Assigned(VComp) then
     if (VComp is TCheckBox) then begin
-      RunImageThread(TCheckBox(VComp), FNMCs[j]);
+      RunImageThread(TCheckBox(VComp), FNMCs[j, chkMNCasRecency.Checked]);
     end;
   end;
 
@@ -944,7 +945,10 @@ end;
 
 function TfrmDGAvailablePic.IsCommonServiceCheckbox(const ABox: TControl): Boolean;
 begin
-  Result := (ABox <> chkALLServices) and (ABox <> chkLowResolutionToo) and (ABox is TCheckBox);
+  Result := (ABox <> chkALLServices) and
+            (ABox <> chkLowResolutionToo) and
+            (ABox <> chkMNCasRecency) and
+            (ABox is TCheckBox);
 end;
 
 procedure TfrmDGAvailablePic.KillPicsVendors;
@@ -1034,6 +1038,7 @@ procedure TfrmDGAvailablePic.PropagateLocalConverter;
 var
   i,k: Integer;
   j: TAvailPicsNMCZoom;
+  r: Boolean;
   jj: TAvailPicsDataDoorsID;
 begin
   if (nil<>FBing) then
@@ -1042,9 +1047,10 @@ begin
   if (nil<>FDG2) then
     FDG2.SetLocalConverter(FLocalConverter);
 
+  for r := FALSE to TRUE do
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
-    if (FNMCs[j]<>nil) then
-      FNMCs[j].SetLocalConverter(FLocalConverter);
+    if (FNMCs[j,r]<>nil) then
+      FNMCs[j,r].SetLocalConverter(FLocalConverter);
   end;
 
   for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin

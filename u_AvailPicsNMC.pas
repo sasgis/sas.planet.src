@@ -36,6 +36,7 @@ type
   TAvailPicsNMC = class(TAvailPicsByKey)
   private
     FWorkingZoom: Byte;
+    FProfile: String;
   private
     function GetQuadKey: String;
     function ParseExifXml(const AStream: TMemoryStream): Integer;
@@ -53,7 +54,7 @@ type
 
   TAvailPicsNMCZoom = (nmcz15=15, nmcz16=16, nmcz18=18, nmcz20=20);
 
-  TAvailPicsNMCs = array [TAvailPicsNMCZoom] of TAvailPicsNMC;
+  TAvailPicsNMCs = array [TAvailPicsNMCZoom, Boolean] of TAvailPicsNMC;
 
 procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
                                const ATileInfoPtr: PAvailPicsTileInfo);
@@ -380,11 +381,16 @@ procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
 var
   j: TAvailPicsNMCZoom;
 begin
-
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
-    if (nil=ADGs[j]) then begin
-      ADGs[j] := TAvailPicsNMC.Create(ATileInfoPtr);
-      ADGs[j].WorkingZoom := Ord(j);
+    if (nil=ADGs[j,FALSE]) then begin
+      ADGs[j,FALSE] := TAvailPicsNMC.Create(ATileInfoPtr);
+      ADGs[j,FALSE].WorkingZoom := Ord(j);
+      ADGs[j,FALSE].FProfile := 'ColorOnly';
+    end;
+    if (nil=ADGs[j,TRUE]) then begin
+      ADGs[j,TRUE] := TAvailPicsNMC.Create(ATileInfoPtr);
+      ADGs[j,TRUE].WorkingZoom := Ord(j);
+      ADGs[j,TRUE].FProfile := 'Recency';
     end;
   end;
 end;
@@ -786,7 +792,7 @@ end;
 function TAvailPicsNMC.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 begin
  Result := TDownloadRequest.Create(
-           'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile=Recency&syn=1&appid=jsapi&token='+FDefaultKey+'&quadkey='+GetQuadKey,
+           'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile='+FProfile+'&syn=1&appid=jsapi&token='+FDefaultKey+'&quadkey='+GetQuadKey,
            '',
            AInetConfig.GetStatic
            );
