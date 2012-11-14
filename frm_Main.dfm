@@ -3504,6 +3504,11 @@ object frmMain: TfrmMain
         Caption = ''
         Hint = ''
       end
+      object NoaaForecastMeteorology1: TTBXItem
+        OnClick = NoaaForecastMeteorology1Click
+        Caption = 'Current and Forecast Meteorology'
+        Hint = ''
+      end
     end
     object tbpmiVersions: TTBXSubmenuItem
       OnPopup = tbpmiVersionsPopup

@@ -24,6 +24,7 @@ type
     { IInternalBrowser }
     procedure ShowMessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
+    procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -67,6 +68,12 @@ procedure TInternalBrowserByForm.Navigate(const ACaption, AUrl: string);
 begin
   SafeCreateInternal;
   FfrmInternalBrowser.Navigate(ACaption, AUrl);
+end;
+
+procedure TInternalBrowserByForm.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
+begin
+  SafeCreateInternal;
+  FfrmInternalBrowser.NavigatePost(ACaption, AUrl, AReferer, APostData);
 end;
 
 procedure TInternalBrowserByForm.SafeCreateInternal;

@@ -81,11 +81,13 @@ type
 
     procedure showmessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
+    procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
   end;
 
 implementation
 
 uses
+  Variants,
   u_HtmlToHintTextConverterStuped,
   u_ListenerByEvent,
   u_ResStrings;
@@ -186,6 +188,27 @@ begin
   ResetImageView(FALSE);
   show;
   EmbeddedWB1.Navigate(AUrl);
+end;
+
+procedure TfrmIntrnalBrowser.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
+var
+  VPostData, VHeaders: OleVariant;
+  i: Integer;
+begin
+  EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
+  SetGoodCaption(ACaption);
+  ResetImageView(FALSE);
+  show;
+
+  VPostData := VarArrayCreate([0, Length(APostData)-1], varByte);
+  for i := 1 to Length(APostData) do begin
+    VPostData[i-1] := Ord(APostData[i]);
+  end;
+  
+  VHeaders := 'Referer: '+AReferer+#$D#$A+
+              'Content-Type: application/x-www-form-urlencoded';
+
+  EmbeddedWB1.Navigate(AUrl, EmptyParam, EmptyParam, VPostData, VHeaders);
 end;
 
 procedure TfrmIntrnalBrowser.OnConfigChange;

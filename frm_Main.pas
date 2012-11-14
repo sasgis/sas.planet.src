@@ -383,6 +383,7 @@ type
     NMarkPlay: TTBXItem;
     tbitmMarkInfo: TTBXItem;
     tbitmCopyToClipboardGenshtabName: TTBXItem;
+    NoaaForecastMeteorology1: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -531,6 +532,7 @@ type
     procedure NMarkPlayClick(Sender: TObject);
     procedure tbitmMarkInfoClick(Sender: TObject);
     procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
+    procedure NoaaForecastMeteorology1Click(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -4351,6 +4353,28 @@ begin
   if (nil=FPlacemarkPlayerPlugin) then
     Exit;
   {FPlacemarkPlayerTask := }FPlacemarkPlayerPlugin.PlayByDescription(FSelectedMark.Desc);
+end;
+
+procedure TfrmMain.NoaaForecastMeteorology1Click(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+begin
+  VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  GState.InternalBrowser.NavigatePost(
+    NoaaForecastMeteorology1.Caption,
+    'http://ready.arl.noaa.gov/ready2-bin/main.pl',
+    'http://ready.arl.noaa.gov/READYcmet.php',
+    'userid=&map=WORLD&newloc=1&WMO=&city=Or+choose+a+city+--%3E&Lat='+RoundEx(VLonLat.y,2)+'&Lon='+RoundEx(VLonLat.x,2)
+  );
 end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
