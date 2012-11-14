@@ -62,6 +62,7 @@ implementation
 
 uses
   ALStringList,
+  i_BitmapTileSaveLoad,
   u_ContentTypeInfo,
   u_ContentConverterKmz2Kml,
   u_ContentConverterKml2Kmz,
@@ -97,49 +98,52 @@ procedure TContentTypeManagerSimple.InitLists(
 );
 var
   VContentType: IContentTypeInfoBasic;
+  VLoader: IBitmapTileLoader;
+  VSaver: IBitmapTileSaver;
+  VExt: string;
+  VType: string;
 begin
-  VContentType := TContentTypeInfoBitmap.Create(
-    'image/jpg',
-    '.jpg',
-    ABitmapTileSaveLoadFactory.CreateJpegLoader(ALoadPerfCounterList),
-    ABitmapTileSaveLoadFactory.CreateJpegSaver(85, ASavePerfCounterList)
-  );
-  AddByType(VContentType, VContentType.GetContentType);
+  VSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(85, ASavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateJpegLoader(ALoadPerfCounterList);
+  VType := 'image/jpg';
+  VExt := '.jpg';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
   AddByType(VContentType, 'image/jpeg');
   AddByType(VContentType, 'image/pjpeg');
-  AddByExt(VContentType, VContentType.GetDefaultExt);
-  AddByExt(VContentType, '.jpeg');
+  AddByExt(VContentType, VExt);
 
-  VContentType := TContentTypeInfoBitmap.Create(
-    'image/png',
-    '.png',
-    ABitmapTileSaveLoadFactory.CreatePngLoader(ALoadPerfCounterList),
-    ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, ASavePerfCounterList)
-  );
-  AddByType(VContentType, VContentType.GetContentType);
+  VExt := '.jpeg';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByExt(VContentType, VExt);
+
+  VSaver := ABitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, 2, ASavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreatePngLoader(ALoadPerfCounterList);
+  VType := 'image/png';
+  VExt := '.png';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
   AddByType(VContentType, 'image/x-png');
   AddByType(VContentType, 'image/png; mode=24bit');
-  AddByExt(VContentType, VContentType.GetDefaultExt);
+  AddByExt(VContentType, VExt);
 
-  VContentType := TContentTypeInfoBitmap.Create(
-    'image/gif',
-    '.gif',
-    ABitmapTileSaveLoadFactory.CreateGifLoader(ALoadPerfCounterList),
-    ABitmapTileSaveLoadFactory.CreateGifSaver(ASavePerfCounterList)
-  );
-  AddByType(VContentType, VContentType.GetContentType);
-  AddByExt(VContentType, VContentType.GetDefaultExt);
+  VSaver := ABitmapTileSaveLoadFactory.CreateGifSaver(ASavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateGifLoader(ALoadPerfCounterList);
+  VType := 'image/gif';
+  VExt := '.gif';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
+  AddByExt(VContentType, VExt);
 
-  VContentType := TContentTypeInfoBitmap.Create(
-    'image/bmp',
-    '.bmp',
-    ABitmapTileSaveLoadFactory.CreateBmpLoader(ALoadPerfCounterList),
-    ABitmapTileSaveLoadFactory.CreateBmpSaver(ASavePerfCounterList)
-  );
-  AddByType(VContentType, VContentType.GetContentType);
+  VSaver := ABitmapTileSaveLoadFactory.CreateBmpSaver(ASavePerfCounterList);
+  VLoader := ABitmapTileSaveLoadFactory.CreateBmpLoader(ALoadPerfCounterList);
+  VType := 'image/bmp';
+  VExt := '.bmp';
+  VContentType := TContentTypeInfoBitmap.Create(VType, VExt, VLoader, VSaver);
+  AddByType(VContentType, VType);
   AddByType(VContentType, 'image/x-ms-bmp');
   AddByType(VContentType, 'image/x-windows-bmp');
-  AddByExt(VContentType, VContentType.GetDefaultExt);
+  AddByExt(VContentType, VExt);
 
   VContentType := TContentTypeInfoKml.Create(
     'application/vnd.google-earth.kml+xml',
