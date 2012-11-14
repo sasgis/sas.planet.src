@@ -23,6 +23,8 @@ unit i_TileStorageType;
 interface
 
 uses
+  i_CoordConverter,
+  i_ContentTypeInfo,
   i_StorageTypeAbilities,
   i_MapVersionConfig,
   i_TileStorageTypeConfig,
@@ -46,7 +48,11 @@ type
     function GetCaption: string;
     property Caption: string read GetCaption;
 
-    function BuildStorage(const APath: string): ITileStorage;
+    function BuildStorage(
+      const AGeoConverter: ICoordConverter;
+      const AMainContentType: IContentTypeInfoBasic;
+      const APath: string
+    ): ITileStorage;
   end;
 
 implementation

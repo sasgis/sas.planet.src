@@ -3,6 +3,8 @@ unit u_TileStorageTypeGE;
 interface
 
 uses
+  i_CoordConverter,
+  i_ContentTypeInfo,
   i_TileStorage,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
@@ -10,7 +12,11 @@ uses
 type
   TTileStorageTypeGE = class(TTileStorageTypeBase)
   protected
-    function BuildStorage(const APath: string): ITileStorage; override;
+    function BuildStorage(
+      const AGeoConverter: ICoordConverter;
+      const AMainContentType: IContentTypeInfoBasic;
+      const APath: string
+    ): ITileStorage; override;
   public
     constructor Create(
       const AGUID: TGUID;
@@ -42,7 +48,11 @@ begin
   );
 end;
 
-function TTileStorageTypeGE.BuildStorage(const APath: string): ITileStorage;
+function TTileStorageTypeGE.BuildStorage(
+  const AGeoConverter: ICoordConverter;
+  const AMainContentType: IContentTypeInfoBasic;
+  const APath: string
+): ITileStorage;
 begin
   Assert(False);
   //TODO: Написать создание хранилища

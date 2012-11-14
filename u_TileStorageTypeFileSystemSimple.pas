@@ -3,6 +3,8 @@ unit u_TileStorageTypeFileSystemSimple;
 interface
 
 uses
+  i_CoordConverter,
+  i_ContentTypeInfo,
   i_TileFileNameGenerator,
   i_TileStorage,
   i_TileStorageTypeConfig,
@@ -13,7 +15,11 @@ type
   private
     FNameGenerator: ITileFileNameGenerator;
   protected
-    function BuildStorage(const APath: string): ITileStorage; override;
+    function BuildStorage(
+      const AGeoConverter: ICoordConverter;
+      const AMainContentType: IContentTypeInfoBasic;
+      const APath: string
+    ): ITileStorage; override;
   public
     constructor Create(
       const AGUID: TGUID;
@@ -49,6 +55,8 @@ begin
 end;
 
 function TTileStorageTypeFileSystemSimple.BuildStorage(
+  const AGeoConverter: ICoordConverter;
+  const AMainContentType: IContentTypeInfoBasic;
   const APath: string
 ): ITileStorage;
 begin

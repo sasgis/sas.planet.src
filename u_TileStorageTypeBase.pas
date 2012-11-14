@@ -23,6 +23,8 @@ unit u_TileStorageTypeBase;
 interface
 
 uses
+  i_CoordConverter,
+  i_ContentTypeInfo,
   i_StorageTypeAbilities,
   i_MapVersionConfig,
   i_TileStorageTypeConfig,
@@ -42,7 +44,11 @@ type
     function GetInfo: IStorageTypeAbilities;
     function GetConfig: ITileStorageTypeConfig;
     function GetMapVersionFactory: IMapVersionFactory;
-    function BuildStorage(const APath: string): ITileStorage; virtual; abstract;
+    function BuildStorage(
+      const AGeoConverter: ICoordConverter;
+      const AMainContentType: IContentTypeInfoBasic;
+      const APath: string
+    ): ITileStorage; virtual; abstract;
     function GetCaption: string;
   public
     constructor Create(
