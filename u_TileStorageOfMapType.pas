@@ -253,7 +253,7 @@ begin
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
     VMapVersionFactory := nil;
-    VCoordConverter := FConfig.CoordConverter;
+    VCoordConverter := AConfig.CoordConverter;
     if ATypeCode = c_File_Cache_Id_BDB then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
@@ -323,7 +323,6 @@ begin
           TTileStorageFileSystem.Create(
             VCoordConverter,
             FCurrentPath,
-            FConfig.TileFileExt,
             VMainContentType,
             VMapVersionFactory,
             VFileNameGenerator,

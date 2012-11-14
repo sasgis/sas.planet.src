@@ -206,7 +206,6 @@ begin
       TTileStorageFileSystem.Create(
         ACoordConverter,
         ARootPath,
-        ADefExtention,
         VContentType,
         VMapVersionFactory,
         VFileNameGenerator,

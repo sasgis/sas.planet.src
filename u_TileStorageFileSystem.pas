@@ -101,7 +101,6 @@ type
     constructor Create(
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
-      const AFileExt: string;
       const AMainContentType: IContentTypeInfoBasic;
       const AMapVersionFactory: IMapVersionFactory;
       const ATileNameGenerator: ITileFileNameGenerator;
@@ -136,7 +135,6 @@ const
 constructor TTileStorageFileSystem.Create(
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
-  const AFileExt: string;
   const AMainContentType: IContentTypeInfoBasic;
   const AMapVersionFactory: IMapVersionFactory;
   const ATileNameGenerator: ITileFileNameGenerator;
@@ -145,7 +143,6 @@ constructor TTileStorageFileSystem.Create(
 begin
   Assert(AGeoConverter <> nil);
   Assert(AStoragePath <> '');
-  Assert(AFileExt <> '');
   Assert(AMainContentType <> nil);
   Assert(ATileNameGenerator <> nil);
   Assert(ATileNameParser <> nil);
@@ -155,12 +152,11 @@ begin
     AGeoConverter,
     AStoragePath
   );
-  FFileExt := AFileExt;
   FMainContentType := AMainContentType;
   FTileFileNameParser := ATileNameParser;
   FFileNameGenerator := ATileNameGenerator;
 
-
+  FFileExt := FMainContentType.GetDefaultExt;
   FFsLock := MakeSyncRW_Std(Self, False);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 end;
