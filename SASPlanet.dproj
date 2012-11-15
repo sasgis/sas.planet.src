@@ -1135,6 +1135,9 @@
     <DCCReference Include="u_VectorDataFactorySimple.pas" />
     <DCCReference Include="u_VectorDataItemBase.pas" />
     <DCCReference Include="u_VectorDataItemList.pas" />
+    <DCCReference Include="u_VectorDataItemOfMapBase.pas" />
+    <DCCReference Include="u_VectorDataItemOfMapPoint.pas" />
+    <DCCReference Include="u_VectorDataItemOfMapPolygon.pas" />
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_VectorItemEmpty.pas" />
