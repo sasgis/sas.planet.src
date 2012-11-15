@@ -4905,7 +4905,7 @@ var
   VZoomCurr: Byte;
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;
-  VItemFound: Boolean;
+  VItemFound: IVectorDataItemSimple;
   VItemS: Double;
   VItemHint: string;
   VLocalConverter: ILocalCoordConverter;
@@ -5063,52 +5063,53 @@ begin
      ((not FConfig.MainConfig.ShowHintOnlyInMapMoveMode) or (FState.State = ao_movemap)) and
      _AllowShowHint then begin
     // show hint
-    VItemFound := False;
+    VItemFound := nil;
     VItemS := 0;
-    VWikiItem := nil;
     VWikiItem := FWikiLayer.FindItem(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
-      VItemFound := True;
+      VItemFound := VWikiItem;
       VItemS := VMarkS;
-      VItemHint := VWikiItem.GetHintText;
     end;
 
     VWikiItem := FLayerSearchResults.FindItem(VLocalConverter, VMousePos, VMarkS);
     if VWikiItem <> nil then begin
-      VItemFound := True;
+      VItemFound := VWikiItem;
       VItemS := VMarkS;
-      VItemHint := VWikiItem.GetHintText;
     end;
 
     VWikiItem := nil;
-    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then
+    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
       VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
+    end;
     if VWikiItem <> nil then begin
-      if (not VItemFound) or (not Supports(VWikiItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
-        VItemFound := True;
-        VItemHint := VWikiItem.GetHintText;
+      if (VItemFound = nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
+        VItemFound := VItemFound;
       end;
     end;
 
-    if (VItemFound) then begin
-     if map.Cursor = crDefault then begin
-       map.Cursor := crHandPoint;
-     end;
-     if FHintWindow<>nil then FHintWindow.ReleaseHandle;
-     if VItemHint<>'' then begin
-      if FHintWindow=nil then begin
-        FHintWindow:=THintWindow.Create(Self);
-        FHintWindow.Brush.Color:=clInfoBk;
+    if VItemFound <> nil then begin
+      if map.Cursor = crDefault then begin
+        map.Cursor := crHandPoint;
       end;
-      hintrect:=FHintWindow.CalcHintRect(Screen.Width, VItemHint, nil);
-      FHintWindow.ActivateHint(Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),VItemHint);
-      FHintWindow.Repaint;
-     end;
-     FShowActivHint:=true;
-    end else begin
-      if map.Cursor = crHandPoint then begin
-        map.Cursor := crDefault;
-      end;
+      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
+        VItemHint := VItemFound.GetHintText;
+        if VItemHint<>'' then begin
+          if FHintWindow=nil then begin
+            FHintWindow:=THintWindow.Create(Self);
+            FHintWindow.Brush.Color:=clInfoBk;
+          end;
+          hintrect:=FHintWindow.CalcHintRect(Screen.Width, VItemHint, nil);
+          FHintWindow.ActivateHint(
+            Bounds(Mouse.CursorPos.x+13,Mouse.CursorPos.y-13,abs(hintrect.Right-hintrect.Left),abs(hintrect.Top-hintrect.Bottom)),
+            VItemHint
+          );
+          FHintWindow.Repaint;
+        end;
+        FShowActivHint:=true;
+      end else begin
+        if map.Cursor = crHandPoint then begin
+          map.Cursor := crDefault;
+        end;
     end;
   end;
 end;

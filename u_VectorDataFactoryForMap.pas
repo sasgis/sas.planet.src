@@ -51,13 +51,15 @@ type
 implementation
 
 uses
-  u_VectorDataItemPoint,
-  u_VectorDataItemPolygon;
+  u_VectorDataItemOfMapPoint,
+  u_VectorDataItemOfMapPolygon;
 
 { TVectorDataFactoryForMap }
 
-constructor TVectorDataFactoryForMap.Create(const AURLPrefix: string;
-  const AHintConverter: IHtmlToHintTextConverter);
+constructor TVectorDataFactoryForMap.Create(
+  const AURLPrefix: string;
+  const AHintConverter: IHtmlToHintTextConverter
+);
 begin
   inherited Create;
   FURLPrefix := AURLPrefix;
@@ -71,8 +73,12 @@ function TVectorDataFactoryForMap.BuildPath(
 ): IVectorDataItemLine;
 begin
   Result :=
-    TVectorDataItemPath.Create(
+    TVectorDataItemOfMapPath.Create(
       FHintConverter,
+      FURLPrefix,
+      PIdData(AIdData).Zoom,
+      PIdData(AIdData).Tile,
+      PIdData(AIdData).NextIndex,
       AName,
       ADesc,
       ALine
@@ -86,8 +92,12 @@ function TVectorDataFactoryForMap.BuildPoint(
 ): IVectorDataItemPoint;
 begin
   Result :=
-    TVectorDataItemPoint.Create(
+    TVectorDataItemOfMapPoint.Create(
       FHintConverter,
+      FURLPrefix,
+      PIdData(AIdData).Zoom,
+      PIdData(AIdData).Tile,
+      PIdData(AIdData).NextIndex,
       AName,
       ADesc,
       APoint
@@ -101,8 +111,12 @@ function TVectorDataFactoryForMap.BuildPoly(
 ): IVectorDataItemPoly;
 begin
   Result :=
-    TVectorDataItemPoly.Create(
+    TVectorDataItemOfMapPoly.Create(
       FHintConverter,
+      FURLPrefix,
+      PIdData(AIdData).Zoom,
+      PIdData(AIdData).Tile,
+      PIdData(AIdData).NextIndex,
       AName,
       ADesc,
       APoly
