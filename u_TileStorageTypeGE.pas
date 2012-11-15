@@ -5,12 +5,15 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
   i_TileStorage,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeGE = class(TTileStorageTypeBase)
+  private
+    FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
@@ -21,6 +24,7 @@ type
     constructor Create(
       const AGUID: TGUID;
       const ACaption: string;
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -29,13 +33,15 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactoryGE;
+  u_MapVersionFactoryGE,
+  u_TileStorageGE;
 
 { TTileStorageTypeGE }
 
 constructor TTileStorageTypeGE.Create(
   const AGUID: TGUID;
   const ACaption: string;
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
 );
 begin
@@ -46,6 +52,7 @@ begin
     TMapVersionFactoryGE.Create,
     AConfig
   );
+  FContentTypeManager := AContentTypeManager;
 end;
 
 function TTileStorageTypeGE.BuildStorage(
@@ -54,8 +61,13 @@ function TTileStorageTypeGE.BuildStorage(
   const APath: string
 ): ITileStorage;
 begin
-  Assert(False);
-  //TODO: Написать создание хранилища
+  Result :=
+    TTileStorageGE.Create(
+      AGeoConverter,
+      APath,
+      GetMapVersionFactory,
+      FContentTypeManager
+    );
 end;
 
 end.

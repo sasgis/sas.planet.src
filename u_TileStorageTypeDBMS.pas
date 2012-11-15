@@ -5,12 +5,17 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
+  i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeDBMS = class(TTileStorageTypeBase)
+  private
+    FGCList: INotifierTTLCheck;
+    FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
@@ -21,6 +26,8 @@ type
     constructor Create(
       const AGUID: TGUID;
       const ACaption: string;
+      const AGCList: INotifierTTLCheck;
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -29,7 +36,8 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactorySimpleString;
+  u_MapVersionFactorySimpleString,
+  u_TileStorageDBMS;
 
 
 { TTileStorageTypeDBMS }
@@ -37,6 +45,8 @@ uses
 constructor TTileStorageTypeDBMS.Create(
   const AGUID: TGUID;
   const ACaption: string;
+  const AGCList: INotifierTTLCheck;
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
 );
 begin
@@ -47,6 +57,8 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
+  FGCList := AGCList;
+  FContentTypeManager := AContentTypeManager;
 end;
 
 function TTileStorageTypeDBMS.BuildStorage(
@@ -55,8 +67,17 @@ function TTileStorageTypeDBMS.BuildStorage(
   const APath: string
 ): ITileStorage;
 begin
-  Assert(False);
-  //TODO: Написать создание хранилища
+  Result :=
+    TTileStorageDBMS.Create(
+      AGeoConverter,
+      GetConfig.BasePath.Path,
+      APath,
+      FGCList,
+      True,
+      FContentTypeManager,
+      GetMapVersionFactory,
+      AMainContentType
+    );
 end;
 
 end.

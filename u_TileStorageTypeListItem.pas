@@ -30,15 +30,18 @@ type
   TTileStorageTypeListItem = class(TInterfacedObject, ITileStorageTypeListItem)
   private
     FGUID: TGUID;
+    FCaption: string;
     FStorageType: ITileStorageType;
     FCanUseAsDefault: Boolean;
   private
     function GetGUID: TGUID;
+    function GetCaption: string;
     function GetStorageType: ITileStorageType;
     function GetCanUseAsDefault: Boolean;
   public
     constructor Create(
       const AGUID: TGUID;
+      const ACaption: string;
       const AStorageType: ITileStorageType;
       ACanUseAsDefault: Boolean
     );
@@ -50,12 +53,14 @@ implementation
 
 constructor TTileStorageTypeListItem.Create(
   const AGUID: TGUID;
+  const ACaption: string;
   const AStorageType: ITileStorageType;
   ACanUseAsDefault: Boolean
 );
 begin
   inherited Create;
   FGUID := AGUID;
+  FCaption := ACaption;
   FStorageType := AStorageType;
   FCanUseAsDefault := ACanUseAsDefault;
 end;
@@ -63,6 +68,11 @@ end;
 function TTileStorageTypeListItem.GetCanUseAsDefault: Boolean;
 begin
   Result := FCanUseAsDefault;
+end;
+
+function TTileStorageTypeListItem.GetCaption: string;
+begin
+  Result := FCaption;
 end;
 
 function TTileStorageTypeListItem.GetGUID: TGUID;

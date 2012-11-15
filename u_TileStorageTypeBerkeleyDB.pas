@@ -5,12 +5,17 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
+  i_ContentTypeManager,
+  i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeBerkeleyDB = class(TTileStorageTypeBase)
+  private
+    FGCList: INotifierTTLCheck;
+    FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
@@ -21,6 +26,8 @@ type
     constructor Create(
       const AGUID: TGUID;
       const ACaption: string;
+      const AGCList: INotifierTTLCheck;
+      const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -29,13 +36,16 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactorySimpleString;
+  u_MapVersionFactorySimpleString,
+  u_TileStorageBerkeleyDB;
 
 { TTileStorageTypeBerkeleyDB }
 
 constructor TTileStorageTypeBerkeleyDB.Create(
   const AGUID: TGUID;
   const ACaption: string;
+  const AGCList: INotifierTTLCheck;
+  const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
 );
 begin
@@ -46,6 +56,8 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
+  FGCList := AGCList;
+  FContentTypeManager := AContentTypeManager;
 end;
 
 function TTileStorageTypeBerkeleyDB.BuildStorage(
@@ -54,8 +66,16 @@ function TTileStorageTypeBerkeleyDB.BuildStorage(
   const APath: string
 ): ITileStorage;
 begin
-  Assert(False);
-  //TODO: Написать создание хранилища
+  Result :=
+    TTileStorageBerkeleyDB.Create(
+      AGeoConverter,
+      APath,
+      FGCList,
+      True,
+      FContentTypeManager,
+      GetMapVersionFactory,
+      AMainContentType
+    );
 end;
 
 end.

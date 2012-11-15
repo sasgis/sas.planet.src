@@ -24,6 +24,8 @@ interface
 
 uses
   i_PathConfig,
+  i_NotifierTTLCheck,
+  i_ContentTypeManager,
   i_TileStorageTypeConfig,
   i_TileStorageType,
   i_TileStorageTypeListItem,
@@ -32,7 +34,11 @@ uses
 type
   TTileStorageTypeListSimple = class(TTileStorageTypeList)
   public
-    constructor Create(const ABasePath: IPathConfig);
+    constructor Create(
+      const AContentTypeManager: IContentTypeManager;
+      const AGCList: INotifierTTLCheck;
+      const ABasePath: IPathConfig
+    );
   end;
 
 implementation
@@ -62,7 +68,11 @@ const
 
 { TTileStorageTypeListSimple }
 
-constructor TTileStorageTypeListSimple.Create(const ABasePath: IPathConfig);
+constructor TTileStorageTypeListSimple.Create(
+  const AContentTypeManager: IContentTypeManager;
+  const AGCList: INotifierTTLCheck;
+  const ABasePath: IPathConfig
+);
 var
   VItem: ITileStorageTypeListItem;
   VStorageTypeConfig: ITileStorageTypeConfig;
@@ -79,6 +89,7 @@ begin
     );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     True
   );
@@ -94,6 +105,7 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     True
   );
@@ -109,6 +121,7 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     True
   );
@@ -124,6 +137,7 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     True
   );
@@ -139,6 +153,7 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     False
   );
@@ -148,10 +163,12 @@ begin
   VStorageType := TTileStorageTypeGE.Create(
     CTileStorageTypeGE,
     'GE cache',
+    AContentTypeManager,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     False
   );
@@ -161,10 +178,29 @@ begin
   VStorageType := TTileStorageTypeBerkeleyDB.Create(
     CTileStorageTypeBerkeleyDB,
     'Berkeley DB',
+    AGCList,
+    AContentTypeManager,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
     VStorageType.GUID,
+    VStorageType.Caption,
+    VStorageType,
+    False
+  );
+  Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, 'cache_dbms');
+  VStorageType := TTileStorageTypeDBMS.Create(
+    CTileStorageTypeBerkeleyDB,
+    'DBMS',
+    AGCList,
+    AContentTypeManager,
+    VStorageTypeConfig
+  );
+  VItem := TTileStorageTypeListItem.Create(
+    VStorageType.GUID,
+    VStorageType.Caption,
     VStorageType,
     False
   );

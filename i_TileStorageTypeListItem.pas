@@ -31,6 +31,9 @@ type
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
+    function GetCaption: string;
+    property Caption: string read GetCaption;
+
     function GetStorageType: ITileStorageType;
     property StorageType: ITileStorageType read GetStorageType;
 
