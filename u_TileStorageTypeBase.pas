@@ -34,13 +34,10 @@ uses
 type
   TTileStorageTypeBase = class(TInterfacedObject, ITileStorageType)
   private
-    FGUID: TGUID;
-    FCaption: string;
     FInfo: IStorageTypeAbilities;
     FMapVersionFactory: IMapVersionFactory;
     FConfig: ITileStorageTypeConfig;
   protected
-    function GetGUID: TGUID;
     function GetInfo: IStorageTypeAbilities;
     function GetConfig: ITileStorageTypeConfig;
     function GetMapVersionFactory: IMapVersionFactory;
@@ -49,11 +46,8 @@ type
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string
     ): ITileStorage; virtual; abstract;
-    function GetCaption: string;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ACaption: string;
       const AInfo: IStorageTypeAbilities;
       const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
@@ -65,34 +59,20 @@ implementation
 { TTileStorageTypeBase }
 
 constructor TTileStorageTypeBase.Create(
-  const AGUID: TGUID;
-  const ACaption: string;
   const AInfo: IStorageTypeAbilities;
   const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create;
-  FGUID := AGUID;
-  FCaption := ACaption;
   FInfo := AInfo;
   FMapVersionFactory := AMapVersionFactory;
   FConfig := AConfig;
 end;
 
-function TTileStorageTypeBase.GetCaption: string;
-begin
-  Result := FCaption;
-end;
-
 function TTileStorageTypeBase.GetConfig: ITileStorageTypeConfig;
 begin
   Result := FConfig;
-end;
-
-function TTileStorageTypeBase.GetGUID: TGUID;
-begin
-  Result := FGUID;
 end;
 
 function TTileStorageTypeBase.GetInfo: IStorageTypeAbilities;

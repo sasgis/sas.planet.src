@@ -24,8 +24,6 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ACaption: string;
       const ANameGenerator: ITileFileNameGenerator;
       const ATileNameParser: ITileFileNameParser;
       const AConfig: ITileStorageTypeConfig
@@ -42,16 +40,12 @@ uses
 { TTileStorageTypeFileSystemSimple }
 
 constructor TTileStorageTypeFileSystemSimple.Create(
-  const AGUID: TGUID;
-  const ACaption: string;
   const ANameGenerator: ITileFileNameGenerator;
   const ATileNameParser: ITileFileNameParser;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
-    AGUID,
-    ACaption,
     TTileStorageTypeAbilitiesFileFolder.Create,
     TMapVersionFactorySimpleString.Create,
     AConfig

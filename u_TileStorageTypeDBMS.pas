@@ -24,8 +24,6 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ACaption: string;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
@@ -43,16 +41,12 @@ uses
 { TTileStorageTypeDBMS }
 
 constructor TTileStorageTypeDBMS.Create(
-  const AGUID: TGUID;
-  const ACaption: string;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
-    AGUID,
-    ACaption,
     TTileStorageTypeAbilitiesBerkeleyDB.Create,
     TMapVersionFactorySimpleString.Create,
     AConfig

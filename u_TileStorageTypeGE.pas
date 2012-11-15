@@ -22,8 +22,22 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
-      const AGUID: TGUID;
-      const ACaption: string;
+      const AContentTypeManager: IContentTypeManager;
+      const AConfig: ITileStorageTypeConfig
+    );
+  end;
+
+  TTileStorageTypeGC = class(TTileStorageTypeBase)
+  private
+    FContentTypeManager: IContentTypeManager;
+  protected
+    function BuildStorage(
+      const AGeoConverter: ICoordConverter;
+      const AMainContentType: IContentTypeInfoBasic;
+      const APath: string
+    ): ITileStorage; override;
+  public
+    constructor Create(
       const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
     );
@@ -39,15 +53,11 @@ uses
 { TTileStorageTypeGE }
 
 constructor TTileStorageTypeGE.Create(
-  const AGUID: TGUID;
-  const ACaption: string;
   const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
-    AGUID,
-    ACaption,
     TTileStorageTypeAbilitiesGE.Create,
     TMapVersionFactoryGE.Create,
     AConfig
@@ -63,6 +73,35 @@ function TTileStorageTypeGE.BuildStorage(
 begin
   Result :=
     TTileStorageGE.Create(
+      AGeoConverter,
+      APath,
+      GetMapVersionFactory,
+      FContentTypeManager
+    );
+end;
+
+{ TTileStorageTypeGC }
+
+constructor TTileStorageTypeGC.Create(
+  const AContentTypeManager: IContentTypeManager;
+  const AConfig: ITileStorageTypeConfig);
+begin
+  inherited Create(
+    TTileStorageTypeAbilitiesGE.Create,
+    TMapVersionFactoryGE.Create,
+    AConfig
+  );
+  FContentTypeManager := AContentTypeManager;
+end;
+
+function TTileStorageTypeGC.BuildStorage(
+  const AGeoConverter: ICoordConverter;
+  const AMainContentType: IContentTypeInfoBasic;
+  const APath: string
+): ITileStorage;
+begin
+  Result :=
+    TTileStorageGC.Create(
       AGeoConverter,
       APath,
       GetMapVersionFactory,

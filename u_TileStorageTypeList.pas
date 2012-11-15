@@ -128,7 +128,7 @@ var
 begin
   inherited;
   AConfigData.WriteString('DefaultTypeGUID', GUIDToString(FDefault.GUID));
-  AConfigData.WriteString('DefaultTypeName', FDefault.StorageType.Caption);
+  AConfigData.WriteString('DefaultTypeName', FDefault.Caption);
 
   VEnum := FList.GetGUIDEnum;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
@@ -136,7 +136,7 @@ begin
     VConfig := VItem.StorageType.Config;
     if VConfig <> nil then begin
       VConfigData := AConfigData.GetOrCreateSubItem(GUIDToString(VGUID));
-      VConfigData.WriteString('Name', VItem.StorageType.Caption);
+      VConfigData.WriteString('Name', VItem.Caption);
       VConfig.WriteConfig(VConfigData);
     end;
   end;

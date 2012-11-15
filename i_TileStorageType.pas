@@ -33,9 +33,6 @@ uses
 type
   ITileStorageType = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
-    function GetGUID: TGUID;
-    property GUID: TGUID read GetGUID;
-
     function GetInfo: IStorageTypeAbilities;
     property Info: IStorageTypeAbilities read GetInfo;
 
@@ -44,9 +41,6 @@ type
 
     function GetMapVersionFactory: IMapVersionFactory;
     property MapVersionFactory: IMapVersionFactory read GetMapVersionFactory;
-
-    function GetCaption: string;
-    property Caption: string read GetCaption;
 
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
