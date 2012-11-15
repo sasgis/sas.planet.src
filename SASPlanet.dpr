@@ -2,9 +2,7 @@
 program SASPlanet;
 
 uses
-  {$IFDEF RELEASE}
   FastMM4,
-  {$ENDIF}
   Forms,
   Windows,
   SysUtils,
@@ -977,7 +975,8 @@ uses
   frm_MarkCategoryEdit in 'frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_MarksMultiEdit in 'frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
+  u_BitmapLayerProviderByTileProvider in 'u_BitmapLayerProviderByTileProvider.pas';
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
@@ -1003,7 +1002,7 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-    GState.StartExceptionTracking;
+  GState.StartExceptionTracking;
     try
       Application.Run;
     finally

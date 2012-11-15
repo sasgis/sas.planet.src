@@ -5083,7 +5083,7 @@ begin
     end;
     if VWikiItem <> nil then begin
       if (VItemFound = nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
-        VItemFound := VItemFound;
+        VItemFound := VWikiItem;
       end;
     end;
 

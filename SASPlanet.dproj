@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-    <DCC_DependencyCheckOutputName>.bin\SASPlanet.exe</DCC_DependencyCheckOutputName>
+    <DCC_DependencyCheckOutputName>..\.bin\SASPlanet.exe</DCC_DependencyCheckOutputName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Version>7.0</Version>
@@ -14,7 +14,7 @@
     <DCC_DebugInformation>False</DCC_DebugInformation>
     <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
     <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-    <DCC_ExeOutput>.\.bin</DCC_ExeOutput>
+    <DCC_ExeOutput>$(SAS_BIN)</DCC_ExeOutput>
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_MapFile>3</DCC_MapFile>
-    <DCC_ExeOutput>.\.bin</DCC_ExeOutput>
+    <DCC_ExeOutput>$(SAS_BIN)</DCC_ExeOutput>
     <DCC_DcuOutput>.\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
@@ -160,8 +160,8 @@
       <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="fr_GPSConfig.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frGPSConfig</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_GpsSatellites.pas">
       <Form>frGpsSatellites</Form>
@@ -666,6 +666,7 @@
     <DCCReference Include="u_BitmapFunc.pas" />
     <DCCReference Include="u_BitmapGeo.pas" />
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
+    <DCCReference Include="u_BitmapLayerProviderByTileProvider.pas" />
     <DCCReference Include="u_BitmapLayerProviderByTrackPath.pas" />
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderComplex.pas" />
