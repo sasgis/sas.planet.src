@@ -254,6 +254,7 @@ implementation
 uses
   Types,
   c_CacheTypeCodes,
+  c_InternalBrowser,
   i_BinaryData,
   i_TileInfoBasic,
   i_TileIterator,
@@ -266,7 +267,7 @@ uses
   u_SimpleTileStorageConfig,
   u_MapAbilitiesConfig,
   u_TileIteratorByRect,
-  u_VectorDataFactorySimple,
+  u_VectorDataFactoryForMap,
   u_HtmlToHintTextConverterStuped,
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
@@ -377,7 +378,11 @@ begin
         AMainMemCacheConfig,
         FPerfCounterList.CreateAndAddNewSubList('VectorInMem')
       );
-    FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
+    FVectorDataFactory :=
+      TVectorDataFactoryForMap.Create(
+        CMapDataInternalURL + GUIDToString(FZmp.GUID) + '/',
+        THtmlToHintTextConverterStuped.Create
+      );
   end;
 
   FTileDownloadSubsystem :=
@@ -526,10 +531,14 @@ function TMapType.LoadKmlTileFromStorage(
 ): IVectorDataItemList;
 var
   VTileInfoWithData: ITileInfoWithData;
+  VIdData: TIdData;
 begin
   Result := nil;
   if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
-    Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, nil, FVectorDataFactory);
+    VIdData.Tile := AXY;
+    VIdData.Zoom := AZoom;
+    VIdData.NextIndex := 0;
+    Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
     AVersionInfo := VTileInfoWithData.VersionInfo;
   end;
 end;
