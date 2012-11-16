@@ -63,7 +63,15 @@ begin
     Result := 'Unknown mark type';
   end;
   if Result <> '' then begin
-    Result := '<HTML><BODY>'#13#10 + Result + #13#10'</BODY></HTML>';
+    Result :=
+      '<html>'#13#10 +
+        '<head>'#13#10 +
+          '<title>' + AItem.GetInfoCaption + '</title>'#13#10 +
+        '</head>'#13#10 +
+        '<body>'#13#10 +
+          Result + #13#10 +
+        '</body>'#13#10 +
+        '</html>';
   end;
 end;
 
