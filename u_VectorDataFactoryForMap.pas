@@ -3,6 +3,7 @@ unit u_VectorDataFactoryForMap;
 interface
 
 uses
+  Windows,
   Types,
   t_GeoTypes,
   i_HtmlToHintTextConverter,
@@ -71,18 +72,25 @@ function TVectorDataFactoryForMap.BuildPath(
   const AName, ADesc: string;
   const ALine: ILonLatPath
 ): IVectorDataItemLine;
+var
+  VIndex: Integer;
 begin
-  Result :=
-    TVectorDataItemOfMapPath.Create(
-      FHintConverter,
-      FURLPrefix,
-      PIdData(AIdData).Zoom,
-      PIdData(AIdData).Tile,
-      PIdData(AIdData).NextIndex,
-      AName,
-      ADesc,
-      ALine
-    );
+  Assert(AIdData <> nil);
+  Result := nil;
+  if AIdData <> nil then begin
+    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex);
+    Result :=
+      TVectorDataItemOfMapPath.Create(
+        FHintConverter,
+        FURLPrefix,
+        PIdData(AIdData).Zoom,
+        PIdData(AIdData).Tile,
+        VIndex,
+        AName,
+        ADesc,
+        ALine
+      );
+  end;
 end;
 
 function TVectorDataFactoryForMap.BuildPoint(
@@ -90,18 +98,25 @@ function TVectorDataFactoryForMap.BuildPoint(
   const AName, ADesc: string;
   const APoint: TDoublePoint
 ): IVectorDataItemPoint;
+var
+  VIndex: Integer;
 begin
-  Result :=
-    TVectorDataItemOfMapPoint.Create(
-      FHintConverter,
-      FURLPrefix,
-      PIdData(AIdData).Zoom,
-      PIdData(AIdData).Tile,
-      PIdData(AIdData).NextIndex,
-      AName,
-      ADesc,
-      APoint
-    );
+  Assert(AIdData <> nil);
+  Result := nil;
+  if AIdData <> nil then begin
+    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex);
+    Result :=
+      TVectorDataItemOfMapPoint.Create(
+        FHintConverter,
+        FURLPrefix,
+        PIdData(AIdData).Zoom,
+        PIdData(AIdData).Tile,
+        VIndex,
+        AName,
+        ADesc,
+        APoint
+      );
+  end;
 end;
 
 function TVectorDataFactoryForMap.BuildPoly(
@@ -109,18 +124,25 @@ function TVectorDataFactoryForMap.BuildPoly(
   const AName, ADesc: string;
   const APoly: ILonLatPolygon
 ): IVectorDataItemPoly;
+var
+  VIndex: Integer;
 begin
-  Result :=
-    TVectorDataItemOfMapPoly.Create(
-      FHintConverter,
-      FURLPrefix,
-      PIdData(AIdData).Zoom,
-      PIdData(AIdData).Tile,
-      PIdData(AIdData).NextIndex,
-      AName,
-      ADesc,
-      APoly
-    );
+  Assert(AIdData <> nil);
+  Result := nil;
+  if AIdData <> nil then begin
+    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex);
+    Result :=
+      TVectorDataItemOfMapPoly.Create(
+        FHintConverter,
+        FURLPrefix,
+        PIdData(AIdData).Zoom,
+        PIdData(AIdData).Tile,
+        VIndex,
+        AName,
+        ADesc,
+        APoly
+      );
+  end;
 end;
 
 end.

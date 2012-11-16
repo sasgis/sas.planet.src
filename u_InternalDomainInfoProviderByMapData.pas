@@ -140,16 +140,15 @@ function TInternalDomainInfoProviderByMapData.ParseFilePath(
   out ASuffix: string
 ): Boolean;
 var
-  VGUIDString: string;
   VPos: Integer;
   VLastPos: Integer;
   VSubStr: string;
   VZoom: Integer;
 begin
   Result := False;
-  VLastPos := 1;
-  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos);
-  if VPos > 0 then begin
+  VLastPos := 0;
+  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos + 1);
+  if VPos <= 0 then begin
     VPos := Length(AFilePath);
   end;
   VSubStr := '';
@@ -160,7 +159,7 @@ begin
     Exit;
   end;
   try
-    AMapGUID := StringToGUID(VGUIDString);
+    AMapGUID := StringToGUID(VSubStr);
   except
     AMapGUID := CGUID_Zero;
   end;
@@ -168,8 +167,8 @@ begin
     Exit;
   end;
   VLastPos := VPos;
-  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos);
-  if VPos > 0 then begin
+  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos + 1);
+  if VPos <= 0 then begin
     VPos := Length(AFilePath);
   end;
   VSubStr := '';
@@ -188,8 +187,8 @@ begin
   AZoom := VZoom;
 
   VLastPos := VPos;
-  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos);
-  if VPos > 0 then begin
+  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos + 1);
+  if VPos <= 0 then begin
     VPos := Length(AFilePath);
   end;
   VSubStr := '';
@@ -204,8 +203,8 @@ begin
   end;
 
   VLastPos := VPos;
-  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos);
-  if VPos > 0 then begin
+  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos + 1);
+  if VPos <= 0 then begin
     VPos := Length(AFilePath);
   end;
   VSubStr := '';
@@ -220,8 +219,8 @@ begin
   end;
 
   VLastPos := VPos;
-  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos);
-  if VPos > 0 then begin
+  VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos + 1);
+  if VPos <= 0 then begin
     VPos := Length(AFilePath);
   end;
   VSubStr := '';
@@ -237,7 +236,7 @@ begin
   if not TryStrToInt(VSubStr, AIndex) then begin
     Exit;
   end;
-  VSubStr := MidStr(AFilePath, VPos + 1, Length(AFilePath) - VPos - 1);
+  VSubStr := MidStr(AFilePath, VPos + 1, Length(AFilePath) - VPos);
   ASuffix := VSubStr;
   Result := True;
 end;
