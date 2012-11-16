@@ -56,12 +56,14 @@ type
     procedure EmbeddedWB1BeforeNavigate2(ASender: TObject;
       const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
       Headers: OleVariant; var Cancel: WordBool);
+    procedure EmbeddedWB1TitleChange(ASender: TObject; const Text: WideString);
     procedure FormHide(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure imgViewImageClick(Sender: TObject);
     Procedure FormMove(Var Msg: TWMMove); Message WM_MOVE;
   private
+    FCurrentCaption: string;
     FProxyConfig: IProxyConfig;
     FConfig: IWindowPositionConfig;
     FContentTypeManager: IContentTypeManager;
@@ -242,8 +244,13 @@ end;
 procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
 var VCaption: String;
 begin
-  VCaption := StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
-  Caption := StupedHtmlToTextConverter(VCaption);
+  VCaption := ACaption;
+  if VCaption <> '' then begin
+    VCaption := StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
+    VCaption := StupedHtmlToTextConverter(VCaption);
+  end;
+  FCurrentCaption := VCaption;
+  Self.Caption := VCaption;
 end;
 
 procedure TfrmIntrnalBrowser.showmessage(const ACaption,AText: string);
@@ -267,6 +274,14 @@ begin
       if imgViewImage.Visible then
         ResetImageView(FALSE);
     end;
+  end;
+end;
+
+procedure TfrmIntrnalBrowser.EmbeddedWB1TitleChange(ASender: TObject; const
+    Text: WideString);
+begin
+  if FCurrentCaption = '' then begin
+    Self.Caption := Text;
   end;
 end;
 
