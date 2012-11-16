@@ -39,6 +39,7 @@ uses
   i_BackgroundTask,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
+  i_LastSearchResultConfig,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_ContentTypeManager,
@@ -179,6 +180,7 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FLastSelectionSaver: IBackgroundTask;
+    FLastSearchResultConfig: ILastSearchResultConfig;
     procedure InitProtocol;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
@@ -318,6 +320,7 @@ uses
   u_TerrainProviderList,
   u_TerrainConfig,
   u_MainFormConfig,
+  u_LastSearchResultConfig,
   u_ProjConverterFactory,
   u_PathConfig,
   u_ThreadConfig,
@@ -342,6 +345,7 @@ uses
   u_InternalDomainInfoProviderByDataProvider,
   u_InternalDomainInfoProviderByMarksSystem,
   u_InternalDomainInfoProviderByMapData,
+  u_InternalDomainInfoProviderByLastSearchResults,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
   u_GlobalInternetState,
@@ -602,6 +606,7 @@ begin
       FVectorItmesFactory,
       VKmlLoader
     );
+  FLastSearchResultConfig := TLastSearchResultConfig.Create;
 
   InitProtocol;
 
@@ -650,9 +655,10 @@ begin
   FGSMpar := nil;
   FInetConfig := nil;
   FViewConfig := nil;
+  FMainFormConfig := nil;
+  FLastSearchResultConfig := nil;
   FImageResamplerConfig := nil;
   FTileMatrixDraftResamplerConfig := nil;
-  FMainFormConfig := nil;
   FBitmapPostProcessingConfig := nil;
   FValueToStringConverterConfig := nil;
   FMainMemCacheConfig := nil;
@@ -729,6 +735,16 @@ begin
     VInternalDomainInfoProvider
   );
 
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByLastSearchResults.Create(
+      FLastSearchResultConfig,
+      VTextProivder,
+      nil
+    );
+  VInternalDomainInfoProviderList.Add(
+    CLastSearchResultsInternalDomain,
+    VInternalDomainInfoProvider
+  );
 
   VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByMapData.Create(
@@ -833,6 +849,7 @@ begin
       FLocalConverterFactory,
       FContentTypeManager,
       FGeoCoderList,
+      FLastSearchResultConfig,
       FMainMapsList.MapsSet,
       FMainMapsList.LayersSet,
       FMainMapsList.FirstMainMapGUID,

@@ -79,6 +79,7 @@ type
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AContentTypeManager: IContentTypeManager;
       const AGeoCoderList: IGeoCoderList;
+      const ALastSearchResultConfig: ILastSearchResultConfig;
       const AMapsSet, ALayersSet: IMapTypeSet;
       const ADefaultMapGUID: TGUID;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -111,6 +112,7 @@ constructor TMainFormConfig.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AContentTypeManager: IContentTypeManager;
   const AGeoCoderList: IGeoCoderList;
+  const ALastSearchResultConfig: ILastSearchResultConfig;
   const AMapsSet, ALayersSet: IMapTypeSet;
   const ADefaultMapGUID: TGUID;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -141,7 +143,7 @@ begin
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
   FMapMovingConfig := TMapMovingConfig.Create;
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
-  FLastSearchResultConfig := TLastSearchResultConfig.Create;
+  FLastSearchResultConfig := ALastSearchResultConfig;
   Add(FLastSearchResultConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSearchResult'));
   FMarksExplorerWindowConfig := TWindowPositionConfig.Create;
   Add(FMarksExplorerWindowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorerWindow'));
