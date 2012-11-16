@@ -78,7 +78,7 @@ begin
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
-    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex);
+    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
     Result :=
       TVectorDataItemOfMapPath.Create(
         FHintConverter,
@@ -104,7 +104,7 @@ begin
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
-    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex);
+    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
     Result :=
       TVectorDataItemOfMapPoint.Create(
         FHintConverter,
@@ -130,7 +130,7 @@ begin
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
-    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex);
+    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
     Result :=
       TVectorDataItemOfMapPoly.Create(
         FHintConverter,
