@@ -6244,8 +6244,8 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-//    GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemInfoSuffix);
-    FMarkDBGUI.ShowMarkInfo(VMark);
+    GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemInfoSuffix);
+//    FMarkDBGUI.ShowMarkInfo(VMark);
   end;
 end;
 
