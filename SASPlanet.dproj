@@ -829,6 +829,7 @@
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_InternalBrowserByForm.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByDataProvider.pas" />
+    <DCCReference Include="u_InternalDomainInfoProviderByLastSearchResults.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapData.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapTypeList.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMarksSystem.pas" />

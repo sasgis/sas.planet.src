@@ -809,6 +809,7 @@ uses
   u_InternalDomainInfoProviderByDataProvider in 'u_InternalDomainInfoProviderByDataProvider.pas',
   u_InternalDomainInfoProviderByMarksSystem in 'u_InternalDomainInfoProviderByMarksSystem.pas',
   u_InternalDomainInfoProviderByMapData in 'u_InternalDomainInfoProviderByMapData.pas',
+  u_InternalDomainInfoProviderByLastSearchResults in 'u_InternalDomainInfoProviderByLastSearchResults.pas',
   i_SimpleHttpDownloader in 'i_SimpleHttpDownloader.pas',
   u_SimpleHttpDownloader in 'u_SimpleHttpDownloader.pas',
   i_Bitmap32Static in 'i_Bitmap32Static.pas',
