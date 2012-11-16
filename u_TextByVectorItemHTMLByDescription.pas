@@ -21,7 +21,15 @@ function TTextByVectorItemHTMLByDescription.GetText(
 begin
   Result := AItem.Desc;
   if Result <> '' then begin
-    Result := '<HTML><BODY>' + Result + '</BODY></HTML>';
+    Result :=
+      '<html>'#13#10 +
+        '<head>'#13#10 +
+          '<title>' + AItem.GetInfoCaption + '</title>'#13#10 +
+        '</head>'#13#10 +
+        '<body>'#13#10 +
+          Result + #13#10 +
+        '</body>'#13#10 +
+        '</html>';
   end;
 end;
 
