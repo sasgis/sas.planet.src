@@ -241,6 +241,7 @@ var
   VGUID: TGUID;
   VTmp: Cardinal;
   VEnum: IEnumGUID;
+  VItem: ITerrainProviderListElement;
   VProvider: ITerrainProvider;
 begin
   FConfigSync.Acquire;
@@ -257,10 +258,14 @@ begin
     if (Result = cUndefinedElevationValue) and FTerrainConfig.TrySecondaryElevationProviders then begin
       VEnum := FTerrainProviderList.GetGUIDEnum;
       while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
-        VProvider := FTerrainProviderList.Get(VGUID).Provider;
-        Result := Round(VProvider.GetPointElevation(APoint, AZoom));
-        if Result <> cUndefinedElevationValue then begin
-          Break;
+        VItem := FTerrainProviderList.Get(VGUID);
+        if VItem <> nil then begin
+          VProvider := VItem.Provider;
+          Result := Round(VProvider.GetPointElevation(APoint, AZoom));
+          if Result <> cUndefinedElevationValue then begin
+            FTerrainConfig.LastActualProviderWithElevationData := VItem.GUID;
+            Break;
+          end;
         end;
       end;
     end;

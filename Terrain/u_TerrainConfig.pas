@@ -35,6 +35,7 @@ type
     FAvailable: Boolean;
     FTrySecondaryProviders: Boolean;
     FPrimaryProvider: TGUID;
+    FLastActualProviderWithElevationData: TGUID;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -47,6 +48,9 @@ type
 
     function GetElevationPrimaryProvider: TGUID;
     procedure SetElevationPrimaryProvider(const AValue: TGUID);
+
+    function GetLastActualProviderWithElevationData: TGUID;
+    procedure SetLastActualProviderWithElevationData(const AValue: TGUID);
 
     function GetTrySecondaryElevationProviders: Boolean;
     procedure SetTrySecondaryElevationProviders(const AValue: Boolean);
@@ -78,6 +82,7 @@ begin
     FShowInStatusBar := AConfigData.ReadBool('ShowInStatusBar', FShowInStatusBar);
     FTrySecondaryProviders := AConfigData.ReadBool('TrySecondaryProviders', FTrySecondaryProviders);
     FPrimaryProvider := StringToGUID(AConfigData.ReadString('PrimaryProvider', GUIDToString(FPrimaryProvider)));
+    FLastActualProviderWithElevationData := FPrimaryProvider;
     SetChanged;
   end;
 end;
@@ -115,6 +120,16 @@ begin
   LockRead;
   try
     Result := FPrimaryProvider;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TTerrainConfig.GetLastActualProviderWithElevationData: TGUID;
+begin
+  LockRead;
+  try
+    Result := FLastActualProviderWithElevationData;
   finally
     UnlockRead;
   end;
@@ -162,6 +177,19 @@ begin
   try
     if not IsEqualGUID(FPrimaryProvider, AValue) then begin
       FPrimaryProvider := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTerrainConfig.SetLastActualProviderWithElevationData(const AValue: TGUID);
+begin
+  LockWrite;
+  try
+    if not IsEqualGUID(FLastActualProviderWithElevationData, AValue) then begin
+      FLastActualProviderWithElevationData := AValue;
       SetChanged;
     end;
   finally

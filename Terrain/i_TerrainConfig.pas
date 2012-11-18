@@ -40,6 +40,10 @@ type
     procedure SetElevationPrimaryProvider(const AValue: TGUID);
     property ElevationPrimaryProvider: TGUID read GetElevationPrimaryProvider write SetElevationPrimaryProvider;
 
+    function GetLastActualProviderWithElevationData: TGUID;
+    procedure SetLastActualProviderWithElevationData(const AValue: TGUID);
+    property LastActualProviderWithElevationData: TGUID read GetLastActualProviderWithElevationData write SetLastActualProviderWithElevationData;
+
     function GetTrySecondaryElevationProviders: Boolean;
     procedure SetTrySecondaryElevationProviders(const AValue: Boolean);
     property TrySecondaryElevationProviders: Boolean read GetTrySecondaryElevationProviders write SetTrySecondaryElevationProviders;
