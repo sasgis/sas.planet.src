@@ -892,7 +892,9 @@ begin
   FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
     GState.LanguageManager,
     FConfig.LayersConfig.ScaleLineConfig,
-    FConfig.LayersConfig.StatBar
+    FConfig.LayersConfig.StatBar,
+    GState.TerrainConfig,
+    GState.TerrainProviderList
   );
 
   FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);

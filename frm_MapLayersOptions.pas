@@ -40,6 +40,8 @@ uses
   i_LanguageManager,
   i_ScaleLineConfig,
   i_StatBarConfig,
+  i_TerrainConfig,
+  i_TerrainProviderList,
   u_CommonFormAndFrameParents;
 
 type
@@ -92,20 +94,32 @@ type
     chkStatBarDownloadInfo: TCheckBox;
     chkStatBarQueueInfo: TCheckBox;
     chkStatBarTilePathInfo: TCheckBox;
+    chkStatBarElevation: TCheckBox;
+    tsElevation: TTabSheet;
+    chkElevShowInStatusBar: TCheckBox;
+    chkElevTrySecondaryProviders: TCheckBox;
+    lblElevPrimaryProvider: TLabel;
+    cbbElevProviderList: TComboBox;
     procedure FormShow(Sender: TObject);
     procedure btnScaleLineFontClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure btnStatBarFontClick(Sender: TObject);
+    procedure chkStatBarElevationClick(Sender: TObject);
+    procedure chkElevShowInStatusBarClick(Sender: TObject);
   private
     FLanguageManager: ILanguageManager;
     FScaleLineConfig: IScaleLineConfig;
     FStatBarConfig: IStatBarConfig;
+    FTerrainConfig: ITerrainConfig;
+    FTerrainProviderList: ITerrainProviderList;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AScaleLineConfig: IScaleLineConfig;
-      const AStatBarConfig: IStatBarConfig
+      const AStatBarConfig: IStatBarConfig;
+      const ATerrainConfig: ITerrainConfig;
+      const ATerrainProviderList: ITerrainProviderList
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -113,7 +127,9 @@ type
 implementation
 
 uses
+  ActiveX,
   GR32,
+  i_TerrainProviderListElement,
   u_ResStrings,
   u_TimeZoneInfo;
 
@@ -124,13 +140,17 @@ uses
 constructor TfrmMapLayersOptions.Create(
   const ALanguageManager: ILanguageManager;
   const AScaleLineConfig: IScaleLineConfig;
-  const AStatBarConfig: IStatBarConfig
+  const AStatBarConfig: IStatBarConfig;
+  const ATerrainConfig: ITerrainConfig;
+  const ATerrainProviderList: ITerrainProviderList
 );
 begin
   inherited Create(ALanguageManager);
   FLanguageManager := ALanguageManager;
   FScaleLineConfig := AScaleLineConfig;
   FStatBarConfig := AStatBarConfig;
+  FTerrainConfig := ATerrainConfig;
+  FTerrainProviderList := ATerrainProviderList;
 end;
 
 destructor TfrmMapLayersOptions.Destroy;
@@ -139,12 +159,23 @@ begin
 end;
 
 procedure TfrmMapLayersOptions.FormShow(Sender: TObject);
+var
+  VGUID: TGUID;
+  VEnum: IEnumGUID;
+  VTmp: Cardinal;
+  VItem: ITerrainProviderListElement;
+  VPrimaryIndex: Integer;
+  I: Integer;
 begin
   // Status Bar
   chkStatBarHide.Checked := not FStatBarConfig.Visible;
   chkStatBarZoomInfo.Checked := FStatBarConfig.ViewZoomInfo;
   chkStatBarLonLatInfo.Checked := FStatBarConfig.ViewLonLatInfo;
   chkStatBarMetrPerPixInfo.Checked := FStatBarConfig.ViewMetrPerPixInfo;
+
+  chkStatBarElevation.Checked :=
+    FTerrainConfig.ShowInStatusBar and FTerrainConfig.ElevationInfoAvailable;
+  chkStatBarElevation.Enabled := FTerrainConfig.ElevationInfoAvailable;
 
   chkStatBarTimeZoneInfo.Checked :=
     FStatBarConfig.ViewTimeZoneTimeInfo and
@@ -179,15 +210,39 @@ begin
   seScaleLineColorOpacity.Value := AlphaComponent(FScaleLineConfig.Color);
   clrbxScaleLineOutlineColor.Selected := WinColor(FScaleLineConfig.OutLineColor);
   seScaleLineOutlineOpacity.Value := AlphaComponent(FScaleLineConfig.OutLineColor);
+  // Elevation Info
+  chkElevShowInStatusBar.Checked := chkStatBarElevation.Checked;
+  chkElevShowInStatusBar.Enabled := chkStatBarElevation.Enabled;
+  chkElevTrySecondaryProviders.Checked := FTerrainConfig.TrySecondaryElevationProviders;
+  cbbElevProviderList.Clear;
+  VPrimaryIndex := 0;
+  I := 0;
+  VEnum := FTerrainProviderList.GetGUIDEnum;
+  while VEnum.Next(1, VGUID, VTmp) = S_OK do begin
+    VItem := FTerrainProviderList.Get(VGUID);
+    cbbElevProviderList.AddItem(VItem.Caption, Pointer(VItem));
+    if IsEqualGUID(VItem.GUID, FTerrainConfig.ElevationPrimaryProvider) then begin
+      VPrimaryIndex := I;
+    end;
+    Inc(I);
+  end;
+  if I = 0 then begin
+    cbbElevProviderList.AddItem('< No One Providers Found >', nil);
+  end;
+  cbbElevProviderList.ItemIndex := VPrimaryIndex;
 end;
 
 procedure TfrmMapLayersOptions.btnApplyClick(Sender: TObject);
+var
+  I: Integer;
+  VItem: ITerrainProviderListElement;
 begin
   // Status Bar
   FStatBarConfig.Visible := not chkStatBarHide.Checked;
   FStatBarConfig.ViewZoomInfo := chkStatBarZoomInfo.Checked;
   FStatBarConfig.ViewLonLatInfo := chkStatBarLonLatInfo.Checked;
   FStatBarConfig.ViewMetrPerPixInfo := chkStatBarMetrPerPixInfo.Checked;
+  FTerrainConfig.ShowInStatusBar := chkStatBarElevation.Checked;
   FStatBarConfig.ViewTimeZoneTimeInfo := chkStatBarTimeZoneInfo.Checked;
   FStatBarConfig.ViewDownloadedInfo := chkStatBarDownloadInfo.Checked;
   FStatBarConfig.ViewHttpQueueInfo := chkStatBarQueueInfo.Checked;
@@ -219,6 +274,13 @@ begin
     Color32(clrbxScaleLineOutlineColor.Selected),
     seScaleLineOutlineOpacity.Value
   );
+  // Elevation Info
+  FTerrainConfig.TrySecondaryElevationProviders := chkElevTrySecondaryProviders.Checked;
+  I := cbbElevProviderList.ItemIndex;
+  VItem := ITerrainProviderListElement(Pointer(cbbElevProviderList.Items.Objects[I]));
+  if VItem <> nil then begin
+    FTerrainConfig.ElevationPrimaryProvider := VItem.GUID;
+  end;                                                    
 end;
 
 procedure TfrmMapLayersOptions.btnOkClick(Sender: TObject);
@@ -241,6 +303,16 @@ begin
     edtStatBarFontName.Text := dlgFont.Font.Name;
     seStatBarFontSize.Value := dlgFont.Font.Size;
   end;
+end;
+
+procedure TfrmMapLayersOptions.chkElevShowInStatusBarClick(Sender: TObject);
+begin
+  chkStatBarElevation.Checked := chkElevShowInStatusBar.Checked;
+end;
+
+procedure TfrmMapLayersOptions.chkStatBarElevationClick(Sender: TObject);
+begin
+  chkElevShowInStatusBar.Checked := chkStatBarElevation.Checked;
 end;
 
 end.

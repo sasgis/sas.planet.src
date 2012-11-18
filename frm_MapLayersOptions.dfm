@@ -3,11 +3,11 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Interface Options'
-  ClientHeight = 459
+  ClientHeight = 482
   ClientWidth = 325
   Color = clBtnFace
-  FormStyle = fsStayOnTop
   ParentFont = True
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
   OnShow = FormShow
@@ -17,7 +17,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Left = 0
     Top = 0
     Width = 376
-    Height = 420
+    Height = 443
     ActivePage = tsStatBar
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -26,11 +26,11 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       Caption = 'Status Bar'
       DesignSize = (
         368
-        392)
+        415)
       object lblStatBarTextColor: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 193
+        Top = 216
         Width = 52
         Height = 13
         Caption = 'Text color:'
@@ -38,7 +38,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object lblStatBarTextOpacity: TLabel
         AlignWithMargins = True
         Left = 230
-        Top = 193
+        Top = 216
         Width = 41
         Height = 13
         Anchors = [akTop, akRight]
@@ -47,7 +47,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object lblStatBarBackgroundColor: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 240
+        Top = 263
         Width = 86
         Height = 13
         Caption = 'Background color:'
@@ -55,7 +55,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object lblStatBarBackgroundOpacity: TLabel
         AlignWithMargins = True
         Left = 230
-        Top = 240
+        Top = 263
         Width = 41
         Height = 13
         Anchors = [akTop, akRight]
@@ -64,7 +64,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object lblStatBarHeight: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 345
+        Top = 368
         Width = 35
         Height = 13
         Caption = 'Height:'
@@ -72,7 +72,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       object lblStatBarRedrawTime: TLabel
         AlignWithMargins = True
         Left = 92
-        Top = 345
+        Top = 368
         Width = 104
         Height = 13
         Caption = 'Redraw interval (ms):'
@@ -87,7 +87,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object clrbxStatBarTextColor: TColorBox
         Left = 3
-        Top = 212
+        Top = 235
         Width = 221
         Height = 22
         Selected = clWhite
@@ -98,7 +98,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object seStatBarTextOpacity: TSpinEdit
         Left = 230
-        Top = 212
+        Top = 235
         Width = 83
         Height = 22
         Anchors = [akTop, akRight]
@@ -109,7 +109,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object clrbxStatBarBackgroundColor: TColorBox
         Left = 3
-        Top = 259
+        Top = 282
         Width = 221
         Height = 22
         Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames]
@@ -119,7 +119,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object seStatBarBackgroundOpacity: TSpinEdit
         Left = 230
-        Top = 259
+        Top = 282
         Width = 83
         Height = 22
         Anchors = [akTop, akRight]
@@ -130,7 +130,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object grpStatBarFont: TGroupBox
         Left = 3
-        Top = 287
+        Top = 310
         Width = 310
         Height = 52
         Align = alCustom
@@ -173,7 +173,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object seStatBarHeight: TSpinEdit
         Left = 3
-        Top = 364
+        Top = 387
         Width = 82
         Height = 22
         MaxValue = 0
@@ -183,7 +183,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object seStatBarRedrawTime: TSpinEdit
         Left = 91
-        Top = 364
+        Top = 387
         Width = 161
         Height = 22
         MaxValue = 0
@@ -217,7 +217,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object chkStatBarTimeZoneInfo: TCheckBox
         Left = 3
-        Top = 101
+        Top = 124
         Width = 310
         Height = 17
         Caption = 'Show Time Zone Info'
@@ -225,7 +225,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object chkStatBarDownloadInfo: TCheckBox
         Left = 3
-        Top = 124
+        Top = 147
         Width = 310
         Height = 17
         Caption = 'Show Download Info'
@@ -233,7 +233,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object chkStatBarQueueInfo: TCheckBox
         Left = 3
-        Top = 147
+        Top = 170
         Width = 310
         Height = 17
         Caption = 'Show Queue Info'
@@ -241,11 +241,20 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       end
       object chkStatBarTilePathInfo: TCheckBox
         Left = 3
-        Top = 170
+        Top = 193
         Width = 310
         Height = 17
         Caption = 'Show Tile Path Info'
         TabOrder = 14
+      end
+      object chkStatBarElevation: TCheckBox
+        Left = 3
+        Top = 101
+        Width = 310
+        Height = 17
+        Caption = 'Show Elevation Info'
+        TabOrder = 15
+        OnClick = chkStatBarElevationClick
       end
     end
     object tsScaleLine: TTabSheet
@@ -253,7 +262,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
       ImageIndex = 1
       DesignSize = (
         368
-        392)
+        415)
       object lblScalelineColor: TLabel
         AlignWithMargins = True
         Left = 3
@@ -426,10 +435,48 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         end
       end
     end
+    object tsElevation: TTabSheet
+      Caption = 'Elevation Info'
+      ImageIndex = 2
+      object lblElevPrimaryProvider: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 55
+        Width = 83
+        Height = 13
+        Caption = 'Primary provider:'
+      end
+      object chkElevShowInStatusBar: TCheckBox
+        Left = 3
+        Top = 9
+        Width = 310
+        Height = 17
+        Caption = 'Show Elevation Info In Status Bar'
+        TabOrder = 0
+        OnClick = chkElevShowInStatusBarClick
+      end
+      object chkElevTrySecondaryProviders: TCheckBox
+        Left = 3
+        Top = 32
+        Width = 310
+        Height = 17
+        Caption = 'Show Elevation Info From Any Available Source'
+        TabOrder = 1
+      end
+      object cbbElevProviderList: TComboBox
+        Left = 3
+        Top = 71
+        Width = 310
+        Height = 21
+        ItemHeight = 13
+        TabOrder = 2
+        Text = 'cbbElevProviderList'
+      end
+    end
   end
   object btnCancel: TButton
     Left = 244
-    Top = 428
+    Top = 451
     Width = 73
     Height = 23
     Hint = 'Cancel'
@@ -442,7 +489,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   end
   object btnApply: TButton
     Left = 86
-    Top = 428
+    Top = 451
     Width = 73
     Height = 23
     Align = alCustom
@@ -454,7 +501,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
   end
   object btnOk: TButton
     Left = 165
-    Top = 428
+    Top = 451
     Width = 73
     Height = 23
     Align = alCustom
@@ -470,7 +517,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    Left = 152
-    Top = 24
+    Left = 8
+    Top = 448
   end
 end
