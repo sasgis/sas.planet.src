@@ -268,6 +268,8 @@ begin
           end;
         end;
       end;
+    end else begin
+      FTerrainConfig.LastActualProviderWithElevationData := FPrimaryTerrainProviderGUID;
     end;
 
     if Result = cUndefinedElevationValue then begin

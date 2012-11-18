@@ -270,6 +270,11 @@ begin
                 VMenuItem.Enabled and
                 FTerrainConfig.ShowInStatusBar and
                 IsEqualGUID(FTerrainConfig.ElevationPrimaryProvider, VItem.GUID);
+              if IsEqualGUID(FTerrainConfig.LastActualProviderWithElevationData, VItem.GUID) then begin
+                TTBXItem(VMenuItem).FontSettings.Bold := tsTrue;
+              end else begin
+                TTBXItem(VMenuItem).FontSettings.Bold := tsFalse;
+              end;                                                               
             end;
           end;
         end;
