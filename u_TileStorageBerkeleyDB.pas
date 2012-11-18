@@ -541,6 +541,7 @@ var
   VContenetTypeStr: WideString;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
+    DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
