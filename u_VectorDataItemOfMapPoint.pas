@@ -25,6 +25,7 @@ interface
 uses
   Types,
   t_GeoTypes,
+  i_StringProvider,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
@@ -40,9 +41,7 @@ type
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      const AURLPrefix: string;
-      const AZoom: Byte;
-      const ATile: TPoint;
+      const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
       const AName: string;
       const ADesc: string;
@@ -59,9 +58,7 @@ uses
 
 constructor TVectorDataItemOfMapPoint.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  const AURLPrefix: string;
-  const AZoom: Byte;
-  const ATile: TPoint;
+  const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string;
   const APoint: TDoublePoint
@@ -69,9 +66,7 @@ constructor TVectorDataItemOfMapPoint.Create(
 begin
   inherited Create(
     AHintConverter,
-    AURLPrefix,
-    AZoom,
-    ATile,
+    AUrlPrefix,
     AIndex,
     AName,
     ADesc

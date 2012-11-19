@@ -6,6 +6,7 @@ uses
   Windows,
   Types,
   t_GeoTypes,
+  i_StringProvider,
   i_HtmlToHintTextConverter,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
@@ -14,15 +15,13 @@ uses
 type
   PIdData = ^TIdData;
   TIdData = record
-    Tile: TPoint;
+    UrlPrefix: IStringProvider;
     NextIndex: Integer;
-    Zoom: Byte;
   end;
 
   TVectorDataFactoryForMap = class(TInterfacedObject, IVectorDataFactory)
   private
     FHintConverter: IHtmlToHintTextConverter;
-    FURLPrefix: string;
   private
     function BuildPoint(
       const AIdData: Pointer;
@@ -44,7 +43,6 @@ type
     ): IVectorDataItemPoly;
   public
     constructor Create(
-      const AURLPrefix: string;
       const AHintConverter: IHtmlToHintTextConverter
     );
   end;
@@ -58,12 +56,10 @@ uses
 { TVectorDataFactoryForMap }
 
 constructor TVectorDataFactoryForMap.Create(
-  const AURLPrefix: string;
   const AHintConverter: IHtmlToHintTextConverter
 );
 begin
   inherited Create;
-  FURLPrefix := AURLPrefix;
   FHintConverter := AHintConverter;
 end;
 
@@ -82,9 +78,7 @@ begin
     Result :=
       TVectorDataItemOfMapPath.Create(
         FHintConverter,
-        FURLPrefix,
-        PIdData(AIdData).Zoom,
-        PIdData(AIdData).Tile,
+        PIdData(AIdData).UrlPrefix,
         VIndex,
         AName,
         ADesc,
@@ -108,9 +102,7 @@ begin
     Result :=
       TVectorDataItemOfMapPoint.Create(
         FHintConverter,
-        FURLPrefix,
-        PIdData(AIdData).Zoom,
-        PIdData(AIdData).Tile,
+        PIdData(AIdData).UrlPrefix,
         VIndex,
         AName,
         ADesc,
@@ -134,9 +126,7 @@ begin
     Result :=
       TVectorDataItemOfMapPoly.Create(
         FHintConverter,
-        FURLPrefix,
-        PIdData(AIdData).Zoom,
-        PIdData(AIdData).Tile,
+        PIdData(AIdData).UrlPrefix,
         VIndex,
         AName,
         ADesc,

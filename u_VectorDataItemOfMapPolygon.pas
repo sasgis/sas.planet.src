@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_StringProvider,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_VectorItemLonLat,
@@ -39,9 +40,7 @@ type
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      const AURLPrefix: string;
-      const AZoom: Byte;
-      const ATile: TPoint;
+      const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
       const AName: string;
       const ADesc: string;
@@ -57,9 +56,7 @@ type
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      const AURLPrefix: string;
-      const AZoom: Byte;
-      const ATile: TPoint;
+      const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
       const AName: string;
       const ADesc: string;
@@ -75,9 +72,7 @@ type
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      const AURLPrefix: string;
-      const AZoom: Byte;
-      const ATile: TPoint;
+      const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
       const AName: string;
       const ADesc: string;
@@ -92,9 +87,7 @@ implementation
 
 constructor TVectorDataItemOfMapPolygon.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  const AURLPrefix: string;
-  const AZoom: Byte;
-  const ATile: TPoint;
+  const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string;
   const ALLRect: ILonLatRect
@@ -102,9 +95,7 @@ constructor TVectorDataItemOfMapPolygon.Create(
 begin
   inherited Create(
     AHintConverter,
-    AURLPrefix,
-    AZoom,
-    ATile,
+    AUrlPrefix,
     AIndex,
     AName,
     ADesc
@@ -121,9 +112,7 @@ end;
 
 constructor TVectorDataItemOfMapPath.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  const AURLPrefix: string;
-  const AZoom: Byte;
-  const ATile: TPoint;
+  const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string;
   const ALine: ILonLatPath
@@ -131,9 +120,7 @@ constructor TVectorDataItemOfMapPath.Create(
 begin
   inherited Create(
     AHintConverter,
-    AURLPrefix,
-    AZoom,
-    ATile,
+    AUrlPrefix,
     AIndex,
     AName,
     ADesc,
@@ -151,9 +138,7 @@ end;
 
 constructor TVectorDataItemOfMapPoly.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  const AURLPrefix: string;
-  const AZoom: Byte;
-  const ATile: TPoint;
+  const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string;
   const ALine: ILonLatPolygon
@@ -161,9 +146,7 @@ constructor TVectorDataItemOfMapPoly.Create(
 begin
   inherited Create(
     AHintConverter,
-    AURLPrefix,
-    AZoom,
-    ATile,
+    AUrlPrefix,
     AIndex,
     AName,
     ADesc,

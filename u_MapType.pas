@@ -74,6 +74,7 @@ type
   TMapType = class
   private
     FZmp: IZmpInfo;
+    FMapDataUrlPrefix: string;
 
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
@@ -258,6 +259,7 @@ uses
   i_BinaryData,
   i_TileInfoBasic,
   i_TileIterator,
+  u_StringProviderForMapTileItem,
   u_Bitmap32Static,
   u_LayerDrawConfig,
   u_TileDownloaderConfig,
@@ -378,9 +380,9 @@ begin
         AMainMemCacheConfig,
         FPerfCounterList.CreateAndAddNewSubList('VectorInMem')
       );
+    FMapDataUrlPrefix := CMapDataInternalURL + GUIDToString(FZmp.GUID) + '/';
     FVectorDataFactory :=
       TVectorDataFactoryForMap.Create(
-        CMapDataInternalURL + GUIDToString(FZmp.GUID) + '/',
         THtmlToHintTextConverterStuped.Create
       );
   end;
@@ -535,11 +537,14 @@ var
 begin
   Result := nil;
   if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
-    VIdData.Tile := AXY;
-    VIdData.Zoom := AZoom;
-    VIdData.NextIndex := 0;
-    Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
-    AVersionInfo := VTileInfoWithData.VersionInfo;
+    VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
+    try
+      VIdData.NextIndex := 0;
+      Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
+      AVersionInfo := VTileInfoWithData.VersionInfo;
+    finally
+      VIdData.UrlPrefix := nil;
+    end;
   end;
 end;
 

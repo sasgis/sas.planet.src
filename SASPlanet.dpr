@@ -60,6 +60,8 @@ uses
   i_LonLatRect in 'i_LonLatRect.pas',
   u_LonLatRect in 'u_LonLatRect.pas',
   u_LonLatRectByPoint in 'u_LonLatRectByPoint.pas',
+  i_StringProvider in 'i_StringProvider.pas',
+  u_StringProviderForMapTileItem in 'u_StringProviderForMapTileItem.pas',
   u_ResStrings in 'u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'u_CommonFormAndFrameParents.pas',
   u_TBXSubmenuItemWithIndicator in 'u_TBXSubmenuItemWithIndicator.pas',

@@ -26,16 +26,14 @@ uses
   Types,
   i_LonLatRect,
   i_TileKey,
+  i_StringProvider,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple;
 
 type
   TVectorDataItemOfMapBase = class(TInterfacedObject, IVectorDataItemSimple)
   private
-    FURLPrefix: string;
-
-    FZoom: Byte;
-    FTile: TPoint;
+    FUrlPrefix: IStringProvider;
     FIndex: Integer;
 
     FHintConverter: IHtmlToHintTextConverter;
@@ -52,9 +50,7 @@ type
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
-      const AURLPrefix: string;
-      const AZoom: Byte;
-      const ATile: TPoint;
+      const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
       const AName: string;
       const ADesc: string
@@ -70,18 +66,14 @@ uses
 
 constructor TVectorDataItemOfMapBase.Create(
   const AHintConverter: IHtmlToHintTextConverter;
-  const AURLPrefix: string;
-  const AZoom: Byte;
-  const ATile: TPoint;
+  const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string
 );
 begin
   inherited Create;
   FHintConverter := AHintConverter;
-  FURLPrefix := AURLPrefix;
-  FZoom := AZoom;
-  FTile := ATile;
+  FUrlPrefix := AUrlPrefix;
   FIndex := AIndex;
   FName := AName;
   FDesc := ADesc;
@@ -117,12 +109,7 @@ end;
 
 function TVectorDataItemOfMapBase.GetInfoUrl: string;
 begin
-  Result :=
-    FURLPrefix +
-    IntToStr(FZoom) + '/' +
-    IntToStr(FTile.X) + '/' +
-    IntToStr(FTile.Y) + '/' +
-    IntToStr(FIndex) + '/';
+  Result := FUrlPrefix.GetValue + IntToStr(FIndex) + '/';
 end;
 
 function TVectorDataItemOfMapBase.GetName: string;
