@@ -405,6 +405,7 @@ uses
   u_TileStorageOfMapType in 'u_TileStorageOfMapType.pas',
   i_GeoCoder in 'i_GeoCoder.pas',
   u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
+  u_GeoCodePlacemarkWithUrlDecorator in 'u_GeoCodePlacemarkWithUrlDecorator.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
   u_GeoCodeResult in 'u_GeoCodeResult.pas',
   i_ProxySettings in 'i_ProxySettings.pas',

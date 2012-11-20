@@ -764,6 +764,7 @@
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
+    <DCCReference Include="u_GeoCodePlacemarkWithUrlDecorator.pas" />
     <DCCReference Include="u_GeoCoderBasic.pas" />
     <DCCReference Include="u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="u_GeoCoderByCoord.pas" />

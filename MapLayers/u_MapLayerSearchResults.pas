@@ -57,8 +57,11 @@ implementation
 
 uses
   Types,
+  SysUtils,
+  c_InternalBrowser,
   i_CoordConverter,
   u_ListenerByEvent,
+  u_GeoCodePlacemarkWithUrlDecorator,
   u_GeoFun;
 
 { TSearchResultsLayer }
@@ -155,6 +158,7 @@ var
   VEnum: IEnumUnknown;
   VPlacemark: IGeoCodePlacemark;
   VSearchResults: IGeoCodeResult;
+  VIndex: Integer;
 begin
   Result := nil;
   AItemS := 0;
@@ -170,19 +174,19 @@ begin
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
     VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
+    VIndex := 0;
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin
         Result :=
-          TVectorDataItemPoint.Create(
-            THtmlToHintTextConverterStuped.Create,
-            VPlacemark.Name + #13#10 + VPlacemark.GetDesc,
-            VPlacemark.GetInfoHTML,
-            VPlacemark.GetPoint
+          TGeoCodePlacemarkWithUrlDecorator.Create(
+            VPlacemark,
+            CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'
           );
         AItemS := 0;
         exit;
       end;
+      Inc(VIndex);
     end;
   end;
 end;
