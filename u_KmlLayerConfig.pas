@@ -27,29 +27,17 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ThreadConfig,
+  i_VectorItemDrawConfig,
   i_KmlLayerConfig,
   u_ConfigDataElementComplexBase;
 
 type
   TKmlLayerConfig = class(TConfigDataElementComplexBase, IKmlLayerConfig)
   private
-    FMainColor: TColor32;
-    FPointColor: TColor32;
-    FShadowColor: TColor32;
+    FDrawConfig: IVectorItemDrawConfig;
     FThreadConfig: IThreadConfig;
-  protected
-    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetMainColor: TColor32;
-    procedure SetMainColor(AValue: TColor32);
-
-    function GetPointColor: TColor32;
-    procedure SetPointColor(AValue: TColor32);
-
-    function GetShadowColor: TColor32;
-    procedure SetShadowColor(AValue: TColor32);
-
+    function GetDrawConfig: IVectorItemDrawConfig;
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create;
@@ -61,6 +49,7 @@ uses
   Classes,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ThreadConfig,
+  u_VectorItemDrawConfig,
   u_ConfigProviderHelpers;
 
 { TKmlLayerConfig }
@@ -68,105 +57,21 @@ uses
 constructor TKmlLayerConfig.Create;
 begin
   inherited Create;
-  FMainColor := clWhite32;
-  FShadowColor := clBlack32;
-  FPointColor := SetAlpha(clWhite32, 170);
+  FDrawConfig := TVectorItemDrawConfig.Create;
+  Add(FDrawConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FThreadConfig := TThreadConfig.Create(tpLowest);
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
-procedure TKmlLayerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+function TKmlLayerConfig.GetDrawConfig: IVectorItemDrawConfig;
 begin
-  inherited;
-  if AConfigData <> nil then begin
-    FMainColor := ReadColor32(AConfigData, 'MainColor', FMainColor);
-    FPointColor := ReadColor32(AConfigData, 'PointColor', FPointColor);
-    FShadowColor := ReadColor32(AConfigData, 'ShadowColor', FShadowColor);
-    SetChanged;
-  end;
-end;
-
-procedure TKmlLayerConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
-begin
-  inherited;
-  WriteColor32(AConfigData, 'MainColor', FMainColor);
-  WriteColor32(AConfigData, 'PointColor', FPointColor);
-  WriteColor32(AConfigData, 'ShadowColor', FShadowColor);
-end;
-
-function TKmlLayerConfig.GetMainColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FMainColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TKmlLayerConfig.GetPointColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FPointColor;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TKmlLayerConfig.GetShadowColor: TColor32;
-begin
-  LockRead;
-  try
-    Result := FShadowColor;
-  finally
-    UnlockRead;
-  end;
+  Result := FDrawConfig;
 end;
 
 function TKmlLayerConfig.GetThreadConfig: IThreadConfig;
 begin
   Result := FThreadConfig;
-end;
-
-procedure TKmlLayerConfig.SetMainColor(AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FMainColor <> AValue then begin
-      FMainColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TKmlLayerConfig.SetPointColor(AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FPointColor <> AValue then begin
-      FPointColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TKmlLayerConfig.SetShadowColor(AValue: TColor32);
-begin
-  LockWrite;
-  try
-    if FShadowColor <> AValue then begin
-      FShadowColor := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
 end;
 
 end.

@@ -110,11 +110,10 @@ uses
   i_TileIterator,
   i_VectorItemProjected,
   i_LonLatRect,
-  
+  i_VectorItemDrawConfig,
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_TileErrorInfo,
-  
   u_IdCacheSimpleThreadSafe,
   u_VectorDataItemList,
   u_GeoFun,
@@ -184,23 +183,14 @@ function TWikiLayerNew.CreateLayerProvider(
   const ALayerConverter: ILocalCoordConverter
 ): IBitmapLayerProvider;
 var
-  VColorMain: TColor32;
-  VColorBG: TColor32;
-  VPointColor: TColor32;
+  VConfig: IVectorItemDrawConfigStatic;
   VLinesClipRect: TDoubleRect;
   VMapPixelRect: TDoubleRect;
   VList: IVectorDataItemList;
   VVectorMapsSet: IMapTypeSet;
 begin
   Result := nil;
-  FConfig.LockRead;
-  try
-    VColorMain := FConfig.MainColor;
-    VColorBG := FConfig.ShadowColor;
-    VPointColor := FConfig.PointColor;
-  finally
-    FConfig.UnlockRead;
-  end;
+  VConfig := FConfig.DrawConfig.GetStatic;
 
   VList := PrepareWikiElements(AOperationID, ACancelNotifier, ALayerConverter);
   FProjectedCache.Clear;
@@ -225,9 +215,9 @@ begin
   Result :=
     TBitmapLayerProviderByVectorSubset.Create(
       VVectorMapsSet,
-      VColorMain,
-      VColorBG,
-      VPointColor,
+      VConfig.MainColor,
+      VConfig.ShadowColor,
+      VConfig.PointColor,
       FVectorItmesFactory,
       ALayerConverter.ProjectionInfo,
       FProjectedCache,

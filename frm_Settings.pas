@@ -519,25 +519,25 @@ begin
  GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
  GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
 
-  GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockWrite;
+  GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor :=
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor :=
       SetAlpha(
         Color32(CBWMainColor.Selected),
-        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor)
+        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor)
       );
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.ShadowColor :=
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor :=
       SetAlpha(
         Color32(CBWFonColor.Selected),
-        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.ShadowColor)
+        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor)
       );
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.PointColor :=
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.PointColor :=
       SetAlpha(
         Color32(CBWMainColor.Selected),
-        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.PointColor)
+        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.PointColor)
       );
   finally
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockWrite;
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
   end;
 
  GState.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
@@ -801,12 +801,12 @@ begin
   finally
     GState.ValueToStringConverterConfig.UnlockRead;
   end;
-  GState.MainFormConfig.LayersConfig.KmlLayerConfig.LockRead;
+  GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockRead;
   try
-    CBWMainColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.MainColor);
-    CBWFonColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.ShadowColor);
+    CBWMainColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor);
+    CBWFonColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
   finally
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.UnlockRead;
+    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockRead;
   end;
 
   TilesOverScreenEdit.Value := GState.MainFormConfig.DownloadUIConfig.TilesOut;
