@@ -247,6 +247,8 @@ uses
   u_VectorDataItemList in 'u_VectorDataItemList.pas',
   i_UseTilePrevZoomConfig in 'i_UseTilePrevZoomConfig.pas',
   u_UseTilePrevZoomConfig in 'u_UseTilePrevZoomConfig.pas',
+  i_VectorItemDrawConfig in 'i_VectorItemDrawConfig.pas',
+  u_VectorItemDrawConfig in 'u_VectorItemDrawConfig.pas',
   i_KmlLayerConfig in 'i_KmlLayerConfig.pas',
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   i_MapElementsGuidedList in 'MapLayers\i_MapElementsGuidedList.pas',
