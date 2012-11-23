@@ -23,8 +23,8 @@ unit u_GeoFun;
 interface
 
 uses
+  Types,
   Math,
-  GR32,
   t_GeoTypes,
   i_CoordConverter;
 
