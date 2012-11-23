@@ -79,7 +79,6 @@
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
-    <DCCReference Include="c_TimeZones.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_AuthFunc.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_AuthKind.pas" />
     <DCCReference Include="ExtTileStorages\t_ETS_Path.pas" />
@@ -450,8 +449,6 @@
     <DCCReference Include="i_TileStorageTypeConfig.pas" />
     <DCCReference Include="i_TileStorageTypeList.pas" />
     <DCCReference Include="i_TileStorageTypeListItem.pas" />
-    <DCCReference Include="i_TimeZoneDiffByLonLat.pas" />
-    <DCCReference Include="i_TimeZoneList.pas" />
     <DCCReference Include="i_TrackWriter.pas" />
     <DCCReference Include="i_TreeChangeable.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
@@ -1126,7 +1123,6 @@
     <DCCReference Include="u_TileStorageTypeListItem.pas" />
     <DCCReference Include="u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="u_TileUpdateListenerToLonLat.pas" />
-    <DCCReference Include="u_TimeZoneDiffByLonLatStuped.pas" />
     <DCCReference Include="u_TimeZoneInfo.pas" />
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_TreeByPathDetalizeProviderList.pas" />

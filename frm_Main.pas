@@ -1855,7 +1855,6 @@ begin
       GState.ValueToStringConverterConfig,
       FMouseState,
       GState.GUISyncronizedTimerNotifier,
-      GState.TimeZoneDiffByLonLat,
       GState.TerrainProviderList,
       GState.TerrainConfig,
       GState.DownloadInfo,

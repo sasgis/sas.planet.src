@@ -25,41 +25,42 @@ interface
 uses
   Types,
   SysUtils,
-  t_GeoTypes,
-  i_TimeZoneDiffByLonLat;
+  t_GeoTypes;
 
 type
-  PLonLatToTimeZoneID = function (
+  PLonLatToTimeZoneTime = procedure (
     const Lon: Double;
     const Lat: Double;
-    const ABuffer: PAnsiChar;
-    const ABufferSize: Integer;
+    const AUtcTime: Extended;
+    const ALastTimeZoneIDBuf: PAnsiChar;
+    const ALastTimeZoneIDBufLen: Integer;
+    var ALastTimeZoneIDStrLen: Integer;
     var ALastTimeZoneIndex: Integer;
-    var ALastPolygonIndex: Integer
-  ): Integer; cdecl;
+    var ALastPolygonIndex: Integer;
+    out ATimeZoneTime: Extended;
+    out ATimeZoneUtcOffset: Extended
+  ); cdecl;
 
   TTimeZoneInfo = class(TObject)
   private
+    FLastTimeZoneTime: Extended;
+    FLastTimeZoneOffset: Extended;
     FLastPoint: TPoint;
     FLastTZID: AnsiString;
     FLastUpdateTime: Cardinal;
     FLastTimeZoneIndex: Integer;
     FLastPolygonIndex: Integer;
     FTimeZoneDll: THandle;
-    FLonLatToTimeZoneID: PLonLatToTimeZoneID;
-    FTimeZoneDiff: ITimeZoneDiffByLonLat;
+    FLonLatToTimeZoneTime: PLonLatToTimeZoneTime;
     FAvailable: Boolean;
-    FUseOldMethod: Boolean;
+    FStrBuf: PAnsiChar;
+    FStrBufSize: Integer;
     function LocalTimeToUTC(AValue: TDateTime): TDateTime;
     function UTCOffsetToString(const AOffset: Extended): string;
     procedure GetLonLatToTimeZoneID;
     function GetStatusBarTzInfoNew(const ALonLat: TDoublePoint): string; inline;
-    function GetStatusBarTzInfoOld(const ALonLat: TDoublePoint): string; inline;
   public
-    constructor Create(
-      const AOldTzInterface: ITimeZoneDiffByLonLat;
-      const AUseOldMethod: Boolean = False
-    );
+    constructor Create;
     destructor Destroy; override;
     function GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
     property Available: Boolean read FAvailable;
@@ -72,42 +73,37 @@ implementation
 
 uses
   Windows,
-  Math,
-  TZDB;
+  Math;
 
 const
-  cTimeZoneInfoUpdateInterval = 500; // ms
-  cTimeZoneLonLatToTimeZoneIDFuncName = 'LonLatToTimeZoneID';
+  cTimeZoneInfoUpdateInterval = 200; // ms
+  cTimeZoneLonLatToTimeZoneTimeFuncName = 'LonLatToTimeZoneTime';
 
 { TTimeZoneInfo }
 
-constructor TTimeZoneInfo.Create(
-  const AOldTzInterface: ITimeZoneDiffByLonLat;
-  const AUseOldMethod: Boolean
-);
+constructor TTimeZoneInfo.Create;
 begin
   inherited Create;
-  FUseOldMethod := AUseOldMethod;
-  FTimeZoneDiff := AOldTzInterface;
   FLastUpdateTime := 0;
   FLastTZID := '';
-  FLonLatToTimeZoneID := nil;
+  FStrBufSize := 255;
+  GetMem(FStrBuf, FStrBufSize);
+  FLonLatToTimeZoneTime := nil;
   FLastTimeZoneIndex := -1;
   FLastPolygonIndex := -1;
-  if not AUseOldMethod then begin
-    GetLonLatToTimeZoneID;
-  end else begin
-    FAvailable := True;
-  end;
+  FLastTimeZoneTime := 0;
+  FLastTimeZoneOffset := 0;
+  GetLonLatToTimeZoneID;
 end;
 
 destructor TTimeZoneInfo.Destroy;
 begin
-  FLonLatToTimeZoneID := nil;
+  FLonLatToTimeZoneTime := nil;
   if FTimeZoneDll <> 0 then begin
     FreeLibrary(FTimeZoneDll);
     FTimeZoneDll := 0;
   end;
+  FreeMem(FStrBuf);
   inherited Destroy;
 end;
 
@@ -115,23 +111,14 @@ procedure TTimeZoneInfo.GetLonLatToTimeZoneID;
 begin
   FTimeZoneDll := LoadLibrary(cTimeZoneDllName);
   if FTimeZoneDll <> 0 then begin
-    FLonLatToTimeZoneID := GetProcAddress(FTimeZoneDll, cTimeZoneLonLatToTimeZoneIDFuncName);
-    FAvailable := (Addr(FLonLatToTimeZoneID) <> nil);
+    FLonLatToTimeZoneTime := GetProcAddress(FTimeZoneDll, cTimeZoneLonLatToTimeZoneTimeFuncName);
+    FAvailable := (Addr(FLonLatToTimeZoneTime) <> nil);
   end;
 end;
 
 function TTimeZoneInfo.GetStatusBarTzInfo(const ALonLat: TDoublePoint): string;
 begin
-  if FUseOldMethod then begin
-    Result := GetStatusBarTzInfoOld(ALonLat);
-  end else if FAvailable then begin
-    Result := GetStatusBarTzInfoNew(ALonLat);
-    if Result = '' then begin
-      Result := GetStatusBarTzInfoOld(ALonLat);
-    end;
-  end else begin
-    Result := '';
-  end;
+  Result := GetStatusBarTzInfoNew(ALonLat);
 end;
 
 function TTimeZoneInfo.LocalTimeToUTC(AValue: TDateTime): TDateTime;
@@ -195,66 +182,55 @@ function TTimeZoneInfo.GetStatusBarTzInfoNew(const ALonLat: TDoublePoint): strin
 var
   VLen: Integer;
   VNeedDetectTZID: Boolean;
-  VTZID: AnsiString;
-  VTZDB: TBundledTimeZone;
   VUTCTime: Extended;
 begin
-  Result := '';
   if (FLastTZID = '') or
      (GetTickCount > FLastUpdateTime + cTimeZoneInfoUpdateInterval)
   then begin
+
     VNeedDetectTZID := not (
       (FLastPoint.X = Round(ALonLat.X * 10000)) and
       (FLastPoint.Y = Round(ALonLat.Y * 10000)) and
       (FLastTZID <> '')
     );
-    if VNeedDetectTZID then begin 
-      SetLength(VTZID, 255);
-      VLen := FLonLatToTimeZoneID(
-        ALonLat.X,
-        ALonLat.Y,
-        PAnsiChar(VTZID),
-        Length(VTZID),
-        FLastTimeZoneIndex,
-        FLastPolygonIndex
-      );
-      if VLen >= 0 then begin
-        SetLength(VTZID, VLen);
-      end else begin
-        raise Exception.Create(
-          'LonLatToTimeZoneID: It''s strange, but buffer is too small!'
-        );
-      end;  
-      FLastTZID := VTZID;
-      FLastPoint.X := Round(ALonLat.X * 10000);
-      FLastPoint.Y := Round(ALonLat.Y * 10000);
-      FLastUpdateTime := GetTickCount;
+    if VNeedDetectTZID then begin
+      VLen := 0;
+    end else begin
+      VLen := Length(FLastTZID);
+      if VLen > FStrBufSize then begin
+        ReallocMem(FStrBuf, VLen);
+        FStrBufSize := VLen;
+      end;
+      StrLCopy(FStrBuf, PAnsiChar(FLastTZID), FStrBufSize);
     end;
-  end;  
-  if (FLastTZID <> '') and (FLastTZID <> 'uninhabited') then begin
-    VUTCTime := LocalTimeToUTC(Now);
-    VTZDB := TBundledTimeZone.GetTimeZone(FLastTZID);
-    Result :=
-      TimeToStr(VTZDB.ToLocalTime(VUTCTime)) +
-      UTCOffsetToString(VTZDB.UtcOffset / (60 * 60));
-  end;
-end;
 
-function TTimeZoneInfo.GetStatusBarTzInfoOld(const ALonLat: TDoublePoint): string;
-var
-  tz: TDateTime;
-  st: TSystemTime;
-  VTime: Extended;
-begin
-  tz := FTimeZoneDiff.GetTimeDiff(ALonLat);
-  GetSystemTime(st);
-  VTime := EncodeTime(st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-  VTime := VTime + tz;
-  VTime := Frac(VTime);
-  if VTime < 0 then begin
-    VTime := 1 + VTime;
+    VUTCTime := LocalTimeToUTC(Now);
+
+    FLonLatToTimeZoneTime(
+      ALonLat.X,
+      ALonLat.Y,
+      VUTCTime,
+      FStrBuf,
+      FStrBufSize,
+      VLen,
+      FLastTimeZoneIndex,
+      FLastPolygonIndex,
+      FLastTimeZoneTime,
+      FLastTimeZoneOffset
+    );
+
+    FLastPoint.X := Round(ALonLat.X * 10000);
+    FLastPoint.Y := Round(ALonLat.Y * 10000);
+    FLastUpdateTime := GetTickCount;
+    if VLen > 0 then begin
+      SetLength(FLastTZID, VLen);
+      StrLCopy(PAnsiChar(FLastTZID), FStrBuf, VLen);
+    end else begin
+      FLastTZID := '';
+    end;
   end;
-  Result := TimeToStr(VTime) + UTCOffsetToString(RoundTo(tz * 24, -2));
+
+  Result := TimeToStr(FLastTimeZoneTime) + UTCOffsetToString(FLastTimeZoneOffset);
 end;
 
 end.

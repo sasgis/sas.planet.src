@@ -35,7 +35,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_TimeZoneDiffByLonLat,
   i_StatBarConfig,
   i_ViewPortState,
   i_MouseState,
@@ -98,7 +97,6 @@ type
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMouseState: IMouseState;
       const ATimerNoifier: INotifier;
-      const ATimeZoneDiff: ITimeZoneDiffByLonLat;
       const ATerrainProviderList: ITerrainProviderList;
       const ATerrainConfig: ITerrainConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -140,7 +138,6 @@ constructor TLayerStatBar.Create(
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMouseState: IMouseState;
   const ATimerNoifier: INotifier;
-  const ATimeZoneDiff: ITimeZoneDiffByLonLat;
   const ATerrainProviderList: ITerrainProviderList;
   const ATerrainConfig: ITerrainConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -160,7 +157,7 @@ begin
   FGlobalInternetState := AGlobalInternetState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
-  FTimeZoneInfo := TTimeZoneInfo.Create(ATimeZoneDiff);
+  FTimeZoneInfo := TTimeZoneInfo.Create;
   FConfig.TimeZoneInfoAvailable := FTimeZoneInfo.Available;
 
   FTerrainInfo := TTerrainInfo.Create(FTerrainConfig, ATerrainProviderList);

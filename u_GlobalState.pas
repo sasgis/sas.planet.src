@@ -83,7 +83,6 @@ uses
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
   i_SensorList,
-  i_TimeZoneDiffByLonLat,
   i_TerrainProviderList,
   i_TerrainConfig,
   i_VectorItmesFactory,
@@ -172,7 +171,6 @@ type
     FAppStartedNotifierInternal: INotifierOneOperationInternal;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
-    FTimeZoneDiffByLonLat: ITimeZoneDiffByLonLat;
     FVectorItmesFactory: IVectorItmesFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
@@ -241,7 +239,6 @@ type
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
-    property TimeZoneDiffByLonLat: ITimeZoneDiffByLonLat read FTimeZoneDiffByLonLat;
     property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
@@ -316,7 +313,6 @@ uses
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
   u_LocalCoordConverterFactorySimpe,
-  u_TimeZoneDiffByLonLatStuped,
   u_TerrainProviderList,
   u_TerrainConfig,
   u_MainFormConfig,
@@ -435,8 +431,6 @@ begin
   FProjectionFactory := VCoordConverterFactorySimple;
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
-
-  FTimeZoneDiffByLonLat := TTimeZoneDiffByLonLatStuped.Create(FVectorItmesFactory);
 
   FCacheConfig := TGlobalCahceConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
