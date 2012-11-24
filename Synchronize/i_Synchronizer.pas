@@ -1,4 +1,4 @@
-unit i_Syncronizer;
+unit i_Synchronizer;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   i_ReadWriteSyncFactory;
 
 type
-  ISyncronizer = interface
+  ISynchronizer = interface
     ['{D483F620-6E80-4BBF-885B-CFCE2F5D6ADE}']
     function GetSyncFake: IReadWriteSyncFactory;
     property SyncFake: IReadWriteSyncFactory read GetSyncFake;

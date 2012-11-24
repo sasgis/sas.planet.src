@@ -614,10 +614,11 @@
     <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
     <DCCReference Include="RegionProcess\u_ThreadMapCombinePNG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
-    <DCCReference Include="Syncronize\i_ReadWriteSyncFactory.pas" />
-    <DCCReference Include="Syncronize\i_Syncronizer.pas" />
-    <DCCReference Include="Syncronize\u_ReadWriteSyncAbstract.pas" />
-    <DCCReference Include="Syncronize\u_ReadWriteSyncCriticalSection.pas" />
+    <DCCReference Include="Synchronize\i_ReadWriteSyncFactory.pas" />
+    <DCCReference Include="Synchronize\i_Synchronizer.pas" />
+    <DCCReference Include="Synchronize\u_ReadWriteSyncAbstract.pas" />
+    <DCCReference Include="Synchronize\u_ReadWriteSyncCriticalSection.pas" />
+    <DCCReference Include="Synchronize\u_ReadWriteSyncRtlResource.pas" />
     <DCCReference Include="Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Terrain\i_ExternalTerrainsProvider.pas" />
