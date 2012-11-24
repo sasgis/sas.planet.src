@@ -15,6 +15,7 @@ uses
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',
   u_ReadWriteSyncAbstract in 'Synchronize\u_ReadWriteSyncAbstract.pas',
   u_ReadWriteSyncCriticalSection in 'Synchronize\u_ReadWriteSyncCriticalSection.pas',
+  u_ReadWriteSyncRtlResource in 'Synchronize\u_ReadWriteSyncRtlResource.pas',
   i_ArchiveReadWrite in 'ArchiveReadWrite\i_ArchiveReadWrite.pas',
   u_ArchiveReadWriteKaZip in 'ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas',
   u_ArchiveWriteLibTar in 'ArchiveReadWrite\u_ArchiveWriteLibTar.pas',
