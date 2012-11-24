@@ -66,6 +66,11 @@ type
     function Make(const AName: AnsiString): IReadWriteSync;
   end;
 
+  TSynchronizerMREWFactory = class(TInterfacedObject, IReadWriteSyncFactory)
+  private
+    function Make(const AName: AnsiString): IReadWriteSync;
+  end;
+
   TSynchronizerFactoryWithDebug = class(TInterfacedObject, IReadWriteSyncFactory)
   private
     FFactory: IReadWriteSyncFactory;
@@ -337,6 +342,13 @@ begin
   finally
     FCounter.FinishOperation(VContext);
   end;
+end;
+
+{ TSynchronizerMREWFactory }
+
+function TSynchronizerMREWFactory.Make(const AName: AnsiString): IReadWriteSync;
+begin
+  Result := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
 
 initialization
