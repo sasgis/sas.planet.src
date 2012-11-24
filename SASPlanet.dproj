@@ -617,6 +617,7 @@
     <DCCReference Include="Syncronize\i_ReadWriteSyncFactory.pas" />
     <DCCReference Include="Syncronize\i_Syncronizer.pas" />
     <DCCReference Include="Syncronize\u_ReadWriteSyncAbstract.pas" />
+    <DCCReference Include="Syncronize\u_ReadWriteSyncCriticalSection.pas" />
     <DCCReference Include="Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Terrain\i_ExternalTerrainsProvider.pas" />
