@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  Types,
   t_GeoTypes,
   i_StringProvider,
   i_HtmlToHintTextConverter,

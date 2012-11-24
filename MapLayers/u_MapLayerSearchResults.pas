@@ -18,8 +18,6 @@ uses
   i_VectorDataItemSimple,
   i_FindVectorItems,
   i_GeoCoder,
-  u_VectorDataItemPoint,
-  u_HtmlToHintTextConverterStuped,
   u_MapLayerBasic;
 
 type

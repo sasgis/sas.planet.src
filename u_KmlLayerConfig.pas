@@ -23,9 +23,6 @@ unit u_KmlLayerConfig;
 interface
 
 uses
-  GR32,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_ThreadConfig,
   i_VectorItemDrawConfig,
   i_KmlLayerConfig,
@@ -49,8 +46,7 @@ uses
   Classes,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ThreadConfig,
-  u_VectorItemDrawConfig,
-  u_ConfigProviderHelpers;
+  u_VectorItemDrawConfig;
 
 { TKmlLayerConfig }
 

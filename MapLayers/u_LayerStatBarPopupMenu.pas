@@ -69,7 +69,6 @@ implementation
 uses
   ActiveX,
   SysUtils,
-  i_TerrainProvider,
   i_TerrainProviderListElement,
   u_ResStrings,
   u_TimeZoneInfo,

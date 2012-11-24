@@ -103,8 +103,7 @@ uses
   u_DownloadUIConfig,
   u_KeyMovingConfig,
   u_MainFormMainConfig,
-  u_WindowPositionConfig,
-  u_LastSearchResultConfig;
+  u_WindowPositionConfig;
 
 { TMainFormConfig }
 

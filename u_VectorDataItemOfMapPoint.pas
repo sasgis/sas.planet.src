@@ -23,7 +23,6 @@ unit u_VectorDataItemOfMapPoint;
 interface
 
 uses
-  Types,
   t_GeoTypes,
   i_StringProvider,
   i_LonLatRect,

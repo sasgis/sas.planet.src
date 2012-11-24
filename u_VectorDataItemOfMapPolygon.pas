@@ -23,7 +23,6 @@ unit u_VectorDataItemOfMapPolygon;
 interface
 
 uses
-  Types,
   i_StringProvider,
   i_LonLatRect,
   i_VectorDataItemSimple,

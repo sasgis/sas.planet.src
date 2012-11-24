@@ -23,9 +23,7 @@ unit u_VectorDataItemOfMapBase;
 interface
 
 uses
-  Types,
   i_LonLatRect,
-  i_TileKey,
   i_StringProvider,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple;
