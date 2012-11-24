@@ -158,7 +158,7 @@ end;
 destructor TSynchronizerRtlResource.Destroy;
 begin
   if FDll <> nil then begin
-    FDll.Release(@FLock);
+    FDll.Delete(@FLock);
     FDll := nil;
   end;
 
@@ -227,10 +227,10 @@ begin
       VUninitializePtr := GetProcAddress(VDllHandle,'RtlDeleteResource');
       if
         (VInitializePtr <> nil) and
-       (VAcquireExclusivePtr <> nil) and
-       (VReleasePtr <> nil) and
-       (VAcquireSharedPtr <> nil) and
-       (VUninitializePtr <> nil)
+        (VAcquireExclusivePtr <> nil) and
+        (VReleasePtr <> nil) and
+        (VAcquireSharedPtr <> nil) and
+        (VUninitializePtr <> nil)
       then begin
         VDll :=
           TSyncronizerRtlResourceDll.Create(
