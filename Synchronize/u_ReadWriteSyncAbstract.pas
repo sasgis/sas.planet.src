@@ -38,8 +38,11 @@ type
   TReadWriteSyncCounterWrapper = class(TInterfacedObject, IReadWriteSync)
   private
     FLock: IReadWriteSync;
-    FReadCounter: IInternalPerformanceCounter;
-    FWriteCounter: IInternalPerformanceCounter;
+    FBeginReadCounter: IInternalPerformanceCounter;
+    FEndReadCounter: IInternalPerformanceCounter;
+    FBeginWriteCounter: IInternalPerformanceCounter;
+    FEndWriteCounter: IInternalPerformanceCounter;
+    FDestroyCounter: IInternalPerformanceCounter;
   private
     procedure BeginRead;
     procedure EndRead;
@@ -48,9 +51,13 @@ type
   public
     constructor Create(
       const ALock: IReadWriteSync;
-      const AReadCounter: IInternalPerformanceCounter;
-      const AWriteCounter: IInternalPerformanceCounter
+      const ABeginReadCounter: IInternalPerformanceCounter;
+      const AEndReadCounter: IInternalPerformanceCounter;
+      const ABeginWriteCounter: IInternalPerformanceCounter;
+      const AEndWriteCounter: IInternalPerformanceCounter;
+      const ADestroyCounter: IInternalPerformanceCounter
     );
+    destructor Destroy; override;
   end;
 
   TSynchronizerFake = class(TReadWriteSyncAbstract, IReadWriteSync)
@@ -87,15 +94,21 @@ type
   TSynchronizerFactoryWithCounters = class(TInterfacedObject, IReadWriteSyncFactory)
   private
     FFactory: IReadWriteSyncFactory;
-    FReadCounter: IInternalPerformanceCounter;
-    FWriteCounter: IInternalPerformanceCounter;
+    FBeginReadCounter: IInternalPerformanceCounter;
+    FEndReadCounter: IInternalPerformanceCounter;
+    FBeginWriteCounter: IInternalPerformanceCounter;
+    FEndWriteCounter: IInternalPerformanceCounter;
+    FDestroyCounter: IInternalPerformanceCounter;
   private
     function Make(const AName: AnsiString): IReadWriteSync;
   public
     constructor Create(
       const AFactory: IReadWriteSyncFactory;
-      const AReadCounter: IInternalPerformanceCounter;
-      const AWriteCounter: IInternalPerformanceCounter
+      const ABeginReadCounter: IInternalPerformanceCounter;
+      const AEndReadCounter: IInternalPerformanceCounter;
+      const ABeginWriteCounter: IInternalPerformanceCounter;
+      const AEndWriteCounter: IInternalPerformanceCounter;
+      const ADestroyCounter: IInternalPerformanceCounter
     );
   end;
 
@@ -219,14 +232,46 @@ end;
 
 constructor TReadWriteSyncCounterWrapper.Create(
   const ALock: IReadWriteSync;
-  const AReadCounter, AWriteCounter: IInternalPerformanceCounter
+  const ABeginReadCounter: IInternalPerformanceCounter;
+  const AEndReadCounter: IInternalPerformanceCounter;
+  const ABeginWriteCounter: IInternalPerformanceCounter;
+  const AEndWriteCounter: IInternalPerformanceCounter;
+  const ADestroyCounter: IInternalPerformanceCounter
 );
 begin
   Assert(ALock <> nil);
   inherited Create;
   FLock := ALock;
-  FReadCounter := AReadCounter;
-  FWriteCounter := AWriteCounter;
+  FBeginReadCounter := ABeginReadCounter;
+  FEndReadCounter := AEndReadCounter;
+  FBeginWriteCounter := ABeginWriteCounter;
+  FEndWriteCounter := AEndWriteCounter;
+  FDestroyCounter := ADestroyCounter;
+end;
+
+destructor TReadWriteSyncCounterWrapper.Destroy;
+var
+  VCounter: Pointer;
+  VContext: TInternalPerformanceCounterContext;
+begin
+  VCounter := Pointer(FDestroyCounter);
+  if VCounter <> nil then begin
+    VContext := IInternalPerformanceCounter(VCounter).StartOperation;
+    FLock := nil;
+    FBeginReadCounter := nil;
+    FEndReadCounter := nil;
+    FBeginWriteCounter := nil;
+    FEndWriteCounter := nil;
+    inherited;
+    IInternalPerformanceCounter(VCounter).FinishOperation(VContext);
+  end else begin
+    FLock := nil;
+    FBeginReadCounter := nil;
+    FEndReadCounter := nil;
+    FBeginWriteCounter := nil;
+    FEndWriteCounter := nil;
+    inherited;
+  end;
 end;
 
 procedure TReadWriteSyncCounterWrapper.BeginRead;
@@ -234,7 +279,7 @@ var
   VCounter: Pointer;
   VContext: TInternalPerformanceCounterContext;
 begin
-  VCounter := Pointer(FReadCounter);
+  VCounter := Pointer(FBeginReadCounter);
   if VCounter <> nil then begin
     VContext := IInternalPerformanceCounter(VCounter).StartOperation;
     FLock.BeginRead;
@@ -249,7 +294,7 @@ var
   VCounter: Pointer;
   VContext: TInternalPerformanceCounterContext;
 begin
-  VCounter := Pointer(FWriteCounter);
+  VCounter := Pointer(FBeginWriteCounter);
   if VCounter <> nil then begin
     VContext := IInternalPerformanceCounter(VCounter).StartOperation;
     Result := FLock.BeginWrite;
@@ -260,13 +305,33 @@ begin
 end;
 
 procedure TReadWriteSyncCounterWrapper.EndRead;
+var
+  VCounter: Pointer;
+  VContext: TInternalPerformanceCounterContext;
 begin
-  FLock.EndRead;
+  VCounter := Pointer(FEndReadCounter);
+  if VCounter <> nil then begin
+    VContext := IInternalPerformanceCounter(VCounter).StartOperation;
+    FLock.EndRead;
+    IInternalPerformanceCounter(VCounter).FinishOperation(VContext);
+  end else begin
+    FLock.EndRead;
+  end;
 end;
 
 procedure TReadWriteSyncCounterWrapper.EndWrite;
+var
+  VCounter: Pointer;
+  VContext: TInternalPerformanceCounterContext;
 begin
-  FLock.EndWrite;
+  VCounter := Pointer(FEndWriteCounter);
+  if VCounter <> nil then begin
+    VContext := IInternalPerformanceCounter(VCounter).StartOperation;
+    FLock.EndWrite;
+    IInternalPerformanceCounter(VCounter).FinishOperation(VContext);
+  end else begin
+    FLock.EndWrite;
+  end;
 end;
 
 { TSynchronizerFactoryWithDebug }
@@ -296,14 +361,21 @@ end;
 
 constructor TSynchronizerFactoryWithCounters.Create(
   const AFactory: IReadWriteSyncFactory;
-  const AReadCounter, AWriteCounter: IInternalPerformanceCounter
+  const ABeginReadCounter: IInternalPerformanceCounter;
+  const AEndReadCounter: IInternalPerformanceCounter;
+  const ABeginWriteCounter: IInternalPerformanceCounter;
+  const AEndWriteCounter: IInternalPerformanceCounter;
+  const ADestroyCounter: IInternalPerformanceCounter
 );
 begin
   Assert(AFactory <> nil);
   inherited Create;
   FFactory := AFactory;
-  FReadCounter := AReadCounter;
-  FWriteCounter := AWriteCounter;
+  FBeginReadCounter := ABeginReadCounter;
+  FEndReadCounter := AEndReadCounter;
+  FBeginWriteCounter := ABeginWriteCounter;
+  FEndWriteCounter := AEndWriteCounter;
+  FDestroyCounter := ADestroyCounter;
 end;
 
 function TSynchronizerFactoryWithCounters.Make(
@@ -312,8 +384,11 @@ begin
   Result :=
     TReadWriteSyncCounterWrapper.Create(
       FFactory.Make(AName),
-      FReadCounter,
-      FWriteCounter
+      FBeginReadCounter,
+      FEndReadCounter,
+      FBeginWriteCounter,
+      FEndWriteCounter,
+      FDestroyCounter
     );
 end;
 
