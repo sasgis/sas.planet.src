@@ -8,9 +8,6 @@ uses
 type
   ISynchronizer = interface
     ['{D483F620-6E80-4BBF-885B-CFCE2F5D6ADE}']
-    function GetSyncFake: IReadWriteSyncFactory;
-    property SyncFake: IReadWriteSyncFactory read GetSyncFake;
-
     // very short operation - about 1 or 2 simple variables read or write
     // makes first available from { MakeSyncSRW, MakeSyncSpinLock, MakeSyncRes, MakeSyncMREW }
     function GetSyncVariable: IReadWriteSyncFactory;
